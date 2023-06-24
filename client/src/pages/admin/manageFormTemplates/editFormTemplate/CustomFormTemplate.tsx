@@ -18,7 +18,6 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import AddIcon from '@mui/icons-material/Add';
 import { PrimaryButton } from '../../../../shared/components/Button';
-import { Check } from '@mui/icons-material';
 import EditField from './EditField';
 import { FormRenderStateEnum } from 'src/shared/enums';
 import { LanguageModalProps } from 'src/shared/types';
@@ -122,7 +121,9 @@ export const CustomFormTemplate = () => {
                       component={TextField}
                       required={true}
                       variant="outlined"
-                      defaultValue={targetFrom ? targetFrom.id : ''}
+                      defaultValue={
+                        targetFrom ? targetFrom.classification.name : ''
+                      }
                       fullWidth
                       multiline
                       inputProps={{

@@ -88,7 +88,6 @@ export const CustomizedFormWQuestions = ({
                   onClick={() => {
                     setIsSubmitPopupOpen(true);
                   }}
-                  // TO DO: clicking "finish" saves the form.
                   type="button">
                   {formTitle}
                 </PrimaryButton>
