@@ -12,6 +12,7 @@ import { PrimaryButton } from 'src/shared/components/Button';
 import makeStyles from '@mui/styles/makeStyles';
 import { FormRenderStateEnum } from 'src/shared/enums';
 import { FormQuestions } from '../FormQuestions';
+import SubmitFormTemplateDialog from './SubmitFormTemplateDialog';
 
 interface IProps {
   fm: FormTemplateWithQuestions;
@@ -27,6 +28,8 @@ export const CustomizedFormWQuestions = ({
   const questions = fm.questions;
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
+  const [isSubmitPopupOpen, setIsSubmitPopupOpen] = useState(false);
+
   // const [multiSelectValidationFailed, setMultiSelectValidationFailed] =
   //   useState(false);
 
@@ -42,7 +45,7 @@ export const CustomizedFormWQuestions = ({
       formTitle = 'Submit Form';
       break;
     case FormRenderStateEnum.SUBMIT_TEMPLATE:
-      formTitle = 'Finish Form';
+      formTitle = 'Submit Form Template';
       break;
     default:
       formTitle = 'error!!!!!';
@@ -82,11 +85,17 @@ export const CustomizedFormWQuestions = ({
                 </Grid>
                 <PrimaryButton
                   className={classes.right}
-                  onClick={() => console.log('click finish button')}
-                  // TO DO: clicking "finish" saves the form.
+                  onClick={() => {
+                    setIsSubmitPopupOpen(true);
+                  }}
                   type="button">
                   {formTitle}
                 </PrimaryButton>
+                <SubmitFormTemplateDialog
+                  open={isSubmitPopupOpen}
+                  onClose={() => setIsSubmitPopupOpen(false)}
+                  form={fm}
+                />
               </Box>
             </Paper>
           </Form>

@@ -120,7 +120,11 @@ export const FormQuestions = ({
   function updateAnswersByValue(index: number, newValue: any) {
     if (isQuestionArr(questions)) {
       const ans = [...answers];
-      ans[index].val = newValue;
+      ans.forEach((a) => {
+        if (a.qidx === index) {
+          a.val = newValue;
+        }
+      });
       updateQuestionsConditionHidden(questions, ans);
       setAnswers(ans);
       handleAnswers(ans);
@@ -179,11 +183,9 @@ export const FormQuestions = ({
     answer: QAnswer,
     renderState: FormRenderStateEnum
   ) => {
-    console.log(answer);
-    if (question.shouldHidden || (isQuestion(question) && !answer)) {
+    if (isQuestion(question) && !answer) {
       return <></>;
     }
-
     if (!answer) {
       answer = {
         qidx: question.questionIndex,
@@ -197,12 +199,12 @@ export const FormQuestions = ({
     const qid = question.questionIndex;
     const text = isQuestion(question)
       ? question.questionText
-      : question.questionLangVersions.filter((x) => x.lang == language)[0]
-          .questionText;
+      : question.questionLangVersions.find((x) => x.lang == language)
+          ?.questionText;
     const mcOptions = isQuestion(question)
       ? question.mcOptions
-      : question.questionLangVersions.filter((x) => x.lang == language)[0]
-          .mcOptions;
+      : question.questionLangVersions.find((x) => x.lang == language)
+          ?.mcOptions;
     const required = question.required;
 
     switch (type) {
@@ -233,7 +235,7 @@ export const FormQuestions = ({
               onChange={function (_, value) {
                 updateAnswersByValue(qid, [value]);
               }}>
-              {mcOptions.map((McOption, index) => (
+              {mcOptions?.map((McOption, index) => (
                 <FormControlLabel
                   key={index}
                   value={McOption.opt}
@@ -269,14 +271,17 @@ export const FormQuestions = ({
                     onChange={(event, checked) => {
                       if (checked) {
                         const new_val = [...answer.val, event.target.value];
-                        updateAnswersByValue(qid, new_val);
+                        updateAnswersByValue(question.questionIndex, new_val);
                       } else {
                         const original_val = [...answer.val];
                         const i = original_val.indexOf(event.target.value);
                         if (i > -1) {
                           original_val.splice(i, 1);
                         }
-                        updateAnswersByValue(qid, original_val);
+                        updateAnswersByValue(
+                          question.questionIndex,
+                          original_val
+                        );
                       }
                     }}
                   />
@@ -321,7 +326,10 @@ export const FormQuestions = ({
                 },
               }}
               onChange={(event: any) => {
-                updateAnswersByValue(qid, Number(event.target.value));
+                updateAnswersByValue(
+                  question.questionIndex,
+                  Number(event.target.value)
+                );
               }}
             />
           </Grid>
@@ -347,7 +355,10 @@ export const FormQuestions = ({
               }}
               onChange={(event: any) => {
                 //it is originally a string type!! need transfer
-                updateAnswersByValue(qid, event.target.value);
+                updateAnswersByValue(
+                  question.questionIndex,
+                  event.target.value
+                );
               }}
             />
           </Grid>
@@ -374,7 +385,7 @@ export const FormQuestions = ({
                 const timestamp = getTimestampFromStringDate(
                   event.target.value
                 );
-                updateAnswersByValue(qid, timestamp);
+                updateAnswersByValue(question.questionIndex, timestamp);
               }}
             />
           </Grid>
@@ -399,7 +410,7 @@ export const FormQuestions = ({
                 const timestamp = getTimestampFromStringDate(
                   event.target.value
                 );
-                updateAnswersByValue(qid, timestamp);
+                updateAnswersByValue(question.questionIndex, timestamp);
               }}
             />
           </Grid>
@@ -417,7 +428,7 @@ export const FormQuestions = ({
   ) =>
     questions.map((question: Question | TQuestion, index) => {
       return (
-        <Fragment key={question.id}>
+        <Fragment key={question.questionIndex}>
           {generateHtmlForQuestion(question, answers[index], renderState)}
         </Fragment>
       );

@@ -21,7 +21,10 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { TableHeader } from 'semantic-ui-react';
-import { FormTemplateWithQuestions } from 'src/shared/types';
+import {
+  FormTemplateWithQuestions,
+  QuestionLangVersion,
+} from 'src/shared/types';
 import { QuestionTypeEnum } from 'src/shared/enums';
 
 interface IProps {
@@ -49,15 +52,41 @@ const EditField = ({
   form,
 }: IProps) => {
   const [fieldType, setFieldType] = useState<string>('');
-  const [fieldName, setFieldName] = useState<string>('');
   const [questionId, setQuestionId] = useState<string>('');
+  const [questionLangVersions, setQuestionLangversions] = useState<
+    QuestionLangVersion[]
+  >([]);
 
   // reset chosen field to nothing once dialog is closed
   useEffect(() => {
     setFieldType('');
-    setFieldName('');
     setQuestionId('');
+    setQuestionLangversions([]);
   }, [open]);
+
+  const addFieldToQuestionLangVersions = (
+    language: string,
+    fieldName: string
+  ) => {
+    const qLangVersions: QuestionLangVersion[] = questionLangVersions;
+
+    const newQLangVersion = {
+      lang: language,
+      mcOptions: [],
+      questionText: fieldName,
+    } as QuestionLangVersion;
+
+    const qLangVersion = qLangVersions.find((q) => q.lang === language);
+
+    if (!qLangVersion) {
+      qLangVersions.push(newQLangVersion);
+    } else {
+      const i = qLangVersions.indexOf(qLangVersion);
+      qLangVersions[i] = newQLangVersion;
+    }
+
+    setQuestionLangversions(qLangVersions);
+  };
 
   const fieldTypes: FieldTypes = {
     category: {
@@ -164,7 +193,9 @@ const EditField = ({
                     inputProps={{
                       maxLength: Number.MAX_SAFE_INTEGER,
                     }}
-                    onChange={(e) => setFieldName(e.target.value)}
+                    onChange={(e) =>
+                      addFieldToQuestionLangVersions(lang, e.target.value)
+                    }
                   />
                 </TableCell>
               ))}
@@ -227,12 +258,8 @@ const EditField = ({
             onClick={() => {
               setForm((form) => {
                 form.questions.push({
-                  id: questionId,
-                  isBlank: false,
                   questionIndex: form.questions.length + 1,
-                  questionLangVersions: [
-                    { lang: 'english', mcOptions: [], questionText: fieldName },
-                  ],
+                  questionLangVersions: questionLangVersions,
                   questionType: fieldTypes[fieldType].type,
                   required: false,
                   numMin: null,
@@ -240,9 +267,8 @@ const EditField = ({
                   stringMaxLength: null,
                   units: null,
                   visibleCondition: [],
-                  shouldHidden: false,
-                  categoryId: null,
-                  questionId: 'questionid',
+                  categoryIndex: null,
+                  questionId: questionId,
                 });
                 form.questions = [...form.questions];
                 return form;

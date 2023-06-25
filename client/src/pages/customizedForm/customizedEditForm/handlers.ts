@@ -34,25 +34,31 @@ export const TransferQAnswerToAPIStandard = (
 
   return answers
     .filter((answer) =>
-      VALID_QUESTION_TYPES.includes(questions[answer.qidx].questionType)
+      questions.some((q) => {
+        if (q.questionIndex === answer.qidx) {
+          return VALID_QUESTION_TYPES.includes(q.questionType);
+        }
+        return false;
+      })
     )
     .map((answer) => {
-      const question = questions[answer.qidx];
-      const options = question.mcOptions?.map((option) => option.opt);
+      const question = questions.find((q) => q.questionIndex === answer.qidx);
+
+      const options = question?.mcOptions?.map((option) => option.opt);
 
       const apiAnswer = {
         qidx: answer.qidx,
         answer: { mcidArray: [], text: undefined, number: undefined },
       };
 
-      switch (question.questionType) {
+      switch (question?.questionType) {
         case QuestionTypeEnum.CATEGORY:
           break;
 
         case QuestionTypeEnum.MULTIPLE_CHOICE:
         case QuestionTypeEnum.MULTIPLE_SELECT:
           apiAnswer.answer.mcidArray = answer.val.map((item: any) =>
-            options.indexOf(item)
+            options?.indexOf(item)
           );
 
           break;
@@ -67,7 +73,7 @@ export const TransferQAnswerToAPIStandard = (
           break;
 
         default:
-          console.error(`Unknown question type: ${question.questionType}`);
+          console.error(`Unknown question type: ${question?.questionType}`);
       }
 
       return apiAnswer;
@@ -85,10 +91,14 @@ export const TransferQAnswerToPostBody = (
 
   if (isEditForm) {
     //edit a form content
-    postBody.edit = answers.map((answer: ApiAnswer) => ({
-      id: questions[answer.qidx].id,
-      answers: answer.answer,
-    }));
+    postBody.edit = answers.map((answer) => {
+      const question = questions.find((q) => q.questionIndex === answer.qidx);
+      const id = question ? question.id : '';
+      return {
+        id,
+        answers: answer.answer,
+      };
+    });
   } else {
     //create(/fill in) a new form
     //deep copy
@@ -100,8 +110,8 @@ export const TransferQAnswerToPostBody = (
     newForm.patientId = patientId;
 
     newForm.questions = answers.map((apiAnswer: ApiAnswer) => {
-      const question = questions[apiAnswer.qidx];
-
+      const ques = questions.find((q) => q.questionIndex === apiAnswer.qidx);
+      const question = ques ? ques : ({} as Question);
       question.answers = apiAnswer.answer;
 
       //isBlank
