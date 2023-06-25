@@ -74,7 +74,7 @@ const EditField = ({
       lang: language,
       mcOptions: [],
       questionText: fieldName,
-    } as QuestionLangVersion;
+    };
 
     const qLangVersion = qLangVersions.find((q) => q.lang === language);
 

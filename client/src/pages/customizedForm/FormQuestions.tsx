@@ -13,7 +13,8 @@ import {
   getPrettyDateTime,
   getTimestampFromStringDate,
 } from 'src/shared/utils';
-
+import { Icon } from 'semantic-ui-react';
+import IconButton from '@mui/material/IconButton';
 import { CategorySharp } from '@mui/icons-material';
 import Checkbox from '@mui/material/Checkbox';
 import Divider from '@mui/material/Divider';
@@ -41,13 +42,30 @@ export const FormQuestions = ({
   handleAnswers,
 }: IProps) => {
   const [answers, setAnswers] = useState<QAnswer[]>([]);
+  const [fieldModified, setFieldModified] = useState<boolean>(false);
 
-  function isQuestion(x: any): x is Question {
-    return 'questionText' in x;
-  }
-  function isQuestionArr(x: any): x is Question[] {
-    return 'questionText' in x[0];
-  }
+  const isQuestion = (x: any): x is Question => {
+    if (x) {
+      return 'questionText' in x;
+    }
+    return false;
+  };
+
+  const isQuestionArr = (x: any): x is Question[] => {
+    if (x && x[0]) {
+      return 'questionText' in x[0];
+    }
+    return false;
+  };
+
+  const handleDeleteField = (question: any) => {
+    console.log(questions);
+    const indexToDelete = questions.indexOf(question);
+    if (indexToDelete >= 0) {
+      questions.splice(indexToDelete, 1);
+      setFieldModified(true);
+    }
+  };
 
   useEffect(() => {
     const getValuesFromIDs = (
@@ -115,7 +133,7 @@ export const FormQuestions = ({
       setAnswers(answers);
       handleAnswers(answers);
     }
-  }, [questions, setAnswers]);
+  }, [questions, setAnswers, fieldModified]);
 
   function updateAnswersByValue(index: number, newValue: any) {
     if (isQuestionArr(questions)) {
@@ -430,6 +448,17 @@ export const FormQuestions = ({
       return (
         <Fragment key={question.questionIndex}>
           {generateHtmlForQuestion(question, answers[index], renderState)}
+          {!isQuestion(question) && (
+            <IconButton
+              size="medium"
+              color="error"
+              style={{ display: 'flex', margin: '10px' }}
+              onClick={(e) => {
+                handleDeleteField(question);
+              }}>
+              <Icon name="trash alternate" />
+            </IconButton>
+          )}
         </Fragment>
       );
     });
