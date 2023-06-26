@@ -295,8 +295,27 @@ class UserAuthApi(Resource):
         "../../specifications/user-auth.yml", methods=["POST"]
     )  # needs to be below limiter since it will point to limiter/... path
     def post(self):
+        """The implementation of Post method for user login. Two part included in this methods:
+        1. Validation check:
+            1.1 User email check: if user enter a unregistered email address, system will return a error code 401
+                 with a warning message: This email hasn't been registered yet, try to connect with your administrator
+            1.2 User password check: if user enter a registered email address, system will compare the password hash
+                code with the password entered by user, if password check failed, system will return a error code
+                401 with a warning message: Invalid email or password
+        2. User params loading: after user identification check is done, system will load the user data and return
+            code 200
+
+        """
         data = self.parser.parse_args()
         user = crud.read(User, email=data["email"])
+
+        if user is None:
+            LOGGER.warning(
+                f"This email address: ", data["email"], " hasn't been registered"
+            )
+            return {
+                "message": "This email hasn't been registered yet, try to connect with your administrator"
+            }, 401
 
         if not user or not flask_bcrypt.check_password_hash(
             user.password, data["password"]
