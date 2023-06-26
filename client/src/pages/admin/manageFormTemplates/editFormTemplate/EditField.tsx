@@ -148,9 +148,7 @@ const EditField = ({
     // edit field
     if (question) {
       setFieldType(getFieldType(question.questionType));
-      if (question.questionId) {
-        setQuestionId(question.questionId ? question.questionId : '');
-      }
+      setQuestionId(question.questionId ? question.questionId : '');
       setQuestionLangversions(question.questionLangVersions);
     }
     // create new field
