@@ -79,7 +79,6 @@ export const CustomFormTemplate = () => {
         }}
         inputLanguages={language}
         setForm={setForm}
-        form={form}
       />
       <Formik
         initialValues={initialState}
@@ -165,8 +164,9 @@ export const CustomFormTemplate = () => {
             {form && form.questions && form!.questions!.length > 0 && (
               <CustomizedFormWQuestions
                 fm={form}
-                language="english"
+                language={language[0]}
                 renderState={FormRenderStateEnum.SUBMIT_TEMPLATE}
+                setForm={setForm}
               />
             )}
           </Form>

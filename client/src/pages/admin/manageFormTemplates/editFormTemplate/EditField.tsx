@@ -24,6 +24,7 @@ import { TableHeader } from 'semantic-ui-react';
 import {
   FormTemplateWithQuestions,
   QuestionLangVersion,
+  TQuestion,
 } from 'src/shared/types';
 import { QuestionTypeEnum } from 'src/shared/enums';
 
@@ -31,8 +32,8 @@ interface IProps {
   open: boolean;
   onClose: () => void;
   inputLanguages: string[];
-  setForm: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
-  form: FormTemplateWithQuestions;
+  setForm?: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
+  question?: TQuestion;
 }
 
 interface FieldTypes {
@@ -49,44 +50,13 @@ const EditField = ({
   onClose,
   inputLanguages,
   setForm,
-  form,
+  question,
 }: IProps) => {
   const [fieldType, setFieldType] = useState<string>('');
   const [questionId, setQuestionId] = useState<string>('');
   const [questionLangVersions, setQuestionLangversions] = useState<
     QuestionLangVersion[]
   >([]);
-
-  // reset chosen field to nothing once dialog is closed
-  useEffect(() => {
-    setFieldType('');
-    setQuestionId('');
-    setQuestionLangversions([]);
-  }, [open]);
-
-  const addFieldToQuestionLangVersions = (
-    language: string,
-    fieldName: string
-  ) => {
-    const qLangVersions: QuestionLangVersion[] = questionLangVersions;
-
-    const newQLangVersion = {
-      lang: language,
-      mcOptions: [],
-      questionText: fieldName,
-    };
-
-    const qLangVersion = qLangVersions.find((q) => q.lang === language);
-
-    if (!qLangVersion) {
-      qLangVersions.push(newQLangVersion);
-    } else {
-      const i = qLangVersions.indexOf(qLangVersion);
-      qLangVersions[i] = newQLangVersion;
-    }
-
-    setQuestionLangversions(qLangVersions);
-  };
 
   const fieldTypes: FieldTypes = {
     category: {
@@ -160,10 +130,71 @@ const EditField = ({
       ),
     },
   };
+
   const handleRadioChange = (event: {
     target: { value: SetStateAction<string> };
   }) => {
     setFieldType(event.target.value);
+  };
+
+  const getFieldType = (questionType: QuestionTypeEnum) => {
+    const fType = Object.keys(fieldTypes).find(
+      (fieldType) => fieldTypes[fieldType].type === questionType
+    );
+    return fType ? fType : '';
+  };
+
+  useEffect(() => {
+    // edit field
+    if (question) {
+      setFieldType(getFieldType(question.questionType));
+      if (question.questionId) {
+        setQuestionId(question.questionId ? question.questionId : '');
+      }
+      setQuestionLangversions(question.questionLangVersions);
+    }
+    // create new field
+    else {
+      setFieldType('');
+      setQuestionId('');
+      setQuestionLangversions([]);
+    }
+  }, [open, setForm]);
+
+  const getFieldName = (language: string) => {
+    let fName = '';
+    if (question) {
+      const qLangVersion = question.questionLangVersions.find(
+        (version) => version.lang === language
+      );
+      if (qLangVersion) {
+        fName = qLangVersion.questionText;
+      }
+    }
+    return fName;
+  };
+
+  const addFieldToQuestionLangVersions = (
+    language: string,
+    fieldName: string
+  ) => {
+    const qLangVersions: QuestionLangVersion[] = questionLangVersions;
+
+    const newQLangVersion = {
+      lang: language,
+      mcOptions: [],
+      questionText: fieldName,
+    };
+
+    const qLangVersion = qLangVersions.find((q) => q.lang === language);
+
+    if (!qLangVersion) {
+      qLangVersions.push(newQLangVersion);
+    } else {
+      const i = qLangVersions.indexOf(qLangVersion);
+      qLangVersions[i] = newQLangVersion;
+    }
+    setQuestionLangversions(qLangVersions);
   };
 
   return (
@@ -190,6 +221,7 @@ const EditField = ({
                     fullWidth
                     multiline
                     size="small"
+                    defaultValue={getFieldName(lang)}
                     inputProps={{
                       maxLength: Number.MAX_SAFE_INTEGER,
                     }}
@@ -209,6 +241,9 @@ const EditField = ({
                   variant="outlined"
                   fullWidth
                   multiline
+                  defaultValue={
+                    question && question.questionId ? question.questionId : ''
+                  }
                   size="small"
                   inputProps={{
                     maxLength: Number.MAX_SAFE_INTEGER,
@@ -230,7 +265,8 @@ const EditField = ({
                 aria-labelledby="field-type-label"
                 name="field-type-group"
                 row
-                onChange={handleRadioChange}>
+                value={fieldType}
+                onChange={(e) => handleRadioChange(e)}>
                 {Object.values(fieldTypes).map((field) => (
                   <FormControlLabel
                     key={field.label}
@@ -256,23 +292,41 @@ const EditField = ({
           <PrimaryButton
             type="submit"
             onClick={() => {
-              setForm((form) => {
-                form.questions.push({
-                  questionIndex: form.questions.length + 1,
-                  questionLangVersions: questionLangVersions,
-                  questionType: fieldTypes[fieldType].type,
-                  required: false,
-                  numMin: null,
-                  numMax: null,
-                  stringMaxLength: null,
-                  units: null,
-                  visibleCondition: [],
-                  categoryIndex: null,
-                  questionId: questionId,
+              if (setForm) {
+                setForm((form) => {
+                  // edit field
+                  if (question) {
+                    const questionToUpdate = form.questions.find(
+                      (q) => q.questionIndex === question.questionIndex
+                    );
+                    if (questionToUpdate) {
+                      questionToUpdate.questionId = questionId;
+                      questionToUpdate.questionLangVersions =
+                        questionLangVersions;
+                      questionToUpdate.questionType =
+                        fieldTypes[fieldType].type;
+                    }
+                  }
+                  // create new field
+                  else {
+                    form.questions.push({
+                      questionIndex: form.questions.length + 1,
+                      questionLangVersions: questionLangVersions,
+                      questionType: fieldTypes[fieldType].type,
+                      required: false,
+                      numMin: null,
+                      numMax: null,
+                      stringMaxLength: null,
+                      units: null,
+                      visibleCondition: [],
+                      categoryIndex: null,
+                      questionId: questionId,
+                    });
+                  }
+                  form.questions = [...form.questions];
+                  return form;
                 });
-                form.questions = [...form.questions];
-                return form;
-              });
+              }
               onClose();
             }}>
             {/* disabled={isSubmitting || !isValid}>*/}
