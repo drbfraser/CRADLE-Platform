@@ -1,6 +1,6 @@
 import { FormTemplateWithQuestions } from 'src/shared/types';
 import { Form, Formik } from 'formik';
-import { useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { initialState, validationSchema } from './state';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -18,15 +18,18 @@ interface IProps {
   fm: FormTemplateWithQuestions;
   language: string;
   renderState: FormRenderStateEnum;
+  setForm: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
 }
 
 export const CustomizedFormWQuestions = ({
   fm,
   language,
   renderState,
+  setForm,
 }: IProps) => {
   const questions = fm.questions;
   const classes = useStyles();
+
   const [submitError, setSubmitError] = useState(false);
   const [isSubmitPopupOpen, setIsSubmitPopupOpen] = useState(false);
 
@@ -70,7 +73,7 @@ export const CustomizedFormWQuestions = ({
             <Paper>
               <Box p={4} pt={6} m={2}>
                 <Grid container spacing={3}>
-                  <h2>Current Form</h2>f
+                  <h2>Current Form</h2>
                   <Divider />
                 </Grid>
                 <Grid container spacing={3}>
@@ -81,6 +84,7 @@ export const CustomizedFormWQuestions = ({
                     handleAnswers={() => {
                       // pass
                     }}
+                    setForm={setForm}
                   />
                 </Grid>
                 <PrimaryButton
