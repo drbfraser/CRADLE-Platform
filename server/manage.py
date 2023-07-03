@@ -59,7 +59,12 @@ def seed_minimal(
 
     print("Creating admin user...")
     create_user(
-        email, "Admin", password, facility_name, RoleEnum.ADMIN.value,  os.environ.get("EMULATOR_PHONE_NUMBER")
+        email,
+        "Admin",
+        password,
+        facility_name,
+        RoleEnum.ADMIN.value,
+        os.environ.get("EMULATOR_PHONE_NUMBER"),
     )
 
     print("Finished seeding minimal data set")
