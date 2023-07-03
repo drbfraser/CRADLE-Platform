@@ -17,6 +17,7 @@ import data.crud as crud
 import data.marshal as marshal
 from flask.cli import FlaskGroup
 import click
+import os
 
 cli = FlaskGroup(app)
 
@@ -58,7 +59,7 @@ def seed_minimal(
 
     print("Creating admin user...")
     create_user(
-        email, "Admin", password, facility_name, RoleEnum.ADMIN.value, "+1-123-456-7890"
+        email, "Admin", password, facility_name, RoleEnum.ADMIN.value,  os.environ.get("EMULATOR_PHONE_NUMBER")
     )
 
     print("Finished seeding minimal data set")

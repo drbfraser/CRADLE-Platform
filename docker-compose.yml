@@ -22,6 +22,7 @@ services:
             DB_PASSWORD: ${DB_PASSWORD}
             JWT_SECRET_KEY: ${JWT_SECRET_KEY}
             LIMITER_DISABLED: ${LIMITER_DISABLED:-False}
+            EMULATOR_PHONE_NUMBER: ${EMULATOR_PHONE_NUMBER:-+1-604-123-4567}
         depends_on: 
             - mysql
     mysql:
