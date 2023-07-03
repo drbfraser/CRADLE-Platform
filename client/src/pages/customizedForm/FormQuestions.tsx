@@ -8,7 +8,14 @@ import {
   TQuestion,
 } from 'src/shared/types';
 import { Field } from 'formik';
-import { Dispatch, Fragment, SetStateAction, useEffect, useReducer, useState } from 'react';
+import {
+  Dispatch,
+  Fragment,
+  SetStateAction,
+  useEffect,
+  useReducer,
+  useState,
+} from 'react';
 import {
   getPrettyDate,
   getPrettyDateTime,
@@ -51,7 +58,7 @@ export const FormQuestions = ({
   const [answers, setAnswers] = useState<QAnswer[]>([]);
   const [fieldModified, setFieldModified] = useState<boolean>(false);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
-  const [, upd] = useReducer(x => x + 1, 0);
+  const [, upd] = useReducer((x) => x + 1, 0);
 
   const getInputLanguages = (question: TQuestion) => {
     return question.questionLangVersions.map((item) => item.lang);
@@ -105,9 +112,9 @@ export const FormQuestions = ({
       questions[index - 1].questionIndex = index - 1;
       upd();
     } else if (!up && question.questionIndex < questions.length - 1) {
-      moveField(questions[index + 1], true)
+      moveField(questions[index + 1], true);
     }
-  }
+  };
 
   useEffect(() => {
     const getValuesFromIDs = (
@@ -270,7 +277,9 @@ export const FormQuestions = ({
     switch (type) {
       case QuestionTypeEnum.CATEGORY:
         return (
-          <Grid item sm={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 11 : 12}>
+          <Grid
+            item
+            sm={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 11 : 12}>
             <Typography component="h3" variant="h5">
               <CategorySharp fontSize="large" /> &nbsp; {text}
             </Typography>
@@ -520,60 +529,60 @@ export const FormQuestions = ({
             {generateHtmlForQuestion(question, answers[index], renderState)}
             {!isQuestion(question) && (
               <>
-              <Grid container item xs={1}>
-                <Grid item lg={4} sm={6}>
-                  <IconButton
-                    key={`field-up-${question.questionIndex}`}
-                    size="small"
-                    onClick={(e) => {
-                      handleFieldUp(question);
-                    }}>
-                    <KeyboardArrowUpIcon fontSize="small"/>
-                  </IconButton>
+                <Grid container item xs={1}>
+                  <Grid item lg={4} sm={6}>
+                    <IconButton
+                      key={`field-up-${question.questionIndex}`}
+                      size="small"
+                      onClick={(e) => {
+                        handleFieldUp(question);
+                      }}>
+                      <KeyboardArrowUpIcon fontSize="small" />
+                    </IconButton>
+                  </Grid>
+                  <Grid item lg={8} sm={6}>
+                    <IconButton
+                      key={`edit-field-${question.questionIndex}`}
+                      size="small"
+                      onClick={(e) => {
+                        handleEditField(question);
+                      }}>
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </Grid>
+                  <Grid item lg={4} sm={6}>
+                    <IconButton
+                      key={`field-down-${question.questionIndex}`}
+                      size="small"
+                      onClick={(e) => {
+                        handleFieldDown(question);
+                      }}>
+                      <KeyboardArrowDownIcon fontSize="small" />
+                    </IconButton>
+                  </Grid>
+                  <Grid item lg={8} sm={6}>
+                    <IconButton
+                      key={`delete-field-${question.questionIndex}`}
+                      size="small"
+                      color="error"
+                      onClick={(e) => {
+                        handleDeleteField(question);
+                      }}>
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </Grid>
                 </Grid>
-                <Grid item lg={8} sm={6}>
-                  <IconButton
-                    key={`edit-field-${question.questionIndex}`}
-                    size="small"
-                    onClick={(e) => {
-                      handleEditField(question);
-                    }}>
-                    <EditIcon fontSize="small"/>
-                  </IconButton>
-                </Grid>
-                <Grid item lg={4} sm={6}>
-                  <IconButton
-                  key={`field-down-${question.questionIndex}`}
-                    size="small"
-                    onClick={(e) => {
-                      handleFieldDown(question);
-                    }}>
-                    <KeyboardArrowDownIcon fontSize="small"/>
-                  </IconButton>
-                </Grid>
-                <Grid item lg={8} sm={6}>
-                  <IconButton
-                    key={`delete-field-${question.questionIndex}`}
-                    size="small"
-                    color="error"
-                    onClick={(e) => {
-                      handleDeleteField(question);
-                    }}>
-                    <DeleteIcon fontSize="small"/>
-                  </IconButton>
-                </Grid>
-              </Grid>
-              <EditField
-                key={question.questionIndex}
-                open={isQuestionSelected && editPopupOpen}
-                onClose={() => {
-                  setSelectedQuestionIndex(null);
-                  setEditPopupOpen(false);
-                }}
-                inputLanguages={getInputLanguages(question)}
-                setForm={setForm}
-                question={question}
-              />
+                <EditField
+                  key={question.questionIndex}
+                  open={isQuestionSelected && editPopupOpen}
+                  onClose={() => {
+                    setSelectedQuestionIndex(null);
+                    setEditPopupOpen(false);
+                  }}
+                  inputLanguages={getInputLanguages(question)}
+                  setForm={setForm}
+                  question={question}
+                />
               </>
             )}
           </Grid>
