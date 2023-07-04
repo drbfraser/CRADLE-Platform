@@ -308,7 +308,7 @@ const EditField = ({
                   // create new field
                   else {
                     form.questions.push({
-                      questionIndex: form.questions.length + 1,
+                      questionIndex: form.questions.length,
                       questionLangVersions: questionLangVersions,
                       questionType: fieldTypes[fieldType].type,
                       required: false,

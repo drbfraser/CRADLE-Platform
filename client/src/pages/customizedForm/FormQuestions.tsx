@@ -8,14 +8,24 @@ import {
   TQuestion,
 } from 'src/shared/types';
 import { Field } from 'formik';
-import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react';
+import {
+  Dispatch,
+  Fragment,
+  SetStateAction,
+  useEffect,
+  useReducer,
+  useState,
+} from 'react';
 import {
   getPrettyDate,
   getPrettyDateTime,
   getTimestampFromStringDate,
 } from 'src/shared/utils';
-import { Icon } from 'semantic-ui-react';
 import IconButton from '@mui/material/IconButton';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { CategorySharp } from '@mui/icons-material';
 import Checkbox from '@mui/material/Checkbox';
 import Divider from '@mui/material/Divider';
@@ -48,6 +58,7 @@ export const FormQuestions = ({
   const [answers, setAnswers] = useState<QAnswer[]>([]);
   const [fieldModified, setFieldModified] = useState<boolean>(false);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
+  const [, upd] = useReducer((x) => x + 1, 0);
 
   const getInputLanguages = (question: TQuestion) => {
     return question.questionLangVersions.map((item) => item.lang);
@@ -88,6 +99,20 @@ export const FormQuestions = ({
       }
 
       setFieldModified(true);
+    }
+  };
+
+  const moveField = (question: any, up: boolean) => {
+    const index = question.questionIndex;
+    if (up && index > 0) {
+      const temp = questions[index - 1];
+      questions[index - 1] = questions[index];
+      questions[index] = temp;
+      questions[index].questionIndex = index;
+      questions[index - 1].questionIndex = index - 1;
+      upd();
+    } else if (!up && question.questionIndex < questions.length - 1) {
+      moveField(questions[index + 1], true);
     }
   };
 
@@ -252,7 +277,9 @@ export const FormQuestions = ({
     switch (type) {
       case QuestionTypeEnum.CATEGORY:
         return (
-          <Grid item sm={12}>
+          <Grid
+            item
+            sm={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 11 : 12}>
             <Typography component="h3" variant="h5">
               <CategorySharp fontSize="large" /> &nbsp; {text}
             </Typography>
@@ -482,47 +509,83 @@ export const FormQuestions = ({
       deleteField(question);
     };
 
+    const handleFieldUp = (question: Question | TQuestion) => {
+      setSelectedQuestionIndex(question.questionIndex);
+      moveField(question, true);
+    };
+
+    const handleFieldDown = (question: Question | TQuestion) => {
+      setSelectedQuestionIndex(question.questionIndex);
+      moveField(question, false);
+    };
+
     return questions.map((question: Question | TQuestion, index) => {
       const isQuestionSelected =
         selectedQuestionIndex === question.questionIndex;
 
       return (
         <Fragment key={question.questionIndex}>
-          {generateHtmlForQuestion(question, answers[index], renderState)}
-          {!isQuestion(question) && (
-            <>
-              <IconButton
-                key={`edit-field-${question.questionIndex}`}
-                size="medium"
-                style={{ display: 'flex', margin: '15px 0px 0px 5px' }}
-                onClick={(e) => {
-                  handleEditField(question);
-                }}>
-                <Icon name="pencil" />
-              </IconButton>
-              <IconButton
-                key={`delete-field-${question.questionIndex}`}
-                size="medium"
-                color="error"
-                style={{ display: 'flex', margin: '15px 0px 0px 5px' }}
-                onClick={(e) => {
-                  handleDeleteField(question);
-                }}>
-                <Icon name="trash alternate" />
-              </IconButton>
-              <EditField
-                key={question.questionIndex}
-                open={isQuestionSelected && editPopupOpen}
-                onClose={() => {
-                  setSelectedQuestionIndex(null);
-                  setEditPopupOpen(false);
-                }}
-                inputLanguages={getInputLanguages(question)}
-                setForm={setForm}
-                question={question}
-              />
-            </>
-          )}
+          <Grid container alignItems="center">
+            {generateHtmlForQuestion(question, answers[index], renderState)}
+            {!isQuestion(question) && (
+              <>
+                <Grid container item xs={1}>
+                  <Grid item lg={4} sm={6}>
+                    <IconButton
+                      key={`field-up-${question.questionIndex}`}
+                      size="small"
+                      onClick={(e) => {
+                        handleFieldUp(question);
+                      }}>
+                      <KeyboardArrowUpIcon fontSize="small" />
+                    </IconButton>
+                  </Grid>
+                  <Grid item lg={8} sm={6}>
+                    <IconButton
+                      key={`edit-field-${question.questionIndex}`}
+                      size="small"
+                      onClick={(e) => {
+                        handleEditField(question);
+                      }}>
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </Grid>
+                  <Grid item lg={4} sm={6}>
+                    <IconButton
+                      key={`field-down-${question.questionIndex}`}
+                      size="small"
+                      onClick={(e) => {
+                        handleFieldDown(question);
+                      }}>
+                      <KeyboardArrowDownIcon fontSize="small" />
+                    </IconButton>
+                  </Grid>
+                  <Grid item lg={8} sm={6}>
+                    <IconButton
+                      key={`delete-field-${question.questionIndex}`}
+                      size="small"
+                      color="error"
+                      onClick={(e) => {
+                        handleDeleteField(question);
+                      }}>
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </Grid>
+                </Grid>
+                <EditField
+                  key={question.questionIndex}
+                  open={isQuestionSelected && editPopupOpen}
+                  onClose={() => {
+                    setSelectedQuestionIndex(null);
+                    setEditPopupOpen(false);
+                  }}
+                  inputLanguages={getInputLanguages(question)}
+                  setForm={setForm}
+                  question={question}
+                />
+              </>
+            )}
+          </Grid>
         </Fragment>
       );
     });
