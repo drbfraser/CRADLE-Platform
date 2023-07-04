@@ -8,24 +8,12 @@ import {
   TQuestion,
 } from 'src/shared/types';
 import { Field } from 'formik';
-import {
-  Dispatch,
-  Fragment,
-  SetStateAction,
-  useEffect,
-  useReducer,
-  useState,
-} from 'react';
+import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react';
 import {
   getPrettyDate,
   getPrettyDateTime,
   getTimestampFromStringDate,
 } from 'src/shared/utils';
-import IconButton from '@mui/material/IconButton';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { CategorySharp } from '@mui/icons-material';
 import Checkbox from '@mui/material/Checkbox';
 import Divider from '@mui/material/Divider';
@@ -38,7 +26,6 @@ import { RadioGroup } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { FormRenderStateEnum } from 'src/shared/enums';
-import EditField from '../admin/manageFormTemplates/editFormTemplate/EditField';
 
 interface IProps {
   questions: Question[] | TQuestion[];
@@ -56,13 +43,6 @@ export const FormQuestions = ({
   setForm,
 }: IProps) => {
   const [answers, setAnswers] = useState<QAnswer[]>([]);
-  const [fieldModified, setFieldModified] = useState<boolean>(false);
-  const [editPopupOpen, setEditPopupOpen] = useState(false);
-  const [, upd] = useReducer((x) => x + 1, 0);
-
-  const getInputLanguages = (question: TQuestion) => {
-    return question.questionLangVersions.map((item) => item.lang);
-  };
 
   const isQuestion = (x: any): x is Question => {
     if (x) {
@@ -76,44 +56,6 @@ export const FormQuestions = ({
       return 'questionText' in x[0];
     }
     return false;
-  };
-
-  const deleteField = (question: any) => {
-    const indexToDelete = questions.indexOf(question);
-    if (indexToDelete >= 0) {
-      questions.splice(indexToDelete, 1);
-
-      // reset indices
-      questions.forEach((q, i) => {
-        q.questionIndex = i + 1;
-      });
-
-      // update form
-      if (setForm) {
-        setForm((form) => {
-          if (!isQuestionArr(questions)) {
-            form.questions = questions;
-          }
-          return form;
-        });
-      }
-
-      setFieldModified(true);
-    }
-  };
-
-  const moveField = (question: any, up: boolean) => {
-    const index = question.questionIndex;
-    if (up && index > 0) {
-      const temp = questions[index - 1];
-      questions[index - 1] = questions[index];
-      questions[index] = temp;
-      questions[index].questionIndex = index;
-      questions[index - 1].questionIndex = index - 1;
-      upd();
-    } else if (!up && question.questionIndex < questions.length - 1) {
-      moveField(questions[index + 1], true);
-    }
   };
 
   useEffect(() => {
@@ -182,7 +124,7 @@ export const FormQuestions = ({
       setAnswers(answers);
       handleAnswers(answers);
     }
-  }, [questions, setAnswers, fieldModified, setForm]);
+  }, [questions, setAnswers, setForm]);
 
   function updateAnswersByValue(index: number, newValue: any) {
     if (isQuestionArr(questions)) {
@@ -279,7 +221,7 @@ export const FormQuestions = ({
         return (
           <Grid
             item
-            sm={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 11 : 12}>
+            xs={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 11 : 12}>
             <Typography component="h3" variant="h5">
               <CategorySharp fontSize="large" /> &nbsp; {text}
             </Typography>
@@ -365,7 +307,11 @@ export const FormQuestions = ({
 
       case QuestionTypeEnum.INTEGER:
         return (
-          <Grid item sm={12} md={6} lg={4}>
+          <Grid
+            item
+            sm={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 11 : 12}
+            md={6}
+            lg={4}>
             <Field
               label={text}
               component={TextField}
@@ -406,7 +352,11 @@ export const FormQuestions = ({
 
       case QuestionTypeEnum.STRING:
         return (
-          <Grid item sm={12} md={6} lg={4}>
+          <Grid
+            item
+            sm={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 11 : 12}
+            md={6}
+            lg={4}>
             <Field
               label={text}
               component={TextField}
@@ -495,101 +445,14 @@ export const FormQuestions = ({
     answers: QAnswer[],
     renderState: FormRenderStateEnum
   ) => {
-    const [selectedQuestionIndex, setSelectedQuestionIndex] = useState<
-      number | null
-    >(null);
-
-    const handleEditField = (question: Question | TQuestion) => {
-      setSelectedQuestionIndex(question.questionIndex);
-      setEditPopupOpen(true);
-    };
-
-    const handleDeleteField = (question: Question | TQuestion) => {
-      setSelectedQuestionIndex(question.questionIndex);
-      deleteField(question);
-    };
-
-    const handleFieldUp = (question: Question | TQuestion) => {
-      setSelectedQuestionIndex(question.questionIndex);
-      moveField(question, true);
-    };
-
-    const handleFieldDown = (question: Question | TQuestion) => {
-      setSelectedQuestionIndex(question.questionIndex);
-      moveField(question, false);
-    };
-
     return questions.map((question: Question | TQuestion, index) => {
-      const isQuestionSelected =
-        selectedQuestionIndex === question.questionIndex;
-
       return (
         <Fragment key={question.questionIndex}>
-          <Grid container alignItems="center">
-            {generateHtmlForQuestion(question, answers[index], renderState)}
-            {!isQuestion(question) && (
-              <>
-                <Grid container item xs={1}>
-                  <Grid item lg={4} sm={6}>
-                    <IconButton
-                      key={`field-up-${question.questionIndex}`}
-                      size="small"
-                      onClick={(e) => {
-                        handleFieldUp(question);
-                      }}>
-                      <KeyboardArrowUpIcon fontSize="small" />
-                    </IconButton>
-                  </Grid>
-                  <Grid item lg={8} sm={6}>
-                    <IconButton
-                      key={`edit-field-${question.questionIndex}`}
-                      size="small"
-                      onClick={(e) => {
-                        handleEditField(question);
-                      }}>
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                  </Grid>
-                  <Grid item lg={4} sm={6}>
-                    <IconButton
-                      key={`field-down-${question.questionIndex}`}
-                      size="small"
-                      onClick={(e) => {
-                        handleFieldDown(question);
-                      }}>
-                      <KeyboardArrowDownIcon fontSize="small" />
-                    </IconButton>
-                  </Grid>
-                  <Grid item lg={8} sm={6}>
-                    <IconButton
-                      key={`delete-field-${question.questionIndex}`}
-                      size="small"
-                      color="error"
-                      onClick={(e) => {
-                        handleDeleteField(question);
-                      }}>
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </Grid>
-                </Grid>
-                <EditField
-                  key={question.questionIndex}
-                  open={isQuestionSelected && editPopupOpen}
-                  onClose={() => {
-                    setSelectedQuestionIndex(null);
-                    setEditPopupOpen(false);
-                  }}
-                  inputLanguages={getInputLanguages(question)}
-                  setForm={setForm}
-                  question={question}
-                />
-              </>
-            )}
-          </Grid>
+          {generateHtmlForQuestion(question, answers[index], renderState)}
         </Fragment>
       );
     });
   };
 
-  return <>{generateHtmlForQuestions(questions, answers, renderState)}</>;
+  return generateHtmlForQuestions(questions, answers, renderState);
 };
