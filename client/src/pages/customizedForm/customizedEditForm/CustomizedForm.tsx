@@ -108,12 +108,12 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
                   <></>
                 )}
                 <Grid container spacing={3}>
-                  <FormQuestions
-                    questions={questions}
-                    renderState={renderState}
-                    language="english"
-                    handleAnswers={setAnswers}
-                  />
+                  {FormQuestions({
+                    questions: questions,
+                    renderState: renderState,
+                    language: '',
+                    handleAnswers: setAnswers,
+                  })}
                 </Grid>
                 {renderState === FormRenderStateEnum.VIEW ? (
                   <RedirectButton
