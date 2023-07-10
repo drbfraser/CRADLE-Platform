@@ -32,13 +32,25 @@ def test_sms_relay_none_phone_number(api_post):
 
 
 def test_sms_relay_invalid_phone_number(api_post):
-    phoneNumber = "312"
+    phoneNumber = "555-555-5555"
     json_body = {"phoneNumber": phoneNumber, "encryptedData": "a"}
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
 
     assert response.status_code == 401
     actual_json = json.loads(response.text)
     assert actual_json["message"] == sms_relay.invalid_message.format(
+        phoneNumber=phoneNumber
+    )
+
+
+def test_sms_relay_invalid_phone_number_format(api_post):
+    phoneNumber = "123a"
+    json_body = {"phoneNumber": phoneNumber, "encryptedData": "a"}
+    response = api_post(endpoint=sms_relay_endpoint, json=json_body)
+
+    assert response.status_code == 401
+    actual_json = json.loads(response.text)
+    assert actual_json["message"] == sms_relay.invalid_phone_number.format(
         phoneNumber=phoneNumber
     )
 
