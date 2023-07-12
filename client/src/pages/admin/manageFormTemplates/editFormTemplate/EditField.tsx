@@ -197,7 +197,9 @@ const EditField = ({
     <>
       <Dialog open={open} maxWidth="lg" fullWidth>
         <DialogTitle>
-          <Typography variant="h5">Create Field</Typography>
+          <div>
+            <Typography variant="h5">Create Field</Typography>
+          </div>
         </DialogTitle>
         <DialogContent>
           <Grid container spacing={3}>
