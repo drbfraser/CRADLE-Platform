@@ -8,9 +8,6 @@ import {
   Grid,
   Radio,
   RadioGroup,
-  Table,
-  TableCell,
-  TableRow,
 } from '@mui/material';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import {
@@ -20,7 +17,6 @@ import {
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { TableHeader } from 'semantic-ui-react';
 import {
   FormTemplateWithQuestions,
   QuestionLangVersion,
@@ -90,33 +86,35 @@ const EditField = ({
       label: 'Multiple Choice',
       type: QuestionTypeEnum.MULTIPLE_CHOICE,
       render: () => (
-        <Table>
-          <TableRow>
-            {inputLanguages.map((lang) => (
-              <TableCell size="small" key={lang + 'mult-choice-option-1-body'}>
-                {/*TODO: Create ability to create multiple options in multiple choice*/}
-                <TextField
-                  key={lang + '-field-name-mult-choice-option1'}
-                  label={lang + ' Option 1'}
-                  required={true}
-                  variant="outlined"
-                  fullWidth
-                  multiline
-                  size="small"
-                  inputProps={{
-                    // TODO: Determine what types of input restrictions we should have for multiple choice option
-                    maxLength: Number.MAX_SAFE_INTEGER,
-                  }}
-                />
-              </TableCell>
-            ))}
-            <TableCell>
-              <CancelButton>
-                <RemoveCircleOutlineIcon />
-              </CancelButton>
-            </TableCell>
-          </TableRow>
-        </Table>
+        <>
+          {inputLanguages.map((lang) => (
+            <Grid
+              item
+              sm={12}
+              md={4}
+              lg={3}
+              key={lang + '-field-name-mult-choice-option1'}>
+              {/*TODO: Create ability to create multiple options in multiple choice*/}
+              <TextField
+                label={lang + ' Option 1'}
+                required={true}
+                variant="outlined"
+                fullWidth
+                multiline
+                size="small"
+                inputProps={{
+                  // TODO: Determine what types of input restrictions we should have for multiple choice option
+                  maxLength: Number.MAX_SAFE_INTEGER,
+                }}
+              />
+            </Grid>
+          ))}
+          <Grid item xs>
+            <CancelButton>
+              <RemoveCircleOutlineIcon />
+            </CancelButton>
+          </Grid>
+        </>
       ),
     },
     date: {
@@ -198,61 +196,55 @@ const EditField = ({
   return (
     <>
       <Dialog open={open} maxWidth="lg" fullWidth>
-        <DialogTitle>Create Field</DialogTitle>
+        <DialogTitle>
+          <Typography variant="h5">Create Field</Typography>
+        </DialogTitle>
         <DialogContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {inputLanguages.map((lang) => (
-                  <TableCell key={lang + '-title'}>{lang}</TableCell>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableRow>
-              {inputLanguages.map((lang) => (
-                <TableCell size="small" key={lang + '-body'}>
-                  <TextField
-                    key={lang + '-field-name'}
-                    label={lang + ' Field Name'}
-                    required={true}
-                    variant="outlined"
-                    fullWidth
-                    multiline
-                    size="small"
-                    defaultValue={getFieldName(lang)}
-                    inputProps={{
-                      maxLength: Number.MAX_SAFE_INTEGER,
-                    }}
-                    onChange={(e) =>
-                      addFieldToQuestionLangVersions(lang, e.target.value)
-                    }
-                  />
-                </TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell key="question-id-cell">
+          <Grid container spacing={3}>
+            <Grid item sm={12} md={2} lg={2}>
+              <FormLabel id="field-details-label">
+                <Typography variant="h6">Field Details</Typography>
+              </FormLabel>
+            </Grid>
+            {inputLanguages.map((lang) => (
+              <Grid item xs={12} key={lang + '-field-name'}>
                 <TextField
-                  label={'Question ID'}
-                  key={'question-id'}
+                  label={lang + ' Field Text'}
                   required={true}
                   variant="outlined"
                   fullWidth
                   multiline
-                  defaultValue={
-                    question && question.questionId ? question.questionId : ''
-                  }
                   size="small"
+                  defaultValue={getFieldName(lang)}
                   inputProps={{
                     maxLength: Number.MAX_SAFE_INTEGER,
                   }}
-                  onChange={(e) => setQuestionId(e.target.value)}
+                  onChange={(e) =>
+                    addFieldToQuestionLangVersions(lang, e.target.value)
+                  }
                 />
-              </TableCell>
-            </TableRow>
-          </Table>
-          <br />
-          <Grid container spacing={3}>
+              </Grid>
+            ))}
+
+            <Grid item xs={12}>
+              <TextField
+                label={'Question ID'}
+                key={'question-id'}
+                required={true}
+                variant="outlined"
+                fullWidth
+                multiline
+                defaultValue={
+                  question && question.questionId ? question.questionId : ''
+                }
+                size="small"
+                inputProps={{
+                  maxLength: Number.MAX_SAFE_INTEGER,
+                }}
+                onChange={(e) => setQuestionId(e.target.value)}
+              />
+            </Grid>
+
             <Grid item sm={12} md={2} lg={2}>
               <FormLabel id="field-type-label">
                 <Typography variant="h6">Field Type</Typography>
@@ -275,13 +267,8 @@ const EditField = ({
                 ))}
               </RadioGroup>
             </Grid>
+            {fieldType ? fieldTypes[fieldType].render() : null}
           </Grid>
-
-          {fieldType
-            ? // TODO: Remove @ts-ignore
-              // @ts-ignore
-              fieldTypes[fieldType].render()
-            : ''}
         </DialogContent>
         <DialogActions>
           <CancelButton type="button" onClick={onClose}>
