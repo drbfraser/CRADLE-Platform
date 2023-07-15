@@ -194,6 +194,11 @@ class Reading(db.Model):
     patientId = db.Column(
         db.String(50), db.ForeignKey("patient.patientId"), nullable=False
     )
+    referral_id = db.Column(
+        db.String(50),
+        db.ForeignKey("referral.id"),
+        nullable=True,  # or nullable=False, depending on your business logic
+    )
 
     # RELATIONSHIPS
     patient = db.relationship(
