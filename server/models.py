@@ -205,6 +205,13 @@ class Reading(db.Model):
         "Patient",
         backref=db.backref("readings", cascade="all, delete-orphan", lazy=True),
     )
+    referral = db.relationship(
+        "Referral",
+        backref=db.backref("reading", uselist=False),
+        uselist=False,
+        cascade="all, delete-orphan",
+        single_parent=True,
+    )
 
     def get_traffic_light(self):
         red_systolic = 160
