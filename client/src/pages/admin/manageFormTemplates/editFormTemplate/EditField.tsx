@@ -6,6 +6,7 @@ import {
   FormControlLabel,
   FormLabel,
   Grid,
+  IconButton,
   Radio,
   RadioGroup,
   Table,
@@ -19,10 +20,11 @@ import {
 } from '../../../../shared/components/Button';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react';
 import { TableHeader } from 'semantic-ui-react';
 import {
   FormTemplateWithQuestions,
+  McOption,
   QuestionLangVersion,
   TQuestion,
 } from 'src/shared/types';
@@ -54,9 +56,95 @@ const EditField = ({
 }: IProps) => {
   const [fieldType, setFieldType] = useState<string>('');
   const [questionId, setQuestionId] = useState<string>('');
+  const [numChoices, setNumChoices] = useState<number>(0);
   const [questionLangVersions, setQuestionLangversions] = useState<
     QuestionLangVersion[]
   >([]);
+  const [isSaveDisabled, setIsSaveDisabled] = useState(true);
+  const [fieldChanged, setFieldChanged] = useState(false);
+  const [formDirty, setFormDirty] = useState(false);
+
+  const handleRemoveMultiChoice = (index: number) => {
+    const qLangVersions: QuestionLangVersion[] = questionLangVersions;
+
+    inputLanguages.map((lang) => {
+      const qLangVersion = qLangVersions.find((qlv) => qlv.lang == lang);
+      if (qLangVersion) {
+        console.log('removing');
+        const i = qLangVersions.indexOf(qLangVersion);
+        if (i >= 0) {
+          // remove option
+          qLangVersions[i].mcOptions.splice(index, 1);
+
+          // reset indices for options
+          qLangVersions[i].mcOptions.forEach((mcOption, mci) => {
+            mcOption.mcid = mci;
+          });
+        }
+      }
+    });
+
+    const newNumChoices = numChoices - 1;
+    setNumChoices(newNumChoices);
+    setQuestionLangversions(qLangVersions);
+  };
+
+  const handleAddChoice = () => {
+    const newNumChoices = numChoices + 1;
+    inputLanguages.map((lang) => {
+      handleMultiChoiceOptionChange(lang, '', numChoices);
+    });
+    setNumChoices(newNumChoices);
+  };
+
+  const handleMultiChoiceOptionChange = (
+    language: string,
+    option: string,
+    index: number
+  ) => {
+    const qLangVersions: QuestionLangVersion[] = questionLangVersions;
+
+    const newQLangVersion = {
+      lang: language,
+      mcOptions: [] as McOption[],
+      questionText: '',
+    };
+
+    const qLangVersion = qLangVersions.find((q) => q.lang === language);
+
+    if (!qLangVersion) {
+      newQLangVersion.mcOptions.push({
+        mcid: index,
+        opt: option,
+      });
+      qLangVersions.push(newQLangVersion);
+    } else {
+      const i = qLangVersions.indexOf(qLangVersion);
+      if (index < qLangVersions[i].mcOptions.length) {
+        qLangVersions[i].mcOptions[index].opt = option;
+      } else {
+        qLangVersions[i].mcOptions.push({
+          mcid: index,
+          opt: option,
+        });
+      }
+    }
+    setQuestionLangversions(qLangVersions);
+  };
+
+  const getMcOptionValue = (language: string, index: number) => {
+    let mcOptionValue = '';
+    const qlangVersion = questionLangVersions.find(
+      (qlv) => qlv.lang == language
+    );
+    if (qlangVersion) {
+      if (index < qlangVersion.mcOptions.length) {
+        mcOptionValue = qlangVersion.mcOptions[index].opt;
+      }
+    }
+
+    return mcOptionValue;
+  };
 
   const fieldTypes: FieldTypes = {
     category: {
@@ -90,33 +178,68 @@ const EditField = ({
       label: 'Multiple Choice',
       type: QuestionTypeEnum.MULTIPLE_CHOICE,
       render: () => (
-        <Table>
-          <TableRow>
-            {inputLanguages.map((lang) => (
-              <TableCell size="small" key={lang + 'mult-choice-option-1-body'}>
-                {/*TODO: Create ability to create multiple options in multiple choice*/}
-                <TextField
-                  key={lang + '-field-name-mult-choice-option1'}
-                  label={lang + ' Option 1'}
-                  required={true}
-                  variant="outlined"
-                  fullWidth
-                  multiline
-                  size="small"
-                  inputProps={{
-                    // TODO: Determine what types of input restrictions we should have for multiple choice option
-                    maxLength: Number.MAX_SAFE_INTEGER,
-                  }}
-                />
-              </TableCell>
+        <Grid>
+          <PrimaryButton
+            type="button"
+            onClick={(e) => {
+              handleAddChoice();
+              setFieldChanged(!fieldChanged);
+              setFormDirty(true);
+            }}>
+            {'Add Choice'}
+          </PrimaryButton>
+          <Table>
+            {Array.from(Array(numChoices).keys()).map((_, index) => (
+              <TableRow key={`multi-choice-option-${index + 1}`}>
+                {inputLanguages.map((lang) => (
+                  <Fragment key={`${lang}-mult-choice-option-${index + 1}`}>
+                    <TableCell
+                      size="small"
+                      key={`${lang}-mult-choice-option-${index + 1}-body`}>
+                      <TextField
+                        key={`${lang}-field-name-mult-choice-option-${
+                          index + 1
+                        }`}
+                        label={`${lang} Option ${index + 1}`}
+                        required={true}
+                        variant="outlined"
+                        value={getMcOptionValue(lang, index)}
+                        fullWidth
+                        multiline
+                        size="small"
+                        inputProps={{
+                          // TODO: Determine what types of input restrictions we should have for multiple choice option
+                          maxLength: Number.MAX_SAFE_INTEGER,
+                        }}
+                        onChange={(e) => {
+                          handleMultiChoiceOptionChange(
+                            lang,
+                            e.target.value,
+                            index
+                          );
+                          setFieldChanged(!fieldChanged);
+                          setFormDirty(true);
+                        }}
+                      />
+                    </TableCell>
+                  </Fragment>
+                ))}
+                <TableCell>
+                  <IconButton
+                    key={`remove-option-${index + 1}`}
+                    color="error"
+                    onClick={(e) => {
+                      handleRemoveMultiChoice(index);
+                      setFieldChanged(!fieldChanged);
+                      setFormDirty(true);
+                    }}>
+                    <RemoveCircleOutlineIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
             ))}
-            <TableCell>
-              <CancelButton>
-                <RemoveCircleOutlineIcon />
-              </CancelButton>
-            </TableCell>
-          </TableRow>
-        </Table>
+          </Table>
+        </Grid>
       ),
     },
     date: {
@@ -135,6 +258,8 @@ const EditField = ({
     target: { value: SetStateAction<string> };
   }) => {
     setFieldType(event.target.value);
+    setFieldChanged(!fieldChanged);
+    setFormDirty(true);
   };
 
   const getFieldType = (questionType: QuestionTypeEnum) => {
@@ -144,20 +269,71 @@ const EditField = ({
     return fType ? fType : '';
   };
 
+  const areAllFieldsFilled = (): boolean => {
+    const isQuestionIdFilled = questionId.trim() != '';
+    let areAllNamesFilled =
+      questionLangVersions.length == inputLanguages.length;
+    let areAllMcOptionFilled = true;
+    const isFieldTypeChosen = fieldType.trim() != '';
+
+    questionLangVersions.forEach((qLangVersion) => {
+      areAllNamesFilled =
+        areAllNamesFilled && qLangVersion.questionText.trim() != '';
+      if (fieldType == 'mult_choice') {
+        if (qLangVersion.mcOptions.length == 0) {
+          areAllMcOptionFilled = false;
+        } else {
+          qLangVersion.mcOptions.forEach((option) => {
+            areAllMcOptionFilled =
+              areAllMcOptionFilled && option.opt.trim() != '';
+          });
+        }
+      }
+    });
+
+    return fieldType == 'mult_choice'
+      ? isQuestionIdFilled &&
+          areAllNamesFilled &&
+          isFieldTypeChosen &&
+          areAllMcOptionFilled
+      : isQuestionIdFilled && areAllNamesFilled && isFieldTypeChosen;
+  };
+
+  const resetFields = () => {
+    setFieldType('');
+    setQuestionId('');
+    setQuestionLangversions([]);
+  };
+
   useEffect(() => {
     // edit field
-    if (question) {
-      setFieldType(getFieldType(question.questionType));
-      setQuestionId(question.questionId ? question.questionId : '');
-      setQuestionLangversions(question.questionLangVersions);
+    if (formDirty) {
+      setFieldType(fieldType);
+      setQuestionId(questionId);
+      setQuestionLangversions(questionLangVersions);
+    } else {
+      if (question) {
+        setFieldType(getFieldType(question.questionType));
+        setQuestionId(question.questionId ? question.questionId : '');
+        setQuestionLangversions(question.questionLangVersions);
+      }
+      // create new field
+      else {
+        setFieldType('');
+        setQuestionId('');
+        setQuestionLangversions([]);
+      }
     }
-    // create new field
-    else {
-      setFieldType('');
-      setQuestionId('');
-      setQuestionLangversions([]);
-    }
-  }, [open, setForm]);
+    console.log('field type');
+    console.log(fieldType);
+    console.log('question id');
+    console.log(questionId);
+    console.log('field names');
+    questionLangVersions.forEach((q) => console.log(q.questionText));
+    // Check if all fields are filled
+    // Enable/disable save button based on filled fields
+    setIsSaveDisabled(!areAllFieldsFilled());
+  }, [open, setForm, fieldChanged]);
 
   const getFieldName = (language: string) => {
     let fName = '';
@@ -180,7 +356,7 @@ const EditField = ({
 
     const newQLangVersion = {
       lang: language,
-      mcOptions: [],
+      mcOptions: [] as McOption[],
       questionText: fieldName,
     };
 
@@ -190,7 +366,7 @@ const EditField = ({
       qLangVersions.push(newQLangVersion);
     } else {
       const i = qLangVersions.indexOf(qLangVersion);
-      qLangVersions[i] = newQLangVersion;
+      qLangVersions[i].questionText = fieldName;
     }
     setQuestionLangversions(qLangVersions);
   };
@@ -223,9 +399,11 @@ const EditField = ({
                     inputProps={{
                       maxLength: Number.MAX_SAFE_INTEGER,
                     }}
-                    onChange={(e) =>
-                      addFieldToQuestionLangVersions(lang, e.target.value)
-                    }
+                    onChange={(e) => {
+                      addFieldToQuestionLangVersions(lang, e.target.value);
+                      setFieldChanged(!fieldChanged);
+                      setFormDirty(true);
+                    }}
                   />
                 </TableCell>
               ))}
@@ -246,7 +424,11 @@ const EditField = ({
                   inputProps={{
                     maxLength: Number.MAX_SAFE_INTEGER,
                   }}
-                  onChange={(e) => setQuestionId(e.target.value)}
+                  onChange={(e) => {
+                    setQuestionId(e.target.value);
+                    setFieldChanged(!fieldChanged);
+                    setFormDirty(true);
+                  }}
                 />
               </TableCell>
             </TableRow>
@@ -264,7 +446,11 @@ const EditField = ({
                 name="field-type-group"
                 row
                 value={fieldType}
-                onChange={(e) => handleRadioChange(e)}>
+                onChange={(e) => {
+                  handleRadioChange(e);
+                  setFieldChanged(!fieldChanged);
+                  setFormDirty(true);
+                }}>
                 {Object.values(fieldTypes).map((field) => (
                   <FormControlLabel
                     key={field.label}
@@ -284,11 +470,17 @@ const EditField = ({
             : ''}
         </DialogContent>
         <DialogActions>
-          <CancelButton type="button" onClick={onClose}>
+          <CancelButton
+            type="button"
+            onClick={(e) => {
+              setFormDirty(false);
+              onClose();
+            }}>
             Cancel
           </CancelButton>
           <PrimaryButton
             type="submit"
+            disabled={isSaveDisabled}
             onClick={() => {
               if (setForm) {
                 setForm((form) => {
@@ -321,6 +513,7 @@ const EditField = ({
                       questionId: questionId,
                     });
                   }
+                  setFormDirty(false);
                   form.questions = [...form.questions];
                   return form;
                 });
