@@ -144,6 +144,7 @@ backend system tests:
     MYSQL_ROOT_PASSWORD: "ci-password"
     JWT_SECRET_KEY: "testkey"
     LIMITER_DISABLED: "True"
+    EMULATOR_PHONE_NUMBER: "+1-123-456-7890"
   services:
     - mysql:5.7
   before_script:
