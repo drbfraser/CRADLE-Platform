@@ -59,7 +59,7 @@ const EditField = ({
   const [numChoices, setNumChoices] = useState<number>(0);
   const [questionLangVersions, setQuestionLangversions] = useState<
     QuestionLangVersion[]
-  >([]);
+  >([] as QuestionLangVersion[]);
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
   const [fieldChanged, setFieldChanged] = useState(false);
   const [formDirty, setFormDirty] = useState(false);
@@ -70,7 +70,6 @@ const EditField = ({
     inputLanguages.map((lang) => {
       const qLangVersion = qLangVersions.find((qlv) => qlv.lang == lang);
       if (qLangVersion) {
-        console.log('removing');
         const i = qLangVersions.indexOf(qLangVersion);
         if (i >= 0) {
           // remove option
@@ -130,6 +129,14 @@ const EditField = ({
       }
     }
     setQuestionLangversions(qLangVersions);
+  };
+
+  const removeAllMultChoices = () => {
+    questionLangVersions.forEach((qLangVersion) => {
+      if (qLangVersion.mcOptions) {
+        qLangVersion.mcOptions = [] as McOption[];
+      }
+    });
   };
 
   const getMcOptionValue = (language: string, index: number) => {
@@ -299,12 +306,6 @@ const EditField = ({
       : isQuestionIdFilled && areAllNamesFilled && isFieldTypeChosen;
   };
 
-  const resetFields = () => {
-    setFieldType('');
-    setQuestionId('');
-    setQuestionLangversions([]);
-  };
-
   useEffect(() => {
     // edit field
     if (formDirty) {
@@ -316,20 +317,19 @@ const EditField = ({
         setFieldType(getFieldType(question.questionType));
         setQuestionId(question.questionId ? question.questionId : '');
         setQuestionLangversions(question.questionLangVersions);
+        if (questionLangVersions.length > 0) {
+          setNumChoices(questionLangVersions[0].mcOptions.length);
+        }
       }
       // create new field
       else {
         setFieldType('');
         setQuestionId('');
         setQuestionLangversions([]);
+        setNumChoices(0);
       }
     }
-    console.log('field type');
-    console.log(fieldType);
-    console.log('question id');
-    console.log(questionId);
-    console.log('field names');
-    questionLangVersions.forEach((q) => console.log(q.questionText));
+
     // Check if all fields are filled
     // Enable/disable save button based on filled fields
     setIsSaveDisabled(!areAllFieldsFilled());
@@ -474,6 +474,7 @@ const EditField = ({
             type="button"
             onClick={(e) => {
               setFormDirty(false);
+              setNumChoices(0);
               onClose();
             }}>
             Cancel
@@ -483,6 +484,9 @@ const EditField = ({
             disabled={isSaveDisabled}
             onClick={() => {
               if (setForm) {
+                if (fieldType != 'mult_choice') {
+                  removeAllMultChoices();
+                }
                 setForm((form) => {
                   // edit field
                   if (question) {
