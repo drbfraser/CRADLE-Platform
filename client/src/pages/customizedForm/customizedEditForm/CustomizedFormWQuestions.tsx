@@ -19,6 +19,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import EditField from 'src/pages/admin/manageFormTemplates/editFormTemplate/EditField';
+import React from 'react';
 interface IProps {
   fm: FormTemplateWithQuestions;
   language: string;
@@ -155,7 +156,8 @@ export const CustomizedFormWQuestions = ({
                     const isQuestionSelected =
                       selectedQuestionIndex === question.questionIndex;
                     return (
-                      <>
+                      <React.Fragment
+                        key={`rendered-${question.questionIndex}`}>
                         {q}
                         <Grid
                           container
@@ -205,7 +207,7 @@ export const CustomizedFormWQuestions = ({
                           </Grid>
                         </Grid>
                         <EditField
-                          key={question.questionIndex}
+                          key={`EditField-popup-${question.questionIndex}`}
                           open={isQuestionSelected && editPopupOpen}
                           onClose={() => {
                             setSelectedQuestionIndex(null);
@@ -215,7 +217,7 @@ export const CustomizedFormWQuestions = ({
                           setForm={setForm}
                           question={question}
                         />
-                      </>
+                      </React.Fragment>
                     );
                   })}
                 </>
