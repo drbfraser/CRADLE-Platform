@@ -161,6 +161,7 @@ def sms_relay_procedure():
     response_body = json.dumps(response.json())
     return create_flask_response(response_code, response_body, user)
 
+
 # Abstract regex check into a module to avoid duplicate
 def phoneNumber_regex_check(phone_number):
     # Add regex check for phone number, the format of phone number is xxx-xxx-xxxxx
@@ -177,6 +178,7 @@ def phoneNumber_regex_check(phone_number):
         return False
     else:
         return True
+
 
 # /api/sms_relay
 class Root(Resource):
