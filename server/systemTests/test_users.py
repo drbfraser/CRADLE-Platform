@@ -31,3 +31,16 @@ def test_get_current_user(jwt_token):
 
     print(json.dumps(resp_body, indent=4))
     assert response.status_code == 200
+
+
+def test_user_phone_update(jwt_token, user_id, new_phone_number):
+    url_user_phone_update = f"http://localhost:5000/api/user/{user_id}/phone"
+    headers = {"Authorization": "Bearer " + jwt_token}
+
+    payload = {"phoneNumber": new_phone_number}
+    response = requests.put(url_user_phone_update, json=payload, headers=headers)
+    resp_body = response.json()
+
+    print(json.dumps(resp_body, indent=4))
+    assert response.status_code == 200
+    assert resp_body["message"] == "User phone number updated successfully"
