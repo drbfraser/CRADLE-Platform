@@ -1,5 +1,5 @@
 import { FormTemplateWithQuestions, TQuestion } from 'src/shared/types';
-import { Form, Formik } from 'formik';
+import { Field, Form, Formik } from 'formik';
 import {
   Dispatch,
   Fragment,
@@ -25,22 +25,25 @@ import EditIcon from '@mui/icons-material/Edit';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import EditField from 'src/pages/admin/manageFormTemplates/editFormTemplate/EditField';
+import { Autocomplete, AutocompleteRenderInputParams } from 'formik-mui';
+import { CustomizedFormField } from '../customizedFormHeader/state';
+import { TextField } from '@mui/material';
 interface IProps {
   fm: FormTemplateWithQuestions;
-  language: string;
+  languages: string[];
   renderState: FormRenderStateEnum;
   setForm: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
 }
 
 export const CustomizedFormWQuestions = ({
   fm,
-  language,
+  languages,
   renderState,
   setForm,
 }: IProps) => {
   const questions = fm.questions;
   const classes = useStyles();
-
+  const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
   const [submitError, setSubmitError] = useState(false);
   const [isSubmitPopupOpen, setIsSubmitPopupOpen] = useState(false);
   const [, upd] = useReducer((x) => x + 1, 0);
@@ -144,14 +147,41 @@ export const CustomizedFormWQuestions = ({
             <Paper>
               <Box p={4} pt={6} m={2}>
                 <Grid container spacing={3}>
-                  <h2>Current Form</h2>
+                  <Grid item xs={10}>
+                    <h2>Current Form</h2>
+                  </Grid>
+                  <Grid item xs={2}>
+                    <Field
+                      key={'view-lang'}
+                      value={selectedLanguage}
+                      component={Autocomplete}
+                      fullWidth
+                      name={CustomizedFormField.lang}
+                      options={languages}
+                      disableClearable={true}
+                      onChange={(event: any, value: string) => {
+                        setSelectedLanguage(value);
+                        console.log(value);
+                      }}
+                      renderInput={(params: AutocompleteRenderInputParams) => (
+                        <TextField
+                          {...params}
+                          name={CustomizedFormField.lang}
+                          helperText={''}
+                          label="View Language"
+                          variant="outlined"
+                          required
+                        />
+                      )}
+                    />
+                  </Grid>
                   <Divider />
                 </Grid>
                 <Grid container spacing={3} alignItems="center">
                   {FormQuestions({
                     questions: questions,
                     renderState: renderState,
-                    language: language,
+                    language: selectedLanguage,
                     handleAnswers: () => {
                       // pass
                     },
