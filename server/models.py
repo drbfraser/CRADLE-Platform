@@ -194,11 +194,23 @@ class Reading(db.Model):
     patientId = db.Column(
         db.String(50), db.ForeignKey("patient.patientId"), nullable=False
     )
+    referral_id = db.Column(
+        db.String(50),
+        db.ForeignKey("referral.id"),
+        nullable=True,  # or nullable=False, depending on your business logic
+    )
 
     # RELATIONSHIPS
     patient = db.relationship(
         "Patient",
         backref=db.backref("readings", cascade="all, delete-orphan", lazy=True),
+    )
+    referral = db.relationship(
+        "Referral",
+        backref=db.backref("reading", uselist=False),
+        uselist=False,
+        cascade="all, delete-orphan",
+        single_parent=True,
     )
 
     def get_traffic_light(self):

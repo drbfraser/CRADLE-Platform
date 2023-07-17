@@ -164,7 +164,7 @@ export const CustomFormTemplate = () => {
             {form && form.questions && form!.questions!.length > 0 && (
               <CustomizedFormWQuestions
                 fm={form}
-                language={language[0]}
+                languages={language}
                 renderState={FormRenderStateEnum.SUBMIT_TEMPLATE}
                 setForm={setForm}
               />
@@ -220,13 +220,13 @@ const LanguageModal = ({ language, setLanguage }: LanguageModalProps) => {
         <DialogContent dividers={true}>
           <FormControl fullWidth variant="outlined">
             <FormGroup>
-              <Grid container spacing={3} className={classes.modal}>
+              <Grid container spacing={1} className={classes.modal}>
                 {languageOptions.map((value) => {
                   if (value === undefined) {
                     return <></>;
                   }
                   return (
-                    <Grid key={value} xs={4}>
+                    <Grid item key={value} xs={4}>
                       <FormControlLabel
                         label={value}
                         control={

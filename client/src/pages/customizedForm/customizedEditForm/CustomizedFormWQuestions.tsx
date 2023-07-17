@@ -1,6 +1,12 @@
 import { FormTemplateWithQuestions, TQuestion } from 'src/shared/types';
-import { Form, Formik } from 'formik';
-import { Dispatch, SetStateAction, useReducer, useState } from 'react';
+import { Field, Formik } from 'formik';
+import {
+  Dispatch,
+  Fragment,
+  SetStateAction,
+  useReducer,
+  useState,
+} from 'react';
 import { initialState, validationSchema } from './state';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -19,22 +25,25 @@ import EditIcon from '@mui/icons-material/Edit';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import EditField from 'src/pages/admin/manageFormTemplates/editFormTemplate/EditField';
+import { Autocomplete, AutocompleteRenderInputParams } from 'formik-mui';
+import { CustomizedFormField } from '../customizedFormHeader/state';
+import { TextField } from '@mui/material';
 interface IProps {
   fm: FormTemplateWithQuestions;
-  language: string;
+  languages: string[];
   renderState: FormRenderStateEnum;
   setForm: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
 }
 
 export const CustomizedFormWQuestions = ({
   fm,
-  language,
+  languages,
   renderState,
   setForm,
 }: IProps) => {
   const questions = fm.questions;
   const classes = useStyles();
-
+  const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
   const [submitError, setSubmitError] = useState(false);
   const [isSubmitPopupOpen, setIsSubmitPopupOpen] = useState(false);
   const [, upd] = useReducer((x) => x + 1, 0);
@@ -134,109 +143,133 @@ export const CustomizedFormWQuestions = ({
           // pass
         }}>
         {({ isSubmitting }) => (
-          <Form>
-            <Paper>
-              <Box p={4} pt={6} m={2}>
-                <Grid container spacing={3}>
+          <Paper>
+            <Box p={4} pt={6} m={2}>
+              <Grid container spacing={3}>
+                <Grid item xs={10}>
                   <h2>Current Form</h2>
-                  <Divider />
                 </Grid>
-                <Grid container spacing={3} alignItems="center">
-                  <>
-                    {FormQuestions({
-                      questions: questions,
-                      renderState: renderState,
-                      language: language,
-                      handleAnswers: () => {
-                        // pass
-                      },
-                      setForm: setForm,
-                    }).map((q, index) => {
-                      const question = questions[index];
-                      const isQuestionSelected =
-                        selectedQuestionIndex === question.questionIndex;
-                      return (
-                        <>
-                          {q}
-                          <Grid
-                            container
-                            item
-                            xs={1}
-                            style={{ marginLeft: '-20px' }}>
-                            <Grid item xs={6}>
-                              <IconButton
-                                key={`field-up-${question.questionIndex}`}
-                                size="small"
-                                onClick={(e) => {
-                                  handleFieldUp(question);
-                                }}>
-                                <KeyboardArrowUpIcon fontSize="small" />
-                              </IconButton>
-                            </Grid>
-                            <Grid item xs={6}>
-                              <IconButton
-                                key={`edit-field-${question.questionIndex}`}
-                                size="small"
-                                onClick={(e) => {
-                                  handleEditField(question);
-                                }}>
-                                <EditIcon fontSize="small" />
-                              </IconButton>
-                            </Grid>
-                            <Grid item xs={6}>
-                              <IconButton
-                                key={`field-down-${question.questionIndex}`}
-                                size="small"
-                                onClick={(e) => {
-                                  handleFieldDown(question);
-                                }}>
-                                <KeyboardArrowDownIcon fontSize="small" />
-                              </IconButton>
-                            </Grid>
-                            <Grid item xs={6}>
-                              <IconButton
-                                key={`delete-field-${question.questionIndex}`}
-                                size="small"
-                                color="error"
-                                onClick={(e) => {
-                                  handleDeleteField(question);
-                                }}>
-                                <DeleteIcon fontSize="small" />
-                              </IconButton>
-                            </Grid>
-                          </Grid>
-                          <EditField
-                            key={question.questionIndex}
-                            open={isQuestionSelected && editPopupOpen}
-                            onClose={() => {
-                              setSelectedQuestionIndex(null);
-                              setEditPopupOpen(false);
-                            }}
-                            inputLanguages={getInputLanguages(question)}
-                            setForm={setForm}
-                            question={question}
-                          />
-                        </>
-                      );
-                    })}
-                  </>
+                <Grid item xs={2}>
+                  <Field
+                    key={'view-lang'}
+                    value={selectedLanguage}
+                    component={Autocomplete}
+                    fullWidth
+                    name={CustomizedFormField.lang}
+                    options={languages}
+                    disableClearable={true}
+                    onChange={(event: any, value: string) => {
+                      setSelectedLanguage(value);
+                      console.log(value);
+                    }}
+                    renderInput={(params: AutocompleteRenderInputParams) => (
+                      <TextField
+                        {...params}
+                        name={CustomizedFormField.lang}
+                        helperText={''}
+                        label="View Language"
+                        variant="outlined"
+                        required
+                      />
+                    )}
+                  />
                 </Grid>
-                <PrimaryButton
-                  className={classes.right}
-                  onClick={() => {
-                    setIsSubmitPopupOpen(true);
-                  }}
-                  type="button">
-                  {formTitle}
-                </PrimaryButton>
-                <SubmitFormTemplateDialog
-                  open={isSubmitPopupOpen}
-                  onClose={() => setIsSubmitPopupOpen(false)}
-                  form={fm}
-                />
-              </Box>
-            </Paper>
-          </Form>
+                <Divider />
+              </Grid>
+              <Grid container spacing={3} alignItems="center">
+                {FormQuestions({
+                  questions: questions,
+                  renderState: renderState,
+                  language: selectedLanguage,
+                  handleAnswers: () => {
+                    // pass
+                  },
+                  setForm: setForm,
+                }).map((q, index) => {
+                  const question = questions[index];
+                  const isQuestionSelected =
+                    selectedQuestionIndex === question.questionIndex;
+                  return (
+                    <Fragment key={`rendered-${question.questionIndex}`}>
+                      {q}
+                      <Grid
+                        container
+                        item
+                        xs={1}
+                        style={{ marginLeft: '-20px' }}>
+                        <Grid item xs={6}>
+                          <IconButton
+                            key={`field-up-${question.questionIndex}`}
+                            size="small"
+                            onClick={(e) => {
+                              handleFieldUp(question);
+                            }}>
+                            <KeyboardArrowUpIcon fontSize="small" />
+                          </IconButton>
+                        </Grid>
+                        <Grid item xs={6}>
+                          <IconButton
+                            key={`edit-field-${question.questionIndex}`}
+                            size="small"
+                            onClick={(e) => {
+                              handleEditField(question);
+                            }}>
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                        </Grid>
+                        <Grid item xs={6}>
+                          <IconButton
+                            key={`field-down-${question.questionIndex}`}
+                            size="small"
+                            onClick={(e) => {
+                              handleFieldDown(question);
+                            }}>
+                            <KeyboardArrowDownIcon fontSize="small" />
+                          </IconButton>
+                        </Grid>
+                        <Grid item xs={6}>
+                          <IconButton
+                            key={`delete-field-${question.questionIndex}`}
+                            size="small"
+                            color="error"
+                            onClick={(e) => {
+                              handleDeleteField(question);
+                            }}>
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Grid>
+                      </Grid>
+                      <EditField
+                        key={`EditField-popup-${question.questionIndex}`}
+                        open={isQuestionSelected && editPopupOpen}
+                        onClose={() => {
+                          setSelectedQuestionIndex(null);
+                          setEditPopupOpen(false);
+                        }}
+                        inputLanguages={getInputLanguages(question)}
+                        setForm={setForm}
+                        question={question}
+                      />
+                    </Fragment>
+                  );
+                })}
+              </Grid>
+              <PrimaryButton
+                className={classes.right}
+                onClick={() => {
+                  setIsSubmitPopupOpen(true);
+                }}
+                type="button"
+                disabled={questions.length === 0}>
+                {formTitle}
+              </PrimaryButton>
+              <SubmitFormTemplateDialog
+                open={isSubmitPopupOpen}
+                onClose={() => setIsSubmitPopupOpen(false)}
+                form={fm}
+              />
+            </Box>
+          </Paper>
         )}
       </Formik>
     </>

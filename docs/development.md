@@ -43,6 +43,12 @@ LIMITER_DISABLED=True
 
 Note you may set these to any arbitrary values.
 
+In case connecting with cradle-sms-relay is needed  should append your emulator's phone number 
+
+```
+EMULATOR_PHONE_NUMBER=Your emulator's phone number 
+```
+
 ## 4. Spin up the Docker Containers
 
 From your OS's terminal (such as PowerShell in Windows) run:
