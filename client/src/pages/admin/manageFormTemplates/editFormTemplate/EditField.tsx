@@ -29,6 +29,7 @@ import {
   TQuestion,
 } from 'src/shared/types';
 import { QuestionTypeEnum } from 'src/shared/enums';
+import { bool } from 'yup';
 
 interface IProps {
   open: boolean;
@@ -67,7 +68,7 @@ const EditField = ({
   const handleRemoveMultiChoice = (index: number) => {
     const qLangVersions: QuestionLangVersion[] = questionLangVersions;
 
-    inputLanguages.map((lang) => {
+    inputLanguages.forEach((lang) => {
       const qLangVersion = qLangVersions.find((qlv) => qlv.lang == lang);
       if (qLangVersion) {
         const i = qLangVersions.indexOf(qLangVersion);
@@ -283,10 +284,10 @@ const EditField = ({
     let areAllMcOptionFilled = true;
     const isFieldTypeChosen = fieldType.trim() != '';
 
-    questionLangVersions.forEach((qLangVersion) => {
-      areAllNamesFilled =
-        areAllNamesFilled && qLangVersion.questionText.trim() != '';
-      if (fieldType == 'mult_choice') {
+    if (fieldType == 'mult_choice') {
+      questionLangVersions.forEach((qLangVersion) => {
+        areAllNamesFilled =
+          areAllNamesFilled && qLangVersion.questionText.trim() != '';
         if (qLangVersion.mcOptions.length == 0) {
           areAllMcOptionFilled = false;
         } else {
@@ -295,15 +296,15 @@ const EditField = ({
               areAllMcOptionFilled && option.opt.trim() != '';
           });
         }
-      }
-    });
+      });
+    }
+
+    const nonMultiChoiceCheck =
+      isQuestionIdFilled && areAllNamesFilled && isFieldTypeChosen;
 
     return fieldType == 'mult_choice'
-      ? isQuestionIdFilled &&
-          areAllNamesFilled &&
-          isFieldTypeChosen &&
-          areAllMcOptionFilled
-      : isQuestionIdFilled && areAllNamesFilled && isFieldTypeChosen;
+      ? nonMultiChoiceCheck && areAllMcOptionFilled
+      : nonMultiChoiceCheck;
   };
 
   useEffect(() => {
