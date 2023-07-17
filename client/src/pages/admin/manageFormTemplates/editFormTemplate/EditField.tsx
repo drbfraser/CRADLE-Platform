@@ -193,10 +193,10 @@ const EditField = ({
               {'Add Choice'}
             </PrimaryButton>
           </Grid>
-          <Grid item>
+          <Grid item xs={12}>
             <Grid container spacing={3}>
               {Array.from(Array(numChoices).keys()).map((_, index) => (
-                <Grid item key={`option-${index}`}>
+                <Grid item xs={12} key={`option-${index}`}>
                   <Grid item>
                     <Grid container spacing={3}>
                       <Grid item xs={10} sm={6} md={2}>
