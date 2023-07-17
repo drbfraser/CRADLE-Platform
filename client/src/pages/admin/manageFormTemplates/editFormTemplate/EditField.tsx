@@ -9,9 +9,6 @@ import {
   IconButton,
   Radio,
   RadioGroup,
-  Table,
-  TableCell,
-  TableRow,
 } from '@mui/material';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import {
@@ -20,8 +17,7 @@ import {
 } from '../../../../shared/components/Button';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react';
-import { TableHeader } from 'semantic-ui-react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
   FormTemplateWithQuestions,
   McOption,
@@ -185,67 +181,88 @@ const EditField = ({
       label: 'Multiple Choice',
       type: QuestionTypeEnum.MULTIPLE_CHOICE,
       render: () => (
-        <Grid>
-          <PrimaryButton
-            type="button"
-            onClick={(e) => {
-              handleAddChoice();
-              setFieldChanged(!fieldChanged);
-              setFormDirty(true);
-            }}>
-            {'Add Choice'}
-          </PrimaryButton>
-          <Table>
-            {Array.from(Array(numChoices).keys()).map((_, index) => (
-              <TableRow key={`multi-choice-option-${index + 1}`}>
-                {inputLanguages.map((lang) => (
-                  <Fragment key={`${lang}-mult-choice-option-${index + 1}`}>
-                    <TableCell
-                      size="small"
-                      key={`${lang}-mult-choice-option-${index + 1}-body`}>
-                      <TextField
-                        key={`${lang}-field-name-mult-choice-option-${
-                          index + 1
-                        }`}
-                        label={`${lang} Option ${index + 1}`}
-                        required={true}
-                        variant="outlined"
-                        value={getMcOptionValue(lang, index)}
-                        fullWidth
-                        multiline
-                        size="small"
-                        inputProps={{
-                          // TODO: Determine what types of input restrictions we should have for multiple choice option
-                          maxLength: Number.MAX_SAFE_INTEGER,
-                        }}
-                        onChange={(e) => {
-                          handleMultiChoiceOptionChange(
-                            lang,
-                            e.target.value,
-                            index
-                          );
-                          setFieldChanged(!fieldChanged);
-                          setFormDirty(true);
-                        }}
-                      />
-                    </TableCell>
-                  </Fragment>
-                ))}
-                <TableCell>
-                  <IconButton
-                    key={`remove-option-${index + 1}`}
-                    color="error"
-                    onClick={(e) => {
-                      handleRemoveMultiChoice(index);
-                      setFieldChanged(!fieldChanged);
-                      setFormDirty(true);
-                    }}>
-                    <RemoveCircleOutlineIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </Table>
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <PrimaryButton
+              type="button"
+              onClick={(e) => {
+                handleAddChoice();
+                setFieldChanged(!fieldChanged);
+                setFormDirty(true);
+              }}>
+              {'Add Choice'}
+            </PrimaryButton>
+          </Grid>
+          <Grid item xs={12}>
+            <Grid container spacing={3}>
+              {Array.from(Array(numChoices).keys()).map((_, index) => (
+                <Grid item xs={12} key={`option-${index}`}>
+                  <Grid item>
+                    <Grid container spacing={3}>
+                      <Grid item xs={10} sm={6} md={2}>
+                        <FormLabel id="field-type-label">
+                          <Typography variant="h6">
+                            Option {index + 1}
+                          </Typography>
+                        </FormLabel>
+                      </Grid>
+                      <Grid item xs={2} sm={6} md={10}>
+                        <IconButton
+                          key={`remove-option-${index + 1}`}
+                          color="error"
+                          onClick={(e) => {
+                            handleRemoveMultiChoice(index);
+                            setFieldChanged(!fieldChanged);
+                            setFormDirty(true);
+                          }}>
+                          <RemoveCircleOutlineIcon />
+                        </IconButton>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                  <Grid item>
+                    <Grid container spacing={3}>
+                      {inputLanguages.map((lang) => (
+                        <Grid
+                          item
+                          xs={12}
+                          sm={6}
+                          md={4}
+                          lg={3}
+                          key={`${lang}-mult-choice-option-${index + 1}-body`}>
+                          <TextField
+                            key={`${lang}-field-name-mult-choice-option-${
+                              index + 1
+                            }`}
+                            label={`${lang} Option ${index + 1}`}
+                            required={true}
+                            variant="outlined"
+                            value={getMcOptionValue(lang, index)}
+                            fullWidth
+                            multiline
+                            size="small"
+                            inputProps={{
+                              // TODO: Determine what types of input restrictions we should have for multiple choice option
+                              maxLength: Number.MAX_SAFE_INTEGER,
+                            }}
+                            onChange={(e) => {
+                              handleMultiChoiceOptionChange(
+                                lang,
+                                e.target.value,
+                                index
+                              );
+                              setFieldChanged(!fieldChanged);
+                              setFormDirty(true);
+                            }}
+                          />
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Grid>
+                </Grid>
+              ))}
+            </Grid>
+          </Grid>
         </Grid>
       ),
     },
@@ -374,67 +391,62 @@ const EditField = ({
   return (
     <>
       <Dialog open={open} maxWidth="lg" fullWidth>
-        <DialogTitle>Create Field</DialogTitle>
+        <DialogTitle>
+          <div>
+            <Typography variant="h5">Create Field</Typography>
+          </div>
+        </DialogTitle>
         <DialogContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {inputLanguages.map((lang) => (
-                  <TableCell key={lang + '-title'}>{lang}</TableCell>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableRow>
-              {inputLanguages.map((lang) => (
-                <TableCell size="small" key={lang + '-body'}>
-                  <TextField
-                    key={lang + '-field-name'}
-                    label={lang + ' Field Name'}
-                    required={true}
-                    variant="outlined"
-                    fullWidth
-                    multiline
-                    size="small"
-                    defaultValue={getFieldName(lang)}
-                    inputProps={{
-                      maxLength: Number.MAX_SAFE_INTEGER,
-                    }}
-                    onChange={(e) => {
-                      addFieldToQuestionLangVersions(lang, e.target.value);
-                      setFieldChanged(!fieldChanged);
-                      setFormDirty(true);
-                    }}
-                  />
-                </TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              <TableCell key="question-id-cell">
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <FormLabel id="field-details-label">
+                <Typography variant="h6">Field Details</Typography>
+              </FormLabel>
+            </Grid>
+            {inputLanguages.map((lang) => (
+              <Grid item xs={12} key={lang + '-field-text'}>
                 <TextField
-                  label={'Question ID'}
-                  key={'question-id'}
+                  key={lang + '-field-text'}
+                  label={lang + ' Field Text'}
                   required={true}
                   variant="outlined"
                   fullWidth
                   multiline
-                  defaultValue={
-                    question && question.questionId ? question.questionId : ''
-                  }
                   size="small"
+                  defaultValue={getFieldName(lang)}
                   inputProps={{
                     maxLength: Number.MAX_SAFE_INTEGER,
                   }}
                   onChange={(e) => {
-                    setQuestionId(e.target.value);
+                    addFieldToQuestionLangVersions(lang, e.target.value);
                     setFieldChanged(!fieldChanged);
                     setFormDirty(true);
                   }}
                 />
-              </TableCell>
-            </TableRow>
-          </Table>
-          <br />
-          <Grid container spacing={3}>
+              </Grid>
+            ))}
+            <Grid item xs={12}>
+              <TextField
+                label={'Question ID'}
+                key={'question-id'}
+                required={true}
+                variant="outlined"
+                fullWidth
+                multiline
+                defaultValue={
+                  question && question.questionId ? question.questionId : ''
+                }
+                size="small"
+                inputProps={{
+                  maxLength: Number.MAX_SAFE_INTEGER,
+                }}
+                onChange={(e) => {
+                  setQuestionId(e.target.value);
+                  setFieldChanged(!fieldChanged);
+                  setFormDirty(true);
+                }}
+              />
+            </Grid>
             <Grid item sm={12} md={2} lg={2}>
               <FormLabel id="field-type-label">
                 <Typography variant="h6">Field Type</Typography>
@@ -462,12 +474,7 @@ const EditField = ({
               </RadioGroup>
             </Grid>
           </Grid>
-
-          {fieldType
-            ? // TODO: Remove @ts-ignore
-              // @ts-ignore
-              fieldTypes[fieldType].render()
-            : ''}
+          {fieldType ? fieldTypes[fieldType].render() : null}
         </DialogContent>
         <DialogActions>
           <CancelButton
