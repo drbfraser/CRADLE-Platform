@@ -39,7 +39,7 @@ def user_id():
 
 
 @pytest.fixture
-def phone_number():
+def new_phone_number():
     return "+12223334455"
 
 
