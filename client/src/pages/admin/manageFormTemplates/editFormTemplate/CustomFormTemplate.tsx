@@ -164,7 +164,7 @@ export const CustomFormTemplate = () => {
             {form && form.questions && form!.questions!.length > 0 && (
               <CustomizedFormWQuestions
                 fm={form}
-                language={language[0]}
+                languages={language}
                 renderState={FormRenderStateEnum.SUBMIT_TEMPLATE}
                 setForm={setForm}
               />
