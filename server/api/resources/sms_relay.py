@@ -1,3 +1,5 @@
+import re
+
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask import redirect, request, url_for, make_response, Response
 from flask_restful import Resource, abort
@@ -35,6 +37,10 @@ invalid_message = (
     "with the server using an internet connection (WiFi, 3G, …) "
 )
 
+invalid_phone_number = (
+    "Phone number {phoneNumber} has wrong format. The format for phone number should be +x-xxx-xxx-xxxx, "
+    "+x-xxx-xxx-xxxxx, xxx-xxx-xxxx or xxx-xxx-xxxxx"
+)
 
 invalid_json = "Invalid JSON Request Structure; {error}"
 
@@ -83,7 +89,7 @@ def create_flask_response(code: int, body: str, user: User) -> Response:
 def sms_relay_procedure():
     json_request = request.get_json(force=True)
 
-    # Erroring Checking
+    # Error Checking
     error = sms_relay.validate_request(json_request)
 
     if error:
@@ -91,7 +97,19 @@ def sms_relay_procedure():
 
     phoneNumber = json_request["phoneNumber"]
 
-    # Authorization Check
+    # Add regex check for phone number, the format of phone number is xxx-xxx-xxxxx
+    regex_phone_number_format_with_area_code = (
+        r"^([0-9+-]\+?\d{1}?[-]?\(?\d{3}[)-]?\d{3}[-]?\d{4,5})$"
+    )
+    regex_phone_number_format_normal = r"^(\d{3}[-]?\d{3}[-]?\d{4,5})$"
+    checked_number_with_area_code = re.match(
+        regex_phone_number_format_with_area_code, phoneNumber
+    )
+    checked_number = re.match(regex_phone_number_format_normal, phoneNumber)
+
+    if not checked_number and not checked_number_with_area_code:
+        abort(401, message=invalid_phone_number.format(phoneNumber=phoneNumber))
+
     user = crud.read(User, phoneNumber=phoneNumber)
 
     if not user:
@@ -102,12 +120,14 @@ def sms_relay_procedure():
     # Decryption
     try:
         decrypted_data = encryptor.decrypt(encrypted_data, user.secretKey)
+
     except:
         abort(401, message=invalid_message.format(phoneNumber=phoneNumber))
 
     # Decompression
     try:
         data = compressor.decompress(decrypted_data)
+
     except:
         abort(401, message=invalid_message.format(phoneNumber=phoneNumber))
 
