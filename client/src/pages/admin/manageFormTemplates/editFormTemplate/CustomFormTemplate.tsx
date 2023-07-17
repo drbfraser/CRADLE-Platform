@@ -39,7 +39,11 @@ export const initialState = {
 
 export const CustomFormTemplate = () => {
   const [submitError, setSubmitError] = useState(false);
-  const [language, setLanguage] = useState<string[]>([]);
+  const [language, setLanguage] = useState<string[]>([
+    'English',
+    'Korean',
+    'Japanese',
+  ]);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
