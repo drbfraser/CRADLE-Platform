@@ -29,7 +29,6 @@ import {
   TQuestion,
 } from 'src/shared/types';
 import { QuestionTypeEnum } from 'src/shared/enums';
-import { bool } from 'yup';
 
 interface IProps {
   open: boolean;
