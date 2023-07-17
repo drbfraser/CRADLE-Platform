@@ -159,10 +159,9 @@ export const CustomizedFormWQuestions = ({
                       name={CustomizedFormField.lang}
                       options={languages}
                       disableClearable={true}
-                      onChange={(event: any, value: string) => {
-                        setSelectedLanguage(value);
-                        console.log(value);
-                      }}
+                      onChange={(event: any, value: string) =>
+                        setSelectedLanguage(value)
+                      }
                       renderInput={(params: AutocompleteRenderInputParams) => (
                         <TextField
                           {...params}
