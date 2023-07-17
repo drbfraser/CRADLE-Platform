@@ -52,7 +52,7 @@ const EditField = ({
   setForm,
   question,
 }: IProps) => {
-  const [fieldType, setFieldType] = useState<string>('');
+  const [fieldType, setFieldType] = useState<string>('category');
   const [questionId, setQuestionId] = useState<string>('');
   const [questionLangVersions, setQuestionLangversions] = useState<
     QuestionLangVersion[]
@@ -153,7 +153,7 @@ const EditField = ({
     }
     // create new field
     else {
-      setFieldType('');
+      setFieldType('category');
       setQuestionId('');
       setQuestionLangversions([]);
     }
