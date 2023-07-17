@@ -39,7 +39,7 @@ invalid_message = (
 
 invalid_phone_number = (
     "Phone number {phoneNumber} has wrong format. The format for phone number should be +x-xxx-xxx-xxxx, "
-    "xxx-xxx-xxxx or xxx-xxx-xxxxx"
+    "+x-xxx-xxx-xxxxx, xxx-xxx-xxxx or xxx-xxx-xxxxx"
 )
 
 invalid_json = "Invalid JSON Request Structure; {error}"
@@ -99,13 +99,14 @@ def sms_relay_procedure():
 
     # Add regex check for phone number, the format of phone number is xxx-xxx-xxxxx
     regex_phone_number_format_with_area_code = (
-        r"\+?\d{1}?[-]?\(?\d{3}[)-]?\d{3}[-]?\d{4,5}"
+        r"^([0-9+-]\+?\d{1}?[-]?\(?\d{3}[)-]?\d{3}[-]?\d{4,5})$"
     )
-    regex_phone_number_format_normal = r"\(?\d{3}[)-]?\d{3}[-]?\d{4,5}"
+    regex_phone_number_format_normal = r"^([0-9+-]\(?\d{3}[)-]?\d{3}[-]?\d{4,5})$"
     checked_number_with_area_code = re.match(
         regex_phone_number_format_with_area_code, phoneNumber
     )
     checked_number = re.match(regex_phone_number_format_normal, phoneNumber)
+
     if not checked_number and not checked_number_with_area_code:
         abort(401, message=invalid_phone_number.format(phoneNumber=phoneNumber))
 
