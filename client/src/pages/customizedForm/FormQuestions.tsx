@@ -253,7 +253,10 @@ export const FormQuestions = ({
                   control={
                     <Radio
                       color="primary"
-                      disabled={renderState === FormRenderStateEnum.VIEW}
+                      disabled={
+                        renderState === FormRenderStateEnum.VIEW ||
+                        renderState === FormRenderStateEnum.SUBMIT_TEMPLATE
+                      }
                     />
                   }
                   label={McOption.opt}
@@ -299,7 +302,10 @@ export const FormQuestions = ({
                 }
                 label={McOption.opt}
                 key={index}
-                disabled={renderState === FormRenderStateEnum.VIEW}
+                disabled={
+                  renderState === FormRenderStateEnum.VIEW ||
+                  renderState === FormRenderStateEnum.SUBMIT_TEMPLATE
+                }
               />
             ))}
           </Grid>
@@ -319,7 +325,10 @@ export const FormQuestions = ({
               variant="outlined"
               type="number"
               fullWidth
-              disabled={renderState === FormRenderStateEnum.VIEW}
+              disabled={
+                renderState === FormRenderStateEnum.VIEW ||
+                renderState === FormRenderStateEnum.SUBMIT_TEMPLATE
+              }
               required={required}
               InputProps={{
                 endAdornment: Boolean(question.units) &&
@@ -364,7 +373,10 @@ export const FormQuestions = ({
               required={required}
               variant="outlined"
               fullWidth
-              disabled={renderState === FormRenderStateEnum.VIEW}
+              disabled={
+                renderState === FormRenderStateEnum.VIEW ||
+                renderState === FormRenderStateEnum.SUBMIT_TEMPLATE
+              }
               multiline
               inputProps={{
                 maxLength:
@@ -391,7 +403,10 @@ export const FormQuestions = ({
               component={TextField}
               defaultValue={answer.val ? getPrettyDateTime(answer.val) : null}
               fullWidth
-              disabled={renderState === FormRenderStateEnum.VIEW}
+              disabled={
+                renderState === FormRenderStateEnum.VIEW ||
+                renderState === FormRenderStateEnum.SUBMIT_TEMPLATE
+              }
               required={required}
               variant="outlined"
               type="datetime-local"
@@ -418,7 +433,10 @@ export const FormQuestions = ({
               component={TextField}
               defaultValue={answer.val ? getPrettyDate(answer.val) : null}
               fullWidth
-              disabled={renderState === FormRenderStateEnum.VIEW}
+              disabled={
+                renderState === FormRenderStateEnum.VIEW ||
+                renderState === FormRenderStateEnum.SUBMIT_TEMPLATE
+              }
               required={required}
               variant="outlined"
               type="date"
