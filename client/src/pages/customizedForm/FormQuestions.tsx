@@ -447,7 +447,7 @@ export const FormQuestions = ({
   ) => {
     return questions.map((question: Question | TQuestion, index) => {
       return (
-        <Fragment key={`question-container-${question.questionIndex}`}>
+        <Fragment key={question.questionIndex}>
           {generateHtmlForQuestion(question, answers[index], renderState)}
         </Fragment>
       );
