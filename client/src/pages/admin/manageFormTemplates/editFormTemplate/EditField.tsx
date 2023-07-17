@@ -18,7 +18,6 @@ import {
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react';
-import { TableHeader } from 'semantic-ui-react';
 import {
   FormTemplateWithQuestions,
   McOption,

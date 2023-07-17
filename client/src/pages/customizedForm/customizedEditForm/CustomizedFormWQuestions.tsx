@@ -1,5 +1,5 @@
 import { FormTemplateWithQuestions, TQuestion } from 'src/shared/types';
-import { Form, Formik } from 'formik';
+import { Formik } from 'formik';
 import {
   Dispatch,
   Fragment,
