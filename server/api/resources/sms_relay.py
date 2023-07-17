@@ -101,7 +101,7 @@ def sms_relay_procedure():
     regex_phone_number_format_with_area_code = (
         r"^([0-9+-]\+?\d{1}?[-]?\(?\d{3}[)-]?\d{3}[-]?\d{4,5})$"
     )
-    regex_phone_number_format_normal = r"^([0-9+-]\(?\d{3}[)-]?\d{3}[-]?\d{4,5})$"
+    regex_phone_number_format_normal = r"^(\d{3}[-]?\d{3}[-]?\d{4,5})$"
     checked_number_with_area_code = re.match(
         regex_phone_number_format_with_area_code, phoneNumber
     )
