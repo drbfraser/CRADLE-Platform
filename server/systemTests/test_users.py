@@ -33,6 +33,16 @@ def test_get_current_user(jwt_token):
     assert response.status_code == 200
 
 
+@pytest.fixture
+def user_id():
+    return 3
+
+
+@pytest.fixture
+def phone_number():
+    return "+12223334455"
+
+
 def test_user_phone_update(jwt_token, user_id, new_phone_number):
     url_user_phone_update = f"http://localhost:5000/api/user/{user_id}/phone"
     headers = {"Authorization": "Bearer " + jwt_token}
