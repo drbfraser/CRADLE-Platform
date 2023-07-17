@@ -44,7 +44,28 @@ def test_sms_relay_invalid_phone_number(api_post):
 
 
 def test_sms_relay_invalid_phone_number_format(api_post):
-    phoneNumber = "123a"
+    # test fot the general cases
+    phoneNumber = "This is wrong phone number"
+    json_body = {"phoneNumber": phoneNumber, "encryptedData": "a"}
+    response = api_post(endpoint=sms_relay_endpoint, json=json_body)
+
+    assert response.status_code == 401
+    actual_json = json.loads(response.text)
+    assert actual_json["message"] == sms_relay.invalid_phone_number.format(
+        phoneNumber=phoneNumber
+    )
+    # test for the phone number with extra symbol and alphabet
+    phoneNumber = "+223-445d-0ggff"
+    json_body = {"phoneNumber": phoneNumber, "encryptedData": "a"}
+    response = api_post(endpoint=sms_relay_endpoint, json=json_body)
+
+    assert response.status_code == 401
+    actual_json = json.loads(response.text)
+    assert actual_json["message"] == sms_relay.invalid_phone_number.format(
+        phoneNumber=phoneNumber
+    )
+    # test for the phone number with other extreme cases
+    phoneNumber = "sssss+1-555-555-5555vdfsger"
     json_body = {"phoneNumber": phoneNumber, "encryptedData": "a"}
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
 
