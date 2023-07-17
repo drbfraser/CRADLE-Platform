@@ -17,7 +17,7 @@ import {
 } from '../../../../shared/components/Button';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
   FormTemplateWithQuestions,
   McOption,
@@ -193,60 +193,76 @@ const EditField = ({
               {'Add Choice'}
             </PrimaryButton>
           </Grid>
-          <>
-            {Array.from(Array(numChoices).keys()).map((_, index) => (
-              <Fragment key={`mult-choice-option-${index + 1}`}>
-                {inputLanguages.map((lang) => (
-                  <Fragment key={`${lang}-mult-choice-option-${index + 1}`}>
-                    <Grid
-                      item
-                      sm={12}
-                      md={4}
-                      lg={3}
-                      key={`${lang}-mult-choice-option-${index + 1}-body`}>
-                      <TextField
-                        key={`${lang}-field-name-mult-choice-option-${
-                          index + 1
-                        }`}
-                        label={`${lang} Option ${index + 1}`}
-                        required={true}
-                        variant="outlined"
-                        value={getMcOptionValue(lang, index)}
-                        fullWidth
-                        multiline
-                        size="small"
-                        inputProps={{
-                          // TODO: Determine what types of input restrictions we should have for multiple choice option
-                          maxLength: Number.MAX_SAFE_INTEGER,
-                        }}
-                        onChange={(e) => {
-                          handleMultiChoiceOptionChange(
-                            lang,
-                            e.target.value,
-                            index
-                          );
-                          setFieldChanged(!fieldChanged);
-                          setFormDirty(true);
-                        }}
-                      />
+          <Grid item>
+            <Grid container spacing={3}>
+              {Array.from(Array(numChoices).keys()).map((_, index) => (
+                <Grid item key={`option-${index}`}>
+                  <Grid item>
+                    <Grid container spacing={3}>
+                      <Grid item xs={10} sm={6} md={2}>
+                        <FormLabel id="field-type-label">
+                          <Typography variant="h6">
+                            Option {index + 1}
+                          </Typography>
+                        </FormLabel>
+                      </Grid>
+                      <Grid item xs={2} sm={6} md={10}>
+                        <IconButton
+                          key={`remove-option-${index + 1}`}
+                          color="error"
+                          onClick={(e) => {
+                            handleRemoveMultiChoice(index);
+                            setFieldChanged(!fieldChanged);
+                            setFormDirty(true);
+                          }}>
+                          <RemoveCircleOutlineIcon />
+                        </IconButton>
+                      </Grid>
                     </Grid>
-                  </Fragment>
-                ))}
-                <Grid item xs>
-                  <IconButton
-                    key={`remove-option-${index + 1}`}
-                    color="error"
-                    onClick={(e) => {
-                      handleRemoveMultiChoice(index);
-                      setFieldChanged(!fieldChanged);
-                      setFormDirty(true);
-                    }}>
-                    <RemoveCircleOutlineIcon />
-                  </IconButton>
+                  </Grid>
+                  <Grid item>
+                    <Grid container spacing={3}>
+                      {inputLanguages.map((lang) => (
+                        <Grid
+                          item
+                          xs={12}
+                          sm={6}
+                          md={4}
+                          lg={3}
+                          key={`${lang}-mult-choice-option-${index + 1}-body`}>
+                          <TextField
+                            key={`${lang}-field-name-mult-choice-option-${
+                              index + 1
+                            }`}
+                            label={`${lang} Option ${index + 1}`}
+                            required={true}
+                            variant="outlined"
+                            value={getMcOptionValue(lang, index)}
+                            fullWidth
+                            multiline
+                            size="small"
+                            inputProps={{
+                              // TODO: Determine what types of input restrictions we should have for multiple choice option
+                              maxLength: Number.MAX_SAFE_INTEGER,
+                            }}
+                            onChange={(e) => {
+                              handleMultiChoiceOptionChange(
+                                lang,
+                                e.target.value,
+                                index
+                              );
+                              setFieldChanged(!fieldChanged);
+                              setFormDirty(true);
+                            }}
+                          />
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Grid>
                 </Grid>
-              </Fragment>
-            ))}
-          </>
+              ))}
+            </Grid>
+          </Grid>
         </Grid>
       ),
     },
@@ -382,7 +398,7 @@ const EditField = ({
         </DialogTitle>
         <DialogContent>
           <Grid container spacing={3}>
-            <Grid item sm={12} md={2} lg={2}>
+            <Grid item xs={12}>
               <FormLabel id="field-details-label">
                 <Typography variant="h6">Field Details</Typography>
               </FormLabel>
