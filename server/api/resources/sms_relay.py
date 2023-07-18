@@ -162,9 +162,6 @@ def sms_relay_procedure():
     return create_flask_response(response_code, response_body, user)
 
 
-
-
-
 # /api/sms_relay
 class Root(Resource):
     @staticmethod
