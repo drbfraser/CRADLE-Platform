@@ -284,4 +284,6 @@ def init(api):
 
     api.add_resource(SmsRelay, "/api/sms_relay", endpoint="sms_relay")  # [GET, PUT]
 
+    api.add_resource(UserPhoneUpdate, "/api/user/<int:user_id>/phone")  # [PUT]
+
     new_api.init_routes(api)

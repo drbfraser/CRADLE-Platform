@@ -54,17 +54,14 @@ for role in RoleEnum:
 
 # api/user/all [GET]
 class UserAll(Resource):
-
     # get all users
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/user-all.yml", methods=["GET"])
     def get(self):
-
         userModelList = crud.read_all(User)
         userDictList = []
 
         for user in userModelList:
-
             userDict = marshal.marshal(user)
             userDict.pop("password")
 
@@ -86,12 +83,10 @@ class UserAll(Resource):
 
 # api/user/vhts [GET]
 class UserAllVHT(Resource):
-
     # get all VHT's Info
     @roles_required([RoleEnum.CHO, RoleEnum.ADMIN, RoleEnum.HCW])
     @swag_from("../../specifications/user-vhts.yml", methods=["GET"])
     def get(self):
-
         vhtModelList = crud.find(User, User.role == RoleEnum.VHT.value)
 
         vhtDictionaryList = []
@@ -113,7 +108,6 @@ class UserAllVHT(Resource):
 
 # api/user/{int: userId}/change_pass [POST]
 class AdminPasswordChange(Resource):
-
     # Ensure that we have the fields we want in JSON payload
     parser = reqparse.RequestParser()
     parser.add_argument(
@@ -123,7 +117,6 @@ class AdminPasswordChange(Resource):
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/admin-change-pass.yml", methods=["POST"])
     def post(self, id):
-
         data = self.parser.parse_args()
 
         # check if user exists
@@ -147,7 +140,6 @@ class AdminPasswordChange(Resource):
 
 # /api/user/current/change_pass [POST]
 class UserPasswordChange(Resource):
-
     parser = reqparse.RequestParser()
     parser.add_argument(
         "old_password", type=str, required=True, help="This field cannot be left blank!"
@@ -192,7 +184,6 @@ class UserPasswordChange(Resource):
 
 # api/user/register [POST]
 class UserRegisterApi(Resource):
-
     # Allow for parsing a password too
     registerParser = UserParser.copy()
     registerParser.add_argument(
@@ -203,7 +194,6 @@ class UserRegisterApi(Resource):
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/user-register.yml", methods=["POST"])
     def post(self):
-
         # Parse args
         new_user = filterPairsWithNone(self.registerParser.parse_args())
 
@@ -357,12 +347,10 @@ class UserTokenApi(Resource):
 
 # api/user/<int:userId> [GET, PUT, DELETE]
 class UserApi(Resource):
-
     # edit user with id
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/user-put.yml", methods=["PUT"])
     def put(self, id):
-
         # Ensure we have id
         if not id:
             return {"message": "must provide an id"}, 400
@@ -391,7 +379,6 @@ class UserApi(Resource):
     @jwt_required()
     @swag_from("../../specifications/user-get.yml", methods=["GET"])
     def get(self, id):
-
         # Ensure we have id
         if not id:
             return {"message": "must provide an id"}, 400
@@ -405,7 +392,6 @@ class UserApi(Resource):
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/user-delete.yml", methods=["DELETE"])
     def delete(self, id):
-
         # Ensure we have id
         if not id:
             return {"message": "must provide an id"}, 400
@@ -418,3 +404,34 @@ class UserApi(Resource):
         crud.delete(user)
 
         return {"message": "User deleted"}, 200
+
+
+# api/user/<int:user_id>/phone
+class UserPhoneUpdate(Resource):
+    parser = reqparse.RequestParser()
+    parser.add_argument(
+        "phoneNumber", type=str, required=True, help="Phone number is required"
+    )
+
+    # Handle the PUT request for updating the phone number
+    @jwt_required()
+    @swag_from("../../specifications/user-phone-update.yml", methods=["PUT"])
+    def put(self, user_id):
+        if not user_id:
+            return {"message": "must provide an id"}, 400
+        # check if user exists
+        if not doesUserExist(user_id):
+            return {"message": "There is no user with this id"}, 400
+
+        args = self.parser.parse_args()
+        new_phone_number = args["phoneNumber"]
+
+        if new_phone_number is None:
+            return {"message": "Phone number cannot be null"}, 400
+
+        # Construct a dictionary with the changes
+        changes = {"phoneNumber": new_phone_number}
+
+        crud.update(User, changes, id=user_id)
+
+        return {"message": "User phone number updated successfully"}, 200

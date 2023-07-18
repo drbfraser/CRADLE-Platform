@@ -1,0 +1,32 @@
+# api/user/<int:user_id>/phone
+put:
+  tags:
+    - User
+  parameters:
+    - in: path
+      name: user_id
+      schema:
+        type: integer
+      required: true
+      description: The ID of the user to update the phone number for
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            phoneNumber:
+              type: string
+              example: "555-555-5555"
+  responses:
+    200:
+      description: User phone number updated successfully
+    400:
+      description: Bad Request - When the provided phone number is null or missing
+    401:
+      description: Unauthorized - When the JWT token is missing or invalid
+    404:
+      description: Not Found - When the user with the given ID is not found
+    500:
+      description: Internal Server Error - When an error occurs while updating the phone number
