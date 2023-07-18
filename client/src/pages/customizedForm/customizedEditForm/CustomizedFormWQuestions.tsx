@@ -160,7 +160,6 @@ export const CustomizedFormWQuestions = ({
                     disableClearable={true}
                     onChange={(event: any, value: string) => {
                       setSelectedLanguage(value);
-                      console.log(value);
                     }}
                     renderInput={(params: AutocompleteRenderInputParams) => (
                       <TextField
@@ -249,6 +248,12 @@ export const CustomizedFormWQuestions = ({
                         inputLanguages={getInputLanguages(question)}
                         setForm={setForm}
                         question={question}
+                        questionsArr={questions}
+                        visibilityToggle={
+                          selectedQuestionIndex != null &&
+                          questions[selectedQuestionIndex].visibleCondition
+                            .length > 0
+                        }
                       />
                     </Fragment>
                   );

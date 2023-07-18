@@ -124,7 +124,7 @@ export const FormQuestions = ({
       setAnswers(answers);
       handleAnswers(answers);
     }
-  }, [questions, setAnswers, setForm]);
+  }, [questions]);
 
   function updateAnswersByValue(index: number, newValue: any) {
     if (isQuestionArr(questions)) {
