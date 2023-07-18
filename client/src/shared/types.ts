@@ -1,5 +1,6 @@
 import {
   GestationalAgeUnitEnum,
+  QRelationEnum,
   QuestionTypeEnum,
   SexEnum,
   TrafficLightEnum,
@@ -309,7 +310,7 @@ export type QAnswer = {
 
 export interface QCondition {
   qidx: number;
-  relation: string; //* better to update to QRelationEnum [EQUAL_TO];
+  relation: QRelationEnum;
   answers: Answer;
 }
 
