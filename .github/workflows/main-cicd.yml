@@ -175,12 +175,13 @@ jobs:
       JWT_SECRET_KEY: "testkey"
       LIMITER_DISABLED: "True"
       EMULATOR_PHONE_NUMBER: "+1-123-456-7890"
-    container:
-      image: mysql:5.7
-      env:
-        MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
-      ports:
-       - "${{ env.DB_PORT }}:3306"
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
+        ports:
+          - "${{ env.DB_PORT }}:3306"
     outputs: 
       system_test_results: report.xml
     steps:
@@ -244,12 +245,13 @@ jobs:
       MYSQL_DATABASE: "cradle"
       MYSQL_ROOT_PASSWORD: "ci-password"
       JWT_SECRET_KEY: "testkey"
-    container:
-      image: mysql:5.7
-      env:
-        MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
-      ports:
-       - "${{ env.DB_PORT }}:3306"
+    services: 
+     mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
+        ports:
+          - "${{ env.DB_PORT }}:3306"
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
