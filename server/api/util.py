@@ -1,7 +1,11 @@
 from __future__ import annotations
+
+import datetime
 import json
 import pprint
 import re
+import os
+import secrets
 
 """
 The ``api.util`` module contains utility functions to help extract useful information
@@ -24,6 +28,7 @@ from models import (
     FormClassification,
     Question,
     User,
+    SmsSecretKey,
 )
 from enums import QuestionTypeEnum, QRelationalEnum
 
@@ -687,3 +692,48 @@ def phoneNumber_regex_check(phone_number):
         return False
     else:
         return True
+
+
+def create_secret_key_for_user(userId):
+    stale_date = datetime.datetime.now()
+    expiry_date = in_the_future(months=6)
+    secret_Key = generate_new_key()
+    new_key = {
+        "userId": userId,
+        "secret_Key": str(secret_Key),
+        "expiry_date": str(expiry_date),
+        "stale_date": str(stale_date),
+    }
+    sms_new_key_model = marshal.unmarshal(SmsSecretKey, new_key)
+    crud.create(sms_new_key_model)
+
+def update_secret_key_for_user(userId):
+    stale_date = datetime.datetime.now()
+    expiry_date = in_the_future(months=6)
+    secret_Key = generate_new_key()
+    new_key = {
+        "secret_Key": str(secret_Key),
+        "expiry_date": str(expiry_date),
+        "stale_date": str(stale_date),
+    }
+    crud.update(SmsSecretKey,new_key,userId=userId)
+
+def find_secret_key_by_user(userId):
+    sms_secret_key = crud.read(SmsSecretKey, userId=userId)
+    if sms_secret_key:
+        if sms_secret_key.secret_Key:
+            return sms_secret_key.secret_Key
+        else:
+            return None
+    else:
+        return None
+
+
+def in_the_future(months=1):
+    year, month, day, hour, min, sec, misec = datetime.datetime.today().timetuple()[:7]
+    new_month = month + months
+    return datetime.datetime(year + int(new_month / 12), (new_month % 12) or 12, day, hour, min, sec, misec)
+
+
+def generate_new_key():
+    return secrets.randbits(256)
