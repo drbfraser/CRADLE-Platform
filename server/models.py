@@ -601,14 +601,18 @@ class QuestionLangVersion(db.Model):
     def schema():
         return QuestionLangVersionSchema
 
+
 class SmsSecretKey(db.Model):
-    id = db.Column(db.Integer, primary_key=True, nullable=False,default=get_uuid)
-    secret_Key = db.Column(db.String(256),default="", nullable=False)
-    stale_date = db.Column(db.DateTime,default=datetime.datetime.now(), nullable=False)
-    expiry_date = db.Column(db.DateTime,default=datetime.datetime.now(), nullable=False)
+    id = db.Column(db.Integer, primary_key=True, nullable=False, default=get_uuid)
+    secret_Key = db.Column(db.String(256), default="", nullable=False)
+    stale_date = db.Column(db.DateTime, default=datetime.datetime.now(), nullable=False)
+    expiry_date = db.Column(
+        db.DateTime, default=datetime.datetime.now(), nullable=False
+    )
 
     # FOREIGNKEY
     userId = db.Column(db.ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
+
     @staticmethod
     def schema():
         return SmsSecretKeySchema
@@ -780,12 +784,14 @@ class QuestionLangVersionSchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
         include_relationships = True
 
+
 class SmsSecretKeySchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = SmsSecretKey
         load_instance = True
         include_relationships = True
+
 
 def validate_user(data):
     try:

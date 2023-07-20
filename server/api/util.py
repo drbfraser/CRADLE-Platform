@@ -707,6 +707,7 @@ def create_secret_key_for_user(userId):
     sms_new_key_model = marshal.unmarshal(SmsSecretKey, new_key)
     crud.create(sms_new_key_model)
 
+
 def update_secret_key_for_user(userId):
     stale_date = datetime.datetime.now()
     expiry_date = in_the_future(months=6)
@@ -716,7 +717,8 @@ def update_secret_key_for_user(userId):
         "expiry_date": str(expiry_date),
         "stale_date": str(stale_date),
     }
-    crud.update(SmsSecretKey,new_key,userId=userId)
+    crud.update(SmsSecretKey, new_key, userId=userId)
+
 
 def find_secret_key_by_user(userId):
     sms_secret_key = crud.read(SmsSecretKey, userId=userId)
@@ -732,7 +734,9 @@ def find_secret_key_by_user(userId):
 def in_the_future(months=1):
     year, month, day, hour, min, sec, misec = datetime.datetime.today().timetuple()[:7]
     new_month = month + months
-    return datetime.datetime(year + int(new_month / 12), (new_month % 12) or 12, day, hour, min, sec, misec)
+    return datetime.datetime(
+        year + int(new_month / 12), (new_month % 12) or 12, day, hour, min, sec, misec
+    )
 
 
 def generate_new_key():

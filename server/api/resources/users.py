@@ -14,7 +14,14 @@ from api.util import isGoodPassword
 from data import crud
 from data import marshal
 from models import User
-from api.util import filterPairsWithNone, getDictionaryOfUserInfo, doesUserExist, update_secret_key_for_user, find_secret_key_by_user, create_secret_key_for_user
+from api.util import (
+    filterPairsWithNone,
+    getDictionaryOfUserInfo,
+    doesUserExist,
+    update_secret_key_for_user,
+    find_secret_key_by_user,
+    create_secret_key_for_user,
+)
 import service.encryptor as encryptor
 import logging
 from flask_limiter import Limiter
@@ -329,7 +336,6 @@ class UserAuthApi(Resource):
         else:
             create_secret_key_for_user(user.id)
         print(find_secret_key_by_user(user.id))
-
 
         return user_data, 200
 
