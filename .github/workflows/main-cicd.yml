@@ -181,7 +181,7 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
         ports:
-          - ${{ env.DB_PORT }}:3306
+          - "${{ env.DB_PORT }}:3306"
     outputs: 
       system_test_results: report.xml
     steps:
@@ -251,7 +251,7 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
         ports:
-          - ${{ env.DB_PORT }}:3306
+          - "${{ env.DB_PORT }}:3306"
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
