@@ -1,3 +1,7 @@
+"""
+    Note: This file primarily handles the seed data, and the various options that we have for  how much data we want to seed in the DB 
+"""
+
 import random
 import string
 import uuid
@@ -393,7 +397,7 @@ def create_health_facility(
     db.session.commit()
 
 
-def create_user(email, name, password, hf_name, role, phone):
+def create_user(email, name, password, hf_name, role, phone_numbers, default_phone_number):
     """
     Creates a user in the database.
     """
@@ -403,7 +407,8 @@ def create_user(email, name, password, hf_name, role, phone):
         "password": flask_bcrypt.generate_password_hash(password),
         "healthFacilityName": hf_name,
         "role": role,
-        "phoneNumber": phone,
+        "phoneNumbers": phone_numbers,
+        "defaultPhoneNumber": default_phone_number,
         "secretKey": encryptor.generate_key(email),
     }
     user_schema = UserSchema()
