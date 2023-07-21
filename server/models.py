@@ -1,3 +1,11 @@
+"""
+    Notes:
+        This file defines our DB schema for iCradle, and uses SQLAlchemy to do so. 
+        If  you  want to make any changes at all to the DB schema this is the file that you change and then  generate the DB migration.
+        Every class in this file that inherits from db.Model corresponds to a table in the DB and every instance of one of these classes corresponds to a row. 
+"""
+
+import json
 from jsonschema import validate
 from jsonschema.exceptions import SchemaError
 from jsonschema.exceptions import ValidationError
@@ -44,6 +52,10 @@ class User(db.Model):
     role = db.Column(db.String(50))
     phoneNumber = db.Column(db.String(15))
     secretKey = db.Column(db.String(64))
+    # New columns for default and multiple phone numbers
+    phoneNumbers = db.Column(json, nullable=False, default=[])
+    defaultPhoneNumber = db.Column(db.String(15), nullable=True)
+
 
     # FOREIGN KEYS
     healthFacilityName = db.Column(
