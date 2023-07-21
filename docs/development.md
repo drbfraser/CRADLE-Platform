@@ -54,7 +54,7 @@ EMULATOR_PHONE_NUMBER=Your emulator's phone number
 From your OS's terminal (such as PowerShell in Windows) run:
 
 ```
-docker-compose up
+docker compose up
 ```
 
 All the Docker images will build and then the Docker containers will start. You may add the `-d` option to run the Docker containers in the background, although that makes it more difficult to see log messages from Flask and MySQL.

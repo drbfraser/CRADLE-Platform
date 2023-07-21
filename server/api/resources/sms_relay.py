@@ -15,7 +15,7 @@ from validation import sms_relay
 import base64
 import json
 from api.resources.users import get_user_data_for_token, get_access_token
-
+from api.util import phoneNumber_regex_check as regex_check
 
 api_url = "http://localhost:5000/{endpoint}"
 
@@ -97,17 +97,7 @@ def sms_relay_procedure():
 
     phoneNumber = json_request["phoneNumber"]
 
-    # Add regex check for phone number, the format of phone number is xxx-xxx-xxxxx
-    regex_phone_number_format_with_area_code = (
-        r"^([0-9+-]\+?\d{1}?[-]?\(?\d{3}[)-]?\d{3}[-]?\d{4,5})$"
-    )
-    regex_phone_number_format_normal = r"^(\d{3}[-]?\d{3}[-]?\d{4,5})$"
-    checked_number_with_area_code = re.match(
-        regex_phone_number_format_with_area_code, phoneNumber
-    )
-    checked_number = re.match(regex_phone_number_format_normal, phoneNumber)
-
-    if not checked_number and not checked_number_with_area_code:
+    if not regex_check(phoneNumber):
         abort(401, message=invalid_phone_number.format(phoneNumber=phoneNumber))
 
     user = crud.read(User, phoneNumber=phoneNumber)
