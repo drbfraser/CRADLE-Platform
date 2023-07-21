@@ -706,6 +706,7 @@ def create_secret_key_for_user(userId):
     }
     sms_new_key_model = marshal.unmarshal(SmsSecretKey, new_key)
     crud.create(sms_new_key_model)
+    return new_key
 
 
 def update_secret_key_for_user(userId):
@@ -724,7 +725,8 @@ def find_secret_key_by_user(userId):
     sms_secret_key = crud.read(SmsSecretKey, userId=userId)
     if sms_secret_key:
         if sms_secret_key.secret_Key:
-            return sms_secret_key.secret_Key
+            sms_key = marshal.marshal(sms_secret_key, SmsSecretKey)
+            return sms_key
         else:
             return None
     else:
@@ -741,3 +743,17 @@ def in_the_future(months=1):
 
 def generate_new_key():
     return secrets.randbits(256)
+
+
+def check_user_roles(userId):
+    userInfo = crud.read(User, id=userId)
+    return userInfo.role
+
+
+def check_expired_date(expired_date) -> bool:
+
+    # datetime_object = datetime.datetime.strptime(date_str, '%m/%d/%y %H.%M.%S')
+    if expired_date >= datetime.datetime.now():
+        return False
+    else:
+        return True
