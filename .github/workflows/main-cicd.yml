@@ -9,8 +9,6 @@ on:
     branches: [ main ]
   workflow_dispatch:
 env:
-  HUB_REPO_BACKEND: "${{ secrets.HUB_REPO_BACKEND }}"
-  HUB_REPO_FRONTEND: "${{ secrets.HUB_REPO_FRONTEND }}"
   HUB_TOKEN: "${{ secrets.HUB_TOKEN }}"
   HUB_USER: "${{ secrets.HUB_USER }}"
   GRAFANA_API_KEY: "${{ secrets.GRAFANA_API_KEY }}"
@@ -104,8 +102,8 @@ jobs:
     - name: Set up Node.js
       run:  |
         npm install -g npm@$NPM_VERSION
-        cd ${{ env.CUSTOM_WORKSPACE }}/client
         npm ci
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
     - name: Build frontend
       run: GENERATE_SOURCEMAP=false npm run build
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
@@ -122,7 +120,7 @@ jobs:
     runs-on: [self-hosted, docker]
     timeout-minutes: 60
     container:
-      image: ubuntu:latest
+      image: node:14
     env:
       # specify time zone for AWS CLI 
       DEBIAN_FRONTEND: noninteractive
@@ -131,10 +129,6 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: us-west-2
     steps: 
-      - name: Install Git
-        run: |
-          apt update
-          apt install -y git
       - name: Checkout repository into Container
         run: | 
           mkdir /isolated-build; cd /isolated-build
@@ -158,13 +152,13 @@ jobs:
           # Deploy the CloudFormation stack
           aws cloudformation deploy --template-file aws-cfn/fluentbit-user-iam.yml --stack-name logs-cradle-staging --region us-east-1 --capabilities CAPABILITY_NAMED_IAM --parameter-overrides LogGroupPrefix=cradle-staging --no-fail-on-empty-changeset
           aws cloudformation deploy --template-file aws-cfn/gitlab-ci-iam.yml --stack-name cradle-gitlab-ci --region us-east-1 --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset
-        working-directory: ${{ env.CUSTOM_WORKSPACE }}
+        working-directory: ${{ env.CUSTOM_WORKSPACE }}/aws
       - name: Update Lambda function code
         run: |
           # Update the Lambda function code
           zip cpuAlarmLambda.zip aws-lambda/cpuAlarmLambda.py 
           aws lambda update-function-code --function-name CPUAlarms --zip-file fileb://cpuAlarmLambda.zip --region us-west-2
-        working-directory: ${{ env.CUSTOM_WORKSPACE }}
+        working-directory: ${{ env.CUSTOM_WORKSPACE }}/aws
 
   backend_unit_tests:
     runs-on: [self-hosted, docker]
@@ -188,10 +182,9 @@ jobs:
         git reset --hard ${{ github.sha }}
     - name: Install dependencies
       run:  |
-        cd server
         pip install --upgrade pip
         pip install -r requirements.txt
-      working-directory: ${{ env.CUSTOM_WORKSPACE }}
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
     - name: Run Unit Tests
       run: python -m pytest --junitxml=report.xml tests
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
@@ -243,12 +236,11 @@ jobs:
         git reset --hard ${{ github.sha }}
     - name: Install dependencies
       run:  |
-        cd server
         apt-get update -y
         apt-get install default-mysql-client -y
         pip install --upgrade pip
         pip install -r requirements.txt
-      working-directory: ${{ env.CUSTOM_WORKSPACE }}
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}server
     - name: Start backend service
       run: python3 app.py &
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
@@ -288,8 +280,8 @@ jobs:
     - name: Set up Node.js
       run:  |
         npm install -g npm@$NPM_VERSION
-        cd ${{ env.CUSTOM_WORKSPACE }}/client
         npm ci
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
     - name: Run Unit Tests
       run: npm run test --args a
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
@@ -333,8 +325,8 @@ jobs:
     - name: Install Node
       run:  |
         npm install -g npm@$NPM_VERSION
-        cd ${{ env.CUSTOM_WORKSPACE }}/client
         npm ci
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
     - name: Install Cypress Dependencies
       run: |
         apt-get update -y
@@ -352,23 +344,22 @@ jobs:
         /venv/bin/python3 db.py rebuild --no-docker
         /venv/bin/python3 manage.py seed_test_data
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
-    - name: Start frontend service
+    - name: Run Integration Tests
+      id: e2e_test
       env:
-        PORT: 3000"
+        PORT: "3000"
       run: |
           npm run start &
           npx wait-on http://localhost:3000
-      working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
-    - name: Run Integration Tests
-      id: e2e_test
-      run: npm run e2e
+          npm run e2e
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
     - name: Upload Test Artifacts
       uses: actions/upload-artifact@v2
-      if: ${{ steps.e2e_test == 'failure' }}
+      if: failure() &&  ${{ steps.e2e_test.outcome == 'failure' }}
       with:
         name: integration_test_results
         path: ${{ env.CUSTOM_WORKSPACE }}/client/cypress/screenshots/**/*.png, ${{ env.CUSTOM_WORKSPACE }}/client/cypress/videos/**/*.mp4
+
   frontend-lint-format:
     runs-on: [self-hosted, docker]
     container:
@@ -390,8 +381,8 @@ jobs:
     - name: Set up Node.js
       run:  |
         npm install -g npm@$NPM_VERSION
-        cd ${{ env.CUSTOM_WORKSPACE }}/client
         npm ci
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
     - name: Install Prettier
       run: npm install prettier@2.7.1 --global
     - name: Frontend Lint
@@ -421,10 +412,9 @@ jobs:
         git reset --hard ${{ github.sha }}
     - name: Install dependencies
       run:  |
-        cd server
         pip install --upgrade pip
         pip install -r requirements.txt
-      working-directory: ${{ env.CUSTOM_WORKSPACE }}
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
     - name: Backend Format
       run: black --check --exclude 'migrations/.*' .
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
@@ -512,7 +502,7 @@ jobs:
     uses: ./.github/workflows/deploy-from-dockerhub.yml
     with:
       RUNNER_NAME: deploy-development
-      DOMAIN:      cradle-dev.cmpt.sfu.ca
+      DOMAIN:      cradle-stg.cmpt.sfu.ca
       IMAGE_TAG:   ${{ needs.export-image-tag.outputs.image_tag }}
     secrets: inherit
 
@@ -533,7 +523,7 @@ jobs:
     uses: ./.github/workflows/deploy-from-dockerhub.yml
     with:
         RUNNER_NAME: deploy-staging
-        DOMAIN:      cradle-dev.cmpt.sfu.ca
+        DOMAIN:      cradle-stg.cmpt.sfu.ca
         IMAGE_TAG:   ${{ needs.export-image-tag.outputs.image_tag }}
     secrets: inherit
 
