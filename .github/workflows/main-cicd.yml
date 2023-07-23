@@ -78,27 +78,10 @@ jobs:
     outputs: 
       frontend-artifact: frontend.tar.gz
     steps:
-    - name: Checkout repository into Container
-      run: | 
-        # NOTE: This code is **copied** into all jobs that needs code inside a container because 
-        # each job has its own container (must checkout the code there). Reusable workflows don't
-        # work here because tehy cannot be called as steps in a job: they must be the entire job.
-        # 
-        # Checkout the correct branch of the repo _into_ a container (without using mounts)
-        # because the /actions/checkoutv3 action checks out code on the host and then mounts it;
-        # this causes many file permission issues (especially with images using older Git versions).
-        # NOTE: Added 'oauth2:' to the clone URL (https://stackoverflow.com/questions/42148841/github-clone-with-oauth-access-token)
-        mkdir /isolated-build; cd /isolated-build
-        HTTPS_PATH_WITH_TOKEN=`echo ${{ github.repositoryUrl }} | awk '{ gsub(/git:\/\//, "\n" ); print "https://oauth2:${{ secrets.GITHUB_TOKEN }}@" $1; }'`
-        echo "Cloning from '$HTTPS_PATH_WITH_TOKEN' (it should be https://<password>@<url>.<user>.<repo>)"
-        git clone $HTTPS_PATH_WITH_TOKEN repo
-        cd repo
-        export FETCH_REF=`echo ${{ github.ref }} | cut -c 6-`
-        echo "Fetching ref '${{ github.ref }}', which is branch '${{ github.ref_name }}' using refspec '$FETCH_REF'"        
-        git fetch origin $FETCH_REF:my_build_branch
-        git checkout my_build_branch        
-        echo "Resetting to SHA '${{ github.sha }}'"
-        git reset --hard ${{ github.sha }}
+    - name: Checkout code into container
+      uses: bfraser/cicd/actions/checkout@v1
+      with: 
+        path: ${{ env.CUSTOM_WORKSPACE }}
     - name: Set up Node.js
       run:  |
         npm install -g npm@$NPM_VERSION
@@ -129,19 +112,10 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: us-west-2
     steps: 
-      - name: Checkout repository into Container
-        run: | 
-          mkdir /isolated-build; cd /isolated-build
-          HTTPS_PATH_WITH_TOKEN=`echo ${{ github.repositoryUrl }} | awk '{ gsub(/git:\/\//, "\n" ); print "https://oauth2:${{ secrets.GITHUB_TOKEN }}@" $1; }'`
-          echo "Cloning from '$HTTPS_PATH_WITH_TOKEN' (it should be https://<password>@<url>.<user>.<repo>)"
-          git clone $HTTPS_PATH_WITH_TOKEN repo
-          cd repo
-          export FETCH_REF=`echo ${{ github.ref }} | cut -c 6-`
-          echo "Fetching ref '${{ github.ref }}', which is branch '${{ github.ref_name }}' using refspec '$FETCH_REF'"        
-          git fetch origin $FETCH_REF:my_build_branch
-          git checkout my_build_branch        
-          echo "Resetting to SHA '${{ github.sha }}'"
-          git reset --hard ${{ github.sha }}
+      - name: Checkout code into container
+        uses: bfraser/cicd/actions/checkout@v1
+        with: 
+          path: ${{ env.CUSTOM_WORKSPACE }}
       - name: Install AWS CLI
         run: |
           apt update -y
@@ -167,19 +141,10 @@ jobs:
     outputs: 
       unit_test_results: report.xml
     steps:
-    - name: Checkout repository into Container
-      run: | 
-        mkdir /isolated-build; cd /isolated-build
-        HTTPS_PATH_WITH_TOKEN=`echo ${{ github.repositoryUrl }} | awk '{ gsub(/git:\/\//, "\n" ); print "https://oauth2:${{ secrets.GITHUB_TOKEN }}@" $1; }'`
-        echo "Cloning from '$HTTPS_PATH_WITH_TOKEN' (it should be https://<password>@<url>.<user>.<repo>)"
-        git clone $HTTPS_PATH_WITH_TOKEN repo
-        cd repo
-        export FETCH_REF=`echo ${{ github.ref }} | cut -c 6-`
-        echo "Fetching ref '${{ github.ref }}', which is branch '${{ github.ref_name }}' using refspec '$FETCH_REF'"        
-        git fetch origin $FETCH_REF:my_build_branch
-        git checkout my_build_branch        
-        echo "Resetting to SHA '${{ github.sha }}'"
-        git reset --hard ${{ github.sha }}
+    - name: Checkout code into container
+      uses: bfraser/cicd/actions/checkout@v1
+      with: 
+        path: ${{ env.CUSTOM_WORKSPACE }}
     - name: Install dependencies
       run:  |
         pip install --upgrade pip
@@ -221,19 +186,10 @@ jobs:
     outputs: 
       system_test_results: report.xml
     steps:
-    - name: Checkout repository into Container
-      run: | 
-        mkdir /isolated-build; cd /isolated-build
-        HTTPS_PATH_WITH_TOKEN=`echo ${{ github.repositoryUrl }} | awk '{ gsub(/git:\/\//, "\n" ); print "https://oauth2:${{ secrets.GITHUB_TOKEN }}@" $1; }'`
-        echo "Cloning from '$HTTPS_PATH_WITH_TOKEN' (it should be https://<password>@<url>.<user>.<repo>)"
-        git clone $HTTPS_PATH_WITH_TOKEN repo
-        cd repo
-        export FETCH_REF=`echo ${{ github.ref }} | cut -c 6-`
-        echo "Fetching ref '${{ github.ref }}', which is branch '${{ github.ref_name }}' using refspec '$FETCH_REF'"        
-        git fetch origin $FETCH_REF:my_build_branch
-        git checkout my_build_branch        
-        echo "Resetting to SHA '${{ github.sha }}'"
-        git reset --hard ${{ github.sha }}
+    - name: Checkout code into container
+      uses: bfraser/cicd/actions/checkout@v1
+      with: 
+        path: ${{ env.CUSTOM_WORKSPACE }}
     - name: Install dependencies
       run:  |
         apt-get update -y
@@ -264,19 +220,10 @@ jobs:
     container:
       image: node:18
     steps:
-    - name: Checkout repository into Container
-      run: | 
-        mkdir /isolated-build; cd /isolated-build
-        HTTPS_PATH_WITH_TOKEN=`echo ${{ github.repositoryUrl }} | awk '{ gsub(/git:\/\//, "\n" ); print "https://oauth2:${{ secrets.GITHUB_TOKEN }}@" $1; }'`
-        echo "Cloning from '$HTTPS_PATH_WITH_TOKEN' (it should be https://<password>@<url>.<user>.<repo>)"
-        git clone $HTTPS_PATH_WITH_TOKEN repo
-        cd repo
-        export FETCH_REF=`echo ${{ github.ref }} | cut -c 6-`
-        echo "Fetching ref '${{ github.ref }}', which is branch '${{ github.ref_name }}' using refspec '$FETCH_REF'"        
-        git fetch origin $FETCH_REF:my_build_branch
-        git checkout my_build_branch        
-        echo "Resetting to SHA '${{ github.sha }}'"
-        git reset --hard ${{ github.sha }}
+    - name: Checkout code into container
+      uses: bfraser/cicd/actions/checkout@v1
+      with: 
+        path: ${{ env.CUSTOM_WORKSPACE }}
     - name: Set up Node.js
       run:  |
         npm install -g npm@$NPM_VERSION
@@ -309,19 +256,10 @@ jobs:
         ports:
           - 3306:3306
     steps:
-    - name: Checkout repository into Container
-      run: | 
-        mkdir /isolated-build; cd /isolated-build
-        HTTPS_PATH_WITH_TOKEN=`echo ${{ github.repositoryUrl }} | awk '{ gsub(/git:\/\//, "\n" ); print "https://oauth2:${{ secrets.GITHUB_TOKEN }}@" $1; }'`
-        echo "Cloning from '$HTTPS_PATH_WITH_TOKEN' (it should be https://<password>@<url>.<user>.<repo>)"
-        git clone $HTTPS_PATH_WITH_TOKEN repo
-        cd repo
-        export FETCH_REF=`echo ${{ github.ref }} | cut -c 6-`
-        echo "Fetching ref '${{ github.ref }}', which is branch '${{ github.ref_name }}' using refspec '$FETCH_REF'"        
-        git fetch origin $FETCH_REF:my_build_branch
-        git checkout my_build_branch        
-        echo "Resetting to SHA '${{ github.sha }}'"
-        git reset --hard ${{ github.sha }}
+    - name: Checkout code into container
+      uses: bfraser/cicd/actions/checkout@v1
+      with: 
+        path: ${{ env.CUSTOM_WORKSPACE }}
     - name: Install Node
       run:  |
         npm install -g npm@$NPM_VERSION
@@ -365,19 +303,10 @@ jobs:
     container:
       image: node:18
     steps:
-    - name: Checkout repository into Container
-      run: | 
-        mkdir /isolated-build; cd /isolated-build
-        HTTPS_PATH_WITH_TOKEN=`echo ${{ github.repositoryUrl }} | awk '{ gsub(/git:\/\//, "\n" ); print "https://oauth2:${{ secrets.GITHUB_TOKEN }}@" $1; }'`
-        echo "Cloning from '$HTTPS_PATH_WITH_TOKEN' (it should be https://<password>@<url>.<user>.<repo>)"
-        git clone $HTTPS_PATH_WITH_TOKEN repo
-        cd repo
-        export FETCH_REF=`echo ${{ github.ref }} | cut -c 6-`
-        echo "Fetching ref '${{ github.ref }}', which is branch '${{ github.ref_name }}' using refspec '$FETCH_REF'"        
-        git fetch origin $FETCH_REF:my_build_branch
-        git checkout my_build_branch        
-        echo "Resetting to SHA '${{ github.sha }}'"
-        git reset --hard ${{ github.sha }}
+    - name: Checkout code into container
+      uses: bfraser/cicd/actions/checkout@v1
+      with: 
+        path: ${{ env.CUSTOM_WORKSPACE }}
     - name: Set up Node.js
       run:  |
         npm install -g npm@$NPM_VERSION
@@ -397,19 +326,10 @@ jobs:
     container: 
       image: python:3.9.1-buster
     steps:
-    - name: Checkout repository into Container
-      run: | 
-        mkdir /isolated-build; cd /isolated-build
-        HTTPS_PATH_WITH_TOKEN=`echo ${{ github.repositoryUrl }} | awk '{ gsub(/git:\/\//, "\n" ); print "https://oauth2:${{ secrets.GITHUB_TOKEN }}@" $1; }'`
-        echo "Cloning from '$HTTPS_PATH_WITH_TOKEN' (it should be https://<password>@<url>.<user>.<repo>)"
-        git clone $HTTPS_PATH_WITH_TOKEN repo
-        cd repo
-        export FETCH_REF=`echo ${{ github.ref }} | cut -c 6-`
-        echo "Fetching ref '${{ github.ref }}', which is branch '${{ github.ref_name }}' using refspec '$FETCH_REF'"        
-        git fetch origin $FETCH_REF:my_build_branch
-        git checkout my_build_branch        
-        echo "Resetting to SHA '${{ github.sha }}'"
-        git reset --hard ${{ github.sha }}
+    - name: Checkout code into container
+      uses: bfraser/cicd/actions/checkout@v1
+      with: 
+        path: ${{ env.CUSTOM_WORKSPACE }}
     - name: Install dependencies
       run:  |
         pip install --upgrade pip
