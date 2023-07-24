@@ -1,0 +1,37 @@
+# api/user/<int:user_id>/smskey
+put:
+  tags:
+    - User
+  parameters:
+    - in: path
+      name: user_id
+      schema:
+        type: integer
+      required: true
+      description: The ID of the user to update the sms key
+  responses:
+    200:
+      description: found sms key and update the key to the latest
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message: A sms key has been found and updated successfully
+              smsKey:
+                type: string
+                example: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+              expiredDate:
+                type: DateTime
+                example: 2024-5-21
+              staleDate:
+                type: DateTime
+                example: 2023-7-21
+    400:
+      description: Bad Request - When the provided user is null or missing
+    403:
+      description: Unauthorized - The only users who have permission to access the secret key are a) the user themselves, and b) an Admin user.
+    404:
+      description: Not Found - When the user with the given ID is not found
+    500:
+      description: Internal Server Error - When an error occurs while getting the sms key
