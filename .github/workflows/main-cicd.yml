@@ -102,6 +102,10 @@ jobs:
   update-aws:
     runs-on: [self-hosted, docker]
     timeout-minutes: 60
+
+    # TODO: https://github.sfu.ca/bfraser/415-Cradle-Platform/issues/453
+    # disable due to incomplete workflow
+    if: false
     container:
       image: node:14
     env:
@@ -235,6 +239,10 @@ jobs:
 
   fronend-integration-test:
     runs-on: [self-hosted, docker]
+
+    # TODO: https://github.sfu.ca/bfraser/415-Cradle-Platform/issues/454
+    # disable due to incomplete workflow
+    if: false 
     container: 
       image: node:18
     needs: frontend-unit_tests
