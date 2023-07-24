@@ -196,7 +196,7 @@ jobs:
         apt-get install default-mysql-client -y
         pip install --upgrade pip
         pip install -r requirements.txt
-      working-directory: ${{ env.CUSTOM_WORKSPACE }}server
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
     - name: Start backend service
       run: python3 app.py &
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
