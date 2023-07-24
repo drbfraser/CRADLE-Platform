@@ -21,6 +21,11 @@ from api.util import (
     update_secret_key_for_user,
     find_secret_key_by_user,
     create_secret_key_for_user,
+    check_user_roles,
+    find_secret_key_by_user,
+    update_secret_key_for_user,
+    create_secret_key_for_user,
+    check_expired_date,
 )
 import service.encryptor as encryptor
 import logging
@@ -328,14 +333,14 @@ class UserAuthApi(Resource):
 
         LOGGER.info(f"{user.id} has logged in")
 
-        user_key = find_secret_key_by_user(user.id)
-        if user_key:
-            user_data["secret key"] = user_key
-            update_secret_key_for_user(user.id)
-            user_data["updated secret key"] = find_secret_key_by_user(user.id)
-        else:
-            create_secret_key_for_user(user.id)
-        print(find_secret_key_by_user(user.id))
+        # user_key = find_secret_key_by_user(user.id)
+        # if user_key:
+        #     user_data["secret key"] = user_key
+        #     update_secret_key_for_user(user.id)
+        #     user_data["updated secret key"] = find_secret_key_by_user(user.id)
+        # else:
+        #     create_secret_key_for_user(user.id)
+        # print(find_secret_key_by_user(user.id))
 
         return user_data, 200
 
@@ -452,3 +457,66 @@ class UserPhoneUpdate(Resource):
         crud.update(User, changes, id=user_id)
 
         return {"message": "User phone number updated successfully"}, 200
+
+
+# api/user/<int:user_id>/smskey
+class UserSMSKey(Resource):
+    # Handle the PUT request for updating the phone number
+    parser = reqparse.RequestParser()
+
+    @jwt_required()
+    @swag_from("../../specifications/user-sms-key-get.yml", methods=["GET"])
+    def get(self, user_id):
+        if not user_id:
+            return {"message": "must provide an id"}, 400
+        # check if user exists
+        if not doesUserExist(user_id):
+            return {"message": "There is no user with this id"}, 404
+        sms_key = find_secret_key_by_user(user_id)
+        if not sms_key:
+            new_key = create_secret_key_for_user(user_id)
+            return {
+                "message": "Cannot find the sms key, a new sms key has been created, detail is showing below: ",
+                "sms_key": new_key["secret_Key"],
+                "expired_date": str(new_key["expiry_date"]),
+                "stale_date": str(new_key["stale_date"]),
+            }, 200
+        elif not check_expired_date(sms_key["expiry_date"]):
+            return {
+                "message": "A sms key has been found",
+                "sms_key": sms_key["secret_Key"],
+                "expired_date": str(sms_key["expiry_date"]),
+            }, 200
+        else:
+            return {
+                "message": "Your sms key seems be expired soon, please try to contact your Admin to update your sms key",
+                "sms_key": sms_key["secret_Key"],
+                "expired_date": str(sms_key["expired_date"]),
+            }, 200
+
+
+    @jwt_required()
+    @swag_from("../../specifications/user-sms-key-put.yml", methods=["PUT"])
+    def put(self, user_id):
+        if not user_id:
+            return {"message": "must provide an id"}, 400
+        # check if user exists
+        if not doesUserExist(user_id):
+            return {"message": "There is no user with this id"}, 404
+        sms_key = find_secret_key_by_user(user_id)
+        if not sms_key:
+            new_key = create_secret_key_for_user(user_id)
+            return {
+                "message": "Cannot find the sms key, a new sms key has been created, detail is showing below: ",
+                "sms_key": new_key["secret_Key"],
+                "expired_date": str(new_key["expiry_date"]),
+                "stale_date": str(new_key["stale_date"]),
+            }, 200
+        else:
+            new_key = update_secret_key_for_user(user_id)
+            return {
+                "message": "New key has been updated, detail is showing below: ",
+                "sms_key": new_key["secret_Key"],
+                "expired_date": str(new_key["expiry_date"]),
+                "stale_date": str(new_key["stale_date"]),
+            }, 200
