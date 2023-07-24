@@ -366,7 +366,7 @@ def getFormTemplateDictFromCSV(csvData: str):
         }
 
     def findCategoryIndex(
-            categoryList: list[dict[str, any]], categoryText: str
+        categoryList: list[dict[str, any]], categoryText: str
     ) -> int | None:
 
         for category in categoryList:
@@ -544,7 +544,7 @@ def getCsvFromFormTemplate(form_template: FormTemplate):
         return ",".join(options) if mcoptions is not None else ""
 
     def get_visible_condition_options(
-            visible_condition: str, questions: list[Question]
+        visible_condition: str, questions: list[Question]
     ):
         visible_conditions = json.loads(visible_condition)
 
@@ -742,7 +742,7 @@ def in_the_future(months=1):
 
 
 def generate_new_key():
-    return bytes2hex(secrets.randbits(256).to_bytes(32, 'little'))
+    return bytes2hex(secrets.randbits(256).to_bytes(32, "little"))
 
 
 def check_user_roles(userId):

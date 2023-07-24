@@ -494,7 +494,6 @@ class UserSMSKey(Resource):
                 "expired_date": str(sms_key["expired_date"]),
             }, 200
 
-
     @jwt_required()
     @swag_from("../../specifications/user-sms-key-put.yml", methods=["PUT"])
     def put(self, user_id):
