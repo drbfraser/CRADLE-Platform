@@ -167,7 +167,6 @@ def filterPairsWithNone(payload: dict) -> dict:
 
 
 def getDictionaryOfUserInfo(id: int) -> dict:
-
     """
     Takes in an id and returns all of the information about a user from the users table
     and from the supervises table
@@ -367,7 +366,7 @@ def getFormTemplateDictFromCSV(csvData: str):
         }
 
     def findCategoryIndex(
-        categoryList: list[dict[str, any]], categoryText: str
+            categoryList: list[dict[str, any]], categoryText: str
     ) -> int | None:
 
         for category in categoryList:
@@ -545,7 +544,7 @@ def getCsvFromFormTemplate(form_template: FormTemplate):
         return ",".join(options) if mcoptions is not None else ""
 
     def get_visible_condition_options(
-        visible_condition: str, questions: list[Question]
+            visible_condition: str, questions: list[Question]
     ):
         visible_conditions = json.loads(visible_condition)
 
@@ -682,7 +681,7 @@ def phoneNumber_regex_check(phone_number):
     regex_phone_number_format_with_area_code = (
         r"^([0-9+-]\+?\d{1}?[-]?\(?\d{3}[)-]?\d{3}[-]?\d{4,5})$"
     )
-    regex_phone_number_format_normal = r"^(\d{3}[-]?\d{3}[-]?\d{4,5})$"
+    regex_phone_number_format_normal = r"^(\d{3}-?\d{3}-?\d{4,5})$"
     checked_number_with_area_code = re.match(
         regex_phone_number_format_with_area_code, phone_number
     )
@@ -719,6 +718,7 @@ def update_secret_key_for_user(userId):
         "stale_date": str(stale_date),
     }
     crud.update(SmsSecretKey, new_key, userId=userId)
+    return new_key
 
 
 def find_secret_key_by_user(userId):
@@ -734,15 +734,15 @@ def find_secret_key_by_user(userId):
 
 
 def in_the_future(months=1):
-    year, month, day, hour, min, sec, misec = datetime.datetime.today().timetuple()[:7]
+    year, month, day, hour, _min, sec, misec = datetime.datetime.today().timetuple()[:7]
     new_month = month + months
     return datetime.datetime(
-        year + int(new_month / 12), (new_month % 12) or 12, day, hour, min, sec, misec
+        year + int(new_month / 12), (new_month % 12) or 12, day, hour, _min, sec, misec
     )
 
 
 def generate_new_key():
-    return secrets.randbits(256)
+    return bytes2hex(secrets.randbits(256).to_bytes(32, 'little'))
 
 
 def check_user_roles(userId):
@@ -751,9 +751,15 @@ def check_user_roles(userId):
 
 
 def check_expired_date(expired_date) -> bool:
-
-    # datetime_object = datetime.datetime.strptime(date_str, '%m/%d/%y %H.%M.%S')
     if expired_date >= datetime.datetime.now():
         return False
     else:
         return True
+
+
+def hex2bytes(key):
+    return bytes.fromhex(key)
+
+
+def bytes2hex(key):
+    return key.hex()
