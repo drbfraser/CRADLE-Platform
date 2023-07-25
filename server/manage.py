@@ -571,7 +571,7 @@ def create_form(patient_id):
 
 
 def create_sms_key(
-    # TODO: check the datebase and format to make sure it works
+    # : check the datebase and format to make sure it works
     userId,
     secret_Key,
     expiry_date,
