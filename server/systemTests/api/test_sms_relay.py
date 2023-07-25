@@ -11,6 +11,8 @@ import service.encryptor as encryptor
 import base64
 import json
 
+from models import SmsSecretKey
+
 sms_relay_endpoint = "/api/sms_relay"
 
 
