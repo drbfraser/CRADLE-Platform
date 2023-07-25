@@ -180,6 +180,7 @@ jobs:
       JWT_SECRET_KEY: "testkey"
       LIMITER_DISABLED: "True"
       EMULATOR_PHONE_NUMBER: "+1-123-456-7890"
+      SMS_KEY_DURATION: "100"
     services:
       mysql:
         image: mysql:5.7
