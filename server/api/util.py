@@ -52,6 +52,8 @@ from api.constants import (
     FORM_TEMPLATE_VERSION_ROW,
 )
 
+SMS_KEY_DURATION = int(os.environ.get("SMS_KEY_DURATION"))
+
 
 def query_param_bool(request: Request, name: str) -> bool:
     """
@@ -694,8 +696,8 @@ def phoneNumber_regex_check(phone_number):
 
 
 def create_secret_key_for_user(userId):
-    stale_date = datetime.datetime.now()
-    expiry_date = in_the_future(months=6)
+    stale_date = in_the_future(day_after=SMS_KEY_DURATION - 10)
+    expiry_date = in_the_future(day_after=SMS_KEY_DURATION)
     secret_Key = generate_new_key()
     new_key = {
         "userId": userId,
@@ -709,8 +711,8 @@ def create_secret_key_for_user(userId):
 
 
 def update_secret_key_for_user(userId):
-    stale_date = datetime.datetime.now()
-    expiry_date = in_the_future(months=6)
+    stale_date = in_the_future(day_after=SMS_KEY_DURATION - 10)
+    expiry_date = in_the_future(day_after=SMS_KEY_DURATION)
     secret_Key = generate_new_key()
     new_key = {
         "secret_Key": str(secret_Key),
@@ -733,12 +735,13 @@ def find_secret_key_by_user(userId):
         return None
 
 
-def in_the_future(months=1):
-    year, month, day, hour, _min, sec, misec = datetime.datetime.today().timetuple()[:7]
-    new_month = month + months
-    return datetime.datetime(
-        year + int(new_month / 12), (new_month % 12) or 12, day, hour, _min, sec, misec
-    )
+def in_the_future(day_after=1):
+    # year, month, day, hour, _min, sec, misec = datetime.datetime.today().timetuple()[:7]
+    # new_month = month + months
+    return datetime.datetime.today() + datetime.timedelta(days=day_after)
+    # return datetime.datetime(
+    #     year + int(new_month / 12), (new_month % 12) or 12, day, hour, _min, sec, misec
+    # )
 
 
 def generate_new_key():
