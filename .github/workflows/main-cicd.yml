@@ -1,0 +1,465 @@
+name: 415-Cradle/Cradle-Platform
+# Main GitHub CI/CD pipeline definition file
+# For syntax, see: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+
+on:
+  push:
+    branches: [ main, staging ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+env:
+  HUB_TOKEN: "${{ secrets.HUB_TOKEN }}"
+  HUB_USER: "${{ secrets.HUB_USER }}"
+  GRAFANA_API_KEY: "${{ secrets.GRAFANA_API_KEY }}"
+  NPM_VERSION: "7.0.0"
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  CUSTOM_WORKSPACE: /isolated-build/repo
+  # Keep npm's cache out of home directory (mounted from host)
+  # otherwise, NPM gives EACCES error trying to mkdir /github/home/.npm
+  # Using the /isolated_build/ folder (inside the container) keeps permissions straight
+  npm_config_cache: /isolated-build/.npm-cache 
+  CYPRESS_CACHE_FOLDER: /isolated_build/.cypress-cache   
+jobs:
+
+  display_github_contexts:
+    runs-on: [self-hosted, docker]
+    container:
+      image: node:14
+    steps:
+      - name: Display commonly used info
+        run: |
+          echo "  CI/CD Event Name  = ${{ github.event_name }}"
+          echo "  PR request Number = ${{ github.event.pull_request.number }}"
+          echo "  Refspec           = ${{ github.ref }}"
+          echo "  Branch name       = ${{ github.ref_name }}"
+          echo "  Commit SHA        = ${{ github.sha }}"
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - name: Dump job context
+        env:
+          JOB_CONTEXT: ${{ toJson(job) }}
+        run: echo "$JOB_CONTEXT"
+      - name: Dump steps context
+        env:
+          STEPS_CONTEXT: ${{ toJson(steps) }}
+        run: echo '$STEPS_CONTEXT'
+      - name: Dump runner context
+        env:
+          RUNNER_CONTEXT: ${{ toJson(runner) }}
+        run: echo '$RUNNER_CONTEXT'
+      - name: Dump strategy context
+        env:
+          STRATEGY_CONTEXT: ${{ toJson(strategy) }}
+        run: echo '$STRATEGY_CONTEXT'
+      - name: Dump matrix context
+        env:
+          MATRIX_CONTEXT: ${{ toJson(matrix) }}
+        run: echo "$MATRIX_CONTEXT"
+      # - name: Display Secrets
+      #   env:
+      #     SECRET_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      #     GITHUB_TOKEN: ${{github.token}}
+      #   run: |
+      #     # Print secrets to the screen by spacing them out so GitHub does not obscure them with *s
+      #     echo "1: ${{secrets.GITHUB_TOKEN}}" | sed 's/./& /g'
+      #     echo "2: ${{github.token}}" | sed 's/./& /g'
+      #     echo "3: $SECRET_TOKEN" | sed 's/./& /g'
+      #     echo "4: $GITHUB_TOKEN" | sed 's/./& /g'
+
+  build-frontend:
+    runs-on: [self-hosted, docker]
+    container:
+      image: node:18
+    timeout-minutes: 60
+    outputs: 
+      frontend-artifact: frontend.tar.gz
+    steps:
+    - name: Checkout code into container
+      uses: bfraser/cicd/actions/checkout@v1
+      with: 
+        path: ${{ env.CUSTOM_WORKSPACE }}
+    - name: Set up Node.js
+      run:  |
+        npm install -g npm@$NPM_VERSION
+        npm ci
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
+    - name: Build frontend
+      run: GENERATE_SOURCEMAP=false npm run build
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
+    - name: Archive frontend build artifacts
+      run: tar -czvf frontend.tar.gz build
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
+    - name: Upload frontend artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: frontend-artifact
+        path: ${{ env.CUSTOM_WORKSPACE }}/client/frontend.tar.gz
+
+  update-aws:
+    runs-on: [self-hosted, docker]
+    timeout-minutes: 60
+
+    # TODO: https://github.sfu.ca/bfraser/415-Cradle-Platform/issues/453
+    # disable due to incomplete workflow
+    if: false
+    container:
+      image: node:14
+    env:
+      # specify time zone for AWS CLI 
+      DEBIAN_FRONTEND: noninteractive
+      TZ: America/Vancouver
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: us-west-2
+    steps: 
+      - name: Checkout code into container
+        uses: bfraser/cicd/actions/checkout@v1
+        with: 
+          path: ${{ env.CUSTOM_WORKSPACE }}
+      - name: Install AWS CLI
+        run: |
+          apt update -y
+          apt install -y awscli
+        working-directory: ${{ env.CUSTOM_WORKSPACE }}
+      - name: Deploy CloudFormation stack
+        run: |
+          # Deploy the CloudFormation stack
+          aws cloudformation deploy --template-file aws-cfn/fluentbit-user-iam.yml --stack-name logs-cradle-staging --region us-east-1 --capabilities CAPABILITY_NAMED_IAM --parameter-overrides LogGroupPrefix=cradle-staging --no-fail-on-empty-changeset
+          aws cloudformation deploy --template-file aws-cfn/gitlab-ci-iam.yml --stack-name cradle-gitlab-ci --region us-east-1 --capabilities CAPABILITY_NAMED_IAM --no-fail-on-empty-changeset
+        working-directory: ${{ env.CUSTOM_WORKSPACE }}/aws
+      - name: Update Lambda function code
+        run: |
+          # Update the Lambda function code
+          zip cpuAlarmLambda.zip aws-lambda/cpuAlarmLambda.py 
+          aws lambda update-function-code --function-name CPUAlarms --zip-file fileb://cpuAlarmLambda.zip --region us-west-2
+        working-directory: ${{ env.CUSTOM_WORKSPACE }}/aws
+
+  backend_unit_tests:
+    runs-on: [self-hosted, docker]
+    container: 
+      image: python:3.9.1-buster
+    outputs: 
+      unit_test_results: report.xml
+    steps:
+    - name: Checkout code into container
+      uses: bfraser/cicd/actions/checkout@v1
+      with: 
+        path: ${{ env.CUSTOM_WORKSPACE }}
+    - name: Install dependencies
+      run:  |
+        pip install --upgrade pip
+        pip install -r requirements.txt
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
+    - name: Run Unit Tests
+      run: python -m pytest --junitxml=report.xml tests
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
+    - name: Upload Test Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+          name: unit_test_results
+          path: /isolated-build/repo/server/report.xml
+
+  backend_system_tests:
+    runs-on: [self-hosted, docker]
+    container: 
+      image: python:3.9.1-buster
+    needs: backend_unit_tests
+    env:
+      DB_USERNAME: "root"
+      DB_PASSWORD: "ci-password"
+      DB_HOSTNAME: "mysql"
+      DB_PORT: "3306"
+      DB_NAME: "cradle"
+      PORT: "5000"
+      MYSQL_DATABASE: "cradle"
+      MYSQL_ROOT_PASSWORD: "ci-password"
+      JWT_SECRET_KEY: "testkey"
+      LIMITER_DISABLED: "True"
+      EMULATOR_PHONE_NUMBER: "+1-123-456-7890"
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
+        ports:
+          - 3306:3306
+    outputs: 
+      system_test_results: report.xml
+    steps:
+    - name: Checkout code into container
+      uses: bfraser/cicd/actions/checkout@v1
+      with: 
+        path: ${{ env.CUSTOM_WORKSPACE }}
+    - name: Install dependencies
+      run:  |
+        apt-get update -y
+        apt-get install default-mysql-client -y
+        pip install --upgrade pip
+        pip install -r requirements.txt
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
+    - name: Start backend service
+      run: python3 app.py &
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
+    - name: Rebuild database
+      run: python3 db.py rebuild --no-docker
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
+    - name: Seed test data
+      run: python3 manage.py seed_test_data
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
+    - name: Run System Tests
+      run: python -m pytest --junitxml=report.xml systemTests
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
+    - name: Upload Test Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: system_test_results
+        path: ${{ env.CUSTOM_WORKSPACE }}/server/report.xml
+
+  frontend-unit_tests:
+    runs-on: [self-hosted, docker]
+    container:
+      image: node:18
+    steps:
+    - name: Checkout code into container
+      uses: bfraser/cicd/actions/checkout@v1
+      with: 
+        path: ${{ env.CUSTOM_WORKSPACE }}
+    - name: Set up Node.js
+      run:  |
+        npm install -g npm@$NPM_VERSION
+        npm ci
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
+    - name: Run Unit Tests
+      run: npm run test --args a
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
+
+  fronend-integration-test:
+    runs-on: [self-hosted, docker]
+
+    # TODO: https://github.sfu.ca/bfraser/415-Cradle-Platform/issues/454
+    # disable due to incomplete workflow
+    if: false 
+    container: 
+      image: node:18
+    needs: frontend-unit_tests
+    env: 
+      CI: "true"
+      DB_USERNAME: "root"
+      DB_PASSWORD: "ci-password"
+      DB_HOSTNAME: "mysql"
+      DB_PORT: "3306"
+      DB_NAME: "cradle"
+      MYSQL_DATABASE: "cradle"
+      MYSQL_ROOT_PASSWORD: "ci-password"
+      JWT_SECRET_KEY: "testkey"
+    services: 
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
+        ports:
+          - 3306:3306
+    steps:
+    - name: Checkout code into container
+      uses: bfraser/cicd/actions/checkout@v1
+      with: 
+        path: ${{ env.CUSTOM_WORKSPACE }}
+    - name: Install Node
+      run:  |
+        npm install -g npm@$NPM_VERSION
+        npm ci
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
+    - name: Install Cypress Dependencies
+      run: |
+        apt-get update -y
+        apt-get install -y default-mysql-client python3-pip python3-venv
+        apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+    - name: Start backend service
+      env:
+        PORT: "5000"
+      run: |
+        python3 -m venv /venv
+        export PATH=$PATH:/venv/bin/
+        /venv/bin/pip3 install --upgrade pip
+        /venv/bin/pip3 install -r requirements.txt
+        /venv/bin/python3 app.py &
+        /venv/bin/python3 db.py rebuild --no-docker
+        /venv/bin/python3 manage.py seed_test_data
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
+    - name: Run Integration Tests
+      id: e2e_test
+      env:
+        PORT: "3000"
+      run: |
+          npm run start &
+          npx wait-on http://localhost:3000
+          npm run e2e
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
+    - name: Upload Test Artifacts
+      uses: actions/upload-artifact@v2
+      if: failure() &&  ${{ steps.e2e_test.outcome == 'failure' }}
+      with:
+        name: integration_test_results
+        path: ${{ env.CUSTOM_WORKSPACE }}/client/cypress/screenshots/**/*.png, ${{ env.CUSTOM_WORKSPACE }}/client/cypress/videos/**/*.mp4
+
+  frontend-lint-format:
+    runs-on: [self-hosted, docker]
+    container:
+      image: node:18
+    steps:
+    - name: Checkout code into container
+      uses: bfraser/cicd/actions/checkout@v1
+      with: 
+        path: ${{ env.CUSTOM_WORKSPACE }}
+    - name: Set up Node.js
+      run:  |
+        npm install -g npm@$NPM_VERSION
+        npm ci
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
+    - name: Install Prettier
+      run: npm install prettier@2.7.1 --global
+    - name: Frontend Lint
+      run: ./node_modules/.bin/eslint "src/**/*.{ts,tsx}"
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
+    - name: Frontend Format
+      run: prettier --check "src/**/*.{ts,tsx}"
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
+
+  backend_format:
+    runs-on: [self-hosted, docker]
+    container: 
+      image: python:3.9.1-buster
+    steps:
+    - name: Checkout code into container
+      uses: bfraser/cicd/actions/checkout@v1
+      with: 
+        path: ${{ env.CUSTOM_WORKSPACE }}
+    - name: Install dependencies
+      run:  |
+        pip install --upgrade pip
+        pip install -r requirements.txt
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
+    - name: Backend Format
+      run: black --check --exclude 'migrations/.*' .
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
+
+  # ----------------------------------------------------------------------------
+  # Publish to DockerHub
+  # ----------------------------------------------------------------------------
+  export-image-tag:
+    runs-on: [self-hosted, docker]
+    outputs:
+      image_tag: ${{ steps.set_step.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v3
+        # Checkout the code, not into a container, because all work here is not in a container
+        with:
+          fetch-depth: 50
+      - id: set_step
+        name: Export the IMAGE_TAG
+        run: |
+          export IMAGE_TAG=v$(git show -s --format=%cs ${{ github.sha }}).`git rev-parse --short=8 ${{ github.sha }}`
+          echo "IMAGE_TAG = '$IMAGE_TAG'"
+          # NOTE: On github action runner v2.297 or higher, should redirect echo output to GITHUB_OUTPUT:
+          #    `echo "tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"`
+          # However, as of July 2023, SFU's GitHub runner is v2.296.x, so using old syntax (which works on newer)
+          # https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
+          echo "::set-output name=tag::$IMAGE_TAG"
+  build-docker-publish-docker-images:
+    needs: [build-frontend, update-aws, export-image-tag]
+    # needs: [export-image-tag]   # Used for faking and testing
+    runs-on: [self-hosted, docker]
+    if: ${{ github.ref_name == 'main' }}
+    timeout-minutes: 60
+    env:
+      IMAGE_TAG: ${{ needs.export-image-tag.outputs.image_tag}}
+    steps:
+    - uses: actions/checkout@v3
+      # Checkout the code, not into a container, because all work here is not in a container
+      with:
+        fetch-depth: 50
+    - name: Get build products
+      uses: actions/download-artifact@v3
+      with:
+        name: build-frontend
+    # FAKE BUILD: To make build faster for testing, comment out above and use this instead.
+    # - name: Get build products (**FAKE**)
+    #   run: |
+    #     echo "::warning file=web_build.tar.gz,title=FAKE::Fake web_build.tar.gz used for testing!"
+    #     mkdir -p fakestuff/
+    #     touch fakestuff/nothing.txt
+    #     tar -czvf web_build.tar.gz ./fakestuff/
+    - name: Printing debug information...
+      run: |
+        echo "Files in current folder before building image"
+        ls -al
+        echo "IMAGE_TAG = '$IMAGE_TAG'"
+    - name: Running 'docker compose'...
+      run: |
+        docker compose -f docker-compose.yml -f docker-compose.deploy.yml build
+        docker images
+    - name: Pushing to docker hub...
+      run: |
+        docker login -u $HUB_USER -p $HUB_TOKEN
+        docker push $HUB_USER/$HUB_REPO_BACKEND:$IMAGE_TAG
+        docker push $HUB_USER/$HUB_REPO_FRONTEND:$IMAGE_TAG
+        docker logout
+        echo "::notice file=main-cicd.yml::Pushed to Docker Hub with IMAGE_TAG '$IMAGE_TAG'"
+    - name: Cleaning up...
+      run: |
+        docker images -a | grep -e "$HUB_REPO_BACKEND" -e "$HUB_REPO_FRONTEND" | awk '{print $3}' | xargs docker rmi --force
+        docker images
+    
+
+# #   ----------------------------------------------------------------------------
+# #   Deployment and Re-tagging Jobs
+# #   Note: 
+# #     Since these jobs are calling a reusable workflow, they cannot
+# #     use 'timeout-minutes:', 'environment:', 'env:', or 'steps:' because
+# #     those break the allowable syntax for a job calling a reusable workflow.
+# #     https://docs.github.com/en/actions/using-workflows/reusing-workflows
+# #   ----------------------------------------------------------------------------
+# #   Development (dev) server
+  dev-server-deploy-from-dockerhub:
+    needs: [build-docker-publish-docker-images, export-image-tag]
+    if: ${{ github.ref_name == 'main' }}
+    uses: ./.github/workflows/deploy-from-dockerhub.yml
+    with:
+      RUNNER_NAME: deploy-development
+      DOMAIN:      cradle-stg.cmpt.sfu.ca
+      IMAGE_TAG:   ${{ needs.export-image-tag.outputs.image_tag }}
+    secrets: inherit
+
+  dev-retag-and-upload-to-dockerhub:
+    needs: [build-docker-publish-docker-images, export-image-tag]
+    if: ${{ github.ref_name == 'main' }}
+    uses: ./.github/workflows/retag-and-upload-dockerhub.yml
+    with:
+      IMAGE_TAG:  ${{ needs.export-image-tag.outputs.image_tag }}
+      BRANCH_TAG: dev
+    secrets: inherit
+
+
+  # Staging (stg) server
+  staging-server-deploy-from-dockerhub:
+    needs: [export-image-tag]
+    if: ${{ github.ref_name == 'staging' }}
+    uses: ./.github/workflows/deploy-from-dockerhub.yml
+    with:
+        RUNNER_NAME: deploy-staging
+        DOMAIN:      cradle-stg.cmpt.sfu.ca
+        IMAGE_TAG:   ${{ needs.export-image-tag.outputs.image_tag }}
+    secrets: inherit
+
+  staging-retag-and-upload-to-dockerhub:
+    needs: [export-image-tag]
+    if: ${{ github.ref_name == 'staging' }}
+    uses: ./.github/workflows/retag-and-upload-dockerhub.yml
+    with:
+        IMAGE_TAG:  ${{ needs.export-image-tag.outputs.image_tag }}
+        BRANCH_TAG: stg
+    secrets: inherit
