@@ -122,6 +122,8 @@ def seed_test_data(ctx):
         "+256-417-123456",
     )
 
+    create_sms_key()
+
     print("Creating test patients, readings, referrals, and records...")
     create_patient_reading_referral_pregnancy(
         "49300028161",
@@ -565,6 +567,24 @@ def create_form(patient_id):
     }
     form_schema = FormSchema()
     db.session.add(form_schema.load(form))
+    db.session.commit()
+
+
+def create_sms_key(
+    # TODO: check the datebase and format to make sure it works
+    userId,
+    secret_Key,
+    expiry_date,
+    stale_date,
+):
+    sms_key = {
+        "userId": userId,
+        "secret_Key": str(secret_Key),
+        "expiry_date": str(expiry_date),
+        "stale_date": str(stale_date),
+    }
+    schema = SmsSecretKeySchema()
+    db.session.add(schema.load(sms_key))
     db.session.commit()
 
 
