@@ -460,7 +460,25 @@ class UserPhoneUpdate(Resource):
 
         return {"message": "Phone number cannot be updated"}, 400
     
-
-
     # Handle the POST request for adding a new phone number
+    @jwt_required()
+    @swag_from("../../specifications/user-phone-post.yml", methods=["post"])
+    def post(self, user_id):
+        if not user_id:
+            return {"message": "must provide an id"}, 400
+        # check if user exists
+        if not doesUserExist(user_id):
+            return {"message": "There is no user with this id"}, 400
+
+        args = self.parser.parse_args()
+        new_phone_number = args["newPhoneNumber"]
+
+        if new_phone_number is None:
+            return {"message": "Phone number cannot be null"}, 400
+
+        # Add the phone number to user's phoneNumbers
+        if add_newPhoneNumber_for_user(new_phone_number, user_id):
+            return {"message": "User phone number added successfully"}, 200
+
+        return {"message": "Phone number already exists"}, 400
     
