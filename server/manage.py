@@ -122,7 +122,29 @@ def seed_test_data(ctx):
         "+256-417-123456",
     )
 
-    create_sms_key()
+    create_sms_key(
+        "3b79718f-1197-4a62-933f-de486db776d1",
+        "1",
+        "46820654985a5ef1c680b50b7ee2f27691ee1cea1bfdd37c7ba150f7e4a155f1",
+        "2023-09-04 01:01:16",
+        "2023-08-25 01:01:16",
+    )
+
+    create_sms_key(
+        "d9293827-bf9b-41e5-9e20-f205273d1262",
+        "2",
+        "f7b0a06ab61b5fba1a381e5a2786fc45b1079caee5bb9d90f530654c85e22194",
+        "2023-09-03 01:22:21",
+        "2023-08-24 01:22:21",
+    )
+
+    create_sms_key(
+        "fd01d519-1bae-4f9e-9433-7ac07cc62fcc",
+        "3",
+        "6b0719c6fe35bb21174297e7a23cf54c8ab11c5c7e3cbe4a040268520fa97e75",
+        "2024-01-24 06:29:08",
+        "2023-07-24 06:29:08",
+    )
 
     print("Creating test patients, readings, referrals, and records...")
     create_patient_reading_referral_pregnancy(
@@ -571,13 +593,15 @@ def create_form(patient_id):
 
 
 def create_sms_key(
-    # : check the datebase and format to make sure it works
+    # : check the database and format to make sure it works
+    id,
     userId,
     secret_Key,
     expiry_date,
     stale_date,
 ):
     sms_key = {
+        "id": id,
         "userId": userId,
         "secret_Key": str(secret_Key),
         "expiry_date": str(expiry_date),
