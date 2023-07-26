@@ -603,7 +603,7 @@ class QuestionLangVersion(db.Model):
 
 
 class SmsSecretKey(db.Model):
-    id = db.Column(db.Integer, primary_key=True, nullable=False, default=get_uuid)
+    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
     secret_Key = db.Column(db.String(256), default="", nullable=False)
     stale_date = db.Column(db.DateTime, default=datetime.datetime.now(), nullable=False)
     expiry_date = db.Column(
