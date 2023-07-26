@@ -632,6 +632,14 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
         include_relationships = True
 
 
+class UserPhoneNumberSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = UserPhoneNumber
+        load_instance = True
+        include_relationships = True
+
+
 class PatientSchema(ma.SQLAlchemyAutoSchema):
     patientSex = EnumField(SexEnum, by_value=True)
 
