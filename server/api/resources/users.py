@@ -14,7 +14,12 @@ from api.util import isGoodPassword
 from data import crud
 from data import marshal
 from models import User
-from api.util import filterPairsWithNone, getDictionaryOfUserInfo, doesUserExist
+from api.util import (
+    filterPairsWithNone,
+    getDictionaryOfUserInfo,
+    doesUserExist,
+    phoneNumber_regex_check,
+)
 import service.encryptor as encryptor
 import logging
 from flask_limiter import Limiter
@@ -425,6 +430,9 @@ class UserPhoneUpdate(Resource):
 
         args = self.parser.parse_args()
         new_phone_number = args["phoneNumber"]
+
+        if not phoneNumber_regex_check(new_phone_number):
+            return {"message": "Phone number is not in the correct format"}, 400
 
         if new_phone_number is None:
             return {"message": "Phone number cannot be null"}, 400
