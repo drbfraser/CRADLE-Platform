@@ -74,7 +74,11 @@ def test_user_phone_put(jwt_token, user_id, new_phone_number):
     url_user_phone_update = f"http://localhost:5000/api/user/{user_id}/phone"
     headers = {"Authorization": "Bearer " + jwt_token}
 
-    payload = {"phoneNumber": new_phone_number}
+    payload = {
+        "newPhoneNumber": updated_phone_number,
+        "currentPhoneNumber": new_phone_number,
+        "oldPhoneNumber": None,
+    }
     response = requests.put(url_user_phone_update, json=payload, headers=headers)
     resp_body = response.json()
 
