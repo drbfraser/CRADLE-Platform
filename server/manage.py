@@ -148,10 +148,15 @@ def seed_test_data(ctx):
         "brian123",
         "H0000",
         RoleEnum.ADMIN.value,
-        "+1-604-123-4567",
+        ["+1-604-123-4567", "+1-604-123-4568"],
     )
     create_user(
-        "vht@vht.com", "TestVHT", "vht123", "H0000", RoleEnum.VHT.value, "555-555-55555"
+        "vht@vht.com",
+        "TestVHT",
+        "vht123",
+        "H0000",
+        RoleEnum.VHT.value,
+        ["555-555-5555", "666-666-6666", "777-777-7777"],
     )
     create_user(
         "vht2@vht.com",
@@ -159,7 +164,7 @@ def seed_test_data(ctx):
         "vht123",
         "H1000",
         RoleEnum.VHT.value,
-        "+256-415-123456",
+        ["+256-415-123456", "+256-415-123457", "+256-415-123458", "+256-415-123459"],
     )
     create_user(
         "hcw@hcw.com",
@@ -167,7 +172,7 @@ def seed_test_data(ctx):
         "hcw123",
         "H0000",
         RoleEnum.HCW.value,
-        "+256-416-123456",
+        ["+256-416-123456"],
     )
     create_user(
         "cho@cho.com",
@@ -175,7 +180,7 @@ def seed_test_data(ctx):
         "cho123",
         "H0000",
         RoleEnum.CHO.value,
-        "+256-417-123456",
+        ["+256-417-123456"],
     )
 
     print("Creating test patients, readings, referrals, and records...")
@@ -235,7 +240,7 @@ def seed_test_data(ctx):
     create_form_template()
     create_form("49300028162")
 
-    print("Finished seeding minimal test data")
+    print("Finished seeding test data")
 
 
 # USAGE: python manage.py seed_test_patient
