@@ -18,9 +18,6 @@ from api.util import (
     filterPairsWithNone,
     getDictionaryOfUserInfo,
     doesUserExist,
-    update_secret_key_for_user,
-    find_secret_key_by_user,
-    create_secret_key_for_user,
     check_user_roles,
     find_secret_key_by_user,
     update_secret_key_for_user,
@@ -332,15 +329,6 @@ class UserAuthApi(Resource):
         user_data["refresh"] = get_refresh_token(user_data)
 
         LOGGER.info(f"{user.id} has logged in")
-
-        # user_key = find_secret_key_by_user(user.id)
-        # if user_key:
-        #     user_data["secret key"] = user_key
-        #     update_secret_key_for_user(user.id)
-        #     user_data["updated secret key"] = find_secret_key_by_user(user.id)
-        # else:
-        #     create_secret_key_for_user(user.id)
-        # print(find_secret_key_by_user(user.id))
 
         return user_data, 200
 
