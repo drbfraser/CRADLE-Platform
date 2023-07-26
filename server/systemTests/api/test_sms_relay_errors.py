@@ -12,7 +12,7 @@ import json
 
 sms_relay_endpoint = "/api/sms_relay"
 
-'''
+"""
 def test_sms_relay_invalid_json(api_post):
     json_body = {"phone": "1234567890"}
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
@@ -194,4 +194,4 @@ def test_sms_relay_invalid_method(api_post):
     response_dict = sms_relay_test.get_sms_relay_response(response)
     assert response_dict["code"] == 400
     assert response_dict["body"] == sms_relay.invalid_method
-'''
+"""

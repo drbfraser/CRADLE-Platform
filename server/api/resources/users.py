@@ -459,7 +459,7 @@ class UserPhoneUpdate(Resource):
             return {"message": "User phone number updated successfully"}, 200
 
         return {"message": "Phone number cannot be updated"}, 400
-    
+
     # Handle the POST request for adding a new phone number
     @jwt_required()
     @swag_from("../../specifications/user-phone-post.yml", methods=["post"])
@@ -481,7 +481,7 @@ class UserPhoneUpdate(Resource):
             return {"message": "User phone number added successfully"}, 200
 
         return {"message": "Phone number already exists"}, 400
-    
+
     # Handle the DELETE request for deleting an existing phone number
     @jwt_required()
     @roles_required([RoleEnum.ADMIN])
@@ -499,8 +499,8 @@ class UserPhoneUpdate(Resource):
 
         if number_to_delete is None:
             return {"message": "Phone number cannot be null"}, 400
-        
+
         if delete_user_phoneNumber(number_to_delete, user_id):
             return {"message": "User phone number deleted successfully"}, 200
-        
+
         return {"message": "Cannot delete the phone number"}, 400

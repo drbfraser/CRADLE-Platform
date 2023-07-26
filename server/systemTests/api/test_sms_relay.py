@@ -13,7 +13,7 @@ import json
 
 sms_relay_endpoint = "/api/sms_relay"
 
-'''
+"""
 def test_create_patient_with_sms_relay(database, api_post):
     patient_id = "5390160146141"
     reading_ids = [
@@ -258,4 +258,4 @@ def __make_assessment(patient_id: str) -> dict:
         "followupInstructions": "I",
         "followupNeeded": True,
     }
-'''
+"""
