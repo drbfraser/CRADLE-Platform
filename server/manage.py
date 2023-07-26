@@ -120,7 +120,7 @@ def seed_minimal(
         password,
         facility_name,
         RoleEnum.ADMIN.value,
-        os.environ.get("EMULATOR_PHONE_NUMBER"),
+        ["+1-123-456-7890", "+1-098-765,4321"],
     )
 
     print("Finished seeding minimal data set")
