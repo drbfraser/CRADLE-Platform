@@ -693,3 +693,15 @@ def phoneNumber_regex_check(phone_number):
         return False
     else:
         return True
+
+# Check if the phone number is not already in the database - if user_id is supplied the phone number should belong to that user
+def phoneNumber_exists(phone_number, user_id=-1):
+    existing_phone_number = None
+    if user_id == -1:
+        existing_phone_number = crud.read(UserPhoneNumber, number=phone_number)
+    else:
+        existing_phone_number = crud.read(
+            UserPhoneNumber, number=phone_number, user_id=user_id
+        )
+    return existing_phone_number is not None
+
