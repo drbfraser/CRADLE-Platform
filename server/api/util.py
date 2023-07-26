@@ -715,3 +715,10 @@ def add_newPhoneNumber_for_user(new_phone_number, user_id):
     crud.create(UserPhoneNumber(number=new_phone_number, user=user))
 
     return True    
+
+# Delete phone_number from the list of phone numbers of user with user_id if the number belongs to them
+def delete_user_phoneNumber(phone_number, user_id):
+    if phoneNumber_exists(phone_number, user_id):
+        crud.delete_by(UserPhoneNumber, number=phone_number, user_id=user_id)
+        return True
+    return False
