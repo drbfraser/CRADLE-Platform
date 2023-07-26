@@ -40,7 +40,17 @@ def user_id():
 
 @pytest.fixture
 def new_phone_number():
-    return "+12223334455"
+    return "+12223332020"
+
+
+@pytest.fixture
+def old_phone_number():
+    return "+12223332020"
+
+
+@pytest.fixture
+def updated_phone_number():
+    return "+12223333030"
 
 
 def test_user_phone_update(jwt_token, user_id, new_phone_number):
