@@ -705,3 +705,13 @@ def phoneNumber_exists(phone_number, user_id=-1):
         )
     return existing_phone_number is not None
 
+# Add new_phone_number to the list of numbers of the user with user_id. 
+def add_newPhoneNumber_for_user(new_phone_number, user_id):
+    # check to see if the phone number is already in the database for any user
+    if phoneNumber_exists(new_phone_number):
+        return False
+
+    user = crud.read(User, id=user_id)
+    crud.create(UserPhoneNumber(number=new_phone_number, user=user))
+
+    return True    
