@@ -482,3 +482,25 @@ class UserPhoneUpdate(Resource):
 
         return {"message": "Phone number already exists"}, 400
     
+    # Handle the DELETE request for deleting an existing phone number
+    @jwt_required()
+    @roles_required([RoleEnum.ADMIN])
+    @swag_from("../../specifications/user-phone-delete.yml", methods=["DELETE"])
+    def delete(self, user_id):
+        if not user_id:
+            return {"message": "must provide an id"}, 400
+
+        # check if user exists
+        if not doesUserExist(user_id):
+            return {"message": "There is no user with this id"}, 400
+
+        args = self.parser.parse_args()
+        number_to_delete = args["oldPhoneNumber"]
+
+        if number_to_delete is None:
+            return {"message": "Phone number cannot be null"}, 400
+        
+        if delete_user_phoneNumber(number_to_delete, user_id):
+            return {"message": "User phone number deleted successfully"}, 200
+        
+        return {"message": "Cannot delete the phone number"}, 400
