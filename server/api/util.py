@@ -24,6 +24,7 @@ from models import (
     FormClassification,
     Question,
     User,
+    UserPhoneNumber,
 )
 from enums import QuestionTypeEnum, QRelationalEnum
 
@@ -185,6 +186,11 @@ def getDictionaryOfUserInfo(id: int) -> dict:
     userDict["userId"] = userDict["id"]
     userDict.pop("id")
 
+    # Add user's phone numbers to the dictionary
+    userDict["phoneNumbers"] = [
+        phone_number.number for phone_number in user.phoneNumbers
+    ]
+    
     return userDict
 
 
