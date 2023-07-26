@@ -35,6 +35,7 @@ def drop_all_tables():
     db.drop_all()
     db.session.commit()
 
+
 # Extracts a username fomr the email address of a user - Only used in manage.py to generate seed test data
 def get_username_from_email(email):
     try:
@@ -44,6 +45,7 @@ def get_username_from_email(email):
         # If the email is invalid and does not contain "@"
         # Return None or raise an exception as per your requirement
         return None
+
 
 # Creates a user and adds it to the database
 def create_user(email, name, password, hf_name, role, phoneNumbers):
@@ -451,24 +453,6 @@ def create_health_facility(
     }
     schema = HealthFacilitySchema()
     db.session.add(schema.load(facility))
-    db.session.commit()
-
-
-def create_user(email, name, password, hf_name, role, phone):
-    """
-    Creates a user in the database.
-    """
-    user = {
-        "email": email,
-        "firstName": name,
-        "password": flask_bcrypt.generate_password_hash(password),
-        "healthFacilityName": hf_name,
-        "role": role,
-        "phoneNumber": phone,
-        "secretKey": encryptor.generate_key(email),
-    }
-    user_schema = UserSchema()
-    db.session.add(user_schema.load(user))
     db.session.commit()
 
 
