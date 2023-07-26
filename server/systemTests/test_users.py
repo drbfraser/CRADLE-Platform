@@ -53,7 +53,7 @@ def updated_phone_number():
     return "+12223333030"
 
 
-def test_user_phone_update(jwt_token, user_id, new_phone_number):
+def test_user_phone_put(jwt_token, user_id, new_phone_number):
     url_user_phone_update = f"http://localhost:5000/api/user/{user_id}/phone"
     headers = {"Authorization": "Bearer " + jwt_token}
 
