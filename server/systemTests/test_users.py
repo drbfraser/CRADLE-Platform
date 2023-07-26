@@ -85,3 +85,28 @@ def test_user_phone_put(jwt_token, user_id, new_phone_number):
     print(json.dumps(resp_body, indent=4))
     assert response.status_code == 200
     assert resp_body["message"] == "User phone number updated successfully"
+
+    # after testing, below changes the phone number back to what it was
+    payload = {
+        "newPhoneNumber": new_phone_number,
+        "currentPhoneNumber": updated_phone_number,
+        "oldPhoneNumber": None,
+    }
+    response = requests.put(url_user_phone_update, json=payload, headers=headers)
+
+
+def test_user_phone_delete(jwt_token, user_id, old_phone_number):
+    url_user_phone_update = f"http://localhost:5000/api/user/{user_id}/phone"
+    headers = {"Authorization": "Bearer " + jwt_token}
+
+    payload = {
+        "oldPhoneNumber": old_phone_number,
+        "currentPhoneNumber": None,
+        "newPhoneNumber": None,
+    }
+    response = requests.delete(url_user_phone_update, json=payload, headers=headers)
+    resp_body = response.json()
+
+    print(json.dumps(resp_body, indent=4))
+    assert response.status_code == 200
+    assert resp_body["message"] == "User phone number deleted successfully"
