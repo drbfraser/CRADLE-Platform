@@ -35,6 +35,16 @@ def drop_all_tables():
     db.drop_all()
     db.session.commit()
 
+# Extracts a username fomr the email address of a user - Only used in manage.py to generate seed test data
+def get_username_from_email(email):
+    try:
+        username = email.split("@")[0]
+        return username
+    except IndexError:
+        # If the email is invalid and does not contain "@"
+        # Return None or raise an exception as per your requirement
+        return None
+
 
 # USAGE: python manage.py seed_minimal
 @cli.command("seed_minimal")
