@@ -1,0 +1,19 @@
+Add new user's phone number
+---
+tags:
+  - User Phone Number
+parameters:
+  - in: path
+    name: id
+    required: true
+    schema:
+      type: integer
+responses:
+  200:
+    description: "Success. User phone number added successfully."
+  400:
+    description: "Bad Request. Invalid user ID or phone number cannot be null."
+  401:
+    description: "Unauthorized. JWT authentication failed."
+  500:
+    description: "Internal Server Error. Something went wrong on the server side."
