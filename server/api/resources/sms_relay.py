@@ -95,15 +95,18 @@ def sms_relay_procedure():
     if error:
         abort(400, message=corrupted_message.format(type="JSON"))
 
-    phoneNumber = json_request["phoneNumber"]
+    phoneNumber = json_request["destPhoneNumber"]
+
+    if not phoneNumber:
+        abort(400, message=invalid_phone_number.format(phoneNumber=phoneNumber))
 
     if not regex_check(phoneNumber):
-        abort(401, message=invalid_phone_number.format(phoneNumber=phoneNumber))
+        abort(400, message=invalid_phone_number.format(phoneNumber=phoneNumber))
 
     user = crud.read(User, phoneNumber=phoneNumber)
 
     if not user:
-        abort(401, message=invalid_message.format(phoneNumber=phoneNumber))
+        abort(400, message=invalid_message.format(phoneNumber=phoneNumber))
 
     encrypted_data = base64.b64decode(json_request["encryptedData"])
 
@@ -119,7 +122,7 @@ def sms_relay_procedure():
         data = compressor.decompress(decrypted_data)
 
     except:
-        abort(401, message=invalid_message.format(phoneNumber=phoneNumber))
+        abort(400, message=invalid_message.format(phoneNumber=phoneNumber))
 
     # Object Parsing
     string_data = data.decode("utf-8")
