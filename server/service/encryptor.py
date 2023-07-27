@@ -7,7 +7,6 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.backends import default_backend
 
-from api.util import doesUserExist
 from data import crud, marshal
 from models import User, SmsSecretKey
 
@@ -106,9 +105,3 @@ def generate_new_key():
     return bytes2hex(secrets.randbits(256).to_bytes(32, "little"))
 
 
-def auth_user_for_secret_key(user_id):
-    if not user_id:
-        return {"message": "must provide an id"}, 400
-    # check if user exists
-    if not doesUserExist(user_id):
-        return {"message": "There is no user with this id"}, 404

@@ -715,3 +715,10 @@ def hex2bytes(key):
 
 def bytes2hex(key):
     return key.hex()
+
+def auth_user_for_secret_key(user_id):
+    if not user_id:
+        return {"message": "must provide an id"}, 400
+    # check if user exists
+    if not doesUserExist(user_id):
+        return {"message": "There is no user with this id"}, 404

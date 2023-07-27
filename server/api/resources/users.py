@@ -19,6 +19,7 @@ from api.util import (
     getDictionaryOfUserInfo,
     check_user_roles,
     check_expired_date,
+    auth_user_for_secret_key,
 )
 import service.encryptor as encryptor
 import logging
@@ -30,7 +31,6 @@ from service.encryptor import (
     find_secret_key_by_user,
     update_secret_key_for_user,
     create_secret_key_for_user,
-    auth_user_for_secret_key,
 )
 
 
