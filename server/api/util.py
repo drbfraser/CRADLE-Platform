@@ -55,7 +55,6 @@ from api.constants import (
 SMS_KEY_DURATION = int(os.environ.get("SMS_KEY_DURATION")) or 40
 
 
-
 def query_param_bool(request: Request, name: str) -> bool:
     """
     Returns true if the request URL contains a boolean query parameter with a given
@@ -719,12 +718,14 @@ def hex2bytes(key):
 def bytes2hex(key):
     return key.hex()
 
+
 def auth_user_for_secret_key(user_id):
     if not user_id:
         return {"message": "must provide an id"}, 400
     # check if user exists
     if not doesUserExist(user_id):
         return {"message": "There is no user with this id"}, 404
+
 
 def create_secret_key_for_user(userId):
     stale_date = in_the_future(day_after=SMS_KEY_DURATION - 10)
@@ -764,6 +765,7 @@ def find_secret_key_by_user(userId):
             return None
     else:
         return None
+
 
 def generate_new_key():
     return bytes2hex(secrets.randbits(256).to_bytes(32, "little"))
