@@ -17,11 +17,7 @@ from models import User
 from api.util import (
     filterPairsWithNone,
     getDictionaryOfUserInfo,
-    doesUserExist,
     check_user_roles,
-    find_secret_key_by_user,
-    update_secret_key_for_user,
-    create_secret_key_for_user,
     check_expired_date,
 )
 import service.encryptor as encryptor
@@ -30,6 +26,12 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask import Flask
 import os
+from service.encryptor import (
+    find_secret_key_by_user,
+    update_secret_key_for_user,
+    create_secret_key_for_user,
+    auth_user_for_secret_key,
+)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -427,11 +429,7 @@ class UserPhoneUpdate(Resource):
     @jwt_required()
     @swag_from("../../specifications/user-phone-update.yml", methods=["PUT"])
     def put(self, user_id):
-        if not user_id:
-            return {"message": "must provide an id"}, 400
-        # check if user exists
-        if not doesUserExist(user_id):
-            return {"message": "There is no user with this id"}, 400
+        auth_user_for_secret_key(user_id)
 
         args = self.parser.parse_args()
         new_phone_number = args["phoneNumber"]
@@ -455,19 +453,11 @@ class UserSMSKey(Resource):
     @jwt_required()
     @swag_from("../../specifications/user-sms-key-get.yml", methods=["GET"])
     def get(self, user_id):
-        if not user_id:
-            return {"message": "must provide an id"}, 400
-        # check if user exists
-        if not doesUserExist(user_id):
-            return {"message": "There is no user with this id"}, 404
+        auth_user_for_secret_key(user_id)
         sms_key = find_secret_key_by_user(user_id)
         if not sms_key:
-            new_key = create_secret_key_for_user(user_id)
             return {
-                "message": "Cannot find the sms key, a new sms key has been created, detail is showing below: ",
-                "sms_key": new_key["secret_Key"],
-                "expired_date": str(new_key["expiry_date"]),
-                "stale_date": str(new_key["stale_date"]),
+                "message": "Cannot find the sms key, please use POST method to create your sms key"
             }, 200
         elif not check_expired_date(sms_key["expiry_date"]):
             return {
@@ -485,19 +475,11 @@ class UserSMSKey(Resource):
     @jwt_required()
     @swag_from("../../specifications/user-sms-key-put.yml", methods=["PUT"])
     def put(self, user_id):
-        if not user_id:
-            return {"message": "must provide an id"}, 400
-        # check if user exists
-        if not doesUserExist(user_id):
-            return {"message": "There is no user with this id"}, 404
+        auth_user_for_secret_key(user_id)
         sms_key = find_secret_key_by_user(user_id)
         if not sms_key:
-            new_key = create_secret_key_for_user(user_id)
             return {
-                "message": "Cannot find the sms key, a new sms key has been created, detail is showing below: ",
-                "sms_key": new_key["secret_Key"],
-                "expired_date": str(new_key["expiry_date"]),
-                "stale_date": str(new_key["stale_date"]),
+                "message": "Cannot find the sms key, please use POST method to create your sms key"
             }, 200
         else:
             new_key = update_secret_key_for_user(user_id)
@@ -506,4 +488,22 @@ class UserSMSKey(Resource):
                 "sms_key": new_key["secret_Key"],
                 "expired_date": str(new_key["expiry_date"]),
                 "stale_date": str(new_key["stale_date"]),
+            }, 200
+
+    @jwt_required()
+    @swag_from("../../specifications/user-sms-key-post.yml", methods=["POST"])
+    def post(self, user_id):
+        auth_user_for_secret_key(user_id)
+        sms_key = find_secret_key_by_user(user_id)
+        if not sms_key:
+            new_key = create_secret_key_for_user(user_id)
+            return {
+                "message": "A sms key has been created successfully, detail is showing below: ",
+                "sms_key": new_key["secret_Key"],
+                "expired_date": str(new_key["expiry_date"]),
+                "stale_date": str(new_key["stale_date"]),
+            }, 200
+        else:
+            return {
+                "message": "This user has already been created the sms key, please try to use GET method to get it",
             }, 200
