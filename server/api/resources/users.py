@@ -20,6 +20,9 @@ from api.util import (
     check_user_roles,
     check_expired_date,
     auth_user_for_secret_key,
+    find_secret_key_by_user,
+    update_secret_key_for_user,
+    create_secret_key_for_user,
 )
 import service.encryptor as encryptor
 import logging
@@ -27,11 +30,6 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask import Flask
 import os
-from service.encryptor import (
-    find_secret_key_by_user,
-    update_secret_key_for_user,
-    create_secret_key_for_user,
-)
 
 
 LOGGER = logging.getLogger(__name__)
