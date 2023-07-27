@@ -61,6 +61,7 @@ def decrypt(combined, key):
     except:
         raise ValueError("Invalid Key")
 
+
 def create_secret_key_for_user(userId):
     stale_date = in_the_future(day_after=SMS_KEY_DURATION - 10)
     expiry_date = in_the_future(day_after=SMS_KEY_DURATION)
@@ -100,8 +101,10 @@ def find_secret_key_by_user(userId):
     else:
         return None
 
+
 def generate_new_key():
     return bytes2hex(secrets.randbits(256).to_bytes(32, "little"))
+
 
 def auth_user_for_secret_key(user_id):
     if not user_id:

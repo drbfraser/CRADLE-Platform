@@ -53,7 +53,6 @@ from api.constants import (
 )
 
 
-
 def query_param_bool(request: Request, name: str) -> bool:
     """
     Returns true if the request URL contains a boolean query parameter with a given
@@ -693,9 +692,11 @@ def phoneNumber_regex_check(phone_number):
     else:
         return True
 
+
 def check_user_roles(userId):
     userInfo = crud.read(User, id=userId)
     return userInfo.role
+
 
 def check_expired_date(expired_date) -> bool:
     if expired_date >= datetime.datetime.now():
@@ -703,8 +704,10 @@ def check_expired_date(expired_date) -> bool:
     else:
         return True
 
+
 def in_the_future(day_after=1):
     return datetime.datetime.today() + datetime.timedelta(days=day_after)
+
 
 def hex2bytes(key):
     return bytes.fromhex(key)
