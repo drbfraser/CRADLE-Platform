@@ -37,6 +37,8 @@ invalid_message = (
     "with the server using an internet connection (WiFi, 3G, …) "
 )
 
+null_phone_number = "No phone number was provided"
+
 invalid_phone_number = (
     "Phone number {phoneNumber} has wrong format. The format for phone number should be +x-xxx-xxx-xxxx, "
     "+x-xxx-xxx-xxxxx, xxx-xxx-xxxx or xxx-xxx-xxxxx"
@@ -98,7 +100,7 @@ def sms_relay_procedure():
     phoneNumber = json_request["destPhoneNumber"]
 
     if not phoneNumber:
-        abort(400, message=invalid_phone_number.format(phoneNumber=phoneNumber))
+        abort(400, message=null_phone_number)
 
     if not regex_check(phoneNumber):
         abort(400, message=invalid_phone_number.format(phoneNumber=phoneNumber))
