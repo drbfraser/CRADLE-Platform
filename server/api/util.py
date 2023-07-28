@@ -729,15 +729,13 @@ def delete_user_phoneNumber(phone_number, user_id):
 
 # Replaces current_phone_number to new_phone_number for user_id if current_phone_number belongs to the user and new_phone_number does not belong to anyone
 def replace_phoneNumber_for_user(current_phone_number, new_phone_number, user_id):
-    # Check to see if current_phone_number belongs to user_id
-    if phoneNumber_exists(current_phone_number, user_id):
-        # Check to see if new_phone_number belongs to anyone
-        if not phoneNumber_exists(new_phone_number):
-            crud.update(
-                UserPhoneNumber,
-                {"number": new_phone_number},
-                number=current_phone_number,
-                user_id=user_id,
-            )
-            return True
+    # Check to see if current_phone_number belongs to user_id and if new_phone_number belongs to anyone
+    if (phoneNumber_exists(current_phone_number, user_id)) and (not phoneNumber_exists(new_phone_number)):
+        crud.update(
+            UserPhoneNumber,
+            {"number": new_phone_number},
+            number=current_phone_number,
+            user_id=user_id,
+        )
+        return True
     return False
