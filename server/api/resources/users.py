@@ -453,7 +453,7 @@ class UserPhoneUpdate(Resource):
     # Handle the PUT request updating a current phone number to a new phone number
     @jwt_required()
     @roles_required([RoleEnum.ADMIN])
-    @swag_from("../../specifications/user-phone-put.yml", methods=["put"])
+    @swag_from("../../specifications/user-phone-put.yml", methods=["PUT"])
     def put(self, user_id):
         if not user_id:
             return {"message": "must provide an id"}, 400
@@ -481,7 +481,7 @@ class UserPhoneUpdate(Resource):
 
     # Handle the POST request for adding a new phone number
     @jwt_required()
-    @swag_from("../../specifications/user-phone-post.yml", methods=["post"])
+    @swag_from("../../specifications/user-phone-post.yml", methods=["POST"])
     def post(self, user_id):
         if not user_id:
             return {"message": "must provide an id"}, 400
