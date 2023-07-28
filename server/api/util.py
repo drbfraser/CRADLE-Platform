@@ -689,7 +689,7 @@ def phoneNumber_regex_check(phone_number):
         return True
 
 
-# Check if the phone number is not already in the database - if user_id is supplied the phone number should belong to that user
+# Check if the phone number is already in the database - if user_id is supplied the phone number should belong to that user
 def phoneNumber_exists(phone_number, user_id=-1):
     existing_phone_number = None
     if user_id == -1:
