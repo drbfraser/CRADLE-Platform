@@ -1,0 +1,17 @@
+Get the user's phone numbers
+---
+tags:
+  - User Phone Numbers
+parameters:
+  - in: path
+    name: id
+    required: true
+    schema:
+      type: integer
+responses:
+  200:
+    description: "phoneNumbers": [phoneNumbers]
+  400:
+    description: "message": "must provide an id"
+  400:
+    description: "message": "There is no user with this id"
