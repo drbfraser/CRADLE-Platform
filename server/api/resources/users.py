@@ -19,10 +19,6 @@ from api.util import (
 from data import crud
 from data import marshal
 from models import User
-from api.resources.sms_relay import (
-    invalid_phone_number,
-    null_phone_number,
-)
 from api.util import (
     filterPairsWithNone,
     getDictionaryOfUserInfo,
@@ -39,6 +35,14 @@ import os
 
 
 LOGGER = logging.getLogger(__name__)
+
+# Error messages
+null_phone_number = "No phone number was provided"
+
+invalid_phone_number = (
+    "Phone number {phoneNumber} has wrong format. The format for phone number should be +x-xxx-xxx-xxxx, "
+    "+x-xxx-xxx-xxxxx, xxx-xxx-xxxx or xxx-xxx-xxxxx"
+)
 
 # Building a parser that will be used over several apis for Users
 UserParser = reqparse.RequestParser()
