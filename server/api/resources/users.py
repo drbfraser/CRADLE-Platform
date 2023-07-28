@@ -19,6 +19,10 @@ from api.util import (
 from data import crud
 from data import marshal
 from models import User
+from api.resources.sms_relay import (
+    invalid_phone_number,
+    null_phone_number,
+)
 from api.util import (
     filterPairsWithNone,
     getDictionaryOfUserInfo,
@@ -462,10 +466,10 @@ class UserPhoneUpdate(Resource):
         current_phone_number = args["currentPhoneNumber"]
 
         if not phoneNumber_regex_check(new_phone_number):
-            return {"message": "Phone number is not in the correct format"}, 400
+            return {"message": invalid_phone_number}, 400
 
         if new_phone_number is None:
-            return {"message": "Phone number cannot be null"}, 400
+            return {"message": null_phone_number}, 400
 
         # Add the phone number to user's phoneNumbers
         if replace_phoneNumber_for_user(
