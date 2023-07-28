@@ -24,6 +24,7 @@ from api.util import (
     getDictionaryOfUserInfo,
     doesUserExist,
     phoneNumber_regex_check,
+    get_all_phoneNumbers_for_user,
 )
 import service.encryptor as encryptor
 import logging
@@ -430,6 +431,20 @@ class UserPhoneUpdate(Resource):
     parser.add_argument(
         "oldPhoneNumber", type=str, required=True, help="Old phone number is required"
     )
+
+    # Handle the GET request for adding a new phone number
+    @jwt_required()
+    @swag_from("../../specifications/user-phone-get.yml", methods=["GET"])
+    def get(self, user_id):
+        if not user_id:
+            return {"message": "must provide an id"}, 400
+        # check if user exists
+        if not doesUserExist(user_id):
+            return {"message": "There is no user with this id"}, 400
+        
+        phoneNumbers = get_all_phoneNumbers_for_user(user_id)
+        return {"phoneNumbers": phoneNumbers}, 200
+
 
     # Handle the PUT request updating a current phone number to a new phone number
     @jwt_required()

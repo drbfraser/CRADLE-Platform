@@ -701,6 +701,12 @@ def phoneNumber_exists(phone_number, user_id=-1):
     return existing_phone_number is not None
 
 
+def get_all_phoneNumbers_for_user(user_id):
+    phone_numbers = crud.read_all(UserPhoneNumber, user_id=user_id)
+    numbers = [phone_number.number for phone_number in phone_numbers]
+    return numbers
+
+
 # Add new_phone_number to the list of numbers of the user with user_id.
 def add_newPhoneNumber_for_user(new_phone_number, user_id):
     # check to see if the phone number is already in the database for any user
