@@ -708,7 +708,7 @@ def get_all_phoneNumbers_for_user(user_id):
 
 
 # Add new_phone_number to the list of numbers of the user with user_id.
-def add_newPhoneNumber_for_user(new_phone_number, user_id):
+def add_new_phoneNumber_for_user(new_phone_number, user_id):
     # check to see if the phone number is already in the database for any user
     if phoneNumber_exists(new_phone_number):
         return False

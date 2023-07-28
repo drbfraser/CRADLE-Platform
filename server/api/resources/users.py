@@ -12,7 +12,7 @@ from flasgger import swag_from
 from api.decorator import roles_required
 from api.util import (
     isGoodPassword,
-    add_newPhoneNumber_for_user,
+    add_new_phoneNumber_for_user,
     delete_user_phoneNumber,
     replace_phoneNumber_for_user,
 )
@@ -496,7 +496,7 @@ class UserPhoneUpdate(Resource):
             return {"message": "Phone number cannot be null"}, 400
 
         # Add the phone number to user's phoneNumbers
-        if add_newPhoneNumber_for_user(new_phone_number, user_id):
+        if add_new_phoneNumber_for_user(new_phone_number, user_id):
             return {"message": "User phone number added successfully"}, 200
 
         return {"message": "Phone number already exists"}, 400
