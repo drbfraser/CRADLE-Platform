@@ -295,8 +295,10 @@ const EditField = ({
 
   const areAllFieldsFilled = (): boolean => {
     const isQuestionIdFilled = questionId.trim() != '';
-    let areAllNamesFilled =
-      questionLangVersions.length == inputLanguages.length;
+    let areAllNamesFilled = true;
+    questionLangVersions.forEach((qLangVersion) => {
+      areAllNamesFilled = areAllNamesFilled && qLangVersion.questionText != '';
+    });
     let areAllMcOptionFilled = true;
     const isFieldTypeChosen = fieldType.trim() != '';
 
