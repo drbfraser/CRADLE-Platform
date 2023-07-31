@@ -1,17 +1,27 @@
-Get the user's phone numbers
----
+# Specification for GET request on /api/user/<int:user_id>/phone
 tags:
-  - User Phone Numbers
+  - User Phone
+
 parameters:
   - in: path
-    name: id
+    name: user_id
     required: true
     schema:
       type: integer
+    description: The ID of the user.
+
+security:
+  - jwt: []
+
 responses:
-  200:
-    description: "phoneNumbers": [phoneNumbers]
-  400:
-    description: "message": "must provide an id"
-  400:
-    description: "message": "There is no user with this id"
+  "200":
+    description: Requested user phone numbers
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            phoneNumbers:
+              type: array
+              items:
+                type: string

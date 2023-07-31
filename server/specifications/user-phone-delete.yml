@@ -1,21 +1,49 @@
-Delete user's phone number
----
+# Specification for DELETE request on /api/user/<int:user_id>/phone
 tags:
-  - User Phone Number
+  - User Phone
+
 parameters:
   - in: path
-    name: id
+    name: user_id
     required: true
     schema:
       type: integer
-paths:
-  "/user/{user_id}/phone"
-responses:x
-  200:
-    description: "Success. User phone number deleted successfully."
-  400:
-    description: "Bad Request. Invalid user ID or phone number cannot be null."
-  401:
-    description: "Unauthorized. JWT authentication failed."
-  500:
-    description: "Internal Server Error. Something went wrong on the server side."
+    description: The ID of the user.
+
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          oldPhoneNumber:
+            type: string
+        required:
+          - oldPhoneNumber
+      example:
+        oldPhoneNumber: "555-555-5555"
+
+security:
+  - jwt: []
+  - role_admin: []
+
+responses:
+  "200":
+    description: Successful operation
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+  "400":
+    description: Bad Request
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
