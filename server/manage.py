@@ -47,53 +47,6 @@ def get_username_from_email(email):
         return None
 
 
-# Creates a user and adds it to the database
-def create_user(email, name, password, hf_name, role, phoneNumbers):
-    # Check if the email already exists
-    existing_user = User.query.filter_by(username=name).first()
-    if existing_user:
-        print(f"User with username '{name}' already exists.")
-        return None
-
-    # Create a new User instance
-    new_user = User(
-        firstName=name,
-        email=email,
-        username=get_username_from_email(email),
-        healthFacilityName=hf_name,
-        password=flask_bcrypt.generate_password_hash(password),
-        role=role,
-        secretKey=encryptor.generate_key(
-            email
-        ),  # TODO: change according to the new encryption key generator
-    )
-
-    new_phone_numbers = []
-    for phoneNumber in phoneNumbers:
-        # Check if the phone number already exists
-        existing_phone = UserPhoneNumber.query.filter_by(number=phoneNumber).first()
-        if existing_phone:
-            print(
-                f"Phone number '{phoneNumber}' is already associated with another user."
-            )
-            return None
-
-        # Create a new UserPhoneNumber instance and associate it with the user
-        new_phone_numbers.append(UserPhoneNumber(number=phoneNumber, user=new_user))
-
-    try:
-        # Add the new user and phone numbers to the database
-        db.session.add(new_user)
-        db.session.add_all(new_phone_numbers)
-        db.session.commit()
-        print(f"User '{name}' created successfully.")
-        return new_user
-    except Exception as e:
-        db.session.rollback()
-        print(f"Failed to create user: {e}")
-        return None
-
-
 # USAGE: python manage.py seed_minimal
 @cli.command("seed_minimal")
 def seed_minimal(
@@ -434,6 +387,53 @@ def seed(ctx):
 
     end = time.time()
     print("The seed script took: {} seconds".format(round(end - start, 3)))
+
+
+# Creates a user and adds it to the database
+def create_user(email, name, password, hf_name, role, phoneNumbers):
+    # Check if the email already exists
+    existing_user = User.query.filter_by(username=name).first()
+    if existing_user:
+        print(f"User with username '{name}' already exists.")
+        return None
+
+    # Create a new User instance
+    new_user = User(
+        firstName=name,
+        email=email,
+        username=get_username_from_email(email),
+        healthFacilityName=hf_name,
+        password=flask_bcrypt.generate_password_hash(password),
+        role=role,
+        secretKey=encryptor.generate_key(
+            email
+        ),  # TODO: change according to the new encryption key generator
+    )
+
+    new_phone_numbers = []
+    for phoneNumber in phoneNumbers:
+        # Check if the phone number already exists
+        existing_phone = UserPhoneNumber.query.filter_by(number=phoneNumber).first()
+        if existing_phone:
+            print(
+                f"Phone number '{phoneNumber}' is already associated with another user."
+            )
+            return None
+
+        # Create a new UserPhoneNumber instance and associate it with the user
+        new_phone_numbers.append(UserPhoneNumber(number=phoneNumber, user=new_user))
+
+    try:
+        # Add the new user and phone numbers to the database
+        db.session.add(new_user)
+        db.session.add_all(new_phone_numbers)
+        db.session.commit()
+        print(f"User '{name}' created successfully.")
+        return new_user
+    except Exception as e:
+        db.session.rollback()
+        print(f"Failed to create user: {e}")
+        return None
 
 
 def create_health_facility(
