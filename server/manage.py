@@ -76,7 +76,8 @@ def seed_minimal(
         password,
         facility_name,
         RoleEnum.ADMIN.value,
-        ["+1-123-456-7890", "+1-098-765,4321", os.environ.get("EMULATOR_PHONE_NUMBER")],
+        ["+1-888-456-7890", "+1-098-765,4321", os.environ.get("EMULATOR_PHONE_NUMBER")],
+        1,
     )
 
     print("Finished seeding minimal data set")
@@ -105,6 +106,7 @@ def seed_test_data(ctx):
         "H0000",
         RoleEnum.ADMIN.value,
         ["+1-604-123-4567", "+1-604-123-4568"],
+        2,
     )
     create_user(
         "vht@vht.com",
@@ -113,6 +115,7 @@ def seed_test_data(ctx):
         "H0000",
         RoleEnum.VHT.value,
         ["555-555-5555", "666-666-6666", "777-777-7777"],
+        3,
     )
     create_user(
         "vht2@vht.com",
@@ -121,6 +124,7 @@ def seed_test_data(ctx):
         "H1000",
         RoleEnum.VHT.value,
         ["+256-415-123456", "+256-415-123457", "+256-415-123458", "+256-415-123459"],
+        4,
     )
     create_user(
         "hcw@hcw.com",
@@ -129,6 +133,7 @@ def seed_test_data(ctx):
         "H0000",
         RoleEnum.HCW.value,
         ["+256-416-123456"],
+        5,
     )
     create_user(
         "cho@cho.com",
@@ -137,6 +142,7 @@ def seed_test_data(ctx):
         "H0000",
         RoleEnum.CHO.value,
         ["+256-417-123456"],
+        6,
     )
 
     print("Creating test patients, readings, referrals, and records...")
@@ -391,7 +397,7 @@ def seed(ctx):
 
 
 # Creates a user and adds it to the database
-def create_user(email, name, password, hf_name, role, phoneNumbers):
+def create_user(email, name, password, hf_name, role, phoneNumbers, user_id):
     # Check if the email already exists
     existing_user = User.query.filter_by(username=name).first()
     if existing_user:
@@ -400,6 +406,7 @@ def create_user(email, name, password, hf_name, role, phoneNumbers):
 
     # Create a new User instance
     new_user = User(
+        id=user_id,
         firstName=name,
         email=email,
         username=get_username_from_email(email),
