@@ -26,4 +26,3 @@ def downgrade():
         "user", sa.Column("phoneNumber", mysql.VARCHAR(length=15), nullable=True)
     )
     # ### end Alembic commands ###
-

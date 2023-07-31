@@ -21,6 +21,7 @@ import os
 
 cli = FlaskGroup(app)
 
+
 # USAGE: python manage.py reset_db
 @cli.command("reset_db")
 def reset_db():

@@ -449,10 +449,9 @@ class UserPhoneUpdate(Resource):
         # check if user exists
         if not doesUserExist(user_id):
             return {"message": "There is no user with this id"}, 400
-        
+
         phoneNumbers = get_all_phoneNumbers_for_user(user_id)
         return {"phoneNumbers": phoneNumbers}, 200
-
 
     # Handle the PUT request updating a current phone number to a new phone number
     @jwt_required()
