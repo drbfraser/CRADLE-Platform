@@ -37,6 +37,8 @@ invalid_message = (
     "with the server using an internet connection (WiFi, 3G, …) "
 )
 
+invalid_user = "User does not exist"
+
 null_phone_number = "No phone number was provided"
 
 invalid_phone_number = (
@@ -108,7 +110,7 @@ def sms_relay_procedure():
     user = crud.read(User, phoneNumber=phoneNumber)
 
     if not user:
-        abort(400, message=invalid_message.format(phoneNumber=phoneNumber))
+        abort(400, message=invalid_user)
 
     encrypted_data = base64.b64decode(json_request["encryptedData"])
 
