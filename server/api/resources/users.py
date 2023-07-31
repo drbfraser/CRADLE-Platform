@@ -17,12 +17,13 @@ from models import User
 from api.util import (
     filterPairsWithNone,
     getDictionaryOfUserInfo,
-    check_user_roles,
-    check_expired_date,
-    auth_user_for_secret_key,
-    find_secret_key_by_user,
+    get_user_roles,
+    is_date_expired,
+    validate_user,
+    get_user_secret_key,
     update_secret_key_for_user,
     create_secret_key_for_user,
+    doesUserExist,
 )
 import service.encryptor as encryptor
 import logging
@@ -427,8 +428,11 @@ class UserPhoneUpdate(Resource):
     @jwt_required()
     @swag_from("../../specifications/user-phone-update.yml", methods=["PUT"])
     def put(self, user_id):
-        auth_user_for_secret_key(user_id)
-
+        if not user_id:
+            return {"message": "must provide an id"}, 400
+        # check if user exists
+        if not doesUserExist(user_id):
+            return {"message": "There is no user with this id"}, 404
         args = self.parser.parse_args()
         new_phone_number = args["phoneNumber"]
 
@@ -451,13 +455,15 @@ class UserSMSKey(Resource):
     @jwt_required()
     @swag_from("../../specifications/user-sms-key-get.yml", methods=["GET"])
     def get(self, user_id):
-        auth_user_for_secret_key(user_id)
-        sms_key = find_secret_key_by_user(user_id)
+        validate_result = validate_user(user_id)
+        if validate_result is not None:
+            return validate_result
+        sms_key = get_user_secret_key(user_id)
         if not sms_key:
             return {
                 "message": "Cannot find the sms key, please use POST method to create your sms key"
             }, 200
-        elif not check_expired_date(sms_key["expiry_date"]):
+        elif not is_date_expired(sms_key["expiry_date"]):
             return {
                 "message": "A sms key has been found",
                 "sms_key": sms_key["secret_Key"],
@@ -473,8 +479,10 @@ class UserSMSKey(Resource):
     @jwt_required()
     @swag_from("../../specifications/user-sms-key-put.yml", methods=["PUT"])
     def put(self, user_id):
-        auth_user_for_secret_key(user_id)
-        sms_key = find_secret_key_by_user(user_id)
+        validate_result = validate_user(user_id)
+        if validate_result is not None:
+            return validate_result
+        sms_key = get_user_secret_key(user_id)
         if not sms_key:
             return {
                 "message": "Cannot find the sms key, please use POST method to create your sms key"
@@ -491,8 +499,10 @@ class UserSMSKey(Resource):
     @jwt_required()
     @swag_from("../../specifications/user-sms-key-post.yml", methods=["POST"])
     def post(self, user_id):
-        auth_user_for_secret_key(user_id)
-        sms_key = find_secret_key_by_user(user_id)
+        validate_result = validate_user(user_id)
+        if validate_result is not None:
+            return validate_result
+        sms_key = get_user_secret_key(user_id)
         if not sms_key:
             new_key = create_secret_key_for_user(user_id)
             return {

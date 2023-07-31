@@ -695,19 +695,19 @@ def phoneNumber_regex_check(phone_number):
         return True
 
 
-def check_user_roles(userId):
+def get_user_roles(userId):
     userInfo = crud.read(User, id=userId)
     return userInfo.role
 
 
-def check_expired_date(expired_date) -> bool:
+def is_date_expired(expired_date) -> bool:
     if expired_date >= datetime.datetime.now():
         return False
     else:
         return True
 
 
-def in_the_future(day_after=1):
+def get_future_date(day_after=1):
     return datetime.datetime.today() + datetime.timedelta(days=day_after)
 
 
@@ -719,17 +719,18 @@ def bytes2hex(key):
     return key.hex()
 
 
-def auth_user_for_secret_key(user_id):
+def validate_user(user_id):
     if not user_id:
         return {"message": "must provide an id"}, 400
     # check if user exists
     if not doesUserExist(user_id):
         return {"message": "There is no user with this id"}, 404
+    return None
 
 
 def create_secret_key_for_user(userId):
-    stale_date = in_the_future(day_after=SMS_KEY_DURATION - 10)
-    expiry_date = in_the_future(day_after=SMS_KEY_DURATION)
+    stale_date = get_future_date(day_after=SMS_KEY_DURATION - 10)
+    expiry_date = get_future_date(day_after=SMS_KEY_DURATION)
     secret_Key = generate_new_key()
     new_key = {
         "userId": userId,
@@ -743,8 +744,8 @@ def create_secret_key_for_user(userId):
 
 
 def update_secret_key_for_user(userId):
-    stale_date = in_the_future(day_after=SMS_KEY_DURATION - 10)
-    expiry_date = in_the_future(day_after=SMS_KEY_DURATION)
+    stale_date = get_future_date(day_after=SMS_KEY_DURATION - 10)
+    expiry_date = get_future_date(day_after=SMS_KEY_DURATION)
     secret_Key = generate_new_key()
     new_key = {
         "secret_Key": str(secret_Key),
@@ -755,7 +756,7 @@ def update_secret_key_for_user(userId):
     return new_key
 
 
-def find_secret_key_by_user(userId):
+def get_user_secret_key(userId):
     sms_secret_key = crud.read(SmsSecretKey, userId=userId)
     if sms_secret_key:
         if sms_secret_key.secret_Key:

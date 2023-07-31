@@ -122,21 +122,21 @@ def seed_test_data(ctx):
         "+256-417-123456",
     )
 
-    create_sms_key(
+    create_test_key(
         "1",
         "46820654985a5ef1c680b50b7ee2f27691ee1cea1bfdd37c7ba150f7e4a155f1",
         "2023-09-04 01:01:16",
         "2023-08-25 01:01:16",
     )
 
-    create_sms_key(
+    create_test_key(
         "2",
         "f7b0a06ab61b5fba1a381e5a2786fc45b1079caee5bb9d90f530654c85e22194",
         "2023-09-03 01:22:21",
         "2023-08-24 01:22:21",
     )
 
-    create_sms_key(
+    create_test_key(
         "3",
         "6b0719c6fe35bb21174297e7a23cf54c8ab11c5c7e3cbe4a040268520fa97e75",
         "2024-01-24 06:29:08",
@@ -589,7 +589,7 @@ def create_form(patient_id):
     db.session.commit()
 
 
-def create_sms_key(
+def create_test_key(
     # : check the database and format to make sure it works
     userId,
     secret_Key,
@@ -603,8 +603,12 @@ def create_sms_key(
         "stale_date": str(stale_date),
     }
     schema = SmsSecretKeySchema()
-    db.session.add(schema.load(sms_key))
-    db.session.commit()
+    try:
+        db.session.add(schema.load(sms_key))
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print(f"Failed to create sms test key: {e}", e)
 
 
 def getRandomInitials():
