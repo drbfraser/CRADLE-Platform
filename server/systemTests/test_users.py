@@ -69,6 +69,23 @@ def test_user_phone_post(jwt_token, user_id, new_phone_number):
     assert response.status_code == 200
     assert resp_body["message"] == "User phone number added successfully"
 
+# add new_phone_number again
+def test_duplicate_phone_numbers_post(jwt_token, user_id, new_phone_number):
+    url_user_phone_update = f"http://localhost:5000/api/user/{user_id}/phone"
+    headers = {"Authorization": "Bearer " + jwt_token}
+
+    payload = {
+        "newPhoneNumber": new_phone_number,
+        "currentPhoneNumber": None,
+        "oldPhoneNumber": None,
+    }
+    response = requests.post(url_user_phone_update, json=payload, headers=headers)
+    resp_body = response.json()
+
+    print(json.dumps(resp_body, indent=4))
+    assert response.status_code == 400
+    assert resp_body["message"] == "Phone number already exists"
+
 
 def test_user_phone_put(jwt_token, user_id, new_phone_number, updated_phone_number):
     url_user_phone_update = f"http://localhost:5000/api/user/{user_id}/phone"
