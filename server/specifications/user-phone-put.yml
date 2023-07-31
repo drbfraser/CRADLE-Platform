@@ -46,3 +46,24 @@ responses:
           properties:
             message:
               type: string
+              description: Success message.
+  "400":
+    description: Bad Request
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: Error message indicating the reason for failure.
+        examples:
+          InvalidPhoneNumber:
+            value:
+              message: invalid_phone_number
+          NullPhoneNumber:
+            value:
+              message: newPhoneNumber cannot be null
+          UserNotFound:
+            value:
+              message: There is no user with this id

@@ -25,3 +25,20 @@ responses:
               type: array
               items:
                 type: string
+  "400":
+    description: Bad Request
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: Error message indicating the reason for failure.
+        examples:
+          MissingID:
+            value:
+              message: must provide an id
+          UserNotFound:
+            value:
+              message: There is no user with this id
