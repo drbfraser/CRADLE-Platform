@@ -10,7 +10,12 @@ from flask_jwt_extended import (
 )
 from flasgger import swag_from
 from api.decorator import roles_required
-from api.util import isGoodPassword
+from api.util import (
+    isGoodPassword,
+    add_new_phoneNumber_for_user,
+    delete_user_phoneNumber,
+    replace_phoneNumber_for_user,
+)
 from data import crud
 from data import marshal
 from models import User
@@ -19,6 +24,7 @@ from api.util import (
     getDictionaryOfUserInfo,
     doesUserExist,
     phoneNumber_regex_check,
+    get_all_phoneNumbers_for_user,
 )
 import service.encryptor as encryptor
 import logging
@@ -30,6 +36,14 @@ import os
 
 LOGGER = logging.getLogger(__name__)
 
+# Error messages
+null_phone_number = "No phone number was provided"
+
+invalid_phone_number = (
+    "Phone number {phoneNumber} has wrong format. The format for phone number should be +x-xxx-xxx-xxxx, "
+    "+x-xxx-xxx-xxxxx, xxx-xxx-xxxx or xxx-xxx-xxxxx"
+)
+
 # Building a parser that will be used over several apis for Users
 UserParser = reqparse.RequestParser()
 UserParser.add_argument(
@@ -37,9 +51,6 @@ UserParser.add_argument(
 )
 UserParser.add_argument(
     "firstName", type=str, required=True, help="This field cannot be left blank!"
-)
-UserParser.add_argument(
-    "phoneNumber", type=str, required=True, help="This field cannot be left blank!"
 )
 UserParser.add_argument(
     "healthFacilityName",
@@ -78,6 +89,9 @@ class UserAll(Resource):
             userDict["supervises"] = vhtList
             userDict["userId"] = userDict["id"]
             userDict.pop("id")
+            userDict["phoneNumbers"] = [
+                phone_number.number for phone_number in user.phoneNumbers
+            ]
 
             userDictList.append(userDict)
 
@@ -240,7 +254,6 @@ def get_user_data_for_token(user: User) -> dict:
     data["healthFacilityName"] = user.healthFacilityName
     data["isLoggedIn"] = True
     data["userId"] = user.id
-    data["phoneNumber"] = user.phoneNumber
 
     vhtList = []
     data["supervises"] = []
@@ -415,12 +428,35 @@ class UserApi(Resource):
 class UserPhoneUpdate(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument(
-        "phoneNumber", type=str, required=True, help="Phone number is required"
+        "newPhoneNumber", type=str, required=True, help="New phone number is required"
+    )
+    parser.add_argument(
+        "currentPhoneNumber",
+        type=str,
+        required=True,
+        help="Current phone number is required",
+    )
+    parser.add_argument(
+        "oldPhoneNumber", type=str, required=True, help="Old phone number is required"
     )
 
-    # Handle the PUT request for updating the phone number
+    # Handle the GET request for adding a new phone number
     @jwt_required()
-    @swag_from("../../specifications/user-phone-update.yml", methods=["PUT"])
+    @swag_from("../../specifications/user-phone-get.yml", methods=["GET"])
+    def get(self, user_id):
+        if not user_id:
+            return {"message": "must provide an id"}, 400
+        # check if user exists
+        if not doesUserExist(user_id):
+            return {"message": "There is no user with this id"}, 400
+
+        phoneNumbers = get_all_phoneNumbers_for_user(user_id)
+        return {"phoneNumbers": phoneNumbers}, 200
+
+    # Handle the PUT request updating a current phone number to a new phone number
+    @jwt_required()
+    @roles_required([RoleEnum.ADMIN])
+    @swag_from("../../specifications/user-phone-put.yml", methods=["PUT"])
     def put(self, user_id):
         if not user_id:
             return {"message": "must provide an id"}, 400
@@ -429,17 +465,64 @@ class UserPhoneUpdate(Resource):
             return {"message": "There is no user with this id"}, 400
 
         args = self.parser.parse_args()
-        new_phone_number = args["phoneNumber"]
+        new_phone_number = args["newPhoneNumber"]
+        current_phone_number = args["currentPhoneNumber"]
 
         if not phoneNumber_regex_check(new_phone_number):
-            return {"message": "Phone number is not in the correct format"}, 400
+            return {"message": invalid_phone_number}, 400
+
+        if new_phone_number is None:
+            return {"message": null_phone_number}, 400
+
+        # Add the phone number to user's phoneNumbers
+        if replace_phoneNumber_for_user(
+            current_phone_number, new_phone_number, user_id
+        ):
+            return {"message": "User phone number updated successfully"}, 200
+
+        return {"message": "Phone number cannot be updated"}, 400
+
+    # Handle the POST request for adding a new phone number
+    @jwt_required()
+    @swag_from("../../specifications/user-phone-post.yml", methods=["POST"])
+    def post(self, user_id):
+        if not user_id:
+            return {"message": "must provide an id"}, 400
+        # check if user exists
+        if not doesUserExist(user_id):
+            return {"message": "There is no user with this id"}, 400
+
+        args = self.parser.parse_args()
+        new_phone_number = args["newPhoneNumber"]
 
         if new_phone_number is None:
             return {"message": "Phone number cannot be null"}, 400
 
-        # Construct a dictionary with the changes
-        changes = {"phoneNumber": new_phone_number}
+        # Add the phone number to user's phoneNumbers
+        if add_new_phoneNumber_for_user(new_phone_number, user_id):
+            return {"message": "User phone number added successfully"}, 200
 
-        crud.update(User, changes, id=user_id)
+        return {"message": "Phone number already exists"}, 400
 
-        return {"message": "User phone number updated successfully"}, 200
+    # Handle the DELETE request for deleting an existing phone number
+    @jwt_required()
+    @roles_required([RoleEnum.ADMIN])
+    @swag_from("../../specifications/user-phone-delete.yml", methods=["DELETE"])
+    def delete(self, user_id):
+        if not user_id:
+            return {"message": "must provide an id"}, 400
+
+        # check if user exists
+        if not doesUserExist(user_id):
+            return {"message": "There is no user with this id"}, 400
+
+        args = self.parser.parse_args()
+        number_to_delete = args["oldPhoneNumber"]
+
+        if number_to_delete is None:
+            return {"message": "Phone number cannot be null"}, 400
+
+        if delete_user_phoneNumber(number_to_delete, user_id):
+            return {"message": "User phone number deleted successfully"}, 200
+
+        return {"message": "Cannot delete the phone number"}, 400

@@ -24,6 +24,7 @@ from models import (
     FormClassification,
     Question,
     User,
+    UserPhoneNumber,
 )
 from enums import QuestionTypeEnum, QRelationalEnum
 
@@ -162,7 +163,6 @@ def filterPairsWithNone(payload: dict) -> dict:
 
 
 def getDictionaryOfUserInfo(id: int) -> dict:
-
     """
     Takes in an id and returns all of the information about a user from the users table
     and from the supervises table
@@ -184,6 +184,11 @@ def getDictionaryOfUserInfo(id: int) -> dict:
     # Just for uniformity in the names of the keys
     userDict["userId"] = userDict["id"]
     userDict.pop("id")
+
+    # Add user's phone numbers to the dictionary
+    userDict["phoneNumbers"] = [
+        phone_number.number for phone_number in user.phoneNumbers
+    ]
 
     return userDict
 
@@ -296,7 +301,6 @@ def parseCondition(parentQuestion: dict, conditionText: str) -> dict:
         QuestionTypeEnum.MULTIPLE_CHOICE.value,
         QuestionTypeEnum.MULTIPLE_SELECT.value,
     ]:
-
         options = [option.strip().casefold() for option in conditionText.split(",")]
 
         previousQuestionOptions = mcOptionsToDict(
@@ -335,7 +339,6 @@ def getFormTemplateDictFromCSV(csvData: str):
 
     # Helper functions
     def isRowEmpty(row: Iterable) -> bool:
-
         return all(map(lambda val: val == "", row))
 
     def isQuestionRequired(required: str) -> bool:
@@ -364,7 +367,6 @@ def getFormTemplateDictFromCSV(csvData: str):
     def findCategoryIndex(
         categoryList: list[dict[str, any]], categoryText: str
     ) -> int | None:
-
         for category in categoryList:
             for languageVersion in category["questionLangVersions"]:
                 if languageVersion["questionText"] == categoryText:
@@ -423,7 +425,6 @@ def getFormTemplateDictFromCSV(csvData: str):
         visibilityConditions: list = []
 
         if len(visibilityConditionsText) > 0:
-
             if questionIndex == 0:
                 raise RuntimeError(
                     "First questions cannot have a visibility condition."
@@ -468,7 +469,6 @@ def getFormTemplateDictFromCSV(csvData: str):
         )
 
         for _ in range(len(languages) - 1):
-
             row = next(questionRows, None)
 
             if row is None or isRowEmpty(row):
@@ -687,3 +687,57 @@ def phoneNumber_regex_check(phone_number):
         return False
     else:
         return True
+
+
+# Check if the phone number is already in the database - if user_id is supplied the phone number should belong to that user
+def phoneNumber_exists(phone_number, user_id=-1):
+    existing_phone_number = None
+    if user_id == -1:
+        existing_phone_number = crud.read(UserPhoneNumber, number=phone_number)
+    else:
+        existing_phone_number = crud.read(
+            UserPhoneNumber, number=phone_number, user_id=user_id
+        )
+    return existing_phone_number is not None
+
+
+def get_all_phoneNumbers_for_user(user_id):
+    phone_numbers = crud.read_all(UserPhoneNumber, user_id=user_id)
+    numbers = [phone_number.number for phone_number in phone_numbers]
+    return numbers
+
+
+# Add new_phone_number to the list of numbers of the user with user_id.
+def add_new_phoneNumber_for_user(new_phone_number, user_id):
+    # check to see if the phone number is already in the database for any user
+    if phoneNumber_exists(new_phone_number):
+        return False
+
+    user = crud.read(User, id=user_id)
+    crud.create(UserPhoneNumber(number=new_phone_number, user=user))
+
+    return True
+
+
+# Delete phone_number from the list of phone numbers of user with user_id if the number belongs to them
+def delete_user_phoneNumber(phone_number, user_id):
+    if phoneNumber_exists(phone_number, user_id):
+        crud.delete_by(UserPhoneNumber, number=phone_number, user_id=user_id)
+        return True
+    return False
+
+
+# Replaces current_phone_number to new_phone_number for user_id if current_phone_number belongs to the user and new_phone_number does not belong to anyone
+def replace_phoneNumber_for_user(current_phone_number, new_phone_number, user_id):
+    # Check to see if current_phone_number belongs to user_id and if new_phone_number belongs to anyone
+    if (phoneNumber_exists(current_phone_number, user_id)) and (
+        not phoneNumber_exists(new_phone_number)
+    ):
+        crud.update(
+            UserPhoneNumber,
+            {"number": new_phone_number},
+            number=current_phone_number,
+            user_id=user_id,
+        )
+        return True
+    return False
