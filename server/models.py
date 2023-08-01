@@ -44,7 +44,6 @@ class User(db.Model):
     email = db.Column(db.String(120), index=True, unique=True)
     password = db.Column(db.String(128))
     role = db.Column(db.String(50))
-    phoneNumber = db.Column(db.String(15))
     secretKey = db.Column(db.String(64))
 
     # FOREIGN KEYS
@@ -56,13 +55,18 @@ class User(db.Model):
     healthFacility = db.relationship(
         "HealthFacility", backref=db.backref("users", lazy=True)
     )
-
     referrals = db.relationship("Referral", backref=db.backref("users", lazy=True))
     vhtList = db.relationship(
         "User",
         secondary=supervises,
         primaryjoin=id == supervises.c.choId,
         secondaryjoin=id == supervises.c.vhtId,
+    )
+    phoneNumbers = db.relationship(
+        "UserPhoneNumber",
+        back_populates="user",
+        lazy=True,
+        cascade="all, delete-orphan",
     )
 
     @staticmethod
@@ -71,6 +75,21 @@ class User(db.Model):
 
     def __repr__(self):
         return "<User {}>".format(self.username)
+
+
+class UserPhoneNumber(db.Model):
+    id = db.Column(db.String(36), primary_key=True, default=get_uuid)
+    number = db.Column(db.String(20), unique=True)
+
+    # FOREIGN KEYS
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+
+    # RELATIONSHIPS
+    user = db.relationship("User", back_populates="phoneNumbers")
+
+    @staticmethod
+    def schema():
+        return UserPhoneNumberSchema
 
 
 class Referral(db.Model):
@@ -627,6 +646,14 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = User
+        load_instance = True
+        include_relationships = True
+
+
+class UserPhoneNumberSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = UserPhoneNumber
         load_instance = True
         include_relationships = True
 

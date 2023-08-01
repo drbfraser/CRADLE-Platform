@@ -21,6 +21,7 @@ import os
 
 cli = FlaskGroup(app)
 
+
 # USAGE: python manage.py reset_db
 @cli.command("reset_db")
 def reset_db():
@@ -34,6 +35,17 @@ def reset_db():
 def drop_all_tables():
     db.drop_all()
     db.session.commit()
+
+
+# Extracts a username fomr the email address of a user - Only used in manage.py to generate seed test data
+def get_username_from_email(email):
+    try:
+        username = email.split("@")[0]
+        return username
+    except IndexError:
+        # If the email is invalid and does not contain "@"
+        # Return None or raise an exception as per your requirement
+        return None
 
 
 # USAGE: python manage.py seed_minimal
@@ -64,7 +76,8 @@ def seed_minimal(
         password,
         facility_name,
         RoleEnum.ADMIN.value,
-        os.environ.get("EMULATOR_PHONE_NUMBER"),
+        ["+1-888-456-7890", "+1-098-765,4321", os.environ.get("EMULATOR_PHONE_NUMBER")],
+        1,
     )
 
     print("Finished seeding minimal data set")
@@ -92,10 +105,17 @@ def seed_test_data(ctx):
         "brian123",
         "H0000",
         RoleEnum.ADMIN.value,
-        "+1-604-123-4567",
+        ["+1-604-123-4567", "+1-604-123-4568"],
+        2,
     )
     create_user(
-        "vht@vht.com", "TestVHT", "vht123", "H0000", RoleEnum.VHT.value, "555-555-55555"
+        "vht@vht.com",
+        "TestVHT",
+        "vht123",
+        "H0000",
+        RoleEnum.VHT.value,
+        ["555-555-5555", "666-666-6666", "777-777-7777"],
+        3,
     )
     create_user(
         "vht2@vht.com",
@@ -103,7 +123,8 @@ def seed_test_data(ctx):
         "vht123",
         "H1000",
         RoleEnum.VHT.value,
-        "+256-415-123456",
+        ["+256-415-123456", "+256-415-123457", "+256-415-123458", "+256-415-123459"],
+        4,
     )
     create_user(
         "hcw@hcw.com",
@@ -111,7 +132,8 @@ def seed_test_data(ctx):
         "hcw123",
         "H0000",
         RoleEnum.HCW.value,
-        "+256-416-123456",
+        ["+256-416-123456"],
+        5,
     )
     create_user(
         "cho@cho.com",
@@ -119,7 +141,8 @@ def seed_test_data(ctx):
         "cho123",
         "H0000",
         RoleEnum.CHO.value,
-        "+256-417-123456",
+        ["+256-417-123456"],
+        6,
     )
 
     create_test_key(
@@ -200,7 +223,7 @@ def seed_test_data(ctx):
     create_form_template()
     create_form("49300028162")
 
-    print("Finished seeding minimal test data")
+    print("Finished seeding test data")
 
 
 # USAGE: python manage.py seed_test_patient
@@ -394,6 +417,54 @@ def seed(ctx):
     print("The seed script took: {} seconds".format(round(end - start, 3)))
 
 
+# Creates a user and adds it to the database
+def create_user(email, name, password, hf_name, role, phoneNumbers, user_id):
+    # Check if the email already exists
+    existing_user = User.query.filter_by(username=name).first()
+    if existing_user:
+        print(f"User with username '{name}' already exists.")
+        return None
+
+    # Create a new User instance
+    new_user = User(
+        id=user_id,
+        firstName=name,
+        email=email,
+        username=get_username_from_email(email),
+        healthFacilityName=hf_name,
+        password=flask_bcrypt.generate_password_hash(password),
+        role=role,
+        secretKey=encryptor.generate_key(
+            email
+        ),  # TODO: change according to the new encryption key generator
+    )
+
+    new_phone_numbers = []
+    for phoneNumber in phoneNumbers:
+        # Check if the phone number already exists
+        existing_phone = UserPhoneNumber.query.filter_by(number=phoneNumber).first()
+        if existing_phone:
+            print(
+                f"Phone number '{phoneNumber}' is already associated with another user."
+            )
+            return None
+
+        # Create a new UserPhoneNumber instance and associate it with the user
+        new_phone_numbers.append(UserPhoneNumber(number=phoneNumber, user=new_user))
+
+    try:
+        # Add the new user and phone numbers to the database
+        db.session.add(new_user)
+        db.session.add_all(new_phone_numbers)
+        db.session.commit()
+        print(f"User '{name}' created successfully.")
+        return new_user
+    except Exception as e:
+        db.session.rollback()
+        print(f"Failed to create user: {e}")
+        return None
+
+
 def create_health_facility(
     facilityName,
     facilityType="HOSPITAL",
@@ -411,24 +482,6 @@ def create_health_facility(
     }
     schema = HealthFacilitySchema()
     db.session.add(schema.load(facility))
-    db.session.commit()
-
-
-def create_user(email, name, password, hf_name, role, phone):
-    """
-    Creates a user in the database.
-    """
-    user = {
-        "email": email,
-        "firstName": name,
-        "password": flask_bcrypt.generate_password_hash(password),
-        "healthFacilityName": hf_name,
-        "role": role,
-        "phoneNumber": phone,
-        "secretKey": encryptor.generate_key(email),
-    }
-    user_schema = UserSchema()
-    db.session.add(user_schema.load(user))
     db.session.commit()
 
 
