@@ -254,6 +254,7 @@ def get_user_data_for_token(user: User) -> dict:
     data["healthFacilityName"] = user.healthFacilityName
     data["isLoggedIn"] = True
     data["userId"] = user.id
+    data["phoneNumbers"] = get_all_phoneNumbers_for_user(user.id)
 
     vhtList = []
     data["supervises"] = []
