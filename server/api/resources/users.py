@@ -471,7 +471,7 @@ class UserSMSKey(Resource):
             }, 200
         else:
             return {
-                "message": "Your sms key seems be expired soon, please try to contact your Admin to update your sms key",
+                "message": "Your sms key seems to be expired, please try to contact your Admin to update your sms key",
                 "sms_key": sms_key["secret_Key"],
                 "expired_date": str(sms_key["expired_date"]),
             }, 200
