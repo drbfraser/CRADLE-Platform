@@ -813,14 +813,10 @@ def update_secret_key_for_user(userId):
 
 def get_user_secret_key(userId):
     sms_secret_key = crud.read(SmsSecretKey, userId=userId)
-    if sms_secret_key:
-        if sms_secret_key.secret_Key:
-            sms_key = marshal.marshal(sms_secret_key, SmsSecretKey)
-            return sms_key
-        else:
-            return None
-    else:
-        return None
+    if sms_secret_key and sms_secret_key.secret_Key:
+        sms_key = marshal.marshal(sms_secret_key, SmsSecretKey)
+        return sms_key
+    return None
 
 
 def generate_new_key():

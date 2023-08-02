@@ -34,4 +34,4 @@ post:
     404:
       description: Not Found - When the user with the given ID is not found
     500:
-      description: Internal Server Error - When an error occurs while getting the sms key
+      description: Internal Server Error - When an error occurs while creating the sms key
