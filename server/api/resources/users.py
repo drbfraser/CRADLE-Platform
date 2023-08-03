@@ -22,6 +22,12 @@ from models import User
 from api.util import (
     filterPairsWithNone,
     getDictionaryOfUserInfo,
+    get_user_roles,
+    is_date_expired,
+    validate_user,
+    get_user_secret_key,
+    update_secret_key_for_user,
+    create_secret_key_for_user,
     doesUserExist,
     phoneNumber_regex_check,
     get_all_phoneNumbers_for_user,
@@ -339,6 +345,7 @@ class UserAuthApi(Resource):
         user_data["refresh"] = get_refresh_token(user_data)
 
         LOGGER.info(f"{user.id} has logged in")
+
         return user_data, 200
 
 
@@ -463,8 +470,7 @@ class UserPhoneUpdate(Resource):
             return {"message": "must provide an id"}, 400
         # check if user exists
         if not doesUserExist(user_id):
-            return {"message": "There is no user with this id"}, 400
-
+            return {"message": "There is no user with this id"}, 404
         args = self.parser.parse_args()
         new_phone_number = args["newPhoneNumber"]
         current_phone_number = args["currentPhoneNumber"]
@@ -527,3 +533,73 @@ class UserPhoneUpdate(Resource):
             return {"message": "User phone number deleted successfully"}, 200
 
         return {"message": "Cannot delete the phone number"}, 400
+
+
+# api/user/<int:user_id>/smskey
+class UserSMSKey(Resource):
+    # Handle the PUT request for updating the phone number
+    parser = reqparse.RequestParser()
+
+    @jwt_required()
+    @swag_from("../../specifications/user-sms-key-get.yml", methods=["GET"])
+    def get(self, user_id):
+        validate_result = validate_user(user_id)
+        if validate_result is not None:
+            return validate_result
+        sms_key = get_user_secret_key(user_id)
+        if not sms_key:
+            return {
+                "message": "Cannot find the sms key, please use POST method to create your sms key"
+            }, 200
+        elif not is_date_expired(sms_key["expiry_date"]):
+            return {
+                "message": "A sms key has been found",
+                "sms_key": sms_key["secret_Key"],
+                "expired_date": str(sms_key["expiry_date"]),
+            }, 200
+        else:
+            return {
+                "message": "Your sms key seems to be expired, please try to contact your Admin to update your sms key",
+                "sms_key": sms_key["secret_Key"],
+                "expired_date": str(sms_key["expired_date"]),
+            }, 200
+
+    @jwt_required()
+    @swag_from("../../specifications/user-sms-key-put.yml", methods=["PUT"])
+    def put(self, user_id):
+        validate_result = validate_user(user_id)
+        if validate_result is not None:
+            return validate_result
+        sms_key = get_user_secret_key(user_id)
+        if not sms_key:
+            return {
+                "message": "Cannot find the sms key, please use POST method to create your sms key"
+            }, 200
+        else:
+            new_key = update_secret_key_for_user(user_id)
+            return {
+                "message": "New key has been updated, detail is showing below: ",
+                "sms_key": new_key["secret_Key"],
+                "expired_date": str(new_key["expiry_date"]),
+                "stale_date": str(new_key["stale_date"]),
+            }, 200
+
+    @jwt_required()
+    @swag_from("../../specifications/user-sms-key-post.yml", methods=["POST"])
+    def post(self, user_id):
+        validate_result = validate_user(user_id)
+        if validate_result is not None:
+            return validate_result
+        sms_key = get_user_secret_key(user_id)
+        if not sms_key:
+            new_key = create_secret_key_for_user(user_id)
+            return {
+                "message": "A sms key has been created successfully, detail is showing below: ",
+                "sms_key": new_key["secret_Key"],
+                "expired_date": str(new_key["expiry_date"]),
+                "stale_date": str(new_key["stale_date"]),
+            }, 200
+        else:
+            return {
+                "message": "This user has already been created the sms key, please try to use GET method to get it",
+            }, 200

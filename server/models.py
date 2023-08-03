@@ -1,3 +1,5 @@
+import datetime
+
 from jsonschema import validate
 from jsonschema.exceptions import SchemaError
 from jsonschema.exceptions import ValidationError
@@ -619,6 +621,22 @@ class QuestionLangVersion(db.Model):
         return QuestionLangVersionSchema
 
 
+class SmsSecretKey(db.Model):
+    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
+    secret_Key = db.Column(db.String(256), default="", nullable=False)
+    stale_date = db.Column(db.DateTime, default=datetime.datetime.now(), nullable=False)
+    expiry_date = db.Column(
+        db.DateTime, default=datetime.datetime.now(), nullable=False
+    )
+
+    # FOREIGNKEY
+    userId = db.Column(db.ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
+
+    @staticmethod
+    def schema():
+        return SmsSecretKeySchema
+
+
 #
 # SCHEMAS
 #
@@ -790,6 +808,14 @@ class QuestionLangVersionSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = QuestionLangVersion
+        load_instance = True
+        include_relationships = True
+
+
+class SmsSecretKeySchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = SmsSecretKey
         load_instance = True
         include_relationships = True
 

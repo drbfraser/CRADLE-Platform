@@ -1,7 +1,11 @@
 from __future__ import annotations
+
+import datetime
 import json
 import pprint
 import re
+import os
+import secrets
 
 """
 The ``api.util`` module contains utility functions to help extract useful information
@@ -25,6 +29,7 @@ from models import (
     Question,
     User,
     UserPhoneNumber,
+    SmsSecretKey,
 )
 from enums import QuestionTypeEnum, QRelationalEnum
 
@@ -47,6 +52,8 @@ from api.constants import (
     FORM_TEMPLATE_VERSION_COL,
     FORM_TEMPLATE_VERSION_ROW,
 )
+
+SMS_KEY_DURATION = int(os.environ.get("SMS_KEY_DURATION")) or 40
 
 
 def query_param_bool(request: Request, name: str) -> bool:
@@ -677,7 +684,7 @@ def phoneNumber_regex_check(phone_number):
     regex_phone_number_format_with_area_code = (
         r"^([0-9+-]\+?\d{1}?[-]?\(?\d{3}[)-]?\d{3}[-]?\d{4,5})$"
     )
-    regex_phone_number_format_normal = r"^(\d{3}[-]?\d{3}[-]?\d{4,5})$"
+    regex_phone_number_format_normal = r"^(\d{3}-?\d{3}-?\d{4,5})$"
     checked_number_with_area_code = re.match(
         regex_phone_number_format_with_area_code, phone_number
     )
@@ -741,3 +748,76 @@ def replace_phoneNumber_for_user(current_phone_number, new_phone_number, user_id
         )
         return True
     return False
+
+
+def get_user_roles(userId):
+    userInfo = crud.read(User, id=userId)
+    return userInfo.role
+
+
+def is_date_expired(expired_date) -> bool:
+    if expired_date >= datetime.datetime.now():
+        return False
+    else:
+        return True
+
+
+def get_future_date(day_after=1):
+    return datetime.datetime.today() + datetime.timedelta(days=day_after)
+
+
+def hex2bytes(key):
+    return bytes.fromhex(key)
+
+
+def bytes2hex(key):
+    return key.hex()
+
+
+def validate_user(user_id):
+    if not user_id:
+        return {"message": "must provide an id"}, 400
+    # check if user exists
+    if not doesUserExist(user_id):
+        return {"message": "There is no user with this id"}, 404
+    return None
+
+
+def create_secret_key_for_user(userId):
+    stale_date = get_future_date(day_after=SMS_KEY_DURATION - 10)
+    expiry_date = get_future_date(day_after=SMS_KEY_DURATION)
+    secret_Key = generate_new_key()
+    new_key = {
+        "userId": userId,
+        "secret_Key": str(secret_Key),
+        "expiry_date": str(expiry_date),
+        "stale_date": str(stale_date),
+    }
+    sms_new_key_model = marshal.unmarshal(SmsSecretKey, new_key)
+    crud.create(sms_new_key_model)
+    return new_key
+
+
+def update_secret_key_for_user(userId):
+    stale_date = get_future_date(day_after=SMS_KEY_DURATION - 10)
+    expiry_date = get_future_date(day_after=SMS_KEY_DURATION)
+    secret_Key = generate_new_key()
+    new_key = {
+        "secret_Key": str(secret_Key),
+        "expiry_date": str(expiry_date),
+        "stale_date": str(stale_date),
+    }
+    crud.update(SmsSecretKey, new_key, userId=userId)
+    return new_key
+
+
+def get_user_secret_key(userId):
+    sms_secret_key = crud.read(SmsSecretKey, userId=userId)
+    if sms_secret_key and sms_secret_key.secret_Key:
+        sms_key = marshal.marshal(sms_secret_key, SmsSecretKey)
+        return sms_key
+    return None
+
+
+def generate_new_key():
+    return bytes2hex(secrets.randbits(256).to_bytes(32, "little"))
