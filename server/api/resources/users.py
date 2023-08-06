@@ -10,11 +10,28 @@ from flask_jwt_extended import (
 )
 from flasgger import swag_from
 from api.decorator import roles_required
-from api.util import isGoodPassword
+from api.util import (
+    isGoodPassword,
+    add_new_phoneNumber_for_user,
+    delete_user_phoneNumber,
+    replace_phoneNumber_for_user,
+)
 from data import crud
 from data import marshal
 from models import User
-from api.util import filterPairsWithNone, getDictionaryOfUserInfo, doesUserExist
+from api.util import (
+    filterPairsWithNone,
+    getDictionaryOfUserInfo,
+    get_user_roles,
+    is_date_expired,
+    validate_user,
+    get_user_secret_key,
+    update_secret_key_for_user,
+    create_secret_key_for_user,
+    doesUserExist,
+    phoneNumber_regex_check,
+    get_all_phoneNumbers_for_user,
+)
 import service.encryptor as encryptor
 import logging
 from flask_limiter import Limiter
@@ -25,6 +42,14 @@ import os
 
 LOGGER = logging.getLogger(__name__)
 
+# Error messages
+null_phone_number = "No phone number was provided"
+
+invalid_phone_number = (
+    "Phone number {phoneNumber} has wrong format. The format for phone number should be +x-xxx-xxx-xxxx, "
+    "+x-xxx-xxx-xxxxx, xxx-xxx-xxxx or xxx-xxx-xxxxx"
+)
+
 # Building a parser that will be used over several apis for Users
 UserParser = reqparse.RequestParser()
 UserParser.add_argument(
@@ -32,9 +57,6 @@ UserParser.add_argument(
 )
 UserParser.add_argument(
     "firstName", type=str, required=True, help="This field cannot be left blank!"
-)
-UserParser.add_argument(
-    "phoneNumber", type=str, required=True, help="This field cannot be left blank!"
 )
 UserParser.add_argument(
     "healthFacilityName",
@@ -73,6 +95,9 @@ class UserAll(Resource):
             userDict["supervises"] = vhtList
             userDict["userId"] = userDict["id"]
             userDict.pop("id")
+            userDict["phoneNumbers"] = [
+                phone_number.number for phone_number in user.phoneNumbers
+            ]
 
             userDictList.append(userDict)
 
@@ -235,7 +260,7 @@ def get_user_data_for_token(user: User) -> dict:
     data["healthFacilityName"] = user.healthFacilityName
     data["isLoggedIn"] = True
     data["userId"] = user.id
-    data["phoneNumber"] = user.phoneNumber
+    data["phoneNumbers"] = get_all_phoneNumbers_for_user(user.id)
 
     vhtList = []
     data["supervises"] = []
@@ -320,6 +345,7 @@ class UserAuthApi(Resource):
         user_data["refresh"] = get_refresh_token(user_data)
 
         LOGGER.info(f"{user.id} has logged in")
+
         return user_data, 200
 
 
@@ -410,13 +436,63 @@ class UserApi(Resource):
 class UserPhoneUpdate(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument(
-        "phoneNumber", type=str, required=True, help="Phone number is required"
+        "newPhoneNumber", type=str, required=True, help="New phone number is required"
+    )
+    parser.add_argument(
+        "currentPhoneNumber",
+        type=str,
+        required=True,
+        help="Current phone number is required",
+    )
+    parser.add_argument(
+        "oldPhoneNumber", type=str, required=True, help="Old phone number is required"
     )
 
-    # Handle the PUT request for updating the phone number
+    # Handle the GET request for adding a new phone number
     @jwt_required()
-    @swag_from("../../specifications/user-phone-update.yml", methods=["PUT"])
+    @swag_from("../../specifications/user-phone-get.yml", methods=["GET"])
+    def get(self, user_id):
+        if not user_id:
+            return {"message": "must provide an id"}, 400
+        # check if user exists
+        if not doesUserExist(user_id):
+            return {"message": "There is no user with this id"}, 400
+
+        phoneNumbers = get_all_phoneNumbers_for_user(user_id)
+        return {"phoneNumbers": phoneNumbers}, 200
+
+    # Handle the PUT request updating a current phone number to a new phone number
+    @jwt_required()
+    @roles_required([RoleEnum.ADMIN])
+    @swag_from("../../specifications/user-phone-put.yml", methods=["PUT"])
     def put(self, user_id):
+        if not user_id:
+            return {"message": "must provide an id"}, 400
+        # check if user exists
+        if not doesUserExist(user_id):
+            return {"message": "There is no user with this id"}, 404
+        args = self.parser.parse_args()
+        new_phone_number = args["newPhoneNumber"]
+        current_phone_number = args["currentPhoneNumber"]
+
+        if not phoneNumber_regex_check(new_phone_number):
+            return {"message": invalid_phone_number}, 400
+
+        if new_phone_number is None:
+            return {"message": null_phone_number}, 400
+
+        # Add the phone number to user's phoneNumbers
+        if replace_phoneNumber_for_user(
+            current_phone_number, new_phone_number, user_id
+        ):
+            return {"message": "User phone number updated successfully"}, 200
+
+        return {"message": "Phone number cannot be updated"}, 400
+
+    # Handle the POST request for adding a new phone number
+    @jwt_required()
+    @swag_from("../../specifications/user-phone-post.yml", methods=["POST"])
+    def post(self, user_id):
         if not user_id:
             return {"message": "must provide an id"}, 400
         # check if user exists
@@ -424,14 +500,106 @@ class UserPhoneUpdate(Resource):
             return {"message": "There is no user with this id"}, 400
 
         args = self.parser.parse_args()
-        new_phone_number = args["phoneNumber"]
+        new_phone_number = args["newPhoneNumber"]
 
         if new_phone_number is None:
             return {"message": "Phone number cannot be null"}, 400
 
-        # Construct a dictionary with the changes
-        changes = {"phoneNumber": new_phone_number}
+        # Add the phone number to user's phoneNumbers
+        if add_new_phoneNumber_for_user(new_phone_number, user_id):
+            return {"message": "User phone number added successfully"}, 200
 
-        crud.update(User, changes, id=user_id)
+        return {"message": "Phone number already exists"}, 400
 
-        return {"message": "User phone number updated successfully"}, 200
+    # Handle the DELETE request for deleting an existing phone number
+    @jwt_required()
+    @roles_required([RoleEnum.ADMIN])
+    @swag_from("../../specifications/user-phone-delete.yml", methods=["DELETE"])
+    def delete(self, user_id):
+        if not user_id:
+            return {"message": "must provide an id"}, 400
+
+        # check if user exists
+        if not doesUserExist(user_id):
+            return {"message": "There is no user with this id"}, 400
+
+        args = self.parser.parse_args()
+        number_to_delete = args["oldPhoneNumber"]
+
+        if number_to_delete is None:
+            return {"message": "Phone number cannot be null"}, 400
+
+        if delete_user_phoneNumber(number_to_delete, user_id):
+            return {"message": "User phone number deleted successfully"}, 200
+
+        return {"message": "Cannot delete the phone number"}, 400
+
+
+# api/user/<int:user_id>/smskey
+class UserSMSKey(Resource):
+    # Handle the PUT request for updating the phone number
+    parser = reqparse.RequestParser()
+
+    @jwt_required()
+    @swag_from("../../specifications/user-sms-key-get.yml", methods=["GET"])
+    def get(self, user_id):
+        validate_result = validate_user(user_id)
+        if validate_result is not None:
+            return validate_result
+        sms_key = get_user_secret_key(user_id)
+        if not sms_key:
+            return {
+                "message": "Cannot find the sms key, please use POST method to create your sms key"
+            }, 200
+        elif not is_date_expired(sms_key["expiry_date"]):
+            return {
+                "message": "A sms key has been found",
+                "sms_key": sms_key["secret_Key"],
+                "expired_date": str(sms_key["expiry_date"]),
+            }, 200
+        else:
+            return {
+                "message": "Your sms key seems to be expired, please try to contact your Admin to update your sms key",
+                "sms_key": sms_key["secret_Key"],
+                "expired_date": str(sms_key["expired_date"]),
+            }, 200
+
+    @jwt_required()
+    @swag_from("../../specifications/user-sms-key-put.yml", methods=["PUT"])
+    def put(self, user_id):
+        validate_result = validate_user(user_id)
+        if validate_result is not None:
+            return validate_result
+        sms_key = get_user_secret_key(user_id)
+        if not sms_key:
+            return {
+                "message": "Cannot find the sms key, please use POST method to create your sms key"
+            }, 200
+        else:
+            new_key = update_secret_key_for_user(user_id)
+            return {
+                "message": "New key has been updated, detail is showing below: ",
+                "sms_key": new_key["secret_Key"],
+                "expired_date": str(new_key["expiry_date"]),
+                "stale_date": str(new_key["stale_date"]),
+            }, 200
+
+    @jwt_required()
+    @swag_from("../../specifications/user-sms-key-post.yml", methods=["POST"])
+    def post(self, user_id):
+        validate_result = validate_user(user_id)
+        if validate_result is not None:
+            return validate_result
+        sms_key = get_user_secret_key(user_id)
+        if not sms_key:
+            new_key = create_secret_key_for_user(user_id)
+            return {
+                "message": "A sms key has been created successfully, detail is showing below: ",
+                "sms_key": new_key["secret_Key"],
+                "expired_date": str(new_key["expiry_date"]),
+                "stale_date": str(new_key["stale_date"]),
+            }, 200
+        else:
+            return {
+                "message": "This user has already been created the sms key, please try to use GET method to get it",
+            }, 200

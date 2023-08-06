@@ -11,7 +11,7 @@ def validate_request(request_body: dict) -> Optional[str]:
 
     :return: An error message if request body in invalid in some way. None otherwise.
     """
-    required_keys = ["phoneNumber", "encryptedData"]
+    required_keys = ["destPhoneNumber", "encryptedData"]
 
     error_message = required_keys_present(request_body, required_keys)
     if error_message is not None:

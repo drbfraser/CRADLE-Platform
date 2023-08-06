@@ -28,47 +28,7 @@ jobs:
     container:
       image: node:14
     steps:
-      - name: Display commonly used info
-        run: |
-          echo "  CI/CD Event Name  = ${{ github.event_name }}"
-          echo "  PR request Number = ${{ github.event.pull_request.number }}"
-          echo "  Refspec           = ${{ github.ref }}"
-          echo "  Branch name       = ${{ github.ref_name }}"
-          echo "  Commit SHA        = ${{ github.sha }}"
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
-      - name: Dump job context
-        env:
-          JOB_CONTEXT: ${{ toJson(job) }}
-        run: echo "$JOB_CONTEXT"
-      - name: Dump steps context
-        env:
-          STEPS_CONTEXT: ${{ toJson(steps) }}
-        run: echo '$STEPS_CONTEXT'
-      - name: Dump runner context
-        env:
-          RUNNER_CONTEXT: ${{ toJson(runner) }}
-        run: echo '$RUNNER_CONTEXT'
-      - name: Dump strategy context
-        env:
-          STRATEGY_CONTEXT: ${{ toJson(strategy) }}
-        run: echo '$STRATEGY_CONTEXT'
-      - name: Dump matrix context
-        env:
-          MATRIX_CONTEXT: ${{ toJson(matrix) }}
-        run: echo "$MATRIX_CONTEXT"
-      # - name: Display Secrets
-      #   env:
-      #     SECRET_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      #     GITHUB_TOKEN: ${{github.token}}
-      #   run: |
-      #     # Print secrets to the screen by spacing them out so GitHub does not obscure them with *s
-      #     echo "1: ${{secrets.GITHUB_TOKEN}}" | sed 's/./& /g'
-      #     echo "2: ${{github.token}}" | sed 's/./& /g'
-      #     echo "3: $SECRET_TOKEN" | sed 's/./& /g'
-      #     echo "4: $GITHUB_TOKEN" | sed 's/./& /g'
+      - uses: bfraser/cicd/actions/debug_display_contexts@v1
 
   build-frontend:
     runs-on: [self-hosted, docker]
@@ -180,6 +140,7 @@ jobs:
       JWT_SECRET_KEY: "testkey"
       LIMITER_DISABLED: "True"
       EMULATOR_PHONE_NUMBER: "+1-123-456-7890"
+      SMS_KEY_DURATION: "100"
     services:
       mysql:
         image: mysql:5.7

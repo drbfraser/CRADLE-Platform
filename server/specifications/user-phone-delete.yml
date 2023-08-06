@@ -1,0 +1,49 @@
+# Specification for DELETE request on /api/user/<int:user_id>/phone
+tags:
+  - User Phone
+
+parameters:
+  - in: path
+    name: user_id
+    required: true
+    schema:
+      type: integer
+    description: The ID of the user.
+
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          oldPhoneNumber:
+            type: string
+        required:
+          - oldPhoneNumber
+      example:
+        oldPhoneNumber: "555-555-5555"
+
+security:
+  - jwt: []
+  - role_admin: []
+
+responses:
+  "200":
+    description: Successful operation
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+  "400":
+    description: Bad Request
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string

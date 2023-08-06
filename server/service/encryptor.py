@@ -1,11 +1,14 @@
 import hashlib
 import os
+
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.backends import default_backend
 
+
 keySize = 32
 ivSize = 16
+
 
 # generate random IV(initalized vector)
 def generateRandomIV():

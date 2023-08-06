@@ -302,8 +302,10 @@ const EditField = ({
 
   const areAllFieldsFilled = (): boolean => {
     const isQuestionIdFilled = questionId.trim() != '';
-    let areAllNamesFilled =
-      questionLangVersions.length == inputLanguages.length;
+    let areAllNamesFilled = true;
+    questionLangVersions.forEach((qLangVersion) => {
+      areAllNamesFilled = areAllNamesFilled && qLangVersion.questionText != '';
+    });
     let areAllMcOptionFilled = true;
     const isFieldTypeChosen = fieldType.trim() != '';
 
@@ -330,6 +332,27 @@ const EditField = ({
       : nonMultiChoiceCheck;
   };
 
+  const getQLangVersionsCopy = (
+    questionLangVersions: QuestionLangVersion[]
+  ): QuestionLangVersion[] => {
+    const qLangVersions = [] as QuestionLangVersion[];
+    questionLangVersions.forEach((qLangVersion) => {
+      const mcOptions = [] as McOption[];
+      qLangVersion.mcOptions.forEach((mcOption) => {
+        mcOptions.push({
+          mcid: mcOption.mcid,
+          opt: mcOption.opt,
+        });
+      });
+      qLangVersions.push({
+        lang: qLangVersion.lang,
+        mcOptions: mcOptions,
+        questionText: qLangVersion.questionText,
+      });
+    });
+    return qLangVersions;
+  };
+
   useEffect(() => {
     // edit field
     if (formDirty) {
@@ -340,8 +363,10 @@ const EditField = ({
       if (question) {
         setFieldType(getFieldType(question.questionType));
         setQuestionId(question.questionId ? question.questionId : '');
-        setQuestionLangversions(question.questionLangVersions);
         setEnableVisiblity(question.visibleCondition.length > 0 ? true : false);
+        setQuestionLangversions(
+          getQLangVersionsCopy(question.questionLangVersions)
+        );
         if (questionLangVersions.length > 0) {
           setNumChoices(questionLangVersions[0].mcOptions.length);
         }
