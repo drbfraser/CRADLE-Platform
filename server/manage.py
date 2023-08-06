@@ -351,7 +351,7 @@ def seed(ctx):
                 # Cap the referral date at today, if it goes into future
                 refer_date = min(
                     r1["dateTimeTaken"] + int(timedelta(days=10).total_seconds()),
-                    int(datetime.now().timestamp()),
+                    int(datetime.datetime.now().timestamp()),
                 )
                 referral1 = {
                     "userId": getRandomUser(),
@@ -623,7 +623,7 @@ def getRandomDate():
 
 def getRandomPregnancyDate():
     max_preg = randint(1, 273)
-    date = datetime.today() - timedelta(max_preg)
+    date = datetime.datetime.today() - timedelta(max_preg)
     return int(date.strftime("%s"))
 
 
