@@ -1,4 +1,5 @@
 import {
+  AnswerTypeEnum,
   GestationalAgeUnitEnum,
   QRelationEnum,
   QuestionTypeEnum,
@@ -303,8 +304,8 @@ export interface CForm {
 
 export type QAnswer = {
   qidx: number;
-  qtype: string | null;
-  anstype: string | null; //value,text,mc,me,comment
+  qtype: QuestionTypeEnum | null;
+  anstype: AnswerTypeEnum | null; //value,text,mc,me,comment
   val: any;
 };
 

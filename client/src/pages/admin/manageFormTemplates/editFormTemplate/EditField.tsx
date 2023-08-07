@@ -308,6 +308,17 @@ const EditField = ({
     });
     let areAllMcOptionFilled = true;
     const isFieldTypeChosen = fieldType.trim() != '';
+    let isVisCondAnswered = undefined;
+
+    if (enableVisibility) {
+      if (visibleCondition[0]) {
+        isVisCondAnswered = visibleCondition[0].answers != null ? true : false;
+      } else {
+        isVisCondAnswered = false;
+      }
+    } else {
+      isVisCondAnswered = true;
+    }
 
     if (fieldType == 'mult_choice') {
       questionLangVersions.forEach((qLangVersion) => {
@@ -325,7 +336,10 @@ const EditField = ({
     }
 
     const nonMultiChoiceCheck =
-      isQuestionIdFilled && areAllNamesFilled && isFieldTypeChosen;
+      isQuestionIdFilled &&
+      areAllNamesFilled &&
+      isFieldTypeChosen &&
+      isVisCondAnswered;
 
     return fieldType == 'mult_choice'
       ? nonMultiChoiceCheck && areAllMcOptionFilled
@@ -573,7 +587,7 @@ const EditField = ({
                         questionLangVersions;
                       questionToUpdate.questionType =
                         fieldTypes[fieldType].type;
-                      questionToUpdate.visibleCondition = visibleCondition;
+                      questionToUpdate.visibleCondition = enableVisibility ? visibleCondition : [];
                     }
                   }
                   // create new field

@@ -44,9 +44,8 @@ const EditVisibleCondition = ({
     currVisCond ? currVisCond.relation : QRelationEnum.EQUAL_TO
   );
   const [selectedAnswer, setSelectedAnswer] = useState(
-    currVisCond ? currVisCond.answers : null
+    currVisCond ? currVisCond.answers : undefined
   );
-  const [formDirty, setFormDirty] = useState(false);
   const [question, setQuestion] = useState<Question[]>([
     {
       id: 'filteredQuestions[+selectedQIndex].questionId',
@@ -103,12 +102,10 @@ const EditVisibleCondition = ({
 
   const handleQuestionChange = (event: SelectChangeEvent) => {
     setSelectedQIndex(event.target.value);
-    setFormDirty(!formDirty);
   };
 
   const handleConditionChange = (event: SelectChangeEvent) => {
     setSelectedConditional(event.target.value as QRelationEnum);
-    setFormDirty(!formDirty);
   };
 
   return filteredQuestions.length > 0 ? (
@@ -171,7 +168,7 @@ const EditVisibleCondition = ({
                   questions: question,
                   // filteredQuestions[+selectedQIndex]
 
-                  renderState: FormRenderStateEnum.FIRST_SUBMIT,
+                  renderState: FormRenderStateEnum.EDIT,
                   language:
                     filteredQuestions[+selectedQIndex].questionLangVersions[0]
                       .lang,
@@ -184,9 +181,12 @@ const EditVisibleCondition = ({
                       case AnswerTypeEnum.NUM:
                         setSelectedAnswer({ number: answer.val });
                         break;
+                      case AnswerTypeEnum.MCID_ARRAY:
+                        console.log(answer.val)
+                        setSelectedAnswer({ mcidArray: answer.val })
+                        break;
                       // case ...
                     }
-                    setFormDirty(!formDirty);
                   },
                 })}
               </Grid>

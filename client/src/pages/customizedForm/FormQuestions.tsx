@@ -243,6 +243,7 @@ export const FormQuestions = ({
               row
               aria-labelledby={`question_${question.questionIndex}`}
               value={answer.val ? answer.val[0] : ''}
+              key={answer.val}
               onChange={function (_, value) {
                 updateAnswersByValue(qid, [value]);
               }}>
@@ -321,7 +322,8 @@ export const FormQuestions = ({
             <Field
               label={text}
               component={TextField}
-              defaultValue={answer.val ?? ''}
+              defaultValue={answer.val}
+              key={answer.val}
               variant="outlined"
               type="number"
               fullWidth
@@ -402,6 +404,7 @@ export const FormQuestions = ({
               label={text}
               component={TextField}
               defaultValue={answer.val ? getPrettyDateTime(answer.val) : null}
+              key={answer.val}
               fullWidth
               disabled={
                 renderState === FormRenderStateEnum.VIEW ||
@@ -432,6 +435,7 @@ export const FormQuestions = ({
               label={text}
               component={TextField}
               defaultValue={answer.val ? getPrettyDate(answer.val) : null}
+              key={answer.val}
               fullWidth
               disabled={
                 renderState === FormRenderStateEnum.VIEW ||
