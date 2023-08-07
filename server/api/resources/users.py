@@ -559,27 +559,13 @@ class UserSMSKey(Resource):
                 "message": "Cannot find the sms key, please use POST method to create your sms key"
             }, 404
         elif is_date_expired(sms_key["expiry_date"]):
-            if get_user_roles(user_id) != "ADMIN":
                 return {
-                    "message": "DANGER",
-                    "expired_date": str(sms_key["expiry_date"]),
-                    "stale_date": str(sms_key["stale_date"]),
-                }, 200
-            else:
-                return {
-                    "message": "DANGER",
+                    "message": "EXPIRED",
                     "expired_date": str(sms_key["expiry_date"]),
                     "stale_date": str(sms_key["stale_date"]),
                     "sms_key": sms_key["secret_Key"],
                 }, 200
         elif is_date_expired(sms_key["stale_date"]):
-            if get_user_roles(user_id) != "ADMIN":
-                return {
-                    "message": "WARN",
-                    "expired_date": str(sms_key["expiry_date"]),
-                    "stale_date": str(sms_key["stale_date"]),
-                }, 200
-            else:
                 return {
                     "message": "WARN",
                     "expired_date": str(sms_key["expiry_date"]),
@@ -607,7 +593,7 @@ class UserSMSKey(Resource):
             return validate_result
         sms_key = get_user_secret_key(user_id)
         if not sms_key:
-            return {"message": "NOTFOUND"}, 200
+            return {"message": "NOTFOUND"}, 424
         else:
             new_key = update_secret_key_for_user(user_id)
             return {
@@ -636,6 +622,6 @@ class UserSMSKey(Resource):
                 "sms_key": new_key["secret_Key"],
                 "expired_date": str(new_key["expiry_date"]),
                 "stale_date": str(new_key["stale_date"]),
-            }, 200
+            }, 201
         else:
             return {"message": "DUPLICATE"}, 200
