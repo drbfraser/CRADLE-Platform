@@ -5,7 +5,7 @@ import time
 import numpy as np
 import json
 from random import randrange
-from datetime import timedelta, datetime
+import datetime
 from config import app, flask_bcrypt
 from enums import RoleEnum
 from models import *
@@ -393,8 +393,8 @@ def seed(ctx):
             if random.choice([True, False]):
                 # Cap the referral date at today, if it goes into future
                 refer_date = min(
-                    r1["dateTimeTaken"] + int(timedelta(days=10).total_seconds()),
-                    int(datetime.now().timestamp()),
+                    r1["dateTimeTaken"] + int(datetime.timedelta(days=10).total_seconds()),
+                    int(datetime.datetime.now().timestamp()),
                 )
                 referral1 = {
                     "userId": getRandomUser(),
@@ -712,13 +712,13 @@ def getRandomDate():
     delta = end - start
     int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
     random_second = randrange(int_delta)
-    new_date = start + timedelta(seconds=random_second)
+    new_date = start + datetime.timedelta(seconds=random_second)
     return int(new_date.strftime("%s"))
 
 
 def getRandomPregnancyDate():
     max_preg = randint(1, 273)
-    date = datetime.today() - timedelta(max_preg)
+    date = datetime.datetime.today() - datetime.timedelta(max_preg)
     return int(date.strftime("%s"))
 
 
@@ -743,7 +743,7 @@ def getNames():
 
 
 def getDateTime(dateStr):
-    return datetime.strptime(dateStr, "%Y-%m-%dT%H:%M:%S")
+    return datetime.datetime.strptime(dateStr, "%Y-%m-%dT%H:%M:%S")
 
 
 def generatePhoneNumbers():
@@ -847,7 +847,7 @@ if __name__ == "__main__":
     bpDiastolicList = np.clip(np.random.normal(80, 25, 1000).astype(int), 30, 200)
     heartRateList = np.clip(np.random.normal(60, 17, 1000).astype(int), 30, 250)
 
-    d1 = datetime.strptime(START_DATE, "%m/%d/%Y %I:%M %p")
-    d2 = datetime.today().replace(microsecond=0)
+    d1 = datetime.datetime.strptime(START_DATE, "%m/%d/%Y %I:%M %p")
+    d2 = datetime.datetime.today().replace(microsecond=0)
 
     cli()
