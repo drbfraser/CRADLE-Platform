@@ -587,7 +587,9 @@ const EditField = ({
                         questionLangVersions;
                       questionToUpdate.questionType =
                         fieldTypes[fieldType].type;
-                      questionToUpdate.visibleCondition = enableVisibility ? visibleCondition : [];
+                      questionToUpdate.visibleCondition = enableVisibility
+                        ? visibleCondition
+                        : [];
                     }
                   }
                   // create new field

@@ -182,8 +182,16 @@ const EditVisibleCondition = ({
                         setSelectedAnswer({ number: answer.val });
                         break;
                       case AnswerTypeEnum.MCID_ARRAY:
-                        console.log(answer.val)
-                        setSelectedAnswer({ mcidArray: answer.val })
+                        filteredQuestions[
+                          +selectedQIndex
+                        ].questionLangVersions[0].mcOptions.forEach(
+                          (option) => {
+                            if (option.opt == answer.val) {
+                              setSelectedAnswer({ mcidArray: [option.mcid] });
+                            }
+                          }
+                        );
+                        console.log(selectedAnswer);
                         break;
                       // case ...
                     }
