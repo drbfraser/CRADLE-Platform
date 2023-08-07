@@ -393,7 +393,8 @@ def seed(ctx):
             if random.choice([True, False]):
                 # Cap the referral date at today, if it goes into future
                 refer_date = min(
-                    r1["dateTimeTaken"] + int(datetime.timedelta(days=10).total_seconds()),
+                    r1["dateTimeTaken"]
+                    + int(datetime.timedelta(days=10).total_seconds()),
                     int(datetime.datetime.now().timestamp()),
                 )
                 referral1 = {
