@@ -1,0 +1,62 @@
+# Specification for POST request on /api/user/<int:user_id>/phone
+tags:
+  - User Phone
+
+parameters:
+  - in: path
+    name: user_id
+    required: true
+    schema:
+      type: integer
+    description: The ID of the user.
+
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          newPhoneNumber:
+            type: string
+        required:
+          - newPhoneNumber
+      example:
+        newPhoneNumber: "555-555-5555"
+
+security:
+  - jwt: []
+
+responses:
+  "200":
+    description: Successful - 
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+  "400":
+    description: Bad Request
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: Error message indicating the reason for failure.
+        examples:
+          NullPhoneNumber:
+            value:
+              message: Phone number cannot be null
+          PhoneNumberExists:
+            value:
+              message: Phone number already exists
+          UserNotFound:
+            value:
+              message: There is no user with this id
+          MissingID:
+            value:
+              message: must provide an id

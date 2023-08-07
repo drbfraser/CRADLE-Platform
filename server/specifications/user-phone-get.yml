@@ -1,0 +1,44 @@
+# Specification for GET request on /api/user/<int:user_id>/phone
+tags:
+  - User Phone
+
+parameters:
+  - in: path
+    name: user_id
+    required: true
+    schema:
+      type: integer
+    description: The ID of the user.
+
+security:
+  - jwt: []
+
+responses:
+  "200":
+    description: Requested user phone numbers
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            phoneNumbers:
+              type: array
+              items:
+                type: string
+  "400":
+    description: Bad Request
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: Error message indicating the reason for failure.
+        examples:
+          MissingID:
+            value:
+              message: must provide an id
+          UserNotFound:
+            value:
+              message: There is no user with this id

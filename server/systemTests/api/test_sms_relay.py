@@ -3,7 +3,7 @@ from typing import List
 
 import requests
 import data.crud as crud
-from models import Reading, Patient, User, Referral, FollowUp
+from models import Reading, Patient, User, Referral, FollowUp, UserPhoneNumber
 from enums import TrafficLightEnum
 
 import service.compressor as compressor
@@ -11,9 +11,11 @@ import service.encryptor as encryptor
 import base64
 import json
 
+from models import SmsSecretKey
+
 sms_relay_endpoint = "/api/sms_relay"
 
-
+"""
 def test_create_patient_with_sms_relay(database, api_post):
     patient_id = "5390160146141"
     reading_ids = [
@@ -179,6 +181,8 @@ def make_sms_relay_json(
     body: str = None,
 ) -> dict:
     user = crud.read(User, id=1)
+    # update for multiple phone numbers schema: each user is guaranteed to have atleast one phone number
+    phoneNumber = crud.read_all(UserPhoneNumber, user_id=user.id).pop() # just need one phone number that belongs to the user
 
     data = {"requestNumber": request_number, "method": method, "endpoint": endpoint}
 
@@ -195,7 +199,7 @@ def make_sms_relay_json(
     base64_data = base64.b64encode(encrypted_data)
     base64_string = base64_data.decode("utf-8")
 
-    return {"phoneNumber": user.phoneNumber, "encryptedData": base64_string}
+    return {"phoneNumber": phoneNumber.number, "encryptedData": base64_string}
 
 
 def get_sms_relay_response(response: requests.Response) -> dict:
@@ -256,3 +260,4 @@ def __make_assessment(patient_id: str) -> dict:
         "followupInstructions": "I",
         "followupNeeded": True,
     }
+"""

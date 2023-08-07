@@ -72,6 +72,7 @@ def init(api):
     api.add_resource(UserAll, "/api/user/all")  # [GET]
 
     api.add_resource(UserApi, "/api/user/<int:id>")  # [GET, PUT, DELETE]
+    api.add_resource(UserSMSKey, "/api/user/<int:user_id>/smskey")  # [GET, PUT]
 
     api.add_resource(UserAllVHT, "/api/user/vhts")  # [GET]
 

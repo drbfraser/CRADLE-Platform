@@ -19,6 +19,7 @@ from models import (
     Form,
     Question,
     QuestionLangVersion,
+    SmsSecretKey,
 )
 import service.invariant as invariant
 
@@ -52,6 +53,8 @@ def marshal(obj: Any, shallow=False, if_include_versions=False) -> dict:
         return __marshal_question(obj, if_include_versions)
     elif isinstance(obj, QuestionLangVersion):
         return __marshal_lang_version(obj)
+    elif isinstance(obj, SmsSecretKey):
+        return __marshal_SmsSecretKey(obj)
     else:
         d = vars(obj).copy()
         __pre_process(d)
@@ -354,6 +357,16 @@ def __marshal_form_classification(
     return d
 
 
+def __marshal_SmsSecretKey(s: SmsSecretKey):
+    return {
+        "id": s.id,
+        "userId": s.userId,
+        "secret_Key": s.secret_Key,
+        "stale_date": s.stale_date,
+        "expiry_date": s.expiry_date,
+    }
+
+
 def __pre_process(d: Dict[str, Any]):
     __strip_protected_attributes(d)
     __strip_none_values(d)
@@ -403,6 +416,8 @@ def unmarshal(m: Type[M], d: dict) -> M:
         return __unmarshal_question(d)
     elif m is QuestionLangVersion:
         return __unmarshal_lang_version(d)
+    elif m is SmsSecretKey:
+        return __unmarshal_SmsSecretKey(d)
     else:
         return __load(m, d)
 
@@ -609,6 +624,15 @@ def __unmarshal_question(d: dict) -> Question:
         question.lang_versions = lang_versions
 
     return question
+
+
+def __unmarshal_SmsSecretKey(d: dict) -> SmsSecretKey:
+    sms_secret_key = __load(SmsSecretKey, d)
+    sms_secret_key.userId = d["userId"]
+    sms_secret_key.secret_Key = d["secret_Key"]
+    sms_secret_key.stale_date = d["stale_date"]
+    sms_secret_key.expiry_date = d["expiry_date"]
+    return sms_secret_key
 
 
 def unmarshal_question_list(d: list) -> List[Question]:

@@ -23,6 +23,7 @@ services:
             JWT_SECRET_KEY: ${JWT_SECRET_KEY}
             LIMITER_DISABLED: ${LIMITER_DISABLED:-False}
             EMULATOR_PHONE_NUMBER: ${EMULATOR_PHONE_NUMBER:-+1-123-456-7890}
+            SMS_KEY_DURATION: ${SMS_KEY_DURATION:-40}
         depends_on: 
             - mysql
     mysql:

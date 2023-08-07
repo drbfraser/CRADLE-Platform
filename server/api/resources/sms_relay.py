@@ -37,6 +37,10 @@ invalid_message = (
     "with the server using an internet connection (WiFi, 3G, …) "
 )
 
+invalid_user = "User does not exist"
+
+null_phone_number = "No phone number was provided"
+
 invalid_phone_number = (
     "Phone number {phoneNumber} has wrong format. The format for phone number should be +x-xxx-xxx-xxxx, "
     "+x-xxx-xxx-xxxxx, xxx-xxx-xxxx or xxx-xxx-xxxxx"
@@ -95,15 +99,18 @@ def sms_relay_procedure():
     if error:
         abort(400, message=corrupted_message.format(type="JSON"))
 
-    phoneNumber = json_request["phoneNumber"]
+    phoneNumber = json_request["destPhoneNumber"]
+
+    if not phoneNumber:
+        abort(400, message=null_phone_number)
 
     if not regex_check(phoneNumber):
-        abort(401, message=invalid_phone_number.format(phoneNumber=phoneNumber))
+        abort(400, message=invalid_phone_number.format(phoneNumber=phoneNumber))
 
     user = crud.read(User, phoneNumber=phoneNumber)
 
     if not user:
-        abort(401, message=invalid_message.format(phoneNumber=phoneNumber))
+        abort(400, message=invalid_user)
 
     encrypted_data = base64.b64decode(json_request["encryptedData"])
 
@@ -119,7 +126,7 @@ def sms_relay_procedure():
         data = compressor.decompress(decrypted_data)
 
     except:
-        abort(401, message=invalid_message.format(phoneNumber=phoneNumber))
+        abort(400, message=invalid_message.format(phoneNumber=phoneNumber))
 
     # Object Parsing
     string_data = data.decode("utf-8")
