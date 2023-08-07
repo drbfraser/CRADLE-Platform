@@ -559,19 +559,19 @@ class UserSMSKey(Resource):
                 "message": "Cannot find the sms key, please use POST method to create your sms key"
             }, 404
         elif is_date_expired(sms_key["expiry_date"]):
-                return {
-                    "message": "EXPIRED",
-                    "expired_date": str(sms_key["expiry_date"]),
-                    "stale_date": str(sms_key["stale_date"]),
-                    "sms_key": sms_key["secret_Key"],
-                }, 200
+            return {
+                "message": "EXPIRED",
+                "expired_date": str(sms_key["expiry_date"]),
+                "stale_date": str(sms_key["stale_date"]),
+                "sms_key": sms_key["secret_Key"],
+            }, 200
         elif is_date_expired(sms_key["stale_date"]):
-                return {
-                    "message": "WARN",
-                    "expired_date": str(sms_key["expiry_date"]),
-                    "stale_date": str(sms_key["stale_date"]),
-                    "sms_key": sms_key["secret_Key"],
-                }, 200
+            return {
+                "message": "WARN",
+                "expired_date": str(sms_key["expiry_date"]),
+                "stale_date": str(sms_key["stale_date"]),
+                "sms_key": sms_key["secret_Key"],
+            }, 200
         else:
             return {
                 "message": "NORMAL",
