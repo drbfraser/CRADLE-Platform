@@ -522,7 +522,8 @@ const EditField = ({
             </Grid>
             {fieldType ? fieldTypes[fieldType].render() : null}
             {questionsArr.filter(
-              (question) => question.questionType != QuestionTypeEnum.CATEGORY
+              (q) =>
+                q.questionType != QuestionTypeEnum.CATEGORY && q != question
             ).length > 0 ? (
               <>
                 <Grid item sm={12} md={10} lg={10}>
@@ -548,7 +549,11 @@ const EditField = ({
                   {enableVisibility ? (
                     <EditVisibleCondition
                       currQuestion={question}
-                      questionsArr={questionsArr}
+                      filteredQs={questionsArr.filter(
+                        (q) =>
+                          q.questionType != QuestionTypeEnum.CATEGORY &&
+                          q != question
+                      )}
                       setVisibleCondition={setVisibleCondition}
                     />
                   ) : null}

@@ -23,22 +23,29 @@ import {
 
 interface IProps {
   currQuestion?: TQuestion;
-  questionsArr: TQuestion[];
+  filteredQs: TQuestion[];
   setVisibleCondition: Dispatch<SetStateAction<QCondition[]>>;
 }
 
 const EditVisibleCondition = ({
   currQuestion,
-  questionsArr,
+  filteredQs: filteredQs,
   setVisibleCondition,
 }: IProps) => {
   const currVisCond =
     currQuestion && currQuestion.visibleCondition[0]
       ? currQuestion.visibleCondition[0]
       : null;
-  // selectedQIndex is question.questionIndex
-  const [selectedQIndex, setSelectedQIndex] = useState(
-    currVisCond ? currVisCond.qidx.toString() : '0'
+  // selectedQIndex is filteredQs[index]
+  const [selectedQIndex, setSelectedQIndex] = useState<string>(
+    currVisCond
+      ? '' +
+          filteredQs.indexOf(
+            filteredQs.find((q) => {
+              return q.questionIndex === currVisCond.qidx;
+            }) ?? filteredQs[0]
+          )
+      : '0'
   );
   const [selectedConditional, setSelectedConditional] = useState(
     currVisCond ? currVisCond.relation : QRelationEnum.EQUAL_TO
@@ -46,9 +53,10 @@ const EditVisibleCondition = ({
   const [selectedAnswer, setSelectedAnswer] = useState(
     currVisCond ? currVisCond.answers : undefined
   );
+  // this is the array of questions we will pass to FormQuestions
   const [question, setQuestion] = useState<Question[]>([
     {
-      id: 'filteredQuestions[+selectedQIndex].questionId',
+      id: '',
       isBlank: false,
       questionIndex: 0,
       questionText: '',
@@ -76,7 +84,7 @@ const EditVisibleCondition = ({
     ) {
       setVisibleCondition([
         {
-          qidx: +selectedQIndex,
+          qidx: filteredQs[+selectedQIndex].questionIndex,
           relation: selectedConditional,
           answers: selectedAnswer,
         },
@@ -87,18 +95,13 @@ const EditVisibleCondition = ({
   useEffect(() => {
     setQuestion((question) => {
       question[0].questionText =
-        filteredQuestions[+selectedQIndex].questionLangVersions[0].questionText;
+        filteredQs[+selectedQIndex].questionLangVersions[0].questionText;
       question[0].mcOptions =
-        filteredQuestions[+selectedQIndex].questionLangVersions[0].mcOptions;
-      question[0].questionType =
-        filteredQuestions[+selectedQIndex].questionType;
+        filteredQs[+selectedQIndex].questionLangVersions[0].mcOptions;
+      question[0].questionType = filteredQs[+selectedQIndex].questionType;
       return [...question];
     });
   }, [selectedQIndex]);
-
-  const filteredQuestions = questionsArr.filter(
-    (question) => question.questionType != QuestionTypeEnum.CATEGORY
-  );
 
   const handleQuestionChange = (event: SelectChangeEvent) => {
     setSelectedQIndex(event.target.value);
@@ -108,7 +111,7 @@ const EditVisibleCondition = ({
     setSelectedConditional(event.target.value as QRelationEnum);
   };
 
-  return filteredQuestions.length > 0 ? (
+  return filteredQs.length > 0 ? (
     <>
       <Formik
         initialValues={initialState as any}
@@ -126,15 +129,11 @@ const EditVisibleCondition = ({
                     labelId="question-select-label"
                     value={selectedQIndex}
                     label="Question"
-                    defaultValue={
-                      currQuestion && currQuestion.visibleCondition[0]
-                        ? currQuestion.visibleCondition[0].qidx.toString()
-                        : filteredQuestions[0].questionIndex.toString()
-                    }
+                    defaultValue={selectedQIndex}
                     onChange={handleQuestionChange}>
-                    {filteredQuestions.map((question, index) => {
+                    {filteredQs.map((question, index) => {
                       return (
-                        <MenuItem key={index} value={question.questionIndex}>
+                        <MenuItem key={index} value={index}>
                           {question.questionLangVersions[0].questionText}
                         </MenuItem>
                       );
@@ -166,12 +165,9 @@ const EditVisibleCondition = ({
               <Grid item xs={4}>
                 {FormQuestions({
                   questions: question,
-                  // filteredQuestions[+selectedQIndex]
-
                   renderState: FormRenderStateEnum.EDIT,
-                  language:
-                    filteredQuestions[+selectedQIndex].questionLangVersions[0]
-                      .lang,
+                  language: '',
+                  // filteredQs[+selectedQIndex].questionLangVersions[0].lang,
                   handleAnswers: (answers) => {
                     const answer = answers[0];
                     switch (answer.anstype) {
@@ -182,7 +178,7 @@ const EditVisibleCondition = ({
                         setSelectedAnswer({ number: answer.val });
                         break;
                       case AnswerTypeEnum.MCID_ARRAY:
-                        filteredQuestions[
+                        filteredQs[
                           +selectedQIndex
                         ].questionLangVersions[0].mcOptions.forEach(
                           (option) => {
@@ -191,7 +187,6 @@ const EditVisibleCondition = ({
                             }
                           }
                         );
-                        console.log(selectedAnswer);
                         break;
                       // case ...
                     }

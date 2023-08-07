@@ -55,9 +55,6 @@ export const CustomizedFormWQuestions = ({
     return question.questionLangVersions.map((item) => item.lang);
   };
 
-  // const [multiSelectValidationFailed, setMultiSelectValidationFailed] =
-  //   useState(false);
-
   const handleEditField = (question: TQuestion) => {
     setSelectedQuestionIndex(question.questionIndex);
     setEditPopupOpen(true);
@@ -128,10 +125,6 @@ export const CustomizedFormWQuestions = ({
       formTitle = 'error!!!!!';
       break;
   }
-
-  // const handleMultiSelectValidationFailed = (ValidationFailed: boolean) => {
-  //   setMultiSelectValidationFailed(ValidationFailed);
-  // };
 
   return (
     <>

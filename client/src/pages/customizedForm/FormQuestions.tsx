@@ -33,6 +33,7 @@ interface IProps {
   language: string;
   handleAnswers: (answers: QAnswer[]) => void;
   setForm?: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
+  multiSelectValidationFailed?: boolean;
 }
 
 export const FormQuestions = ({
@@ -41,6 +42,7 @@ export const FormQuestions = ({
   language,
   handleAnswers,
   setForm,
+  multiSelectValidationFailed,
 }: IProps) => {
   const [answers, setAnswers] = useState<QAnswer[]>([]);
 
@@ -187,6 +189,37 @@ export const FormQuestions = ({
     });
   };
 
+  //currently, only ME(checkboxes need manually added validation, others' validations are handled automatically by formik)
+  const generateValidationLine = (
+    question: Question,
+    answer: QAnswer,
+    type: any,
+    required: boolean
+  ) => {
+    if (!multiSelectValidationFailed) {
+      return null;
+    }
+    if (type === QuestionTypeEnum.MULTIPLE_SELECT && !question.shouldHidden) {
+      if (!answer.val!.length) {
+        return (
+          <>
+            <Typography
+              variant="overline"
+              style={{ color: '#FF0000', fontWeight: 600 }}>
+              {' '}
+              (Must Select At Least One Option !)
+            </Typography>
+          </>
+        );
+      } else {
+        return null;
+      }
+    } else {
+      console.log('INVALID QUESTION TYPE!!');
+      return null;
+    }
+  };
+
   const generateHtmlForQuestion = (
     question: Question | TQuestion,
     answer: QAnswer,
@@ -274,7 +307,9 @@ export const FormQuestions = ({
               <Typography variant="h6">
                 {`${text}`}
                 {required ? ' *' : ''}
-                {/* { generateValidationLine(question, answer, type, required) } */}
+                {isQuestion(question)
+                  ? generateValidationLine(question, answer, type, required)
+                  : null}
               </Typography>
             </FormLabel>
             {mcOptions!.map((McOption, index) => (
@@ -470,7 +505,9 @@ export const FormQuestions = ({
     return questions.map((question: Question | TQuestion, index) => {
       return (
         <Fragment key={question.questionIndex}>
-          {generateHtmlForQuestion(question, answers[index], renderState)}
+          {isQuestion(question) && question.shouldHidden
+            ? null
+            : generateHtmlForQuestion(question, answers[index], renderState)}
         </Fragment>
       );
     });
