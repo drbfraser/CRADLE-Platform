@@ -1,7 +1,6 @@
 import random
 import string
 import uuid
-import datetime
 import time
 import numpy as np
 import json
@@ -848,7 +847,7 @@ if __name__ == "__main__":
     bpDiastolicList = np.clip(np.random.normal(80, 25, 1000).astype(int), 30, 200)
     heartRateList = np.clip(np.random.normal(60, 17, 1000).astype(int), 30, 250)
 
-    d1 = datetime.datetime.strptime(START_DATE, "%m/%d/%Y %I:%M %p")
-    d2 = datetime.datetime.today().replace(microsecond=0)
+    d1 = datetime.strptime(START_DATE, "%m/%d/%Y %I:%M %p")
+    d2 = datetime.today().replace(microsecond=0)
 
     cli()
