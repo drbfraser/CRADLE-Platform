@@ -29,9 +29,22 @@ get:
                 example: 2023-7-21
     400:
       description: Bad Request - When the provided user is null or missing
+
     403:
       description: Unauthorized - The only users who have permission to access the secret key are a) the user themselves, and b) an Admin user.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message: Permission denied, you can only get your sms-key or use the admin account
     404:
       description: Not Found - When the user with the given ID is not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message: Cannot find the sms key, please use POST method to create your sms key
     500:
       description: Internal Server Error - When an error occurs while getting the sms key
