@@ -47,17 +47,14 @@ def test_sms_secret_key_for_sms_relay(jwt_token, admin_user_id):
 
     print(json.dumps(resp_body, indent=4))
     assert get_response.status_code == 200
-    assert resp_body["message"] == "A sms key has been found"
+    assert resp_body["message"] == "NORMAL"
     assert resp_body["sms_key"] is not None and resp_body["sms_key"] == user.secret_Key
     assert user.secret_Key is not None and user.secret_Key == resp_body["sms_key"]
 
     put_response = requests.put(url_sms_secret_key_for_user, headers=headers)
     put_resp_body = put_response.json()
     assert put_response.status_code == 200
-    assert (
-        put_resp_body["message"]
-        == "New key has been updated, detail is showing below: "
-    )
+    assert put_resp_body["message"] == "NORMAL"
     assert (
         put_resp_body["sms_key"] is not None
         and put_resp_body["sms_key"] != resp_body["sms_key"]
