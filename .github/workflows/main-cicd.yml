@@ -62,10 +62,6 @@ jobs:
   update-aws:
     runs-on: [self-hosted, docker]
     timeout-minutes: 60
-
-    # TODO: https://github.sfu.ca/bfraser/415-Cradle-Platform/issues/453
-    # disable due to incomplete workflow
-    if: false
     container:
       image: node:14
     env:
