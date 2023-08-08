@@ -16,8 +16,6 @@ on:
         type: string
 
     secrets:
-      GRAFANA_API_KEY:
-        required: true
       HUB_REPO_BACKEND:
         required: true
       HUB_REPO_FRONTEND:
@@ -25,7 +23,6 @@ on:
 env:
   HUB_REPO_BACKEND: "${{ secrets.HUB_REPO_BACKEND }}"
   HUB_REPO_FRONTEND: "${{ secrets.HUB_REPO_FRONTEND }}"
-  GRAFANA_API_KEY: "${{ secrets.GRAFANA_API_KEY }}"
   DOMAIN:    "${{ inputs.DOMAIN }}"
   IMAGE_TAG: "${{ inputs.IMAGE_TAG }}"
 jobs:
