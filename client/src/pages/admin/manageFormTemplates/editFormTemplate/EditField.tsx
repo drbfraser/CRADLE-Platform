@@ -291,6 +291,8 @@ const EditField = ({
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setEnableVisiblity(event.target.checked);
+    setFormDirty(true)
+    setFieldChanged(!fieldChanged)
   };
 
   const getFieldType = (questionType: QuestionTypeEnum) => {
@@ -308,17 +310,15 @@ const EditField = ({
     });
     let areAllMcOptionFilled = true;
     const isFieldTypeChosen = fieldType.trim() != '';
-    let isVisCondAnswered = undefined;
+    let isVisCondAnswered = !enableVisibility;
 
-    if (enableVisibility) {
-      if (visibleCondition[0]) {
-        isVisCondAnswered = visibleCondition[0].answers != null ? true : false;
-      } else {
-        isVisCondAnswered = false;
-      }
-    } else {
-      isVisCondAnswered = true;
-    }
+    if (enableVisibility && visibleCondition[0] && visibleCondition[0].answers != null
+      && (visibleCondition[0].answers.comment || 
+            visibleCondition[0].answers.mcidArray ||
+            visibleCondition[0].answers.number ||
+            visibleCondition[0].answers.text)) {
+              isVisCondAnswered = true;
+            }
 
     if (fieldType == 'mult_choice') {
       questionLangVersions.forEach((qLangVersion) => {
@@ -373,11 +373,12 @@ const EditField = ({
       setFieldType(fieldType);
       setQuestionId(questionId);
       setQuestionLangversions(questionLangVersions);
+      setEnableVisiblity(enableVisibility)
     } else {
       if (question) {
         setFieldType(getFieldType(question.questionType));
         setQuestionId(question.questionId ? question.questionId : '');
-        setEnableVisiblity(question.visibleCondition.length > 0 ? true : false);
+        setEnableVisiblity(enableVisibility || question.visibleCondition.length > 0 ? true : false);
         setQuestionLangversions(
           getQLangVersionsCopy(question.questionLangVersions)
         );
@@ -555,6 +556,8 @@ const EditField = ({
                           q != question
                       )}
                       setVisibleCondition={setVisibleCondition}
+                      setFieldChanged={setFieldChanged}
+                      origFieldChanged={fieldChanged}
                     />
                   ) : null}
                 </Grid>
@@ -568,6 +571,7 @@ const EditField = ({
             onClick={(e) => {
               setFormDirty(false);
               setNumChoices(0);
+              setEnableVisiblity(false)
               onClose();
             }}>
             Cancel
@@ -579,6 +583,9 @@ const EditField = ({
               if (setForm) {
                 if (fieldType != 'mult_choice') {
                   removeAllMultChoices();
+                }
+                if (question && !enableVisibility) {
+                  question.visibleCondition.length = 0
                 }
                 setForm((form) => {
                   // edit field

@@ -357,8 +357,7 @@ export const FormQuestions = ({
             <Field
               label={text}
               component={TextField}
-              defaultValue={answer.val}
-              key={answer.val}
+              value={answer.val ?? ''}
               variant="outlined"
               type="number"
               fullWidth
@@ -389,7 +388,7 @@ export const FormQuestions = ({
               onChange={(event: any) => {
                 updateAnswersByValue(
                   question.questionIndex,
-                  Number(event.target.value)
+                  event.target.value ? Number(event.target.value) : null
                 );
               }}
             />

@@ -25,17 +25,22 @@ interface IProps {
   currQuestion?: TQuestion;
   filteredQs: TQuestion[];
   setVisibleCondition: Dispatch<SetStateAction<QCondition[]>>;
+  setFieldChanged: Dispatch<SetStateAction<boolean>>
+  origFieldChanged: boolean
 }
 
 const EditVisibleCondition = ({
   currQuestion,
   filteredQs: filteredQs,
   setVisibleCondition,
+  setFieldChanged,
+  origFieldChanged
 }: IProps) => {
   const currVisCond =
     currQuestion && currQuestion.visibleCondition[0]
       ? currQuestion.visibleCondition[0]
       : null;
+  const [childFieldChanged, setChildFieldChanged] = useState(origFieldChanged)
   // selectedQIndex is filteredQs[index]
   const [selectedQIndex, setSelectedQIndex] = useState<string>(
     currVisCond
@@ -77,6 +82,11 @@ const EditVisibleCondition = ({
   ]);
 
   useEffect(() => {
+    setFieldChanged(!childFieldChanged);
+    setChildFieldChanged(!childFieldChanged); 
+  }, [selectedAnswer])
+
+  useEffect(() => {
     if (
       selectedQIndex != null &&
       selectedConditional != null &&
@@ -104,10 +114,14 @@ const EditVisibleCondition = ({
   }, [selectedQIndex]);
 
   const handleQuestionChange = (event: SelectChangeEvent) => {
+    setFieldChanged(!childFieldChanged);
+    setChildFieldChanged(!childFieldChanged);
     setSelectedQIndex(event.target.value);
   };
 
   const handleConditionChange = (event: SelectChangeEvent) => {
+    setFieldChanged(!childFieldChanged);
+    setChildFieldChanged(!childFieldChanged);
     setSelectedConditional(event.target.value as QRelationEnum);
   };
 
@@ -166,9 +180,8 @@ const EditVisibleCondition = ({
                 {FormQuestions({
                   questions: question,
                   renderState: FormRenderStateEnum.EDIT,
-                  language: '',
-                  // filteredQs[+selectedQIndex].questionLangVersions[0].lang,
-                  handleAnswers: (answers) => {
+                  language: filteredQs[+selectedQIndex].questionLangVersions[0].lang,
+                  handleAnswers: (answers) => {               
                     const answer = answers[0];
                     switch (answer.anstype) {
                       case AnswerTypeEnum.TEXT:
