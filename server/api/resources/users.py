@@ -555,9 +555,7 @@ class UserSMSKey(Resource):
             return validate_result
         sms_key = get_user_secret_key(user_id)
         if not sms_key:
-            return {
-                "message": "NOTFOUND"
-            }, 424
+            return {"message": "NOTFOUND"}, 424
         elif is_date_expired(sms_key["expiry_date"]):
             return {
                 "message": "EXPIRED",

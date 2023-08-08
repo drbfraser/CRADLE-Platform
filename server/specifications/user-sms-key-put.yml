@@ -22,7 +22,7 @@ responses:
         schema:
           type: object
           properties:
-            message: A sms key has been found and updated successfully
+            message: NORMAL
             smsKey:
               type: string
               example: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
