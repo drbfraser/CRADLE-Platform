@@ -11,6 +11,8 @@ on:
 env:
   HUB_TOKEN: "${{ secrets.HUB_TOKEN }}"
   HUB_USER: "${{ secrets.HUB_USER }}"
+  HUB_REPO_FRONTEND: ${{ secrets.HUB_REPO_FRONTEND }}
+  HUB_REPO_BACKEND: ${{ secrets.HUB_REPO_BACKEND }}
   GRAFANA_API_KEY: "${{ secrets.GRAFANA_API_KEY }}"
   NPM_VERSION: "7.0.0"
   CUSTOM_WORKSPACE: /isolated-build/repo
