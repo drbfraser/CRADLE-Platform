@@ -264,7 +264,11 @@ export const FormQuestions = ({
 
       case QuestionTypeEnum.MULTIPLE_CHOICE:
         return (
-          <Grid item sm={12} md={6} lg={4}>
+          <Grid
+            item
+            sm={12}
+            md={renderState == FormRenderStateEnum.VIS_COND ? 12 : 6}
+            lg={renderState == FormRenderStateEnum.VIS_COND ? 12 : 4}>
             <FormLabel id={`question_${question.questionIndex}`}>
               <Typography variant="h6">
                 {`${text}`}
@@ -302,7 +306,11 @@ export const FormQuestions = ({
 
       case QuestionTypeEnum.MULTIPLE_SELECT:
         return (
-          <Grid item sm={12} md={6} lg={4}>
+          <Grid
+            item
+            sm={12}
+            md={renderState == FormRenderStateEnum.VIS_COND ? 12 : 6}
+            lg={renderState == FormRenderStateEnum.VIS_COND ? 12 : 4}>
             <FormLabel>
               <Typography variant="h6">
                 {`${text}`}
@@ -352,8 +360,8 @@ export const FormQuestions = ({
           <Grid
             item
             sm={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 11 : 12}
-            md={6}
-            lg={4}>
+            md={renderState == FormRenderStateEnum.VIS_COND ? 12 : 6}
+            lg={renderState == FormRenderStateEnum.VIS_COND ? 12 : 4}>
             <Field
               label={text}
               component={TextField}
@@ -400,8 +408,8 @@ export const FormQuestions = ({
           <Grid
             item
             sm={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 11 : 12}
-            md={6}
-            lg={4}>
+            md={renderState == FormRenderStateEnum.VIS_COND ? 12 : 6}
+            lg={renderState == FormRenderStateEnum.VIS_COND ? 12 : 4}>
             <Field
               label={text}
               component={TextField}
@@ -433,7 +441,11 @@ export const FormQuestions = ({
 
       case QuestionTypeEnum.DATETIME:
         return (
-          <Grid item sm={12} md={6} lg={4}>
+          <Grid
+            item
+            sm={12}
+            md={renderState == FormRenderStateEnum.VIS_COND ? 12 : 6}
+            lg={renderState == FormRenderStateEnum.VIS_COND ? 12 : 4}>
             <Field
               label={text}
               component={TextField}
@@ -464,7 +476,11 @@ export const FormQuestions = ({
 
       case QuestionTypeEnum.DATE:
         return (
-          <Grid item sm={12} md={6} lg={4}>
+          <Grid
+            item
+            sm={12}
+            md={renderState == FormRenderStateEnum.VIS_COND ? 12 : 6}
+            lg={renderState == FormRenderStateEnum.VIS_COND ? 12 : 4}>
             <Field
               label={text}
               component={TextField}

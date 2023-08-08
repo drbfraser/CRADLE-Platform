@@ -179,7 +179,7 @@ const EditVisibleCondition = ({
               <Grid item xs={4}>
                 {FormQuestions({
                   questions: question,
-                  renderState: FormRenderStateEnum.EDIT,
+                  renderState: FormRenderStateEnum.VIS_COND,
                   language:
                     filteredQs[+selectedQIndex].questionLangVersions[0].lang,
                   handleAnswers: (answers) => {

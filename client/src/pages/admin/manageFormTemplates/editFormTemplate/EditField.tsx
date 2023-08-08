@@ -628,6 +628,7 @@ const EditField = ({
                       questionId: questionId,
                     });
                   }
+                  setVisibleCondition([]);
                   setFormDirty(false);
                   form.questions = [...form.questions];
                   return form;

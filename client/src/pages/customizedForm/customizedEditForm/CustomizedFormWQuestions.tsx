@@ -81,6 +81,9 @@ export const CustomizedFormWQuestions = ({
 
     // reset indices
     questions.forEach((q, i) => {
+      if (q.visibleCondition && q.visibleCondition[0].qidx == index) {
+        q.visibleCondition = [];
+      }
       q.questionIndex = i;
     });
 
@@ -91,6 +94,7 @@ export const CustomizedFormWQuestions = ({
         return form;
       });
     }
+    upd();
   };
 
   const moveField = (question: any, up: boolean) => {
@@ -101,10 +105,20 @@ export const CustomizedFormWQuestions = ({
       questions[index] = temp;
       questions[index].questionIndex = index;
       questions[index - 1].questionIndex = index - 1;
+      updateVisCond(index - 1, index);
+      updateVisCond(index, index - 1);
       upd();
     } else if (!up && question.questionIndex < questions.length - 1) {
       moveField(questions[index + 1], true);
     }
+  };
+
+  const updateVisCond = (oldIndex: number, newIndex: number) => {
+    questions.forEach((q) => {
+      if (q.visibleCondition && q.visibleCondition[0]?.qidx == oldIndex) {
+        q.visibleCondition[0].qidx = newIndex;
+      }
+    });
   };
 
   let formTitle: string;
@@ -244,7 +258,7 @@ export const CustomizedFormWQuestions = ({
                         questionsArr={questions}
                         visibilityToggle={
                           selectedQuestionIndex != null &&
-                          questions[selectedQuestionIndex].visibleCondition
+                          questions[selectedQuestionIndex]?.visibleCondition
                             .length > 0
                         }
                       />
