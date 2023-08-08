@@ -13,8 +13,6 @@ env:
   HUB_USER: "${{ secrets.HUB_USER }}"
   GRAFANA_API_KEY: "${{ secrets.GRAFANA_API_KEY }}"
   NPM_VERSION: "7.0.0"
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   CUSTOM_WORKSPACE: /isolated-build/repo
   # Keep npm's cache out of home directory (mounted from host)
   # otherwise, NPM gives EACCES error trying to mkdir /github/home/.npm
@@ -76,6 +74,11 @@ jobs:
         uses: bfraser/cicd/actions/checkout@v1
         with: 
           path: ${{ env.CUSTOM_WORKSPACE }}
+      - name: Install Zip
+        run: |
+            apt update -y
+            apt install -y zip
+        working-directory: ${{ env.CUSTOM_WORKSPACE }}
       - name: Install AWS CLI
         run: |
           apt update -y
