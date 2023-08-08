@@ -25,8 +25,8 @@ interface IProps {
   currQuestion?: TQuestion;
   filteredQs: TQuestion[];
   setVisibleCondition: Dispatch<SetStateAction<QCondition[]>>;
-  setFieldChanged: Dispatch<SetStateAction<boolean>>
-  origFieldChanged: boolean
+  setFieldChanged: Dispatch<SetStateAction<boolean>>;
+  origFieldChanged: boolean;
 }
 
 const EditVisibleCondition = ({
@@ -34,13 +34,13 @@ const EditVisibleCondition = ({
   filteredQs: filteredQs,
   setVisibleCondition,
   setFieldChanged,
-  origFieldChanged
+  origFieldChanged,
 }: IProps) => {
   const currVisCond =
     currQuestion && currQuestion.visibleCondition[0]
       ? currQuestion.visibleCondition[0]
       : null;
-  const [childFieldChanged, setChildFieldChanged] = useState(origFieldChanged)
+  const [childFieldChanged, setChildFieldChanged] = useState(origFieldChanged);
   // selectedQIndex is filteredQs[index]
   const [selectedQIndex, setSelectedQIndex] = useState<string>(
     currVisCond
@@ -83,8 +83,8 @@ const EditVisibleCondition = ({
 
   useEffect(() => {
     setFieldChanged(!childFieldChanged);
-    setChildFieldChanged(!childFieldChanged); 
-  }, [selectedAnswer])
+    setChildFieldChanged(!childFieldChanged);
+  }, [selectedAnswer]);
 
   useEffect(() => {
     if (
@@ -180,8 +180,9 @@ const EditVisibleCondition = ({
                 {FormQuestions({
                   questions: question,
                   renderState: FormRenderStateEnum.EDIT,
-                  language: filteredQs[+selectedQIndex].questionLangVersions[0].lang,
-                  handleAnswers: (answers) => {               
+                  language:
+                    filteredQs[+selectedQIndex].questionLangVersions[0].lang,
+                  handleAnswers: (answers) => {
                     const answer = answers[0];
                     switch (answer.anstype) {
                       case AnswerTypeEnum.TEXT:
