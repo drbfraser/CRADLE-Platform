@@ -556,8 +556,8 @@ class UserSMSKey(Resource):
         sms_key = get_user_secret_key(user_id)
         if not sms_key:
             return {
-                "message": "Cannot find the sms key, please use POST method to create your sms key"
-            }, 404
+                "message": "NOTFOUND"
+            }, 424
         elif is_date_expired(sms_key["expiry_date"]):
             return {
                 "message": "EXPIRED",
