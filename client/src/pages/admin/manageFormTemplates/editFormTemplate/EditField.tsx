@@ -384,8 +384,6 @@ const EditField = ({
         setQuestionId(question.questionId ? question.questionId : '');
         setEnableVisiblity(
           enableVisibility || question.visibleCondition.length > 0
-            ? true
-            : false
         );
         setQuestionLangversions(
           getQLangVersionsCopy(question.questionLangVersions)
@@ -533,7 +531,7 @@ const EditField = ({
             {questionsArr.filter(
               (q) =>
                 q.questionType != QuestionTypeEnum.CATEGORY && q != question
-            ).length > 0 ? (
+            ).length > 0 && (
               <>
                 <Grid item sm={12} md={10} lg={10}>
                   <FormControlLabel
@@ -570,7 +568,7 @@ const EditField = ({
                   ) : null}
                 </Grid>
               </>
-            ) : null}
+            )}
           </Grid>
         </DialogContent>
         <DialogActions>
