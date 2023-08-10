@@ -25,7 +25,7 @@ from api.util import (
     filterPairsWithNone,
     getDictionaryOfUserInfo,
     get_user_roles,
-    is_date_expired,
+    is_date_passed,
     validate_user,
     get_user_secret_key,
     update_secret_key_for_user,
@@ -556,14 +556,14 @@ class UserSMSKey(Resource):
         sms_key = get_user_secret_key(user_id)
         if not sms_key:
             return {"message": "NOTFOUND"}, 424
-        elif is_date_expired(sms_key["expiry_date"]):
+        elif is_date_passed(sms_key["expiry_date"]):
             return {
                 "message": "EXPIRED",
                 "expired_date": str(sms_key["expiry_date"]),
                 "stale_date": str(sms_key["stale_date"]),
                 "sms_key": sms_key["secret_Key"],
             }, 200
-        elif is_date_expired(sms_key["stale_date"]):
+        elif is_date_passed(sms_key["stale_date"]):
             return {
                 "message": "WARN",
                 "expired_date": str(sms_key["expiry_date"]),
