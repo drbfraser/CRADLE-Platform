@@ -391,7 +391,6 @@ jobs:
       RUNNER_NAME: deploy-development
       DOMAIN:      cradle-stg.cmpt.sfu.ca
       IMAGE_TAG:   ${{ needs.export-image-tag.outputs.image_tag }}
-      ENV: development
     secrets: inherit
 
   dev-retag-and-upload-to-dockerhub:
@@ -411,7 +410,6 @@ jobs:
         RUNNER_NAME: deploy-staging
         DOMAIN:      cradle-stg.cmpt.sfu.ca
         IMAGE_TAG:   ${{ needs.export-image-tag.outputs.image_tag }}
-        ENV: staging
     secrets: inherit
 
   staging-retag-and-upload-to-dockerhub:

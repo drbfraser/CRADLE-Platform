@@ -14,9 +14,6 @@ on:
       IMAGE_TAG:
         required: true
         type: string
-      ENV:
-        required: true
-        type: string
 
     secrets:
       HUB_REPO_BACKEND:
@@ -35,7 +32,6 @@ env:
   HUB_REPO_FRONTEND: "${{ secrets.HUB_REPO_FRONTEND }}"
   DOMAIN:    "${{ inputs.DOMAIN }}"
   IMAGE_TAG: "${{ inputs.IMAGE_TAG }}"
-  ENV: "${{ inputs.ENV }}"
 jobs:
   deploy-from-dockerhub:
     runs-on: [self-hosted, '${{ inputs.RUNNER_NAME }}']
