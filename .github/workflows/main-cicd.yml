@@ -9,6 +9,8 @@ on:
     branches: [ main ]
   workflow_dispatch:
 env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   HUB_TOKEN: "${{ secrets.HUB_TOKEN }}"
   HUB_USER: "${{ secrets.HUB_USER }}"
   HUB_REPO_FRONTEND: "${{ secrets.HUB_REPO_FRONTEND }}"
@@ -67,8 +69,6 @@ jobs:
       # specify time zone for AWS CLI 
       DEBIAN_FRONTEND: noninteractive
       TZ: America/Vancouver
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: us-west-2
     steps: 
       - name: Checkout code into container
@@ -391,6 +391,7 @@ jobs:
       RUNNER_NAME: deploy-development
       DOMAIN:      cradle-stg.cmpt.sfu.ca
       IMAGE_TAG:   ${{ needs.export-image-tag.outputs.image_tag }}
+      ENV: development
     secrets: inherit
 
   dev-retag-and-upload-to-dockerhub:
@@ -410,6 +411,7 @@ jobs:
         RUNNER_NAME: deploy-staging
         DOMAIN:      cradle-stg.cmpt.sfu.ca
         IMAGE_TAG:   ${{ needs.export-image-tag.outputs.image_tag }}
+        ENV: staging
     secrets: inherit
 
   staging-retag-and-upload-to-dockerhub:

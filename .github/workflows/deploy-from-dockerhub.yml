@@ -14,17 +14,28 @@ on:
       IMAGE_TAG:
         required: true
         type: string
+      ENV:
+        required: true
+        type: string
 
     secrets:
       HUB_REPO_BACKEND:
         required: true
       HUB_REPO_FRONTEND:
         required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+
 env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   HUB_REPO_BACKEND: "${{ secrets.HUB_REPO_BACKEND }}"
   HUB_REPO_FRONTEND: "${{ secrets.HUB_REPO_FRONTEND }}"
   DOMAIN:    "${{ inputs.DOMAIN }}"
   IMAGE_TAG: "${{ inputs.IMAGE_TAG }}"
+  ENV: "${{ inputs.ENV }}"
 jobs:
   deploy-from-dockerhub:
     runs-on: [self-hosted, '${{ inputs.RUNNER_NAME }}']
