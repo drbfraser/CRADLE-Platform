@@ -9,6 +9,7 @@ import {
   IconButton,
   Radio,
   RadioGroup,
+  Switch,
 } from '@mui/material';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import {
@@ -21,10 +22,12 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
   FormTemplateWithQuestions,
   McOption,
+  QCondition,
   QuestionLangVersion,
   TQuestion,
 } from 'src/shared/types';
 import { QuestionTypeEnum } from 'src/shared/enums';
+import EditVisibleCondition from './EditVisibleCondition';
 
 interface IProps {
   open: boolean;
@@ -32,6 +35,8 @@ interface IProps {
   inputLanguages: string[];
   setForm?: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
   question?: TQuestion;
+  questionsArr: TQuestion[];
+  visibilityToggle: boolean;
 }
 
 interface FieldTypes {
@@ -49,6 +54,8 @@ const EditField = ({
   inputLanguages,
   setForm,
   question,
+  questionsArr,
+  visibilityToggle,
 }: IProps) => {
   const [fieldType, setFieldType] = useState<string>('category');
   const [questionId, setQuestionId] = useState<string>('');
@@ -56,6 +63,8 @@ const EditField = ({
   const [questionLangVersions, setQuestionLangversions] = useState<
     QuestionLangVersion[]
   >([] as QuestionLangVersion[]);
+  const [visibleCondition, setVisibleCondition] = useState<QCondition[]>([]);
+  const [enableVisibility, setEnableVisiblity] = useState(visibilityToggle);
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
   const [fieldChanged, setFieldChanged] = useState(false);
   const [formDirty, setFormDirty] = useState(false);
@@ -181,7 +190,7 @@ const EditField = ({
       label: 'Multiple Choice',
       type: QuestionTypeEnum.MULTIPLE_CHOICE,
       render: () => (
-        <Grid container spacing={3}>
+        <Grid item container spacing={3}>
           <Grid item xs={12}>
             <PrimaryButton
               type="button"
@@ -193,75 +202,67 @@ const EditField = ({
               {'Add Choice'}
             </PrimaryButton>
           </Grid>
-          <Grid item xs={12}>
-            <Grid container spacing={3}>
-              {Array.from(Array(numChoices).keys()).map((_, index) => (
-                <Grid item xs={12} key={`option-${index}`}>
-                  <Grid item>
-                    <Grid container spacing={3}>
-                      <Grid item xs={10} sm={6} md={2}>
-                        <FormLabel id="field-type-label">
-                          <Typography variant="h6">
-                            Option {index + 1}
-                          </Typography>
-                        </FormLabel>
-                      </Grid>
-                      <Grid item xs={2} sm={6} md={10}>
-                        <IconButton
-                          key={`remove-option-${index + 1}`}
-                          color="error"
-                          onClick={(e) => {
-                            handleRemoveMultiChoice(index);
-                            setFieldChanged(!fieldChanged);
-                            setFormDirty(true);
-                          }}>
-                          <RemoveCircleOutlineIcon />
-                        </IconButton>
-                      </Grid>
-                    </Grid>
+          <Grid item container spacing={3}>
+            {Array.from(Array(numChoices).keys()).map((_, index) => (
+              <Grid item xs={12} key={`option-${index}`}>
+                <Grid item container spacing={3}>
+                  <Grid item xs={10} sm={6} md={2}>
+                    <FormLabel id="field-type-label">
+                      <Typography variant="h6">Option {index + 1}</Typography>
+                    </FormLabel>
                   </Grid>
-                  <Grid item>
-                    <Grid container spacing={3}>
-                      {inputLanguages.map((lang) => (
-                        <Grid
-                          item
-                          xs={12}
-                          sm={6}
-                          md={4}
-                          lg={3}
-                          key={`${lang}-mult-choice-option-${index + 1}-body`}>
-                          <TextField
-                            key={`${lang}-field-name-mult-choice-option-${
-                              index + 1
-                            }`}
-                            label={`${lang} Option ${index + 1}`}
-                            required={true}
-                            variant="outlined"
-                            value={getMcOptionValue(lang, index)}
-                            fullWidth
-                            multiline
-                            size="small"
-                            inputProps={{
-                              // TODO: Determine what types of input restrictions we should have for multiple choice option
-                              maxLength: Number.MAX_SAFE_INTEGER,
-                            }}
-                            onChange={(e) => {
-                              handleMultiChoiceOptionChange(
-                                lang,
-                                e.target.value,
-                                index
-                              );
-                              setFieldChanged(!fieldChanged);
-                              setFormDirty(true);
-                            }}
-                          />
-                        </Grid>
-                      ))}
-                    </Grid>
+                  <Grid item xs={2} sm={6} md={10}>
+                    <IconButton
+                      key={`remove-option-${index + 1}`}
+                      color="error"
+                      onClick={(e) => {
+                        handleRemoveMultiChoice(index);
+                        setFieldChanged(!fieldChanged);
+                        setFormDirty(true);
+                      }}>
+                      <RemoveCircleOutlineIcon />
+                    </IconButton>
                   </Grid>
                 </Grid>
-              ))}
-            </Grid>
+                <Grid item container spacing={3}>
+                  {inputLanguages.map((lang) => (
+                    <Grid
+                      item
+                      xs={12}
+                      sm={6}
+                      md={4}
+                      lg={3}
+                      key={`${lang}-mult-choice-option-${index + 1}-body`}>
+                      <TextField
+                        key={`${lang}-field-name-mult-choice-option-${
+                          index + 1
+                        }`}
+                        label={`${lang} Option ${index + 1}`}
+                        required={true}
+                        variant="outlined"
+                        value={getMcOptionValue(lang, index)}
+                        fullWidth
+                        multiline
+                        size="small"
+                        inputProps={{
+                          // TODO: Determine what types of input restrictions we should have for multiple choice option
+                          maxLength: Number.MAX_SAFE_INTEGER,
+                        }}
+                        onChange={(e) => {
+                          handleMultiChoiceOptionChange(
+                            lang,
+                            e.target.value,
+                            index
+                          );
+                          setFieldChanged(!fieldChanged);
+                          setFormDirty(true);
+                        }}
+                      />
+                    </Grid>
+                  ))}
+                </Grid>
+              </Grid>
+            ))}
           </Grid>
         </Grid>
       ),
@@ -286,6 +287,14 @@ const EditField = ({
     setFormDirty(true);
   };
 
+  const handleVisibilityChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setEnableVisiblity(event.target.checked);
+    setFormDirty(true);
+    setFieldChanged(!fieldChanged);
+  };
+
   const getFieldType = (questionType: QuestionTypeEnum) => {
     const fType = Object.keys(fieldTypes).find(
       (fieldType) => fieldTypes[fieldType].type === questionType
@@ -301,6 +310,19 @@ const EditField = ({
     });
     let areAllMcOptionFilled = true;
     const isFieldTypeChosen = fieldType.trim() != '';
+    let isVisCondAnswered = !enableVisibility;
+
+    if (
+      enableVisibility &&
+      visibleCondition[0] &&
+      visibleCondition[0].answers != null &&
+      (visibleCondition[0].answers.comment ||
+        visibleCondition[0].answers.mcidArray ||
+        visibleCondition[0].answers.number ||
+        visibleCondition[0].answers.text)
+    ) {
+      isVisCondAnswered = true;
+    }
 
     if (fieldType == 'mult_choice') {
       questionLangVersions.forEach((qLangVersion) => {
@@ -318,7 +340,10 @@ const EditField = ({
     }
 
     const nonMultiChoiceCheck =
-      isQuestionIdFilled && areAllNamesFilled && isFieldTypeChosen;
+      isQuestionIdFilled &&
+      areAllNamesFilled &&
+      isFieldTypeChosen &&
+      isVisCondAnswered;
 
     return fieldType == 'mult_choice'
       ? nonMultiChoiceCheck && areAllMcOptionFilled
@@ -352,10 +377,14 @@ const EditField = ({
       setFieldType(fieldType);
       setQuestionId(questionId);
       setQuestionLangversions(questionLangVersions);
+      setEnableVisiblity(enableVisibility);
     } else {
       if (question) {
         setFieldType(getFieldType(question.questionType));
         setQuestionId(question.questionId ? question.questionId : '');
+        setEnableVisiblity(
+          enableVisibility || question.visibleCondition.length > 0
+        );
         setQuestionLangversions(
           getQLangVersionsCopy(question.questionLangVersions)
         );
@@ -369,9 +398,9 @@ const EditField = ({
         setQuestionId('');
         setQuestionLangversions([]);
         setNumChoices(0);
+        setEnableVisiblity(false);
       }
     }
-
     // Check if all fields are filled
     // Enable/disable save button based on filled fields
     setIsSaveDisabled(!areAllFieldsFilled());
@@ -498,8 +527,49 @@ const EditField = ({
                 ))}
               </RadioGroup>
             </Grid>
+            {fieldType ? fieldTypes[fieldType].render() : null}
+            {questionsArr.filter(
+              (q) =>
+                q.questionType != QuestionTypeEnum.CATEGORY && q != question
+            ).length > 0 && (
+              <>
+                <Grid item sm={12} md={10} lg={10}>
+                  <FormControlLabel
+                    style={{ marginLeft: 0 }}
+                    control={
+                      <Switch
+                        checked={enableVisibility}
+                        onChange={handleVisibilityChange}
+                      />
+                    }
+                    label={
+                      <FormLabel id="vis-label">
+                        <Typography variant="h6">
+                          Conditional Visibility
+                        </Typography>
+                      </FormLabel>
+                    }
+                    labelPlacement="start"
+                  />
+                </Grid>
+                <Grid item sm={12} md={10} lg={10}>
+                  {enableVisibility ? (
+                    <EditVisibleCondition
+                      currQuestion={question}
+                      filteredQs={questionsArr.filter(
+                        (q) =>
+                          q.questionType != QuestionTypeEnum.CATEGORY &&
+                          q != question
+                      )}
+                      setVisibleCondition={setVisibleCondition}
+                      setFieldChanged={setFieldChanged}
+                      origFieldChanged={fieldChanged}
+                    />
+                  ) : null}
+                </Grid>
+              </>
+            )}
           </Grid>
-          {fieldType ? fieldTypes[fieldType].render() : null}
         </DialogContent>
         <DialogActions>
           <CancelButton
@@ -507,6 +577,7 @@ const EditField = ({
             onClick={(e) => {
               setFormDirty(false);
               setNumChoices(0);
+              setEnableVisiblity(false);
               onClose();
             }}>
             Cancel
@@ -518,6 +589,9 @@ const EditField = ({
               if (setForm) {
                 if (fieldType != 'mult_choice') {
                   removeAllMultChoices();
+                }
+                if (question && !enableVisibility) {
+                  question.visibleCondition.length = 0;
                 }
                 setForm((form) => {
                   // edit field
@@ -531,6 +605,9 @@ const EditField = ({
                         questionLangVersions;
                       questionToUpdate.questionType =
                         fieldTypes[fieldType].type;
+                      questionToUpdate.visibleCondition = enableVisibility
+                        ? visibleCondition
+                        : [];
                     }
                   }
                   // create new field
@@ -544,11 +621,12 @@ const EditField = ({
                       numMax: null,
                       stringMaxLength: null,
                       units: null,
-                      visibleCondition: [],
+                      visibleCondition: visibleCondition,
                       categoryIndex: null,
                       questionId: questionId,
                     });
                   }
+                  setVisibleCondition([]);
                   setFormDirty(false);
                   form.questions = [...form.questions];
                   return form;

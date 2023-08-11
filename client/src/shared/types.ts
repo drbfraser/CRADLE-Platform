@@ -1,5 +1,7 @@
 import {
+  AnswerTypeEnum,
   GestationalAgeUnitEnum,
+  QRelationEnum,
   QuestionTypeEnum,
   SexEnum,
   TrafficLightEnum,
@@ -302,14 +304,14 @@ export interface CForm {
 
 export type QAnswer = {
   qidx: number;
-  qtype: string | null;
-  anstype: string | null; //value,text,mc,me,comment
+  qtype: QuestionTypeEnum | null;
+  anstype: AnswerTypeEnum | null; //value,text,mc,me,comment
   val: any;
 };
 
 export interface QCondition {
   qidx: number;
-  relation: string; //* better to update to QRelationEnum [EQUAL_TO];
+  relation: QRelationEnum;
   answers: Answer;
 }
 

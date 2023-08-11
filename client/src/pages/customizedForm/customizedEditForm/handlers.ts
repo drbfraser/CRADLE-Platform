@@ -184,9 +184,9 @@ export const handleSubmit = (
   answers: QAnswer[],
   // questions: Question[],
   setSubmitError: (error: boolean) => void,
-  // setMultiSelectValidationFailed: (
-  //   multiSelectValidationFailed: boolean
-  // ) => void,
+  setMultiSelectValidationFailed: (
+    multiSelectValidationFailed: boolean
+  ) => void,
   isEditForm: boolean,
   form: CForm
 ) => {
@@ -195,7 +195,7 @@ export const handleSubmit = (
 
     const isValid = areMcResponsesValid(questions, answers);
     if (!isValid) {
-      // setMultiSelectValidationFailed(true);
+      setMultiSelectValidationFailed(true);
       return;
     }
 
