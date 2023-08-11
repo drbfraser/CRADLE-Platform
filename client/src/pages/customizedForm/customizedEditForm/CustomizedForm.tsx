@@ -23,8 +23,8 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
   const questions = fm.questions;
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
-  // const [multiSelectValidationFailed, setMultiSelectValidationFailed] =
-  //   useState(false);
+  const [multiSelectValidationFailed, setMultiSelectValidationFailed] =
+    useState(false);
 
   const [answers, setAnswers] = useState<QAnswer[]>([]);
   let formTitle: string;
@@ -46,40 +46,9 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
       break;
   }
 
-  // const handleMultiSelectValidationFailed = (ValidationFailed: boolean) => {
-  //   setMultiSelectValidationFailed(ValidationFailed);
-  // };
-
-  //currently, only ME(checkboxes need manually added validation, others' validations are handled automatically by formik)
-  // const generateValidationLine = (
-  //   question: Question,
-  //   answer: QAnswer,
-  //   type: any,
-  //   required: boolean
-  // ) => {
-  //   if (!multiSelectValidationFailed) {
-  //     return null;
-  //   }
-  //   if (type === QuestionTypeEnum.MULTIPLE_SELECT && !question.shouldHidden) {
-  //     if (!answer.val!.length) {
-  //       return (
-  //         <>
-  //           <Typography
-  //             variant="overline"
-  //             style={{ color: '#FF0000', fontWeight: 600 }}>
-  //             {' '}
-  //             (Must Select At Least One Option !)
-  //           </Typography>
-  //         </>
-  //       );
-  //     } else {
-  //       return null;
-  //     }
-  //   } else {
-  //     console.log('INVALID QUESTION TYPE!!');
-  //     return null;
-  //   }
-  // };
+  const handleMultiSelectValidationFailed = (ValidationFailed: boolean) => {
+    setMultiSelectValidationFailed(ValidationFailed);
+  };
 
   return (
     <>
@@ -91,7 +60,7 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
           patientId,
           answers,
           setSubmitError,
-          // handleMultiSelectValidationFailed,
+          handleMultiSelectValidationFailed,
           renderState === FormRenderStateEnum.EDIT,
           fm
         )}>
@@ -113,6 +82,7 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
                     renderState: renderState,
                     language: '',
                     handleAnswers: setAnswers,
+                    multiSelectValidationFailed: multiSelectValidationFailed,
                   })}
                 </Grid>
                 {renderState === FormRenderStateEnum.VIEW ? (

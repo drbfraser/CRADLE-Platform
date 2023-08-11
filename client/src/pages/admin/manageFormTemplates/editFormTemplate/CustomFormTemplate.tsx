@@ -39,7 +39,7 @@ export const initialState = {
 
 export const CustomFormTemplate = () => {
   const [submitError, setSubmitError] = useState(false);
-  const [language, setLanguage] = useState<string[]>([]);
+  const [language, setLanguage] = useState<string[]>(['English']);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -79,6 +79,8 @@ export const CustomFormTemplate = () => {
         }}
         inputLanguages={language}
         setForm={setForm}
+        questionsArr={form.questions}
+        visibilityToggle={false}
       />
       <Formik
         initialValues={initialState}

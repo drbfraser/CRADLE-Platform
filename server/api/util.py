@@ -755,8 +755,8 @@ def get_user_roles(userId):
     return userInfo.role
 
 
-def is_date_expired(expired_date) -> bool:
-    if expired_date >= datetime.datetime.now():
+def is_date_passed(date) -> bool:
+    if date >= datetime.datetime.now():
         return False
     else:
         return True

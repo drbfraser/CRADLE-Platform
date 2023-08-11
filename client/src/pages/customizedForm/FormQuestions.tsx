@@ -33,6 +33,7 @@ interface IProps {
   language: string;
   handleAnswers: (answers: QAnswer[]) => void;
   setForm?: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
+  multiSelectValidationFailed?: boolean;
 }
 
 export const FormQuestions = ({
@@ -41,6 +42,7 @@ export const FormQuestions = ({
   language,
   handleAnswers,
   setForm,
+  multiSelectValidationFailed,
 }: IProps) => {
   const [answers, setAnswers] = useState<QAnswer[]>([]);
 
@@ -124,7 +126,7 @@ export const FormQuestions = ({
       setAnswers(answers);
       handleAnswers(answers);
     }
-  }, [questions, setAnswers, setForm]);
+  }, [questions]);
 
   function updateAnswersByValue(index: number, newValue: any) {
     if (isQuestionArr(questions)) {
@@ -187,6 +189,37 @@ export const FormQuestions = ({
     });
   };
 
+  //currently, only ME(checkboxes need manually added validation, others' validations are handled automatically by formik)
+  const generateValidationLine = (
+    question: Question,
+    answer: QAnswer,
+    type: any,
+    required: boolean
+  ) => {
+    if (!multiSelectValidationFailed) {
+      return null;
+    }
+    if (type === QuestionTypeEnum.MULTIPLE_SELECT && !question.shouldHidden) {
+      if (!answer.val!.length) {
+        return (
+          <>
+            <Typography
+              variant="overline"
+              style={{ color: '#FF0000', fontWeight: 600 }}>
+              {' '}
+              (Must Select At Least One Option !)
+            </Typography>
+          </>
+        );
+      } else {
+        return null;
+      }
+    } else {
+      console.log('INVALID QUESTION TYPE!!');
+      return null;
+    }
+  };
+
   const generateHtmlForQuestion = (
     question: Question | TQuestion,
     answer: QAnswer,
@@ -231,7 +264,11 @@ export const FormQuestions = ({
 
       case QuestionTypeEnum.MULTIPLE_CHOICE:
         return (
-          <Grid item sm={12} md={6} lg={4}>
+          <Grid
+            item
+            sm={12}
+            md={renderState == FormRenderStateEnum.VIS_COND ? 12 : 6}
+            lg={renderState == FormRenderStateEnum.VIS_COND ? 12 : 4}>
             <FormLabel id={`question_${question.questionIndex}`}>
               <Typography variant="h6">
                 {`${text}`}
@@ -243,6 +280,7 @@ export const FormQuestions = ({
               row
               aria-labelledby={`question_${question.questionIndex}`}
               value={answer.val ? answer.val[0] : ''}
+              key={answer.val}
               onChange={function (_, value) {
                 updateAnswersByValue(qid, [value]);
               }}>
@@ -268,12 +306,18 @@ export const FormQuestions = ({
 
       case QuestionTypeEnum.MULTIPLE_SELECT:
         return (
-          <Grid item sm={12} md={6} lg={4}>
+          <Grid
+            item
+            sm={12}
+            md={renderState == FormRenderStateEnum.VIS_COND ? 12 : 6}
+            lg={renderState == FormRenderStateEnum.VIS_COND ? 12 : 4}>
             <FormLabel>
               <Typography variant="h6">
                 {`${text}`}
                 {required ? ' *' : ''}
-                {/* { generateValidationLine(question, answer, type, required) } */}
+                {isQuestion(question)
+                  ? generateValidationLine(question, answer, type, required)
+                  : null}
               </Typography>
             </FormLabel>
             {mcOptions!.map((McOption, index) => (
@@ -316,12 +360,12 @@ export const FormQuestions = ({
           <Grid
             item
             sm={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 11 : 12}
-            md={6}
-            lg={4}>
+            md={renderState == FormRenderStateEnum.VIS_COND ? 12 : 6}
+            lg={renderState == FormRenderStateEnum.VIS_COND ? 12 : 4}>
             <Field
               label={text}
               component={TextField}
-              defaultValue={answer.val ?? ''}
+              value={answer.val ?? ''}
               variant="outlined"
               type="number"
               fullWidth
@@ -352,7 +396,7 @@ export const FormQuestions = ({
               onChange={(event: any) => {
                 updateAnswersByValue(
                   question.questionIndex,
-                  Number(event.target.value)
+                  event.target.value ? Number(event.target.value) : null
                 );
               }}
             />
@@ -364,8 +408,8 @@ export const FormQuestions = ({
           <Grid
             item
             sm={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 11 : 12}
-            md={6}
-            lg={4}>
+            md={renderState == FormRenderStateEnum.VIS_COND ? 12 : 6}
+            lg={renderState == FormRenderStateEnum.VIS_COND ? 12 : 4}>
             <Field
               label={text}
               component={TextField}
@@ -397,11 +441,16 @@ export const FormQuestions = ({
 
       case QuestionTypeEnum.DATETIME:
         return (
-          <Grid item sm={12} md={6} lg={4}>
+          <Grid
+            item
+            sm={12}
+            md={renderState == FormRenderStateEnum.VIS_COND ? 12 : 6}
+            lg={renderState == FormRenderStateEnum.VIS_COND ? 12 : 4}>
             <Field
               label={text}
               component={TextField}
               defaultValue={answer.val ? getPrettyDateTime(answer.val) : null}
+              key={answer.val}
               fullWidth
               disabled={
                 renderState === FormRenderStateEnum.VIEW ||
@@ -427,11 +476,16 @@ export const FormQuestions = ({
 
       case QuestionTypeEnum.DATE:
         return (
-          <Grid item sm={12} md={6} lg={4}>
+          <Grid
+            item
+            sm={12}
+            md={renderState == FormRenderStateEnum.VIS_COND ? 12 : 6}
+            lg={renderState == FormRenderStateEnum.VIS_COND ? 12 : 4}>
             <Field
               label={text}
               component={TextField}
               defaultValue={answer.val ? getPrettyDate(answer.val) : null}
+              key={answer.val}
               fullWidth
               disabled={
                 renderState === FormRenderStateEnum.VIEW ||
@@ -466,7 +520,9 @@ export const FormQuestions = ({
     return questions.map((question: Question | TQuestion, index) => {
       return (
         <Fragment key={question.questionIndex}>
-          {generateHtmlForQuestion(question, answers[index], renderState)}
+          {isQuestion(question) && question.shouldHidden
+            ? null
+            : generateHtmlForQuestion(question, answers[index], renderState)}
         </Fragment>
       );
     });

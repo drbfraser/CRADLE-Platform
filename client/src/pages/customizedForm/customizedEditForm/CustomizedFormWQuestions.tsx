@@ -55,9 +55,6 @@ export const CustomizedFormWQuestions = ({
     return question.questionLangVersions.map((item) => item.lang);
   };
 
-  // const [multiSelectValidationFailed, setMultiSelectValidationFailed] =
-  //   useState(false);
-
   const handleEditField = (question: TQuestion) => {
     setSelectedQuestionIndex(question.questionIndex);
     setEditPopupOpen(true);
@@ -84,6 +81,9 @@ export const CustomizedFormWQuestions = ({
 
     // reset indices
     questions.forEach((q, i) => {
+      if (q.visibleCondition && q.visibleCondition[0].qidx == index) {
+        q.visibleCondition = [];
+      }
       q.questionIndex = i;
     });
 
@@ -94,6 +94,7 @@ export const CustomizedFormWQuestions = ({
         return form;
       });
     }
+    upd();
   };
 
   const moveField = (question: any, up: boolean) => {
@@ -104,10 +105,20 @@ export const CustomizedFormWQuestions = ({
       questions[index] = temp;
       questions[index].questionIndex = index;
       questions[index - 1].questionIndex = index - 1;
+      updateVisCond(index - 1, index);
+      updateVisCond(index, index - 1);
       upd();
     } else if (!up && question.questionIndex < questions.length - 1) {
       moveField(questions[index + 1], true);
     }
+  };
+
+  const updateVisCond = (oldIndex: number, newIndex: number) => {
+    questions.forEach((q) => {
+      if (q.visibleCondition && q.visibleCondition[0]?.qidx == oldIndex) {
+        q.visibleCondition[0].qidx = newIndex;
+      }
+    });
   };
 
   let formTitle: string;
@@ -128,10 +139,6 @@ export const CustomizedFormWQuestions = ({
       formTitle = 'error!!!!!';
       break;
   }
-
-  // const handleMultiSelectValidationFailed = (ValidationFailed: boolean) => {
-  //   setMultiSelectValidationFailed(ValidationFailed);
-  // };
 
   return (
     <>
@@ -160,7 +167,6 @@ export const CustomizedFormWQuestions = ({
                     disableClearable={true}
                     onChange={(event: any, value: string) => {
                       setSelectedLanguage(value);
-                      console.log(value);
                     }}
                     renderInput={(params: AutocompleteRenderInputParams) => (
                       <TextField
@@ -249,6 +255,12 @@ export const CustomizedFormWQuestions = ({
                         inputLanguages={getInputLanguages(question)}
                         setForm={setForm}
                         question={question}
+                        questionsArr={questions}
+                        visibilityToggle={
+                          selectedQuestionIndex != null &&
+                          questions[selectedQuestionIndex]?.visibleCondition
+                            .length > 0
+                        }
                       />
                     </Fragment>
                   );
