@@ -2,6 +2,7 @@ import { BREAKPOINT, COLUMNS, SORTABLE_COLUMNS } from './constants';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import React, { useState } from 'react';
 import { debounce, parseInt } from 'lodash';
+import { useSelector } from 'react-redux';
 
 import { APITable } from 'src/shared/components/apiTable';
 import { AutoRefresher } from './AutoRefresher';
@@ -15,8 +16,10 @@ import { SortDir } from 'src/shared/components/apiTable/types';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import makeStyles from '@mui/styles/makeStyles';
-import { useDimensionsContext } from 'src/app/context/hooks';
+import { useAppDispatch, useDimensionsContext } from 'src/app/context/hooks';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { SecretKeyState, getSecretKey } from 'src/redux/reducers/secretKey';
+import { ReduxState } from 'src/redux/reducers';
 
 export const ReferralsPage = () => {
   const classes = useStyles();
@@ -34,14 +37,25 @@ export const ReferralsPage = () => {
   const { isBigScreen } = useDimensionsContext();
   const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
 
+  const userId = useSelector(({ user }: ReduxState): number | undefined => {
+    return user.current.data?.userId;
+  });
+  const secretKey = useSelector(({ secretKey }: ReduxState): SecretKeyState => {
+    return secretKey;
+  });
+  const dispatch = useAppDispatch();
+
   React.useEffect(() => {
     sessionStorage.setItem('lastRefreshTime', '0');
     if (localStorage.getItem('refreshInterval') === null) {
       localStorage.setItem('refreshInterval', '60');
     }
     setRefreshTimer(parseInt(localStorage.getItem('refreshInterval')!));
-  }, []);
 
+    if (userId && secretKey.data == undefined) {
+      dispatch(getSecretKey(userId));
+    }
+  }, []);
   return (
     <Paper className={classes.wrapper}>
       <div className={classes.topWrapper}>

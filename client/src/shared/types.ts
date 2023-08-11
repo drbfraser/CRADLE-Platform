@@ -128,6 +128,13 @@ export type PastPregnancy = {
   pregnancyStartDate: number;
 };
 
+export type SecretKey = {
+  sms_key: string;
+  stale_date: string;
+  expiry_date: string;
+  message: string;
+};
+
 export interface IUser {
   userId: number;
   email: string;

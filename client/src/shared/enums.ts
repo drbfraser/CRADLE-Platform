@@ -82,6 +82,7 @@ export enum EndpointEnum {
   RESET_PASS = '/change_pass',
   FORM_TEMPLATE = '/forms/templates',
   FORM = '/forms/responses',
+  SECRETKEY = '/smskey' /* /user/{USER_ID}/smsKey */,
 }
 
 export enum QRelationEnum {

@@ -44,6 +44,10 @@ export const TopBar = ({
 
   const dispatch = useAppDispatch();
 
+  const navigateSecretKeyDetailPage = (): void => {
+    dispatch(push('/secretKey'));
+  };
+
   const navigateToHelpPage = (): void => {
     setActiveItem(`Resources`);
     dispatch(push(`/resources`));
@@ -120,6 +124,9 @@ export const TopBar = ({
               )}
               <MenuItem onClick={handleChangePassword}>
                 Change Password
+              </MenuItem>
+              <MenuItem onClick={navigateSecretKeyDetailPage}>
+                Secret Key Details
               </MenuItem>
               <MenuItem onClick={handleLogout}>Logout</MenuItem>
             </Menu>
