@@ -7,6 +7,8 @@ from flask_jwt_extended import (
     create_refresh_token,
     jwt_required,
     get_jwt_identity,
+    verify_jwt_in_request,
+    get_jwt_identity,
 )
 from flasgger import swag_from
 from api.decorator import roles_required
@@ -23,7 +25,7 @@ from api.util import (
     filterPairsWithNone,
     getDictionaryOfUserInfo,
     get_user_roles,
-    is_date_expired,
+    is_date_passed,
     validate_user,
     get_user_secret_key,
     update_secret_key_for_user,
@@ -543,42 +545,57 @@ class UserSMSKey(Resource):
     @jwt_required()
     @swag_from("../../specifications/user-sms-key-get.yml", methods=["GET"])
     def get(self, user_id):
+        user_info = get_jwt_identity()
+        if user_info["role"] != "ADMIN" and user_info["userId"] is not user_id:
+            return {
+                "message": "Permission denied, you can only get your sms-key or use the admin account"
+            }, 403
         validate_result = validate_user(user_id)
         if validate_result is not None:
             return validate_result
         sms_key = get_user_secret_key(user_id)
         if not sms_key:
+            return {"message": "NOTFOUND"}, 424
+        elif is_date_passed(sms_key["expiry_date"]):
             return {
-                "message": "Cannot find the sms key, please use POST method to create your sms key"
-            }, 200
-        elif not is_date_expired(sms_key["expiry_date"]):
-            return {
-                "message": "A sms key has been found",
-                "sms_key": sms_key["secret_Key"],
+                "message": "EXPIRED",
                 "expired_date": str(sms_key["expiry_date"]),
+                "stale_date": str(sms_key["stale_date"]),
+                "sms_key": sms_key["secret_Key"],
+            }, 200
+        elif is_date_passed(sms_key["stale_date"]):
+            return {
+                "message": "WARN",
+                "expired_date": str(sms_key["expiry_date"]),
+                "stale_date": str(sms_key["stale_date"]),
+                "sms_key": sms_key["secret_Key"],
             }, 200
         else:
             return {
-                "message": "Your sms key seems to be expired, please try to contact your Admin to update your sms key",
+                "message": "NORMAL",
+                "expired_date": str(sms_key["expiry_date"]),
+                "stale_date": str(sms_key["stale_date"]),
                 "sms_key": sms_key["secret_Key"],
-                "expired_date": str(sms_key["expired_date"]),
             }, 200
 
     @jwt_required()
     @swag_from("../../specifications/user-sms-key-put.yml", methods=["PUT"])
     def put(self, user_id):
+        user_info = get_jwt_identity()
+        if user_info["role"] != "ADMIN" and user_info["userId"] is not user_id:
+            return {
+                "message": "Permission denied, you can only get your sms-key or use the admin account"
+            }, 403
         validate_result = validate_user(user_id)
         if validate_result is not None:
             return validate_result
         sms_key = get_user_secret_key(user_id)
         if not sms_key:
-            return {
-                "message": "Cannot find the sms key, please use POST method to create your sms key"
-            }, 200
+            return {"message": "NOTFOUND"}, 424
         else:
             new_key = update_secret_key_for_user(user_id)
             return {
-                "message": "New key has been updated, detail is showing below: ",
+                "message": "NORMAL",
                 "sms_key": new_key["secret_Key"],
                 "expired_date": str(new_key["expiry_date"]),
                 "stale_date": str(new_key["stale_date"]),
@@ -587,6 +604,11 @@ class UserSMSKey(Resource):
     @jwt_required()
     @swag_from("../../specifications/user-sms-key-post.yml", methods=["POST"])
     def post(self, user_id):
+        user_info = get_jwt_identity()
+        if user_info["role"] != "ADMIN" and user_info["userId"] is not user_id:
+            return {
+                "message": "Permission denied, you can only get your sms-key or use the admin account"
+            }, 403
         validate_result = validate_user(user_id)
         if validate_result is not None:
             return validate_result
@@ -594,12 +616,10 @@ class UserSMSKey(Resource):
         if not sms_key:
             new_key = create_secret_key_for_user(user_id)
             return {
-                "message": "A sms key has been created successfully, detail is showing below: ",
+                "message": "NORMAL",
                 "sms_key": new_key["secret_Key"],
                 "expired_date": str(new_key["expiry_date"]),
                 "stale_date": str(new_key["stale_date"]),
-            }, 200
+            }, 201
         else:
-            return {
-                "message": "This user has already been created the sms key, please try to use GET method to get it",
-            }, 200
+            return {"message": "DUPLICATE"}, 200
