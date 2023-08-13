@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 
 import { APITable } from 'src/shared/components/apiTable';
 import { AutoRefresher } from './AutoRefresher';
-import { EndpointEnum } from 'src/shared/enums';
+import { EndpointEnum, SecretKeyMessage } from 'src/shared/enums';
 import { FilterDialog } from './FilterDialog';
 import Paper from '@mui/material/Paper';
 import { ReferralFilter } from 'src/shared/types';
@@ -18,8 +18,14 @@ import Typography from '@mui/material/Typography';
 import makeStyles from '@mui/styles/makeStyles';
 import { useAppDispatch, useDimensionsContext } from 'src/app/context/hooks';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { SecretKeyState, getSecretKey } from 'src/redux/reducers/secretKey';
+import {
+  SecretKeyState,
+  getSecretKey,
+  updateSecretKey,
+} from 'src/redux/reducers/secretKey';
 import { ReduxState } from 'src/redux/reducers';
+import { reduxStore } from 'src/redux/store';
+import { showMessage } from 'src/redux/actions/messageActions';
 
 export const ReferralsPage = () => {
   const classes = useStyles();
@@ -56,6 +62,22 @@ export const ReferralsPage = () => {
       dispatch(getSecretKey(userId));
     }
   }, []);
+
+  React.useEffect(() => {
+    if (
+      userId &&
+      secretKey.data !== undefined &&
+      secretKey.data.message !== SecretKeyMessage.NORMAL
+    ) {
+      dispatch(updateSecretKey(userId));
+      reduxStore.dispatch(
+        showMessage(
+          "Your key's Stale-date passed, so your key is updated automatically by server"
+        )
+      );
+    }
+  }, [secretKey]);
+
   return (
     <Paper className={classes.wrapper}>
       <div className={classes.topWrapper}>

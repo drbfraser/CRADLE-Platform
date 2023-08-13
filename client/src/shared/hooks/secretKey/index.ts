@@ -1,59 +1,103 @@
-import { useCallback, useState } from 'react';
-import { useAppDispatch } from 'src/app/context/hooks';
-import { SecretKeyState, updateSecretKey } from 'src/redux/reducers/secretKey';
-import { getSecretKeyAsync, updateSecretKeyAsync } from 'src/shared/api';
+import { useCallback, useEffect, useState } from 'react';
+import { SecretKeyState } from 'src/redux/reducers/secretKey';
+import {
+  getSecretKeyAsync,
+  getUsersAsync,
+  updateSecretKeyAsync,
+} from 'src/shared/api';
 import { UserRoleEnum } from 'src/shared/enums';
-import { IUserWithTokens, OrNull, SecretKey } from 'src/shared/types';
+import {
+  IUserWithIndex,
+  IUserWithTokens,
+  OrNull,
+  SecretKey,
+} from 'src/shared/types';
 
 type UseSecretKeyReturn = {
+  users: Pick<IUserWithIndex, 'email' | 'index' | 'userId'>[];
   role?: UserRoleEnum;
   currentSecretKey: SecretKey | undefined;
+  focusUserId: number | undefined;
   setFocusUserId: React.Dispatch<React.SetStateAction<number | undefined>>;
-  getUserSecretKeyHandler: () => Promise<void>;
-  updateSecretKeyHandler: () => Promise<void>;
+  updateSecretKeyHandler: () => void;
 };
 
 export const useSecretKey = (
   secretKey: SecretKeyState,
-  userData: OrNull<Pick<IUserWithTokens, 'role' | 'userId'>>
+  userData: OrNull<Pick<IUserWithTokens, 'role' | 'userId'>>,
+  setShowModal: React.Dispatch<React.SetStateAction<boolean>>
 ): UseSecretKeyReturn => {
-  const dispatch = useAppDispatch();
   const [focusUserId, setFocusUserId] = useState<number | undefined>(
     userData?.userId
   );
   const [currentSecretKey, setCurrentSecretKey] = useState<
     SecretKey | undefined
   >(secretKey.data);
+  const [users, setUsers] = useState<
+    Pick<IUserWithIndex, 'email' | 'index' | 'userId'>[]
+  >([]);
 
-  const getUserSecretKeyHandler = useCallback(async () => {
-    if (userData?.userId === focusUserId || secretKey !== undefined) {
-      setCurrentSecretKey(secretKey.data);
+  useEffect(() => {
+    if (userData?.role === UserRoleEnum.ADMIN) {
+      getUsers();
+    }
+    getUserSecretKey();
+  }, [focusUserId]);
+
+  const getUsers = useCallback(async () => {
+    if (users.length > 0) {
       return;
     }
-    if (userData?.role !== UserRoleEnum.ADMIN || focusUserId === undefined) {
+    const resp: IUserWithIndex[] = await getUsersAsync();
+    setUsers(
+      resp.map((user, index) => ({
+        email: user.email,
+        userId: user.userId,
+        index,
+      }))
+    );
+  }, []);
+
+  const getUserSecretKey = useCallback(async () => {
+    if (focusUserId === undefined) {
+      return;
+    }
+    if (currentSecretKey === undefined) {
+      const response = await getSecretKeyAsync(focusUserId);
+      setCurrentSecretKey({ ...response });
+      return;
+    }
+    if (userData?.role !== UserRoleEnum.ADMIN) {
       return;
     }
     const response = await getSecretKeyAsync(focusUserId);
-    setCurrentSecretKey(response.data);
+    setCurrentSecretKey({ ...response });
   }, [focusUserId]);
 
-  const updateSecretKeyHandler = useCallback(async () => {
+  const updateSecretKeyHandler = () => {
+    updateSecretKey();
+    setShowModal(false);
+  };
+
+  const updateSecretKey = useCallback(async () => {
     if (userData && userData.userId === focusUserId) {
-      dispatch(updateSecretKey(userData.userId));
+      const response = await updateSecretKeyAsync(focusUserId);
+      setCurrentSecretKey({ ...response });
       return;
     }
     if (userData?.role !== UserRoleEnum.ADMIN || focusUserId === undefined) {
       return;
     }
     const response = await updateSecretKeyAsync(focusUserId);
-    setCurrentSecretKey(response.data);
+    setCurrentSecretKey({ ...response });
   }, [currentSecretKey]);
 
   return {
+    users,
     role: userData?.role,
     currentSecretKey,
+    focusUserId,
     setFocusUserId,
-    getUserSecretKeyHandler,
     updateSecretKeyHandler,
   };
 };

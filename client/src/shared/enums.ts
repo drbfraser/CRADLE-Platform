@@ -109,3 +109,10 @@ export enum AnswerTypeEnum {
   COMMENT = 'comment',
   CATEGORY = '',
 }
+
+export enum SecretKeyMessage {
+  NORMAL = 'NORMAL',
+  EXPIRED = 'EXPIRED',
+  WARN = 'WARN',
+  NOTFOUND = 'NOTFOUND',
+}
