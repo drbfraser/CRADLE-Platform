@@ -17,6 +17,7 @@ import data.marshal as marshal
 from flask.cli import FlaskGroup
 import click
 import os
+from api.util import create_secret_key_for_user
 
 cli = FlaskGroup(app)
 
@@ -142,27 +143,6 @@ def seed_test_data(ctx):
         RoleEnum.CHO.value,
         ["+256-417-123456"],
         6,
-    )
-
-    create_test_key(
-        "1",
-        "46820654985a5ef1c680b50b7ee2f27691ee1cea1bfdd37c7ba150f7e4a155f1",
-        "2023-09-04 01:01:16",
-        "2023-08-25 01:01:16",
-    )
-
-    create_test_key(
-        "2",
-        "f7b0a06ab61b5fba1a381e5a2786fc45b1079caee5bb9d90f530654c85e22194",
-        "2023-09-03 01:22:21",
-        "2023-08-24 01:22:21",
-    )
-
-    create_test_key(
-        "3",
-        "6b0719c6fe35bb21174297e7a23cf54c8ab11c5c7e3cbe4a040268520fa97e75",
-        "2024-01-24 06:29:08",
-        "2023-07-24 06:29:08",
     )
 
     print("Creating test patients, readings, referrals, and records...")
@@ -434,9 +414,6 @@ def create_user(email, name, password, hf_name, role, phoneNumbers, user_id):
         healthFacilityName=hf_name,
         password=flask_bcrypt.generate_password_hash(password),
         role=role,
-        secretKey=encryptor.generate_key(
-            email
-        ),  # TODO: change according to the new encryption key generator
     )
 
     new_phone_numbers = []
@@ -452,11 +429,14 @@ def create_user(email, name, password, hf_name, role, phoneNumbers, user_id):
         # Create a new UserPhoneNumber instance and associate it with the user
         new_phone_numbers.append(UserPhoneNumber(number=phoneNumber, user=new_user))
 
+    
+
     try:
         # Add the new user and phone numbers to the database
         db.session.add(new_user)
         db.session.add_all(new_phone_numbers)
         db.session.commit()
+        create_secret_key_for_user(user_id)
         print(f"User '{name}' created successfully.")
         return new_user
     except Exception as e:
@@ -640,29 +620,6 @@ def create_form(patient_id):
     form_schema = FormSchema()
     db.session.add(form_schema.load(form))
     db.session.commit()
-
-
-def create_test_key(
-    # : check the database and format to make sure it works
-    userId,
-    secret_Key,
-    expiry_date,
-    stale_date,
-):
-    sms_key = {
-        "userId": userId,
-        "secret_Key": str(secret_Key),
-        "expiry_date": str(expiry_date),
-        "stale_date": str(stale_date),
-    }
-    schema = SmsSecretKeySchema()
-    try:
-        db.session.add(schema.load(sms_key))
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        print(f"Failed to create sms test key: {e}", e)
-
 
 def getRandomInitials():
     return (
