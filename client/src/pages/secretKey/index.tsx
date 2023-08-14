@@ -25,11 +25,13 @@ import IconButton from '@mui/material/IconButton';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import { UserRoleEnum } from 'src/shared/enums';
+import { Toast } from 'src/shared/components/toast';
 
 const SecretKeyPage: React.FC = () => {
   const classes = useStyles();
   const [showPassword, setShowPassWord] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [updateMessage, setUpdateMessage] = useState<boolean>(false);
   const currentUserData = useSelector(
     ({
       user,
@@ -59,9 +61,15 @@ const SecretKeyPage: React.FC = () => {
     focusUserId,
     setFocusUserId,
     updateSecretKeyHandler,
-  } = useSecretKey(secretKey, currentUserData, setShowModal);
+  } = useSecretKey(secretKey, currentUserData, setShowModal, setUpdateMessage);
   return (
     <>
+      <Toast
+        severity="success"
+        message={'Your key is updated'}
+        open={updateMessage}
+        onClose={() => setUpdateMessage(false)}
+      />
       <Paper className={classes.wrapper}>
         <div className={classes.topWrapper}>
           <div className={classes.title}>
@@ -119,7 +127,7 @@ const SecretKeyPage: React.FC = () => {
                 </Typography>
                 <Typography>
                   {currentSecretKey
-                    ? currentSecretKey.expiry_date.toString().split(' ')[0]
+                    ? currentSecretKey.expiry_date.split(' ')[0]
                     : 'No stale date available'}
                 </Typography>
               </div>
@@ -129,7 +137,7 @@ const SecretKeyPage: React.FC = () => {
                 </Typography>
                 <Typography>
                   {currentSecretKey
-                    ? currentSecretKey.stale_date.toString().split(' ')[0]
+                    ? currentSecretKey.stale_date.split(' ')[0]
                     : 'No stale date available'}
                 </Typography>
               </div>

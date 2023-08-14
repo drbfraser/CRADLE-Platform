@@ -17,8 +17,8 @@ import {
 type UseSecretKeyReturn = {
   users: Pick<IUserWithIndex, 'email' | 'index' | 'userId'>[];
   role?: UserRoleEnum;
-  currentSecretKey: SecretKey | undefined;
-  focusUserId: number | undefined;
+  currentSecretKey?: SecretKey;
+  focusUserId?: number;
   setFocusUserId: React.Dispatch<React.SetStateAction<number | undefined>>;
   updateSecretKeyHandler: () => void;
 };
@@ -26,7 +26,8 @@ type UseSecretKeyReturn = {
 export const useSecretKey = (
   secretKey: SecretKeyState,
   userData: OrNull<Pick<IUserWithTokens, 'role' | 'userId'>>,
-  setShowModal: React.Dispatch<React.SetStateAction<boolean>>
+  setShowModal: React.Dispatch<React.SetStateAction<boolean>>,
+  setUpdateMessage: React.Dispatch<React.SetStateAction<boolean>>
 ): UseSecretKeyReturn => {
   const dispatch = useAppDispatch();
   const [focusUserId, setFocusUserId] = useState<number | undefined>(
@@ -79,6 +80,7 @@ export const useSecretKey = (
   const updateSecretKeyHandler = () => {
     updateSecretKey();
     setShowModal(false);
+    setUpdateMessage(true);
   };
 
   const updateSecretKey = useCallback(async () => {

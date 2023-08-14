@@ -9,6 +9,8 @@ export enum SecretKeyActionEnum {
   GET_SECRETKEY_ERROR = 'secretKey/GET_SECRETKEY_ERROR',
   UPDATE_SECRETKEY = 'secretKey/UPDATE_SECRETKEY',
   UPDATE_SECRETKEY_ERROR = 'secretKey/UPDATE_SECRETKEY_ERROR',
+  CREATE_SECRETKEY = 'secretKey/CREATE_SECRETKEY',
+  CREATE_SECRETKEY_ERROR = 'secretKey/CREATE_SECRETKEY_ERROR',
   REPLACE_SECRETKEY = 'secretKey/REPLACE_SECRETKEY',
 }
 
@@ -31,6 +33,14 @@ type SecretKeyAction =
     }
   | {
       type: SecretKeyActionEnum.UPDATE_SECRETKEY_ERROR;
+      payload: ErrorPayload;
+    }
+  | {
+      type: SecretKeyActionEnum.CREATE_SECRETKEY;
+      payload: { data: SecretKey };
+    }
+  | {
+      type: SecretKeyActionEnum.CREATE_SECRETKEY_ERROR;
       payload: ErrorPayload;
     }
   | {
@@ -83,6 +93,29 @@ export const updateSecretKey = (
   };
 };
 
+export const createSecretKey = (
+  userId: number
+): ((dispatch: Dispatch) => ServerRequestAction) => {
+  return (dispatch: Dispatch) => {
+    return dispatch(
+      serverRequestActionCreator({
+        endpoint: `/user/${userId}` + EndpointEnum.SECRETKEY,
+        method: MethodEnum.POST,
+        onSuccess: ({ data }: { data: SecretKey }): SecretKeyAction => ({
+          type: SecretKeyActionEnum.CREATE_SECRETKEY,
+          payload: { data: data },
+        }),
+        onError: ({ message }: ServerError): SecretKeyAction => {
+          return {
+            type: SecretKeyActionEnum.CREATE_SECRETKEY_ERROR,
+            payload: { message },
+          };
+        },
+      })
+    );
+  };
+};
+
 export const replaceSecretKey = (data: SecretKey) => ({
   type: SecretKeyActionEnum.REPLACE_SECRETKEY,
   payload: { data },
@@ -105,12 +138,14 @@ export const secretKeyReducer = (
   switch (action.type) {
     case SecretKeyActionEnum.GET_SECRETKEY:
     case SecretKeyActionEnum.UPDATE_SECRETKEY:
+    case SecretKeyActionEnum.CREATE_SECRETKEY:
       return {
         ...state,
         data: action.payload.data,
       };
     case SecretKeyActionEnum.GET_SECRETKEY_ERROR:
     case SecretKeyActionEnum.UPDATE_SECRETKEY_ERROR:
+    case SecretKeyActionEnum.CREATE_SECRETKEY_ERROR:
       return {
         ...state,
         error: action.payload.message,

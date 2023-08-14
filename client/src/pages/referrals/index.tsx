@@ -20,6 +20,7 @@ import { useAppDispatch, useDimensionsContext } from 'src/app/context/hooks';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import {
   SecretKeyState,
+  createSecretKey,
   getSecretKey,
   updateSecretKey,
 } from 'src/redux/reducers/secretKey';
@@ -29,6 +30,7 @@ import { Toast } from 'src/shared/components/toast';
 export const ReferralsPage = () => {
   const classes = useStyles();
   const [updateMessage, setUpdateMessage] = useState<boolean>(false);
+  const [createMessage, setCreateMessage] = useState<boolean>(false);
   const [search, setSearch] = useState('');
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState<boolean>(false);
   const [filter, setFilter] = useState<ReferralFilter | undefined>(undefined);
@@ -67,10 +69,20 @@ export const ReferralsPage = () => {
     if (
       userId &&
       secretKey.data !== undefined &&
-      secretKey.data.message !== SecretKeyMessage.NORMAL
+      (secretKey.data.message === SecretKeyMessage.WARN ||
+        secretKey.data.message === SecretKeyMessage.EXPIRED)
     ) {
       dispatch(updateSecretKey(userId));
       setUpdateMessage(true);
+    }
+
+    if (
+      userId &&
+      secretKey.data === undefined &&
+      secretKey.error === SecretKeyMessage.NOTFOUND
+    ) {
+      dispatch(createSecretKey(userId));
+      setCreateMessage(true);
     }
   }, [secretKey]);
 
@@ -83,6 +95,12 @@ export const ReferralsPage = () => {
         }
         open={updateMessage}
         onClose={() => setUpdateMessage(false)}
+      />
+      <Toast
+        severity="warning"
+        message={'Your secret key is created automatically by server'}
+        open={createMessage}
+        onClose={() => setCreateMessage(false)}
       />
       <Paper className={classes.wrapper}>
         <div className={classes.topWrapper}>
