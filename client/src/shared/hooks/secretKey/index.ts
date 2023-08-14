@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { SecretKeyState } from 'src/redux/reducers/secretKey';
+import { useAppDispatch } from 'src/app/context/hooks';
+import { SecretKeyState, replaceSecretKey } from 'src/redux/reducers/secretKey';
 import {
   getSecretKeyAsync,
   getUsersAsync,
@@ -27,6 +28,7 @@ export const useSecretKey = (
   userData: OrNull<Pick<IUserWithTokens, 'role' | 'userId'>>,
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>
 ): UseSecretKeyReturn => {
+  const dispatch = useAppDispatch();
   const [focusUserId, setFocusUserId] = useState<number | undefined>(
     userData?.userId
   );
@@ -90,6 +92,7 @@ export const useSecretKey = (
     }
     const response = await updateSecretKeyAsync(focusUserId);
     setCurrentSecretKey({ ...response });
+    dispatch(replaceSecretKey(response));
   }, [currentSecretKey]);
 
   return {

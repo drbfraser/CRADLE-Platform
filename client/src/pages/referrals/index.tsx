@@ -24,11 +24,11 @@ import {
   updateSecretKey,
 } from 'src/redux/reducers/secretKey';
 import { ReduxState } from 'src/redux/reducers';
-import { reduxStore } from 'src/redux/store';
-import { showMessage } from 'src/redux/actions/messageActions';
+import { Toast } from 'src/shared/components/toast';
 
 export const ReferralsPage = () => {
   const classes = useStyles();
+  const [updateMessage, setUpdateMessage] = useState<boolean>(false);
   const [search, setSearch] = useState('');
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState<boolean>(false);
   const [filter, setFilter] = useState<ReferralFilter | undefined>(undefined);
@@ -70,99 +70,105 @@ export const ReferralsPage = () => {
       secretKey.data.message !== SecretKeyMessage.NORMAL
     ) {
       dispatch(updateSecretKey(userId));
-      reduxStore.dispatch(
-        showMessage(
-          "Your key's Stale-date passed, so your key is updated automatically by server"
-        )
-      );
+      setUpdateMessage(true);
     }
   }, [secretKey]);
 
   return (
-    <Paper className={classes.wrapper}>
-      <div className={classes.topWrapper}>
-        <div className={classes.title}>
-          <h2 className={classes.title}>Referrals</h2>
-          <div>
-            <AutoRefresher
-              setRefresh={setRefresh}
-              refreshTimer={refreshTimer}
-              setIsRefreshDialogOpen={setIsRefreshDialogOpen}
-            />
-          </div>
-        </div>
-
-        {!isBigScreen && <br />}
-        <RefreshDialog
-          onClose={() => {
-            setIsRefreshDialogOpen(false);
-          }}
-          open={isRefreshDialogOpen}
-          isTransformed={isTransformed}
-          setRefreshTimer={setRefreshTimer}
-          refreshTimer={refreshTimer}
-        />
-        <FilterDialog
-          onClose={() => {
-            setIsFilterDialogOpen(false);
-          }}
-          open={isFilterDialogOpen}
-          filter={filter!}
-          setFilter={setFilter}
-          isTransformed={isTransformed}
-          setIsPromptShown={setIsPromptShown}
-        />
-        <div className={isBigScreen ? classes.search : classes.searchThin}>
-          <div>
-            <TextField
-              label="Search"
-              placeholder="Patient ID, Name or Village"
-              variant="outlined"
-              onChange={(e) => debounceSetSearch(e.target.value)}
-            />
-            {isPromptShown && (
-              <div>
-                <Typography color="textSecondary" variant="caption">
-                  Currently filtered to your health facility.
-                  <br />
-                  Click Clear Filter to see all.
-                </Typography>
-              </div>
-            )}
+    <>
+      <Toast
+        severity="error"
+        message={
+          "Your key's Stale-date passed, so your key is updated automatically by server"
+        }
+        open={updateMessage}
+        onClose={() => setUpdateMessage(false)}
+      />
+      <Paper className={classes.wrapper}>
+        <div className={classes.topWrapper}>
+          <div className={classes.title}>
+            <h2 className={classes.title}>Referrals</h2>
+            <div>
+              <AutoRefresher
+                setRefresh={setRefresh}
+                refreshTimer={refreshTimer}
+                setIsRefreshDialogOpen={setIsRefreshDialogOpen}
+              />
+            </div>
           </div>
 
-          <PrimaryButton onClick={() => setIsFilterDialogOpen(true)}>
-            Filter Search
-          </PrimaryButton>
-
-          <CancelButton
-            onClick={() => {
-              setFilter(undefined);
-              setIsPromptShown(false);
+          {!isBigScreen && <br />}
+          <RefreshDialog
+            onClose={() => {
+              setIsRefreshDialogOpen(false);
             }}
-            className="mx-auto">
-            Clear Filter
-          </CancelButton>
-        </div>
-      </div>
+            open={isRefreshDialogOpen}
+            isTransformed={isTransformed}
+            setRefreshTimer={setRefreshTimer}
+            refreshTimer={refreshTimer}
+          />
+          <FilterDialog
+            onClose={() => {
+              setIsFilterDialogOpen(false);
+            }}
+            open={isFilterDialogOpen}
+            filter={filter!}
+            setFilter={setFilter}
+            isTransformed={isTransformed}
+            setIsPromptShown={setIsPromptShown}
+          />
+          <div className={isBigScreen ? classes.search : classes.searchThin}>
+            <div>
+              <TextField
+                label="Search"
+                placeholder="Patient ID, Name or Village"
+                variant="outlined"
+                onChange={(e) => debounceSetSearch(e.target.value)}
+              />
+              {isPromptShown && (
+                <div>
+                  <Typography color="textSecondary" variant="caption">
+                    Currently filtered to your health facility.
+                    <br />
+                    Click Clear Filter to see all.
+                  </Typography>
+                </div>
+              )}
+            </div>
 
-      <div className={classes.table}>
-        <APITable
-          endpoint={EndpointEnum.REFERRALS}
-          search={search}
-          columns={COLUMNS}
-          sortableColumns={SORTABLE_COLUMNS}
-          rowKey={'referralId'}
-          initialSortBy={'dateReferred'}
-          initialSortDir={SortDir.DESC}
-          RowComponent={ReferralRow}
-          isTransformed={isTransformed}
-          referralFilter={filter}
-          refetch={refresh}
-          isReferralListPage={true}
-        />
-      </div>
-    </Paper>
+            <PrimaryButton onClick={() => setIsFilterDialogOpen(true)}>
+              Filter Search
+            </PrimaryButton>
+
+            <CancelButton
+              onClick={() => {
+                setFilter(undefined);
+                setIsPromptShown(false);
+              }}
+              className="mx-auto">
+              Clear Filter
+            </CancelButton>
+          </div>
+        </div>
+
+        <div className={classes.table}>
+          <APITable
+            endpoint={EndpointEnum.REFERRALS}
+            search={search}
+            columns={COLUMNS}
+            sortableColumns={SORTABLE_COLUMNS}
+            rowKey={'referralId'}
+            initialSortBy={'dateReferred'}
+            initialSortDir={SortDir.DESC}
+            RowComponent={ReferralRow}
+            isTransformed={isTransformed}
+            referralFilter={filter}
+            refetch={refresh}
+            isReferralListPage={true}
+          />
+        </div>
+      </Paper>
+    </>
   );
 };
 

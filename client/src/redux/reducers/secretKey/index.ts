@@ -9,6 +9,7 @@ export enum SecretKeyActionEnum {
   GET_SECRETKEY_ERROR = 'secretKey/GET_SECRETKEY_ERROR',
   UPDATE_SECRETKEY = 'secretKey/UPDATE_SECRETKEY',
   UPDATE_SECRETKEY_ERROR = 'secretKey/UPDATE_SECRETKEY_ERROR',
+  REPLACE_SECRETKEY = 'secretKey/REPLACE_SECRETKEY',
 }
 
 type ErrorPayload = {
@@ -31,6 +32,10 @@ type SecretKeyAction =
   | {
       type: SecretKeyActionEnum.UPDATE_SECRETKEY_ERROR;
       payload: ErrorPayload;
+    }
+  | {
+      type: SecretKeyActionEnum.REPLACE_SECRETKEY;
+      payload: { data: SecretKey };
     };
 
 export const getSecretKey = (
@@ -78,6 +83,11 @@ export const updateSecretKey = (
   };
 };
 
+export const replaceSecretKey = (data: SecretKey) => ({
+  type: SecretKeyActionEnum.REPLACE_SECRETKEY,
+  payload: { data },
+});
+
 export type SecretKeyState = {
   data?: SecretKey;
   error?: string;
@@ -104,6 +114,11 @@ export const secretKeyReducer = (
       return {
         ...state,
         error: action.payload.message,
+      };
+    case SecretKeyActionEnum.REPLACE_SECRETKEY:
+      return {
+        ...state,
+        data: action.payload.data,
       };
     default:
       return state;

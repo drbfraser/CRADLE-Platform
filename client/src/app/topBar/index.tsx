@@ -45,6 +45,7 @@ export const TopBar = ({
   const dispatch = useAppDispatch();
 
   const navigateSecretKeyDetailPage = (): void => {
+    setMenuAnchorEl(null);
     dispatch(push('/secretKey'));
   };
 
