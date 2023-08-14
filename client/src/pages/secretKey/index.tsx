@@ -88,29 +88,31 @@ const SecretKeyPage: React.FC = () => {
               <Typography color="text.secondary" gutterBottom>
                 Your SMS Key Details
               </Typography>
-              <div>
-                <PasswordViewer
-                  focused={false}
-                  label="Key"
-                  type={showPassword ? 'text' : 'password'}
-                  fullWidth
-                  value={currentSecretKey?.sms_key}
-                  variant="filled"
-                  aria-readonly
-                  InputProps={{
-                    readOnly: true,
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowPassWord((prev) => !prev)}
-                          edge="end">
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </div>
+              {role === UserRoleEnum.ADMIN && (
+                <div>
+                  <PasswordViewer
+                    focused={false}
+                    label="Key"
+                    type={showPassword ? 'text' : 'password'}
+                    fullWidth
+                    value={currentSecretKey?.sms_key}
+                    variant="filled"
+                    aria-readonly
+                    InputProps={{
+                      readOnly: true,
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowPassWord((prev) => !prev)}
+                            edge="end">
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </div>
+              )}
               <div className={classes.section}>
                 <Typography color="text.secondary" gutterBottom>
                   Expiry date
