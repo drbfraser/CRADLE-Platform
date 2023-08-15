@@ -40,6 +40,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask import Flask
 import os
+import json
 
 
 LOGGER = logging.getLogger(__name__)
@@ -263,7 +264,6 @@ def get_user_data_for_token(user: User) -> dict:
     data["isLoggedIn"] = True
     data["userId"] = user.id
     data["phoneNumbers"] = get_all_phoneNumbers_for_user(user.id)
-
     vhtList = []
     data["supervises"] = []
     if data["role"] == RoleEnum.CHO.value:
@@ -345,6 +345,12 @@ class UserAuthApi(Resource):
 
         user_data["token"] = get_access_token(user_data)
         user_data["refresh"] = get_refresh_token(user_data)
+
+        sms_key = get_user_secret_key(user.id)
+
+        sms_key["stale_date"] = str(sms_key["stale_date"])
+        sms_key["expiry_date"] = str(sms_key["expiry_date"])
+        user_data["smsKey"] = json.dumps(sms_key)
 
         LOGGER.info(f"{user.id} has logged in")
 
