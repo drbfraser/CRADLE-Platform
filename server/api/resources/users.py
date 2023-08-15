@@ -40,6 +40,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask import Flask
 import os
+import re
 
 
 LOGGER = logging.getLogger(__name__)
@@ -623,3 +624,28 @@ class UserSMSKey(Resource):
             }, 201
         else:
             return {"message": "DUPLICATE"}, 200
+
+
+# api/phone/is_relay
+class ValidateRelayPhoneNumber(Resource):
+    # Define the request parser
+    parser = reqparse.RequestParser()
+    parser.add_argument(
+        "phoneNumber", type=str, required=True, help="Phone number is required."
+    )
+
+    @jwt_required()
+    @swag_from("../../specifications/is-phone-number-relay-get.yml", methods=["GET"])
+    def get(self):
+        data = self.parser.parse_args()
+        phone_number = data["phoneNumber"]
+        # remove dashes from the user's entered phone number
+        phone_number = re.sub(r"[-]", "", phone_number)
+
+        phone_relay_stat = crud.is_phone_number_relay(phone_number)
+        if phone_relay_stat == 1:
+            return {"message": "YES"}, 200
+        elif phone_relay_stat == 0:
+            return {"message": "NO"}, 200
+        else:
+            return {"message": "Permission denied"}, 403

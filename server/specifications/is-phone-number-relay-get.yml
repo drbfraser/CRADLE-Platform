@@ -1,0 +1,62 @@
+cc49327f12ef10a0d742217df377b979
+# Specification for GET request on /api/phone/is_admin
+tags:
+  - Phone Validation
+
+security:
+  - jwt: []
+
+parameters:
+  - in: query
+    name: phoneNumber
+    required: true
+    schema:
+      type: string
+    description: The phone number to be validated.
+
+responses:
+  "200":
+    description: Phone number admin validation result
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: Validation result message indicating if the phone number belongs to an admin user or not.
+        examples:
+          AdminPhoneNumber:
+            value:
+              message: YES
+          NonAdminPhoneNumber:
+            value:
+              message: NO
+  "403":
+    description: Permission Denied
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: Permission denied message.
+        examples:
+          PermissionDenied:
+            value:
+              message: Permission denied.
+  "400":
+    description: Bad Request
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: Error message indicating the reason for failure.
+        examples:
+          MissingPhoneNumber:
+            value:
+              message: Phone number is required.
