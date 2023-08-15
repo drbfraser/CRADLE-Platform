@@ -656,17 +656,18 @@ class ValidateRelayPhoneNumber(Resource):
         else:
             return {"message": "Permission denied"}, 403
 
+
 # api/phone/relays
 class RelayPhoneNumbers(Resource):
     # Define the request parser
     parser = reqparse.RequestParser()
-    
+
     @jwt_required()
     @swag_from("../../specifications/relay-phone-number-get.yml", methods=["GET"])
     def get(self):
         data = self.parser.parse_args()
         relay_phone_numbers = crud.get_all_relay_phone_numbers()
-        
+
         if relay_phone_numbers:
             return {"relayPhoneNumbers": relay_phone_numbers}, 200
         else:
