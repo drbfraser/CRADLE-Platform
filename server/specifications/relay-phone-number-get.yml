@@ -1,0 +1,40 @@
+# Specification for GET request on /api/phone/relays
+tags:
+  - Relay Phone Numbers
+
+security:
+  - jwt: []
+
+responses:
+  "200":
+    description: List of relay phone numbers
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            relayPhoneNumbers:
+              type: array
+              items:
+                type: string
+              description: List of phone numbers associated with a relay (admin user).
+        examples:
+          RelayPhoneNumbers:
+            value:
+              relayPhoneNumbers:
+                - "+1234567890"
+                - "+9876543210"
+  "403":
+    description: Permission Denied
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              description: Permission denied message.
+        examples:
+          PermissionDenied:
+            value:
+              message: Permission denied.
