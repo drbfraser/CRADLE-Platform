@@ -82,6 +82,7 @@ export enum EndpointEnum {
   RESET_PASS = '/change_pass',
   FORM_TEMPLATE = '/forms/templates',
   FORM = '/forms/responses',
+  SECRETKEY = '/smskey' /* /user/{USER_ID}/smsKey */,
 }
 
 export enum QRelationEnum {
@@ -107,4 +108,11 @@ export enum AnswerTypeEnum {
   MCID_ARRAY = 'mcidArray',
   COMMENT = 'comment',
   CATEGORY = '',
+}
+
+export enum SecretKeyMessage {
+  NORMAL = 'NORMAL',
+  EXPIRED = 'EXPIRED',
+  WARN = 'WARN',
+  NOTFOUND = 'NOTFOUND',
 }

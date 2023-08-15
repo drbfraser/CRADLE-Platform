@@ -559,21 +559,21 @@ class UserSMSKey(Resource):
         elif is_date_passed(sms_key["expiry_date"]):
             return {
                 "message": "EXPIRED",
-                "expired_date": str(sms_key["expiry_date"]),
+                "expiry_date": str(sms_key["expiry_date"]),
                 "stale_date": str(sms_key["stale_date"]),
                 "sms_key": sms_key["secret_Key"],
             }, 200
         elif is_date_passed(sms_key["stale_date"]):
             return {
                 "message": "WARN",
-                "expired_date": str(sms_key["expiry_date"]),
+                "expiry_date": str(sms_key["expiry_date"]),
                 "stale_date": str(sms_key["stale_date"]),
                 "sms_key": sms_key["secret_Key"],
             }, 200
         else:
             return {
                 "message": "NORMAL",
-                "expired_date": str(sms_key["expiry_date"]),
+                "expiry_date": str(sms_key["expiry_date"]),
                 "stale_date": str(sms_key["stale_date"]),
                 "sms_key": sms_key["secret_Key"],
             }, 200
@@ -597,7 +597,7 @@ class UserSMSKey(Resource):
             return {
                 "message": "NORMAL",
                 "sms_key": new_key["secret_Key"],
-                "expired_date": str(new_key["expiry_date"]),
+                "expiry_date": str(new_key["expiry_date"]),
                 "stale_date": str(new_key["stale_date"]),
             }, 200
 
@@ -618,7 +618,7 @@ class UserSMSKey(Resource):
             return {
                 "message": "NORMAL",
                 "sms_key": new_key["secret_Key"],
-                "expired_date": str(new_key["expiry_date"]),
+                "expiry_date": str(new_key["expiry_date"]),
                 "stale_date": str(new_key["stale_date"]),
             }, 201
         else:
