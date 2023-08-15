@@ -53,8 +53,11 @@ def decrypt(combined, key):
     except:
         raise ValueError("Invalid Key")
 
+
 class AES_pkcs5:
-    def __init__(self, key: str, mode: AES.MODE_CBC = AES.MODE_CBC, block_size: int = 16):
+    def __init__(
+        self, key: str, mode: AES.MODE_CBC = AES.MODE_CBC, block_size: int = 16
+    ):
         self.key = self.hex2bytes(key)
         self.mode = mode
         self.block_size = block_size
@@ -74,11 +77,11 @@ class AES_pkcs5:
 
     # pkcs5 - unpadding
     def unpad(self, byte_array: bytearray):
-        return byte_array[:-ord(byte_array[-1:])]
+        return byte_array[: -ord(byte_array[-1:])]
 
     def setKey(self, key: str):
         # convert to bytes
-        key = key.encode('utf-8')
+        key = key.encode("utf-8")
         # get the sha1 method - for hashing
         sha1 = hashlib.sha1
         # and use digest and take the last 16 bytes
@@ -88,7 +91,7 @@ class AES_pkcs5:
         return key
 
     def encrypt(self, message: str, iv) -> str:
-        message = message.encode('utf-8')
+        message = message.encode("utf-8")
         # pad the message - with pkcs5 style
         padded = self.pad(message)
         iv = self.hex2bytes(iv)

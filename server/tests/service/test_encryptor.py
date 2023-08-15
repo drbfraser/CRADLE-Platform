@@ -22,6 +22,7 @@ def test_encryptor(message):
     assert decrypted_data == message
     # assert decrypted_data.decode("utf-8") == message
 
+
 #
 # @pytest.mark.parametrize("message", [("test")])
 # def test_encryptor_wrong_key(message):

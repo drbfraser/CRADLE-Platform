@@ -32,7 +32,7 @@ def validate_encrypted_body(body: dict) -> Optional[str]:
     :return: An error message if body in invalid in some way. None otherwise.
     """
     # required_keys = ["requestNumber", "method", "endpoint"]
-    required_keys = [ "method", "endpoint"]
+    required_keys = ["method", "endpoint"]
 
     error_message = required_keys_present(body, required_keys)
     if error_message is not None:

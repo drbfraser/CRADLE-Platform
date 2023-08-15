@@ -77,7 +77,7 @@ def create_flask_response(code: int, body: str, user: User) -> Response:
     response_dict = {"code": code, "body": body}
 
     response_json = json.dumps(response_dict)
-    print("reponse---------------",response_json)
+    print("reponse---------------", response_json)
     compressed_data = compressor.compress_from_string(response_json)
     encrypted_data = encryptor.encrypt(compressed_data, user.secretKey)
 
@@ -115,7 +115,7 @@ def sms_relay_procedure():
 
     encrypted_data = json_request["encryptedData"]
     print(encrypted_data)
-    iv = encrypted_data[0: 32]
+    iv = encrypted_data[0:32]
     print("iv------------", iv)
     encrypted_message = encrypted_data[32:]
     print(encrypted_message)
@@ -141,7 +141,7 @@ def sms_relay_procedure():
 
     # Object Parsing
     string_data = data.decode("utf-8")
-    print("full http request should be-------------------",string_data)
+    print("full http request should be-------------------", string_data)
     json_dict = json.loads(string_data)
 
     error = sms_relay.validate_encrypted_body(json_dict)
