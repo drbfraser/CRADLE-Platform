@@ -21,6 +21,7 @@ import { SingleReasonFormPage } from 'src/pages/singleReasonForm';
 import { StatisticsPage } from 'src/pages/statistics';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import { makeUniqueId } from 'src/shared/utils';
+import SecretKeyPage from 'src/pages/secretKey';
 
 export type AppRoute = {
   component: React.ComponentType<any>;
@@ -221,6 +222,16 @@ export const appRoutes: Array<AppRoute> = [
     title: `History`,
     private: true,
     to: `/history/:patientId/:patientName/:patientSex`,
+  },
+  {
+    component: SecretKeyPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    name: 'SecretKey',
+    title: 'SecretKey',
+    private: true,
+    to: '/secretkey',
   },
   {
     component: LoginPage,

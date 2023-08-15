@@ -677,3 +677,23 @@ export const getAllStatisticsAsync = async (
 
   return response.json();
 };
+
+export const getSecretKeyAsync = async (userId: number) => {
+  const response = await apiFetch(
+    API_URL + `/user/${userId}` + EndpointEnum.SECRETKEY,
+    {
+      method: MethodEnum.GET,
+    }
+  );
+  return response.json();
+};
+
+export const updateSecretKeyAsync = async (userId: number) => {
+  const response = await apiFetch(
+    API_URL + `/user/${userId}` + EndpointEnum.SECRETKEY,
+    {
+      method: MethodEnum.PUT,
+    }
+  );
+  return response.json();
+};
