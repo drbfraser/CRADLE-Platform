@@ -11,7 +11,7 @@ import { initialState, validationSchema } from './state';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import Box from '@mui/material/Box';
-import Divider from '@mui/material/Divider';
+import AddIcon from '@mui/icons-material/Add';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { PrimaryButton } from 'src/shared/components/Button';
@@ -51,13 +51,15 @@ export const CustomizedFormWQuestions = ({
     number | null
   >(null);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
+  const [individualEditPopupOpen, setIndividualEditPopupOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const getInputLanguages = (question: TQuestion) => {
     return question.questionLangVersions.map((item) => item.lang);
   };
 
   const handleEditField = (question: TQuestion) => {
     setSelectedQuestionIndex(question.questionIndex);
-    setEditPopupOpen(true);
+    setIndividualEditPopupOpen(true);
   };
 
   const handleDeleteField = (question: TQuestion) => {
@@ -121,28 +123,23 @@ export const CustomizedFormWQuestions = ({
     });
   };
 
-  let formTitle: string;
-  switch (renderState) {
-    case FormRenderStateEnum.EDIT:
-      formTitle = 'Update Form';
-      break;
-    case FormRenderStateEnum.VIEW:
-      formTitle = 'Edit Form';
-      break;
-    case FormRenderStateEnum.FIRST_SUBMIT:
-      formTitle = 'Submit Form';
-      break;
-    case FormRenderStateEnum.SUBMIT_TEMPLATE:
-      formTitle = 'Submit Form Template';
-      break;
-    default:
-      formTitle = 'error!!!!!';
-      break;
-  }
-
   return (
     <>
-      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
+      <APIErrorToast
+        open={submitError}
+        onClose={() => setSubmitError(false)}
+        errorMessage={errorMessage}
+      />
+      <EditField
+        open={editPopupOpen}
+        onClose={() => {
+          setEditPopupOpen(false);
+        }}
+        inputLanguages={languages}
+        setForm={setForm}
+        questionsArr={fm.questions}
+        visibilityToggle={false}
+      />
       <Formik
         initialValues={initialState as any}
         validationSchema={validationSchema}
@@ -180,9 +177,6 @@ export const CustomizedFormWQuestions = ({
                     )}
                   />
                 </Grid>
-                <Divider />
-              </Grid>
-              <Grid container spacing={3} alignItems="center">
                 {FormQuestions({
                   questions: questions,
                   renderState: renderState,
@@ -247,10 +241,10 @@ export const CustomizedFormWQuestions = ({
                       </Grid>
                       <EditField
                         key={`EditField-popup-${question.questionIndex}`}
-                        open={isQuestionSelected && editPopupOpen}
+                        open={isQuestionSelected && individualEditPopupOpen}
                         onClose={() => {
                           setSelectedQuestionIndex(null);
-                          setEditPopupOpen(false);
+                          setIndividualEditPopupOpen(false);
                         }}
                         inputLanguages={getInputLanguages(question)}
                         setForm={setForm}
@@ -265,16 +259,38 @@ export const CustomizedFormWQuestions = ({
                     </Fragment>
                   );
                 })}
+                <Grid item xs={12} sm={6}>
+                  <PrimaryButton
+                    className={classes.button}
+                    // disabled={language.length == 0}
+                    onClick={() => {
+                      if (languages.length != 0) {
+                        setEditPopupOpen(true);
+                      } else {
+                        setSubmitError(true);
+                        setErrorMessage(
+                          'Select at least one language before creating a field'
+                        );
+                      }
+                    }}>
+                    <AddIcon />
+                    {'Add Field'}
+                  </PrimaryButton>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <PrimaryButton
+                    className={[classes.right, classes.button].join(' ')}
+                    onClick={() => {
+                      setIsSubmitPopupOpen(true);
+                    }}
+                    type="button"
+                    disabled={
+                      !(fm && fm.questions && fm!.questions!.length > 0)
+                    }>
+                    {'Submit Template'}
+                  </PrimaryButton>
+                </Grid>
               </Grid>
-              <PrimaryButton
-                className={classes.right}
-                onClick={() => {
-                  setIsSubmitPopupOpen(true);
-                }}
-                type="button"
-                disabled={questions.length === 0}>
-                {formTitle}
-              </PrimaryButton>
               <SubmitFormTemplateDialog
                 open={isSubmitPopupOpen}
                 onClose={() => setIsSubmitPopupOpen(false)}
@@ -289,10 +305,13 @@ export const CustomizedFormWQuestions = ({
 };
 
 const useStyles = makeStyles({
+  button: {
+    marginTop: '10px',
+    marginLeft: 10,
+  },
   right: {
     display: 'flex',
     marginRight: '0px',
     marginLeft: 'auto',
-    marginTop: '10px',
   },
 });
