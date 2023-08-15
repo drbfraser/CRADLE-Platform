@@ -43,7 +43,6 @@ import os
 import json
 
 
-
 LOGGER = logging.getLogger(__name__)
 
 # Error messages
@@ -348,7 +347,7 @@ class UserAuthApi(Resource):
         user_data["refresh"] = get_refresh_token(user_data)
 
         sms_key = get_user_secret_key(user.id)
-        
+
         sms_key["stale_date"] = str(sms_key["stale_date"])
         sms_key["expiry_date"] = str(sms_key["expiry_date"])
         user_data["smsKey"] = json.dumps(sms_key)

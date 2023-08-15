@@ -429,8 +429,6 @@ def create_user(email, name, password, hf_name, role, phoneNumbers, user_id):
         # Create a new UserPhoneNumber instance and associate it with the user
         new_phone_numbers.append(UserPhoneNumber(number=phoneNumber, user=new_user))
 
-    
-
     try:
         # Add the new user and phone numbers to the database
         db.session.add(new_user)
@@ -620,6 +618,7 @@ def create_form(patient_id):
     form_schema = FormSchema()
     db.session.add(form_schema.load(form))
     db.session.commit()
+
 
 def getRandomInitials():
     return (
