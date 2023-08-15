@@ -1130,6 +1130,18 @@ def is_phone_number_relay(phone_number):
     except:
         return -1
 
+def get_all_relay_phone_numbers():
+    try:
+        admin_phone_numbers = [
+            re.sub(r"[-]", "", admin_phone_number.number)
+            for admin_phone_number in UserPhoneNumber.query.join(UserPhoneNumber.user)
+            .filter_by(role=RoleEnum.ADMIN.value)
+            .all()
+        ]
+        return admin_phone_numbers
+    except:
+        return None
+
 
 # ~~~~~~~~~~~~~~~~~~~~~~~ Helper Functions ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 

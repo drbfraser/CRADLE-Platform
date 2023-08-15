@@ -289,4 +289,8 @@ def init(api):
 
     api.add_resource(ValidateRelayPhoneNumber, "/api/phone/is_relay")  # [GET]
 
+    api.add_resource(RelayPhoneNumbers, "/api/phone/relays")  # [GET]
+
+    
+
     new_api.init_routes(api)
