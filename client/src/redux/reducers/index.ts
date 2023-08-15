@@ -10,12 +10,14 @@ import { RouterState } from 'connected-react-router';
 import { combineReducers } from 'redux';
 import { connectRouter } from 'connected-react-router';
 import { messageReducer } from '../reducers/message/messageReducer';
+import { SecretKeyState, secretKeyReducer } from './secretKey';
 
 export type ReduxState = {
   healthFacilities: HealthFacilitiesState;
   user: UserState;
   router: RouterState;
   message: MessageState;
+  secretKey: SecretKeyState;
 };
 
 const createRootReducer = (history: History) => {
@@ -24,6 +26,7 @@ const createRootReducer = (history: History) => {
     router: connectRouter(history),
     user: userReducer,
     message: messageReducer,
+    secretKey: secretKeyReducer,
   });
 };
 
