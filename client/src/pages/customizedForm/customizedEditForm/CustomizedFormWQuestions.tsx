@@ -81,7 +81,11 @@ export const CustomizedFormWQuestions = ({
 
     // reset indices
     questions.forEach((q, i) => {
-      if (q.visibleCondition && q.visibleCondition[0].qidx == index) {
+      if (
+        q.visibleCondition &&
+        q.visibleCondition[0] &&
+        q.visibleCondition[0].qidx == index
+      ) {
         q.visibleCondition = [];
       }
       q.questionIndex = i;
