@@ -171,6 +171,7 @@ export const saveFormTemplateWithFileAsync = async (file: File) => {
 export const submitFormTemplateAsync = async (
   form: FormTemplateWithQuestions
 ) => {
+  console.log(form.id)
   return apiFetch(
     API_URL + EndpointEnum.FORM_TEMPLATES,
     {
@@ -199,14 +200,14 @@ export const getFormTemplateLangAsync = async (
 ) =>
   (
     await apiFetch(
-      API_URL + EndpointEnum.FORM_TEMPLATE + `/${formTemplateId}?lang=${lang}`
+      API_URL + EndpointEnum.FORM_TEMPLATES + `/${formTemplateId}?lang=${lang}`
     )
   ).json();
 
 export const getFormTemplateLangsAsync = async (formTemplateId: string) =>
   (
     await apiFetch(
-      API_URL + EndpointEnum.FORM_TEMPLATE + `/${formTemplateId}/versions`
+      API_URL + EndpointEnum.FORM_TEMPLATES + `/${formTemplateId}/versions`
     )
   ).json();
 
@@ -216,7 +217,7 @@ export const getFormTemplateCsvAsync = async (
 ): Promise<Blob> => {
   const response = await apiFetch(
     API_URL +
-      EndpointEnum.FORM_TEMPLATE +
+      EndpointEnum.FORM_TEMPLATES +
       `/${formTemplateId}/versions/${version}/csv`
   );
 

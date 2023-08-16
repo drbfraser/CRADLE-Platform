@@ -80,7 +80,6 @@ export enum EndpointEnum {
   USER_VHTS = '/user/vhts',
   CHANGE_PASS = '/user/current/change_pass',
   RESET_PASS = '/change_pass',
-  FORM_TEMPLATE = '/forms/templates',
   FORM = '/forms/responses',
   SECRETKEY = '/smskey' /* /user/{USER_ID}/smsKey */,
 }
