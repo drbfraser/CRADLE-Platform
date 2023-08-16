@@ -177,7 +177,7 @@ export const CustomizedFormWQuestions = ({
                     />
                   </Grid>
                 </Grid>
-                <Grid item container>
+                <Grid item container spacing={3}>
                   {FormQuestions({
                     questions: questions,
                     renderState: renderState,
