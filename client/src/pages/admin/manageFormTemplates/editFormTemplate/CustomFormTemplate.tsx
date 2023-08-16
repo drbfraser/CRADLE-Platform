@@ -16,9 +16,7 @@ import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import AddIcon from '@mui/icons-material/Add';
 import { PrimaryButton } from '../../../../shared/components/Button';
-import EditField from './EditField';
 import { FormRenderStateEnum } from 'src/shared/enums';
 import { LanguageModalProps } from 'src/shared/types';
 import { FormTemplate } from 'src/shared/types';
@@ -40,8 +38,6 @@ export const initialState = {
 export const CustomFormTemplate = () => {
   const [submitError, setSubmitError] = useState(false);
   const [language, setLanguage] = useState<string[]>(['English']);
-  const [editPopupOpen, setEditPopupOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
 
   const classes = useStyles();
 
@@ -67,21 +63,7 @@ export const CustomFormTemplate = () => {
         {/*TODO: Allow template name to change depending on if we are editing a new or existing form template*/}
         <Typography variant="h4">{'Create New Template'}</Typography>
       </div>
-      <APIErrorToast
-        open={submitError}
-        onClose={() => setSubmitError(false)}
-        errorMessage={errorMessage}
-      />
-      <EditField
-        open={editPopupOpen}
-        onClose={() => {
-          setEditPopupOpen(false);
-        }}
-        inputLanguages={language}
-        setForm={setForm}
-        questionsArr={form.questions}
-        visibilityToggle={false}
-      />
+      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <Formik
         initialValues={initialState}
         onSubmit={() => {
@@ -97,26 +79,10 @@ export const CustomFormTemplate = () => {
             <Paper>
               <Box p={4} pt={6} m={2}>
                 <Grid container spacing={3}>
-                  <h2>Custom Form Properties</h2>
-                  <PrimaryButton
-                    className={classes.button}
-                    // disabled={language.length == 0}
-                    onClick={() => {
-                      if (language.length != 0) {
-                        setEditPopupOpen(true);
-                      } else {
-                        setSubmitError(true);
-                        setErrorMessage(
-                          'Select at least one language before creating a field'
-                        );
-                      }
-                    }}>
-                    <AddIcon />
-                    {'Create New Field'}
-                  </PrimaryButton>
-                </Grid>
-                <Grid container spacing={3}>
-                  <Grid item sm={12} md={6} lg={4}>
+                  <Grid item xs={12}>
+                    <h2>Custom Form Properties</h2>
+                  </Grid>
+                  <Grid item xs={12} md={4}>
                     <Field
                       label={'Title'}
                       component={TextField}
@@ -136,7 +102,7 @@ export const CustomFormTemplate = () => {
                       }}
                     />
                   </Grid>
-                  <Grid item sm={12} md={6} lg={4}>
+                  <Grid item xs={12} md={4}>
                     <Field
                       label={'Version'}
                       component={TextField}
@@ -154,7 +120,7 @@ export const CustomFormTemplate = () => {
                       }}
                     />
                   </Grid>
-                  <Grid item sm={12} md={6} lg={4}>
+                  <Grid item xs={12} md={4}>
                     <LanguageModal
                       language={language}
                       setLanguage={setLanguage}
@@ -163,14 +129,12 @@ export const CustomFormTemplate = () => {
                 </Grid>
               </Box>
             </Paper>
-            {form && form.questions && form!.questions!.length > 0 && (
-              <CustomizedFormWQuestions
-                fm={form}
-                languages={language}
-                renderState={FormRenderStateEnum.SUBMIT_TEMPLATE}
-                setForm={setForm}
-              />
-            )}
+            <CustomizedFormWQuestions
+              fm={form}
+              languages={language}
+              renderState={FormRenderStateEnum.SUBMIT_TEMPLATE}
+              setForm={setForm}
+            />
           </Form>
         )}
       </Formik>

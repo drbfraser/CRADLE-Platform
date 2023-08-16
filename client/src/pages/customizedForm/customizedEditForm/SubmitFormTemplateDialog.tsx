@@ -31,12 +31,11 @@ const SubmitFormTemplateDialog = ({ open, onClose, form }: IProps) => {
 
     try {
       await submitFormTemplateAsync(form);
-
       setSubmitSuccess(true);
-      onClose();
     } catch (e) {
       setSubmitError(true);
     }
+    onClose();
   };
 
   return (
