@@ -4,6 +4,7 @@ import {
   Dispatch,
   Fragment,
   SetStateAction,
+  useEffect,
   useReducer,
   useState,
 } from 'react';
@@ -25,8 +26,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import EditField from 'src/pages/admin/manageFormTemplates/editFormTemplate/EditField';
 import { Autocomplete, AutocompleteRenderInputParams } from 'formik-mui';
-import { CustomizedFormField } from '../customizedFormHeader/state';
-import { TextField } from '@mui/material';
+import { TextField, Typography } from '@mui/material';
 interface IProps {
   fm: FormTemplateWithQuestions;
   languages: string[];
@@ -53,6 +53,36 @@ export const CustomizedFormWQuestions = ({
   const [errorMessage, setErrorMessage] = useState('');
   const getInputLanguages = (question: TQuestion) => {
     return question.questionLangVersions.map((item) => item.lang);
+  };
+
+  useEffect(() => {
+    updateAddedQuestions(languages);
+    setSelectedLanguage(languages[0]);
+    upd();
+  }, [languages]);
+
+  const updateAddedQuestions = (languages: string[]) => {
+    questions.forEach((question) => {
+      const currentLanguages = question.questionLangVersions.map(
+        (version) => version.lang
+      );
+
+      // if language is removed
+      question.questionLangVersions = question.questionLangVersions.filter(
+        (v) => languages.includes(v.lang)
+      );
+
+      languages.forEach((language) => {
+        // if language is added
+        if (!currentLanguages.includes(language)) {
+          question.questionLangVersions.push({
+            lang: language,
+            mcOptions: [],
+            questionText: '',
+          });
+        }
+      });
+    });
   };
 
   const handleEditField = (question: TQuestion) => {
@@ -125,6 +155,27 @@ export const CustomizedFormWQuestions = ({
     });
   };
 
+  const getEmptyLanguages = (question: TQuestion) => {
+    const emptyLangs = question.questionLangVersions
+      .filter((qlv) => qlv.questionText === '')
+      .map((qlv) => qlv.lang);
+
+    return emptyLangs.join(', ');
+  };
+
+  const missingFields = (question: TQuestion): boolean => {
+    const emptyLanguageArray = getEmptyLanguages(question).split(', ');
+    return emptyLanguageArray.length !== 0 && emptyLanguageArray[0] !== '';
+  };
+
+  const emptyLanguageFieldsInForm = (): boolean => {
+    let emptyLangs = false;
+    questions.forEach((q) => {
+      emptyLangs = emptyLangs || missingFields(q);
+    });
+    return emptyLangs;
+  };
+
   return (
     <>
       <APIErrorToast
@@ -162,7 +213,7 @@ export const CustomizedFormWQuestions = ({
                       value={selectedLanguage}
                       component={Autocomplete}
                       fullWidth
-                      name={CustomizedFormField.lang}
+                      name={languages[0]}
                       options={languages}
                       disableClearable={true}
                       onChange={(event: any, value: string) => {
@@ -171,7 +222,7 @@ export const CustomizedFormWQuestions = ({
                       renderInput={(params: AutocompleteRenderInputParams) => (
                         <TextField
                           {...params}
-                          name={CustomizedFormField.lang}
+                          name={languages[0]}
                           helperText={''}
                           label="View Language"
                           variant="outlined"
@@ -244,6 +295,14 @@ export const CustomizedFormWQuestions = ({
                             </IconButton>
                           </Grid>
                         </Grid>
+                        <Grid container pl={3}>
+                          {missingFields(question) && (
+                            <Typography style={{ color: 'red' }}>
+                              *Edit this field to add text for:{' '}
+                              {getEmptyLanguages(question)}.
+                            </Typography>
+                          )}
+                        </Grid>
                         <EditField
                           key={`EditField-popup-${question.questionIndex}`}
                           open={isQuestionSelected && individualEditPopupOpen}
@@ -289,7 +348,8 @@ export const CustomizedFormWQuestions = ({
                       }}
                       type="button"
                       disabled={
-                        !(fm && fm.questions && fm!.questions!.length > 0)
+                        !(fm?.questions?.length > 0) ||
+                        emptyLanguageFieldsInForm()
                       }>
                       {'Submit Template'}
                     </PrimaryButton>

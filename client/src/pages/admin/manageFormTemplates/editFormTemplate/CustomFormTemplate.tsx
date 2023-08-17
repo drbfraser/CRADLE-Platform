@@ -144,6 +144,8 @@ export const CustomFormTemplate = () => {
 
 const LanguageModal = ({ language, setLanguage }: LanguageModalProps) => {
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [showLanguageWarning, setShowLanguageWarning] =
+    useState<boolean>(false);
   const languageOptions = getLanguages();
 
   const classes = useStyles();
@@ -160,7 +162,13 @@ const LanguageModal = ({ language, setLanguage }: LanguageModalProps) => {
     } else {
       setLanguage((prevState) => {
         const newLanguage = prevState.filter((language) => language !== target);
-        return [...newLanguage];
+        // making sure at least one language is selected
+        if (newLanguage.length === 0) {
+          setShowLanguageWarning(true);
+          return prevState;
+        } else {
+          return [...newLanguage];
+        }
       });
     }
   };
@@ -216,6 +224,23 @@ const LanguageModal = ({ language, setLanguage }: LanguageModalProps) => {
             className={classes.button}
             onClick={() => setShowModal(false)}>
             Close
+          </PrimaryButton>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        onClose={() => setShowLanguageWarning(false)}
+        open={showLanguageWarning}>
+        <DialogTitle>Must have at least one language</DialogTitle>
+        <DialogContent>
+          <Typography>
+            You must select at least one language for this form.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <PrimaryButton
+            className={classes.button}
+            onClick={() => setShowLanguageWarning(false)}>
+            OK
           </PrimaryButton>
         </DialogActions>
       </Dialog>
