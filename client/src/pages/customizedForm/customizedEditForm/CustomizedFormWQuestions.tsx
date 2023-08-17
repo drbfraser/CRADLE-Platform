@@ -4,6 +4,7 @@ import {
   Dispatch,
   Fragment,
   SetStateAction,
+  useEffect,
   useReducer,
   useState,
 } from 'react';
@@ -53,6 +54,36 @@ export const CustomizedFormWQuestions = ({
   const [errorMessage, setErrorMessage] = useState('');
   const getInputLanguages = (question: TQuestion) => {
     return question.questionLangVersions.map((item) => item.lang);
+  };
+
+  useEffect(() => {
+    console.log('language changed');
+    console.log(languages);
+    updateAddedQuestions(languages);
+  }, [languages]);
+
+  const updateAddedQuestions = (languages: string[]) => {
+    questions.forEach((question) => {
+      const currentLanguages = question.questionLangVersions.map(
+        (version) => version.lang
+      );
+
+      // if language is removed
+      question.questionLangVersions = question.questionLangVersions.filter(
+        (v) => languages.includes(v.lang)
+      );
+
+      languages.forEach((language) => {
+        // if language is added
+        if (!currentLanguages.includes(language)) {
+          question.questionLangVersions.push({
+            lang: language,
+            mcOptions: [],
+            questionText: '',
+          });
+        }
+      });
+    });
   };
 
   const handleEditField = (question: TQuestion) => {
