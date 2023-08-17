@@ -309,43 +309,32 @@ export const FormQuestions = ({
           <Grid
             item
             sm={12}
-            md={renderState == FormRenderStateEnum.VIS_COND ? 12 : 6}
-            lg={renderState == FormRenderStateEnum.VIS_COND ? 12 : 4}>
+            md={renderState === FormRenderStateEnum.VIS_COND ? 12 : 6}
+            lg={renderState === FormRenderStateEnum.VIS_COND ? 12 : 4}>
             <FormLabel>
               <Typography variant="h6">
-                {`${text}`}
-                {required ? ' *' : ''}
+                {`${text}${required ? ' *' : ''}`}
                 {isQuestion(question)
                   ? generateValidationLine(question, answer, type, required)
                   : null}
               </Typography>
             </FormLabel>
-            {mcOptions!.map((McOption, index) => (
+            {mcOptions?.map((mcOption) => (
               <FormControlLabel
                 control={
                   <Checkbox
-                    value={McOption.opt}
-                    defaultChecked={answer.val?.indexOf(McOption.opt) > -1}
+                    value={mcOption.opt}
+                    checked={answer.val?.includes(mcOption.opt)}
                     onChange={(event, checked) => {
-                      if (checked) {
-                        const new_val = [...answer.val, event.target.value];
-                        updateAnswersByValue(question.questionIndex, new_val);
-                      } else {
-                        const original_val = [...answer.val];
-                        const i = original_val.indexOf(event.target.value);
-                        if (i > -1) {
-                          original_val.splice(i, 1);
-                        }
-                        updateAnswersByValue(
-                          question.questionIndex,
-                          original_val
-                        );
-                      }
+                      const newValue = checked
+                        ? [...answer.val, mcOption.opt]
+                        : answer.val.filter((val: any) => val !== mcOption.opt);
+                      updateAnswersByValue(question.questionIndex, newValue);
                     }}
                   />
                 }
-                label={McOption.opt}
-                key={index}
+                label={mcOption.opt}
+                key={mcOption.opt} // Use a unique key
                 disabled={
                   renderState === FormRenderStateEnum.VIEW ||
                   renderState === FormRenderStateEnum.SUBMIT_TEMPLATE
