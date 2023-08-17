@@ -19,7 +19,6 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import { PrimaryButton } from '../../../../shared/components/Button';
 import { FormRenderStateEnum } from 'src/shared/enums';
 import { LanguageModalProps } from 'src/shared/types';
-import { FormTemplate } from 'src/shared/types';
 import { useLocation } from 'react-router-dom';
 import { CustomizedFormWQuestions } from 'src/pages/customizedForm/customizedEditForm/CustomizedFormWQuestions';
 
@@ -41,14 +40,22 @@ export const CustomFormTemplate = () => {
 
   const classes = useStyles();
 
-  const location = useLocation<FormTemplate>();
+  const location = useLocation<FormTemplateWithQuestions>();
   const targetFrom = location.state;
 
-  const [form, setForm] = useState<FormTemplateWithQuestions>({
-    classification: { name: 'string' },
-    version: 'string',
-    questions: [],
-  });
+  const [form, setForm] = useState<FormTemplateWithQuestions>(
+    targetFrom
+      ? {
+          classification: targetFrom.classification,
+          version: targetFrom.version,
+          questions: targetFrom.questions,
+        }
+      : {
+          classification: { name: 'string' },
+          version: 'string',
+          questions: [],
+        }
+  );
 
   return (
     <>
@@ -88,9 +95,7 @@ export const CustomFormTemplate = () => {
                       component={TextField}
                       required={true}
                       variant="outlined"
-                      defaultValue={
-                        targetFrom ? targetFrom.classification.name : ''
-                      }
+                      defaultValue={targetFrom?.classification?.name ?? ''}
                       fullWidth
                       multiline
                       inputProps={{

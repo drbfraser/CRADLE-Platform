@@ -17,7 +17,11 @@ import ArchiveTemplateDialog from './ArchiveTemplateDialog';
 import { CloudDownloadOutlined, Edit } from '@mui/icons-material';
 import UploadTemplate from './UploadTemplate';
 import DeleteForever from '@mui/icons-material/DeleteForever';
-import { FormTemplate } from 'src/shared/types';
+import {
+  FormTemplate,
+  FormTemplateWithQuestions,
+  TQuestion,
+} from 'src/shared/types';
 import { TableCell } from '../../../shared/components/apiTable/TableCell';
 import { getPrettyDate } from 'src/shared/utils';
 import { useAdminStyles } from '../adminStyles';
@@ -44,6 +48,21 @@ export const ManageFormTemplates = () => {
 
   const [archivePopupForm, setArchivePopupForm] = useState<FormTemplate>();
   const [unarchivePopupForm, setUnarchivePopupForm] = useState<FormTemplate>();
+
+  const [customFormWithQuestions, setCustomFormWithQuestions] =
+    useState<FormTemplateWithQuestions | null>(null);
+
+  useEffect(() => {
+    if (customFormWithQuestions != null) {
+      history.push({
+        pathname: '/admin/form-templates/new',
+        // search: `id=${formTemplate.id}&version=${formTemplate.version}`,
+        state: {
+          ...customFormWithQuestions,
+        },
+      });
+    }
+  }, [customFormWithQuestions]);
 
   const isTransformed = useMediaQuery('(min-width:900px)');
 
@@ -80,14 +99,8 @@ export const ManageFormTemplates = () => {
       tooltip: 'Edit Form Template',
       Icon: Edit,
       isVisible: (formTemplate: FormTemplate) => !formTemplate.archived,
-      onClick: (formTemplate: FormTemplate) => {
-        history.push({
-          pathname: '/admin/form-templates/new',
-          search: `id=${formTemplate.id}&version=${formTemplate.version}`,
-          state: {
-            ...formTemplate,
-          },
-        });
+      onClick: async (formTemplate: FormTemplate) => {
+        getFormTemplateWithQuestions(formTemplate);
       },
     },
     {
@@ -182,6 +195,41 @@ export const ManageFormTemplates = () => {
 
     setTableData(rows);
   }, [formTemplates, search]);
+
+  const getFormTemplateWithQuestions = async (formTemplate: FormTemplate) => {
+    const questions = await getFormTemplateAsync(formTemplate.id);
+    const formTemplateWithQuestions: FormTemplateWithQuestions = {
+      classification: { name: formTemplate.classification.name },
+      version: formTemplate.version,
+      questions: questions.questions.map((q: TQuestion) => {
+        return {
+          categoryIndex: null,
+          questionId: q.questionId,
+          questionLangVersions: q.questionLangVersions.map((qlv) => {
+            return {
+              lang: qlv.lang,
+              mcOptions: qlv.mcOptions,
+              questionText: qlv.questionText,
+            };
+          }),
+          questionIndex: q.questionIndex,
+          questionType: q.questionType,
+          required: q.required,
+          numMin: null,
+          numMax: null,
+          stringMaxLength: null,
+          units: null,
+          visibleCondition: q.visibleCondition,
+        };
+      }),
+    };
+
+    try {
+      setCustomFormWithQuestions(formTemplateWithQuestions);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const Row = ({ row }: { row: (string | number)[] }) => {
     const formTemplate = formTemplates.find((form) => form.id === row[0]);
