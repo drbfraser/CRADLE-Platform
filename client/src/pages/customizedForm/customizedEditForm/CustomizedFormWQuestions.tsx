@@ -348,7 +348,7 @@ export const CustomizedFormWQuestions = ({
                       }}
                       type="button"
                       disabled={
-                        !(fm && fm.questions && fm!.questions!.length > 0) ||
+                        !(fm?.questions?.length > 0) ||
                         emptyLanguageFieldsInForm()
                       }>
                       {'Submit Template'}
