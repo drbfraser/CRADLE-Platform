@@ -56,8 +56,6 @@ export const CustomizedFormWQuestions = ({
   };
 
   useEffect(() => {
-    console.log('language changed');
-    console.log(languages);
     updateAddedQuestions(languages);
     setSelectedLanguage(languages[0]);
     upd();
@@ -167,8 +165,15 @@ export const CustomizedFormWQuestions = ({
 
   const missingFields = (question: TQuestion): boolean => {
     const emptyLanguageArray = getEmptyLanguages(question).split(', ');
-    console.log(emptyLanguageArray);
     return emptyLanguageArray.length !== 0 && emptyLanguageArray[0] !== '';
+  };
+
+  const emptyLanguageFieldsInForm = (): boolean => {
+    let emptyLangs = false;
+    questions.forEach((q) => {
+      emptyLangs = emptyLangs || missingFields(q);
+    });
+    return emptyLangs;
   };
 
   return (
@@ -344,7 +349,8 @@ export const CustomizedFormWQuestions = ({
                       }}
                       type="button"
                       disabled={
-                        !(fm && fm.questions && fm!.questions!.length > 0)
+                        !(fm && fm.questions && fm!.questions!.length > 0) ||
+                        emptyLanguageFieldsInForm()
                       }>
                       {'Submit Template'}
                     </PrimaryButton>
