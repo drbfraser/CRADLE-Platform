@@ -27,7 +27,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import EditField from 'src/pages/admin/manageFormTemplates/editFormTemplate/EditField';
 import { Autocomplete, AutocompleteRenderInputParams } from 'formik-mui';
 import { CustomizedFormField } from '../customizedFormHeader/state';
-import { TextField } from '@mui/material';
+import { TextField, Typography } from '@mui/material';
 interface IProps {
   fm: FormTemplateWithQuestions;
   languages: string[];
@@ -60,6 +60,7 @@ export const CustomizedFormWQuestions = ({
     console.log('language changed');
     console.log(languages);
     updateAddedQuestions(languages);
+    upd();
   }, [languages]);
 
   const updateAddedQuestions = (languages: string[]) => {
@@ -154,6 +155,20 @@ export const CustomizedFormWQuestions = ({
         q.visibleCondition[0].qidx = newIndex;
       }
     });
+  };
+
+  const getEmptyLanguages = (question: TQuestion) => {
+    const emptyLangs = question.questionLangVersions
+      .filter((qlv) => qlv.questionText === '')
+      .map((qlv) => qlv.lang);
+
+    return emptyLangs.join(', ');
+  };
+
+  const missingFields = (question: TQuestion): boolean => {
+    const emptyLanguageArray = getEmptyLanguages(question).split(', ');
+    console.log(emptyLanguageArray);
+    return emptyLanguageArray.length !== 0 && emptyLanguageArray[0] !== '';
   };
 
   return (
@@ -274,6 +289,15 @@ export const CustomizedFormWQuestions = ({
                               <DeleteIcon fontSize="small" />
                             </IconButton>
                           </Grid>
+                        </Grid>
+                        <Grid container pl={3}>
+                          {missingFields(question) && (
+                            <Typography style={{ color: 'red' }}>
+                              *The fields for following languages are blank:{' '}
+                              {getEmptyLanguages(question)}. Please fill them
+                              out before submitting.
+                            </Typography>
+                          )}
                         </Grid>
                         <EditField
                           key={`EditField-popup-${question.questionIndex}`}
