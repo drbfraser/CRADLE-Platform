@@ -171,7 +171,6 @@ export const saveFormTemplateWithFileAsync = async (file: File) => {
 export const submitFormTemplateAsync = async (
   form: FormTemplateWithQuestions
 ) => {
-  console.log(form.id)
   return apiFetch(
     API_URL + EndpointEnum.FORM_TEMPLATES,
     {
@@ -183,7 +182,7 @@ export const submitFormTemplateAsync = async (
   );
 };
 
-export const getFormTemplatesAsync = async (
+export const getAllFormTemplatesAsync = async (
   includeArchived: boolean
 ): Promise<FormTemplate[]> =>
   (
@@ -192,6 +191,11 @@ export const getFormTemplatesAsync = async (
         EndpointEnum.FORM_TEMPLATES +
         `?includeArchived=${includeArchived}`
     )
+  ).json();
+
+export const getFormTemplateAsync = async (formTemplateId: string) =>
+  (
+    await apiFetch(API_URL + EndpointEnum.FORM_TEMPLATES + `/${formTemplateId}`)
   ).json();
 
 export const getFormTemplateLangAsync = async (

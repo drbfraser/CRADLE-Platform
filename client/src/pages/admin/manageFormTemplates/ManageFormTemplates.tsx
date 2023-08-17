@@ -5,9 +5,12 @@ import {
   TableRow,
   Tooltip,
 } from '@mui/material';
-import { getFormTemplateCsvAsync, getFormTemplatesAsync } from 'src/shared/api';
+import {
+  getFormTemplateAsync,
+  getFormTemplateCsvAsync,
+  getAllFormTemplatesAsync,
+} from 'src/shared/api';
 import { useEffect, useState } from 'react';
-
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import AdminTable from '../AdminTable';
 import ArchiveTemplateDialog from './ArchiveTemplateDialog';
@@ -74,7 +77,7 @@ export const ManageFormTemplates = () => {
 
   const rowActions = [
     {
-      tooltip: 'Edit From Template',
+      tooltip: 'Edit Form Template',
       Icon: Edit,
       isVisible: (formTemplate: FormTemplate) => !formTemplate.archived,
       onClick: (formTemplate: FormTemplate) => {
@@ -140,7 +143,7 @@ export const ManageFormTemplates = () => {
 
   const getFormTemplates = async (showArchivedTemplates: boolean) => {
     try {
-      const resp: FormTemplate[] = await getFormTemplatesAsync(
+      const resp: FormTemplate[] = await getAllFormTemplatesAsync(
         showArchivedTemplates
       );
 

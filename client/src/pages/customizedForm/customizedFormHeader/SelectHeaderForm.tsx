@@ -10,7 +10,7 @@ import { Field, Form, Formik } from 'formik';
 import {
   getFormTemplateLangAsync,
   getFormTemplateLangsAsync,
-  getFormTemplatesAsync,
+  getAllFormTemplatesAsync,
 } from 'src/shared/api';
 import { useEffect, useState } from 'react';
 
@@ -37,7 +37,7 @@ export const SelectHeaderForm = ({ setForm }: IProps) => {
   useEffect(() => {
     const updateFormTemplates = async () => {
       try {
-        setFormTemplates(await getFormTemplatesAsync(false));
+        setFormTemplates(await getAllFormTemplatesAsync(false));
       } catch (e) {
         console.log(e);
       }
