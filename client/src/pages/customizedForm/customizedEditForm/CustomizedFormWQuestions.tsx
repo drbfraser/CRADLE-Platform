@@ -298,9 +298,8 @@ export const CustomizedFormWQuestions = ({
                         <Grid container pl={3}>
                           {missingFields(question) && (
                             <Typography style={{ color: 'red' }}>
-                              *The fields for following languages are blank:{' '}
-                              {getEmptyLanguages(question)}. Please fill them
-                              out before submitting.
+                              *Edit this field to add text for:{' '}
+                              {getEmptyLanguages(question)}.
                             </Typography>
                           )}
                         </Grid>
