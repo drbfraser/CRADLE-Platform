@@ -26,7 +26,6 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import EditField from 'src/pages/admin/manageFormTemplates/editFormTemplate/EditField';
 import { Autocomplete, AutocompleteRenderInputParams } from 'formik-mui';
-import { CustomizedFormField } from '../customizedFormHeader/state';
 import { TextField, Typography } from '@mui/material';
 interface IProps {
   fm: FormTemplateWithQuestions;
@@ -60,6 +59,7 @@ export const CustomizedFormWQuestions = ({
     console.log('language changed');
     console.log(languages);
     updateAddedQuestions(languages);
+    setSelectedLanguage(languages[0]);
     upd();
   }, [languages]);
 
@@ -208,7 +208,7 @@ export const CustomizedFormWQuestions = ({
                       value={selectedLanguage}
                       component={Autocomplete}
                       fullWidth
-                      name={CustomizedFormField.lang}
+                      name={languages[0]}
                       options={languages}
                       disableClearable={true}
                       onChange={(event: any, value: string) => {
@@ -217,7 +217,7 @@ export const CustomizedFormWQuestions = ({
                       renderInput={(params: AutocompleteRenderInputParams) => (
                         <TextField
                           {...params}
-                          name={CustomizedFormField.lang}
+                          name={languages[0]}
                           helperText={''}
                           label="View Language"
                           variant="outlined"
