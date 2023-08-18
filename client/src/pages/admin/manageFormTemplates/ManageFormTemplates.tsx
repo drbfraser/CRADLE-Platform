@@ -56,7 +56,7 @@ export const ManageFormTemplates = () => {
     if (customFormWithQuestions != null) {
       history.push({
         pathname: '/admin/form-templates/new',
-        // search: `id=${formTemplate.id}&version=${formTemplate.version}`,
+        // search: `id=${customFormWithQuestions.classification.id}`,
         state: {
           ...customFormWithQuestions,
         },
@@ -199,7 +199,10 @@ export const ManageFormTemplates = () => {
   const getFormTemplateWithQuestions = async (formTemplate: FormTemplate) => {
     const questions = await getFormTemplateAsync(formTemplate.id);
     const formTemplateWithQuestions: FormTemplateWithQuestions = {
-      classification: { name: formTemplate.classification.name },
+      classification: {
+        name: formTemplate.classification.name,
+        id: formTemplate.classification.id,
+      },
       version: formTemplate.version,
       questions: questions.questions.map((q: TQuestion) => {
         return {

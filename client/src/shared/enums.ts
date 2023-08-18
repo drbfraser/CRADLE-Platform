@@ -62,6 +62,7 @@ export enum EndpointEnum {
   REFERRALS = '/referrals',
   REFERRALS_ASSESS = '/referrals/assess',
   FORM_TEMPLATES = '/forms/templates',
+  FORM_CLASSIFICATIONS = '/forms/classifications',
   READINGS = '/readings',
   READING_ASSESSMENT = '/patients/reading-assessment', //Create a new reading and assessment
   STATISTICS = '/stats',

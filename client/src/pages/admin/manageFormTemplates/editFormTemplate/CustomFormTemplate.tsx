@@ -21,6 +21,7 @@ import { FormRenderStateEnum } from 'src/shared/enums';
 import { LanguageModalProps } from 'src/shared/types';
 import { useLocation } from 'react-router-dom';
 import { CustomizedFormWQuestions } from 'src/pages/customizedForm/customizedEditForm/CustomizedFormWQuestions';
+import { getFormClassificationTemplates } from 'src/shared/api';
 
 export enum FormEditMainComponents {
   title = 'title',
@@ -51,11 +52,28 @@ export const CustomFormTemplate = () => {
           questions: targetFrom.questions,
         }
       : {
-          classification: { name: 'string' },
+          classification: { name: 'string', id: undefined },
           version: 'string',
           questions: [],
         }
   );
+  const [versionError, setVersionError] = useState<boolean>(
+    targetFrom ? true : false
+  );
+
+  const getFormVersions = async (formClassificationId: string) => {
+    const formTemplates = await getFormClassificationTemplates(
+      formClassificationId
+    );
+    return formTemplates.map((form: FormTemplateWithQuestions) => form.version);
+  };
+
+  let previousVersions: string[] = [];
+  (async () => {
+    if (targetFrom?.classification?.id) {
+      previousVersions = await getFormVersions(targetFrom.classification.id);
+    }
+  })();
 
   return (
     <>
@@ -68,7 +86,9 @@ export const CustomFormTemplate = () => {
           </IconButton>
         </Tooltip>
         {/*TODO: Allow template name to change depending on if we are editing a new or existing form template*/}
-        <Typography variant="h4">{'Create New Template'}</Typography>
+        <Typography variant="h4">
+          {targetFrom ? 'Edit Template' : 'Create New Template'}
+        </Typography>
       </div>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <Formik
@@ -97,7 +117,6 @@ export const CustomFormTemplate = () => {
                       variant="outlined"
                       defaultValue={targetFrom?.classification?.name ?? ''}
                       fullWidth
-                      multiline
                       inputProps={{
                         // TODO: Determine what types of input restrictions we should have for title
                         maxLength: Number.MAX_SAFE_INTEGER,
@@ -114,14 +133,20 @@ export const CustomFormTemplate = () => {
                       required={true}
                       variant="outlined"
                       defaultValue={targetFrom ? targetFrom.version : ''}
+                      error={versionError}
+                      helperText={
+                        versionError ? 'Must change version number' : ''
+                      }
                       fullWidth
-                      multiline
                       inputProps={{
                         // TODO: Determine what types of input restrictions we should have for version
                         maxLength: Number.MAX_SAFE_INTEGER,
                       }}
                       onChange={(e: any) => {
                         form.version = e.target.value;
+                        setVersionError(
+                          previousVersions.includes(form.version)
+                        );
                       }}
                     />
                   </Grid>
@@ -139,6 +164,7 @@ export const CustomFormTemplate = () => {
               languages={language}
               renderState={FormRenderStateEnum.SUBMIT_TEMPLATE}
               setForm={setForm}
+              versionError={versionError}
             />
           </Form>
         )}

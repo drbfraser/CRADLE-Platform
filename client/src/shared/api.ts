@@ -182,6 +182,19 @@ export const submitFormTemplateAsync = async (
   );
 };
 
+export const getFormClassificationTemplates = async (
+  formClassificationId: string
+) =>
+  (
+    await apiFetch(
+      API_URL +
+        EndpointEnum.FORM_CLASSIFICATIONS +
+        '/' +
+        formClassificationId +
+        '/templates'
+    )
+  ).json();
+
 export const getAllFormTemplatesAsync = async (
   includeArchived: boolean
 ): Promise<FormTemplate[]> =>

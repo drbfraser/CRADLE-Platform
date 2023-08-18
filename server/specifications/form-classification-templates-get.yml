@@ -1,0 +1,97 @@
+Get list of all form templates for a classification.
+---
+tags:
+  - Form Classifications
+responses:
+  200:
+    description: Response from GET request for /api/forms/classifications/<string:form_classification_id>/templates
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+            id:
+              type: string
+              example: "adas-d82314-27822-63150"
+            lang:
+              type: string (not provided in full version)
+              example: "chinese"
+            version:
+              type: string | null
+              example: "V1"
+            dateCreated:
+              type: Unix timestamp
+              example: 1551447833
+            questions:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "adas-d82314-27822-63154"
+                  questionId:
+                    type: string | null
+                    example: "referred-by-name"
+                  isBlank:
+                    type: boolean
+                    example: true
+                  formTemplateId:
+                    type: string
+                    example: "adas-d82314-27822-63150"
+                  categoryIndex:
+                    type: integer | null
+                    example: 0
+                  questionIndex:
+                    type: integer
+                    example: 1
+                  questionText:
+                    type: string | null
+                    example: "How the patient's condition?"
+                  questionType:
+                    type: enum
+                    enum: ['INTEGER', 'DECIMAL', 'STRING', 'MULTIPLE_CHOICE', 'MULTIPLE_SELECT', 'DATE', 'TIME', 'DATETIME']
+                    example: MULTIPLE_CHOICE
+                  hasCommentAttached:
+                    type: boolean
+                    example: false
+                  required:
+                    type: boolean
+                    example: true
+                  units:
+                    type: string | null
+                    example: "kg"
+                  visibleCondition:
+                    type: array
+                    items: object
+                    example: [{
+                      "qidx": 0,
+                      "relation": "EQUAL_TO",
+                      "answers": {
+                        "mcidArray": [
+                            0
+                        ]
+                      }
+                    }]
+                  numMin:
+                    type: float | null
+                    example: 1.0
+                  numMax:
+                    type: float | null
+                    example: 5.0
+                  stringMaxLength:
+                    type: integer | null
+                    example: 255
+                  mcOptions:
+                    type: array
+                    example: [
+                      {
+                        "mcid": 0,
+                        "opt": "Decent"
+                      }
+                    ]
+                  answers:
+                    type: object
+                    example: {}

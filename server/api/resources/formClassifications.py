@@ -182,3 +182,16 @@ class FormClassificationSummary(Resource):
             marshal.marshal(f, shallow=False, if_include_versions=True)
             for f in result_templates
         ], 200
+
+# /api/forms/classifications/<string:form_classification_name>/templates
+class FormClassificationTemplates(Resource):
+    @staticmethod
+    @jwt_required()
+    @swag_from(
+        "../../specifications/form-classification-templates-get.yml",
+        methods=["GET"],
+        endpoint="form_classification_templates",
+    )
+    def get(form_classification_id: str):
+        form_templates = crud.read_all(FormTemplate, formClassificationId=form_classification_id)
+        return [marshal.marshal(f, shallow=True) for f in form_templates], 200
