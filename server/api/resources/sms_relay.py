@@ -100,63 +100,52 @@ def sms_relay_procedure():
     if error:
         abort(400, message=corrupted_message.format(type="JSON"))
 
-    phoneNumber = json_request["phoneNumber"]
+    phoneNumber = json_request["destPhoneNumber"]
 
     if not phoneNumber:
         abort(400, message=null_phone_number)
 
     if not regex_check(phoneNumber):
         abort(400, message=invalid_phone_number.format(phoneNumber=phoneNumber))
-    #
-    user = crud.read(User, email="admin123@admin.com")
-    #
-    # if not user:
-    #     abort(400, message=invalid_user)
 
-    encrypted_data = json_request["encryptedData"]
-    print(encrypted_data)
-    iv = encrypted_data[0:32]
-    print("iv------------", iv)
-    encrypted_message = encrypted_data[32:]
-    print(encrypted_message)
-    test_key = "ffcdf929cbda5e6df6bbbf363e2964e1fea418000dd080ac5d1c6d4dffaff991"
-    AES_pkcs5_obj = AES_pkcs5(test_key)
-    decrypted_message = AES_pkcs5_obj.decrypt(encrypted_message, iv)
-    print("decrypted_message--------------", decrypted_message)
-    # encrypted_data = base64.b64decode(json_request["encryptedData"])
+    user = crud.read(User, phoneNumber=phoneNumber)
 
-    # # Decryption
-    # try:
-    #     decrypted_data = encryptor.decrypt(encrypted_data, user.secretKey)
-    #
-    # except:
-    #     abort(401, message=invalid_message.format(phoneNumber=phoneNumber))
+    if not user:
+        abort(400, message=invalid_user)
+
+    encrypted_data = base64.b64decode(json_request["encryptedData"])
+
+    # Decryption
+    try:
+        decrypted_data = encryptor.decrypt(encrypted_data, user.secretKey)
+
+    except:
+        abort(401, message=invalid_message.format(phoneNumber=phoneNumber))
 
     # Decompression
-    # try:
-    data = compressor.decompress(decrypted_message)
-    print(data)
-    # except:
-    #     abort(400, message=invalid_message.format(phoneNumber=phoneNumber))
+    try:
+        data = compressor.decompress(decrypted_data)
+
+    except:
+        abort(400, message=invalid_message.format(phoneNumber=phoneNumber))
 
     # Object Parsing
     string_data = data.decode("utf-8")
-    print("full http request should be-------------------", string_data)
     json_dict = json.loads(string_data)
 
     error = sms_relay.validate_encrypted_body(json_dict)
     if error:
         return create_flask_response(400, invalid_json.format(error=error), user)
 
-    # request_number = json_dict["requestNumber"]
-    # if (
-    #     not isinstance(request_number, int)
-    #     or request_number < 0
-    #     or request_number > 999999
-    # ):
-    #     return create_flask_response(
-    #         400, invalid_req_number.format(error=error_req_range), user
-    #     )
+    request_number = json_dict["requestNumber"]
+    if (
+        not isinstance(request_number, int)
+        or request_number < 0
+        or request_number > 999999
+    ):
+        return create_flask_response(
+            400, invalid_req_number.format(error=error_req_range), user
+        )
 
     method = json_dict["method"]
     if method not in http_methods:
@@ -179,6 +168,7 @@ def sms_relay_procedure():
     response_code = response.status_code
     response_body = json.dumps(response.json())
     return create_flask_response(response_code, response_body, user)
+
 
 
 # /api/sms_relay
