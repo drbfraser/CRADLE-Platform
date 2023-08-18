@@ -199,7 +199,7 @@ const EditField = ({
                 setFieldChanged(!fieldChanged);
                 setFormDirty(true);
               }}>
-              {'Add Choice'}
+              {'Add Option'}
             </PrimaryButton>
           </Grid>
           <Grid item container spacing={3}>
@@ -235,6 +235,88 @@ const EditField = ({
                       key={`${lang}-mult-choice-option-${index + 1}-body`}>
                       <TextField
                         key={`${lang}-field-name-mult-choice-option-${
+                          index + 1
+                        }`}
+                        label={`${lang} Option ${index + 1}`}
+                        required={true}
+                        variant="outlined"
+                        value={getMcOptionValue(lang, index)}
+                        fullWidth
+                        multiline
+                        size="small"
+                        inputProps={{
+                          // TODO: Determine what types of input restrictions we should have for multiple choice option
+                          maxLength: Number.MAX_SAFE_INTEGER,
+                        }}
+                        onChange={(e) => {
+                          handleMultiChoiceOptionChange(
+                            lang,
+                            e.target.value,
+                            index
+                          );
+                          setFieldChanged(!fieldChanged);
+                          setFormDirty(true);
+                        }}
+                      />
+                    </Grid>
+                  ))}
+                </Grid>
+              </Grid>
+            ))}
+          </Grid>
+        </Grid>
+      ),
+    },
+    mult_select: {
+      value: 'mult_select',
+      label: 'Multi Select',
+      type: QuestionTypeEnum.MULTIPLE_SELECT,
+      render: () => (
+        <Grid item container spacing={3}>
+          <Grid item xs={12}>
+            <PrimaryButton
+              type="button"
+              onClick={(e) => {
+                handleAddChoice();
+                setFieldChanged(!fieldChanged);
+                setFormDirty(true);
+              }}>
+              {'Add Option'}
+            </PrimaryButton>
+          </Grid>
+          <Grid item container spacing={3}>
+            {Array.from(Array(numChoices).keys()).map((_, index) => (
+              <Grid item xs={12} key={`option-${index}`}>
+                <Grid item container spacing={3}>
+                  <Grid item xs={10} sm={6} md={2}>
+                    <FormLabel id="field-type-label">
+                      <Typography variant="h6">Option {index + 1}</Typography>
+                    </FormLabel>
+                  </Grid>
+                  <Grid item xs={2} sm={6} md={10}>
+                    <IconButton
+                      key={`remove-option-${index + 1}`}
+                      color="error"
+                      onClick={(e) => {
+                        handleRemoveMultiChoice(index);
+                        setFieldChanged(!fieldChanged);
+                        setFormDirty(true);
+                      }}>
+                      <RemoveCircleOutlineIcon />
+                    </IconButton>
+                  </Grid>
+                </Grid>
+                <Grid item container spacing={3}>
+                  {inputLanguages.map((lang) => (
+                    <Grid
+                      item
+                      xs={12}
+                      sm={6}
+                      md={4}
+                      lg={3}
+                      key={`${lang}-mult-select-option-${index + 1}-body`}>
+                      <TextField
+                        key={`${lang}-field-name-mult-select-option-${
                           index + 1
                         }`}
                         label={`${lang} Option ${index + 1}`}
@@ -324,7 +406,7 @@ const EditField = ({
       isVisCondAnswered = true;
     }
 
-    if (fieldType == 'mult_choice') {
+    if (fieldType == 'mult_choice' || fieldType == 'mult_select') {
       questionLangVersions.forEach((qLangVersion) => {
         areAllNamesFilled =
           areAllNamesFilled && qLangVersion.questionText.trim() != '';
@@ -345,7 +427,7 @@ const EditField = ({
       isFieldTypeChosen &&
       isVisCondAnswered;
 
-    return fieldType == 'mult_choice'
+    return fieldType == 'mult_choice' || fieldType == 'mult_select'
       ? nonMultiChoiceCheck && areAllMcOptionFilled
       : nonMultiChoiceCheck;
   };
@@ -589,7 +671,7 @@ const EditField = ({
             disabled={isSaveDisabled}
             onClick={() => {
               if (setForm) {
-                if (fieldType != 'mult_choice') {
+                if (fieldType != 'mult_choice' && fieldType != 'mult_select') {
                   removeAllMultChoices();
                 }
                 if (question && !enableVisibility) {

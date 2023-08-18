@@ -12,6 +12,7 @@ from models import (
     Referral,
     UrineTest,
     User,
+    UserPhoneNumber,
     PatientAssociations,
     Reading,
     Pregnancy,
@@ -21,8 +22,9 @@ from models import (
     Form,
     FormTemplate,
 )
-from enums import TrafficLightEnum
+from enums import TrafficLightEnum, RoleEnum
 import service.invariant as invariant
+import re
 
 M = TypeVar("M")
 S = TypeVar("S")
@@ -809,7 +811,6 @@ def read_form_template_versions(model: FormTemplate, refresh=False) -> List[str]
 
 
 def add_vht_to_supervise(cho_id: int, vht_ids: List):
-
     # find the cho
     cho = User.query.filter_by(id=cho_id).first()
 
@@ -1109,6 +1110,37 @@ def get_supervised_vhts(user_id):
         return list(result)
     except Exception as e:
         print(e)
+        return None
+
+
+def is_phone_number_relay(phone_number):
+    # iterate through all admin phone numbers and remove dashes before comparision
+    try:
+        admin_phone_numbers = [
+            re.sub(r"[-]", "", admin_phone_number.number)
+            for admin_phone_number in UserPhoneNumber.query.join(UserPhoneNumber.user)
+            .filter_by(role=RoleEnum.ADMIN.value)
+            .all()
+        ]
+
+        if phone_number in admin_phone_numbers:
+            return 1
+        else:
+            return 0
+    except:
+        return -1
+
+
+def get_all_relay_phone_numbers():
+    try:
+        admin_phone_numbers = [
+            re.sub(r"[-]", "", admin_phone_number.number)
+            for admin_phone_number in UserPhoneNumber.query.join(UserPhoneNumber.user)
+            .filter_by(role=RoleEnum.ADMIN.value)
+            .all()
+        ]
+        return admin_phone_numbers
+    except:
         return None
 
 
