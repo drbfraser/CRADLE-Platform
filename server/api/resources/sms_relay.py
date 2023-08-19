@@ -10,20 +10,16 @@ from flasgger import swag_from
 from models import User
 import service.compressor as compressor
 import service.encryptor as encryptor
-from service.encryptor import AES_pkcs5
-import cryptography.fernet as fernet
 from validation import sms_relay
 import base64
 import json
 from api.resources.users import get_user_data_for_token, get_access_token
 from api.util import phoneNumber_regex_check as regex_check
-from api.util import get_user_secret_key, phoneNumber_exists
+from api.util import get_user_secret_key_string, phoneNumber_exists, get_user_from_phone_number
 
 api_url = "http://localhost:5000/{endpoint}"
 
-
 http_methods = {"GET", "POST", "HEAD", "PUT", "DELETE", "PATCH"}
-
 
 corrupted_message = (
     "Server detected invalid message format ({type}); "
@@ -50,16 +46,13 @@ invalid_phone_number = (
 
 invalid_json = "Invalid JSON Request Structure; {error}"
 
-
 invalid_req_number = "Invalid Request Number; {error}"
-
 
 error_req_range = "Must be between 0-999999"
 
-
 invalid_method = "Invalid Method; Must be either GET, POST, HEAD, PUT, DELETE, or PATCH"
 
-phone_number_not_exists = "The phone number provided is not exist in any users"
+phone_number_not_exists = "The phone number provided does not belong any users"
 
 
 def send_request_to_endpoint(
@@ -76,26 +69,26 @@ def send_request_to_endpoint(
     )
 
 
-def create_flask_response(code: int, body: str, user: User) -> Response:
+def create_flask_response(code: int, body: str, iv: str, user_sms_key: str) -> Response:
     response_dict = {"code": code, "body": body}
 
     response_json = json.dumps(response_dict)
     print("reponse---------------", response_json)
     compressed_data = compressor.compress_from_string(response_json)
-    encrypted_data = encryptor.encrypt(compressed_data, user.secretKey)
-
-    base64_data = base64.b64encode(encrypted_data)
-    base64_string = base64_data.decode("utf-8")
+    # TODO: FIX ==> change user in input to secretkey (user.secretKey doesn't exist) 
+    encrypted_data = encryptor.encrypt(compressed_data, iv, user_sms_key)
 
     flask_response = make_response()
-    flask_response.set_data(base64_string)
+    flask_response.set_data(encrypted_data)
     flask_response.status_code = 200
 
     return flask_response
 
+iv_size = 32
 
 def sms_relay_procedure():
     json_request = request.get_json(force=True)
+    print("final ====> ", json_request)
 
     # Error Checking
     error = sms_relay.validate_request(json_request)
@@ -103,78 +96,74 @@ def sms_relay_procedure():
     if error:
         abort(400, message=corrupted_message.format(type="JSON"))
 
-    phoneNumber = json_request["destPhoneNumber"]
+    phone_number = json_request["phoneNumber"]
 
-    if not phoneNumber:
+    if not phone_number:
         abort(400, message=null_phone_number)
 
-    if not regex_check(phoneNumber):
-        abort(400, message=invalid_phone_number.format(phoneNumber=phoneNumber))
+    if not regex_check(phone_number):
+        abort(400, message=invalid_phone_number.format(phoneNumber=phone_number))
 
-    user_id = phoneNumber_exists(phoneNumber)
-    if not user_id:
+    user_exists = phoneNumber_exists(phone_number)
+
+    if not user_exists:
         abort(400, message=phone_number_not_exists.format(type="JSON"))
-
-    user = crud.read(User, id=user_id)
+    
+    # get user id for the user that phoneNumber belongs to
+    user = get_user_from_phone_number(phone_number)
 
     if not user:
         abort(400, message=invalid_user.format(type="JSON"))
 
-    user = crud.read(User, id=1)
-
     encrypted_data = json_request["encryptedData"]
-    iv = encrypted_data[0:32]
-    encrypted_message = encrypted_data[32:]
 
-    # decryption_key = get_user_secret_key(user.id)["secret_Key"]
+    user_secret_key = get_user_secret_key_string(user.id)
 
-    test_key = "ffcdf929cbda5e6df6bbbf363e2964e1fea418000dd080ac5d1c6d4dffaff991"
+    decrypted_message = encryptor.decrypt(encrypted_data, user_secret_key)
 
-    # AES_pkcs5_obj = AES_pkcs5(decryption_key)
-    AES_pkcs5_obj = AES_pkcs5(test_key)
-    decrypted_message = AES_pkcs5_obj.decrypt(encrypted_message, iv)
+    decrypted_data = compressor.decompress(decrypted_message)
 
-    data = compressor.decompress(decrypted_message)
+    string_data = decrypted_data.decode("utf-8")
 
-    string_data = data.decode("utf-8")
-    print("full http request should be-------------------", string_data)
-    json_dict = json.loads(string_data)
+    json_dict_data = json.loads(string_data)
 
-    error = sms_relay.validate_encrypted_body(json_dict)
+    print(f"python-debug:\n_______________________________________\n{json_dict_data}\n_______________________________________")
+
+    error = sms_relay.validate_decrypted_body(json_dict_data)
     if error:
-        return create_flask_response(400, invalid_json.format(error=error), user)
+        return create_flask_response(400, invalid_json.format(error=error), encrypted_data[0:iv_size], user_secret_key)
 
-    request_number = json_dict["requestNumber"]
-    if (
-        not isinstance(request_number, int)
-        or request_number < 0
-        or request_number > 999999
-    ):
-        return create_flask_response(
-            400, invalid_req_number.format(error=error_req_range), user
-        )
+    # request_number = json_dict_data["requestNumber"]
+    # if (
+    #     not isinstance(request_number, int)
+    #     or request_number < 0
+    #     or request_number > 999999
+    # ):
+    #     return create_flask_response(
+    #         400, invalid_req_number.format(error=error_req_range), user
+    #     )
 
-    method = json_dict["method"]
-    if method not in http_methods:
-        return create_flask_response(400, invalid_method, user)
+    # method = json_dict_data["method"]
+    # if method not in http_methods:
+    #     return create_flask_response(400, invalid_method, user)
 
-    endpoint = json_dict["endpoint"]
+    # endpoint = json_dict_data["endpoint"]
 
-    header = json_dict.get("header")
-    if not header:
-        header = {}
+    # header = json_dict_data.get("header")
+    # if not header:
+    #     header = {}
 
-    json_body = json_dict.get("body")
-    if not json_body:
-        json_body = "{}"
+    # json_body = json_dict_data.get("body")
+    # if not json_body:
+    #     json_body = "{}"
 
-    # Sending request to endpoint
-    response = send_request_to_endpoint(method, endpoint, header, json_body, user)
+    # # Sending request to endpoint
+    # response = send_request_to_endpoint(method, endpoint, header, json_body, user)
 
-    # Creating Response
-    response_code = response.status_code
-    response_body = json.dumps(response.json())
-    return create_flask_response(response_code, response_body, user)
+    # # Creating Response
+    # response_code = response.status_code
+    # response_body = json.dumps(response.json())
+    # return create_flask_response(response_code, response_body, user)
 
 
 # /api/sms_relay

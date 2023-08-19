@@ -9,7 +9,7 @@ def validate_request(request_body: dict) -> Optional[str]:
     :param request_body: The request body as a dict object
     :return: An error message if request body in invalid in some way. None otherwise.
     """
-    required_keys = ["destPhoneNumber", "encryptedData"]
+    required_keys = ["phoneNumber", "encryptedData"]
 
     error_message = required_keys_present(request_body, required_keys)
     if error_message is not None:
@@ -20,7 +20,7 @@ def validate_request(request_body: dict) -> Optional[str]:
         return error_message
 
 
-def validate_encrypted_body(body: dict) -> Optional[str]:
+def validate_decrypted_body(body: dict) -> Optional[str]:
     """
     Returns an error message if the sms relay body
     is not valid. Else, returns None.
