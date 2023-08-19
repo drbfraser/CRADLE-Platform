@@ -17,7 +17,7 @@ import base64
 import json
 from api.resources.users import get_user_data_for_token, get_access_token
 from api.util import phoneNumber_regex_check as regex_check
-from api.util import get_user_secret_key
+from api.util import get_user_secret_key, phoneNumber_exists
 
 api_url = "http://localhost:5000/{endpoint}"
 
@@ -58,6 +58,8 @@ error_req_range = "Must be between 0-999999"
 
 
 invalid_method = "Invalid Method; Must be either GET, POST, HEAD, PUT, DELETE, or PATCH"
+
+phone_number_not_exists = "The phone number provided is not exist in any users"
 
 
 def send_request_to_endpoint(
@@ -109,11 +111,16 @@ def sms_relay_procedure():
     if not regex_check(phoneNumber):
         abort(400, message=invalid_phone_number.format(phoneNumber=phoneNumber))
 
-    # user = crud.read(User, phoneNumber=phoneNumber)
-    user = crud.read(User, id=1)
+    user_id = phoneNumber_exists(phoneNumber)
+    if not user_id:
+        abort(400, message=phone_number_not_exists.format(type="JSON"))
+
+    user = crud.read(User, id=user_id)
 
     if not user:
-        abort(400, message=invalid_user)
+        abort(400, message=invalid_user.format(type="JSON"))
+
+    user = crud.read(User, id=1)
 
     encrypted_data = json_request["encryptedData"]
     iv = encrypted_data[0:32]
