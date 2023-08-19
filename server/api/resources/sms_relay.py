@@ -17,6 +17,7 @@ import base64
 import json
 from api.resources.users import get_user_data_for_token, get_access_token
 from api.util import phoneNumber_regex_check as regex_check
+from api.util import get_user_secret_key
 
 api_url = "http://localhost:5000/{endpoint}"
 
@@ -108,29 +109,28 @@ def sms_relay_procedure():
     if not regex_check(phoneNumber):
         abort(400, message=invalid_phone_number.format(phoneNumber=phoneNumber))
 
-    user = crud.read(User, phoneNumber=phoneNumber)
+    # user = crud.read(User, phoneNumber=phoneNumber)
+    user = crud.read(User, id=1)
 
     if not user:
         abort(400, message=invalid_user)
 
-    encrypted_data = base64.b64decode(json_request["encryptedData"])
+    encrypted_data = json_request["encryptedData"]
+    iv = encrypted_data[0:32]
+    encrypted_message = encrypted_data[32:]
 
-    # Decryption
-    try:
-        decrypted_data = encryptor.decrypt(encrypted_data, user.secretKey)
+    # decryption_key = get_user_secret_key(user.id)["secret_Key"]
 
-    except:
-        abort(401, message=invalid_message.format(phoneNumber=phoneNumber))
+    test_key = "ffcdf929cbda5e6df6bbbf363e2964e1fea418000dd080ac5d1c6d4dffaff991"
 
-    # Decompression
-    try:
-        data = compressor.decompress(decrypted_data)
+    # AES_pkcs5_obj = AES_pkcs5(decryption_key)
+    AES_pkcs5_obj = AES_pkcs5(test_key)
+    decrypted_message = AES_pkcs5_obj.decrypt(encrypted_message, iv)
 
-    except:
-        abort(400, message=invalid_message.format(phoneNumber=phoneNumber))
+    data = compressor.decompress(decrypted_message)
 
-    # Object Parsing
     string_data = data.decode("utf-8")
+    print("full http request should be-------------------", string_data)
     json_dict = json.loads(string_data)
 
     error = sms_relay.validate_encrypted_body(json_dict)
@@ -168,7 +168,6 @@ def sms_relay_procedure():
     response_code = response.status_code
     response_body = json.dumps(response.json())
     return create_flask_response(response_code, response_body, user)
-
 
 
 # /api/sms_relay
