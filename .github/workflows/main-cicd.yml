@@ -9,9 +9,12 @@ on:
     branches: [ main ]
   workflow_dispatch:
 env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   HUB_TOKEN: "${{ secrets.HUB_TOKEN }}"
   HUB_USER: "${{ secrets.HUB_USER }}"
-  GRAFANA_API_KEY: "${{ secrets.GRAFANA_API_KEY }}"
+  HUB_REPO_FRONTEND: "${{ secrets.HUB_REPO_FRONTEND }}"
+  HUB_REPO_BACKEND: "${{ secrets.HUB_REPO_BACKEND }}"
   NPM_VERSION: "7.0.0"
   CUSTOM_WORKSPACE: /isolated-build/repo
   # Keep npm's cache out of home directory (mounted from host)
@@ -66,8 +69,6 @@ jobs:
       # specify time zone for AWS CLI 
       DEBIAN_FRONTEND: noninteractive
       TZ: America/Vancouver
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: us-west-2
     steps: 
       - name: Checkout code into container
@@ -345,7 +346,7 @@ jobs:
     - name: Get build products
       uses: actions/download-artifact@v3
       with:
-        name: build-frontend
+        name: frontend-artifact
     # FAKE BUILD: To make build faster for testing, comment out above and use this instead.
     # - name: Get build products (**FAKE**)
     #   run: |
@@ -407,7 +408,9 @@ jobs:
   # Staging (stg) server
   staging-server-deploy-from-dockerhub:
     needs: [export-image-tag]
-    if: ${{ github.ref_name == 'staging' }}
+    # if: ${{ github.ref_name == 'staging' }}
+    # TODO: Currently disabled due to infinite loop in this flow.
+    if: false
     uses: ./.github/workflows/deploy-from-dockerhub.yml
     with:
         RUNNER_NAME: deploy-staging

@@ -20,7 +20,14 @@ on:
         required: true
       HUB_REPO_FRONTEND:
         required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+
 env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   HUB_REPO_BACKEND: "${{ secrets.HUB_REPO_BACKEND }}"
   HUB_REPO_FRONTEND: "${{ secrets.HUB_REPO_FRONTEND }}"
   DOMAIN:    "${{ inputs.DOMAIN }}"
@@ -37,7 +44,7 @@ jobs:
         fetch-depth: 50
     - name: Copy server's existing config file into local path before deployment
       run:  |
-        cp /var/cbr/.env ./.env
+        cp /var/cradle/.env ./.env
     - name: Pull docker images from Docker Hub
       run:  |
         docker compose -f docker-compose.yml -f docker-compose.deploy.yml pull
@@ -50,10 +57,11 @@ jobs:
     - name: Apply migrations (once server is up)
       run:  |
         bash -c 'sleep 15'
-        docker exec cbr_django python manage.py migrate
+        docker exec cradle_flask flask db upgrade
     - name: View state at end of deployment script
       run:  |
         docker images
         docker ps -a
         docker volume ls
         echo "::notice file=deploy-form-dockerhub.yml::Deployed image $IMAGE_TAG to $DOMAIN using runner ${{ inputs.runner_name}}"
+        docker restart cradle_fluentbit 
