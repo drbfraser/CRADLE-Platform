@@ -334,6 +334,7 @@ jobs:
     needs: [build-frontend, update-aws, export-image-tag]
     # needs: [export-image-tag]   # Used for faking and testing
     runs-on: [self-hosted, docker]
+    if: ${{ github.ref_name == 'main' }}
     timeout-minutes: 60
     env:
       IMAGE_TAG: ${{ needs.export-image-tag.outputs.image_tag}}
@@ -386,6 +387,7 @@ jobs:
 # #   Development (dev) server
   dev-server-deploy-from-dockerhub:
     needs: [build-docker-publish-docker-images, export-image-tag]
+    if: ${{ github.ref_name == 'main' }}
     uses: ./.github/workflows/deploy-from-dockerhub.yml
     with:
       RUNNER_NAME: deploy-development
@@ -395,6 +397,7 @@ jobs:
 
   dev-retag-and-upload-to-dockerhub:
     needs: [build-docker-publish-docker-images, export-image-tag]
+    if: ${{ github.ref_name == 'main' }}
     uses: ./.github/workflows/retag-and-upload-dockerhub.yml
     with:
       IMAGE_TAG:  ${{ needs.export-image-tag.outputs.image_tag }}
@@ -405,6 +408,9 @@ jobs:
   # Staging (stg) server
   staging-server-deploy-from-dockerhub:
     needs: [export-image-tag]
+    # if: ${{ github.ref_name == 'staging' }}
+    # TODO: Currently disabled due to infinite loop in this flow.
+    if: false
     uses: ./.github/workflows/deploy-from-dockerhub.yml
     with:
         RUNNER_NAME: deploy-staging
@@ -414,6 +420,7 @@ jobs:
 
   staging-retag-and-upload-to-dockerhub:
     needs: [export-image-tag]
+    if: ${{ github.ref_name == 'staging' }}
     uses: ./.github/workflows/retag-and-upload-dockerhub.yml
     with:
         IMAGE_TAG:  ${{ needs.export-image-tag.outputs.image_tag }}
