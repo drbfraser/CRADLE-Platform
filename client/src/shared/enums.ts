@@ -62,6 +62,7 @@ export enum EndpointEnum {
   REFERRALS = '/referrals',
   REFERRALS_ASSESS = '/referrals/assess',
   FORM_TEMPLATES = '/forms/templates',
+  FORM_CLASSIFICATIONS = '/forms/classifications',
   READINGS = '/readings',
   READING_ASSESSMENT = '/patients/reading-assessment', //Create a new reading and assessment
   STATISTICS = '/stats',
@@ -80,7 +81,6 @@ export enum EndpointEnum {
   USER_VHTS = '/user/vhts',
   CHANGE_PASS = '/user/current/change_pass',
   RESET_PASS = '/change_pass',
-  FORM_TEMPLATE = '/forms/templates',
   FORM = '/forms/responses',
   SECRETKEY = '/smskey' /* /user/{USER_ID}/smsKey */,
 }

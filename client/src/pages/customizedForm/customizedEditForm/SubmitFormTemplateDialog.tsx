@@ -24,7 +24,7 @@ const SubmitFormTemplateDialog = ({ open, onClose, form }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  const unarchiveForm = async () => {
+  const submitForm = async () => {
     if (!form) {
       return;
     }
@@ -54,7 +54,7 @@ const SubmitFormTemplateDialog = ({ open, onClose, form }: IProps) => {
         </DialogContent>
         <DialogActions className={classes.actions}>
           <CancelButton onClick={onClose}>Cancel</CancelButton>
-          <PrimaryButton onClick={unarchiveForm}>Submit</PrimaryButton>
+          <PrimaryButton onClick={submitForm}>Submit</PrimaryButton>
         </DialogActions>
       </Dialog>
     </>

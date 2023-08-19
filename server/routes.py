@@ -48,6 +48,7 @@ from api.resources.formClassifications import (
     Root as FormClassification,
     SingleFormClassification,
     FormClassificationSummary,
+    FormClassificationTemplates,
 )
 from api.resources.forms import Root as Forms, SingleForm
 from api.resources.sms_relay import Root as SmsRelay
@@ -267,6 +268,11 @@ def init(api):
         FormClassificationSummary,
         "/api/forms/classifications/summary",
         endpoint="form_classification_summary",
+    )  # [GET]
+    api.add_resource(
+        FormClassificationTemplates,
+        "/api/forms/classifications/<string:form_classification_id>/templates",
+        endpoint="form_classification_templates",
     )  # [GET]
 
     api.add_resource(Forms, "/api/forms/responses", endpoint="forms")  # [POST]

@@ -32,6 +32,7 @@ interface IProps {
   languages: string[];
   renderState: FormRenderStateEnum;
   setForm: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
+  versionError: boolean;
 }
 
 export const CustomizedFormWQuestions = ({
@@ -39,6 +40,7 @@ export const CustomizedFormWQuestions = ({
   languages,
   renderState,
   setForm,
+  versionError,
 }: IProps) => {
   const questions = fm.questions;
   const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
@@ -349,7 +351,8 @@ export const CustomizedFormWQuestions = ({
                       type="button"
                       disabled={
                         !(fm?.questions?.length > 0) ||
-                        emptyLanguageFieldsInForm()
+                        emptyLanguageFieldsInForm() ||
+                        versionError
                       }>
                       {'Submit Template'}
                     </PrimaryButton>

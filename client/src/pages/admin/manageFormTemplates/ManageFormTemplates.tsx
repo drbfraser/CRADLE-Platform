@@ -5,16 +5,23 @@ import {
   TableRow,
   Tooltip,
 } from '@mui/material';
-import { getFormTemplateCsvAsync, getFormTemplatesAsync } from 'src/shared/api';
+import {
+  getFormTemplateAsync,
+  getFormTemplateCsvAsync,
+  getAllFormTemplatesAsync,
+} from 'src/shared/api';
 import { useEffect, useState } from 'react';
-
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import AdminTable from '../AdminTable';
 import ArchiveTemplateDialog from './ArchiveTemplateDialog';
 import { CloudDownloadOutlined, Edit } from '@mui/icons-material';
 import UploadTemplate from './UploadTemplate';
 import DeleteForever from '@mui/icons-material/DeleteForever';
-import { FormTemplate } from 'src/shared/types';
+import {
+  FormTemplate,
+  FormTemplateWithQuestions,
+  TQuestion,
+} from 'src/shared/types';
 import { TableCell } from '../../../shared/components/apiTable/TableCell';
 import { getPrettyDate } from 'src/shared/utils';
 import { useAdminStyles } from '../adminStyles';
@@ -41,6 +48,21 @@ export const ManageFormTemplates = () => {
 
   const [archivePopupForm, setArchivePopupForm] = useState<FormTemplate>();
   const [unarchivePopupForm, setUnarchivePopupForm] = useState<FormTemplate>();
+
+  const [customFormWithQuestions, setCustomFormWithQuestions] =
+    useState<FormTemplateWithQuestions | null>(null);
+
+  useEffect(() => {
+    if (customFormWithQuestions != null) {
+      history.push({
+        pathname: '/admin/form-templates/new',
+        // search: `id=${customFormWithQuestions.classification.id}`,
+        state: {
+          ...customFormWithQuestions,
+        },
+      });
+    }
+  }, [customFormWithQuestions]);
 
   const isTransformed = useMediaQuery('(min-width:900px)');
 
@@ -74,17 +96,11 @@ export const ManageFormTemplates = () => {
 
   const rowActions = [
     {
-      tooltip: 'Edit From Template',
+      tooltip: 'Edit Form Template',
       Icon: Edit,
       isVisible: (formTemplate: FormTemplate) => !formTemplate.archived,
-      onClick: (formTemplate: FormTemplate) => {
-        history.push({
-          pathname: '/admin/form-templates/new',
-          search: `id=${formTemplate.id}&version=${formTemplate.version}`,
-          state: {
-            ...formTemplate,
-          },
-        });
+      onClick: async (formTemplate: FormTemplate) => {
+        getFormTemplateWithQuestions(formTemplate);
       },
     },
     {
@@ -140,7 +156,7 @@ export const ManageFormTemplates = () => {
 
   const getFormTemplates = async (showArchivedTemplates: boolean) => {
     try {
-      const resp: FormTemplate[] = await getFormTemplatesAsync(
+      const resp: FormTemplate[] = await getAllFormTemplatesAsync(
         showArchivedTemplates
       );
 
@@ -179,6 +195,38 @@ export const ManageFormTemplates = () => {
 
     setTableData(rows);
   }, [formTemplates, search]);
+
+  const getFormTemplateWithQuestions = async (formTemplate: FormTemplate) => {
+    const questions = await getFormTemplateAsync(formTemplate.id);
+    const formTemplateWithQuestions: FormTemplateWithQuestions = {
+      classification: {
+        name: formTemplate.classification.name,
+        id: formTemplate.classification.id,
+      },
+      version: formTemplate.version,
+      questions: questions.questions.map((q: TQuestion) => {
+        return {
+          categoryIndex: null,
+          questionId: q.questionId,
+          questionLangVersions: [...q.questionLangVersions],
+          questionIndex: q.questionIndex,
+          questionType: q.questionType,
+          required: q.required,
+          numMin: null,
+          numMax: null,
+          stringMaxLength: null,
+          units: null,
+          visibleCondition: q.visibleCondition,
+        };
+      }),
+    };
+
+    try {
+      setCustomFormWithQuestions(formTemplateWithQuestions);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const Row = ({ row }: { row: (string | number)[] }) => {
     const formTemplate = formTemplates.find((form) => form.id === row[0]);

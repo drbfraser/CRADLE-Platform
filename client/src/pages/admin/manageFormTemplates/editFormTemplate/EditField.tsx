@@ -438,12 +438,14 @@ const EditField = ({
     const qLangVersions = [] as QuestionLangVersion[];
     questionLangVersions.forEach((qLangVersion) => {
       const mcOptions = [] as McOption[];
-      qLangVersion.mcOptions.forEach((mcOption) => {
-        mcOptions.push({
-          mcid: mcOption.mcid,
-          opt: mcOption.opt,
+      if (qLangVersion.mcOptions) {
+        qLangVersion.mcOptions.forEach((mcOption) => {
+          mcOptions.push({
+            mcid: mcOption.mcid,
+            opt: mcOption.opt,
+          });
         });
-      });
+      }
       qLangVersions.push({
         lang: qLangVersion.lang,
         mcOptions: mcOptions,

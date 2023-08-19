@@ -58,7 +58,7 @@ export const AdminPage = () => {
     <>
       <Switch>
         <Route path={`${match.path}/form-templates/new`}>
-          <CustomFormTemplate></CustomFormTemplate>
+          <CustomFormTemplate />
         </Route>
         <Route>
           <Tab

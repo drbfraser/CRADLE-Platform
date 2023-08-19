@@ -274,11 +274,7 @@ export type Referrer = {
 export type HealthFacility = string;
 
 export interface IFormClassification {
-  id: string;
-  name: string;
-}
-
-export interface INewFormClassification {
+  id: string | undefined;
   name: string;
 }
 
@@ -292,7 +288,7 @@ export interface FormTemplate {
 }
 
 export interface FormTemplateWithQuestions {
-  classification: INewFormClassification;
+  classification: IFormClassification;
   version: string;
   questions: TQuestion[];
 }
@@ -357,7 +353,7 @@ export type Question = {
 //TQuestion will be only used in template
 // with * options will be used in creating template
 export interface TQuestion {
-  categoryIndex: OrNull<number> | undefined;
+  categoryIndex: OrNull<number>;
   questionId: string | undefined;
   questionLangVersions: QuestionLangVersion[];
   questionIndex: number;

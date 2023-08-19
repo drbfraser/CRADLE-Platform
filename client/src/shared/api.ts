@@ -182,7 +182,20 @@ export const submitFormTemplateAsync = async (
   );
 };
 
-export const getFormTemplatesAsync = async (
+export const getFormClassificationTemplates = async (
+  formClassificationId: string
+) =>
+  (
+    await apiFetch(
+      API_URL +
+        EndpointEnum.FORM_CLASSIFICATIONS +
+        '/' +
+        formClassificationId +
+        '/templates'
+    )
+  ).json();
+
+export const getAllFormTemplatesAsync = async (
   includeArchived: boolean
 ): Promise<FormTemplate[]> =>
   (
@@ -193,20 +206,25 @@ export const getFormTemplatesAsync = async (
     )
   ).json();
 
+export const getFormTemplateAsync = async (formTemplateId: string) =>
+  (
+    await apiFetch(API_URL + EndpointEnum.FORM_TEMPLATES + `/${formTemplateId}`)
+  ).json();
+
 export const getFormTemplateLangAsync = async (
   formTemplateId: string,
   lang: string
 ) =>
   (
     await apiFetch(
-      API_URL + EndpointEnum.FORM_TEMPLATE + `/${formTemplateId}?lang=${lang}`
+      API_URL + EndpointEnum.FORM_TEMPLATES + `/${formTemplateId}?lang=${lang}`
     )
   ).json();
 
 export const getFormTemplateLangsAsync = async (formTemplateId: string) =>
   (
     await apiFetch(
-      API_URL + EndpointEnum.FORM_TEMPLATE + `/${formTemplateId}/versions`
+      API_URL + EndpointEnum.FORM_TEMPLATES + `/${formTemplateId}/versions`
     )
   ).json();
 
@@ -216,7 +234,7 @@ export const getFormTemplateCsvAsync = async (
 ): Promise<Blob> => {
   const response = await apiFetch(
     API_URL +
-      EndpointEnum.FORM_TEMPLATE +
+      EndpointEnum.FORM_TEMPLATES +
       `/${formTemplateId}/versions/${version}/csv`
   );
 
