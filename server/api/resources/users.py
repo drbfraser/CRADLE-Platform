@@ -365,8 +365,11 @@ class UserAuthApi(Resource):
             # convert dates to string
             sms_key["stale_date"] = str(sms_key["stale_date"])
             sms_key["expiry_date"] = str(sms_key["expiry_date"])
-        
-        user_data["smsKey"] = json.dumps(sms_key)
+            # store the constructed sms key
+            user_data["smsKey"] = json.dumps(sms_key)
+        else:
+            user_data["smsKey"] = "NOTFOUND"
+
 
         LOGGER.info(f"{user.id} has logged in")
 
