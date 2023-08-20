@@ -18,19 +18,13 @@ import Typography from '@mui/material/Typography';
 import makeStyles from '@mui/styles/makeStyles';
 import { useAppDispatch, useDimensionsContext } from 'src/app/context/hooks';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import {
-  SecretKeyState,
-  createSecretKey,
-  getSecretKey,
-  updateSecretKey,
-} from 'src/redux/reducers/secretKey';
+import { SecretKeyState, getSecretKey } from 'src/redux/reducers/secretKey';
 import { ReduxState } from 'src/redux/reducers';
 import { Toast } from 'src/shared/components/toast';
 
 export const ReferralsPage = () => {
   const classes = useStyles();
-  const [updateMessage, setUpdateMessage] = useState<boolean>(false);
-  const [createMessage, setCreateMessage] = useState<boolean>(false);
+  const [expiredMessage, setExpiredMessage] = useState<boolean>(false);
   const [search, setSearch] = useState('');
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState<boolean>(false);
   const [filter, setFilter] = useState<ReferralFilter | undefined>(undefined);
@@ -72,35 +66,17 @@ export const ReferralsPage = () => {
       (secretKey.data.message === SecretKeyMessage.WARN ||
         secretKey.data.message === SecretKeyMessage.EXPIRED)
     ) {
-      dispatch(updateSecretKey(userId));
-      setUpdateMessage(true);
-    }
-
-    if (
-      userId &&
-      secretKey.data === undefined &&
-      secretKey.error === SecretKeyMessage.NOTFOUND
-    ) {
-      dispatch(createSecretKey(userId));
-      setCreateMessage(true);
+      setExpiredMessage(true);
     }
   }, [secretKey]);
 
   return (
     <>
       <Toast
-        severity="error"
-        message={
-          "Your key's Stale-date passed, so your key is updated automatically by server"
-        }
-        open={updateMessage}
-        onClose={() => setUpdateMessage(false)}
-      />
-      <Toast
         severity="warning"
-        message={'Your secret key is created automatically by server'}
-        open={createMessage}
-        onClose={() => setCreateMessage(false)}
+        message={"Your key's stale-date has passed, please update it"}
+        open={expiredMessage}
+        onClose={() => setExpiredMessage(false)}
       />
       <Paper className={classes.wrapper}>
         <div className={classes.topWrapper}>
