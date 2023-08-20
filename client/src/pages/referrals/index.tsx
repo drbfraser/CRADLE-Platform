@@ -74,7 +74,7 @@ export const ReferralsPage = () => {
     <>
       <Toast
         severity="warning"
-        message={"Your key's Stale-date passed, so need to update"}
+        message={"Your key's stale-date has passed, please update it"}
         open={expiredMessage}
         onClose={() => setExpiredMessage(false)}
       />
