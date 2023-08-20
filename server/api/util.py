@@ -714,6 +714,14 @@ def get_all_phoneNumbers_for_user(user_id):
     return numbers
 
 
+def get_user_from_phone_number(phone_number):
+    phone_number_object = crud.read(UserPhoneNumber, number=phone_number)
+    if phone_number_object:
+        user = crud.read(User, id=phone_number_object.user_id)
+        return user
+    return None
+
+
 # Add new_phone_number to the list of numbers of the user with user_id.
 def add_new_phoneNumber_for_user(new_phone_number, user_id):
     # check to see if the phone number is already in the database for any user
@@ -816,6 +824,13 @@ def get_user_secret_key(userId):
     if sms_secret_key and sms_secret_key.secret_Key:
         sms_key = marshal.marshal(sms_secret_key, SmsSecretKey)
         return sms_key
+    return None
+
+
+def get_user_secret_key_string(userId):
+    sms_secret_key = crud.read(SmsSecretKey, userId=userId)
+    if sms_secret_key:
+        return sms_secret_key.secret_Key
     return None
 
 

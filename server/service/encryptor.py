@@ -1,54 +1,67 @@
 import hashlib
 import os
 
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.primitives import padding
-from cryptography.hazmat.backends import default_backend
+from Crypto.Cipher import AES
+
+block_size = 16
+iv_size = 32
+mode = AES.MODE_CBC
 
 
-keySize = 32
-ivSize = 16
+# TODO: test
+# plaintext should be a bytes
+def encrypt(plaintext: bytes, iv: str, key: str) -> str:
+    key = hex2bytes(key)
+
+    # pad the message - with pkcs5 style
+    padded = pad(plaintext)
+    iv_bytes = hex2bytes(iv)
+    # new instance of AES with encoded key
+    cipher = AES.new(key, AES.MODE_CBC, iv_bytes)
+    # now encrypt the padded bytes
+    encrypted = cipher.encrypt(padded)
+    ciphertext = bytes2hex(encrypted)
+    # concatinate iv to ciphertext
+    message = iv + ciphertext
+    return message
 
 
-# generate random IV(initalized vector)
-def generateRandomIV():
-    return os.urandom(ivSize)
+# chiphertext should be a hexString
+def decrypt(chiphertext: str, key: str) -> str:
+    iv = chiphertext[0:iv_size]
+    message = chiphertext[iv_size:]
+    key = hex2bytes(key)
+
+    # convert message and iv to bytes
+    message = hex2bytes(message)
+    iv = hex2bytes(iv)
+
+    # decrypt and decode
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    decrypted = cipher.decrypt(message)
+    decrypted = unpad(decrypted)
+    return decrypted
 
 
-# generate fixed Key(user key)
-def generate_key(email):
-    hashed_key = hashlib.sha256(email.encode("utf-8")).hexdigest()
-    user_key = hashed_key[:keySize]
-    return user_key
+################ Helper functions ################
 
 
-def encrypt(token, key):
-    iv = generateRandomIV()
-    key = key.encode("utf-8")
-    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
-    encryptor = cipher.encryptor()
-
-    padder = padding.PKCS7(128).padder()
-    padded_data = padder.update(token) + padder.finalize()
-
-    encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
-    combined = iv + encrypted_data
-
-    return combined
+def hex2bytes(key: str):
+    return bytes.fromhex(key)
 
 
-def decrypt(combined, key):
-    iv = combined[:ivSize]
-    cipher_text = combined[ivSize:]
-    key = key.encode("utf-8")
+def bytes2hex(key: bytes):
+    return key.hex()
 
-    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
-    decryptor = cipher.decryptor()
-    try:
-        decrypted_data = decryptor.update(cipher_text) + decryptor.finalize()
 
-        unpadder = padding.PKCS7(128).unpadder()
-        unpadded_data = unpadder.update(decrypted_data) + unpadder.finalize()
-        return unpadded_data
-    except:
-        raise ValueError("Invalid Key")
+def pad(byte_array: bytearray):
+    """
+    pkcs5 padding
+    """
+    pad_len = block_size - len(byte_array) % block_size
+    return byte_array + (bytes([pad_len]) * pad_len)
+
+
+# pkcs5 - unpadding
+def unpad(byte_array: bytearray):
+    return byte_array[: -ord(byte_array[-1:])]

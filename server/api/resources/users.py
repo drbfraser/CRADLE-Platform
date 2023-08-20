@@ -238,8 +238,6 @@ class UserRegisterApi(Resource):
         new_user["password"] = flask_bcrypt.generate_password_hash(new_user["password"])
         listOfVhts = new_user.pop("supervises", None)
 
-        new_user["secretKey"] = encryptor.generate_key(new_user["email"])
-
         # Create the new user
         userModel = marshal.unmarshal(User, new_user)
         crud.create(userModel)
@@ -347,11 +345,28 @@ class UserAuthApi(Resource):
         user_data["token"] = get_access_token(user_data)
         user_data["refresh"] = get_refresh_token(user_data)
 
+        # construct and add the sms key informations in the same format as api/user/<int:user_id>/smskey
         sms_key = get_user_secret_key(user.id)
-
-        sms_key["stale_date"] = str(sms_key["stale_date"])
-        sms_key["expiry_date"] = str(sms_key["expiry_date"])
-        user_data["smsKey"] = json.dumps(sms_key)
+        if sms_key:
+            # remove extra items
+            del sms_key["id"]
+            del sms_key["userId"]
+            # change the key name
+            sms_key["sms_key"] = sms_key.pop("secret_Key")
+            # add message
+            if is_date_passed(sms_key["expiry_date"]):
+                sms_key["message"] = "EXPIRED"
+            elif is_date_passed(sms_key["stale_date"]):
+                sms_key["message"] = "WARN"
+            else:
+                sms_key["message"] = "NORMAL"
+            # convert dates to string
+            sms_key["stale_date"] = str(sms_key["stale_date"])
+            sms_key["expiry_date"] = str(sms_key["expiry_date"])
+            # store the constructed sms key
+            user_data["smsKey"] = json.dumps(sms_key)
+        else:
+            user_data["smsKey"] = "NOTFOUND"
 
         LOGGER.info(f"{user.id} has logged in")
 
