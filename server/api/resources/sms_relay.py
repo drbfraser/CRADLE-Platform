@@ -73,14 +73,12 @@ def create_flask_response(code: int, body: str, iv: str, user_sms_key: str) -> R
     response_dict = {"code": code, "body": body}
 
     response_json = json.dumps(response_dict)
-    print("reponse---------------", response_json)
     compressed_data = compressor.compress_from_string(response_json)
-    # TODO: FIX ==> change user in input to secretkey (user.secretKey doesn't exist) 
     encrypted_data = encryptor.encrypt(compressed_data, iv, user_sms_key)
 
     flask_response = make_response()
     flask_response.set_data(encrypted_data)
-    flask_response.status_code = 200
+    flask_response.status_code = code
 
     return flask_response
 
@@ -88,7 +86,6 @@ iv_size = 32
 
 def sms_relay_procedure():
     json_request = request.get_json(force=True)
-    print("final ====> ", json_request)
 
     # Error Checking
     error = sms_relay.validate_request(json_request)
@@ -127,43 +124,42 @@ def sms_relay_procedure():
 
     json_dict_data = json.loads(string_data)
 
-    print(f"python-debug:\n_______________________________________\n{json_dict_data}\n_______________________________________")
-
     error = sms_relay.validate_decrypted_body(json_dict_data)
     if error:
         return create_flask_response(400, invalid_json.format(error=error), encrypted_data[0:iv_size], user_secret_key)
 
-    # request_number = json_dict_data["requestNumber"]
-    # if (
-    #     not isinstance(request_number, int)
-    #     or request_number < 0
-    #     or request_number > 999999
-    # ):
-    #     return create_flask_response(
-    #         400, invalid_req_number.format(error=error_req_range), user
-    #     )
+    request_number = json_dict_data["requestNumber"]
+    request_number = int(request_number)
+    if (
+        not isinstance(request_number, int)
+        or request_number < 0
+        or request_number > 999999
+    ):
+        return create_flask_response(
+            400, invalid_req_number.format(error=error_req_range), encrypted_data[0:iv_size], user_secret_key
+        )
 
-    # method = json_dict_data["method"]
-    # if method not in http_methods:
-    #     return create_flask_response(400, invalid_method, user)
+    method = json_dict_data["method"]
+    if method not in http_methods:
+        return create_flask_response(400, invalid_method, encrypted_data[0:iv_size], user_secret_key)
 
-    # endpoint = json_dict_data["endpoint"]
+    endpoint = json_dict_data["endpoint"]
 
-    # header = json_dict_data.get("header")
-    # if not header:
-    #     header = {}
+    header = json_dict_data.get("header")
+    if not header:
+        header = {}
 
-    # json_body = json_dict_data.get("body")
-    # if not json_body:
-    #     json_body = "{}"
+    json_body = json_dict_data.get("body")
+    if not json_body:
+        json_body = "{}"
 
-    # # Sending request to endpoint
-    # response = send_request_to_endpoint(method, endpoint, header, json_body, user)
+    # Sending request to endpoint
+    response = send_request_to_endpoint(method, endpoint, header, json_body, user)
 
-    # # Creating Response
-    # response_code = response.status_code
-    # response_body = json.dumps(response.json())
-    # return create_flask_response(response_code, response_body, user)
+    # Creating Response
+    response_code = response.status_code
+    response_body = json.dumps(response.json())
+    return create_flask_response(response_code, response_body, encrypted_data[0:iv_size], user_secret_key)
 
 
 # /api/sms_relay
