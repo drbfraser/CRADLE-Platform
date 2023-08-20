@@ -7,11 +7,12 @@ block_size = 16
 iv_size = 32
 mode = AES.MODE_CBC
 
+
 # TODO: test
 # plaintext should be a bytes
 def encrypt(plaintext: bytes, iv: str, key: str) -> str:
     key = hex2bytes(key)
-    
+
     # pad the message - with pkcs5 style
     padded = pad(plaintext)
     iv_bytes = hex2bytes(iv)
@@ -23,6 +24,7 @@ def encrypt(plaintext: bytes, iv: str, key: str) -> str:
     # concatinate iv to ciphertext
     message = iv + ciphertext
     return message
+
 
 # chiphertext should be a hexString
 def decrypt(chiphertext: str, key: str) -> str:
@@ -40,13 +42,17 @@ def decrypt(chiphertext: str, key: str) -> str:
     decrypted = unpad(decrypted)
     return decrypted
 
+
 ################ Helper functions ################
+
 
 def hex2bytes(key: str):
     return bytes.fromhex(key)
 
+
 def bytes2hex(key: bytes):
     return key.hex()
+
 
 def pad(byte_array: bytearray):
     """
@@ -54,6 +60,7 @@ def pad(byte_array: bytearray):
     """
     pad_len = block_size - len(byte_array) % block_size
     return byte_array + (bytes([pad_len]) * pad_len)
+
 
 # pkcs5 - unpadding
 def unpad(byte_array: bytearray):

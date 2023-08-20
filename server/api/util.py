@@ -712,7 +712,7 @@ def get_all_phoneNumbers_for_user(user_id):
     phone_numbers = crud.read_all(UserPhoneNumber, user_id=user_id)
     numbers = [phone_number.number for phone_number in phone_numbers]
     return numbers
-    
+
 
 def get_user_from_phone_number(phone_number):
     phone_number_object = crud.read(UserPhoneNumber, number=phone_number)
@@ -832,6 +832,7 @@ def get_user_secret_key_string(userId):
     if sms_secret_key:
         return sms_secret_key.secret_Key
     return None
+
 
 def generate_new_key():
     return bytes2hex(secrets.randbits(256).to_bytes(32, "little"))

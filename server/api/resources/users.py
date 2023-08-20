@@ -368,7 +368,6 @@ class UserAuthApi(Resource):
         else:
             user_data["smsKey"] = "NOTFOUND"
 
-
         LOGGER.info(f"{user.id} has logged in")
 
         return user_data, 200

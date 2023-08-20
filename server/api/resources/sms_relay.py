@@ -15,7 +15,11 @@ import base64
 import json
 from api.resources.users import get_user_data_for_token, get_access_token
 from api.util import phoneNumber_regex_check as regex_check
-from api.util import get_user_secret_key_string, phoneNumber_exists, get_user_from_phone_number
+from api.util import (
+    get_user_secret_key_string,
+    phoneNumber_exists,
+    get_user_from_phone_number,
+)
 
 api_url = "http://localhost:5000/{endpoint}"
 
@@ -82,7 +86,9 @@ def create_flask_response(code: int, body: str, iv: str, user_sms_key: str) -> R
 
     return flask_response
 
+
 iv_size = 32
+
 
 def sms_relay_procedure():
     json_request = request.get_json(force=True)
@@ -105,7 +111,7 @@ def sms_relay_procedure():
 
     if not user_exists:
         abort(400, message=phone_number_not_exists.format(type="JSON"))
-    
+
     # get user id for the user that phoneNumber belongs to
     user = get_user_from_phone_number(phone_number)
 
@@ -126,7 +132,12 @@ def sms_relay_procedure():
 
     error = sms_relay.validate_decrypted_body(json_dict_data)
     if error:
-        return create_flask_response(400, invalid_json.format(error=error), encrypted_data[0:iv_size], user_secret_key)
+        return create_flask_response(
+            400,
+            invalid_json.format(error=error),
+            encrypted_data[0:iv_size],
+            user_secret_key,
+        )
 
     request_number = json_dict_data["requestNumber"]
     request_number = int(request_number)
@@ -136,12 +147,17 @@ def sms_relay_procedure():
         or request_number > 999999
     ):
         return create_flask_response(
-            400, invalid_req_number.format(error=error_req_range), encrypted_data[0:iv_size], user_secret_key
+            400,
+            invalid_req_number.format(error=error_req_range),
+            encrypted_data[0:iv_size],
+            user_secret_key,
         )
 
     method = json_dict_data["method"]
     if method not in http_methods:
-        return create_flask_response(400, invalid_method, encrypted_data[0:iv_size], user_secret_key)
+        return create_flask_response(
+            400, invalid_method, encrypted_data[0:iv_size], user_secret_key
+        )
 
     endpoint = json_dict_data["endpoint"]
 
@@ -159,7 +175,9 @@ def sms_relay_procedure():
     # Creating Response
     response_code = response.status_code
     response_body = json.dumps(response.json())
-    return create_flask_response(response_code, response_body, encrypted_data[0:iv_size], user_secret_key)
+    return create_flask_response(
+        response_code, response_body, encrypted_data[0:iv_size], user_secret_key
+    )
 
 
 # /api/sms_relay
