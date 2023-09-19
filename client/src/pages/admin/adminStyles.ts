@@ -36,7 +36,7 @@ export const useAdminStyles = makeStyles({
     '@media (min-width: 899px)': {
       height: 56,
     },
-    '@media (min-width: 1077px)': {
+    '@media (min-width: 1068px)': {
       marginLeft: 10,
     },
   },
