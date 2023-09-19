@@ -23,7 +23,7 @@ export const ManageFacilities = () => {
   const [tableData, setTableData] = useState<(string | number)[][]>([]);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [facilityToEdit, setFacilityToEdit] = useState<IFacility>();
-  const isTransformed = useMediaQuery('(min-width:800px)');
+  const isTransformed = useMediaQuery('(min-width:900px)');
 
   const columns = [
     {
