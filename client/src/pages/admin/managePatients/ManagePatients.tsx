@@ -24,7 +24,7 @@ export const ManagePatients = () => {
   const [unarchivePopupOpen, setUnarchivePopupOpen] = useState(false);
   const [popupPatient, setPopupPatient] = useState<PatientWithIndex>();
   const [showArchivedPatients, setShowArchivedPatients] = useState(true);
-  const isTransformed = useMediaQuery('(min-width:800px)');
+  const isTransformed = useMediaQuery('(min-width:900px)');
 
   const columns = [
     {

@@ -33,7 +33,7 @@ export const useAdminStyles = makeStyles({
     },
   },
   buttonR: {
-    '@media (min-width: 899px)': {
+    '@media (min-width: 900px)': {
       height: 56,
     },
     '@media (min-width: 1068px)': {
