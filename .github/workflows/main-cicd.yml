@@ -1,4 +1,4 @@
-name: 415-Cradle/Cradle-Platform
+name: MainCICD-Cradle-Platform
 # Main GitHub CI/CD pipeline definition file
 # For syntax, see: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
 
@@ -391,7 +391,7 @@ jobs:
     uses: ./.github/workflows/deploy-from-dockerhub.yml
     with:
       RUNNER_NAME: deploy-development
-      DOMAIN:      cradle-stg.cmpt.sfu.ca
+      DOMAIN:      cradle-dev.cmpt.sfu.ca
       IMAGE_TAG:   ${{ needs.export-image-tag.outputs.image_tag }}
     secrets: inherit
 
