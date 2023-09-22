@@ -253,7 +253,7 @@ describe('Form templates', () => {
     cy.get('.MuiTableBody-root').contains('Dinner Party Form Multilingual').siblings().children().find('[data-testid="EditIcon"]').click()
     cy.contains('.MuiOutlinedInput-root', 'Title').children('.MuiOutlinedInput-input').should('have.value', "Dinner Party Form Multilingual")
     cy.contains('.MuiOutlinedInput-root', 'Version').children('.MuiOutlinedInput-input').should('have.value',"1")
-    // bug: only one language form gets saved
+    // bug: only one language form gets fetched
     // cy.contains('.MuiOutlinedInput-root', 'Language').children('.MuiOutlinedInput-input').should('have.value',"English, Spanish")
   })
 });
