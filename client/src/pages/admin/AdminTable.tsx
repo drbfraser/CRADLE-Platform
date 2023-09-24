@@ -33,20 +33,21 @@ const AdminTable = (props: IProps) => {
       <TextField
         type="text"
         variant="outlined"
+        className={styles.text}
         size={props.isTransformed ? 'medium' : 'small'}
         placeholder="Search..."
         value={props.search}
         onChange={(e) => props.setSearch(e.target.value)}
       />
       {props.newBtnLabel && (
-        <PrimaryButton className={styles.button} onClick={props.newBtnOnClick}>
+        <PrimaryButton className={styles.buttonL} onClick={props.newBtnOnClick}>
           <AddIcon />
           {props.newBtnLabel}
         </PrimaryButton>
       )}
       {props.uploadBtnLabel && (
         <PrimaryButton
-          className={styles.button}
+          className={styles.buttonR}
           onClick={props.uploadBtnLabelOnClick}>
           <FileUploadIcon />
           {props.uploadBtnLabel}

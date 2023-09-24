@@ -17,12 +17,27 @@ export const useAdminStyles = makeStyles({
   cell: {
     padding: '4px 16px',
   },
-  button: {
-    height: '100%',
-    marginLeft: 10,
-  },
   right: {
     float: 'right',
-    height: 56,
+  },
+  text: {
+    marginRight: 10,
+    marginBottom: 10,
+  },
+  buttonL: {
+    '@media (max-width: 650px)': {
+      marginBottom: 10,
+    },
+    '@media (min-width: 900px)': {
+      height: 56,
+    },
+  },
+  buttonR: {
+    '@media (min-width: 900px)': {
+      height: 56,
+    },
+    '@media (min-width: 1068px)': {
+      marginLeft: 10,
+    },
   },
 });
