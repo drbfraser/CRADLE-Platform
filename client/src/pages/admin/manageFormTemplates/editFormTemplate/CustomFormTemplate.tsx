@@ -109,23 +109,29 @@ export const CustomFormTemplate = () => {
                   <Grid item xs={12}>
                     <h2>Custom Form Properties</h2>
                   </Grid>
-                  <Grid item xs={12} md={4}>
-                    <Field
-                      label={'Title'}
-                      component={TextField}
-                      required={true}
-                      variant="outlined"
-                      defaultValue={targetFrom?.classification?.name ?? ''}
-                      fullWidth
-                      inputProps={{
-                        // TODO: Determine what types of input restrictions we should have for title
-                        maxLength: Number.MAX_SAFE_INTEGER,
-                      }}
-                      onChange={(e: any) => {
-                        form.classification.name = e.target.value;
-                      }}
-                    />
-                  </Grid>
+                  <Tooltip
+                    disableFocusListener
+                    disableTouchListener
+                    title={'Enter your form title here'}
+                    arrow>
+                    <Grid item xs={12} md={4}>
+                      <Field
+                        label={'Title'}
+                        component={TextField}
+                        required={true}
+                        variant="outlined"
+                        defaultValue={targetFrom?.classification?.name ?? ''}
+                        fullWidth
+                        inputProps={{
+                          // TODO: Determine what types of input restrictions we should have for title
+                          maxLength: Number.MAX_SAFE_INTEGER,
+                        }}
+                        onChange={(e: any) => {
+                          form.classification.name = e.target.value;
+                        }}
+                      />
+                    </Grid>
+                  </Tooltip>
                   <Grid item xs={12} md={4}>
                     <Field
                       label={'Version'}
@@ -150,6 +156,7 @@ export const CustomFormTemplate = () => {
                       }}
                     />
                   </Grid>
+
                   <Grid item xs={12} md={4}>
                     <LanguageModal
                       language={language}
@@ -205,17 +212,23 @@ const LanguageModal = ({ language, setLanguage }: LanguageModalProps) => {
   };
   return (
     <>
-      <TextField
-        aria-readonly
-        label={'Language'}
-        fullWidth
-        required={true}
-        focused={showModal}
-        multiline
-        variant="outlined"
-        value={language.join(', ')}
-        onClick={() => setShowModal(true)}
-      />
+      <Tooltip
+        disableFocusListener
+        disableTouchListener
+        title={'Select your form languages here'}
+        arrow>
+        <TextField
+          aria-readonly
+          label={'Language'}
+          fullWidth
+          required={true}
+          focused={showModal}
+          multiline
+          variant="outlined"
+          value={language.join(', ')}
+          onClick={() => setShowModal(true)}
+        />
+      </Tooltip>
       <Dialog
         fullWidth
         maxWidth={'md'}

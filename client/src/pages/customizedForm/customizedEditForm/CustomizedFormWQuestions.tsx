@@ -26,7 +26,8 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import EditField from 'src/pages/admin/manageFormTemplates/editFormTemplate/EditField';
 import { Autocomplete, AutocompleteRenderInputParams } from 'formik-mui';
-import { TextField, Typography } from '@mui/material';
+import { TextField, Tooltip, Typography, useMediaQuery } from '@mui/material';
+
 interface IProps {
   fm: FormTemplateWithQuestions;
   languages: string[];
@@ -178,6 +179,11 @@ export const CustomizedFormWQuestions = ({
     return emptyLangs;
   };
 
+  const isBigScreen = useMediaQuery('(min-width:900px)');
+
+  const disabled =
+    !(fm?.questions?.length > 0) || emptyLanguageFieldsInForm() || versionError;
+
   return (
     <>
       <APIErrorToast
@@ -209,6 +215,7 @@ export const CustomizedFormWQuestions = ({
                   <Grid item xs={10}>
                     <h2>Current Form</h2>
                   </Grid>
+
                   <Grid item xs={2}>
                     <Field
                       key={'view-lang'}
@@ -222,14 +229,21 @@ export const CustomizedFormWQuestions = ({
                         setSelectedLanguage(value);
                       }}
                       renderInput={(params: AutocompleteRenderInputParams) => (
-                        <TextField
-                          {...params}
-                          name={languages[0]}
-                          helperText={''}
-                          label="View Language"
-                          variant="outlined"
-                          required
-                        />
+                        <Tooltip
+                          disableFocusListener
+                          disableTouchListener
+                          title={'Select view language for your form'}
+                          arrow
+                          placement="left">
+                          <TextField
+                            {...params}
+                            name={languages[0]}
+                            helperText={''}
+                            label="View Language"
+                            variant="outlined"
+                            required
+                          />
+                        </Tooltip>
                       )}
                     />
                   </Grid>
@@ -265,16 +279,23 @@ export const CustomizedFormWQuestions = ({
                               <KeyboardArrowUpIcon fontSize="small" />
                             </IconButton>
                           </Grid>
-                          <Grid item xs={6}>
-                            <IconButton
-                              key={`edit-field-${question.questionIndex}`}
-                              size="small"
-                              onClick={(e) => {
-                                handleEditField(question);
-                              }}>
-                              <EditIcon fontSize="small" />
-                            </IconButton>
-                          </Grid>
+                          <Tooltip
+                            disableFocusListener
+                            disableTouchListener
+                            title={'Edit field'}
+                            placement={isBigScreen ? 'right' : 'top'}
+                            arrow>
+                            <Grid item xs={6}>
+                              <IconButton
+                                key={`edit-field-${question.questionIndex}`}
+                                size="small"
+                                onClick={(e) => {
+                                  handleEditField(question);
+                                }}>
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                            </Grid>
+                          </Tooltip>
                           <Grid item xs={6}>
                             <IconButton
                               key={`field-down-${question.questionIndex}`}
@@ -285,17 +306,24 @@ export const CustomizedFormWQuestions = ({
                               <KeyboardArrowDownIcon fontSize="small" />
                             </IconButton>
                           </Grid>
-                          <Grid item xs={6}>
-                            <IconButton
-                              key={`delete-field-${question.questionIndex}`}
-                              size="small"
-                              color="error"
-                              onClick={(e) => {
-                                handleDeleteField(question);
-                              }}>
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
-                          </Grid>
+                          <Tooltip
+                            disableFocusListener
+                            disableTouchListener
+                            title={'Delete field'}
+                            placement={isBigScreen ? 'right' : 'top'}
+                            arrow>
+                            <Grid item xs={6}>
+                              <IconButton
+                                key={`delete-field-${question.questionIndex}`}
+                                size="small"
+                                color="error"
+                                onClick={(e) => {
+                                  handleDeleteField(question);
+                                }}>
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </Grid>
+                          </Tooltip>
                         </Grid>
                         <Grid container pl={3}>
                           {missingFields(question) && (
@@ -344,18 +372,23 @@ export const CustomizedFormWQuestions = ({
                     </PrimaryButton>
                   </Grid>
                   <Grid item container xs={6} justifyContent="flex-end">
-                    <PrimaryButton
-                      onClick={() => {
-                        setIsSubmitPopupOpen(true);
-                      }}
-                      type="button"
-                      disabled={
-                        !(fm?.questions?.length > 0) ||
-                        emptyLanguageFieldsInForm() ||
-                        versionError
-                      }>
-                      {'Submit Template'}
-                    </PrimaryButton>
+                    <Tooltip
+                      disableFocusListener
+                      disableTouchListener
+                      title={disabled ? 'Missing field data' : ''}
+                      placement={isBigScreen ? 'left' : 'top'}
+                      arrow>
+                      <div>
+                        <PrimaryButton
+                          onClick={() => {
+                            setIsSubmitPopupOpen(true);
+                          }}
+                          type="button"
+                          disabled={disabled}>
+                          {'Submit Template'}
+                        </PrimaryButton>
+                      </div>
+                    </Tooltip>
                   </Grid>
                 </Grid>
               </Grid>

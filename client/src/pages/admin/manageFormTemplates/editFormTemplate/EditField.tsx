@@ -10,8 +10,9 @@ import {
   Radio,
   RadioGroup,
   Switch,
+  Tooltip,
 } from '@mui/material';
-import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {
   CancelButton,
   PrimaryButton,
@@ -220,7 +221,7 @@ const EditField = ({
                         setFieldChanged(!fieldChanged);
                         setFormDirty(true);
                       }}>
-                      <RemoveCircleOutlineIcon />
+                      <DeleteIcon fontSize="small" />
                     </IconButton>
                   </Grid>
                 </Grid>
@@ -302,7 +303,7 @@ const EditField = ({
                         setFieldChanged(!fieldChanged);
                         setFormDirty(true);
                       }}>
-                      <RemoveCircleOutlineIcon />
+                      <DeleteIcon fontSize="small" />
                     </IconButton>
                   </Grid>
                 </Grid>
@@ -543,48 +544,62 @@ const EditField = ({
             </Grid>
             {inputLanguages.map((lang) => (
               <Grid item xs={12} key={lang + '-field-text'}>
+                <Tooltip
+                  disableFocusListener
+                  disableTouchListener
+                  title={'Enter heading for this field'}
+                  placement="bottom-start"
+                  arrow>
+                  <TextField
+                    key={lang + '-field-text'}
+                    label={lang + ' Field Text'}
+                    required={true}
+                    variant="outlined"
+                    fullWidth
+                    multiline
+                    size="small"
+                    defaultValue={getFieldName(lang)}
+                    inputProps={{
+                      maxLength: Number.MAX_SAFE_INTEGER,
+                    }}
+                    onChange={(e) => {
+                      addFieldToQuestionLangVersions(lang, e.target.value);
+                      setFieldChanged(!fieldChanged);
+                      setFormDirty(true);
+                    }}
+                  />
+                </Tooltip>
+              </Grid>
+            ))}
+            <Tooltip
+              disableFocusListener
+              disableTouchListener
+              title={'Enter a value to uniquely identify this field'}
+              placement="bottom-start"
+              arrow>
+              <Grid item xs={12}>
                 <TextField
-                  key={lang + '-field-text'}
-                  label={lang + ' Field Text'}
+                  label={'Question ID'}
+                  key={'question-id'}
                   required={true}
                   variant="outlined"
                   fullWidth
                   multiline
+                  defaultValue={
+                    question && question.questionId ? question.questionId : ''
+                  }
                   size="small"
-                  defaultValue={getFieldName(lang)}
                   inputProps={{
                     maxLength: Number.MAX_SAFE_INTEGER,
                   }}
                   onChange={(e) => {
-                    addFieldToQuestionLangVersions(lang, e.target.value);
+                    setQuestionId(e.target.value);
                     setFieldChanged(!fieldChanged);
                     setFormDirty(true);
                   }}
                 />
               </Grid>
-            ))}
-            <Grid item xs={12}>
-              <TextField
-                label={'Question ID'}
-                key={'question-id'}
-                required={true}
-                variant="outlined"
-                fullWidth
-                multiline
-                defaultValue={
-                  question && question.questionId ? question.questionId : ''
-                }
-                size="small"
-                inputProps={{
-                  maxLength: Number.MAX_SAFE_INTEGER,
-                }}
-                onChange={(e) => {
-                  setQuestionId(e.target.value);
-                  setFieldChanged(!fieldChanged);
-                  setFormDirty(true);
-                }}
-              />
-            </Grid>
+            </Tooltip>
             <Grid item sm={12} md={2} lg={2}>
               <FormLabel id="field-type-label">
                 <Typography variant="h6">Field Type</Typography>
