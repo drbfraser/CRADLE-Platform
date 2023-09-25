@@ -1,7 +1,11 @@
 import { FormTemplateWithQuestions } from 'src/shared/types';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
-import { getLanguages, goBackWithFallback } from '../../../../shared/utils';
+import {
+  getLanguages,
+  getPrettyDateTime,
+  goBackWithFallback,
+} from '../../../../shared/utils';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import Typography from '@mui/material/Typography';
 import APIErrorToast from '../../../../shared/components/apiErrorToast/APIErrorToast';
@@ -39,6 +43,10 @@ export const CustomFormTemplate = () => {
   const [submitError, setSubmitError] = useState(false);
   const [language, setLanguage] = useState<string[]>(['English']);
 
+  const defaultVersion: string = getPrettyDateTime(
+    new Date(Date.now()).getTime() / 1000
+  );
+
   const classes = useStyles();
 
   const location = useLocation<FormTemplateWithQuestions>();
@@ -53,10 +61,11 @@ export const CustomFormTemplate = () => {
         }
       : {
           classification: { name: 'string', id: undefined },
-          version: 'string',
+          version: defaultVersion,
           questions: [],
         }
   );
+
   const [versionError, setVersionError] = useState<boolean>(
     targetFrom ? true : false
   );
@@ -132,7 +141,9 @@ export const CustomFormTemplate = () => {
                       component={TextField}
                       required={true}
                       variant="outlined"
-                      defaultValue={targetFrom ? targetFrom.version : ''}
+                      defaultValue={
+                        targetFrom ? targetFrom.version : defaultVersion
+                      }
                       error={versionError}
                       helperText={
                         versionError ? 'Must change version number' : ''
