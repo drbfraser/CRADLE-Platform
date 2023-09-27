@@ -263,7 +263,8 @@ jobs:
           chmod -R 775 /root/
           npm start &
           npx wait-on http://localhost:3000
-          npm run e2e
+          cypress install
+          cypress verify
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
     - name: Upload Test Artifacts
       uses: actions/upload-artifact@v2
