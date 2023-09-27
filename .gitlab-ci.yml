@@ -186,6 +186,8 @@ frontend unit tests:
     - npm run test --args a
 
 frontend integration tests:
+
+
   stage: test
   needs: []
   image: $NODE_IMAGE
