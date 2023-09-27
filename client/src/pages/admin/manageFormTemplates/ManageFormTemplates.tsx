@@ -208,7 +208,13 @@ export const ManageFormTemplates = () => {
         return {
           categoryIndex: null,
           questionId: q.questionId,
-          questionLangVersions: [...q.questionLangVersions],
+          questionLangVersions: q.questionLangVersions.map((qlv) => {
+            return {
+              lang: qlv.lang,
+              mcOptions: qlv.mcOptions,
+              questionText: qlv.questionText,
+            };
+          }),
           questionIndex: q.questionIndex,
           questionType: q.questionType,
           required: q.required,
