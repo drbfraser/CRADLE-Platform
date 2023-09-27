@@ -255,6 +255,8 @@ jobs:
         /venv/bin/python3 app.py &
         /venv/bin/python3 db.py rebuild --no-docker
         /venv/bin/python3 manage.py seed_test_data
+        echo "I am here"
+        echo ${{ env.CUSTOM_WORKSPACE }}
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
     - name: Run Integration Tests
       id: e2e_test
