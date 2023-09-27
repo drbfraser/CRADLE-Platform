@@ -259,7 +259,7 @@ jobs:
       env:
         PORT: "3000"
       run: |
-          chmod -R 775 ${{ env.CUSTOM_WORKSPACE }}
+          chmod -R 775 ./
           npm start &
           npx wait-on http://localhost:3000
           npm run e2e
