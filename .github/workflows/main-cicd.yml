@@ -237,7 +237,6 @@ jobs:
     - name: Install Node and Cypress
       run:  |
         npm install -g npm@$NPM_VERSION
-        npm install cypress
         apt-get update -y
         apt-get install -y default-mysql-client python3-pip python3-venv
         apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
@@ -262,7 +261,7 @@ jobs:
       run: |
           npm start &
           npx wait-on http://localhost:3000
-          npm run e2e -- --record --spec "cypress/e2e/addNewPatients.cy.ts"
+          cypress run
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
     - name: Upload Test Artifacts
       uses: actions/upload-artifact@v2
