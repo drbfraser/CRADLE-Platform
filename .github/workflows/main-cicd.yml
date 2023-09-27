@@ -260,7 +260,7 @@ jobs:
       env:
         PORT: "3000"
       run: |
-          npm run start &
+          npm start &
           npx wait-on http://localhost:3000
           npm run e2e -- --record --spec "cypress/e2e/addNewPatients.cy.ts"
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
