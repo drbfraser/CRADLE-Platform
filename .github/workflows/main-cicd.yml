@@ -260,7 +260,7 @@ jobs:
       env:
         PORT: "3000"
       run: |
-          chmod -R 775 ./../../
+          chmod -R 775 ${{ env.CUSTOM_WORKSPACE }}
           npm start &
           npx wait-on http://localhost:3000
           cypress install
