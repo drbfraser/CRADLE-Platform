@@ -259,6 +259,7 @@ jobs:
       env:
         PORT: "3000"
       run: |
+          export CYPRESS_CACHE_FOLDER=${{ env.CUSTOM_WORKSPACE }}/client/.cypress-cache
           chmod -R 775 /root/
           npm start &
           npx wait-on http://localhost:3000
