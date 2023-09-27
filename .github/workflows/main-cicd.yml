@@ -262,7 +262,7 @@ jobs:
       run: |
           npm run start &
           npx wait-on http://localhost:3000
-          npm run cy:run -- --record --spec "cypress/e2e/addNewPatients.cy.ts"
+          npm run e2e -- --record --spec "cypress/e2e/addNewPatients.cy.ts"
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
     - name: Upload Test Artifacts
       uses: actions/upload-artifact@v2
