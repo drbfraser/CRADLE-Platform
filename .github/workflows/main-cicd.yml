@@ -252,7 +252,6 @@ jobs:
         export PATH=$PATH:/venv/bin/
         /venv/bin/pip3 install --upgrade pip
         /venv/bin/pip3 install -r requirements.txt
-        /venv/bin/pip3 install routes
         /venv/bin/python3 app.py &
         /venv/bin/python3 db.py rebuild --no-docker
         /venv/bin/python3 manage.py seed_test_data
