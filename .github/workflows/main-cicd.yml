@@ -236,6 +236,7 @@ jobs:
         path: ${{ env.CUSTOM_WORKSPACE }}
     - name: Install Node and Cypress
       run:  |
+        export CYPRESS_CACHE_FOLDER=${{ env.CUSTOM_WORKSPACE }}/client/.cypress-cache
         npm install -g npm@$NPM_VERSION
         apt-get update -y
         apt-get install -y default-mysql-client python3-pip python3-venv
@@ -259,7 +260,6 @@ jobs:
       env:
         PORT: "3000"
       run: |
-          export CYPRESS_CACHE_FOLDER=${{ env.CUSTOM_WORKSPACE }}/client/.cypress-cache
           chmod -R 775 /root/
           npm start &
           npx wait-on http://localhost:3000
