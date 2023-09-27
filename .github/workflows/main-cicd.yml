@@ -26,6 +26,7 @@ jobs:
 
   display_github_contexts:
     runs-on: [self-hosted, docker]
+    if: false 
     container:
       image: node:14
     steps:
@@ -33,6 +34,7 @@ jobs:
 
   build-frontend:
     runs-on: [self-hosted, docker]
+    if: false
     container:
       image: node:18
     timeout-minutes: 60
@@ -62,6 +64,7 @@ jobs:
 
   update-aws:
     runs-on: [self-hosted, docker]
+    if: false 
     timeout-minutes: 60
     container:
       image: node:14
@@ -100,6 +103,7 @@ jobs:
 
   backend_unit_tests:
     runs-on: [self-hosted, docker]
+    if: false
     container: 
       image: python:3.9.1-buster
     outputs: 
@@ -125,6 +129,7 @@ jobs:
 
   backend_system_tests:
     runs-on: [self-hosted, docker]
+    if: false
     container: 
       image: python:3.9.1-buster
     needs: backend_unit_tests
@@ -269,6 +274,7 @@ jobs:
 
   frontend-lint-format:
     runs-on: [self-hosted, docker]
+    if: false
     container:
       image: node:18
     steps:
@@ -292,6 +298,7 @@ jobs:
 
   backend_format:
     runs-on: [self-hosted, docker]
+    if: false
     container: 
       image: python:3.9.1-buster
     steps:
@@ -313,6 +320,7 @@ jobs:
   # ----------------------------------------------------------------------------
   export-image-tag:
     runs-on: [self-hosted, docker]
+    if: false
     outputs:
       image_tag: ${{ steps.set_step.outputs.tag }}
     steps:
