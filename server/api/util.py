@@ -53,7 +53,7 @@ from api.constants import (
     FORM_TEMPLATE_VERSION_ROW,
 )
 
-SMS_KEY_DURATION = int(os.environ.get("SMS_KEY_DURATION")) or 40
+SMS_KEY_DURATION = 40
 
 
 def query_param_bool(request: Request, name: str) -> bool:
