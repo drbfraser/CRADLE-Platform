@@ -244,6 +244,7 @@ jobs:
         apt-get update -y
         apt-get install -y default-mysql-client python3-pip python3-venv
         apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+        npm ci
     - name: Start backend service
       env:
         PORT: "5000"
@@ -263,7 +264,6 @@ jobs:
       run: |
           npm run start &
           npx wait-on http://localhost:3000
-          ls -R
           npx cypress run --spec cypress/e2e/addNewPatients.cy.ts
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
     - name: Upload Test Artifacts
