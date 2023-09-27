@@ -259,9 +259,10 @@ jobs:
       env:
         PORT: "3000"
       run: |
+          chmod -R 775 /root/
           npm start &
           npx wait-on http://localhost:3000
-          cypress run
+          npm run e2e
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
     - name: Upload Test Artifacts
       uses: actions/upload-artifact@v2
