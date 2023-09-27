@@ -234,17 +234,15 @@ jobs:
       uses: bfraser/cicd/actions/checkout@v1
       with: 
         path: ${{ env.CUSTOM_WORKSPACE }}
-    - name: Install Node
+    - name: Install Node and Cypress
       run:  |
         npm install -g npm@$NPM_VERSION
-        npm ci
-      working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
-    - name: Install Cypress Dependencies
-      run: |
+        npm install cypress
         apt-get update -y
         apt-get install -y default-mysql-client python3-pip python3-venv
         apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
-        npm install cypress
+        npm ci
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
     - name: Start backend service
       env:
         PORT: "5000"
