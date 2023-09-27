@@ -86,6 +86,7 @@ describe('Form templates', () => {
     // submit form and verify
     cy.get('.MuiGrid-container > .MuiButtonBase-root').contains('Submit Template').click()
     cy.get('.MuiDialogActions-root > .MuiButton-contained').contains('Submit').click()
+    cy.get('.MuiAlert-message', {timeout: 10000}).should('have.text','Form Template Saved!')
   })
 
   it('verify form', () => {
@@ -249,6 +250,7 @@ describe('Form templates', () => {
     // submit form and verify
     cy.get('.MuiGrid-container > .MuiButtonBase-root').contains('Submit Template').click()
     cy.get('.MuiDialogActions-root > .MuiButton-contained').contains('Submit').click()
+    cy.get('.MuiAlert-message', {timeout: 10000}).should('have.text','Form Template Saved!')
     cy.get('[data-testid="ChevronLeftIcon"]').click()
   });
 
