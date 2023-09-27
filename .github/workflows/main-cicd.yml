@@ -21,6 +21,7 @@ env:
   # otherwise, NPM gives EACCES error trying to mkdir /github/home/.npm
   # Using the /isolated_build/ folder (inside the container) keeps permissions straight
   npm_config_cache: /isolated-build/.npm-cache
+  CYPRESS_CACHE_FOLDER: /isolated_build/.cypress-cache   
 jobs:
 
   display_github_contexts:
@@ -237,10 +238,6 @@ jobs:
       run:  |
         npm install -g npm@$NPM_VERSION
         npm ci
-        export CYPRESS_CACHE_FOLDER=${{ env.CUSTOM_WORKSPACE }}/client/.cypress-cache
-        apt-get update -y
-        apt-get install -y default-mysql-client python3-pip python3-venv
-        apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
     - name: Start backend service
       env:
