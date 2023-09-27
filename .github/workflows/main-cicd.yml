@@ -255,8 +255,6 @@ jobs:
         /venv/bin/python3 app.py &
         /venv/bin/python3 db.py rebuild --no-docker
         /venv/bin/python3 manage.py seed_test_data
-        echo "I am here"
-        echo ${{ env.SMS_KEY_DURATION }}
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
     - name: Run Integration Tests
       id: e2e_test
@@ -265,7 +263,8 @@ jobs:
       run: |
           npm run start &
           npx wait-on http://localhost:3000
-          npm run e2e
+          ls -R
+          npx cypress run --spec cypress/e2e/addNewPatients.cy.ts
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
     - name: Upload Test Artifacts
       uses: actions/upload-artifact@v2
