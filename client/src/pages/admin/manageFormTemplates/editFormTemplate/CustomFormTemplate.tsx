@@ -36,15 +36,16 @@ export const initialState = {
 };
 
 export const CustomFormTemplate = () => {
-  const [submitError, setSubmitError] = useState(false);
-  const [language, setLanguage] = useState<string[]>(['English']);
-
-  const defaultVersion: string = new Date(Date.now()).toUTCString();
-
-  const classes = useStyles();
-
   const location = useLocation<FormTemplateWithQuestions>();
   const targetFrom = location.state;
+  const [submitError, setSubmitError] = useState(false);
+  const [language, setLanguage] = useState<string[]>(
+    targetFrom?.questions[0].questionLangVersions.map((q) => q.lang) ?? [
+      'English',
+    ]
+  );
+
+  const defaultVersion: string = new Date(Date.now()).toUTCString();
 
   const [form, setForm] = useState<FormTemplateWithQuestions>(
     targetFrom
@@ -63,6 +64,8 @@ export const CustomFormTemplate = () => {
   const [versionError, setVersionError] = useState<boolean>(
     targetFrom ? true : false
   );
+
+  const classes = useStyles();
 
   const getFormVersions = async (formClassificationId: string) => {
     const formTemplates = await getFormClassificationTemplates(
