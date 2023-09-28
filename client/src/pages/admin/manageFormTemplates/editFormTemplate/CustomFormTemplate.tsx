@@ -1,11 +1,7 @@
 import { FormTemplateWithQuestions } from 'src/shared/types';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
-import {
-  getLanguages,
-  getPrettyDateTime,
-  goBackWithFallback,
-} from '../../../../shared/utils';
+import { getLanguages, goBackWithFallback } from '../../../../shared/utils';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import Typography from '@mui/material/Typography';
 import APIErrorToast from '../../../../shared/components/apiErrorToast/APIErrorToast';
@@ -43,9 +39,7 @@ export const CustomFormTemplate = () => {
   const [submitError, setSubmitError] = useState(false);
   const [language, setLanguage] = useState<string[]>(['English']);
 
-  const defaultVersion: string = getPrettyDateTime(
-    new Date(Date.now()).getTime() / 1000
-  );
+  const defaultVersion: string = new Date(Date.now()).toUTCString();
 
   const classes = useStyles();
 
