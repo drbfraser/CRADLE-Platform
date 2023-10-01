@@ -34,7 +34,7 @@ describe('Form templates', () => {
     cy.contains('.MuiOutlinedInput-root', 'Field Text').type('Please specify other dietary restriction')
     cy.contains('.MuiOutlinedInput-root', 'Question ID').type("3")
     cy.get('.MuiFormControlLabel-label').contains('Text').click()
-    cy.get('.MuiSwitch-input').click()
+    cy.get('[data-testid="conditional-switch"]').click()
     cy.get(':nth-child(3) > .MuiGrid-root > :nth-child(6) > .MuiTypography-root').click()
     cy.get('.MuiButton-contained').contains('Save').click()
 
@@ -187,7 +187,7 @@ describe('Form templates', () => {
     cy.contains('.MuiOutlinedInput-root', 'Spanish Field Text').type('Por favor especifique otra restricción dietética')
     cy.contains('.MuiOutlinedInput-root', 'Question ID').type("3")
     cy.get('.MuiFormControlLabel-label').contains('Text').click()
-    cy.get('.MuiSwitch-input').click()
+    cy.get('[data-testid="conditional-switch"]').click()
     cy.get(':nth-child(3) > .MuiGrid-root > :nth-child(6) > .MuiTypography-root').click()
     cy.get('.MuiButton-contained').contains('Save').click()
 
