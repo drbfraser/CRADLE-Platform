@@ -35,6 +35,7 @@
     "@types/jquery": "^3.5.14",
     "@types/lodash": "^4.14.182",
     "@types/material-ui": "^0.21.12",
+    "@types/mocha": "^10.0.1",
     "@types/mui-datatables": "^3.7.9",
     "@types/react": "^18.0.17",
     "@types/react-csv": "^1.1.3",

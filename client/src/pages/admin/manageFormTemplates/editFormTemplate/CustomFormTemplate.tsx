@@ -22,6 +22,7 @@ import { LanguageModalProps } from 'src/shared/types';
 import { useLocation } from 'react-router-dom';
 import { CustomizedFormWQuestions } from 'src/pages/customizedForm/customizedEditForm/CustomizedFormWQuestions';
 import { getFormClassificationTemplates } from 'src/shared/api';
+import moment from 'moment';
 
 export enum FormEditMainComponents {
   title = 'title',
@@ -36,13 +37,18 @@ export const initialState = {
 };
 
 export const CustomFormTemplate = () => {
-  const [submitError, setSubmitError] = useState(false);
-  const [language, setLanguage] = useState<string[]>(['English']);
-
-  const classes = useStyles();
-
   const location = useLocation<FormTemplateWithQuestions>();
   const targetFrom = location.state;
+  const [submitError, setSubmitError] = useState(false);
+  const [language, setLanguage] = useState<string[]>(
+    targetFrom?.questions[0].questionLangVersions.map((q) => q.lang) ?? [
+      'English',
+    ]
+  );
+
+  const defaultVersion: string = moment
+    .utc(new Date(Date.now()).toUTCString())
+    .format('YYYY-MM-DD HH:mm:ss z');
 
   const [form, setForm] = useState<FormTemplateWithQuestions>(
     targetFrom
@@ -53,13 +59,16 @@ export const CustomFormTemplate = () => {
         }
       : {
           classification: { name: 'string', id: undefined },
-          version: 'string',
+          version: defaultVersion,
           questions: [],
         }
   );
+
   const [versionError, setVersionError] = useState<boolean>(
     targetFrom ? true : false
   );
+
+  const classes = useStyles();
 
   const getFormVersions = async (formClassificationId: string) => {
     const formTemplates = await getFormClassificationTemplates(
@@ -132,31 +141,42 @@ export const CustomFormTemplate = () => {
                       />
                     </Grid>
                   </Tooltip>
-                  <Grid item xs={12} md={4}>
-                    <Field
-                      label={'Version'}
-                      component={TextField}
-                      required={true}
-                      variant="outlined"
-                      defaultValue={targetFrom ? targetFrom.version : ''}
-                      error={versionError}
-                      helperText={
-                        versionError ? 'Must change version number' : ''
-                      }
-                      fullWidth
-                      inputProps={{
-                        // TODO: Determine what types of input restrictions we should have for version
-                        maxLength: Number.MAX_SAFE_INTEGER,
-                      }}
-                      onChange={(e: any) => {
-                        form.version = e.target.value;
-                        setVersionError(
-                          previousVersions.includes(form.version)
-                        );
-                      }}
-                    />
-                  </Grid>
-
+                  <Tooltip
+                    disableFocusListener
+                    disableTouchListener
+                    title={
+                      targetFrom
+                        ? 'Edit your form Version here'
+                        : 'Edit your form Version here. By default, Version is set to the current DateTime but can be edited'
+                    }
+                    arrow>
+                    <Grid item xs={12} md={4}>
+                      <Field
+                        label={'Version'}
+                        component={TextField}
+                        required={true}
+                        variant="outlined"
+                        defaultValue={
+                          targetFrom ? targetFrom.version : defaultVersion
+                        }
+                        error={versionError}
+                        helperText={
+                          versionError ? 'Must change version number' : ''
+                        }
+                        fullWidth
+                        inputProps={{
+                          // TODO: Determine what types of input restrictions we should have for version
+                          maxLength: Number.MAX_SAFE_INTEGER,
+                        }}
+                        onChange={(e: any) => {
+                          form.version = e.target.value;
+                          setVersionError(
+                            previousVersions.includes(form.version)
+                          );
+                        }}
+                      />
+                    </Grid>
+                  </Tooltip>
                   <Grid item xs={12} md={4}>
                     <LanguageModal
                       language={language}
