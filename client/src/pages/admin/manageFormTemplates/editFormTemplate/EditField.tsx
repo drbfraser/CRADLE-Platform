@@ -206,16 +206,30 @@ const EditField = ({
           <Grid item container spacing={3}>
             {Array.from(Array(numChoices).keys()).map((_, index) => (
               <Grid item xs={12} key={`option-${index}`}>
-                <Grid item container spacing={3}>
-                  <Grid item xs={10} sm={6} md={2}>
-                    <FormLabel id="field-type-label">
-                      <Typography variant="h6">Option {index + 1}</Typography>
-                    </FormLabel>
-                  </Grid>
-                  <Grid item xs={2} sm={6} md={10}>
+                <Grid
+                  item
+                  container
+                  xs={12}
+                  sm={6}
+                  md={4}
+                  lg={3}
+                  justifyContent="space-between">
+                  <FormLabel
+                    id="field-type-label"
+                    style={{ paddingBottom: '8px' }}>
+                    <Typography variant="h6">Option {index + 1}</Typography>
+                  </FormLabel>
+
+                  <Tooltip
+                    disableFocusListener
+                    disableTouchListener
+                    title={'Delete field'}
+                    placement="right"
+                    arrow>
                     <IconButton
                       key={`remove-option-${index + 1}`}
                       color="error"
+                      style={{ padding: '0px' }}
                       onClick={(e) => {
                         handleRemoveMultiChoice(index);
                         setFieldChanged(!fieldChanged);
@@ -223,9 +237,10 @@ const EditField = ({
                       }}>
                       <DeleteIcon fontSize="small" />
                     </IconButton>
-                  </Grid>
+                  </Tooltip>
                 </Grid>
-                <Grid item container spacing={3}>
+
+                <Grid item container>
                   {inputLanguages.map((lang) => (
                     <Grid
                       item
@@ -288,16 +303,30 @@ const EditField = ({
           <Grid item container spacing={3}>
             {Array.from(Array(numChoices).keys()).map((_, index) => (
               <Grid item xs={12} key={`option-${index}`}>
-                <Grid item container spacing={3}>
-                  <Grid item xs={10} sm={6} md={2}>
-                    <FormLabel id="field-type-label">
-                      <Typography variant="h6">Option {index + 1}</Typography>
-                    </FormLabel>
-                  </Grid>
-                  <Grid item xs={2} sm={6} md={10}>
+                <Grid
+                  item
+                  container
+                  xs={12}
+                  sm={6}
+                  md={4}
+                  lg={3}
+                  justifyContent="space-between">
+                  <FormLabel
+                    id="field-type-label"
+                    style={{ paddingBottom: '8px' }}>
+                    <Typography variant="h6">Option {index + 1}</Typography>
+                  </FormLabel>
+
+                  <Tooltip
+                    disableFocusListener
+                    disableTouchListener
+                    title={'Delete field'}
+                    placement="right"
+                    arrow>
                     <IconButton
                       key={`remove-option-${index + 1}`}
                       color="error"
+                      style={{ padding: '0px' }}
                       onClick={(e) => {
                         handleRemoveMultiChoice(index);
                         setFieldChanged(!fieldChanged);
@@ -305,9 +334,9 @@ const EditField = ({
                       }}>
                       <DeleteIcon fontSize="small" />
                     </IconButton>
-                  </Grid>
+                  </Tooltip>
                 </Grid>
-                <Grid item container spacing={3}>
+                <Grid item container>
                   {inputLanguages.map((lang) => (
                     <Grid
                       item
@@ -633,23 +662,32 @@ const EditField = ({
             ).length > 0 && (
               <>
                 <Grid item sm={12} md={10} lg={10}>
-                  <FormControlLabel
-                    style={{ marginLeft: 0 }}
-                    control={
-                      <Switch
-                        checked={enableVisibility}
-                        onChange={handleVisibilityChange}
-                      />
+                  <Tooltip
+                    disableFocusListener
+                    disableTouchListener
+                    title={
+                      'Set this field to only appear after a specific field value is entered'
                     }
-                    label={
-                      <FormLabel id="vis-label">
-                        <Typography variant="h6">
-                          Conditional Visibility
-                        </Typography>
-                      </FormLabel>
-                    }
-                    labelPlacement="start"
-                  />
+                    placement="bottom"
+                    arrow>
+                    <FormControlLabel
+                      style={{ marginLeft: 0 }}
+                      control={
+                        <Switch
+                          checked={enableVisibility}
+                          onChange={handleVisibilityChange}
+                        />
+                      }
+                      label={
+                        <FormLabel id="vis-label">
+                          <Typography variant="h6">
+                            Conditional Visibility
+                          </Typography>
+                        </FormLabel>
+                      }
+                      labelPlacement="start"
+                    />
+                  </Tooltip>
                 </Grid>
                 <Grid item sm={12} md={10} lg={10}>
                   {enableVisibility ? (

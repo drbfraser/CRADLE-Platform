@@ -354,29 +354,38 @@ export const CustomizedFormWQuestions = ({
                     );
                   })}
                 </Grid>
-                <Grid item container>
+                <Grid item container justifyContent="space-between">
                   <Grid item xs={6}>
-                    <PrimaryButton
-                      onClick={() => {
-                        if (languages.length != 0) {
-                          setEditPopupOpen(true);
-                        } else {
-                          setSubmitError(true);
-                          setErrorMessage(
-                            'Select at least one language before creating a field'
-                          );
-                        }
-                      }}>
-                      <AddIcon />
-                      {'Add Field'}
-                    </PrimaryButton>
+                    <Tooltip
+                      disableFocusListener
+                      disableTouchListener
+                      title={'Add a new field to your questionnaire'}
+                      placement="bottom"
+                      arrow>
+                      <div style={{ display: 'inline-block' }}>
+                        <PrimaryButton
+                          onClick={() => {
+                            if (languages.length != 0) {
+                              setEditPopupOpen(true);
+                            } else {
+                              setSubmitError(true);
+                              setErrorMessage(
+                                'Select at least one language before creating a field'
+                              );
+                            }
+                          }}>
+                          <AddIcon />
+                          {'Add Field'}
+                        </PrimaryButton>
+                      </div>
+                    </Tooltip>
                   </Grid>
                   <Grid item container xs={6} justifyContent="flex-end">
                     <Tooltip
                       disableFocusListener
                       disableTouchListener
                       title={disabled ? 'Missing field data' : ''}
-                      placement={isBigScreen ? 'left' : 'top'}
+                      placement="bottom"
                       arrow>
                       <div>
                         <PrimaryButton
