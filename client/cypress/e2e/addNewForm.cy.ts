@@ -91,7 +91,7 @@ describe('Form templates', () => {
       // submit form and verify
       cy.get('.MuiGrid-container > .MuiButtonBase-root').contains('Submit Template').click()
       cy.get('.MuiDialogActions-root > .MuiButton-contained').contains('Submit').click()
-      cy.wait(1000)
+      cy.get('.MuiAlert-message', {timeout: 10000}).should('have.text','Form Template Saved!')
     })
 
     it('verify form', () => {
@@ -257,8 +257,7 @@ describe('Form templates', () => {
       // submit form and verify
       cy.get('.MuiGrid-container > .MuiButtonBase-root').contains('Submit Template').click()
       cy.get('.MuiDialogActions-root > .MuiButton-contained').contains('Submit').click()
-      cy.get('[data-testid="ChevronLeftIcon"]').click()
-      cy.wait(1000)
+      cy.get('.MuiAlert-message', {timeout: 10000}).should('have.text','Form Template Saved!')
     });
 
     it('verify form with multiple languages english', () => {
@@ -386,8 +385,8 @@ describe('Form templates', () => {
 
       cy.get('.MuiGrid-container > .MuiButtonBase-root').contains('Submit Template').click()
       cy.get('.MuiDialogActions-root > .MuiButton-contained').contains('Submit').click()
-      cy.wait(1000)
-  });
+      cy.get('.MuiAlert-message', {timeout: 10000}).should('have.text','Form Template Saved!')
+    });
 
   it('verify form default version', () => {
       // create form with default version
