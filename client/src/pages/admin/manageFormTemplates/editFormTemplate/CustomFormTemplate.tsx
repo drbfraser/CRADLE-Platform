@@ -22,6 +22,7 @@ import { LanguageModalProps } from 'src/shared/types';
 import { useLocation } from 'react-router-dom';
 import { CustomizedFormWQuestions } from 'src/pages/customizedForm/customizedEditForm/CustomizedFormWQuestions';
 import { getFormClassificationTemplates } from 'src/shared/api';
+import moment from 'moment';
 
 export enum FormEditMainComponents {
   title = 'title',
@@ -45,7 +46,9 @@ export const CustomFormTemplate = () => {
     ]
   );
 
-  const defaultVersion: string = new Date(Date.now()).toUTCString();
+  const defaultVersion: string = moment
+    .utc(new Date(Date.now()).toUTCString())
+    .format('YYYY-MM-DD HH:mm:ss z');
 
   const [form, setForm] = useState<FormTemplateWithQuestions>(
     targetFrom
