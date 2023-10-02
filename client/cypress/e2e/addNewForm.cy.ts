@@ -1,12 +1,16 @@
+import * as moment from 'moment';
+
 describe('Form templates', () => {
   beforeEach(() => {
     cy.login({ email: 'admin123@admin.com', password: 'admin123' })
     cy.visit('http://localhost:3000/admin/form-templates')
   });
+
   it('create form', () => {
     cy.get('[data-testid="AddIcon"]').click()
     cy.url().should('include', '/admin/form-templates/new')
     cy.contains('.MuiOutlinedInput-root', 'Title').type("Dinner Party Form English")
+    cy.contains('.MuiOutlinedInput-root', 'Version').clear()
     cy.contains('.MuiOutlinedInput-root', 'Version').type("1")
 
     cy.get('.MuiButton-contained').contains('Add Field').click()
@@ -146,9 +150,11 @@ describe('Form templates', () => {
   });
 
   it('create form with multiple languages', () => {
+    cy.wait(1000)
     cy.get('[data-testid="AddIcon"]').click()
     cy.url().should('include', '/admin/form-templates/new')
     cy.contains('.MuiOutlinedInput-root', 'Title').type("Dinner Party Form Multilingual")
+    cy.contains('.MuiOutlinedInput-root', 'Version').clear()
     cy.contains('.MuiOutlinedInput-root', 'Version').type("1")
     cy.get('.MuiGrid-container > :nth-child(4)').click()
     cy.get('.MuiDialogContent-dividers').contains('Spanish').click()
@@ -251,7 +257,6 @@ describe('Form templates', () => {
     cy.get('.MuiGrid-container > .MuiButtonBase-root').contains('Submit Template').click()
     cy.get('.MuiDialogActions-root > .MuiButton-contained').contains('Submit').click()
     cy.get('.MuiAlert-message', {timeout: 10000}).should('have.text','Form Template Saved!')
-    cy.get('[data-testid="ChevronLeftIcon"]').click()
   });
 
   it('verify form with multiple languages english', () => {
@@ -364,6 +369,30 @@ describe('Form templates', () => {
     cy.contains('.MuiOutlinedInput-root', 'Spanish Option 1').should('contain', 'Sí')
     cy.contains('.MuiOutlinedInput-root', 'Spanish Option 2').should('contain', 'No')
     cy.get('.MuiButton-text').contains('Cancel').click()
+  });
+
+  it('create form default version', () => {
+    // create form with default version
+    cy.get('[data-testid="AddIcon"]').click()
+    cy.url().should('include', '/admin/form-templates/new')
+    cy.contains('.MuiOutlinedInput-root', 'Title').type("Dinner Party Form Default Version")
+
+    cy.get('.MuiButton-contained').contains('Add Field').click()
+    cy.contains('.MuiOutlinedInput-root', 'Field Text').type('Dietary')
+    cy.contains('.MuiOutlinedInput-root', 'Question ID').type("1")
+    cy.get('.MuiButton-contained').contains('Save').click()
+
+    cy.get('.MuiGrid-container > .MuiButtonBase-root').contains('Submit Template').click()
+    cy.get('.MuiDialogActions-root > .MuiButton-contained').contains('Submit').click()
+    cy.get('.MuiAlert-message', {timeout: 10000}).should('have.text','Form Template Saved!')
+  });
+
+  it('verify form default version', () => {
+    // create form with default version
+    cy.wait(1000)
+    cy.get('.MuiTableBody-root').contains('Dinner Party Form Default Version').siblings().children().find('[data-testid="EditIcon"]').click()
+    cy.wait(1000)
+    cy.contains('.MuiOutlinedInput-root', 'Version').children('.MuiOutlinedInput-input').should('contain.value',moment.utc(new Date(Date.now()).toUTCString()).format('YYYY-MM-DD'))
   });
 })
 
