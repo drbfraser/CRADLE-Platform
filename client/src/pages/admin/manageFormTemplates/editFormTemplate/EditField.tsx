@@ -68,6 +68,7 @@ const EditField = ({
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
   const [fieldChanged, setFieldChanged] = useState(false);
   const [formDirty, setFormDirty] = useState(false);
+  const [isRequired, setIsRequired] = useState(question?.required ?? false);
 
   const handleRemoveMultiChoice = (index: number) => {
     const qLangVersions: QuestionLangVersion[] = questionLangVersions;
@@ -377,6 +378,12 @@ const EditField = ({
     setFieldChanged(!fieldChanged);
   };
 
+  const handleRequiredChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsRequired(event.target.checked);
+    setFormDirty(true);
+    setFieldChanged(!fieldChanged);
+  };
+
   const getFieldType = (questionType: QuestionTypeEnum) => {
     const fType = Object.keys(fieldTypes).find(
       (fieldType) => fieldTypes[fieldType].type === questionType
@@ -475,6 +482,7 @@ const EditField = ({
         if (questionLangVersions.length > 0) {
           setNumChoices(questionLangVersions[0].mcOptions.length);
         }
+        setIsRequired(question.required);
       }
       // create new field
       else {
@@ -483,6 +491,7 @@ const EditField = ({
         setQuestionLangversions([]);
         setNumChoices(0);
         setEnableVisiblity(false);
+        setIsRequired(false);
       }
     }
     // Check if all fields are filled
@@ -624,6 +633,7 @@ const EditField = ({
                       <Switch
                         checked={enableVisibility}
                         onChange={handleVisibilityChange}
+                        data-testid="conditional-switch"
                       />
                     }
                     label={
@@ -653,6 +663,24 @@ const EditField = ({
                 </Grid>
               </>
             )}
+          </Grid>
+          <Grid item>
+            <FormControlLabel
+              style={{ marginLeft: 0 }}
+              control={
+                <Switch
+                  checked={isRequired}
+                  onChange={handleRequiredChange}
+                  data-testid="required-switch"
+                />
+              }
+              label={
+                <FormLabel id="required-label">
+                  <Typography variant="h6">Required</Typography>
+                </FormLabel>
+              }
+              labelPlacement="start"
+            />
           </Grid>
         </DialogContent>
         <DialogActions>
@@ -692,6 +720,7 @@ const EditField = ({
                       questionToUpdate.visibleCondition = enableVisibility
                         ? visibleCondition
                         : [];
+                      questionToUpdate.required = isRequired;
                     }
                   }
                   // create new field
@@ -700,7 +729,7 @@ const EditField = ({
                       questionIndex: form.questions.length,
                       questionLangVersions: questionLangVersions,
                       questionType: fieldTypes[fieldType].type,
-                      required: false,
+                      required: isRequired,
                       numMin: null,
                       numMax: null,
                       stringMaxLength: null,
