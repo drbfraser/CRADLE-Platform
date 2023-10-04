@@ -78,3 +78,5 @@ the previously mentioned admin user is added along with a few additional users:
 | Danyaal Patel | danyaalp@sfu.ca |
 | Kodai Hiraishi | khiraish@sfu.ca |
 | Brendan Saw | bsaw@sfu.ca |
+| Divya Soneji | dns8@sfu.ca |
+| Sara Hwang | sha173@sfu.ca |
