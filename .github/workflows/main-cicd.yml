@@ -21,7 +21,7 @@ env:
   # otherwise, NPM gives EACCES error trying to mkdir /github/home/.npm
   # Using the /isolated_build/ folder (inside the container) keeps permissions straight
   npm_config_cache: /isolated-build/.npm-cache
-  #CYPRESS_CACHE_FOLDER: /isolated_build/.cypress-cache   
+  CYPRESS_CACHE_FOLDER: /isolated_build/.cypress-cache   
 jobs:
 
   display_github_contexts:
@@ -202,6 +202,7 @@ jobs:
     - name: Run Unit Tests
       run: npm run test --args a
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
+
   fronend-integration-test:
     runs-on: [self-hosted, docker]
 
@@ -241,7 +242,7 @@ jobs:
       run: |
         apt-get update -y
         apt-get install -y default-mysql-client python3-pip python3-venv
-        apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+   #     apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
     - name: Start backend service
       env:
         PORT: "5000"
