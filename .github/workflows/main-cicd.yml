@@ -262,11 +262,17 @@ jobs:
           npm run start &
           npx wait-on http://localhost:3000
           echo client
-          ls -l
+          ls -la
           echo project
-          ls .. -l
-          echo outside project
-          ls ../.. -l
+          ls .. -la
+          echo outside project x1
+          ls ../.. -la
+          echo outside project x2
+          ls ../../.. -la
+          echo outside project x3
+          ls ../../../.. -la
+          echo outside project x4
+          ls ../../../../.. -la
           npm run e2e
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
     - name: Upload Test Artifacts
