@@ -202,13 +202,11 @@ jobs:
     - name: Run Unit Tests
       run: npm run test --args a
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
-
   fronend-integration-test:
     runs-on: [self-hosted, docker]
 
     # TODO: https://github.sfu.ca/bfraser/415-Cradle-Platform/issues/454
     # disable due to incomplete workflow
-#     if: false 
     container: 
       image: node:18
     needs: frontend-unit_tests
@@ -234,11 +232,16 @@ jobs:
       uses: bfraser/cicd/actions/checkout@v1
       with: 
         path: ${{ env.CUSTOM_WORKSPACE }}
-    - name: Install Node and Cypress
+    - name: Install Node
       run:  |
         npm install -g npm@$NPM_VERSION
         npm ci
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
+    - name: Install Cypress Dependencies
+      run: |
+        apt-get update -y
+        apt-get install -y default-mysql-client python3-pip python3-venv
+        apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
     - name: Start backend service
       env:
         PORT: "5000"
@@ -256,8 +259,14 @@ jobs:
       env:
         PORT: "3000"
       run: |
-          npm start &
+          npm run start &
           npx wait-on http://localhost:3000
+          echo client
+          ls -l
+          echo project
+          ls .. -l
+          echo outside project
+          ls ../.. -l
           npm run e2e
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
     - name: Upload Test Artifacts
@@ -266,6 +275,7 @@ jobs:
       with:
         name: integration_test_results
         path: ${{ env.CUSTOM_WORKSPACE }}/client/cypress/screenshots/**/*.png, ${{ env.CUSTOM_WORKSPACE }}/client/cypress/videos/**/*.mp4
+
 
   frontend-lint-format:
     runs-on: [self-hosted, docker]
