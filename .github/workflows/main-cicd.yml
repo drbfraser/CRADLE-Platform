@@ -260,6 +260,8 @@ jobs:
       run: |
           npx cypress cache path
           npx cypress cache list
+          cypress verify
+          cypress info
           npm run start &
           npx wait-on http://localhost:3000
           ls ../.. -la
