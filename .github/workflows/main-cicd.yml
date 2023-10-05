@@ -254,13 +254,13 @@ jobs:
         /venv/bin/python3 manage.py seed_test_data
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
     - name: Run Integration Tests
-      uses: cypress-io/github-actions@v2
       id: e2e_test
       env:
         PORT: "3000"
-      with:
-          build: npm run start
-          start: npx wait-on http://localhost:3000
+      uses: cypress-io/github-actions@v6
+      with: 
+        start: npm run start
+          
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
     - name: Upload Test Artifacts
       uses: actions/upload-artifact@v2
