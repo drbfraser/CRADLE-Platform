@@ -240,7 +240,6 @@ jobs:
         apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb -y
         npm install -g npm@$NPM_VERSION
         npm ci
-        npm install -g "cypress@10.9.0"
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
     - name: Start backend service
       env:
@@ -259,6 +258,8 @@ jobs:
       env:
         PORT: "3000"
       run: |
+          npx cypress cache path
+          npx cypress cache list
           npm run start &
           npx wait-on http://localhost:3000
           ls ../.. -la
