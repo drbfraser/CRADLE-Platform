@@ -235,8 +235,12 @@ jobs:
         path: ${{ env.CUSTOM_WORKSPACE }}
     - name: Install Node
       run:  |
-        npm install -g npm@$NPM_VERSION
+        echo outside project x1
+        ls ../.. -la
+        npm install -g npm@$NPM_VERSIONregex
         npm ci
+        echo outside project x1
+        ls ../.. -la
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
     - name: Install Cypress Dependencies
       run: |
@@ -262,7 +266,6 @@ jobs:
       env:
         PORT: "3000"
       run: |
-          mpm ci
           npm run start &
           npx wait-on http://localhost:3000
           echo client
