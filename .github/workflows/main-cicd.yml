@@ -261,7 +261,7 @@ jobs:
           npx cypress cache path
           npx cypress cache list
           npm run start &
-          npm wait-on http://localhost:3000
+          npx wait-on http://localhost:3000
           npm run e2e
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
     - name: Upload Test Artifacts
