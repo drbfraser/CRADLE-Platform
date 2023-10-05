@@ -263,7 +263,7 @@ jobs:
           npx run start &
           npx wait-on http://localhost:3000
           ls ../.. -la
-          npx run e2e
+          npm run e2e
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
     - name: Upload Test Artifacts
       uses: actions/upload-artifact@v2
