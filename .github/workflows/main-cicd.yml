@@ -243,8 +243,8 @@ jobs:
         apt-get update -y
         apt-get install -y default-mysql-client python3-pip python3-venv
         apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
-        echo outside project x2
-        ls ../../.. -la
+        echo outside project x1
+        ls ../.. -la
     - name: Start backend service
       env:
         PORT: "5000"
