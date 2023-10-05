@@ -21,7 +21,7 @@ env:
   # otherwise, NPM gives EACCES error trying to mkdir /github/home/.npm
   # Using the /isolated_build/ folder (inside the container) keeps permissions straight
   npm_config_cache: /isolated-build/.npm-cache 
-  CYPRESS_CACHE_FOLDER: /isolated_build/.cypress-cache   
+  CYPRESS_CACHE_FOLDER: /isolated-build/.cypress-cache   
 jobs:
 
   display_github_contexts:
@@ -217,6 +217,7 @@ jobs:
       MYSQL_DATABASE: "cradle"
       MYSQL_ROOT_PASSWORD: "ci-password"
       JWT_SECRET_KEY: "testkey"
+      SMS_KEY_DURATION: 500
     services: 
       mysql:
         image: mysql:5.7
