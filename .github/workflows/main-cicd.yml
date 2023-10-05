@@ -258,7 +258,7 @@ jobs:
       id: e2e_test
       env:
         PORT: "3000"
-      run: |
+      with: |
           npx cypress cache path
           npx cypress cache list
           npx cypress verify
