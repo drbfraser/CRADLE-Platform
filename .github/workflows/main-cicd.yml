@@ -240,6 +240,8 @@ jobs:
         apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb -y
         npm install -g npm@$NPM_VERSION
         npm ci
+        ls -la ../../../.cypress-cache
+        chmod 775 ../../../.cypress-cache -R
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
     - name: Start backend service
       env:
