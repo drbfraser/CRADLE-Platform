@@ -258,15 +258,9 @@ jobs:
       id: e2e_test
       env:
         PORT: "3000"
-      with: |
-          npx cypress cache path
-          npx cypress cache list
-          npx cypress verify
-          npx cypress info
-          npm run start &
-          npx wait-on http://localhost:3000
-          ls ../.. -la
-          npm run e2e
+      with:
+          build: npm run start
+          start: npx wait-on http://localhost:3000
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
     - name: Upload Test Artifacts
       uses: actions/upload-artifact@v2
