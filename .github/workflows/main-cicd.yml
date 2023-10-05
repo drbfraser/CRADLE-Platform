@@ -256,6 +256,12 @@ jobs:
       env:
         PORT: "3000"
       run: |
+          echo "BUILD PAUSED TO ALLOW MANUAL DEBUGGING OF COMMANDS"
+          echo "SSH to the CI/CD server and then connect to this container:"
+          echo "     docker exec -it <tag/name> /bin/bash"
+          read      # PAUSED HERE!!!
+          echo "AFTER PAUSE!"
+
           npm run start &
           npx wait-on http://localhost:3000
           npm run e2e
