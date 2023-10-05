@@ -254,6 +254,7 @@ jobs:
         /venv/bin/python3 manage.py seed_test_data
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
     - name: Run Integration Tests
+      uses: cypress-io/github-actions@v2
       id: e2e_test
       env:
         PORT: "3000"
