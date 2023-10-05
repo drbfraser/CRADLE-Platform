@@ -259,7 +259,7 @@ jobs:
         PORT: "3000"
       uses: cypress-io/github-actions@v6
       with: 
-        start: npm run start
+        start: npm run start & wait-on http://localhost:3000
           
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
     - name: Upload Test Artifacts
