@@ -203,6 +203,7 @@ jobs:
 
     # TODO: https://github.sfu.ca/bfraser/415-Cradle-Platform/issues/454
     # disable due to incomplete workflow
+    if: false
     container: 
       image: node:18
     needs: frontend-unit_tests

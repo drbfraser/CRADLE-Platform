@@ -62,6 +62,7 @@ else:
 
 SMS_KEY_DURATION = duration
 
+
 def query_param_bool(request: Request, name: str) -> bool:
     """
     Returns true if the request URL contains a boolean query parameter with a given
