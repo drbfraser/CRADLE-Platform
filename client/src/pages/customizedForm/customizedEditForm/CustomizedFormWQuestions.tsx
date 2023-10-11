@@ -9,7 +9,7 @@ import {
   useState,
 } from 'react';
 import { initialState, validationSchema } from './state';
-
+import InfoIcon from '@mui/icons-material/Info';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import Box from '@mui/material/Box';
 import AddIcon from '@mui/icons-material/Add';
@@ -26,7 +26,12 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import EditField from 'src/pages/admin/manageFormTemplates/editFormTemplate/EditField';
 import { Autocomplete, AutocompleteRenderInputParams } from 'formik-mui';
-import { TextField, Tooltip, Typography, useMediaQuery } from '@mui/material';
+import {
+  //InputAdornment,
+  TextField,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 
 interface IProps {
   fm: FormTemplateWithQuestions;
@@ -179,8 +184,6 @@ export const CustomizedFormWQuestions = ({
     return emptyLangs;
   };
 
-  const isBigScreen = useMediaQuery('(min-width:900px)');
-
   const disabled =
     !(fm?.questions?.length > 0) || emptyLanguageFieldsInForm() || versionError;
 
@@ -212,11 +215,38 @@ export const CustomizedFormWQuestions = ({
             <Box p={4} pt={6} m={2}>
               <Grid container spacing={3}>
                 <Grid item container spacing={3}>
-                  <Grid item xs={10}>
+                  <Grid item container xs={8}>
                     <h2>Current Form</h2>
+                    <div>
+                      <Tooltip
+                        disableFocusListener
+                        disableTouchListener
+                        title={
+                          <>
+                            <AddIcon fontSize="inherit" /> Click to begin adding
+                            fields to your custom form.
+                            <br></br>
+                            <EditIcon fontSize="inherit" /> Click to open and
+                            edit your field.
+                            <br></br>
+                            <DeleteIcon fontSize="inherit" /> Click to delete
+                            your field.
+                            <br></br>
+                            <KeyboardArrowUpIcon fontSize="inherit" /> Click to
+                            move field up. <br></br>
+                            <KeyboardArrowDownIcon fontSize="inherit" /> Click
+                            to move field down. <br></br>
+                          </>
+                        }
+                        arrow
+                        placement="right">
+                        <IconButton>
+                          <InfoIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </div>
                   </Grid>
-
-                  <Grid item xs={2}>
+                  <Grid item container xs={4}>
                     <Field
                       key={'view-lang'}
                       value={selectedLanguage}
@@ -229,21 +259,14 @@ export const CustomizedFormWQuestions = ({
                         setSelectedLanguage(value);
                       }}
                       renderInput={(params: AutocompleteRenderInputParams) => (
-                        <Tooltip
-                          disableFocusListener
-                          disableTouchListener
-                          title={'Select view language for your form'}
-                          arrow
-                          placement="left">
-                          <TextField
-                            {...params}
-                            name={languages[0]}
-                            helperText={''}
-                            label="View Language"
-                            variant="outlined"
-                            required
-                          />
-                        </Tooltip>
+                        <TextField
+                          {...params}
+                          name={languages[0]}
+                          helperText={''}
+                          label="View Language"
+                          variant="outlined"
+                          required
+                        />
                       )}
                     />
                   </Grid>
@@ -279,23 +302,16 @@ export const CustomizedFormWQuestions = ({
                               <KeyboardArrowUpIcon fontSize="small" />
                             </IconButton>
                           </Grid>
-                          <Tooltip
-                            disableFocusListener
-                            disableTouchListener
-                            title={'Edit field'}
-                            placement={isBigScreen ? 'right' : 'top'}
-                            arrow>
-                            <Grid item xs={6}>
-                              <IconButton
-                                key={`edit-field-${question.questionIndex}`}
-                                size="small"
-                                onClick={(e) => {
-                                  handleEditField(question);
-                                }}>
-                                <EditIcon fontSize="small" />
-                              </IconButton>
-                            </Grid>
-                          </Tooltip>
+                          <Grid item xs={6}>
+                            <IconButton
+                              key={`edit-field-${question.questionIndex}`}
+                              size="small"
+                              onClick={(e) => {
+                                handleEditField(question);
+                              }}>
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                          </Grid>
                           <Grid item xs={6}>
                             <IconButton
                               key={`field-down-${question.questionIndex}`}
@@ -306,24 +322,18 @@ export const CustomizedFormWQuestions = ({
                               <KeyboardArrowDownIcon fontSize="small" />
                             </IconButton>
                           </Grid>
-                          <Tooltip
-                            disableFocusListener
-                            disableTouchListener
-                            title={'Delete field'}
-                            placement={isBigScreen ? 'right' : 'top'}
-                            arrow>
-                            <Grid item xs={6}>
-                              <IconButton
-                                key={`delete-field-${question.questionIndex}`}
-                                size="small"
-                                color="error"
-                                onClick={(e) => {
-                                  handleDeleteField(question);
-                                }}>
-                                <DeleteIcon fontSize="small" />
-                              </IconButton>
-                            </Grid>
-                          </Tooltip>
+
+                          <Grid item xs={6}>
+                            <IconButton
+                              key={`delete-field-${question.questionIndex}`}
+                              size="small"
+                              color="error"
+                              onClick={(e) => {
+                                handleDeleteField(question);
+                              }}>
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Grid>
                         </Grid>
                         <Grid container pl={3}>
                           {missingFields(question) && (
@@ -356,29 +366,22 @@ export const CustomizedFormWQuestions = ({
                 </Grid>
                 <Grid item container justifyContent="space-between">
                   <Grid item xs={6}>
-                    <Tooltip
-                      disableFocusListener
-                      disableTouchListener
-                      title={'Add a new field to your questionnaire'}
-                      placement="bottom"
-                      arrow>
-                      <div style={{ display: 'inline-block' }}>
-                        <PrimaryButton
-                          onClick={() => {
-                            if (languages.length != 0) {
-                              setEditPopupOpen(true);
-                            } else {
-                              setSubmitError(true);
-                              setErrorMessage(
-                                'Select at least one language before creating a field'
-                              );
-                            }
-                          }}>
-                          <AddIcon />
-                          {'Add Field'}
-                        </PrimaryButton>
-                      </div>
-                    </Tooltip>
+                    <div style={{ display: 'inline-block' }}>
+                      <PrimaryButton
+                        onClick={() => {
+                          if (languages.length != 0) {
+                            setEditPopupOpen(true);
+                          } else {
+                            setSubmitError(true);
+                            setErrorMessage(
+                              'Select at least one language before creating a field'
+                            );
+                          }
+                        }}>
+                        <AddIcon />
+                        {'Add Field'}
+                      </PrimaryButton>
+                    </div>
                   </Grid>
                   <Grid item container xs={6} justifyContent="flex-end">
                     <Tooltip

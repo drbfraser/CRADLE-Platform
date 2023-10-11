@@ -1,6 +1,7 @@
 import { FormTemplateWithQuestions } from 'src/shared/types';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
+import InfoIcon from '@mui/icons-material/Info';
 import { getLanguages, goBackWithFallback } from '../../../../shared/utils';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import Typography from '@mui/material/Typography';
@@ -8,7 +9,14 @@ import APIErrorToast from '../../../../shared/components/apiErrorToast/APIErrorT
 import React, { useState } from 'react';
 import makeStyles from '@mui/styles/makeStyles';
 import { Field, Form, Formik } from 'formik';
-import { Box, Checkbox, FormControl, Grid, Paper } from '@mui/material';
+import {
+  Box,
+  Checkbox,
+  FormControl,
+  Grid,
+  InputAdornment,
+  Paper,
+} from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
@@ -118,65 +126,85 @@ export const CustomFormTemplate = () => {
                   <Grid item xs={12}>
                     <h2>Custom Form Properties</h2>
                   </Grid>
-                  <Tooltip
-                    disableFocusListener
-                    disableTouchListener
-                    title={'Enter your form title here'}
-                    arrow>
-                    <Grid item xs={12} md={4}>
-                      <Field
-                        label={'Title'}
-                        component={TextField}
-                        required={true}
-                        variant="outlined"
-                        defaultValue={targetFrom?.classification?.name ?? ''}
-                        fullWidth
-                        inputProps={{
-                          // TODO: Determine what types of input restrictions we should have for title
-                          maxLength: Number.MAX_SAFE_INTEGER,
-                        }}
-                        onChange={(e: any) => {
-                          form.classification.name = e.target.value;
-                        }}
-                      />
-                    </Grid>
-                  </Tooltip>
-                  <Tooltip
-                    disableFocusListener
-                    disableTouchListener
-                    title={
-                      targetFrom
-                        ? 'Edit your form Version here'
-                        : 'Edit your form Version here. By default, Version is set to the current DateTime but can be edited'
-                    }
-                    arrow>
-                    <Grid item xs={12} md={4}>
-                      <Field
-                        label={'Version'}
-                        component={TextField}
-                        required={true}
-                        variant="outlined"
-                        defaultValue={
-                          targetFrom ? targetFrom.version : defaultVersion
-                        }
-                        error={versionError}
-                        helperText={
-                          versionError ? 'Must change version number' : ''
-                        }
-                        fullWidth
-                        inputProps={{
-                          // TODO: Determine what types of input restrictions we should have for version
-                          maxLength: Number.MAX_SAFE_INTEGER,
-                        }}
-                        onChange={(e: any) => {
-                          form.version = e.target.value;
-                          setVersionError(
-                            previousVersions.includes(form.version)
-                          );
-                        }}
-                      />
-                    </Grid>
-                  </Tooltip>
+
+                  <Grid item xs={12} md={4}>
+                    <Field
+                      label={'Title'}
+                      component={TextField}
+                      required={true}
+                      variant="outlined"
+                      defaultValue={targetFrom?.classification?.name ?? ''}
+                      fullWidth
+                      inputProps={{
+                        // TODO: Determine what types of input restrictions we should have for title
+                        maxLength: Number.MAX_SAFE_INTEGER,
+                      }}
+                      onChange={(e: any) => {
+                        form.classification.name = e.target.value;
+                      }}
+                      InputProps={{
+                        endAdornment: (
+                          <Tooltip
+                            disableFocusListener
+                            disableTouchListener
+                            title={'Enter your form title here'}
+                            arrow>
+                            <InputAdornment position="end">
+                              <IconButton>
+                                <InfoIcon fontSize="small" />
+                              </IconButton>
+                            </InputAdornment>
+                          </Tooltip>
+                        ),
+                      }}></Field>
+                  </Grid>
+
+                  <Grid item xs={12} md={4}>
+                    <Field
+                      label={'Version'}
+                      component={TextField}
+                      required={true}
+                      variant="outlined"
+                      defaultValue={
+                        targetFrom ? targetFrom.version : defaultVersion
+                      }
+                      error={versionError}
+                      helperText={
+                        versionError ? 'Must change version number' : ''
+                      }
+                      fullWidth
+                      inputProps={{
+                        // TODO: Determine what types of input restrictions we should have for version
+                        maxLength: Number.MAX_SAFE_INTEGER,
+                      }}
+                      onChange={(e: any) => {
+                        form.version = e.target.value;
+                        setVersionError(
+                          previousVersions.includes(form.version)
+                        );
+                      }}
+                      InputProps={{
+                        endAdornment: (
+                          <Tooltip
+                            disableFocusListener
+                            disableTouchListener
+                            title={
+                              targetFrom
+                                ? 'Edit your form Version here'
+                                : 'Edit your form Version here. By default, Version is set to the current DateTime but can be edited'
+                            }
+                            arrow>
+                            <InputAdornment position="end">
+                              <IconButton>
+                                <InfoIcon fontSize="small" />
+                              </IconButton>
+                            </InputAdornment>
+                          </Tooltip>
+                        ),
+                      }}
+                    />
+                  </Grid>
+
                   <Grid item xs={12} md={4}>
                     <LanguageModal
                       language={language}
@@ -232,23 +260,32 @@ const LanguageModal = ({ language, setLanguage }: LanguageModalProps) => {
   };
   return (
     <>
-      <Tooltip
-        disableFocusListener
-        disableTouchListener
-        title={'Select your form languages here'}
-        arrow>
-        <TextField
-          aria-readonly
-          label={'Language'}
-          fullWidth
-          required={true}
-          focused={showModal}
-          multiline
-          variant="outlined"
-          value={language.join(', ')}
-          onClick={() => setShowModal(true)}
-        />
-      </Tooltip>
+      <TextField
+        aria-readonly
+        label={'Language'}
+        fullWidth
+        required={true}
+        focused={showModal}
+        multiline
+        variant="outlined"
+        value={language.join(', ')}
+        onClick={() => setShowModal(true)}
+        InputProps={{
+          endAdornment: (
+            <Tooltip
+              disableFocusListener
+              disableTouchListener
+              title={'Select your form languages here'}
+              arrow>
+              <InputAdornment position="end">
+                <IconButton>
+                  <InfoIcon fontSize="small" />
+                </IconButton>
+              </InputAdornment>
+            </Tooltip>
+          ),
+        }}
+      />
       <Dialog
         fullWidth
         maxWidth={'md'}
