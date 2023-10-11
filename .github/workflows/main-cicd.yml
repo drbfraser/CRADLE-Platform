@@ -51,9 +51,9 @@ jobs:
     - name: Build frontend
       run: GENERATE_SOURCEMAP=false npm run build
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
-    - name: Archive frontend build artifacts
-      run: tar -czvf frontend.tar.gz build
-      working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
+    - name: Archive frontend build artifacts (within build/ folder)
+      run: tar -czvf ../frontend.tar.gz .
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/client/build
     - name: Upload frontend artifact
       uses: actions/upload-artifact@v2
       with:
@@ -203,7 +203,7 @@ jobs:
 
     # TODO: https://github.sfu.ca/bfraser/415-Cradle-Platform/issues/454
     # disable due to incomplete workflow
-    if: false 
+    if: false
     container: 
       image: node:18
     needs: frontend-unit_tests
