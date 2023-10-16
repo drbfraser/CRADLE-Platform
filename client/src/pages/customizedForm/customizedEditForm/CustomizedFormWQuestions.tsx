@@ -26,12 +26,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import EditField from 'src/pages/admin/manageFormTemplates/editFormTemplate/EditField';
 import { Autocomplete, AutocompleteRenderInputParams } from 'formik-mui';
-import {
-  //InputAdornment,
-  TextField,
-  Tooltip,
-  Typography,
-} from '@mui/material';
+import { InputAdornment, TextField, Tooltip, Typography } from '@mui/material';
 
 interface IProps {
   fm: FormTemplateWithQuestions;
@@ -223,9 +218,6 @@ export const CustomizedFormWQuestions = ({
                         disableTouchListener
                         title={
                           <>
-                            <AddIcon fontSize="inherit" /> Click to begin adding
-                            fields to your custom form.
-                            <br></br>
                             <EditIcon fontSize="inherit" /> Click to open and
                             edit your field.
                             <br></br>
@@ -259,14 +251,36 @@ export const CustomizedFormWQuestions = ({
                         setSelectedLanguage(value);
                       }}
                       renderInput={(params: AutocompleteRenderInputParams) => (
-                        <TextField
-                          {...params}
-                          name={languages[0]}
-                          helperText={''}
-                          label="View Language"
-                          variant="outlined"
-                          required
-                        />
+                        <>
+                          <TextField
+                            {...params}
+                            name={languages[0]}
+                            InputProps={{
+                              ...params.InputProps,
+                              endAdornment: (
+                                <>
+                                  {params.InputProps.endAdornment}
+
+                                  <Tooltip
+                                    disableFocusListener
+                                    disableTouchListener
+                                    title={'Select view language for your form'}
+                                    arrow>
+                                    <InputAdornment position="end">
+                                      <IconButton>
+                                        <InfoIcon fontSize="small" />
+                                      </IconButton>
+                                    </InputAdornment>
+                                  </Tooltip>
+                                </>
+                              ),
+                            }}
+                            helperText={''}
+                            label="View Language"
+                            variant="outlined"
+                            required
+                          />
+                        </>
                       )}
                     />
                   </Grid>
@@ -384,23 +398,14 @@ export const CustomizedFormWQuestions = ({
                     </div>
                   </Grid>
                   <Grid item container xs={6} justifyContent="flex-end">
-                    <Tooltip
-                      disableFocusListener
-                      disableTouchListener
-                      title={disabled ? 'Missing field data' : ''}
-                      placement="bottom"
-                      arrow>
-                      <div>
-                        <PrimaryButton
-                          onClick={() => {
-                            setIsSubmitPopupOpen(true);
-                          }}
-                          type="button"
-                          disabled={disabled}>
-                          {'Submit Template'}
-                        </PrimaryButton>
-                      </div>
-                    </Tooltip>
+                    <PrimaryButton
+                      onClick={() => {
+                        setIsSubmitPopupOpen(true);
+                      }}
+                      type="button"
+                      disabled={disabled}>
+                      {'Submit Template'}
+                    </PrimaryButton>
                   </Grid>
                 </Grid>
               </Grid>
