@@ -10,8 +10,10 @@ import {
   Radio,
   RadioGroup,
   Switch,
+  Tooltip,
 } from '@mui/material';
-import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import InfoIcon from '@mui/icons-material/Info';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {
   CancelButton,
   PrimaryButton,
@@ -206,26 +208,41 @@ const EditField = ({
           <Grid item container spacing={3}>
             {Array.from(Array(numChoices).keys()).map((_, index) => (
               <Grid item xs={12} key={`option-${index}`}>
-                <Grid item container spacing={3}>
-                  <Grid item xs={10} sm={6} md={2}>
-                    <FormLabel id="field-type-label">
-                      <Typography variant="h6">Option {index + 1}</Typography>
-                    </FormLabel>
-                  </Grid>
-                  <Grid item xs={2} sm={6} md={10}>
+                <Grid
+                  item
+                  container
+                  xs={12}
+                  sm={6}
+                  md={4}
+                  lg={3}
+                  justifyContent="space-between">
+                  <FormLabel
+                    id="field-type-label"
+                    style={{ paddingBottom: '8px' }}>
+                    <Typography variant="h6">Option {index + 1}</Typography>
+                  </FormLabel>
+
+                  <Tooltip
+                    disableFocusListener
+                    disableTouchListener
+                    title={'Delete field'}
+                    placement="right"
+                    arrow>
                     <IconButton
                       key={`remove-option-${index + 1}`}
                       color="error"
+                      style={{ padding: '0px' }}
                       onClick={(e) => {
                         handleRemoveMultiChoice(index);
                         setFieldChanged(!fieldChanged);
                         setFormDirty(true);
                       }}>
-                      <RemoveCircleOutlineIcon />
+                      <DeleteIcon fontSize="small" />
                     </IconButton>
-                  </Grid>
+                  </Tooltip>
                 </Grid>
-                <Grid item container spacing={3}>
+
+                <Grid item container>
                   {inputLanguages.map((lang) => (
                     <Grid
                       item
@@ -288,26 +305,40 @@ const EditField = ({
           <Grid item container spacing={3}>
             {Array.from(Array(numChoices).keys()).map((_, index) => (
               <Grid item xs={12} key={`option-${index}`}>
-                <Grid item container spacing={3}>
-                  <Grid item xs={10} sm={6} md={2}>
-                    <FormLabel id="field-type-label">
-                      <Typography variant="h6">Option {index + 1}</Typography>
-                    </FormLabel>
-                  </Grid>
-                  <Grid item xs={2} sm={6} md={10}>
+                <Grid
+                  item
+                  container
+                  xs={12}
+                  sm={6}
+                  md={4}
+                  lg={3}
+                  justifyContent="space-between">
+                  <FormLabel
+                    id="field-type-label"
+                    style={{ paddingBottom: '8px' }}>
+                    <Typography variant="h6">Option {index + 1}</Typography>
+                  </FormLabel>
+
+                  <Tooltip
+                    disableFocusListener
+                    disableTouchListener
+                    title={'Delete field'}
+                    placement="right"
+                    arrow>
                     <IconButton
                       key={`remove-option-${index + 1}`}
                       color="error"
+                      style={{ padding: '0px' }}
                       onClick={(e) => {
                         handleRemoveMultiChoice(index);
                         setFieldChanged(!fieldChanged);
                         setFormDirty(true);
                       }}>
-                      <RemoveCircleOutlineIcon />
+                      <DeleteIcon fontSize="small" />
                     </IconButton>
-                  </Grid>
+                  </Tooltip>
                 </Grid>
-                <Grid item container spacing={3}>
+                <Grid item container>
                   {inputLanguages.map((lang) => (
                     <Grid
                       item
@@ -545,10 +576,29 @@ const EditField = ({
         </DialogTitle>
         <DialogContent>
           <Grid container spacing={3}>
-            <Grid item xs={12}>
+            <Grid item container xs={12}>
               <FormLabel id="field-details-label">
                 <Typography variant="h6">Field Details</Typography>
               </FormLabel>
+              <div>
+                <Tooltip
+                  disableFocusListener
+                  disableTouchListener
+                  title={
+                    <>
+                      <b>Field Text:</b> Enter a heading for your form question
+                      <br />
+                      <b>Question ID:</b> Enter a value to uniquely identify
+                      this field
+                    </>
+                  }
+                  arrow
+                  placement="right">
+                  <IconButton>
+                    <InfoIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </div>
             </Grid>
             {inputLanguages.map((lang) => (
               <Grid item xs={12} key={lang + '-field-text'}>
@@ -572,6 +622,7 @@ const EditField = ({
                 />
               </Grid>
             ))}
+
             <Grid item xs={12}>
               <TextField
                 label={'Question ID'}
@@ -594,10 +645,24 @@ const EditField = ({
                 }}
               />
             </Grid>
-            <Grid item sm={12} md={2} lg={2}>
+            <Grid item container sm={12} md={2} lg={2}>
               <FormLabel id="field-type-label">
                 <Typography variant="h6">Field Type</Typography>
               </FormLabel>
+              <div>
+                <Tooltip
+                  disableFocusListener
+                  disableTouchListener
+                  title={
+                    'Select a type for your field. For Multiple Choice and Multi Select options, Add Options to your field as you would like them to appear on your form.'
+                  }
+                  arrow
+                  placement="right">
+                  <IconButton>
+                    <InfoIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </div>
             </Grid>
             <Grid item sm={12} md={10} lg={10}>
               <RadioGroup
@@ -626,7 +691,7 @@ const EditField = ({
                 q.questionType != QuestionTypeEnum.CATEGORY && q != question
             ).length > 0 && (
               <>
-                <Grid item sm={12} md={10} lg={10}>
+                <Grid item container sm={12} md={10} lg={10}>
                   <FormControlLabel
                     style={{ marginLeft: 0 }}
                     control={
@@ -637,10 +702,22 @@ const EditField = ({
                       />
                     }
                     label={
-                      <FormLabel id="vis-label">
+                      <FormLabel id="vis-label" style={{ display: 'flex' }}>
                         <Typography variant="h6">
                           Conditional Visibility
                         </Typography>
+                        <Tooltip
+                          disableFocusListener
+                          disableTouchListener
+                          title={
+                            'Set this field to only appear after a specific field value is entered'
+                          }
+                          arrow
+                          placement="right">
+                          <IconButton>
+                            <InfoIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
                       </FormLabel>
                     }
                     labelPlacement="start"
@@ -675,8 +752,18 @@ const EditField = ({
                 />
               }
               label={
-                <FormLabel id="required-label">
+                <FormLabel id="required-label" style={{ display: 'flex' }}>
                   <Typography variant="h6">Required</Typography>
+                  <Tooltip
+                    disableFocusListener
+                    disableTouchListener
+                    title={'Make this field required in your form'}
+                    arrow
+                    placement="right">
+                    <IconButton>
+                      <InfoIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
                 </FormLabel>
               }
               labelPlacement="start"

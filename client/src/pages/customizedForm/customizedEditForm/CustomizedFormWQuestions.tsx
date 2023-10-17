@@ -9,7 +9,7 @@ import {
   useState,
 } from 'react';
 import { initialState, validationSchema } from './state';
-
+import InfoIcon from '@mui/icons-material/Info';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import Box from '@mui/material/Box';
 import AddIcon from '@mui/icons-material/Add';
@@ -26,7 +26,8 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import EditField from 'src/pages/admin/manageFormTemplates/editFormTemplate/EditField';
 import { Autocomplete, AutocompleteRenderInputParams } from 'formik-mui';
-import { TextField, Typography } from '@mui/material';
+import { InputAdornment, TextField, Tooltip, Typography } from '@mui/material';
+
 interface IProps {
   fm: FormTemplateWithQuestions;
   languages: string[];
@@ -178,6 +179,9 @@ export const CustomizedFormWQuestions = ({
     return emptyLangs;
   };
 
+  const disabled =
+    !(fm?.questions?.length > 0) || emptyLanguageFieldsInForm() || versionError;
+
   return (
     <>
       <APIErrorToast
@@ -206,10 +210,35 @@ export const CustomizedFormWQuestions = ({
             <Box p={4} pt={6} m={2}>
               <Grid container spacing={3}>
                 <Grid item container spacing={3}>
-                  <Grid item xs={10}>
+                  <Grid item container xs={8}>
                     <h2>Current Form</h2>
+                    <div>
+                      <Tooltip
+                        disableFocusListener
+                        disableTouchListener
+                        title={
+                          <>
+                            <EditIcon fontSize="inherit" /> Click to open and
+                            edit your field.
+                            <br></br>
+                            <DeleteIcon fontSize="inherit" /> Click to delete
+                            your field.
+                            <br></br>
+                            <KeyboardArrowUpIcon fontSize="inherit" /> Click to
+                            move field up. <br></br>
+                            <KeyboardArrowDownIcon fontSize="inherit" /> Click
+                            to move field down. <br></br>
+                          </>
+                        }
+                        arrow
+                        placement="right">
+                        <IconButton>
+                          <InfoIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </div>
                   </Grid>
-                  <Grid item xs={2}>
+                  <Grid item container xs={4}>
                     <Field
                       key={'view-lang'}
                       value={selectedLanguage}
@@ -222,14 +251,36 @@ export const CustomizedFormWQuestions = ({
                         setSelectedLanguage(value);
                       }}
                       renderInput={(params: AutocompleteRenderInputParams) => (
-                        <TextField
-                          {...params}
-                          name={languages[0]}
-                          helperText={''}
-                          label="View Language"
-                          variant="outlined"
-                          required
-                        />
+                        <>
+                          <TextField
+                            {...params}
+                            name={languages[0]}
+                            InputProps={{
+                              ...params.InputProps,
+                              endAdornment: (
+                                <>
+                                  {params.InputProps.endAdornment}
+
+                                  <Tooltip
+                                    disableFocusListener
+                                    disableTouchListener
+                                    title={'Select view language for your form'}
+                                    arrow>
+                                    <InputAdornment position="end">
+                                      <IconButton>
+                                        <InfoIcon fontSize="small" />
+                                      </IconButton>
+                                    </InputAdornment>
+                                  </Tooltip>
+                                </>
+                              ),
+                            }}
+                            helperText={''}
+                            label="View Language"
+                            variant="outlined"
+                            required
+                          />
+                        </>
                       )}
                     />
                   </Grid>
@@ -285,6 +336,7 @@ export const CustomizedFormWQuestions = ({
                               <KeyboardArrowDownIcon fontSize="small" />
                             </IconButton>
                           </Grid>
+
                           <Grid item xs={6}>
                             <IconButton
                               key={`delete-field-${question.questionIndex}`}
@@ -326,22 +378,24 @@ export const CustomizedFormWQuestions = ({
                     );
                   })}
                 </Grid>
-                <Grid item container>
+                <Grid item container justifyContent="space-between">
                   <Grid item xs={6}>
-                    <PrimaryButton
-                      onClick={() => {
-                        if (languages.length != 0) {
-                          setEditPopupOpen(true);
-                        } else {
-                          setSubmitError(true);
-                          setErrorMessage(
-                            'Select at least one language before creating a field'
-                          );
-                        }
-                      }}>
-                      <AddIcon />
-                      {'Add Field'}
-                    </PrimaryButton>
+                    <div style={{ display: 'inline-block' }}>
+                      <PrimaryButton
+                        onClick={() => {
+                          if (languages.length != 0) {
+                            setEditPopupOpen(true);
+                          } else {
+                            setSubmitError(true);
+                            setErrorMessage(
+                              'Select at least one language before creating a field'
+                            );
+                          }
+                        }}>
+                        <AddIcon />
+                        {'Add Field'}
+                      </PrimaryButton>
+                    </div>
                   </Grid>
                   <Grid item container xs={6} justifyContent="flex-end">
                     <PrimaryButton
@@ -349,11 +403,7 @@ export const CustomizedFormWQuestions = ({
                         setIsSubmitPopupOpen(true);
                       }}
                       type="button"
-                      disabled={
-                        !(fm?.questions?.length > 0) ||
-                        emptyLanguageFieldsInForm() ||
-                        versionError
-                      }>
+                      disabled={disabled}>
                       {'Submit Template'}
                     </PrimaryButton>
                   </Grid>
