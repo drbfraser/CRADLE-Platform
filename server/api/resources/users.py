@@ -228,6 +228,14 @@ class UserRegisterApi(Resource):
 
         # Ensure that email is unique
         if (crud.read(User, email=new_user["email"])) is not None:
+            LOGGER.warning(
+                "Unsucessful: Creating New user", 
+                extra={
+                    "Requested by": "", 
+                    "New User Email": new_user["email"], 
+                    "Reason": "Email already registered"
+                }
+            )
             return {"message": "there is already a user with this email"}, 400
 
         # Ensure that role is supported
@@ -329,7 +337,7 @@ class UserAuthApi(Resource):
             LOGGER.warning(
                 "Unsucessful login", 
                 extra={"User Email": data.email, "Reason": "Email not registered"}
-                )
+            )
             #TO-DO: Fix account enumeration problem 
             #return same message for incorrect email and incorrect password
             return {
