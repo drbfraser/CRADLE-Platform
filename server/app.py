@@ -10,6 +10,7 @@
 """
 import sys
 import os
+import re
 import json
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
@@ -51,29 +52,29 @@ def log_request_details():
     middleware function for logging changes made by users
     '''
 
-    if len(request.data) == 0:
-        return
-
     try:
         verify_jwt_in_request() 
-        requestor_info = get_jwt_identity()
+        requestor_data = get_jwt_identity()
     except:
         requestor_data = {}
 
-    req_data = json.loads(request.data.decode('utf-8'))
-    print(type(req_data), req_data)
+    if len(request.data) == 0:
+        req_data = request.args.to_dict()
+    else: 
+        req_data = json.loads(request.data.decode('utf-8'))
 
-    requst_data = {}
+    request_data = {}
     for key in req_data:
         if "password" in key.lower():
             continue
         else:
-            requst_data[key] = req_data[key]
+            request_data[key] = req_data[key]
     extra = {
-        "Request Information": requst_data,
+        "Request Information": request_data,
         "Requestor Information": requestor_data
     }
-    message = f"Accessing Endpoint: {request.endpoint}"
+
+    message = f"Accessing Endpoint: {re.search(r'/api/.*', request.url).group(0)} Request Method: {request.method}"
     LOGGER.info(message, extra=extra)
 
 if __name__ == "__main__":
