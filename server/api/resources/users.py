@@ -327,16 +327,23 @@ class UserAuthApi(Resource):
 
         if user is None:
             LOGGER.warning(
-                f"This email address: ", data["email"], " hasn't been registered"
-            )
+                "Unsucessful login", 
+                extra={"User Email": data.email, "Reason": "Email not registered"}
+                )
+            #TO-DO: Fix account enumeration problem 
+            #return same message for incorrect email and incorrect password
             return {
                 "message": "This email hasn't been registered yet, try to connect with your administrator"
             }, 401
 
         if not user or not flask_bcrypt.check_password_hash(
             user.password, data["password"]
+            
         ):
-            LOGGER.warning(f"Log in attempt for user {user.id}")
+            LOGGER.warning(
+                "Unsucessful login", 
+                extra={"User Email": user.email, "Reason": "Incorrect Password"}
+                )
             return {"message": "Invalid email or password"}, 401
 
         # setup any extra user params
@@ -368,7 +375,7 @@ class UserAuthApi(Resource):
         else:
             user_data["smsKey"] = "NOTFOUND"
 
-        LOGGER.info(f"{user.id} has logged in")
+        LOGGER.info("Successful Login", extra = {"UserId": user.id, "User Email": user.email})
 
         return user_data, 200
 
