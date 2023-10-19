@@ -46,22 +46,23 @@ print("Binding to " + host + ":" + port)
 
 import models  # needs to be after db instance
 
+
 @app.after_request
 def log_request_details(response):
-    '''
+    """
     middleware function for logging changes made by users
-    '''
+    """
 
     try:
-        verify_jwt_in_request() 
+        verify_jwt_in_request()
         requestor_data = get_jwt_identity()
     except:
         requestor_data = {}
 
     if len(request.data) == 0:
         req_data = request.args.to_dict()
-    else: 
-        req_data = json.loads(request.data.decode('utf-8'))
+    else:
+        req_data = json.loads(request.data.decode("utf-8"))
 
     request_data = {}
     for key in req_data:
@@ -74,17 +75,17 @@ def log_request_details(response):
         status_str = "Successful"
     else:
         status_str = "Unsuccessful"
-    
+
     extra = {
         "Response Status": f"{response.status_code} ({status_str})",
         "Request Information": request_data,
-        "Requestor Information": requestor_data
+        "Requestor Information": requestor_data,
     }
 
     message = f"Accessing Endpoint: {re.search(r'/api/.*', request.url).group(0)} Request Method: {request.method}"
     LOGGER.info(message, extra=extra)
     return response
 
+
 if __name__ == "__main__":
     app.run(debug=True, host=host, port=port)
-

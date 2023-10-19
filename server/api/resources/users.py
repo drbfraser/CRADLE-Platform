@@ -329,8 +329,8 @@ class UserAuthApi(Resource):
             LOGGER.warning(
                 f"This email address: ", data["email"], " hasn't been registered"
             )
-            #TO-DO: Fix account enumeration problem 
-            #return same message for incorrect email and incorrect password
+            # TO-DO: Fix account enumeration problem
+            # return same message for incorrect email and incorrect password
             return {
                 "message": "This email hasn't been registered yet, try to connect with your administrator"
             }, 401
