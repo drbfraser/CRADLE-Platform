@@ -46,8 +46,8 @@ print("Binding to " + host + ":" + port)
 
 import models  # needs to be after db instance
 
-@app.before_request
-def log_request_details():
+@app.after_request
+def log_request_details(response):
     '''
     middleware function for logging changes made by users
     '''
@@ -69,13 +69,21 @@ def log_request_details():
             continue
         else:
             request_data[key] = req_data[key]
+
+    if response.status_code == 200:
+        status_str = "Successful"
+    else:
+        status_str = "Unsuccessful"
+    
     extra = {
+        "Response Status": f"{response.status_code} ({status_str})",
         "Request Information": request_data,
         "Requestor Information": requestor_data
     }
 
     message = f"Accessing Endpoint: {re.search(r'/api/.*', request.url).group(0)} Request Method: {request.method}"
     LOGGER.info(message, extra=extra)
+    return response
 
 if __name__ == "__main__":
     app.run(debug=True, host=host, port=port)
