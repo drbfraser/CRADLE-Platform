@@ -228,14 +228,6 @@ class UserRegisterApi(Resource):
 
         # Ensure that email is unique
         if (crud.read(User, email=new_user["email"])) is not None:
-            LOGGER.warning(
-                "Unsucessful: Creating New user", 
-                extra={
-                    "Requested by": "", 
-                    "New User Email": new_user["email"], 
-                    "Reason": "Email already registered"
-                }
-            )
             return {"message": "there is already a user with this email"}, 400
 
         # Ensure that role is supported
@@ -335,8 +327,7 @@ class UserAuthApi(Resource):
 
         if user is None:
             LOGGER.warning(
-                "Unsucessful login", 
-                extra={"User Email": data.email, "Reason": "Email not registered"}
+                f"This email address: ", data["email"], " hasn't been registered"
             )
             #TO-DO: Fix account enumeration problem 
             #return same message for incorrect email and incorrect password
@@ -346,12 +337,8 @@ class UserAuthApi(Resource):
 
         if not user or not flask_bcrypt.check_password_hash(
             user.password, data["password"]
-            
         ):
-            LOGGER.warning(
-                "Unsucessful login", 
-                extra={"User Email": user.email, "Reason": "Incorrect Password"}
-                )
+            LOGGER.warning(f"Log in attempt for user {user.id}")
             return {"message": "Invalid email or password"}, 401
 
         # setup any extra user params
@@ -383,7 +370,7 @@ class UserAuthApi(Resource):
         else:
             user_data["smsKey"] = "NOTFOUND"
 
-        LOGGER.info("Successful Login", extra = {"UserId": user.id, "User Email": user.email})
+        LOGGER.info(f"{user.id} has logged in")
 
         return user_data, 200
 
