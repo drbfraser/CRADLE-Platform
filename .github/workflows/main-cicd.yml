@@ -32,6 +32,7 @@ jobs:
       - uses: bfraser/cicd/actions/debug_display_contexts@v1
 
   build-frontend:
+    if: false
     runs-on: [self-hosted, docker]
     container:
       image: node:18
@@ -61,6 +62,7 @@ jobs:
         path: ${{ env.CUSTOM_WORKSPACE }}/client/frontend.tar.gz
 
   update-aws:
+    if: false
     runs-on: [self-hosted, docker]
     timeout-minutes: 60
     container:
@@ -181,6 +183,7 @@ jobs:
         path: ${{ env.CUSTOM_WORKSPACE }}/server/report.xml
 
   frontend-unit_tests:
+    if: false
     runs-on: [self-hosted, docker]
     container:
       image: node:18
@@ -268,6 +271,7 @@ jobs:
         path: ${{ env.CUSTOM_WORKSPACE }}/client/cypress/screenshots/**/*.png, ${{ env.CUSTOM_WORKSPACE }}/client/cypress/videos/**/*.mp4
 
   frontend-lint-format:
+    if: false
     runs-on: [self-hosted, docker]
     container:
       image: node:18
@@ -291,6 +295,7 @@ jobs:
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
 
   backend_format:
+    if: false
     runs-on: [self-hosted, docker]
     container: 
       image: python:3.9.1-buster
@@ -312,6 +317,7 @@ jobs:
   # Publish to DockerHub
   # ----------------------------------------------------------------------------
   export-image-tag:
+    if: false
     runs-on: [self-hosted, docker]
     outputs:
       image_tag: ${{ steps.set_step.outputs.tag }}
@@ -331,6 +337,7 @@ jobs:
           # https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
           echo "::set-output name=tag::$IMAGE_TAG"
   build-docker-publish-docker-images:
+    if: false
     needs: [build-frontend, update-aws, export-image-tag]
     # needs: [export-image-tag]   # Used for faking and testing
     runs-on: [self-hosted, docker]
@@ -386,6 +393,7 @@ jobs:
 # #   ----------------------------------------------------------------------------
 # #   Development (dev) server
   dev-server-deploy-from-dockerhub:
+    if: false
     needs: [build-docker-publish-docker-images, export-image-tag]
     if: ${{ github.ref_name == 'main' }}
     uses: ./.github/workflows/deploy-from-dockerhub.yml
@@ -396,6 +404,7 @@ jobs:
     secrets: inherit
 
   dev-retag-and-upload-to-dockerhub:
+    if: false
     needs: [build-docker-publish-docker-images, export-image-tag]
     if: ${{ github.ref_name == 'main' }}
     uses: ./.github/workflows/retag-and-upload-dockerhub.yml
@@ -407,6 +416,7 @@ jobs:
 
   # Staging (stg) server
   staging-server-deploy-from-dockerhub:
+    if: false
     needs: [export-image-tag]
     # if: ${{ github.ref_name == 'staging' }}
     # TODO: Currently disabled due to infinite loop in this flow.
@@ -419,6 +429,7 @@ jobs:
     secrets: inherit
 
   staging-retag-and-upload-to-dockerhub:
+    if: false
     needs: [export-image-tag]
     if: ${{ github.ref_name == 'staging' }}
     uses: ./.github/workflows/retag-and-upload-dockerhub.yml
