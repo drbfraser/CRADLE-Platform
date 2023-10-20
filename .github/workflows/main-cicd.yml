@@ -337,7 +337,6 @@ jobs:
           # https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
           echo "::set-output name=tag::$IMAGE_TAG"
   build-docker-publish-docker-images:
-    if: false
     needs: [build-frontend, update-aws, export-image-tag]
     # needs: [export-image-tag]   # Used for faking and testing
     runs-on: [self-hosted, docker]
