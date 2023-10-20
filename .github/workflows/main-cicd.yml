@@ -392,7 +392,6 @@ jobs:
 # #   ----------------------------------------------------------------------------
 # #   Development (dev) server
   dev-server-deploy-from-dockerhub:
-    if: false
     needs: [build-docker-publish-docker-images, export-image-tag]
     if: ${{ github.ref_name == 'main' }}
     uses: ./.github/workflows/deploy-from-dockerhub.yml
@@ -403,7 +402,6 @@ jobs:
     secrets: inherit
 
   dev-retag-and-upload-to-dockerhub:
-    if: false
     needs: [build-docker-publish-docker-images, export-image-tag]
     if: ${{ github.ref_name == 'main' }}
     uses: ./.github/workflows/retag-and-upload-dockerhub.yml
@@ -415,7 +413,6 @@ jobs:
 
   # Staging (stg) server
   staging-server-deploy-from-dockerhub:
-    if: false
     needs: [export-image-tag]
     # if: ${{ github.ref_name == 'staging' }}
     # TODO: Currently disabled due to infinite loop in this flow.
@@ -428,7 +425,6 @@ jobs:
     secrets: inherit
 
   staging-retag-and-upload-to-dockerhub:
-    if: false
     needs: [export-image-tag]
     if: ${{ github.ref_name == 'staging' }}
     uses: ./.github/workflows/retag-and-upload-dockerhub.yml
