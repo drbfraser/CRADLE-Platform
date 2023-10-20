@@ -69,82 +69,87 @@ class SyncPatients(Resource):
             as_crt = None
             pt_upd = None
             pr_upd = None
-            server_patient = crud.read(Patient, patientId=patient_id)
-            if not server_patient:
-                pt_crt = serialize.deserialize_patient(p, shallow=False)
-            else:
-                if (p.get("lastEdited") and p["lastEdited"] > last_sync) and (
-                    p.get("base") and p["base"] == server_patient.lastEdited
-                ):
-                    # Otherwise, patient personal info has been edited on Android or has
-                    # been edited on the server; in the latter case personal info on Android
-                    # will be overridden if sync succeeds
-                    values = serialize.deserialize_patient(p, partial=True)
-                    pt_upd = ModelData(patient_id, values)
+            try:
+                server_patient = crud.read(Patient, patientId=patient_id)
+                if not server_patient:
+                    pt_crt = serialize.deserialize_patient(p, shallow=False)
+                else:
+                    if (p.get("lastEdited") and p["lastEdited"] > last_sync) and (
+                        p.get("base") and p["base"] == server_patient.lastEdited
+                    ):
+                        # Otherwise, patient personal info has been edited on Android or has
+                        # been edited on the server; in the latter case personal info on Android
+                        # will be overridden if sync succeeds
+                        values = serialize.deserialize_patient(p, partial=True)
+                        pt_upd = ModelData(patient_id, values)
 
-                if p.get("medicalLastEdited"):
-                    mrc_crt = serialize.deserialize_medical_record(p, False)
+                    if p.get("medicalLastEdited"):
+                        mrc_crt = serialize.deserialize_medical_record(p, False)
 
-                if p.get("drugLastEdited"):
-                    drc_crt = serialize.deserialize_medical_record(p, True)
+                    if p.get("drugLastEdited"):
+                        drc_crt = serialize.deserialize_medical_record(p, True)
 
-                # Variables for checking conflicts with new pregnancy in the next condition block
-                pregnancy_id = None
-                pregnancy_end_date = None
-                if p.get("pregnancyEndDate"):
-                    values = serialize.deserialize_pregnancy(p, partial=True)
-                    pregnancy = crud.read(Pregnancy, id=p.get("pregnancyId"))
-                    if not pregnancy or pregnancy.patientId != patient_id:
-                        err = _to_string("pregnancyId", "invalid")
-                        raise ValidationError(err)
-                    pregnancy_id = pregnancy.id
-                    pregnancy_end_date = pregnancy.endDate
-                    if not pregnancy_end_date:
-                        # Otherwise, pregnancy has been edited on server; end date inputted
-                        # on Android will be discarded if sync succeeds
-                        pregnancy_end_date = values["endDate"]
+                    # Variables for checking conflicts with new pregnancy in the next condition block
+                    pregnancy_id = None
+                    pregnancy_end_date = None
+                    if p.get("pregnancyEndDate"):
+                        values = serialize.deserialize_pregnancy(p, partial=True)
+                        pregnancy = crud.read(Pregnancy, id=p.get("pregnancyId"))
+                        if not pregnancy or pregnancy.patientId != patient_id:
+                            err = _to_string("pregnancyId", "invalid")
+                            raise ValidationError(err)
+                        pregnancy_id = pregnancy.id
+                        pregnancy_end_date = pregnancy.endDate
+                        if not pregnancy_end_date:
+                            # Otherwise, pregnancy has been edited on server; end date inputted
+                            # on Android will be discarded if sync succeeds
+                            pregnancy_end_date = values["endDate"]
+                            if (
+                                pregnancy.startDate >= pregnancy_end_date
+                                or crud.has_conflicting_pregnancy_record(
+                                    patient_id,
+                                    pregnancy.startDate,
+                                    pregnancy_end_date,
+                                    pregnancy_id,
+                                )
+                            ):
+                                err = _to_string("pregnancyEndDate", "conflict")
+                                raise ValidationError(err)
+                            else:
+                                pr_upd = ModelData(pregnancy_id, values)
+
+                    if (p.get("pregnancyStartDate") and not p.get("pregnancyId")) or (
+                        p.get("pregnancyStartDate") and p.get("pregnancyEndDate")
+                    ):
+                        model = serialize.deserialize_pregnancy(p)
                         if (
-                            pregnancy.startDate >= pregnancy_end_date
-                            or crud.has_conflicting_pregnancy_record(
-                                patient_id,
-                                pregnancy.startDate,
-                                pregnancy_end_date,
-                                pregnancy_id,
-                            )
+                            pregnancy_end_date and model.startDate <= pregnancy_end_date
+                        ) or crud.has_conflicting_pregnancy_record(
+                            patient_id, model.startDate, pregnancy_id=pregnancy_id
                         ):
-                            err = _to_string("pregnancyEndDate", "conflict")
+                            err = _to_string("pregnancyStartDate", "conflict")
                             raise ValidationError(err)
                         else:
-                            pr_upd = ModelData(pregnancy_id, values)
+                            pr_crt = model
 
-                if (p.get("pregnancyStartDate") and not p.get("pregnancyId")) or (
-                    p.get("pregnancyStartDate") and p.get("pregnancyEndDate")
-                ):
-                    model = serialize.deserialize_pregnancy(p)
-                    if (
-                        pregnancy_end_date and model.startDate <= pregnancy_end_date
-                    ) or crud.has_conflicting_pregnancy_record(
-                        patient_id, model.startDate, pregnancy_id=pregnancy_id
-                    ):
-                        err = _to_string("pregnancyStartDate", "conflict")
-                        raise ValidationError(err)
-                    else:
-                        pr_crt = model
+                association = {
+                    "patientId": patient_id,
+                    "healthFacilityName": user.get("healthFacilityName"),
+                    "userId": user["userId"],
+                }
+                if not crud.read(PatientAssociations, **association):
+                    as_crt = marshal.unmarshal(PatientAssociations, association)
 
-            association = {
-                "patientId": patient_id,
-                "healthFacilityName": user.get("healthFacilityName"),
-                "userId": user["userId"],
-            }
-            if not crud.read(PatientAssociations, **association):
-                as_crt = marshal.unmarshal(PatientAssociations, association)
-
-            # Queue models as validation completes without exceptions
-            models = [pt_crt, pr_crt, mrc_crt, drc_crt, as_crt, pt_upd, pr_upd]
-            for m, ms in zip(models, models_list):
-                if m:
-                    ms.append(m)
-        
+                # Queue models as validation completes without exceptions
+                models = [pt_crt, pr_crt, mrc_crt, drc_crt, as_crt, pt_upd, pr_upd]
+                for m, ms in zip(models, models_list):
+                    if m:
+                        ms.append(m)
+            except ValidationError as err:
+                errors.append({"patientId": patient_id, "errors": str(err)})
+                status_code = 207
+            except:
+                raise
 
         with db_session.begin_nested():
             # Create and update patients in the database
