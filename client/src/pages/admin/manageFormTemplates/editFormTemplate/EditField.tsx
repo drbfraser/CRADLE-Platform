@@ -13,7 +13,6 @@ import {
   Tooltip,
 } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
-import DeleteIcon from '@mui/icons-material/Delete';
 import {
   CancelButton,
   PrimaryButton,
@@ -31,6 +30,7 @@ import {
 import { QuestionTypeEnum } from 'src/shared/enums';
 import EditVisibleCondition from './EditVisibleCondition';
 import MultiChoice from './multiFieldComponents/MultiChoice';
+import MultiSelect from './multiFieldComponents/MultiSelect';
 
 interface IProps {
   open: boolean;
@@ -212,95 +212,17 @@ const EditField = ({
       label: 'Multi Select',
       type: QuestionTypeEnum.MULTIPLE_SELECT,
       render: () => (
-        <Grid item container spacing={3}>
-          <Grid item xs={12}>
-            <PrimaryButton
-              type="button"
-              onClick={(e) => {
-                handleAddChoice();
-                setFieldChanged(!fieldChanged);
-                setFormDirty(true);
-              }}>
-              {'Add Option'}
-            </PrimaryButton>
-          </Grid>
-          <Grid item container spacing={3}>
-            {Array.from(Array(numChoices).keys()).map((_, index) => (
-              <Grid item xs={12} key={`option-${index}`}>
-                <Grid
-                  item
-                  container
-                  xs={12}
-                  sm={6}
-                  md={4}
-                  lg={3}
-                  justifyContent="space-between">
-                  <FormLabel
-                    id="field-type-label"
-                    style={{ paddingBottom: '8px' }}>
-                    <Typography variant="h6">Option {index + 1}</Typography>
-                  </FormLabel>
-
-                  <Tooltip
-                    disableFocusListener
-                    disableTouchListener
-                    title={'Delete field'}
-                    placement="right"
-                    arrow>
-                    <IconButton
-                      key={`remove-option-${index + 1}`}
-                      color="error"
-                      style={{ padding: '0px' }}
-                      onClick={(e) => {
-                        handleRemoveMultiChoice(index);
-                        setFieldChanged(!fieldChanged);
-                        setFormDirty(true);
-                      }}>
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                </Grid>
-                <Grid item container>
-                  {inputLanguages.map((lang) => (
-                    <Grid
-                      item
-                      xs={12}
-                      sm={6}
-                      md={4}
-                      lg={3}
-                      key={`${lang}-mult-select-option-${index + 1}-body`}>
-                      <TextField
-                        key={`${lang}-field-name-mult-select-option-${
-                          index + 1
-                        }`}
-                        label={`${lang} Option ${index + 1}`}
-                        required={true}
-                        variant="outlined"
-                        value={getMcOptionValue(lang, index)}
-                        fullWidth
-                        multiline
-                        size="small"
-                        inputProps={{
-                          // TODO: Determine what types of input restrictions we should have for multiple choice option
-                          maxLength: Number.MAX_SAFE_INTEGER,
-                        }}
-                        onChange={(e) => {
-                          handleMultiChoiceOptionChange(
-                            lang,
-                            e.target.value,
-                            index
-                          );
-                          setFieldChanged(!fieldChanged);
-                          setFormDirty(true);
-                        }}
-                      />
-                    </Grid>
-                  ))}
-                </Grid>
-              </Grid>
-            ))}
-          </Grid>
-        </Grid>
+        <MultiSelect
+          numChoices={numChoices}
+          inputLanguages={inputLanguages}
+          fieldChanged={fieldChanged}
+          handleAddChoice={handleAddChoice}
+          setFieldChanged={setFieldChanged}
+          setFormDirty={setFormDirty}
+          handleMultiChoiceOptionChange={handleMultiChoiceOptionChange}
+          handleRemoveMultiChoice={handleRemoveMultiChoice}
+          getMcOptionValue={getMcOptionValue}
+        />
       ),
     },
     date: {
