@@ -43,9 +43,6 @@ import os
 import json
 import re
 
-
-LOGGER = logging.getLogger(__name__)
-
 # Error messages
 null_phone_number = "No phone number was provided"
 
@@ -326,9 +323,6 @@ class UserAuthApi(Resource):
         user = crud.read(User, email=data["email"])
 
         if user is None:
-            LOGGER.warning(
-                f"This email address: ", data["email"], " hasn't been registered"
-            )
             # TO-DO: Fix account enumeration problem
             # return same message for incorrect email and incorrect password
             return {
@@ -338,7 +332,6 @@ class UserAuthApi(Resource):
         if not user or not flask_bcrypt.check_password_hash(
             user.password, data["password"]
         ):
-            LOGGER.warning(f"Log in attempt for user {user.id}")
             return {"message": "Invalid email or password"}, 401
 
         # setup any extra user params
@@ -369,8 +362,6 @@ class UserAuthApi(Resource):
             user_data["smsKey"] = json.dumps(sms_key)
         else:
             user_data["smsKey"] = "NOTFOUND"
-
-        LOGGER.info(f"{user.id} has logged in")
 
         return user_data, 200
 

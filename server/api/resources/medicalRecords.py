@@ -2,6 +2,7 @@ from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
+import logging
 
 import api.util as util
 import data.crud as crud
@@ -12,10 +13,8 @@ from models import MedicalRecord
 from validation import medicalRecords
 from utils import get_current_time
 from api.decorator import patient_association_required
-import logging
 
 LOGGER = logging.getLogger(__name__)
-
 
 # /api/patients/<string:patient_id>/medical_records
 class Root(Resource):
@@ -49,7 +48,7 @@ class Root(Resource):
 
         error = medicalRecords.validate_post_request(request_body, patient_id)
         if error:
-            print(error)
+            LOGGER.error(error)
             abort(400, message=error)
 
         if "id" in request_body:
@@ -118,8 +117,6 @@ class SingleMedicalRecord(Resource):
     )
     def delete(record_id: str):
         record = _get_medical_record(record_id)
-        user = util.current_user()
-        LOGGER.warning(f"{record_id} has been deleted by User {user.id}")
         crud.delete(record)
 
         return {"message": "Medical record deleted"}
