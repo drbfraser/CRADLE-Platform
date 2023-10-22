@@ -254,7 +254,7 @@ export const FormQuestions = ({
         return (
           <Grid
             item
-            xs={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 11 : 12}>
+            xs={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 8 : 12}>
             <Typography component="h3" variant="h5">
               <CategorySharp fontSize="large" /> &nbsp; {text}
             </Typography>

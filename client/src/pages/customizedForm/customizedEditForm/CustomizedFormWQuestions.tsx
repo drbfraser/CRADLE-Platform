@@ -16,7 +16,7 @@ import AddIcon from '@mui/icons-material/Add';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { PrimaryButton } from 'src/shared/components/Button';
-import { FormRenderStateEnum } from 'src/shared/enums';
+import { FormRenderStateEnum, QuestionTypeEnum } from 'src/shared/enums';
 import { FormQuestions } from '../FormQuestions';
 import SubmitFormTemplateDialog from './SubmitFormTemplateDialog';
 import IconButton from '@mui/material/IconButton';
@@ -25,6 +25,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import EditField from 'src/pages/admin/manageFormTemplates/editFormTemplate/EditField';
+import EditCategory from 'src/pages/admin/manageFormTemplates/editFormTemplate/EditCategory';
 import { Autocomplete, AutocompleteRenderInputParams } from 'formik-mui';
 import { InputAdornment, TextField, Tooltip, Typography } from '@mui/material';
 
@@ -43,7 +44,7 @@ export const CustomizedFormWQuestions = ({
   setForm,
   versionError,
 }: IProps) => {
-  const questions = fm.questions;
+  const [questions, setQuestions] = useState(fm.questions);
   const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
   const [submitError, setSubmitError] = useState(false);
   const [isSubmitPopupOpen, setIsSubmitPopupOpen] = useState(false);
@@ -52,11 +53,30 @@ export const CustomizedFormWQuestions = ({
     number | null
   >(null);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
+  const [categoryPopupOpen, setCategoryPopupOpen] = useState(false);
   const [individualEditPopupOpen, setIndividualEditPopupOpen] = useState(false);
+  const [categoryEditPopupOpen, setCategoryEditPopupOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [tempForm, setTempForm] = useState<TQuestion[][]>([]);
+  const [categoryIndex, setCategoryIndex] = useState(tempForm.length);
   const getInputLanguages = (question: TQuestion) => {
     return question.questionLangVersions.map((item) => item.lang);
   };
+
+  useEffect(() => {
+    console.log(tempForm);
+    setQuestions(tempForm.flat());
+  }, [tempForm]);
+
+  useEffect(() => {
+    fm.questions = [
+      ...questions.map((q, index) => {
+        q.questionIndex = index;
+        return { ...q };
+      }),
+    ];
+    console.log(fm.questions);
+  }, [questions]);
 
   useEffect(() => {
     updateAddedQuestions(languages);
@@ -90,7 +110,11 @@ export const CustomizedFormWQuestions = ({
 
   const handleEditField = (question: TQuestion) => {
     setSelectedQuestionIndex(question.questionIndex);
-    setIndividualEditPopupOpen(true);
+    if (question.questionType == QuestionTypeEnum.CATEGORY) {
+      setCategoryEditPopupOpen(true);
+    } else {
+      setIndividualEditPopupOpen(true);
+    }
   };
 
   const handleDeleteField = (question: TQuestion) => {
@@ -136,7 +160,9 @@ export const CustomizedFormWQuestions = ({
 
   const moveField = (question: any, up: boolean) => {
     const index = question.questionIndex;
-    if (up && index > 0) {
+    // first index of each tempform[categoryindex] will be the category.
+    // we shouldn' allow user to move question above it's category.
+    if (up && index > 1) {
       const temp = questions[index - 1];
       questions[index - 1] = questions[index];
       questions[index] = temp;
@@ -145,7 +171,10 @@ export const CustomizedFormWQuestions = ({
       updateVisCond(index - 1, index);
       updateVisCond(index, index - 1);
       upd();
-    } else if (!up && question.questionIndex < questions.length - 1) {
+    } else if (
+      !up &&
+      question.questionIndex < tempForm[question.categoryIndex].length - 1
+    ) {
       moveField(questions[index + 1], true);
     }
   };
@@ -189,15 +218,26 @@ export const CustomizedFormWQuestions = ({
         onClose={() => setSubmitError(false)}
         errorMessage={errorMessage}
       />
-      <EditField
+      {/* <EditField
         open={editPopupOpen}
         onClose={() => {
           setEditPopupOpen(false);
         }}
         inputLanguages={languages}
-        setForm={setForm}
+        // setForm={setForm}
+        setForm={setTempForm}
         questionsArr={fm.questions}
         visibilityToggle={false}
+        categoryIndex={categoryIndex}
+      /> */}
+      <EditCategory
+        open={categoryPopupOpen}
+        onClose={() => {
+          setCategoryPopupOpen(false);
+        }}
+        inputLanguages={languages}
+        setTempForm={setTempForm}
+        categoryIndex={tempForm.length}
       />
       <Formik
         initialValues={initialState as any}
@@ -299,8 +339,41 @@ export const CustomizedFormWQuestions = ({
                     const isQuestionSelected =
                       selectedQuestionIndex === question.questionIndex;
                     return (
-                      <Fragment key={`rendered-${question.questionIndex}`}>
+                      <Fragment
+                        key={`rendered-${question.categoryIndex}-${question.questionIndex}`}>
                         {q}
+                        <EditField
+                          open={editPopupOpen}
+                          onClose={() => {
+                            setEditPopupOpen(false);
+                          }}
+                          inputLanguages={languages}
+                          // setForm={setForm}
+                          setForm={setTempForm}
+                          questionsArr={questions}
+                          visibilityToggle={false}
+                          categoryIndex={categoryIndex}
+                        />
+                        {question.questionType == QuestionTypeEnum.CATEGORY && (
+                          <Grid item>
+                            <PrimaryButton
+                              onClick={() => {
+                                console.log(question);
+                                if (languages.length != 0) {
+                                  setCategoryIndex(question.categoryIndex);
+                                  setEditPopupOpen(true);
+                                } else {
+                                  setSubmitError(true);
+                                  setErrorMessage(
+                                    'Select at least one language before creating a field'
+                                  );
+                                }
+                              }}>
+                              <AddIcon />
+                              {'Add Field'}
+                            </PrimaryButton>
+                          </Grid>
+                        )}
                         <Grid
                           container
                           item
@@ -365,7 +438,8 @@ export const CustomizedFormWQuestions = ({
                             setIndividualEditPopupOpen(false);
                           }}
                           inputLanguages={getInputLanguages(question)}
-                          setForm={setForm}
+                          // setForm={setForm}
+                          setForm={setTempForm}
                           question={question}
                           questionsArr={questions}
                           visibilityToggle={
@@ -373,6 +447,18 @@ export const CustomizedFormWQuestions = ({
                             questions[selectedQuestionIndex]?.visibleCondition
                               .length > 0
                           }
+                          categoryIndex={question.categoryIndex}
+                        />
+                        <EditCategory
+                          open={isQuestionSelected && categoryEditPopupOpen}
+                          onClose={() => {
+                            setSelectedQuestionIndex(null);
+                            setCategoryEditPopupOpen(false);
+                          }}
+                          question={question}
+                          inputLanguages={getInputLanguages(question)}
+                          setTempForm={setTempForm}
+                          categoryIndex={question.categoryIndex}
                         />
                       </Fragment>
                     );
@@ -384,7 +470,7 @@ export const CustomizedFormWQuestions = ({
                       <PrimaryButton
                         onClick={() => {
                           if (languages.length != 0) {
-                            setEditPopupOpen(true);
+                            setCategoryPopupOpen(true);
                           } else {
                             setSubmitError(true);
                             setErrorMessage(
@@ -393,7 +479,7 @@ export const CustomizedFormWQuestions = ({
                           }
                         }}>
                         <AddIcon />
-                        {'Add Field'}
+                        {'Add Category'}
                       </PrimaryButton>
                     </div>
                   </Grid>

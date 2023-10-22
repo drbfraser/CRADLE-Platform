@@ -22,7 +22,6 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
-  FormTemplateWithQuestions,
   McOption,
   QCondition,
   QuestionLangVersion,
@@ -35,10 +34,11 @@ interface IProps {
   open: boolean;
   onClose: () => void;
   inputLanguages: string[];
-  setForm?: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
+  setForm?: Dispatch<SetStateAction<TQuestion[][]>>;
   question?: TQuestion;
   questionsArr: TQuestion[];
   visibilityToggle: boolean;
+  categoryIndex: number;
 }
 
 interface FieldTypes {
@@ -58,8 +58,9 @@ const EditField = ({
   question,
   questionsArr,
   visibilityToggle,
+  categoryIndex,
 }: IProps) => {
-  const [fieldType, setFieldType] = useState<string>('category');
+  const [fieldType, setFieldType] = useState<string>('number');
   const [questionId, setQuestionId] = useState<string>('');
   const [numChoices, setNumChoices] = useState<number>(0);
   const [questionLangVersions, setQuestionLangversions] = useState<
@@ -162,12 +163,6 @@ const EditField = ({
   };
 
   const fieldTypes: FieldTypes = {
-    category: {
-      value: 'category',
-      label: 'Category',
-      type: QuestionTypeEnum.CATEGORY,
-      render: () => <></>,
-    },
     number: {
       value: 'number',
       label: 'Number',
@@ -423,7 +418,6 @@ const EditField = ({
   };
 
   const areAllFieldsFilled = (): boolean => {
-    const isQuestionIdFilled = questionId.trim() != '';
     let areAllNamesFilled = true;
     questionLangVersions.forEach((qLangVersion) => {
       areAllNamesFilled = areAllNamesFilled && qLangVersion.questionText != '';
@@ -460,10 +454,7 @@ const EditField = ({
     }
 
     const nonMultiChoiceCheck =
-      isQuestionIdFilled &&
-      areAllNamesFilled &&
-      isFieldTypeChosen &&
-      isVisCondAnswered;
+      areAllNamesFilled && isFieldTypeChosen && isVisCondAnswered;
 
     return fieldType == 'mult_choice' || fieldType == 'mult_select'
       ? nonMultiChoiceCheck && areAllMcOptionFilled
@@ -517,7 +508,7 @@ const EditField = ({
       }
       // create new field
       else {
-        setFieldType('category');
+        setFieldType('number');
         setQuestionId('');
         setQuestionLangversions([]);
         setNumChoices(0);
@@ -571,14 +562,18 @@ const EditField = ({
       <Dialog open={open} maxWidth="lg" fullWidth>
         <DialogTitle>
           <div>
-            <Typography variant="h5">Create Field</Typography>
+            <Typography variant="h5">
+              {question ? 'Edit Field' : 'Create Field'}
+            </Typography>
           </div>
         </DialogTitle>
         <DialogContent>
           <Grid container spacing={3}>
             <Grid item container xs={12}>
               <FormLabel id="field-details-label">
-                <Typography variant="h6">Field Details</Typography>
+                <Typography variant="h6">
+                  Field Details {categoryIndex}
+                </Typography>
               </FormLabel>
               <div>
                 <Tooltip
@@ -627,7 +622,6 @@ const EditField = ({
               <TextField
                 label={'Question ID'}
                 key={'question-id'}
-                required={true}
                 variant="outlined"
                 fullWidth
                 multiline
@@ -795,7 +789,7 @@ const EditField = ({
                 setForm((form) => {
                   // edit field
                   if (question) {
-                    const questionToUpdate = form.questions.find(
+                    const questionToUpdate = form[categoryIndex].find(
                       (q) => q.questionIndex === question.questionIndex
                     );
                     if (questionToUpdate) {
@@ -812,8 +806,8 @@ const EditField = ({
                   }
                   // create new field
                   else {
-                    form.questions.push({
-                      questionIndex: form.questions.length,
+                    form[categoryIndex].push({
+                      questionIndex: form[categoryIndex].length,
                       questionLangVersions: questionLangVersions,
                       questionType: fieldTypes[fieldType].type,
                       required: isRequired,
@@ -822,13 +816,14 @@ const EditField = ({
                       stringMaxLength: null,
                       units: null,
                       visibleCondition: visibleCondition,
-                      categoryIndex: null,
+                      categoryIndex: categoryIndex,
                       questionId: questionId,
                     });
                   }
                   setVisibleCondition([]);
                   setFormDirty(false);
-                  form.questions = [...form.questions];
+                  form = [...form];
+                  console.log(form);
                   return form;
                 });
               }
