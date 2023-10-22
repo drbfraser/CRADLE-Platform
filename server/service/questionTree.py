@@ -55,13 +55,13 @@ def is_dfs_order(question_list: list[dict]) -> Optional[str]:
     for node in node_list:
         top_node = tree_stack[-1]
         if top_node == "root":
-            # if node.cindex is not None:
-            #     return f"root question {node.qindex} should have categoryIndex = null"
-            # else:
-            if node.is_category:
-                # push category node into stack
-                category_index_set.add(node.qindex)
-                tree_stack.append(node)
+            if node.cindex is not None:
+                return f"root question {node.qindex} should have categoryIndex = null"
+            else:
+                if node.is_category:
+                    # push category node into stack
+                    category_index_set.add(node.qindex)
+                    tree_stack.append(node)
         else:
             top_node: Node = top_node
             if node.cindex is None:

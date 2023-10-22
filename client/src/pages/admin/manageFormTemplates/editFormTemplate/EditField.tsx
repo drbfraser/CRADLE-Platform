@@ -571,9 +571,7 @@ const EditField = ({
           <Grid container spacing={3}>
             <Grid item container xs={12}>
               <FormLabel id="field-details-label">
-                <Typography variant="h6">
-                  Field Details {categoryIndex}
-                </Typography>
+                <Typography variant="h6">Field Details</Typography>
               </FormLabel>
               <div>
                 <Tooltip

@@ -19,7 +19,7 @@ interface IProps {
   open: boolean;
   onClose: () => void;
   inputLanguages: string[];
-  setTempForm?: Dispatch<SetStateAction<TQuestion[][]>>;
+  setNestedQs?: Dispatch<SetStateAction<TQuestion[][]>>;
   question?: TQuestion;
   categoryIndex: number;
 }
@@ -28,7 +28,7 @@ const EditCategory = ({
   open,
   onClose,
   inputLanguages,
-  setTempForm,
+  setNestedQs,
   question,
   categoryIndex,
 }: IProps) => {
@@ -78,7 +78,7 @@ const EditCategory = ({
     }
     // Check if all fields are filled
     // Enable/disable save button based on filled fields
-  }, [open, setTempForm, fieldChanged]);
+  }, [open, setNestedQs, fieldChanged]);
 
   const getFieldName = (language: string) => {
     let fName = '';
@@ -164,11 +164,11 @@ const EditCategory = ({
             type="submit"
             disabled={false}
             onClick={() => {
-              if (setTempForm) {
-                setTempForm((tempForm) => {
+              if (setNestedQs) {
+                setNestedQs((nestedQs) => {
                   // edit field
                   if (question) {
-                    const questionToUpdate = tempForm.find(
+                    const questionToUpdate = nestedQs.find(
                       (q) => q[0].questionIndex === question.questionIndex
                     );
                     if (questionToUpdate) {
@@ -178,7 +178,7 @@ const EditCategory = ({
                   }
                   // create new field
                   else {
-                    tempForm.push([
+                    nestedQs.push([
                       {
                         questionIndex: 0,
                         questionLangVersions: questionLangVersions,
@@ -196,8 +196,8 @@ const EditCategory = ({
                   }
                   console.log(categoryIndex);
                   setFormDirty(false);
-                  tempForm = [...tempForm];
-                  return tempForm;
+                  nestedQs = [...nestedQs];
+                  return nestedQs;
                 });
               }
               onClose();
