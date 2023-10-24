@@ -7,8 +7,10 @@ from flask_jwt_extended import (
 
 import data.crud as crud
 from models import PatientAssociations, User
+import logging
 from enums import RoleEnum
 
+LOGGER = logging.getLogger(__name__)
 
 def roles_required(accepted_roles):
     def wrapper(fn):
@@ -77,11 +79,8 @@ def patient_association_required():
                 if not crud.read(
                     PatientAssociations, patientId=patient_id, userId=user_id
                 ):
-                    # TODO: convert print statement to system logging
                     current_time = datetime.now().strftime("%H:%M:%S")
-                    print(
-                        f"User {user_id} accessed patient {patient_id} at {current_time}"
-                    )
+                    LOGGER.info(f"User {user_id} accessed patient {patient_id} at {current_time}")
                     return {"message": "Unauthorized to access this patient."}, 403
 
             return fn(patient_id, *args, **kwargs)
