@@ -84,9 +84,8 @@ def log_request_details(response):
 
         message = f"Accessing Endpoint: {re.search(r'/api/.*', request.url).group(0)} Request Method: {request.method}"
         LOGGER.info(message, extra=extra)
-    except Exception as err:
-        print("An unexpected error occured while logging request and response data")
-        print(error)
+    except:
+        pass
     return response
         
 
