@@ -84,8 +84,8 @@ def log_request_details(response):
 
         message = f"Accessing Endpoint: {re.search(r'/api/.*', request.url).group(0)} Request Method: {request.method}"
         LOGGER.info(message, extra=extra)
-    except:
-        pass
+    except Exception as e:
+        print(e)
     return response
 
 
