@@ -37,22 +37,6 @@ interface IProps {
   versionError: boolean;
 }
 
-const unflatten = (flatQs: TQuestion[]): TQuestion[][] => {
-  const result: TQuestion[][] = [];
-  flatQs.forEach((q) => {
-    if (q.questionType == QuestionTypeEnum.CATEGORY) {
-      q.categoryIndex = result.length;
-      // q.questionIndex = 0;
-      result.push([q]);
-    } else {
-      const lastCategory = result.length - 1;
-      // q.questionIndex = result[lastCategory].length;
-      result[lastCategory].push(q);
-    }
-  });
-  return result;
-};
-
 export const CustomizedFormWQuestions = ({
   fm,
   languages,
@@ -60,7 +44,8 @@ export const CustomizedFormWQuestions = ({
   setForm,
   versionError,
 }: IProps) => {
-  const [questions, setQuestions] = useState(fm.questions);
+  // const [questions, setQuestions] = useState(fm.questions);
+  const questions = fm.questions;
   const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
   const [submitError, setSubmitError] = useState(false);
   const [isSubmitPopupOpen, setIsSubmitPopupOpen] = useState(false);
@@ -73,36 +58,13 @@ export const CustomizedFormWQuestions = ({
   const [individualEditPopupOpen, setIndividualEditPopupOpen] = useState(false);
   const [categoryEditPopupOpen, setCategoryEditPopupOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [nestedQs, setNestedQs] = useState<TQuestion[][]>(
-    unflatten(fm.questions)
-  );
-  const [categoryIndex, setCategoryIndex] = useState(nestedQs.length);
+  // const [nestedQs, setNestedQs] = useState<TQuestion[][]>(
+  //   unflatten(fm.questions)
+  // );
+  const [categoryIndex, setCategoryIndex] = useState<number | null>(null);
   const getInputLanguages = (question: TQuestion) => {
     return question.questionLangVersions.map((item) => item.lang);
   };
-
-  const prepareSubmit = () => {
-    console.log('preparing submit');
-    let currCatIndex = 0;
-    const temp = nestedQs.flat().map((q, index) => {
-      if (q.questionType == QuestionTypeEnum.CATEGORY) {
-        currCatIndex = index;
-      }
-      return { ...q, categoryIndex: currCatIndex, questionIndex: index };
-    });
-    setForm((form) => {
-      return { ...form, questions: temp };
-    });
-  };
-
-  useEffect(() => {
-    const tempQs = nestedQs.flat().map((q, index) => {
-      q.questionIndex = index;
-      return { ...q };
-    });
-    setQuestions(tempQs);
-    console.log(nestedQs);
-  }, [nestedQs]);
 
   useEffect(() => {
     updateAddedQuestions(languages);
@@ -186,9 +148,7 @@ export const CustomizedFormWQuestions = ({
 
   const moveField = (question: any, up: boolean) => {
     const index = question.questionIndex;
-    // first index of each nestedQs[categoryindex] will be the category.
-    // we shouldn' allow user to move question above it's category.
-    if (up && index > 1) {
+    if (up && index > 0) {
       const temp = questions[index - 1];
       questions[index - 1] = questions[index];
       questions[index] = temp;
@@ -197,10 +157,7 @@ export const CustomizedFormWQuestions = ({
       updateVisCond(index - 1, index);
       updateVisCond(index, index - 1);
       upd();
-    } else if (
-      !up &&
-      question.questionIndex < nestedQs[question.categoryIndex].length - 1
-    ) {
+    } else if (!up && question.questionIndex < questions.length - 1) {
       moveField(questions[index + 1], true);
     }
   };
@@ -235,7 +192,7 @@ export const CustomizedFormWQuestions = ({
   };
 
   const disabled =
-    !(nestedQs.length > 0) || emptyLanguageFieldsInForm() || versionError;
+    !(fm?.questions?.length > 0) || emptyLanguageFieldsInForm() || versionError;
 
   return (
     <>
@@ -250,8 +207,8 @@ export const CustomizedFormWQuestions = ({
           setCategoryPopupOpen(false);
         }}
         inputLanguages={languages}
-        setNestedQs={setNestedQs}
-        categoryIndex={nestedQs.length}
+        setForm={setForm}
+        categoryIndex={categoryIndex}
       />
       <Formik
         initialValues={initialState as any}
@@ -341,7 +298,7 @@ export const CustomizedFormWQuestions = ({
                 </Grid>
                 <Grid item container spacing={3}>
                   {FormQuestions({
-                    questions: nestedQs.flat(),
+                    questions: questions,
                     renderState: renderState,
                     language: selectedLanguage,
                     handleAnswers: () => {
@@ -349,12 +306,11 @@ export const CustomizedFormWQuestions = ({
                     },
                     setForm: setForm,
                   }).map((q, index) => {
-                    const question = nestedQs.flat()[index];
+                    const question = questions[index];
                     const isQuestionSelected =
                       selectedQuestionIndex === question.questionIndex;
                     return (
-                      <Fragment
-                        key={`rendered-${question.categoryIndex}-${question.questionIndex}`}>
+                      <Fragment key={`rendered-${question.questionIndex}`}>
                         {q}
                         <EditField
                           open={editPopupOpen}
@@ -362,9 +318,8 @@ export const CustomizedFormWQuestions = ({
                             setEditPopupOpen(false);
                           }}
                           inputLanguages={languages}
-                          // setForm={setForm}
-                          setForm={setNestedQs}
-                          questionsArr={nestedQs.flat()}
+                          setForm={setForm}
+                          questionsArr={fm.questions}
                           visibilityToggle={false}
                           categoryIndex={categoryIndex}
                         />
@@ -372,9 +327,9 @@ export const CustomizedFormWQuestions = ({
                           <Grid item>
                             <PrimaryButton
                               onClick={() => {
-                                console.log(question);
                                 if (languages.length != 0) {
-                                  setCategoryIndex(question.categoryIndex!);
+                                  setCategoryIndex(questions.indexOf(question));
+                                  // setCategoryIndex(question.questionIndex);
                                   setEditPopupOpen(true);
                                 } else {
                                   setSubmitError(true);
@@ -454,10 +409,9 @@ export const CustomizedFormWQuestions = ({
                             setIndividualEditPopupOpen(false);
                           }}
                           inputLanguages={getInputLanguages(question)}
-                          // setForm={setForm}
-                          setForm={setNestedQs}
+                          setForm={setForm}
                           question={question}
-                          questionsArr={nestedQs.flat()}
+                          questionsArr={fm.questions}
                           visibilityToggle={
                             selectedQuestionIndex != null &&
                             questions[selectedQuestionIndex]?.visibleCondition
@@ -473,7 +427,7 @@ export const CustomizedFormWQuestions = ({
                           }}
                           question={question}
                           inputLanguages={getInputLanguages(question)}
-                          setNestedQs={setNestedQs}
+                          setForm={setForm}
                           categoryIndex={categoryIndex}
                         />
                       </Fragment>
@@ -486,7 +440,7 @@ export const CustomizedFormWQuestions = ({
                       <PrimaryButton
                         onClick={() => {
                           if (languages.length != 0) {
-                            setCategoryIndex(nestedQs.length);
+                            setCategoryIndex(null);
                             setCategoryPopupOpen(true);
                           } else {
                             setSubmitError(true);
@@ -503,7 +457,6 @@ export const CustomizedFormWQuestions = ({
                   <Grid item container xs={6} justifyContent="flex-end">
                     <PrimaryButton
                       onClick={() => {
-                        prepareSubmit();
                         setIsSubmitPopupOpen(true);
                       }}
                       type="button"
@@ -517,24 +470,6 @@ export const CustomizedFormWQuestions = ({
                 open={isSubmitPopupOpen}
                 onClose={() => setIsSubmitPopupOpen(false)}
                 form={fm}
-                // form={{
-                //   classification: fm.classification,
-                //   version: fm.version,
-                //   questions: prepareSubmit(),
-                // questions: nestedQs.flat().map((q, index) => {
-                //   let currCatIndex = 0;
-                //   if (q.questionType == QuestionTypeEnum.CATEGORY) {
-                //     currCatIndex = index;
-                //     console.log(currCatIndex);
-                //     q.categoryIndex =
-                //       q.questionIndex == 0 ? null : currCatIndex;
-                //   } else {
-                //     q.categoryIndex = currCatIndex;
-                //   }
-                //   q.questionIndex = index;
-                //   return { ...q, questionIndex: index };
-                // }),
-                // }}
               />
             </Box>
           </Paper>

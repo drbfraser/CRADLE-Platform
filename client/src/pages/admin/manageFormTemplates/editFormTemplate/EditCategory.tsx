@@ -12,23 +12,28 @@ import {
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { McOption, QuestionLangVersion, TQuestion } from 'src/shared/types';
+import {
+  FormTemplateWithQuestions,
+  McOption,
+  QuestionLangVersion,
+  TQuestion,
+} from 'src/shared/types';
 import { QuestionTypeEnum } from 'src/shared/enums';
 
 interface IProps {
   open: boolean;
   onClose: () => void;
   inputLanguages: string[];
-  setNestedQs?: Dispatch<SetStateAction<TQuestion[][]>>;
+  setForm?: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
   question?: TQuestion;
-  categoryIndex: number;
+  categoryIndex: number | null;
 }
 
 const EditCategory = ({
   open,
   onClose,
   inputLanguages,
-  setNestedQs,
+  setForm,
   question,
   categoryIndex,
 }: IProps) => {
@@ -78,7 +83,7 @@ const EditCategory = ({
     }
     // Check if all fields are filled
     // Enable/disable save button based on filled fields
-  }, [open, setNestedQs, fieldChanged]);
+  }, [open, setForm, fieldChanged]);
 
   const getFieldName = (language: string) => {
     let fName = '';
@@ -115,7 +120,7 @@ const EditCategory = ({
     }
     setQuestionLangversions(qLangVersions);
   };
-  console.log(categoryIndex);
+
   return (
     <>
       <Dialog open={open} maxWidth="lg" fullWidth>
@@ -164,40 +169,37 @@ const EditCategory = ({
             type="submit"
             disabled={false}
             onClick={() => {
-              if (setNestedQs) {
-                setNestedQs((nestedQs) => {
+              if (setForm) {
+                setForm((form) => {
                   // edit field
                   if (question) {
-                    const questionToUpdate = nestedQs.find(
-                      (q) => q[0].questionIndex === question.questionIndex
+                    const questionToUpdate = form.questions.find(
+                      (q) => q.questionIndex === question.questionIndex
                     );
                     if (questionToUpdate) {
-                      questionToUpdate[0].questionLangVersions =
+                      questionToUpdate.questionLangVersions =
                         questionLangVersions;
                     }
                   }
                   // create new field
                   else {
-                    nestedQs.push([
-                      {
-                        questionIndex: 0,
-                        questionLangVersions: questionLangVersions,
-                        questionType: QuestionTypeEnum.CATEGORY,
-                        required: false,
-                        numMin: null,
-                        numMax: null,
-                        stringMaxLength: null,
-                        units: null,
-                        visibleCondition: [],
-                        categoryIndex: categoryIndex,
-                        questionId: undefined,
-                      },
-                    ]);
+                    form.questions.push({
+                      questionIndex: form.questions.length,
+                      questionLangVersions: questionLangVersions,
+                      questionType: QuestionTypeEnum.CATEGORY,
+                      required: false,
+                      numMin: null,
+                      numMax: null,
+                      stringMaxLength: null,
+                      units: null,
+                      visibleCondition: [],
+                      categoryIndex: categoryIndex,
+                      questionId: undefined,
+                    });
                   }
-                  console.log(categoryIndex);
                   setFormDirty(false);
-                  // nestedQs = [...nestedQs];
-                  return [...nestedQs];
+                  form.questions = [...form.questions];
+                  return form;
                 });
               }
               onClose();

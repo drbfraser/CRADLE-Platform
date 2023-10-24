@@ -22,6 +22,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
+  FormTemplateWithQuestions,
   McOption,
   QCondition,
   QuestionLangVersion,
@@ -34,11 +35,11 @@ interface IProps {
   open: boolean;
   onClose: () => void;
   inputLanguages: string[];
-  setForm?: Dispatch<SetStateAction<TQuestion[][]>>;
+  setForm?: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
   question?: TQuestion;
   questionsArr: TQuestion[];
   visibilityToggle: boolean;
-  categoryIndex: number;
+  categoryIndex: number | null;
 }
 
 interface FieldTypes {
@@ -60,7 +61,7 @@ const EditField = ({
   visibilityToggle,
   categoryIndex,
 }: IProps) => {
-  const [fieldType, setFieldType] = useState<string>('number');
+  const [fieldType, setFieldType] = useState<string>('category');
   const [questionId, setQuestionId] = useState<string>('');
   const [numChoices, setNumChoices] = useState<number>(0);
   const [questionLangVersions, setQuestionLangversions] = useState<
@@ -163,6 +164,12 @@ const EditField = ({
   };
 
   const fieldTypes: FieldTypes = {
+    category: {
+      value: 'category',
+      label: 'Category',
+      type: QuestionTypeEnum.CATEGORY,
+      render: () => <></>,
+    },
     number: {
       value: 'number',
       label: 'Number',
@@ -508,7 +515,7 @@ const EditField = ({
       }
       // create new field
       else {
-        setFieldType('number');
+        setFieldType('category');
         setQuestionId('');
         setQuestionLangversions([]);
         setNumChoices(0);
@@ -556,7 +563,7 @@ const EditField = ({
     }
     setQuestionLangversions(qLangVersions);
   };
-  console.log(categoryIndex);
+
   return (
     <>
       <Dialog open={open} maxWidth="lg" fullWidth>
@@ -787,7 +794,7 @@ const EditField = ({
                 setForm((form) => {
                   // edit field
                   if (question) {
-                    const questionToUpdate = form[categoryIndex].find(
+                    const questionToUpdate = form.questions.find(
                       (q) => q.questionIndex === question.questionIndex
                     );
                     if (questionToUpdate) {
@@ -804,8 +811,21 @@ const EditField = ({
                   }
                   // create new field
                   else {
-                    form[categoryIndex].push({
-                      questionIndex: form[categoryIndex].length,
+                    let indexToInsert = form.questions.length;
+                    if (categoryIndex != null) {
+                      for (
+                        let i = categoryIndex + 1;
+                        i < form.questions.length;
+                        i++
+                      ) {
+                        if (form.questions[i].categoryIndex != categoryIndex) {
+                          indexToInsert = i;
+                          break;
+                        }
+                      }
+                    }
+                    form.questions.splice(indexToInsert, 0, {
+                      questionIndex: indexToInsert,
                       questionLangVersions: questionLangVersions,
                       questionType: fieldTypes[fieldType].type,
                       required: isRequired,
@@ -817,11 +837,16 @@ const EditField = ({
                       categoryIndex: categoryIndex,
                       questionId: questionId,
                     });
+                    form.questions.forEach((q, index) => {
+                      if (q.categoryIndex && q.categoryIndex >= indexToInsert) {
+                        q.categoryIndex += 1;
+                      }
+                      q.questionIndex = index;
+                    });
                   }
                   setVisibleCondition([]);
                   setFormDirty(false);
-                  form = [...form];
-                  console.log(form);
+                  form.questions = [...form.questions];
                   return form;
                 });
               }
