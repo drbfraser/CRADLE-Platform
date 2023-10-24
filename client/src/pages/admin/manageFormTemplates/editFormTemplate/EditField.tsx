@@ -556,7 +556,7 @@ const EditField = ({
     }
     setQuestionLangversions(qLangVersions);
   };
-
+  console.log(categoryIndex);
   return (
     <>
       <Dialog open={open} maxWidth="lg" fullWidth>

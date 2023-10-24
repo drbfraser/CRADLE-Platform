@@ -115,7 +115,7 @@ const EditCategory = ({
     }
     setQuestionLangversions(qLangVersions);
   };
-
+  console.log(categoryIndex);
   return (
     <>
       <Dialog open={open} maxWidth="lg" fullWidth>
@@ -190,14 +190,14 @@ const EditCategory = ({
                         units: null,
                         visibleCondition: [],
                         categoryIndex: categoryIndex,
-                        questionId: categoryIndex + '',
+                        questionId: undefined,
                       },
                     ]);
                   }
                   console.log(categoryIndex);
                   setFormDirty(false);
-                  nestedQs = [...nestedQs];
-                  return nestedQs;
+                  // nestedQs = [...nestedQs];
+                  return [...nestedQs];
                 });
               }
               onClose();

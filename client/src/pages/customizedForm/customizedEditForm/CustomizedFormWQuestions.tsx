@@ -42,11 +42,11 @@ const unflatten = (flatQs: TQuestion[]): TQuestion[][] => {
   flatQs.forEach((q) => {
     if (q.questionType == QuestionTypeEnum.CATEGORY) {
       q.categoryIndex = result.length;
-      q.questionIndex = 0;
+      // q.questionIndex = 0;
       result.push([q]);
     } else {
       const lastCategory = result.length - 1;
-      q.questionIndex = result[lastCategory].length;
+      // q.questionIndex = result[lastCategory].length;
       result[lastCategory].push(q);
     }
   });
@@ -81,9 +81,27 @@ export const CustomizedFormWQuestions = ({
     return question.questionLangVersions.map((item) => item.lang);
   };
 
+  const prepareSubmit = () => {
+    console.log('preparing submit');
+    let currCatIndex = 0;
+    const temp = nestedQs.flat().map((q, index) => {
+      if (q.questionType == QuestionTypeEnum.CATEGORY) {
+        currCatIndex = index;
+      }
+      return { ...q, categoryIndex: currCatIndex, questionIndex: index };
+    });
+    setForm((form) => {
+      return { ...form, questions: temp };
+    });
+  };
+
   useEffect(() => {
+    const tempQs = nestedQs.flat().map((q, index) => {
+      q.questionIndex = index;
+      return { ...q };
+    });
+    setQuestions(tempQs);
     console.log(nestedQs);
-    setQuestions(nestedQs.flat());
   }, [nestedQs]);
 
   useEffect(() => {
@@ -217,7 +235,7 @@ export const CustomizedFormWQuestions = ({
   };
 
   const disabled =
-    !(fm?.questions?.length > 0) || emptyLanguageFieldsInForm() || versionError;
+    !(nestedQs.length > 0) || emptyLanguageFieldsInForm() || versionError;
 
   return (
     <>
@@ -323,7 +341,7 @@ export const CustomizedFormWQuestions = ({
                 </Grid>
                 <Grid item container spacing={3}>
                   {FormQuestions({
-                    questions: questions,
+                    questions: nestedQs.flat(),
                     renderState: renderState,
                     language: selectedLanguage,
                     handleAnswers: () => {
@@ -331,7 +349,7 @@ export const CustomizedFormWQuestions = ({
                     },
                     setForm: setForm,
                   }).map((q, index) => {
-                    const question = questions[index];
+                    const question = nestedQs.flat()[index];
                     const isQuestionSelected =
                       selectedQuestionIndex === question.questionIndex;
                     return (
@@ -346,7 +364,7 @@ export const CustomizedFormWQuestions = ({
                           inputLanguages={languages}
                           // setForm={setForm}
                           setForm={setNestedQs}
-                          questionsArr={questions}
+                          questionsArr={nestedQs.flat()}
                           visibilityToggle={false}
                           categoryIndex={categoryIndex}
                         />
@@ -370,54 +388,56 @@ export const CustomizedFormWQuestions = ({
                             </PrimaryButton>
                           </Grid>
                         )}
-                        <Grid
-                          container
-                          item
-                          xs={1}
-                          style={{ marginLeft: '-20px' }}>
-                          <Grid item xs={6}>
-                            <IconButton
-                              key={`field-up-${question.questionIndex}`}
-                              size="small"
-                              onClick={(e) => {
-                                handleFieldUp(question);
-                              }}>
-                              <KeyboardArrowUpIcon fontSize="small" />
-                            </IconButton>
-                          </Grid>
-                          <Grid item xs={6}>
-                            <IconButton
-                              key={`edit-field-${question.questionIndex}`}
-                              size="small"
-                              onClick={(e) => {
-                                handleEditField(question);
-                              }}>
-                              <EditIcon fontSize="small" />
-                            </IconButton>
-                          </Grid>
-                          <Grid item xs={6}>
-                            <IconButton
-                              key={`field-down-${question.questionIndex}`}
-                              size="small"
-                              onClick={(e) => {
-                                handleFieldDown(question);
-                              }}>
-                              <KeyboardArrowDownIcon fontSize="small" />
-                            </IconButton>
-                          </Grid>
+                        {true && (
+                          <Grid
+                            container
+                            item
+                            xs={1}
+                            style={{ marginLeft: '-20px' }}>
+                            <Grid item xs={6}>
+                              <IconButton
+                                key={`field-up-${question.questionIndex}`}
+                                size="small"
+                                onClick={(e) => {
+                                  handleFieldUp(question);
+                                }}>
+                                <KeyboardArrowUpIcon fontSize="small" />
+                              </IconButton>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <IconButton
+                                key={`edit-field-${question.questionIndex}`}
+                                size="small"
+                                onClick={(e) => {
+                                  handleEditField(question);
+                                }}>
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <IconButton
+                                key={`field-down-${question.questionIndex}`}
+                                size="small"
+                                onClick={(e) => {
+                                  handleFieldDown(question);
+                                }}>
+                                <KeyboardArrowDownIcon fontSize="small" />
+                              </IconButton>
+                            </Grid>
 
-                          <Grid item xs={6}>
-                            <IconButton
-                              key={`delete-field-${question.questionIndex}`}
-                              size="small"
-                              color="error"
-                              onClick={(e) => {
-                                handleDeleteField(question);
-                              }}>
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
+                            <Grid item xs={6}>
+                              <IconButton
+                                key={`delete-field-${question.questionIndex}`}
+                                size="small"
+                                color="error"
+                                onClick={(e) => {
+                                  handleDeleteField(question);
+                                }}>
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </Grid>
                           </Grid>
-                        </Grid>
+                        )}
                         <Grid container pl={3}>
                           {missingFields(question) && (
                             <Typography style={{ color: 'red' }}>
@@ -437,13 +457,13 @@ export const CustomizedFormWQuestions = ({
                           // setForm={setForm}
                           setForm={setNestedQs}
                           question={question}
-                          questionsArr={questions}
+                          questionsArr={nestedQs.flat()}
                           visibilityToggle={
                             selectedQuestionIndex != null &&
                             questions[selectedQuestionIndex]?.visibleCondition
                               .length > 0
                           }
-                          categoryIndex={question.categoryIndex!}
+                          categoryIndex={categoryIndex}
                         />
                         <EditCategory
                           open={isQuestionSelected && categoryEditPopupOpen}
@@ -454,7 +474,7 @@ export const CustomizedFormWQuestions = ({
                           question={question}
                           inputLanguages={getInputLanguages(question)}
                           setNestedQs={setNestedQs}
-                          categoryIndex={question.categoryIndex!}
+                          categoryIndex={categoryIndex}
                         />
                       </Fragment>
                     );
@@ -466,6 +486,7 @@ export const CustomizedFormWQuestions = ({
                       <PrimaryButton
                         onClick={() => {
                           if (languages.length != 0) {
+                            setCategoryIndex(nestedQs.length);
                             setCategoryPopupOpen(true);
                           } else {
                             setSubmitError(true);
@@ -482,8 +503,8 @@ export const CustomizedFormWQuestions = ({
                   <Grid item container xs={6} justifyContent="flex-end">
                     <PrimaryButton
                       onClick={() => {
+                        prepareSubmit();
                         setIsSubmitPopupOpen(true);
-                        console.log(fm.questions);
                       }}
                       type="button"
                       disabled={disabled}>
@@ -495,21 +516,25 @@ export const CustomizedFormWQuestions = ({
               <SubmitFormTemplateDialog
                 open={isSubmitPopupOpen}
                 onClose={() => setIsSubmitPopupOpen(false)}
-                form={{
-                  classification: fm.classification,
-                  version: fm.version,
-                  questions: questions.map((q, index) => {
-                    let currCatIndex = 0;
-                    if (q.questionType == QuestionTypeEnum.CATEGORY) {
-                      currCatIndex = index;
-                      q.categoryIndex = null;
-                    } else {
-                      q.categoryIndex = currCatIndex;
-                    }
-                    q.questionIndex = index;
-                    return { ...q };
-                  }),
-                }}
+                form={fm}
+                // form={{
+                //   classification: fm.classification,
+                //   version: fm.version,
+                //   questions: prepareSubmit(),
+                // questions: nestedQs.flat().map((q, index) => {
+                //   let currCatIndex = 0;
+                //   if (q.questionType == QuestionTypeEnum.CATEGORY) {
+                //     currCatIndex = index;
+                //     console.log(currCatIndex);
+                //     q.categoryIndex =
+                //       q.questionIndex == 0 ? null : currCatIndex;
+                //   } else {
+                //     q.categoryIndex = currCatIndex;
+                //   }
+                //   q.questionIndex = index;
+                //   return { ...q, questionIndex: index };
+                // }),
+                // }}
               />
             </Box>
           </Paper>
