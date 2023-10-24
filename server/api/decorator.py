@@ -12,6 +12,7 @@ from enums import RoleEnum
 
 LOGGER = logging.getLogger(__name__)
 
+
 def roles_required(accepted_roles):
     def wrapper(fn):
         @wraps(fn)
@@ -80,7 +81,9 @@ def patient_association_required():
                     PatientAssociations, patientId=patient_id, userId=user_id
                 ):
                     current_time = datetime.now().strftime("%H:%M:%S")
-                    LOGGER.info(f"User {user_id} accessed patient {patient_id} at {current_time}")
+                    LOGGER.info(
+                        f"User {user_id} accessed patient {patient_id} at {current_time}"
+                    )
                     return {"message": "Unauthorized to access this patient."}, 403
 
             return fn(patient_id, *args, **kwargs)
