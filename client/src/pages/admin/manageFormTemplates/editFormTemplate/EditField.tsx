@@ -467,27 +467,29 @@ const EditField = ({
               </Grid>
             ))}
 
-            <Grid item xs={12}>
-              <TextField
-                label={'Question ID'}
-                key={'question-id'}
-                variant="outlined"
-                fullWidth
-                multiline
-                defaultValue={
-                  question && question.questionId ? question.questionId : ''
-                }
-                size="small"
-                inputProps={{
-                  maxLength: Number.MAX_SAFE_INTEGER,
-                }}
-                onChange={(e) => {
-                  setQuestionId(e.target.value);
-                  setFieldChanged(!fieldChanged);
-                  setFormDirty(true);
-                }}
-              />
-            </Grid>
+            {fieldType != 'category' && (
+              <Grid item xs={12}>
+                <TextField
+                  label={'Question ID'}
+                  key={'question-id'}
+                  variant="outlined"
+                  fullWidth
+                  multiline
+                  defaultValue={
+                    question && question.questionId ? question.questionId : ''
+                  }
+                  size="small"
+                  inputProps={{
+                    maxLength: Number.MAX_SAFE_INTEGER,
+                  }}
+                  onChange={(e) => {
+                    setQuestionId(e.target.value);
+                    setFieldChanged(!fieldChanged);
+                    setFormDirty(true);
+                  }}
+                />
+              </Grid>
+            )}
             <Grid item container sm={12} md={2} lg={2}>
               <FormLabel id="field-type-label">
                 <Typography variant="h6">Field Type</Typography>
@@ -529,89 +531,92 @@ const EditField = ({
               </RadioGroup>
             </Grid>
             {fieldType ? fieldTypes[fieldType].render() : null}
-            {questionsArr.filter(
-              (q) =>
-                q.questionType != QuestionTypeEnum.CATEGORY && q != question
-            ).length > 0 && (
-              <>
-                <Grid item container sm={12} md={10} lg={10}>
-                  <FormControlLabel
-                    style={{ marginLeft: 0 }}
-                    control={
-                      <Switch
-                        checked={enableVisibility}
-                        onChange={handleVisibilityChange}
-                        data-testid="conditional-switch"
-                      />
-                    }
-                    label={
-                      <FormLabel id="vis-label" style={{ display: 'flex' }}>
-                        <Typography variant="h6">
-                          Conditional Visibility
-                        </Typography>
-                        <Tooltip
-                          disableFocusListener
-                          disableTouchListener
-                          title={
-                            'Set this field to only appear after a specific field value is entered'
-                          }
-                          arrow
-                          placement="right">
-                          <IconButton>
-                            <InfoIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      </FormLabel>
-                    }
-                    labelPlacement="start"
-                  />
-                </Grid>
-                <Grid item sm={12} md={10} lg={10}>
-                  {enableVisibility ? (
-                    <EditVisibleCondition
-                      currQuestion={question}
-                      filteredQs={questionsArr.filter(
-                        (q) =>
-                          q.questionType != QuestionTypeEnum.CATEGORY &&
-                          q != question
-                      )}
-                      setVisibleCondition={setVisibleCondition}
-                      setFieldChanged={setFieldChanged}
-                      origFieldChanged={fieldChanged}
+            {fieldType != 'category' &&
+              questionsArr.filter(
+                (q) =>
+                  q.questionType != QuestionTypeEnum.CATEGORY && q != question
+              ).length > 0 && (
+                <>
+                  <Grid item container sm={12} md={10} lg={10}>
+                    <FormControlLabel
+                      style={{ marginLeft: 0 }}
+                      control={
+                        <Switch
+                          checked={enableVisibility}
+                          onChange={handleVisibilityChange}
+                          data-testid="conditional-switch"
+                        />
+                      }
+                      label={
+                        <FormLabel id="vis-label" style={{ display: 'flex' }}>
+                          <Typography variant="h6">
+                            Conditional Visibility
+                          </Typography>
+                          <Tooltip
+                            disableFocusListener
+                            disableTouchListener
+                            title={
+                              'Set this field to only appear after a specific field value is entered'
+                            }
+                            arrow
+                            placement="right">
+                            <IconButton>
+                              <InfoIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        </FormLabel>
+                      }
+                      labelPlacement="start"
                     />
-                  ) : null}
-                </Grid>
-              </>
-            )}
+                  </Grid>
+                  <Grid item sm={12} md={10} lg={10}>
+                    {enableVisibility ? (
+                      <EditVisibleCondition
+                        currQuestion={question}
+                        filteredQs={questionsArr.filter(
+                          (q) =>
+                            q.questionType != QuestionTypeEnum.CATEGORY &&
+                            q != question
+                        )}
+                        setVisibleCondition={setVisibleCondition}
+                        setFieldChanged={setFieldChanged}
+                        origFieldChanged={fieldChanged}
+                      />
+                    ) : null}
+                  </Grid>
+                </>
+              )}
           </Grid>
-          <Grid item>
-            <FormControlLabel
-              style={{ marginLeft: 0 }}
-              control={
-                <Switch
-                  checked={isRequired}
-                  onChange={handleRequiredChange}
-                  data-testid="required-switch"
-                />
-              }
-              label={
-                <FormLabel id="required-label" style={{ display: 'flex' }}>
-                  <Typography variant="h6">Required</Typography>
-                  <Tooltip
-                    disableFocusListener
-                    disableTouchListener
-                    title={'Make this field required in your form'}
-                    arrow
-                    placement="right">
-                    <IconButton>
-                      <InfoIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                </FormLabel>
-              }
-              labelPlacement="start"
-            />
-          </Grid>
+          {fieldType != 'category' && (
+            <Grid item>
+              <FormControlLabel
+                style={{ marginLeft: 0 }}
+                control={
+                  <Switch
+                    checked={isRequired}
+                    onChange={handleRequiredChange}
+                    data-testid="required-switch"
+                  />
+                }
+                label={
+                  <FormLabel id="required-label" style={{ display: 'flex' }}>
+                    <Typography variant="h6">Required</Typography>
+                    <Tooltip
+                      disableFocusListener
+                      disableTouchListener
+                      title={'Make this field required in your form'}
+                      arrow
+                      placement="right">
+                      <IconButton>
+                        <InfoIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </FormLabel>
+                }
+                labelPlacement="start"
+              />
+            </Grid>
+          )}
         </DialogContent>
         <DialogActions>
           <CancelButton

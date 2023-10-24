@@ -72,6 +72,10 @@ export const CustomizedFormWQuestions = ({
     upd();
   }, [languages]);
 
+  useEffect(() => {
+    console.log(selectedQuestionIndex);
+  }, [selectedQuestionIndex, setSelectedQuestionIndex]);
+
   const updateAddedQuestions = (languages: string[]) => {
     questions.forEach((question) => {
       const currentLanguages = question.questionLangVersions.map(
@@ -148,7 +152,12 @@ export const CustomizedFormWQuestions = ({
 
   const moveField = (question: any, up: boolean) => {
     const index = question.questionIndex;
-    if (up && index > 0) {
+    if (
+      up &&
+      index > 0 &&
+      question.categoryIndex < index - 1 &&
+      question.questionType != QuestionTypeEnum.CATEGORY
+    ) {
       const temp = questions[index - 1];
       questions[index - 1] = questions[index];
       questions[index] = temp;
@@ -208,6 +217,17 @@ export const CustomizedFormWQuestions = ({
         }}
         inputLanguages={languages}
         setForm={setForm}
+        categoryIndex={categoryIndex}
+      />
+      <EditField
+        open={editPopupOpen}
+        onClose={() => {
+          setEditPopupOpen(false);
+        }}
+        inputLanguages={languages}
+        setForm={setForm}
+        questionsArr={fm.questions}
+        visibilityToggle={false}
         categoryIndex={categoryIndex}
       />
       <Formik
@@ -312,17 +332,6 @@ export const CustomizedFormWQuestions = ({
                     return (
                       <Fragment key={`rendered-${question.questionIndex}`}>
                         {q}
-                        <EditField
-                          open={editPopupOpen}
-                          onClose={() => {
-                            setEditPopupOpen(false);
-                          }}
-                          inputLanguages={languages}
-                          setForm={setForm}
-                          questionsArr={fm.questions}
-                          visibilityToggle={false}
-                          categoryIndex={categoryIndex}
-                        />
                         {question.questionType == QuestionTypeEnum.CATEGORY && (
                           <Grid item>
                             <PrimaryButton
@@ -343,7 +352,7 @@ export const CustomizedFormWQuestions = ({
                             </PrimaryButton>
                           </Grid>
                         )}
-                        {true && (
+                        {question.questionType != QuestionTypeEnum.CATEGORY && (
                           <Grid
                             container
                             item
