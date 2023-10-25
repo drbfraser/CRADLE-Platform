@@ -15,7 +15,6 @@ from enums import RoleEnum, ContentTypeEnum
 from validation import formTemplates
 from werkzeug.datastructures import FileStorage
 
-
 # /api/forms/templates
 class Root(Resource):
     @staticmethod

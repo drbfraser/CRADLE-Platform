@@ -22,6 +22,9 @@ from models import (
 )
 import service.invariant as invariant
 import data.crud as crud
+import logging
+
+LOGGER = logging.getLogger(__name__)
 
 
 class ModelData(NamedTuple):
