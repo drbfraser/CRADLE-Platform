@@ -16,7 +16,7 @@ import AddIcon from '@mui/icons-material/Add';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { PrimaryButton } from 'src/shared/components/Button';
-import { FormRenderStateEnum } from 'src/shared/enums';
+import { FormRenderStateEnum, QuestionTypeEnum } from 'src/shared/enums';
 import { FormQuestions } from '../FormQuestions';
 import SubmitFormTemplateDialog from './SubmitFormTemplateDialog';
 import IconButton from '@mui/material/IconButton';
@@ -25,6 +25,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import EditField from 'src/pages/admin/manageFormTemplates/editFormTemplate/EditField';
+import EditCategory from 'src/pages/admin/manageFormTemplates/editFormTemplate/EditCategory';
 import { Autocomplete, AutocompleteRenderInputParams } from 'formik-mui';
 import { InputAdornment, TextField, Tooltip, Typography } from '@mui/material';
 
@@ -52,8 +53,11 @@ export const CustomizedFormWQuestions = ({
     number | null
   >(null);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
+  const [categoryPopupOpen, setCategoryPopupOpen] = useState(false);
   const [individualEditPopupOpen, setIndividualEditPopupOpen] = useState(false);
+  const [categoryEditPopupOpen, setCategoryEditPopupOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [categoryIndex, setCategoryIndex] = useState<number | null>(null);
   const getInputLanguages = (question: TQuestion) => {
     return question.questionLangVersions.map((item) => item.lang);
   };
@@ -63,6 +67,10 @@ export const CustomizedFormWQuestions = ({
     setSelectedLanguage(languages[0]);
     upd();
   }, [languages]);
+
+  useEffect(() => {
+    console.log(selectedQuestionIndex);
+  }, [selectedQuestionIndex, setSelectedQuestionIndex]);
 
   const updateAddedQuestions = (languages: string[]) => {
     questions.forEach((question) => {
@@ -90,7 +98,11 @@ export const CustomizedFormWQuestions = ({
 
   const handleEditField = (question: TQuestion) => {
     setSelectedQuestionIndex(question.questionIndex);
-    setIndividualEditPopupOpen(true);
+    if (question.questionType == QuestionTypeEnum.CATEGORY) {
+      setCategoryEditPopupOpen(true);
+    } else {
+      setIndividualEditPopupOpen(true);
+    }
   };
 
   const handleDeleteField = (question: TQuestion) => {
@@ -136,7 +148,12 @@ export const CustomizedFormWQuestions = ({
 
   const moveField = (question: any, up: boolean) => {
     const index = question.questionIndex;
-    if (up && index > 0) {
+    if (
+      up &&
+      index > 0 &&
+      question.categoryIndex < index - 1 &&
+      question.questionType != QuestionTypeEnum.CATEGORY
+    ) {
       const temp = questions[index - 1];
       questions[index - 1] = questions[index];
       questions[index] = temp;
@@ -189,6 +206,15 @@ export const CustomizedFormWQuestions = ({
         onClose={() => setSubmitError(false)}
         errorMessage={errorMessage}
       />
+      <EditCategory
+        open={categoryPopupOpen}
+        onClose={() => {
+          setCategoryPopupOpen(false);
+        }}
+        inputLanguages={languages}
+        setForm={setForm}
+        categoryIndex={categoryIndex}
+      />
       <EditField
         open={editPopupOpen}
         onClose={() => {
@@ -198,6 +224,7 @@ export const CustomizedFormWQuestions = ({
         setForm={setForm}
         questionsArr={fm.questions}
         visibilityToggle={false}
+        categoryIndex={categoryIndex}
       />
       <Formik
         initialValues={initialState as any}
@@ -301,54 +328,75 @@ export const CustomizedFormWQuestions = ({
                     return (
                       <Fragment key={`rendered-${question.questionIndex}`}>
                         {q}
-                        <Grid
-                          container
-                          item
-                          xs={1}
-                          style={{ marginLeft: '-20px' }}>
-                          <Grid item xs={6}>
-                            <IconButton
-                              key={`field-up-${question.questionIndex}`}
-                              size="small"
-                              onClick={(e) => {
-                                handleFieldUp(question);
+                        {question.questionType == QuestionTypeEnum.CATEGORY && (
+                          <Grid item>
+                            <PrimaryButton
+                              onClick={() => {
+                                if (languages.length != 0) {
+                                  setCategoryIndex(questions.indexOf(question));
+                                  setEditPopupOpen(true);
+                                } else {
+                                  setSubmitError(true);
+                                  setErrorMessage(
+                                    'Select at least one language before creating a field'
+                                  );
+                                }
                               }}>
-                              <KeyboardArrowUpIcon fontSize="small" />
-                            </IconButton>
+                              <AddIcon />
+                              {'Add Field'}
+                            </PrimaryButton>
                           </Grid>
-                          <Grid item xs={6}>
-                            <IconButton
-                              key={`edit-field-${question.questionIndex}`}
-                              size="small"
-                              onClick={(e) => {
-                                handleEditField(question);
-                              }}>
-                              <EditIcon fontSize="small" />
-                            </IconButton>
-                          </Grid>
-                          <Grid item xs={6}>
-                            <IconButton
-                              key={`field-down-${question.questionIndex}`}
-                              size="small"
-                              onClick={(e) => {
-                                handleFieldDown(question);
-                              }}>
-                              <KeyboardArrowDownIcon fontSize="small" />
-                            </IconButton>
-                          </Grid>
+                        )}
+                        {question.questionType != QuestionTypeEnum.CATEGORY && (
+                          <Grid
+                            container
+                            item
+                            xs={1}
+                            style={{ marginLeft: '-20px' }}>
+                            <Grid item xs={6}>
+                              <IconButton
+                                key={`field-up-${question.questionIndex}`}
+                                size="small"
+                                onClick={(e) => {
+                                  handleFieldUp(question);
+                                }}>
+                                <KeyboardArrowUpIcon fontSize="small" />
+                              </IconButton>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <IconButton
+                                key={`edit-field-${question.questionIndex}`}
+                                size="small"
+                                onClick={(e) => {
+                                  handleEditField(question);
+                                }}>
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <IconButton
+                                key={`field-down-${question.questionIndex}`}
+                                size="small"
+                                onClick={(e) => {
+                                  handleFieldDown(question);
+                                }}>
+                                <KeyboardArrowDownIcon fontSize="small" />
+                              </IconButton>
+                            </Grid>
 
-                          <Grid item xs={6}>
-                            <IconButton
-                              key={`delete-field-${question.questionIndex}`}
-                              size="small"
-                              color="error"
-                              onClick={(e) => {
-                                handleDeleteField(question);
-                              }}>
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
+                            <Grid item xs={6}>
+                              <IconButton
+                                key={`delete-field-${question.questionIndex}`}
+                                size="small"
+                                color="error"
+                                onClick={(e) => {
+                                  handleDeleteField(question);
+                                }}>
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </Grid>
                           </Grid>
-                        </Grid>
+                        )}
                         <Grid container pl={3}>
                           {missingFields(question) && (
                             <Typography style={{ color: 'red' }}>
@@ -367,12 +415,24 @@ export const CustomizedFormWQuestions = ({
                           inputLanguages={getInputLanguages(question)}
                           setForm={setForm}
                           question={question}
-                          questionsArr={questions}
+                          questionsArr={fm.questions}
                           visibilityToggle={
                             selectedQuestionIndex != null &&
                             questions[selectedQuestionIndex]?.visibleCondition
                               .length > 0
                           }
+                          categoryIndex={categoryIndex}
+                        />
+                        <EditCategory
+                          open={isQuestionSelected && categoryEditPopupOpen}
+                          onClose={() => {
+                            setSelectedQuestionIndex(null);
+                            setCategoryEditPopupOpen(false);
+                          }}
+                          question={question}
+                          inputLanguages={getInputLanguages(question)}
+                          setForm={setForm}
+                          categoryIndex={categoryIndex}
                         />
                       </Fragment>
                     );
@@ -384,7 +444,8 @@ export const CustomizedFormWQuestions = ({
                       <PrimaryButton
                         onClick={() => {
                           if (languages.length != 0) {
-                            setEditPopupOpen(true);
+                            setCategoryIndex(null);
+                            setCategoryPopupOpen(true);
                           } else {
                             setSubmitError(true);
                             setErrorMessage(
@@ -393,7 +454,7 @@ export const CustomizedFormWQuestions = ({
                           }
                         }}>
                         <AddIcon />
-                        {'Add Field'}
+                        {'Add Category'}
                       </PrimaryButton>
                     </div>
                   </Grid>
