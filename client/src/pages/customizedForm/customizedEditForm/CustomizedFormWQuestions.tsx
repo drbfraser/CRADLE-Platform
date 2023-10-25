@@ -68,10 +68,6 @@ export const CustomizedFormWQuestions = ({
     upd();
   }, [languages]);
 
-  useEffect(() => {
-    console.log(selectedQuestionIndex);
-  }, [selectedQuestionIndex, setSelectedQuestionIndex]);
-
   const updateAddedQuestions = (languages: string[]) => {
     questions.forEach((question) => {
       const currentLanguages = question.questionLangVersions.map(
@@ -107,6 +103,17 @@ export const CustomizedFormWQuestions = ({
 
   const handleDeleteField = (question: TQuestion) => {
     setSelectedQuestionIndex(question.questionIndex);
+    if (question.questionType == QuestionTypeEnum.CATEGORY) {
+      let questionToDelete = questions.find(
+        (q) => q.categoryIndex == question.questionIndex
+      );
+      while (questionToDelete != null) {
+        deleteField(questionToDelete);
+        questionToDelete = questions.find(
+          (q) => q.categoryIndex == question.questionIndex
+        );
+      }
+    }
     deleteField(question);
   };
 
@@ -132,6 +139,9 @@ export const CustomizedFormWQuestions = ({
         q.visibleCondition[0].qidx == index
       ) {
         q.visibleCondition = [];
+      }
+      if (q.categoryIndex && q.categoryIndex > index) {
+        q.categoryIndex -= 1;
       }
       q.questionIndex = i;
     });
@@ -347,56 +357,53 @@ export const CustomizedFormWQuestions = ({
                             </PrimaryButton>
                           </Grid>
                         )}
-                        {question.questionType != QuestionTypeEnum.CATEGORY && (
-                          <Grid
-                            container
-                            item
-                            xs={1}
-                            style={{ marginLeft: '-20px' }}>
-                            <Grid item xs={6}>
-                              <IconButton
-                                key={`field-up-${question.questionIndex}`}
-                                size="small"
-                                onClick={(e) => {
-                                  handleFieldUp(question);
-                                }}>
-                                <KeyboardArrowUpIcon fontSize="small" />
-                              </IconButton>
-                            </Grid>
-                            <Grid item xs={6}>
-                              <IconButton
-                                key={`edit-field-${question.questionIndex}`}
-                                size="small"
-                                onClick={(e) => {
-                                  handleEditField(question);
-                                }}>
-                                <EditIcon fontSize="small" />
-                              </IconButton>
-                            </Grid>
-                            <Grid item xs={6}>
-                              <IconButton
-                                key={`field-down-${question.questionIndex}`}
-                                size="small"
-                                onClick={(e) => {
-                                  handleFieldDown(question);
-                                }}>
-                                <KeyboardArrowDownIcon fontSize="small" />
-                              </IconButton>
-                            </Grid>
-
-                            <Grid item xs={6}>
-                              <IconButton
-                                key={`delete-field-${question.questionIndex}`}
-                                size="small"
-                                color="error"
-                                onClick={(e) => {
-                                  handleDeleteField(question);
-                                }}>
-                                <DeleteIcon fontSize="small" />
-                              </IconButton>
-                            </Grid>
+                        <Grid
+                          container
+                          item
+                          xs={1}
+                          style={{ marginLeft: '-20px' }}>
+                          <Grid item xs={6}>
+                            <IconButton
+                              key={`field-up-${question.questionIndex}`}
+                              size="small"
+                              onClick={(e) => {
+                                handleFieldUp(question);
+                              }}>
+                              <KeyboardArrowUpIcon fontSize="small" />
+                            </IconButton>
                           </Grid>
-                        )}
+                          <Grid item xs={6}>
+                            <IconButton
+                              key={`edit-field-${question.questionIndex}`}
+                              size="small"
+                              onClick={(e) => {
+                                handleEditField(question);
+                              }}>
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                          </Grid>
+                          <Grid item xs={6}>
+                            <IconButton
+                              key={`field-down-${question.questionIndex}`}
+                              size="small"
+                              onClick={(e) => {
+                                handleFieldDown(question);
+                              }}>
+                              <KeyboardArrowDownIcon fontSize="small" />
+                            </IconButton>
+                          </Grid>
+                          <Grid item xs={6}>
+                            <IconButton
+                              key={`delete-field-${question.questionIndex}`}
+                              size="small"
+                              color="error"
+                              onClick={(e) => {
+                                handleDeleteField(question);
+                              }}>
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Grid>
+                        </Grid>
                         <Grid container pl={3}>
                           {missingFields(question) && (
                             <Typography style={{ color: 'red' }}>

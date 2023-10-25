@@ -48,11 +48,12 @@ export const CustomFormTemplate = () => {
   const location = useLocation<FormTemplateWithQuestions>();
   const targetFrom = location.state;
   const [submitError, setSubmitError] = useState(false);
-  const [language, setLanguage] = useState<string[]>(
-    targetFrom?.questions[0].questionLangVersions.map((q) => q.lang) ?? [
-      'English',
-    ]
-  );
+  const [language, setLanguage] = useState<string[]>(() => {
+    if (targetFrom?.questions) {
+      return targetFrom.questions[0].questionLangVersions.map((q) => q.lang);
+    }
+    return ['English'];
+  });
 
   const defaultVersion: string = moment
     .utc(new Date(Date.now()).toUTCString())
