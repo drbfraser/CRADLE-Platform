@@ -44,7 +44,6 @@ export const CustomizedFormWQuestions = ({
   setForm,
   versionError,
 }: IProps) => {
-  // const [questions, setQuestions] = useState(fm.questions);
   const questions = fm.questions;
   const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
   const [submitError, setSubmitError] = useState(false);
@@ -58,9 +57,6 @@ export const CustomizedFormWQuestions = ({
   const [individualEditPopupOpen, setIndividualEditPopupOpen] = useState(false);
   const [categoryEditPopupOpen, setCategoryEditPopupOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  // const [nestedQs, setNestedQs] = useState<TQuestion[][]>(
-  //   unflatten(fm.questions)
-  // );
   const [categoryIndex, setCategoryIndex] = useState<number | null>(null);
   const getInputLanguages = (question: TQuestion) => {
     return question.questionLangVersions.map((item) => item.lang);
@@ -338,7 +334,6 @@ export const CustomizedFormWQuestions = ({
                               onClick={() => {
                                 if (languages.length != 0) {
                                   setCategoryIndex(questions.indexOf(question));
-                                  // setCategoryIndex(question.questionIndex);
                                   setEditPopupOpen(true);
                                 } else {
                                   setSubmitError(true);
