@@ -167,7 +167,7 @@ const EditField = ({
   const fieldTypes: FieldTypes = {
     category: {
       value: 'category',
-      label: 'Category',
+      label: 'Subcategory',
       type: QuestionTypeEnum.CATEGORY,
       render: () => <></>,
     },

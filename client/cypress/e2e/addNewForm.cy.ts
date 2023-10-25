@@ -88,7 +88,7 @@ describe('Form templates', () => {
       'No'
     );
     cy.get(':nth-child(5) > .MuiFormGroup-root > :nth-child(1)')
-      .contains('Category')
+      .contains('Subcategory')
       .click({ force: true });
     cy.contains('.MuiOutlinedInput-root', 'English Option 1').should(
       'not.exist'
@@ -401,7 +401,7 @@ describe('Form templates', () => {
       'No'
     );
     cy.get(':nth-child(6) > .MuiFormGroup-root > :nth-child(1)')
-      .contains('Category')
+      .contains('Subcategory')
       .click({ force: true });
     cy.contains('.MuiOutlinedInput-root', 'English Option 1').should(
       'not.exist'
