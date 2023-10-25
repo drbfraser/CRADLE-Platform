@@ -15,7 +15,6 @@ class ReferralValidator(object):
             readingId belongs to a valid Reading, required
             followUpId belongs to a valid FollowUp
         """
-        print("validating referral")
 
         string_fields = {"comment", "actionTaken"}
 

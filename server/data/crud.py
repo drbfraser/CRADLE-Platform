@@ -4,6 +4,7 @@ from collections import namedtuple
 from sqlalchemy.orm import Query, aliased
 from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_, or_
 import operator
+import logging
 
 from data import db_session
 from models import (
@@ -28,6 +29,8 @@ import re
 
 M = TypeVar("M")
 S = TypeVar("S")
+
+LOGGER = logging.getLogger(__name__)
 
 
 def create(model: M, refresh=False):
@@ -898,7 +901,7 @@ def get_unique_patients_with_readings(facility="%", user="%", filter={}) -> List
         result = db_session.execute(query)
         return list(result)
     except Exception as e:
-        print(e)
+        logger.error(e)
         return None
 
 
@@ -929,7 +932,7 @@ def get_total_readings_completed(facility="%", user="%", filter={}) -> List[M]:
         result = db_session.execute(query)
         return list(result)
     except Exception as e:
-        print(e)
+        logger.error(e)
         return None
 
 
@@ -960,7 +963,7 @@ def get_total_color_readings(facility="%", user="%", filter={}) -> List[M]:
         result = db_session.execute(query)
         return list(result)
     except Exception as e:
-        print(e)
+        logger.error(e)
         return None
 
 
@@ -988,7 +991,7 @@ def get_sent_referrals(facility="%", user="%", filter={}) -> List[M]:
         result = db_session.execute(query)
         return list(result)
     except Exception as e:
-        print(e)
+        logger.error(e)
         return None
 
 
@@ -1012,7 +1015,7 @@ def get_referred_patients(facility="%", filter={}) -> List[M]:
         result = db_session.execute(query)
         return list(result)
     except Exception as e:
-        print(e)
+        logger.error(e)
         return None
 
 
@@ -1042,7 +1045,7 @@ def get_days_with_readings(facility="%", user="%", filter={}):
         result = db_session.execute(query)
         return list(result)
     except Exception as e:
-        print(e)
+        logger.error(e)
         return None
 
 
@@ -1090,7 +1093,7 @@ def get_export_data(user_id, filter):
             result.append(row)
         return result
     except Exception as e:
-        print(e)
+        logger.error(e)
         return None
 
 
@@ -1109,7 +1112,7 @@ def get_supervised_vhts(user_id):
         result = db_session.execute(query)
         return list(result)
     except Exception as e:
-        print(e)
+        logger.error(e)
         return None
 
 

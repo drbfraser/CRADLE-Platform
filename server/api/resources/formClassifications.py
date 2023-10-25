@@ -1,6 +1,5 @@
 from email import message
 import json
-from pprint import pp
 
 import api.util as util
 import data
@@ -14,11 +13,13 @@ from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 from models import FormClassification, FormTemplate, Question
 from enums import RoleEnum, ContentTypeEnum
-from utils import get_current_time, pprint
+from utils import get_current_time
 import utils
+import logging
 from validation import formClassifications
 from werkzeug.datastructures import FileStorage
 
+LOGGER = logging.getLogger(__name__)
 
 # /api/forms/classifications
 class Root(Resource):
@@ -44,17 +45,20 @@ class Root(Resource):
                 try:
                     req = json.loads(file_str)
                 except json.JSONDecodeError:
+                    LOGGER.error(err)
                     abort(400, message="File content is not valid json-format")
 
             elif file.content_type == ContentTypeEnum.CSV.value:
                 try:
                     req = util.getFormTemplateDictFromCSV(file_str)
                 except RuntimeError as err:
+                    LOGGER.error(err)
                     abort(400, message=err.args[0])
                 except TypeError as err:
-                    pprint(err)
+                    LOGGER.error(err)
                     abort(400, message=err.args[0])
                 except:
+                    LOGGER.error(err)
                     abort(
                         400, message="Something went wrong while parsing the CSV file."
                     )
