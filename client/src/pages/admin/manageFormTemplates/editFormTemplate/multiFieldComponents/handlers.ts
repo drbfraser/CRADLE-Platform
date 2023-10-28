@@ -24,10 +24,10 @@ export const handleAddChoice = (
 export const handleRemoveMultiChoice = (
   index: number,
   numChoices: number,
-  questionLangVersions: any,
+  questionLangVersions: QuestionLangVersion[],
   inputLanguages: string[],
   setNumChoices: React.Dispatch<React.SetStateAction<any>>,
-  setQuestionLangversions: any
+  setQuestionLangversions: Dispatch<SetStateAction<QuestionLangVersion[]>>
 ) => {
   const qLangVersions: QuestionLangVersion[] = questionLangVersions;
 
