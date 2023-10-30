@@ -28,6 +28,7 @@ import EditField from 'src/pages/admin/manageFormTemplates/editFormTemplate/Edit
 import EditCategory from 'src/pages/admin/manageFormTemplates/editFormTemplate/EditCategory';
 import { Autocomplete, AutocompleteRenderInputParams } from 'formik-mui';
 import { InputAdornment, TextField, Tooltip, Typography } from '@mui/material';
+import DeleteCategoryDialog from './DeleteCategoryDialog';
 
 interface IProps {
   fm: FormTemplateWithQuestions;
@@ -48,6 +49,7 @@ export const CustomizedFormWQuestions = ({
   const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
   const [submitError, setSubmitError] = useState(false);
   const [isSubmitPopupOpen, setIsSubmitPopupOpen] = useState(false);
+  const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
   const [, upd] = useReducer((x) => x + 1, 0);
   const [selectedQuestionIndex, setSelectedQuestionIndex] = useState<
     number | null
@@ -101,20 +103,25 @@ export const CustomizedFormWQuestions = ({
     }
   };
 
+  const handleDeleteOnClose = (confirmed: boolean) => {
+    if (selectedQuestionIndex !== null && confirmed) {
+      // User clicked OK
+      const questionsToDelete = questions.filter(
+        (q) => q.categoryIndex === selectedQuestionIndex
+      );
+      questionsToDelete.forEach(deleteField);
+      deleteField(questions[selectedQuestionIndex]);
+    }
+    setIsDeletePopupOpen(false);
+  };
+
   const handleDeleteField = (question: TQuestion) => {
     setSelectedQuestionIndex(question.questionIndex);
     if (question.questionType == QuestionTypeEnum.CATEGORY) {
-      let questionToDelete = questions.find(
-        (q) => q.categoryIndex == question.questionIndex
-      );
-      while (questionToDelete != null) {
-        deleteField(questionToDelete);
-        questionToDelete = questions.find(
-          (q) => q.categoryIndex == question.questionIndex
-        );
-      }
+      setIsDeletePopupOpen(true);
+    } else {
+      deleteField(question);
     }
-    deleteField(question);
   };
 
   const handleFieldUp = (question: TQuestion) => {
@@ -235,6 +242,14 @@ export const CustomizedFormWQuestions = ({
         questionsArr={fm.questions}
         visibilityToggle={false}
         categoryIndex={categoryIndex}
+      />
+      <DeleteCategoryDialog
+        open={isDeletePopupOpen}
+        onClose={handleDeleteOnClose}
+        numQuestions={
+          questions.filter((q) => q.categoryIndex === selectedQuestionIndex)
+            .length
+        }
       />
       <Formik
         initialValues={initialState as any}
