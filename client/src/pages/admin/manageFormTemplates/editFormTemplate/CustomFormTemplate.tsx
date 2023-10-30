@@ -49,7 +49,10 @@ export const CustomFormTemplate = () => {
   const targetFrom = location.state;
   const [submitError, setSubmitError] = useState(false);
   const [language, setLanguage] = useState<string[]>(() => {
-    if (targetFrom?.questions) {
+    if (
+      targetFrom?.questions &&
+      targetFrom.questions[0]?.questionLangVersions
+    ) {
       return targetFrom.questions[0].questionLangVersions.map((q) => q.lang);
     }
     return ['English'];
