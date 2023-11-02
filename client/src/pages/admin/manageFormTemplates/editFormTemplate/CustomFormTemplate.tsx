@@ -44,13 +44,39 @@ export const initialState = {
   [FormEditMainComponents.languages]: '',
 };
 
+//Convert language code to language name
+const getLanguageName = (langCode: any): string => {
+  const language: string =
+    new Intl.DisplayNames(['en'], { type: 'language' }).of(langCode) ||
+    'English';
+  return language;
+};
+
+//Check if returned browser language name is part of built in languages
+const getDefaultLanguage = () => {
+  const browserLanguage: string = getLanguageName(
+    navigator.language || window.navigator.language
+  );
+  const languageOptions = getLanguages();
+  let defaultLang = languageOptions[0];
+  languageOptions.forEach((languageOption) => {
+    const language = languageOption === undefined ? '' : languageOption;
+    if (browserLanguage.includes(language)) {
+      defaultLang = language;
+    }
+  });
+  return defaultLang;
+};
+
 export const CustomFormTemplate = () => {
   const location = useLocation<FormTemplateWithQuestions>();
   const targetFrom = location.state;
   const [submitError, setSubmitError] = useState(false);
+  const browserLanguage =
+    getDefaultLanguage() === undefined ? 'English' : getDefaultLanguage();
   const [language, setLanguage] = useState<string[]>(
     targetFrom?.questions[0].questionLangVersions.map((q) => q.lang) ?? [
-      'English',
+      browserLanguage,
     ]
   );
 
@@ -258,6 +284,7 @@ const LanguageModal = ({ language, setLanguage }: LanguageModalProps) => {
       });
     }
   };
+
   return (
     <>
       <TextField
