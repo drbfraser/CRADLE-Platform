@@ -169,7 +169,6 @@ export const SelectHeaderForm = ({ setForm }: IProps) => {
                     <Grid item xs={6}>
                       <Field
                         key={resetLanguage}
-                        defaultValue={availableLanguages[0]}
                         component={Autocomplete}
                         fullWidth
                         name={CustomizedFormField.lang}
