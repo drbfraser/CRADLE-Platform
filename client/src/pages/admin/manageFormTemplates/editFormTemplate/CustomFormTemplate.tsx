@@ -45,7 +45,7 @@ export const initialState = {
 };
 
 //Convert language code to language name
-const getLanguageName = (langCode: any): string => {
+export const getLanguageName = (langCode: any): string => {
   const language: string =
     new Intl.DisplayNames(['en'], { type: 'language' }).of(langCode) ||
     'English';
@@ -53,7 +53,7 @@ const getLanguageName = (langCode: any): string => {
 };
 
 //Check if returned browser language name is part of built in languages
-const getDefaultLanguage = () => {
+export const getDefaultLanguage = () => {
   const browserLanguage: string = getLanguageName(
     navigator.language || window.navigator.language
   );
