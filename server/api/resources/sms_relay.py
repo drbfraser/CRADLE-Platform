@@ -1,7 +1,7 @@
 import re
 
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from flask import redirect, request, url_for, make_response, Response
+from flask import redirect, request, url_for, make_response, Response, jsonify
 from flask_restful import Resource, abort
 import requests
 
@@ -74,17 +74,19 @@ def send_request_to_endpoint(
 
 
 def create_flask_response(code: int, body: str, iv: str, user_sms_key: str) -> Response:
-    response_dict = {"code": code, "body": body}
-
-    response_json = json.dumps(response_dict)
-    compressed_data = compressor.compress_from_string(response_json)
-    encrypted_data = encryptor.encrypt(compressed_data, iv, user_sms_key)
-
-    flask_response = make_response()
-    flask_response.set_data(encrypted_data)
-    flask_response.status_code = code
-
-    return flask_response
+    # Create a response object with the JSON data and set the content type
+    
+    print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", body, type(body))
+    
+    res = {
+        "code": code,
+        "body": body
+    }
+    response = make_response(jsonify(res))
+    response.headers['Content-Type'] = 'application/json'
+    response.status_code = code
+    print("hi there\n\n\n\n", response)
+    return response
 
 
 iv_size = 32
@@ -168,6 +170,8 @@ def sms_relay_procedure():
     json_body = json_dict_data.get("body")
     if not json_body:
         json_body = "{}"
+
+    print("sending request", json_dict_data)
 
     # Sending request to endpoint
     response = send_request_to_endpoint(method, endpoint, header, json_body, user)
