@@ -73,19 +73,21 @@ def send_request_to_endpoint(
     )
 
 
-def create_flask_response(code: int, body: str, iv: str, user_sms_key: str) -> Response:
+def create_flask_response(code: int, body: str) -> Response:
     # Create a response object with the JSON data and set the content type
     
-    print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", body, type(body))
-    
-    res = {
+    #This response structure is defined in the SMS-Relay App -> model.HTTPSResponse
+    #Do not change without updating Retrofit configuration
+    #Currently the body is not processed by the Relay app (only its existence is checked)
+    #Sending a generic success or failure string is an option
+    response_body = {
         "code": code,
         "body": body
     }
-    response = make_response(jsonify(res))
+
+    response = make_response(jsonify(response_body))
     response.headers['Content-Type'] = 'application/json'
     response.status_code = code
-    print("hi there\n\n\n\n", response)
     return response
 
 
@@ -171,8 +173,6 @@ def sms_relay_procedure():
     if not json_body:
         json_body = "{}"
 
-    print("sending request", json_dict_data)
-
     # Sending request to endpoint
     response = send_request_to_endpoint(method, endpoint, header, json_body, user)
 
@@ -180,7 +180,7 @@ def sms_relay_procedure():
     response_code = response.status_code
     response_body = json.dumps(response.json())
     return create_flask_response(
-        response_code, response_body, encrypted_data[0:iv_size], user_secret_key
+        response_code, response_body
     )
 
 
