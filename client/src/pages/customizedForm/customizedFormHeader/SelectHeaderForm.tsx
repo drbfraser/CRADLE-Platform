@@ -149,6 +149,7 @@ export const SelectHeaderForm = ({ setForm }: IProps) => {
                         ) => (
                           <TextField
                             {...params}
+                            data-cy={`form-name`}
                             name={CustomizedFormField.name}
                             error={
                               !!touched[CustomizedFormField.name] &&
@@ -179,6 +180,7 @@ export const SelectHeaderForm = ({ setForm }: IProps) => {
                         ) => (
                           <TextField
                             {...params}
+                            data-cy={`def-lang`}
                             name={CustomizedFormField.lang}
                             error={
                               !!touched[CustomizedFormField.lang] &&
