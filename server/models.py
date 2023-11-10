@@ -94,10 +94,12 @@ class UserPhoneNumber(db.Model):
 class RelayServerPhoneNumber(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     phone = db.Column(db.String(20), unique=True)
+    description = db.Column(db.String(50), unique=False)
+    lastReceived = db.Column(db.BigInteger, unique=False, default=get_current_time)
 
     @staticmethod
     def schema():
-        return RelayServerPhoneNumber
+        return RelayServerPhoneNumberSchema
 
 
 class Referral(db.Model):

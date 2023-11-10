@@ -33,5 +33,11 @@ class RelayServerPhoneNumbers(Resource):
         req = request.get_json(force=True)
         if len(req) == 0:
             abort(400, message="Request body is empty")
-        crud.create(RelayServerPhoneNumber(phone=req["phone"]), refresh=True)
+
+        serverDetails = marshal.unmarshal(RelayServerPhoneNumber, req)
+        phone = serverDetails.phone
+        if crud.read(RelayServerPhoneNumber, phone=phone):
+            abort(409, message=f"A SMS relay server is already using {phone}")
+
+        crud.create(serverDetails, refresh=True)
         return {"message": "Relay server phone number added successfully"}, 200
