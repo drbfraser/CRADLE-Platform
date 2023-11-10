@@ -83,10 +83,7 @@ def create_flask_response(code: int, body: str, iv: str, user_sms_key: str) -> R
     compressed_data = compressor.compress_from_string(body)
     encrypted_data = encryptor.encrypt(compressed_data, iv, user_sms_key)
 
-    response_body = {
-        "code": code, 
-        "body": encrypted_data
-    }
+    response_body = {"code": code, "body": encrypted_data}
 
     response = make_response(jsonify(response_body))
     response.headers["Content-Type"] = "application/json"
@@ -182,7 +179,9 @@ def sms_relay_procedure():
     # Creating Response
     response_code = response.status_code
     response_body = json.dumps(response.json())
-    return create_flask_response(response_code, response_body, encrypted_data[0:iv_size], user_secret_key)
+    return create_flask_response(
+        response_code, response_body, encrypted_data[0:iv_size], user_secret_key
+    )
 
 
 # /api/sms_relay
