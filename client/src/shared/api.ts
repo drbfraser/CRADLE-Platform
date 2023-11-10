@@ -715,3 +715,20 @@ export const updateSecretKeyAsync = async (userId: number) => {
   );
   return response.json();
 };
+
+export const addRelayServerPhone = async (
+  phone: string,
+  description: string
+) => {
+  const response = await apiFetch(API_URL + EndpointEnum.RELAY_SERVER_PHONE, {
+    method: MethodEnum.POST,
+    body: JSON.stringify({
+      phone: phone,
+      description: description,
+    }),
+  });
+  return response.json();
+};
+
+export const getRelayServerPhones = async () =>
+  (await apiFetch(API_URL + EndpointEnum.RELAY_SERVER_PHONE)).json();
