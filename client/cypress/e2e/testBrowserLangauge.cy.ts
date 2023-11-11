@@ -22,7 +22,6 @@ describe('browser language', () => {
     );
     
     //Check language contains browser language
-    cy.wait(1000);
     cy.contains('.MuiOutlinedInput-root', 'Language')
       .children('.MuiOutlinedInput-input')
       .should(
@@ -83,7 +82,6 @@ describe('browser language', () => {
       });
 
     //Check set default to Polish
-    cy.wait(1000);
     cy.get(`[data-cy = "form-name"]`).click();
     cy.contains('Multi Language Medical Form').click();
     cy.wait(1000);
@@ -99,7 +97,6 @@ describe('browser language', () => {
     });
 
     //Check set default to English
-    cy.wait(1000);
     cy.get(`[data-cy = "form-name"]`).click();
     cy.contains('Multi Language Medical Form').click();
     cy.wait(1000);
