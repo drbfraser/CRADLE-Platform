@@ -28,15 +28,10 @@ import { formatBytes } from 'src/shared/utils';
 import makeStyles from '@mui/styles/makeStyles';
 import AdminTable from '../AdminTable';
 import { useAdminStyles } from '../adminStyles';
-import {
-  Field, Form,
-  Formik,
-  FormikHelpers
-} from 'formik';
+import { Field, Form, Formik, FormikHelpers } from 'formik';
 import { IRelayNum } from 'src/shared/types';
 
 export const ManageRelayApp = () => {
-
   //Styles
   const styles = useAdminStyles();
   const classes = useStyles();
@@ -173,7 +168,6 @@ export const ManageRelayApp = () => {
   ];
 
   const Row = ({ row }: { row: (string | number)[] }) => {
-
     //const relayNumInfo = relayNums.find((num) => num.id === row[0]);
 
     console.log(relayNums);
@@ -204,7 +198,7 @@ export const ManageRelayApp = () => {
           <Formik
             initialValues={relayNumberTemplate}
             // validationSchema={getValidationSchema()}
-            onSubmit={handleSubmit} >
+            onSubmit={handleSubmit}>
             {({ isSubmitting, isValid }) => (
               <Form>
                 <Field
@@ -215,7 +209,7 @@ export const ManageRelayApp = () => {
                   variant="outlined"
                   label="Phone Name"
                   name={RelayNumber.phoneNumber}
-                //disabled={!creatingNew}
+                  //disabled={!creatingNew}
                 />
                 <br />
                 <br />
@@ -229,9 +223,11 @@ export const ManageRelayApp = () => {
                 />
                 <br />
                 <DialogActions>
-                  <CancelButton type="button" onClick={() => {
-                    openAddNewNumberDialog(false);
-                  }}>
+                  <CancelButton
+                    type="button"
+                    onClick={() => {
+                      openAddNewNumberDialog(false);
+                    }}>
                     Cancel
                   </CancelButton>
                   <PrimaryButton
@@ -239,8 +235,7 @@ export const ManageRelayApp = () => {
                     //disabled={isSubmitting || !isValid}
                     onClick={() => {
                       openAddNewNumberDialog(false);
-                    }}
-                  >
+                    }}>
                     Save
                   </PrimaryButton>
                 </DialogActions>
@@ -346,7 +341,7 @@ export const ManageRelayApp = () => {
         search={search}
         setSearch={setSearch}
       />
-    </div >
+    </div>
   );
 };
 
