@@ -84,8 +84,7 @@ describe('browser language', () => {
     //Check set default to Polish
     cy.get(`[data-cy = "form-name"]`).click();
     cy.contains('Multi Language Medical Form').click();
-    cy.wait(1000);
-    cy.get(`[data-cy = "def-lang"] input`).invoke('val').should('contain', 'Polish');
+    cy.get(`[data-cy = "def-lang"] input`, {timeout: 1000}).should('have.value', 'Polish');
     
     //Set browser language to English
     cy.visit('http://localhost:3000/forms/new/49300028162',{
@@ -99,8 +98,7 @@ describe('browser language', () => {
     //Check set default to English
     cy.get(`[data-cy = "form-name"]`).click();
     cy.contains('Multi Language Medical Form').click();
-    cy.wait(1000);
-    cy.get(`[data-cy = "def-lang"] input`).invoke('val').should('contain', 'English');
+    cy.get(`[data-cy = "def-lang"] input`, {timeout: 1000}).should('have.value', 'English');
     
   }); 
 })
