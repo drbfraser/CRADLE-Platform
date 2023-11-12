@@ -154,3 +154,7 @@ client/request.http
 #------------------------
 # fluenbit local output logs
 fluentbit/logs/*
+
+#Cypress screenshots and videos
+client/cypress/screenshots
+client/cypress/videos
