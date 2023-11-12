@@ -753,7 +753,7 @@ describe('Form templates', () => {
   });
 
   it('verify form default version', () => {
-    // create form with default version
+    // verify form with default version
     cy.wait(1000);
     cy.get('.MuiTableBody-root')
       .contains('Dinner Party Form Default Version')

@@ -3,7 +3,6 @@ import { CForm, FormTemplate } from 'src/shared/types';
 import {
   CustomizedFormField,
   CustomizedFormState,
-  initialState,
   validationSchema,
 } from './state';
 import { Field, Form, Formik } from 'formik';
@@ -22,6 +21,7 @@ import { PrimaryButton } from 'src/shared/components/Button';
 import { Skeleton } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import makeStyles from '@mui/styles/makeStyles';
+import { getLanguageName } from 'src/pages/admin/manageFormTemplates/editFormTemplate/CustomFormTemplate';
 
 interface IProps {
   setForm: (form: CForm) => void;
@@ -33,6 +33,8 @@ export const SelectHeaderForm = ({ setForm }: IProps) => {
   const [availableLanguages, setAvailableLanguages] = useState<string[]>([]);
   const [formTemplates, setFormTemplates] = useState<FormTemplate[]>([]);
   const [resetLanguage, setResetLanguage] = useState<boolean>(false);
+  const [language, setLanguage] = useState<string>('');
+  const [formName, setFormName] = useState<string>('');
 
   useEffect(() => {
     const updateFormTemplates = async () => {
@@ -42,7 +44,6 @@ export const SelectHeaderForm = ({ setForm }: IProps) => {
         console.log(e);
       }
     };
-
     updateFormTemplates();
   }, []);
 
@@ -65,9 +66,33 @@ export const SelectHeaderForm = ({ setForm }: IProps) => {
     }
   };
 
-  const handleSelectForm = (_: any, selectedFormName: any) => {
+  const getDefaultLanguage = async (form_template_id: any) => {
+    const formTemplate = await getFormTemplateLangsAsync(form_template_id);
+    //Check if fetched languages contain browser language
+    const browserLanguage: string = getLanguageName(
+      navigator.language || window.navigator.language
+    );
+    const languageOptions = formTemplate.lang_versions;
+    let defaultLang: string = languageOptions[0];
+    languageOptions.forEach((languageOption: string) => {
+      const language = languageOption === undefined ? '' : languageOption;
+      //If form languages contain browser language, update default form language
+      //Else language is left as first language of array
+      if (browserLanguage.includes(language)) {
+        defaultLang = language;
+      }
+    });
+    setLanguage(defaultLang);
+    return defaultLang;
+  };
+
+  const handleSelectForm = async (_: any, selectedFormName: any) => {
     const formTemplateId = formNameIdMap.get(selectedFormName);
-    formTemplateId && fetchAllLangVersions(formTemplateId);
+    if (formTemplateId) {
+      fetchAllLangVersions(formTemplateId);
+      getDefaultLanguage(formTemplateId);
+      setFormName(selectedFormName);
+    }
   };
 
   const handleSubmit = async (
@@ -77,7 +102,6 @@ export const SelectHeaderForm = ({ setForm }: IProps) => {
     const formNameIdMap = new Map<string, string>(
       formTemplates.map((item) => [item.classification.name, item.id])
     );
-
     const formTemplateId: string =
       customizedFormState.name !== null
         ? formNameIdMap.get(customizedFormState.name) ?? ''
@@ -96,12 +120,14 @@ export const SelectHeaderForm = ({ setForm }: IProps) => {
       setSubmitting(false);
     }
   };
+
   return (
     <>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       {formTemplates.length > 0 ? (
         <Formik
-          initialValues={initialState}
+          initialValues={{ name: formName, lang: language }}
+          enableReinitialize
           validationSchema={validationSchema}
           onSubmit={handleSubmit}>
           {({ touched, errors, isSubmitting }) => (
@@ -123,6 +149,7 @@ export const SelectHeaderForm = ({ setForm }: IProps) => {
                         ) => (
                           <TextField
                             {...params}
+                            data-cy={`form-name`}
                             name={CustomizedFormField.name}
                             error={
                               !!touched[CustomizedFormField.name] &&
@@ -143,7 +170,6 @@ export const SelectHeaderForm = ({ setForm }: IProps) => {
                     <Grid item xs={6}>
                       <Field
                         key={resetLanguage}
-                        value={undefined}
                         component={Autocomplete}
                         fullWidth
                         name={CustomizedFormField.lang}
@@ -154,6 +180,7 @@ export const SelectHeaderForm = ({ setForm }: IProps) => {
                         ) => (
                           <TextField
                             {...params}
+                            data-cy={`def-lang`}
                             name={CustomizedFormField.lang}
                             error={
                               !!touched[CustomizedFormField.lang] &&
