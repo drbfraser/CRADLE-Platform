@@ -52,6 +52,7 @@ from api.resources.formClassifications import (
 )
 from api.resources.forms import Root as Forms, SingleForm
 from api.resources.sms_relay import Root as SmsRelay
+from api.resources.relayServerPhoneNumbers import RelayServerPhoneNumbers
 from api.resources.users import *
 from api.resources.upload import Root as Upload
 
@@ -296,5 +297,7 @@ def init(api):
     api.add_resource(ValidateRelayPhoneNumber, "/api/phone/is_relay")  # [GET]
 
     api.add_resource(RelayPhoneNumbers, "/api/phone/relays")  # [GET]
+
+    api.add_resource(RelayServerPhoneNumbers, "/api/relay/server/phone")  # [GET, PUT]
 
     new_api.init_routes(api)

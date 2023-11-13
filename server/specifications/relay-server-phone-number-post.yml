@@ -1,0 +1,58 @@
+# Specification for POST request on /api/relay/server/phone
+tags:
+  - Relay Server Phone Numbers
+
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          phone:
+            type: string
+            required: true
+          details:
+            type: string
+        required:
+          - phone
+      example:
+        phone: "555-555-5555"
+        details: "My relay server"
+
+security:
+  - jwt: []
+
+responses:
+  200:
+    description: Successful - 
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Relay server phone number added successfully.
+  400:
+    description: |
+      Bad request: empty request body.
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Request body is empty.
+  409:
+    description: |
+      Bad request: phone number already in use.
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: A SMS relay server is already using {phone}

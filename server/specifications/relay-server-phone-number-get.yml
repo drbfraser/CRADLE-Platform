@@ -1,0 +1,37 @@
+# Specification for GET request on /api/phone/relays
+tags:
+  - Relay Server Phone Numbers
+
+security:
+  - jwt: []
+
+responses:
+  "200":
+    description: List of relay server phone numbers
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            relayPhoneNumbers:
+              type: array
+              items:
+                type: string
+              description: List of phone numbers associated with a relay server.
+        examples:
+          RelayServerPhoneNumbers:
+            value:
+              [
+                  {
+                      "id": "9b5a1dd8-349e-4815-9aba-a552f4331080",
+                      "lastReceived": 1699593364,
+                      "description": "my relay number",
+                      "phone": "123-456-7890"
+                  },
+                  {
+                      "id": "d5013cd0-482a-481c-a173-f3577f96a4a7",
+                      "lastReceived": 1699593385,
+                      "description": "another relay number",
+                      "phone": "555-456-7890"
+                  }
+              ]

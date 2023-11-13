@@ -91,6 +91,17 @@ class UserPhoneNumber(db.Model):
         return UserPhoneNumberSchema
 
 
+class RelayServerPhoneNumber(db.Model):
+    id = db.Column(db.String(50), primary_key=True, default=get_uuid)
+    phone = db.Column(db.String(20), unique=True)
+    description = db.Column(db.String(50), unique=False)
+    lastReceived = db.Column(db.BigInteger, unique=False, default=get_current_time)
+
+    @staticmethod
+    def schema():
+        return RelayServerPhoneNumberSchema
+
+
 class Referral(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     dateReferred = db.Column(
@@ -653,6 +664,14 @@ class UserPhoneNumberSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = UserPhoneNumber
+        load_instance = True
+        include_relationships = True
+
+
+class RelayServerPhoneNumberSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = RelayServerPhoneNumber
         load_instance = True
         include_relationships = True
 
