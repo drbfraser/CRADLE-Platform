@@ -6,30 +6,40 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
+  Grid,
+  IconButton,
   Input,
-  TableCell,
   TableRow,
   TextField,
+  Tooltip,
   Typography,
   useMediaQuery,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import {
+  addRelayServerPhone,
   getAppFileAsync,
   getAppFileHeadAsync,
+  getRelayServerPhones,
   uploadAppFileAsync,
 } from 'src/shared/api';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Alert } from '@mui/material';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
-import { UploadFile } from '@mui/icons-material';
-import { formatBytes } from 'src/shared/utils';
+import {
+  CloudDownloadOutlined,
+  DeleteForever,
+  Edit,
+  UploadFile,
+} from '@mui/icons-material';
+import { formatBytes, getPrettyDateTime } from 'src/shared/utils';
 import makeStyles from '@mui/styles/makeStyles';
 import AdminTable from '../AdminTable';
 import { useAdminStyles } from '../adminStyles';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 import { IRelayNum } from 'src/shared/types';
+import { TableCell } from 'src/shared/components/apiTable/TableCell';
 
 export const ManageRelayApp = () => {
   //Styles
@@ -49,7 +59,7 @@ export const ManageRelayApp = () => {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [tableData, setTableData] = useState<(string | number)[][]>([]);
-  const [relayNums, setRelayNums] = useState<[]>([]);
+  const [relayNums, setRelayNums] = useState<IRelayNum[]>([]);
   const isTransformed = useMediaQuery('(min-width:900px)');
 
   //Relay App Actions
@@ -58,14 +68,10 @@ export const ManageRelayApp = () => {
 
   const filename = 'cradle_sms_relay.apk';
 
-  enum RelayNumber {
-    phoneNumber = 'phoneNumber',
-    desc = 'desc',
-  }
-
   const relayNumberTemplate = {
-    [RelayNumber.phoneNumber]: '',
-    [RelayNumber.desc]: '',
+    phone: '',
+    description: '',
+    lastReceived: 0,
   };
 
   const errorMessages: { [name: number]: string } = {
@@ -110,6 +116,32 @@ export const ManageRelayApp = () => {
   };
 
   useEffect(() => {
+    const getRelayNums = async () => {
+      try {
+        const resp = await getRelayServerPhones();
+        if (resp) {
+          setRelayNums(resp);
+        }
+      } catch (e) {
+        e !== 404 && setErrorLoading(true);
+      }
+      setLoading(false);
+    };
+
+    getRelayNums();
+  }, []);
+
+  useEffect(() => {
+    setTableData(
+      relayNums.map((num) => [
+        num['phone'],
+        num['description'],
+        num['lastReceived'],
+      ])
+    );
+  }, [relayNums]);
+
+  useEffect(() => {
     const loadAppFile = async () => {
       try {
         const resp = await getAppFileHeadAsync();
@@ -135,6 +167,7 @@ export const ManageRelayApp = () => {
   ) => {
     try {
       //save relay number
+      addRelayServerPhone(values.phone, values.description);
       //onclose
     } catch (e) {
       // setSubmitting(false);
@@ -144,7 +177,10 @@ export const ManageRelayApp = () => {
 
   const columns = [
     {
-      name: 'Relay Number',
+      name: 'Phone Number',
+      options: {
+        display: isTransformed ? true : false,
+      },
     },
     {
       name: 'Description',
@@ -153,7 +189,7 @@ export const ManageRelayApp = () => {
       },
     },
     {
-      name: 'Last Recieved',
+      name: 'Last Received',
       options: {
         display: isTransformed ? true : false,
       },
@@ -167,20 +203,66 @@ export const ManageRelayApp = () => {
     },
   ];
 
+  const rowActions = [
+    {
+      tooltip: 'Edit',
+      Icon: Edit,
+      onClick: async (relayNum: IRelayNum) => {
+        // to do
+      },
+    },
+    {
+      tooltip: 'Delete',
+      Icon: DeleteForever,
+      onClick: (relayNum: IRelayNum) => {
+        // to do
+      },
+    },
+    {
+      tooltip: 'Download Logs',
+      Icon: CloudDownloadOutlined,
+      onClick: async (relayNum: IRelayNum) => {
+        // to do
+      },
+    },
+  ];
+
   const Row = ({ row }: { row: (string | number)[] }) => {
-    //const relayNumInfo = relayNums.find((num) => num.id === row[0]);
+    const relayNumInfo = relayNums.find((num) => num.phone === row[0]);
 
-    console.log(relayNums);
-    setLoading(true);
-    setTableData([]);
-    setRelayNums([]);
-
-    return (
+    return relayNumInfo ? (
       <TableRow className={styles.row}>
-        <TableCell>{'relayNumber Name'}</TableCell>
-        <TableCell>{'relayNumber Description'}</TableCell>
-        <TableCell>{'relayNumber Last Recieved'}</TableCell>
-        <TableCell>{'Actions'}</TableCell>
+        <TableCell label="Phone Number" isTransformed={isTransformed}>
+          {relayNumInfo.phone}
+        </TableCell>
+        <TableCell label="Description" isTransformed={isTransformed}>
+          {relayNumInfo.description}
+        </TableCell>
+        <TableCell label="Last Received" isTransformed={isTransformed}>
+          {getPrettyDateTime(relayNumInfo.lastReceived)}
+        </TableCell>
+        <TableCell label="Actions" isTransformed={isTransformed}>
+          {rowActions.map((action) => (
+            <Tooltip
+              key={action.tooltip}
+              placement="top"
+              title={action.tooltip}>
+              <IconButton
+                onClick={() => {
+                  action.onClick(relayNumInfo);
+                }}
+                size="large">
+                <action.Icon />
+              </IconButton>
+            </Tooltip>
+          ))}
+        </TableCell>
+      </TableRow>
+    ) : (
+      <TableRow>
+        <TableCell label="" isTransformed={false}>
+          Invalid Phone
+        </TableCell>
       </TableRow>
     );
   };
@@ -201,44 +283,49 @@ export const ManageRelayApp = () => {
             onSubmit={handleSubmit}>
             {({ isSubmitting, isValid }) => (
               <Form>
-                <Field
-                  component={TextField}
-                  fullWidth
-                  required
-                  inputProps={{ maxLength: 50 }}
-                  variant="outlined"
-                  label="Phone Name"
-                  name={RelayNumber.phoneNumber}
-                  //disabled={!creatingNew}
-                />
-                <br />
-                <br />
-                <Field
-                  component={TextField}
-                  fullWidth
-                  inputProps={{ maxLength: 300 }}
-                  variant="outlined"
-                  label="Description"
-                  name={RelayNumber.desc}
-                />
-                <br />
-                <DialogActions>
-                  <CancelButton
-                    type="button"
-                    onClick={() => {
-                      openAddNewNumberDialog(false);
-                    }}>
-                    Cancel
-                  </CancelButton>
-                  <PrimaryButton
-                    type="submit"
-                    //disabled={isSubmitting || !isValid}
-                    onClick={() => {
-                      openAddNewNumberDialog(false);
-                    }}>
-                    Save
-                  </PrimaryButton>
-                </DialogActions>
+                <Grid container spacing={3} sx={{ paddingTop: 1 }}>
+                  <Grid item xs={12}>
+                    <Field
+                      as={TextField}
+                      fullWidth
+                      required
+                      inputProps={{ maxLength: 50 }}
+                      variant="outlined"
+                      label="Phone Number"
+                      name={'phone'}
+                      //disabled={!creatingNew}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Field
+                      as={TextField}
+                      fullWidth
+                      inputProps={{ maxLength: 300 }}
+                      variant="outlined"
+                      label="Description"
+                      name={'description'}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <DialogActions>
+                      <CancelButton
+                        type="button"
+                        onClick={() => {
+                          openAddNewNumberDialog(false);
+                        }}>
+                        Cancel
+                      </CancelButton>
+                      <PrimaryButton
+                        type="submit"
+                        //disabled={isSubmitting || !isValid}
+                        onClick={() => {
+                          openAddNewNumberDialog(false);
+                        }}>
+                        Save
+                      </PrimaryButton>
+                    </DialogActions>
+                  </Grid>
+                </Grid>
               </Form>
             )}
           </Formik>
@@ -324,7 +411,7 @@ export const ManageRelayApp = () => {
       </Dialog>
 
       <AdminTable
-        title="Relay App Information"
+        title="Relay App Servers"
         columns={columns}
         Row={Row}
         data={tableData}
