@@ -33,11 +33,12 @@ import {
   Edit,
   UploadFile,
 } from '@mui/icons-material';
+import * as yup from 'yup';
 import { formatBytes, getPrettyDateTime } from 'src/shared/utils';
 import makeStyles from '@mui/styles/makeStyles';
 import AdminTable from '../AdminTable';
 import { useAdminStyles } from '../adminStyles';
-import { Field, Form, Formik, FormikHelpers } from 'formik';
+import { Field, Form, Formik } from 'formik';
 import { IRelayNum } from 'src/shared/types';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
 
@@ -73,6 +74,11 @@ export const ManageRelayApp = () => {
     description: '',
     lastReceived: 0,
   };
+
+  const validationSchema = yup.object({
+    phone: yup.string().required('Required').max(20),
+    description: yup.string().max(250),
+  });
 
   const errorMessages: { [name: number]: string } = {
     400: 'Invalid file',
@@ -161,17 +167,11 @@ export const ManageRelayApp = () => {
     loadAppFile();
   }, [numFileUploaded]);
 
-  const handleSubmit = async (
-    values: IRelayNum,
-    { setSubmitting }: FormikHelpers<IRelayNum>
-  ) => {
+  const handleSubmit = async (values: IRelayNum) => {
     try {
-      //save relay number
-      addRelayServerPhone(values.phone, values.description);
-      //onclose
-    } catch (e) {
-      // setSubmitting(false);
-      // setSubmitError(true);
+      await addRelayServerPhone(values.phone, values.description);
+    } catch (e: any) {
+      setErrorLoading(true);
     }
   };
 
@@ -273,15 +273,14 @@ export const ManageRelayApp = () => {
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
       />
-
       <Dialog open={NewNumberDialog} maxWidth="md" fullWidth>
         <DialogTitle>Add Number</DialogTitle>
         <DialogContent>
           <Formik
             initialValues={relayNumberTemplate}
-            // validationSchema={getValidationSchema()}
+            validationSchema={validationSchema}
             onSubmit={handleSubmit}>
-            {({ isSubmitting, isValid }) => (
+            {({ isSubmitting, isValid, errors, dirty }) => (
               <Form>
                 <Grid container spacing={3} sx={{ paddingTop: 1 }}>
                   <Grid item xs={12}>
@@ -293,7 +292,8 @@ export const ManageRelayApp = () => {
                       variant="outlined"
                       label="Phone Number"
                       name={'phone'}
-                      //disabled={!creatingNew}
+                      error={errors.phone !== undefined}
+                      helperText={errors.phone}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -304,6 +304,8 @@ export const ManageRelayApp = () => {
                       variant="outlined"
                       label="Description"
                       name={'description'}
+                      error={errors.description !== undefined}
+                      helperText={errors.description}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -317,7 +319,7 @@ export const ManageRelayApp = () => {
                       </CancelButton>
                       <PrimaryButton
                         type="submit"
-                        //disabled={isSubmitting || !isValid}
+                        disabled={isSubmitting || !isValid || !dirty}
                         onClick={() => {
                           openAddNewNumberDialog(false);
                         }}>
