@@ -168,8 +168,9 @@ export interface IFacility {
   index: number;
 }
 export interface IRelayNum {
-  phoneNumber: string;
-  desc: string;
+  phone: string;
+  description: string;
+  lastReceived: number;
 }
 
 export interface IUserWithTokens extends IUser {
