@@ -170,6 +170,10 @@ export const ManageRelayApp = () => {
   const handleSubmit = async (values: IRelayNum) => {
     try {
       await addRelayServerPhone(values.phone, values.description);
+      const resp = await getRelayServerPhones();
+      if (resp) {
+        setRelayNums(resp);
+      }
     } catch (e: any) {
       setErrorLoading(true);
     }
