@@ -1,7 +1,7 @@
 describe('Required question for form templates', () => {
   beforeEach(() => {
-    cy.login({ email: 'admin123@admin.com', password: 'admin123' })
-    cy.visit('http://localhost:3000/admin/form-templates')
+    cy.login({ email: 'admin123@admin.com', password: 'admin123' });
+    cy.visit('http://localhost:3000/admin/form-templates');
   });
 
   it('toggles on without saving', () => {
@@ -13,7 +13,7 @@ describe('Required question for form templates', () => {
       .click();
     cy.wait(1000);
     cy.get(
-      ':nth-child(5) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+      ':nth-child(6) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
     ).click();
     cy.contains('.MuiOutlinedInput-root', 'English Field Text').should(
       'contain',
@@ -22,7 +22,7 @@ describe('Required question for form templates', () => {
     cy.get('[data-testid="required-switch"]').click();
     cy.get('.MuiButton-text').contains('Cancel').click();
     cy.get(
-      ':nth-child(5) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+      ':nth-child(6) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
     ).click();
     cy.contains('.MuiOutlinedInput-root', 'English Field Text').should(
       'contain',
@@ -57,7 +57,7 @@ describe('Required question for form templates', () => {
     cy.wait(1000);
     cy.contains('.MuiOutlinedInput-root', 'Version').type('{backspace}6');
     cy.get(
-      ':nth-child(5) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+      ':nth-child(6) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
     ).click();
     cy.contains('.MuiOutlinedInput-root', 'English Field Text').should(
       'contain',
@@ -66,7 +66,7 @@ describe('Required question for form templates', () => {
     cy.get('[data-testid="required-switch"]').click();
     cy.get('.MuiButton-contained').contains('Save').click();
     cy.get(
-      ':nth-child(5) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+      ':nth-child(6) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
     ).click();
     cy.contains('.MuiOutlinedInput-root', 'English Field Text').should(
       'contain',
@@ -102,13 +102,25 @@ describe('Required question for form templates', () => {
   });
 
   it('verifies toggle on and save', () => {
-    cy.get('.MuiTableBody-root').contains('Dinner Party Form English').siblings().children().find('[data-testid="EditIcon"]').click()
-    cy.wait(1000)
-    cy.get(':nth-child(4) > .MuiFormLabel-root > .MuiTypography-root').should('contain', 'Any dietary restrictions? *')
-    cy.get(':nth-child(5) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]').click()
-    cy.contains('.MuiOutlinedInput-root', 'English Field Text').should('contain', 'Any dietary restrictions?')
-    cy.get('[data-testid="required-switch"]').children().should('be.checked')
-    cy.get('.MuiButton-text').contains('Cancel').click()
-  })
-})
-
+    cy.get('.MuiTableBody-root')
+      .contains('Dinner Party Form English')
+      .siblings()
+      .children()
+      .find('[data-testid="EditIcon"]')
+      .click();
+    cy.wait(1000);
+    cy.get(':nth-child(5) > .MuiFormLabel-root > .MuiTypography-root').should(
+      'contain',
+      'Any dietary restrictions? *'
+    );
+    cy.get(
+      ':nth-child(6) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+    ).click();
+    cy.contains('.MuiOutlinedInput-root', 'English Field Text').should(
+      'contain',
+      'Any dietary restrictions?'
+    );
+    cy.get('[data-testid="required-switch"]').children().should('be.checked');
+    cy.get('.MuiButton-text').contains('Cancel').click();
+  });
+});
