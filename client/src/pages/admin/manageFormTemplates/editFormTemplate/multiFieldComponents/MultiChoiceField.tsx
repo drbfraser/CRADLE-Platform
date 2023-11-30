@@ -4,20 +4,18 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Dispatch, SetStateAction } from 'react';
+import { QuestionLangVersion } from 'src/shared/types';
+import * as handlers from './handlers';
 
 interface IProps {
   numChoices: number;
   inputLanguages: string[];
   fieldChanged: boolean;
-  handleAddChoice: () => void;
+  questionLangVersions: QuestionLangVersion[];
+  setNumChoices: Dispatch<SetStateAction<number>>;
   setFieldChanged: Dispatch<SetStateAction<boolean>>;
   setFormDirty: Dispatch<SetStateAction<boolean>>;
-  handleMultiChoiceOptionChange: (
-    language: string,
-    option: string,
-    index: number
-  ) => void;
-  handleRemoveMultiChoice: (index: number) => void;
+  setQuestionLangversions: Dispatch<SetStateAction<QuestionLangVersion[]>>;
   getMcOptionValue: (language: string, index: number) => string;
 }
 
@@ -25,11 +23,11 @@ const MultiChoice = ({
   numChoices,
   inputLanguages,
   fieldChanged,
-  handleAddChoice,
+  questionLangVersions,
+  setNumChoices,
   setFieldChanged,
   setFormDirty,
-  handleMultiChoiceOptionChange,
-  handleRemoveMultiChoice,
+  setQuestionLangversions,
   getMcOptionValue,
 }: IProps) => {
   return (
@@ -38,7 +36,13 @@ const MultiChoice = ({
         <PrimaryButton
           type="button"
           onClick={(e) => {
-            handleAddChoice();
+            handlers.handleAddChoice(
+              numChoices,
+              inputLanguages,
+              setNumChoices,
+              questionLangVersions,
+              setQuestionLangversions
+            );
             setFieldChanged(!fieldChanged);
             setFormDirty(true);
           }}>
@@ -71,7 +75,14 @@ const MultiChoice = ({
                   color="error"
                   style={{ padding: '0px' }}
                   onClick={(e) => {
-                    handleRemoveMultiChoice(index);
+                    handlers.handleRemoveMultiChoice(
+                      index,
+                      numChoices,
+                      questionLangVersions,
+                      inputLanguages,
+                      setNumChoices,
+                      setQuestionLangversions
+                    );
                     setFieldChanged(!fieldChanged);
                     setFormDirty(true);
                   }}>
@@ -103,10 +114,12 @@ const MultiChoice = ({
                       maxLength: Number.MAX_SAFE_INTEGER,
                     }}
                     onChange={(e) => {
-                      handleMultiChoiceOptionChange(
+                      handlers.handleMultiChoiceOptionChange(
                         lang,
                         e.target.value,
-                        index
+                        index,
+                        questionLangVersions,
+                        setQuestionLangversions
                       );
                       setFieldChanged(!fieldChanged);
                       setFormDirty(true);

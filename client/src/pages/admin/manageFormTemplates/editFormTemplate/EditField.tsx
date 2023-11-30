@@ -29,8 +29,9 @@ import {
 } from 'src/shared/types';
 import { QuestionTypeEnum } from 'src/shared/enums';
 import EditVisibleCondition from './EditVisibleCondition';
-import MultiChoice from './multiFieldComponents/MultiChoice';
-import MultiSelect from './multiFieldComponents/MultiSelect';
+import MultiChoice from './multiFieldComponents/MultiChoiceField';
+import MultiSelect from './multiFieldComponents/MultiSelectField';
+import * as handlers from './multiFieldComponents/handlers';
 
 interface IProps {
   open: boolean;
@@ -74,73 +75,6 @@ const EditField = ({
   const [fieldChanged, setFieldChanged] = useState(false);
   const [formDirty, setFormDirty] = useState(false);
   const [isRequired, setIsRequired] = useState(question?.required ?? false);
-
-  const handleRemoveMultiChoice = (index: number) => {
-    const qLangVersions: QuestionLangVersion[] = questionLangVersions;
-
-    inputLanguages.forEach((lang) => {
-      const qLangVersion = qLangVersions.find((qlv) => qlv.lang == lang);
-      if (qLangVersion) {
-        const i = qLangVersions.indexOf(qLangVersion);
-        if (i >= 0) {
-          // remove option
-          qLangVersions[i].mcOptions.splice(index, 1);
-
-          // reset indices for options
-          qLangVersions[i].mcOptions.forEach((mcOption, mci) => {
-            mcOption.mcid = mci;
-          });
-        }
-      }
-    });
-
-    const newNumChoices = numChoices - 1;
-    setNumChoices(newNumChoices);
-    setQuestionLangversions(qLangVersions);
-  };
-
-  const handleAddChoice = () => {
-    const newNumChoices = numChoices + 1;
-    inputLanguages.map((lang) => {
-      handleMultiChoiceOptionChange(lang, '', numChoices);
-    });
-    setNumChoices(newNumChoices);
-  };
-
-  const handleMultiChoiceOptionChange = (
-    language: string,
-    option: string,
-    index: number
-  ) => {
-    const qLangVersions: QuestionLangVersion[] = questionLangVersions;
-
-    const newQLangVersion = {
-      lang: language,
-      mcOptions: [] as McOption[],
-      questionText: '',
-    };
-
-    const qLangVersion = qLangVersions.find((q) => q.lang === language);
-
-    if (!qLangVersion) {
-      newQLangVersion.mcOptions.push({
-        mcid: index,
-        opt: option,
-      });
-      qLangVersions.push(newQLangVersion);
-    } else {
-      const i = qLangVersions.indexOf(qLangVersion);
-      if (index < qLangVersions[i].mcOptions.length) {
-        qLangVersions[i].mcOptions[index].opt = option;
-      } else {
-        qLangVersions[i].mcOptions.push({
-          mcid: index,
-          opt: option,
-        });
-      }
-    }
-    setQuestionLangversions(qLangVersions);
-  };
 
   const removeAllMultChoices = () => {
     questionLangVersions.forEach((qLangVersion) => {
@@ -200,11 +134,11 @@ const EditField = ({
           numChoices={numChoices}
           inputLanguages={inputLanguages}
           fieldChanged={fieldChanged}
-          handleAddChoice={handleAddChoice}
+          questionLangVersions={questionLangVersions}
+          setNumChoices={setNumChoices}
+          setQuestionLangversions={setQuestionLangversions}
           setFieldChanged={setFieldChanged}
           setFormDirty={setFormDirty}
-          handleMultiChoiceOptionChange={handleMultiChoiceOptionChange}
-          handleRemoveMultiChoice={handleRemoveMultiChoice}
           getMcOptionValue={getMcOptionValue}
         />
       ),
@@ -218,11 +152,11 @@ const EditField = ({
           numChoices={numChoices}
           inputLanguages={inputLanguages}
           fieldChanged={fieldChanged}
-          handleAddChoice={handleAddChoice}
+          questionLangVersions={questionLangVersions}
+          setNumChoices={setNumChoices}
+          setQuestionLangversions={setQuestionLangversions}
           setFieldChanged={setFieldChanged}
           setFormDirty={setFormDirty}
-          handleMultiChoiceOptionChange={handleMultiChoiceOptionChange}
-          handleRemoveMultiChoice={handleRemoveMultiChoice}
           getMcOptionValue={getMcOptionValue}
         />
       ),
@@ -237,28 +171,6 @@ const EditField = ({
         </>
       ),
     },
-  };
-
-  const handleRadioChange = (event: {
-    target: { value: SetStateAction<string> };
-  }) => {
-    setFieldType(event.target.value);
-    setFieldChanged(!fieldChanged);
-    setFormDirty(true);
-  };
-
-  const handleVisibilityChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setEnableVisiblity(event.target.checked);
-    setFormDirty(true);
-    setFieldChanged(!fieldChanged);
-  };
-
-  const handleRequiredChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setIsRequired(event.target.checked);
-    setFormDirty(true);
-    setFieldChanged(!fieldChanged);
   };
 
   const getFieldType = (questionType: QuestionTypeEnum) => {
@@ -516,7 +428,13 @@ const EditField = ({
                 row
                 value={fieldType}
                 onChange={(e) => {
-                  handleRadioChange(e);
+                  handlers.handleRadioChange(
+                    e,
+                    setFieldType,
+                    setFieldChanged,
+                    setFormDirty,
+                    fieldChanged
+                  );
                   setFieldChanged(!fieldChanged);
                   setFormDirty(true);
                 }}>
@@ -543,7 +461,15 @@ const EditField = ({
                       control={
                         <Switch
                           checked={enableVisibility}
-                          onChange={handleVisibilityChange}
+                          onChange={(e) =>
+                            handlers.handleVisibilityChange(
+                              e,
+                              setEnableVisiblity,
+                              setFormDirty,
+                              setFieldChanged,
+                              fieldChanged
+                            )
+                          }
                           data-testid="conditional-switch"
                         />
                       }
@@ -594,7 +520,15 @@ const EditField = ({
                 control={
                   <Switch
                     checked={isRequired}
-                    onChange={handleRequiredChange}
+                    onChange={(e) =>
+                      handlers.handleRequiredChange(
+                        e,
+                        setIsRequired,
+                        setFormDirty,
+                        setFieldChanged,
+                        fieldChanged
+                      )
+                    }
                     data-testid="required-switch"
                   />
                 }

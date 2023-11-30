@@ -6,7 +6,12 @@
     "prettier",
     "plugin:prettier/recommended"
   ],
-  "plugins": ["react", "@typescript-eslint", "prettier", "react-hooks"],
+  "plugins": [
+    "react",
+    "@typescript-eslint",
+    "prettier",
+    "react-hooks"
+  ],
   "env": {
     "browser": true,
     "jest": true
@@ -22,7 +27,15 @@
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-unused-vars": "off",
     "react/jsx-uses-react": "off",
-    "react/react-in-jsx-scope": "off"
+    "react/react-in-jsx-scope": "off",
+    "prettier/prettier": [
+      // "error",
+      // {
+      //   "endOfLine": "auto"
+      // }, 
+      "off", 
+      { "singleQuote": true }
+    ]
   },
   "settings": {
     "react": {

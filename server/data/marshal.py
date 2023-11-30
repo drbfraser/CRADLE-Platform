@@ -19,6 +19,7 @@ from models import (
     Form,
     Question,
     QuestionLangVersion,
+    RelayServerPhoneNumber,
     SmsSecretKey,
 )
 import service.invariant as invariant
@@ -418,6 +419,8 @@ def unmarshal(m: Type[M], d: dict) -> M:
         return __unmarshal_lang_version(d)
     elif m is SmsSecretKey:
         return __unmarshal_SmsSecretKey(d)
+    elif m is RelayServerPhoneNumber:
+        return __unmarshal_RelayServerPhoneNumber(d)
     else:
         return __load(m, d)
 
@@ -624,6 +627,13 @@ def __unmarshal_question(d: dict) -> Question:
         question.lang_versions = lang_versions
 
     return question
+
+
+def __unmarshal_RelayServerPhoneNumber(d: dict) -> RelayServerPhoneNumber:
+    relay_server_phone = __load(RelayServerPhoneNumber, d)
+    relay_server_phone.phone = d["phone"]
+    relay_server_phone.description = d["description"]
+    return relay_server_phone
 
 
 def __unmarshal_SmsSecretKey(d: dict) -> SmsSecretKey:

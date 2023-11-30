@@ -1,7 +1,7 @@
 import re
 
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from flask import redirect, request, url_for, make_response, Response
+from flask import redirect, request, url_for, make_response, Response, jsonify
 from flask_restful import Resource, abort
 import requests
 
@@ -74,17 +74,21 @@ def send_request_to_endpoint(
 
 
 def create_flask_response(code: int, body: str, iv: str, user_sms_key: str) -> Response:
-    response_dict = {"code": code, "body": body}
+    # Create a response object with the JSON data and set the content type
+    # This response structure is defined in the SMS-Relay App -> model.HTTPSResponse
+    # Do not change without updating Retrofit configuration
+    # Currently the body is not processed by the Relay app (only its existence is checked)
+    # Sending a generic success or failure string is an option
 
-    response_json = json.dumps(response_dict)
-    compressed_data = compressor.compress_from_string(response_json)
+    compressed_data = compressor.compress_from_string(body)
     encrypted_data = encryptor.encrypt(compressed_data, iv, user_sms_key)
 
-    flask_response = make_response()
-    flask_response.set_data(encrypted_data)
-    flask_response.status_code = code
+    response_body = {"code": code, "body": encrypted_data}
 
-    return flask_response
+    response = make_response(jsonify(response_body))
+    response.headers["Content-Type"] = "application/json"
+    response.status_code = 200
+    return response
 
 
 iv_size = 32

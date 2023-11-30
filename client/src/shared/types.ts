@@ -167,6 +167,11 @@ export interface IFacility {
   [FacilityField.location]: string;
   index: number;
 }
+export interface IRelayNum {
+  phone: string;
+  description: string;
+  lastReceived: number;
+}
 
 export interface IUserWithTokens extends IUser {
   token: string;
