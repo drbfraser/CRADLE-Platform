@@ -89,6 +89,102 @@ describe('Form templates', () => {
     );
   });
 
+  it('moves a category down', () => {
+    cy.get('.MuiTableBody-root')
+      .contains('NEET Check-in')
+      .siblings()
+      .children()
+      .find('[data-testid="EditIcon"]')
+      .click();
+    cy.wait(1000);
+    cy.get(
+      ':nth-child(3) > :nth-child(3) > .MuiButtonBase-root > [data-testid="KeyboardArrowDownIcon"]'
+    ).click();
+    cy.get(
+      ':nth-child(2) > :nth-child(3) > :nth-child(2) > .MuiButtonBase-root'
+    ).click();
+    cy.contains('.MuiOutlinedInput-root', 'Category Name')
+      .children()
+      .should('have.value', 'Current Status');
+    cy.get('.MuiButton-text').contains('Cancel').click();
+    cy.get(
+      ':nth-child(6) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+    ).click();
+    cy.contains('.MuiOutlinedInput-root', 'Field Text')
+      .children()
+      .should('have.value', 'Select all that are true:');
+    cy.get('.MuiButton-text').contains('Cancel').click();
+    cy.get(
+      ':nth-child(9) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+    ).click();
+    cy.contains('.MuiOutlinedInput-root', 'Field Text')
+      .children()
+      .should('contain', 'Please provide details');
+    cy.get('.MuiButton-text').contains('Cancel').click();
+    cy.get(
+      ':nth-child(13) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+    ).click();
+    cy.contains('.MuiOutlinedInput-root', 'Category Name')
+      .children()
+      .should('have.value', 'Career Path');
+    cy.get('.MuiButton-text').contains('Cancel').click();
+    cy.get(
+      ':nth-child(16) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+    ).click();
+    cy.contains('.MuiOutlinedInput-root', 'Field Text')
+      .children()
+      .should('contain', 'What field');
+    cy.get('.MuiButton-text').contains('Cancel').click();
+  });
+
+  it('moves a category up', () => {
+    cy.get('.MuiTableBody-root')
+      .contains('NEET Check-in')
+      .siblings()
+      .children()
+      .find('[data-testid="EditIcon"]')
+      .click();
+    cy.wait(1000);
+    cy.get(
+      ':nth-child(3) > :nth-child(1) > .MuiButtonBase-root > [data-testid="KeyboardArrowUpIcon"]'
+    ).click();
+    cy.get(
+      ':nth-child(2) > :nth-child(3) > :nth-child(2) > .MuiButtonBase-root'
+    ).click();
+    cy.contains('.MuiOutlinedInput-root', 'Category Name')
+      .children()
+      .should('have.value', 'Career Path');
+    cy.get('.MuiButton-text').contains('Cancel').click();
+    cy.get(
+      ':nth-child(6) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+    ).click();
+    cy.contains('.MuiOutlinedInput-root', 'Field Text')
+      .children()
+      .should('contain', 'What field');
+    cy.get('.MuiButton-text').contains('Cancel').click();
+    cy.get(
+      ':nth-child(10) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+    ).click();
+    cy.contains('.MuiOutlinedInput-root', 'Category Name')
+      .children()
+      .should('have.value', 'Current Status');
+    cy.get('.MuiButton-text').contains('Cancel').click();
+    cy.get(
+      ':nth-child(13) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+    ).click();
+    cy.contains('.MuiOutlinedInput-root', 'Field Text')
+      .children()
+      .should('contain', 'Select all that are true');
+    cy.get('.MuiButton-text').contains('Cancel').click();
+    cy.get(
+      ':nth-child(16) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+    ).click();
+    cy.contains('.MuiOutlinedInput-root', 'Field Text')
+      .children()
+      .should('contain', 'Please provide details');
+    cy.get('.MuiButton-text').contains('Cancel').click();
+  });
+
   it('deletes a category', () => {
     cy.get('.MuiTableBody-root')
       .contains('NEET Check-in')
