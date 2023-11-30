@@ -124,15 +124,19 @@ def sms_relay_procedure():
 
     encrypted_data = json_request["encryptedData"]
 
-    user_secret_key = get_user_secret_key_string(user.id)
+    try:
+        user_secret_key = get_user_secret_key_string(user.id)
 
-    decrypted_message = encryptor.decrypt(encrypted_data, user_secret_key)
+        decrypted_message = encryptor.decrypt(encrypted_data, user_secret_key)
 
-    decrypted_data = compressor.decompress(decrypted_message)
+        decrypted_data = compressor.decompress(decrypted_message)
 
-    string_data = decrypted_data.decode("utf-8")
+        string_data = decrypted_data.decode("utf-8")
 
-    json_dict_data = json.loads(string_data)
+        json_dict_data = json.loads(string_data)
+
+    except:
+        abort(401, message=invalid_message.format(phoneNumber=phone_number))
 
     error = sms_relay.validate_decrypted_body(json_dict_data)
     if error:
