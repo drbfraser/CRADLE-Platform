@@ -124,6 +124,68 @@ export const CustomizedFormWQuestions = ({
     }
   };
 
+  const handleCatUp = (cat: TQuestion) => {
+    if (cat.questionIndex === 0) {
+      return;
+    }
+    const prevCatIndex = questions[cat.questionIndex - 1].categoryIndex;
+    let prevCatQs: TQuestion[] = [];
+    // edge case: prev cat has no qs
+    if (prevCatIndex !== null) {
+      prevCatQs = questions.filter(
+        (q) =>
+          q.questionIndex == prevCatIndex || q.categoryIndex == prevCatIndex
+      );
+    } else {
+      prevCatQs.push(questions[cat.questionIndex - 1]);
+    }
+    const catQs = questions.filter(
+      (q) =>
+        q.questionIndex == cat.questionIndex ||
+        q.categoryIndex == cat.questionIndex
+    );
+    moveCat(prevCatQs, catQs);
+  };
+
+  const handleCatDown = (cat: TQuestion) => {
+    const catQs = questions.filter(
+      (q) =>
+        q.questionIndex == cat.questionIndex ||
+        q.categoryIndex == cat.questionIndex
+    );
+    const nextCatIndex = catQs[catQs.length - 1].questionIndex + 1;
+    if (nextCatIndex >= questions.length) {
+      return;
+    }
+    const nextCatQs = questions.filter(
+      (q) => q.questionIndex == nextCatIndex || q.categoryIndex == nextCatIndex
+    );
+    moveCat(catQs, nextCatQs);
+  };
+
+  // switches position of 2 categories of questions
+  const moveCat = (prevCatQs: TQuestion[], catQs: TQuestion[]) => {
+    let insertionIndex = prevCatQs[0].questionIndex;
+    prevCatQs.forEach((q) => {
+      updateVisCond(q.questionIndex, q.questionIndex + catQs.length);
+      q.questionIndex += catQs.length;
+      if (q.categoryIndex !== null) {
+        q.categoryIndex += catQs.length;
+      }
+    });
+    catQs.forEach((q) => {
+      const oldIndex = q.questionIndex;
+      updateVisCond(q.questionIndex, q.questionIndex - prevCatQs.length);
+      q.questionIndex -= prevCatQs.length;
+      if (q.categoryIndex !== null) {
+        q.categoryIndex -= prevCatQs.length;
+      }
+      questions.splice(insertionIndex++, 0, q);
+      questions.splice(oldIndex + 1, 1);
+    });
+    upd();
+  };
+
   const handleFieldUp = (question: TQuestion) => {
     setSelectedQuestionIndex(question.questionIndex);
     moveField(question, true);
@@ -382,7 +444,14 @@ export const CustomizedFormWQuestions = ({
                               key={`field-up-${question.questionIndex}`}
                               size="small"
                               onClick={(e) => {
-                                handleFieldUp(question);
+                                if (
+                                  question.questionType ===
+                                  QuestionTypeEnum.CATEGORY
+                                ) {
+                                  handleCatUp(question);
+                                } else {
+                                  handleFieldUp(question);
+                                }
                               }}>
                               <KeyboardArrowUpIcon fontSize="small" />
                             </IconButton>
@@ -402,7 +471,14 @@ export const CustomizedFormWQuestions = ({
                               key={`field-down-${question.questionIndex}`}
                               size="small"
                               onClick={(e) => {
-                                handleFieldDown(question);
+                                if (
+                                  question.questionType ===
+                                  QuestionTypeEnum.CATEGORY
+                                ) {
+                                  handleCatDown(question);
+                                } else {
+                                  handleFieldDown(question);
+                                }
                               }}>
                               <KeyboardArrowDownIcon fontSize="small" />
                             </IconButton>
