@@ -5,6 +5,7 @@ import {
   Fragment,
   SetStateAction,
   useEffect,
+  useMemo,
   useReducer,
   useState,
 } from 'react';
@@ -60,6 +61,10 @@ export const CustomizedFormWQuestions = ({
   const [categoryEditPopupOpen, setCategoryEditPopupOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [categoryIndex, setCategoryIndex] = useState<number | null>(null);
+  const memoizedNumQuestions = useMemo(() => {
+    return questions.filter((q) => q.categoryIndex === selectedQuestionIndex)
+      .length;
+  }, [questions, selectedQuestionIndex]);
   const getInputLanguages = (question: TQuestion) => {
     return question.questionLangVersions.map((item) => item.lang);
   };
@@ -308,10 +313,7 @@ export const CustomizedFormWQuestions = ({
       <DeleteCategoryDialog
         open={isDeletePopupOpen}
         onClose={handleDeleteOnClose}
-        numQuestions={
-          questions.filter((q) => q.categoryIndex === selectedQuestionIndex)
-            .length
-        }
+        numQuestions={memoizedNumQuestions}
       />
       <Formik
         initialValues={initialState as any}
