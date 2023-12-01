@@ -61,10 +61,11 @@ export const CustomizedFormWQuestions = ({
   const [categoryEditPopupOpen, setCategoryEditPopupOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [categoryIndex, setCategoryIndex] = useState<number | null>(null);
+  const [deleteOpenFlag, setDeleteOpenFlag] = useState(false);
   const memoizedNumQuestions = useMemo(() => {
     return questions.filter((q) => q.categoryIndex === selectedQuestionIndex)
       .length;
-  }, [questions, selectedQuestionIndex]);
+  }, [questions, selectedQuestionIndex, deleteOpenFlag]);
   const getInputLanguages = (question: TQuestion) => {
     return question.questionLangVersions.map((item) => item.lang);
   };
@@ -74,6 +75,12 @@ export const CustomizedFormWQuestions = ({
     setSelectedLanguage(languages[0]);
     upd();
   }, [languages]);
+
+  useEffect(() => {
+    if (isDeletePopupOpen) {
+      setDeleteOpenFlag(!deleteOpenFlag);
+    }
+  }, [isDeletePopupOpen]);
 
   const updateAddedQuestions = (languages: string[]) => {
     questions.forEach((question) => {

@@ -23,7 +23,7 @@ const DeleteCategoryDialog = ({ open, onClose, numQuestions }: IProps) => {
       <DialogContent>
         <p>
           Are you sure you want to delete this category and its {numQuestions}
-          &nbsp;question{numQuestions > 1 && 's'}?
+          &nbsp;question{numQuestions !== 1 && 's'}?
         </p>
       </DialogContent>
       <DialogActions className={classes.actions}>
