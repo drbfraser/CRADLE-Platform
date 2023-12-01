@@ -5,6 +5,7 @@ import {
   Fragment,
   SetStateAction,
   useEffect,
+  useMemo,
   useReducer,
   useState,
 } from 'react';
@@ -28,6 +29,7 @@ import EditField from 'src/pages/admin/manageFormTemplates/editFormTemplate/Edit
 import EditCategory from 'src/pages/admin/manageFormTemplates/editFormTemplate/EditCategory';
 import { Autocomplete, AutocompleteRenderInputParams } from 'formik-mui';
 import { InputAdornment, TextField, Tooltip, Typography } from '@mui/material';
+import DeleteCategoryDialog from './DeleteCategoryDialog';
 
 interface IProps {
   fm: FormTemplateWithQuestions;
@@ -48,6 +50,7 @@ export const CustomizedFormWQuestions = ({
   const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
   const [submitError, setSubmitError] = useState(false);
   const [isSubmitPopupOpen, setIsSubmitPopupOpen] = useState(false);
+  const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
   const [, upd] = useReducer((x) => x + 1, 0);
   const [selectedQuestionIndex, setSelectedQuestionIndex] = useState<
     number | null
@@ -58,6 +61,11 @@ export const CustomizedFormWQuestions = ({
   const [categoryEditPopupOpen, setCategoryEditPopupOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [categoryIndex, setCategoryIndex] = useState<number | null>(null);
+  const [deleteOpenFlag, setDeleteOpenFlag] = useState(false);
+  const memoizedNumQuestions = useMemo(() => {
+    return questions.filter((q) => q.categoryIndex === selectedQuestionIndex)
+      .length;
+  }, [questions, selectedQuestionIndex, deleteOpenFlag]);
   const getInputLanguages = (question: TQuestion) => {
     return question.questionLangVersions.map((item) => item.lang);
   };
@@ -69,8 +77,10 @@ export const CustomizedFormWQuestions = ({
   }, [languages]);
 
   useEffect(() => {
-    console.log(selectedQuestionIndex);
-  }, [selectedQuestionIndex, setSelectedQuestionIndex]);
+    if (isDeletePopupOpen) {
+      setDeleteOpenFlag(!deleteOpenFlag);
+    }
+  }, [isDeletePopupOpen]);
 
   const updateAddedQuestions = (languages: string[]) => {
     questions.forEach((question) => {
@@ -105,9 +115,87 @@ export const CustomizedFormWQuestions = ({
     }
   };
 
+  const handleDeleteOnClose = (confirmed: boolean) => {
+    if (selectedQuestionIndex !== null && confirmed) {
+      // User clicked OK
+      const questionsToDelete = questions.filter(
+        (q) => q.categoryIndex === selectedQuestionIndex
+      );
+      questionsToDelete.forEach(deleteField);
+      deleteField(questions[selectedQuestionIndex]);
+    }
+    setIsDeletePopupOpen(false);
+  };
+
   const handleDeleteField = (question: TQuestion) => {
     setSelectedQuestionIndex(question.questionIndex);
-    deleteField(question);
+    if (question.questionType == QuestionTypeEnum.CATEGORY) {
+      setIsDeletePopupOpen(true);
+    } else {
+      deleteField(question);
+    }
+  };
+
+  const handleCatUp = (cat: TQuestion) => {
+    if (cat.questionIndex === 0) {
+      return;
+    }
+    const prevCatIndex = questions[cat.questionIndex - 1].categoryIndex;
+    let prevCatQs: TQuestion[] = [];
+    // edge case: prev cat has no qs
+    if (prevCatIndex !== null) {
+      prevCatQs = questions.filter(
+        (q) =>
+          q.questionIndex == prevCatIndex || q.categoryIndex == prevCatIndex
+      );
+    } else {
+      prevCatQs.push(questions[cat.questionIndex - 1]);
+    }
+    const catQs = questions.filter(
+      (q) =>
+        q.questionIndex == cat.questionIndex ||
+        q.categoryIndex == cat.questionIndex
+    );
+    moveCat(prevCatQs, catQs);
+  };
+
+  const handleCatDown = (cat: TQuestion) => {
+    const catQs = questions.filter(
+      (q) =>
+        q.questionIndex == cat.questionIndex ||
+        q.categoryIndex == cat.questionIndex
+    );
+    const nextCatIndex = catQs[catQs.length - 1].questionIndex + 1;
+    if (nextCatIndex >= questions.length) {
+      return;
+    }
+    const nextCatQs = questions.filter(
+      (q) => q.questionIndex == nextCatIndex || q.categoryIndex == nextCatIndex
+    );
+    moveCat(catQs, nextCatQs);
+  };
+
+  // switches position of 2 categories of questions
+  const moveCat = (prevCatQs: TQuestion[], catQs: TQuestion[]) => {
+    let insertionIndex = prevCatQs[0].questionIndex;
+    prevCatQs.forEach((q) => {
+      updateVisCond(q.questionIndex, q.questionIndex + catQs.length);
+      q.questionIndex += catQs.length;
+      if (q.categoryIndex !== null) {
+        q.categoryIndex += catQs.length;
+      }
+    });
+    catQs.forEach((q) => {
+      const oldIndex = q.questionIndex;
+      updateVisCond(q.questionIndex, q.questionIndex - prevCatQs.length);
+      q.questionIndex -= prevCatQs.length;
+      if (q.categoryIndex !== null) {
+        q.categoryIndex -= prevCatQs.length;
+      }
+      questions.splice(insertionIndex++, 0, q);
+      questions.splice(oldIndex + 1, 1);
+    });
+    upd();
   };
 
   const handleFieldUp = (question: TQuestion) => {
@@ -132,6 +220,9 @@ export const CustomizedFormWQuestions = ({
         q.visibleCondition[0].qidx == index
       ) {
         q.visibleCondition = [];
+      }
+      if (q.categoryIndex && q.categoryIndex > index) {
+        q.categoryIndex -= 1;
       }
       q.questionIndex = i;
     });
@@ -225,6 +316,11 @@ export const CustomizedFormWQuestions = ({
         questionsArr={fm.questions}
         visibilityToggle={false}
         categoryIndex={categoryIndex}
+      />
+      <DeleteCategoryDialog
+        open={isDeletePopupOpen}
+        onClose={handleDeleteOnClose}
+        numQuestions={memoizedNumQuestions}
       />
       <Formik
         initialValues={initialState as any}
@@ -347,56 +443,67 @@ export const CustomizedFormWQuestions = ({
                             </PrimaryButton>
                           </Grid>
                         )}
-                        {question.questionType != QuestionTypeEnum.CATEGORY && (
-                          <Grid
-                            container
-                            item
-                            xs={1}
-                            style={{ marginLeft: '-20px' }}>
-                            <Grid item xs={6}>
-                              <IconButton
-                                key={`field-up-${question.questionIndex}`}
-                                size="small"
-                                onClick={(e) => {
+                        <Grid
+                          container
+                          item
+                          xs={1}
+                          style={{ marginLeft: '-20px' }}>
+                          <Grid item xs={6}>
+                            <IconButton
+                              key={`field-up-${question.questionIndex}`}
+                              size="small"
+                              onClick={(e) => {
+                                if (
+                                  question.questionType ===
+                                  QuestionTypeEnum.CATEGORY
+                                ) {
+                                  handleCatUp(question);
+                                } else {
                                   handleFieldUp(question);
-                                }}>
-                                <KeyboardArrowUpIcon fontSize="small" />
-                              </IconButton>
-                            </Grid>
-                            <Grid item xs={6}>
-                              <IconButton
-                                key={`edit-field-${question.questionIndex}`}
-                                size="small"
-                                onClick={(e) => {
-                                  handleEditField(question);
-                                }}>
-                                <EditIcon fontSize="small" />
-                              </IconButton>
-                            </Grid>
-                            <Grid item xs={6}>
-                              <IconButton
-                                key={`field-down-${question.questionIndex}`}
-                                size="small"
-                                onClick={(e) => {
-                                  handleFieldDown(question);
-                                }}>
-                                <KeyboardArrowDownIcon fontSize="small" />
-                              </IconButton>
-                            </Grid>
-
-                            <Grid item xs={6}>
-                              <IconButton
-                                key={`delete-field-${question.questionIndex}`}
-                                size="small"
-                                color="error"
-                                onClick={(e) => {
-                                  handleDeleteField(question);
-                                }}>
-                                <DeleteIcon fontSize="small" />
-                              </IconButton>
-                            </Grid>
+                                }
+                              }}>
+                              <KeyboardArrowUpIcon fontSize="small" />
+                            </IconButton>
                           </Grid>
-                        )}
+                          <Grid item xs={6}>
+                            <IconButton
+                              key={`edit-field-${question.questionIndex}`}
+                              size="small"
+                              onClick={(e) => {
+                                handleEditField(question);
+                              }}>
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                          </Grid>
+                          <Grid item xs={6}>
+                            <IconButton
+                              key={`field-down-${question.questionIndex}`}
+                              size="small"
+                              onClick={(e) => {
+                                if (
+                                  question.questionType ===
+                                  QuestionTypeEnum.CATEGORY
+                                ) {
+                                  handleCatDown(question);
+                                } else {
+                                  handleFieldDown(question);
+                                }
+                              }}>
+                              <KeyboardArrowDownIcon fontSize="small" />
+                            </IconButton>
+                          </Grid>
+                          <Grid item xs={6}>
+                            <IconButton
+                              key={`delete-field-${question.questionIndex}`}
+                              size="small"
+                              color="error"
+                              onClick={(e) => {
+                                handleDeleteField(question);
+                              }}>
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Grid>
+                        </Grid>
                         <Grid container pl={3}>
                           {missingFields(question) && (
                             <Typography style={{ color: 'red' }}>
