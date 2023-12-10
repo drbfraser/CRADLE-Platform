@@ -339,7 +339,7 @@ export const CustomizedFormWQuestions = ({
             <Box p={4} pt={6} m={2}>
               <Grid container spacing={3}>
                 <Grid item container spacing={3}>
-                  <Grid item container xs={8}>
+                  <Grid item container xs={12} sm={8}>
                     <h2>Current Form</h2>
                     <div>
                       <Tooltip
@@ -367,7 +367,7 @@ export const CustomizedFormWQuestions = ({
                       </Tooltip>
                     </div>
                   </Grid>
-                  <Grid item container xs={4}>
+                  <Grid item container xs={12} sm={4}>
                     <Field
                       key={'view-lang'}
                       value={selectedLanguage}
