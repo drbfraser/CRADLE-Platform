@@ -33,7 +33,7 @@ const SubmitFormTemplateDialog = ({ open, onClose, form }: IProps) => {
     try {
       await submitFormTemplateAsync(form);
       setSubmitSuccess(true);
-      goBackWithFallback(`/admin/form-templates`)
+      goBackWithFallback(`/admin/form-templates`);
     } catch (e) {
       setSubmitError(true);
     }
