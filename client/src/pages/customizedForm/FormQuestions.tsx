@@ -166,7 +166,7 @@ export const FormQuestions = ({
                 condition.answers.mcidArray!.length > 0 &&
                 parentAnswer.val?.length > 0 &&
                 parentAnswer.val?.length ===
-                condition.answers.mcidArray?.length &&
+                  condition.answers.mcidArray?.length &&
                 condition.answers.mcidArray!.every((item) =>
                   parentAnswer.val?.includes(parentQuestion.mcOptions[item].opt)
                 );
@@ -242,11 +242,11 @@ export const FormQuestions = ({
     const text = isQuestion(question)
       ? question.questionText
       : question.questionLangVersions.find((x) => x.lang == language)
-        ?.questionText;
+          ?.questionText;
     const mcOptions = isQuestion(question)
       ? question.mcOptions
       : question.questionLangVersions.find((x) => x.lang == language)
-        ?.mcOptions;
+          ?.mcOptions;
     const required = question.required;
 
     switch (type) {

@@ -29,8 +29,11 @@ import EditField from 'src/pages/admin/manageFormTemplates/editFormTemplate/Edit
 import EditCategory from 'src/pages/admin/manageFormTemplates/editFormTemplate/EditCategory';
 import { Autocomplete, AutocompleteRenderInputParams } from 'formik-mui';
 import {
-  InputAdornment, TextField, Tooltip, Typography,
-  useMediaQuery
+  InputAdornment,
+  TextField,
+  Tooltip,
+  Typography,
+  useMediaQuery,
 } from '@mui/material';
 import DeleteCategoryDialog from './DeleteCategoryDialog';
 import makeStyles from '@mui/styles/makeStyles';
@@ -431,7 +434,14 @@ export const CustomizedFormWQuestions = ({
                       <Fragment key={`rendered-${question.questionIndex}`}>
                         {q}
                         {question.questionType == QuestionTypeEnum.CATEGORY && (
-                          <Grid item xs={isMobile ? 10 : 1} sm={4} md={3} lg={2} xl={1.5} className={classes.mobileGrid}>
+                          <Grid
+                            item
+                            xs={isMobile ? 10 : 1}
+                            sm={4}
+                            md={3}
+                            lg={2}
+                            xl={1.5}
+                            className={classes.mobileGrid}>
                             <PrimaryButton
                               className={classes.mobileBtn}
                               onClick={() => {
@@ -603,14 +613,14 @@ export const CustomizedFormWQuestions = ({
 
 const useStyles = makeStyles((theme) => ({
   mobileIconsRight: {
-    marginLeft: '10px'
+    marginLeft: '10px',
   },
   mobileGrid: {
     [theme.breakpoints.down(600)]: {
-      width: "100%",
-    }
+      width: '100%',
+    },
   },
   mobileBtn: {
-    width: "100%",
-  }
+    width: '100%',
+  },
 }));
