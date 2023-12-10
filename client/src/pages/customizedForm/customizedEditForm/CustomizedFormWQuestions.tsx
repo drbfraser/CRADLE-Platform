@@ -431,7 +431,7 @@ export const CustomizedFormWQuestions = ({
                       <Fragment key={`rendered-${question.questionIndex}`}>
                         {q}
                         {question.questionType == QuestionTypeEnum.CATEGORY && (
-                          <Grid item xs={isMobile ? 10 : 1} sm={4} className={classes.mobileGrid}>
+                          <Grid item xs={isMobile ? 10 : 1} sm={4} md={3} lg={2} xl={1.5} className={classes.mobileGrid}>
                             <PrimaryButton
                               className={classes.mobileBtn}
                               onClick={() => {
@@ -455,6 +455,7 @@ export const CustomizedFormWQuestions = ({
                           item
                           xs={2}
                           sm={1}
+                          xl={0.5}
                           style={{ marginLeft: '-20px' }}>
                           <Grid item xs={6}>
                             <IconButton
@@ -607,7 +608,6 @@ const useStyles = makeStyles((theme) => ({
   mobileGrid: {
     [theme.breakpoints.down(600)]: {
       width: "100%",
-      backgroundColor: "yellow"
     }
   },
   mobileBtn: {
