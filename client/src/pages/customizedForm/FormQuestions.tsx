@@ -166,7 +166,7 @@ export const FormQuestions = ({
                 condition.answers.mcidArray!.length > 0 &&
                 parentAnswer.val?.length > 0 &&
                 parentAnswer.val?.length ===
-                  condition.answers.mcidArray?.length &&
+                condition.answers.mcidArray?.length &&
                 condition.answers.mcidArray!.every((item) =>
                   parentAnswer.val?.includes(parentQuestion.mcOptions[item].opt)
                 );
@@ -242,11 +242,11 @@ export const FormQuestions = ({
     const text = isQuestion(question)
       ? question.questionText
       : question.questionLangVersions.find((x) => x.lang == language)
-          ?.questionText;
+        ?.questionText;
     const mcOptions = isQuestion(question)
       ? question.mcOptions
       : question.questionLangVersions.find((x) => x.lang == language)
-          ?.mcOptions;
+        ?.mcOptions;
     const required = question.required;
 
     switch (type) {
@@ -254,7 +254,10 @@ export const FormQuestions = ({
         return (
           <Grid
             item
-            xs={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 8 : 12}>
+            xs={12}
+            sm={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 7 : 12}
+            md={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 7 : 12}
+            lg={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 7 : 12}>
             <Typography component="h3" variant="h5">
               <CategorySharp fontSize="large" /> &nbsp; {text}
             </Typography>
@@ -266,7 +269,8 @@ export const FormQuestions = ({
         return (
           <Grid
             item
-            sm={12}
+            xs={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
+            sm={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
             md={renderState == FormRenderStateEnum.VIS_COND ? 12 : 6}
             lg={renderState == FormRenderStateEnum.VIS_COND ? 12 : 4}>
             <FormLabel id={`question_${question.questionIndex}`}>
@@ -308,7 +312,8 @@ export const FormQuestions = ({
         return (
           <Grid
             item
-            sm={12}
+            xs={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
+            sm={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
             md={renderState === FormRenderStateEnum.VIS_COND ? 12 : 6}
             lg={renderState === FormRenderStateEnum.VIS_COND ? 12 : 4}>
             <FormLabel>
@@ -348,7 +353,8 @@ export const FormQuestions = ({
         return (
           <Grid
             item
-            sm={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 11 : 12}
+            xs={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
+            sm={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
             md={renderState == FormRenderStateEnum.VIS_COND ? 12 : 6}
             lg={renderState == FormRenderStateEnum.VIS_COND ? 12 : 4}>
             <Field
@@ -396,7 +402,8 @@ export const FormQuestions = ({
         return (
           <Grid
             item
-            sm={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 11 : 12}
+            xs={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
+            sm={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
             md={renderState == FormRenderStateEnum.VIS_COND ? 12 : 6}
             lg={renderState == FormRenderStateEnum.VIS_COND ? 12 : 4}>
             <Field
@@ -432,7 +439,8 @@ export const FormQuestions = ({
         return (
           <Grid
             item
-            sm={12}
+            xs={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
+            sm={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
             md={renderState == FormRenderStateEnum.VIS_COND ? 12 : 6}
             lg={renderState == FormRenderStateEnum.VIS_COND ? 12 : 4}>
             <Field
@@ -467,7 +475,8 @@ export const FormQuestions = ({
         return (
           <Grid
             item
-            sm={12}
+            xs={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
+            sm={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
             md={renderState == FormRenderStateEnum.VIS_COND ? 12 : 6}
             lg={renderState == FormRenderStateEnum.VIS_COND ? 12 : 4}>
             <Field
