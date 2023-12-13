@@ -28,9 +28,15 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import EditField from 'src/pages/admin/manageFormTemplates/editFormTemplate/EditField';
 import EditCategory from 'src/pages/admin/manageFormTemplates/editFormTemplate/EditCategory';
 import { Autocomplete, AutocompleteRenderInputParams } from 'formik-mui';
-import { InputAdornment, TextField, Tooltip, Typography } from '@mui/material';
+import {
+  InputAdornment,
+  TextField,
+  Tooltip,
+  Typography,
+  useMediaQuery,
+} from '@mui/material';
 import DeleteCategoryDialog from './DeleteCategoryDialog';
-
+import makeStyles from '@mui/styles/makeStyles';
 interface IProps {
   fm: FormTemplateWithQuestions;
   languages: string[];
@@ -69,6 +75,9 @@ export const CustomizedFormWQuestions = ({
   const getInputLanguages = (question: TQuestion) => {
     return question.questionLangVersions.map((item) => item.lang);
   };
+
+  const isMobile = useMediaQuery('(max-width:599px)');
+  const classes = useStyles();
 
   useEffect(() => {
     updateAddedQuestions(languages);
@@ -333,7 +342,7 @@ export const CustomizedFormWQuestions = ({
             <Box p={4} pt={6} m={2}>
               <Grid container spacing={3}>
                 <Grid item container spacing={3}>
-                  <Grid item container xs={8}>
+                  <Grid item container xs={12} sm={8}>
                     <h2>Current Form</h2>
                     <div>
                       <Tooltip
@@ -361,7 +370,7 @@ export const CustomizedFormWQuestions = ({
                       </Tooltip>
                     </div>
                   </Grid>
-                  <Grid item container xs={4}>
+                  <Grid item container xs={12} sm={4}>
                     <Field
                       key={'view-lang'}
                       value={selectedLanguage}
@@ -425,8 +434,16 @@ export const CustomizedFormWQuestions = ({
                       <Fragment key={`rendered-${question.questionIndex}`}>
                         {q}
                         {question.questionType == QuestionTypeEnum.CATEGORY && (
-                          <Grid item>
+                          <Grid
+                            item
+                            xs={isMobile ? 10 : 1}
+                            sm={4}
+                            md={3}
+                            lg={2}
+                            xl={1.5}
+                            className={classes.mobileGrid}>
                             <PrimaryButton
+                              className={classes.mobileBtn}
                               onClick={() => {
                                 if (languages.length != 0) {
                                   setCategoryIndex(questions.indexOf(question));
@@ -446,7 +463,9 @@ export const CustomizedFormWQuestions = ({
                         <Grid
                           container
                           item
-                          xs={1}
+                          xs={2}
+                          sm={1}
+                          xl={0.5}
                           style={{ marginLeft: '-20px' }}>
                           <Grid item xs={6}>
                             <IconButton
@@ -467,6 +486,7 @@ export const CustomizedFormWQuestions = ({
                           </Grid>
                           <Grid item xs={6}>
                             <IconButton
+                              className={classes.mobileIconsRight}
                               key={`edit-field-${question.questionIndex}`}
                               size="small"
                               onClick={(e) => {
@@ -494,6 +514,7 @@ export const CustomizedFormWQuestions = ({
                           </Grid>
                           <Grid item xs={6}>
                             <IconButton
+                              className={classes.mobileIconsRight}
                               key={`delete-field-${question.questionIndex}`}
                               size="small"
                               color="error"
@@ -589,3 +610,17 @@ export const CustomizedFormWQuestions = ({
     </>
   );
 };
+
+const useStyles = makeStyles((theme) => ({
+  mobileIconsRight: {
+    marginLeft: '10px',
+  },
+  mobileGrid: {
+    [theme.breakpoints.down(600)]: {
+      width: '100%',
+    },
+  },
+  mobileBtn: {
+    width: '100%',
+  },
+}));
