@@ -150,7 +150,7 @@ If something has gone wrong and you're having issues with your database, you can
 1. Run `docker container ls -a` and look for a container named `cradle_mysql` or similar
 2. Remove the container by running `docker container rm cradle_mysql` (using the container name identified above)
 3. Run `docker volume ls` and look for the volume associated with the MySQL database. It's likely named `cradle-platform_mysql_data` or something similar
-4. Remove the Docker volume: `docker volume rm cradle-platform_mysql_data` (using the volume name identified above)
+4. Remove the Docker volume: `docker volume rm 415-cradle-platform_mysql_data` (using the volume name identified above)
 5. Start your Docker containers: `docker-compose up`
 6. Upgrade your daabase schema: `docker exec cradle_flask flask db upgrade`
 7. Reseed: `docker exec cradle_flask python manage.py seed` (see setup above for more seed options)

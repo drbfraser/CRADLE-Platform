@@ -2,8 +2,8 @@ import * as moment from 'moment';
 
 describe('Form templates', () => {
   beforeEach(() => {
-    cy.login({ email: 'admin123@admin.com', password: 'admin123' })
-    cy.visit('http://localhost:3000/admin/form-templates')
+    cy.login({ email: 'admin123@admin.com', password: 'admin123' });
+    cy.visit('http://localhost:3000/admin/form-templates');
   });
 
   it('create form', () => {
@@ -150,23 +150,16 @@ describe('Form templates', () => {
       .should('have.value', 'English');
     cy.get('.MuiTypography-root').should('contain', 'Dietary');
 
-    // DISABLED- CATEGORY EDITING IS NOT IMPLEMENTED
-    // // validate the editfield
-    // cy.get(
-    //   ':nth-child(2) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
-    // ).click();
-    // cy.contains('.MuiOutlinedInput-root', 'Field Text').should(
-    //   'contain',
-    //   'Dietary'
-    // );
-    // cy.contains('.MuiOutlinedInput-root', 'Question ID').should('contain', '1');
-    // cy.get("input[name='field-type-group']")
-    //   .eq(0)
-    //   .should('be.checked')
-    //   .and('have.value', 'category');
-    // cy.get('.MuiButton-text').contains('Cancel').click();
+    // validate the editfield
+    cy.get(
+      ':nth-child(2) > :nth-child(3) > :nth-child(2) > .MuiButtonBase-root'
+    ).click();
+    cy.contains('.MuiOutlinedInput-root', 'Category Name')
+      .children()
+      .should('have.value', 'Dietary');
+    cy.get('.MuiButton-text').contains('Cancel').click();
 
-    cy.get(':nth-child(4) > .MuiFormLabel-root > .MuiTypography-root').should(
+    cy.get(':nth-child(5) > .MuiFormLabel-root > .MuiTypography-root').should(
       'contain',
       'Any dietary restrictions?'
     );
@@ -180,7 +173,7 @@ describe('Form templates', () => {
     cy.get(':nth-child(6) > .MuiTypography-root').should('contain', 'Other');
     // validate the editfield
     cy.get(
-      ':nth-child(5) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+      ':nth-child(6) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
     ).click();
     cy.contains('.MuiOutlinedInput-root', 'Field Text').should(
       'contain',
@@ -217,7 +210,7 @@ describe('Form templates', () => {
     ).should('contain', 'Please specify other dietary restriction');
     // validate the editfield
     cy.get(
-      ':nth-child(8) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+      ':nth-child(9) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
     ).click();
     cy.contains('.MuiOutlinedInput-root', 'Field Text').should(
       'contain',
@@ -250,7 +243,7 @@ describe('Form templates', () => {
     );
     // validate the editfield
     cy.get(
-      ':nth-child(11) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+      ':nth-child(12) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
     ).click();
     cy.contains('.MuiOutlinedInput-root', 'Field Text').should(
       'contain',
@@ -470,22 +463,16 @@ describe('Form templates', () => {
       .should('have.value', 'English, Spanish');
     cy.get('.MuiTypography-root').should('contain', 'Dietary');
 
-    // DISABLED DUE TO CATEGORY CHANGES
-    // // validate the editfield
-    // cy.get(
-    //   ':nth-child(2) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
-    // ).click();
-    // cy.contains('.MuiOutlinedInput-root', 'English Field Text').should(
-    //   'contain',
-    //   'Dietary'
-    // );
-    // cy.get("input[name='field-type-group']")
-    //   .eq(0)
-    //   .should('be.checked')
-    //   .and('have.value', 'category');
-    // cy.get('.MuiButton-text').contains('Cancel').click();
+    // validate the editfield
+    cy.get(
+      ':nth-child(3) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+    ).click();
+    cy.contains('.MuiOutlinedInput-root', 'English Category Name')
+      .children()
+      .should('have.value', 'Dietary');
+    cy.get('.MuiButton-text').contains('Cancel').click();
 
-    cy.get(':nth-child(4) > .MuiFormLabel-root > .MuiTypography-root').should(
+    cy.get(':nth-child(5) > .MuiFormLabel-root > .MuiTypography-root').should(
       'contain',
       'Any dietary restrictions?'
     );
@@ -499,7 +486,7 @@ describe('Form templates', () => {
     cy.get(':nth-child(6) > .MuiTypography-root').should('contain', 'Other');
     // validate the editfield
     cy.get(
-      ':nth-child(5) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+      ':nth-child(6) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
     ).click();
     cy.contains('.MuiOutlinedInput-root', 'English Field Text').should(
       'contain',
@@ -536,7 +523,7 @@ describe('Form templates', () => {
     ).should('contain', 'Please specify other dietary restriction');
     // validate the editfield
     cy.get(
-      ':nth-child(8) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+      ':nth-child(9) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
     ).click();
     cy.contains('.MuiOutlinedInput-root', 'English Field Text').should(
       'contain',
@@ -569,7 +556,7 @@ describe('Form templates', () => {
     );
     // validate the editfield
     cy.get(
-      ':nth-child(11) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+      ':nth-child(12) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
     ).click();
     cy.contains('.MuiOutlinedInput-root', 'English Field Text').should(
       'contain',
@@ -605,22 +592,16 @@ describe('Form templates', () => {
       .click();
     cy.get('.MuiTypography-root').should('contain', 'Dietética');
 
-    // DISABLED DUE TO CATEGORY CHANGES
-    // // validate the editfield
-    // cy.get(
-    //   ':nth-child(2) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
-    // ).click();
-    // cy.contains('.MuiOutlinedInput-root', 'Spanish Field Text').should(
-    //   'contain',
-    //   'Dietética'
-    // );
-    // cy.get("input[name='field-type-group']")
-    //   .eq(0)
-    //   .should('be.checked')
-    //   .and('have.value', 'category');
-    // cy.get('.MuiButton-text').contains('Cancel').click();
+    // validate the editfield
+    cy.get(
+      ':nth-child(3) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+    ).click();
+    cy.contains('.MuiOutlinedInput-root', 'Spanish Category Name')
+      .children()
+      .should('have.value', 'Dietética');
+    cy.get('.MuiButton-text').contains('Cancel').click();
 
-    cy.get(':nth-child(4) > .MuiFormLabel-root > .MuiTypography-root').should(
+    cy.get(':nth-child(5) > .MuiFormLabel-root > .MuiTypography-root').should(
       'contain',
       '¿Alguna restricción dietética?'
     );
@@ -637,7 +618,7 @@ describe('Form templates', () => {
     cy.get(':nth-child(6) > .MuiTypography-root').should('contain', 'Otra');
     // validate the editfield
     cy.get(
-      ':nth-child(5) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+      ':nth-child(6) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
     ).click();
     cy.contains('.MuiOutlinedInput-root', 'Spanish Field Text').should(
       'contain',
@@ -674,7 +655,7 @@ describe('Form templates', () => {
     ).should('contain', 'Por favor especifique otra restricción dietética');
     // validate the editfield
     cy.get(
-      ':nth-child(8) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+      ':nth-child(9) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
     ).click();
     cy.contains('.MuiOutlinedInput-root', 'Spanish Field Text').should(
       'contain',
@@ -707,7 +688,7 @@ describe('Form templates', () => {
     );
     // validate the editfield
     cy.get(
-      ':nth-child(11) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+      ':nth-child(12) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
     ).click();
     cy.contains('.MuiOutlinedInput-root', 'Spanish Field Text').should(
       'contain',
@@ -769,5 +750,4 @@ describe('Form templates', () => {
         moment.utc(new Date(Date.now()).toUTCString()).format('YYYY-MM-DD')
       );
   });
-})
-
+});
