@@ -33,7 +33,9 @@ const SubmitFormTemplateDialog = ({ open, onClose, form }: IProps) => {
     try {
       await submitFormTemplateAsync(form);
       setSubmitSuccess(true);
-      goBackWithFallback(`/admin/form-templates`);
+      setTimeout(() => {
+        goBackWithFallback(`/admin/form-templates`);
+      }, 1000);
     } catch (e) {
       setSubmitError(true);
     }
