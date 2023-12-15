@@ -599,7 +599,54 @@ def create_form_template():
         "classification": {"name": "dc9", "id": "dc9"},
         "id": "dt9",
         "version": "V1",
-        "questions": [],
+        "questions": [{
+            "categoryIndex": None,
+            "questionIndex": 0,
+            # "lang_versions": [{
+            #     "lang": "English",
+            #     "questionText": "cat"
+            # }],
+            "questionType": "CATEGORY",
+            "required": False,
+            "numMin": None,
+            "numMax": None,
+            "stringMaxLength": None,
+            "units": None,
+            "visibleCondition": "[]"
+        },
+        {
+            "categoryIndex": None,
+            "questionId": "",
+            # "lang_versions": [{
+            #     "lang": "English",
+            #     "questionText": "text"
+            # }],
+            "questionIndex": 1,
+            "questionType": "STRING",
+            "required": False,
+            "numMin": None,
+            "numMax": None,
+            "stringMaxLength": None,
+            "units": None,
+            "visibleCondition": "[]"
+        },
+        {
+        "categoryIndex": 0,
+        "questionId": "",
+        # "lang_versions": [{
+        #     "lang": "English",
+        #     "questionText": "num"
+        # }],
+        "questionIndex": 2,
+        "questionType": "INTEGER",
+        "required": False,
+        "numMin": None,
+        "numMax": None,
+        "stringMaxLength": None,
+        "units": None,
+        "visibleCondition": "[]"
+      }
+    ]
     }
     form_template_schema = FormTemplateSchema()
     db.session.add(form_template_schema.load(form_template))
@@ -613,7 +660,54 @@ def create_form(patient_id):
         "formTemplateId": "dt9",
         "formClassificationId": "dc9",
         "patientId": patient_id,
-        "questions": [],
+        "questions": [{
+            "categoryIndex": None,
+            # "lang_versions": [{
+            #     "lang": "English",
+            #     "questionText": "cat"
+            # }],
+            "questionIndex": 0,
+            "questionType": "CATEGORY",
+            "required": False,
+            "numMin": None,
+            "numMax": None,
+            "stringMaxLength": None,
+            "units": None,
+            "visibleCondition": "[]"
+        },
+        {
+            "categoryIndex": None,
+            "questionId": "",
+            # "lang_versions": [{
+            #     "lang": "English",
+            #     "questionText": "text"
+            # }],
+            "questionIndex": 1,
+            "questionType": "STRING",
+            "required": False,
+            "numMin": None,
+            "numMax": None,
+            "stringMaxLength": None,
+            "units": None,
+            "visibleCondition": "[]"
+        },
+        {
+        "categoryIndex": 0,
+        "questionId": "",
+        # "lang_versions": [{
+        #     "lang": "English",
+        #     "questionText": "num"
+        # }],
+        "questionIndex": 2,
+        "questionType": "INTEGER",
+        "required": False,
+        "numMin": None,
+        "numMax": None,
+        "stringMaxLength": None,
+        "units": None,
+        "visibleCondition": "[]"
+      }
+    ],
     }
     form_schema = FormSchema()
     db.session.add(form_schema.load(form))
