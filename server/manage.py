@@ -587,7 +587,7 @@ def create_patient_association(patientId, userId):
 def create_form_classification():
     form_classification = {
         "id": "dc9",
-        "name": "Medical Intake Form",
+        "name": "Personal Intake Form",
     }
     form_classification_schema = FormClassificationSchema()
     db.session.add(form_classification_schema.load(form_classification))
@@ -596,7 +596,7 @@ def create_form_classification():
 
 def create_form_template():
     form_template = {
-        "classification": {"name": "Medical Intake Form", "id": "dc9"},
+        "classification": {"name": "Personal Intake Form", "id": "dc9"},
         "id": "dt9",
         "version": "V1",
         "questions": getTestFormQuestions()
@@ -609,60 +609,26 @@ def create_form_template():
     lang_versions = getTestLangVersions()
 
     for curr_q in lang_versions:
-        x = QuestionLangVersionSchema()
-        db.session.add(x.load(curr_q))
+        ques_lang_schema = QuestionLangVersionSchema()
+        db.session.add(ques_lang_schema.load(curr_q))
         db.session.commit()
 
 def create_form(patient_id):
     form = {
         "id": "d9",
-        "lang": "english",
+        "lang": "English",
+        "patientId": patient_id,
         "formTemplateId": "dt9",
         "formClassificationId": "dc9",
-        "patientId": patient_id,
-        "questions": [{
-            "categoryIndex": None,
-            "questionIndex": 0,
-            "questionType": "CATEGORY",
-            "required": False,
-            "numMin": None,
-            "numMax": None,
-            "stringMaxLength": None,
-            "units": None,
-            "visibleCondition": "[]"
-        },
-        {
-            "categoryIndex": None,
-            "questionId": "",
-            "questionIndex": 1,
-            "questionType": "STRING",
-            "required": False,
-            "numMin": None,
-            "numMax": None,
-            "stringMaxLength": None,
-            "units": None,
-            "visibleCondition": "[]"
-        },
-        {
-        "categoryIndex": 0,
-        "questionId": "",
-        "questionIndex": 2,
-        "questionType": "INTEGER",
-        "required": False,
-        "numMin": None,
-        "numMax": None,
-        "stringMaxLength": None,
-        "units": None,
-        "visibleCondition": "[]"
-      }
-    ],
+        "questions": []
     }
+
     form_schema = FormSchema()
     db.session.add(form_schema.load(form))
     db.session.commit()
 
 
-def getRandomInitials():
+def getRandomInitials():    
     return (
         random.choice(string.ascii_letters) + random.choice(string.ascii_letters)
     ).upper()
