@@ -80,8 +80,6 @@ def create_flask_response(code: int, body: str, iv: str, user_sms_key: str) -> R
     # Currently the body is not processed by the Relay app (only its existence is checked)
     # Sending a generic success or failure string is an option
 
-    print("\n\n\n\n\n\n", body< "\n\n\n\n\n\n")
-
     compressed_data = compressor.compress_from_string(body)
     encrypted_data = encryptor.encrypt(compressed_data, iv, user_sms_key)
 
