@@ -686,16 +686,7 @@ def create_form(patient_id):
             "questionType": "STRING",
             "required": False,
             "numMin": None,
-            "numMax": None,
-            "stringMaxLength": None,
-            "units": None,
-            "visibleCondition": "[]"
-        },
-        {
-        "categoryIndex": 0,
-        "questionId": "",
-        # "lang_versions": [{
-        #     "lang": "English",
+            "numMax": Nond9ish",
         #     "questionText": "num"
         # }],
         "questionIndex": 2,
@@ -711,6 +702,17 @@ def create_form(patient_id):
     }
     form_schema = FormSchema()
     db.session.add(form_schema.load(form))
+    db.session.commit()
+
+    lang_versions = {
+            "id": 1234
+            "lang": "English",
+            "questionText": "num"
+            "qid" = "d9"
+        }
+
+    x = QuestionLangVersionSchema()
+    db.session.add(x.load(lang_versions))
     db.session.commit()
 
 
