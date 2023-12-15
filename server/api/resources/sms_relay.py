@@ -97,6 +97,7 @@ iv_size = 32
 
 
 def sms_relay_procedure():
+    abort(400, message=corrupted_message.format(type="JSON"))
     json_request = request.get_json(force=True)
 
     # Error Checking
