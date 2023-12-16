@@ -200,7 +200,8 @@ def seed_test_data(ctx):
     print("Creating form template, form classification, and forms...")
     create_form_classification()
     create_form_template()
-    create_form("49300028162")
+    create_form("49300028162", "Anna", "Bee", 31)
+    create_form("49300028163", "Dianna", "Ele", 25)
 
     print("Finished seeding test data")
 
@@ -605,6 +606,7 @@ def create_form_template():
             "id": "cat1_seed_test_data",
             "categoryIndex": None,
             "questionIndex": 0,
+            "isBlank": True,
             "questionType": "CATEGORY",
             "questionText": "Personal Information",
             "required": False,
@@ -620,9 +622,9 @@ def create_form_template():
             "categoryIndex": None,
             "questionId": "",
             "questionIndex": 1,
+            "isBlank": True,
             "questionType": "STRING",
             "questionText": "First Name",
-            "answers": '{"text": "Tati"}',
             "required": False,
             "numMin": None,
             "numMax": None,
@@ -636,9 +638,9 @@ def create_form_template():
             "categoryIndex": None,
             "questionId": "",
             "questionIndex": 2,
+            "isBlank": True,
             "questionType": "STRING",
             "questionText": "Last Name",
-            "answers": '{"text": "Anna"}',
             "required": False,
             "numMin": None,
             "numMax": None,
@@ -652,9 +654,9 @@ def create_form_template():
             "categoryIndex": None,
             "questionId": "",
             "questionIndex": 3,
+            "isBlank": True,
             "questionType": "INTEGER",
             "questionText": "Approximate Age",
-            "answers": '{"number": 23}',
             "required": False,
             "numMin": None,
             "numMax": None,
@@ -701,70 +703,70 @@ def create_form_template():
         db.session.add(ques_lang_schema.load(curr_q))
         db.session.commit()
 
-def create_form(patient_id):
+def create_form(patient_id, fname, lname, age):
     
     form = {
-        "id": "d9",
+        "id": patient_id,
         "lang": "English",
         "patientId": patient_id,
         "formTemplateId": "dt9",
         "formClassificationId": "dc9",
         "questions": [
-        {
-        "hasCommentAttached": False,
-        "required": False,
-        "id": "cat1_seed_test_data",
-        "formId": "d9",
-        "visibleCondition": "[]",
-        "isBlank": False,
-        "mcOptions": "[]",
-        "questionIndex": 0,
-        "questionText": "Personal Information",
-        "questionType": "CATEGORY"
-        },
-        {
-        "hasCommentAttached": False,
-        "required": False,
-        "id": "fname_seed_test_data",
-        "formId": "d9",
-        "visibleCondition": "[]",
-        "isBlank": False,
-        "answers": '{"text": "Tati"}',
-        "mcOptions": "[]",
-        "questionIndex": 1,
-        "questionId": "",
-        "questionText": "First Name",
-        "questionType": "STRING"
-        },
-        {
-        "hasCommentAttached": False,
-        "required": False,
-        "id": "lname_seed_test_data",
-        "formId": "d9",
-        "visibleCondition": "[]",
-        "isBlank": False,
-        "answers": '{"text": "Anna"}',
-        "mcOptions": "[]",
-        "questionIndex": 2,
-        "questionId": "",
-        "questionText": "Last Name",
-        "questionType": "STRING"
-        },
-        {
-        "hasCommentAttached": False,
-        "required": False,
-        "id": "age_seed_test_data",
-        "formId": "d9",
-        "visibleCondition": "[]",
-        "isBlank": False,
-        "answers": '{"number": 23}',
-        "mcOptions": "[]",
-        "questionIndex": 3,
-        "questionId": "",
-        "questionText": "Approximate Age",
-        "questionType": "INTEGER"
-        }
-    ]
+            {
+            "hasCommentAttached": False,
+            "required": False,
+            "id": "cat1_seed_test_data" + patient_id,
+            "formId": patient_id,
+            "visibleCondition": "[]",
+            "isBlank": False,
+            "mcOptions": "[]",
+            "questionIndex": 0,
+            "questionText": "Personal Information",
+            "questionType": "CATEGORY"
+            },
+            {
+            "hasCommentAttached": False,
+            "required": False,
+            "id": "fname_seed_test_data" + patient_id,
+            "formId": patient_id,
+            "visibleCondition": "[]",
+            "isBlank": False,
+            "answers": f"{{\"text\": \"{fname}\"}}",
+            "mcOptions": "[]",
+            "questionIndex": 1,
+            "questionId": "",
+            "questionText": "First Name",
+            "questionType": "STRING"
+            },
+            {
+            "hasCommentAttached": False,
+            "required": False,
+            "id": "lname_seed_test_data" + patient_id,
+            "formId": patient_id,
+            "visibleCondition": "[]",
+            "isBlank": False,
+            "answers": f"{{\"text\": \"{lname}\"}}",
+            "mcOptions": "[]",
+            "questionIndex": 2,
+            "questionId": "",
+            "questionText": "Last Name",
+            "questionType": "STRING"
+            },
+            {
+            "hasCommentAttached": False,
+            "required": False,
+            "id": "age_seed_test_data" + patient_id,
+            "formId": patient_id,
+            "visibleCondition": "[]",
+            "isBlank": False,
+            "answers": f"{{\"number\": {age}}}",
+            "mcOptions": "[]",
+            "questionIndex": 3,
+            "questionId": "",
+            "questionText": "Approximate Age",
+            "questionType": "INTEGER"
+            }
+        ]
     }
 
     form_schema = FormSchema()
