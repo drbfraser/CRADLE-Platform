@@ -3,22 +3,31 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControlLabel,
+  FormLabel,
   Grid,
+  IconButton,
+  Switch,
+  Tooltip,
 } from '@mui/material';
 import {
   CancelButton,
   PrimaryButton,
 } from '../../../../shared/components/Button';
+import * as handlers from './multiFieldComponents/handlers';
+import InfoIcon from '@mui/icons-material/Info';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
   FormTemplateWithQuestions,
   McOption,
+  QCondition,
   QuestionLangVersion,
   TQuestion,
 } from 'src/shared/types';
 import { QuestionTypeEnum } from 'src/shared/enums';
+import EditVisibleCondition from './EditVisibleCondition';
 
 interface IProps {
   open: boolean;
@@ -26,6 +35,8 @@ interface IProps {
   inputLanguages: string[];
   setForm?: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
   question?: TQuestion;
+  questionsArr: TQuestion[];
+  visibilityToggle: boolean;
   categoryIndex: number | null;
 }
 
@@ -35,6 +46,8 @@ const EditCategory = ({
   inputLanguages,
   setForm,
   question,
+  questionsArr,
+  visibilityToggle,
   categoryIndex,
 }: IProps) => {
   const [questionLangVersions, setQuestionLangversions] = useState<
@@ -42,6 +55,8 @@ const EditCategory = ({
   >([] as QuestionLangVersion[]);
   const [fieldChanged, setFieldChanged] = useState(false);
   const [formDirty, setFormDirty] = useState(false);
+  const [visibleCondition, setVisibleCondition] = useState<QCondition[]>([]);
+  const [enableVisibility, setEnableVisiblity] = useState(visibilityToggle);
 
   const getQLangVersionsCopy = (
     questionLangVersions: QuestionLangVersion[]
@@ -70,19 +85,22 @@ const EditCategory = ({
     // edit field
     if (formDirty) {
       setQuestionLangversions(questionLangVersions);
+      setEnableVisiblity(enableVisibility);
     } else {
       if (question) {
         setQuestionLangversions(
           getQLangVersionsCopy(question.questionLangVersions)
         );
+        setEnableVisiblity(
+          enableVisibility || question.visibleCondition.length > 0
+        );
       }
       // create new field
       else {
         setQuestionLangversions([]);
+        setEnableVisiblity(false);
       }
     }
-    // Check if all fields are filled
-    // Enable/disable save button based on filled fields
   }, [open, setForm, fieldChanged]);
 
   const getFieldName = (language: string) => {
@@ -154,6 +172,69 @@ const EditCategory = ({
                 />
               </Grid>
             ))}
+            {questionsArr.filter(
+              (q) =>
+                q.questionType != QuestionTypeEnum.CATEGORY &&
+                q.categoryIndex != question?.questionIndex
+            ).length > 0 && (
+              <>
+                <Grid item container sm={12} md={10} lg={10}>
+                  <FormControlLabel
+                    style={{ marginLeft: 0 }}
+                    control={
+                      <Switch
+                        checked={enableVisibility}
+                        onChange={(e) =>
+                          handlers.handleVisibilityChange(
+                            e,
+                            setEnableVisiblity,
+                            setFormDirty,
+                            setFieldChanged,
+                            fieldChanged
+                          )
+                        }
+                        data-testid="conditional-switch"
+                      />
+                    }
+                    label={
+                      <FormLabel id="vis-label" style={{ display: 'flex' }}>
+                        <Typography variant="h6">
+                          Conditional Visibility
+                        </Typography>
+                        <Tooltip
+                          disableFocusListener
+                          disableTouchListener
+                          title={
+                            'Set this field to only appear after a specific field value is entered'
+                          }
+                          arrow
+                          placement="right">
+                          <IconButton>
+                            <InfoIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </FormLabel>
+                    }
+                    labelPlacement="start"
+                  />
+                </Grid>
+                {enableVisibility ? (
+                  <Grid item sm={12} md={10} lg={10}>
+                    <EditVisibleCondition
+                      currQuestion={question}
+                      filteredQs={questionsArr.filter(
+                        (q) =>
+                          q.questionType != QuestionTypeEnum.CATEGORY &&
+                          q.categoryIndex != question?.questionIndex
+                      )}
+                      setVisibleCondition={setVisibleCondition}
+                      setFieldChanged={setFieldChanged}
+                      origFieldChanged={fieldChanged}
+                    />
+                  </Grid>
+                ) : null}
+              </>
+            )}
           </Grid>
         </DialogContent>
         <DialogActions>
@@ -161,6 +242,7 @@ const EditCategory = ({
             type="button"
             onClick={(e) => {
               setFormDirty(false);
+              setEnableVisiblity(false);
               onClose();
             }}>
             Cancel
@@ -170,6 +252,9 @@ const EditCategory = ({
             disabled={false}
             onClick={() => {
               if (setForm) {
+                if (question && !enableVisibility) {
+                  question.visibleCondition.length = 0;
+                }
                 setForm((form) => {
                   // edit field
                   if (question) {
@@ -179,6 +264,9 @@ const EditCategory = ({
                     if (questionToUpdate) {
                       questionToUpdate.questionLangVersions =
                         questionLangVersions;
+                      questionToUpdate.visibleCondition = enableVisibility
+                        ? visibleCondition
+                        : [];
                     }
                   }
                   // create new field
@@ -192,11 +280,12 @@ const EditCategory = ({
                       numMax: null,
                       stringMaxLength: null,
                       units: null,
-                      visibleCondition: [],
+                      visibleCondition: visibleCondition,
                       categoryIndex: categoryIndex,
                       questionId: undefined,
                     });
                   }
+                  setVisibleCondition([]);
                   setFormDirty(false);
                   form.questions = [...form.questions];
                   return form;

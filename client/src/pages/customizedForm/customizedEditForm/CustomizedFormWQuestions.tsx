@@ -313,6 +313,8 @@ export const CustomizedFormWQuestions = ({
         }}
         inputLanguages={languages}
         setForm={setForm}
+        questionsArr={fm.questions}
+        visibilityToggle={false}
         categoryIndex={categoryIndex}
       />
       <EditField
@@ -558,8 +560,14 @@ export const CustomizedFormWQuestions = ({
                             setCategoryEditPopupOpen(false);
                           }}
                           question={question}
+                          questionsArr={fm.questions}
                           inputLanguages={getInputLanguages(question)}
                           setForm={setForm}
+                          visibilityToggle={
+                            selectedQuestionIndex != null &&
+                            questions[selectedQuestionIndex]?.visibleCondition
+                              .length > 0
+                          }
                           categoryIndex={categoryIndex}
                         />
                       </Fragment>
