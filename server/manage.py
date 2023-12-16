@@ -200,7 +200,8 @@ def seed_test_data(ctx):
     print("Creating form template, form classification, and forms...")
     create_form_classification()
     create_form_template()
-    create_form("49300028162")
+    create_form("49300028162", "Anna", "Bee", 31)
+    create_form("49300028163", "Dianna", "Ele", 25)
 
     print("Finished seeding test data")
 
@@ -587,7 +588,7 @@ def create_patient_association(patientId, userId):
 def create_form_classification():
     form_classification = {
         "id": "dc9",
-        "name": "dc9",
+        "name": "Personal Intake Form",
     }
     form_classification_schema = FormClassificationSchema()
     db.session.add(form_classification_schema.load(form_classification))
@@ -596,25 +597,175 @@ def create_form_classification():
 
 def create_form_template():
     form_template = {
-        "classification": {"name": "dc9", "id": "dc9"},
+        "classification": {"name": "Personal Intake Form", "id": "dc9"},
         "id": "dt9",
         "version": "V1",
-        "questions": [],
+        "questions": [
+            {
+                "formTemplateId": "dt9",
+                "id": "cat1_seed_test_data",
+                "categoryIndex": None,
+                "questionIndex": 0,
+                "isBlank": True,
+                "questionType": "CATEGORY",
+                "required": False,
+                "numMin": None,
+                "numMax": None,
+                "stringMaxLength": None,
+                "units": None,
+                "visibleCondition": "[]",
+            },
+            {
+                "formTemplateId": "dt9",
+                "id": "fname_seed_test_data",
+                "categoryIndex": None,
+                "questionId": "",
+                "questionIndex": 1,
+                "isBlank": True,
+                "questionType": "STRING",
+                "required": False,
+                "numMin": None,
+                "numMax": None,
+                "stringMaxLength": None,
+                "units": None,
+                "visibleCondition": "[]",
+            },
+            {
+                "formTemplateId": "dt9",
+                "id": "lname_seed_test_data",
+                "categoryIndex": None,
+                "questionId": "",
+                "questionIndex": 2,
+                "isBlank": True,
+                "questionType": "STRING",
+                "required": False,
+                "numMin": None,
+                "numMax": None,
+                "stringMaxLength": None,
+                "units": None,
+                "visibleCondition": "[]",
+            },
+            {
+                "formTemplateId": "dt9",
+                "id": "age_seed_test_data",
+                "categoryIndex": None,
+                "questionId": "",
+                "questionIndex": 3,
+                "isBlank": True,
+                "questionType": "INTEGER",
+                "required": False,
+                "numMin": None,
+                "numMax": None,
+                "stringMaxLength": None,
+                "units": None,
+                "visibleCondition": "[]",
+            },
+        ],
     }
+
     form_template_schema = FormTemplateSchema()
     db.session.add(form_template_schema.load(form_template))
     db.session.commit()
 
+    lang_versions = [
+        {
+            "id": 100,
+            "lang": "English",
+            "questionText": "Personal Information",
+            "qid": "cat1_seed_test_data",
+        },
+        {
+            "id": 101,
+            "lang": "English",
+            "questionText": "First Name",
+            "qid": "fname_seed_test_data",
+        },
+        {
+            "id": 102,
+            "lang": "English",
+            "questionText": "Last Name",
+            "qid": "lname_seed_test_data",
+        },
+        {
+            "id": 103,
+            "lang": "English",
+            "questionText": "Approximate Age",
+            "qid": "age_seed_test_data",
+        },
+    ]
 
-def create_form(patient_id):
+    for curr_q in lang_versions:
+        ques_lang_schema = QuestionLangVersionSchema()
+        db.session.add(ques_lang_schema.load(curr_q))
+        db.session.commit()
+
+
+def create_form(patient_id, fname, lname, age):
+
     form = {
-        "id": "d9",
-        "lang": "english",
+        "id": patient_id,
+        "lang": "English",
+        "patientId": patient_id,
         "formTemplateId": "dt9",
         "formClassificationId": "dc9",
-        "patientId": patient_id,
-        "questions": [],
+        "questions": [
+            {
+                "hasCommentAttached": False,
+                "required": False,
+                "id": "cat1_seed_test_data" + patient_id,
+                "formId": patient_id,
+                "visibleCondition": "[]",
+                "isBlank": False,
+                "mcOptions": "[]",
+                "questionIndex": 0,
+                "questionText": "Personal Information",
+                "questionType": "CATEGORY",
+            },
+            {
+                "hasCommentAttached": False,
+                "required": False,
+                "id": "fname_seed_test_data" + patient_id,
+                "formId": patient_id,
+                "visibleCondition": "[]",
+                "isBlank": False,
+                "answers": f'{{"text": "{fname}"}}',
+                "mcOptions": "[]",
+                "questionIndex": 1,
+                "questionId": "",
+                "questionText": "First Name",
+                "questionType": "STRING",
+            },
+            {
+                "hasCommentAttached": False,
+                "required": False,
+                "id": "lname_seed_test_data" + patient_id,
+                "formId": patient_id,
+                "visibleCondition": "[]",
+                "isBlank": False,
+                "answers": f'{{"text": "{lname}"}}',
+                "mcOptions": "[]",
+                "questionIndex": 2,
+                "questionId": "",
+                "questionText": "Last Name",
+                "questionType": "STRING",
+            },
+            {
+                "hasCommentAttached": False,
+                "required": False,
+                "id": "age_seed_test_data" + patient_id,
+                "formId": patient_id,
+                "visibleCondition": "[]",
+                "isBlank": False,
+                "answers": f'{{"number": {age}}}',
+                "mcOptions": "[]",
+                "questionIndex": 3,
+                "questionId": "",
+                "questionText": "Approximate Age",
+                "questionType": "INTEGER",
+            },
+        ],
     }
+
     form_schema = FormSchema()
     db.session.add(form_schema.load(form))
     db.session.commit()
