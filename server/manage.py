@@ -608,7 +608,6 @@ def create_form_template():
             "questionIndex": 0,
             "isBlank": True,
             "questionType": "CATEGORY",
-            "questionText": "Personal Information",
             "required": False,
             "numMin": None,
             "numMax": None,
@@ -624,7 +623,6 @@ def create_form_template():
             "questionIndex": 1,
             "isBlank": True,
             "questionType": "STRING",
-            "questionText": "First Name",
             "required": False,
             "numMin": None,
             "numMax": None,
@@ -640,7 +638,6 @@ def create_form_template():
             "questionIndex": 2,
             "isBlank": True,
             "questionType": "STRING",
-            "questionText": "Last Name",
             "required": False,
             "numMin": None,
             "numMax": None,
@@ -656,7 +653,6 @@ def create_form_template():
             "questionIndex": 3,
             "isBlank": True,
             "questionType": "INTEGER",
-            "questionText": "Approximate Age",
             "required": False,
             "numMin": None,
             "numMax": None,
@@ -673,25 +669,25 @@ def create_form_template():
 
     lang_versions = [
         {
-        "id": 0,
+        "id": 100,
         "lang": "English",
         "questionText": "Personal Information",
         "qid": "cat1_seed_test_data"
         },
         {
-        "id": 1,
+        "id": 101,
         "lang": "English",
         "questionText": "First Name",
         "qid": "fname_seed_test_data"
         },
         {
-        "id": 2,
+        "id": 102,
         "lang": "English",
         "questionText": "Last Name",
         "qid": "lname_seed_test_data"
         },
         {
-        "id": 3,
+        "id": 103,
         "lang": "English",
         "questionText": "Approximate Age",
         "qid": "age_seed_test_data"
@@ -772,36 +768,6 @@ def create_form(patient_id, fname, lname, age):
     form_schema = FormSchema()
     db.session.add(form_schema.load(form))
     db.session.commit()
-
-    lang_versions = [{
-        "id": 0,
-        "lang": "English",
-        "questionText": "Personal Information",
-        "qid": "cat1_seed_test_data"
-        },
-        {
-        "id": 1,
-        "lang": "English",
-        "questionText": "First Name",
-        "qid": "fname_seed_test_data"
-        },
-        {
-        "id": 2,
-        "lang": "English",
-        "questionText": "Last Name",
-        "qid": "lname_seed_test_data"
-        },
-        {
-        "id": 3,
-        "lang": "English",
-        "questionText": "Approximate Age",
-        "qid": "age_seed_test_data"
-    }]
-
-    for curr_q in lang_versions:
-        ques_lang_schema = QuestionLangVersionSchema()
-        db.session.add(ques_lang_schema.load(curr_q))
-        db.session.commit()
 
 
 def getRandomInitials():    
