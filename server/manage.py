@@ -599,14 +599,102 @@ def create_form_template():
         "classification": {"name": "Personal Intake Form", "id": "dc9"},
         "id": "dt9",
         "version": "V1",
-        "questions": getTestFormQuestions()
+        "questions": [
+        {
+            "formTemplateId": "dt9",
+            "id": "cat1_seed_test_data",
+            "categoryIndex": None,
+            "questionIndex": 0,
+            "questionType": "CATEGORY",
+            "questionText": "Personal Information",
+            "required": False,
+            "numMin": None,
+            "numMax": None,
+            "stringMaxLength": None,
+            "units": None,
+            "visibleCondition": "[]"
+        },
+        {   
+            "formTemplateId": "dt9",
+            "id": "fname_seed_test_data",
+            "categoryIndex": None,
+            "questionId": "",
+            "questionIndex": 1,
+            "questionType": "STRING",
+            "questionText": "First Name",
+            "answers": '{"text": "Tati"}',
+            "required": False,
+            "numMin": None,
+            "numMax": None,
+            "stringMaxLength": None,
+            "units": None,
+            "visibleCondition": "[]"
+        },
+        {   
+            "formTemplateId": "dt9",
+            "id": "lname_seed_test_data",
+            "categoryIndex": None,
+            "questionId": "",
+            "questionIndex": 2,
+            "questionType": "STRING",
+            "questionText": "Last Name",
+            "answers": '{"text": "Anna"}',
+            "required": False,
+            "numMin": None,
+            "numMax": None,
+            "stringMaxLength": None,
+            "units": None,
+            "visibleCondition": "[]"
+        },
+        {
+            "formTemplateId": "dt9",
+            "id": "age_seed_test_data",
+            "categoryIndex": None,
+            "questionId": "",
+            "questionIndex": 3,
+            "questionType": "INTEGER",
+            "questionText": "Approximate Age",
+            "answers": '{"number": 23}',
+            "required": False,
+            "numMin": None,
+            "numMax": None,
+            "stringMaxLength": None,
+            "units": None,
+            "visibleCondition": "[]"
+        }  
+    ]
     }
 
     form_template_schema = FormTemplateSchema()
     db.session.add(form_template_schema.load(form_template))
     db.session.commit()
 
-    lang_versions = getTestLangVersions()
+    lang_versions = [
+        {
+        "id": 0,
+        "lang": "English",
+        "questionText": "Personal Information",
+        "qid": "cat1_seed_test_data"
+        },
+        {
+        "id": 1,
+        "lang": "English",
+        "questionText": "First Name",
+        "qid": "fname_seed_test_data"
+        },
+        {
+        "id": 2,
+        "lang": "English",
+        "questionText": "Last Name",
+        "qid": "lname_seed_test_data"
+        },
+        {
+        "id": 3,
+        "lang": "English",
+        "questionText": "Approximate Age",
+        "qid": "age_seed_test_data"
+        }
+    ]
 
     for curr_q in lang_versions:
         ques_lang_schema = QuestionLangVersionSchema()
@@ -614,18 +702,104 @@ def create_form_template():
         db.session.commit()
 
 def create_form(patient_id):
+    
     form = {
         "id": "d9",
         "lang": "English",
         "patientId": patient_id,
         "formTemplateId": "dt9",
         "formClassificationId": "dc9",
-        "questions": []
+        "questions": [
+        {
+        "hasCommentAttached": False,
+        "required": False,
+        "id": "cat1_seed_test_data",
+        "formId": "d9",
+        "visibleCondition": "[]",
+        "isBlank": False,
+        "mcOptions": "[]",
+        "questionIndex": 0,
+        "questionText": "Personal Information",
+        "questionType": "CATEGORY"
+        },
+        {
+        "hasCommentAttached": False,
+        "required": False,
+        "id": "fname_seed_test_data",
+        "formId": "d9",
+        "visibleCondition": "[]",
+        "isBlank": False,
+        "answers": '{"text": "Tati"}',
+        "mcOptions": "[]",
+        "questionIndex": 1,
+        "questionId": "",
+        "questionText": "First Name",
+        "questionType": "STRING"
+        },
+        {
+        "hasCommentAttached": False,
+        "required": False,
+        "id": "lname_seed_test_data",
+        "formId": "d9",
+        "visibleCondition": "[]",
+        "isBlank": False,
+        "answers": '{"text": "Anna"}',
+        "mcOptions": "[]",
+        "questionIndex": 2,
+        "questionId": "",
+        "questionText": "Last Name",
+        "questionType": "STRING"
+        },
+        {
+        "hasCommentAttached": False,
+        "required": False,
+        "id": "age_seed_test_data",
+        "formId": "d9",
+        "visibleCondition": "[]",
+        "isBlank": False,
+        "answers": '{"number": 23}',
+        "mcOptions": "[]",
+        "questionIndex": 3,
+        "questionId": "",
+        "questionText": "Approximate Age",
+        "questionType": "INTEGER"
+        }
+    ]
     }
 
     form_schema = FormSchema()
     db.session.add(form_schema.load(form))
     db.session.commit()
+
+    lang_versions = [{
+        "id": 0,
+        "lang": "English",
+        "questionText": "Personal Information",
+        "qid": "cat1_seed_test_data"
+        },
+        {
+        "id": 1,
+        "lang": "English",
+        "questionText": "First Name",
+        "qid": "fname_seed_test_data"
+        },
+        {
+        "id": 2,
+        "lang": "English",
+        "questionText": "Last Name",
+        "qid": "lname_seed_test_data"
+        },
+        {
+        "id": 3,
+        "lang": "English",
+        "questionText": "Approximate Age",
+        "qid": "age_seed_test_data"
+    }]
+
+    for curr_q in lang_versions:
+        ques_lang_schema = QuestionLangVersionSchema()
+        db.session.add(ques_lang_schema.load(curr_q))
+        db.session.commit()
 
 
 def getRandomInitials():    
@@ -729,93 +903,6 @@ def generatePhoneNumbers():
 
 def getFacilityPhoneNumber(area_code):
     return facilityPhoneNumbers[area_code]
-
-def getTestFormQuestions():
-    return [
-        {
-            "formTemplateId": "dt9",
-            "id": "cat1_seed_test_data",
-            "categoryIndex": None,
-            "questionIndex": 0,
-            "questionType": "CATEGORY",
-            "required": False,
-            "numMin": None,
-            "numMax": None,
-            "stringMaxLength": None,
-            "units": None,
-            "visibleCondition": "[]"
-        },
-        {   
-            "formTemplateId": "dt9",
-            "id": "fname_seed_test_data",
-            "categoryIndex": None,
-            "questionId": "",
-            "questionIndex": 1,
-            "questionType": "STRING",
-            "required": False,
-            "numMin": None,
-            "numMax": None,
-            "stringMaxLength": None,
-            "units": None,
-            "visibleCondition": "[]"
-        },
-        {   
-            "formTemplateId": "dt9",
-            "id": "lname_seed_test_data",
-            "categoryIndex": None,
-            "questionId": "",
-            "questionIndex": 2,
-            "questionType": "STRING",
-            "required": False,
-            "numMin": None,
-            "numMax": None,
-            "stringMaxLength": None,
-            "units": None,
-            "visibleCondition": "[]"
-        },
-        {
-            "formTemplateId": "dt9",
-            "id": "age_seed_test_data",
-            "categoryIndex": 0,
-            "questionId": "",
-            "questionIndex": 3,
-            "questionType": "INTEGER",
-            "required": False,
-            "numMin": None,
-            "numMax": None,
-            "stringMaxLength": None,
-            "units": None,
-            "visibleCondition": "[]"
-        }  
-    ]
-
-def getTestLangVersions():
-    return [
-        {
-        "id": 0,
-        "lang": "English",
-        "questionText": "Personal Information",
-        "qid": "cat1_seed_test_data"
-        },
-        {
-        "id": 1,
-        "lang": "English",
-        "questionText": "First Name",
-        "qid": "fname_seed_test_data"
-        },
-        {
-        "id": 2,
-        "lang": "English",
-        "questionText": "Last Name",
-        "qid": "lname_seed_test_data"
-        },
-        {
-        "id": 3,
-        "lang": "English",
-        "questionText": "Approximate Age",
-        "qid": "age_seed_test_data"
-        }
-    ]
 
 def generateHealthFacilities():
     n = len(facilityLocations)
