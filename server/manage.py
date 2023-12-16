@@ -601,66 +601,66 @@ def create_form_template():
         "id": "dt9",
         "version": "V1",
         "questions": [
-        {
-            "formTemplateId": "dt9",
-            "id": "cat1_seed_test_data",
-            "categoryIndex": None,
-            "questionIndex": 0,
-            "isBlank": True,
-            "questionType": "CATEGORY",
-            "required": False,
-            "numMin": None,
-            "numMax": None,
-            "stringMaxLength": None,
-            "units": None,
-            "visibleCondition": "[]"
-        },
-        {   
-            "formTemplateId": "dt9",
-            "id": "fname_seed_test_data",
-            "categoryIndex": None,
-            "questionId": "",
-            "questionIndex": 1,
-            "isBlank": True,
-            "questionType": "STRING",
-            "required": False,
-            "numMin": None,
-            "numMax": None,
-            "stringMaxLength": None,
-            "units": None,
-            "visibleCondition": "[]"
-        },
-        {   
-            "formTemplateId": "dt9",
-            "id": "lname_seed_test_data",
-            "categoryIndex": None,
-            "questionId": "",
-            "questionIndex": 2,
-            "isBlank": True,
-            "questionType": "STRING",
-            "required": False,
-            "numMin": None,
-            "numMax": None,
-            "stringMaxLength": None,
-            "units": None,
-            "visibleCondition": "[]"
-        },
-        {
-            "formTemplateId": "dt9",
-            "id": "age_seed_test_data",
-            "categoryIndex": None,
-            "questionId": "",
-            "questionIndex": 3,
-            "isBlank": True,
-            "questionType": "INTEGER",
-            "required": False,
-            "numMin": None,
-            "numMax": None,
-            "stringMaxLength": None,
-            "units": None,
-            "visibleCondition": "[]"
-        }  
-    ]
+            {
+                "formTemplateId": "dt9",
+                "id": "cat1_seed_test_data",
+                "categoryIndex": None,
+                "questionIndex": 0,
+                "isBlank": True,
+                "questionType": "CATEGORY",
+                "required": False,
+                "numMin": None,
+                "numMax": None,
+                "stringMaxLength": None,
+                "units": None,
+                "visibleCondition": "[]",
+            },
+            {
+                "formTemplateId": "dt9",
+                "id": "fname_seed_test_data",
+                "categoryIndex": None,
+                "questionId": "",
+                "questionIndex": 1,
+                "isBlank": True,
+                "questionType": "STRING",
+                "required": False,
+                "numMin": None,
+                "numMax": None,
+                "stringMaxLength": None,
+                "units": None,
+                "visibleCondition": "[]",
+            },
+            {
+                "formTemplateId": "dt9",
+                "id": "lname_seed_test_data",
+                "categoryIndex": None,
+                "questionId": "",
+                "questionIndex": 2,
+                "isBlank": True,
+                "questionType": "STRING",
+                "required": False,
+                "numMin": None,
+                "numMax": None,
+                "stringMaxLength": None,
+                "units": None,
+                "visibleCondition": "[]",
+            },
+            {
+                "formTemplateId": "dt9",
+                "id": "age_seed_test_data",
+                "categoryIndex": None,
+                "questionId": "",
+                "questionIndex": 3,
+                "isBlank": True,
+                "questionType": "INTEGER",
+                "required": False,
+                "numMin": None,
+                "numMax": None,
+                "stringMaxLength": None,
+                "units": None,
+                "visibleCondition": "[]",
+            },
+        ],
     }
 
     form_template_schema = FormTemplateSchema()
@@ -669,29 +669,29 @@ def create_form_template():
 
     lang_versions = [
         {
-        "id": 100,
-        "lang": "English",
-        "questionText": "Personal Information",
-        "qid": "cat1_seed_test_data"
+            "id": 100,
+            "lang": "English",
+            "questionText": "Personal Information",
+            "qid": "cat1_seed_test_data",
         },
         {
-        "id": 101,
-        "lang": "English",
-        "questionText": "First Name",
-        "qid": "fname_seed_test_data"
+            "id": 101,
+            "lang": "English",
+            "questionText": "First Name",
+            "qid": "fname_seed_test_data",
         },
         {
-        "id": 102,
-        "lang": "English",
-        "questionText": "Last Name",
-        "qid": "lname_seed_test_data"
+            "id": 102,
+            "lang": "English",
+            "questionText": "Last Name",
+            "qid": "lname_seed_test_data",
         },
         {
-        "id": 103,
-        "lang": "English",
-        "questionText": "Approximate Age",
-        "qid": "age_seed_test_data"
-        }
+            "id": 103,
+            "lang": "English",
+            "questionText": "Approximate Age",
+            "qid": "age_seed_test_data",
+        },
     ]
 
     for curr_q in lang_versions:
@@ -699,8 +699,9 @@ def create_form_template():
         db.session.add(ques_lang_schema.load(curr_q))
         db.session.commit()
 
+
 def create_form(patient_id, fname, lname, age):
-    
+
     form = {
         "id": patient_id,
         "lang": "English",
@@ -709,60 +710,60 @@ def create_form(patient_id, fname, lname, age):
         "formClassificationId": "dc9",
         "questions": [
             {
-            "hasCommentAttached": False,
-            "required": False,
-            "id": "cat1_seed_test_data" + patient_id,
-            "formId": patient_id,
-            "visibleCondition": "[]",
-            "isBlank": False,
-            "mcOptions": "[]",
-            "questionIndex": 0,
-            "questionText": "Personal Information",
-            "questionType": "CATEGORY"
+                "hasCommentAttached": False,
+                "required": False,
+                "id": "cat1_seed_test_data" + patient_id,
+                "formId": patient_id,
+                "visibleCondition": "[]",
+                "isBlank": False,
+                "mcOptions": "[]",
+                "questionIndex": 0,
+                "questionText": "Personal Information",
+                "questionType": "CATEGORY",
             },
             {
-            "hasCommentAttached": False,
-            "required": False,
-            "id": "fname_seed_test_data" + patient_id,
-            "formId": patient_id,
-            "visibleCondition": "[]",
-            "isBlank": False,
-            "answers": f"{{\"text\": \"{fname}\"}}",
-            "mcOptions": "[]",
-            "questionIndex": 1,
-            "questionId": "",
-            "questionText": "First Name",
-            "questionType": "STRING"
+                "hasCommentAttached": False,
+                "required": False,
+                "id": "fname_seed_test_data" + patient_id,
+                "formId": patient_id,
+                "visibleCondition": "[]",
+                "isBlank": False,
+                "answers": f'{{"text": "{fname}"}}',
+                "mcOptions": "[]",
+                "questionIndex": 1,
+                "questionId": "",
+                "questionText": "First Name",
+                "questionType": "STRING",
             },
             {
-            "hasCommentAttached": False,
-            "required": False,
-            "id": "lname_seed_test_data" + patient_id,
-            "formId": patient_id,
-            "visibleCondition": "[]",
-            "isBlank": False,
-            "answers": f"{{\"text\": \"{lname}\"}}",
-            "mcOptions": "[]",
-            "questionIndex": 2,
-            "questionId": "",
-            "questionText": "Last Name",
-            "questionType": "STRING"
+                "hasCommentAttached": False,
+                "required": False,
+                "id": "lname_seed_test_data" + patient_id,
+                "formId": patient_id,
+                "visibleCondition": "[]",
+                "isBlank": False,
+                "answers": f'{{"text": "{lname}"}}',
+                "mcOptions": "[]",
+                "questionIndex": 2,
+                "questionId": "",
+                "questionText": "Last Name",
+                "questionType": "STRING",
             },
             {
-            "hasCommentAttached": False,
-            "required": False,
-            "id": "age_seed_test_data" + patient_id,
-            "formId": patient_id,
-            "visibleCondition": "[]",
-            "isBlank": False,
-            "answers": f"{{\"number\": {age}}}",
-            "mcOptions": "[]",
-            "questionIndex": 3,
-            "questionId": "",
-            "questionText": "Approximate Age",
-            "questionType": "INTEGER"
-            }
-        ]
+                "hasCommentAttached": False,
+                "required": False,
+                "id": "age_seed_test_data" + patient_id,
+                "formId": patient_id,
+                "visibleCondition": "[]",
+                "isBlank": False,
+                "answers": f'{{"number": {age}}}',
+                "mcOptions": "[]",
+                "questionIndex": 3,
+                "questionId": "",
+                "questionText": "Approximate Age",
+                "questionType": "INTEGER",
+            },
+        ],
     }
 
     form_schema = FormSchema()
@@ -770,7 +771,7 @@ def create_form(patient_id, fname, lname, age):
     db.session.commit()
 
 
-def getRandomInitials():    
+def getRandomInitials():
     return (
         random.choice(string.ascii_letters) + random.choice(string.ascii_letters)
     ).upper()
@@ -871,6 +872,7 @@ def generatePhoneNumbers():
 
 def getFacilityPhoneNumber(area_code):
     return facilityPhoneNumbers[area_code]
+
 
 def generateHealthFacilities():
     n = len(facilityLocations)
