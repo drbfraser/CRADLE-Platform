@@ -773,32 +773,34 @@ def create_form(patient_id, fname, lname, age):
     db.session.add(form_schema.load(form))
     db.session.commit()
 
+
 def create_relay_nums():
     relay_nums = [
         {
             "id": "num1_seed_test_data",
             "lastReceived": 1702801536,
             "description": "Main Server",
-            "phone": "+232 301 3425"
+            "phone": "+232 301 3425",
         },
         {
             "id": "num2_seed_test_data",
             "lastReceived": 1702788502,
             "description": "Hospital H000",
-            "phone": "+232 221 5555"
+            "phone": "+232 221 5555",
         },
         {
             "id": "num3_seed_test_data",
             "lastReceived": 1667356312,
             "description": "Backup Server",
-            "phone": "+232 865 1245"
-        }
+            "phone": "+232 865 1245",
+        },
     ]
 
     for curr_num in relay_nums:
         relay_schema = RelayServerPhoneNumberSchema()
         db.session.add(relay_schema.load(curr_num))
         db.session.commit()
+
 
 def getRandomInitials():
     return (

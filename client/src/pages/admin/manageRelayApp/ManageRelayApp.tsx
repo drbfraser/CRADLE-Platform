@@ -80,7 +80,6 @@ export const ManageRelayApp = () => {
     phone: '',
     description: '',
     lastReceived: 0,
-    archived: false
   };
 
   const validationSchema = yup.object({
@@ -128,7 +127,6 @@ export const ManageRelayApp = () => {
       setErrorLoading(true);
     }
   };
-
 
   const getRelayNums = async () => {
     try {
@@ -443,7 +441,6 @@ export const ManageRelayApp = () => {
           setDeletePopupOpen(false);
           getRelayNums();
         }}
-        relayNums={relayNums}
         deleteRelayNum={popupRelayNum}
       />
 

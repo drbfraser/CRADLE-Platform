@@ -10,18 +10,15 @@ from enums import RoleEnum
 from api.util import filterPairsWithNone
 
 parser = reqparse.RequestParser()
+parser.add_argument("phone", type=str, required=True, help="Phone number is required.")
+parser.add_argument("description", type=str, required=False)
 parser.add_argument(
-    "phone", type=str, required=True, help="Phone number is required."
+    "id", type=str, required=True, help="ID is required for this operation."
 )
-parser.add_argument(
-    "description", type=str, required=False)
-parser.add_argument(
-    "id", type=str, required=True,  help="ID is required for this operation.")
-parser.add_argument(
-    "lastRecieved", type=int, required=False)
+parser.add_argument("lastRecieved", type=int, required=False)
+
 
 class RelayServerPhoneNumbers(Resource):
-
     @jwt_required()
     @swag_from(
         "../../specifications/relay-server-phone-number-get.yml", methods=["GET"]
@@ -50,21 +47,21 @@ class RelayServerPhoneNumbers(Resource):
         return {"message": "Relay server phone number added successfully"}, 200
 
     @staticmethod
-    @roles_required([RoleEnum.ADMIN]) #if only admin can post, can only admin put?
+    @roles_required([RoleEnum.ADMIN])
     @swag_from(
         "../../specifications/relay-server-phone-number-put.yml",
         methods=["PUT"],
     )
     def put():
-      
+
         req = request.get_json(force=True)
 
         if len(req) == 0:
             abort(400, message="Request body is empty")
-        
+
         serverUpdates = filterPairsWithNone(parser.parse_args())
 
-        if 'id' not in serverUpdates:
+        if "id" not in serverUpdates:
             return {"message": "No id found in the request"}, 400
 
         id = serverUpdates["id"]
@@ -85,16 +82,16 @@ class RelayServerPhoneNumbers(Resource):
 
         if len(req) == 0:
             abort(400, message="Request body is empty")
-        
+
         serverDelete = filterPairsWithNone(parser.parse_args())
 
-        if 'id' not in serverDelete:
+        if "id" not in serverDelete:
             return {"message": "No id found in the request"}, 400
 
         id = serverDelete["id"]
 
         num = crud.read(RelayServerPhoneNumber, id=id)
-        
+
         if num is None:
             return {"message": "Relay server does not contain a number"}, 400
 
