@@ -64,7 +64,7 @@ class RelayServerPhoneNumbers(Resource):
         
         serverUpdates = filterPairsWithNone(parser.parse_args())
 
-        if 'id' not in serverDelete:
+        if 'id' not in serverUpdates:
             return {"message": "No id found in the request"}, 400
 
         id = serverUpdates["id"]
