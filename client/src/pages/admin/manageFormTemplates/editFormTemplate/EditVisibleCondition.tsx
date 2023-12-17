@@ -101,7 +101,6 @@ const EditVisibleCondition = ({
   }, [selectedQIndex, selectedConditional, selectedAnswer]);
 
   useEffect(() => {
-    console.log(selectedQIndex);
     if (!selectedQIndex) return;
     setQuestion((question) => {
       question[0].questionText =
