@@ -101,7 +101,7 @@ const EditVisibleCondition = ({
   }, [selectedQIndex, selectedConditional, selectedAnswer]);
 
   useEffect(() => {
-    if (!selectedQIndex) return;
+    if (selectedQIndex === '') return;
     setQuestion((question) => {
       question[0].questionText =
         filteredQs[+selectedQIndex].questionLangVersions[0].questionText;
