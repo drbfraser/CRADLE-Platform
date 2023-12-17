@@ -254,8 +254,8 @@ export const FormQuestions = ({
           <Grid
             item
             xs={12}
-            sm={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 7 : 12}
-            md={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 5 : 12}>
+            sm={renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? 7 : 12}
+            md={renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? 5 : 12}>
             <Typography component="h3" variant="h5">
               <CategorySharp fontSize="large" /> &nbsp; {text}
             </Typography>
@@ -267,9 +267,19 @@ export const FormQuestions = ({
         return (
           <Grid
             item
-            xs={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
-            md={renderState == FormRenderStateEnum.VIS_COND ? 12 : 6}
-            lg={renderState == FormRenderStateEnum.VIS_COND ? 12 : 4}>
+            xs={renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
+            md={
+              renderState === FormRenderStateEnum.VIS_COND ||
+              renderState === FormRenderStateEnum.VIS_COND_DISABLED
+                ? 12
+                : 6
+            }
+            lg={
+              renderState === FormRenderStateEnum.VIS_COND ||
+              renderState === FormRenderStateEnum.VIS_COND_DISABLED
+                ? 12
+                : 4
+            }>
             <FormLabel id={`question_${question.questionIndex}`}>
               <Typography variant="h6">
                 {`${text}`}
@@ -294,7 +304,8 @@ export const FormQuestions = ({
                       color="primary"
                       disabled={
                         renderState === FormRenderStateEnum.VIEW ||
-                        renderState === FormRenderStateEnum.SUBMIT_TEMPLATE
+                        renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ||
+                        renderState === FormRenderStateEnum.VIS_COND_DISABLED
                       }
                     />
                   }
@@ -309,9 +320,19 @@ export const FormQuestions = ({
         return (
           <Grid
             item
-            xs={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
-            md={renderState === FormRenderStateEnum.VIS_COND ? 12 : 6}
-            lg={renderState === FormRenderStateEnum.VIS_COND ? 12 : 4}>
+            xs={renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
+            md={
+              renderState === FormRenderStateEnum.VIS_COND ||
+              renderState === FormRenderStateEnum.VIS_COND_DISABLED
+                ? 12
+                : 6
+            }
+            lg={
+              renderState === FormRenderStateEnum.VIS_COND ||
+              renderState === FormRenderStateEnum.VIS_COND_DISABLED
+                ? 12
+                : 4
+            }>
             <FormLabel>
               <Typography variant="h6">
                 {`${text}${required ? ' *' : ''}`}
@@ -338,7 +359,8 @@ export const FormQuestions = ({
                 key={mcOption.opt} // Use a unique key
                 disabled={
                   renderState === FormRenderStateEnum.VIEW ||
-                  renderState === FormRenderStateEnum.SUBMIT_TEMPLATE
+                  renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ||
+                  renderState === FormRenderStateEnum.VIS_COND_DISABLED
                 }
               />
             ))}
@@ -349,9 +371,19 @@ export const FormQuestions = ({
         return (
           <Grid
             item
-            xs={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
-            md={renderState == FormRenderStateEnum.VIS_COND ? 12 : 6}
-            lg={renderState == FormRenderStateEnum.VIS_COND ? 12 : 4}>
+            xs={renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
+            md={
+              renderState === FormRenderStateEnum.VIS_COND ||
+              renderState === FormRenderStateEnum.VIS_COND_DISABLED
+                ? 12
+                : 6
+            }
+            lg={
+              renderState === FormRenderStateEnum.VIS_COND ||
+              renderState === FormRenderStateEnum.VIS_COND_DISABLED
+                ? 12
+                : 4
+            }>
             <Field
               label={text}
               component={TextField}
@@ -361,7 +393,8 @@ export const FormQuestions = ({
               fullWidth
               disabled={
                 renderState === FormRenderStateEnum.VIEW ||
-                renderState === FormRenderStateEnum.SUBMIT_TEMPLATE
+                renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ||
+                renderState === FormRenderStateEnum.VIS_COND_DISABLED
               }
               required={required}
               InputProps={{
@@ -397,9 +430,19 @@ export const FormQuestions = ({
         return (
           <Grid
             item
-            xs={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
-            md={renderState == FormRenderStateEnum.VIS_COND ? 12 : 6}
-            lg={renderState == FormRenderStateEnum.VIS_COND ? 12 : 4}>
+            xs={renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
+            md={
+              renderState === FormRenderStateEnum.VIS_COND ||
+              renderState === FormRenderStateEnum.VIS_COND_DISABLED
+                ? 12
+                : 6
+            }
+            lg={
+              renderState === FormRenderStateEnum.VIS_COND ||
+              renderState === FormRenderStateEnum.VIS_COND_DISABLED
+                ? 12
+                : 4
+            }>
             <Field
               label={text}
               component={TextField}
@@ -409,7 +452,8 @@ export const FormQuestions = ({
               fullWidth
               disabled={
                 renderState === FormRenderStateEnum.VIEW ||
-                renderState === FormRenderStateEnum.SUBMIT_TEMPLATE
+                renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ||
+                renderState === FormRenderStateEnum.VIS_COND_DISABLED
               }
               multiline
               inputProps={{
@@ -433,9 +477,19 @@ export const FormQuestions = ({
         return (
           <Grid
             item
-            xs={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
-            md={renderState == FormRenderStateEnum.VIS_COND ? 12 : 6}
-            lg={renderState == FormRenderStateEnum.VIS_COND ? 12 : 4}>
+            xs={renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
+            md={
+              renderState === FormRenderStateEnum.VIS_COND ||
+              renderState === FormRenderStateEnum.VIS_COND_DISABLED
+                ? 12
+                : 6
+            }
+            lg={
+              renderState === FormRenderStateEnum.VIS_COND ||
+              renderState === FormRenderStateEnum.VIS_COND_DISABLED
+                ? 12
+                : 4
+            }>
             <Field
               label={text}
               component={TextField}
@@ -444,7 +498,8 @@ export const FormQuestions = ({
               fullWidth
               disabled={
                 renderState === FormRenderStateEnum.VIEW ||
-                renderState === FormRenderStateEnum.SUBMIT_TEMPLATE
+                renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ||
+                renderState === FormRenderStateEnum.VIS_COND_DISABLED
               }
               required={required}
               variant="outlined"
@@ -468,9 +523,19 @@ export const FormQuestions = ({
         return (
           <Grid
             item
-            xs={renderState == FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
-            md={renderState == FormRenderStateEnum.VIS_COND ? 12 : 6}
-            lg={renderState == FormRenderStateEnum.VIS_COND ? 12 : 4}>
+            xs={renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
+            md={
+              renderState === FormRenderStateEnum.VIS_COND ||
+              renderState === FormRenderStateEnum.VIS_COND_DISABLED
+                ? 12
+                : 6
+            }
+            lg={
+              renderState === FormRenderStateEnum.VIS_COND ||
+              renderState === FormRenderStateEnum.VIS_COND_DISABLED
+                ? 12
+                : 4
+            }>
             <Field
               label={text}
               component={TextField}
@@ -479,7 +544,8 @@ export const FormQuestions = ({
               fullWidth
               disabled={
                 renderState === FormRenderStateEnum.VIEW ||
-                renderState === FormRenderStateEnum.SUBMIT_TEMPLATE
+                renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ||
+                renderState === FormRenderStateEnum.VIS_COND_DISABLED
               }
               required={required}
               variant="outlined"

@@ -32,6 +32,7 @@ import EditVisibleCondition from './EditVisibleCondition';
 interface IProps {
   open: boolean;
   onClose: () => void;
+  visibilityDisabled: boolean;
   inputLanguages: string[];
   setForm?: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
   question?: TQuestion;
@@ -43,6 +44,7 @@ interface IProps {
 const EditCategory = ({
   open,
   onClose,
+  visibilityDisabled,
   inputLanguages,
   setForm,
   question,
@@ -184,6 +186,7 @@ const EditCategory = ({
                     control={
                       <Switch
                         checked={enableVisibility}
+                        disabled={visibilityDisabled}
                         onChange={(e) =>
                           handlers.handleVisibilityChange(
                             e,
@@ -205,7 +208,9 @@ const EditCategory = ({
                           disableFocusListener
                           disableTouchListener
                           title={
-                            'Set this field to only appear after a specific field value is entered'
+                            visibilityDisabled
+                              ? 'Cannot edit if parent category already has a visibility condition'
+                              : 'Set this field to only appear after a specific field value is entered'
                           }
                           arrow
                           placement="right">
@@ -221,7 +226,8 @@ const EditCategory = ({
                 {enableVisibility ? (
                   <Grid item sm={12} md={10} lg={10}>
                     <EditVisibleCondition
-                      currQuestion={question}
+                      currVisCond={question?.visibleCondition[0]}
+                      disabled={visibilityDisabled}
                       filteredQs={questionsArr.filter(
                         (q) =>
                           q.questionType != QuestionTypeEnum.CATEGORY &&

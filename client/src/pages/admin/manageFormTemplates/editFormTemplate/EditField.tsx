@@ -40,6 +40,9 @@ interface IProps {
   setForm?: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
   question?: TQuestion;
   questionsArr: TQuestion[];
+  visibilityDisabled: boolean;
+  visibleCondition: QCondition[];
+  setVisibleCondition: Dispatch<SetStateAction<QCondition[]>>;
   visibilityToggle: boolean;
   setVisibilityToggle: Dispatch<SetStateAction<boolean>>;
   categoryIndex: number | null;
@@ -61,6 +64,9 @@ const EditField = ({
   setForm,
   question,
   questionsArr,
+  visibilityDisabled,
+  visibleCondition,
+  setVisibleCondition,
   visibilityToggle,
   setVisibilityToggle,
   categoryIndex,
@@ -71,7 +77,6 @@ const EditField = ({
   const [questionLangVersions, setQuestionLangversions] = useState<
     QuestionLangVersion[]
   >([] as QuestionLangVersion[]);
-  const [visibleCondition, setVisibleCondition] = useState<QCondition[]>([]);
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
   const [fieldChanged, setFieldChanged] = useState(false);
   const [formDirty, setFormDirty] = useState(false);
@@ -249,6 +254,15 @@ const EditField = ({
   };
 
   useEffect(() => {
+    if (
+      categoryIndex !== null &&
+      questionsArr[categoryIndex].visibleCondition.length > 0
+    ) {
+      setVisibleCondition(questionsArr[categoryIndex].visibleCondition);
+    }
+  }, [open]);
+
+  useEffect(() => {
     // edit field
     if (formDirty) {
       setFieldType(fieldType);
@@ -275,7 +289,6 @@ const EditField = ({
         setQuestionId('');
         setQuestionLangversions([]);
         setNumChoices(0);
-        setVisibilityToggle(false);
         setIsRequired(false);
       }
     }
@@ -460,6 +473,7 @@ const EditField = ({
                     control={
                       <Switch
                         checked={visibilityToggle}
+                        disabled={visibilityDisabled}
                         onChange={(e) =>
                           handlers.handleVisibilityChange(
                             e,
@@ -481,7 +495,9 @@ const EditField = ({
                           disableFocusListener
                           disableTouchListener
                           title={
-                            'Set this field to only appear after a specific field value is entered'
+                            visibilityDisabled
+                              ? 'Cannot edit if category already has a visibility condition'
+                              : 'Set this field to only appear after a specific field value is entered'
                           }
                           arrow
                           placement="right">
@@ -497,10 +513,17 @@ const EditField = ({
                 <Grid item sm={12} md={10} lg={10}>
                   {visibilityToggle ? (
                     <EditVisibleCondition
-                      currQuestion={question}
+                      currVisCond={
+                        visibleCondition[0] ??
+                        question?.visibleCondition[0] ??
+                        null
+                      }
+                      disabled={visibilityDisabled}
                       filteredQs={questionsArr.filter(
                         (q) =>
                           q.questionType != QuestionTypeEnum.CATEGORY &&
+                          q.categoryIndex != categoryIndex &&
+                          q.categoryIndex != question?.categoryIndex &&
                           q != question
                       )}
                       setVisibleCondition={setVisibleCondition}

@@ -22,7 +22,8 @@ import {
 } from '../../../customizedForm/customizedEditForm/state';
 
 interface IProps {
-  currQuestion?: TQuestion;
+  currVisCond?: QCondition;
+  disabled: boolean;
   filteredQs: TQuestion[];
   setVisibleCondition: Dispatch<SetStateAction<QCondition[]>>;
   setFieldChanged: Dispatch<SetStateAction<boolean>>;
@@ -30,16 +31,13 @@ interface IProps {
 }
 
 const EditVisibleCondition = ({
-  currQuestion,
+  currVisCond,
+  disabled,
   filteredQs: filteredQs,
   setVisibleCondition,
   setFieldChanged,
   origFieldChanged,
 }: IProps) => {
-  const currVisCond =
-    currQuestion && currQuestion.visibleCondition[0]
-      ? currQuestion.visibleCondition[0]
-      : null;
   const [childFieldChanged, setChildFieldChanged] = useState(origFieldChanged);
   // selectedQIndex is filteredQs[index]
   const [selectedQIndex, setSelectedQIndex] = useState<string>(
@@ -141,6 +139,7 @@ const EditVisibleCondition = ({
                   <InputLabel id="question-select-label">Question</InputLabel>
                   <Select
                     labelId="question-select-label"
+                    disabled={disabled}
                     value={selectedQIndex}
                     label="Question"
                     defaultValue={selectedQIndex}
@@ -162,6 +161,7 @@ const EditVisibleCondition = ({
                   </InputLabel>
                   <Select
                     labelId="conditional-select-label"
+                    disabled={disabled}
                     value={selectedConditional}
                     label="Condition"
                     onChange={handleConditionChange}>
@@ -179,7 +179,9 @@ const EditVisibleCondition = ({
               <Grid item xs={4}>
                 {FormQuestions({
                   questions: question,
-                  renderState: FormRenderStateEnum.VIS_COND,
+                  renderState: disabled
+                    ? FormRenderStateEnum.VIS_COND_DISABLED
+                    : FormRenderStateEnum.VIS_COND,
                   language:
                     filteredQs[+selectedQIndex].questionLangVersions[0].lang,
                   handleAnswers: (answers) => {

@@ -1,4 +1,8 @@
-import { FormTemplateWithQuestions, TQuestion } from 'src/shared/types';
+import {
+  FormTemplateWithQuestions,
+  QCondition,
+  TQuestion,
+} from 'src/shared/types';
 import { Field, Formik } from 'formik';
 import {
   Dispatch,
@@ -56,6 +60,7 @@ export const CustomizedFormWQuestions = ({
   const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
   const [submitError, setSubmitError] = useState(false);
   const [visibilityToggle, setVisibilityToggle] = useState(false);
+  const [visibleCondition, setVisibleCondition] = useState<QCondition[]>([]);
   const [isSubmitPopupOpen, setIsSubmitPopupOpen] = useState(false);
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
   const [, upd] = useReducer((x) => x + 1, 0);
@@ -119,6 +124,7 @@ export const CustomizedFormWQuestions = ({
   const handleEditField = (question: TQuestion) => {
     setSelectedQuestionIndex(question.questionIndex);
     if (question.questionType == QuestionTypeEnum.CATEGORY) {
+      setCategoryIndex(question.categoryIndex);
       setCategoryEditPopupOpen(true);
     } else {
       setVisibilityToggle(
@@ -316,6 +322,10 @@ export const CustomizedFormWQuestions = ({
         onClose={() => {
           setCategoryPopupOpen(false);
         }}
+        visibilityDisabled={
+          categoryIndex != null &&
+          fm.questions[categoryIndex].visibleCondition.length > 0
+        }
         inputLanguages={languages}
         setForm={setForm}
         questionsArr={fm.questions}
@@ -330,6 +340,12 @@ export const CustomizedFormWQuestions = ({
         inputLanguages={languages}
         setForm={setForm}
         questionsArr={fm.questions}
+        visibilityDisabled={
+          categoryIndex != null &&
+          fm.questions[categoryIndex].visibleCondition.length > 0
+        }
+        visibleCondition={visibleCondition}
+        setVisibleCondition={setVisibleCondition}
         visibilityToggle={visibilityToggle}
         setVisibilityToggle={setVisibilityToggle}
         categoryIndex={categoryIndex}
@@ -455,7 +471,12 @@ export const CustomizedFormWQuestions = ({
                               onClick={() => {
                                 if (languages.length != 0) {
                                   setCategoryIndex(questions.indexOf(question));
-                                  setVisibilityToggle(false);
+                                  setVisibilityToggle(
+                                    question.visibleCondition.length > 0
+                                  );
+                                  setVisibleCondition(
+                                    question.visibleCondition
+                                  );
                                   setEditPopupOpen(true);
                                 } else {
                                   setSubmitError(true);
@@ -553,6 +574,13 @@ export const CustomizedFormWQuestions = ({
                           setForm={setForm}
                           question={question}
                           questionsArr={fm.questions}
+                          visibilityDisabled={
+                            question.categoryIndex != null &&
+                            fm.questions[question.categoryIndex]
+                              .visibleCondition.length > 0
+                          }
+                          visibleCondition={question.visibleCondition}
+                          setVisibleCondition={setVisibleCondition}
                           visibilityToggle={visibilityToggle}
                           setVisibilityToggle={setVisibilityToggle}
                           categoryIndex={categoryIndex}
@@ -563,6 +591,11 @@ export const CustomizedFormWQuestions = ({
                             setSelectedQuestionIndex(null);
                             setCategoryEditPopupOpen(false);
                           }}
+                          visibilityDisabled={
+                            categoryIndex != null &&
+                            fm.questions[categoryIndex].visibleCondition
+                              .length > 0
+                          }
                           question={question}
                           questionsArr={fm.questions}
                           inputLanguages={getInputLanguages(question)}
