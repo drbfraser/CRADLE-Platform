@@ -16,7 +16,7 @@ parser.add_argument(
 parser.add_argument(
     "description", type=str, required=False)
 parser.add_argument(
-    "id", type=str, required=False)
+    "id", type=str, required=True,  help="ID is required for this operation.")
 parser.add_argument(
     "lastRecieved", type=int, required=False)
 
@@ -58,20 +58,46 @@ class RelayServerPhoneNumbers(Resource):
     def put():
       
         req = request.get_json(force=True)
-        print("printing self:", req)
 
         if len(req) == 0:
             abort(400, message="Request body is empty")
         
         serverUpdates = filterPairsWithNone(parser.parse_args())
 
-        print("serverupd:", serverUpdates)
+        if 'id' not in serverDelete:
+            return {"message": "No id found in the request"}, 400
 
-        phone = serverUpdates["phone"]
-        phone = serverUpdates["description"]
         id = serverUpdates["id"]
 
         crud.update(RelayServerPhoneNumber, serverUpdates, id=id)
 
-        return {"message": "Finished update 2"}, 200
+        return {"message": "Relay server updated"}, 200
 
+    @staticmethod
+    @roles_required([RoleEnum.ADMIN])
+    @swag_from(
+        "../../specifications/relay-server-phone-number-put.yml",
+        methods=["DELETE"],
+    )
+    def delete():
+
+        req = request.get_json(force=True)
+
+        if len(req) == 0:
+            abort(400, message="Request body is empty")
+        
+        serverDelete = filterPairsWithNone(parser.parse_args())
+
+        if 'id' not in serverDelete:
+            return {"message": "No id found in the request"}, 400
+
+        id = serverDelete["id"]
+
+        num = crud.read(RelayServerPhoneNumber, id=id)
+        
+        if num is None:
+            return {"message": "Relay server does not contain a number"}, 400
+
+        crud.delete(num)
+
+        return {"message": "Relay number deleted"}, 200

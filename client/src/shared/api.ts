@@ -734,8 +734,6 @@ export const addRelayServerPhone = async (
 export const getRelayServerPhones = async () =>
   (await apiFetch(API_URL + EndpointEnum.RELAY_SERVER_PHONE)).json();
 
-  // ------------
-
 export const saveRelayNumAsync = async (relayNum: IRelayNum) => {
   apiFetch(API_URL + EndpointEnum.RELAY_SERVER_PHONE, 
     {
@@ -744,5 +742,11 @@ export const saveRelayNumAsync = async (relayNum: IRelayNum) => {
   });
 } 
 
-  // ------------
+export const deleteRelayNumAsync = async (relayNum: IRelayNum) => {
+  apiFetch(API_URL + EndpointEnum.RELAY_SERVER_PHONE, 
+  {
+    method: MethodEnum.DELETE,
+    body: JSON.stringify(relayNum),
+  }); 
+}
   

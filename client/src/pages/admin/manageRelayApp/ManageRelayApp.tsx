@@ -42,6 +42,7 @@ import { Field, Form, Formik } from 'formik';
 import { IRelayNum } from 'src/shared/types';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import EditRelayNum from './editRelayNum';
+import DeleteRelayNum from './DeleteRelayNum';
 
 export const ManageRelayApp = () => {
   //Styles
@@ -71,6 +72,7 @@ export const ManageRelayApp = () => {
   //Relay Number Actions
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [popupRelayNum, setPopupRelayNum] = useState<IRelayNum>();
+  const [deletePopupOpen, setDeletePopupOpen] = useState(false);
 
   const filename = 'cradle_sms_relay.apk';
 
@@ -219,9 +221,6 @@ export const ManageRelayApp = () => {
       tooltip: 'Edit',
       Icon: Edit,
       onClick: (relayNum: IRelayNum) => {
-        console.log("edit pop up open:", editPopupOpen);
-        console.log("pop up relay num", popupRelayNum);
-        console.log("onclick sending", relayNum);
         setPopupRelayNum(relayNum);
         setEditPopupOpen(true);
       },
@@ -230,7 +229,8 @@ export const ManageRelayApp = () => {
       tooltip: 'Delete',
       Icon: DeleteForever,
       onClick: (relayNum: IRelayNum) => {
-        // to do
+        setPopupRelayNum(relayNum);
+        setDeletePopupOpen(true);
       },
     },
     {
@@ -435,6 +435,16 @@ export const ManageRelayApp = () => {
         }}
         relayNums={relayNums}
         editRelayNum={popupRelayNum}
+      />
+
+      <DeleteRelayNum
+        open={deletePopupOpen}
+        onClose={() => {
+          setDeletePopupOpen(false);
+          getRelayNums();
+        }}
+        relayNums={relayNums}
+        deleteRelayNum={popupRelayNum}
       />
 
       <AdminTable
