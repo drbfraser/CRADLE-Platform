@@ -205,9 +205,10 @@ describe('Form templates', () => {
     );
     cy.get('.MuiButton-text').contains('Cancel').click();
 
-    cy.get(
-      '.MuiGrid-grid-sm-11 > .MuiFormControl-root > .MuiInputBase-root'
-    ).should('contain', 'Please specify other dietary restriction');
+    cy.get(':nth-child(8) > .MuiFormControl-root > .MuiInputBase-root').should(
+      'contain',
+      'Please specify other dietary restriction'
+    );
     // validate the editfield
     cy.get(
       ':nth-child(9) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
@@ -518,9 +519,10 @@ describe('Form templates', () => {
     );
     cy.get('.MuiButton-text').contains('Cancel').click();
 
-    cy.get(
-      '.MuiGrid-grid-sm-11 > .MuiFormControl-root > .MuiInputBase-root'
-    ).should('contain', 'Please specify other dietary restriction');
+    cy.get(':nth-child(8) > .MuiFormControl-root > .MuiInputBase-root').should(
+      'contain',
+      'Please specify other dietary restriction'
+    );
     // validate the editfield
     cy.get(
       ':nth-child(9) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
@@ -650,9 +652,10 @@ describe('Form templates', () => {
     );
     cy.get('.MuiButton-text').contains('Cancel').click();
 
-    cy.get(
-      '.MuiGrid-grid-sm-11 > .MuiFormControl-root > .MuiInputBase-root'
-    ).should('contain', 'Por favor especifique otra restricción dietética');
+    cy.get(':nth-child(8) > .MuiFormControl-root > .MuiInputBase-root').should(
+      'contain',
+      'Por favor especifique otra restricción dietética'
+    );
     // validate the editfield
     cy.get(
       ':nth-child(9) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
