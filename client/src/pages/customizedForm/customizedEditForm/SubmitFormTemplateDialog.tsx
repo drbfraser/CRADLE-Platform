@@ -12,6 +12,7 @@ import { Toast } from 'src/shared/components/toast';
 import { submitFormTemplateAsync } from 'src/shared/api';
 import makeStyles from '@mui/styles/makeStyles';
 import { useState } from 'react';
+import { goBackWithFallback } from 'src/shared/utils';
 
 interface IProps {
   open: boolean;
@@ -32,6 +33,9 @@ const SubmitFormTemplateDialog = ({ open, onClose, form }: IProps) => {
     try {
       await submitFormTemplateAsync(form);
       setSubmitSuccess(true);
+      setTimeout(() => {
+        goBackWithFallback(`/admin/form-templates`);
+      }, 1000);
     } catch (e) {
       setSubmitError(true);
     }
