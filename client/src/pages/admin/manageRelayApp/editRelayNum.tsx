@@ -50,8 +50,8 @@ const EditRelayNum = ({ open, onClose, relayNums, editRelayNum }: IProps) => {
     return (
         <>
             <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
-            <Dialog open={open} maxWidth="sm" fullWidth>
-                <DialogTitle>Edit RelayNum</DialogTitle>
+            <Dialog open={open} maxWidth="md" fullWidth>
+                <DialogTitle>Edit Number</DialogTitle>
                 <DialogContent>
                     <Formik
                         initialValues={editRelayNum ?? RelayNumTemplate}
@@ -67,7 +67,6 @@ const EditRelayNum = ({ open, onClose, relayNums, editRelayNum }: IProps) => {
                                     required
                                     inputProps={{ maxLength: 50 }}
                                     variant="outlined"
-                                    label="Phone Number"
                                     name={RelayNumField.phone}
                                 />
                                 <br />
@@ -77,7 +76,6 @@ const EditRelayNum = ({ open, onClose, relayNums, editRelayNum }: IProps) => {
                                     fullWidth
                                     inputProps={{ maxLength: 50 }}
                                     variant="outlined"
-                                    label="Location"
                                     name={RelayNumField.description}
                                 />
                                 <br />
@@ -89,7 +87,7 @@ const EditRelayNum = ({ open, onClose, relayNums, editRelayNum }: IProps) => {
                                     <PrimaryButton
                                         type="submit"
                                         disabled={isSubmitting || !isValid}>
-                                        {creatingNew ? 'Create' : 'Save'}
+                                        Save
                                     </PrimaryButton>
                                 </DialogActions>
                             </Form>

@@ -127,19 +127,20 @@ export const ManageRelayApp = () => {
     }
   };
 
-  useEffect(() => {
-    const getRelayNums = async () => {
-      try {
-        const resp = await getRelayServerPhones();
-        if (resp) {
-          setRelayNums(resp);
-        }
-      } catch (e) {
-        e !== 404 && setErrorLoading(true);
-      }
-      setLoading(false);
-    };
 
+  const getRelayNums = async () => {
+    try {
+      const resp: IRelayNum[] = await getRelayServerPhones();
+      if (resp) {
+        setRelayNums(resp);
+      }
+    } catch (e) {
+      e !== 404 && setErrorLoading(true);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
     getRelayNums();
   }, []);
 
@@ -430,7 +431,7 @@ export const ManageRelayApp = () => {
         open={editPopupOpen}
         onClose={() => {
           setEditPopupOpen(false);
-          getRelayServerPhones();
+          getRelayNums();
         }}
         relayNums={relayNums}
         editRelayNum={popupRelayNum}
