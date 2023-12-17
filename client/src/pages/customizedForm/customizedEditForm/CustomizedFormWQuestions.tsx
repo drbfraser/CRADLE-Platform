@@ -149,6 +149,7 @@ export const CustomizedFormWQuestions = ({
 
   const handleDeleteField = (question: TQuestion) => {
     setSelectedQuestionIndex(question.questionIndex);
+    setCategoryIndex(null);
     if (question.questionType == QuestionTypeEnum.CATEGORY) {
       setIsDeletePopupOpen(true);
     } else {

@@ -262,4 +262,59 @@ describe('Form templates', () => {
       'Form Template Saved!'
     );
   });
+
+  it('deletes all questions in a category then deletes the category', () => {
+    cy.get('.MuiTableBody-root')
+      .contains('NEET Check-in')
+      .siblings()
+      .children()
+      .find('[data-testid="EditIcon"]')
+      .click();
+    cy.wait(1000);
+    cy.contains('.MuiOutlinedInput-root', 'Title')
+      .children('.MuiOutlinedInput-input')
+      .should('have.value', 'NEET Check-in');
+    cy.contains('.MuiOutlinedInput-root', 'Version')
+      .children('.MuiOutlinedInput-input')
+      .clear()
+      .type('4');
+    // add the category to delete
+    cy.get('.MuiButton-contained').contains('Add Category').click();
+    cy.contains('.MuiOutlinedInput-root', 'English Category Name').type(
+      'Career Path'
+    );
+    cy.get('.MuiButton-contained').contains('Save').click();
+    // add a sub-category to the category
+    cy.get('.MuiTypography-root')
+      .contains('Career Path')
+      .parent()
+      .next()
+      .find('.MuiButton-contained')
+      .click();
+    cy.contains('.MuiOutlinedInput-root', 'Field Text').type('Career Goals');
+    cy.get('.MuiButton-contained').contains('Save').click();
+    // first delete the sub category
+    cy.get(
+      ':nth-child(17) > :nth-child(4) > .MuiButtonBase-root > [data-testid="DeleteIcon"]'
+    ).click();
+    cy.get('.MuiDialogActions-root > .MuiButton-contained').click();
+    // next delete the category
+    cy.get(
+      ':nth-child(13) > :nth-child(4) > .MuiButtonBase-root > [data-testid="DeleteIcon"]'
+    ).click();
+    cy.get('.MuiDialogActions-root > .MuiButton-contained').click();
+    // save form
+    cy.get('.MuiInputBase-root').contains('Current Status').should('not.exist');
+    cy.get('.MuiTypography-root').contains('NEET Status').should('exist');
+    cy.get('.MuiGrid-container > .MuiButtonBase-root')
+      .contains('Submit Template')
+      .click();
+    cy.get('.MuiDialogActions-root > .MuiButton-contained')
+      .contains('Submit')
+      .click();
+    cy.get('.MuiAlert-message', { timeout: 10000 }).should(
+      'have.text',
+      'Form Template Saved!'
+    );
+  });
 });
