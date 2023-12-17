@@ -41,6 +41,8 @@ import { useAdminStyles } from '../adminStyles';
 import { Field, Form, Formik } from 'formik';
 import { IRelayNum } from 'src/shared/types';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
+import EditRelayNum from './editRelayNum';
+import DeleteRelayNum from './DeleteRelayNum';
 
 export const ManageRelayApp = () => {
   //Styles
@@ -66,6 +68,11 @@ export const ManageRelayApp = () => {
   //Relay App Actions
   const [AppActionsPopup, openAppActionsPopup] = useState(false);
   const [NewNumberDialog, openAddNewNumberDialog] = useState(false);
+
+  //Relay Number Actions
+  const [editPopupOpen, setEditPopupOpen] = useState(false);
+  const [popupRelayNum, setPopupRelayNum] = useState<IRelayNum>();
+  const [deletePopupOpen, setDeletePopupOpen] = useState(false);
 
   const filename = 'cradle_sms_relay.apk';
 
@@ -121,19 +128,19 @@ export const ManageRelayApp = () => {
     }
   };
 
-  useEffect(() => {
-    const getRelayNums = async () => {
-      try {
-        const resp = await getRelayServerPhones();
-        if (resp) {
-          setRelayNums(resp);
-        }
-      } catch (e) {
-        e !== 404 && setErrorLoading(true);
+  const getRelayNums = async () => {
+    try {
+      const resp: IRelayNum[] = await getRelayServerPhones();
+      if (resp) {
+        setRelayNums(resp);
       }
-      setLoading(false);
-    };
+    } catch (e) {
+      e !== 404 && setErrorLoading(true);
+    }
+    setLoading(false);
+  };
 
+  useEffect(() => {
     getRelayNums();
   }, []);
 
@@ -211,21 +218,23 @@ export const ManageRelayApp = () => {
     {
       tooltip: 'Edit',
       Icon: Edit,
-      onClick: async (relayNum: IRelayNum) => {
-        // to do
+      onClick: (relayNum: IRelayNum) => {
+        setPopupRelayNum(relayNum);
+        setEditPopupOpen(true);
       },
     },
     {
       tooltip: 'Delete',
       Icon: DeleteForever,
       onClick: (relayNum: IRelayNum) => {
-        // to do
+        setPopupRelayNum(relayNum);
+        setDeletePopupOpen(true);
       },
     },
     {
       tooltip: 'Download Logs',
       Icon: CloudDownloadOutlined,
-      onClick: async (relayNum: IRelayNum) => {
+      onClick: (relayNum: IRelayNum) => {
         // to do
       },
     },
@@ -415,6 +424,25 @@ export const ManageRelayApp = () => {
           </DialogActions>
         </DialogContent>
       </Dialog>
+
+      <EditRelayNum
+        open={editPopupOpen}
+        onClose={() => {
+          setEditPopupOpen(false);
+          getRelayNums();
+        }}
+        relayNums={relayNums}
+        editRelayNum={popupRelayNum}
+      />
+
+      <DeleteRelayNum
+        open={deletePopupOpen}
+        onClose={() => {
+          setDeletePopupOpen(false);
+          getRelayNums();
+        }}
+        deleteRelayNum={popupRelayNum}
+      />
 
       <AdminTable
         title="Relay App Servers"

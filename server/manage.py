@@ -203,6 +203,9 @@ def seed_test_data(ctx):
     create_form("49300028162", "Anna", "Bee", 31)
     create_form("49300028163", "Dianna", "Ele", 25)
 
+    print("Adding relay server numbers to admin page...")
+    create_relay_nums()
+
     print("Finished seeding test data")
 
 
@@ -618,7 +621,7 @@ def create_form_template():
             {
                 "formTemplateId": "dt9",
                 "id": "fname_seed_test_data",
-                "categoryIndex": None,
+                "categoryIndex": 0,
                 "questionId": "",
                 "questionIndex": 1,
                 "isBlank": True,
@@ -633,7 +636,7 @@ def create_form_template():
             {
                 "formTemplateId": "dt9",
                 "id": "lname_seed_test_data",
-                "categoryIndex": None,
+                "categoryIndex": 0,
                 "questionId": "",
                 "questionIndex": 2,
                 "isBlank": True,
@@ -648,7 +651,7 @@ def create_form_template():
             {
                 "formTemplateId": "dt9",
                 "id": "age_seed_test_data",
-                "categoryIndex": None,
+                "categoryIndex": 0,
                 "questionId": "",
                 "questionIndex": 3,
                 "isBlank": True,
@@ -717,6 +720,7 @@ def create_form(patient_id, fname, lname, age):
                 "visibleCondition": "[]",
                 "isBlank": False,
                 "mcOptions": "[]",
+                "categoryIndex": None,
                 "questionIndex": 0,
                 "questionText": "Personal Information",
                 "questionType": "CATEGORY",
@@ -730,6 +734,7 @@ def create_form(patient_id, fname, lname, age):
                 "isBlank": False,
                 "answers": f'{{"text": "{fname}"}}',
                 "mcOptions": "[]",
+                "categoryIndex": 0,
                 "questionIndex": 1,
                 "questionId": "",
                 "questionText": "First Name",
@@ -744,6 +749,7 @@ def create_form(patient_id, fname, lname, age):
                 "isBlank": False,
                 "answers": f'{{"text": "{lname}"}}',
                 "mcOptions": "[]",
+                "categoryIndex": 0,
                 "questionIndex": 2,
                 "questionId": "",
                 "questionText": "Last Name",
@@ -758,6 +764,7 @@ def create_form(patient_id, fname, lname, age):
                 "isBlank": False,
                 "answers": f'{{"number": {age}}}',
                 "mcOptions": "[]",
+                "categoryIndex": 0,
                 "questionIndex": 3,
                 "questionId": "",
                 "questionText": "Approximate Age",
@@ -769,6 +776,34 @@ def create_form(patient_id, fname, lname, age):
     form_schema = FormSchema()
     db.session.add(form_schema.load(form))
     db.session.commit()
+
+
+def create_relay_nums():
+    relay_nums = [
+        {
+            "id": "num1_seed_test_data",
+            "lastReceived": 1702801536,
+            "description": "Main Server",
+            "phone": "+232 301 3425",
+        },
+        {
+            "id": "num2_seed_test_data",
+            "lastReceived": 1702788502,
+            "description": "Hospital H000",
+            "phone": "+232 221 5555",
+        },
+        {
+            "id": "num3_seed_test_data",
+            "lastReceived": 1667356312,
+            "description": "Backup Server",
+            "phone": "+232 865 1245",
+        },
+    ]
+
+    for curr_num in relay_nums:
+        relay_schema = RelayServerPhoneNumberSchema()
+        db.session.add(relay_schema.load(curr_num))
+        db.session.commit()
 
 
 def getRandomInitials():
