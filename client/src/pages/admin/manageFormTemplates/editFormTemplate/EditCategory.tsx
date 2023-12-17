@@ -267,6 +267,38 @@ const EditCategory = ({
                       questionToUpdate.visibleCondition = enableVisibility
                         ? visibleCondition
                         : [];
+                      // children of the edited category must inherit the visibility condition (or lack thereof)
+                      const visCondsToUpdate: TQuestion[] = [];
+                      form.questions.forEach((q) => {
+                        if (q.categoryIndex === null) return;
+                        if (
+                          q.categoryIndex === questionToUpdate.questionIndex
+                        ) {
+                          visCondsToUpdate.push(q);
+                          return;
+                        }
+                        let rootCatIndex: number | null = q.categoryIndex;
+                        while (
+                          rootCatIndex !== null &&
+                          form.questions[rootCatIndex].categoryIndex
+                        ) {
+                          if (
+                            q.categoryIndex === questionToUpdate.questionIndex
+                          ) {
+                            visCondsToUpdate.push(q);
+                            return;
+                          }
+                          rootCatIndex =
+                            form.questions[rootCatIndex].categoryIndex;
+                        }
+                        if (rootCatIndex === questionToUpdate.questionIndex) {
+                          visCondsToUpdate.push(q);
+                        }
+                      });
+                      visCondsToUpdate.forEach((q) => {
+                        form.questions[q.questionIndex].visibleCondition =
+                          enableVisibility ? visibleCondition : [];
+                      });
                     }
                   }
                   // create new field

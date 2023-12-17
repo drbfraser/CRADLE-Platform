@@ -55,6 +55,7 @@ export const CustomizedFormWQuestions = ({
   const questions = fm.questions;
   const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
   const [submitError, setSubmitError] = useState(false);
+  const [visibilityToggle, setVisibilityToggle] = useState(false);
   const [isSubmitPopupOpen, setIsSubmitPopupOpen] = useState(false);
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
   const [, upd] = useReducer((x) => x + 1, 0);
@@ -120,6 +121,10 @@ export const CustomizedFormWQuestions = ({
     if (question.questionType == QuestionTypeEnum.CATEGORY) {
       setCategoryEditPopupOpen(true);
     } else {
+      setVisibilityToggle(
+        selectedQuestionIndex != null &&
+          fm.questions[selectedQuestionIndex]?.visibleCondition.length > 0
+      );
       setIndividualEditPopupOpen(true);
     }
   };
@@ -325,7 +330,8 @@ export const CustomizedFormWQuestions = ({
         inputLanguages={languages}
         setForm={setForm}
         questionsArr={fm.questions}
-        visibilityToggle={false}
+        visibilityToggle={visibilityToggle}
+        setVisibilityToggle={setVisibilityToggle}
         categoryIndex={categoryIndex}
       />
       <DeleteCategoryDialog
@@ -449,6 +455,7 @@ export const CustomizedFormWQuestions = ({
                               onClick={() => {
                                 if (languages.length != 0) {
                                   setCategoryIndex(questions.indexOf(question));
+                                  setVisibilityToggle(false);
                                   setEditPopupOpen(true);
                                 } else {
                                   setSubmitError(true);
@@ -546,11 +553,8 @@ export const CustomizedFormWQuestions = ({
                           setForm={setForm}
                           question={question}
                           questionsArr={fm.questions}
-                          visibilityToggle={
-                            selectedQuestionIndex != null &&
-                            questions[selectedQuestionIndex]?.visibleCondition
-                              .length > 0
-                          }
+                          visibilityToggle={visibilityToggle}
+                          setVisibilityToggle={setVisibilityToggle}
                           categoryIndex={categoryIndex}
                         />
                         <EditCategory
@@ -565,8 +569,8 @@ export const CustomizedFormWQuestions = ({
                           setForm={setForm}
                           visibilityToggle={
                             selectedQuestionIndex != null &&
-                            questions[selectedQuestionIndex]?.visibleCondition
-                              .length > 0
+                            fm.questions[selectedQuestionIndex]
+                              ?.visibleCondition.length > 0
                           }
                           categoryIndex={categoryIndex}
                         />

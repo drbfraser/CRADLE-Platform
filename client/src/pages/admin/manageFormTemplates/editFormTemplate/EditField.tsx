@@ -41,6 +41,7 @@ interface IProps {
   question?: TQuestion;
   questionsArr: TQuestion[];
   visibilityToggle: boolean;
+  setVisibilityToggle: Dispatch<SetStateAction<boolean>>;
   categoryIndex: number | null;
 }
 
@@ -61,6 +62,7 @@ const EditField = ({
   question,
   questionsArr,
   visibilityToggle,
+  setVisibilityToggle,
   categoryIndex,
 }: IProps) => {
   const [fieldType, setFieldType] = useState<string>('category');
@@ -70,7 +72,6 @@ const EditField = ({
     QuestionLangVersion[]
   >([] as QuestionLangVersion[]);
   const [visibleCondition, setVisibleCondition] = useState<QCondition[]>([]);
-  const [enableVisibility, setEnableVisiblity] = useState(visibilityToggle);
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
   const [fieldChanged, setFieldChanged] = useState(false);
   const [formDirty, setFormDirty] = useState(false);
@@ -187,10 +188,10 @@ const EditField = ({
     });
     let areAllMcOptionFilled = true;
     const isFieldTypeChosen = fieldType.trim() != '';
-    let isVisCondAnswered = !enableVisibility;
+    let isVisCondAnswered = !visibilityToggle;
 
     if (
-      enableVisibility &&
+      visibilityToggle &&
       visibleCondition[0] &&
       visibleCondition[0].answers != null &&
       (visibleCondition[0].answers.comment ||
@@ -253,13 +254,12 @@ const EditField = ({
       setFieldType(fieldType);
       setQuestionId(questionId);
       setQuestionLangversions(questionLangVersions);
-      setEnableVisiblity(enableVisibility);
     } else {
       if (question) {
         setFieldType(getFieldType(question.questionType));
         setQuestionId(question.questionId ? question.questionId : '');
-        setEnableVisiblity(
-          enableVisibility || question.visibleCondition.length > 0
+        setVisibilityToggle(
+          visibilityToggle || question.visibleCondition.length > 0
         );
         setQuestionLangversions(
           getQLangVersionsCopy(question.questionLangVersions)
@@ -275,7 +275,7 @@ const EditField = ({
         setQuestionId('');
         setQuestionLangversions([]);
         setNumChoices(0);
-        setEnableVisiblity(false);
+        setVisibilityToggle(false);
         setIsRequired(false);
       }
     }
@@ -449,69 +449,68 @@ const EditField = ({
               </RadioGroup>
             </Grid>
             {fieldType ? fieldTypes[fieldType].render() : null}
-            {fieldType != 'category' &&
-              questionsArr.filter(
-                (q) =>
-                  q.questionType != QuestionTypeEnum.CATEGORY && q != question
-              ).length > 0 && (
-                <>
-                  <Grid item container sm={12} md={10} lg={10}>
-                    <FormControlLabel
-                      style={{ marginLeft: 0 }}
-                      control={
-                        <Switch
-                          checked={enableVisibility}
-                          onChange={(e) =>
-                            handlers.handleVisibilityChange(
-                              e,
-                              setEnableVisiblity,
-                              setFormDirty,
-                              setFieldChanged,
-                              fieldChanged
-                            )
-                          }
-                          data-testid="conditional-switch"
-                        />
-                      }
-                      label={
-                        <FormLabel id="vis-label" style={{ display: 'flex' }}>
-                          <Typography variant="h6">
-                            Conditional Visibility
-                          </Typography>
-                          <Tooltip
-                            disableFocusListener
-                            disableTouchListener
-                            title={
-                              'Set this field to only appear after a specific field value is entered'
-                            }
-                            arrow
-                            placement="right">
-                            <IconButton>
-                              <InfoIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                        </FormLabel>
-                      }
-                      labelPlacement="start"
-                    />
-                  </Grid>
-                  <Grid item sm={12} md={10} lg={10}>
-                    {enableVisibility ? (
-                      <EditVisibleCondition
-                        currQuestion={question}
-                        filteredQs={questionsArr.filter(
-                          (q) =>
-                            q.questionType != QuestionTypeEnum.CATEGORY &&
-                            q != question
-                        )}
-                        setVisibleCondition={setVisibleCondition}
-                        setFieldChanged={setFieldChanged}
-                        origFieldChanged={fieldChanged}
+            {questionsArr.filter(
+              (q) =>
+                q.questionType != QuestionTypeEnum.CATEGORY && q != question
+            ).length > 0 && (
+              <>
+                <Grid item container sm={12} md={10} lg={10}>
+                  <FormControlLabel
+                    style={{ marginLeft: 0 }}
+                    control={
+                      <Switch
+                        checked={visibilityToggle}
+                        onChange={(e) =>
+                          handlers.handleVisibilityChange(
+                            e,
+                            setVisibilityToggle,
+                            setFormDirty,
+                            setFieldChanged,
+                            fieldChanged
+                          )
+                        }
+                        data-testid="conditional-switch"
                       />
-                    ) : null}
-                  </Grid>
-                </>
-              )}
+                    }
+                    label={
+                      <FormLabel id="vis-label" style={{ display: 'flex' }}>
+                        <Typography variant="h6">
+                          Conditional Visibility
+                        </Typography>
+                        <Tooltip
+                          disableFocusListener
+                          disableTouchListener
+                          title={
+                            'Set this field to only appear after a specific field value is entered'
+                          }
+                          arrow
+                          placement="right">
+                          <IconButton>
+                            <InfoIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </FormLabel>
+                    }
+                    labelPlacement="start"
+                  />
+                </Grid>
+                <Grid item sm={12} md={10} lg={10}>
+                  {visibilityToggle ? (
+                    <EditVisibleCondition
+                      currQuestion={question}
+                      filteredQs={questionsArr.filter(
+                        (q) =>
+                          q.questionType != QuestionTypeEnum.CATEGORY &&
+                          q != question
+                      )}
+                      setVisibleCondition={setVisibleCondition}
+                      setFieldChanged={setFieldChanged}
+                      origFieldChanged={fieldChanged}
+                    />
+                  ) : null}
+                </Grid>
+              </>
+            )}
           </Grid>
           {fieldType != 'category' && (
             <Grid item>
@@ -558,7 +557,7 @@ const EditField = ({
             onClick={(e) => {
               setFormDirty(false);
               setNumChoices(0);
-              setEnableVisiblity(false);
+              setVisibilityToggle(false);
               onClose();
             }}>
             Cancel
@@ -571,7 +570,7 @@ const EditField = ({
                 if (fieldType != 'mult_choice' && fieldType != 'mult_select') {
                   removeAllMultChoices();
                 }
-                if (question && !enableVisibility) {
+                if (question && !visibilityToggle) {
                   question.visibleCondition.length = 0;
                 }
                 setForm((form) => {
@@ -586,7 +585,7 @@ const EditField = ({
                         questionLangVersions;
                       questionToUpdate.questionType =
                         fieldTypes[fieldType].type;
-                      questionToUpdate.visibleCondition = enableVisibility
+                      questionToUpdate.visibleCondition = visibilityToggle
                         ? visibleCondition
                         : [];
                       questionToUpdate.required = isRequired;

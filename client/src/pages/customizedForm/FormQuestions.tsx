@@ -148,7 +148,6 @@ export const FormQuestions = ({
   ) => {
     questions.forEach((question) => {
       question.shouldHidden =
-        question.questionType !== QuestionTypeEnum.CATEGORY &&
         question.visibleCondition?.length !== 0 &&
         question.visibleCondition.some((condition: QCondition) => {
           const parentQuestion = questions[condition.qidx];
