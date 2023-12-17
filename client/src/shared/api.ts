@@ -8,6 +8,7 @@ import {
   FormTemplate,
   FormTemplateWithQuestions,
   IFacility,
+  IRelayNum,
   IUser,
   IUserWithIndex,
   IVHT,
@@ -732,3 +733,16 @@ export const addRelayServerPhone = async (
 
 export const getRelayServerPhones = async () =>
   (await apiFetch(API_URL + EndpointEnum.RELAY_SERVER_PHONE)).json();
+
+  // ------------
+
+export const saveRelayNumAsync = async (relayNum: IRelayNum) => {
+  apiFetch(API_URL + EndpointEnum.RELAY_SERVER_PHONE, 
+    {
+    method: MethodEnum.PUT,
+    body: JSON.stringify(relayNum),
+  });
+} 
+
+  // ------------
+  

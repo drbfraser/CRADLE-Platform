@@ -7,13 +7,20 @@ from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort, reqparse
 from models import RelayServerPhoneNumber
 from enums import RoleEnum
+from api.util import filterPairsWithNone
 
+parser = reqparse.RequestParser()
+parser.add_argument(
+    "phone", type=str, required=True, help="Phone number is required."
+)
+parser.add_argument(
+    "description", type=str, required=False)
+parser.add_argument(
+    "id", type=str, required=False)
+parser.add_argument(
+    "lastRecieved", type=int, required=False)
 
 class RelayServerPhoneNumbers(Resource):
-    parser = reqparse.RequestParser()
-    parser.add_argument(
-        "phone", type=str, required=True, help="Phone number is required."
-    )
 
     @jwt_required()
     @swag_from(
@@ -41,3 +48,30 @@ class RelayServerPhoneNumbers(Resource):
 
         crud.create(serverDetails, refresh=True)
         return {"message": "Relay server phone number added successfully"}, 200
+
+    @staticmethod
+    @roles_required([RoleEnum.ADMIN]) #if only admin can post, can only admin put?
+    @swag_from(
+        "../../specifications/relay-server-phone-number-put.yml",
+        methods=["PUT"],
+    )
+    def put():
+      
+        req = request.get_json(force=True)
+        print("printing self:", req)
+
+        if len(req) == 0:
+            abort(400, message="Request body is empty")
+        
+        serverUpdates = filterPairsWithNone(parser.parse_args())
+
+        print("serverupd:", serverUpdates)
+
+        phone = serverUpdates["phone"]
+        phone = serverUpdates["description"]
+        id = serverUpdates["id"]
+
+        crud.update(RelayServerPhoneNumber, serverUpdates, id=id)
+
+        return {"message": "Finished update 2"}, 200
+

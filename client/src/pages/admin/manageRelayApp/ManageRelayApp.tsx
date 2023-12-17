@@ -41,6 +41,7 @@ import { useAdminStyles } from '../adminStyles';
 import { Field, Form, Formik } from 'formik';
 import { IRelayNum } from 'src/shared/types';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
+import EditRelayNum from './editRelayNum';
 
 export const ManageRelayApp = () => {
   //Styles
@@ -67,12 +68,17 @@ export const ManageRelayApp = () => {
   const [AppActionsPopup, openAppActionsPopup] = useState(false);
   const [NewNumberDialog, openAddNewNumberDialog] = useState(false);
 
+  //Relay Number Actions
+  const [editPopupOpen, setEditPopupOpen] = useState(false);
+  const [popupRelayNum, setPopupRelayNum] = useState<IRelayNum>();
+
   const filename = 'cradle_sms_relay.apk';
 
   const relayNumberTemplate = {
     phone: '',
     description: '',
     lastReceived: 0,
+    archived: false
   };
 
   const validationSchema = yup.object({
@@ -211,8 +217,12 @@ export const ManageRelayApp = () => {
     {
       tooltip: 'Edit',
       Icon: Edit,
-      onClick: async (relayNum: IRelayNum) => {
-        // to do
+      onClick: (relayNum: IRelayNum) => {
+        console.log("edit pop up open:", editPopupOpen);
+        console.log("pop up relay num", popupRelayNum);
+        console.log("onclick sending", relayNum);
+        setPopupRelayNum(relayNum);
+        setEditPopupOpen(true);
       },
     },
     {
@@ -225,7 +235,7 @@ export const ManageRelayApp = () => {
     {
       tooltip: 'Download Logs',
       Icon: CloudDownloadOutlined,
-      onClick: async (relayNum: IRelayNum) => {
+      onClick: (relayNum: IRelayNum) => {
         // to do
       },
     },
@@ -415,6 +425,16 @@ export const ManageRelayApp = () => {
           </DialogActions>
         </DialogContent>
       </Dialog>
+
+      <EditRelayNum
+        open={editPopupOpen}
+        onClose={() => {
+          setEditPopupOpen(false);
+          getRelayServerPhones();
+        }}
+        relayNums={relayNums}
+        editRelayNum={popupRelayNum}
+      />
 
       <AdminTable
         title="Relay App Servers"

@@ -168,6 +168,7 @@ export interface IFacility {
   index: number;
 }
 export interface IRelayNum {
+  archived: boolean;
   phone: string;
   description: string;
   lastReceived: number;
