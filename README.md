@@ -83,3 +83,4 @@ the previously mentioned admin user is added along with a few additional users:
 | Valerie Kistrina | vkistrin@sfu.ca |
 | Sahil Modak | smodak@sfu.ca |
 | Peter Fan | cfa60@sfu.ca |
+| Ekam Hothi | ehothi@sfu.ca |
