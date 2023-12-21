@@ -82,3 +82,6 @@ the previously mentioned admin user is added along with a few additional users:
 | Sara Hwang | sha173@sfu.ca |
 | Valerie Kistrina | vkistrin@sfu.ca |
 | Sahil Modak | smodak@sfu.ca |
+| Peter Fan | cfa60@sfu.ca |
+| Ekam Hothi | ehothi@sfu.ca |
+| Adrienne Kwan | ack11@sfu.ca |
