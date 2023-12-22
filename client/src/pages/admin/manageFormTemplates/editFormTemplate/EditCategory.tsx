@@ -59,40 +59,16 @@ const EditCategory = ({
   const [formDirty, setFormDirty] = useState(false);
   const [visibleCondition, setVisibleCondition] = useState<QCondition[]>([]);
   const [enableVisibility, setEnableVisiblity] = useState(visibilityToggle);
-
-  const getQLangVersionsCopy = (
-    questionLangVersions: QuestionLangVersion[]
-  ): QuestionLangVersion[] => {
-    const qLangVersions = [] as QuestionLangVersion[];
-    questionLangVersions.forEach((qLangVersion) => {
-      const mcOptions = [] as McOption[];
-      if (qLangVersion.mcOptions) {
-        qLangVersion.mcOptions.forEach((mcOption) => {
-          mcOptions.push({
-            mcid: mcOption.mcid,
-            opt: mcOption.opt,
-          });
-        });
-      }
-      qLangVersions.push({
-        lang: qLangVersion.lang,
-        mcOptions: mcOptions,
-        questionText: qLangVersion.questionText,
-      });
-    });
-    return qLangVersions;
-  };
+  const [isVisCondAnswered, setIsVisCondAnswered] = useState(!visibilityToggle);
+  const [areAllFieldsFilled, setAreAllFieldsFilled] = useState(true);
 
   useEffect(() => {
     // edit field
     if (formDirty) {
-      setQuestionLangversions(questionLangVersions);
       setEnableVisiblity(enableVisibility);
     } else {
       if (question) {
-        setQuestionLangversions(
-          getQLangVersionsCopy(question.questionLangVersions)
-        );
+        setQuestionLangversions(question.questionLangVersions);
         setEnableVisiblity(
           enableVisibility || question.visibleCondition.length > 0
         );
@@ -103,7 +79,12 @@ const EditCategory = ({
         setEnableVisiblity(false);
       }
     }
+    setAreAllFieldsFilled(fieldFilled);
   }, [open, setForm, fieldChanged]);
+
+  useEffect(() => {
+    setIsVisCondAnswered(!enableVisibility);
+  }, [enableVisibility]);
 
   const getFieldName = (language: string) => {
     let fName = '';
@@ -116,6 +97,14 @@ const EditCategory = ({
       }
     }
     return fName;
+  };
+
+  const fieldFilled = () => {
+    let areAllNamesFilled = true;
+    questionLangVersions.forEach((qLangVersion) => {
+      areAllNamesFilled = areAllNamesFilled && qLangVersion.questionText != '';
+    });
+    return areAllNamesFilled;
   };
 
   const addFieldToQuestionLangVersions = (
@@ -234,6 +223,7 @@ const EditCategory = ({
                           q.categoryIndex != question?.questionIndex
                       )}
                       setVisibleCondition={setVisibleCondition}
+                      setIsVisCondAnswered={setIsVisCondAnswered}
                       setFieldChanged={setFieldChanged}
                       origFieldChanged={fieldChanged}
                     />
@@ -255,7 +245,7 @@ const EditCategory = ({
           </CancelButton>
           <PrimaryButton
             type="submit"
-            disabled={false}
+            disabled={!isVisCondAnswered || !areAllFieldsFilled}
             onClick={() => {
               if (setForm) {
                 if (question && !enableVisibility) {

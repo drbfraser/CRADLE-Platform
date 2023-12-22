@@ -26,6 +26,7 @@ interface IProps {
   disabled: boolean;
   filteredQs: TQuestion[];
   setVisibleCondition: Dispatch<SetStateAction<QCondition[]>>;
+  setIsVisCondAnswered: Dispatch<SetStateAction<boolean>>;
   setFieldChanged: Dispatch<SetStateAction<boolean>>;
   origFieldChanged: boolean;
 }
@@ -35,6 +36,7 @@ const EditVisibleCondition = ({
   disabled,
   filteredQs: filteredQs,
   setVisibleCondition,
+  setIsVisCondAnswered,
   setFieldChanged,
   origFieldChanged,
 }: IProps) => {
@@ -90,7 +92,16 @@ const EditVisibleCondition = ({
       selectedConditional != null &&
       selectedAnswer != null
     ) {
-      setVisibleCondition([
+      if (
+        selectedAnswer.comment ||
+        selectedAnswer.mcidArray ||
+        selectedAnswer.number ||
+        selectedAnswer.text
+      ) {
+        setIsVisCondAnswered(true);
+      } else setIsVisCondAnswered(false);
+      setVisibleCondition((prev) => [
+        ...prev,
         {
           qidx: filteredQs[+selectedQIndex].questionIndex,
           relation: selectedConditional,

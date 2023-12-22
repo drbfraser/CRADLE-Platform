@@ -81,6 +81,7 @@ const EditField = ({
   const [fieldChanged, setFieldChanged] = useState(false);
   const [formDirty, setFormDirty] = useState(false);
   const [isRequired, setIsRequired] = useState(question?.required ?? false);
+  const [isVisCondAnswered, setIsVisCondAnswered] = useState(!visibilityToggle);
 
   const removeAllMultChoices = () => {
     questionLangVersions.forEach((qLangVersion) => {
@@ -186,6 +187,11 @@ const EditField = ({
     return fType ? fType : '';
   };
 
+  useEffect(() => {
+    setIsVisCondAnswered(!visibilityToggle);
+    setFieldChanged(!fieldChanged);
+  }, [visibilityToggle]);
+
   const areAllFieldsFilled = (): boolean => {
     let areAllNamesFilled = true;
     questionLangVersions.forEach((qLangVersion) => {
@@ -193,19 +199,6 @@ const EditField = ({
     });
     let areAllMcOptionFilled = true;
     const isFieldTypeChosen = fieldType.trim() != '';
-    let isVisCondAnswered = !visibilityToggle;
-
-    if (
-      visibilityToggle &&
-      visibleCondition[0] &&
-      visibleCondition[0].answers != null &&
-      (visibleCondition[0].answers.comment ||
-        visibleCondition[0].answers.mcidArray ||
-        visibleCondition[0].answers.number ||
-        visibleCondition[0].answers.text)
-    ) {
-      isVisCondAnswered = true;
-    }
 
     if (fieldType == 'mult_choice' || fieldType == 'mult_select') {
       questionLangVersions.forEach((qLangVersion) => {
@@ -530,6 +523,7 @@ const EditField = ({
                           q != question
                       )}
                       setVisibleCondition={setVisibleCondition}
+                      setIsVisCondAnswered={setIsVisCondAnswered}
                       setFieldChanged={setFieldChanged}
                       origFieldChanged={fieldChanged}
                     />
