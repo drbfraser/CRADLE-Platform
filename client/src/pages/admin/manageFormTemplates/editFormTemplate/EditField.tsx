@@ -267,7 +267,6 @@ const EditField = ({
     if (formDirty) {
       setFieldType(fieldType);
       setQuestionId(questionId);
-      setQuestionLangversions(questionLangVersions);
     } else {
       if (question) {
         setFieldType(getFieldType(question.questionType));
@@ -275,11 +274,10 @@ const EditField = ({
         setVisibilityToggle(
           visibilityToggle || question.visibleCondition.length > 0
         );
-        setQuestionLangversions(
-          getQLangVersionsCopy(question.questionLangVersions)
-        );
-        if (questionLangVersions.length > 0) {
-          setNumChoices(questionLangVersions[0].mcOptions.length);
+        const qlvCopy = getQLangVersionsCopy(question.questionLangVersions);
+        setQuestionLangversions(qlvCopy);
+        if (qlvCopy.length > 0) {
+          setNumChoices(qlvCopy[0].mcOptions.length);
         }
         setIsRequired(question.required);
       }

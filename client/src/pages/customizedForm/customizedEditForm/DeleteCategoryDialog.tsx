@@ -7,15 +7,20 @@ import {
 } from '@mui/material';
 
 import makeStyles from '@mui/styles/makeStyles';
+import { useEffect, useState } from 'react';
 
 interface IProps {
   open: boolean;
   onClose: (confirm: boolean) => void;
-  numQuestions: number;
+  numQuestionsProp: number;
 }
 
-const DeleteCategoryDialog = ({ open, onClose, numQuestions }: IProps) => {
+const DeleteCategoryDialog = ({ open, onClose, numQuestionsProp }: IProps) => {
   const classes = useStyles();
+  const [numQuestions, setNumQuestions] = useState(0);
+  useEffect(() => {
+    setNumQuestions(numQuestionsProp);
+  }, [open]);
 
   return (
     <Dialog open={open} onClose={onClose}>
