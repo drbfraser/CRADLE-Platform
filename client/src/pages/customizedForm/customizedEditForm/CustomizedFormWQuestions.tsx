@@ -68,7 +68,6 @@ export const CustomizedFormWQuestions = ({
   >(null);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [categoryPopupOpen, setCategoryPopupOpen] = useState(false);
-  const [categoryEditPopupOpen, setCategoryEditPopupOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [categoryIndex, setCategoryIndex] = useState<number | null>(null);
   const getInputLanguages = (question: TQuestion) => {
@@ -112,7 +111,7 @@ export const CustomizedFormWQuestions = ({
     setSelectedQuestionIndex(question.questionIndex);
     if (question.questionType == QuestionTypeEnum.CATEGORY) {
       setCategoryIndex(question.categoryIndex);
-      setCategoryEditPopupOpen(true);
+      setCategoryPopupOpen(true);
     } else {
       setVisibilityToggle(
         selectedQuestionIndex != null &&
@@ -310,16 +309,29 @@ export const CustomizedFormWQuestions = ({
       <EditCategory
         open={categoryPopupOpen}
         onClose={() => {
+          setSelectedQuestionIndex(null);
           setCategoryPopupOpen(false);
         }}
         visibilityDisabled={
           categoryIndex != null &&
           fm.questions[categoryIndex].visibleCondition.length > 0
         }
-        inputLanguages={languages}
+        inputLanguages={
+          selectedQuestionIndex !== null
+            ? getInputLanguages(questions[selectedQuestionIndex])
+            : languages
+        }
         setForm={setForm}
+        question={
+          selectedQuestionIndex !== null
+            ? questions[selectedQuestionIndex]
+            : undefined
+        }
         questionsArr={fm.questions}
-        visibilityToggle={false}
+        visibilityToggle={
+          selectedQuestionIndex !== null &&
+          fm.questions[selectedQuestionIndex]?.visibleCondition.length > 0
+        }
         categoryIndex={categoryIndex}
       />
       <EditField
@@ -463,8 +475,6 @@ export const CustomizedFormWQuestions = ({
                     setForm: setForm,
                   }).map((q, index) => {
                     const question = questions[index];
-                    const isQuestionSelected =
-                      selectedQuestionIndex === question.questionIndex;
                     return (
                       <Fragment key={`rendered-${question.questionIndex}`}>
                         {q}
@@ -574,28 +584,6 @@ export const CustomizedFormWQuestions = ({
                             </Typography>
                           )}
                         </Grid>
-                        <EditCategory
-                          open={isQuestionSelected && categoryEditPopupOpen}
-                          onClose={() => {
-                            setSelectedQuestionIndex(null);
-                            setCategoryEditPopupOpen(false);
-                          }}
-                          visibilityDisabled={
-                            categoryIndex != null &&
-                            fm.questions[categoryIndex].visibleCondition
-                              .length > 0
-                          }
-                          question={question}
-                          questionsArr={fm.questions}
-                          inputLanguages={getInputLanguages(question)}
-                          setForm={setForm}
-                          visibilityToggle={
-                            selectedQuestionIndex != null &&
-                            fm.questions[selectedQuestionIndex]
-                              ?.visibleCondition.length > 0
-                          }
-                          categoryIndex={categoryIndex}
-                        />
                       </Fragment>
                     );
                   })}
