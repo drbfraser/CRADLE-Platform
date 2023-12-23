@@ -68,7 +68,7 @@ const EditCategory = ({
       setEnableVisiblity(enableVisibility);
     } else {
       if (question) {
-        setQuestionLangversions(question.questionLangVersions);
+        setQuestionLangversions(getQlvCopy(question.questionLangVersions));
         setEnableVisiblity(
           enableVisibility || question.visibleCondition.length > 0
         );
@@ -85,6 +85,20 @@ const EditCategory = ({
   useEffect(() => {
     setIsVisCondAnswered(!enableVisibility);
   }, [enableVisibility]);
+
+  const getQlvCopy = (
+    questionLangVersions: QuestionLangVersion[]
+  ): QuestionLangVersion[] => {
+    const qlvCopy = [] as QuestionLangVersion[];
+    questionLangVersions.forEach((qlv) => {
+      qlvCopy.push({
+        lang: qlv.lang,
+        mcOptions: [],
+        questionText: qlv.questionText,
+      });
+    });
+    return qlvCopy;
+  };
 
   const getFieldName = (language: string) => {
     let fName = '';

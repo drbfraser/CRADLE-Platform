@@ -132,6 +132,7 @@ export const CustomizedFormWQuestions = ({
       questionsToDelete.forEach(deleteField);
     }
     setIsDeletePopupOpen(false);
+    setSelectedQuestionIndex(null);
   };
 
   const handleDeleteField = (question: TQuestion) => {

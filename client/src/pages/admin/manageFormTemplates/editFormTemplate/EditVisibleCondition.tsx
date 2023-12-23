@@ -88,20 +88,19 @@ const EditVisibleCondition = ({
 
   useEffect(() => {
     if (
-      selectedQIndex != null &&
-      selectedConditional != null &&
-      selectedAnswer != null
+      selectedQIndex !== null &&
+      selectedConditional !== null &&
+      selectedAnswer !== undefined
     ) {
       if (
-        selectedAnswer.comment ||
-        selectedAnswer.mcidArray ||
-        selectedAnswer.number ||
-        selectedAnswer.text
+        selectedAnswer.comment !== null ||
+        selectedAnswer.mcidArray !== null ||
+        selectedAnswer.number !== null ||
+        selectedAnswer.text !== null
       ) {
         setIsVisCondAnswered(true);
       } else setIsVisCondAnswered(false);
-      setVisibleCondition((prev) => [
-        ...prev,
+      setVisibleCondition(() => [
         {
           qidx: filteredQs[+selectedQIndex].questionIndex,
           relation: selectedConditional,
