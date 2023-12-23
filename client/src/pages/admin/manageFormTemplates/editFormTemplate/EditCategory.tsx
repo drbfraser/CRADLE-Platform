@@ -79,7 +79,7 @@ const EditCategory = ({
         setEnableVisiblity(false);
       }
     }
-    setAreAllFieldsFilled(fieldFilled);
+    setAreAllFieldsFilled(fieldFilled());
   }, [open, setForm, fieldChanged]);
 
   useEffect(() => {
@@ -114,7 +114,7 @@ const EditCategory = ({
   };
 
   const fieldFilled = () => {
-    let areAllNamesFilled = true;
+    let areAllNamesFilled = questionLangVersions.length === 0 ? false : true;
     questionLangVersions.forEach((qLangVersion) => {
       areAllNamesFilled = areAllNamesFilled && qLangVersion.questionText != '';
     });

@@ -93,13 +93,20 @@ const EditVisibleCondition = ({
       selectedAnswer !== undefined
     ) {
       if (
-        selectedAnswer.comment !== null ||
-        selectedAnswer.mcidArray !== null ||
-        selectedAnswer.number !== null ||
-        selectedAnswer.text !== null
+        (selectedAnswer.comment !== undefined &&
+          selectedAnswer.comment !== null) ||
+        (selectedAnswer.mcidArray !== undefined &&
+          selectedAnswer.mcidArray !== null) ||
+        (selectedAnswer.number !== undefined &&
+          selectedAnswer.number !== null) ||
+        (selectedAnswer.text !== undefined &&
+          selectedAnswer.text !== null &&
+          selectedAnswer.text !== '')
       ) {
         setIsVisCondAnswered(true);
-      } else setIsVisCondAnswered(false);
+      } else {
+        setIsVisCondAnswered(false);
+      }
       setVisibleCondition(() => [
         {
           qidx: filteredQs[+selectedQIndex].questionIndex,
