@@ -618,7 +618,7 @@ def create_form_template():
             {
                 "formTemplateId": "dt9",
                 "id": "fname_seed_test_data",
-                "categoryIndex": None,
+                "categoryIndex": 0,
                 "questionId": "",
                 "questionIndex": 1,
                 "isBlank": True,
@@ -633,7 +633,7 @@ def create_form_template():
             {
                 "formTemplateId": "dt9",
                 "id": "lname_seed_test_data",
-                "categoryIndex": None,
+                "categoryIndex": 0,
                 "questionId": "",
                 "questionIndex": 2,
                 "isBlank": True,
@@ -648,7 +648,7 @@ def create_form_template():
             {
                 "formTemplateId": "dt9",
                 "id": "age_seed_test_data",
-                "categoryIndex": None,
+                "categoryIndex": 0,
                 "questionId": "",
                 "questionIndex": 3,
                 "isBlank": True,
