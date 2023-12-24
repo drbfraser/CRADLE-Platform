@@ -228,6 +228,7 @@ export const CustomizedFormWQuestions = ({
       if (q.categoryIndex && q.categoryIndex > index) {
         q.categoryIndex -= 1;
       }
+      updateVisCond(q.questionIndex, i);
       q.questionIndex = i;
     });
 
@@ -263,6 +264,7 @@ export const CustomizedFormWQuestions = ({
     }
   };
 
+  // check if any questions in form have a vis cond dependant on a question whos index changed
   const updateVisCond = (oldIndex: number, newIndex: number) => {
     questions.forEach((q) => {
       if (q.visibleCondition && q.visibleCondition[0]?.qidx == oldIndex) {

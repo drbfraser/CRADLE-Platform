@@ -454,12 +454,16 @@ const EditField = ({
             </Grid>
             {fieldType ? fieldTypes[fieldType].render() : null}
             {questionsArr.filter(
+              // only include questions that:
+              // 1. is not this question
+              // 2. are not categories
+              // 3. if this question is a category, it is not in this category
               (q) =>
+                q != question &&
                 q.questionType != QuestionTypeEnum.CATEGORY &&
                 (question?.questionType === QuestionTypeEnum.CATEGORY
-                  ? q.categoryIndex != categoryIndex
-                  : true) &&
-                q != question
+                  ? q.categoryIndex != question.questionIndex
+                  : true)
             ).length > 0 && (
               <>
                 <Grid item container sm={12} md={10} lg={10}>
@@ -516,15 +520,13 @@ const EditField = ({
                       }
                       disabled={visibilityDisabled}
                       filteredQs={questionsArr.filter(
-                        // only include questions that:
-                        // 1. are not categories
-                        // 2. are not in the same category as this question
+                        // must use exact same filter criteria as above
                         (q) =>
+                          q != question &&
                           q.questionType != QuestionTypeEnum.CATEGORY &&
                           (question?.questionType === QuestionTypeEnum.CATEGORY
                             ? q.categoryIndex != question.questionIndex
-                            : q.categoryIndex != categoryIndex) &&
-                          q != question
+                            : true)
                       )}
                       setVisibleCondition={setVisibleCondition}
                       setIsVisCondAnswered={setIsVisCondAnswered}
