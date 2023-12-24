@@ -239,7 +239,6 @@ const EditCategory = ({
                       setVisibleCondition={setVisibleCondition}
                       setIsVisCondAnswered={setIsVisCondAnswered}
                       setFieldChanged={setFieldChanged}
-                      origFieldChanged={fieldChanged}
                     />
                   </Grid>
                 ) : null}

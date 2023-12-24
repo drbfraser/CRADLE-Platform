@@ -1,8 +1,4 @@
-import {
-  FormTemplateWithQuestions,
-  QCondition,
-  TQuestion,
-} from 'src/shared/types';
+import { FormTemplateWithQuestions, TQuestion } from 'src/shared/types';
 import { Field, Formik } from 'formik';
 import {
   Dispatch,
@@ -59,7 +55,6 @@ export const CustomizedFormWQuestions = ({
   const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
   const [submitError, setSubmitError] = useState(false);
   const [visibilityToggle, setVisibilityToggle] = useState(false);
-  const [visibleCondition, setVisibleCondition] = useState<QCondition[]>([]);
   const [isSubmitPopupOpen, setIsSubmitPopupOpen] = useState(false);
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
   const [, upd] = useReducer((x) => x + 1, 0);
@@ -361,12 +356,6 @@ export const CustomizedFormWQuestions = ({
             : categoryIndex != null &&
               fm.questions[categoryIndex].visibleCondition.length > 0
         }
-        visibleCondition={
-          selectedQuestionIndex !== null
-            ? questions[selectedQuestionIndex].visibleCondition
-            : visibleCondition
-        }
-        setVisibleCondition={setVisibleCondition}
         visibilityToggle={visibilityToggle}
         setVisibilityToggle={setVisibilityToggle}
         categoryIndex={categoryIndex}
@@ -492,12 +481,9 @@ export const CustomizedFormWQuestions = ({
                               className={classes.mobileBtn}
                               onClick={() => {
                                 if (languages.length != 0) {
-                                  setCategoryIndex(questions.indexOf(question));
+                                  setCategoryIndex(question.questionIndex);
                                   setVisibilityToggle(
                                     question.visibleCondition.length > 0
-                                  );
-                                  setVisibleCondition(
-                                    question.visibleCondition
                                   );
                                   setEditPopupOpen(true);
                                 } else {

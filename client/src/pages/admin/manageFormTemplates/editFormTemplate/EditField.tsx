@@ -41,8 +41,6 @@ interface IProps {
   question?: TQuestion;
   questionsArr: TQuestion[];
   visibilityDisabled: boolean;
-  visibleCondition: QCondition[];
-  setVisibleCondition: Dispatch<SetStateAction<QCondition[]>>;
   visibilityToggle: boolean;
   setVisibilityToggle: Dispatch<SetStateAction<boolean>>;
   categoryIndex: number | null;
@@ -65,8 +63,6 @@ const EditField = ({
   question,
   questionsArr,
   visibilityDisabled,
-  visibleCondition,
-  setVisibleCondition,
   visibilityToggle,
   setVisibilityToggle,
   categoryIndex,
@@ -78,10 +74,12 @@ const EditField = ({
     QuestionLangVersion[]
   >([] as QuestionLangVersion[]);
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
+  const [visibleCondition, setVisibleCondition] = useState<QCondition[]>([]);
   const [fieldChanged, setFieldChanged] = useState(false);
   const [formDirty, setFormDirty] = useState(false);
   const [isRequired, setIsRequired] = useState(question?.required ?? false);
   const [isVisCondAnswered, setIsVisCondAnswered] = useState(!visibilityToggle);
+  const [editVisCondKey, setEditVisCondKey] = useState(0);
 
   const removeAllMultChoices = () => {
     questionLangVersions.forEach((qLangVersion) => {
@@ -252,7 +250,9 @@ const EditField = ({
       questionsArr[categoryIndex].visibleCondition.length > 0
     ) {
       setVisibleCondition(questionsArr[categoryIndex].visibleCondition);
-    }
+    } else setVisibleCondition([]);
+    // force re-render of EditVisibleCondition after updating the visibility condition
+    setEditVisCondKey(editVisCondKey + 1);
   }, [open]);
 
   useEffect(() => {
@@ -508,6 +508,7 @@ const EditField = ({
                 <Grid item sm={12} md={10} lg={10}>
                   {visibilityToggle ? (
                     <EditVisibleCondition
+                      key={editVisCondKey}
                       currVisCond={
                         visibleCondition[0] ??
                         question?.visibleCondition[0] ??
@@ -515,17 +516,19 @@ const EditField = ({
                       }
                       disabled={visibilityDisabled}
                       filteredQs={questionsArr.filter(
+                        // only include questions that:
+                        // 1. are not categories
+                        // 2. are not in the same category as this question
                         (q) =>
                           q.questionType != QuestionTypeEnum.CATEGORY &&
                           (question?.questionType === QuestionTypeEnum.CATEGORY
-                            ? q.categoryIndex != categoryIndex
-                            : true) &&
+                            ? q.categoryIndex != question.questionIndex
+                            : q.categoryIndex != categoryIndex) &&
                           q != question
                       )}
                       setVisibleCondition={setVisibleCondition}
                       setIsVisCondAnswered={setIsVisCondAnswered}
                       setFieldChanged={setFieldChanged}
-                      origFieldChanged={fieldChanged}
                     />
                   ) : null}
                 </Grid>

@@ -28,7 +28,6 @@ interface IProps {
   setVisibleCondition: Dispatch<SetStateAction<QCondition[]>>;
   setIsVisCondAnswered: Dispatch<SetStateAction<boolean>>;
   setFieldChanged: Dispatch<SetStateAction<boolean>>;
-  origFieldChanged: boolean;
 }
 
 const EditVisibleCondition = ({
@@ -38,9 +37,7 @@ const EditVisibleCondition = ({
   setVisibleCondition,
   setIsVisCondAnswered,
   setFieldChanged,
-  origFieldChanged,
 }: IProps) => {
-  const [childFieldChanged, setChildFieldChanged] = useState(origFieldChanged);
   // selectedQIndex is filteredQs[index]
   const [selectedQIndex, setSelectedQIndex] = useState<string>(
     currVisCond
@@ -82,8 +79,7 @@ const EditVisibleCondition = ({
   ]);
 
   useEffect(() => {
-    setFieldChanged(!childFieldChanged);
-    setChildFieldChanged(!childFieldChanged);
+    setFieldChanged((bool) => !bool);
   }, [selectedAnswer]);
 
   useEffect(() => {
@@ -99,15 +95,13 @@ const EditVisibleCondition = ({
           selectedAnswer.mcidArray !== null) ||
         (selectedAnswer.number !== undefined &&
           selectedAnswer.number !== null) ||
-        (selectedAnswer.text !== undefined &&
-          selectedAnswer.text !== null &&
-          selectedAnswer.text !== '')
+        (selectedAnswer.text !== undefined && selectedAnswer.text !== null)
       ) {
         setIsVisCondAnswered(true);
       } else {
         setIsVisCondAnswered(false);
       }
-      setVisibleCondition(() => [
+      setVisibleCondition([
         {
           qidx: filteredQs[+selectedQIndex].questionIndex,
           relation: selectedConditional,
@@ -130,14 +124,12 @@ const EditVisibleCondition = ({
   }, [selectedQIndex]);
 
   const handleQuestionChange = (event: SelectChangeEvent) => {
-    setFieldChanged(!childFieldChanged);
-    setChildFieldChanged(!childFieldChanged);
+    setFieldChanged((bool) => !bool);
     setSelectedQIndex(event.target.value);
   };
 
   const handleConditionChange = (event: SelectChangeEvent) => {
-    setFieldChanged(!childFieldChanged);
-    setChildFieldChanged(!childFieldChanged);
+    setFieldChanged((bool) => !bool);
     setSelectedConditional(event.target.value as QRelationEnum);
   };
 
