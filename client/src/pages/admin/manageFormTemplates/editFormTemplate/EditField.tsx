@@ -453,18 +453,13 @@ const EditField = ({
               </RadioGroup>
             </Grid>
             {fieldType ? fieldTypes[fieldType].render() : null}
-            {questionsArr.filter(
+            {questionsArr.some(
               // only include questions that:
               // 1. is not this question
               // 2. are not categories
-              // 3. if this question is a category, it is not in this category
               (q) =>
-                q != question &&
-                q.questionType != QuestionTypeEnum.CATEGORY &&
-                (question?.questionType === QuestionTypeEnum.CATEGORY
-                  ? q.categoryIndex != question.questionIndex
-                  : true)
-            ).length > 0 && (
+                q != question && q.questionType != QuestionTypeEnum.CATEGORY
+            ) && (
               <>
                 <Grid item container sm={12} md={10} lg={10}>
                   <FormControlLabel
@@ -523,10 +518,7 @@ const EditField = ({
                         // must use exact same filter criteria as above
                         (q) =>
                           q != question &&
-                          q.questionType != QuestionTypeEnum.CATEGORY &&
-                          (question?.questionType === QuestionTypeEnum.CATEGORY
-                            ? q.categoryIndex != question.questionIndex
-                            : true)
+                          q.questionType != QuestionTypeEnum.CATEGORY
                       )}
                       setVisibleCondition={setVisibleCondition}
                       setIsVisCondAnswered={setIsVisCondAnswered}

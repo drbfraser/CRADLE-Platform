@@ -177,11 +177,28 @@ const EditCategory = ({
                 />
               </Grid>
             ))}
-            {questionsArr.filter(
-              (q) =>
-                q.questionType != QuestionTypeEnum.CATEGORY &&
-                q.categoryIndex != question?.questionIndex
-            ).length > 0 && (
+            {questionsArr.some(
+              // only include questions that:
+              // 1. is not this question
+              // 2. are not categories
+              // 3. if this question is a category, it is not in this category
+              (q) => {
+                if (
+                  q == question ||
+                  q.questionType == QuestionTypeEnum.CATEGORY
+                )
+                  return false;
+                if (question?.questionType !== QuestionTypeEnum.CATEGORY)
+                  return true;
+                let currCatIndex = q.categoryIndex;
+                while (currCatIndex !== null) {
+                  if (currCatIndex === question.questionIndex) return false;
+
+                  currCatIndex = questionsArr[currCatIndex].categoryIndex;
+                }
+                return true;
+              }
+            ) && (
               <>
                 <Grid item container sm={12} md={10} lg={10}>
                   <FormControlLabel
@@ -231,11 +248,25 @@ const EditCategory = ({
                     <EditVisibleCondition
                       currVisCond={question?.visibleCondition[0]}
                       disabled={visibilityDisabled}
-                      filteredQs={questionsArr.filter(
-                        (q) =>
-                          q.questionType != QuestionTypeEnum.CATEGORY &&
-                          q.categoryIndex != question?.questionIndex
-                      )}
+                      filteredQs={questionsArr.filter((q) => {
+                        if (
+                          q == question ||
+                          q.questionType == QuestionTypeEnum.CATEGORY
+                        )
+                          return false;
+                        if (
+                          question?.questionType !== QuestionTypeEnum.CATEGORY
+                        )
+                          return true;
+                        let currCatIndex = q.categoryIndex;
+                        while (currCatIndex !== null) {
+                          if (currCatIndex === question.questionIndex)
+                            return false;
+                          currCatIndex =
+                            questionsArr[currCatIndex].categoryIndex;
+                        }
+                        return true;
+                      })}
                       setVisibleCondition={setVisibleCondition}
                       setIsVisCondAnswered={setIsVisCondAnswered}
                       setFieldChanged={setFieldChanged}
