@@ -4,6 +4,7 @@ export enum FormRenderStateEnum {
   FIRST_SUBMIT = 'FIRST_SUBMIT',
   SUBMIT_TEMPLATE = 'SUBMIT_TEMPLATE',
   VIS_COND = 'VIS_COND',
+  VIS_COND_DISABLED = 'VIS_COND_DISABLED',
 }
 
 export enum SexEnum {

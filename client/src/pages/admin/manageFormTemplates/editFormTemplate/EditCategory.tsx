@@ -3,38 +3,53 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControlLabel,
+  FormLabel,
   Grid,
+  IconButton,
+  Switch,
+  Tooltip,
 } from '@mui/material';
 import {
   CancelButton,
   PrimaryButton,
 } from '../../../../shared/components/Button';
+import * as handlers from './multiFieldComponents/handlers';
+import InfoIcon from '@mui/icons-material/Info';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
   FormTemplateWithQuestions,
   McOption,
+  QCondition,
   QuestionLangVersion,
   TQuestion,
 } from 'src/shared/types';
 import { QuestionTypeEnum } from 'src/shared/enums';
+import EditVisibleCondition from './EditVisibleCondition';
 
 interface IProps {
   open: boolean;
   onClose: () => void;
+  visibilityDisabled: boolean;
   inputLanguages: string[];
   setForm?: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
   question?: TQuestion;
+  questionsArr: TQuestion[];
+  visibilityToggle: boolean;
   categoryIndex: number | null;
 }
 
 const EditCategory = ({
   open,
   onClose,
+  visibilityDisabled,
   inputLanguages,
   setForm,
   question,
+  questionsArr,
+  visibilityToggle,
   categoryIndex,
 }: IProps) => {
   const [questionLangVersions, setQuestionLangversions] = useState<
@@ -42,48 +57,48 @@ const EditCategory = ({
   >([] as QuestionLangVersion[]);
   const [fieldChanged, setFieldChanged] = useState(false);
   const [formDirty, setFormDirty] = useState(false);
-
-  const getQLangVersionsCopy = (
-    questionLangVersions: QuestionLangVersion[]
-  ): QuestionLangVersion[] => {
-    const qLangVersions = [] as QuestionLangVersion[];
-    questionLangVersions.forEach((qLangVersion) => {
-      const mcOptions = [] as McOption[];
-      if (qLangVersion.mcOptions) {
-        qLangVersion.mcOptions.forEach((mcOption) => {
-          mcOptions.push({
-            mcid: mcOption.mcid,
-            opt: mcOption.opt,
-          });
-        });
-      }
-      qLangVersions.push({
-        lang: qLangVersion.lang,
-        mcOptions: mcOptions,
-        questionText: qLangVersion.questionText,
-      });
-    });
-    return qLangVersions;
-  };
+  const [visibleCondition, setVisibleCondition] = useState<QCondition[]>([]);
+  const [enableVisibility, setEnableVisiblity] = useState(visibilityToggle);
+  const [isVisCondAnswered, setIsVisCondAnswered] = useState(!visibilityToggle);
+  const [areAllFieldsFilled, setAreAllFieldsFilled] = useState(true);
 
   useEffect(() => {
     // edit field
     if (formDirty) {
-      setQuestionLangversions(questionLangVersions);
+      setEnableVisiblity(enableVisibility);
     } else {
       if (question) {
-        setQuestionLangversions(
-          getQLangVersionsCopy(question.questionLangVersions)
+        setQuestionLangversions(getQlvCopy(question.questionLangVersions));
+        setEnableVisiblity(
+          enableVisibility || question.visibleCondition.length > 0
         );
       }
       // create new field
       else {
         setQuestionLangversions([]);
+        setEnableVisiblity(false);
       }
     }
-    // Check if all fields are filled
-    // Enable/disable save button based on filled fields
+    setAreAllFieldsFilled(fieldFilled());
   }, [open, setForm, fieldChanged]);
+
+  useEffect(() => {
+    setIsVisCondAnswered(!enableVisibility);
+  }, [enableVisibility]);
+
+  const getQlvCopy = (
+    questionLangVersions: QuestionLangVersion[]
+  ): QuestionLangVersion[] => {
+    const qlvCopy = [] as QuestionLangVersion[];
+    questionLangVersions.forEach((qlv) => {
+      qlvCopy.push({
+        lang: qlv.lang,
+        mcOptions: [],
+        questionText: qlv.questionText,
+      });
+    });
+    return qlvCopy;
+  };
 
   const getFieldName = (language: string) => {
     let fName = '';
@@ -96,6 +111,14 @@ const EditCategory = ({
       }
     }
     return fName;
+  };
+
+  const fieldFilled = () => {
+    let areAllNamesFilled = questionLangVersions.length === 0 ? false : true;
+    questionLangVersions.forEach((qLangVersion) => {
+      areAllNamesFilled = areAllNamesFilled && qLangVersion.questionText != '';
+    });
+    return areAllNamesFilled;
   };
 
   const addFieldToQuestionLangVersions = (
@@ -154,6 +177,104 @@ const EditCategory = ({
                 />
               </Grid>
             ))}
+            {questionsArr.some(
+              // only include questions that:
+              // 1. is not this question
+              // 2. are not categories
+              // 3. if this question is a category, it is not in this category
+              (q) => {
+                if (
+                  q == question ||
+                  q.questionType == QuestionTypeEnum.CATEGORY
+                )
+                  return false;
+                if (question?.questionType !== QuestionTypeEnum.CATEGORY)
+                  return true;
+                let currCatIndex = q.categoryIndex;
+                while (currCatIndex !== null) {
+                  if (currCatIndex === question.questionIndex) return false;
+
+                  currCatIndex = questionsArr[currCatIndex].categoryIndex;
+                }
+                return true;
+              }
+            ) && (
+              <>
+                <Grid item container sm={12} md={10} lg={10}>
+                  <FormControlLabel
+                    style={{ marginLeft: 0 }}
+                    control={
+                      <Switch
+                        checked={enableVisibility}
+                        disabled={visibilityDisabled}
+                        onChange={(e) =>
+                          handlers.handleVisibilityChange(
+                            e,
+                            setEnableVisiblity,
+                            setFormDirty,
+                            setFieldChanged,
+                            fieldChanged
+                          )
+                        }
+                        data-testid="conditional-switch"
+                      />
+                    }
+                    label={
+                      <FormLabel id="vis-label" style={{ display: 'flex' }}>
+                        <Typography variant="h6">
+                          Conditional Visibility
+                        </Typography>
+                        <Tooltip
+                          disableFocusListener
+                          disableTouchListener
+                          title={
+                            visibilityDisabled
+                              ? 'Cannot edit if parent category already has a visibility condition'
+                              : 'Set this field to only appear after a specific field value is entered'
+                          }
+                          arrow
+                          placement="right">
+                          <IconButton>
+                            <InfoIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </FormLabel>
+                    }
+                    labelPlacement="start"
+                  />
+                </Grid>
+                {enableVisibility ? (
+                  <Grid item sm={12} md={10} lg={10}>
+                    <EditVisibleCondition
+                      currVisCond={question?.visibleCondition[0]}
+                      disabled={visibilityDisabled}
+                      filteredQs={questionsArr.filter((q) => {
+                        if (
+                          q == question ||
+                          q.questionType == QuestionTypeEnum.CATEGORY
+                        )
+                          return false;
+                        if (
+                          question?.questionType !== QuestionTypeEnum.CATEGORY
+                        )
+                          return true;
+                        let currCatIndex = q.categoryIndex;
+                        while (currCatIndex !== null) {
+                          if (currCatIndex === question.questionIndex)
+                            return false;
+                          currCatIndex =
+                            questionsArr[currCatIndex].categoryIndex;
+                        }
+                        return true;
+                      })}
+                      setVisibleCondition={setVisibleCondition}
+                      setIsVisCondAnswered={setIsVisCondAnswered}
+                      setFieldChanged={setFieldChanged}
+                    />
+                  </Grid>
+                ) : null}
+              </>
+            )}
           </Grid>
         </DialogContent>
         <DialogActions>
@@ -161,15 +282,19 @@ const EditCategory = ({
             type="button"
             onClick={(e) => {
               setFormDirty(false);
+              setEnableVisiblity(false);
               onClose();
             }}>
             Cancel
           </CancelButton>
           <PrimaryButton
             type="submit"
-            disabled={false}
+            disabled={!isVisCondAnswered || !areAllFieldsFilled}
             onClick={() => {
               if (setForm) {
+                if (question && !enableVisibility) {
+                  question.visibleCondition.length = 0;
+                }
                 setForm((form) => {
                   // edit field
                   if (question) {
@@ -179,6 +304,41 @@ const EditCategory = ({
                     if (questionToUpdate) {
                       questionToUpdate.questionLangVersions =
                         questionLangVersions;
+                      questionToUpdate.visibleCondition = enableVisibility
+                        ? visibleCondition
+                        : [];
+                      // children of the edited category must inherit the visibility condition (or lack thereof)
+                      const visCondsToUpdate: TQuestion[] = [];
+                      form.questions.forEach((q) => {
+                        if (q.categoryIndex === null) return;
+                        if (
+                          q.categoryIndex === questionToUpdate.questionIndex
+                        ) {
+                          visCondsToUpdate.push(q);
+                          return;
+                        }
+                        let rootCatIndex: number | null = q.categoryIndex;
+                        while (
+                          rootCatIndex !== null &&
+                          form.questions[rootCatIndex].categoryIndex
+                        ) {
+                          if (
+                            q.categoryIndex === questionToUpdate.questionIndex
+                          ) {
+                            visCondsToUpdate.push(q);
+                            return;
+                          }
+                          rootCatIndex =
+                            form.questions[rootCatIndex].categoryIndex;
+                        }
+                        if (rootCatIndex === questionToUpdate.questionIndex) {
+                          visCondsToUpdate.push(q);
+                        }
+                      });
+                      visCondsToUpdate.forEach((q) => {
+                        form.questions[q.questionIndex].visibleCondition =
+                          enableVisibility ? visibleCondition : [];
+                      });
                     }
                   }
                   // create new field
@@ -192,11 +352,12 @@ const EditCategory = ({
                       numMax: null,
                       stringMaxLength: null,
                       units: null,
-                      visibleCondition: [],
+                      visibleCondition: visibleCondition,
                       categoryIndex: categoryIndex,
                       questionId: undefined,
                     });
                   }
+                  setVisibleCondition([]);
                   setFormDirty(false);
                   form.questions = [...form.questions];
                   return form;

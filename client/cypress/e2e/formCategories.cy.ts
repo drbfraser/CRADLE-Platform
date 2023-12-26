@@ -226,6 +226,25 @@ describe('Form templates', () => {
     );
   });
 
+  it('edits a category without saving', () => {
+    cy.get('.MuiTableBody-root')
+      .contains('NEET Check-in')
+      .siblings()
+      .children()
+      .find('[data-testid="EditIcon"]')
+      .click();
+    cy.wait(1000);
+    cy.contains('.MuiOutlinedInput-root', 'Title')
+      .children('.MuiOutlinedInput-input')
+      .should('have.value', 'NEET Check-in');
+    cy.get(
+      ':nth-child(3) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+    ).click();
+    cy.contains('.MuiOutlinedInput-root', 'English Category Name').clear();
+    cy.get('.MuiButton-text').contains('Cancel').click();
+    cy.get('.MuiTypography-root').contains('Current Status').should('exist');
+  });
+
   it('edits a category', () => {
     cy.get('.MuiTableBody-root')
       .contains('NEET Check-in')
@@ -248,6 +267,106 @@ describe('Form templates', () => {
       .clear()
       .type('NEET Status');
     cy.get('.MuiButton-contained').contains('Save').click();
+    // save form
+    cy.get('.MuiInputBase-root').contains('Current Status').should('not.exist');
+    cy.get('.MuiTypography-root').contains('NEET Status').should('exist');
+    cy.get('.MuiGrid-container > .MuiButtonBase-root')
+      .contains('Submit Template')
+      .click();
+    cy.get('.MuiDialogActions-root > .MuiButton-contained')
+      .contains('Submit')
+      .click();
+    cy.get('.MuiAlert-message', { timeout: 10000 }).should(
+      'have.text',
+      'Form Template Saved!'
+    );
+  });
+
+  it('adds a visibility condition to an entire category', () => {
+    cy.get('.MuiTableBody-root')
+      .contains('NEET Check-in')
+      .siblings()
+      .children()
+      .find('[data-testid="EditIcon"]')
+      .click();
+    cy.wait(1000);
+    cy.contains('.MuiOutlinedInput-root', 'Title')
+      .children('.MuiOutlinedInput-input')
+      .should('have.value', 'NEET Check-in');
+    cy.contains('.MuiOutlinedInput-root', 'Version')
+      .children('.MuiOutlinedInput-input')
+      .clear()
+      .type('4');
+    // add the category to delete
+    cy.get('.MuiButton-contained').contains('Add Category').click();
+    cy.contains('.MuiOutlinedInput-root', 'English Category Name').type(
+      'Career Path'
+    );
+    cy.get('.MuiButton-contained').contains('Save').click();
+    // add a question to the category
+    cy.get('.MuiTypography-root')
+      .contains('Career Path')
+      .parent()
+      .next()
+      .find('.MuiButton-contained')
+      .click();
+    cy.contains('.MuiOutlinedInput-root', 'Field Text').type('Career Goals');
+    cy.get('.MuiFormControlLabel-label').contains('Text').click();
+    cy.get('.MuiButton-contained').contains('Save').click();
+    // add the visibility condition
+    cy.get(
+      ':nth-child(3) > :nth-child(2) > .MuiButtonBase-root > [data-testid="EditIcon"]'
+    ).click();
+    cy.get('[data-testid="conditional-switch"]').click();
+    cy.get(
+      ':nth-child(3) > .MuiGrid-root > .MuiFormControl-root > .MuiInputBase-root'
+    ).type('software engineer');
+    cy.get('.MuiButton-contained').contains('Save').click();
+    // add a question to the category with vis cond
+    cy.get('.MuiTypography-root')
+      .contains('NEET Status')
+      .parent()
+      .next()
+      .find('.MuiButton-contained')
+      .click();
+    cy.get(
+      ':nth-child(3) > .MuiGrid-root > .MuiFormControl-root > .MuiInputBase-root'
+    ).should('contain.text', 'software engineer');
+    cy.get('.MuiButton-text').click();
+    cy.get('.MuiGrid-container > .MuiButtonBase-root').click();
+    cy.get('.MuiDialogActions-root > .MuiButton-contained')
+      .contains('Submit')
+      .click();
+    cy.get('.MuiAlert-message', { timeout: 10000 }).should(
+      'have.text',
+      'Form Template Saved!'
+    );
+  });
+
+  it('deletes all questions in a category then deletes the category', () => {
+    cy.get('.MuiTableBody-root')
+      .contains('NEET Check-in')
+      .siblings()
+      .children()
+      .find('[data-testid="EditIcon"]')
+      .click();
+    cy.wait(1000);
+    cy.contains('.MuiOutlinedInput-root', 'Title')
+      .children('.MuiOutlinedInput-input')
+      .should('have.value', 'NEET Check-in');
+    cy.contains('.MuiOutlinedInput-root', 'Version')
+      .children('.MuiOutlinedInput-input')
+      .clear()
+      .type('5');
+    // first delete the question
+    cy.get(
+      ':nth-child(16) > :nth-child(4) > .MuiButtonBase-root > [data-testid="DeleteIcon"]'
+    ).click();
+    // next delete the category
+    cy.get(
+      ':nth-child(13) > :nth-child(4) > .MuiButtonBase-root > [data-testid="DeleteIcon"]'
+    ).click();
+    cy.get('.MuiDialogActions-root > .MuiButton-contained').click();
     // save form
     cy.get('.MuiInputBase-root').contains('Current Status').should('not.exist');
     cy.get('.MuiTypography-root').contains('NEET Status').should('exist');

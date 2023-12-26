@@ -41,8 +41,10 @@ def is_dfs_order(question_list: list[dict]) -> Optional[str]:
         / \
        Q3 Q4 
 
-    Then the question order should be in the strict dfs order:
+    Then the question order should follow dfs preorder traversal
+    (with their corresponding categoryIndex, with n indicating null):
     [C1,C3,Q3,Q4,Q2,C2,Q5,Q6,Q1]
+    [ n  0  1  1  0  n  5  5  n]
     """
     node_list = [
         Node(q["questionType"] == "CATEGORY", q["questionIndex"], q["categoryIndex"])

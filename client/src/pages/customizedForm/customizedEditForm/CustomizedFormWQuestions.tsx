@@ -5,7 +5,6 @@ import {
   Fragment,
   SetStateAction,
   useEffect,
-  useMemo,
   useReducer,
   useState,
 } from 'react';
@@ -55,6 +54,7 @@ export const CustomizedFormWQuestions = ({
   const questions = fm.questions;
   const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
   const [submitError, setSubmitError] = useState(false);
+  const [visibilityToggle, setVisibilityToggle] = useState(false);
   const [isSubmitPopupOpen, setIsSubmitPopupOpen] = useState(false);
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
   const [, upd] = useReducer((x) => x + 1, 0);
@@ -63,15 +63,8 @@ export const CustomizedFormWQuestions = ({
   >(null);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [categoryPopupOpen, setCategoryPopupOpen] = useState(false);
-  const [individualEditPopupOpen, setIndividualEditPopupOpen] = useState(false);
-  const [categoryEditPopupOpen, setCategoryEditPopupOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [categoryIndex, setCategoryIndex] = useState<number | null>(null);
-  const [deleteOpenFlag, setDeleteOpenFlag] = useState(false);
-  const memoizedNumQuestions = useMemo(() => {
-    return questions.filter((q) => q.categoryIndex === selectedQuestionIndex)
-      .length;
-  }, [questions, selectedQuestionIndex, deleteOpenFlag]);
   const getInputLanguages = (question: TQuestion) => {
     return question.questionLangVersions.map((item) => item.lang);
   };
@@ -84,12 +77,6 @@ export const CustomizedFormWQuestions = ({
     setSelectedLanguage(languages[0]);
     upd();
   }, [languages]);
-
-  useEffect(() => {
-    if (isDeletePopupOpen) {
-      setDeleteOpenFlag(!deleteOpenFlag);
-    }
-  }, [isDeletePopupOpen]);
 
   const updateAddedQuestions = (languages: string[]) => {
     questions.forEach((question) => {
@@ -118,9 +105,14 @@ export const CustomizedFormWQuestions = ({
   const handleEditField = (question: TQuestion) => {
     setSelectedQuestionIndex(question.questionIndex);
     if (question.questionType == QuestionTypeEnum.CATEGORY) {
-      setCategoryEditPopupOpen(true);
+      setCategoryIndex(question.categoryIndex);
+      setCategoryPopupOpen(true);
     } else {
-      setIndividualEditPopupOpen(true);
+      setVisibilityToggle(
+        selectedQuestionIndex != null &&
+          fm.questions[selectedQuestionIndex]?.visibleCondition.length > 0
+      );
+      setEditPopupOpen(true);
     }
   };
 
@@ -128,16 +120,19 @@ export const CustomizedFormWQuestions = ({
     if (selectedQuestionIndex !== null && confirmed) {
       // User clicked OK
       const questionsToDelete = questions.filter(
-        (q) => q.categoryIndex === selectedQuestionIndex
+        (q) =>
+          q.categoryIndex === selectedQuestionIndex ||
+          q.questionIndex === selectedQuestionIndex
       );
       questionsToDelete.forEach(deleteField);
-      deleteField(questions[selectedQuestionIndex]);
     }
     setIsDeletePopupOpen(false);
+    setSelectedQuestionIndex(null);
   };
 
   const handleDeleteField = (question: TQuestion) => {
     setSelectedQuestionIndex(question.questionIndex);
+    setCategoryIndex(null);
     if (question.questionType == QuestionTypeEnum.CATEGORY) {
       setIsDeletePopupOpen(true);
     } else {
@@ -233,6 +228,7 @@ export const CustomizedFormWQuestions = ({
       if (q.categoryIndex && q.categoryIndex > index) {
         q.categoryIndex -= 1;
       }
+      updateVisCond(q.questionIndex, i);
       q.questionIndex = i;
     });
 
@@ -243,6 +239,7 @@ export const CustomizedFormWQuestions = ({
         return form;
       });
     }
+    setSelectedQuestionIndex(null);
     upd();
   };
 
@@ -267,6 +264,7 @@ export const CustomizedFormWQuestions = ({
     }
   };
 
+  // check if any questions in form have a vis cond dependant on a question whos index changed
   const updateVisCond = (oldIndex: number, newIndex: number) => {
     questions.forEach((q) => {
       if (q.visibleCondition && q.visibleCondition[0]?.qidx == oldIndex) {
@@ -309,27 +307,68 @@ export const CustomizedFormWQuestions = ({
       <EditCategory
         open={categoryPopupOpen}
         onClose={() => {
+          setSelectedQuestionIndex(null);
           setCategoryPopupOpen(false);
         }}
-        inputLanguages={languages}
+        visibilityDisabled={
+          categoryIndex != null &&
+          fm.questions[categoryIndex].visibleCondition.length > 0
+        }
+        inputLanguages={
+          selectedQuestionIndex !== null
+            ? getInputLanguages(questions[selectedQuestionIndex])
+            : languages
+        }
         setForm={setForm}
+        question={
+          selectedQuestionIndex !== null
+            ? questions[selectedQuestionIndex]
+            : undefined
+        }
+        questionsArr={fm.questions}
+        visibilityToggle={
+          selectedQuestionIndex !== null &&
+          fm.questions[selectedQuestionIndex]?.visibleCondition.length > 0
+        }
         categoryIndex={categoryIndex}
       />
       <EditField
         open={editPopupOpen}
         onClose={() => {
+          setSelectedQuestionIndex(null);
           setEditPopupOpen(false);
         }}
-        inputLanguages={languages}
+        inputLanguages={
+          selectedQuestionIndex !== null
+            ? getInputLanguages(questions[selectedQuestionIndex])
+            : languages
+        }
         setForm={setForm}
+        question={
+          selectedQuestionIndex !== null
+            ? questions[selectedQuestionIndex]
+            : undefined
+        }
         questionsArr={fm.questions}
-        visibilityToggle={false}
+        visibilityDisabled={
+          selectedQuestionIndex !== null
+            ? questions[selectedQuestionIndex].categoryIndex !== null &&
+              fm.questions[questions[selectedQuestionIndex].categoryIndex ?? 0] // add "?? 0" to suppress null index error
+                .visibleCondition.length > 0
+            : categoryIndex != null &&
+              fm.questions[categoryIndex].visibleCondition.length > 0
+        }
+        visibilityToggle={visibilityToggle}
+        setVisibilityToggle={setVisibilityToggle}
         categoryIndex={categoryIndex}
       />
       <DeleteCategoryDialog
         open={isDeletePopupOpen}
         onClose={handleDeleteOnClose}
-        numQuestions={memoizedNumQuestions}
+        numQuestionsProp={
+          questions.filter((q) => q.categoryIndex === selectedQuestionIndex)
+            .length
+        }
       />
       <Formik
         initialValues={initialState as any}
@@ -428,8 +467,6 @@ export const CustomizedFormWQuestions = ({
                     setForm: setForm,
                   }).map((q, index) => {
                     const question = questions[index];
-                    const isQuestionSelected =
-                      selectedQuestionIndex === question.questionIndex;
                     return (
                       <Fragment key={`rendered-${question.questionIndex}`}>
                         {q}
@@ -446,7 +483,10 @@ export const CustomizedFormWQuestions = ({
                               className={classes.mobileBtn}
                               onClick={() => {
                                 if (languages.length != 0) {
-                                  setCategoryIndex(questions.indexOf(question));
+                                  setCategoryIndex(question.questionIndex);
+                                  setVisibilityToggle(
+                                    question.visibleCondition.length > 0
+                                  );
                                   setEditPopupOpen(true);
                                 } else {
                                   setSubmitError(true);
@@ -533,35 +573,6 @@ export const CustomizedFormWQuestions = ({
                             </Typography>
                           )}
                         </Grid>
-                        <EditField
-                          key={`EditField-popup-${question.questionIndex}`}
-                          open={isQuestionSelected && individualEditPopupOpen}
-                          onClose={() => {
-                            setSelectedQuestionIndex(null);
-                            setIndividualEditPopupOpen(false);
-                          }}
-                          inputLanguages={getInputLanguages(question)}
-                          setForm={setForm}
-                          question={question}
-                          questionsArr={fm.questions}
-                          visibilityToggle={
-                            selectedQuestionIndex != null &&
-                            questions[selectedQuestionIndex]?.visibleCondition
-                              .length > 0
-                          }
-                          categoryIndex={categoryIndex}
-                        />
-                        <EditCategory
-                          open={isQuestionSelected && categoryEditPopupOpen}
-                          onClose={() => {
-                            setSelectedQuestionIndex(null);
-                            setCategoryEditPopupOpen(false);
-                          }}
-                          question={question}
-                          inputLanguages={getInputLanguages(question)}
-                          setForm={setForm}
-                          categoryIndex={categoryIndex}
-                        />
                       </Fragment>
                     );
                   })}
