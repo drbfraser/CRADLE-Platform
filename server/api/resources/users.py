@@ -325,9 +325,12 @@ class UserAuthApi(Resource):
         if user is None:
             # TO-DO: Fix account enumeration problem
             # return same message for incorrect email and incorrect password
-            return {
-                "message": "This email hasn't been registered yet, try to connect with your administrator"
-            }, 401
+            return (
+                {
+                    "message": "This email hasn't been registered yet, try to connect with your administrator"
+                },
+                401,
+            )
 
         if not user or not flask_bcrypt.check_password_hash(
             user.password, data["password"]
@@ -562,9 +565,12 @@ class UserSMSKey(Resource):
     def get(self, user_id):
         user_info = get_jwt_identity()
         if user_info["role"] != "ADMIN" and user_info["userId"] is not user_id:
-            return {
-                "message": "Permission denied, you can only get your sms-key or use the admin account"
-            }, 403
+            return (
+                {
+                    "message": "Permission denied, you can only get your sms-key or use the admin account"
+                },
+                403,
+            )
         validate_result = validate_user(user_id)
         if validate_result is not None:
             return validate_result
@@ -572,35 +578,47 @@ class UserSMSKey(Resource):
         if not sms_key:
             return {"message": "NOTFOUND"}, 424
         elif is_date_passed(sms_key["expiry_date"]):
-            return {
-                "message": "EXPIRED",
-                "expiry_date": str(sms_key["expiry_date"]),
-                "stale_date": str(sms_key["stale_date"]),
-                "sms_key": sms_key["secret_Key"],
-            }, 200
+            return (
+                {
+                    "message": "EXPIRED",
+                    "expiry_date": str(sms_key["expiry_date"]),
+                    "stale_date": str(sms_key["stale_date"]),
+                    "sms_key": sms_key["secret_Key"],
+                },
+                200,
+            )
         elif is_date_passed(sms_key["stale_date"]):
-            return {
-                "message": "WARN",
-                "expiry_date": str(sms_key["expiry_date"]),
-                "stale_date": str(sms_key["stale_date"]),
-                "sms_key": sms_key["secret_Key"],
-            }, 200
+            return (
+                {
+                    "message": "WARN",
+                    "expiry_date": str(sms_key["expiry_date"]),
+                    "stale_date": str(sms_key["stale_date"]),
+                    "sms_key": sms_key["secret_Key"],
+                },
+                200,
+            )
         else:
-            return {
-                "message": "NORMAL",
-                "expiry_date": str(sms_key["expiry_date"]),
-                "stale_date": str(sms_key["stale_date"]),
-                "sms_key": sms_key["secret_Key"],
-            }, 200
+            return (
+                {
+                    "message": "NORMAL",
+                    "expiry_date": str(sms_key["expiry_date"]),
+                    "stale_date": str(sms_key["stale_date"]),
+                    "sms_key": sms_key["secret_Key"],
+                },
+                200,
+            )
 
     @jwt_required()
     @swag_from("../../specifications/user-sms-key-put.yml", methods=["PUT"])
     def put(self, user_id):
         user_info = get_jwt_identity()
         if user_info["role"] != "ADMIN" and user_info["userId"] is not user_id:
-            return {
-                "message": "Permission denied, you can only get your sms-key or use the admin account"
-            }, 403
+            return (
+                {
+                    "message": "Permission denied, you can only get your sms-key or use the admin account"
+                },
+                403,
+            )
         validate_result = validate_user(user_id)
         if validate_result is not None:
             return validate_result
@@ -609,33 +627,42 @@ class UserSMSKey(Resource):
             return {"message": "NOTFOUND"}, 424
         else:
             new_key = update_secret_key_for_user(user_id)
-            return {
-                "message": "NORMAL",
-                "sms_key": new_key["secret_Key"],
-                "expiry_date": str(new_key["expiry_date"]),
-                "stale_date": str(new_key["stale_date"]),
-            }, 200
+            return (
+                {
+                    "message": "NORMAL",
+                    "sms_key": new_key["secret_Key"],
+                    "expiry_date": str(new_key["expiry_date"]),
+                    "stale_date": str(new_key["stale_date"]),
+                },
+                200,
+            )
 
     @jwt_required()
     @swag_from("../../specifications/user-sms-key-post.yml", methods=["POST"])
     def post(self, user_id):
         user_info = get_jwt_identity()
         if user_info["role"] != "ADMIN" and user_info["userId"] is not user_id:
-            return {
-                "message": "Permission denied, you can only get your sms-key or use the admin account"
-            }, 403
+            return (
+                {
+                    "message": "Permission denied, you can only get your sms-key or use the admin account"
+                },
+                403,
+            )
         validate_result = validate_user(user_id)
         if validate_result is not None:
             return validate_result
         sms_key = get_user_secret_key(user_id)
         if not sms_key:
             new_key = create_secret_key_for_user(user_id)
-            return {
-                "message": "NORMAL",
-                "sms_key": new_key["secret_Key"],
-                "expiry_date": str(new_key["expiry_date"]),
-                "stale_date": str(new_key["stale_date"]),
-            }, 201
+            return (
+                {
+                    "message": "NORMAL",
+                    "sms_key": new_key["secret_Key"],
+                    "expiry_date": str(new_key["expiry_date"]),
+                    "stale_date": str(new_key["stale_date"]),
+                },
+                201,
+            )
         else:
             return {"message": "DUPLICATE"}, 200
 
