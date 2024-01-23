@@ -42,6 +42,8 @@ from flask import Flask
 import os
 import json
 import re
+import time
+import random
 
 # Error messages
 null_phone_number = "No phone number was provided"
@@ -322,20 +324,14 @@ class UserAuthApi(Resource):
         data = self.parser.parse_args()
         user = crud.read(User, email=data["email"])
 
-        if user is None:
-            # TO-DO: Fix account enumeration problem
-            # return same message for incorrect email and incorrect password
-            return (
-                {
-                    "message": "This email hasn't been registered yet, try to connect with your administrator"
-                },
-                401,
-            )
-
-        if not user or not flask_bcrypt.check_password_hash(
-            user.password, data["password"]
+        if (
+            user is None
+            or not user
+            or not flask_bcrypt.check_password_hash(user.password, data["password"])
         ):
-            return {"message": "Invalid email or password"}, 401
+            random_delay = random.uniform(1, 3)
+            time.sleep(random_delay)
+            return {"message": "Incorrect username or password."}, 401
 
         # setup any extra user params
         user_data = get_user_data_for_token(user)
