@@ -318,10 +318,8 @@ class UserAuthApi(Resource):
         data = self.parser.parse_args()
         user = crud.read(User, email=data["email"])
 
-        if (
-            user is None
-            or not user
-            or not flask_bcrypt.check_password_hash(user.password, data["password"])
+        if not user or not flask_bcrypt.check_password_hash(
+            user.password, data["password"]
         ):
             return {"message": "Incorrect username or password."}, 401
 
