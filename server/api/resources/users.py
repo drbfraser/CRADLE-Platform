@@ -311,12 +311,8 @@ class UserAuthApi(Resource):
     )  # needs to be below limiter since it will point to limiter/... path
     def post(self):
         """The implementation of Post method for user login. Two part included in this methods:
-        1. Validation check:
-            1.1 User email check: if user enter a unregistered email address, system will return a error code 401
-                 with a warning message: This email hasn't been registered yet, try to connect with your administrator
-            1.2 User password check: if user enter a registered email address, system will compare the password hash
-                code with the password entered by user, if password check failed, system will return a error code
-                401 with a warning message: Invalid email or password
+        1. Validation check: if the user enters an email that does not exist or inputs the wrong password for their account, then in both cases
+            they will receive the following message: "Incorrect username or password."  
         2. User params loading: after user identification check is done, system will load the user data and return
             code 200
 
@@ -324,11 +320,10 @@ class UserAuthApi(Resource):
         data = self.parser.parse_args()
         user = crud.read(User, email=data["email"])
 
-        if (
-            user is None
-            or not user
-            or not flask_bcrypt.check_password_hash(user.password, data["password"])
+        if not user or not flask_bcrypt.check_password_hash(
+            user.password, data["password"]
         ):
+            # We want to obfuscate and conceal timing information with a randomized delay before sending back response
             random_delay = random.uniform(1, 3)
             time.sleep(random_delay)
             return {"message": "Incorrect username or password."}, 401
