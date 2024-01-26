@@ -322,7 +322,7 @@ class UserAuthApi(Resource):
 
         if not user:
             # We want to obfuscate and conceal timing information with a randomized delay before sending back response
-            random_delay = random.uniform(1, 3)
+            random_delay = random.uniform(0.4, 0.5)
             time.sleep(random_delay)
             return {"message": "Incorrect username or password."}, 401
         elif not flask_bcrypt.check_password_hash(user.password, data["password"]):
