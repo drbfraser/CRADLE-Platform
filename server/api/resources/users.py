@@ -312,7 +312,7 @@ class UserAuthApi(Resource):
     def post(self):
         """The implementation of Post method for user login. Two part included in this methods:
         1. Validation check: if the user enters an email that does not exist or inputs the wrong password for their account, then in both cases
-            they will receive the following message: "Incorrect username or password."  
+            they will receive the following message: "Incorrect username or password."
         2. User params loading: after user identification check is done, system will load the user data and return
             code 200
 
@@ -320,12 +320,12 @@ class UserAuthApi(Resource):
         data = self.parser.parse_args()
         user = crud.read(User, email=data["email"])
 
-        if not user or not flask_bcrypt.check_password_hash(
-            user.password, data["password"]
-        ):
+        if not user:
             # We want to obfuscate and conceal timing information with a randomized delay before sending back response
             random_delay = random.uniform(1, 3)
             time.sleep(random_delay)
+            return {"message": "Incorrect username or password."}, 401
+        elif not flask_bcrypt.check_password_hash(user.password, data["password"]):
             return {"message": "Incorrect username or password."}, 401
 
         # setup any extra user params
