@@ -80,6 +80,8 @@ const EditField = ({
   const [isRequired, setIsRequired] = useState(question?.required ?? false);
   const [isVisCondAnswered, setIsVisCondAnswered] = useState(!visibilityToggle);
   const [editVisCondKey, setEditVisCondKey] = useState(0);
+  const [isNumOfLinesRestricted, setIsNumOfLinesRestricted] = useState(false);
+  const [maxLinesInput, setMaxLinesInput] = useState(0);
 
   const removeAllMultChoices = () => {
     questionLangVersions.forEach((qLangVersion) => {
@@ -125,9 +127,71 @@ const EditField = ({
       label: 'Text',
       type: QuestionTypeEnum.STRING,
       render: () => (
-        <>
-          {/*TODO: Handle what is displayed when Text field type is selected*/}
-        </>
+        <Grid item>
+          <FormControlLabel
+            style={{ marginLeft: 0 }}
+            control={
+              <Switch
+                checked={isNumOfLinesRestricted}
+                onChange={(e) =>
+                  handlers.handleRequiredChange(
+                    e,
+                    setIsNumOfLinesRestricted,
+                    setFormDirty,
+                    setFieldChanged,
+                    fieldChanged
+                  )
+                }
+                data-testid="lines-num-restriction-switch"
+              />
+            }
+            label={
+              <FormLabel
+                id="lines-num-restriction-label"
+                style={{ display: 'flex' }}>
+                <Typography variant="h6">Restrict Max Lines</Typography>
+                <Tooltip
+                  disableFocusListener
+                  disableTouchListener
+                  title={'Restrict the number of lines for this field'}
+                  arrow
+                  placement="right">
+                  <IconButton>
+                    <InfoIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </FormLabel>
+            }
+            labelPlacement="start"
+          />
+
+          {isNumOfLinesRestricted && (
+            <Grid item>
+              <TextField
+                key={`11`}
+                label={`Max Lines`}
+                required={isNumOfLinesRestricted}
+                variant="outlined"
+                fullWidth
+                multiline
+                size="small"
+                inputProps={{
+                  maxLength: Number.MAX_SAFE_INTEGER,
+                  inputProps: { min: 0 },
+                }}
+                onChange={(e) => {
+                  if (!isNaN(Number(e.target.value))) {
+                    setMaxLinesInput(Number(e.target.value));
+                  } else {
+                    setMaxLinesInput(0);
+                  }
+                  setFieldChanged(!fieldChanged);
+                  setFormDirty(true);
+                }}
+              />
+            </Grid>
+          )}
+        </Grid>
       ),
     },
     mult_choice: {
@@ -196,6 +260,7 @@ const EditField = ({
       areAllNamesFilled = areAllNamesFilled && qLangVersion.questionText != '';
     });
     let areAllMcOptionFilled = true;
+    let isMaxLinesAllowedFilled = true;
     const isFieldTypeChosen = fieldType.trim() != '';
 
     if (fieldType == 'mult_choice' || fieldType == 'mult_select') {
@@ -211,14 +276,22 @@ const EditField = ({
           });
         }
       });
+    } else if (fieldType == 'text' && isNumOfLinesRestricted) {
+      isMaxLinesAllowedFilled = maxLinesInput > 0;
     }
 
     const nonMultiChoiceCheck =
       areAllNamesFilled && isFieldTypeChosen && isVisCondAnswered;
 
-    return fieldType == 'mult_choice' || fieldType == 'mult_select'
-      ? nonMultiChoiceCheck && areAllMcOptionFilled
-      : nonMultiChoiceCheck;
+    let ret = false;
+    if (fieldType == 'mult_choice' || fieldType == 'mult_select') {
+      ret = nonMultiChoiceCheck && areAllMcOptionFilled;
+    } else if (fieldType == 'text') {
+      ret = nonMultiChoiceCheck && isMaxLinesAllowedFilled;
+    } else {
+      ret = nonMultiChoiceCheck;
+    }
+    return ret;
   };
 
   const getQLangVersionsCopy = (
