@@ -24,6 +24,7 @@ const VALID_QUESTION_TYPES = Object.values(QuestionTypeEnum).map((value) =>
   value.valueOf()
 );
 
+// This doesn't need to be exported
 export const TransferQAnswerToAPIStandard = (
   answers: QAnswer[],
   questions: Question[]

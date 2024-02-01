@@ -70,6 +70,7 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
               <Box p={4} pt={6} m={2}>
                 {renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? (
                   <Grid container spacing={3}>
+                    {/* This is redundant */}
                     <h2>Current Form</h2>
                     <Divider />
                   </Grid>
