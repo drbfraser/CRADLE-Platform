@@ -23,6 +23,13 @@ env:
   npm_config_cache: /isolated-build/.npm-cache
   CYPRESS_CACHE_FOLDER: /isolated_build/.cypress-cache
 jobs:
+  validate_pr_title:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   display_github_contexts:
     runs-on: [self-hosted, docker]
     container:
