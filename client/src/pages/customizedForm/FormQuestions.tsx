@@ -1,4 +1,8 @@
-import { AnswerTypeEnum, QuestionTypeEnum } from 'src/shared/enums';
+import {
+  AnswerTypeEnum,
+  QRelationEnum,
+  QuestionTypeEnum,
+} from 'src/shared/enums';
 import {
   FormTemplateWithQuestions,
   McOption,
@@ -161,25 +165,38 @@ export const FormQuestions = ({
           switch (parentQuestion.questionType) {
             case QuestionTypeEnum.MULTIPLE_CHOICE:
             case QuestionTypeEnum.MULTIPLE_SELECT:
-              isConditionMet =
-                condition.answers.mcidArray!.length > 0 &&
-                parentAnswer.val?.length > 0 &&
-                parentAnswer.val?.length ===
-                  condition.answers.mcidArray?.length &&
-                condition.answers.mcidArray!.every((item) =>
-                  parentAnswer.val?.includes(parentQuestion.mcOptions[item].opt)
-                );
+              switch (parentQuestion.visibleCondition[0].relation) {
+                case QRelationEnum.EQUAL_TO:
+                  isConditionMet =
+                    condition.answers.mcidArray!.length > 0 &&
+                    parentAnswer.val?.length > 0 &&
+                    parentAnswer.val?.length ===
+                      condition.answers.mcidArray?.length &&
+                    condition.answers.mcidArray!.every((item) =>
+                      parentAnswer.val?.includes(
+                        parentQuestion.mcOptions[item].opt
+                      )
+                    );
+                  break;
+              }
               break;
-
             case QuestionTypeEnum.STRING:
-              isConditionMet = parentAnswer.val === condition.answers.text;
+              switch (parentQuestion.visibleCondition[0].relation) {
+                case QRelationEnum.EQUAL_TO:
+                  isConditionMet = parentAnswer.val === condition.answers.text;
+                  break;
+              }
               break;
-
             case QuestionTypeEnum.INTEGER:
             case QuestionTypeEnum.DATE:
             case QuestionTypeEnum.DATETIME:
-              isConditionMet =
-                Number(parentAnswer.val) === Number(condition.answers.number);
+              switch (parentQuestion.visibleCondition[0].relation) {
+                case QRelationEnum.EQUAL_TO:
+                  isConditionMet =
+                    Number(parentAnswer.val) ===
+                    Number(condition.answers.number);
+                  break;
+              }
               break;
           }
 
