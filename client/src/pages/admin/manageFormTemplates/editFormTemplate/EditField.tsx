@@ -1,4 +1,3 @@
-/* eslint-disable no-debugger */
 import {
   Dialog,
   DialogActions,
@@ -81,7 +80,7 @@ const EditField = ({
   const [isRequired, setIsRequired] = useState(question?.required ?? false);
   const [isVisCondAnswered, setIsVisCondAnswered] = useState(!visibilityToggle);
   const [editVisCondKey, setEditVisCondKey] = useState(0);
-  const [stringMaxLines, setStringMaxLines] = useState<string | number | undefined | null>("");
+  const [stringMaxLines, setStringMaxLines] = useState<any>('');
   const [isNumOfLinesRestricted, setIsNumOfLinesRestricted] = useState(
     Number(stringMaxLines) > 0
   );
@@ -90,7 +89,11 @@ const EditField = ({
     'restricted?: ',
     isNumOfLinesRestricted,
     ' string max lines: ',
-    stringMaxLines
+    stringMaxLines,
+    '\nvalue inputted into string max lines: ',
+    !isNaN(Number(stringMaxLines)) && Number(stringMaxLines) > 0
+      ? Number(stringMaxLines)
+      : ``
   );
 
   const removeAllMultChoices = () => {
@@ -185,7 +188,11 @@ const EditField = ({
                 fullWidth
                 multiline
                 size="small"
-                defaultValue={(!isNaN(Number(stringMaxLines)) && Number(stringMaxLines) > 0) ? Number(stringMaxLines) : ``}
+                defaultValue={
+                  !isNaN(Number(stringMaxLines)) && Number(stringMaxLines) > 0
+                    ? Number(stringMaxLines)
+                    : ``
+                }
                 inputProps={{
                   maxLength: Number.MAX_SAFE_INTEGER,
                   min: 0,
@@ -284,7 +291,8 @@ const EditField = ({
         }
       });
     } else if (fieldType == 'text' && isNumOfLinesRestricted) {
-      isMaxLinesAllowedFilled = !isNaN(Number(stringMaxLines)) && Number(stringMaxLines) > 0;
+      isMaxLinesAllowedFilled =
+        !isNaN(Number(stringMaxLines)) && Number(stringMaxLines) > 0;
     }
 
     const nonMultiChoiceCheck =
@@ -353,7 +361,7 @@ const EditField = ({
           setNumChoices(qlvCopy[0].mcOptions.length);
         }
         setIsRequired(question.required);
-        // setStringMaxLines(question.stringMaxLines);
+        setStringMaxLines(question.stringMaxLines);
         setIsNumOfLinesRestricted(
           question.stringMaxLines ? question.stringMaxLines > 0 : false
         );
@@ -366,7 +374,7 @@ const EditField = ({
         setNumChoices(0);
         setIsRequired(false);
         setIsNumOfLinesRestricted(false);
-        // setStringMaxLines(null);
+        setStringMaxLines(null);
       }
     }
     // Check if all fields are filled
