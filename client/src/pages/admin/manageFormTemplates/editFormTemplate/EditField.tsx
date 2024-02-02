@@ -1,3 +1,4 @@
+/* eslint-disable no-debugger */
 import {
   Dialog,
   DialogActions,
@@ -80,8 +81,17 @@ const EditField = ({
   const [isRequired, setIsRequired] = useState(question?.required ?? false);
   const [isVisCondAnswered, setIsVisCondAnswered] = useState(!visibilityToggle);
   const [editVisCondKey, setEditVisCondKey] = useState(0);
-  const [isNumOfLinesRestricted, setIsNumOfLinesRestricted] = useState(false);
-  const [maxLinesInput, setMaxLinesInput] = useState(0);
+  const [stringMaxLines, setStringMaxLines] = useState<string | number | undefined | null>("");
+  const [isNumOfLinesRestricted, setIsNumOfLinesRestricted] = useState(
+    Number(stringMaxLines) > 0
+  );
+
+  console.log(
+    'restricted?: ',
+    isNumOfLinesRestricted,
+    ' string max lines: ',
+    stringMaxLines
+  );
 
   const removeAllMultChoices = () => {
     questionLangVersions.forEach((qLangVersion) => {
@@ -134,11 +144,12 @@ const EditField = ({
               <Switch
                 checked={isNumOfLinesRestricted}
                 onChange={(e) =>
-                  handlers.handleRequiredChange(
+                  handlers.handleIsNumOfLinesRestrictedChange(
                     e,
                     setIsNumOfLinesRestricted,
                     setFormDirty,
                     setFieldChanged,
+                    setStringMaxLines,
                     fieldChanged
                   )
                 }
@@ -168,23 +179,19 @@ const EditField = ({
           {isNumOfLinesRestricted && (
             <Grid item>
               <TextField
-                key={`11`}
                 label={`Max Lines`}
                 required={isNumOfLinesRestricted}
                 variant="outlined"
                 fullWidth
                 multiline
                 size="small"
+                defaultValue={(!isNaN(Number(stringMaxLines)) && Number(stringMaxLines) > 0) ? Number(stringMaxLines) : ``}
                 inputProps={{
                   maxLength: Number.MAX_SAFE_INTEGER,
-                  inputProps: { min: 0 },
+                  min: 0,
                 }}
                 onChange={(e) => {
-                  if (!isNaN(Number(e.target.value))) {
-                    setMaxLinesInput(Number(e.target.value));
-                  } else {
-                    setMaxLinesInput(0);
-                  }
+                  setStringMaxLines(e.target.value);
                   setFieldChanged(!fieldChanged);
                   setFormDirty(true);
                 }}
@@ -277,7 +284,7 @@ const EditField = ({
         }
       });
     } else if (fieldType == 'text' && isNumOfLinesRestricted) {
-      isMaxLinesAllowedFilled = maxLinesInput > 0;
+      isMaxLinesAllowedFilled = !isNaN(Number(stringMaxLines)) && Number(stringMaxLines) > 0;
     }
 
     const nonMultiChoiceCheck =
@@ -346,6 +353,10 @@ const EditField = ({
           setNumChoices(qlvCopy[0].mcOptions.length);
         }
         setIsRequired(question.required);
+        // setStringMaxLines(question.stringMaxLines);
+        setIsNumOfLinesRestricted(
+          question.stringMaxLines ? question.stringMaxLines > 0 : false
+        );
       }
       // create new field
       else {
@@ -354,6 +365,8 @@ const EditField = ({
         setQuestionLangversions([]);
         setNumChoices(0);
         setIsRequired(false);
+        setIsNumOfLinesRestricted(false);
+        // setStringMaxLines(null);
       }
     }
     // Check if all fields are filled
@@ -664,6 +677,10 @@ const EditField = ({
                   question.visibleCondition.length = 0;
                 }
                 setForm((form) => {
+                  let finalStringMaxLines = null;
+                  if (!isNaN(Number(stringMaxLines))) {
+                    finalStringMaxLines = Number(stringMaxLines);
+                  }
                   // edit field
                   if (question) {
                     const questionToUpdate = form.questions.find(
@@ -679,6 +696,7 @@ const EditField = ({
                         ? visibleCondition
                         : [];
                       questionToUpdate.required = isRequired;
+                      questionToUpdate.stringMaxLines = finalStringMaxLines;
                     }
                   }
                   // create new field
@@ -704,6 +722,7 @@ const EditField = ({
                       numMin: null,
                       numMax: null,
                       stringMaxLength: null,
+                      stringMaxLines: finalStringMaxLines,
                       units: null,
                       visibleCondition: visibleCondition,
                       categoryIndex: categoryIndex,
