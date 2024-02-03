@@ -576,6 +576,7 @@ class Question(db.Model):
     stringMaxLength = db.Column(db.Integer, nullable=True)
     answers = db.Column(db.Text, nullable=False, default="{}")
     categoryIndex = db.Column(db.Integer, nullable=True)
+    stringMaxLines = db.Column(db.Integer, nullable=True)
 
     # FORENIGN KEYS
     formId = db.Column(

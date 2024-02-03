@@ -221,6 +221,7 @@ export const ManageFormTemplates = () => {
           numMin: null,
           numMax: null,
           stringMaxLength: null,
+          stringMaxLines: q.stringMaxLines,
           units: null,
           visibleCondition: q.visibleCondition,
         };

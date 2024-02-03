@@ -617,6 +617,7 @@ def create_form_template():
                 "stringMaxLength": None,
                 "units": None,
                 "visibleCondition": "[]",
+                "stringMaxLines": None,
             },
             {
                 "formTemplateId": "dt9",
@@ -632,6 +633,7 @@ def create_form_template():
                 "stringMaxLength": None,
                 "units": None,
                 "visibleCondition": "[]",
+                "stringMaxLines": None,
             },
             {
                 "formTemplateId": "dt9",
@@ -647,6 +649,7 @@ def create_form_template():
                 "stringMaxLength": None,
                 "units": None,
                 "visibleCondition": "[]",
+                "stringMaxLines": None,
             },
             {
                 "formTemplateId": "dt9",
@@ -662,6 +665,7 @@ def create_form_template():
                 "stringMaxLength": None,
                 "units": None,
                 "visibleCondition": "[]",
+                "stringMaxLines": None,
             },
         ],
     }
