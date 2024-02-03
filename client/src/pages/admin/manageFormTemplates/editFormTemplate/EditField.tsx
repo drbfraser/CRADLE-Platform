@@ -686,8 +686,9 @@ const EditField = ({
                 }
                 setForm((form) => {
                   let finalStringMaxLines = null;
-                  if (!isNaN(Number(stringMaxLines))) {
-                    finalStringMaxLines = Number(stringMaxLines);
+                  const stringMaxLinesInt = Number(stringMaxLines);
+                  if (!isNaN(stringMaxLinesInt) && stringMaxLinesInt > 0) {
+                    finalStringMaxLines = stringMaxLinesInt;
                   }
                   // edit field
                   if (question) {
