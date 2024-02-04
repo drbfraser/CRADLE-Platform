@@ -229,13 +229,22 @@ export const FormQuestions = ({
               }
               break;
             case QuestionTypeEnum.INTEGER:
-              isConditionMet = handleNumericTypeVisCondition(parentAnswer, condition)
+              isConditionMet = handleNumericTypeVisCondition(
+                parentAnswer,
+                condition
+              );
               break;
             case QuestionTypeEnum.DATE:
-              isConditionMet = handleNumericTypeVisCondition(parentAnswer, condition)
+              isConditionMet = handleNumericTypeVisCondition(
+                parentAnswer,
+                condition
+              );
               break;
             case QuestionTypeEnum.DATETIME:
-              isConditionMet = handleNumericTypeVisCondition(parentAnswer, condition)
+              isConditionMet = handleNumericTypeVisCondition(
+                parentAnswer,
+                condition
+              );
               break;
           }
 
