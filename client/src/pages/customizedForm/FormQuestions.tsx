@@ -64,6 +64,26 @@ export const FormQuestions = ({
     return false;
   };
 
+  const handleNumericTypeVisCondition = (
+    parentAnswer: QAnswer,
+    condition: QCondition
+  ): boolean => {
+    switch (condition.relation) {
+      case QRelationEnum.EQUAL_TO:
+        return Number(parentAnswer.val) === Number(condition.answers.number);
+      case QRelationEnum.SMALLER_THAN:
+        return Number(parentAnswer.val) < Number(condition.answers.number);
+      case QRelationEnum.LARGER_THAN:
+        return Number(parentAnswer.val) > Number(condition.answers.number);
+      case QRelationEnum.CONTAINS:
+        return String(parentAnswer.val).includes(
+          String(condition.answers.number)
+        );
+      default:
+        return true;
+    }
+  };
+
   useEffect(() => {
     const getValuesFromIDs = (
       question: Question,
@@ -209,70 +229,13 @@ export const FormQuestions = ({
               }
               break;
             case QuestionTypeEnum.INTEGER:
-              switch (condition.relation) {
-                case QRelationEnum.EQUAL_TO:
-                  isConditionMet =
-                    Number(parentAnswer.val) ===
-                    Number(condition.answers.number);
-                  break;
-                case QRelationEnum.SMALLER_THAN:
-                  isConditionMet =
-                    Number(parentAnswer.val) < Number(condition.answers.number);
-                  break;
-                case QRelationEnum.LARGER_THAN:
-                  isConditionMet =
-                    Number(parentAnswer.val) > Number(condition.answers.number);
-                  break;
-                case QRelationEnum.CONTAINS:
-                  isConditionMet = String(parentAnswer.val).includes(
-                    String(condition.answers.number)
-                  );
-                  break;
-              }
+              isConditionMet = handleNumericTypeVisCondition(parentAnswer, condition)
               break;
             case QuestionTypeEnum.DATE:
-              switch (condition.relation) {
-                case QRelationEnum.EQUAL_TO:
-                  isConditionMet =
-                    Number(parentAnswer.val) ===
-                    Number(condition.answers.number);
-                  break;
-                case QRelationEnum.SMALLER_THAN:
-                  isConditionMet =
-                    Number(parentAnswer.val) < Number(condition.answers.number);
-                  break;
-                case QRelationEnum.LARGER_THAN:
-                  isConditionMet =
-                    Number(parentAnswer.val) > Number(condition.answers.number);
-                  break;
-                case QRelationEnum.CONTAINS:
-                  isConditionMet = String(parentAnswer.val).includes(
-                    String(condition.answers.number)
-                  );
-                  break;
-              }
+              isConditionMet = handleNumericTypeVisCondition(parentAnswer, condition)
               break;
             case QuestionTypeEnum.DATETIME:
-              switch (condition.relation) {
-                case QRelationEnum.EQUAL_TO:
-                  isConditionMet =
-                    Number(parentAnswer.val) ===
-                    Number(condition.answers.number);
-                  break;
-                case QRelationEnum.SMALLER_THAN:
-                  isConditionMet =
-                    Number(parentAnswer.val) < Number(condition.answers.number);
-                  break;
-                case QRelationEnum.LARGER_THAN:
-                  isConditionMet =
-                    Number(parentAnswer.val) > Number(condition.answers.number);
-                  break;
-                case QRelationEnum.CONTAINS:
-                  isConditionMet = String(parentAnswer.val).includes(
-                    String(condition.answers.number)
-                  );
-                  break;
-              }
+              isConditionMet = handleNumericTypeVisCondition(parentAnswer, condition)
               break;
           }
 
