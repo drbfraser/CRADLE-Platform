@@ -163,38 +163,114 @@ export const FormQuestions = ({
 
           let isConditionMet = true;
           switch (parentQuestion.questionType) {
+            // TODO: This does not work. The multiple choice and multiple select questions do not
+            //       save properly in the QCondition object type
             case QuestionTypeEnum.MULTIPLE_CHOICE:
             case QuestionTypeEnum.MULTIPLE_SELECT:
-              switch (parentQuestion.visibleCondition[0].relation) {
-                case QRelationEnum.EQUAL_TO:
-                  isConditionMet =
-                    condition.answers.mcidArray!.length > 0 &&
-                    parentAnswer.val?.length > 0 &&
-                    parentAnswer.val?.length ===
-                      condition.answers.mcidArray?.length &&
-                    condition.answers.mcidArray!.every((item) =>
-                      parentAnswer.val?.includes(
-                        parentQuestion.mcOptions[item].opt
-                      )
-                    );
-                  break;
-              }
+              // switch (condition.relation) {
+              //   case QRelationEnum.EQUAL_TO:
+              //     isConditionMet =
+              //       condition.answers.mcidArray!.length > 0 &&
+              //       parentAnswer.val?.length > 0 &&
+              //       parentAnswer.val?.length ===
+              //         condition.answers.mcidArray?.length &&
+              //       condition.answers.mcidArray!.every((item) =>
+              //         parentAnswer.val?.includes(
+              //           parentQuestion.mcOptions[item].opt
+              //         )
+              //       );
+              //     break;
+              // }
               break;
             case QuestionTypeEnum.STRING:
-              switch (parentQuestion.visibleCondition[0].relation) {
+              switch (condition.relation) {
                 case QRelationEnum.EQUAL_TO:
                   isConditionMet = parentAnswer.val === condition.answers.text;
+                  break;
+                case QRelationEnum.SMALLER_THAN:
+                  if (!condition.answers.text) {
+                    isConditionMet = false;
+                    break;
+                  }
+                  isConditionMet = parentAnswer.val < condition.answers.text;
+                  break;
+                case QRelationEnum.LARGER_THAN:
+                  if (!condition.answers.text) {
+                    isConditionMet = false;
+                    break;
+                  }
+                  isConditionMet = parentAnswer.val > condition.answers.text;
+                  break;
+                case QRelationEnum.CONTAINS:
+                  isConditionMet = parentAnswer.val.includes(
+                    condition.answers.text
+                  );
                   break;
               }
               break;
             case QuestionTypeEnum.INTEGER:
-            case QuestionTypeEnum.DATE:
-            case QuestionTypeEnum.DATETIME:
-              switch (parentQuestion.visibleCondition[0].relation) {
+              switch (condition.relation) {
                 case QRelationEnum.EQUAL_TO:
                   isConditionMet =
                     Number(parentAnswer.val) ===
                     Number(condition.answers.number);
+                  break;
+                case QRelationEnum.SMALLER_THAN:
+                  isConditionMet =
+                    Number(parentAnswer.val) < Number(condition.answers.number);
+                  break;
+                case QRelationEnum.LARGER_THAN:
+                  isConditionMet =
+                    Number(parentAnswer.val) > Number(condition.answers.number);
+                  break;
+                case QRelationEnum.CONTAINS:
+                  isConditionMet = String(parentAnswer.val).includes(
+                    String(condition.answers.number)
+                  );
+                  break;
+              }
+              break;
+            case QuestionTypeEnum.DATE:
+              switch (condition.relation) {
+                case QRelationEnum.EQUAL_TO:
+                  isConditionMet =
+                    Number(parentAnswer.val) ===
+                    Number(condition.answers.number);
+                  break;
+                case QRelationEnum.SMALLER_THAN:
+                  isConditionMet =
+                    Number(parentAnswer.val) < Number(condition.answers.number);
+                  break;
+                case QRelationEnum.LARGER_THAN:
+                  isConditionMet =
+                    Number(parentAnswer.val) > Number(condition.answers.number);
+                  break;
+                case QRelationEnum.CONTAINS:
+                  isConditionMet = String(parentAnswer.val).includes(
+                    String(condition.answers.number)
+                  );
+                  break;
+              }
+              break;
+            case QuestionTypeEnum.DATETIME:
+              switch (condition.relation) {
+                case QRelationEnum.EQUAL_TO:
+                  isConditionMet =
+                    Number(parentAnswer.val) ===
+                    Number(condition.answers.number);
+                  break;
+                case QRelationEnum.SMALLER_THAN:
+                  isConditionMet =
+                    Number(parentAnswer.val) < Number(condition.answers.number);
+                  break;
+                case QRelationEnum.LARGER_THAN:
+                  isConditionMet =
+                    Number(parentAnswer.val) > Number(condition.answers.number);
+                  break;
+                case QRelationEnum.CONTAINS:
+                  isConditionMet = String(parentAnswer.val).includes(
+                    String(condition.answers.number)
+                  );
                   break;
               }
               break;
