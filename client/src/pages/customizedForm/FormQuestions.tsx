@@ -456,6 +456,11 @@ export const FormQuestions = ({
                 renderState === FormRenderStateEnum.VIS_COND_DISABLED
               }
               multiline
+              helperText={
+                question.stringMaxLines
+                  ? 'Maximum ' + question.stringMaxLines + ' lines allowed'
+                  : ''
+              }
               inputProps={{
                 maxLength:
                   question.stringMaxLength! > 0
@@ -463,11 +468,21 @@ export const FormQuestions = ({
                     : Number.MAX_SAFE_INTEGER,
               }}
               onChange={(event: any) => {
+                const inputValue = event.target.value;
+                const lines = inputValue.split(/\r*\n/);
+                console.log(
+                  'maxLines: ' +
+                    question.stringMaxLines +
+                    ' lines: ' +
+                    lines.length
+                );
+
                 //it is originally a string type!! need transfer
                 updateAnswersByValue(
                   question.questionIndex,
                   event.target.value
                 );
+                // }
               }}
             />
           </Grid>
