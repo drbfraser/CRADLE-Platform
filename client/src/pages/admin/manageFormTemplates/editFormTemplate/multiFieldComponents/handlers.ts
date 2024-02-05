@@ -127,3 +127,15 @@ export const handleRequiredChange = (
   setFormDirty(true);
   setFieldChanged(!fieldChanged);
 };
+
+export const handlePastDateChange = (
+  event: React.ChangeEvent<HTMLInputElement>,
+  setPastDateAllowed: React.Dispatch<React.SetStateAction<any>>,
+  setFormDirty: React.Dispatch<React.SetStateAction<any>>,
+  setFieldChanged: React.Dispatch<React.SetStateAction<any>>,
+  fieldChanged: boolean
+) => {
+  setPastDateAllowed(event.target.checked);
+  setFormDirty(true);
+  setFieldChanged(!fieldChanged);
+};

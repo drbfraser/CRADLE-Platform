@@ -78,6 +78,7 @@ const EditField = ({
   const [fieldChanged, setFieldChanged] = useState(false);
   const [formDirty, setFormDirty] = useState(false);
   const [isRequired, setIsRequired] = useState(question?.required ?? false);
+  const [pastDateAllowed, setPastDateAllowed] = useState(false);
   const [isVisCondAnswered, setIsVisCondAnswered] = useState(!visibilityToggle);
   const [editVisCondKey, setEditVisCondKey] = useState(0);
 
@@ -566,6 +567,44 @@ const EditField = ({
                 labelPlacement="start"
               />
             </Grid>
+          )}
+          {fieldType == 'date' && (
+            <FormControlLabel
+              style={{ marginLeft: 0, marginTop: 5 }}
+              control={
+                <Switch
+                  checked={pastDateAllowed}
+                  onChange={(e) =>
+                    handlers.handlePastDateChange(
+                      e,
+                      setPastDateAllowed,
+                      setFormDirty,
+                      setFieldChanged,
+                      fieldChanged
+                    )
+                  }
+                  data-testid="past-date-allowed-switch"
+                />
+              }
+              label={
+                <FormLabel
+                  id="past-date-allowed-label"
+                  style={{ display: 'flex' }}>
+                  <Typography variant="h6">Past Dates</Typography>
+                  <Tooltip
+                    disableFocusListener
+                    disableTouchListener
+                    title={'Allow users to select past dates in your form'}
+                    arrow
+                    placement="right">
+                    <IconButton>
+                      <InfoIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </FormLabel>
+              }
+              labelPlacement="start"
+            />
           )}
         </DialogContent>
         <DialogActions>
