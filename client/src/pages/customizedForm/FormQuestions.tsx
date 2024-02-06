@@ -1,4 +1,8 @@
-import { AnswerTypeEnum, QuestionTypeEnum } from 'src/shared/enums';
+import {
+  AnswerTypeEnum,
+  QRelationEnum,
+  QuestionTypeEnum,
+} from 'src/shared/enums';
 import {
   FormTemplateWithQuestions,
   McOption,
@@ -61,6 +65,26 @@ export const FormQuestions = ({
       return 'questionText' in x[0];
     }
     return false;
+  };
+
+  const handleNumericTypeVisCondition = (
+    parentAnswer: QAnswer,
+    condition: QCondition
+  ): boolean => {
+    switch (condition.relation) {
+      case QRelationEnum.EQUAL_TO:
+        return Number(parentAnswer.val) === Number(condition.answers.number);
+      case QRelationEnum.SMALLER_THAN:
+        return Number(parentAnswer.val) < Number(condition.answers.number);
+      case QRelationEnum.LARGER_THAN:
+        return Number(parentAnswer.val) > Number(condition.answers.number);
+      case QRelationEnum.CONTAINS:
+        return String(parentAnswer.val).includes(
+          String(condition.answers.number)
+        );
+      default:
+        return true;
+    }
   };
 
   useEffect(() => {
@@ -162,27 +186,68 @@ export const FormQuestions = ({
 
           let isConditionMet = true;
           switch (parentQuestion.questionType) {
+            // TODO: This does not work. The multiple choice and multiple select questions do not
+            //       save properly in the QCondition object type
             case QuestionTypeEnum.MULTIPLE_CHOICE:
             case QuestionTypeEnum.MULTIPLE_SELECT:
-              isConditionMet =
-                condition.answers.mcidArray!.length > 0 &&
-                parentAnswer.val?.length > 0 &&
-                parentAnswer.val?.length ===
-                  condition.answers.mcidArray?.length &&
-                condition.answers.mcidArray!.every((item) =>
-                  parentAnswer.val?.includes(parentQuestion.mcOptions[item].opt)
-                );
+              // switch (condition.relation) {
+              //   case QRelationEnum.EQUAL_TO:
+              //     isConditionMet =
+              //       condition.answers.mcidArray!.length > 0 &&
+              //       parentAnswer.val?.length > 0 &&
+              //       parentAnswer.val?.length ===
+              //         condition.answers.mcidArray?.length &&
+              //       condition.answers.mcidArray!.every((item) =>
+              //         parentAnswer.val?.includes(
+              //           parentQuestion.mcOptions[item].opt
+              //         )
+              //       );
+              //     break;
+              // }
               break;
-
             case QuestionTypeEnum.STRING:
-              isConditionMet = parentAnswer.val === condition.answers.text;
+              switch (condition.relation) {
+                case QRelationEnum.EQUAL_TO:
+                  isConditionMet = parentAnswer.val === condition.answers.text;
+                  break;
+                case QRelationEnum.SMALLER_THAN:
+                  if (!condition.answers.text) {
+                    isConditionMet = false;
+                    break;
+                  }
+                  isConditionMet = parentAnswer.val < condition.answers.text;
+                  break;
+                case QRelationEnum.LARGER_THAN:
+                  if (!condition.answers.text) {
+                    isConditionMet = false;
+                    break;
+                  }
+                  isConditionMet = parentAnswer.val > condition.answers.text;
+                  break;
+                case QRelationEnum.CONTAINS:
+                  isConditionMet = parentAnswer.val.includes(
+                    condition.answers.text
+                  );
+                  break;
+              }
               break;
-
             case QuestionTypeEnum.INTEGER:
+              isConditionMet = handleNumericTypeVisCondition(
+                parentAnswer,
+                condition
+              );
+              break;
             case QuestionTypeEnum.DATE:
+              isConditionMet = handleNumericTypeVisCondition(
+                parentAnswer,
+                condition
+              );
+              break;
             case QuestionTypeEnum.DATETIME:
-              isConditionMet =
-                Number(parentAnswer.val) === Number(condition.answers.number);
+              isConditionMet = handleNumericTypeVisCondition(
+                parentAnswer,
+                condition
+              );
               break;
           }
 

@@ -42,6 +42,8 @@ from flask import Flask
 import os
 import json
 import re
+import time
+import random
 
 # Error messages
 null_phone_number = "No phone number was provided"
@@ -317,10 +319,16 @@ class UserAuthApi(Resource):
         """
         data = self.parser.parse_args()
         user = crud.read(User, email=data["email"])
+        salted_invalid_password = (
+            "$2b$12$xleTmwkhurHlf/5g.4l9U.VADQPcYuIp6QPlMXDJeGez05uRWGqrW"
+        )
 
-        if not user or not flask_bcrypt.check_password_hash(
-            user.password, data["password"]
+        # We want to obfuscate and conceal timing information by checking the password hash of an invalid password
+        if not user and not flask_bcrypt.check_password_hash(
+            salted_invalid_password, data["password"]
         ):
+            return {"message": "Incorrect username or password."}, 401
+        elif not flask_bcrypt.check_password_hash(user.password, data["password"]):
             return {"message": "Incorrect username or password."}, 401
 
         # setup any extra user params
