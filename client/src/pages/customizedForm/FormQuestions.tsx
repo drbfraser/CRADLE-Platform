@@ -222,25 +222,6 @@ export const FormQuestions = ({
     }
   };
 
-  // function handleStringMaxLinesErrorUpdate(
-  //   currIndex: number,
-  //   currValue: boolean
-  // ) {
-  //   // stringMaxLinesError.forEach((c, i) => {
-
-  //   // const nextErrors = stringMaxLinesError.map((value, index) => {
-  //   //   if (index === currIndex) {
-  //   //     return value;
-  //   //   } else {
-  //   //     return currValue;
-  //   //   }
-  //   // });
-
-  //   const nextErrors = [...stringMaxLinesError];
-  //   nextErrors[currIndex] = currValue;
-  //   setStringMaxLinesError(nextErrors);
-  // }
-
   const generateHtmlForQuestion = (
     question: Question | TQuestion,
     answer: QAnswer,
