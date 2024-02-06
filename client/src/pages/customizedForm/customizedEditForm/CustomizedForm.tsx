@@ -84,7 +84,7 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
                     renderState: renderState,
                     language: '',
                     handleAnswers: (answers) => {
-                      setAnswers(answers)
+                      setAnswers(answers);
                     },
                     multiSelectValidationFailed: multiSelectValidationFailed,
                     setDisableSubmit: setDisableSubmit,
