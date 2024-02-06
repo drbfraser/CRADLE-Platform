@@ -495,6 +495,11 @@ export const FormQuestions = ({
         );
 
       case QuestionTypeEnum.STRING: {
+        const helperText = stringMaxLinesError[question.questionIndex]
+          ? 'Exceeds maximum number of lines'
+          : question.stringMaxLines
+          ? `Maximum ${question.stringMaxLines} line(s) allowed`
+          : '';
         return (
           <Grid
             item
@@ -524,15 +529,7 @@ export const FormQuestions = ({
                 renderState === FormRenderStateEnum.VIS_COND_DISABLED
               }
               multiline
-              helperText={
-                stringMaxLinesError[question.questionIndex]
-                  ? 'Exceeds maximum number of lines'
-                  : question.stringMaxLines && question.stringMaxLines === 1
-                  ? `Maximum ${question.stringMaxLines} line allowed`
-                  : question.stringMaxLines
-                  ? `Maximum ${question.stringMaxLines} lines allowed`
-                  : ''
-              }
+              helperText={helperText}
               error={stringMaxLinesError[question.questionIndex]}
               inputProps={{
                 maxLength:

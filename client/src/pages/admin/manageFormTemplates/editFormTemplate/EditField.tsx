@@ -80,7 +80,9 @@ const EditField = ({
   const [isRequired, setIsRequired] = useState(question?.required ?? false);
   const [isVisCondAnswered, setIsVisCondAnswered] = useState(!visibilityToggle);
   const [editVisCondKey, setEditVisCondKey] = useState(0);
-  const [stringMaxLines, setStringMaxLines] = useState<any>('');
+  const [stringMaxLines, setStringMaxLines] = useState<
+    string | number | null | undefined
+  >('');
   const [isNumOfLinesRestricted, setIsNumOfLinesRestricted] = useState(
     Number(stringMaxLines) > 0
   );
@@ -350,9 +352,7 @@ const EditField = ({
         }
         setIsRequired(question.required);
         setStringMaxLines(question.stringMaxLines);
-        setIsNumOfLinesRestricted(
-          question.stringMaxLines ? question.stringMaxLines > 0 : false
-        );
+        setIsNumOfLinesRestricted(question.stringMaxLines ? true : false);
       }
       // create new field
       else {
