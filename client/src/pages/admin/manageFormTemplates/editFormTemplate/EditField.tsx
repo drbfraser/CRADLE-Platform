@@ -79,6 +79,7 @@ const EditField = ({
   const [formDirty, setFormDirty] = useState(false);
   const [isRequired, setIsRequired] = useState(question?.required ?? false);
   const [pastDateAllowed, setPastDateAllowed] = useState(false);
+  const [futureDateAllowed, setFutureDateAllowed] = useState(false);
   const [isVisCondAnswered, setIsVisCondAnswered] = useState(!visibilityToggle);
   const [editVisCondKey, setEditVisCondKey] = useState(0);
 
@@ -590,11 +591,50 @@ const EditField = ({
                 <FormLabel
                   id="past-date-allowed-label"
                   style={{ display: 'flex' }}>
-                  <Typography variant="h6">Past Dates</Typography>
+                  <Typography variant="h6">Allow Past Dates</Typography>
                   <Tooltip
                     disableFocusListener
                     disableTouchListener
                     title={'Allow users to select past dates in your form'}
+                    arrow
+                    placement="right">
+                    <IconButton>
+                      <InfoIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </FormLabel>
+              }
+              labelPlacement="start"
+            />
+          )}
+
+          {fieldType == 'date' && (
+            <FormControlLabel
+              style={{ marginLeft: 0, marginTop: 5 }}
+              control={
+                <Switch
+                  checked={futureDateAllowed}
+                  onChange={(e) =>
+                    handlers.handleFutureDateChange(
+                      e,
+                      setFutureDateAllowed,
+                      setFormDirty,
+                      setFieldChanged,
+                      fieldChanged
+                    )
+                  }
+                  data-testid="future-date-allowed-switch"
+                />
+              }
+              label={
+                <FormLabel
+                  id="future-date-allowed-label"
+                  style={{ display: 'flex' }}>
+                  <Typography variant="h6">Allow Future Dates</Typography>
+                  <Tooltip
+                    disableFocusListener
+                    disableTouchListener
+                    title={'Allow users to select future dates in your form'}
                     arrow
                     placement="right">
                     <IconButton>

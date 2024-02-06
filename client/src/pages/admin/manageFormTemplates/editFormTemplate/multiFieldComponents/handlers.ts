@@ -139,3 +139,15 @@ export const handlePastDateChange = (
   setFormDirty(true);
   setFieldChanged(!fieldChanged);
 };
+
+export const handleFutureDateChange = (
+  event: React.ChangeEvent<HTMLInputElement>,
+  setFutureDateAllowed: React.Dispatch<React.SetStateAction<any>>,
+  setFormDirty: React.Dispatch<React.SetStateAction<any>>,
+  setFieldChanged: React.Dispatch<React.SetStateAction<any>>,
+  fieldChanged: boolean
+) => {
+  setFutureDateAllowed(event.target.checked);
+  setFormDirty(true);
+  setFieldChanged(!fieldChanged);
+};
