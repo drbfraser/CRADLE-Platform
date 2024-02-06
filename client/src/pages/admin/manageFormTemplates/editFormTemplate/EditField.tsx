@@ -570,81 +570,85 @@ const EditField = ({
             </Grid>
           )}
           {fieldType == 'date' && (
-            <FormControlLabel
-              style={{ marginLeft: 0, marginTop: 5 }}
-              control={
-                <Switch
-                  checked={pastDateAllowed}
-                  onChange={(e) =>
-                    handlers.handlePastDateChange(
-                      e,
-                      setPastDateAllowed,
-                      setFormDirty,
-                      setFieldChanged,
-                      fieldChanged
-                    )
-                  }
-                  data-testid="past-date-allowed-switch"
-                />
-              }
-              label={
-                <FormLabel
-                  id="past-date-allowed-label"
-                  style={{ display: 'flex' }}>
-                  <Typography variant="h6">Allow Past Dates</Typography>
-                  <Tooltip
-                    disableFocusListener
-                    disableTouchListener
-                    title={'Allow users to select past dates in your form'}
-                    arrow
-                    placement="right">
-                    <IconButton>
-                      <InfoIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                </FormLabel>
-              }
-              labelPlacement="start"
-            />
+            <Grid item>
+              <FormControlLabel
+                style={{ marginLeft: 0, marginTop: 5 }}
+                control={
+                  <Switch
+                    checked={pastDateAllowed}
+                    onChange={(e) =>
+                      handlers.handlePastDateChange(
+                        e,
+                        setPastDateAllowed,
+                        setFormDirty,
+                        setFieldChanged,
+                        fieldChanged
+                      )
+                    }
+                    data-testid="past-date-allowed-switch"
+                  />
+                }
+                label={
+                  <FormLabel
+                    id="past-date-allowed-label"
+                    style={{ display: 'flex' }}>
+                    <Typography variant="h6">Allow Past Dates</Typography>
+                    <Tooltip
+                      disableFocusListener
+                      disableTouchListener
+                      title={'Allow users to select past dates in your form'}
+                      arrow
+                      placement="right">
+                      <IconButton>
+                        <InfoIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </FormLabel>
+                }
+                labelPlacement="start"
+              />
+            </Grid>
           )}
 
           {fieldType == 'date' && (
-            <FormControlLabel
-              style={{ marginLeft: 0, marginTop: 5 }}
-              control={
-                <Switch
-                  checked={futureDateAllowed}
-                  onChange={(e) =>
-                    handlers.handleFutureDateChange(
-                      e,
-                      setFutureDateAllowed,
-                      setFormDirty,
-                      setFieldChanged,
-                      fieldChanged
-                    )
-                  }
-                  data-testid="future-date-allowed-switch"
-                />
-              }
-              label={
-                <FormLabel
-                  id="future-date-allowed-label"
-                  style={{ display: 'flex' }}>
-                  <Typography variant="h6">Allow Future Dates</Typography>
-                  <Tooltip
-                    disableFocusListener
-                    disableTouchListener
-                    title={'Allow users to select future dates in your form'}
-                    arrow
-                    placement="right">
-                    <IconButton>
-                      <InfoIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                </FormLabel>
-              }
-              labelPlacement="start"
-            />
+            <Grid item>
+              <FormControlLabel
+                style={{ marginLeft: 0, marginTop: 5 }}
+                control={
+                  <Switch
+                    checked={futureDateAllowed}
+                    onChange={(e) =>
+                      handlers.handleFutureDateChange(
+                        e,
+                        setFutureDateAllowed,
+                        setFormDirty,
+                        setFieldChanged,
+                        fieldChanged
+                      )
+                    }
+                    data-testid="future-date-allowed-switch"
+                  />
+                }
+                label={
+                  <FormLabel
+                    id="future-date-allowed-label"
+                    style={{ display: 'flex' }}>
+                    <Typography variant="h6">Allow Future Dates</Typography>
+                    <Tooltip
+                      disableFocusListener
+                      disableTouchListener
+                      title={'Allow users to select future dates in your form'}
+                      arrow
+                      placement="right">
+                      <IconButton>
+                        <InfoIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </FormLabel>
+                }
+                labelPlacement="start"
+              />
+            </Grid>
           )}
         </DialogContent>
         <DialogActions>
