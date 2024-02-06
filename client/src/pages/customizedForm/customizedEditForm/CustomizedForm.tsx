@@ -23,6 +23,7 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
   const questions = fm.questions;
   const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
+  const [disableSubmit, setDisableSubmit] = useState(false);
   const [multiSelectValidationFailed, setMultiSelectValidationFailed] =
     useState(false);
 
@@ -81,8 +82,11 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
                     questions: questions,
                     renderState: renderState,
                     language: '',
-                    handleAnswers: setAnswers,
+                    handleAnswers: (answers) => {
+                      setAnswers(answers)
+                    },
                     multiSelectValidationFailed: multiSelectValidationFailed,
+                    setDisableSubmit: setDisableSubmit,
                   })}
                 </Grid>
                 {renderState === FormRenderStateEnum.VIEW ? (
@@ -104,7 +108,7 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
                   <PrimaryButton
                     className={classes.right}
                     type="submit"
-                    disabled={isSubmitting}>
+                    disabled={isSubmitting || disableSubmit}>
                     {formTitle}
                   </PrimaryButton>
                 )}

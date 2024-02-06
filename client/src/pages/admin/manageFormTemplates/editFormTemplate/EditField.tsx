@@ -85,17 +85,6 @@ const EditField = ({
     Number(stringMaxLines) > 0
   );
 
-  console.log(
-    'restricted?: ',
-    isNumOfLinesRestricted,
-    ' string max lines: ',
-    stringMaxLines,
-    '\nvalue inputted into string max lines: ',
-    !isNaN(Number(stringMaxLines)) && Number(stringMaxLines) > 0
-      ? Number(stringMaxLines)
-      : ``
-  );
-
   const removeAllMultChoices = () => {
     questionLangVersions.forEach((qLangVersion) => {
       if (qLangVersion.mcOptions) {
@@ -186,7 +175,6 @@ const EditField = ({
                 required={isNumOfLinesRestricted}
                 variant="outlined"
                 fullWidth
-                multiline
                 size="small"
                 defaultValue={
                   !isNaN(Number(stringMaxLines)) && Number(stringMaxLines) > 0
