@@ -540,6 +540,8 @@ class Question(db.Model):
     questionType = db.Column(db.Enum(QuestionTypeEnum), nullable=False)
     hasCommentAttached = db.Column(db.Boolean, nullable=False, default=0)
     required = db.Column(db.Boolean, nullable=False, default=0)
+    futureDates = db.Column(db.Boolean, nullable=False, default=1)
+    pastDates = db.Column(db.Boolean, nullable=False, default=1)
     units = db.Column(db.Text, nullable=True)
     visibleCondition = db.Column(db.Text, nullable=False, default="[]")
     mcOptions = db.Column(
