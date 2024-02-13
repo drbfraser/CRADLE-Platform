@@ -348,6 +348,8 @@ const EditCategory = ({
                       questionLangVersions: questionLangVersions,
                       questionType: QuestionTypeEnum.CATEGORY,
                       required: false,
+                      pastDates: true,
+                      futureDates: true,
                       numMin: null,
                       numMax: null,
                       stringMaxLength: null,

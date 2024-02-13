@@ -78,8 +78,8 @@ const EditField = ({
   const [fieldChanged, setFieldChanged] = useState(false);
   const [formDirty, setFormDirty] = useState(false);
   const [isRequired, setIsRequired] = useState(question?.required ?? false);
-  const [pastDateAllowed, setPastDateAllowed] = useState(false);
-  const [futureDateAllowed, setFutureDateAllowed] = useState(false);
+  const [pastDateAllowed, setPastDateAllowed] = useState(true);
+  const [futureDateAllowed, setFutureDateAllowed] = useState(true);
   const [isVisCondAnswered, setIsVisCondAnswered] = useState(!visibilityToggle);
   const [editVisCondKey, setEditVisCondKey] = useState(0);
 
@@ -689,6 +689,8 @@ const EditField = ({
                         ? visibleCondition
                         : [];
                       questionToUpdate.required = isRequired;
+                      questionToUpdate.pastDates = pastDateAllowed;
+                      questionToUpdate.futureDates = futureDateAllowed;
                     }
                   }
                   // create new field
@@ -711,6 +713,8 @@ const EditField = ({
                       questionLangVersions: questionLangVersions,
                       questionType: fieldTypes[fieldType].type,
                       required: isRequired,
+                      pastDates: pastDateAllowed,
+                      futureDates: futureDateAllowed,
                       numMin: null,
                       numMax: null,
                       stringMaxLength: null,
