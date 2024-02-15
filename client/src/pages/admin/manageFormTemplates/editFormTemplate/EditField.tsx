@@ -80,6 +80,12 @@ const EditField = ({
   const [isRequired, setIsRequired] = useState(question?.required ?? false);
   const [isVisCondAnswered, setIsVisCondAnswered] = useState(!visibilityToggle);
   const [editVisCondKey, setEditVisCondKey] = useState(0);
+  const [stringMaxLines, setStringMaxLines] = useState<
+    string | number | null | undefined
+  >('');
+  const [isNumOfLinesRestricted, setIsNumOfLinesRestricted] = useState(
+    Number(stringMaxLines) > 0
+  );
 
   const removeAllMultChoices = () => {
     questionLangVersions.forEach((qLangVersion) => {
@@ -125,9 +131,71 @@ const EditField = ({
       label: 'Text',
       type: QuestionTypeEnum.STRING,
       render: () => (
-        <>
-          {/*TODO: Handle what is displayed when Text field type is selected*/}
-        </>
+        <Grid item>
+          <FormControlLabel
+            style={{ marginLeft: 0 }}
+            control={
+              <Switch
+                checked={isNumOfLinesRestricted}
+                onChange={(e) =>
+                  handlers.handleIsNumOfLinesRestrictedChange(
+                    e,
+                    setIsNumOfLinesRestricted,
+                    setFormDirty,
+                    setFieldChanged,
+                    setStringMaxLines,
+                    fieldChanged
+                  )
+                }
+                data-testid="lines-num-restriction-switch"
+              />
+            }
+            label={
+              <FormLabel
+                id="lines-num-restriction-label"
+                style={{ display: 'flex' }}>
+                <Typography variant="h6">Restrict Max Lines</Typography>
+                <Tooltip
+                  disableFocusListener
+                  disableTouchListener
+                  title={'Restrict the number of lines for this field'}
+                  arrow
+                  placement="right">
+                  <IconButton>
+                    <InfoIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </FormLabel>
+            }
+            labelPlacement="start"
+          />
+
+          {isNumOfLinesRestricted && (
+            <Grid item>
+              <TextField
+                label={`Max Lines`}
+                required={isNumOfLinesRestricted}
+                variant="outlined"
+                fullWidth
+                size="small"
+                defaultValue={
+                  !isNaN(Number(stringMaxLines)) && Number(stringMaxLines) > 0
+                    ? Number(stringMaxLines)
+                    : ``
+                }
+                inputProps={{
+                  maxLength: Number.MAX_SAFE_INTEGER,
+                  min: 0,
+                }}
+                onChange={(e) => {
+                  setStringMaxLines(e.target.value);
+                  setFieldChanged(!fieldChanged);
+                  setFormDirty(true);
+                }}
+              />
+            </Grid>
+          )}
+        </Grid>
       ),
     },
     mult_choice: {
@@ -196,6 +264,7 @@ const EditField = ({
       areAllNamesFilled = areAllNamesFilled && qLangVersion.questionText != '';
     });
     let areAllMcOptionFilled = true;
+    let isMaxLinesAllowedFilled = true;
     const isFieldTypeChosen = fieldType.trim() != '';
 
     if (fieldType == 'mult_choice' || fieldType == 'mult_select') {
@@ -211,14 +280,23 @@ const EditField = ({
           });
         }
       });
+    } else if (fieldType == 'text' && isNumOfLinesRestricted) {
+      isMaxLinesAllowedFilled =
+        !isNaN(Number(stringMaxLines)) && Number(stringMaxLines) > 0;
     }
 
     const nonMultiChoiceCheck =
       areAllNamesFilled && isFieldTypeChosen && isVisCondAnswered;
 
-    return fieldType == 'mult_choice' || fieldType == 'mult_select'
-      ? nonMultiChoiceCheck && areAllMcOptionFilled
-      : nonMultiChoiceCheck;
+    let ret = false;
+    if (fieldType == 'mult_choice' || fieldType == 'mult_select') {
+      ret = nonMultiChoiceCheck && areAllMcOptionFilled;
+    } else if (fieldType == 'text') {
+      ret = nonMultiChoiceCheck && isMaxLinesAllowedFilled;
+    } else {
+      ret = nonMultiChoiceCheck;
+    }
+    return ret;
   };
 
   const getQLangVersionsCopy = (
@@ -273,6 +351,8 @@ const EditField = ({
           setNumChoices(qlvCopy[0].mcOptions.length);
         }
         setIsRequired(question.required);
+        setStringMaxLines(question.stringMaxLines);
+        setIsNumOfLinesRestricted(question.stringMaxLines ? true : false);
       }
       // create new field
       else {
@@ -281,6 +361,8 @@ const EditField = ({
         setQuestionLangversions([]);
         setNumChoices(0);
         setIsRequired(false);
+        setIsNumOfLinesRestricted(false);
+        setStringMaxLines(null);
       }
     }
     // Check if all fields are filled
@@ -591,6 +673,11 @@ const EditField = ({
                   question.visibleCondition.length = 0;
                 }
                 setForm((form) => {
+                  let finalStringMaxLines = null;
+                  const stringMaxLinesInt = Number(stringMaxLines);
+                  if (!isNaN(stringMaxLinesInt) && stringMaxLinesInt > 0) {
+                    finalStringMaxLines = stringMaxLinesInt;
+                  }
                   // edit field
                   if (question) {
                     const questionToUpdate = form.questions.find(
@@ -606,6 +693,7 @@ const EditField = ({
                         ? visibleCondition
                         : [];
                       questionToUpdate.required = isRequired;
+                      questionToUpdate.stringMaxLines = finalStringMaxLines;
                     }
                   }
                   // create new field
@@ -631,6 +719,7 @@ const EditField = ({
                       numMin: null,
                       numMax: null,
                       stringMaxLength: null,
+                      stringMaxLines: finalStringMaxLines,
                       units: null,
                       visibleCondition: visibleCondition,
                       categoryIndex: categoryIndex,

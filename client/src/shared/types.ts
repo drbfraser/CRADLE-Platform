@@ -342,6 +342,7 @@ export type Question = {
   numMin: OrNull<number>;
   numMax: OrNull<number>;
   stringMaxLength?: OrNull<number>;
+  stringMaxLines?: OrNull<number>;
   units?: OrNull<string>;
 
   answers: Answer | undefined;
@@ -367,6 +368,7 @@ export interface TQuestion {
   numMin?: OrNull<number>;
   numMax?: OrNull<number>;
   stringMaxLength?: OrNull<number>;
+  stringMaxLines?: OrNull<number>;
   units?: OrNull<string>;
   visibleCondition: QCondition[];
 }

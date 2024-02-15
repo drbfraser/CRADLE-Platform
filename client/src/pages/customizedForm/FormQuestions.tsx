@@ -38,6 +38,7 @@ interface IProps {
   handleAnswers: (answers: QAnswer[]) => void;
   setForm?: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
   multiSelectValidationFailed?: boolean;
+  setDisableSubmit?: (disableSubmit: boolean) => void;
 }
 
 export const FormQuestions = ({
@@ -47,8 +48,10 @@ export const FormQuestions = ({
   handleAnswers,
   setForm,
   multiSelectValidationFailed,
+  setDisableSubmit,
 }: IProps) => {
   const [answers, setAnswers] = useState<QAnswer[]>([]);
+  const [stringMaxLinesError, setStringMaxLinesError] = useState<boolean[]>([]);
 
   const isQuestion = (x: any): x is Question => {
     if (x) {
@@ -491,7 +494,12 @@ export const FormQuestions = ({
           </Grid>
         );
 
-      case QuestionTypeEnum.STRING:
+      case QuestionTypeEnum.STRING: {
+        const helperText = stringMaxLinesError[question.questionIndex]
+          ? 'Exceeds maximum number of lines'
+          : question.stringMaxLines
+          ? `Maximum ${question.stringMaxLines} line(s) allowed`
+          : '';
         return (
           <Grid
             item
@@ -521,6 +529,8 @@ export const FormQuestions = ({
                 renderState === FormRenderStateEnum.VIS_COND_DISABLED
               }
               multiline
+              helperText={helperText}
+              error={stringMaxLinesError[question.questionIndex]}
               inputProps={{
                 maxLength:
                   question.stringMaxLength! > 0
@@ -528,16 +538,33 @@ export const FormQuestions = ({
                     : Number.MAX_SAFE_INTEGER,
               }}
               onChange={(event: any) => {
+                const inputValue = event.target.value;
+                const lines = inputValue.split(/\r*\n/);
+                const exceedsMaxLines = question.stringMaxLines
+                  ? lines.length > question.stringMaxLines
+                  : false;
+
+                // Using new array because setStringMaxLinesError does not update the state immediately
+                const nextErrors = [...stringMaxLinesError];
+                nextErrors[question.questionIndex] = exceedsMaxLines;
+                setStringMaxLinesError(nextErrors);
+
+                // Checking if any of the values in stringMaxLinesError is set to true
+                // If so, setDisableSubmit to true
+                setDisableSubmit &&
+                  setDisableSubmit(
+                    Object.values(nextErrors).some((value) => value === true)
+                  );
+
                 //it is originally a string type!! need transfer
-                updateAnswersByValue(
-                  question.questionIndex,
-                  event.target.value
-                );
+                if (!exceedsMaxLines) {
+                  updateAnswersByValue(question.questionIndex, inputValue);
+                }
               }}
             />
           </Grid>
         );
-
+      }
       case QuestionTypeEnum.DATETIME:
         return (
           <Grid

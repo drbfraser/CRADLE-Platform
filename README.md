@@ -85,3 +85,4 @@ the previously mentioned admin user is added along with a few additional users:
 | Peter Fan | cfa60@sfu.ca |
 | Ekam Hothi | ehothi@sfu.ca |
 | Adrienne Kwan | ack11@sfu.ca |
+| Ali Nanji | amnanji@sfu.ca |
