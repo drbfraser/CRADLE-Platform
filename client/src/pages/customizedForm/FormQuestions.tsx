@@ -38,6 +38,7 @@ interface IProps {
   handleAnswers: (answers: QAnswer[]) => void;
   setForm?: Dispatch<SetStateAction<FormTemplateWithQuestions>>;
   multiSelectValidationFailed?: boolean;
+  setDisableSubmit?: (disableSubmit: boolean) => void;
 }
 
 export const FormQuestions = ({
@@ -47,8 +48,10 @@ export const FormQuestions = ({
   handleAnswers,
   setForm,
   multiSelectValidationFailed,
+  setDisableSubmit,
 }: IProps) => {
   const [answers, setAnswers] = useState<QAnswer[]>([]);
+  const [stringMaxLinesError, setStringMaxLinesError] = useState<boolean[]>([]);
 
   const isQuestion = (x: any): x is Question => {
     if (x) {
@@ -62,6 +65,26 @@ export const FormQuestions = ({
       return 'questionText' in x[0];
     }
     return false;
+  };
+
+  const handleNumericTypeVisCondition = (
+    parentAnswer: QAnswer,
+    condition: QCondition
+  ): boolean => {
+    switch (condition.relation) {
+      case QRelationEnum.EQUAL_TO:
+        return Number(parentAnswer.val) === Number(condition.answers.number);
+      case QRelationEnum.SMALLER_THAN:
+        return Number(parentAnswer.val) < Number(condition.answers.number);
+      case QRelationEnum.LARGER_THAN:
+        return Number(parentAnswer.val) > Number(condition.answers.number);
+      case QRelationEnum.CONTAINS:
+        return String(parentAnswer.val).includes(
+          String(condition.answers.number)
+        );
+      default:
+        return true;
+    }
   };
 
   useEffect(() => {
@@ -163,40 +186,68 @@ export const FormQuestions = ({
 
           let isConditionMet = true;
           switch (parentQuestion.questionType) {
+            // TODO: This does not work. The multiple choice and multiple select questions do not
+            //       save properly in the QCondition object type
             case QuestionTypeEnum.MULTIPLE_CHOICE:
             case QuestionTypeEnum.MULTIPLE_SELECT:
-              switch (parentQuestion.visibleCondition[0].relation) {
-                case QRelationEnum.EQUAL_TO:
-                  isConditionMet =
-                    condition.answers.mcidArray!.length > 0 &&
-                    parentAnswer.val?.length > 0 &&
-                    parentAnswer.val?.length ===
-                      condition.answers.mcidArray?.length &&
-                    condition.answers.mcidArray!.every((item) =>
-                      parentAnswer.val?.includes(
-                        parentQuestion.mcOptions[item].opt
-                      )
-                    );
-                  break;
-              }
+              // switch (condition.relation) {
+              //   case QRelationEnum.EQUAL_TO:
+              //     isConditionMet =
+              //       condition.answers.mcidArray!.length > 0 &&
+              //       parentAnswer.val?.length > 0 &&
+              //       parentAnswer.val?.length ===
+              //         condition.answers.mcidArray?.length &&
+              //       condition.answers.mcidArray!.every((item) =>
+              //         parentAnswer.val?.includes(
+              //           parentQuestion.mcOptions[item].opt
+              //         )
+              //       );
+              //     break;
+              // }
               break;
             case QuestionTypeEnum.STRING:
-              switch (parentQuestion.visibleCondition[0].relation) {
+              switch (condition.relation) {
                 case QRelationEnum.EQUAL_TO:
                   isConditionMet = parentAnswer.val === condition.answers.text;
+                  break;
+                case QRelationEnum.SMALLER_THAN:
+                  if (!condition.answers.text) {
+                    isConditionMet = false;
+                    break;
+                  }
+                  isConditionMet = parentAnswer.val < condition.answers.text;
+                  break;
+                case QRelationEnum.LARGER_THAN:
+                  if (!condition.answers.text) {
+                    isConditionMet = false;
+                    break;
+                  }
+                  isConditionMet = parentAnswer.val > condition.answers.text;
+                  break;
+                case QRelationEnum.CONTAINS:
+                  isConditionMet = parentAnswer.val.includes(
+                    condition.answers.text
+                  );
                   break;
               }
               break;
             case QuestionTypeEnum.INTEGER:
+              isConditionMet = handleNumericTypeVisCondition(
+                parentAnswer,
+                condition
+              );
+              break;
             case QuestionTypeEnum.DATE:
+              isConditionMet = handleNumericTypeVisCondition(
+                parentAnswer,
+                condition
+              );
+              break;
             case QuestionTypeEnum.DATETIME:
-              switch (parentQuestion.visibleCondition[0].relation) {
-                case QRelationEnum.EQUAL_TO:
-                  isConditionMet =
-                    Number(parentAnswer.val) ===
-                    Number(condition.answers.number);
-                  break;
-              }
+              isConditionMet = handleNumericTypeVisCondition(
+                parentAnswer,
+                condition
+              );
               break;
           }
 
@@ -443,7 +494,12 @@ export const FormQuestions = ({
           </Grid>
         );
 
-      case QuestionTypeEnum.STRING:
+      case QuestionTypeEnum.STRING: {
+        const helperText = stringMaxLinesError[question.questionIndex]
+          ? 'Exceeds maximum number of lines'
+          : question.stringMaxLines
+          ? `Maximum ${question.stringMaxLines} line(s) allowed`
+          : '';
         return (
           <Grid
             item
@@ -473,6 +529,8 @@ export const FormQuestions = ({
                 renderState === FormRenderStateEnum.VIS_COND_DISABLED
               }
               multiline
+              helperText={helperText}
+              error={stringMaxLinesError[question.questionIndex]}
               inputProps={{
                 maxLength:
                   question.stringMaxLength! > 0
@@ -480,16 +538,33 @@ export const FormQuestions = ({
                     : Number.MAX_SAFE_INTEGER,
               }}
               onChange={(event: any) => {
+                const inputValue = event.target.value;
+                const lines = inputValue.split(/\r*\n/);
+                const exceedsMaxLines = question.stringMaxLines
+                  ? lines.length > question.stringMaxLines
+                  : false;
+
+                // Using new array because setStringMaxLinesError does not update the state immediately
+                const nextErrors = [...stringMaxLinesError];
+                nextErrors[question.questionIndex] = exceedsMaxLines;
+                setStringMaxLinesError(nextErrors);
+
+                // Checking if any of the values in stringMaxLinesError is set to true
+                // If so, setDisableSubmit to true
+                setDisableSubmit &&
+                  setDisableSubmit(
+                    Object.values(nextErrors).some((value) => value === true)
+                  );
+
                 //it is originally a string type!! need transfer
-                updateAnswersByValue(
-                  question.questionIndex,
-                  event.target.value
-                );
+                if (!exceedsMaxLines) {
+                  updateAnswersByValue(question.questionIndex, inputValue);
+                }
               }}
             />
           </Grid>
         );
-
+      }
       case QuestionTypeEnum.DATETIME:
         return (
           <Grid

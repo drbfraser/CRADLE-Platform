@@ -264,6 +264,7 @@ def validate_template_question_post(q: dict) -> Optional[str]:
         "numMax",
         "stringMaxLength",
         "categoryIndex",
+        "stringMaxLines",
     ] + required_fields
 
     error_message = None
@@ -281,7 +282,9 @@ def validate_template_question_post(q: dict) -> Optional[str]:
         return error
 
     error = values_correct_type(
-        q, ["questionIndex", "stringMaxLength", "categoryIndex",], int,
+        q,
+        ["questionIndex", "stringMaxLength", "categoryIndex", "stringMaxLines",],
+        int,
     )
     if error:
         return error
@@ -361,6 +364,7 @@ def validate_form_question_post(q: dict) -> Optional[str]:
         "stringMaxLength",
         "categoryIndex",
         "answers",
+        "stringMaxLines",
     ] + required_fields
 
     error_message = None
@@ -378,7 +382,9 @@ def validate_form_question_post(q: dict) -> Optional[str]:
         return error
 
     error = values_correct_type(
-        q, ["questionIndex", "stringMaxLength", "categoryIndex",], int,
+        q,
+        ["questionIndex", "stringMaxLength", "categoryIndex", "stringMaxLines",],
+        int,
     )
     if error:
         return error

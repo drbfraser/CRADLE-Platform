@@ -151,3 +151,19 @@ export const handleFutureDateChange = (
   setFormDirty(true);
   setFieldChanged(!fieldChanged);
 };
+
+export const handleIsNumOfLinesRestrictedChange = (
+  event: React.ChangeEvent<HTMLInputElement>,
+  setIsNumOfLinesRestricted: React.Dispatch<React.SetStateAction<any>>,
+  setFormDirty: React.Dispatch<React.SetStateAction<any>>,
+  setFieldChanged: React.Dispatch<React.SetStateAction<any>>,
+  setStringMaxLines: React.Dispatch<React.SetStateAction<any>>,
+  fieldChanged: boolean
+) => {
+  setIsNumOfLinesRestricted(event.target.checked);
+  setFormDirty(true);
+  setFieldChanged(!fieldChanged);
+  if (event.target.checked === false) {
+    setStringMaxLines(null);
+  }
+};
