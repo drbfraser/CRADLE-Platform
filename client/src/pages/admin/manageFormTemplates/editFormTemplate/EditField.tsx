@@ -78,8 +78,12 @@ const EditField = ({
   const [fieldChanged, setFieldChanged] = useState(false);
   const [formDirty, setFormDirty] = useState(false);
   const [isRequired, setIsRequired] = useState(question?.required ?? false);
-  const [pastDateAllowed, setPastDateAllowed] = useState(true);
-  const [futureDateAllowed, setFutureDateAllowed] = useState(true);
+  const [pastDateAllowed, setPastDateAllowed] = useState(
+    question?.pastDates ?? true
+  );
+  const [futureDateAllowed, setFutureDateAllowed] = useState(
+    question?.futureDates ?? true
+  );
   const [isVisCondAnswered, setIsVisCondAnswered] = useState(!visibilityToggle);
   const [editVisCondKey, setEditVisCondKey] = useState(0);
 
@@ -275,6 +279,8 @@ const EditField = ({
           setNumChoices(qlvCopy[0].mcOptions.length);
         }
         setIsRequired(question.required);
+        setFutureDateAllowed(question.futureDates);
+        setPastDateAllowed(question.pastDates);
       }
       // create new field
       else {
@@ -283,6 +289,8 @@ const EditField = ({
         setQuestionLangversions([]);
         setNumChoices(0);
         setIsRequired(false);
+        setFutureDateAllowed(true);
+        setPastDateAllowed(true);
       }
     }
     // Check if all fields are filled

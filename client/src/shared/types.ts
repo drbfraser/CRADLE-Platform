@@ -338,6 +338,8 @@ export type Question = {
   questionText: string;
   questionType: QuestionTypeEnum;
   required: boolean;
+  pastDates: boolean;
+  futureDates: boolean;
 
   numMin: OrNull<number>;
   numMax: OrNull<number>;
