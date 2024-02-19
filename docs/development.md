@@ -43,10 +43,30 @@ LIMITER_DISABLED=True
 
 Note you may set these to any arbitrary values.
 
-In case connecting with cradle-sms-relay is needed  should append your emulator's phone number 
+In case connecting with cradle-sms-relay is needed, you should append your emulator's phone number to the `.env` file.
+
+For example, add this line at the end of the lines mentioned above:
 
 ```
-EMULATOR_PHONE_NUMBER=Your emulator's phone number 
+EMULATOR_PHONE_NUMBER=[PHONE_NUMBER_OF_EMULATOR_RUNNING_CRADLE_MOBILE_APP]
+```
+
+Your emulator's phone number will very likely be 5555215554 or 5555215556. The former is assigned to the first emulator that starts. The latter is assigned to the second emulator that starts.
+
+At the time of writing this, the CRADLE Mobile app does not have the option to send the SMS messages to 5555215556. This means that the CRADLE Mobile app should be opened second, **after** opening the SMS Relay App. And therefore, the emulator phone number environment variable value should be `5555215556`. Like so:
+
+```
+EMULATOR_PHONE_NUMBER=5555215556
+```
+
+Or in full:
+
+```
+JWT_SECRET_KEY=supersecretkey
+DB_USERNAME=user
+DB_PASSWORD=abcd1234
+LIMITER_DISABLED=True
+EMULATOR_PHONE_NUMBER=5555215556
 ```
 
 ## 4. Spin up the Docker Containers
