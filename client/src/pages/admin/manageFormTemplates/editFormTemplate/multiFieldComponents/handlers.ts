@@ -128,6 +128,30 @@ export const handleRequiredChange = (
   setFieldChanged(!fieldChanged);
 };
 
+export const handleAllowPastDatesChange = (
+  event: React.ChangeEvent<HTMLInputElement>,
+  setAllowPastDates: React.Dispatch<React.SetStateAction<any>>,
+  setFormDirty: React.Dispatch<React.SetStateAction<any>>,
+  setFieldChanged: React.Dispatch<React.SetStateAction<any>>,
+  fieldChanged: boolean
+) => {
+  setAllowPastDates(event.target.checked);
+  setFormDirty(true);
+  setFieldChanged(!fieldChanged);
+};
+
+export const handleAllowFutureDatesChange = (
+  event: React.ChangeEvent<HTMLInputElement>,
+  setAllowFutureDates: React.Dispatch<React.SetStateAction<any>>,
+  setFormDirty: React.Dispatch<React.SetStateAction<any>>,
+  setFieldChanged: React.Dispatch<React.SetStateAction<any>>,
+  fieldChanged: boolean
+) => {
+  setAllowFutureDates(event.target.checked);
+  setFormDirty(true);
+  setFieldChanged(!fieldChanged);
+};
+
 export const handleIsNumOfLinesRestrictedChange = (
   event: React.ChangeEvent<HTMLInputElement>,
   setIsNumOfLinesRestricted: React.Dispatch<React.SetStateAction<any>>,

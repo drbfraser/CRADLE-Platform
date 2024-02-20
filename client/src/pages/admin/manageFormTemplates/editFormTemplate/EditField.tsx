@@ -78,6 +78,12 @@ const EditField = ({
   const [fieldChanged, setFieldChanged] = useState(false);
   const [formDirty, setFormDirty] = useState(false);
   const [isRequired, setIsRequired] = useState(question?.required ?? false);
+  const [allowPastDates, setAllowPastDates] = useState(
+    question?.allowPastDates ?? true
+  );
+  const [allowFutureDates, setAllowFutureDates] = useState(
+    question?.allowFutureDates ?? true
+  );
   const [isVisCondAnswered, setIsVisCondAnswered] = useState(!visibilityToggle);
   const [editVisCondKey, setEditVisCondKey] = useState(0);
   const [stringMaxLines, setStringMaxLines] = useState<
@@ -649,6 +655,86 @@ const EditField = ({
               />
             </Grid>
           )}
+          {fieldType == 'date' && (
+            <Grid item>
+              <FormControlLabel
+                style={{ marginLeft: 0, marginTop: 5 }}
+                control={
+                  <Switch
+                    checked={allowPastDates}
+                    onChange={(e) =>
+                      handlers.handleAllowPastDatesChange(
+                        e,
+                        setAllowPastDates,
+                        setFormDirty,
+                        setFieldChanged,
+                        fieldChanged
+                      )
+                    }
+                    data-testid="allow-past-dates-switch"
+                  />
+                }
+                label={
+                  <FormLabel
+                    id="allow-past-dates-label"
+                    style={{ display: 'flex' }}>
+                    <Typography variant="h6">Allow Past Dates</Typography>
+                    <Tooltip
+                      disableFocusListener
+                      disableTouchListener
+                      title={'Allow past dates in your form'}
+                      arrow
+                      placement="right">
+                      <IconButton>
+                        <InfoIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </FormLabel>
+                }
+                labelPlacement="start"
+              />
+            </Grid>
+          )}
+          {fieldType == 'date' && (
+            <Grid item>
+              <FormControlLabel
+                style={{ marginLeft: 0, marginTop: 5 }}
+                control={
+                  <Switch
+                    checked={allowFutureDates}
+                    onChange={(e) =>
+                      handlers.handleAllowFutureDatesChange(
+                        e,
+                        setAllowFutureDates,
+                        setFormDirty,
+                        setFieldChanged,
+                        fieldChanged
+                      )
+                    }
+                    data-testid="allow-future-dates-switch"
+                  />
+                }
+                label={
+                  <FormLabel
+                    id="allow-future-dates-label"
+                    style={{ display: 'flex' }}>
+                    <Typography variant="h6">Allow Future Dates</Typography>
+                    <Tooltip
+                      disableFocusListener
+                      disableTouchListener
+                      title={'Allow future dates in your form'}
+                      arrow
+                      placement="right">
+                      <IconButton>
+                        <InfoIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </FormLabel>
+                }
+                labelPlacement="start"
+              />
+            </Grid>
+          )}
         </DialogContent>
         <DialogActions>
           <CancelButton
@@ -716,6 +802,8 @@ const EditField = ({
                       questionLangVersions: questionLangVersions,
                       questionType: fieldTypes[fieldType].type,
                       required: isRequired,
+                      allowFutureDates: allowFutureDates,
+                      allowPastDates: allowPastDates,
                       numMin: null,
                       numMax: null,
                       stringMaxLength: null,

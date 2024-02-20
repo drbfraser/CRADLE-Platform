@@ -338,6 +338,8 @@ export type Question = {
   questionText: string;
   questionType: QuestionTypeEnum;
   required: boolean;
+  allowFutureDates: boolean;
+  allowPastDates: boolean;
 
   numMin: OrNull<number>;
   numMax: OrNull<number>;
@@ -365,6 +367,8 @@ export interface TQuestion {
   questionIndex: number;
   questionType: QuestionTypeEnum;
   required: boolean;
+  allowPastDates: boolean;
+  allowFutureDates: boolean;
   numMin?: OrNull<number>;
   numMax?: OrNull<number>;
   stringMaxLength?: OrNull<number>;
