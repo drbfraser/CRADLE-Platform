@@ -283,7 +283,12 @@ def validate_template_question_post(q: dict) -> Optional[str]:
 
     error = values_correct_type(
         q,
-        ["questionIndex", "stringMaxLength", "categoryIndex", "stringMaxLines",],
+        [
+            "questionIndex",
+            "stringMaxLength",
+            "categoryIndex",
+            "stringMaxLines",
+        ],
         int,
     )
     if error:
@@ -300,7 +305,15 @@ def validate_template_question_post(q: dict) -> Optional[str]:
         if not isinstance(q["numMax"], int) and not isinstance(q["numMax"], float):
             return "numMax type must be int or float"
 
-    error = values_correct_type(q, ["id", "questionId", "units",], str,)
+    error = values_correct_type(
+        q,
+        [
+            "id",
+            "questionId",
+            "units",
+        ],
+        str,
+    )
     if error:
         return error
 
@@ -383,7 +396,12 @@ def validate_form_question_post(q: dict) -> Optional[str]:
 
     error = values_correct_type(
         q,
-        ["questionIndex", "stringMaxLength", "categoryIndex", "stringMaxLines",],
+        [
+            "questionIndex",
+            "stringMaxLength",
+            "categoryIndex",
+            "stringMaxLines",
+        ],
         int,
     )
     if error:
@@ -397,7 +415,16 @@ def validate_form_question_post(q: dict) -> Optional[str]:
         if not isinstance(q["numMax"], int) and not isinstance(q["numMax"], float):
             return "numMax type must be int or float"
 
-    error = values_correct_type(q, ["id", "questionId", "questionText", "units",], str,)
+    error = values_correct_type(
+        q,
+        [
+            "id",
+            "questionId",
+            "questionText",
+            "units",
+        ],
+        str,
+    )
 
     error = values_correct_type(q, ["questionType"], QuestionTypeEnum)
     if error:

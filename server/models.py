@@ -104,7 +104,11 @@ class RelayServerPhoneNumber(db.Model):
 
 class Referral(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
-    dateReferred = db.Column(db.BigInteger, nullable=False, default=get_current_time,)
+    dateReferred = db.Column(
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+    )
     comment = db.Column(db.Text)
     actionTaken = db.Column(db.Text)
     isAssessed = db.Column(db.Boolean, nullable=False, default=0)
@@ -346,7 +350,8 @@ class UrineTest(db.Model):
 class PatientAssociations(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     patientId = db.Column(
-        db.ForeignKey(Patient.patientId, ondelete="CASCADE"), nullable=False,
+        db.ForeignKey(Patient.patientId, ondelete="CASCADE"),
+        nullable=False,
     )
     healthFacilityName = db.Column(
         db.ForeignKey(HealthFacility.healthFacilityName, ondelete="CASCADE"),
@@ -356,14 +361,16 @@ class PatientAssociations(db.Model):
 
     # RELATIONSHIPS
     patient = db.relationship(
-        "Patient", backref=db.backref("associations", lazy=True, cascade="all, delete"),
+        "Patient",
+        backref=db.backref("associations", lazy=True, cascade="all, delete"),
     )
     healthFacility = db.relationship(
         "HealthFacility",
         backref=db.backref("associations", lazy=True, cascade="all, delete"),
     )
     user = db.relationship(
-        "User", backref=db.backref("associations", lazy=True, cascade="all, delete"),
+        "User",
+        backref=db.backref("associations", lazy=True, cascade="all, delete"),
     )
 
     @staticmethod
@@ -374,7 +381,8 @@ class PatientAssociations(db.Model):
 class Pregnancy(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     patientId = db.Column(
-        db.ForeignKey(Patient.patientId, ondelete="CASCADE"), nullable=False,
+        db.ForeignKey(Patient.patientId, ondelete="CASCADE"),
+        nullable=False,
     )
     startDate = db.Column(db.BigInteger, nullable=False)
     defaultTimeUnit = db.Column(db.Enum(GestationalAgeUnitEnum))
@@ -401,11 +409,16 @@ class Pregnancy(db.Model):
 class MedicalRecord(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     patientId = db.Column(
-        db.ForeignKey(Patient.patientId, ondelete="CASCADE"), nullable=False,
+        db.ForeignKey(Patient.patientId, ondelete="CASCADE"),
+        nullable=False,
     )
     information = db.Column(db.Text, nullable=False)
     isDrugRecord = db.Column(db.Boolean, nullable=False)
-    dateCreated = db.Column(db.BigInteger, nullable=False, default=get_current_time,)
+    dateCreated = db.Column(
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+    )
     lastEdited = db.Column(
         db.BigInteger,
         nullable=False,
@@ -436,9 +449,14 @@ class FormClassification(db.Model):
 class FormTemplate(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     version = db.Column(db.Text, nullable=True)
-    dateCreated = db.Column(db.BigInteger, nullable=False, default=get_current_time,)
+    dateCreated = db.Column(
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+    )
     formClassificationId = db.Column(
-        db.ForeignKey(FormClassification.id, ondelete="SET NULL"), nullable=True,
+        db.ForeignKey(FormClassification.id, ondelete="SET NULL"),
+        nullable=True,
     )
     archived = db.Column(db.Boolean, nullable=False, default=False)
 
@@ -458,12 +476,18 @@ class Form(db.Model):
     name = db.Column(db.Text, nullable=False, default="")
     category = db.Column(db.Text, nullable=False, default="")
     patientId = db.Column(
-        db.ForeignKey(Patient.patientId, ondelete="CASCADE"), nullable=False,
+        db.ForeignKey(Patient.patientId, ondelete="CASCADE"),
+        nullable=False,
     )
     formTemplateId = db.Column(
-        db.ForeignKey(FormTemplate.id, ondelete="SET NULL"), nullable=True,
+        db.ForeignKey(FormTemplate.id, ondelete="SET NULL"),
+        nullable=True,
     )
-    dateCreated = db.Column(db.BigInteger, nullable=False, default=get_current_time,)
+    dateCreated = db.Column(
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+    )
     lastEdited = db.Column(
         db.BigInteger,
         nullable=False,
@@ -473,13 +497,15 @@ class Form(db.Model):
     lastEditedBy = db.Column(db.ForeignKey(User.id, ondelete="SET NULL"), nullable=True)
 
     formClassificationId = db.Column(
-        db.ForeignKey(FormClassification.id, ondelete="SET NULL"), nullable=True,
+        db.ForeignKey(FormClassification.id, ondelete="SET NULL"),
+        nullable=True,
     )
     archived = db.Column(db.Boolean, nullable=False, default=False)
 
     # RELATIONSHIPS
     patient = db.relationship(
-        "Patient", backref=db.backref("forms", cascade="all, delete", lazy=True),
+        "Patient",
+        backref=db.backref("forms", cascade="all, delete", lazy=True),
     )
 
     classification = db.relationship(
@@ -555,14 +581,19 @@ class Question(db.Model):
     stringMaxLines = db.Column(db.Integer, nullable=True)
 
     # FORENIGN KEYS
-    formId = db.Column(db.ForeignKey(Form.id, ondelete="CASCADE"), nullable=True,)
+    formId = db.Column(
+        db.ForeignKey(Form.id, ondelete="CASCADE"),
+        nullable=True,
+    )
     formTemplateId = db.Column(
-        db.ForeignKey(FormTemplate.id, ondelete="CASCADE"), nullable=True,
+        db.ForeignKey(FormTemplate.id, ondelete="CASCADE"),
+        nullable=True,
     )
 
     # RELATIONSHIPS
     form = db.relationship(
-        "Form", backref=db.backref("questions", cascade="all, delete", lazy=True),
+        "Form",
+        backref=db.backref("questions", cascade="all, delete", lazy=True),
     )
     formTemplate = db.relationship(
         "FormTemplate",
@@ -587,7 +618,10 @@ class QuestionLangVersion(db.Model):
     )
 
     # FORENIGN KEYS
-    qid = db.Column(db.ForeignKey(Question.id, ondelete="CASCADE"), nullable=False,)
+    qid = db.Column(
+        db.ForeignKey(Question.id, ondelete="CASCADE"),
+        nullable=False,
+    )
 
     # RELATIONSHIPS
     question = db.relationship(
