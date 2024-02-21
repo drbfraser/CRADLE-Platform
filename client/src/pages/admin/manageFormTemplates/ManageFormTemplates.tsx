@@ -218,6 +218,8 @@ export const ManageFormTemplates = () => {
           questionIndex: q.questionIndex,
           questionType: q.questionType,
           required: q.required,
+          allowFutureDates: q.allowFutureDates,
+          allowPastDates: q.allowPastDates,
           numMin: null,
           numMax: null,
           stringMaxLength: null,
