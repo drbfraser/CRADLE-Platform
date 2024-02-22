@@ -357,6 +357,8 @@ const EditField = ({
           setNumChoices(qlvCopy[0].mcOptions.length);
         }
         setIsRequired(question.required);
+        setAllowFutureDates(question.allowFutureDates);
+        setAllowPastDates(question.allowPastDates);
         setStringMaxLines(question.stringMaxLines);
         setIsNumOfLinesRestricted(question.stringMaxLines ? true : false);
       }
@@ -367,6 +369,8 @@ const EditField = ({
         setQuestionLangversions([]);
         setNumChoices(0);
         setIsRequired(false);
+        setAllowFutureDates(true);
+        setAllowPastDates(true);
         setIsNumOfLinesRestricted(false);
         setStringMaxLines(null);
       }
@@ -779,6 +783,8 @@ const EditField = ({
                         ? visibleCondition
                         : [];
                       questionToUpdate.required = isRequired;
+                      questionToUpdate.allowFutureDates = allowFutureDates;
+                      questionToUpdate.allowPastDates = allowPastDates;
                       questionToUpdate.stringMaxLines = finalStringMaxLines;
                     }
                   }
