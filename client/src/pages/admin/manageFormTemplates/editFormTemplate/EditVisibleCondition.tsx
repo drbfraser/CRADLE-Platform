@@ -64,6 +64,8 @@ const EditVisibleCondition = ({
       questionText: '',
       questionType: QuestionTypeEnum.CATEGORY,
       required: true,
+      allowFutureDates: true,
+      allowPastDates: true,
       numMin: null,
       numMax: null,
       stringMaxLength: null,

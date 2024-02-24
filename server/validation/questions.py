@@ -256,6 +256,8 @@ def validate_template_question_post(q: dict) -> Optional[str]:
         "isBlank",
         "questionId",
         "required",
+        "allowPastDates",
+        "allowFutureDates",
         "units",
         "visibleCondition",
         "numMin",
