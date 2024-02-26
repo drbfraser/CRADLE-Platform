@@ -18,6 +18,10 @@ reduce preventable maternal deaths in Ugandan villages.
 
 See [docs/development.md](docs/development.md).
 
+For CRADLE Mobile set up see [docs/mobile_setup.md](docs/mobile_setup.md).
+
+For CRADLE SMS relay set up see [docs/sms_relay_setup.md](docs/sms_relay_setup.md).
+
 ## Default Usernames & Passwords
 
 When you `seed_minimal`, only one user is added:
