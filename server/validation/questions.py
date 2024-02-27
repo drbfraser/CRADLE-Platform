@@ -369,6 +369,8 @@ def validate_form_question_post(q: dict) -> Optional[str]:
         "questionId",
         "hasCommentAttached",
         "required",
+        "allowPastDates",
+        "allowFutureDates",
         "units",
         "visibleCondition",
         "mcOptions",

@@ -31,6 +31,22 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { FormRenderStateEnum } from 'src/shared/enums';
 
+const getCurrentDate = (): string => {
+  const today = new Date();
+  const year = today.getFullYear();
+  let month: number | string = today.getMonth() + 1;
+  let day: number | string = today.getDate();
+
+  if (month < 10) {
+    month = '0' + month;
+  }
+  if (day < 10) {
+    day = '0' + day;
+  }
+
+  return `${year}-${month}-${day}`;
+};
+
 interface IProps {
   questions: Question[] | TQuestion[];
   renderState: FormRenderStateEnum;
@@ -650,6 +666,12 @@ export const FormQuestions = ({
                   event.target.value
                 );
                 updateAnswersByValue(question.questionIndex, timestamp);
+              }}
+              inputProps={{
+                ...(!question.allowFutureDates
+                  ? { max: getCurrentDate() }
+                  : {}),
+                ...(!question.allowPastDates ? { min: getCurrentDate() } : {}),
               }}
             />
           </Grid>
