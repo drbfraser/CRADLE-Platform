@@ -281,6 +281,7 @@ def validate_template_question_post(q: dict) -> Optional[str]:
     if error:
         return error
 
+    # Formatted the following
     error = values_correct_type(
         q,
         ["questionIndex", "stringMaxLength", "categoryIndex", "stringMaxLines",],
