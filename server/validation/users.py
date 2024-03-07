@@ -10,6 +10,8 @@ def validate(request_body: dict) -> Optional[str]:
     :param request_body: The request body as a dict object
                         {
                             "id": 12345, - required
+                            "firstName": "Jane",
+                            "username": "janedoe",
                             "email": "jane@mail.com", - required
                             "password": "12345", - required
                             "role": "admin" - required
