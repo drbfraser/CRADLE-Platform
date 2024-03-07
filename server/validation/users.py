@@ -10,8 +10,6 @@ def validate(request_body: dict) -> Optional[str]:
     :param request_body: The request body as a dict object
                         {
                             "id": 12345, - required
-                            "firstName": "Jane", - required
-                            "username": "jane123", - required
                             "email": "jane@mail.com", - required
                             "password": "12345", - required
                             "role": "admin" - required
@@ -24,8 +22,6 @@ def validate(request_body: dict) -> Optional[str]:
     # Check if required keys are present
     required_keys = [
         "id",
-        "firstName",
-        "username",
         "email",
         "password",
         "role",
@@ -36,7 +32,7 @@ def validate(request_body: dict) -> Optional[str]:
 
     # Check that field types are correct
     error_message = values_correct_type(
-        request_body, ["firstName", "username", "email", "password", "role"], str
+        request_body, ["email", "password", "role"], str
     )
     if error_message is not None:
         return error_message
