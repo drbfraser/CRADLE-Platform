@@ -1,4 +1,4 @@
-from flask_restful import Resource, reqparse
+from flask_restful import Resource, reqparse, abort
 from models import User
 from enums import RoleEnum
 from config import flask_bcrypt, app
@@ -34,6 +34,7 @@ from api.util import (
     phoneNumber_regex_check,
     get_all_phoneNumbers_for_user,
 )
+from validation import users
 import service.encryptor as encryptor
 import logging
 from flask_limiter import Limiter
@@ -225,6 +226,11 @@ class UserRegisterApi(Resource):
         # Parse args
         new_user = filterPairsWithNone(self.registerParser.parse_args())
 
+        # validate the new user
+        error_message = users.validate(new_user)
+        if error_message is not None:
+            abort(400, message=error_message)
+
         # Ensure that email is unique
         if (crud.read(User, email=new_user["email"])) is not None:
             return {"message": "there is already a user with this email"}, 400
@@ -397,6 +403,11 @@ class UserApi(Resource):
 
         # Parse the arguments that we want
         new_user = filterPairsWithNone(UserParser.parse_args())
+
+        # validate the new users
+        error_message = users.validate(new_user)
+        if error_message is not None:
+            abort(400, message=error_message)
 
         # Ensure that id is valid
         if not doesUserExist(id):
