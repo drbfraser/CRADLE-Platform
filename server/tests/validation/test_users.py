@@ -32,7 +32,11 @@ not_type_int = {
 
 @pytest.mark.parametrize(
     "json, output",
-    [(valid_json, type(None)), (missing_field, str), (not_type_int, str),],
+    [
+        (valid_json, type(None)),
+        (missing_field, str),
+        (not_type_int, str),
+    ],
 )
 def test_validation(json, output):
     message = validate(json)
