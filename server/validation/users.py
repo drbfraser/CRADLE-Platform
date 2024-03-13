@@ -11,8 +11,8 @@ def validate(request_body: dict) -> Optional[str]:
                         {
                             "firstName": "Jane",
                             "email": "jane@mail.com",
-                            "healthFacilityName": "facility7", 
-                            "role": "admin" 
+                            "healthFacilityName": "facility7",
+                            "role": "admin"
                         }
     :return: An error message if the request body is invalid. None otherwise
     """
