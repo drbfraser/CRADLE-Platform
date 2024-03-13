@@ -2,41 +2,31 @@ import pytest
 from validation.users import validate
 
 valid_json = {
-    "id": 12345,
     "firstName": "Jane",
-    "username": "janedoe",
     "email": "jane@mail.com",
-    "password": "12345",
+    "healthFacilityName": "facility7",
     "role": "admin",
 }
 
 # id field is missing
 missing_field = {
     "firstName": "Jane",
-    "username": "janedoe",
-    "email": "jane@mail.com",
-    "password": "12345",
+    "healthFacilityName": "facility7",
     "role": "admin",
 }
 
 # id must be int
-not_type_int = {
-    "id": "12345",
-    "firstName": "Jane",
-    "username": "janedoe",
+not_type_str = {
+    "firstName": 12345,
     "email": "jane@mail.com",
-    "password": "12345",
+    "healthFacilityName": "facility7",
     "role": "admin",
 }
 
 
 @pytest.mark.parametrize(
     "json, output",
-    [
-        (valid_json, type(None)),
-        (missing_field, str),
-        (not_type_int, str),
-    ],
+    [(valid_json, type(None)), (missing_field, str), (not_type_str, str),],
 )
 def test_validation(json, output):
     message = validate(json)
