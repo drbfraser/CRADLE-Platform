@@ -229,6 +229,7 @@ class UserRegisterApi(Resource):
         # validate the new user
         error_message = users.validate(new_user)
         if error_message is not None:
+            # TODO ADD LOGGING
             abort(400, message=error_message)
 
         # Ensure that email is unique
@@ -407,6 +408,7 @@ class UserApi(Resource):
         # validate the new users
         error_message = users.validate(new_user)
         if error_message is not None:
+            # TODO ADD LOGGING
             abort(400, message=error_message)
 
         # Ensure that id is valid
