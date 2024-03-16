@@ -1,33 +1,90 @@
 import pytest
 from validation.users import validate
 
-valid_json = {
-    "firstName": "Jane",
-    "email": "jane@mail.com",
-    "healthFacilityName": "facility7",
-    "role": "admin",
-}
+test_cases = [
+    {
+        "json": {
+            "firstName": "Jane",
+            "email": "jane@mail.com",
+            "healthFacilityName": "facility7",
+            "role": "admin",
+        },
+        "output": type(None),
+    },
+    {
+        "json": {
+            "email": "jane@mail.com",
+            "healthFacilityName": "facility7",
+            "role": "admin",
+        },
+        "output": str,
+    },
+    {
+        "json": {
+            "firstName": "Jane",
+            "healthFacilityName": "facility7",
+            "role": "admin",
+        },
+        "output": str,
+    },
+    {
+        "json": {
+            "firstName": "Jane",
+            "email": "jane@mail.com",
+            "role": "admin",
+        },
+        "output": str,
+    },
+    {
+        "json": {
+            "firstName": "Jane",
+            "email": "jane@mail.com",
+            "healthFacilityName": "facility7",
+        },
+        "output": str,
+    },
+    {
+        "json": {
+            "firstName": 12345,
+            "email": "jane@mail.com",
+            "healthFacilityName": "facility7",
+            "role": "admin",
+        },
+        "output": str,
+    },
+    {
+        "json": {
+            "firstName": "Jane",
+            "email": 12345,
+            "healthFacilityName": "facility7",
+            "role": "admin",
+        },
+        "output": str,
+    },
+    {
+        "json": {
+            "firstName": "Jane",
+            "email": "jane@mail.com",
+            "healthFacilityName": 12345,
+            "role": "admin",
+        },
+        "output": str,
+    },
+    {
+        "json": {
+            "firstName": "Jane",
+            "email": "jane@mail.com",
+            "healthFacilityName": "facility7",
+            "role": 12345,
+        },
+        "output": str,
+    },
+]
 
-# id field is missing
-missing_field = {
-    "firstName": "Jane",
-    "healthFacilityName": "facility7",
-    "role": "admin",
-}
 
-# id must be int
-not_type_str = {
-    "firstName": 12345,
-    "email": "jane@mail.com",
-    "healthFacilityName": "facility7",
-    "role": "admin",
-}
-
-
-@pytest.mark.parametrize(
-    "json, output",
-    [(valid_json, type(None)), (missing_field, str), (not_type_str, str),],
-)
-def test_validation(json, output):
-    message = validate(json)
+@pytest.mark.parametrize("test_case", test_cases)
+def test_validation(test_case):
+    json_data = test_case["json"]
+    output = test_case["output"]
+    message = validate(json_data)
     assert type(message) == output

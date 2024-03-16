@@ -230,6 +230,8 @@ class UserRegisterApi(Resource):
         error_message = users.validate(new_user)
         if error_message is not None:
             # TODO ADD LOGGING
+            # log and return error
+            # look into creating a middleware for logging and status codes
             abort(400, message=error_message)
 
         # Ensure that email is unique
