@@ -28,7 +28,6 @@ def validate(request_body: dict) -> Optional[str]:
     ]
     error_message = required_keys_present(request_body, required_keys)
     if error_message is not None:
-        # TODO ADD LOGGING
         return error_message
 
     # Check that field types are correct
@@ -36,7 +35,6 @@ def validate(request_body: dict) -> Optional[str]:
         request_body, ["firstName", "email", "healthFacilityName", "role"], str
     )
     if error_message is not None:
-        # TODO ADD LOGGING
         return error_message
 
     return error_message
