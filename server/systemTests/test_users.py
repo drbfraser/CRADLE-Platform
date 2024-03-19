@@ -14,6 +14,7 @@ def generate_random_email(domain="example.com", length=10):
     return email
 
 
+# TEST COMMENT
 @pytest.fixture(scope="module")
 def jwt_token():
     payload = {"email": "admin123@admin.com", "password": "admin123"}
