@@ -1,11 +1,20 @@
 import pytest
 import requests
 import json
+import random
+import string
 
 from data import crud
 from models import SmsSecretKey
 
 
+def generate_random_email(domain="example.com", length=10):
+    username = "".join(random.choices(string.ascii_letters + string.digits, k=length))
+    email = f"{username}@{domain}"
+    return email
+
+
+# TEST COMMENT
 @pytest.fixture(scope="module")
 def jwt_token():
     payload = {"email": "admin123@admin.com", "password": "admin123"}
@@ -13,6 +22,49 @@ def jwt_token():
     resp_json = response.json()
     print("getting jwt token...")
     return resp_json["token"]
+
+
+def test_register_user(jwt_token):
+    url_register_user = "http://localhost:5000/api/user/register"
+    headers = {"Authorization": "Bearer " + jwt_token}
+    random_email = generate_random_email()
+    payload = {
+        "firstName": "ArshdeepS",
+        "email": random_email,
+        "phoneNumber": "604-715-2845",
+        "healthFacilityName": "H0000",
+        "password": "1234567",
+        "role": "VHT",
+        "supervises": [],
+        "userId": 0,
+    }
+
+    response = requests.post(url_register_user, json=payload, headers=headers)
+    resp_body = response.json()
+    print(json.dumps(resp_body, indent=4))
+    assert response.status_code == 200
+
+
+def test_edit_user(jwt_token):
+    url_edit_user = "http://localhost:5000/api/user/3"
+    headers = {"Authorization": "Bearer " + jwt_token}
+    payload = {
+        "healthFacilityName": "H0000",
+        "username": "vht",
+        "firstName": "TestVHT***",
+        "role": "VHT",
+        "email": "vht@vht.com",
+        "supervises": [],
+        "userId": 3,
+        "phoneNumbers": ["666-666-6666", "555-555-5555", "777-777-7777"],
+        "index": 2,
+        "phoneNumber": "604-715-2845",
+    }
+
+    response = requests.put(url_edit_user, json=payload, headers=headers)
+    resp_body = response.json()
+    print(json.dumps(resp_body, indent=4))
+    assert response.status_code == 200
 
 
 def test_get_all_users(jwt_token):
