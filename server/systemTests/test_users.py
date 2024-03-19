@@ -45,17 +45,18 @@ def test_register_user(jwt_token):
 
 
 def test_edit_user(jwt_token):
-    url_edit_user = "http://localhost:5000/api/user/10"
+    url_edit_user = "http://localhost:5000/api/user/3"
     headers = {"Authorization": "Bearer " + jwt_token}
     payload = {
         "healthFacilityName": "H0000",
-        "firstName": "SimranpreetA",
+        "username": "vht",
+        "firstName": "TestVHT***",
         "role": "VHT",
-        "email": "simran@mail.com",
+        "email": "vht@vht.com",
         "supervises": [],
-        "userId": 10,
-        "phoneNumbers": [],
-        "index": 9,
+        "userId": 3,
+        "phoneNumbers": ["666-666-6666", "555-555-5555", "777-777-7777"],
+        "index": 2,
         "phoneNumber": "604-715-2845",
     }
 
