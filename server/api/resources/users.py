@@ -46,6 +46,8 @@ import re
 import time
 import random
 
+LOGGER = logging.getLogger(__name__)
+
 # Error messages
 null_phone_number = "No phone number was provided"
 
@@ -229,18 +231,20 @@ class UserRegisterApi(Resource):
         # validate the new user
         error_message = users.validate(new_user)
         if error_message is not None:
-            # TODO ADD LOGGING
-            # log and return error
-            # look into creating a middleware for logging and status codes
+            LOGGER.error(error_message)
             abort(400, message=error_message)
 
         # Ensure that email is unique
         if (crud.read(User, email=new_user["email"])) is not None:
-            return {"message": "there is already a user with this email"}, 400
+            error = {"message": "there is already a user with this email"}
+            LOGGER.error(error)
+            return error, 400
 
         # Ensure that role is supported
         if new_user["role"] not in supported_roles:
-            return {"message": "Not a supported role"}, 400
+            error = {"message": "Not a supported role"}
+            LOGGER.error(error)
+            return error, 400
 
         # Encrypt pass
         new_user["password"] = flask_bcrypt.generate_password_hash(new_user["password"])
@@ -410,15 +414,19 @@ class UserApi(Resource):
         # validate the new users
         error_message = users.validate(new_user)
         if error_message is not None:
-            # TODO ADD LOGGING
+            LOGGER.error(error_message)
             abort(400, message=error_message)
 
         # Ensure that id is valid
         if not doesUserExist(id):
-            return {"message": "no user with this id"}, 400
+            error = {"message": "no user with this id"}
+            LOGGER.error(error)
+            return error, 400
 
         if new_user["role"] not in supported_roles:
-            return {"message": "Not a supported role"}, 400
+            error = {"message": "Not a supported role"}
+            LOGGER.error(error)
+            return error, 400
 
         supervises = []
         if new_user["role"] == RoleEnum.CHO.value:
@@ -436,11 +444,15 @@ class UserApi(Resource):
     def get(self, id):
         # Ensure we have id
         if not id:
-            return {"message": "must provide an id"}, 400
+            error = {"message": "must provide an id"}
+            LOGGER.error(error)
+            return error, 400
 
         # Ensure that id is valid
         if not doesUserExist(id):
-            return {"message": "no user with this id"}, 400
+            error = {"message": "no user with this id"}
+            LOGGER.error(error)
+            return error, 400
 
         return getDictionaryOfUserInfo(id)
 
@@ -449,12 +461,16 @@ class UserApi(Resource):
     def delete(self, id):
         # Ensure we have id
         if not id:
-            return {"message": "must provide an id"}, 400
+            error = {"message": "must provide an id"}
+            LOGGER.error(error)
+            return error, 400
 
         # Ensure that id is valid
         user = crud.read(User, id=id)
         if user is None:
-            return {"message": "no user with this id"}, 400
+            error = {"message": "no user with this id"}
+            LOGGER.error(error)
+            return error, 400
 
         crud.delete(user)
 
