@@ -22,7 +22,7 @@ request_test_cases = [
 ]
 
 
-@pytest.mark.parametrize("validate_request_test_cases", request_test_cases)
+@pytest.mark.parametrize("test_case", request_test_cases)
 def test_validate_request(test_case):
     json_data = test_case["json"]
     output = test_case["output"]
