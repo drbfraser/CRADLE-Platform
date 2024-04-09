@@ -145,6 +145,7 @@ def test_create_assessments_with_sms_relay(
         crud.read(FollowUp, patientId=patient_id).followupInstructions
         == followupInstructions
     )
+"""
 
 
 def test_update_assessments_with_sms_relay(
@@ -181,8 +182,11 @@ def make_sms_relay_json(
     body: str = None,
 ) -> dict:
     user = crud.read(User, id=1)
+    secretKey = crud.read(SmsSecretKey, userId=1)
     # update for multiple phone numbers schema: each user is guaranteed to have atleast one phone number
-    phoneNumber = crud.read_all(UserPhoneNumber, user_id=user.id).pop() # just need one phone number that belongs to the user
+    phoneNumber = crud.read_all(
+        UserPhoneNumber, user_id=user.id
+    ).pop()  # just need one phone number that belongs to the user
 
     data = {"requestNumber": request_number, "method": method, "endpoint": endpoint}
 
@@ -194,7 +198,7 @@ def make_sms_relay_json(
         data["body"] = body_string
 
     compressed_data = compressor.compress_from_string(json.dumps(data))
-    encrypted_data = encryptor.encrypt(compressed_data, user.secretKey)
+    encrypted_data = encryptor.encrypt(compressed_data, secretKey)
 
     base64_data = base64.b64encode(encrypted_data)
     base64_string = base64_data.decode("utf-8")
@@ -203,10 +207,10 @@ def make_sms_relay_json(
 
 
 def get_sms_relay_response(response: requests.Response) -> dict:
-    user = crud.read(User, id=1)
+    secretKey = crud.read(SmsSecretKey, userId=1)
 
     encrypted_data = base64.b64decode(response.text)
-    decrypted_data = encryptor.decrypt(encrypted_data, user.secretKey)
+    decrypted_data = encryptor.decrypt(encrypted_data, secretKey)
 
     data = compressor.decompress(decrypted_data)
     string_data = data.decode("utf-8")
@@ -260,4 +264,3 @@ def __make_assessment(patient_id: str) -> dict:
         "followupInstructions": "I",
         "followupNeeded": True,
     }
-"""
