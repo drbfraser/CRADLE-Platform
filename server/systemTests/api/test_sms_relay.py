@@ -198,9 +198,10 @@ def make_sms_relay_json(
         data["body"] = body_string
 
     compressed_data = compressor.compress_from_string(json.dumps(data))
-    encrypted_data = encryptor.encrypt(compressed_data, secretKey)
-
-    base64_data = base64.b64encode(encrypted_data)
+    iv = "00112233445566778899aabbccddeeff"
+    print("THIS IS KEY: ", secretKey.secret_Key)
+    encrypted_data = encryptor.encrypt(compressed_data, iv, secretKey.secret_Key)
+    base64_data = base64.b64encode(encrypted_data.encode())
     base64_string = base64_data.decode("utf-8")
 
     return {"phoneNumber": phoneNumber.number, "encryptedData": base64_string}
@@ -209,8 +210,8 @@ def make_sms_relay_json(
 def get_sms_relay_response(response: requests.Response) -> dict:
     secretKey = crud.read(SmsSecretKey, userId=1)
 
-    encrypted_data = base64.b64decode(response.text)
-    decrypted_data = encryptor.decrypt(encrypted_data, secretKey)
+    encrypted_data = base64.b64decode(response.text.encode())
+    decrypted_data = encryptor.decrypt(encrypted_data, secretKey.secret_Key)
 
     data = compressor.decompress(decrypted_data)
     string_data = data.decode("utf-8")
