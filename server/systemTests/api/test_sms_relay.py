@@ -167,7 +167,7 @@ def test_update_assessments_with_sms_relay(
     json_body = make_sms_relay_json(6, method, endpoint, body=assessment_json)
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
     database.session.commit()
-    response_dict = get_sms_relay_response(response)
+    response_dict = json.loads(response.text)
 
     assert response.status_code == 200
     assert response_dict["code"] == 200
@@ -199,24 +199,11 @@ def make_sms_relay_json(
 
     compressed_data = compressor.compress_from_string(json.dumps(data))
     iv = "00112233445566778899aabbccddeeff"
-    print("THIS IS KEY: ", secretKey.secret_Key)
     encrypted_data = encryptor.encrypt(compressed_data, iv, secretKey.secret_Key)
     base64_data = base64.b64encode(encrypted_data.encode())
     base64_string = base64_data.decode("utf-8")
 
     return {"phoneNumber": phoneNumber.number, "encryptedData": base64_string}
-
-
-def get_sms_relay_response(response: requests.Response) -> dict:
-    secretKey = crud.read(SmsSecretKey, userId=1)
-
-    encrypted_data = base64.b64decode(response.text.encode())
-    decrypted_data = encryptor.decrypt(encrypted_data, secretKey.secret_Key)
-
-    data = compressor.decompress(decrypted_data)
-    string_data = data.decode("utf-8")
-
-    return json.loads(string_data)
 
 
 def __make_patient(patient_id: str, reading_ids: List[str]) -> dict:
