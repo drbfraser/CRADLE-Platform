@@ -166,9 +166,10 @@ def test_update_assessments_with_sms_relay(
 
     json_body = make_sms_relay_json(6, method, endpoint, body=assessment_json)
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
+    print("THIS IS THE BODY: ", json_body)
     database.session.commit()
     response_dict = json.loads(response.text)
-
+    print("THIS IS THE RESPONSE TEXT: ", response.text)
     assert response.status_code == 200
     assert response_dict["code"] == 200
     assert crud.read(FollowUp, id=assessment_id).followupInstructions == newInstructions

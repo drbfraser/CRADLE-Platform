@@ -136,6 +136,7 @@ def sms_relay_procedure():
         json_dict_data = json.loads(string_data)
 
     except:
+        print("THIS WAS THE ERROR: ", invalid_message.format(phoneNumber=phone_number))
         abort(401, message=invalid_message.format(phoneNumber=phone_number))
 
     error = sms_relay.validate_decrypted_body(json_dict_data)
