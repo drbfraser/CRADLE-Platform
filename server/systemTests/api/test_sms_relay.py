@@ -201,9 +201,8 @@ def make_sms_relay_json(
     compressed_data = compressor.compress_from_string(json.dumps(data))
     iv = "00112233445566778899aabbccddeeff"
     encrypted_data = encryptor.encrypt(compressed_data, iv, secretKey.secret_Key)
-    hex_string = encrypted_data.encode().hex()
 
-    return {"phoneNumber": phoneNumber.number, "encryptedData": hex_string}
+    return {"phoneNumber": phoneNumber.number, "encryptedData": encrypted_data}
 
 
 def __make_patient(patient_id: str, reading_ids: List[str]) -> dict:

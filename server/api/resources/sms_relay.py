@@ -129,11 +129,9 @@ def sms_relay_procedure():
 
         decrypted_message = encryptor.decrypt(encrypted_data, user_secret_key)
 
-        # compressed_message = compressor.compress(decrypted_message)
+        decrypted_data = compressor.decompress(decrypted_message)
 
-        # decrypted_data = compressor.decompress(compressed_message)
-
-        string_data = bytes.fromhex(decrypted_message).decode()
+        string_data = decrypted_data.decode("utf-8")
 
         json_dict_data = json.loads(string_data)
 
