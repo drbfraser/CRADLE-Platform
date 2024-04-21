@@ -15,7 +15,7 @@ from models import SmsSecretKey
 
 sms_relay_endpoint = "/api/sms_relay"
 
-"""
+
 def test_create_patient_with_sms_relay(database, api_post):
     patient_id = "5390160146141"
     reading_ids = [
@@ -31,7 +31,7 @@ def test_create_patient_with_sms_relay(database, api_post):
     json_body = make_sms_relay_json(1, method, endpoint, body=patient_json)
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
     database.session.commit()
-    response_dict = get_sms_relay_response(response)
+    response_dict = json.loads(response.text)
 
     try:
         assert response.status_code == 200
@@ -63,7 +63,7 @@ def test_create_referral_with_sms_relay(
 
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
     database.session.commit()
-    response_dict = get_sms_relay_response(response)
+    response_dict = json.loads(response.text)
 
     try:
         assert response.status_code == 200
@@ -89,7 +89,7 @@ def test_create_readings_with_sms_relay(
 
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
     database.session.commit()
-    response_dict = get_sms_relay_response(response)
+    response_dict = json.loads(response.text)
 
     try:
         assert response.status_code == 200
@@ -114,7 +114,7 @@ def test_update_patient_name_with_sms_relay(database, patient_factory, api_post)
 
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
     database.session.commit()
-    response_dict = get_sms_relay_response(response)
+    response_dict = json.loads(response.text)
 
     assert response.status_code == 200
     assert response_dict["code"] == 200
@@ -137,7 +137,7 @@ def test_create_assessments_with_sms_relay(
     database.session.commit()
 
     followupInstructions = assessment_json["followupInstructions"]
-    response_dict = get_sms_relay_response(response)
+    response_dict = json.loads(response.text)
 
     assert response.status_code == 200
     assert response_dict["code"] == 201
@@ -145,7 +145,6 @@ def test_create_assessments_with_sms_relay(
         crud.read(FollowUp, patientId=patient_id).followupInstructions
         == followupInstructions
     )
-"""
 
 
 def test_update_assessments_with_sms_relay(
