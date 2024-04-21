@@ -90,3 +90,4 @@ the previously mentioned admin user is added along with a few additional users:
 | Ekam Hothi | ehothi@sfu.ca |
 | Adrienne Kwan | ack11@sfu.ca |
 | Ali Nanji | amnanji@sfu.ca |
+| Jarell Santella | jsa360@sfu.ca |
