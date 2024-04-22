@@ -1,5 +1,7 @@
+import pytest
 from typing import List
 
+import requests
 import data.crud as crud
 from models import Reading, Patient, User, Referral, FollowUp, UserPhoneNumber
 from enums import TrafficLightEnum
