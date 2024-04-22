@@ -1,12 +1,11 @@
 import pytest
 import service.encryptor as encryptor
-import api.util as util
 import service.compressor as compressor
 
 
 @pytest.mark.parametrize("message", [("test")])
 def test_encryptor(message):
-    key = util.generate_new_key()
+    key = "1a9b4f7c3e8d2f5a6b4f7c3e8d2f5a1a"
     plain_text = b"Hello, world!"
     iv = "0791C97495596B09202D443D81054C77"
 
@@ -19,11 +18,11 @@ def test_encryptor(message):
 
 @pytest.mark.parametrize("message", [("test")])
 def test_encryptor_wrong_key(message):
-    key = util.generate_new_key()
+    key = "1a9b4f7c3e8d2f5a6b4f7c3e8d2f5a1a"
     iv = "0791C97495596B09202D443D81054C77"
     message_bytes = bytes(message, "utf-8")
     encrypted_data = encryptor.encrypt(message_bytes, iv, key)
-    invalid_key = util.generate_new_key()
+    invalid_key = "1a9b4f7c3e8d2f5a6b4f7c3e8d2f5a1b"
 
     decrypted_data = encryptor.decrypt(encrypted_data, key)
     decrypted_data2 = encryptor.decrypt(encrypted_data, invalid_key)
@@ -34,7 +33,7 @@ def test_encryptor_wrong_key(message):
 
 @pytest.mark.parametrize("message", [("test")])
 def test_encryptor_wrong_parameter_type(message):
-    key = util.generate_new_key()
+    key = "1a9b4f7c3e8d2f5a6b4f7c3e8d2f5a1a"
     iv = "0791C97495596B09202D443D81054C77"
     message_bytes = bytes(message, "utf-8")
     encrypted_data = encryptor.encrypt(message_bytes, iv, key)
@@ -49,7 +48,7 @@ def test_encryptor_wrong_parameter_type(message):
 
 @pytest.mark.parametrize("message", [("test")])
 def test_encryptor_compressor(message):
-    key = util.generate_new_key()
+    key = "1a9b4f7c3e8d2f5a6b4f7c3e8d2f5a1a"
     iv = "0791C97495596B09202D443D81054C77"
 
     compressed_data = compressor.compress_from_string(message)
