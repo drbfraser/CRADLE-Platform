@@ -10,7 +10,7 @@ import service.compressor as compressor
 
 @pytest.mark.parametrize("message", [("test")])
 def test_encryptor(message):
-    key = util.generate_new_key()  # Assuming generate_new_key generates a valid key for AES encryption
+    key = util.generate_new_key()  
     plain_text = b"Hello, world!"
     iv = "0791C97495596B09202D443D81054C77"
 
@@ -49,7 +49,7 @@ def test_encryptor_wrong_parameter_type(message):
 
     decrypted_data2 = encryptor.decrypt(encrypted_data, key)
     assert decrypted_data2 == message_bytes
-    
+
 
 @pytest.mark.parametrize("message", [("test")])
 def test_encryptor_compressor(message):
