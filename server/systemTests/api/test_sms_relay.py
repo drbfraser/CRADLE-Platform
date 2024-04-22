@@ -1,11 +1,14 @@
+import pytest
 from typing import List
 
+import requests
 import data.crud as crud
 from models import Reading, Patient, User, Referral, FollowUp, UserPhoneNumber
 from enums import TrafficLightEnum
 
 import service.compressor as compressor
 import service.encryptor as encryptor
+import base64
 import json
 
 from models import SmsSecretKey
