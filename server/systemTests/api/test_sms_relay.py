@@ -31,7 +31,7 @@ def test_create_patient_with_sms_relay(database, api_post):
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
     database.session.commit()
     response_dict = json.loads(response.text)
-
+    print("THIS IS THE RESPONSE: ", response.text)
     try:
         assert response.status_code == 200
         assert response_dict["code"] == 201
