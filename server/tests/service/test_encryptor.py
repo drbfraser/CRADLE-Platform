@@ -1,16 +1,14 @@
 import pytest
 
-# from service.encryptor import AES_pkcs5
 import service.encryptor as encryptor
-# import cryptography.fernet as fernet
+
 import api.util as util
 import service.compressor as compressor
 
-# TODO: Fix these tests according to the new encryptor
 
 @pytest.mark.parametrize("message", [("test")])
 def test_encryptor(message):
-    key = util.generate_new_key()  
+    key = util.generate_new_key()
     plain_text = b"Hello, world!"
     iv = "0791C97495596B09202D443D81054C77"
 
