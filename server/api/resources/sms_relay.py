@@ -142,7 +142,7 @@ def sms_relay_procedure():
     error = sms_relay.validate_decrypted_body(json_dict_data)
     if error:
         return create_flask_response(
-            400,
+            402,
             invalid_json.format(error=error),
             encrypted_data[0:iv_size],
             user_secret_key,
