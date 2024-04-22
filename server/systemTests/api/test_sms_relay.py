@@ -1,14 +1,11 @@
-import pytest
 from typing import List
 
-import requests
 import data.crud as crud
 from models import Reading, Patient, User, Referral, FollowUp, UserPhoneNumber
 from enums import TrafficLightEnum
 
 import service.compressor as compressor
 import service.encryptor as encryptor
-import base64
 import json
 
 from models import SmsSecretKey
@@ -32,7 +29,6 @@ def test_create_patient_with_sms_relay(database, api_post):
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
     database.session.commit()
     response_dict = json.loads(response.text)
-    print("THIS IS THE RESPONSE: ", response.text)
     try:
         assert response.status_code == 200
         assert response_dict["code"] == 201
