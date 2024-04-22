@@ -7,7 +7,12 @@ request_test_cases = [
         "output": type(None),
     },
     {"json": {"encryptedData": "thisdataisencrypted"}, "output": str},
-    {"json": {"phoneNumber": "604-715-2845",}, "output": str,},
+    {
+        "json": {
+            "phoneNumber": "604-715-2845",
+        },
+        "output": str,
+    },
     {
         "json": {
             "phoneNumber": 604 - 715 - 2845,
@@ -35,7 +40,13 @@ decrypted_body_test_cases = [
         "output": type(None),
     },
     {"json": {"requestNumber": 12345, "endpoint": "my/endpoint"}, "output": str},
-    {"json": {"requestNumber": 12345, "method": "GET",}, "output": str,},
+    {
+        "json": {
+            "requestNumber": 12345,
+            "method": "GET",
+        },
+        "output": str,
+    },
     {"json": {"method": "GET", "endpoint": "my/endpoint"}, "output": str},
     {
         "json": {
