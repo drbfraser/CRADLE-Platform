@@ -1,5 +1,9 @@
 from typing import Optional
-from validation.validate import required_keys_present, check_invalid_keys_present
+from validation.validate import (
+    required_keys_present,
+    check_invalid_keys_present,
+    values_correct_type,
+)
 
 
 def validate_request(request_body: dict) -> Optional[str]:
@@ -18,6 +22,14 @@ def validate_request(request_body: dict) -> Optional[str]:
     error_message = check_invalid_keys_present(request_body, required_keys)
     if error_message is not None:
         return error_message
+
+    error_message = values_correct_type(
+        request_body, ["phoneNumber", "encryptedData"], str
+    )
+    if error_message is not None:
+        return error_message
+
+    return error_message
 
 
 def validate_decrypted_body(body: dict) -> Optional[str]:
@@ -38,3 +50,13 @@ def validate_decrypted_body(body: dict) -> Optional[str]:
     error_message = check_invalid_keys_present(body, all_keys)
     if error_message is not None:
         return error_message
+
+    error_message = values_correct_type(body, ["method", "endpoint"], str)
+    if error_message is not None:
+        return error_message
+
+    error_message = values_correct_type(body, ["requestNumber"], int)
+    if error_message is not None:
+        return error_message
+
+    return error_message

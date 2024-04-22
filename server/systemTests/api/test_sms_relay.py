@@ -1,21 +1,18 @@
-import pytest
 from typing import List
 
-import requests
 import data.crud as crud
 from models import Reading, Patient, User, Referral, FollowUp, UserPhoneNumber
 from enums import TrafficLightEnum
 
 import service.compressor as compressor
 import service.encryptor as encryptor
-import base64
 import json
 
 from models import SmsSecretKey
 
 sms_relay_endpoint = "/api/sms_relay"
 
-"""
+
 def test_create_patient_with_sms_relay(database, api_post):
     patient_id = "5390160146141"
     reading_ids = [
@@ -31,8 +28,7 @@ def test_create_patient_with_sms_relay(database, api_post):
     json_body = make_sms_relay_json(1, method, endpoint, body=patient_json)
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
     database.session.commit()
-    response_dict = get_sms_relay_response(response)
-
+    response_dict = json.loads(response.text)
     try:
         assert response.status_code == 200
         assert response_dict["code"] == 201
@@ -63,7 +59,7 @@ def test_create_referral_with_sms_relay(
 
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
     database.session.commit()
-    response_dict = get_sms_relay_response(response)
+    response_dict = json.loads(response.text)
 
     try:
         assert response.status_code == 200
@@ -89,7 +85,7 @@ def test_create_readings_with_sms_relay(
 
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
     database.session.commit()
-    response_dict = get_sms_relay_response(response)
+    response_dict = json.loads(response.text)
 
     try:
         assert response.status_code == 200
@@ -114,7 +110,7 @@ def test_update_patient_name_with_sms_relay(database, patient_factory, api_post)
 
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
     database.session.commit()
-    response_dict = get_sms_relay_response(response)
+    response_dict = json.loads(response.text)
 
     assert response.status_code == 200
     assert response_dict["code"] == 200
@@ -137,7 +133,7 @@ def test_create_assessments_with_sms_relay(
     database.session.commit()
 
     followupInstructions = assessment_json["followupInstructions"]
-    response_dict = get_sms_relay_response(response)
+    response_dict = json.loads(response.text)
 
     assert response.status_code == 200
     assert response_dict["code"] == 201
@@ -145,7 +141,6 @@ def test_create_assessments_with_sms_relay(
         crud.read(FollowUp, patientId=patient_id).followupInstructions
         == followupInstructions
     )
-"""
 
 
 def test_update_assessments_with_sms_relay(
@@ -166,10 +161,8 @@ def test_update_assessments_with_sms_relay(
 
     json_body = make_sms_relay_json(6, method, endpoint, body=assessment_json)
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
-    print("THIS IS THE BODY: ", json_body)
     database.session.commit()
     response_dict = json.loads(response.text)
-    print("THIS IS THE RESPONSE TEXT: ", response.text)
     assert response.status_code == 200
     assert response_dict["code"] == 200
     assert crud.read(FollowUp, id=assessment_id).followupInstructions == newInstructions
@@ -201,9 +194,8 @@ def make_sms_relay_json(
     compressed_data = compressor.compress_from_string(json.dumps(data))
     iv = "00112233445566778899aabbccddeeff"
     encrypted_data = encryptor.encrypt(compressed_data, iv, secretKey.secret_Key)
-    hex_string = encrypted_data.encode().hex()
 
-    return {"phoneNumber": phoneNumber.number, "encryptedData": hex_string}
+    return {"phoneNumber": phoneNumber.number, "encryptedData": encrypted_data}
 
 
 def __make_patient(patient_id: str, reading_ids: List[str]) -> dict:
