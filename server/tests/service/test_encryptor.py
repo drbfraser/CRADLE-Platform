@@ -4,7 +4,7 @@ import service.encryptor as encryptor
 
 import service.compressor as compressor
 
-
+# TODO: fix these tests
 @pytest.mark.parametrize("message", [("test")])
 def test_encryptor(message):
     key = "1a9b4f7c3e8d2f5a6b4f7c3e8d2f5a1a"
