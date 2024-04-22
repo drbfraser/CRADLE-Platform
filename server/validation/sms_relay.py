@@ -51,9 +51,11 @@ def validate_decrypted_body(body: dict) -> Optional[str]:
     if error_message is not None:
         return error_message
 
-    error_message = values_correct_type(
-        body, ["requestNumber", "method", "endpoint"], str
-    )
+    error_message = values_correct_type(body, ["method", "endpoint"], str)
+    if error_message is not None:
+        return error_message
+
+    error_message = values_correct_type(body, ["requestNumber"], int)
     if error_message is not None:
         return error_message
 

@@ -36,13 +36,13 @@ request_test_cases = [
 
 decrypted_body_test_cases = [
     {
-        "json": {"requestNumber": "12345", "method": "GET", "endpoint": "my/endpoint"},
+        "json": {"requestNumber": 12345, "method": "GET", "endpoint": "my/endpoint"},
         "output": type(None),
     },
-    {"json": {"requestNumber": "12345", "endpoint": "my/endpoint"}, "output": str},
+    {"json": {"requestNumber": 12345, "endpoint": "my/endpoint"}, "output": str},
     {
         "json": {
-            "requestNumber": "12345",
+            "requestNumber": 12345,
             "method": "GET",
         },
         "output": str,
@@ -50,7 +50,7 @@ decrypted_body_test_cases = [
     {"json": {"method": "GET", "endpoint": "my/endpoint"}, "output": str},
     {
         "json": {
-            "requestNumber": "12345",
+            "requestNumber": 12345,
             "method": "GET",
             "endpoint": "my/endpoint",
             "invalid": "invalidkey",
@@ -58,15 +58,15 @@ decrypted_body_test_cases = [
         "output": str,
     },
     {
-        "json": {"requestNumber": 12345, "method": "GET", "endpoint": "my/endpoint"},
+        "json": {"requestNumber": "12345", "method": "GET", "endpoint": "my/endpoint"},
         "output": str,
     },
     {
-        "json": {"requestNumber": "12345", "method": 12345, "endpoint": "my/endpoint"},
+        "json": {"requestNumber": 12345, "method": 12345, "endpoint": "my/endpoint"},
         "output": str,
     },
     {
-        "json": {"requestNumber": "12345", "method": "GET", "endpoint": 12345},
+        "json": {"requestNumber": 12345, "method": "GET", "endpoint": 12345},
         "output": str,
     },
 ]
