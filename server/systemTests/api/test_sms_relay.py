@@ -1,11 +1,15 @@
 from typing import List
 
+import requests
+import gzip
+import io
 import data.crud as crud
 from models import Reading, Patient, User, Referral, FollowUp, UserPhoneNumber
 from enums import TrafficLightEnum
 
 import service.compressor as compressor
 import service.encryptor as encryptor
+import base64
 import json
 
 from models import SmsSecretKey
@@ -196,6 +200,20 @@ def make_sms_relay_json(
     encrypted_data = encryptor.encrypt(compressed_data, iv, secretKey.secret_Key)
 
     return {"phoneNumber": phoneNumber.number, "encryptedData": encrypted_data}
+
+
+def get_sms_relay_response(response: requests.Response) -> dict:
+    secretKey = crud.read(SmsSecretKey, userId=1)
+
+    response_dict = json.loads(response.text)
+    decrypted_data = encryptor.decrypt(response_dict["body"], secretKey.secret_Key)
+    decoded_string = (
+        gzip.GzipFile(fileobj=io.BytesIO(decrypted_data), mode="r").read().decode()
+    )
+
+    new_response = {"body": decoded_string, "code": response_dict["code"]}
+
+    return new_response
 
 
 def __make_patient(patient_id: str, reading_ids: List[str]) -> dict:
