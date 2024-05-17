@@ -1,0 +1,23 @@
+tags:
+  - Relay Server Phone Numbers
+
+parameters:
+  - in: path
+    name: id
+    required: true
+    schema:
+      type: integer
+
+security:
+  - jwt: []
+
+responses:
+  200:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Relay number deleted

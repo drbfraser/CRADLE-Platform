@@ -1,0 +1,39 @@
+tags:
+  - Relay Server Phone Numbers
+
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          phone:
+            type: string
+            required: true
+          description:
+            type: string
+          id:
+            type: integer
+            required: true
+          lastRecieved:
+            type: integer
+      example:
+        phone: "555-555-5555"
+
+security:
+  - jwt: []
+
+responses:
+  200:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Relay server updated
+  400:
+    content:
+      application/json:
