@@ -1,5 +1,6 @@
 import requests
 
+
 def test_apidocs_are_accessible():
     """
     Test if the swagger api documentation(accessible at http://localhost:5000/apidocs) is working.
