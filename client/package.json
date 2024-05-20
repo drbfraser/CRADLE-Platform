@@ -28,6 +28,7 @@
     "e2e:record:parallel": "cypress run --record --parallel"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@redux-devtools/extension": "^3.2.3",
     "@testing-library/dom": "^8.17.1",
     "@testing-library/react": "^13.3.0",
