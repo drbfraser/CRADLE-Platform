@@ -12,7 +12,6 @@
 #  - MySQL (extended)                             
 #  - Caddy                                        
 
-version: "3.9"
 services:
     flask:
         image: drbfraser/cradle_platfrom-backend:$IMAGE_TAG

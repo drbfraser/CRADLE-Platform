@@ -111,6 +111,8 @@ npm install
 npm start
 ```
 
+If there are a lot of vulnerabilities, try to fix by running `npm ci` to install directly from the `package-lock.json`, or you can try fixing the vulnerabilities with a combination of `npm audit fix`, `npm audit fix --legacy-peer-deps`, and `npm audit fix --force`.
+
 ## Start Developing!
 
 - Navigate to http://localhost:3000/ to check out the React client running in your browser, communicating to the server hosted at http://localhost:5000/ which is communicating with MySQL!
