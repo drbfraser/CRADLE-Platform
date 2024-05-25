@@ -21,3 +21,12 @@ responses:
             message:
               type: string
               example: Relay number deleted
+  400:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Relay server does not contain a number
