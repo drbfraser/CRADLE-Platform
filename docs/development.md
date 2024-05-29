@@ -53,7 +53,7 @@ EMULATOR_PHONE_NUMBER=[PHONE_NUMBER_OF_EMULATOR_RUNNING_CRADLE_MOBILE_APP]
 
 Your emulator's phone number will very likely be 5555215554 or 5555215556. The former is assigned to the first emulator that starts. The latter is assigned to the second emulator that starts.
 
-At the time of writing this, the CRADLE Mobile app does not have the option to send the SMS messages to 5555215556. This means that the CRADLE Mobile app should be opened second, **after** opening the SMS Relay App. And therefore, the emulator phone number environment variable value should be `5555215556`. Like so:
+For example, let's say that you start the CRADLE Mobile app's emulator SECOND (this is AFTER you start the emulator for SMS relay), assuming you have no other emulators open before opening the emulator for SMS relay:
 
 ```
 EMULATOR_PHONE_NUMBER=5555215556
@@ -77,8 +77,8 @@ From your OS's terminal (such as PowerShell in Windows) run:
 docker compose up
 ```
 
-All the Docker images will build and then the Docker containers will start. You may add the `-d` option to run the Docker containers in the background, although that makes it more difficult to see log messages from Flask and MySQL.
-(If the Docker can not run properly, try close the mysql tasks in the task manager and run it again)
+All the Docker images will build, then the Docker containers will start. You may add the `-d` option to run the Docker containers in the background, although that makes it more difficult to see log messages from Flask and MySQL.
+(If the Docker can not run properly, try to close the MySQL tasks in the task manager and run it again)
 
 Now it's time to run the database migrations. Once the containers have fully started, run the following command in a new terminal window.
 
@@ -99,6 +99,8 @@ In order to seed data, run `docker exec cradle_flask python manage.py [SEED_OPTI
 ```
 docker exec cradle_flask python manage.py seed_test_data
 ```
+
+At the time of writing this, the `seed_test_data` option does not work.
 
 ## 6. Run the NPM Dev Server
 
@@ -174,7 +176,7 @@ If something has gone wrong and you're having issues with your database, you can
 3. Run `docker volume ls` and look for the volume associated with the MySQL database. It's likely named `cradle-platform_mysql_data` or something similar
 4. Remove the Docker volume: `docker volume rm 415-cradle-platform_mysql_data` (using the volume name identified above)
 5. Start your Docker containers: `docker-compose up`
-6. Upgrade your daabase schema: `docker exec cradle_flask flask db upgrade`
+6. Upgrade your database schema: `docker exec cradle_flask flask db upgrade`
 7. Reseed: `docker exec cradle_flask python manage.py seed` (see setup above for more seed options)
 
 
@@ -188,3 +190,19 @@ If something has gone wrong and you're having issues with your database, you can
   - allows you to observe the live values of props and state in components
 * [Redux DevTools](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)
   - allows you to view and debug how data is being passed to and from Redux
+
+## Troubleshooting
+
+### SMS Relay crashing and not working
+
+There is a rare case where the database will not seed properly and sending a response from the Flask server back to the SMS relay app will crash the SMS relay app. First, verify what the problem is by accessing Docker container's logs. Then, if the problem is that there is no matching phone number, you may need to manually modify values inside the database.
+
+For example, you might have to run this MySQL query in the Docker container running MySQL if the issue is that `+15555215556` is not in the `user_phone_number` table, and that is what the Flask server is expecting.
+
+```sql
+UPDATE user_phone_number
+SET number = "+15555215556"
+WHERE number = "5555215556";
+```
+
+So far, the cause of this problem is not yet known and could not be reproduced.
