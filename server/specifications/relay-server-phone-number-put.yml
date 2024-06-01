@@ -14,12 +14,13 @@ requestBody:
           description:
             type: string
           id:
-            type: integer
+            type: string
             required: true
           lastRecieved:
             type: integer
       example:
         phone: "555-555-5555"
+        id: "relay-app-id"
 
 security:
   - jwt: []
