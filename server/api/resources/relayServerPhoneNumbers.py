@@ -73,7 +73,7 @@ class RelayServerPhoneNumbers(Resource):
     @staticmethod
     @roles_required([RoleEnum.ADMIN])
     @swag_from(
-        "../../specifications/relay-server-phone-number-put.yml",
+        "../../specifications/relay-server-phone-number-delete.yml",
         methods=["DELETE"],
     )
     def delete():
