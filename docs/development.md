@@ -100,8 +100,6 @@ In order to seed data, run `docker exec cradle_flask python manage.py [SEED_OPTI
 docker exec cradle_flask python manage.py seed_test_data
 ```
 
-At the time of writing this, the `seed_test_data` option does not work.
-
 ## 6. Run the NPM Dev Server
 
 NPM is not run inside Docker (due to poor filesystem performance), so you'll need to run the following to start the NPM development server:
@@ -203,6 +201,14 @@ For example, you might have to run this MySQL query in the Docker container runn
 UPDATE user_phone_number
 SET number = "+15555215556"
 WHERE number = "5555215556";
+```
+
+Alternatively, if this does not work, try filtering on the `id` field instead. You can find all of the IDs by running `SELECT * FROM user_phone_number;`. And then filter:
+
+```sql
+UPDATE user_phone_number
+SET number = "+15555215556"
+WHERE id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
 ```
 
 So far, the cause of this problem is not yet known and could not be reproduced.
