@@ -15,6 +15,7 @@ from enums import RoleEnum, ContentTypeEnum
 from validation import formTemplates
 from werkzeug.datastructures import FileStorage
 
+
 # /api/forms/templates
 class Root(Resource):
     @staticmethod
@@ -173,9 +174,9 @@ class TemplateVersionCsv(Resource):
         csv: str = util.getCsvFromFormTemplate(form_template)
 
         response = make_response(csv)
-        response.headers[
-            "Content-Disposition"
-        ] = "attachment; filename=form_template.csv"
+        response.headers["Content-Disposition"] = (
+            "attachment; filename=form_template.csv"
+        )
         response.headers["Content-Type"] = "text/csv"
         return response
 

@@ -20,6 +20,7 @@ from datetime import date
 from models import UserSchema
 from functools import wraps
 
+
 # /api/patients
 class Root(Resource):
     @staticmethod

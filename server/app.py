@@ -8,6 +8,7 @@
       * Initilize server routes
       * Start Flask server
 """
+
 import sys
 import os
 import re
