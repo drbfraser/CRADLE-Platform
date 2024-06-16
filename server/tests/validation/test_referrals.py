@@ -1,4 +1,3 @@
-from datetime import datetime, timedelta
 import pytest
 from validation.referrals import validate
 
