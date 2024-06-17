@@ -7,7 +7,7 @@ from models import MedicalRecord, Patient, Pregnancy, Reading
 from enums import TrafficLightEnum
 
 from utils import get_current_time
-
+from pprint import pformat
 
 def test_get_patient_list(create_patient, patient_info, reading_factory, api_get):
     create_patient()
@@ -118,7 +118,7 @@ def test_get_patient_pregnancy_summary(
     )
 
     assert response.status_code == 200
-    assert response.json()["isPregnant"] == False
+    assert response.json()["isPregnant"] is False
     assert len(response.json()["pastPregnancies"]) == 0
 
     pregnancy_factory.create(**pregnancy_earlier)
@@ -129,7 +129,7 @@ def test_get_patient_pregnancy_summary(
     )
 
     assert response.status_code == 200
-    assert response.json()["isPregnant"] == True
+    assert response.json()["isPregnant"] is True
     assert response.json()["pregnancyStartDate"] == pregnancy_later["startDate"]
     assert len(response.json()["pastPregnancies"]) == 1
 
@@ -614,7 +614,7 @@ def __assert_dict_keys_of_first_equal_to_second(
         # Catch the case where one of the dicts has None to mean "not present"
         # This occurs in api/mobile/patients
         if first[key] is None:
-            if not key in second:
+            if key not in second:
                 continue
             elif second[key] is None:
                 continue
@@ -627,7 +627,7 @@ def __assert_dict_keys_of_first_equal_to_second(
                     + dict_dump
                 )
 
-        if not key in second:
+        if key not in second:
             # Guaranteed to fail because one key is missing. This will generate a diff in the
             # error output.
             assert first == second, (
