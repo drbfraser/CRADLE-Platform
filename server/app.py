@@ -13,6 +13,8 @@ import os
 import re
 import json
 
+sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+
 import config
 import routes
 
@@ -24,7 +26,6 @@ from flask_jwt_extended import (
     verify_jwt_in_request,
 )
 from flask import request
-sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 dictConfig(Config.LOGGING)
 LOGGER = logging.getLogger(__name__)
