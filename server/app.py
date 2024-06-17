@@ -13,8 +13,6 @@ import os
 import re
 import json
 
-sys.path.append(os.path.dirname(os.path.realpath(__file__)))
-
 import config
 import routes
 
@@ -25,7 +23,8 @@ from flask_jwt_extended import (
     get_jwt_identity,
     verify_jwt_in_request,
 )
-from flask import request, jsonify
+from flask import request
+sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 dictConfig(Config.LOGGING)
 LOGGER = logging.getLogger(__name__)
@@ -44,7 +43,6 @@ else:
 
 print("Binding to " + host + ":" + port)
 
-import models  # needs to be after db instance
 
 
 @app.after_request
@@ -56,7 +54,7 @@ def log_request_details(response):
         try:
             verify_jwt_in_request()
             requestor_data = get_jwt_identity()
-        except:
+        except Exception:
             requestor_data = {}
 
         if len(request.data) == 0:

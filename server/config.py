@@ -2,8 +2,8 @@ import os
 import datetime
 import json
 from flask_cors import CORS
-from flask import Flask, request, send_from_directory
-from flask_restful import Resource, Api
+from flask import Flask
+from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
@@ -13,7 +13,7 @@ import environs
 from flask_bcrypt import Bcrypt
 from flasgger import Swagger
 import logging.config
-from pythonjsonlogger import jsonlogger
+from bson import ObjectId
 
 # Versioning system follows : https://semver.org/
 app_version = "1.0.0"
