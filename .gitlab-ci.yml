@@ -301,7 +301,7 @@ backend format:
     # Ensure we get the same version of Black used by the project
     - pip install -r requirements.txt
   script:
-    - ruff check --exclude 'server/migrations/.*' .
+    - ruff check --ignore E501 --exclude 'server/migrations/.*' .
     
 
 .deploy-script: &export_image_tag

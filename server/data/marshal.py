@@ -4,7 +4,6 @@ import json
 from enum import Enum
 from typing import Any, Dict, Type, List, Optional
 
-from sqlalchemy import false
 
 from data.crud import M
 from models import (

@@ -1,5 +1,4 @@
 import time
-from math import floor
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -63,7 +62,7 @@ class Root(Resource):
                 healthFacilityName=json["referralHealthFacilityName"],
             )
 
-        if not "userId" in json:
+        if "userId" not in json:
             json["userId"] = get_jwt_identity()["userId"]
 
         patient = crud.read(Patient, patientId=json["patientId"])

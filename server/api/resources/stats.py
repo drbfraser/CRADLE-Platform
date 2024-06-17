@@ -166,7 +166,7 @@ class ExportStats(Resource):
 
         filter = get_filter_data(request)
 
-        if crud.read(User, id=user_id) == None:
+        if crud.read(User, id=user_id) is None:
             return "User with this ID does not exist", 404
 
         if not hasPermissionToViewUser(user_id):

@@ -1,17 +1,14 @@
-import re
 
-from flask_jwt_extended import jwt_required, get_jwt_identity
-from flask import redirect, request, url_for, make_response, Response, jsonify
+from flask_jwt_extended import jwt_required
+from flask import request, make_response, Response, jsonify
 from flask_restful import Resource, abort
 import requests
 
-from data import crud, marshal
 from flasgger import swag_from
 from models import User
 import service.compressor as compressor
 import service.encryptor as encryptor
 from validation import sms_relay
-import base64
 import json
 from api.resources.users import get_user_data_for_token, get_access_token
 from api.util import phoneNumber_regex_check as regex_check
@@ -135,7 +132,7 @@ def sms_relay_procedure():
 
         json_dict_data = json.loads(string_data)
 
-    except Exception as e:
+    except Exception:
         error_message = str(invalid_message.format(phoneNumber=phone_number))
         abort(401, message=error_message)
 

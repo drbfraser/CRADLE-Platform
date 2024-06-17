@@ -48,7 +48,7 @@ class Root(Resource):
                     abort(400, message=err.args[0])
                 except TypeError as err:
                     abort(400, message=err.args[0])
-                except:
+                except Exception:
                     abort(
                         400, message="Something went wrong while parsing the CSV file."
                     )
@@ -196,7 +196,7 @@ class FormTemplateResource(Resource):
             abort(404, message=f"No form with id {form_template_id}")
 
         version = params.get("lang")
-        if version == None:
+        if version is None:
             # admin user get template of full verions
             return marshal.marshal(
                 form_template, shallow=False, if_include_versions=True
@@ -205,7 +205,7 @@ class FormTemplateResource(Resource):
         available_versions = crud.read_form_template_versions(
             form_template, refresh=True
         )
-        if not version in available_versions:
+        if version not in available_versions:
             abort(
                 404,
                 message=f"Template(id={form_template_id}) doesn't have language version = {version}",
@@ -251,7 +251,7 @@ class BlankFormTemplate(Resource):
             abort(404, message=f"No form with id {form_template_id}")
 
         version = params.get("lang")
-        if version == None:
+        if version is None:
             # admin user get template of full verions
             blank_template = marshal.marshal(
                 form_template, shallow=False, if_include_versions=True
@@ -262,7 +262,7 @@ class BlankFormTemplate(Resource):
         available_versions = crud.read_form_template_versions(
             form_template, refresh=True
         )
-        if not version in available_versions:
+        if version not in available_versions:
             abort(
                 404,
                 message=f"Template(id={form_template_id}) doesn't have language version = {version}",
