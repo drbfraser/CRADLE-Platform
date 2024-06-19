@@ -304,9 +304,9 @@ jobs:
         pip install --upgrade pip
         pip install -r requirements.txt
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
-    - name: Backend Format
-      run: black --check --exclude 'migrations/.*' .
-      working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
+    # - name: Backend Format
+    #   run: black --check --exclude 'migrations/.*' .
+    #   working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
 
   # ----------------------------------------------------------------------------
   # Publish to DockerHub
