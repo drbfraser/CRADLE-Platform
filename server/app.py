@@ -25,7 +25,7 @@ from flask_jwt_extended import (
     get_jwt_identity,
     verify_jwt_in_request,
 )
-from flask import request, jsonify
+from flask import request
 
 dictConfig(Config.LOGGING)
 LOGGER = logging.getLogger(__name__)
@@ -44,7 +44,6 @@ else:
 
 print("Binding to " + host + ":" + port)
 
-import models  # needs to be after db instance
 
 
 @app.after_request
