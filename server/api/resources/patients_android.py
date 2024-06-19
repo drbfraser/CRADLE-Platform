@@ -11,12 +11,9 @@ from models import (
     User,
     Form,
     Reading,
-    Referral,
     ReadingSchema,
-    ReferralSchema,
 )
 from flasgger import swag_from
-import api.util as util
 import service.view as view
 import service.serialize as serialize
 
