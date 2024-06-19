@@ -6,7 +6,7 @@ from flask_jwt_extended import (
 )
 
 import data.crud as crud
-from models import PatientAssociations
+from models import PatientAssociations, User
 import logging
 from enums import RoleEnum
 
