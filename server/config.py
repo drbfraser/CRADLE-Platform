@@ -13,6 +13,7 @@ import environs
 from flask_bcrypt import Bcrypt
 from flasgger import Swagger
 import logging.config
+from bson import ObjectId
 
 # Versioning system follows : https://semver.org/
 app_version = "1.0.0"

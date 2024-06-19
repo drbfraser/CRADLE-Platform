@@ -55,7 +55,7 @@ def log_request_details(response):
         try:
             verify_jwt_in_request()
             requestor_data = get_jwt_identity()
-        except:
+        except Exception:
             requestor_data = {}
 
         if len(request.data) == 0:
