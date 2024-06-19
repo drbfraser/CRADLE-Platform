@@ -2,7 +2,7 @@ from typing import List, Optional, Tuple, Type, TypeVar, Any, Union
 from sqlalchemy import func, or_
 from collections import namedtuple
 from sqlalchemy.orm import Query, aliased
-from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_, or_
+from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_
 import operator
 import logging
 
@@ -248,8 +248,8 @@ def read_patient_list(
             ),
         )
         .filter(
-            rd.dateTimeTaken == None,
-            or_(Patient.isArchived == False, Patient.isArchived == None),
+            rd.dateTimeTaken is None,
+            or_(Patient.isArchived is False, Patient.isArchived is None),
         )
     )
 
@@ -286,7 +286,7 @@ def read_admin_patient(
 
     if include_archived == "false":
         query = query.filter(
-            or_(Patient.isArchived == False, Patient.isArchived == None),
+            or_(Patient.isArchived is False, Patient.isArchived is None),
         )
 
     limit = kwargs.get("limit")
@@ -340,7 +340,7 @@ def read_referral_list(
         .outerjoin(Referral, and_(Referral.patientId == Patient.patientId))
         .outerjoin(Reading, and_(Reading.readingId == reading_subquery))
         .filter(
-            or_(Patient.isArchived == False, Patient.isArchived == None),
+            or_(Patient.isArchived is False, Patient.isArchived is None),
         )
     )
 
@@ -378,7 +378,7 @@ def read_referral_list(
                 Pregnancy,
                 and_(
                     Patient.patientId == Pregnancy.patientId,
-                    Pregnancy.endDate == None,
+                    Pregnancy.endDate is None,
                 ),
             )
             .outerjoin(
@@ -388,7 +388,7 @@ def read_referral_list(
                     Pregnancy.startDate < pr.startDate,
                 ),
             )
-            .filter(eq_op(Pregnancy.startDate, None), pr.startDate == None)
+            .filter(eq_op(Pregnancy.startDate, None), pr.startDate is None)
         )
 
     vital_signs = kwargs.get("vital_signs")
@@ -482,7 +482,7 @@ def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
         literal(TITLE.pregnancy_end).label("title"),
         Pregnancy.endDate.label("date"),
         Pregnancy.outcome.label("information"),
-    ).filter(Pregnancy.patientId == patient_id, Pregnancy.endDate != None)
+    ).filter(Pregnancy.patientId == patient_id, Pregnancy.endDate is not None)
 
     pregnancy_start = db_session.query(
         literal(TITLE.pregnancy_start), Pregnancy.startDate, null()
@@ -492,13 +492,13 @@ def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
         literal(TITLE.medical_history),
         MedicalRecord.dateCreated,
         MedicalRecord.information,
-    ).filter(MedicalRecord.patientId == patient_id, MedicalRecord.isDrugRecord == False)
+    ).filter(MedicalRecord.patientId == patient_id, MedicalRecord.isDrugRecord is False)
 
     drug_history = db_session.query(
         literal(TITLE.drug_history),
         MedicalRecord.dateCreated,
         MedicalRecord.information,
-    ).filter(MedicalRecord.patientId == patient_id, MedicalRecord.isDrugRecord == True)
+    ).filter(MedicalRecord.patientId == patient_id, MedicalRecord.isDrugRecord is True)
 
     query = pregnancy_end.union(
         pregnancy_start, medical_history, drug_history
@@ -639,7 +639,7 @@ def read_patients(
         )
         .outerjoin(
             Pregnancy,
-            and_(Patient.patientId == Pregnancy.patientId, Pregnancy.endDate == None),
+            and_(Patient.patientId == Pregnancy.patientId, Pregnancy.endDate is None),
         )
         .outerjoin(
             pr,
@@ -651,7 +651,7 @@ def read_patients(
             MedicalHistory,
             and_(
                 Patient.patientId == MedicalHistory.patientId,
-                MedicalHistory.isDrugRecord == False,
+                MedicalHistory.isDrugRecord is False,
             ),
         )
         .outerjoin(
@@ -659,14 +659,14 @@ def read_patients(
             and_(
                 MedicalHistory.patientId == md.patientId,
                 MedicalHistory.dateCreated < md.dateCreated,
-                md.isDrugRecord == False,
+                md.isDrugRecord is False,
             ),
         )
         .outerjoin(
             DrugHistory,
             and_(
                 Patient.patientId == DrugHistory.patientId,
-                DrugHistory.isDrugRecord == True,
+                DrugHistory.isDrugRecord is True,
             ),
         )
         .outerjoin(
@@ -674,10 +674,10 @@ def read_patients(
             and_(
                 DrugHistory.patientId == dr.patientId,
                 DrugHistory.dateCreated < dr.dateCreated,
-                dr.isDrugRecord == True,
+                dr.isDrugRecord is True,
             ),
         )
-        .filter(pr.startDate == None, md.dateCreated == None, dr.dateCreated == None)
+        .filter(pr.startDate is None, md.dateCreated is None, dr.dateCreated is None)
     )
 
     query = __filter_by_patient_association(query, Patient, user_id, is_cho)
@@ -689,7 +689,7 @@ def read_patients(
             pr2,
             and_(
                 Patient.patientId == pr2.patientId,
-                pr2.endDate != None,
+                pr2.endDate is not None,
                 pr2.lastEdited > last_edited,
             ),
         ).filter(
@@ -698,7 +698,7 @@ def read_patients(
                 Pregnancy.lastEdited > last_edited,
                 MedicalHistory.lastEdited > last_edited,
                 DrugHistory.lastEdited > last_edited,
-                pr2.id != None,
+                pr2.id is not None,
             )
         )
 
@@ -846,7 +846,7 @@ def has_conflicting_pregnancy_record(
 
     if not end_date:
         query = query.filter(
-            or_(Pregnancy.endDate >= start_date, Pregnancy.endDate == None),
+            or_(Pregnancy.endDate >= start_date, Pregnancy.endDate is None),
         )
     else:
         query = query.filter(
@@ -856,11 +856,11 @@ def has_conflicting_pregnancy_record(
                 ),
                 and_(Pregnancy.startDate >= start_date, Pregnancy.endDate <= end_date),
                 and_(Pregnancy.startDate <= end_date, Pregnancy.endDate >= end_date),
-                and_(Pregnancy.startDate <= start_date, Pregnancy.endDate == None),
+                and_(Pregnancy.startDate <= start_date, Pregnancy.endDate is None),
                 and_(
                     Pregnancy.startDate >= start_date,
                     Pregnancy.startDate <= end_date,
-                    Pregnancy.endDate == None,
+                    Pregnancy.endDate is None,
                 ),
             ),
         )
@@ -901,7 +901,7 @@ def get_unique_patients_with_readings(facility="%", user="%", filter={}) -> List
         result = db_session.execute(query)
         return list(result)
     except Exception as e:
-        logger.error(e)
+        LOGGER.error(e)
         return None
 
 
@@ -932,7 +932,7 @@ def get_total_readings_completed(facility="%", user="%", filter={}) -> List[M]:
         result = db_session.execute(query)
         return list(result)
     except Exception as e:
-        logger.error(e)
+        LOGGER.error(e)
         return None
 
 
@@ -963,7 +963,7 @@ def get_total_color_readings(facility="%", user="%", filter={}) -> List[M]:
         result = db_session.execute(query)
         return list(result)
     except Exception as e:
-        logger.error(e)
+        LOGGER.error(e)
         return None
 
 
@@ -991,7 +991,7 @@ def get_sent_referrals(facility="%", user="%", filter={}) -> List[M]:
         result = db_session.execute(query)
         return list(result)
     except Exception as e:
-        logger.error(e)
+        LOGGER.error(e)
         return None
 
 
@@ -1015,7 +1015,7 @@ def get_referred_patients(facility="%", filter={}) -> List[M]:
         result = db_session.execute(query)
         return list(result)
     except Exception as e:
-        logger.error(e)
+        LOGGER.error(e)
         return None
 
 
@@ -1031,7 +1031,7 @@ def get_days_with_readings(facility="%", user="%", filter={}):
         JOIN user U ON U.id = R.userId
         WHERE dateTimeTaken BETWEEN %s AND %s
         AND (
-         	(R.userId LIKE "%s" OR R.userId IS NULL)
+        (R.userId LIKE "%s" OR R.userId IS NULL)
 			AND (U.healthFacilityName LIKE "%s" OR U.healthFacilityName is NULL)   
         )
         """ % (
@@ -1045,7 +1045,7 @@ def get_days_with_readings(facility="%", user="%", filter={}):
         result = db_session.execute(query)
         return list(result)
     except Exception as e:
-        logger.error(e)
+        LOGGER.error(e)
         return None
 
 
@@ -1093,7 +1093,7 @@ def get_export_data(user_id, filter):
             result.append(row)
         return result
     except Exception as e:
-        logger.error(e)
+        LOGGER.error(e)
         return None
 
 
@@ -1112,7 +1112,7 @@ def get_supervised_vhts(user_id):
         result = db_session.execute(query)
         return list(result)
     except Exception as e:
-        logger.error(e)
+        LOGGER.error(e)
         return None
 
 
@@ -1130,7 +1130,7 @@ def is_phone_number_relay(phone_number):
             return 1
         else:
             return 0
-    except:
+    except Exception:
         return -1
 
 
@@ -1143,7 +1143,7 @@ def get_all_relay_phone_numbers():
             .all()
         ]
         return admin_phone_numbers
-    except:
+    except Exception:
         return None
 
 
