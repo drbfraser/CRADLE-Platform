@@ -1,3 +1,4 @@
+import pytest
 
 import data.crud as crud
 from models import Question, Form, FormTemplate, FormClassification
@@ -33,7 +34,7 @@ def test_form_created(
         question = crud.read(
             Question, formId=form_id, questionText="How the patient's condition?"
         )
-        assert question is not None
+        assert question != None
         response = api_put(
             endpoint=f"/api/forms/responses/{form_id}",
             json=form_question_put(question.id),

@@ -9,6 +9,7 @@ from enums import TrafficLightEnum
 
 import service.compressor as compressor
 import service.encryptor as encryptor
+import base64
 import json
 
 from models import SmsSecretKey

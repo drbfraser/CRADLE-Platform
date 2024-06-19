@@ -72,7 +72,7 @@ def is_dfs_order(question_list: list[dict]) -> Optional[str]:
                 category_index_set.clear()
             else:
                 if top_node.qindex != node.cindex:
-                    if node.cindex not in category_index_set:
+                    if not node.cindex in category_index_set:
                         # detect node with invalid category index ahead
                         return f"internal question {node.qindex}'s category index doesn't point to an available question"
                     while len(tree_stack) > 1 and tree_stack[-1].qindex != node.cindex:

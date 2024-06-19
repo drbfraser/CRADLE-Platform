@@ -1,6 +1,6 @@
 # This module provides functions to validate the request data for a Referral.
 
-from models import User, Patient, HealthFacility
+from models import User, Patient, HealthFacility, Reading, FollowUp
 
 
 class ReferralValidator(object):

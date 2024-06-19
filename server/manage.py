@@ -11,6 +11,7 @@ from enums import RoleEnum
 from models import *
 from random import randint, choice
 from string import ascii_lowercase, digits
+import service.encryptor as encryptor
 import data.crud as crud
 import data.marshal as marshal
 from flask.cli import FlaskGroup
@@ -284,7 +285,7 @@ def seed(ctx):
     print("Seeding Patients with readings and referrals...")
     # seed patients with readings and referrals
     patient_schema = PatientSchema()
-    ReadingSchema()
+    reading_schema = ReadingSchema()
     referral_schema = ReferralSchema()
 
     fnames, lnames = getNames()

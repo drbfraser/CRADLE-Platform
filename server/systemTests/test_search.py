@@ -1,5 +1,8 @@
+import pytest
 import requests
+import json
 import random
+from manage import getRandomInitials
 
 
 def get_login_token(email, password):

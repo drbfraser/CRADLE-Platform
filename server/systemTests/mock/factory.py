@@ -3,6 +3,7 @@ from typing import Any
 import data.crud as crud
 import data.marshal as marshal
 import models as models
+import service.invariant as invariant
 
 
 class ModelFactory:

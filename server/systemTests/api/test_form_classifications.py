@@ -50,7 +50,7 @@ def test_form_classification_updated(
         for classification in response_body:
             if classification["name"] == form_classification_1["name"]:
                 id = classification["id"]
-        assert id is not None
+        assert id != None
 
         response = api_put(
             endpoint=f"/api/forms/classifications/{id}", json=form_classification_2

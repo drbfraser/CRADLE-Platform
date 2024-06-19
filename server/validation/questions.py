@@ -37,7 +37,7 @@ def validate_mc_options(q: dict) -> Optional[str]:
     """
     target = "mcOptions"
 
-    if target not in q:
+    if not target in q:
         return None
 
     error = check_target_not_null(target, q)
@@ -74,7 +74,7 @@ def validate_answers(q: dict) -> Optional[str]:
     """
     target = "answers"
 
-    if target not in q:
+    if not target in q:
         return None
 
     error = check_target_not_null(target, q)
@@ -129,7 +129,7 @@ def validate_visible_condition(q: dict) -> Optional[str]:
     """
     target = "visibleCondition"
 
-    if target not in q:
+    if not target in q:
         return None
 
     error = check_target_not_null(target, q)
@@ -184,7 +184,7 @@ def validate_lang_versions(q: dict) -> Optional[str]:
     """
     target = "questionLangVersions"
 
-    if target not in q:
+    if not target in q:
         return None
 
     error = check_target_not_null(target, q)

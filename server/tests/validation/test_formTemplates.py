@@ -121,6 +121,6 @@ invalid_first_question_is_not_none = [{**root_question, "categoryIndex": 0}]
         (invalid_first_question_is_not_none, str),
     ],
 )
-def test_validate_questions(json, output):
+def test_validate_template(json, output):
     message = validate_questions(json)
     assert type(message) == output

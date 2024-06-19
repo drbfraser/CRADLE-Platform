@@ -2,7 +2,6 @@ alembic==1.8.0
 aniso8601==9.0.1
 appdirs==1.4.4
 attrs==21.4.0
-bson==0.5.10
 bcrypt==3.2.2
 black==20.8b1
 certifi==2022.6.15
