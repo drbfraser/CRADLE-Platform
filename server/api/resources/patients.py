@@ -17,6 +17,8 @@ from validation import patients, readings, assessments
 from utils import get_current_time
 from api.decorator import patient_association_required
 from datetime import date
+from models import UserSchema
+from functools import wraps
 
 # /api/patients
 class Root(Resource):

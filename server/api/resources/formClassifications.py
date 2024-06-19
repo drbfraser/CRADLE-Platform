@@ -1,16 +1,20 @@
+from email import message
 import json
 
 import api.util as util
 import data
 import data.crud as crud
 import data.marshal as marshal
+import service.serialize as serialize
 from api.decorator import roles_required
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
-from models import FormClassification, FormTemplate
+from models import FormClassification, FormTemplate, Question
 from enums import RoleEnum, ContentTypeEnum
+from utils import get_current_time
+import utils
 import logging
 from validation import formClassifications
 from werkzeug.datastructures import FileStorage
@@ -40,7 +44,7 @@ class Root(Resource):
             if file.content_type == ContentTypeEnum.JSON.value:
                 try:
                     req = json.loads(file_str)
-                except json.JSONDecodeError as err:
+                except json.JSONDecodeError:
                     LOGGER.error(err)
                     abort(400, message="File content is not valid json-format")
 
@@ -53,7 +57,7 @@ class Root(Resource):
                 except TypeError as err:
                     LOGGER.error(err)
                     abort(400, message=err.args[0])
-                except Exception as err:
+                except:
                     LOGGER.error(err)
                     abort(
                         400, message="Something went wrong while parsing the CSV file."
@@ -167,7 +171,7 @@ class FormClassificationSummary(Resource):
 
             result_template = None
             for possible_template in possible_templates:
-                if result_template is None:
+                if result_template == None:
                     result_template = possible_template
                 elif possible_template.dateCreated > result_template.dateCreated:
                     result_template = possible_template
