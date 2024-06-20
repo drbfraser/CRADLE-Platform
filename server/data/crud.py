@@ -2,7 +2,7 @@ from typing import List, Optional, Tuple, Type, TypeVar, Any, Union
 from sqlalchemy import func, or_
 from collections import namedtuple
 from sqlalchemy.orm import Query, aliased
-from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_, or_
+from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_
 import operator
 import logging
 
@@ -1130,7 +1130,7 @@ def is_phone_number_relay(phone_number):
             return 1
         else:
             return 0
-    except:
+    except Exception:
         return -1
 
 
@@ -1143,7 +1143,7 @@ def get_all_relay_phone_numbers():
             .all()
         ]
         return admin_phone_numbers
-    except:
+    except Exception:
         return None
 
 
