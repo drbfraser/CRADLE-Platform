@@ -248,8 +248,8 @@ def read_patient_list(
             ),
         )
         .filter(
-            rd.dateTimeTaken.is_(None),
-            or_(Patient.isArchived.is_(False), Patient.isArchived.is_(None)),
+            rd.dateTimeTaken == None,
+            or_(Patient.isArchived == False, Patient.isArchived == None),
         )
     )
 
@@ -286,7 +286,7 @@ def read_admin_patient(
 
     if include_archived == "false":
         query = query.filter(
-            or_(Patient.isArchived.is_(False), Patient.isArchived.is_(None)),
+            or_(Patient.isArchived == False, Patient.isArchived == None),
         )
 
     limit = kwargs.get("limit")
@@ -340,7 +340,7 @@ def read_referral_list(
         .outerjoin(Referral, and_(Referral.patientId == Patient.patientId))
         .outerjoin(Reading, and_(Reading.readingId == reading_subquery))
         .filter(
-            or_(Patient.isArchived.is_(False), Patient.isArchived.is_(None)),
+            or_(Patient.isArchived == False, Patient.isArchived == None),
         )
     )
 
@@ -378,7 +378,7 @@ def read_referral_list(
                 Pregnancy,
                 and_(
                     Patient.patientId == Pregnancy.patientId,
-                    Pregnancy.endDate.is_(None),
+                    Pregnancy.endDate == None,
                 ),
             )
             .outerjoin(
@@ -388,7 +388,7 @@ def read_referral_list(
                     Pregnancy.startDate < pr.startDate,
                 ),
             )
-            .filter(eq_op(Pregnancy.startDate, None), pr.startDate .is_(None))
+            .filter(eq_op(Pregnancy.startDate, None), pr.startDate == None)
         )
 
     vital_signs = kwargs.get("vital_signs")
@@ -482,7 +482,7 @@ def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
         literal(TITLE.pregnancy_end).label("title"),
         Pregnancy.endDate.label("date"),
         Pregnancy.outcome.label("information"),
-    ).filter(Pregnancy.patientId == patient_id, Pregnancy.endDate.is_not(None))
+    ).filter(Pregnancy.patientId == patient_id, Pregnancy.endDate != None)
 
     pregnancy_start = db_session.query(
         literal(TITLE.pregnancy_start), Pregnancy.startDate, null()
@@ -492,13 +492,13 @@ def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
         literal(TITLE.medical_history),
         MedicalRecord.dateCreated,
         MedicalRecord.information,
-    ).filter(MedicalRecord.patientId == patient_id, MedicalRecord.isDrugRecord.is_(False))
+    ).filter(MedicalRecord.patientId == patient_id, MedicalRecord.isDrugRecord == False)
 
     drug_history = db_session.query(
         literal(TITLE.drug_history),
         MedicalRecord.dateCreated,
         MedicalRecord.information,
-    ).filter(MedicalRecord.patientId == patient_id, MedicalRecord.isDrugRecord.is_(True))
+    ).filter(MedicalRecord.patientId == patient_id, MedicalRecord.isDrugRecord == True)
 
     query = pregnancy_end.union(
         pregnancy_start, medical_history, drug_history
@@ -639,7 +639,7 @@ def read_patients(
         )
         .outerjoin(
             Pregnancy,
-            and_(Patient.patientId == Pregnancy.patientId, Pregnancy.endDate.is_(None)),
+            and_(Patient.patientId == Pregnancy.patientId, Pregnancy.endDate == None),
         )
         .outerjoin(
             pr,
@@ -651,7 +651,7 @@ def read_patients(
             MedicalHistory,
             and_(
                 Patient.patientId == MedicalHistory.patientId,
-                MedicalHistory.isDrugRecord.is_(False),
+                MedicalHistory.isDrugRecord == False,
             ),
         )
         .outerjoin(
@@ -659,14 +659,14 @@ def read_patients(
             and_(
                 MedicalHistory.patientId == md.patientId,
                 MedicalHistory.dateCreated < md.dateCreated,
-                md.isDrugRecord.is_(False),
+                md.isDrugRecord == False,
             ),
         )
         .outerjoin(
             DrugHistory,
             and_(
                 Patient.patientId == DrugHistory.patientId,
-                DrugHistory.isDrugRecord.is_(True),
+                DrugHistory.isDrugRecord == True,
             ),
         )
         .outerjoin(
@@ -674,10 +674,10 @@ def read_patients(
             and_(
                 DrugHistory.patientId == dr.patientId,
                 DrugHistory.dateCreated < dr.dateCreated,
-                dr.isDrugRecord.is_(True),
+                dr.isDrugRecord == True,
             ),
         )
-        .filter(pr.startDate.is_(None), md.dateCreated.is_(None), dr.dateCreated.is_(None))
+        .filter(pr.startDate == None, md.dateCreated == None, dr.dateCreated == None)
     )
 
     query = __filter_by_patient_association(query, Patient, user_id, is_cho)
@@ -689,7 +689,7 @@ def read_patients(
             pr2,
             and_(
                 Patient.patientId == pr2.patientId,
-                pr2.endDate.is_not(None),
+                pr2.endDate != None,
                 pr2.lastEdited > last_edited,
             ),
         ).filter(
@@ -698,7 +698,7 @@ def read_patients(
                 Pregnancy.lastEdited > last_edited,
                 MedicalHistory.lastEdited > last_edited,
                 DrugHistory.lastEdited > last_edited,
-                pr2.id.is_not(None),
+                pr2.id != None,
             )
         )
 
@@ -846,7 +846,7 @@ def has_conflicting_pregnancy_record(
 
     if not end_date:
         query = query.filter(
-            or_(Pregnancy.endDate >= start_date, Pregnancy.endDate.is_(None)),
+            or_(Pregnancy.endDate >= start_date, Pregnancy.endDate == None),
         )
     else:
         query = query.filter(
@@ -856,11 +856,11 @@ def has_conflicting_pregnancy_record(
                 ),
                 and_(Pregnancy.startDate >= start_date, Pregnancy.endDate <= end_date),
                 and_(Pregnancy.startDate <= end_date, Pregnancy.endDate >= end_date),
-                and_(Pregnancy.startDate <= start_date, Pregnancy.endDate.is_(None)),
+                and_(Pregnancy.startDate <= start_date, Pregnancy.endDate == None),
                 and_(
                     Pregnancy.startDate >= start_date,
                     Pregnancy.startDate <= end_date,
-                    Pregnancy.endDate.is_(None),
+                    Pregnancy.endDate == None,
                 ),
             ),
         )
