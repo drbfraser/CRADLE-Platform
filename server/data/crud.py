@@ -1031,7 +1031,7 @@ def get_days_with_readings(facility="%", user="%", filter={}):
         JOIN user U ON U.id = R.userId
         WHERE dateTimeTaken BETWEEN %s AND %s
         AND (
-         	(R.userId LIKE "%s" OR R.userId IS NULL)
+        (R.userId LIKE "%s" OR R.userId IS NULL)
 			AND (U.healthFacilityName LIKE "%s" OR U.healthFacilityName is NULL)   
         )
         """ % (
