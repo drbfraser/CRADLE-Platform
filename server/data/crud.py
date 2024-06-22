@@ -1130,7 +1130,8 @@ def is_phone_number_relay(phone_number):
             return 1
         else:
             return 0
-    except:
+    except Exception as e:
+        LOGGER.error(e)
         return -1
 
 
@@ -1143,7 +1144,8 @@ def get_all_relay_phone_numbers():
             .all()
         ]
         return admin_phone_numbers
-    except:
+    except Exception as e:
+        LOGGER.error(e)
         return None
 
 
