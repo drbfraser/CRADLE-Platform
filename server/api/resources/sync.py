@@ -1,4 +1,3 @@
-from distutils.log import error
 from typing import List, NamedTuple, Union
 from flask import request
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -18,7 +17,6 @@ from models import (
     Pregnancy,
     Reading,
     Referral,
-    FollowUp,
 )
 import service.invariant as invariant
 import data.crud as crud

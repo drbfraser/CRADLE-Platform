@@ -2,7 +2,7 @@ from typing import List, Optional, Tuple, Type, TypeVar, Any, Union
 from sqlalchemy import func, or_
 from collections import namedtuple
 from sqlalchemy.orm import Query, aliased
-from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_, or_
+from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_
 import operator
 import logging
 
@@ -901,7 +901,7 @@ def get_unique_patients_with_readings(facility="%", user="%", filter={}) -> List
         result = db_session.execute(query)
         return list(result)
     except Exception as e:
-        logger.error(e)
+        LOGGER.error(e)
         return None
 
 
@@ -932,7 +932,7 @@ def get_total_readings_completed(facility="%", user="%", filter={}) -> List[M]:
         result = db_session.execute(query)
         return list(result)
     except Exception as e:
-        logger.error(e)
+        LOGGER.error(e)
         return None
 
 
@@ -963,7 +963,7 @@ def get_total_color_readings(facility="%", user="%", filter={}) -> List[M]:
         result = db_session.execute(query)
         return list(result)
     except Exception as e:
-        logger.error(e)
+        LOGGER.error(e)
         return None
 
 
@@ -991,7 +991,7 @@ def get_sent_referrals(facility="%", user="%", filter={}) -> List[M]:
         result = db_session.execute(query)
         return list(result)
     except Exception as e:
-        logger.error(e)
+        LOGGER.error(e)
         return None
 
 
@@ -1015,7 +1015,7 @@ def get_referred_patients(facility="%", filter={}) -> List[M]:
         result = db_session.execute(query)
         return list(result)
     except Exception as e:
-        logger.error(e)
+        LOGGER.error(e)
         return None
 
 
@@ -1031,7 +1031,7 @@ def get_days_with_readings(facility="%", user="%", filter={}):
         JOIN user U ON U.id = R.userId
         WHERE dateTimeTaken BETWEEN %s AND %s
         AND (
-         	(R.userId LIKE "%s" OR R.userId IS NULL)
+        (R.userId LIKE "%s" OR R.userId IS NULL)
 			AND (U.healthFacilityName LIKE "%s" OR U.healthFacilityName is NULL)   
         )
         """ % (
@@ -1045,7 +1045,7 @@ def get_days_with_readings(facility="%", user="%", filter={}):
         result = db_session.execute(query)
         return list(result)
     except Exception as e:
-        logger.error(e)
+        LOGGER.error(e)
         return None
 
 
@@ -1093,7 +1093,7 @@ def get_export_data(user_id, filter):
             result.append(row)
         return result
     except Exception as e:
-        logger.error(e)
+        LOGGER.error(e)
         return None
 
 
@@ -1112,7 +1112,7 @@ def get_supervised_vhts(user_id):
         result = db_session.execute(query)
         return list(result)
     except Exception as e:
-        logger.error(e)
+        LOGGER.error(e)
         return None
 
 
@@ -1130,7 +1130,8 @@ def is_phone_number_relay(phone_number):
             return 1
         else:
             return 0
-    except:
+    except Exception as e:
+        LOGGER.error(e)
         return -1
 
 
@@ -1143,7 +1144,8 @@ def get_all_relay_phone_numbers():
             .all()
         ]
         return admin_phone_numbers
-    except:
+    except Exception as e:
+        LOGGER.error(e)
         return None
 
 

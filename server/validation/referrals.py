@@ -69,7 +69,7 @@ def validate_cancel_put_request(request_body: dict) -> Optional[str]:
             record_keys.remove(key)
 
     if len(record_keys) > 0:
-        return f"There are missing fields for the request body."
+        return "There are missing fields for the request body."
 
     error = values_correct_type(request_body, ["isCancelled"], bool)
     if error:
@@ -100,7 +100,7 @@ def validate_not_attend_put_request(request_body: dict) -> Optional[str]:
             record_keys.remove(key)
 
     if len(record_keys) > 0:
-        return f"There are missing fields for the request body."
+        return "There are missing fields for the request body."
 
     error = values_correct_type(request_body, ["notAttendReason"], str)
     if error:
