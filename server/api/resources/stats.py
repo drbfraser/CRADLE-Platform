@@ -13,7 +13,7 @@ from enums import RoleEnum, TrafficLightEnum
 import data.crud as crud
 
 
-MYSQL_BIGINT_MAX = (2 ** 63) - 1
+MYSQL_BIGINT_MAX = (2**63) - 1
 
 
 def query_stats_data(args, facility_id="%", user_id="%"):

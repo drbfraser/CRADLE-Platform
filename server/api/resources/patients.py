@@ -18,6 +18,7 @@ from utils import get_current_time
 from api.decorator import patient_association_required
 from datetime import date
 
+
 # /api/patients
 class Root(Resource):
     @staticmethod

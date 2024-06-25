@@ -16,6 +16,7 @@ from api.decorator import patient_association_required
 
 LOGGER = logging.getLogger(__name__)
 
+
 # /api/patients/<string:patient_id>/medical_records
 class Root(Resource):
     @staticmethod

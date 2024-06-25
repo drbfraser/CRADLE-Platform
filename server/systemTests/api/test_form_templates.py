@@ -114,7 +114,10 @@ def form_template():
                     {
                         "lang": "chinese",
                         "questionText": "你的性别？",
-                        "mcOptions": [{"mcid": 0, "opt": "男"}, {"mcid": 1, "opt": "女"}],
+                        "mcOptions": [
+                            {"mcid": 0, "opt": "男"},
+                            {"mcid": 1, "opt": "女"},
+                        ],
                     },
                 ],
             },
@@ -148,7 +151,10 @@ def form_template_2():
                     {
                         "lang": "chinese",
                         "questionText": "你的性别？",
-                        "mcOptions": [{"mcid": 0, "opt": "男"}, {"mcid": 1, "opt": "女"}],
+                        "mcOptions": [
+                            {"mcid": 0, "opt": "男"},
+                            {"mcid": 1, "opt": "女"},
+                        ],
                     },
                 ],
             },
@@ -188,7 +194,10 @@ def form_template_2():
                     {
                         "lang": "chinese",
                         "questionText": "你的性别？",
-                        "mcOptions": [{"mcid": 0, "opt": "男"}, {"mcid": 1, "opt": "女"}],
+                        "mcOptions": [
+                            {"mcid": 0, "opt": "男"},
+                            {"mcid": 1, "opt": "女"},
+                        ],
                     },
                 ],
             },
@@ -324,7 +333,10 @@ def add_question():
                     {
                         "lang": "chinese",
                         "questionText": "你的性别？",
-                        "mcOptions": [{"mcid": 0, "opt": "男"}, {"mcid": 1, "opt": "女"}],
+                        "mcOptions": [
+                            {"mcid": 0, "opt": "男"},
+                            {"mcid": 1, "opt": "女"},
+                        ],
                     },
                 ],
             },
@@ -347,7 +359,10 @@ def add_question():
                     {
                         "lang": "chinese",
                         "questionText": "你的性别？",
-                        "mcOptions": [{"mcid": 0, "opt": "男"}, {"mcid": 1, "opt": "女"}],
+                        "mcOptions": [
+                            {"mcid": 0, "opt": "男"},
+                            {"mcid": 1, "opt": "女"},
+                        ],
                     },
                 ],
             },

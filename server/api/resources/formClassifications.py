@@ -17,6 +17,7 @@ from werkzeug.datastructures import FileStorage
 
 LOGGER = logging.getLogger(__name__)
 
+
 # /api/forms/classifications
 class Root(Resource):
     @staticmethod
