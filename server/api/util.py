@@ -12,8 +12,7 @@ from requests.
 """
 
 import csv
-from functools import reduce
-from typing import Callable, Iterable, Type
+from typing import Iterable, Type
 
 import data.crud as crud
 import data.marshal as marshal
@@ -297,9 +296,8 @@ def parseCondition(parentQuestion: dict, conditionText: str) -> dict:
 
     :return: Condition dictionary with the parent question ID and a valid answers object
     """
-    mcOptionsToDict: Callable[[list[dict]], dict[str, int]] = lambda mcOptions: {
-        option["opt"].casefold(): option["mcid"] for option in mcOptions
-    }
+    def mcOptionsToDict(mcOptions):
+        return {option["opt"].casefold(): option["mcid"] for option in mcOptions}
 
     condition: dict[str, any] = {
         "qidx": parentQuestion["questionIndex"],

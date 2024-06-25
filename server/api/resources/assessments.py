@@ -4,10 +4,9 @@ from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 
 import api.util as util
-import data
 import data.crud as crud
 import data.marshal as marshal
-from models import FollowUp, Reading
+from models import FollowUp
 from utils import get_current_time
 from validation import assessments
 
@@ -76,7 +75,7 @@ class SingleAssessment(Resource):
     )
     def put(assessment_id: str):
         if not assessment_id:
-            abort(404, message=f"Assessment id is required")
+            abort(404, message="Assessment id is required")
         json = request.get_json(force=True)
 
         json["dateAssessed"] = get_current_time()

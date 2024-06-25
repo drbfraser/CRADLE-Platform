@@ -16,7 +16,6 @@ from models import (
     Referral,
     UrineTest,
 )
-from models import FormTemplate
 
 
 def serialize_patient_list(patients: List[Any]) -> dict:
@@ -128,7 +127,7 @@ def serialize_patient(
         ),
         "isArchived": patient.isArchived,
     }
-    return {k: v for k, v in p.items() if v or v == False}
+    return {k: v for k, v in p.items() if v or v is False}
 
 
 def serialize_reading(tup: Tuple[Reading, UrineTest]) -> dict:
@@ -157,7 +156,6 @@ def deserialize_patient(
     d = {
         "patientId": data.get("patientId"),
         "patientName": data.get("patientName"),
-        "patientSex": data.get("patientSex"),
         "patientSex": data.get("patientSex"),
         "dob": data.get("dob"),
         "isExactDob": data.get("isExactDob"),

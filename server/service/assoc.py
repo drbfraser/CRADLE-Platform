@@ -45,7 +45,7 @@ def associate(patient: Patient, facility: HealthFacility = None, user: User = No
     :except IntegrityError: If an existing entry already exists in the database
     """
     if not facility and not user:
-        raise ValueError(f"either a facility or user must be provided")
+        raise ValueError("either a facility or user must be provided")
 
     association = PatientAssociations(
         patientId=patient.patientId,

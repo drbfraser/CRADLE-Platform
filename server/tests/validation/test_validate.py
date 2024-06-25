@@ -126,6 +126,6 @@ def test_values_correct_type(json, keys, _type, output):
         ("0a", False),
     ],
 )
-def is_int(value, expected_boolean_output):
+def test_is_int(value, expected_boolean_output):
     return_value = is_int(value)
     assert return_value == expected_boolean_output

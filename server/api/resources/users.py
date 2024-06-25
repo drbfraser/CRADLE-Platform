@@ -1,13 +1,11 @@
 from flask_restful import Resource, reqparse, abort
 from models import User
 from enums import RoleEnum
-from config import flask_bcrypt, app
+from config import flask_bcrypt
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
     jwt_required,
-    get_jwt_identity,
-    verify_jwt_in_request,
     get_jwt_identity,
 )
 from flasgger import swag_from
@@ -20,11 +18,9 @@ from api.util import (
 )
 from data import crud
 from data import marshal
-from models import User
 from api.util import (
     filterPairsWithNone,
     getDictionaryOfUserInfo,
-    get_user_roles,
     is_date_passed,
     validate_user,
     get_user_secret_key,
@@ -35,7 +31,6 @@ from api.util import (
     get_all_phoneNumbers_for_user,
 )
 from validation import users
-import service.encryptor as encryptor
 import logging
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -43,8 +38,6 @@ from flask import Flask
 import os
 import json
 import re
-import time
-import random
 
 LOGGER = logging.getLogger(__name__)
 
@@ -122,7 +115,7 @@ class UserAllVHT(Resource):
 
         vhtDictionaryList = []
         for vht in vhtModelList:
-            vhtDict = marshal.marshal(vht)
+            marshal.marshal(vht)
             vhtDictionaryList.append(
                 {
                     "userId": vht.id,
@@ -725,7 +718,7 @@ class RelayPhoneNumbers(Resource):
     @jwt_required()
     @swag_from("../../specifications/relay-phone-number-get.yml", methods=["GET"])
     def get(self):
-        data = self.parser.parse_args()
+        self.parser.parse_args()
         relay_phone_numbers = crud.get_all_relay_phone_numbers()
 
         if relay_phone_numbers:
