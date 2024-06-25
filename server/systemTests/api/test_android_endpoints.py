@@ -1,16 +1,17 @@
-import pytest
 import time
 
+import pytest
+
 import data.crud as crud
+from enums import GestationalAgeUnitEnum, SexEnum, TrafficLightEnum
 from models import (
+    MedicalRecord,
     Patient,
     PatientAssociations,
+    Pregnancy,
     PregnancySchema,
     Reading,
-    Pregnancy,
-    MedicalRecord,
 )
-from enums import SexEnum, GestationalAgeUnitEnum, TrafficLightEnum
 
 
 def test_download_patients(

@@ -1,21 +1,22 @@
+from flasgger import swag_from
 from flask_jwt_extended import (
-    jwt_required,
     get_jwt_identity,
+    jwt_required,
 )
 from flask_restful import Resource, abort
-from data import crud, marshal
+
 import service.FilterHelper as filter
+import service.serialize as serialize
+import service.view as view
+from data import crud, marshal
 from models import (
+    Form,
     Patient,
     PatientSchema,
-    User,
-    Form,
     Reading,
     ReadingSchema,
+    User,
 )
-from flasgger import swag_from
-import service.view as view
-import service.serialize as serialize
 
 ## Functions that are only used for these endpoints ##
 

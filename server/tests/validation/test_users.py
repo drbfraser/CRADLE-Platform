@@ -1,4 +1,5 @@
 import pytest
+
 from validation.users import validate
 
 test_cases = [

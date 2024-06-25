@@ -1,6 +1,7 @@
 from datetime import date
-from models import Reading
+
 from enums import TrafficLightEnum
+from models import Reading
 
 
 def get_stats_data(

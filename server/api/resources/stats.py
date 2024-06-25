@@ -1,17 +1,15 @@
+from datetime import date
+
+from dateutil.relativedelta import relativedelta
 from flasgger import swag_from
 from flask import request
+from flask_jwt_extended import get_jwt_identity
 from flask_restful import Resource
 
-from flask_jwt_extended import get_jwt_identity
-
-from datetime import date
-from dateutil.relativedelta import relativedelta
-from models import User
-
+import data.crud as crud
 from api.decorator import roles_required
 from enums import RoleEnum, TrafficLightEnum
-import data.crud as crud
-
+from models import User
 
 MYSQL_BIGINT_MAX = (2 ** 63) - 1
 

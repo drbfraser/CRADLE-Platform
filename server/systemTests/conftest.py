@@ -5,7 +5,6 @@ import requests
 
 import systemTests.mock.factory as factory
 
-
 #
 # database Fixtures
 #

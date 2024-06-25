@@ -1,6 +1,7 @@
 import pytest
-import models
 from requests import Response
+
+import models
 
 
 def test_create_followup_without_referral(

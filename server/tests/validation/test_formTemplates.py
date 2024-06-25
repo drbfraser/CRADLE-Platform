@@ -1,5 +1,6 @@
 import pytest
-from validation.formTemplates import validate_template, validate_questions
+
+from validation.formTemplates import validate_questions, validate_template
 
 root_question = {
     "categoryIndex": None,  # root question has to have first categoryIndex as None

@@ -1,7 +1,7 @@
-import data.crud as crud
-from models import Pregnancy
 import datetime
 
+import data.crud as crud
+from models import Pregnancy
 
 approx_8_months = int(datetime.timedelta(days=8 * 30).total_seconds())
 approx_1_month = int(datetime.timedelta(days=30).total_seconds())

@@ -1,19 +1,21 @@
 import json
 
+from flasgger import swag_from
+from flask import make_response, request
+from flask_jwt_extended import jwt_required
+from flask_restful import Resource, abort
+from werkzeug.datastructures import FileStorage
+
 import api.util as util
 import data
 import data.crud as crud
 import data.marshal as marshal
 import service.serialize as serialize
 from api.decorator import roles_required
-from flasgger import swag_from
-from flask import request, make_response
-from flask_jwt_extended import jwt_required
-from flask_restful import Resource, abort
+from enums import ContentTypeEnum, RoleEnum
 from models import FormClassification, FormTemplate
-from enums import RoleEnum, ContentTypeEnum
 from validation import formTemplates
-from werkzeug.datastructures import FileStorage
+
 
 # /api/forms/templates
 class Root(Resource):

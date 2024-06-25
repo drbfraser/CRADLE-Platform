@@ -1,5 +1,5 @@
-from typing import Any, List, Optional
 import enum
+from typing import Any, List, Optional
 
 
 def check_invalid_keys_present(

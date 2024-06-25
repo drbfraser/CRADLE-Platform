@@ -1,12 +1,12 @@
 from typing import Optional
 
+from service import questionTree
+from validation.questions import validate_template_question_post
 from validation.validate import (
     check_invalid_keys_present,
     required_keys_present,
     values_correct_type,
 )
-from validation.questions import validate_template_question_post
-from service import questionTree
 
 
 def validate_template(request_body: dict) -> Optional[str]:

@@ -1,16 +1,17 @@
-from flasgger import swag_from
-from flask import request
-from flask_jwt_extended import jwt_required, get_jwt_identity
-from flask_restful import Resource, abort
 import json
 
+from flasgger import swag_from
+from flask import request
+from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_restful import Resource, abort
+
+import api.util as util
 import data
 import data.crud as crud
 import data.marshal as marshal
+from models import Form, FormTemplate, Patient, User
 from utils import get_current_time
 from validation import forms
-from models import Patient, Form, FormTemplate, User
-import api.util as util
 
 
 # /api/forms/responses

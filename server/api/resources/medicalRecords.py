@@ -1,18 +1,19 @@
+import logging
+
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
-import logging
 
 import api.util as util
 import data.crud as crud
 import data.marshal as marshal
 import service.serialize as serialize
 import service.view as view
-from models import MedicalRecord
-from validation import medicalRecords
-from utils import get_current_time
 from api.decorator import patient_association_required
+from models import MedicalRecord
+from utils import get_current_time
+from validation import medicalRecords
 
 LOGGER = logging.getLogger(__name__)
 

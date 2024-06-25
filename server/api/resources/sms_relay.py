@@ -1,22 +1,23 @@
 
-from flask_jwt_extended import jwt_required
-from flask import request, make_response, Response, jsonify
-from flask_restful import Resource, abort
-import requests
+import json
 
+import requests
 from flasgger import swag_from
-from models import User
+from flask import Response, jsonify, make_response, request
+from flask_jwt_extended import jwt_required
+from flask_restful import Resource, abort
+
 import service.compressor as compressor
 import service.encryptor as encryptor
-from validation import sms_relay
-import json
-from api.resources.users import get_user_data_for_token, get_access_token
-from api.util import phoneNumber_regex_check as regex_check
+from api.resources.users import get_access_token, get_user_data_for_token
 from api.util import (
+    get_user_from_phone_number,
     get_user_secret_key_string,
     phoneNumber_exists,
-    get_user_from_phone_number,
 )
+from api.util import phoneNumber_regex_check as regex_check
+from models import User
+from validation import sms_relay
 
 api_url = "http://localhost:5000/{endpoint}"
 

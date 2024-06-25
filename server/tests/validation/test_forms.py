@@ -1,5 +1,6 @@
 import pytest
-from validation.forms import validate_form, validate_questions, validate_put_request
+
+from validation.forms import validate_form, validate_put_request, validate_questions
 
 valid_form_json_empty_questions = {
     "id": "123",

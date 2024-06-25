@@ -1,5 +1,7 @@
-from flask_sqlalchemy import SQLAlchemy
 from typing import Any
+
+from flask_sqlalchemy import SQLAlchemy
+
 import data.crud as crud
 import data.marshal as marshal
 import models as models

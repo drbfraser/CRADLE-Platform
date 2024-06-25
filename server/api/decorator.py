@@ -1,14 +1,15 @@
+import logging
 from datetime import datetime
 from functools import wraps
+
 from flask_jwt_extended import (
-    verify_jwt_in_request,
     get_jwt_identity,
+    verify_jwt_in_request,
 )
 
 import data.crud as crud
-from models import PatientAssociations
-import logging
 from enums import RoleEnum
+from models import PatientAssociations
 
 LOGGER = logging.getLogger(__name__)
 

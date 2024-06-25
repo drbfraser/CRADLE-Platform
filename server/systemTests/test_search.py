@@ -1,5 +1,6 @@
-import requests
 import random
+
+import requests
 
 
 def get_login_token(email, password):

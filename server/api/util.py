@@ -1,36 +1,24 @@
-from __future__ import annotations
-
-import datetime
-import json
-import re
-import os
-import secrets
-
 """
 The ``api.util`` module contains utility functions to help extract useful information
 from requests.
 """
 
+from __future__ import annotations
+
 import csv
+import datetime
+import json
+import os
+import re
+import secrets
 from typing import Iterable, Type
+
+import flask_jwt_extended as jwt
+from flask import Request
 
 import data.crud as crud
 import data.marshal as marshal
-import flask_jwt_extended as jwt
 import utils
-from data.crud import M
-from flask import Request
-from models import (
-    Form,
-    FormTemplate,
-    FormClassification,
-    Question,
-    User,
-    UserPhoneNumber,
-    SmsSecretKey,
-)
-from enums import QuestionTypeEnum, QRelationalEnum
-
 from api.constants import (
     FORM_TEMPLATE_LANGUAGES_COL,
     FORM_TEMPLATE_LANGUAGES_ROW,
@@ -49,6 +37,17 @@ from api.constants import (
     FORM_TEMPLATE_ROW_LENGTH,
     FORM_TEMPLATE_VERSION_COL,
     FORM_TEMPLATE_VERSION_ROW,
+)
+from data.crud import M
+from enums import QRelationalEnum, QuestionTypeEnum
+from models import (
+    Form,
+    FormClassification,
+    FormTemplate,
+    Question,
+    SmsSecretKey,
+    User,
+    UserPhoneNumber,
 )
 
 duration = os.environ.get("SMS_KEY_DURATION")

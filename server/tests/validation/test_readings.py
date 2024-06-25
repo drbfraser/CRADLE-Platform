@@ -1,4 +1,5 @@
 import pytest
+
 from validation.readings import validate
 
 valid_json = {

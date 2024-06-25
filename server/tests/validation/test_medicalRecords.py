@@ -1,8 +1,9 @@
 import pytest
+
 from validation.medicalRecords import (
+    __validate,
     validate_post_request,
     validate_put_request,
-    __validate,
 )
 
 valid_post_request = {

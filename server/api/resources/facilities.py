@@ -1,4 +1,5 @@
 import time
+
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
@@ -7,10 +8,9 @@ from flask_restful import Resource, reqparse
 import api.util as util
 import data.crud as crud
 import data.marshal as marshal
-from models import HealthFacility
-
 from api.decorator import roles_required
 from enums import RoleEnum
+from models import HealthFacility
 
 
 # /api/facilities

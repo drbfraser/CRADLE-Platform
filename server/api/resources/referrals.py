@@ -1,19 +1,20 @@
 import time
+
 from flasgger import swag_from
 from flask import request
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource, abort
 
 import api.util as util
 import data
 import data.crud as crud
 import data.marshal as marshal
-from utils import get_current_time
 import service.assoc as assoc
-import service.view as view
-from models import HealthFacility, Referral, Patient
-from validation import referrals
 import service.serialize as serialize
+import service.view as view
+from models import HealthFacility, Patient, Referral
+from utils import get_current_time
+from validation import referrals
 
 
 # /api/referrals

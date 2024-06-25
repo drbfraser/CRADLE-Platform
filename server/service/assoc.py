@@ -5,8 +5,8 @@ patients, health facilities, and users.
 from typing import List
 
 import data.crud as crud
-from models import Patient, PatientAssociations, HealthFacility, User
 from enums import RoleEnum
+from models import HealthFacility, Patient, PatientAssociations, User
 
 
 def associate_by_user_role(patient: Patient, user: User):

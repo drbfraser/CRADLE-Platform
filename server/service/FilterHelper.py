@@ -2,9 +2,9 @@ from typing import List, Tuple
 
 from models import Patient, User
 from service.assoc import (
+    has_association,
     patients_at_facility,
     patients_for_user,
-    has_association,
 )
 
 

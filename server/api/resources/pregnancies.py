@@ -8,10 +8,10 @@ import data.crud as crud
 import data.marshal as marshal
 import service.serialize as serialize
 import service.view as view
-from models import Pregnancy
-from validation import pregnancies
-from utils import get_current_time
 from api.decorator import patient_association_required
+from models import Pregnancy
+from utils import get_current_time
+from validation import pregnancies
 
 
 # /api/patients/<string:patient_id>/pregnancies

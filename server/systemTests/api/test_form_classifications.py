@@ -1,7 +1,9 @@
-import pytest
 import time
+
+import pytest
+
 import data.crud as crud
-from models import FormTemplate, FormClassification
+from models import FormClassification, FormTemplate
 
 
 def test_form_classification_created(

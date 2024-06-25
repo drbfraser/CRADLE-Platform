@@ -1,6 +1,6 @@
 import pytest
 
-from enums import SexEnum, GestationalAgeUnitEnum
+from enums import GestationalAgeUnitEnum, SexEnum
 
 
 @pytest.fixture

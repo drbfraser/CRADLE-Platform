@@ -1,12 +1,13 @@
 from enum import Enum
 
 import pytest
+
 from validation.validate import (
     check_invalid_keys_present,
-    required_keys_present,
     force_consistent_keys,
-    values_correct_type,
     is_int,
+    required_keys_present,
+    values_correct_type,
 )
 
 empty_dict_empty_keys_pair = ({}, [])
