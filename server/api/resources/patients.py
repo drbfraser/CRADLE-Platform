@@ -184,7 +184,6 @@ class PatientStats(Resource):
         endpoint="patient_stats",
     )
     def get(patient_id: str):
-
         patient = crud.read(Patient, patientId=patient_id)
         if not patient:
             abort(404, message=f"No patient with id {patient_id}")

@@ -54,7 +54,6 @@ class RelayServerPhoneNumbers(Resource):
         methods=["PUT"],
     )
     def put():
-
         req = request.get_json(force=True)
 
         if len(req) == 0:
@@ -78,7 +77,6 @@ class RelayServerPhoneNumbers(Resource):
         methods=["DELETE"],
     )
     def delete():
-
         req = request.get_json(force=True)
 
         if len(req) == 0:

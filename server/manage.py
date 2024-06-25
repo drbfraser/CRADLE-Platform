@@ -424,7 +424,9 @@ def create_user(email, name, password, hf_name, role, phoneNumbers, user_id):
     new_phone_numbers = []
     for phoneNumber in phoneNumbers:
         # Check if the phone number already exists
-        existing_phone = models.UserPhoneNumber.query.filter_by(number=phoneNumber).first()
+        existing_phone = models.UserPhoneNumber.query.filter_by(
+            number=phoneNumber
+        ).first()
         if existing_phone:
             print(
                 f"Phone number '{phoneNumber}' is already associated with another user."
@@ -432,7 +434,9 @@ def create_user(email, name, password, hf_name, role, phoneNumbers, user_id):
             return None
 
         # Create a new UserPhoneNumber instance and associate it with the user
-        new_phone_numbers.append(models.UserPhoneNumber(number=phoneNumber, user=new_user))
+        new_phone_numbers.append(
+            models.UserPhoneNumber(number=phoneNumber, user=new_user)
+        )
 
     try:
         # Add the new user and phone numbers to the database
@@ -717,7 +721,6 @@ def create_form_template():
 
 
 def create_form(patient_id, fname, lname, age):
-
     form = {
         "id": patient_id,
         "lang": "English",

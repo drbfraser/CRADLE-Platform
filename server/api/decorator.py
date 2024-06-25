@@ -18,7 +18,6 @@ def roles_required(accepted_roles):
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
-
             # Ensure that user is first and foremost actually logged in
             verify_jwt_in_request()
             user_info = get_jwt_identity()

@@ -80,7 +80,6 @@ class PatientFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-
         return crud.create_model(dict(**kwargs), models.PatientSchema)
 
 
@@ -108,7 +107,6 @@ class ReadingFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-
         readingModel = marshal.unmarshal(models.Reading, dict(**kwargs))
         crud.create(readingModel, refresh=True)
 
@@ -135,7 +133,6 @@ class ReferralFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-
         return crud.create_model(dict(**kwargs), models.ReferralSchema)
 
 
@@ -158,7 +155,6 @@ class FollowUpFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-
         return crud.create_model(dict(**kwargs), models.FollowUpSchema)
 
 

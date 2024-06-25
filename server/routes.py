@@ -1,6 +1,6 @@
 """
-    @File: routes.py
-    @Description: This file contains all the routes for the server
+@File: routes.py
+@Description: This file contains all the routes for the server
 """
 
 import api as new_api
@@ -74,7 +74,9 @@ def init(api):
 
     api.add_resource(users.UserRegisterApi, "/api/user/register")  # [POST]
     api.add_resource(users.UserAuthApi, "/api/user/auth")  # [POST]
-    api.add_resource(users.UserAuthTokenRefreshApi, "/api/user/auth/refresh_token")  # [POST]
+    api.add_resource(
+        users.UserAuthTokenRefreshApi, "/api/user/auth/refresh_token"
+    )  # [POST]
     api.add_resource(users.UserTokenApi, "/api/user/current")  # [GET]
     api.add_resource(users.UserAll, "/api/user/all")  # [GET]
 
@@ -84,19 +86,28 @@ def init(api):
     api.add_resource(users.UserAllVHT, "/api/user/vhts")  # [GET]
 
     api.add_resource(
-        patients_android.AndroidPatientGlobalSearch, "/api/patients/global/<string:search>"
+        patients_android.AndroidPatientGlobalSearch,
+        "/api/patients/global/<string:search>",
     )  # [GET]
     api.add_resource(
-        patients_android.AndroidPatients, "/api/mobile/patients", endpoint="android_patient"
+        patients_android.AndroidPatients,
+        "/api/mobile/patients",
+        endpoint="android_patient",
     )  # [GET]
     api.add_resource(
-        patients_android.AndroidReadings, "/api/mobile/readings", endpoint="android_readings"
+        patients_android.AndroidReadings,
+        "/api/mobile/readings",
+        endpoint="android_readings",
     )  # [GET]
     api.add_resource(
-        patients_android.AndroidReferrals, "/api/mobile/referrals", endpoint="android_referrals"
+        patients_android.AndroidReferrals,
+        "/api/mobile/referrals",
+        endpoint="android_referrals",
     )  # [GET]
     api.add_resource(
-        patients_android.AndroidAssessments, "/api/mobile/assessments", endpoint="android_assessments"
+        patients_android.AndroidAssessments,
+        "/api/mobile/assessments",
+        endpoint="android_assessments",
     )  # [GET]
     api.add_resource(
         patients_android.AndroidForms,
@@ -286,8 +297,12 @@ def init(api):
         SingleForm, "/api/forms/responses/<string:form_id>", endpoint="single_form"
     )  # [GET, PUT]
 
-    api.add_resource(users.AdminPasswordChange, "/api/user/<int:id>/change_pass")  # [POST]
-    api.add_resource(users.UserPasswordChange, "/api/user/current/change_pass")  # [POST]
+    api.add_resource(
+        users.AdminPasswordChange, "/api/user/<int:id>/change_pass"
+    )  # [POST]
+    api.add_resource(
+        users.UserPasswordChange, "/api/user/current/change_pass"
+    )  # [POST]
 
     api.add_resource(Version, "/api/version")  # [GET]
 

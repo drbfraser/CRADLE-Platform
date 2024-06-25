@@ -22,7 +22,6 @@ from models import (
 
 
 def to_global_search_patient(patient):
-
     global_search_patient = {
         "patientName": patient["patientName"],
         "patientId": patient["patientId"],
@@ -74,7 +73,6 @@ def get_global_search_patients(current_user, search):
 #           a portion/full match of the patient's id
 #           a portion/full match of the patient's initials
 class AndroidPatientGlobalSearch(Resource):
-
     # get all patient information (patientinfo, readings, and referrals)
     @jwt_required()
     @swag_from("../../specifications/patient-search-get.yml", methods=["GET"])
@@ -162,7 +160,6 @@ class AndroidForms(Resource):
         endpoint="android_forms",
     )
     def get(patient_id: str, form_template_id: str):
-
         filters: dict = {
             "patientId": patient_id,
             "formClassificationId": form_template_id,

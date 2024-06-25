@@ -461,7 +461,6 @@ def test_get_patient_form(
     create_patient,
     api_get,
 ):
-
     create_patient()
 
     response = api_get(endpoint="/api/mobile/forms/87356709247/dt9")

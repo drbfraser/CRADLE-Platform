@@ -295,6 +295,7 @@ def parseCondition(parentQuestion: dict, conditionText: str) -> dict:
 
     :return: Condition dictionary with the parent question ID and a valid answers object
     """
+
     def mcOptionsToDict(mcOptions):
         return {option["opt"].casefold(): option["mcid"] for option in mcOptions}
 

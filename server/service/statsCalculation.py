@@ -60,7 +60,6 @@ def get_month_index(item_year, item_month, current_year, current_month):
 
 
 def get_traffic_light(readings, data):
-
     traffic_light_indexes = {
         TrafficLightEnum.GREEN: 0,
         TrafficLightEnum.YELLOW_UP: 1,
