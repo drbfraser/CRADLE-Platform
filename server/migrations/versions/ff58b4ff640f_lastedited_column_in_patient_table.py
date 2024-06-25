@@ -5,10 +5,10 @@ Revises: 5df0e66fee22
 Create Date: 2020-07-07 22:17:12.837786
 
 """
-from alembic import op
-import sqlalchemy as sa
 from time import time
 
+import sqlalchemy as sa
+from alembic import op
 
 # Adds last edit timestamp to the patient table. For existing rows, the last edited time
 # is set to now: i.e., the time when the database migration is performed. While this may

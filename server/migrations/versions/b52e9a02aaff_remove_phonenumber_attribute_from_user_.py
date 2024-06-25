@@ -3,8 +3,8 @@ Revision ID: b52e9a02aaff
 Revises: 223e648ca151
 Create Date: 2023-07-22 22:17:25.566719
 """
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
