@@ -5,9 +5,9 @@ Revises: a1913287ffaf
 Create Date: 2020-07-25 23:43:14.758599
 
 """
-from alembic import op
+
 import sqlalchemy as sa
-from sqlalchemy.dialects import mysql
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "eb105ee6775b"
@@ -26,7 +26,7 @@ def upgrade():
     )
     op.execute(
         """
-        ALTER TABLE urine_test 
+        ALTER TABLE urine_test
         ADD CONSTRAINT urine_test_pk PRIMARY KEY (id)
         """
     )

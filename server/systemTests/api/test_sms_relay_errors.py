@@ -1,13 +1,12 @@
-import data.crud as crud
-from models import User, UserPhoneNumber, SmsSecretKey
-
-import api.resources.sms_relay as sms_relay
-import systemTests.api.test_sms_relay as sms_relay_test
-
-import service.compressor as compressor
-import service.encryptor as encryptor
 import base64
 import json
+
+import api.resources.sms_relay as sms_relay
+import data.crud as crud
+import service.compressor as compressor
+import service.encryptor as encryptor
+import systemTests.api.test_sms_relay as sms_relay_test
+from models import SmsSecretKey, User, UserPhoneNumber
 
 sms_relay_endpoint = "/api/sms_relay"
 

@@ -12,12 +12,12 @@ def is_dfs_order(question_list: list[dict]) -> Optional[str]:
     return None if questions in the question list are in the reasonable
     question tree dfs order. Else, return error.
     -------------------------------------------------------------------
-    Currently, each question has a category index field that points to 
+    Currently, each question has a category index field that points to
     another question. If this field is None, it means this question is a
     root normal question or a root category (depending on the questionType
     ), else it means this question is a normal question with category or
     a sub-category.
-    
+
     For example, below is an example form template (C is category, Q is normal
     question):
 
@@ -34,12 +34,12 @@ def is_dfs_order(question_list: list[dict]) -> Optional[str]:
     The corresponding question tree is:
 
              root
-            /  \  \
+            /  \\  \
            C1  C2 Q1
-          / \  / \
+          / \\  / \
          C3 Q2 Q5 Q6
         / \
-       Q3 Q4 
+       Q3 Q4
 
     Then the question order should follow dfs preorder traversal
     (with their corresponding categoryIndex, with n indicating null):

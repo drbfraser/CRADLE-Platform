@@ -1,13 +1,14 @@
-import data.crud as crud
-import data.marshal as marshal
-from api.decorator import roles_required
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort, reqparse
-from models import RelayServerPhoneNumber
-from enums import RoleEnum
+
+import data.crud as crud
+import data.marshal as marshal
+from api.decorator import roles_required
 from api.util import filterPairsWithNone
+from enums import RoleEnum
+from models import RelayServerPhoneNumber
 
 parser = reqparse.RequestParser()
 parser.add_argument("phone", type=str, required=True, help="Phone number is required.")
@@ -53,7 +54,6 @@ class RelayServerPhoneNumbers(Resource):
         methods=["PUT"],
     )
     def put():
-
         req = request.get_json(force=True)
 
         if len(req) == 0:
@@ -77,7 +77,6 @@ class RelayServerPhoneNumbers(Resource):
         methods=["DELETE"],
     )
     def delete():
-
         req = request.get_json(force=True)
 
         if len(req) == 0:

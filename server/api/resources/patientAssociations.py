@@ -6,7 +6,7 @@ from flask_restful import Resource, abort
 import api.util as util
 import data.crud as crud
 import service.assoc as assoc
-from models import Patient, HealthFacility, User
+from models import HealthFacility, Patient, User
 from validation import associations
 
 

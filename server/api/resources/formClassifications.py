@@ -1,19 +1,20 @@
 import json
+import logging
+
+from flasgger import swag_from
+from flask import request
+from flask_jwt_extended import jwt_required
+from flask_restful import Resource, abort
+from werkzeug.datastructures import FileStorage
 
 import api.util as util
 import data
 import data.crud as crud
 import data.marshal as marshal
 from api.decorator import roles_required
-from flasgger import swag_from
-from flask import request
-from flask_jwt_extended import jwt_required
-from flask_restful import Resource, abort
+from enums import ContentTypeEnum, RoleEnum
 from models import FormClassification, FormTemplate
-from enums import RoleEnum, ContentTypeEnum
-import logging
 from validation import formClassifications
-from werkzeug.datastructures import FileStorage
 
 LOGGER = logging.getLogger(__name__)
 

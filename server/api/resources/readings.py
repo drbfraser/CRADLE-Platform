@@ -1,4 +1,5 @@
 import time
+
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
@@ -9,7 +10,7 @@ import data.crud as crud
 import data.marshal as marshal
 import service.assoc as assoc
 import service.invariant as invariant
-from models import HealthFacility, Referral, Reading, Patient
+from models import HealthFacility, Patient, Reading, Referral
 from validation import readings
 
 

@@ -1,8 +1,9 @@
 import pytest
+
 from validation.pregnancies import (
+    __validate,
     validate_post_request,
     validate_put_request,
-    __validate,
 )
 
 valid_json = {

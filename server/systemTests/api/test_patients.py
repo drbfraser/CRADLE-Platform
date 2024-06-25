@@ -1,11 +1,12 @@
-import pytest
 import time
-from typing import List
 from pprint import pformat
-import data.crud as crud
-from models import MedicalRecord, Patient, Pregnancy, Reading
-from enums import TrafficLightEnum
+from typing import List
 
+import pytest
+
+import data.crud as crud
+from enums import TrafficLightEnum
+from models import MedicalRecord, Patient, Pregnancy, Reading
 from utils import get_current_time
 
 

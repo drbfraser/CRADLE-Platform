@@ -1,4 +1,5 @@
 import pytest
+
 from validation.referrals import validate
 
 valid_json = {

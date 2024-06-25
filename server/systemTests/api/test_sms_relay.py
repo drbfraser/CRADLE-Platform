@@ -1,17 +1,23 @@
+import gzip
+import io
+import json
 from typing import List
 
 import requests
-import gzip
-import io
-import data.crud as crud
-from models import Reading, Patient, User, Referral, FollowUp, UserPhoneNumber
-from enums import TrafficLightEnum
 
+import data.crud as crud
 import service.compressor as compressor
 import service.encryptor as encryptor
-import json
-
-from models import SmsSecretKey
+from enums import TrafficLightEnum
+from models import (
+    FollowUp,
+    Patient,
+    Reading,
+    Referral,
+    SmsSecretKey,
+    User,
+    UserPhoneNumber,
+)
 
 sms_relay_endpoint = "/api/sms_relay"
 

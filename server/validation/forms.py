@@ -1,12 +1,12 @@
 from typing import Optional
 
+from validation.questions import validate_form_question_post, validate_form_question_put
 from validation.validate import (
-    required_keys_present,
-    values_correct_type,
     check_invalid_keys_present,
     force_consistent_keys,
+    required_keys_present,
+    values_correct_type,
 )
-from validation.questions import validate_form_question_post, validate_form_question_put
 
 
 def validate_form(request_body: dict) -> Optional[str]:

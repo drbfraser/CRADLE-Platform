@@ -1,18 +1,19 @@
-import os
 import datetime
 import json
-from flask_cors import CORS
+import logging.config
+import os
+
+import environs
+from environs import Env
+from flasgger import Swagger
 from flask import Flask
+from flask_bcrypt import Bcrypt
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager
+from flask_marshmallow import Marshmallow
+from flask_migrate import Migrate
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_marshmallow import Marshmallow
-from flask_jwt_extended import JWTManager
-from environs import Env
-import environs
-from flask_bcrypt import Bcrypt
-from flasgger import Swagger
-import logging.config
 
 # Versioning system follows : https://semver.org/
 app_version = "1.0.0"

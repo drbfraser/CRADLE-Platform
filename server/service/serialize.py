@@ -4,6 +4,7 @@ instead of using marshal on the whole Object.
 """
 
 from typing import Any, List, Optional, Tuple, Union
+
 from marshmallow import ValidationError
 
 import data.marshal as marshal

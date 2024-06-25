@@ -1,9 +1,9 @@
 from service.assoc import (
-    patients_for_user,
-    patients_at_facility,
-    has_association,
     associate,
     associate_by_id,
+    has_association,
+    patients_at_facility,
+    patients_for_user,
 )
 
 

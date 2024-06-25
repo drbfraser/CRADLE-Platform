@@ -3,10 +3,8 @@ from __future__ import with_statement
 import logging
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
-
 from alembic import context
+from sqlalchemy import engine_from_config, pool
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -21,7 +19,7 @@ logger = logging.getLogger("alembic.env")
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from flask import current_app
+from flask import current_app  # noqa
 
 config.set_main_option(
     "sqlalchemy.url",
@@ -83,7 +81,7 @@ def run_migrations_online():
             connection=connection,
             target_metadata=target_metadata,
             process_revision_directives=process_revision_directives,
-            **current_app.extensions["migrate"].configure_args
+            **current_app.extensions["migrate"].configure_args,
         )
 
         with context.begin_transaction():

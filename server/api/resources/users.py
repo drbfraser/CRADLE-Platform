@@ -1,43 +1,42 @@
-from flask_restful import Resource, reqparse, abort
-from models import User
-from enums import RoleEnum
-from config import flask_bcrypt
+import json
+import logging
+import os
+import re
+
+from flasgger import swag_from
+from flask import Flask
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
-    jwt_required,
     get_jwt_identity,
+    jwt_required,
 )
-from flasgger import swag_from
-from api.decorator import roles_required
-from api.util import (
-    isGoodPassword,
-    add_new_phoneNumber_for_user,
-    delete_user_phoneNumber,
-    replace_phoneNumber_for_user,
-)
-from data import crud
-from data import marshal
-from api.util import (
-    filterPairsWithNone,
-    getDictionaryOfUserInfo,
-    is_date_passed,
-    validate_user,
-    get_user_secret_key,
-    update_secret_key_for_user,
-    create_secret_key_for_user,
-    doesUserExist,
-    phoneNumber_regex_check,
-    get_all_phoneNumbers_for_user,
-)
-from validation import users
-import logging
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from flask import Flask
-import os
-import json
-import re
+from flask_restful import Resource, abort, reqparse
+
+from api.decorator import roles_required
+from api.util import (
+    add_new_phoneNumber_for_user,
+    create_secret_key_for_user,
+    delete_user_phoneNumber,
+    doesUserExist,
+    filterPairsWithNone,
+    get_all_phoneNumbers_for_user,
+    get_user_secret_key,
+    getDictionaryOfUserInfo,
+    is_date_passed,
+    isGoodPassword,
+    phoneNumber_regex_check,
+    replace_phoneNumber_for_user,
+    update_secret_key_for_user,
+    validate_user,
+)
+from config import flask_bcrypt
+from data import crud, marshal
+from enums import RoleEnum
+from models import User
+from validation import users
 
 LOGGER = logging.getLogger(__name__)
 

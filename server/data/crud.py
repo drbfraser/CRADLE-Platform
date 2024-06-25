@@ -1,31 +1,32 @@
-from typing import List, Optional, Tuple, Type, TypeVar, Any, Union
-from sqlalchemy import func, or_
-from collections import namedtuple
-from sqlalchemy.orm import Query, aliased
-from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_
-import operator
 import logging
+import operator
+import re
+from collections import namedtuple
+from typing import Any, List, Optional, Tuple, Type, TypeVar, Union
 
+from sqlalchemy import func, or_
+from sqlalchemy.orm import Query, aliased
+from sqlalchemy.sql.expression import and_, asc, desc, literal, null, text
+
+import service.invariant as invariant
 from data import db_session
+from enums import RoleEnum, TrafficLightEnum
 from models import (
     FollowUp,
+    Form,
+    FormTemplate,
+    MedicalRecord,
     Patient,
+    PatientAssociations,
+    Pregnancy,
+    Question,
+    Reading,
     Referral,
     UrineTest,
     User,
     UserPhoneNumber,
-    PatientAssociations,
-    Reading,
-    Pregnancy,
-    MedicalRecord,
     supervises,
-    Question,
-    Form,
-    FormTemplate,
 )
-from enums import TrafficLightEnum, RoleEnum
-import service.invariant as invariant
-import re
 
 M = TypeVar("M")
 S = TypeVar("S")
@@ -879,14 +880,14 @@ def get_unique_patients_with_readings(facility="%", user="%", filter={}) -> List
     query = """ SELECT COUNT(pat.patientId) as patients
                 FROM (
                     SELECT DISTINCT(P.patientId)
-                    FROM (SELECT R.patientId FROM reading R 
+                    FROM (SELECT R.patientId FROM reading R
                         JOIN user U ON R.userId = U.id
                         WHERE R.dateTimeTaken BETWEEN %s and %s
                         AND (
-                            (userId LIKE "%s" OR userId is NULL) 
+                            (userId LIKE "%s" OR userId is NULL)
                             AND (U.healthFacilityName LIKE "%s" or U.healthFacilityName is NULL)
                         )
-                    ) as P 
+                    ) as P
                 JOIN reading R ON P.patientID = R.patientId
                 GROUP BY P.patientId
                 HAVING COUNT(R.readingId) > 0) as pat
@@ -918,7 +919,7 @@ def get_total_readings_completed(facility="%", user="%", filter={}) -> List[M]:
         JOIN user U on U.id = R.userId
         WHERE R.dateTimeTaken BETWEEN %s AND %s
         AND (
-            (R.userId LIKE "%s" OR R.userId is NULL) 
+            (R.userId LIKE "%s" OR R.userId is NULL)
             AND (U.healthFacilityName LIKE "%s" OR U.healthFacilityName is NULL)
         )
     """ % (
@@ -943,12 +944,12 @@ def get_total_color_readings(facility="%", user="%", filter={}) -> List[M]:
     :return: Total number of respective coloured readings"""
 
     query = """
-        SELECT R.trafficLightStatus, COUNT(R.trafficLightStatus) 
+        SELECT R.trafficLightStatus, COUNT(R.trafficLightStatus)
         FROM reading R
         JOIN user U on U.id = R.userId
         WHERE R.dateTimeTaken BETWEEN %s AND %s
         AND (
-            (R.userId LIKE "%s" OR R.userId is NULL) 
+            (R.userId LIKE "%s" OR R.userId is NULL)
             AND (U.healthFacilityName LIKE "%s" OR U.healthFacilityName is NULL)
         )
         GROUP BY R.trafficLightStatus
@@ -1004,7 +1005,7 @@ def get_referred_patients(facility="%", filter={}) -> List[M]:
         SELECT COUNT(DISTINCT(R.patientId))
         FROM referral R
         WHERE R.dateReferred BETWEEN %s AND %s
-        AND (R.referralHealthFacilityName LIKE "%s" OR R.referralHealthFacilityName IS NULL) 
+        AND (R.referralHealthFacilityName LIKE "%s" OR R.referralHealthFacilityName IS NULL)
         """ % (
         filter.get("from"),
         filter.get("to"),
@@ -1032,7 +1033,7 @@ def get_days_with_readings(facility="%", user="%", filter={}):
         WHERE dateTimeTaken BETWEEN %s AND %s
         AND (
         (R.userId LIKE "%s" OR R.userId IS NULL)
-			AND (U.healthFacilityName LIKE "%s" OR U.healthFacilityName is NULL)   
+			AND (U.healthFacilityName LIKE "%s" OR U.healthFacilityName is NULL)
         )
         """ % (
         filter.get("from"),
@@ -1100,13 +1101,11 @@ def get_export_data(user_id, filter):
 def get_supervised_vhts(user_id):
     """Queries db for the list of VHTs supervised by this CHO"""
     query = """
-        SELECT vhtId 
+        SELECT vhtId
         FROM user U
         JOIN supervises S on U.id = S.choId
         WHERE U.id = %s
-    """ % str(
-        user_id
-    )
+    """ % str(user_id)
 
     try:
         result = db_session.execute(query)

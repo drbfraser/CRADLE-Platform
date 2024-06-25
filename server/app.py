@@ -1,12 +1,14 @@
+# We do not care about sorting the imports(or their location) in this file because it could lead to import errors
+# ruff: noqa: I001, E402
 """
-    @File: app.py
-    @ Description:
-    - This file is the main entry point for the server
-    - It's main job is to initilize all of its connections including:
-      * Connect to database
-      * Serve React App
-      * Initilize server routes
-      * Start Flask server
+@File: app.py
+@ Description:
+- This file is the main entry point for the server
+- It's main job is to initilize all of its connections including:
+  * Connect to database
+  * Serve React App
+  * Initilize server routes
+  * Start Flask server
 """
 
 import sys
@@ -44,7 +46,6 @@ else:
     print("PORT environment variable found:", port)
 
 print("Binding to " + host + ":" + port)
-
 
 
 @app.after_request

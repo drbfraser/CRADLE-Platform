@@ -1,6 +1,5 @@
-
 import data.crud as crud
-from models import Question, Form, FormTemplate, FormClassification
+from models import Form, FormClassification, FormTemplate, Question
 
 
 def test_form_created(

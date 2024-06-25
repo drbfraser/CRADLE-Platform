@@ -1,6 +1,7 @@
-from flask_restful import Resource
-import config as config
 from flasgger import swag_from
+from flask_restful import Resource
+
+import config as config
 
 
 # /api/version

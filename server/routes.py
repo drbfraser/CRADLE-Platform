@@ -1,60 +1,65 @@
 """
-    @File: routes.py
-    @Description: This file contains all the routes for the server
+@File: routes.py
+@Description: This file contains all the routes for the server
 """
 
 import api as new_api
-from api.resources.patients_android import *
-from api.resources.version import *
-from api.resources.assessments import Root as Assessments, SingleAssessment
-from api.resources.stats import AllStats, FacilityReadings, UserReadings, ExportStats
-
-from api.resources.patientAssociations import Root as PatientAssociations
-from api.resources.facilities import Root as Facilities, SingleFacility
-from api.resources.patients import (
-    Root as Patients,
-    SinglePatient,
-    PatientInfo,
-    PatientStats,
-    PatientReadings,
-    PatientMostRecentReading,
-    PatientReferrals,
-    PatientForms,
-    PatientPregnancySummary,
-    PatientMedicalHistory,
-    PatientTimeline,
-    ReadingAssessment,
-    PatientAllRecords,
-    PatientsAdmin,
+import api.resources.patients_android as patients_android
+import api.resources.users as users
+from api.resources.assessments import Root as Assessments
+from api.resources.assessments import SingleAssessment
+from api.resources.facilities import Root as Facilities
+from api.resources.facilities import SingleFacility
+from api.resources.formClassifications import (
+    FormClassificationSummary,
+    FormClassificationTemplates,
+    SingleFormClassification,
 )
-from api.resources.readings import Root as Readings, SingleReading
-from api.resources.referrals import (
-    Root as Referrals,
-    SingleReferral,
-    AssessReferral,
-    ReferralCancelStatus,
-    ReferralNotAttend,
-)
-from api.resources.pregnancies import Root as Pregnancies, SinglePregnancy
-from api.resources.medicalRecords import Root as MedicalRecords, SingleMedicalRecord
+from api.resources.formClassifications import Root as FormClassification
+from api.resources.forms import Root as Forms
+from api.resources.forms import SingleForm
 from api.resources.formTemplates import (
-    Root as FormTemplate,
-    FormTemplateResource,
     BlankFormTemplate,
+    FormTemplateResource,
     TemplateVersion,
     TemplateVersionCsv,
 )
-from api.resources.formClassifications import (
-    Root as FormClassification,
-    SingleFormClassification,
-    FormClassificationSummary,
-    FormClassificationTemplates,
+from api.resources.formTemplates import Root as FormTemplate
+from api.resources.medicalRecords import Root as MedicalRecords
+from api.resources.medicalRecords import SingleMedicalRecord
+from api.resources.patientAssociations import Root as PatientAssociations
+from api.resources.patients import (
+    PatientAllRecords,
+    PatientForms,
+    PatientInfo,
+    PatientMedicalHistory,
+    PatientMostRecentReading,
+    PatientPregnancySummary,
+    PatientReadings,
+    PatientReferrals,
+    PatientsAdmin,
+    PatientStats,
+    PatientTimeline,
+    ReadingAssessment,
+    SinglePatient,
 )
-from api.resources.forms import Root as Forms, SingleForm
-from api.resources.sms_relay import Root as SmsRelay
+from api.resources.patients import Root as Patients
+from api.resources.pregnancies import Root as Pregnancies
+from api.resources.pregnancies import SinglePregnancy
+from api.resources.readings import Root as Readings
+from api.resources.readings import SingleReading
+from api.resources.referrals import (
+    AssessReferral,
+    ReferralCancelStatus,
+    ReferralNotAttend,
+    SingleReferral,
+)
+from api.resources.referrals import Root as Referrals
 from api.resources.relayServerPhoneNumbers import RelayServerPhoneNumbers
-from api.resources.users import *
+from api.resources.sms_relay import Root as SmsRelay
+from api.resources.stats import AllStats, ExportStats, FacilityReadings, UserReadings
 from api.resources.upload import Root as Upload
+from api.resources.version import Version
 
 
 def init(api):
@@ -67,34 +72,45 @@ def init(api):
 
     api.add_resource(UserReadings, "/api/stats/user/<int:user_id>")
 
-    api.add_resource(UserRegisterApi, "/api/user/register")  # [POST]
-    api.add_resource(UserAuthApi, "/api/user/auth")  # [POST]
-    api.add_resource(UserAuthTokenRefreshApi, "/api/user/auth/refresh_token")  # [POST]
-    api.add_resource(UserTokenApi, "/api/user/current")  # [GET]
-    api.add_resource(UserAll, "/api/user/all")  # [GET]
+    api.add_resource(users.UserRegisterApi, "/api/user/register")  # [POST]
+    api.add_resource(users.UserAuthApi, "/api/user/auth")  # [POST]
+    api.add_resource(
+        users.UserAuthTokenRefreshApi, "/api/user/auth/refresh_token"
+    )  # [POST]
+    api.add_resource(users.UserTokenApi, "/api/user/current")  # [GET]
+    api.add_resource(users.UserAll, "/api/user/all")  # [GET]
 
-    api.add_resource(UserApi, "/api/user/<int:id>")  # [GET, PUT, DELETE]
-    api.add_resource(UserSMSKey, "/api/user/<int:user_id>/smskey")  # [GET, PUT]
+    api.add_resource(users.UserApi, "/api/user/<int:id>")  # [GET, PUT, DELETE]
+    api.add_resource(users.UserSMSKey, "/api/user/<int:user_id>/smskey")  # [GET, PUT]
 
-    api.add_resource(UserAllVHT, "/api/user/vhts")  # [GET]
+    api.add_resource(users.UserAllVHT, "/api/user/vhts")  # [GET]
 
     api.add_resource(
-        AndroidPatientGlobalSearch, "/api/patients/global/<string:search>"
+        patients_android.AndroidPatientGlobalSearch,
+        "/api/patients/global/<string:search>",
     )  # [GET]
     api.add_resource(
-        AndroidPatients, "/api/mobile/patients", endpoint="android_patient"
+        patients_android.AndroidPatients,
+        "/api/mobile/patients",
+        endpoint="android_patient",
     )  # [GET]
     api.add_resource(
-        AndroidReadings, "/api/mobile/readings", endpoint="android_readings"
+        patients_android.AndroidReadings,
+        "/api/mobile/readings",
+        endpoint="android_readings",
     )  # [GET]
     api.add_resource(
-        AndroidReferrals, "/api/mobile/referrals", endpoint="android_referrals"
+        patients_android.AndroidReferrals,
+        "/api/mobile/referrals",
+        endpoint="android_referrals",
     )  # [GET]
     api.add_resource(
-        AndroidAssessments, "/api/mobile/assessments", endpoint="android_assessments"
+        patients_android.AndroidAssessments,
+        "/api/mobile/assessments",
+        endpoint="android_assessments",
     )  # [GET]
     api.add_resource(
-        AndroidForms,
+        patients_android.AndroidForms,
         "/api/mobile/forms/<string:patient_id>/<string:form_template_id>",
         endpoint="android_forms",
     )  # [GET]
@@ -281,8 +297,12 @@ def init(api):
         SingleForm, "/api/forms/responses/<string:form_id>", endpoint="single_form"
     )  # [GET, PUT]
 
-    api.add_resource(AdminPasswordChange, "/api/user/<int:id>/change_pass")  # [POST]
-    api.add_resource(UserPasswordChange, "/api/user/current/change_pass")  # [POST]
+    api.add_resource(
+        users.AdminPasswordChange, "/api/user/<int:id>/change_pass"
+    )  # [POST]
+    api.add_resource(
+        users.UserPasswordChange, "/api/user/current/change_pass"
+    )  # [POST]
 
     api.add_resource(Version, "/api/version")  # [GET]
 
@@ -292,11 +312,11 @@ def init(api):
 
     api.add_resource(SmsRelay, "/api/sms_relay", endpoint="sms_relay")  # [GET, PUT]
 
-    api.add_resource(UserPhoneUpdate, "/api/user/<int:user_id>/phone")  # [PUT]
+    api.add_resource(users.UserPhoneUpdate, "/api/user/<int:user_id>/phone")  # [PUT]
 
-    api.add_resource(ValidateRelayPhoneNumber, "/api/phone/is_relay")  # [GET]
+    api.add_resource(users.ValidateRelayPhoneNumber, "/api/phone/is_relay")  # [GET]
 
-    api.add_resource(RelayPhoneNumbers, "/api/phone/relays")  # [GET]
+    api.add_resource(users.RelayPhoneNumbers, "/api/phone/relays")  # [GET]
 
     api.add_resource(RelayServerPhoneNumbers, "/api/relay/server/phone")  # [GET, PUT]
 

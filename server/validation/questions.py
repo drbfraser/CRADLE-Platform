@@ -1,10 +1,10 @@
 from typing import Optional
 
-from enums import QuestionTypeEnum, QRelationalEnum
+from enums import QRelationalEnum, QuestionTypeEnum
 from validation.validate import (
     check_invalid_keys_present,
-    required_keys_present,
     force_consistent_keys,
+    required_keys_present,
     values_correct_type,
 )
 

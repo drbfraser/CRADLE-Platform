@@ -5,8 +5,9 @@ Revises: 7904e9f1d50e
 Create Date: 2020-07-19 16:11:29.574908
 
 """
-from alembic import op
+
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
@@ -26,19 +27,19 @@ def upgrade():
     # Drop foreign key constraints
     op.execute(
         """
-        ALTER TABLE patient_associations 
+        ALTER TABLE patient_associations
         DROP FOREIGN KEY patient_associations_ibfk_1
         """
     )
     op.execute(
         """
-        ALTER TABLE patient_associations 
+        ALTER TABLE patient_associations
         DROP FOREIGN KEY patient_associations_ibfk_2
         """
     )
     op.execute(
         """
-        ALTER TABLE patient_associations 
+        ALTER TABLE patient_associations
         DROP FOREIGN KEY patient_associations_ibfk_3
         """
     )
@@ -49,7 +50,7 @@ def upgrade():
     # Add new primary key constraint
     op.execute(
         """
-        ALTER TABLE patient_associations 
+        ALTER TABLE patient_associations
         ADD CONSTRAINT patient_associations_pk PRIMARY KEY (id)
         """
     )
@@ -67,7 +68,7 @@ def upgrade():
         """
         ALTER TABLE patient_associations
         ADD CONSTRAINT patient_associations_ibfk_1
-        FOREIGN KEY (healthFacilityName) 
+        FOREIGN KEY (healthFacilityName)
         REFERENCES healthfacility (healthFacilityName)
         ON DELETE CASCADE
         """
@@ -77,8 +78,8 @@ def upgrade():
         """
         ALTER TABLE patient_associations
         ADD CONSTRAINT patient_associations_ibfk_2
-        FOREIGN KEY (patientId) 
-        REFERENCES patient (patientId) 
+        FOREIGN KEY (patientId)
+        REFERENCES patient (patientId)
         ON DELETE CASCADE
         """
     )
@@ -86,7 +87,7 @@ def upgrade():
         """
         ALTER TABLE patient_associations
         ADD CONSTRAINT patient_associations_ibfk_3
-        FOREIGN KEY (userId) 
+        FOREIGN KEY (userId)
         REFERENCES user (id)
         ON DELETE CASCADE
         """
@@ -125,8 +126,8 @@ def downgrade():
 
     op.execute(
         """
-        ALTER TABLE patient_associations 
-        ADD CONSTRAINT patient_associations_pk 
+        ALTER TABLE patient_associations
+        ADD CONSTRAINT patient_associations_pk
         PRIMARY KEY (patientId, healthFacilityName, userId)
         """
     )

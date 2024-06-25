@@ -1,8 +1,8 @@
 # file gunicorn.conf.py
 # coding=utf-8
 # Reference: https://github.com/benoitc/gunicorn/blob/master/examples/example_config.py
-import os
 import multiprocessing
+import os
 
 host = "0.0.0.0"
 port = os.environ.get("PORT")

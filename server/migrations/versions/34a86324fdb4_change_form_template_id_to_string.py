@@ -5,8 +5,9 @@ Revises: c91d7f81c853
 Create Date: 2022-03-22 05:56:47.644031
 
 """
-from alembic import op
+
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
@@ -48,9 +49,9 @@ def upgrade():
         existing_nullable=True,
     )
 
-    connection.execute(f"DELETE FROM form_template")
-    connection.execute(f"DELETE FROM question")
-    connection.execute(f"DELETE FROM form")
+    connection.execute("DELETE FROM form_template")
+    connection.execute("DELETE FROM question")
+    connection.execute("DELETE FROM form")
 
     op.create_primary_key("pk_form_template", "form_template", ["id"])
     op.create_foreign_key(
@@ -82,9 +83,9 @@ def downgrade():
     )
     op.drop_constraint("PRIMARY", "form_template", type_="primary")
 
-    connection.execute(f"DELETE FROM form_template")
-    connection.execute(f"DELETE FROM question")
-    connection.execute(f"DELETE FROM form")
+    connection.execute("DELETE FROM form_template")
+    connection.execute("DELETE FROM question")
+    connection.execute("DELETE FROM form")
 
     op.alter_column(
         "question",

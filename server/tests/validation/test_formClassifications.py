@@ -1,4 +1,5 @@
 import pytest
+
 from validation.formClassifications import validate_template
 
 valid_json = {"id": "123", "name": "test-name"}

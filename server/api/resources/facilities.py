@@ -1,4 +1,5 @@
 import time
+
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
@@ -7,15 +8,13 @@ from flask_restful import Resource, reqparse
 import api.util as util
 import data.crud as crud
 import data.marshal as marshal
-from models import HealthFacility
-
 from api.decorator import roles_required
 from enums import RoleEnum
+from models import HealthFacility
 
 
 # /api/facilities
 class Root(Resource):
-
     # Ensuring that we select only these keys from the JSON payload.
     parser = reqparse.RequestParser()
     parser.add_argument(
@@ -54,7 +53,6 @@ class Root(Resource):
         endpoint="facilities",
     )
     def post():
-
         # Get key-value pairs from parser and remove pairs with a None value
         data = Root.parser.parse_args()
         data = util.filterPairsWithNone(data)

@@ -1,7 +1,8 @@
-import pytest
-import requests
 import random
 import string
+
+import pytest
+import requests
 
 from data import crud
 from models import SmsSecretKey

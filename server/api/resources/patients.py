@@ -1,6 +1,8 @@
+from datetime import date
+
 from flasgger import swag_from
 from flask import request
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource, abort
 
 import api.util as util
@@ -9,14 +11,13 @@ import data.crud as crud
 import data.marshal as marshal
 import service.assoc as assoc
 import service.invariant as invariant
-import service.view as view
 import service.serialize as serialize
 import service.statsCalculation as statsCalculation
-from models import Patient, Pregnancy, Reading, FollowUp, Referral
-from validation import patients, readings, assessments
-from utils import get_current_time
+import service.view as view
 from api.decorator import patient_association_required
-from datetime import date
+from models import FollowUp, Patient, Pregnancy, Reading, Referral
+from utils import get_current_time
+from validation import assessments, patients, readings
 
 
 # /api/patients
@@ -183,7 +184,6 @@ class PatientStats(Resource):
         endpoint="patient_stats",
     )
     def get(patient_id: str):
-
         patient = crud.read(Patient, patientId=patient_id)
         if not patient:
             abort(404, message=f"No patient with id {patient_id}")

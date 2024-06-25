@@ -1,15 +1,17 @@
+import logging
 from typing import List, NamedTuple, Union
+
 from flask import request
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource, abort
 from marshmallow import ValidationError
 
-import service.view as view
-import service.serialize as serialize
+import data.crud as crud
 import data.marshal as marshal
+import service.invariant as invariant
+import service.serialize as serialize
+import service.view as view
 from data import db_session
-from validation.readings import validate as validate_reading
-from validation.referrals import validate as validate_referral
 from models import (
     MedicalRecord,
     Patient,
@@ -18,9 +20,8 @@ from models import (
     Reading,
     Referral,
 )
-import service.invariant as invariant
-import data.crud as crud
-import logging
+from validation.readings import validate as validate_reading
+from validation.referrals import validate as validate_referral
 
 LOGGER = logging.getLogger(__name__)
 

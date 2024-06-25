@@ -1,5 +1,7 @@
-from flask_sqlalchemy import SQLAlchemy
 from typing import Any
+
+from flask_sqlalchemy import SQLAlchemy
+
 import data.crud as crud
 import data.marshal as marshal
 import models as models
@@ -78,7 +80,6 @@ class PatientFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-
         return crud.create_model(dict(**kwargs), models.PatientSchema)
 
 
@@ -106,7 +107,6 @@ class ReadingFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-
         readingModel = marshal.unmarshal(models.Reading, dict(**kwargs))
         crud.create(readingModel, refresh=True)
 
@@ -133,7 +133,6 @@ class ReferralFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-
         return crud.create_model(dict(**kwargs), models.ReferralSchema)
 
 
@@ -156,7 +155,6 @@ class FollowUpFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-
         return crud.create_model(dict(**kwargs), models.FollowUpSchema)
 
 

@@ -1,22 +1,24 @@
+import datetime
+import json
+import os
 import random
 import string
-import uuid
 import time
-import numpy as np
-import json
-from random import randrange
-import datetime
-from config import app, flask_bcrypt
-from enums import RoleEnum
-from models import *
-from random import randint, choice
+import uuid
+from random import choice, randint, randrange
 from string import ascii_lowercase, digits
+
+import click
+import numpy as np
+from flask.cli import FlaskGroup
+
 import data.crud as crud
 import data.marshal as marshal
-from flask.cli import FlaskGroup
-import click
-import os
+import models
 from api.util import create_secret_key_for_user
+from config import app, flask_bcrypt
+from enums import RoleEnum
+from models import db
 
 cli = FlaskGroup(app)
 
@@ -259,7 +261,7 @@ def seed(ctx):
 
     # SEED villages
     print("Seeding Villages...")
-    village_schema = VillageSchema()
+    village_schema = models.VillageSchema()
     for village in villageList:
         v_schema = {"villageNumber": village}
         db.session.add(village_schema.load(v_schema))
@@ -267,7 +269,7 @@ def seed(ctx):
     # SEED health facilities
     print("Seeding health facilities...")
 
-    healthfacility_schema = HealthFacilitySchema()
+    healthfacility_schema = models.HealthFacilitySchema()
     for index, hf in enumerate(facilityLocations):
         hf_schema = {
             "healthFacilityName": getFacilityName(index),
@@ -283,9 +285,9 @@ def seed(ctx):
 
     print("Seeding Patients with readings and referrals...")
     # seed patients with readings and referrals
-    patient_schema = PatientSchema()
-    ReadingSchema()
-    referral_schema = ReferralSchema()
+    patient_schema = models.PatientSchema()
+    models.ReadingSchema()
+    referral_schema = models.ReferralSchema()
 
     fnames, lnames = getNames()
     generated_names = set()
@@ -302,7 +304,7 @@ def seed(ctx):
 
         generated_names.add(name + lname)
 
-        if sex == SexEnum.MALE.value:
+        if sex == models.SexEnum.MALE.value:
             pregnant = False
         else:
             pregnant = bool(random.getrandbits(1))
@@ -310,11 +312,11 @@ def seed(ctx):
         gestational_age_unit = None
         gestational_timestamp = None
         gestational_units = [
-            GestationalAgeUnitEnum.WEEKS.value,
-            GestationalAgeUnitEnum.MONTHS.value,
+            models.GestationalAgeUnitEnum.WEEKS.value,
+            models.GestationalAgeUnitEnum.MONTHS.value,
         ]
 
-        if sex == SexEnum.FEMALE.value and pregnant:
+        if sex == models.SexEnum.FEMALE.value and pregnant:
             gestational_age_unit = random.choice(gestational_units)
             gestational_timestamp = getRandomPregnancyDate()
 
@@ -335,7 +337,7 @@ def seed(ctx):
         db.session.commit()
 
         if pregnant:
-            pregnancy_schema = PregnancySchema()
+            pregnancy_schema = models.PregnancySchema()
             pRecord = {
                 "patientId": patientId,
                 "startDate": gestational_timestamp,
@@ -365,7 +367,7 @@ def seed(ctx):
                 "symptoms": getRandomSymptoms(),
             }
 
-            r1Model = marshal.unmarshal(Reading, r1)
+            r1Model = marshal.unmarshal(models.Reading, r1)
             crud.create(r1Model, refresh=True)
 
             referral_comments = [
@@ -403,13 +405,13 @@ def seed(ctx):
 # Creates a user and adds it to the database
 def create_user(email, name, password, hf_name, role, phoneNumbers, user_id):
     # Check if the email already exists
-    existing_user = User.query.filter_by(username=name).first()
+    existing_user = models.User.query.filter_by(username=name).first()
     if existing_user:
         print(f"User with username '{name}' already exists.")
         return None
 
     # Create a new User instance
-    new_user = User(
+    new_user = models.User(
         id=user_id,
         firstName=name,
         email=email,
@@ -422,7 +424,9 @@ def create_user(email, name, password, hf_name, role, phoneNumbers, user_id):
     new_phone_numbers = []
     for phoneNumber in phoneNumbers:
         # Check if the phone number already exists
-        existing_phone = UserPhoneNumber.query.filter_by(number=phoneNumber).first()
+        existing_phone = models.UserPhoneNumber.query.filter_by(
+            number=phoneNumber
+        ).first()
         if existing_phone:
             print(
                 f"Phone number '{phoneNumber}' is already associated with another user."
@@ -430,7 +434,9 @@ def create_user(email, name, password, hf_name, role, phoneNumbers, user_id):
             return None
 
         # Create a new UserPhoneNumber instance and associate it with the user
-        new_phone_numbers.append(UserPhoneNumber(number=phoneNumber, user=new_user))
+        new_phone_numbers.append(
+            models.UserPhoneNumber(number=phoneNumber, user=new_user)
+        )
 
     try:
         # Add the new user and phone numbers to the database
@@ -461,7 +467,7 @@ def create_health_facility(
         "about": about,
         "newReferrals": str(round(time.time() * 1000)),
     }
-    schema = HealthFacilitySchema()
+    schema = models.HealthFacilitySchema()
     db.session.add(schema.load(facility))
     db.session.commit()
 
@@ -536,19 +542,19 @@ def create_patient_reading_referral_pregnancy(
         "isAssessed": isAssessed,
     }
 
-    patient_schema = PatientSchema()
+    patient_schema = models.PatientSchema()
     db.session.add(patient_schema.load(patient))
     db.session.commit()
 
-    readingModel = marshal.unmarshal(Reading, reading)
+    readingModel = marshal.unmarshal(models.Reading, reading)
     crud.create(readingModel, refresh=True)
 
-    referral_schema = ReferralSchema()
+    referral_schema = models.ReferralSchema()
     db.session.add(referral_schema.load(referral))
     db.session.commit()
 
     if pregnancy:
-        pregnancy_schema = PregnancySchema()
+        pregnancy_schema = models.PregnancySchema()
         db.session.add(pregnancy_schema.load(pregnancy))
         db.session.commit()
 
@@ -563,7 +569,7 @@ def create_pregnancy(
         "endDate": endDate,
         "outcome": outcome,
     }
-    schema = PregnancySchema()
+    schema = models.PregnancySchema()
     db.session.add(schema.load(pregnancy))
     db.session.commit()
 
@@ -575,14 +581,14 @@ def create_medical_record(patientId, info, isDrugRecord, dateCreated=1622541428)
         "isDrugRecord": isDrugRecord,
         "dateCreated": dateCreated,
     }
-    schema = MedicalRecordSchema()
+    schema = models.MedicalRecordSchema()
     db.session.add(schema.load(record))
     db.session.commit()
 
 
 def create_patient_association(patientId, userId):
     association = {"patientId": patientId, "userId": userId}
-    schema = PatientAssociationsSchema()
+    schema = models.PatientAssociationsSchema()
     db.session.add(schema.load(association))
     db.session.commit()
 
@@ -592,7 +598,7 @@ def create_form_classification():
         "id": "dc9",
         "name": "Personal Intake Form",
     }
-    form_classification_schema = FormClassificationSchema()
+    form_classification_schema = models.FormClassificationSchema()
     db.session.add(form_classification_schema.load(form_classification))
     db.session.commit()
 
@@ -677,7 +683,7 @@ def create_form_template():
         ],
     }
 
-    form_template_schema = FormTemplateSchema()
+    form_template_schema = models.FormTemplateSchema()
     db.session.add(form_template_schema.load(form_template))
     db.session.commit()
 
@@ -709,13 +715,12 @@ def create_form_template():
     ]
 
     for curr_q in lang_versions:
-        ques_lang_schema = QuestionLangVersionSchema()
+        ques_lang_schema = models.QuestionLangVersionSchema()
         db.session.add(ques_lang_schema.load(curr_q))
         db.session.commit()
 
 
 def create_form(patient_id, fname, lname, age):
-
     form = {
         "id": patient_id,
         "lang": "English",
@@ -784,7 +789,7 @@ def create_form(patient_id, fname, lname, age):
         ],
     }
 
-    form_schema = FormSchema()
+    form_schema = models.FormSchema()
     db.session.add(form_schema.load(form))
     db.session.commit()
 
@@ -812,7 +817,7 @@ def create_relay_nums():
     ]
 
     for curr_num in relay_nums:
-        relay_schema = RelayServerPhoneNumberSchema()
+        relay_schema = models.RelayServerPhoneNumberSchema()
         db.session.add(relay_schema.load(curr_num))
         db.session.commit()
 

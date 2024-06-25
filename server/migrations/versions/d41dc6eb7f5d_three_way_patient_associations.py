@@ -5,8 +5,9 @@ Revises: 30101cf360db
 Create Date: 2020-07-12 09:16:13.785918
 
 """
-from alembic import op
+
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.

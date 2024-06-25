@@ -17,18 +17,18 @@ The role-specific views are defined as follows:
 * VHT: can see all patients created by them
 """
 
-from typing import Any, List, Callable, Optional, Tuple
+from typing import Any, Callable, List, Optional, Tuple
 
 import data.crud as crud
+from enums import RoleEnum
 from models import (
     FollowUp,
+    MedicalRecord,
+    Pregnancy,
     Reading,
     Referral,
-    Pregnancy,
-    MedicalRecord,
     UrineTest,
 )
-from enums import RoleEnum
 
 
 def patient_list_view(user: dict, **kwargs) -> List[Any]:

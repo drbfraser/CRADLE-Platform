@@ -1,4 +1,3 @@
-
 from Crypto.Cipher import AES
 
 block_size = 16

@@ -1,5 +1,6 @@
 import pytest
-from validation.stats import validate_timestamp, validate_time_frame_readings
+
+from validation.stats import validate_time_frame_readings, validate_timestamp
 
 valid_json = {"from": "1546702448", "to": "1547212259"}
 

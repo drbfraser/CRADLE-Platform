@@ -1,23 +1,20 @@
+from datetime import date
+
+from dateutil.relativedelta import relativedelta
 from flasgger import swag_from
 from flask import request
+from flask_jwt_extended import get_jwt_identity
 from flask_restful import Resource
 
-from flask_jwt_extended import get_jwt_identity
-
-from datetime import date
-from dateutil.relativedelta import relativedelta
-from models import User
-
+import data.crud as crud
 from api.decorator import roles_required
 from enums import RoleEnum, TrafficLightEnum
-import data.crud as crud
-
+from models import User
 
 MYSQL_BIGINT_MAX = (2**63) - 1
 
 
 def query_stats_data(args, facility_id="%", user_id="%"):
-
     patients = crud.get_unique_patients_with_readings(
         facility=facility_id, user=user_id, filter=args
     )[0][0]
@@ -85,7 +82,6 @@ class AllStats(Resource):
 
     ## Get all statistics for patients
     def get():
-
         # Date filters default to max range
         filter = get_filter_data(request)
 
@@ -100,7 +96,6 @@ class FacilityReadings(Resource):
     @roles_required([RoleEnum.ADMIN, RoleEnum.HCW])
     @swag_from("../../specifications/stats-facility.yml", methods=["GET"])
     def get(facility_id: str):
-
         jwt = get_jwt_identity()
 
         if (
@@ -146,7 +141,6 @@ class UserReadings(Resource):
     @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
     @swag_from("../../specifications/stats-user.yml", methods=["GET"])
     def get(user_id: int):
-
         if not hasPermissionToViewUser(user_id):
             return "Unauthorized to view this endpoint", 401
 
@@ -163,7 +157,6 @@ class ExportStats(Resource):
     @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
     @swag_from("../../specifications/stats-export.yml")
     def get(user_id: int):
-
         filter = get_filter_data(request)
 
         if crud.read(User, id=user_id) is None:

@@ -1,5 +1,6 @@
 import pytest
-from validation.sms_relay import validate_request, validate_decrypted_body
+
+from validation.sms_relay import validate_decrypted_body, validate_request
 
 request_test_cases = [
     {

@@ -1,5 +1,6 @@
-from validation.assessments import validate as validate_assessment
 from typing import Optional
+
+from validation.assessments import validate as validate_assessment
 from validation.validate import required_keys_present, values_correct_type
 
 

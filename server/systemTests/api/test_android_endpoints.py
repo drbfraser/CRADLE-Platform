@@ -1,16 +1,17 @@
-import pytest
 import time
 
+import pytest
+
 import data.crud as crud
+from enums import GestationalAgeUnitEnum, SexEnum, TrafficLightEnum
 from models import (
+    MedicalRecord,
     Patient,
     PatientAssociations,
+    Pregnancy,
     PregnancySchema,
     Reading,
-    Pregnancy,
-    MedicalRecord,
 )
-from enums import SexEnum, GestationalAgeUnitEnum, TrafficLightEnum
 
 
 def test_download_patients(
@@ -460,7 +461,6 @@ def test_get_patient_form(
     create_patient,
     api_get,
 ):
-
     create_patient()
 
     response = api_get(endpoint="/api/mobile/forms/87356709247/dt9")

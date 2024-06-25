@@ -1,8 +1,9 @@
 import pytest
+
 import data
 import data.crud as crud
 import service.assoc as assoc
-from models import Patient, Reading, Referral, FollowUp
+from models import FollowUp, Patient, Reading, Referral
 
 
 @pytest.mark.skip(
