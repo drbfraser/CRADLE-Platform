@@ -1,3 +1,5 @@
+# We do not care about sorting the imports(or their location) in this file because it could lead to import errors
+# ruff: noqa: I001, E402
 """
     @File: app.py
     @ Description:
@@ -8,6 +10,8 @@
       * Initilize server routes
       * Start Flask server
 """
+
+
 
 import sys
 import os
@@ -77,7 +81,7 @@ def log_request_details(response):
             status_str = "Unsuccessful"
 
         extra = {
-            "Response Status": f"{response.status_code} ({status_str})",
+            'Response Status': f"{response.status_code} ({status_str})",
             "Request Information": request_data,
             "Requestor Information": requestor_data,
         }

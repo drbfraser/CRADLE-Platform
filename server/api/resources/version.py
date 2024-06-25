@@ -4,7 +4,6 @@ from flask_restful import Resource
 import config as config
 
 
-
 # /api/version
 class Version(Resource):
     @swag_from("../../specifications/version.yml", methods=["GET"])

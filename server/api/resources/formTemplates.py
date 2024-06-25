@@ -17,7 +17,6 @@ from models import FormClassification, FormTemplate
 from validation import formTemplates
 
 
-
 # /api/forms/templates
 class Root(Resource):
     @staticmethod

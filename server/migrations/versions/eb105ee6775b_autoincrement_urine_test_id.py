@@ -25,7 +25,7 @@ def upgrade():
     )
     op.execute(
         """
-        ALTER TABLE urine_test 
+        ALTER TABLE urine_test
         ADD CONSTRAINT urine_test_pk PRIMARY KEY (id)
         """
     )
