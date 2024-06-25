@@ -2,6 +2,7 @@
 The ``service.util`` contains utility functions to help simplify useful information into a dict
 instead of using marshal on the whole Object.
 """
+
 from typing import Any, List, Optional, Tuple, Union
 
 from marshmallow import ValidationError
@@ -24,9 +25,9 @@ def serialize_patient_list(patients: List[Any]) -> dict:
             "patientId": p.patientId,
             "patientName": p.patientName,
             "villageNumber": p.villageNumber,
-            "trafficLightStatus": p.trafficLightStatus.value
-            if p.trafficLightStatus
-            else "",
+            "trafficLightStatus": (
+                p.trafficLightStatus.value if p.trafficLightStatus else ""
+            ),
             "dateTimeTaken": p.dateTimeTaken if p.dateTimeTaken else "",
         }
         for p in patients
@@ -105,9 +106,9 @@ def serialize_patient(
         "isPregnant": True if patient.pregnancyStartDate else False,
         "pregnancyId": patient.pregnancyId,
         "pregnancyStartDate": patient.pregnancyStartDate,
-        "gestationalAgeUnit": patient.gestationalAgeUnit.value
-        if patient.gestationalAgeUnit
-        else None,
+        "gestationalAgeUnit": (
+            patient.gestationalAgeUnit.value if patient.gestationalAgeUnit else None
+        ),
         "medicalHistoryId": patient.medicalHistoryId,
         "medicalHistory": patient.medicalHistory,
         "drugHistoryId": patient.drugHistoryId,
@@ -115,12 +116,16 @@ def serialize_patient(
         "lastEdited": patient.lastEdited,
         "base": patient.lastEdited,
         "readings": [serialize_reading(r) for r in readings] if readings else [],
-        "referrals": [serialize_referral_or_assessment(r) for r in referrals]
-        if referrals
-        else [],
-        "assessments": [serialize_referral_or_assessment(a) for a in assessments]
-        if assessments
-        else [],
+        "referrals": (
+            [serialize_referral_or_assessment(r) for r in referrals]
+            if referrals
+            else []
+        ),
+        "assessments": (
+            [serialize_referral_or_assessment(a) for a in assessments]
+            if assessments
+            else []
+        ),
         "isArchived": patient.isArchived,
     }
     return {k: v for k, v in p.items() if v or v is False}
@@ -211,9 +216,9 @@ def deserialize_medical_record(data: dict, is_drug_record: bool) -> MedicalRecor
     schema = MedicalRecord.schema()
     d = {
         "patientId": data.get("patientId"),
-        "information": data.get("drugHistory")
-        if is_drug_record
-        else data.get("medicalHistory"),
+        "information": (
+            data.get("drugHistory") if is_drug_record else data.get("medicalHistory")
+        ),
         "isDrugRecord": is_drug_record,
     }
     if (not is_drug_record and data.get("medicalLastEdited")) or (

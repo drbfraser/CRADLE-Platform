@@ -17,6 +17,7 @@ from validation import medicalRecords
 
 LOGGER = logging.getLogger(__name__)
 
+
 # /api/patients/<string:patient_id>/medical_records
 class Root(Resource):
     @staticmethod

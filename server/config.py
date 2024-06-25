@@ -4,7 +4,6 @@ import logging.config
 import os
 
 import environs
-from bson import ObjectId
 from environs import Env
 from flasgger import Swagger
 from flask import Flask
@@ -100,8 +99,6 @@ class Config(object):
 
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
-        if isinstance(o, ObjectId):
-            return str(o)
         if isinstance(o, set):
             return list(o)
         if isinstance(o, datetime.datetime):

@@ -2,6 +2,7 @@
 The ``service.assoc`` module provides functions for managing associations between
 patients, health facilities, and users.
 """
+
 from typing import List
 
 import data.crud as crud

@@ -20,6 +20,7 @@ from utils import get_current_time
 from validation import assessments, patients, readings
 
 
+
 # /api/patients
 class Root(Resource):
     @staticmethod

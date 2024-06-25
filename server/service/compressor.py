@@ -3,6 +3,7 @@ import gzip
 # Compressor
 # - Uses gzip to compress/decompress
 
+
 # Compresses bytes to bytes
 def compress(data):
     return gzip.compress(data)

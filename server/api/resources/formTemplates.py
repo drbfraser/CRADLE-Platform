@@ -17,6 +17,7 @@ from models import FormClassification, FormTemplate
 from validation import formTemplates
 
 
+
 # /api/forms/templates
 class Root(Resource):
     @staticmethod
@@ -175,9 +176,9 @@ class TemplateVersionCsv(Resource):
         csv: str = util.getCsvFromFormTemplate(form_template)
 
         response = make_response(csv)
-        response.headers[
-            "Content-Disposition"
-        ] = "attachment; filename=form_template.csv"
+        response.headers["Content-Disposition"] = (
+            "attachment; filename=form_template.csv"
+        )
         response.headers["Content-Type"] = "text/csv"
         return response
 

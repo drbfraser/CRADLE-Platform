@@ -26,7 +26,4 @@ def lambda_handler(event, context):
     # Send the Discord alert
     send_discord_alert(webhook_url)
 
-    return {
-        'statusCode': 200,
-        'body': json.dumps('Discord alert sent successfully')
-    }
+    return {"statusCode": 200, "body": json.dumps("Discord alert sent successfully")}
