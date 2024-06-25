@@ -304,8 +304,10 @@ jobs:
         pip install --upgrade pip
         pip install -r requirements.txt
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
-    - name: Backend Format
-      run: ruff check --ignore E402,E501,F405,F403 --exclude=crud.py .
+    - name: Backend Format and Lint
+      run: |
+        ruff check .
+        ruff format --check .
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
 
   # ----------------------------------------------------------------------------
