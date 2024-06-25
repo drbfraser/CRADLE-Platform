@@ -1,8 +1,10 @@
 import json
+import logging
 import time
 import uuid
-import logging
+
 import flask
+
 
 # returns formatted current time in utc timezone
 def get_current_time():

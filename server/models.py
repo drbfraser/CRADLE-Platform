@@ -1,19 +1,18 @@
 import datetime
 
+import marshmallow
 from jsonschema import validate
-from jsonschema.exceptions import SchemaError
-from jsonschema.exceptions import ValidationError
+from jsonschema.exceptions import SchemaError, ValidationError
 from marshmallow_enum import EnumField
 from marshmallow_sqlalchemy import fields
-import marshmallow
 
 from config import db, ma
 from enums import (
-    SexEnum,
-    GestationalAgeUnitEnum,
-    TrafficLightEnum,
     FacilityTypeEnum,
+    GestationalAgeUnitEnum,
     QuestionTypeEnum,
+    SexEnum,
+    TrafficLightEnum,
 )
 from utils import get_current_time, get_uuid
 

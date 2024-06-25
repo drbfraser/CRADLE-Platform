@@ -1,27 +1,25 @@
 import collections
 import json
-
 from enum import Enum
-from typing import Any, Dict, Type, List, Optional
+from typing import Any, Dict, List, Optional, Type
 
-
+import service.invariant as invariant
 from data.crud import M
 from models import (
-    FormClassification,
-    Patient,
-    Reading,
-    Referral,
     FollowUp,
-    Pregnancy,
-    MedicalRecord,
-    FormTemplate,
     Form,
+    FormClassification,
+    FormTemplate,
+    MedicalRecord,
+    Patient,
+    Pregnancy,
     Question,
     QuestionLangVersion,
+    Reading,
+    Referral,
     RelayServerPhoneNumber,
     SmsSecretKey,
 )
-import service.invariant as invariant
 
 
 def marshal(obj: Any, shallow=False, if_include_versions=False) -> dict:

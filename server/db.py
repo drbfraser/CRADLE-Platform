@@ -13,10 +13,11 @@
 #   drop               - Drops the database itself
 #   create             - Creates the database with no tables
 
-from environs import Env
-import environs
 import subprocess
 import sys
+
+import environs
+from environs import Env
 
 
 def rebuild(env):

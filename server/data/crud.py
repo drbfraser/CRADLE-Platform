@@ -1,31 +1,32 @@
-from typing import List, Optional, Tuple, Type, TypeVar, Any, Union
-from sqlalchemy import func, or_
-from collections import namedtuple
-from sqlalchemy.orm import Query, aliased
-from sqlalchemy.sql.expression import text, asc, desc, null, literal, and_
-import operator
 import logging
+import operator
+import re
+from collections import namedtuple
+from typing import Any, List, Optional, Tuple, Type, TypeVar, Union
 
+from sqlalchemy import func, or_
+from sqlalchemy.orm import Query, aliased
+from sqlalchemy.sql.expression import and_, asc, desc, literal, null, text
+
+import service.invariant as invariant
 from data import db_session
+from enums import RoleEnum, TrafficLightEnum
 from models import (
     FollowUp,
+    Form,
+    FormTemplate,
+    MedicalRecord,
     Patient,
+    PatientAssociations,
+    Pregnancy,
+    Question,
+    Reading,
     Referral,
     UrineTest,
     User,
     UserPhoneNumber,
-    PatientAssociations,
-    Reading,
-    Pregnancy,
-    MedicalRecord,
     supervises,
-    Question,
-    Form,
-    FormTemplate,
 )
-from enums import TrafficLightEnum, RoleEnum
-import service.invariant as invariant
-import re
 
 M = TypeVar("M")
 S = TypeVar("S")
