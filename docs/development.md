@@ -212,3 +212,28 @@ WHERE id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
 ```
 
 So far, the cause of this problem is not yet known and could not be reproduced.
+
+
+### Troubleshooting Mac Setup Issues - Potential Approach
+
+When running `docker-compose up` or `docker exec cradle_flask flask db upgrade`, you might see errors from cradle-mysql.
+
+You might consider trying the following approaches from https://stackoverflow.com/questions/65456814/docker-apple-silicon-m1-preview-mysql-no-matching-manifest-for-linux-arm64-v8:
+
+1. Add/Change mysql docker image in `docker-compose.override.yml` or `docker-compose.yml` 
+- image: mysql:{A Newer Version}
+
+2. Add to `docker-compose.override.yml` or `docker-compose.yml` 
+- platform: linux/amd64
+
+3. Update docker
+
+4. Update macbook
+
+4. Command
+- `docker pull --platform linux/x86_64 mysql`
+
+If you get the 'Port 5000 already in use' error, you might consider trying to disable AirPlay Receiver option from https://stackoverflow.com/questions/72369320/why-always-something-is-running-at-port-5000-on-my-mac
+
+
+
