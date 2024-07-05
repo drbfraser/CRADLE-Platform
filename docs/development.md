@@ -234,6 +234,3 @@ You might consider trying the following approaches from https://stackoverflow.co
 - `docker pull --platform linux/x86_64 mysql`
 
 If you get the 'Port 5000 already in use' error, you might consider trying to disable AirPlay Receiver option from https://stackoverflow.com/questions/72369320/why-always-something-is-running-at-port-5000-on-my-mac
-
-
-
