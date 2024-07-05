@@ -2,10 +2,13 @@ from __future__ import with_statement
 
 import logging
 from logging.config import fileConfig
-
+import os, sys
+from sqlalchemy import engine_from_config
+from sqlalchemy import pool
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from app import app
 from alembic import context
-from sqlalchemy import engine_from_config, pool
-
+from alembic.script import ScriptDirectory
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -19,13 +22,13 @@ logger = logging.getLogger("alembic.env")
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from flask import current_app  # noqa
-
-config.set_main_option(
-    "sqlalchemy.url",
-    current_app.config.get("SQLALCHEMY_DATABASE_URI").replace("%", "%%"),
-)
-target_metadata = current_app.extensions["migrate"].db.metadata
+from flask import current_app
+with app.app_context():
+    config.set_main_option(
+        "sqlalchemy.url",
+        current_app.config.get("SQLALCHEMY_DATABASE_URI").replace("%", "%%"),
+    )
+    target_metadata = current_app.extensions["migrate"].db.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -64,11 +67,22 @@ def run_migrations_online():
     # when there are no changes to the schema
     # reference: http://alembic.zzzcomputing.com/en/latest/cookbook.html
     def process_revision_directives(context, revision, directives):
-        if getattr(config.cmd_opts, "autogenerate", False):
+        # if getattr(config.cmd_opts, "autogenerate", False):
             script = directives[0]
             if script.upgrade_ops.is_empty():
                 directives[:] = []
                 logger.info("No changes in schema detected.")
+            else:
+                # Determine the new revision number based on existing migrations
+                script_directory = ScriptDirectory.from_config(config)
+                head_revision = script_directory.get_current_head()
+                if head_revision is None:
+                    new_rev_id = 1  # Start from 1 if no migrations exist
+                else:
+                    last_rev_id = int(head_revision.split("_")[0])
+                    new_rev_id = last_rev_id + 1
+                
+                script.rev_id = f"{new_rev_id:03d}_{script.rev_id}"
 
     connectable = engine_from_config(
         config.get_section(config.config_ini_section),
