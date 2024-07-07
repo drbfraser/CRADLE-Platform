@@ -67,7 +67,7 @@ def run_migrations_online():
     # when there are no changes to the schema
     # reference: http://alembic.zzzcomputing.com/en/latest/cookbook.html
     def process_revision_directives(context, revision, directives):
-        # if getattr(config.cmd_opts, "autogenerate", False):
+        if getattr(config.cmd_opts, "autogenerate", False):
             script = directives[0]
             if script.upgrade_ops.is_empty():
                 directives[:] = []
@@ -82,7 +82,7 @@ def run_migrations_online():
                     last_rev_id = int(head_revision.split("_")[0])
                     new_rev_id = last_rev_id + 1
                 
-                script.rev_id = f"{new_rev_id:03d}_{script.rev_id}"
+                script.rev_id = f"{new_rev_id}_{script.rev_id}"
 
     connectable = engine_from_config(
         config.get_section(config.config_ini_section),
