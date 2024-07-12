@@ -22,13 +22,13 @@ logger = logging.getLogger("alembic.env")
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from flask import current_app
+# from flask import app
 with app.app_context():
     config.set_main_option(
         "sqlalchemy.url",
-        current_app.config.get("SQLALCHEMY_DATABASE_URI").replace("%", "%%"),
+        app.config.get("SQLALCHEMY_DATABASE_URI").replace("%", "%%"),
     )
-    target_metadata = current_app.extensions["migrate"].db.metadata
+    target_metadata = app.extensions["migrate"].db.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -95,7 +95,7 @@ def run_migrations_online():
             connection=connection,
             target_metadata=target_metadata,
             process_revision_directives=process_revision_directives,
-            **current_app.extensions["migrate"].configure_args,
+            **app.extensions["migrate"].configure_args,
         )
 
         with context.begin_transaction():
