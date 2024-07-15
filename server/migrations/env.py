@@ -79,9 +79,7 @@ def run_migrations_online():
                 if head_revision is None:
                     new_rev_id = 1  # Start from 1 if no migrations exist
                 else:
-                    # Handling non-numeric revision IDs
-                    last_rev_parts = head_revision.split("_")
-                    last_rev_id = int(last_rev_parts[0]) if last_rev_parts[0].isdigit() else 0
+                    last_rev_id = int(head_revision.split("_")[0])
                     new_rev_id = last_rev_id + 1
                 
                 script.rev_id = f"{new_rev_id}_{script.rev_id}"
