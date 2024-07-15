@@ -84,7 +84,7 @@ def run_migrations_online():
                 else:
                     last_rev_id = int(head_revision.split("_")[0])
                     new_rev_id = last_rev_id + 1
-                
+
                 script.rev_id = f"{new_rev_id}_{script.rev_id}"
 
     connectable = engine_from_config(
