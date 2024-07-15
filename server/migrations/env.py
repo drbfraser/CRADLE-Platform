@@ -73,11 +73,10 @@ def run_migrations_online():
                 directives[:] = []
                 logger.info("No changes in schema detected.")
             else:
-                # Determine the new revision number based on existing migrations
                 script_directory = ScriptDirectory.from_config(config)
                 head_revision = script_directory.get_current_head()
                 if head_revision is None:
-                    new_rev_id = 1  # Start from 1 if no migrations exist
+                    new_rev_id = 1
                 else:
                     last_rev_id = int(head_revision.split("_")[0])
                     new_rev_id = last_rev_id + 1
