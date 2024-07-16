@@ -11,7 +11,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from alembic import context
 from alembic.script import ScriptDirectory
 
-from app import app
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -26,13 +25,13 @@ logger = logging.getLogger("alembic.env")
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-# from flask import app
-with app.app_context():
-    config.set_main_option(
-        "sqlalchemy.url",
-        app.config.get("SQLALCHEMY_DATABASE_URI").replace("%", "%%"),
-    )
-    target_metadata = app.extensions["migrate"].db.metadata
+from flask import current_app  # noqa
+
+config.set_main_option(
+    "sqlalchemy.url",
+    current_app.config.get("SQLALCHEMY_DATABASE_URI").replace("%", "%%"),
+)
+target_metadata = current_app.extensions["migrate"].db.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -71,7 +70,8 @@ def run_migrations_online():
     # when there are no changes to the schema
     # reference: http://alembic.zzzcomputing.com/en/latest/cookbook.html
     def process_revision_directives(context, revision, directives):
-        if getattr(config.cmd_opts, "autogenerate", False):
+        if getattr(config.cmd_opts, "autogenerate", True):
+            logger.info("testing 76")
             script = directives[0]
             if script.upgrade_ops.is_empty():
                 directives[:] = []
@@ -98,7 +98,7 @@ def run_migrations_online():
             connection=connection,
             target_metadata=target_metadata,
             process_revision_directives=process_revision_directives,
-            **app.extensions["migrate"].configure_args,
+            **current_app.extensions["migrate"].configure_args,
         )
 
         with context.begin_transaction():
