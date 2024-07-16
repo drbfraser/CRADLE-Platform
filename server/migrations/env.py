@@ -71,7 +71,6 @@ def run_migrations_online():
     # reference: http://alembic.zzzcomputing.com/en/latest/cookbook.html
     def process_revision_directives(context, revision, directives):
         if getattr(config.cmd_opts, "autogenerate", True):
-            logger.info("testing 76")
             script = directives[0]
             if script.upgrade_ops.is_empty():
                 directives[:] = []
