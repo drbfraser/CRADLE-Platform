@@ -1,7 +1,7 @@
 """add lastEdited field for Readings
 
-Revision ID: a8ad53e6717c
-Revises: 46d3d2542f6a
+Revision ID: 28_a8ad53e6717c
+Revises: 27_46d3d2542f6a
 Create Date: 2021-04-13 06:14:44.249409
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "a8ad53e6717c"
-down_revision = "46d3d2542f6a"
+revision = "28_a8ad53e6717c"
+down_revision = "27_46d3d2542f6a"
 branch_labels = None
 depends_on = None
 

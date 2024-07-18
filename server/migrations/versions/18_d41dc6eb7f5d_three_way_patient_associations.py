@@ -1,7 +1,7 @@
 """three way patient associations
 
-Revision ID: d41dc6eb7f5d
-Revises: 30101cf360db
+Revision ID: 18_d41dc6eb7f5d
+Revises: 17_30101cf360db
 Create Date: 2020-07-12 09:16:13.785918
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "d41dc6eb7f5d"
-down_revision = "30101cf360db"
+revision = "18_d41dc6eb7f5d"
+down_revision = "17_30101cf360db"
 branch_labels = None
 depends_on = None
 

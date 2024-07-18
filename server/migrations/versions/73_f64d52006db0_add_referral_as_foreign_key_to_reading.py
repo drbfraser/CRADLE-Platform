@@ -1,7 +1,7 @@
 """Add referral as foreign key to Reading
 
-Revision ID: f64d52006db0
-Revises: 4396381edcbf
+Revision ID: 73_f64d52006db0
+Revises: 72_4396381edcbf
 Create Date: 2023-07-15 05:52:02.679087
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "f64d52006db0"
-down_revision = "4396381edcbf"
+revision = "73_f64d52006db0"
+down_revision = "72_4396381edcbf"
 branch_labels = None
 depends_on = None
 

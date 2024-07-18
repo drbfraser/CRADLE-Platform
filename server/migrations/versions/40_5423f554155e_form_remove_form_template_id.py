@@ -1,7 +1,7 @@
 """form remove form_template_id
 
-Revision ID: 5423f554155e
-Revises: 5161a368f64c
+Revision ID: 40_5423f554155e
+Revises: 39_5161a368f64c
 Create Date: 2022-03-09 10:10:55.282677
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "5423f554155e"
-down_revision = "5161a368f64c"
+revision = "40_5423f554155e"
+down_revision = "39_5161a368f64c"
 branch_labels = None
 depends_on = None
 

@@ -1,7 +1,7 @@
 """new covid reading changes
 
-Revision ID: 3d49263fe82c
-Revises: eb105ee6775b
+Revision ID: 23_3d49263fe82c
+Revises: 22_eb105ee6775b
 Create Date: 2020-07-24 01:30:48.727157
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "3d49263fe82c"
-down_revision = "eb105ee6775b"
+revision = "23_3d49263fe82c"
+down_revision = "22_eb105ee6775b"
 branch_labels = None
 depends_on = None
 

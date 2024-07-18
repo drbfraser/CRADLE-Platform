@@ -1,7 +1,7 @@
 """change question id to string
 
-Revision ID: 55b2e2abd300
-Revises: 34a86324fdb4
+Revision ID: 52_55b2e2abd300
+Revises: 51_34a86324fdb4
 Create Date: 2022-03-22 06:43:53.868389
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "55b2e2abd300"
-down_revision = "34a86324fdb4"
+revision = "52_55b2e2abd300"
+down_revision = "51_34a86324fdb4"
 branch_labels = None
 depends_on = None
 

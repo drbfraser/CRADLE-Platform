@@ -1,7 +1,7 @@
 """lastEdited column in patient table
 
-Revision ID: ff58b4ff640f
-Revises: 5df0e66fee22
+Revision ID: 13_ff58b4ff640f
+Revises: 12_5df0e66fee22
 Create Date: 2020-07-07 22:17:12.837786
 
 """
@@ -17,8 +17,8 @@ from alembic import op
 
 
 # revision identifiers, used by Alembic.
-revision = "ff58b4ff640f"
-down_revision = "5df0e66fee22"
+revision = "13_ff58b4ff640f"
+down_revision = "12_5df0e66fee22"
 branch_labels = None
 depends_on = None
 

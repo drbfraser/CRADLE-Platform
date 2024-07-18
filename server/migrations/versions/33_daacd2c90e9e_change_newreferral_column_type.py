@@ -1,7 +1,7 @@
 """change newReferral column type
 
-Revision ID: daacd2c90e9e
-Revises: 3bfa752b60d2
+Revision ID: 33_daacd2c90e9e
+Revises: 32_3bfa752b60d2
 Create Date: 2021-11-08 15:26:50.129359
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "daacd2c90e9e"
-down_revision = "3bfa752b60d2"
+revision = "33_daacd2c90e9e"
+down_revision = "32_3bfa752b60d2"
 branch_labels = None
 depends_on = None
 

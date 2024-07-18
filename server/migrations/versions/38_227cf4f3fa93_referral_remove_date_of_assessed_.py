@@ -1,7 +1,7 @@
 """referral remove date of assessed, cancelled, notAttended, add lastEdited
 
-Revision ID: 227cf4f3fa93
-Revises: 8f5b3a1f78e2
+Revision ID: 38_227cf4f3fa93
+Revises: 37_8f5b3a1f78e2
 Create Date: 2022-02-25 08:48:58.417743
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "227cf4f3fa93"
-down_revision = "8f5b3a1f78e2"
+revision = "38_227cf4f3fa93"
+down_revision = "37_8f5b3a1f78e2"
 branch_labels = None
 depends_on = None
 

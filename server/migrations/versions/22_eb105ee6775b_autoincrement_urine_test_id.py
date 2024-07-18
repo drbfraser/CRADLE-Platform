@@ -1,7 +1,7 @@
 """autoincrement urine test id
 
-Revision ID: eb105ee6775b
-Revises: a1913287ffaf
+Revision ID: 22_eb105ee6775b
+Revises: 21_a1913287ffaf
 Create Date: 2020-07-25 23:43:14.758599
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "eb105ee6775b"
-down_revision = "a1913287ffaf"
+revision = "22_eb105ee6775b"
+down_revision = "21_a1913287ffaf"
 branch_labels = None
 depends_on = None
 

@@ -1,7 +1,7 @@
 """nullable associations
 
-Revision ID: cc4478373908
-Revises: 7904e9f1d50e
+Revision ID: 20_cc4478373908
+Revises: 19_7904e9f1d50e
 Create Date: 2020-07-19 16:11:29.574908
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "cc4478373908"
-down_revision = "7904e9f1d50e"
+revision = "20_cc4478373908"
+down_revision = "19_7904e9f1d50e"
 branch_labels = None
 depends_on = None
 

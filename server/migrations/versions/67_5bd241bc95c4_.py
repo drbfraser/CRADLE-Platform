@@ -1,7 +1,7 @@
 """remove unique tag from FormTemplate name
 
-Revision ID: 5bd241bc95c4
-Revises: 2c7e8d1996af
+Revision ID: 67_5bd241bc95c4
+Revises: 66_2c7e8d1996af
 Create Date: 2022-06-07 02:07:50.344319
 
 """
@@ -9,8 +9,8 @@ Create Date: 2022-06-07 02:07:50.344319
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "5bd241bc95c4"
-down_revision = "2c7e8d1996af"
+revision = "67_5bd241bc95c4"
+down_revision = "66_2c7e8d1996af"
 branch_labels = None
 depends_on = None
 

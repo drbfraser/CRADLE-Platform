@@ -1,7 +1,7 @@
 """Added newReferrals column
 
-Revision ID: 3bfa752b60d2
-Revises: 0363083ecb2c
+Revision ID: 32_3bfa752b60d2
+Revises: 31_0363083ecb2c
 Create Date: 2021-10-25 16:12:50.803636
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "3bfa752b60d2"
-down_revision = "0363083ecb2c"
+revision = "32_3bfa752b60d2"
+down_revision = "31_0363083ecb2c"
 branch_labels = None
 depends_on = None
 

@@ -1,7 +1,7 @@
 """add template and question lang version table
 
-Revision ID: e6f5494b9217
-Revises: 66296a0f5d6f
+Revision ID: 57_e6f5494b9217
+Revises: 56_66296a0f5d6f
 Create Date: 2022-04-06 09:21:10.752587
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "e6f5494b9217"
-down_revision = "66296a0f5d6f"
+revision = "57_e6f5494b9217"
+down_revision = "56_66296a0f5d6f"
 branch_labels = None
 depends_on = None
 

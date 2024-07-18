@@ -1,7 +1,7 @@
 """associate follow up directly to reading
 
-Revision ID: 30101cf360db
-Revises: e5396a8c62db
+Revision ID: 17_30101cf360db
+Revises: 14_e5396a8c62db
 Create Date: 2020-07-11 19:09:20.648049
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "30101cf360db"
-down_revision = "118564bd12f5"
+revision = "17_30101cf360db"
+down_revision = "16_118564bd12f5"
 branch_labels = None
 depends_on = None
 

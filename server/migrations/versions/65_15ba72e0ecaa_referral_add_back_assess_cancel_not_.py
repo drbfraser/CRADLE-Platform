@@ -1,7 +1,7 @@
 """referral add back assess cancel not attend timestamp
 
-Revision ID: 15ba72e0ecaa
-Revises: ec7658947424
+Revision ID: 65_15ba72e0ecaa
+Revises: 64_ec7658947424
 Create Date: 2022-04-17 07:18:38.817316
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "15ba72e0ecaa"
-down_revision = "ec7658947424"
+revision = "65_15ba72e0ecaa"
+down_revision = "64_ec7658947424"
 branch_labels = None
 depends_on = None
 

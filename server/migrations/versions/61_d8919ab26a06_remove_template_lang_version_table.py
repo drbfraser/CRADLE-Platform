@@ -1,7 +1,7 @@
 """remove template lang version table
 
-Revision ID: d8919ab26a06
-Revises: 8066e35980e3
+Revision ID: 61_d8919ab26a06
+Revises: 60_8066e35980e3
 Create Date: 2022-04-06 13:32:03.288725
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "d8919ab26a06"
-down_revision = "8066e35980e3"
+revision = "61_d8919ab26a06"
+down_revision = "60_8066e35980e3"
 branch_labels = None
 depends_on = None
 

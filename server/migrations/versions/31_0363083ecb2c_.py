@@ -1,7 +1,7 @@
 """add medical record table
 
-Revision ID: 0363083ecb2c
-Revises: a8ad53e6717c
+Revision ID: 31_0363083ecb2c
+Revises: 28_a8ad53e6717c
 Create Date: 2021-06-15 18:07:58.634166
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "0363083ecb2c"
-down_revision = "5c7f69c30f5e"
+revision = "31_0363083ecb2c"
+down_revision = "30_5c7f69c30f5e"
 branch_labels = None
 depends_on = None
 

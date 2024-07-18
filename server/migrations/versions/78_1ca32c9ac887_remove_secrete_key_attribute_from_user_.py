@@ -1,7 +1,7 @@
 """REMOVE SECRETE KEY ATTRIBUTE FROM USER TABLE
 
-Revision ID: 1ca32c9ac887
-Revises: 8c78f37e4e98
+Revision ID: 78_1ca32c9ac887
+Revises: 77_8c78f37e4e98
 Create Date: 2023-08-13 17:49:16.181425
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "1ca32c9ac887"
-down_revision = "8c78f37e4e98"
+revision = "78_1ca32c9ac887"
+down_revision = "77_8c78f37e4e98"
 branch_labels = None
 depends_on = None
 

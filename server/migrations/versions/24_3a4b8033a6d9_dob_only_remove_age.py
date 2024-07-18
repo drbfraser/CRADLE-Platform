@@ -1,7 +1,7 @@
 """dob_only_remove_age
 
-Revision ID: 3a4b8033a6d9
-Revises: 3d49263fe82c
+Revision ID: 24_3a4b8033a6d9
+Revises: 23_3d49263fe82c
 Create Date: 2020-07-24 04:19:09.606360
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "3a4b8033a6d9"
-down_revision = "3d49263fe82c"
+revision = "24_3a4b8033a6d9"
+down_revision = "23_3d49263fe82c"
 branch_labels = None
 depends_on = None
 

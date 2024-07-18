@@ -1,7 +1,7 @@
 """referral add assess and cancel relevant fields
 
-Revision ID: b62ebe3bee7a
-Revises: 7ccbc75caff1
+Revision ID: 36_b62ebe3bee7a
+Revises: 35_7ccbc75caff1
 Create Date: 2022-02-12 07:19:33.491606
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "b62ebe3bee7a"
-down_revision = "7ccbc75caff1"
+revision = "36_b62ebe3bee7a"
+down_revision = "35_7ccbc75caff1"
 branch_labels = None
 depends_on = None
 

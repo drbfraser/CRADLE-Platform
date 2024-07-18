@@ -1,7 +1,7 @@
 """add allergy field to patient
 
-Revision ID: 5c7f69c30f5e
-Revises: b744b32f117e
+Revision ID: 30_5c7f69c30f5e
+Revises: 29_b744b32f117e
 Create Date: 2021-06-14 07:04:40.033591
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "5c7f69c30f5e"
-down_revision = "b744b32f117e"
+revision = "30_5c7f69c30f5e"
+down_revision = "29_b744b32f117e"
 branch_labels = None
 depends_on = None
 

@@ -1,6 +1,6 @@
 """Remove phoneNumber attribute from User table
-Revision ID: b52e9a02aaff
-Revises: 223e648ca151
+Revision ID: 75_b52e9a02aaff
+Revises: 74_223e648ca151
 Create Date: 2023-07-22 22:17:25.566719
 """
 
@@ -9,8 +9,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "b52e9a02aaff"
-down_revision = "223e648ca151"
+revision = "75_b52e9a02aaff"
+down_revision = "74_223e648ca151"
 branch_labels = None
 depends_on = None
 

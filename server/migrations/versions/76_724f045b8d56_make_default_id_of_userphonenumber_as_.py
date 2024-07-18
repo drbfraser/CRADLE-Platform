@@ -1,7 +1,7 @@
 """make default id of UserPhoneNumber as uuid
 
-Revision ID: 724f045b8d56
-Revises: b52e9a02aaff
+Revision ID: 76_724f045b8d56
+Revises: 75_b52e9a02aaff
 Create Date: 2023-07-31 01:55:10.145950
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "724f045b8d56"
-down_revision = "b52e9a02aaff"
+revision = "76_724f045b8d56"
+down_revision = "75_b52e9a02aaff"
 branch_labels = None
 depends_on = None
 

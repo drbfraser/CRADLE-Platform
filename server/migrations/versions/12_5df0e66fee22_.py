@@ -1,7 +1,7 @@
 """empty message
 
-Revision ID: 5df0e66fee22
-Revises: 1a82dffadaab
+Revision ID: 12_5df0e66fee22
+Revises: 11_1a82dffadaab
 Create Date: 2020-06-07 01:06:43.336604
 
 """
@@ -9,8 +9,8 @@ Create Date: 2020-06-07 01:06:43.336604
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "5df0e66fee22"
-down_revision = "1a82dffadaab"
+revision = "12_5df0e66fee22"
+down_revision = "11_1a82dffadaab"
 branch_labels = None
 depends_on = None
 
