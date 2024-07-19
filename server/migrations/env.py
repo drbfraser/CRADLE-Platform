@@ -83,7 +83,7 @@ def run_migrations_online():
                     last_rev_id = head_revision.split("_")[0]
                     # We have the migration number for this file
                     if last_rev_id.isnumeric():
-                        last_rev_id =  int(last_rev_id)
+                        last_rev_id = int(last_rev_id)
                     else:
                         # Migrations older than 82 doesn't have the migration number in the file name
                         # so we just hard code it here. Future PR can use a script to add number to old migration
