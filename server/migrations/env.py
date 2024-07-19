@@ -11,7 +11,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from alembic import context
 from alembic.script import ScriptDirectory
 
-
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -81,7 +80,15 @@ def run_migrations_online():
                 if head_revision is None:
                     new_rev_id = 1
                 else:
-                    last_rev_id = int(head_revision.split("_")[0])
+                    last_rev_id = head_revision.split("_")[0]
+                    # We have the migration number for this file
+                    if last_rev_id.isnumeric():
+                        last_rev_id =  int(last_rev_id)
+                    else:
+                        # Migrations older than 82 doesn't have the migration number in the file name
+                        # so we just hard code it here. Future PR can use a script to add number to old migration
+                        # file names
+                        last_rev_id = 81
                     new_rev_id = last_rev_id + 1
 
                 script.rev_id = f"{new_rev_id}_{script.rev_id}"
