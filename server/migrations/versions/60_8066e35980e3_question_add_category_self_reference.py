@@ -1,7 +1,7 @@
 """question add category self reference
 
-Revision ID: 60_8066e35980e3
-Revises: 59_f0abb9a3e931
+Revision ID: 8066e35980e3
+Revises: f0abb9a3e931
 Create Date: 2022-04-06 10:07:25.266376
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "60_8066e35980e3"
-down_revision = "59_f0abb9a3e931"
+revision = "8066e35980e3"
+down_revision = "f0abb9a3e931"
 branch_labels = None
 depends_on = None
 

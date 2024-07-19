@@ -1,6 +1,6 @@
 """Adding role column
 
-Revision ID: 26_ea8fb2a0822b
+Revision ID: ea8fb2a0822b
 Revises: a13ad326b35b
 Create Date: 2021-03-21 20:25:47.026889
 
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "26_ea8fb2a0822b"
-down_revision = "25_7734770efb74"
+revision = "ea8fb2a0822b"
+down_revision = "7734770efb74"
 branch_labels = None
 depends_on = None
 

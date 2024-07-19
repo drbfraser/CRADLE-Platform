@@ -1,7 +1,7 @@
 """add form and form template models
 
-Revision ID: 39_5161a368f64c
-Revises: 38_227cf4f3fa93
+Revision ID: 5161a368f64c
+Revises: 227cf4f3fa93
 Create Date: 2022-03-09 07:51:44.511516
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "39_5161a368f64c"
-down_revision = "38_227cf4f3fa93"
+revision = "5161a368f64c"
+down_revision = "227cf4f3fa93"
 branch_labels = None
 depends_on = None
 

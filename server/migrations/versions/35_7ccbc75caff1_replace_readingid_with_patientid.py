@@ -1,7 +1,7 @@
 """Replace readingId with patientId
 
-Revision ID: 35_7ccbc75caff1
-Revises: 34_1029b5bb3354
+Revision ID: 7ccbc75caff1
+Revises: 1029b5bb3354
 Create Date: 2022-02-07 22:28:30.847304
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "35_7ccbc75caff1"
-down_revision = "34_1029b5bb3354"
+revision = "7ccbc75caff1"
+down_revision = "1029b5bb3354"
 branch_labels = None
 depends_on = None
 

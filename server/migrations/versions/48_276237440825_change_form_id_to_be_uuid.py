@@ -1,7 +1,7 @@
 """Change form id to be uuid
 
-Revision ID: 48_276237440825
-Revises: 47_92e818bd7db3
+Revision ID: 276237440825
+Revises: 92e818bd7db3
 Create Date: 2022-03-18 07:08:05.807052
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "48_276237440825"
-down_revision = "47_92e818bd7db3"
+revision = "276237440825"
+down_revision = "92e818bd7db3"
 branch_labels = None
 depends_on = None
 

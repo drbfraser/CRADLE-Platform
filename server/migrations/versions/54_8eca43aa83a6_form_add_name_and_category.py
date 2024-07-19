@@ -1,7 +1,7 @@
 """form add name and category
 
-Revision ID: 54_8eca43aa83a6
-Revises: 53_39a8e91b95f3
+Revision ID: 8eca43aa83a6
+Revises: 39a8e91b95f3
 Create Date: 2022-03-23 03:04:41.840129
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "54_8eca43aa83a6"
-down_revision = "53_39a8e91b95f3"
+revision = "8eca43aa83a6"
+down_revision = "39a8e91b95f3"
 branch_labels = None
 depends_on = None
 

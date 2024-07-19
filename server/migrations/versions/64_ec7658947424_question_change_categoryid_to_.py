@@ -1,7 +1,7 @@
 """question change categoryid to categoryIndex
 
-Revision ID: 64_ec7658947424
-Revises: 63_3b0691f5ce8e
+Revision ID: ec7658947424
+Revises: 3b0691f5ce8e
 Create Date: 2022-04-16 11:22:59.766719
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "64_ec7658947424"
-down_revision = "63_3b0691f5ce8e"
+revision = "ec7658947424"
+down_revision = "3b0691f5ce8e"
 branch_labels = None
 depends_on = None
 

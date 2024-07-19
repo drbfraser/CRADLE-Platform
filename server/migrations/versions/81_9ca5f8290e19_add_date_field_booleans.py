@@ -1,7 +1,7 @@
 """add-date-field-booleans
 
-Revision ID: 81_9ca5f8290e19
-Revises: 80_5d293042e3b7
+Revision ID: 9ca5f8290e19
+Revises: 5d293042e3b7
 Create Date: 2024-02-22 07:31:23.320427
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "81_9ca5f8290e19"
-down_revision = "80_5d293042e3b7"
+revision = "9ca5f8290e19"
+down_revision = "5d293042e3b7"
 branch_labels = None
 depends_on = None
 

@@ -1,7 +1,7 @@
 """store timestamps as big integers
 
-Revision ID: 21_a1913287ffaf
-Revises: 20_cc4478373908
+Revision ID: a1913287ffaf
+Revises: cc4478373908
 Create Date: 2020-07-16 17:12:47.556117
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "21_a1913287ffaf"
-down_revision = "20_cc4478373908"
+revision = "a1913287ffaf"
+down_revision = "cc4478373908"
 branch_labels = None
 depends_on = None
 

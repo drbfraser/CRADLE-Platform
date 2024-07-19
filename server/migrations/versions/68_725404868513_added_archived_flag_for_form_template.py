@@ -1,7 +1,7 @@
 """Added archived flag for Form Template
 
-Revision ID: 68_725404868513
-Revises: 67_5bd241bc95c4
+Revision ID: 725404868513
+Revises: 5bd241bc95c4
 Create Date: 2022-06-17 08:56:14.911152
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "68_725404868513"
-down_revision = "67_5bd241bc95c4"
+revision = "725404868513"
+down_revision = "5bd241bc95c4"
 branch_labels = None
 depends_on = None
 

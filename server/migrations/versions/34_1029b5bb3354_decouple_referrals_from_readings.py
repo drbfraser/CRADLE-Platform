@@ -1,6 +1,6 @@
 """decouple referrals from readings
 
-Revision ID: 34_1029b5bb3354
+Revision ID: 1029b5bb3354
 Revises: c2df1dcd9256
 Create Date: 2022-02-02 02:40:55.334510
 
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "34_1029b5bb3354"
-down_revision = "33_daacd2c90e9e"
+revision = "1029b5bb3354"
+down_revision = "daacd2c90e9e"
 branch_labels = None
 depends_on = None
 

@@ -1,7 +1,7 @@
 """template change name type make index and unique
 
-Revision ID: 66_2c7e8d1996af
-Revises: 65_15ba72e0ecaa
+Revision ID: 2c7e8d1996af
+Revises: 15ba72e0ecaa
 Create Date: 2022-04-19 04:57:26.989578
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "66_2c7e8d1996af"
-down_revision = "65_15ba72e0ecaa"
+revision = "2c7e8d1996af"
+down_revision = "15ba72e0ecaa"
 branch_labels = None
 depends_on = None
 

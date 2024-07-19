@@ -1,7 +1,7 @@
 """change form template id to string
 
-Revision ID: 51_34a86324fdb4
-Revises: 50_c91d7f81c853
+Revision ID: 34a86324fdb4
+Revises: c91d7f81c853
 Create Date: 2022-03-22 05:56:47.644031
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "51_34a86324fdb4"
-down_revision = "50_c91d7f81c853"
+revision = "34a86324fdb4"
+down_revision = "c91d7f81c853"
 branch_labels = None
 depends_on = None
 

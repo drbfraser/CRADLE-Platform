@@ -1,7 +1,7 @@
 """remove form template and user foreign key
 
-Revision ID: 43_2435e7cc9c9c
-Revises: 42_19f48b160991
+Revision ID: 2435e7cc9c9c
+Revises: 19f48b160991
 Create Date: 2022-03-16 05:19:16.393868
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "43_2435e7cc9c9c"
-down_revision = "42_19f48b160991"
+revision = "2435e7cc9c9c"
+down_revision = "19f48b160991"
 branch_labels = None
 depends_on = None
 

@@ -1,7 +1,7 @@
 """Add StringMaxLines column
 
-Revision ID: 80_5d293042e3b7
-Revises: 79_bef7a571db37
+Revision ID: 5d293042e3b7
+Revises: bef7a571db37
 Create Date: 2024-02-03 09:12:01.829004
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "80_5d293042e3b7"
-down_revision = "79_bef7a571db37"
+revision = "5d293042e3b7"
+down_revision = "bef7a571db37"
 branch_labels = None
 depends_on = None
 

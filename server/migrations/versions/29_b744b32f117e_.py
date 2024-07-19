@@ -1,7 +1,7 @@
 """add pregnancy table
 
-Revision ID: 29_b744b32f117e
-Revises: 28_a8ad53e6717c
+Revision ID: b744b32f117e
+Revises: a8ad53e6717c
 Create Date: 2021-06-15 4:26
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "29_b744b32f117e"
-down_revision = "28_a8ad53e6717c"
+revision = "b744b32f117e"
+down_revision = "a8ad53e6717c"
 branch_labels = None
 depends_on = None
 

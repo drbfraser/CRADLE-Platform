@@ -1,7 +1,7 @@
 """Change followup id to string
 
-Revision ID: 50_c91d7f81c853
-Revises: 49_3d4134e04df9
+Revision ID: c91d7f81c853
+Revises: 3d4134e04df9
 Create Date: 2022-03-21 01:14:48.360133
 
 """
@@ -13,8 +13,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "50_c91d7f81c853"
-down_revision = "49_3d4134e04df9"
+revision = "c91d7f81c853"
+down_revision = "3d4134e04df9"
 branch_labels = None
 depends_on = None
 

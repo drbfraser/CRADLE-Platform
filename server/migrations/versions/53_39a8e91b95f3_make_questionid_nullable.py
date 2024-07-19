@@ -1,7 +1,7 @@
 """make questionId nullable
 
-Revision ID: 53_39a8e91b95f3
-Revises: 52_55b2e2abd300
+Revision ID: 39a8e91b95f3
+Revises: 55b2e2abd300
 Create Date: 2022-03-22 06:58:29.267023
 
 """
@@ -10,8 +10,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "53_39a8e91b95f3"
-down_revision = "52_55b2e2abd300"
+revision = "39a8e91b95f3"
+down_revision = "55b2e2abd300"
 branch_labels = None
 depends_on = None
 

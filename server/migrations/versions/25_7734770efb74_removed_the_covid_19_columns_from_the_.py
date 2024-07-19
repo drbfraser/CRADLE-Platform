@@ -1,7 +1,7 @@
 """removed the COVID-19 columns from the readings table
 
-Revision ID: 25_7734770efb74
-Revises: 24_3a4b8033a6d9
+Revision ID: 7734770efb74
+Revises: 3a4b8033a6d9
 Create Date: 2021-02-02 02:09:03.946579
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "25_7734770efb74"
-down_revision = "24_3a4b8033a6d9"
+revision = "7734770efb74"
+down_revision = "3a4b8033a6d9"
 branch_labels = None
 depends_on = None
 

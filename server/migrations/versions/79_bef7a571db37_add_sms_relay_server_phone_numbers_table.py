@@ -1,7 +1,7 @@
 """Add sms relay server phone numbers table
 
-Revision ID: 79_bef7a571db37
-Revises: 78_1ca32c9ac887
+Revision ID: bef7a571db37
+Revises: 1ca32c9ac887
 Create Date: 2023-11-15 04:04:02.329774
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "79_bef7a571db37"
-down_revision = "78_1ca32c9ac887"
+revision = "bef7a571db37"
+down_revision = "1ca32c9ac887"
 branch_labels = None
 depends_on = None
 

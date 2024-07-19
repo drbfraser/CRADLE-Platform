@@ -1,7 +1,7 @@
 """empty message
 
-Revision ID: 16_118564bd12f5
-Revises: 15_711f817125f9
+Revision ID: 118564bd12f5
+Revises: 711f817125f9
 Create Date: 2020-07-16 12:57:47.833311
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "16_118564bd12f5"
-down_revision = "15_711f817125f9"
+revision = "118564bd12f5"
+down_revision = "711f817125f9"
 branch_labels = None
 depends_on = None
 

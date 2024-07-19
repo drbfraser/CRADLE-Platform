@@ -1,7 +1,7 @@
 """Make question units nullable
 
-Revision ID: 45_c2893bc8d86e
-Revises: 44_cd95dad8b17b
+Revision ID: c2893bc8d86e
+Revises: cd95dad8b17b
 Create Date: 2022-03-18 04:37:23.532634
 
 """
@@ -10,8 +10,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "45_c2893bc8d86e"
-down_revision = "44_cd95dad8b17b"
+revision = "c2893bc8d86e"
+down_revision = "cd95dad8b17b"
 branch_labels = None
 depends_on = None
 

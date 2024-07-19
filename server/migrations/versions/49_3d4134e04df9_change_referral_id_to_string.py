@@ -1,7 +1,7 @@
 """Change referral id to string
 
-Revision ID: 49_3d4134e04df9
-Revises: 48_276237440825
+Revision ID: 3d4134e04df9
+Revises: 276237440825
 Create Date: 2022-03-21 00:32:22.851157
 
 """
@@ -13,8 +13,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "49_3d4134e04df9"
-down_revision = "48_276237440825"
+revision = "3d4134e04df9"
+down_revision = "276237440825"
 branch_labels = None
 depends_on = None
 

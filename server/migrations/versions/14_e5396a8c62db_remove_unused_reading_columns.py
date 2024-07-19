@@ -1,7 +1,7 @@
 """remove unused reading columns
 
-Revision ID: 14_e5396a8c62db
-Revises: 13_ff58b4ff640f
+Revision ID: e5396a8c62db
+Revises: ff58b4ff640f
 Create Date: 2020-07-09 23:34:39.205926
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "14_e5396a8c62db"
-down_revision = "13_ff58b4ff640f"
+revision = "e5396a8c62db"
+down_revision = "ff58b4ff640f"
 branch_labels = None
 depends_on = None
 

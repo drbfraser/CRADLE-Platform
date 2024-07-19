@@ -1,7 +1,7 @@
 """remove lang sensitive fields
 
-Revision ID: 62_75cd2467e3e4
-Revises: 61_d8919ab26a06
+Revision ID: 75cd2467e3e4
+Revises: d8919ab26a06
 Create Date: 2022-04-09 08:25:57.768517
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "62_75cd2467e3e4"
-down_revision = "61_d8919ab26a06"
+revision = "75cd2467e3e4"
+down_revision = "d8919ab26a06"
 branch_labels = None
 depends_on = None
 

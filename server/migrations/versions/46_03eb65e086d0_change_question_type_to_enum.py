@@ -1,7 +1,7 @@
 """Change question type to enum
 
-Revision ID: 46_03eb65e086d0
-Revises: 45_c2893bc8d86e
+Revision ID: 03eb65e086d0
+Revises: c2893bc8d86e
 Create Date: 2022-03-18 05:10:53.130656
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "46_03eb65e086d0"
-down_revision = "45_c2893bc8d86e"
+revision = "03eb65e086d0"
+down_revision = "c2893bc8d86e"
 branch_labels = None
 depends_on = None
 

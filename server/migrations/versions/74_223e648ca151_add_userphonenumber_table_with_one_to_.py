@@ -1,6 +1,6 @@
 """Add UserPhoneNumber table with one-to-many relationship with User
-Revision ID: 74_223e648ca151
-Revises: 73_f64d52006db0
+Revision ID: 223e648ca151
+Revises: f64d52006db0
 Create Date: 2023-07-22 21:23:54.287809
 """
 
@@ -8,8 +8,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "74_223e648ca151"
-down_revision = "73_f64d52006db0"
+revision = "223e648ca151"
+down_revision = "f64d52006db0"
 branch_labels = None
 depends_on = None
 

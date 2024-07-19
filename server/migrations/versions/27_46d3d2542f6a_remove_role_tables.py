@@ -1,7 +1,7 @@
 """remove role tables
 
-Revision ID: 27_46d3d2542f6a
-Revises: 26_ea8fb2a0822b
+Revision ID: 46d3d2542f6a
+Revises: ea8fb2a0822b
 Create Date: 2021-03-26 00:47:28.607425
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "27_46d3d2542f6a"
-down_revision = "26_ea8fb2a0822b"
+revision = "46d3d2542f6a"
+down_revision = "ea8fb2a0822b"
 branch_labels = None
 depends_on = None
 

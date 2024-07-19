@@ -1,7 +1,7 @@
 """change lang sensitive fields to new collation
 
-Revision ID: 63_3b0691f5ce8e
-Revises: 62_75cd2467e3e4
+Revision ID: 3b0691f5ce8e
+Revises: 75cd2467e3e4
 Create Date: 2022-04-09 08:27:16.623600
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "63_3b0691f5ce8e"
-down_revision = "62_75cd2467e3e4"
+revision = "3b0691f5ce8e"
+down_revision = "75cd2467e3e4"
 branch_labels = None
 depends_on = None
 

@@ -1,7 +1,7 @@
 """change form and template schema
 
-Revision ID: 41_7eafd350a1a9
-Revises: 40_5423f554155e
+Revision ID: 7eafd350a1a9
+Revises: 5423f554155e
 Create Date: 2022-03-10 13:46:37.664434
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "41_7eafd350a1a9"
-down_revision = "40_5423f554155e"
+revision = "7eafd350a1a9"
+down_revision = "5423f554155e"
 branch_labels = None
 depends_on = None
 

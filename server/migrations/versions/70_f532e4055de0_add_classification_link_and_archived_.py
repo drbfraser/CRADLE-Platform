@@ -1,7 +1,7 @@
 """add classification link and archived tag to form model
 
-Revision ID: 70_f532e4055de0
-Revises: 69_3451c3010032
+Revision ID: f532e4055de0
+Revises: 3451c3010032
 Create Date: 2022-07-17 09:11:07.686395
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "70_f532e4055de0"
-down_revision = "69_3451c3010032"
+revision = "f532e4055de0"
+down_revision = "3451c3010032"
 branch_labels = None
 depends_on = None
 

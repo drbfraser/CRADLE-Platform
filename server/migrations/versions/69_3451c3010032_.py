@@ -1,7 +1,7 @@
 """redesign FormTemplate and create FormClassification
 
-Revision ID: 69_3451c3010032
-Revises: 68_725404868513
+Revision ID: 3451c3010032
+Revises: 725404868513
 Create Date: 2022-06-17 03:47:55.068483
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "69_3451c3010032"
-down_revision = "68_725404868513"
+revision = "3451c3010032"
+down_revision = "725404868513"
 branch_labels = None
 depends_on = None
 

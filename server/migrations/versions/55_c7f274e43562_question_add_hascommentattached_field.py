@@ -1,7 +1,7 @@
 """question add hasCommentAttached field
 
-Revision ID: 55_c7f274e43562
-Revises: 54_8eca43aa83a6
+Revision ID: c7f274e43562
+Revises: 8eca43aa83a6
 Create Date: 2022-03-24 02:48:55.069808
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "55_c7f274e43562"
-down_revision = "54_8eca43aa83a6"
+revision = "c7f274e43562"
+down_revision = "8eca43aa83a6"
 branch_labels = None
 depends_on = None
 

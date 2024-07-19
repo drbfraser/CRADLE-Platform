@@ -1,7 +1,7 @@
 """Add phone number and secret key to user
 
-Revision ID: 71_cf9e5bcce121
-Revises: 70_f532e4055de0
+Revision ID: cf9e5bcce121
+Revises: f532e4055de0
 Create Date: 2022-09-29 19:29:42.581853
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "71_cf9e5bcce121"
-down_revision = "70_f532e4055de0"
+revision = "cf9e5bcce121"
+down_revision = "f532e4055de0"
 branch_labels = None
 depends_on = None
 

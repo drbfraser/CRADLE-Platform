@@ -1,7 +1,7 @@
 """change question min max type to float form add lang field
 
-Revision ID: 56_66296a0f5d6f
-Revises: 55_c7f274e43562
+Revision ID: 66296a0f5d6f
+Revises: c7f274e43562
 Create Date: 2022-04-06 04:21:07.399583
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "56_66296a0f5d6f"
-down_revision = "55_c7f274e43562"
+revision = "66296a0f5d6f"
+down_revision = "c7f274e43562"
 branch_labels = None
 depends_on = None
 

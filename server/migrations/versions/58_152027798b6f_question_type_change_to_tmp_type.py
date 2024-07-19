@@ -1,7 +1,7 @@
 """question type change to tmp type
 
-Revision ID: 58_152027798b6f
-Revises: 57_e6f5494b9217
+Revision ID: 152027798b6f
+Revises: e6f5494b9217
 Create Date: 2022-04-06 09:36:39.232683
 
 """
@@ -11,8 +11,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "58_152027798b6f"
-down_revision = "57_e6f5494b9217"
+revision = "152027798b6f"
+down_revision = "e6f5494b9217"
 branch_labels = None
 depends_on = None
 
