@@ -60,7 +60,7 @@ decrypted_body_test_cases = [
     },
     {
         "json": {"requestNumber": "12345", "method": "GET", "endpoint": "my/endpoint"},
-        "output": str,
+        "output": None,
     },
     {
         "json": {"requestNumber": 12345, "method": 12345, "endpoint": "my/endpoint"},

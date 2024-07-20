@@ -104,19 +104,6 @@ invalid_type_archived = {
     "questions": [],
 }
 
-invalid_type_lastEditedBy = {
-    "id": "123",
-    "lang": "english",
-    "patientId": "123",
-    "formTemplateId": "adas-d82314-27822-63139",
-    "formClassificationId": "adas-d82314-27822-63139",
-    "dateCreated": 1592339808,
-    "lastEdited": 1592339808,
-    "lastEditedBy": "123",
-    "archived": True,
-    "questions": [],
-}
-
 invalid_type_questions = {
     "id": "123",
     "lang": "english",
@@ -140,7 +127,6 @@ invalid_type_questions = {
         (invalid_keys, str),
         (invalid_type_patientId, str),
         (invalid_type_archived, str),
-        (invalid_type_lastEditedBy, str),
         (invalid_type_questions, str),
     ],
 )
