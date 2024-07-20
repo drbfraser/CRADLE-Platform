@@ -1,5 +1,5 @@
-from typing import Any, List, Optional
 import enum
+from typing import Any, List, Optional
 
 
 def check_invalid_keys_present(
@@ -79,7 +79,7 @@ def values_correct_type(
             else:
                 if type(_type) == enum.EnumMeta:
                     # for enum type, it checks whether the value is one of enum value
-                    if not request_body.get(key) in _type._value2member_map_:
+                    if request_body.get(key) not in _type._value2member_map_:
                         return "The value for key {" + key + "} is not the correct type."
                 else:
                     if not isinstance((request_body.get(key)), _type):
