@@ -73,16 +73,22 @@ def values_correct_type(
     """
     for key in key_names:
         if key in request_body and request_body.get(key) is not None:
-            if _type == int and is_int(request_body.get(key)):
-                return
-
-            if type(_type) is enum.EnumMeta and request_body.get(key) in _type._value2member_map_:
-                return
-
-            if isinstance((request_body.get(key)), _type):
-                return
-
-    return "The value for key {" + key + "} is not the correct type."
+            if _type == int:
+                if not is_int(request_body.get(key)):
+                    return "The value for key {" + key + "} is not the correct type."
+            else:
+                if type(_type) is enum.EnumMeta:
+                    # for enum type, it checks whether the value is one of enum value
+                    if request_body.get(key) not in _type._value2member_map_:
+                        return (
+                            "The value for key {" + key + "} is not the correct type."
+                        )
+                else:
+                    if not isinstance((request_body.get(key)), _type):
+                        return (
+                            "The value for key {" + key + "} is not the correct type."
+                        )
+    return None
 
 
 def is_int(s: Any) -> bool:
