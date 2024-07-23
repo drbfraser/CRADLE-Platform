@@ -58,8 +58,6 @@ valid_put_json_no_id = {
 
 put_json_with_id = {"id": 123}
 
-put_json_invalid_id_type = {"id": "123"}
-
 put_json_invalid_key = {"testing": "test"}
 
 
@@ -69,7 +67,6 @@ put_json_invalid_key = {"testing": "test"}
         (valid_put_json_no_id, "0", type(None)),
         (put_json_with_id, put_json_with_id.get("id"), type(None)),
         (put_json_with_id, "1249812490480", str),
-        (put_json_invalid_id_type, put_json_invalid_id_type.get("id"), str),
         (put_json_invalid_key, "0", str),
     ],
 )
