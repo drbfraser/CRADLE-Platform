@@ -4,6 +4,7 @@ import logging
 from logging.config import fileConfig
 
 from alembic import context
+from alembic.script import ScriptDirectory
 from sqlalchemy import engine_from_config, pool
 
 # this is the Alembic Config object, which provides
@@ -64,11 +65,29 @@ def run_migrations_online():
     # when there are no changes to the schema
     # reference: http://alembic.zzzcomputing.com/en/latest/cookbook.html
     def process_revision_directives(context, revision, directives):
-        if getattr(config.cmd_opts, "autogenerate", False):
+        if getattr(config.cmd_opts, "autogenerate", True):
             script = directives[0]
             if script.upgrade_ops.is_empty():
                 directives[:] = []
                 logger.info("No changes in schema detected.")
+            else:
+                script_directory = ScriptDirectory.from_config(config)
+                head_revision = script_directory.get_current_head()
+                if head_revision is None:
+                    new_rev_id = 1
+                else:
+                    last_rev_id = head_revision.split("_")[0]
+                    # We have the migration number for this file
+                    if last_rev_id.isnumeric():
+                        last_rev_id = int(last_rev_id)
+                    else:
+                        # Migrations older than 82 doesn't have the migration number in the file name
+                        # so we just hard code it here. Future PR can use a script to add number to old migration
+                        # file names
+                        last_rev_id = 81
+                    new_rev_id = last_rev_id + 1
+
+                script.rev_id = f"{new_rev_id}_{script.rev_id}"
 
     connectable = engine_from_config(
         config.get_section(config.config_ini_section),
