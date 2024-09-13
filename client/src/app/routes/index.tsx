@@ -2,17 +2,23 @@ import { AppRoute, appRoutes } from './utils';
 import { Route, Switch } from 'react-router-dom';
 
 import { PrivateRoute } from './privateRoute';
-import { useStyles } from './styles';
+import { Box } from '@mui/material';
 
 interface IProps {
   topBarOffset?: number;
 }
 
 export const AppRoutes: React.FC<IProps> = ({ topBarOffset }) => {
-  const classes = useStyles({ topBarOffset });
-
   return (
-    <main className={classes.content}>
+    <Box
+      component="main"
+      sx={{
+        padding: '0',
+        margin: '0',
+        height: '100%',
+        width: '100%',
+        gridArea: 'main',
+      }}>
       <Switch>
         {appRoutes.map((route: AppRoute): JSX.Element => {
           if (route.private) {
@@ -36,6 +42,6 @@ export const AppRoutes: React.FC<IProps> = ({ topBarOffset }) => {
           );
         })}
       </Switch>
-    </main>
+    </Box>
   );
 };
