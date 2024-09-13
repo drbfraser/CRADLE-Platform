@@ -15,6 +15,7 @@ import { routesNames } from './routes/utils';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useSelector } from 'react-redux';
 import { useStyles } from './styles';
+import { Box } from '@mui/material';
 
 type SelectorState = {
   loggedIn: boolean;
@@ -26,7 +27,7 @@ const DRAWER_WIDE = 120;
 const DRAWER_NARROW = 60;
 export const App: React.FC = () => {
   const [drawerWidth, setDrawerWidth] = useState(120);
-  const offsetFromTop = 100;
+  const offsetFromTop = 0;
 
   const [activeItem, setActiveItem] = React.useState<OrNull<string>>(null);
   const isBigScreen = useMediaQuery('(min-width:800px)');
@@ -64,7 +65,17 @@ export const App: React.FC = () => {
       offsetFromTop={offsetFromTop}
       isBigScreen={isBigScreen}>
       <CssBaseline />
-      <div className={classes.root}>
+      <Box
+        id={'rootContainer'}
+        sx={{
+          height: '100vh',
+          width: '100%',
+          maxHeight: '100vh',
+          maxWidth: '100vw',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'start',
+        }}>
         <TopBar
           user={user}
           setActiveItem={setActiveItem}
@@ -95,7 +106,7 @@ export const App: React.FC = () => {
           </Drawer>
         ) : null}
         <AppRoutes topBarOffset={offsetFromTop} />
-      </div>
+      </Box>
     </DimensionsContextProvider>
   );
 };
