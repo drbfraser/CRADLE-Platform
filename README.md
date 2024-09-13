@@ -92,3 +92,4 @@ the previously mentioned admin user is added along with a few additional users:
 | Ali Nanji | amnanji@sfu.ca |
 | Jarell Santella | jsa360@sfu.ca |
 | Ryan Milligan | rcm9@sfu.ca |
+| Mai Khanh Bui | mkb18@sfu.ca |
