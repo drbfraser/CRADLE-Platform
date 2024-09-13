@@ -14,6 +14,7 @@ import makeStyles from '@mui/styles/makeStyles';
 import { useAppDispatch } from 'src/app/context/hooks';
 import { useFormik } from 'formik';
 import { useSelector } from 'react-redux';
+import { Box, Container, InputLabelProps, TextField } from '@mui/material';
 
 export const LoginForm: React.FC = () => {
   const errorMessage = useSelector(
@@ -50,41 +51,56 @@ export const LoginForm: React.FC = () => {
         onClose={clearError}
         transitionDuration={0}
       />
-      <form className={classes.form} onSubmit={formik.handleSubmit}>
-        <h1 className={classes.login}>Log In</h1>
-        <h2>Email</h2>
-        <input
-          className={classes.inputStyle}
-          placeholder="somebody@example.com"
-          {...formik.getFieldProps('email')}
-        />
-        {formik.touched.email && formik.errors.email ? (
-          <div className={classes.formError}>{formik.errors.email}</div>
-        ) : null}
-        <h2>Password</h2>
-        <input
-          className={classes.inputStyle}
-          placeholder="********"
-          type="password"
-          {...formik.getFieldProps('password')}
-        />
-        {formik.touched.password && formik.errors.password ? (
-          <div className={classes.formError}>{formik.errors.password}</div>
-        ) : null}
-        <PrimaryButton type="submit" className={classes.right}>
-          Login
-        </PrimaryButton>
-      </form>
+      <Container id={'loginFormContainer'} className={classes.formContainer}>
+        <form className={classes.form} onSubmit={formik.handleSubmit}>
+          <h2 className={classes.login}>Log In</h2>
+          <Box id={'loginFormFieldsWrapper'} className={classes.fieldsWrapper}>
+            <Box className={classes.inputWrapper}>
+              <TextField
+                id={'emailField'}
+                label={'Email'}
+                className={classes.textField}
+                InputLabelProps={INPUT_LABEL_PROPS}
+                error={formik.touched.email && Boolean(formik.errors.email)}
+                helperText={
+                  (formik.touched.email && formik.errors.email) || ' '
+                }
+                {...formik.getFieldProps('email')}
+              />
+            </Box>
+            <Box className={classes.inputWrapper}>
+              <TextField
+                id={'passwordField'}
+                label={'Password'}
+                className={classes.textField}
+                InputLabelProps={INPUT_LABEL_PROPS}
+                error={
+                  formik.touched.password && Boolean(formik.errors.password)
+                }
+                helperText={
+                  (formik.touched.password && formik.errors.password) || ' '
+                }
+                {...formik.getFieldProps('password')}
+              />
+            </Box>
+          </Box>
+          <PrimaryButton type="submit" className={classes.right}>
+            Login
+          </PrimaryButton>
+        </form>
+      </Container>
     </>
   );
 };
+
+const INPUT_LABEL_PROPS: InputLabelProps = Object.freeze({ shrink: true });
 
 const useStyles = makeStyles({
   form: {
     display: 'flex',
     flexDirection: 'column',
-    rowGap: '5px',
     width: '260px',
+    justifyContent: 'space-evenly',
   },
   right: {
     marginLeft: 'auto',
@@ -107,5 +123,31 @@ const useStyles = makeStyles({
     fontSize: '12px',
     color: '#e53e3e',
     marginTop: '0.25rem',
+  },
+  textField: {
+    width: '100%',
+  },
+  formContainer: {
+    minHeight: '400px',
+    height: '100%',
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  fieldsWrapper: {
+    marginTop: '20px',
+    marginBottom: '5px',
+    display: 'flex',
+    flexDirection: 'column',
+    rowGap: '20px',
+  },
+  inputWrapper: {
+    // Prevents layout from shifting around when error text is visible.
+    minHeight: '80px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'start',
   },
 });
