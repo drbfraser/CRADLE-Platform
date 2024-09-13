@@ -59,3 +59,5 @@ export const userRoleLabels = {
   [UserRoleEnum.HCW]: 'HCW',
   [UserRoleEnum.ADMIN]: 'Admin',
 };
+
+export const TOP_BAR_HEIGHT = '100px';
