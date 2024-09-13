@@ -7,6 +7,7 @@ import { Tab } from 'semantic-ui-react';
 import { theme } from 'src/context/materialUI/theme';
 import { Route, Switch, useHistory, useRouteMatch } from 'react-router-dom';
 import { CustomFormTemplate } from './manageFormTemplates/editFormTemplate/CustomFormTemplate';
+import { DashboardWrapper } from 'src/shared/components/dashboard/DashboardWrapper';
 
 const pages = [
   {
@@ -55,7 +56,7 @@ export const AdminPage = () => {
   const activeIndex = activePageIndex === -1 ? 0 : activePageIndex;
 
   return (
-    <>
+    <DashboardWrapper>
       <Switch>
         <Route path={`${match.path}/form-templates/new`}>
           <CustomFormTemplate />
@@ -85,6 +86,6 @@ export const AdminPage = () => {
           />
         </Route>
       </Switch>
-    </>
+    </DashboardWrapper>
   );
 };

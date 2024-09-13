@@ -14,8 +14,6 @@ export const AppRoutes: React.FC<IProps> = ({ topBarOffset }) => {
       component="main"
       id="mainContainer"
       sx={{
-        padding: '0',
-        margin: '0',
         height: '100%',
         width: '100%',
       }}>
