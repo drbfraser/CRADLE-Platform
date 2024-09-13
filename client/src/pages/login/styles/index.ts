@@ -1,11 +1,11 @@
 import makeStyles from '@mui/styles/makeStyles';
+import { TOP_BAR_HEIGHT } from 'src/shared/constants';
 
 export const useStyles = makeStyles({
   imgStyle: {
-    height: `100%`,
-    width: `100%`,
-    position: `relative`,
-    left: `-25%`,
+    width: 'auto',
+    maxHeight: `calc(100vh - ${TOP_BAR_HEIGHT})`,
+    objectFit: 'cover',
   },
   loginWrapper: {
     display: `flex`,

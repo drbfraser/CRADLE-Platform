@@ -3,6 +3,9 @@ import { Redirect } from 'react-router-dom';
 import image from './img/splash_screen_4.png';
 import { useDimensionsContext } from 'src/app/context/hooks';
 import { useStyles } from './styles';
+import Stack from '@mui/material/Stack';
+import { Box } from '@mui/material';
+import { TOP_BAR_HEIGHT } from 'src/shared/constants';
 
 export const LoginPage: React.FC = () => {
   const classes = useStyles();
@@ -15,17 +18,25 @@ export const LoginPage: React.FC = () => {
   }
 
   return (
-    <div className={classes.loginWrapper}>
+    <Stack
+      direction={'row'}
+      sx={{
+        height: '100%',
+        maxHeight: '100%',
+      }}>
       {isBigScreen && (
-        <div className={classes.subWrapper}>
+        <Box
+          id="loginSplashImageContainer"
+          sx={{
+            height: '100%',
+            width: 'auto',
+            maxHeight: `calc(100vh - ${TOP_BAR_HEIGHT})`,
+          }}>
           <img alt="logo" src={image} className={classes.imgStyle} />
-        </div>
+        </Box>
       )}
-      <div className={isBigScreen ? classes.subWrapper : ''}>
-        <div className={classes.loginFormContainer}>
-          <LoginForm />
-        </div>
-      </div>
-    </div>
+
+      <LoginForm />
+    </Stack>
   );
 };
