@@ -61,6 +61,8 @@ export const LoginForm: React.FC = () => {
                 label={'Email'}
                 className={classes.textField}
                 InputLabelProps={INPUT_LABEL_PROPS}
+                type={'email'}
+                autoComplete={'email'}
                 error={formik.touched.email && Boolean(formik.errors.email)}
                 helperText={
                   (formik.touched.email && formik.errors.email) || ' '
@@ -74,6 +76,8 @@ export const LoginForm: React.FC = () => {
                 label={'Password'}
                 className={classes.textField}
                 InputLabelProps={INPUT_LABEL_PROPS}
+                type="password"
+                autoComplete="current-password"
                 error={
                   formik.touched.password && Boolean(formik.errors.password)
                 }
