@@ -18,7 +18,6 @@ export const AppRoutes: React.FC<IProps> = ({ topBarOffset }) => {
         margin: '0',
         height: '100%',
         width: '100%',
-        gridArea: 'main',
       }}>
       <Switch>
         {appRoutes.map((route: AppRoute): JSX.Element => {

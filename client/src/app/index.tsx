@@ -82,30 +82,41 @@ export const App: React.FC = () => {
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={handleSidebarOpen}
         />
-        {loggedIn ? (
-          <Drawer
-            className={classes.drawer}
-            variant={isBigScreen ? 'persistent' : 'temporary'}
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-            open={isBigScreen || isSidebarOpen}
-            onClose={() => handleSidebarOpen(false)}
-            anchor="left">
-            <div className={classes.toolbar}>
-              <Sidebar
-                activeItem={activeItem}
-                setActiveItem={setActiveItem}
-                isSidebarOpen={isSidebarOpen}
-                logout={{
-                  index: user?.role === UserRoleEnum.ADMIN ? 4 : 3,
-                  component: <LogoutMenuItem isSidebarOpen={isSidebarOpen} />,
-                }}
-              />
-            </div>
-          </Drawer>
-        ) : null}
-        <AppRoutes topBarOffset={offsetFromTop} />
+        <Box
+          id={'drawerWrapper'}
+          sx={{
+            padding: '0',
+            margin: '0',
+            height: '100%',
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'row',
+          }}>
+          {loggedIn ? (
+            <Drawer
+              className={classes.drawer}
+              variant={isBigScreen ? 'persistent' : 'temporary'}
+              classes={{
+                paper: classes.drawerPaper,
+              }}
+              open={isBigScreen || isSidebarOpen}
+              onClose={() => handleSidebarOpen(false)}
+              anchor="left">
+              <div className={classes.toolbar}>
+                <Sidebar
+                  activeItem={activeItem}
+                  setActiveItem={setActiveItem}
+                  isSidebarOpen={isSidebarOpen}
+                  logout={{
+                    index: user?.role === UserRoleEnum.ADMIN ? 4 : 3,
+                    component: <LogoutMenuItem isSidebarOpen={isSidebarOpen} />,
+                  }}
+                />
+              </div>
+            </Drawer>
+          ) : null}
+          <AppRoutes topBarOffset={offsetFromTop} />
+        </Box>
       </Box>
     </DimensionsContextProvider>
   );
