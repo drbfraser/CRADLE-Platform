@@ -14,6 +14,7 @@ import makeStyles from '@mui/styles/makeStyles';
 import { useAppDispatch } from 'src/app/context/hooks';
 import { useFormik } from 'formik';
 import { useSelector } from 'react-redux';
+import Container from '@mui/material/Container';
 
 export const LoginForm: React.FC = () => {
   const errorMessage = useSelector(
@@ -50,31 +51,47 @@ export const LoginForm: React.FC = () => {
         onClose={clearError}
         transitionDuration={0}
       />
-      <form className={classes.form} onSubmit={formik.handleSubmit}>
-        <h1 className={classes.login}>Log In</h1>
-        <h2>Email</h2>
-        <input
-          className={classes.inputStyle}
-          placeholder="somebody@example.com"
-          {...formik.getFieldProps('email')}
-        />
-        {formik.touched.email && formik.errors.email ? (
-          <div className={classes.formError}>{formik.errors.email}</div>
-        ) : null}
-        <h2>Password</h2>
-        <input
-          className={classes.inputStyle}
-          placeholder="********"
-          type="password"
-          {...formik.getFieldProps('password')}
-        />
-        {formik.touched.password && formik.errors.password ? (
-          <div className={classes.formError}>{formik.errors.password}</div>
-        ) : null}
-        <PrimaryButton type="submit" className={classes.right}>
-          Login
-        </PrimaryButton>
-      </form>
+      <Container
+        id={'loginFormContainer'}
+        sx={{
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <Container
+          id={'loginFormWrapper'}
+          sx={{
+            width: 'fit-content',
+          }}>
+          <form className={classes.form} onSubmit={formik.handleSubmit}>
+            <h1 className={classes.login}>Log In</h1>
+            <h2>Email</h2>
+            <input
+              className={classes.inputStyle}
+              placeholder="somebody@example.com"
+              {...formik.getFieldProps('email')}
+            />
+            {formik.touched.email && formik.errors.email ? (
+              <div className={classes.formError}>{formik.errors.email}</div>
+            ) : null}
+            <h2>Password</h2>
+            <input
+              className={classes.inputStyle}
+              placeholder="********"
+              type="password"
+              {...formik.getFieldProps('password')}
+            />
+            {formik.touched.password && formik.errors.password ? (
+              <div className={classes.formError}>{formik.errors.password}</div>
+            ) : null}
+            <PrimaryButton type="submit" className={classes.right}>
+              Login
+            </PrimaryButton>
+          </form>
+        </Container>
+      </Container>
     </>
   );
 };
