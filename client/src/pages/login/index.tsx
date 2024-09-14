@@ -7,8 +7,6 @@ import { Box, useMediaQuery } from '@mui/material';
 import { TOP_BAR_HEIGHT } from 'src/shared/constants';
 
 export const LoginPage: React.FC = () => {
-  // const classes = useStyles();
-
   // if the user has reached the login page, they likely came directly here
   // therefore Redux will be empty and we must check local storage for a token
   if (localStorage.getItem('token') !== null) {
