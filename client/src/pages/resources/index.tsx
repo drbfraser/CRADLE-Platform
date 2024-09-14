@@ -6,6 +6,7 @@ import { Tab } from 'semantic-ui-react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { getCurrentUser } from 'src/redux/reducers/user/currentUser';
+import { DashboardWrapper } from 'src/shared/components/dashboard/DashboardWrapper';
 
 const panes = [
   {
@@ -50,7 +51,7 @@ class HelpPageComponent extends Component<IProps> {
     }
 
     return (
-      <div>
+      <DashboardWrapper>
         <Tab
           menu={{
             secondary: true,
@@ -63,7 +64,7 @@ class HelpPageComponent extends Component<IProps> {
           }}
           panes={panes}
         />
-      </div>
+      </DashboardWrapper>
     );
   }
 }

@@ -2,7 +2,6 @@ import { BREAKPOINT, COLUMNS, SORTABLE_COLUMNS } from './constants';
 
 import { APITable } from 'src/shared/components/apiTable';
 import { EndpointEnum } from 'src/shared/enums';
-import Paper from '@mui/material/Paper';
 import { PatientRow } from './PatientRow';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { SortDir } from 'src/shared/components/apiTable/types';
@@ -13,6 +12,8 @@ import { useDimensionsContext } from 'src/app/context/hooks';
 import { useHistory } from 'react-router-dom';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useState } from 'react';
+import { DashboardWrapper } from 'src/shared/components/dashboard/DashboardWrapper';
+import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
 
 export const PatientsPage = () => {
   const classes = useStyles();
@@ -30,37 +31,39 @@ export const PatientsPage = () => {
   const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
 
   return (
-    <Paper className={classes.wrapper}>
-      <div className={classes.topWrapper}>
-        <h2 className={classes.title}>Patients</h2>
-        <div className={isBigScreen ? classes.right : ''}>
-          <TextField
-            data-testid="search-input"
-            size="small"
-            label="Search"
-            placeholder="PatientID or Name"
-            variant="outlined"
-            onChange={(e) => debounceSetSearch(e.target.value)}
-          />
-          <PrimaryButton
-            onClick={handleNewPatientClick}
-            data-testid="new patient button">
-            New Patient
-          </PrimaryButton>
+    <DashboardWrapper>
+      <DashboardPaper>
+        <div className={classes.topWrapper}>
+          <h2 className={classes.title}>Patients</h2>
+          <div className={isBigScreen ? classes.right : ''}>
+            <TextField
+              data-testid="search-input"
+              size="small"
+              label="Search"
+              placeholder="PatientID or Name"
+              variant="outlined"
+              onChange={(e) => debounceSetSearch(e.target.value)}
+            />
+            <PrimaryButton
+              onClick={handleNewPatientClick}
+              data-testid="new patient button">
+              New Patient
+            </PrimaryButton>
+          </div>
         </div>
-      </div>
-      <APITable
-        endpoint={EndpointEnum.PATIENTS}
-        search={search}
-        columns={COLUMNS}
-        sortableColumns={SORTABLE_COLUMNS}
-        rowKey={'patientId'}
-        initialSortBy={'patientName'}
-        initialSortDir={SortDir.ASC}
-        RowComponent={PatientRow}
-        isTransformed={isTransformed}
-      />
-    </Paper>
+        <APITable
+          endpoint={EndpointEnum.PATIENTS}
+          search={search}
+          columns={COLUMNS}
+          sortableColumns={SORTABLE_COLUMNS}
+          rowKey={'patientId'}
+          initialSortBy={'patientName'}
+          initialSortDir={SortDir.ASC}
+          RowComponent={PatientRow}
+          isTransformed={isTransformed}
+        />
+      </DashboardPaper>
+    </DashboardWrapper>
   );
 };
 

@@ -6,8 +6,8 @@ import { ReduxState } from 'src/redux/reducers';
 import { SidebarRoute } from './route';
 import { UserRoleEnum } from 'src/shared/enums';
 import { makeUniqueId } from 'src/shared/utils';
-import { useDimensionsContext } from '../context/hooks';
 import { useSelector } from 'react-redux';
+import { TOP_BAR_HEIGHT } from 'src/shared/constants';
 
 type CustomRoute = {
   index: number;
@@ -32,7 +32,7 @@ export const Sidebar: React.FC<IProps> = ({
   logout,
   setActiveItem,
 }) => {
-  const { offsetFromTop } = useDimensionsContext();
+  const offsetFromTop = TOP_BAR_HEIGHT;
   const { admin, loggedIn } = useSelector(
     ({ user }: ReduxState): SelectorState => {
       return {

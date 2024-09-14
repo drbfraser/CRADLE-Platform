@@ -84,7 +84,7 @@ export const TopBar = ({
   };
 
   return (
-    <AppBar className={classes.appBar} position="fixed">
+    <AppBar className={classes.appBar} position="sticky">
       <Toolbar>
         {loggedIn && (
           <IconButton onClick={toggleSidebar} color="inherit" size="large">

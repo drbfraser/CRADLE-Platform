@@ -15,6 +15,7 @@ import { routesNames } from './routes/utils';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useSelector } from 'react-redux';
 import { useStyles } from './styles';
+import { Box } from '@mui/material';
 
 type SelectorState = {
   loggedIn: boolean;
@@ -26,10 +27,10 @@ const DRAWER_WIDE = 120;
 const DRAWER_NARROW = 60;
 export const App: React.FC = () => {
   const [drawerWidth, setDrawerWidth] = useState(120);
-  const offsetFromTop = 100;
+  const offsetFromTop = 0;
 
   const [activeItem, setActiveItem] = React.useState<OrNull<string>>(null);
-  const isBigScreen = useMediaQuery('(min-width:800px)');
+  const isBigScreen = useMediaQuery('(min-width:1200px)');
   const [isSidebarOpen, setIsSidebarOpen] =
     React.useState<boolean>(isBigScreen);
 
@@ -64,38 +65,57 @@ export const App: React.FC = () => {
       offsetFromTop={offsetFromTop}
       isBigScreen={isBigScreen}>
       <CssBaseline />
-      <div className={classes.root}>
+      <Box
+        id={'rootContainer'}
+        sx={{
+          height: '100vh',
+          width: '100%',
+          maxHeight: '100vh',
+          maxWidth: '100vw',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'start',
+        }}>
         <TopBar
           user={user}
           setActiveItem={setActiveItem}
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={handleSidebarOpen}
         />
-        {loggedIn ? (
-          <Drawer
-            className={classes.drawer}
-            variant={isBigScreen ? 'persistent' : 'temporary'}
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-            open={isBigScreen || isSidebarOpen}
-            onClose={() => handleSidebarOpen(false)}
-            anchor="left">
-            <div className={classes.toolbar}>
-              <Sidebar
-                activeItem={activeItem}
-                setActiveItem={setActiveItem}
-                isSidebarOpen={isSidebarOpen}
-                logout={{
-                  index: user?.role === UserRoleEnum.ADMIN ? 4 : 3,
-                  component: <LogoutMenuItem isSidebarOpen={isSidebarOpen} />,
-                }}
-              />
-            </div>
-          </Drawer>
-        ) : null}
-        <AppRoutes topBarOffset={offsetFromTop} />
-      </div>
+        <Box
+          id={'drawerWrapper'}
+          sx={{
+            height: '100%',
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'row',
+          }}>
+          {loggedIn ? (
+            <Drawer
+              className={classes.drawer}
+              variant={isBigScreen ? 'persistent' : 'temporary'}
+              classes={{
+                paper: classes.drawerPaper,
+              }}
+              open={isBigScreen || isSidebarOpen}
+              onClose={() => handleSidebarOpen(false)}
+              anchor="left">
+              <div className={classes.toolbar}>
+                <Sidebar
+                  activeItem={activeItem}
+                  setActiveItem={setActiveItem}
+                  isSidebarOpen={isSidebarOpen}
+                  logout={{
+                    index: user?.role === UserRoleEnum.ADMIN ? 4 : 3,
+                    component: <LogoutMenuItem isSidebarOpen={isSidebarOpen} />,
+                  }}
+                />
+              </div>
+            </Drawer>
+          ) : null}
+          <AppRoutes topBarOffset={offsetFromTop} />
+        </Box>
+      </Box>
     </DimensionsContextProvider>
   );
 };
