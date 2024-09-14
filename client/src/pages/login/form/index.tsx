@@ -58,13 +58,11 @@ export const LoginForm: React.FC = () => {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'start',
+          justifyContent: 'center',
         }}>
         <Container
           id={'loginFormWrapper'}
           sx={{
-            marginTop: '15%',
-            marginBottom: 'auto',
             width: 'fit-content',
           }}>
           <form className={classes.form} onSubmit={formik.handleSubmit}>
