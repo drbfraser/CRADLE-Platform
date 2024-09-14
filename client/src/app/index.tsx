@@ -30,7 +30,7 @@ export const App: React.FC = () => {
   const offsetFromTop = 0;
 
   const [activeItem, setActiveItem] = React.useState<OrNull<string>>(null);
-  const isBigScreen = useMediaQuery('(min-width:800px)');
+  const isBigScreen = useMediaQuery('(min-width:1200px)');
   const [isSidebarOpen, setIsSidebarOpen] =
     React.useState<boolean>(isBigScreen);
 
