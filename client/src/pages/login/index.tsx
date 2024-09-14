@@ -25,6 +25,10 @@ export const LoginPage: React.FC = () => {
    */
   const aspectRatioThreshold = useMediaQuery('(min-aspect-ratio:1.3/1)');
 
+  // Below this height, the image starts to get messed up.
+  const minHeight = useMediaQuery('(min-height:500px)');
+  const showImage = aspectRatioThreshold && minHeight;
+
   return (
     <Stack
       direction={'row'}
@@ -32,7 +36,7 @@ export const LoginPage: React.FC = () => {
         height: '100%',
         maxHeight: '100%',
       }}>
-      {aspectRatioThreshold && (
+      {showImage && (
         <Box
           id="loginSplashImageContainer"
           sx={{
