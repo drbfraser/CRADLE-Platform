@@ -14,7 +14,13 @@ import makeStyles from '@mui/styles/makeStyles';
 import { useAppDispatch } from 'src/app/context/hooks';
 import { useFormik } from 'formik';
 import { useSelector } from 'react-redux';
-import { Box, Container, InputLabelProps, TextField } from '@mui/material';
+import {
+  Box,
+  Container,
+  InputLabelProps,
+  TextField,
+  useMediaQuery,
+} from '@mui/material';
 
 export const LoginForm: React.FC = () => {
   const errorMessage = useSelector(
@@ -42,6 +48,8 @@ export const LoginForm: React.FC = () => {
     dispatch(clearCurrentUserError());
   };
 
+  const minHeightThreshold = useMediaQuery('(min-height:500px)');
+
   return (
     <>
       <Toast
@@ -51,7 +59,10 @@ export const LoginForm: React.FC = () => {
         onClose={clearError}
         transitionDuration={0}
       />
-      <Container id={'loginFormContainer'} className={classes.formContainer}>
+      <Container
+        id={'loginFormContainer'}
+        className={classes.formContainer}
+        sx={minHeightThreshold ? undefined : UNDER_MIN_HEIGHT_SCALE}>
         <form className={classes.form} onSubmit={formik.handleSubmit}>
           <h2 className={classes.login}>Log In</h2>
           <Box id={'loginFormFieldsWrapper'} className={classes.fieldsWrapper}>
@@ -98,6 +109,10 @@ export const LoginForm: React.FC = () => {
 };
 
 const INPUT_LABEL_PROPS: InputLabelProps = Object.freeze({ shrink: true });
+
+const UNDER_MIN_HEIGHT_SCALE = {
+  transform: 'scale(0.75)',
+};
 
 const useStyles = makeStyles({
   form: {
