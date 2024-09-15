@@ -16,9 +16,9 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useSelector } from 'react-redux';
 import { useStyles } from './styles';
 import { Box } from '@mui/material';
-import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-const theme = createMuiTheme();
+const theme = createTheme();
 
 type SelectorState = {
   loggedIn: boolean;

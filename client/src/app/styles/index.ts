@@ -1,8 +1,5 @@
 import { OrUndefined } from 'src/shared/types';
-// import { Theme } from '@mui/material/styles';
-// import makeStyles from '@mui/styles/makeStyles';
-
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@mui/styles';
 
 interface IProps {
   drawerWidth?: number;
