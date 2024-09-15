@@ -1,12 +1,14 @@
 import { OrUndefined } from 'src/shared/types';
-import { Theme } from '@mui/material/styles';
-import makeStyles from '@mui/styles/makeStyles';
+// import { Theme } from '@mui/material/styles';
+// import makeStyles from '@mui/styles/makeStyles';
+
+import { makeStyles } from '@material-ui/core/styles';
 
 interface IProps {
   drawerWidth?: number;
 }
 
-export const useStyles = makeStyles((theme: Theme) => ({
+export const useStyles = makeStyles((theme) => ({
   root: {
     display: `flex`,
   },

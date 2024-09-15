@@ -16,6 +16,9 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useSelector } from 'react-redux';
 import { useStyles } from './styles';
 import { Box } from '@mui/material';
+import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+
+const theme = createMuiTheme();
 
 type SelectorState = {
   loggedIn: boolean;
@@ -60,62 +63,66 @@ export const App: React.FC = () => {
   }, [isBigScreen]);
 
   return (
-    <DimensionsContextProvider
-      drawerWidth={drawerWidth}
-      offsetFromTop={offsetFromTop}
-      isBigScreen={isBigScreen}>
-      <CssBaseline />
-      <Box
-        id={'rootContainer'}
-        sx={{
-          height: '100vh',
-          width: '100%',
-          maxHeight: '100vh',
-          maxWidth: '100vw',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'start',
-        }}>
-        <TopBar
-          user={user}
-          setActiveItem={setActiveItem}
-          isSidebarOpen={isSidebarOpen}
-          setIsSidebarOpen={handleSidebarOpen}
-        />
+    <ThemeProvider theme={theme}>
+      <DimensionsContextProvider
+        drawerWidth={drawerWidth}
+        offsetFromTop={offsetFromTop}
+        isBigScreen={isBigScreen}>
+        <CssBaseline />
         <Box
-          id={'drawerWrapper'}
+          id={'rootContainer'}
           sx={{
-            height: '100%',
+            height: '100vh',
             width: '100%',
+            maxHeight: '100vh',
+            maxWidth: '100vw',
             display: 'flex',
-            flexDirection: 'row',
+            flexDirection: 'column',
+            justifyContent: 'start',
           }}>
-          {loggedIn ? (
-            <Drawer
-              className={classes.drawer}
-              variant={isBigScreen ? 'persistent' : 'temporary'}
-              classes={{
-                paper: classes.drawerPaper,
-              }}
-              open={isBigScreen || isSidebarOpen}
-              onClose={() => handleSidebarOpen(false)}
-              anchor="left">
-              <div className={classes.toolbar}>
-                <Sidebar
-                  activeItem={activeItem}
-                  setActiveItem={setActiveItem}
-                  isSidebarOpen={isSidebarOpen}
-                  logout={{
-                    index: user?.role === UserRoleEnum.ADMIN ? 4 : 3,
-                    component: <LogoutMenuItem isSidebarOpen={isSidebarOpen} />,
-                  }}
-                />
-              </div>
-            </Drawer>
-          ) : null}
-          <AppRoutes topBarOffset={offsetFromTop} />
+          <TopBar
+            user={user}
+            setActiveItem={setActiveItem}
+            isSidebarOpen={isSidebarOpen}
+            setIsSidebarOpen={handleSidebarOpen}
+          />
+          <Box
+            id={'drawerWrapper'}
+            sx={{
+              height: '100%',
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'row',
+            }}>
+            {loggedIn ? (
+              <Drawer
+                className={classes.drawer}
+                variant={isBigScreen ? 'persistent' : 'temporary'}
+                classes={{
+                  paper: classes.drawerPaper,
+                }}
+                open={isBigScreen || isSidebarOpen}
+                onClose={() => handleSidebarOpen(false)}
+                anchor="left">
+                <div className={classes.toolbar}>
+                  <Sidebar
+                    activeItem={activeItem}
+                    setActiveItem={setActiveItem}
+                    isSidebarOpen={isSidebarOpen}
+                    logout={{
+                      index: user?.role === UserRoleEnum.ADMIN ? 4 : 3,
+                      component: (
+                        <LogoutMenuItem isSidebarOpen={isSidebarOpen} />
+                      ),
+                    }}
+                  />
+                </div>
+              </Drawer>
+            ) : null}
+            <AppRoutes topBarOffset={offsetFromTop} />
+          </Box>
         </Box>
-      </Box>
-    </DimensionsContextProvider>
+      </DimensionsContextProvider>
+    </ThemeProvider>
   );
 };
