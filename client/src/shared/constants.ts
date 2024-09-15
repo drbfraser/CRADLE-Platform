@@ -61,3 +61,4 @@ export const userRoleLabels = {
 };
 
 export const TOP_BAR_HEIGHT = '100px';
+export const BIG_SCREEN_MEDIA_QUERY = '(min-width:1200px)';
