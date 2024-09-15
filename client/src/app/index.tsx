@@ -17,7 +17,6 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 const theme = createTheme();
 
 type SelectorState = {
-  loggedIn: boolean;
   user: OrNull<IUserWithTokens>;
   pathName: Pathname;
 };
@@ -27,9 +26,8 @@ export const App: React.FC = () => {
 
   const [activeItem, setActiveItem] = React.useState<OrNull<string>>(null);
 
-  const { loggedIn, pathName, user } = useSelector(
+  const { pathName, user } = useSelector(
     ({ user, router }: ReduxState): SelectorState => ({
-      loggedIn: user.current.loggedIn,
       user: user.current.data,
       pathName: router.location.pathname,
     })
@@ -55,23 +53,21 @@ export const App: React.FC = () => {
         }}>
         <TopBar user={user} setActiveItem={setActiveItem} />
         <Box
-          id={'drawerWrapper'}
+          id={'sidebarWrapper'}
           sx={{
             height: '100%',
             width: '100%',
             display: 'flex',
             flexDirection: 'row',
           }}>
-          {loggedIn && (
-            <Sidebar
-              activeItem={activeItem}
-              setActiveItem={setActiveItem}
-              logout={{
-                index: user?.role === UserRoleEnum.ADMIN ? 4 : 3,
-                component: <LogoutMenuItem />,
-              }}
-            />
-          )}
+          <Sidebar
+            activeItem={activeItem}
+            setActiveItem={setActiveItem}
+            logout={{
+              index: user?.role === UserRoleEnum.ADMIN ? 4 : 3,
+              component: <LogoutMenuItem />,
+            }}
+          />
           <AppRoutes topBarOffset={offsetFromTop} />
         </Box>
       </Box>
