@@ -15,13 +15,14 @@ import { SortDir } from 'src/shared/components/apiTable/types';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import makeStyles from '@mui/styles/makeStyles';
-import { useAppDispatch, useDimensionsContext } from 'src/app/context/hooks';
+import { useAppDispatch } from 'src/app/context/hooks';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { SecretKeyState, getSecretKey } from 'src/redux/reducers/secretKey';
 import { ReduxState } from 'src/redux/reducers';
 import { Toast } from 'src/shared/components/toast';
 import { DashboardWrapper } from 'src/shared/components/dashboard/DashboardWrapper';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
+import { BIG_SCREEN_MEDIA_QUERY } from 'src/shared/constants';
 
 export const ReferralsPage = () => {
   const classes = useStyles();
@@ -37,7 +38,7 @@ export const ReferralsPage = () => {
 
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
-  const { isBigScreen } = useDimensionsContext();
+  const isBigScreen = useMediaQuery(BIG_SCREEN_MEDIA_QUERY);
   const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
 
   const userId = useSelector(({ user }: ReduxState): number | undefined => {

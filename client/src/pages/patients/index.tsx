@@ -8,12 +8,12 @@ import { SortDir } from 'src/shared/components/apiTable/types';
 import TextField from '@mui/material/TextField';
 import { debounce } from 'lodash';
 import makeStyles from '@mui/styles/makeStyles';
-import { useDimensionsContext } from 'src/app/context/hooks';
 import { useHistory } from 'react-router-dom';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useState } from 'react';
 import { DashboardWrapper } from 'src/shared/components/dashboard/DashboardWrapper';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
+import { BIG_SCREEN_MEDIA_QUERY } from 'src/shared/constants';
 
 export const PatientsPage = () => {
   const classes = useStyles();
@@ -27,7 +27,7 @@ export const PatientsPage = () => {
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
 
-  const { isBigScreen } = useDimensionsContext();
+  const isBigScreen = useMediaQuery(BIG_SCREEN_MEDIA_QUERY);
   const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
 
   return (

@@ -4,7 +4,8 @@ import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import Select from '@mui/material/Select';
 import makeStyles from '@mui/styles/makeStyles';
-import { useDimensionsContext } from 'src/app/context/hooks';
+import { useMediaQuery } from '@mui/material';
+import { BIG_SCREEN_MEDIA_QUERY } from 'src/shared/constants';
 
 interface IProps {
   dataLen: number;
@@ -24,7 +25,7 @@ const Pagination = ({ dataLen, page, limit, setPage, setLimit }: IProps) => {
   // guess that if we're at the limit there are more
   const canPageForward = dataLen === limit;
 
-  const { isBigScreen } = useDimensionsContext();
+  const isBigScreen = useMediaQuery(BIG_SCREEN_MEDIA_QUERY);
 
   return (
     <div className={isBigScreen ? classes.wrapper : classes.wrapperThin}>
