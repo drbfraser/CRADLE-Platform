@@ -1,11 +1,12 @@
 import { OrUndefined } from 'src/shared/types';
-import { makeStyles } from '@mui/styles';
+import { Theme } from '@mui/material/styles';
+import makeStyles from '@mui/styles/makeStyles';
 
 interface IProps {
-  drawerWidth?: number;
+  drawerWidth?: number | string;
 }
 
-export const useStyles = makeStyles((theme) => ({
+export const useStyles = makeStyles((theme: Theme) => ({
   root: {
     display: `flex`,
   },
@@ -15,7 +16,7 @@ export const useStyles = makeStyles((theme) => ({
     fontSize: 18,
   },
   drawer: {
-    width: ({ drawerWidth }: IProps): OrUndefined<number> => {
+    width: ({ drawerWidth }: IProps): OrUndefined<number | string> => {
       return drawerWidth;
     },
     flexShrink: 0,
@@ -25,7 +26,7 @@ export const useStyles = makeStyles((theme) => ({
     background: `linear-gradient(to bottom,  #3b679e 0%,#34787e 0%,#45889f 51%,#65a6df 100%)`,
     filter:
       'progid:DXImageTransform.Microsoft.gradient( startColorstr=`#3b679e`, endColorstr=`#65a6df`,GradientType=0 )' /* IE6-9 */,
-    width: ({ drawerWidth }: IProps): OrUndefined<number> => {
+    width: ({ drawerWidth }: IProps): OrUndefined<number | string> => {
       return drawerWidth;
     },
   },
