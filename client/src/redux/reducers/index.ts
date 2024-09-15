@@ -11,6 +11,7 @@ import { combineReducers } from 'redux';
 import { connectRouter } from 'connected-react-router';
 import { messageReducer } from '../reducers/message/messageReducer';
 import { SecretKeyState, secretKeyReducer } from './secretKey';
+import { SidebarState, sidebarSlice } from '../sidebar-state';
 
 export type ReduxState = {
   healthFacilities: HealthFacilitiesState;
@@ -18,6 +19,7 @@ export type ReduxState = {
   router: RouterState;
   message: MessageState;
   secretKey: SecretKeyState;
+  drawer: SidebarState;
 };
 
 const createRootReducer = (history: History) => {
@@ -27,6 +29,7 @@ const createRootReducer = (history: History) => {
     user: userReducer,
     message: messageReducer,
     secretKey: secretKeyReducer,
+    sidebar: sidebarSlice.reducer,
   });
 };
 
