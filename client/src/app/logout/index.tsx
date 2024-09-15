@@ -1,4 +1,4 @@
-import { useAppDispatch, useAppSelector } from '../context/hooks';
+import { useAppDispatch, useAppSelector } from '../../shared/hooks';
 
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import ListItem from '@mui/material/ListItem';

@@ -10,7 +10,7 @@ import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import { getHealthFacilitiesAsync } from 'src/shared/api';
 import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
 import { useAdminStyles } from '../adminStyles';
-import { useAppDispatch } from 'src/app/context/hooks';
+import { useAppDispatch } from 'src/shared/hooks';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 export const ManageFacilities = () => {

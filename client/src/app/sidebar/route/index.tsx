@@ -5,7 +5,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import { OrNull } from 'src/shared/types';
 import Typography from '@mui/material/Typography';
-import { useAppSelector } from 'src/app/context/hooks';
+import { useAppSelector } from 'src/shared/hooks';
 import { useStyles } from '../../styles';
 import { selectSidebarIsOpen } from 'src/redux/sidebar-state';
 import { DRAWER_NARROW, DRAWER_WIDE } from 'src/shared/constants';

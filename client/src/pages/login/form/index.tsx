@@ -11,7 +11,7 @@ import { PrimaryButton } from 'src/shared/components/Button';
 import { ReduxState } from 'src/redux/reducers';
 import { Toast } from 'src/shared/components/toast';
 import makeStyles from '@mui/styles/makeStyles';
-import { useAppDispatch } from 'src/app/context/hooks';
+import { useAppDispatch } from 'src/shared/hooks';
 import { useFormik } from 'formik';
 import { useSelector } from 'react-redux';
 import {

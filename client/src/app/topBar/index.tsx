@@ -1,6 +1,6 @@
 import { IUserWithTokens, OrNull } from 'src/shared/types';
 import { Menu, MenuItem, useMediaQuery, useTheme } from '@mui/material';
-import { useAppDispatch, useAppSelector } from '../context/hooks';
+import { useAppDispatch, useAppSelector } from '../../shared/hooks';
 
 import AppBar from '@mui/material/AppBar';
 import AppImg from './img/app_icon.png';

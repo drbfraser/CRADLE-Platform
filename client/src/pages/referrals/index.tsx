@@ -15,7 +15,7 @@ import { SortDir } from 'src/shared/components/apiTable/types';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import makeStyles from '@mui/styles/makeStyles';
-import { useAppDispatch } from 'src/app/context/hooks';
+import { useAppDispatch } from 'src/shared/hooks';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { SecretKeyState, getSecretKey } from 'src/redux/reducers/secretKey';
 import { ReduxState } from 'src/redux/reducers';

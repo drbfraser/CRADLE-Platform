@@ -15,7 +15,7 @@ import {
 import Drawer from '@mui/material/Drawer';
 import { useMediaQuery, useTheme } from '@mui/material';
 import { useStyles } from '../styles';
-import { useAppDispatch, useAppSelector } from '../context/hooks';
+import { useAppDispatch, useAppSelector } from 'src/shared/hooks';
 import {
   selectSidebarIsOpen,
   closeSidebar as closeSidebarAction,

@@ -2,7 +2,7 @@ import { HealthFacility, OrNull } from 'src/shared/types';
 
 import { ReduxState } from 'src/redux/reducers';
 import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
-import { useAppDispatch } from 'src/app/context/hooks';
+import { useAppDispatch } from 'src/shared/hooks';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
