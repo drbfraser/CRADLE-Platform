@@ -6,7 +6,7 @@ export type SidebarState = {
 };
 
 const initialSidebarState: SidebarState = {
-  isOpen: false,
+  isOpen: true,
 };
 
 export const sidebarSlice = createSlice({
