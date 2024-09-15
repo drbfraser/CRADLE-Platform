@@ -1,6 +1,6 @@
 import { IUserWithTokens, OrNull } from 'src/shared/types';
-import { Menu, MenuItem } from '@mui/material';
-import { useAppDispatch, useDimensionsContext } from '../context/hooks';
+import { Menu, MenuItem, useMediaQuery } from '@mui/material';
+import { useAppDispatch, useAppSelector } from '../context/hooks';
 
 import AppBar from '@mui/material/AppBar';
 import AppImg from './img/app_icon.png';
@@ -15,34 +15,38 @@ import Typography from '@mui/material/Typography';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
 import { push } from 'connected-react-router';
 import { useSelector } from 'react-redux';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useStyles } from './styles';
-import { userRoleLabels } from 'src/shared/constants';
+import { BIG_SCREEN_MEDIA_QUERY, userRoleLabels } from 'src/shared/constants';
+import {
+  selectSidebarIsOpen,
+  toggleSidebar as toggleSidebarAction,
+} from 'src/redux/sidebar-state';
 
 interface IProps {
   user: OrNull<IUserWithTokens>;
   setActiveItem: (item: string) => void;
-  isSidebarOpen: boolean;
-  setIsSidebarOpen: (isOpen: boolean) => void;
 }
 
-export const TopBar = ({
-  user,
-  setActiveItem,
-  isSidebarOpen,
-  setIsSidebarOpen,
-}: IProps) => {
-  const { isBigScreen } = useDimensionsContext();
+export const TopBar = ({ user, setActiveItem }: IProps) => {
+  const isBigScreen = useMediaQuery(BIG_SCREEN_MEDIA_QUERY);
+
+  const dispatch = useAppDispatch();
+
   const loggedIn = useSelector(({ user }: ReduxState): boolean => {
     return user.current.loggedIn;
   });
+
+  const isSidebarOpen = useAppSelector(selectSidebarIsOpen);
+
+  const toggleSidebar = useCallback(() => {
+    dispatch(toggleSidebarAction());
+  }, [dispatch]);
 
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
 
   const classes = useStyles();
-
-  const dispatch = useAppDispatch();
 
   const navigateSecretKeyDetailPage = (): void => {
     setMenuAnchorEl(null);
@@ -62,10 +66,6 @@ export const TopBar = ({
   const handleLogout = () => {
     setMenuAnchorEl(null);
     dispatch(logoutUser());
-  };
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
   };
 
   const showUserDetails = () => {

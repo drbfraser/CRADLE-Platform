@@ -5,8 +5,10 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import { OrNull } from 'src/shared/types';
 import Typography from '@mui/material/Typography';
-import { useDimensionsContext } from 'src/app/context/hooks';
+import { useAppSelector } from 'src/app/context/hooks';
 import { useStyles } from '../../styles';
+import { selectSidebarIsOpen } from 'src/redux/sidebar-state';
+import { DRAWER_NARROW, DRAWER_WIDE } from 'src/shared/constants';
 
 interface IProps {
   activeItem: OrNull<string>;
@@ -21,9 +23,9 @@ export const SidebarRoute: React.FC<IProps> = ({
   route,
   updateActiveItem,
   appendedRoute,
-  isSidebarOpen,
 }) => {
-  const { drawerWidth } = useDimensionsContext();
+  const isSidebarOpen = useAppSelector(selectSidebarIsOpen);
+  const drawerWidth = isSidebarOpen ? DRAWER_WIDE : DRAWER_NARROW;
   const classes = useStyles({ drawerWidth });
 
   if (!route.to) {

@@ -1,4 +1,4 @@
-import { useAppDispatch, useDimensionsContext } from '../context/hooks';
+import { useAppDispatch, useAppSelector } from '../context/hooks';
 
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import ListItem from '@mui/material/ListItem';
@@ -7,16 +7,14 @@ import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
 import { useStyles } from '../styles';
+import { selectSidebarIsOpen } from 'src/redux/sidebar-state';
+import { DRAWER_NARROW, DRAWER_WIDE } from 'src/shared/constants';
 
-interface IProps {
-  isSidebarOpen: boolean;
-}
-
-export const LogoutMenuItem: React.FC<IProps> = ({ isSidebarOpen }) => {
-  const { drawerWidth } = useDimensionsContext();
-  const classes = useStyles({ drawerWidth });
-
+export const LogoutMenuItem: React.FC = () => {
   const dispatch = useAppDispatch();
+  const isSidebarOpen = useAppSelector(selectSidebarIsOpen);
+  const drawerWidth = isSidebarOpen ? DRAWER_WIDE : DRAWER_NARROW;
+  const classes = useStyles({ drawerWidth });
 
   const handleLogout = (): void => {
     dispatch(logoutUser());
