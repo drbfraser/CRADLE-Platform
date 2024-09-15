@@ -20,8 +20,7 @@ import { handleSubmit } from './handlers';
 import makeStyles from '@mui/styles/makeStyles';
 import { useRouteMatch } from 'react-router-dom';
 import { vitalSignsValidationSchema } from './vitalSigns/validation';
-import { useMediaQuery } from '@mui/material';
-import { BIG_SCREEN_MEDIA_QUERY } from 'src/shared/constants';
+import { useMediaQuery, useTheme } from '@mui/material';
 
 type RouteParams = {
   patientId: string;
@@ -29,7 +28,8 @@ type RouteParams = {
 
 export const ReadingFormPage = () => {
   const classes = useStyles();
-  const isBigScreen = useMediaQuery(BIG_SCREEN_MEDIA_QUERY);
+  const theme = useTheme();
+  const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
   const { patientId } = useRouteMatch<RouteParams>().params;
   const [submitError, setSubmitError] = useState(false);

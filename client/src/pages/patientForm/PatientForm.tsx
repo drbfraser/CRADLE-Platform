@@ -34,8 +34,7 @@ import { personalInfoValidationSchema } from './personalInfo/validation';
 import { pregnancyInfoValidationSchema } from './pregnancyInfo/validation';
 import { useHistory } from 'react-router-dom';
 import { useState } from 'react';
-import { useMediaQuery } from '@mui/material';
-import { BIG_SCREEN_MEDIA_QUERY } from 'src/shared/constants';
+import { useMediaQuery, useTheme } from '@mui/material';
 
 interface PatientFormProps {
   editId: string;
@@ -58,7 +57,10 @@ export const PatientForm = ({
 }: PatientFormProps) => {
   const classes = useStyles();
   const history = useHistory();
-  const isBigScreen = useMediaQuery(BIG_SCREEN_MEDIA_QUERY);
+
+  const theme = useTheme();
+  const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
+
   const [submitError, setSubmitError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);

@@ -1,5 +1,5 @@
 import { IUserWithTokens, OrNull } from 'src/shared/types';
-import { Menu, MenuItem, useMediaQuery } from '@mui/material';
+import { Menu, MenuItem, useMediaQuery, useTheme } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../context/hooks';
 
 import AppBar from '@mui/material/AppBar';
@@ -17,7 +17,7 @@ import { push } from 'connected-react-router';
 import { useSelector } from 'react-redux';
 import { useCallback, useState } from 'react';
 import { useStyles } from './styles';
-import { BIG_SCREEN_MEDIA_QUERY, userRoleLabels } from 'src/shared/constants';
+import { userRoleLabels } from 'src/shared/constants';
 import {
   selectSidebarIsOpen,
   toggleSidebar as toggleSidebarAction,
@@ -29,7 +29,8 @@ interface IProps {
 }
 
 export const TopBar = ({ user, setActiveItem }: IProps) => {
-  const isBigScreen = useMediaQuery(BIG_SCREEN_MEDIA_QUERY);
+  const theme = useTheme();
+  const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
   const dispatch = useAppDispatch();
 

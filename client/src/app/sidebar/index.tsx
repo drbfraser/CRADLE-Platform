@@ -8,13 +8,12 @@ import { UserRoleEnum } from 'src/shared/enums';
 import { makeUniqueId } from 'src/shared/utils';
 import { useSelector } from 'react-redux';
 import {
-  BIG_SCREEN_MEDIA_QUERY,
   DRAWER_NARROW,
   DRAWER_WIDE,
   TOP_BAR_HEIGHT,
 } from 'src/shared/constants';
 import Drawer from '@mui/material/Drawer';
-import { useMediaQuery } from '@mui/material';
+import { useMediaQuery, useTheme } from '@mui/material';
 import { useStyles } from '../styles';
 import { useAppDispatch, useAppSelector } from '../context/hooks';
 import {
@@ -46,8 +45,8 @@ export const Sidebar: React.FC<IProps> = ({
   setActiveItem,
 }) => {
   const offsetFromTop = TOP_BAR_HEIGHT;
-
-  const isBigScreen = useMediaQuery(BIG_SCREEN_MEDIA_QUERY);
+  const theme = useTheme();
+  const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
   const dispatch = useAppDispatch();
   const isSidebarOpen = useAppSelector(selectSidebarIsOpen);

@@ -5,13 +5,12 @@ import { PrimaryButton, SecondaryButton } from 'src/shared/components/Button';
 import MobileStepper from '@mui/material/MobileStepper';
 import Paper from '@mui/material/Paper';
 import PropTypes from 'prop-types';
-import { Theme } from '@mui/material/styles';
+import { Theme, useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import createStyles from '@mui/styles/createStyles';
 import makeStyles from '@mui/styles/makeStyles';
 import { useState } from 'react';
 import { useMediaQuery } from '@mui/material';
-import { BIG_SCREEN_MEDIA_QUERY } from 'src/shared/constants';
 
 interface IProps {
   posterImgSrc: any[];
@@ -51,7 +50,8 @@ function ResourceTabPage(props: IProps): JSX.Element {
   const classes = useStyles();
   const [activeStep, setActiveStep] = useState(0);
   const maxSteps = props.posterImgSrc.length;
-  const isBigScreen = useMediaQuery(BIG_SCREEN_MEDIA_QUERY);
+  const theme = useTheme();
+  const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);

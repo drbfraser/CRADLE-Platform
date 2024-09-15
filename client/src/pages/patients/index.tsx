@@ -12,8 +12,8 @@ import { useHistory } from 'react-router-dom';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useState } from 'react';
 import { DashboardWrapper } from 'src/shared/components/dashboard/DashboardWrapper';
+import { useTheme } from '@mui/material';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
-import { BIG_SCREEN_MEDIA_QUERY } from 'src/shared/constants';
 
 export const PatientsPage = () => {
   const classes = useStyles();
@@ -27,7 +27,8 @@ export const PatientsPage = () => {
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
 
-  const isBigScreen = useMediaQuery(BIG_SCREEN_MEDIA_QUERY);
+  const theme = useTheme();
+  const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
   const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
 
   return (

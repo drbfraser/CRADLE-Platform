@@ -22,7 +22,7 @@ import { ReduxState } from 'src/redux/reducers';
 import { Toast } from 'src/shared/components/toast';
 import { DashboardWrapper } from 'src/shared/components/dashboard/DashboardWrapper';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
-import { BIG_SCREEN_MEDIA_QUERY } from 'src/shared/constants';
+import { useTheme } from '@mui/material';
 
 export const ReferralsPage = () => {
   const classes = useStyles();
@@ -38,7 +38,8 @@ export const ReferralsPage = () => {
 
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
-  const isBigScreen = useMediaQuery(BIG_SCREEN_MEDIA_QUERY);
+  const theme = useTheme();
+  const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
   const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
 
   const userId = useSelector(({ user }: ReduxState): number | undefined => {
