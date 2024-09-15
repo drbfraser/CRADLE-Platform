@@ -20,7 +20,9 @@ import { useAppDispatch, useAppSelector } from '../context/hooks';
 import {
   selectSidebarIsOpen,
   closeSidebar as closeSidebarAction,
+  openSidebar as openSidebarAction,
 } from 'src/redux/sidebar-state';
+import { useEffect } from 'react';
 
 type CustomRoute = {
   index: number;
@@ -71,6 +73,15 @@ export const Sidebar: React.FC<IProps> = ({
     dispatch(closeSidebarAction());
   };
 
+  useEffect(() => {
+    // Close sidebar if screen is small.
+    if (!isBigScreen) {
+      dispatch(closeSidebarAction());
+    } else {
+      dispatch(openSidebarAction());
+    }
+  }, [isBigScreen]);
+
   const drawerWidth = isSidebarOpen ? DRAWER_WIDE : DRAWER_NARROW;
   const classes = useStyles({ drawerWidth });
 
@@ -84,7 +95,6 @@ export const Sidebar: React.FC<IProps> = ({
         paper: classes.drawerPaper,
       }}
       open={isBigScreen || isSidebarOpen}
-      // onClose={() => handleSidebarOpen(false)}
       onClose={closeSidebar}
       anchor="left">
       <div className={classes.toolbar}>
