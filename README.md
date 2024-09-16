@@ -94,3 +94,4 @@ the previously mentioned admin user is added along with a few additional users:
 | Ryan Milligan | rcm9@sfu.ca |
 | Mai Khanh Bui | mkb18@sfu.ca |
 | Jason Spence | jrspence@sfu.ca |
+| Jachak Sekhon | jachaks@sfu.ca |
