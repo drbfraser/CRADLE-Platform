@@ -39,7 +39,6 @@ class Root(Resource):
         return assessment.id, 201
 
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/assessments-get.yml",
         methods=["GET"],
