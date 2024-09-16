@@ -48,6 +48,20 @@ else:
 print("Binding to " + host + ":" + port)
 
 
+def is_public_endpoint(request):
+    endpoint_handler_func = app.view_functions[request.endpoint]
+    return getattr(endpoint_handler_func, "is_public_endpoint", True)
+
+
+@app.before_request
+def require_authorization():
+    """
+    run authorization check for all urls by default
+    """
+    if not is_public_endpoint(app.request):
+        verify_jwt_in_request()
+
+
 @app.after_request
 def log_request_details(response):
     """
