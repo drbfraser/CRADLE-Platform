@@ -12,9 +12,6 @@ import { UserRoleEnum } from 'src/shared/enums';
 import { routesNames } from './routes/utils';
 import { useSelector } from 'react-redux';
 import { Box } from '@mui/material';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-
-const theme = createTheme();
 
 type SelectorState = {
   user: OrNull<IUserWithTokens>;
@@ -38,7 +35,7 @@ export const App: React.FC = () => {
   }, [pathName]);
 
   return (
-    <ThemeProvider theme={theme}>
+    <>
       <CssBaseline />
       <Box
         id={'rootContainer'}
@@ -71,6 +68,6 @@ export const App: React.FC = () => {
           <AppRoutes topBarOffset={offsetFromTop} />
         </Box>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
