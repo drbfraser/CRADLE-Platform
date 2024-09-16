@@ -95,3 +95,4 @@ the previously mentioned admin user is added along with a few additional users:
 | Mai Khanh Bui | mkb18@sfu.ca |
 | Jason Spence | jrspence@sfu.ca |
 | Huiyan Li | hla110@sfu.ca |
+| Jachak Sekhon | jachaks@sfu.ca |
