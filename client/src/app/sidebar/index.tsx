@@ -13,8 +13,7 @@ import {
   TOP_BAR_HEIGHT,
 } from 'src/shared/constants';
 import Drawer from '@mui/material/Drawer';
-import { useMediaQuery, useTheme } from '@mui/material';
-import { useStyles } from '../styles';
+import { Box, useMediaQuery, useTheme } from '@mui/material';
 import { useAppDispatch, useAppSelector } from 'src/shared/hooks';
 import {
   selectSidebarIsOpen,
@@ -82,7 +81,6 @@ export const Sidebar: React.FC<IProps> = ({
   }, [isBigScreen]);
 
   const drawerWidth = isSidebarOpen ? DRAWER_WIDE : DRAWER_NARROW;
-  const classes = useStyles({ drawerWidth });
 
   return loggedIn ? (
     <Drawer
@@ -102,7 +100,7 @@ export const Sidebar: React.FC<IProps> = ({
       open={isBigScreen || isSidebarOpen}
       onClose={closeSidebar}
       anchor="left">
-      <div className={classes.toolbar}>
+      <Box>
         <List style={{ marginBlockStart: offsetFromTop }}>
           {appRoutes
             .filter((route: AppRoute): boolean => {
@@ -138,7 +136,7 @@ export const Sidebar: React.FC<IProps> = ({
               );
             })}
         </List>
-      </div>
+      </Box>
     </Drawer>
   ) : null;
 };
