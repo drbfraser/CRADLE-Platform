@@ -4,11 +4,7 @@ import { Route, Switch } from 'react-router-dom';
 import { PrivateRoute } from './privateRoute';
 import { Box } from '@mui/material';
 
-interface IProps {
-  topBarOffset?: number;
-}
-
-export const AppRoutes: React.FC<IProps> = ({ topBarOffset }) => {
+export const AppRoutes: React.FC = () => {
   return (
     <Box
       component="main"

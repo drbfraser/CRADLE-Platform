@@ -19,8 +19,6 @@ type SelectorState = {
 };
 
 export const App: React.FC = () => {
-  const offsetFromTop = 0;
-
   const [activeItem, setActiveItem] = React.useState<OrNull<string>>(null);
 
   const { pathName, user } = useSelector(
@@ -65,7 +63,7 @@ export const App: React.FC = () => {
               component: <LogoutMenuItem />,
             }}
           />
-          <AppRoutes topBarOffset={offsetFromTop} />
+          <AppRoutes />
         </Box>
       </Box>
     </>
