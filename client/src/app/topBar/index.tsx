@@ -1,5 +1,5 @@
 import { IUserWithTokens, OrNull } from 'src/shared/types';
-import { Menu, MenuItem, useMediaQuery, useTheme } from '@mui/material';
+import { Box, Menu, MenuItem, useMediaQuery, useTheme } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../../shared/hooks';
 
 import AppBar from '@mui/material/AppBar';
@@ -16,8 +16,7 @@ import { logoutUser } from 'src/redux/reducers/user/currentUser';
 import { push } from 'connected-react-router';
 import { useSelector } from 'react-redux';
 import { useCallback, useState } from 'react';
-import { useStyles } from './styles';
-import { userRoleLabels } from 'src/shared/constants';
+import { TOP_BAR_HEIGHT, userRoleLabels } from 'src/shared/constants';
 import {
   selectSidebarIsOpen,
   toggleSidebar as toggleSidebarAction,
@@ -46,8 +45,6 @@ export const TopBar = ({ user, setActiveItem }: IProps) => {
 
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
-
-  const classes = useStyles();
 
   const navigateSecretKeyDetailPage = (): void => {
     setMenuAnchorEl(null);
@@ -85,7 +82,13 @@ export const TopBar = ({ user, setActiveItem }: IProps) => {
   };
 
   return (
-    <AppBar className={classes.appBar} position="sticky">
+    <AppBar
+      position="sticky"
+      sx={{
+        backgroundColor: `#15152B`,
+        zIndex: theme.zIndex.drawer + 1,
+        height: TOP_BAR_HEIGHT,
+      }}>
       <Toolbar>
         {loggedIn && (
           <IconButton onClick={toggleSidebar} color="inherit" size="large">
@@ -95,14 +98,25 @@ export const TopBar = ({ user, setActiveItem }: IProps) => {
 
         <img alt="appIcon" src={AppImg} className="appIcon" />
         {isBigScreen && (
-          <Typography className={classes.title} noWrap={true}>
+          <Typography
+            noWrap={true}
+            sx={{
+              fontFamily: `Open Sans`,
+              fontWeight: `bold`,
+              fontSize: 36,
+            }}>
             CRADLE
           </Typography>
         )}
         {loggedIn && (
-          <div className={classes.navRightIcons}>
+          <Box
+            sx={{
+              margin: theme.spacing(0, 0, 0, `auto`),
+            }}>
             <IconButton
-              className={classes.toolbarButtons}
+              sx={{
+                marginLeft: `auto`,
+              }}
               color="inherit"
               onClick={(e) => setMenuAnchorEl(e.currentTarget)}
               size="large">
@@ -137,13 +151,15 @@ export const TopBar = ({ user, setActiveItem }: IProps) => {
               onClose={() => setChangePasswordOpen(false)}
             />
             <IconButton
-              className={classes.toolbarButtonsPadded}
+              sx={{
+                marginLeft: `auto`,
+              }}
               onClick={navigateToHelpPage}
               color="inherit"
               size="large">
               <Icon name="help" size="small" />
             </IconButton>
-          </div>
+          </Box>
         )}
       </Toolbar>
     </AppBar>
