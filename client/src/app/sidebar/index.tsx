@@ -20,16 +20,12 @@ import {
   closeSidebar as closeSidebarAction,
   openSidebar as openSidebarAction,
 } from 'src/redux/sidebar-state';
-import { useEffect } from 'react';
-
-type CustomRoute = {
-  index: number;
-  component: React.ReactNode;
-};
+import { useCallback, useEffect } from 'react';
+import { logoutUser } from 'src/redux/reducers/user/currentUser';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 
 interface IProps {
   activeItem: OrNull<string>;
-  logout: CustomRoute;
   setActiveItem: React.Dispatch<React.SetStateAction<OrNull<string>>>;
 }
 
@@ -38,11 +34,7 @@ type SelectorState = {
   admin?: boolean;
 };
 
-export const Sidebar: React.FC<IProps> = ({
-  activeItem,
-  logout,
-  setActiveItem,
-}) => {
+export const Sidebar: React.FC<IProps> = ({ activeItem, setActiveItem }) => {
   const offsetFromTop = TOP_BAR_HEIGHT;
   const theme = useTheme();
   const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
@@ -82,6 +74,10 @@ export const Sidebar: React.FC<IProps> = ({
 
   const drawerWidth = isSidebarOpen ? DRAWER_WIDE : DRAWER_NARROW;
 
+  const handleLogout = useCallback(() => {
+    dispatch(logoutUser());
+  }, [dispatch, logoutUser]);
+
   return loggedIn ? (
     <Drawer
       sx={{
@@ -107,34 +103,29 @@ export const Sidebar: React.FC<IProps> = ({
               return route.inNavigation;
             })
             .map((route: AppRoute, index: number): OrNull<JSX.Element> => {
-              if (index === logout.index) {
-                return (
-                  <SidebarRoute
-                    key={makeUniqueId()}
-                    activeItem={activeItem}
-                    appendedRoute={logout.component}
-                    route={route}
-                    updateActiveItem={updateActiveItem}
-                    isSidebarOpen={isSidebarOpen}
-                  />
-                );
-              }
-
               // * Prevent non-admins from seeing admin sidebar option
               if (!admin && route.to === `/admin`) {
                 return null;
               }
-
               return (
                 <SidebarRoute
                   key={route.id}
                   activeItem={activeItem}
                   route={route}
-                  updateActiveItem={updateActiveItem}
-                  isSidebarOpen={isSidebarOpen}
+                  onClick={() => {
+                    updateActiveItem(route.name);
+                  }}
                 />
               );
             })}
+          {/* Logout button. */}
+          <SidebarRoute
+            key={makeUniqueId()}
+            activeItem={activeItem}
+            icon={<ExitToAppIcon fontSize="large" />}
+            title={'Logout'}
+            onClick={handleLogout}
+          />
         </List>
       </Box>
     </Drawer>
