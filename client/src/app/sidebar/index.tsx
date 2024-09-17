@@ -90,8 +90,14 @@ export const Sidebar: React.FC<IProps> = ({
         width: drawerWidth,
       }}
       variant={isBigScreen ? 'persistent' : 'temporary'}
-      classes={{
-        paper: classes.drawerPaper,
+      PaperProps={{
+        sx: {
+          /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#3b679e+0,34787e+0,45889f+51,65a6df+100 */
+          background: `linear-gradient(to bottom,  #3b679e 0%,#34787e 0%,#45889f 51%,#65a6df 100%)`,
+          filter:
+            'progid:DXImageTransform.Microsoft.gradient( startColorstr=`#3b679e`, endColorstr=`#65a6df`,GradientType=0 )' /* IE6-9 */,
+          width: drawerWidth,
+        },
       }}
       open={isBigScreen || isSidebarOpen}
       onClose={closeSidebar}
