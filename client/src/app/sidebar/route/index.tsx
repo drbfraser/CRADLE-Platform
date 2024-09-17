@@ -1,6 +1,5 @@
 import { AppRoute } from '../../routes/utils';
 import { Link } from 'react-router-dom';
-import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import { OrNull } from 'src/shared/types';
@@ -9,6 +8,7 @@ import { useAppSelector } from 'src/shared/hooks';
 import { useStyles } from '../../styles';
 import { selectSidebarIsOpen } from 'src/redux/sidebar-state';
 import { DRAWER_NARROW, DRAWER_WIDE } from 'src/shared/constants';
+import { ListItemButton } from '@mui/material';
 
 interface IProps {
   activeItem: OrNull<string>;
@@ -34,9 +34,8 @@ export const SidebarRoute: React.FC<IProps> = ({
 
   return (
     <>
-      <ListItem
+      <ListItemButton
         className={classes.listItem}
-        button={true}
         component={Link}
         to={route.to}
         selected={activeItem === route.name}
@@ -53,7 +52,7 @@ export const SidebarRoute: React.FC<IProps> = ({
             }
           />
         )}
-      </ListItem>
+      </ListItemButton>
       {appendedRoute}
     </>
   );
