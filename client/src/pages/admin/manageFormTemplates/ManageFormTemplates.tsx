@@ -12,7 +12,7 @@ import {
 } from 'src/shared/api';
 import { useEffect, useState } from 'react';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import AdminTable from '../AdminTable';
+import AdminTable, { AdminTableContainer, AdminTableRow } from '../AdminTable';
 import ArchiveTemplateDialog from './ArchiveTemplateDialog';
 import { CloudDownloadOutlined, Edit } from '@mui/icons-material';
 import UploadTemplate from './UploadTemplate';
@@ -24,14 +24,12 @@ import {
 } from 'src/shared/types';
 import { TableCell } from '../../../shared/components/apiTable/TableCell';
 import { getPrettyDate } from 'src/shared/utils';
-import { useAdminStyles } from '../adminStyles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useHistory } from 'react-router-dom';
 import { Unarchive } from '@mui/icons-material';
 import UnarchiveTemplateDialog from './UnarchiveTemplateDialog';
 
 export const ManageFormTemplates = () => {
-  const styles = useAdminStyles();
 
   const [loading, setLoading] = useState(true);
   const [errorLoading, setErrorLoading] = useState(false);
@@ -241,9 +239,8 @@ export const ManageFormTemplates = () => {
     const formTemplate = formTemplates.find((form) => form.id === row[0]);
 
     return formTemplate ? (
-      <TableRow
-        className={styles.row}
-        style={{
+      <AdminTableRow
+        sx={{
           backgroundColor: formTemplate.archived ? 'rgb(251 193 193)' : '#fff',
         }}>
         <TableCell label="Form Template Name" isTransformed={isTransformed}>
@@ -274,7 +271,7 @@ export const ManageFormTemplates = () => {
             ) : null
           )}
         </TableCell>
-      </TableRow>
+      </AdminTableRow>
     ) : (
       <TableRow>
         <TableCell label="" isTransformed={false}>
@@ -285,7 +282,7 @@ export const ManageFormTemplates = () => {
   };
 
   return (
-    <div className={styles.tableContainer}>
+    <AdminTableContainer>
       <APIErrorToast
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
@@ -324,7 +321,7 @@ export const ManageFormTemplates = () => {
       />
 
       <FormControlLabel
-        style={{
+        sx={{
           marginTop: '10px',
           marginLeft: 'auto',
           marginRight: '10px',
@@ -338,6 +335,6 @@ export const ManageFormTemplates = () => {
         }
         label="View Archived Templates"
       />
-    </div>
+    </AdminTableContainer>
   );
 };

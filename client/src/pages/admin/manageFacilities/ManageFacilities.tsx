@@ -1,8 +1,8 @@
-import { IconButton, TableRow, Tooltip } from '@mui/material';
+import { IconButton, Tooltip } from '@mui/material';
 import { useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import AdminTable, { AdminTableContainer } from '../AdminTable';
+import AdminTable, { AdminTableContainer, AdminTableRow } from '../AdminTable';
 import CreateIcon from '@mui/icons-material/Create';
 import EditFacility from './EditFacility';
 import { IFacility } from 'src/shared/types';
@@ -92,10 +92,7 @@ export const ManageFacilities = () => {
     const facility = facilities[row.slice(-1)[0] as number];
 
     return (
-      <TableRow
-        sx={{
-          borderBottom: '1px solid #ddd',
-        }}>
+      <AdminTableRow>
         <TableCell label="Facility Name" isTransformed={isTransformed}>
           {cells[0]}
         </TableCell>
@@ -117,7 +114,7 @@ export const ManageFacilities = () => {
             </IconButton>
           </Tooltip>
         </TableCell>
-      </TableRow>
+      </AdminTableRow>
     );
   };
 

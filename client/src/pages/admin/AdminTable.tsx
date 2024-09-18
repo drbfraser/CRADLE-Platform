@@ -7,7 +7,13 @@ import AddIcon from '@mui/icons-material/Add';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { PrimaryButton } from 'src/shared/components/Button';
 import Skeleton from '@mui/material/Skeleton';
-import { Box, TableContainer, TextField } from '@mui/material';
+import {
+  Box,
+  SxProps,
+  TableContainer,
+  TableRow,
+  TextField,
+} from '@mui/material';
 import { PropsWithChildren } from 'react';
 
 interface IProps {
@@ -152,6 +158,23 @@ export const AdminTableContainer = ({ children }: PropsWithChildren) => {
       }}>
       {children}
     </TableContainer>
+  );
+};
+
+type AdminTableRowProps = PropsWithChildren & {
+  sx?: SxProps;
+};
+export const AdminTableRow = ({ children, sx }: AdminTableRowProps) => {
+  return (
+    <TableRow
+      sx={[
+        {
+          borderBottom: '1px solid #ddd',
+        },
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}>
+      {children}
+    </TableRow>
   );
 };
 
