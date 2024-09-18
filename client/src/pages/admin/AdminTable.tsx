@@ -25,7 +25,7 @@ interface IProps {
 }
 
 const TOOLBAR_ELEMENT_HEIGHT_LARGE = '56px';
-const TOOLBAR_ELEMENT_HEIGHT_SMALL = '42px';
+const TOOLBAR_ELEMENT_HEIGHT_SMALL = '40px';
 const TOOLBAR_ELEMENT_SX = {
   '@media (min-width: 900px)': {
     height: TOOLBAR_ELEMENT_HEIGHT_LARGE,
@@ -36,7 +36,10 @@ const TOOLBAR_ELEMENT_SX = {
 };
 const MAX_BUTTON_WIDTH = '230px';
 const TOOLBAR_BUTTON_SX = {
-  width: MAX_BUTTON_WIDTH,
+  maxWidth: MAX_BUTTON_WIDTH,
+  '@media (max-width: 720px)': {
+    width: MAX_BUTTON_WIDTH,
+  },
   '@media (max-width: 360px)': {
     fontSize: '0',
     width: '100%',
