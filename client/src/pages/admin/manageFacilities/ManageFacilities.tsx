@@ -1,4 +1,4 @@
-import { IconButton, Tooltip } from '@mui/material';
+import { IconButton, TableContainer, TableRow, Tooltip } from '@mui/material';
 import { useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -9,12 +9,10 @@ import { IFacility } from 'src/shared/types';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import { getHealthFacilitiesAsync } from 'src/shared/api';
 import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
-import { useAdminStyles } from '../adminStyles';
 import { useAppDispatch } from 'src/shared/hooks';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 export const ManageFacilities = () => {
-  const styles = useAdminStyles();
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(true);
   const [errorLoading, setErrorLoading] = useState(false);
@@ -94,7 +92,10 @@ export const ManageFacilities = () => {
     const facility = facilities[row.slice(-1)[0] as number];
 
     return (
-      <tr className={styles.row}>
+      <TableRow
+        sx={{
+          borderBottom: '1px solid #ddd',
+        }}>
         <TableCell label="Facility Name" isTransformed={isTransformed}>
           {cells[0]}
         </TableCell>
@@ -116,12 +117,12 @@ export const ManageFacilities = () => {
             </IconButton>
           </Tooltip>
         </TableCell>
-      </tr>
+      </TableRow>
     );
   };
 
   return (
-    <div className={styles.tableContainer}>
+    <TableContainer>
       <APIErrorToast
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
@@ -151,6 +152,6 @@ export const ManageFacilities = () => {
         loading={loading}
         isTransformed={isTransformed}
       />
-    </div>
+    </TableContainer>
   );
 };
