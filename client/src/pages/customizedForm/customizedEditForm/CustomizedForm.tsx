@@ -9,9 +9,9 @@ import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { PrimaryButton, RedirectButton } from 'src/shared/components/Button';
 import { handleSubmit } from './handlers';
-import makeStyles from '@mui/styles/makeStyles';
 import { FormRenderStateEnum } from 'src/shared/enums';
 import { FormQuestions } from '../FormQuestions';
+import { SxProps } from '@mui/material';
 
 interface IProps {
   patientId: string;
@@ -21,7 +21,6 @@ interface IProps {
 
 export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
   const questions = fm.questions;
-  const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
   const [disableSubmit, setDisableSubmit] = useState(false);
   const [multiSelectValidationFailed, setMultiSelectValidationFailed] =
@@ -49,6 +48,13 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
 
   const handleMultiSelectValidationFailed = (ValidationFailed: boolean) => {
     setMultiSelectValidationFailed(ValidationFailed);
+  };
+
+  const buttonSx: SxProps = {
+    display: 'flex',
+    marginRight: '0px',
+    marginLeft: 'auto',
+    marginTop: '10px',
   };
 
   return (
@@ -94,12 +100,12 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
                   <RedirectButton
                     type="button" //This makes the button not trigger onSubmit function
                     url={`/forms/edit/${patientId}/${fm.id}`}
-                    className={classes.right}>
+                    sx={buttonSx}>
                     {formTitle}
                   </RedirectButton>
                 ) : renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? (
                   <PrimaryButton
-                    className={classes.right}
+                    sx={buttonSx}
                     onClick={() => console.log('click finish button')}
                     // TO DO: clicking "finish" saves the form.
                     type="button">
@@ -107,7 +113,7 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
                   </PrimaryButton>
                 ) : (
                   <PrimaryButton
-                    className={classes.right}
+                    sx={buttonSx}
                     type="submit"
                     disabled={isSubmitting || disableSubmit}>
                     {formTitle}
@@ -121,12 +127,3 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
     </>
   );
 };
-
-const useStyles = makeStyles({
-  right: {
-    display: 'flex',
-    marginRight: '0px',
-    marginLeft: 'auto',
-    marginTop: '10px',
-  },
-});
