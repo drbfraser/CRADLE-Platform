@@ -122,7 +122,15 @@ export const ManageFacilities = () => {
   };
 
   return (
-    <TableContainer>
+    <TableContainer
+      sx={{
+        '& .MuiTableCell-head': {
+          fontWeight: 'bold',
+        },
+        '& button': {
+          fontWeight: 'bold',
+        },
+      }}>
       <APIErrorToast
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
