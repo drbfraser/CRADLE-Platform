@@ -29,6 +29,7 @@ import { PregnancyInfo } from './PregnancyInfo';
 import { SexEnum } from 'src/shared/enums';
 import Typography from '@mui/material/Typography';
 import makeStyles from '@mui/styles/makeStyles';
+import { DashboardWrapper } from 'src/shared/components/dashboard/DashboardWrapper';
 
 type RouteParams = {
   patientId: string;
@@ -161,7 +162,7 @@ export const PatientPage = () => {
   }, [filterRequestBody, patientId]);
 
   return (
-    <>
+    <DashboardWrapper>
       <APIErrorToast
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
@@ -242,7 +243,7 @@ export const PatientPage = () => {
           </Paper>
         </Grid>
       </Grid>
-    </>
+    </DashboardWrapper>
   );
 };
 
