@@ -1,8 +1,8 @@
-import { IconButton, TableContainer, TableRow, Tooltip } from '@mui/material';
+import { IconButton, TableRow, Tooltip } from '@mui/material';
 import { useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import AdminTable from '../AdminTable';
+import AdminTable, { AdminTableContainer } from '../AdminTable';
 import CreateIcon from '@mui/icons-material/Create';
 import EditFacility from './EditFacility';
 import { IFacility } from 'src/shared/types';
@@ -122,15 +122,7 @@ export const ManageFacilities = () => {
   };
 
   return (
-    <TableContainer
-      sx={{
-        '& .MuiTableCell-head': {
-          fontWeight: 'bold',
-        },
-        '& button': {
-          fontWeight: 'bold',
-        },
-      }}>
+    <AdminTableContainer>
       <APIErrorToast
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
@@ -160,6 +152,6 @@ export const ManageFacilities = () => {
         loading={loading}
         isTransformed={isTransformed}
       />
-    </TableContainer>
+    </AdminTableContainer>
   );
 };

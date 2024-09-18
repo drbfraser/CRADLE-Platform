@@ -7,7 +7,8 @@ import AddIcon from '@mui/icons-material/Add';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { PrimaryButton } from 'src/shared/components/Button';
 import Skeleton from '@mui/material/Skeleton';
-import { Box, TextField } from '@mui/material';
+import { Box, TableContainer, TextField } from '@mui/material';
+import { PropsWithChildren } from 'react';
 
 interface IProps {
   title: string;
@@ -135,6 +136,22 @@ const AdminTable = (props: IProps) => {
         },
       }}
     />
+  );
+};
+
+export const AdminTableContainer = ({ children }: PropsWithChildren) => {
+  return (
+    <TableContainer
+      sx={{
+        '& .MuiTableCell-head': {
+          fontWeight: 'bold',
+        },
+        '& button': {
+          fontWeight: 'bold',
+        },
+      }}>
+      {children}
+    </TableContainer>
   );
 };
 
