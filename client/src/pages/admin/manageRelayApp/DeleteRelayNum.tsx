@@ -10,7 +10,6 @@ import {
   DialogTitle,
 } from '@mui/material';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
-import makeStyles from '@mui/styles/makeStyles';
 
 interface IProps {
   open: boolean;
@@ -19,7 +18,6 @@ interface IProps {
 }
 
 const DeleteRelayNum = ({ open, onClose, deleteRelayNum }: IProps) => {
-  const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
@@ -30,7 +28,6 @@ const DeleteRelayNum = ({ open, onClose, deleteRelayNum }: IProps) => {
 
     try {
       await deleteRelayNumAsync(deleteRelayNum);
-
       setSubmitSuccess(true);
       onClose();
     } catch (e) {
@@ -52,7 +49,10 @@ const DeleteRelayNum = ({ open, onClose, deleteRelayNum }: IProps) => {
         <DialogContent>
           <p>Are you sure you want to delete this form template?</p>
         </DialogContent>
-        <DialogActions className={classes.actions}>
+        <DialogActions
+          sx={(theme) => ({
+            padding: theme.spacing(2),
+          })}>
           <CancelButton onClick={onClose}>Cancel</CancelButton>
           <PrimaryButton onClick={handleDelete}>Delete</PrimaryButton>
         </DialogActions>
@@ -62,9 +62,3 @@ const DeleteRelayNum = ({ open, onClose, deleteRelayNum }: IProps) => {
 };
 
 export default DeleteRelayNum;
-
-const useStyles = makeStyles((theme) => ({
-  actions: {
-    padding: theme.spacing(2),
-  },
-}));
