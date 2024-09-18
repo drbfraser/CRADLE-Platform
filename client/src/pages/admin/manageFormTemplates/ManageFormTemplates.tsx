@@ -30,7 +30,6 @@ import { Unarchive } from '@mui/icons-material';
 import UnarchiveTemplateDialog from './UnarchiveTemplateDialog';
 
 export const ManageFormTemplates = () => {
-
   const [loading, setLoading] = useState(true);
   const [errorLoading, setErrorLoading] = useState(false);
 
