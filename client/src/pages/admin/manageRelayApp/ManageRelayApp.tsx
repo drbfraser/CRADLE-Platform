@@ -36,8 +36,7 @@ import {
 import * as yup from 'yup';
 import { formatBytes, getPrettyDateTime } from 'src/shared/utils';
 import makeStyles from '@mui/styles/makeStyles';
-import AdminTable from '../AdminTable';
-import { useAdminStyles } from '../adminStyles';
+import AdminTable, { AdminTableContainer, AdminTableRow } from '../AdminTable';
 import { Field, Form, Formik } from 'formik';
 import { IRelayNum } from 'src/shared/types';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
@@ -45,8 +44,6 @@ import EditRelayNum from './editRelayNum';
 import DeleteRelayNum from './DeleteRelayNum';
 
 export const ManageRelayApp = () => {
-  //Styles
-  const styles = useAdminStyles();
   const classes = useStyles();
 
   const [hasFile, setHasFile] = useState(false);
@@ -244,7 +241,7 @@ export const ManageRelayApp = () => {
     const relayNumInfo = relayNums.find((num) => num.phone === row[0]);
 
     return relayNumInfo ? (
-      <TableRow className={styles.row}>
+      <AdminTableRow>
         <TableCell label="Phone Number" isTransformed={isTransformed}>
           {relayNumInfo.phone}
         </TableCell>
@@ -270,7 +267,7 @@ export const ManageRelayApp = () => {
             </Tooltip>
           ))}
         </TableCell>
-      </TableRow>
+      </AdminTableRow>
     ) : (
       <TableRow>
         <TableCell label="" isTransformed={false}>
@@ -281,7 +278,7 @@ export const ManageRelayApp = () => {
   };
 
   return (
-    <div>
+    <AdminTableContainer>
       <APIErrorToast
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
@@ -462,7 +459,7 @@ export const ManageRelayApp = () => {
         search={search}
         setSearch={setSearch}
       />
-    </div>
+    </AdminTableContainer>
   );
 };
 
