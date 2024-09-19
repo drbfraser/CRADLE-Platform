@@ -61,6 +61,7 @@ export const LoginForm: React.FC = () => {
       />
       <Container
         id={'loginFormContainer'}
+        disableGutters
         className={classes.formContainer}
         sx={minHeightThreshold ? undefined : UNDER_MIN_HEIGHT_SCALE}>
         <form className={classes.form} onSubmit={formik.handleSubmit}>

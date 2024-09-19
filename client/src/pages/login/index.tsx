@@ -4,7 +4,7 @@ import image from './img/splash_screen_4.png';
 import { useStyles } from './styles';
 import Stack from '@mui/material/Stack';
 import { Box, useMediaQuery } from '@mui/material';
-import { TOP_BAR_HEIGHT } from 'src/shared/constants';
+import { DASHBOARD_PADDING, TOP_BAR_HEIGHT } from 'src/shared/constants';
 
 export const LoginPage: React.FC = () => {
   // if the user has reached the login page, they likely came directly here
@@ -26,6 +26,8 @@ export const LoginPage: React.FC = () => {
   );
 };
 
+const NEGATIVE_MARGIN = '-' + DASHBOARD_PADDING;
+
 const LoginSplashImage = () => {
   const classes = useStyles();
   /**
@@ -46,6 +48,8 @@ const LoginSplashImage = () => {
         height: '100%',
         width: 'auto',
         maxHeight: `calc(100vh - ${TOP_BAR_HEIGHT})`,
+        marginY: NEGATIVE_MARGIN,
+        marginLeft: NEGATIVE_MARGIN,
       }}>
       <img alt="logo" src={image} className={classes.imgStyle} />
     </Box>
