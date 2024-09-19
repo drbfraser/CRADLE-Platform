@@ -3,8 +3,7 @@ import MenuItem from '@mui/material/MenuItem';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import Select from '@mui/material/Select';
-import makeStyles from '@mui/styles/makeStyles';
-import { useMediaQuery, useTheme } from '@mui/material';
+import { useMediaQuery, useTheme, Box } from '@mui/material';
 
 interface IProps {
   dataLen: number;
@@ -15,8 +14,6 @@ interface IProps {
 }
 
 const Pagination = ({ dataLen, page, limit, setPage, setLimit }: IProps) => {
-  const classes = useStyles();
-
   const startRecordNum = (page - 1) * limit + 1;
   const endRecordNum = startRecordNum + dataLen - 1;
   const canPageBackward = page !== 1;
@@ -28,7 +25,11 @@ const Pagination = ({ dataLen, page, limit, setPage, setLimit }: IProps) => {
   const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
   return (
-    <div className={isBigScreen ? classes.wrapper : classes.wrapperThin}>
+    <Box
+      sx={{
+        padding: 15,
+        ...(isBigScreen ? { textAlign: 'right' } : { marginLeft: '5px' }),
+      }}>
       Records {startRecordNum} - {endRecordNum}.{isBigScreen ? ' ' : <br />}Rows
       per page: &nbsp;
       <Select
@@ -51,19 +52,8 @@ const Pagination = ({ dataLen, page, limit, setPage, setLimit }: IProps) => {
         size="large">
         <NavigateNextIcon />
       </IconButton>
-    </div>
+    </Box>
   );
 };
 
 export default Pagination;
-
-const useStyles = makeStyles({
-  wrapper: {
-    textAlign: 'right',
-    padding: 15,
-  },
-  wrapperThin: {
-    marginLeft: '5px',
-    padding: 15,
-  },
-});
