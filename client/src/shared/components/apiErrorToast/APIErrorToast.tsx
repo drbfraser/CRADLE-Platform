@@ -4,12 +4,12 @@ import {
   DialogContent,
   DialogTitle,
   Link,
+  List,
   Typography,
 } from '@mui/material';
 
 import { CancelButton } from '../Button';
 import { Toast } from '../toast';
-import makeStyles from '@mui/styles/makeStyles';
 import { useState } from 'react';
 
 interface IProps {
@@ -19,7 +19,6 @@ interface IProps {
 }
 
 const APIErrorToast = ({ open, onClose, errorMessage }: IProps) => {
-  const styles = useStyles();
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const Message = () =>
@@ -34,7 +33,13 @@ const APIErrorToast = ({ open, onClose, errorMessage }: IProps) => {
             onClose();
             setDialogOpen(true);
           }}
-          className={styles.alertLink}
+          sx={{
+            '&, &:hover': {
+              color: 'white',
+              textDecoration: 'underline',
+              cursor: 'pointer',
+            },
+          }}
           underline="hover">
           troubleshooting steps
         </Link>
@@ -44,12 +49,21 @@ const APIErrorToast = ({ open, onClose, errorMessage }: IProps) => {
 
   const TroubleshootDialog = () => (
     <Dialog open={dialogOpen}>
-      <DialogTitle className={styles.troubleshootTitle}>
+      <DialogTitle
+        sx={{
+          paddingBottom: 0,
+        }}>
         Troubleshooting Steps
       </DialogTitle>
       <DialogContent>
         <Typography component="div">
-          <ol className={styles.troubleshootList}>
+          <List
+            component="ol"
+            sx={{
+              '& li': {
+                marginBottom: 15,
+              },
+            }}>
             <li>
               CRADLE Web requires an internet connection. Please verify you are
               connected to the internet by visiting a popular website. For
@@ -79,7 +93,7 @@ const APIErrorToast = ({ open, onClose, errorMessage }: IProps) => {
               they forward it to CRADLE Web&apos;s development team. Sorry you
               encountered an issue - we&apos;ll do our best to fix it!
             </li>
-          </ol>
+          </List>
         </Typography>
       </DialogContent>
       <DialogActions>
@@ -100,23 +114,5 @@ const APIErrorToast = ({ open, onClose, errorMessage }: IProps) => {
     </>
   );
 };
-
-const useStyles = makeStyles({
-  alertLink: {
-    '&, &:hover': {
-      color: 'white',
-      textDecoration: 'underline',
-      cursor: 'pointer',
-    },
-  },
-  troubleshootTitle: {
-    paddingBottom: 0,
-  },
-  troubleshootList: {
-    '& li': {
-      marginBottom: 15,
-    },
-  },
-});
 
 export default APIErrorToast;
