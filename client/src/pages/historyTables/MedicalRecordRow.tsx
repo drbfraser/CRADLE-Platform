@@ -1,4 +1,4 @@
-import { IconButton, Typography } from '@mui/material';
+import { IconButton, Typography, useTheme } from '@mui/material';
 
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import { MEDICAL_RECORD_COLUMNS } from './constants';
@@ -7,7 +7,6 @@ import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import { getPrettyDate } from 'src/shared/utils';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
-import { useTheme } from '@mui/material/styles';
 
 interface IProps {
   row: MedicalRecord;

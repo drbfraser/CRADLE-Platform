@@ -10,7 +10,6 @@ import { gestationalAgeUnitFormatters } from 'src/shared/constants';
 import { getPrettyDate } from 'src/shared/utils';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
-import { useTheme } from '@mui/material/styles';
 
 interface IProps {
   row: Pregnancy;
