@@ -1,4 +1,4 @@
-import { IconButton, Typography } from '@mui/material';
+import { IconButton, Typography, useTheme } from '@mui/material';
 
 import CreateIcon from '@mui/icons-material/Create';
 import DeleteForever from '@mui/icons-material/DeleteForever';
@@ -9,7 +9,7 @@ import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import { gestationalAgeUnitFormatters } from 'src/shared/constants';
 import { getPrettyDate } from 'src/shared/utils';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
+import { ApiTableRow } from 'src/shared/components/apiTable/ApiTableRow';
 
 interface IProps {
   row: Pregnancy;
@@ -28,12 +28,11 @@ export const PregnancyRecordRow = ({
   setDeletePopupOpen,
   setPopupRecord,
 }: IProps) => {
-  const classes = useRowStyles();
   const theme = useTheme();
   const isTransformed = useMediaQuery(theme.breakpoints.up('sm'));
 
   return (
-    <tr className={classes.row}>
+    <ApiTableRow>
       <TableCell
         label={PREGNANCY_RECORD_COLUMNS.startDate}
         isTransformed={isTransformed}>
@@ -85,6 +84,6 @@ export const PregnancyRecordRow = ({
           <DeleteForever />
         </IconButton>
       </TableCell>
-    </tr>
+    </ApiTableRow>
   );
 };
