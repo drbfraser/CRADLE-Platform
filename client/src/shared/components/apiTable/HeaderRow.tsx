@@ -31,7 +31,7 @@ export const HeaderRow = ({
           sx={{
             backgroundColor: '#fff',
             position: 'sticky',
-            top: 0,
+            top: '0px',
             textAlign: 'center',
           }}>
           {name}

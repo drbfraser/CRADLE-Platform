@@ -61,7 +61,7 @@ const APIErrorToast = ({ open, onClose, errorMessage }: IProps) => {
             component="ol"
             sx={{
               '& li': {
-                marginBottom: 15,
+                marginBottom: '15px',
               },
             }}>
             <li>
