@@ -1,7 +1,6 @@
 import { LoginForm } from './form';
 import { Redirect } from 'react-router-dom';
 import image from './img/splash_screen_4.png';
-import { useStyles } from './styles';
 import Stack from '@mui/material/Stack';
 import { Box, useMediaQuery } from '@mui/material';
 import { DASHBOARD_PADDING, TOP_BAR_HEIGHT } from 'src/shared/constants';
@@ -29,7 +28,6 @@ export const LoginPage: React.FC = () => {
 const NEGATIVE_MARGIN = '-' + DASHBOARD_PADDING;
 
 const LoginSplashImage = () => {
-  const classes = useStyles();
   /**
    * When the aspect ratio of the window is too low, the splash image on the
    * login page causes issues where the login form becomes inaccessible. To
@@ -51,7 +49,14 @@ const LoginSplashImage = () => {
         marginY: NEGATIVE_MARGIN,
         marginLeft: NEGATIVE_MARGIN,
       }}>
-      <img alt="logo" src={image} className={classes.imgStyle} />
+      <Box
+        component="img"
+        alt="logo"
+        src={image}
+        sx={{
+          maxHeight: `calc(100vh - ${TOP_BAR_HEIGHT})`,
+        }}
+      />
     </Box>
   ) : null;
 };
