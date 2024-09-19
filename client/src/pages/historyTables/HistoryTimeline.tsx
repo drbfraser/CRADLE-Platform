@@ -57,7 +57,7 @@ export const HistoryTimeline = ({ patientId, isTransformed }: IProps) => {
     const { scrollHeight, scrollTop, clientHeight } = event.target;
     const scroll = scrollHeight - scrollTop - clientHeight;
 
-    //User has reached the end of the scroll bar
+    // User has reached the end of the scroll bar
     scroll === 0 && !endOfData && setPage(page + 1);
 
     return true;
