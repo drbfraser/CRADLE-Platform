@@ -3,6 +3,7 @@ import { Route, Switch } from 'react-router-dom';
 
 import { PrivateRoute } from './privateRoute';
 import { Box } from '@mui/material';
+import { DASHBOARD_PADDING } from 'src/shared/constants';
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -12,6 +13,7 @@ export const AppRoutes: React.FC = () => {
       sx={{
         height: '100%',
         width: '100%',
+        padding: DASHBOARD_PADDING,
       }}>
       <Switch>
         {appRoutes.map((route: AppRoute): JSX.Element => {
