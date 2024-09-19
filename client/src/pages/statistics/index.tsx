@@ -22,7 +22,6 @@ import { VHTStatistics } from './VHTStatistics';
 import { useSelector } from 'react-redux';
 import { useState } from 'react';
 import { useStatisticsStyles } from './utils/statisticStyles';
-import { DashboardWrapper } from 'src/shared/components/dashboard/DashboardWrapper';
 
 const allPanes = [
   {
@@ -111,92 +110,90 @@ export function StatisticsPage() {
   };
 
   return (
-    <DashboardWrapper>
-      <div className={classes.root}>
-        {errorLoading && (
-          <Toast
-            severity="error"
-            message="Something went wrong loading all user lists. Please try again."
-            open={errorLoading}
-            onClose={() => setErrorLoading(false)}
-          />
-        )}
+    <div className={classes.root}>
+      {errorLoading && (
+        <Toast
+          severity="error"
+          message="Something went wrong loading all user lists. Please try again."
+          open={errorLoading}
+          onClose={() => setErrorLoading(false)}
+        />
+      )}
 
-        <Grid item className={classes.floatLeft}>
-          <DateRangePicker
-            regular={true}
-            startDate={startDate}
-            startDateId="startDate"
-            endDate={endDate}
-            endDateId="endDate"
-            onDatesChange={({ startDate, endDate }) => {
-              setStartDate(startDate);
-              setEndDate(endDate);
-            }}
-            readOnly
-            focusedInput={focusedInput}
-            onFocusChange={handleFocusChange}
-            isOutsideRange={() => false}
-          />
-        </Grid>
+      <Grid item className={classes.floatLeft}>
+        <DateRangePicker
+          regular={true}
+          startDate={startDate}
+          startDateId="startDate"
+          endDate={endDate}
+          endDateId="endDate"
+          onDatesChange={({ startDate, endDate }) => {
+            setStartDate(startDate);
+            setEndDate(endDate);
+          }}
+          readOnly
+          focusedInput={focusedInput}
+          onFocusChange={handleFocusChange}
+          isOutsideRange={() => false}
+        />
+      </Grid>
 
-        <Grid item className={classes.right}>
-          <FormControl
-            className={classes.formControl}
-            size="small"
-            variant="outlined">
-            <InputLabel className={classes.inputLabel}>
-              Preset date ranges
-            </InputLabel>
-            <Select
-              variant="standard"
-              value={presetDateRange ? presetDateRange : ''}
-              onChange={handleChange}
-              label="Preset date ranges">
-              <MenuItem value={undefined} disabled></MenuItem>
-              <MenuItem
-                value="This Week"
-                onClick={() => {
-                  setDateRange(6, 0);
-                }}>
-                This Week
-              </MenuItem>
-              <MenuItem
-                value="Last Week"
-                onClick={() => {
-                  setDateRange(13, 7);
-                }}>
-                Last Week
-              </MenuItem>
-              <MenuItem
-                value="Last 14 Days"
-                onClick={() => {
-                  setDateRange(13, 0);
-                }}>
-                Last 14 Days
-              </MenuItem>
-              <MenuItem
-                value="Last 28 Days"
-                onClick={() => {
-                  setDateRange(27, 0);
-                }}>
-                Last 28 Days
-              </MenuItem>
-            </Select>
-          </FormControl>
-          <br />
-          <br />
+      <Grid item className={classes.right}>
+        <FormControl
+          className={classes.formControl}
+          size="small"
+          variant="outlined">
+          <InputLabel className={classes.inputLabel}>
+            Preset date ranges
+          </InputLabel>
+          <Select
+            variant="standard"
+            value={presetDateRange ? presetDateRange : ''}
+            onChange={handleChange}
+            label="Preset date ranges">
+            <MenuItem value={undefined} disabled></MenuItem>
+            <MenuItem
+              value="This Week"
+              onClick={() => {
+                setDateRange(6, 0);
+              }}>
+              This Week
+            </MenuItem>
+            <MenuItem
+              value="Last Week"
+              onClick={() => {
+                setDateRange(13, 7);
+              }}>
+              Last Week
+            </MenuItem>
+            <MenuItem
+              value="Last 14 Days"
+              onClick={() => {
+                setDateRange(13, 0);
+              }}>
+              Last 14 Days
+            </MenuItem>
+            <MenuItem
+              value="Last 28 Days"
+              onClick={() => {
+                setDateRange(27, 0);
+              }}>
+              Last 28 Days
+            </MenuItem>
+          </Select>
+        </FormControl>
+        <br />
+        <br />
 
-          <Tab
-            menu={{
-              secondary: true,
-              pointing: true,
-              className: classes.tabStyle,
-            }}
-            panes={panes}
-          />
-        </Grid>
-      </div>
-    </DashboardWrapper>
+        <Tab
+          menu={{
+            secondary: true,
+            pointing: true,
+            className: classes.tabStyle,
+          }}
+          panes={panes}
+        />
+      </Grid>
+    </div>
   );
 }

@@ -63,4 +63,4 @@ export const userRoleLabels = {
 export const TOP_BAR_HEIGHT = '100px';
 export const DRAWER_WIDE = '120px';
 export const DRAWER_NARROW = '60px';
-export const DASHBOARD_PADDING = 24;
+export const DASHBOARD_PADDING = '24px';
