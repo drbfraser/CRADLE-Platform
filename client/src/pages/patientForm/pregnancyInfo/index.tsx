@@ -14,7 +14,6 @@ import Grid from '@mui/material/Grid';
 import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
 import { handleChangeCustom } from '../handlers';
-import makeStyles from '@mui/styles/makeStyles';
 
 interface IProps {
   formikProps: FormikProps<PatientState>;
@@ -27,7 +26,6 @@ export const PregnancyInfoForm = ({
   creatingNewPregnancy,
   creatingNew,
 }: IProps) => {
-  const classes = useStyles();
   const isFemale = formikProps.values.patientSex === SexEnum.FEMALE;
   const isPregnant = formikProps.values.isPregnant;
   return (
@@ -104,7 +102,13 @@ export const PregnancyInfoForm = ({
                   />
                 </Grid>
                 <Grid item md={2} sm={12}>
-                  <div className={classes.weeksDaysPlus}>+</div>
+                  <Box
+                    sx={{
+                      textAlign: 'center',
+                      fontSize: '35px',
+                    }}>
+                    +
+                  </Box>
                 </Grid>
                 <Grid item md={5} sm={12}>
                   <Field
@@ -179,10 +183,3 @@ export const PregnancyInfoForm = ({
     </Paper>
   );
 };
-
-const useStyles = makeStyles({
-  weeksDaysPlus: {
-    textAlign: 'center',
-    fontSize: 35,
-  },
-});
