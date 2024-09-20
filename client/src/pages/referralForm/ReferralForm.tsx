@@ -15,7 +15,6 @@ import Paper from '@mui/material/Paper';
 import { PrimaryButton } from 'src/shared/components/Button';
 import TextField from '@mui/material/TextField';
 import { goBackWithFallback } from 'src/shared/utils';
-import makeStyles from '@mui/styles/makeStyles';
 import { saveReferralAsync } from 'src/shared/api';
 import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
 import { useState } from 'react';
@@ -25,8 +24,6 @@ interface IProps {
 }
 
 export const ReferralForm = ({ patientId }: IProps) => {
-  const classes = useStyles();
-
   const healthFacilities = useHealthFacilities();
   const [submitError, setSubmitError] = useState(false);
 
@@ -110,7 +107,9 @@ export const ReferralForm = ({ patientId }: IProps) => {
             </Paper>
             <br />
             <PrimaryButton
-              className={classes.right}
+              sx={{
+                float: 'right',
+              }}
               type="submit"
               disabled={isSubmitting}>
               Submit Referral
@@ -121,9 +120,3 @@ export const ReferralForm = ({ patientId }: IProps) => {
     </>
   );
 };
-
-const useStyles = makeStyles({
-  right: {
-    float: 'right',
-  },
-});
