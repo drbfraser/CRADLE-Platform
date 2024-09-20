@@ -27,7 +27,8 @@ const Pagination = ({ dataLen, page, limit, setPage, setLimit }: IProps) => {
   return (
     <Box
       sx={{
-        padding: 15,
+        padding: '15px',
+
         ...(isBigScreen ? { textAlign: 'right' } : { marginLeft: '5px' }),
       }}>
       Records {startRecordNum} - {endRecordNum}.{isBigScreen ? ' ' : <br />}Rows
