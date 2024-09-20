@@ -83,7 +83,7 @@ export const PatientPage = () => {
       }
     };
 
-    const loadPatientRefferals = async () => {
+    const loadPatientReferrals = async () => {
       try {
         const referrals: Referral[] = await getPatientReferralsAsync(patientId);
 
@@ -101,7 +101,7 @@ export const PatientPage = () => {
     };
 
     loadPatient();
-    loadPatientRefferals();
+    loadPatientReferrals();
   }, [patientId]);
 
   useEffect(() => {
