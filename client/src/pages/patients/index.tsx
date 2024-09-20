@@ -7,15 +7,13 @@ import { PrimaryButton } from 'src/shared/components/Button';
 import { SortDir } from 'src/shared/components/apiTable/types';
 import TextField from '@mui/material/TextField';
 import { debounce } from 'lodash';
-import makeStyles from '@mui/styles/makeStyles';
 import { useHistory } from 'react-router-dom';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useState } from 'react';
-import { useTheme } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
 
 export const PatientsPage = () => {
-  const classes = useStyles();
   const [search, setSearch] = useState('');
   const history = useHistory();
 
@@ -26,15 +24,30 @@ export const PatientsPage = () => {
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
 
-  const theme = useTheme();
-  const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
   const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
 
   return (
     <DashboardPaper>
-      <div className={classes.topWrapper}>
-        <h2 className={classes.title}>Patients</h2>
-        <div className={isBigScreen ? classes.right : ''}>
+      <Box
+        sx={{
+          padding: '15px',
+        }}>
+        <Typography
+          variant="h2"
+          sx={{
+            display: 'inline-block',
+            fontSize: '1.7rem',
+            fontWeight: '700',
+          }}>
+          Patients
+        </Typography>
+        <Box
+          sx={(theme) => ({
+            [theme.breakpoints.up('lg')]: {
+              float: 'right',
+              height: 56,
+            },
+          })}>
           <TextField
             data-testid="search-input"
             size="small"
@@ -48,8 +61,8 @@ export const PatientsPage = () => {
             data-testid="new patient button">
             New Patient
           </PrimaryButton>
-        </div>
-      </div>
+        </Box>
+      </Box>
       <APITable
         endpoint={EndpointEnum.PATIENTS}
         search={search}
@@ -64,32 +77,3 @@ export const PatientsPage = () => {
     </DashboardPaper>
   );
 };
-
-const useStyles = makeStyles({
-  wrapper: {
-    backgroundColor: '#fff',
-  },
-  topWrapper: {
-    padding: 15,
-  },
-  title: {
-    display: 'inline-block',
-  },
-  right: {
-    float: 'right',
-    height: 56,
-  },
-  searchThin: {
-    display: 'block',
-    marginLeft: 1,
-  },
-  button: {
-    height: '100%',
-    marginLeft: 10,
-  },
-  buttonThin: {
-    display: 'block',
-    marginTop: 8,
-    marginLeft: 1,
-  },
-});
