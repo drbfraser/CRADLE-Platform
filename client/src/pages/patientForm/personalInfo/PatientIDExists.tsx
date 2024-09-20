@@ -1,24 +1,19 @@
 import { Link } from 'react-router-dom';
-import makeStyles from '@mui/styles/makeStyles';
+import { Box } from '@mui/material';
 
 interface IProps {
   patientId: string;
 }
 
 export const PatientIDExists = (props: IProps) => {
-  const classes = useStyles();
-
   return (
-    <div className={classes.container}>
+    <Box
+      sx={{
+        padding: '3px',
+        color: '#f44336',
+      }}>
       Patient ID {props.patientId} already exists.{' '}
       <Link to={'/patients/' + props.patientId}>View patient.</Link>
-    </div>
+    </Box>
   );
 };
-
-const useStyles = makeStyles({
-  container: {
-    padding: 3,
-    color: '#f44336',
-  },
-});
