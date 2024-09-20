@@ -29,12 +29,11 @@ import Stepper from '@mui/material/Stepper/Stepper';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { goBackWithFallback } from 'src/shared/utils';
-import makeStyles from '@mui/styles/makeStyles';
 import { personalInfoValidationSchema } from './personalInfo/validation';
 import { pregnancyInfoValidationSchema } from './pregnancyInfo/validation';
 import { useHistory } from 'react-router-dom';
 import { useState } from 'react';
-import { useMediaQuery, useTheme } from '@mui/material';
+import { Box, useMediaQuery, useTheme } from '@mui/material';
 
 interface PatientFormProps {
   editId: string;
@@ -55,7 +54,6 @@ export const PatientForm = ({
   creatingNew,
   creatingNewPregnancy,
 }: PatientFormProps) => {
-  const classes = useStyles();
   const history = useHistory();
 
   const theme = useTheme();
@@ -180,7 +178,11 @@ export const PatientForm = ({
         onClose={() => setSubmitError(false)}
         errorMessage={errorMessage}
       />
-      <div className={classes.title}>
+      <Box
+        sx={{
+          display: `flex`,
+          alignItems: `center`,
+        }}>
         <Tooltip title="Go back" placement="top">
           <IconButton
             onClick={() => goBackWithFallback(`/patients/${patientId ?? ''}`)}
@@ -189,7 +191,7 @@ export const PatientForm = ({
           </IconButton>
         </Tooltip>
         <Typography variant="h4">{pages[pageNum].title}</Typography>
-      </div>
+      </Box>
       {creatingNew && !creatingNewPregnancy && (
         <Stepper
           activeStep={pageNum}
@@ -247,7 +249,10 @@ export const PatientForm = ({
               </>
             )}
             <PrimaryButton
-              className={classes.right}
+              sx={{
+                float: 'right',
+                margin: 5,
+              }}
               type="submit"
               disabled={formikProps.isSubmitting}>
               {editId || creatingNewPregnancy
@@ -262,18 +267,3 @@ export const PatientForm = ({
     </>
   );
 };
-
-const useStyles = makeStyles({
-  container: {
-    maxWidth: 1250,
-    margin: '0 auto',
-  },
-  title: {
-    display: `flex`,
-    alignItems: `center`,
-  },
-  right: {
-    float: 'right',
-    margin: 5,
-  },
-});
