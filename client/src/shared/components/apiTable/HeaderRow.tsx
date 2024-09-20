@@ -21,10 +21,7 @@ export const HeaderRow = ({
   handleSort,
 }: IProps) => {
   return (
-    <TableRow
-      sx={{
-        height: '60px',
-      }}>
+    <TableRow>
       {Object.entries(columns).map(([col, name], index) => (
         <TableCell
           key={col}
@@ -33,10 +30,17 @@ export const HeaderRow = ({
             position: 'sticky',
             top: '0px',
             textAlign: 'center',
+            fontWeight: '700',
           }}>
           {name}
           {sortableColumns[index] && (
-            <IconButton onClick={() => handleSort(col)} size="large">
+            <IconButton
+              size="large"
+              onClick={() => handleSort(col)}
+              sx={{
+                marginLeft: '4px',
+                marginRight: '-4px',
+              }}>
               {sortBy === col ? (
                 sortDir === SortDir.ASC ? (
                   <ArrowUpwardIcon />
