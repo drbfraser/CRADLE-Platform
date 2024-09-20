@@ -6,8 +6,14 @@ import { PrimaryButton } from 'src/shared/components/Button';
 import { ReduxState } from 'src/redux/reducers';
 import Typography from '@mui/material/Typography';
 import { getHealthFacilityAsync } from 'src/shared/api';
-import makeStyles from '@mui/styles/makeStyles';
 import { useSelector } from 'react-redux';
+import { Box, SxProps } from '@mui/material';
+
+const ENABLE_BUTTON_SX: SxProps = {
+  verticalAlign: 'middle',
+  display: 'inline-block',
+  margin: 'auto 6px auto 6px',
+};
 
 interface IProps {
   setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
@@ -24,8 +30,6 @@ export const AutoRefresher = ({
   refreshTimer,
   setIsRefreshDialogOpen,
 }: IProps) => {
-  const classes = useStyles();
-
   const [progress, setProgress] = useState<number>(0);
   const [ifAutoRefreshOn, setIfAutoRefreshOn] = useState<boolean>(true);
   const [healthFacilityName, setHealthFacilityName] = useState<string>();
@@ -89,58 +93,50 @@ export const AutoRefresher = ({
   }, [refreshTimer, setRefresh, healthFacilityName]);
 
   return (
-    <div className={classes.autoRefreshWrapper}>
+    <Box
+      sx={{
+        display: 'inline-block',
+        margin: 'auto 0',
+      }}>
       <Typography
-        className={classes.title}
+        sx={{
+          display: 'inline-block',
+          verticalAlign: 'middle',
+        }}
         color="textSecondary"
         variant="overline">
         Auto-Refresh{' '}
       </Typography>
       {ifAutoRefreshOn ? (
         <PrimaryButton
-          className={classes.enableBtn}
+          sx={ENABLE_BUTTON_SX}
           onClick={() => setIsRefreshDialogOpen(true)}>
           Enabled
         </PrimaryButton>
       ) : (
         <PrimaryButton
-          className={classes.enableBtn}
+          sx={ENABLE_BUTTON_SX}
           onClick={() => setIsRefreshDialogOpen(true)}>
           Disabled
         </PrimaryButton>
       )}
       <CircularProgress
-        className={ifAutoRefreshOn ? classes.CircularProgress : classes.hidden}
+        sx={ifAutoRefreshOn ? CIRCULAR_PROGRESS_SX : HIDDEN_SX}
         variant="determinate"
         value={progress}
       />
-    </div>
+    </Box>
   );
 };
 
-export const useStyles = makeStyles(() => ({
-  enableBtn: {
-    verticalAlign: 'middle',
-    display: 'inline-block',
-    margin: 'auto 6px auto 6px',
-  },
-  hidden: {
-    visibility: 'hidden',
-    maxWidth: '1.6em',
-    verticalAlign: 'middle',
-    margin: 'auto 10px',
-  },
-  title: {
-    display: 'inline-block',
-    verticalAlign: 'middle',
-  },
-  autoRefreshWrapper: {
-    display: 'inline-block',
-    margin: 'auto 0',
-  },
-  CircularProgress: {
-    maxWidth: '1.6em',
-    verticalAlign: 'middle',
-    margin: 'auto 10px',
-  },
-}));
+const CIRCULAR_PROGRESS_SX: SxProps = {
+  maxWidth: '1.6em',
+  verticalAlign: 'middle',
+  margin: 'auto 10px',
+};
+const HIDDEN_SX: SxProps = {
+  visibility: 'hidden',
+  maxWidth: '1.6em',
+  verticalAlign: 'middle',
+  margin: 'auto 10px',
+};
