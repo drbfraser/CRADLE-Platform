@@ -4,6 +4,7 @@ import {
   Divider,
   Paper,
   Skeleton,
+  SxProps,
   Typography,
 } from '@mui/material';
 import { Patient, PatientMedicalInfo } from 'src/shared/types';
@@ -14,7 +15,21 @@ import { OrNull } from 'src/shared/types';
 import RecentActorsIcon from '@mui/icons-material/RecentActors';
 import { RedirectButton } from 'src/shared/components/Button';
 import { getPatientMedicalHistoryAsync } from 'src/shared/api';
-import makeStyles from '@mui/styles/makeStyles';
+
+const headerSx: SxProps = {
+  display: 'flex',
+  marginTop: '10px',
+  alignItems: 'center',
+  placeContent: 'space-between',
+};
+
+interface HistoryItemProps {
+  title: string;
+  historyRecord: OrNull<string> | undefined;
+  editId: string;
+  medicalRecordId: string | undefined;
+  divider?: boolean;
+}
 
 interface IProps {
   patient?: Patient;
@@ -22,7 +37,6 @@ interface IProps {
 }
 
 export const MedicalInfo = ({ patient, patientId }: IProps) => {
-  const classes = useStyles();
   const [info, setInfo] = useState<PatientMedicalInfo>();
   const [errorLoading, setErrorLoading] = useState(false);
 
@@ -38,14 +52,6 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
     loadMedicalHistory();
   }, [patientId]);
 
-  interface HistoryItemProps {
-    title: string;
-    historyRecord: OrNull<string> | undefined;
-    editId: string;
-    medicalRecordId: string | undefined;
-    divider?: boolean;
-  }
-
   const HistoryItem = ({
     title,
     historyRecord,
@@ -53,7 +59,7 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
     medicalRecordId,
   }: HistoryItemProps) => (
     <Box m="20px">
-      <div className={classes.headerWithRightElement}>
+      <Box sx={headerSx}>
         <b>{title}</b>
         <RedirectButton
           size="small"
@@ -63,8 +69,8 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
           }>
           {medicalRecordId ? 'Update' : 'Add'}
         </RedirectButton>
-      </div>
-      <div>
+      </Box>
+      <Box>
         {historyRecord ? (
           <Typography style={{ whiteSpace: 'pre-line' }}>
             {historyRecord}
@@ -72,18 +78,15 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
         ) : (
           `No additional ${title.toLowerCase()} information.`
         )}
-      </div>
+      </Box>
     </Box>
   );
 
   return (
     <Paper>
       <Box p={3}>
-        <div className={classes.headerWithRightElement}>
-          <Typography
-            component="h3"
-            variant="h5"
-            className={classes.headerWithRightElement}>
+        <Box sx={headerSx}>
+          <Typography component="h3" variant="h5" sx={headerSx}>
             <RecentActorsIcon fontSize="large" />
             &nbsp;Medical Information
           </Typography>
@@ -98,7 +101,7 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
             }>
             View Past Records
           </Link>
-        </div>
+        </Box>
         <Divider />
         {errorLoading ? (
           <Alert severity="error">
@@ -128,19 +131,3 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
     </Paper>
   );
 };
-
-const useStyles = makeStyles({
-  smallLink: {
-    float: 'right',
-    fontSize: 14,
-  },
-  headerWithRightElement: {
-    display: 'flex',
-    marginTop: '10px',
-    alignItems: 'center',
-    placeContent: 'space-between',
-  },
-  redirectButton: {
-    float: 'right',
-  },
-});
