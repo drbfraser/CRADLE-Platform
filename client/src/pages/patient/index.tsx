@@ -28,7 +28,6 @@ import { PersonalInfo } from './PersonalInfo';
 import { PregnancyInfo } from './PregnancyInfo';
 import { SexEnum } from 'src/shared/enums';
 import Typography from '@mui/material/Typography';
-import makeStyles from '@mui/styles/makeStyles';
 
 type RouteParams = {
   patientId: string;
@@ -73,8 +72,6 @@ export const PatientPage = () => {
       forms: true,
     }
   );
-
-  const classes = useStyles();
 
   useEffect(() => {
     const loadPatient = async () => {
@@ -215,8 +212,19 @@ export const PatientPage = () => {
         </Grid>
 
         <Grid container item xs={12} spacing={2} direction="column">
-          <Paper className={classes.cardList}>
-            <Grid item className={classes.listHeader}>
+          <Paper
+            sx={(theme) => ({
+              width: '100%',
+              padding: theme.spacing(2),
+              marginTop: theme.spacing(2),
+            })}>
+            <Grid
+              item
+              sx={{
+                display: 'flex',
+                placeContent: 'end',
+                alignItems: 'center',
+              }}>
               <Typography component={'span'}>Show only: </Typography>
 
               {filters.map((filter) => (
@@ -245,19 +253,3 @@ export const PatientPage = () => {
     </>
   );
 };
-
-export const useStyles = makeStyles((theme) => ({
-  root: {
-    marginTop: theme.spacing(2),
-  },
-  cardList: {
-    width: '100%',
-    padding: theme.spacing(2),
-    marginTop: theme.spacing(2),
-  },
-  listHeader: {
-    display: 'flex',
-    placeContent: 'end',
-    alignItems: 'center',
-  },
-}));
