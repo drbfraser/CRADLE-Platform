@@ -14,17 +14,15 @@ import { RefreshDialog } from './RefreshDialog';
 import { SortDir } from 'src/shared/components/apiTable/types';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import makeStyles from '@mui/styles/makeStyles';
 import { useAppDispatch } from 'src/shared/hooks';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { SecretKeyState, getSecretKey } from 'src/redux/reducers/secretKey';
 import { ReduxState } from 'src/redux/reducers';
 import { Toast } from 'src/shared/components/toast';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
-import { useTheme } from '@mui/material';
+import { Box, SxProps, useTheme } from '@mui/material';
 
 export const ReferralsPage = () => {
-  const classes = useStyles();
   const [expiredMessage, setExpiredMessage] = useState<boolean>(false);
   const [search, setSearch] = useState('');
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState<boolean>(false);
@@ -81,17 +79,29 @@ export const ReferralsPage = () => {
         onClose={() => setExpiredMessage(false)}
       />
       <DashboardPaper>
-        <div className={classes.topWrapper}>
-          <div className={classes.title}>
-            <h2 className={classes.title}>Referrals</h2>
-            <div>
+        <Box
+          sx={{
+            padding: '15px',
+          }}>
+          <Box
+            sx={{
+              display: 'inline-block',
+            }}>
+            <Typography
+              variant="h2"
+              sx={{
+                display: 'inline-block',
+              }}>
+              Referrals
+            </Typography>
+            <Box>
               <AutoRefresher
                 setRefresh={setRefresh}
                 refreshTimer={refreshTimer}
                 setIsRefreshDialogOpen={setIsRefreshDialogOpen}
               />
-            </div>
-          </div>
+            </Box>
+          </Box>
 
           {!isBigScreen && <br />}
           <RefreshDialog
@@ -113,8 +123,8 @@ export const ReferralsPage = () => {
             isTransformed={isTransformed}
             setIsPromptShown={setIsPromptShown}
           />
-          <div className={isBigScreen ? classes.search : classes.searchThin}>
-            <div>
+          <Box sx={isBigScreen ? SEARCH_SX : SEARCH_THIN_SX}>
+            <Box>
               <TextField
                 label="Search"
                 placeholder="Patient ID, Name or Village"
@@ -122,15 +132,15 @@ export const ReferralsPage = () => {
                 onChange={(e) => debounceSetSearch(e.target.value)}
               />
               {isPromptShown && (
-                <div>
+                <Box>
                   <Typography color="textSecondary" variant="caption">
                     Currently filtered to your health facility.
                     <br />
                     Click Clear Filter to see all.
                   </Typography>
-                </div>
+                </Box>
               )}
-            </div>
+            </Box>
 
             <PrimaryButton onClick={() => setIsFilterDialogOpen(true)}>
               Filter Search
@@ -144,10 +154,13 @@ export const ReferralsPage = () => {
               className="mx-auto">
               Clear Filter
             </CancelButton>
-          </div>
-        </div>
+          </Box>
+        </Box>
 
-        <div className={classes.table}>
+        <Box
+          sx={{
+            clear: 'right',
+          }}>
           <APITable
             endpoint={EndpointEnum.REFERRALS}
             search={search}
@@ -162,34 +175,20 @@ export const ReferralsPage = () => {
             refetch={refresh}
             isReferralListPage={true}
           />
-        </div>
+        </Box>
       </DashboardPaper>
     </>
   );
 };
 
-const useStyles = makeStyles({
-  wrapper: {
-    backgroundColor: '#fff',
-  },
-  topWrapper: {
-    padding: 15,
-  },
-  title: {
-    display: 'inline-block',
-  },
-  search: {
-    float: 'right',
-    display: 'flex',
-    alignItems: 'self-start',
-    columnGap: '10px',
-  },
-  searchThin: {
-    display: 'flex',
-    flexDirection: 'column',
-    rowGap: '10px',
-  },
-  table: {
-    clear: 'right',
-  },
-});
+const SEARCH_SX: SxProps = {
+  float: 'right',
+  display: 'flex',
+  alignItems: 'self-start',
+  columnGap: '10px',
+};
+const SEARCH_THIN_SX: SxProps = {
+  display: 'flex',
+  flexDirection: 'column',
+  rowGap: '10px',
+};
