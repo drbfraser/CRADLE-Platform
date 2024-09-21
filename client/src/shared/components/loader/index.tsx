@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import { OrUndefined } from 'src/shared/types';
 import Typography from '@mui/material/Typography';
-import { useStyles } from './styles';
+import { Box } from '@mui/material';
 
 interface IProps {
   message: string;
@@ -12,14 +12,8 @@ interface IProps {
   timeout?: number;
 }
 
-export const Loader: React.FC<IProps> = ({
-  className = ``,
-  timeout = 500,
-  message,
-  show,
-}) => {
+export const Loader: React.FC<IProps> = ({ timeout = 500, message, show }) => {
   const [showLoader, setShowLoader] = useState(false);
-  const classes = useStyles();
 
   useEffect((): void | (() => void) => {
     if (timeout === 0) {
@@ -46,11 +40,22 @@ export const Loader: React.FC<IProps> = ({
   }, [show, timeout]);
 
   return showLoader ? (
-    <div className={`${classes.container} ${className}`}>
+    <Box
+      sx={(theme) => ({
+        marginBlockStart: theme.spacing(2),
+        width: `100%`,
+        display: `flex`,
+        flexDirection: `column`,
+        alignItems: `center`,
+        justifyContent: `center`,
+        [`& > p`]: {
+          marginBlockStart: theme.spacing(2),
+        },
+      })}>
       <CircularProgress color="primary" />
       <Typography component="p" paragraph={true}>
         {message}
       </Typography>
-    </div>
+    </Box>
   ) : null;
 };
