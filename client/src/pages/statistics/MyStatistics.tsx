@@ -11,7 +11,7 @@ import { ReduxState } from 'src/redux/reducers';
 import { StatisticDashboard } from './utils/StatisticDashboard';
 import Typography from '@mui/material/Typography';
 import { useSelector } from 'react-redux';
-import { useStatisticsStyles } from './utils/statisticStyles';
+import { DIVIDER_SX } from './utils/statisticStyles';
 
 interface IProps {
   from: number;
@@ -23,7 +23,6 @@ type User = {
 };
 
 export const MyStatistics: React.FC<IProps> = ({ from, to }) => {
-  const classes = useStatisticsStyles();
   const { user } = useSelector(
     ({ user }: ReduxState): User => ({
       user: user.current.data,
@@ -33,12 +32,12 @@ export const MyStatistics: React.FC<IProps> = ({ from, to }) => {
 
   return (
     <div>
-      <Box className={classes.floatLeft}>
+      <Box sx={{ float: 'left' }}>
         <Typography variant="h5" gutterBottom>
           During this period, you have assessed:
         </Typography>
       </Box>
-      <Box className={classes.floatRight}>
+      <Box sx={{ float: 'right' }}>
         {userId && (
           <ExportStatistics
             getData={() =>
@@ -51,7 +50,7 @@ export const MyStatistics: React.FC<IProps> = ({ from, to }) => {
       <br />
       <br />
 
-      <Divider className={classes.divider} />
+      <Divider sx={DIVIDER_SX} />
       <br />
       {userId && (
         <StatisticDashboard

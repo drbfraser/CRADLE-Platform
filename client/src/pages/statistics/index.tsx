@@ -21,7 +21,8 @@ import { UserStatistics } from './UserStatistics';
 import { VHTStatistics } from './VHTStatistics';
 import { useSelector } from 'react-redux';
 import { useState } from 'react';
-import { useStatisticsStyles } from './utils/statisticStyles';
+import { FORM_CTRL_SX, TAB_SX } from './utils/statisticStyles';
+import { Box } from '@mui/material';
 
 const allPanes = [
   {
@@ -67,7 +68,6 @@ const allPanes = [
 ];
 
 export function StatisticsPage() {
-  const classes = useStatisticsStyles();
   const user = useSelector((state: ReduxState) => state.user.current.data);
 
   const [errorLoading, setErrorLoading] = useState(false);
@@ -110,7 +110,14 @@ export function StatisticsPage() {
   };
 
   return (
-    <div className={classes.root}>
+    <Box
+      sx={{
+        width: '100%',
+        margin: 0,
+        height: '100%',
+        position: 'relative',
+        resize: 'both',
+      }}>
       {errorLoading && (
         <Toast
           severity="error"
@@ -120,7 +127,7 @@ export function StatisticsPage() {
         />
       )}
 
-      <Grid item className={classes.floatLeft}>
+      <Grid item sx={{ float: 'left' }}>
         <DateRangePicker
           regular={true}
           startDate={startDate}
@@ -138,14 +145,9 @@ export function StatisticsPage() {
         />
       </Grid>
 
-      <Grid item className={classes.right}>
-        <FormControl
-          className={classes.formControl}
-          size="small"
-          variant="outlined">
-          <InputLabel className={classes.inputLabel}>
-            Preset date ranges
-          </InputLabel>
+      <Grid item sx={{ marginBottom: '10px' }}>
+        <FormControl sx={FORM_CTRL_SX} size="small" variant="outlined">
+          <InputLabel>Preset date ranges</InputLabel>
           <Select
             variant="standard"
             value={presetDateRange ? presetDateRange : ''}
@@ -189,11 +191,11 @@ export function StatisticsPage() {
           menu={{
             secondary: true,
             pointing: true,
-            className: classes.tabStyle,
+            sx: TAB_SX,
           }}
           panes={panes}
         />
       </Grid>
-    </div>
+    </Box>
   );
 }

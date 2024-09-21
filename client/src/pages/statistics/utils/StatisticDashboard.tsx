@@ -15,7 +15,6 @@ import { Bar } from 'react-chartjs-2';
 import Skeleton from '@mui/material/Skeleton';
 import { TrafficLightEnum } from 'src/shared/enums';
 import { trafficLightColors } from 'src/shared/constants';
-import { useStatisticsStyles } from './statisticStyles';
 import { StatisticCard } from './StatisticCard';
 import { Box } from '@mui/material';
 import { StatisticGroup } from './StatisticGroup';
@@ -27,15 +26,13 @@ interface IProps {
 }
 
 export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
-  const classes = useStatisticsStyles();
-
   const [data, setData] = useState(initialStatsData);
   const [colorReading, setColorReading] = useState(initialColorReading);
-  const [loaded, setloaded] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const [errorLoading, setErrorLoading] = useState(false);
 
   useEffect(() => {
-    setloaded(false);
+    setLoaded(false);
     const loadData = async () => {
       try {
         const data = await getData();
@@ -43,7 +40,7 @@ export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
         setData(data);
         setColorReading(data.color_readings);
 
-        setloaded(true);
+        setLoaded(true);
       } catch (e) {
         setErrorLoading(true);
       }
@@ -84,7 +81,7 @@ export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
   };
 
   return (
-    <div>
+    <Box>
       <APIErrorToast
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
@@ -92,7 +89,12 @@ export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
       {!loaded ? (
         <Skeleton variant="rectangular" height={700} />
       ) : (
-        <Box className={classes.center}>
+        <Box
+          sx={{
+            display: `flex`,
+            flexDirection: `column`,
+            alignItems: `center`,
+          }}>
           {/* <Statistic.Group className={classes.statisticGroup}> */}
           <StatisticGroup>
             {[
@@ -124,21 +126,21 @@ export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
                     label={stat.label}
                     data={stat.value}
                   />
-                  // <Statistic key={i} horizontal className={classes.statistic}>
-                  //   <Statistic.Value>{stat.value}</Statistic.Value>
-                  //   <Statistic.Label className={classes.verticalWriting}>
-                  //     {stat.label}
-                  //   </Statistic.Label>
-                  // </Statistic>
                 )
             )}
           </StatisticGroup>
           <h2>Reading Traffic Lights</h2>
-          <Box className={classes.chart}>
+          <Box
+            sx={{
+              position: 'relative',
+              margin: 'auto',
+              width: `100%`,
+              height: '100%',
+            }}>
             <Bar data={barData} options={options} />
           </Box>
         </Box>
       )}
-    </div>
+    </Box>
   );
 };

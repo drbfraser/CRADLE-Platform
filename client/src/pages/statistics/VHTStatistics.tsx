@@ -20,7 +20,7 @@ import { UserRoleEnum } from 'src/shared/enums';
 import { getVHTsAsync } from 'src/shared/api';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { useStatisticsStyles } from './utils/statisticStyles';
+import { DIVIDER_SX, FORM_CTRL_SX } from './utils/statisticStyles';
 
 interface IProps {
   from: number;
@@ -37,7 +37,6 @@ export const VHTStatistics: React.FC<IProps> = ({ from, to }) => {
       user: user.current.data,
     })
   );
-  const classes = useStatisticsStyles();
 
   const [vhts, setVHTs] = useState<IVHT[]>([]);
   const [errorLoading, setErrorLoading] = useState(false);
@@ -67,34 +66,34 @@ export const VHTStatistics: React.FC<IProps> = ({ from, to }) => {
 
   if (user && user.role === UserRoleEnum.CHO && user.supervises.length === 0) {
     return (
-      <div>
+      <Box>
         <Typography variant="h5" gutterBottom>
           There are no VHTs under your supervision.
         </Typography>
-      </div>
+      </Box>
     );
   }
 
   return (
-    <div>
+    <Box>
       <APIErrorToast
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
       />
-      <div>
-        <Box className={classes.floatLeft}>
+      <Box>
+        <Box sx={{ float: 'left' }}>
           <Typography variant="h5" gutterBottom>
             Please select a VHT from the list:
           </Typography>
         </Box>
-        <Box className={classes.floatRight}>
+        <Box sx={{ float: 'left' }}>
           {vht !== '' && (
             <ExportStatistics
               getData={() => getUserStatisticsExportAsync(vht, from, to)}
             />
           )}
         </Box>
-        <FormControl variant="standard" className={classes.formControl}>
+        <FormControl variant="standard" sx={FORM_CTRL_SX}>
           <Select variant="standard" value={vht} onChange={handleChange}>
             {vhts.map((vht, idx) => (
               <MenuItem value={vht.userId} key={idx}>
@@ -106,14 +105,14 @@ export const VHTStatistics: React.FC<IProps> = ({ from, to }) => {
         <br />
         ``
         {vht !== '' && (
-          <div>
-            <Divider className={classes.divider} />
+          <Box>
+            <Divider sx={DIVIDER_SX} />
             <StatisticDashboard
               getData={() => getUserStatisticsAsync(vht, from, to)}
             />
-          </div>
+          </Box>
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };

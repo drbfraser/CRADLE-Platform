@@ -6,7 +6,7 @@ import { StatisticDashboard } from './utils/StatisticDashboard';
 import Typography from '@mui/material/Typography';
 import { getFacilityStatisticsAsync } from 'src/shared/api';
 import { useSelector } from 'react-redux';
-import { useStatisticsStyles } from './utils/statisticStyles';
+import { DIVIDER_SX } from './utils/statisticStyles';
 
 interface IProps {
   from: number;
@@ -24,13 +24,12 @@ export const MyFacility: React.FC<IProps> = ({ from, to }) => {
     })
   );
   const facilityName = user!.healthFacilityName;
-  const classes = useStatisticsStyles();
   return (
     <div>
       <Typography variant="h5" gutterBottom>
         During this period, your facility has assessed:
       </Typography>
-      <Divider className={classes.divider} />
+      <Divider sx={DIVIDER_SX} />
       <br />
       <StatisticDashboard
         getData={() => getFacilityStatisticsAsync(facilityName, from, to)}

@@ -13,7 +13,8 @@ import Select from '@mui/material/Select';
 import { StatisticDashboard } from './utils/StatisticDashboard';
 import Typography from '@mui/material/Typography';
 import { useEffect } from 'react';
-import { useStatisticsStyles } from './utils/statisticStyles';
+import { DIVIDER_SX, FORM_CTRL_SX } from './utils/statisticStyles';
+import { Box } from '@mui/material';
 
 interface IProps {
   from: number;
@@ -21,7 +22,6 @@ interface IProps {
 }
 
 export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
-  const classes = useStatisticsStyles();
   const [facilities, setFacilities] = useState<IFacility[]>([]);
   const [facility, setFacility] = useState('');
   const [errorLoading, setErrorLoading] = useState(false);
@@ -42,17 +42,17 @@ export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
   }, []);
 
   return (
-    <div>
+    <Box>
       <APIErrorToast
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
       />
-      <div>
-        <Typography variant="h5" gutterBottom className={classes.floatLeft}>
+      <Box>
+        <Typography variant="h5" gutterBottom sx={{ float: 'left' }}>
           Please select a facility from the list:
         </Typography>
 
-        <FormControl variant="standard" className={classes.formControl}>
+        <FormControl variant="standard" sx={FORM_CTRL_SX}>
           <Select
             variant="standard"
             value={facility}
@@ -68,15 +68,15 @@ export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
 
         <br />
         {facility !== '' && (
-          <div>
-            <Divider className={classes.divider} />
+          <Box>
+            <Divider sx={DIVIDER_SX} />
             <br />
             <StatisticDashboard
               getData={() => getFacilityStatisticsAsync(facility, from, to)}
             />
-          </div>
+          </Box>
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
