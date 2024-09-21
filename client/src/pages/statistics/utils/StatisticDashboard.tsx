@@ -13,10 +13,12 @@ import { initialColorReading, initialStatsData } from '../utils';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Bar } from 'react-chartjs-2';
 import Skeleton from '@mui/material/Skeleton';
-import { Statistic } from 'semantic-ui-react';
 import { TrafficLightEnum } from 'src/shared/enums';
 import { trafficLightColors } from 'src/shared/constants';
 import { useStatisticsStyles } from './statisticStyles';
+import { StatisticCard } from './StatisticCard';
+import { Box } from '@mui/material';
+import { StatisticGroup } from './StatisticGroup';
 
 Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -90,8 +92,9 @@ export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
       {!loaded ? (
         <Skeleton variant="rectangular" height={700} />
       ) : (
-        <div className={classes.center}>
-          <Statistic.Group className={classes.statisticGroup}>
+        <Box className={classes.center}>
+          {/* <Statistic.Group className={classes.statisticGroup}> */}
+          <StatisticGroup>
             {[
               {
                 label: 'Days with Readings',
@@ -116,20 +119,25 @@ export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
             ].map(
               (stat, i) =>
                 stat.value !== undefined && (
-                  <Statistic key={i} horizontal className={classes.statistic}>
-                    <Statistic.Value>{stat.value}</Statistic.Value>
-                    <Statistic.Label className={classes.verticalWriting}>
-                      {stat.label}
-                    </Statistic.Label>
-                  </Statistic>
+                  <StatisticCard
+                    key={stat.label}
+                    label={stat.label}
+                    data={stat.value}
+                  />
+                  // <Statistic key={i} horizontal className={classes.statistic}>
+                  //   <Statistic.Value>{stat.value}</Statistic.Value>
+                  //   <Statistic.Label className={classes.verticalWriting}>
+                  //     {stat.label}
+                  //   </Statistic.Label>
+                  // </Statistic>
                 )
             )}
-          </Statistic.Group>
+          </StatisticGroup>
           <h2>Reading Traffic Lights</h2>
-          <div className={classes.chart}>
+          <Box className={classes.chart}>
             <Bar data={barData} options={options} />
-          </div>
-        </div>
+          </Box>
+        </Box>
       )}
     </div>
   );
