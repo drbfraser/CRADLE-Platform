@@ -7,7 +7,6 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import Typography from '@mui/material/Typography';
 import APIErrorToast from '../../../../shared/components/apiErrorToast/APIErrorToast';
 import React, { useState } from 'react';
-import makeStyles from '@mui/styles/makeStyles';
 import { Field, Form, Formik } from 'formik';
 import {
   Box,
@@ -102,8 +101,6 @@ export const CustomFormTemplate = () => {
     targetFrom ? true : false
   );
 
-  const classes = useStyles();
-
   const getFormVersions = async (formClassificationId: string) => {
     const formTemplates = await getFormClassificationTemplates(
       formClassificationId
@@ -120,7 +117,7 @@ export const CustomFormTemplate = () => {
 
   return (
     <>
-      <div className={classes.title}>
+      <Box sx={{ display: `flex`, alignItems: `center` }}>
         <Tooltip title="Go back" placement="top">
           <IconButton
             onClick={() => goBackWithFallback(`/admin/form-templates`)}
@@ -132,7 +129,7 @@ export const CustomFormTemplate = () => {
         <Typography variant="h4">
           {targetFrom ? 'Edit Template' : 'Create New Template'}
         </Typography>
-      </div>
+      </Box>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <Formik
         initialValues={initialState}
@@ -260,8 +257,6 @@ const LanguageModal = ({ language, setLanguage }: LanguageModalProps) => {
     useState<boolean>(false);
   const languageOptions = getLanguages();
 
-  const classes = useStyles();
-
   // handles the change of the multi-select language
   const handleLanguageChange = (
     target: string,
@@ -322,7 +317,13 @@ const LanguageModal = ({ language, setLanguage }: LanguageModalProps) => {
         <DialogContent dividers={true}>
           <FormControl fullWidth variant="outlined">
             <FormGroup>
-              <Grid container spacing={1} className={classes.modal}>
+              <Grid
+                container
+                spacing={1}
+                sx={{
+                  marginLeft: 'auto',
+                  marginRight: 'auto',
+                }}>
                 {languageOptions.map((value) => {
                   if (value === undefined) {
                     return <></>;
@@ -349,7 +350,10 @@ const LanguageModal = ({ language, setLanguage }: LanguageModalProps) => {
         </DialogContent>
         <DialogActions>
           <PrimaryButton
-            className={classes.button}
+            sx={{
+              height: '100%',
+              marginLeft: '10px',
+            }}
             onClick={() => setShowModal(false)}>
             Close
           </PrimaryButton>
@@ -366,7 +370,10 @@ const LanguageModal = ({ language, setLanguage }: LanguageModalProps) => {
         </DialogContent>
         <DialogActions>
           <PrimaryButton
-            className={classes.button}
+            sx={{
+              height: '100%',
+              marginLeft: '10px',
+            }}
             onClick={() => setShowLanguageWarning(false)}>
             OK
           </PrimaryButton>
@@ -375,26 +382,3 @@ const LanguageModal = ({ language, setLanguage }: LanguageModalProps) => {
     </>
   );
 };
-
-const useStyles = makeStyles({
-  container: {
-    maxWidth: 1250,
-    margin: '0 auto',
-  },
-  title: {
-    display: `flex`,
-    alignItems: `center`,
-  },
-  right: {
-    float: 'right',
-    margin: 5,
-  },
-  button: {
-    height: '100%',
-    marginLeft: 10,
-  },
-  modal: {
-    marginLeft: 'auto',
-    marginRight: 'auto',
-  },
-});
