@@ -91,10 +91,15 @@ export const ReferralsPage = () => {
               variant="h2"
               sx={{
                 display: 'inline-block',
+                fontSize: '1.7rem',
+                fontWeight: 'bold',
               }}>
               Referrals
             </Typography>
-            <Box>
+            <Box
+              sx={{
+                marginTop: '16px',
+              }}>
               <AutoRefresher
                 setRefresh={setRefresh}
                 refreshTimer={refreshTimer}
