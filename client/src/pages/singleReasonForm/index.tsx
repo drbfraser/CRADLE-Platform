@@ -5,6 +5,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { Box, IconButton, Tooltip, Typography } from '@mui/material';
 import { goBackWithFallback } from 'src/shared/utils';
 import { useRouteMatch } from 'react-router-dom';
+import { FormContainer } from 'src/shared/components/layout/FormContainer';
 
 type RouteParams = {
   referralId: string;
@@ -34,11 +35,7 @@ export const SingleReasonFormPage = () => {
   }, [type]);
 
   return (
-    <Box
-      sx={{
-        maxWidth: 1250,
-        margin: '0 auto',
-      }}>
+    <FormContainer>
       <Box
         sx={{
           display: `flex`,
@@ -55,6 +52,6 @@ export const SingleReasonFormPage = () => {
       </Box>
       <br />
       <SingleReasonForm referralId={referralId} type={type} />
-    </Box>
+    </FormContainer>
   );
 };
