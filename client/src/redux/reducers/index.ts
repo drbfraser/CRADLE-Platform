@@ -36,10 +36,9 @@ const createRootReducer = (history: History) => {
 export const history = createBrowserHistory();
 
 export const rootReducer = (state: any, action: any) => {
-  switch (action.type) {
-    case CurrentUserActionEnum.LOGOUT_USER:
-      return undefined;
-    default:
-      return createRootReducer(history)(state, action);
+  if (action.type === CurrentUserActionEnum.LOGOUT_USER) {
+    state = undefined;
   }
+
+  return createRootReducer(history)(state, action);
 };
