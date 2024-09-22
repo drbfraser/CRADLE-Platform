@@ -42,5 +42,4 @@
     }
   },
   "parser": "@typescript-eslint/parser",
-  "ignorePatterns": ["**/vite*"]
 }
