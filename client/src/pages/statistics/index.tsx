@@ -112,10 +112,9 @@ export function StatisticsPage() {
   return (
     <Box
       sx={{
+        maxWidth: '100%',
         width: '100%',
-        margin: 0,
         height: '100%',
-        position: 'relative',
         resize: 'both',
       }}>
       {errorLoading && (
@@ -145,7 +144,7 @@ export function StatisticsPage() {
         />
       </Grid>
 
-      <Grid item sx={{ marginBottom: '10px' }}>
+      <Grid id={'statistics-container'} item sx={{ marginBottom: '10px' }}>
         <FormControl sx={FORM_CTRL_SX} size="small" variant="outlined">
           <InputLabel>Preset date ranges</InputLabel>
           <Select

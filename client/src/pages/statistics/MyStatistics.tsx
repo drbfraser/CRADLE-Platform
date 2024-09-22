@@ -11,7 +11,7 @@ import { ReduxState } from 'src/redux/reducers';
 import { StatisticDashboard } from './utils/StatisticDashboard';
 import Typography from '@mui/material/Typography';
 import { useSelector } from 'react-redux';
-import { DIVIDER_SX } from './utils/statisticStyles';
+import { DIVIDER_SX, STATS_PAGE_SX } from './utils/statisticStyles';
 
 interface IProps {
   from: number;
@@ -31,7 +31,7 @@ export const MyStatistics: React.FC<IProps> = ({ from, to }) => {
   const userId = user?.userId;
 
   return (
-    <div>
+    <Box sx={STATS_PAGE_SX}>
       <Box sx={{ float: 'left' }}>
         <Typography variant="h5" gutterBottom>
           During this period, you have assessed:
@@ -57,6 +57,6 @@ export const MyStatistics: React.FC<IProps> = ({ from, to }) => {
           getData={() => getUserStatisticsAsync(userId.toString(), from, to)}
         />
       )}
-    </div>
+    </Box>
   );
 };

@@ -13,7 +13,11 @@ import Select from '@mui/material/Select';
 import { StatisticDashboard } from './utils/StatisticDashboard';
 import Typography from '@mui/material/Typography';
 import { useEffect } from 'react';
-import { DIVIDER_SX, FORM_CTRL_SX } from './utils/statisticStyles';
+import {
+  DIVIDER_SX,
+  FORM_CTRL_SX,
+  STATS_PAGE_SX,
+} from './utils/statisticStyles';
 import { Box } from '@mui/material';
 
 interface IProps {
@@ -42,7 +46,7 @@ export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
   }, []);
 
   return (
-    <Box>
+    <Box sx={STATS_PAGE_SX}>
       <APIErrorToast
         open={errorLoading}
         onClose={() => setErrorLoading(false)}

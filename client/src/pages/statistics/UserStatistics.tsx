@@ -16,7 +16,11 @@ import Select from '@mui/material/Select';
 import { StatisticDashboard } from './utils/StatisticDashboard';
 import Typography from '@mui/material/Typography';
 import { useEffect } from 'react';
-import { DIVIDER_SX, FORM_CTRL_SX } from './utils/statisticStyles';
+import {
+  DIVIDER_SX,
+  FORM_CTRL_SX,
+  STATS_PAGE_SX,
+} from './utils/statisticStyles';
 
 interface IProps {
   from: number;
@@ -45,12 +49,12 @@ export const UserStatistics: React.FC<IProps> = ({ from, to }) => {
   }, []);
 
   return (
-    <Box>
+    <Box sx={STATS_PAGE_SX}>
       <APIErrorToast
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
       />
-      <Box sx={{ float: 'right' }}>
+      <Box sx={{ float: 'left' }}>
         <Typography variant="h5" gutterBottom>
           Please select a user from the list:
         </Typography>

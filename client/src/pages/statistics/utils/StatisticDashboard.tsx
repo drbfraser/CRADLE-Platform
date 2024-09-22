@@ -131,9 +131,9 @@ export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
           </StatisticGroup>
           <h2>Reading Traffic Lights</h2>
           <Box
+            id={'chart-container'}
             sx={{
-              position: 'relative',
-              margin: 'auto',
+              maxWidth: '100%',
               width: `100%`,
               height: '100%',
             }}>

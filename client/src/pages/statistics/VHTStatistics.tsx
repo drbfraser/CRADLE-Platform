@@ -20,7 +20,11 @@ import { UserRoleEnum } from 'src/shared/enums';
 import { getVHTsAsync } from 'src/shared/api';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { DIVIDER_SX, FORM_CTRL_SX } from './utils/statisticStyles';
+import {
+  DIVIDER_SX,
+  FORM_CTRL_SX,
+  STATS_PAGE_SX,
+} from './utils/statisticStyles';
 
 interface IProps {
   from: number;
@@ -75,7 +79,7 @@ export const VHTStatistics: React.FC<IProps> = ({ from, to }) => {
   }
 
   return (
-    <Box>
+    <Box sx={STATS_PAGE_SX}>
       <APIErrorToast
         open={errorLoading}
         onClose={() => setErrorLoading(false)}

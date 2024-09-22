@@ -2,7 +2,7 @@ import Divider from '@mui/material/Divider';
 import { StatisticDashboard } from './utils/StatisticDashboard';
 import Typography from '@mui/material/Typography';
 import { getAllStatisticsAsync } from 'src/shared/api';
-import { DIVIDER_SX } from './utils/statisticStyles';
+import { DIVIDER_SX, STATS_PAGE_SX } from './utils/statisticStyles';
 import { Box } from '@mui/material';
 
 interface IProps {
@@ -12,7 +12,7 @@ interface IProps {
 
 export const AllStatistics: React.FC<IProps> = ({ from, to }) => {
   return (
-    <Box>
+    <Box id={'all-stats-container'} sx={STATS_PAGE_SX}>
       <Typography variant="h5" gutterBottom>
         During this period, all users and facilities have assessed:
       </Typography>

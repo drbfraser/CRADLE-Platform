@@ -29,8 +29,7 @@ export const TAB_SX: SxProps = {
 };
 
 export const CHART_SX: SxProps = {
-  position: 'relative',
-  margin: 'auto',
+  maxWidth: '100%',
   width: `100%`,
   height: '100%',
 };
@@ -38,4 +37,9 @@ export const CHART_SX: SxProps = {
 export const FORM_CTRL_SX: SxProps = {
   margin: '4px 8px',
   minWidth: '180px',
+};
+
+export const STATS_PAGE_SX: SxProps = {
+  padding: '15px',
+  maxWidth: '100%',
 };
