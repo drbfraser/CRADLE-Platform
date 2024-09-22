@@ -52,7 +52,6 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-react": "^7.30.1",
     "prettier": "^2.7.1",
-    "react-scripts": "^5.0.1",
     "typescript": "^4.7.4",
     "wait-on": "^7.2.0"
   },
