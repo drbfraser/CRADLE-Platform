@@ -19,4 +19,7 @@ export default defineConfig({
         open: true, // Open browser when server starts.
         port: 3000, 
     },
+    define: {
+      global: 'globalThis'
+    }
 })
