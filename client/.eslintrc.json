@@ -27,10 +27,6 @@
     "react/jsx-uses-react": "off",
     "react/react-in-jsx-scope": "off",
     "prettier/prettier": [
-      // "error",
-      // {
-      //   "endOfLine": "auto"
-      // }, 
       "off", 
       { "singleQuote": true }
     ]
@@ -41,5 +37,5 @@
       "version": "detect"
     }
   },
-  "parser": "@typescript-eslint/parser",
+  "parser": "@typescript-eslint/parser"
 }
