@@ -30,7 +30,10 @@ export const PatientsPage = () => {
     <DashboardPaper>
       <Box
         sx={{
-          padding: '15px',
+          padding: {
+            xs: '15px',
+            lg: '30px',
+          },
         }}>
         <Typography
           variant="h2"
@@ -45,7 +48,7 @@ export const PatientsPage = () => {
           sx={(theme) => ({
             [theme.breakpoints.up('lg')]: {
               float: 'right',
-              height: 56,
+              height: '56px',
             },
           })}>
           <TextField

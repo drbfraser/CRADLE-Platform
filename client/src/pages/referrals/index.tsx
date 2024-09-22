@@ -81,7 +81,10 @@ export const ReferralsPage = () => {
       <DashboardPaper>
         <Box
           sx={{
-            padding: '15px',
+            padding: {
+              xs: '15px',
+              lg: '30px',
+            },
           }}>
           <Box
             sx={{
