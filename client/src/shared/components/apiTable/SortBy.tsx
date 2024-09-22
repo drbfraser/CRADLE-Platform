@@ -26,10 +26,7 @@ const SortBy = ({
 }: SortByProps) => {
   const classes = useStyles();
 
-  const handleChange = (
-    e: SelectChangeEvent<string>,
-    child: React.ReactNode
-  ) => {
+  const handleChange = (e: SelectChangeEvent<string>) => {
     handleSort(e.target.value);
   };
 
