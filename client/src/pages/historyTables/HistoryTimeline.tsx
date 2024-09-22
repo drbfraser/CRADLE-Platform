@@ -42,7 +42,9 @@ export const HistoryTimeline = ({ patientId, isTransformed }: IProps) => {
       try {
         const timeline = await getPatientTimelineAsync(patientId, page);
 
-        timeline.length === 0 && setEndOfData(true);
+        if (timeline.length === 0) {
+          setEndOfData(true);
+        }
 
         setRecords((records) => [...records, ...timeline]);
       } catch (e) {
@@ -60,7 +62,9 @@ export const HistoryTimeline = ({ patientId, isTransformed }: IProps) => {
     const scroll = scrollHeight - scrollTop - clientHeight;
 
     //User has reached the end of the scroll bar
-    scroll === 0 && !endOfData && setPage(page + 1);
+    if (scroll === 0 && !endOfData) {
+      setPage(page + 1);
+    }
 
     return true;
   };
