@@ -5,19 +5,16 @@ import { IReferral } from './types';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import { TrafficLight } from 'src/shared/components/trafficLight';
-import makeStyles from '@mui/styles/makeStyles';
 import moment from 'moment';
 import { useHistory } from 'react-router-dom';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
+import { ApiTableRow } from 'src/shared/components/apiTable/ApiTableRow';
 
 interface IProps {
   row: IReferral;
 }
 
 export const ReferralRow = ({ row }: IProps) => {
-  const classes = useRowStyles();
-  const classesIcon = useStyles();
   const history = useHistory();
 
   const handleClick = () => {
@@ -27,7 +24,7 @@ export const ReferralRow = ({ row }: IProps) => {
   const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
 
   return (
-    <tr className={classes.row} onClick={handleClick}>
+    <ApiTableRow onClick={handleClick}>
       <TableCell label={COLUMNS.patientName} isTransformed={isTransformed}>
         <span style={{ fontSize: '18px' }}>{row.patientName}</span>
       </TableCell>
@@ -48,25 +45,26 @@ export const ReferralRow = ({ row }: IProps) => {
       <TableCell label={COLUMNS.isAssessed} isTransformed={isTransformed}>
         {row.isAssessed || row.notAttended || row.isCancelled ? (
           <>
-            <DoneIcon className={classesIcon.green} /> Complete
+            <DoneIcon
+              sx={{
+                color: '#4caf50',
+                padding: '2px',
+              }}
+            />
+            Complete
           </>
         ) : (
           <>
-            <ScheduleIcon className={classesIcon.red} /> Pending
+            <ScheduleIcon
+              sx={{
+                color: '#f44336',
+                padding: '2px',
+              }}
+            />
+            Pending
           </>
         )}
       </TableCell>
-    </tr>
+    </ApiTableRow>
   );
 };
-
-const useStyles = makeStyles({
-  red: {
-    color: '#f44336',
-    padding: '2px',
-  },
-  green: {
-    color: '#4caf50',
-    padding: '2px',
-  },
-});

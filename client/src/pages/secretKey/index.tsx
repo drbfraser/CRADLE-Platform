@@ -14,7 +14,6 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import makeStyles from '@mui/styles/makeStyles';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import FormControl from '@mui/material/FormControl';
 import MenuItem from '@mui/material/MenuItem';
@@ -23,12 +22,12 @@ import { IUserWithTokens, OrNull } from 'src/shared/types';
 import { SecretKeyState } from 'src/redux/reducers/secretKey';
 import IconButton from '@mui/material/IconButton';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { styled } from '@mui/material/styles';
+import { styled, SxProps } from '@mui/material/styles';
 import { UserRoleEnum } from 'src/shared/enums';
 import { Toast } from 'src/shared/components/toast';
+import { Box } from '@mui/material';
 
 const SecretKeyPage: React.FC = () => {
-  const classes = useStyles();
   const [showPassword, setShowPassWord] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [updateMessage, setUpdateMessage] = useState<boolean>(false);
@@ -70,13 +69,33 @@ const SecretKeyPage: React.FC = () => {
         open={updateMessage}
         onClose={() => setUpdateMessage(false)}
       />
-      <Paper className={classes.wrapper}>
-        <div className={classes.topWrapper}>
-          <div className={classes.title}>
-            <h2 className={classes.title}>SMS secret key detail</h2>
-          </div>
+      <Paper
+        sx={{
+          backgroundColor: '#fff',
+        }}>
+        <Box
+          sx={{
+            padding: 15,
+          }}>
+          <Box
+            sx={{
+              display: 'inline-block',
+            }}>
+            <Typography
+              variant={'h2'}
+              sx={{
+                fontSize: '1.7rem',
+                display: 'inline-block',
+              }}>
+              SMS secret key detail
+            </Typography>
+          </Box>
           {role === UserRoleEnum.ADMIN && users.length > 1 && focusUserId && (
-            <FormControl className={classes.selector}>
+            <FormControl
+              sx={{
+                minWidth: '300px',
+                float: 'right',
+              }}>
               <Select
                 id="focus-users"
                 value={focusUserId + ''}
@@ -89,15 +108,18 @@ const SecretKeyPage: React.FC = () => {
               </Select>
             </FormControl>
           )}
-        </div>
-        <div className={classes.mainWrapper}>
+        </Box>
+        <Box
+          sx={{
+            padding: '15px',
+          }}>
           <Card>
             <CardContent>
               <Typography color="text.secondary" gutterBottom>
                 Your SMS Key Details
               </Typography>
               {role === UserRoleEnum.ADMIN && (
-                <div>
+                <Box>
                   <PasswordViewer
                     focused={false}
                     label="Key"
@@ -119,9 +141,9 @@ const SecretKeyPage: React.FC = () => {
                       ),
                     }}
                   />
-                </div>
+                </Box>
               )}
-              <div className={classes.section}>
+              <Box sx={SECTION_SX}>
                 <Typography color="text.secondary" gutterBottom>
                   Expiry date
                 </Typography>
@@ -130,8 +152,8 @@ const SecretKeyPage: React.FC = () => {
                     ? currentSecretKey.expiry_date.split(' ')[0]
                     : 'No stale date available'}
                 </Typography>
-              </div>
-              <div className={classes.section}>
+              </Box>
+              <Box sx={SECTION_SX}>
                 <Typography color="text.secondary" gutterBottom>
                   Stale Day
                 </Typography>
@@ -140,7 +162,7 @@ const SecretKeyPage: React.FC = () => {
                     ? currentSecretKey.stale_date.split(' ')[0]
                     : 'No stale date available'}
                 </Typography>
-              </div>
+              </Box>
             </CardContent>
             <CardActions>
               <Button size="medium" onClick={() => setShowModal(true)}>
@@ -148,7 +170,7 @@ const SecretKeyPage: React.FC = () => {
               </Button>
             </CardActions>
           </Card>
-        </div>
+        </Box>
       </Paper>
       <Dialog
         fullWidth
@@ -184,27 +206,9 @@ const SecretKeyPage: React.FC = () => {
   );
 };
 
-const useStyles = makeStyles({
-  wrapper: {
-    backgroundColor: '#fff',
-  },
-  selector: {
-    minWidth: 300,
-    float: 'right',
-  },
-  topWrapper: {
-    padding: 15,
-  },
-  title: {
-    display: 'inline-block',
-  },
-  mainWrapper: {
-    padding: 15,
-  },
-  section: {
-    marginTop: 30,
-  },
-});
+const SECTION_SX: SxProps = {
+  marginTop: '30px',
+};
 
 const PasswordViewer = styled(TextField)({
   '& .MuiInputLabel-root': {

@@ -7,7 +7,6 @@ import { Tab } from 'semantic-ui-react';
 import { theme } from 'src/context/materialUI/theme';
 import { Route, Switch, useHistory, useRouteMatch } from 'react-router-dom';
 import { CustomFormTemplate } from './manageFormTemplates/editFormTemplate/CustomFormTemplate';
-import { DashboardWrapper } from 'src/shared/components/dashboard/DashboardWrapper';
 
 const pages = [
   {
@@ -56,36 +55,34 @@ export const AdminPage = () => {
   const activeIndex = activePageIndex === -1 ? 0 : activePageIndex;
 
   return (
-    <DashboardWrapper>
-      <Switch>
-        <Route path={`${match.path}/form-templates/new`}>
-          <CustomFormTemplate />
-        </Route>
-        <Route>
-          <Tab
-            menu={{
-              secondary: true,
-              pointing: true,
-              className: {
-                display: `fluid`,
-                flexDirection: `row`,
-                flexWrap: `wrap`,
-              },
-            }}
-            onTabChange={(e, data) => {
-              if (data && data.panes && data.activeIndex !== undefined) {
-                const index: number =
-                  typeof data.activeIndex === 'string'
-                    ? parseInt(data.activeIndex)
-                    : data.activeIndex;
-                history.push(`${pages[index].route}`);
-              }
-            }}
-            activeIndex={activeIndex}
-            panes={panes}
-          />
-        </Route>
-      </Switch>
-    </DashboardWrapper>
+    <Switch>
+      <Route path={`${match.path}/form-templates/new`}>
+        <CustomFormTemplate />
+      </Route>
+      <Route>
+        <Tab
+          menu={{
+            secondary: true,
+            pointing: true,
+            className: {
+              display: `fluid`,
+              flexDirection: `row`,
+              flexWrap: `wrap`,
+            },
+          }}
+          onTabChange={(e, data) => {
+            if (data && data.panes && data.activeIndex !== undefined) {
+              const index: number =
+                typeof data.activeIndex === 'string'
+                  ? parseInt(data.activeIndex)
+                  : data.activeIndex;
+              history.push(`${pages[index].route}`);
+            }
+          }}
+          activeIndex={activeIndex}
+          panes={panes}
+        />
+      </Route>
+    </Switch>
   );
 };

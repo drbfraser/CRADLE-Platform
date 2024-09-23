@@ -12,7 +12,6 @@ import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { goBackWithFallback } from 'src/shared/utils';
-import makeStyles from '@mui/styles/makeStyles';
 import { useState } from 'react';
 
 interface IProps {
@@ -25,7 +24,6 @@ interface IProps {
 //2.from referral-cancel-card
 //3.from referral-undo-cancel-card
 export const SingleReasonForm = ({ referralId, type }: IProps) => {
-  const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
 
   const handleSubmit = async (values: SingleReason, { setSubmitting }: any) => {
@@ -75,7 +73,11 @@ export const SingleReasonForm = ({ referralId, type }: IProps) => {
             </Paper>
             <br />
             <PrimaryButton
-              className={classes.right}
+              sx={{
+                right: {
+                  float: 'right',
+                },
+              }}
               type="submit"
               disabled={isSubmitting}>
               Submit
@@ -86,9 +88,3 @@ export const SingleReasonForm = ({ referralId, type }: IProps) => {
     </>
   );
 };
-
-const useStyles = makeStyles({
-  right: {
-    float: 'right',
-  },
-});

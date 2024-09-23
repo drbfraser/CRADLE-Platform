@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useAppDispatch } from 'src/app/context/hooks';
+import { useAppDispatch } from 'src/shared/hooks';
 import { SecretKeyState, replaceSecretKey } from 'src/redux/reducers/secretKey';
 import {
   getSecretKeyAsync,

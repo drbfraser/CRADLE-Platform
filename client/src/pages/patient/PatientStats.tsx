@@ -21,7 +21,6 @@ import { Menu } from 'semantic-ui-react';
 import { PatientStatistics } from 'src/shared/types';
 import { Skeleton } from '@mui/material';
 import { getPatientStatisticsAsync } from 'src/shared/api';
-import makeStyles from '@mui/styles/makeStyles';
 
 Chart.register(
   CategoryScale,
@@ -42,8 +41,9 @@ enum ChartOption {
   TRAFFIC_LIGHTS = 'traffic_lights',
 }
 
+const GRAPH_HEIGHT = '400px';
+
 export const PatientStats = ({ patientId }: IProps) => {
-  const styles = useStyles();
   const [errorLoading, setErrorLoading] = useState(false);
   const [chartSelected, setChartSelected] = useState(ChartOption.VITALS);
   const [patientStats, setPatientStats] = useState<PatientStatistics>();
@@ -110,7 +110,14 @@ export const PatientStats = ({ patientId }: IProps) => {
           <>
             {chartSelected === ChartOption.VITALS && (
               <>
-                <h4 className={styles.noMargin}>Average Vitals</h4>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    margin: '0px',
+                    fontWeight: '700',
+                  }}>
+                  Average Vitals
+                </Typography>
                 <Form.Field
                   name="statsUnit"
                   control={Select}
@@ -118,25 +125,34 @@ export const PatientStats = ({ patientId }: IProps) => {
                   placeholder={statsUnitLabels[currentStatsUnit]}
                   onChange={handleCurrentStatsUnitChange}
                 />
-                <div className={styles.graph}>
+                <Box
+                  sx={{
+                    height: GRAPH_HEIGHT,
+                  }}>
                   <Line
                     data={getVitalsData(patientStats, currentStatsUnit)}
                     options={options}
                   />
-                </div>
+                </Box>
               </>
             )}
             {chartSelected === ChartOption.TRAFFIC_LIGHTS && (
               <>
-                <h4 className={styles.noMargin}>
+                <Typography
+                  sx={{
+                    margin: '0px',
+                  }}>
                   Traffic Lights From All Readings:
-                </h4>
-                <div className={styles.graph}>
+                </Typography>
+                <Box
+                  sx={{
+                    height: GRAPH_HEIGHT,
+                  }}>
                   <Bar
                     data={getTrafficLightData(patientStats)}
                     options={options}
                   />
-                </div>
+                </Box>
               </>
             )}
           </>
@@ -147,15 +163,6 @@ export const PatientStats = ({ patientId }: IProps) => {
     </Paper>
   );
 };
-
-const useStyles = makeStyles({
-  noMargin: {
-    margin: 0,
-  },
-  graph: {
-    height: '400px',
-  },
-});
 
 const getVitalsData = (
   stats: PatientStatistics,

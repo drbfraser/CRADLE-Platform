@@ -13,8 +13,16 @@ import ToggleButton from '@mui/material/ToggleButton';
 import { ToggleButtonGroup } from 'formik-mui';
 import { getPatientPregnancyInfoAsync } from 'src/shared/api';
 import { handleChangeCustom } from '../handlers';
-import makeStyles from '@mui/styles/makeStyles';
 import { sexOptions } from 'src/shared/constants';
+import { SxProps } from '@mui/material';
+
+const TOGGLE_SX: SxProps = {
+  ':selected': {
+    border: '1px solid #3f51b5 !important',
+    fontWeight: 'bold',
+    color: '#3f51b5 !important',
+  },
+};
 
 interface IProps {
   formikProps: FormikProps<PatientState>;
@@ -22,7 +30,6 @@ interface IProps {
 }
 
 export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
-  const classes = useStyles();
   // for *new* patients only, track whether the patient ID already exists
   const [existingPatientId, setExistingPatientId] = useState<string | null>(
     null
@@ -91,12 +98,10 @@ export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
               type="checkbox"
               value={Boolean(formikProps.values.isExactDob)}
               name={PatientField.isExactDob}>
-              <ToggleButton classes={{ selected: classes.toggle }} value={true}>
+              <ToggleButton sx={TOGGLE_SX} value={true}>
                 Date of Birth
               </ToggleButton>
-              <ToggleButton
-                classes={{ selected: classes.toggle }}
-                value={false}>
+              <ToggleButton sx={TOGGLE_SX} value={false}>
                 Estimated Age
               </ToggleButton>
             </Field>
@@ -184,18 +189,3 @@ export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
     </Paper>
   );
 };
-
-const useStyles = makeStyles({
-  toggle: {
-    border: '1px solid #3f51b5 !important',
-    fontWeight: 'bold',
-    color: '#3f51b5 !important',
-  },
-  right: {
-    float: 'right',
-  },
-  weeksDaysPlus: {
-    textAlign: 'center',
-    fontSize: 35,
-  },
-});

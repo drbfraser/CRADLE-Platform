@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import makeStyles from '@mui/styles/makeStyles';
 import LinearProgress from '@mui/material/LinearProgress';
+import { Box, Table } from '@mui/material';
 import { SortDir } from './types';
 import Pagination from './Pagination';
 import SortBy from './SortBy';
@@ -60,8 +60,6 @@ export const APITable = ({
   const [sortDir, setSortDir] = useState(initialSortDir);
   const history = useHistory();
   const prevPage = useRef(1);
-
-  const classes = useStyles();
 
   // when something changes, load new data
   useEffect(() => {
@@ -176,9 +174,7 @@ export const APITable = ({
         open={loadingError}
         onClose={() => setLoadingError(false)}
       />
-      <div className={classes.loadingWrapper}>
-        {loading && <LinearProgress />}
-      </div>
+      <Box sx={{ height: 15 }}>{loading && <LinearProgress />}</Box>
       {!isTransformed && initialSortBy && (
         <SortBy
           columns={columns}
@@ -189,8 +185,16 @@ export const APITable = ({
         />
       )}
       {rows.length ? (
-        <div className={isTransformed ? classes.tableWrapper : ''}>
-          <table className={classes.table}>
+        <Box
+          sx={{
+            maxHeight: isTransformed ? '60vh' : '',
+            overflowY: isTransformed ? 'auto' : '',
+          }}>
+          <Table
+            sx={{
+              width: '100%',
+              textAlign: 'center',
+            }}>
             {isTransformed && (
               <thead>
                 <HeaderRow
@@ -215,12 +219,16 @@ export const APITable = ({
                 />
               ))}
             </tbody>
-          </table>
-        </div>
+          </Table>
+        </Box>
       ) : (
-        <div className={classes.messageWrapper}>
+        <Box
+          sx={{
+            textAlign: 'center',
+            padding: '15px',
+          }}>
           {loading ? 'Retrieving records...' : 'No records to display.'}
-        </div>
+        </Box>
       )}
       <Pagination
         dataLen={rows.length}
@@ -233,21 +241,3 @@ export const APITable = ({
     </>
   );
 };
-
-const useStyles = makeStyles({
-  loadingWrapper: {
-    height: 15,
-  },
-  tableWrapper: {
-    maxHeight: '60vh',
-    overflowY: 'auto',
-  },
-  messageWrapper: {
-    textAlign: 'center',
-    padding: '15px',
-  },
-  table: {
-    width: '100%',
-    textAlign: 'center',
-  },
-});

@@ -17,18 +17,17 @@ import Typography from '@mui/material/Typography';
 import { VitalSigns } from './vitalSigns';
 import { goBackWithFallback } from 'src/shared/utils';
 import { handleSubmit } from './handlers';
-import makeStyles from '@mui/styles/makeStyles';
-import { useDimensionsContext } from 'src/app/context/hooks';
 import { useRouteMatch } from 'react-router-dom';
 import { vitalSignsValidationSchema } from './vitalSigns/validation';
+import { Box, useMediaQuery, useTheme } from '@mui/material';
 
 type RouteParams = {
   patientId: string;
 };
 
 export const ReadingFormPage = () => {
-  const classes = useStyles();
-  const { isBigScreen } = useDimensionsContext();
+  const theme = useTheme();
+  const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
   const { patientId } = useRouteMatch<RouteParams>().params;
   const [submitError, setSubmitError] = useState(false);
@@ -85,9 +84,17 @@ export const ReadingFormPage = () => {
   }, [patientId]);
 
   return (
-    <div className={classes.container}>
+    <Box
+      sx={{
+        maxWidth: '1250px',
+        margin: '0 auto',
+      }}>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
-      <div className={classes.title}>
+      <Box
+        sx={{
+          display: `flex`,
+          alignItems: `center`,
+        }}>
         <Tooltip title="Go back" placement="top">
           <IconButton
             onClick={() => goBackWithFallback(`/patients/${patientId}`)}
@@ -98,7 +105,7 @@ export const ReadingFormPage = () => {
         <Typography variant="h4">
           New Reading for Patient {patientId}
         </Typography>
-      </div>
+      </Box>
       <br />
       <Stepper
         activeStep={pageNum}
@@ -127,7 +134,9 @@ export const ReadingFormPage = () => {
                 Back
               </SecondaryButton>
               <PrimaryButton
-                className={classes.right}
+                sx={{
+                  float: 'right',
+                }}
                 type="submit"
                 disabled={formikProps.isSubmitting}>
                 {isFinalPage ? 'Create' : 'Next'}
@@ -136,20 +145,6 @@ export const ReadingFormPage = () => {
           )}
         </Formik>
       )}
-    </div>
+    </Box>
   );
 };
-
-const useStyles = makeStyles({
-  container: {
-    maxWidth: 1250,
-    margin: '0 auto',
-  },
-  title: {
-    display: `flex`,
-    alignItems: `center`,
-  },
-  right: {
-    float: 'right',
-  },
-});

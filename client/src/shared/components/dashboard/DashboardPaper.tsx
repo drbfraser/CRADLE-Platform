@@ -4,6 +4,7 @@ import { PropsWithChildren } from 'react';
 export const DashboardPaper = ({ children }: PropsWithChildren) => {
   return (
     <Paper
+      id={'dashboard-container'}
       sx={{
         backgroundColor: '#fff',
       }}>

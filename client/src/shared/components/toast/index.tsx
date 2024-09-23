@@ -1,6 +1,5 @@
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
-import makeStyles from '@mui/styles/makeStyles';
 
 interface IProps {
   severity: React.ComponentProps<typeof Alert>['severity'];
@@ -19,15 +18,18 @@ export const Toast: React.FC<IProps> = ({
   transitionDuration = 500,
   autoHideDuration = 5000,
 }) => {
-  const classes = useStyles();
-
   return (
     <Snackbar
       autoHideDuration={autoHideDuration}
       open={open}
       anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       transitionDuration={transitionDuration}
-      className={classes.root}
+      sx={(theme) => ({
+        root: {
+          marginTop: theme.spacing(2),
+          marginBottom: theme.spacing(2),
+        },
+      })}
       onClose={onClose}>
       <Alert severity={severity} variant="filled" onClose={onClose}>
         {message}
@@ -35,10 +37,3 @@ export const Toast: React.FC<IProps> = ({
     </Snackbar>
   );
 };
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
-}));

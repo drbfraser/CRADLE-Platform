@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import IconButton from '@mui/material/IconButton';
 import { SingleReasonForm } from './SingleReasonForm';
-import Tooltip from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import { Box, IconButton, Tooltip, Typography } from '@mui/material';
 import { goBackWithFallback } from 'src/shared/utils';
-import makeStyles from '@mui/styles/makeStyles';
 import { useRouteMatch } from 'react-router-dom';
+import { FormContainer } from 'src/shared/components/layout/FormContainer';
 
 type RouteParams = {
   referralId: string;
@@ -15,7 +13,6 @@ type RouteParams = {
 };
 
 export const SingleReasonFormPage = () => {
-  const classes = useStyles();
   const { referralId } = useRouteMatch<RouteParams>().params;
   const { type } = useRouteMatch<RouteParams>().params;
   const [title, setTitle] = useState('');
@@ -38,8 +35,12 @@ export const SingleReasonFormPage = () => {
   }, [type]);
 
   return (
-    <div className={classes.container}>
-      <div className={classes.title}>
+    <FormContainer>
+      <Box
+        sx={{
+          display: `flex`,
+          alignItems: `center`,
+        }}>
         <Tooltip title="Go back" placement="top">
           <IconButton
             onClick={() => goBackWithFallback('/patients')}
@@ -48,20 +49,9 @@ export const SingleReasonFormPage = () => {
           </IconButton>
         </Tooltip>
         <Typography variant="h4">{title}</Typography>
-      </div>
+      </Box>
       <br />
       <SingleReasonForm referralId={referralId} type={type} />
-    </div>
+    </FormContainer>
   );
 };
-
-const useStyles = makeStyles({
-  container: {
-    maxWidth: 1250,
-    margin: '0 auto',
-  },
-  title: {
-    display: `flex`,
-    alignItems: `center`,
-  },
-});

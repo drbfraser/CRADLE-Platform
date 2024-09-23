@@ -3,7 +3,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import IconButton from '@mui/material/IconButton';
 import { SortDir } from './types';
 import SortIcon from '@mui/icons-material/Sort';
-import makeStyles from '@mui/styles/makeStyles';
+import { TableRow, TableCell } from '@mui/material';
 
 interface IProps {
   columns: any;
@@ -20,15 +20,27 @@ export const HeaderRow = ({
   sortDir,
   handleSort,
 }: IProps) => {
-  const classes = useStyles();
-
   return (
-    <tr className={classes.row}>
+    <TableRow>
       {Object.entries(columns).map(([col, name], index) => (
-        <th className={classes.cell} key={col}>
+        <TableCell
+          key={col}
+          sx={{
+            backgroundColor: '#fff',
+            position: 'sticky',
+            top: '0px',
+            textAlign: 'center',
+            fontWeight: '700',
+          }}>
           {name}
           {sortableColumns[index] && (
-            <IconButton onClick={() => handleSort(col)} size="large">
+            <IconButton
+              size="large"
+              onClick={() => handleSort(col)}
+              sx={{
+                marginLeft: '4px',
+                marginRight: '-4px',
+              }}>
               {sortBy === col ? (
                 sortDir === SortDir.ASC ? (
                   <ArrowUpwardIcon />
@@ -40,19 +52,8 @@ export const HeaderRow = ({
               )}
             </IconButton>
           )}
-        </th>
+        </TableCell>
       ))}
-    </tr>
+    </TableRow>
   );
 };
-
-const useStyles = makeStyles({
-  row: {
-    height: '60px',
-  },
-  cell: {
-    backgroundColor: '#fff',
-    position: 'sticky',
-    top: 0,
-  },
-});
