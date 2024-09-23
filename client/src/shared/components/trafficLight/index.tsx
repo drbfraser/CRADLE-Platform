@@ -3,7 +3,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import GreenTraffic from './icons/green.svg?react';
 import RedTraffic from './icons/red.svg?react';
 import YellowTraffic from './icons/yellow.svg?react';
-import NoneIcon from './icons/none.svg';
+import NoneIcon from './icons/none.svg?react';
 import { TrafficLightEnum } from 'src/shared/enums';
 import Typography from '@mui/material/Typography';
 import { useCallback } from 'react';
