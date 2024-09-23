@@ -1,10 +1,11 @@
 import { ConfirmDialog } from '.';
 import { render } from '@testing-library/react';
+import { vi } from 'vitest';
 
 describe('Testing the rendering and the components of confirmDialog', () => {
   test('Render the dialog', () => {
-    const onClose = jest.fn();
-    const onConfirm = jest.fn();
+    const onClose = vi.fn();
+    const onConfirm = vi.fn();
 
     render(
       <ConfirmDialog
@@ -17,9 +18,9 @@ describe('Testing the rendering and the components of confirmDialog', () => {
     );
   });
 
-  test('Rendering of the primary button inside the dialoge', () => {
-    const onClose = jest.fn();
-    const onConfirm = jest.fn();
+  test('Rendering of the primary button inside the dialog', () => {
+    const onClose = vi.fn();
+    const onConfirm = vi.fn();
 
     const { getByText } = render(
       <ConfirmDialog
@@ -36,8 +37,8 @@ describe('Testing the rendering and the components of confirmDialog', () => {
   });
 
   test('Rendering of the cancel button inside the dialog', () => {
-    const onClose = jest.fn();
-    const onConfirm = jest.fn();
+    const onClose = vi.fn();
+    const onConfirm = vi.fn();
 
     const { getByText } = render(
       <ConfirmDialog
@@ -53,8 +54,8 @@ describe('Testing the rendering and the components of confirmDialog', () => {
   });
 
   test('Rendering of the alert inside the dialog', () => {
-    const onClose = jest.fn();
-    const onConfirm = jest.fn();
+    const onClose = vi.fn();
+    const onConfirm = vi.fn();
 
     const { getByTestId } = render(
       <ConfirmDialog
