@@ -48,6 +48,36 @@ else:
 print("Binding to " + host + ":" + port)
 
 
+def is_public_endpoint(request):
+    if request.endpoint.startswith("flasgger.") or request.endpoint in {
+        "userauthapi",
+        "version",
+        "static",
+    }:
+        return True
+
+    endpoint_handler_func = app.view_functions[request.endpoint]
+    is_public = getattr(endpoint_handler_func, "is_public_endpoint", False)
+    LOGGER.debug(
+        "Check if route is public endpoint",
+        extra={
+            "endpoint": request.endpoint,
+            "url": request.path,
+            "is_public_endpoint": is_public,
+        },
+    )
+    return is_public
+
+
+@app.before_request
+def require_authorization():
+    """
+    run authorization check for all urls by default
+    """
+    if not is_public_endpoint(request):
+        verify_jwt_in_request()
+
+
 @app.after_request
 def log_request_details(response):
     """

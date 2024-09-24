@@ -91,3 +91,11 @@ def patient_association_required():
         return decorator
 
     return wrapper
+
+
+def public_endpoint(function):
+    """
+    mark an endpoint handler as one that does not require login
+    """
+    function.is_public_endpoint = True
+    return function
