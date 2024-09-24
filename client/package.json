@@ -107,12 +107,6 @@
   "resolutions": {
     "moment": "2.24.0"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
   "browserslist": [
     ">0.2%",
     "not dead",
