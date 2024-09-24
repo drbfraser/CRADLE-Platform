@@ -13,23 +13,22 @@ interface IProps extends React.HTMLAttributes<HTMLDivElement> {
   status: TrafficLightEnum;
 }
 
+const TRAFFIC_LIGHT_PROPS = {
+  height: '30px',
+  width: '30px',
+};
+const trafficLightArrowSx: SxProps<Theme> = (theme) => ({
+  fontSize: theme.spacing(5),
+});
+
 export const TrafficLight: React.FC<IProps> = ({ status, ...props }) => {
-  const trafficLightSx: SxProps = {
-    height: '30px',
-    width: '30px',
-  };
-
-  const trafficLightArrowSx: SxProps<Theme> = (theme) => ({
-    fontSize: theme.spacing(5),
-  });
-
   const renderTrafficLight = useCallback(
     (trafficLightStatus: TrafficLightEnum): JSX.Element => {
       switch (trafficLightStatus) {
         case TrafficLightEnum.RED_DOWN: {
           return (
             <>
-              <RedTraffic sx={trafficLightSx} />
+              <RedTraffic {...TRAFFIC_LIGHT_PROPS} />
               <ArrowDownwardIcon sx={trafficLightArrowSx} />
             </>
           );
@@ -37,7 +36,7 @@ export const TrafficLight: React.FC<IProps> = ({ status, ...props }) => {
         case TrafficLightEnum.RED_UP: {
           return (
             <>
-              <RedTraffic sx={trafficLightSx} />
+              <RedTraffic {...TRAFFIC_LIGHT_PROPS} />
               <ArrowUpwardIcon sx={trafficLightArrowSx} />
             </>
           );
@@ -45,7 +44,7 @@ export const TrafficLight: React.FC<IProps> = ({ status, ...props }) => {
         case TrafficLightEnum.YELLOW_UP: {
           return (
             <>
-              <YellowTraffic sx={trafficLightSx} />
+              <YellowTraffic {...TRAFFIC_LIGHT_PROPS} />
               <ArrowUpwardIcon sx={trafficLightArrowSx} />
             </>
           );
@@ -53,7 +52,7 @@ export const TrafficLight: React.FC<IProps> = ({ status, ...props }) => {
         case TrafficLightEnum.YELLOW_DOWN: {
           return (
             <>
-              <YellowTraffic sx={trafficLightSx} />
+              <YellowTraffic {...TRAFFIC_LIGHT_PROPS} />
               <ArrowDownwardIcon sx={trafficLightArrowSx} />
             </>
           );
@@ -61,7 +60,7 @@ export const TrafficLight: React.FC<IProps> = ({ status, ...props }) => {
         case TrafficLightEnum.GREEN: {
           return (
             <>
-              <GreenTraffic sx={trafficLightSx} />
+              <GreenTraffic {...TRAFFIC_LIGHT_PROPS} />
               <ArrowDownwardIcon
                 sx={trafficLightArrowSx}
                 style={{ visibility: 'hidden' }}
@@ -72,7 +71,7 @@ export const TrafficLight: React.FC<IProps> = ({ status, ...props }) => {
         case TrafficLightEnum.NONE: {
           return (
             <>
-              <NoneIcon sx={trafficLightSx} />
+              <NoneIcon {...TRAFFIC_LIGHT_PROPS} />
               <ArrowDownwardIcon
                 sx={trafficLightArrowSx}
                 style={{ visibility: 'hidden' }}
