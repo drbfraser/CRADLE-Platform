@@ -49,7 +49,11 @@ print("Binding to " + host + ":" + port)
 
 
 def is_public_endpoint(request):
-    if request.endpoint.startswith("flasgger.") or request.endpoint in {"userauthapi", "version", "static"}:
+    if request.endpoint.startswith("flasgger.") or request.endpoint in {
+        "userauthapi",
+        "version",
+        "static",
+    }:
         return True
 
     endpoint_handler_func = app.view_functions[request.endpoint]
