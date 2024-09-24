@@ -96,3 +96,4 @@ the previously mentioned admin user is added along with a few additional users:
 | Jason Spence | jrspence@sfu.ca |
 | Huiyan Li | hla110@sfu.ca |
 | Jachak Sekhon | jachaks@sfu.ca |
+| Alex Mutwiri | mutex@berkeley.edu |
