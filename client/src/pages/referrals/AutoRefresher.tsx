@@ -41,7 +41,9 @@ export const AutoRefresher = ({
   );
 
   React.useEffect(() => {
-    user && setHealthFacilityName(user?.healthFacilityName);
+    if (user) {
+      setHealthFacilityName(user.healthFacilityName);
+    }
   }, [user]);
 
   React.useEffect(() => {
@@ -88,7 +90,9 @@ export const AutoRefresher = ({
     );
 
     return () => {
-      timer && clearInterval(timer);
+      if (timer) {
+        clearInterval(timer);
+      }
     };
   }, [refreshTimer, setRefresh, healthFacilityName]);
 

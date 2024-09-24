@@ -2,18 +2,12 @@ import {
   Button,
   ButtonProps,
   StyledEngineProvider,
-  Theme,
   ThemeProvider,
   createTheme,
 } from '@mui/material';
 
 import { red } from '@mui/material/colors';
 import { useHistory } from 'react-router-dom';
-
-declare module '@mui/styles/defaultTheme' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
-}
 
 interface RedirectButtonProps extends ButtonProps {
   url: string;

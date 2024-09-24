@@ -109,6 +109,7 @@ function parseRow(row: IExportStatRow) {
   row.parsed_time = date.toLocaleTimeString();
   row.parsed_pregnant = '';
 
-  row.sex === SexEnum.FEMALE &&
-    (row.parsed_pregnant = row.pregnant ? 'Yes' : 'No');
+  if (row.sex === SexEnum.FEMALE) {
+    row.parsed_pregnant = row.pregnant ? 'Yes' : 'No';
+  }
 }

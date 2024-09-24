@@ -64,7 +64,7 @@ const UploadTemplate = ({ open, onClose }: IProps) => {
   };
 
   useEffect(() => {
-    !open && setFileObject(null);
+    if (!open) setFileObject(null);
   }, [open]);
 
   const boxSx: SxProps<Theme> = (theme) => ({

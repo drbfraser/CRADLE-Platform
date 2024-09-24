@@ -567,11 +567,11 @@ export const FormQuestions = ({
 
                 // Checking if any of the values in stringMaxLinesError is set to true
                 // If so, setDisableSubmit to true
-                setDisableSubmit &&
+                if (setDisableSubmit) {
                   setDisableSubmit(
                     Object.values(nextErrors).some((value) => value === true)
                   );
-
+                }
                 //it is originally a string type!! need transfer
                 if (!exceedsMaxLines) {
                   updateAnswersByValue(question.questionIndex, inputValue);

@@ -162,7 +162,6 @@ export const FilterDialog = ({
         user.healthFacilityName,
       ]);
     }
-    // eslint-disable-next-line
   }, [user]);
 
   const clearFilter = () => {

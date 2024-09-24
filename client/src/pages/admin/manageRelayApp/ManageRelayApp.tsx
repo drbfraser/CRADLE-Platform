@@ -131,7 +131,7 @@ export const ManageRelayApp = () => {
         setRelayNums(resp);
       }
     } catch (e) {
-      e !== 404 && setErrorLoading(true);
+      if (e !== 404) setErrorLoading(true);
     }
     setLoading(false);
   };
@@ -156,14 +156,14 @@ export const ManageRelayApp = () => {
         const resp = await getAppFileHeadAsync();
 
         const size = resp.headers.get('Content-Length');
-        size && setFileSize(formatBytes(parseInt(size)));
+        if (size) setFileSize(formatBytes(parseInt(size)));
 
         const date = resp.headers.get('Last-Modified');
-        date && setFileLastModified(date);
+        if (date) setFileLastModified(date);
 
         setHasFile(true);
       } catch (e) {
-        e !== 404 && setErrorLoading(true);
+        if (e !== 404) setErrorLoading(true);
       }
     };
 

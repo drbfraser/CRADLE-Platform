@@ -30,14 +30,16 @@ export const handleSubmit = async (
 
     const newDrugHistory = values[AssessmentField.drugHistory];
 
-    drugHistory !== newDrugHistory &&
-      (await saveDrugHistoryAsync(newDrugHistory, patientId));
-
+    if (drugHistory !== newDrugHistory) {
+      await saveDrugHistoryAsync(newDrugHistory, patientId);
+    }
     //this case only happens when users click the 'assess referral' button on the
     //referral pending button! this clicking will trigger two request: 1. create a new assessment
     //2.after successfully creating a new assessment, we will send a request to mark the
     //original referral record to be 'assessed'
-    referralId !== undefined && (await saveReferralAssessmentAsync(referralId));
+    if (referralId !== undefined) {
+      await saveReferralAssessmentAsync(referralId);
+    }
 
     goBackWithFallback('/patients');
   } catch (e) {
