@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 
 import LinearProgress from '@mui/material/LinearProgress';
 import { PatientForm } from './PatientForm';
-import makeStyles from '@mui/styles/makeStyles';
 import { useRouteMatch } from 'react-router-dom';
+import { FormContainer } from 'src/shared/components/layout/FormContainer';
 
 type RouteParams = {
   patientId: string | undefined;
@@ -13,7 +13,6 @@ type RouteParams = {
 };
 
 export const PatientFormPage = () => {
-  const classes = useStyles();
   //universalRecordId stands for pregnancyId and medicalRecordId because they share the same route matching
   const { patientId, editId, universalRecordId } =
     useRouteMatch<RouteParams>().params;
@@ -27,7 +26,7 @@ export const PatientFormPage = () => {
   }, [patientId, editId, universalRecordId]);
 
   return (
-    <div className={classes.container}>
+    <FormContainer>
       {formInitialState === undefined ? (
         <LinearProgress />
       ) : (
@@ -43,13 +42,6 @@ export const PatientFormPage = () => {
           universalRecordId={universalRecordId}
         />
       )}
-    </div>
+    </FormContainer>
   );
 };
-
-const useStyles = makeStyles({
-  container: {
-    maxWidth: 1250,
-    margin: '0 auto',
-  },
-});

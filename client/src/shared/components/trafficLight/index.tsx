@@ -7,14 +7,21 @@ import NoneIcon from './icons/none.svg?react';
 import { TrafficLightEnum } from 'src/shared/enums';
 import Typography from '@mui/material/Typography';
 import { useCallback } from 'react';
-import { useStyles } from './styles';
+import { SxProps, Theme } from '@mui/material';
 
 interface IProps extends React.HTMLAttributes<HTMLDivElement> {
   status: TrafficLightEnum;
 }
 
 export const TrafficLight: React.FC<IProps> = ({ status, ...props }) => {
-  const classes = useStyles();
+  const trafficLightSx: SxProps = {
+    height: '30px',
+    width: '30px',
+  };
+
+  const trafficLightArrowSx: SxProps<Theme> = (theme) => ({
+    fontSize: theme.spacing(5),
+  });
 
   const renderTrafficLight = useCallback(
     (trafficLightStatus: TrafficLightEnum): JSX.Element => {
@@ -22,41 +29,41 @@ export const TrafficLight: React.FC<IProps> = ({ status, ...props }) => {
         case TrafficLightEnum.RED_DOWN: {
           return (
             <>
-              <RedTraffic className={classes.trafficLight} />
-              <ArrowDownwardIcon className={classes.trafficLightArrow} />
+              <RedTraffic sx={trafficLightSx} />
+              <ArrowDownwardIcon sx={trafficLightArrowSx} />
             </>
           );
         }
         case TrafficLightEnum.RED_UP: {
           return (
             <>
-              <RedTraffic className={classes.trafficLight} />
-              <ArrowUpwardIcon className={classes.trafficLightArrow} />
+              <RedTraffic sx={trafficLightSx} />
+              <ArrowUpwardIcon sx={trafficLightArrowSx} />
             </>
           );
         }
         case TrafficLightEnum.YELLOW_UP: {
           return (
             <>
-              <YellowTraffic className={classes.trafficLight} />
-              <ArrowUpwardIcon className={classes.trafficLightArrow} />
+              <YellowTraffic sx={trafficLightSx} />
+              <ArrowUpwardIcon sx={trafficLightArrowSx} />
             </>
           );
         }
         case TrafficLightEnum.YELLOW_DOWN: {
           return (
             <>
-              <YellowTraffic className={classes.trafficLight} />
-              <ArrowDownwardIcon className={classes.trafficLightArrow} />
+              <YellowTraffic sx={trafficLightSx} />
+              <ArrowDownwardIcon sx={trafficLightArrowSx} />
             </>
           );
         }
         case TrafficLightEnum.GREEN: {
           return (
             <>
-              <GreenTraffic className={classes.trafficLight} />
+              <GreenTraffic sx={trafficLightSx} />
               <ArrowDownwardIcon
-                className={classes.trafficLightArrow}
+                sx={trafficLightArrowSx}
                 style={{ visibility: 'hidden' }}
               />
             </>
@@ -65,9 +72,9 @@ export const TrafficLight: React.FC<IProps> = ({ status, ...props }) => {
         case TrafficLightEnum.NONE: {
           return (
             <>
-              <NoneIcon className={classes.trafficLight} />
+              <NoneIcon sx={trafficLightSx} />
               <ArrowDownwardIcon
-                className={classes.trafficLightArrow}
+                sx={trafficLightArrowSx}
                 style={{ visibility: 'hidden' }}
               />
             </>
@@ -84,7 +91,7 @@ export const TrafficLight: React.FC<IProps> = ({ status, ...props }) => {
         }
       }
     },
-    [classes.trafficLight, classes.trafficLightArrow]
+    []
   );
 
   return <div {...props}>{renderTrafficLight(status)}</div>;

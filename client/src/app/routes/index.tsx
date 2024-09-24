@@ -3,12 +3,9 @@ import { Route, Switch } from 'react-router-dom';
 
 import { PrivateRoute } from './privateRoute';
 import { Box } from '@mui/material';
+import { DASHBOARD_PADDING } from 'src/shared/constants';
 
-interface IProps {
-  topBarOffset?: number;
-}
-
-export const AppRoutes: React.FC<IProps> = ({ topBarOffset }) => {
+export const AppRoutes: React.FC = () => {
   return (
     <Box
       component="main"
@@ -16,6 +13,7 @@ export const AppRoutes: React.FC<IProps> = ({ topBarOffset }) => {
       sx={{
         height: '100%',
         width: '100%',
+        padding: DASHBOARD_PADDING,
       }}>
       <Switch>
         {appRoutes.map((route: AppRoute): JSX.Element => {

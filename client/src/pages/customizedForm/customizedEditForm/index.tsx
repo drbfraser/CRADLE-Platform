@@ -8,9 +8,9 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { getFormResponseAsync } from 'src/shared/api';
 import { goBackWithFallback } from 'src/shared/utils';
-import makeStyles from '@mui/styles/makeStyles';
 import { useRouteMatch } from 'react-router-dom';
 import { FormRenderStateEnum } from 'src/shared/enums';
+import { Box } from '@mui/material';
 
 type RouteParams = {
   patientId: string;
@@ -18,7 +18,6 @@ type RouteParams = {
 };
 
 export const CustomizedEditFormPage = () => {
-  const classes = useStyles();
   const { patientId, formId } = useRouteMatch<RouteParams>().params;
   const [form, setForm] = useState<CForm>();
 
@@ -34,8 +33,16 @@ export const CustomizedEditFormPage = () => {
   }, [formId]);
 
   return (
-    <div className={classes.container}>
-      <div className={classes.title}>
+    <Box
+      sx={{
+        maxWidth: 1250,
+        margin: '0 auto',
+      }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+        }}>
         <Tooltip title="Go back" placement="top">
           <IconButton
             onClick={() => goBackWithFallback('/patients')}
@@ -44,7 +51,7 @@ export const CustomizedEditFormPage = () => {
           </IconButton>
         </Tooltip>
         <Typography variant="h4">Edit Form for {patientId}</Typography>
-      </div>
+      </Box>
       {form && form.questions && form!.questions!.length > 0 && (
         <CustomizedForm
           patientId={patientId}
@@ -52,17 +59,6 @@ export const CustomizedEditFormPage = () => {
           renderState={FormRenderStateEnum.EDIT}
         />
       )}
-    </div>
+    </Box>
   );
 };
-
-const useStyles = makeStyles({
-  container: {
-    maxWidth: 1250,
-    margin: '0 auto',
-  },
-  title: {
-    display: `flex`,
-    alignItems: `center`,
-  },
-});

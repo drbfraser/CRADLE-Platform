@@ -6,7 +6,7 @@ import {
   Skeleton,
   Typography,
 } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, PropsWithChildren } from 'react';
 
 import CircularProgress from '@mui/material/CircularProgress';
 import HistoryIcon from '@mui/icons-material/History';
@@ -20,7 +20,6 @@ import { TimelineRecord } from 'src/shared/types';
 import TimelineSeparator from '@mui/lab/TimelineSeparator';
 import { getPatientTimelineAsync } from 'src/shared/api';
 import { getPrettyDate } from 'src/shared/utils';
-import makeStyles from '@mui/styles/makeStyles';
 
 interface IProps {
   patientId: string;
@@ -28,7 +27,6 @@ interface IProps {
 }
 
 export const HistoryTimeline = ({ patientId, isTransformed }: IProps) => {
-  const classes = useStyles();
   const [records, setRecords] = useState<TimelineRecord[]>([]);
   const [page, setPage] = useState<number>(1);
   const [endOfData, setEndOfData] = useState(false);
@@ -70,12 +68,17 @@ export const HistoryTimeline = ({ patientId, isTransformed }: IProps) => {
   };
 
   return (
-    <Box p={3}>
+    <Box id={'history-timeline-container'} p={3}>
       <Typography component="h3" variant="h5">
         <HistoryIcon fontSize="large" /> &nbsp; Medical History Timeline
       </Typography>
       <Divider />
-      <div className={classes.timeline} onScroll={handleScroll}>
+      <Box
+        sx={{
+          overflowY: 'auto',
+          height: '460px',
+        }}
+        onScroll={handleScroll}>
         <Timeline>
           {errorLoading ? (
             <Alert severity="error">
@@ -98,19 +101,19 @@ export const HistoryTimeline = ({ patientId, isTransformed }: IProps) => {
                   <TimelineConnector />
                 </TimelineSeparator>
                 <TimelineContent>
-                  <Paper elevation={3} className={classes.paper}>
+                  <TimelinePaper>
                     <b> {record.title} </b>
                     <Typography style={{ whiteSpace: 'pre-line' }}>
                       {record.information}
                     </Typography>
-                  </Paper>
+                  </TimelinePaper>
                 </TimelineContent>
               </TimelineItem>
             ))
           ) : (
             <p>No records for this patient.</p>
           )}
-          {isFetching && <CircularProgress className={classes.progress} />}
+          {isFetching && <CircularProgress sx={{ marginLeft: '50%' }} />}
 
           {endOfData && (
             <TimelineItem>
@@ -119,30 +122,26 @@ export const HistoryTimeline = ({ patientId, isTransformed }: IProps) => {
               />
               <TimelineDot />
               <TimelineContent>
-                <Paper elevation={3} className={classes.paper}>
+                <TimelinePaper>
                   <b> End of records </b>
-                </Paper>
+                </TimelinePaper>
               </TimelineContent>
             </TimelineItem>
           )}
         </Timeline>
-      </div>
+      </Box>
     </Box>
   );
 };
 
-const useStyles = makeStyles((theme) => ({
-  paper: {
-    padding: '6px 16px',
-  },
-  secondaryTail: {
-    backgroundColor: theme.palette.secondary.main,
-  },
-  timeline: {
-    overflowY: 'auto',
-    height: '460px',
-  },
-  progress: {
-    marginLeft: '50%',
-  },
-}));
+const TimelinePaper = ({ children }: PropsWithChildren) => {
+  return (
+    <Paper
+      elevation={3}
+      sx={{
+        padding: '6px 16px',
+      }}>
+      {children}
+    </Paper>
+  );
+};

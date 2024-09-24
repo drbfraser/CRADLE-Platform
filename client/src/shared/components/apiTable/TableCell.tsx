@@ -1,5 +1,4 @@
-import { Theme } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
+import { Box, SxProps, Theme } from '@mui/material';
 
 interface TableCellProps {
   children: any;
@@ -12,35 +11,33 @@ export const TableCell = ({
   label,
   isTransformed,
 }: TableCellProps) => {
-  const classes = useCellStyles({ label });
+  const rootSx: SxProps = {
+    padding: '5px 16px',
+  };
+
+  const thinSx =
+    (label: string): SxProps<Theme> =>
+    (theme) => ({
+      display: 'flex',
+      fontSize: '14px',
+      padding: '2px',
+      textAlign: 'left',
+      marginRight: theme.spacing(1),
+      '&:before': {
+        content: `"${label}"`,
+        display: 'flex',
+        alignItems: 'center',
+        fontSize: '14px',
+        fontWeight: 'bold',
+        width: '30%',
+        minWidth: '132px',
+        marginLeft: theme.spacing(2),
+      },
+    });
+
   return (
-    <td className={isTransformed ? classes.root : classes.thin}>{children}</td>
+    <Box component="td" sx={isTransformed ? rootSx : thinSx(label)}>
+      {children}
+    </Box>
   );
 };
-
-interface StyleProps {
-  label: string;
-}
-
-const useCellStyles = makeStyles<Theme, StyleProps>((theme) => ({
-  root: {
-    padding: '5px 16px',
-  },
-  thin: {
-    display: 'flex',
-    fontSize: '14px',
-    padding: '2px',
-    textAlign: 'left',
-    marginRight: theme.spacing(1),
-    '&:before': {
-      content: ({ label }) => `"${label}"`,
-      display: 'flex',
-      alignItems: 'center',
-      fontSize: '14px',
-      fontWeight: 'bold',
-      width: '30%',
-      minWidth: '132px',
-      marginLeft: theme.spacing(2),
-    },
-  },
-}));

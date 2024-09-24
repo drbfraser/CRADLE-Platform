@@ -6,7 +6,6 @@ import {
   DialogTitle,
 } from '@mui/material';
 
-import makeStyles from '@mui/styles/makeStyles';
 import { useEffect, useState } from 'react';
 
 interface IProps {
@@ -16,7 +15,6 @@ interface IProps {
 }
 
 const DeleteCategoryDialog = ({ open, onClose, numQuestionsProp }: IProps) => {
-  const classes = useStyles();
   const [numQuestions, setNumQuestions] = useState(0);
   useEffect(() => {
     setNumQuestions(numQuestionsProp);
@@ -31,7 +29,12 @@ const DeleteCategoryDialog = ({ open, onClose, numQuestionsProp }: IProps) => {
           &nbsp;question{numQuestions !== 1 && 's'}?
         </p>
       </DialogContent>
-      <DialogActions className={classes.actions}>
+      <DialogActions
+        sx={(theme) => ({
+          actions: {
+            padding: theme.spacing(2),
+          },
+        })}>
         <CancelButton onClick={() => onClose(false)}>Cancel</CancelButton>
         <PrimaryButton onClick={() => onClose(true)}>Delete</PrimaryButton>
       </DialogActions>
@@ -40,9 +43,3 @@ const DeleteCategoryDialog = ({ open, onClose, numQuestionsProp }: IProps) => {
 };
 
 export default DeleteCategoryDialog;
-
-const useStyles = makeStyles((theme) => ({
-  actions: {
-    padding: theme.spacing(2),
-  },
-}));

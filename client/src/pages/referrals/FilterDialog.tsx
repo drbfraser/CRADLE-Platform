@@ -37,7 +37,6 @@ import Select from '@mui/material/Select';
 import { TextField } from '@mui/material';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { TrafficLightEnum } from 'src/shared/enums';
-import makeStyles from '@mui/styles/makeStyles';
 import { useSelector } from 'react-redux';
 
 interface IProps {
@@ -98,8 +97,6 @@ export const FilterDialog = ({
       user: user.current.data,
     })
   );
-  const classes = useStyles();
-
   const [selectedHealthFacilities, setSelectedHealthFacilities] = useState<
     string[]
   >([]);
@@ -165,7 +162,7 @@ export const FilterDialog = ({
         user.healthFacilityName,
       ]);
     }
-    // eslint-disable-next-line
+     
   }, [user]);
 
   const clearFilter = () => {
@@ -286,7 +283,10 @@ export const FilterDialog = ({
       onClose={onClose}
       aria-labelledby="filter-dialog">
       <DialogTitle id="filter-dialog">Advanced Search</DialogTitle>
-      <DialogContent className={classes.content}>
+      <DialogContent
+        sx={{
+          maxHeight: '600px',
+        }}>
         <Grid container spacing={3}>
           <Grid item md={12} sm={12} xs={12}>
             <h4>Health Facility</h4>
@@ -335,10 +335,16 @@ export const FilterDialog = ({
               isOutsideRange={() => false}
             />
             <FormControl
-              className={classes.formControl}
+              sx={{
+                margin: '4px 8px',
+                minWidth: '180px',
+              }}
               size="small"
               variant="outlined">
-              <InputLabel className={classes.inputLabel}>
+              <InputLabel
+                sx={{
+                  fontSize: '50px',
+                }}>
                 Preset date ranges
               </InputLabel>
               <Select
@@ -506,7 +512,13 @@ export const FilterDialog = ({
                 }
                 label={
                   <>
-                    <DoneIcon className={classes.green} /> Complete
+                    <DoneIcon
+                      sx={{
+                        color: '#4caf50',
+                        padding: '2px',
+                      }}
+                    />
+                    Complete
                   </>
                 }
               />
@@ -522,7 +534,13 @@ export const FilterDialog = ({
                 }
                 label={
                   <>
-                    <ScheduleIcon className={classes.red} /> Pending
+                    <ScheduleIcon
+                      sx={{
+                        color: '#f44336',
+                        padding: '2px',
+                      }}
+                    />
+                    Pending
                   </>
                 }
               />
@@ -538,39 +556,3 @@ export const FilterDialog = ({
     </Dialog>
   );
 };
-
-export const useStyles = makeStyles((_) => ({
-  root: {
-    width: '100%',
-    margin: 0,
-    height: '100%',
-    position: 'relative',
-    resize: 'both',
-  },
-  content: {
-    maxHeight: 600,
-  },
-  formControl: {
-    margin: '4px 8px',
-    minWidth: 180,
-  },
-  inputLabel: {
-    fontSize: '50',
-  },
-  container: {
-    margin: 'auto',
-  },
-  center: {
-    display: `flex`,
-    flexDirection: `column`,
-    alignItems: `center`,
-  },
-  red: {
-    color: '#f44336',
-    padding: '2px',
-  },
-  green: {
-    color: '#4caf50',
-    padding: '2px',
-  },
-}));

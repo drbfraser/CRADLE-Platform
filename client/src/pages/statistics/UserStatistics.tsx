@@ -16,7 +16,11 @@ import Select from '@mui/material/Select';
 import { StatisticDashboard } from './utils/StatisticDashboard';
 import Typography from '@mui/material/Typography';
 import { useEffect } from 'react';
-import { useStatisticsStyles } from './utils/statisticStyles';
+import {
+  DIVIDER_SX,
+  FORM_CTRL_SX,
+  STATS_PAGE_SX,
+} from './utils/statisticStyles';
 
 interface IProps {
   from: number;
@@ -24,7 +28,6 @@ interface IProps {
 }
 
 export const UserStatistics: React.FC<IProps> = ({ from, to }) => {
-  const classes = useStatisticsStyles();
   const [users, setUsers] = useState<IUser[]>([]);
   const [user, setUser] = useState('');
   const [errorLoading, setErrorLoading] = useState(false);
@@ -46,17 +49,17 @@ export const UserStatistics: React.FC<IProps> = ({ from, to }) => {
   }, []);
 
   return (
-    <div>
+    <Box sx={STATS_PAGE_SX}>
       <APIErrorToast
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
       />
-      <Box className={classes.floatLeft}>
+      <Box sx={{ float: 'left' }}>
         <Typography variant="h5" gutterBottom>
           Please select a user from the list:
         </Typography>
       </Box>
-      <Box className={classes.floatRight}>
+      <Box sx={{ float: 'right' }}>
         {user !== '' && (
           <ExportStatistics
             getData={() => getUserStatisticsExportAsync(user, from, to)}
@@ -64,7 +67,7 @@ export const UserStatistics: React.FC<IProps> = ({ from, to }) => {
         )}
       </Box>
 
-      <FormControl variant="standard" className={classes.formControl}>
+      <FormControl variant="standard" sx={FORM_CTRL_SX}>
         <Select variant="standard" value={user} onChange={handleChange}>
           {users.map((user, idx) => (
             <MenuItem value={user.userId} key={idx}>
@@ -77,14 +80,14 @@ export const UserStatistics: React.FC<IProps> = ({ from, to }) => {
       <br />
 
       {user !== '' && (
-        <div>
-          <Divider className={classes.divider} />
+        <Box>
+          <Divider sx={DIVIDER_SX} />
           <br />
           <StatisticDashboard
             getData={() => getUserStatisticsAsync(user, from, to)}
           />
-        </div>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 };

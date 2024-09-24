@@ -1,9 +1,12 @@
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import {
+  Box,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  SxProps,
+  Theme,
 } from '@mui/material';
 import { Dropzone, FileItem, FileValidated } from '@dropzone-ui/react';
 import { useEffect, useState } from 'react';
@@ -13,7 +16,6 @@ import { OrNull } from 'src/shared/types';
 import SampleTemplateLink from './SampleTemplateLink';
 import { Toast } from 'src/shared/components/toast';
 import { isString } from 'lodash';
-import makeStyles from '@mui/styles/makeStyles';
 import { saveFormTemplateWithFileAsync } from 'src/shared/api';
 
 interface IProps {
@@ -22,7 +24,6 @@ interface IProps {
 }
 
 const UploadTemplate = ({ open, onClose }: IProps) => {
-  const classes = useStyles();
   const [fileObject, setFileObject] = useState<OrNull<FileValidated>>(null);
 
   const [uploadError, setUploadError] = useState<string>('');
@@ -66,6 +67,11 @@ const UploadTemplate = ({ open, onClose }: IProps) => {
     if (!open) setFileObject(null);
   }, [open]);
 
+  const boxSx: SxProps<Theme> = (theme) => ({
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  });
+
   return (
     <>
       <Toast
@@ -83,7 +89,7 @@ const UploadTemplate = ({ open, onClose }: IProps) => {
       <Dialog open={open} maxWidth="sm" fullWidth>
         <DialogTitle>Upload Form Template</DialogTitle>
         <DialogContent>
-          <div className={classes.root}>
+          <Box sx={boxSx}>
             <Dropzone
               maxFiles={1}
               behaviour="replace"
@@ -102,10 +108,10 @@ const UploadTemplate = ({ open, onClose }: IProps) => {
                 />
               )}
             </Dropzone>
-          </div>
-          <div className={classes.root}>
+          </Box>
+          <Box sx={boxSx}>
             <SampleTemplateLink />
-          </div>
+          </Box>
           <DialogActions>
             <CancelButton onClick={onClose}>Cancel</CancelButton>
             <PrimaryButton
@@ -119,19 +125,5 @@ const UploadTemplate = ({ open, onClose }: IProps) => {
     </>
   );
 };
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
-  dropzone: {
-    border: '1px dashed #ccc',
-    borderRadius: 4,
-    cursor: 'pointer',
-    padding: theme.spacing(2),
-    textAlign: 'center',
-  },
-}));
 
 export default UploadTemplate;

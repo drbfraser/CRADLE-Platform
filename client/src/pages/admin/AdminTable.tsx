@@ -7,8 +7,14 @@ import AddIcon from '@mui/icons-material/Add';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { PrimaryButton } from 'src/shared/components/Button';
 import Skeleton from '@mui/material/Skeleton';
-import { TextField } from '@mui/material';
-import { useAdminStyles } from './adminStyles';
+import {
+  Box,
+  SxProps,
+  TableContainer,
+  TableRow,
+  TextField,
+} from '@mui/material';
+import { PropsWithChildren } from 'react';
 
 interface IProps {
   title: string;
@@ -25,35 +31,86 @@ interface IProps {
   isTransformed: boolean;
 }
 
+const TOOLBAR_ELEMENT_HEIGHT_LARGE = '56px';
+const TOOLBAR_ELEMENT_HEIGHT_SMALL = '40px';
+const TOOLBAR_ELEMENT_SX = {
+  '@media (min-width: 900px)': {
+    height: TOOLBAR_ELEMENT_HEIGHT_LARGE,
+  },
+  '@media (max-width: 900px)': {
+    height: TOOLBAR_ELEMENT_HEIGHT_SMALL,
+  },
+};
+const MAX_BUTTON_WIDTH = '230px';
+const TOOLBAR_BUTTON_SX = {
+  maxWidth: MAX_BUTTON_WIDTH,
+  '@media (max-width: 720px)': {
+    width: MAX_BUTTON_WIDTH,
+  },
+  '@media (max-width: 360px)': {
+    fontSize: '0',
+    width: '100%',
+    maxWidth: MAX_BUTTON_WIDTH,
+  },
+  ...TOOLBAR_ELEMENT_SX,
+};
 const AdminTable = (props: IProps) => {
-  const styles = useAdminStyles();
-
   const Toolbar = () => (
-    <div className={props.isTransformed ? styles.right : ''}>
-      <TextField
-        type="text"
-        variant="outlined"
-        className={styles.text}
-        size={props.isTransformed ? 'medium' : 'small'}
-        placeholder="Search..."
-        value={props.search}
-        onChange={(e) => props.setSearch(e.target.value)}
-      />
-      {props.newBtnLabel && (
-        <PrimaryButton className={styles.buttonL} onClick={props.newBtnOnClick}>
-          <AddIcon />
-          {props.newBtnLabel}
-        </PrimaryButton>
-      )}
-      {props.uploadBtnLabel && (
-        <PrimaryButton
-          className={styles.buttonR}
-          onClick={props.uploadBtnLabelOnClick}>
-          <FileUploadIcon />
-          {props.uploadBtnLabel}
-        </PrimaryButton>
-      )}
-    </div>
+    <Box
+      id={'toolbar-actions'}
+      sx={{
+        display: 'flex',
+        flexDirection: 'row',
+        gap: '4px',
+        '@media (min-width: 600px)': {
+          float: 'right',
+        },
+        '@media (max-width: 900px)': {
+          marginBottom: '10px',
+        },
+        '@media (max-width: 720px)': {
+          flexDirection: 'column',
+        },
+      }}>
+      <Box sx={TOOLBAR_ELEMENT_SX}>
+        <TextField
+          type="text"
+          variant="outlined"
+          sx={TOOLBAR_ELEMENT_SX}
+          size={props.isTransformed ? 'medium' : 'small'}
+          placeholder="Search..."
+          value={props.search}
+          onChange={(e) => props.setSearch(e.target.value)}
+        />
+      </Box>
+      <Box
+        id={'button-container'}
+        sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: '4px',
+          '@media (max-width: 1000px)': {
+            flexDirection: 'column',
+          },
+        }}>
+        {props.newBtnLabel && (
+          <PrimaryButton sx={TOOLBAR_BUTTON_SX} onClick={props.newBtnOnClick}>
+            <AddIcon />
+            {props.newBtnLabel}
+          </PrimaryButton>
+        )}
+
+        {props.uploadBtnLabel && (
+          <PrimaryButton
+            sx={TOOLBAR_BUTTON_SX}
+            onClick={props.uploadBtnLabelOnClick}>
+            <FileUploadIcon />
+            {props.uploadBtnLabel}
+          </PrimaryButton>
+        )}
+      </Box>
+    </Box>
   );
 
   return (
@@ -85,6 +142,39 @@ const AdminTable = (props: IProps) => {
         },
       }}
     />
+  );
+};
+
+export const AdminTableContainer = ({ children }: PropsWithChildren) => {
+  return (
+    <TableContainer
+      sx={{
+        '& .MuiTableCell-head': {
+          fontWeight: 'bold',
+        },
+        '& button': {
+          fontWeight: 'bold',
+        },
+      }}>
+      {children}
+    </TableContainer>
+  );
+};
+
+type AdminTableRowProps = PropsWithChildren & {
+  sx?: SxProps;
+};
+export const AdminTableRow = ({ children, sx }: AdminTableRowProps) => {
+  return (
+    <TableRow
+      sx={[
+        {
+          borderBottom: '1px solid #ddd',
+        },
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}>
+      {children}
+    </TableRow>
   );
 };
 

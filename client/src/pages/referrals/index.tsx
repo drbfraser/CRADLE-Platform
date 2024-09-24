@@ -14,17 +14,15 @@ import { RefreshDialog } from './RefreshDialog';
 import { SortDir } from 'src/shared/components/apiTable/types';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import makeStyles from '@mui/styles/makeStyles';
-import { useAppDispatch, useDimensionsContext } from 'src/app/context/hooks';
+import { useAppDispatch } from 'src/shared/hooks';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { SecretKeyState, getSecretKey } from 'src/redux/reducers/secretKey';
 import { ReduxState } from 'src/redux/reducers';
 import { Toast } from 'src/shared/components/toast';
-import { DashboardWrapper } from 'src/shared/components/dashboard/DashboardWrapper';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
+import { Box, SxProps, useTheme } from '@mui/material';
 
 export const ReferralsPage = () => {
-  const classes = useStyles();
   const [expiredMessage, setExpiredMessage] = useState<boolean>(false);
   const [search, setSearch] = useState('');
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState<boolean>(false);
@@ -37,7 +35,8 @@ export const ReferralsPage = () => {
 
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
-  const { isBigScreen } = useDimensionsContext();
+  const theme = useTheme();
+  const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
   const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
 
   const userId = useSelector(({ user }: ReduxState): number | undefined => {
@@ -79,118 +78,125 @@ export const ReferralsPage = () => {
         open={expiredMessage}
         onClose={() => setExpiredMessage(false)}
       />
-      <DashboardWrapper>
-        <DashboardPaper>
-          <div className={classes.topWrapper}>
-            <div className={classes.title}>
-              <h2 className={classes.title}>Referrals</h2>
-              <div>
-                <AutoRefresher
-                  setRefresh={setRefresh}
-                  refreshTimer={refreshTimer}
-                  setIsRefreshDialogOpen={setIsRefreshDialogOpen}
-                />
-              </div>
-            </div>
+      <DashboardPaper>
+        <Box
+          sx={{
+            padding: {
+              xs: '15px',
+              lg: '30px',
+            },
+          }}>
+          <Box
+            sx={{
+              display: 'inline-block',
+            }}>
+            <Typography
+              variant="h2"
+              sx={{
+                display: 'inline-block',
+                fontSize: '1.7rem',
+                fontWeight: 'bold',
+              }}>
+              Referrals
+            </Typography>
+            <Box
+              sx={{
+                marginTop: '16px',
+              }}>
+              <AutoRefresher
+                setRefresh={setRefresh}
+                refreshTimer={refreshTimer}
+                setIsRefreshDialogOpen={setIsRefreshDialogOpen}
+              />
+            </Box>
+          </Box>
 
-            {!isBigScreen && <br />}
-            <RefreshDialog
-              onClose={() => {
-                setIsRefreshDialogOpen(false);
+          {!isBigScreen && <br />}
+          <RefreshDialog
+            onClose={() => {
+              setIsRefreshDialogOpen(false);
+            }}
+            open={isRefreshDialogOpen}
+            isTransformed={isTransformed}
+            setRefreshTimer={setRefreshTimer}
+            refreshTimer={refreshTimer}
+          />
+          <FilterDialog
+            onClose={() => {
+              setIsFilterDialogOpen(false);
+            }}
+            open={isFilterDialogOpen}
+            filter={filter!}
+            setFilter={setFilter}
+            isTransformed={isTransformed}
+            setIsPromptShown={setIsPromptShown}
+          />
+          <Box sx={isBigScreen ? SEARCH_SX : SEARCH_THIN_SX}>
+            <Box>
+              <TextField
+                label="Search"
+                placeholder="Patient ID, Name or Village"
+                variant="outlined"
+                onChange={(e) => debounceSetSearch(e.target.value)}
+              />
+              {isPromptShown && (
+                <Box>
+                  <Typography color="textSecondary" variant="caption">
+                    Currently filtered to your health facility.
+                    <br />
+                    Click Clear Filter to see all.
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+
+            <PrimaryButton onClick={() => setIsFilterDialogOpen(true)}>
+              Filter Search
+            </PrimaryButton>
+
+            <CancelButton
+              onClick={() => {
+                setFilter(undefined);
+                setIsPromptShown(false);
               }}
-              open={isRefreshDialogOpen}
-              isTransformed={isTransformed}
-              setRefreshTimer={setRefreshTimer}
-              refreshTimer={refreshTimer}
-            />
-            <FilterDialog
-              onClose={() => {
-                setIsFilterDialogOpen(false);
-              }}
-              open={isFilterDialogOpen}
-              filter={filter!}
-              setFilter={setFilter}
-              isTransformed={isTransformed}
-              setIsPromptShown={setIsPromptShown}
-            />
-            <div className={isBigScreen ? classes.search : classes.searchThin}>
-              <div>
-                <TextField
-                  label="Search"
-                  placeholder="Patient ID, Name or Village"
-                  variant="outlined"
-                  onChange={(e) => debounceSetSearch(e.target.value)}
-                />
-                {isPromptShown && (
-                  <div>
-                    <Typography color="textSecondary" variant="caption">
-                      Currently filtered to your health facility.
-                      <br />
-                      Click Clear Filter to see all.
-                    </Typography>
-                  </div>
-                )}
-              </div>
+              className="mx-auto">
+              Clear Filter
+            </CancelButton>
+          </Box>
+        </Box>
 
-              <PrimaryButton onClick={() => setIsFilterDialogOpen(true)}>
-                Filter Search
-              </PrimaryButton>
-
-              <CancelButton
-                onClick={() => {
-                  setFilter(undefined);
-                  setIsPromptShown(false);
-                }}
-                className="mx-auto">
-                Clear Filter
-              </CancelButton>
-            </div>
-          </div>
-
-          <div className={classes.table}>
-            <APITable
-              endpoint={EndpointEnum.REFERRALS}
-              search={search}
-              columns={COLUMNS}
-              sortableColumns={SORTABLE_COLUMNS}
-              rowKey={'referralId'}
-              initialSortBy={'dateReferred'}
-              initialSortDir={SortDir.DESC}
-              RowComponent={ReferralRow}
-              isTransformed={isTransformed}
-              referralFilter={filter}
-              refetch={refresh}
-              isReferralListPage={true}
-            />
-          </div>
-        </DashboardPaper>
-      </DashboardWrapper>
+        <Box
+          sx={{
+            clear: 'right',
+          }}>
+          <APITable
+            endpoint={EndpointEnum.REFERRALS}
+            search={search}
+            columns={COLUMNS}
+            sortableColumns={SORTABLE_COLUMNS}
+            rowKey={'referralId'}
+            initialSortBy={'dateReferred'}
+            initialSortDir={SortDir.DESC}
+            RowComponent={ReferralRow}
+            isTransformed={isTransformed}
+            referralFilter={filter}
+            refetch={refresh}
+            isReferralListPage={true}
+          />
+        </Box>
+      </DashboardPaper>
     </>
   );
 };
 
-const useStyles = makeStyles({
-  wrapper: {
-    backgroundColor: '#fff',
-  },
-  topWrapper: {
-    padding: 15,
-  },
-  title: {
-    display: 'inline-block',
-  },
-  search: {
-    float: 'right',
-    display: 'flex',
-    alignItems: 'self-start',
-    columnGap: '10px',
-  },
-  searchThin: {
-    display: 'flex',
-    flexDirection: 'column',
-    rowGap: '10px',
-  },
-  table: {
-    clear: 'right',
-  },
-});
+const SEARCH_SX: SxProps = {
+  float: 'right',
+  display: 'flex',
+  alignItems: 'self-start',
+  columnGap: '10px',
+};
+const SEARCH_THIN_SX: SxProps = {
+  display: 'flex',
+  flexDirection: 'column',
+  rowGap: '10px',
+};
