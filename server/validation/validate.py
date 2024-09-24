@@ -1,5 +1,5 @@
 import enum
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Type
 
 
 def check_invalid_keys_present(
@@ -60,7 +60,7 @@ def force_consistent_keys(request_body: dict, force_keys: List[str]) -> Optional
 
 
 def values_correct_type(
-    request_body: dict, key_names: List[str], _type
+    request_body: dict, key_names: List[str], _type: Type
 ) -> Optional[str]:
     """
     Returns an error message if the values of some keys are not
@@ -73,7 +73,7 @@ def values_correct_type(
     """
     for key in key_names:
         if key in request_body and request_body.get(key) is not None:
-            if _type == int:
+            if _type is int:
                 if not is_int(request_body.get(key)):
                     return "The value for key {" + key + "} is not the correct type."
             else:
