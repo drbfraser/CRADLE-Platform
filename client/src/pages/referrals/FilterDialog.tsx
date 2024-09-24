@@ -162,7 +162,6 @@ export const FilterDialog = ({
         user.healthFacilityName,
       ]);
     }
-     
   }, [user]);
 
   const clearFilter = () => {
