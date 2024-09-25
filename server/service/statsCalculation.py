@@ -35,7 +35,7 @@ def get_stats_data(
             ):
                 if is_from_last_twelve_months:
                     month_index = get_month_index(
-                        item_year, item_month, current_year, current_month
+                        item_year, item_month, current_year, current_month,
                     )
                 if data_needed == "bpSystolic":
                     data[item_month - 1].append(reading.bpSystolic)

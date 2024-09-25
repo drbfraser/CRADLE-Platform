@@ -6,14 +6,13 @@ from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 from werkzeug.datastructures import FileStorage
 
-import api.util as util
 import data
-import data.crud as crud
-import data.marshal as marshal
-import service.serialize as serialize
+from api import util
 from api.decorator import roles_required
+from data import crud, marshal
 from enums import ContentTypeEnum, RoleEnum
 from models import FormClassification, FormTemplate
+from service import serialize
 from validation import formTemplates
 
 
@@ -52,7 +51,7 @@ class Root(Resource):
                     abort(400, message=err.args[0])
                 except Exception:
                     abort(
-                        400, message="Something went wrong while parsing the CSV file."
+                        400, message="Something went wrong while parsing the CSV file.",
                     )
         else:
             req = request.get_json(force=True)
@@ -69,7 +68,7 @@ class Root(Resource):
             abort(404, message=error_message)
 
         classification = crud.read(
-            FormClassification, name=req["classification"].get("name")
+            FormClassification, name=req["classification"].get("name"),
         )
 
         if classification is not None:
@@ -201,11 +200,11 @@ class FormTemplateResource(Resource):
         if version is None:
             # admin user get template of full verions
             return marshal.marshal(
-                form_template, shallow=False, if_include_versions=True
+                form_template, shallow=False, if_include_versions=True,
             )
 
         available_versions = crud.read_form_template_versions(
-            form_template, refresh=True
+            form_template, refresh=True,
         )
         if version not in available_versions:
             abort(
@@ -256,13 +255,13 @@ class BlankFormTemplate(Resource):
         if version is None:
             # admin user get template of full verions
             blank_template = marshal.marshal(
-                form_template, shallow=False, if_include_versions=True
+                form_template, shallow=False, if_include_versions=True,
             )
             blank_template = serialize.serialize_blank_form_template(blank_template)
             return blank_template
 
         available_versions = crud.read_form_template_versions(
-            form_template, refresh=True
+            form_template, refresh=True,
         )
         if version not in available_versions:
             abort(
@@ -271,7 +270,7 @@ class BlankFormTemplate(Resource):
             )
 
         blank_template = marshal.marshal_template_to_single_version(
-            form_template, version
+            form_template, version,
         )
         blank_template = serialize.serialize_blank_form_template(blank_template)
 

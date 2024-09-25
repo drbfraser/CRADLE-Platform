@@ -5,14 +5,11 @@ from flask import request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource, abort
 
-import api.util as util
 import data
-import data.crud as crud
-import data.marshal as marshal
-import service.assoc as assoc
-import service.serialize as serialize
-import service.view as view
+from api import util
+from data import crud, marshal
 from models import HealthFacility, Patient, Referral
+from service import assoc, serialize, view
 from utils import get_current_time
 from validation import referrals
 
@@ -22,7 +19,7 @@ class Root(Resource):
     @staticmethod
     @jwt_required()
     @swag_from(
-        "../../specifications/referrals-get.yml", methods=["GET"], endpoint="referrals"
+        "../../specifications/referrals-get.yml", methods=["GET"], endpoint="referrals",
     )
     def get():
         user = get_jwt_identity()
@@ -49,7 +46,7 @@ class Root(Resource):
             abort(400, message=error_message)
 
         healthFacility = crud.read(
-            HealthFacility, healthFacilityName=json["referralHealthFacilityName"]
+            HealthFacility, healthFacilityName=json["referralHealthFacilityName"],
         )
 
         if not healthFacility:

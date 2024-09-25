@@ -6,8 +6,8 @@ from flask import request
 from flask_jwt_extended import get_jwt_identity
 from flask_restful import Resource
 
-import data.crud as crud
 from api.decorator import roles_required
+from data import crud
 from enums import RoleEnum, TrafficLightEnum
 from models import User
 
@@ -16,20 +16,20 @@ MYSQL_BIGINT_MAX = (2**63) - 1
 
 def query_stats_data(args, facility_id="%", user_id="%"):
     patients = crud.get_unique_patients_with_readings(
-        facility=facility_id, user=user_id, filter=args
+        facility=facility_id, user=user_id, filter=args,
     )[0][0]
     total_readings = crud.get_total_readings_completed(
-        facility=facility_id, user=user_id, filter=args
+        facility=facility_id, user=user_id, filter=args,
     )[0][0]
     color_readings_q = crud.get_total_color_readings(
-        facility=facility_id, user=user_id, filter=args
+        facility=facility_id, user=user_id, filter=args,
     )
     total_referrals = crud.get_sent_referrals(
-        facility=facility_id, user=user_id, filter=args
+        facility=facility_id, user=user_id, filter=args,
     )[0][0]
 
     days_with_readings = crud.get_days_with_readings(
-        facility=facility_id, user=user_id, filter=args
+        facility=facility_id, user=user_id, filter=args,
     )[0][0]
 
     color_readings = create_color_readings(color_readings_q)
@@ -44,7 +44,7 @@ def query_stats_data(args, facility_id="%", user_id="%"):
 
     if user_id == "%":
         referred_patients = crud.get_referred_patients(
-            facility=facility_id, filter=args
+            facility=facility_id, filter=args,
         )[0][0]
         response_json["patients_referred"] = referred_patients
 
@@ -192,7 +192,7 @@ class ExportStats(Resource):
                     "heart_rate": entry.get("heartRateBPM"),
                     "traffic_color": color,
                     "traffic_arrow": arrow,
-                }
+                },
             )
 
         return response, 200

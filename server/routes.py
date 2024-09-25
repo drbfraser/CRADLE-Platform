@@ -4,8 +4,7 @@
 """
 
 import api as new_api
-import api.resources.patients_android as patients_android
-import api.resources.users as users
+from api.resources import patients_android, users
 from api.resources.assessments import Root as Assessments
 from api.resources.assessments import SingleAssessment
 from api.resources.facilities import Root as Facilities
@@ -66,7 +65,7 @@ def init(api):
     api.add_resource(AllStats, "/api/stats/all")  # [GET]
 
     api.add_resource(
-        FacilityReadings, "/api/stats/facility/<string:facility_id>"
+        FacilityReadings, "/api/stats/facility/<string:facility_id>",
     )  # [GET]
     api.add_resource(ExportStats, "/api/stats/export/<int:user_id>")  # [GET]
 
@@ -75,7 +74,7 @@ def init(api):
     api.add_resource(users.UserRegisterApi, "/api/user/register")  # [POST]
     api.add_resource(users.UserAuthApi, "/api/user/auth")  # [POST]
     api.add_resource(
-        users.UserAuthTokenRefreshApi, "/api/user/auth/refresh_token"
+        users.UserAuthTokenRefreshApi, "/api/user/auth/refresh_token",
     )  # [POST]
     api.add_resource(users.UserTokenApi, "/api/user/current")  # [GET]
     api.add_resource(users.UserAll, "/api/user/all")  # [GET]
@@ -117,7 +116,7 @@ def init(api):
 
     #### New Endpoints ####
     api.add_resource(
-        Assessments, "/api/assessments", endpoint="assessment"
+        Assessments, "/api/assessments", endpoint="assessment",
     )  # [POST, GET]
 
     api.add_resource(
@@ -127,11 +126,11 @@ def init(api):
     )  # [GET]
 
     api.add_resource(
-        PatientAssociations, "/api/patientAssociations", endpoint="patientAssociations"
+        PatientAssociations, "/api/patientAssociations", endpoint="patientAssociations",
     )  # [POST]
 
     api.add_resource(
-        Facilities, "/api/facilities", endpoint="facilities"
+        Facilities, "/api/facilities", endpoint="facilities",
     )  # [GET, POST]
     api.add_resource(
         SingleFacility,
@@ -141,10 +140,10 @@ def init(api):
 
     api.add_resource(Patients, "/api/patients", endpoint="patients")  # [GET, POST]
     api.add_resource(
-        SinglePatient, "/api/patients/<string:patient_id>", endpoint="single_patient"
+        SinglePatient, "/api/patients/<string:patient_id>", endpoint="single_patient",
     )  # [GET]
     api.add_resource(
-        PatientInfo, "/api/patients/<string:patient_id>/info", endpoint="patient_info"
+        PatientInfo, "/api/patients/<string:patient_id>/info", endpoint="patient_info",
     )  # [GET, PUT]
     api.add_resource(
         PatientStats,
@@ -197,17 +196,17 @@ def init(api):
         endpoint="patient_get_all_records",
     )  # [GET]
     api.add_resource(
-        PatientsAdmin, "/api/patients/admin", endpoint="patients_admin"
+        PatientsAdmin, "/api/patients/admin", endpoint="patients_admin",
     )  # [GET]
 
     api.add_resource(Readings, "/api/readings", endpoint="readings")  # [POST]
     api.add_resource(
-        SingleReading, "/api/readings/<string:reading_id>", endpoint="single_reading"
+        SingleReading, "/api/readings/<string:reading_id>", endpoint="single_reading",
     )  # [GET]
 
     api.add_resource(Referrals, "/api/referrals", endpoint="referrals")  # [GET, POST]
     api.add_resource(
-        SingleReferral, "/api/referrals/<int:referral_id>", endpoint="single_referral"
+        SingleReferral, "/api/referrals/<int:referral_id>", endpoint="single_referral",
     )  # [GET]
     api.add_resource(
         AssessReferral,
@@ -248,7 +247,7 @@ def init(api):
     )  # [GET, PUT, DELETE]
 
     api.add_resource(
-        FormTemplate, "/api/forms/templates", endpoint="form_templates"
+        FormTemplate, "/api/forms/templates", endpoint="form_templates",
     )  # [GET, POST]
     api.add_resource(
         FormTemplateResource,
@@ -294,20 +293,20 @@ def init(api):
 
     api.add_resource(Forms, "/api/forms/responses", endpoint="forms")  # [POST]
     api.add_resource(
-        SingleForm, "/api/forms/responses/<string:form_id>", endpoint="single_form"
+        SingleForm, "/api/forms/responses/<string:form_id>", endpoint="single_form",
     )  # [GET, PUT]
 
     api.add_resource(
-        users.AdminPasswordChange, "/api/user/<int:id>/change_pass"
+        users.AdminPasswordChange, "/api/user/<int:id>/change_pass",
     )  # [POST]
     api.add_resource(
-        users.UserPasswordChange, "/api/user/current/change_pass"
+        users.UserPasswordChange, "/api/user/current/change_pass",
     )  # [POST]
 
     api.add_resource(Version, "/api/version")  # [GET]
 
     api.add_resource(
-        Upload, "/api/upload/admin", endpoint="upload_admin"
+        Upload, "/api/upload/admin", endpoint="upload_admin",
     )  # [GET, POST]
 
     api.add_resource(SmsRelay, "/api/sms_relay", endpoint="sms_relay")  # [GET, PUT]

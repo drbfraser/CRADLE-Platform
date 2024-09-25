@@ -1,4 +1,5 @@
-"""change form template id to string
+"""
+change form template id to string
 
 Revision ID: 34a86324fdb4
 Revises: c91d7f81c853
@@ -23,7 +24,7 @@ def upgrade():
 
     op.drop_constraint("question_ibfk_2", "question", type_="foreignkey")
     op.drop_constraint(
-        "fk_form_form_template_form_template_id_id", "form", type_="foreignkey"
+        "fk_form_form_template_form_template_id_id", "form", type_="foreignkey",
     )
 
     op.alter_column(
@@ -79,7 +80,7 @@ def downgrade():
 
     op.drop_constraint("question_ibfk_2", "question", type_="foreignkey")
     op.drop_constraint(
-        "fk_form_form_template_form_template_id_id", "form", type_="foreignkey"
+        "fk_form_form_template_form_template_id_id", "form", type_="foreignkey",
     )
     op.drop_constraint("PRIMARY", "form_template", type_="primary")
 

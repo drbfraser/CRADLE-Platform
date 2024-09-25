@@ -49,7 +49,7 @@ def patients_for_vht(user: User) -> List[Patient]:
 
 
 def annotated_global_patient_list(
-    user: User, search: str
+    user: User, search: str,
 ) -> List[Tuple[Patient, bool]]:
     """
     Returns the global list of patients where each patient is paired with a boolean that

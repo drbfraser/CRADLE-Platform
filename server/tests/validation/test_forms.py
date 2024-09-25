@@ -46,9 +46,9 @@ valid_form_json_filled_questions = {
             "stringMaxLength": None,
             "units": None,
             "visibleCondition": [
-                {"answers": {"mcidArray": [0]}, "qidx": 0, "relation": "EQUAL_TO"}
+                {"answers": {"mcidArray": [0]}, "qidx": 0, "relation": "EQUAL_TO"},
             ],
-        }
+        },
     ],
 }
 
@@ -157,9 +157,9 @@ single_question = [
         "stringMaxLength": None,
         "units": None,
         "visibleCondition": [
-            {"answers": {"mcidArray": [0]}, "qidx": 0, "relation": "EQUAL_TO"}
+            {"answers": {"mcidArray": [0]}, "qidx": 0, "relation": "EQUAL_TO"},
         ],
-    }
+    },
 ]
 multi_question = [
     {
@@ -182,7 +182,7 @@ multi_question = [
         "stringMaxLength": None,
         "units": None,
         "visibleCondition": [
-            {"answers": {"mcidArray": [0]}, "qidx": 0, "relation": "EQUAL_TO"}
+            {"answers": {"mcidArray": [0]}, "qidx": 0, "relation": "EQUAL_TO"},
         ],
     },
     {
@@ -205,7 +205,7 @@ multi_question = [
         "stringMaxLength": None,
         "units": None,
         "visibleCondition": [
-            {"answers": {"mcidArray": [0]}, "qidx": 0, "relation": "EQUAL_TO"}
+            {"answers": {"mcidArray": [0]}, "qidx": 0, "relation": "EQUAL_TO"},
         ],
     },
 ]

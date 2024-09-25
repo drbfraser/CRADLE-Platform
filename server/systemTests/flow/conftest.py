@@ -5,19 +5,19 @@ import pytest
 def single_facility_actors(user_factory, facility_factory):
     facility = facility_factory.create(healthFacilityName="SFT")
     admin = user_factory.create(
-        email="admin@ft.a", password="ftest", healthFacilityName="SFT", role="ADMIN"
+        email="admin@ft.a", password="ftest", healthFacilityName="SFT", role="ADMIN",
     )
     hcw = user_factory.create(
-        email="hcw@ft.a", password="ftest", healthFacilityName="SFT", role="HCW"
+        email="hcw@ft.a", password="ftest", healthFacilityName="SFT", role="HCW",
     )
     cho = user_factory.create(
-        email="cho@ft.a", password="ftest", healthFacilityName="SFT", role="CHO"
+        email="cho@ft.a", password="ftest", healthFacilityName="SFT", role="CHO",
     )
     vht = user_factory.create(
-        email="vht@ft.a", password="ftest", healthFacilityName="SFT", role="VHT"
+        email="vht@ft.a", password="ftest", healthFacilityName="SFT", role="VHT",
     )
 
-    yield facility, admin, hcw, cho, vht
+    return facility, admin, hcw, cho, vht
 
 
 @pytest.fixture
@@ -57,7 +57,7 @@ def make_patient(make_assessment):
                         reading_timestamp if reading_timestamp else 1595118199
                     ),
                     "userId": created_by if created_by else 1,
-                }
+                },
             ]
 
         if refer_to:
@@ -72,7 +72,7 @@ def make_patient(make_assessment):
                     "patientId": patient_id,
                     "referralHealthFacilityName": refer_to,
                     "isAssessed": is_assessed,
-                }
+                },
             ]
 
         if is_assessed:

@@ -2,7 +2,7 @@ import time
 
 import pytest
 
-import data.crud as crud
+from data import crud
 from enums import GestationalAgeUnitEnum, SexEnum, TrafficLightEnum
 from models import (
     MedicalRecord,
@@ -104,7 +104,7 @@ def test_sync_patients_fully_successful(
 
     try:
         response = api_post(
-            endpoint=f"/api/sync/patients?since={last_sync}", json=[mobile_patient]
+            endpoint=f"/api/sync/patients?since={last_sync}", json=[mobile_patient],
         )
         database.session.commit()
 
@@ -153,11 +153,11 @@ def test_sync_patients_fully_successful(
                 "drugHistory": "Labetalol 212mg three times daily",
                 "drugLastEdited": last_sync + 1,
                 "lastEdited": last_sync + 1,
-            }
+            },
         )
 
         response = api_post(
-            endpoint=f"/api/sync/patients?since={last_sync}", json=[mobile_patient]
+            endpoint=f"/api/sync/patients?since={last_sync}", json=[mobile_patient],
         )
         database.session.commit()
 
@@ -184,7 +184,7 @@ def test_sync_patients_fully_successful(
         # Case 3: Patient edited on server
         village_number = "2722"
         crud.update(
-            Patient, {"villageNumber": village_number}, patientId=server_patient_id
+            Patient, {"villageNumber": village_number}, patientId=server_patient_id,
         )
         pregnancy = pregnancy_factory.create(**pregnancy_later)
         medical_record = medical_record_factory.create(**medical_record)
@@ -211,7 +211,7 @@ def test_sync_patients_fully_successful(
         village_number = "3722"
         end_date = pregnancy.startDate + 2.3e7
         crud.update(
-            Patient, {"villageNumber": village_number}, patientId=server_patient_id
+            Patient, {"villageNumber": village_number}, patientId=server_patient_id,
         )
         crud.update(Pregnancy, {"endDate": end_date}, id=pregnancy.id)
         server_patient["villageNumber"] = "3000"
@@ -219,7 +219,7 @@ def test_sync_patients_fully_successful(
         del server_patient["pregnancyStartDate"]
 
         response = api_post(
-            endpoint=f"/api/sync/patients?since={last_sync}", json=[server_patient]
+            endpoint=f"/api/sync/patients?since={last_sync}", json=[server_patient],
         )
         database.session.commit()
 
@@ -267,7 +267,7 @@ def test_sync_patients_partially_successful(
 
     try:
         response = api_post(
-            endpoint=f"/api/sync/patients?since={last_sync}", json=[patient1, patient2]
+            endpoint=f"/api/sync/patients?since={last_sync}", json=[patient1, patient2],
         )
         database.session.commit()
 
@@ -290,11 +290,11 @@ def test_sync_patients_partially_successful(
                 "patientSex": "F",
                 "medicalHistory": history,
                 "medicalLastEdited": last_sync + 1,
-            }
+            },
         )
 
         response = api_post(
-            endpoint=f"/api/sync/patients?since={last_sync}", json=[patient1, patient2]
+            endpoint=f"/api/sync/patients?since={last_sync}", json=[patient1, patient2],
         )
         database.session.commit()
 
@@ -318,7 +318,7 @@ def test_sync_patients_partially_successful(
         patient2["patientSex"] = SexEnum.FEMALE.value
 
         response = api_post(
-            endpoint=f"/api/sync/patients?since={last_sync}", json=[patient2]
+            endpoint=f"/api/sync/patients?since={last_sync}", json=[patient2],
         )
         database.session.commit()
 
@@ -345,11 +345,11 @@ def test_sync_patients_partially_successful(
             {
                 "pregnancyId": pregnancy_id,
                 "pregnancyEndDate": end_date,
-            }
+            },
         )
 
         response = api_post(
-            endpoint=f"/api/sync/patients?since={last_sync}", json=[patient2]
+            endpoint=f"/api/sync/patients?since={last_sync}", json=[patient2],
         )
         database.session.commit()
 
@@ -368,7 +368,7 @@ def test_sync_patients_partially_successful(
         start_date = patient2["pregnancyStartDate"] = pregnancy_earlier.endDate - 2e6
 
         response = api_post(
-            endpoint=f"/api/sync/patients?since={last_sync}", json=[patient2]
+            endpoint=f"/api/sync/patients?since={last_sync}", json=[patient2],
         )
         database.session.commit()
 
@@ -380,7 +380,7 @@ def test_sync_patients_partially_successful(
         start_date = patient2["pregnancyStartDate"] = pregnancy_earlier.endDate + 2e6
 
         response = api_post(
-            endpoint=f"/api/sync/patients?since={last_sync}", json=[patient2]
+            endpoint=f"/api/sync/patients?since={last_sync}", json=[patient2],
         )
         database.session.commit()
 
@@ -403,7 +403,7 @@ def test_sync_patients_partially_successful(
 
 
 @pytest.mark.skip(
-    reason="TODO crud.read_referrals_and_assessments must be fixed for this test to run"
+    reason="TODO crud.read_referrals_and_assessments must be fixed for this test to run",
 )
 def test_sync_readings(
     create_patient,
@@ -432,7 +432,7 @@ def test_sync_readings(
 
     try:
         response = api_post(
-            endpoint=f"/api/sync/readings?since={last_sync}", json=[mobile_reading]
+            endpoint=f"/api/sync/readings?since={last_sync}", json=[mobile_reading],
         )
         database.session.commit()
 

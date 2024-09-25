@@ -1,4 +1,5 @@
-"""empty message
+"""
+empty message
 
 Revision ID: 1a82dffadaab
 Revises: c1e8120fe80e
@@ -28,7 +29,7 @@ def upgrade():
         ),
     )
     op.add_column(
-        "healthfacility", sa.Column("location", sa.String(length=50), nullable=True)
+        "healthfacility", sa.Column("location", sa.String(length=50), nullable=True),
     )
     # ### end Alembic commands ###
 

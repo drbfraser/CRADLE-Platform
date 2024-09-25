@@ -1,4 +1,5 @@
-"""autoincrement urine test id
+"""
+autoincrement urine test id
 
 Revision ID: eb105ee6775b
 Revises: a1913287ffaf
@@ -22,19 +23,19 @@ def upgrade():
     op.add_column("urine_test", sa.Column("id", sa.Integer(), nullable=False))
     op.drop_constraint("urine_test_ibfk_1", "urine_test", type_="foreignkey")
     op.create_foreign_key(
-        None, "urine_test", "reading", ["readingId"], ["readingId"], ondelete="CASCADE"
+        None, "urine_test", "reading", ["readingId"], ["readingId"], ondelete="CASCADE",
     )
     op.execute(
         """
         ALTER TABLE urine_test
         ADD CONSTRAINT urine_test_pk PRIMARY KEY (id)
-        """
+        """,
     )
     op.execute(
         """
         ALTER TABLE urine_test
         MODIFY id INTEGER NOT NULL AUTO_INCREMENT
-        """
+        """,
     )
     # ### end Alembic commands ###
 
@@ -52,6 +53,6 @@ def downgrade():
         ),
     )
     op.create_foreign_key(
-        "urine_test_ibfk_1", "urine_test", "reading", ["readingId"], ["readingId"]
+        "urine_test_ibfk_1", "urine_test", "reading", ["readingId"], ["readingId"],
     )
     # ### end Alembic commands ###

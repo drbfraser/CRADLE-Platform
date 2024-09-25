@@ -53,7 +53,7 @@ def validate_form(request_body: dict) -> Optional[str]:
         return error
 
     error = values_correct_type(
-        request_body, ["dateCreated", "lastEdited", "lastEditedBy"], int
+        request_body, ["dateCreated", "lastEdited", "lastEditedBy"], int,
     )
     if error:
         return error

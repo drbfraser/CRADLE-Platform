@@ -3,13 +3,11 @@ from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 
-import api.util as util
-import data.crud as crud
-import data.marshal as marshal
-import service.serialize as serialize
-import service.view as view
+from api import util
 from api.decorator import patient_association_required
+from data import crud, marshal
 from models import Pregnancy
+from service import serialize, view
 from utils import get_current_time
 from validation import pregnancies
 
@@ -137,7 +135,7 @@ def _check_conflicts(request_body, patient_id, pregnancy_id=None):
     start_date = request_body.get("startDate")
     end_date = request_body.get("endDate")
     if crud.has_conflicting_pregnancy_record(
-        patient_id, start_date, end_date, pregnancy_id
+        patient_id, start_date, end_date, pregnancy_id,
     ):
         abort(409, message="A conflict with existing pregnancy records occurred.")
 

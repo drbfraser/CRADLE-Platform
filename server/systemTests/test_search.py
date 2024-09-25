@@ -13,7 +13,7 @@ def get_login_token(email, password):
 
 
 def get_bearer_token(email, password):
-    return "Bearer {}".format(get_login_token(email, password))
+    return f"Bearer {get_login_token(email, password)}"
 
 
 def get_authorization_header(email, password):

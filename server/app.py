@@ -41,7 +41,7 @@ port = os.environ.get("PORT")
 
 if port is None:
     port = 5000
-    print("PORT environment variable not found. Using default ({}).".format(port))
+    print(f"PORT environment variable not found. Using default ({port}).")
 else:
     print("PORT environment variable found:", port)
 
@@ -99,8 +99,7 @@ def log_request_details(response):
         for key in req_data:
             if "password" in key.lower():
                 continue
-            else:
-                request_data[key] = req_data[key]
+            request_data[key] = req_data[key]
 
         if response.status_code == 200:
             status_str = "Successful"
@@ -117,7 +116,7 @@ def log_request_details(response):
         LOGGER.info(message, extra=extra)
     except Exception as err:
         LOGGER.info(
-            "An unexpected error occured while logging request and response data"
+            "An unexpected error occured while logging request and response data",
         )
         LOGGER.error(err)
     return response

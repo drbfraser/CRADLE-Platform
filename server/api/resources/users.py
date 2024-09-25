@@ -51,10 +51,10 @@ invalid_phone_number = (
 # Building a parser that will be used over several apis for Users
 UserParser = reqparse.RequestParser()
 UserParser.add_argument(
-    "email", type=str, required=True, help="This field cannot be left blank!"
+    "email", type=str, required=True, help="This field cannot be left blank!",
 )
 UserParser.add_argument(
-    "firstName", type=str, required=True, help="This field cannot be left blank!"
+    "firstName", type=str, required=True, help="This field cannot be left blank!",
 )
 UserParser.add_argument(
     "healthFacilityName",
@@ -63,7 +63,7 @@ UserParser.add_argument(
     help="This field cannot be left blank!",
 )
 UserParser.add_argument(
-    "role", type=str, required=True, help="This field cannot be left blank!"
+    "role", type=str, required=True, help="This field cannot be left blank!",
 )
 UserParser.add_argument("supervises", type=int, action="append")
 
@@ -121,7 +121,7 @@ class UserAllVHT(Resource):
                     "email": vht.email,
                     "healthFacilityName": vht.healthFacilityName,
                     "firstName": vht.firstName,
-                }
+                },
             )
 
         if vhtDictionaryList is None:
@@ -134,7 +134,7 @@ class AdminPasswordChange(Resource):
     # Ensure that we have the fields we want in JSON payload
     parser = reqparse.RequestParser()
     parser.add_argument(
-        "password", type=str, required=True, help="This field cannot be left blank!"
+        "password", type=str, required=True, help="This field cannot be left blank!",
     )
 
     @roles_required([RoleEnum.ADMIN])
@@ -165,10 +165,10 @@ class AdminPasswordChange(Resource):
 class UserPasswordChange(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument(
-        "old_password", type=str, required=True, help="This field cannot be left blank!"
+        "old_password", type=str, required=True, help="This field cannot be left blank!",
     )
     parser.add_argument(
-        "new_password", type=str, required=True, help="This field cannot be left blank!"
+        "new_password", type=str, required=True, help="This field cannot be left blank!",
     )
 
     @jwt_required()
@@ -190,19 +190,18 @@ class UserPasswordChange(Resource):
 
         # If old password and password we have on file match
         if user and flask_bcrypt.check_password_hash(
-            user.password, data["old_password"]
+            user.password, data["old_password"],
         ):
             # Create new dictionary with just keys we want to replace
             updated_payload = {
-                "password": flask_bcrypt.generate_password_hash(data["new_password"])
+                "password": flask_bcrypt.generate_password_hash(data["new_password"]),
             }
 
             # Perform update
             crud.update(User, updated_payload, id=identity["userId"])
 
             return {"message": "Success! Password has been changed"}, 200
-        else:
-            return {"error": "old_password incorrect"}, 400
+        return {"error": "old_password incorrect"}, 400
 
 
 # api/user/register [POST]
@@ -210,7 +209,7 @@ class UserRegisterApi(Resource):
     # Allow for parsing a password too
     registerParser = UserParser.copy()
     registerParser.add_argument(
-        "password", type=str, required=True, help="This field cannot be left blank!"
+        "password", type=str, required=True, help="This field cannot be left blank!",
     )
 
     # Create a new user
@@ -298,10 +297,10 @@ class UserAuthApi(Resource):
 
     parser = reqparse.RequestParser()
     parser.add_argument(
-        "email", type=str, required=True, help="This field cannot be left blank!"
+        "email", type=str, required=True, help="This field cannot be left blank!",
     )
     parser.add_argument(
-        "password", type=str, required=True, help="This field cannot be left blank!"
+        "password", type=str, required=True, help="This field cannot be left blank!",
     )
 
     # login to account
@@ -312,10 +311,11 @@ class UserAuthApi(Resource):
         == "True",  # disable limiter during testing stage
     )
     @swag_from(
-        "../../specifications/user-auth.yml", methods=["POST"]
+        "../../specifications/user-auth.yml", methods=["POST"],
     )  # needs to be below limiter since it will point to limiter/... path
     def post(self):
-        """The implementation of Post method for user login. Two part included in this methods:
+        """
+        The implementation of Post method for user login. Two part included in this methods:
         1. Validation check: if the user enters an email that does not exist or inputs the wrong password for their account, then in both cases
             they will receive the following message: "Incorrect username or password."
         2. User params loading: after user identification check is done, system will load the user data and return
@@ -330,10 +330,8 @@ class UserAuthApi(Resource):
 
         # We want to obfuscate and conceal timing information by checking the password hash of an invalid password
         if not user and not flask_bcrypt.check_password_hash(
-            salted_invalid_password, data["password"]
-        ):
-            return {"message": "Incorrect username or password."}, 401
-        elif not flask_bcrypt.check_password_hash(user.password, data["password"]):
+            salted_invalid_password, data["password"],
+        ) or not flask_bcrypt.check_password_hash(user.password, data["password"]):
             return {"message": "Incorrect username or password."}, 401
 
         # setup any extra user params
@@ -473,7 +471,7 @@ class UserApi(Resource):
 class UserPhoneUpdate(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument(
-        "newPhoneNumber", type=str, required=True, help="New phone number is required"
+        "newPhoneNumber", type=str, required=True, help="New phone number is required",
     )
     parser.add_argument(
         "currentPhoneNumber",
@@ -482,7 +480,7 @@ class UserPhoneUpdate(Resource):
         help="Current phone number is required",
     )
     parser.add_argument(
-        "oldPhoneNumber", type=str, required=True, help="Old phone number is required"
+        "oldPhoneNumber", type=str, required=True, help="Old phone number is required",
     )
 
     # Handle the GET request for adding a new phone number
@@ -520,7 +518,7 @@ class UserPhoneUpdate(Resource):
 
         # Add the phone number to user's phoneNumbers
         if replace_phoneNumber_for_user(
-            current_phone_number, new_phone_number, user_id
+            current_phone_number, new_phone_number, user_id,
         ):
             return {"message": "User phone number updated successfully"}, 200
 
@@ -584,7 +582,7 @@ class UserSMSKey(Resource):
         if user_info["role"] != "ADMIN" and user_info["userId"] is not user_id:
             return (
                 {
-                    "message": "Permission denied, you can only get your sms-key or use the admin account"
+                    "message": "Permission denied, you can only get your sms-key or use the admin account",
                 },
                 403,
             )
@@ -594,7 +592,7 @@ class UserSMSKey(Resource):
         sms_key = get_user_secret_key(user_id)
         if not sms_key:
             return {"message": "NOTFOUND"}, 424
-        elif is_date_passed(sms_key["expiry_date"]):
+        if is_date_passed(sms_key["expiry_date"]):
             return (
                 {
                     "message": "EXPIRED",
@@ -604,7 +602,7 @@ class UserSMSKey(Resource):
                 },
                 200,
             )
-        elif is_date_passed(sms_key["stale_date"]):
+        if is_date_passed(sms_key["stale_date"]):
             return (
                 {
                     "message": "WARN",
@@ -614,16 +612,15 @@ class UserSMSKey(Resource):
                 },
                 200,
             )
-        else:
-            return (
-                {
-                    "message": "NORMAL",
-                    "expiry_date": str(sms_key["expiry_date"]),
-                    "stale_date": str(sms_key["stale_date"]),
-                    "sms_key": sms_key["secret_Key"],
-                },
-                200,
-            )
+        return (
+            {
+                "message": "NORMAL",
+                "expiry_date": str(sms_key["expiry_date"]),
+                "stale_date": str(sms_key["stale_date"]),
+                "sms_key": sms_key["secret_Key"],
+            },
+            200,
+        )
 
     @jwt_required()
     @swag_from("../../specifications/user-sms-key-put.yml", methods=["PUT"])
@@ -632,7 +629,7 @@ class UserSMSKey(Resource):
         if user_info["role"] != "ADMIN" and user_info["userId"] is not user_id:
             return (
                 {
-                    "message": "Permission denied, you can only get your sms-key or use the admin account"
+                    "message": "Permission denied, you can only get your sms-key or use the admin account",
                 },
                 403,
             )
@@ -642,17 +639,16 @@ class UserSMSKey(Resource):
         sms_key = get_user_secret_key(user_id)
         if not sms_key:
             return {"message": "NOTFOUND"}, 424
-        else:
-            new_key = update_secret_key_for_user(user_id)
-            return (
-                {
-                    "message": "NORMAL",
-                    "sms_key": new_key["secret_Key"],
-                    "expiry_date": str(new_key["expiry_date"]),
-                    "stale_date": str(new_key["stale_date"]),
-                },
-                200,
-            )
+        new_key = update_secret_key_for_user(user_id)
+        return (
+            {
+                "message": "NORMAL",
+                "sms_key": new_key["secret_Key"],
+                "expiry_date": str(new_key["expiry_date"]),
+                "stale_date": str(new_key["stale_date"]),
+            },
+            200,
+        )
 
     @jwt_required()
     @swag_from("../../specifications/user-sms-key-post.yml", methods=["POST"])
@@ -661,7 +657,7 @@ class UserSMSKey(Resource):
         if user_info["role"] != "ADMIN" and user_info["userId"] is not user_id:
             return (
                 {
-                    "message": "Permission denied, you can only get your sms-key or use the admin account"
+                    "message": "Permission denied, you can only get your sms-key or use the admin account",
                 },
                 403,
             )
@@ -680,8 +676,7 @@ class UserSMSKey(Resource):
                 },
                 201,
             )
-        else:
-            return {"message": "DUPLICATE"}, 200
+        return {"message": "DUPLICATE"}, 200
 
 
 # api/phone/is_relay
@@ -689,7 +684,7 @@ class ValidateRelayPhoneNumber(Resource):
     # Define the request parser
     parser = reqparse.RequestParser()
     parser.add_argument(
-        "phoneNumber", type=str, required=True, help="Phone number is required."
+        "phoneNumber", type=str, required=True, help="Phone number is required.",
     )
 
     @jwt_required()
@@ -703,10 +698,9 @@ class ValidateRelayPhoneNumber(Resource):
         phone_relay_stat = crud.is_phone_number_relay(phone_number)
         if phone_relay_stat == 1:
             return {"message": "YES"}, 200
-        elif phone_relay_stat == 0:
+        if phone_relay_stat == 0:
             return {"message": "NO"}, 200
-        else:
-            return {"message": "Permission denied"}, 403
+        return {"message": "Permission denied"}, 403
 
 
 # api/phone/relays
@@ -722,5 +716,4 @@ class RelayPhoneNumbers(Resource):
 
         if relay_phone_numbers:
             return {"relayPhoneNumbers": relay_phone_numbers}, 200
-        else:
-            return {"message": "Permission denied"}, 403
+        return {"message": "Permission denied"}, 403

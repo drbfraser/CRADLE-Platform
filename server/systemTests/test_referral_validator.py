@@ -19,7 +19,7 @@ def test_validate_passes():
         }
         validator.validate(sample_referral)
     except Exception as e:
-        pytest.fail("Test failed. Unexpected exception: {0}".format(e))
+        pytest.fail(f"Test failed. Unexpected exception: {e}")
 
 
 def test_validate_fails():
@@ -51,7 +51,7 @@ def test_is_string_passes():
         }
         validator.isString("comment", sample_referral)
     except Exception as e:
-        pytest.fail("Test failed. Unexpected exception: {0}".format(e))
+        pytest.fail(f"Test failed. Unexpected exception: {e}")
 
 
 def test_is_string_fails():
@@ -81,7 +81,7 @@ def test_is_int_passes():
         }
         validator.isInt("dateReferred", sample_referral)
     except Exception as e:
-        pytest.fail("Test failed. Unexpected exception: {0}".format(e))
+        pytest.fail(f"Test failed. Unexpected exception: {e}")
 
 
 def test_is_int_fails():
@@ -102,7 +102,7 @@ def test_exists_passes():
     try:
         validator.exists(Patient, "patientId", "49300028162")
     except Exception as e:
-        pytest.fail("Test failed. Unexpected exception: {0}".format(e))
+        pytest.fail(f"Test failed. Unexpected exception: {e}")
 
 
 def test_exists_fails():
@@ -123,7 +123,7 @@ def test_is_enforce_required_passes():
         }
         validator.enforce_required(sample_referral)
     except Exception as e:
-        pytest.fail("Test failed. Unexpected exception: {0}".format(e))
+        pytest.fail(f"Test failed. Unexpected exception: {e}")
 
 
 def test_is_enforce_required_fails():

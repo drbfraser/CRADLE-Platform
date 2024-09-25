@@ -21,7 +21,7 @@ app_version = "1.0.0"
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
-class Config(object):
+class Config:
     env = Env()
     env.read_env()
 
@@ -35,13 +35,13 @@ class Config(object):
 
     except environs.EnvError:
         print(
-            "******************************************************************************************"
+            "******************************************************************************************",
         )
         print(
-            "DB_USERNAME, DB_PASSWORD, DB_HOSTNAME, DB_PORT, OR DB_NAME environment variable not set"
+            "DB_USERNAME, DB_PASSWORD, DB_HOSTNAME, DB_PORT, OR DB_NAME environment variable not set",
         )
         print(
-            "******************************************************************************************"
+            "******************************************************************************************",
         )
 
     SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{db_user}:{db_pw}@{db_hostname}:{db_port}/{db_name}"  # ex: 'mysql+pymysql://root:123456@localhost:3306/cradle'
@@ -64,7 +64,7 @@ class Config(object):
             "json_formatter": {
                 "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
                 "fmt": "%(asctime) %(name)-12s %(levelname)-8s %(request_id)s - %(message)s",
-            }
+            },
         },
         "handlers": {
             "console": {

@@ -5,13 +5,11 @@ from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 
-import api.util as util
-import data.crud as crud
-import data.marshal as marshal
-import service.serialize as serialize
-import service.view as view
+from api import util
 from api.decorator import patient_association_required
+from data import crud, marshal
 from models import MedicalRecord
+from service import serialize, view
 from utils import get_current_time
 from validation import medicalRecords
 
@@ -57,7 +55,7 @@ class Root(Resource):
             record_id = request_body.get("id")
             if crud.read(MedicalRecord, id=record_id):
                 abort(
-                    409, message=f"A medical record with ID {record_id} already exists."
+                    409, message=f"A medical record with ID {record_id} already exists.",
                 )
 
         _process_request_body(request_body)

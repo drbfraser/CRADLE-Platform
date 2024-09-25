@@ -1,4 +1,5 @@
-"""Change form id to be uuid
+"""
+Change form id to be uuid
 
 Revision ID: 276237440825
 Revises: 92e818bd7db3
@@ -42,7 +43,7 @@ def upgrade():
 
     op.create_primary_key("pk_form", "form", ["id"])
     op.create_foreign_key(
-        "question_ibfk_1", "question", "form", ["formId"], ["id"], ondelete="CASCADE"
+        "question_ibfk_1", "question", "form", ["formId"], ["id"], ondelete="CASCADE",
     )
 
 
@@ -73,5 +74,5 @@ def downgrade():
     )
 
     op.create_foreign_key(
-        "question_ibfk_1", "question", "form", ["formId"], ["id"], ondelete="CASCADE"
+        "question_ibfk_1", "question", "form", ["formId"], ["id"], ondelete="CASCADE",
     )

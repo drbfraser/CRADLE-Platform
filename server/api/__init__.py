@@ -32,10 +32,10 @@ def __init_patients_resources(api: Api):
     )
     api.add_resource(r.PatientReferrals, "/api/patients/<string:patient_id>/referrals")
     api.add_resource(
-        r.PatientPregnancySummary, "/api/patients/<string:patient_id>/pregnancy_summary"
+        r.PatientPregnancySummary, "/api/patients/<string:patient_id>/pregnancy_summary",
     )
     api.add_resource(
-        r.PatientMedicalHistory, "/api/patients/<string:patient_id>/medical_history"
+        r.PatientMedicalHistory, "/api/patients/<string:patient_id>/medical_history",
     )
     api.add_resource(r.PatientTimeline, "/api/patients/<string:patient_id>/timeline")
 
@@ -81,7 +81,7 @@ def __init_patient_associations_resources(api: Api):
     import api.resources.patientAssociations as r
 
     api.add_resource(
-        r.Root, "/api/patientAssociations", endpoint="patientAssociations_root"
+        r.Root, "/api/patientAssociations", endpoint="patientAssociations_root",
     )
 
 
@@ -105,5 +105,5 @@ def __init_medical_record_resources(api: Api):
         endpoint="medical_record_root",
     )
     api.add_resource(
-        m.SingleMedicalRecord, "/api/medical_records/<string:pregnancy_id>"
+        m.SingleMedicalRecord, "/api/medical_records/<string:pregnancy_id>",
     )

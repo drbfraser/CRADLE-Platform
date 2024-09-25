@@ -6,11 +6,9 @@ from flask_jwt_extended import jwt_required
 from flask_jwt_extended.utils import get_jwt_identity
 from flask_restful import Resource, abort
 
-import data.crud as crud
-import data.marshal as marshal
-import service.assoc as assoc
-import service.invariant as invariant
+from data import crud, marshal
 from models import HealthFacility, Patient, Reading, Referral
+from service import assoc, invariant
 from validation import readings
 
 
@@ -19,7 +17,7 @@ class Root(Resource):
     @staticmethod
     @jwt_required()
     @swag_from(
-        "../../specifications/readings-post.yml", methods=["POST"], endpoint="readings"
+        "../../specifications/readings-post.yml", methods=["POST"], endpoint="readings",
     )
     def post():
         json = request.get_json(force=True)

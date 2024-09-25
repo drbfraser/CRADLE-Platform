@@ -8,7 +8,6 @@ from sqlalchemy import func, or_
 from sqlalchemy.orm import Query, aliased
 from sqlalchemy.sql.expression import and_, asc, desc, literal, null, text
 
-import service.invariant as invariant
 from data import db_session
 from enums import RoleEnum, TrafficLightEnum
 from models import (
@@ -27,6 +26,7 @@ from models import (
     UserPhoneNumber,
     supervises,
 )
+from service import invariant
 
 M = TypeVar("M")
 S = TypeVar("S")
@@ -49,7 +49,6 @@ def create(model: M, refresh=False):
                     the database; this involves an additional query so only use it if
                     necessary
     """
-
     # Ensures that any reading that is entered into the DB is correctly formatted
     if isinstance(model, Reading):
         invariant.resolve_reading_invariants(model)
@@ -220,7 +219,7 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
 
 
 def read_patient_list(
-    user_id: Optional[int] = None, is_cho: bool = False, **kwargs
+    user_id: Optional[int] = None, is_cho: bool = False, **kwargs,
 ) -> List[Any]:
     """
     Queries the database for patients filtered by query criteria in keyword arguments.
@@ -262,12 +261,11 @@ def read_patient_list(
     if limit:
         page = kwargs.get("page", 1)
         return query.slice(*__get_slice_indexes(page, limit))
-    else:
-        return query.all()
+    return query.all()
 
 
 def read_admin_patient(
-    user_id: Optional[int] = None, is_cho: bool = False, **kwargs
+    user_id: Optional[int] = None, is_cho: bool = False, **kwargs,
 ) -> List[Any]:
     """
     Queries the database for patients filtered by query criteria in keyword arguments.
@@ -294,12 +292,11 @@ def read_admin_patient(
     if limit:
         page = kwargs.get("page", 1)
         return query.slice(*__get_slice_indexes(page, limit))
-    else:
-        return query.all()
+    return query.all()
 
 
 def read_referral_list(
-    user_id: Optional[int] = None, is_cho: bool = False, **kwargs
+    user_id: Optional[int] = None, is_cho: bool = False, **kwargs,
 ) -> List[Any]:
     """
     Queries the database for referrals filtered by query criteria in keyword arguments.
@@ -400,8 +397,7 @@ def read_referral_list(
     if limit:
         page = kwargs.get("page", 1)
         return query.slice(*__get_slice_indexes(page, limit)).all()
-    else:
-        return query.all()
+    return query.all()
 
 
 def read_medical_records(m: Type[M], patient_id: str, **kwargs) -> List[M]:
@@ -429,19 +425,18 @@ def read_medical_records(m: Type[M], patient_id: str, **kwargs) -> List[M]:
             query = query.filter(m.information.like(f"%{search_text}%"))
 
         query = query.filter_by(isDrugRecord=kwargs.get("is_drug_record")).order_by(
-            direction(m.dateCreated)
+            direction(m.dateCreated),
         )
 
     limit = kwargs.get("limit")
     if limit:
         page = kwargs.get("page", 1)
         return query.slice(*__get_slice_indexes(page, limit))
-    else:
-        return query.all()
+    return query.all()
 
 
 def read_patient_current_medical_record(
-    patient_id: str, is_drug_record: bool
+    patient_id: str, is_drug_record: bool,
 ) -> MedicalRecord:
     """
     Queries the database for a patient's current medical or drug record.
@@ -467,7 +462,7 @@ def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
     :return: A list of models with the fields: title, date, information
     """
     Title = namedtuple(
-        "Title", "pregnancy_start pregnancy_end medical_history drug_history"
+        "Title", "pregnancy_start pregnancy_end medical_history drug_history",
     )
     TITLE = Title(
         "Started pregnancy",
@@ -486,7 +481,7 @@ def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
     ).filter(Pregnancy.patientId == patient_id, Pregnancy.endDate != None)
 
     pregnancy_start = db_session.query(
-        literal(TITLE.pregnancy_start), Pregnancy.startDate, null()
+        literal(TITLE.pregnancy_start), Pregnancy.startDate, null(),
     ).filter(Pregnancy.patientId == patient_id)
 
     medical_history = db_session.query(
@@ -502,7 +497,7 @@ def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
     ).filter(MedicalRecord.patientId == patient_id, MedicalRecord.isDrugRecord == True)
 
     query = pregnancy_end.union(
-        pregnancy_start, medical_history, drug_history
+        pregnancy_start, medical_history, drug_history,
     ).order_by(text("date desc"))
 
     return query.slice(*__get_slice_indexes(page, limit))
@@ -645,7 +640,7 @@ def read_patients(
         .outerjoin(
             pr,
             and_(
-                Pregnancy.patientId == pr.patientId, Pregnancy.startDate < pr.startDate
+                Pregnancy.patientId == pr.patientId, Pregnancy.startDate < pr.startDate,
             ),
         )
         .outerjoin(
@@ -700,13 +695,12 @@ def read_patients(
                 MedicalHistory.lastEdited > last_edited,
                 DrugHistory.lastEdited > last_edited,
                 pr2.id != None,
-            )
+            ),
         )
 
     if patient_id:
         return query.filter(Patient.patientId == patient_id).first()
-    else:
-        return query.distinct().all()
+    return query.distinct().all()
 
 
 def read_readings(
@@ -729,7 +723,7 @@ def read_readings(
     :return: A list of tuples of reading, referral, assessment, urine test
     """
     query = db_session.query(Reading, UrineTest).outerjoin(
-        UrineTest, Reading.urineTests
+        UrineTest, Reading.urineTests,
     )
 
     query = __filter_by_patient_association(query, Reading, user_id, is_cho)
@@ -779,7 +773,7 @@ def read_referrals_or_assessments(
 
 
 def read_questions(
-    model: Question, form_template_id: Optional[int] = None
+    model: Question, form_template_id: Optional[int] = None,
 ) -> List[Question]:
     """
     Queries the database for questions
@@ -853,7 +847,7 @@ def has_conflicting_pregnancy_record(
         query = query.filter(
             or_(
                 and_(
-                    Pregnancy.startDate <= start_date, Pregnancy.endDate >= start_date
+                    Pregnancy.startDate <= start_date, Pregnancy.endDate >= start_date,
                 ),
                 and_(Pregnancy.startDate >= start_date, Pregnancy.endDate <= end_date),
                 and_(Pregnancy.startDate <= end_date, Pregnancy.endDate >= end_date),
@@ -873,10 +867,11 @@ def has_conflicting_pregnancy_record(
 
 
 def get_unique_patients_with_readings(facility="%", user="%", filter={}) -> List[M]:
-    """Queries the database for unique patients with more than one reading
+    """
+    Queries the database for unique patients with more than one reading
 
-    :return: A number of unique patients"""
-
+    :return: A number of unique patients
+    """
     query = """ SELECT COUNT(pat.patientId) as patients
                 FROM (
                     SELECT DISTINCT(P.patientId)
@@ -907,12 +902,13 @@ def get_unique_patients_with_readings(facility="%", user="%", filter={}) -> List
 
 
 def get_total_readings_completed(facility="%", user="%", filter={}) -> List[M]:
-    """Queries the database for total number of readings completed
+    """
+    Queries the database for total number of readings completed
 
     filter: filter date range, otherwise uses max range
 
-    :return: Number of total readings"""
-
+    :return: Number of total readings
+    """
     query = """
         SELECT COUNT(R.readingId)
         FROM reading R
@@ -938,11 +934,12 @@ def get_total_readings_completed(facility="%", user="%", filter={}) -> List[M]:
 
 
 def get_total_color_readings(facility="%", user="%", filter={}) -> List[M]:
-    """Queries the database for total number different coloured readings (red up, yellow down, etc)
+    """
+    Queries the database for total number different coloured readings (red up, yellow down, etc)
     filter: filter date range, otherwise uses max range
 
-    :return: Total number of respective coloured readings"""
-
+    :return: Total number of respective coloured readings
+    """
     query = """
         SELECT R.trafficLightStatus, COUNT(R.trafficLightStatus)
         FROM reading R
@@ -969,10 +966,11 @@ def get_total_color_readings(facility="%", user="%", filter={}) -> List[M]:
 
 
 def get_sent_referrals(facility="%", user="%", filter={}) -> List[M]:
-    """Queries the database for total number of sent referrals
+    """
+    Queries the database for total number of sent referrals
 
-    :return: Total number of sent referrals"""
-
+    :return: Total number of sent referrals
+    """
     query = """
         SELECT COUNT(R.id) FROM referral R
         JOIN user U ON U.id = R.userId
@@ -997,10 +995,11 @@ def get_sent_referrals(facility="%", user="%", filter={}) -> List[M]:
 
 
 def get_referred_patients(facility="%", filter={}) -> List[M]:
-    """Queries the database for total number of patients that have referrals to specified facility
+    """
+    Queries the database for total number of patients that have referrals to specified facility
 
-    :return: Total number of referred patients"""
-
+    :return: Total number of referred patients
+    """
     query = """
         SELECT COUNT(DISTINCT(R.patientId))
         FROM referral R
@@ -1021,11 +1020,12 @@ def get_referred_patients(facility="%", filter={}) -> List[M]:
 
 
 def get_days_with_readings(facility="%", user="%", filter={}):
-    """Queries the database for number of days within specified timeframe
-        which have more than one reading
+    """
+    Queries the database for number of days within specified timeframe
+    which have more than one reading
 
-    :return: number of days"""
-
+    :return: number of days
+    """
     query = """
         SELECT COUNT(DISTINCT(FLOOR(R.dateTimeTaken / 86400)))
         FROM reading R
@@ -1051,9 +1051,11 @@ def get_days_with_readings(facility="%", user="%", filter={}):
 
 
 def get_export_data(user_id, filter):
-    """Queries the database for statistics data for exporting
+    """
+    Queries the database for statistics data for exporting
 
-    :return: list of data for a VHT"""
+    :return: list of data for a VHT
+    """
     query = (
         (
             db_session.query(
@@ -1127,8 +1129,7 @@ def is_phone_number_relay(phone_number):
 
         if phone_number in admin_phone_numbers:
             return 1
-        else:
-            return 0
+        return 0
     except Exception as e:
         LOGGER.error(e)
         return -1
@@ -1152,12 +1153,12 @@ def get_all_relay_phone_numbers():
 
 
 def __filter_by_patient_association(
-    query: Query, model: Any, user_id: Optional[int], is_cho
+    query: Query, model: Any, user_id: Optional[int], is_cho,
 ) -> Query:
     if user_id is not None:
         join_column = model.patientId
         query = query.join(
-            PatientAssociations, join_column == PatientAssociations.patientId
+            PatientAssociations, join_column == PatientAssociations.patientId,
         )
         if is_cho:
             sub = (
@@ -1180,7 +1181,7 @@ def __filter_by_patient_search(query: Query, **kwargs) -> Query:
                 Patient.patientId.like(f"%{search_text}%"),
                 Patient.patientName.like(f"%{search_text}%"),
                 Patient.villageNumber.like(f"%{search_text}%"),
-            )
+            ),
         )
 
     return query

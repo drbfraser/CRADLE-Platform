@@ -1,4 +1,4 @@
-import data.crud as crud
+from data import crud
 from models import Form, FormClassification, FormTemplate, Question
 
 
@@ -15,7 +15,7 @@ def test_form_created(
         create_patient()
 
         response = api_post(
-            endpoint="/api/forms/classifications", json=form_classification
+            endpoint="/api/forms/classifications", json=form_classification,
         )
         database.session.commit()
         assert response.status_code == 201
@@ -30,7 +30,7 @@ def test_form_created(
 
         form_id = "f9"
         question = crud.read(
-            Question, formId=form_id, questionText="How the patient's condition?"
+            Question, formId=form_id, questionText="How the patient's condition?",
         )
         assert question is not None
         response = api_put(
@@ -54,5 +54,5 @@ def form_question_put(qid):
                     "mcidArray": [1],
                 },
             },
-        ]
+        ],
     }

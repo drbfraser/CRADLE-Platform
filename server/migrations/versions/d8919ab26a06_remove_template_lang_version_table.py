@@ -1,4 +1,5 @@
-"""remove template lang version table
+"""
+remove template lang version table
 
 Revision ID: d8919ab26a06
 Revises: 8066e35980e3
@@ -28,7 +29,7 @@ def downgrade():
     op.create_table(
         "template_lang_version",
         sa.Column(
-            "id", mysql.INTEGER(display_width=11), autoincrement=True, nullable=False
+            "id", mysql.INTEGER(display_width=11), autoincrement=True, nullable=False,
         ),
         sa.Column("lang", mysql.TEXT(), nullable=False),
         sa.Column("formTemplateId", mysql.VARCHAR(length=50), nullable=False),

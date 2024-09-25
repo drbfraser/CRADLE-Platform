@@ -66,8 +66,7 @@ def validate_cancel_put_request(request_body: dict) -> Optional[str]:
     for key in request_body:
         if key not in record_keys:
             return f"{key} is not a valid key in referral request."
-        else:
-            record_keys.remove(key)
+        record_keys.remove(key)
 
     if len(record_keys) > 0:
         return "There are missing fields for the request body."
@@ -97,8 +96,7 @@ def validate_not_attend_put_request(request_body: dict) -> Optional[str]:
     for key in request_body:
         if key not in record_keys:
             return f"{key} is not a valid key in referral request."
-        else:
-            record_keys.remove(key)
+        record_keys.remove(key)
 
     if len(record_keys) > 0:
         return "There are missing fields for the request body."

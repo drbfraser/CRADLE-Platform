@@ -3,7 +3,7 @@ from typing import Any, List, Optional, Type
 
 
 def check_invalid_keys_present(
-    request_body: dict, all_keys: List[str]
+    request_body: dict, all_keys: List[str],
 ) -> Optional[str]:
     """
     Returns an error message if there are invalid keys present.
@@ -20,7 +20,7 @@ def check_invalid_keys_present(
 
 
 def required_keys_present(
-    request_body: dict, required_keys: List[str]
+    request_body: dict, required_keys: List[str],
 ) -> Optional[str]:
     """
     Returns an error message if the required keys are not
@@ -60,7 +60,7 @@ def force_consistent_keys(request_body: dict, force_keys: List[str]) -> Optional
 
 
 def values_correct_type(
-    request_body: dict, key_names: List[str], _type: Type
+    request_body: dict, key_names: List[str], _type: Type,
 ) -> Optional[str]:
     """
     Returns an error message if the values of some keys are not
@@ -76,18 +76,16 @@ def values_correct_type(
             if _type is int:
                 if not is_int(request_body.get(key)):
                     return "The value for key {" + key + "} is not the correct type."
-            else:
-                if type(_type) is enum.EnumMeta:
-                    # for enum type, it checks whether the value is one of enum value
-                    if request_body.get(key) not in _type._value2member_map_:
-                        return (
-                            "The value for key {" + key + "} is not the correct type."
-                        )
-                else:
-                    if not isinstance((request_body.get(key)), _type):
-                        return (
-                            "The value for key {" + key + "} is not the correct type."
-                        )
+            elif type(_type) is enum.EnumMeta:
+                # for enum type, it checks whether the value is one of enum value
+                if request_body.get(key) not in _type._value2member_map_:
+                    return (
+                        "The value for key {" + key + "} is not the correct type."
+                    )
+            elif not isinstance((request_body.get(key)), _type):
+                return (
+                    "The value for key {" + key + "} is not the correct type."
+                )
     return None
 
 

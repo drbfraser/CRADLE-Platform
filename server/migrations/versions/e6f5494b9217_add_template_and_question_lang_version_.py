@@ -1,4 +1,5 @@
-"""add template and question lang version table
+"""
+add template and question lang version table
 
 Revision ID: e6f5494b9217
 Revises: 66296a0f5d6f
@@ -24,7 +25,7 @@ def upgrade():
         sa.Column("lang", sa.Text(), nullable=False),
         sa.Column("formTemplateId", sa.String(length=50), nullable=False),
         sa.ForeignKeyConstraint(
-            ["formTemplateId"], ["form_template.id"], ondelete="CASCADE"
+            ["formTemplateId"], ["form_template.id"], ondelete="CASCADE",
         ),
         sa.PrimaryKeyConstraint("id"),
     )

@@ -5,7 +5,8 @@ from validation.validate import required_keys_present, values_correct_type
 
 
 def validate_timestamp(request_body: dict) -> Optional[str]:
-    """Returns error message if timestamp body is invalid,
+    """
+    Returns error message if timestamp body is invalid,
     otherwise returns None
 
     :param request_body:
@@ -40,7 +41,6 @@ def validate_time_frame_readings(request_body: dict) -> Optional[str]:
             }
         }
     """
-
     # Check for required keys
     required_keys = ["timeframe"]
     error_message = required_keys_present(request_body, required_keys)

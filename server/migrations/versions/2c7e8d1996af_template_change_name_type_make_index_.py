@@ -1,4 +1,5 @@
-"""template change name type make index and unique
+"""
+template change name type make index and unique
 
 Revision ID: 2c7e8d1996af
 Revises: 15ba72e0ecaa
@@ -27,7 +28,7 @@ def upgrade():
         nullable=False,
     )
     op.create_index(
-        op.f("ix_form_template_name"), "form_template", ["name"], unique=True
+        op.f("ix_form_template_name"), "form_template", ["name"], unique=True,
     )
     # ### end Alembic commands ###
 

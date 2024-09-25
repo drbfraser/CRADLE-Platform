@@ -1,4 +1,5 @@
-"""add isArchived field to patient
+"""
+add isArchived field to patient
 
 Revision ID: 4396381edcbf
 Revises: cf9e5bcce121

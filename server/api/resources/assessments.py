@@ -3,9 +3,8 @@ from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 
-import api.util as util
-import data.crud as crud
-import data.marshal as marshal
+from api import util
+from data import crud, marshal
 from models import FollowUp
 from utils import get_current_time
 from validation import assessments

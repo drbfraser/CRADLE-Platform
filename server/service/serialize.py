@@ -7,7 +7,7 @@ from typing import Any, List, Optional, Tuple, Union
 
 from marshmallow import ValidationError
 
-import data.marshal as marshal
+from data import marshal
 from models import (
     FollowUp,
     MedicalRecord,
@@ -151,7 +151,7 @@ def serialize_blank_form_template(form_template: dict) -> dict:
 
 
 def deserialize_patient(
-    data: dict, shallow: bool = True, partial: bool = False
+    data: dict, shallow: bool = True, partial: bool = False,
 ) -> Union[dict, Patient]:
     schema = Patient.schema()
     d = {

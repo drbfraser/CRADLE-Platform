@@ -1,4 +1,5 @@
-"""referral add assess and cancel relevant fields
+"""
+referral add assess and cancel relevant fields
 
 Revision ID: b62ebe3bee7a
 Revises: 7ccbc75caff1
@@ -21,7 +22,7 @@ def upgrade():
     op.add_column("referral", sa.Column("dateAssessed", sa.BigInteger(), nullable=True))
     op.add_column("referral", sa.Column("isCancelled", sa.Boolean(), nullable=False))
     op.add_column(
-        "referral", sa.Column("dateCancelled", sa.BigInteger(), nullable=True)
+        "referral", sa.Column("dateCancelled", sa.BigInteger(), nullable=True),
     )
     op.add_column("referral", sa.Column("cancelReason", sa.Text(), nullable=True))
     # ### end Alembic commands ###

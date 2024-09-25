@@ -5,10 +5,9 @@ from flask import request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource, abort
 
-import api.util as util
 import data
-import data.crud as crud
-import data.marshal as marshal
+from api import util
+from data import crud, marshal
 from models import Form, FormTemplate, Patient, User
 from utils import get_current_time
 from validation import forms
@@ -19,7 +18,7 @@ class Root(Resource):
     @staticmethod
     @jwt_required()
     @swag_from(
-        "../../specifications/forms-post.yml", methods=["POST"], endpoint="forms"
+        "../../specifications/forms-post.yml", methods=["POST"], endpoint="forms",
     )
     def post():
         req = request.get_json(force=True)
@@ -106,7 +105,7 @@ class SingleForm(Resource):
             qid = q["id"]
             if qid not in question_ids:
                 abort(
-                    404, message=f"request question id={qid} does not exist in server"
+                    404, message=f"request question id={qid} does not exist in server",
                 )
             qans = json.dumps(q["answers"])
             if qans != questions_dict[qid].answers:

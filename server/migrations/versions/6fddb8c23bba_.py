@@ -1,4 +1,5 @@
-"""empty message
+"""
+empty message
 
 Revision ID: 6fddb8c23bba
 Revises: b709146560cb
@@ -40,10 +41,10 @@ def upgrade():
         ),
     )
     op.add_column(
-        "followup", sa.Column("followupFrequencyValue", sa.Float(), nullable=True)
+        "followup", sa.Column("followupFrequencyValue", sa.Float(), nullable=True),
     )
     op.add_column(
-        "followup", sa.Column("followupInstructions", sa.Text(), nullable=True)
+        "followup", sa.Column("followupInstructions", sa.Text(), nullable=True),
     )
     op.drop_column("followup", "dateReviewNeeded")
     op.drop_column("followup", "followUpAction")

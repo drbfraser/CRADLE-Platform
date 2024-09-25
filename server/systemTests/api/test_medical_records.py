@@ -1,4 +1,4 @@
-import data.crud as crud
+from data import crud
 from models import MedicalRecord
 
 
@@ -32,7 +32,7 @@ def test_put_record(create_patient, medical_record_factory, drug_record, api_put
 
 
 def test_post_and_delete_record(
-    create_patient, patient_id, medical_record, database, api_post, api_delete
+    create_patient, patient_id, medical_record, database, api_post, api_delete,
 ):
     create_patient()
     record_id = medical_record["id"]
@@ -77,7 +77,7 @@ def test_get_record_lists(
 
 
 def test_invalid_record_not_updated(
-    create_patient, medical_record_factory, drug_record, api_put
+    create_patient, medical_record_factory, drug_record, api_put,
 ):
     create_patient()
     medical_record_factory.create(**drug_record)
@@ -95,7 +95,7 @@ def test_invalid_record_not_updated(
 
 
 def test_invalid_record_not_created(
-    create_patient, medical_record_factory, patient_id, drug_record, api_post
+    create_patient, medical_record_factory, patient_id, drug_record, api_post,
 ):
     create_patient()
     medical_record_factory.create(**drug_record)

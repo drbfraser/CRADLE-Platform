@@ -5,17 +5,12 @@ from flask import request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource, abort
 
-import api.util as util
 import data
-import data.crud as crud
-import data.marshal as marshal
-import service.assoc as assoc
-import service.invariant as invariant
-import service.serialize as serialize
-import service.statsCalculation as statsCalculation
-import service.view as view
+from api import util
 from api.decorator import patient_association_required
+from data import crud, marshal
 from models import FollowUp, Patient, Pregnancy, Reading, Referral
+from service import assoc, invariant, serialize, statsCalculation, view
 from utils import get_current_time
 from validation import assessments, patients, readings
 
@@ -25,7 +20,7 @@ class Root(Resource):
     @staticmethod
     @jwt_required()
     @swag_from(
-        "../../specifications/patients-get.yml", methods=["GET"], endpoint="patients"
+        "../../specifications/patients-get.yml", methods=["GET"], endpoint="patients",
     )
     # gets all UNARCHIVED patients
     def get():
@@ -37,7 +32,7 @@ class Root(Resource):
     @staticmethod
     @jwt_required()
     @swag_from(
-        "../../specifications/patients-post.yml", methods=["POST"], endpoint="patients"
+        "../../specifications/patients-post.yml", methods=["POST"], endpoint="patients",
     )
     def post():
         json = request.get_json(force=True)
@@ -194,17 +189,17 @@ class PatientStats(Resource):
 
         # getting all bpSystolic readings for each month
         bp_systolic = statsCalculation.get_stats_data(
-            "bpSystolic", patient.readings, current_year, current_month
+            "bpSystolic", patient.readings, current_year, current_month,
         )
 
         # getting all bpDiastolic readings for each month
         bp_diastolic = statsCalculation.get_stats_data(
-            "bpDiastolic", patient.readings, current_year, current_month
+            "bpDiastolic", patient.readings, current_year, current_month,
         )
 
         # getting all heart rate readings for each month
         heart_rate = statsCalculation.get_stats_data(
-            "heartRateBPM", patient.readings, current_year, current_month
+            "heartRateBPM", patient.readings, current_year, current_month,
         )
 
         # getting all bpSystolic readings for each month dated from 12 months before the current month
@@ -236,7 +231,7 @@ class PatientStats(Resource):
 
         # getting all traffic lights from day 1 for this patient
         traffic_light_statuses = statsCalculation.get_stats_data(
-            "trafficLightStatus", patient.readings, current_year, current_month
+            "trafficLightStatus", patient.readings, current_year, current_month,
         )
 
         # putting data into one object now
@@ -289,7 +284,7 @@ class PatientMostRecentReading(Resource):
             return []
 
         sorted_readings = sorted(
-            readings, key=lambda r: r["dateTimeTaken"], reverse=True
+            readings, key=lambda r: r["dateTimeTaken"], reverse=True,
         )
         return [sorted_readings[0]]
 
