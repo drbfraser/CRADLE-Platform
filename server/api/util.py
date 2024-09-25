@@ -372,7 +372,8 @@ def getFormTemplateDictFromCSV(csvData: str):
         }
 
     def findCategoryIndex(
-        categoryList: list[dict[str, any]], categoryText: str,
+        categoryList: list[dict[str, any]],
+        categoryText: str,
     ) -> int | None:
         for category in categoryList:
             for languageVersion in category["questionLangVersions"]:
@@ -487,7 +488,9 @@ def getFormTemplateDictFromCSV(csvData: str):
             if language not in languages:
                 raise RuntimeError(
                     "Language {} for question #{} not listed in Form Languages [{}].".format(
-                        language, questionIndex + 1, str.join(", ", languages),
+                        language,
+                        questionIndex + 1,
+                        str.join(", ", languages),
                     ),
                 )
 
@@ -543,7 +546,8 @@ def getCsvFromFormTemplate(form_template: FormTemplate):
         return ",".join(options) if mcoptions is not None else ""
 
     def get_visible_condition_options(
-        visible_condition: str, questions: list[Question],
+        visible_condition: str,
+        questions: list[Question],
     ):
         visible_conditions = json.loads(visible_condition)
 
@@ -646,7 +650,8 @@ def getCsvFromFormTemplate(form_template: FormTemplate):
             "Y" if question.required else "N",
             question.units,
             get_visible_condition_options(
-                question.visibleCondition, questions=questions,
+                question.visibleCondition,
+                questions=questions,
             ),
             question.numMin,
             question.numMax,
@@ -682,7 +687,8 @@ def phoneNumber_regex_check(phone_number):
     )
     regex_phone_number_format_normal = r"^(\d{3}-?\d{3}-?\d{4,5})$"
     checked_number_with_area_code = re.match(
-        regex_phone_number_format_with_area_code, phone_number,
+        regex_phone_number_format_with_area_code,
+        phone_number,
     )
     checked_number = re.match(regex_phone_number_format_normal, phone_number)
 
@@ -698,7 +704,9 @@ def phoneNumber_exists(phone_number, user_id=-1):
         existing_phone_number = crud.read(UserPhoneNumber, number=phone_number)
     else:
         existing_phone_number = crud.read(
-            UserPhoneNumber, number=phone_number, user_id=user_id,
+            UserPhoneNumber,
+            number=phone_number,
+            user_id=user_id,
         )
     return existing_phone_number is not None
 

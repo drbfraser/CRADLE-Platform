@@ -44,7 +44,10 @@ def downgrade():
     op.create_table(
         "role",
         sa.Column(
-            "id", mysql.INTEGER(display_width=11), autoincrement=True, nullable=False,
+            "id",
+            mysql.INTEGER(display_width=11),
+            autoincrement=True,
+            nullable=False,
         ),
         sa.Column("name", mysql.ENUM("VHT", "HCW", "ADMIN", "CHO"), nullable=False),
         sa.PrimaryKeyConstraint("id"),
@@ -54,7 +57,10 @@ def downgrade():
     op.create_table(
         "userrole",
         sa.Column(
-            "id", mysql.INTEGER(display_width=11), autoincrement=True, nullable=False,
+            "id",
+            mysql.INTEGER(display_width=11),
+            autoincrement=True,
+            nullable=False,
         ),
         sa.Column(
             "userId",

@@ -151,7 +151,9 @@ def serialize_blank_form_template(form_template: dict) -> dict:
 
 
 def deserialize_patient(
-    data: dict, shallow: bool = True, partial: bool = False,
+    data: dict,
+    shallow: bool = True,
+    partial: bool = False,
 ) -> Union[dict, Patient]:
     schema = Patient.schema()
     d = {

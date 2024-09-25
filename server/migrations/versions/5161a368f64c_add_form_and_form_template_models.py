@@ -43,10 +43,14 @@ def upgrade():
         sa.Column("lastEditedBy", sa.Integer(), nullable=True),
         sa.Column("questions", sa.Text(), nullable=False),
         sa.ForeignKeyConstraint(
-            ["formTemplateId"], ["form_template.id"], ondelete="CASCADE",
+            ["formTemplateId"],
+            ["form_template.id"],
+            ondelete="CASCADE",
         ),
         sa.ForeignKeyConstraint(
-            ["patientId"], ["patient.patientId"], ondelete="CASCADE",
+            ["patientId"],
+            ["patient.patientId"],
+            ondelete="CASCADE",
         ),
         sa.PrimaryKeyConstraint("id"),
     )

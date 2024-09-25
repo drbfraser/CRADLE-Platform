@@ -55,7 +55,8 @@ class Root(Resource):
             record_id = request_body.get("id")
             if crud.read(MedicalRecord, id=record_id):
                 abort(
-                    409, message=f"A medical record with ID {record_id} already exists.",
+                    409,
+                    message=f"A medical record with ID {record_id} already exists.",
                 )
 
         _process_request_body(request_body)

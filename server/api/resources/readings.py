@@ -17,7 +17,9 @@ class Root(Resource):
     @staticmethod
     @jwt_required()
     @swag_from(
-        "../../specifications/readings-post.yml", methods=["POST"], endpoint="readings",
+        "../../specifications/readings-post.yml",
+        methods=["POST"],
+        endpoint="readings",
     )
     def post():
         json = request.get_json(force=True)

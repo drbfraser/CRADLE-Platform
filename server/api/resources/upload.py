@@ -13,7 +13,8 @@ class Root(Resource):
     @roles_required([RoleEnum.ADMIN])
     def get():
         return send_from_directory(
-            current_app.config["UPLOAD_FOLDER"], "cradle_sms_relay.apk",
+            current_app.config["UPLOAD_FOLDER"],
+            "cradle_sms_relay.apk",
         )
 
     @staticmethod

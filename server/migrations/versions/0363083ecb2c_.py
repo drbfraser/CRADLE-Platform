@@ -28,7 +28,9 @@ def upgrade():
         sa.Column("dateCreated", sa.BigInteger(), nullable=False),
         sa.Column("lastEdited", sa.BigInteger(), nullable=False),
         sa.ForeignKeyConstraint(
-            ["patientId"], ["patient.patientId"], ondelete="CASCADE",
+            ["patientId"],
+            ["patient.patientId"],
+            ondelete="CASCADE",
         ),
         sa.PrimaryKeyConstraint("id"),
     )

@@ -94,6 +94,7 @@ def exec_mysql_stmt(env, stmt, database=None):
     be running for this to work.
 
     Keyword Arguments:
+    -----------------
     env      -- environment variable context
     stmt     -- the statement to execute
     database -- the database to execute the command in, if None then the command will

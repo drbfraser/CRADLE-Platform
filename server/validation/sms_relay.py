@@ -25,7 +25,9 @@ def validate_request(request_body: dict) -> Optional[str]:
         return error_message
 
     error_message = values_correct_type(
-        request_body, ["phoneNumber", "encryptedData"], str,
+        request_body,
+        ["phoneNumber", "encryptedData"],
+        str,
     )
     if error_message is not None:
         return error_message

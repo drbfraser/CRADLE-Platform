@@ -43,7 +43,12 @@ def upgrade():
 
     op.create_primary_key("pk_form", "form", ["id"])
     op.create_foreign_key(
-        "question_ibfk_1", "question", "form", ["formId"], ["id"], ondelete="CASCADE",
+        "question_ibfk_1",
+        "question",
+        "form",
+        ["formId"],
+        ["id"],
+        ondelete="CASCADE",
     )
 
 
@@ -74,5 +79,10 @@ def downgrade():
     )
 
     op.create_foreign_key(
-        "question_ibfk_1", "question", "form", ["formId"], ["id"], ondelete="CASCADE",
+        "question_ibfk_1",
+        "question",
+        "form",
+        ["formId"],
+        ["id"],
+        ondelete="CASCADE",
     )

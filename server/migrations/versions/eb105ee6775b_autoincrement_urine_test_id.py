@@ -23,7 +23,12 @@ def upgrade():
     op.add_column("urine_test", sa.Column("id", sa.Integer(), nullable=False))
     op.drop_constraint("urine_test_ibfk_1", "urine_test", type_="foreignkey")
     op.create_foreign_key(
-        None, "urine_test", "reading", ["readingId"], ["readingId"], ondelete="CASCADE",
+        None,
+        "urine_test",
+        "reading",
+        ["readingId"],
+        ["readingId"],
+        ondelete="CASCADE",
     )
     op.execute(
         """
@@ -53,6 +58,10 @@ def downgrade():
         ),
     )
     op.create_foreign_key(
-        "urine_test_ibfk_1", "urine_test", "reading", ["readingId"], ["readingId"],
+        "urine_test_ibfk_1",
+        "urine_test",
+        "reading",
+        ["readingId"],
+        ["readingId"],
     )
     # ### end Alembic commands ###

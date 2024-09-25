@@ -56,7 +56,11 @@ phone_number_not_exists = "The phone number provided does not belong any users"
 
 
 def send_request_to_endpoint(
-    method: str, endpoint: str, header: dict, body: str, user: User,
+    method: str,
+    endpoint: str,
+    header: dict,
+    body: str,
+    user: User,
 ) -> requests.Response:
     data = get_user_data_for_token(user)
     token = get_access_token(data)
@@ -161,7 +165,10 @@ def sms_relay_procedure():
     method = json_dict_data["method"]
     if method not in http_methods:
         return create_flask_response(
-            400, invalid_method, encrypted_data[0:iv_size], user_secret_key,
+            400,
+            invalid_method,
+            encrypted_data[0:iv_size],
+            user_secret_key,
         )
 
     endpoint = json_dict_data["endpoint"]
@@ -181,7 +188,10 @@ def sms_relay_procedure():
     response_code = response.status_code
     response_body = json.dumps(response.json())
     return create_flask_response(
-        response_code, response_body, encrypted_data[0:iv_size], user_secret_key,
+        response_code,
+        response_body,
+        encrypted_data[0:iv_size],
+        user_secret_key,
     )
 
 

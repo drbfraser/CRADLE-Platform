@@ -41,7 +41,9 @@ def upgrade():
         sa.Column("formTemplateId", sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(["formId"], ["form.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(
-            ["formTemplateId"], ["form_template.id"], ondelete="CASCADE",
+            ["formTemplateId"],
+            ["form_template.id"],
+            ondelete="CASCADE",
         ),
         sa.PrimaryKeyConstraint("id"),
     )

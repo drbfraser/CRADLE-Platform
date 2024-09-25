@@ -7,7 +7,11 @@ from models import FormClassification, FormTemplate
 
 
 def test_form_classification_created(
-    database, form_classification_1, form_classification_2, api_post, api_get,
+    database,
+    form_classification_1,
+    form_classification_2,
+    api_post,
+    api_get,
 ):
     try:
         response = api_get(endpoint="/api/forms/classifications")
@@ -16,13 +20,15 @@ def test_form_classification_created(
         existing = len(response_body)
 
         response = api_post(
-            endpoint="/api/forms/classifications", json=form_classification_1,
+            endpoint="/api/forms/classifications",
+            json=form_classification_1,
         )
         database.session.commit()
         assert response.status_code == 201
 
         response = api_post(
-            endpoint="/api/forms/classifications", json=form_classification_2,
+            endpoint="/api/forms/classifications",
+            json=form_classification_2,
         )
         database.session.commit()
         assert response.status_code == 201
@@ -37,11 +43,17 @@ def test_form_classification_created(
 
 
 def test_form_classification_updated(
-    database, form_classification_1, form_classification_2, api_post, api_get, api_put,
+    database,
+    form_classification_1,
+    form_classification_2,
+    api_post,
+    api_get,
+    api_put,
 ):
     try:
         response = api_post(
-            endpoint="/api/forms/classifications", json=form_classification_1,
+            endpoint="/api/forms/classifications",
+            json=form_classification_1,
         )
         database.session.commit()
         assert response.status_code == 201
@@ -55,7 +67,8 @@ def test_form_classification_updated(
         assert id is not None
 
         response = api_put(
-            endpoint=f"/api/forms/classifications/{id}", json=form_classification_2,
+            endpoint=f"/api/forms/classifications/{id}",
+            json=form_classification_2,
         )
         database.session.commit()
         assert response.status_code == 201
@@ -86,13 +99,15 @@ def test_form_classification_summary(
         existing = len(response_body)
 
         response = api_post(
-            endpoint="/api/forms/classifications", json=form_classification_1,
+            endpoint="/api/forms/classifications",
+            json=form_classification_1,
         )
         database.session.commit()
         assert response.status_code == 201 or response.status_code == 409
 
         response = api_post(
-            endpoint="/api/forms/classifications", json=form_classification_2,
+            endpoint="/api/forms/classifications",
+            json=form_classification_2,
         )
         database.session.commit()
         assert response.status_code == 201 or response.status_code == 409
@@ -145,12 +160,12 @@ def test_form_classification_summary(
         crud.delete_all(FormTemplate, id="ft3")
 
 
-@pytest.fixture
+@pytest.fixture()
 def form_classification_1():
     return {"name": "fc1"}
 
 
-@pytest.fixture
+@pytest.fixture()
 def form_template_1():
     return {
         "classification": {"name": "fc1"},
@@ -160,12 +175,12 @@ def form_template_1():
     }
 
 
-@pytest.fixture
+@pytest.fixture()
 def form_classification_2():
     return {"name": "fc2"}
 
 
-@pytest.fixture
+@pytest.fixture()
 def form_template_2():
     return {
         "classification": {"name": "fc2"},
@@ -175,7 +190,7 @@ def form_template_2():
     }
 
 
-@pytest.fixture
+@pytest.fixture()
 def form_template_3():
     return {
         "classification": {"name": "fc2"},

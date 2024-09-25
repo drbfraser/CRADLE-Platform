@@ -50,7 +50,12 @@ def test_put_pregnancy(create_patient, pregnancy_factory, pregnancy_later, api_p
 
 
 def test_post_and_delete_pregnancy(
-    create_patient, patient_id, pregnancy_later, database, api_post, api_delete,
+    create_patient,
+    patient_id,
+    pregnancy_later,
+    database,
+    api_post,
+    api_delete,
 ):
     create_patient()
     pregnancy_id = pregnancy_later["id"]
@@ -98,7 +103,11 @@ def test_get_pregnancy_list(
 
 
 def test_invalid_pregnancy_not_updated(
-    create_patient, pregnancy_factory, pregnancy_earlier, pregnancy_later, api_put,
+    create_patient,
+    pregnancy_factory,
+    pregnancy_earlier,
+    pregnancy_later,
+    api_put,
 ):
     create_patient()
     pregnancy_factory.create(**pregnancy_earlier)
@@ -142,7 +151,11 @@ def test_invalid_pregnancy_not_updated(
 
 
 def test_invalid_pregnancy_not_created(
-    create_patient, pregnancy_factory, patient_id, pregnancy_earlier, api_post,
+    create_patient,
+    pregnancy_factory,
+    patient_id,
+    pregnancy_earlier,
+    api_post,
 ):
     create_patient()
     pregnancy_factory.create(**pregnancy_earlier)

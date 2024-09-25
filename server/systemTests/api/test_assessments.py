@@ -5,7 +5,10 @@ import models
 
 
 def test_create_followup_without_referral(
-    database, patient_factory, reading_factory, api_post,
+    database,
+    patient_factory,
+    reading_factory,
+    api_post,
 ):
     patient_id = "7800"
     patient_factory.create(patientId=patient_id)
@@ -29,7 +32,11 @@ def test_create_followup_without_referral(
     reason="Referral is no longer marked as assessed. TODO: check this is correct.",
 )
 def test_create_followup_marks_referral_as_assessed(
-    database, patient_factory, reading_factory, referral_factory, api_post,
+    database,
+    patient_factory,
+    reading_factory,
+    referral_factory,
+    api_post,
 ):
     patient_id = "7800"
     reading_id = "8311d551-03d2-44c6-857a-f1927c5177e3"
@@ -56,7 +63,10 @@ def test_create_followup_marks_referral_as_assessed(
 
 
 def test_invalid_followup_not_created(
-    database, patient_factory, referral_factory, api_post,
+    database,
+    patient_factory,
+    referral_factory,
+    api_post,
 ):
     patient_id = "7800"
     patient_factory.create(patientId=patient_id)

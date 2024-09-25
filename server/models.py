@@ -24,7 +24,10 @@ from utils import get_current_time, get_uuid
 supervises = db.Table(
     "supervises",
     db.Column(
-        "choId", db.Integer, db.ForeignKey("user.id", ondelete="CASCADE"), index=True,
+        "choId",
+        db.Integer,
+        db.ForeignKey("user.id", ondelete="CASCADE"),
+        index=True,
     ),
     db.Column("vhtId", db.Integer, db.ForeignKey("user.id", ondelete="CASCADE")),
     db.UniqueConstraint("choId", "vhtId", name="unique_supervise"),
@@ -46,12 +49,15 @@ class User(db.Model):
 
     # FOREIGN KEYS
     healthFacilityName = db.Column(
-        db.String(50), db.ForeignKey("healthfacility.healthFacilityName"), nullable=True,
+        db.String(50),
+        db.ForeignKey("healthfacility.healthFacilityName"),
+        nullable=True,
     )
 
     # RELATIONSHIPS
     healthFacility = db.relationship(
-        "HealthFacility", backref=db.backref("users", lazy=True),
+        "HealthFacility",
+        backref=db.backref("users", lazy=True),
     )
     referrals = db.relationship("Referral", backref=db.backref("users", lazy=True))
     vhtList = db.relationship(
@@ -129,12 +135,14 @@ class Referral(db.Model):
     userId = db.Column(db.Integer, db.ForeignKey("user.id"))
     patientId = db.Column(db.String(50), db.ForeignKey("patient.patientId"))
     referralHealthFacilityName = db.Column(
-        db.String(50), db.ForeignKey("healthfacility.healthFacilityName"),
+        db.String(50),
+        db.ForeignKey("healthfacility.healthFacilityName"),
     )
 
     # RELATIONSHIPS
     healthFacility = db.relationship(
-        "HealthFacility", backref=db.backref("referrals", lazy=True),
+        "HealthFacility",
+        backref=db.backref("referrals", lazy=True),
     )
     patient = db.relationship(
         "Patient",
@@ -219,10 +227,14 @@ class Reading(db.Model):
 
     # FOREIGN KEYS
     userId = db.Column(
-        db.Integer, db.ForeignKey("user.id", ondelete="SET NULL"), nullable=True,
+        db.Integer,
+        db.ForeignKey("user.id", ondelete="SET NULL"),
+        nullable=True,
     )
     patientId = db.Column(
-        db.String(50), db.ForeignKey("patient.patientId"), nullable=False,
+        db.String(50),
+        db.ForeignKey("patient.patientId"),
+        nullable=False,
     )
     referral_id = db.Column(
         db.String(50),
@@ -302,7 +314,9 @@ class FollowUp(db.Model):
     # FOREIGN KEYS
     healthcareWorkerId = db.Column(db.ForeignKey(User.id), nullable=False)
     patientId = db.Column(
-        db.String(50), db.ForeignKey("patient.patientId"), nullable=False,
+        db.String(50),
+        db.ForeignKey("patient.patientId"),
+        nullable=False,
     )
 
     # RELATIONSHIPS
@@ -337,7 +351,10 @@ class UrineTest(db.Model):
     reading = db.relationship(
         Reading,
         backref=db.backref(
-            "urineTests", lazy=True, uselist=False, cascade="all, delete-orphan",
+            "urineTests",
+            lazy=True,
+            uselist=False,
+            cascade="all, delete-orphan",
         ),
     )
 
@@ -518,7 +535,6 @@ class Form(db.Model):
 
 
 class Question(db.Model):
-
     """
     Question: a child model related to a form template or a form
 
@@ -561,7 +577,9 @@ class Question(db.Model):
     questionIndex = db.Column(db.Integer, nullable=False)
     questionId = db.Column(db.Text, nullable=True)
     questionText = db.Column(
-        db.Text(collation="utf8mb4_general_ci"), nullable=False, default="",
+        db.Text(collation="utf8mb4_general_ci"),
+        nullable=False,
+        default="",
     )
     questionType = db.Column(db.Enum(QuestionTypeEnum), nullable=False)
     hasCommentAttached = db.Column(db.Boolean, nullable=False, default=0)
@@ -571,7 +589,9 @@ class Question(db.Model):
     units = db.Column(db.Text, nullable=True)
     visibleCondition = db.Column(db.Text, nullable=False, default="[]")
     mcOptions = db.Column(
-        db.Text(collation="utf8mb4_general_ci"), nullable=False, default="[]",
+        db.Text(collation="utf8mb4_general_ci"),
+        nullable=False,
+        default="[]",
     )
     numMin = db.Column(db.Float, nullable=True)
     numMax = db.Column(db.Float, nullable=True)
@@ -606,7 +626,6 @@ class Question(db.Model):
 
 
 class QuestionLangVersion(db.Model):
-
     """
     This model is used to store different language versions of a single question.
     """
@@ -615,7 +634,9 @@ class QuestionLangVersion(db.Model):
     lang = db.Column(db.Text, nullable=False)
     questionText = db.Column(db.Text(collation="utf8mb4_general_ci"), nullable=False)
     mcOptions = db.Column(
-        db.Text(collation="utf8mb4_general_ci"), nullable=False, default="[]",
+        db.Text(collation="utf8mb4_general_ci"),
+        nullable=False,
+        default="[]",
     )
 
     # FORENIGN KEYS
@@ -640,7 +661,9 @@ class SmsSecretKey(db.Model):
     secret_Key = db.Column(db.String(256), default="", nullable=False)
     stale_date = db.Column(db.DateTime, default=datetime.datetime.now(), nullable=False)
     expiry_date = db.Column(
-        db.DateTime, default=datetime.datetime.now(), nullable=False,
+        db.DateTime,
+        default=datetime.datetime.now(),
+        nullable=False,
     )
 
     # FOREIGNKEY

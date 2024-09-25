@@ -53,7 +53,10 @@ def test_create_patient_with_sms_relay(database, api_post):
 
 
 def test_create_referral_with_sms_relay(
-    database, api_post, create_patient, patient_info,
+    database,
+    api_post,
+    create_patient,
+    patient_info,
 ):
     create_patient()
     patient_id = patient_info["patientId"]
@@ -79,7 +82,10 @@ def test_create_referral_with_sms_relay(
 
 
 def test_create_readings_with_sms_relay(
-    database, api_post, create_patient, patient_info,
+    database,
+    api_post,
+    create_patient,
+    patient_info,
 ):
     create_patient()
     patient_id = patient_info["patientId"]
@@ -126,7 +132,10 @@ def test_update_patient_name_with_sms_relay(database, patient_factory, api_post)
 
 
 def test_create_assessments_with_sms_relay(
-    database, create_patient, patient_info, api_post,
+    database,
+    create_patient,
+    patient_info,
+    api_post,
 ):
     create_patient()
     patient_id = patient_info["patientId"]
@@ -152,7 +161,10 @@ def test_create_assessments_with_sms_relay(
 
 
 def test_update_assessments_with_sms_relay(
-    database, patient_factory, followup_factory, api_post,
+    database,
+    patient_factory,
+    followup_factory,
+    api_post,
 ):
     patient_id = "64164134515"
     patient_factory.create(patientId=patient_id, patientName="AB")
@@ -187,7 +199,8 @@ def make_sms_relay_json(
     secretKey = crud.read(SmsSecretKey, userId=1)
     # update for multiple phone numbers schema: each user is guaranteed to have atleast one phone number
     phoneNumber = crud.read_all(
-        UserPhoneNumber, user_id=user.id,
+        UserPhoneNumber,
+        user_id=user.id,
     ).pop()  # just need one phone number that belongs to the user
 
     data = {"requestNumber": request_number, "method": method, "endpoint": endpoint}

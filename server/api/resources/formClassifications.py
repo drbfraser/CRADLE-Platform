@@ -57,7 +57,8 @@ class Root(Resource):
                 except Exception as err:
                     LOGGER.error(err)
                     abort(
-                        400, message="Something went wrong while parsing the CSV file.",
+                        400,
+                        message="Something went wrong while parsing the CSV file.",
                     )
         else:
             req = request.get_json(force=True)
@@ -115,7 +116,8 @@ class SingleFormClassification(Resource):
 
         if not form_classification:
             abort(
-                400, message=f"No form classification with id {form_classification_id}",
+                400,
+                message=f"No form classification with id {form_classification_id}",
             )
 
         return marshal.marshal(form_classification), 200
@@ -132,7 +134,8 @@ class SingleFormClassification(Resource):
 
         if not form_classification:
             abort(
-                400, message=f"No form classification with id {form_classification_id}",
+                400,
+                message=f"No form classification with id {form_classification_id}",
             )
 
         req = request.get_json()
@@ -168,7 +171,10 @@ class FormClassificationSummary(Resource):
 
             result_template = None
             for possible_template in possible_templates:
-                if result_template is None or possible_template.dateCreated > result_template.dateCreated:
+                if (
+                    result_template is None
+                    or possible_template.dateCreated > result_template.dateCreated
+                ):
                     result_template = possible_template
 
             if result_template is not None:
@@ -191,6 +197,7 @@ class FormClassificationTemplates(Resource):
     )
     def get(form_classification_id: str):
         form_templates = crud.read_all(
-            FormTemplate, formClassificationId=form_classification_id,
+            FormTemplate,
+            formClassificationId=form_classification_id,
         )
         return [marshal.marshal(f, shallow=True) for f in form_templates], 200

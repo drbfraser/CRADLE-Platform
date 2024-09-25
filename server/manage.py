@@ -51,7 +51,9 @@ def get_username_from_email(email):
 # USAGE: python manage.py seed_minimal
 @cli.command("seed_minimal")
 def seed_minimal(
-    email="admin123@admin.com", password="admin123", facility_name="H0000",
+    email="admin123@admin.com",
+    password="admin123",
+    facility_name="H0000",
 ):
     """
     Seeds the database with the minimum amount of data required for it to be functional.
@@ -192,7 +194,9 @@ def seed_test_data(ctx):
         False,
     )
     create_medical_record(
-        "49300028162", "Aspirin 75mg\nLabetalol 200mg three times daily", True,
+        "49300028162",
+        "Aspirin 75mg\nLabetalol 200mg three times daily",
+        True,
     )
     create_patient_association("49300028162", 3)
     create_patient_association("49300028163", 4)
@@ -559,7 +563,11 @@ def create_patient_reading_referral_pregnancy(
 
 
 def create_pregnancy(
-    patientId, startDate, endDate=None, outcome=None, defaultTimeUnit="WEEKS",
+    patientId,
+    startDate,
+    endDate=None,
+    outcome=None,
+    defaultTimeUnit="WEEKS",
 ):
     pregnancy = {
         "patientId": patientId,
@@ -909,9 +917,7 @@ def generatePhoneNumbers():
 
     area_codes = [loc["areaCode"] for loc in facilityLocations]
     n = len(area_codes)
-    post_fixes = [
-        "".join([f"{randint(0, 9)}" for num in range(6)]) for x in range(n)
-    ]
+    post_fixes = ["".join([f"{randint(0, 9)}" for num in range(6)]) for x in range(n)]
 
     numbers = {}
     for i in range(n):

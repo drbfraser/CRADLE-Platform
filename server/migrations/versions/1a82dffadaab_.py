@@ -29,7 +29,8 @@ def upgrade():
         ),
     )
     op.add_column(
-        "healthfacility", sa.Column("location", sa.String(length=50), nullable=True),
+        "healthfacility",
+        sa.Column("location", sa.String(length=50), nullable=True),
     )
     # ### end Alembic commands ###
 

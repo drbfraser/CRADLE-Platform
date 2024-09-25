@@ -126,7 +126,9 @@ def test_sms_relay_failed_decompression(api_post):
     json_data = json.dumps(data)
 
     encrypted_data = encryptor.encrypt(
-        bytes(json_data, "utf-8"), iv, secretKey.secret_Key,
+        bytes(json_data, "utf-8"),
+        iv,
+        secretKey.secret_Key,
     )
 
     json_body = {"phoneNumber": phoneNumber.number, "encryptedData": encrypted_data}

@@ -8,7 +8,9 @@ from service.assoc import (
 
 
 def test_patients_for_user_only_returns_patients_associated_with_user(
-    patient_factory, facility_factory, user_factory,
+    patient_factory,
+    facility_factory,
+    user_factory,
 ):
     u1 = user_factory.create(email="u1@a")
     u2 = user_factory.create(email="u2@a")
@@ -28,7 +30,9 @@ def test_patients_for_user_only_returns_patients_associated_with_user(
 
 
 def test_patients_for_user_doesnt_return_duplicate_patients(
-    patient_factory, facility_factory, user_factory,
+    patient_factory,
+    facility_factory,
+    user_factory,
 ):
     u = user_factory.create(email="u@a")
 
@@ -49,7 +53,9 @@ def test_patients_for_user_returns_empty_list_if_no_associations(user_factory):
 
 
 def test_patients_at_facility_only_returns_patients_associated_with_facility(
-    patient_factory, facility_factory, user_factory,
+    patient_factory,
+    facility_factory,
+    user_factory,
 ):
     u = user_factory.create(email="u@a")
 
@@ -69,7 +75,9 @@ def test_patients_at_facility_only_returns_patients_associated_with_facility(
 
 
 def test_patients_at_facility_doesnt_return_duplicate_patients(
-    patient_factory, facility_factory, user_factory,
+    patient_factory,
+    facility_factory,
+    user_factory,
 ):
     u1 = user_factory.create(email="u1@a")
     u2 = user_factory.create(email="u2@a")
@@ -90,7 +98,9 @@ def test_patients_at_facility_returns_empty_list_if_no_associations(facility_fac
 
 
 def test_associate_by_id_creates_association(
-    patient_factory, facility_factory, user_factory,
+    patient_factory,
+    facility_factory,
+    user_factory,
 ):
     u = user_factory.create(email="u@a")
     f = facility_factory.create(healthFacilityName="F")

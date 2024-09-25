@@ -33,7 +33,9 @@ def upgrade():
         sa.Column("outcome", sa.Text(), nullable=True),
         sa.Column("lastEdited", sa.BigInteger(), nullable=False),
         sa.ForeignKeyConstraint(
-            ["patientId"], ["patient.patientId"], ondelete="CASCADE",
+            ["patientId"],
+            ["patient.patientId"],
+            ondelete="CASCADE",
         ),
         sa.PrimaryKeyConstraint("id"),
     )

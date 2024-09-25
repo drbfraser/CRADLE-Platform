@@ -51,10 +51,16 @@ invalid_phone_number = (
 # Building a parser that will be used over several apis for Users
 UserParser = reqparse.RequestParser()
 UserParser.add_argument(
-    "email", type=str, required=True, help="This field cannot be left blank!",
+    "email",
+    type=str,
+    required=True,
+    help="This field cannot be left blank!",
 )
 UserParser.add_argument(
-    "firstName", type=str, required=True, help="This field cannot be left blank!",
+    "firstName",
+    type=str,
+    required=True,
+    help="This field cannot be left blank!",
 )
 UserParser.add_argument(
     "healthFacilityName",
@@ -63,7 +69,10 @@ UserParser.add_argument(
     help="This field cannot be left blank!",
 )
 UserParser.add_argument(
-    "role", type=str, required=True, help="This field cannot be left blank!",
+    "role",
+    type=str,
+    required=True,
+    help="This field cannot be left blank!",
 )
 UserParser.add_argument("supervises", type=int, action="append")
 
@@ -134,7 +143,10 @@ class AdminPasswordChange(Resource):
     # Ensure that we have the fields we want in JSON payload
     parser = reqparse.RequestParser()
     parser.add_argument(
-        "password", type=str, required=True, help="This field cannot be left blank!",
+        "password",
+        type=str,
+        required=True,
+        help="This field cannot be left blank!",
     )
 
     @roles_required([RoleEnum.ADMIN])
@@ -165,10 +177,16 @@ class AdminPasswordChange(Resource):
 class UserPasswordChange(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument(
-        "old_password", type=str, required=True, help="This field cannot be left blank!",
+        "old_password",
+        type=str,
+        required=True,
+        help="This field cannot be left blank!",
     )
     parser.add_argument(
-        "new_password", type=str, required=True, help="This field cannot be left blank!",
+        "new_password",
+        type=str,
+        required=True,
+        help="This field cannot be left blank!",
     )
 
     @jwt_required()
@@ -190,7 +208,8 @@ class UserPasswordChange(Resource):
 
         # If old password and password we have on file match
         if user and flask_bcrypt.check_password_hash(
-            user.password, data["old_password"],
+            user.password,
+            data["old_password"],
         ):
             # Create new dictionary with just keys we want to replace
             updated_payload = {
@@ -209,7 +228,10 @@ class UserRegisterApi(Resource):
     # Allow for parsing a password too
     registerParser = UserParser.copy()
     registerParser.add_argument(
-        "password", type=str, required=True, help="This field cannot be left blank!",
+        "password",
+        type=str,
+        required=True,
+        help="This field cannot be left blank!",
     )
 
     # Create a new user
@@ -297,10 +319,16 @@ class UserAuthApi(Resource):
 
     parser = reqparse.RequestParser()
     parser.add_argument(
-        "email", type=str, required=True, help="This field cannot be left blank!",
+        "email",
+        type=str,
+        required=True,
+        help="This field cannot be left blank!",
     )
     parser.add_argument(
-        "password", type=str, required=True, help="This field cannot be left blank!",
+        "password",
+        type=str,
+        required=True,
+        help="This field cannot be left blank!",
     )
 
     # login to account
@@ -311,7 +339,8 @@ class UserAuthApi(Resource):
         == "True",  # disable limiter during testing stage
     )
     @swag_from(
-        "../../specifications/user-auth.yml", methods=["POST"],
+        "../../specifications/user-auth.yml",
+        methods=["POST"],
     )  # needs to be below limiter since it will point to limiter/... path
     def post(self):
         """
@@ -329,9 +358,14 @@ class UserAuthApi(Resource):
         )
 
         # We want to obfuscate and conceal timing information by checking the password hash of an invalid password
-        if not user and not flask_bcrypt.check_password_hash(
-            salted_invalid_password, data["password"],
-        ) or not flask_bcrypt.check_password_hash(user.password, data["password"]):
+        if (
+            not user
+            and not flask_bcrypt.check_password_hash(
+                salted_invalid_password,
+                data["password"],
+            )
+            or not flask_bcrypt.check_password_hash(user.password, data["password"])
+        ):
             return {"message": "Incorrect username or password."}, 401
 
         # setup any extra user params
@@ -471,7 +505,10 @@ class UserApi(Resource):
 class UserPhoneUpdate(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument(
-        "newPhoneNumber", type=str, required=True, help="New phone number is required",
+        "newPhoneNumber",
+        type=str,
+        required=True,
+        help="New phone number is required",
     )
     parser.add_argument(
         "currentPhoneNumber",
@@ -480,7 +517,10 @@ class UserPhoneUpdate(Resource):
         help="Current phone number is required",
     )
     parser.add_argument(
-        "oldPhoneNumber", type=str, required=True, help="Old phone number is required",
+        "oldPhoneNumber",
+        type=str,
+        required=True,
+        help="Old phone number is required",
     )
 
     # Handle the GET request for adding a new phone number
@@ -518,7 +558,9 @@ class UserPhoneUpdate(Resource):
 
         # Add the phone number to user's phoneNumbers
         if replace_phoneNumber_for_user(
-            current_phone_number, new_phone_number, user_id,
+            current_phone_number,
+            new_phone_number,
+            user_id,
         ):
             return {"message": "User phone number updated successfully"}, 200
 
@@ -684,7 +726,10 @@ class ValidateRelayPhoneNumber(Resource):
     # Define the request parser
     parser = reqparse.RequestParser()
     parser.add_argument(
-        "phoneNumber", type=str, required=True, help="Phone number is required.",
+        "phoneNumber",
+        type=str,
+        required=True,
+        help="Phone number is required.",
     )
 
     @jwt_required()

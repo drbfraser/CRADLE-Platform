@@ -28,7 +28,10 @@ def upgrade():
         nullable=False,
     )
     op.create_index(
-        op.f("ix_form_template_name"), "form_template", ["name"], unique=True,
+        op.f("ix_form_template_name"),
+        "form_template",
+        ["name"],
+        unique=True,
     )
     # ### end Alembic commands ###
 

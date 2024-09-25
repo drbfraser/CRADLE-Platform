@@ -23,12 +23,12 @@ def test_invalid_facility_not_created(facility_name, health_facility, api_post):
     assert crud.read(HealthFacility, healthFacilityName=facility_name) is None
 
 
-@pytest.fixture
+@pytest.fixture()
 def facility_name():
     return "H1001"
 
 
-@pytest.fixture
+@pytest.fixture()
 def health_facility(facility_name):
     return {
         "healthFacilityName": facility_name,

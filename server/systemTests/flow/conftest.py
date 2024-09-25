@@ -1,26 +1,38 @@
 import pytest
 
 
-@pytest.fixture
+@pytest.fixture()
 def single_facility_actors(user_factory, facility_factory):
     facility = facility_factory.create(healthFacilityName="SFT")
     admin = user_factory.create(
-        email="admin@ft.a", password="ftest", healthFacilityName="SFT", role="ADMIN",
+        email="admin@ft.a",
+        password="ftest",
+        healthFacilityName="SFT",
+        role="ADMIN",
     )
     hcw = user_factory.create(
-        email="hcw@ft.a", password="ftest", healthFacilityName="SFT", role="HCW",
+        email="hcw@ft.a",
+        password="ftest",
+        healthFacilityName="SFT",
+        role="HCW",
     )
     cho = user_factory.create(
-        email="cho@ft.a", password="ftest", healthFacilityName="SFT", role="CHO",
+        email="cho@ft.a",
+        password="ftest",
+        healthFacilityName="SFT",
+        role="CHO",
     )
     vht = user_factory.create(
-        email="vht@ft.a", password="ftest", healthFacilityName="SFT", role="VHT",
+        email="vht@ft.a",
+        password="ftest",
+        healthFacilityName="SFT",
+        role="VHT",
     )
 
     return facility, admin, hcw, cho, vht
 
 
-@pytest.fixture
+@pytest.fixture()
 def make_patient(make_assessment):
     def __builder(
         patient_id: str,
@@ -87,7 +99,7 @@ def make_patient(make_assessment):
     return __builder
 
 
-@pytest.fixture
+@pytest.fixture()
 def make_assessment():
     def __builder(
         reading_id: str,

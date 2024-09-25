@@ -122,7 +122,9 @@ class SyncPatients(Resource):
                         if (
                             pregnancy_end_date and model.startDate <= pregnancy_end_date
                         ) or crud.has_conflicting_pregnancy_record(
-                            patient_id, model.startDate, pregnancy_id=pregnancy_id,
+                            patient_id,
+                            model.startDate,
+                            pregnancy_id=pregnancy_id,
                         ):
                             err = _to_string("pregnancyStartDate", "conflict")
                             raise ValidationError(err)
@@ -154,7 +156,10 @@ class SyncPatients(Resource):
                     crud.create_all(models, autocommit=False)
             for data in patients_to_update:
                 crud.update(
-                    Patient, data.values, autocommit=False, patientId=data.key_value,
+                    Patient,
+                    data.values,
+                    autocommit=False,
+                    patientId=data.key_value,
                 )
             for data in pregnancies_to_update:
                 crud.update(Pregnancy, data.values, autocommit=False, id=data.key_value)

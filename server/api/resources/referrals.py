@@ -19,7 +19,9 @@ class Root(Resource):
     @staticmethod
     @jwt_required()
     @swag_from(
-        "../../specifications/referrals-get.yml", methods=["GET"], endpoint="referrals",
+        "../../specifications/referrals-get.yml",
+        methods=["GET"],
+        endpoint="referrals",
     )
     def get():
         user = get_jwt_identity()
@@ -46,7 +48,8 @@ class Root(Resource):
             abort(400, message=error_message)
 
         healthFacility = crud.read(
-            HealthFacility, healthFacilityName=json["referralHealthFacilityName"],
+            HealthFacility,
+            healthFacilityName=json["referralHealthFacilityName"],
         )
 
         if not healthFacility:

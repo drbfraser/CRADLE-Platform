@@ -46,12 +46,17 @@ def test_form_template_created(database, form_template, form_template_2, api_pos
     finally:
         crud.delete_by(FormClassification, name=form_template["classification"]["name"])
         crud.delete_by(
-            FormClassification, name=form_template_2["classification"]["name"],
+            FormClassification,
+            name=form_template_2["classification"]["name"],
         )
 
 
 def test_form_template_archival(
-    database, update_info_in_question, api_put, api_post, form_template,
+    database,
+    update_info_in_question,
+    api_put,
+    api_post,
+    form_template,
 ):
     try:
         response = api_post(endpoint="/api/forms/templates", json=form_template)
@@ -69,7 +74,7 @@ def test_form_template_archival(
         crud.delete_by(FormClassification, name=form_template["classification"]["name"])
 
 
-@pytest.fixture
+@pytest.fixture()
 def form_template():
     return {
         "classification": {"id": "e141d855-37e2-421f-a517-9a2fc9437993", "name": "ft1"},
@@ -125,7 +130,7 @@ def form_template():
     }
 
 
-@pytest.fixture
+@pytest.fixture()
 def form_template_2():
     return {
         "classification": {"name": "ft2"},
@@ -205,7 +210,7 @@ def form_template_2():
     }
 
 
-@pytest.fixture
+@pytest.fixture()
 def form_template3():
     return {
         "classification": {"id": "e141d855-37e2-421f-a517-9a2fc9437993", "name": "ft1"},
@@ -232,7 +237,7 @@ def form_template3():
     }
 
 
-@pytest.fixture
+@pytest.fixture()
 def form_template4():
     return {
         "classification": {"id": "e141d855-37e2-421f-a517-9a2fc9437993", "name": "ft1"},
@@ -259,12 +264,12 @@ def form_template4():
     }
 
 
-@pytest.fixture
+@pytest.fixture()
 def update_info_in_question():
     return {"archived": True}
 
 
-@pytest.fixture
+@pytest.fixture()
 def remove_question():
     return {
         "version": "V1.2",
@@ -290,7 +295,7 @@ def remove_question():
     }
 
 
-@pytest.fixture
+@pytest.fixture()
 def add_question():
     return {
         "version": "V1.3",

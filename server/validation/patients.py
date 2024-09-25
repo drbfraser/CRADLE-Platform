@@ -51,7 +51,8 @@ def validate(request_body: dict) -> Optional[str]:
     # If patient is pregnant, check  if certain pregnancy related fields are present
     if request_body.get("isPregnant") is True:
         error_message = required_keys_present(
-            request_body, ["pregnancyStartDate", "gestationalAgeUnit"],
+            request_body,
+            ["pregnancyStartDate", "gestationalAgeUnit"],
         )
     if error_message is not None:
         return error_message

@@ -10,7 +10,7 @@ from systemTests.mock import factory
 #
 
 
-@pytest.fixture
+@pytest.fixture()
 def database():
     """
     Provides an instance of the database.
@@ -27,7 +27,7 @@ def database():
 #
 
 
-@pytest.fixture
+@pytest.fixture()
 def url() -> str:
     """
     Provides the base URL of the server.
@@ -37,7 +37,7 @@ def url() -> str:
     return "http://localhost:5000"
 
 
-@pytest.fixture
+@pytest.fixture()
 def credentials() -> Tuple[str, str]:
     """
     Provides the user credentials used to perform API requests.
@@ -64,7 +64,7 @@ def credentials() -> Tuple[str, str]:
     return "admin123@admin.com", "admin123"
 
 
-@pytest.fixture
+@pytest.fixture()
 def bearer_token(url: str, credentials: Tuple[str, str]) -> str:
     """
     Provides a bearer token my making an API request to authenticate the given
@@ -79,7 +79,7 @@ def bearer_token(url: str, credentials: Tuple[str, str]) -> str:
     return resp_json["token"]
 
 
-@pytest.fixture
+@pytest.fixture()
 def auth_header(bearer_token: str) -> dict:
     """
     Provides an HTTP header pre-loaded with a bearer token for authentication.
@@ -89,7 +89,7 @@ def auth_header(bearer_token: str) -> dict:
     return {"Authorization": f"Bearer {bearer_token}"}
 
 
-@pytest.fixture
+@pytest.fixture()
 def api_get(url: str, auth_header: dict) -> Callable[[str, dict], requests.Response]:
     """
     Provides a convenience closure which sends an HTTP GET request to the server at a
@@ -101,7 +101,7 @@ def api_get(url: str, auth_header: dict) -> Callable[[str, dict], requests.Respo
     return __make_http_request_closure(url, auth_header, requests.get)
 
 
-@pytest.fixture
+@pytest.fixture()
 def api_post(url: str, auth_header: dict) -> Callable[[str, dict], requests.Response]:
     """
     Provides a convenience closure which sends an HTTP POST request to the server at a
@@ -113,7 +113,7 @@ def api_post(url: str, auth_header: dict) -> Callable[[str, dict], requests.Resp
     return __make_http_request_closure(url, auth_header, requests.post)
 
 
-@pytest.fixture
+@pytest.fixture()
 def api_put(url: str, auth_header: dict) -> Callable[[str, dict], requests.Response]:
     """
     Provides a convenience closure which sends an HTTP PUT request to the server at a
@@ -125,7 +125,7 @@ def api_put(url: str, auth_header: dict) -> Callable[[str, dict], requests.Respo
     return __make_http_request_closure(url, auth_header, requests.put)
 
 
-@pytest.fixture
+@pytest.fixture()
 def api_delete(url: str, auth_header: dict) -> Callable[[str, dict], requests.Response]:
     """
     Provides a convenience closure which sends an HTTP DELETE request to the server at a
@@ -137,12 +137,14 @@ def api_delete(url: str, auth_header: dict) -> Callable[[str, dict], requests.Re
     return __make_http_request_closure(url, auth_header, requests.delete)
 
 
-@pytest.fixture
+@pytest.fixture()
 def api(url: str):
     class Api:
         @staticmethod
         def get(
-            endpoint: str, email: str = "admin123@admin.com", password: str = "admin123",
+            endpoint: str,
+            email: str = "admin123@admin.com",
+            password: str = "admin123",
         ):
             return Api.__make_request(requests.get, endpoint, {}, email, password)
 
@@ -174,7 +176,11 @@ def api(url: str):
 
         @staticmethod
         def __make_request(
-            func, endpoint: str, payload: dict, email: str, password: str,
+            func,
+            endpoint: str,
+            payload: dict,
+            email: str,
+            password: str,
         ):
             token = Api.__get_bearer_token(email, password)
             header = {"Authorization": f"Bearer {token}"}
@@ -188,47 +194,47 @@ def api(url: str):
 #
 
 
-@pytest.fixture
+@pytest.fixture()
 def patient_factory(database) -> factory.PatientFactory:
     yield from __make_factory(database, factory.PatientFactory)
 
 
-@pytest.fixture
+@pytest.fixture()
 def reading_factory(database) -> factory.ReadingFactory:
     yield from __make_factory(database, factory.ReadingFactory)
 
 
-@pytest.fixture
+@pytest.fixture()
 def referral_factory(database) -> factory.ReferralFactory:
     yield from __make_factory(database, factory.ReferralFactory)
 
 
-@pytest.fixture
+@pytest.fixture()
 def followup_factory(database) -> factory.FollowUpFactory:
     yield from __make_factory(database, factory.FollowUpFactory)
 
 
-@pytest.fixture
+@pytest.fixture()
 def user_factory(database) -> factory.UserFactory:
     yield from __make_factory(database, factory.UserFactory)
 
 
-@pytest.fixture
+@pytest.fixture()
 def facility_factory(database) -> factory.HealthFacilityFactory:
     yield from __make_factory(database, factory.HealthFacilityFactory)
 
 
-@pytest.fixture
+@pytest.fixture()
 def pregnancy_factory(database) -> factory.PregnancyFactory:
     yield from __make_factory(database, factory.PregnancyFactory)
 
 
-@pytest.fixture
+@pytest.fixture()
 def medical_record_factory(database) -> factory.MedicalRecordFactory:
     yield from __make_factory(database, factory.MedicalRecordFactory)
 
 
-@pytest.fixture
+@pytest.fixture()
 def form_template_factory(database) -> factory.FormTemplateFactory:
     yield from __make_factory(database, factory.FormTemplateFactory)
 

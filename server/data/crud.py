@@ -219,7 +219,9 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
 
 
 def read_patient_list(
-    user_id: Optional[int] = None, is_cho: bool = False, **kwargs,
+    user_id: Optional[int] = None,
+    is_cho: bool = False,
+    **kwargs,
 ) -> List[Any]:
     """
     Queries the database for patients filtered by query criteria in keyword arguments.
@@ -265,7 +267,9 @@ def read_patient_list(
 
 
 def read_admin_patient(
-    user_id: Optional[int] = None, is_cho: bool = False, **kwargs,
+    user_id: Optional[int] = None,
+    is_cho: bool = False,
+    **kwargs,
 ) -> List[Any]:
     """
     Queries the database for patients filtered by query criteria in keyword arguments.
@@ -296,7 +300,9 @@ def read_admin_patient(
 
 
 def read_referral_list(
-    user_id: Optional[int] = None, is_cho: bool = False, **kwargs,
+    user_id: Optional[int] = None,
+    is_cho: bool = False,
+    **kwargs,
 ) -> List[Any]:
     """
     Queries the database for referrals filtered by query criteria in keyword arguments.
@@ -436,7 +442,8 @@ def read_medical_records(m: Type[M], patient_id: str, **kwargs) -> List[M]:
 
 
 def read_patient_current_medical_record(
-    patient_id: str, is_drug_record: bool,
+    patient_id: str,
+    is_drug_record: bool,
 ) -> MedicalRecord:
     """
     Queries the database for a patient's current medical or drug record.
@@ -462,7 +469,8 @@ def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
     :return: A list of models with the fields: title, date, information
     """
     Title = namedtuple(
-        "Title", "pregnancy_start pregnancy_end medical_history drug_history",
+        "Title",
+        "pregnancy_start pregnancy_end medical_history drug_history",
     )
     TITLE = Title(
         "Started pregnancy",
@@ -481,7 +489,9 @@ def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
     ).filter(Pregnancy.patientId == patient_id, Pregnancy.endDate != None)
 
     pregnancy_start = db_session.query(
-        literal(TITLE.pregnancy_start), Pregnancy.startDate, null(),
+        literal(TITLE.pregnancy_start),
+        Pregnancy.startDate,
+        null(),
     ).filter(Pregnancy.patientId == patient_id)
 
     medical_history = db_session.query(
@@ -497,7 +507,9 @@ def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
     ).filter(MedicalRecord.patientId == patient_id, MedicalRecord.isDrugRecord == True)
 
     query = pregnancy_end.union(
-        pregnancy_start, medical_history, drug_history,
+        pregnancy_start,
+        medical_history,
+        drug_history,
     ).order_by(text("date desc"))
 
     return query.slice(*__get_slice_indexes(page, limit))
@@ -640,7 +652,8 @@ def read_patients(
         .outerjoin(
             pr,
             and_(
-                Pregnancy.patientId == pr.patientId, Pregnancy.startDate < pr.startDate,
+                Pregnancy.patientId == pr.patientId,
+                Pregnancy.startDate < pr.startDate,
             ),
         )
         .outerjoin(
@@ -723,7 +736,8 @@ def read_readings(
     :return: A list of tuples of reading, referral, assessment, urine test
     """
     query = db_session.query(Reading, UrineTest).outerjoin(
-        UrineTest, Reading.urineTests,
+        UrineTest,
+        Reading.urineTests,
     )
 
     query = __filter_by_patient_association(query, Reading, user_id, is_cho)
@@ -773,7 +787,8 @@ def read_referrals_or_assessments(
 
 
 def read_questions(
-    model: Question, form_template_id: Optional[int] = None,
+    model: Question,
+    form_template_id: Optional[int] = None,
 ) -> List[Question]:
     """
     Queries the database for questions
@@ -847,7 +862,8 @@ def has_conflicting_pregnancy_record(
         query = query.filter(
             or_(
                 and_(
-                    Pregnancy.startDate <= start_date, Pregnancy.endDate >= start_date,
+                    Pregnancy.startDate <= start_date,
+                    Pregnancy.endDate >= start_date,
                 ),
                 and_(Pregnancy.startDate >= start_date, Pregnancy.endDate <= end_date),
                 and_(Pregnancy.startDate <= end_date, Pregnancy.endDate >= end_date),
@@ -1153,12 +1169,16 @@ def get_all_relay_phone_numbers():
 
 
 def __filter_by_patient_association(
-    query: Query, model: Any, user_id: Optional[int], is_cho,
+    query: Query,
+    model: Any,
+    user_id: Optional[int],
+    is_cho,
 ) -> Query:
     if user_id is not None:
         join_column = model.patientId
         query = query.join(
-            PatientAssociations, join_column == PatientAssociations.patientId,
+            PatientAssociations,
+            join_column == PatientAssociations.patientId,
         )
         if is_cho:
             sub = (

@@ -38,7 +38,8 @@ def to_global_search_patient(patient):
             }
 
             reading_data = marshal.model_to_dict(
-                crud.read(Reading, readingId=reading), ReadingSchema,
+                crud.read(Reading, readingId=reading),
+                ReadingSchema,
             )
             reading_json["dateTimeTaken"] = reading_data["dateTimeTaken"]
             reading_json["trafficLightStatus"] = reading_data["trafficLightStatus"]
@@ -78,7 +79,8 @@ class AndroidPatientGlobalSearch(Resource):
     def get(self, search):
         current_user = get_jwt_identity()
         patients_readings_referrals = get_global_search_patients(
-            current_user, search.upper(),
+            current_user,
+            search.upper(),
         )
 
         if not patients_readings_referrals:

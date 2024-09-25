@@ -134,7 +134,8 @@ def marshal_patient_pregnancy_summary(records: List[Pregnancy]) -> dict:
 
 
 def marshal_patient_medical_history(
-    medical: Optional[MedicalRecord] = None, drug: Optional[MedicalRecord] = None,
+    medical: Optional[MedicalRecord] = None,
+    drug: Optional[MedicalRecord] = None,
 ) -> dict:
     records = dict()
 
@@ -233,7 +234,9 @@ def __marshal_medical_record(r: MedicalRecord) -> dict:
 
 
 def __marshal_form_template(
-    f: FormTemplate, shallow: bool = False, if_include_versions: bool = False,
+    f: FormTemplate,
+    shallow: bool = False,
+    if_include_versions: bool = False,
 ) -> dict:
     d = vars(f).copy()
     __pre_process(d)
@@ -339,7 +342,8 @@ def __marshal_lang_version(v: QuestionLangVersion) -> dict:
 
 
 def __marshal_form_classification(
-    fc: FormClassification, if_include_templates: bool = False,
+    fc: FormClassification,
+    if_include_templates: bool = False,
 ) -> dict:
     d = vars(fc).copy()
     __pre_process(d)

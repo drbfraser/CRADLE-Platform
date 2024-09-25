@@ -25,7 +25,9 @@ def upgrade():
         sa.Column("lang", sa.Text(), nullable=False),
         sa.Column("formTemplateId", sa.String(length=50), nullable=False),
         sa.ForeignKeyConstraint(
-            ["formTemplateId"], ["form_template.id"], ondelete="CASCADE",
+            ["formTemplateId"],
+            ["form_template.id"],
+            ondelete="CASCADE",
         ),
         sa.PrimaryKeyConstraint("id"),
     )

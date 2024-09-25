@@ -7,7 +7,6 @@ from data import crud, marshal
 
 
 class ModelFactory:
-
     """
     The base factory class for managing test models.
 
@@ -160,7 +159,10 @@ class FollowUpFactory(ModelFactory):
 class UserFactory(ModelFactory):
     def __init__(self, db: SQLAlchemy):
         super(UserFactory, self).__init__(
-            db, password="password", healthFacilityName="H0000", role="ADMIN",
+            db,
+            password="password",
+            healthFacilityName="H0000",
+            role="ADMIN",
         )
 
     def create(self, **kwargs) -> Any:

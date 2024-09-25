@@ -17,13 +17,17 @@ def test_get_patient_list(create_patient, patient_info, reading_factory, api_get
     reading_id1 = "w3d0aklrs4wenm6hk5z1"
     date1 = 1604514300
     reading_factory.create(
-        readingId=reading_id1, patientId=patient_id, dateTimeTaken=date1,
+        readingId=reading_id1,
+        patientId=patient_id,
+        dateTimeTaken=date1,
     )
 
     reading_id2 = "w3d0aklrs4wenm6hk5z2"
     date2 = date1 + 2e7
     reading_factory.create(
-        readingId=reading_id2, patientId=patient_id, dateTimeTaken=date2,
+        readingId=reading_id2,
+        patientId=patient_id,
+        dateTimeTaken=date2,
     )
 
     response = api_get(endpoint="/api/patients")
@@ -224,7 +228,8 @@ def test_get_mobile_patient(database, api_post, api_get):
 
         # Add a more fleshed-out reading to the first patient.
         reading = __make_reading(
-            reading_id="123dabdd-5des-7ufh-23fd-qd4308143651", patient_id=patient_ids[0],
+            reading_id="123dabdd-5des-7ufh-23fd-qd4308143651",
+            patient_id=patient_ids[0],
         )
         reading_ids.append("123dabdd-5des-7ufh-23fd-qd4308143651")
         reading_response = api_post(endpoint="/api/readings", json=reading)
@@ -233,7 +238,8 @@ def test_get_mobile_patient(database, api_post, api_get):
 
         # Add a more minimal reading to the first patient.
         reading = __make_reading_no_extra_vitals(
-            reading_id="526292b7-53d0-4e7e-8a96-f66f061477ff", patient_id=patient_ids[0],
+            reading_id="526292b7-53d0-4e7e-8a96-f66f061477ff",
+            patient_id=patient_ids[0],
         )
         reading_ids.append("526292b7-53d0-4e7e-8a96-f66f061477ff")
         reading_response = api_post(endpoint="/api/readings", json=reading)
@@ -242,7 +248,8 @@ def test_get_mobile_patient(database, api_post, api_get):
 
         # Add another fleshed-out reading to the first patient.
         reading = __make_reading(
-            reading_id="2ab4f830-3cc0-4e98-bff3-174a9dcc630a", patient_id=patient_ids[0],
+            reading_id="2ab4f830-3cc0-4e98-bff3-174a9dcc630a",
+            patient_id=patient_ids[0],
         )
         reading_ids.append("2ab4f830-3cc0-4e98-bff3-174a9dcc630a")
         reading_response = api_post(endpoint="/api/readings", json=reading)
@@ -409,7 +416,8 @@ def test_update_patient_name(patient_factory, api_put):
     patient_factory.create(patientId=patient_id, patientName="AB")
 
     response = api_put(
-        endpoint=f"/api/patients/{patient_id}/info", json={"patientName": "CD"},
+        endpoint=f"/api/patients/{patient_id}/info",
+        json={"patientName": "CD"},
     )
 
     assert response.status_code == 200

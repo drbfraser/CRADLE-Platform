@@ -69,7 +69,9 @@ def pregnancy_view(patient_id: str, **kwargs) -> List[Pregnancy]:
 
 
 def medical_record_view(
-    patient_id: str, is_drug_record: bool, **kwargs,
+    patient_id: str,
+    is_drug_record: bool,
+    **kwargs,
 ) -> List[MedicalRecord]:
     """
     Returns a list of medical records filtered by query criteria in keyword arguments.
@@ -80,10 +82,15 @@ def medical_record_view(
     """
     if not kwargs:
         return crud.read_all(
-            MedicalRecord, patientId=patient_id, isDrugRecord=is_drug_record,
+            MedicalRecord,
+            patientId=patient_id,
+            isDrugRecord=is_drug_record,
         )
     return crud.read_medical_records(
-        MedicalRecord, patient_id, is_drug_record=is_drug_record, **kwargs,
+        MedicalRecord,
+        patient_id,
+        is_drug_record=is_drug_record,
+        **kwargs,
     )
 
 
@@ -98,7 +105,8 @@ def patient_view(user: dict, last_sync: Optional[int] = None) -> List[Any]:
 
 
 def reading_view(
-    user: dict, last_sync: Optional[int] = None,
+    user: dict,
+    last_sync: Optional[int] = None,
 ) -> List[Tuple[Reading, UrineTest]]:
     """
     Returns a list of readings each with corresponding urine test.
@@ -117,7 +125,10 @@ def referral_view(user: dict, last_sync: Optional[int] = None) -> List[Referral]
     :return: A list of referrals
     """
     return __get_view(
-        user, crud.read_referrals_or_assessments, model=Referral, last_edited=last_sync,
+        user,
+        crud.read_referrals_or_assessments,
+        model=Referral,
+        last_edited=last_sync,
     )
 
 
@@ -129,7 +140,10 @@ def assessment_view(user: dict, last_sync: Optional[int] = None) -> List[FollowU
     :return: A list of assessments
     """
     return __get_view(
-        user, crud.read_referrals_or_assessments, model=FollowUp, last_edited=last_sync,
+        user,
+        crud.read_referrals_or_assessments,
+        model=FollowUp,
+        last_edited=last_sync,
     )
 
 

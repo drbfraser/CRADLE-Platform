@@ -18,7 +18,9 @@ class Root(Resource):
     @staticmethod
     @jwt_required()
     @swag_from(
-        "../../specifications/forms-post.yml", methods=["POST"], endpoint="forms",
+        "../../specifications/forms-post.yml",
+        methods=["POST"],
+        endpoint="forms",
     )
     def post():
         req = request.get_json(force=True)
@@ -105,7 +107,8 @@ class SingleForm(Resource):
             qid = q["id"]
             if qid not in question_ids:
                 abort(
-                    404, message=f"request question id={qid} does not exist in server",
+                    404,
+                    message=f"request question id={qid} does not exist in server",
                 )
             qans = json.dumps(q["answers"])
             if qans != questions_dict[qid].answers:

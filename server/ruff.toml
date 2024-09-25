@@ -31,6 +31,7 @@ ignore = [
     "UP006",   # 83	UP006  	[*] non-pep585-annotation
     "FA100",   # 75	FA100  	[ ] future-rewritable-type-annotation
     "D205",    # 74	D205   	[ ] blank-line-after-summary
+    "ANN101",  # 64	ANN101	Missing type annotation for `self` in method
     "N802",    # 52	N802   	[ ] invalid-function-name
     "T201",    # 48	T201   	[*] print
     "ANN003",  # 42	ANN003 	[ ] missing-type-kwargs
@@ -104,6 +105,7 @@ ignore = [
     "PLR1722", # 3	PLR1722	[*] sys-exit-alias
     "RUF015",  # 3	RUF015 	[*] unnecessary-iterable-allocation-for-first-element
     "TRY301",  # 3	TRY301 	[ ] raise-within-try
+    "ANN102",  # 2	ANN102	[ ] Missing type annotation for `cls` in classmethod
     "ANN206",  # 2	ANN206 	[ ] missing-return-type-class-method
     "S104",    # 2	S104   	[ ] hardcoded-bind-all-interfaces
     "B020",    # 2	B020   	[ ] loop-variable-overrides-iterator
@@ -141,7 +143,7 @@ ignore = [
     "RUF012",  # 1	RUF012 	[ ] mutable-class-default
 
     # Disable conflicting rules
-    "D211", # `one-blank-line-before-class` (D203) and `no-blank-line-before-class` (D211) are incompatible
+    "D203", # `one-blank-line-before-class` (D203) and `no-blank-line-before-class` (D211) are incompatible
     "D212", # `multi-line-summary-first-line` (D212) and `multi-line-summary-second-line` (D213) are incompatible.
 
     "E712", # SQLAlchemy uses `==` overrides so `a == False` is valid code in CRADLE

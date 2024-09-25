@@ -49,7 +49,9 @@ def downgrade():
         sa.Column(
             "dateUploadedToServer",
             mysql.VARCHAR(
-                charset="utf8mb4", collation="utf8mb4_general_ci", length=100,
+                charset="utf8mb4",
+                collation="utf8mb4_general_ci",
+                length=100,
             ),
             nullable=True,
         ),
@@ -77,7 +79,9 @@ def downgrade():
         sa.Column(
             "dateLastSaved",
             mysql.VARCHAR(
-                charset="utf8mb4", collation="utf8mb4_general_ci", length=100,
+                charset="utf8mb4",
+                collation="utf8mb4_general_ci",
+                length=100,
             ),
             nullable=True,
         ),

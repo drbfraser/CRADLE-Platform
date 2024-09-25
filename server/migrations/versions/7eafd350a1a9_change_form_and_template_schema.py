@@ -79,7 +79,9 @@ def downgrade():
         ),
     )
     op.drop_constraint(
-        "fk_form_form_template_form_template_id_id", "form", type_="foreignkey",
+        "fk_form_form_template_form_template_id_id",
+        "form",
+        type_="foreignkey",
     )
     op.drop_constraint("fk_form_user_last_edited_by_id", "form", type_="foreignkey")
     op.alter_column(

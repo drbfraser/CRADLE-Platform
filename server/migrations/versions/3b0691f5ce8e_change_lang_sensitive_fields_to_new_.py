@@ -22,7 +22,9 @@ def upgrade():
     op.add_column(
         "question",
         sa.Column(
-            "questionText", sa.Text(collation="utf8mb4_general_ci"), nullable=False,
+            "questionText",
+            sa.Text(collation="utf8mb4_general_ci"),
+            nullable=False,
         ),
     )
     op.add_column(
@@ -32,7 +34,9 @@ def upgrade():
     op.add_column(
         "question_lang_version",
         sa.Column(
-            "questionText", sa.Text(collation="utf8mb4_general_ci"), nullable=False,
+            "questionText",
+            sa.Text(collation="utf8mb4_general_ci"),
+            nullable=False,
         ),
     )
     op.add_column(

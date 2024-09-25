@@ -32,7 +32,9 @@ def validate(request_body: dict) -> Optional[str]:
 
     # Check that field types are correct
     error_message = values_correct_type(
-        request_body, ["firstName", "email", "healthFacilityName", "role"], str,
+        request_body,
+        ["firstName", "email", "healthFacilityName", "role"],
+        str,
     )
     if error_message is not None:
         return error_message

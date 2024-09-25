@@ -77,7 +77,9 @@ def patient_association_required():
             if user_role == RoleEnum.VHT.value:  # Changed the condition here
                 user_id = identity["userId"]
                 if not crud.read(
-                    PatientAssociations, patientId=patient_id, userId=user_id,
+                    PatientAssociations,
+                    patientId=patient_id,
+                    userId=user_id,
                 ):
                     current_time = datetime.now().strftime("%H:%M:%S")
                     LOGGER.info(

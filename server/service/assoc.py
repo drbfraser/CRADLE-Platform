@@ -55,7 +55,9 @@ def associate(patient: Patient, facility: HealthFacility = None, user: User = No
 
 
 def associate_by_id(
-    patient_id: str, facility_name: str, user_id: int,
+    patient_id: str,
+    facility_name: str,
+    user_id: int,
 ) -> PatientAssociations:
     """
     Creates a 3-way association between a patient, facility, and a user identified
@@ -78,7 +80,9 @@ def associate_by_id(
 
 
 def has_association(
-    patient: Patient = None, facility: HealthFacility = None, user: User = None,
+    patient: Patient = None,
+    facility: HealthFacility = None,
+    user: User = None,
 ) -> bool:
     """
     Returns true if the supplied models are associated with one another.
@@ -96,7 +100,9 @@ def has_association(
 
 
 def has_association_by_id(
-    patient_id: str = None, facility_name: str = None, user_id: int = None,
+    patient_id: str = None,
+    facility_name: str = None,
+    user_id: int = None,
 ) -> bool:
     """
     Returns true if the supplied models are associated with one another.
