@@ -12,6 +12,134 @@ target-version = "py39"
 select = ["ALL"]
 
 ignore = [
+    "ANN001",  # 627	ANN001 	[ ] missing-type-function-argument
+    "ANN201",  # 505	ANN201 	[ ] missing-return-type-undocumented-public-function
+    "D103",    # 471	D103   	[ ] undocumented-public-function
+    "S101",    # 431	S101   	[ ] assert
+    "PLR2004", # 163	PLR2004	[ ] magic-value-comparison
+    "D401",    # 143	D401   	[ ] non-imperative-mood
+    "D101",    # 134	D101   	[ ] undocumented-public-class
+    "D102",    # 127	D102   	[ ] undocumented-public-method
+    "N815",    # 117	N815   	[ ] mixed-case-variable-in-class-scope
+    "D400",    # 110	D400   	[*] ends-in-period
+    "D415",    # 110	D415   	[*] ends-in-punctuation
+    "E501",    # 109	E501   	[ ] line-too-long
+    "ANN205",  # 100	ANN205 	[ ] missing-return-type-static-method
+    "INP001",  # 100	INP001 	[ ] implicit-namespace-package
+    "N806",    # 97	N806   	[ ] non-lowercase-variable-in-function
+    "D100",    # 97	D100   	[ ] undocumented-public-module
+    "UP006",   # 83	UP006  	[*] non-pep585-annotation
+    "FA100",   # 75	FA100  	[ ] future-rewritable-type-annotation
+    "D205",    # 74	D205   	[ ] blank-line-after-summary
+    "N802",    # 52	N802   	[ ] invalid-function-name
+    "T201",    # 48	T201   	[*] print
+    "ANN003",  # 42	ANN003 	[ ] missing-type-kwargs
+    "ANN202",  # 41	ANN202 	[ ] missing-return-type-private-function
+    "N803",    # 37	N803   	[ ] invalid-argument-name
+    "FBT003",  # 33	FBT003 	[ ] boolean-positional-value-in-call
+    "S311",    # 31	S311   	[ ] suspicious-non-cryptographic-random-usage
+    "ERA001",  # 30	ERA001 	[*] commented-out-code
+    "ANN401",  # 28	ANN401 	[ ] any-type
+    "S113",    # 27	S113   	[ ] request-without-timeout
+    "PT006",   # 26	PT006  	[*] pytest-parametrize-names-wrong-type
+    "FBT002",  # 23	FBT002 	[ ] boolean-default-value-positional-argument
+    "RET503",  # 22	RET503 	[*] implicit-return
+    "PLR0913", # 22	PLR0913	[ ] too-many-arguments
+    "BLE001",  # 21	BLE001 	[ ] blind-except
+    "FBT001",  # 20	FBT001 	[ ] boolean-type-hint-positional-argument
+    "UP035",   # 20	UP035  	[ ] deprecated-import
+    "TRY003",  # 20	TRY003 	[ ] raise-vanilla-args
+    "RET504",  # 19	RET504 	[*] unnecessary-assign
+    "D106",    # 19	D106   	[ ] undocumented-public-nested-class
+    "C901",    # 17	C901   	[ ] complex-structure
+    "N816",    # 17	N816   	[ ] mixed-case-variable-in-global-scope
+    "D200",    # 16	D200   	[*] fits-on-one-line
+    "C408",    # 15	C408   	[*] unnecessary-collection-call
+    "TRY400",  # 15	TRY400 	[*] error-instead-of-exception
+    "S608",    # 14	S608   	[ ] hardcoded-sql-expression
+    "A001",    # 14	A001   	[ ] builtin-variable-shadowing
+    "A002",    # 13	A002   	[ ] builtin-argument-shadowing
+    "EM101",   # 13	EM101  	[*] raw-string-in-exception
+    "SIM102",  # 13	SIM102 	[ ] collapsible-if
+    "N999",    # 12	N999   	[ ] invalid-module-name
+    "D104",    # 12	D104   	[ ] undocumented-public-package
+    "RUF013",  # 12 RUF013 	[*] implicit-optional
+    "ANN204",  # 11	ANN204 	[*] missing-return-type-special-method
+    "PLR0911", # 11	PLR0911	[ ] too-many-return-statements
+    "D107",    # 10	D107   	[ ] undocumented-public-init
+    "B006",    # 8	B006   	[*] mutable-argument-default
+    "PLR0912", # 8	PLR0912	[ ] too-many-branches
+    "TRY300",  # 8	TRY300 	[ ] try-consider-else
+    "S106",    # 7	S106   	[ ] hardcoded-password-func-arg
+    "EM102",   # 7	EM102  	[*] f-string-in-exception
+    "ARG001",  # 7	ARG001 	[ ] unused-function-argument
+    "PLR0915", # 7	PLR0915	[ ] too-many-statements
+    "UP031",   # 7	UP031  	[*] printf-string-formatting
+    "RUF005",  # 7	RUF005 	[*] collection-literal-concatenation
+    "UP008",   # 6	UP008  	[*] super-call-with-parameters
+    "B017",    # 5	B017   	[ ] assert-raises-exception
+    "DTZ005",  # 5	DTZ005 	[ ] call-datetime-now-without-tzinfo
+    "PT011",   # 5	PT011  	[ ] pytest-raises-too-broad
+    "PERF401", # 5	PERF401	[ ] manual-list-comprehension
+    "PLR1714", # 5	PLR1714	[*] repeated-equality-comparison
+    "RUF001",  # 5	RUF001 	[ ] ambiguous-unicode-character-string
+    "TRY002",  # 5	TRY002 	[ ] raise-vanilla-class
+    "S107",    # 4	S107   	[ ] hardcoded-password-default
+    "DTZ002",  # 4  DTZ002 	[ ] call-datetime-today
+    "FIX002",  # 4	FIX002 	[ ] line-contains-todo
+    "PT012",   # 4	PT012  	[ ] pytest-raises-with-multiple-statements
+    "SIM108",  # 4	SIM108 	[ ] if-else-block-instead-of-if-exp
+    "TD002",   # 4	TD002  	[ ] missing-todo-author
+    "TD003",   # 4	TD003  	[ ] missing-todo-link
+    "TCH002",  # 4	TCH002 	[*] typing-only-third-party-import
+    "N813",    # 4	N813   	[ ] camelcase-imported-as-lowercase
+    "ANN002",  # 3	ANN002 	[ ] missing-type-args
+    "DTZ007",  # 3	DTZ007 	[ ] call-datetime-strptime-without-zone
+    "DTZ011",  # 3	DTZ011 	[ ] call-date-today
+    "ISC003",  # 3	ISC003 	[ ] explicit-string-concatenation
+    "PT018",   # 3	PT018  	[*] pytest-composite-assertion
+    "SIM103",  # 3	SIM103 	[*] needless-bool
+    "PTH118",  # 3	PTH118 	[ ] os-path-join
+    "NPY002",  # 3	NPY002 	[ ] numpy-legacy-random
+    "PLR1722", # 3	PLR1722	[*] sys-exit-alias
+    "RUF015",  # 3	RUF015 	[*] unnecessary-iterable-allocation-for-first-element
+    "TRY301",  # 3	TRY301 	[ ] raise-within-try
+    "ANN206",  # 2	ANN206 	[ ] missing-return-type-class-method
+    "S104",    # 2	S104   	[ ] hardcoded-bind-all-interfaces
+    "B020",    # 2	B020   	[ ] loop-variable-overrides-iterator
+    "B904",    # 2	B904   	[ ] raise-without-from-inside-except
+    "PTH120",  # 2	PTH120 	[ ] os-path-dirname
+    "PTH123",  # 2	PTH123 	[ ] builtin-open
+    "D404",    # 2	D404   	[ ] docstring-starts-with-this
+    "PLC0414", # 2	PLC0414	[*] useless-import-alias
+    "PLW2901", # 2	PLW2901	[ ] redefined-loop-name
+    "TRY004",  # 2	TRY004 	[ ] type-check-without-type-error
+    "S105",    # 1	S105   	[ ] hardcoded-password-string
+    "S603",    # 1	S603   	[ ] subprocess-without-shell-equals-true
+    "C406",    # 1	C406   	[*] unnecessary-literal-dict
+    "C417",    # 1	C417   	[*] unnecessary-map
+    "DTZ006",  # 1	DTZ006 	[ ] call-datetime-fromtimestamp
+    "DTZ012",  # 1	DTZ012 	[ ] call-date-fromtimestamp
+    "EM103",   # 1	EM103  	[*] dot-format-in-exception
+    "EXE002",  # 1	EXE002 	[ ] shebang-missing-executable-file
+    "G004",    # 1	G004   	[ ] logging-f-string
+    "PYI024",  # 1	PYI024 	[ ] collections-named-tuple
+    "PT019",   # 1	PT019  	[ ] pytest-fixture-param-without-value
+    "SIM118",  # 1	SIM118 	[*] in-dict-keys
+    "SIM210",  # 1	SIM210 	[*] if-expr-with-true-false
+    "TCH001",  # 1	TCH001 	[*] typing-only-first-party-import
+    "TCH003",  # 1	TCH003 	[*] typing-only-standard-library-import
+    "PTH100",  # 1	PTH100 	[ ] os-path-abspath
+    "PERF403", # 1	PERF403	[ ] manual-dict-comprehension
+    "D105",    # 1	D105   	[ ] undocumented-magic-method
+    "D301",    # 1	D301   	[*] escape-sequence-in-docstring
+    "D417",    # 1	D417   	[ ] undocumented-param
+    "PGH004",  # 1	PGH004 	[ ] blanket-noqa
+    "PLC3002", # 1	PLC3002	[ ] unnecessary-direct-lambda-call
+    "PLR1704", # 1	PLR1704	[ ] redefined-argument-from-local
+    "PLW0127", # 1	PLW0127	[ ] self-assigning-variable
+    "RUF012",  # 1	RUF012 	[ ] mutable-class-default
+
     # Disable conflicting rules
     "D211", # `one-blank-line-before-class` (D203) and `no-blank-line-before-class` (D211) are incompatible
     "D212", # `multi-line-summary-first-line` (D212) and `multi-line-summary-second-line` (D213) are incompatible.
