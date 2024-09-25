@@ -57,7 +57,7 @@ invalid_keys = {
 
 
 @pytest.mark.parametrize(
-    "json, output",
+    "json, output_type",
     [
         (valid_template_no_questions, type(None)),
         (valid_template_one_question, type(None)),
@@ -66,9 +66,9 @@ invalid_keys = {
         (invalid_keys, str),
     ],
 )
-def test_validate_template(json, output):
+def test_validate_template(json, output_type):
     message = validate_template(json)
-    assert type(message) == output
+    assert type(message) is output_type
 
 
 valid_empty_questions = []
@@ -112,7 +112,7 @@ invalid_first_question_is_not_none = [{**root_question, "categoryIndex": 0}]
 
 
 @pytest.mark.parametrize(
-    "json, output",
+    "json, output_type",
     [
         (valid_empty_questions, type(None)),
         (valid_single_question, type(None)),
@@ -122,6 +122,6 @@ invalid_first_question_is_not_none = [{**root_question, "categoryIndex": 0}]
         (invalid_first_question_is_not_none, str),
     ],
 )
-def test_validate_questions(json, output):
+def test_validate_questions(json, output_type):
     message = validate_questions(json)
-    assert type(message) == output
+    assert type(message) is output_type

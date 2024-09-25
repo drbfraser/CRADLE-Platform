@@ -10,7 +10,7 @@ test_cases = [
             "healthFacilityName": "facility7",
             "role": "admin",
         },
-        "output": type(None),
+        "output_type": type(None),
     },
     {
         "json": {
@@ -18,7 +18,7 @@ test_cases = [
             "healthFacilityName": "facility7",
             "role": "admin",
         },
-        "output": str,
+        "output_type": str,
     },
     {
         "json": {
@@ -26,7 +26,7 @@ test_cases = [
             "healthFacilityName": "facility7",
             "role": "admin",
         },
-        "output": str,
+        "output_type": str,
     },
     {
         "json": {
@@ -34,7 +34,7 @@ test_cases = [
             "email": "jane@mail.com",
             "role": "admin",
         },
-        "output": str,
+        "output_type": str,
     },
     {
         "json": {
@@ -42,7 +42,7 @@ test_cases = [
             "email": "jane@mail.com",
             "healthFacilityName": "facility7",
         },
-        "output": str,
+        "output_type": str,
     },
     {
         "json": {
@@ -51,7 +51,7 @@ test_cases = [
             "healthFacilityName": "facility7",
             "role": "admin",
         },
-        "output": str,
+        "output_type": str,
     },
     {
         "json": {
@@ -60,7 +60,7 @@ test_cases = [
             "healthFacilityName": "facility7",
             "role": "admin",
         },
-        "output": str,
+        "output_type": str,
     },
     {
         "json": {
@@ -69,7 +69,7 @@ test_cases = [
             "healthFacilityName": 12345,
             "role": "admin",
         },
-        "output": str,
+        "output_type": str,
     },
     {
         "json": {
@@ -78,7 +78,7 @@ test_cases = [
             "healthFacilityName": "facility7",
             "role": 12345,
         },
-        "output": str,
+        "output_type": str,
     },
 ]
 
@@ -86,6 +86,6 @@ test_cases = [
 @pytest.mark.parametrize("test_case", test_cases)
 def test_validation(test_case):
     json_data = test_case["json"]
-    output = test_case["output"]
+    output_type = test_case["output_type"]
     message = validate(json_data)
-    assert type(message) == output
+    assert type(message) is output_type

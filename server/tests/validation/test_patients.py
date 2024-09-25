@@ -135,7 +135,7 @@ incorrect_dob_format = {
 
 
 @pytest.mark.parametrize(
-    "json, output",
+    "json, output_type",
     [
         (valid_json, type(None)),
         (missing_pregnancy_start_date, str),
@@ -146,9 +146,9 @@ incorrect_dob_format = {
         (incorrect_dob_format, str),
     ],
 )
-def test_validation(json, output):
+def test_validation(json, output_type):
     message = validate(json)
-    assert type(message) == output
+    assert type(message) is output_type
 
 
 #####################################
@@ -164,7 +164,7 @@ put_invalid_gest_timestamp = {"gestationalTimestamp": fifty_weeks_ago}
 
 
 @pytest.mark.parametrize(
-    "json, output",
+    "json, output_type",
     [
         (valid_put_request, type(None)),
         (put_mismatched_patientId, str),
@@ -174,7 +174,7 @@ put_invalid_gest_timestamp = {"gestationalTimestamp": fifty_weeks_ago}
         (put_invalid_gest_timestamp, str),
     ],
 )
-def test_put_validation(json, output):
+def test_put_validation(json, output_type):
     patient_id = 123
     message = validate_put_request(json, patient_id)
-    assert type(message) == output
+    assert type(message) is output_type

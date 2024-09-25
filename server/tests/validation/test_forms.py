@@ -119,7 +119,7 @@ invalid_type_questions = {
 
 
 @pytest.mark.parametrize(
-    "json, output",
+    "json, output_type",
     [
         (valid_form_json_empty_questions, type(None)),
         (valid_form_json_filled_questions, type(None)),
@@ -130,9 +130,9 @@ invalid_type_questions = {
         (invalid_type_questions, str),
     ],
 )
-def test_validate_form(json, output):
+def test_validate_form(json, output_type):
     message = validate_form(json)
-    assert type(message) == output
+    assert type(message) is output_type
 
 
 empty_questions = []
@@ -214,7 +214,7 @@ invalid_question = [{}]
 
 
 @pytest.mark.parametrize(
-    "json, output",
+    "json, output_type",
     [
         (empty_questions, type(None)),
         (single_question, type(None)),
@@ -222,9 +222,9 @@ invalid_question = [{}]
         (invalid_question, str),
     ],
 )
-def test_validate_questions(json, output):
+def test_validate_questions(json, output_type):
     message = validate_questions(json)
-    assert type(message) == output
+    assert type(message) is output_type
 
 
 valid_put_request = {"questions": [{"id": "asdsd-1123123", "answers": {"number": 4}}]}
@@ -236,9 +236,12 @@ invalid_keys_put_request = {
 
 
 @pytest.mark.parametrize(
-    "json, output",
-    [(valid_put_request, type(None)), (invalid_keys_put_request, str)],
+    "json, output_type",
+    [
+        (valid_put_request, type(None)),
+        (invalid_keys_put_request, str),
+    ],
 )
-def test_validate_put_request(json, output):
+def test_validate_put_request(json, output_type):
     message = validate_put_request(json)
-    assert type(message) == output
+    assert type(message) is output_type

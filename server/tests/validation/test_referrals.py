@@ -20,13 +20,13 @@ invalid_missing_patient_id = {
 
 
 @pytest.mark.parametrize(
-    "json, output",
+    "json, output_type",
     [
         (valid_json, type(None)),
         (invalid_missing_health_facility, str),
         (invalid_missing_patient_id, str),
     ],
 )
-def test_validation(json, output):
+def test_validation(json, output_type):
     message = validate(json)
-    assert type(message) == output
+    assert type(message) is output_type

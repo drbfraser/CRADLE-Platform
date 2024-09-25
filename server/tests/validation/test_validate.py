@@ -19,7 +19,7 @@ extra_dict_some_keys_pair = ({"test1": "123", "test2": 345}, ["test1"])
 
 
 @pytest.mark.parametrize(
-    "json, keys, output",
+    "json, keys, output_type",
     [
         (*empty_dict_empty_keys_pair, type(None)),
         (*empty_dict_extra_key_pair, type(None)),
@@ -29,13 +29,13 @@ extra_dict_some_keys_pair = ({"test1": "123", "test2": 345}, ["test1"])
         (*extra_dict_some_keys_pair, str),
     ],
 )
-def test_check_invalid_keys_present(json, keys, output):
+def test_check_invalid_keys_present(json, keys, output_type):
     message = check_invalid_keys_present(json, keys)
-    assert type(message) == output
+    assert type(message) is output_type
 
 
 @pytest.mark.parametrize(
-    "json, keys, output",
+    "json, keys, output_type",
     [
         (*empty_dict_empty_keys_pair, type(None)),
         (*empty_dict_extra_key_pair, str),
@@ -45,13 +45,13 @@ def test_check_invalid_keys_present(json, keys, output):
         (*extra_dict_some_keys_pair, type(None)),
     ],
 )
-def test_required_keys_present(json, keys, output):
+def test_required_keys_present(json, keys, output_type):
     message = required_keys_present(json, keys)
-    assert type(message) == output
+    assert type(message) is output_type
 
 
 @pytest.mark.parametrize(
-    "json, keys, output",
+    "json, keys, output_type",
     [
         (*empty_dict_empty_keys_pair, type(None)),
         (*empty_dict_extra_key_pair, str),
@@ -61,9 +61,9 @@ def test_required_keys_present(json, keys, output):
         (*extra_dict_some_keys_pair, str),
     ],
 )
-def test_force_consistent_keys(json, keys, output):
+def test_force_consistent_keys(json, keys, output_type):
     message = force_consistent_keys(json, keys)
-    assert type(message) == output
+    assert type(message) is output_type
 
 
 type_empty = ({}, [], type(None))
@@ -100,7 +100,7 @@ type_enum_incorrect = (sample_dict, ["test_enum"], OtherTestEnum)
 
 
 @pytest.mark.parametrize(
-    "json, keys, _type, output",
+    "json, keys, _type, output_type",
     [
         (*type_empty, type(None)),
         (*type_single_correct, type(None)),
@@ -111,9 +111,9 @@ type_enum_incorrect = (sample_dict, ["test_enum"], OtherTestEnum)
         (*type_enum_incorrect, str),
     ],
 )
-def test_values_correct_type(json, keys, _type, output):
+def test_values_correct_type(json, keys, _type, output_type):
     message = values_correct_type(json, keys, _type)
-    assert type(message) == output
+    assert type(message) is output_type
 
 
 @pytest.mark.parametrize(
