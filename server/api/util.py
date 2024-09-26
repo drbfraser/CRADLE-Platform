@@ -37,7 +37,6 @@ from api.constants import (
     FORM_TEMPLATE_VERSION_ROW,
 )
 from data import crud, marshal
-from data.crud import M
 from enums import QRelationalEnum, QuestionTypeEnum
 from models import (
     Form,
@@ -51,6 +50,8 @@ from models import (
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+
+    from data.crud import M
 
 duration = os.environ.get("SMS_KEY_DURATION")
 
