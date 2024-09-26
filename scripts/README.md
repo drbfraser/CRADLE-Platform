@@ -22,17 +22,17 @@ To update a running server, log in via SSH as `root` and execute the `/root/upda
 To release code to the staging server, or mark ready for production, do the following:
 
 1. Delete the protected branch you would like the code to appear on (either `staging` or `production`)
-    * In GitLab, goto Repository > Branches
+    * In GitHub, go to `branches` (button next to the name of the current branch)
     * Ensure the branch you are going to delete is not ahead of `master`. If it is, it means there are commits to this branch which have not been merged to `master` and should be considered before proceeding.
     * Click the delete button beside the branch and complete the confirmation screen
 
 2. Re-create the protected branch you just deleted
-    * In GitLab, goto Repository > Branches
+    * In GitHub, go to `branches` (button next to the name of the current branch)
     * Click "New Branch" button
     * Enter name and source branch for recreated branch:
         * If `staging`, set the source branch to `master`
         * If `production`, set the source branch to `staging`
-    * When the branch is recreated, GitLab will remember its protected status from before.
+    * When the branch is recreated, GitHub will remember its protected status from before.
 
 This will put the current version of the code from the source branch into the protected `staging` or `production` branch without creating a new commit. This is important because the deployment process depends on a docker image for a commit being built just once (when merged to `master`). And commits to either the `staging` or `production` branches will break the deployment process.
 
@@ -53,4 +53,4 @@ When code makes it to the `staging` branch, its docker image (previously built w
 
 When code makes it to the `production` branch, its docker image (previously built when merged to `master`) is given an additional tag on Docker Hub of `prod`. This tag is applied to the most recent docker image that has been put onto the `production` branch. The administrator of the production server must then run the `/root/update.sh` script to update to the latest version on `production`. Note that this update script actually pulls a specific version of the Docker image from Docker Hub, instead of using the `prod` tag. It knows which specific version to pull based on the latest commit in the `production` branch of the code which has been cloned onto the production server, likely through GitHub.
 
-Note that the code in GitLab is continually mirrored to the publicly accessible GitHub repo.
+Note that the code in SFU's GitHub Enterprise (`github.sfu.ca`) is continually mirrored to the publicly accessible GitHub repo (`github.com`).
