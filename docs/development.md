@@ -12,14 +12,13 @@ Install NodeJS 16 LTS from here: https://nodejs.org/en/
 
 ## 2. Cloning the Repo
 
-Prior to cloning the repo, ensure you have registered your SSH key with GitLab (out of the scope of this guide).
+Prior to cloning the repo, ensure you
+  - have [generated an SSH key on your computer, registered it with GitHub, and loaded it into your ssh-agent](https://docs.github.com/en/authentication/connecting-to-github-with-ssh)
+  - are connected to internet via SFU wifi or [VPN](https://sfu.teamdynamix.com/TDClient/255/ITServices/Requests/ServiceDet?ID=2613)
 
 Then run:
 ```
-git clone https://csil-git1.cs.surrey.sfu.ca/415-cradle-sl/cradle-platform.git 
-
-#This had issues with the requirements.txt (try the link above)
-(previously : https://csil-git1.cs.surrey.sfu.ca/415-cradle/cradle-platform.git)
+git clone git@github.sfu.ca:cradle-project/Cradle-Platform.git
 ```
 
 ## 3. Set up Environment Variables
@@ -107,9 +106,11 @@ NPM is not run inside Docker (due to poor filesystem performance), so you'll nee
 
 ```
 cd client
-npm install
+npm install --legacy-peer-deps
 npm start
 ```
+
+Note: We would like to update our dependencies so that we no longer have to use `--legacy-peer-deps`
 
 If there are a lot of vulnerabilities, try to fix by running `npm ci` to install directly from the `package-lock.json`, or you can try fixing the vulnerabilities with a combination of `npm audit fix`, `npm audit fix --legacy-peer-deps`, and `npm audit fix --force`.
 
@@ -151,7 +152,7 @@ It's always best to avoid adding additional dependencies to the project if possi
 ### Frontend
 
 - New packages can be installed in the frontend by running `npm install PACKAGE_NAME` in the `client` folder
--  If another team member has installed a new package, you'll need to run `npm install`
+-  If another team member has installed a new package, you'll need to run `npm install` (or `npm install --legacy-peer-deps`)
 
 ### Backend
 
@@ -172,7 +173,7 @@ If something has gone wrong and you're having issues with your database, you can
 1. Run `docker container ls -a` and look for a container named `cradle_mysql` or similar
 2. Remove the container by running `docker container rm cradle_mysql` (using the container name identified above)
 3. Run `docker volume ls` and look for the volume associated with the MySQL database. It's likely named `cradle-platform_mysql_data` or something similar
-4. Remove the Docker volume: `docker volume rm 415-cradle-platform_mysql_data` (using the volume name identified above)
+4. Remove the Docker volume: `docker volume rm cradle-platform_mysql_data` (using the volume name identified above)
 5. Start your Docker containers: `docker-compose up`
 6. Upgrade your database schema: `docker exec cradle_flask flask db upgrade`
 7. Reseed: `docker exec cradle_flask python manage.py seed` (see setup above for more seed options)
