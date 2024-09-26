@@ -13,8 +13,8 @@ Install NodeJS 16 LTS from here: https://nodejs.org/en/
 ## 2. Cloning the Repo
 
 Prior to cloning the repo, ensure you
-  - have registered your SSH key with GitLab (out of the scope of this guide)
-  - are connected to internet via SFU wifi or VPN
+  - have [generated an SSH key on your computer, registered it with GitHub, and loaded it into your ssh-agent](https://docs.github.com/en/authentication/connecting-to-github-with-ssh)
+  - are connected to internet via SFU wifi or [VPN](https://sfu.teamdynamix.com/TDClient/255/ITServices/Requests/ServiceDet?ID=2613)
 
 Then run:
 ```
@@ -107,7 +107,6 @@ NPM is not run inside Docker (due to poor filesystem performance), so you'll nee
 ```
 cd client
 npm install --legacy-peer-deps
-npm audit fix --legacy-peer-deps
 npm start
 ```
 

@@ -38,7 +38,7 @@ This could be a future improvements.
 If you want to build caddy contianer locally, you need frontend.tar.gz. You can either build it yourself locally or save time by downloading the artifact (frontend.tar.gz) from our latest GitHub CI's successful build job. e.g. https://github.sfu.ca/cradle-project/Cradle-Platform/actions (Click on the appropriate workflow run, and scroll down to `Artifacts`).
 
 **Testing:** \
-Run fluentbit contianer separately from the rest. This is to test if the fluentbit container is properly recording where it stopped collecting logs with `DB` field.
+Run fluentbit container separately from the rest. This is to test if the fluentbit container is properly recording where it stopped collecting logs with `DB` field.
 
 To run just Fluentbit: \
 `IMAGE_TAG=log DOMAIN=localhost  docker compose -f docker-compose.yml -f docker-compose.deploy.yml up --build fluentbit`
