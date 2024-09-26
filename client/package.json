@@ -73,7 +73,6 @@
     "@mui/lab": "^5.0.0-alpha.94",
     "@mui/material": "^5.16.7",
     "@reduxjs/toolkit": "^1.8.4",
-    "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/user-event": "^14.4.3",
     "axios": "^1.6.8",
     "chart.js": "^3.9.1",
@@ -108,21 +107,10 @@
   "resolutions": {
     "moment": "2.24.0"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
   "browserslist": [
     ">0.2%",
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ],
-  "jest": {
-    "moduleNameMapper": {
-      "^axios$": "axios/dist/node/axios.cjs"
-    }
-  }
+  ]
 }
