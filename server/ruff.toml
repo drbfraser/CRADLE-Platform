@@ -133,7 +133,6 @@ ignore = [
     "TCH003",  # 1	TCH003 	[*] typing-only-standard-library-import
     "PTH100",  # 1	PTH100 	[ ] os-path-abspath
     "PERF403", # 1	PERF403	[ ] manual-dict-comprehension
-    "D105",    # 1	D105   	[ ] undocumented-magic-method
     "D417",    # 1	D417   	[ ] undocumented-param
 
     # Disable conflicting rules
