@@ -319,7 +319,7 @@ def parseCondition(parentQuestion: dict, conditionText: str) -> dict:
 
         condition["answers"]["mcidArray"] = []
         for option in options:
-            if option not in previousQuestionOptions.keys():
+            if option not in previousQuestionOptions:
                 raise RuntimeError("Invalid option for visibility.")
 
             condition["answers"]["mcidArray"].append(previousQuestionOptions[option])
