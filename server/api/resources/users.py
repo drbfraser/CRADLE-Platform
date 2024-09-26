@@ -292,8 +292,8 @@ def get_user_data_for_token(user: User) -> dict:
     data["supervises"] = []
     if data["role"] == RoleEnum.CHO.value:
         if user.vhtList:
-            for user in user.vhtList:
-                vhtList.append(user.id)
+            for user_in_vht_list in user.vhtList:
+                vhtList.append(user_in_vht_list.id)
             data["supervises"] = vhtList
     return data
 

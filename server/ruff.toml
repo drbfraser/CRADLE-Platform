@@ -138,7 +138,6 @@ ignore = [
     "D417",    # 1	D417   	[ ] undocumented-param
     "PGH004",  # 1	PGH004 	[ ] blanket-noqa
     "PLC3002", # 1	PLC3002	[ ] unnecessary-direct-lambda-call
-    "PLR1704", # 1	PLR1704	[ ] redefined-argument-from-local
 
     # Disable conflicting rules
     "D203", # `one-blank-line-before-class` (D203) and `no-blank-line-before-class` (D211) are incompatible
