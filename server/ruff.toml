@@ -134,9 +134,7 @@ ignore = [
     "PTH100",  # 1	PTH100 	[ ] os-path-abspath
     "PERF403", # 1	PERF403	[ ] manual-dict-comprehension
     "D105",    # 1	D105   	[ ] undocumented-magic-method
-    "D301",    # 1	D301   	[*] escape-sequence-in-docstring
     "D417",    # 1	D417   	[ ] undocumented-param
-    "PGH004",  # 1	PGH004 	[ ] blanket-noqa
 
     # Disable conflicting rules
     "D203", # `one-blank-line-before-class` (D203) and `no-blank-line-before-class` (D211) are incompatible
