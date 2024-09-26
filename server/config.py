@@ -2,6 +2,7 @@ import datetime
 import json
 import logging.config
 import os
+from typing import ClassVar
 
 import environs
 from environs import Env
@@ -51,7 +52,7 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(days=7)
-    LOGGING = {
+    LOGGING: ClassVar = {
         "version": 1,
         "disable_existing_loggers": False,
         "filters": {

@@ -140,7 +140,6 @@ ignore = [
     "PLC3002", # 1	PLC3002	[ ] unnecessary-direct-lambda-call
     "PLR1704", # 1	PLR1704	[ ] redefined-argument-from-local
     "PLW0127", # 1	PLW0127	[ ] self-assigning-variable
-    "RUF012",  # 1	RUF012 	[ ] mutable-class-default
 
     # Disable conflicting rules
     "D203", # `one-blank-line-before-class` (D203) and `no-blank-line-before-class` (D211) are incompatible
