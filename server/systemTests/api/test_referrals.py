@@ -47,7 +47,7 @@ def test_get_referral_list(
     assert not any(r["dateReferred"] == date2 for r in response.json())
 
     response = api_get(
-        endpoint=f"/api/referrals?healthFacility={facility1}&healthFacility={facility2}"
+        endpoint=f"/api/referrals?healthFacility={facility1}&healthFacility={facility2}",
     )
 
     assert response.status_code == 200
@@ -87,7 +87,7 @@ def test_get_referral_list(
 
     pregnancy_factory.create(**pregnancy_later)
     response = api_get(
-        endpoint=f"/api/referrals?vitalSigns={TrafficLightEnum.NONE.value}"
+        endpoint=f"/api/referrals?vitalSigns={TrafficLightEnum.NONE.value}",
     )
 
     assert response.status_code == 200

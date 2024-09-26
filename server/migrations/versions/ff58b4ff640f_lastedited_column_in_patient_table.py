@@ -1,4 +1,5 @@
-"""lastEdited column in patient table
+"""
+lastEdited column in patient table
 
 Revision ID: ff58b4ff640f
 Revises: 5df0e66fee22

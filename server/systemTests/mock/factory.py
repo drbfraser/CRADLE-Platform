@@ -2,9 +2,8 @@ from typing import Any
 
 from flask_sqlalchemy import SQLAlchemy
 
-import data.crud as crud
-import data.marshal as marshal
 import models as models
+from data import crud, marshal
 
 
 class ModelFactory:
@@ -47,7 +46,6 @@ class ModelFactory:
         :param kwargs: Arguments for model creation
         :return: A model
         """
-        pass
 
     def cleanup(self):
         """
@@ -161,7 +159,10 @@ class FollowUpFactory(ModelFactory):
 class UserFactory(ModelFactory):
     def __init__(self, db: SQLAlchemy):
         super(UserFactory, self).__init__(
-            db, password="password", healthFacilityName="H0000", role="ADMIN"
+            db,
+            password="password",
+            healthFacilityName="H0000",
+            role="ADMIN",
         )
 
     def create(self, **kwargs) -> Any:

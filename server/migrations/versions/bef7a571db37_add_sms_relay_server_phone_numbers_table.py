@@ -1,4 +1,5 @@
-"""Add sms relay server phone numbers table
+"""
+Add sms relay server phone numbers table
 
 Revision ID: bef7a571db37
 Revises: 1ca32c9ac887

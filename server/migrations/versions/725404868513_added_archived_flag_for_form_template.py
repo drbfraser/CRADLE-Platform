@@ -1,4 +1,5 @@
-"""Added archived flag for Form Template
+"""
+Added archived flag for Form Template
 
 Revision ID: 725404868513
 Revises: 5bd241bc95c4

@@ -1,4 +1,5 @@
-"""change newReferral column type
+"""
+change newReferral column type
 
 Revision ID: daacd2c90e9e
 Revises: 3bfa752b60d2

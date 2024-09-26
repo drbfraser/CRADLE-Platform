@@ -13,14 +13,14 @@ root_question = {
             "lang": "english",
             "mcOptions": [{"mcid": 0, "opt": "england"}],
             "questionText": "what's your nation",
-        }
+        },
     ],
     "questionType": "MULTIPLE_CHOICE",
     "required": True,
     "stringMaxLength": None,
     "units": None,
     "visibleCondition": [
-        {"answers": {"mcidArray": [0]}, "qidx": 0, "relation": "EQUAL_TO"}
+        {"answers": {"mcidArray": [0]}, "qidx": 0, "relation": "EQUAL_TO"},
     ],
 }
 
@@ -93,7 +93,7 @@ invalid_questions_mult_language = [
                 "lang": "english",
                 "mcOptions": [{"mcid": 0, "opt": "england"}],
                 "questionText": "what's your nation",
-            }
+            },
         ],
     },
     {
@@ -103,7 +103,7 @@ invalid_questions_mult_language = [
                 "lang": "chinese",
                 "mcOptions": [{"mcid": 0, "opt": "china"}],
                 "questionText": "what's your nation",
-            }
+            },
         ],
     },
 ]

@@ -1,4 +1,5 @@
-"""change question min max type to float form add lang field
+"""
+change question min max type to float form add lang field
 
 Revision ID: 66296a0f5d6f
 Revises: c7f274e43562

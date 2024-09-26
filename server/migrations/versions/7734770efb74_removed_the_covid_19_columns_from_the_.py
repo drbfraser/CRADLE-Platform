@@ -1,4 +1,5 @@
-"""removed the COVID-19 columns from the readings table
+"""
+removed the COVID-19 columns from the readings table
 
 Revision ID: 7734770efb74
 Revises: 3a4b8033a6d9

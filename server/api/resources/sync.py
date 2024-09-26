@@ -6,12 +6,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource, abort
 from marshmallow import ValidationError
 
-import data.crud as crud
-import data.marshal as marshal
-import service.invariant as invariant
-import service.serialize as serialize
-import service.view as view
-from data import db_session
+from data import crud, db_session, marshal
 from models import (
     MedicalRecord,
     Patient,
@@ -20,6 +15,7 @@ from models import (
     Reading,
     Referral,
 )
+from service import invariant, serialize, view
 from validation.readings import validate as validate_reading
 from validation.referrals import validate as validate_referral
 
@@ -117,8 +113,7 @@ class SyncPatients(Resource):
                             ):
                                 err = _to_string("pregnancyEndDate", "conflict")
                                 raise ValidationError(err)
-                            else:
-                                pr_upd = ModelData(pregnancy_id, values)
+                            pr_upd = ModelData(pregnancy_id, values)
 
                     if (p.get("pregnancyStartDate") and not p.get("pregnancyId")) or (
                         p.get("pregnancyStartDate") and p.get("pregnancyEndDate")
@@ -127,12 +122,13 @@ class SyncPatients(Resource):
                         if (
                             pregnancy_end_date and model.startDate <= pregnancy_end_date
                         ) or crud.has_conflicting_pregnancy_record(
-                            patient_id, model.startDate, pregnancy_id=pregnancy_id
+                            patient_id,
+                            model.startDate,
+                            pregnancy_id=pregnancy_id,
                         ):
                             err = _to_string("pregnancyStartDate", "conflict")
                             raise ValidationError(err)
-                        else:
-                            pr_crt = model
+                        pr_crt = model
 
                 association = {
                     "patientId": patient_id,
@@ -160,7 +156,10 @@ class SyncPatients(Resource):
                     crud.create_all(models, autocommit=False)
             for data in patients_to_update:
                 crud.update(
-                    Patient, data.values, autocommit=False, patientId=data.key_value
+                    Patient,
+                    data.values,
+                    autocommit=False,
+                    patientId=data.key_value,
                 )
             for data in pregnancies_to_update:
                 crud.update(Pregnancy, data.values, autocommit=False, id=data.key_value)
@@ -189,8 +188,7 @@ class SyncReadings(Resource):
                 patient_on_server = crud.read(Patient, patientId=r.get("patientId"))
                 if patient_on_server is None:
                     continue
-                else:
-                    patients_on_server_cache.add(patient_on_server.patientId)
+                patients_on_server_cache.add(patient_on_server.patientId)
 
             if crud.read(Reading, readingId=r.get("readingId")):
                 crud.update(
@@ -231,19 +229,17 @@ class SyncReferrals(Resource):
                 patient_on_server = crud.read(Patient, patientId=r.get("patientId"))
                 if patient_on_server is None:
                     continue
-                else:
-                    patients_on_server_cache.add(patient_on_server.patientId)
+                patients_on_server_cache.add(patient_on_server.patientId)
 
             if crud.read(Referral, id=r.get("id")):
                 # currently, for referrals that exist in server already we will
                 # skip them
                 continue
-            else:
-                error_message = validate_referral(r)
-                if error_message is not None:
-                    abort(400, mesage=error_message)
-                referral = marshal.unmarshal(Referral, r)
-                crud.create(referral, refresh=True)
+            error_message = validate_referral(r)
+            if error_message is not None:
+                abort(400, mesage=error_message)
+            referral = marshal.unmarshal(Referral, r)
+            crud.create(referral, refresh=True)
 
         # Read all referrals that have been created or updated since last sync
         user = get_jwt_identity()

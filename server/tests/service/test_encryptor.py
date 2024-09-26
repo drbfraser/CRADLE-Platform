@@ -1,7 +1,6 @@
 import pytest
 
-import service.compressor as compressor
-import service.encryptor as encryptor
+from service import compressor, encryptor
 
 
 @pytest.mark.parametrize("message", ["test1", "test2", "test3"])

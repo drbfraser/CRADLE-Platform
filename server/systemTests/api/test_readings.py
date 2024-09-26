@@ -1,11 +1,15 @@
 import pytest
 
-import data.crud as crud
+from data import crud
 from models import Reading
 
 
 def test_invalid_reading_not_created(
-    patient_id, reading_id, reading, patient_factory, api_post
+    patient_id,
+    reading_id,
+    reading,
+    patient_factory,
+    api_post,
 ):
     patient_factory.create(patientId=patient_id)
     # Removed bpSystolic to make the reading invalid

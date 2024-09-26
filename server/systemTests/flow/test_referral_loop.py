@@ -1,16 +1,19 @@
 import pytest
 
 import data
-import data.crud as crud
-import service.assoc as assoc
+from data import crud
 from models import FollowUp, Patient, Reading, Referral
+from service import assoc
 
 
 @pytest.mark.skip(
-    reason="TODO refactor: readings and referrals are no longer connected"
+    reason="TODO refactor: readings and referrals are no longer connected",
 )
 def test_vht_referring_new_patient_and_hcw_assessing_them(
-    single_facility_actors, api, make_patient, make_assessment
+    single_facility_actors,
+    api,
+    make_patient,
+    make_assessment,
 ):
     facility, _, hcw, _, vht = single_facility_actors
 
@@ -49,7 +52,8 @@ def test_vht_referring_new_patient_and_hcw_assessing_them(
         # The patient should have an association with the facility and an association
         # with the VHT who created it
         assert assoc.has_association_by_id(
-            patient_id=patient_id, facility_name=facility.healthFacilityName
+            patient_id=patient_id,
+            facility_name=facility.healthFacilityName,
         )
         assert assoc.has_association_by_id(patient_id=patient_id, user_id=vht.id)
 

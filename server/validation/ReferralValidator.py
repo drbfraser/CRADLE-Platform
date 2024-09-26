@@ -3,7 +3,7 @@
 from models import HealthFacility, Patient, User
 
 
-class ReferralValidator(object):
+class ReferralValidator:
     def validate(self, new_ref):
         """
         description:
@@ -15,7 +15,6 @@ class ReferralValidator(object):
             readingId belongs to a valid Reading, required
             followUpId belongs to a valid FollowUp
         """
-
         string_fields = {"comment", "actionTaken"}
 
         for key in new_ref:
@@ -25,9 +24,7 @@ class ReferralValidator(object):
                 self.exists(Patient, "patientId", new_ref[key])
             elif key == "referralHealthFacilityName":
                 self.exists(HealthFacility, "healthFacilityName", new_ref[key])
-            elif key in string_fields:
-                self.isString(key, new_ref)
-            elif key == "id":
+            elif key in string_fields or key == "id":
                 self.isString(key, new_ref)
             elif key == "dateReferred":
                 self.isInt(key, new_ref)
@@ -48,7 +45,7 @@ class ReferralValidator(object):
         # res = table.query.filter_by(key=val).one_or_none()
         if not res:
             raise Exception(
-                f"{key}: {val} does not belong to an existing {table.__tablename__}"
+                f"{key}: {val} does not belong to an existing {table.__tablename__}",
             )
 
     def enforce_required(self, new_ref):

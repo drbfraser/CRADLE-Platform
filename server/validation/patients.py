@@ -51,7 +51,8 @@ def validate(request_body: dict) -> Optional[str]:
     # If patient is pregnant, check  if certain pregnancy related fields are present
     if request_body.get("isPregnant") is True:
         error_message = required_keys_present(
-            request_body, ["pregnancyStartDate", "gestationalAgeUnit"]
+            request_body,
+            ["pregnancyStartDate", "gestationalAgeUnit"],
         )
     if error_message is not None:
         return error_message
@@ -59,7 +60,7 @@ def validate(request_body: dict) -> Optional[str]:
     # Check if gestational age is less than or equal to 43 weeks/10 months
     if "pregnancyStartDate" in request_body:
         error_message = check_gestational_age_under_limit(
-            int(request_body.get("pregnancyStartDate"))
+            int(request_body.get("pregnancyStartDate")),
         )
     if error_message is not None:
         return error_message
@@ -95,7 +96,6 @@ def validate_put_request(request_body: dict, patient_id) -> Optional[str]:
 
     :return: An error message if request body in invalid in some way. None otherwise.
     """
-
     error_message = None
 
     # Check that each key in the request body is a patient field
@@ -139,7 +139,7 @@ def validate_put_request(request_body: dict, patient_id) -> Optional[str]:
         and request_body.get("gestationalTimestamp") is not None
     ):
         error_message = check_gestational_age_under_limit(
-            int(request_body.get("gestationalTimestamp"))
+            int(request_body.get("gestationalTimestamp")),
         )
     if error_message is not None:
         return error_message
@@ -149,7 +149,7 @@ def validate_put_request(request_body: dict, patient_id) -> Optional[str]:
         and request_body.get("pregnancyStartDate") is not None
     ):
         error_message = check_gestational_age_under_limit(
-            int(request_body.get("pregnancyStartDate"))
+            int(request_body.get("pregnancyStartDate")),
         )
     if error_message is not None:
         return error_message

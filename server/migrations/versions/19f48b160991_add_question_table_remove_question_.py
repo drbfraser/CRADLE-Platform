@@ -1,4 +1,5 @@
-"""add question table remove question field in form and template
+"""
+add question table remove question field in form and template
 
 Revision ID: 19f48b160991
 Revises: 7eafd350a1a9
@@ -40,7 +41,9 @@ def upgrade():
         sa.Column("formTemplateId", sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(["formId"], ["form.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(
-            ["formTemplateId"], ["form_template.id"], ondelete="CASCADE"
+            ["formTemplateId"],
+            ["form_template.id"],
+            ondelete="CASCADE",
         ),
         sa.PrimaryKeyConstraint("id"),
     )

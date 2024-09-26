@@ -1,4 +1,5 @@
-"""Make question units nullable
+"""
+Make question units nullable
 
 Revision ID: c2893bc8d86e
 Revises: cd95dad8b17b

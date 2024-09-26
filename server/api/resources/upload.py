@@ -13,7 +13,8 @@ class Root(Resource):
     @roles_required([RoleEnum.ADMIN])
     def get():
         return send_from_directory(
-            current_app.config["UPLOAD_FOLDER"], "cradle_sms_relay.apk"
+            current_app.config["UPLOAD_FOLDER"],
+            "cradle_sms_relay.apk",
         )
 
     @staticmethod
@@ -28,7 +29,7 @@ class Root(Resource):
             abort(422, message="File not allowed")
 
         file.save(
-            os.path.join(current_app.config["UPLOAD_FOLDER"], "cradle_sms_relay.apk")
+            os.path.join(current_app.config["UPLOAD_FOLDER"], "cradle_sms_relay.apk"),
         )
 
         return {"message": "File saved"}, 201

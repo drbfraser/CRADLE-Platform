@@ -3,10 +3,9 @@ from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort, reqparse
 
-import data.crud as crud
-import data.marshal as marshal
 from api.decorator import roles_required
 from api.util import filterPairsWithNone
+from data import crud, marshal
 from enums import RoleEnum
 from models import RelayServerPhoneNumber
 
@@ -14,7 +13,10 @@ parser = reqparse.RequestParser()
 parser.add_argument("phone", type=str, required=True, help="Phone number is required.")
 parser.add_argument("description", type=str, required=False)
 parser.add_argument(
-    "id", type=str, required=True, help="ID is required for this operation."
+    "id",
+    type=str,
+    required=True,
+    help="ID is required for this operation.",
 )
 parser.add_argument("lastRecieved", type=int, required=False)
 
@@ -22,7 +24,8 @@ parser.add_argument("lastRecieved", type=int, required=False)
 class RelayServerPhoneNumbers(Resource):
     @jwt_required()
     @swag_from(
-        "../../specifications/relay-server-phone-number-get.yml", methods=["GET"]
+        "../../specifications/relay-server-phone-number-get.yml",
+        methods=["GET"],
     )
     def get(self):
         phone_numbers = crud.read_all(RelayServerPhoneNumber)

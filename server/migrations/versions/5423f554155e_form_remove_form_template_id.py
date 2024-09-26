@@ -1,4 +1,5 @@
-"""form remove form_template_id
+"""
+form remove form_template_id
 
 Revision ID: 5423f554155e
 Revises: 5161a368f64c
