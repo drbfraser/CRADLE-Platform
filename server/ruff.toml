@@ -123,7 +123,6 @@ ignore = [
     "DTZ006",  # 1	DTZ006 	[ ] call-datetime-fromtimestamp
     "DTZ012",  # 1	DTZ012 	[ ] call-date-fromtimestamp
     "EM103",   # 1	EM103  	[*] dot-format-in-exception
-    "EXE002",  # 1	EXE002 	[ ] shebang-missing-executable-file
     "PT019",   # 1	PT019  	[ ] pytest-fixture-param-without-value
     "D417",    # 1	D417   	[ ] undocumented-param
 
