@@ -1,8 +1,7 @@
 import logging
 import operator
 import re
-from collections import namedtuple
-from typing import Any, List, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, List, NamedTuple, Optional, Tuple, Type, TypeVar, Union
 
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Query, aliased
@@ -458,7 +457,6 @@ def read_patient_current_medical_record(
 
     return query.first()
 
-
 def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
     """
     Queries the database for a patient's pregnancy, medical and drug records in reverse
@@ -468,15 +466,17 @@ def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
 
     :return: A list of models with the fields: title, date, information
     """
-    Title = namedtuple(
-        "Title",
-        "pregnancy_start pregnancy_end medical_history drug_history",
-    )
+    class Title(NamedTuple):
+        pregnancy_start: str
+        pregnancy_end: str
+        medical_history: str
+        drug_history: str
+
     TITLE = Title(
-        "Started pregnancy",
-        "Ended pregnancy",
-        "Updated medical history",
-        "Updated drug history",
+        pregnancy_start="Started pregnancy",
+        pregnancy_end="Ended pregnancy",
+        medical_history="Updated medical history",
+        drug_history="Updated drug history",
     )
 
     limit = kwargs.get("limit", 5)
@@ -486,7 +486,7 @@ def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
         literal(TITLE.pregnancy_end).label("title"),
         Pregnancy.endDate.label("date"),
         Pregnancy.outcome.label("information"),
-    ).filter(Pregnancy.patientId == patient_id, Pregnancy.endDate != None)
+    ).filter(Pregnancy.patientId == patient_id, Pregnancy.endDate is not None)
 
     pregnancy_start = db_session.query(
         literal(TITLE.pregnancy_start),
