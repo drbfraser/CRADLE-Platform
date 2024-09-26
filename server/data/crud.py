@@ -457,6 +457,7 @@ def read_patient_current_medical_record(
 
     return query.first()
 
+
 def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
     """
     Queries the database for a patient's pregnancy, medical and drug records in reverse
@@ -466,6 +467,7 @@ def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
 
     :return: A list of models with the fields: title, date, information
     """
+
     class Title(NamedTuple):
         pregnancy_start: str
         pregnancy_end: str

@@ -167,10 +167,7 @@ def filterPairsWithNone(payload: dict) -> dict:
 
     :param payload: The dictionary to evaluate
     """
-    updated_data = {
-        k: v for k,v in payload.items()
-        if v is not None
-    }
+    updated_data = {k: v for k, v in payload.items() if v is not None}
 
     return updated_data
 
