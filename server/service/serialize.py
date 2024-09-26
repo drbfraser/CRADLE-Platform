@@ -103,7 +103,7 @@ def serialize_patient(
         "householdNumber": patient.householdNumber,
         "villageNumber": patient.villageNumber,
         "allergy": patient.allergy,
-        "isPregnant": True if patient.pregnancyStartDate else False,
+        "isPregnant": bool(patient.pregnancyStartDate),
         "pregnancyId": patient.pregnancyId,
         "pregnancyStartDate": patient.pregnancyStartDate,
         "gestationalAgeUnit": (

@@ -128,7 +128,6 @@ ignore = [
     "PYI024",  # 1	PYI024 	[ ] collections-named-tuple
     "PT019",   # 1	PT019  	[ ] pytest-fixture-param-without-value
     "SIM118",  # 1	SIM118 	[*] in-dict-keys
-    "SIM210",  # 1	SIM210 	[*] if-expr-with-true-false
     "D417",    # 1	D417   	[ ] undocumented-param
 
     # Disable conflicting rules
