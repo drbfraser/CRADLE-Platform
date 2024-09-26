@@ -2,6 +2,7 @@ import datetime
 import json
 import logging.config
 import os
+from pathlib import Path
 from typing import ClassVar
 
 import environs
@@ -19,7 +20,7 @@ from flask_sqlalchemy import SQLAlchemy
 # Versioning system follows : https://semver.org/
 app_version = "1.0.0"
 
-basedir = os.path.abspath(os.path.dirname(__file__))
+basedir = Path(os.path.dirname(__file__)).resolve()
 
 
 class Config:
