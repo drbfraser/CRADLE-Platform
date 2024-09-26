@@ -11,8 +11,7 @@ import json
 import os
 import re
 import secrets
-from collections.abc import Iterable
-from typing import Type
+from typing import TYPE_CHECKING, Type
 
 import flask_jwt_extended as jwt
 from flask import Request
@@ -49,6 +48,9 @@ from models import (
     User,
     UserPhoneNumber,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 duration = os.environ.get("SMS_KEY_DURATION")
 

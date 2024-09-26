@@ -130,7 +130,6 @@ ignore = [
     "SIM118",  # 1	SIM118 	[*] in-dict-keys
     "SIM210",  # 1	SIM210 	[*] if-expr-with-true-false
     "TCH001",  # 1	TCH001 	[*] typing-only-first-party-import
-    "TCH003",  # 1	TCH003 	[*] typing-only-standard-library-import
     "D417",    # 1	D417   	[ ] undocumented-param
 
     # Disable conflicting rules
