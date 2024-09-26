@@ -3,18 +3,18 @@ import pytest
 from enums import GestationalAgeUnitEnum, SexEnum
 
 
-@pytest.fixture()
+@pytest.fixture
 def vht_user_id():
     # id of "TestVHT" (require seed_test_data)
     return 3
 
 
-@pytest.fixture()
+@pytest.fixture
 def patient_id():
     return "87356709248"
 
 
-@pytest.fixture()
+@pytest.fixture
 def patient_info(patient_id):
     return {
         "patientId": patient_id,
@@ -27,7 +27,7 @@ def patient_info(patient_id):
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def create_patient(database, patient_factory, patient_info):
     def f():
         database.session.commit()
@@ -36,12 +36,12 @@ def create_patient(database, patient_factory, patient_info):
     return f
 
 
-@pytest.fixture()
+@pytest.fixture
 def reading_id():
     return "4d74a69b-e638-47e8-b17f-644ec564b6ea"
 
 
-@pytest.fixture()
+@pytest.fixture
 def reading(reading_id, patient_id):
     # Invariant - trafficLightStatus: YELLOW_UP
     return {
@@ -54,7 +54,7 @@ def reading(reading_id, patient_id):
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def create_reading_with_referral(
     patient_id,
     reading_id,
@@ -87,7 +87,7 @@ def create_reading_with_referral(
     return f
 
 
-@pytest.fixture()
+@pytest.fixture
 def pregnancy_earlier(patient_id):
     return {
         "id": 60360714,
@@ -99,7 +99,7 @@ def pregnancy_earlier(patient_id):
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def pregnancy_later(patient_id):
     return {
         "id": 60360715,
@@ -109,7 +109,7 @@ def pregnancy_later(patient_id):
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def medical_record(patient_id):
     return {
         "id": 60360716,
@@ -119,7 +119,7 @@ def medical_record(patient_id):
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def drug_record(patient_id):
     return {
         "id": 60360717,
@@ -129,7 +129,7 @@ def drug_record(patient_id):
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def form_classification():
     return {
         "id": "fc9",
@@ -137,7 +137,7 @@ def form_classification():
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def form_template():
     return {
         "classification": {"name": "fc9"},
@@ -147,7 +147,7 @@ def form_template():
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def form(patient_id):
     return {
         "id": "f9",

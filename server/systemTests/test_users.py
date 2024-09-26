@@ -101,27 +101,27 @@ def test_sms_secret_key_for_sms_relay(jwt_token, admin_user_id):
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def admin_user_id():
     return 1
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_id():
     return 3
 
 
-@pytest.fixture()
+@pytest.fixture
 def new_phone_number():
     return "+12223332020"
 
 
-@pytest.fixture()
+@pytest.fixture
 def old_phone_number():
     return "+12223332020"
 
 
-@pytest.fixture()
+@pytest.fixture
 def updated_phone_number():
     return "+12223333030"
 

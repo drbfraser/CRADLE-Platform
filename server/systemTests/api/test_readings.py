@@ -20,6 +20,6 @@ def test_invalid_reading_not_created(
     assert crud.read(Reading, readingId=reading_id) is None
 
 
-@pytest.fixture()
+@pytest.fixture
 def reading_id():
     return "9771e6ee-81af-41a4-afff-9676cadcc00a"

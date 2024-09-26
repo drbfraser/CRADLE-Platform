@@ -160,12 +160,12 @@ def test_form_classification_summary(
         crud.delete_all(FormTemplate, id="ft3")
 
 
-@pytest.fixture()
+@pytest.fixture
 def form_classification_1():
     return {"name": "fc1"}
 
 
-@pytest.fixture()
+@pytest.fixture
 def form_template_1():
     return {
         "classification": {"name": "fc1"},
@@ -175,12 +175,12 @@ def form_template_1():
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def form_classification_2():
     return {"name": "fc2"}
 
 
-@pytest.fixture()
+@pytest.fixture
 def form_template_2():
     return {
         "classification": {"name": "fc2"},
@@ -190,7 +190,7 @@ def form_template_2():
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def form_template_3():
     return {
         "classification": {"name": "fc2"},

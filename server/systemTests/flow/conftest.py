@@ -1,7 +1,7 @@
 import pytest
 
 
-@pytest.fixture()
+@pytest.fixture
 def single_facility_actors(user_factory, facility_factory):
     facility = facility_factory.create(healthFacilityName="SFT")
     admin = user_factory.create(
@@ -32,7 +32,7 @@ def single_facility_actors(user_factory, facility_factory):
     return facility, admin, hcw, cho, vht
 
 
-@pytest.fixture()
+@pytest.fixture
 def make_patient(make_assessment):
     def __builder(
         patient_id: str,
@@ -99,7 +99,7 @@ def make_patient(make_assessment):
     return __builder
 
 
-@pytest.fixture()
+@pytest.fixture
 def make_assessment():
     def __builder(
         reading_id: str,
