@@ -716,7 +716,7 @@ def read_patients(
             pr2,
             and_(
                 Patient.patientId == pr2.patientId,
-                pr2.endDate != None,
+                pr2.endDate.isnot(None),
                 pr2.lastEdited > last_edited,
             ),
         ).filter(
@@ -725,7 +725,7 @@ def read_patients(
                 Pregnancy.lastEdited > last_edited,
                 MedicalHistory.lastEdited > last_edited,
                 DrugHistory.lastEdited > last_edited,
-                pr2.id != None,
+                pr2.id.isnot(None),
             )
         )
 
