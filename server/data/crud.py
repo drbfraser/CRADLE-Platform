@@ -423,27 +423,37 @@ def read_medical_records(m: Type[M], patient_id: str, **kwargs) -> List[M]:
     """
     query = db_session.query(m).filter_by(patientId=patient_id)
 
+    # Get kwargs values into variables
     search_text = kwargs.get("search_text")
-    direction = asc if kwargs.get("direction") == "ASC" else desc
+    direction = kwargs.get("direction", "ASC").upper()
+    limit = kwargs.get("limit")
+    page = kwargs.get("page", 1)
+    is_drug_record = kwargs.get("is_drug_record", False)
+
+    # Ensure that the direction is valid
+    if direction not in ["ASC", "DESC"]:
+        raise ValueError("Invalid direction, must be 'ASC' or 'DESC'")
+    order_by_direction = asc if direction == "ASC" else desc
 
     if m.schema() == Pregnancy.schema():
         if search_text:
-            query = query.filter(m.outcome.like(f"%{search_text}%"))
+            safe_search_text = f"%{search_text}%"
+            query = query.filter(m.outcome.like(safe_search_text))
 
-        query = query.order_by(direction(m.startDate))
+        query = query.order_by(order_by_direction(m.startDate))
 
-    if m.schema() == MedicalRecord.schema():
+    elif m.schema() == MedicalRecord.schema():
         if search_text:
-            query = query.filter(m.information.like(f"%{search_text}%"))
+            safe_search_text = f"%{search_text}%"
+            query = query.filter(m.information.like(safe_search_text))
 
-        query = query.filter_by(isDrugRecord=kwargs.get("is_drug_record")).order_by(
-            direction(m.dateCreated)
+        query = query.filter_by(isDrugRecord=is_drug_record).order_by(
+            order_by_direction(m.dateCreated)
         )
 
-    limit = kwargs.get("limit")
     if limit:
-        page = kwargs.get("page", 1)
-        return query.slice(*__get_slice_indexes(page, limit))
+        start_idx, stop_idx = __get_slice_indexes(page, limit)
+        return query.slice(start_idx, stop_idx).all()
     else:
         return query.all()
 
