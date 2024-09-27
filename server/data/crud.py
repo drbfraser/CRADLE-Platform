@@ -405,7 +405,6 @@ def read_referral_list(
     if vital_signs:
         query = query.filter(vital_sign_field.in_(vital_signs))
 
-    # Handle pagination (limit and page)
     if limit:
         return query.slice(*__get_slice_indexes(page, limit)).all()
     else:
@@ -501,29 +500,41 @@ def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
         literal(TITLE.pregnancy_end).label("title"),
         Pregnancy.endDate.label("date"),
         Pregnancy.outcome.label("information"),
-    ).filter(Pregnancy.patientId == patient_id, Pregnancy.endDate != None)
+    ).filter(
+        Pregnancy.patientId == patient_id, 
+        Pregnancy.endDate.isNot(None)
+    )
 
     pregnancy_start = db_session.query(
-        literal(TITLE.pregnancy_start), Pregnancy.startDate, null()
+        literal(TITLE.pregnancy_start), 
+        Pregnancy.startDate, 
+        null()
     ).filter(Pregnancy.patientId == patient_id)
 
     medical_history = db_session.query(
         literal(TITLE.medical_history),
         MedicalRecord.dateCreated,
         MedicalRecord.information,
-    ).filter(MedicalRecord.patientId == patient_id, MedicalRecord.isDrugRecord == False)
+    ).filter(
+        MedicalRecord.patientId == patient_id, 
+        MedicalRecord.isDrugRecord == False
+    )
 
     drug_history = db_session.query(
         literal(TITLE.drug_history),
         MedicalRecord.dateCreated,
         MedicalRecord.information,
-    ).filter(MedicalRecord.patientId == patient_id, MedicalRecord.isDrugRecord == True)
+    ).filter(
+        MedicalRecord.patientId == patient_id, 
+        MedicalRecord.isDrugRecord == True
+    )
 
     query = pregnancy_end.union(
         pregnancy_start, medical_history, drug_history
     ).order_by(text("date desc"))
 
-    return query.slice(*__get_slice_indexes(page, limit))
+    start_idx, stop_idx = __get_slice_indexes(page, limit)
+    return query.slice(start_idx, stop_idx).all()
 
 
 def read_patient_all_records(patient_id: str, **kwargs) -> List[Any]:
