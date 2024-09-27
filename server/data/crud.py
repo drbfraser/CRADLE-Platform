@@ -249,8 +249,8 @@ def read_patient_list(
             ),
         )
         .filter(
-            rd.dateTimeTaken == None,
-            or_(Patient.isArchived == False, Patient.isArchived == None),
+            rd.dateTimeTaken.is_(None),
+            or_(Patient.isArchived == False, Patient.isArchived.is_(None)),
         )
     )
 
@@ -287,7 +287,7 @@ def read_admin_patient(
 
     if include_archived == "false":
         query = query.filter(
-            or_(Patient.isArchived == False, Patient.isArchived == None),
+            or_(Patient.isArchived == False, Patient.isArchived.is_(None)),
         )
 
     limit = kwargs.get("limit")
@@ -341,7 +341,7 @@ def read_referral_list(
         .outerjoin(Referral, and_(Referral.patientId == Patient.patientId))
         .outerjoin(Reading, and_(Reading.readingId == reading_subquery))
         .filter(
-            or_(Patient.isArchived == False, Patient.isArchived == None),
+            or_(Patient.isArchived == False, Patient.isArchived.is_(None)),
         )
     )
 
@@ -349,37 +349,32 @@ def read_referral_list(
     query = __filter_by_patient_search(query, **kwargs)
     query = __order_by_column(query, [Referral, Patient, Reading], **kwargs)
 
-    health_facilities = kwargs.get("health_facilities")
-    if health_facilities:
-        query = query.filter(Referral.referralHealthFacilityName.in_(health_facilities))
+    if kwargs.get("health_facilities"):
+        query = query.filter(Referral.referralHealthFacilityName.in_(kwargs.get("health_facilities")))
 
-    referrers = kwargs.get("referrers")
-    if referrers:
-        query = query.filter(Referral.userId.in_(referrers))
+    if kwargs.get("referrers"):
+        query = query.filter(Referral.userId.in_(kwargs.get("referrers")))
 
-    date_range = kwargs.get("date_range")
-    if date_range:
-        start_date, end_date = date_range.split(":")
+    if kwargs.get("date_range"):
+        start_date, end_date = kwargs.get("date_range").split(":")
         query = query.filter(
             Referral.dateReferred >= start_date,
             Referral.dateReferred <= end_date,
         )
 
-    is_assessed = kwargs.get("is_assessed")
-    if is_assessed == "1" or is_assessed == "0":
-        is_assessed = is_assessed == "1"
+    if kwargs.get("is_assessed") in ["1", "0"]:
+        is_assessed = kwargs.get("is_assessed") == "1"
         query = query.filter(Referral.isAssessed == is_assessed)
 
-    is_pregnant = kwargs.get("is_pregnant")
-    if is_pregnant == "1" or is_pregnant == "0":
-        eq_op = operator.ne if is_pregnant == "1" else operator.eq
+    if kwargs.get("is_pregnant") in ["1", "0"]:
+        eq_op = operator.ne if kwargs.get("is_pregnant") == "1" else operator.eq
         pr = aliased(Pregnancy)
         query = (
             query.outerjoin(
                 Pregnancy,
                 and_(
                     Patient.patientId == Pregnancy.patientId,
-                    Pregnancy.endDate == None,
+                    Pregnancy.endDate.is_(None),
                 ),
             )
             .outerjoin(
@@ -389,17 +384,15 @@ def read_referral_list(
                     Pregnancy.startDate < pr.startDate,
                 ),
             )
-            .filter(eq_op(Pregnancy.startDate, None), pr.startDate == None)
+            .filter(eq_op(Pregnancy.startDate, None), pr.startDate.is_(None))
         )
 
-    vital_signs = kwargs.get("vital_signs")
-    if vital_signs:
-        query = query.filter(vital_sign_field.in_(vital_signs))
+    if kwargs.get("vital_signs"):
+        query = query.filter(vital_sign_field.in_(kwargs.get("vital_signs")))
 
-    limit = kwargs.get("limit")
-    if limit:
+    if kwargs.get("limit"):
         page = kwargs.get("page", 1)
-        return query.slice(*__get_slice_indexes(page, limit)).all()
+        return query.slice(*__get_slice_indexes(page, kwargs.get("limit"))).all()
     else:
         return query.all()
 
@@ -640,7 +633,7 @@ def read_patients(
         )
         .outerjoin(
             Pregnancy,
-            and_(Patient.patientId == Pregnancy.patientId, Pregnancy.endDate == None),
+            and_(Patient.patientId == Pregnancy.patientId, Pregnancy.endDate.is_(None)),
         )
         .outerjoin(
             pr,
@@ -678,7 +671,7 @@ def read_patients(
                 dr.isDrugRecord == True,
             ),
         )
-        .filter(pr.startDate == None, md.dateCreated == None, dr.dateCreated == None)
+        .filter(pr.startDate.is_(None), md.dateCreated.is_(None), dr.dateCreated.is_(None))
     )
 
     query = __filter_by_patient_association(query, Patient, user_id, is_cho)
@@ -847,7 +840,7 @@ def has_conflicting_pregnancy_record(
 
     if not end_date:
         query = query.filter(
-            or_(Pregnancy.endDate >= start_date, Pregnancy.endDate == None),
+            or_(Pregnancy.endDate >= start_date, Pregnancy.endDate.is_(None)),
         )
     else:
         query = query.filter(
@@ -857,11 +850,11 @@ def has_conflicting_pregnancy_record(
                 ),
                 and_(Pregnancy.startDate >= start_date, Pregnancy.endDate <= end_date),
                 and_(Pregnancy.startDate <= end_date, Pregnancy.endDate >= end_date),
-                and_(Pregnancy.startDate <= start_date, Pregnancy.endDate == None),
+                and_(Pregnancy.startDate <= start_date, Pregnancy.endDate.is_(None)),
                 and_(
                     Pregnancy.startDate >= start_date,
                     Pregnancy.startDate <= end_date,
-                    Pregnancy.endDate == None,
+                    Pregnancy.endDate.is_(None),
                 ),
             ),
         )
