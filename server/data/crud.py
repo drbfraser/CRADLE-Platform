@@ -349,25 +349,39 @@ def read_referral_list(
     query = __filter_by_patient_search(query, **kwargs)
     query = __order_by_column(query, [Referral, Patient, Reading], **kwargs)
 
-    if kwargs.get("health_facilities"):
-        query = query.filter(Referral.referralHealthFacilityName.in_(kwargs.get("health_facilities")))
+    # Get kwargs values into variables
+    health_facilities = kwargs.get("health_facilities")
+    referrers = kwargs.get("referrers")
+    date_range = kwargs.get("date_range")
+    is_assessed = kwargs.get("is_assessed")
+    is_pregnant = kwargs.get("is_pregnant")
+    vital_signs = kwargs.get("vital_signs")
+    limit = kwargs.get("limit")
+    page = kwargs.get("page", 1)
 
-    if kwargs.get("referrers"):
-        query = query.filter(Referral.userId.in_(kwargs.get("referrers")))
+    # Filter by health facilities
+    if health_facilities:
+        query = query.filter(Referral.referralHealthFacilityName.in_(health_facilities))
 
-    if kwargs.get("date_range"):
-        start_date, end_date = kwargs.get("date_range").split(":")
+    # Filter by referrers
+    if referrers:
+        query = query.filter(Referral.userId.in_(referrers))
+
+    # Filter by date range
+    if date_range:
+        start_date, end_date = date_range.split(":")
         query = query.filter(
             Referral.dateReferred >= start_date,
             Referral.dateReferred <= end_date,
         )
 
-    if kwargs.get("is_assessed") in ["1", "0"]:
-        is_assessed = kwargs.get("is_assessed") == "1"
-        query = query.filter(Referral.isAssessed == is_assessed)
+    # Filter by assessment status
+    if is_assessed in ["1", "0"]:
+        query = query.filter(Referral.isAssessed == (is_assessed == "1"))
 
-    if kwargs.get("is_pregnant") in ["1", "0"]:
-        eq_op = operator.ne if kwargs.get("is_pregnant") == "1" else operator.eq
+    # Filter by pregnancy status
+    if is_pregnant in ["1", "0"]:
+        eq_op = operator.ne if is_pregnant == "1" else operator.eq
         pr = aliased(Pregnancy)
         query = (
             query.outerjoin(
@@ -387,12 +401,13 @@ def read_referral_list(
             .filter(eq_op(Pregnancy.startDate, None), pr.startDate.is_(None))
         )
 
-    if kwargs.get("vital_signs"):
-        query = query.filter(vital_sign_field.in_(kwargs.get("vital_signs")))
+    # Filter by vital signs
+    if vital_signs:
+        query = query.filter(vital_sign_field.in_(vital_signs))
 
-    if kwargs.get("limit"):
-        page = kwargs.get("page", 1)
-        return query.slice(*__get_slice_indexes(page, kwargs.get("limit"))).all()
+    # Handle pagination (limit and page)
+    if limit:
+        return query.slice(*__get_slice_indexes(page, limit)).all()
     else:
         return query.all()
 
