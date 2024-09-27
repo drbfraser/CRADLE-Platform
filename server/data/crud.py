@@ -550,59 +550,56 @@ def read_patient_all_records(patient_id: str, **kwargs) -> List[Any]:
 
     reading_required = kwargs.get("readings")
     if reading_required == "1":
-        query = (
+        reading_list = (
             db_session.query(Reading)
             .filter_by(patientId=patient_id)
             .order_by(Reading.dateTimeTaken.desc())
+            .all()
         )
-        reading_list += query.all()
 
     referral_required = kwargs.get("referrals")
     if referral_required == "1":
-        query = (
+        referral_list = (
             db_session.query(Referral)
             .filter_by(patientId=patient_id)
             .order_by(Referral.dateReferred.desc())
+            .all()
         )
-        referral_list += query.all()
 
     assessment_required = kwargs.get("assessments")
     if assessment_required == "1":
-        query = (
+        assessment_list = (
             db_session.query(FollowUp)
             .filter_by(patientId=patient_id)
             .order_by(FollowUp.dateAssessed.desc())
+            .all()
         )
-        assessment_list += query.all()
 
     form_required = kwargs.get("forms")
     if form_required == "1":
-        query = (
+        form_list = (
             db_session.query(Form)
             .filter_by(patientId=patient_id)
             .order_by(Form.dateCreated.desc())
+            .all()
         )
-        form_list += query.all()
 
-    # four-way merge to get the final list
+    # four-way merge to get the final list based on most recent timestamps
     reading_pos, referral_pos, assessment_pos, form_pos = 0, 0, 0, 0
     final_list = []
-    while 1:
-        reading_cond = reading_pos < len(reading_list)
-        referral_cond = referral_pos < len(referral_list)
-        assessment_cond = assessment_pos < len(assessment_list)
-        form_cond = form_pos < len(form_list)
-        if not (reading_cond or referral_cond or assessment_cond or form_cond):
-            break
-        cur_reading_t = reading_list[reading_pos].dateTimeTaken if reading_cond else -1
-        cur_referral_t = (
-            referral_list[referral_pos].dateReferred if referral_cond else -1
-        )
-        cur_assessment_t = (
-            assessment_list[assessment_pos].dateAssessed if assessment_cond else -1
-        )
-        cur_form_t = form_list[form_pos].dateCreated if form_cond else -1
+
+    while any([reading_pos < len(reading_list), referral_pos < len(referral_list),
+               assessment_pos < len(assessment_list), form_pos < len(form_list)]):
+        
+        # get current timestamps for each list
+        cur_reading_t = reading_list[reading_pos].dateTimeTaken if reading_pos < len(reading_list) else -1
+        cur_referral_t = referral_list[referral_pos].dateReferred if referral_pos < len(referral_list) else -1
+        cur_assessment_t = assessment_list[assessment_pos].dateAssessed if assessment_pos < len(assessment_list) else -1
+        cur_form_t = form_list[form_pos].dateCreated if form_pos < len(form_list) else -1
+
+        # get most recent record across the lists and append to final list
         max_t = max(cur_reading_t, cur_referral_t, cur_assessment_t, cur_form_t)
+
         if cur_reading_t == max_t:
             final_list.append(reading_list[reading_pos])
             reading_pos += 1
