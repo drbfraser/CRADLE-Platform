@@ -3,6 +3,7 @@ from logging.config import fileConfig
 
 from alembic import context
 from alembic.script import ScriptDirectory
+from flask import current_app
 from sqlalchemy import engine_from_config, pool
 
 # this is the Alembic Config object, which provides
@@ -18,7 +19,6 @@ logger = logging.getLogger("alembic.env")
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from flask import current_app  # noqa
 
 config.set_main_option(
     "sqlalchemy.url",

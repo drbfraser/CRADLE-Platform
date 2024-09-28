@@ -134,7 +134,7 @@ def hasPermissionToViewUser(user_id):
 
     if role == RoleEnum.CHO.value:
         supervised = crud.get_supervised_vhts(jwt["userId"])
-        supervised = [(lambda user: user[0])(user) for user in supervised]
+        supervised = [user[0] for user in supervised]
         if user_id not in supervised:
             return False
 

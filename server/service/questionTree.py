@@ -8,7 +8,7 @@ class Node(NamedTuple):
 
 
 def is_dfs_order(question_list: list[dict]) -> Optional[str]:
-    """
+    r"""
     return None if questions in the question list are in the reasonable
     question tree dfs order. Else, return error.
     -------------------------------------------------------------------
@@ -55,7 +55,7 @@ def is_dfs_order(question_list: list[dict]) -> Optional[str]:
     tree_stack = ["root"]
 
     for node in node_list:
-        top_node = tree_stack[-1]
+        top_node: Node = tree_stack[-1]
         if top_node == "root":
             if node.cindex is not None:
                 return f"root question {node.qindex} should have categoryIndex = null"
@@ -64,7 +64,6 @@ def is_dfs_order(question_list: list[dict]) -> Optional[str]:
                 category_index_set.add(node.qindex)
                 tree_stack.append(node)
         else:
-            top_node: Node = top_node
             if node.cindex is None:
                 # initial stack with root only, clear set
                 tree_stack = ["root"]

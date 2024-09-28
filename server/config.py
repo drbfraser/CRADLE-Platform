@@ -2,6 +2,8 @@ import datetime
 import json
 import logging.config
 import os
+from pathlib import Path
+from typing import ClassVar
 
 import environs
 from environs import Env
@@ -18,7 +20,7 @@ from flask_sqlalchemy import SQLAlchemy
 # Versioning system follows : https://semver.org/
 app_version = "1.0.0"
 
-basedir = os.path.abspath(os.path.dirname(__file__))
+basedir = Path(os.path.dirname(__file__)).resolve()
 
 
 class Config:
@@ -51,7 +53,7 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(days=7)
-    LOGGING = {
+    LOGGING: ClassVar = {
         "version": 1,
         "disable_existing_loggers": False,
         "filters": {

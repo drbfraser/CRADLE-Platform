@@ -11,8 +11,7 @@ import json
 import os
 import re
 import secrets
-from collections.abc import Iterable
-from typing import Type
+from typing import TYPE_CHECKING, Type
 
 import flask_jwt_extended as jwt
 from flask import Request
@@ -38,7 +37,6 @@ from api.constants import (
     FORM_TEMPLATE_VERSION_ROW,
 )
 from data import crud, marshal
-from data.crud import M
 from enums import QRelationalEnum, QuestionTypeEnum
 from models import (
     Form,
@@ -49,6 +47,11 @@ from models import (
     User,
     UserPhoneNumber,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from data.crud import M
 
 duration = os.environ.get("SMS_KEY_DURATION")
 
@@ -164,10 +167,7 @@ def filterPairsWithNone(payload: dict) -> dict:
 
     :param payload: The dictionary to evaluate
     """
-    updated_data = {}
-    for k, v in payload.items():
-        if payload[k] is not None:
-            updated_data[k] = v
+    updated_data = {k: v for k, v in payload.items() if v is not None}
 
     return updated_data
 
@@ -316,7 +316,7 @@ def parseCondition(parentQuestion: dict, conditionText: str) -> dict:
 
         condition["answers"]["mcidArray"] = []
         for option in options:
-            if option not in previousQuestionOptions.keys():
+            if option not in previousQuestionOptions:
                 raise RuntimeError("Invalid option for visibility.")
 
             condition["answers"]["mcidArray"].append(previousQuestionOptions[option])

@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime
 from functools import wraps
 
 from flask_jwt_extended import (
@@ -81,9 +80,12 @@ def patient_association_required():
                     patientId=patient_id,
                     userId=user_id,
                 ):
-                    current_time = datetime.now().strftime("%H:%M:%S")
                     LOGGER.info(
-                        f"User {user_id} accessed patient {patient_id} at {current_time}",
+                        "User accessed patient's record",
+                        extra={
+                            "user_id": user_id,
+                            "patient_id": patient_id,
+                        },
                     )
                     return {"message": "Unauthorized to access this patient."}, 403
 

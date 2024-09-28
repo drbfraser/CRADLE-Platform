@@ -78,6 +78,7 @@ class User(db.Model):
         return UserSchema
 
     def __repr__(self):
+        """Return a string with enough information to uniquely identify the user."""
         return f"<User {self.username}>"
 
 
