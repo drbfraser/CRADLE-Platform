@@ -56,7 +56,7 @@ export const CustomizedFormPage = () => {
             justifyContent: 'center',
           }}>
           <Typography variant="h5" color="textSecondary">
-            There is no form currently available.
+            There is no form template currently available.
           </Typography>
         </Box>
       )}
