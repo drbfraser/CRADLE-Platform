@@ -903,29 +903,33 @@ def get_unique_patients_with_readings(facility="%", user="%", filter={}) -> List
 
     :return: A number of unique patients"""
 
-    query = """ SELECT COUNT(pat.patientId) as patients
-                FROM (
-                    SELECT DISTINCT(P.patientId)
-                    FROM (SELECT R.patientId FROM reading R
-                        JOIN user U ON R.userId = U.id
-                        WHERE R.dateTimeTaken BETWEEN %s and %s
-                        AND (
-                            (userId LIKE "%s" OR userId is NULL)
-                            AND (U.healthFacilityName LIKE "%s" or U.healthFacilityName is NULL)
-                        )
-                    ) as P
-                JOIN reading R ON P.patientID = R.patientId
-                GROUP BY P.patientId
-                HAVING COUNT(R.readingId) > 0) as pat
-    """ % (
-        filter.get("from"),
-        filter.get("to"),
-        str(user),
-        str(facility),
-    )
+    query = """
+        SELECT COUNT(DISTINCT P.patientId) AS patients
+        FROM (
+            SELECT R.patientId
+            FROM reading R
+            JOIN user U ON R.userId = U.id
+            WHERE R.dateTimeTaken BETWEEN :from AND :to
+            AND (
+                (R.userId LIKE :user OR R.userId IS NULL)
+                AND (U.healthFacilityName LIKE :facility OR U.healthFacilityName IS NULL)
+            )
+        ) AS P
+        JOIN reading R2 ON P.patientId = R2.patientId
+        GROUP BY P.patientId
+        HAVING COUNT(R2.readingId) > 1
+    """
+
+    # params used to prevent direct string interpolation inside query
+    params = {
+        'from': filter.get("from", "1900-01-01"),  # default date if 'from' is not provided
+        'to': filter.get("to", "2100-12-31"),      # default date if 'to' is not provided
+        'user': str(user),
+        'facility': str(facility),
+    }
 
     try:
-        result = db_session.execute(query)
+        result = db_session.execute(query, params)
         return list(result)
     except Exception as e:
         LOGGER.error(e)
