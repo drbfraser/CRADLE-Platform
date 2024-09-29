@@ -956,8 +956,8 @@ def get_total_readings_completed(facility="%", user="%", filter={}) -> List[M]:
 
     # params used to prevent direct string interpolation inside query
     params = {
-        'from': filter.get("from", "1900-01-01"),  # default start date if not provided
-        'to': filter.get("to", "2100-12-31"),      # default end date if not provided
+        'from': filter.get("from", "1900-01-01"),  
+        'to': filter.get("to", "2100-12-31"),      
         'user': str(user),
         'facility': str(facility),
     }
@@ -977,24 +977,27 @@ def get_total_color_readings(facility="%", user="%", filter={}) -> List[M]:
     :return: Total number of respective coloured readings"""
 
     query = """
-        SELECT R.trafficLightStatus, COUNT(R.trafficLightStatus)
+        SELECT R.trafficLightStatus, COUNT(R.trafficLightStatus) AS total_readings
         FROM reading R
-        JOIN user U on U.id = R.userId
-        WHERE R.dateTimeTaken BETWEEN %s AND %s
+        JOIN user U ON U.id = R.userId
+        WHERE R.dateTimeTaken BETWEEN :from AND :to
         AND (
-            (R.userId LIKE "%s" OR R.userId is NULL)
-            AND (U.healthFacilityName LIKE "%s" OR U.healthFacilityName is NULL)
+            (R.userId LIKE :user OR R.userId IS NULL)
+            AND (U.healthFacilityName LIKE :facility OR U.healthFacilityName IS NULL)
         )
         GROUP BY R.trafficLightStatus
-    """ % (
-        filter.get("from"),
-        filter.get("to"),
-        str(user),
-        str(facility),
-    )
+    """
+
+    # params used to prevent direct string interpolation inside query
+    params = {
+        'from': filter.get("from", "1900-01-01"),  
+        'to': filter.get("to", "2100-12-31"),      
+        'user': str(user),
+        'facility': str(facility),
+    }
 
     try:
-        result = db_session.execute(query)
+        result = db_session.execute(query, params)
         return list(result)
     except Exception as e:
         LOGGER.error(e)
