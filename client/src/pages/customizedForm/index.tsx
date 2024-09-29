@@ -40,13 +40,25 @@ export const CustomizedFormPage = () => {
         <Typography variant="h4">New Form for {patientId}</Typography>
       </Box>
 
-      <SelectHeaderForm setForm={setForm} />
-      {form && form.questions && form!.questions!.length > 0 && (
-        <CustomizedForm
-          patientId={patientId}
-          fm={form}
-          renderState={FormRenderStateEnum.FIRST_SUBMIT}
-        />
+      {form && form.questions && form!.questions!.length > 0 ? (
+        <>
+          <SelectHeaderForm setForm={setForm} />
+          <CustomizedForm
+            patientId={patientId}
+            fm={form}
+            renderState={FormRenderStateEnum.FIRST_SUBMIT}
+          />
+        </>
+      ) : (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+          }}>
+          <Typography variant="h5" color="textSecondary">
+            There is no form currently available.
+          </Typography>
+        </Box>
       )}
     </Box>
   );
