@@ -22,6 +22,7 @@ const TOGGLE_SX: SxProps = {
     fontWeight: 'bold',
     color: '#3f51b5 !important',
   },
+  flexGrow: 1,
 };
 
 interface IProps {
@@ -97,7 +98,8 @@ export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
               size="large"
               type="checkbox"
               value={Boolean(formikProps.values.isExactDob)}
-              name={PatientField.isExactDob}>
+              name={PatientField.isExactDob}
+              sx={{ width: '100%' }}>
               <ToggleButton sx={TOGGLE_SX} value={true}>
                 Date of Birth
               </ToggleButton>
@@ -106,7 +108,7 @@ export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
               </ToggleButton>
             </Field>
           </Grid>
-          <Grid item md={4} sm={12}>
+          <Grid item md={2} sm={12}>
             {formikProps.values.isExactDob ? (
               <Field
                 component={TextField}
@@ -134,26 +136,6 @@ export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
             )}
           </Grid>
           <Grid item md={2} sm={12}>
-            <Field
-              component={TextField}
-              fullWidth
-              inputProps={{ maxLength: 20 }}
-              variant="outlined"
-              label="Zone ID"
-              name={PatientField.zone}
-            />
-          </Grid>
-          <Grid item md={2} sm={12}>
-            <Field
-              component={TextField}
-              fullWidth
-              inputProps={{ maxLength: 50 }}
-              variant="outlined"
-              label="Village Number"
-              name={PatientField.villageNumber}
-            />
-          </Grid>
-          <Grid item md={4} sm={12} xs={12}>
             <FormControl fullWidth variant="outlined">
               <Field
                 component={Select}
@@ -172,6 +154,26 @@ export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
                 ))}
               </Field>
             </FormControl>
+          </Grid>
+          <Grid item md={2} sm={12}>
+            <Field
+              component={TextField}
+              fullWidth
+              inputProps={{ maxLength: 20 }}
+              variant="outlined"
+              label="Zone ID"
+              name={PatientField.zone}
+            />
+          </Grid>
+          <Grid item md={2} sm={12}>
+            <Field
+              component={TextField}
+              fullWidth
+              inputProps={{ maxLength: 50 }}
+              variant="outlined"
+              label="Village Number"
+              name={PatientField.villageNumber}
+            />
           </Grid>
           <Grid item md={6} sm={12}>
             <Field
