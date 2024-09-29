@@ -1,6 +1,36 @@
+from pydantic import (
+    BaseModel,
+    Field,
+    field_validator,
+    ValidationError,
+    ValidationInfo,
+)
 from typing import Optional
 
 from validation.validate import required_keys_present, values_correct_type
+
+
+class Assessment(BaseModel):
+    dateAssessed: int
+    diagnosis: str
+    medicationPrescribed: str
+    healthcareWorkerId: int
+    specialInvestigations: str
+    treatment: str
+    readingId: str
+    followupNeeded: bool
+    followupInstructions: Optional[str] = Field(
+        default=None, description="Required if followupNeeded is True"
+    )
+
+    @field_validator("followupInstructions", mode="before")
+    def check_followup_instructions(cls, v, values: ValidationInfo):
+        followup_needed = values.data.get("followupNeeded", False)
+        if followup_needed and (v is None or v == ""):
+            raise ValueError(
+                "followupInstructions must be provided if followupNeeded is True"
+            )
+        return v
 
 
 def validate(request_body: dict) -> Optional[str]:
@@ -21,26 +51,9 @@ def validate(request_body: dict) -> Optional[str]:
 
     :return: An error message if request body in invalid in some way. None otherwise.
     """
-    error_message = None
 
-    # Check if required keys are present
-    required_keys = [
-        "followupNeeded",
-        "dateAssessed",
-    ]
-    error_message = required_keys_present(request_body, required_keys)
-    if error_message is not None:
-        return error_message
-
-    # If patient has followupNeeded set to True, make sure followupInstructions is filled in
-    if request_body.get("followupNeeded") is True:
-        error_message = required_keys_present(request_body, ["followupInstructions"])
-    if error_message is not None:
-        return error_message
-
-    # Check that certain fields are of type int
-    error_message = values_correct_type(request_body, ["dateAssessed"], int)
-    if error_message is not None:
-        return error_message
-
-    return error_message
+    try:
+        assessment = Assessment(**request_body)
+    except ValidationError as e:
+        return str(e)
+    return None

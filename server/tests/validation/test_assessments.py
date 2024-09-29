@@ -35,6 +35,7 @@ missing_followupInstructions_when_followupNeeded_true = {
     "treatment": "b",
     "readingId": "asdasd82314278226313803",
     "followupNeeded": True,
+    "followupInstructions": "",
 }
 
 # dateAssessed must be int
