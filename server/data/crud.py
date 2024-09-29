@@ -1041,18 +1041,20 @@ def get_referred_patients(facility="%", filter={}) -> List[M]:
     :return: Total number of referred patients"""
 
     query = """
-        SELECT COUNT(DISTINCT(R.patientId))
+        SELECT COUNT(DISTINCT R.patientId) AS referred_patients
         FROM referral R
-        WHERE R.dateReferred BETWEEN %s AND %s
-        AND (R.referralHealthFacilityName LIKE "%s" OR R.referralHealthFacilityName IS NULL)
-        """ % (
-        filter.get("from"),
-        filter.get("to"),
-        str(facility),
-    )
+        WHERE R.dateReferred BETWEEN :from AND :to
+        AND (R.referralHealthFacilityName LIKE :facility OR R.referralHealthFacilityName IS NULL)
+    """
+
+    params = {
+        'from': filter.get("from", "1900-01-01"),  # Default start date if not provided
+        'to': filter.get("to", "2100-12-31"),      # Default end date if not provided
+        'facility': str(facility)
+    }
 
     try:
-        result = db_session.execute(query)
+        result = db_session.execute(query, params)
         return list(result)
     except Exception as e:
         LOGGER.error(e)
