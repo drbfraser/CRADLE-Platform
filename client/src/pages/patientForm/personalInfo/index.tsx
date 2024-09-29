@@ -22,6 +22,7 @@ const TOGGLE_SX: SxProps = {
     fontWeight: 'bold',
     color: '#3f51b5 !important',
   },
+  flexGrow: 1,
 };
 
 interface IProps {
@@ -99,10 +100,10 @@ export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
               value={Boolean(formikProps.values.isExactDob)}
               name={PatientField.isExactDob}
               sx={{ width: '100%' }}>
-              <ToggleButton sx={{ ...TOGGLE_SX, flexGrow: 1 }} value={true}>
+              <ToggleButton sx={TOGGLE_SX} value={true}>
                 Date of Birth
               </ToggleButton>
-              <ToggleButton sx={{ ...TOGGLE_SX, flexGrow: 1 }} value={false}>
+              <ToggleButton sx={TOGGLE_SX} value={false}>
                 Estimated Age
               </ToggleButton>
             </Field>
