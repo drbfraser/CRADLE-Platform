@@ -8,6 +8,7 @@ import ReactDOM from 'react-dom/client';
 import { Provider as ReduxProvider } from 'react-redux';
 import { history } from './redux/reducers';
 import { reduxStore } from './redux/store';
+import { CompatRouter } from 'react-router-dom-v5-compat';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -16,9 +17,11 @@ const root = ReactDOM.createRoot(
 root.render(
   <ReduxProvider store={reduxStore}>
     <ConnectedRouter history={history}>
-      <ContextProvider>
-        <App />
-      </ContextProvider>
+      <CompatRouter>
+        <ContextProvider>
+          <App />
+        </ContextProvider>
+      </CompatRouter>
     </ConnectedRouter>
   </ReduxProvider>
 );
