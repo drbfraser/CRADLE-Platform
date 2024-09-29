@@ -83,7 +83,6 @@
     "iso-639-1": "^2.1.15",
     "jwt-decode": "^3.1.2",
     "lodash": "^4.17.21",
-    "material-ui-dropzone": "^3.5.0",
     "moment": "^2.29.4",
     "mui-datatables": "^4.2.2",
     "react": "^18.2.0",
