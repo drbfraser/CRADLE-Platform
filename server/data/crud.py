@@ -1010,22 +1010,25 @@ def get_sent_referrals(facility="%", user="%", filter={}) -> List[M]:
     :return: Total number of sent referrals"""
 
     query = """
-        SELECT COUNT(R.id) FROM referral R
+        SELECT COUNT(R.id) AS total_referrals
+        FROM referral R
         JOIN user U ON U.id = R.userId
-        WHERE R.dateReferred BETWEEN %s and %s
+        WHERE R.dateReferred BETWEEN :from AND :to
         AND (
-            (R.userId LIKE "%s" OR R.userId IS NULL)
-            AND (U.healthFacilityName LIKE "%s" OR U.healthFacilityName IS NULL)
+            (R.userId LIKE :user OR R.userId IS NULL)
+            AND (U.healthFacilityName LIKE :facility OR U.healthFacilityName IS NULL)
         )
-    """ % (
-        filter.get("from"),
-        filter.get("to"),
-        str(user),
-        str(facility),
-    )
+    """
+
+    params = {
+        'from': filter.get("from", "1900-01-01"),  
+        'to': filter.get("to", "2100-12-31"),     
+        'user': str(user),
+        'facility': str(facility),
+    }
 
     try:
-        result = db_session.execute(query)
+        result = db_session.execute(query, params)
         return list(result)
     except Exception as e:
         LOGGER.error(e)
