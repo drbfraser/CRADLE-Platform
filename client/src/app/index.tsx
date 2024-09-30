@@ -3,7 +3,6 @@ import React from 'react';
 
 import { AppRoutes } from './routes';
 import { CssBaseline } from '@mui/material';
-import { Pathname } from 'history';
 import { ReduxState } from 'src/redux/reducers';
 import { Sidebar } from './sidebar';
 import { TopBar } from './topBar';
