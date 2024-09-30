@@ -1,16 +1,19 @@
 import { ContextProvider } from 'src/context';
 import { PatientsPage } from '.';
 import { render } from '@testing-library/react';
-import { history } from 'src/redux/reducers/history';
-import { BrowserRouter } from 'react-router-dom';
+import { Router } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { PropsWithChildren } from 'react';
+import { createMemoryHistory } from 'history';
+
+// History object stored in memory, for non-browser environments.
+let memoryHistory = createMemoryHistory();
 
 const TestProvider = ({ children }: PropsWithChildren) => {
   return (
-    <BrowserRouter>
+    <Router history={memoryHistory}>
       <ContextProvider>{children}</ContextProvider>
-    </BrowserRouter>
+    </Router>
   );
 };
 
@@ -26,7 +29,7 @@ describe('Testing the rendering of the Page', () => {
 
 describe('Testing the primary Button - New Patient', () => {
   test('Rendering and working of the primary Button - New Patient', () => {
-    const historyLength = history.length;
+    const historyLength = memoryHistory.length;
     const { getByText } = render(
       <TestProvider>
         <PatientsPage />
@@ -35,7 +38,9 @@ describe('Testing the primary Button - New Patient', () => {
     const newPatientButton = getByText('New Patient');
     expect(newPatientButton.textContent).toBe('New Patient');
     userEvent.click(newPatientButton);
-    expect(history.length).toBe(historyLength + 1);
+    expect(memoryHistory.length).toBe(historyLength + 1);
+
+    memoryHistory = createMemoryHistory(); // Reset history.
   });
 });
 
