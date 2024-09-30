@@ -2,7 +2,6 @@ import {
   HealthFacilitiesState,
   healthFacilitiesReducer,
 } from '../reducers/healthFacilities';
-import { createBrowserHistory } from 'history';
 import { UserState, userReducer } from '../reducers/user';
 import { MessageState } from '../reducers/message/messageReducer';
 import { CurrentUserActionEnum } from '../reducers/user/currentUser';
@@ -28,8 +27,6 @@ const createRootReducer = () => {
     sidebar: sidebarSlice.reducer,
   });
 };
-
-export const history = createBrowserHistory();
 
 export const rootReducer = (state: any, action: any) => {
   if (action.type === CurrentUserActionEnum.LOGOUT_USER) {
