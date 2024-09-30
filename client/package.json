@@ -76,7 +76,6 @@
     "@testing-library/user-event": "^14.4.3",
     "axios": "^1.6.8",
     "chart.js": "^3.9.1",
-    "connected-react-router": "6.9.3",
     "formik": "^2.2.9",
     "formik-mui": "^5.0.0-alpha.0",
     "formik-mui-x-date-pickers": "0.0.1",

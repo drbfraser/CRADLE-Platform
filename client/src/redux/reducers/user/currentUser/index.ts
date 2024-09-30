@@ -8,7 +8,6 @@ import { ServerRequestAction, serverRequestActionCreator } from '../../utils';
 
 import { Dispatch } from 'redux';
 import { EndpointEnum, MethodEnum } from 'src/shared/enums';
-import { history } from 'src/redux/reducers/history';
 
 export enum CurrentUserActionEnum {
   CLEAR_CURRENT_USER_ERROR = 'currentUser/CLEAR_CURRENT_USER_ERROR',
@@ -52,9 +51,6 @@ export const logoutUser = (): Callback<Dispatch> => {
     localStorage.removeItem('token');
     localStorage.removeItem('refresh');
     dispatch({ type: CurrentUserActionEnum.LOGOUT_USER });
-    if (window) {
-      history.push('/login');
-    }
   };
 };
 
