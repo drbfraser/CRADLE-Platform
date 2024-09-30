@@ -29,6 +29,7 @@ import {
 } from 'src/redux/sidebar-state';
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { Link } from 'react-router-dom';
 
 interface IProps {
   user: OrNull<IUserWithTokens>;
@@ -52,15 +53,6 @@ export const TopBar = ({ user }: IProps) => {
 
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
-
-  const navigateSecretKeyDetailPage = (): void => {
-    setMenuAnchorEl(null);
-    dispatch(push('/secretKey'));
-  };
-
-  const navigateToHelpPage = (): void => {
-    dispatch(push(`/resources`));
-  };
 
   const handleChangePassword = () => {
     setMenuAnchorEl(null);
@@ -153,7 +145,7 @@ export const TopBar = ({ user }: IProps) => {
               <MenuItem onClick={handleChangePassword}>
                 Change Password
               </MenuItem>
-              <MenuItem onClick={navigateSecretKeyDetailPage}>
+              <MenuItem component={Link} to={'/secretKey'}>
                 Secret Key Details
               </MenuItem>
               <MenuItem onClick={handleLogout}>Logout</MenuItem>
@@ -168,7 +160,8 @@ export const TopBar = ({ user }: IProps) => {
                 borderRadius: '100%',
                 aspectRatio: '1',
               }}
-              onClick={navigateToHelpPage}
+              component={Link}
+              to={'/resources'}
               color="inherit"
               size="large">
               <QuestionMarkIcon fontSize="large" />
