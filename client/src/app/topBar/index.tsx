@@ -1,11 +1,17 @@
 import { IUserWithTokens, OrNull } from 'src/shared/types';
-import { Box, Menu, MenuItem, useMediaQuery, useTheme } from '@mui/material';
+import {
+  Box,
+  Button,
+  Menu,
+  MenuItem,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../../shared/hooks';
 
 import AppBar from '@mui/material/AppBar';
 import AppImg from './img/app_icon.png';
 import ChangePassword from './changePassword/ChangePassword';
-import { Icon } from 'semantic-ui-react';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
@@ -21,6 +27,8 @@ import {
   selectSidebarIsOpen,
   toggleSidebar as toggleSidebarAction,
 } from 'src/redux/sidebar-state';
+import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 interface IProps {
   user: OrNull<IUserWithTokens>;
@@ -114,11 +122,17 @@ export const TopBar = ({ user }: IProps) => {
             <IconButton
               sx={{
                 marginLeft: `auto`,
+                borderRadius: '8px',
               }}
               color="inherit"
               onClick={(e) => setMenuAnchorEl(e.currentTarget)}
               size="large">
-              <Icon name="user circle" size="large" />
+              <AccountCircleIcon
+                sx={{
+                  fontSize: '50px',
+                  marginRight: '12px',
+                }}
+              />
               {isBigScreen && showUserDetails()}
             </IconButton>
             <Menu
@@ -148,15 +162,15 @@ export const TopBar = ({ user }: IProps) => {
               open={changePasswordOpen}
               onClose={() => setChangePasswordOpen(false)}
             />
-            <IconButton
+            <Button
               sx={{
                 marginLeft: `auto`,
               }}
               onClick={navigateToHelpPage}
               color="inherit"
               size="large">
-              <Icon name="help" size="small" />
-            </IconButton>
+              <QuestionMarkIcon fontSize="large" />
+            </Button>
           </Box>
         )}
       </Toolbar>
