@@ -24,17 +24,12 @@ import { useCallback, useEffect } from 'react';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 
-interface IProps {
-  activeItem: OrNull<string>;
-  setActiveItem: React.Dispatch<React.SetStateAction<OrNull<string>>>;
-}
-
 type SelectorState = {
   loggedIn: boolean;
   admin?: boolean;
 };
 
-export const Sidebar: React.FC<IProps> = ({ activeItem, setActiveItem }) => {
+export const Sidebar: React.FC = () => {
   const offsetFromTop = TOP_BAR_HEIGHT;
   const theme = useTheme();
   const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
@@ -50,14 +45,6 @@ export const Sidebar: React.FC<IProps> = ({ activeItem, setActiveItem }) => {
       };
     }
   );
-
-  const updateActiveItem = (item?: string): (() => void) => {
-    return (): void => {
-      if (item) {
-        setActiveItem(item);
-      }
-    };
-  };
 
   const closeSidebar = () => {
     dispatch(closeSidebarAction());
@@ -102,26 +89,16 @@ export const Sidebar: React.FC<IProps> = ({ activeItem, setActiveItem }) => {
             .filter((route: AppRoute): boolean => {
               return route.inNavigation;
             })
-            .map((route: AppRoute, index: number): OrNull<JSX.Element> => {
+            .map((route: AppRoute): OrNull<JSX.Element> => {
               // * Prevent non-admins from seeing admin sidebar option
               if (!admin && route.to === `/admin`) {
                 return null;
               }
-              return (
-                <SidebarRoute
-                  key={route.id}
-                  activeItem={activeItem}
-                  route={route}
-                  onClick={() => {
-                    updateActiveItem(route.name);
-                  }}
-                />
-              );
+              return <SidebarRoute key={route.id} route={route} />;
             })}
           {/* Logout button. */}
           <SidebarRoute
             key={makeUniqueId()}
-            activeItem={activeItem}
             icon={<ExitToAppIcon fontSize="large" />}
             title={'Logout'}
             onClick={handleLogout}

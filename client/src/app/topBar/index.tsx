@@ -24,10 +24,9 @@ import {
 
 interface IProps {
   user: OrNull<IUserWithTokens>;
-  setActiveItem: (item: string) => void;
 }
 
-export const TopBar = ({ user, setActiveItem }: IProps) => {
+export const TopBar = ({ user }: IProps) => {
   const theme = useTheme();
   const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
@@ -52,7 +51,6 @@ export const TopBar = ({ user, setActiveItem }: IProps) => {
   };
 
   const navigateToHelpPage = (): void => {
-    setActiveItem(`Resources`);
     dispatch(push(`/resources`));
   };
 
