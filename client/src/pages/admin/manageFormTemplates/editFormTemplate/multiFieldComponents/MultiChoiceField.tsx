@@ -1,5 +1,5 @@
 import { FormLabel, Grid, IconButton, Tooltip } from '@mui/material';
-import { PrimaryButton } from '../../../../../shared/components/Button';
+import { PrimaryButton } from 'src/shared/components/Button';
 import DeleteIcon from '@mui/icons-material/Delete';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
@@ -109,11 +109,7 @@ const MultiChoice = ({
                     fullWidth
                     multiline
                     size="small"
-                    inputProps={{
-                      // TODO: Determine what types of input restrictions we should have for multiple choice option
-                      maxLength: Number.MAX_SAFE_INTEGER,
-                    }}
-                    onChange={(e) => {
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       handlers.handleMultiChoiceOptionChange(
                         lang,
                         e.target.value,
@@ -123,6 +119,10 @@ const MultiChoice = ({
                       );
                       setFieldChanged(!fieldChanged);
                       setFormDirty(true);
+                    }}
+                    inputProps={{
+                      // TODO: Determine what types of input restrictions we should have for multiple choice option
+                      maxLength: Number.MAX_SAFE_INTEGER,
                     }}
                   />
                 </Grid>
