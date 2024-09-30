@@ -165,6 +165,8 @@ export const TopBar = ({ user }: IProps) => {
             <Button
               sx={{
                 marginLeft: `auto`,
+                borderRadius: '100%',
+                aspectRatio: '1',
               }}
               onClick={navigateToHelpPage}
               color="inherit"
