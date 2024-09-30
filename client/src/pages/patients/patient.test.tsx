@@ -1,6 +1,7 @@
 import { ContextProvider } from 'src/context';
 import { PatientsPage } from '.';
 import { render } from '@testing-library/react';
+import { history } from 'src/redux/reducers/history';
 import userEvent from '@testing-library/user-event';
 
 describe('Testing the rendering of the Page', () => {
