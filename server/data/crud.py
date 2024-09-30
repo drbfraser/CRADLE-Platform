@@ -1142,16 +1142,15 @@ def get_export_data(user_id, filter):
 
 def get_supervised_vhts(user_id):
     """Queries db for the list of VHTs supervised by this CHO"""
-    query = """
-        SELECT vhtId
-        FROM user U
-        JOIN supervises S on U.id = S.choId
-        WHERE U.id = %s
-    """ % str(user_id)
-
     try:
-        result = db_session.execute(query)
-        return list(result)
+        query = (
+            db_session.query(supervises.c.vhtId)
+            .join(User, User.id == supervises.c.choId)
+            .filter(User.id == user_id)
+        )
+
+        result = query.all()
+        return [row[0] for row in result]  # Extract VHT IDs from tuples
     except Exception as e:
         LOGGER.error(e)
         return None
