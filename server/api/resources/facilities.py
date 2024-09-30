@@ -11,7 +11,6 @@ from data import crud, marshal
 from enums import RoleEnum
 from models import HealthFacility
 from validation.facilities import Facility
-from pydantic import ValidationError
 from validation import facilities
 
 
