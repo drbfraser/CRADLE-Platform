@@ -35,7 +35,7 @@ const MultiChoice = ({
       <Grid item xs={12}>
         <PrimaryButton
           type="button"
-          onClick={(e) => {
+          onClick={() => {
             handlers.handleAddChoice(
               numChoices,
               inputLanguages,
@@ -74,7 +74,7 @@ const MultiChoice = ({
                   key={`remove-option-${index + 1}`}
                   color="error"
                   style={{ padding: '0px' }}
-                  onClick={(e) => {
+                  onClick={() => {
                     handlers.handleRemoveMultiChoice(
                       index,
                       numChoices,
