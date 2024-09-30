@@ -19,7 +19,6 @@ import { ReduxState } from 'src/redux/reducers';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
-import { push } from 'connected-react-router';
 import { useSelector } from 'react-redux';
 import { useCallback, useState } from 'react';
 import { TOP_BAR_HEIGHT, userRoleLabels } from 'src/shared/constants';
