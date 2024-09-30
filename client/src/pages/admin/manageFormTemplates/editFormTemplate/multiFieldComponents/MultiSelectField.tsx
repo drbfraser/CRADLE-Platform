@@ -35,7 +35,7 @@ const MultiSelect = ({
       <Grid item xs={12}>
         <PrimaryButton
           type="button"
-          onClick={(e) => {
+          onClick={() => {
             handlers.handleAddChoice(
               numChoices,
               inputLanguages,
