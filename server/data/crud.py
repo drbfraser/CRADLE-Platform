@@ -1079,8 +1079,8 @@ def get_days_with_readings(facility="%", user="%", filter={}):
     """
 
     params = {
-        'from': filter.get("from", "1900-01-01"),  # Default start date if not provided
-        'to': filter.get("to", "2100-12-31"),      # Default end date if not provided
+        'from': filter.get("from", "1900-01-01"),  
+        'to': filter.get("to", "2100-12-31"),      
         'user': str(user),
         'facility': str(facility)
     }
@@ -1122,8 +1122,7 @@ def get_export_data(user_id, filter):
         )
         .filter(
             Reading.userId == user_id,
-            Referral.dateReferred >= filter.get("from"),
-            Referral.dateReferred <= filter.get("to"),
+            Referral.dateReferred.between(filter.get("from", "1900-01-01"), filter.get("to", "2100-12-31"))
         )
         .order_by(Referral.patientId.desc())
     )
