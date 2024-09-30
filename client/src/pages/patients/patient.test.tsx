@@ -28,16 +28,19 @@ describe('Testing the rendering of the Page', () => {
 });
 
 describe('Testing the primary Button - New Patient', () => {
-  test('Rendering and working of the primary Button - New Patient', () => {
+  test('Rendering and working of the primary Button - New Patient', async () => {
     const historyLength = memoryHistory.length;
-    const { getByText } = render(
-      <TestProvider>
-        <PatientsPage />
-      </TestProvider>
-    );
+    const { getByText } = render(<PatientsPage />, { wrapper: TestProvider });
+    const user = userEvent.setup();
+
+    // Get New Patient button.
     const newPatientButton = getByText('New Patient');
     expect(newPatientButton.textContent).toBe('New Patient');
-    userEvent.click(newPatientButton);
+
+    // Click button.
+    await user.click(newPatientButton);
+
+    expect(memoryHistory.location.pathname).toBe('/patients/new');
     expect(memoryHistory.length).toBe(historyLength + 1);
 
     memoryHistory = createMemoryHistory(); // Reset history.
