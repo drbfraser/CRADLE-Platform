@@ -60,14 +60,20 @@ const UploadTemplate = ({ open, onClose }: IProps) => {
       setShowSuccess(true);
 
       onClose();
-    } catch (e: any) {
+    } catch (e: unknown) {
       let message = '';
+      if (!(e instanceof Response)) {
+        // Show generic error message.
+        setShowError(true);
+        return;
+      }
 
       if (e.status && errorMessages[e.status]) {
         message = errorMessages[e.status];
-      } else if (!isString(e)) {
-        const err = e.json();
+      } else {
+        const err = await e.json();
         message = err.message;
+        console.error(message);
       }
 
       setUploadError(message);
