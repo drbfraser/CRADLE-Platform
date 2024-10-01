@@ -1,17 +1,16 @@
 import time
 
-from flasgger import swag_from
-from flask import request
-from flask_jwt_extended import jwt_required
-from flask_restful import Resource, reqparse, abort
-
 from api import util
 from api.decorator import roles_required
 from data import crud, marshal
 from enums import RoleEnum
+from flasgger import swag_from
+from flask import request
+from flask_jwt_extended import jwt_required
+from flask_restful import Resource, abort, reqparse
 from models import HealthFacility
-from validation.facilities import Facility
 from validation import facilities
+from validation.facilities import Facility
 
 
 def add_model(parser, model):

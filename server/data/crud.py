@@ -3,10 +3,6 @@ import operator
 import re
 from typing import Any, List, NamedTuple, Optional, Tuple, Type, TypeVar, Union
 
-from sqlalchemy import func, or_
-from sqlalchemy.orm import Query, aliased
-from sqlalchemy.sql.expression import and_, asc, desc, literal, null, text
-
 from data import db_session
 from enums import RoleEnum, TrafficLightEnum
 from models import (
@@ -26,6 +22,9 @@ from models import (
     supervises,
 )
 from service import invariant
+from sqlalchemy import func, or_
+from sqlalchemy.orm import Query, aliased
+from sqlalchemy.sql.expression import and_, asc, desc, literal, null, text
 
 M = TypeVar("M")
 S = TypeVar("S")
