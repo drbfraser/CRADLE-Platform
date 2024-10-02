@@ -1,13 +1,14 @@
 import time
 
-from api import util
-from api.decorator import roles_required
-from data import crud, marshal
-from enums import RoleEnum
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort, reqparse
+
+from api import util
+from api.decorator import roles_required
+from data import crud, marshal
+from enums import RoleEnum
 from models import HealthFacility
 from validation import facilities
 from validation.facilities import Facility
