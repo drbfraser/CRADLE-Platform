@@ -7,19 +7,14 @@ import { PrimaryButton } from 'src/shared/components/Button';
 import { SortDir } from 'src/shared/components/apiTable/types';
 import TextField from '@mui/material/TextField';
 import { debounce } from 'lodash';
-import { useHistory } from 'react-router-dom';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useState } from 'react';
 import { Box, Typography } from '@mui/material';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
+import { Link } from 'react-router-dom';
 
 export const PatientsPage = () => {
   const [search, setSearch] = useState('');
-  const history = useHistory();
-
-  const handleNewPatientClick = () => {
-    history.push('/patients/new');
-  };
 
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
@@ -60,7 +55,8 @@ export const PatientsPage = () => {
             onChange={(e) => debounceSetSearch(e.target.value)}
           />
           <PrimaryButton
-            onClick={handleNewPatientClick}
+            component={Link}
+            to={'/patients/new'}
             data-testid="new patient button">
             New Patient
           </PrimaryButton>

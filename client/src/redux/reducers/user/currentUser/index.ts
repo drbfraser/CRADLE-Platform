@@ -7,7 +7,6 @@ import {
 import { ServerRequestAction, serverRequestActionCreator } from '../../utils';
 
 import { Dispatch } from 'redux';
-import { push } from 'connected-react-router';
 import { EndpointEnum, MethodEnum } from 'src/shared/enums';
 
 export enum CurrentUserActionEnum {
@@ -52,7 +51,6 @@ export const logoutUser = (): Callback<Dispatch> => {
     localStorage.removeItem('token');
     localStorage.removeItem('refresh');
     dispatch({ type: CurrentUserActionEnum.LOGOUT_USER });
-    dispatch(push('/login'));
   };
 };
 
