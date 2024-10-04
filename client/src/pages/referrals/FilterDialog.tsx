@@ -317,7 +317,7 @@ export const FilterDialog = ({
 
           <Grid item md={12} sm={12} xs={12}>
             <h4>Date Range</h4>
-            <DateRangePicker
+            {/* <DateRangePicker
               regular={true}
               startDate={startDate}
               startDateId="startDate"
@@ -332,7 +332,7 @@ export const FilterDialog = ({
               focusedInput={focusedInput}
               onFocusChange={handleFocusChange}
               isOutsideRange={() => false}
-            />
+            /> */}
             <FormControl
               sx={{
                 margin: '4px 8px',
@@ -340,12 +340,7 @@ export const FilterDialog = ({
               }}
               size="small"
               variant="outlined">
-              <InputLabel
-                sx={{
-                  fontSize: '50px',
-                }}>
-                Preset date ranges
-              </InputLabel>
+              <InputLabel>Preset date ranges</InputLabel>
               <Select
                 variant="standard"
                 value={presetDateRange ? presetDateRange : ''}
