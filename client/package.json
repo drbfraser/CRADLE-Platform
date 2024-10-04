@@ -79,7 +79,6 @@
     "chart.js": "^3.9.1",
     "formik": "^2.2.9",
     "formik-mui": "^5.0.0-alpha.0",
-    "formik-mui-x-date-pickers": "0.0.1",
     "iso-639-1": "^2.1.15",
     "jwt-decode": "^3.1.2",
     "lodash": "^4.17.21",
