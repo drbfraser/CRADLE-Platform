@@ -1,7 +1,3 @@
-import 'react-dates/initialize';
-import 'react-dates/lib/css/_datepicker.css';
-
-import { DateRangePicker, FocusedInputShape } from 'react-dates';
 import moment, { Moment } from 'moment';
 
 import { AllStatistics } from './AllStatistics';
@@ -23,6 +19,7 @@ import { useSelector } from 'react-redux';
 import { useState } from 'react';
 import { FORM_CTRL_SX, TAB_SX } from './utils/statisticStyles';
 import { Box } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers';
 
 const allPanes = [
   {
@@ -75,14 +72,8 @@ export function StatisticsPage() {
     moment().startOf('day').subtract(29, 'days')
   );
   const [endDate, setEndDate] = useState<Moment | null>(moment().endOf('day'));
-  const [focusedInput, setFocusedInput] = useState<FocusedInputShape | null>(
-    null
-  );
-  const [presetDateRange, setPresetDateRange] = useState();
 
-  const handleFocusChange = (arg: FocusedInputShape | null) => {
-    setFocusedInput(arg);
-  };
+  const [presetDateRange, setPresetDateRange] = useState();
 
   const panes = allPanes
     .filter((p) => p?.roles.includes(user!.role))
@@ -126,65 +117,69 @@ export function StatisticsPage() {
         />
       )}
 
-      <Grid item sx={{ float: 'left' }}>
-        <DateRangePicker
-          regular={true}
-          startDate={startDate}
-          startDateId="startDate"
-          endDate={endDate}
-          endDateId="endDate"
-          onDatesChange={({ startDate, endDate }) => {
-            setStartDate(startDate);
-            setEndDate(endDate);
-          }}
-          readOnly
-          focusedInput={focusedInput}
-          onFocusChange={handleFocusChange}
-          isOutsideRange={() => false}
-        />
-      </Grid>
-
       <Grid id={'statistics-container'} item sx={{ marginBottom: '10px' }}>
-        <FormControl sx={FORM_CTRL_SX} size="small" variant="outlined">
-          <InputLabel>Preset date ranges</InputLabel>
-          <Select
-            variant="standard"
-            value={presetDateRange ? presetDateRange : ''}
-            onChange={handleChange}
-            label="Preset date ranges">
-            <MenuItem value={undefined} disabled></MenuItem>
-            <MenuItem
-              value="This Week"
-              onClick={() => {
-                setDateRange(6, 0);
+        <Box
+          sx={{
+            marginBottom: '2rem ',
+            display: 'flex',
+            flexDirection: 'row',
+            gap: '0.5rem',
+          }}>
+          <DatePicker
+            name={'date-picker-start'}
+            disableFuture
+            value={startDate}
+            onChange={setStartDate}
+          />
+          <DatePicker
+            name={'date-picker-end'}
+            disableFuture
+            value={endDate}
+            onChange={setEndDate}
+          />
+
+          <FormControl sx={FORM_CTRL_SX} size="medium" variant="filled">
+            <InputLabel>Preset date ranges</InputLabel>
+            <Select
+              variant="filled"
+              value={presetDateRange ? presetDateRange : ''}
+              onChange={handleChange}
+              label="Preset date ranges"
+              sx={{
+                marginBottom: '0',
               }}>
-              This Week
-            </MenuItem>
-            <MenuItem
-              value="Last Week"
-              onClick={() => {
-                setDateRange(13, 7);
-              }}>
-              Last Week
-            </MenuItem>
-            <MenuItem
-              value="Last 14 Days"
-              onClick={() => {
-                setDateRange(13, 0);
-              }}>
-              Last 14 Days
-            </MenuItem>
-            <MenuItem
-              value="Last 28 Days"
-              onClick={() => {
-                setDateRange(27, 0);
-              }}>
-              Last 28 Days
-            </MenuItem>
-          </Select>
-        </FormControl>
-        <br />
-        <br />
+              <MenuItem value={undefined} disabled></MenuItem>
+              <MenuItem
+                value="This Week"
+                onClick={() => {
+                  setDateRange(6, 0);
+                }}>
+                This Week
+              </MenuItem>
+              <MenuItem
+                value="Last Week"
+                onClick={() => {
+                  setDateRange(13, 7);
+                }}>
+                Last Week
+              </MenuItem>
+              <MenuItem
+                value="Last 14 Days"
+                onClick={() => {
+                  setDateRange(13, 0);
+                }}>
+                Last 14 Days
+              </MenuItem>
+              <MenuItem
+                value="Last 28 Days"
+                onClick={() => {
+                  setDateRange(27, 0);
+                }}>
+                Last 28 Days
+              </MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
 
         <Tab
           menu={{
