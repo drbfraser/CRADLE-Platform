@@ -5,13 +5,13 @@ import moment, { Moment } from 'moment';
 import { useState } from 'react';
 import { SecondaryButton } from '../Button';
 
-type DateRangePreset = {
+export type DateRangePreset = {
   label: string;
   id: string; // Unique Id.
   makeStartDate: () => Moment | null;
   makeEndDate: () => Moment | null;
 };
-const DATE_RANGE_PRESETS: Map<string, DateRangePreset> = new Map<
+export const DATE_RANGE_PRESETS: Map<string, DateRangePreset> = new Map<
   string,
   DateRangePreset
 >([
@@ -58,14 +58,17 @@ type DateRangePickerWithPresetProps = {
   setStartDate: (newDate: Moment | null) => void;
   endDate: Moment | null;
   setEndDate: (newDate: Moment | null) => void;
+  presetDateRange: DateRangePreset | null;
+  setPresetDateRange: (newPreset: DateRangePreset | null) => void;
 };
-export const DateRangePickerWithPreset = (
-  props: DateRangePickerWithPresetProps
-) => {
-  const [presetDateRange, setPresetDateRange] =
-    useState<DateRangePreset | null>(null);
-  const { startDate, setStartDate, endDate, setEndDate } = props;
-
+export const DateRangePickerWithPreset = ({
+  startDate,
+  setStartDate,
+  endDate,
+  setEndDate,
+  presetDateRange,
+  setPresetDateRange,
+}: DateRangePickerWithPresetProps) => {
   return (
     <Box
       sx={{

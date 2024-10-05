@@ -23,23 +23,20 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import DoneIcon from '@mui/icons-material/Done';
-import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import { ReduxState } from 'src/redux/reducers';
 import ScheduleIcon from '@mui/icons-material/Schedule';
-import Select from '@mui/material/Select';
 import { TextField } from '@mui/material';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { TrafficLightEnum } from 'src/shared/enums';
 import { useSelector } from 'react-redux';
-import { DatePicker } from '@mui/x-date-pickers';
-import { FORM_CTRL_SX } from '../statistics/utils/statisticStyles';
-import { DateRangePickerWithPreset } from 'src/shared/components/Date/DateRangePicker';
+import {
+  DateRangePickerWithPreset,
+  DateRangePreset,
+} from 'src/shared/components/Date/DateRangePicker';
 
 interface IProps {
   open: boolean;
@@ -106,7 +103,8 @@ export const FilterDialog = ({
 
   const [startDate, setStartDate] = useState<Moment | null>(null);
   const [endDate, setEndDate] = useState<Moment | null>(null);
-  const [presetDateRange, setPresetDateRange] = useState();
+  const [presetDateRange, setPresetDateRange] =
+    useState<DateRangePreset | null>(null);
 
   const [selectedReferrers, setSelectedReferrers] = useState<Referrer[]>([]);
   const [referrers, setReferrers] = useState<Referrer[]>([]);
@@ -169,18 +167,9 @@ export const FilterDialog = ({
     setSelectedVitalSign([]);
     setStartDate(null);
     setEndDate(null);
-    setPresetDateRange(undefined);
+    setPresetDateRange(null);
     setIsPregnant(undefined);
     setIsAssessed(undefined);
-  };
-
-  const handleChange = (event: any) => {
-    setPresetDateRange(event.target.value);
-  };
-
-  const setDateRange = (start: number, end: number) => {
-    setStartDate(moment().startOf('day').subtract(start, 'days'));
-    setEndDate(moment().endOf('day').subtract(end, 'days'));
   };
 
   const onFacilitySelect = (
@@ -318,6 +307,8 @@ export const FilterDialog = ({
               setStartDate={setStartDate}
               endDate={endDate}
               setEndDate={setEndDate}
+              presetDateRange={presetDateRange}
+              setPresetDateRange={setPresetDateRange}
             />
           </Grid>
           <Grid item md={12} sm={12} xs={12}>
