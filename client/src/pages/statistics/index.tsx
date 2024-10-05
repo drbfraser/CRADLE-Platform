@@ -16,10 +16,12 @@ import { UserRoleEnum } from 'src/shared/enums';
 import { UserStatistics } from './UserStatistics';
 import { VHTStatistics } from './VHTStatistics';
 import { useSelector } from 'react-redux';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FORM_CTRL_SX, TAB_SX } from './utils/statisticStyles';
 import { Box } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
+import { useDateRangeState } from 'src/shared/components/Date/useDateRangeState';
+import { DateRangePickerWithPreset } from 'src/shared/components/Date/DateRangePicker';
 
 const allPanes = [
   {
@@ -68,12 +70,21 @@ export function StatisticsPage() {
   const user = useSelector((state: ReduxState) => state.user.current.data);
 
   const [errorLoading, setErrorLoading] = useState(false);
-  const [startDate, setStartDate] = useState<Moment | null>(
-    moment().startOf('day').subtract(29, 'days')
-  );
-  const [endDate, setEndDate] = useState<Moment | null>(moment().endOf('day'));
+  const dateRangeState = useDateRangeState();
+  const {
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
+    presetDateRange,
+    setPresetDateRange,
+  } = dateRangeState;
 
-  const [presetDateRange, setPresetDateRange] = useState();
+  // Set initial date range as the previous month.
+  useEffect(() => {
+    setStartDate(moment().endOf('day').subtract(1, 'month'));
+    setEndDate(moment().endOf('day'));
+  }, []);
 
   const panes = allPanes
     .filter((p) => p?.roles.includes(user!.role))
@@ -90,15 +101,6 @@ export function StatisticsPage() {
         </Tab.Pane>
       ),
     }));
-
-  const handleChange = (event: any) => {
-    setPresetDateRange(event.target.value);
-  };
-
-  const setDateRange = (start: number, end: number) => {
-    setStartDate(moment().startOf('day').subtract(start, 'days'));
-    setEndDate(moment().endOf('day').subtract(end, 'days'));
-  };
 
   return (
     <Box
@@ -118,69 +120,7 @@ export function StatisticsPage() {
       )}
 
       <Grid id={'statistics-container'} item sx={{ marginBottom: '10px' }}>
-        <Box
-          sx={{
-            marginBottom: '2rem ',
-            display: 'flex',
-            flexDirection: 'row',
-            gap: '0.5rem',
-          }}>
-          <DatePicker
-            name={'date-picker-start'}
-            disableFuture
-            value={startDate}
-            onChange={setStartDate}
-          />
-          <DatePicker
-            name={'date-picker-end'}
-            disableFuture
-            value={endDate}
-            onChange={setEndDate}
-          />
-
-          <FormControl sx={FORM_CTRL_SX} size="medium" variant="filled">
-            <InputLabel>Preset date ranges</InputLabel>
-            <Select
-              variant="filled"
-              value={presetDateRange ? presetDateRange : ''}
-              onChange={handleChange}
-              label="Preset date ranges"
-              sx={{
-                marginBottom: '0',
-              }}>
-              <MenuItem value={undefined} disabled></MenuItem>
-              <MenuItem
-                value="This Week"
-                onClick={() => {
-                  setDateRange(6, 0);
-                }}>
-                This Week
-              </MenuItem>
-              <MenuItem
-                value="Last Week"
-                onClick={() => {
-                  setDateRange(13, 7);
-                }}>
-                Last Week
-              </MenuItem>
-              <MenuItem
-                value="Last 14 Days"
-                onClick={() => {
-                  setDateRange(13, 0);
-                }}>
-                Last 14 Days
-              </MenuItem>
-              <MenuItem
-                value="Last 28 Days"
-                onClick={() => {
-                  setDateRange(27, 0);
-                }}>
-                Last 28 Days
-              </MenuItem>
-            </Select>
-          </FormControl>
-        </Box>
-
+        <DateRangePickerWithPreset {...dateRangeState} />
         <Tab
           menu={{
             secondary: true,
