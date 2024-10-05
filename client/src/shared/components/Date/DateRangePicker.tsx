@@ -53,7 +53,7 @@ export const DATE_RANGE_PRESETS: Map<string, DateRangePreset> = new Map<
   ],
 ]);
 
-type DateRangePickerWithPresetProps = {
+export type DateRangePickerWithPresetProps = {
   startDate: Moment | null;
   setStartDate: (newDate: Moment | null) => void;
   endDate: Moment | null;

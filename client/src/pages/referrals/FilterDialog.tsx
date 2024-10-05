@@ -37,6 +37,7 @@ import {
   DateRangePickerWithPreset,
   DateRangePreset,
 } from 'src/shared/components/Date/DateRangePicker';
+import { useDateRangeState } from 'src/shared/components/Date/useDateRangeState';
 
 interface IProps {
   open: boolean;
@@ -101,10 +102,7 @@ export const FilterDialog = ({
   >([]);
   const [healthFacilities, setHealthFacilities] = useState<string[]>([]);
 
-  const [startDate, setStartDate] = useState<Moment | null>(null);
-  const [endDate, setEndDate] = useState<Moment | null>(null);
-  const [presetDateRange, setPresetDateRange] =
-    useState<DateRangePreset | null>(null);
+  const dateRangeState = useDateRangeState();
 
   const [selectedReferrers, setSelectedReferrers] = useState<Referrer[]>([]);
   const [referrers, setReferrers] = useState<Referrer[]>([]);
@@ -165,9 +163,9 @@ export const FilterDialog = ({
     setSelectedHealthFacilities([]);
     setSelectedReferrers([]);
     setSelectedVitalSign([]);
-    setStartDate(null);
-    setEndDate(null);
-    setPresetDateRange(null);
+    dateRangeState.setStartDate(null);
+    dateRangeState.setEndDate(null);
+    dateRangeState.setPresetDateRange(null);
     setIsPregnant(undefined);
     setIsAssessed(undefined);
   };
@@ -216,12 +214,12 @@ export const FilterDialog = ({
   };
 
   const onConfirm = () => {
-    //User did not change any filter
+    // User did not change any filter
     if (
       selectedHealthFacilities.length < 1 &&
-      !startDate &&
-      !endDate &&
-      !presetDateRange &&
+      !dateRangeState.startDate &&
+      !dateRangeState.endDate &&
+      !dateRangeState.presetDateRange &&
       selectedReferrers.length < 1 &&
       selectedVitalSign.length < 1 &&
       !isPregnant &&
@@ -247,9 +245,9 @@ export const FilterDialog = ({
       ...filter,
       healthFacilityNames: currentSelectedHealthFacilities,
       dateRange:
-        startDate && endDate
-          ? `${startDate.toDate().getTime() / 1000}:${
-              endDate.toDate().getTime() / 1000
+        dateRangeState.startDate && dateRangeState.endDate
+          ? `${dateRangeState.startDate.toDate().getTime() / 1000}:${
+              dateRangeState.endDate.toDate().getTime() / 1000
             }`
           : '',
       referrers: selectedReferrers.map((r) => r.userId),
@@ -302,14 +300,7 @@ export const FilterDialog = ({
 
           <Grid item md={12} sm={12} xs={12}>
             <h4>Date Range</h4>
-            <DateRangePickerWithPreset
-              startDate={startDate}
-              setStartDate={setStartDate}
-              endDate={endDate}
-              setEndDate={setEndDate}
-              presetDateRange={presetDateRange}
-              setPresetDateRange={setPresetDateRange}
-            />
+            <DateRangePickerWithPreset {...dateRangeState} />
           </Grid>
           <Grid item md={12} sm={12} xs={12}>
             <h4>Referrer</h4>
