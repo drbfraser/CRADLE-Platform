@@ -3,7 +3,7 @@ import {
   PrimaryButton,
   SecondaryButton,
 } from 'src/shared/components/Button';
-import { DateRangePicker, FocusedInputShape } from 'react-dates';
+
 import {
   IFacility,
   IUserWithTokens,
@@ -14,7 +14,6 @@ import {
 import React, { SyntheticEvent, useEffect, useState } from 'react';
 import { getHealthFacilitiesAsync, getUserVhtsAsync } from 'src/shared/api';
 import moment, { Moment } from 'moment';
-
 import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
@@ -38,6 +37,9 @@ import { TextField } from '@mui/material';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { TrafficLightEnum } from 'src/shared/enums';
 import { useSelector } from 'react-redux';
+import { DatePicker } from '@mui/x-date-pickers';
+import { FORM_CTRL_SX } from '../statistics/utils/statisticStyles';
+import { DateRangePickerWithPreset } from 'src/shared/components/Date/DateRangePicker';
 
 interface IProps {
   open: boolean;
@@ -105,9 +107,6 @@ export const FilterDialog = ({
   const [startDate, setStartDate] = useState<Moment | null>(null);
   const [endDate, setEndDate] = useState<Moment | null>(null);
   const [presetDateRange, setPresetDateRange] = useState();
-  const [focusedInput, setFocusedInput] = useState<FocusedInputShape | null>(
-    null
-  );
 
   const [selectedReferrers, setSelectedReferrers] = useState<Referrer[]>([]);
   const [referrers, setReferrers] = useState<Referrer[]>([]);
@@ -182,9 +181,6 @@ export const FilterDialog = ({
   const setDateRange = (start: number, end: number) => {
     setStartDate(moment().startOf('day').subtract(start, 'days'));
     setEndDate(moment().endOf('day').subtract(end, 'days'));
-  };
-  const handleFocusChange = (arg: FocusedInputShape | null) => {
-    setFocusedInput(arg);
   };
 
   const onFacilitySelect = (
@@ -317,74 +313,12 @@ export const FilterDialog = ({
 
           <Grid item md={12} sm={12} xs={12}>
             <h4>Date Range</h4>
-            {/* <DateRangePicker
-              regular={true}
+            <DateRangePickerWithPreset
               startDate={startDate}
-              startDateId="startDate"
+              setStartDate={setStartDate}
               endDate={endDate}
-              endDateId="endDate"
-              onDatesChange={({ startDate, endDate }) => {
-                setStartDate(startDate);
-                setEndDate(endDate);
-              }}
-              readOnly
-              orientation={isTransformed ? 'horizontal' : 'vertical'}
-              focusedInput={focusedInput}
-              onFocusChange={handleFocusChange}
-              isOutsideRange={() => false}
-            /> */}
-            <FormControl
-              sx={{
-                margin: '4px 8px',
-                minWidth: '180px',
-              }}
-              size="small"
-              variant="outlined">
-              <InputLabel>Preset date ranges</InputLabel>
-              <Select
-                variant="standard"
-                value={presetDateRange ? presetDateRange : ''}
-                onChange={handleChange}
-                label="Preset date ranges">
-                <MenuItem value={undefined} disabled></MenuItem>
-                <MenuItem
-                  value="This Week"
-                  onClick={() => {
-                    setDateRange(6, 0);
-                  }}>
-                  This Week
-                </MenuItem>
-                <MenuItem
-                  value="Last Week"
-                  onClick={() => {
-                    setDateRange(13, 7);
-                  }}>
-                  Last Week
-                </MenuItem>
-                <MenuItem
-                  value="Last 14 Days"
-                  onClick={() => {
-                    setDateRange(13, 0);
-                  }}>
-                  Last 14 Days
-                </MenuItem>
-                <MenuItem
-                  value="Last 28 Days"
-                  onClick={() => {
-                    setDateRange(27, 0);
-                  }}>
-                  Last 28 Days
-                </MenuItem>
-              </Select>
-            </FormControl>
-            <SecondaryButton
-              onClick={() => {
-                setStartDate(null);
-                setEndDate(null);
-                setPresetDateRange(undefined);
-              }}>
-              Clear
-            </SecondaryButton>
+              setEndDate={setEndDate}
+            />
           </Grid>
           <Grid item md={12} sm={12} xs={12}>
             <h4>Referrer</h4>
