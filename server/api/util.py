@@ -486,18 +486,16 @@ def getFormTemplateDictFromCSV(csvData: str):
             language: str = questionLangVersion["lang"]
 
             if language not in languages:
-                raise RuntimeError(
-                    "Language {} for question #{} not listed in Form Languages [{}].".format(
+                error_msg = "Language {} for question #{} not listed in Form Languages [{}].".format(
                         language,
                         questionIndex + 1,
                         str.join(", ", languages),
-                    ),
-                )
+                    )
+                raise RuntimeError(error_msg)
 
             if language in questionLangVersions:
-                raise RuntimeError(
-                    f"Language {language} defined multiple times for question #{questionIndex + 1}",
-                )
+                error_msg = f"Language {language} defined multiple times for question #{questionIndex + 1}"
+                raise RuntimeError(error_msg)
 
             questionLangVersions[language] = getQuestionLanguageVersionFromRow(row)
 
