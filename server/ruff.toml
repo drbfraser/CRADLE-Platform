@@ -119,7 +119,6 @@ ignore = [
     "S105",    # 1	S105   	[ ] hardcoded-password-string
     "S603",    # 1	S603   	[ ] subprocess-without-shell-equals-true
     "C406",    # 1	C406   	[*] unnecessary-literal-dict
-    "C417",    # 1	C417   	[*] unnecessary-map
 
     "D417",    # 1	D417   	[ ] undocumented-param
 
