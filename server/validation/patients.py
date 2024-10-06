@@ -175,10 +175,11 @@ def check_gestational_age_under_limit(gestation_timestamp: int) -> Optional[str]
     :param gestation_timestamp: The Unix timestamp to validate
     :return: Returns None if the timestamp is valid, a string message otherwise
     """
+    system_timezone = datetime.now(datetime.timezone.utc).astimezone()
     if gestation_timestamp == 0:
         return None
 
-    gestation_date = datetime.fromtimestamp(gestation_timestamp)
+    gestation_date = datetime.fromtimestamp(gestation_timestamp, tz=system_timezone)
     today = date.today()
     num_of_weeks = (today - gestation_date.date()).days // 7
     if num_of_weeks > 43:
