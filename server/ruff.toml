@@ -121,7 +121,6 @@ ignore = [
     "C406",    # 1	C406   	[*] unnecessary-literal-dict
     "C417",    # 1	C417   	[*] unnecessary-map
     "DTZ006",  # 1	DTZ006 	[ ] call-datetime-fromtimestamp
-    "DTZ012",  # 1	DTZ012 	[ ] call-date-fromtimestamp
 
     "D417",    # 1	D417   	[ ] undocumented-param
 

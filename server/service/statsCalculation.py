@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime
 
 from enums import TrafficLightEnum
 from models import Reading
@@ -11,6 +11,7 @@ def get_stats_data(
     current_month,
     is_from_last_twelve_months=False,
 ):
+    system_timezone = datetime.now(datetime.timezone.utc).astimezone()
     if data_needed == "trafficLightStatus":
         data = [0, 0, 0, 0, 0]
     else:
@@ -25,7 +26,7 @@ def get_stats_data(
         month_index = 0
         for reading in readings:
             date_unix_ts = reading.dateTimeTaken
-            date_object = date.fromtimestamp(date_unix_ts)
+            date_object = datetime.fromtimestamp(date_unix_ts, tz=system_timezone).date()
             item_month = date_object.month
             item_year = date_object.year
             if current_year == item_year or (
