@@ -118,7 +118,6 @@ ignore = [
     "TRY004",  # 2	TRY004 	[ ] type-check-without-type-error
     "S105",    # 1	S105   	[ ] hardcoded-password-string
     "S603",    # 1	S603   	[ ] subprocess-without-shell-equals-true
-    "C406",    # 1	C406   	[*] unnecessary-literal-dict
 
     "D417",    # 1	D417   	[ ] undocumented-param
 
