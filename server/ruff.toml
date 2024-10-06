@@ -114,7 +114,6 @@ ignore = [
     "PTH123",  # 2	PTH123 	[ ] builtin-open
     "D404",    # 2	D404   	[ ] docstring-starts-with-this
     "PLC0414", # 2	PLC0414	[*] useless-import-alias
-    "PLW2901", # 2	PLW2901	[ ] redefined-loop-name
     
     "S105",    # 1	S105   	[ ] hardcoded-password-string
     "S603",    # 1	S603   	[ ] subprocess-without-shell-equals-true

@@ -132,16 +132,7 @@ def query_param_search(request: Request, name: str) -> str:
 
     """
     return request.args.get(name, "", type=str)
-
-
-def current_user() -> User:
-    """
-    Returns the the model for the user making the request.
-
-    :return:
-    """
-    identity = jwt.get_jwt_identity()
-    return crud.read(User, id=identity["userId"])
+rowidentity["userId"])
 
 
 def isGoodPassword(password: str) -> bool:
@@ -475,14 +466,14 @@ def getFormTemplateDictFromCSV(csvData: str):
         }
 
         for _ in range(len(languages) - 1):
-            row = next(questionRows, None)
+            question_row = next(questionRows, None)
 
-            if row is None or isRowEmpty(row):
+            if question_row is None or isRowEmpty(question_row):
                 raise RuntimeError(
                     "All Questions must be provided in all the languages supported by the form",
                 )
 
-            questionLangVersion = getQuestionLanguageVersionFromRow(row)
+            questionLangVersion = getQuestionLanguageVersionFromRow(question_row)
             language: str = questionLangVersion["lang"]
 
             if language not in languages:
@@ -497,7 +488,7 @@ def getFormTemplateDictFromCSV(csvData: str):
                 error_msg = f"Language {language} defined multiple times for question #{questionIndex + 1}"
                 raise RuntimeError(error_msg)
 
-            questionLangVersions[language] = getQuestionLanguageVersionFromRow(row)
+            questionLangVersions[language] = getQuestionLanguageVersionFromRow(question_row)
 
         question["questionLangVersions"] = list(questionLangVersions.values())
 
@@ -530,9 +521,9 @@ def getCsvFromFormTemplate(form_template: FormTemplate):
             return '"{}"'.format(cell if cell is not None else "")
 
         for row in rows:
-            row = [format_cell(cell) for cell in row]
+            cells = [format_cell(cell) for cell in row]
 
-            csv_str += ",".join(row)
+            csv_str += ",".join(cells)
             csv_str += "\n"
 
         return csv_str
