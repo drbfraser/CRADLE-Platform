@@ -33,11 +33,11 @@ class ReferralValidator:
 
     def isString(self, key, new_ref):
         if not isinstance(new_ref[key], str):
-            raise Exception(f"{key}: {new_ref[key]} must be a string")
+            raise TypeError(f"{key}: {new_ref[key]} must be a string")
 
     def isInt(self, key, new_ref):
         if not isinstance(new_ref[key], int):
-            raise Exception(f"{key}: {new_ref[key]} must be an int")
+            raise TypeError(f"{key}: {new_ref[key]} must be an int")
 
     def exists(self, table, key, val):
         filter = {key: val}
