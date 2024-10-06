@@ -140,10 +140,17 @@ export const ReferralsPage = () => {
                 onChange={(e) => debounceSetSearch(e.target.value)}
               />
               {isPromptShown && (
-                <Box>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    marginTop: '0.25rem',
+                    gap: '0.25rem',
+                  }}>
                   <Typography color="textSecondary" variant="caption">
                     Currently filtered to your health facility.
-                    <br />
+                  </Typography>
+                  <Typography color="textSecondary" variant="caption">
                     Click Clear Filter to see all.
                   </Typography>
                 </Box>

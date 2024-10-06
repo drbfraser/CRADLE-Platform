@@ -8,6 +8,8 @@ import { Provider as ReduxProvider } from 'react-redux';
 import { reduxStore } from './redux/store';
 import { CompatRouter } from 'react-router-dom-v5-compat';
 import { BrowserRouter } from 'react-router-dom';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -18,7 +20,9 @@ root.render(
     <BrowserRouter>
       <CompatRouter>
         <ContextProvider>
-          <App />
+          <LocalizationProvider dateAdapter={AdapterMoment}>
+            <App />
+          </LocalizationProvider>
         </ContextProvider>
       </CompatRouter>
     </BrowserRouter>
