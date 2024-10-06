@@ -346,7 +346,7 @@ def getFormTemplateDictFromCSV(csvData: str):
 
     # Helper functions
     def isRowEmpty(row: Iterable) -> bool:
-        return all(map(lambda val: val == "", row))
+        return all(val == "" for val in row)
 
     def isQuestionRequired(required: str) -> bool:
         return len(required) > 0 and required.upper()[0] == "Y"
