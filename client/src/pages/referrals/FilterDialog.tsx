@@ -13,7 +13,6 @@ import {
 } from 'src/shared/types';
 import React, { SyntheticEvent, useEffect, useState } from 'react';
 import { getHealthFacilitiesAsync, getUserVhtsAsync } from 'src/shared/api';
-import moment, { Moment } from 'moment';
 import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
@@ -33,10 +32,7 @@ import { TextField } from '@mui/material';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { TrafficLightEnum } from 'src/shared/enums';
 import { useSelector } from 'react-redux';
-import {
-  DateRangePickerWithPreset,
-  DateRangePreset,
-} from 'src/shared/components/Date/DateRangePicker';
+import { DateRangePickerWithPreset } from 'src/shared/components/Date/DateRangePicker';
 import { useDateRangeState } from 'src/shared/components/Date/useDateRangeState';
 
 interface IProps {
@@ -300,7 +296,7 @@ export const FilterDialog = ({
 
           <Grid item md={12} sm={12} xs={12}>
             <h4>Date Range</h4>
-            <DateRangePickerWithPreset {...dateRangeState} />
+            <DateRangePickerWithPreset {...dateRangeState} clearButton />
           </Grid>
           <Grid item md={12} sm={12} xs={12}>
             <h4>Referrer</h4>

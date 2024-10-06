@@ -2,7 +2,6 @@ import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { uniqueId } from 'lodash';
 import moment, { Moment } from 'moment';
-import { useState } from 'react';
 import { SecondaryButton } from '../Button';
 
 export type DateRangePreset = {
@@ -61,6 +60,10 @@ export type DateRangePickerWithPresetProps = {
   presetDateRange: DateRangePreset | null;
   setPresetDateRange: (newPreset: DateRangePreset | null) => void;
 };
+
+type Props = DateRangePickerWithPresetProps & {
+  clearButton?: boolean;
+};
 export const DateRangePickerWithPreset = ({
   startDate,
   setStartDate,
@@ -68,7 +71,8 @@ export const DateRangePickerWithPreset = ({
   setEndDate,
   presetDateRange,
   setPresetDateRange,
-}: DateRangePickerWithPresetProps) => {
+  clearButton = false,
+}: Props) => {
   return (
     <Box
       sx={{
@@ -124,14 +128,19 @@ export const DateRangePickerWithPreset = ({
           ))}
         </Select>
       </FormControl>
-      <SecondaryButton
-        onClick={() => {
-          setStartDate(null);
-          setEndDate(null);
-          setPresetDateRange(null);
-        }}>
-        Clear
-      </SecondaryButton>
+      {clearButton ? (
+        <SecondaryButton
+          sx={{
+            fontSize: '1rem',
+          }}
+          onClick={() => {
+            setStartDate(null);
+            setEndDate(null);
+            setPresetDateRange(null);
+          }}>
+          Clear
+        </SecondaryButton>
+      ) : null}
     </Box>
   );
 };

@@ -1,15 +1,11 @@
-import moment, { Moment } from 'moment';
+import moment from 'moment';
 
 import { AllStatistics } from './AllStatistics';
 import { FacilityStatistics } from './FacilityStatistics';
-import FormControl from '@mui/material/FormControl';
 import Grid from '@mui/material/Grid';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
 import { MyFacility } from './MyFacility';
 import { MyStatistics } from './MyStatistics';
 import { ReduxState } from 'src/redux/reducers';
-import Select from '@mui/material/Select';
 import { Tab } from 'semantic-ui-react';
 import { Toast } from 'src/shared/components/toast';
 import { UserRoleEnum } from 'src/shared/enums';
@@ -17,11 +13,10 @@ import { UserStatistics } from './UserStatistics';
 import { VHTStatistics } from './VHTStatistics';
 import { useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
-import { FORM_CTRL_SX, TAB_SX } from './utils/statisticStyles';
 import { Box } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers';
 import { useDateRangeState } from 'src/shared/components/Date/useDateRangeState';
 import { DateRangePickerWithPreset } from 'src/shared/components/Date/DateRangePicker';
+import { TAB_SX } from './utils/statisticStyles';
 
 const allPanes = [
   {
@@ -71,14 +66,7 @@ export function StatisticsPage() {
 
   const [errorLoading, setErrorLoading] = useState(false);
   const dateRangeState = useDateRangeState();
-  const {
-    startDate,
-    setStartDate,
-    endDate,
-    setEndDate,
-    presetDateRange,
-    setPresetDateRange,
-  } = dateRangeState;
+  const { startDate, setStartDate, endDate, setEndDate } = dateRangeState;
 
   // Set initial date range as the previous month.
   useEffect(() => {
