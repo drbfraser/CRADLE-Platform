@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from typing import Any, Optional
 
 from validation.validate import required_keys_present, values_correct_type
@@ -175,7 +175,7 @@ def check_gestational_age_under_limit(gestation_timestamp: int) -> Optional[str]
     :param gestation_timestamp: The Unix timestamp to validate
     :return: Returns None if the timestamp is valid, a string message otherwise
     """
-    system_timezone = datetime.now(datetime.timezone.utc).astimezone()
+    system_timezone = datetime.now(timezone.utc).astimezone().tzinfo
     if gestation_timestamp == 0:
         return None
 

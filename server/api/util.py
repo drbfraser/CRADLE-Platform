@@ -470,9 +470,9 @@ def getFormTemplateDictFromCSV(csvData: str):
                 categoryIndex = existingCategoryIndex
                 continue
 
-        questionLangVersions = dict(
-            [(questionLangVersion["lang"], questionLangVersion)],
-        )
+        questionLangVersions = {
+            questionLangVersion["lang"]: questionLangVersion,
+        }
 
         for _ in range(len(languages) - 1):
             row = next(questionRows, None)
