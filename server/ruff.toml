@@ -122,7 +122,6 @@ ignore = [
     "C417",    # 1	C417   	[*] unnecessary-map
     "DTZ006",  # 1	DTZ006 	[ ] call-datetime-fromtimestamp
     "DTZ012",  # 1	DTZ012 	[ ] call-date-fromtimestamp
-    "EM103",   # 1	EM103  	[*] dot-format-in-exception
 
     "D417",    # 1	D417   	[ ] undocumented-param
 
