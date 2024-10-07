@@ -2,33 +2,23 @@ import { IUserWithTokens, OrNull } from 'src/shared/types';
 import React from 'react';
 
 import { AppRoutes } from './routes';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import { Pathname } from 'history';
+import { CssBaseline } from '@mui/material';
 import { ReduxState } from 'src/redux/reducers';
 import { Sidebar } from './sidebar';
 import { TopBar } from './topBar';
-import { routesNames } from './routes/utils';
 import { useSelector } from 'react-redux';
 import { Box } from '@mui/material';
 
 type SelectorState = {
   user: OrNull<IUserWithTokens>;
-  pathName: Pathname;
 };
 
 export const App: React.FC = () => {
-  const [activeItem, setActiveItem] = React.useState<OrNull<string>>(null);
-
-  const { pathName, user } = useSelector(
-    ({ user, router }: ReduxState): SelectorState => ({
+  const { user } = useSelector(
+    ({ user }: ReduxState): SelectorState => ({
       user: user.current.data,
-      pathName: router.location.pathname,
     })
   );
-
-  React.useEffect(() => {
-    setActiveItem(routesNames[pathName]);
-  }, [pathName]);
 
   return (
     <>
@@ -44,7 +34,7 @@ export const App: React.FC = () => {
           flexDirection: 'column',
           justifyContent: 'start',
         }}>
-        <TopBar user={user} setActiveItem={setActiveItem} />
+        <TopBar user={user} />
         <Box
           id={'sidebarWrapper'}
           sx={{
@@ -53,7 +43,7 @@ export const App: React.FC = () => {
             display: 'flex',
             flexDirection: 'row',
           }}>
-          <Sidebar activeItem={activeItem} setActiveItem={setActiveItem} />
+          <Sidebar />
           <AppRoutes />
         </Box>
       </Box>

@@ -18,7 +18,7 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { PrimaryButton } from 'src/shared/components/Button';
-import { Skeleton } from '@mui/material';
+import { Typography } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import { getLanguageName } from 'src/pages/admin/manageFormTemplates/editFormTemplate/CustomFormTemplate';
 
@@ -215,7 +215,17 @@ export const SelectHeaderForm = ({ setForm }: IProps) => {
           )}
         </Formik>
       ) : (
-        <Skeleton variant="rectangular" height={150} />
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '150px',
+          }}>
+          <Typography variant="h6" color="textSecondary">
+            No form templates available.
+          </Typography>
+        </Box>
       )}
     </>
   );

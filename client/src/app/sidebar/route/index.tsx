@@ -2,7 +2,6 @@ import { AppRoute } from '../../routes/utils';
 import { Link } from 'react-router-dom';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import { OrNull } from 'src/shared/types';
 import Typography from '@mui/material/Typography';
 import { useAppSelector } from 'src/shared/hooks';
 import { selectSidebarIsOpen } from 'src/redux/sidebar-state';
@@ -10,7 +9,6 @@ import { ListItemButton } from '@mui/material';
 import { MouseEventHandler, ReactNode } from 'react';
 
 type SidebarRouteProps = {
-  activeItem: OrNull<string>;
   route?: AppRoute;
   icon?: ReactNode;
   title?: string;
@@ -18,7 +16,6 @@ type SidebarRouteProps = {
 };
 
 export const SidebarRoute: React.FC<SidebarRouteProps> = ({
-  activeItem,
   route,
   icon,
   title,
@@ -36,7 +33,6 @@ export const SidebarRoute: React.FC<SidebarRouteProps> = ({
         }}
         component={Link}
         to={route?.to || ''}
-        selected={activeItem === route?.name}
         onClick={onClick}>
         <ListItemIcon
           sx={{

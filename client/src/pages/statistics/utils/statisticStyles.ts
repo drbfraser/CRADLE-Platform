@@ -35,8 +35,12 @@ export const CHART_SX: SxProps = {
 };
 
 export const FORM_CTRL_SX: SxProps = {
-  margin: '4px 8px',
+  width: '180px',
   minWidth: '180px',
+  height: '56px',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'end',
 };
 
 export const STATS_PAGE_SX: SxProps = {
