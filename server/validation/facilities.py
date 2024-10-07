@@ -1,7 +1,8 @@
 from typing import Optional
 
 from pydantic import BaseModel, ValidationError
-from validation.validation_exception import ValidationException
+
+from validation.validation_exception import ValidationExceptionError
 
 # Define a Pydantic model for incoming requests
 
@@ -30,4 +31,4 @@ class Facility(BaseModel):
         try:
             Facility(**request_body)
         except ValidationError as e:
-            raise ValidationException(str(e.errors()[0]["msg"]))
+            raise ValidationExceptionError(str(e.errors()[0]["msg"]))

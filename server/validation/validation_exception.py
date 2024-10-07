@@ -1,2 +1,2 @@
-class ValidationException(Exception):
+class ValidationExceptionError(Exception):
     pass

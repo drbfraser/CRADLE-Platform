@@ -1,7 +1,7 @@
 import pytest
 
 from validation.facilities import Facility
-from validation.validation_exception import ValidationException
+from validation.validation_exception import ValidationExceptionError
 
 valid_json = {
     "healthFacilityName": "H12",
@@ -30,16 +30,16 @@ not_type_string = {
     "json, expectation",
     [
         (valid_json, None),
-        (missing_field, ValidationException),
-        (not_type_string, ValidationException),
+        (missing_field, ValidationExceptionError),
+        (not_type_string, ValidationExceptionError),
     ],
 )
 def test_validation(json, expectation):
-    if type(expectation) == type and issubclass(expectation, Exception):
+    if type(expectation) is type and issubclass(expectation, Exception):
         with pytest.raises(expectation):
             Facility.validate(json)
     else:
         try:
             Facility.validate(json)
-        except Exception as exception:
-            assert False, "exception is raised when it doesn't expect one"
+        except Exception:
+            raise AssertionError
