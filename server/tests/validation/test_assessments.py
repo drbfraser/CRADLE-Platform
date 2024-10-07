@@ -9,7 +9,7 @@ valid_json = {
     "healthcareWorkerId": 2,
     "specialInvestigations": "bcccccccccddeeeff",
     "treatment": "b",
-    "readingId": "asdasd82314278226313803",
+    "patientId": "asdasd82314278226313803",
     "followupNeeded": True,
     "followupInstructions": "pls help, give lots of tylenol",
 }
@@ -21,7 +21,7 @@ missing_field = {
     "healthcareWorkerId": 2,
     "specialInvestigations": "bcccccccccddeeeff",
     "treatment": "b",
-    "readingId": "asdasd82314278226313803",
+    "patientId": "asdasd82314278226313803",
     "followupNeeded": True,
     "followupInstructions": "pls help, give lots of tylenol",
 }
@@ -33,7 +33,7 @@ missing_followupInstructions_when_followupNeeded_true = {
     "healthcareWorkerId": 2,
     "specialInvestigations": "bcccccccccddeeeff",
     "treatment": "b",
-    "readingId": "asdasd82314278226313803",
+    "patientId": "asdasd82314278226313803",
     "followupNeeded": True,
     "followupInstructions": "",
 }
@@ -46,7 +46,7 @@ not_type_int = {
     "healthcareWorkerId": 2,
     "specialInvestigations": "bcccccccccddeeeff",
     "treatment": "b",
-    "readingId": "asdasd82314278226313803",
+    "patientId": "asdasd82314278226313803",
     "followupNeeded": True,
     "followupInstructions": "pls help, give lots of tylenol",
 }

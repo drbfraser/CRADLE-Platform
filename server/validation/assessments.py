@@ -17,7 +17,7 @@ class Assessment(BaseModel):
     healthcareWorkerId: int
     specialInvestigations: str
     treatment: str
-    readingId: str
+    patientId: str
     followupNeeded: bool
     followupInstructions: Optional[str] = Field(
         default=None, description="Required if followupNeeded is True"
