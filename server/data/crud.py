@@ -1125,7 +1125,9 @@ def get_supervised_vhts(user_id):
         FROM user U
         JOIN supervises S on U.id = S.choId
         WHERE U.id = %s
-    """ % str(user_id)
+    """ % str(
+        user_id,
+    )
 
     try:
         result = db_session.execute(query)

@@ -3,29 +3,30 @@ import time
 from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
-from flask_restful import Resource, reqparse
+from flask_restful import Resource, abort, reqparse
 
 from api import util
 from api.decorator import roles_required
 from data import crud, marshal
 from enums import RoleEnum
 from models import HealthFacility
+from validation.facilities import Facility
+
+
+def add_model(parser, model):
+    fields = model.__fields__
+    for name, field in fields.items():
+        parser.add_argument(
+            name,
+            dest=name,
+            default=field.default,
+            help=field.description,
+        )
 
 
 # /api/facilities
 class Root(Resource):
     # Ensuring that we select only these keys from the JSON payload.
-    parser = reqparse.RequestParser()
-    parser.add_argument(
-        "healthFacilityName",
-        type=str,
-        required=True,
-        help="This field cannot be left blank!",
-    )
-    parser.add_argument("healthFacilityPhoneNumber")
-    parser.add_argument("about")
-    parser.add_argument("facilityType")
-    parser.add_argument("location")
 
     @staticmethod
     @jwt_required()
@@ -51,19 +52,24 @@ class Root(Resource):
         endpoint="facilities",
     )
     def post():
-        # Get key-value pairs from parser and remove pairs with a None value
-        data = Root.parser.parse_args()
-        data = util.filterPairsWithNone(data)
+        # continue using parser but with pydantic to construct model
+        parser = reqparse.RequestParser()
+        add_model(parser, Facility)
+        args = parser.parse_args()
+        try:
+            Facility.validate(args)
+        except Exception as e:
+            abort(400, message=str(e))
 
         # Create a DB Model instance for the new facility and load into DB
-        facility = marshal.unmarshal(HealthFacility, data)
+        facility = marshal.unmarshal(HealthFacility, args)
         facility.newReferrals = str(round(time.time() * 1000))
 
         crud.create(facility)
 
         # Get back a dict for return
         facilityDict = marshal.marshal(
-            crud.read(HealthFacility, healthFacilityName=data["healthFacilityName"]),
+            crud.read(HealthFacility, healthFacilityName=args["healthFacilityName"]),
         )
         return facilityDict, 201
 
