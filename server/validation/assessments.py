@@ -18,7 +18,7 @@ class Assessment(BaseModel):
     )
 
     @field_validator("followupInstructions", mode="before")
-    def check_followup_instructions(self, v, values: ValidationInfo):
+    def check_followup_instructions(cls, v, values: ValidationInfo):  # noqa: N805
         followup_needed = values.data.get("followupNeeded", False)
         if followup_needed and (v is None or v == ""):
             raise ValueError(
