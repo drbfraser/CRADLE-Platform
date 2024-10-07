@@ -13,10 +13,11 @@ import { initialColorReading, initialStatsData } from '../utils';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Bar } from 'react-chartjs-2';
 import Skeleton from '@mui/material/Skeleton';
-import { Statistic } from 'semantic-ui-react';
 import { TrafficLightEnum } from 'src/shared/enums';
 import { trafficLightColors } from 'src/shared/constants';
-import { useStatisticsStyles } from './statisticStyles';
+import { StatisticCard } from './StatisticCard';
+import { Box } from '@mui/material';
+import { StatisticGroup } from './StatisticGroup';
 
 Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -25,15 +26,13 @@ interface IProps {
 }
 
 export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
-  const classes = useStatisticsStyles();
-
   const [data, setData] = useState(initialStatsData);
   const [colorReading, setColorReading] = useState(initialColorReading);
-  const [loaded, setloaded] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const [errorLoading, setErrorLoading] = useState(false);
 
   useEffect(() => {
-    setloaded(false);
+    setLoaded(false);
     const loadData = async () => {
       try {
         const data = await getData();
@@ -41,7 +40,7 @@ export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
         setData(data);
         setColorReading(data.color_readings);
 
-        setloaded(true);
+        setLoaded(true);
       } catch (e) {
         setErrorLoading(true);
       }
@@ -82,7 +81,7 @@ export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
   };
 
   return (
-    <div>
+    <Box>
       <APIErrorToast
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
@@ -90,8 +89,14 @@ export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
       {!loaded ? (
         <Skeleton variant="rectangular" height={700} />
       ) : (
-        <div className={classes.center}>
-          <Statistic.Group className={classes.statisticGroup}>
+        <Box
+          sx={{
+            display: `flex`,
+            flexDirection: `column`,
+            alignItems: `center`,
+          }}>
+          {/* <Statistic.Group className={classes.statisticGroup}> */}
+          <StatisticGroup>
             {[
               {
                 label: 'Days with Readings',
@@ -116,21 +121,26 @@ export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
             ].map(
               (stat, i) =>
                 stat.value !== undefined && (
-                  <Statistic key={i} horizontal className={classes.statistic}>
-                    <Statistic.Value>{stat.value}</Statistic.Value>
-                    <Statistic.Label className={classes.verticalWriting}>
-                      {stat.label}
-                    </Statistic.Label>
-                  </Statistic>
+                  <StatisticCard
+                    key={stat.label}
+                    label={stat.label}
+                    data={stat.value}
+                  />
                 )
             )}
-          </Statistic.Group>
+          </StatisticGroup>
           <h2>Reading Traffic Lights</h2>
-          <div className={classes.chart}>
+          <Box
+            id={'chart-container'}
+            sx={{
+              maxWidth: '100%',
+              width: `100%`,
+              height: '100%',
+            }}>
             <Bar data={barData} options={options} />
-          </div>
-        </div>
+          </Box>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 };

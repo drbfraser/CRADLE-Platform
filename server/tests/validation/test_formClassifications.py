@@ -12,7 +12,7 @@ invalid_keys = {"id": "123", "name": "test-name", "invalid": "This should be inv
 
 
 @pytest.mark.parametrize(
-    "json, output",
+    "json, output_type",
     [
         (valid_json, type(None)),
         (missing_field, str),
@@ -20,6 +20,6 @@ invalid_keys = {"id": "123", "name": "test-name", "invalid": "This should be inv
         (invalid_keys, str),
     ],
 )
-def test_validate_template(json, output):
+def test_validate_template(json, output_type):
     message = validate_template(json)
-    assert type(message) == output
+    assert type(message) is output_type

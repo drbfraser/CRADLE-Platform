@@ -18,9 +18,8 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { PrimaryButton } from 'src/shared/components/Button';
-import { Skeleton } from '@mui/material';
+import { Typography } from '@mui/material';
 import TextField from '@mui/material/TextField';
-import makeStyles from '@mui/styles/makeStyles';
 import { getLanguageName } from 'src/pages/admin/manageFormTemplates/editFormTemplate/CustomFormTemplate';
 
 interface IProps {
@@ -28,7 +27,6 @@ interface IProps {
 }
 
 export const SelectHeaderForm = ({ setForm }: IProps) => {
-  const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
   const [availableLanguages, setAvailableLanguages] = useState<string[]>([]);
   const [formTemplates, setFormTemplates] = useState<FormTemplate[]>([]);
@@ -201,7 +199,12 @@ export const SelectHeaderForm = ({ setForm }: IProps) => {
                   </Grid>
 
                   <PrimaryButton
-                    className={classes.right}
+                    sx={{
+                      display: 'flex',
+                      marginRight: '0px',
+                      marginLeft: 'auto',
+                      margin: '10px',
+                    }}
                     type="submit"
                     disabled={isSubmitting}>
                     Fetch Form
@@ -212,17 +215,18 @@ export const SelectHeaderForm = ({ setForm }: IProps) => {
           )}
         </Formik>
       ) : (
-        <Skeleton variant="rectangular" height={150} />
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '150px',
+          }}>
+          <Typography variant="h6" color="textSecondary">
+            No form templates available.
+          </Typography>
+        </Box>
       )}
     </>
   );
 };
-
-const useStyles = makeStyles({
-  right: {
-    display: 'flex',
-    marginRight: '0px',
-    marginLeft: 'auto',
-    margin: '10px',
-  },
-});

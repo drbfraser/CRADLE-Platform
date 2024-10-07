@@ -30,7 +30,6 @@ import Tooltip from '@mui/material/Tooltip';
 import { debounce } from 'lodash';
 import { gestationalAgeUnitLabels } from 'src/shared/constants';
 import { goBackWithFallback } from 'src/shared/utils';
-import makeStyles from '@mui/styles/makeStyles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useRouteMatch } from 'react-router-dom';
 
@@ -43,7 +42,6 @@ type RouteParams = {
 export function HistoryTablesPage() {
   const { patientId, patientName, patientSex } =
     useRouteMatch<RouteParams>().params;
-  const classes = useStyles();
   const [pregnancySearch, setPregnancySearch] = useState('');
   const [medicalHistorySearch, setMedicalHistorySearch] = useState('');
   const [drugHistorySearch, setDrugHistorySearch] = useState('');
@@ -167,14 +165,23 @@ export function HistoryTablesPage() {
   const panes = filteredPanes.map((p) => ({
     menuItem: p.name,
     render: () => (
-      <Tab.Pane key={p.index} className={classes.wrapper}>
+      <Tab.Pane
+        key={p.index}
+        sx={{
+          backgroundColor: '#fff',
+        }}>
         {p.name === 'Timeline' && p.Component ? (
           <p.Component patientId={patientId} isTransformed={isTransformed} />
         ) : (
           <>
-            <div className={classes.topWrapper}>
+            <Box
+              sx={{
+                padding: '15px',
+              }}>
               <TextField
-                className={classes.search}
+                sx={{
+                  width: '225px',
+                }}
                 label="Search"
                 placeholder={p.searchText}
                 variant="outlined"
@@ -189,17 +196,25 @@ export function HistoryTablesPage() {
                     options={unitOptions}
                     placeholder={gestationalAgeUnitLabels[unit]}
                     onChange={handleUnitChange}
-                    className={
+                    sx={
                       isTransformed
-                        ? classes.selectField
-                        : classes.selectFieldSmall
+                        ? {
+                            float: 'right',
+                          }
+                        : {
+                            display: 'inline-block',
+                            marginTop: '20px',
+                          }
                     }
                   />
                   {!isTransformed && <br />}
                 </>
               )}
-            </div>
-            <div className={classes.table}>
+            </Box>
+            <Box
+              sx={{
+                clear: 'right',
+              }}>
               <APITable
                 endpoint={p.endpoint!}
                 search={p.search!}
@@ -217,7 +232,7 @@ export function HistoryTablesPage() {
                 setPopupRecord={p.setPopupRecord}
                 refetch={refetch}
               />
-            </div>
+            </Box>
           </>
         )}
       </Tab.Pane>
@@ -225,7 +240,7 @@ export function HistoryTablesPage() {
   }));
 
   return (
-    <div>
+    <Box>
       <Toast
         severity="success"
         message="Record successfully deleted!"
@@ -240,7 +255,13 @@ export function HistoryTablesPage() {
         onClose={() => setIsDialogOpen(false)}
         onConfirm={handleDeleteRecord}
       />
-      <div className={classes.title}>
+      <Box
+        sx={{
+          clear: 'right',
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+        }}>
         <Tooltip title="Go back" placement="top">
           <IconButton
             onClick={() => goBackWithFallback(`/patients/${patientId ?? ''}`)}
@@ -249,13 +270,17 @@ export function HistoryTablesPage() {
           </IconButton>
         </Tooltip>
         <Typography variant="h4">Past Records of {patientName}</Typography>
-      </div>
+      </Box>
       <Box p={3}>
         <Tab
           menu={{
             secondary: true,
             pointing: true,
-            className: classes.tabs,
+            sx: {
+              display: 'fluid',
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+            },
           }}
           panes={panes}
           //Set search state value of the new active tab to empty to refresh the table
@@ -270,42 +295,6 @@ export function HistoryTablesPage() {
           }}
         />
       </Box>
-    </div>
+    </Box>
   );
 }
-
-const useStyles = makeStyles({
-  tabs: {
-    display: 'fluid',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  outerTabs: {
-    display: 'fluid',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  search: {
-    width: '225px',
-  },
-  selectField: {
-    float: 'right',
-  },
-  selectFieldSmall: {
-    display: 'inline-block',
-    marginTop: '20px',
-  },
-  topWrapper: {
-    padding: 15,
-  },
-  wrapper: {
-    backgroundColor: '#fff',
-  },
-  table: {
-    clear: 'right',
-  },
-  title: {
-    display: `flex`,
-    alignItems: `center`,
-  },
-});

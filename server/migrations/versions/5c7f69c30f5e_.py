@@ -1,4 +1,5 @@
-"""add allergy field to patient
+"""
+add allergy field to patient
 
 Revision ID: 5c7f69c30f5e
 Revises: b744b32f117e

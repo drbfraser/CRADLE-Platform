@@ -30,7 +30,7 @@ invalid_extra_keys = {
 
 
 @pytest.mark.parametrize(
-    "json, patient_id, output",
+    "json, patient_id, output_type",
     [
         (valid_post_request, valid_post_request.get("patientId"), type(None)),
         (valid_missing_id, None, type(None)),
@@ -43,14 +43,14 @@ invalid_extra_keys = {
         (invalid_extra_keys, invalid_extra_keys.get("patientId"), str),
     ],
 )
-def test_validate_post_request(json, patient_id, output):
+def test_validate_post_request(json, patient_id, output_type):
     message = validate_post_request(json, patient_id)
-    assert type(message) == output
+    assert type(message) is output_type
 
 
 @pytest.mark.skip(reason="PUT request for medical records not being used in front-end")
 @pytest.mark.parametrize(
-    "json, record_id, output",
+    "json, record_id, output_type",
     [
         (valid_post_request, valid_post_request.get("patientId"), type(None)),
         (valid_missing_id, None, type(None)),
@@ -63,9 +63,9 @@ def test_validate_post_request(json, patient_id, output):
         (invalid_extra_keys, invalid_extra_keys.get("patientId"), str),
     ],
 )
-def test_validate_put_request(json, record_id, output):
+def test_validate_put_request(json, record_id, output_type):
     message = validate_put_request(json, record_id)
-    assert type(message) == output
+    assert type(message) is output_type
 
 
 valid_empty_list = []
@@ -75,7 +75,7 @@ invalid_extra_key_subset_list = ["id", "medicalHistory", "test"]
 
 
 @pytest.mark.parametrize(
-    "json, output",
+    "json, output_type",
     [
         (valid_empty_list, type(None)),
         (valid_subset_list, type(None)),
@@ -83,6 +83,6 @@ invalid_extra_key_subset_list = ["id", "medicalHistory", "test"]
         (invalid_extra_key_subset_list, str),
     ],
 )
-def test___validate(json, output):
+def test___validate(json, output_type):
     message = __validate(json)
-    assert type(message) == output
+    assert type(message) is output_type

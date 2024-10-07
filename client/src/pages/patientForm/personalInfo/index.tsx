@@ -13,8 +13,17 @@ import ToggleButton from '@mui/material/ToggleButton';
 import { ToggleButtonGroup } from 'formik-mui';
 import { getPatientPregnancyInfoAsync } from 'src/shared/api';
 import { handleChangeCustom } from '../handlers';
-import makeStyles from '@mui/styles/makeStyles';
 import { sexOptions } from 'src/shared/constants';
+import { SxProps } from '@mui/material';
+
+const TOGGLE_SX: SxProps = {
+  ':selected': {
+    border: '1px solid #3f51b5 !important',
+    fontWeight: 'bold',
+    color: '#3f51b5 !important',
+  },
+  flexGrow: 1,
+};
 
 interface IProps {
   formikProps: FormikProps<PatientState>;
@@ -22,7 +31,6 @@ interface IProps {
 }
 
 export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
-  const classes = useStyles();
   // for *new* patients only, track whether the patient ID already exists
   const [existingPatientId, setExistingPatientId] = useState<string | null>(
     null
@@ -90,18 +98,17 @@ export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
               size="large"
               type="checkbox"
               value={Boolean(formikProps.values.isExactDob)}
-              name={PatientField.isExactDob}>
-              <ToggleButton classes={{ selected: classes.toggle }} value={true}>
+              name={PatientField.isExactDob}
+              sx={{ width: '100%' }}>
+              <ToggleButton sx={TOGGLE_SX} value={true}>
                 Date of Birth
               </ToggleButton>
-              <ToggleButton
-                classes={{ selected: classes.toggle }}
-                value={false}>
+              <ToggleButton sx={TOGGLE_SX} value={false}>
                 Estimated Age
               </ToggleButton>
             </Field>
           </Grid>
-          <Grid item md={4} sm={12}>
+          <Grid item md={2} sm={12}>
             {formikProps.values.isExactDob ? (
               <Field
                 component={TextField}
@@ -129,26 +136,6 @@ export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
             )}
           </Grid>
           <Grid item md={2} sm={12}>
-            <Field
-              component={TextField}
-              fullWidth
-              inputProps={{ maxLength: 20 }}
-              variant="outlined"
-              label="Zone ID"
-              name={PatientField.zone}
-            />
-          </Grid>
-          <Grid item md={2} sm={12}>
-            <Field
-              component={TextField}
-              fullWidth
-              inputProps={{ maxLength: 50 }}
-              variant="outlined"
-              label="Village Number"
-              name={PatientField.villageNumber}
-            />
-          </Grid>
-          <Grid item md={4} sm={12} xs={12}>
             <FormControl fullWidth variant="outlined">
               <Field
                 component={Select}
@@ -168,6 +155,26 @@ export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
               </Field>
             </FormControl>
           </Grid>
+          <Grid item md={2} sm={12}>
+            <Field
+              component={TextField}
+              fullWidth
+              inputProps={{ maxLength: 20 }}
+              variant="outlined"
+              label="Zone ID"
+              name={PatientField.zone}
+            />
+          </Grid>
+          <Grid item md={2} sm={12}>
+            <Field
+              component={TextField}
+              fullWidth
+              inputProps={{ maxLength: 50 }}
+              variant="outlined"
+              label="Village Number"
+              name={PatientField.villageNumber}
+            />
+          </Grid>
           <Grid item md={6} sm={12}>
             <Field
               component={TextField}
@@ -184,18 +191,3 @@ export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
     </Paper>
   );
 };
-
-const useStyles = makeStyles({
-  toggle: {
-    border: '1px solid #3f51b5 !important',
-    fontWeight: 'bold',
-    color: '#3f51b5 !important',
-  },
-  right: {
-    float: 'right',
-  },
-  weeksDaysPlus: {
-    textAlign: 'center',
-    fontSize: 35,
-  },
-});

@@ -3,7 +3,7 @@ from typing import Callable, Tuple
 import pytest
 import requests
 
-import systemTests.mock.factory as factory
+from systemTests.mock import factory
 
 #
 # database Fixtures
@@ -142,7 +142,9 @@ def api(url: str):
     class Api:
         @staticmethod
         def get(
-            endpoint: str, email: str = "admin123@admin.com", password: str = "admin123"
+            endpoint: str,
+            email: str = "admin123@admin.com",
+            password: str = "admin123",
         ):
             return Api.__make_request(requests.get, endpoint, {}, email, password)
 
@@ -174,7 +176,11 @@ def api(url: str):
 
         @staticmethod
         def __make_request(
-            func, endpoint: str, payload: dict, email: str, password: str
+            func,
+            endpoint: str,
+            payload: dict,
+            email: str,
+            password: str,
         ):
             token = Api.__get_bearer_token(email, password)
             header = {"Authorization": f"Bearer {token}"}

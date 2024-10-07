@@ -1,4 +1,5 @@
-"""remove unused reading columns
+"""
+remove unused reading columns
 
 Revision ID: e5396a8c62db
 Revises: ff58b4ff640f
@@ -48,7 +49,9 @@ def downgrade():
         sa.Column(
             "dateUploadedToServer",
             mysql.VARCHAR(
-                charset="utf8mb4", collation="utf8mb4_general_ci", length=100
+                charset="utf8mb4",
+                collation="utf8mb4_general_ci",
+                length=100,
             ),
             nullable=True,
         ),
@@ -76,7 +79,9 @@ def downgrade():
         sa.Column(
             "dateLastSaved",
             mysql.VARCHAR(
-                charset="utf8mb4", collation="utf8mb4_general_ci", length=100
+                charset="utf8mb4",
+                collation="utf8mb4_general_ci",
+                length=100,
             ),
             nullable=True,
         ),

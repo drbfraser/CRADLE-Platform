@@ -10,7 +10,6 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { FormTemplate } from 'src/shared/types';
 import { Toast } from 'src/shared/components/toast';
 import { handleArchiveFormTemplateAsync } from 'src/shared/api';
-import makeStyles from '@mui/styles/makeStyles';
 import { useState } from 'react';
 
 interface IProps {
@@ -20,7 +19,6 @@ interface IProps {
 }
 
 const ArchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
-  const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
@@ -55,7 +53,7 @@ const ArchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
         <DialogContent>
           <p>Are you sure you want to archive this form template?</p>
         </DialogContent>
-        <DialogActions className={classes.actions}>
+        <DialogActions sx={(theme) => ({ padding: theme.spacing(2) })}>
           <CancelButton onClick={onClose}>Cancel</CancelButton>
           <PrimaryButton onClick={archiveForm}>Archive</PrimaryButton>
         </DialogActions>
@@ -65,9 +63,3 @@ const ArchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
 };
 
 export default ArchiveTemplateDialog;
-
-const useStyles = makeStyles((theme) => ({
-  actions: {
-    padding: theme.spacing(2),
-  },
-}));

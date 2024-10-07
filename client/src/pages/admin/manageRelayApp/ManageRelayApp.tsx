@@ -9,8 +9,10 @@ import {
   Grid,
   IconButton,
   Input,
+  SxProps,
   TableRow,
   TextField,
+  Theme,
   Tooltip,
   Typography,
   useMediaQuery,
@@ -35,9 +37,7 @@ import {
 } from '@mui/icons-material';
 import * as yup from 'yup';
 import { formatBytes, getPrettyDateTime } from 'src/shared/utils';
-import makeStyles from '@mui/styles/makeStyles';
-import AdminTable from '../AdminTable';
-import { useAdminStyles } from '../adminStyles';
+import AdminTable, { AdminTableContainer, AdminTableRow } from '../AdminTable';
 import { Field, Form, Formik } from 'formik';
 import { IRelayNum } from 'src/shared/types';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
@@ -45,10 +45,6 @@ import EditRelayNum from './editRelayNum';
 import DeleteRelayNum from './DeleteRelayNum';
 
 export const ManageRelayApp = () => {
-  //Styles
-  const styles = useAdminStyles();
-  const classes = useStyles();
-
   const [hasFile, setHasFile] = useState(false);
   const [fileSize, setFileSize] = useState<string>();
   const [fileLastModified, setFileLastModified] = useState<string>();
@@ -135,7 +131,7 @@ export const ManageRelayApp = () => {
         setRelayNums(resp);
       }
     } catch (e) {
-      e !== 404 && setErrorLoading(true);
+      if (e !== 404) setErrorLoading(true);
     }
     setLoading(false);
   };
@@ -160,14 +156,14 @@ export const ManageRelayApp = () => {
         const resp = await getAppFileHeadAsync();
 
         const size = resp.headers.get('Content-Length');
-        size && setFileSize(formatBytes(parseInt(size)));
+        if (size) setFileSize(formatBytes(parseInt(size)));
 
         const date = resp.headers.get('Last-Modified');
-        date && setFileLastModified(date);
+        if (date) setFileLastModified(date);
 
         setHasFile(true);
       } catch (e) {
-        e !== 404 && setErrorLoading(true);
+        if (e !== 404) setErrorLoading(true);
       }
     };
 
@@ -244,7 +240,7 @@ export const ManageRelayApp = () => {
     const relayNumInfo = relayNums.find((num) => num.phone === row[0]);
 
     return relayNumInfo ? (
-      <TableRow className={styles.row}>
+      <AdminTableRow>
         <TableCell label="Phone Number" isTransformed={isTransformed}>
           {relayNumInfo.phone}
         </TableCell>
@@ -270,7 +266,7 @@ export const ManageRelayApp = () => {
             </Tooltip>
           ))}
         </TableCell>
-      </TableRow>
+      </AdminTableRow>
     ) : (
       <TableRow>
         <TableCell label="" isTransformed={false}>
@@ -280,8 +276,13 @@ export const ManageRelayApp = () => {
     );
   };
 
+  const boxSx: SxProps<Theme> = (theme) => ({
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  });
+
   return (
-    <div>
+    <AdminTableContainer>
       <APIErrorToast
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
@@ -357,13 +358,13 @@ export const ManageRelayApp = () => {
             </Typography>
             <Divider />
             {hasFile ? (
-              <div className={classes.root}>
+              <Box sx={boxSx}>
                 <div>Filename: {filename}</div>
                 <div>File size: {fileSize}</div>
                 <div>Last modified: {fileLastModified}</div>
-              </div>
+              </Box>
             ) : (
-              <div className={classes.root}>No file available.</div>
+              <Box sx={boxSx}>No file available.</Box>
             )}
             {hasFile && (
               <PrimaryButton onClick={handleClickDownload}>
@@ -377,7 +378,7 @@ export const ManageRelayApp = () => {
               Upload App
             </Typography>
             <Divider />
-            <div className={classes.root}>
+            <Box sx={boxSx}>
               <Button
                 color="primary"
                 aria-label="upload picture"
@@ -392,7 +393,7 @@ export const ManageRelayApp = () => {
                   onChange={handleChange}
                 />
               </Button>
-            </div>
+            </Box>
             <PrimaryButton onClick={handleClickUpload}>Upload</PrimaryButton>
             {uploadError ? (
               <Alert severity="error">Upload failed - {uploadError}</Alert>
@@ -462,13 +463,6 @@ export const ManageRelayApp = () => {
         search={search}
         setSearch={setSearch}
       />
-    </div>
+    </AdminTableContainer>
   );
 };
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
-}));

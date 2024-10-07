@@ -5,13 +5,15 @@ import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { TextField } from '@mui/material';
 import { getSymptomsFromFormState } from '../symptoms/symptoms';
-import makeStyles from '@mui/styles/makeStyles';
 
 export const Confirmation = ({ formikProps }: FormPageProps) => {
-  const classes = useStyles();
-
   return (
-    <Paper className={classes.container}>
+    <Paper
+      sx={{
+        '& h3': {
+          color: '#777',
+        },
+      }}>
       <Box p={2}>
         <h2>Confirmation</h2>
         <h3>Symptoms</h3>
@@ -125,14 +127,3 @@ export const Confirmation = ({ formikProps }: FormPageProps) => {
     </Paper>
   );
 };
-
-const useStyles = makeStyles({
-  container: {
-    '& h3': {
-      color: '#777',
-    },
-    '& textarea, & input': {
-      color: '#000',
-    },
-  },
-});

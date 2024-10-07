@@ -9,8 +9,9 @@ missing_field = {"healthFacilityName": "H0000", "userId": 1}
 
 
 @pytest.mark.parametrize(
-    "json, output", [(valid_json, type(None)), (missing_field, str)]
+    "json, output_type",
+    [(valid_json, type(None)), (missing_field, str)],
 )
-def test_validation(json, output):
+def test_validation(json, output_type):
     message = validate(json)
-    assert type(message) == output
+    assert type(message) is output_type

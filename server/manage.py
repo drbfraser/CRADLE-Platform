@@ -12,11 +12,10 @@ import click
 import numpy as np
 from flask.cli import FlaskGroup
 
-import data.crud as crud
-import data.marshal as marshal
 import models
 from api.util import create_secret_key_for_user
 from config import app, flask_bcrypt
+from data import crud, marshal
 from enums import RoleEnum
 from models import db
 
@@ -52,7 +51,9 @@ def get_username_from_email(email):
 # USAGE: python manage.py seed_minimal
 @cli.command("seed_minimal")
 def seed_minimal(
-    email="admin123@admin.com", password="admin123", facility_name="H0000"
+    email="admin123@admin.com",
+    password="admin123",
+    facility_name="H0000",
 ):
     """
     Seeds the database with the minimum amount of data required for it to be functional.
@@ -193,7 +194,9 @@ def seed_test_data(ctx):
         False,
     )
     create_medical_record(
-        "49300028162", "Aspirin 75mg\nLabetalol 200mg three times daily", True
+        "49300028162",
+        "Aspirin 75mg\nLabetalol 200mg three times daily",
+        True,
     )
     create_patient_association("49300028162", 3)
     create_patient_association("49300028163", 4)
@@ -393,13 +396,13 @@ def seed(ctx):
                 db.session.commit()
 
         if count > 0 and count % 25 == 0:
-            print("{}/{} Patients have been seeded".format(count, len(patientList)))
+            print(f"{count}/{len(patientList)} Patients have been seeded")
 
-    print("{}/{} Patients have been seeded".format(count + 1, len(patientList)))
+    print(f"{count + 1}/{len(patientList)} Patients have been seeded")
     print("Complete!")
 
     end = time.time()
-    print("The seed script took: {} seconds".format(round(end - start, 3)))
+    print(f"The seed script took: {round(end - start, 3)} seconds")
 
 
 # Creates a user and adds it to the database
@@ -425,17 +428,17 @@ def create_user(email, name, password, hf_name, role, phoneNumbers, user_id):
     for phoneNumber in phoneNumbers:
         # Check if the phone number already exists
         existing_phone = models.UserPhoneNumber.query.filter_by(
-            number=phoneNumber
+            number=phoneNumber,
         ).first()
         if existing_phone:
             print(
-                f"Phone number '{phoneNumber}' is already associated with another user."
+                f"Phone number '{phoneNumber}' is already associated with another user.",
             )
             return None
 
         # Create a new UserPhoneNumber instance and associate it with the user
         new_phone_numbers.append(
-            models.UserPhoneNumber(number=phoneNumber, user=new_user)
+            models.UserPhoneNumber(number=phoneNumber, user=new_user),
         )
 
     try:
@@ -560,7 +563,11 @@ def create_patient_reading_referral_pregnancy(
 
 
 def create_pregnancy(
-    patientId, startDate, endDate=None, outcome=None, defaultTimeUnit="WEEKS"
+    patientId,
+    startDate,
+    endDate=None,
+    outcome=None,
+    defaultTimeUnit="WEEKS",
 ):
     pregnancy = {
         "patientId": patientId,
@@ -910,9 +917,7 @@ def generatePhoneNumbers():
 
     area_codes = [loc["areaCode"] for loc in facilityLocations]
     n = len(area_codes)
-    post_fixes = [
-        "".join(["{}".format(randint(0, 9)) for num in range(0, 6)]) for x in range(n)
-    ]
+    post_fixes = ["".join([f"{randint(0, 9)}" for num in range(6)]) for x in range(n)]
 
     numbers = {}
     for i in range(n):
@@ -932,7 +937,7 @@ def generateHealthFacilities():
     facilities = set()
     while len(facilities) < n:
         facilities.add(
-            "H" + "".join(["{}".format(randint(0, 9)) for num in range(0, 4)])
+            "H" + "".join([f"{randint(0, 9)}" for num in range(4)]),
         )
 
     facilities = list(facilities)
@@ -944,7 +949,7 @@ def generateVillages():
     n = len(facilityLocations)
     villages = set()
     while len(villages) < n:
-        villages.add("1" + "".join(["{}".format(randint(0, 9)) for num in range(0, 3)]))
+        villages.add("1" + "".join([f"{randint(0, 9)}" for num in range(3)]))
     villages = list(villages)
     return villages
 

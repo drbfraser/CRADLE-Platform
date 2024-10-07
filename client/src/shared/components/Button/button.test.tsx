@@ -5,6 +5,7 @@ import {
   SecondaryButton,
 } from '.';
 import { fireEvent, render } from '@testing-library/react';
+import { vi } from 'vitest';
 
 describe('Rendering and testing all types of buttons', () => {
   describe('testing the rendering, and all the components of the Primary Button', () => {
@@ -13,7 +14,7 @@ describe('Rendering and testing all types of buttons', () => {
     });
 
     test('onCLick property of Primary Button', () => {
-      const handlePrimaryButtonClick = jest.fn();
+      const handlePrimaryButtonClick = vi.fn();
       const { getByTestId } = render(
         <PrimaryButton
           data-testid="primary"
@@ -32,7 +33,7 @@ describe('Rendering and testing all types of buttons', () => {
     });
 
     test('onCLick property of Secondary Button', () => {
-      const handleSecondaryButtonClick = jest.fn();
+      const handleSecondaryButtonClick = vi.fn();
       const { getByTestId } = render(
         <SecondaryButton
           data-testid="secondary"
@@ -51,7 +52,7 @@ describe('Rendering and testing all types of buttons', () => {
     });
 
     test('onCLick property of Cancel Button', () => {
-      const handleCancelButtonClick = jest.fn();
+      const handleCancelButtonClick = vi.fn();
       const { getByTestId } = render(
         <CancelButton data-testid="cancel" onClick={handleCancelButtonClick} />
       );

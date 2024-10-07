@@ -1,4 +1,5 @@
-"""Change default value for visibleCondition
+"""
+Change default value for visibleCondition
 
 Revision ID: 92e818bd7db3
 Revises: 03eb65e086d0

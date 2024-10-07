@@ -1,4 +1,5 @@
-"""nullable associations
+"""
+nullable associations
 
 Revision ID: cc4478373908
 Revises: 7904e9f1d50e
@@ -29,19 +30,19 @@ def upgrade():
         """
         ALTER TABLE patient_associations
         DROP FOREIGN KEY patient_associations_ibfk_1
-        """
+        """,
     )
     op.execute(
         """
         ALTER TABLE patient_associations
         DROP FOREIGN KEY patient_associations_ibfk_2
-        """
+        """,
     )
     op.execute(
         """
         ALTER TABLE patient_associations
         DROP FOREIGN KEY patient_associations_ibfk_3
-        """
+        """,
     )
 
     # Drop primary key constraint
@@ -52,7 +53,7 @@ def upgrade():
         """
         ALTER TABLE patient_associations
         ADD CONSTRAINT patient_associations_pk PRIMARY KEY (id)
-        """
+        """,
     )
 
     # Make it auto-increment
@@ -60,7 +61,7 @@ def upgrade():
         """
         ALTER TABLE patient_associations
         MODIFY id INTEGER NOT NULL AUTO_INCREMENT
-        """
+        """,
     )
 
     # Add back foreign key constraints
@@ -71,7 +72,7 @@ def upgrade():
         FOREIGN KEY (healthFacilityName)
         REFERENCES healthfacility (healthFacilityName)
         ON DELETE CASCADE
-        """
+        """,
     )
     # If patient is deleted, we should delete all associations for them
     op.execute(
@@ -81,7 +82,7 @@ def upgrade():
         FOREIGN KEY (patientId)
         REFERENCES patient (patientId)
         ON DELETE CASCADE
-        """
+        """,
     )
     op.execute(
         """
@@ -90,7 +91,7 @@ def upgrade():
         FOREIGN KEY (userId)
         REFERENCES user (id)
         ON DELETE CASCADE
-        """
+        """,
     )
 
     op.alter_column(
@@ -129,6 +130,6 @@ def downgrade():
         ALTER TABLE patient_associations
         ADD CONSTRAINT patient_associations_pk
         PRIMARY KEY (patientId, healthFacilityName, userId)
-        """
+        """,
     )
     # ### end Alembic commands ###

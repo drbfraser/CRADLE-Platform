@@ -2,7 +2,7 @@ import { IconButton, Tooltip } from '@mui/material';
 import { useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import AdminTable from '../AdminTable';
+import AdminTable, { AdminTableContainer, AdminTableRow } from '../AdminTable';
 import CreateIcon from '@mui/icons-material/Create';
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import DeleteUser from './DeleteUser';
@@ -13,13 +13,11 @@ import ResetPassword from './ResetPassword';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import { getUsersAsync } from 'src/shared/api';
-import { useAdminStyles } from '../adminStyles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useSelector } from 'react-redux';
 import { userRoleLabels } from 'src/shared/constants';
 
 export const ManageUsers = () => {
-  const styles = useAdminStyles();
   const currentUserId = useSelector<ReduxState>(
     (state) => state.user.current.data!.userId
   ) as number;
@@ -142,7 +140,7 @@ export const ManageUsers = () => {
       : rowActions;
 
     return (
-      <tr className={styles.row}>
+      <AdminTableRow>
         <TableCell label="First Name" isTransformed={isTransformed}>
           {cells[0]}
         </TableCell>
@@ -175,12 +173,12 @@ export const ManageUsers = () => {
             </Tooltip>
           ))}
         </TableCell>
-      </tr>
+      </AdminTableRow>
     );
   };
 
   return (
-    <div className={styles.tableContainer}>
+    <AdminTableContainer>
       <APIErrorToast
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
@@ -222,6 +220,6 @@ export const ManageUsers = () => {
         loading={loading}
         isTransformed={isTransformed}
       />
-    </div>
+    </AdminTableContainer>
   );
 };

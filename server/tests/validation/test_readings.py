@@ -101,7 +101,7 @@ followup_invalid = {
 
 
 @pytest.mark.parametrize(
-    "json, output",
+    "json, output_type",
     [
         (valid_json, type(None)),
         (required_keys_missing, str),
@@ -111,6 +111,6 @@ followup_invalid = {
         (followup_invalid, str),
     ],
 )
-def test_validation(json, output):
+def test_validation(json, output_type):
     message = validate(json)
-    assert type(message) == output
+    assert type(message) is output_type

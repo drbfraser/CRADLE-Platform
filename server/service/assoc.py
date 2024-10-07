@@ -5,7 +5,7 @@ patients, health facilities, and users.
 
 from typing import List
 
-import data.crud as crud
+from data import crud
 from enums import RoleEnum
 from models import HealthFacility, Patient, PatientAssociations, User
 
@@ -29,9 +29,8 @@ def associate_by_user_role(patient: Patient, user: User):
     if user.role == RoleEnum.HCW.value:
         if not has_association(patient, facility=user.healthFacility):
             associate(patient, facility=user.healthFacility)
-    else:
-        if not has_association(patient, user=user):
-            associate(patient, user=user)
+    elif not has_association(patient, user=user):
+        associate(patient, user=user)
 
 
 def associate(patient: Patient, facility: HealthFacility = None, user: User = None):
@@ -56,7 +55,9 @@ def associate(patient: Patient, facility: HealthFacility = None, user: User = No
 
 
 def associate_by_id(
-    patient_id: str, facility_name: str, user_id: int
+    patient_id: str,
+    facility_name: str,
+    user_id: int,
 ) -> PatientAssociations:
     """
     Creates a 3-way association between a patient, facility, and a user identified
@@ -69,7 +70,6 @@ def associate_by_id(
     :except ValueError: If any of the identifiers don't identify a value
     :return: An association object
     """
-
     patient = crud.read(Patient, patientId=patient_id)
     facility = crud.read(HealthFacility, healthFacilityName=facility_name)
     user = crud.read(User, id=user_id)
@@ -80,7 +80,9 @@ def associate_by_id(
 
 
 def has_association(
-    patient: Patient = None, facility: HealthFacility = None, user: User = None
+    patient: Patient = None,
+    facility: HealthFacility = None,
+    user: User = None,
 ) -> bool:
     """
     Returns true if the supplied models are associated with one another.
@@ -98,7 +100,9 @@ def has_association(
 
 
 def has_association_by_id(
-    patient_id: str = None, facility_name: str = None, user_id: int = None
+    patient_id: str = None,
+    facility_name: str = None,
+    user_id: int = None,
 ) -> bool:
     """
     Returns true if the supplied models are associated with one another.

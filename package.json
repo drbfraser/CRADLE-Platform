@@ -1,8 +1,8 @@
 {
   "type": "module",
   "devDependencies": {
-    "lint-staged": "^13.1.2",
-    "husky": "^8.0.0"
+    "husky": "^8.0.0",
+    "lint-staged": "^13.1.2"
   },
   "scripts": {
     "prepare": "husky install"

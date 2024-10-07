@@ -1,4 +1,5 @@
-"""Change referral id to string
+"""
+Change referral id to string
 
 Revision ID: 3d4134e04df9
 Revises: 276237440825
@@ -35,7 +36,7 @@ def upgrade():
         for (existing_id,) in results:
             new_id = str(uuid.uuid4())
             results = connection.execute(
-                f"UPDATE referral SET id='{new_id}' WHERE id='{existing_id}'"
+                f"UPDATE referral SET id='{new_id}' WHERE id='{existing_id}'",
             )
 
 
@@ -45,7 +46,7 @@ def downgrade():
     results = connection.execute("SELECT id FROM referral")
     for (existing_id,) in results:
         results = connection.execute(
-            f"UPDATE referral SET id='{new_id}' WHERE id='{existing_id}'"
+            f"UPDATE referral SET id='{new_id}' WHERE id='{existing_id}'",
         )
         new_id += 1
 

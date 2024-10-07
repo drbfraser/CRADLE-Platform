@@ -4,6 +4,7 @@ import {
   Divider,
   Paper,
   Skeleton,
+  SxProps,
   TableBody,
   Typography,
 } from '@mui/material';
@@ -23,7 +24,6 @@ import { RedirectButton } from 'src/shared/components/Button';
 import Table from '@mui/material/Table';
 import TableRow from '@mui/material/TableRow';
 import { getPatientPregnancySummaryAsync } from 'src/shared/api';
-import makeStyles from '@mui/styles/makeStyles';
 
 interface IProps {
   patientId: string;
@@ -31,7 +31,6 @@ interface IProps {
 }
 
 export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
-  const classes = useStyles();
   const history = useHistory();
 
   const [currentPregnancyUnit, setCurrentPregnancyUnit] = useState(
@@ -96,7 +95,7 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
 
     return (
       <Box margin="10px">
-        <div className={classes.headerWithRightElement}>
+        <Box sx={HEADER_SX}>
           <h4>Current Pregnancy</h4>
           <RedirectButton
             url={
@@ -109,14 +108,14 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
             size="small">
             {info!.isPregnant ? 'Edit/Close' : 'Add'}
           </RedirectButton>
-        </div>
+        </Box>
         <p>
           <b>Pregnant: </b> {status}
         </p>
         {info?.isPregnant && (
           <>
             <GestationalAge />
-            <div className={classes.headerWithRightElement}>
+            <Box sx={HEADER_SX}>
               <b>Gestational Age Unit View: </b>
               <Form.Field
                 name="gestationalAgeUnits"
@@ -124,9 +123,11 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
                 options={unitOptions}
                 placeholder={gestationalAgeUnitLabels[currentPregnancyUnit]}
                 onChange={handleCurrentPregnancyUnitChange}
-                className={classes.marginLeft}
+                sx={{
+                  marginLeft: '5px',
+                }}
               />
-            </div>
+            </Box>
           </>
         )}
         {isOverdue && (
@@ -139,9 +140,12 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
   };
 
   return (
-    <Paper className={classes.wrapper}>
+    <Paper
+      sx={{
+        backgroundColor: '#fff',
+      }}>
       <Box p={3}>
-        <div className={classes.headerWithRightElement}>
+        <Box sx={HEADER_SX}>
           <Typography component="h5" variant="h5">
             <PregnantWomanIcon fontSize="large" />
             Pregnancy Information
@@ -152,7 +156,7 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
             }>
             View Past Records
           </Link>
-        </div>
+        </Box>
         <Divider />
         {errorLoading ? (
           <Alert severity="error">
@@ -164,15 +168,18 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
             <CurrentPregnancyStatus />
             <Divider />
             <Box margin="10px">
-              <div className={classes.headerWithRightElement}>
+              <Box sx={HEADER_SX}>
                 <h4> Previous Obstetric History</h4>
                 <RedirectButton
                   url={`/pregnancies/new/${patientId}`}
                   size="small">
                   Add
                 </RedirectButton>
-              </div>
-              <Table className={classes.table}>
+              </Box>
+              <Table
+                sx={{
+                  clear: 'right',
+                }}>
                 <TableBody>
                   {info.pastPregnancies && info.pastPregnancies.length > 0 ? (
                     info.pastPregnancies.map(
@@ -212,7 +219,7 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
                 </TableBody>
               </Table>
               {info.pastPregnancies && info.pastPregnancies.length > 0 && (
-                <div className={classes.headerWithRightElement}>
+                <Box sx={HEADER_SX}>
                   <b>Gestational Age Unit View: </b>
                   <Form.Field
                     name="gestationalAgeUnits"
@@ -223,7 +230,7 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
                     }
                     onChange={handlePreviousPregnancyUnitChange}
                   />
-                </div>
+                </Box>
               )}
             </Box>
           </>
@@ -235,32 +242,9 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
   );
 };
 
-const useStyles = makeStyles({
-  marginLeft: {
-    marginLeft: 5,
-  },
-  wrapper: {
-    backgroundColor: '#fff',
-  },
-  table: {
-    clear: 'right',
-  },
-  title: {
-    display: `flex`,
-    alignItems: `center`,
-  },
-  inline: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: '10px',
-    marginBottom: '10px',
-  },
-  headerWithRightElement: {
-    display: 'flex',
-    marginTop: '10px',
-    alignItems: 'center',
-    placeContent: 'space-between',
-  },
-});
+const HEADER_SX: SxProps = {
+  display: 'flex',
+  marginTop: '10px',
+  alignItems: 'center',
+  placeContent: 'space-between',
+};

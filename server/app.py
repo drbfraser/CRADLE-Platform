@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 # We do not care about sorting the imports(or their location) in this file because it could lead to import errors
 # ruff: noqa: I001, E402
 """
@@ -41,11 +43,41 @@ port = os.environ.get("PORT")
 
 if port is None:
     port = 5000
-    print("PORT environment variable not found. Using default ({}).".format(port))
+    print(f"PORT environment variable not found. Using default ({port}).")
 else:
     print("PORT environment variable found:", port)
 
 print("Binding to " + host + ":" + port)
+
+
+def is_public_endpoint(request):
+    if request.endpoint.startswith("flasgger.") or request.endpoint in {
+        "userauthapi",
+        "version",
+        "static",
+    }:
+        return True
+
+    endpoint_handler_func = app.view_functions[request.endpoint]
+    is_public = getattr(endpoint_handler_func, "is_public_endpoint", False)
+    LOGGER.debug(
+        "Check if route is public endpoint",
+        extra={
+            "endpoint": request.endpoint,
+            "url": request.path,
+            "is_public_endpoint": is_public,
+        },
+    )
+    return is_public
+
+
+@app.before_request
+def require_authorization():
+    """
+    run authorization check for all urls by default
+    """
+    if not is_public_endpoint(request):
+        verify_jwt_in_request()
 
 
 @app.after_request
@@ -69,8 +101,7 @@ def log_request_details(response):
         for key in req_data:
             if "password" in key.lower():
                 continue
-            else:
-                request_data[key] = req_data[key]
+            request_data[key] = req_data[key]
 
         if response.status_code == 200:
             status_str = "Successful"
@@ -87,7 +118,7 @@ def log_request_details(response):
         LOGGER.info(message, extra=extra)
     except Exception as err:
         LOGGER.info(
-            "An unexpected error occured while logging request and response data"
+            "An unexpected error occured while logging request and response data",
         )
         LOGGER.error(err)
     return response

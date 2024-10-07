@@ -3,7 +3,7 @@ import { OrNull, Reading } from 'src/shared/types';
 
 import { TrafficLightEnum } from 'src/shared/enums';
 import moment from 'moment';
-import { history } from 'src/redux/reducers/index';
+import { history } from 'src/redux/reducers/history';
 
 export { v4 as makeUniqueId } from 'uuid';
 

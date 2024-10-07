@@ -1,4 +1,5 @@
-"""three way patient associations
+"""
+three way patient associations
 
 Revision ID: d41dc6eb7f5d
 Revises: 30101cf360db
@@ -67,7 +68,9 @@ def downgrade():
             name="patient_facility_ibfk_1",
         ),
         sa.ForeignKeyConstraint(
-            ["patientId"], ["patient.patientId"], name="patient_facility_ibfk_2"
+            ["patientId"],
+            ["patient.patientId"],
+            name="patient_facility_ibfk_2",
         ),
         sa.PrimaryKeyConstraint("id"),
         mysql_collate="utf8mb4_general_ci",

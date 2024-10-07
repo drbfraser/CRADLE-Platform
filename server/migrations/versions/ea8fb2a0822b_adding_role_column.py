@@ -1,4 +1,5 @@
-"""Adding role column
+"""
+Adding role column
 
 Revision ID: ea8fb2a0822b
 Revises: a13ad326b35b

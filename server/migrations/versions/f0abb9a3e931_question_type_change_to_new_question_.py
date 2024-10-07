@@ -1,4 +1,5 @@
-"""question type change to new question type enum
+"""
+question type change to new question type enum
 
 Revision ID: f0abb9a3e931
 Revises: 152027798b6f

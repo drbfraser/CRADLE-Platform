@@ -11,7 +11,6 @@ import { PrimaryButton } from 'src/shared/components/Button';
 import { Typography } from '@mui/material';
 import { assessmentFormValidationSchema } from './validation';
 import { handleSubmit } from './handlers';
-import makeStyles from '@mui/styles/makeStyles';
 import { useState } from 'react';
 
 interface IProps {
@@ -27,7 +26,6 @@ export const AssessmentForm = ({
   assessmentId,
   referralId,
 }: IProps) => {
-  const classes = useStyles();
   const [submitError, setSubmitError] = useState(false);
   const [displayEmptyFormError, setDisplayEmptyFormError] = useState(false);
   const drugHistory = initialState.drugHistory;
@@ -166,7 +164,9 @@ export const AssessmentForm = ({
             </Paper>
             <br />
             <PrimaryButton
-              className={classes.right}
+              sx={{
+                float: 'right',
+              }}
               type="submit"
               disabled={isSubmitting}>
               {assessmentId === undefined ? 'Create' : 'Save Changes'}
@@ -177,9 +177,3 @@ export const AssessmentForm = ({
     </>
   );
 };
-
-const useStyles = makeStyles({
-  right: {
-    float: 'right',
-  },
-});

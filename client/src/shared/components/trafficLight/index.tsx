@@ -1,62 +1,68 @@
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import { ReactComponent as GreenTraffic } from './icons/green.svg';
-import { ReactComponent as NoneIcon } from './icons/none.svg';
-import { ReactComponent as RedTraffic } from './icons/red.svg';
+import GreenTraffic from './icons/green.svg?react';
+import RedTraffic from './icons/red.svg?react';
+import YellowTraffic from './icons/yellow.svg?react';
+import NoneIcon from './icons/none.svg?react';
 import { TrafficLightEnum } from 'src/shared/enums';
 import Typography from '@mui/material/Typography';
-import { ReactComponent as YellowTraffic } from './icons/yellow.svg';
 import { useCallback } from 'react';
-import { useStyles } from './styles';
+import { SxProps, Theme } from '@mui/material';
 
 interface IProps extends React.HTMLAttributes<HTMLDivElement> {
   status: TrafficLightEnum;
 }
 
-export const TrafficLight: React.FC<IProps> = ({ status, ...props }) => {
-  const classes = useStyles();
+const TRAFFIC_LIGHT_PROPS = {
+  height: '30px',
+  width: '30px',
+};
+const trafficLightArrowSx: SxProps<Theme> = (theme) => ({
+  fontSize: theme.spacing(5),
+});
 
+export const TrafficLight: React.FC<IProps> = ({ status, ...props }) => {
   const renderTrafficLight = useCallback(
     (trafficLightStatus: TrafficLightEnum): JSX.Element => {
       switch (trafficLightStatus) {
         case TrafficLightEnum.RED_DOWN: {
           return (
             <>
-              <RedTraffic className={classes.trafficLight} />
-              <ArrowDownwardIcon className={classes.trafficLightArrow} />
+              <RedTraffic {...TRAFFIC_LIGHT_PROPS} />
+              <ArrowDownwardIcon sx={trafficLightArrowSx} />
             </>
           );
         }
         case TrafficLightEnum.RED_UP: {
           return (
             <>
-              <RedTraffic className={classes.trafficLight} />
-              <ArrowUpwardIcon className={classes.trafficLightArrow} />
+              <RedTraffic {...TRAFFIC_LIGHT_PROPS} />
+              <ArrowUpwardIcon sx={trafficLightArrowSx} />
             </>
           );
         }
         case TrafficLightEnum.YELLOW_UP: {
           return (
             <>
-              <YellowTraffic className={classes.trafficLight} />
-              <ArrowUpwardIcon className={classes.trafficLightArrow} />
+              <YellowTraffic {...TRAFFIC_LIGHT_PROPS} />
+              <ArrowUpwardIcon sx={trafficLightArrowSx} />
             </>
           );
         }
         case TrafficLightEnum.YELLOW_DOWN: {
           return (
             <>
-              <YellowTraffic className={classes.trafficLight} />
-              <ArrowDownwardIcon className={classes.trafficLightArrow} />
+              <YellowTraffic {...TRAFFIC_LIGHT_PROPS} />
+              <ArrowDownwardIcon sx={trafficLightArrowSx} />
             </>
           );
         }
         case TrafficLightEnum.GREEN: {
           return (
             <>
-              <GreenTraffic className={classes.trafficLight} />
+              <GreenTraffic {...TRAFFIC_LIGHT_PROPS} />
               <ArrowDownwardIcon
-                className={classes.trafficLightArrow}
+                sx={trafficLightArrowSx}
                 style={{ visibility: 'hidden' }}
               />
             </>
@@ -65,9 +71,9 @@ export const TrafficLight: React.FC<IProps> = ({ status, ...props }) => {
         case TrafficLightEnum.NONE: {
           return (
             <>
-              <NoneIcon className={classes.trafficLight} />
+              <NoneIcon {...TRAFFIC_LIGHT_PROPS} />
               <ArrowDownwardIcon
-                className={classes.trafficLightArrow}
+                sx={trafficLightArrowSx}
                 style={{ visibility: 'hidden' }}
               />
             </>
@@ -84,7 +90,7 @@ export const TrafficLight: React.FC<IProps> = ({ status, ...props }) => {
         }
       }
     },
-    [classes.trafficLight, classes.trafficLightArrow]
+    []
   );
 
   return <div {...props}>{renderTrafficLight(status)}</div>;

@@ -2,6 +2,8 @@ import datetime
 import json
 import logging.config
 import os
+from pathlib import Path
+from typing import ClassVar
 
 import environs
 from environs import Env
@@ -18,10 +20,10 @@ from flask_sqlalchemy import SQLAlchemy
 # Versioning system follows : https://semver.org/
 app_version = "1.0.0"
 
-basedir = os.path.abspath(os.path.dirname(__file__))
+basedir = Path(os.path.dirname(__file__)).resolve()
 
 
-class Config(object):
+class Config:
     env = Env()
     env.read_env()
 
@@ -35,13 +37,13 @@ class Config(object):
 
     except environs.EnvError:
         print(
-            "******************************************************************************************"
+            "******************************************************************************************",
         )
         print(
-            "DB_USERNAME, DB_PASSWORD, DB_HOSTNAME, DB_PORT, OR DB_NAME environment variable not set"
+            "DB_USERNAME, DB_PASSWORD, DB_HOSTNAME, DB_PORT, OR DB_NAME environment variable not set",
         )
         print(
-            "******************************************************************************************"
+            "******************************************************************************************",
         )
 
     SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{db_user}:{db_pw}@{db_hostname}:{db_port}/{db_name}"  # ex: 'mysql+pymysql://root:123456@localhost:3306/cradle'
@@ -51,7 +53,7 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(days=7)
-    LOGGING = {
+    LOGGING: ClassVar = {
         "version": 1,
         "disable_existing_loggers": False,
         "filters": {
@@ -64,7 +66,7 @@ class Config(object):
             "json_formatter": {
                 "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
                 "fmt": "%(asctime) %(name)-12s %(levelname)-8s %(request_id)s - %(message)s",
-            }
+            },
         },
         "handlers": {
             "console": {

@@ -10,16 +10,16 @@ import { OrNull } from 'src/shared/types';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { ReduxState } from 'src/redux/reducers';
 import { Toast } from 'src/shared/components/toast';
-import makeStyles from '@mui/styles/makeStyles';
-import { useAppDispatch } from 'src/app/context/hooks';
+import { useAppDispatch } from 'src/shared/hooks';
 import { useFormik } from 'formik';
 import { useSelector } from 'react-redux';
+import { PropsWithChildren } from 'react';
 import {
   Box,
   Container,
   InputLabelProps,
   TextField,
-  useMediaQuery,
+  Typography,
 } from '@mui/material';
 
 export const LoginForm: React.FC = () => {
@@ -28,7 +28,6 @@ export const LoginForm: React.FC = () => {
   );
 
   const dispatch = useAppDispatch();
-  const classes = useStyles();
 
   const formik = useFormik({
     initialValues: {
@@ -48,8 +47,6 @@ export const LoginForm: React.FC = () => {
     dispatch(clearCurrentUserError());
   };
 
-  const minHeightThreshold = useMediaQuery('(min-height:500px)');
-
   return (
     <>
       <Toast
@@ -60,46 +57,88 @@ export const LoginForm: React.FC = () => {
         transitionDuration={0}
       />
       <Container
-        id={'loginFormContainer'}
-        className={classes.formContainer}
-        sx={minHeightThreshold ? undefined : UNDER_MIN_HEIGHT_SCALE}>
-        <form className={classes.form} onSubmit={formik.handleSubmit}>
-          <h2 className={classes.login}>Log In</h2>
-          <Box id={'loginFormFieldsWrapper'} className={classes.fieldsWrapper}>
-            <Box className={classes.inputWrapper}>
-              <TextField
-                id={'emailField'}
-                label={'Email'}
-                className={classes.textField}
-                InputLabelProps={INPUT_LABEL_PROPS}
-                type={'email'}
-                autoComplete={'email'}
-                error={formik.touched.email && Boolean(formik.errors.email)}
-                helperText={
-                  (formik.touched.email && formik.errors.email) || ' '
-                }
-                {...formik.getFieldProps('email')}
-              />
-            </Box>
-            <Box className={classes.inputWrapper}>
-              <TextField
-                id={'passwordField'}
-                label={'Password'}
-                className={classes.textField}
-                InputLabelProps={INPUT_LABEL_PROPS}
-                type="password"
-                autoComplete="current-password"
-                error={
-                  formik.touched.password && Boolean(formik.errors.password)
-                }
-                helperText={
-                  (formik.touched.password && formik.errors.password) || ' '
-                }
-                {...formik.getFieldProps('password')}
-              />
+        id={'login-form-container'}
+        disableGutters
+        sx={{
+          minHeight: '400px',
+          height: '100%',
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          '@media (min-height: 500px)': {
+            transform: 'scale(0.75)',
+          },
+        }}>
+        <form onSubmit={formik.handleSubmit}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              width: '260px',
+              justifyContent: 'space-evenly',
+            }}>
+            <Typography
+              variant="h2"
+              sx={{
+                fontSize: '50px',
+                fontWeight: 700,
+              }}>
+              Log In
+            </Typography>
+            <Box
+              id={'login-form-fields-wrapper'}
+              sx={{
+                marginTop: '20px',
+                marginBottom: '5px',
+                display: 'flex',
+                flexDirection: 'column',
+                rowGap: '20px',
+              }}>
+              <InputWrapper>
+                <TextField
+                  id={'emailField'}
+                  label={'Email'}
+                  sx={{ width: '100%' }}
+                  InputLabelProps={INPUT_LABEL_PROPS}
+                  type={'email'}
+                  autoComplete={'email'}
+                  error={formik.touched.email && Boolean(formik.errors.email)}
+                  helperText={
+                    (formik.touched.email && formik.errors.email) || ' '
+                  }
+                  {...formik.getFieldProps('email')}
+                />
+              </InputWrapper>
+              <InputWrapper>
+                <TextField
+                  id={'passwordField'}
+                  label={'Password'}
+                  sx={{ width: '100%' }}
+                  InputLabelProps={INPUT_LABEL_PROPS}
+                  type="password"
+                  autoComplete="current-password"
+                  error={
+                    formik.touched.password && Boolean(formik.errors.password)
+                  }
+                  helperText={
+                    (formik.touched.password && formik.errors.password) || ' '
+                  }
+                  {...formik.getFieldProps('password')}
+                />
+              </InputWrapper>
             </Box>
           </Box>
-          <PrimaryButton type="submit" className={classes.right}>
+          <PrimaryButton
+            type="submit"
+            sx={{
+              marginLeft: 'auto',
+              marginRight: 0,
+              display: 'flex',
+              justifyContent: 'flex-end',
+              fontWeight: 'bold',
+            }}>
             Login
           </PrimaryButton>
         </form>
@@ -110,63 +149,17 @@ export const LoginForm: React.FC = () => {
 
 const INPUT_LABEL_PROPS: InputLabelProps = Object.freeze({ shrink: true });
 
-const UNDER_MIN_HEIGHT_SCALE = {
-  transform: 'scale(0.75)',
+const InputWrapper = ({ children }: PropsWithChildren) => {
+  return (
+    <Box
+      sx={{
+        // Prevents layout from shifting around when error text is visible.
+        minHeight: '80px',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'start',
+      }}>
+      {children}
+    </Box>
+  );
 };
-
-const useStyles = makeStyles({
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    width: '260px',
-    justifyContent: 'space-evenly',
-  },
-  right: {
-    marginLeft: 'auto',
-    marginRight: 0,
-    display: 'flex',
-    justifyContent: 'flex-end',
-    fontWeight: 'bold',
-  },
-  login: {
-    fontSize: '50px',
-  },
-  inputStyle: {
-    width: '100%',
-    height: '40px',
-    borderRadius: '5px',
-    padding: '10px',
-    borderBottom: 'solid 1px #000',
-  },
-  formError: {
-    fontSize: '12px',
-    color: '#e53e3e',
-    marginTop: '0.25rem',
-  },
-  textField: {
-    width: '100%',
-  },
-  formContainer: {
-    minHeight: '400px',
-    height: '100%',
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  fieldsWrapper: {
-    marginTop: '20px',
-    marginBottom: '5px',
-    display: 'flex',
-    flexDirection: 'column',
-    rowGap: '20px',
-  },
-  inputWrapper: {
-    // Prevents layout from shifting around when error text is visible.
-    minHeight: '80px',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'start',
-  },
-});

@@ -1,4 +1,5 @@
-"""add lastEdited field for Readings
+"""
+add lastEdited field for Readings
 
 Revision ID: a8ad53e6717c
 Revises: 46d3d2542f6a

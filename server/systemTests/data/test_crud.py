@@ -1,4 +1,4 @@
-import data.crud as crud
+from data import crud
 from models import Patient
 
 

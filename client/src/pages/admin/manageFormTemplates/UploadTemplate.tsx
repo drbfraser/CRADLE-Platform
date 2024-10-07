@@ -1,19 +1,19 @@
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import {
+  Box,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  SxProps,
+  Theme,
 } from '@mui/material';
-import { Dropzone, FileItem, FileValidated } from '@dropzone-ui/react';
+import { Dropzone, FileMosaic, ExtFile } from '@files-ui/react';
 import { useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { OrNull } from 'src/shared/types';
 import SampleTemplateLink from './SampleTemplateLink';
 import { Toast } from 'src/shared/components/toast';
-import { isString } from 'lodash';
-import makeStyles from '@mui/styles/makeStyles';
 import { saveFormTemplateWithFileAsync } from 'src/shared/api';
 
 interface IProps {
@@ -22,8 +22,7 @@ interface IProps {
 }
 
 const UploadTemplate = ({ open, onClose }: IProps) => {
-  const classes = useStyles();
-  const [fileObject, setFileObject] = useState<OrNull<FileValidated>>(null);
+  const [files, setFiles] = useState<ExtFile[]>([]);
 
   const [uploadError, setUploadError] = useState<string>('');
   const [showError, setShowError] = useState<boolean>(false);
@@ -37,34 +36,58 @@ const UploadTemplate = ({ open, onClose }: IProps) => {
     500: 'Internal Server Error',
   };
 
-  const handleClickUpload = async (fileObj: FileValidated) => {
-    if (fileObj) {
-      try {
-        await saveFormTemplateWithFileAsync(fileObj.file);
+  const updateFiles = (incomingFiles: ExtFile[]) => {
+    setFiles(incomingFiles);
+  };
 
-        setUploadSuccess(`${fileObj.file.name} uploaded successfully`);
-        setShowSuccess(true);
+  const handleClickUpload = async (extFiles: ExtFile[]) => {
+    if (extFiles.length < 1) {
+      return;
+    }
+    const extFile: ExtFile = extFiles[0];
+    if (!extFile) {
+      return;
+    }
+    const file = extFile.file;
+    if (!file) {
+      return;
+    }
+    try {
+      await saveFormTemplateWithFileAsync(file);
 
-        onClose();
-      } catch (e: any) {
-        let message = '';
+      setUploadSuccess(`${file.name} uploaded successfully`);
+      setShowSuccess(true);
 
-        if (e.status && errorMessages[e.status]) {
-          message = errorMessages[e.status];
-        } else if (!isString(e)) {
-          const err = e.json();
-          message = err.message;
-        }
-
-        setUploadError(message);
+      onClose();
+    } catch (e: unknown) {
+      let message = '';
+      if (!(e instanceof Response)) {
+        // Show generic error message.
         setShowError(true);
+        return;
       }
+
+      if (e.status && errorMessages[e.status]) {
+        message = errorMessages[e.status];
+      } else {
+        const err = await e.json();
+        message = err.message;
+        console.error(message);
+      }
+
+      setUploadError(message);
+      setShowError(true);
     }
   };
 
   useEffect(() => {
-    !open && setFileObject(null);
+    if (!open) setFiles([]);
   }, [open]);
+
+  const boxSx: SxProps<Theme> = (theme) => ({
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  });
 
   return (
     <>
@@ -83,34 +106,35 @@ const UploadTemplate = ({ open, onClose }: IProps) => {
       <Dialog open={open} maxWidth="sm" fullWidth>
         <DialogTitle>Upload Form Template</DialogTitle>
         <DialogContent>
-          <div className={classes.root}>
+          <Box sx={boxSx}>
             <Dropzone
               maxFiles={1}
               behaviour="replace"
               accept={['application/json', 'text/csv'].join(',')}
-              value={fileObject ? [fileObject] : []}
-              onChange={(files: FileValidated[]) =>
-                setFileObject(files.pop() ?? null)
-              }
+              value={files}
+              onChange={updateFiles}
               header={false}
               footer={false}>
-              {fileObject && (
-                <FileItem
-                  {...fileObject}
-                  onDelete={() => setFileObject(null)}
+              {files.map((file) => (
+                <FileMosaic
+                  {...file}
+                  key={file.id}
+                  onDelete={() => setFiles([])}
                   info
                 />
-              )}
+              ))}
             </Dropzone>
-          </div>
-          <div className={classes.root}>
+          </Box>
+          <Box sx={boxSx}>
             <SampleTemplateLink />
-          </div>
+          </Box>
           <DialogActions>
             <CancelButton onClick={onClose}>Cancel</CancelButton>
             <PrimaryButton
-              disabled={!fileObject}
-              onClick={() => fileObject && handleClickUpload(fileObject)}>
+              disabled={files.length < 1}
+              onClick={() => {
+                if (files.length >= 1) handleClickUpload(files);
+              }}>
               Upload
             </PrimaryButton>
           </DialogActions>
@@ -119,19 +143,5 @@ const UploadTemplate = ({ open, onClose }: IProps) => {
     </>
   );
 };
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
-  dropzone: {
-    border: '1px dashed #ccc',
-    borderRadius: 4,
-    cursor: 'pointer',
-    padding: theme.spacing(2),
-    textAlign: 'center',
-  },
-}));
 
 export default UploadTemplate;

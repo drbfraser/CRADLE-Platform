@@ -7,13 +7,10 @@ import {
   Link,
   Typography,
 } from '@mui/material';
-
 import { PrimaryButton } from 'src/shared/components/Button';
-import makeStyles from '@mui/styles/makeStyles';
 import { useState } from 'react';
 
 const SampleTemplateLink = () => {
-  const styles = useStyles();
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const SampleLink = () => (
@@ -21,7 +18,13 @@ const SampleTemplateLink = () => {
       onClick={() => {
         setDialogOpen(true);
       }}
-      className={styles.noteLink}
+      sx={{
+        '&, &:hover': {
+          color: 'blue',
+          textDecoration: 'underline',
+          cursor: 'pointer',
+        },
+      }}
       underline="hover">
       Sample Template
     </Link>
@@ -74,7 +77,10 @@ const SampleTemplateLink = () => {
 
   const SampleTemplateDialog = () => (
     <Dialog open={dialogOpen}>
-      <DialogTitle className={styles.noteTitle}>
+      <DialogTitle
+        sx={{
+          paddingBottom: 0,
+        }}>
         Sample Template Json File
       </DialogTitle>
       <DialogContent>
@@ -105,18 +111,5 @@ const SampleTemplateLink = () => {
     </>
   );
 };
-
-const useStyles = makeStyles({
-  noteLink: {
-    '&, &:hover': {
-      color: 'blue',
-      textDecoration: 'underline',
-      cursor: 'pointer',
-    },
-  },
-  noteTitle: {
-    paddingBottom: 0,
-  },
-});
 
 export default SampleTemplateLink;

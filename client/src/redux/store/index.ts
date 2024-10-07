@@ -1,13 +1,12 @@
-import { history, rootReducer } from '../reducers';
+import { rootReducer } from '../reducers';
 
 import { configureStore } from '@reduxjs/toolkit';
 import { requestMiddleware } from '../middleware';
-import { routerMiddleware } from 'connected-react-router';
 import thunk from 'redux-thunk';
 
 const preloadedState = {};
 
-const middleware = [thunk, routerMiddleware(history), requestMiddleware()];
+const middleware = [thunk, requestMiddleware()];
 
 export const reduxStore = configureStore({
   reducer: rootReducer,

@@ -51,8 +51,9 @@ export const handleSubmit = async (
     await saveReadingAsync(submitValues);
 
     const newDrugHistory = values[ReadingField.drugHistory];
-    drugHistory !== newDrugHistory &&
-      (await saveDrugHistoryAsync(patientId, newDrugHistory));
+    if (drugHistory !== newDrugHistory) {
+      await saveDrugHistoryAsync(patientId, newDrugHistory);
+    }
   } catch (e) {
     console.error(e);
     return false;

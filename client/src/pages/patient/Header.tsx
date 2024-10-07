@@ -67,7 +67,12 @@ export const Header = ({
         </Grid>
       </Grid>
       <Grid item>
-        <Grid container alignItems="center" gap={1} alignContent="center">
+        <Grid
+          container
+          alignItems="center"
+          gap={1}
+          alignContent="center"
+          height={'100%'}>
           <PrimaryButton onClick={handleSubmitNewFormClick}>
             <Add /> Submit New Form
           </PrimaryButton>

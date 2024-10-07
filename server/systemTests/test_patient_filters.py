@@ -1,5 +1,5 @@
-import service.assoc as assoc
 import service.FilterHelper as filter
+from service import assoc
 
 
 def test_patients_for_hcw(user_factory, facility_factory, patient_factory):

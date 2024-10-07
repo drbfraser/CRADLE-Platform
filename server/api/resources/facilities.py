@@ -5,10 +5,9 @@ from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, reqparse
 
-import api.util as util
-import data.crud as crud
-import data.marshal as marshal
+from api import util
 from api.decorator import roles_required
+from data import crud, marshal
 from enums import RoleEnum
 from models import HealthFacility
 
@@ -41,9 +40,8 @@ class Root(Resource):
             # If responding to a "simplified" request, only return the names of the
             # facilities and no other information
             return [f.healthFacilityName for f in facilities]
-        else:
-            # Otherwise, return all information about the health facilities
-            return [marshal.marshal(f) for f in facilities]
+        # Otherwise, return all information about the health facilities
+        return [marshal.marshal(f) for f in facilities]
 
     @staticmethod
     @roles_required([RoleEnum.ADMIN])
@@ -65,7 +63,7 @@ class Root(Resource):
 
         # Get back a dict for return
         facilityDict = marshal.marshal(
-            crud.read(HealthFacility, healthFacilityName=data["healthFacilityName"])
+            crud.read(HealthFacility, healthFacilityName=data["healthFacilityName"]),
         )
         return facilityDict, 201
 
@@ -85,6 +83,5 @@ class SingleFacility(Resource):
             newReferrals = facility.newReferrals
             # If responding to a "newReferrals" request, only return the timestamp of newReferrals of that facility
             return newReferrals
-        else:
-            # Otherwise, return all information about the health facilities
-            return marshal.marshal(facility)
+        # Otherwise, return all information about the health facilities
+        return marshal.marshal(facility)

@@ -1,4 +1,5 @@
-"""make default id of UserPhoneNumber as uuid
+"""
+make default id of UserPhoneNumber as uuid
 
 Revision ID: 724f045b8d56
 Revises: b52e9a02aaff

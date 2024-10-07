@@ -1,58 +1,65 @@
 import { AppRoute } from '../../routes/utils';
 import { Link } from 'react-router-dom';
-import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import { OrNull } from 'src/shared/types';
 import Typography from '@mui/material/Typography';
-import { useDimensionsContext } from 'src/app/context/hooks';
-import { useStyles } from '../../styles';
+import { useAppSelector } from 'src/shared/hooks';
+import { selectSidebarIsOpen } from 'src/redux/sidebar-state';
+import { ListItemButton } from '@mui/material';
+import { MouseEventHandler, ReactNode } from 'react';
 
-interface IProps {
-  activeItem: OrNull<string>;
-  route: AppRoute;
-  updateActiveItem: (item?: string) => () => void;
-  appendedRoute?: React.ReactNode;
-  isSidebarOpen: boolean;
-}
+type SidebarRouteProps = {
+  route?: AppRoute;
+  icon?: ReactNode;
+  title?: string;
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
+};
 
-export const SidebarRoute: React.FC<IProps> = ({
-  activeItem,
+export const SidebarRoute: React.FC<SidebarRouteProps> = ({
   route,
-  updateActiveItem,
-  appendedRoute,
-  isSidebarOpen,
+  icon,
+  title,
+  onClick,
 }) => {
-  const { drawerWidth } = useDimensionsContext();
-  const classes = useStyles({ drawerWidth });
-
-  if (!route.to) {
-    return null;
-  }
+  const isSidebarOpen = useAppSelector(selectSidebarIsOpen);
 
   return (
     <>
-      <ListItem
-        className={classes.listItem}
-        button={true}
+      <ListItemButton
+        sx={{
+          display: `flex`,
+          flexDirection: `column`,
+          alignItems: `center`,
+        }}
         component={Link}
-        to={route.to}
-        selected={activeItem === route.name}
-        onClick={updateActiveItem(route.name)}>
-        <ListItemIcon classes={{ root: classes.icon }}>
-          {route.icon}
+        to={route?.to || ''}
+        onClick={onClick}>
+        <ListItemIcon
+          sx={{
+            color: `#F9FAFC`,
+            justifyContent: `center`,
+          }}>
+          {route?.icon || icon}
         </ListItemIcon>
         {isSidebarOpen && (
           <ListItemText
             disableTypography={true}
-            className={classes.itemText}
+            sx={{
+              color: `white`,
+            }}
             primary={
-              <Typography className={classes.sidebar}>{route.title}</Typography>
+              <Typography
+                sx={{
+                  fontFamily: `Open Sans`,
+                  fontWeight: 300,
+                  fontSize: 18,
+                }}>
+                {route?.title || title}
+              </Typography>
             }
           />
         )}
-      </ListItem>
-      {appendedRoute}
+      </ListItemButton>
     </>
   );
 };

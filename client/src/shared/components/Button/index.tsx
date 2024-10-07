@@ -2,22 +2,18 @@ import {
   Button,
   ButtonProps,
   StyledEngineProvider,
-  Theme,
   ThemeProvider,
   createTheme,
 } from '@mui/material';
 
 import { red } from '@mui/material/colors';
-import { useHistory } from 'react-router-dom';
-
-declare module '@mui/styles/defaultTheme' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
-}
+import { useHistory, LinkProps } from 'react-router-dom';
 
 interface RedirectButtonProps extends ButtonProps {
   url: string;
 }
+
+type LinkButtonProps = ButtonProps & LinkProps;
 
 const redTheme = createTheme({ palette: { primary: red } });
 
@@ -29,11 +25,11 @@ export const CancelButton = (otherProps: ButtonProps) => (
   </StyledEngineProvider>
 );
 
-export const PrimaryButton = (props: ButtonProps) => (
+export const PrimaryButton = (props: ButtonProps | LinkButtonProps) => (
   <Button size="large" {...props} color="primary" variant="contained" />
 );
 
-export const SecondaryButton = (props: ButtonProps) => (
+export const SecondaryButton = (props: ButtonProps | LinkButtonProps) => (
   <Button size="large" {...props} color="primary" variant="outlined" />
 );
 

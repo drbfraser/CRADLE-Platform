@@ -10,6 +10,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { IExportStatRow } from './index';
 import { SexEnum } from 'src/shared/enums';
+import { Box } from '@mui/material';
 
 interface IProps {
   getData: () => Promise<IExportStatRow[]>;
@@ -27,8 +28,8 @@ export const ExportStatistics = ({ getData }: IProps) => {
   };
 
   return (
-    <div>
-      <PrimaryButton style={{ float: 'right' }} onClick={handleClickOpen}>
+    <Box>
+      <PrimaryButton sx={{ float: 'right' }} onClick={handleClickOpen}>
         Export Referrals
       </PrimaryButton>
       <Dialog open={open} onClose={handleClose}>
@@ -45,7 +46,7 @@ export const ExportStatistics = ({ getData }: IProps) => {
           </CancelButton>
         </DialogActions>
       </Dialog>
-    </div>
+    </Box>
   );
 };
 
@@ -86,7 +87,7 @@ const DownloadCSV = ({ getData }: IProps) => {
   }, [getData]);
 
   return (
-    <div>
+    <Box>
       <APIErrorToast
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
@@ -98,7 +99,7 @@ const DownloadCSV = ({ getData }: IProps) => {
       ) : (
         <>Loading...</>
       )}
-    </div>
+    </Box>
   );
 };
 
@@ -108,6 +109,7 @@ function parseRow(row: IExportStatRow) {
   row.parsed_time = date.toLocaleTimeString();
   row.parsed_pregnant = '';
 
-  row.sex === SexEnum.FEMALE &&
-    (row.parsed_pregnant = row.pregnant ? 'Yes' : 'No');
+  if (row.sex === SexEnum.FEMALE) {
+    row.parsed_pregnant = row.pregnant ? 'Yes' : 'No';
+  }
 }

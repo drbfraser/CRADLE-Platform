@@ -11,13 +11,11 @@ import json
 import os
 import re
 import secrets
-from typing import Iterable, Type
+from typing import TYPE_CHECKING, Type
 
 import flask_jwt_extended as jwt
 from flask import Request
 
-import data.crud as crud
-import data.marshal as marshal
 import utils
 from api.constants import (
     FORM_TEMPLATE_LANGUAGES_COL,
@@ -38,7 +36,7 @@ from api.constants import (
     FORM_TEMPLATE_VERSION_COL,
     FORM_TEMPLATE_VERSION_ROW,
 )
-from data.crud import M
+from data import crud, marshal
 from enums import QRelationalEnum, QuestionTypeEnum
 from models import (
     Form,
@@ -49,6 +47,11 @@ from models import (
     User,
     UserPhoneNumber,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from data.crud import M
 
 duration = os.environ.get("SMS_KEY_DURATION")
 
@@ -164,11 +167,7 @@ def filterPairsWithNone(payload: dict) -> dict:
 
     :param payload: The dictionary to evaluate
     """
-
-    updated_data = {}
-    for k, v in payload.items():
-        if payload[k] is not None:
-            updated_data[k] = v
+    updated_data = {k: v for k, v in payload.items() if v is not None}
 
     return updated_data
 
@@ -180,7 +179,6 @@ def getDictionaryOfUserInfo(id: int) -> dict:
 
     :param id: The user's id
     """
-
     user = crud.read(User, id=id)
     userDict = marshal.marshal(user)
 
@@ -210,12 +208,10 @@ def doesUserExist(id: int) -> bool:
     :param id: The user's id
 
     """
-
     user = crud.read(User, id=id)
     if user is None:
         return False
-    else:
-        return True
+    return True
 
 
 def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
@@ -315,12 +311,12 @@ def parseCondition(parentQuestion: dict, conditionText: str) -> dict:
         options = [option.strip().casefold() for option in conditionText.split(",")]
 
         previousQuestionOptions = mcOptionsToDict(
-            parentQuestion["questionLangVersions"][0]["mcOptions"]
+            parentQuestion["questionLangVersions"][0]["mcOptions"],
         )
 
         condition["answers"]["mcidArray"] = []
         for option in options:
-            if option not in previousQuestionOptions.keys():
+            if option not in previousQuestionOptions:
                 raise RuntimeError("Invalid option for visibility.")
 
             condition["answers"]["mcidArray"].append(previousQuestionOptions[option])
@@ -376,7 +372,8 @@ def getFormTemplateDictFromCSV(csvData: str):
         }
 
     def findCategoryIndex(
-        categoryList: list[dict[str, any]], categoryText: str
+        categoryList: list[dict[str, any]],
+        categoryText: str,
     ) -> int | None:
         for category in categoryList:
             for languageVersion in category["questionLangVersions"]:
@@ -393,9 +390,7 @@ def getFormTemplateDictFromCSV(csvData: str):
     for index, row in enumerate(csv_reader):
         if len(row) != FORM_TEMPLATE_ROW_LENGTH:
             raise RuntimeError(
-                "All Rows must have {} columns. Row {} has {} columns.".format(
-                    FORM_TEMPLATE_ROW_LENGTH, index, len(row)
-                )
+                f"All Rows must have {FORM_TEMPLATE_ROW_LENGTH} columns. Row {index} has {len(row)} columns.",
             )
 
         rows.append(row)
@@ -408,7 +403,7 @@ def getFormTemplateDictFromCSV(csvData: str):
     ]
 
     result["classification"] = {
-        "name": rows[FORM_TEMPLATE_NAME_ROW][FORM_TEMPLATE_NAME_COL]
+        "name": rows[FORM_TEMPLATE_NAME_ROW][FORM_TEMPLATE_NAME_COL],
     }
     result["version"] = rows[FORM_TEMPLATE_VERSION_ROW][FORM_TEMPLATE_VERSION_COL]
     result["questions"] = []
@@ -430,7 +425,7 @@ def getFormTemplateDictFromCSV(csvData: str):
             raise RuntimeError("Invalid Question Type Encountered")
 
         visibilityConditionsText = str.strip(
-            row[FORM_TEMPLATE_QUESTION_VISIBILITY_CONDITION_COL]
+            row[FORM_TEMPLATE_QUESTION_VISIBILITY_CONDITION_COL],
         )
 
         visibilityConditions: list = []
@@ -438,13 +433,13 @@ def getFormTemplateDictFromCSV(csvData: str):
         if len(visibilityConditionsText) > 0:
             if questionIndex == 0:
                 raise RuntimeError(
-                    "First questions cannot have a visibility condition."
+                    "First questions cannot have a visibility condition.",
                 )
 
             previousQuestion = result["questions"][questionIndex - 1]
 
             visibilityConditions.append(
-                parseCondition(previousQuestion, visibilityConditionsText)
+                parseCondition(previousQuestion, visibilityConditionsText),
             )
 
         question = {
@@ -456,7 +451,7 @@ def getFormTemplateDictFromCSV(csvData: str):
             "numMax": toNumberOrNone(row[FORM_TEMPLATE_QUESTION_MAX_VALUE_COL]),
             "numMin": toNumberOrNone(row[FORM_TEMPLATE_QUESTION_MIN_VALUE_COL]),
             "stringMaxLength": toNumberOrNone(
-                row[FORM_TEMPLATE_QUESTION_LINE_COUNT_COL]
+                row[FORM_TEMPLATE_QUESTION_LINE_COUNT_COL],
             ),
             "units": row[FORM_TEMPLATE_QUESTION_UNITS_COL],
             "visibleCondition": visibilityConditions,
@@ -476,7 +471,7 @@ def getFormTemplateDictFromCSV(csvData: str):
                 continue
 
         questionLangVersions = dict(
-            [(questionLangVersion["lang"], questionLangVersion)]
+            [(questionLangVersion["lang"], questionLangVersion)],
         )
 
         for _ in range(len(languages) - 1):
@@ -493,15 +488,15 @@ def getFormTemplateDictFromCSV(csvData: str):
             if language not in languages:
                 raise RuntimeError(
                     "Language {} for question #{} not listed in Form Languages [{}].".format(
-                        language, questionIndex + 1, str.join(", ", languages)
+                        language,
+                        questionIndex + 1,
+                        str.join(", ", languages),
                     ),
                 )
 
-            if language in questionLangVersions.keys():
+            if language in questionLangVersions:
                 raise RuntimeError(
-                    "Language {} defined multiple times for question #{}".format(
-                        language, questionIndex + 1
-                    ),
+                    f"Language {language} defined multiple times for question #{questionIndex + 1}",
                 )
 
             questionLangVersions[language] = getQuestionLanguageVersionFromRow(row)
@@ -551,7 +546,8 @@ def getCsvFromFormTemplate(form_template: FormTemplate):
         return ",".join(options) if mcoptions is not None else ""
 
     def get_visible_condition_options(
-        visible_condition: str, questions: list[Question]
+        visible_condition: str,
+        questions: list[Question],
     ):
         visible_conditions = json.loads(visible_condition)
 
@@ -654,7 +650,8 @@ def getCsvFromFormTemplate(form_template: FormTemplate):
             "Y" if question.required else "N",
             question.units,
             get_visible_condition_options(
-                question.visibleCondition, questions=questions
+                question.visibleCondition,
+                questions=questions,
             ),
             question.numMin,
             question.numMax,
@@ -690,14 +687,14 @@ def phoneNumber_regex_check(phone_number):
     )
     regex_phone_number_format_normal = r"^(\d{3}-?\d{3}-?\d{4,5})$"
     checked_number_with_area_code = re.match(
-        regex_phone_number_format_with_area_code, phone_number
+        regex_phone_number_format_with_area_code,
+        phone_number,
     )
     checked_number = re.match(regex_phone_number_format_normal, phone_number)
 
     if not checked_number and not checked_number_with_area_code:
         return False
-    else:
-        return True
+    return True
 
 
 # Check if the phone number is already in the database - if user_id is supplied the phone number should belong to that user
@@ -707,7 +704,9 @@ def phoneNumber_exists(phone_number, user_id=-1):
         existing_phone_number = crud.read(UserPhoneNumber, number=phone_number)
     else:
         existing_phone_number = crud.read(
-            UserPhoneNumber, number=phone_number, user_id=user_id
+            UserPhoneNumber,
+            number=phone_number,
+            user_id=user_id,
         )
     return existing_phone_number is not None
 
@@ -770,8 +769,7 @@ def get_user_roles(userId):
 def is_date_passed(date) -> bool:
     if date >= datetime.datetime.now():
         return False
-    else:
-        return True
+    return True
 
 
 def get_future_date(day_after=1):

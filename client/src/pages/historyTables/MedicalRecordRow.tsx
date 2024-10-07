@@ -1,4 +1,4 @@
-import { IconButton, Typography } from '@mui/material';
+import { IconButton, Typography, useTheme } from '@mui/material';
 
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import { MEDICAL_RECORD_COLUMNS } from './constants';
@@ -6,8 +6,7 @@ import { MedicalRecord } from 'src/shared/types';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import { getPrettyDate } from 'src/shared/utils';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { useRowStyles } from 'src/shared/components/apiTable/rowStyles';
-import { useTheme } from '@mui/material/styles';
+import { ApiTableRow } from 'src/shared/components/apiTable/ApiTableRow';
 
 interface IProps {
   row: MedicalRecord;
@@ -20,12 +19,11 @@ export const MedicalRecordRow = ({
   setDeletePopupOpen,
   setPopupRecord,
 }: IProps) => {
-  const classes = useRowStyles();
   const theme = useTheme();
   const isTransformed = useMediaQuery(theme.breakpoints.up('sm'));
 
   return (
-    <tr className={classes.row}>
+    <ApiTableRow>
       <TableCell
         label={MEDICAL_RECORD_COLUMNS.dateCreated}
         isTransformed={isTransformed}>
@@ -55,6 +53,6 @@ export const MedicalRecordRow = ({
           <DeleteForever />
         </IconButton>
       </TableCell>
-    </tr>
+    </ApiTableRow>
   );
 };

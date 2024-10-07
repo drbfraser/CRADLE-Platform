@@ -3,7 +3,6 @@ import json
 from enum import Enum
 from typing import Any, Dict, List, Optional, Type
 
-import service.invariant as invariant
 from data.crud import M
 from models import (
     FollowUp,
@@ -20,6 +19,7 @@ from models import (
     RelayServerPhoneNumber,
     SmsSecretKey,
 )
+from service import invariant
 
 
 def marshal(obj: Any, shallow=False, if_include_versions=False) -> dict:
@@ -33,30 +33,29 @@ def marshal(obj: Any, shallow=False, if_include_versions=False) -> dict:
     """
     if isinstance(obj, Patient):
         return __marshal_patient(obj, shallow)
-    elif isinstance(obj, Reading):
+    if isinstance(obj, Reading):
         return __marshal_reading(obj, shallow)
-    elif isinstance(obj, Referral):
+    if isinstance(obj, Referral):
         return __marshal_referral(obj)
-    elif isinstance(obj, FollowUp):
+    if isinstance(obj, FollowUp):
         return __marshal_followup(obj)
-    elif isinstance(obj, Pregnancy):
+    if isinstance(obj, Pregnancy):
         return __marshal_pregnancy(obj)
-    elif isinstance(obj, MedicalRecord):
+    if isinstance(obj, MedicalRecord):
         return __marshal_medical_record(obj)
-    elif isinstance(obj, FormTemplate):
+    if isinstance(obj, FormTemplate):
         return __marshal_form_template(obj, shallow, if_include_versions)
-    elif isinstance(obj, Form):
+    if isinstance(obj, Form):
         return __marshal_form(obj, shallow)
-    elif isinstance(obj, Question):
+    if isinstance(obj, Question):
         return __marshal_question(obj, if_include_versions)
-    elif isinstance(obj, QuestionLangVersion):
+    if isinstance(obj, QuestionLangVersion):
         return __marshal_lang_version(obj)
-    elif isinstance(obj, SmsSecretKey):
+    if isinstance(obj, SmsSecretKey):
         return __marshal_SmsSecretKey(obj)
-    else:
-        d = vars(obj).copy()
-        __pre_process(d)
-        return d
+    d = vars(obj).copy()
+    __pre_process(d)
+    return d
 
 
 def marshal_with_type(obj: Any, shallow=False) -> dict:
@@ -72,35 +71,34 @@ def marshal_with_type(obj: Any, shallow=False) -> dict:
         patient_dict = __marshal_patient(obj, shallow)
         patient_dict["type"] = "patient"
         return patient_dict
-    elif isinstance(obj, Reading):
+    if isinstance(obj, Reading):
         reading_dict = __marshal_reading(obj, shallow)
         reading_dict["type"] = "reading"
         return reading_dict
-    elif isinstance(obj, Referral):
+    if isinstance(obj, Referral):
         referral_dict = __marshal_referral(obj)
         referral_dict["type"] = "referral"
         return referral_dict
-    elif isinstance(obj, FollowUp):
+    if isinstance(obj, FollowUp):
         assessment_dict = __marshal_followup(obj)
         assessment_dict["type"] = "assessment"
         return assessment_dict
-    elif isinstance(obj, Pregnancy):
+    if isinstance(obj, Pregnancy):
         pregnancy_dict = __marshal_pregnancy(obj)
         pregnancy_dict["type"] = "pregnancy"
         return pregnancy_dict
-    elif isinstance(obj, MedicalRecord):
+    if isinstance(obj, MedicalRecord):
         medical_record_dict = __marshal_medical_record(obj)
         medical_record_dict["type"] = "medical_record"
         return medical_record_dict
-    elif isinstance(obj, Form):
+    if isinstance(obj, Form):
         form_dict = __marshal_form(obj, True)
         form_dict["type"] = "form"
         return form_dict
-    else:
-        d = vars(obj).copy()
-        __pre_process(d)
-        d["type"] = "other"
-        return d
+    d = vars(obj).copy()
+    __pre_process(d)
+    d["type"] = "other"
+    return d
 
 
 def marshal_patient_pregnancy_summary(records: List[Pregnancy]) -> dict:
@@ -136,7 +134,8 @@ def marshal_patient_pregnancy_summary(records: List[Pregnancy]) -> dict:
 
 
 def marshal_patient_medical_history(
-    medical: Optional[MedicalRecord] = None, drug: Optional[MedicalRecord] = None
+    medical: Optional[MedicalRecord] = None,
+    drug: Optional[MedicalRecord] = None,
 ) -> dict:
     records = dict()
 
@@ -235,7 +234,9 @@ def __marshal_medical_record(r: MedicalRecord) -> dict:
 
 
 def __marshal_form_template(
-    f: FormTemplate, shallow: bool = False, if_include_versions: bool = False
+    f: FormTemplate,
+    shallow: bool = False,
+    if_include_versions: bool = False,
 ) -> dict:
     d = vars(f).copy()
     __pre_process(d)
@@ -341,7 +342,8 @@ def __marshal_lang_version(v: QuestionLangVersion) -> dict:
 
 
 def __marshal_form_classification(
-    fc: FormClassification, if_include_templates: bool = False
+    fc: FormClassification,
+    if_include_templates: bool = False,
 ) -> dict:
     d = vars(fc).copy()
     __pre_process(d)
@@ -404,22 +406,21 @@ def unmarshal(m: Type[M], d: dict) -> M:
     """
     if m is Patient:
         return __unmarshal_patient(d)
-    elif m is Reading:
+    if m is Reading:
         return __unmarshal_reading(d)
-    elif m is Form:
+    if m is Form:
         return __unmarshal_form(d)
-    elif m is FormTemplate:
+    if m is FormTemplate:
         return __unmarshal_form_template(d)
-    elif m is Question:
+    if m is Question:
         return __unmarshal_question(d)
-    elif m is QuestionLangVersion:
+    if m is QuestionLangVersion:
         return __unmarshal_lang_version(d)
-    elif m is SmsSecretKey:
+    if m is SmsSecretKey:
         return __unmarshal_SmsSecretKey(d)
-    elif m is RelayServerPhoneNumber:
+    if m is RelayServerPhoneNumber:
         return __unmarshal_RelayServerPhoneNumber(d)
-    else:
-        return __load(m, d)
+    return __load(m, d)
 
 
 def __load(m: Type[M], d: dict) -> M:
@@ -660,7 +661,6 @@ def models_to_list(models: List[Any], schema) -> List[dict]:
     :param schema: The schema of the models
     :return: A list of dictionaries
     """
-
     return schema(many=True).dump(models)
 
 

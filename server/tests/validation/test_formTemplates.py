@@ -13,14 +13,14 @@ root_question = {
             "lang": "english",
             "mcOptions": [{"mcid": 0, "opt": "england"}],
             "questionText": "what's your nation",
-        }
+        },
     ],
     "questionType": "MULTIPLE_CHOICE",
     "required": True,
     "stringMaxLength": None,
     "units": None,
     "visibleCondition": [
-        {"answers": {"mcidArray": [0]}, "qidx": 0, "relation": "EQUAL_TO"}
+        {"answers": {"mcidArray": [0]}, "qidx": 0, "relation": "EQUAL_TO"},
     ],
 }
 
@@ -57,7 +57,7 @@ invalid_keys = {
 
 
 @pytest.mark.parametrize(
-    "json, output",
+    "json, output_type",
     [
         (valid_template_no_questions, type(None)),
         (valid_template_one_question, type(None)),
@@ -66,9 +66,9 @@ invalid_keys = {
         (invalid_keys, str),
     ],
 )
-def test_validate_template(json, output):
+def test_validate_template(json, output_type):
     message = validate_template(json)
-    assert type(message) == output
+    assert type(message) is output_type
 
 
 valid_empty_questions = []
@@ -93,7 +93,7 @@ invalid_questions_mult_language = [
                 "lang": "english",
                 "mcOptions": [{"mcid": 0, "opt": "england"}],
                 "questionText": "what's your nation",
-            }
+            },
         ],
     },
     {
@@ -103,7 +103,7 @@ invalid_questions_mult_language = [
                 "lang": "chinese",
                 "mcOptions": [{"mcid": 0, "opt": "china"}],
                 "questionText": "what's your nation",
-            }
+            },
         ],
     },
 ]
@@ -112,7 +112,7 @@ invalid_first_question_is_not_none = [{**root_question, "categoryIndex": 0}]
 
 
 @pytest.mark.parametrize(
-    "json, output",
+    "json, output_type",
     [
         (valid_empty_questions, type(None)),
         (valid_single_question, type(None)),
@@ -122,6 +122,6 @@ invalid_first_question_is_not_none = [{**root_question, "categoryIndex": 0}]
         (invalid_first_question_is_not_none, str),
     ],
 )
-def test_validate_questions(json, output):
+def test_validate_questions(json, output_type):
     message = validate_questions(json)
-    assert type(message) == output
+    assert type(message) is output_type

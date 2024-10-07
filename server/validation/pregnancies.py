@@ -33,13 +33,17 @@ def validate_post_request(request_body: dict, patient_id: str) -> Optional[str]:
         return error
 
     error = values_correct_type(
-        request_body, ["patientId", "pregnancyStartDate", "pregnancyEndDate"], int
+        request_body,
+        ["patientId", "pregnancyStartDate", "pregnancyEndDate"],
+        int,
     )
     if error:
         return error
 
     error = values_correct_type(
-        request_body, ["gestationalAgeUnit, pregnancyOutcome"], str
+        request_body,
+        ["gestationalAgeUnit, pregnancyOutcome"],
+        str,
     )
     if error:
         return error

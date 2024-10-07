@@ -1,5 +1,4 @@
 # file gunicorn.conf.py
-# coding=utf-8
 # Reference: https://github.com/benoitc/gunicorn/blob/master/examples/example_config.py
 import multiprocessing
 import os
@@ -9,7 +8,7 @@ port = os.environ.get("PORT")
 
 if port is None:
     port = 5000
-    print("PORT environment variable not found. Using default ({}).".format(port))
+    print(f"PORT environment variable not found. Using default ({port}).")
 else:
     print("PORT environment variable found:", port)
 

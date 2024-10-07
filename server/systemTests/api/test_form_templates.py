@@ -1,6 +1,6 @@
 import pytest
 
-import data.crud as crud
+from data import crud
 from models import FormClassification, FormTemplate
 
 
@@ -46,12 +46,17 @@ def test_form_template_created(database, form_template, form_template_2, api_pos
     finally:
         crud.delete_by(FormClassification, name=form_template["classification"]["name"])
         crud.delete_by(
-            FormClassification, name=form_template_2["classification"]["name"]
+            FormClassification,
+            name=form_template_2["classification"]["name"],
         )
 
 
 def test_form_template_archival(
-    database, update_info_in_question, api_put, api_post, form_template
+    database,
+    update_info_in_question,
+    api_put,
+    api_post,
+    form_template,
 ):
     try:
         response = api_post(endpoint="/api/forms/templates", json=form_template)
@@ -100,7 +105,7 @@ def form_template():
                 "questionType": "MULTIPLE_CHOICE",
                 "required": True,
                 "visibleCondition": [
-                    {"qidx": 0, "relation": "EQUAL_TO", "answers": {"number": 4}}
+                    {"qidx": 0, "relation": "EQUAL_TO", "answers": {"number": 4}},
                 ],
                 "questionLangVersions": [
                     {
@@ -319,7 +324,7 @@ def add_question():
                 "questionType": "MULTIPLE_CHOICE",
                 "required": True,
                 "visibleCondition": [
-                    {"qidx": 0, "relation": "EQUAL_TO", "answers": {"number": 4}}
+                    {"qidx": 0, "relation": "EQUAL_TO", "answers": {"number": 4}},
                 ],
                 "questionLangVersions": [
                     {

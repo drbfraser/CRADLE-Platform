@@ -1,4 +1,5 @@
-"""Add StringMaxLines column
+"""
+Add StringMaxLines column
 
 Revision ID: 5d293042e3b7
 Revises: bef7a571db37

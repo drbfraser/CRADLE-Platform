@@ -5,7 +5,8 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
-import makeStyles from '@mui/styles/makeStyles';
+import { SxProps, Typography } from '@mui/material';
+import { PropsWithChildren } from 'react';
 
 interface IProps {
   open: boolean;
@@ -22,7 +23,6 @@ export const RefreshDialog = ({
   setRefreshTimer,
   refreshTimer,
 }: IProps) => {
-  const classes = useStyles();
   let timer_min = 0;
   let timer_sec: number = refreshTimer;
   timer_min = Math.floor(timer_sec / 60);
@@ -60,29 +60,29 @@ export const RefreshDialog = ({
     <Dialog
       open={open}
       onClose={onClose}
-      aria-labelledby="Auto-Refresh-setting-dialog"
+      aria-labelledby={'Auto-Refresh-setting-dialog'}
       maxWidth={isTransformed ? 'md' : 'sm'}>
-      <DialogTitle id="form-dialog-title">Auto-Refresh Settings</DialogTitle>
+      <DialogTitle id={'form-dialog-title'}>Auto-Refresh Settings</DialogTitle>
       <DialogContent>
-        <p className={classes.inlineBlock}>Auto refresh every </p>
+        <InlineText>Auto refresh every</InlineText>
         <TextField
           variant="standard"
-          className={classes.alignCenter}
+          sx={FIELD_SX}
           id="min-input"
           defaultValue={timer_min}
           onChange={handleMinChange}
           type="number"
         />
-        <p className={classes.inlineBlock}>minutes and </p>
+        <InlineText>minutes and</InlineText>
         <TextField
           variant="standard"
-          className={classes.alignCenter}
+          sx={FIELD_SX}
           id="sec-input"
           defaultValue={timer_sec}
           onChange={handleSecChange}
           type="number"
         />
-        <p className={classes.inlineBlock}>seconds.</p>
+        <InlineText>seconds.</InlineText>
       </DialogContent>
       <DialogActions>
         <SecondaryButton onClick={onStop} color="primary">
@@ -99,13 +99,12 @@ export const RefreshDialog = ({
   );
 };
 
-export const useStyles = makeStyles((theme) => ({
-  inlineBlock: {
-    display: 'inline-block',
-  },
-  alignCenter: {
-    maxWidth: '6em',
-    verticalAlign: 'middle',
-    margin: 'auto 8px',
-  },
-}));
+const InlineText = ({ children }: PropsWithChildren) => {
+  return <Typography sx={{ display: 'inline-block' }}>{children}</Typography>;
+};
+
+const FIELD_SX: SxProps = {
+  maxWidth: '6em',
+  verticalAlign: 'middle',
+  margin: 'auto 8px',
+};

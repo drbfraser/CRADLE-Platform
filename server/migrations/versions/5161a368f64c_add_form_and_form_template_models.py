@@ -1,4 +1,5 @@
-"""add form and form template models
+"""
+add form and form template models
 
 Revision ID: 5161a368f64c
 Revises: 227cf4f3fa93
@@ -42,10 +43,14 @@ def upgrade():
         sa.Column("lastEditedBy", sa.Integer(), nullable=True),
         sa.Column("questions", sa.Text(), nullable=False),
         sa.ForeignKeyConstraint(
-            ["formTemplateId"], ["form_template.id"], ondelete="CASCADE"
+            ["formTemplateId"],
+            ["form_template.id"],
+            ondelete="CASCADE",
         ),
         sa.ForeignKeyConstraint(
-            ["patientId"], ["patient.patientId"], ondelete="CASCADE"
+            ["patientId"],
+            ["patient.patientId"],
+            ondelete="CASCADE",
         ),
         sa.PrimaryKeyConstraint("id"),
     )

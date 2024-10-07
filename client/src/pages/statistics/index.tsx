@@ -1,28 +1,22 @@
-import 'react-dates/initialize';
-import 'react-dates/lib/css/_datepicker.css';
-
-import { DateRangePicker, FocusedInputShape } from 'react-dates';
-import moment, { Moment } from 'moment';
+import moment from 'moment';
 
 import { AllStatistics } from './AllStatistics';
 import { FacilityStatistics } from './FacilityStatistics';
-import FormControl from '@mui/material/FormControl';
 import Grid from '@mui/material/Grid';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
 import { MyFacility } from './MyFacility';
 import { MyStatistics } from './MyStatistics';
 import { ReduxState } from 'src/redux/reducers';
-import Select from '@mui/material/Select';
 import { Tab } from 'semantic-ui-react';
 import { Toast } from 'src/shared/components/toast';
 import { UserRoleEnum } from 'src/shared/enums';
 import { UserStatistics } from './UserStatistics';
 import { VHTStatistics } from './VHTStatistics';
 import { useSelector } from 'react-redux';
-import { useState } from 'react';
-import { useStatisticsStyles } from './utils/statisticStyles';
-import { DashboardWrapper } from 'src/shared/components/dashboard/DashboardWrapper';
+import { useEffect, useState } from 'react';
+import { Box } from '@mui/material';
+import { useDateRangeState } from 'src/shared/components/Date/useDateRangeState';
+import { DateRangePickerWithPreset } from 'src/shared/components/Date/DateRangePicker';
+import { TAB_SX } from './utils/statisticStyles';
 
 const allPanes = [
   {
@@ -68,22 +62,17 @@ const allPanes = [
 ];
 
 export function StatisticsPage() {
-  const classes = useStatisticsStyles();
   const user = useSelector((state: ReduxState) => state.user.current.data);
 
   const [errorLoading, setErrorLoading] = useState(false);
-  const [startDate, setStartDate] = useState<Moment | null>(
-    moment().startOf('day').subtract(29, 'days')
-  );
-  const [endDate, setEndDate] = useState<Moment | null>(moment().endOf('day'));
-  const [focusedInput, setFocusedInput] = useState<FocusedInputShape | null>(
-    null
-  );
-  const [presetDateRange, setPresetDateRange] = useState();
+  const dateRangeState = useDateRangeState();
+  const { startDate, setStartDate, endDate, setEndDate } = dateRangeState;
 
-  const handleFocusChange = (arg: FocusedInputShape | null) => {
-    setFocusedInput(arg);
-  };
+  // Set initial date range as the previous month.
+  useEffect(() => {
+    setStartDate(moment().endOf('day').subtract(1, 'month'));
+    setEndDate(moment().endOf('day'));
+  }, []);
 
   const panes = allPanes
     .filter((p) => p?.roles.includes(user!.role))
@@ -101,102 +90,34 @@ export function StatisticsPage() {
       ),
     }));
 
-  const handleChange = (event: any) => {
-    setPresetDateRange(event.target.value);
-  };
-
-  const setDateRange = (start: number, end: number) => {
-    setStartDate(moment().startOf('day').subtract(start, 'days'));
-    setEndDate(moment().endOf('day').subtract(end, 'days'));
-  };
-
   return (
-    <DashboardWrapper>
-      <div className={classes.root}>
-        {errorLoading && (
-          <Toast
-            severity="error"
-            message="Something went wrong loading all user lists. Please try again."
-            open={errorLoading}
-            onClose={() => setErrorLoading(false)}
-          />
-        )}
+    <Box
+      sx={{
+        maxWidth: '100%',
+        width: '100%',
+        height: '100%',
+        resize: 'both',
+      }}>
+      {errorLoading && (
+        <Toast
+          severity="error"
+          message="Something went wrong loading all user lists. Please try again."
+          open={errorLoading}
+          onClose={() => setErrorLoading(false)}
+        />
+      )}
 
-        <Grid item className={classes.floatLeft}>
-          <DateRangePicker
-            regular={true}
-            startDate={startDate}
-            startDateId="startDate"
-            endDate={endDate}
-            endDateId="endDate"
-            onDatesChange={({ startDate, endDate }) => {
-              setStartDate(startDate);
-              setEndDate(endDate);
-            }}
-            readOnly
-            focusedInput={focusedInput}
-            onFocusChange={handleFocusChange}
-            isOutsideRange={() => false}
-          />
-        </Grid>
-
-        <Grid item className={classes.right}>
-          <FormControl
-            className={classes.formControl}
-            size="small"
-            variant="outlined">
-            <InputLabel className={classes.inputLabel}>
-              Preset date ranges
-            </InputLabel>
-            <Select
-              variant="standard"
-              value={presetDateRange ? presetDateRange : ''}
-              onChange={handleChange}
-              label="Preset date ranges">
-              <MenuItem value={undefined} disabled></MenuItem>
-              <MenuItem
-                value="This Week"
-                onClick={() => {
-                  setDateRange(6, 0);
-                }}>
-                This Week
-              </MenuItem>
-              <MenuItem
-                value="Last Week"
-                onClick={() => {
-                  setDateRange(13, 7);
-                }}>
-                Last Week
-              </MenuItem>
-              <MenuItem
-                value="Last 14 Days"
-                onClick={() => {
-                  setDateRange(13, 0);
-                }}>
-                Last 14 Days
-              </MenuItem>
-              <MenuItem
-                value="Last 28 Days"
-                onClick={() => {
-                  setDateRange(27, 0);
-                }}>
-                Last 28 Days
-              </MenuItem>
-            </Select>
-          </FormControl>
-          <br />
-          <br />
-
-          <Tab
-            menu={{
-              secondary: true,
-              pointing: true,
-              className: classes.tabStyle,
-            }}
-            panes={panes}
-          />
-        </Grid>
-      </div>
-    </DashboardWrapper>
+      <Grid id={'statistics-container'} item sx={{ marginBottom: '10px' }}>
+        <DateRangePickerWithPreset {...dateRangeState} />
+        <Tab
+          menu={{
+            secondary: true,
+            pointing: true,
+            sx: TAB_SX,
+          }}
+          panes={panes}
+        />
+      </Grid>
+    </Box>
   );
 }

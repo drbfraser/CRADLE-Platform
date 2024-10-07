@@ -1,4 +1,5 @@
-"""Add phone number and secret key to user
+"""
+Add phone number and secret key to user
 
 Revision ID: cf9e5bcce121
 Revises: f532e4055de0

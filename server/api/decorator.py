@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime
 from functools import wraps
 
 from flask_jwt_extended import (
@@ -7,7 +6,7 @@ from flask_jwt_extended import (
     verify_jwt_in_request,
 )
 
-import data.crud as crud
+from data import crud
 from enums import RoleEnum
 from models import PatientAssociations
 
@@ -30,10 +29,9 @@ def roles_required(accepted_roles):
 
             if user_has_permissions:
                 return fn(*args, **kwargs)
-            else:
-                return {
-                    "message": "This user does not have the required privilege"
-                }, 401
+            return {
+                "message": "This user does not have the required privilege",
+            }, 401
 
         return decorator
 
@@ -78,11 +76,16 @@ def patient_association_required():
             if user_role == RoleEnum.VHT.value:  # Changed the condition here
                 user_id = identity["userId"]
                 if not crud.read(
-                    PatientAssociations, patientId=patient_id, userId=user_id
+                    PatientAssociations,
+                    patientId=patient_id,
+                    userId=user_id,
                 ):
-                    current_time = datetime.now().strftime("%H:%M:%S")
                     LOGGER.info(
-                        f"User {user_id} accessed patient {patient_id} at {current_time}"
+                        "User accessed patient's record",
+                        extra={
+                            "user_id": user_id,
+                            "patient_id": patient_id,
+                        },
                     )
                     return {"message": "Unauthorized to access this patient."}, 403
 
@@ -91,3 +94,11 @@ def patient_association_required():
         return decorator
 
     return wrapper
+
+
+def public_endpoint(function):
+    """
+    mark an endpoint handler as one that does not require login
+    """
+    function.is_public_endpoint = True
+    return function

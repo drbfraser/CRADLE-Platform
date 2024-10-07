@@ -1,11 +1,17 @@
 import { IUserWithTokens, OrNull } from 'src/shared/types';
-import { Menu, MenuItem } from '@mui/material';
-import { useAppDispatch, useDimensionsContext } from '../context/hooks';
+import {
+  Box,
+  Button,
+  Menu,
+  MenuItem,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
+import { useAppDispatch, useAppSelector } from '../../shared/hooks';
 
 import AppBar from '@mui/material/AppBar';
 import AppImg from './img/app_icon.png';
 import ChangePassword from './changePassword/ChangePassword';
-import { Icon } from 'semantic-ui-react';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
@@ -13,46 +19,39 @@ import { ReduxState } from 'src/redux/reducers';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
-import { push } from 'connected-react-router';
 import { useSelector } from 'react-redux';
-import { useState } from 'react';
-import { useStyles } from './styles';
-import { userRoleLabels } from 'src/shared/constants';
+import { useCallback, useState } from 'react';
+import { TOP_BAR_HEIGHT, userRoleLabels } from 'src/shared/constants';
+import {
+  selectSidebarIsOpen,
+  toggleSidebar as toggleSidebarAction,
+} from 'src/redux/sidebar-state';
+import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { Link } from 'react-router-dom';
 
 interface IProps {
   user: OrNull<IUserWithTokens>;
-  setActiveItem: (item: string) => void;
-  isSidebarOpen: boolean;
-  setIsSidebarOpen: (isOpen: boolean) => void;
 }
 
-export const TopBar = ({
-  user,
-  setActiveItem,
-  isSidebarOpen,
-  setIsSidebarOpen,
-}: IProps) => {
-  const { isBigScreen } = useDimensionsContext();
+export const TopBar = ({ user }: IProps) => {
+  const theme = useTheme();
+  const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
+
+  const dispatch = useAppDispatch();
+
   const loggedIn = useSelector(({ user }: ReduxState): boolean => {
     return user.current.loggedIn;
   });
 
+  const isSidebarOpen = useAppSelector(selectSidebarIsOpen);
+
+  const toggleSidebar = useCallback(() => {
+    dispatch(toggleSidebarAction());
+  }, [dispatch]);
+
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
-
-  const classes = useStyles();
-
-  const dispatch = useAppDispatch();
-
-  const navigateSecretKeyDetailPage = (): void => {
-    setMenuAnchorEl(null);
-    dispatch(push('/secretKey'));
-  };
-
-  const navigateToHelpPage = (): void => {
-    setActiveItem(`Resources`);
-    dispatch(push(`/resources`));
-  };
 
   const handleChangePassword = () => {
     setMenuAnchorEl(null);
@@ -62,10 +61,6 @@ export const TopBar = ({
   const handleLogout = () => {
     setMenuAnchorEl(null);
     dispatch(logoutUser());
-  };
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
   };
 
   const showUserDetails = () => {
@@ -84,7 +79,13 @@ export const TopBar = ({
   };
 
   return (
-    <AppBar className={classes.appBar} position="sticky">
+    <AppBar
+      position="sticky"
+      sx={{
+        backgroundColor: `#15152B`,
+        zIndex: theme.zIndex.drawer + 1,
+        height: TOP_BAR_HEIGHT,
+      }}>
       <Toolbar>
         {loggedIn && (
           <IconButton onClick={toggleSidebar} color="inherit" size="large">
@@ -94,18 +95,35 @@ export const TopBar = ({
 
         <img alt="appIcon" src={AppImg} className="appIcon" />
         {isBigScreen && (
-          <Typography className={classes.title} noWrap={true}>
+          <Typography
+            noWrap={true}
+            sx={{
+              fontFamily: `Open Sans`,
+              fontWeight: `bold`,
+              fontSize: 36,
+            }}>
             CRADLE
           </Typography>
         )}
         {loggedIn && (
-          <div className={classes.navRightIcons}>
+          <Box
+            sx={{
+              margin: theme.spacing(0, 0, 0, `auto`),
+            }}>
             <IconButton
-              className={classes.toolbarButtons}
+              sx={{
+                marginLeft: `auto`,
+                borderRadius: '8px',
+              }}
               color="inherit"
               onClick={(e) => setMenuAnchorEl(e.currentTarget)}
               size="large">
-              <Icon name="user circle" size="large" />
+              <AccountCircleIcon
+                sx={{
+                  fontSize: '50px',
+                  marginRight: '12px',
+                }}
+              />
               {isBigScreen && showUserDetails()}
             </IconButton>
             <Menu
@@ -126,7 +144,7 @@ export const TopBar = ({
               <MenuItem onClick={handleChangePassword}>
                 Change Password
               </MenuItem>
-              <MenuItem onClick={navigateSecretKeyDetailPage}>
+              <MenuItem component={Link} to={'/secretKey'}>
                 Secret Key Details
               </MenuItem>
               <MenuItem onClick={handleLogout}>Logout</MenuItem>
@@ -135,14 +153,19 @@ export const TopBar = ({
               open={changePasswordOpen}
               onClose={() => setChangePasswordOpen(false)}
             />
-            <IconButton
-              className={classes.toolbarButtonsPadded}
-              onClick={navigateToHelpPage}
+            <Button
+              sx={{
+                marginLeft: `auto`,
+                borderRadius: '100%',
+                aspectRatio: '1',
+              }}
+              component={Link}
+              to={'/resources'}
               color="inherit"
               size="large">
-              <Icon name="help" size="small" />
-            </IconButton>
-          </div>
+              <QuestionMarkIcon fontSize="large" />
+            </Button>
+          </Box>
         )}
       </Toolbar>
     </AppBar>

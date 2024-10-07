@@ -1,7 +1,7 @@
 import { FormControlLabel, IconButton, Switch, Tooltip } from '@mui/material';
 import { useEffect, useState } from 'react';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import AdminTable from '../AdminTable';
+import AdminTable, { AdminTableContainer, AdminTableRow } from '../AdminTable';
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 import ArchivePatient from './ArchivePatient';
@@ -9,10 +9,8 @@ import UnarchivePatient from './UnarchivePatient';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import { PatientWithIndex } from 'src/shared/types';
 import { getPatientsAdminAsync } from 'src/shared/api';
-import { useAdminStyles } from '../adminStyles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 export const ManagePatients = () => {
-  const styles = useAdminStyles();
   const [loading, setLoading] = useState(true);
   const [errorLoading, setErrorLoading] = useState(false);
   const [patients, setPatients] = useState<PatientWithIndex[]>([]);
@@ -94,7 +92,7 @@ export const ManagePatients = () => {
     const cells = row.slice(0, -1);
     const patient = patients[row.slice(-1)[0] as number];
     return (
-      <tr className={styles.row}>
+      <AdminTableRow>
         <TableCell label="Patient Name" isTransformed={isTransformed}>
           {cells[0]}
         </TableCell>
@@ -130,12 +128,12 @@ export const ManagePatients = () => {
             </Tooltip>
           ) : null}
         </TableCell>
-      </tr>
+      </AdminTableRow>
     );
   };
 
   return (
-    <div className={styles.tableContainer}>
+    <AdminTableContainer>
       <APIErrorToast
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
@@ -181,6 +179,6 @@ export const ManagePatients = () => {
         }
         label="Show Archived Patients"
       />
-    </div>
+    </AdminTableContainer>
   );
 };

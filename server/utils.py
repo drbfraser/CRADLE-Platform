@@ -18,7 +18,7 @@ def get_uuid():
 def generate_request_id(original_id=""):
     new_id = uuid.uuid4()
     if original_id:
-        new_id = "{},{}".format(original_id, new_id)
+        new_id = f"{original_id},{new_id}"
     return new_id
 
 

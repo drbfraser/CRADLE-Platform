@@ -19,7 +19,7 @@ The role-specific views are defined as follows:
 
 from typing import Any, Callable, List, Optional, Tuple
 
-import data.crud as crud
+from data import crud
 from enums import RoleEnum
 from models import (
     FollowUp,
@@ -65,12 +65,13 @@ def pregnancy_view(patient_id: str, **kwargs) -> List[Pregnancy]:
     """
     if not kwargs:
         return crud.read_all(Pregnancy, patientId=patient_id)
-    else:
-        return crud.read_medical_records(Pregnancy, patient_id, **kwargs)
+    return crud.read_medical_records(Pregnancy, patient_id, **kwargs)
 
 
 def medical_record_view(
-    patient_id: str, is_drug_record: bool, **kwargs
+    patient_id: str,
+    is_drug_record: bool,
+    **kwargs,
 ) -> List[MedicalRecord]:
     """
     Returns a list of medical records filtered by query criteria in keyword arguments.
@@ -81,12 +82,16 @@ def medical_record_view(
     """
     if not kwargs:
         return crud.read_all(
-            MedicalRecord, patientId=patient_id, isDrugRecord=is_drug_record
+            MedicalRecord,
+            patientId=patient_id,
+            isDrugRecord=is_drug_record,
         )
-    else:
-        return crud.read_medical_records(
-            MedicalRecord, patient_id, is_drug_record=is_drug_record, **kwargs
-        )
+    return crud.read_medical_records(
+        MedicalRecord,
+        patient_id,
+        is_drug_record=is_drug_record,
+        **kwargs,
+    )
 
 
 def patient_view(user: dict, last_sync: Optional[int] = None) -> List[Any]:
@@ -100,7 +105,8 @@ def patient_view(user: dict, last_sync: Optional[int] = None) -> List[Any]:
 
 
 def reading_view(
-    user: dict, last_sync: Optional[int] = None
+    user: dict,
+    last_sync: Optional[int] = None,
 ) -> List[Tuple[Reading, UrineTest]]:
     """
     Returns a list of readings each with corresponding urine test.
@@ -119,7 +125,10 @@ def referral_view(user: dict, last_sync: Optional[int] = None) -> List[Referral]
     :return: A list of referrals
     """
     return __get_view(
-        user, crud.read_referrals_or_assessments, model=Referral, last_edited=last_sync
+        user,
+        crud.read_referrals_or_assessments,
+        model=Referral,
+        last_edited=last_sync,
     )
 
 
@@ -131,7 +140,10 @@ def assessment_view(user: dict, last_sync: Optional[int] = None) -> List[FollowU
     :return: A list of assessments
     """
     return __get_view(
-        user, crud.read_referrals_or_assessments, model=FollowUp, last_edited=last_sync
+        user,
+        crud.read_referrals_or_assessments,
+        model=FollowUp,
+        last_edited=last_sync,
     )
 
 
@@ -151,9 +163,8 @@ def __get_view(user: dict, func: Callable, **kwargs) -> List[Any]:
     user_id = int(user["userId"])
     if role == RoleEnum.ADMIN.value or role == RoleEnum.HCW.value:
         return func(**kwargs)
-    elif role == RoleEnum.CHO.value:
+    if role == RoleEnum.CHO.value:
         return func(user_id=user_id, is_cho=True, **kwargs)
-    elif role == RoleEnum.VHT.value:
+    if role == RoleEnum.VHT.value:
         return func(user_id=user_id, **kwargs)
-    else:
-        raise ValueError("User has an invalid role.")
+    raise ValueError("User has an invalid role.")

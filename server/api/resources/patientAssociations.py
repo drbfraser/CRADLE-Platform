@@ -3,10 +3,10 @@ from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 
-import api.util as util
-import data.crud as crud
-import service.assoc as assoc
+from api import util
+from data import crud
 from models import HealthFacility, Patient, User
+from service import assoc
 from validation import associations
 
 
@@ -54,9 +54,7 @@ class Root(Resource):
             # associate patient with the current user's health facility
             user = util.current_user()
             assoc.associate(patient, user.healthFacility, user)
-        else:
-            # Otherwise, simply associate the provided models together
-            if not assoc.has_association(patient, facility, user):
-                assoc.associate(patient, facility, user)
+        elif not assoc.has_association(patient, facility, user):
+            assoc.associate(patient, facility, user)
 
         return {}, 201

@@ -17,7 +17,6 @@ def validate(request_body: dict) -> Optional[str]:
                         }
     :return: An error message if the request body is invalid. None otherwise
     """
-
     error_message = None
 
     # Check if required keys are present
@@ -33,7 +32,9 @@ def validate(request_body: dict) -> Optional[str]:
 
     # Check that field types are correct
     error_message = values_correct_type(
-        request_body, ["firstName", "email", "healthFacilityName", "role"], str
+        request_body,
+        ["firstName", "email", "healthFacilityName", "role"],
+        str,
     )
     if error_message is not None:
         return error_message
