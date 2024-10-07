@@ -10,8 +10,8 @@ from api.decorator import roles_required
 from data import crud, marshal
 from enums import RoleEnum
 from models import HealthFacility
-from validation import facilities
 from validation.facilities import Facility
+from validation.validation_exception import ValidationException
 
 
 def add_model(parser, model):
@@ -57,10 +57,10 @@ class Root(Resource):
         parser = reqparse.RequestParser()
         add_model(parser, Facility)
         args = parser.parse_args()
-        error_message = facilities.validate(args)
-
-        if error_message is not None:
-            abort(400, message=error_message)
+        try:
+            Facility.validate(args)
+        except Exception as e:
+            abort(400, message=str(e))
 
         # Create a DB Model instance for the new facility and load into DB
         facility = marshal.unmarshal(HealthFacility, args)
