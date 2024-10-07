@@ -19,7 +19,7 @@ valid_json = {
         "medicationPrescribed": "tylenol",
         "specialInvestigations": "bcccccccccddeeeff",
         "treatment": "b",
-        "readingId": "test3",
+        "patientId": "test3",
         "followupNeeded": "TRUE",
         "followupInstructions": "pls help, give lots of tylenol",
     },
