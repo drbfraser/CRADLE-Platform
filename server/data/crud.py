@@ -502,7 +502,7 @@ def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
         Pregnancy.outcome.label("information"),
     ).filter(
         Pregnancy.patientId == patient_id, 
-        Pregnancy.endDate.isNot(None)
+        Pregnancy.endDate.isnot(None)
     )
 
     pregnancy_start = db_session.query(
