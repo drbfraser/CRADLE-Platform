@@ -448,14 +448,13 @@ def read_medical_records(m: Type[M], patient_id: str, **kwargs) -> List[M]:
             query = query.filter(m.information.like(safe_search_text))
 
         query = query.filter_by(isDrugRecord=is_drug_record).order_by(
-            order_by_direction(m.dateCreated)
+            order_by_direction(m.dateCreated),
         )
 
     if limit:
         start_idx, stop_idx = __get_slice_indexes(page, limit)
         return query.slice(start_idx, stop_idx).all()
-    else:
-        return query.all()
+    return query.all()
 
 
 def read_patient_current_medical_record(
@@ -506,34 +505,25 @@ def read_patient_timeline(patient_id: str, **kwargs) -> List[Any]:
         literal(TITLE.pregnancy_end).label("title"),
         Pregnancy.endDate.label("date"),
         Pregnancy.outcome.label("information"),
-    ).filter(
-        Pregnancy.patientId == patient_id, 
-        Pregnancy.endDate.isnot(None)
-    )
+    ).filter(Pregnancy.patientId == patient_id, Pregnancy.endDate.isnot(None))
 
     pregnancy_start = db_session.query(
-        literal(TITLE.pregnancy_start), 
-        Pregnancy.startDate, 
-        null()
+        literal(TITLE.pregnancy_start),
+        Pregnancy.startDate,
+        null(),
     ).filter(Pregnancy.patientId == patient_id)
 
     medical_history = db_session.query(
         literal(TITLE.medical_history),
         MedicalRecord.dateCreated,
         MedicalRecord.information,
-    ).filter(
-        MedicalRecord.patientId == patient_id, 
-        MedicalRecord.isDrugRecord == False
-    )
+    ).filter(MedicalRecord.patientId == patient_id, MedicalRecord.isDrugRecord == False)
 
     drug_history = db_session.query(
         literal(TITLE.drug_history),
         MedicalRecord.dateCreated,
         MedicalRecord.information,
-    ).filter(
-        MedicalRecord.patientId == patient_id, 
-        MedicalRecord.isDrugRecord == True
-    )
+    ).filter(MedicalRecord.patientId == patient_id, MedicalRecord.isDrugRecord == True)
 
     query = pregnancy_end.union(
         pregnancy_start,
@@ -596,14 +586,33 @@ def read_patient_all_records(patient_id: str, **kwargs) -> List[Any]:
     reading_pos, referral_pos, assessment_pos, form_pos = 0, 0, 0, 0
     final_list = []
 
-    while any([reading_pos < len(reading_list), referral_pos < len(referral_list),
-               assessment_pos < len(assessment_list), form_pos < len(form_list)]):
-        
+    while any(
+        [
+            reading_pos < len(reading_list),
+            referral_pos < len(referral_list),
+            assessment_pos < len(assessment_list),
+            form_pos < len(form_list),
+        ],
+    ):
         # get current timestamps for each list
-        cur_reading_t = reading_list[reading_pos].dateTimeTaken if reading_pos < len(reading_list) else -1
-        cur_referral_t = referral_list[referral_pos].dateReferred if referral_pos < len(referral_list) else -1
-        cur_assessment_t = assessment_list[assessment_pos].dateAssessed if assessment_pos < len(assessment_list) else -1
-        cur_form_t = form_list[form_pos].dateCreated if form_pos < len(form_list) else -1
+        cur_reading_t = (
+            reading_list[reading_pos].dateTimeTaken
+            if reading_pos < len(reading_list)
+            else -1
+        )
+        cur_referral_t = (
+            referral_list[referral_pos].dateReferred
+            if referral_pos < len(referral_list)
+            else -1
+        )
+        cur_assessment_t = (
+            assessment_list[assessment_pos].dateAssessed
+            if assessment_pos < len(assessment_list)
+            else -1
+        )
+        cur_form_t = (
+            form_list[form_pos].dateCreated if form_pos < len(form_list) else -1
+        )
 
         # get most recent record across the lists and append to final list
         max_t = max(cur_reading_t, cur_referral_t, cur_assessment_t, cur_form_t)
@@ -713,7 +722,11 @@ def read_patients(
                 dr.isDrugRecord == True,
             ),
         )
-        .filter(pr.startDate.is_(None), md.dateCreated.is_(None), dr.dateCreated.is_(None))
+        .filter(
+            pr.startDate.is_(None),
+            md.dateCreated.is_(None),
+            dr.dateCreated.is_(None),
+        )
     )
 
     query = __filter_by_patient_association(query, Patient, user_id, is_cho)
@@ -735,7 +748,7 @@ def read_patients(
                 MedicalHistory.lastEdited > last_edited,
                 DrugHistory.lastEdited > last_edited,
                 pr2.id.isnot(None),
-            )
+            ),
         )
 
     if patient_id:
@@ -913,8 +926,8 @@ def get_unique_patients_with_readings(facility="%", user="%", filter={}) -> List
     """
     Queries the database for unique patients with more than one reading
 
-    :return: A number of unique patients"""
-
+    :return: A number of unique patients
+    """
     query = """
         SELECT COUNT(pat.patientId) as patients
                 FROM (
@@ -934,10 +947,13 @@ def get_unique_patients_with_readings(facility="%", user="%", filter={}) -> List
 
     # params used to prevent direct string interpolation inside query
     params = {
-        'from': filter.get("from", "1900-01-01"),  # default date if 'from' is not provided
-        'to': filter.get("to", "2100-12-31"),      # default date if 'to' is not provided
-        'user': str(user),
-        'facility': str(facility),
+        "from": filter.get(
+            "from",
+            "1900-01-01",
+        ),  # default date if 'from' is not provided
+        "to": filter.get("to", "2100-12-31"),  # default date if 'to' is not provided
+        "user": str(user),
+        "facility": str(facility),
     }
 
     try:
@@ -969,10 +985,10 @@ def get_total_readings_completed(facility="%", user="%", filter={}) -> List[M]:
 
     # params used to prevent direct string interpolation inside query
     params = {
-        'from': filter.get("from", "1900-01-01"),  
-        'to': filter.get("to", "2100-12-31"),      
-        'user': str(user),
-        'facility': str(facility),
+        "from": filter.get("from", "1900-01-01"),
+        "to": filter.get("to", "2100-12-31"),
+        "user": str(user),
+        "facility": str(facility),
     }
 
     try:
@@ -1004,10 +1020,10 @@ def get_total_color_readings(facility="%", user="%", filter={}) -> List[M]:
 
     # params used to prevent direct string interpolation inside query
     params = {
-        'from': filter.get("from", "1900-01-01"),  
-        'to': filter.get("to", "2100-12-31"),      
-        'user': str(user),
-        'facility': str(facility),
+        "from": filter.get("from", "1900-01-01"),
+        "to": filter.get("to", "2100-12-31"),
+        "user": str(user),
+        "facility": str(facility),
     }
 
     try:
@@ -1036,10 +1052,10 @@ def get_sent_referrals(facility="%", user="%", filter={}) -> List[M]:
     """
 
     params = {
-        'from': filter.get("from", "1900-01-01"),  
-        'to': filter.get("to", "2100-12-31"),     
-        'user': str(user),
-        'facility': str(facility),
+        "from": filter.get("from", "1900-01-01"),
+        "to": filter.get("to", "2100-12-31"),
+        "user": str(user),
+        "facility": str(facility),
     }
 
     try:
@@ -1064,9 +1080,9 @@ def get_referred_patients(facility="%", filter={}) -> List[M]:
     """
 
     params = {
-        'from': filter.get("from", "1900-01-01"),  # Default start date if not provided
-        'to': filter.get("to", "2100-12-31"),      # Default end date if not provided
-        'facility': str(facility)
+        "from": filter.get("from", "1900-01-01"),  # Default start date if not provided
+        "to": filter.get("to", "2100-12-31"),  # Default end date if not provided
+        "facility": str(facility),
     }
 
     try:
@@ -1096,10 +1112,10 @@ def get_days_with_readings(facility="%", user="%", filter={}):
     """
 
     params = {
-        'from': filter.get("from", "1900-01-01"),  
-        'to': filter.get("to", "2100-12-31"),      
-        'user': str(user),
-        'facility': str(facility)
+        "from": filter.get("from", "1900-01-01"),
+        "to": filter.get("to", "2100-12-31"),
+        "user": str(user),
+        "facility": str(facility),
     }
 
     try:
@@ -1141,7 +1157,10 @@ def get_export_data(user_id, filter):
         )
         .filter(
             Reading.userId == user_id,
-            Referral.dateReferred.between(filter.get("from", "1900-01-01"), filter.get("to", "2100-12-31"))
+            Referral.dateReferred.between(
+                filter.get("from", "1900-01-01"),
+                filter.get("to", "2100-12-31"),
+            ),
         )
         .order_by(Referral.patientId.desc())
     )
@@ -1238,13 +1257,13 @@ def __filter_by_patient_association(
 def __filter_by_patient_search(query: Query, **kwargs) -> Query:
     search_text = kwargs.get("search_text")
     if search_text:
-        search_text = f"%{search_text}%" 
+        search_text = f"%{search_text}%"
         query = query.filter(
             or_(
                 Patient.patientId.like(search_text),
                 Patient.patientName.like(search_text),
                 Patient.villageNumber.like(search_text),
-            )
+            ),
         )
     return query
 
