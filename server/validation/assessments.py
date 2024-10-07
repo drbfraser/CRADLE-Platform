@@ -1,13 +1,6 @@
-from pydantic import (
-    BaseModel,
-    Field,
-    field_validator,
-    ValidationError,
-    ValidationInfo,
-)
 from typing import Optional
 
-from validation.validate import required_keys_present, values_correct_type
+from pydantic import BaseModel, Field, ValidationError, ValidationInfo, field_validator
 
 
 class Assessment(BaseModel):
@@ -20,15 +13,16 @@ class Assessment(BaseModel):
     patientId: str
     followupNeeded: bool
     followupInstructions: Optional[str] = Field(
-        default=None, description="Required if followupNeeded is True"
+        default=None,
+        description="Required if followupNeeded is True",
     )
 
     @field_validator("followupInstructions", mode="before")
-    def check_followup_instructions(cls, v, values: ValidationInfo):
+    def check_followup_instructions(self, v, values: ValidationInfo):
         followup_needed = values.data.get("followupNeeded", False)
         if followup_needed and (v is None or v == ""):
             raise ValueError(
-                "followupInstructions must be provided if followupNeeded is True"
+                "followupInstructions must be provided if followupNeeded is True",
             )
         return v
 
@@ -51,9 +45,8 @@ def validate(request_body: dict) -> Optional[str]:
 
     :return: An error message if request body in invalid in some way. None otherwise.
     """
-
     try:
-        assessment = Assessment(**request_body)
+        Assessment(**request_body)
     except ValidationError as e:
         return str(e)
     return None
