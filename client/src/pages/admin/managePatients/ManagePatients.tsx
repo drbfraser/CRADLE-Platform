@@ -1,54 +1,89 @@
 import { FormControlLabel, IconButton, Switch, Tooltip } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import AdminTable, { AdminTableContainer, AdminTableRow } from '../AdminTable';
+import {
+  AdminTable,
+  AdminTableActionButtonsContainer,
+  AdminTableToolbar,
+} from '../AdminTable';
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 import ArchivePatient from './ArchivePatient';
 import UnarchivePatient from './UnarchivePatient';
-import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import { PatientWithIndex } from 'src/shared/types';
 import { getPatientsAdminAsync } from 'src/shared/api';
-import useMediaQuery from '@mui/material/useMediaQuery';
+import {
+  GridColDef,
+  GridRenderCellParams,
+  GridRowsProp,
+} from '@mui/x-data-grid';
 export const ManagePatients = () => {
   const [loading, setLoading] = useState(true);
   const [errorLoading, setErrorLoading] = useState(false);
   const [patients, setPatients] = useState<PatientWithIndex[]>([]);
   const [search, setSearch] = useState('');
-  const [tableData, setTableData] = useState<(string | number | boolean)[][]>(
-    []
-  );
   const [archivePopupOpen, setArchivePopupOpen] = useState(false);
   const [unarchivePopupOpen, setUnarchivePopupOpen] = useState(false);
   const [popupPatient, setPopupPatient] = useState<PatientWithIndex>();
   const [showArchivedPatients, setShowArchivedPatients] = useState(true);
-  const isTransformed = useMediaQuery('(min-width:900px)');
 
-  const columns = [
-    {
-      name: 'Patient Name',
-      options: {
-        display: isTransformed ? true : false,
-      },
+  const [rows, setRows] = useState<GridRowsProp>([]);
+  const updateRowData = (patients: PatientWithIndex[]) => {
+    setRows(
+      patients.map((patient, index) => ({
+        id: index,
+        patientName: patient.patientName,
+        patientId: patient.patientId,
+        isArchived: patient.isArchived,
+        takeAction: patient,
+      }))
+    );
+  };
+
+  const ActionButtons = useCallback(
+    ({ patient }: { patient?: PatientWithIndex }) => {
+      return patient ? (
+        <AdminTableActionButtonsContainer>
+          {patient.isArchived ? (
+            <Tooltip placement="top" title="Unarchive Patient">
+              <IconButton
+                onClick={() => {
+                  setUnarchivePopupOpen(true);
+                  setPopupPatient(patient);
+                }}
+                size="large">
+                <RestoreFromTrashIcon />
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <Tooltip placement="top" title="Archive Patient">
+              <IconButton
+                onClick={() => {
+                  setArchivePopupOpen(true);
+                  setPopupPatient(patient);
+                }}
+                size="large">
+                <DeleteForever />
+              </IconButton>
+            </Tooltip>
+          )}
+        </AdminTableActionButtonsContainer>
+      ) : null;
     },
+    []
+  );
+
+  const columns: GridColDef[] = [
+    { flex: 1, field: 'patientName', headerName: 'Patient Name' },
+    { flex: 1, field: 'patientId', headerName: 'Patient ID' },
+    { flex: 1, field: 'isArchived', headerName: 'Archived?' },
     {
-      name: 'Patient ID',
-      options: {
-        display: isTransformed ? true : false,
-      },
-    },
-    {
-      name: 'Archived?',
-      options: {
-        display: isTransformed ? true : false,
-      },
-    },
-    {
-      name: 'Take Action',
-      options: {
-        sort: false,
-        display: isTransformed ? true : false,
-      },
+      flex: 1,
+      field: 'takeAction',
+      headerName: 'Take Action',
+      renderCell: (params: GridRenderCellParams<any, PatientWithIndex>) => (
+        <ActionButtons patient={params.value} />
+      ),
     },
   ];
 
@@ -77,63 +112,18 @@ export const ManagePatients = () => {
         patient.patientId.toLowerCase().startsWith(searchLowerCase)
       );
     };
-    const rows = patients
-      .filter(patientFilter)
-      .map((p) => [
-        p.patientName,
-        p.patientId,
-        p.isArchived === null ? 'FALSE' : p.isArchived.toString().toUpperCase(),
-        p.index,
-      ]);
-    setTableData(rows);
+    const filteredPatients = patients.filter(patientFilter);
+    updateRowData(filteredPatients);
   }, [patients, search]);
 
-  const Row = ({ row }: { row: (string | number | boolean)[] }) => {
-    const cells = row.slice(0, -1);
-    const patient = patients[row.slice(-1)[0] as number];
-    return (
-      <AdminTableRow>
-        <TableCell label="Patient Name" isTransformed={isTransformed}>
-          {cells[0]}
-        </TableCell>
-        <TableCell label="Patient Id" isTransformed={isTransformed}>
-          {cells[1]}
-        </TableCell>
-        <TableCell label="Archived?" isTransformed={isTransformed}>
-          {cells[2]}
-        </TableCell>
-        <TableCell label="Take Action" isTransformed={isTransformed}>
-          {cells[2] === 'FALSE' ? (
-            <Tooltip placement="top" title="Archive Patient">
-              <IconButton
-                onClick={() => {
-                  setArchivePopupOpen(true);
-                  setPopupPatient(patient);
-                }}
-                size="large">
-                <DeleteForever />
-              </IconButton>
-            </Tooltip>
-          ) : null}
-          {cells[2] === 'TRUE' ? (
-            <Tooltip placement="top" title="Unarchive Patient">
-              <IconButton
-                onClick={() => {
-                  setUnarchivePopupOpen(true);
-                  setPopupPatient(patient);
-                }}
-                size="large">
-                <RestoreFromTrashIcon />
-              </IconButton>
-            </Tooltip>
-          ) : null}
-        </TableCell>
-      </AdminTableRow>
-    );
-  };
+  const toolbar = (
+    <AdminTableToolbar
+      title={'Patients'}
+      setSearch={setSearch}></AdminTableToolbar>
+  );
 
   return (
-    <AdminTableContainer>
+    <>
       <APIErrorToast
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
@@ -154,16 +144,7 @@ export const ManagePatients = () => {
         }}
         patient={popupPatient}
       />
-      <AdminTable
-        title="Patients"
-        search={search}
-        setSearch={setSearch}
-        columns={columns}
-        Row={Row}
-        data={tableData}
-        loading={loading}
-        isTransformed={isTransformed}
-      />
+      <AdminTable columns={columns} rows={rows} toolbar={toolbar} />
       <FormControlLabel
         style={{
           marginTop: '10px',
@@ -179,6 +160,6 @@ export const ManagePatients = () => {
         }
         label="Show Archived Patients"
       />
-    </AdminTableContainer>
+    </>
   );
 };
