@@ -65,7 +65,7 @@ export const ManageFacilities = () => {
   );
 
   const columns: GridColDef[] = [
-    { flex: 1, field: 'facilityName', headerName: 'FacilityName' },
+    { flex: 1, field: 'facilityName', headerName: 'Facility Name' },
     { flex: 1, field: 'phoneNumber', headerName: 'Phone Number' },
     { flex: 1, field: 'location', headerName: 'Location' },
     {
