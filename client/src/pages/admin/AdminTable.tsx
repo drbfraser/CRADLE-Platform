@@ -1,35 +1,65 @@
-import MUIDataTable, {
-  MUIDataTableColumnDef,
-  MUIDataTableProps,
-} from 'mui-datatables';
-
-import AddIcon from '@mui/icons-material/Add';
-import FileUploadIcon from '@mui/icons-material/FileUpload';
-import { PrimaryButton } from 'src/shared/components/Button';
-import Skeleton from '@mui/material/Skeleton';
 import {
-  Box,
-  SxProps,
-  TableContainer,
-  TableRow,
-  TextField,
-} from '@mui/material';
-import { PropsWithChildren } from 'react';
+  DataGrid,
+  GridColDef,
+  GridToolbarContainer,
+  GridToolbarColumnsButton,
+  GridToolbarFilterButton,
+  GridToolbarDensitySelector,
+  GridValidRowModel,
+} from '@mui/x-data-grid';
 
-interface IProps {
-  title: string;
-  newBtnLabel?: string;
-  newBtnOnClick?: () => void;
-  uploadBtnLabel?: string;
-  uploadBtnLabelOnClick?: () => void;
-  search: string;
-  setSearch: (search: string) => void;
-  columns: MUIDataTableColumnDef[];
-  Row: ({ row }: { row: any }) => JSX.Element;
-  data: MUIDataTableProps['data'];
-  loading: boolean;
-  isTransformed: boolean;
-}
+import { PrimaryButton } from 'src/shared/components/Button';
+import { Box, TableContainer, TextField, useMediaQuery } from '@mui/material';
+import { MouseEventHandler, PropsWithChildren, ReactNode } from 'react';
+
+type AdminToolbarProps = {
+  rows: readonly GridValidRowModel[];
+  columns: GridColDef[];
+  toolbar?: ReactNode;
+};
+
+const AdminTable = ({ rows, columns, toolbar }: AdminToolbarProps) => {
+  return (
+    <DataGrid
+      sx={{
+        border: '0',
+      }}
+      rows={rows}
+      columns={columns}
+      autosizeOnMount
+      autosizeOptions={{
+        includeHeaders: true,
+        includeOutliers: true,
+      }}
+      pagination
+      slots={{
+        toolbar: () => toolbar,
+      }}
+    />
+  );
+};
+
+export const AdminTableContainer = ({ children }: PropsWithChildren) => {
+  return (
+    <TableContainer
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '600px',
+        maxHeight: '600px',
+        '& .MuiTableCell-head': {
+          fontWeight: 'bold',
+        },
+        '& button': {
+          fontWeight: 'bold',
+        },
+      }}>
+      {children}
+    </TableContainer>
+  );
+};
+
+export default AdminTable;
 
 const TOOLBAR_ELEMENT_HEIGHT_LARGE = '56px';
 const TOOLBAR_ELEMENT_HEIGHT_SMALL = '40px';
@@ -54,128 +84,47 @@ const TOOLBAR_BUTTON_SX = {
   },
   ...TOOLBAR_ELEMENT_SX,
 };
-const AdminTable = (props: IProps) => {
-  const Toolbar = () => (
-    <Box
-      id={'toolbar-actions'}
+
+type ToolbarProps = PropsWithChildren & {
+  search?: string;
+  setSearch: (val: string) => void;
+};
+export const AdminTableToolbar = ({ children, setSearch }: ToolbarProps) => {
+  const isTransformed = useMediaQuery('(min-width:900px)');
+  return (
+    <GridToolbarContainer
       sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        gap: '4px',
-        '@media (min-width: 600px)': {
-          float: 'right',
-        },
-        '@media (max-width: 900px)': {
-          marginBottom: '10px',
-        },
-        '@media (max-width: 720px)': {
-          flexDirection: 'column',
-        },
+        padding: '16px',
       }}>
+      <GridToolbarColumnsButton />
+      <GridToolbarFilterButton />
+      <GridToolbarDensitySelector />
+      <Box sx={{ flexGrow: 1 }} />
       <Box sx={TOOLBAR_ELEMENT_SX}>
         <TextField
           type="text"
           variant="outlined"
           sx={TOOLBAR_ELEMENT_SX}
-          size={props.isTransformed ? 'medium' : 'small'}
+          size={isTransformed ? 'medium' : 'small'}
           placeholder="Search..."
-          value={props.search}
-          onChange={(e) => props.setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
         />
       </Box>
-      <Box
-        id={'button-container'}
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: '4px',
-          '@media (max-width: 1000px)': {
-            flexDirection: 'column',
-          },
-        }}>
-        {props.newBtnLabel && (
-          <PrimaryButton sx={TOOLBAR_BUTTON_SX} onClick={props.newBtnOnClick}>
-            <AddIcon />
-            {props.newBtnLabel}
-          </PrimaryButton>
-        )}
-
-        {props.uploadBtnLabel && (
-          <PrimaryButton
-            sx={TOOLBAR_BUTTON_SX}
-            onClick={props.uploadBtnLabelOnClick}>
-            <FileUploadIcon />
-            {props.uploadBtnLabel}
-          </PrimaryButton>
-        )}
-      </Box>
-    </Box>
-  );
-
-  return (
-    <MUIDataTable
-      title={props.title}
-      columns={props.columns}
-      data={props.data}
-      options={{
-        elevation: 0,
-        search: false,
-        download: false,
-        print: false,
-        viewColumns: false,
-        filter: false,
-        selectToolbarPlacement: 'none',
-        selectableRows: 'none',
-        rowHover: false,
-        responsive: 'standard',
-        customToolbar: Toolbar,
-        customRowRender: (row, i) => <props.Row key={i} row={row} />,
-        textLabels: {
-          body: {
-            noMatch: props.loading ? (
-              <Skeleton variant="rectangular" component="span" height={40} />
-            ) : (
-              'Sorry, no matching records found.'
-            ),
-          },
-        },
-      }}
-    />
-  );
-};
-
-export const AdminTableContainer = ({ children }: PropsWithChildren) => {
-  return (
-    <TableContainer
-      sx={{
-        '& .MuiTableCell-head': {
-          fontWeight: 'bold',
-        },
-        '& button': {
-          fontWeight: 'bold',
-        },
-      }}>
       {children}
-    </TableContainer>
+    </GridToolbarContainer>
   );
 };
 
-type AdminTableRowProps = PropsWithChildren & {
-  sx?: SxProps;
+type ToolbarButtonProps = PropsWithChildren & {
+  onClick?: MouseEventHandler;
 };
-export const AdminTableRow = ({ children, sx }: AdminTableRowProps) => {
+export const AdminToolBarButton = ({
+  children,
+  onClick,
+}: ToolbarButtonProps) => {
   return (
-    <TableRow
-      sx={[
-        {
-          borderBottom: '1px solid #ddd',
-        },
-        ...(Array.isArray(sx) ? sx : [sx]),
-      ]}>
+    <PrimaryButton sx={TOOLBAR_BUTTON_SX} onClick={onClick}>
       {children}
-    </TableRow>
+    </PrimaryButton>
   );
 };
-
-export default AdminTable;
