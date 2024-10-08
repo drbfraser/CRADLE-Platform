@@ -85,7 +85,7 @@ export const ManageRelayApp = () => {
         phoneNumber: relayNum.phone,
         description: relayNum.description,
         lastReceived: relayNum.lastReceived,
-        takeAction: relayNums,
+        takeAction: relayNum,
       }))
     );
   };
