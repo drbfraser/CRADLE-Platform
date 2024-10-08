@@ -1,21 +1,32 @@
-import { IconButton, Tooltip } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { Box, IconButton, Tooltip } from '@mui/material';
+import { useCallback, useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import AdminTable, { AdminTableContainer, AdminTableRow } from '../AdminTable';
+import {
+  AdminTable,
+  AdminTableActionButtonsContainer,
+  AdminTableToolbar,
+  AdminToolBarButton,
+} from '../AdminTable';
 import CreateIcon from '@mui/icons-material/Create';
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import DeleteUser from './DeleteUser';
 import EditUser from './EditUser';
+import ResetPassword from './ResetPassword';
 import { IUserWithIndex } from 'src/shared/types';
 import { ReduxState } from 'src/redux/reducers';
-import ResetPassword from './ResetPassword';
-import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import { getUsersAsync } from 'src/shared/api';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useSelector } from 'react-redux';
 import { userRoleLabels } from 'src/shared/constants';
+import AddIcon from '@mui/icons-material/Add';
+
+import {
+  GridRowsProp,
+  GridColDef,
+  GridRenderCellParams,
+} from '@mui/x-data-grid';
 
 export const ManageUsers = () => {
   const currentUserId = useSelector<ReduxState>(
@@ -25,94 +36,28 @@ export const ManageUsers = () => {
   const [errorLoading, setErrorLoading] = useState(false);
   const [users, setUsers] = useState<IUserWithIndex[]>([]);
   const [search, setSearch] = useState('');
-  const [tableData, setTableData] = useState<(string | number)[][]>([]);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [passwordPopupOpen, setPasswordPopupOpen] = useState(false);
   const [deletePopupOpen, setDeletePopupOpen] = useState(false);
   const [popupUser, setPopupUser] = useState<IUserWithIndex>();
   const isTransformed = useMediaQuery('(min-width:900px)');
 
-  const columns = [
-    {
-      name: 'First Name',
-      options: {
-        display: isTransformed ? true : false,
-      },
-    },
-    {
-      name: 'Email',
-      options: {
-        display: isTransformed ? true : false,
-      },
-    },
-    {
-      name: 'Phone Number',
-      options: {
-        display: isTransformed ? true : false,
-      },
-    },
-    {
-      name: 'Health Facility',
-      options: {
-        display: isTransformed ? true : false,
-      },
-    },
-    {
-      name: 'Role',
-      options: {
-        display: isTransformed ? true : false,
-      },
-    },
-    {
-      name: 'Take Action',
-      options: {
-        sort: false,
-        display: isTransformed ? true : false,
-      },
-    },
-  ];
-
-  const getUsers = async () => {
-    try {
-      const resp: IUserWithIndex[] = await getUsersAsync();
-
-      setUsers(resp.map((user, index) => ({ ...user, index })));
-      setLoading(false);
-    } catch (e) {
-      setErrorLoading(true);
-    }
+  const [rows, setRows] = useState<GridRowsProp>([]);
+  const updateRowData = (users: IUserWithIndex[]) => {
+    setRows(
+      users.map((user, index) => ({
+        id: index,
+        firstName: user.firstName,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        healthFacility: user.healthFacilityName,
+        role: userRoleLabels[user.role],
+        takeAction: user,
+      }))
+    );
   };
 
-  useEffect(() => {
-    getUsers();
-  }, []);
-
-  useEffect(() => {
-    const searchLowerCase = search.toLowerCase().trim();
-
-    const userFilter = (user: IUserWithIndex) => {
-      return (
-        user.firstName.toLowerCase().startsWith(searchLowerCase) ||
-        user.email.toLowerCase().startsWith(searchLowerCase) ||
-        user.healthFacilityName.toLowerCase().startsWith(searchLowerCase)
-      );
-    };
-
-    const rows = users
-      .filter(userFilter)
-      .map((u) => [
-        u.firstName,
-        u.email,
-        u.phoneNumber,
-        u.healthFacilityName,
-        userRoleLabels[u.role],
-        u.index,
-      ]);
-
-    setTableData(rows);
-  }, [users, search]);
-
-  const rowActions = [
+  const actions = [
     {
       tooltip: 'Edit User',
       setOpen: setEditPopupOpen,
@@ -131,54 +76,94 @@ export const ManageUsers = () => {
     },
   ];
 
-  const Row = ({ row }: { row: (string | number)[] }) => {
-    const cells = row.slice(0, -1);
-    const user = users[row.slice(-1)[0] as number];
-    const isCurrentUser = user?.userId === currentUserId;
-    const actions = isCurrentUser
-      ? rowActions.filter((a) => !a.disableForCurrentUser)
-      : rowActions;
+  // Component to render buttons inside the last cell of each row.
+  const ActionButtons = useCallback(
+    ({ user }: { user?: IUserWithIndex }) => {
+      return (
+        <AdminTableActionButtonsContainer>
+          {user
+            ? actions.map((action) => (
+                <Tooltip
+                  key={action.tooltip}
+                  placement="top"
+                  title={action.tooltip}>
+                  <IconButton
+                    onClick={() => {
+                      setPopupUser(user);
+                      action.setOpen(true);
+                    }}
+                    size="large">
+                    <action.Icon />
+                  </IconButton>
+                </Tooltip>
+              ))
+            : null}
+        </AdminTableActionButtonsContainer>
+      );
+    },
+    [setPopupUser]
+  );
 
-    return (
-      <AdminTableRow>
-        <TableCell label="First Name" isTransformed={isTransformed}>
-          {cells[0]}
-        </TableCell>
-        <TableCell label="Email" isTransformed={isTransformed}>
-          {cells[1]}
-        </TableCell>
-        <TableCell label="Phone Number" isTransformed={isTransformed}>
-          {cells[2]}
-        </TableCell>
-        <TableCell label="Health Facility" isTransformed={isTransformed}>
-          {cells[3]}
-        </TableCell>
-        <TableCell label="Role" isTransformed={isTransformed}>
-          {cells[4]}
-        </TableCell>
-        <TableCell label="Take Action" isTransformed={isTransformed}>
-          {actions.map((action) => (
-            <Tooltip
-              key={action.tooltip}
-              placement="top"
-              title={action.tooltip}>
-              <IconButton
-                onClick={() => {
-                  setPopupUser(user);
-                  action.setOpen(true);
-                }}
-                size="large">
-                <action.Icon />
-              </IconButton>
-            </Tooltip>
-          ))}
-        </TableCell>
-      </AdminTableRow>
-    );
+  const columns: GridColDef[] = [
+    { flex: 1, field: 'firstName', headerName: 'First Name' },
+    { flex: 1, field: 'email', headerName: 'Email' },
+    { flex: 1, field: 'phoneNumber', headerName: 'Phone Number' },
+    { flex: 1, field: 'healthFacility', headerName: 'Health Facility' },
+    { flex: 1, field: 'role', headerName: 'Role' },
+    {
+      flex: 1,
+      field: 'takeAction',
+      headerName: 'Take Action',
+      renderCell: (params: GridRenderCellParams<any, IUserWithIndex>) => (
+        <ActionButtons user={params.value} />
+      ),
+    },
+  ];
+
+  const getUsers = async () => {
+    try {
+      const users: IUserWithIndex[] = await getUsersAsync();
+      setUsers(users);
+      updateRowData(users);
+
+      setLoading(false);
+    } catch (e) {
+      setErrorLoading(true);
+    }
   };
 
+  useEffect(() => {
+    getUsers();
+  }, []);
+
+  useEffect(() => {
+    const searchLowerCase = search.toLowerCase().trim();
+    const userFilter = (user: IUserWithIndex) => {
+      return (
+        user.firstName.toLowerCase().startsWith(searchLowerCase) ||
+        user.email.toLowerCase().startsWith(searchLowerCase) ||
+        user.healthFacilityName.toLowerCase().startsWith(searchLowerCase)
+      );
+    };
+    const filteredUsers = users.filter(userFilter);
+    updateRowData(filteredUsers);
+  }, [users, search]);
+
+  const addNewUser = useCallback(() => {
+    setPopupUser(undefined);
+    setEditPopupOpen(true);
+  }, [setPopupUser, setEditPopupOpen]);
+
+  const toolbar = (
+    <AdminTableToolbar title={'Users'} setSearch={setSearch}>
+      <AdminToolBarButton onClick={addNewUser}>
+        <AddIcon /> {'New User'}
+      </AdminToolBarButton>
+    </AdminTableToolbar>
+  );
+
   return (
-    <AdminTableContainer>
+    <>
       <APIErrorToast
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
@@ -205,21 +190,7 @@ export const ManageUsers = () => {
         }}
         user={popupUser}
       />
-      <AdminTable
-        title="Users"
-        newBtnLabel="New User"
-        newBtnOnClick={() => {
-          setPopupUser(undefined);
-          setEditPopupOpen(true);
-        }}
-        search={search}
-        setSearch={setSearch}
-        columns={columns}
-        Row={Row}
-        data={tableData}
-        loading={loading}
-        isTransformed={isTransformed}
-      />
-    </AdminTableContainer>
+      <AdminTable rows={rows} columns={columns} toolbar={toolbar} />
+    </>
   );
 };
