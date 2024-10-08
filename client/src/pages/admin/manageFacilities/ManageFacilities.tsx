@@ -11,11 +11,9 @@ import {
 import CreateIcon from '@mui/icons-material/Create';
 import EditFacility from './EditFacility';
 import { IFacility } from 'src/shared/types';
-import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import { getHealthFacilitiesAsync } from 'src/shared/api';
 import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
 import { useAppDispatch } from 'src/shared/hooks';
-import useMediaQuery from '@mui/material/useMediaQuery';
 import {
   GridColDef,
   GridRenderCellParams,
@@ -29,10 +27,8 @@ export const ManageFacilities = () => {
   const [errorLoading, setErrorLoading] = useState(false);
   const [facilities, setFacilities] = useState<IFacility[]>([]);
   const [search, setSearch] = useState('');
-  const [tableData, setTableData] = useState<(string | number)[][]>([]);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [facilityToEdit, setFacilityToEdit] = useState<IFacility>();
-  const isTransformed = useMediaQuery('(min-width:900px)');
 
   const [rows, setRows] = useState<GridRowsProp>([]);
   // Map facility object to row data object.

@@ -1,4 +1,4 @@
-import { Box, IconButton, Tooltip } from '@mui/material';
+import { IconButton, Tooltip } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -17,7 +17,6 @@ import { IUserWithIndex } from 'src/shared/types';
 import { ReduxState } from 'src/redux/reducers';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import { getUsersAsync } from 'src/shared/api';
-import useMediaQuery from '@mui/material/useMediaQuery';
 import { useSelector } from 'react-redux';
 import { userRoleLabels } from 'src/shared/constants';
 import AddIcon from '@mui/icons-material/Add';
@@ -40,7 +39,6 @@ export const ManageUsers = () => {
   const [passwordPopupOpen, setPasswordPopupOpen] = useState(false);
   const [deletePopupOpen, setDeletePopupOpen] = useState(false);
   const [popupUser, setPopupUser] = useState<IUserWithIndex>();
-  const isTransformed = useMediaQuery('(min-width:900px)');
 
   const [rows, setRows] = useState<GridRowsProp>([]);
   const updateRowData = (users: IUserWithIndex[]) => {
