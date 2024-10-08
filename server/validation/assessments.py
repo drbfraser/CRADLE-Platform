@@ -18,13 +18,15 @@ class Assessment(BaseModel):
     )
 
     @field_validator("followupInstructions", mode="before")
-    def check_followup_instructions(cls, v, values: ValidationInfo):  # noqa: N805
+    def check_followup_instructions(cls, followup_instructions, values: ValidationInfo):
         followup_needed = values.data.get("followupNeeded", False)
-        if followup_needed and (v is None or v == ""):
+        if followup_needed and (
+            followup_instructions is None or followup_instructions == ""
+        ):
             raise ValueError(
                 "followupInstructions must be provided if followupNeeded is True",
             )
-        return v
+        return followup_instructions
 
 
 def validate(request_body: dict) -> Optional[str]:
