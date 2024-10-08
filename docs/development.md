@@ -131,7 +131,7 @@ If there are errors during `npm start`, try running `npm ci` to install directly
 
 - Make sure to check out the API documentation at http://localhost:5000/apidocs
 
-- Once the initial setup is completed, you'll only need to run `docker-compose up` in the `cradle-platform` directory and `npm start` in the client directory to run Cradle.
+- Once the initial setup is completed, you'll only need to run `docker compose up` in the `cradle-platform` directory and `npm start` in the client directory to run Cradle.
 
 - If using Docker Desktop, you may also start / restart / stop the containers from within the GUI.
 
@@ -159,7 +159,7 @@ It's always best to avoid adding additional dependencies to the project if possi
 ### Backend
 
 - New packages can be installed in the backend by running `docker exec cradle_flask pip install PACKAGE_NAME` with your Docker containers running
-- If another team member has installed a new package, you'll need to run `docker-compose build` with your Docker containers off
+- If another team member has installed a new package, you'll need to run `docker compose build` with your Docker containers off
 
 ## Database Changes
 
@@ -176,7 +176,7 @@ If something has gone wrong and you're having issues with your database, you can
 2. Remove the container by running `docker container rm cradle_mysql` (using the container name identified above)
 3. Run `docker volume ls` and look for the volume associated with the MySQL database. It's likely named `cradle-platform_mysql_data` or something similar
 4. Remove the Docker volume: `docker volume rm cradle-platform_mysql_data` (using the volume name identified above)
-5. Start your Docker containers: `docker-compose up`
+5. Start your Docker containers: `docker compose up`
 6. Upgrade your database schema: `docker exec cradle_flask flask db upgrade`
 7. Reseed: `docker exec cradle_flask python manage.py seed` (see setup above for more seed options)
 
