@@ -9,7 +9,13 @@ import {
 } from '@mui/x-data-grid';
 
 import { PrimaryButton } from 'src/shared/components/Button';
-import { Box, TableContainer, TextField, useMediaQuery } from '@mui/material';
+import {
+  Box,
+  TableContainer,
+  TextField,
+  Typography,
+  useMediaQuery,
+} from '@mui/material';
 import { MouseEventHandler, PropsWithChildren, ReactNode } from 'react';
 
 type AdminToolbarProps = {
@@ -18,28 +24,30 @@ type AdminToolbarProps = {
   toolbar?: ReactNode;
 };
 
-const AdminTable = ({ rows, columns, toolbar }: AdminToolbarProps) => {
+export const AdminTable = ({ rows, columns, toolbar }: AdminToolbarProps) => {
   return (
-    <DataGrid
-      sx={{
-        border: '0',
-      }}
-      rows={rows}
-      columns={columns}
-      autosizeOnMount
-      autosizeOptions={{
-        includeHeaders: true,
-        includeOutliers: true,
-      }}
-      pagination
-      slots={{
-        toolbar: () => toolbar,
-      }}
-    />
+    <AdminTableContainer>
+      <DataGrid
+        sx={{
+          border: '0',
+        }}
+        rows={rows}
+        columns={columns}
+        autosizeOnMount
+        autosizeOptions={{
+          includeHeaders: true,
+          includeOutliers: true,
+        }}
+        pagination
+        slots={{
+          toolbar: () => toolbar,
+        }}
+      />
+    </AdminTableContainer>
   );
 };
 
-export const AdminTableContainer = ({ children }: PropsWithChildren) => {
+const AdminTableContainer = ({ children }: PropsWithChildren) => {
   return (
     <TableContainer
       sx={{
@@ -58,8 +66,6 @@ export const AdminTableContainer = ({ children }: PropsWithChildren) => {
     </TableContainer>
   );
 };
-
-export default AdminTable;
 
 const TOOLBAR_ELEMENT_HEIGHT_LARGE = '56px';
 const TOOLBAR_ELEMENT_HEIGHT_SMALL = '40px';
@@ -86,16 +92,22 @@ const TOOLBAR_BUTTON_SX = {
 };
 
 type ToolbarProps = PropsWithChildren & {
+  title?: string;
   search?: string;
   setSearch: (val: string) => void;
 };
-export const AdminTableToolbar = ({ children, setSearch }: ToolbarProps) => {
+export const AdminTableToolbar = ({
+  children,
+  title,
+  setSearch,
+}: ToolbarProps) => {
   const isTransformed = useMediaQuery('(min-width:900px)');
   return (
     <GridToolbarContainer
       sx={{
         padding: '16px',
       }}>
+      <Typography variant="h3">{title}</Typography>
       <GridToolbarColumnsButton />
       <GridToolbarFilterButton />
       <GridToolbarDensitySelector />
@@ -126,5 +138,23 @@ export const AdminToolBarButton = ({
     <PrimaryButton sx={TOOLBAR_BUTTON_SX} onClick={onClick}>
       {children}
     </PrimaryButton>
+  );
+};
+
+// Container for table cell with buttons.
+export const AdminTableActionButtonsContainer = ({
+  children,
+}: PropsWithChildren) => {
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justify: 'center',
+        gap: '4px',
+      }}>
+      {children}
+    </Box>
   );
 };
