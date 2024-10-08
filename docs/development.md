@@ -79,6 +79,8 @@ docker compose up
 All the Docker images will build, then the Docker containers will start. You may add the `-d` option to run the Docker containers in the background, although that makes it more difficult to see log messages from Flask and MySQL.
 (If the Docker can not run properly, try to close the MySQL tasks in the task manager and run it again)
 
+If there are issues starting up Docker containers after recent changes to package requirements, refer to the [Package Changes](https://github.sfu.ca/cradle-project/Cradle-Platform/blob/main/docs/development.md#package-changes) section for troubleshooting steps.
+
 Now it's time to run the database migrations. Once the containers have fully started, run the following command in a new terminal window.
 
 ```
