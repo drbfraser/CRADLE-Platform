@@ -10,14 +10,12 @@ import {
   IconButton,
   Input,
   SxProps,
-  TableRow,
   TextField,
   Theme,
   Tooltip,
   Typography,
-  useMediaQuery,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   addRelayServerPhone,
   getAppFileAsync,
@@ -36,13 +34,24 @@ import {
   UploadFile,
 } from '@mui/icons-material';
 import * as yup from 'yup';
-import { formatBytes, getPrettyDateTime } from 'src/shared/utils';
-import AdminTable, { AdminTableContainer, AdminTableRow } from '../AdminTable';
+import { formatBytes } from 'src/shared/utils';
+import {
+  AdminTable,
+  AdminTableActionButtonsContainer,
+  AdminTableToolbar,
+  AdminToolBarButton,
+} from '../AdminTable';
 import { Field, Form, Formik } from 'formik';
 import { IRelayNum } from 'src/shared/types';
-import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import EditRelayNum from './editRelayNum';
 import DeleteRelayNum from './DeleteRelayNum';
+import {
+  GridColDef,
+  GridRenderCellParams,
+  GridRowsProp,
+} from '@mui/x-data-grid';
+import AddIcon from '@mui/icons-material/Add';
+import DownloadIcon from '@mui/icons-material/Download';
 
 export const ManageRelayApp = () => {
   const [hasFile, setHasFile] = useState(false);
@@ -54,21 +63,32 @@ export const ManageRelayApp = () => {
   const [uploadError, setUploadError] = useState<string>();
   const [errorLoading, setErrorLoading] = useState(false);
 
-  //Table
+  // Table
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
-  const [tableData, setTableData] = useState<(string | number)[][]>([]);
   const [relayNums, setRelayNums] = useState<IRelayNum[]>([]);
-  const isTransformed = useMediaQuery('(min-width:900px)');
 
-  //Relay App Actions
+  // Relay App Actions
   const [AppActionsPopup, openAppActionsPopup] = useState(false);
   const [NewNumberDialog, openAddNewNumberDialog] = useState(false);
 
-  //Relay Number Actions
+  // Relay Number Actions
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [popupRelayNum, setPopupRelayNum] = useState<IRelayNum>();
   const [deletePopupOpen, setDeletePopupOpen] = useState(false);
+
+  const [rows, setRows] = useState<GridRowsProp>([]);
+  const updateRowData = (relayNums: IRelayNum[]) => {
+    setRows(
+      relayNums.map((relayNum, index) => ({
+        id: index,
+        phoneNumber: relayNum.phone,
+        description: relayNum.description,
+        lastReceived: relayNum.lastReceived,
+        takeAction: relayNums,
+      }))
+    );
+  };
 
   const filename = 'cradle_sms_relay.apk';
 
@@ -126,9 +146,10 @@ export const ManageRelayApp = () => {
 
   const getRelayNums = async () => {
     try {
-      const resp: IRelayNum[] = await getRelayServerPhones();
-      if (resp) {
-        setRelayNums(resp);
+      const nums: IRelayNum[] = await getRelayServerPhones();
+      if (nums) {
+        setRelayNums(nums);
+        updateRowData(nums);
       }
     } catch (e) {
       if (e !== 404) setErrorLoading(true);
@@ -139,16 +160,6 @@ export const ManageRelayApp = () => {
   useEffect(() => {
     getRelayNums();
   }, []);
-
-  useEffect(() => {
-    setTableData(
-      relayNums.map((num) => [
-        num['phone'],
-        num['description'],
-        num['lastReceived'],
-      ])
-    );
-  }, [relayNums]);
 
   useEffect(() => {
     const loadAppFile = async () => {
@@ -182,35 +193,7 @@ export const ManageRelayApp = () => {
     }
   };
 
-  const columns = [
-    {
-      name: 'Phone Number',
-      options: {
-        display: isTransformed ? true : false,
-      },
-    },
-    {
-      name: 'Description',
-      options: {
-        display: isTransformed ? true : false,
-      },
-    },
-    {
-      name: 'Last Received',
-      options: {
-        display: isTransformed ? true : false,
-      },
-    },
-    {
-      name: 'Actions',
-      options: {
-        display: isTransformed ? true : false,
-        sort: false,
-      },
-    },
-  ];
-
-  const rowActions = [
+  const actions = [
     {
       tooltip: 'Edit',
       Icon: Edit,
@@ -231,50 +214,67 @@ export const ManageRelayApp = () => {
       tooltip: 'Download Logs',
       Icon: CloudDownloadOutlined,
       onClick: (relayNum: IRelayNum) => {
-        // to do
+        // TODO
       },
     },
   ];
 
-  const Row = ({ row }: { row: (string | number)[] }) => {
-    const relayNumInfo = relayNums.find((num) => num.phone === row[0]);
+  const ActionButtons = useCallback(
+    ({ relayNum }: { relayNum?: IRelayNum }) => {
+      return (
+        <AdminTableActionButtonsContainer>
+          {relayNum
+            ? actions.map((action) => (
+                <Tooltip
+                  key={action.tooltip}
+                  placement="top"
+                  title={action.tooltip}>
+                  <IconButton
+                    onClick={() => {
+                      action.onClick(relayNum);
+                    }}
+                    size="large">
+                    <action.Icon />
+                  </IconButton>
+                </Tooltip>
+              ))
+            : null}
+        </AdminTableActionButtonsContainer>
+      );
+    },
+    []
+  );
 
-    return relayNumInfo ? (
-      <AdminTableRow>
-        <TableCell label="Phone Number" isTransformed={isTransformed}>
-          {relayNumInfo.phone}
-        </TableCell>
-        <TableCell label="Description" isTransformed={isTransformed}>
-          {relayNumInfo.description}
-        </TableCell>
-        <TableCell label="Last Received" isTransformed={isTransformed}>
-          {getPrettyDateTime(relayNumInfo.lastReceived)}
-        </TableCell>
-        <TableCell label="Actions" isTransformed={isTransformed}>
-          {rowActions.map((action) => (
-            <Tooltip
-              key={action.tooltip}
-              placement="top"
-              title={action.tooltip}>
-              <IconButton
-                onClick={() => {
-                  action.onClick(relayNumInfo);
-                }}
-                size="large">
-                <action.Icon />
-              </IconButton>
-            </Tooltip>
-          ))}
-        </TableCell>
-      </AdminTableRow>
-    ) : (
-      <TableRow>
-        <TableCell label="" isTransformed={false}>
-          Invalid Phone
-        </TableCell>
-      </TableRow>
-    );
-  };
+  const columns: GridColDef[] = [
+    { flex: 1, field: 'phoneNumber', headerName: 'Phone Number' },
+    { flex: 1, field: 'description', headerName: 'Description' },
+    { flex: 1, field: 'lastReceived', headerName: 'Last Received' },
+    {
+      flex: 1,
+      field: 'takeAction',
+      headerName: 'Take Action',
+      renderCell: (params: GridRenderCellParams<any, IRelayNum>) => (
+        <ActionButtons relayNum={params.value} />
+      ),
+    },
+  ];
+
+  const toolbar = (
+    <AdminTableToolbar title={'Relay App Servers'} setSearch={setSearch}>
+      <AdminToolBarButton
+        onClick={() => {
+          openAddNewNumberDialog(true);
+        }}>
+        <AddIcon /> {'Add Number'}
+      </AdminToolBarButton>
+      <AdminToolBarButton
+        onClick={() => {
+          openAppActionsPopup(true);
+        }}>
+        <DownloadIcon /> {'Download App'}
+      </AdminToolBarButton>
+    </AdminTableToolbar>
+  );
 
   const boxSx: SxProps<Theme> = (theme) => ({
     marginTop: theme.spacing(2),
@@ -282,7 +282,7 @@ export const ManageRelayApp = () => {
   });
 
   return (
-    <AdminTableContainer>
+    <>
       <APIErrorToast
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
@@ -445,24 +445,7 @@ export const ManageRelayApp = () => {
         deleteRelayNum={popupRelayNum}
       />
 
-      <AdminTable
-        title="Relay App Servers"
-        columns={columns}
-        Row={Row}
-        data={tableData}
-        loading={loading}
-        isTransformed={isTransformed}
-        newBtnLabel={'Add Number'}
-        newBtnOnClick={() => {
-          openAddNewNumberDialog(true);
-        }}
-        uploadBtnLabel={'Download App'}
-        uploadBtnLabelOnClick={() => {
-          openAppActionsPopup(true);
-        }}
-        search={search}
-        setSearch={setSearch}
-      />
-    </AdminTableContainer>
+      <AdminTable columns={columns} rows={rows} toolbar={toolbar} />
+    </>
   );
 };
