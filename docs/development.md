@@ -106,13 +106,13 @@ NPM is not run inside Docker (due to poor filesystem performance), so you'll nee
 
 ```
 cd client
-npm install --legacy-peer-deps
+npm install
 npm start
 ```
 
-Note: We would like to update our dependencies so that we no longer have to use `--legacy-peer-deps`
-
 If there are a lot of vulnerabilities, try to fix by running `npm ci` to install directly from the `package-lock.json`, or you can try fixing the vulnerabilities with a combination of `npm audit fix`, `npm audit fix --legacy-peer-deps`, and `npm audit fix --force`.
+
+If there are errors during `npm start`, try running `npm ci` to install directly from the `package-lock.json`.
 
 ## Start Developing!
 
