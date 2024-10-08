@@ -18,6 +18,7 @@ class Assessment(BaseModel):
     )
 
     @field_validator("followupInstructions", mode="before")
+    @classmethod
     def check_followup_instructions(cls, followup_instructions, values: ValidationInfo):
         followup_needed = values.data.get("followupNeeded", False)
         if followup_needed and (
