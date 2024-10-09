@@ -23,7 +23,6 @@ import AddIcon from '@mui/icons-material/Add';
 
 export const ManageFacilities = () => {
   const dispatch = useAppDispatch();
-  const [loading, setLoading] = useState(true);
   const [errorLoading, setErrorLoading] = useState(false);
   const [facilities, setFacilities] = useState<IFacility[]>([]);
   const [search, setSearch] = useState('');
@@ -84,7 +83,6 @@ export const ManageFacilities = () => {
 
       setFacilities(facilities);
       updateRows(facilities);
-      setLoading(false);
     } catch (e) {
       setErrorLoading(true);
     }
