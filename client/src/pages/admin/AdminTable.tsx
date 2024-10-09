@@ -103,6 +103,23 @@ const TOOLBAR_BUTTON_SX = {
   ...TOOLBAR_ELEMENT_SX,
 };
 
+const SLOT_PROPS = {
+  button: {
+    sx: {
+      ...TOOLBAR_BUTTON_SX,
+      '@media (min-width: 720px)': {
+        fontSize: 'large',
+      },
+      '@media (max-width: 720px)': {
+        fontSize: 'medium',
+      },
+      '@media (max-width: 520px)': {
+        fontSize: 'x-small',
+      },
+    },
+  },
+};
+
 type ToolbarProps = PropsWithChildren & {
   title?: string;
   search?: string;
@@ -119,11 +136,22 @@ export const AdminTableToolbar = ({
       sx={{
         padding: '16px',
       }}>
-      <Typography variant="h3">{title}</Typography>
-      <GridToolbarColumnsButton />
-      <GridToolbarFilterButton />
-      <GridToolbarDensitySelector />
+      <Typography variant="h4">{title}</Typography>
       <Box sx={{ flexGrow: 1 }} />
+      <Box
+        sx={{
+          marginX: '8px',
+          display: 'flex',
+          flexDirection: 'row',
+          gap: '4px',
+          '@media (max-width: 520px)': {
+            gap: '0',
+          },
+        }}>
+        <GridToolbarColumnsButton slotProps={SLOT_PROPS} />
+        <GridToolbarFilterButton slotProps={SLOT_PROPS} />
+        <GridToolbarDensitySelector slotProps={SLOT_PROPS} />
+      </Box>
       <Box sx={TOOLBAR_ELEMENT_SX}>
         <TextField
           type="text"
