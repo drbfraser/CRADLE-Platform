@@ -2,6 +2,8 @@ from typing import Optional
 
 from pydantic import BaseModel, ValidationError
 
+from validation.validation_exception import ValidationExceptionError
+
 
 class Association(BaseModel):
     patientId: int
@@ -24,5 +26,5 @@ def validate(request_body: dict) -> Optional[str]:
     try:
         Association(**request_body)
     except ValidationError as e:
-        return str(e)
+        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
     return None
