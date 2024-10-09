@@ -106,8 +106,8 @@ export const ManagePatients = () => {
 
     const patientFilter = (patient: PatientWithIndex) => {
       return (
-        patient.patientName.toLowerCase().startsWith(searchLowerCase) ||
-        patient.patientId.toLowerCase().startsWith(searchLowerCase)
+        patient.patientName.toLowerCase().includes(searchLowerCase) ||
+        patient.patientId.toLowerCase().includes(searchLowerCase)
       );
     };
     const filteredPatients = patients.filter(patientFilter);

@@ -100,8 +100,11 @@ export const ManageFacilities = () => {
 
     const facilityFilter = (facility: IFacility) => {
       return (
-        facility.healthFacilityName.toLowerCase().startsWith(searchLowerCase) ||
-        facility.location.toLowerCase().startsWith(searchLowerCase)
+        facility.healthFacilityName.toLowerCase().includes(searchLowerCase) ||
+        facility.location.toLowerCase().includes(searchLowerCase) ||
+        facility.healthFacilityPhoneNumber
+          .toLowerCase()
+          .includes(searchLowerCase)
       );
     };
 

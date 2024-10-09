@@ -130,9 +130,9 @@ export const ManageUsers = () => {
     const searchLowerCase = search.toLowerCase().trim();
     const userFilter = (user: IUserWithIndex) => {
       return (
-        user.firstName.toLowerCase().startsWith(searchLowerCase) ||
-        user.email.toLowerCase().startsWith(searchLowerCase) ||
-        user.healthFacilityName.toLowerCase().startsWith(searchLowerCase)
+        user.firstName.toLowerCase().includes(searchLowerCase) ||
+        user.email.toLowerCase().includes(searchLowerCase) ||
+        user.healthFacilityName.toLowerCase().includes(searchLowerCase)
       );
     };
     const filteredUsers = users.filter(userFilter);

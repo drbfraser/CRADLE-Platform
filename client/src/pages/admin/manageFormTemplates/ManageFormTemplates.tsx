@@ -218,8 +218,8 @@ export const ManageFormTemplates = () => {
       return (
         formTemplate.classification.name
           .toLowerCase()
-          .startsWith(searchLowerCase) ||
-        formTemplate.version.toLowerCase().startsWith(searchLowerCase)
+          .includes(searchLowerCase) ||
+        formTemplate.version.toLowerCase().includes(searchLowerCase)
       );
     };
 
