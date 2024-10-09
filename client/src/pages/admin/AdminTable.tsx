@@ -17,7 +17,7 @@ import {
   Typography,
   useMediaQuery,
 } from '@mui/material';
-import { MouseEventHandler, PropsWithChildren, ReactNode } from 'react';
+import { MouseEventHandler, PropsWithChildren } from 'react';
 import { SxProps } from '@mui/material';
 
 type AdminToolbarProps = {
