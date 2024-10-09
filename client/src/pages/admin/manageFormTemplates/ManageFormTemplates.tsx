@@ -77,7 +77,7 @@ export const ManageFormTemplates = () => {
     setRows(
       formTemplates.map((formTemplate) => ({
         id: formTemplate.index,
-        name: formTemplate.id,
+        name: formTemplate.classification.name,
         version: formTemplate.version,
         dateCreated: getPrettyDate(formTemplate.dateCreated),
         takeAction: formTemplate,
