@@ -24,9 +24,10 @@ class Root(Resource):
     def post():
         json = request.get_json(force=True)
 
-        error_message = readings.validate(json)
-        if error_message is not None:
-            abort(400, message=error_message)
+        try:
+            readings.validate(json)
+        except Exception as e:
+            abort(400, message=str(e))
 
         if not crud.read(Patient, patientId=json["patientId"]):
             abort(400, message="Patient does not exist")

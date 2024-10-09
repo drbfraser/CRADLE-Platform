@@ -1,6 +1,7 @@
 import pytest
 
 from validation.readings import validate
+from validation.validation_exception import ValidationExceptionError
 
 valid_json = {
     "readingId": "asdasd82314278226313803",
@@ -101,16 +102,22 @@ followup_invalid = {
 
 
 @pytest.mark.parametrize(
-    "json, output_type",
+    "json, expectation",
     [
-        (valid_json, type(None)),
-        (required_keys_missing, str),
-        (not_type_string, str),
-        (not_type_int, str),
-        (not_type_list, str),
-        (followup_invalid, str),
+        (valid_json, None),
+        (required_keys_missing, ValidationExceptionError),
+        (not_type_string, ValidationExceptionError),
+        (not_type_int, ValidationExceptionError),
+        (not_type_list, ValidationExceptionError),
+        (followup_invalid, ValidationExceptionError),
     ],
 )
-def test_validation(json, output_type):
-    message = validate(json)
-    assert type(message) is output_type
+def test_validation(json, expectation):
+    if type(expectation) is type and issubclass(expectation, Exception):
+        with pytest.raises(expectation):
+            validate(json)
+    else:
+        try:
+            validate(json)
+        except Exception:
+            raise AssertionError
