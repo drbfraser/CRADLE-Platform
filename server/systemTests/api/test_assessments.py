@@ -79,6 +79,7 @@ def test_invalid_followup_not_created(
         "medicationPrescribed": "M",
         "specialInvestigations": "S",
         "followupNeeded": True,
+        "followupInstructions": "",
     }
     response: Response = api_post(endpoint="/api/assessments", json=followup_json)
     database.session.commit()

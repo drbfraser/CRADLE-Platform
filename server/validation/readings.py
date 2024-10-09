@@ -1,7 +1,22 @@
-from typing import Optional
+from typing import List, Optional
 
-from validation.assessments import validate as validate_assessment
-from validation.validate import required_keys_present, values_correct_type
+from pydantic import BaseModel, ValidationError
+
+from validation.assessments import Assessment
+from validation.validation_exception import ValidationExceptionError
+
+
+class Reading(BaseModel):
+    readingId: str
+    patientId: str
+    bpSystolic: int
+    bpDiastolic: int
+    heartRateBPM: int
+    isFlaggedForFollowup: Optional[bool] = None
+    symptoms: List[str]
+    dateTimeTaken: Optional[int] = None
+    userId: Optional[int] = None
+    followup: Optional[Assessment] = None
 
 
 def validate(request_body: dict) -> Optional[str]:
@@ -32,48 +47,16 @@ def validate(request_body: dict) -> Optional[str]:
                         }
     :return: An error message if request body in invalid in some way. None otherwise.
     """
-    error_message = None
-
-    # Check if required keys are present
-    required_keys = [
-        "readingId",
-        "patientId",
-        "bpSystolic",
-        "bpDiastolic",
-        "heartRateBPM",
-        "symptoms",
-    ]
-    error_message = required_keys_present(request_body, required_keys)
-    if error_message is not None:
-        return error_message
-
-    # Check that certain fields are of type string
-    error_message = values_correct_type(request_body, ["readingId", "patientId"], str)
-    if error_message is not None:
-        return error_message
-
-    # Check that certain fields are of type int
-    error_message = values_correct_type(
-        request_body,
-        [
-            "bpSystolic",
-            "bpDiastolic",
-            "heartRateBPM",
-        ],
-        int,
-    )
-    if error_message is not None:
-        return error_message
-
-    # Check that certain fields are an array
-    error_message = values_correct_type(request_body, ["symptoms"], list)
-    if error_message is not None:
-        return error_message
+    try:
+        Reading(**request_body)
+    except ValidationError as e:
+        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
     # Check if the nested assessment (followup) object is valid
     if "followup" in request_body:
-        error_message = validate_assessment(request_body.get("followup"))
-        if error_message is not None:
-            return error_message
+        try:
+            Assessment(**(request_body.get("followup")))
+        except ValidationError as e:
+            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
-    return error_message
+    return None
