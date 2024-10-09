@@ -6,6 +6,7 @@ import {
   GridToolbarFilterButton,
   GridToolbarDensitySelector,
   GridValidRowModel,
+  GridRowClassNameParams,
 } from '@mui/x-data-grid';
 
 import { PrimaryButton } from 'src/shared/components/Button';
@@ -17,19 +18,29 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import { MouseEventHandler, PropsWithChildren, ReactNode } from 'react';
+import { SxProps } from '@mui/material';
 
 type AdminToolbarProps = {
   rows: readonly GridValidRowModel[];
   columns: GridColDef[];
   toolbar?: ReactNode;
+  getRowClassName?: (params: GridRowClassNameParams<any>) => string;
+  sx?: SxProps;
 };
 
-export const AdminTable = ({ rows, columns, toolbar }: AdminToolbarProps) => {
+export const AdminTable = ({
+  rows,
+  columns,
+  toolbar,
+  getRowClassName,
+  sx,
+}: AdminToolbarProps) => {
   return (
     <AdminTableContainer>
       <DataGrid
         sx={{
           border: '0',
+          ...sx,
         }}
         rows={rows}
         columns={columns}
@@ -42,6 +53,7 @@ export const AdminTable = ({ rows, columns, toolbar }: AdminToolbarProps) => {
         slots={{
           toolbar: () => toolbar,
         }}
+        getRowClassName={getRowClassName}
       />
     </AdminTableContainer>
   );
