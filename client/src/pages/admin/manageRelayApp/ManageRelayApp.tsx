@@ -65,7 +65,6 @@ export const ManageRelayApp = () => {
 
   // Table
   const [search, setSearch] = useState('');
-  const [loading, setLoading] = useState(true);
   const [relayNums, setRelayNums] = useState<IRelayNum[]>([]);
 
   // Relay App Actions
@@ -149,17 +148,24 @@ export const ManageRelayApp = () => {
       const nums: IRelayNum[] = await getRelayServerPhones();
       if (nums) {
         setRelayNums(nums);
-        updateRowData(nums);
       }
     } catch (e) {
       if (e !== 404) setErrorLoading(true);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
     getRelayNums();
   }, []);
+
+  useEffect(() => {
+    const searchLowerCase = search.toLowerCase().trim();
+    const filter = (num: IRelayNum) =>
+      num.description.trim().toLowerCase().includes(searchLowerCase) ||
+      num.phone.trim().toLowerCase().includes(searchLowerCase);
+    const filteredNums = relayNums.filter(filter);
+    updateRowData(filteredNums);
+  }, [relayNums, search]);
 
   useEffect(() => {
     const loadAppFile = async () => {
@@ -259,21 +265,24 @@ export const ManageRelayApp = () => {
     },
   ];
 
-  const toolbar = (
-    <AdminTableToolbar title={'Relay App Servers'} setSearch={setSearch}>
-      <AdminToolBarButton
-        onClick={() => {
-          openAddNewNumberDialog(true);
-        }}>
-        <AddIcon /> {'Add Number'}
-      </AdminToolBarButton>
-      <AdminToolBarButton
-        onClick={() => {
-          openAppActionsPopup(true);
-        }}>
-        <DownloadIcon /> {'Download App'}
-      </AdminToolBarButton>
-    </AdminTableToolbar>
+  const toolbar = useCallback(
+    () => (
+      <AdminTableToolbar title={'Relay App Servers'} setSearch={setSearch}>
+        <AdminToolBarButton
+          onClick={() => {
+            openAddNewNumberDialog(true);
+          }}>
+          <AddIcon /> {'Add Number'}
+        </AdminToolBarButton>
+        <AdminToolBarButton
+          onClick={() => {
+            openAppActionsPopup(true);
+          }}>
+          <DownloadIcon /> {'Download App'}
+        </AdminToolBarButton>
+      </AdminTableToolbar>
+    ),
+    [setSearch]
   );
 
   const boxSx: SxProps<Theme> = (theme) => ({

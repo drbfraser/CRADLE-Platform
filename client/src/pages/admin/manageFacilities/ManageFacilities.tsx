@@ -120,12 +120,15 @@ export const ManageFacilities = () => {
     setEditPopupOpen(true);
   }, []);
 
-  const toolbar = (
-    <AdminTableToolbar title={'Health Care Facilities'} setSearch={setSearch}>
-      <AdminToolBarButton onClick={addNewFacility}>
-        <AddIcon /> {'New Facility'}
-      </AdminToolBarButton>
-    </AdminTableToolbar>
+  const toolbar = useCallback(
+    () => (
+      <AdminTableToolbar title={'Health Care Facilities'} setSearch={setSearch}>
+        <AdminToolBarButton onClick={addNewFacility}>
+          <AddIcon /> {'New Facility'}
+        </AdminToolBarButton>
+      </AdminTableToolbar>
+    ),
+    [setSearch]
   );
 
   return (

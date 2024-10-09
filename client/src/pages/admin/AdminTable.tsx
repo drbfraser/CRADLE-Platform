@@ -23,7 +23,7 @@ import { SxProps } from '@mui/material';
 type AdminToolbarProps = {
   rows: readonly GridValidRowModel[];
   columns: GridColDef[];
-  toolbar?: ReactNode;
+  toolbar?: () => JSX.Element;
   getRowClassName?: (params: GridRowClassNameParams<any>) => string;
   sx?: SxProps;
 };
@@ -51,7 +51,7 @@ export const AdminTable = ({
         }}
         pagination
         slots={{
-          toolbar: () => toolbar,
+          toolbar: toolbar,
         }}
         getRowClassName={getRowClassName}
       />

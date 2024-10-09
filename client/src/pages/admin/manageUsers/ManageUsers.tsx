@@ -14,10 +14,8 @@ import DeleteUser from './DeleteUser';
 import EditUser from './EditUser';
 import ResetPassword from './ResetPassword';
 import { IUserWithIndex } from 'src/shared/types';
-import { ReduxState } from 'src/redux/reducers';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import { getUsersAsync } from 'src/shared/api';
-import { useSelector } from 'react-redux';
 import { userRoleLabels } from 'src/shared/constants';
 import AddIcon from '@mui/icons-material/Add';
 
@@ -28,10 +26,6 @@ import {
 } from '@mui/x-data-grid';
 
 export const ManageUsers = () => {
-  const currentUserId = useSelector<ReduxState>(
-    (state) => state.user.current.data!.userId
-  ) as number;
-  const [loading, setLoading] = useState(true);
   const [errorLoading, setErrorLoading] = useState(false);
   const [users, setUsers] = useState<IUserWithIndex[]>([]);
   const [search, setSearch] = useState('');
@@ -123,8 +117,6 @@ export const ManageUsers = () => {
       const users: IUserWithIndex[] = await getUsersAsync();
       setUsers(users);
       updateRowData(users);
-
-      setLoading(false);
     } catch (e) {
       setErrorLoading(true);
     }
@@ -152,12 +144,15 @@ export const ManageUsers = () => {
     setEditPopupOpen(true);
   }, [setPopupUser, setEditPopupOpen]);
 
-  const toolbar = (
-    <AdminTableToolbar title={'Users'} setSearch={setSearch}>
-      <AdminToolBarButton onClick={addNewUser}>
-        <AddIcon /> {'New User'}
-      </AdminToolBarButton>
-    </AdminTableToolbar>
+  const toolbar = useCallback(
+    () => (
+      <AdminTableToolbar title={'Users'} setSearch={setSearch}>
+        <AdminToolBarButton onClick={addNewUser}>
+          <AddIcon /> {'New User'}
+        </AdminToolBarButton>
+      </AdminTableToolbar>
+    ),
+    [setSearch]
   );
 
   return (

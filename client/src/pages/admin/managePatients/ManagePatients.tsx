@@ -18,7 +18,6 @@ import {
   GridRowsProp,
 } from '@mui/x-data-grid';
 export const ManagePatients = () => {
-  const [loading, setLoading] = useState(true);
   const [errorLoading, setErrorLoading] = useState(false);
   const [patients, setPatients] = useState<PatientWithIndex[]>([]);
   const [search, setSearch] = useState('');
@@ -93,7 +92,6 @@ export const ManagePatients = () => {
         showArchivedPatients
       );
       setPatients(resp.map((patient, index) => ({ ...patient, index })));
-      setLoading(false);
     } catch (e) {
       setErrorLoading(true);
     }
@@ -116,10 +114,13 @@ export const ManagePatients = () => {
     updateRowData(filteredPatients);
   }, [patients, search]);
 
-  const toolbar = (
-    <AdminTableToolbar
-      title={'Patients'}
-      setSearch={setSearch}></AdminTableToolbar>
+  const toolbar = useCallback(
+    () => (
+      <AdminTableToolbar
+        title={'Patients'}
+        setSearch={setSearch}></AdminTableToolbar>
+    ),
+    [setSearch]
   );
 
   return (

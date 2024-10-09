@@ -38,7 +38,6 @@ type FormTemplateWithIndex = FormTemplate & {
 };
 
 export const ManageFormTemplates = () => {
-  const [loading, setLoading] = useState(true);
   const [errorLoading, setErrorLoading] = useState(false);
 
   const [search, setSearch] = useState('');
@@ -108,7 +107,7 @@ export const ManageFormTemplates = () => {
     {
       tooltip: 'Download CSV',
       Icon: CloudDownloadOutlined,
-      isVisible: (formTemplate: FormTemplateWithIndex) => true,
+      isVisible: () => true,
       onClick: async (formTemplate: FormTemplateWithIndex) => {
         try {
           const file = await getFormTemplateCsvAsync(
@@ -196,7 +195,6 @@ export const ManageFormTemplates = () => {
       setFormTemplates(
         resp.map((form_template, index) => ({ ...form_template, index }))
       );
-      setLoading(false);
     } catch (e) {
       setErrorLoading(true);
     }
@@ -272,21 +270,24 @@ export const ManageFormTemplates = () => {
     }
   };
 
-  const toolbar = (
-    <AdminTableToolbar title={'Form Templates'} setSearch={setSearch}>
-      <AdminToolBarButton
-        onClick={() => {
-          handleNewFormClick();
-        }}>
-        <AddIcon /> {'Create Form Template'}
-      </AdminToolBarButton>
-      <AdminToolBarButton
-        onClick={() => {
-          setIsUploadPopupOpen(true);
-        }}>
-        <UploadIcon /> {'Upload Form Template'}
-      </AdminToolBarButton>
-    </AdminTableToolbar>
+  const toolbar = useCallback(
+    () => (
+      <AdminTableToolbar title={'Form Templates'} setSearch={setSearch}>
+        <AdminToolBarButton
+          onClick={() => {
+            handleNewFormClick();
+          }}>
+          <AddIcon /> {'Create Form Template'}
+        </AdminToolBarButton>
+        <AdminToolBarButton
+          onClick={() => {
+            setIsUploadPopupOpen(true);
+          }}>
+          <UploadIcon /> {'Upload Form Template'}
+        </AdminToolBarButton>
+      </AdminTableToolbar>
+    ),
+    [setSearch]
   );
 
   return (
