@@ -2,6 +2,8 @@ from typing import Optional
 
 from pydantic import BaseModel, Field, ValidationError, ValidationInfo, field_validator
 
+from validation.validation_exception import ValidationExceptionError
+
 
 class Assessment(BaseModel):
     dateAssessed: int
@@ -51,5 +53,5 @@ def validate(request_body: dict) -> Optional[str]:
     try:
         Assessment(**request_body)
     except ValidationError as e:
-        return str(e)
+        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
     return None
