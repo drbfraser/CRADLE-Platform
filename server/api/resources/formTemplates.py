@@ -123,8 +123,6 @@ class Root(Resource):
             or params.get("include_archived") == "false"
         ):
             filters["archived"] = 0
-        elif params.get("include_archived") == "true":
-            filters["archived"] = 1
 
         form_templates = crud.read_all(FormTemplate, **filters)
 
