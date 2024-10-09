@@ -5,12 +5,12 @@ from pydantic import BaseModel, Field, ValidationError, ValidationInfo, field_va
 
 class Assessment(BaseModel):
     dateAssessed: int
-    diagnosis: str
-    medicationPrescribed: str
-    healthcareWorkerId: int
-    specialInvestigations: str
-    treatment: str
-    patientId: str
+    diagnosis: Optional[str]
+    medicationPrescribed: Optional[str] = None
+    healthcareWorkerId: Optional[int] = None
+    specialInvestigations: Optional[str] = None
+    treatment: Optional[str] = None
+    patientId: Optional[str] = None
     followupNeeded: bool
     followupInstructions: Optional[str] = Field(
         default=None,
