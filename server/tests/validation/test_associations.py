@@ -1,7 +1,6 @@
 import pytest
 
 from validation.associations import validate
-
 from validation.validation_exception import ValidationExceptionError
 
 valid_json = {"patientId": 47, "healthFacilityName": "H0000", "userId": 1}
