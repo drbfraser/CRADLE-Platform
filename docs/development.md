@@ -112,7 +112,9 @@ npm install
 npm start
 ```
 
-If there are a lot of vulnerabilities, try to fix by running `npm ci` to install directly from the `package-lock.json`, or you can try fixing the vulnerabilities with a combination of `npm audit fix`, `npm audit fix --legacy-peer-deps`, and `npm audit fix --force`.
+If installation fails due to out-dated dependencies, try `npm install --legacy-peer-deps`.
+
+If there are a lot of vulnerabilities, try to fix them by running `npm ci` to install directly from the `package-lock.json`. Be careful with `npm audit fix`, as it can introduce more vulnerabilities.  Consider committing your changes first, and then attempting a combination of `npm audit fix`, `npm audit fix --legacy-peer-deps`, and `npm audit fix --force`.
 
 If there are errors during `npm start`, try running `npm ci` to install directly from the `package-lock.json`.
 
