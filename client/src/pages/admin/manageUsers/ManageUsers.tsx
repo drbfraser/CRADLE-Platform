@@ -106,6 +106,8 @@ export const ManageUsers = () => {
       flex: 1,
       field: 'takeAction',
       headerName: 'Take Action',
+      filterable: false,
+      sortable: false,
       renderCell: (params: GridRenderCellParams<any, IUserWithIndex>) => (
         <ActionButtons user={params.value} />
       ),

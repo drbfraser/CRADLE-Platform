@@ -71,6 +71,8 @@ export const ManageFacilities = () => {
       flex: 1,
       field: 'takeAction',
       headerName: 'Take Action',
+      filterable: false,
+      sortable: false,
       renderCell: (params: GridRenderCellParams<any, IFacility>) => (
         <ActionButtons facility={params.value} />
       ),

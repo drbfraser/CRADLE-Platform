@@ -254,11 +254,17 @@ export const ManageRelayApp = () => {
   const columns: GridColDef[] = [
     { flex: 1, field: 'phoneNumber', headerName: 'Phone Number' },
     { flex: 1, field: 'description', headerName: 'Description' },
-    { flex: 1, field: 'lastReceived', headerName: 'Last Received' },
+    {
+      flex: 1,
+      field: 'lastReceived',
+      headerName: 'Last Received',
+    },
     {
       flex: 1,
       field: 'takeAction',
       headerName: 'Take Action',
+      filterable: false,
+      sortable: false,
       renderCell: (params: GridRenderCellParams<any, IRelayNum>) => (
         <ActionButtons relayNum={params.value} />
       ),
