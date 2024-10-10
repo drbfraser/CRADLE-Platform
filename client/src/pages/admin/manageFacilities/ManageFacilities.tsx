@@ -1,108 +1,52 @@
 import { IconButton, Tooltip } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import AdminTable, { AdminTableContainer, AdminTableRow } from '../AdminTable';
+import {
+  AdminTable,
+  AdminTableActionButtonsContainer,
+  AdminTableToolbar,
+  AdminToolBarButton,
+} from '../AdminTable';
 import CreateIcon from '@mui/icons-material/Create';
 import EditFacility from './EditFacility';
 import { IFacility } from 'src/shared/types';
-import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import { getHealthFacilitiesAsync } from 'src/shared/api';
 import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
 import { useAppDispatch } from 'src/shared/hooks';
-import useMediaQuery from '@mui/material/useMediaQuery';
+import {
+  GridColDef,
+  GridRenderCellParams,
+  GridRowsProp,
+} from '@mui/x-data-grid';
+import AddIcon from '@mui/icons-material/Add';
 
 export const ManageFacilities = () => {
   const dispatch = useAppDispatch();
-  const [loading, setLoading] = useState(true);
   const [errorLoading, setErrorLoading] = useState(false);
   const [facilities, setFacilities] = useState<IFacility[]>([]);
   const [search, setSearch] = useState('');
-  const [tableData, setTableData] = useState<(string | number)[][]>([]);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [facilityToEdit, setFacilityToEdit] = useState<IFacility>();
-  const isTransformed = useMediaQuery('(min-width:900px)');
 
-  const columns = [
-    {
-      name: 'Facility Name',
-      options: {
-        display: isTransformed ? true : false,
-      },
-    },
-    {
-      name: 'Phone Number',
-      options: {
-        display: isTransformed ? true : false,
-      },
-    },
-    {
-      name: 'Location',
-      options: {
-        display: isTransformed ? true : false,
-      },
-    },
-    {
-      name: 'Take Action',
-      options: {
-        sort: false,
-        display: isTransformed ? true : false,
-      },
-    },
-  ];
-
-  const getFacilities = async () => {
-    try {
-      const resp: IFacility[] = await getHealthFacilitiesAsync();
-
-      setFacilities(resp);
-      setLoading(false);
-    } catch (e) {
-      setErrorLoading(true);
-    }
+  const [rows, setRows] = useState<GridRowsProp>([]);
+  // Map facility object to row data object.
+  const updateRows = (facilities: IFacility[]) => {
+    setRows(
+      facilities.map((facility, index) => ({
+        id: index,
+        facilityName: facility.healthFacilityName,
+        phoneNumber: facility.healthFacilityPhoneNumber,
+        location: facility.location,
+        takeAction: facility,
+      }))
+    );
   };
 
-  useEffect(() => {
-    getFacilities();
-  }, []);
-
-  useEffect(() => {
-    const searchLowerCase = search.toLowerCase().trim();
-
-    const facilityFilter = (facility: IFacility) => {
+  const ActionButtons = useCallback(
+    ({ facility }: { facility?: IFacility }) => {
       return (
-        facility.healthFacilityName.toLowerCase().startsWith(searchLowerCase) ||
-        facility.location.toLowerCase().startsWith(searchLowerCase)
-      );
-    };
-
-    const rows = facilities
-      .filter(facilityFilter)
-      .map((f, idx) => [
-        f.healthFacilityName,
-        f.healthFacilityPhoneNumber,
-        f.location,
-        idx,
-      ]);
-    setTableData(rows);
-  }, [facilities, search]);
-
-  const Row = ({ row }: { row: (string | number)[] }) => {
-    const cells = row.slice(0, -1);
-    const facility = facilities[row.slice(-1)[0] as number];
-
-    return (
-      <AdminTableRow>
-        <TableCell label="Facility Name" isTransformed={isTransformed}>
-          {cells[0]}
-        </TableCell>
-        <TableCell label="Phone Number" isTransformed={isTransformed}>
-          {cells[1]}
-        </TableCell>
-        <TableCell label="Location" isTransformed={isTransformed}>
-          {cells[2]}
-        </TableCell>
-        <TableCell label="Take Action" isTransformed={isTransformed}>
+        <AdminTableActionButtonsContainer>
           <Tooltip placement="top" title="Edit Facility">
             <IconButton
               onClick={() => {
@@ -113,42 +57,96 @@ export const ManageFacilities = () => {
               <CreateIcon />
             </IconButton>
           </Tooltip>
-        </TableCell>
-      </AdminTableRow>
-    );
+        </AdminTableActionButtonsContainer>
+      );
+    },
+    [setFacilityToEdit, setEditPopupOpen]
+  );
+
+  const columns: GridColDef[] = [
+    { flex: 1, field: 'facilityName', headerName: 'Facility Name' },
+    { flex: 1, field: 'phoneNumber', headerName: 'Phone Number' },
+    { flex: 1, field: 'location', headerName: 'Location' },
+    {
+      flex: 1,
+      field: 'takeAction',
+      headerName: 'Take Action',
+      filterable: false,
+      sortable: false,
+      renderCell: (params: GridRenderCellParams<any, IFacility>) => (
+        <ActionButtons facility={params.value} />
+      ),
+    },
+  ];
+
+  const getFacilities = async () => {
+    try {
+      const facilities: IFacility[] = await getHealthFacilitiesAsync();
+
+      setFacilities(facilities);
+      updateRows(facilities);
+    } catch (e) {
+      setErrorLoading(true);
+    }
   };
 
+  useEffect(() => {
+    getFacilities();
+  }, []);
+
+  // Apply search filter.
+  useEffect(() => {
+    const searchLowerCase = search.toLowerCase().trim();
+
+    const facilityFilter = (facility: IFacility) => {
+      return (
+        facility.healthFacilityName.toLowerCase().includes(searchLowerCase) ||
+        facility.location.toLowerCase().includes(searchLowerCase) ||
+        facility.healthFacilityPhoneNumber
+          .toLowerCase()
+          .includes(searchLowerCase)
+      );
+    };
+
+    const filteredFacilities = facilities.filter(facilityFilter);
+    updateRows(filteredFacilities);
+  }, [facilities, search]);
+
+  const editFacility = useCallback(() => {
+    setEditPopupOpen(false);
+    dispatch(getHealthFacilityList());
+    getFacilities();
+  }, []);
+
+  const addNewFacility = useCallback(() => {
+    setFacilityToEdit(undefined);
+    setEditPopupOpen(true);
+  }, []);
+
+  const toolbar = useCallback(
+    () => (
+      <AdminTableToolbar title={'Health Care Facilities'} setSearch={setSearch}>
+        <AdminToolBarButton onClick={addNewFacility}>
+          <AddIcon /> {'New Facility'}
+        </AdminToolBarButton>
+      </AdminTableToolbar>
+    ),
+    [setSearch]
+  );
+
   return (
-    <AdminTableContainer>
+    <>
       <APIErrorToast
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
       />
       <EditFacility
         open={editPopupOpen}
-        onClose={() => {
-          setEditPopupOpen(false);
-          dispatch(getHealthFacilityList());
-          getFacilities();
-        }}
+        onClose={editFacility}
         facilities={facilities}
         editFacility={facilityToEdit}
       />
-      <AdminTable
-        title="Health Care Facilities"
-        newBtnLabel="New Facility"
-        newBtnOnClick={() => {
-          setFacilityToEdit(undefined);
-          setEditPopupOpen(true);
-        }}
-        search={search}
-        setSearch={setSearch}
-        columns={columns}
-        Row={Row}
-        data={tableData}
-        loading={loading}
-        isTransformed={isTransformed}
-      />
-    </AdminTableContainer>
+      <AdminTable columns={columns} rows={rows} toolbar={toolbar} />
+    </>
   );
 };
