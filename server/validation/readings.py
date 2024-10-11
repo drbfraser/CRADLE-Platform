@@ -50,11 +50,12 @@ def validate(request_body: dict):
     try:
         Reading(**request_body)
     except ValidationError as e:
-        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+        raise ValidationExceptionError(str(e.errors()[0]["msg"])) from e
 
     # Check if the nested assessment (followup) object is valid
     if "followup" in request_body:
         try:
             Assessment(**(request_body.get("followup")))
         except ValidationError as e:
-            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+            raise ValidationExceptionError(str(e.errors()[0]["msg"])) from e
+

@@ -324,14 +324,14 @@ def parseCondition(parentQuestion: dict, conditionText: str) -> dict:
     elif parentQuestion["questionType"] == QuestionTypeEnum.INTEGER.value:
         try:
             condition["answers"]["number"] = int(conditionText)
-        except ValueError:
-            raise RuntimeError("Invalid condition for parent question of type Integer")
+        except ValueError as e:
+            raise RuntimeError("Invalid condition for parent question of type Integer") from e
 
     elif parentQuestion["questionType"] == QuestionTypeEnum.DECIMAL.value:
         try:
             condition["answers"]["number"] = float(conditionText)
-        except ValueError:
-            raise RuntimeError("Invalid condition for parent question of type Integer")
+        except ValueError as e:
+            raise RuntimeError("Invalid condition for parent question of type Integer") from e
 
     else:
         condition["answers"]["text"] = int(conditionText)

@@ -53,4 +53,4 @@ def validate(request_body: dict):
     try:
         Assessment(**request_body)
     except ValidationError as e:
-        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+        raise ValidationExceptionError(str(e.errors()[0]["msg"])) from e
