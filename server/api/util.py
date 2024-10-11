@@ -132,7 +132,16 @@ def query_param_search(request: Request, name: str) -> str:
 
     """
     return request.args.get(name, "", type=str)
-rowidentity["userId"])
+
+
+def current_user() -> User:
+    """
+    Returns the the model for the user making the request.
+
+    :return:
+    """
+    identity = jwt.get_jwt_identity()
+    return crud.read(User, id=identity["userId"])
 
 
 def isGoodPassword(password: str) -> bool:
