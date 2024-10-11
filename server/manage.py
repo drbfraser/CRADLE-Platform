@@ -5,6 +5,7 @@ import random
 import string
 import time
 import uuid
+from pathlib import Path
 from random import choice, randint, randrange
 from string import ascii_lowercase, digits
 
@@ -903,7 +904,7 @@ def generateRandomReadingID():
 
 
 def getNames():
-    with open("./data/seed_data/seed.json") as f:
+    with Path("./data/seed_data/seed.json").open("r") as f:
         names = json.load(f)
         return names["firstNames"], names["lastNames"]
 
@@ -988,7 +989,7 @@ if __name__ == "__main__":
     patientList = list(map(str, patientList))
 
     # Get cities
-    with open("./data/seed_data/seed.json") as f:
+    with Path("./data/seed_data/seed.json").open("r") as f:
         facilityLocations = json.load(f)["locations"]
 
     usersList = [1, 2, 3, 4]
