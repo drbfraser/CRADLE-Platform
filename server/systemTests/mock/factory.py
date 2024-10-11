@@ -2,7 +2,7 @@ from typing import Any
 
 from flask_sqlalchemy import SQLAlchemy
 
-import models as models
+import models
 from data import crud, marshal
 
 

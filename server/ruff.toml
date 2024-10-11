@@ -113,7 +113,6 @@ ignore = [
     "PTH120",  # 2	PTH120 	[ ] os-path-dirname
     "PTH123",  # 2	PTH123 	[ ] builtin-open
     "D404",    # 2	D404   	[ ] docstring-starts-with-this
-    "PLC0414", # 2	PLC0414	[*] useless-import-alias
     
     "S105",    # 1	S105   	[ ] hardcoded-password-string
     "S603",    # 1	S603   	[ ] subprocess-without-shell-equals-true
