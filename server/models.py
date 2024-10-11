@@ -628,7 +628,7 @@ class Question(db.Model):
 
 class QuestionLangVersion(db.Model):
     """
-    This model is used to store different language versions of a single question.
+    Used to store different language versions of a single question.
     """
 
     id = db.Column(db.Integer, primary_key=True)
