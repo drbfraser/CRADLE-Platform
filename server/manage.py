@@ -871,8 +871,7 @@ def getRandomSymptoms():
 
 def getRandomDate():
     """
-    This function will return a random datetime between two datetime
-    objects.
+    Return a random datetime between two datetime objects.
     """
     start = d1
     end = d2
