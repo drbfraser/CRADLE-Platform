@@ -110,7 +110,6 @@ ignore = [
     "S104",    # 2	S104   	[ ] hardcoded-bind-all-interfaces
     "B020",    # 2	B020   	[ ] loop-variable-overrides-iterator
     "B904",    # 2	B904   	[ ] raise-without-from-inside-except
-    "PTH120",  # 2	PTH120 	[ ] os-path-dirname
     "D404",    # 2	D404   	[ ] docstring-starts-with-this
     
     "S105",    # 1	S105   	[ ] hardcoded-password-string
