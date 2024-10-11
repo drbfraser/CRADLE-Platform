@@ -17,8 +17,9 @@ import sys
 import os
 import re
 import json
+from pathlib import Path
 
-sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+sys.path.append(Path(os.path.realpath(__file__)).parent)
 
 import config
 import routes
