@@ -4,7 +4,7 @@ import { ManageRelayApp } from './manageRelayApp/ManageRelayApp';
 import { ManageUsers } from './manageUsers/ManageUsers';
 import { ManagePatients } from './managePatients/ManagePatients';
 import { Tab } from 'semantic-ui-react';
-import { theme } from 'src/context/materialUI/theme';
+import { theme } from 'src/app/providers/materialUI/theme';
 import { Route, Switch, useHistory, useRouteMatch } from 'react-router-dom';
 import { CustomFormTemplate } from './manageFormTemplates/editFormTemplate/CustomFormTemplate';
 

@@ -1,27 +1,15 @@
-import { IUserWithTokens, OrNull } from 'src/shared/types';
 import React from 'react';
 
 import { AppRoutes } from './routes';
 import { CssBaseline } from '@mui/material';
-import { ReduxState } from 'src/redux/reducers';
 import { Sidebar } from './sidebar';
 import { TopBar } from './topBar';
-import { useSelector } from 'react-redux';
 import { Box } from '@mui/material';
-
-type SelectorState = {
-  user: OrNull<IUserWithTokens>;
-};
+import { TopLevelContextProviders } from './providers/TopLevelContextProviders';
 
 export const App: React.FC = () => {
-  const { user } = useSelector(
-    ({ user }: ReduxState): SelectorState => ({
-      user: user.current.data,
-    })
-  );
-
   return (
-    <>
+    <TopLevelContextProviders>
       <CssBaseline />
       <Box
         id={'rootContainer'}
@@ -34,7 +22,7 @@ export const App: React.FC = () => {
           flexDirection: 'column',
           justifyContent: 'start',
         }}>
-        <TopBar user={user} />
+        <TopBar />
         <Box
           id={'sidebarWrapper'}
           sx={{
@@ -47,6 +35,6 @@ export const App: React.FC = () => {
           <AppRoutes />
         </Box>
       </Box>
-    </>
+    </TopLevelContextProviders>
   );
 };
