@@ -30,13 +30,19 @@ import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { Link } from 'react-router-dom';
 
-interface IProps {
+type SelectorState = {
   user: OrNull<IUserWithTokens>;
-}
+};
 
-export const TopBar = ({ user }: IProps) => {
+export const TopBar = () => {
   const theme = useTheme();
   const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
+
+  const { user } = useSelector(
+    ({ user }: ReduxState): SelectorState => ({
+      user: user.current.data,
+    })
+  );
 
   const dispatch = useAppDispatch();
 
