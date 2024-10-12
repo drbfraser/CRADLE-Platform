@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import List
 
 # To add a table to db, make a new class
 # create a migration: flask db migrate
@@ -11,11 +12,11 @@ from enum import Enum
 
 class EnumWithList(Enum):
     @classmethod
-    def listNames(cls):
+    def listNames(cls) -> List[str]:
         return [e.name for e in cls]
 
     @classmethod
-    def listValues(cls):
+    def listValues(cls) -> List[str]:
         return [e.value for e in cls]
 
 
