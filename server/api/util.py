@@ -184,8 +184,8 @@ def getDictionaryOfUserInfo(id: int) -> dict:
 
     # The vhtlist has to be marshalled manually
     vhtList = []
-    for user in user.vhtList:
-        vhtList.append(user.id)
+    for vhtUser in user.vhtList:
+        vhtList.append(vhtUser.id)
     userDict["supervises"] = vhtList
 
     userDict.pop("password")

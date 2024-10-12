@@ -108,7 +108,6 @@ ignore = [
     "ANN102",  # 2	ANN102	[ ] Missing type annotation for `cls` in classmethod
     "ANN206",  # 2	ANN206 	[ ] missing-return-type-class-method
     "S104",    # 2	S104   	[ ] hardcoded-bind-all-interfaces
-    "B020",    # 2	B020   	[ ] loop-variable-overrides-iterator
     
     "S105",    # 1	S105   	[ ] hardcoded-password-string
     "S603",    # 1	S603   	[ ] subprocess-without-shell-equals-true
