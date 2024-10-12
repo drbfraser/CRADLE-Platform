@@ -106,7 +106,7 @@ ignore = [
     "RUF015",  # 3	RUF015 	[*] unnecessary-iterable-allocation-for-first-element
     "TRY301",  # 3	TRY301 	[ ] raise-within-try
     "ANN102",  # 2	ANN102	[ ] Missing type annotation for `cls` in classmethod
-    "ANN206",  # 2	ANN206 	[ ] missing-return-type-class-method
+
     "S104",    # 2	S104   	[ ] hardcoded-bind-all-interfaces
     
     "S105",    # 1	S105   	[ ] hardcoded-password-string
