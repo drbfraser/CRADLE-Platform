@@ -325,13 +325,17 @@ def parseCondition(parentQuestion: dict, conditionText: str) -> dict:
         try:
             condition["answers"]["number"] = int(conditionText)
         except ValueError as e:
-            raise RuntimeError("Invalid condition for parent question of type Integer") from e
+            raise RuntimeError(
+                "Invalid condition for parent question of type Integer"
+            ) from e
 
     elif parentQuestion["questionType"] == QuestionTypeEnum.DECIMAL.value:
         try:
             condition["answers"]["number"] = float(conditionText)
         except ValueError as e:
-            raise RuntimeError("Invalid condition for parent question of type Integer") from e
+            raise RuntimeError(
+                "Invalid condition for parent question of type Integer"
+            ) from e
 
     else:
         condition["answers"]["text"] = int(conditionText)
@@ -487,17 +491,19 @@ def getFormTemplateDictFromCSV(csvData: str):
 
             if language not in languages:
                 error_msg = "Language {} for question #{} not listed in Form Languages [{}].".format(
-                        language,
-                        questionIndex + 1,
-                        str.join(", ", languages),
-                    )
+                    language,
+                    questionIndex + 1,
+                    str.join(", ", languages),
+                )
                 raise RuntimeError(error_msg)
 
             if language in questionLangVersions:
                 error_msg = f"Language {language} defined multiple times for question #{questionIndex + 1}"
                 raise RuntimeError(error_msg)
 
-            questionLangVersions[language] = getQuestionLanguageVersionFromRow(question_row)
+            questionLangVersions[language] = getQuestionLanguageVersionFromRow(
+                question_row
+            )
 
         question["questionLangVersions"] = list(questionLangVersions.values())
 
