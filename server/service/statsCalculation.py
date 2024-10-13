@@ -26,7 +26,9 @@ def get_stats_data(
         month_index = 0
         for reading in readings:
             date_unix_ts = reading.dateTimeTaken
-            date_object = datetime.fromtimestamp(date_unix_ts, tz=system_timezone).date()
+            date_object = datetime.fromtimestamp(
+                date_unix_ts, tz=system_timezone
+            ).date()
             item_month = date_object.month
             item_year = date_object.year
             if current_year == item_year or (
