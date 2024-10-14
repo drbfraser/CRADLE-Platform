@@ -65,7 +65,7 @@ export const Login = () => {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center',
+          justifyContent: 'start',
           '@media (min-height: 500px)': {
             transform: 'scale(0.75)',
           },
