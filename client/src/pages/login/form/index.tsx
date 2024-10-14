@@ -21,11 +21,13 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import { useHistory } from 'react-router-dom';
 
 export const LoginForm: React.FC = () => {
   const errorMessage = useSelector(
     ({ user }: ReduxState): OrNull<string> => user.current.message
   );
+  const history = useHistory();
 
   const dispatch = useAppDispatch();
 
@@ -39,7 +41,7 @@ export const LoginForm: React.FC = () => {
       password: Yup.string().required('Password is required.'),
     }),
     onSubmit: (values: LoginData) => {
-      dispatch(loginUser(values));
+      dispatch(loginUser(values, history));
     },
   });
 
