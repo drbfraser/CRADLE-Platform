@@ -1,9 +1,13 @@
-import { LoginForm } from './form';
 import { Redirect } from 'react-router-dom';
 import image from './img/splash_screen_4.png';
 import Stack from '@mui/material/Stack';
 import { Box, useMediaQuery } from '@mui/material';
 import { DASHBOARD_PADDING, TOP_BAR_HEIGHT } from 'src/shared/constants';
+import { Login } from './Login';
+
+import { selectLoggedIn } from 'src/redux/reducers/user/currentUser';
+import { useAppSelector } from 'src/shared/hooks';
+import { selectSidebarIsOpen } from 'src/redux/sidebar-state';
 
 export const LoginPage: React.FC = () => {
   // if the user has reached the login page, they likely came directly here
@@ -12,7 +16,12 @@ export const LoginPage: React.FC = () => {
     return <Redirect to="/referrals" />;
   }
 
-  return (
+  const isSidebarOpen = useAppSelector(selectSidebarIsOpen);
+  const loggedIn = useAppSelector(selectLoggedIn);
+  console.log('loggedIn? ', loggedIn);
+  console.log('isSidebarOpen? ', isSidebarOpen);
+
+  return !loggedIn ? (
     <Stack
       direction={'row'}
       sx={{
@@ -20,8 +29,10 @@ export const LoginPage: React.FC = () => {
         maxHeight: '100%',
       }}>
       <LoginSplashImage />
-      <LoginForm />
+      <Login />
     </Stack>
+  ) : (
+    <Redirect to="/referrals" />
   );
 };
 
