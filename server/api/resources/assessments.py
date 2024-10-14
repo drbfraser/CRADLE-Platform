@@ -27,9 +27,10 @@ class Root(Resource):
         user = util.current_user()
         json["healthcareWorkerId"] = user.id
 
-        error_message = assessments.validate(json)
-        if error_message is not None:
-            abort(400, message=error_message)
+        try:
+            assessments.validate(json)
+        except Exception as e:
+            abort(400, message=str(e))
 
         assessment = marshal.unmarshal(FollowUp, json)
 
@@ -87,9 +88,10 @@ class SingleAssessment(Resource):
         if not assessment:
             abort(404, message=f"No assessment with id {assessment_id}")
 
-        error_message = assessments.validate(json)
-        if error_message is not None:
-            abort(400, message=error_message)
+        try:
+            assessments.validate(json)
+        except Exception as e:
+            abort(400, message=str(e))
 
         crud.update(FollowUp, json, id=assessment.id)
 

@@ -1,6 +1,7 @@
 import { cyan, indigo } from '@mui/material/colors';
 
 import { createTheme } from '@mui/material/styles';
+import type {} from '@mui/x-data-grid/themeAugmentation';
 
 export const theme = createTheme({
   components: {
@@ -11,6 +12,7 @@ export const theme = createTheme({
         },
       },
     },
+    MuiDataGrid: {},
   },
   palette: {
     primary: {

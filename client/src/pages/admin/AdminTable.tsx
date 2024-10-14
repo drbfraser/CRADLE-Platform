@@ -1,35 +1,83 @@
-import MUIDataTable, {
-  MUIDataTableColumnDef,
-  MUIDataTableProps,
-} from 'mui-datatables';
+import {
+  DataGrid,
+  GridColDef,
+  GridToolbarContainer,
+  GridToolbarColumnsButton,
+  GridToolbarFilterButton,
+  GridToolbarDensitySelector,
+  GridValidRowModel,
+  GridRowClassNameParams,
+} from '@mui/x-data-grid';
 
-import AddIcon from '@mui/icons-material/Add';
-import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { PrimaryButton } from 'src/shared/components/Button';
-import Skeleton from '@mui/material/Skeleton';
 import {
   Box,
-  SxProps,
   TableContainer,
-  TableRow,
   TextField,
+  Typography,
+  useMediaQuery,
 } from '@mui/material';
-import { PropsWithChildren } from 'react';
+import { MouseEventHandler, PropsWithChildren } from 'react';
+import { SxProps } from '@mui/material';
 
-interface IProps {
-  title: string;
-  newBtnLabel?: string;
-  newBtnOnClick?: () => void;
-  uploadBtnLabel?: string;
-  uploadBtnLabelOnClick?: () => void;
-  search: string;
-  setSearch: (search: string) => void;
-  columns: MUIDataTableColumnDef[];
-  Row: ({ row }: { row: any }) => JSX.Element;
-  data: MUIDataTableProps['data'];
-  loading: boolean;
-  isTransformed: boolean;
-}
+type AdminToolbarProps = {
+  rows: readonly GridValidRowModel[];
+  columns: GridColDef[];
+  toolbar?: () => JSX.Element;
+  getRowClassName?: (params: GridRowClassNameParams<any>) => string;
+  sx?: SxProps;
+};
+
+export const AdminTable = ({
+  rows,
+  columns,
+  toolbar,
+  getRowClassName,
+  sx,
+}: AdminToolbarProps) => {
+  return (
+    <AdminTableContainer>
+      <DataGrid
+        sx={{
+          border: '0',
+          ...sx,
+        }}
+        rows={rows}
+        columns={columns}
+        autosizeOnMount
+        autosizeOptions={{
+          includeHeaders: true,
+          includeOutliers: true,
+        }}
+        pagination
+        slots={{
+          toolbar: toolbar,
+        }}
+        getRowClassName={getRowClassName}
+      />
+    </AdminTableContainer>
+  );
+};
+
+const AdminTableContainer = ({ children }: PropsWithChildren) => {
+  return (
+    <TableContainer
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '600px',
+        maxHeight: '600px',
+        '& .MuiTableCell-head': {
+          fontWeight: 'bold',
+        },
+        '& button': {
+          fontWeight: 'bold',
+        },
+      }}>
+      {children}
+    </TableContainer>
+  );
+};
 
 const TOOLBAR_ELEMENT_HEIGHT_LARGE = '56px';
 const TOOLBAR_ELEMENT_HEIGHT_SMALL = '40px';
@@ -54,128 +102,99 @@ const TOOLBAR_BUTTON_SX = {
   },
   ...TOOLBAR_ELEMENT_SX,
 };
-const AdminTable = (props: IProps) => {
-  const Toolbar = () => (
-    <Box
-      id={'toolbar-actions'}
+
+const SLOT_PROPS = {
+  button: {
+    sx: {
+      ...TOOLBAR_BUTTON_SX,
+      '@media (min-width: 720px)': {
+        fontSize: 'large',
+      },
+      '@media (max-width: 720px)': {
+        fontSize: 'medium',
+      },
+      '@media (max-width: 520px)': {
+        fontSize: 'x-small',
+      },
+    },
+  },
+};
+
+type ToolbarProps = PropsWithChildren & {
+  title?: string;
+  search?: string;
+  setSearch: (val: string) => void;
+};
+export const AdminTableToolbar = ({
+  children,
+  title,
+  setSearch,
+}: ToolbarProps) => {
+  const isTransformed = useMediaQuery('(min-width:900px)');
+  return (
+    <GridToolbarContainer
       sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        gap: '4px',
-        '@media (min-width: 600px)': {
-          float: 'right',
-        },
-        '@media (max-width: 900px)': {
-          marginBottom: '10px',
-        },
-        '@media (max-width: 720px)': {
-          flexDirection: 'column',
-        },
+        padding: '16px',
       }}>
+      <Typography variant="h4">{title}</Typography>
+      <Box sx={{ flexGrow: 1 }} />
+      <Box
+        sx={{
+          marginX: '8px',
+          display: 'flex',
+          flexDirection: 'row',
+          gap: '4px',
+          '@media (max-width: 520px)': {
+            gap: '0',
+          },
+        }}>
+        <GridToolbarColumnsButton slotProps={SLOT_PROPS} />
+        <GridToolbarFilterButton slotProps={SLOT_PROPS} />
+        <GridToolbarDensitySelector slotProps={SLOT_PROPS} />
+      </Box>
       <Box sx={TOOLBAR_ELEMENT_SX}>
         <TextField
           type="text"
           variant="outlined"
           sx={TOOLBAR_ELEMENT_SX}
-          size={props.isTransformed ? 'medium' : 'small'}
+          size={isTransformed ? 'medium' : 'small'}
           placeholder="Search..."
-          value={props.search}
-          onChange={(e) => props.setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
         />
       </Box>
-      <Box
-        id={'button-container'}
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: '4px',
-          '@media (max-width: 1000px)': {
-            flexDirection: 'column',
-          },
-        }}>
-        {props.newBtnLabel && (
-          <PrimaryButton sx={TOOLBAR_BUTTON_SX} onClick={props.newBtnOnClick}>
-            <AddIcon />
-            {props.newBtnLabel}
-          </PrimaryButton>
-        )}
-
-        {props.uploadBtnLabel && (
-          <PrimaryButton
-            sx={TOOLBAR_BUTTON_SX}
-            onClick={props.uploadBtnLabelOnClick}>
-            <FileUploadIcon />
-            {props.uploadBtnLabel}
-          </PrimaryButton>
-        )}
-      </Box>
-    </Box>
-  );
-
-  return (
-    <MUIDataTable
-      title={props.title}
-      columns={props.columns}
-      data={props.data}
-      options={{
-        elevation: 0,
-        search: false,
-        download: false,
-        print: false,
-        viewColumns: false,
-        filter: false,
-        selectToolbarPlacement: 'none',
-        selectableRows: 'none',
-        rowHover: false,
-        responsive: 'standard',
-        customToolbar: Toolbar,
-        customRowRender: (row, i) => <props.Row key={i} row={row} />,
-        textLabels: {
-          body: {
-            noMatch: props.loading ? (
-              <Skeleton variant="rectangular" component="span" height={40} />
-            ) : (
-              'Sorry, no matching records found.'
-            ),
-          },
-        },
-      }}
-    />
+      {children}
+    </GridToolbarContainer>
   );
 };
 
-export const AdminTableContainer = ({ children }: PropsWithChildren) => {
+type ToolbarButtonProps = PropsWithChildren & {
+  onClick?: MouseEventHandler;
+};
+export const AdminToolBarButton = ({
+  children,
+  onClick,
+}: ToolbarButtonProps) => {
   return (
-    <TableContainer
+    <PrimaryButton sx={TOOLBAR_BUTTON_SX} onClick={onClick}>
+      {children}
+    </PrimaryButton>
+  );
+};
+
+// Container for table cell with buttons.
+export const AdminTableActionButtonsContainer = ({
+  children,
+}: PropsWithChildren) => {
+  return (
+    <Box
       sx={{
-        '& .MuiTableCell-head': {
-          fontWeight: 'bold',
-        },
-        '& button': {
-          fontWeight: 'bold',
-        },
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justify: 'center',
+        gap: '4px',
       }}>
       {children}
-    </TableContainer>
+    </Box>
   );
 };
-
-type AdminTableRowProps = PropsWithChildren & {
-  sx?: SxProps;
-};
-export const AdminTableRow = ({ children, sx }: AdminTableRowProps) => {
-  return (
-    <TableRow
-      sx={[
-        {
-          borderBottom: '1px solid #ddd',
-        },
-        ...(Array.isArray(sx) ? sx : [sx]),
-      ]}>
-      {children}
-    </TableRow>
-  );
-};
-
-export default AdminTable;
