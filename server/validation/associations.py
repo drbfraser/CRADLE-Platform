@@ -7,8 +7,8 @@ from validation.validation_exception import ValidationExceptionError
 
 class Association(BaseModel):
     patientId: int
-    healthFacilityName: Optional[str]
-    userId: Optional[int]
+    healthFacilityName: Optional[str] = None
+    userId: Optional[int] = None
 
 
 def validate(request_body: dict) -> Optional[str]:
