@@ -1,3 +1,4 @@
+import json
 import logging
 
 from flasgger import swag_from
@@ -27,7 +28,7 @@ class Root(Resource):
         endpoint="form_classifications",
     )
     def post():
-        json = {}
+        req = {}
 
         # provide file upload method from web
         if "file" in request.files:
@@ -39,14 +40,14 @@ class Root(Resource):
             file_str = str(file.read(), "utf-8")
             if file.content_type == ContentTypeEnum.JSON.value:
                 try:
-                    json = json.loads(file_str)
+                    req = json.loads(file_str)
                 except json.JSONDecodeError as err:
                     LOGGER.error(err)
                     abort(400, message="File content is not valid json-format")
 
             elif file.content_type == ContentTypeEnum.CSV.value:
                 try:
-                    json = util.getFormTemplateDictFromCSV(file_str)
+                    req = util.getFormTemplateDictFromCSV(file_str)
                 except RuntimeError as err:
                     LOGGER.error(err)
                     abort(400, message=err.args[0])
@@ -60,30 +61,30 @@ class Root(Resource):
                         message="Something went wrong while parsing the CSV file.",
                     )
         else:
-            json = request.get_json(force=True)
+            req = request.get_json(force=True)
 
-        if len(json) == 0:
+        if len(req) == 0:
             abort(400, message="Request body is empty")
 
-        if json.get("id") is not None:
-            if crud.read(FormClassification, id=json["id"]):
+        if req.get("id") is not None:
+            if crud.read(FormClassification, id=req["id"]):
                 abort(409, message="Form classification already exists")
 
         try:
-            formClassifications.validate_template(json)
+            formClassifications.validate_template(req)
         except Exception as e:
             abort(400, message=str(e))
 
-        if json.get("name") is not None:
-            if crud.read(FormClassification, id=json["name"]):
+        if req.get("name") is not None:
+            if crud.read(FormClassification, id=req["name"]):
                 abort(
                     409,
                     message="Form classification with the same name already exists",
                 )
 
-        util.assign_form_or_template_ids(FormClassification, json)
+        util.assign_form_or_template_ids(FormClassification, req)
 
-        formClassification = marshal.unmarshal(FormClassification, json)
+        formClassification = marshal.unmarshal(FormClassification, req)
 
         crud.create(formClassification, refresh=True)
 
@@ -138,9 +139,9 @@ class SingleFormClassification(Resource):
                 message=f"No form classification with id {form_classification_id}",
             )
 
-        json = request.get_json()
-        if json.get("name") is not None:
-            form_classification.name = json.get("name")
+        req = request.get_json()
+        if req.get("name") is not None:
+            form_classification.name = req.get("name")
             data.db_session.commit()
             data.db_session.refresh(form_classification)
 
