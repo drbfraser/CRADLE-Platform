@@ -1,6 +1,7 @@
 from typing import Optional
 
 from pydantic import BaseModel, ValidationError
+
 from validation.validation_exception import ValidationExceptionError
 
 
@@ -21,7 +22,6 @@ def validate_template(request_body: dict) -> Optional[str]:
 
     :return: An error message if request body is invalid in some way. None otherwise.
     """
-
     try:
         FormClassification(**request_body)
     except ValidationError as e:

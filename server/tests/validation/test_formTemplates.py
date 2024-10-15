@@ -3,7 +3,6 @@ import pytest
 from validation.formTemplates import validate_questions, validate_template
 from validation.validation_exception import ValidationExceptionError
 
-
 root_question = {
     "categoryIndex": None,  # root question has to have first categoryIndex as None
     "numMax": None,

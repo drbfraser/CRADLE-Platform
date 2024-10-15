@@ -1,9 +1,9 @@
 from typing import List, Optional
-from pydantic import BaseModel, Field, ValidationError
-from validation.questions import MultipleChoiceOption, TemplateQuestion
-from typing_extensions import Annotated
+
+from pydantic import BaseModel, ValidationError
 
 from service import questionTree
+from validation.questions import MultipleChoiceOption, TemplateQuestion
 from validation.validation_exception import ValidationExceptionError
 
 
@@ -79,7 +79,7 @@ def validate_questions(questions: list) -> Optional[str]:
             tmp_lang_version_list.sort()
             if tmp_lang_version_list != lang_version_list:
                 raise ValidationExceptionError(
-                    "lang versions provided between questions are not consistent"
+                    "lang versions provided between questions are not consistent",
                 )
 
             cur_qindex = question.get("questionIndex")
@@ -87,7 +87,7 @@ def validate_questions(questions: list) -> Optional[str]:
                 qindex = cur_qindex
             else:
                 raise ValidationExceptionError(
-                    "questions should be in index-ascending order"
+                    "questions should be in index-ascending order",
                 )
 
     # validate question qindex tree dfs order

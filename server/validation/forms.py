@@ -1,14 +1,16 @@
 from typing import List, Optional
 
-from pydantic import BaseModel, ValidationError, StrictBool
-from validation.validation_exception import ValidationExceptionError
+from pydantic import BaseModel, StrictBool, ValidationError
 
-
-from validation.questions import FormQuestion
-from validation.questions import validate_form_question_post, validate_form_question_put
+from validation.questions import (
+    FormQuestion,
+    validate_form_question_post,
+    validate_form_question_put,
+)
 from validation.validate import (
     force_consistent_keys,
 )
+from validation.validation_exception import ValidationExceptionError
 
 
 class Form(BaseModel):

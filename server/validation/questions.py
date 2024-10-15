@@ -1,10 +1,10 @@
-from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Union
+
+from pydantic import BaseModel, Field, ValidationError
 from typing_extensions import Annotated
 
-from validation.validation_exception import ValidationExceptionError
-
 from enums import QRelationalEnum, QuestionTypeEnum
+from validation.validation_exception import ValidationExceptionError
 
 
 class MultipleChoiceOption(BaseModel):
@@ -235,7 +235,6 @@ def validate_template_question_post(q: dict) -> Optional[str]:
 
     :return: An error message if request body is invalid in some way. None otherwise.
     """
-    TemplateQuestion._previous_index = None
     try:
         TemplateQuestion(**q)
     except ValidationError as e:
@@ -252,7 +251,6 @@ def validate_form_question_post(q: dict) -> Optional[str]:
 
     :return: An error message if request body is invalid in some way. None otherwise.
     """
-
     try:
         FormQuestion(**q)
     except ValidationError as e:
