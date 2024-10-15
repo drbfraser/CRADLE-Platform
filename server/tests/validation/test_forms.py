@@ -1,6 +1,7 @@
 import pytest
 
 from validation.forms import validate_form, validate_put_request, validate_questions
+from validation.validation_exception import ValidationExceptionError
 
 valid_form_json_empty_questions = {
     "id": "123",
@@ -119,20 +120,24 @@ invalid_type_questions = {
 
 
 @pytest.mark.parametrize(
-    "json, output_type",
+    "json, expectation",
     [
-        (valid_form_json_empty_questions, type(None)),
-        (valid_form_json_filled_questions, type(None)),
-        (missing_field, str),
-        (invalid_keys, str),
-        (invalid_type_patientId, str),
-        (invalid_type_archived, str),
-        (invalid_type_questions, str),
+        (valid_form_json_empty_questions, None),
+        (valid_form_json_filled_questions, None),
+        (missing_field, ValidationExceptionError),
+        (invalid_keys, ValidationExceptionError),
+        (invalid_type_patientId, ValidationExceptionError),
+        (invalid_type_archived, ValidationExceptionError),
+        (invalid_type_questions, ValidationExceptionError),
     ],
 )
-def test_validate_form(json, output_type):
-    message = validate_form(json)
-    assert type(message) is output_type
+def test_validate_form(json, expectation):
+    if expectation:
+        with pytest.raises(expectation):
+            validate_form(json)
+    else:
+        message = validate_form(json)
+        assert message is None, f"Expected None, but got {message}"
 
 
 empty_questions = []
@@ -214,17 +219,21 @@ invalid_question = [{}]
 
 
 @pytest.mark.parametrize(
-    "json, output_type",
+    "json, expectation",
     [
-        (empty_questions, type(None)),
-        (single_question, type(None)),
-        (multi_question, type(None)),
-        (invalid_question, str),
+        (empty_questions, None),
+        (single_question, None),
+        (multi_question, None),
+        (invalid_question, ValidationExceptionError),
     ],
 )
-def test_validate_questions(json, output_type):
-    message = validate_questions(json)
-    assert type(message) is output_type
+def test_validate_questions(json, expectation):
+    if expectation:
+        with pytest.raises(expectation):
+            validate_questions(json)
+    else:
+        message = validate_questions(json)
+        assert message is None, f"Expected None, but got {message}"
 
 
 valid_put_request = {"questions": [{"id": "asdsd-1123123", "answers": {"number": 4}}]}
@@ -236,12 +245,16 @@ invalid_keys_put_request = {
 
 
 @pytest.mark.parametrize(
-    "json, output_type",
+    "json, expectation",
     [
-        (valid_put_request, type(None)),
-        (invalid_keys_put_request, str),
+        (valid_put_request, None),
+        (invalid_keys_put_request, ValidationExceptionError),
     ],
 )
-def test_validate_put_request(json, output_type):
-    message = validate_put_request(json)
-    assert type(message) is output_type
+def test_validate_put_request(json, expectation):
+    if expectation:
+        with pytest.raises(expectation):
+            validate_put_request(json)
+    else:
+        message = validate_put_request(json)
+        assert message is None, f"Expected None, but got {message}"

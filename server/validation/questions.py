@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field, ValidationError
 from typing import List, Optional, Union
 from typing_extensions import Annotated
 
+from validation.validation_exception import ValidationExceptionError
 
 from enums import QRelationalEnum, QuestionTypeEnum
 
@@ -114,7 +115,7 @@ def validate_mc_options(q: dict) -> Optional[str]:
         for opt in mcopts:
             MultipleChoiceOption(**opt)
     except ValidationError as e:
-        return str(e)
+        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
     return None
 
 
@@ -145,7 +146,7 @@ def validate_answers(q: dict) -> Optional[str]:
     try:
         Answer(**q[target])
     except ValidationError as e:
-        return str(e)
+        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
     return None
 
 
@@ -181,7 +182,7 @@ def validate_visible_condition(q: dict) -> Optional[str]:
         for visible_condition in visible_conditions:
             VisibleCondition(**visible_condition)
     except ValidationError as e:
-        return str(e)
+        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
     return None
 
 
@@ -221,7 +222,7 @@ def validate_lang_versions(q: dict) -> Optional[str]:
         for question_lang_version in question_lang_versions:
             QuestionLangVersion(**question_lang_version)
     except ValidationError as e:
-        return str(e)
+        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
     return None
 
 
@@ -238,7 +239,7 @@ def validate_template_question_post(q: dict) -> Optional[str]:
     try:
         TemplateQuestion(**q)
     except ValidationError as e:
-        return str(e)
+        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
     return None
 
 
@@ -255,7 +256,7 @@ def validate_form_question_post(q: dict) -> Optional[str]:
     try:
         FormQuestion(**q)
     except ValidationError as e:
-        return str(e)
+        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
     return None
 
 
@@ -271,5 +272,5 @@ def validate_form_question_put(q: dict) -> Optional[str]:
     try:
         FormQuestionPut(**q)
     except ValidationError as e:
-        return str(e)
+        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
     return None

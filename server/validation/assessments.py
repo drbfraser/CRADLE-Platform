@@ -7,7 +7,7 @@ from validation.validation_exception import ValidationExceptionError
 
 class Assessment(BaseModel):
     dateAssessed: int
-    diagnosis: Optional[str]
+    diagnosis: Optional[str] = None
     medicationPrescribed: Optional[str] = None
     healthcareWorkerId: Optional[int] = None
     specialInvestigations: Optional[str] = None

@@ -4,6 +4,7 @@ from validation.questions import MultipleChoiceOption, TemplateQuestion
 from typing_extensions import Annotated
 
 from service import questionTree
+from validation.validation_exception import ValidationExceptionError
 
 
 class Classification(BaseModel):
@@ -39,7 +40,7 @@ def validate_template(request_body: dict) -> Optional[str]:
     try:
         FormTemplate(**request_body)
     except ValidationError as e:
-        return str(e)
+        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
     return None
 
 
@@ -59,7 +60,7 @@ def validate_questions(questions: list) -> Optional[str]:
         try:
             TemplateQuestion(**question)
         except ValidationError as e:
-            return str(e)
+            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
         # validate:
         # lang versions consistency: all questions should have same kinds of versions
@@ -77,16 +78,20 @@ def validate_questions(questions: list) -> Optional[str]:
             ]
             tmp_lang_version_list.sort()
             if tmp_lang_version_list != lang_version_list:
-                return "lang versions provided between questions are not consistent"
+                raise ValidationExceptionError(
+                    "lang versions provided between questions are not consistent"
+                )
 
             cur_qindex = question.get("questionIndex")
             if qindex < cur_qindex:
                 qindex = cur_qindex
             else:
-                return "questions should be in index-ascending order"
+                raise ValidationExceptionError(
+                    "questions should be in index-ascending order"
+                )
 
     # validate question qindex tree dfs order
     error = questionTree.is_dfs_order(questions)
     if error:
-        return error
+        raise ValidationExceptionError(str(error))
     return None
