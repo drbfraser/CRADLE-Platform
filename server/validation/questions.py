@@ -245,7 +245,7 @@ def validate_template_question_post(q: dict) -> Optional[str]:
 def validate_form_question_post(q: dict) -> Optional[str]:
     """
     Returns an error message if the question dict is not valid (after pre-process) when
-    making form post request. Else, returns None.
+    making /api/forms/responses POST request. Else, returns None.
 
     :param q: question as a dict object
 
@@ -261,8 +261,8 @@ def validate_form_question_post(q: dict) -> Optional[str]:
 
 def validate_form_question_put(q: dict) -> Optional[str]:
     """
-    Returns an error message if the question dict is not valid when making form put
-    request. Else, returns None.
+    Returns an error message if the question dict is not valid when making
+    /api/forms/responses PUT request. Else, returns None.
 
     :param q: question as a dict object
 

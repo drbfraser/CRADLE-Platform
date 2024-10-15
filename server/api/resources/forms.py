@@ -29,9 +29,10 @@ class Root(Resource):
             if crud.read(Form, id=req["id"]):
                 abort(409, message="Form already exists")
 
-        error_message = forms.validate_form(req)
-        if error_message is not None:
-            abort(400, message=error_message)
+        try:
+            forms.validate_form(req)
+        except Exception as e:
+            abort(400, message=str(e))
 
         patient = crud.read(Patient, patientId=req["patientId"])
         if not patient:
@@ -95,9 +96,10 @@ class SingleForm(Resource):
 
         req = request.get_json(force=True)
 
-        error_message = forms.validate_put_request(req)
-        if error_message is not None:
-            abort(400, message=error_message)
+        try:
+            forms.validate_put_request(req)
+        except Exception as e:
+            abort(400, message=str(e))
 
         questions_upload = req["questions"]
         questions = form.questions
