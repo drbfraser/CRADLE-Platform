@@ -26,5 +26,5 @@ def validate(request_body: dict) -> Optional[str]:
     try:
         Association(**request_body)
     except ValidationError as e:
-        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+        raise ValidationExceptionError(e.errors()[0]["msg"])
     return None
