@@ -7,13 +7,13 @@ from service import questionTree
 
 
 class Classification(BaseModel):
-    id: str
+    id: Optional[str] = None
     name: str
 
 
 class FormTemplate(BaseModel):
     classification: Classification
-    id: Optional[str]
+    id: Optional[str] = None
     questions: List[TemplateQuestion]
     version: str
 

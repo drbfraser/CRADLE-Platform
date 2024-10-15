@@ -64,9 +64,10 @@ class Root(Resource):
             if crud.read(FormTemplate, id=req["id"]):
                 abort(409, message="Form template already exists")
 
-        error_message = formTemplates.validate_template(req)
-        if error_message:
-            abort(404, message=error_message)
+        try:
+            formTemplates.validate_template(req)
+        except Exception as e:
+            abort(400, message=str(e))
 
         classification = crud.read(
             FormClassification,
