@@ -3,7 +3,7 @@ from typing import List, Optional
 from pydantic import BaseModel, ValidationError
 
 from service import questionTree
-from validation.questions import MultipleChoiceOption, TemplateQuestion
+from validation.questions import TemplateQuestion
 from validation.validation_exception import ValidationExceptionError
 
 
