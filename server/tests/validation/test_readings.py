@@ -113,11 +113,9 @@ followup_invalid = {
     ],
 )
 def test_validation(json, expectation):
-    if type(expectation) is type and issubclass(expectation, Exception):
+    if expectation:
         with pytest.raises(expectation):
             validate(json)
     else:
-        try:
-            validate(json)
-        except Exception:
-            raise AssertionError
+        message = validate(json)
+        assert message is None, f"Expected None, but got {message}"
