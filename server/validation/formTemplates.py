@@ -1,12 +1,30 @@
-from typing import Optional
+from typing import List, Optional
+from pydantic import BaseModel, Field, ValidationError
+from validation.questions import MultipleChoiceOption, TemplateQuestion
+from typing_extensions import Annotated
 
 from service import questionTree
-from validation.questions import validate_template_question_post
-from validation.validate import (
-    check_invalid_keys_present,
-    required_keys_present,
-    values_correct_type,
-)
+
+
+class Classification(BaseModel):
+    id: str
+    name: str
+
+
+class FormTemplate(BaseModel):
+    classification: Classification
+    id: Optional[str]
+    questions: List[TemplateQuestion]
+    version: str
+
+    class Config:
+        extra = "forbid"
+
+
+class QuestionLangVersion(BaseModel):
+    lang: str
+    mcOptions: Optional[List[MultipleChoiceOption]] = None
+    questionText: str
 
 
 def validate_template(request_body: dict) -> Optional[str]:
@@ -18,35 +36,11 @@ def validate_template(request_body: dict) -> Optional[str]:
 
     :return: An error message if request body is invalid in some way. None otherwise.
     """
-    required_fields = ["classification", "version", "questions"]
-
-    all_fields = ["id"] + required_fields
-
-    error_message = None
-
-    error_message = required_keys_present(request_body, required_fields)
-    if error_message is not None:
-        return error_message
-
-    error_message = check_invalid_keys_present(request_body, all_fields)
-    if error_message is not None:
-        return error_message
-
-    error = values_correct_type(request_body, ["id", "version"], str)
-    if error:
-        return error
-
-    error = values_correct_type(request_body, ["questions"], list)
-    if error:
-        return error
-
-    error = values_correct_type(request_body, ["classification"], dict)
-    if error:
-        return error
-
-    error = validate_questions(request_body["questions"])
-    if error:
-        return error
+    try:
+        FormTemplate(**request_body)
+    except ValidationError as e:
+        return str(e)
+    return None
 
 
 def validate_questions(questions: list) -> Optional[str]:
@@ -61,10 +55,12 @@ def validate_questions(questions: list) -> Optional[str]:
     """
     lang_version_list, qindex = None, None
     for index, question in enumerate(questions):
-        # # validate each question
-        error = validate_template_question_post(question)
-        if error:
-            return error
+        # validate each question
+        try:
+            TemplateQuestion(**question)
+        except ValidationError as e:
+            return str(e)
+
         # validate:
         # lang versions consistency: all questions should have same kinds of versions
         # qindex constraint: question index in ascending order
