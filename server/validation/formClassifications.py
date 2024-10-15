@@ -1,10 +1,14 @@
 from typing import Optional
 
-from validation.validate import (
-    check_invalid_keys_present,
-    required_keys_present,
-    values_correct_type,
-)
+from pydantic import BaseModel, ValidationError
+
+
+class FormClassification(BaseModel):
+    id: Optional[str] = None
+    name: str
+
+    class Config:
+        extra = "forbid"
 
 
 def validate_template(request_body: dict) -> Optional[str]:
@@ -16,20 +20,9 @@ def validate_template(request_body: dict) -> Optional[str]:
 
     :return: An error message if request body is invalid in some way. None otherwise.
     """
-    required_fields = ["name"]
 
-    all_fields = ["id"] + required_fields
-
-    error_message = None
-
-    error_message = required_keys_present(request_body, required_fields)
-    if error_message is not None:
-        return error_message
-
-    error_message = check_invalid_keys_present(request_body, all_fields)
-    if error_message is not None:
-        return error_message
-
-    error = values_correct_type(request_body, ["id", "name"], str)
-    if error:
-        return error
+    try:
+        FormClassification(**request_body)
+    except ValidationError as e:
+        return str(e)
+    return None
