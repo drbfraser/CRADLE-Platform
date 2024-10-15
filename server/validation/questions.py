@@ -18,6 +18,9 @@ class Answer(BaseModel):
     number: Optional[Union[int, float]] = None
     text: Optional[str] = None
 
+    class Config:
+        extra = "forbid"
+
 
 class VisibleCondition(BaseModel):
     answers: Answer
@@ -29,6 +32,9 @@ class QuestionLangVersion(BaseModel):
     lang: str
     mcOptions: Optional[List[MultipleChoiceOption]] = None
     questionText: str
+
+    class Config:
+        extra = "forbid"
 
 
 class TemplateQuestion(BaseModel):
@@ -48,26 +54,33 @@ class TemplateQuestion(BaseModel):
     categoryIndex: Optional[int] = None
     stringMaxLines: Optional[int] = None
 
+    class Config:
+        extra = "forbid"
+
 
 class FormQuestion(BaseModel):
-    id: Optional[str] = None
     questionIndex: Annotated[int, Field(strict=True, ge=0)]  # Non-negative index
-    questionText: str
     questionType: QuestionTypeEnum
+    questionText: str
     isBlank: bool = False  # Set to False for form questions
-    hasCommentAttached: Optional[bool] = None
+    questionId: Optional[str] = None
     required: Optional[bool] = None
     allowPastDates: Optional[bool] = None
     allowFutureDates: Optional[bool] = None
     units: Optional[str] = None
     visibleCondition: Optional[List[VisibleCondition]] = None
-    mcOptions: Optional[List[MultipleChoiceOption]] = None
     numMin: Optional[Union[int, float]] = None
     numMax: Optional[Union[int, float]] = None
     stringMaxLength: Optional[int] = None
     categoryIndex: Optional[int] = None
-    answers: Optional[Answer] = None
     stringMaxLines: Optional[int] = None
+    hasCommentAttached: Optional[bool] = None
+    id: Optional[str] = None
+    mcOptions: Optional[List[MultipleChoiceOption]] = None
+    answers: Optional[Answer] = None
+
+    class Config:
+        extra = "forbid"
 
 
 class FormQuestionPut(BaseModel):

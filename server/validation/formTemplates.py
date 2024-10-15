@@ -8,24 +8,18 @@ from validation.validation_exception import ValidationExceptionError
 
 
 class Classification(BaseModel):
-    id: Optional[str] = None
     name: str
+    id: Optional[str] = None
 
 
 class FormTemplate(BaseModel):
     classification: Classification
-    id: Optional[str] = None
-    questions: List[TemplateQuestion]
     version: str
+    questions: List[TemplateQuestion]
+    id: Optional[str] = None
 
     class Config:
         extra = "forbid"
-
-
-class QuestionLangVersion(BaseModel):
-    lang: str
-    mcOptions: Optional[List[MultipleChoiceOption]] = None
-    questionText: str
 
 
 def validate_template(request_body: dict) -> Optional[str]:
@@ -62,7 +56,7 @@ def validate_questions(questions: list) -> Optional[str]:
         except ValidationError as e:
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
-        # validate:
+        # further validate for extra requirements:
         # lang versions consistency: all questions should have same kinds of versions
         # qindex constraint: question index in ascending order
         if index == 0:

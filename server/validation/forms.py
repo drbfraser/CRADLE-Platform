@@ -14,16 +14,16 @@ from validation.validation_exception import ValidationExceptionError
 
 
 class Form(BaseModel):
-    id: Optional[str] = None
     lang: str
     patientId: str
+    questions: List[FormQuestion]
+    id: Optional[str] = None
     formTemplateId: Optional[str] = None
     formClassificationId: Optional[str] = None
     dateCreated: Optional[int] = None
     lastEdited: Optional[int] = None
     lastEditedBy: Optional[int] = None
     archived: Optional[StrictBool] = None
-    questions: List[FormQuestion]
 
     class Config:
         extra = "forbid"

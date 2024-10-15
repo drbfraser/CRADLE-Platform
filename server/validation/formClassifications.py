@@ -6,8 +6,8 @@ from validation.validation_exception import ValidationExceptionError
 
 
 class FormClassification(BaseModel):
-    id: Optional[str] = None
     name: str
+    id: Optional[str] = None
 
     class Config:
         extra = "forbid"
