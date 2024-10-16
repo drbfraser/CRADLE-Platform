@@ -1,4 +1,4 @@
-import { Container } from '@mui/material';
+import { Button, Container } from '@mui/material';
 import { AuthProvider, AuthResponse, SignInPage } from '@toolpad/core';
 import { useSelector } from 'react-redux';
 import { ReduxState } from 'src/redux/reducers';
@@ -11,6 +11,7 @@ import {
   loginUser,
 } from 'src/redux/reducers/user/currentUser';
 import { useHistory } from 'react-router-dom';
+import { useAuth0 } from '@auth0/auth0-react';
 
 const AUTH_PROVIDERS: AuthProvider[] = [
   { id: 'credentials', name: 'Email and Password' },
@@ -61,7 +62,8 @@ export const Login = () => {
         sx={{
           minHeight: '400px',
           height: '100%',
-          width: '100%',
+          width: 'fit-content',
+          maxWidth: '100%',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -71,7 +73,30 @@ export const Login = () => {
           },
         }}>
         <SignInPage providers={AUTH_PROVIDERS} signIn={signIn} />
+        <LoginButton />
       </Container>
     </>
+  );
+};
+
+const LoginButton = () => {
+  const { loginWithRedirect } = useAuth0();
+  const handleLogin = async () => {
+    await loginWithRedirect({
+      appState: {
+        returnTo: '/loginCallback',
+      },
+    });
+  };
+  return (
+    <Button
+      sx={{
+        width: '297px',
+        height: '32px',
+      }}
+      variant={'contained'}
+      onClick={handleLogin}>
+      Log In
+    </Button>
   );
 };
