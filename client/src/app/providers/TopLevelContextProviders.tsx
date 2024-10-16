@@ -16,9 +16,9 @@ import { AuthProvider } from './auth/AuthProvider';
 
 export const TopLevelContextProviders = ({ children }: PropsWithChildren) => {
   return (
-    <AuthProvider>
-      <ReduxProvider store={reduxStore}>
-        <Router history={history}>
+    <Router history={history}>
+      <AuthProvider>
+        <ReduxProvider store={reduxStore}>
           <MaterialUIContextProvider>
             <AppProvider theme={theme}>
               <LocalizationProvider dateAdapter={AdapterMoment}>
@@ -26,8 +26,8 @@ export const TopLevelContextProviders = ({ children }: PropsWithChildren) => {
               </LocalizationProvider>
             </AppProvider>
           </MaterialUIContextProvider>
-        </Router>
-      </ReduxProvider>
-    </AuthProvider>
+        </ReduxProvider>
+      </AuthProvider>
+    </Router>
   );
 };
