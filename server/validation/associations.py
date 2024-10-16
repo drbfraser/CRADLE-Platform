@@ -10,9 +10,6 @@ class Association(BaseModel):
     healthFacilityName: Optional[str] = None
     userId: Optional[int] = None
 
-    class Config:
-        extra = "forbid"
-
 
 def validate(request_body: dict) -> Optional[str]:
     """
