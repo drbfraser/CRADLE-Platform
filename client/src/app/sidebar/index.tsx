@@ -20,10 +20,8 @@ import {
   closeSidebar as closeSidebarAction,
   openSidebar as openSidebarAction,
 } from 'src/redux/sidebar-state';
-import { useCallback, useEffect } from 'react';
-import { logoutUser } from 'src/redux/reducers/user/currentUser';
+import { useEffect } from 'react';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import { useAuth0 } from '@auth0/auth0-react';
 import { useLogout } from 'src/shared/hooks/auth/useLogout';
 
 type SelectorState = {
