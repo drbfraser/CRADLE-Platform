@@ -1,6 +1,6 @@
 {
   "domain": "dev-p1ckh836dc6qyaix.us.auth0.com",
   "clientId": "LGLpMoD7MAx7iXv16AXuDoP0rzGJWm4r",
-  "callbackURL": "http://localhost:3000/callback",
+  "callbackURL": "http://localhost:3000/loginCallback",
   "audience": "{yourApiIdentifier}"
 }
