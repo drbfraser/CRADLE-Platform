@@ -1,4 +1,4 @@
-import { Button, Container } from '@mui/material';
+import { Button, Container, SxProps } from '@mui/material';
 import { AuthProvider, AuthResponse, SignInPage } from '@toolpad/core';
 import { useSelector } from 'react-redux';
 import { ReduxState } from 'src/redux/reducers';
@@ -74,9 +74,17 @@ export const Login = () => {
         }}>
         <SignInPage providers={AUTH_PROVIDERS} signIn={signIn} />
         <LoginButton />
+        <SignUpButton />
       </Container>
     </>
   );
+};
+
+const LOGIN_CALLBACK_ROUTE = '/loginCallback';
+const LOGIN_BUTTON_SX: SxProps = {
+  width: '100%',
+  marginY: '8px',
+  fontSize: 'large',
 };
 
 const LoginButton = () => {
@@ -84,19 +92,40 @@ const LoginButton = () => {
   const handleLogin = async () => {
     await loginWithRedirect({
       appState: {
-        returnTo: '/loginCallback',
+        returnTo: LOGIN_CALLBACK_ROUTE,
       },
     });
   };
   return (
     <Button
-      sx={{
-        width: '297px',
-        height: '32px',
-      }}
+      sx={LOGIN_BUTTON_SX}
       variant={'contained'}
+      size={'large'}
       onClick={handleLogin}>
       Log In
+    </Button>
+  );
+};
+
+const SignUpButton = () => {
+  const { loginWithRedirect } = useAuth0();
+  const handleSignUp = async () => {
+    await loginWithRedirect({
+      appState: {
+        returnTo: LOGIN_CALLBACK_ROUTE,
+      },
+      authorizationParams: {
+        screen_hint: 'signup',
+      },
+    });
+  };
+  return (
+    <Button
+      sx={LOGIN_BUTTON_SX}
+      variant={'contained'}
+      size={'large'}
+      onClick={handleSignUp}>
+      Sign Up
     </Button>
   );
 };
