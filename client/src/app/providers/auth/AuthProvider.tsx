@@ -11,7 +11,6 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     clientId: authConfig.clientId,
     authorizationParams: {
       redirect_uri: authConfig.callbackURL,
-      ...(authConfig.audience ? { audience: authConfig.audience } : null),
     },
   };
 
