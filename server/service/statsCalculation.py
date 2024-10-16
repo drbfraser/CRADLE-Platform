@@ -27,7 +27,7 @@ def get_stats_data(
         for reading in readings:
             date_unix_ts = reading.dateTimeTaken
             date_object = datetime.fromtimestamp(
-                date_unix_ts, tz=system_timezone
+                date_unix_ts, tz=system_timezone,
             ).date()
             item_month = date_object.month
             item_year = date_object.year
