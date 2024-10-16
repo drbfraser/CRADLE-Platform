@@ -9,7 +9,7 @@ import { MaterialUIContextProvider } from 'src/app/providers/materialUI';
 import { AppProvider } from '@toolpad/core/AppProvider';
 
 import { theme } from 'src/app/providers/materialUI/theme';
-import { history } from '../../redux/reducers/history';
+import { history } from 'src/shared/history';
 
 /** Combined Context Providers to wrap the top level App component. */
 
