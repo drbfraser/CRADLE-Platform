@@ -9,6 +9,7 @@ export const getAuthConfig = () => {
   return {
     domain: configJson.domain,
     clientId: configJson.clientId,
+    callbackURL: configJson.callbackURL,
     ...(audience ? { audience } : null),
   };
 };
