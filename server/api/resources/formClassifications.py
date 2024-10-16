@@ -6,6 +6,7 @@ from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 from werkzeug.datastructures import FileStorage
+from pydantic import ValidationError
 
 import data
 from api import util
@@ -72,7 +73,7 @@ class Root(Resource):
 
         try:
             formClassifications.validate_template(req)
-        except Exception as e:
+        except ValidationError as e:
             abort(400, message=str(e))
 
         if req.get("name") is not None:

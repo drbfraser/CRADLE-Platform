@@ -5,7 +5,7 @@ from flask import make_response, request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 from werkzeug.datastructures import FileStorage
-
+from pydantic import ValidationError
 import data
 from api import util
 from api.decorator import roles_required
@@ -66,7 +66,7 @@ class Root(Resource):
 
         try:
             formTemplates.validate_template(req)
-        except Exception as e:
+        except ValidationError as e:
             abort(400, message=str(e))
 
         classification = crud.read(
