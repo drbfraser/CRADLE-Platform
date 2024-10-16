@@ -23,6 +23,8 @@ import {
 import { useCallback, useEffect } from 'react';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import { useAuth0 } from '@auth0/auth0-react';
+import { useLogout } from 'src/shared/hooks/auth/useLogout';
 
 type SelectorState = {
   loggedIn: boolean;
@@ -61,9 +63,7 @@ export const Sidebar: React.FC = () => {
 
   const drawerWidth = isSidebarOpen ? DRAWER_WIDE : DRAWER_NARROW;
 
-  const handleLogout = useCallback(() => {
-    dispatch(logoutUser());
-  }, [dispatch, logoutUser]);
+  const { handleLogout } = useLogout();
 
   return loggedIn ? (
     <Drawer

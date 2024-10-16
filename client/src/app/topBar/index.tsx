@@ -29,6 +29,7 @@ import {
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { Link } from 'react-router-dom';
+import { useLogout } from 'src/shared/hooks/auth/useLogout';
 
 type SelectorState = {
   user: OrNull<IUserWithTokens>;
@@ -64,9 +65,10 @@ export const TopBar = () => {
     setChangePasswordOpen(true);
   };
 
+  const { handleLogout: logout } = useLogout();
   const handleLogout = () => {
     setMenuAnchorEl(null);
-    dispatch(logoutUser());
+    logout();
   };
 
   const showUserDetails = () => {
