@@ -7,7 +7,6 @@ import { Login } from './Login';
 
 import { selectLoggedIn } from 'src/redux/reducers/user/currentUser';
 import { useAppSelector } from 'src/shared/hooks';
-import { selectSidebarIsOpen } from 'src/redux/sidebar-state';
 
 export const LoginPage: React.FC = () => {
   // if the user has reached the login page, they likely came directly here
@@ -16,10 +15,7 @@ export const LoginPage: React.FC = () => {
     return <Redirect to="/referrals" />;
   }
 
-  const isSidebarOpen = useAppSelector(selectSidebarIsOpen);
   const loggedIn = useAppSelector(selectLoggedIn);
-  console.log('loggedIn? ', loggedIn);
-  console.log('isSidebarOpen? ', isSidebarOpen);
 
   return !loggedIn ? (
     <Stack
