@@ -5,6 +5,7 @@ from flask import request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource, abort
 from pydantic import ValidationError
+
 import data
 from api import util
 from data import crud, marshal
