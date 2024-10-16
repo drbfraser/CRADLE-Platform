@@ -326,7 +326,7 @@ def parseCondition(parentQuestion: dict, conditionText: str) -> dict:
             condition["answers"]["number"] = int(conditionText)
         except ValueError as e:
             raise RuntimeError(
-                "Invalid condition for parent question of type Integer"
+                "Invalid condition for parent question of type Integer",
             ) from e
 
     elif parentQuestion["questionType"] == QuestionTypeEnum.DECIMAL.value:
@@ -334,7 +334,7 @@ def parseCondition(parentQuestion: dict, conditionText: str) -> dict:
             condition["answers"]["number"] = float(conditionText)
         except ValueError as e:
             raise RuntimeError(
-                "Invalid condition for parent question of type Integer"
+                "Invalid condition for parent question of type Integer",
             ) from e
 
     else:
@@ -502,7 +502,7 @@ def getFormTemplateDictFromCSV(csvData: str):
                 raise RuntimeError(error_msg)
 
             questionLangVersions[language] = getQuestionLanguageVersionFromRow(
-                question_row
+                question_row,
             )
 
         question["questionLangVersions"] = list(questionLangVersions.values())
