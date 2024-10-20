@@ -41,5 +41,5 @@ def test_validation(json, expectation):
     else:
         try:
             Facility.validate(json)
-        except Exception:
-            raise AssertionError
+        except ValidationExceptionError as e:
+            raise AssertionError(f"Unexpected validation error:{e}") from e
