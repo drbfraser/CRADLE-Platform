@@ -15,7 +15,8 @@ from api.util import (
 from api.util import phoneNumber_regex_check as regex_check
 from models import User
 from service import compressor, encryptor
-from validation import sms_relay
+from validation.sms_relay import SmsRelay
+from validation.validation_exception import ValidationExceptionError
 
 api_url = "http://localhost:5000/{endpoint}"
 
@@ -97,10 +98,9 @@ iv_size = 32
 def sms_relay_procedure():
     json_request = request.get_json(force=True)
 
-    # Error Checking
-    error = sms_relay.validate_request(json_request)
-
-    if error:
+    try:
+        SmsRelay.validate_request(json_request)
+    except ValidationExceptionError:
         abort(400, message=corrupted_message.format(type="JSON"))
 
     phone_number = json_request["phoneNumber"]
@@ -139,11 +139,12 @@ def sms_relay_procedure():
         error_message = str(invalid_message.format(phoneNumber=phone_number))
         abort(401, message=error_message)
 
-    error = sms_relay.validate_decrypted_body(json_dict_data)
-    if error:
+    try:
+        SmsRelay.validate_decrypted_body(json_dict_data)
+    except ValidationExceptionError as e:
         return create_flask_response(
             400,
-            invalid_json.format(error=error),
+            invalid_json.format(error=str(e)),
             encrypted_data[0:iv_size],
             user_secret_key,
         )
