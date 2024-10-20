@@ -6,7 +6,7 @@ from validation.validation_exception import ValidationExceptionError
 
 class Timestamp(BaseModel):
     from_: str = Field(
-        alias="from"
+        alias="from",
     )  # Use from_ to avoid conflict with Python's reserved keyword 'from'
     to: str
 
