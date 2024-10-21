@@ -1,106 +1,90 @@
+from datetime import datetime
 from typing import Optional
 
-from validation.validate import required_keys_present, values_correct_type
+from pydantic import BaseModel, ConfigDict, ValidationError
+
+from validation.validation_exception import ValidationExceptionError
 
 
-def validate(request_body: dict) -> Optional[str]:
-    """
-    Returns an error message if the /api/referrals post request
-    is not valid. Else, returns None.
+# Represents a referral entity with validations to prevent unrecognized fields.
+class ReferralEntity(BaseModel):
+    # forbid extra attributes
+    model_config = ConfigDict(extra="forbid")
 
-    :param request_body: The request body as a dict object
-                        {
-                            "comment": "here is a comment",
-                            "patientId": "123",
-                            "referralHealthFacilityName": "H0000",
-                        }
-    :return: An error message if request body in invalid in some way. None otherwise.
-    """
-    error_message = None
+    patientId: int
+    referralHealthFacilityName: str
+    comment: Optional[str] = None
+    id: Optional[str] = None
+    dateReferred: Optional[datetime] = None
+    actionTaken: Optional[str] = None
+    isAssessed: Optional[bool] = None
+    isCancelled: Optional[bool] = None
+    cancelReason: Optional[str] = None
+    notAttended: Optional[bool] = None
+    notAttendReason: Optional[str] = None
+    lastEdited: Optional[datetime] = None
+    userId: Optional[int] = None
 
-    error_message = required_keys_present(
-        request_body,
-        [
-            "patientId",
-            "referralHealthFacilityName",
-        ],
-    )
+    @staticmethod
+    def validate(request_body: dict):
+        """
+        Validates a POST request for /api/referrals. Raises an exception with an error message if the request is invalid.
 
-    if error_message is not None:
-        return error_message
-
-    all_fields = [
-        "id",
-        "dateReferred",
-        "actionTaken",
-        "isAssessed",
-        "isCancelled",
-        "cancelReason",
-        "notAttended",
-        "notAttendReason",
-        "lastEdited",
-        "userId",
-        "comment",
-        "patientId",
-        "referralHealthFacilityName",
-    ]
-
-    for key in request_body:
-        if key not in all_fields:
-            return "The key '" + key + "' is not a valid field or is set server-side"
-
-    return error_message
+        :param request_body: The request body as a dict object
+                            {
+                                "comment": "here is a comment",
+                                "patientId": "123",
+                                "referralHealthFacilityName": "H0000",
+                            }
+        """
+        try:
+            # Pydantic will validate field presence and type
+            ReferralEntity(**request_body)
+        except ValidationError as e:
+            # Extracts the first error message from the validation errors list
+            error_message = str(e.errors()[0]["msg"])
+            raise ValidationExceptionError(error_message)
 
 
-def validate_cancel_put_request(request_body: dict) -> Optional[str]:
-    """
-    Returns an error message if the /api/referrals/cancel-status-switch/<string:referral_id> PUT
-    request is not valid. Else, returns None.
+# Manages cancellation status with strict attribute enforcement to prevent unrecognized fields.
+class CancelStatus(BaseModel):
+    # forbid extra attributes
+    model_config = ConfigDict(extra="forbid")
 
-    :param request_body: The request body as a dict object
+    isCancelled: bool
+    cancelReason: str
 
-    :return: An error message if request body is invalid in some way. None otherwise.
-    """
-    record_keys = ["isCancelled", "cancelReason"]
+    @staticmethod
+    def validate_cancel_put_request(request_body: dict):
+        """
+        Validates the /api/referrals/cancel-status-switch/<string:referral_id> PUT request for changing the cancellation status of a referral. Raises an exception with an error message if the request is invalid.
 
-    for key in request_body:
-        if key not in record_keys:
-            return f"{key} is not a valid key in referral request."
-        record_keys.remove(key)
-
-    if len(record_keys) > 0:
-        return "There are missing fields for the request body."
-
-    error = values_correct_type(request_body, ["isCancelled"], bool)
-    if error:
-        return error
-
-    error = values_correct_type(request_body, ["cancelReason"], str)
-    if error:
-        return error
+        :param request_body: The request body as a dict object
+        """
+        try:
+            CancelStatus(**request_body)
+        except ValidationError as e:
+            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
 
-def validate_not_attend_put_request(request_body: dict) -> Optional[str]:
-    """
-    Returns an error message if the /api/referrals/not-attend/<string:referral_id> PUT
-    request is not valid. Else, returns None.
+# Manages non-attendance reasons with strict attribute enforcement to prevent unrecognized fields.
 
-    :param request_body: The request body as a dict object
 
-    :return: An error message if request body is invalid in some way. None otherwise.
-    """
-    record_keys = [
-        "notAttendReason",
-    ]
+class NotAttend(BaseModel):
+    # forbid extra attributes
+    model_config = ConfigDict(extra="forbid")
 
-    for key in request_body:
-        if key not in record_keys:
-            return f"{key} is not a valid key in referral request."
-        record_keys.remove(key)
+    notAttendReason: str
 
-    if len(record_keys) > 0:
-        return "There are missing fields for the request body."
+    @staticmethod
+    def validate_not_attend_put_request(request_body: dict):
+        """
+        Validate the /api/referrals/not-attend/<string:referral_id> PUT
+        request for recording a non-attendance reason. Raises an exception with an error message if the request is invalid.
 
-    error = values_correct_type(request_body, ["notAttendReason"], str)
-    if error:
-        return error
+        :param request_body: The request body as a dict object
+        """
+        try:
+            NotAttend(**request_body)
+        except ValidationError as e:
+            raise ValidationExceptionError(str(e.errors()[0]["msg"]))

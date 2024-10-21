@@ -17,7 +17,8 @@ from models import (
 )
 from service import invariant, serialize, view
 from validation.readings import validate as validate_reading
-from validation.referrals import validate as validate_referral
+from validation.referrals import ReferralEntity
+from validation.validation_exception import ValidationExceptionError
 
 LOGGER = logging.getLogger(__name__)
 
@@ -235,9 +236,10 @@ class SyncReferrals(Resource):
                 # currently, for referrals that exist in server already we will
                 # skip them
                 continue
-            error_message = validate_referral(r)
-            if error_message is not None:
-                abort(400, mesage=error_message)
+            try:
+                ReferralEntity.validate(r)
+            except ValidationExceptionError as e:
+                abort(400, message=str(e))
             referral = marshal.unmarshal(Referral, r)
             crud.create(referral, refresh=True)
 
