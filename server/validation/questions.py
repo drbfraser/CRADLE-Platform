@@ -98,7 +98,7 @@ def check_target_not_null(target, q: dict) -> Optional[str]:
     return None
 
 
-def validate_mc_options(q: dict) -> Optional[str]:
+def validate_mc_options(q: dict):
     """
     Returns an error if the mcOptions is invalid.
     Else, returns None.
@@ -121,7 +121,7 @@ def validate_mc_options(q: dict) -> Optional[str]:
 
     error = check_target_not_null(target, q)
     if error:
-        return error
+        raise ValidationExceptionError(str(error))
 
     try:
         mcopts = q[target]
@@ -132,7 +132,7 @@ def validate_mc_options(q: dict) -> Optional[str]:
     return None
 
 
-def validate_answers(q: dict) -> Optional[str]:
+def validate_answers(q: dict):
     """
     Returns an error if the answer is invalid.
     Else, returns None.
@@ -154,7 +154,7 @@ def validate_answers(q: dict) -> Optional[str]:
 
     error = check_target_not_null(target, q)
     if error:
-        return error
+        raise ValidationExceptionError(str(error))
 
     try:
         Answer(**q[target])
@@ -163,7 +163,7 @@ def validate_answers(q: dict) -> Optional[str]:
     return None
 
 
-def validate_visible_condition(q: dict) -> Optional[str]:
+def validate_visible_condition(q: dict):
     """
     Returns an error if the visible condition is invalid
     . Else, returns None.
@@ -188,7 +188,7 @@ def validate_visible_condition(q: dict) -> Optional[str]:
 
     error = check_target_not_null(target, q)
     if error:
-        return error
+        raise ValidationExceptionError(str(error))
 
     try:
         visible_conditions = q[target]
@@ -199,7 +199,7 @@ def validate_visible_condition(q: dict) -> Optional[str]:
     return None
 
 
-def validate_lang_versions(q: dict) -> Optional[str]:
+def validate_lang_versions(q: dict):
     """
     Returns an error if the lang versions is invalid.
     Else, returns None.
@@ -228,7 +228,7 @@ def validate_lang_versions(q: dict) -> Optional[str]:
 
     error = check_target_not_null(target, q)
     if error:
-        return error
+        raise ValidationExceptionError(str(error))
 
     try:
         question_lang_versions = q[target]
@@ -239,7 +239,7 @@ def validate_lang_versions(q: dict) -> Optional[str]:
     return None
 
 
-def validate_template_question_post(q: dict) -> Optional[str]:
+def validate_template_question_post(q: dict):
     """
     Returns an error message if the question dict is not valid (after pre-process) when
     making template post request. Else, returns None.
@@ -255,7 +255,7 @@ def validate_template_question_post(q: dict) -> Optional[str]:
     return None
 
 
-def validate_form_question_post(q: dict) -> Optional[str]:
+def validate_form_question_post(q: dict):
     """
     Returns an error message if the question dict is not valid (after pre-process) when
     making /api/forms/responses POST request. Else, returns None.
@@ -271,7 +271,7 @@ def validate_form_question_post(q: dict) -> Optional[str]:
     return None
 
 
-def validate_form_question_put(q: dict) -> Optional[str]:
+def validate_form_question_put(q: dict):
     """
     Returns an error message if the question dict is not valid when making
     /api/forms/responses PUT request. Else, returns None.
