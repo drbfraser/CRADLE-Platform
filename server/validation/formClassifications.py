@@ -26,4 +26,3 @@ def validate_template(request_body: dict):
         FormClassification(**request_body)
     except ValidationError as e:
         raise ValidationExceptionError(str(e.errors()[0]["msg"]))
-    return None

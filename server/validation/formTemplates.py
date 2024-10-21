@@ -35,7 +35,6 @@ def validate_template(request_body: dict):
         FormTemplate(**request_body)
     except ValidationError as e:
         raise ValidationExceptionError(str(e.errors()[0]["msg"]))
-    return None
 
 
 def validate_questions(questions: list):
@@ -88,4 +87,3 @@ def validate_questions(questions: list):
     error = questionTree.is_dfs_order(questions)
     if error:
         raise ValidationExceptionError(str(error))
-    return None

@@ -117,7 +117,7 @@ def validate_mc_options(q: dict):
     target = "mcOptions"
 
     if target not in q:
-        return None
+        return
 
     error = check_target_not_null(target, q)
     if error:
@@ -129,7 +129,7 @@ def validate_mc_options(q: dict):
             MultipleChoiceOption(**opt)
     except ValidationError as e:
         raise ValidationExceptionError(str(e.errors()[0]["msg"]))
-    return None
+    return
 
 
 def validate_answers(q: dict):
@@ -150,7 +150,7 @@ def validate_answers(q: dict):
     target = "answers"
 
     if target not in q:
-        return None
+        return
 
     error = check_target_not_null(target, q)
     if error:
@@ -160,7 +160,7 @@ def validate_answers(q: dict):
         Answer(**q[target])
     except ValidationError as e:
         raise ValidationExceptionError(str(e.errors()[0]["msg"]))
-    return None
+    return
 
 
 def validate_visible_condition(q: dict):
@@ -184,7 +184,7 @@ def validate_visible_condition(q: dict):
     target = "visibleCondition"
 
     if target not in q:
-        return None
+        return
 
     error = check_target_not_null(target, q)
     if error:
@@ -196,7 +196,7 @@ def validate_visible_condition(q: dict):
             VisibleCondition(**visible_condition)
     except ValidationError as e:
         raise ValidationExceptionError(str(e.errors()[0]["msg"]))
-    return None
+    return
 
 
 def validate_lang_versions(q: dict):
@@ -224,7 +224,7 @@ def validate_lang_versions(q: dict):
     target = "questionLangVersions"
 
     if target not in q:
-        return None
+        return
 
     error = check_target_not_null(target, q)
     if error:
@@ -236,7 +236,7 @@ def validate_lang_versions(q: dict):
             QuestionLangVersion(**question_lang_version)
     except ValidationError as e:
         raise ValidationExceptionError(str(e.errors()[0]["msg"]))
-    return None
+    return
 
 
 def validate_template_question_post(q: dict):
@@ -252,7 +252,6 @@ def validate_template_question_post(q: dict):
         TemplateQuestion(**q)
     except ValidationError as e:
         raise ValidationExceptionError(str(e.errors()[0]["msg"]))
-    return None
 
 
 def validate_form_question_post(q: dict):
@@ -268,7 +267,6 @@ def validate_form_question_post(q: dict):
         FormQuestion(**q)
     except ValidationError as e:
         raise ValidationExceptionError(str(e.errors()[0]["msg"]))
-    return None
 
 
 def validate_form_question_put(q: dict):
@@ -284,4 +282,3 @@ def validate_form_question_put(q: dict):
         FormQuestionPut(**q)
     except ValidationError as e:
         raise ValidationExceptionError(str(e.errors()[0]["msg"]))
-    return None
