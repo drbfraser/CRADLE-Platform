@@ -22,7 +22,7 @@ class FormTemplate(BaseModel):
         extra = "forbid"
 
 
-def validate_template(request_body: dict) -> Optional[str]:
+def validate_template(request_body: dict):
     """
     Returns an error message if the template part in /api/forms/templates POST or PUT
     request is not valid. Else, returns None.
@@ -38,7 +38,7 @@ def validate_template(request_body: dict) -> Optional[str]:
     return None
 
 
-def validate_questions(questions: list) -> Optional[str]:
+def validate_questions(questions: list):
     """
     Returns an error message if the questions part in /api/forms/templates POST or PUT
     request is not valid (json format, lang versions consistency, qindex constraint).

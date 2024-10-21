@@ -15,7 +15,7 @@ class Facility(BaseModel):
     about: Optional[str] = None
 
     @staticmethod
-    def validate(request_body: dict):
+    def validate(request_body: dict) -> Optional[str]:
         """
         Raise an error if the /api/facilities post request
         is not valid.
