@@ -29,7 +29,7 @@ class Form(BaseModel):
         extra = "forbid"
 
 
-def validate_form(request_body: dict) -> Optional[str]:
+def validate_form(request_body: dict):
     """
     Returns an error message if the form in /api/forms/responses
     POST request is not valid. Else, returns None.
@@ -45,7 +45,7 @@ def validate_form(request_body: dict) -> Optional[str]:
     return None
 
 
-def validate_questions(request_body: list) -> Optional[str]:
+def validate_questions(request_body: list):
     """
     Returns an error message if the questions part in /api/forms/responses POST request
     is not valid. Else, returns None.
@@ -59,7 +59,7 @@ def validate_questions(request_body: list) -> Optional[str]:
         validate_form_question_post(q)
 
 
-def validate_put_request(request_body: dict) -> Optional[str]:
+def validate_put_request(request_body: dict):
     """
     Returns an error message if the /api/forms/responses PUT request is not valid.
     Else, returns None.

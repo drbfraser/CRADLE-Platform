@@ -13,7 +13,7 @@ class FormClassification(BaseModel):
         extra = "forbid"
 
 
-def validate_template(request_body: dict) -> Optional[str]:
+def validate_template(request_body: dict):
     """
     Returns an error message if the classification part in /api/forms/classifications POST or PUT
     request is not valid. Else, returns None.
