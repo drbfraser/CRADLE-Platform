@@ -11,7 +11,7 @@ class Association(BaseModel):
     userId: Optional[int] = None
 
 
-def validate(request_body: dict) -> Optional[str]:
+def validate(request_body: dict):
     """
     Returns an error message if the /api/associations post request
     is not valid. Else, returns None.

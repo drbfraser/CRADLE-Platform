@@ -32,7 +32,7 @@ class Assessment(BaseModel):
         return followup_instructions
 
 
-def validate(request_body: dict) -> Optional[str]:
+def validate(request_body: dict):
     """
     Returns an error message if the /api/assessments post request
     is not valid. Else, returns None.

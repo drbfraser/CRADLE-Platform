@@ -19,7 +19,7 @@ class Reading(BaseModel):
     followup: Optional[Assessment] = None
 
 
-def validate(request_body: dict) -> Optional[str]:
+def validate(request_body: dict):
     """
     Returns an error code and message if the /api/readings post request
     is not valid. Else, returns None.
