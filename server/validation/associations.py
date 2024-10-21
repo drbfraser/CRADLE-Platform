@@ -27,4 +27,3 @@ def validate(request_body: dict):
         Association(**request_body)
     except ValidationError as e:
         raise ValidationExceptionError(e.errors()[0]["msg"])
-    return None
