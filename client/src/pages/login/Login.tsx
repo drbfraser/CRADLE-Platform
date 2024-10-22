@@ -1,4 +1,4 @@
-import { Button, Container, SxProps } from '@mui/material';
+import { Box, Button, Container, SxProps } from '@mui/material';
 import { AuthProvider, AuthResponse, SignInPage } from '@toolpad/core';
 import { useSelector } from 'react-redux';
 import { ReduxState } from 'src/redux/reducers';
@@ -12,6 +12,7 @@ import {
 } from 'src/redux/reducers/user/currentUser';
 import { useHistory } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
+import { DASHBOARD_PADDING } from 'src/shared/constants';
 
 const AUTH_PROVIDERS: AuthProvider[] = [
   { id: 'credentials', name: 'Email and Password' },
@@ -56,24 +57,47 @@ export const Login = () => {
         onClose={clearError}
         transitionDuration={0}
       />
-      <Container
-        id={'login-form-container'}
-        disableGutters
+      <Box
         sx={{
-          minHeight: '400px',
+          width: '100%',
           height: '100%',
-          width: 'fit-content',
-          maxWidth: '100%',
           display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'start',
-          '@media (min-height: 500px)': {
-            transform: 'scale(0.75)',
-          },
+          flexDirection: 'row',
         }}>
-        <SignInPage providers={AUTH_PROVIDERS} signIn={signIn} />
-      </Container>
+        {/* Empty box for padding */}
+        <Box
+          sx={{
+            width: DASHBOARD_PADDING,
+          }}></Box>
+        <Container
+          id={'login-form-container'}
+          disableGutters
+          sx={{
+            minHeight: '400px',
+            height: '100%',
+            width: 'fit-content',
+            maxWidth: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            '@media (min-height: 500px)': {
+              transform: 'scale(0.75)',
+            },
+            '& .MuiContainer-root': {
+              width: '333px',
+              margin: '0px',
+              padding: '0px',
+              // paddingLeft: DASHBOARD_PADDING,
+            },
+            '& .MuiBox-root': {
+              margin: '0px',
+              padding: '0px',
+            },
+          }}>
+          <SignInPage providers={AUTH_PROVIDERS} signIn={signIn} />
+        </Container>
+      </Box>
     </>
   );
 };
