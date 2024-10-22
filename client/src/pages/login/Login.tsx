@@ -93,6 +93,13 @@ export const Login = () => {
               margin: '0px',
               padding: '0px',
             },
+            // Hide the "Remember me" check box.
+            '& .MuiFormControlLabel-root': {
+              border: 'solid',
+              borderColor: 'red',
+              borderWidth: '2px',
+              display: 'none',
+            },
           }}>
           <SignInPage providers={AUTH_PROVIDERS} signIn={signIn} />
         </Container>
