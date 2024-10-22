@@ -26,11 +26,16 @@ export const AppRoutes: React.FC = () => {
         {appRoutes.map((route: AppRoute): JSX.Element => {
           if (route.private) {
             return (
-              <PrivateRoute
+              <Route
                 key={route.id}
                 exact={route.exactPath}
                 path={route.to}
                 component={route.component}
+                render={() => (
+                  <RequireAdmin>
+                    <route.component />
+                  </RequireAdmin>
+                )}
               />
             );
           }
