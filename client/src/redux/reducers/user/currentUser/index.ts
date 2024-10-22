@@ -185,5 +185,9 @@ export const currentUserReducer = (
   }
 };
 
-export const selectLoggedIn = (state: RootState) =>
-  Boolean(state?.user.current.loggedIn);
+export const selectLoggedIn = (state: RootState) => {
+  return Boolean(state?.user.current.loggedIn);
+};
+export const selectCurrentUser = (state: RootState) => {
+  return state?.user.current;
+};
