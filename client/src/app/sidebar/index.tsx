@@ -20,7 +20,7 @@ import {
   closeSidebar as closeSidebarAction,
   openSidebar as openSidebarAction,
 } from 'src/redux/sidebar-state';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { useLogout } from 'src/shared/hooks/auth/useLogout';
 
@@ -59,6 +59,8 @@ export const Sidebar: React.FC = () => {
     }
   }, [isBigScreen]);
 
+  const logoutButtonId = useMemo(() => makeUniqueId(), []);
+
   const drawerWidth = isSidebarOpen ? DRAWER_WIDE : DRAWER_NARROW;
 
   const { handleLogout } = useLogout();
@@ -96,7 +98,7 @@ export const Sidebar: React.FC = () => {
             })}
           {/* Logout button. */}
           <SidebarRoute
-            key={makeUniqueId()}
+            key={logoutButtonId}
             icon={<ExitToAppIcon fontSize="large" />}
             title={'Logout'}
             onClick={handleLogout}
