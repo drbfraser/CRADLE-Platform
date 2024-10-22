@@ -1,13 +1,19 @@
 from typing import Optional
 
-from validation.validate import (
-    check_invalid_keys_present,
-    required_keys_present,
-    values_correct_type,
-)
+from pydantic import BaseModel, ValidationError
+
+from validation.validation_exception import ValidationExceptionError
 
 
-def validate_template(request_body: dict) -> Optional[str]:
+class FormClassification(BaseModel):
+    name: str
+    id: Optional[str] = None
+
+    class Config:
+        extra = "forbid"
+
+
+def validate_template(request_body: dict):
     """
     Returns an error message if the classification part in /api/forms/classifications POST or PUT
     request is not valid. Else, returns None.
@@ -16,20 +22,7 @@ def validate_template(request_body: dict) -> Optional[str]:
 
     :return: An error message if request body is invalid in some way. None otherwise.
     """
-    required_fields = ["name"]
-
-    all_fields = ["id"] + required_fields
-
-    error_message = None
-
-    error_message = required_keys_present(request_body, required_fields)
-    if error_message is not None:
-        return error_message
-
-    error_message = check_invalid_keys_present(request_body, all_fields)
-    if error_message is not None:
-        return error_message
-
-    error = values_correct_type(request_body, ["id", "name"], str)
-    if error:
-        return error
+    try:
+        FormClassification(**request_body)
+    except ValidationError as e:
+        raise ValidationExceptionError(str(e.errors()[0]["msg"]))

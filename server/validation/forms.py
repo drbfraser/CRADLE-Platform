@@ -1,79 +1,50 @@
-from typing import Optional
+from typing import List, Optional
 
-from validation.questions import validate_form_question_post, validate_form_question_put
-from validation.validate import (
-    check_invalid_keys_present,
-    force_consistent_keys,
-    required_keys_present,
-    values_correct_type,
+from pydantic import BaseModel, StrictBool, ValidationError
+
+from validation.questions import (
+    FormQuestion,
+    validate_form_question_post,
+    validate_form_question_put,
 )
+from validation.validate import (
+    force_consistent_keys,
+)
+from validation.validation_exception import ValidationExceptionError
 
 
-def validate_form(request_body: dict) -> Optional[str]:
+class Form(BaseModel):
+    lang: str
+    patientId: str
+    questions: List[FormQuestion]
+    id: Optional[str] = None
+    formTemplateId: Optional[str] = None
+    formClassificationId: Optional[str] = None
+    dateCreated: Optional[int] = None
+    lastEdited: Optional[int] = None
+    lastEditedBy: Optional[int] = None
+    archived: Optional[StrictBool] = None
+
+    class Config:
+        extra = "forbid"
+
+
+def validate_form(request_body: dict):
     """
-    Returns an error message if the form part in /api/forms/responses POST request is
-    not valid. Else, returns None.
+    Returns an error message if the form in /api/forms/responses
+    POST request is not valid. Else, returns None.
 
     :param request_body: The request body as a dict object
 
     :return: An error message if request body is invalid in some way. None otherwise.
     """
-    required_fields = [
-        "lang",
-        "patientId",
-        "questions",
-    ]
-
-    all_fields = [
-        "id",
-        "formTemplateId",
-        "formClassificationId",
-        "dateCreated",
-        "lastEdited",
-        "lastEditedBy",
-        "archived",
-    ] + required_fields
-
-    error_message = None
-
-    error_message = required_keys_present(request_body, required_fields)
-    if error_message is not None:
-        return error_message
-
-    error_message = check_invalid_keys_present(request_body, all_fields)
-    if error_message is not None:
-        return error_message
-
-    error = values_correct_type(
-        request_body,
-        ["id", "lang", "patientId", "formTemplateId", "formClassificationId"],
-        str,
-    )
-    if error:
-        return error
-
-    error = values_correct_type(
-        request_body,
-        ["dateCreated", "lastEdited", "lastEditedBy"],
-        int,
-    )
-    if error:
-        return error
-
-    error = values_correct_type(request_body, ["questions"], list)
-    if error:
-        return error
-
-    error = values_correct_type(request_body, ["archived"], bool)
-    if error:
-        return error
-
-    error = validate_questions(request_body["questions"])
-    if error:
-        return error
+    try:
+        Form(**request_body)
+    except ValidationError as e:
+        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
 
-def validate_questions(request_body: list) -> Optional[str]:
+def validate_questions(request_body: list):
     """
     Returns an error message if the questions part in /api/forms/responses POST request
     is not valid. Else, returns None.
@@ -84,12 +55,10 @@ def validate_questions(request_body: list) -> Optional[str]:
     """
     # validate each question
     for q in request_body:
-        error = validate_form_question_post(q)
-        if error:
-            return error
+        validate_form_question_post(q)
 
 
-def validate_put_request(request_body: dict) -> Optional[str]:
+def validate_put_request(request_body: dict):
     """
     Returns an error message if the /api/forms/responses PUT request is not valid.
     Else, returns None.
@@ -116,10 +85,8 @@ def validate_put_request(request_body: dict) -> Optional[str]:
 
     error_message = force_consistent_keys(request_body, force_fields)
     if error_message is not None:
-        return error_message
+        raise ValidationExceptionError(str(error_message))
 
     # validate question put content
     for q in request_body["questions"]:
-        error = validate_form_question_put(q)
-        if error:
-            return "question error: " + error
+        validate_form_question_put(q)

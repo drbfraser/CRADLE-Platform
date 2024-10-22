@@ -5,6 +5,7 @@ from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
+from pydantic import ValidationError
 from werkzeug.datastructures import FileStorage
 
 import data
@@ -70,9 +71,10 @@ class Root(Resource):
             if crud.read(FormClassification, id=req["id"]):
                 abort(409, message="Form classification already exists")
 
-        error_message = formClassifications.validate_template(req)
-        if error_message:
-            abort(400, message=error_message)
+        try:
+            formClassifications.validate_template(req)
+        except ValidationError as e:
+            abort(400, message=str(e))
 
         if req.get("name") is not None:
             if crud.read(FormClassification, id=req["name"]):

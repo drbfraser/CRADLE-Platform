@@ -7,7 +7,7 @@ from validation.validation_exception import ValidationExceptionError
 
 class Assessment(BaseModel):
     dateAssessed: int
-    diagnosis: Optional[str]
+    diagnosis: Optional[str] = None
     medicationPrescribed: Optional[str] = None
     healthcareWorkerId: Optional[int] = None
     specialInvestigations: Optional[str] = None
@@ -32,7 +32,7 @@ class Assessment(BaseModel):
         return followup_instructions
 
 
-def validate(request_body: dict) -> Optional[str]:
+def validate(request_body: dict):
     """
     Returns an error message if the /api/assessments post request
     is not valid. Else, returns None.
@@ -54,4 +54,3 @@ def validate(request_body: dict) -> Optional[str]:
         Assessment(**request_body)
     except ValidationError as e:
         raise ValidationExceptionError(str(e.errors()[0]["msg"]))
-    return None

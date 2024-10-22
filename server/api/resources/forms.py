@@ -4,6 +4,7 @@ from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource, abort
+from pydantic import ValidationError
 
 import data
 from api import util
@@ -29,9 +30,10 @@ class Root(Resource):
             if crud.read(Form, id=req["id"]):
                 abort(409, message="Form already exists")
 
-        error_message = forms.validate_form(req)
-        if error_message is not None:
-            abort(400, message=error_message)
+        try:
+            forms.validate_form(req)
+        except ValidationError as e:
+            abort(400, message=str(e))
 
         patient = crud.read(Patient, patientId=req["patientId"])
         if not patient:
@@ -95,9 +97,10 @@ class SingleForm(Resource):
 
         req = request.get_json(force=True)
 
-        error_message = forms.validate_put_request(req)
-        if error_message is not None:
-            abort(400, message=error_message)
+        try:
+            forms.validate_put_request(req)
+        except ValidationError as e:
+            abort(400, message=str(e))
 
         questions_upload = req["questions"]
         questions = form.questions

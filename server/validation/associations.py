@@ -1,13 +1,20 @@
 from typing import Optional
 
-from validation.validate import required_keys_present
+from pydantic import BaseModel, ValidationError
+
+from validation.validation_exception import ValidationExceptionError
 
 
-def validate(request_body: dict) -> Optional[str]:
+class Association(BaseModel):
+    patientId: int
+    healthFacilityName: Optional[str] = None
+    userId: Optional[int] = None
+
+
+def validate(request_body: dict):
     """
     Returns an error message if the /api/associations post request
     is not valid. Else, returns None.
-
     :param request_body: The request body as a dict object
                         {
                             "patientId": 47, - required
@@ -16,12 +23,7 @@ def validate(request_body: dict) -> Optional[str]:
                         }
     :return: An error message if request body in invalid in some way. None otherwise.
     """
-    error_message = None
-
-    # Check if required keys are present
-    required_keys = ["patientId"]
-    error_message = required_keys_present(request_body, required_keys)
-    if error_message is not None:
-        return error_message
-
-    return error_message
+    try:
+        Association(**request_body)
+    except ValidationError as e:
+        raise ValidationExceptionError(e.errors()[0]["msg"])
