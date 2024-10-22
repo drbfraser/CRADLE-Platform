@@ -88,7 +88,6 @@ export const Login = () => {
               width: '333px',
               margin: '0px',
               padding: '0px',
-              // paddingLeft: DASHBOARD_PADDING,
             },
             '& .MuiBox-root': {
               margin: '0px',
