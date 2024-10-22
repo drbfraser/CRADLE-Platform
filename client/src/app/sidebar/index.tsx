@@ -20,9 +20,10 @@ import {
   closeSidebar as closeSidebarAction,
   openSidebar as openSidebarAction,
 } from 'src/redux/sidebar-state';
-import { useCallback, useEffect } from 'react';
-import { logoutUser } from 'src/redux/reducers/user/currentUser';
+import { useEffect, useMemo } from 'react';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import { useLogout } from 'src/shared/hooks/auth/useLogout';
+import { useLocation } from 'react-router-dom';
 
 type SelectorState = {
   loggedIn: boolean;
@@ -36,6 +37,7 @@ export const Sidebar: React.FC = () => {
 
   const dispatch = useAppDispatch();
   const isSidebarOpen = useAppSelector(selectSidebarIsOpen);
+  const location = useLocation();
 
   const { admin, loggedIn } = useSelector(
     ({ user }: ReduxState): SelectorState => {
@@ -59,13 +61,15 @@ export const Sidebar: React.FC = () => {
     }
   }, [isBigScreen]);
 
+  const logoutButtonId = useMemo(() => makeUniqueId(), []);
+
   const drawerWidth = isSidebarOpen ? DRAWER_WIDE : DRAWER_NARROW;
 
-  const handleLogout = useCallback(() => {
-    dispatch(logoutUser());
-  }, [dispatch, logoutUser]);
+  const { handleLogout } = useLogout();
 
-  return loggedIn ? (
+  const isEnabled = loggedIn && location.pathname !== '/';
+
+  return isEnabled ? (
     <Drawer
       sx={{
         width: drawerWidth,
@@ -98,7 +102,7 @@ export const Sidebar: React.FC = () => {
             })}
           {/* Logout button. */}
           <SidebarRoute
-            key={makeUniqueId()}
+            key={logoutButtonId}
             icon={<ExitToAppIcon fontSize="large" />}
             title={'Logout'}
             onClick={handleLogout}
