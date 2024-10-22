@@ -4,6 +4,8 @@ from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
+from pydantic import ValidationError
+from validation.validation_exception import ValidationExceptionError
 
 from api import util
 from api.decorator import patient_association_required
@@ -46,10 +48,10 @@ class Root(Resource):
     def post(patient_id: str):
         request_body = request.get_json(force=True)
 
-        error = medicalRecords.validate_post_request(request_body, patient_id)
-        if error:
-            LOGGER.error(error)
-            abort(400, message=error)
+        try:
+            medicalRecords.validate_post_request(request_body, patient_id)
+        except ValidationExceptionError as e:
+            abort(400, message=str(e))
 
         if "id" in request_body:
             record_id = request_body.get("id")
@@ -93,9 +95,10 @@ class SingleMedicalRecord(Resource):
     def put(record_id: str):
         request_body = request.get_json(force=True)
 
-        error = medicalRecords.validate_put_request(request_body, record_id)
-        if error:
-            abort(400, message=error)
+        try:
+            medicalRecords.validate_put_request(request_body, record_id)
+        except ValidationExceptionError as e:
+            abort(400, message=str(e))
 
         if "patientId" in request_body:
             patient_id = crud.read(MedicalRecord, id=record_id).patientId

@@ -5,6 +5,8 @@ from flask import request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource, abort
 
+from validation.validation_exception import ValidationExceptionError
+
 import data
 from api import util
 from api.decorator import patient_association_required
@@ -45,9 +47,10 @@ class Root(Resource):
             # Changing the key that comes from the android app to work with validation
             json["pregnancyStartDate"] = json.pop("gestationalTimestamp")
 
-        error_message = patients.validate(json)
-        if error_message is not None:
-            abort(400, message=error_message)
+        try:
+            patients.validate(json)
+        except ValidationExceptionError as e:
+            abort(400, message=str(e))
 
         patient = marshal.unmarshal(Patient, json)
         patient_id = patient.patientId
@@ -135,9 +138,10 @@ class PatientInfo(Resource):
     def put(patient_id: str):
         json = request.get_json(force=True)
 
-        error_message = patients.validate_put_request(json, patient_id)
-        if error_message is not None:
-            abort(400, message=error_message)
+        try:
+            patients.validate_put_request(json, patient_id)
+        except ValidationError as e:
+            abort(400, message=str(e))
 
         # If the inbound JSON contains a `base` field then we need to check if it is the
         # same as the `lastEdited` field of the existing patient. If it is then that

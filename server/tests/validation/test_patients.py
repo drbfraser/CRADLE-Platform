@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 import pytest
+from validation.validation_exception import ValidationExceptionError
 
 from validation.patients import validate, validate_put_request
 
@@ -135,20 +136,24 @@ incorrect_dob_format = {
 
 
 @pytest.mark.parametrize(
-    "json, output_type",
+    "json, expectation",
     [
-        (valid_json, type(None)),
-        (missing_pregnancy_start_date, str),
-        (invalid_pregnancy_start_date, str),
-        (not_type_string, str),
-        (not_type_int, str),
-        (patient_id_too_long, str),
-        (incorrect_dob_format, str),
+        (valid_json, None),
+        (missing_pregnancy_start_date, ValidationExceptionError),
+        (invalid_pregnancy_start_date, ValidationExceptionError),
+        (not_type_string, ValidationExceptionError),
+        (not_type_int, ValidationExceptionError),
+        (patient_id_too_long, ValidationExceptionError),
+        (incorrect_dob_format, ValidationExceptionError),
     ],
 )
-def test_validation(json, output_type):
-    message = validate(json)
-    assert type(message) is output_type
+def test_validation(json, expectation):
+    if expectation:
+        with pytest.raises(expectation):
+            validate(json)
+    else:
+        message = validate(json)
+        assert message is None, f"Expected None, but got {message}"
 
 
 #####################################
@@ -164,17 +169,21 @@ put_invalid_gest_timestamp = {"gestationalTimestamp": fifty_weeks_ago}
 
 
 @pytest.mark.parametrize(
-    "json, output_type",
+    "json, expectation",
     [
-        (valid_put_request, type(None)),
-        (put_mismatched_patientId, str),
-        (put_invalid_key, str),
-        (put_not_type_str, str),
-        (put_invalid_dob, str),
-        (put_invalid_gest_timestamp, str),
+        (valid_put_request, None),
+        (put_mismatched_patientId, ValidationExceptionError),
+        (put_invalid_key, ValidationExceptionError),
+        (put_not_type_str, ValidationExceptionError),
+        (put_invalid_dob, ValidationExceptionError),
+        (put_invalid_gest_timestamp, ValidationExceptionError),
     ],
 )
-def test_put_validation(json, output_type):
+def test_put_validation(json, expectation):
     patient_id = 123
-    message = validate_put_request(json, patient_id)
-    assert type(message) is output_type
+    if expectation:
+        with pytest.raises(expectation):
+            validate_put_request(json, patient_id)
+    else:
+        message = validate_put_request(json, patient_id)
+        assert message is None, f"Expected None, but got {message}"
