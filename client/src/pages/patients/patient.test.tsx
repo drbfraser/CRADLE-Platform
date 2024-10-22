@@ -1,4 +1,4 @@
-import { ContextProvider } from 'src/context';
+import { MaterialUIContextProvider as ContextProvider } from 'src/context/providers/materialUI';
 import { PatientsPage } from '.';
 import { render } from '@testing-library/react';
 import { Router } from 'react-router-dom';

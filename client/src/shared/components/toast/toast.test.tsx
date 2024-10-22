@@ -1,4 +1,4 @@
-import { ContextProvider } from 'src/context';
+import { MaterialUIContextProvider as ContextProvider } from 'src/context/providers/materialUI';
 import { Toast } from '.';
 import { render } from '@testing-library/react';
 import { vi } from 'vitest';
