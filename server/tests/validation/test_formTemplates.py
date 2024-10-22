@@ -1,6 +1,7 @@
 import pytest
 
 from validation.formTemplates import validate_questions, validate_template
+from validation.validation_exception import ValidationExceptionError
 
 root_question = {
     "categoryIndex": None,  # root question has to have first categoryIndex as None
@@ -57,18 +58,22 @@ invalid_keys = {
 
 
 @pytest.mark.parametrize(
-    "json, output_type",
+    "json, expectation",
     [
-        (valid_template_no_questions, type(None)),
-        (valid_template_one_question, type(None)),
-        (invalid_type_classification, str),
-        (invalid_missing_field, str),
-        (invalid_keys, str),
+        (valid_template_no_questions, None),
+        (valid_template_one_question, None),
+        (invalid_type_classification, ValidationExceptionError),
+        (invalid_missing_field, ValidationExceptionError),
+        (invalid_keys, ValidationExceptionError),
     ],
 )
-def test_validate_template(json, output_type):
-    message = validate_template(json)
-    assert type(message) is output_type
+def test_validate_template(json, expectation):
+    if expectation:
+        with pytest.raises(expectation):
+            validate_template(json)
+    else:
+        message = validate_template(json)
+        assert message is None, f"Expected None, but got {message}"
 
 
 valid_empty_questions = []
@@ -112,16 +117,20 @@ invalid_first_question_is_not_none = [{**root_question, "categoryIndex": 0}]
 
 
 @pytest.mark.parametrize(
-    "json, output_type",
+    "json, expectation",
     [
-        (valid_empty_questions, type(None)),
-        (valid_single_question, type(None)),
-        (valid_multi_question, type(None)),
-        (invalid_questions_out_of_order, str),
-        (invalid_questions_mult_language, str),
-        (invalid_first_question_is_not_none, str),
+        (valid_empty_questions, None),
+        (valid_single_question, None),
+        (valid_multi_question, None),
+        (invalid_questions_out_of_order, ValidationExceptionError),
+        (invalid_questions_mult_language, ValidationExceptionError),
+        (invalid_first_question_is_not_none, ValidationExceptionError),
     ],
 )
-def test_validate_questions(json, output_type):
-    message = validate_questions(json)
-    assert type(message) is output_type
+def test_validate_questions(json, expectation):
+    if expectation:
+        with pytest.raises(expectation):
+            validate_questions(json)
+    else:
+        message = validate_questions(json)
+        assert message is None, f"Expected None, but got {message}"

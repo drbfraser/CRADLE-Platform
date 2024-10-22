@@ -1,6 +1,7 @@
 import pytest
 
 from validation.formClassifications import validate_template
+from validation.validation_exception import ValidationExceptionError
 
 valid_json = {"id": "123", "name": "test-name"}
 
@@ -12,14 +13,18 @@ invalid_keys = {"id": "123", "name": "test-name", "invalid": "This should be inv
 
 
 @pytest.mark.parametrize(
-    "json, output_type",
+    "json, expectation",
     [
-        (valid_json, type(None)),
-        (missing_field, str),
-        (not_type_string, str),
-        (invalid_keys, str),
+        (valid_json, None),
+        (missing_field, ValidationExceptionError),
+        (not_type_string, ValidationExceptionError),
+        (invalid_keys, ValidationExceptionError),
     ],
 )
-def test_validate_template(json, output_type):
-    message = validate_template(json)
-    assert type(message) is output_type
+def test_validate_template(json, expectation):
+    if expectation:
+        with pytest.raises(expectation):
+            validate_template(json)
+    else:
+        message = validate_template(json)
+        assert message is None, f"Expected None, but got {message}"

@@ -1,15 +1,28 @@
-from typing import Optional
+from typing import List, Optional
+
+from pydantic import BaseModel, ValidationError
 
 from service import questionTree
-from validation.questions import validate_template_question_post
-from validation.validate import (
-    check_invalid_keys_present,
-    required_keys_present,
-    values_correct_type,
-)
+from validation.questions import TemplateQuestion
+from validation.validation_exception import ValidationExceptionError
 
 
-def validate_template(request_body: dict) -> Optional[str]:
+class Classification(BaseModel):
+    name: str
+    id: Optional[str] = None
+
+
+class FormTemplate(BaseModel):
+    classification: Classification
+    version: str
+    questions: List[TemplateQuestion]
+    id: Optional[str] = None
+
+    class Config:
+        extra = "forbid"
+
+
+def validate_template(request_body: dict):
     """
     Returns an error message if the template part in /api/forms/templates POST or PUT
     request is not valid. Else, returns None.
@@ -18,38 +31,13 @@ def validate_template(request_body: dict) -> Optional[str]:
 
     :return: An error message if request body is invalid in some way. None otherwise.
     """
-    required_fields = ["classification", "version", "questions"]
-
-    all_fields = ["id"] + required_fields
-
-    error_message = None
-
-    error_message = required_keys_present(request_body, required_fields)
-    if error_message is not None:
-        return error_message
-
-    error_message = check_invalid_keys_present(request_body, all_fields)
-    if error_message is not None:
-        return error_message
-
-    error = values_correct_type(request_body, ["id", "version"], str)
-    if error:
-        return error
-
-    error = values_correct_type(request_body, ["questions"], list)
-    if error:
-        return error
-
-    error = values_correct_type(request_body, ["classification"], dict)
-    if error:
-        return error
-
-    error = validate_questions(request_body["questions"])
-    if error:
-        return error
+    try:
+        FormTemplate(**request_body)
+    except ValidationError as e:
+        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
 
-def validate_questions(questions: list) -> Optional[str]:
+def validate_questions(questions: list):
     """
     Returns an error message if the questions part in /api/forms/templates POST or PUT
     request is not valid (json format, lang versions consistency, qindex constraint).
@@ -61,11 +49,13 @@ def validate_questions(questions: list) -> Optional[str]:
     """
     lang_version_list, qindex = None, None
     for index, question in enumerate(questions):
-        # # validate each question
-        error = validate_template_question_post(question)
-        if error:
-            return error
-        # validate:
+        # validate each question
+        try:
+            TemplateQuestion(**question)
+        except ValidationError as e:
+            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+
+        # further validate for extra requirements:
         # lang versions consistency: all questions should have same kinds of versions
         # qindex constraint: question index in ascending order
         if index == 0:
@@ -81,16 +71,19 @@ def validate_questions(questions: list) -> Optional[str]:
             ]
             tmp_lang_version_list.sort()
             if tmp_lang_version_list != lang_version_list:
-                return "lang versions provided between questions are not consistent"
+                raise ValidationExceptionError(
+                    "lang versions provided between questions are not consistent",
+                )
 
             cur_qindex = question.get("questionIndex")
             if qindex < cur_qindex:
                 qindex = cur_qindex
             else:
-                return "questions should be in index-ascending order"
+                raise ValidationExceptionError(
+                    "questions should be in index-ascending order",
+                )
 
     # validate question qindex tree dfs order
     error = questionTree.is_dfs_order(questions)
     if error:
-        return error
-    return None
+        raise ValidationExceptionError(str(error))
