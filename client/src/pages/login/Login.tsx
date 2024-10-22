@@ -88,11 +88,17 @@ export const Login = () => {
               width: '333px',
               margin: '0px',
               padding: '0px',
-              // paddingLeft: DASHBOARD_PADDING,
             },
             '& .MuiBox-root': {
               margin: '0px',
               padding: '0px',
+            },
+            // Hide the "Remember me" check box.
+            '& .MuiFormControlLabel-root': {
+              border: 'solid',
+              borderColor: 'red',
+              borderWidth: '2px',
+              display: 'none',
             },
           }}>
           <SignInPage providers={AUTH_PROVIDERS} signIn={signIn} />

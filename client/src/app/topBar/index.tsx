@@ -30,7 +30,6 @@ import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { Link } from 'react-router-dom';
 import { useLogout } from 'src/shared/hooks/auth/useLogout';
-import { useAuth0 } from '@auth0/auth0-react';
 
 type SelectorState = {
   user: OrNull<IUserWithTokens>;
@@ -48,8 +47,7 @@ export const TopBar = () => {
 
   const dispatch = useAppDispatch();
 
-  const { isAuthenticated } = useAuth0();
-  const loggedIn = useAppSelector(selectLoggedIn) && isAuthenticated;
+  const loggedIn = useAppSelector(selectLoggedIn);
 
   const isSidebarOpen = useAppSelector(selectSidebarIsOpen);
 
