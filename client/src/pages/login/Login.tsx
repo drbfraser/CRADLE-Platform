@@ -73,8 +73,6 @@ export const Login = () => {
           },
         }}>
         <SignInPage providers={AUTH_PROVIDERS} signIn={signIn} />
-        <LoginButton />
-        <SignUpButton />
       </Container>
     </>
   );
@@ -87,7 +85,8 @@ const LOGIN_BUTTON_SX: SxProps = {
   fontSize: 'large',
 };
 
-const LoginButton = () => {
+// For Auth0:
+export const LoginButton = () => {
   const { loginWithRedirect } = useAuth0();
   const handleLogin = async () => {
     await loginWithRedirect({
@@ -107,7 +106,7 @@ const LoginButton = () => {
   );
 };
 
-const SignUpButton = () => {
+export const SignUpButton = () => {
   const { loginWithRedirect } = useAuth0();
   const handleSignUp = async () => {
     await loginWithRedirect({
