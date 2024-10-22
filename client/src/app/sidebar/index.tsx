@@ -23,6 +23,7 @@ import {
 import { useEffect, useMemo } from 'react';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { useLogout } from 'src/shared/hooks/auth/useLogout';
+import { useLocation } from 'react-router-dom';
 
 type SelectorState = {
   loggedIn: boolean;
@@ -36,6 +37,7 @@ export const Sidebar: React.FC = () => {
 
   const dispatch = useAppDispatch();
   const isSidebarOpen = useAppSelector(selectSidebarIsOpen);
+  const location = useLocation();
 
   const { admin, loggedIn } = useSelector(
     ({ user }: ReduxState): SelectorState => {
@@ -65,7 +67,9 @@ export const Sidebar: React.FC = () => {
 
   const { handleLogout } = useLogout();
 
-  return loggedIn ? (
+  const isEnabled = loggedIn && location.pathname !== '/';
+
+  return isEnabled ? (
     <Drawer
       sx={{
         width: drawerWidth,
