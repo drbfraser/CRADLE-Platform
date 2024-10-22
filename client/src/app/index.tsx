@@ -5,7 +5,7 @@ import { CssBaseline } from '@mui/material';
 import { Sidebar } from './sidebar';
 import { TopBar } from './topBar';
 import { Box } from '@mui/material';
-import { TopLevelContextProviders } from './providers/TopLevelContextProviders';
+import { TopLevelContextProviders } from 'src/context/providers/TopLevelContextProviders';
 
 export const App: React.FC = () => {
   return (
