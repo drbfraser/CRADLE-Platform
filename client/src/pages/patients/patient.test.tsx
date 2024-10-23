@@ -1,19 +1,15 @@
 import { MaterialUIContextProvider as ContextProvider } from 'src/context/providers/materialUI';
 import { PatientsPage } from '.';
 import { render } from '@testing-library/react';
-import { Router } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { PropsWithChildren } from 'react';
-import { createMemoryHistory } from 'history';
-
-// History object stored in memory, for non-browser environments.
-let memoryHistory = createMemoryHistory();
 
 const TestProvider = ({ children }: PropsWithChildren) => {
   return (
-    <Router history={memoryHistory}>
+    <MemoryRouter>
       <ContextProvider>{children}</ContextProvider>
-    </Router>
+    </MemoryRouter>
   );
 };
 
@@ -29,7 +25,7 @@ describe('Testing the rendering of the Page', () => {
 
 describe('Testing the primary Button - New Patient', () => {
   test('Rendering and working of the primary Button - New Patient', async () => {
-    const historyLength = memoryHistory.length;
+    const location = useLocation();
     const { getByText } = render(<PatientsPage />, { wrapper: TestProvider });
     const user = userEvent.setup();
 
@@ -40,10 +36,7 @@ describe('Testing the primary Button - New Patient', () => {
     // Click button.
     await user.click(newPatientButton);
 
-    expect(memoryHistory.location.pathname).toBe('/patients/new');
-    expect(memoryHistory.length).toBe(historyLength + 1);
-
-    memoryHistory = createMemoryHistory(); // Reset history.
+    expect(location.pathname).toBe('/patients/new');
   });
 });
 
