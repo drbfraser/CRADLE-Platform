@@ -2,10 +2,10 @@ import { FormTemplateWithQuestions } from 'src/shared/types';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import InfoIcon from '@mui/icons-material/Info';
-import { getLanguages, goBackWithFallback } from '../../../../shared/utils';
+import { getLanguages } from 'src/shared/utils';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import Typography from '@mui/material/Typography';
-import APIErrorToast from '../../../../shared/components/apiErrorToast/APIErrorToast';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import React, { useState } from 'react';
 import { Field, Form, Formik } from 'formik';
 import {
@@ -23,10 +23,10 @@ import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import { PrimaryButton } from '../../../../shared/components/Button';
+import { PrimaryButton } from 'src/shared/components/Button';
 import { FormRenderStateEnum } from 'src/shared/enums';
 import { LanguageModalProps } from 'src/shared/types';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { CustomizedFormWQuestions } from 'src/pages/customizedForm/customizedEditForm/CustomizedFormWQuestions';
 import { getFormClassificationTemplates } from 'src/shared/api';
 import moment from 'moment';
@@ -68,7 +68,7 @@ export const getDefaultLanguage = () => {
 };
 
 export const CustomFormTemplate = () => {
-  const location = useLocation<FormTemplateWithQuestions>();
+  const location = useLocation();
   const targetFrom = location.state;
   const [submitError, setSubmitError] = useState(false);
   const browserLanguage =
@@ -115,12 +115,14 @@ export const CustomFormTemplate = () => {
     }
   })();
 
+  const navigate = useNavigate();
+
   return (
     <>
       <Box sx={{ display: `flex`, alignItems: `center` }}>
         <Tooltip title="Go back" placement="top">
           <IconButton
-            onClick={() => goBackWithFallback(`/admin/form-templates`)}
+            onClick={() => navigate(`/admin/form-templates`)}
             size="large">
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
