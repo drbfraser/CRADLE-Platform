@@ -1,24 +1,18 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { SingleReasonForm } from './SingleReasonForm';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { Box, IconButton, Tooltip, Typography } from '@mui/material';
-import { useNavigate, useRouteMatch } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FormContainer } from 'src/shared/components/layout/FormContainer';
 
-type RouteParams = {
-  referralId: string;
-  type: string;
-};
-
 export const SingleReasonFormPage = () => {
-  const { referralId } = useRouteMatch<RouteParams>().params;
-  const { type } = useRouteMatch<RouteParams>().params;
+  const { referralId, cancellationType } = useParams();
   const [title, setTitle] = useState('');
   const navigate = useNavigate();
 
-  React.useEffect(() => {
-    switch (type) {
+  useEffect(() => {
+    switch (cancellationType) {
       case 'cancel_referral':
         setTitle('Reason for Cancelling');
         break;
@@ -32,7 +26,7 @@ export const SingleReasonFormPage = () => {
         setTitle('');
         break;
     }
-  }, [type]);
+  }, [cancellationType]);
 
   return (
     <FormContainer>
@@ -49,7 +43,10 @@ export const SingleReasonFormPage = () => {
         <Typography variant="h4">{title}</Typography>
       </Box>
       <br />
-      <SingleReasonForm referralId={referralId} type={type} />
+      <SingleReasonForm
+        referralId={referralId}
+        cancellationType={cancellationType}
+      />
     </FormContainer>
   );
 };
