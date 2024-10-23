@@ -1,4 +1,6 @@
-from pydantic import BaseModel, ValidationError
+from typing import Optional
+
+from pydantic import BaseModel, ValidationError, model_validator
 
 from validation.validation_exception import ValidationExceptionError
 
@@ -6,38 +8,66 @@ from validation.validation_exception import ValidationExceptionError
 class SmsRelay(BaseModel):
     phoneNumber: str
     encryptedData: str
-    requestNumber: str
-    method: str
-    endpoint: str
+
+    # forbid extra attributes
+    class Config:
+        extra = "forbid"
 
     @staticmethod
     def validate_request(request_body: dict):
         """
-        Returns an error message if the /api/sms_relay POST
-        request is not valid. Else, returns None.
-        :param request_body: The request body as a dict object
-        :return: An error message if request body in invalid in some way. None otherwise.
+        Validates the POST request for /api/sms_relay. This method raises an exception
+        with a detailed error message if the request does not conform to expected parameters.
+
+        :param request_body: Dictionary representing the request body.
         """
         try:
-            # Pydantic will validate field presence and type
+            # Uses Pydantic for validation of field presence and type
             SmsRelay(**request_body)
         except ValidationError as e:
-            # Extracts the first error message from the validation errors list
+            # Raises an exception with the first error message from the validation errors
             error_message = str(e.errors()[0]["msg"])
             raise ValidationExceptionError(error_message)
+
+
+class SmsRelayDecryptedBody(BaseModel):
+    requestNumber: int
+    method: str
+    endpoint: str
+    headers: Optional[str] = None
+    body: Optional[str] = None
+
+    # forbid extra attributes
+    class Config:
+        extra = "forbid"
+
+    @model_validator(mode="before")
+    @classmethod
+    def request_number_is_required(cls, values):
+        missing_fields = [
+            field
+            for field in ["requestNumber", "method", "endpoint"]
+            if field not in values or values[field] is None
+        ]
+
+        if missing_fields:
+            raise ValidationExceptionError(
+                f"The request body key {{{(missing_fields[0])}}} is required.",
+            )
+        return values
 
     @staticmethod
     def validate_decrypted_body(request_body: dict):
         """
-        Returns an error message if the sms relay body
-        is not valid. Else, returns None.
-        :param body: The sms relay body as a dict object
-        :return: An error message if body in invalid in some way. None otherwise.
+        Validates the integrity and format of the decrypted body for sms relay. This method raises
+        an exception with a detailed error message if the body is invalid.
+
+        :param request_body: Dictionary representing the decrypted body.
         """
         try:
-            # Pydantic will validate field presence and type
-            SmsRelay(**request_body)
+            # Uses Pydantic for validation of field presence and type
+            SmsRelayDecryptedBody(**request_body)
         except ValidationError as e:
-            # Extracts the first error message from the validation errors list
+            # Raises an exception with the first error message from the validation errors
             error_message = str(e.errors()[0]["msg"])
             raise ValidationExceptionError(error_message)
