@@ -10,24 +10,21 @@ import { AppProvider } from '@toolpad/core/AppProvider'; // MUI Toolpad.
 
 import { theme } from 'src/context/providers/materialUI/theme';
 import { history } from 'src/shared/history';
-import { AuthProvider } from './auth/AuthProvider';
 
 /** Combined Context Providers to wrap the top level App component. */
 
 export const TopLevelContextProviders = ({ children }: PropsWithChildren) => {
   return (
     <Router history={history}>
-      <AuthProvider>
-        <ReduxProvider store={reduxStore}>
-          <MaterialUIContextProvider>
-            <AppProvider theme={theme}>
-              <LocalizationProvider dateAdapter={AdapterMoment}>
-                {children}
-              </LocalizationProvider>
-            </AppProvider>
-          </MaterialUIContextProvider>
-        </ReduxProvider>
-      </AuthProvider>
+      <ReduxProvider store={reduxStore}>
+        <MaterialUIContextProvider>
+          <AppProvider theme={theme}>
+            <LocalizationProvider dateAdapter={AdapterMoment}>
+              {children}
+            </LocalizationProvider>
+          </AppProvider>
+        </MaterialUIContextProvider>
+      </ReduxProvider>
     </Router>
   );
 };
