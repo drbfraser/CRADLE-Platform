@@ -13,22 +13,31 @@ import {
   TOP_BAR_HEIGHT,
 } from 'src/shared/constants';
 import Drawer from '@mui/material/Drawer';
-import { Box, useMediaQuery, useTheme } from '@mui/material';
+import {
+  Box,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
 import { useAppDispatch, useAppSelector } from 'src/shared/hooks';
 import {
   selectSidebarIsOpen,
   closeSidebar as closeSidebarAction,
   openSidebar as openSidebarAction,
 } from 'src/redux/sidebar-state';
-import { useEffect, useMemo } from 'react';
+import { MouseEventHandler, ReactNode, useEffect, useMemo } from 'react';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { useLogout } from 'src/shared/hooks/auth/useLogout';
-import { useLocation } from 'react-router-dom';
-
-type SelectorState = {
-  loggedIn: boolean;
-  admin?: boolean;
-};
+import { Link, useLocation } from 'react-router-dom';
+import SendIcon from '@mui/icons-material/Send';
+import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
+import PollIcon from '@mui/icons-material/Poll';
+import SchoolIcon from '@mui/icons-material/School';
+import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 export const Sidebar: React.FC = () => {
   const offsetFromTop = TOP_BAR_HEIGHT;
@@ -39,14 +48,10 @@ export const Sidebar: React.FC = () => {
   const isSidebarOpen = useAppSelector(selectSidebarIsOpen);
   const location = useLocation();
 
-  const { admin, loggedIn } = useSelector(
-    ({ user }: ReduxState): SelectorState => {
-      return {
-        admin: user.current.data?.role === UserRoleEnum.ADMIN,
-        loggedIn: user.current.loggedIn,
-      };
-    }
-  );
+  const currentUser = useAppSelector(selectCurrentUser);
+
+  const isLoggedIn = currentUser.loggedIn;
+  const isAdmin = currentUser.data?.role === UserRoleEnum.ADMIN;
 
   const closeSidebar = () => {
     dispatch(closeSidebarAction());
@@ -67,7 +72,7 @@ export const Sidebar: React.FC = () => {
 
   const { handleLogout } = useLogout();
 
-  const isEnabled = loggedIn && location.pathname !== '/';
+  const isEnabled = isLoggedIn && location.pathname !== '/';
 
   return isEnabled ? (
     <Drawer
@@ -89,19 +94,20 @@ export const Sidebar: React.FC = () => {
       anchor="left">
       <Box>
         <List style={{ marginBlockStart: offsetFromTop }}>
-          {appRoutes
-            .filter((route: AppRoute): boolean => {
-              return route.inNavigation;
-            })
-            .map((route: AppRoute): OrNull<JSX.Element> => {
-              // * Prevent non-admins from seeing admin sidebar option
-              if (!admin && route.to === `/admin`) {
-                return null;
-              }
-              return <SidebarRoute key={route.id} route={route} />;
-            })}
+          {navItems.map((navItem) => (
+            <SidebarButton key={navItem.to} {...navItem} />
+          ))}
+          {/* Only show admin button to admins. */}
+          {isAdmin ? (
+            <SidebarButton
+              key={'/admin'}
+              to={'/admin'}
+              title={'Admin'}
+              icon={<SettingsIcon fontSize="large" />}
+            />
+          ) : null}
           {/* Logout button. */}
-          <SidebarRoute
+          <SidebarButton
             key={logoutButtonId}
             icon={<ExitToAppIcon fontSize="large" />}
             title={'Logout'}
@@ -112,3 +118,75 @@ export const Sidebar: React.FC = () => {
     </Drawer>
   ) : null;
 };
+
+type SidebarButtonProps = {
+  title: string;
+  icon: ReactNode;
+  to?: string;
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
+};
+
+const SidebarButton = ({ title, icon, to, onClick }: SidebarButtonProps) => {
+  const isSidebarOpen = useAppSelector(selectSidebarIsOpen);
+
+  return (
+    <ListItemButton
+      sx={{
+        display: `flex`,
+        flexDirection: `column`,
+        alignItems: `center`,
+      }}
+      component={Link}
+      to={to ?? ''}
+      onClick={onClick}>
+      <ListItemIcon
+        sx={{
+          color: `#F9FAFC`,
+          justifyContent: `center`,
+        }}>
+        {icon}
+      </ListItemIcon>
+      {isSidebarOpen && (
+        <ListItemText
+          disableTypography={true}
+          sx={{
+            color: `white`,
+          }}
+          primary={
+            <Typography
+              sx={{
+                fontFamily: `Open Sans`,
+                fontWeight: 300,
+                fontSize: 18,
+              }}>
+              {title}
+            </Typography>
+          }
+        />
+      )}
+    </ListItemButton>
+  );
+};
+
+const navItems = [
+  {
+    title: 'Referrals',
+    to: '/referrals',
+    icon: <SendIcon fontSize="large" />,
+  },
+  {
+    title: 'Patients',
+    to: '/patients',
+    icon: <SupervisorAccountIcon fontSize="large" />,
+  },
+  {
+    title: 'Statistics',
+    to: '/stats',
+    icon: <PollIcon fontSize="large" />,
+  },
+  {
+    title: 'Resources',
+    to: '/resources',
+    icon: <SchoolIcon fontSize="large" />,
+  },
+];
