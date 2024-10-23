@@ -3,85 +3,127 @@ import { ManageFormTemplates } from './manageFormTemplates/ManageFormTemplates';
 import { ManageRelayApp } from './manageRelayApp/ManageRelayApp';
 import { ManageUsers } from './manageUsers/ManageUsers';
 import { ManagePatients } from './managePatients/ManagePatients';
-import { Tab } from 'semantic-ui-react';
-import { theme } from 'src/context/providers/materialUI/theme';
-import { Route, Routes, useNavigate } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import { CustomFormTemplate } from './manageFormTemplates/editFormTemplate/CustomFormTemplate';
+import { Tabs, Tab } from '@mui/material';
+import {
+  useState,
+  PropsWithChildren,
+  useContext,
+  createContext,
+  useCallback,
+} from 'react';
+import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
 
 const pages = [
   {
     name: 'Users',
     Component: ManageUsers,
-    route: '/admin/users',
+    path: 'users',
   },
   {
     name: 'Health Care Facilities',
     Component: ManageFacilities,
-    route: '/admin/facilities',
+    path: 'facilities',
   },
   {
     name: 'Form Templates',
     Component: ManageFormTemplates,
-    route: '/admin/form-templates',
+    path: 'form-templates',
   },
   {
     name: 'Relay App',
     Component: ManageRelayApp,
-    route: '/admin/app',
+    path: 'app',
   },
   {
     name: 'Patients',
     Component: ManagePatients,
-    route: '/admin/patients',
+    path: 'patients',
   },
 ];
 
-const panes = pages.map((p) => ({
-  menuItem: p.name,
-  render: () => (
-    <Tab.Pane style={{ padding: theme.spacing(2) }}>
-      <p.Component />
-    </Tab.Pane>
-  ),
-}));
-
 export const AdminPage = () => {
-  const navigate = useNavigate();
-
-  const activePageIndex = pages.findIndex(
-    (page) => page.route === window.location.pathname
-  );
-  const activeIndex = activePageIndex === -1 ? 0 : activePageIndex;
-
   return (
     <Routes>
-      <Route path={`form-templates/new`}>
-        <CustomFormTemplate />
-      </Route>
-      <Route>
-        <Tab
-          menu={{
-            secondary: true,
-            pointing: true,
-            className: {
-              display: `fluid`,
-              flexDirection: `row`,
-              flexWrap: `wrap`,
-            },
-          }}
-          onTabChange={(e, data) => {
-            if (data && data.panes && data.activeIndex !== undefined) {
-              const index: number =
-                typeof data.activeIndex === 'string'
-                  ? parseInt(data.activeIndex)
-                  : data.activeIndex;
-              navigate(`${pages[index].route}`);
-            }
-          }}
-          activeIndex={activeIndex}
-          panes={panes}
-        />
-      </Route>
+      <Route path={`form-templates/new`} element={<CustomFormTemplate />} />
+      {pages.map((page) => (
+        <Route key={page.path} path={page.path} element={<page.Component />} />
+      ))}
+      <Route path="" element={<AdminDashboard />} />
     </Routes>
   );
+};
+
+const adminTabContext = createContext<AdminTabContext>(null!);
+const AdminTabsContextProvider = ({ children }: PropsWithChildren) => {
+  const [activeTabIndex, setActiveTabIndex] = useState(0);
+
+  const context = {
+    activeTabIndex: activeTabIndex,
+    setActiveTabIndex: setActiveTabIndex,
+  };
+
+  return (
+    <adminTabContext.Provider value={context}>
+      {children}
+    </adminTabContext.Provider>
+  );
+};
+
+const AdminDashboard = () => {
+  return (
+    <DashboardPaper>
+      <AdminTabsContextProvider>
+        <AdminDashboardTabs />
+      </AdminTabsContextProvider>
+    </DashboardPaper>
+  );
+};
+const AdminDashboardTabs = () => {
+  const { activeTabIndex, setActiveTabIndex } =
+    useContext<AdminTabContext>(adminTabContext);
+  const handleChange = useCallback(
+    (event: React.SyntheticEvent, newValue: number) => {
+      setActiveTabIndex(newValue);
+    },
+    [setActiveTabIndex]
+  );
+
+  return (
+    <>
+      <Tabs value={activeTabIndex} onChange={handleChange}>
+        {pages.map((page) => (
+          <Tab key={page.path} label={page.name} />
+        ))}
+      </Tabs>
+
+      {pages.map((page, index) => (
+        <AdminTabPanel
+          key={page.path}
+          index={index}
+          activeTabIndex={activeTabIndex}>
+          <page.Component />
+        </AdminTabPanel>
+      ))}
+    </>
+  );
+};
+
+type AdminTabPanelProps = PropsWithChildren & {
+  index: number;
+  activeTabIndex: number;
+};
+const AdminTabPanel = ({
+  children,
+  index,
+  activeTabIndex,
+}: AdminTabPanelProps) => {
+  const show = index === activeTabIndex;
+  return show ? <>{children}</> : null;
+};
+
+type AdminTabContext = {
+  activeTabIndex: number;
+  setActiveTabIndex: React.Dispatch<React.SetStateAction<number>>;
 };
