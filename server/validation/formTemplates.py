@@ -34,7 +34,7 @@ def validate_template(request_body: dict):
     try:
         FormTemplate(**request_body)
     except ValidationError as e:
-        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+        raise ValidationExceptionError(str(e.errors()[0]["msg"])) from e
 
 
 def validate_questions(questions: list):
@@ -53,7 +53,7 @@ def validate_questions(questions: list):
         try:
             TemplateQuestion(**question)
         except ValidationError as e:
-            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+            raise ValidationExceptionError(str(e.errors()[0]["msg"])) from e
 
         # further validate for extra requirements:
         # lang versions consistency: all questions should have same kinds of versions
