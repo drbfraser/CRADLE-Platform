@@ -1,7 +1,7 @@
 import { MaterialUIContextProvider as ContextProvider } from 'src/context/providers/materialUI';
 import { PatientsPage } from '.';
 import { render } from '@testing-library/react';
-import { matchPath, MemoryRouter, useLocation } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { PropsWithChildren } from 'react';
 
