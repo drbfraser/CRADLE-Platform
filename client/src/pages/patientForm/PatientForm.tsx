@@ -28,7 +28,6 @@ import StepLabel from '@mui/material/StepLabel/StepLabel';
 import Stepper from '@mui/material/Stepper/Stepper';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import { goBackWithFallback } from 'src/shared/utils';
 import { personalInfoValidationSchema } from './personalInfo/validation';
 import { pregnancyInfoValidationSchema } from './pregnancyInfo/validation';
 import { useNavigate } from 'react-router-dom';
@@ -62,6 +61,7 @@ export const PatientForm = ({
   const [submitError, setSubmitError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+
   const pages = [
     {
       editId: 'personalInfo',
@@ -185,7 +185,7 @@ export const PatientForm = ({
         }}>
         <Tooltip title="Go back" placement="top">
           <IconButton
-            onClick={() => goBackWithFallback(`/patients/${patientId ?? ''}`)}
+            onClick={() => navigate(`/patients/${patientId ?? ''}`)}
             size="large">
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>

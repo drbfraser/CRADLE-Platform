@@ -11,8 +11,8 @@ import { TextField as FormikTextField } from 'formik-mui';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { PrimaryButton } from 'src/shared/components/Button';
-import { goBackWithFallback } from 'src/shared/utils';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface IProps {
   referralId: string;
@@ -25,6 +25,7 @@ interface IProps {
 //3.from referral-undo-cancel-card
 export const SingleReasonForm = ({ referralId, type }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (values: SingleReason, { setSubmitting }: any) => {
     try {
@@ -38,7 +39,7 @@ export const SingleReasonForm = ({ referralId, type }: IProps) => {
         setReferralNotAttendedAsync(referralId, values.comment);
       }
 
-      goBackWithFallback('/patients');
+      navigate('/patients');
     } catch (e) {
       console.error(e);
       setSubmitError(true);

@@ -5,7 +5,7 @@ import {
   SexEnum,
 } from 'src/shared/enums';
 import { initialState, PatientField, PatientState } from './state';
-import { getDOBForEstimatedAge, goBackWithFallback } from 'src/shared/utils';
+import { getDOBForEstimatedAge } from 'src/shared/utils';
 import {
   gestationalAgeUnitTimestamp,
   gestationalAgeUnitTimestampWithEndDate,
@@ -262,7 +262,7 @@ const handleApiFetch = async (
       if (creatingNew) {
         navigate(patientPageUrl, { replace: true });
       } else {
-        goBackWithFallback(patientPageUrl);
+        navigate(patientPageUrl);
       }
     })
     .catch((errorCode: number) => {

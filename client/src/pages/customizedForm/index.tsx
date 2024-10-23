@@ -5,8 +5,7 @@ import IconButton from '@mui/material/IconButton';
 import { SelectHeaderForm } from './customizedFormHeader/SelectHeaderForm';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import { goBackWithFallback } from 'src/shared/utils';
-import { useRouteMatch } from 'react-router-dom';
+import { useNavigate, useRouteMatch } from 'react-router-dom';
 import { useState } from 'react';
 import { FormRenderStateEnum } from 'src/shared/enums';
 import { Box } from '@mui/material';
@@ -18,6 +17,7 @@ type RouteParams = {
 export const CustomizedFormPage = () => {
   const { patientId } = useRouteMatch<RouteParams>().params;
   const [form, setForm] = useState<CForm>();
+  const navigate = useNavigate();
 
   return (
     <Box
@@ -32,7 +32,7 @@ export const CustomizedFormPage = () => {
         }}>
         <Tooltip title="Go back" placement="top">
           <IconButton
-            onClick={() => goBackWithFallback('/patients')}
+            onClick={() => navigate(`/patients/${patientId}`)}
             size="large">
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>

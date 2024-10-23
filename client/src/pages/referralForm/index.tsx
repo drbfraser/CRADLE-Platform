@@ -3,8 +3,7 @@ import IconButton from '@mui/material/IconButton';
 import { ReferralForm } from './ReferralForm';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import { goBackWithFallback } from 'src/shared/utils';
-import { useRouteMatch } from 'react-router-dom';
+import { useNavigate, useRouteMatch } from 'react-router-dom';
 import { FormContainer } from 'src/shared/components/layout/FormContainer';
 import { Box } from '@mui/material';
 
@@ -14,6 +13,7 @@ type RouteParams = {
 
 export const ReferralFormPage = () => {
   const { patientId } = useRouteMatch<RouteParams>().params;
+  const navigate = useNavigate();
 
   return (
     <FormContainer>
@@ -24,7 +24,7 @@ export const ReferralFormPage = () => {
         }}>
         <Tooltip title="Go back" placement="top">
           <IconButton
-            onClick={() => goBackWithFallback('/patients')}
+            onClick={() => navigate(`/patients/${patientId}`)}
             size="large">
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>

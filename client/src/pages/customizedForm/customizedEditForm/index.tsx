@@ -7,8 +7,7 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { getFormResponseAsync } from 'src/shared/api';
-import { goBackWithFallback } from 'src/shared/utils';
-import { useRouteMatch } from 'react-router-dom';
+import { useNavigate, useRouteMatch } from 'react-router-dom';
 import { FormRenderStateEnum } from 'src/shared/enums';
 import { Box } from '@mui/material';
 
@@ -32,6 +31,8 @@ export const CustomizedEditFormPage = () => {
     getFormResponse();
   }, [formId]);
 
+  const navigate = useNavigate();
+
   return (
     <Box
       sx={{
@@ -45,7 +46,7 @@ export const CustomizedEditFormPage = () => {
         }}>
         <Tooltip title="Go back" placement="top">
           <IconButton
-            onClick={() => goBackWithFallback('/patients')}
+            onClick={() => navigate(`/patients/${patientId}`)}
             size="large">
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>

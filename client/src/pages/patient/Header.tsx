@@ -5,7 +5,6 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { Patient } from 'src/shared/types';
 import { PrimaryButton } from 'src/shared/components/Button';
 import Skeleton from '@mui/material/Skeleton';
-import { goBackWithFallback } from 'src/shared/utils';
 import { useNavigate } from 'react-router-dom';
 
 interface IProps {
@@ -51,9 +50,7 @@ export const Header = ({
       <Grid item>
         <Grid container alignItems="center">
           <Tooltip title="Go back" placement="top">
-            <IconButton
-              onClick={() => goBackWithFallback('/patients')}
-              size="large">
+            <IconButton onClick={() => navigate('/patients')} size="large">
               <ChevronLeftIcon color="inherit" fontSize="large" />
             </IconButton>
           </Tooltip>

@@ -1,9 +1,9 @@
-/* eslint-disable no-debugger */
+ 
 import { Answer, CForm, QAnswer, Question } from 'src/shared/types';
 
 import { QuestionTypeEnum } from 'src/shared/enums';
-import { goBackWithFallback } from 'src/shared/utils';
 import { saveFormResponseAsync } from 'src/shared/api';
+import { NavigateFunction } from 'react-router-dom';
 
 export type ApiAnswer = {
   qidx: number;
@@ -189,7 +189,8 @@ export const handleSubmit = (
     multiSelectValidationFailed: boolean
   ) => void,
   isEditForm: boolean,
-  form: CForm
+  form: CForm,
+  navigate: NavigateFunction
 ) => {
   return async (values: [], { setSubmitting }: any) => {
     const questions = form.questions;
@@ -211,7 +212,7 @@ export const handleSubmit = (
     //Create Form(first time fill in the content into the form)
     try {
       await saveFormResponseAsync(postBody, form ? form.id : undefined);
-      goBackWithFallback('/patients');
+      navigate(`/patients/${patientId}`);
     } catch (e) {
       console.error(e);
       setSubmitError(true);

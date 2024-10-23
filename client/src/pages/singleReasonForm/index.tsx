@@ -3,8 +3,7 @@ import React, { useState } from 'react';
 import { SingleReasonForm } from './SingleReasonForm';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { Box, IconButton, Tooltip, Typography } from '@mui/material';
-import { goBackWithFallback } from 'src/shared/utils';
-import { useRouteMatch } from 'react-router-dom';
+import { useNavigate, useRouteMatch } from 'react-router-dom';
 import { FormContainer } from 'src/shared/components/layout/FormContainer';
 
 type RouteParams = {
@@ -16,6 +15,7 @@ export const SingleReasonFormPage = () => {
   const { referralId } = useRouteMatch<RouteParams>().params;
   const { type } = useRouteMatch<RouteParams>().params;
   const [title, setTitle] = useState('');
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     switch (type) {
@@ -42,9 +42,7 @@ export const SingleReasonFormPage = () => {
           alignItems: `center`,
         }}>
         <Tooltip title="Go back" placement="top">
-          <IconButton
-            onClick={() => goBackWithFallback('/patients')}
-            size="large">
+          <IconButton onClick={() => navigate(-1)} size="large">
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>
