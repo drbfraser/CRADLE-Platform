@@ -69,7 +69,7 @@ export const getDefaultLanguage = () => {
 
 export const CustomFormTemplate = () => {
   const location = useLocation();
-  const targetFrom = location.state;
+  const targetFrom = location.state as FormTemplateWithQuestions;
   const [submitError, setSubmitError] = useState(false);
   const browserLanguage =
     getDefaultLanguage() === undefined ? 'English' : getDefaultLanguage();
