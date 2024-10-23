@@ -34,8 +34,6 @@ export const AssessmentForm = ({
   const [submitError, setSubmitError] = useState(false);
   const [displayEmptyFormError, setDisplayEmptyFormError] = useState(false);
   const drugHistory = initialState.drugHistory;
-  const location = useLocation();
-  const currentPath = location.pathname;
   const navigate = useNavigate();
 
   const validate = (values: any) => {
@@ -85,7 +83,7 @@ export const AssessmentForm = ({
         await saveReferralAssessmentAsync(referralId);
       }
 
-      navigate(currentPath);
+      navigate(`/patients/${patientId}`);
     } catch (e) {
       setSubmitError(true);
       setSubmitting(false);
