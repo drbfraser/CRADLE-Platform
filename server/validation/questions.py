@@ -128,7 +128,7 @@ def validate_mc_options(q: dict):
         for opt in mcopts:
             MultipleChoiceOption(**opt)
     except ValidationError as e:
-        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+        raise ValidationExceptionError(str(e.errors()[0]["msg"])) from e
     return
 
 
@@ -159,7 +159,7 @@ def validate_answers(q: dict):
     try:
         Answer(**q[target])
     except ValidationError as e:
-        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+        raise ValidationExceptionError(str(e.errors()[0]["msg"])) from e
     return
 
 
@@ -195,7 +195,7 @@ def validate_visible_condition(q: dict):
         for visible_condition in visible_conditions:
             VisibleCondition(**visible_condition)
     except ValidationError as e:
-        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+        raise ValidationExceptionError(str(e.errors()[0]["msg"])) from e
     return
 
 
@@ -235,7 +235,7 @@ def validate_lang_versions(q: dict):
         for question_lang_version in question_lang_versions:
             QuestionLangVersion(**question_lang_version)
     except ValidationError as e:
-        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+        raise ValidationExceptionError(str(e.errors()[0]["msg"])) from e
     return
 
 
@@ -251,7 +251,7 @@ def validate_template_question_post(q: dict):
     try:
         TemplateQuestion(**q)
     except ValidationError as e:
-        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+        raise ValidationExceptionError(str(e.errors()[0]["msg"])) from e
 
 
 def validate_form_question_post(q: dict):
@@ -266,7 +266,7 @@ def validate_form_question_post(q: dict):
     try:
         FormQuestion(**q)
     except ValidationError as e:
-        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+        raise ValidationExceptionError(str(e.errors()[0]["msg"])) from e
 
 
 def validate_form_question_put(q: dict):
@@ -281,4 +281,4 @@ def validate_form_question_put(q: dict):
     try:
         FormQuestionPut(**q)
     except ValidationError as e:
-        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+        raise ValidationExceptionError(str(e.errors()[0]["msg"])) from e
