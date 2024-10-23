@@ -1,7 +1,6 @@
 import { AppRoute, appRoutes } from './utils';
 import { Redirect, Route, Switch } from 'react-router-dom';
 
-import { AdminRoutesEnum, PrivateRoute } from './privateRoute';
 import { Box } from '@mui/material';
 import { DASHBOARD_PADDING } from 'src/shared/constants';
 import { PropsWithChildren, useEffect } from 'react';
@@ -9,7 +8,6 @@ import { useAppDispatch, useAppSelector } from 'src/shared/hooks';
 import {
   getCurrentUser,
   selectCurrentUser,
-  selectLoggedIn,
 } from 'src/redux/reducers/user/currentUser';
 import { UserRoleEnum } from 'src/shared/enums';
 import { Loader } from 'src/shared/components/loader';
@@ -32,7 +30,6 @@ export const AppRoutes: React.FC = () => {
                 key={route.id}
                 exact={route.exactPath}
                 path={route.to}
-                // component={route.component}
                 render={() => (
                   <RequireAuth path={route.to}>
                     <route.component />
@@ -78,11 +75,7 @@ const RequireAuth = ({ children, path }: RequireAuthProps) => {
     const isAdmin = currentUser.data?.role === UserRoleEnum.ADMIN;
 
     // * Prevent non-admins from accessing admin pages
-    if (
-      !isAdmin &&
-      // (Object.values(AdminRoutesEnum) as Array<string>).includes(path as string)
-      path?.includes('/admin')
-    ) {
+    if (!isAdmin && path?.includes('/admin')) {
       return <Redirect to="/" />;
     }
 
