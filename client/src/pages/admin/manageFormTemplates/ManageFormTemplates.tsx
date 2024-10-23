@@ -22,7 +22,7 @@ import {
   TQuestion,
 } from 'src/shared/types';
 import { getPrettyDate } from 'src/shared/utils';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Unarchive } from '@mui/icons-material';
 import UnarchiveTemplateDialog from './UnarchiveTemplateDialog';
 import AddIcon from '@mui/icons-material/Add';
@@ -59,10 +59,11 @@ export const ManageFormTemplates = () => {
   const [customFormWithQuestions, setCustomFormWithQuestions] =
     useState<FormTemplateWithQuestions | null>(null);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     if (customFormWithQuestions != null) {
-      history.push({
-        pathname: '/admin/form-templates/new',
+      navigate('/admin/form-templates/new', {
         // search: `id=${customFormWithQuestions.classification.id}`,
         state: {
           ...customFormWithQuestions,
@@ -182,10 +183,8 @@ export const ManageFormTemplates = () => {
     },
   ];
 
-  const history = useHistory();
-
   const handleNewFormClick = () => {
-    history.push('/admin/form-templates/new');
+    navigate('/admin/form-templates/new');
   };
 
   const getFormTemplates = async (showArchivedTemplates: boolean) => {

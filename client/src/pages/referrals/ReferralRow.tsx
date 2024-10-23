@@ -6,7 +6,7 @@ import ScheduleIcon from '@mui/icons-material/Schedule';
 import { TableCell } from 'src/shared/components/apiTable/TableCell';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import moment from 'moment';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { ApiTableRow } from 'src/shared/components/apiTable/ApiTableRow';
 
@@ -15,10 +15,10 @@ interface IProps {
 }
 
 export const ReferralRow = ({ row }: IProps) => {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleClick = () => {
-    history.push('/patients/' + row.patientId);
+    navigate(`/patients/${row.patientId}`);
   };
 
   const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);

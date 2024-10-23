@@ -1,5 +1,5 @@
 import { AppRoute, appRoutes } from './utils';
-import { Redirect, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { Box } from '@mui/material';
 import { DASHBOARD_PADDING } from 'src/shared/constants';
@@ -66,7 +66,7 @@ const RequireAuth = ({ children, path }: RequireAuthProps) => {
   }, [dispatch, currentUser.data]);
 
   if (currentUser.error) {
-    return <Redirect to="/" />;
+    return <Navigate to="/" replace />;
   }
 
   if (currentUser.loggedIn) {
@@ -74,7 +74,7 @@ const RequireAuth = ({ children, path }: RequireAuthProps) => {
 
     // * Prevent non-admins from accessing admin pages
     if (!isAdmin && path?.includes('/admin')) {
-      return <Redirect to="/" />;
+      return <Navigate to="/" replace />;
     }
 
     return children;

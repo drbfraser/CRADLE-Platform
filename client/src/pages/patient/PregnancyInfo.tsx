@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { Form, InputOnChangeData, Select, TableCell } from 'semantic-ui-react';
 import { GestationalAgeUnitEnum, SexEnum } from 'src/shared/enums';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { PastPregnancy, PatientPregnancyInfo } from 'src/shared/types';
 import React, { useEffect, useState } from 'react';
 import {
@@ -31,7 +31,7 @@ interface IProps {
 }
 
 export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const [currentPregnancyUnit, setCurrentPregnancyUnit] = useState(
     GestationalAgeUnitEnum.WEEKS
@@ -56,7 +56,7 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
   }, [patientId]);
 
   const handleClick = (pregnancyId: string) =>
-    history.push(`/patients/${patientId}/edit/pregnancyInfo/${pregnancyId}`);
+    navigate(`/patients/${patientId}/edit/pregnancyInfo/${pregnancyId}`);
 
   const unitOptions = Object.values(GestationalAgeUnitEnum).map((unit) => ({
     key: unit,

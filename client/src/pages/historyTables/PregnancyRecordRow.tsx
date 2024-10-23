@@ -10,12 +10,12 @@ import { gestationalAgeUnitFormatters } from 'src/shared/constants';
 import { getPrettyDate } from 'src/shared/utils';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { ApiTableRow } from 'src/shared/components/apiTable/ApiTableRow';
+import { useNavigate } from 'react-router-dom';
 
 interface IProps {
   row: Pregnancy;
   unit: GestationalAgeUnitEnum;
   patientId: string;
-  history: any;
   setDeletePopupOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setPopupRecord: React.Dispatch<React.SetStateAction<any>>;
 }
@@ -24,12 +24,12 @@ export const PregnancyRecordRow = ({
   row,
   unit,
   patientId,
-  history,
   setDeletePopupOpen,
   setPopupRecord,
 }: IProps) => {
   const theme = useTheme();
   const isTransformed = useMediaQuery(theme.breakpoints.up('sm'));
+  const navigate = useNavigate();
 
   return (
     <ApiTableRow>
@@ -68,7 +68,7 @@ export const PregnancyRecordRow = ({
         isTransformed={isTransformed}>
         <IconButton
           onClick={() => {
-            history.push(
+            navigate(
               `/patients/${patientId}/edit/pregnancyInfo/${row.pregnancyId}`
             );
           }}

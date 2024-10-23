@@ -5,7 +5,7 @@ import { ManageUsers } from './manageUsers/ManageUsers';
 import { ManagePatients } from './managePatients/ManagePatients';
 import { Tab } from 'semantic-ui-react';
 import { theme } from 'src/context/providers/materialUI/theme';
-import { Route, Switch, useHistory, useRouteMatch } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import { CustomFormTemplate } from './manageFormTemplates/editFormTemplate/CustomFormTemplate';
 
 const pages = [
@@ -46,8 +46,7 @@ const panes = pages.map((p) => ({
 }));
 
 export const AdminPage = () => {
-  const history = useHistory();
-  const match = useRouteMatch();
+  const navigate = useNavigate();
 
   const activePageIndex = pages.findIndex(
     (page) => page.route === window.location.pathname
@@ -55,8 +54,8 @@ export const AdminPage = () => {
   const activeIndex = activePageIndex === -1 ? 0 : activePageIndex;
 
   return (
-    <Switch>
-      <Route path={`${match.path}/form-templates/new`}>
+    <Routes>
+      <Route path={`form-templates/new`}>
         <CustomFormTemplate />
       </Route>
       <Route>
@@ -76,13 +75,13 @@ export const AdminPage = () => {
                 typeof data.activeIndex === 'string'
                   ? parseInt(data.activeIndex)
                   : data.activeIndex;
-              history.push(`${pages[index].route}`);
+              navigate(`${pages[index].route}`);
             }
           }}
           activeIndex={activeIndex}
           panes={panes}
         />
       </Route>
-    </Switch>
+    </Routes>
   );
 };

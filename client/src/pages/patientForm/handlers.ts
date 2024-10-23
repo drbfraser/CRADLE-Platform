@@ -10,6 +10,7 @@ import {
   gestationalAgeUnitTimestamp,
   gestationalAgeUnitTimestampWithEndDate,
 } from 'src/shared/constants';
+import { NavigateFunction } from 'react-router-dom';
 
 export const handleChangeCustom = (handleChange: any, setFieldValue: any) => {
   const resetGestational = () => {
@@ -41,7 +42,7 @@ export const handleChangeCustom = (handleChange: any, setFieldValue: any) => {
 export const handleSubmit = async (
   values: PatientState,
   creatingNew: boolean,
-  history: any,
+  navigate: NavigateFunction,
   setSubmitError: React.Dispatch<React.SetStateAction<any>>,
   setSubmitting: React.Dispatch<React.SetStateAction<any>>
 ) => {
@@ -99,7 +100,7 @@ export const handleSubmit = async (
     method,
     submitValues,
     creatingNew,
-    history,
+    navigate,
     setSubmitError,
     setSubmitting
   );
@@ -110,7 +111,7 @@ export const handlePregnancyInfo = async (
   pregnancyId: string | undefined,
   creatingNewPregnancy: boolean,
   values: PatientState,
-  history: any,
+  navigate: NavigateFunction,
   setSubmitError: React.Dispatch<React.SetStateAction<any>>,
   setSubmitting: React.Dispatch<React.SetStateAction<any>>,
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>
@@ -173,7 +174,7 @@ export const handlePregnancyInfo = async (
     method,
     submitValues,
     false,
-    history,
+    navigate,
     setSubmitError,
     setSubmitting,
     setErrorMessage
@@ -184,7 +185,7 @@ export const handleMedicalRecordInfo = async (
   patientId: string | undefined,
   values: PatientState,
   isDrugRecord: boolean | undefined,
-  history: any,
+  navigate: NavigateFunction,
   setSubmitError: React.Dispatch<React.SetStateAction<any>>,
   setSubmitting: React.Dispatch<React.SetStateAction<any>>
 ) => {
@@ -209,7 +210,7 @@ export const handleMedicalRecordInfo = async (
     'POST',
     submitValues,
     false,
-    history,
+    navigate,
     setSubmitError,
     setSubmitting
   );
@@ -218,7 +219,7 @@ export const handleMedicalRecordInfo = async (
 export const handleDeleteRecord = async (
   editId: string,
   universalRecordId: string,
-  history: any,
+  navigate: NavigateFunction,
   setSubmitError: React.Dispatch<React.SetStateAction<any>>,
   setSubmitting: React.Dispatch<React.SetStateAction<any>>
 ) => {
@@ -235,7 +236,7 @@ export const handleDeleteRecord = async (
     'DELETE',
     undefined,
     false,
-    history,
+    navigate,
     setSubmitError,
     setSubmitting
   );
@@ -246,7 +247,7 @@ const handleApiFetch = async (
   method: string,
   submitValues: any,
   creatingNew: boolean,
-  history: any,
+  navigate: NavigateFunction,
   setSubmitError: React.Dispatch<React.SetStateAction<any>>,
   setSubmitting: React.Dispatch<React.SetStateAction<any>>,
   setErrorMessage?: React.Dispatch<React.SetStateAction<string>>
@@ -259,7 +260,7 @@ const handleApiFetch = async (
     .then((respJson) => {
       const patientPageUrl = '/patients/' + respJson['patientId'];
       if (creatingNew) {
-        history.replace(patientPageUrl);
+        navigate(patientPageUrl, { replace: true });
       } else {
         goBackWithFallback(patientPageUrl);
       }
