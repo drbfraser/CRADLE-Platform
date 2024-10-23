@@ -1,5 +1,5 @@
 import { AppRoute, appRoutes } from './utils';
-import { Redirect, Route, Switch } from 'react-router-dom';
+import { Redirect, Route, Routes } from 'react-router-dom';
 
 import { Box } from '@mui/material';
 import { DASHBOARD_PADDING } from 'src/shared/constants';
@@ -22,19 +22,18 @@ export const AppRoutes: React.FC = () => {
         width: '100%',
         padding: DASHBOARD_PADDING,
       }}>
-      <Switch>
+      <Routes>
         {appRoutes.map((route: AppRoute): JSX.Element => {
           if (route.private) {
             return (
               <Route
                 key={route.id}
-                exact={route.exactPath}
                 path={route.to}
-                render={() => (
+                element={
                   <RequireAuth path={route.to}>
                     <route.component />
                   </RequireAuth>
-                )}
+                }
               />
             );
           }
@@ -42,13 +41,12 @@ export const AppRoutes: React.FC = () => {
           return (
             <Route
               key={route.id}
-              exact={route.exactPath}
               path={route.to}
-              component={route.component}
+              element={<route.component />}
             />
           );
         })}
-      </Switch>
+      </Routes>
     </Box>
   );
 };
