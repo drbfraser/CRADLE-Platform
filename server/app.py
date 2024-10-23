@@ -1,7 +1,5 @@
 #! /usr/bin/env python3
 
-# We do not care about sorting the imports(or their location) in this file because it could lead to import errors
-# ruff: noqa: I001, E402
 """
 @File: app.py
 @ Description:
@@ -13,30 +11,24 @@
   * Start Flask server
 """
 
-import sys
+import json
+import logging
 import os
 import re
-import json
-from pathlib import Path
-
-sys.path.append(Path(os.path.realpath(__file__)).parent)
-
-import config
-import routes
-
-import logging
-from config import Config
 from logging.config import dictConfig
+
+from flask import request
 from flask_jwt_extended import (
     get_jwt_identity,
     verify_jwt_in_request,
 )
-from flask import request
 
-dictConfig(Config.LOGGING)
+import config
+import routes
+
+dictConfig(config.Config.LOGGING)
 LOGGER = logging.getLogger(__name__)
 
-app = config.app
 routes.init(config.api)
 
 host = "0.0.0.0"
@@ -59,7 +51,7 @@ def is_public_endpoint(request):
     }:
         return True
 
-    endpoint_handler_func = app.view_functions[request.endpoint]
+    endpoint_handler_func = config.app.view_functions[request.endpoint]
     is_public = getattr(endpoint_handler_func, "is_public_endpoint", False)
     LOGGER.debug(
         "Check if route is public endpoint",
@@ -72,7 +64,7 @@ def is_public_endpoint(request):
     return is_public
 
 
-@app.before_request
+@config.app.before_request
 def require_authorization():
     """
     run authorization check for all urls by default
@@ -81,7 +73,7 @@ def require_authorization():
         verify_jwt_in_request()
 
 
-@app.after_request
+@config.app.after_request
 def log_request_details(response):
     """
     middleware function for logging changes made by users
@@ -126,4 +118,4 @@ def log_request_details(response):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host=host, port=port)
+    config.app.run(debug=True, host=host, port=port)
