@@ -204,7 +204,7 @@ export const appRoutes: Array<AppRoute> = [
     name: `Admin`,
     private: true,
     title: `Admin`,
-    to: `/admin`,
+    to: `/admin/*`,
   },
   {
     component: PatientPage,
