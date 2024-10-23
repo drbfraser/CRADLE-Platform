@@ -23,10 +23,10 @@ export const SingleReasonFormPage = () => {
         setTitle('Reason for Cancelling');
         break;
       case 'not_attend_referral':
-        setTitle('Reason for Undo Cancelling');
+        setTitle('Reason for Not Attend');
         break;
       case 'undo_cancel_referral':
-        setTitle('Reason for Not Attend');
+        setTitle('Reason for Undo Cancelling');
         break;
       default:
         setTitle('');
