@@ -8,7 +8,7 @@ import ScrollArrow from './ScrollArrow';
 import { HeaderRow } from './HeaderRow';
 import { apiFetch, API_URL } from 'src/shared/api';
 import APIErrorToast from '../apiErrorToast/APIErrorToast';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ReferralFilter } from 'src/shared/types';
 import { TrafficLightEnum } from 'src/shared/enums';
 
@@ -58,7 +58,6 @@ export const APITable = ({
   const [limit, setLimit] = useState(10);
   const [sortBy, setSortBy] = useState(initialSortBy);
   const [sortDir, setSortDir] = useState(initialSortDir);
-  const history = useHistory();
   const prevPage = useRef(1);
 
   // when something changes, load new data
@@ -213,7 +212,6 @@ export const APITable = ({
                   row={r}
                   patientId={patientId}
                   unit={gestationalAgeUnit}
-                  history={history}
                   setDeletePopupOpen={setDeletePopupOpen}
                   setPopupRecord={setPopupRecord}
                 />
