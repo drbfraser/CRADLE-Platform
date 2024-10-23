@@ -8,7 +8,6 @@ import ScrollArrow from './ScrollArrow';
 import { HeaderRow } from './HeaderRow';
 import { apiFetch, API_URL } from 'src/shared/api';
 import APIErrorToast from '../apiErrorToast/APIErrorToast';
-import { useNavigate } from 'react-router-dom';
 import { ReferralFilter } from 'src/shared/types';
 import { TrafficLightEnum } from 'src/shared/enums';
 
