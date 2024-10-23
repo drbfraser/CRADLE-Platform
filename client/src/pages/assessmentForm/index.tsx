@@ -7,7 +7,7 @@ import IconButton from '@mui/material/IconButton';
 import LinearProgress from '@mui/material/LinearProgress';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import { useNavigate, useRouteMatch } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Box } from '@mui/material';
 
 type RouteParams = {
@@ -17,8 +17,7 @@ type RouteParams = {
 };
 
 export const AssessmentFormPage = () => {
-  const { patientId, assessmentId, referralId } =
-    useRouteMatch<RouteParams>().params;
+  const { patientId, assessmentId, referralId } = useParams() as RouteParams;
   const [formInitialState, setFormInitialState] = useState<AssessmentState>();
 
   useEffect(() => {

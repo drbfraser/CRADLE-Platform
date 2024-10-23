@@ -30,7 +30,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { debounce } from 'lodash';
 import { gestationalAgeUnitLabels } from 'src/shared/constants';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { useNavigate, useRouteMatch } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 type RouteParams = {
   patientId: string;
@@ -39,8 +39,7 @@ type RouteParams = {
 };
 
 export function HistoryTablesPage() {
-  const { patientId, patientName, patientSex } =
-    useRouteMatch<RouteParams>().params;
+  const { patientId, patientName, patientSex } = useParams() as RouteParams;
   const [pregnancySearch, setPregnancySearch] = useState('');
   const [medicalHistorySearch, setMedicalHistorySearch] = useState('');
   const [drugHistorySearch, setDrugHistorySearch] = useState('');

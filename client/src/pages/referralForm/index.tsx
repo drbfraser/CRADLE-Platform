@@ -3,7 +3,7 @@ import IconButton from '@mui/material/IconButton';
 import { ReferralForm } from './ReferralForm';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import { useNavigate, useRouteMatch } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FormContainer } from 'src/shared/components/layout/FormContainer';
 import { Box } from '@mui/material';
 
@@ -12,7 +12,7 @@ type RouteParams = {
 };
 
 export const ReferralFormPage = () => {
-  const { patientId } = useRouteMatch<RouteParams>().params;
+  const { patientId } = useParams() as RouteParams;
   const navigate = useNavigate();
 
   return (

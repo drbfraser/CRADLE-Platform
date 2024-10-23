@@ -7,7 +7,7 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { getFormResponseAsync } from 'src/shared/api';
-import { useNavigate, useRouteMatch } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FormRenderStateEnum } from 'src/shared/enums';
 import { Box } from '@mui/material';
 
@@ -17,7 +17,7 @@ type RouteParams = {
 };
 
 export const CustomizedViewFormPage = () => {
-  const { patientId, formId } = useRouteMatch<RouteParams>().params;
+  const { patientId, formId } = useParams() as RouteParams;
   const [form, setForm] = useState<CForm>();
 
   useEffect(() => {

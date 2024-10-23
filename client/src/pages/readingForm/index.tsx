@@ -16,7 +16,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { VitalSigns } from './vitalSigns';
 import { handleSubmit } from './handlers';
-import { useNavigate, useRouteMatch } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { vitalSignsValidationSchema } from './vitalSigns/validation';
 import { Box, useMediaQuery, useTheme } from '@mui/material';
 
@@ -29,7 +29,7 @@ export const ReadingFormPage = () => {
   const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
   const navigate = useNavigate();
 
-  const { patientId } = useRouteMatch<RouteParams>().params;
+  const { patientId } = useParams() as RouteParams;
   const [submitError, setSubmitError] = useState(false);
   const [pageNum, setPageNum] = useState(0);
   const [formInitialState, setFormInitialState] = useState<ReadingState>(); // change needed in the ReadingState?

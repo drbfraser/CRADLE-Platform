@@ -5,7 +5,7 @@ import IconButton from '@mui/material/IconButton';
 import { SelectHeaderForm } from './customizedFormHeader/SelectHeaderForm';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import { useNavigate, useRouteMatch } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useState } from 'react';
 import { FormRenderStateEnum } from 'src/shared/enums';
 import { Box } from '@mui/material';
@@ -15,7 +15,7 @@ type RouteParams = {
 };
 
 export const CustomizedFormPage = () => {
-  const { patientId } = useRouteMatch<RouteParams>().params;
+  const { patientId } = useParams() as RouteParams;
   const [form, setForm] = useState<CForm>();
   const navigate = useNavigate();
 
