@@ -1,12 +1,6 @@
-import { AppRoute, appRoutes } from '../routes/utils';
-
 import List from '@mui/material/List';
-import { OrNull } from 'src/shared/types';
-import { ReduxState } from 'src/redux/reducers';
-import { SidebarRoute } from './route';
 import { UserRoleEnum } from 'src/shared/enums';
 import { makeUniqueId } from 'src/shared/utils';
-import { useSelector } from 'react-redux';
 import {
   DRAWER_NARROW,
   DRAWER_WIDE,

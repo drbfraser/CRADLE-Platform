@@ -11,7 +11,7 @@ import { PrimaryButton } from 'src/shared/components/Button';
 import { Typography } from '@mui/material';
 import { assessmentFormValidationSchema } from './validation';
 import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   saveAssessmentAsync,
   saveDrugHistoryAsync,
