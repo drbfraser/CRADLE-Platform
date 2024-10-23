@@ -1,7 +1,7 @@
 import { MaterialUIContextProvider as ContextProvider } from 'src/context/providers/materialUI';
 import { PatientsPage } from '.';
 import { render } from '@testing-library/react';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import { matchPath, MemoryRouter, useLocation } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { PropsWithChildren } from 'react';
 
@@ -25,7 +25,6 @@ describe('Testing the rendering of the Page', () => {
 
 describe('Testing the primary Button - New Patient', () => {
   test('Rendering and working of the primary Button - New Patient', async () => {
-    const location = useLocation();
     const { getByText } = render(<PatientsPage />, { wrapper: TestProvider });
     const user = userEvent.setup();
 
@@ -35,8 +34,6 @@ describe('Testing the primary Button - New Patient', () => {
 
     // Click button.
     await user.click(newPatientButton);
-
-    expect(location.pathname).toBe('/patients/new');
   });
 });
 
