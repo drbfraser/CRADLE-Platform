@@ -102,6 +102,8 @@ export const Login = () => {
             },
           }}>
           <SignInPage providers={AUTH_PROVIDERS} signIn={signIn} />
+          <LoginButton />
+          <SignUpButton />
         </Container>
       </Box>
     </>
