@@ -8,9 +8,6 @@ from validation.validation_exception import ValidationExceptionError
 
 # Represents a referral entity with validations to prevent unrecognized fields.
 class ReferralEntity(BaseModel):
-    # forbid extra attributes
-    model_config = ConfigDict(extra="forbid")
-
     patientId: int
     referralHealthFacilityName: str
     comment: Optional[str] = None
@@ -24,6 +21,10 @@ class ReferralEntity(BaseModel):
     notAttendReason: Optional[str] = None
     lastEdited: Optional[datetime] = None
     userId: Optional[int] = None
+
+    # forbid extra attributes
+    class Config:
+        extra = "forbid"
 
     @staticmethod
     def validate(request_body: dict):
