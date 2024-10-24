@@ -66,7 +66,7 @@ const loginUserRequested = (): CurrentUserAction => ({
 });
 
 export const loginUser = (
-  loginData: LoginData,
+  data: LoginData,
   navigate: NavigateFunction
 ): ((dispatch: Dispatch) => ServerRequestAction) => {
   return (dispatch: Dispatch) => {
@@ -77,14 +77,14 @@ export const loginUser = (
       serverRequestActionCreator({
         endpoint: EndpointEnum.AUTH,
         method: MethodEnum.POST,
-        data: loginData,
-        onSuccess: ({ user }: { user: IUserWithTokens }): CurrentUserAction => {
-          localStorage.setItem(`token`, user.token);
-          localStorage.setItem(`refresh`, user.refresh);
+        data,
+        onSuccess: ({ data }: { data: IUserWithTokens }): CurrentUserAction => {
+          localStorage.setItem(`token`, data.token);
+          localStorage.setItem(`refresh`, data.refresh);
           navigate('/referrals');
           return {
             type: CurrentUserActionEnum.LOGIN_USER_SUCCESS,
-            payload: { user: user },
+            payload: { user: data },
           };
         },
         onError: ({ message }: ServerError) => {
