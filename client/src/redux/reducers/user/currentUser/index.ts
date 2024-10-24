@@ -66,7 +66,7 @@ const loginUserRequested = (): CurrentUserAction => ({
 });
 
 export const loginUser = (
-  data: LoginData,
+  loginData: LoginData,
   navigate: NavigateFunction
 ): ((dispatch: Dispatch) => ServerRequestAction) => {
   return (dispatch: Dispatch) => {
@@ -77,7 +77,7 @@ export const loginUser = (
       serverRequestActionCreator({
         endpoint: EndpointEnum.AUTH,
         method: MethodEnum.POST,
-        data,
+        data: loginData,
         onSuccess: ({ user }: { user: IUserWithTokens }): CurrentUserAction => {
           localStorage.setItem(`token`, user.token);
           localStorage.setItem(`refresh`, user.refresh);
