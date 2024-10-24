@@ -14,7 +14,7 @@ export const LoginCallbackPage = () => {
         justifyContent: 'center',
       }}>
       <h2>{isAuthenticated ? 'LOGGED IN!' : 'Not Logged In...'}</h2>
-      <LogoutButton />
+      {isAuthenticated ? <LogoutButton /> : null}
     </Container>
   );
 };
