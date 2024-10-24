@@ -78,13 +78,13 @@ export const loginUser = (
         endpoint: EndpointEnum.AUTH,
         method: MethodEnum.POST,
         data,
-        onSuccess: ({ data }: { data: IUserWithTokens }): CurrentUserAction => {
-          localStorage.setItem(`token`, data.token);
-          localStorage.setItem(`refresh`, data.refresh);
+        onSuccess: ({ user }: { user: IUserWithTokens }): CurrentUserAction => {
+          localStorage.setItem(`token`, user.token);
+          localStorage.setItem(`refresh`, user.refresh);
           navigate('/referrals');
           return {
             type: CurrentUserActionEnum.LOGIN_USER_SUCCESS,
-            payload: { user: data },
+            payload: { user: user },
           };
         },
         onError: ({ message }: ServerError) => {
