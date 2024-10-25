@@ -15,7 +15,7 @@ class Facility(BaseModel):
     about: Optional[str] = None
 
     @staticmethod
-    def validate(request_body: dict) -> Optional[str]:
+    def validate(request_body: dict):
         """
         Raise an error if the /api/facilities post request
         is not valid.
@@ -31,4 +31,6 @@ class Facility(BaseModel):
         try:
             Facility(**request_body)
         except ValidationError as e:
-            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+            # Extracts the first error message from the validation errors list
+            error_message = str(e.errors()[0]["msg"])
+            raise ValidationExceptionError(error_message)
