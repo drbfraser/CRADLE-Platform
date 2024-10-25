@@ -69,6 +69,12 @@ UserParser.add_argument(
     help="This field cannot be left blank!",
 )
 UserParser.add_argument(
+    "phoneNumbers",
+    type=list[str],
+    required=True,
+    help="This field cannot be left blank!",
+)
+UserParser.add_argument(
     "role",
     type=str,
     required=True,
@@ -230,14 +236,6 @@ class UserRegisterApi(Resource):
     registerParser.add_argument(
         "password",
         type=str,
-        required=True,
-        help="This field cannot be left blank!",
-    )
-
-    # Phone number is required.
-    registerParser.add_argument(
-        "phoneNumbers",
-        type=list[str],
         required=True,
         help="This field cannot be left blank!",
     )
