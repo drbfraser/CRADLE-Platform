@@ -20,8 +20,8 @@ env:
   # Keep npm's cache out of home directory (mounted from host)
   # otherwise, NPM gives EACCES error trying to mkdir /github/home/.npm
   # Using the /isolated_build/ folder (inside the container) keeps permissions straight
-  npm_config_cache: /isolated-build/.npm-cache 
-  CYPRESS_CACHE_FOLDER: /isolated_build/.cypress-cache   
+  npm_config_cache: /isolated-build/.npm-cache
+  CYPRESS_CACHE_FOLDER: /isolated_build/.cypress-cache
 jobs:
 
   display_github_contexts:
@@ -36,12 +36,12 @@ jobs:
     container:
       image: node:18
     timeout-minutes: 60
-    outputs: 
+    outputs:
       frontend-artifact: frontend.tar.gz
     steps:
     - name: Checkout code into container
       uses: bfraser/cicd/actions/checkout@v1
-      with: 
+      with:
         path: ${{ env.CUSTOM_WORKSPACE }}
     - name: Set up Node.js
       run:  |
@@ -66,14 +66,14 @@ jobs:
     container:
       image: node:14
     env:
-      # specify time zone for AWS CLI 
+      # specify time zone for AWS CLI
       DEBIAN_FRONTEND: noninteractive
       TZ: America/Vancouver
       AWS_DEFAULT_REGION: us-west-2
-    steps: 
+    steps:
       - name: Checkout code into container
         uses: bfraser/cicd/actions/checkout@v1
-        with: 
+        with:
           path: ${{ env.CUSTOM_WORKSPACE }}
       - name: Install Zip
         run: |
@@ -94,20 +94,20 @@ jobs:
       - name: Update Lambda function code
         run: |
           # Update the Lambda function code
-          zip cpuAlarmLambda.zip aws-lambda/cpuAlarmLambda.py 
+          zip cpuAlarmLambda.zip aws-lambda/cpuAlarmLambda.py
           aws lambda update-function-code --function-name CPUAlarms --zip-file fileb://cpuAlarmLambda.zip --region us-west-2
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/aws
 
   backend_unit_tests:
     runs-on: [self-hosted, docker]
-    container: 
+    container:
       image: python:3.9.1-buster
-    outputs: 
+    outputs:
       unit_test_results: report.xml
     steps:
     - name: Checkout code into container
       uses: bfraser/cicd/actions/checkout@v1
-      with: 
+      with:
         path: ${{ env.CUSTOM_WORKSPACE }}
     - name: Install dependencies
       run:  |
@@ -125,7 +125,7 @@ jobs:
 
   backend_system_tests:
     runs-on: [self-hosted, docker]
-    container: 
+    container:
       image: python:3.9.1-buster
     needs: backend_unit_tests
     env:
@@ -148,12 +148,12 @@ jobs:
           MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
         ports:
           - 3306:3306
-    outputs: 
+    outputs:
       system_test_results: report.xml
     steps:
     - name: Checkout code into container
       uses: bfraser/cicd/actions/checkout@v1
-      with: 
+      with:
         path: ${{ env.CUSTOM_WORKSPACE }}
     - name: Install dependencies
       run:  |
@@ -163,13 +163,13 @@ jobs:
         pip install -r requirements.txt
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
     - name: Start backend service
-      run: python3 app.py &
+      run: python3 -m server.app &
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
     - name: Rebuild database
-      run: python3 db.py rebuild --no-docker
+      run: python3 -m server.db rebuild --no-docker
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
     - name: Seed test data
-      run: python3 manage.py seed_test_data
+      run: python3 -m server.manage seed_test_data
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
     - name: Run System Tests
       run: python -m pytest --junitxml=report.xml systemTests
@@ -187,7 +187,7 @@ jobs:
     steps:
     - name: Checkout code into container
       uses: bfraser/cicd/actions/checkout@v1
-      with: 
+      with:
         path: ${{ env.CUSTOM_WORKSPACE }}
     - name: Set up Node.js
       run:  |
@@ -204,10 +204,10 @@ jobs:
     # TODO: https://github.sfu.ca/bfraser/415-Cradle-Platform/issues/454
     # disable due to incomplete workflow
     if: false
-    container: 
+    container:
       image: node:18
     needs: frontend-unit_tests
-    env: 
+    env:
       CI: "true"
       DB_USERNAME: "root"
       DB_PASSWORD: "ci-password"
@@ -217,7 +217,7 @@ jobs:
       MYSQL_DATABASE: "cradle"
       MYSQL_ROOT_PASSWORD: "ci-password"
       JWT_SECRET_KEY: "testkey"
-    services: 
+    services:
       mysql:
         image: mysql:5.7
         env:
@@ -227,7 +227,7 @@ jobs:
     steps:
     - name: Checkout code into container
       uses: bfraser/cicd/actions/checkout@v1
-      with: 
+      with:
         path: ${{ env.CUSTOM_WORKSPACE }}
     - name: Install Node
       run:  |
@@ -247,9 +247,9 @@ jobs:
         export PATH=$PATH:/venv/bin/
         /venv/bin/pip3 install --upgrade pip
         /venv/bin/pip3 install -r requirements.txt
-        /venv/bin/python3 app.py &
-        /venv/bin/python3 db.py rebuild --no-docker
-        /venv/bin/python3 manage.py seed_test_data
+        /venv/bin/python3 -m server.app &
+        /venv/bin/python3 -m server.db rebuild --no-docker
+        /venv/bin/python3 -m server.manage seed_test_data
       working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
     - name: Run Integration Tests
       id: e2e_test
@@ -274,7 +274,7 @@ jobs:
     steps:
     - name: Checkout code into container
       uses: bfraser/cicd/actions/checkout@v1
-      with: 
+      with:
         path: ${{ env.CUSTOM_WORKSPACE }}
     - name: Set up Node.js
       run:  |
@@ -292,12 +292,12 @@ jobs:
 
   backend_format:
     runs-on: [self-hosted, docker]
-    container: 
+    container:
       image: python:3.9.1-buster
     steps:
     - name: Checkout code into container
       uses: bfraser/cicd/actions/checkout@v1
-      with: 
+      with:
         path: ${{ env.CUSTOM_WORKSPACE }}
     - name: Install dependencies
       run:  |
@@ -376,11 +376,11 @@ jobs:
       run: |
         docker images -a | grep -e "$HUB_REPO_BACKEND" -e "$HUB_REPO_FRONTEND" | awk '{print $3}' | xargs docker rmi --force
         docker images
-    
+
 
 # #   ----------------------------------------------------------------------------
 # #   Deployment and Re-tagging Jobs
-# #   Note: 
+# #   Note:
 # #     Since these jobs are calling a reusable workflow, they cannot
 # #     use 'timeout-minutes:', 'environment:', 'env:', or 'steps:' because
 # #     those break the allowable syntax for a job calling a reusable workflow.
