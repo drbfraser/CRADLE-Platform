@@ -1,65 +1,75 @@
 from typing import Optional
 
-from validation.validate import (
-    check_invalid_keys_present,
-    required_keys_present,
-    values_correct_type,
-)
+from pydantic import BaseModel, ValidationError, model_validator
+
+from validation.validation_exception import ValidationExceptionError
 
 
-def validate_request(request_body: dict) -> Optional[str]:
-    """
-    Returns an error message if the /api/sms_relay POST
-    request is not valid. Else, returns None.
-    :param request_body: The request body as a dict object
-    :return: An error message if request body in invalid in some way. None otherwise.
-    """
-    required_keys = ["phoneNumber", "encryptedData"]
+class SmsRelay(BaseModel):
+    phoneNumber: str
+    encryptedData: str
 
-    error_message = required_keys_present(request_body, required_keys)
-    if error_message is not None:
-        return error_message
+    # forbid extra attributes
+    class Config:
+        extra = "forbid"
 
-    error_message = check_invalid_keys_present(request_body, required_keys)
-    if error_message is not None:
-        return error_message
+    @staticmethod
+    def validate_request(request_body: dict):
+        """
+        Validates the POST request for /api/sms_relay. This method raises an exception
+        with a detailed error message if the request does not conform to expected parameters.
 
-    error_message = values_correct_type(
-        request_body,
-        ["phoneNumber", "encryptedData"],
-        str,
-    )
-    if error_message is not None:
-        return error_message
-
-    return error_message
+        :param request_body: Dictionary representing the request body.
+        """
+        try:
+            # Uses Pydantic for validation of field presence and type
+            SmsRelay(**request_body)
+        except ValidationError as e:
+            # Raises an exception with the first error message from the validation errors
+            error_message = str(e.errors()[0]["msg"])
+            raise ValidationExceptionError(error_message)
 
 
-def validate_decrypted_body(body: dict) -> Optional[str]:
-    """
-    Returns an error message if the sms relay body
-    is not valid. Else, returns None.
-    :param body: The sms relay body as a dict object
-    :return: An error message if body in invalid in some way. None otherwise.
-    """
-    required_keys = ["requestNumber", "method", "endpoint"]
+class SmsRelayDecryptedBody(BaseModel):
+    requestNumber: int
+    method: str
+    endpoint: str
+    headers: Optional[str] = None
+    body: Optional[str] = None
 
-    error_message = required_keys_present(body, required_keys)
-    if error_message is not None:
-        return error_message
+    # forbid extra attributes
+    class Config:
+        extra = "forbid"
 
-    all_keys = ["requestNumber", "method", "endpoint", "headers", "body"]
+    @model_validator(mode="before")
+    @classmethod
+    def request_number_is_required(cls, values):
+        missing_fields = [
+            field
+            for field in ["requestNumber", "method", "endpoint"]
+            if field not in values or values[field] is None
+        ]
 
-    error_message = check_invalid_keys_present(body, all_keys)
-    if error_message is not None:
-        return error_message
+        if missing_fields:
+            raise ValidationExceptionError(
+                f"The request body key {{{(missing_fields[0])}}} is required.",
+            )
+        return values
 
-    error_message = values_correct_type(body, ["method", "endpoint"], str)
-    if error_message is not None:
-        return error_message
+    @staticmethod
+    def validate_decrypted_body(request_body: dict):
+        """
+        Validates the integrity and format of the decrypted body for sms relay. This method raises
+        an exception with a detailed error message if the body is invalid.
 
-    error_message = values_correct_type(body, ["requestNumber"], int)
-    if error_message is not None:
-        return error_message
-
-    return error_message
+        :param request_body: Dictionary representing the decrypted body.
+        """
+        try:
+            # Uses Pydantic for validation of field presence and type
+            SmsRelayDecryptedBody(**request_body)
+        except ValidationError as e:
+            # Raises an exception with the first error message from the validation errors
+            error_message = str(e.errors()[0]["msg"])
+            print("what error is expected?")
+            print(e.errors())
+            raise ValidationExceptionError(error_message)
