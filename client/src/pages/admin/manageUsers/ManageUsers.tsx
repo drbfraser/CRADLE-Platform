@@ -116,7 +116,12 @@ export const ManageUsers = () => {
 
   const getUsers = async () => {
     try {
-      const users: IUserWithIndex[] = await getUsersAsync();
+      const users: IUserWithIndex[] = (await getUsersAsync()).map(
+        (user, index) => ({
+          ...user,
+          index,
+        })
+      );
       setUsers(users);
       updateRowData(users);
     } catch (e) {
