@@ -10,7 +10,6 @@ import {
   IFacility,
   IRelayNum,
   IUser,
-  IUserWithIndex,
   IVHT,
   MedicalRecord,
   NewAssessment,
