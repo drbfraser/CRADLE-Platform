@@ -236,8 +236,8 @@ class UserRegisterApi(Resource):
 
     # Phone number is required.
     registerParser.add_argument(
-        "phoneNumber",
-        type=str,
+        "phoneNumbers",
+        type=list[str],
         required=True,
         help="This field cannot be left blank!",
     )
