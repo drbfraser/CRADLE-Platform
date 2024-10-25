@@ -234,6 +234,14 @@ class UserRegisterApi(Resource):
         help="This field cannot be left blank!",
     )
 
+    # Phone number is required.
+    registerParser.add_argument(
+        "phoneNumber",
+        type=str,
+        required=True,
+        help="This field cannot be left blank!",
+    )
+
     # Create a new user
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/user-register.yml", methods=["POST"])
