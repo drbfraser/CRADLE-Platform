@@ -297,6 +297,7 @@ export const getUsersAsync = async (): Promise<IUser[]> => {
   phone number in the 'phoneNumbers' array. */
   return users.map((user: IUser) => {
     user.phoneNumber = user.phoneNumbers.length > 0 ? user.phoneNumbers[0] : '';
+    return user;
   });
 };
 
