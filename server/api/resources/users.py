@@ -27,6 +27,7 @@ from api.util import (
     getDictionaryOfUserInfo,
     is_date_passed,
     isGoodPassword,
+    phoneNumber_exists,
     phoneNumber_regex_check,
     replace_phoneNumber_for_user,
     update_secret_key_for_user,
@@ -70,9 +71,10 @@ UserParser.add_argument(
 )
 UserParser.add_argument(
     "phoneNumbers",
-    type=list[str],
+    type=str,
     required=True,
     help="This field cannot be left blank!",
+    action="append",
 )
 UserParser.add_argument(
     "role",
@@ -441,6 +443,10 @@ class UserApi(Resource):
         # Parse the arguments that we want
         new_user = filterPairsWithNone(UserParser.parse_args())
 
+        # Save the phoneNumbers field and remove it from new_user.
+        phoneNumbers = list(new_user.get("phoneNumbers"))
+        new_user = {k: v for k, v in new_user.items() if k != "phoneNumbers"}
+
         # validate the new users
         error_message = users.validate(new_user)
         if error_message is not None:
@@ -458,6 +464,27 @@ class UserApi(Resource):
             LOGGER.error(error)
             return error, 400
 
+        # Validate the phone numbers.
+        for phoneNumber in phoneNumbers:
+            if not phoneNumber_regex_check(phoneNumber):
+                return {"message": invalid_phone_number}, 400
+
+        # Get the user's existing phone numbers.
+        oldPhoneNumbers: list[str] = get_all_phoneNumbers_for_user(id)
+
+        # Isolate those phone numbers which are not already in the database.
+        newPhoneNumbers = list(set(phoneNumbers).difference(set(oldPhoneNumbers)))
+
+        # Isolate the phone numbers to remove.
+        removePhoneNumbers = list(set(oldPhoneNumbers).difference(set(phoneNumbers)))
+
+        # If new phone number belongs to an existing user, return an error message.
+        for phoneNumber in newPhoneNumbers:
+            if phoneNumber_exists(phoneNumber):
+                return {
+                    "message": "Phone number is already assigned to another user.",
+                }, 400
+
         supervises = []
         if new_user["role"] == RoleEnum.CHO.value:
             supervises = new_user.get("supervises")
@@ -465,7 +492,16 @@ class UserApi(Resource):
         crud.add_vht_to_supervise(id, supervises)
         new_user.pop("supervises", None)
 
+        # Update the user.
         crud.update(User, new_user, id=id)
+
+        # Add new phone numbers.
+        for phoneNumber in newPhoneNumbers:
+            add_new_phoneNumber_for_user(phoneNumber, id)
+
+        # Remove phone numbers to be removed.
+        for phoneNumber in removePhoneNumbers:
+            delete_user_phoneNumber(phoneNumber, id)
 
         return getDictionaryOfUserInfo(id)
 
