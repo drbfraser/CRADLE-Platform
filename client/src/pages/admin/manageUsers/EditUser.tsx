@@ -45,9 +45,13 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
     user: IUser,
     { setSubmitting }: FormikHelpers<IUser>
   ) => {
+    /* If the phone number entered is not already in the user's array of 
+    phone numbers, prepend it to the array. */
+    if (!user.phoneNumbers.includes(user.phoneNumber)) {
+      user.phoneNumbers = [user.phoneNumber, ...user.phoneNumbers];
+    }
     try {
       await saveUserAsync(user, editUser?.userId);
-
       onClose();
     } catch (e) {
       setSubmitting(false);

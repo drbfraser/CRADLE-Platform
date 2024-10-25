@@ -289,8 +289,17 @@ export const saveUserAsync = async (
   return apiFetch(url, init);
 };
 
-export const getUsersAsync = async (): Promise<IUserWithIndex[]> =>
-  (await apiFetch(API_URL + EndpointEnum.USER_ALL)).json();
+export const getUsersAsync = async (): Promise<IUser[]> => {
+  const res = await apiFetch(API_URL + EndpointEnum.USER_ALL);
+  const users = await res.json();
+  /* Since much of the front-end was created with users only having a single 
+  phone number, set the users 'phoneNumber' attribute to be the first 
+  phone number in the 'phoneNumbers' array. */
+  return users.map((user: IUser) => {
+    user.phoneNumber = user.phoneNumbers.length > 0 ? user.phoneNumbers[0] : '';
+    return user;
+  });
+};
 
 export const resetUserPasswordAsync = async (user: IUser, password: string) => {
   const url =
