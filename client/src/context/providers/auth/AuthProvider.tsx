@@ -1,6 +1,6 @@
 import { Auth0Provider } from '@auth0/auth0-react';
 import { PropsWithChildren } from 'react';
-import { getAuthConfig } from './authConfig';
+import { getAuthConfig } from '../../../shared/auth/authConfig';
 import { useNavigate } from 'react-router-dom';
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
