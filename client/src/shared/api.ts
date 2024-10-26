@@ -10,7 +10,6 @@ import {
   IFacility,
   IRelayNum,
   IUser,
-  IUserWithIndex,
   IVHT,
   MedicalRecord,
   NewAssessment,
@@ -278,7 +277,7 @@ export const saveUserAsync = async (
     API_URL +
     (userId ? EndpointEnum.USER + userId : EndpointEnum.USER_REGISTER);
 
-  const init = {
+  const init: RequestInit = {
     method: userId ? 'PUT' : 'POST',
     body: JSON.stringify({
       ...user,
@@ -286,7 +285,7 @@ export const saveUserAsync = async (
     }),
   };
 
-  return apiFetch(url, init);
+  return apiFetch(url, init, false, true);
 };
 
 export const getUsersAsync = async (): Promise<IUser[]> => {
