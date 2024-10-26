@@ -9,23 +9,19 @@ import { MaterialUIContextProvider } from 'src/context/providers/materialUI';
 import { AppProvider } from '@toolpad/core/AppProvider'; // MUI Toolpad.
 
 import { theme } from 'src/context/providers/materialUI/theme';
-import { AuthProvider } from './auth/AuthProvider';
 
 /** Combined Context Providers to wrap the top level App component. */
-
 export const TopLevelContextProviders = ({ children }: PropsWithChildren) => {
   return (
     <BrowserRouter>
       <ReduxProvider store={reduxStore}>
-        <AuthProvider>
-          <MaterialUIContextProvider>
-            <AppProvider theme={theme}>
-              <LocalizationProvider dateAdapter={AdapterMoment}>
-                {children}
-              </LocalizationProvider>
-            </AppProvider>
-          </MaterialUIContextProvider>
-        </AuthProvider>
+        <MaterialUIContextProvider>
+          <AppProvider theme={theme}>
+            <LocalizationProvider dateAdapter={AdapterMoment}>
+              {children}
+            </LocalizationProvider>
+          </AppProvider>
+        </MaterialUIContextProvider>
       </ReduxProvider>
     </BrowserRouter>
   );
