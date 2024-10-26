@@ -1,6 +1,5 @@
 {
-  "domain": "dev-p1ckh836dc6qyaix.us.auth0.com",
-  "clientId": "LGLpMoD7MAx7iXv16AXuDoP0rzGJWm4r",
-  "callbackURL": "http://localhost:3000/loginCallback",
-  "audience": "{yourApiIdentifier}"
+  "region": "ca-west-1",
+  "userPoolId": "ca-west-1_uMO5JgRfo",
+  "clientId": "2f3lgd9hmaub8st58hnbee23n0"
 }
