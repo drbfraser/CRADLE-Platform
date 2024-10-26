@@ -28,3 +28,4 @@ six==1.16.0
 SQLAlchemy==1.3.23
 uWSGI==2.0.26
 Werkzeug==2.0.1
+boto3~=1.35.49 # AWS SDK
