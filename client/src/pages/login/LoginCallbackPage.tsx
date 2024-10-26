@@ -1,8 +1,9 @@
-import { useAuth0 } from '@auth0/auth0-react';
-import { Button, Container, SxProps } from '@mui/material';
+import { Container } from '@mui/material';
+import { selectLoggedIn } from 'src/redux/reducers/user/currentUser';
+import { useAppSelector } from 'src/shared/hooks';
 
 export const LoginCallbackPage = () => {
-  const { isAuthenticated } = useAuth0();
+  const isLoggedIn = useAppSelector(selectLoggedIn);
   return (
     <Container
       sx={{
@@ -13,34 +14,7 @@ export const LoginCallbackPage = () => {
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-      <h2>{isAuthenticated ? 'LOGGED IN!' : 'Not Logged In...'}</h2>
-      {isAuthenticated ? <LogoutButton /> : null}
+      <h2>{isLoggedIn ? 'LOGGED IN!' : 'Not Logged In...'}</h2>
     </Container>
-  );
-};
-
-const LOGOUT_BUTTON_SX: SxProps = {
-  width: '300px',
-  marginY: '8px',
-  fontSize: 'large',
-};
-const LogoutButton = () => {
-  const { logout } = useAuth0();
-
-  const handleLogout = () => {
-    logout({
-      logoutParams: {
-        returnTo: window.location.origin,
-      },
-    });
-  };
-  return (
-    <Button
-      sx={LOGOUT_BUTTON_SX}
-      variant={'contained'}
-      size={'large'}
-      onClick={handleLogout}>
-      Logout
-    </Button>
   );
 };
