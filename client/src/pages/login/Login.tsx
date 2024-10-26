@@ -11,7 +11,6 @@ import {
   loginUser,
 } from 'src/redux/reducers/user/currentUser';
 import { useNavigate } from 'react-router-dom';
-import { useAuth0 } from '@auth0/auth0-react';
 import { DASHBOARD_PADDING } from 'src/shared/constants';
 
 const AUTH_PROVIDERS: AuthProvider[] = [
@@ -105,56 +104,5 @@ export const Login = () => {
         </Container>
       </Box>
     </>
-  );
-};
-
-const LOGIN_CALLBACK_ROUTE = '/loginCallback';
-const LOGIN_BUTTON_SX: SxProps = {
-  width: '100%',
-  marginY: '8px',
-  fontSize: 'large',
-};
-
-// For Auth0:
-export const LoginButton = () => {
-  const { loginWithRedirect } = useAuth0();
-  const handleLogin = async () => {
-    await loginWithRedirect({
-      appState: {
-        returnTo: LOGIN_CALLBACK_ROUTE,
-      },
-    });
-  };
-  return (
-    <Button
-      sx={LOGIN_BUTTON_SX}
-      variant={'contained'}
-      size={'large'}
-      onClick={handleLogin}>
-      Log In
-    </Button>
-  );
-};
-
-export const SignUpButton = () => {
-  const { loginWithRedirect } = useAuth0();
-  const handleSignUp = async () => {
-    await loginWithRedirect({
-      appState: {
-        returnTo: LOGIN_CALLBACK_ROUTE,
-      },
-      authorizationParams: {
-        screen_hint: 'signup',
-      },
-    });
-  };
-  return (
-    <Button
-      sx={LOGIN_BUTTON_SX}
-      variant={'contained'}
-      size={'large'}
-      onClick={handleSignUp}>
-      Sign Up
-    </Button>
   );
 };
