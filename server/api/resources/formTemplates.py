@@ -5,8 +5,6 @@ from flask import make_response, request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 from werkzeug.datastructures import FileStorage
-from validation.validation_exception import ValidationExceptionError
-
 
 import data
 from api import util
@@ -16,6 +14,7 @@ from enums import ContentTypeEnum, RoleEnum
 from models import FormClassification, FormTemplate
 from service import serialize
 from validation import formTemplates
+from validation.validation_exception import ValidationExceptionError
 
 
 # /api/forms/templates

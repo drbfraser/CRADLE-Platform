@@ -5,8 +5,6 @@ from flask import request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource, abort
 
-from validation.validation_exception import ValidationExceptionError
-
 import data
 from api import util
 from api.decorator import patient_association_required
@@ -15,6 +13,7 @@ from models import FollowUp, Patient, Pregnancy, Reading, Referral
 from service import assoc, invariant, serialize, statsCalculation, view
 from utils import get_current_time
 from validation import assessments, patients, readings
+from validation.validation_exception import ValidationExceptionError
 
 
 # /api/patients

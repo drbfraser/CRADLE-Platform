@@ -1,6 +1,7 @@
 from typing import Optional
 
 from pydantic import BaseModel, ValidationError, model_validator
+
 from validation.validation_exception import ValidationExceptionError
 
 
@@ -16,10 +17,11 @@ class MedicalRecord(BaseModel):
         extra = "forbid"
 
     @model_validator(mode="before")
+    @classmethod
     def validate_histories(cls, values):
         if not values.get("drugHistory") and not values.get("medicalHistory"):
             raise ValidationExceptionError(
-                "Either 'medicalHistory' or 'drugHistory' must be present."
+                "Either 'medicalHistory' or 'drugHistory' must be present.",
             )
         return values
 

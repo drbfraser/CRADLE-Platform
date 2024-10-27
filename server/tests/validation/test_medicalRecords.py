@@ -1,12 +1,11 @@
 import pytest
 
-from validation.validation_exception import ValidationExceptionError
-
 from validation.medicalRecords import (
     validate_key,
     validate_post_request,
     validate_put_request,
 )
+from validation.validation_exception import ValidationExceptionError
 
 valid_post_request = {
     "medicalHistory": "Pregnancy induced hypertension",

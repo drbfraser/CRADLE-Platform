@@ -4,7 +4,6 @@ from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource, abort
-from validation.validation_exception import ValidationExceptionError
 
 import data
 from api import util
@@ -12,6 +11,7 @@ from data import crud, marshal
 from models import Form, FormTemplate, Patient, User
 from utils import get_current_time
 from validation import forms
+from validation.validation_exception import ValidationExceptionError
 
 
 # /api/forms/responses
@@ -99,7 +99,7 @@ class SingleForm(Resource):
 
         try:
             forms.validate_put_request(req)
-        except ValidationError as e:
+        except ValidationExceptionError as e:
             abort(400, message=str(e))
 
         questions_upload = req["questions"]

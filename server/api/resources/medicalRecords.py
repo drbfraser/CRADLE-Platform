@@ -4,7 +4,6 @@ from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
-from validation.validation_exception import ValidationExceptionError
 
 from api import util
 from api.decorator import patient_association_required
@@ -13,6 +12,7 @@ from models import MedicalRecord
 from service import serialize, view
 from utils import get_current_time
 from validation import medicalRecords
+from validation.validation_exception import ValidationExceptionError
 
 LOGGER = logging.getLogger(__name__)
 

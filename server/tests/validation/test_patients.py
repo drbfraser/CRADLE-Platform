@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
 
 import pytest
-from validation.validation_exception import ValidationExceptionError
 
 from validation.patients import validate, validate_put_request
+from validation.validation_exception import ValidationExceptionError
 
 # Dynamically calculate valid and invalid gestatation ages from todays date.
 todays_date = datetime.today()

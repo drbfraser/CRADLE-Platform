@@ -5,7 +5,6 @@ from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
-from validation.validation_exception import ValidationExceptionError
 from werkzeug.datastructures import FileStorage
 
 import data
@@ -15,6 +14,7 @@ from data import crud, marshal
 from enums import ContentTypeEnum, RoleEnum
 from models import FormClassification, FormTemplate
 from validation import formClassifications
+from validation.validation_exception import ValidationExceptionError
 
 LOGGER = logging.getLogger(__name__)
 

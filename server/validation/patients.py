@@ -2,6 +2,7 @@ from datetime import date, datetime
 from typing import Any, Optional
 
 from pydantic import BaseModel, ValidationError, model_validator
+
 from validation.validation_exception import ValidationExceptionError
 
 
@@ -23,6 +24,7 @@ class PatientPost(BaseModel):
     isArchived: Optional[bool] = False
 
     @model_validator(mode="before")
+    @classmethod
     def check_patient_id_length(cls, values):
         if values.get("patientId"):
             if len(values["patientId"]) > 14:
@@ -30,13 +32,14 @@ class PatientPost(BaseModel):
         return values
 
     @model_validator(mode="before")
+    @classmethod
     def validate_pregnancy_fields(cls, values):
         if values.get("isPregnant"):
             if not values.get("pregnancyStartDate") or not values.get(
-                "gestationalAgeUnit"
+                "gestationalAgeUnit",
             ):
                 raise ValueError(
-                    "If isPregnant is True, pregnancyStartDate and gestationalAgeUnit are required."
+                    "If isPregnant is True, pregnancyStartDate and gestationalAgeUnit are required.",
                 )
 
         # Check the gestational age if provided
@@ -47,6 +50,7 @@ class PatientPost(BaseModel):
         return values
 
     @model_validator(mode="before")
+    @classmethod
     def validate_date_format(cls, values):
         dob = values.get("dob")
         if dob and not is_correct_date_format(dob):
@@ -78,6 +82,7 @@ class PatientPut(BaseModel):
         extra = "forbid"
 
     @model_validator(mode="before")
+    @classmethod
     def check_patient_id_length(cls, values):
         if values.get("patientId"):
             if len(values["patientId"]) > 14:
@@ -85,13 +90,14 @@ class PatientPut(BaseModel):
         return values
 
     @model_validator(mode="before")
+    @classmethod
     def validate_pregnancy_fields(cls, values):
         if values.get("isPregnant"):
             if not values.get("pregnancyStartDate") or not values.get(
-                "gestationalAgeUnit"
+                "gestationalAgeUnit",
             ):
                 raise ValueError(
-                    "If isPregnant is True, pregnancyStartDate and gestationalAgeUnit are required."
+                    "If isPregnant is True, pregnancyStartDate and gestationalAgeUnit are required.",
                 )
 
         # Check the gestational age if provided
@@ -106,6 +112,7 @@ class PatientPut(BaseModel):
         return values
 
     @model_validator(mode="before")
+    @classmethod
     def validate_date_format(cls, values):
         dob = values.get("dob")
         if dob and not is_correct_date_format(dob):
