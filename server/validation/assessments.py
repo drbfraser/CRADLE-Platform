@@ -31,26 +31,26 @@ class Assessment(BaseModel):
             )
         return followup_instructions
 
+    @staticmethod
+    def validate(request_body: dict):
+        """
+        Returns an error message if the /api/assessments post request
+        is not valid. Else, returns None.
 
-def validate(request_body: dict):
-    """
-    Returns an error message if the /api/assessments post request
-    is not valid. Else, returns None.
+        :param request_body: The request body as a dict object
+                            {
+                                "dateAssessed": 1551447833, - required
+                                "diagnosis": "patient is fine",
+                                "medicationPrescribed": "tylenol",
+                                "specialInvestigations": "bcccccccccddeeeff",
+                                "treatment": "b",
+                                "followupNeeded": True, - required
+                                "followupInstructions": "pls help, give lots of tylenol" - required if followupNeeded = True
+                            }
 
-    :param request_body: The request body as a dict object
-                        {
-                            "dateAssessed": 1551447833, - required
-                            "diagnosis": "patient is fine",
-                            "medicationPrescribed": "tylenol",
-                            "specialInvestigations": "bcccccccccddeeeff",
-                            "treatment": "b",
-                            "followupNeeded": True, - required
-                            "followupInstructions": "pls help, give lots of tylenol" - required if followupNeeded = True
-                        }
-
-    :return: An error message if request body in invalid in some way. None otherwise.
-    """
-    try:
-        Assessment(**request_body)
-    except ValidationError as e:
-        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+        :return: An error message if request body in invalid in some way. None otherwise.
+        """
+        try:
+            Assessment(**request_body)
+        except ValidationError as e:
+            raise ValidationExceptionError(str(e.errors()[0]["msg"]))

@@ -7,7 +7,7 @@ from api import util
 from data import crud, marshal
 from models import FollowUp
 from utils import get_current_time
-from validation import assessments
+from validation.assessments import Assessment
 
 
 # /api/assessments
@@ -28,7 +28,7 @@ class Root(Resource):
         json["healthcareWorkerId"] = user.id
 
         try:
-            assessments.validate(json)
+            Assessment.validate(json)
         except Exception as e:
             abort(400, message=str(e))
 
@@ -89,7 +89,7 @@ class SingleAssessment(Resource):
             abort(404, message=f"No assessment with id {assessment_id}")
 
         try:
-            assessments.validate(json)
+            Assessment.validate(json)
         except Exception as e:
             abort(400, message=str(e))
 
