@@ -11,7 +11,8 @@ from data import crud, marshal
 from models import HealthFacility, Patient, Referral
 from service import assoc, serialize, view
 from utils import get_current_time
-from validation import referrals
+from validation.referrals import CancelStatus, NotAttend, ReferralEntity
+from validation.validation_exception import ValidationExceptionError
 
 
 # /api/referrals
@@ -41,15 +42,16 @@ class Root(Resource):
         endpoint="referrals",
     )
     def post():
-        json = request.get_json(force=True)
+        request_body = request.get_json(force=True)
 
-        error_message = referrals.validate(json)
-        if error_message is not None:
-            abort(400, message=error_message)
+        try:
+            ReferralEntity.validate(request_body)
+        except ValidationExceptionError as e:
+            abort(400, message=str(e))
 
         healthFacility = crud.read(
             HealthFacility,
-            healthFacilityName=json["referralHealthFacilityName"],
+            healthFacilityName=request_body["referralHealthFacilityName"],
         )
 
         if not healthFacility:
@@ -60,17 +62,17 @@ class Root(Resource):
                 HealthFacility,
                 {"newReferrals": UTCTime},
                 True,
-                healthFacilityName=json["referralHealthFacilityName"],
+                healthFacilityName=request_body["referralHealthFacilityName"],
             )
 
-        if "userId" not in json:
-            json["userId"] = get_jwt_identity()["userId"]
+        if "userId" not in request_body:
+            request_body["userId"] = get_jwt_identity()["userId"]
 
-        patient = crud.read(Patient, patientId=json["patientId"])
+        patient = crud.read(Patient, patientId=request_body["patientId"])
         if not patient:
             abort(400, message="Patient does not exist")
 
-        referral = marshal.unmarshal(Referral, json)
+        referral = marshal.unmarshal(Referral, request_body)
 
         crud.create(referral, refresh=True)
         # Creating a referral also associates the corresponding patient to the health
@@ -138,9 +140,10 @@ class ReferralCancelStatus(Resource):
 
         request_body = request.get_json(force=True)
 
-        error = referrals.validate_cancel_put_request(request_body)
-        if error:
-            abort(400, message=error)
+        try:
+            CancelStatus.validate_cancel_put_request(request_body)
+        except ValidationExceptionError as e:
+            abort(400, message=str(e))
 
         if not request_body["isCancelled"]:
             request_body["cancelReason"] = None
@@ -172,9 +175,10 @@ class ReferralNotAttend(Resource):
 
         request_body = request.get_json(force=True)
 
-        error = referrals.validate_not_attend_put_request(request_body)
-        if error:
-            abort(400, message=error)
+        try:
+            NotAttend.validate_not_attend_put_request(request_body)
+        except ValidationExceptionError as e:
+            abort(400, message=str(e))
 
         referral = crud.read(Referral, id=referral_id)
         if not referral.notAttended:

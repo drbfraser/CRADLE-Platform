@@ -22,6 +22,7 @@ import { StatisticsPage } from 'src/pages/statistics';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import { makeUniqueId } from 'src/shared/utils';
 import SecretKeyPage from 'src/pages/secretKey';
+import { LoginCallbackPage } from 'src/pages/login/LoginCallbackPage';
 
 export type AppRoute = {
   component: React.ComponentType<any>;
@@ -232,6 +233,16 @@ export const appRoutes: Array<AppRoute> = [
     title: 'SecretKey',
     private: true,
     to: '/secretkey',
+  },
+  {
+    component: LoginCallbackPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    name: 'LoginCallback',
+    title: 'LoginCallback',
+    private: false,
+    to: '/loginCallback',
   },
   {
     component: LoginPage,

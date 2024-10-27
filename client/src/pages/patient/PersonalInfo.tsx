@@ -1,10 +1,4 @@
-import {
-  Box,
-  Divider,
-  Unstable_Grid2 as Grid,
-  Paper,
-  Typography,
-} from '@mui/material';
+import { Box, Divider, Grid2 as Grid, Paper, Typography } from '@mui/material';
 
 import { Patient } from 'src/shared/types';
 import RecentActorsIcon from '@mui/icons-material/RecentActors';
@@ -34,37 +28,37 @@ export const PersonalInfo = ({ patient }: IProps) => {
           <>
             <Box m={2}>
               <Grid container spacing={2}>
-                <Grid xs={6}>
+                <Grid size={6}>
                   <b>ID: </b>
                   {patient.patientId}
                 </Grid>
-                <Grid xs={6}>
+                <Grid size={6}>
                   <b>Sex: </b>
                   {patient.patientSex}
                 </Grid>
 
-                <Grid xs={12}>
+                <Grid size={12}>
                   <b>Age: </b>
                   {patient.dob === undefined || patient.dob === null
                     ? `N/A`
                     : getAgeToDisplay(patient.dob, patient.isExactDob)}
                 </Grid>
 
-                <Grid xs={6}>
+                <Grid size={6}>
                   <b> Zone: </b>
                   {patient.zone ? patient.zone : `N/A`}
                 </Grid>
-                <Grid xs={6}>
+                <Grid size={6}>
                   <b>Village: </b>
                   {patient.villageNumber ? patient.villageNumber : `N/A`}
                 </Grid>
 
-                <Grid xs={12}>
+                <Grid size={12}>
                   <b>Household number: </b>
                   {patient.householdNumber ? patient.householdNumber : `N/A`}
                 </Grid>
 
-                <Grid xs={12}>
+                <Grid size={12}>
                   <b>Allergies: </b>
                   {patient.allergy ? patient.allergy : `N/A`}
                 </Grid>
