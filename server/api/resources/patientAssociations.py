@@ -7,7 +7,7 @@ from api import util
 from data import crud
 from models import HealthFacility, Patient, User
 from service import assoc
-from validation import associations
+from validation.associations import Association
 from validation.validation_exception import ValidationExceptionError
 
 
@@ -24,7 +24,7 @@ class Root(Resource):
         json: dict = request.get_json(force=True)
 
         try:
-            associations.validate(json)
+            Association.validate(json)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 
