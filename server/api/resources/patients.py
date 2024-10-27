@@ -140,7 +140,7 @@ class PatientInfo(Resource):
 
         try:
             patients.validate_put_request(json, patient_id)
-        except ValidationError as e:
+        except ValidationExceptionError as e:
             abort(400, message=str(e))
 
         # If the inbound JSON contains a `base` field then we need to check if it is the

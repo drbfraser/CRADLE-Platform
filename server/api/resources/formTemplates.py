@@ -4,8 +4,9 @@ from flasgger import swag_from
 from flask import make_response, request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
-from pydantic import ValidationError
 from werkzeug.datastructures import FileStorage
+from validation.validation_exception import ValidationExceptionError
+
 
 import data
 from api import util
@@ -67,7 +68,7 @@ class Root(Resource):
 
         try:
             formTemplates.validate_template(req)
-        except ValidationError as e:
+        except ValidationExceptionError as e:
             abort(400, message=str(e))
 
         classification = crud.read(

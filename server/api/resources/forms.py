@@ -4,7 +4,7 @@ from flasgger import swag_from
 from flask import request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource, abort
-from pydantic import ValidationError
+from validation.validation_exception import ValidationExceptionError
 
 import data
 from api import util
@@ -32,7 +32,7 @@ class Root(Resource):
 
         try:
             forms.validate_form(req)
-        except ValidationError as e:
+        except ValidationExceptionError as e:
             abort(400, message=str(e))
 
         patient = crud.read(Patient, patientId=req["patientId"])

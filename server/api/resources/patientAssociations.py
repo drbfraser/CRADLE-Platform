@@ -8,6 +8,7 @@ from data import crud
 from models import HealthFacility, Patient, User
 from service import assoc
 from validation import associations
+from validation.validation_exception import ValidationExceptionError
 
 
 # /api/patientAssociations
@@ -21,9 +22,11 @@ class Root(Resource):
     )
     def post():
         json: dict = request.get_json(force=True)
-        error_message = associations.validate(json)
-        if error_message is not None:
-            abort(400, message=error_message)
+
+        try:
+            associations.validate(json)
+        except ValidationExceptionError as e:
+            abort(400, message=str(e))
 
         patient_id = json.get("patientId")
         facility_name = json.get("healthFacilityName")
