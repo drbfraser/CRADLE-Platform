@@ -14,7 +14,7 @@ import { IVHT } from 'src/shared/types';
 import MenuItem from '@mui/material/MenuItem';
 import { ReduxState } from 'src/redux/reducers';
 import Select from '@mui/material/Select';
-import { StatisticDashboard } from './utils/StatisticDashboard';
+import { StatisticDashboard } from './utils/StatisticsInfo';
 import Typography from '@mui/material/Typography';
 import { UserRoleEnum } from 'src/shared/enums';
 import { getVHTsAsync } from 'src/shared/api';

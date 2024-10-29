@@ -8,7 +8,7 @@ import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import { ExportStatistics } from './utils/ExportStatistics';
 import { ReduxState } from 'src/redux/reducers';
-import { StatisticDashboard } from './utils/StatisticDashboard';
+import { StatisticDashboard } from './utils/StatisticsInfo';
 import Typography from '@mui/material/Typography';
 import { useSelector } from 'react-redux';
 import { DIVIDER_SX, STATS_PAGE_SX } from './utils/statisticStyles';

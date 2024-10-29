@@ -18,6 +18,8 @@ import { useDateRangeState } from 'src/shared/components/Date/useDateRangeState'
 import { DateRangePickerWithPreset } from 'src/shared/components/Date/DateRangePicker';
 import { TAB_SX } from './utils/statisticStyles';
 
+// import { Tabs, Tab } from '@mui/material';
+
 const allPanes = [
   {
     name: 'My Statistics',
@@ -107,7 +109,7 @@ export function StatisticsPage() {
         />
       )}
 
-      <Grid id={'statistics-container'} item sx={{ marginBottom: '10px' }}>
+      <Box id={'statistics-container'} sx={{ marginBottom: '10px' }}>
         <DateRangePickerWithPreset {...dateRangeState} />
         <Tab
           menu={{
@@ -117,7 +119,7 @@ export function StatisticsPage() {
           }}
           panes={panes}
         />
-      </Grid>
+      </Box>
     </Box>
   );
 }

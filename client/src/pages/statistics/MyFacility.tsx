@@ -2,7 +2,7 @@ import { IUserWithTokens, OrNull } from 'src/shared/types';
 
 import Divider from '@mui/material/Divider';
 import { ReduxState } from 'src/redux/reducers';
-import { StatisticDashboard } from './utils/StatisticDashboard';
+import { StatisticDashboard } from './utils/StatisticsInfo';
 import Typography from '@mui/material/Typography';
 import { getFacilityStatisticsAsync } from 'src/shared/api';
 import { useSelector } from 'react-redux';

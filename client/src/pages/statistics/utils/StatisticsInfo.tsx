@@ -8,7 +8,7 @@ import {
   Tooltip,
 } from 'chart.js';
 import React, { useEffect, useState } from 'react';
-import { initialColorReading, initialStatsData } from '../utils';
+import { initialColorReading, initialStatsData } from '.';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Bar } from 'react-chartjs-2';

@@ -1,5 +1,5 @@
 import Divider from '@mui/material/Divider';
-import { StatisticDashboard } from './utils/StatisticDashboard';
+import { StatisticDashboard } from './utils/StatisticsInfo';
 import Typography from '@mui/material/Typography';
 import { getAllStatisticsAsync } from 'src/shared/api';
 import { DIVIDER_SX, STATS_PAGE_SX } from './utils/statisticStyles';
