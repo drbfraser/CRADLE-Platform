@@ -15,7 +15,7 @@ import {
   getPatientReferralsAsync,
 } from 'src/shared/api';
 import { useEffect, useState } from 'react';
-import { useHistory, useRouteMatch } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import Checkbox from '@mui/material/Checkbox';
@@ -53,9 +53,9 @@ const filters: Filter[] = [
 ];
 
 export const PatientPage = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
 
-  const { patientId } = useRouteMatch<RouteParams>().params;
+  const { patientId } = useParams() as RouteParams;
 
   const [patient, setPatient] = useState<Patient>();
   const [cards, setCards] = useState<JSX.Element[]>([]);
@@ -173,7 +173,7 @@ export const PatientPage = () => {
           setConfirmDialogOpen(false);
         }}
         onConfirm={() => {
-          history.push(`/assessments/new/${patientId}`);
+          navigate(`/assessments/new/${patientId}`);
         }}
       />
       <Header

@@ -28,10 +28,9 @@ import StepLabel from '@mui/material/StepLabel/StepLabel';
 import Stepper from '@mui/material/Stepper/Stepper';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import { goBackWithFallback } from 'src/shared/utils';
 import { personalInfoValidationSchema } from './personalInfo/validation';
 import { pregnancyInfoValidationSchema } from './pregnancyInfo/validation';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { Box, useMediaQuery, useTheme } from '@mui/material';
 
@@ -54,7 +53,7 @@ export const PatientForm = ({
   creatingNew,
   creatingNewPregnancy,
 }: PatientFormProps) => {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const theme = useTheme();
   const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
@@ -62,6 +61,7 @@ export const PatientForm = ({
   const [submitError, setSubmitError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+
   const pages = [
     {
       editId: 'personalInfo',
@@ -130,7 +130,7 @@ export const PatientForm = ({
           pregnancyId,
           creatingNewPregnancy,
           values,
-          history,
+          navigate,
           setSubmitError,
           helpers.setSubmitting,
           setErrorMessage
@@ -143,7 +143,7 @@ export const PatientForm = ({
           patientId,
           values,
           pages[pageNum].isDrugRecord,
-          history,
+          navigate,
           setSubmitError,
           helpers.setSubmitting
         );
@@ -151,7 +151,7 @@ export const PatientForm = ({
         handleSubmit(
           values,
           false,
-          history,
+          navigate,
           setSubmitError,
           helpers.setSubmitting
         );
@@ -160,7 +160,7 @@ export const PatientForm = ({
       handleSubmit(
         values,
         true,
-        history,
+        navigate,
         setSubmitError,
         helpers.setSubmitting
       );
@@ -185,7 +185,7 @@ export const PatientForm = ({
         }}>
         <Tooltip title="Go back" placement="top">
           <IconButton
-            onClick={() => goBackWithFallback(`/patients/${patientId ?? ''}`)}
+            onClick={() => navigate(`/patients/${patientId ?? ''}`)}
             size="large">
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
@@ -240,7 +240,7 @@ export const PatientForm = ({
                     handleDeleteRecord(
                       editId,
                       universalRecordId,
-                      history,
+                      navigate,
                       setSubmitError,
                       formikProps.setSubmitting
                     ).then(() => setIsDialogOpen(false))

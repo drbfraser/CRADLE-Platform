@@ -14,10 +14,10 @@ import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { PrimaryButton } from 'src/shared/components/Button';
 import TextField from '@mui/material/TextField';
-import { goBackWithFallback } from 'src/shared/utils';
 import { saveReferralAsync } from 'src/shared/api';
 import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface IProps {
   patientId: string;
@@ -26,6 +26,7 @@ interface IProps {
 export const ReferralForm = ({ patientId }: IProps) => {
   const healthFacilities = useHealthFacilities();
   const [submitError, setSubmitError] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (
     values: ReferralState,
@@ -39,7 +40,7 @@ export const ReferralForm = ({ patientId }: IProps) => {
     try {
       await saveReferralAsync(postBody);
 
-      goBackWithFallback('/patients');
+      navigate(`/patients/${patientId}`);
     } catch (e) {
       console.error(e);
       setSubmitError(true);

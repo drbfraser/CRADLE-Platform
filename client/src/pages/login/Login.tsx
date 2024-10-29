@@ -10,7 +10,7 @@ import {
   clearCurrentUserError,
   loginUser,
 } from 'src/redux/reducers/user/currentUser';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import { DASHBOARD_PADDING } from 'src/shared/constants';
 
@@ -28,7 +28,7 @@ export const Login = () => {
     dispatch(clearCurrentUserError());
   };
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const signIn = async (provider: AuthProvider, formData?: any) => {
     return new Promise<AuthResponse>((resolve) => {
@@ -37,7 +37,7 @@ export const Login = () => {
           email: formData?.get('email') ?? '',
           password: formData?.get('password') ?? '',
         };
-        dispatch(loginUser(loginData, history));
+        dispatch(loginUser(loginData, navigate));
         resolve({
           type: 'CredentialsSignin',
         });

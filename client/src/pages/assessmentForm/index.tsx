@@ -7,8 +7,7 @@ import IconButton from '@mui/material/IconButton';
 import LinearProgress from '@mui/material/LinearProgress';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import { goBackWithFallback } from 'src/shared/utils';
-import { useRouteMatch } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Box } from '@mui/material';
 
 type RouteParams = {
@@ -18,13 +17,14 @@ type RouteParams = {
 };
 
 export const AssessmentFormPage = () => {
-  const { patientId, assessmentId, referralId } =
-    useRouteMatch<RouteParams>().params;
+  const { patientId, assessmentId, referralId } = useParams() as RouteParams;
   const [formInitialState, setFormInitialState] = useState<AssessmentState>();
 
   useEffect(() => {
     getAssessmentState(patientId, assessmentId).then(setFormInitialState);
   }, [patientId, assessmentId]);
+
+  const navigate = useNavigate();
 
   return (
     <Box
@@ -39,7 +39,7 @@ export const AssessmentFormPage = () => {
         }}>
         <Tooltip title="Go back" placement="top">
           <IconButton
-            onClick={() => goBackWithFallback('/patients')}
+            onClick={() => navigate(`/patients/${patientId}`)}
             size="large">
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>

@@ -11,7 +11,7 @@ import { FormTemplateWithQuestions } from 'src/shared/types';
 import { Toast } from 'src/shared/components/toast';
 import { submitFormTemplateAsync } from 'src/shared/api';
 import { useState } from 'react';
-import { goBackWithFallback } from 'src/shared/utils';
+import { useNavigate } from 'react-router-dom';
 
 interface IProps {
   open: boolean;
@@ -22,6 +22,7 @@ interface IProps {
 const SubmitFormTemplateDialog = ({ open, onClose, form }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const navigate = useNavigate();
 
   const submitForm = async () => {
     if (!form) {
@@ -32,7 +33,7 @@ const SubmitFormTemplateDialog = ({ open, onClose, form }: IProps) => {
       await submitFormTemplateAsync(form);
       setSubmitSuccess(true);
       setTimeout(() => {
-        goBackWithFallback(`/admin/form-templates`);
+        navigate(`/admin/form-templates`);
       }, 1000);
     } catch (e) {
       setSubmitError(true);

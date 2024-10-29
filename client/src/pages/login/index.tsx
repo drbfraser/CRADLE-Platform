@@ -1,4 +1,4 @@
-import { Redirect } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import image from './img/splash_screen_4.png';
 import Stack from '@mui/material/Stack';
 import { Box, useMediaQuery } from '@mui/material';
@@ -12,7 +12,7 @@ export const LoginPage: React.FC = () => {
   // if the user has reached the login page, they likely came directly here
   // therefore Redux will be empty and we must check local storage for a token
   if (localStorage.getItem('token') !== null) {
-    return <Redirect to="/referrals" />;
+    return <Navigate to={'/referrals'} replace />;
   }
 
   const loggedIn = useAppSelector(selectLoggedIn);
@@ -28,7 +28,7 @@ export const LoginPage: React.FC = () => {
       <Login />
     </Stack>
   ) : (
-    <Redirect to="/referrals" />
+    <Navigate to={'/referrals'} replace />
   );
 };
 

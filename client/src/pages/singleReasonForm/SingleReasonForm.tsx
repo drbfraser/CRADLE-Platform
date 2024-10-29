@@ -11,34 +11,51 @@ import { TextField as FormikTextField } from 'formik-mui';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { PrimaryButton } from 'src/shared/components/Button';
-import { goBackWithFallback } from 'src/shared/utils';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface IProps {
-  referralId: string;
-  type: string;
+  referralId?: string;
+  cancellationType?: string;
 }
 
 //currently, this form only supports three types of form
 //1.from referral-did-not-attend-card
 //2.from referral-cancel-card
 //3.from referral-undo-cancel-card
-export const SingleReasonForm = ({ referralId, type }: IProps) => {
+export const SingleReasonForm = ({ referralId, cancellationType }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!referralId || !cancellationType) {
+      console.error('ERROR: invalid path.');
+      navigate('/referrals', { replace: true });
+    }
+  }, [referralId, cancellationType]);
 
   const handleSubmit = async (values: SingleReason, { setSubmitting }: any) => {
+    if (!referralId) {
+      console.error('ERROR: invalid referral Id.');
+      setSubmitError(true);
+      setSubmitting(false);
+      return;
+    }
     try {
-      if (type === 'cancel_referral' || type === 'undo_cancel_referral') {
+      if (
+        cancellationType === 'cancel_referral' ||
+        cancellationType === 'undo_cancel_referral'
+      ) {
         setReferralCancelStatusAsync(
           referralId,
           values.comment,
-          type === 'cancel_referral'
+          cancellationType === 'cancel_referral'
         );
-      } else if (type === 'not_attend_referral') {
+      } else if (cancellationType === 'not_attend_referral') {
         setReferralNotAttendedAsync(referralId, values.comment);
       }
 
-      goBackWithFallback('/patients');
+      navigate('/patients');
     } catch (e) {
       console.error(e);
       setSubmitError(true);

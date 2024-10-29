@@ -3,7 +3,8 @@ import { OrNull, Reading } from 'src/shared/types';
 
 import { TrafficLightEnum } from 'src/shared/enums';
 import moment from 'moment';
-import { history } from 'src/shared/history';
+import { useNavigate } from 'react-router-dom';
+import { useCallback } from 'react';
 
 export { v4 as makeUniqueId } from 'uuid';
 
@@ -234,13 +235,19 @@ export const getDOBForEstimatedAge = (age: number) => {
     .format('YYYY-MM-DD');
 };
 
-export const goBackWithFallback = (fallbackUrl: string) => {
-  // browser new tab page + this page = 2, need more than 2 to go back
-  if (history.length > 2) {
-    history.goBack();
-  } else {
-    history.replace(fallbackUrl);
-  }
+export const useGoBackWithFallback = () => {
+  const navigate = useNavigate();
+
+  const goBackWithFallback = useCallback((fallbackPath: string) => {
+    // browser new tab page + this page = 2, need more than 2 to go back
+    if (history.length > 2) {
+      navigate(-1);
+    } else {
+      navigate(fallbackPath, { replace: true });
+    }
+  }, []);
+
+  return goBackWithFallback;
 };
 
 export const formatBytes = (bytes: number) => {

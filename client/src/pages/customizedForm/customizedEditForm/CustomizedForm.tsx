@@ -12,6 +12,7 @@ import { handleSubmit } from './handlers';
 import { FormRenderStateEnum } from 'src/shared/enums';
 import { FormQuestions } from '../FormQuestions';
 import { SxProps } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 interface IProps {
   patientId: string;
@@ -57,6 +58,8 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
     marginTop: '10px',
   };
 
+  const navigate = useNavigate();
+
   return (
     <>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
@@ -69,7 +72,8 @@ export const CustomizedForm = ({ patientId, fm, renderState }: IProps) => {
           setSubmitError,
           handleMultiSelectValidationFailed,
           renderState === FormRenderStateEnum.EDIT,
-          fm
+          fm,
+          navigate
         )}>
         {({ isSubmitting }) => (
           <Form>

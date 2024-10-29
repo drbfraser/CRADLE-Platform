@@ -5,8 +5,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { Patient } from 'src/shared/types';
 import { PrimaryButton } from 'src/shared/components/Button';
 import Skeleton from '@mui/material/Skeleton';
-import { goBackWithFallback } from 'src/shared/utils';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface IProps {
   patient?: Patient;
@@ -19,22 +18,22 @@ export const Header = ({
   isThereAPendingReferral,
   setConfirmDialogPerformAssessmentOpen,
 }: IProps) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const handleSubmitNewFormClick = () => {
     if (patient) {
-      history.push(`/forms/new/${patient.patientId}`);
+      navigate(`/forms/new/${patient.patientId}`);
     }
   };
 
   const handleAddReadingClick = () => {
     if (patient) {
-      history.push(`/readings/new/${patient.patientId}`);
+      navigate(`/readings/new/${patient.patientId}`);
     }
   };
 
   const handleCreateReferralClick = () => {
     if (patient) {
-      history.push(`/referrals/new/${patient.patientId}`);
+      navigate(`/referrals/new/${patient.patientId}`);
     }
   };
 
@@ -42,7 +41,7 @@ export const Header = ({
     if (isThereAPendingReferral) {
       setConfirmDialogPerformAssessmentOpen(true);
     } else if (patient) {
-      history.push(`/assessments/new/${patient.patientId}`);
+      navigate(`/assessments/new/${patient.patientId}`);
     }
   };
 
@@ -51,9 +50,7 @@ export const Header = ({
       <Grid item>
         <Grid container alignItems="center">
           <Tooltip title="Go back" placement="top">
-            <IconButton
-              onClick={() => goBackWithFallback('/patients')}
-              size="large">
+            <IconButton onClick={() => navigate('/patients')} size="large">
               <ChevronLeftIcon color="inherit" fontSize="large" />
             </IconButton>
           </Tooltip>
