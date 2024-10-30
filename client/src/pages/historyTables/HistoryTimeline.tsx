@@ -5,6 +5,7 @@ import {
   Paper,
   Skeleton,
   Typography,
+  useMediaQuery,
 } from '@mui/material';
 import { useEffect, useState, PropsWithChildren } from 'react';
 
@@ -20,13 +21,14 @@ import { TimelineRecord } from 'src/shared/types';
 import TimelineSeparator from '@mui/lab/TimelineSeparator';
 import { getPatientTimelineAsync } from 'src/shared/api';
 import { getPrettyDate } from 'src/shared/utils';
+import { useParams } from 'react-router-dom';
 
-interface IProps {
+type RouteParams = {
   patientId: string;
-  isTransformed: boolean;
-}
+};
 
-export const HistoryTimeline = ({ patientId, isTransformed }: IProps) => {
+export const HistoryTimeline = () => {
+  const { patientId } = useParams<RouteParams>();
   const [records, setRecords] = useState<TimelineRecord[]>([]);
   const [page, setPage] = useState<number>(1);
   const [endOfData, setEndOfData] = useState(false);
@@ -35,6 +37,7 @@ export const HistoryTimeline = ({ patientId, isTransformed }: IProps) => {
 
   useEffect(() => {
     const getRecords = async () => {
+      if (!patientId) return;
       setIsFetching(true);
 
       try {
@@ -66,6 +69,8 @@ export const HistoryTimeline = ({ patientId, isTransformed }: IProps) => {
 
     return true;
   };
+
+  const isTransformed = useMediaQuery('(min-width: 560px)');
 
   return (
     <Box id={'history-timeline-container'} p={3}>
