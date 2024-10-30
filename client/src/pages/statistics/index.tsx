@@ -2,27 +2,23 @@ import moment from 'moment';
 
 import { AllStatistics } from './AllStatistics';
 import { FacilityStatistics } from './FacilityStatistics';
-import Grid from '@mui/material/Grid';
 import { MyFacility } from './MyFacility';
 import { MyStatistics } from './MyStatistics';
 import { ReduxState } from 'src/redux/reducers';
-import { Tab } from 'semantic-ui-react';
 import { Toast } from 'src/shared/components/toast';
 import { UserRoleEnum } from 'src/shared/enums';
 import { UserStatistics } from './UserStatistics';
 import { VHTStatistics } from './VHTStatistics';
 import { useSelector } from 'react-redux';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, PropsWithChildren, useMemo } from 'react';
 import { Box } from '@mui/material';
 import { useDateRangeState } from 'src/shared/components/Date/useDateRangeState';
 import { DateRangePickerWithPreset } from 'src/shared/components/Date/DateRangePicker';
-import { TAB_SX } from './utils/statisticStyles';
+import { Tabs, Tab } from '@mui/material';
 
-// import { Tabs, Tab } from '@mui/material';
-
-const allPanes = [
+const allPanels = [
   {
-    name: 'My Statistics',
+    label: 'My Statistics',
     Component: MyStatistics,
     roles: [
       UserRoleEnum.VHT,
@@ -32,32 +28,32 @@ const allPanes = [
     ],
   },
   {
-    name: 'My VHTs',
+    label: 'My VHTs',
     Component: VHTStatistics,
     roles: [UserRoleEnum.CHO],
   },
   {
-    name: 'VHT Statistics',
+    label: 'VHT Statistics',
     Component: VHTStatistics,
     roles: [UserRoleEnum.HCW],
   },
   {
-    name: 'My Facility',
+    label: 'My Facility',
     Component: MyFacility,
     roles: [UserRoleEnum.HCW],
   },
   {
-    name: 'User Statistics',
+    label: 'User Statistics',
     Component: UserStatistics,
     roles: [UserRoleEnum.ADMIN],
   },
   {
-    name: 'Facility Statistics',
+    label: 'Facility Statistics',
     Component: FacilityStatistics,
     roles: [UserRoleEnum.ADMIN],
   },
   {
-    name: 'All Users and Facilities',
+    label: 'All Users and Facilities',
     Component: AllStatistics,
     roles: [UserRoleEnum.ADMIN],
   },
@@ -69,6 +65,7 @@ export function StatisticsPage() {
   const [errorLoading, setErrorLoading] = useState(false);
   const dateRangeState = useDateRangeState();
   const { startDate, setStartDate, endDate, setEndDate } = dateRangeState;
+  const [activeTabIndex, setActiveTabIndex] = useState(0);
 
   // Set initial date range as the previous month.
   useEffect(() => {
@@ -76,21 +73,10 @@ export function StatisticsPage() {
     setEndDate(moment().endOf('day'));
   }, []);
 
-  const panes = allPanes
-    .filter((p) => p?.roles.includes(user!.role))
-    .map((p) => ({
-      menuItem: p.name,
-      render: () => (
-        <Tab.Pane>
-          {startDate && endDate && (
-            <p.Component
-              from={startDate.toDate().getTime() / 1000}
-              to={endDate.toDate().getTime() / 1000}
-            />
-          )}
-        </Tab.Pane>
-      ),
-    }));
+  const from = useMemo(() => startDate!.toDate().getTime() / 1000, []);
+  const to = useMemo(() => endDate!.toDate().getTime() / 1000, []);
+
+  const panels = allPanels.filter((panel) => panel?.roles.includes(user!.role));
 
   return (
     <Box
@@ -109,17 +95,36 @@ export function StatisticsPage() {
         />
       )}
 
-      <Box id={'statistics-container'} sx={{ marginBottom: '10px' }}>
+      <Box
+        id={'statistics-container'}
+        sx={{ marginBottom: '10px', display: 'flex', flexDirection: 'column' }}>
         <DateRangePickerWithPreset {...dateRangeState} />
-        <Tab
-          menu={{
-            secondary: true,
-            pointing: true,
-            sx: TAB_SX,
-          }}
-          panes={panes}
-        />
+        <Tabs
+          sx={{ marginTop: '1rem' }}
+          value={activeTabIndex}
+          onChange={(_event, newValue) => setActiveTabIndex(newValue)}>
+          {panels.map((panel) => (
+            <Tab label={panel.label} />
+          ))}
+        </Tabs>
+        {panels.map((panel, index) => (
+          <StatisticsTabPanel index={index} activeTabIndex={activeTabIndex}>
+            <panel.Component from={from} to={to} />
+          </StatisticsTabPanel>
+        ))}
       </Box>
     </Box>
   );
 }
+
+type StatisticsTabPanelProps = PropsWithChildren & {
+  index: number;
+  activeTabIndex: number;
+};
+const StatisticsTabPanel = ({
+  children,
+  index,
+  activeTabIndex,
+}: StatisticsTabPanelProps) => {
+  return index === activeTabIndex ? <>{children}</> : null;
+};
