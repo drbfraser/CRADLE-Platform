@@ -1,6 +1,6 @@
 import { Box, Typography } from '@mui/material';
-import { GestationalAgeUnitEnum, SexEnum } from 'src/shared/enums';
-import { PropsWithChildren, useState } from 'react';
+import { SexEnum } from 'src/shared/enums';
+import { useState } from 'react';
 import {
   getPatientDrugRecordsAsync,
   getPatientMedicalRecordsAsync,
@@ -11,9 +11,9 @@ import { HistoryTimeline } from './HistoryTimeline';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Tab, Tabs } from '@mui/material';
 import { PregnancyHistory } from './PregnancyHistory';
 import { MedicalHistory } from './MedicalHistory';
+import { Tabs } from 'src/shared/components/Tabs/Tabs';
 
 type RouteParams = {
   patientId: string;
@@ -61,8 +61,6 @@ export function HistoryTablesPage() {
       ? allPanels.filter((obj) => obj.label !== 'Pregnancy History')
       : allPanels;
 
-  const [activeTabIndex, setActiveTabIndex] = useState(0);
-
   return (
     <Box>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
@@ -83,32 +81,8 @@ export function HistoryTablesPage() {
         <Typography variant="h4">Past Records of {patientName}</Typography>
       </Box>
       <Box p={3}>
-        <Tabs
-          value={activeTabIndex}
-          onChange={(_event, index) => {
-            setActiveTabIndex(index);
-          }}>
-          {filteredPanels.map((panel) => (
-            <Tab label={panel.label} key={panel.label} />
-          ))}
-        </Tabs>
-        {filteredPanels.map((panel, index) => (
-          <TabPanel
-            key={panel.label}
-            index={index}
-            activeTabIndex={activeTabIndex}>
-            <panel.Component />
-          </TabPanel>
-        ))}
+        <Tabs panels={filteredPanels} />
       </Box>
     </Box>
   );
 }
-
-type TabPanelProps = PropsWithChildren & {
-  index: number;
-  activeTabIndex: number;
-};
-const TabPanel = ({ children, index, activeTabIndex }: TabPanelProps) => {
-  return index === activeTabIndex ? <>{children}</> : null;
-};

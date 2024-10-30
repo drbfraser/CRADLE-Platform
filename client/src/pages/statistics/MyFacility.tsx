@@ -9,16 +9,16 @@ import { useSelector } from 'react-redux';
 import { DIVIDER_SX } from './utils/statisticStyles';
 import { Box } from '@mui/material';
 
-interface IProps {
+type Props = {
   from: number;
   to: number;
-}
+};
 
 type User = {
   user: OrNull<IUserWithTokens>;
 };
 
-export const MyFacility: React.FC<IProps> = ({ from, to }) => {
+export const MyFacility = ({ from, to }: Props) => {
   const { user } = useSelector(
     ({ user }: ReduxState): User => ({
       user: user.current.data,

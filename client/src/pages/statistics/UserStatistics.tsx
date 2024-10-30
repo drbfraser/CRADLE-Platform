@@ -16,18 +16,14 @@ import Select from '@mui/material/Select';
 import { StatisticDashboard } from './utils/StatisticsInfo';
 import Typography from '@mui/material/Typography';
 import { useEffect } from 'react';
-import {
-  DIVIDER_SX,
-  FORM_CTRL_SX,
-  STATS_PAGE_SX,
-} from './utils/statisticStyles';
+import { DIVIDER_SX, STATS_PAGE_SX } from './utils/statisticStyles';
 
-interface IProps {
+type Props = {
   from: number;
   to: number;
-}
+};
 
-export const UserStatistics: React.FC<IProps> = ({ from, to }) => {
+export const UserStatistics = ({ from, to }: Props) => {
   const [users, setUsers] = useState<IUser[]>([]);
   const [user, setUser] = useState('');
   const [errorLoading, setErrorLoading] = useState(false);

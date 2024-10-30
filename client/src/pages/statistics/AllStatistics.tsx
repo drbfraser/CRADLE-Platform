@@ -5,12 +5,12 @@ import { getAllStatisticsAsync } from 'src/shared/api';
 import { DIVIDER_SX, STATS_PAGE_SX } from './utils/statisticStyles';
 import { Box } from '@mui/material';
 
-interface IProps {
+type Props = {
   from: number;
   to: number;
-}
+};
 
-export const AllStatistics: React.FC<IProps> = ({ from, to }) => {
+export const AllStatistics = ({ from, to }: Props) => {
   return (
     <Box id={'all-stats-container'} sx={STATS_PAGE_SX}>
       <Typography variant="h5" gutterBottom>
