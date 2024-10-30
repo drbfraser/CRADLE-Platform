@@ -52,24 +52,37 @@ export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
         onClose={() => setErrorLoading(false)}
       />
       <Box>
-        <Typography variant="h5" gutterBottom sx={{ float: 'left' }}>
-          Please select a facility from the list:
-        </Typography>
-
-        <FormControl variant="standard" sx={FORM_CTRL_SX}>
-          <Select
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: '0.75rem',
+          }}>
+          <Typography
+            variant="h5"
+            gutterBottom
+            sx={{ float: 'left', margin: '0' }}>
+            Please select a facility from the list:
+          </Typography>
+          <FormControl
             variant="standard"
-            value={facility}
-            onChange={handleChange}
-            autoWidth>
-            {facilities.map((f, idx) => (
-              <MenuItem value={f.healthFacilityName} key={idx}>
-                {`${f.healthFacilityName}`}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
+            sx={{
+              width: '100px',
+            }}>
+            <Select
+              variant="standard"
+              value={facility}
+              onChange={handleChange}
+              autoWidth>
+              {facilities.map((f, idx) => (
+                <MenuItem value={f.healthFacilityName} key={idx}>
+                  {`${f.healthFacilityName}`}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
         <br />
         {facility !== '' && (
           <Box>
