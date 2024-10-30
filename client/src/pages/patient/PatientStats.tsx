@@ -16,6 +16,8 @@ import {
   Paper,
   Select,
   Typography,
+  ToggleButtonGroup,
+  ToggleButton,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { StatsOptionEnum, TrafficLightEnum } from 'src/shared/enums';
@@ -84,22 +86,37 @@ export const PatientStats = ({ patientId }: IProps) => {
           <FavoriteIcon fontSize="large" /> &nbsp; Patient Stats
         </Typography>
         <Divider />
-        <Menu fluid widths={2}>
-          <Menu.Item
-            name={
-              currentStatsUnit === StatsOptionEnum.THIS_YEAR
-                ? 'Show Vitals This Year'
-                : 'Show Vitals Last 12 Months'
-            }
-            active={chartSelected === ChartOption.VITALS}
-            onClick={() => setChartSelected(ChartOption.VITALS)}
-          />
-          <Menu.Item
-            name="Show Traffic Lights"
-            active={chartSelected === ChartOption.TRAFFIC_LIGHTS}
-            onClick={() => setChartSelected(ChartOption.TRAFFIC_LIGHTS)}
-          />
-        </Menu>
+        <ToggleButtonGroup
+          value={chartSelected}
+          exclusive
+          sx={{
+            width: '100%',
+            marginY: '16px',
+          }}>
+          <ToggleButton
+            value={ChartOption.VITALS}
+            onClick={() => {
+              setChartSelected(ChartOption.VITALS);
+            }}
+            sx={{
+              width: '100%',
+            }}>
+            {currentStatsUnit === StatsOptionEnum.THIS_YEAR
+              ? 'Show Vitals This Year'
+              : 'Show Vitals Last 12 Months'}
+          </ToggleButton>
+          <ToggleButton
+            value={ChartOption.TRAFFIC_LIGHTS}
+            onClick={() => {
+              setChartSelected(ChartOption.TRAFFIC_LIGHTS);
+            }}
+            sx={{
+              width: '100%',
+            }}>
+            {'Show Traffic Lights'}
+          </ToggleButton>
+        </ToggleButtonGroup>
+
         {errorLoading ? (
           <Alert severity="error">
             Something went wrong trying to load the stats for that patient.
@@ -137,6 +154,7 @@ export const PatientStats = ({ patientId }: IProps) => {
                 <Box
                   sx={{
                     height: GRAPH_HEIGHT,
+                    marginTop: '16px',
                   }}>
                   <Line
                     data={getVitalsData(patientStats, currentStatsUnit)}
