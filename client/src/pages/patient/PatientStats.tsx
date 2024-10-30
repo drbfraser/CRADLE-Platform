@@ -9,8 +9,14 @@ import {
   Title,
   Tooltip,
 } from 'chart.js';
-import { Box, Divider, Paper, Typography } from '@mui/material';
-import { Form, InputOnChangeData, Select } from 'semantic-ui-react';
+import {
+  Box,
+  Divider,
+  MenuItem,
+  Paper,
+  Select,
+  Typography,
+} from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { StatsOptionEnum, TrafficLightEnum } from 'src/shared/enums';
 import { statsUnitLabels, trafficLightColors } from 'src/shared/constants';
@@ -71,13 +77,6 @@ export const PatientStats = ({ patientId }: IProps) => {
     loadPatientStats();
   }, [patientId]);
 
-  const handleCurrentStatsUnitChange = (
-    _: React.ChangeEvent<HTMLInputElement>,
-    { value }: InputOnChangeData
-  ) => {
-    setCurrentStatsUnit(value as StatsOptionEnum);
-  };
-
   return (
     <Paper>
       <Box p={3}>
@@ -118,13 +117,23 @@ export const PatientStats = ({ patientId }: IProps) => {
                   }}>
                   Average Vitals
                 </Typography>
-                <Form.Field
-                  name="statsUnit"
-                  control={Select}
-                  options={unitOptions}
-                  placeholder={statsUnitLabels[currentStatsUnit]}
-                  onChange={handleCurrentStatsUnitChange}
-                />
+
+                <Select
+                  sx={{
+                    minWidth: '160px',
+                  }}
+                  value={currentStatsUnit}
+                  onChange={(event) => {
+                    setCurrentStatsUnit(event.target.value as StatsOptionEnum);
+                  }}>
+                  {/* onChange={handleCurrentStatsUnitChange}> */}
+                  {unitOptions.map((option) => (
+                    <MenuItem key={option.key} value={option.value}>
+                      {option.text}
+                    </MenuItem>
+                  ))}
+                </Select>
+
                 <Box
                   sx={{
                     height: GRAPH_HEIGHT,
