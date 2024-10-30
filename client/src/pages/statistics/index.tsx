@@ -14,50 +14,9 @@ import { useEffect, useState, PropsWithChildren, useMemo } from 'react';
 import { Box } from '@mui/material';
 import { useDateRangeState } from 'src/shared/components/Date/useDateRangeState';
 import { DateRangePickerWithPreset } from 'src/shared/components/Date/DateRangePicker';
-import { Tabs, Tab } from '@mui/material';
-
-const allPanels = [
-  {
-    label: 'My Statistics',
-    Component: MyStatistics,
-    roles: [
-      UserRoleEnum.VHT,
-      UserRoleEnum.CHO,
-      UserRoleEnum.HCW,
-      UserRoleEnum.ADMIN,
-    ],
-  },
-  {
-    label: 'My VHTs',
-    Component: VHTStatistics,
-    roles: [UserRoleEnum.CHO],
-  },
-  {
-    label: 'VHT Statistics',
-    Component: VHTStatistics,
-    roles: [UserRoleEnum.HCW],
-  },
-  {
-    label: 'My Facility',
-    Component: MyFacility,
-    roles: [UserRoleEnum.HCW],
-  },
-  {
-    label: 'User Statistics',
-    Component: UserStatistics,
-    roles: [UserRoleEnum.ADMIN],
-  },
-  {
-    label: 'Facility Statistics',
-    Component: FacilityStatistics,
-    roles: [UserRoleEnum.ADMIN],
-  },
-  {
-    label: 'All Users and Facilities',
-    Component: AllStatistics,
-    roles: [UserRoleEnum.ADMIN],
-  },
-];
+import { Tabs } from 'src/shared/components/Tabs/Tabs';
+import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
+import { DASHBOARD_PADDING } from 'src/shared/constants';
 
 export function StatisticsPage() {
   const user = useSelector((state: ReduxState) => state.user.current.data);
@@ -65,7 +24,6 @@ export function StatisticsPage() {
   const [errorLoading, setErrorLoading] = useState(false);
   const dateRangeState = useDateRangeState();
   const { startDate, setStartDate, endDate, setEndDate } = dateRangeState;
-  const [activeTabIndex, setActiveTabIndex] = useState(0);
 
   // Set initial date range as the previous month.
   useEffect(() => {
@@ -75,6 +33,52 @@ export function StatisticsPage() {
 
   const from = useMemo(() => startDate!.toDate().getTime() / 1000, []);
   const to = useMemo(() => endDate!.toDate().getTime() / 1000, []);
+  const range = {
+    from,
+    to,
+  };
+  const allPanels = [
+    {
+      label: 'My Statistics',
+      Component: () => <MyStatistics {...range} />,
+      roles: [
+        UserRoleEnum.VHT,
+        UserRoleEnum.CHO,
+        UserRoleEnum.HCW,
+        UserRoleEnum.ADMIN,
+      ],
+    },
+    {
+      label: 'My VHTs',
+      Component: () => <VHTStatistics {...range} />,
+      roles: [UserRoleEnum.CHO],
+    },
+    {
+      label: 'VHT Statistics',
+      Component: () => <VHTStatistics {...range} />,
+      roles: [UserRoleEnum.HCW],
+    },
+    {
+      label: 'My Facility',
+      Component: () => <MyFacility {...range} />,
+      roles: [UserRoleEnum.HCW],
+    },
+    {
+      label: 'User Statistics',
+      Component: () => <UserStatistics {...range} />,
+      roles: [UserRoleEnum.ADMIN],
+    },
+    {
+      label: 'Facility Statistics',
+      Component: () => <FacilityStatistics {...range} />,
+      roles: [UserRoleEnum.ADMIN],
+    },
+    {
+      label: 'All Users and Facilities',
+      Component: () => <AllStatistics {...range} />,
+      roles: [UserRoleEnum.ADMIN],
+    },
+  ];
 
   const panels = allPanels.filter((panel) => panel?.roles.includes(user!.role));
 
@@ -94,40 +98,21 @@ export function StatisticsPage() {
           onClose={() => setErrorLoading(false)}
         />
       )}
-
-      <Box
-        id={'statistics-container'}
-        sx={{ marginBottom: '10px', display: 'flex', flexDirection: 'column' }}>
-        <DateRangePickerWithPreset {...dateRangeState} />
-        <Tabs
-          sx={{ marginTop: '1rem' }}
-          value={activeTabIndex}
-          onChange={(_event, newValue) => setActiveTabIndex(newValue)}>
-          {panels.map((panel) => (
-            <Tab label={panel.label} key={panel.label} />
-          ))}
-        </Tabs>
-        {panels.map((panel, index) => (
-          <StatisticsTabPanel
-            index={index}
-            activeTabIndex={activeTabIndex}
-            key={panel.label}>
-            <panel.Component from={from} to={to} />
-          </StatisticsTabPanel>
-        ))}
-      </Box>
+      <DashboardPaper>
+        <Box
+          id={'statistics-container'}
+          sx={{
+            marginBottom: '10px',
+            display: 'flex',
+            flexDirection: 'column',
+            padding: DASHBOARD_PADDING,
+          }}>
+          <DateRangePickerWithPreset {...dateRangeState} />
+          <Box sx={{ marginTop: '1rem', marginBottom: '2rem' }}>
+            <Tabs panels={panels} />
+          </Box>
+        </Box>
+      </DashboardPaper>
     </Box>
   );
 }
-
-type StatisticsTabPanelProps = PropsWithChildren & {
-  index: number;
-  activeTabIndex: number;
-};
-const StatisticsTabPanel = ({
-  children,
-  index,
-  activeTabIndex,
-}: StatisticsTabPanelProps) => {
-  return index === activeTabIndex ? <>{children}</> : null;
-};
