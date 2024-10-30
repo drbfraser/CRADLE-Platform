@@ -443,7 +443,6 @@ export const getPatientMedicalRecordsAsync = async (patientId: string) => {
     `${API_URL}/patients/${patientId}/medical_records`
   );
   const data = await response.json();
-
   return data.medical as MedicalRecord[];
 };
 
@@ -452,7 +451,6 @@ export const getPatientDrugRecordsAsync = async (patientId: string) => {
     `${API_URL}/patients/${patientId}/medical_records`
   );
   const data = await response.json();
-
   return data.drug as MedicalRecord[];
 };
 
