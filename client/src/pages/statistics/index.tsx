@@ -104,11 +104,14 @@ export function StatisticsPage() {
           value={activeTabIndex}
           onChange={(_event, newValue) => setActiveTabIndex(newValue)}>
           {panels.map((panel) => (
-            <Tab label={panel.label} />
+            <Tab label={panel.label} key={panel.label} />
           ))}
         </Tabs>
         {panels.map((panel, index) => (
-          <StatisticsTabPanel index={index} activeTabIndex={activeTabIndex}>
+          <StatisticsTabPanel
+            index={index}
+            activeTabIndex={activeTabIndex}
+            key={panel.label}>
             <panel.Component from={from} to={to} />
           </StatisticsTabPanel>
         ))}
