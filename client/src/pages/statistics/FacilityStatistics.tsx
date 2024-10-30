@@ -59,10 +59,7 @@ export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
             alignItems: 'center',
             gap: '0.75rem',
           }}>
-          <Typography
-            variant="h5"
-            gutterBottom
-            sx={{ float: 'left', margin: '0' }}>
+          <Typography variant="h5" gutterBottom sx={{ margin: '0' }}>
             Please select a facility from the list:
           </Typography>
           <FormControl
