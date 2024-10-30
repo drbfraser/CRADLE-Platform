@@ -58,6 +58,7 @@ export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
             flexDirection: 'row',
             alignItems: 'center',
             gap: '0.75rem',
+            flexWrap: 'wrap',
           }}>
           <Typography variant="h5" gutterBottom sx={{ margin: '0' }}>
             Please select a facility from the list:

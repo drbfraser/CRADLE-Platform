@@ -54,29 +54,52 @@ export const UserStatistics: React.FC<IProps> = ({ from, to }) => {
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
       />
-      <Box sx={{ float: 'left' }}>
-        <Typography variant="h5" gutterBottom>
-          Please select a user from the list:
-        </Typography>
-      </Box>
-      <Box sx={{ float: 'right' }}>
-        {user !== '' && (
-          <ExportStatistics
-            getData={() => getUserStatisticsExportAsync(user, from, to)}
-          />
-        )}
-      </Box>
 
-      <FormControl variant="standard" sx={FORM_CTRL_SX}>
-        <Select variant="standard" value={user} onChange={handleChange}>
-          {users.map((user, idx) => (
-            <MenuItem value={user.userId} key={idx}>
-              {`${user.firstName} (${user.email})`}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '1rem',
+          maxWidth: '100%',
+        }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: '0.75rem',
+            flexWrap: 'wrap',
+            maxWidth: '100%',
+          }}>
+          <Typography variant="h5" gutterBottom sx={{ margin: '0' }}>
+            Please select a user from the list:
+          </Typography>
 
+          <FormControl
+            variant="standard"
+            sx={{
+              minWidth: '200px',
+            }}>
+            <Select variant="standard" value={user} onChange={handleChange}>
+              {users.map((user, idx) => (
+                <MenuItem value={user.userId} key={idx}>
+                  {`${user.firstName} (${user.email})`}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+
+        <Box sx={{}}>
+          {user !== '' && (
+            <ExportStatistics
+              getData={() => getUserStatisticsExportAsync(user, from, to)}
+            />
+          )}
+        </Box>
+      </Box>
       <br />
 
       {user !== '' && (
