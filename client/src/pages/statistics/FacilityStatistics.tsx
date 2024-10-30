@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   getFacilityStatisticsAsync,
   getHealthFacilitiesAsync,
@@ -13,19 +13,15 @@ import Select from '@mui/material/Select';
 import { StatisticDashboard } from './utils/StatisticsInfo';
 import Typography from '@mui/material/Typography';
 import { useEffect } from 'react';
-import {
-  DIVIDER_SX,
-  FORM_CTRL_SX,
-  STATS_PAGE_SX,
-} from './utils/statisticStyles';
+import { DIVIDER_SX, STATS_PAGE_SX } from './utils/statisticStyles';
 import { Box } from '@mui/material';
 
-interface IProps {
+type FacilityStatisticsProps = {
   from: number;
   to: number;
-}
+};
 
-export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
+export const FacilityStatistics = ({ from, to }: FacilityStatisticsProps) => {
   const [facilities, setFacilities] = useState<IFacility[]>([]);
   const [facility, setFacility] = useState('');
   const [errorLoading, setErrorLoading] = useState(false);
