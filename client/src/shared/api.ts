@@ -526,6 +526,14 @@ export const getPatientInfoAsync = async (patientId: string) => {
   return response.json();
 };
 
+export const getPatientPregnanciesAsync = async (patientId: string) => {
+  const response = await apiFetch(
+    `${API_URL}/patients/${patientId}/pregnancies`
+  );
+  const data = await response.json();
+  return data as Pregnancy[];
+};
+
 export const getPatientRecordsAsync = async (
   patientId: string,
   filterRequestBody: FilterRequestBody
