@@ -254,11 +254,12 @@ class UserRegisterApi(Resource):
         new_user = filterPairsWithNone(self.registerParser.parse_args())
 
         # Get phone numbers.
-        phone_numbers = [
-            phone_number
-            for phone_number in new_user.get("phoneNumbers")
-            if phone_number is not None
-        ]
+        phone_numbers = [ phone_number for phone_number in new_user["phoneNumbers"] if phone_number is not None ]
+
+        # Validate the phone numbers.
+        for phone_number in phone_numbers:
+            if not phoneNumber_regex_check(phone_number):
+                return {"message": invalid_phone_number}, 400
 
         # Remove phone numbers from new_user.
         new_user = {k: v for k, v in new_user.items() if k != "phoneNumbers"}
