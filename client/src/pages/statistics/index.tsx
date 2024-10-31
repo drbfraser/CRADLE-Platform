@@ -10,7 +10,7 @@ import { UserRoleEnum } from 'src/shared/enums';
 import { UserStatistics } from './UserStatistics';
 import { VHTStatistics } from './VHTStatistics';
 import { useSelector } from 'react-redux';
-import { useEffect, useState, PropsWithChildren, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Box } from '@mui/material';
 import { useDateRangeState } from 'src/shared/components/Date/useDateRangeState';
 import { DateRangePickerWithPreset } from 'src/shared/components/Date/DateRangePicker';

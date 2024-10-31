@@ -1,5 +1,5 @@
 import { IUserWithTokens, OrNull } from 'src/shared/types';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   getUserStatisticsAsync,
   getUserStatisticsExportAsync,
