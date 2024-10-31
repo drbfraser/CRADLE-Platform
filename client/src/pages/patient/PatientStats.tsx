@@ -19,13 +19,12 @@ import {
   ToggleButtonGroup,
   ToggleButton,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StatsOptionEnum, TrafficLightEnum } from 'src/shared/enums';
 import { statsUnitLabels, trafficLightColors } from 'src/shared/constants';
 
 import Alert from '@mui/material/Alert';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import { Menu } from 'semantic-ui-react';
 import { PatientStatistics } from 'src/shared/types';
 import { Skeleton } from '@mui/material';
 import { getPatientStatisticsAsync } from 'src/shared/api';

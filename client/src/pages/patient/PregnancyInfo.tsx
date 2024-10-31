@@ -2,17 +2,22 @@ import {
   Alert,
   Box,
   Divider,
+  FormControl,
+  InputLabel,
+  MenuItem,
   Paper,
+  Select,
   Skeleton,
+  Stack,
   SxProps,
   TableBody,
+  TableCell,
   Typography,
 } from '@mui/material';
-import { Form, InputOnChangeData, Select, TableCell } from 'semantic-ui-react';
 import { GestationalAgeUnitEnum, SexEnum } from 'src/shared/enums';
 import { Link, useNavigate } from 'react-router-dom';
 import { PastPregnancy, PatientPregnancyInfo } from 'src/shared/types';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   gestationalAgeUnitFormatters,
   gestationalAgeUnitLabels,
@@ -25,12 +30,12 @@ import Table from '@mui/material/Table';
 import TableRow from '@mui/material/TableRow';
 import { getPatientPregnancySummaryAsync } from 'src/shared/api';
 
-interface IProps {
+type Props = {
   patientId: string;
   patientName: string;
-}
+};
 
-export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
+export const PregnancyInfo = ({ patientId, patientName }: Props) => {
   const navigate = useNavigate();
 
   const [currentPregnancyUnit, setCurrentPregnancyUnit] = useState(
@@ -64,16 +69,6 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
     value: unit,
   }));
 
-  const handleCurrentPregnancyUnitChange = (
-    _: React.ChangeEvent<HTMLInputElement>,
-    { value }: InputOnChangeData
-  ) => setCurrentPregnancyUnit(value as GestationalAgeUnitEnum);
-
-  const handlePreviousPregnancyUnitChange = (
-    _: React.ChangeEvent<HTMLInputElement>,
-    { value }: InputOnChangeData
-  ) => setPreviousPregnancyUnit(value as GestationalAgeUnitEnum);
-
   const CurrentPregnancyStatus = () => {
     const status = info!.isPregnant ? 'Yes' : 'No';
 
@@ -82,21 +77,32 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
       : false;
 
     const GestationalAge = () => (
-      <p>
-        <b>Gestational Age: </b>
-        <span style={isOverdue ? { color: 'red' } : {}}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: '0.5rem',
+        }}>
+        <Typography fontWeight={'bold'}>Gestational Age: </Typography>
+        <Typography
+          sx={{
+            color: isOverdue ? 'red' : null,
+          }}>
           {gestationalAgeUnitFormatters[currentPregnancyUnit](
             info!.pregnancyStartDate,
             null
           )}
-        </span>
-      </p>
+        </Typography>
+      </Box>
     );
 
     return (
-      <Box margin="10px">
+      <Box margin={'10px'}>
         <Box sx={HEADER_SX}>
-          <h4>Current Pregnancy</h4>
+          <Typography variant={'h6'} component={'h6'} fontWeight={'bold'}>
+            Current Pregnancy
+          </Typography>
           <RedirectButton
             url={
               info!.isPregnant
@@ -109,29 +115,54 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
             {info!.isPregnant ? 'Edit/Close' : 'Add'}
           </RedirectButton>
         </Box>
-        <p>
-          <b>Pregnant: </b> {status}
-        </p>
+        <Stack direction={'row'} gap={'0.5rem'} sx={{ height: '30px' }}>
+          <Typography fontWeight={'bold'}>Pregnant: </Typography> {status}
+        </Stack>
         {info?.isPregnant && (
           <>
             <GestationalAge />
-            <Box sx={HEADER_SX}>
-              <b>Gestational Age Unit View: </b>
-              <Form.Field
-                name="gestationalAgeUnits"
-                control={Select}
-                options={unitOptions}
-                placeholder={gestationalAgeUnitLabels[currentPregnancyUnit]}
-                onChange={handleCurrentPregnancyUnitChange}
-                sx={{
-                  marginLeft: '5px',
-                }}
-              />
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                width: '100%',
+              }}>
+              <Typography fontWeight={'bold'}>
+                Gestational Age Unit View:{' '}
+              </Typography>
+              <FormControl>
+                <InputLabel id={'current-pregnancy-unit-select-label'}>
+                  Gestational Age Unit
+                </InputLabel>
+                <Select
+                  sx={{ minWidth: '160px', height: '40px' }}
+                  label={'Gestational Age Unit'}
+                  id={'current-pregnancy-unit-select'}
+                  name={'current-pregnancy-unit'}
+                  value={currentPregnancyUnit}
+                  onChange={(event) => {
+                    setCurrentPregnancyUnit(
+                      event.target.value as GestationalAgeUnitEnum
+                    );
+                  }}>
+                  {unitOptions.map((option) => (
+                    <MenuItem key={option.key} value={option.value}>
+                      {option.text}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Box>
           </>
         )}
         {isOverdue && (
-          <Alert severity="warning">
+          <Alert
+            severity="warning"
+            sx={{
+              marginY: '16px',
+            }}>
             Long term pregnancy of the patient detected
           </Alert>
         )}
@@ -169,7 +200,10 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
             <Divider />
             <Box margin="10px">
               <Box sx={HEADER_SX}>
-                <h4> Previous Obstetric History</h4>
+                <Typography variant={'h6'} component={'h6'} fontWeight={'bold'}>
+                  {' '}
+                  Previous Obstetric History
+                </Typography>
                 <RedirectButton
                   url={`/pregnancies/new/${patientId}`}
                   size="small">
@@ -179,57 +213,83 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
               <Table
                 sx={{
                   clear: 'right',
+                  width: '100%',
+                  borderStyle: 'solid',
+                  borderWidth: '1px',
+                  borderColor: 'lightgrey',
                 }}>
                 <TableBody>
                   {info.pastPregnancies && info.pastPregnancies.length > 0 ? (
-                    info.pastPregnancies.map(
-                      (pastPregnancy: PastPregnancy, index) => (
-                        <TableRow
-                          hover={true}
-                          style={{
-                            cursor: 'pointer',
-                            height: 40,
-                          }}
-                          key={pastPregnancy.pregnancyId}
-                          onClick={() =>
-                            handleClick(pastPregnancy.pregnancyId)
-                          }>
-                          <TableCell>
-                            {getYearToDisplay(pastPregnancy.pregnancyEndDate)}
-                          </TableCell>
-                          <TableCell>
-                            Pregnancy carried to{' '}
-                            {gestationalAgeUnitFormatters[
-                              previousPregnancyUnit ??
-                                GestationalAgeUnitEnum.WEEKS
-                            ](
-                              pastPregnancy.pregnancyStartDate,
-                              pastPregnancy.pregnancyEndDate
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {pastPregnancy.pregnancyOutcome ?? 'N/A'}
-                          </TableCell>
-                        </TableRow>
-                      )
-                    )
+                    info.pastPregnancies.map((pastPregnancy: PastPregnancy) => (
+                      <TableRow
+                        hover={true}
+                        style={{
+                          cursor: 'pointer',
+                          height: 40,
+                        }}
+                        key={pastPregnancy.pregnancyId}
+                        onClick={() => handleClick(pastPregnancy.pregnancyId)}>
+                        <TableCell>
+                          {getYearToDisplay(pastPregnancy.pregnancyEndDate)}
+                        </TableCell>
+                        <TableCell>
+                          Pregnancy carried to{' '}
+                          {gestationalAgeUnitFormatters[
+                            previousPregnancyUnit ??
+                              GestationalAgeUnitEnum.WEEKS
+                          ](
+                            pastPregnancy.pregnancyStartDate,
+                            pastPregnancy.pregnancyEndDate
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {pastPregnancy.pregnancyOutcome ?? 'N/A'}
+                        </TableCell>
+                      </TableRow>
+                    ))
                   ) : (
                     <TableRow>No previous pregnancy records</TableRow>
                   )}
                 </TableBody>
               </Table>
               {info.pastPregnancies && info.pastPregnancies.length > 0 && (
-                <Box sx={HEADER_SX}>
-                  <b>Gestational Age Unit View: </b>
-                  <Form.Field
-                    name="gestationalAgeUnits"
-                    control={Select}
-                    options={unitOptions}
-                    placeholder={
-                      gestationalAgeUnitLabels[previousPregnancyUnit]
-                    }
-                    onChange={handlePreviousPregnancyUnitChange}
-                  />
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginTop: '20px',
+                  }}>
+                  <Typography fontWeight={'bold'}>
+                    Gestational Age Unit View:{' '}
+                  </Typography>
+                  <FormControl>
+                    <InputLabel id={'previous-pregnancy-unit-select-label'}>
+                      Gestational Age Unit
+                    </InputLabel>
+                    <Select
+                      sx={{
+                        height: '40px',
+                        width: '160px',
+                      }}
+                      id={'previous-pregnancy-unit-select'}
+                      labelId={'previous-pregnancy-unit-select'}
+                      label={'Gestational Age Unit'}
+                      name={'previous-pregnancy-unit'}
+                      value={previousPregnancyUnit}
+                      onChange={(event) => {
+                        setPreviousPregnancyUnit(
+                          event.target.value as GestationalAgeUnitEnum
+                        );
+                      }}>
+                      {unitOptions.map((option) => (
+                        <MenuItem key={option.key} value={option.value}>
+                          {option.text}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
                 </Box>
               )}
             </Box>
@@ -244,7 +304,8 @@ export const PregnancyInfo = ({ patientId, patientName }: IProps) => {
 
 const HEADER_SX: SxProps = {
   display: 'flex',
-  marginTop: '10px',
+  flexDirection: 'row',
+  marginY: '12px',
   alignItems: 'center',
   placeContent: 'space-between',
 };
