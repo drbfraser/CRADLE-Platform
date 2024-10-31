@@ -4,11 +4,7 @@ import {
   GridRowsProp,
   GridValidRowModel,
 } from '@mui/x-data-grid';
-import {
-  DataTableFooter,
-  DataTableToolbar,
-  HistoryTable,
-} from './HistoryTable';
+import { DataTableToolbar, HistoryTable } from './HistoryTable';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   API_URL,
@@ -31,7 +27,6 @@ import {
   gestationalAgeUnitLabels,
 } from 'src/shared/constants';
 import {
-  Box,
   FormControl,
   InputLabel,
   MenuItem,
