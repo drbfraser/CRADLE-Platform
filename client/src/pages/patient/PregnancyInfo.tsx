@@ -83,6 +83,7 @@ export const PregnancyInfo = ({ patientId, patientName }: Props) => {
           flexDirection: 'row',
           alignItems: 'center',
           gap: '0.5rem',
+          marginY: '6px',
         }}>
         <Typography fontWeight={'bold'}>Gestational Age: </Typography>
         <Typography
@@ -115,7 +116,10 @@ export const PregnancyInfo = ({ patientId, patientName }: Props) => {
             {info!.isPregnant ? 'Edit/Close' : 'Add'}
           </RedirectButton>
         </Box>
-        <Stack direction={'row'} gap={'0.5rem'} sx={{ height: '30px' }}>
+        <Stack
+          direction={'row'}
+          gap={'0.5rem'}
+          sx={{ height: '30px', marginY: '6px' }}>
           <Typography fontWeight={'bold'}>Pregnant: </Typography> {status}
         </Stack>
         {info?.isPregnant && (
@@ -128,6 +132,9 @@ export const PregnancyInfo = ({ patientId, patientName }: Props) => {
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 width: '100%',
+                flexWrap: 'wrap',
+                gap: '12px',
+                marginY: '6px',
               }}>
               <Typography fontWeight={'bold'}>
                 Gestational Age Unit View:{' '}
@@ -137,7 +144,7 @@ export const PregnancyInfo = ({ patientId, patientName }: Props) => {
                   Gestational Age Unit
                 </InputLabel>
                 <Select
-                  sx={{ minWidth: '160px', height: '40px' }}
+                  sx={{ width: '160px', height: '40px' }}
                   label={'Gestational Age Unit'}
                   id={'current-pregnancy-unit-select'}
                   name={'current-pregnancy-unit'}
@@ -260,6 +267,8 @@ export const PregnancyInfo = ({ patientId, patientName }: Props) => {
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     marginTop: '20px',
+                    flexWrap: 'wrap',
+                    gap: '12px',
                   }}>
                   <Typography fontWeight={'bold'}>
                     Gestational Age Unit View:{' '}
