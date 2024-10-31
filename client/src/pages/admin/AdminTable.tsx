@@ -50,6 +50,10 @@ export const AdminTable = ({
           includeOutliers: true,
         }}
         pagination
+        pageSizeOptions={[10, 25, 50]}
+        initialState={{
+          pagination: { paginationModel: { pageSize: 10 } },
+        }}
         slots={{
           toolbar: toolbar,
         }}
