@@ -125,8 +125,6 @@ ignore = [
     "EM103",   # 1	EM103  	[*] dot-format-in-exception
     "PT019",   # 1	PT019  	[ ] pytest-fixture-param-without-value
     "D417",    # 1	D417   	[ ] undocumented-param
-    "COM812", # missing-trailing-comma
-    "ISC001", # implicit-str-concat
 
     # Disable conflicting rules
     "D203", # `one-blank-line-before-class` (D203) and `no-blank-line-before-class` (D211) are incompatible
