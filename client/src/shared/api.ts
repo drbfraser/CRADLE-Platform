@@ -10,7 +10,6 @@ import {
   IFacility,
   IRelayNum,
   IUser,
-  IUserWithIndex,
   IVHT,
   MedicalRecord,
   NewAssessment,
@@ -278,7 +277,7 @@ export const saveUserAsync = async (
     API_URL +
     (userId ? EndpointEnum.USER + userId : EndpointEnum.USER_REGISTER);
 
-  const init = {
+  const init: RequestInit = {
     method: userId ? 'PUT' : 'POST',
     body: JSON.stringify({
       ...user,
@@ -286,11 +285,20 @@ export const saveUserAsync = async (
     }),
   };
 
-  return apiFetch(url, init);
+  return apiFetch(url, init, false, true);
 };
 
-export const getUsersAsync = async (): Promise<IUserWithIndex[]> =>
-  (await apiFetch(API_URL + EndpointEnum.USER_ALL)).json();
+export const getUsersAsync = async (): Promise<IUser[]> => {
+  const res = await apiFetch(API_URL + EndpointEnum.USER_ALL);
+  const users = await res.json();
+  /* Since much of the front-end was created with users only having a single 
+  phone number, set the users 'phoneNumber' attribute to be the first 
+  phone number in the 'phoneNumbers' array. */
+  return users.map((user: IUser) => {
+    user.phoneNumber = user.phoneNumbers.length > 0 ? user.phoneNumbers[0] : '';
+    return user;
+  });
+};
 
 export const resetUserPasswordAsync = async (user: IUser, password: string) => {
   const url =
