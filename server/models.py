@@ -32,7 +32,8 @@ supervises = db.Table(
     db.Column("vhtId", db.Integer, db.ForeignKey("user.id", ondelete="CASCADE")),
     db.UniqueConstraint("choId", "vhtId", name="unique_supervise"),
 )
-
+if supervises is None:
+    raise RuntimeError("ERROR: could not instantiate supervises table")
 
 #
 # MODEL CLASSES
