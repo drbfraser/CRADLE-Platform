@@ -8,7 +8,7 @@ from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 
-load_dotenv()
+load_dotenv(dotenv_path="/run/secrets/.aws.secrets.env")
 
 """
   Environment variable to control whether to enable creating fake users for
@@ -16,7 +16,7 @@ load_dotenv()
   verify their emails, and their temporary passwords will be set to one that we
   specify instead of being generated.
 """
-ENABLE_DEV_USERS: bool = os.getenv("ENABLE_DEV_USERS", default="false").lower() in ["true"]
+ENABLE_DEV_USERS: bool = os.getenv("ENABLE_DEV_USERS", default="false").lower() == "true"
 if ENABLE_DEV_USERS:
     temporary_password = "Temporary_123"
 
@@ -55,7 +55,7 @@ class CognitoClientWrapper:
         ).decode()
         return secret_hash
 
-    def create_user(self, email: str):
+    def create_user(self, username: str, email: str):
         """
         Creates a user in the user pool. Self-service signup is disabled, so only
         admins can create users. This means that the 'sign_up' action will fail,
@@ -74,10 +74,12 @@ class CognitoClientWrapper:
         Since the fake users we create won't have real emails, we can use a
         temporary password that is known to us by passing it to the API.
 
+        :param email: The username for the new user.
         :param email: The email address for the new user.
         """
         create_user_kwargs = {
             "UserPoolId": self.user_pool_id,
+            "Username": username,
             "UserAttributes": [
                 {
                     "Name": "email",
@@ -94,7 +96,7 @@ class CognitoClientWrapper:
             user_attributes.append(
                 {
                     "Name": "email_verified",
-                    "Value": "True",
+                    "Value": "true",
                 },
             )
             create_user_kwargs["UserAttributes"] = user_attributes
