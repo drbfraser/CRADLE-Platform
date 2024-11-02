@@ -135,7 +135,7 @@ class CognitoClientWrapper:
             return users
     # End of function
 
-    def set_user_password(self, username: str, new_password):
+    def set_user_password(self, username: str, new_password: str):
         """
         Sets a new password for the specified user. If the user previously
         had a temporary password and their status was 'FORCE_CHANGE_PASSWORD',
