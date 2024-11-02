@@ -4,7 +4,7 @@
 # ---------------------------------------------------------------------
 
 # secrets
-*.secrets
+*.secrets*
 
 # dependencies
 node_modules
