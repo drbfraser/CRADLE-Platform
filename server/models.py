@@ -42,10 +42,9 @@ if supervises is None:
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    firstName = db.Column(db.String(25))
+    name = db.Column(db.String(25))
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
-    password = db.Column(db.String(128))
     role = db.Column(db.String(50))
 
     # FOREIGN KEYS
