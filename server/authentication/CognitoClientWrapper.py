@@ -1,7 +1,6 @@
 import base64
 import hashlib
 import hmac
-import json
 import logging
 import os
 
@@ -21,11 +20,6 @@ if ENABLE_DEV_USERS:
     temporary_password = "Temporary_123"
 
 logger = logging.getLogger(__name__)
-
-
-def print_json(json_str):
-    print(json.dumps(json_str, indent=4))
-
 
 # Wrapper to encapsulate the AWS Cognito Identity Provider client.
 class CognitoClientWrapper:
@@ -226,7 +220,7 @@ class CognitoClientWrapper:
                     confirm_password = input("Confirm new password: ")
                     if new_password == confirm_password:
                         break
-                    print("ERROR: Passwords do not match.")
+                    logger.error("ERROR: Passwords do not match.")
                 # End while
 
                 auth_result = self.respond_to_new_password_challenge(
@@ -253,7 +247,7 @@ class CognitoClientWrapper:
             confirm_password = input("Confirm new password: ")
             if new_password == confirm_password:
                 break
-            print("ERROR: Passwords do not match.")
+            logger.error("ERROR: Passwords do not match.")
         # End while
         challenge_response = self.cognito_idp_client.admin_respond_to_auth_challenge(
             UserPoolId=self.user_pool_id,
