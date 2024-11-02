@@ -121,67 +121,6 @@ class CognitoClientWrapper:
 
     # End of function
 
-    def sign_up_user(self, username: str, password: str, email: str):
-        """
-        Signs up a new user with Amazon Cognito. This action prompts Amazon Cognito
-        to send an email to the specified email address. The email contains a code that
-        can be used to confirm the user.
-
-        When the user already exists, the user status is checked to determine whether
-        the user has been confirmed.
-
-        :param user_name: The user name that identifies the new user.
-        :param password: The password for the new user.
-        :param user_email: The email address for the new user.
-        :return: True when the user is already confirmed with Amazon Cognito.
-                  Otherwise, false.
-        """
-        try:
-            secret_hash = self._secret_hash(username)
-            response = self.cognito_idp_client.sign_up(
-                ClientId=self.client_id,
-                Username=username,
-                Password=password,
-                SecretHash=secret_hash,
-                UserAttributes=[
-                    {
-                        "Name": "email",
-                        "Value": email,
-                    },
-                ],
-            )
-            confirmed = response["UserConfirmed"]
-        except ClientError as err:
-            error = err.response.get("Error")
-            if not error:
-                raise
-            error_code = error.get("Code")
-            if not error_code:
-                raise
-
-            if error_code == "UsernameExistsException":
-                response = self.cognito_idp_client.admin_get_user(
-                    UserPoolId=self.user_pool_id,
-                    Username=username,
-                )
-                user_status = response["UserStatus"]
-                logger.warning(
-                    "User %s already exists. Status: %s", username, user_status,
-                )
-                confirmed = user_status == "CONFIRMED"
-            else:
-                error_message = error.get("Message")
-                logger.error(
-                    "Couldn't sign up %s. \nerror code: %s \n error message: %s",
-                    username,
-                    error_code,
-                    error_message,
-                )
-                raise
-        return confirmed
-
-    # End of function
-
     def list_users(self):
         try:
             response = self.cognito_idp_client.list_users(UserPoolId=self.user_pool_id)
