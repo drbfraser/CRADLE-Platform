@@ -17,7 +17,6 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_restful import Resource, abort, reqparse
 
-from api.authentication.CognitoClientWrapper import CognitoClientWrapper
 from api.decorator import roles_required
 from api.util import (
     add_new_phoneNumber_for_user,
@@ -36,6 +35,7 @@ from api.util import (
     update_secret_key_for_user,
     validate_user,
 )
+from authentication.CognitoClientWrapper import CognitoClientWrapper
 from config import flask_bcrypt
 from data import crud, marshal
 from enums import RoleEnum
