@@ -35,11 +35,11 @@ from api.util import (
     update_secret_key_for_user,
     validate_user,
 )
+from authentication.CognitoClientWrapper import CognitoClientWrapper
 from config import flask_bcrypt
 from data import crud, marshal
 from enums import RoleEnum
 from models import User
-from server.authentication.CognitoClientWrapper import CognitoClientWrapper
 from validation import users
 
 LOGGER = logging.getLogger(__name__)

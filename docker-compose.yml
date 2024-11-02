@@ -13,7 +13,7 @@ services:
         volumes:
             - flask_uploads:/uploads
         secrets:
-            - aws_secrets
+            - .aws.secrets.env
         environment:
             PORT: 5000
             DB_HOSTNAME: cradle_mysql
@@ -44,5 +44,5 @@ volumes:
     mysql_data:
 
 secrets:
-    aws_secrets:
+    .aws.secrets.env:
         file: ./.aws.secrets.env
