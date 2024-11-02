@@ -56,7 +56,6 @@ COGNITO_CLIENT_SECRET = os.environ["COGNITO_CLIENT_SECRET"]
 AWS_ACCESS_KEY_ID = os.environ["AWS_ACCESS_KEY_ID"]
 AWS_SECRET_ACCESS_KEY = os.environ["AWS_SECRET_ACCESS_KEY"]
 
-
 cognito = CognitoClientWrapper(
     cognito_idp_client=boto3.client(
         service_name="cognito-idp",
@@ -77,7 +76,6 @@ invalid_phone_number_message = (
     "Phone number {phoneNumber} has wrong format. The format for phone number should be +x-xxx-xxx-xxxx, "
     "+x-xxx-xxx-xxxxx, xxx-xxx-xxxx or xxx-xxx-xxxxx"
 )
-
 phone_number_already_exists_message = "Phone number is already assigned to another user."
 
 # Building a parser that will be used over several apis for Users
@@ -148,7 +146,7 @@ class UserAll(Resource):
             userDictList.append(userDict)
 
         if userDictList is None:
-            return {"message": "no users currently exist"}, 404
+            return {"message": "No users currently exist"}, 404
         return userDictList
 
 
@@ -236,7 +234,7 @@ class UserPasswordChange(Resource):
         # check if password given is suitable
         if not isGoodPassword(data["new_password"]):
             return (
-                {"message": "The new password must be at least 8 characters long"},
+                {"message": "The new password must be at least 8 characters long."},
                 400,
             )
 
@@ -281,14 +279,10 @@ class UserRegisterApi(Resource):
         new_user = filterPairsWithNone(self.registerParser.parse_args())
 
         # Get phone numbers.
-        phone_numbers = [
-            phone_number
-            for phone_number in new_user["phoneNumbers"]
-            if phone_number is not None
-        ]
+        phone_numbers = list(new_user.get("phoneNumbers", []))
 
         # Remove phone numbers from new_user.
-        new_user = {k: v for k, v in new_user.items() if k != "phoneNumbers"}
+        new_user.pop("phoneNumbers")
 
         # validate the new user
         error_message = users.validate(new_user)
@@ -298,9 +292,9 @@ class UserRegisterApi(Resource):
 
         # Ensure that email is unique
         if (crud.read(User, email=new_user["email"])) is not None:
-            error = {"message": "there is already a user with this email"}
-            LOGGER.error(error)
-            return error, 400
+            error_message = "There is already a user with this email."
+            LOGGER.error(error_message)
+            abort(400, message=error_message)
 
         # Validate phone numbers.
         for phone_number in phone_numbers:
@@ -309,9 +303,9 @@ class UserRegisterApi(Resource):
 
         # Ensure that role is supported
         if new_user["role"] not in supported_roles:
-            error = {"message": "Not a supported role"}
-            LOGGER.error(error)
-            return error, 400
+            error_message = {"message": "Not a supported role."}
+            LOGGER.error(error_message)
+            abort(400, message=error_message)
 
         # Encrypt pass
         new_user["password"] = flask_bcrypt.generate_password_hash(new_user["password"])
