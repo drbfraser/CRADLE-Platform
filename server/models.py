@@ -48,25 +48,25 @@ class User(db.Model):
     role = db.Column(db.String(50))
 
     # FOREIGN KEYS
-    healthFacilityName = db.Column(
+    health_facility_name = db.Column(
         db.String(50),
-        db.ForeignKey("healthfacility.healthFacilityName"),
+        db.ForeignKey("health_facility.name"),
         nullable=True,
     )
 
     # RELATIONSHIPS
-    healthFacility = db.relationship(
+    health_facility = db.relationship(
         "HealthFacility",
         backref=db.backref("users", lazy=True),
     )
     referrals = db.relationship("Referral", backref=db.backref("users", lazy=True))
-    vhtList = db.relationship(
+    vht_list = db.relationship(
         "User",
         secondary=supervises,
         primaryjoin=id == supervises.c.choId,
         secondaryjoin=id == supervises.c.vhtId,
     )
-    phoneNumbers = db.relationship(
+    phone_numbers = db.relationship(
         "UserPhoneNumber",
         back_populates="user",
         lazy=True,
@@ -90,7 +90,7 @@ class UserPhoneNumber(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
     # RELATIONSHIPS
-    user = db.relationship("User", back_populates="phoneNumbers")
+    user = db.relationship("User", back_populates="phone_numbers")
 
     @staticmethod
     def schema():
@@ -99,9 +99,9 @@ class UserPhoneNumber(db.Model):
 
 class RelayServerPhoneNumber(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
-    phone = db.Column(db.String(20), unique=True)
+    phone_number = db.Column(db.String(20), unique=True)
     description = db.Column(db.String(50), unique=False)
-    lastReceived = db.Column(db.BigInteger, unique=False, default=get_current_time)
+    last_received = db.Column(db.BigInteger, unique=False, default=get_current_time)
 
     @staticmethod
     def schema():
@@ -110,22 +110,22 @@ class RelayServerPhoneNumber(db.Model):
 
 class Referral(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
-    dateReferred = db.Column(
+    date_referred = db.Column(
         db.BigInteger,
         nullable=False,
         default=get_current_time,
     )
     comment = db.Column(db.Text)
-    actionTaken = db.Column(db.Text)
-    isAssessed = db.Column(db.Boolean, nullable=False, default=0)
-    dateAssessed = db.Column(db.BigInteger, nullable=True)
-    isCancelled = db.Column(db.Boolean, nullable=False, default=0)
-    cancelReason = db.Column(db.Text)
-    dateCancelled = db.Column(db.BigInteger, nullable=True)
-    notAttended = db.Column(db.Boolean, nullable=False, default=0)
-    notAttendReason = db.Column(db.Text)
-    dateNotAttended = db.Column(db.BigInteger, nullable=True)
-    lastEdited = db.Column(
+    action_taken = db.Column(db.Text)
+    is_assessed = db.Column(db.Boolean, nullable=False, default=0)
+    date_assessed = db.Column(db.BigInteger, nullable=True)
+    is_cancelled = db.Column(db.Boolean, nullable=False, default=0)
+    cancel_reason = db.Column(db.Text)
+    date_cancelled = db.Column(db.BigInteger, nullable=True)
+    not_attended = db.Column(db.Boolean, nullable=False, default=0)
+    not_attend_reason = db.Column(db.Text)
+    date_not_attended = db.Column(db.BigInteger, nullable=True)
+    last_edited = db.Column(
         db.BigInteger,
         nullable=False,
         default=get_current_time,
@@ -133,15 +133,15 @@ class Referral(db.Model):
     )
 
     # FOREIGN KEYS
-    userId = db.Column(db.Integer, db.ForeignKey("user.id"))
-    patientId = db.Column(db.String(50), db.ForeignKey("patient.patientId"))
-    referralHealthFacilityName = db.Column(
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    patient_id = db.Column(db.String(50), db.ForeignKey("patient.id"))
+    health_facility_name = db.Column(
         db.String(50),
-        db.ForeignKey("healthfacility.healthFacilityName"),
+        db.ForeignKey("health_facility.name"),
     )
 
     # RELATIONSHIPS
-    healthFacility = db.relationship(
+    health_facility = db.relationship(
         "HealthFacility",
         backref=db.backref("referrals", lazy=True),
     )
@@ -156,18 +156,17 @@ class Referral(db.Model):
 
 
 class HealthFacility(db.Model):
-    __tablename__ = "healthfacility"
     # TODO: should probably have a unique id as primary key here, in addition to facility name
-    healthFacilityName = db.Column(db.String(50), primary_key=True)
-    facilityType = db.Column(db.Enum(FacilityTypeEnum))
+    name = db.Column(db.String(50), primary_key=True)
+    type = db.Column(db.Enum(FacilityTypeEnum))
 
     # Best practice would be to add column for area code + column for rest of number.
     # However, all of our facilities are in Uganda so area code does not change.
     # May want to change in the future if system if used in multiple countries
-    healthFacilityPhoneNumber = db.Column(db.String(50))
+    phone_number = db.Column(db.String(50))
     location = db.Column(db.String(50))
     about = db.Column(db.Text)
-    newReferrals = db.Column(db.String(50))
+    new_referrals = db.Column(db.String(50))
 
     @staticmethod
     def schema():
@@ -175,28 +174,28 @@ class HealthFacility(db.Model):
 
 
 class Patient(db.Model):
-    patientId = db.Column(db.String(50), primary_key=True)
-    patientName = db.Column(db.String(50))
-    patientSex = db.Column(db.Enum(SexEnum), nullable=False)
-    isPregnant = db.Column(db.Boolean)
-    gestationalAgeUnit = db.Column(db.Enum(GestationalAgeUnitEnum), nullable=True)
-    gestationalTimestamp = db.Column(db.BigInteger)
-    medicalHistory = db.Column(db.Text)
-    drugHistory = db.Column(db.Text)
-    allergy = db.Column(db.Text)
+    id = db.Column(db.String(50), primary_key=True)
+    name = db.Column(db.String(50))
+    sex = db.Column(db.Enum(SexEnum), nullable=False)
+    is_pregnant = db.Column(db.Boolean)
+    gestational_age_unit = db.Column(db.Enum(GestationalAgeUnitEnum), nullable=True)
+    gestational_timestamp = db.Column(db.BigInteger)
+    medical_history = db.Column(db.Text)
+    drug_history = db.Column(db.Text)
+    allergies = db.Column(db.Text)
     zone = db.Column(db.String(20))
     dob = db.Column(db.Date)
-    isExactDob = db.Column(db.Boolean)
-    villageNumber = db.Column(db.String(50))
-    householdNumber = db.Column(db.String(50))
-    created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
-    lastEdited = db.Column(
+    is_exact_dob = db.Column(db.Boolean)
+    village_number = db.Column(db.String(50))
+    household_number = db.Column(db.String(50))
+    date_created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
+    last_edited = db.Column(
         db.BigInteger,
         nullable=False,
         default=get_current_time,
         onupdate=get_current_time,
     )
-    isArchived = db.Column(db.Boolean)
+    is_archived = db.Column(db.Boolean)
 
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
@@ -207,19 +206,19 @@ class Patient(db.Model):
 
 
 class Reading(db.Model):
-    readingId = db.Column(db.String(50), primary_key=True)
-    bpSystolic = db.Column(db.Integer)
-    bpDiastolic = db.Column(db.Integer)
-    heartRateBPM = db.Column(db.Integer)
+    id = db.Column(db.String(50), primary_key=True)
+    bp_systolic = db.Column(db.Integer)
+    bp_diastolic = db.Column(db.Integer)
+    heart_rate_BPM = db.Column(db.Integer)
 
     symptoms = db.Column(db.Text)
-    trafficLightStatus = db.Column(db.Enum(TrafficLightEnum, nullable=False))
-    dateTimeTaken = db.Column(db.BigInteger)
-    dateRecheckVitalsNeeded = db.Column(db.BigInteger)
-    retestOfPreviousReadingIds = db.Column(db.String(100))
-    isFlaggedForFollowup = db.Column(db.Boolean)
+    traffic_light_status = db.Column(db.Enum(TrafficLightEnum, nullable=False))
+    timestamp_taken = db.Column(db.BigInteger)
+    date_recheck_needed = db.Column(db.BigInteger)
+    retest_of_previous_reading_ids = db.Column(db.String(100))
+    is_flagged_for_followup = db.Column(db.Boolean)
 
-    lastEdited = db.Column(
+    last_edited = db.Column(
         db.BigInteger,
         nullable=False,
         default=get_current_time,
@@ -227,14 +226,14 @@ class Reading(db.Model):
     )
 
     # FOREIGN KEYS
-    userId = db.Column(
+    user_id = db.Column(
         db.Integer,
         db.ForeignKey("user.id", ondelete="SET NULL"),
         nullable=True,
     )
-    patientId = db.Column(
+    patient_id = db.Column(
         db.String(50),
-        db.ForeignKey("patient.patientId"),
+        db.ForeignKey("patient.id"),
         nullable=False,
     )
     referral_id = db.Column(
@@ -265,19 +264,19 @@ class Reading(db.Model):
         shock_medium = 0.9
 
         if (
-            self.bpSystolic is None
-            or self.bpDiastolic is None
-            or self.heartRateBPM is None
+            self.bp_systolic is None
+            or self.bp_diastolic is None
+            or self.heart_rate_BPM is None
         ):
             return TrafficLightEnum.NONE.value
 
-        shock_index = self.heartRateBPM / self.bpSystolic
+        shock_index = self.heart_rate_BPM / self.bp_systolic
 
-        is_bp_very_high = (self.bpSystolic >= red_systolic) or (
+        is_bp_very_high = (self.bp_systolic >= red_systolic) or (
             self.bpDiastolic >= red_diastolic
         )
-        is_bp_high = (self.bpSystolic >= yellow_systolic) or (
-            self.bpDiastolic >= yellow_diastolic
+        is_bp_high = (self.bp_systolic >= yellow_systolic) or (
+            self.bp_diastolic >= yellow_diastolic
         )
         is_severe_shock = shock_index >= shock_high
         is_shock = shock_index >= shock_medium
@@ -301,30 +300,29 @@ class Reading(db.Model):
 
 
 class FollowUp(db.Model):
-    __tablename__ = "followup"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
 
-    followupInstructions = db.Column(db.Text)
-    specialInvestigations = db.Column(db.Text)
+    instructions = db.Column(db.Text)
+    special_investigations = db.Column(db.Text)
     diagnosis = db.Column(db.Text)
     treatment = db.Column(db.Text)
-    medicationPrescribed = db.Column(db.Text)
-    dateAssessed = db.Column(db.BigInteger, nullable=False)
-    followupNeeded = db.Column(db.Boolean)
+    medication_prescribed = db.Column(db.Text)
+    date_assessed = db.Column(db.BigInteger, nullable=False)
+    followup_needed = db.Column(db.Boolean)
 
     # FOREIGN KEYS
-    healthcareWorkerId = db.Column(db.ForeignKey(User.id), nullable=False)
-    patientId = db.Column(
+    user_id = db.Column(db.ForeignKey(User.id), nullable=False)
+    patient_id = db.Column(
         db.String(50),
-        db.ForeignKey("patient.patientId"),
+        db.ForeignKey("patient.id"),
         nullable=False,
     )
 
     # RELATIONSHIPS
-    healthcareWorker = db.relationship(User, backref=db.backref("followups", lazy=True))
+    healthcare_worker = db.relationship(User, backref=db.backref("follow_ups", lazy=True))
     patient = db.relationship(
         "Patient",
-        backref=db.backref("followups", cascade="all, delete-orphan", lazy=True),
+        backref=db.backref("follow_ups", cascade="all, delete-orphan", lazy=True),
     )
 
     @staticmethod
@@ -333,26 +331,26 @@ class FollowUp(db.Model):
 
 
 class Village(db.Model):
-    villageNumber = db.Column(db.String(50), primary_key=True)
-    zoneNumber = db.Column(db.String(50))
+    village_number = db.Column(db.String(50), primary_key=True)
+    zone_number = db.Column(db.String(50))
 
 
 class UrineTest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    urineTestLeuc = db.Column(db.String(5))
-    urineTestNit = db.Column(db.String(5))
-    urineTestGlu = db.Column(db.String(5))
-    urineTestPro = db.Column(db.String(5))
-    urineTestBlood = db.Column(db.String(5))
+    leuc = db.Column(db.String(5))
+    nit = db.Column(db.String(5))
+    glu = db.Column(db.String(5))
+    pro = db.Column(db.String(5))
+    blood = db.Column(db.String(5))
 
     # FOREIGN KEYS
-    readingId = db.Column(db.ForeignKey("reading.readingId", ondelete="CASCADE"))
+    reading_id = db.Column(db.ForeignKey("reading.id", ondelete="CASCADE"))
 
     # RELATIONSHIPS
     reading = db.relationship(
         Reading,
         backref=db.backref(
-            "urineTests",
+            "urine_tests",
             lazy=True,
             uselist=False,
             cascade="all, delete-orphan",
@@ -366,22 +364,22 @@ class UrineTest(db.Model):
 
 class PatientAssociations(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    patientId = db.Column(
-        db.ForeignKey(Patient.patientId, ondelete="CASCADE"),
+    patient_id = db.Column(
+        db.ForeignKey(Patient.id, ondelete="CASCADE"),
         nullable=False,
     )
-    healthFacilityName = db.Column(
-        db.ForeignKey(HealthFacility.healthFacilityName, ondelete="CASCADE"),
+    health_facility_name = db.Column(
+        db.ForeignKey(HealthFacility.name, ondelete="CASCADE"),
         nullable=True,
     )
-    userId = db.Column(db.ForeignKey(User.id, ondelete="CASCADE"), nullable=True)
+    user_id = db.Column(db.ForeignKey(User.id, ondelete="CASCADE"), nullable=True)
 
     # RELATIONSHIPS
     patient = db.relationship(
         "Patient",
         backref=db.backref("associations", lazy=True, cascade="all, delete"),
     )
-    healthFacility = db.relationship(
+    health_facility = db.relationship(
         "HealthFacility",
         backref=db.backref("associations", lazy=True, cascade="all, delete"),
     )
@@ -397,15 +395,14 @@ class PatientAssociations(db.Model):
 
 class Pregnancy(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    patientId = db.Column(
+    patient_id = db.Column(
         db.ForeignKey(Patient.patientId, ondelete="CASCADE"),
         nullable=False,
     )
-    startDate = db.Column(db.BigInteger, nullable=False)
-    defaultTimeUnit = db.Column(db.Enum(GestationalAgeUnitEnum))
-    endDate = db.Column(db.BigInteger, nullable=True, default=None)
+    start_date = db.Column(db.BigInteger, nullable=False)
+    end_date = db.Column(db.BigInteger, nullable=True, default=None)
     outcome = db.Column(db.Text)
-    lastEdited = db.Column(
+    last_edited = db.Column(
         db.BigInteger,
         nullable=False,
         default=get_current_time,
@@ -425,18 +422,18 @@ class Pregnancy(db.Model):
 
 class MedicalRecord(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    patientId = db.Column(
+    patient_id = db.Column(
         db.ForeignKey(Patient.patientId, ondelete="CASCADE"),
         nullable=False,
     )
     information = db.Column(db.Text, nullable=False)
-    isDrugRecord = db.Column(db.Boolean, nullable=False)
-    dateCreated = db.Column(
+    is_drug_record = db.Column(db.Boolean, nullable=False)
+    date_created = db.Column(
         db.BigInteger,
         nullable=False,
         default=get_current_time,
     )
-    lastEdited = db.Column(
+    last_edited = db.Column(
         db.BigInteger,
         nullable=False,
         default=get_current_time,
@@ -446,7 +443,7 @@ class MedicalRecord(db.Model):
     # RELATIONSHIPS
     patient = db.relationship(
         "Patient",
-        backref=db.backref("records", cascade="all, delete-orphan", lazy=True),
+        backref=db.backref("medical_records", cascade="all, delete-orphan", lazy=True),
     )
 
     @staticmethod
@@ -466,12 +463,12 @@ class FormClassification(db.Model):
 class FormTemplate(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     version = db.Column(db.Text, nullable=True)
-    dateCreated = db.Column(
+    date_created = db.Column(
         db.BigInteger,
         nullable=False,
         default=get_current_time,
     )
-    formClassificationId = db.Column(
+    form_classification_id = db.Column(
         db.ForeignKey(FormClassification.id, ondelete="SET NULL"),
         nullable=True,
     )
@@ -492,28 +489,28 @@ class Form(db.Model):
     lang = db.Column(db.Text, nullable=False)
     name = db.Column(db.Text, nullable=False, default="")
     category = db.Column(db.Text, nullable=False, default="")
-    patientId = db.Column(
+    patient_id = db.Column(
         db.ForeignKey(Patient.patientId, ondelete="CASCADE"),
         nullable=False,
     )
-    formTemplateId = db.Column(
+    form_template_id = db.Column(
         db.ForeignKey(FormTemplate.id, ondelete="SET NULL"),
         nullable=True,
     )
-    dateCreated = db.Column(
+    date_created = db.Column(
         db.BigInteger,
         nullable=False,
         default=get_current_time,
     )
-    lastEdited = db.Column(
+    last_edited = db.Column(
         db.BigInteger,
         nullable=False,
         default=get_current_time,
         onupdate=get_current_time,
     )
-    lastEditedBy = db.Column(db.ForeignKey(User.id, ondelete="SET NULL"), nullable=True)
+    last_edited_by = db.Column(db.ForeignKey(User.id, ondelete="SET NULL"), nullable=True)
 
-    formClassificationId = db.Column(
+    form_classification_id = db.Column(
         db.ForeignKey(FormClassification.id, ondelete="SET NULL"),
         nullable=True,
     )
@@ -574,39 +571,39 @@ class Question(db.Model):
     """
 
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
-    isBlank = db.Column(db.Boolean, nullable=False, default=0)
-    questionIndex = db.Column(db.Integer, nullable=False)
-    questionId = db.Column(db.Text, nullable=True)
-    questionText = db.Column(
+    is_blank = db.Column(db.Boolean, nullable=False, default=0)
+    question_index = db.Column(db.Integer, nullable=False)
+    question_id = db.Column(db.Text, nullable=True)
+    question_text = db.Column(
         db.Text(collation="utf8mb4_general_ci"),
         nullable=False,
         default="",
     )
-    questionType = db.Column(db.Enum(QuestionTypeEnum), nullable=False)
-    hasCommentAttached = db.Column(db.Boolean, nullable=False, default=0)
+    question_type = db.Column(db.Enum(QuestionTypeEnum), nullable=False)
+    has_comment_attached = db.Column(db.Boolean, nullable=False, default=0)
     required = db.Column(db.Boolean, nullable=False, default=0)
-    allowFutureDates = db.Column(db.Boolean, nullable=False, default=1)
-    allowPastDates = db.Column(db.Boolean, nullable=False, default=1)
+    allow_future_dates = db.Column(db.Boolean, nullable=False, default=1)
+    allow_past_dates = db.Column(db.Boolean, nullable=False, default=1)
     units = db.Column(db.Text, nullable=True)
-    visibleCondition = db.Column(db.Text, nullable=False, default="[]")
-    mcOptions = db.Column(
+    visible_condition = db.Column(db.Text, nullable=False, default="[]")
+    mc_options = db.Column(
         db.Text(collation="utf8mb4_general_ci"),
         nullable=False,
         default="[]",
     )
-    numMin = db.Column(db.Float, nullable=True)
-    numMax = db.Column(db.Float, nullable=True)
-    stringMaxLength = db.Column(db.Integer, nullable=True)
+    num_min = db.Column(db.Float, nullable=True)
+    num_max = db.Column(db.Float, nullable=True)
+    string_max_length = db.Column(db.Integer, nullable=True)
     answers = db.Column(db.Text, nullable=False, default="{}")
-    categoryIndex = db.Column(db.Integer, nullable=True)
-    stringMaxLines = db.Column(db.Integer, nullable=True)
+    category_index = db.Column(db.Integer, nullable=True)
+    string_max_lines = db.Column(db.Integer, nullable=True)
 
     # FORENIGN KEYS
-    formId = db.Column(
+    form_id = db.Column(
         db.ForeignKey(Form.id, ondelete="CASCADE"),
         nullable=True,
     )
-    formTemplateId = db.Column(
+    form_template_id = db.Column(
         db.ForeignKey(FormTemplate.id, ondelete="CASCADE"),
         nullable=True,
     )
@@ -633,8 +630,8 @@ class QuestionLangVersion(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     lang = db.Column(db.Text, nullable=False)
-    questionText = db.Column(db.Text(collation="utf8mb4_general_ci"), nullable=False)
-    mcOptions = db.Column(
+    question_text = db.Column(db.Text(collation="utf8mb4_general_ci"), nullable=False)
+    mc_options = db.Column(
         db.Text(collation="utf8mb4_general_ci"),
         nullable=False,
         default="[]",
@@ -659,7 +656,7 @@ class QuestionLangVersion(db.Model):
 
 class SmsSecretKey(db.Model):
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
-    secret_Key = db.Column(db.String(256), default="", nullable=False)
+    secret_key = db.Column(db.String(256), default="", nullable=False)
     stale_date = db.Column(db.DateTime, default=datetime.datetime.now(), nullable=False)
     expiry_date = db.Column(
         db.DateTime,
@@ -668,7 +665,7 @@ class SmsSecretKey(db.Model):
     )
 
     # FOREIGNKEY
-    userId = db.Column(db.ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
+    user_id = db.Column(db.ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
 
     @staticmethod
     def schema():
@@ -705,7 +702,7 @@ class RelayServerPhoneNumberSchema(ma.SQLAlchemyAutoSchema):
 
 
 class PatientSchema(ma.SQLAlchemyAutoSchema):
-    patientSex = EnumField(SexEnum, by_value=True)
+    sex = EnumField(SexEnum, by_value=True)
 
     class Meta:
         include_fk = True
@@ -715,7 +712,7 @@ class PatientSchema(ma.SQLAlchemyAutoSchema):
 
 
 class ReadingSchema(ma.SQLAlchemyAutoSchema):
-    trafficLightStatus = EnumField(TrafficLightEnum, by_value=True)
+    traffic_light_status = EnumField(TrafficLightEnum, by_value=True)
 
     class Meta:
         include_fk = True
@@ -725,7 +722,7 @@ class ReadingSchema(ma.SQLAlchemyAutoSchema):
 
 
 class HealthFacilitySchema(ma.SQLAlchemyAutoSchema):
-    facilityType = EnumField(FacilityTypeEnum, by_value=True)
+    type = EnumField(FacilityTypeEnum, by_value=True)
 
     class Meta:
         include_fk = True
@@ -735,7 +732,7 @@ class HealthFacilitySchema(ma.SQLAlchemyAutoSchema):
 
 
 class FollowUpSchema(ma.SQLAlchemyAutoSchema):
-    healthcareWorker = fields.Nested(UserSchema)
+    healthcare_worker = fields.Nested(UserSchema)
 
     class Meta:
         include_fk = True
@@ -753,7 +750,6 @@ class ReferralSchema(ma.SQLAlchemyAutoSchema):
 
 
 class UrineTestSchema(ma.SQLAlchemyAutoSchema):
-    # urineTests = fields.Nested(ReadingSchema)
     class Meta:
         include_fk = True
         model = UrineTest
@@ -774,12 +770,11 @@ user_schema = {
     "properties": {
         "username": {"type": "string"},
         "email": {"type": "string", "format": "email"},
-        "firstName": {"type": "string"},
+        "name": {"type": "string"},
         "role": {"type": "string"},
-        "healthFacilityName": {"type": "string"},
-        "password": {"type": "string", "minLength": 5},
+        "health_facility_name": {"type": "string"},
     },
-    "required": ["email", "password"],
+    "required": ["username", "email", "name", "role", "health_facility_name"],
     "additionalProperties": False,
 }
 
@@ -798,8 +793,8 @@ def validate_timestamp(ts):
 
 
 class PregnancySchema(ma.SQLAlchemyAutoSchema):
-    startDate = marshmallow.fields.Integer(validate=validate_timestamp)
-    endDate = marshmallow.fields.Integer(validate=validate_timestamp)
+    start_date = marshmallow.fields.Integer(validate=validate_timestamp)
+    end_date = marshmallow.fields.Integer(validate=validate_timestamp)
 
     class Meta:
         include_fk = True
@@ -809,7 +804,7 @@ class PregnancySchema(ma.SQLAlchemyAutoSchema):
 
 
 class MedicalRecordSchema(ma.SQLAlchemyAutoSchema):
-    dateCreated = marshmallow.fields.Integer(validate=validate_timestamp)
+    date_created = marshmallow.fields.Integer(validate=validate_timestamp)
 
     class Meta:
         include_fk = True
