@@ -70,16 +70,15 @@ cognito = CognitoClientWrapper(
 )
 
 # Error messages
-null_phone_number = "No phone number was provided"
-
-invalid_phone_number = (
+null_phone_number_message = "No phone number was provided."
+null_id_message = "No id provided."
+no_user_found_message = "There is no user with this id."
+invalid_phone_number_message = (
     "Phone number {phoneNumber} has wrong format. The format for phone number should be +x-xxx-xxx-xxxx, "
     "+x-xxx-xxx-xxxxx, xxx-xxx-xxxx or xxx-xxx-xxxxx"
 )
 
-phone_number_already_exists_message = {
-    "message": "Phone number is already assigned to another user.",
-}
+phone_number_already_exists_message = "Phone number is already assigned to another user."
 
 # Building a parser that will be used over several apis for Users
 UserParser = reqparse.RequestParser()
@@ -196,7 +195,7 @@ class AdminPasswordChange(Resource):
 
         # check if user exists
         if not doesUserExist(id):
-            return {"message": "There is no user with this id"}, 400
+            return {"message": no_user_found_message}, 400
 
         # check if password given is suitable
         if not isGoodPassword(data["password"]):
@@ -306,7 +305,7 @@ class UserRegisterApi(Resource):
         # Validate phone numbers.
         for phone_number in phone_numbers:
             if phoneNumber_exists(phone_number):
-                return phone_number_already_exists_message, 400
+                return {"message": phone_number_already_exists_message }, 400
 
         # Ensure that role is supported
         if new_user["role"] not in supported_roles:
@@ -493,7 +492,7 @@ class UserApi(Resource):
     def put(self, id):
         # Ensure we have id
         if not id:
-            return {"message": "must provide an id"}, 400
+            return {"message": null_id_message}, 400
 
         # Parse the arguments that we want
         new_user = filterPairsWithNone(UserParser.parse_args())
@@ -501,7 +500,7 @@ class UserApi(Resource):
         # Save the phoneNumbers field and remove it from new_user.
         phone_numbers = new_user.get("phoneNumbers")
         if phone_numbers is None:
-            return {"message": "must provide a phone number"}
+            return {"message": null_phone_number_message}, 400
         phone_numbers = list(phone_numbers)
         new_user = {k: v for k, v in new_user.items() if k != "phoneNumbers"}
 
@@ -513,19 +512,19 @@ class UserApi(Resource):
 
         # Ensure that id is valid
         if not doesUserExist(id):
-            error = {"message": "no user with this id"}
+            error = {"message": no_user_found_message}
             LOGGER.error(error)
             return error, 400
 
         if new_user["role"] not in supported_roles:
-            error = {"message": "Not a supported role"}
+            error = {"message": "Not a supported role."}
             LOGGER.error(error)
             return error, 400
 
         # Validate the phone numbers.
         for phone_number in phone_numbers:
             if not phoneNumber_regex_check(phone_number):
-                return {"message": invalid_phone_number}, 400
+                return {"message": invalid_phone_number_message}, 400
 
         # Get the user's existing phone numbers.
         old_phone_numbers: list[str] = get_all_phoneNumbers_for_user(id)
@@ -568,13 +567,13 @@ class UserApi(Resource):
     def get(self, id):
         # Ensure we have id
         if not id:
-            error = {"message": "must provide an id"}
+            error = {"message": null_id_message}
             LOGGER.error(error)
             return error, 400
 
         # Ensure that id is valid
         if not doesUserExist(id):
-            error = {"message": "no user with this id"}
+            error = {"message": no_user_found_message}
             LOGGER.error(error)
             return error, 400
 
@@ -585,14 +584,14 @@ class UserApi(Resource):
     def delete(self, id):
         # Ensure we have id
         if not id:
-            error = {"message": "must provide an id"}
+            error = {"message": null_id_message}
             LOGGER.error(error)
             return error, 400
 
         # Ensure that id is valid
         user = crud.read(User, id=id)
         if user is None:
-            error = {"message": "no user with this id"}
+            error = {"message": no_user_found_message}
             LOGGER.error(error)
             return error, 400
 
@@ -628,10 +627,10 @@ class UserPhoneUpdate(Resource):
     @swag_from("../../specifications/user-phone-get.yml", methods=["GET"])
     def get(self, user_id):
         if not user_id:
-            return {"message": "must provide an id"}, 400
+            return {"message": null_id_message}, 400
         # check if user exists
         if not doesUserExist(user_id):
-            return {"message": "There is no user with this id"}, 400
+            return {"message": no_user_found_message}, 400
 
         phoneNumbers = get_all_phoneNumbers_for_user(user_id)
         return {"phoneNumbers": phoneNumbers}, 200
@@ -642,19 +641,19 @@ class UserPhoneUpdate(Resource):
     @swag_from("../../specifications/user-phone-put.yml", methods=["PUT"])
     def put(self, user_id):
         if not user_id:
-            return {"message": "must provide an id"}, 400
+            return {"message": null_id_message}, 400
         # check if user exists
         if not doesUserExist(user_id):
-            return {"message": "There is no user with this id"}, 404
+            return {"message": no_user_found_message}, 404
         args = self.parser.parse_args()
         new_phone_number = args["newPhoneNumber"]
         current_phone_number = args["currentPhoneNumber"]
 
         if not phoneNumber_regex_check(new_phone_number):
-            return {"message": invalid_phone_number}, 400
+            return {"message": invalid_phone_number_message}, 400
 
         if new_phone_number is None:
-            return {"message": null_phone_number}, 400
+            return {"message": null_phone_number_message}, 400
 
         # Add the phone number to user's phoneNumbers
         if replace_phoneNumber_for_user(
@@ -671,10 +670,10 @@ class UserPhoneUpdate(Resource):
     @swag_from("../../specifications/user-phone-post.yml", methods=["POST"])
     def post(self, user_id):
         if not user_id:
-            return {"message": "must provide an id"}, 400
+            return {"message": null_id_message}, 400
         # check if user exists
         if not doesUserExist(user_id):
-            return {"message": "There is no user with this id"}, 400
+            return {"message": no_user_found_message}, 400
 
         args = self.parser.parse_args()
         new_phone_number = args["newPhoneNumber"]
@@ -694,17 +693,17 @@ class UserPhoneUpdate(Resource):
     @swag_from("../../specifications/user-phone-delete.yml", methods=["DELETE"])
     def delete(self, user_id):
         if not user_id:
-            return {"message": "must provide an id"}, 400
+            return {"message": null_id_message}, 400
 
         # check if user exists
         if not doesUserExist(user_id):
-            return {"message": "There is no user with this id"}, 400
+            return {"message": no_user_found_message}, 400
 
         args = self.parser.parse_args()
         number_to_delete = args["oldPhoneNumber"]
 
         if number_to_delete is None:
-            return {"message": "Phone number cannot be null"}, 400
+            return {"message": null_phone_number_message}, 400
 
         if delete_user_phoneNumber(number_to_delete, user_id):
             return {"message": "User phone number deleted successfully"}, 200
