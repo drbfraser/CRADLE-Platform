@@ -45,4 +45,4 @@ volumes:
 
 secrets:
     aws_secrets:
-        file: ./aws.secrets.env
+        file: ./.aws.secrets.env
