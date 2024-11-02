@@ -45,7 +45,7 @@ class CognitoClientWrapper:
         """
         Calculates a secret hash from a username and a client secret.
 
-        :param username: The user name to use when calculating the hash.
+        :param username: The username to use when calculating the hash.
         :return: The secret hash.
         """
         key = self.client_secret.encode()
@@ -55,7 +55,7 @@ class CognitoClientWrapper:
         ).decode()
         return secret_hash
 
-    def create_user(self, username: str, email: str):
+    def create_user(self, email: str):
         """
         Creates a user in the user pool. Self-service signup is disabled, so only
         admins can create users. This means that the 'sign_up' action will fail,
@@ -74,12 +74,10 @@ class CognitoClientWrapper:
         Since the fake users we create won't have real emails, we can use a
         temporary password that is known to us by passing it to the API.
 
-        :param username: The user name that identifies the new user.
         :param email: The email address for the new user.
         """
         create_user_kwargs = {
             "UserPoolId": self.user_pool_id,
-            "Username": username,
             "UserAttributes": [
                 {
                     "Name": "email",
@@ -102,8 +100,8 @@ class CognitoClientWrapper:
             create_user_kwargs["UserAttributes"] = user_attributes
             create_user_kwargs["TemporaryPassword"] = temporary_password
 
-        self.cognito_idp_client.admin_create_user(**create_user_kwargs)
-
+        response = self.cognito_idp_client.admin_create_user(**create_user_kwargs)
+        return response
     # End of function
 
     def delete_user(self, username: str):
