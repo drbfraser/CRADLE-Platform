@@ -3,6 +3,8 @@ import logging
 import os
 import re
 
+import boto3
+from dotenv import load_dotenv
 from flasgger import swag_from
 from flask import Flask
 from flask_jwt_extended import (
@@ -37,9 +39,35 @@ from config import flask_bcrypt
 from data import crud, marshal
 from enums import RoleEnum
 from models import User
+from server.authentication.CognitoClientWrapper import CognitoClientWrapper
 from validation import users
 
 LOGGER = logging.getLogger(__name__)
+
+load_dotenv()
+# Load aws secrets as environment variables.
+load_dotenv(dotenv_path="/run/secrets/.aws.secrets.env")
+
+AWS_REGION = os.environ["AWS_REGION"]
+COGNITO_USER_POOL_ID = os.environ["COGNITO_USER_POOL_ID"]
+COGNITO_APP_CLIENT_ID = os.environ["COGNITO_APP_CLIENT_ID"]
+COGNITO_CLIENT_SECRET = os.environ["COGNITO_CLIENT_SECRET"]
+
+AWS_ACCESS_KEY_ID = os.environ["AWS_ACCESS_KEY_ID"]
+AWS_SECRET_ACCESS_KEY = os.environ["AWS_SECRET_ACCESS_KEY"]
+
+
+cognito = CognitoClientWrapper(
+    cognito_idp_client=boto3.client(
+        service_name="cognito-idp",
+        region_name=AWS_REGION,
+        aws_access_key_id=AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+    ),
+    user_pool_id=COGNITO_USER_POOL_ID,
+    client_id=COGNITO_APP_CLIENT_ID,
+    client_secret=COGNITO_CLIENT_SECRET,
+)
 
 # Error messages
 null_phone_number = "No phone number was provided"
@@ -256,7 +284,7 @@ class UserRegisterApi(Resource):
         # Get phone numbers.
         phone_numbers = [
             phone_number
-            for phone_number in new_user.get("phoneNumbers")
+            for phone_number in new_user["phoneNumbers"]
             if phone_number is not None
         ]
 
@@ -297,7 +325,7 @@ class UserRegisterApi(Resource):
         # Getting the id of the created user
         createdUser = marshal.marshal(crud.read(User, email=new_user["email"]))
         createdUser.pop("password")
-        createdUserId = createdUser.get("id")
+        createdUserId = createdUser["id"]
 
         # Add the new user's phone numbers.
         for phone_number in phone_numbers:
@@ -389,15 +417,19 @@ class UserAuthApi(Resource):
         )
 
         # We want to obfuscate and conceal timing information by checking the password hash of an invalid password
-        if (
-            not user
-            and not flask_bcrypt.check_password_hash(
-                salted_invalid_password,
-                data["password"],
-            )
-            or not flask_bcrypt.check_password_hash(user.password, data["password"])
+        if ((user is None
+             and not flask_bcrypt.check_password_hash(
+                    salted_invalid_password,
+                    data["password"]))
+            or (user is not None
+                and not flask_bcrypt.check_password_hash(
+                    user.password,
+                    data["password"]))
         ):
             return {"message": "Incorrect username or password."}, 401
+
+        if user is None:
+            return None
 
         # setup any extra user params
         user_data = get_user_data_for_token(user)
@@ -405,7 +437,7 @@ class UserAuthApi(Resource):
         user_data["token"] = get_access_token(user_data)
         user_data["refresh"] = get_refresh_token(user_data)
 
-        # construct and add the sms key informations in the same format as api/user/<int:user_id>/smskey
+        # construct and add the sms key information in the same format as api/user/<int:user_id>/smskey
         sms_key = get_user_secret_key(user.id)
         if sms_key:
             # remove extra items
