@@ -499,7 +499,10 @@ class UserApi(Resource):
         new_user = filterPairsWithNone(UserParser.parse_args())
 
         # Save the phoneNumbers field and remove it from new_user.
-        phone_numbers = list(new_user.get("phoneNumbers"))
+        phone_numbers = new_user.get("phoneNumbers")
+        if phone_numbers is None:
+            return {"message": "must provide a phone number"}
+        phone_numbers = list(phone_numbers)
         new_user = {k: v for k, v in new_user.items() if k != "phoneNumbers"}
 
         # validate the new users
@@ -542,7 +545,7 @@ class UserApi(Resource):
 
         supervises = []
         if new_user["role"] == RoleEnum.CHO.value:
-            supervises = new_user.get("supervises")
+            supervises = new_user.get("supervises", [])
 
         crud.add_vht_to_supervise(id, supervises)
         new_user.pop("supervises", None)
