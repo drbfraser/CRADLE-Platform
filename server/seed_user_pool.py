@@ -1,5 +1,6 @@
 import os
 import pprint
+from typing import TypedDict
 
 import boto3
 from botocore.exceptions import ClientError
@@ -26,7 +27,18 @@ COGNITO_CLIENT_SECRET = os.environ["COGNITO_CLIENT_SECRET"]
 AWS_ACCESS_KEY_ID = os.environ["AWS_ACCESS_KEY_ID"]
 AWS_SECRET_ACCESS_KEY = os.environ["AWS_SECRET_ACCESS_KEY"]
 
-seed_users = [
+pprinter = pprint.PrettyPrinter(indent=4, sort_dicts=False, compact=False)
+
+class UserDict(TypedDict):
+  name: str
+  username: str
+  email: str
+  password: str
+  facility: str
+  role: str
+  phone_numbers: list[str]
+
+seed_users: list[UserDict] = [
   {
     "name": "Admin",
     "username": "admin",
@@ -37,7 +49,7 @@ seed_users = [
     "phone_numbers": [
       "+1-888-456-7890",
       "+1-098-765-4321",
-      os.environ.get("EMULATOR_PHONE_NUMBER"),
+      os.environ["EMULATOR_PHONE_NUMBER"],
     ],
   },
   {
@@ -51,9 +63,7 @@ seed_users = [
   },
 ]
 
-pprinter = pprint.PrettyPrinter(indent=4, sort_dicts=False, compact=False)
-
-def main():
+def populate_user_pool(seed_users: list[UserDict]):
   if not ENABLE_DEV_USERS:
     raise RuntimeError("ERROR: ENABLE_DEV_USERS is not set to true.")
   cognito = CognitoClientWrapper(
@@ -67,9 +77,6 @@ def main():
       client_id=COGNITO_APP_CLIENT_ID,
       client_secret=COGNITO_CLIENT_SECRET,
   )
-
-  users = []
-
   try:
     # If the seed users are already in the user pool, delete them and then recreate them.
     existing_users = cognito.list_users()
@@ -88,24 +95,22 @@ def main():
         name=seed_user["name"],
       )
       pprinter.pprint(response)
-      user = response["User"]
-      users.append(user)
 
       # Set the new user's password.
       cognito.set_user_password(username=seed_user["username"], new_password=seed_user["password"])
-
   except ClientError as err:
+    print("ERROR: Failed to create user.")
     error = err.response.get("Error")
     if error is not None:
       code =  error.get("Code")
-      if code is not None and code != "UsernameExistsException":
-        print(error.get("Code"))
-        print("Error: ", error)
-        print("ERROR: Failed to create user.")
-        print(err)
-        exit(1)
-      else:
-        print(code)
+      print("Error: ", error)
+    if code is not None and code != "UsernameExistsException":
+      print(code)
+    exit(1)
+# End of function.
+
+def main():
+  populate_user_pool(seed_users)
 
 
 if __name__ == "__main__":
