@@ -9,8 +9,10 @@ from data import crud, marshal
 from models import Pregnancy
 from service import serialize, view
 from utils import get_current_time
-from validation.pregnancies import PregnancyPostRequestValidator
-from validation.pregnancies import PrenancyPutRequestValidator
+from validation.pregnancies import (
+    PregnancyPostRequestValidator,
+    PrenancyPutRequestValidator,
+)
 from validation.validation_exception import ValidationExceptionError
 
 
@@ -41,7 +43,8 @@ class Root(Resource):
 
         try:
             PregnancyPostRequestValidator.validate_post_request(
-                request_body, patient_id
+                request_body,
+                patient_id,
             )
         except ValidationExceptionError as e:
             abort(400, message=str(e))

@@ -4,7 +4,7 @@ import os
 import re
 
 from flasgger import swag_from
-from flask import Flask
+from flask import Flask, request
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -27,6 +27,7 @@ from api.util import (
     getDictionaryOfUserInfo,
     is_date_passed,
     isGoodPassword,
+    phoneNumber_exists,
     phoneNumber_regex_check,
     replace_phoneNumber_for_user,
     update_secret_key_for_user,
@@ -36,17 +37,18 @@ from config import flask_bcrypt
 from data import crud, marshal
 from enums import RoleEnum
 from models import User
-from validation import users
+from validation.users import UserRegisterValidator, UserUpdateValidator
+from validation.validation_exception import ValidationExceptionError
 
 LOGGER = logging.getLogger(__name__)
-
-# Error messages
 null_phone_number = "No phone number was provided"
-
 invalid_phone_number = (
     "Phone number {phoneNumber} has wrong format. The format for phone number should be +x-xxx-xxx-xxxx, "
     "+x-xxx-xxx-xxxxx, xxx-xxx-xxxx or xxx-xxx-xxxxx"
 )
+phone_number_already_exists_message = {
+    "message": "Phone number is already assigned to another user.",
+}
 
 # Building a parser that will be used over several apis for Users
 UserParser = reqparse.RequestParser()
@@ -69,6 +71,13 @@ UserParser.add_argument(
     help="This field cannot be left blank!",
 )
 UserParser.add_argument(
+    "phoneNumbers",
+    type=str,
+    required=True,
+    help="This field cannot be left blank!",
+    action="append",
+)
+UserParser.add_argument(
     "role",
     type=str,
     required=True,
@@ -76,9 +85,7 @@ UserParser.add_argument(
 )
 UserParser.add_argument("supervises", type=int, action="append")
 
-supported_roles = []
-for role in RoleEnum:
-    supported_roles.append(role.value)
+supported_roles = [role.value for role in RoleEnum]
 
 
 # api/user/all [GET]
@@ -225,27 +232,34 @@ class UserPasswordChange(Resource):
 
 # api/user/register [POST]
 class UserRegisterApi(Resource):
-    # Allow for parsing a password too
-    registerParser = UserParser.copy()
-    registerParser.add_argument(
-        "password",
-        type=str,
-        required=True,
-        help="This field cannot be left blank!",
-    )
-
     # Create a new user
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/user-register.yml", methods=["POST"])
     def post(self):
-        # Parse args
-        new_user = filterPairsWithNone(self.registerParser.parse_args())
+        request_body = request.get_json(force=True)
 
-        # validate the new user
-        error_message = users.validate(new_user)
-        if error_message is not None:
+        new_user_to_feed = filterPairsWithNone(request_body)
+
+        try:
+            # validate the new user
+            user_pydantic_model = UserRegisterValidator.validate(new_user_to_feed)
+        except ValidationExceptionError as e:
+            error_message = str(e)
             LOGGER.error(error_message)
             abort(400, message=error_message)
+
+        # use pydantic model to generate validated dict for later processing
+        new_user = user_pydantic_model.model_dump()
+
+        # Get phone numbers.
+        phone_numbers = [
+            phone_number
+            for phone_number in new_user["phoneNumbers"]
+            if phone_number is not None
+        ]
+
+        # Remove phone numbers from new_user.
+        new_user = {k: v for k, v in new_user.items() if k != "phoneNumbers"}
 
         # Ensure that email is unique
         if (crud.read(User, email=new_user["email"])) is not None:
@@ -253,11 +267,10 @@ class UserRegisterApi(Resource):
             LOGGER.error(error)
             return error, 400
 
-        # Ensure that role is supported
-        if new_user["role"] not in supported_roles:
-            error = {"message": "Not a supported role"}
-            LOGGER.error(error)
-            return error, 400
+        # Validate phone numbers.
+        for phone_number in phone_numbers:
+            if phoneNumber_exists(phone_number):
+                return phone_number_already_exists_message, 400
 
         # Encrypt pass
         new_user["password"] = flask_bcrypt.generate_password_hash(new_user["password"])
@@ -271,6 +284,10 @@ class UserRegisterApi(Resource):
         createdUser = marshal.marshal(crud.read(User, email=new_user["email"]))
         createdUser.pop("password")
         createdUserId = createdUser.get("id")
+
+        # Add the new user's phone numbers.
+        for phone_number in phone_numbers:
+            add_new_phoneNumber_for_user(phone_number, createdUserId)
 
         # Updating the supervises table if necessary as well
         if new_user["role"] == "CHO" and listOfVhts is not None:
@@ -435,8 +452,12 @@ class UserApi(Resource):
         # Parse the arguments that we want
         new_user = filterPairsWithNone(UserParser.parse_args())
 
+        # Save the phoneNumbers field and remove it from new_user.
+        phone_numbers = list(new_user.get("phoneNumbers"))
+        new_user = {k: v for k, v in new_user.items() if k != "phoneNumbers"}
+
         # validate the new users
-        error_message = users.validate(new_user)
+        error_message = UserUpdateValidator.validate(new_user)
         if error_message is not None:
             LOGGER.error(error_message)
             abort(400, message=error_message)
@@ -452,6 +473,27 @@ class UserApi(Resource):
             LOGGER.error(error)
             return error, 400
 
+        # Validate the phone numbers.
+        for phone_number in phone_numbers:
+            if not phoneNumber_regex_check(phone_number):
+                return {"message": invalid_phone_number}, 400
+
+        # Get the user's existing phone numbers.
+        old_phone_numbers: list[str] = get_all_phoneNumbers_for_user(id)
+
+        # Isolate those phone numbers which are not already in the database.
+        new_phone_numbers = list(set(phone_numbers).difference(set(old_phone_numbers)))
+
+        # Isolate the phone numbers to remove.
+        remove_phone_numbers = list(
+            set(old_phone_numbers).difference(set(phone_numbers)),
+        )
+
+        # If new phone number belongs to an existing user, return an error message.
+        for phone_number in new_phone_numbers:
+            if phoneNumber_exists(phone_number):
+                return phone_number_already_exists_message, 400
+
         supervises = []
         if new_user["role"] == RoleEnum.CHO.value:
             supervises = new_user.get("supervises")
@@ -459,7 +501,16 @@ class UserApi(Resource):
         crud.add_vht_to_supervise(id, supervises)
         new_user.pop("supervises", None)
 
+        # Update the user.
         crud.update(User, new_user, id=id)
+
+        # Add new phone numbers.
+        for phone_number in new_phone_numbers:
+            add_new_phoneNumber_for_user(phone_number, id)
+
+        # Remove phone numbers to be removed.
+        for phone_number in remove_phone_numbers:
+            delete_user_phoneNumber(phone_number, id)
 
         return getDictionaryOfUserInfo(id)
 

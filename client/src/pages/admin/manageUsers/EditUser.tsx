@@ -36,6 +36,7 @@ interface IProps {
 const EditUser = ({ open, onClose, users, editUser }: IProps) => {
   const healthFacilities = useHealthFacilities();
   const [submitError, setSubmitError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const creatingNew = editUser === undefined;
   const emailsInUse = users
     .filter((u) => u.userId !== editUser?.userId)
@@ -45,19 +46,33 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
     user: IUser,
     { setSubmitting }: FormikHelpers<IUser>
   ) => {
+    /* If the phone number entered is not already in the user's array of 
+    phone numbers, prepend it to the array. */
+    if (!user.phoneNumbers.includes(user.phoneNumber)) {
+      user.phoneNumbers = [user.phoneNumber, ...user.phoneNumbers];
+    }
     try {
       await saveUserAsync(user, editUser?.userId);
-
       onClose();
     } catch (e) {
+      if (!(e instanceof Response)) return;
+      const { message } = (await e.json()) as { message: string };
       setSubmitting(false);
+      setErrorMessage(`Error: ${message}`);
       setSubmitError(true);
     }
   };
 
   return (
     <>
-      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
+      <APIErrorToast
+        open={submitError}
+        onClose={() => {
+          setSubmitError(false);
+          setErrorMessage('');
+        }}
+        errorMessage={errorMessage}
+      />
       <Dialog open={open} maxWidth="sm" fullWidth>
         <DialogTitle>{creatingNew ? 'Create' : 'Edit'} User</DialogTitle>
         <DialogContent>

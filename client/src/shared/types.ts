@@ -135,6 +135,16 @@ export type SecretKey = {
   message: string;
 };
 
+/**
+ * Oct 24, 2024 - It seems that for the last 2 years, there has been a pretty
+ * major bug with this User model definition. The "phoneNumber" attribute was
+ * not aligned with the "phoneNumbers" attribute of the objects returned from
+ * the server. Apparently the front-end was completely unaware of this
+ * one-to-many relationship where users can have multiple phone numbers.
+ * Consequently there are various things in the client-side code which expect
+ * a "phoneNumber" attribute, so I have add the "phoneNumbers" array while
+ * keeping the "phoneNumber" attribute.
+ */
 export interface IUser {
   userId: number;
   email: string;
@@ -142,6 +152,7 @@ export interface IUser {
   healthFacilityName: string;
   role: UserRoleEnum;
   supervises: number[];
+  phoneNumbers: string[];
   phoneNumber: string;
 }
 

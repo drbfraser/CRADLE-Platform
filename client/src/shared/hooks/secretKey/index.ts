@@ -8,6 +8,7 @@ import {
 } from 'src/shared/api';
 import { UserRoleEnum } from 'src/shared/enums';
 import {
+  IUser,
   IUserWithIndex,
   IUserWithTokens,
   OrNull,
@@ -51,7 +52,7 @@ export const useSecretKey = (
     if (users.length > 0) {
       return;
     }
-    const resp: IUserWithIndex[] = await getUsersAsync();
+    const resp: IUser[] = await getUsersAsync();
     setUsers(
       resp.map((user, index) => ({
         email: user.email,
