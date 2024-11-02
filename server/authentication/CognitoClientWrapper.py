@@ -5,7 +5,10 @@ import logging
 import os
 
 from botocore.exceptions import ClientError
+from dotenv import load_dotenv
 from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
+
+load_dotenv()
 
 """
   Environment variable to control whether to enable creating fake users for
@@ -13,9 +16,7 @@ from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
   verify their emails, and their temporary passwords will be set to one that we
   specify instead of being generated.
 """
-ENABLE_DEV_USERS = os.environ.get("ENABLE_DEV_USERS")
-if ENABLE_DEV_USERS is not None:
-    ENABLE_DEV_USERS = ENABLE_DEV_USERS.lower() in ["true"]
+ENABLE_DEV_USERS: bool = os.getenv("ENABLE_DEV_USERS", default="false").lower() in ["true"]
 if ENABLE_DEV_USERS:
     temporary_password = "Temporary_123"
 
