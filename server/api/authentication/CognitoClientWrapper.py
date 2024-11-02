@@ -31,7 +31,7 @@ class CognitoClientWrapper:
         client_id: str,
         client_secret: str,
     ):
-        self.cognito_idp_client: CognitoIdentityProviderClient = cognito_idp_client
+        self.client: CognitoIdentityProviderClient = cognito_idp_client
         self.user_pool_id: str = user_pool_id
         self.client_id: str = client_id
         self.client_secret: str = client_secret
@@ -101,7 +101,7 @@ class CognitoClientWrapper:
             create_user_kwargs["UserAttributes"] = user_attributes
             create_user_kwargs["TemporaryPassword"] = temporary_password
 
-        response = self.cognito_idp_client.admin_create_user(**create_user_kwargs)
+        response = self.client.admin_create_user(**create_user_kwargs)
         return response
     # End of function
 
@@ -110,7 +110,7 @@ class CognitoClientWrapper:
         Delete the specified user from the user pool.
         """
         try:
-            self.cognito_idp_client.admin_delete_user(
+            self.client.admin_delete_user(
                 UserPoolId=self.user_pool_id, Username=username,
             )
         except ClientError as err:
@@ -122,7 +122,7 @@ class CognitoClientWrapper:
 
     def list_users(self):
         try:
-            response = self.cognito_idp_client.list_users(UserPoolId=self.user_pool_id)
+            response = self.client.list_users(UserPoolId=self.user_pool_id)
             users = response["Users"]
         except ClientError as err:
             logger.error(
@@ -145,11 +145,11 @@ class CognitoClientWrapper:
         :param username: The username of the user.
         :param new_password: The new password to set for the user.
         """
-        self.cognito_idp_client.admin_set_user_password(UserPoolId=self.user_pool_id, Username=username, Password=new_password, Permanent=True)
+        self.client.admin_set_user_password(UserPoolId=self.user_pool_id, Username=username, Password=new_password, Permanent=True)
 
     def start_sign_in(self, username: str, password: str):
         try:
-            init_response = self.cognito_idp_client.admin_initiate_auth(
+            init_response = self.client.admin_initiate_auth(
                 UserPoolId=self.user_pool_id,
                 ClientId=self.client_id,
                 AuthFlow="ADMIN_USER_PASSWORD_AUTH",
@@ -199,7 +199,7 @@ class CognitoClientWrapper:
                 break
             logger.error("ERROR: Passwords do not match.")
         # End while
-        challenge_response = self.cognito_idp_client.admin_respond_to_auth_challenge(
+        challenge_response = self.client.admin_respond_to_auth_challenge(
             UserPoolId=self.user_pool_id,
             ClientId=self.client_id,
             Session=session_token,
