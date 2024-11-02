@@ -270,6 +270,12 @@ class UserRegisterApi(Resource):
         required=True,
         help="This field cannot be left blank!",
     )
+    registerParser.add_argument(
+        "username",
+        type=str,
+        required=True,
+        help="Username cannot be left blank!",
+    )
 
     # Create a new user
     @roles_required([RoleEnum.ADMIN])
@@ -301,6 +307,12 @@ class UserRegisterApi(Resource):
             if phoneNumber_exists(phone_number):
                 return {"message": phone_number_already_exists_message }, 400
 
+
+        create_user_response = cognito.create_user(username=new_user["username"],
+                                                   email=new_user["email"])
+
+        print(create_user_response)
+
         # Ensure that role is supported
         if new_user["role"] not in supported_roles:
             error_message = {"message": "Not a supported role."}
@@ -328,7 +340,9 @@ class UserRegisterApi(Resource):
         if new_user["role"] == "CHO" and listOfVhts is not None:
             crud.add_vht_to_supervise(createdUserId, listOfVhts)
 
-        return getDictionaryOfUserInfo(createdUserId), 200
+        response = getDictionaryOfUserInfo(createdUserId)
+        response["ENABLE_DEV_USERS"] = create_user_response
+        return response, 200
 
 
 def get_user_data_for_token(user: User) -> dict:
