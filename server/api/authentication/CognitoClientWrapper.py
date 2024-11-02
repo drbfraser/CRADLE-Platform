@@ -24,11 +24,6 @@ logger = logging.getLogger(__name__)
 
 # Wrapper to encapsulate the AWS Cognito Identity Provider client.
 class CognitoClientWrapper:
-    cognito_idp_client: CognitoIdentityProviderClient
-    user_pool_id: str
-    client_id: str
-    client_secret: str
-
     def __init__(
         self,
         cognito_idp_client: CognitoIdentityProviderClient,
@@ -74,7 +69,7 @@ class CognitoClientWrapper:
         Since the fake users we create won't have real emails, we can use a
         temporary password that is known to us by passing it to the API.
 
-        :param email: The username for the new user.
+        :param username: The username for the new user.
         :param email: The email address for the new user.
         """
         create_user_kwargs = {
@@ -138,8 +133,19 @@ class CognitoClientWrapper:
             raise
         else:
             return users
-
     # End of function
+
+    def set_user_password(self, username: str, new_password):
+        """
+        Sets a new password for the specified user. If the user previously
+        had a temporary password and their status was 'FORCE_CHANGE_PASSWORD',
+        setting a new permanent password will change the user's status to
+        'CONFIRMED'.
+
+        :param username: The username of the user.
+        :param new_password: The new password to set for the user.
+        """
+        self.cognito_idp_client.admin_set_user_password(UserPoolId=self.user_pool_id, Username=username, Password=new_password, Permanent=True)
 
     def start_sign_in(self, username: str, password: str):
         try:
