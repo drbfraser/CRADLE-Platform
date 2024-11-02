@@ -147,6 +147,7 @@ export type SecretKey = {
  */
 export interface IUser {
   userId: number;
+  username?: string;
   email: string;
   firstName: string;
   healthFacilityName: string;
