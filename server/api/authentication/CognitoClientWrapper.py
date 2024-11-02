@@ -55,7 +55,7 @@ class CognitoClientWrapper:
         ).decode()
         return secret_hash
 
-    def create_user(self, username: str, email: str):
+    def create_user(self, username: str, email: str, name: str):
         """
         Creates a user in the user pool. Self-service signup is disabled, so only
         admins can create users. This means that the 'sign_up' action will fail,
@@ -84,6 +84,10 @@ class CognitoClientWrapper:
                 {
                     "Name": "email",
                     "Value": email,
+                },
+                {
+                    "Name": "name",
+                    "Value": name,
                 },
             ],
             "DesiredDeliveryMediums": [

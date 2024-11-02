@@ -277,6 +277,7 @@ class UserRegisterApi(Resource):
         help="Username cannot be left blank!",
     )
 
+
     # Create a new user
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/user-register.yml", methods=["POST"])
@@ -307,9 +308,9 @@ class UserRegisterApi(Resource):
             if phoneNumber_exists(phone_number):
                 return {"message": phone_number_already_exists_message }, 400
 
-
         create_user_response = cognito.create_user(username=new_user["username"],
-                                                   email=new_user["email"])
+                                                   email=new_user["email"],
+                                                   name=new_user["firstName"])
 
         print(create_user_response)
 
