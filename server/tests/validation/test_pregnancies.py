@@ -1,10 +1,10 @@
 import pytest
-from validation.validation_exception import ValidationExceptionError
 
 from validation.pregnancies import (
     PregnancyPostRequestValidator,
     PrenancyPutRequestValidator,
 )
+from validation.validation_exception import ValidationExceptionError
 
 PATIENT_ID = 120000
 
@@ -70,7 +70,7 @@ pregnancy_start_date_occurs_after_end_date_should_throw_exception = {
         (
             pregnancy_start_date_occurs_after_end_date_should_throw_exception,
             pregnancy_start_date_occurs_after_end_date_should_throw_exception.get(
-                "patientId"
+                "patientId",
             ),
             ValidationExceptionError,
         ),

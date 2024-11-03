@@ -1,5 +1,7 @@
 from typing import Optional
+
 from pydantic import BaseModel, ValidationError
+
 from validation.validation_exception import ValidationExceptionError
 
 
@@ -14,7 +16,7 @@ class PregnancyPostRequestValidator(BaseModel):
     isPregnant: Optional[bool] = None
 
     @staticmethod
-    def validate_post_request(request_body: dict, patient_id: str):
+    def validate_post_request(request_body: dict):
         """
         Validates the request body for the POST /api/patients/<string:patient_id>/pregnancies.
         Raises ValidationExceptionError on invalid input, else returns None.
@@ -46,9 +48,9 @@ class PregnancyPostRequestValidator(BaseModel):
     def validate_unallowed_fields(request_body: dict):
         field_dict = PregnancyPostRequestValidator.model_fields
         for key in request_body:
-            if key not in field_dict.keys():
+            if key not in field_dict:
                 raise ValidationExceptionError(
-                    f"{{{(key)}}} is not a valid key in pregnancy."
+                    f"{{{(key)}}} is not a valid key in pregnancy.",
                 )
 
     @staticmethod
@@ -61,7 +63,7 @@ class PregnancyPostRequestValidator(BaseModel):
             end_date = request_body["pregnancyEndDate"]
             if start_date > end_date:
                 raise ValidationExceptionError(
-                    f"Pregnancy end date must occur after the start date."
+                    "Pregnancy end date must occur after the start date.",
                 )
 
 
@@ -91,4 +93,4 @@ class PrenancyPutRequestValidator(BaseModel):
             raise ValidationExceptionError(error_message)
 
         if "id" in request_body and request_body.get("id") != pregnancy_id:
-            raise ValidationExceptionError(f"Pregnancy ID cannot be changed.")
+            raise ValidationExceptionError("Pregnancy ID cannot be changed.")
