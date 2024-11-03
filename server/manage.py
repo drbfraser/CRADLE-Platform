@@ -14,12 +14,13 @@ from flask.cli import FlaskGroup
 
 import models
 from api.util import create_secret_key_for_user
-from config import app, flask_bcrypt
+from config import flask_bcrypt
 from data import crud, marshal
 from enums import RoleEnum
 from models import db
 
-cli = FlaskGroup(app)
+# cli = FlaskGroup(app)
+cli = FlaskGroup()
 
 
 # USAGE: python manage.py reset_db
