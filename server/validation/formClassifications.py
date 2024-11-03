@@ -12,17 +12,17 @@ class FormClassification(BaseModel):
     class Config:
         extra = "forbid"
 
+    @staticmethod
+    def validate_template(request_body: dict):
+        """
+        Returns an error message if the classification part in /api/forms/classifications POST or PUT
+        request is not valid. Else, returns None.
 
-def validate_template(request_body: dict):
-    """
-    Returns an error message if the classification part in /api/forms/classifications POST or PUT
-    request is not valid. Else, returns None.
+        :param request_body: The request body as a dict object
 
-    :param request_body: The request body as a dict object
-
-    :return: An error message if request body is invalid in some way. None otherwise.
-    """
-    try:
-        FormClassification(**request_body)
-    except ValidationError as e:
-        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+        :return: An error message if request body is invalid in some way. None otherwise.
+        """
+        try:
+            FormClassification(**request_body)
+        except ValidationError as e:
+            raise ValidationExceptionError(str(e.errors()[0]["msg"]))

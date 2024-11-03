@@ -1,6 +1,6 @@
 import pytest
 
-from validation.formClassifications import validate_template
+from validation.formClassifications import FormClassification
 from validation.validation_exception import ValidationExceptionError
 
 valid_json = {"id": "123", "name": "test-name"}
@@ -24,7 +24,7 @@ invalid_keys = {"id": "123", "name": "test-name", "invalid": "This should be inv
 def test_validate_template(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            validate_template(json)
+            FormClassification.validate_template(json)
     else:
-        message = validate_template(json)
+        message = FormClassification.validate_template(json)
         assert message is None, f"Expected None, but got {message}"
