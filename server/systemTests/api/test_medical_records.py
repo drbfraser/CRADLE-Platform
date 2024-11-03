@@ -93,7 +93,7 @@ def test_invalid_record_not_updated(
     record_id = drug_record["id"]
     response = api_put(
         endpoint=f"/api/medical_records/{record_id}",
-        json={"patientId": 0},
+        json={"patientId": "0"},
     )
 
     record = crud.read(MedicalRecord, id=record_id)
