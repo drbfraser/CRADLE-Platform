@@ -1,24 +1,18 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { SingleReasonForm } from './SingleReasonForm';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { Box, IconButton, Tooltip, Typography } from '@mui/material';
-import { goBackWithFallback } from 'src/shared/utils';
-import { useRouteMatch } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FormContainer } from 'src/shared/components/layout/FormContainer';
 
-type RouteParams = {
-  referralId: string;
-  type: string;
-};
-
 export const SingleReasonFormPage = () => {
-  const { referralId } = useRouteMatch<RouteParams>().params;
-  const { type } = useRouteMatch<RouteParams>().params;
+  const { referralId, cancellationType } = useParams();
   const [title, setTitle] = useState('');
+  const navigate = useNavigate();
 
-  React.useEffect(() => {
-    switch (type) {
+  useEffect(() => {
+    switch (cancellationType) {
       case 'cancel_referral':
         setTitle('Reason for Cancelling');
         break;
@@ -32,7 +26,7 @@ export const SingleReasonFormPage = () => {
         setTitle('');
         break;
     }
-  }, [type]);
+  }, [cancellationType]);
 
   return (
     <FormContainer>
@@ -42,16 +36,17 @@ export const SingleReasonFormPage = () => {
           alignItems: `center`,
         }}>
         <Tooltip title="Go back" placement="top">
-          <IconButton
-            onClick={() => goBackWithFallback('/patients')}
-            size="large">
+          <IconButton onClick={() => navigate(-1)} size="large">
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>
         <Typography variant="h4">{title}</Typography>
       </Box>
       <br />
-      <SingleReasonForm referralId={referralId} type={type} />
+      <SingleReasonForm
+        referralId={referralId}
+        cancellationType={cancellationType}
+      />
     </FormContainer>
   );
 };

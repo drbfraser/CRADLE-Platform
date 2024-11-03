@@ -1,9 +1,16 @@
 import { AppRoute, appRoutes } from './utils';
-import { Route, Switch } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 
-import { PrivateRoute } from './privateRoute';
 import { Box } from '@mui/material';
 import { DASHBOARD_PADDING } from 'src/shared/constants';
+import { PropsWithChildren, useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from 'src/shared/hooks';
+import {
+  getCurrentUser,
+  selectCurrentUser,
+} from 'src/redux/reducers/user/currentUser';
+import { UserRoleEnum } from 'src/shared/enums';
+import { Loader } from 'src/shared/components/loader';
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -15,15 +22,18 @@ export const AppRoutes: React.FC = () => {
         width: '100%',
         padding: DASHBOARD_PADDING,
       }}>
-      <Switch>
+      <Routes>
         {appRoutes.map((route: AppRoute): JSX.Element => {
           if (route.private) {
             return (
-              <PrivateRoute
+              <Route
                 key={route.id}
-                exact={route.exactPath}
                 path={route.to}
-                component={route.component}
+                element={
+                  <RequireAuth path={route.to}>
+                    <route.component />
+                  </RequireAuth>
+                }
               />
             );
           }
@@ -31,13 +41,44 @@ export const AppRoutes: React.FC = () => {
           return (
             <Route
               key={route.id}
-              exact={route.exactPath}
               path={route.to}
-              component={route.component}
+              element={<route.component />}
             />
           );
         })}
-      </Switch>
+      </Routes>
     </Box>
   );
+};
+
+type RequireAuthProps = PropsWithChildren & {
+  path?: string | readonly string[] | undefined;
+};
+const RequireAuth = ({ children, path }: RequireAuthProps) => {
+  const currentUser = useAppSelector(selectCurrentUser);
+
+  const dispatch = useAppDispatch();
+
+  useEffect((): void => {
+    if (!currentUser.data) {
+      dispatch(getCurrentUser());
+    }
+  }, [dispatch, currentUser.data]);
+
+  if (currentUser.error) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (currentUser.loggedIn) {
+    const isAdmin = currentUser.data?.role === UserRoleEnum.ADMIN;
+
+    // * Prevent non-admins from accessing admin pages
+    if (!isAdmin && path?.includes('/admin')) {
+      return <Navigate to="/" replace />;
+    }
+
+    return children;
+  }
+
+  return <Loader message="Getting things ready..." show={true} />;
 };

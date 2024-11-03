@@ -152,7 +152,7 @@ export const appRoutes: Array<AppRoute> = [
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    to: `/referrals/cancel-status-switch/:referralId/:type`,
+    to: `/referrals/cancel-status-switch/:referralId/:cancellationType`,
   },
   {
     component: SingleReasonFormPage,
@@ -160,7 +160,7 @@ export const appRoutes: Array<AppRoute> = [
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    to: `/referrals/not-attend/:referralId/:type`,
+    to: `/referrals/not-attend/:referralId/:cancellationType`,
   },
   {
     component: PatientsPage,
@@ -204,7 +204,7 @@ export const appRoutes: Array<AppRoute> = [
     name: `Admin`,
     private: true,
     title: `Admin`,
-    to: `/admin`,
+    to: `/admin/*`,
   },
   {
     component: PatientPage,

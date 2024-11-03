@@ -29,9 +29,8 @@ import { Toast } from 'src/shared/components/toast';
 import Tooltip from '@mui/material/Tooltip';
 import { debounce } from 'lodash';
 import { gestationalAgeUnitLabels } from 'src/shared/constants';
-import { goBackWithFallback } from 'src/shared/utils';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { useRouteMatch } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 type RouteParams = {
   patientId: string;
@@ -40,8 +39,7 @@ type RouteParams = {
 };
 
 export function HistoryTablesPage() {
-  const { patientId, patientName, patientSex } =
-    useRouteMatch<RouteParams>().params;
+  const { patientId, patientName, patientSex } = useParams() as RouteParams;
   const [pregnancySearch, setPregnancySearch] = useState('');
   const [medicalHistorySearch, setMedicalHistorySearch] = useState('');
   const [drugHistorySearch, setDrugHistorySearch] = useState('');
@@ -67,6 +65,8 @@ export function HistoryTablesPage() {
     text: gestationalAgeUnitLabels[unit],
     value: unit,
   }));
+
+  const navigate = useNavigate();
 
   const handleUnitChange = (
     _: React.ChangeEvent<HTMLInputElement>,
@@ -264,7 +264,7 @@ export function HistoryTablesPage() {
         }}>
         <Tooltip title="Go back" placement="top">
           <IconButton
-            onClick={() => goBackWithFallback(`/patients/${patientId ?? ''}`)}
+            onClick={() => navigate(`/patients/${patientId ?? ''}`)}
             size="large">
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>

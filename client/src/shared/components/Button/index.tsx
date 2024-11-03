@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 
 import { red } from '@mui/material/colors';
-import { useHistory, LinkProps } from 'react-router-dom';
+import { useNavigate, LinkProps } from 'react-router-dom';
 
 interface RedirectButtonProps extends ButtonProps {
   url: string;
@@ -34,6 +34,6 @@ export const SecondaryButton = (props: ButtonProps | LinkButtonProps) => (
 );
 
 export const RedirectButton = ({ url, ...props }: RedirectButtonProps) => {
-  const history = useHistory();
-  return <SecondaryButton {...props} onClick={() => history.push(url)} />;
+  const navigate = useNavigate();
+  return <SecondaryButton {...props} onClick={() => navigate(url)} />;
 };

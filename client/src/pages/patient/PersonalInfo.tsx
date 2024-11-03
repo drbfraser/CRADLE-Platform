@@ -5,16 +5,16 @@ import RecentActorsIcon from '@mui/icons-material/RecentActors';
 import { SecondaryButton } from 'src/shared/components/Button';
 import { Skeleton } from '@mui/material';
 import { getAgeToDisplay } from 'src/shared/utils';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface IProps {
   patient?: Patient;
 }
 
 export const PersonalInfo = ({ patient }: IProps) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const handleEditClick = () =>
-    history.push(`/patients/${patient?.patientId}/edit/personalInfo`);
+    navigate(`/patients/${patient?.patientId}/edit/personalInfo`);
 
   return (
     <Paper>

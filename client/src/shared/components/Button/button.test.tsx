@@ -5,6 +5,7 @@ import {
   SecondaryButton,
 } from '.';
 import { fireEvent, render } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { vi } from 'vitest';
 
 describe('Rendering and testing all types of buttons', () => {
@@ -64,7 +65,11 @@ describe('Rendering and testing all types of buttons', () => {
 
   describe('Testing the rendering of the redirect button', () => {
     test('Render a redirect button', () => {
-      render(<RedirectButton url="" />);
+      render(
+        <MemoryRouter>
+          <RedirectButton url="" />
+        </MemoryRouter>
+      );
     });
   });
 });

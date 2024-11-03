@@ -9,7 +9,7 @@ import { ServerRequestAction, serverRequestActionCreator } from '../../utils';
 import { Dispatch } from 'redux';
 import { EndpointEnum, MethodEnum } from 'src/shared/enums';
 import { RootState } from 'src/redux/store';
-import { History } from 'history';
+import { NavigateFunction } from 'react-router-dom';
 
 export enum CurrentUserActionEnum {
   CLEAR_CURRENT_USER_ERROR = 'currentUser/CLEAR_CURRENT_USER_ERROR',
@@ -67,7 +67,7 @@ const loginUserRequested = (): CurrentUserAction => ({
 
 export const loginUser = (
   data: LoginData,
-  history: History
+  navigate: NavigateFunction
 ): ((dispatch: Dispatch) => ServerRequestAction) => {
   return (dispatch: Dispatch) => {
     dispatch(clearCurrentUserError());
@@ -81,7 +81,7 @@ export const loginUser = (
         onSuccess: ({ data }: { data: IUserWithTokens }): CurrentUserAction => {
           localStorage.setItem(`token`, data.token);
           localStorage.setItem(`refresh`, data.refresh);
-          history.push('/referrals');
+          navigate('/referrals');
           return {
             type: CurrentUserActionEnum.LOGIN_USER_SUCCESS,
             payload: { user: data },
@@ -185,5 +185,9 @@ export const currentUserReducer = (
   }
 };
 
-export const selectLoggedIn = (state: RootState) =>
-  Boolean(state?.user.current.loggedIn);
+export const selectLoggedIn = (state: RootState) => {
+  return Boolean(state?.user.current.loggedIn);
+};
+export const selectCurrentUser = (state: RootState) => {
+  return state?.user.current;
+};

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 import LinearProgress from '@mui/material/LinearProgress';
 import { PatientForm } from './PatientForm';
-import { useRouteMatch } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { FormContainer } from 'src/shared/components/layout/FormContainer';
 
 type RouteParams = {
@@ -14,8 +14,7 @@ type RouteParams = {
 
 export const PatientFormPage = () => {
   //universalRecordId stands for pregnancyId and medicalRecordId because they share the same route matching
-  const { patientId, editId, universalRecordId } =
-    useRouteMatch<RouteParams>().params;
+  const { patientId, editId, universalRecordId } = useParams() as RouteParams;
 
   const [formInitialState, setFormInitialState] = useState<PatientState>();
 
