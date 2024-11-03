@@ -8,6 +8,7 @@ from data import crud, marshal
 from models import FollowUp
 from utils import get_current_time
 from validation.assessments import Assessment
+from validation.validation_exception import ValidationExceptionError
 
 
 # /api/assessments
@@ -29,7 +30,7 @@ class Root(Resource):
 
         try:
             Assessment.validate(json)
-        except Exception as e:
+        except ValidationExceptionError as e:
             abort(400, message=str(e))
 
         assessment = marshal.unmarshal(FollowUp, json)
@@ -90,7 +91,7 @@ class SingleAssessment(Resource):
 
         try:
             Assessment.validate(json)
-        except Exception as e:
+        except ValidationExceptionError as e:
             abort(400, message=str(e))
 
         crud.update(FollowUp, json, id=assessment.id)
