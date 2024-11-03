@@ -188,7 +188,6 @@ class CognitoClientWrapper:
             raise
         else:
             return init_response.get("AuthenticationResult")
-
     # End of function
 
     def respond_to_new_password_challenge(self, session_token: str, username: str):
@@ -211,3 +210,24 @@ class CognitoClientWrapper:
             },
         )
         return challenge_response["AuthenticationResult"]
+    # End of function
+
+    def get_user(self, username: str):
+        """
+        Retrieves the user's information from the user pool.
+
+        :param username: The username of the user.
+        :return: AdminGetUserResponseTypeDef if user was found, or None if user
+            was not found.
+        """
+        try:
+            response = self.client.admin_get_user(UserPoolId=self.user_pool_id, Username=username)
+        except ClientError as err:
+            error = err.response.get("Error")
+            if error is None:
+                raise
+            if error.get("Code") == "UserNotFoundException":
+                return None
+        else:
+            return response
+    # End of function
