@@ -12,8 +12,8 @@ from data import crud, marshal
 from models import FollowUp, Patient, Pregnancy, Reading, Referral
 from service import assoc, invariant, serialize, statsCalculation, view
 from utils import get_current_time
-from validation.patients import PatientPost, PatientPut
 from validation.assessments import Assessment
+from validation.patients import PatientPost, PatientPut
 from validation.readings import ReadingValidator
 from validation.validation_exception import ValidationExceptionError
 

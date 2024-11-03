@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, StrictBool, ValidationError
 
-from validation.questions import FormQuestionValidator, FormQuestionPutValidator
+from validation.questions import FormQuestionPutValidator, FormQuestionValidator
 from validation.validate import (
     force_consistent_keys,
 )
