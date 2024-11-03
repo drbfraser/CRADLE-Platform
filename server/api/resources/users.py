@@ -586,19 +586,19 @@ class UserApi(Resource):
 class UserPhoneUpdate(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument(
-        "newPhoneNumber",
+        "new_phone_number",
         type=str,
         required=True,
         help="New phone number is required",
     )
     parser.add_argument(
-        "currentPhoneNumber",
+        "current_phone_number",
         type=str,
         required=True,
         help="Current phone number is required",
     )
     parser.add_argument(
-        "oldPhoneNumber",
+        "old_phone_number",
         type=str,
         required=True,
         help="Old phone number is required",
@@ -614,8 +614,8 @@ class UserPhoneUpdate(Resource):
         if not doesUserExist(user_id):
             return {"message": no_user_found_message}, 400
 
-        phoneNumbers = get_all_phoneNumbers_for_user(user_id)
-        return {"phoneNumbers": phoneNumbers}, 200
+        phone_numbers = get_all_phoneNumbers_for_user(user_id)
+        return {"phone_numbers": phone_numbers}, 200
 
     # Handle the PUT request updating a current phone number to a new phone number
     @jwt_required()
@@ -807,7 +807,7 @@ class ValidateRelayPhoneNumber(Resource):
     # Define the request parser
     parser = reqparse.RequestParser()
     parser.add_argument(
-        "phoneNumber",
+        "phone_number",
         type=str,
         required=True,
         help="Phone number is required.",
