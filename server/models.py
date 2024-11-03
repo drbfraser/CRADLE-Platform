@@ -300,30 +300,29 @@ class Reading(db.Model):
 
 
 class FollowUp(db.Model):
-    __tablename__ = "followup"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
 
-    followupInstructions = db.Column(db.Text)
-    specialInvestigations = db.Column(db.Text)
+    follow_up_instructions = db.Column(db.Text)
+    special_investigations = db.Column(db.Text)
     diagnosis = db.Column(db.Text)
     treatment = db.Column(db.Text)
-    medicationPrescribed = db.Column(db.Text)
-    dateAssessed = db.Column(db.BigInteger, nullable=False)
-    followupNeeded = db.Column(db.Boolean)
+    medication_prescribed = db.Column(db.Text)
+    date_assessed = db.Column(db.BigInteger, nullable=False)
+    follow_up_needed = db.Column(db.Boolean)
 
     # FOREIGN KEYS
-    healthcareWorkerId = db.Column(db.ForeignKey(User.id), nullable=False)
-    patientId = db.Column(
+    healthcare_worker_id = db.Column(db.ForeignKey("user.id"), nullable=False)
+    patient_id = db.Column(
         db.String(50),
         db.ForeignKey("patient.patientId"),
         nullable=False,
     )
 
     # RELATIONSHIPS
-    healthcareWorker = db.relationship(User, backref=db.backref("followups", lazy=True))
+    healthcare_worker = db.relationship(User, backref=db.backref("follow_ups", lazy=True))
     patient = db.relationship(
         "Patient",
-        backref=db.backref("followups", cascade="all, delete-orphan", lazy=True),
+        backref=db.backref("follow_ups", cascade="all, delete-orphan", lazy=True),
     )
 
     @staticmethod
