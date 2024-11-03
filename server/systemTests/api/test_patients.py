@@ -459,8 +459,7 @@ def test_update_patient_abort_due_to_conflict(patient_factory, api_put):
 
 
 def test_invalid_patient_not_created(patient_factory, api_post):
-    patient_id = "45642677524614"
-
+    patient_id = "48375354"
     # invalid as patientName is missing
     patient = {
         "patientId": patient_id,
@@ -474,7 +473,6 @@ def test_invalid_patient_not_created(patient_factory, api_post):
         "readings": [],
     }
     response = api_post(endpoint="/api/patients", json=patient)
-
     assert response.status_code == 400
     assert crud.read(Patient, patientId=patient_id) is None
 
