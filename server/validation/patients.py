@@ -57,6 +57,37 @@ class PatientPost(BaseModel):
             raise ValueError("dob is not in the required YYYY-MM-DD format.")
         return values
 
+    @staticmethod
+    def validate(request_body: dict) -> Optional[str]:
+        """
+        Returns an error message if the /api/patients post request
+        is not valid. Else, returns None.
+
+        :param request_body: The request body as a dict object
+                            {
+                                "patientId": "123456", - required
+                                "patientName": "testName", - required
+                                "isPregnant": True, - required
+                                "patientSex": "FEMALE", - required
+                                "dob": "1990-05-30", - required
+                                "isExactDob: false - required
+                                "householdNumber": "20",
+                                "zone": "15",
+                                "villageNumber": "50",
+                                "pregnancyStartDate": 1587068710, - required if isPregnant = True
+                                "gestationalAgeUnit": "WEEKS", - required isPregnant = True
+                                "drugHistory": "too much tylenol",
+                                "medicalHistory": "not enough advil",
+                                "allergy": "seafood",
+                                "isArchived": false
+                            }
+        :return: An error message if request body in invalid in some way. None otherwise.
+        """
+        try:
+            PatientPost(**request_body)
+        except ValidationError as e:
+            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+
 
 class PatientPut(BaseModel):
     patientId: Optional[str] = None
@@ -119,55 +150,24 @@ class PatientPut(BaseModel):
             raise ValueError("dob is not in the required YYYY-MM-DD format.")
         return values
 
+    @staticmethod
+    def validate_put_request(request_body: dict, patient_id):
+        """
+        Returns an error message if the /api/patients/<string:patient_id>/info PUT
+        request is not valid. Else, returns None.
 
-def validate(request_body: dict) -> Optional[str]:
-    """
-    Returns an error message if the /api/patients post request
-    is not valid. Else, returns None.
+        :param request_body: The request body as a dict object
+        :param patient_id: The patient ID the PUT request is being made for
 
-    :param request_body: The request body as a dict object
-                        {
-                            "patientId": "123456", - required
-                            "patientName": "testName", - required
-                            "isPregnant": True, - required
-                            "patientSex": "FEMALE", - required
-                            "dob": "1990-05-30", - required
-                            "isExactDob: false - required
-                            "householdNumber": "20",
-                            "zone": "15",
-                            "villageNumber": "50",
-                            "pregnancyStartDate": 1587068710, - required if isPregnant = True
-                            "gestationalAgeUnit": "WEEKS", - required isPregnant = True
-                            "drugHistory": "too much tylenol",
-                            "medicalHistory": "not enough advil",
-                            "allergy": "seafood",
-                            "isArchived": false
-                        }
-    :return: An error message if request body in invalid in some way. None otherwise.
-    """
-    try:
-        PatientPost(**request_body)
-    except ValidationError as e:
-        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+        :return: An error message if request body in invalid in some way. None otherwise.
+        """
+        try:
+            patient = PatientPut(**request_body)
+        except ValidationError as e:
+            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
-
-def validate_put_request(request_body: dict, patient_id):
-    """
-    Returns an error message if the /api/patients/<string:patient_id>/info PUT
-    request is not valid. Else, returns None.
-
-    :param request_body: The request body as a dict object
-    :param patient_id: The patient ID the PUT request is being made for
-
-    :return: An error message if request body in invalid in some way. None otherwise.
-    """
-    try:
-        patient = PatientPut(**request_body)
-    except ValidationError as e:
-        raise ValidationExceptionError(str(e.errors()[0]["msg"]))
-
-    if patient.patientId and patient.patientId != patient_id:
-        raise ValidationExceptionError("Patient ID cannot be changed.")
+        if patient.patientId and patient.patientId != patient_id:
+            raise ValidationExceptionError("Patient ID cannot be changed.")
 
 
 def check_gestational_age_under_limit(gestation_timestamp: int) -> Optional[str]:

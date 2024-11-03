@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from validation.patients import validate, validate_put_request
+from validation.patients import PatientPost, PatientPut
 from validation.validation_exception import ValidationExceptionError
 
 # Dynamically calculate valid and invalid gestatation ages from todays date.
@@ -150,9 +150,9 @@ incorrect_dob_format = {
 def test_validation(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            validate(json)
+            PatientPost.validate(json)
     else:
-        message = validate(json)
+        message = PatientPost.validate(json)
         assert message is None, f"Expected None, but got {message}"
 
 
@@ -183,7 +183,7 @@ def test_put_validation(json, expectation):
     patient_id = 123
     if expectation:
         with pytest.raises(expectation):
-            validate_put_request(json, patient_id)
+            PatientPut.validate_put_request(json, patient_id)
     else:
-        message = validate_put_request(json, patient_id)
+        message = PatientPut.validate_put_request(json, patient_id)
         assert message is None, f"Expected None, but got {message}"

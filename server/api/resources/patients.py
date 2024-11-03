@@ -12,7 +12,9 @@ from data import crud, marshal
 from models import FollowUp, Patient, Pregnancy, Reading, Referral
 from service import assoc, invariant, serialize, statsCalculation, view
 from utils import get_current_time
-from validation import assessments, patients, readings
+from validation.patients import PatientPost, PatientPut
+from validation.assessments import Assessment
+from validation.readings import ReadingValidator
 from validation.validation_exception import ValidationExceptionError
 
 
@@ -47,7 +49,7 @@ class Root(Resource):
             json["pregnancyStartDate"] = json.pop("gestationalTimestamp")
 
         try:
-            patients.validate(json)
+            PatientPost.validate(json)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 
@@ -138,7 +140,7 @@ class PatientInfo(Resource):
         json = request.get_json(force=True)
 
         try:
-            patients.validate_put_request(json, patient_id)
+            PatientPut.validate_put_request(json, patient_id)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 
@@ -396,10 +398,10 @@ class ReadingAssessment(Resource):
         reading_json = json["reading"]
         assessment_json = json["assessment"]
 
-        error_message = readings.validate(reading_json)
+        error_message = ReadingValidator.validate(reading_json)
         if error_message is not None:
             abort(400, message=error_message)
-        error_message = assessments.validate(assessment_json)
+        error_message = Assessment.validate(assessment_json)
         if error_message is not None:
             abort(400, message=error_message)
 
