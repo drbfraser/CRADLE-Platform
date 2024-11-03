@@ -5,7 +5,7 @@ from pydantic import BaseModel, ValidationError
 from validation.validation_exception import ValidationExceptionError
 
 
-class FormClassification(BaseModel):
+class FormClassificationValidator(BaseModel):
     name: str
     id: Optional[str] = None
 
@@ -23,6 +23,6 @@ class FormClassification(BaseModel):
         :return: An error message if request body is invalid in some way. None otherwise.
         """
         try:
-            FormClassification(**request_body)
+            FormClassificationValidator(**request_body)
         except ValidationError as e:
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))

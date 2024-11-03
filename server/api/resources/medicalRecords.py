@@ -11,7 +11,7 @@ from data import crud, marshal
 from models import MedicalRecord
 from service import serialize, view
 from utils import get_current_time
-from validation import medicalRecords
+from validation.medicalRecords import MedicalRecordValidator
 from validation.validation_exception import ValidationExceptionError
 
 LOGGER = logging.getLogger(__name__)
@@ -48,7 +48,7 @@ class Root(Resource):
         request_body = request.get_json(force=True)
 
         try:
-            medicalRecords.validate_post_request(request_body, patient_id)
+            MedicalRecordValidator.validate_post_request(request_body, patient_id)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 
@@ -95,7 +95,7 @@ class SingleMedicalRecord(Resource):
         request_body = request.get_json(force=True)
 
         try:
-            medicalRecords.validate_put_request(request_body, record_id)
+            MedicalRecordValidator.validate_put_request(request_body, record_id)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 

@@ -13,7 +13,7 @@ from api.decorator import roles_required
 from data import crud, marshal
 from enums import ContentTypeEnum, RoleEnum
 from models import FormClassification, FormTemplate
-from validation import formClassifications
+from validation.formClassifications import FormClassificationValidator
 from validation.validation_exception import ValidationExceptionError
 
 LOGGER = logging.getLogger(__name__)
@@ -72,7 +72,7 @@ class Root(Resource):
                 abort(409, message="Form classification already exists")
 
         try:
-            formClassifications.validate_template(req)
+            FormClassificationValidator.validate_template(req)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 
