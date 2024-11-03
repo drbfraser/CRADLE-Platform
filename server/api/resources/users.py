@@ -263,14 +263,14 @@ class UserPasswordChange(Resource):
 # api/user/register [POST]
 class UserRegisterApi(Resource):
     # Allow for parsing a password too
-    registerParser = UserParser.copy()
-    registerParser.add_argument(
+    register_parser = UserParser.copy()
+    register_parser.add_argument(
         "password",
         type=str,
         required=True,
         help="This field cannot be left blank!",
     )
-    registerParser.add_argument(
+    register_parser.add_argument(
         "username",
         type=str,
         required=True,
@@ -283,13 +283,13 @@ class UserRegisterApi(Resource):
     @swag_from("../../specifications/user-register.yml", methods=["POST"])
     def post(self):
         # Parse args
-        new_user = filterPairsWithNone(self.registerParser.parse_args())
+        new_user = filterPairsWithNone(self.register_parser.parse_args())
 
         # Get phone numbers.
-        phone_numbers = list(new_user.get("phoneNumbers", []))
+        phone_numbers = list(new_user.get("phone_numbers", []))
 
         # Remove phone numbers from new_user.
-        new_user.pop("phoneNumbers")
+        new_user.pop("phone_numbers")
 
         # validate the new user
         error_message = users.validate(new_user)
@@ -310,7 +310,7 @@ class UserRegisterApi(Resource):
 
         create_user_response = cognito.create_user(username=new_user["username"],
                                                    email=new_user["email"],
-                                                   name=new_user["firstName"])
+                                                   name=new_user["name"])
 
         print(create_user_response)
 
@@ -322,27 +322,26 @@ class UserRegisterApi(Resource):
 
         # Encrypt pass
         new_user["password"] = flask_bcrypt.generate_password_hash(new_user["password"])
-        listOfVhts = new_user.pop("supervises", None)
+        list_of_vhts = new_user.pop("supervises", None)
 
         # Create the new user
-        userModel = marshal.unmarshal(User, new_user)
-        crud.create(userModel)
+        user_model = marshal.unmarshal(User, new_user)
+        crud.create(user_model)
 
         # Getting the id of the created user
-        createdUser = marshal.marshal(crud.read(User, email=new_user["email"]))
-        createdUser.pop("password")
-        createdUserId = createdUser["id"]
+        created_user = marshal.marshal(crud.read(User, email=new_user["email"]))
+        created_user.pop("password")
+        created_user_id = created_user["id"]
 
         # Add the new user's phone numbers.
         for phone_number in phone_numbers:
-            add_new_phoneNumber_for_user(phone_number, createdUserId)
+            add_new_phoneNumber_for_user(phone_number, created_user_id)
 
         # Updating the supervises table if necessary as well
-        if new_user["role"] == "CHO" and listOfVhts is not None:
-            crud.add_vht_to_supervise(createdUserId, listOfVhts)
+        if new_user["role"] == "CHO" and list_of_vhts is not None:
+            crud.add_vht_to_supervise(created_user_id, list_of_vhts)
 
-        response = getDictionaryOfUserInfo(createdUserId)
-        response["ENABLE_DEV_USERS"] = create_user_response
+        response = getDictionaryOfUserInfo(created_user_id)
         return response, 200
 
 
@@ -350,8 +349,8 @@ def get_user_data_for_token(user: User) -> dict:
     data = {}
     data["email"] = user.email
     data["role"] = user.role
-    data["firstName"] = user.firstName
-    data["healthFacilityName"] = user.healthFacilityName
+    data["firstName"] = user.first_name
+    data["healthFacilityName"] = user.health_facility_name
     data["isLoggedIn"] = True
     data["userId"] = user.id
     data["phoneNumbers"] = get_all_phoneNumbers_for_user(user.id)
