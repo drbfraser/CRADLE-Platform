@@ -10,7 +10,7 @@ from api import util
 from data import crud, marshal
 from models import Form, FormTemplate, Patient, User
 from utils import get_current_time
-from validation import forms
+from validation.forms import FormValidator
 from validation.validation_exception import ValidationExceptionError
 
 
@@ -31,7 +31,7 @@ class Root(Resource):
                 abort(409, message="Form already exists")
 
         try:
-            forms.validate_form(req)
+            FormValidator.validate_form(req)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 
@@ -98,7 +98,7 @@ class SingleForm(Resource):
         req = request.get_json(force=True)
 
         try:
-            forms.validate_put_request(req)
+            FormValidator.validate_put_request(req)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 
