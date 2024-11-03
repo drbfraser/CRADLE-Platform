@@ -129,7 +129,7 @@ class VisibleConditionValidator(BaseModel):
         return
 
 
-class QuestionLangVersion(BaseModel):
+class QuestionLangVersionValidator(BaseModel):
     lang: str
     mcOptions: Optional[List[MultipleChoiceOptionValidator]] = None
     questionText: str
@@ -172,7 +172,7 @@ class QuestionLangVersion(BaseModel):
         try:
             question_lang_versions = q[target]
             for question_lang_version in question_lang_versions:
-                QuestionLangVersion(**question_lang_version)
+                QuestionLangVersionValidator(**question_lang_version)
         except ValidationError as e:
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
         return
@@ -181,7 +181,7 @@ class QuestionLangVersion(BaseModel):
 class TemplateQuestionValidator(BaseModel):
     questionIndex: Annotated[int, Field(strict=True, ge=0)]  # Non-negative index
     questionType: QuestionTypeEnum
-    questionLangVersions: List[QuestionLangVersion]
+    questionLangVersions: List[QuestionLangVersionValidator]
     isBlank: bool = True  # Set to true for template questions
     questionId: Optional[str] = None
     required: Optional[bool] = None

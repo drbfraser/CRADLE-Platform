@@ -6,7 +6,7 @@ from pydantic import BaseModel, ValidationError, model_validator
 from validation.validation_exception import ValidationExceptionError
 
 
-class PatientPost(BaseModel):
+class PatientPostValidator(BaseModel):
     patientId: str
     patientName: str
     patientSex: str
@@ -84,12 +84,12 @@ class PatientPost(BaseModel):
         :return: An error message if request body in invalid in some way. None otherwise.
         """
         try:
-            PatientPost(**request_body)
+            PatientPostValidator(**request_body)
         except ValidationError as e:
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
 
-class PatientPut(BaseModel):
+class PatientPutValidator(BaseModel):
     patientId: Optional[str] = None
     patientName: Optional[str] = None
     patientSex: Optional[str] = "FEMALE"
@@ -162,7 +162,7 @@ class PatientPut(BaseModel):
         :return: An error message if request body in invalid in some way. None otherwise.
         """
         try:
-            patient = PatientPut(**request_body)
+            patient = PatientPutValidator(**request_body)
         except ValidationError as e:
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 

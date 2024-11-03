@@ -5,7 +5,7 @@ from pydantic import BaseModel, ValidationError
 from validation.validation_exception import ValidationExceptionError
 
 
-class Association(BaseModel):
+class AssociationValidator(BaseModel):
     patientId: int
     healthFacilityName: Optional[str] = None
     userId: Optional[int] = None
@@ -24,6 +24,6 @@ class Association(BaseModel):
         :return: An error message if request body in invalid in some way. None otherwise.
         """
         try:
-            Association(**request_body)
+            AssociationValidator(**request_body)
         except ValidationError as e:
             raise ValidationExceptionError(e.errors()[0]["msg"])

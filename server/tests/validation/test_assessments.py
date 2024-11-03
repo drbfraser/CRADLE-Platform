@@ -1,6 +1,6 @@
 import pytest
 
-from validation.assessments import Assessment
+from validation.assessments import AssessmentValidator
 from validation.validation_exception import ValidationExceptionError
 
 valid_json = {
@@ -68,7 +68,7 @@ not_type_int = {
 def test_validation(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            Assessment.validate(json)
+            AssessmentValidator.validate(json)
     else:
-        message = Assessment.validate(json)
+        message = AssessmentValidator.validate(json)
         assert message is None, f"Expected None, but got {message}"

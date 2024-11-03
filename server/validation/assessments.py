@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field, ValidationError, ValidationInfo, field_va
 from validation.validation_exception import ValidationExceptionError
 
 
-class Assessment(BaseModel):
+class AssessmentValidator(BaseModel):
     dateAssessed: int
     diagnosis: Optional[str] = None
     medicationPrescribed: Optional[str] = None
@@ -51,6 +51,6 @@ class Assessment(BaseModel):
         :return: An error message if request body in invalid in some way. None otherwise.
         """
         try:
-            Assessment(**request_body)
+            AssessmentValidator(**request_body)
         except ValidationError as e:
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))

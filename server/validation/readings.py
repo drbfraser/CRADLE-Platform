@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, ValidationError
 
-from validation.assessments import Assessment
+from validation.assessments import AssessmentValidator
 from validation.validation_exception import ValidationExceptionError
 
 
@@ -16,7 +16,7 @@ class ReadingValidator(BaseModel):
     symptoms: List[str]
     dateTimeTaken: Optional[int] = None
     userId: Optional[int] = None
-    followup: Optional[Assessment] = None
+    followup: Optional[AssessmentValidator] = None
 
     @staticmethod
     def validate(request_body: dict):
@@ -55,6 +55,6 @@ class ReadingValidator(BaseModel):
         # Check if the nested assessment (followup) object is valid
         if "followup" in request_body:
             try:
-                Assessment(**(request_body.get("followup")))
+                AssessmentValidator(**(request_body.get("followup")))
             except ValidationError as e:
                 raise ValidationExceptionError(str(e.errors()[0]["msg"]))

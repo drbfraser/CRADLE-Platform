@@ -7,13 +7,13 @@ from validation.questions import TemplateQuestionValidator
 from validation.validation_exception import ValidationExceptionError
 
 
-class Classification(BaseModel):
+class ClassificationValidator(BaseModel):
     name: str
     id: Optional[str] = None
 
 
 class FormTemplateValidator(BaseModel):
-    classification: Classification
+    classification: ClassificationValidator
     version: str
     questions: List[TemplateQuestionValidator]
     id: Optional[str] = None
