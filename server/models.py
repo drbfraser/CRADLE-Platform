@@ -50,7 +50,7 @@ class User(db.Model):
     # FOREIGN KEYS
     health_facility_name = db.Column(
         db.String(50),
-        db.ForeignKey("healthfacility.healthFacilityName"),
+        db.ForeignKey("health_facility.healthFacilityName"),
         nullable=True,
     )
 
@@ -137,7 +137,7 @@ class Referral(db.Model):
     patientId = db.Column(db.String(50), db.ForeignKey("patient.patientId"))
     referralHealthFacilityName = db.Column(
         db.String(50),
-        db.ForeignKey("healthfacility.healthFacilityName"),
+        db.ForeignKey("health_facility.healthFacilityName"),
     )
 
     # RELATIONSHIPS
@@ -156,7 +156,6 @@ class Referral(db.Model):
 
 
 class HealthFacility(db.Model):
-    __tablename__ = "healthfacility"
     # TODO: should probably have a unique id as primary key here, in addition to facility name
     healthFacilityName = db.Column(db.String(50), primary_key=True)
     facilityType = db.Column(db.Enum(FacilityTypeEnum))
@@ -371,7 +370,7 @@ class PatientAssociations(db.Model):
         nullable=False,
     )
     healthFacilityName = db.Column(
-        db.ForeignKey(HealthFacility.healthFacilityName, ondelete="CASCADE"),
+        db.ForeignKey("health_facility.healthFacilityName", ondelete="CASCADE"),
         nullable=True,
     )
     userId = db.Column(db.ForeignKey(User.id, ondelete="CASCADE"), nullable=True)
