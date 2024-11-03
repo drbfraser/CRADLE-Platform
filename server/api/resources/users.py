@@ -3,8 +3,6 @@ import logging
 import os
 import re
 
-import boto3
-from dotenv import load_dotenv
 from flasgger import swag_from
 from flask import Flask
 from flask_jwt_extended import (
@@ -35,7 +33,7 @@ from api.util import (
     update_secret_key_for_user,
     validate_user,
 )
-from authentication.CognitoClientWrapper import CognitoClientWrapper
+from authentication import cognito
 from config import flask_bcrypt
 from data import crud, marshal
 from enums import RoleEnum
@@ -44,36 +42,12 @@ from validation import users
 
 LOGGER = logging.getLogger(__name__)
 
-load_dotenv()
-# Load aws secrets as environment variables.
-load_dotenv(dotenv_path="/run/secrets/.aws.secrets.env")
-
-AWS_REGION = os.environ["AWS_REGION"]
-COGNITO_USER_POOL_ID = os.environ["COGNITO_USER_POOL_ID"]
-COGNITO_APP_CLIENT_ID = os.environ["COGNITO_APP_CLIENT_ID"]
-COGNITO_CLIENT_SECRET = os.environ["COGNITO_CLIENT_SECRET"]
-
-AWS_ACCESS_KEY_ID = os.environ["AWS_ACCESS_KEY_ID"]
-AWS_SECRET_ACCESS_KEY = os.environ["AWS_SECRET_ACCESS_KEY"]
-
-cognito = CognitoClientWrapper(
-    cognito_idp_client=boto3.client(
-        service_name="cognito-idp",
-        region_name=AWS_REGION,
-        aws_access_key_id=AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-    ),
-    user_pool_id=COGNITO_USER_POOL_ID,
-    client_id=COGNITO_APP_CLIENT_ID,
-    client_secret=COGNITO_CLIENT_SECRET,
-)
-
 # Error messages
 null_phone_number_message = "No phone number was provided."
 null_id_message = "No id provided."
 no_user_found_message = "There is no user with this id."
 invalid_phone_number_message = (
-    "Phone number {phoneNumber} has wrong format. The format for phone number should be +x-xxx-xxx-xxxx, "
+    "Phone number {phone_number} has wrong format. The format for phone number should be +x-xxx-xxx-xxxx, "
     "+x-xxx-xxx-xxxxx, xxx-xxx-xxxx or xxx-xxx-xxxxx"
 )
 phone_number_already_exists_message = "Phone number is already assigned to another user."
@@ -87,19 +61,19 @@ UserParser.add_argument(
     help="This field cannot be left blank!",
 )
 UserParser.add_argument(
-    "firstName",
+    "name",
     type=str,
     required=True,
     help="This field cannot be left blank!",
 )
 UserParser.add_argument(
-    "healthFacilityName",
+    "health_facility_name",
     type=str,
     required=True,
     help="This field cannot be left blank!",
 )
 UserParser.add_argument(
-    "phoneNumbers",
+    "phone_numbers",
     type=str,
     required=True,
     help="This field cannot be left blank!",
@@ -124,30 +98,30 @@ class UserAll(Resource):
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/user-all.yml", methods=["GET"])
     def get(self):
-        userModelList = crud.read_all(User)
-        userDictList = []
+        user_model_list = crud.read_all(User)
+        user_dict_list = []
 
-        for user in userModelList:
-            userDict = marshal.marshal(user)
-            userDict.pop("password")
+        for user in user_model_list:
+            user_dict = marshal.marshal(user)
+            user_dict.pop("password")
 
-            vhtList = []
+            vht_list = []
 
-            for vht in user.vhtList:
-                vhtList.append(vht.id)
+            for vht in user.vht_list:
+                vht_list.append(vht.id)
 
-            userDict["supervises"] = vhtList
-            userDict["userId"] = userDict["id"]
-            userDict.pop("id")
-            userDict["phoneNumbers"] = [
-                phone_number.number for phone_number in user.phoneNumbers
+            user_dict["supervises"] = vht_list
+            user_dict["user_id"] = user_dict["id"]
+            user_dict.pop("id")
+            user_dict["phone_numbers"] = [
+                phone_number.number for phone_number in user.phone_numbers
             ]
 
-            userDictList.append(userDict)
+            user_dict_list.append(user_dict)
 
-        if userDictList is None:
+        if user_dict_list is None:
             return {"message": "No users currently exist"}, 404
-        return userDictList
+        return user_dict_list
 
 
 # api/user/vhts [GET]
@@ -156,23 +130,23 @@ class UserAllVHT(Resource):
     @roles_required([RoleEnum.CHO, RoleEnum.ADMIN, RoleEnum.HCW])
     @swag_from("../../specifications/user-vhts.yml", methods=["GET"])
     def get(self):
-        vhtModelList = crud.find(User, User.role == RoleEnum.VHT.value)
+        vht_model_list = crud.find(User, User.role == RoleEnum.VHT.value)
 
-        vhtDictionaryList = []
-        for vht in vhtModelList:
+        vht_dictionary_list = []
+        for vht in vht_model_list:
             marshal.marshal(vht)
-            vhtDictionaryList.append(
+            vht_dictionary_list.append(
                 {
-                    "userId": vht.id,
+                    "id": vht.id,
                     "email": vht.email,
-                    "healthFacilityName": vht.healthFacilityName,
-                    "firstName": vht.firstName,
+                    "health_facility_name": vht.health_facility_name,
+                    "name": vht.name,
                 },
             )
 
-        if vhtDictionaryList is None:
+        if vht_dictionary_list is None:
             return []
-        return vhtDictionaryList
+        return vht_dictionary_list
 
 
 # api/user/{int: userId}/change_pass [POST]
