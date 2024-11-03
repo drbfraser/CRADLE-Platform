@@ -6,7 +6,7 @@ from validation.assessments import Assessment
 from validation.validation_exception import ValidationExceptionError
 
 
-class Reading(BaseModel):
+class ReadingValidator(BaseModel):
     readingId: str
     patientId: str
     bpSystolic: int
@@ -48,7 +48,7 @@ class Reading(BaseModel):
         :return: An error message if request body in invalid in some way. None otherwise.
         """
         try:
-            Reading(**request_body)
+            ReadingValidator(**request_body)
         except ValidationError as e:
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 

@@ -1,6 +1,6 @@
 import pytest
 
-from validation.readings import Reading
+from validation.readings import ReadingValidator
 from validation.validation_exception import ValidationExceptionError
 
 valid_json = {
@@ -115,7 +115,7 @@ followup_invalid = {
 def test_validation(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            Reading.validate(json)
+            ReadingValidator.validate(json)
     else:
-        message = Reading.validate(json)
+        message = ReadingValidator.validate(json)
         assert message is None, f"Expected None, but got {message}"

@@ -16,7 +16,7 @@ from models import (
     Referral,
 )
 from service import invariant, serialize, view
-from validation.readings import Reading as reading_validate
+from validation.readings import ReadingValidator
 from validation.referrals import ReferralEntity
 from validation.validation_exception import ValidationExceptionError
 
@@ -198,7 +198,7 @@ class SyncReadings(Resource):
                     readingId=r.get("readingId"),
                 )
             else:
-                error_message = reading_validate.validate(r)
+                error_message = ReadingValidator.validate(r)
                 if error_message is not None:
                     abort(400, message=error_message)
                 reading = marshal.unmarshal(Reading, r)
