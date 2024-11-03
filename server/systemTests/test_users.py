@@ -4,8 +4,8 @@ import string
 import pytest
 import requests
 
-from data import crud
 from models import SmsSecretKey
+from server.data import crud
 
 
 def generate_random_email(domain="example.com", length=10):

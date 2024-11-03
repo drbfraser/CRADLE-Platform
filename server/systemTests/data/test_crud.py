@@ -1,5 +1,5 @@
-from data import crud
 from models import Patient
+from server.data import crud
 
 
 def test_read(patient_factory):
@@ -14,7 +14,7 @@ def test_update(patient_factory):
     crud.update(Patient, {"patientName": "CDE"}, patientId="abc")
 
     query = crud.read(Patient, patientId="abc")
-    assert query.patientName == "CDE"
+    assert query is not None and query.patientName == "CDE"
 
 
 def test_delete(patient_factory):
