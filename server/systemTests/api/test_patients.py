@@ -460,39 +460,21 @@ def test_update_patient_abort_due_to_conflict(patient_factory, api_put):
 
 def test_invalid_patient_not_created(patient_factory, api_post):
     patient_id = "45642677524614"
-    date = get_current_time()
+
     # invalid as patientName is missing
     patient = {
         "patientId": patient_id,
         "patientSex": "FEMALE",
-        "isPregnant": True,
-        "gestationalAgeUnit": "MONTHS",
-        "pregnancyStartDate": date,
-        "medicalHistory": "TEST_FULL: This is fully fleshed out medical history for testing.",
-        "drugHistory": "TEST_FULL: This is fully fleshed out drug history for testing.",
-        "zone": "9999",
-        "dob": "1995-08-23",
-        "isExactDob": True,
-        "villageNumber": "9999",
-        "householdNumber": "4544",
+        "isPregnant": False,
+        "zone": "37",
+        "villageNumber": "37",
+        "created": 1,
+        "lastEdited": 5,
+        "base": 5,
+        "readings": [],
     }
-
-    # patient = {
-    #     "patientId": patient_id,
-    #     "patientName": "TEST_FULL",
-    #     "patientSex": "FEMALE",
-    #     "isPregnant": True,
-    #     "gestationalAgeUnit": "MONTHS",
-    #     "pregnancyStartDate": date,
-    #     "medicalHistory": "TEST_FULL: This is fully fleshed out medical history for testing.",
-    #     "drugHistory": "TEST_FULL: This is fully fleshed out drug history for testing.",
-    #     "zone": "9999",
-    #     "dob": "1995-08-23",
-    #     "isExactDob": True,
-    #     "villageNumber": "9999",
-    #     "householdNumber": "4544",
-    # }
     response = api_post(endpoint="/api/patients", json=patient)
+
     assert response.status_code == 400
     assert crud.read(Patient, patientId=patient_id) is None
 
