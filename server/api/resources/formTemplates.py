@@ -13,7 +13,7 @@ from data import crud, marshal
 from enums import ContentTypeEnum, RoleEnum
 from models import FormClassification, FormTemplate
 from service import serialize
-from validation import formTemplates
+from validation.formTemplates import FormTemplateValidator
 from validation.validation_exception import ValidationExceptionError
 
 
@@ -66,7 +66,7 @@ class Root(Resource):
                 abort(409, message="Form template already exists")
 
         try:
-            formTemplates.validate_template(req)
+            FormTemplateValidator.validate_template(req)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 
