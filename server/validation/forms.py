@@ -2,11 +2,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, StrictBool, ValidationError
 
-from validation.questions import (
-    FormQuestion,
-    validate_form_question_post,
-    validate_form_question_put,
-)
+from validation.questions import FormQuestionValidator, FormQuestionPutValidator
 from validation.validate import (
     force_consistent_keys,
 )
@@ -16,7 +12,7 @@ from validation.validation_exception import ValidationExceptionError
 class FormValidator(BaseModel):
     lang: str
     patientId: str
-    questions: List[FormQuestion]
+    questions: List[FormQuestionValidator]
     id: Optional[str] = None
     formTemplateId: Optional[str] = None
     formClassificationId: Optional[str] = None
@@ -55,7 +51,7 @@ class FormValidator(BaseModel):
         """
         # validate each question
         for q in request_body:
-            validate_form_question_post(q)
+            FormQuestionValidator.validate_form_question_post(q)
 
     @staticmethod
     def validate_put_request(request_body: dict):
@@ -89,4 +85,4 @@ class FormValidator(BaseModel):
 
         # validate question put content
         for q in request_body["questions"]:
-            validate_form_question_put(q)
+            FormQuestionPutValidator.validate_form_question_put(q)

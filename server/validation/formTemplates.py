@@ -3,7 +3,7 @@ from typing import List, Optional
 from pydantic import BaseModel, ValidationError
 
 from service import questionTree
-from validation.questions import TemplateQuestion
+from validation.questions import TemplateQuestionValidator
 from validation.validation_exception import ValidationExceptionError
 
 
@@ -15,7 +15,7 @@ class Classification(BaseModel):
 class FormTemplateValidator(BaseModel):
     classification: Classification
     version: str
-    questions: List[TemplateQuestion]
+    questions: List[TemplateQuestionValidator]
     id: Optional[str] = None
 
     class Config:
@@ -51,7 +51,7 @@ class FormTemplateValidator(BaseModel):
         for index, question in enumerate(questions):
             # validate each question
             try:
-                TemplateQuestion(**question)
+                TemplateQuestionValidator(**question)
             except ValidationError as e:
                 raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
