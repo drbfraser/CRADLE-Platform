@@ -42,31 +42,31 @@ if supervises is None:
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(25))
+    name = db.Column(db.String(25), nullable=False)
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     role = db.Column(db.String(50))
 
     # FOREIGN KEYS
-    healthFacilityName = db.Column(
+    health_facility_name = db.Column(
         db.String(50),
         db.ForeignKey("healthfacility.healthFacilityName"),
         nullable=True,
     )
 
     # RELATIONSHIPS
-    healthFacility = db.relationship(
+    health_facility = db.relationship(
         "HealthFacility",
         backref=db.backref("users", lazy=True),
     )
     referrals = db.relationship("Referral", backref=db.backref("users", lazy=True))
-    vhtList = db.relationship(
+    vht_list = db.relationship(
         "User",
         secondary=supervises,
         primaryjoin=id == supervises.c.choId,
         secondaryjoin=id == supervises.c.vhtId,
     )
-    phoneNumbers = db.relationship(
+    phone_numbers = db.relationship(
         "UserPhoneNumber",
         back_populates="user",
         lazy=True,
@@ -90,7 +90,7 @@ class UserPhoneNumber(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
     # RELATIONSHIPS
-    user = db.relationship("User", back_populates="phoneNumbers")
+    user = db.relationship("User", back_populates="phone_numbers")
 
     @staticmethod
     def schema():
