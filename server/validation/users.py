@@ -10,10 +10,10 @@ def validate(request_body: dict) -> Optional[str]:
 
     :param request_body: The request body as a dict object
                         {
-                            "firstName": "Jane",
-                            "email": "jane@mail.com",
-                            "healthFacilityName": "facility7",
-                            "role": "admin"
+                            "name": "Jane",
+                            "email": "jane@email.com",
+                            "health_facility_name": "facility7",
+                            "role": "ADMIN"
                         }
     :return: An error message if the request body is invalid. None otherwise
     """
@@ -21,9 +21,9 @@ def validate(request_body: dict) -> Optional[str]:
 
     # Check if required keys are present
     required_keys = [
-        "firstName",
+        "name",
         "email",
-        "healthFacilityName",
+        "health_facility_name",
         "role",
     ]
     error_message = required_keys_present(request_body, required_keys)
@@ -33,7 +33,7 @@ def validate(request_body: dict) -> Optional[str]:
     # Check that field types are correct
     error_message = values_correct_type(
         request_body,
-        ["firstName", "email", "healthFacilityName", "role"],
+        ["name", "email", "health_facility_name", "role"],
         str,
     )
     if error_message is not None:
