@@ -43,8 +43,8 @@ if supervises is None:
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(25), nullable=False)
-    username = db.Column(db.String(64), index=True, unique=True)
-    email = db.Column(db.String(120), index=True, unique=True)
+    username = db.Column(db.String(64), index=True, unique=True, nullable=False)
+    email = db.Column(db.String(120), index=True, unique=True, nullable=False)
     role = db.Column(db.String(50))
     sub = db.Column(db.String(64), unique=True, nullable=False) # Unique identifier used by Cognito.
 
