@@ -30,7 +30,10 @@ export const DataTable = ({
   const isXSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const listView = Boolean(listColumns && isXSmallScreen);
   return (
-    <Box>
+    <Box
+      sx={{
+        width: '100%',
+      }}>
       <DataGrid
         rows={rows}
         columns={listView ? listColumns! : columns}
@@ -74,29 +77,19 @@ const TOOLBAR_SLOT_PROPS = {
   },
 };
 
-type DataTableToolbarProps = PropsWithChildren & {
+type DataTableToolbarProps = {
   title: string;
 };
 export const DataTableToolbar = ({ title }: DataTableToolbarProps) => {
   return (
     <GridToolbarContainer
       sx={{
-        height: 'fit',
         width: '100%',
         padding: '16px',
         display: 'flex',
-        flexDirection: {
-          sm: 'row',
-          xs: 'column',
-        },
-        alignItems: {
-          sm: 'center',
-          xs: 'stretch',
-        },
-        justifyContent: {
-          sm: 'space-between',
-          xs: 'center',
-        },
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
       }}>
       <Typography
         variant={'h4'}

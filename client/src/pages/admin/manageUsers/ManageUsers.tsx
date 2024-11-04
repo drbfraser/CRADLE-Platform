@@ -1,4 +1,4 @@
-import { IconButton, Tooltip } from '@mui/material';
+import { Box, Button, IconButton, Tooltip } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -30,6 +30,11 @@ import {
 } from 'src/shared/components/DataTable/TableActionButtons';
 import { useAppSelector } from 'src/shared/hooks';
 import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
+import {
+  DataTable,
+  DataTableFooter,
+  DataTableToolbar,
+} from 'src/shared/components/DataTable/DataTable';
 
 export const ManageUsers = () => {
   const [errorLoading, setErrorLoading] = useState(false);
@@ -146,15 +151,22 @@ export const ManageUsers = () => {
     setEditPopupOpen(true);
   }, [setPopupUser, setEditPopupOpen]);
 
-  const toolbar = useCallback(
-    () => (
-      <AdminTableToolbar title={'Users'} setSearch={setSearch}>
-        <AdminToolBarButton onClick={addNewUser}>
-          <AddIcon /> {'New User'}
-        </AdminToolBarButton>
-      </AdminTableToolbar>
-    ),
-    [setSearch]
+  const NewUserButton = useCallback(() => {
+    return (
+      <Button
+        variant={'contained'}
+        startIcon={<AddIcon />}
+        onClick={addNewUser}>
+        {'New User'}
+      </Button>
+    );
+  }, [addNewUser]);
+
+  const TableToolbar = () => <DataTableToolbar title={'Users'} />;
+  const TableFooter = () => (
+    <DataTableFooter>
+      <NewUserButton />
+    </DataTableFooter>
   );
 
   return (
@@ -185,7 +197,12 @@ export const ManageUsers = () => {
         }}
         user={popupUser}
       />
-      <AdminTable rows={rows} columns={columns} toolbar={toolbar} />
+      <DataTable
+        rows={rows}
+        columns={columns}
+        toolbar={TableToolbar}
+        footer={TableFooter}
+      />
     </>
   );
 };
