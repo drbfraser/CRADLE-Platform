@@ -17,8 +17,8 @@ import { MedicalRecord } from 'src/shared/types';
 import { getPrettyDate } from 'src/shared/utils';
 import {
   DataTableToolbar,
-  HistoryTable,
-} from '../../shared/components/DataTable/HistoryTable';
+  DataTable,
+} from 'src/shared/components/DataTable/DataTable';
 
 type RouteParams = {
   patientId: string;
@@ -131,5 +131,5 @@ export const MedicalHistory = ({
 
   const TableToolbar = () => <DataTableToolbar title={title} />;
 
-  return <HistoryTable rows={rows} columns={columns} toolbar={TableToolbar} />;
+  return <DataTable rows={rows} columns={columns} toolbar={TableToolbar} />;
 };

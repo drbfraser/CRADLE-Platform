@@ -7,8 +7,8 @@ import {
 import {
   DataTableFooter,
   DataTableToolbar,
-  HistoryTable,
-} from '../../shared/components/DataTable/HistoryTable';
+  DataTable,
+} from 'src/shared/components/DataTable/DataTable';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   API_URL,
@@ -236,7 +236,7 @@ export const PregnancyHistory = () => {
   }, [unit, pregnancies]);
 
   return (
-    <HistoryTable
+    <DataTable
       rows={rows}
       columns={columns}
       toolbar={TableToolbar}

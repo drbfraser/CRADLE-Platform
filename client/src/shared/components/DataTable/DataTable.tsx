@@ -12,20 +12,20 @@ import {
 } from '@mui/x-data-grid';
 import { PropsWithChildren } from 'react';
 
-type HistoryTableProps = {
+type DataTableProps = {
   rows?: readonly GridValidRowModel[];
   columns: GridColDef[];
   listColumns?: GridColDef[]; // Alternate column definition to use on very small screens.
   toolbar?: () => JSX.Element;
   footer?: () => JSX.Element;
 };
-export const HistoryTable = ({
+export const DataTable = ({
   rows,
   columns,
   listColumns,
   toolbar,
   footer = () => <DataTableFooter />,
-}: HistoryTableProps) => {
+}: DataTableProps) => {
   const theme = useTheme();
   const isXSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const listView = Boolean(listColumns && isXSmallScreen);
