@@ -9,7 +9,6 @@ from marshmallow_sqlalchemy import fields
 from config import db, ma
 from enums import (
     FacilityTypeEnum,
-    GestationalAgeUnitEnum,
     QuestionTypeEnum,
     SexEnum,
     TrafficLightEnum,
@@ -179,7 +178,6 @@ class Patient(db.Model):
     patient_name = db.Column(db.String(50))
     patient_sex = db.Column(db.Enum(SexEnum), nullable=False)
     is_pregnant = db.Column(db.Boolean)
-    gestational_age_unit = db.Column(db.Enum(GestationalAgeUnitEnum), nullable=True)
     gestational_timestamp = db.Column(db.BigInteger)
     medical_history = db.Column(db.Text)
     drug_history = db.Column(db.Text)
@@ -401,7 +399,6 @@ class Pregnancy(db.Model):
         nullable=False,
     )
     start_date = db.Column(db.BigInteger, nullable=False)
-    default_time_unit = db.Column(db.Enum(GestationalAgeUnitEnum))
     end_date = db.Column(db.BigInteger, nullable=True, default=None)
     outcome = db.Column(db.Text)
     last_edited = db.Column(
