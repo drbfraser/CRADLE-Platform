@@ -91,9 +91,7 @@ export function HistoryTablesPage() {
           Past Records of {patientName}
         </Typography>
       </Box>
-      <Box p={3}>
-        <Tabs panels={filteredPanels} />
-      </Box>
+      <Tabs panels={filteredPanels} />
     </Box>
   );
 }
