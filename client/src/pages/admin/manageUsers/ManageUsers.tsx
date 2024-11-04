@@ -24,6 +24,12 @@ import {
   GridColDef,
   GridRenderCellParams,
 } from '@mui/x-data-grid';
+import {
+  TableAction,
+  TableActionButtons,
+} from 'src/shared/components/DataTable/TableActionButtons';
+import { useAppSelector } from 'src/shared/hooks';
+import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
 
 export const ManageUsers = () => {
   const [errorLoading, setErrorLoading] = useState(false);
@@ -49,49 +55,43 @@ export const ManageUsers = () => {
     );
   };
 
-  const actions = [
-    {
-      tooltip: 'Edit User',
-      setOpen: setEditPopupOpen,
-      Icon: CreateIcon,
-    },
-    {
-      tooltip: 'Reset Password',
-      setOpen: setPasswordPopupOpen,
-      Icon: VpnKeyIcon,
-    },
-    {
-      tooltip: 'Delete User',
-      setOpen: setDeletePopupOpen,
-      Icon: DeleteForever,
-      disableForCurrentUser: true,
-    },
-  ];
-
   // Component to render buttons inside the last cell of each row.
   const ActionButtons = useCallback(
     ({ user }: { user?: IUserWithIndex }) => {
-      return (
-        <AdminTableActionButtonsContainer>
-          {user
-            ? actions.map((action) => (
-                <Tooltip
-                  key={action.tooltip}
-                  placement="top"
-                  title={action.tooltip}>
-                  <IconButton
-                    onClick={() => {
-                      setPopupUser(user);
-                      action.setOpen(true);
-                    }}
-                    size="large">
-                    <action.Icon />
-                  </IconButton>
-                </Tooltip>
-              ))
-            : null}
-        </AdminTableActionButtonsContainer>
-      );
+      const { data: currentUser } = useAppSelector(selectCurrentUser);
+      const isCurrentUser = currentUser?.userId === user?.userId;
+      const actions: TableAction[] = [
+        {
+          tooltip: 'Edit User',
+          onClick: () => {
+            setPopupUser(user);
+            setEditPopupOpen(true);
+          },
+          Icon: CreateIcon,
+        },
+        {
+          tooltip: 'Reset Password',
+          onClick: () => {
+            setPopupUser(user);
+            setPasswordPopupOpen(true);
+          },
+          Icon: VpnKeyIcon,
+        },
+        {
+          tooltip: 'Delete User',
+          onClick: () => {
+            if (isCurrentUser) {
+              return;
+            }
+            setPopupUser(user);
+            setDeletePopupOpen(true);
+          },
+          Icon: DeleteForever,
+          disabled: isCurrentUser,
+        },
+      ];
+
+      return <TableActionButtons actions={actions} />;
     },
     [setPopupUser]
   );
