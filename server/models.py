@@ -174,20 +174,20 @@ class HealthFacility(db.Model):
 
 
 class Patient(db.Model):
-    patient_id = db.Column(db.String(50), primary_key=True)
-    patient_name = db.Column(db.String(50))
-    patient_sex = db.Column(db.Enum(SexEnum), nullable=False)
+    id = db.Column(db.String(50), primary_key=True)
+    name = db.Column(db.String(50))
+    sex = db.Column(db.Enum(SexEnum), nullable=False)
     is_pregnant = db.Column(db.Boolean)
     gestational_timestamp = db.Column(db.BigInteger)
     medical_history = db.Column(db.Text)
     drug_history = db.Column(db.Text)
     allergy = db.Column(db.Text)
     zone = db.Column(db.String(20))
-    dob = db.Column(db.Date)
-    is_exact_dob = db.Column(db.Boolean)
+    date_of_birth = db.Column(db.Date)
+    is_exact_date_of_birth = db.Column(db.Boolean)
     village_number = db.Column(db.String(50))
     household_number = db.Column(db.String(50))
-    created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
+    date_created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
     last_edited = db.Column(
         db.BigInteger,
         nullable=False,
