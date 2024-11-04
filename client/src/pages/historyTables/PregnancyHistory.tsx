@@ -20,7 +20,7 @@ import { Pregnancy } from 'src/shared/types';
 import {
   TableAction,
   TableActionButtons,
-} from 'src/shared/components/apiTable/TableActionButtons';
+} from 'src/shared/components/DataTable/TableActionButtons';
 import CreateIcon from '@mui/icons-material/Create';
 import { DeleteForever } from '@mui/icons-material';
 import { useDialogs } from '@toolpad/core';

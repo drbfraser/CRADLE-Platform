@@ -12,7 +12,7 @@ import { deleteMedicalRecordAsync } from 'src/shared/api';
 import {
   TableAction,
   TableActionButtons,
-} from 'src/shared/components/apiTable/TableActionButtons';
+} from 'src/shared/components/DataTable/TableActionButtons';
 import { MedicalRecord } from 'src/shared/types';
 import { getPrettyDate } from 'src/shared/utils';
 import { DataTableToolbar, HistoryTable } from './HistoryTable';
