@@ -12,7 +12,7 @@ from api.util import (
     get_user_secret_key_string,
     phoneNumber_exists,
 )
-from api.util import phoneNumber_regex_check as regex_check
+from common.regexUtil import phoneNumber_regex_check as regex_check
 from models import User
 from service import compressor, encryptor
 from validation.sms_relay import SmsRelay, SmsRelayDecryptedBody

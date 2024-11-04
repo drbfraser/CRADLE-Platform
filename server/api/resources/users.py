@@ -28,11 +28,11 @@ from api.util import (
     is_date_passed,
     isGoodPassword,
     phoneNumber_exists,
-    phoneNumber_regex_check,
     replace_phoneNumber_for_user,
     update_secret_key_for_user,
     validate_user,
 )
+from common.regexUtil import phoneNumber_regex_check
 from config import flask_bcrypt
 from data import crud, marshal
 from enums import RoleEnum

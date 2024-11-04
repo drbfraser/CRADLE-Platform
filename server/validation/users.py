@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, ValidationError, field_validator
 
-from api.util import phoneNumber_regex_check
+from common.regexUtil import phoneNumber_regex_check
 from enums import RoleEnum
 from validation.validation_exception import ValidationExceptionError
 
@@ -35,16 +35,12 @@ class UserValidator(BaseModel):
     @field_validator("phoneNumbers", mode="before")
     @classmethod
     def validate_phone_number(cls, phone_numbers: List[str]):
-        print("DEBUGGGGG")
-        print(phone_numbers)
         error = {"message": invalid_phone_number}
 
         if not isinstance(phone_numbers, List):
             raise ValueError(error)
 
         for phone_number in phone_numbers:
-            print("DEBUGGGGG")
-            print(phone_number)
             if phone_number is not None and not phoneNumber_regex_check(phone_number):
                 raise ValueError(error)
 
