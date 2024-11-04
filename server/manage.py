@@ -273,7 +273,7 @@ def seed(ctx):
     # SEED health facilities
     print("Seeding health facilities...")
 
-    healthfacility_schema = models.HealthFacilitySchema()
+    health_facility_schema = models.HealthFacilitySchema()
     for index, hf in enumerate(facilityLocations):
         hf_schema = {
             "healthFacilityName": getFacilityName(index),
@@ -283,7 +283,7 @@ def seed(ctx):
             "location": hf["city"],
             "newReferrals": str(round(time.time() * 1000)),
         }
-        db.session.add(healthfacility_schema.load(hf_schema))
+        db.session.add(health_facility_schema.load(hf_schema))
 
     ctx.invoke(seed_test_data)
 
@@ -293,20 +293,20 @@ def seed(ctx):
     models.ReadingSchema()
     referral_schema = models.ReferralSchema()
 
-    fnames, lnames = getNames()
+    first_names, last_names = getNames()
     generated_names = set()
     for count, patientId in enumerate(patientList):
         # get random patient
-        person = random.choice(fnames)
+        person = random.choice(first_names)
         name, sex = person["name"], person["sex"]
-        lname = random.choice(lnames)
+        last_name = random.choice(last_names)
 
-        while name + lname in generated_names:
-            person = random.choice(fnames)
+        while name + last_name in generated_names:
+            person = random.choice(first_names)
             name, sex = person["name"], person["sex"]
-            lname = random.choice(lnames)
+            last_name = random.choice(last_names)
 
-        generated_names.add(name + lname)
+        generated_names.add(name + last_name)
 
         if sex == models.SexEnum.MALE.value:
             pregnant = False
@@ -326,7 +326,7 @@ def seed(ctx):
 
         p1 = {
             "patientId": patientId,
-            "patientName": name + " " + lname,
+            "patientName": name + " " + last_name,
             "gestationalAgeUnit": gestational_age_unit,
             "gestationalTimestamp": gestational_timestamp,
             "villageNumber": getRandomVillage(),
@@ -407,7 +407,7 @@ def seed(ctx):
 
 
 # Creates a user and adds it to the database
-def create_user(email, name, password, hf_name, role, phoneNumbers, user_id):
+def create_user(email, name, password, health_facility_name, role, phone_numbers, user_id):
     # Check if the email already exists
     existing_user = models.User.query.filter_by(username=name).first()
     if existing_user:
@@ -417,29 +417,29 @@ def create_user(email, name, password, hf_name, role, phoneNumbers, user_id):
     # Create a new User instance
     new_user = models.User(
         id=user_id,
-        firstName=name,
+        name=name,
         email=email,
         username=get_username_from_email(email),
-        healthFacilityName=hf_name,
+        health_facility_name=health_facility_name,
         password=flask_bcrypt.generate_password_hash(password),
         role=role,
     )
 
     new_phone_numbers = []
-    for phoneNumber in phoneNumbers:
+    for phone_number in phone_numbers:
         # Check if the phone number already exists
         existing_phone = models.UserPhoneNumber.query.filter_by(
-            number=phoneNumber,
+            number=phone_number,
         ).first()
         if existing_phone:
             print(
-                f"Phone number '{phoneNumber}' is already associated with another user.",
+                f"Phone number '{phone_number}' is already associated with another user.",
             )
             return None
 
         # Create a new UserPhoneNumber instance and associate it with the user
         new_phone_numbers.append(
-            models.UserPhoneNumber(number=phoneNumber, user=new_user),
+            models.UserPhoneNumber(number=phone_number, user=new_user),
         )
 
     try:
