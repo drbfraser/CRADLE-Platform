@@ -164,7 +164,7 @@ class HealthFacility(db.Model):
     # Best practice would be to add column for area code + column for rest of number.
     # However, all of our facilities are in Uganda so area code does not change.
     # May want to change in the future if system if used in multiple countries
-    phone_number = db.Column(db.String(50))
+    phone_number = db.Column(db.String(50), unique=True)
     location = db.Column(db.String(50))
     about = db.Column(db.Text)
     new_referrals = db.Column(db.String(50))
