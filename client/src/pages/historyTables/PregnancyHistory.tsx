@@ -4,7 +4,11 @@ import {
   GridRowsProp,
   GridValidRowModel,
 } from '@mui/x-data-grid';
-import { DataTableToolbar, HistoryTable } from './HistoryTable';
+import {
+  DataTableFooter,
+  DataTableToolbar,
+  HistoryTable,
+} from './HistoryTable';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   API_URL,
@@ -165,13 +169,20 @@ export const PregnancyHistory = () => {
 
   const GestationalAgeUnitSelect = () => {
     return (
-      <FormControl>
+      <FormControl
+        sx={{
+          height: {
+            md: '56px',
+            sm: '48px',
+          },
+          width: '150px',
+        }}>
         <InputLabel id="gestational-age-unit-select-label">
           Gestational Age Units
         </InputLabel>
         <Select
           sx={{
-            width: '150px',
+            height: '100%',
           }}
           value={unit}
           label={'Gestational Age Unit'}
@@ -189,10 +200,14 @@ export const PregnancyHistory = () => {
   };
 
   const TableToolbar = () => {
+    return <DataTableToolbar title={'Pregnancy History'} />;
+  };
+
+  const TableFooter = () => {
     return (
-      <DataTableToolbar title={'Pregnancy History'}>
+      <DataTableFooter>
         <GestationalAgeUnitSelect />
-      </DataTableToolbar>
+      </DataTableFooter>
     );
   };
 
@@ -220,5 +235,12 @@ export const PregnancyHistory = () => {
     updateRowData(pregnancies);
   }, [unit, pregnancies]);
 
-  return <HistoryTable rows={rows} columns={columns} toolbar={TableToolbar} />;
+  return (
+    <HistoryTable
+      rows={rows}
+      columns={columns}
+      toolbar={TableToolbar}
+      footer={TableFooter}
+    />
+  );
 };

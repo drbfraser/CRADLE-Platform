@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, useMediaQuery, useTheme } from '@mui/material';
 import {
   DataGrid,
   GridColDef,
@@ -8,26 +8,32 @@ import {
   GridToolbarFilterButton,
   GridToolbarDensitySelector,
   GridFooterContainer,
+  GridPagination,
 } from '@mui/x-data-grid';
 import { PropsWithChildren } from 'react';
 
 type HistoryTableProps = {
   rows?: readonly GridValidRowModel[];
   columns: GridColDef[];
+  listColumns?: GridColDef[]; // Alternate column definition to use on very small screens.
   toolbar?: () => JSX.Element;
   footer?: () => JSX.Element;
 };
 export const HistoryTable = ({
   rows,
   columns,
+  listColumns,
   toolbar,
-  footer,
+  footer = () => <DataTableFooter />,
 }: HistoryTableProps) => {
+  const theme = useTheme();
+  const isXSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const listView = Boolean(listColumns && isXSmallScreen);
   return (
     <Box>
       <DataGrid
         rows={rows}
-        columns={columns}
+        columns={listView ? listColumns! : columns}
         autosizeOnMount
         autosizeOptions={{
           includeHeaders: true,
@@ -47,41 +53,22 @@ export const HistoryTable = ({
   );
 };
 
-const TOOLBAR_ELEMENT_HEIGHT_LARGE = '56px';
+const TOOLBAR_ELEMENT_HEIGHT_MED = '56px';
 const TOOLBAR_ELEMENT_HEIGHT_SMALL = '40px';
-const TOOLBAR_ELEMENT_SX = {
-  '@media (min-width: 900px)': {
-    height: TOOLBAR_ELEMENT_HEIGHT_LARGE,
-  },
-  '@media (max-width: 900px)': {
-    height: TOOLBAR_ELEMENT_HEIGHT_SMALL,
-  },
-};
-const MAX_BUTTON_WIDTH = '230px';
-const TOOLBAR_BUTTON_SX = {
-  maxWidth: MAX_BUTTON_WIDTH,
-  '@media (max-width: 720px)': {
-    width: MAX_BUTTON_WIDTH,
-  },
-  '@media (max-width: 360px)': {
-    fontSize: '0',
-    width: '100%',
-    maxWidth: MAX_BUTTON_WIDTH,
-  },
-  ...TOOLBAR_ELEMENT_SX,
-};
+const TOOLBAR_ELEMENT_HEIGHT_X_SMALL = '36px';
 const TOOLBAR_SLOT_PROPS = {
   button: {
     sx: {
-      ...TOOLBAR_BUTTON_SX,
-      '@media (min-width: 720px)': {
-        fontSize: 'large',
+      height: {
+        md: TOOLBAR_ELEMENT_HEIGHT_MED,
+        sm: TOOLBAR_ELEMENT_HEIGHT_SMALL,
+        xs: TOOLBAR_ELEMENT_HEIGHT_X_SMALL,
       },
-      '@media (max-width: 720px)': {
-        fontSize: 'medium',
-      },
-      '@media (max-width: 520px)': {
-        fontSize: 'x-small',
+      fontSize: {
+        lg: 'large',
+        md: 'medium',
+        sm: 'small',
+        xs: 'x-small',
       },
     },
   },
@@ -90,34 +77,60 @@ const TOOLBAR_SLOT_PROPS = {
 type DataTableToolbarProps = PropsWithChildren & {
   title: string;
 };
-export const DataTableToolbar = ({
-  children,
-  title,
-}: DataTableToolbarProps) => {
+export const DataTableToolbar = ({ title }: DataTableToolbarProps) => {
   return (
     <GridToolbarContainer
       sx={{
+        height: 'fit',
+        width: '100%',
         padding: '16px',
         display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
+        flexDirection: {
+          sm: 'row',
+          xs: 'column',
+        },
+        alignItems: {
+          sm: 'center',
+          xs: 'stretch',
+        },
+        justifyContent: {
+          sm: 'space-between',
+          xs: 'center',
+        },
       }}>
-      <Typography variant="h4">{title}</Typography>
+      <Typography
+        variant={'h4'}
+        component={'h4'}
+        sx={{
+          fontSize: {
+            md: 'xx-large',
+            sm: 'x-large',
+            xs: 'large',
+          },
+          marginRight: '8px',
+        }}>
+        {title}
+      </Typography>
       <Box
         sx={{
-          marginX: '8px',
+          height: {
+            md: TOOLBAR_ELEMENT_HEIGHT_MED,
+            sm: TOOLBAR_ELEMENT_HEIGHT_SMALL,
+            xs: TOOLBAR_ELEMENT_HEIGHT_X_SMALL,
+          },
           display: 'flex',
-          flexDirection: 'row',
-          gap: '4px',
-          '@media (max-width: 520px)': {
-            gap: '0',
+          flexWrap: 'wrap',
+          flexDirection: {
+            sm: 'row',
+          },
+          alignItems: 'center',
+          gap: {
+            xs: '4px',
           },
         }}>
         <GridToolbarColumnsButton slotProps={TOOLBAR_SLOT_PROPS} />
         <GridToolbarFilterButton slotProps={TOOLBAR_SLOT_PROPS} />
         <GridToolbarDensitySelector slotProps={TOOLBAR_SLOT_PROPS} />
-        {children}
       </Box>
     </GridToolbarContainer>
   );
@@ -128,9 +141,17 @@ export const DataTableFooter = ({ children }: DataTableFooterProps) => {
   return (
     <GridFooterContainer
       sx={{
-        padding: '16px',
+        padding: '12px',
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
       }}>
       {children}
+      <GridPagination
+        sx={{
+          marginLeft: 'auto',
+        }}
+      />
     </GridFooterContainer>
   );
 };

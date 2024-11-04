@@ -78,7 +78,18 @@ export function HistoryTablesPage() {
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>
-        <Typography variant="h4">Past Records of {patientName}</Typography>
+        <Typography
+          variant={'h3'}
+          component={'h3'}
+          sx={{
+            fontSize: {
+              lg: 'xxx-large',
+              md: 'xx-large',
+              xs: 'x-large',
+            },
+          }}>
+          Past Records of {patientName}
+        </Typography>
       </Box>
       <Box p={3}>
         <Tabs panels={filteredPanels} />
