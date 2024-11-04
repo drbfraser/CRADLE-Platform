@@ -14,6 +14,7 @@ export type TableAction = {
   Icon: OverridableComponent<SvgIconTypeMap<{}, 'svg'>> & {
     muiName: string;
   };
+  disabled?: boolean;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
 };
 type TableActionButtonsProps = {
@@ -46,6 +47,7 @@ type TableActionButtonProps = TableAction;
 export const TableActionButton = ({
   tooltip,
   Icon,
+  disabled,
   onClick,
 }: TableActionButtonProps) => {
   const theme = useTheme();
@@ -61,7 +63,7 @@ export const TableActionButton = ({
 
   return (
     <Tooltip placement="top" title={tooltip}>
-      <IconButton onClick={onClick} size={buttonSize}>
+      <IconButton onClick={onClick} size={buttonSize} disabled={disabled}>
         <Icon
           sx={{
             fontSize: {
