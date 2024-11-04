@@ -22,6 +22,7 @@ import TimelineSeparator from '@mui/lab/TimelineSeparator';
 import { getPatientTimelineAsync } from 'src/shared/api';
 import { getPrettyDate } from 'src/shared/utils';
 import { useParams } from 'react-router-dom';
+import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
 
 type RouteParams = {
   patientId: string;
@@ -73,10 +74,40 @@ export const HistoryTimeline = () => {
   const isTransformed = useMediaQuery('(min-width: 560px)');
 
   return (
-    <Box id={'history-timeline-container'} p={3}>
-      <Typography component="h3" variant="h5">
-        <HistoryIcon fontSize="large" /> &nbsp; Medical History Timeline
-      </Typography>
+    <DashboardPaper>
+      <Box
+        sx={{
+          width: '100%',
+          padding: '8px',
+        }}>
+        <Typography
+          component="h5"
+          variant="h5"
+          sx={{
+            fontSize: {
+              lg: 'xx-large',
+              md: 'x-large',
+              sm: 'x-large',
+              xs: 'large',
+            },
+            display: 'flex',
+            flexDirection: 'row',
+            gap: '1rem',
+            alignItems: 'center',
+          }}>
+          <HistoryIcon
+            sx={{
+              fontSize: {
+                lg: '36px',
+                md: '32px',
+                sm: '28px',
+                xs: '24px',
+              },
+            }}
+          />
+          Medical History Timeline
+        </Typography>
+      </Box>
       <Divider />
       <Box
         sx={{
@@ -135,7 +166,7 @@ export const HistoryTimeline = () => {
           )}
         </Timeline>
       </Box>
-    </Box>
+    </DashboardPaper>
   );
 };
 

@@ -42,10 +42,6 @@ export const TableActionButtons = ({ actions }: TableActionButtonsProps) => {
   );
 };
 
-const SMALL_ICON = '16px';
-const MEDIUM_ICON = '20px';
-const LARGE_ICON = '24px';
-
 type TableActionButtonProps = TableAction;
 export const TableActionButton = ({
   tooltip,
@@ -57,14 +53,10 @@ export const TableActionButton = ({
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
 
   let buttonSize: 'small' | 'medium' | 'large' = 'large';
-  let iconSize: typeof SMALL_ICON | typeof MEDIUM_ICON | typeof LARGE_ICON =
-    LARGE_ICON;
   if (isXSmallScreen) {
     buttonSize = 'small';
-    iconSize = SMALL_ICON;
   } else if (isSmallScreen) {
     buttonSize = 'medium';
-    iconSize = MEDIUM_ICON;
   }
 
   return (
@@ -72,7 +64,11 @@ export const TableActionButton = ({
       <IconButton onClick={onClick} size={buttonSize}>
         <Icon
           sx={{
-            fontSize: iconSize,
+            fontSize: {
+              md: '24px',
+              sm: '20px',
+              xs: '16px',
+            },
           }}
         />
       </IconButton>
