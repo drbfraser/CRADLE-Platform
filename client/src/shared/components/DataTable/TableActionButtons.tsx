@@ -1,12 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-import {
-  Box,
-  IconButton,
-  SvgIconTypeMap,
-  Tooltip,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material';
+import { Box, IconButton, SvgIconTypeMap, Tooltip } from '@mui/material';
 import { OverridableComponent } from '@mui/types';
 
 export type TableAction = {
