@@ -15,7 +15,10 @@ import {
 } from 'src/shared/components/DataTable/TableActionButtons';
 import { MedicalRecord } from 'src/shared/types';
 import { getPrettyDate } from 'src/shared/utils';
-import { DataTableToolbar, HistoryTable } from './HistoryTable';
+import {
+  DataTableToolbar,
+  HistoryTable,
+} from '../../shared/components/DataTable/HistoryTable';
 
 type RouteParams = {
   patientId: string;

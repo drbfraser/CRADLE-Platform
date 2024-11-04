@@ -8,7 +8,7 @@ import {
   DataTableFooter,
   DataTableToolbar,
   HistoryTable,
-} from './HistoryTable';
+} from '../../shared/components/DataTable/HistoryTable';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   API_URL,
