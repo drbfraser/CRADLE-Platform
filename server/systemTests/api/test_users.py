@@ -31,7 +31,7 @@ def test_register_user(jwt_token):
         "firstName": "ArshdeepS",
         "email": random_email,
         "phoneNumber": "604-715-2845",
-        "phoneNumbers": ["604-715-2845", "604-715-2840"],
+        "phoneNumbers": ["604-715-2845"],
         "healthFacilityName": "H0000",
         "password": "1234567",
         "role": "VHT",

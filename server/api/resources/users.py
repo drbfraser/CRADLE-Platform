@@ -37,53 +37,17 @@ from config import flask_bcrypt
 from data import crud, marshal
 from enums import RoleEnum
 from models import User
-from validation.users import UserRegisterValidator, UserUpdateValidator
+from validation.users import UserRegisterValidator, UserValidator, invalid_phone_number
 from validation.validation_exception import ValidationExceptionError
 
 LOGGER = logging.getLogger(__name__)
+
+# Error messages
 null_phone_number = "No phone number was provided"
-invalid_phone_number = (
-    "Phone number {phoneNumber} has wrong format. The format for phone number should be +x-xxx-xxx-xxxx, "
-    "+x-xxx-xxx-xxxxx, xxx-xxx-xxxx or xxx-xxx-xxxxx"
-)
+
 phone_number_already_exists_message = {
     "message": "Phone number is already assigned to another user.",
 }
-
-# Building a parser that will be used over several apis for Users
-UserParser = reqparse.RequestParser()
-UserParser.add_argument(
-    "email",
-    type=str,
-    required=True,
-    help="This field cannot be left blank!",
-)
-UserParser.add_argument(
-    "firstName",
-    type=str,
-    required=True,
-    help="This field cannot be left blank!",
-)
-UserParser.add_argument(
-    "healthFacilityName",
-    type=str,
-    required=True,
-    help="This field cannot be left blank!",
-)
-UserParser.add_argument(
-    "phoneNumbers",
-    type=str,
-    required=True,
-    help="This field cannot be left blank!",
-    action="append",
-)
-UserParser.add_argument(
-    "role",
-    type=str,
-    required=True,
-    help="This field cannot be left blank!",
-)
-UserParser.add_argument("supervises", type=int, action="append")
 
 supported_roles = [role.value for role in RoleEnum]
 
@@ -449,34 +413,30 @@ class UserApi(Resource):
         if not id:
             return {"message": "must provide an id"}, 400
 
-        # Parse the arguments that we want
-        new_user = filterPairsWithNone(UserParser.parse_args())
+        request_body = request.get_json(force=True)
+
+        user_to_feed = filterPairsWithNone(request_body)
+
+        try:
+            # validate the new user
+            user_pydantic_model = UserValidator.validate(user_to_feed)
+        except ValidationExceptionError as e:
+            error_message = str(e)
+            LOGGER.error(error_message)
+            abort(400, message=error_message)
+
+        # use pydantic model to generate validated dict for later processing
+        new_user = user_pydantic_model.model_dump()
 
         # Save the phoneNumbers field and remove it from new_user.
         phone_numbers = list(new_user.get("phoneNumbers"))
         new_user = {k: v for k, v in new_user.items() if k != "phoneNumbers"}
-
-        # validate the new users
-        error_message = UserUpdateValidator.validate(new_user)
-        if error_message is not None:
-            LOGGER.error(error_message)
-            abort(400, message=error_message)
 
         # Ensure that id is valid
         if not doesUserExist(id):
             error = {"message": "no user with this id"}
             LOGGER.error(error)
             return error, 400
-
-        if new_user["role"] not in supported_roles:
-            error = {"message": "Not a supported role"}
-            LOGGER.error(error)
-            return error, 400
-
-        # Validate the phone numbers.
-        for phone_number in phone_numbers:
-            if not phoneNumber_regex_check(phone_number):
-                return {"message": invalid_phone_number}, 400
 
         # Get the user's existing phone numbers.
         old_phone_numbers: list[str] = get_all_phoneNumbers_for_user(id)
