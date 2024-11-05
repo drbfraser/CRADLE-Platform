@@ -37,6 +37,7 @@ import {
   Select,
   SelectChangeEvent,
 } from '@mui/material';
+import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
 
 type RouteParams = {
   patientId: string;
@@ -171,11 +172,9 @@ export const PregnancyHistory = () => {
     return (
       <FormControl
         sx={{
-          height: {
-            md: '56px',
-            sm: '48px',
-          },
+          height: '36px',
           width: '150px',
+          marginLeft: '8px',
         }}>
         <InputLabel id="gestational-age-unit-select-label">
           Gestational Age Units
@@ -231,5 +230,10 @@ export const PregnancyHistory = () => {
     updateRowData(pregnancies);
   }, [unit, pregnancies]);
 
-  return <DataTable rows={rows} columns={columns} footer={TableFooter} />;
+  return (
+    <>
+      <DataTableHeader title={'Pregnancies'} />
+      <DataTable rows={rows} columns={columns} footer={TableFooter} />
+    </>
+  );
 };
