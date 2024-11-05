@@ -68,8 +68,12 @@ export const DataTable = ({
           minHeight: '400px',
           maxWidth: '100%',
           overflow: 'hidden',
+          borderTop: '1px solid',
+          borderColor: DATA_TABLE_BORDER_COLOR,
+          borderRadius: '0',
           '& .MuiDataGrid-topContainer': {
             borderTop: '1px solid',
+            borderBottom: '1px solid',
             borderColor: DATA_TABLE_BORDER_COLOR,
           },
           ...sx,
@@ -98,17 +102,14 @@ export const DataTableToolbar = ({ children }: DataTableToolbarProps) => {
     <GridToolbarContainer
       sx={{
         width: '100%',
-        height: {
-          md: '40px',
-          sm: '36px',
-          xs: '30px',
-        },
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        borderY: '1px solid',
+        borderBottom: '1px solid',
+        borderRadius: '0px',
         borderColor: DATA_TABLE_BORDER_COLOR,
+        padding: '4px',
       }}>
       <Box
         sx={{
