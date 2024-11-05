@@ -1,12 +1,4 @@
-import {
-  Box,
-  Button,
-  FormControlLabel,
-  IconButton,
-  Stack,
-  Switch,
-  Tooltip,
-} from '@mui/material';
+import { Button, FormControlLabel, Stack, Switch } from '@mui/material';
 import {
   getFormTemplateAsync,
   getFormTemplateCsvAsync,

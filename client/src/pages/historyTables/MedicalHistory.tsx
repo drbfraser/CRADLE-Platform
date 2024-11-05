@@ -15,10 +15,7 @@ import {
 } from 'src/shared/components/DataTable/TableActionButtons';
 import { MedicalRecord } from 'src/shared/types';
 import { getPrettyDate } from 'src/shared/utils';
-import {
-  DataTableToolbar,
-  DataTable,
-} from 'src/shared/components/DataTable/DataTable';
+import { DataTable } from 'src/shared/components/DataTable/DataTable';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
 
 type RouteParams = {

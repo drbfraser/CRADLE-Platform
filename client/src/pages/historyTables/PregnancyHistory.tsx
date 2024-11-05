@@ -6,7 +6,6 @@ import {
 } from '@mui/x-data-grid';
 import {
   DataTableFooter,
-  DataTableToolbar,
   DataTable,
 } from 'src/shared/components/DataTable/DataTable';
 import { useNavigate, useParams } from 'react-router-dom';
