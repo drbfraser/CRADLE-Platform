@@ -65,6 +65,7 @@ export const DataTable = ({
           footer: footer,
         }}
         sx={{
+          minHeight: '400px',
           maxWidth: '100%',
           overflow: 'hidden',
           '& .MuiDataGrid-topContainer': {
