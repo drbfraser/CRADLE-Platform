@@ -14,7 +14,6 @@ from flask.cli import FlaskGroup
 
 import models
 from api.util import create_secret_key_for_user
-from config import flask_bcrypt
 from data import crud, marshal
 from enums import RoleEnum
 from models import db
@@ -173,7 +172,6 @@ def seed_test_data(ctx):
         "H0000",
         False,
         True,
-        "WEEKS",
         1610925778,
     )
     create_patient_reading_referral_pregnancy(
@@ -266,22 +264,22 @@ def seed(ctx):
     # SEED villages
     print("Seeding Villages...")
     village_schema = models.VillageSchema()
-    for village in villageList:
-        v_schema = {"villageNumber": village}
+    for village in village_list:
+        v_schema = {"village_number": village}
         db.session.add(village_schema.load(v_schema))
 
     # SEED health facilities
     print("Seeding health facilities...")
 
     health_facility_schema = models.HealthFacilitySchema()
-    for index, hf in enumerate(facilityLocations):
+    for index, hf in enumerate(facility_locations):
         hf_schema = {
-            "healthFacilityName": getFacilityName(index),
-            "healthFacilityPhoneNumber": getFacilityPhoneNumber(hf["areaCode"]),
-            "facilityType": getFacilityType(),
-            "about": getFacilityAbout(),
+            "name": get_facility_name(index),
+            "phone_number": get_facility_phone_number(hf["areaCode"]),
+            "type": get_facility_type(),
+            "about": get_facility_about(),
             "location": hf["city"],
-            "newReferrals": str(round(time.time() * 1000)),
+            "new_referrals": str(round(time.time() * 1000)),
         }
         db.session.add(health_facility_schema.load(hf_schema))
 
@@ -293,9 +291,9 @@ def seed(ctx):
     models.ReadingSchema()
     referral_schema = models.ReferralSchema()
 
-    first_names, last_names = getNames()
+    first_names, last_names = get_names()
     generated_names = set()
-    for count, patientId in enumerate(patientList):
+    for count, patient_id in enumerate(patient_list):
         # get random patient
         person = random.choice(first_names)
         name, sex = person["name"], person["sex"]
@@ -313,66 +311,59 @@ def seed(ctx):
         else:
             pregnant = bool(random.getrandbits(1))
 
-        gestational_age_unit = None
+
         gestational_timestamp = None
-        gestational_units = [
-            models.GestationalAgeUnitEnum.WEEKS.value,
-            models.GestationalAgeUnitEnum.MONTHS.value,
-        ]
 
         if sex == models.SexEnum.FEMALE.value and pregnant:
-            gestational_age_unit = random.choice(gestational_units)
-            gestational_timestamp = getRandomPregnancyDate()
+            gestational_timestamp = get_random_pregnancy_date()
 
-        p1 = {
-            "patientId": patientId,
-            "patientName": name + " " + last_name,
-            "gestationalAgeUnit": gestational_age_unit,
-            "gestationalTimestamp": gestational_timestamp,
-            "villageNumber": getRandomVillage(),
-            "patientSex": sex,
-            "isPregnant": pregnant,
-            "dob": getRandomDOB(),
-            "isExactDob": bool(random.getrandbits(1)),
-            "isArchived": False,
+        patient_1 = {
+            "id": patient_id,
+            "name": name + " " + last_name,
+            "gestational_timestamp": gestational_timestamp,
+            "village_number": get_random_village(),
+            "sex": sex,
+            "is_pregnant": pregnant,
+            "date_of_birth": get_random_DOB(),
+            "is_exact_date_of_birth": bool(random.getrandbits(1)),
+            "is_archived": False,
         }
 
-        db.session.add(patient_schema.load(p1))
+        db.session.add(patient_schema.load(patient_1))
         db.session.commit()
 
         if pregnant:
             pregnancy_schema = models.PregnancySchema()
-            pRecord = {
-                "patientId": patientId,
-                "startDate": gestational_timestamp,
-                "defaultTimeUnit": gestational_age_unit,
+            pregnancy_record = {
+                "patient_id": patient_id,
+                "start_date": gestational_timestamp,
             }
-            db.session.add(pregnancy_schema.load(pRecord))
+            db.session.add(pregnancy_schema.load(pregnancy_record))
             db.session.commit()
 
-        numOfReadings = random.randint(1, 5)
-        dateList = [getRandomDate() for i in range(numOfReadings)]
-        dateList.sort()
+        num_of_readings = random.randint(1, 5)
+        date_list = [get_random_date() for i in range(num_of_readings)]
+        date_list.sort()
 
-        userId = getRandomUser()
-        for i in range(numOfReadings):
-            readingId = str(uuid.uuid4())
-            healthFacilityName = getRandomHealthFacilityName()
+        user_id = get_random_user()
+        for i in range(num_of_readings):
+            reading_id = str(uuid.uuid4())
+            health_facility_name = get_random_health_facility_name()
 
             # get random reading(s) for patient
-            r1 = {
-                "userId": userId,
-                "patientId": patientId,
-                "dateTimeTaken": dateList[i],
-                "readingId": readingId,
-                "bpSystolic": getRandomBpSystolic(),
-                "bpDiastolic": getRandomBpDiastolic(),
-                "heartRateBPM": getRandomHeartRateBPM(),
-                "symptoms": getRandomSymptoms(),
+            reading_1 = {
+                "user_id": user_id,
+                "patient_Id": patient_id,
+                "date_time_taken": date_list[i],
+                "reading_id": reading_id,
+                "systolic_blood_pressure": get_random_systolic_bp(),
+                "diastolic_blood_pressure": get_random_diastolic_bp(),
+                "heart_rate_BPM": get_random_heart_rate_BPM(),
+                "symptoms": get_random_symptoms(),
             }
 
-            r1Model = marshal.unmarshal(models.Reading, r1)
-            crud.create(r1Model, refresh=True)
+            reading_1_model = marshal.unmarshal(models.Reading, reading_1)
+            crud.create(reading_1_model, refresh=True)
 
             referral_comments = [
                 " needs help!",
@@ -382,24 +373,24 @@ def seed(ctx):
             if random.choice([True, False]):
                 # Cap the referral date at today, if it goes into future
                 refer_date = min(
-                    r1["dateTimeTaken"]
+                    reading_1["date_time_taken"]
                     + int(datetime.timedelta(days=10).total_seconds()),
                     int(datetime.datetime.now().timestamp()),
                 )
-                referral1 = {
-                    "userId": getRandomUser(),
-                    "patientId": patientId,
-                    "dateReferred": refer_date,
-                    "referralHealthFacilityName": healthFacilityName,
+                referral_1 = {
+                    "user_id": get_random_user(),
+                    "patient_id": patient_id,
+                    "date_referred": refer_date,
+                    "health_facility_name": health_facility_name,
                     "comment": name + random.choice(referral_comments),
                 }
-                db.session.add(referral_schema.load(referral1))
+                db.session.add(referral_schema.load(referral_1))
                 db.session.commit()
 
         if count > 0 and count % 25 == 0:
-            print(f"{count}/{len(patientList)} Patients have been seeded")
+            print(f"{count}/{len(patient_list)} Patients have been seeded")
 
-    print(f"{count + 1}/{len(patientList)} Patients have been seeded")
+    print(f"{count + 1}/{len(patient_list)} Patients have been seeded")
     print("Complete!")
 
     end = time.time()
@@ -421,7 +412,6 @@ def create_user(email, name, password, health_facility_name, role, phone_numbers
         email=email,
         username=get_username_from_email(email),
         health_facility_name=health_facility_name,
-        password=flask_bcrypt.generate_password_hash(password),
         role=role,
     )
 
@@ -458,7 +448,7 @@ def create_user(email, name, password, health_facility_name, role, phone_numbers
 
 def create_health_facility(
     facility_name,
-    phone_number="555-555-55555",
+    phone_number,
     facility_type="HOSPITAL",
     location="Sample Location",
     about="Sample health centre",
@@ -514,7 +504,7 @@ def create_patient_reading_referral_pregnancy(
             "id": patient_id,
             "name": patient_name,
             "village_number": village_number,
-            "patientSex": sex,
+            "sex": sex,
             "is_pregnant": "false",
             "date_of_birth": date_of_birth,
             "is_exact_date_of_birth": False,
@@ -648,8 +638,8 @@ def create_form_template():
                 "string_max_lines": None,
             },
             {
-                "formTemplateId": "dt9",
                 "id": "lname_seed_test_data",
+                "form_template_id": "dt9",
                 "category_index": 0,
                 "question_id": "",
                 "question_index": 2,
@@ -666,8 +656,8 @@ def create_form_template():
                 "string_max_lines": None,
             },
             {
-                "formTemplateId": "dt9",
                 "id": "age_seed_test_data",
+                "form_template_id": "dt9",
                 "category_index": 0,
                 "question_id": "",
                 "question_index": 3,
@@ -754,7 +744,7 @@ def create_form(patient_id, fname, lname, age):
                 "answers": f'{{"text": "{fname}"}}',
                 "mc_options": "[]",
                 "category_index": 0,
-                "questionIndex": 1,
+                "question_index": 1,
                 "question_id": "",
                 "question_text": "First Name",
                 "question_type": "STRING",
@@ -769,7 +759,7 @@ def create_form(patient_id, fname, lname, age):
                 "answers": f'{{"text": "{lname}"}}',
                 "mc_options": "[]",
                 "category_index": 0,
-                "questionIndex": 2,
+                "question_index": 2,
                 "question_id": "",
                 "question_text": "Last Name",
                 "question_type": "STRING",
@@ -784,7 +774,7 @@ def create_form(patient_id, fname, lname, age):
                 "answers": f'{{"number": {age}}}',
                 "mc_options": "[]",
                 "category_index": 0,
-                "questionIndex": 3,
+                "question_index": 3,
                 "question_id": "",
                 "question_text": "Approximate Age",
                 "question_type": "INTEGER",
@@ -825,52 +815,52 @@ def create_relay_nums():
         db.session.commit()
 
 
-def getRandomInitials():
+def get_random_initials():
     return (
         random.choice(string.ascii_letters) + random.choice(string.ascii_letters)
     ).upper()
 
 
-def getRandomVillage():
-    return random.choice(villageList)
+def get_random_village():
+    return random.choice(village_list)
 
 
-def getRandomBpSystolic():
-    return random.choice(bpSystolicList)
+def get_random_systolic_bp():
+    return random.choice(bp_systolic_list)
 
 
-def getRandomBpDiastolic():
-    return random.choice(bpDiastolicList)
+def get_random_diastolic_bp():
+    return random.choice(bp_diastolic_list)
 
 
-def getRandomHeartRateBPM():
-    return random.choice(heartRateList)
+def get_random_heart_rate_BPM():
+    return random.choice(heart_rate_list)
 
 
-def getRandomHealthFacilityName():
-    return random.choice(healthFacilityList)
+def get_random_health_facility_name():
+    return random.choice(health_facility_list)
 
 
-def getRandomUser():
-    return random.choice(usersList)
+def get_random_user():
+    return random.choice(users_list)
 
 
-def getRandomSymptoms():
+def get_random_symptoms():
     numOfSymptoms = random.randint(0, 4)
     if numOfSymptoms == 0:
         return ""
 
-    symptoms = random.sample(population=symptomsList, k=numOfSymptoms)
+    symptoms = random.sample(population=symptoms_list, k=numOfSymptoms)
     return ", ".join(symptoms)
 
 
-def getRandomDate():
+def get_random_date():
     """
     This function will return a random datetime between two datetime
     objects.
     """
-    start = d1
-    end = d2
+    start = date_1
+    end = date_2
     delta = end - start
     int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
     random_second = randrange(int_delta)
@@ -878,13 +868,13 @@ def getRandomDate():
     return int(new_date.strftime("%s"))
 
 
-def getRandomPregnancyDate():
+def get_random_pregnancy_date():
     max_preg = randint(1, 273)
     date = datetime.datetime.today() - datetime.timedelta(max_preg)
     return int(date.strftime("%s"))
 
 
-def generateRandomReadingID():
+def generate_random_reading_id():
     pool = ascii_lowercase + digits
     reading_id = (
         "".join([choice(pool) for _ in range(3)])
@@ -898,20 +888,20 @@ def generateRandomReadingID():
     return reading_id
 
 
-def getNames():
+def get_names():
     with open("./data/seed_data/seed.json") as f:
         names = json.load(f)
         return names["firstNames"], names["lastNames"]
 
 
-def getDateTime(dateStr):
+def get_date_time(dateStr):
     return datetime.datetime.strptime(dateStr, "%Y-%m-%dT%H:%M:%S")
 
 
-def generatePhoneNumbers():
+def generate_phone_numbers():
     prefix = "+256"
 
-    area_codes = [loc["areaCode"] for loc in facilityLocations]
+    area_codes = [loc["areaCode"] for loc in facility_locations]
     n = len(area_codes)
     post_fixes = ["".join([f"{randint(0, 9)}" for num in range(6)]) for x in range(n)]
 
@@ -922,12 +912,12 @@ def generatePhoneNumbers():
     return numbers
 
 
-def getFacilityPhoneNumber(area_code):
-    return facilityPhoneNumbers[area_code]
+def get_facility_phone_number(area_code):
+    return facility_phone_numbers[area_code]
 
 
-def generateHealthFacilities():
-    n = len(facilityLocations)
+def generate_health_facilities():
+    n = len(facility_locations)
 
     # Sets are unique element lists, prevents from having duplicates
     facilities = set()
@@ -941,8 +931,8 @@ def generateHealthFacilities():
     return sorted(facilities)
 
 
-def generateVillages():
-    n = len(facilityLocations)
+def generate_villages():
+    n = len(facility_locations)
     villages = set()
     while len(villages) < n:
         villages.add("1" + "".join([f"{randint(0, 9)}" for num in range(3)]))
@@ -950,27 +940,27 @@ def generateVillages():
     return villages
 
 
-def getRandomDOB():
+def get_random_DOB():
     format = "%Y-%m-%d"
     start = time.mktime(time.strptime("1950-1-1", format))
     end = time.mktime(time.strptime("2010-1-1", format))
     rand_range = random.random()
 
-    ptime = start + rand_range * (end - start)
+    p_time = start + rand_range * (end - start)
 
-    return time.strftime(format, time.localtime(ptime))
-
-
-def getFacilityName(index):
-    return healthFacilityList[index]
+    return time.strftime(format, time.localtime(p_time))
 
 
-def getFacilityType():
-    return random.choice(facilityType)
+def get_facility_name(index):
+    return health_facility_list[index]
 
 
-def getFacilityAbout():
-    return random.choice(facilityAbout)
+def get_facility_type():
+    return random.choice(facility_type)
+
+
+def get_facility_about():
+    return random.choice(facility_about)
 
 
 if __name__ == "__main__":
@@ -979,35 +969,35 @@ if __name__ == "__main__":
     # TODO: This should be updated once in a while, for readings to be displayed in the frontend.
     START_DATE = "1/1/2022 12:01 AM"
 
-    patientList = random.sample(range(48300027408, 48300099999), NUM_OF_PATIENTS)
-    random.shuffle(patientList)
-    patientList = list(map(str, patientList))
+    patient_list = random.sample(range(48300027408, 48300099999), NUM_OF_PATIENTS)
+    random.shuffle(patient_list)
+    patient_list = list(map(str, patient_list))
 
     # Get cities
     with open("./data/seed_data/seed.json") as f:
-        facilityLocations = json.load(f)["locations"]
+        facility_locations = json.load(f)["locations"]
 
-    usersList = [1, 2, 3, 4]
-    villageList = generateVillages()
-    healthFacilityList = generateHealthFacilities()
+    users_list = [1, 2, 3, 4]
+    village_list = generate_villages()
+    health_facility_list = generate_health_facilities()
 
-    facilityType = ["HCF_2", "HCF_3", "HCF_4", "HOSPITAL"]
-    facilityAbout = [
+    facility_type = ["HCF_2", "HCF_3", "HCF_4", "HOSPITAL"]
+    facility_about = [
         "Has minimal resources",
         "Can do full checkup",
         "Has specialized equipment",
         "Urgent requests only",
     ]
 
-    facilityPhoneNumbers = generatePhoneNumbers()
+    facility_phone_numbers = generate_phone_numbers()
 
-    symptomsList = ["HEADACHE", "BLURRED VISION", "ABDO PAIN", "BLEEDING", "FEVERISH"]
-    sexList = ["FEMALE", "MALE"]
-    bpSystolicList = np.clip(np.random.normal(120, 35, 1000).astype(int), 50, 300)
-    bpDiastolicList = np.clip(np.random.normal(80, 25, 1000).astype(int), 30, 200)
-    heartRateList = np.clip(np.random.normal(60, 17, 1000).astype(int), 30, 250)
+    symptoms_list = ["HEADACHE", "BLURRED VISION", "ABDO PAIN", "BLEEDING", "FEVERISH"]
+    sex_list = ["FEMALE", "MALE"]
+    bp_systolic_list = np.clip(np.random.normal(120, 35, 1000).astype(int), 50, 300)
+    bp_diastolic_list = np.clip(np.random.normal(80, 25, 1000).astype(int), 30, 200)
+    heart_rate_list = np.clip(np.random.normal(60, 17, 1000).astype(int), 30, 250)
 
-    d1 = datetime.datetime.strptime(START_DATE, "%m/%d/%Y %I:%M %p")
-    d2 = datetime.datetime.today().replace(microsecond=0)
+    date_1 = datetime.datetime.strptime(START_DATE, "%m/%d/%Y %I:%M %p")
+    date_2 = datetime.datetime.today().replace(microsecond=0)
 
     cli()
