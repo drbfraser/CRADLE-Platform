@@ -5,13 +5,6 @@ import { ManageUsers } from './manageUsers/ManageUsers';
 import { ManagePatients } from './managePatients/ManagePatients';
 import { Route, Routes } from 'react-router-dom';
 import { CustomFormTemplate } from './manageFormTemplates/editFormTemplate/CustomFormTemplate';
-import {
-  useState,
-  PropsWithChildren,
-  useContext,
-  createContext,
-  useCallback,
-} from 'react';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
 import { Tabs } from 'src/shared/components/Tabs/Tabs';
 
