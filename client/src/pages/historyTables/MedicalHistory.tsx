@@ -19,6 +19,7 @@ import {
   DataTableToolbar,
   DataTable,
 } from 'src/shared/components/DataTable/DataTable';
+import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
 
 type RouteParams = {
   patientId: string;
@@ -129,7 +130,10 @@ export const MedicalHistory = ({
     getRowData();
   }, []);
 
-  const TableToolbar = () => <DataTableToolbar title={title} />;
-
-  return <DataTable rows={rows} columns={columns} toolbar={TableToolbar} />;
+  return (
+    <>
+      <DataTableHeader title={title} />
+      <DataTable rows={rows} columns={columns} />
+    </>
+  );
 };
