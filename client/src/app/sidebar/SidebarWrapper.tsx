@@ -15,7 +15,7 @@ export const SidebarWrapper = ({ children }: SidebarWrapperProps) => {
 
   const theme = useTheme();
   const drawerWidth = isSidebarOpen ? DRAWER_WIDE : DRAWER_NARROW;
-  const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
+  const isBigScreen = useMediaQuery(theme.breakpoints.up('md'));
   const width = isBigScreen ? `calc(100vw - ${drawerWidth})` : '100%';
 
   return (
