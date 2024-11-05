@@ -14,6 +14,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { PregnancyHistory } from './PregnancyHistory';
 import { MedicalHistory } from './MedicalHistory';
 import { Tabs } from 'src/shared/components/Tabs/Tabs';
+import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
 
 type RouteParams = {
   patientId: string;
@@ -91,7 +92,9 @@ export function HistoryTablesPage() {
           Past Records of {patientName}
         </Typography>
       </Box>
-      <Tabs panels={filteredPanels} />
+      <DashboardPaper>
+        <Tabs panels={filteredPanels} />
+      </DashboardPaper>
     </Box>
   );
 }
