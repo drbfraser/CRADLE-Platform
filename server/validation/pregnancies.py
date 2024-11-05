@@ -43,7 +43,7 @@ class PregnancyModel(BaseModel):
 
 class PregnancyPostRequestValidator(PregnancyModel):
     @staticmethod
-    def validate_post_request(request_body: dict, patient_id: str):
+    def validate(request_body: dict, patient_id: str):
         """
         Validates the request body for the POST /api/patients/<string:patient_id>/pregnancies.
         Raises ValidationExceptionError on invalid input, else returns None.
@@ -81,7 +81,7 @@ class PrenancyPutRequestValidator(PregnancyModel):
     gestationalAgeUnit: Optional[str] = None
 
     @staticmethod
-    def validate_put_request(request_body: dict, pregnancy_id: str):
+    def validate(request_body: dict, pregnancy_id: str):
         """
         Validates the PUT request for /api/pregnancies/<string:pregnancy_id>.
         Returns None if valid, otherwise raises ValidationExceptionError.

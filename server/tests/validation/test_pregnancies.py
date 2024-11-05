@@ -128,10 +128,10 @@ pregnancy_post_start_date_occurs_after_end_date_should_throw_exception = {
 def test_validate_post_request(json, patient_id, output_type):
     if type(output_type) is type and issubclass(output_type, Exception):
         with pytest.raises(output_type):
-            PregnancyPostRequestValidator.validate_post_request(json, patient_id)
+            PregnancyPostRequestValidator.validate(json, patient_id)
     else:
         try:
-            PregnancyPostRequestValidator.validate_post_request(json, patient_id)
+            PregnancyPostRequestValidator.validate(json, patient_id)
         except ValidationExceptionError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e
 
@@ -228,10 +228,10 @@ pregnancy_put_id_unmatch_patientId_should_throw_exception = {
 def test_validate_put_request(json, pregnancy_id, output_type):
     if type(output_type) is type and issubclass(output_type, Exception):
         with pytest.raises(output_type):
-            PrenancyPutRequestValidator.validate_put_request(json, pregnancy_id)
+            PrenancyPutRequestValidator.validate(json, pregnancy_id)
     else:
         try:
-            PrenancyPutRequestValidator.validate_put_request(json, pregnancy_id)
+            PrenancyPutRequestValidator.validate(json, pregnancy_id)
         except ValidationExceptionError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e
 

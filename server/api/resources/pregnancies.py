@@ -42,7 +42,7 @@ class Root(Resource):
         request_body = request.get_json(force=True)
 
         try:
-            PregnancyPostRequestValidator.validate_post_request(
+            PregnancyPostRequestValidator.validate(
                 request_body,
                 patient_id,
             )
@@ -92,7 +92,7 @@ class SinglePregnancy(Resource):
         request_body = request.get_json(force=True)
 
         try:
-            PrenancyPutRequestValidator.validate_put_request(request_body, pregnancy_id)
+            PrenancyPutRequestValidator.validate(request_body, pregnancy_id)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 
