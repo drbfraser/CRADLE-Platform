@@ -33,10 +33,12 @@ import SchoolIcon from '@mui/icons-material/School';
 import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
 import SettingsIcon from '@mui/icons-material/Settings';
 
-export const Sidebar: React.FC = () => {
+type SidebarProps = {
+  drawerWidth: string;
+  isBigScreen: boolean;
+};
+export const Sidebar = ({ drawerWidth, isBigScreen }: SidebarProps) => {
   const offsetFromTop = TOP_BAR_HEIGHT;
-  const theme = useTheme();
-  const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
   const dispatch = useAppDispatch();
   const isSidebarOpen = useAppSelector(selectSidebarIsOpen);
@@ -51,18 +53,7 @@ export const Sidebar: React.FC = () => {
     dispatch(closeSidebarAction());
   };
 
-  useEffect(() => {
-    // Close sidebar if screen is small.
-    if (!isBigScreen) {
-      dispatch(closeSidebarAction());
-    } else {
-      dispatch(openSidebarAction());
-    }
-  }, [isBigScreen]);
-
   const logoutButtonId = useMemo(() => makeUniqueId(), []);
-
-  const drawerWidth = isSidebarOpen ? DRAWER_WIDE : DRAWER_NARROW;
 
   const { handleLogout } = useLogout();
 
@@ -72,6 +63,7 @@ export const Sidebar: React.FC = () => {
     <Drawer
       sx={{
         width: drawerWidth,
+        flexShrink: 0,
       }}
       variant={isBigScreen ? 'persistent' : 'temporary'}
       PaperProps={{
