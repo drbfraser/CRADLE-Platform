@@ -1,11 +1,7 @@
 import List from '@mui/material/List';
 import { UserRoleEnum } from 'src/shared/enums';
 import { makeUniqueId } from 'src/shared/utils';
-import {
-  DRAWER_NARROW,
-  DRAWER_WIDE,
-  TOP_BAR_HEIGHT,
-} from 'src/shared/constants';
+import { TOP_BAR_HEIGHT } from 'src/shared/constants';
 import Drawer from '@mui/material/Drawer';
 import {
   Box,
@@ -13,16 +9,13 @@ import {
   ListItemIcon,
   ListItemText,
   Typography,
-  useMediaQuery,
-  useTheme,
 } from '@mui/material';
 import { useAppDispatch, useAppSelector } from 'src/shared/hooks';
 import {
   selectSidebarIsOpen,
   closeSidebar as closeSidebarAction,
-  openSidebar as openSidebarAction,
 } from 'src/redux/sidebar-state';
-import { MouseEventHandler, ReactNode, useEffect, useMemo } from 'react';
+import { MouseEventHandler, ReactNode, useMemo } from 'react';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { useLogout } from 'src/shared/hooks/auth/useLogout';
 import { Link, useLocation } from 'react-router-dom';

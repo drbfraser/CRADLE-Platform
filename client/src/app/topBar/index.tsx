@@ -1,4 +1,3 @@
-import { IUserWithTokens, OrNull } from 'src/shared/types';
 import {
   Box,
   Button,
@@ -15,14 +14,12 @@ import ChangePassword from './changePassword/ChangePassword';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
-import { ReduxState } from 'src/redux/reducers';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import {
   selectCurrentUser,
   selectLoggedIn,
 } from 'src/redux/reducers/user/currentUser';
-import { useSelector } from 'react-redux';
 import { useCallback, useState } from 'react';
 import { TOP_BAR_HEIGHT, userRoleLabels } from 'src/shared/constants';
 import {
