@@ -51,9 +51,9 @@ def get_username_from_email(email):
 # USAGE: python manage.py seed_minimal
 @cli.command("seed_minimal")
 def seed_minimal(
-    email="admin123@admin.com",
-    password="admin123",
-    facility_name="H0000",
+    email="admin@admin.com",
+    password="Admin_123",
+
 ):
     """
     Seeds the database with the minimum amount of data required for it to be functional.
@@ -69,7 +69,8 @@ def seed_minimal(
        python ./manage.py seed_minimal --email="abc@test.com" --password="TeyHo5@e!0B" --facility_name="Sunny Creek"
     """
     print("Seeding health facility...")
-    create_health_facility(facility_name)
+    facility_name = "H0000"
+    create_health_facility(facility_name=facility_name, phone_number="555-555-0000")
 
     print("Creating admin user...")
     create_user(
@@ -99,8 +100,8 @@ def seed_test_data(ctx):
 
     # Add the rest of the users.
     print("Creating test health facilities and users...")
-    create_health_facility("H1000")
-    create_health_facility("H2000")
+    create_health_facility("H1000", phone_number="555-555-1000")
+    create_health_facility("H2000", phone_number="555-555-2000")
     create_user(
         "brian@admin.com",
         "Brian",
