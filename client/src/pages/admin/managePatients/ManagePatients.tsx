@@ -1,11 +1,7 @@
-import { FormControlLabel, IconButton, Switch, Tooltip } from '@mui/material';
+import { FormControlLabel, Switch } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import {
-  AdminTable,
-  AdminTableActionButtonsContainer,
-  AdminTableToolbar,
-} from '../AdminTable';
+
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 import ArchivePatient from './ArchivePatient';

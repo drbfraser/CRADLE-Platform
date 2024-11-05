@@ -7,13 +7,11 @@ import {
   DialogTitle,
   Divider,
   Grid,
-  IconButton,
   Input,
   Stack,
   SxProps,
   TextField,
   Theme,
-  Tooltip,
   Typography,
 } from '@mui/material';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -36,12 +34,6 @@ import {
 } from '@mui/icons-material';
 import * as yup from 'yup';
 import { formatBytes } from 'src/shared/utils';
-import {
-  AdminTable,
-  AdminTableActionButtonsContainer,
-  AdminTableToolbar,
-  AdminToolBarButton,
-} from '../AdminTable';
 import { Field, Form, Formik } from 'formik';
 import { IRelayNum } from 'src/shared/types';
 import EditRelayNum from './editRelayNum';
@@ -163,6 +155,10 @@ export const ManageRelayApp = () => {
   useEffect(() => {
     getRelayNums();
   }, []);
+
+  useEffect(() => {
+    updateRowData(relayNums);
+  }, [relayNums]);
 
   useEffect(() => {
     const loadAppFile = async () => {

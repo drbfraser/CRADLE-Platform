@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from '@mui/material';
+import { Button } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -25,11 +25,7 @@ import {
 } from 'src/shared/components/DataTable/TableActionButtons';
 import { useAppSelector } from 'src/shared/hooks';
 import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
-import {
-  DataTable,
-  DataTableFooter,
-  DataTableToolbar,
-} from 'src/shared/components/DataTable/DataTable';
+import { DataTable } from 'src/shared/components/DataTable/DataTable';
 import { DataTableHeader } from '../../../shared/components/DataTable/DataTableHeader';
 
 export const ManageUsers = () => {
