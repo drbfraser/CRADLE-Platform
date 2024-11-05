@@ -4,10 +4,7 @@ import { PropsWithChildren } from 'react';
 type DataTableHeaderProps = PropsWithChildren & {
   title: string;
 };
-export const AdminDashboardHeader = ({
-  children,
-  title,
-}: DataTableHeaderProps) => {
+export const DataTableHeader = ({ children, title }: DataTableHeaderProps) => {
   return (
     <Box
       sx={{
