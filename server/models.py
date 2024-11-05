@@ -84,7 +84,7 @@ class User(db.Model):
 
 class UserPhoneNumber(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=get_uuid)
-    number = db.Column(db.String(20), unique=True)
+    phone_number = db.Column(db.String(20), unique=True)
 
     # FOREIGN KEYS
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
@@ -99,7 +99,7 @@ class UserPhoneNumber(db.Model):
 
 class RelayServerPhoneNumber(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
-    phone = db.Column(db.String(20), unique=True)
+    phone_number = db.Column(db.String(20), unique=True)
     description = db.Column(db.String(50), unique=False)
     last_received = db.Column(db.BigInteger, unique=False, default=get_current_time)
 
