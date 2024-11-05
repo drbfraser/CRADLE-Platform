@@ -53,7 +53,6 @@ export const DataTable = ({
         apiRef={apiRef}
         rows={rows}
         columns={columns}
-        loading={rows?.length == 0}
         autosizeOnMount
         autosizeOptions={autosizeOptions}
         pagination
