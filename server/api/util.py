@@ -443,19 +443,19 @@ def getFormTemplateDictFromCSV(csvData: str):
             )
 
         question = {
-            "questionId": row[FORM_TEMPLATE_QUESTION_ID_COL],
-            "questionIndex": questionIndex,
-            "questionType": QuestionTypeEnum[type].value,
-            "questionLangVersions": [],
+            "question_id": row[FORM_TEMPLATE_QUESTION_ID_COL],
+            "question_index": questionIndex,
+            "question_type": QuestionTypeEnum[type].value,
+            "question_lang_versions": [],
             "required": isQuestionRequired(row[FORM_TEMPLATE_QUESTION_REQUIRED_COL]),
-            "numMax": toNumberOrNone(row[FORM_TEMPLATE_QUESTION_MAX_VALUE_COL]),
-            "numMin": toNumberOrNone(row[FORM_TEMPLATE_QUESTION_MIN_VALUE_COL]),
-            "stringMaxLength": toNumberOrNone(
+            "num_max": toNumberOrNone(row[FORM_TEMPLATE_QUESTION_MAX_VALUE_COL]),
+            "num_min": toNumberOrNone(row[FORM_TEMPLATE_QUESTION_MIN_VALUE_COL]),
+            "string_max_length": toNumberOrNone(
                 row[FORM_TEMPLATE_QUESTION_LINE_COUNT_COL],
             ),
             "units": row[FORM_TEMPLATE_QUESTION_UNITS_COL],
-            "visibleCondition": visibilityConditions,
-            "categoryIndex": categoryIndex,
+            "visible_condition": visibilityConditions,
+            "category_index": categoryIndex,
         }
 
         questionLangVersion = getQuestionLanguageVersionFromRow(row)
