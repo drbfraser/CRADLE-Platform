@@ -1,4 +1,4 @@
-import { Box, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import {
   DataGrid,
   GridColDef,
@@ -9,39 +9,46 @@ import {
   GridToolbarDensitySelector,
   GridFooterContainer,
   GridPagination,
+  useGridApiRef,
 } from '@mui/x-data-grid';
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, RefObject, useEffect } from 'react';
+
+const autosizeOptions = {
+  includeHeaders: true,
+  includeOutliers: true,
+} as const;
 
 type DataTableProps = {
   rows?: readonly GridValidRowModel[];
   columns: GridColDef[];
-  listColumns?: GridColDef[]; // Alternate column definition to use on very small screens.
   toolbar?: () => JSX.Element;
   footer?: () => JSX.Element;
 };
 export const DataTable = ({
   rows,
   columns,
-  listColumns,
   toolbar,
   footer = () => <DataTableFooter />,
 }: DataTableProps) => {
-  const theme = useTheme();
-  const isXSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
-  const listView = Boolean(listColumns && isXSmallScreen);
+  const apiRef = useGridApiRef();
+
+  useEffect(() => {
+    apiRef.current.autosizeColumns(autosizeOptions);
+  }, [rows, apiRef]);
+
   return (
     <Box
       sx={{
-        width: '100%',
+        maxWidth: '100%',
+        overflow: 'hidden',
       }}>
       <DataGrid
+        apiRef={apiRef}
         rows={rows}
-        columns={listView ? listColumns! : columns}
+        columns={columns}
+        loading={rows?.length == 0}
         autosizeOnMount
-        autosizeOptions={{
-          includeHeaders: true,
-          includeOutliers: true,
-        }}
+        autosizeOptions={autosizeOptions}
         pagination
         pageSizeOptions={[10, 25, 50]}
         initialState={{
@@ -50,6 +57,10 @@ export const DataTable = ({
         slots={{
           toolbar: toolbar,
           footer: footer,
+        }}
+        sx={{
+          maxWidth: '100%',
+          overflow: 'hidden',
         }}
       />
     </Box>
@@ -148,3 +159,10 @@ export const DataTableFooter = ({ children }: DataTableFooterProps) => {
     </GridFooterContainer>
   );
 };
+
+type ContainerMeasurementsProps = {
+  containerRef: RefObject<HTMLDivElement>;
+};
+const ContainerMeasurements = ({
+  containerRef,
+}: ContainerMeasurementsProps) => {};
