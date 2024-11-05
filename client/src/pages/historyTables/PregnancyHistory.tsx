@@ -199,10 +199,6 @@ export const PregnancyHistory = () => {
     );
   };
 
-  const TableToolbar = () => {
-    return <DataTableToolbar title={'Pregnancy History'} />;
-  };
-
   const TableFooter = () => {
     return (
       <DataTableFooter>
@@ -235,12 +231,5 @@ export const PregnancyHistory = () => {
     updateRowData(pregnancies);
   }, [unit, pregnancies]);
 
-  return (
-    <DataTable
-      rows={rows}
-      columns={columns}
-      toolbar={TableToolbar}
-      footer={TableFooter}
-    />
-  );
+  return <DataTable rows={rows} columns={columns} footer={TableFooter} />;
 };
