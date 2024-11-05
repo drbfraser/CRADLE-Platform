@@ -1,13 +1,13 @@
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { PropsWithChildren } from 'react';
 
-type AdminDashboardHeaderProps = PropsWithChildren & {
+type DataTableHeaderProps = PropsWithChildren & {
   title: string;
 };
 export const AdminDashboardHeader = ({
   children,
   title,
-}: AdminDashboardHeaderProps) => {
+}: DataTableHeaderProps) => {
   return (
     <Box
       sx={{
