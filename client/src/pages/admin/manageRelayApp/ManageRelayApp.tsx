@@ -9,6 +9,7 @@ import {
   Grid,
   IconButton,
   Input,
+  Stack,
   SxProps,
   TextField,
   Theme,
@@ -52,6 +53,12 @@ import {
 } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import DownloadIcon from '@mui/icons-material/Download';
+import {
+  TableAction,
+  TableActionButtons,
+} from 'src/shared/components/DataTable/TableActionButtons';
+import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
+import { DataTable } from 'src/shared/components/DataTable/DataTable';
 
 export const ManageRelayApp = () => {
   const [hasFile, setHasFile] = useState(false);
@@ -64,7 +71,6 @@ export const ManageRelayApp = () => {
   const [errorLoading, setErrorLoading] = useState(false);
 
   // Table
-  const [search, setSearch] = useState('');
   const [relayNums, setRelayNums] = useState<IRelayNum[]>([]);
 
   // Relay App Actions
@@ -159,15 +165,6 @@ export const ManageRelayApp = () => {
   }, []);
 
   useEffect(() => {
-    const searchLowerCase = search.toLowerCase().trim();
-    const filter = (num: IRelayNum) =>
-      num.description.trim().toLowerCase().includes(searchLowerCase) ||
-      num.phone.trim().toLowerCase().includes(searchLowerCase);
-    const filteredNums = relayNums.filter(filter);
-    updateRowData(filteredNums);
-  }, [relayNums, search]);
-
-  useEffect(() => {
     const loadAppFile = async () => {
       try {
         const resp = await getAppFileHeadAsync();
@@ -199,54 +196,34 @@ export const ManageRelayApp = () => {
     }
   };
 
-  const actions = [
-    {
-      tooltip: 'Edit',
-      Icon: Edit,
-      onClick: (relayNum: IRelayNum) => {
-        setPopupRelayNum(relayNum);
-        setEditPopupOpen(true);
-      },
-    },
-    {
-      tooltip: 'Delete',
-      Icon: DeleteForever,
-      onClick: (relayNum: IRelayNum) => {
-        setPopupRelayNum(relayNum);
-        setDeletePopupOpen(true);
-      },
-    },
-    {
-      tooltip: 'Download Logs',
-      Icon: CloudDownloadOutlined,
-      onClick: (relayNum: IRelayNum) => {
-        // TODO
-      },
-    },
-  ];
-
   const ActionButtons = useCallback(
     ({ relayNum }: { relayNum?: IRelayNum }) => {
-      return (
-        <AdminTableActionButtonsContainer>
-          {relayNum
-            ? actions.map((action) => (
-                <Tooltip
-                  key={action.tooltip}
-                  placement="top"
-                  title={action.tooltip}>
-                  <IconButton
-                    onClick={() => {
-                      action.onClick(relayNum);
-                    }}
-                    size="large">
-                    <action.Icon />
-                  </IconButton>
-                </Tooltip>
-              ))
-            : null}
-        </AdminTableActionButtonsContainer>
-      );
+      const actions: TableAction[] = [
+        {
+          tooltip: 'Edit',
+          Icon: Edit,
+          onClick: () => {
+            setPopupRelayNum(relayNum);
+            setEditPopupOpen(true);
+          },
+        },
+        {
+          tooltip: 'Delete',
+          Icon: DeleteForever,
+          onClick: () => {
+            setPopupRelayNum(relayNum);
+            setDeletePopupOpen(true);
+          },
+        },
+        {
+          tooltip: 'Download Logs',
+          Icon: CloudDownloadOutlined,
+          onClick: () => {
+            // TODO
+          },
+        },
+      ];
+      return <TableActionButtons actions={actions} />;
     },
     []
   );
@@ -271,25 +248,28 @@ export const ManageRelayApp = () => {
     },
   ];
 
-  const toolbar = useCallback(
-    () => (
-      <AdminTableToolbar title={'Relay App Servers'} setSearch={setSearch}>
-        <AdminToolBarButton
+  const HeaderButtons = () => {
+    return (
+      <Stack direction={'row'} gap={'8px'} flexWrap={'wrap'}>
+        <Button
+          variant={'contained'}
+          startIcon={<AddIcon />}
           onClick={() => {
             openAddNewNumberDialog(true);
           }}>
-          <AddIcon /> {'Add Number'}
-        </AdminToolBarButton>
-        <AdminToolBarButton
+          {'Add Number'}
+        </Button>
+        <Button
+          variant={'contained'}
+          startIcon={<DownloadIcon />}
           onClick={() => {
             openAppActionsPopup(true);
           }}>
-          <DownloadIcon /> {'Download App'}
-        </AdminToolBarButton>
-      </AdminTableToolbar>
-    ),
-    [setSearch]
-  );
+          {'Download App'}
+        </Button>
+      </Stack>
+    );
+  };
 
   const boxSx: SxProps<Theme> = (theme) => ({
     marginTop: theme.spacing(2),
@@ -367,7 +347,7 @@ export const ManageRelayApp = () => {
       <Dialog open={AppActionsPopup} maxWidth="md" fullWidth>
         <DialogTitle>Relay App Actions</DialogTitle>
         <DialogContent>
-          <Box p={3}>
+          <Box>
             <Typography component="h6" variant="h6">
               Download App
             </Typography>
@@ -388,7 +368,7 @@ export const ManageRelayApp = () => {
             )}
           </Box>
 
-          <Box p={3}>
+          <Box>
             <Typography component="h6" variant="h6">
               Upload App
             </Typography>
@@ -459,8 +439,10 @@ export const ManageRelayApp = () => {
         }}
         deleteRelayNum={popupRelayNum}
       />
-
-      <AdminTable columns={columns} rows={rows} toolbar={toolbar} />
+      <DataTableHeader title={'Relay App Servers'}>
+        <HeaderButtons />
+      </DataTableHeader>
+      <DataTable columns={columns} rows={rows} />
     </>
   );
 };

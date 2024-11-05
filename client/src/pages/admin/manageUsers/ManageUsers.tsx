@@ -1,4 +1,4 @@
-import { Button } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -30,11 +30,11 @@ import {
   DataTableFooter,
   DataTableToolbar,
 } from 'src/shared/components/DataTable/DataTable';
+import { DataTableHeader } from '../../../shared/components/DataTable/DataTableHeader';
 
 export const ManageUsers = () => {
   const [errorLoading, setErrorLoading] = useState(false);
   const [users, setUsers] = useState<IUserWithIndex[]>([]);
-  const [search, setSearch] = useState('');
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [passwordPopupOpen, setPasswordPopupOpen] = useState(false);
   const [deletePopupOpen, setDeletePopupOpen] = useState(false);
@@ -128,41 +128,10 @@ export const ManageUsers = () => {
     getUsers();
   }, []);
 
-  useEffect(() => {
-    const searchLowerCase = search.toLowerCase().trim();
-    const userFilter = (user: IUserWithIndex) => {
-      return (
-        user.firstName.toLowerCase().includes(searchLowerCase) ||
-        user.email.toLowerCase().includes(searchLowerCase) ||
-        user.healthFacilityName.toLowerCase().includes(searchLowerCase)
-      );
-    };
-    const filteredUsers = users.filter(userFilter);
-    updateRowData(filteredUsers);
-  }, [users, search]);
-
   const addNewUser = useCallback(() => {
     setPopupUser(undefined);
     setEditPopupOpen(true);
   }, [setPopupUser, setEditPopupOpen]);
-
-  const NewUserButton = useCallback(() => {
-    return (
-      <Button
-        variant={'contained'}
-        startIcon={<AddIcon />}
-        onClick={addNewUser}>
-        {'New User'}
-      </Button>
-    );
-  }, [addNewUser]);
-
-  const TableToolbar = () => <DataTableToolbar title={'Users'} />;
-  const TableFooter = () => (
-    <DataTableFooter>
-      <NewUserButton />
-    </DataTableFooter>
-  );
 
   return (
     <>
@@ -192,12 +161,15 @@ export const ManageUsers = () => {
         }}
         user={popupUser}
       />
-      <DataTable
-        rows={rows}
-        columns={columns}
-        toolbar={TableToolbar}
-        footer={TableFooter}
-      />
+      <DataTableHeader title={'Users'}>
+        <Button
+          variant={'contained'}
+          startIcon={<AddIcon />}
+          onClick={addNewUser}>
+          {'New User'}
+        </Button>
+      </DataTableHeader>
+      <DataTable rows={rows} columns={columns} />
     </>
   );
 };

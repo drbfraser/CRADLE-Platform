@@ -1,13 +1,8 @@
-import { IconButton, Tooltip } from '@mui/material';
+import { Button, IconButton, Tooltip } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import {
-  AdminTable,
-  AdminTableActionButtonsContainer,
-  AdminTableToolbar,
-  AdminToolBarButton,
-} from '../AdminTable';
+
 import CreateIcon from '@mui/icons-material/Create';
 import EditFacility from './EditFacility';
 import { IFacility } from 'src/shared/types';
@@ -20,12 +15,17 @@ import {
   GridRowsProp,
 } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
+import { DataTableHeader } from '../../../shared/components/DataTable/DataTableHeader';
+import { DataTable } from 'src/shared/components/DataTable/DataTable';
+import {
+  TableAction,
+  TableActionButtons,
+} from 'src/shared/components/DataTable/TableActionButtons';
 
 export const ManageFacilities = () => {
   const dispatch = useAppDispatch();
   const [errorLoading, setErrorLoading] = useState(false);
   const [facilities, setFacilities] = useState<IFacility[]>([]);
-  const [search, setSearch] = useState('');
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [facilityToEdit, setFacilityToEdit] = useState<IFacility>();
 
@@ -45,20 +45,17 @@ export const ManageFacilities = () => {
 
   const ActionButtons = useCallback(
     ({ facility }: { facility?: IFacility }) => {
-      return (
-        <AdminTableActionButtonsContainer>
-          <Tooltip placement="top" title="Edit Facility">
-            <IconButton
-              onClick={() => {
-                setFacilityToEdit(facility);
-                setEditPopupOpen(true);
-              }}
-              size="large">
-              <CreateIcon />
-            </IconButton>
-          </Tooltip>
-        </AdminTableActionButtonsContainer>
-      );
+      const actions: TableAction[] = [
+        {
+          tooltip: 'Edit Facility',
+          onClick: () => {
+            setFacilityToEdit(facility);
+            setEditPopupOpen(true);
+          },
+          Icon: CreateIcon,
+        },
+      ];
+      return <TableActionButtons actions={actions} />;
     },
     [setFacilityToEdit, setEditPopupOpen]
   );
@@ -94,24 +91,6 @@ export const ManageFacilities = () => {
     getFacilities();
   }, []);
 
-  // Apply search filter.
-  useEffect(() => {
-    const searchLowerCase = search.toLowerCase().trim();
-
-    const facilityFilter = (facility: IFacility) => {
-      return (
-        facility.healthFacilityName.toLowerCase().includes(searchLowerCase) ||
-        facility.location.toLowerCase().includes(searchLowerCase) ||
-        facility.healthFacilityPhoneNumber
-          .toLowerCase()
-          .includes(searchLowerCase)
-      );
-    };
-
-    const filteredFacilities = facilities.filter(facilityFilter);
-    updateRows(filteredFacilities);
-  }, [facilities, search]);
-
   const editFacility = useCallback(() => {
     setEditPopupOpen(false);
     dispatch(getHealthFacilityList());
@@ -122,17 +101,6 @@ export const ManageFacilities = () => {
     setFacilityToEdit(undefined);
     setEditPopupOpen(true);
   }, []);
-
-  const toolbar = useCallback(
-    () => (
-      <AdminTableToolbar title={'Health Care Facilities'} setSearch={setSearch}>
-        <AdminToolBarButton onClick={addNewFacility}>
-          <AddIcon /> {'New Facility'}
-        </AdminToolBarButton>
-      </AdminTableToolbar>
-    ),
-    [setSearch]
-  );
 
   return (
     <>
@@ -146,7 +114,15 @@ export const ManageFacilities = () => {
         facilities={facilities}
         editFacility={facilityToEdit}
       />
-      <AdminTable columns={columns} rows={rows} toolbar={toolbar} />
+      <DataTableHeader title={'Healthcare Facilities'}>
+        <Button
+          variant={'contained'}
+          startIcon={<AddIcon />}
+          onClick={addNewFacility}>
+          {'New Facility'}
+        </Button>
+      </DataTableHeader>
+      <DataTable rows={rows} columns={columns} />
     </>
   );
 };

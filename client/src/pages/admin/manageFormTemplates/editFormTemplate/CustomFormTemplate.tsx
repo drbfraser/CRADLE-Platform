@@ -121,9 +121,7 @@ export const CustomFormTemplate = () => {
     <>
       <Box sx={{ display: `flex`, alignItems: `center` }}>
         <Tooltip title="Go back" placement="top">
-          <IconButton
-            onClick={() => navigate(`/admin/form-templates`)}
-            size="large">
+          <IconButton onClick={() => navigate(`/admin`)} size="large">
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>
