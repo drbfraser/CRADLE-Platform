@@ -57,19 +57,21 @@ export const TableActionButton = ({
 }: TableActionButtonProps) => {
   return (
     <Tooltip placement="top" title={tooltip}>
-      <IconButton
-        sx={{
-          height: BUTTON_SIZE,
-          width: BUTTON_SIZE,
-        }}
-        onClick={onClick}
-        disabled={disabled}>
-        <Icon
+      <Box>
+        <IconButton
           sx={{
-            fontSize: ICON_SIZE,
+            height: BUTTON_SIZE,
+            width: BUTTON_SIZE,
           }}
-        />
-      </IconButton>
+          onClick={onClick}
+          disabled={disabled}>
+          <Icon
+            sx={{
+              fontSize: ICON_SIZE,
+            }}
+          />
+        </IconButton>
+      </Box>
     </Tooltip>
   );
 };
