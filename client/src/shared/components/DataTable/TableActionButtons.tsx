@@ -23,7 +23,7 @@ export const TableActionButtons = ({ actions }: TableActionButtonsProps) => {
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'start',
         gap: {
           md: '4px',
           xs: '1px',
