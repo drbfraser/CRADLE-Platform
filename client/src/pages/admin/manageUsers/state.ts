@@ -77,6 +77,7 @@ export const newUserTemplate: IUser = {
   [UserField.firstName]: '',
   [UserField.email]: '',
   [UserField.phoneNumber]: '',
+  phoneNumbers: [],
   [UserField.healthFacilityName]: '',
   [UserField.role]: UserRoleEnum.VHT,
   [UserField.supervises]: [] as number[],
