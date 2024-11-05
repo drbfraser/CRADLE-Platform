@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material';
+import { Box, SxProps } from '@mui/material';
 import {
   DataGrid,
   GridColDef,
@@ -10,8 +10,11 @@ import {
   GridFooterContainer,
   GridPagination,
   useGridApiRef,
+  GridRowClassNameParams,
 } from '@mui/x-data-grid';
-import { PropsWithChildren, RefObject, useEffect } from 'react';
+import { PropsWithChildren, useEffect } from 'react';
+
+const DATA_TABLE_BORDER_COLOR = 'rgb(224, 224, 224)';
 
 const autosizeOptions = {
   includeHeaders: true,
@@ -23,12 +26,16 @@ type DataTableProps = {
   columns: GridColDef[];
   toolbar?: () => JSX.Element;
   footer?: () => JSX.Element;
+  sx?: SxProps;
+  getRowClassName?: (params: GridRowClassNameParams<any>) => string;
 };
 export const DataTable = ({
   rows,
   columns,
-  toolbar,
+  toolbar = () => <DataTableToolbar />,
   footer = () => <DataTableFooter />,
+  sx,
+  getRowClassName,
 }: DataTableProps) => {
   const apiRef = useGridApiRef();
 
@@ -61,23 +68,21 @@ export const DataTable = ({
         sx={{
           maxWidth: '100%',
           overflow: 'hidden',
+          '& .MuiDataGrid-topContainer': {
+            borderTop: '1px solid',
+            borderColor: DATA_TABLE_BORDER_COLOR,
+          },
+          ...sx,
         }}
+        getRowClassName={getRowClassName}
       />
     </Box>
   );
 };
 
-const TOOLBAR_ELEMENT_HEIGHT_MED = '56px';
-const TOOLBAR_ELEMENT_HEIGHT_SMALL = '40px';
-const TOOLBAR_ELEMENT_HEIGHT_X_SMALL = '36px';
 const TOOLBAR_SLOT_PROPS = {
   button: {
     sx: {
-      height: {
-        md: TOOLBAR_ELEMENT_HEIGHT_MED,
-        sm: TOOLBAR_ELEMENT_HEIGHT_SMALL,
-        xs: TOOLBAR_ELEMENT_HEIGHT_X_SMALL,
-      },
       fontSize: {
         lg: 'large',
         md: 'medium',
@@ -87,41 +92,26 @@ const TOOLBAR_SLOT_PROPS = {
     },
   },
 };
-
-type DataTableToolbarProps = {
-  title: string;
-};
-export const DataTableToolbar = ({ title }: DataTableToolbarProps) => {
+type DataTableToolbarProps = PropsWithChildren;
+export const DataTableToolbar = ({ children }: DataTableToolbarProps) => {
   return (
     <GridToolbarContainer
       sx={{
         width: '100%',
-        padding: '16px',
+        height: {
+          md: '40px',
+          sm: '36px',
+          xs: '30px',
+        },
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
+        borderY: '1px solid',
+        borderColor: DATA_TABLE_BORDER_COLOR,
       }}>
-      <Typography
-        variant={'h4'}
-        component={'h4'}
-        sx={{
-          fontSize: {
-            md: 'xx-large',
-            sm: 'x-large',
-            xs: 'large',
-          },
-          marginRight: '8px',
-        }}>
-        {title}
-      </Typography>
       <Box
         sx={{
-          height: {
-            md: TOOLBAR_ELEMENT_HEIGHT_MED,
-            sm: TOOLBAR_ELEMENT_HEIGHT_SMALL,
-            xs: TOOLBAR_ELEMENT_HEIGHT_X_SMALL,
-          },
           display: 'flex',
           flexWrap: 'wrap',
           flexDirection: {
@@ -131,24 +121,28 @@ export const DataTableToolbar = ({ title }: DataTableToolbarProps) => {
           gap: {
             xs: '4px',
           },
+          justifyContent: 'start',
         }}>
         <GridToolbarColumnsButton slotProps={TOOLBAR_SLOT_PROPS} />
         <GridToolbarFilterButton slotProps={TOOLBAR_SLOT_PROPS} />
         <GridToolbarDensitySelector slotProps={TOOLBAR_SLOT_PROPS} />
       </Box>
+      {children}
     </GridToolbarContainer>
   );
 };
 
-type DataTableFooterProps = PropsWithChildren;
-export const DataTableFooter = ({ children }: DataTableFooterProps) => {
+type DataTableFooterProps = PropsWithChildren & {
+  sx?: SxProps;
+};
+export const DataTableFooter = ({ children, sx }: DataTableFooterProps) => {
   return (
     <GridFooterContainer
       sx={{
-        padding: '12px',
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
+        ...sx,
       }}>
       {children}
       <GridPagination
@@ -159,10 +153,3 @@ export const DataTableFooter = ({ children }: DataTableFooterProps) => {
     </GridFooterContainer>
   );
 };
-
-type ContainerMeasurementsProps = {
-  containerRef: RefObject<HTMLDivElement>;
-};
-const ContainerMeasurements = ({
-  containerRef,
-}: ContainerMeasurementsProps) => {};
