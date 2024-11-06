@@ -9,7 +9,11 @@ from data import crud, marshal
 from models import Pregnancy
 from service import serialize, view
 from utils import get_current_time
-from validation import pregnancies
+from validation.pregnancies import (
+    PregnancyPostRequestValidator,
+    PrenancyPutRequestValidator,
+)
+from validation.validation_exception import ValidationExceptionError
 
 
 # /api/patients/<string:patient_id>/pregnancies
@@ -37,9 +41,13 @@ class Root(Resource):
     def post(patient_id: str):
         request_body = request.get_json(force=True)
 
-        error = pregnancies.validate_post_request(request_body, patient_id)
-        if error:
-            abort(400, message=error)
+        try:
+            PregnancyPostRequestValidator.validate(
+                request_body,
+                patient_id,
+            )
+        except ValidationExceptionError as e:
+            abort(400, message=str(e))
 
         if "id" in request_body:
             pregnancy_id = request_body["id"]
@@ -83,9 +91,10 @@ class SinglePregnancy(Resource):
     def put(pregnancy_id: str):
         request_body = request.get_json(force=True)
 
-        error = pregnancies.validate_put_request(request_body, pregnancy_id)
-        if error:
-            abort(400, message=error)
+        try:
+            PrenancyPutRequestValidator.validate(request_body, pregnancy_id)
+        except ValidationExceptionError as e:
+            abort(400, message=str(e))
 
         _process_request_body(request_body)
 

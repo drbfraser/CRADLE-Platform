@@ -4,7 +4,7 @@ import os
 import re
 
 from flasgger import swag_from
-from flask import Flask
+from flask import Flask, request
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -28,16 +28,17 @@ from api.util import (
     is_date_passed,
     isGoodPassword,
     phoneNumber_exists,
-    phoneNumber_regex_check,
     replace_phoneNumber_for_user,
     update_secret_key_for_user,
     validate_user,
 )
 from authentication import cognito
+from common.regexUtil import phoneNumber_regex_check
 from data import crud, marshal
 from enums import RoleEnum
 from models import User
-from validation import users
+from validation.users import UserRegisterValidator, UserValidator
+from validation.validation_exception import ValidationExceptionError
 
 LOGGER = logging.getLogger(__name__)
 
@@ -51,44 +52,7 @@ invalid_phone_number_message = (
 )
 phone_number_already_exists_message = "Phone number is already assigned to another user."
 
-# Building a parser that will be used over several apis for Users
-UserParser = reqparse.RequestParser()
-UserParser.add_argument(
-    "email",
-    type=str,
-    required=True,
-    help="This field cannot be left blank!",
-)
-UserParser.add_argument(
-    "name",
-    type=str,
-    required=True,
-    help="This field cannot be left blank!",
-)
-UserParser.add_argument(
-    "health_facility_name",
-    type=str,
-    required=True,
-    help="This field cannot be left blank!",
-)
-UserParser.add_argument(
-    "phone_numbers",
-    type=str,
-    required=True,
-    help="This field cannot be left blank!",
-    action="append",
-)
-UserParser.add_argument(
-    "role",
-    type=str,
-    required=True,
-    help="This field cannot be left blank!",
-)
-UserParser.add_argument("supervises", type=int, action="append")
-
-supported_roles = []
-for role in RoleEnum:
-    supported_roles.append(role.value)
+supported_roles = [role.value for role in RoleEnum]
 
 
 # api/user/all [GET]
@@ -235,40 +199,30 @@ class UserPasswordChange(Resource):
 
 # api/user/register [POST]
 class UserRegisterApi(Resource):
-    # Allow for parsing a password too
-    register_parser = UserParser.copy()
-    register_parser.add_argument(
-        "password",
-        type=str,
-        required=True,
-        help="This field cannot be left blank!",
-    )
-    register_parser.add_argument(
-        "username",
-        type=str,
-        required=True,
-        help="Username cannot be left blank!",
-    )
-
-
     # Create a new user
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/user-register.yml", methods=["POST"])
     def post(self):
-        # Parse args
-        new_user = filterPairsWithNone(self.register_parser.parse_args())
+        request_body = request.get_json(force=True)
+
+        new_user_to_feed = filterPairsWithNone(request_body)
+
+        try:
+            # validate the new user
+            user_pydantic_model = UserRegisterValidator.validate(new_user_to_feed)
+        except ValidationExceptionError as e:
+            error_message = str(e)
+            LOGGER.error(error_message)
+            abort(400, message=error_message)
+
+        # use pydantic model to generate validated dict for later processing
+        new_user = user_pydantic_model.model_dump()
 
         # Get phone numbers.
         phone_numbers = list(new_user.get("phone_numbers", []))
 
         # Remove phone numbers from new_user.
-        new_user.pop("phone_numbers")
-
-        # validate the new user
-        error_message = users.validate(new_user)
-        if error_message is not None:
-            LOGGER.error(error_message)
-            abort(400, message=error_message)
+        new_user = {k: v for k, v in new_user.items() if k != "phoneNumbers"}
 
         # Ensure that email is unique
         if (crud.read(User, email=new_user["email"])) is not None:
@@ -286,12 +240,6 @@ class UserRegisterApi(Resource):
                                                    name=new_user["name"])
 
         print(create_user_response)
-
-        # Ensure that role is supported
-        if new_user["role"] not in supported_roles:
-            error_message = {"message": "Not a supported role."}
-            LOGGER.error(error_message)
-            abort(400, message=error_message)
 
         # Encrypt pass
         # new_user["password"] = flask_bcrypt.generate_password_hash(new_user["password"])
@@ -475,25 +423,32 @@ class UserApi(Resource):
         if not id:
             return {"message": null_id_message}, 400
 
-        # Parse the arguments that we want
-        new_user = filterPairsWithNone(UserParser.parse_args())
+        request_body = request.get_json(force=True)
+
+        user_to_feed = filterPairsWithNone(request_body)
+
+        try:
+            # validate the new user
+            user_pydantic_model = UserValidator.model_validate(user_to_feed)
+        except ValidationExceptionError as e:
+            error_message = str(e)
+
+            LOGGER.error(error_message)
+            abort(400, message=error_message)
+
+        # use pydantic model to generate validated dict for later processing
+        new_user = user_pydantic_model.model_dump()
 
         # Save the phoneNumbers field and remove it from new_user.
         phone_numbers = new_user.get("phoneNumbers")
         if phone_numbers is None:
             return {"message": null_phone_number_message}, 400
         phone_numbers = list(phone_numbers)
-        new_user = {k: v for k, v in new_user.items() if k != "phoneNumbers"}
-
-        # validate the new users
-        error_message = users.validate(new_user)
-        if error_message is not None:
-            LOGGER.error(error_message)
-            abort(400, message=error_message)
+        # new_user = {k: v for k, v in new_user.items() if k != "phoneNumbers"}
 
         # Ensure that id is valid
         if not doesUserExist(id):
-            error = {"message": no_user_found_message}
+            error = {"message": "no user with this id"}
             LOGGER.error(error)
             return error, 400
 

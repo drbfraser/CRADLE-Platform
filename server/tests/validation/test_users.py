@@ -1,91 +1,434 @@
 import pytest
 
-from validation.users import validate
+from validation.users import UserRegisterValidator, UserValidator
+from validation.validation_exception import ValidationExceptionError
 
-test_cases = [
-    {
-        "json": {
-            "firstName": "Jane",
-            "email": "jane@mail.com",
-            "healthFacilityName": "facility7",
-            "role": "admin",
-        },
-        "output_type": type(None),
-    },
-    {
-        "json": {
-            "email": "jane@mail.com",
-            "healthFacilityName": "facility7",
-            "role": "admin",
-        },
-        "output_type": str,
-    },
-    {
-        "json": {
-            "firstName": "Jane",
-            "healthFacilityName": "facility7",
-            "role": "admin",
-        },
-        "output_type": str,
-    },
-    {
-        "json": {
-            "firstName": "Jane",
-            "email": "jane@mail.com",
-            "role": "admin",
-        },
-        "output_type": str,
-    },
-    {
-        "json": {
-            "firstName": "Jane",
-            "email": "jane@mail.com",
-            "healthFacilityName": "facility7",
-        },
-        "output_type": str,
-    },
-    {
-        "json": {
-            "firstName": 12345,
-            "email": "jane@mail.com",
-            "healthFacilityName": "facility7",
-            "role": "admin",
-        },
-        "output_type": str,
-    },
-    {
-        "json": {
-            "firstName": "Jane",
-            "email": 12345,
-            "healthFacilityName": "facility7",
-            "role": "admin",
-        },
-        "output_type": str,
-    },
-    {
-        "json": {
-            "firstName": "Jane",
-            "email": "jane@mail.com",
-            "healthFacilityName": 12345,
-            "role": "admin",
-        },
-        "output_type": str,
-    },
-    {
-        "json": {
-            "firstName": "Jane",
-            "email": "jane@mail.com",
-            "healthFacilityName": "facility7",
-            "role": 12345,
-        },
-        "output_type": str,
-    },
-]
+SOME_INTEGER = 12345
+
+user_with_valid_fields_should_return_none = {
+    "firstName": "Jane",
+    "email": "jane@mail.com",
+    "healthFacilityName": "facility7",
+    "role": "ADMIN",
+    "supervises": [111, 222, 333],
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+}
+
+user_missing_required_field_email_should_throw_exception = {
+    "firstName": "Jane",
+    "healthFacilityName": "facility7",
+    "role": "ADMIN",
+    "supervises": [111, 222, 333],
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+}
+
+user_missing_required_field_health_facility_name_should_throw_exception = {
+    "firstName": "Jane",
+    "email": "jane@mail.com",
+    "role": "ADMIN",
+    "supervises": [111, 222, 333],
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+}
+
+user_missing_required_field_role_should_throw_exception = {
+    "firstName": "Jane",
+    "email": "jane@mail.com",
+    "healthFacilityName": "facility7",
+    "supervises": [111, 222, 333],
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+}
+
+user_missing_required_field_first_name_should_throw_exception = {
+    "email": "jane@mail.com",
+    "healthFacilityName": "facility7",
+    "role": "ADMIN",
+    "supervises": [111, 222, 333],
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+}
+
+user_missing_optional_field_supervises_should_return_none = {
+    "firstName": "Jane",
+    "email": "jane@mail.com",
+    "healthFacilityName": "facility7",
+    "role": "ADMIN",
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+}
+
+user_field_first_name_has_invalid_type_should_throw_exception = {
+    "firstName": SOME_INTEGER,
+    "email": "jane@mail.com",
+    "healthFacilityName": "facility7",
+    "role": "ADMIN",
+    "supervises": [111, 222, 333],
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+}
+
+user_field_email_has_invalid_type_should_throw_exception = {
+    "firstName": "Jane",
+    "email": SOME_INTEGER,
+    "healthFacilityName": "facility7",
+    "role": "ADMIN",
+    "supervises": [111, 222, 333],
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+}
+
+user_field_health_facility_name_has_invalid_type_should_throw_exception = {
+    "firstName": "Jane",
+    "email": "jane@mail.com",
+    "healthFacilityName": SOME_INTEGER,
+    "role": "ADMIN",
+    "supervises": [111, 222, 333],
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+}
+
+user_field_role_has_invalid_type_should_throw_exception = {
+    "firstName": "Jane",
+    "email": "jane@mail.com",
+    "healthFacilityName": "facility7",
+    "role": SOME_INTEGER,
+    "supervises": [111, 222, 333],
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+}
+
+user_field_supervises_has_invalid_type_should_throw_exception = {
+    "firstName": "Jane",
+    "email": "jane@mail.com",
+    "healthFacilityName": "facility7",
+    "role": "ADMIN",
+    "supervises": "SOME_INTEGER",
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+}
+
+user_field_phone_numbers_has_invalid_type_should_throw_exception = {
+    "firstName": "Jane",
+    "email": "jane@mail.com",
+    "healthFacilityName": "facility7",
+    "role": "ADMIN",
+    "supervises": [111, 222, 333],
+    "phoneNumbers": SOME_INTEGER,
+}
+
+user_role_is_not_supported_role_should_throw_exception = {
+    "firstName": "Jane",
+    "email": "jane@mail.com",
+    "healthFacilityName": "facility7",
+    "role": "patient",
+    "supervises": [111, 222, 333],
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+}
+
+user_field_phone_numbers_has_invalid_phone_format_should_throw_exception = {
+    "firstName": "Jane",
+    "email": "jane@mail.com",
+    "healthFacilityName": "facility7",
+    "role": "ADMIN",
+    "supervises": [111, 222, 333],
+    "phoneNumbers": ["123"],
+}
+
+user_register_with_valid_fields_should_return_none = {
+    "firstName": "Jane",
+    "email": "jane@mail.com",
+    "healthFacilityName": "facility7",
+    "role": "ADMIN",
+    "supervises": [111, 222, 333],
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "password": "pwd123",
+}
+
+user_register_missing_required_field_password_should_throw_exception = {
+    "firstName": "Jane",
+    "email": "jane@mail.com",
+    "healthFacilityName": "facility7",
+    "role": "ADMIN",
+    "supervises": [111, 222, 333],
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+}
+
+user_register_field_password_has_invalid_type_should_throw_exception = {
+    "firstName": "Jane",
+    "email": "jane@mail.com",
+    "healthFacilityName": "facility7",
+    "role": "ADMIN",
+    "supervises": [111, 222, 333],
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "password": SOME_INTEGER,
+}
+
+user_register_field_phone_numbers_has_invalid_phone_format_should_throw_exception = {
+    "firstName": "Jane",
+    "email": "jane@mail.com",
+    "healthFacilityName": "facility7",
+    "role": "ADMIN",
+    "supervises": [111, 222, 333],
+    "phoneNumbers": ["123"],
+    "password": "pwd123",
+}
+
+user_register_missing_required_field_email_should_throw_exception = {
+    "firstName": "Jane",
+    "healthFacilityName": "facility7",
+    "role": "ADMIN",
+    "supervises": [111, 222, 333],
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "password": "pwd123",
+}
+
+user_register_missing_required_field_health_facility_name_should_throw_exception = {
+    "firstName": "Jane",
+    "email": "jane@mail.com",
+    "role": "ADMIN",
+    "supervises": [111, 222, 333],
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "password": "pwd123",
+}
+
+user_register_missing_required_field_role_should_throw_exception = {
+    "firstName": "Jane",
+    "email": "jane@mail.com",
+    "healthFacilityName": "facility7",
+    "supervises": [111, 222, 333],
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "password": "pwd123",
+}
+
+user_register_missing_required_field_first_name_should_throw_exception = {
+    "email": "jane@mail.com",
+    "healthFacilityName": "facility7",
+    "role": "ADMIN",
+    "supervises": [111, 222, 333],
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "password": "pwd123",
+}
+
+user_register_missing_optional_field_supervises_should_return_none = {
+    "firstName": "Jane",
+    "email": "jane@mail.com",
+    "healthFacilityName": "facility7",
+    "role": "ADMIN",
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "password": "pwd123",
+}
+
+user_register_field_first_name_has_invalid_type_should_throw_exception = {
+    "firstName": SOME_INTEGER,
+    "email": "jane@mail.com",
+    "healthFacilityName": "facility7",
+    "role": "ADMIN",
+    "supervises": [111, 222, 333],
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "password": "pwd123",
+}
+
+user_register_field_email_has_invalid_type_should_throw_exception = {
+    "firstName": "Jane",
+    "email": SOME_INTEGER,
+    "healthFacilityName": "facility7",
+    "role": "ADMIN",
+    "supervises": [111, 222, 333],
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "password": "pwd123",
+}
+
+user_register_field_health_facility_name_has_invalid_type_should_throw_exception = {
+    "firstName": "Jane",
+    "email": "jane@mail.com",
+    "healthFacilityName": SOME_INTEGER,
+    "role": "ADMIN",
+    "supervises": [111, 222, 333],
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "password": "pwd123",
+}
+
+user_register_field_role_has_invalid_type_should_throw_exception = {
+    "firstName": "Jane",
+    "email": "jane@mail.com",
+    "healthFacilityName": "facility7",
+    "role": SOME_INTEGER,
+    "supervises": [111, 222, 333],
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "password": "pwd123",
+}
+
+user_register_field_supervises_has_invalid_type_should_throw_exception = {
+    "firstName": "Jane",
+    "email": "jane@mail.com",
+    "healthFacilityName": "facility7",
+    "role": "ADMIN",
+    "supervises": "SOME_INTEGER",
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "password": "pwd123",
+}
+
+user_register_field_phone_numbers_has_invalid_type_should_throw_exception = {
+    "firstName": "Jane",
+    "email": "jane@mail.com",
+    "healthFacilityName": "facility7",
+    "role": "ADMIN",
+    "supervises": [111, 222, 333],
+    "phoneNumbers": SOME_INTEGER,
+    "password": "pwd123",
+}
+
+user_register_role_is_not_supported_role_should_throw_exception = {
+    "firstName": "Jane",
+    "email": "jane@mail.com",
+    "healthFacilityName": "facility7",
+    "role": "patient",
+    "supervises": [111, 222, 333],
+    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "password": "pwd123",
+}
+
+user_register_field_phone_numbers_has_invalid_phone_format_should_throw_exception = {
+    "firstName": "Jane",
+    "email": "jane@mail.com",
+    "healthFacilityName": "facility7",
+    "role": "ADMIN",
+    "supervises": [111, 222, 333],
+    "phoneNumbers": ["123"],
+    "password": "pwd123",
+}
 
 
-@pytest.mark.parametrize("test_case", test_cases)
-def test_validation(test_case):
-    json_data = test_case["json"]
-    output_type = test_case["output_type"]
-    message = validate(json_data)
-    assert type(message) is output_type
+@pytest.mark.parametrize(
+    "json, output_type",
+    [
+        (user_with_valid_fields_should_return_none, type(None)),
+        (
+            user_missing_required_field_email_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            user_missing_required_field_health_facility_name_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            user_missing_required_field_role_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            user_missing_required_field_first_name_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (user_missing_optional_field_supervises_should_return_none, type(None)),
+        (
+            user_field_first_name_has_invalid_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            user_field_email_has_invalid_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            user_field_health_facility_name_has_invalid_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            user_field_role_has_invalid_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            user_field_supervises_has_invalid_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            user_field_phone_numbers_has_invalid_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            user_role_is_not_supported_role_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            user_field_phone_numbers_has_invalid_phone_format_should_throw_exception,
+            ValidationExceptionError,
+        ),
+    ],
+)
+def test_validation(json, output_type):
+    if type(output_type) is type and issubclass(output_type, Exception):
+        with pytest.raises(output_type):
+            UserValidator.validate(json)
+    else:
+        try:
+            UserValidator.validate(json)
+        except ValidationExceptionError as e:
+            raise AssertionError(f"Unexpected validation error:{e}") from e
+
+
+@pytest.mark.parametrize(
+    "json, output_type",
+    [
+        (user_register_with_valid_fields_should_return_none, type(None)),
+        (
+            user_register_missing_required_field_password_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            user_register_missing_required_field_email_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            user_register_missing_required_field_health_facility_name_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            user_register_missing_required_field_role_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            user_register_missing_required_field_first_name_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            user_register_missing_optional_field_supervises_should_return_none,
+            type(None),
+        ),
+        (
+            user_register_field_first_name_has_invalid_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            user_register_field_email_has_invalid_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            user_register_field_health_facility_name_has_invalid_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            user_register_field_role_has_invalid_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            user_register_field_supervises_has_invalid_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            user_register_field_phone_numbers_has_invalid_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            user_register_field_password_has_invalid_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            user_register_role_is_not_supported_role_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            user_register_field_phone_numbers_has_invalid_phone_format_should_throw_exception,
+            ValidationExceptionError,
+        ),
+    ],
+)
+def test_register_validation(json, output_type):
+    if type(output_type) is type and issubclass(output_type, Exception):
+        with pytest.raises(output_type):
+            UserRegisterValidator.validate(json)
+    else:
+        try:
+            UserRegisterValidator.validate(json)
+        except ValidationExceptionError as e:
+            raise AssertionError(f"Unexpected validation error:{e}") from e
