@@ -63,8 +63,8 @@ class User(db.Model):
     vht_list = db.relationship(
         "User",
         secondary=supervises,
-        primaryjoin=id == supervises.c.choId,
-        secondaryjoin=id == supervises.c.vhtId,
+        primaryjoin=id == supervises.c.cho_id,
+        secondaryjoin=id == supervises.c.vht_id,
     )
     phone_numbers = db.relationship(
         "UserPhoneNumber",
@@ -364,7 +364,7 @@ class UrineTest(db.Model):
 class PatientAssociations(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(
-        db.ForeignKey(Patient.patientId, ondelete="CASCADE"),
+        db.ForeignKey(Patient.id, ondelete="CASCADE"),
         nullable=False,
     )
     health_facility_name = db.Column(
@@ -395,7 +395,7 @@ class PatientAssociations(db.Model):
 class Pregnancy(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(
-        db.ForeignKey(Patient.patientId, ondelete="CASCADE"),
+        db.ForeignKey(Patient.id, ondelete="CASCADE"),
         nullable=False,
     )
     start_date = db.Column(db.BigInteger, nullable=False)
@@ -422,7 +422,7 @@ class Pregnancy(db.Model):
 class MedicalRecord(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(
-        db.ForeignKey(Patient.patientId, ondelete="CASCADE"),
+        db.ForeignKey(Patient.id, ondelete="CASCADE"),
         nullable=False,
     )
     information = db.Column(db.Text, nullable=False)
@@ -489,7 +489,7 @@ class Form(db.Model):
     name = db.Column(db.Text, nullable=False, default="")
     category = db.Column(db.Text, nullable=False, default="")
     patient_id = db.Column(
-        db.ForeignKey(Patient.patientId, ondelete="CASCADE"),
+        db.ForeignKey(Patient.id, ondelete="CASCADE"),
         nullable=False,
     )
     form_template_id = db.Column(
