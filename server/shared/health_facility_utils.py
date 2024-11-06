@@ -1,7 +1,7 @@
 from data import crud
 from enums import FacilityTypeEnum
 from models import HealthFacility
-from shared.phone_numbers import PhoneNumberUtils
+from server.shared.phone_number_utils import PhoneNumberUtils
 
 valid_facility_types = [valid_type.value for valid_type in FacilityTypeEnum]
 

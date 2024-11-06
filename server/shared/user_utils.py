@@ -9,8 +9,8 @@ from config import db
 from data import crud, marshal
 from enums import RoleEnum
 from models import User, UserPhoneNumber
+from server.shared.phone_number_utils import PhoneNumberUtils
 from shared.health_facility_utils import HealthFacilityUtils
-from shared.phone_numbers import PhoneNumberUtils
 
 logger = logging.getLogger(__name__)
 
