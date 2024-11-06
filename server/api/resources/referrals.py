@@ -8,7 +8,7 @@ from flask_restful import Resource, abort
 import data
 from api import util
 from data import crud, marshal
-from models import HealthFacility, Patient, Referral
+from models import HealthFacilityOrm, PatientOrm, ReferralOrm
 from service import assoc, serialize, view
 from utils import get_current_time
 from validation.referrals import CancelStatus, NotAttend, ReferralEntity
@@ -50,7 +50,7 @@ class Root(Resource):
             abort(400, message=str(e))
 
         healthFacility = crud.read(
-            HealthFacility,
+            HealthFacilityOrm,
             healthFacilityName=request_body["referralHealthFacilityName"],
         )
 
@@ -59,7 +59,7 @@ class Root(Resource):
         else:
             UTCTime = str(round(time.time() * 1000))
             crud.update(
-                HealthFacility,
+                HealthFacilityOrm,
                 {"newReferrals": UTCTime},
                 True,
                 healthFacilityName=request_body["referralHealthFacilityName"],
@@ -68,11 +68,11 @@ class Root(Resource):
         if "userId" not in request_body:
             request_body["userId"] = get_jwt_identity()["userId"]
 
-        patient = crud.read(Patient, patientId=request_body["patientId"])
+        patient = crud.read(PatientOrm, patientId=request_body["patientId"])
         if not patient:
             abort(400, message="Patient does not exist")
 
-        referral = marshal.unmarshal(Referral, request_body)
+        referral = marshal.unmarshal(ReferralOrm, request_body)
 
         crud.create(referral, refresh=True)
         # Creating a referral also associates the corresponding patient to the health
@@ -95,7 +95,7 @@ class SingleReferral(Resource):
         endpoint="single_referral",
     )
     def get(referral_id: int):
-        referral = crud.read(Referral, id=referral_id)
+        referral = crud.read(ReferralOrm, id=referral_id)
         if not referral:
             abort(404, message=f"No referral with id {id}")
 
@@ -112,7 +112,7 @@ class AssessReferral(Resource):
         endpoint="referral_assess",
     )
     def put(referral_id: str):
-        referral = crud.read(Referral, id=referral_id)
+        referral = crud.read(ReferralOrm, id=referral_id)
         if not referral:
             abort(404, message=f"No referral with id {referral_id}")
 
@@ -135,7 +135,7 @@ class ReferralCancelStatus(Resource):
         endpoint="referral_cancel_status",
     )
     def put(referral_id: str):
-        if not crud.read(Referral, id=referral_id):
+        if not crud.read(ReferralOrm, id=referral_id):
             abort(404, message=f"No referral with id {referral_id}")
 
         request_body = request.get_json(force=True)
@@ -151,9 +151,9 @@ class ReferralCancelStatus(Resource):
         else:
             request_body["dateCancelled"] = get_current_time()
 
-        crud.update(Referral, request_body, id=referral_id)
+        crud.update(ReferralOrm, request_body, id=referral_id)
 
-        referral = crud.read(Referral, id=referral_id)
+        referral = crud.read(ReferralOrm, id=referral_id)
         data.db_session.commit()
         data.db_session.refresh(referral)
 
@@ -170,7 +170,7 @@ class ReferralNotAttend(Resource):
         endpoint="referral_not_attend",
     )
     def put(referral_id: str):
-        if not crud.read(Referral, id=referral_id):
+        if not crud.read(ReferralOrm, id=referral_id):
             abort(404, message=f"No referral with id {referral_id}")
 
         request_body = request.get_json(force=True)
@@ -180,7 +180,7 @@ class ReferralNotAttend(Resource):
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 
-        referral = crud.read(Referral, id=referral_id)
+        referral = crud.read(ReferralOrm, id=referral_id)
         if not referral.notAttended:
             referral.notAttended = True
             referral.notAttendReason = request_body["notAttendReason"]

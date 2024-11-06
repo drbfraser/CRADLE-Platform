@@ -4,7 +4,7 @@ import string
 import pytest
 import requests
 
-from models import SmsSecretKey
+from models import SmsSecretKeyOrm
 from server.data import crud
 
 
@@ -85,7 +85,7 @@ def test_sms_secret_key_for_sms_relay(jwt_token, admin_user_id):
     headers = {"Authorization": "Bearer " + jwt_token}
     get_response = requests.get(url_sms_secret_key_for_user, headers=headers)
     resp_body = get_response.json()
-    user = crud.read(SmsSecretKey, userId=admin_user_id)
+    user = crud.read(SmsSecretKeyOrm, userId=admin_user_id)
 
     assert get_response.status_code == 200
     assert resp_body["message"] == "NORMAL"

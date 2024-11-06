@@ -22,12 +22,12 @@ from typing import Any, Callable, List, Optional, Tuple
 from data import crud
 from enums import RoleEnum
 from models import (
-    FollowUp,
-    MedicalRecord,
-    Pregnancy,
-    Reading,
-    Referral,
-    UrineTest,
+    FollowUpOrm,
+    MedicalRecordOrm,
+    PregnancyOrm,
+    ReadingOrm,
+    ReferralOrm,
+    UrineTestOrm,
 )
 
 
@@ -55,7 +55,7 @@ def referral_list_view(user: dict, **kwargs) -> List[Any]:
     return __get_view(user, crud.read_referral_list, **kwargs)
 
 
-def pregnancy_view(patient_id: str, **kwargs) -> List[Pregnancy]:
+def pregnancy_view(patient_id: str, **kwargs) -> List[PregnancyOrm]:
     """
     Returns a list of pregnancies filtered by query criteria in keyword arguments.
 
@@ -64,15 +64,15 @@ def pregnancy_view(patient_id: str, **kwargs) -> List[Pregnancy]:
     :return: A list of pregnancies
     """
     if not kwargs:
-        return crud.read_all(Pregnancy, patientId=patient_id)
-    return crud.read_medical_records(Pregnancy, patient_id, **kwargs)
+        return crud.read_all(PregnancyOrm, patientId=patient_id)
+    return crud.read_medical_records(PregnancyOrm, patient_id, **kwargs)
 
 
 def medical_record_view(
     patient_id: str,
     is_drug_record: bool,
     **kwargs,
-) -> List[MedicalRecord]:
+) -> List[MedicalRecordOrm]:
     """
     Returns a list of medical records filtered by query criteria in keyword arguments.
 
@@ -82,12 +82,12 @@ def medical_record_view(
     """
     if not kwargs:
         return crud.read_all(
-            MedicalRecord,
+            MedicalRecordOrm,
             patientId=patient_id,
             isDrugRecord=is_drug_record,
         )
     return crud.read_medical_records(
-        MedicalRecord,
+        MedicalRecordOrm,
         patient_id,
         is_drug_record=is_drug_record,
         **kwargs,
@@ -107,7 +107,7 @@ def patient_view(user: dict, last_sync: Optional[int] = None) -> List[Any]:
 def reading_view(
     user: dict,
     last_sync: Optional[int] = None,
-) -> List[Tuple[Reading, UrineTest]]:
+) -> List[Tuple[ReadingOrm, UrineTestOrm]]:
     """
     Returns a list of readings each with corresponding urine test.
 
@@ -117,7 +117,7 @@ def reading_view(
     return __get_view(user, crud.read_readings, last_edited=last_sync)
 
 
-def referral_view(user: dict, last_sync: Optional[int] = None) -> List[Referral]:
+def referral_view(user: dict, last_sync: Optional[int] = None) -> List[ReferralOrm]:
     """
     Returns a list of referrals of readings associated with user.
 
@@ -127,12 +127,12 @@ def referral_view(user: dict, last_sync: Optional[int] = None) -> List[Referral]
     return __get_view(
         user,
         crud.read_referrals_or_assessments,
-        model=Referral,
+        model=ReferralOrm,
         last_edited=last_sync,
     )
 
 
-def assessment_view(user: dict, last_sync: Optional[int] = None) -> List[FollowUp]:
+def assessment_view(user: dict, last_sync: Optional[int] = None) -> List[FollowUpOrm]:
     """
     Returns a list of assessments of readings associated with user.
 
@@ -142,7 +142,7 @@ def assessment_view(user: dict, last_sync: Optional[int] = None) -> List[FollowU
     return __get_view(
         user,
         crud.read_referrals_or_assessments,
-        model=FollowUp,
+        model=FollowUpOrm,
         last_edited=last_sync,
     )
 

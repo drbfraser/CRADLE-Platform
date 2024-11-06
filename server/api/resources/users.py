@@ -36,7 +36,7 @@ from authentication import cognito
 from common.regexUtil import phoneNumber_regex_check
 from data import crud, marshal
 from enums import RoleEnum
-from models import User
+from models import UserOrm
 from validation.users import UserRegisterValidator, UserValidator
 from validation.validation_exception import ValidationExceptionError
 
@@ -61,7 +61,7 @@ class UserAll(Resource):
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/user-all.yml", methods=["GET"])
     def get(self):
-        user_model_list = crud.read_all(User)
+        user_model_list = crud.read_all(UserOrm)
         user_dict_list = []
 
         for user in user_model_list:
@@ -93,7 +93,7 @@ class UserAllVHT(Resource):
     @roles_required([RoleEnum.CHO, RoleEnum.ADMIN, RoleEnum.HCW])
     @swag_from("../../specifications/user-vhts.yml", methods=["GET"])
     def get(self):
-        vht_model_list = crud.find(User, User.role == RoleEnum.VHT.value)
+        vht_model_list = crud.find(UserOrm, UserOrm.role == RoleEnum.VHT.value)
 
         vht_dictionary_list = []
         for vht in vht_model_list:
@@ -142,7 +142,7 @@ class AdminPasswordChange(Resource):
         # data["password"] = flask_bcrypt.generate_password_hash(data["password"])
 
         # Update password
-        crud.update(User, data, id=id)
+        crud.update(UserOrm, data, id=id)
 
         return {"message": "Success! Password has been changed"}, 200
 
@@ -225,7 +225,7 @@ class UserRegisterApi(Resource):
         new_user = {k: v for k, v in new_user.items() if k != "phoneNumbers"}
 
         # Ensure that email is unique
-        if (crud.read(User, email=new_user["email"])) is not None:
+        if (crud.read(UserOrm, email=new_user["email"])) is not None:
             error_message = "There is already a user with this email."
             LOGGER.error(error_message)
             abort(400, message=error_message)
@@ -246,11 +246,11 @@ class UserRegisterApi(Resource):
         list_of_vhts = new_user.pop("supervises", None)
 
         # Create the new user
-        user_model = marshal.unmarshal(User, new_user)
+        user_model = marshal.unmarshal(UserOrm, new_user)
         crud.create(user_model)
 
         # Getting the id of the created user
-        created_user = marshal.marshal(crud.read(User, email=new_user["email"]))
+        created_user = marshal.marshal(crud.read(UserOrm, email=new_user["email"]))
         created_user.pop("password")
         created_user_id = created_user["id"]
 
@@ -266,7 +266,7 @@ class UserRegisterApi(Resource):
         return response, 200
 
 
-def get_user_data_for_token(user: User) -> dict:
+def get_user_data_for_token(user: UserOrm) -> dict:
     data = {}
     data["email"] = user.email
     data["role"] = user.role
@@ -339,7 +339,7 @@ class UserAuthApi(Resource):
 
         """
         data = self.parser.parse_args()
-        user = crud.read(User, email=data["email"])
+        user = crud.read(UserOrm, email=data["email"])
         # salted_invalid_password = (
         #     "$2b$12$xleTmwkhurHlf/5g.4l9U.VADQPcYuIp6QPlMXDJeGez05uRWGqrW"
         # )
@@ -486,7 +486,7 @@ class UserApi(Resource):
         new_user.pop("supervises", None)
 
         # Update the user.
-        crud.update(User, new_user, id=id)
+        crud.update(UserOrm, new_user, id=id)
 
         # Add new phone numbers.
         for phone_number in new_phone_numbers:
@@ -525,7 +525,7 @@ class UserApi(Resource):
             return error, 400
 
         # Ensure that id is valid
-        user = crud.read(User, id=id)
+        user = crud.read(UserOrm, id=id)
         if user is None:
             error = {"message": no_user_found_message}
             LOGGER.error(error)

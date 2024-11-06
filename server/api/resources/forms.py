@@ -9,7 +9,7 @@ from pydantic import ValidationError
 import data
 from api import util
 from data import crud, marshal
-from models import Form, FormTemplate, Patient, User
+from models import FormOrm, FormTemplateOrm, PatientOrm, UserOrm
 from utils import get_current_time
 from validation import forms
 
@@ -27,7 +27,7 @@ class Root(Resource):
         req = request.get_json(force=True)
 
         if req.get("id") is not None:
-            if crud.read(Form, id=req["id"]):
+            if crud.read(FormOrm, id=req["id"]):
                 abort(409, message="Form already exists")
 
         try:
@@ -35,19 +35,19 @@ class Root(Resource):
         except ValidationError as e:
             abort(400, message=str(e))
 
-        patient = crud.read(Patient, patientId=req["patientId"])
+        patient = crud.read(PatientOrm, patientId=req["patientId"])
         if not patient:
             abort(404, message="Patient does not exist")
 
         if req.get("formTemplateId") is not None:
-            form_template = crud.read(FormTemplate, id=req["formTemplateId"])
+            form_template = crud.read(FormTemplateOrm, id=req["formTemplateId"])
             if not form_template:
                 abort(404, message="Form template does not exist")
             elif form_template.formClassificationId != req["formClassificationId"]:
                 abort(404, message="Form classification does not match template")
 
         if req.get("lastEditedBy") is not None:
-            user = crud.read(User, id=req["lastEditedBy"])
+            user = crud.read(UserOrm, id=req["lastEditedBy"])
             if not user:
                 abort(404, message="User does not exist")
         else:
@@ -55,9 +55,9 @@ class Root(Resource):
             user_id = int(user["userId"])
             req["lastEditedBy"] = user_id
 
-        util.assign_form_or_template_ids(Form, req)
+        util.assign_form_or_template_ids(FormOrm, req)
 
-        form = marshal.unmarshal(Form, req)
+        form = marshal.unmarshal(FormOrm, req)
 
         form.dateCreated = get_current_time()
         form.lastEdited = form.dateCreated
@@ -77,7 +77,7 @@ class SingleForm(Resource):
         endpoint="single_form",
     )
     def get(form_id: str):
-        form = crud.read(Form, id=form_id)
+        form = crud.read(FormOrm, id=form_id)
         if not form:
             abort(404, message=f"No form with id {form_id}")
 
@@ -91,7 +91,7 @@ class SingleForm(Resource):
         endpoint="single_form",
     )
     def put(form_id: str):
-        form = crud.read(Form, id=form_id)
+        form = crud.read(FormOrm, id=form_id)
         if not form:
             abort(404, message=f"No form with id {form_id}")
 

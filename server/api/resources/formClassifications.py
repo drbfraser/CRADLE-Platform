@@ -13,7 +13,7 @@ from api import util
 from api.decorator import roles_required
 from data import crud, marshal
 from enums import ContentTypeEnum, RoleEnum
-from models import FormClassification, FormTemplate
+from models import FormClassificationOrm, FormTemplateOrm
 from validation import formClassifications
 
 LOGGER = logging.getLogger(__name__)
@@ -68,7 +68,7 @@ class Root(Resource):
             abort(400, message="Request body is empty")
 
         if req.get("id") is not None:
-            if crud.read(FormClassification, id=req["id"]):
+            if crud.read(FormClassificationOrm, id=req["id"]):
                 abort(409, message="Form classification already exists")
 
         try:
@@ -77,15 +77,15 @@ class Root(Resource):
             abort(400, message=str(e))
 
         if req.get("name") is not None:
-            if crud.read(FormClassification, id=req["name"]):
+            if crud.read(FormClassificationOrm, id=req["name"]):
                 abort(
                     409,
                     message="Form classification with the same name already exists",
                 )
 
-        util.assign_form_or_template_ids(FormClassification, req)
+        util.assign_form_or_template_ids(FormClassificationOrm, req)
 
-        formClassification = marshal.unmarshal(FormClassification, req)
+        formClassification = marshal.unmarshal(FormClassificationOrm, req)
 
         crud.create(formClassification, refresh=True)
 
@@ -99,7 +99,7 @@ class Root(Resource):
         endpoint="form_classifications",
     )
     def get():
-        form_classifications = crud.read_all(FormClassification)
+        form_classifications = crud.read_all(FormClassificationOrm)
 
         return [marshal.marshal(f, shallow=True) for f in form_classifications], 200
 
@@ -114,7 +114,7 @@ class SingleFormClassification(Resource):
         endpoint="single_form_classification",
     )
     def get(form_classification_id: str):
-        form_classification = crud.read(FormClassification, id=form_classification_id)
+        form_classification = crud.read(FormClassificationOrm, id=form_classification_id)
 
         if not form_classification:
             abort(
@@ -132,7 +132,7 @@ class SingleFormClassification(Resource):
         endpoint="single_form_classification",
     )
     def put(form_classification_id: str):
-        form_classification = crud.read(FormClassification, id=form_classification_id)
+        form_classification = crud.read(FormClassificationOrm, id=form_classification_id)
 
         if not form_classification:
             abort(
@@ -159,13 +159,13 @@ class FormClassificationSummary(Resource):
         endpoint="form_classification_summary",
     )
     def get():
-        form_classifications = crud.read_all(FormClassification)
+        form_classifications = crud.read_all(FormClassificationOrm)
         result_templates = []
 
         for form_classification in form_classifications:
             possible_templates = crud.find(
-                FormTemplate,
-                FormTemplate.formClassificationId == form_classification.id,
+                FormTemplateOrm,
+                FormTemplateOrm.formClassificationId == form_classification.id,
             )
 
             if len(possible_templates) == 0:
@@ -199,7 +199,7 @@ class FormClassificationTemplates(Resource):
     )
     def get(form_classification_id: str):
         form_templates = crud.read_all(
-            FormTemplate,
+            FormTemplateOrm,
             formClassificationId=form_classification_id,
         )
         return [marshal.marshal(f, shallow=True) for f in form_templates], 200

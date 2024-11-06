@@ -6,7 +6,7 @@ from flask_restful import Resource, abort
 from api import util
 from api.decorator import patient_association_required
 from data import crud, marshal
-from models import Pregnancy
+from models import PregnancyOrm
 from service import serialize, view
 from utils import get_current_time
 from validation.pregnancies import (
@@ -51,7 +51,7 @@ class Root(Resource):
 
         if "id" in request_body:
             pregnancy_id = request_body["id"]
-            if crud.read(Pregnancy, id=pregnancy_id):
+            if crud.read(PregnancyOrm, id=pregnancy_id):
                 abort(
                     409,
                     message=f"A pregnancy record with ID {pregnancy_id} already exists.",
@@ -61,7 +61,7 @@ class Root(Resource):
         _check_conflicts(request_body, patient_id)
 
         request_body["patientId"] = patient_id
-        new_pregnancy = marshal.unmarshal(Pregnancy, request_body)
+        new_pregnancy = marshal.unmarshal(PregnancyOrm, request_body)
         crud.create(new_pregnancy, refresh=True)
 
         return marshal.marshal(new_pregnancy), 201
@@ -98,7 +98,7 @@ class SinglePregnancy(Resource):
 
         _process_request_body(request_body)
 
-        pregnancy = crud.read(Pregnancy, id=pregnancy_id)
+        pregnancy = crud.read(PregnancyOrm, id=pregnancy_id)
         if (
             "patientId" in request_body
             and request_body["patientId"] != pregnancy.patientId
@@ -109,8 +109,8 @@ class SinglePregnancy(Resource):
 
         _check_conflicts(request_body, pregnancy.patientId, pregnancy_id)
 
-        crud.update(Pregnancy, request_body, id=pregnancy_id)
-        new_pregnancy = crud.read(Pregnancy, id=pregnancy_id)
+        crud.update(PregnancyOrm, request_body, id=pregnancy_id)
+        new_pregnancy = crud.read(PregnancyOrm, id=pregnancy_id)
 
         return marshal.marshal(new_pregnancy)
 
@@ -153,7 +153,7 @@ def _check_conflicts(request_body, patient_id, pregnancy_id=None):
 
 
 def _get_pregnancy(pregnancy_id):
-    pregnancy = crud.read(Pregnancy, id=pregnancy_id)
+    pregnancy = crud.read(PregnancyOrm, id=pregnancy_id)
     if not pregnancy:
         abort(404, message=f"No pregnancy record with id {pregnancy_id}")
 

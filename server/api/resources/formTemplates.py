@@ -12,7 +12,7 @@ from api import util
 from api.decorator import roles_required
 from data import crud, marshal
 from enums import ContentTypeEnum, RoleEnum
-from models import FormClassification, FormTemplate
+from models import FormClassificationOrm, FormTemplateOrm
 from service import serialize
 from validation import formTemplates
 
@@ -62,7 +62,7 @@ class Root(Resource):
             abort(400, message="Request body is empty")
 
         if req.get("id") is not None:
-            if crud.read(FormTemplate, id=req["id"]):
+            if crud.read(FormTemplateOrm, id=req["id"]):
                 abort(409, message="Form template already exists")
 
         try:
@@ -71,13 +71,13 @@ class Root(Resource):
             abort(400, message=str(e))
 
         classification = crud.read(
-            FormClassification,
+            FormClassificationOrm,
             name=req["classification"].get("name"),
         )
 
         if classification is not None:
             if crud.read(
-                FormTemplate,
+                FormTemplateOrm,
                 formClassificationId=classification.id,
                 version=req["version"],
             ):
@@ -91,7 +91,7 @@ class Root(Resource):
             req["formClassificationId"] = classification.id
 
             previousTemplate = crud.read(
-                FormTemplate,
+                FormTemplateOrm,
                 formClassificationId=classification.id,
                 archived=False,
             )
@@ -100,9 +100,9 @@ class Root(Resource):
                 previousTemplate.archived = True
                 data.db_session.commit()
 
-        util.assign_form_or_template_ids(FormTemplate, req)
+        util.assign_form_or_template_ids(FormTemplateOrm, req)
 
-        formTemplate = marshal.unmarshal(FormTemplate, req)
+        formTemplate = marshal.unmarshal(FormTemplateOrm, req)
 
         crud.create(formTemplate, refresh=True)
 
@@ -126,7 +126,7 @@ class Root(Resource):
         ):
             filters["archived"] = 0
 
-        form_templates = crud.read_all(FormTemplate, **filters)
+        form_templates = crud.read_all(FormTemplateOrm, **filters)
 
         return [marshal.marshal(f, shallow=True) for f in form_templates]
 
@@ -141,7 +141,7 @@ class TemplateVersion(Resource):
         endpoint="single_form_template_version",
     )
     def get(form_template_id: str):
-        form_template = crud.read(FormTemplate, id=form_template_id)
+        form_template = crud.read(FormTemplateOrm, id=form_template_id)
         if not form_template:
             abort(404, message=f"No form with id {form_template_id}")
 
@@ -166,7 +166,7 @@ class TemplateVersionCsv(Resource):
         }
 
         form_template = crud.read(
-            FormTemplate,
+            FormTemplateOrm,
             **filters,
         )
 
@@ -194,7 +194,7 @@ class FormTemplateResource(Resource):
     )
     def get(form_template_id: str):
         params = util.get_query_params(request)
-        form_template = crud.read(FormTemplate, id=form_template_id)
+        form_template = crud.read(FormTemplateOrm, id=form_template_id)
         if not form_template:
             abort(404, message=f"No form with id {form_template_id}")
 
@@ -227,7 +227,7 @@ class FormTemplateResource(Resource):
         endpoint="single_form_template",
     )
     def put(form_template_id: str):
-        form_template = crud.read(FormTemplate, id=form_template_id)
+        form_template = crud.read(FormTemplateOrm, id=form_template_id)
 
         if not form_template:
             abort(404, message=f"No form template with id {form_template_id}")
@@ -252,7 +252,7 @@ class BlankFormTemplate(Resource):
     )
     def get(form_template_id: str):
         params = util.get_query_params(request)
-        form_template = crud.read(FormTemplate, id=form_template_id)
+        form_template = crud.read(FormTemplateOrm, id=form_template_id)
         if not form_template:
             abort(404, message=f"No form with id {form_template_id}")
 

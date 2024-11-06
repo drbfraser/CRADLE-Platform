@@ -5,7 +5,7 @@ from flask_restful import Resource, abort
 
 from api import util
 from data import crud
-from models import HealthFacility, Patient, User
+from models import HealthFacilityOrm, PatientOrm, UserOrm
 from service import assoc
 from validation import associations
 
@@ -29,19 +29,19 @@ class Root(Resource):
         facility_name = json.get("healthFacilityName")
         user_id = json.get("userId")
 
-        patient = crud.read(Patient, patientId=patient_id)
+        patient = crud.read(PatientOrm, patientId=patient_id)
         if not patient:
             abort(400, message=f"No patient exists with id: {patient_id}")
 
         if facility_name:
-            facility = crud.read(HealthFacility, healthFacilityName=facility_name)
+            facility = crud.read(HealthFacilityOrm, healthFacilityName=facility_name)
             if not facility:
                 abort(400, message=f"No health facility with name: {facility_name}")
         else:
             facility = None
 
         if user_id:
-            user = crud.read(User, id=user_id)
+            user = crud.read(UserOrm, id=user_id)
             if not user:
                 abort(400, message=f"No user with id: {user_id}")
             #     if user exists but no health facility then assign the patient to the user's health facility

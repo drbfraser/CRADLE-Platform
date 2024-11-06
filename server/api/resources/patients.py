@@ -9,7 +9,7 @@ import data
 from api import util
 from api.decorator import patient_association_required
 from data import crud, marshal
-from models import FollowUp, Patient, Pregnancy, Reading, Referral
+from models import FollowUpOrm, PatientOrm, PregnancyOrm, ReadingOrm, ReferralOrm
 from service import assoc, invariant, serialize, statsCalculation, view
 from utils import get_current_time
 from validation import assessments, patients, readings
@@ -49,9 +49,9 @@ class Root(Resource):
         if error_message is not None:
             abort(400, message=error_message)
 
-        patient = marshal.unmarshal(Patient, json)
+        patient = marshal.unmarshal(PatientOrm, json)
         patient_id = patient.patientId
-        if crud.read(Patient, patientId=patient_id):
+        if crud.read(PatientOrm, patientId=patient_id):
             abort(409, message=f"A patient already exists with id: {patient_id}")
 
         # Resolve invariants and set the creation timestamp for the patient ensuring
@@ -78,8 +78,8 @@ class Root(Resource):
 
         patient = crud.read_patients(patient_id)
         readings = crud.read_readings(patient_id)
-        referrals = crud.read_referrals_or_assessments(Referral, patient_id)
-        assessments = crud.read_referrals_or_assessments(FollowUp, patient_id)
+        referrals = crud.read_referrals_or_assessments(ReferralOrm, patient_id)
+        assessments = crud.read_referrals_or_assessments(FollowUpOrm, patient_id)
 
         return (
             serialize.serialize_patient(patient, readings, referrals, assessments),
@@ -103,8 +103,8 @@ class SinglePatient(Resource):
             abort(404, message=f"No patient with id {patient_id}")
 
         readings = crud.read_readings(patient_id)
-        referrals = crud.read_referrals_or_assessments(Referral, patient_id)
-        assessments = crud.read_referrals_or_assessments(FollowUp, patient_id)
+        referrals = crud.read_referrals_or_assessments(ReferralOrm, patient_id)
+        assessments = crud.read_referrals_or_assessments(FollowUpOrm, patient_id)
 
         return serialize.serialize_patient(patient, readings, referrals, assessments)
 
@@ -120,7 +120,7 @@ class PatientInfo(Resource):
         endpoint="patient_info",
     )
     def get(patient_id: str):
-        patient = crud.read(Patient, patientId=patient_id)
+        patient = crud.read(PatientOrm, patientId=patient_id)
         if not patient:
             abort(404, message=f"No patient with id {patient_id}")
         return marshal.marshal(patient, shallow=True)
@@ -149,7 +149,7 @@ class PatientInfo(Resource):
         # You can think of this like aborting a git merge due to conflicts.
         base = json.get("base")
         if base:
-            last_edited = crud.read(Patient, patientId=patient_id).lastEdited
+            last_edited = crud.read(PatientOrm, patientId=patient_id).lastEdited
             if base != last_edited:
                 abort(409, message="Unable to merge changes, conflict detected")
 
@@ -157,8 +157,8 @@ class PatientInfo(Resource):
             # ORM as there is no "base" column in the database for patients.
             del json["base"]
 
-        crud.update(Patient, json, patientId=patient_id)
-        patient = crud.read(Patient, patientId=patient_id)
+        crud.update(PatientOrm, json, patientId=patient_id)
+        patient = crud.read(PatientOrm, patientId=patient_id)
 
         # Update the patient's lastEdited timestamp only if there was no `base` field
         # in the request JSON. If there was then that means that this edit happened some
@@ -183,7 +183,7 @@ class PatientStats(Resource):
         endpoint="patient_stats",
     )
     def get(patient_id: str):
-        patient = crud.read(Patient, patientId=patient_id)
+        patient = crud.read(PatientOrm, patientId=patient_id)
         if not patient:
             abort(404, message=f"No patient with id {patient_id}")
 
@@ -280,7 +280,7 @@ class PatientReadings(Resource):
         endpoint="patient_readings",
     )
     def get(patient_id: str):
-        patient = crud.read(Patient, patientId=patient_id)
+        patient = crud.read(PatientOrm, patientId=patient_id)
         return [marshal.marshal(r) for r in patient.readings]
 
 
@@ -294,7 +294,7 @@ class PatientMostRecentReading(Resource):
         endpoint="patient_most_recent_reading",
     )
     def get(patient_id: str):
-        patient = crud.read(Patient, patientId=patient_id)
+        patient = crud.read(PatientOrm, patientId=patient_id)
         readings = [marshal.marshal(r) for r in patient.readings]
         if not len(readings):
             return []
@@ -317,7 +317,7 @@ class PatientReferrals(Resource):
         endpoint="patient_referrals",
     )
     def get(patient_id: str):
-        patient = crud.read(Patient, patientId=patient_id)
+        patient = crud.read(PatientOrm, patientId=patient_id)
         return [marshal.marshal(ref) for ref in patient.referrals]
 
 
@@ -331,7 +331,7 @@ class PatientForms(Resource):
         endpoint="patient_forms",
     )
     def get(patient_id: str):
-        patient = crud.read(Patient, patientId=patient_id)
+        patient = crud.read(PatientOrm, patientId=patient_id)
         return [marshal.marshal(form, True) for form in patient.forms]
 
 
@@ -345,7 +345,7 @@ class PatientPregnancySummary(Resource):
         endpoint="patient_pregnancy_summary",
     )
     def get(patient_id: str):
-        pregnancies = crud.read_medical_records(Pregnancy, patient_id, direction="DESC")
+        pregnancies = crud.read_medical_records(PregnancyOrm, patient_id, direction="DESC")
         return marshal.marshal_patient_pregnancy_summary(pregnancies)
 
 
@@ -403,9 +403,9 @@ class ReadingAssessment(Resource):
         userId = get_jwt_identity()["userId"]
         reading_json["userId"] = userId
 
-        reading = marshal.unmarshal(Reading, reading_json)
+        reading = marshal.unmarshal(ReadingOrm, reading_json)
 
-        if crud.read(Reading, readingId=reading.readingId):
+        if crud.read(ReadingOrm, readingId=reading.readingId):
             abort(409, message=f"A reading already exists with id: {reading.readingId}")
 
         invariant.resolve_reading_invariants(reading)
@@ -414,7 +414,7 @@ class ReadingAssessment(Resource):
         assessment_json["dateAssessed"] = get_current_time()
         assessment_json["healthcareWorkerId"] = userId
 
-        assessment = marshal.unmarshal(FollowUp, assessment_json)
+        assessment = marshal.unmarshal(FollowUpOrm, assessment_json)
 
         crud.create(reading, refresh=True)
         crud.create(assessment)

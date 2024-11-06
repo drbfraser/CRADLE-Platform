@@ -16,12 +16,12 @@ invalid_phone_number = (
 
 
 class UserValidator(BaseModel):
-    firstName: str
+    first_name: str
     email: str
-    healthFacilityName: str
+    health_facility_name: str
     role: str
     supervises: Optional[List[int]] = None
-    phoneNumbers: Optional[List[str]] = None
+    phone_numbers: Optional[List[str]] = None
 
     @field_validator("role", mode="before")
     @classmethod
@@ -32,7 +32,7 @@ class UserValidator(BaseModel):
 
         return value
 
-    @field_validator("phoneNumbers", mode="before")
+    @field_validator("phone_numbers", mode="before")
     @classmethod
     def validate_phone_number(cls, phone_numbers: List[str]):
         error = {"message": invalid_phone_number}

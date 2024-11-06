@@ -1,7 +1,7 @@
 import datetime
 
 from data import crud
-from models import Pregnancy
+from models import PregnancyOrm
 
 approx_8_months = int(datetime.timedelta(days=8 * 30).total_seconds())
 approx_1_month = int(datetime.timedelta(days=30).total_seconds())
@@ -42,7 +42,7 @@ def test_put_pregnancy(create_patient, pregnancy_factory, pregnancy_later, api_p
         json={"pregnancyEndDate": end_date, "pregnancyOutcome": outcome},
     )
 
-    new_pregnancy = crud.read(Pregnancy, id=pregnancy_id)
+    new_pregnancy = crud.read(PregnancyOrm, id=pregnancy_id)
 
     assert response.status_code == 200
     assert new_pregnancy.endDate == end_date
@@ -70,7 +70,7 @@ def test_post_and_delete_pregnancy(
         json=pregnancy,
     )
 
-    new_pregnancy = crud.read(Pregnancy, id=pregnancy_id)
+    new_pregnancy = crud.read(PregnancyOrm, id=pregnancy_id)
 
     assert response.status_code == 201
     assert new_pregnancy.patientId == patient_id
@@ -81,7 +81,7 @@ def test_post_and_delete_pregnancy(
     database.session.commit()
 
     assert response.status_code == 200
-    assert crud.read(Pregnancy, id=pregnancy_id) is None
+    assert crud.read(PregnancyOrm, id=pregnancy_id) is None
 
 
 def test_get_pregnancy_list(
@@ -118,7 +118,7 @@ def test_invalid_pregnancy_not_updated(
         json={"patientId": "0"},
     )
 
-    pregnancy = crud.read(Pregnancy, id=pregnancy_id)
+    pregnancy = crud.read(PregnancyOrm, id=pregnancy_id)
 
     assert response.status_code == 400
     assert pregnancy.patientId == pregnancy_earlier["patientId"]
@@ -132,7 +132,7 @@ def test_invalid_pregnancy_not_updated(
         json={"pregnancyStartDate": start_date},
     )
 
-    pregnancy = crud.read(Pregnancy, id=pregnancy_id)
+    pregnancy = crud.read(PregnancyOrm, id=pregnancy_id)
 
     assert response.status_code == 409
     assert pregnancy.startDate == pregnancy_later["startDate"]
@@ -144,7 +144,7 @@ def test_invalid_pregnancy_not_updated(
         json={"pregnancyEndDate": end_date},
     )
 
-    pregnancy = crud.read(Pregnancy, id=pregnancy_id)
+    pregnancy = crud.read(PregnancyOrm, id=pregnancy_id)
 
     assert response.status_code == 409
     assert pregnancy.endDate == pregnancy_earlier["endDate"]
@@ -173,7 +173,7 @@ def test_invalid_pregnancy_not_created(
     )
 
     assert response.status_code == 409
-    assert crud.read(Pregnancy, patientId=patient_id, startDate=start_date) is None
+    assert crud.read(PregnancyOrm, patientId=patient_id, startDate=start_date) is None
 
     start_date = pregnancy_earlier["endDate"] - approx_1_month
     pregnancy = {
@@ -186,7 +186,7 @@ def test_invalid_pregnancy_not_created(
     )
 
     assert response.status_code == 409
-    assert crud.read(Pregnancy, patientId=patient_id, startDate=start_date) is None
+    assert crud.read(PregnancyOrm, patientId=patient_id, startDate=start_date) is None
 
     end_date = pregnancy_earlier["startDate"] + approx_1_month
     start_date = end_date - approx_8_months
@@ -201,4 +201,4 @@ def test_invalid_pregnancy_not_created(
     )
 
     assert response.status_code == 409
-    assert crud.read(Pregnancy, patientId=patient_id, startDate=start_date) is None
+    assert crud.read(PregnancyOrm, patientId=patient_id, startDate=start_date) is None

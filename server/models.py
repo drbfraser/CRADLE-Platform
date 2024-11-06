@@ -15,31 +15,24 @@ from enums import (
 )
 from utils import get_current_time, get_uuid
 
-#
-# HELPER CLASSES
-#
-
-
-supervises = db.Table(
+SupervisesTable = db.Table(
     "supervises",
-    db.Column(
-        "cho_id",
+    db.Column("cho_id",
         db.Integer,
-        db.ForeignKey("user.id", ondelete="CASCADE"),
+        db.ForeignKey("users.id", ondelete="CASCADE"),
         index=True,
     ),
-    db.Column("vht_id", db.Integer, db.ForeignKey("user.id", ondelete="CASCADE")),
-    db.UniqueConstraint("cho_id", "vht_id", name="unique_supervise"),
+    db.Column("vht_id", db.Integer, db.ForeignKey("users.id", ondelete="CASCADE")),
 )
-if supervises is None:
-    raise RuntimeError("ERROR: could not instantiate supervises table")
+
 
 #
-# MODEL CLASSES
+# ORM DATABASE MODEL CLASSES
 #
 
 
-class User(db.Model):
+class UserOrm(db.Model):
+    __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(25), nullable=False)
     username = db.Column(db.String(64), index=True, unique=True, nullable=False)
@@ -50,24 +43,24 @@ class User(db.Model):
     # FOREIGN KEYS
     health_facility_name = db.Column(
         db.String(50),
-        db.ForeignKey("health_facility.name"),
+        db.ForeignKey("health_facilities.name"),
         nullable=True,
     )
 
     # RELATIONSHIPS
     health_facility = db.relationship(
-        "HealthFacility",
+        "HealthFacilityOrm",
         backref=db.backref("users", lazy=True),
     )
-    referrals = db.relationship("Referral", backref=db.backref("users", lazy=True))
+    referrals = db.relationship("ReferralOrm", backref=db.backref("users", lazy=True))
     vht_list = db.relationship(
-        "User",
-        secondary=supervises,
-        primaryjoin=id == supervises.c.cho_id,
-        secondaryjoin=id == supervises.c.vht_id,
+        "UserOrm",
+        secondary=SupervisesTable,
+        primaryjoin=id == SupervisesTable.c.cho_id,
+        secondaryjoin=id == SupervisesTable.c.vht_id,
     )
     phone_numbers = db.relationship(
-        "UserPhoneNumber",
+        "UserPhoneNumberOrm",
         back_populates="user",
         lazy=True,
         cascade="all, delete-orphan",
@@ -82,22 +75,24 @@ class User(db.Model):
         return f"<User {self.username}>"
 
 
-class UserPhoneNumber(db.Model):
+class UserPhoneNumberOrm(db.Model):
+    __tablename__ = "user_phone_numbers"
     id = db.Column(db.String(36), primary_key=True, default=get_uuid)
     phone_number = db.Column(db.String(20), unique=True)
 
     # FOREIGN KEYS
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey(UserOrm.id), nullable=False)
 
     # RELATIONSHIPS
-    user = db.relationship("User", back_populates="phone_numbers")
+    user = db.relationship(UserOrm, back_populates="phone_numbers")
 
     @staticmethod
     def schema():
         return UserPhoneNumberSchema
 
 
-class RelayServerPhoneNumber(db.Model):
+class RelayServerPhoneNumberOrm(db.Model):
+    __tablename__ = "relay_server_phone_numbers"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     phone_number = db.Column(db.String(20), unique=True)
     description = db.Column(db.String(50), unique=False)
@@ -108,7 +103,8 @@ class RelayServerPhoneNumber(db.Model):
         return RelayServerPhoneNumberSchema
 
 
-class Referral(db.Model):
+class ReferralOrm(db.Model):
+    __tablename__ = "referrals"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     date_referred = db.Column(
         db.BigInteger,
@@ -133,20 +129,20 @@ class Referral(db.Model):
     )
 
     # FOREIGN KEYS
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    patient_id = db.Column(db.String(50), db.ForeignKey("patient.id"))
+    user_id = db.Column(db.Integer, db.ForeignKey(UserOrm.id))
+    patient_id = db.Column(db.String(50), db.ForeignKey("patients.id"))
     health_facility_name = db.Column(
         db.String(50),
-        db.ForeignKey("health_facility.name"),
+        db.ForeignKey("health_facilities.name"),
     )
 
     # RELATIONSHIPS
     health_facility = db.relationship(
-        "HealthFacility",
+        "HealthFacilityOrm",
         backref=db.backref("referrals", lazy=True),
     )
     patient = db.relationship(
-        "Patient",
+        "PatientOrm",
         backref=db.backref("referrals", cascade="all, delete-orphan", lazy=True),
     )
 
@@ -155,7 +151,8 @@ class Referral(db.Model):
         return ReferralSchema
 
 
-class HealthFacility(db.Model):
+class HealthFacilityOrm(db.Model):
+    __tablename__ = "health_facilities"
     # TODO: should probably have a unique id as primary key here, in addition to facility name
     name = db.Column(db.String(50), primary_key=True)
     type = db.Column(db.Enum(FacilityTypeEnum))
@@ -173,7 +170,8 @@ class HealthFacility(db.Model):
         return HealthFacilitySchema
 
 
-class Patient(db.Model):
+class PatientOrm(db.Model):
+    __tablename__ = "patients"
     id = db.Column(db.String(50), primary_key=True)
     name = db.Column(db.String(50))
     sex = db.Column(db.Enum(SexEnum), nullable=False)
@@ -204,7 +202,8 @@ class Patient(db.Model):
         return PatientSchema
 
 
-class Reading(db.Model):
+class ReadingOrm(db.Model):
+    __tablename__ = "readings"
     id = db.Column(db.String(50), primary_key=True)
     systolic_blood_pressure = db.Column(db.Integer)
     diastolic_blood_pressure = db.Column(db.Integer)
@@ -227,27 +226,27 @@ class Reading(db.Model):
     # FOREIGN KEYS
     user_id = db.Column(
         db.Integer,
-        db.ForeignKey("user.id", ondelete="SET NULL"),
+        db.ForeignKey(UserOrm.id, ondelete="SET NULL"),
         nullable=True,
     )
     patient_id = db.Column(
         db.String(50),
-        db.ForeignKey("patient.id"),
+        db.ForeignKey(PatientOrm.id),
         nullable=False,
     )
     referral_id = db.Column(
         db.String(50),
-        db.ForeignKey("referral.id"),
+        db.ForeignKey(ReferralOrm.id),
         nullable=True,  # or nullable=False, depending on your business logic
     )
 
     # RELATIONSHIPS
     patient = db.relationship(
-        "Patient",
+        PatientOrm,
         backref=db.backref("readings", cascade="all, delete-orphan", lazy=True),
     )
     referral = db.relationship(
-        "Referral",
+        "ReferralOrm",
         backref=db.backref("reading", uselist=False),
         uselist=False,
         cascade="all, delete-orphan",
@@ -298,7 +297,8 @@ class Reading(db.Model):
         return ReadingSchema
 
 
-class FollowUp(db.Model):
+class FollowUpOrm(db.Model):
+    __tablename__ = "follow_ups"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
 
     follow_up_instructions = db.Column(db.Text)
@@ -310,17 +310,17 @@ class FollowUp(db.Model):
     follow_up_needed = db.Column(db.Boolean)
 
     # FOREIGN KEYS
-    healthcare_worker_id = db.Column(db.ForeignKey("user.id"), nullable=False)
+    healthcare_worker_id = db.Column(db.ForeignKey(UserOrm.id), nullable=False)
     patient_id = db.Column(
         db.String(50),
-        db.ForeignKey("patient.id"),
+        db.ForeignKey(PatientOrm.id),
         nullable=False,
     )
 
     # RELATIONSHIPS
-    healthcare_worker = db.relationship(User, backref=db.backref("follow_ups", lazy=True))
+    healthcare_worker = db.relationship(UserOrm, backref=db.backref("follow_ups", lazy=True))
     patient = db.relationship(
-        "Patient",
+        PatientOrm,
         backref=db.backref("follow_ups", cascade="all, delete-orphan", lazy=True),
     )
 
@@ -329,12 +329,14 @@ class FollowUp(db.Model):
         return FollowUpSchema
 
 
-class Village(db.Model):
+class VillageOrm(db.Model):
+    __tablename__ = "villages"
     village_number = db.Column(db.String(50), primary_key=True)
     zone_number = db.Column(db.String(50))
 
 
-class UrineTest(db.Model):
+class UrineTestOrm(db.Model):
+    __tablename__ = "urine_tests"
     id = db.Column(db.Integer, primary_key=True)
     leuc = db.Column(db.String(5))
     nit = db.Column(db.String(5))
@@ -343,11 +345,11 @@ class UrineTest(db.Model):
     blood = db.Column(db.String(5))
 
     # FOREIGN KEYS
-    reading_id = db.Column(db.ForeignKey("reading.id", ondelete="CASCADE"))
+    reading_id = db.Column(db.ForeignKey(ReadingOrm.id, ondelete="CASCADE"))
 
     # RELATIONSHIPS
     reading = db.relationship(
-        Reading,
+        ReadingOrm,
         backref=db.backref(
             "urine_tests",
             lazy=True,
@@ -361,29 +363,30 @@ class UrineTest(db.Model):
         return UrineTestSchema
 
 
-class PatientAssociations(db.Model):
+class PatientAssociationsOrm(db.Model):
+    __tablename__ = "patient_associations"
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(
-        db.ForeignKey(Patient.id, ondelete="CASCADE"),
+        db.ForeignKey(PatientOrm.id, ondelete="CASCADE"),
         nullable=False,
     )
     health_facility_name = db.Column(
-        db.ForeignKey("health_facility.name", ondelete="CASCADE"),
+        db.ForeignKey(HealthFacilityOrm.name, ondelete="CASCADE"),
         nullable=True,
     )
-    user_id = db.Column(db.ForeignKey("user.id", ondelete="CASCADE"), nullable=True)
+    user_id = db.Column(db.ForeignKey(UserOrm.id, ondelete="CASCADE"), nullable=True)
 
     # RELATIONSHIPS
     patient = db.relationship(
-        "Patient",
+        PatientOrm,
         backref=db.backref("associations", lazy=True, cascade="all, delete"),
     )
     health_facility = db.relationship(
-        "HealthFacility",
+        HealthFacilityOrm,
         backref=db.backref("associations", lazy=True, cascade="all, delete"),
     )
     user = db.relationship(
-        "User",
+        UserOrm,
         backref=db.backref("associations", lazy=True, cascade="all, delete"),
     )
 
@@ -392,10 +395,11 @@ class PatientAssociations(db.Model):
         return PatientAssociationsSchema
 
 
-class Pregnancy(db.Model):
+class PregnancyOrm(db.Model):
+    __tablename__ = "pregnancies"
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(
-        db.ForeignKey(Patient.id, ondelete="CASCADE"),
+        db.ForeignKey(PatientOrm.id, ondelete="CASCADE"),
         nullable=False,
     )
     start_date = db.Column(db.BigInteger, nullable=False)
@@ -410,7 +414,7 @@ class Pregnancy(db.Model):
 
     # RELATIONSHIPS
     patient = db.relationship(
-        "Patient",
+        PatientOrm,
         backref=db.backref("pregnancies", cascade="all, delete-orphan", lazy=True),
     )
 
@@ -419,10 +423,11 @@ class Pregnancy(db.Model):
         return PregnancySchema
 
 
-class MedicalRecord(db.Model):
+class MedicalRecordOrm(db.Model):
+    __tablename__ = "medical_records"
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(
-        db.ForeignKey(Patient.id, ondelete="CASCADE"),
+        db.ForeignKey(PatientOrm.id, ondelete="CASCADE"),
         nullable=False,
     )
     information = db.Column(db.Text, nullable=False)
@@ -441,7 +446,7 @@ class MedicalRecord(db.Model):
 
     # RELATIONSHIPS
     patient = db.relationship(
-        "Patient",
+        PatientOrm,
         backref=db.backref("records", cascade="all, delete-orphan", lazy=True),
     )
 
@@ -450,7 +455,8 @@ class MedicalRecord(db.Model):
         return MedicalRecordSchema
 
 
-class FormClassification(db.Model):
+class FormClassificationOrm(db.Model):
+    __tablename__ = "form_classifications"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
 
@@ -459,7 +465,8 @@ class FormClassification(db.Model):
         return FormClassificationSchema
 
 
-class FormTemplate(db.Model):
+class FormTemplateOrm(db.Model):
+    __tablename__ = "form_templates"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     version = db.Column(db.Text, nullable=True)
     date_created = db.Column(
@@ -468,13 +475,13 @@ class FormTemplate(db.Model):
         default=get_current_time,
     )
     form_classification_id = db.Column(
-        db.ForeignKey(FormClassification.id, ondelete="SET NULL"),
+        db.ForeignKey(FormClassificationOrm.id, ondelete="SET NULL"),
         nullable=True,
     )
     archived = db.Column(db.Boolean, nullable=False, default=False)
 
     classification = db.relationship(
-        "FormClassification",
+        FormClassificationOrm,
         backref=db.backref("templates", cascade="all, delete", lazy=True),
     )
 
@@ -483,17 +490,18 @@ class FormTemplate(db.Model):
         return FormTemplateSchema
 
 
-class Form(db.Model):
+class FormOrm(db.Model):
+    __tablename__ = "forms"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     lang = db.Column(db.Text, nullable=False)
     name = db.Column(db.Text, nullable=False, default="")
     category = db.Column(db.Text, nullable=False, default="")
     patient_id = db.Column(
-        db.ForeignKey(Patient.id, ondelete="CASCADE"),
+        db.ForeignKey(PatientOrm.id, ondelete="CASCADE"),
         nullable=False,
     )
     form_template_id = db.Column(
-        db.ForeignKey(FormTemplate.id, ondelete="SET NULL"),
+        db.ForeignKey(FormTemplateOrm.id, ondelete="SET NULL"),
         nullable=True,
     )
     date_created = db.Column(
@@ -507,22 +515,22 @@ class Form(db.Model):
         default=get_current_time,
         onupdate=get_current_time,
     )
-    last_edited_by = db.Column(db.ForeignKey(User.id, ondelete="SET NULL"), nullable=True)
+    last_edited_by = db.Column(db.ForeignKey(UserOrm.id, ondelete="SET NULL"), nullable=True)
 
     form_classification_id = db.Column(
-        db.ForeignKey(FormClassification.id, ondelete="SET NULL"),
+        db.ForeignKey(FormClassificationOrm.id, ondelete="SET NULL"),
         nullable=True,
     )
     archived = db.Column(db.Boolean, nullable=False, default=False)
 
     # RELATIONSHIPS
     patient = db.relationship(
-        "Patient",
+        PatientOrm,
         backref=db.backref("forms", cascade="all, delete", lazy=True),
     )
 
     classification = db.relationship(
-        "FormClassification",
+        FormClassificationOrm,
         backref=db.backref("forms", cascade="all, delete", lazy=True),
     )
 
@@ -531,7 +539,8 @@ class Form(db.Model):
         return FormSchema
 
 
-class Question(db.Model):
+class QuestionOrm(db.Model):
+    __tablename__ = "questions"
     """
     Question: a child model related to a form template or a form
 
@@ -599,21 +608,21 @@ class Question(db.Model):
 
     # FOREIGN KEYS
     form_id = db.Column(
-        db.ForeignKey(Form.id, ondelete="CASCADE"),
+        db.ForeignKey(FormOrm.id, ondelete="CASCADE"),
         nullable=True,
     )
     form_template_id = db.Column(
-        db.ForeignKey(FormTemplate.id, ondelete="CASCADE"),
+        db.ForeignKey(FormTemplateOrm.id, ondelete="CASCADE"),
         nullable=True,
     )
 
     # RELATIONSHIPS
     form = db.relationship(
-        "Form",
+        FormOrm,
         backref=db.backref("questions", cascade="all, delete", lazy=True),
     )
     form_template = db.relationship(
-        "FormTemplate",
+        FormTemplateOrm,
         backref=db.backref("questions", cascade="all, delete", lazy=True),
     )
 
@@ -622,7 +631,8 @@ class Question(db.Model):
         return QuestionSchema
 
 
-class QuestionLangVersion(db.Model):
+class QuestionLangVersionOrm(db.Model):
+    __tablename__ = "question_lang_version"
     """
     This model is used to store different language versions of a single question.
     """
@@ -638,13 +648,13 @@ class QuestionLangVersion(db.Model):
 
     # FOREIGN KEYS
     question_id = db.Column(
-        db.ForeignKey(Question.id, ondelete="CASCADE"),
+        db.ForeignKey(QuestionOrm.id, ondelete="CASCADE"),
         nullable=False,
     )
 
     # RELATIONSHIPS
     question = db.relationship(
-        "Question",
+        QuestionOrm,
         backref=db.backref("lang_versions", cascade="all, delete", lazy=True),
     )
 
@@ -653,7 +663,8 @@ class QuestionLangVersion(db.Model):
         return QuestionLangVersionSchema
 
 
-class SmsSecretKey(db.Model):
+class SmsSecretKeyOrm(db.Model):
+    __tablename__ = "sms_secret_keys"
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
     secret_Key = db.Column(db.String(256), default="", nullable=False)
     stale_date = db.Column(db.DateTime, default=datetime.datetime.now(), nullable=False)
@@ -664,7 +675,7 @@ class SmsSecretKey(db.Model):
     )
 
     # FOREIGNKEY
-    user_id = db.Column(db.ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
+    user_id = db.Column(db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
     @staticmethod
     def schema():
@@ -679,7 +690,7 @@ class SmsSecretKey(db.Model):
 class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
-        model = User
+        model = UserOrm
         load_instance = True
         include_relationships = True
 
@@ -687,7 +698,7 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
 class UserPhoneNumberSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
-        model = UserPhoneNumber
+        model = UserPhoneNumberOrm
         load_instance = True
         include_relationships = True
 
@@ -695,7 +706,7 @@ class UserPhoneNumberSchema(ma.SQLAlchemyAutoSchema):
 class RelayServerPhoneNumberSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
-        model = RelayServerPhoneNumber
+        model = RelayServerPhoneNumberOrm
         load_instance = True
         include_relationships = True
 
@@ -705,7 +716,7 @@ class PatientSchema(ma.SQLAlchemyAutoSchema):
 
     class Meta:
         include_fk = True
-        model = Patient
+        model = PatientOrm
         load_instance = True
         include_relationships = True
 
@@ -715,7 +726,7 @@ class ReadingSchema(ma.SQLAlchemyAutoSchema):
 
     class Meta:
         include_fk = True
-        model = Reading
+        model = ReadingOrm
         load_instance = True
         include_relationships = True
 
@@ -725,7 +736,7 @@ class HealthFacilitySchema(ma.SQLAlchemyAutoSchema):
 
     class Meta:
         include_fk = True
-        model = HealthFacility
+        model = HealthFacilityOrm
         load_instance = True
         include_relationships = True
 
@@ -735,7 +746,7 @@ class FollowUpSchema(ma.SQLAlchemyAutoSchema):
 
     class Meta:
         include_fk = True
-        model = FollowUp
+        model = FollowUpOrm
         load_instance = True
         include_relationships = True
 
@@ -743,7 +754,7 @@ class FollowUpSchema(ma.SQLAlchemyAutoSchema):
 class ReferralSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
-        model = Referral
+        model = ReferralOrm
         load_instance = True
         include_relationships = True
 
@@ -752,7 +763,7 @@ class UrineTestSchema(ma.SQLAlchemyAutoSchema):
     # urineTests = fields.Nested(ReadingSchema)
     class Meta:
         include_fk = True
-        model = UrineTest
+        model = UrineTestOrm
         load_instance = True
         include_relationships = True
 
@@ -760,7 +771,7 @@ class UrineTestSchema(ma.SQLAlchemyAutoSchema):
 class PatientAssociationsSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
-        model = PatientAssociations
+        model = PatientAssociationsOrm
         load_instance = True
         include_relationships = True
 
@@ -782,7 +793,7 @@ user_schema = {
 class VillageSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
-        model = Village
+        model = VillageOrm
         load_instance = True
         include_relationships = True
 
@@ -798,7 +809,7 @@ class PregnancySchema(ma.SQLAlchemyAutoSchema):
 
     class Meta:
         include_fk = True
-        model = Pregnancy
+        model = PregnancyOrm
         load_instance = True
         include_relationships = True
 
@@ -808,7 +819,7 @@ class MedicalRecordSchema(ma.SQLAlchemyAutoSchema):
 
     class Meta:
         include_fk = True
-        model = MedicalRecord
+        model = MedicalRecordOrm
         load_instance = True
         include_relationships = True
 
@@ -816,7 +827,7 @@ class MedicalRecordSchema(ma.SQLAlchemyAutoSchema):
 class FormClassificationSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
-        model = FormClassification
+        model = FormClassificationOrm
         load_instance = True
         include_relationships = True
 
@@ -824,7 +835,7 @@ class FormClassificationSchema(ma.SQLAlchemyAutoSchema):
 class FormTemplateSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
-        model = FormTemplate
+        model = FormTemplateOrm
         load_instance = True
         include_relationships = True
 
@@ -832,7 +843,7 @@ class FormTemplateSchema(ma.SQLAlchemyAutoSchema):
 class FormSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
-        model = Form
+        model = FormOrm
         load_instance = True
         include_relationships = True
 
@@ -840,7 +851,7 @@ class FormSchema(ma.SQLAlchemyAutoSchema):
 class QuestionSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
-        model = Question
+        model = QuestionOrm
         load_instance = True
         include_relationships = True
 
@@ -848,7 +859,7 @@ class QuestionSchema(ma.SQLAlchemyAutoSchema):
 class QuestionLangVersionSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
-        model = QuestionLangVersion
+        model = QuestionLangVersionOrm
         load_instance = True
         include_relationships = True
 
@@ -856,7 +867,7 @@ class QuestionLangVersionSchema(ma.SQLAlchemyAutoSchema):
 class SmsSecretKeySchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
-        model = SmsSecretKey
+        model = SmsSecretKeyOrm
         load_instance = True
         include_relationships = True
 

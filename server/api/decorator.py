@@ -8,7 +8,7 @@ from flask_jwt_extended import (
 
 from data import crud
 from enums import RoleEnum
-from models import PatientAssociations
+from models import PatientAssociationsOrm
 
 LOGGER = logging.getLogger(__name__)
 
@@ -76,7 +76,7 @@ def patient_association_required():
             if user_role == RoleEnum.VHT.value:  # Changed the condition here
                 user_id = identity["userId"]
                 if not crud.read(
-                    PatientAssociations,
+                    PatientAssociationsOrm,
                     patientId=patient_id,
                     userId=user_id,
                 ):

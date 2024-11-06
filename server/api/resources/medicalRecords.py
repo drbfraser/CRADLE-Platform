@@ -8,7 +8,7 @@ from flask_restful import Resource, abort
 from api import util
 from api.decorator import patient_association_required
 from data import crud, marshal
-from models import MedicalRecord
+from models import MedicalRecordOrm
 from service import serialize, view
 from utils import get_current_time
 from validation import medicalRecords
@@ -53,7 +53,7 @@ class Root(Resource):
 
         if "id" in request_body:
             record_id = request_body.get("id")
-            if crud.read(MedicalRecord, id=record_id):
+            if crud.read(MedicalRecordOrm, id=record_id):
                 abort(
                     409,
                     message=f"A medical record with ID {record_id} already exists.",
@@ -62,7 +62,7 @@ class Root(Resource):
         _process_request_body(request_body)
         request_body["patientId"] = patient_id
         request_body["dateCreated"] = get_current_time()
-        new_record = marshal.unmarshal(MedicalRecord, request_body)
+        new_record = marshal.unmarshal(MedicalRecordOrm, request_body)
 
         crud.create(new_record, refresh=True)
 
@@ -98,14 +98,14 @@ class SingleMedicalRecord(Resource):
             abort(400, message=error)
 
         if "patientId" in request_body:
-            patient_id = crud.read(MedicalRecord, id=record_id).patientId
+            patient_id = crud.read(MedicalRecordOrm, id=record_id).patientId
             if request_body.get("patientId") != patient_id:
                 abort(400, message="Patient ID cannot be changed.")
 
         _process_request_body(request_body)
-        crud.update(MedicalRecord, request_body, id=record_id)
+        crud.update(MedicalRecordOrm, request_body, id=record_id)
 
-        new_record = crud.read(MedicalRecord, id=record_id)
+        new_record = crud.read(MedicalRecordOrm, id=record_id)
 
         return marshal.marshal(new_record)
 
@@ -134,7 +134,7 @@ def _process_request_body(request_body):
 
 
 def _get_medical_record(record_id):
-    record = crud.read(MedicalRecord, id=record_id)
+    record = crud.read(MedicalRecordOrm, id=record_id)
     if not record:
         abort(404, message=f"No medical record with id {record_id}")
 

@@ -1,7 +1,7 @@
 import pytest
 
 from data import crud
-from models import FormClassification, FormTemplate
+from models import FormClassificationOrm, FormTemplateOrm
 
 
 def test_form_template_created_with_same_classification_ids(
@@ -24,12 +24,12 @@ def test_form_template_created_with_same_classification_ids(
     finally:
         classificationId = form_template["classification"]["id"]
         crud.delete_by(
-            FormTemplate,
+            FormTemplateOrm,
             formClassificationId=classificationId,
             version=form_template["version"],
         )
         crud.delete_by(
-            FormTemplate,
+            FormTemplateOrm,
             formClassificationId=classificationId,
             version=form_template4["version"],
         )
@@ -44,9 +44,9 @@ def test_form_template_created(database, form_template, form_template_2, api_pos
         database.session.commit()
         assert response.status_code == 201
     finally:
-        crud.delete_by(FormClassification, name=form_template["classification"]["name"])
+        crud.delete_by(FormClassificationOrm, name=form_template["classification"]["name"])
         crud.delete_by(
-            FormClassification,
+            FormClassificationOrm,
             name=form_template_2["classification"]["name"],
         )
 
@@ -71,7 +71,7 @@ def test_form_template_archival(
         assert response.status_code == 201
 
     finally:
-        crud.delete_by(FormClassification, name=form_template["classification"]["name"])
+        crud.delete_by(FormClassificationOrm, name=form_template["classification"]["name"])
 
 
 @pytest.fixture

@@ -6,7 +6,7 @@ import pytest
 
 from data import crud
 from enums import TrafficLightEnum
-from models import MedicalRecord, Patient, Pregnancy, Reading
+from models import MedicalRecordOrm, PatientOrm, PregnancyOrm, ReadingOrm
 from utils import get_current_time
 
 
@@ -223,7 +223,7 @@ def test_get_mobile_patient(database, api_post, api_get):
         assert response.status_code == 201
 
         for p in patient_ids:
-            patient = crud.read(Patient, patientId=p)
+            patient = crud.read(PatientOrm, patientId=p)
             assert patient is not None
 
         # Add a more fleshed-out reading to the first patient.
@@ -257,7 +257,7 @@ def test_get_mobile_patient(database, api_post, api_get):
         assert reading_response.status_code == 201
 
         for r in reading_ids:
-            reading = crud.read(Reading, readingId=r)
+            reading = crud.read(ReadingOrm, readingId=r)
             assert reading is not None
 
         # Get all the patients from /api/mobile/patients.
@@ -342,9 +342,9 @@ def test_get_mobile_patient(database, api_post, api_get):
 
     finally:
         for r in reading_ids:
-            crud.delete_by(Reading, readingId=r)
+            crud.delete_by(ReadingOrm, readingId=r)
         for p in patient_ids:
-            crud.delete_by(Patient, patientId=p)
+            crud.delete_by(PatientOrm, patientId=p)
 
 
 def test_create_patient_with_nested_readings(database, api_post):
@@ -359,16 +359,16 @@ def test_create_patient_with_nested_readings(database, api_post):
 
     try:
         assert response.status_code == 201
-        assert crud.read(Patient, patientId=patient_id) is not None
+        assert crud.read(PatientOrm, patientId=patient_id) is not None
 
         for r in reading_ids:
-            reading = crud.read(Reading, readingId=r)
+            reading = crud.read(ReadingOrm, readingId=r)
             assert reading is not None
             assert reading.trafficLightStatus == TrafficLightEnum.GREEN
     finally:
         for r in reading_ids:
-            crud.delete_by(Reading, readingId=r)
-        crud.delete_by(Patient, patientId=patient_id)
+            crud.delete_by(ReadingOrm, readingId=r)
+        crud.delete_by(PatientOrm, patientId=patient_id)
 
 
 def test_create_patient_with_pregnancy_and_medical_records(database, api_post):
@@ -381,16 +381,16 @@ def test_create_patient_with_pregnancy_and_medical_records(database, api_post):
 
     try:
         assert response.status_code == 201
-        assert crud.read(Patient, patientId=patient_id) is not None
-        assert crud.read(Pregnancy, patientId=patient_id, startDate=date) is not None
-        assert crud.read(MedicalRecord, patientId=patient_id, isDrugRecord=False)
-        assert crud.read(MedicalRecord, patientId=patient_id, isDrugRecord=True)
+        assert crud.read(PatientOrm, patientId=patient_id) is not None
+        assert crud.read(PregnancyOrm, patientId=patient_id, startDate=date) is not None
+        assert crud.read(MedicalRecordOrm, patientId=patient_id, isDrugRecord=False)
+        assert crud.read(MedicalRecordOrm, patientId=patient_id, isDrugRecord=True)
 
     finally:
-        crud.delete_by(Pregnancy, patientId=patient_id, startDate=date)
-        crud.delete_by(MedicalRecord, patientId=patient_id, isDrugRecord=False)
-        crud.delete_by(MedicalRecord, patientId=patient_id, isDrugRecord=True)
-        crud.delete_by(Patient, patientId=patient_id)
+        crud.delete_by(PregnancyOrm, patientId=patient_id, startDate=date)
+        crud.delete_by(MedicalRecordOrm, patientId=patient_id, isDrugRecord=False)
+        crud.delete_by(MedicalRecordOrm, patientId=patient_id, isDrugRecord=True)
+        crud.delete_by(PatientOrm, patientId=patient_id)
 
 
 def __make_full_patient_no_readings(patient_id: str, date: int) -> dict:
@@ -421,7 +421,7 @@ def test_update_patient_name(patient_factory, api_put):
     )
 
     assert response.status_code == 200
-    assert crud.read(Patient, patientId=patient_id).patientName == "CD"
+    assert crud.read(PatientOrm, patientId=patient_id).patientName == "CD"
 
 
 def test_update_patient_with_base(patient_factory, api_put):
@@ -436,7 +436,7 @@ def test_update_patient_with_base(patient_factory, api_put):
     response = api_put(endpoint=f"/api/patients/{patient_id}/info", json=json)
 
     assert response.status_code == 200
-    patient = crud.read(Patient, patientId=patient_id)
+    patient = crud.read(PatientOrm, patientId=patient_id)
     assert patient.patientName == "CD"
     assert patient.lastEdited == 6
 
@@ -453,7 +453,7 @@ def test_update_patient_abort_due_to_conflict(patient_factory, api_put):
     response = api_put(endpoint=f"/api/patients/{patient_id}/info", json=json)
 
     assert response.status_code == 409
-    patient = crud.read(Patient, patientId=patient_id)
+    patient = crud.read(PatientOrm, patientId=patient_id)
     assert patient.patientName == "AB"
     assert patient.lastEdited == 7
 
@@ -474,7 +474,7 @@ def test_invalid_patient_not_created(patient_factory, api_post):
     }
     response = api_post(endpoint="/api/patients", json=patient)
     assert response.status_code == 400
-    assert crud.read(Patient, patientId=patient_id) is None
+    assert crud.read(PatientOrm, patientId=patient_id) is None
 
 
 def __make_patient(patient_id: str, reading_ids: List[str]) -> dict:

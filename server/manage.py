@@ -380,7 +380,7 @@ def seed(ctx):
                 "symptoms": get_random_symptoms(),
             }
 
-            reading_1_model = marshal.unmarshal(models.Reading, reading_1)
+            reading_1_model = marshal.unmarshal(models.ReadingOrm, reading_1)
             crud.create(reading_1_model, refresh=True)
 
             referral_comments = [
@@ -418,13 +418,13 @@ def seed(ctx):
 # Creates a user and adds it to the database
 def create_user(email, name, password, health_facility_name, role, phone_numbers, user_id):
     # Check if the email already exists
-    existing_user = models.User.query.filter_by(username=name).first()
+    existing_user = models.UserOrm.query.filter_by(username=name).first()
     if existing_user:
         print(f"User with username '{name}' already exists.")
         return None
 
     # Create a new User instance
-    new_user = models.User(
+    new_user = models.UserOrm(
         id=user_id,
         name=name,
         email=email,
@@ -436,7 +436,7 @@ def create_user(email, name, password, health_facility_name, role, phone_numbers
     new_phone_numbers = []
     for phone_number in phone_numbers:
         # Check if the phone number already exists
-        existing_phone = models.UserPhoneNumber.query.filter_by(
+        existing_phone = models.UserPhoneNumberOrm.query.filter_by(
             number=phone_number,
         ).first()
         if existing_phone:
@@ -447,7 +447,7 @@ def create_user(email, name, password, health_facility_name, role, phone_numbers
 
         # Create a new UserPhoneNumber instance and associate it with the user
         new_phone_numbers.append(
-            models.UserPhoneNumber(number=phone_number, user=new_user),
+            models.UserPhoneNumberOrm(number=phone_number, user=new_user),
         )
 
     try:
@@ -555,7 +555,7 @@ def create_patient_reading_referral_pregnancy(
     db.session.add(patient_schema.load(patient))
     db.session.commit()
 
-    readingModel = marshal.unmarshal(models.Reading, reading)
+    readingModel = marshal.unmarshal(models.ReadingOrm, reading)
     crud.create(readingModel, refresh=True)
 
     referral_schema = models.ReferralSchema()

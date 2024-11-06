@@ -4,7 +4,7 @@ import json
 import systemTests.api.test_sms_relay as sms_relay_test
 from api.resources import sms_relay
 from data import crud
-from models import SmsSecretKey, User, UserPhoneNumber
+from models import SmsSecretKeyOrm, UserOrm, UserPhoneNumberOrm
 from service import compressor, encryptor
 
 sms_relay_endpoint = "/api/sms_relay"
@@ -74,8 +74,8 @@ def test_sms_relay_invalid_phone_number_format(api_post):
 
 
 def test_sms_relay_invalid_encryption_key(api_post):
-    user = crud.read(User, id=1)
-    phoneNumber = crud.read_all(UserPhoneNumber, user_id=user.id).pop()
+    user = crud.read(UserOrm, id=1)
+    phoneNumber = crud.read_all(UserPhoneNumberOrm, user_id=user.id).pop()
 
     new_key = "1a9b4f7c3e8d2f5a6b4f7c3e8d2f5a1a"
 
@@ -97,8 +97,8 @@ def test_sms_relay_invalid_encryption_key(api_post):
 
 
 def test_sms_relay_corrupted_base64(api_post):
-    user = crud.read(User, id=1)
-    phoneNumber = crud.read_all(UserPhoneNumber, user_id=user.id).pop()
+    user = crud.read(UserOrm, id=1)
+    phoneNumber = crud.read_all(UserPhoneNumberOrm, user_id=user.id).pop()
 
     data = {"endpoint": None, "body": None}
     json_data = json.dumps(data)
@@ -117,9 +117,9 @@ def test_sms_relay_corrupted_base64(api_post):
 
 
 def test_sms_relay_failed_decompression(api_post):
-    user = crud.read(User, id=1)
-    phoneNumber = crud.read_all(UserPhoneNumber, user_id=user.id).pop()
-    secretKey = crud.read(SmsSecretKey, userId=1)
+    user = crud.read(UserOrm, id=1)
+    phoneNumber = crud.read_all(UserPhoneNumberOrm, user_id=user.id).pop()
+    secretKey = crud.read(SmsSecretKeyOrm, userId=1)
     iv = "00112233445566778899aabbccddeeff"
 
     data = {"endpoint": None, "body": None}
@@ -142,9 +142,9 @@ def test_sms_relay_failed_decompression(api_post):
 
 
 def test_sms_relay_invalid_encrypted_json(api_post):
-    user = crud.read(User, id=1)
-    phoneNumber = crud.read_all(UserPhoneNumber, user_id=user.id).pop()
-    secretKey = crud.read(SmsSecretKey, userId=1)
+    user = crud.read(UserOrm, id=1)
+    phoneNumber = crud.read_all(UserPhoneNumberOrm, user_id=user.id).pop()
+    secretKey = crud.read(SmsSecretKeyOrm, userId=1)
     iv = "00112233445566778899aabbccddeeff"
 
     data = {"method": "PUT", "endpoint": "a"}

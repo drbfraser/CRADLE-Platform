@@ -9,13 +9,13 @@ from marshmallow import ValidationError
 
 from data import marshal
 from models import (
-    FollowUp,
-    MedicalRecord,
-    Patient,
-    Pregnancy,
-    Reading,
-    Referral,
-    UrineTest,
+    FollowUpOrm,
+    MedicalRecordOrm,
+    PatientOrm,
+    PregnancyOrm,
+    ReadingOrm,
+    ReferralOrm,
+    UrineTestOrm,
 )
 
 
@@ -60,7 +60,7 @@ def serialize_referral_list(referrals: List[Any]) -> dict:
     ]
 
 
-def serialize_pregnancy(p: Pregnancy) -> dict:
+def serialize_pregnancy(p: PregnancyOrm) -> dict:
     return {
         "pregnancyId": p.id,
         "startDate": p.startDate,
@@ -70,7 +70,7 @@ def serialize_pregnancy(p: Pregnancy) -> dict:
     }
 
 
-def serialize_medical_record(r: MedicalRecord) -> dict:
+def serialize_medical_record(r: MedicalRecordOrm) -> dict:
     return {
         "medicalRecordId": r.id,
         "information": r.information,
@@ -89,9 +89,9 @@ def serialize_patient_timeline(r: Any) -> dict:
 
 def serialize_patient(
     patient: Any,
-    readings: Optional[List[Reading]] = None,
-    referrals: Optional[List[Referral]] = None,
-    assessments: Optional[List[FollowUp]] = None,
+    readings: Optional[List[ReadingOrm]] = None,
+    referrals: Optional[List[ReferralOrm]] = None,
+    assessments: Optional[List[FollowUpOrm]] = None,
 ) -> dict:
     p = {
         "patientId": patient.patientId,
@@ -131,14 +131,14 @@ def serialize_patient(
     return {k: v for k, v in p.items() if v or v is False}
 
 
-def serialize_reading(tup: Tuple[Reading, UrineTest]) -> dict:
+def serialize_reading(tup: Tuple[ReadingOrm, UrineTestOrm]) -> dict:
     reading = marshal.marshal(tup[0], True)
     if tup[1]:
         reading["urineTests"] = marshal.marshal(tup[1])
     return reading
 
 
-def serialize_referral_or_assessment(model: Union[Referral, FollowUp]) -> dict:
+def serialize_referral_or_assessment(model: Union[ReferralOrm, FollowUpOrm]) -> dict:
     return marshal.marshal(model)
 
 
@@ -154,8 +154,8 @@ def deserialize_patient(
     data: dict,
     shallow: bool = True,
     partial: bool = False,
-) -> Union[dict, Patient]:
-    schema = Patient.schema()
+) -> Union[dict, PatientOrm]:
+    schema = PatientOrm.schema()
     d = {
         "patientId": data.get("patientId"),
         "patientName": data.get("patientName"),
@@ -195,8 +195,8 @@ def deserialize_patient(
     return patient
 
 
-def deserialize_pregnancy(data: dict, partial: bool = False) -> Union[dict, Pregnancy]:
-    schema = Pregnancy.schema()
+def deserialize_pregnancy(data: dict, partial: bool = False) -> Union[dict, PregnancyOrm]:
+    schema = PregnancyOrm.schema()
     if partial:
         d = {
             "endDate": data.get("pregnancyEndDate"),
@@ -214,8 +214,8 @@ def deserialize_pregnancy(data: dict, partial: bool = False) -> Union[dict, Preg
     return schema().load(d)
 
 
-def deserialize_medical_record(data: dict, is_drug_record: bool) -> MedicalRecord:
-    schema = MedicalRecord.schema()
+def deserialize_medical_record(data: dict, is_drug_record: bool) -> MedicalRecordOrm:
+    schema = MedicalRecordOrm.schema()
     d = {
         "patientId": data.get("patientId"),
         "information": (

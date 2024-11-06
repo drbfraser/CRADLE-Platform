@@ -8,12 +8,12 @@ from flask_restful import Resource, abort
 import service.FilterHelper as filter
 from data import crud, marshal
 from models import (
-    Form,
-    Patient,
+    FormOrm,
+    PatientOrm,
     PatientSchema,
-    Reading,
+    ReadingOrm,
     ReadingSchema,
-    User,
+    UserOrm,
 )
 from service import serialize, view
 
@@ -38,7 +38,7 @@ def to_global_search_patient(patient):
             }
 
             reading_data = marshal.model_to_dict(
-                crud.read(Reading, readingId=reading),
+                crud.read(ReadingOrm, readingId=reading),
                 ReadingSchema,
             )
             reading_json["dateTimeTaken"] = reading_data["dateTimeTaken"]
@@ -54,12 +54,12 @@ def to_global_search_patient(patient):
 
 
 def get_global_search_patients(current_user, search):
-    def __make_gs_patient_dict(p: Patient, is_added: bool) -> dict:
+    def __make_gs_patient_dict(p: PatientOrm, is_added: bool) -> dict:
         patient_dict = marshal.model_to_dict(p, PatientSchema)
         patient_dict["state"] = "Added" if is_added else "Add"
         return patient_dict
 
-    user = crud.read(User, id=current_user["userId"])
+    user = crud.read(UserOrm, id=current_user["userId"])
     pairs = filter.annotated_global_patient_list(user, search)
     patients_query = [__make_gs_patient_dict(p, state) for (p, state) in pairs]
     return [to_global_search_patient(p) for p in patients_query]
@@ -165,7 +165,7 @@ class AndroidForms(Resource):
             "formClassificationId": form_template_id,
         }
 
-        form = crud.read(Form, **filters)
+        form = crud.read(FormOrm, **filters)
 
         if not form:
             abort(

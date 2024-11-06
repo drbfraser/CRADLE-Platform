@@ -2,7 +2,7 @@ import pytest
 
 import data
 from data import crud
-from models import FollowUp, Patient, Reading, Referral
+from models import FollowUpOrm, PatientOrm, ReadingOrm, ReferralOrm
 from service import assoc
 
 
@@ -40,10 +40,10 @@ def test_vht_referring_new_patient_and_hcw_assessing_them(
         data.db_session.commit()
 
         # Ensure that the patient, reading, and referral have been created
-        referral = crud.read(Referral, readingId=reading_id)
+        referral = crud.read(ReferralOrm, readingId=reading_id)
 
-        assert crud.read(Patient, patientId=patient_id) is not None
-        assert crud.read(Reading, readingId=reading_id) is not None
+        assert crud.read(PatientOrm, patientId=patient_id) is not None
+        assert crud.read(ReadingOrm, readingId=reading_id) is not None
         assert referral is not None
 
         # The referral should not be marked as assessed yet
@@ -71,13 +71,13 @@ def test_vht_referring_new_patient_and_hcw_assessing_them(
 
         # Ensure that the assessment has been created and that the referral has been
         # marked as assessed
-        assert crud.read(FollowUp, readingId=reading_id) is not None
+        assert crud.read(FollowUpOrm, readingId=reading_id) is not None
         assert referral.isAssessed
 
     finally:
         # Cleanup
-        crud.delete_by(FollowUp, readingId=reading_id)
-        crud.delete_by(Referral, readingId=reading_id)
-        crud.delete_by(Reading, readingId=reading_id)
-        crud.delete_by(Patient, patientId=patient_id)
+        crud.delete_by(FollowUpOrm, readingId=reading_id)
+        crud.delete_by(ReferralOrm, readingId=reading_id)
+        crud.delete_by(ReadingOrm, readingId=reading_id)
+        crud.delete_by(PatientOrm, patientId=patient_id)
         data.db_session.commit()

@@ -7,7 +7,7 @@ from flask_jwt_extended.utils import get_jwt_identity
 from flask_restful import Resource, abort
 
 from data import crud, marshal
-from models import HealthFacility, Patient, Reading, Referral
+from models import HealthFacilityOrm, PatientOrm, ReadingOrm, ReferralOrm
 from service import assoc, invariant
 from validation import readings
 
@@ -29,7 +29,7 @@ class Root(Resource):
         except Exception as e:
             abort(400, message=str(e))
 
-        if not crud.read(Patient, patientId=json["patientId"]):
+        if not crud.read(PatientOrm, patientId=json["patientId"]):
             abort(400, message="Patient does not exist")
 
         userId = get_jwt_identity()["userId"]
@@ -38,7 +38,7 @@ class Root(Resource):
 
         if "referral" in json:
             healthFacility = crud.read(
-                HealthFacility,
+                HealthFacilityOrm,
                 healthFacilityName=json["referral"]["referralHealthFacilityName"],
             )
 
@@ -47,13 +47,13 @@ class Root(Resource):
             else:
                 UTCTime = str(round(time.time() * 1000))
                 crud.update(
-                    HealthFacility,
+                    HealthFacilityOrm,
                     {"newReferrals": UTCTime},
                     True,
                     healthFacilityName=json["referral"]["referralHealthFacilityName"],
                 )
 
-            referral = marshal.unmarshal(Referral, json["referral"])
+            referral = marshal.unmarshal(ReferralOrm, json["referral"])
             crud.create(referral, refresh=True)
 
             patient = referral.patient
@@ -62,9 +62,9 @@ class Root(Resource):
                 assoc.associate(patient, facility=facility)
             del json["referral"]
 
-        reading = marshal.unmarshal(Reading, json)
+        reading = marshal.unmarshal(ReadingOrm, json)
 
-        if crud.read(Reading, readingId=reading.readingId):
+        if crud.read(ReadingOrm, readingId=reading.readingId):
             abort(409, message=f"A reading already exists with id: {reading.readingId}")
 
         invariant.resolve_reading_invariants(reading)
@@ -82,7 +82,7 @@ class SingleReading(Resource):
         endpoint="single_reading",
     )
     def get(reading_id: str):
-        reading = crud.read(Reading, readingId=reading_id)
+        reading = crud.read(ReadingOrm, readingId=reading_id)
         if not reading:
             abort(404, message=f"No reading with id {reading_id}")
 

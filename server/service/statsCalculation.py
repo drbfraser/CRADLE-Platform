@@ -1,12 +1,12 @@
 from datetime import date
 
 from enums import TrafficLightEnum
-from models import Reading
+from models import ReadingOrm
 
 
 def get_stats_data(
     data_needed,
-    readings: Reading,
+    readings: ReadingOrm,
     current_year,
     current_month,
     is_from_last_twelve_months=False,

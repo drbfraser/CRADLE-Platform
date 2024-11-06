@@ -1,5 +1,5 @@
 from data import crud
-from models import MedicalRecord
+from models import MedicalRecordOrm
 
 
 def test_get_record(create_patient, medical_record_factory, medical_record, api_get):
@@ -24,7 +24,7 @@ def test_put_record(create_patient, medical_record_factory, drug_record, api_put
         json={"drugHistory": info},
     )
 
-    new_record = crud.read(MedicalRecord, id=record_id)
+    new_record = crud.read(MedicalRecordOrm, id=record_id)
 
     assert response.status_code == 200
     assert new_record.information == info
@@ -48,7 +48,7 @@ def test_post_and_delete_record(
         json=record,
     )
 
-    new_record = crud.read(MedicalRecord, id=record_id)
+    new_record = crud.read(MedicalRecordOrm, id=record_id)
 
     assert response.status_code == 201
     assert new_record.patientId == patient_id
@@ -59,7 +59,7 @@ def test_post_and_delete_record(
     database.session.commit()
 
     assert response.status_code == 200
-    assert crud.read(MedicalRecord, id=record_id) is None
+    assert crud.read(MedicalRecordOrm, id=record_id) is None
 
 
 def test_get_record_lists(
@@ -96,7 +96,7 @@ def test_invalid_record_not_updated(
         json={"patientId": "0"},
     )
 
-    record = crud.read(MedicalRecord, id=record_id)
+    record = crud.read(MedicalRecordOrm, id=record_id)
 
     assert response.status_code == 400
     assert record.patientId == drug_record["patientId"]

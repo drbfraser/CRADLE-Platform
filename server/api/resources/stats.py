@@ -9,7 +9,7 @@ from flask_restful import Resource
 from api.decorator import roles_required
 from data import crud
 from enums import RoleEnum, TrafficLightEnum
-from models import User
+from models import UserOrm
 
 MYSQL_BIGINT_MAX = (2**63) - 1
 
@@ -139,7 +139,7 @@ def hasPermissionToViewUser(user_id):
             return False
 
     if role == RoleEnum.HCW.value:
-        user = crud.read(User, id=user_id)
+        user = crud.read(UserOrm, id=user_id)
         if jwt["healthFacilityName"] != user.healthFacilityName:
             return False
 
@@ -170,7 +170,7 @@ class ExportStats(Resource):
     def get(user_id: int):
         filter = get_filter_data(request)
 
-        if crud.read(User, id=user_id) is None:
+        if crud.read(UserOrm, id=user_id) is None:
             return "User with this ID does not exist", 404
 
         if not hasPermissionToViewUser(user_id):

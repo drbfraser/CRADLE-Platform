@@ -8,13 +8,13 @@ import requests
 from data import crud
 from enums import TrafficLightEnum
 from models import (
-    FollowUp,
-    Patient,
-    Reading,
-    Referral,
-    SmsSecretKey,
-    User,
-    UserPhoneNumber,
+    FollowUpOrm,
+    PatientOrm,
+    ReadingOrm,
+    ReferralOrm,
+    SmsSecretKeyOrm,
+    UserOrm,
+    UserPhoneNumberOrm,
 )
 from service import compressor, encryptor
 
@@ -40,16 +40,16 @@ def test_create_patient_with_sms_relay(database, api_post):
     try:
         assert response.status_code == 200
         assert response_dict["code"] == 201
-        assert crud.read(Patient, patientId=patient_id) is not None
+        assert crud.read(PatientOrm, patientId=patient_id) is not None
 
         for r in reading_ids:
-            reading = crud.read(Reading, readingId=r)
+            reading = crud.read(ReadingOrm, readingId=r)
             assert reading is not None
             assert reading.trafficLightStatus == TrafficLightEnum.GREEN
     finally:
         for r in reading_ids:
-            crud.delete_by(Reading, readingId=r)
-        crud.delete_by(Patient, patientId=patient_id)
+            crud.delete_by(ReadingOrm, readingId=r)
+        crud.delete_by(PatientOrm, patientId=patient_id)
 
 
 def test_create_referral_with_sms_relay(
@@ -75,10 +75,10 @@ def test_create_referral_with_sms_relay(
     try:
         assert response.status_code == 200
         assert response_dict["code"] == 201
-        assert crud.read(Referral, id=referral_id) is not None
+        assert crud.read(ReferralOrm, id=referral_id) is not None
 
     finally:
-        crud.delete_by(Referral, id=referral_id)
+        crud.delete_by(ReferralOrm, id=referral_id)
 
 
 def test_create_readings_with_sms_relay(
@@ -104,10 +104,10 @@ def test_create_readings_with_sms_relay(
     try:
         assert response.status_code == 200
         assert response_dict["code"] == 201
-        assert crud.read(Reading, readingId=reading_id) is not None
+        assert crud.read(ReadingOrm, readingId=reading_id) is not None
 
     finally:
-        crud.delete_by(Reading, readingId=reading_id)
+        crud.delete_by(ReadingOrm, readingId=reading_id)
 
 
 def test_update_patient_name_with_sms_relay(database, patient_factory, api_post):
@@ -128,7 +128,7 @@ def test_update_patient_name_with_sms_relay(database, patient_factory, api_post)
 
     assert response.status_code == 200
     assert response_dict["code"] == 200
-    assert crud.read(Patient, patientId=patient_id).patientName == new_patient_name
+    assert crud.read(PatientOrm, patientId=patient_id).patientName == new_patient_name
 
 
 def test_create_assessments_with_sms_relay(
@@ -155,7 +155,7 @@ def test_create_assessments_with_sms_relay(
     assert response.status_code == 200
     assert response_dict["code"] == 201
     assert (
-        crud.read(FollowUp, patientId=patient_id).followupInstructions
+        crud.read(FollowUpOrm, patientId=patient_id).followupInstructions
         == followupInstructions
     )
 
@@ -171,7 +171,7 @@ def test_update_assessments_with_sms_relay(
 
     assessment_json = __make_assessment(patient_id)
     followup_factory.create(patientId=patient_id)
-    assessment_id = crud.read(FollowUp, patientId=patient_id).id
+    assessment_id = crud.read(FollowUpOrm, patientId=patient_id).id
 
     newInstructions = "II"
     assessment_json["followupInstructions"] = newInstructions
@@ -185,7 +185,7 @@ def test_update_assessments_with_sms_relay(
     response_dict = json.loads(response.text)
     assert response.status_code == 200
     assert response_dict["code"] == 200
-    assert crud.read(FollowUp, id=assessment_id).followupInstructions == newInstructions
+    assert crud.read(FollowUpOrm, id=assessment_id).followupInstructions == newInstructions
 
 
 def make_sms_relay_json(
@@ -195,11 +195,11 @@ def make_sms_relay_json(
     header: str = None,
     body: str = None,
 ) -> dict:
-    user = crud.read(User, id=1)
-    secretKey = crud.read(SmsSecretKey, userId=1)
+    user = crud.read(UserOrm, id=1)
+    secretKey = crud.read(SmsSecretKeyOrm, userId=1)
     # update for multiple phone numbers schema: each user is guaranteed to have atleast one phone number
     phoneNumber = crud.read_all(
-        UserPhoneNumber,
+        UserPhoneNumberOrm,
         user_id=user.id,
     ).pop()  # just need one phone number that belongs to the user
 
@@ -220,7 +220,7 @@ def make_sms_relay_json(
 
 
 def get_sms_relay_response(response: requests.Response) -> dict:
-    secretKey = crud.read(SmsSecretKey, userId=1)
+    secretKey = crud.read(SmsSecretKeyOrm, userId=1)
 
     response_dict = json.loads(response.text)
     decrypted_data = encryptor.decrypt(response_dict["body"], secretKey.secret_Key)

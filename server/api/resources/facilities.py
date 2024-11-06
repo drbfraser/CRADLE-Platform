@@ -9,7 +9,7 @@ from api import util
 from api.decorator import roles_required
 from data import crud, marshal
 from enums import RoleEnum
-from models import HealthFacility
+from models import HealthFacilityOrm
 from validation.facilities import Facility
 from validation.validation_exception import ValidationExceptionError
 
@@ -37,7 +37,7 @@ class Root(Resource):
         endpoint="facilities",
     )
     def get():
-        facilities = crud.read_all(HealthFacility)
+        facilities = crud.read_all(HealthFacilityOrm)
         if util.query_param_bool(request, "simplified"):
             # If responding to a "simplified" request, only return the names of the
             # facilities and no other information
@@ -63,14 +63,14 @@ class Root(Resource):
             abort(400, message=str(e))
 
         # Create a DB Model instance for the new facility and load into DB
-        facility = marshal.unmarshal(HealthFacility, args)
+        facility = marshal.unmarshal(HealthFacilityOrm, args)
         facility.newReferrals = str(round(time.time() * 1000))
 
         crud.create(facility)
 
         # Get back a dict for return
         facilityDict = marshal.marshal(
-            crud.read(HealthFacility, healthFacilityName=args["healthFacilityName"]),
+            crud.read(HealthFacilityOrm, healthFacilityName=args["healthFacilityName"]),
         )
         return facilityDict, 201
 
@@ -85,7 +85,7 @@ class SingleFacility(Resource):
         endpoint="single_facility",
     )
     def get(facility_name: str):
-        facility = crud.read(HealthFacility, healthFacilityName=facility_name)
+        facility = crud.read(HealthFacilityOrm, healthFacilityName=facility_name)
         if util.query_param_bool(request, "newReferrals"):
             newReferrals = facility.newReferrals
             # If responding to a "newReferrals" request, only return the timestamp of newReferrals of that facility

@@ -13,7 +13,7 @@ from api.util import (
     phoneNumber_exists,
 )
 from common.regexUtil import phoneNumber_regex_check as regex_check
-from models import User
+from models import UserOrm
 from service import compressor, encryptor
 from validation.sms_relay import SmsRelay, SmsRelayDecryptedBody
 from validation.validation_exception import ValidationExceptionError
@@ -61,7 +61,7 @@ def send_request_to_endpoint(
     endpoint: str,
     header: dict,
     body: str,
-    user: User,
+    user: UserOrm,
 ) -> requests.Response:
     data = get_user_data_for_token(user)
     token = get_access_token(data)

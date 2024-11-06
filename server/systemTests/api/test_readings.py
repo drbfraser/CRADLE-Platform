@@ -1,7 +1,7 @@
 import pytest
 
 from data import crud
-from models import Reading
+from models import ReadingOrm
 
 
 def test_invalid_reading_not_created(
@@ -17,7 +17,7 @@ def test_invalid_reading_not_created(
 
     response = api_post(endpoint="/api/readings", json=reading)
     assert response.status_code == 400
-    assert crud.read(Reading, readingId=reading_id) is None
+    assert crud.read(ReadingOrm, readingId=reading_id) is None
 
 
 @pytest.fixture

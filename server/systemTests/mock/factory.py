@@ -105,7 +105,7 @@ class ReadingFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        readingModel = marshal.unmarshal(models.Reading, dict(**kwargs))
+        readingModel = marshal.unmarshal(models.ReadingOrm, dict(**kwargs))
         crud.create(readingModel, refresh=True)
 
         return readingModel
@@ -179,14 +179,14 @@ class UserFactory(ModelFactory):
         import data
 
         # from config import flask_bcrypt
-        from models import User
+        from models import UserOrm
 
         d = dict(**kwargs)
 
         # # Hash the user's password so that they can login
         # d["password"] = flask_bcrypt.generate_password_hash(d["password"])
 
-        user = marshal.unmarshal(User, d)
+        user = marshal.unmarshal(UserOrm, d)
         crud.create(user)
         data.db_session.commit()
         return user

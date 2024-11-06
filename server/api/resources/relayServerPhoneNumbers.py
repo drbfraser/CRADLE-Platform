@@ -7,7 +7,7 @@ from api.decorator import roles_required
 from api.util import filterPairsWithNone
 from data import crud, marshal
 from enums import RoleEnum
-from models import RelayServerPhoneNumber
+from models import RelayServerPhoneNumberOrm
 
 parser = reqparse.RequestParser()
 parser.add_argument("phone", type=str, required=True, help="Phone number is required.")
@@ -28,7 +28,7 @@ class RelayServerPhoneNumbers(Resource):
         methods=["GET"],
     )
     def get(self):
-        phone_numbers = crud.read_all(RelayServerPhoneNumber)
+        phone_numbers = crud.read_all(RelayServerPhoneNumberOrm)
         return [marshal.marshal(f, shallow=True) for f in phone_numbers]
 
     @staticmethod
@@ -42,9 +42,9 @@ class RelayServerPhoneNumbers(Resource):
         if len(req) == 0:
             abort(400, message="Request body is empty")
 
-        serverDetails = marshal.unmarshal(RelayServerPhoneNumber, req)
+        serverDetails = marshal.unmarshal(RelayServerPhoneNumberOrm, req)
         phone = serverDetails.phone
-        if crud.read(RelayServerPhoneNumber, phone=phone):
+        if crud.read(RelayServerPhoneNumberOrm, phone=phone):
             abort(409, message=f"A SMS relay server is already using {phone}")
 
         crud.create(serverDetails, refresh=True)
@@ -69,7 +69,7 @@ class RelayServerPhoneNumbers(Resource):
 
         id = serverUpdates["id"]
 
-        crud.update(RelayServerPhoneNumber, serverUpdates, id=id)
+        crud.update(RelayServerPhoneNumberOrm, serverUpdates, id=id)
 
         return {"message": "Relay server updated"}, 200
 
@@ -92,7 +92,7 @@ class RelayServerPhoneNumbers(Resource):
 
         id = serverDelete["id"]
 
-        num = crud.read(RelayServerPhoneNumber, id=id)
+        num = crud.read(RelayServerPhoneNumberOrm, id=id)
 
         if num is None:
             return {"message": "Relay server does not contain a number"}, 400

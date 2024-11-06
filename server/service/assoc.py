@@ -7,10 +7,10 @@ from typing import List
 
 from data import crud
 from enums import RoleEnum
-from models import HealthFacility, Patient, PatientAssociations, User
+from models import HealthFacilityOrm, PatientAssociationsOrm, PatientOrm, UserOrm
 
 
-def associate_by_user_role(patient: Patient, user: User):
+def associate_by_user_role(patient: PatientOrm, user: UserOrm):
     """
     Creates a patient association based on a user's role.
 
@@ -33,7 +33,7 @@ def associate_by_user_role(patient: Patient, user: User):
         associate(patient, user=user)
 
 
-def associate(patient: Patient, facility: HealthFacility = None, user: User = None):
+def associate(patient: PatientOrm, facility: HealthFacilityOrm = None, user: UserOrm = None):
     """
     Creates an association between a patient and facility, patient and user, or patient,
     user and facility.
@@ -46,7 +46,7 @@ def associate(patient: Patient, facility: HealthFacility = None, user: User = No
     if not facility and not user:
         raise ValueError("either a facility or user must be provided")
 
-    association = PatientAssociations(
+    association = PatientAssociationsOrm(
         patientId=patient.patientId,
         healthFacilityName=facility.healthFacilityName if facility else None,
         userId=user.id if user else None,
@@ -58,7 +58,7 @@ def associate_by_id(
     patient_id: str,
     facility_name: str,
     user_id: int,
-) -> PatientAssociations:
+) -> PatientAssociationsOrm:
     """
     Creates a 3-way association between a patient, facility, and a user identified
     by their respective identifiers.
@@ -70,9 +70,9 @@ def associate_by_id(
     :except ValueError: If any of the identifiers don't identify a value
     :return: An association object
     """
-    patient = crud.read(Patient, patientId=patient_id)
-    facility = crud.read(HealthFacility, healthFacilityName=facility_name)
-    user = crud.read(User, id=user_id)
+    patient = crud.read(PatientOrm, patientId=patient_id)
+    facility = crud.read(HealthFacilityOrm, healthFacilityName=facility_name)
+    user = crud.read(UserOrm, id=user_id)
 
     if not patient or not facility or not user:
         raise ValueError("patient, facility, or user not found")
@@ -80,9 +80,9 @@ def associate_by_id(
 
 
 def has_association(
-    patient: Patient = None,
-    facility: HealthFacility = None,
-    user: User = None,
+    patient: PatientOrm = None,
+    facility: HealthFacilityOrm = None,
+    user: UserOrm = None,
 ) -> bool:
     """
     Returns true if the supplied models are associated with one another.
@@ -121,10 +121,10 @@ def has_association_by_id(
         kw["userId"] = user_id
     if not kw:
         raise TypeError("at least one keyword argument is required")
-    return crud.read_all(PatientAssociations, **kw) != []
+    return crud.read_all(PatientAssociationsOrm, **kw) != []
 
 
-def patients_for_user(user: User) -> List[Patient]:
+def patients_for_user(user: UserOrm) -> List[PatientOrm]:
     """
     Returns a list of distinct patients associated with a given user.
 
@@ -135,7 +135,7 @@ def patients_for_user(user: User) -> List[Patient]:
     return list(dict.fromkeys(patients))
 
 
-def patients_at_facility(facility: HealthFacility) -> List[Patient]:
+def patients_at_facility(facility: HealthFacilityOrm) -> List[PatientOrm]:
     """
     Return a list of distinct patients associated with a given health facility.
 

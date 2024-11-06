@@ -38,13 +38,13 @@ from common.constants import (
 from data import crud, marshal
 from enums import QRelationalEnum, QuestionTypeEnum
 from models import (
-    Form,
-    FormClassification,
-    FormTemplate,
-    Question,
-    SmsSecretKey,
-    User,
-    UserPhoneNumber,
+    FormClassificationOrm,
+    FormOrm,
+    FormTemplateOrm,
+    QuestionOrm,
+    SmsSecretKeyOrm,
+    UserOrm,
+    UserPhoneNumberOrm,
 )
 
 if TYPE_CHECKING:
@@ -133,14 +133,14 @@ def query_param_search(request: Request, name: str) -> str:
     return request.args.get(name, "", type=str)
 
 
-def current_user() -> User:
+def current_user() -> UserOrm:
     """
     Returns the the model for the user making the request.
 
     :return:
     """
     identity = jwt.get_jwt_identity()
-    return crud.read(User, id=identity["userId"])
+    return crud.read(UserOrm, id=identity["userId"])
 
 
 def isGoodPassword(password: str) -> bool:
@@ -178,7 +178,7 @@ def getDictionaryOfUserInfo(id: int) -> dict:
 
     :param id: The user's id
     """
-    user = crud.read(User, id=id)
+    user = crud.read(UserOrm, id=id)
     userDict = marshal.marshal(user)
 
     # The vhtlist has to be marshalled manually
@@ -207,7 +207,7 @@ def doesUserExist(id: int) -> bool:
     :param id: The user's id
 
     """
-    user = crud.read(User, id=id)
+    user = crud.read(UserOrm, id=id)
     if user is None:
         return False
     return True
@@ -232,7 +232,7 @@ def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
 
     id = req["id"]
 
-    if model is FormClassification:
+    if model is FormClassificationOrm:
         return
 
     # assign question id and formId or formTemplateId.
@@ -240,9 +240,9 @@ def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
     for question in req["questions"]:
         question["id"] = utils.get_uuid()
 
-        if model is Form:
+        if model is FormOrm:
             question["formId"] = id
-        elif model is FormTemplate:
+        elif model is FormTemplateOrm:
             question["formTemplateId"] = id
 
         if question.get("questionLangVersions") is not None:
@@ -512,13 +512,13 @@ def getFormTemplateDictFromCSV(csvData: str):
     return result
 
 
-def getCsvFromFormTemplate(form_template: FormTemplate):
+def getCsvFromFormTemplate(form_template: FormTemplateOrm):
     """
     Returns a CSV string from a FormTemplate object.
     """
 
     # Helper functions
-    def get_question_lang_list(question: Question):
+    def get_question_lang_list(question: QuestionOrm):
         lang_list = []
         for lang in question.lang_versions:
             lang_list.append(lang.lang)
@@ -546,7 +546,7 @@ def getCsvFromFormTemplate(form_template: FormTemplate):
 
     def get_visible_condition_options(
         visible_condition: str,
-        questions: list[Question],
+        questions: list[QuestionOrm],
     ):
         visible_conditions = json.loads(visible_condition)
 
@@ -568,7 +568,7 @@ def getCsvFromFormTemplate(form_template: FormTemplate):
 
         return ",".join(options) if visible_condition is not None else ""
 
-    questions: list[Question] = form_template.questions
+    questions: list[QuestionOrm] = form_template.questions
 
     questions = sorted(questions, key=lambda q: q.questionIndex)
 
@@ -682,10 +682,10 @@ def getCsvFromFormTemplate(form_template: FormTemplate):
 def phoneNumber_exists(phone_number, user_id=-1):
     existing_phone_number = None
     if user_id == -1:
-        existing_phone_number = crud.read(UserPhoneNumber, number=phone_number)
+        existing_phone_number = crud.read(UserPhoneNumberOrm, number=phone_number)
     else:
         existing_phone_number = crud.read(
-            UserPhoneNumber,
+            UserPhoneNumberOrm,
             phone_number=phone_number,
             user_id=user_id,
         )
@@ -693,15 +693,15 @@ def phoneNumber_exists(phone_number, user_id=-1):
 
 
 def get_all_phoneNumbers_for_user(user_id):
-    phone_numbers = crud.read_all(UserPhoneNumber, user_id=user_id)
+    phone_numbers = crud.read_all(UserPhoneNumberOrm, user_id=user_id)
     numbers = [phone_number.number for phone_number in phone_numbers]
     return numbers
 
 
 def get_user_from_phone_number(phone_number):
-    phone_number_object = crud.read(UserPhoneNumber, number=phone_number)
+    phone_number_object = crud.read(UserPhoneNumberOrm, number=phone_number)
     if phone_number_object:
-        user = crud.read(User, id=phone_number_object.user_id)
+        user = crud.read(UserOrm, id=phone_number_object.user_id)
         return user
     return None
 
@@ -712,8 +712,8 @@ def add_new_phoneNumber_for_user(new_phone_number, user_id):
     if phoneNumber_exists(new_phone_number):
         return False
 
-    user = crud.read(User, id=user_id)
-    crud.create(UserPhoneNumber(number=new_phone_number, user=user))
+    user = crud.read(UserOrm, id=user_id)
+    crud.create(UserPhoneNumberOrm(number=new_phone_number, user=user))
 
     return True
 
@@ -721,7 +721,7 @@ def add_new_phoneNumber_for_user(new_phone_number, user_id):
 # Delete phone_number from the list of phone numbers of user with user_id if the number belongs to them
 def delete_user_phoneNumber(phone_number, user_id):
     if phoneNumber_exists(phone_number, user_id):
-        crud.delete_by(UserPhoneNumber, number=phone_number, user_id=user_id)
+        crud.delete_by(UserPhoneNumberOrm, number=phone_number, user_id=user_id)
         return True
     return False
 
@@ -733,7 +733,7 @@ def replace_phoneNumber_for_user(current_phone_number, new_phone_number, user_id
         not phoneNumber_exists(new_phone_number)
     ):
         crud.update(
-            UserPhoneNumber,
+            UserPhoneNumberOrm,
             {"number": new_phone_number},
             number=current_phone_number,
             user_id=user_id,
@@ -743,7 +743,7 @@ def replace_phoneNumber_for_user(current_phone_number, new_phone_number, user_id
 
 
 def get_user_roles(userId):
-    userInfo = crud.read(User, id=userId)
+    userInfo = crud.read(UserOrm, id=userId)
     return userInfo.role
 
 
@@ -784,7 +784,7 @@ def create_secret_key_for_user(userId):
         "expiry_date": str(expiry_date),
         "stale_date": str(stale_date),
     }
-    sms_new_key_model = marshal.unmarshal(SmsSecretKey, new_key)
+    sms_new_key_model = marshal.unmarshal(SmsSecretKeyOrm, new_key)
     crud.create(sms_new_key_model)
     return new_key
 
@@ -798,20 +798,20 @@ def update_secret_key_for_user(userId):
         "expiry_date": str(expiry_date),
         "stale_date": str(stale_date),
     }
-    crud.update(SmsSecretKey, new_key, userId=userId)
+    crud.update(SmsSecretKeyOrm, new_key, userId=userId)
     return new_key
 
 
 def get_user_secret_key(userId):
-    sms_secret_key = crud.read(SmsSecretKey, userId=userId)
+    sms_secret_key = crud.read(SmsSecretKeyOrm, userId=userId)
     if sms_secret_key and sms_secret_key.secret_Key:
-        sms_key = marshal.marshal(sms_secret_key, SmsSecretKey)
+        sms_key = marshal.marshal(sms_secret_key, SmsSecretKeyOrm)
         return sms_key
     return None
 
 
 def get_user_secret_key_string(userId):
-    sms_secret_key = crud.read(SmsSecretKey, userId=userId)
+    sms_secret_key = crud.read(SmsSecretKeyOrm, userId=userId)
     if sms_secret_key:
         return sms_secret_key.secret_Key
     return None

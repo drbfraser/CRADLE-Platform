@@ -1,10 +1,10 @@
 from typing import Union
 
 import data
-from models import Patient, Reading
+from models import PatientOrm, ReadingOrm
 
 
-def resolve_reading_invariants(obj: Union[Patient, Reading]):
+def resolve_reading_invariants(obj: Union[PatientOrm, ReadingOrm]):
     """
     Resolves various invariants which must be held by reading objects.
 
@@ -14,7 +14,7 @@ def resolve_reading_invariants(obj: Union[Patient, Reading]):
     :param obj:
     :return:
     """
-    if isinstance(obj, Patient):
+    if isinstance(obj, PatientOrm):
         for r in obj.readings:
             resolve_reading_invariants(r)
         return
@@ -26,7 +26,7 @@ def resolve_reading_invariants(obj: Union[Patient, Reading]):
     data.db_session.commit()
 
 
-def resolve_reading_invariants_mobile(obj: Union[Patient, Reading]):
+def resolve_reading_invariants_mobile(obj: Union[PatientOrm, ReadingOrm]):
     """
     Resolves various invariants which must be held by reading objects.
 
@@ -36,7 +36,7 @@ def resolve_reading_invariants_mobile(obj: Union[Patient, Reading]):
     :param obj:
     :return:
     """
-    if isinstance(obj, Patient):
+    if isinstance(obj, PatientOrm):
         for r in obj.readings:
             resolve_reading_invariants_mobile(r)
         return

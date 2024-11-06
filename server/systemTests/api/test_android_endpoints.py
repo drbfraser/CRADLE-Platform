@@ -5,12 +5,12 @@ import pytest
 from data import crud
 from enums import GestationalAgeUnitEnum, SexEnum, TrafficLightEnum
 from models import (
-    MedicalRecord,
-    Patient,
-    PatientAssociations,
-    Pregnancy,
+    MedicalRecordOrm,
+    PatientAssociationsOrm,
+    PatientOrm,
+    PregnancyOrm,
     PregnancySchema,
-    Reading,
+    ReadingOrm,
 )
 
 
@@ -135,7 +135,7 @@ def test_sync_patients_fully_successful(
         )
         assert new_mobile_patient["medicalHistory"] == mobile_patient["medicalHistory"]
         assert new_mobile_patient["drugHistory"] == mobile_patient["drugHistory"]
-        assert crud.read(PatientAssociations, patientId=mobile_patient_id) is not None
+        assert crud.read(PatientAssociationsOrm, patientId=mobile_patient_id) is not None
 
         mobile_patient = new_mobile_patient
         last_sync = int(time.time())
@@ -176,7 +176,7 @@ def test_sync_patients_fully_successful(
         assert new_mobile_patient["medicalHistory"] == mobile_patient["medicalHistory"]
         assert new_mobile_patient["drugHistory"] == mobile_patient["drugHistory"]
 
-        updated_pregnancy = crud.read(Pregnancy, id=mobile_patient["pregnancyId"])
+        updated_pregnancy = crud.read(PregnancyOrm, id=mobile_patient["pregnancyId"])
         assert updated_pregnancy.endDate == mobile_patient["pregnancyEndDate"]
         assert updated_pregnancy.outcome == mobile_patient["pregnancyOutcome"]
 
@@ -186,7 +186,7 @@ def test_sync_patients_fully_successful(
         # Case 3: Patient edited on server
         village_number = "2722"
         crud.update(
-            Patient,
+            PatientOrm,
             {"villageNumber": village_number},
             patientId=server_patient_id,
         )
@@ -215,11 +215,11 @@ def test_sync_patients_fully_successful(
         village_number = "3722"
         end_date = pregnancy.startDate + 2.3e7
         crud.update(
-            Patient,
+            PatientOrm,
             {"villageNumber": village_number},
             patientId=server_patient_id,
         )
-        crud.update(Pregnancy, {"endDate": end_date}, id=pregnancy.id)
+        crud.update(PregnancyOrm, {"endDate": end_date}, id=pregnancy.id)
         server_patient["villageNumber"] = "3000"
         server_patient["pregnancyEndDate"] = end_date + 1
         del server_patient["pregnancyStartDate"]
@@ -236,14 +236,14 @@ def test_sync_patients_fully_successful(
         new_server_patient = response.json()["patients"][0]
         assert new_server_patient["villageNumber"] == village_number
 
-        new_pregnancy = crud.read(Pregnancy, id=pregnancy.id)
+        new_pregnancy = crud.read(PregnancyOrm, id=pregnancy.id)
         assert new_pregnancy.endDate == end_date
 
     finally:
-        crud.delete_all(Pregnancy, patientId=mobile_patient_id)
-        crud.delete_all(MedicalRecord, patientId=mobile_patient_id)
-        crud.delete_all(PatientAssociations, patientId=mobile_patient_id)
-        crud.delete_by(Patient, patientId=mobile_patient_id)
+        crud.delete_all(PregnancyOrm, patientId=mobile_patient_id)
+        crud.delete_all(MedicalRecordOrm, patientId=mobile_patient_id)
+        crud.delete_all(PatientAssociationsOrm, patientId=mobile_patient_id)
+        crud.delete_by(PatientOrm, patientId=mobile_patient_id)
 
 
 def test_sync_patients_partially_successful(
@@ -283,8 +283,8 @@ def test_sync_patients_partially_successful(
         assert len(response.json()["patients"]) == 1
         assert response.json()["patients"][0]["patientId"] == patient1_id
         assert response.json()["errors"][0]["patientId"] == patient2_id
-        assert crud.read(Patient, patientId=patient1_id) is not None
-        assert crud.read(Patient, patientId=patient2_id) is None
+        assert crud.read(PatientOrm, patientId=patient1_id) is not None
+        assert crud.read(PatientOrm, patientId=patient2_id) is None
 
         patient1 = response.json()["patients"][0]
         last_sync = int(time.time())
@@ -312,12 +312,12 @@ def test_sync_patients_partially_successful(
         assert response.json()["patients"][0]["patientId"] == patient1_id
         assert response.json()["errors"][0]["patientId"] == patient2_id
         assert (
-            crud.read(MedicalRecord, patientId=patient1_id, information=history)
+            crud.read(MedicalRecordOrm, patientId=patient1_id, information=history)
             is not None
         )
-        assert crud.read(Patient, patientId=patient2_id) is None
+        assert crud.read(PatientOrm, patientId=patient2_id) is None
         assert (
-            crud.read(MedicalRecord, patientId=patient2_id, information=history) is None
+            crud.read(MedicalRecordOrm, patientId=patient2_id, information=history) is None
         )
 
         last_sync = int(time.time())
@@ -335,9 +335,9 @@ def test_sync_patients_partially_successful(
         assert response.status_code == 200
         assert len(response.json()["patients"]) == 1
         assert response.json()["patients"][0]["patientId"] == patient2_id
-        assert crud.read(Patient, patientId=patient2_id) is not None
+        assert crud.read(PatientOrm, patientId=patient2_id) is not None
         assert (
-            crud.read(MedicalRecord, patientId=patient2_id, information=history)
+            crud.read(MedicalRecordOrm, patientId=patient2_id, information=history)
             is not None
         )
 
@@ -366,7 +366,7 @@ def test_sync_patients_partially_successful(
 
         assert response.status_code == 207
         assert response.json()["errors"][0]["patientId"] == patient2_id
-        assert crud.read(Pregnancy, id=pregnancy_id, endDate=end_date) is None
+        assert crud.read(PregnancyOrm, id=pregnancy_id, endDate=end_date) is None
 
         last_sync = int(time.time())
         time.sleep(1)
@@ -386,7 +386,7 @@ def test_sync_patients_partially_successful(
 
         assert response.status_code == 207
         assert response.json()["errors"][0]["patientId"] == patient2_id
-        assert crud.read(Pregnancy, patientId=patient2_id, startDate=start_date) is None
+        assert crud.read(PregnancyOrm, patientId=patient2_id, startDate=start_date) is None
 
         # Sync patient2 with corrected pregnancy start date
         start_date = patient2["pregnancyStartDate"] = pregnancy_earlier.endDate + 2e6
@@ -401,18 +401,18 @@ def test_sync_patients_partially_successful(
         assert len(response.json()["patients"]) == 1
         assert response.json()["patients"][0]["patientId"] == patient2_id
         assert (
-            crud.read(Pregnancy, patientId=patient2_id, startDate=start_date)
+            crud.read(PregnancyOrm, patientId=patient2_id, startDate=start_date)
             is not None
         )
 
     finally:
-        crud.delete_all(MedicalRecord, patientId=patient1_id)
-        crud.delete_all(PatientAssociations, patientId=patient1_id)
-        crud.delete_by(Patient, patientId=patient1_id)
-        crud.delete_all(Pregnancy, patientId=patient2_id)
-        crud.delete_all(MedicalRecord, patientId=patient2_id)
-        crud.delete_all(PatientAssociations, patientId=patient2_id)
-        crud.delete_by(Patient, patientId=patient2_id)
+        crud.delete_all(MedicalRecordOrm, patientId=patient1_id)
+        crud.delete_all(PatientAssociationsOrm, patientId=patient1_id)
+        crud.delete_by(PatientOrm, patientId=patient1_id)
+        crud.delete_all(PregnancyOrm, patientId=patient2_id)
+        crud.delete_all(MedicalRecordOrm, patientId=patient2_id)
+        crud.delete_all(PatientAssociationsOrm, patientId=patient2_id)
+        crud.delete_by(PatientOrm, patientId=patient2_id)
 
 
 @pytest.mark.skip(
@@ -468,7 +468,7 @@ def test_sync_readings(
         )
 
     finally:
-        crud.delete_by(Reading, readingId=mobile_reading_id)
+        crud.delete_by(ReadingOrm, readingId=mobile_reading_id)
 
 
 def test_get_patient_form(

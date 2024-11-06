@@ -1,6 +1,6 @@
 from data import crud
 from enums import FacilityTypeEnum
-from models import HealthFacility
+from models import HealthFacilityOrm
 from server.shared.phone_number_utils import PhoneNumberUtils
 
 valid_facility_types = [valid_type.value for valid_type in FacilityTypeEnum]
@@ -9,7 +9,7 @@ class HealthFacilityUtils:
     @staticmethod
     def does_facility_exist(facility_name: str):
         facility_name = facility_name.lower()
-        facility_model = crud.read(HealthFacility, name=facility_name)
+        facility_model = crud.read(HealthFacilityOrm, name=facility_name)
         return facility_model is not None
     # End of function.
 
@@ -41,7 +41,7 @@ class HealthFacilityUtils:
         if HealthFacilityUtils.does_facility_exist(facility_name):
             raise RuntimeError(f"Facility ({facility_name}) already exists.")
 
-        crud.create(HealthFacility(name=facility_name,
+        crud.create(HealthFacilityOrm(name=facility_name,
                                         phone_number=formatted_phone_number,
                                         type=facility_type,
                                         location=location,

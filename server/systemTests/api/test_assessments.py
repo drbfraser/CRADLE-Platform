@@ -58,7 +58,7 @@ def test_create_followup_marks_referral_as_assessed(
     database.session.commit()
 
     assert response.status_code == 201
-    referral = models.Referral.query.filter_by(id=referral.id).first()
+    referral = models.ReferralOrm.query.filter_by(id=referral.id).first()
     assert referral.isAssessed
 
 

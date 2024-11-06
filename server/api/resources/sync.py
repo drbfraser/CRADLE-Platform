@@ -8,12 +8,12 @@ from marshmallow import ValidationError
 
 from data import crud, db_session, marshal
 from models import (
-    MedicalRecord,
-    Patient,
-    PatientAssociations,
-    Pregnancy,
-    Reading,
-    Referral,
+    MedicalRecordOrm,
+    PatientAssociationsOrm,
+    PatientOrm,
+    PregnancyOrm,
+    ReadingOrm,
+    ReferralOrm,
 )
 from service import invariant, serialize, view
 from validation.readings import validate as validate_reading
@@ -42,11 +42,11 @@ class SyncPatients(Resource):
         mobile_patients = request.get_json(force=True)
         status_code = 200
         errors: List[dict] = list()
-        patients_to_create: List[Patient] = list()
-        pregnancies_to_create: List[Pregnancy] = list()
-        mrecords_to_create: List[MedicalRecord] = list()
-        drecords_to_create: List[MedicalRecord] = list()
-        associations_to_create: List[PatientAssociations] = list()
+        patients_to_create: List[PatientOrm] = list()
+        pregnancies_to_create: List[PregnancyOrm] = list()
+        mrecords_to_create: List[MedicalRecordOrm] = list()
+        drecords_to_create: List[MedicalRecordOrm] = list()
+        associations_to_create: List[PatientAssociationsOrm] = list()
         patients_to_update: List[ModelData] = list()
         pregnancies_to_update: List[ModelData] = list()
         models_list = [
@@ -69,7 +69,7 @@ class SyncPatients(Resource):
             pt_upd = None
             pr_upd = None
             try:
-                server_patient = crud.read(Patient, patientId=patient_id)
+                server_patient = crud.read(PatientOrm, patientId=patient_id)
                 if not server_patient:
                     pt_crt = serialize.deserialize_patient(p, shallow=False)
                 else:
@@ -93,7 +93,7 @@ class SyncPatients(Resource):
                     pregnancy_end_date = None
                     if p.get("pregnancyEndDate"):
                         values = serialize.deserialize_pregnancy(p, partial=True)
-                        pregnancy = crud.read(Pregnancy, id=p.get("pregnancyId"))
+                        pregnancy = crud.read(PregnancyOrm, id=p.get("pregnancyId"))
                         if not pregnancy or pregnancy.patientId != patient_id:
                             err = _to_string("pregnancyId", "invalid")
                             raise ValidationError(err)
@@ -136,8 +136,8 @@ class SyncPatients(Resource):
                     "healthFacilityName": user.get("healthFacilityName"),
                     "userId": user["userId"],
                 }
-                if not crud.read(PatientAssociations, **association):
-                    as_crt = marshal.unmarshal(PatientAssociations, association)
+                if not crud.read(PatientAssociationsOrm, **association):
+                    as_crt = marshal.unmarshal(PatientAssociationsOrm, association)
 
                 # Queue models as validation completes without exceptions
                 models = [pt_crt, pr_crt, mrc_crt, drc_crt, as_crt, pt_upd, pr_upd]
@@ -157,13 +157,13 @@ class SyncPatients(Resource):
                     crud.create_all(models, autocommit=False)
             for data in patients_to_update:
                 crud.update(
-                    Patient,
+                    PatientOrm,
                     data.values,
                     autocommit=False,
                     patientId=data.key_value,
                 )
             for data in pregnancies_to_update:
-                crud.update(Pregnancy, data.values, autocommit=False, id=data.key_value)
+                crud.update(PregnancyOrm, data.values, autocommit=False, id=data.key_value)
 
             # Read all patients that have been created or updated since last sync
             new_patients = view.patient_view(user, last_sync)
@@ -186,14 +186,14 @@ class SyncReadings(Resource):
         patients_on_server_cache = set()
         for r in json:
             if r.get("patientId") not in patients_on_server_cache:
-                patient_on_server = crud.read(Patient, patientId=r.get("patientId"))
+                patient_on_server = crud.read(PatientOrm, patientId=r.get("patientId"))
                 if patient_on_server is None:
                     continue
                 patients_on_server_cache.add(patient_on_server.patientId)
 
-            if crud.read(Reading, readingId=r.get("readingId")):
+            if crud.read(ReadingOrm, readingId=r.get("readingId")):
                 crud.update(
-                    Reading,
+                    ReadingOrm,
                     {"dateRecheckVitalsNeeded": r.get("dateRecheckVitalsNeeded")},
                     readingId=r.get("readingId"),
                 )
@@ -201,7 +201,7 @@ class SyncReadings(Resource):
                 error_message = validate_reading(r)
                 if error_message is not None:
                     abort(400, message=error_message)
-                reading = marshal.unmarshal(Reading, r)
+                reading = marshal.unmarshal(ReadingOrm, r)
                 invariant.resolve_reading_invariants(reading)
                 crud.create(reading, refresh=True)
 
@@ -227,12 +227,12 @@ class SyncReferrals(Resource):
         patients_on_server_cache = set()
         for r in json:
             if r.get("patientId") not in patients_on_server_cache:
-                patient_on_server = crud.read(Patient, patientId=r.get("patientId"))
+                patient_on_server = crud.read(PatientOrm, patientId=r.get("patientId"))
                 if patient_on_server is None:
                     continue
                 patients_on_server_cache.add(patient_on_server.patientId)
 
-            if crud.read(Referral, id=r.get("id")):
+            if crud.read(ReferralOrm, id=r.get("id")):
                 # currently, for referrals that exist in server already we will
                 # skip them
                 continue
@@ -240,7 +240,7 @@ class SyncReferrals(Resource):
                 ReferralEntity.validate(r)
             except ValidationExceptionError as e:
                 abort(400, message=str(e))
-            referral = marshal.unmarshal(Referral, r)
+            referral = marshal.unmarshal(ReferralOrm, r)
             crud.create(referral, refresh=True)
 
         # Read all referrals that have been created or updated since last sync

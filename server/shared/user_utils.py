@@ -8,7 +8,7 @@ from authentication import cognito
 from config import db
 from data import crud, marshal
 from enums import RoleEnum
-from models import User, UserPhoneNumber
+from models import UserOrm, UserPhoneNumberOrm
 from server.shared.phone_number_utils import PhoneNumberUtils
 from shared.health_facility_utils import HealthFacilityUtils
 
@@ -36,14 +36,14 @@ class UserUtils:
     @staticmethod
     def get_user_model(username: str):
         username = username.lower()
-        user_model = crud.read(User, username=username)
+        user_model = crud.read(UserOrm, username=username)
         if user_model is None:
             raise RuntimeError(f"No user with username ({username}) found.")
         return user_model
     # End of function.
 
     @staticmethod
-    def get_user_dict_from_model(user_model: User) -> UserModelDict:
+    def get_user_dict_from_model(user_model: UserOrm) -> UserModelDict:
         user_dict = marshal.marshal(user_model)
         return cast(UserModelDict, user_dict)
     # End of function.
@@ -91,9 +91,9 @@ class UserUtils:
                 raise RuntimeError(f"Phone number ({phone_number}) is not valid.")
         if (role not in supported_roles):
             raise RuntimeError(f"Role ({role}) is not a supported role.")
-        if (crud.read(User, username=username)) is not None:
+        if (crud.read(UserOrm, username=username)) is not None:
             raise RuntimeError(f"Username ({username}) is already in use.")
-        if (crud.read(User, email=email)) is not None:
+        if (crud.read(UserOrm, email=email)) is not None:
             raise RuntimeError(f"Email ({email}) is already in use.")
         if not HealthFacilityUtils.does_facility_exist(facility_name=health_facility_name):
             raise RuntimeError(f"Health facility ({health_facility_name}) does not exist.")
@@ -134,9 +134,9 @@ class UserUtils:
 
         # Create the user entry in the database.
         try:
-            user_model = User(username=username, email=email, name=name, health_facility_name=health_facility_name, role=role, sub=sub)
+            user_model = UserOrm(username=username, email=email, name=name, health_facility_name=health_facility_name, role=role, sub=sub)
             for phone_number in phone_numbers:
-                user_model.phone_numbers.append(UserPhoneNumber(phone_number=phone_number))
+                user_model.phone_numbers.append(UserPhoneNumberOrm(phone_number=phone_number))
             crud.create(user_model)
         except Exception as err:
             print(err)
@@ -205,7 +205,7 @@ class UserUtils:
         """
         username = username.lower()
         # Find user in database.
-        user_model = crud.read(User, username=username)
+        user_model = crud.read(UserOrm, username=username)
         cognito_user = cognito.get_user(username=username)
 
         if cognito_user is not None:
@@ -224,7 +224,7 @@ class UserUtils:
         # Get list of users from cognito user pool.
         cognito_user_list = cognito.list_users()
         # Get list of users from our database.
-        user_model_list = crud.read_all(User)
+        user_model_list = crud.read_all(UserOrm)
         user_list = [ UserUtils.get_user_dict_from_model(user_model) for user_model in user_model_list ]
         return user_list, cognito_user_list
     # End of function.
@@ -237,7 +237,7 @@ class UserUtils:
         :param username: The username to check.
         """
         username = username.lower()
-        user_model = crud.read(User, username=username)
+        user_model = crud.read(UserOrm, username=username)
         if user_model is None:
             return False
         return True

@@ -5,7 +5,7 @@ from flask_restful import Resource, abort
 
 from api import util
 from data import crud, marshal
-from models import FollowUp
+from models import FollowUpOrm
 from utils import get_current_time
 from validation import assessments
 
@@ -32,7 +32,7 @@ class Root(Resource):
         except Exception as e:
             abort(400, message=str(e))
 
-        assessment = marshal.unmarshal(FollowUp, json)
+        assessment = marshal.unmarshal(FollowUpOrm, json)
 
         crud.create(assessment)
 
@@ -46,7 +46,7 @@ class Root(Resource):
         endpoint="assessments",
     )
     def get():
-        follow_ups = crud.read_all(FollowUp)
+        follow_ups = crud.read_all(FollowUpOrm)
         return [marshal.marshal(f) for f in follow_ups]
 
 
@@ -60,7 +60,7 @@ class SingleAssessment(Resource):
         endpoint="single_assessment",
     )
     def get(assessment_id: str):
-        follow_up = crud.read(FollowUp, id=assessment_id)
+        follow_up = crud.read(FollowUpOrm, id=assessment_id)
         if not follow_up:
             abort(404, message=f"No assessment with id {id}")
 
@@ -84,7 +84,7 @@ class SingleAssessment(Resource):
         user = util.current_user()
         json["healthcareWorkerId"] = user.id
 
-        assessment = crud.read(FollowUp, id=assessment_id)
+        assessment = crud.read(FollowUpOrm, id=assessment_id)
         if not assessment:
             abort(404, message=f"No assessment with id {assessment_id}")
 
@@ -93,6 +93,6 @@ class SingleAssessment(Resource):
         except Exception as e:
             abort(400, message=str(e))
 
-        crud.update(FollowUp, json, id=assessment.id)
+        crud.update(FollowUpOrm, json, id=assessment.id)
 
         return assessment.id, 200
