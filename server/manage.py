@@ -17,6 +17,8 @@ from api.util import create_secret_key_for_user
 from data import crud, marshal
 from enums import RoleEnum
 from models import db
+from seed_users import clear_user_pool as empty_user_pool
+from seed_users import populate_test_users, seed_facilities
 
 # cli = FlaskGroup(app)
 cli = FlaskGroup()
@@ -36,6 +38,21 @@ def drop_all_tables():
     db.drop_all()
     db.session.commit()
 
+# USAGE: python manage.py seed_user_pool
+@cli.command("seed_users")
+def seed_users():
+    seed_facilities()
+    populate_test_users()
+
+# USAGE: python manage.py seed_facilities
+@cli.command("seed_facilities")
+def seed_health_facilities():
+    seed_facilities()
+
+# USAGE: python manage.py clear_user_pool
+@cli.command("clear_user_pool")
+def clear_user_pool():
+    empty_user_pool()
 
 # Extracts a username from the email address of a user - Only used in manage.py to generate seed test data
 def get_username_from_email(email):
