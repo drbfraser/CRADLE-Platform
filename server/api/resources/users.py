@@ -34,7 +34,6 @@ from api.util import (
     validate_user,
 )
 from authentication import cognito
-from config import flask_bcrypt
 from data import crud, marshal
 from enums import RoleEnum
 from models import User
@@ -176,7 +175,7 @@ class AdminPasswordChange(Resource):
                 400,
             )
 
-        data["password"] = flask_bcrypt.generate_password_hash(data["password"])
+        # data["password"] = flask_bcrypt.generate_password_hash(data["password"])
 
         # Update password
         crud.update(User, data, id=id)
@@ -212,25 +211,25 @@ class UserPasswordChange(Resource):
                 400,
             )
 
-        identity = get_jwt_identity()
+        # identity = get_jwt_identity()
 
         # Get all information about the user who is using this endpoint
-        user = crud.read(User, id=identity["userId"])
+        # user = crud.read(User, id=identity["userId"])
 
         # If old password and password we have on file match
-        if user and flask_bcrypt.check_password_hash(
-            user.password,
-            data["old_password"],
-        ):
-            # Create new dictionary with just keys we want to replace
-            updated_payload = {
-                "password": flask_bcrypt.generate_password_hash(data["new_password"]),
-            }
+        # if user and flask_bcrypt.check_password_hash(
+        #     user.password,
+        #     data["old_password"],
+        # ):
+        #     # Create new dictionary with just keys we want to replace
+        #     updated_payload = {
+        #         "password": flask_bcrypt.generate_password_hash(data["new_password"]),
+        #     }
 
-            # Perform update
-            crud.update(User, updated_payload, id=identity["userId"])
+        #     # Perform update
+        #     crud.update(User, updated_payload, id=identity["userId"])
 
-            return {"message": "Success! Password has been changed"}, 200
+        #     return {"message": "Success! Password has been changed"}, 200
         return {"error": "old_password incorrect"}, 400
 
 
@@ -295,7 +294,7 @@ class UserRegisterApi(Resource):
             abort(400, message=error_message)
 
         # Encrypt pass
-        new_user["password"] = flask_bcrypt.generate_password_hash(new_user["password"])
+        # new_user["password"] = flask_bcrypt.generate_password_hash(new_user["password"])
         list_of_vhts = new_user.pop("supervises", None)
 
         # Create the new user
@@ -393,24 +392,24 @@ class UserAuthApi(Resource):
         """
         data = self.parser.parse_args()
         user = crud.read(User, email=data["email"])
-        salted_invalid_password = (
-            "$2b$12$xleTmwkhurHlf/5g.4l9U.VADQPcYuIp6QPlMXDJeGez05uRWGqrW"
-        )
+        # salted_invalid_password = (
+        #     "$2b$12$xleTmwkhurHlf/5g.4l9U.VADQPcYuIp6QPlMXDJeGez05uRWGqrW"
+        # )
 
-        # We want to obfuscate and conceal timing information by checking the password hash of an invalid password
-        if ((user is None
-             and not flask_bcrypt.check_password_hash(
-                    salted_invalid_password,
-                    data["password"]))
-            or (user is not None
-                and not flask_bcrypt.check_password_hash(
-                    user.password,
-                    data["password"]))
-        ):
-            return {"message": "Incorrect username or password."}, 401
+        # # We want to obfuscate and conceal timing information by checking the password hash of an invalid password
+        # if ((user is None
+        #      and not flask_bcrypt.check_password_hash(
+        #             salted_invalid_password,
+        #             data["password"]))
+        #     or (user is not None
+        #         and not flask_bcrypt.check_password_hash(
+        #             user.password,
+        #             data["password"]))
+        # ):
+        #     return {"message": "Incorrect username or password."}, 401
 
         if user is None:
-            return None
+            return {"message": "Incorrect username or password."}, 401
 
         # setup any extra user params
         user_data = get_user_data_for_token(user)

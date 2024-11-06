@@ -177,13 +177,14 @@ class UserFactory(ModelFactory):
 
     def _do_create(self, **kwargs) -> Any:
         import data
-        from config import flask_bcrypt
+
+        # from config import flask_bcrypt
         from models import User
 
         d = dict(**kwargs)
 
-        # Hash the user's password so that they can login
-        d["password"] = flask_bcrypt.generate_password_hash(d["password"])
+        # # Hash the user's password so that they can login
+        # d["password"] = flask_bcrypt.generate_password_hash(d["password"])
 
         user = marshal.unmarshal(User, d)
         crud.create(user)
