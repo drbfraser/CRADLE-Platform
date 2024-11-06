@@ -222,10 +222,10 @@ def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
     Therefore, we can create the form or template one time.
     """
     if req.get("classification") is not None:
-        if req.get("classification").get("id") is None:
+        if req["classification"].get("id") is None:
             req["classification"]["id"] = utils.get_uuid()
         if req.get("formClassificationId") is None:
-            req["formClassificationId"] = req.get("classification").get("id")
+            req["formClassificationId"] = req["classification"].get("id")
 
     # assign form id if not provided.
     if req.get("id") is None:
@@ -238,7 +238,7 @@ def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
 
     # assign question id and formId or formTemplateId.
     # assign lang version qid.
-    for question in req.get("questions"):
+    for question in req["questions"]:
         question["id"] = utils.get_uuid()
 
         if model is Form:
@@ -366,8 +366,8 @@ def getFormTemplateDictFromCSV(csvData: str):
 
     def getQuestionLanguageVersionFromRow(row: list) -> dict:
         return {
-            "questionText": row[FORM_TEMPLATE_QUESTION_TEXT_COL],
-            "mcOptions": toMcOptions(row[FORM_TEMPLATE_QUESTION_OPTIONS_COL]),
+            "question_text": row[FORM_TEMPLATE_QUESTION_TEXT_COL],
+            "mc_options": toMcOptions(row[FORM_TEMPLATE_QUESTION_OPTIONS_COL]),
             "lang": row[FORM_TEMPLATE_LANGUAGES_COL].strip(),
         }
 
@@ -705,7 +705,7 @@ def phoneNumber_exists(phone_number, user_id=-1):
     else:
         existing_phone_number = crud.read(
             UserPhoneNumber,
-            number=phone_number,
+            phone_number=phone_number,
             user_id=user_id,
         )
     return existing_phone_number is not None
