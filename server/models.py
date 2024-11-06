@@ -632,7 +632,7 @@ class QuestionOrm(db.Model):
 
 
 class QuestionLangVersionOrm(db.Model):
-    __tablename__ = "question_lang_version"
+    __tablename__ = "question_lang_versions"
     """
     This model is used to store different language versions of a single question.
     """
