@@ -77,12 +77,8 @@ class UserOrm(db.Model):
 
 class UserPhoneNumberOrm(db.Model):
     __tablename__ = "user_phone_numbers"
-    phone_number = db.Column(db.String(20), primary_key=True)
-    date_added = db.Column(
-        db.BigInteger,
-        nullable=False,
-        default=get_current_time,
-    )
+    id = db.Column(db.String(36), primary_key=True, default=get_uuid)
+    phone_number = db.Column(db.String(20), unique=True)
 
     # FOREIGN KEYS
     user_id = db.Column(db.Integer, db.ForeignKey(UserOrm.id), nullable=False)
