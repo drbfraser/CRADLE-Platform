@@ -8,9 +8,9 @@ from authentication import cognito
 from authentication.CognitoClientWrapper import (
     ENABLE_DEV_USERS,
 )
-from data.users.user_utils import UserUtils
 from enums import FacilityTypeEnum, RoleEnum
 from shared.health_facility_utils import HealthFacilityUtils
+from shared.user_utils import UserUtils
 
 """
 This script will seed the AWS Cognito user pool with fake users.
@@ -219,4 +219,3 @@ def clear_user_pool():
     if username is not None:
       cognito.delete_user(username)
 # End of function.
-
