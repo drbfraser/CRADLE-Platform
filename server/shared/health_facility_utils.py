@@ -25,7 +25,7 @@ class HealthFacilityUtils:
             raise RuntimeError(f"Type ({facility_type}) is not a valid facility type.")
 
         # Check if phone number is valid.
-        if not PhoneNumberUtils.is_phone_number_valid(phone_number):
+        if not PhoneNumberUtils.is_format_valid(phone_number):
             formatted_phone_number = PhoneNumberUtils.format_to_E164(phone_number)
             print(f"Formatted number: {formatted_phone_number}")
             raise RuntimeError(f"Phone number ({phone_number}) is not valid.")

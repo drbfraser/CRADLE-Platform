@@ -87,7 +87,7 @@ class UserUtils:
         for phone_number in phone_numbers:
             if PhoneNumberUtils.does_phone_number_exist(phone_number):
                 raise RuntimeError(f"Phone number ({phone_number}) is already assigned.")
-            if not PhoneNumberUtils.is_phone_number_valid(phone_number):
+            if not PhoneNumberUtils.is_format_valid(phone_number):
                 raise RuntimeError(f"Phone number ({phone_number}) is not valid.")
         if (role not in supported_roles):
             raise RuntimeError(f"Role ({role}) is not a supported role.")

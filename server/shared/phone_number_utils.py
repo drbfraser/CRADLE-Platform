@@ -46,7 +46,7 @@ class PhoneNumberUtils:
     # End of function.
 
     @staticmethod
-    def is_phone_number_valid(phone_number: str) -> bool:
+    def is_format_valid(phone_number: str) -> bool:
         """
         Validates the format of a provided phone number.
 
