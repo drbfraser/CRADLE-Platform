@@ -38,7 +38,7 @@ def drop_all_tables():
     db.drop_all()
     db.session.commit()
 
-# USAGE: python manage.py seed_user_pool
+# USAGE: python manage.py seed_users
 @cli.command("seed_users")
 def seed_users():
     seed_facilities()
