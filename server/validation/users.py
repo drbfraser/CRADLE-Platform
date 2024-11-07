@@ -1,4 +1,5 @@
-from typing import List, Optional
+import re
+from typing import List
 
 from pydantic import BaseModel, ValidationError, field_validator
 
@@ -13,8 +14,8 @@ class UserValidator(BaseModel):
     email: str
     health_facility_name: str
     role: str
-    supervises: Optional[List[int]] = None
-    phone_numbers: Optional[List[str]] = None
+    supervises: List[int] = []
+    phone_numbers: List[str] = []
 
     @field_validator("role", mode="before")
     @classmethod
@@ -24,6 +25,16 @@ class UserValidator(BaseModel):
             raise ValueError(error)
 
         return value
+
+    @field_validator("email", mode="before")
+    @classmethod
+    def validate_email(cls, email: str):
+        # Validate email format.
+        email_regex_pattern = r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$"
+        email = email.lower()
+        if re.match(email_regex_pattern, email) is None:
+            raise ValueError(f"Email ({email}) is invalid.")
+        return email
 
     @field_validator("phone_numbers", mode="before")
     @classmethod
@@ -48,10 +59,11 @@ class UserValidator(BaseModel):
 
         :param request_body: The request body as a dict object
                             {
-                                "firstName": "Jane",
+                                "name": "Jane",
                                 "email": "jane@mail.com",
-                                "healthFacilityName": "facility7",
-                                "role": "admin"
+                                "health_facility_name": "facility7",
+                                "role": "admin",
+                                "phone_numbers": [ "+604-555-1234" ]
                             }
         :throw: An error message if the request body is invalid. None otherwise
         """
