@@ -159,35 +159,17 @@ class CognitoClientWrapper:
                     "SECRET_HASH": self._secret_hash(username),
                 },
             )
-
-            challenge_name = init_response.get("ChallengeName")
-            session_token = init_response.get("Session")
-
-            if challenge_name == "NEW_PASSWORD_REQUIRED":
-                # User must create a new password.
-                while True:
-                    new_password = input("Please enter a new password: ")
-                    confirm_password = input("Confirm new password: ")
-                    if new_password == confirm_password:
-                        break
-                    logger.error("ERROR: Passwords do not match.")
-                # End while
-
-                auth_result = self.respond_to_new_password_challenge(
-                    session_token,
-                    username,
-                )
-                return auth_result
-            # End if
         except ClientError as err:
+            error = err.response.get("Error")
+            print(error)
             logger.error(
                 "ERROR: Could not sign in for %s\n%s",
                 username,
-                err.response.get("Error"),
+                error,
             )
             raise
         else:
-            return init_response.get("AuthenticationResult")
+            return init_response
     # End of function
 
     def respond_to_new_password_challenge(self, session_token: str, username: str):
