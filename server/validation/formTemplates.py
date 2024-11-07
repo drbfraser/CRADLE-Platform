@@ -24,12 +24,10 @@ class FormTemplateValidator(BaseModel):
     @staticmethod
     def validate(request_body: dict):
         """
-        Returns an error message if the template part in /api/forms/templates POST or PUT
-        request is not valid. Else, returns None.
+        Raises an error if the template part in /api/forms/templates POST or PUT
+        request is not valid.
 
         :param request_body: The request body as a dict object
-
-        :return: An error message if request body is invalid in some way. None otherwise.
         """
         try:
             FormTemplateValidator(**request_body)
@@ -39,13 +37,10 @@ class FormTemplateValidator(BaseModel):
     @staticmethod
     def validate_questions(questions: list):
         """
-        Returns an error message if the questions part in /api/forms/templates POST or PUT
+        Raises an error if the questions part in /api/forms/templates POST or PUT
         request is not valid (json format, lang versions consistency, qindex constraint).
-        Else, returns None.
 
         :param questions: The request body as a dict object
-
-        :return: An error message if request body is invalid in some way. None otherwise.
         """
         lang_version_list, qindex = None, None
         for index, question in enumerate(questions):

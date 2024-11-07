@@ -27,12 +27,10 @@ class FormValidator(BaseModel):
     @staticmethod
     def validate(request_body: dict):
         """
-        Returns an error message if the form in /api/forms/responses
-        POST request is not valid. Else, returns None.
+        Raises an error if the form in /api/forms/responses
+        POST request is not valid.
 
         :param request_body: The request body as a dict object
-
-        :return: An error message if request body is invalid in some way. None otherwise.
         """
         try:
             FormValidator(**request_body)
@@ -42,12 +40,10 @@ class FormValidator(BaseModel):
     @staticmethod
     def validate_questions(request_body: list):
         """
-        Returns an error message if the questions part in /api/forms/responses POST request
-        is not valid. Else, returns None.
+        Raises an error if the questions part in /api/forms/responses POST request
+        is not valid.
 
         :param request_body: The request body as a dict object
-
-        :return: An error message if request body is invalid in some way. None otherwise.
         """
         # validate each question
         for q in request_body:
@@ -56,12 +52,9 @@ class FormValidator(BaseModel):
     @staticmethod
     def validate_put_request(request_body: dict):
         """
-        Returns an error message if the /api/forms/responses PUT request is not valid.
-        Else, returns None.
+        Raises an error if the /api/forms/responses PUT request is not valid.
 
         :param request_body: The request body as a dict object
-
-        :return: An error message if request body is invalid in some way. None otherwise.
 
         example valid case:
         {

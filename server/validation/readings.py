@@ -21,8 +21,8 @@ class ReadingValidator(BaseModel):
     @staticmethod
     def validate(request_body: dict):
         """
-        Returns an error code and message if the /api/readings post request
-        is not valid. Else, returns None.
+        Raises an error if the /api/readings post request
+        is not valid.
 
         :param request_body: The request body as a dict object
                             {
@@ -45,7 +45,6 @@ class ReadingValidator(BaseModel):
                                     "followupInstructions": "pls help, give lots of tylenol"
                                 }
                             }
-        :return: An error message if request body in invalid in some way. None otherwise.
         """
         try:
             ReadingValidator(**request_body)

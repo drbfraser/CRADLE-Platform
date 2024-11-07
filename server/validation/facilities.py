@@ -17,7 +17,7 @@ class Facility(BaseModel):
     @staticmethod
     def validate(request_body: dict):
         """
-        Raise an error if the /api/facilities post request
+        Raises an error if the /api/facilities post request
         is not valid.
 
         :param request_body: The request body as a dict object

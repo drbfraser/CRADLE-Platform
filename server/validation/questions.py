@@ -14,8 +14,7 @@ class MultipleChoiceOptionValidator(BaseModel):
     @staticmethod
     def validate(q: dict):
         """
-        Returns an error if the mcOptions is invalid.
-        Else, returns None.
+        Raises an error if the mcOptions is invalid.
 
         :param q: the parent dict for mcOptions
 
@@ -58,8 +57,7 @@ class AnswerValidator(BaseModel):
     @staticmethod
     def validate(q: dict):
         """
-        Returns an error if the answer is invalid.
-        Else, returns None.
+        Raises an error if the answer is invalid.
 
         :param q: the parent dict for answers
 
@@ -95,8 +93,7 @@ class VisibleConditionValidator(BaseModel):
     @staticmethod
     def validate(q: dict):
         """
-        Returns an error if the visible condition is invalid
-        . Else, returns None.
+        Raises an error if the visible condition is invalid.
 
         :param q: the parent dict for visible condition
 
@@ -140,8 +137,7 @@ class QuestionLangVersionValidator(BaseModel):
     @staticmethod
     def validate(q: dict):
         """
-        Returns an error if the lang versions is invalid.
-        Else, returns None.
+        Raises an error if the lang versions is invalid.
 
         :param q: the parent dict for visible condition
 
@@ -204,12 +200,10 @@ class TemplateQuestionValidator(QuestionBase):
     @staticmethod
     def validate(q: dict):
         """
-        Returns an error message if the question dict is not valid (after pre-process) when
-        making template post request. Else, returns None.
+        Raises an error if the question dict is not valid (after pre-process) when
+        making template post request.
 
         :param q: question as a dict object
-
-        :return: An error message if request body is invalid in some way. None otherwise.
         """
         try:
             TemplateQuestionValidator(**q)
@@ -231,12 +225,10 @@ class FormQuestionValidator(QuestionBase):
     @staticmethod
     def validate(q: dict):
         """
-        Returns an error message if the question dict is not valid (after pre-process) when
-        making /api/forms/responses POST request. Else, returns None.
+        Raises an error if the question dict is not valid (after pre-process) when
+        making /api/forms/responses POST request.
 
         :param q: question as a dict object
-
-        :return: An error message if request body is invalid in some way. None otherwise.
         """
         try:
             FormQuestionValidator(**q)
@@ -251,12 +243,10 @@ class FormQuestionPutValidator(BaseModel):
     @staticmethod
     def validate(q: dict):
         """
-        Returns an error message if the question dict is not valid when making
+        Raises an error if the question dict is not valid when making
         /api/forms/responses PUT request. Else, returns None.
 
         :param q: question as a dict object
-
-        :return: An error message if request body in invalid in some way. None otherwise.
         """
         try:
             FormQuestionPutValidator(**q)

@@ -35,7 +35,7 @@ class AssessmentValidator(BaseModel):
     def validate(request_body: dict):
         """
         Raises an error if the /api/assessments post request
-        is not valid. None otherwise.
+        is not valid.
 
         :param request_body: The request body as a dict object
                             {
@@ -47,8 +47,6 @@ class AssessmentValidator(BaseModel):
                                 "followupNeeded": True, - required
                                 "followupInstructions": "pls help, give lots of tylenol" - required if followupNeeded = True
                             }
-
-        :return: None. Raises an error message if request body in invalid in some way
         """
         try:
             AssessmentValidator(**request_body)

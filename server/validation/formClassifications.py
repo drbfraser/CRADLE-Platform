@@ -15,12 +15,10 @@ class FormClassificationValidator(BaseModel):
     @staticmethod
     def validate(request_body: dict):
         """
-        Returns an error message if the classification part in /api/forms/classifications POST or PUT
-        request is not valid. Else, returns None.
+        Raises an error if the classification part in /api/forms/classifications POST or PUT
+        request is not valid.
 
         :param request_body: The request body as a dict object
-
-        :return: An error message if request body is invalid in some way. None otherwise.
         """
         try:
             FormClassificationValidator(**request_body)

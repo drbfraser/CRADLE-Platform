@@ -28,8 +28,8 @@ class MedicalRecordValidator(BaseModel):
     @staticmethod
     def validate_post_request(request_body: dict, patient_id: str):
         """
-        Returns an error message if the /api/patients/<string:patient_id>/medical_records
-        post request is not valid. Else, returns None.
+        Raises an error if the /api/patients/<string:patient_id>/medical_records
+        post request is not valid.
 
         :param request_body: The request body as a dict object
                             {
@@ -37,7 +37,6 @@ class MedicalRecordValidator(BaseModel):
                                 "medicalHistory" or "drugHistory": "Aspirin 75mg", - required
                             }
         :param patient_id: The id of the patient, used to validate request_body input
-        :return: An error message if request body in invalid in some way. None otherwise.
         """
         try:
             record = MedicalRecordValidator(**request_body)
@@ -51,13 +50,11 @@ class MedicalRecordValidator(BaseModel):
     @staticmethod
     def validate_put_request(request_body: dict, record_id: str):
         """
-        Returns an error message if the /api/medical_records/<string:record_id> PUT
-        request is not valid. Else, returns None.
+        Raises an error if the /api/medical_records/<string:record_id> PUT
+        request is not valid.
 
         :param request_body: The request body as a dict object
         :param record_id: The medical record ID the PUT request is being made for
-
-        :return: An error message if request body is invalid in some way. None otherwise.
         """
         try:
             record = MedicalRecordValidator(**request_body)
