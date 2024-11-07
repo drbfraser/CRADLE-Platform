@@ -26,5 +26,7 @@ def test_validate_template(json, expectation):
         with pytest.raises(expectation):
             FormClassificationValidator.validate(json)
     else:
-        message = FormClassificationValidator.validate(json)
-        assert message is None, f"Expected None, but got {message}"
+        try:
+            FormClassificationValidator.validate(json)
+        except ValidationExceptionError as e:
+            raise AssertionError(f"Unexpected validation error:{e}") from e

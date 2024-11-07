@@ -70,5 +70,7 @@ def test_validation(json, expectation):
         with pytest.raises(expectation):
             AssessmentValidator.validate(json)
     else:
-        message = AssessmentValidator.validate(json)
-        assert message is None, f"Expected None, but got {message}"
+        try:
+            AssessmentValidator.validate(json)
+        except ValidationExceptionError as e:
+            raise AssertionError(f"Unexpected validation error:{e}") from e

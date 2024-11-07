@@ -152,8 +152,10 @@ def test_validation(json, expectation):
         with pytest.raises(expectation):
             PatientPostValidator.validate(json)
     else:
-        message = PatientPostValidator.validate(json)
-        assert message is None, f"Expected None, but got {message}"
+        try:
+            PatientPostValidator.validate(json)
+        except ValidationExceptionError as e:
+            raise AssertionError(f"Unexpected validation error:{e}") from e
 
 
 #####################################
@@ -185,5 +187,7 @@ def test_put_validation(json, expectation):
         with pytest.raises(expectation):
             PatientPutValidator.validate(json, patient_id)
     else:
-        message = PatientPutValidator.validate(json, patient_id)
-        assert message is None, f"Expected None, but got {message}"
+        try:
+            PatientPutValidator.validate(json, patient_id)
+        except ValidationExceptionError as e:
+            raise AssertionError(f"Unexpected validation error:{e}") from e

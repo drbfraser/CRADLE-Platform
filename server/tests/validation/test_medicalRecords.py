@@ -53,8 +53,10 @@ def test_validate_post_request(json, patient_id, expectation):
         with pytest.raises(expectation):
             MedicalRecordValidator.validate_post_request(json, patient_id)
     else:
-        message = MedicalRecordValidator.validate_post_request(json, patient_id)
-        assert message is None, f"Expected None, but got {message}"
+        try:
+            MedicalRecordValidator.validate_post_request(json, patient_id)
+        except ValidationExceptionError as e:
+            raise AssertionError(f"Unexpected validation error:{e}") from e
 
 
 @pytest.mark.skip(reason="PUT request for medical records not being used in front-end")
@@ -85,8 +87,10 @@ def test_validate_put_request(json, record_id, expectation):
         with pytest.raises(expectation):
             MedicalRecordValidator.validate_put_request(json, record_id)
     else:
-        message = MedicalRecordValidator.validate_put_request(json, record_id)
-        assert message is None, f"Expected None, but got {message}"
+        try:
+            MedicalRecordValidator.validate_put_request(json, record_id)
+        except ValidationExceptionError as e:
+            raise AssertionError(f"Unexpected validation error:{e}") from e
 
 
 valid_list_with_history = {"medicalHistory": "history"}
@@ -109,5 +113,7 @@ def test_validate_key(json, expectation):
         with pytest.raises(expectation):
             MedicalRecordValidator.validate_key(json)
     else:
-        message = MedicalRecordValidator.validate_key(json)
-        assert message is None, f"Expected None, but got {message}"
+        try:
+            MedicalRecordValidator.validate_key(json)
+        except ValidationExceptionError as e:
+            raise AssertionError(f"Unexpected validation error:{e}") from e

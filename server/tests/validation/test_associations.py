@@ -21,5 +21,7 @@ def test_validation(json, expectation):
         with pytest.raises(expectation):
             AssociationValidator.validate(json)
     else:
-        message = AssociationValidator.validate(json)
-        assert message is None, f"Expected None, but got {message}"
+        try:
+            AssociationValidator.validate(json)
+        except ValidationExceptionError as e:
+            raise AssertionError(f"Unexpected validation error:{e}") from e

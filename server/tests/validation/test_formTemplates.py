@@ -72,8 +72,10 @@ def test_validate_template(json, expectation):
         with pytest.raises(expectation):
             FormTemplateValidator.validate(json)
     else:
-        message = FormTemplateValidator.validate(json)
-        assert message is None, f"Expected None, but got {message}"
+        try:
+            FormTemplateValidator.validate(json)
+        except ValidationExceptionError as e:
+            raise AssertionError(f"Unexpected validation error:{e}") from e
 
 
 valid_empty_questions = []
@@ -132,5 +134,7 @@ def test_validate_questions(json, expectation):
         with pytest.raises(expectation):
             FormTemplateValidator.validate_questions(json)
     else:
-        message = FormTemplateValidator.validate_questions(json)
-        assert message is None, f"Expected None, but got {message}"
+        try:
+            FormTemplateValidator.validate_questions(json)
+        except ValidationExceptionError as e:
+            raise AssertionError(f"Unexpected validation error:{e}") from e

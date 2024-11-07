@@ -136,8 +136,10 @@ def test_validate_form(json, expectation):
         with pytest.raises(expectation):
             FormValidator.validate(json)
     else:
-        message = FormValidator.validate(json)
-        assert message is None, f"Expected None, but got {message}"
+        try:
+            FormValidator.validate(json)
+        except ValidationExceptionError as e:
+            raise AssertionError(f"Unexpected validation error:{e}") from e
 
 
 empty_questions = []
@@ -232,8 +234,10 @@ def test_validate_questions(json, expectation):
         with pytest.raises(expectation):
             FormValidator.validate_questions(json)
     else:
-        message = FormValidator.validate_questions(json)
-        assert message is None, f"Expected None, but got {message}"
+        try:
+            FormValidator.validate_questions(json)
+        except ValidationExceptionError as e:
+            raise AssertionError(f"Unexpected validation error:{e}") from e
 
 
 valid_put_request = {"questions": [{"id": "asdsd-1123123", "answers": {"number": 4}}]}
@@ -256,5 +260,7 @@ def test_validate_put_request(json, expectation):
         with pytest.raises(expectation):
             FormValidator.validate_put_request(json)
     else:
-        message = FormValidator.validate_put_request(json)
-        assert message is None, f"Expected None, but got {message}"
+        try:
+            FormValidator.validate_put_request(json)
+        except ValidationExceptionError as e:
+            raise AssertionError(f"Unexpected validation error:{e}") from e

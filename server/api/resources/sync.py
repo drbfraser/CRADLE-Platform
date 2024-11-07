@@ -198,9 +198,10 @@ class SyncReadings(Resource):
                     readingId=r.get("readingId"),
                 )
             else:
-                error_message = ReadingValidator.validate(r)
-                if error_message is not None:
-                    abort(400, message=error_message)
+                try:
+                    ReadingValidator.validate(r)
+                except ValidationExceptionError as e:
+                    abort(400, message=str(e))
                 reading = marshal.unmarshal(Reading, r)
                 invariant.resolve_reading_invariants(reading)
                 crud.create(reading, refresh=True)
