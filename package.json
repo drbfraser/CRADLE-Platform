@@ -1,7 +1,7 @@
 {
   "type": "module",
   "devDependencies": {
-    "husky": "^8.0.0",
+    "husky": "^9.1.6",
     "lint-staged": "^15.2.10"
   },
   "scripts": {
