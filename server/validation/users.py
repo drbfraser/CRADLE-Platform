@@ -12,7 +12,7 @@ from validation.validation_exception import ValidationExceptionError
 supported_roles = [role.value for role in RoleEnum]
 
 class UserValidator(BaseModel):
-    first_name: str
+    name: str
     email: str
     health_facility_name: str
     role: str
