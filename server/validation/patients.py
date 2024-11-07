@@ -6,13 +6,13 @@ from pydantic import BaseModel, ValidationError, field_validator, model_validato
 from validation.validation_exception import ValidationExceptionError
 
 
-class PatientPostValidator(BaseModel):
-    patientId: str
-    patientName: str
-    patientSex: str
-    dob: str
-    isExactDob: bool
-    isPregnant: bool
+class PatientBase(BaseModel):
+    patientId: Optional[str] = None
+    patientName: Optional[str] = None
+    patientSex: Optional[str] = "FEMALE"
+    dob: Optional[str] = None
+    isExactDob: Optional[bool] = False
+    isPregnant: Optional[bool] = False
     householdNumber: Optional[str] = None
     zone: Optional[str] = None
     villageNumber: Optional[str] = None
@@ -58,6 +58,14 @@ class PatientPostValidator(BaseModel):
         if dob and not is_correct_date_format(dob):
             raise ValueError("dob is not in the required YYYY-MM-DD format.")
         return dob
+
+class PatientPostValidator(PatientBase):
+    patientId: str
+    patientName: str
+    patientSex: str
+    dob: str
+    isExactDob: bool
+    isPregnant: bool
 
     @staticmethod
     def validate(request_body: dict):
@@ -91,57 +99,13 @@ class PatientPostValidator(BaseModel):
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
 
-class PatientPutValidator(BaseModel):
-    patientId: Optional[str] = None
-    patientName: Optional[str] = None
-    patientSex: Optional[str] = "FEMALE"
-    dob: Optional[str] = None
-    isExactDob: Optional[bool] = False
-    isPregnant: Optional[bool] = False
-    householdNumber: Optional[str] = None
-    zone: Optional[str] = None
-    villageNumber: Optional[str] = None
-    pregnancyStartDate: Optional[int] = None
-    gestationalAgeUnit: Optional[str] = None
-    drugHistory: Optional[str] = None
-    medicalHistory: Optional[str] = None
-    allergy: Optional[str] = None
-    isArchived: Optional[bool] = False
+class PatientPutValidator(PatientBase):
     gestationalTimestamp: Optional[int] = None
     lastEdited: Optional[int] = None
     base: Optional[int] = None
 
     class Config:
         extra = "forbid"
-
-    @model_validator(mode="before")
-    @classmethod
-    def validate_is_pregnant_field(cls, values):
-        is_pregnant = values.get("isPregnant")
-        if is_pregnant:
-            if not values.get("pregnancyStartDate") or not values.get(
-                "gestationalAgeUnit",
-            ):
-                raise ValueError(
-                    "If isPregnant is True, pregnancyStartDate and gestationalAgeUnit are required.",
-                )
-        return values
-
-    @field_validator("patientId", mode="before")
-    @classmethod
-    def check_patient_id_length(cls, patient_id):
-        if len(patient_id) > 14:
-            raise ValueError("patientId is too long. Max is 14 digits.")
-        return patient_id
-
-    @field_validator("pregnancyStartDate", mode="before")
-    @classmethod
-    def validate_pregnancy_start_date_field(cls, pregnancy_start_date):
-        if pregnancy_start_date:
-            error = check_gestational_age_under_limit(pregnancy_start_date)
-            if error:
-                raise ValueError(error)
-        return pregnancy_start_date
 
     @field_validator("gestationalTimestamp", mode="before")
     @classmethod
@@ -151,13 +115,6 @@ class PatientPutValidator(BaseModel):
             if error:
                 raise ValueError(error)
         return gestational_timestamp
-
-    @field_validator("dob", mode="before")
-    @classmethod
-    def validate_date_format(cls, dob):
-        if dob and not is_correct_date_format(dob):
-            raise ValueError("dob is not in the required YYYY-MM-DD format.")
-        return dob
 
     @staticmethod
     def validate_put_request(request_body: dict, patient_id):
