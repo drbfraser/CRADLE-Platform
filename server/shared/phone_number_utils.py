@@ -101,7 +101,7 @@ class PhoneNumberUtils:
     # End of function.
 
     @staticmethod
-    def does_E164_phone_number_exist(formatted_phone_number: str) -> bool:
+    def does_phone_number_exist(phone_number: str) -> bool:
         """
         Checks if the phone number is in our database.
         Assumes that the phone number is already in E. 164 format.
@@ -111,47 +111,16 @@ class PhoneNumberUtils:
         # Query database to determine if it contains the phone number.
         # Phone numbers could belong to users, health facilities, or
         # relay app servers.
-        user_phone_number_model = crud.read(UserPhoneNumberOrm, phone_number=formatted_phone_number)
-        if user_phone_number_model is not None:
+        if crud.read(UserPhoneNumberOrm, phone_number=phone_number) is not None:
             return True
-        health_facility_model = crud.read(HealthFacilityOrm, phone_number=formatted_phone_number)
-        if health_facility_model is not None:
+        if crud.read(HealthFacilityOrm, phone_number=phone_number) is not None:
             return True
-        relay_app_model = crud.read(RelayServerPhoneNumberOrm, phone_number=formatted_phone_number)
-        if relay_app_model is not None:
+        if crud.read(RelayServerPhoneNumberOrm, phone_number=phone_number) is not None:
             return True
-
         # If none were found, phone number is not in the database.
         return False
     # End of function.
 
-    @staticmethod
-    def does_phone_number_exist(phone_number: str) -> bool:
-        """
-        Checks if the phone number is in our database.
-
-        :param phone_number: The phone number to check.
-        """
-        try:
-            # Format the phone number.
-            formatted_phone_number = PhoneNumberUtils.format_to_E164(phone_number)
-            return PhoneNumberUtils.does_E164_phone_number_exist(formatted_phone_number)
-        except phonenumbers.NumberParseException:
-            return False
-    # End of function.
-
-    @staticmethod
-    def does_E164_phone_number_belong_to_user(user_id: int, formatted_phone_number: str):
-        """
-        Checks if the phone number belongs to the user identified by username.
-        Assumes that the phone number's format has already been validated.
-
-        :param user_id: The id of the user.
-        :param formatted_phone_number: The phone number to check (in E. 164 format).
-        """
-        user_phone_number_model = crud.read(UserPhoneNumberOrm, user_id=user_id, phone_number=formatted_phone_number)
-        return user_phone_number_model is not None
-    # End of function.
     @staticmethod
     def does_phone_number_belong_to_user(user_id: int, phone_number: str):
         """
@@ -159,15 +128,9 @@ class PhoneNumberUtils:
         Assumes that the phone number's format has already been validated.
 
         :param user_id: The id of the user.
-        :param phone_number: The phone number to check.
+        :param phone_number: The phone number to check (in E. 164 format).
         """
-        # Convert number to E. 164 format.
-        try:
-            formatted_phone_number = PhoneNumberUtils.format_to_E164(phone_number)
-            return PhoneNumberUtils.does_E164_phone_number_belong_to_user(user_id=user_id,
-                                                                   formatted_phone_number=formatted_phone_number)
-        except phonenumbers.NumberParseException:
-            return False
+        return crud.read(UserPhoneNumberOrm, user_id=user_id, phone_number=phone_number) is not None
     # End of function.
 
     @staticmethod
@@ -176,50 +139,11 @@ class PhoneNumberUtils:
         Adds a new phone number to the database, associated with the specified user.
 
         :param user_id: The id of the user.
-        :param phone_number: The phone number to add for the user.
+        :param phone_number: The phone number to add for the user. Should already be in E. 164 format.
         """
-        # Parse the phone number.
-        parsed_phone_number = phonenumbers.parse(phone_number)
-        # Validate the number.
-        is_valid = phonenumbers.is_possible_number(parsed_phone_number)
-        if not is_valid:
-            print(f"Formatted number: ({PhoneNumberUtils.format_parsed_to_E164(parsed_phone_number)})")
-            raise RuntimeError(f"Phone number ({phone_number}) is invalid.")
-        # Format the number.
-        formatted_phone_number = PhoneNumberUtils.format_parsed_to_E164(parsed_phone_number)
-
-        # Check if the number is already in the database.
-        if PhoneNumberUtils.does_E164_phone_number_exist(formatted_phone_number):
-            raise RuntimeError(f"Phone number ({phone_number}) is already assigned.")
-
         # Add row to database.
         user_model = crud.read(UserOrm, id=user_id)
-        crud.create(UserPhoneNumberOrm(phone_number=formatted_phone_number, user=user_model))
-    # End of function.
-
-    @staticmethod
-    def delete_user_E164_phone_number(user_id: int, formatted_phone_number: str):
-        """
-        Deletes the specified phone number associated with the specified user
-        from the database.
-
-        :param user_id: The id of the user.
-        :param formatted_phone_number: The phone number (in E. 164 format) to
-            delete for the user.
-        """
-        # Get the user model from the database.
-        user_model = crud.read(UserOrm, id=user_id)
-
-        if not user_model:
-            raise RuntimeError(f"No user with id ({user_id}) was found.")
-
-        # Check if the number belongs to the user.
-        if not PhoneNumberUtils.does_E164_phone_number_belong_to_user(user_id=user_id,
-                                                                      formatted_phone_number=formatted_phone_number):
-            raise RuntimeError(f"Phone number ({formatted_phone_number}) is not assigned to user ({user_id}).")
-
-        # Delete row from database.
-        crud.delete(UserPhoneNumberOrm(phone_number=formatted_phone_number, user=user_model))
+        crud.create(UserPhoneNumberOrm(phone_number=phone_number, user=user_model))
     # End of function.
 
     @staticmethod
@@ -229,11 +153,12 @@ class PhoneNumberUtils:
         from the database.
 
         :param user_id: The id of the user.
-        :param phone_number: The phone number to delete for the user.
+        :param phone_number: The phone number to delete for the user. Should already be in E. 164 format.
         """
-        # Format the number.
-        formatted_phone_number = PhoneNumberUtils.format_to_E164(phone_number)
-
-        PhoneNumberUtils.delete_user_E164_phone_number(user_id=user_id,
-                                                       formatted_phone_number=formatted_phone_number)
+        # Get the user model from the database.
+        user_orm_model = crud.read(UserOrm, id=user_id)
+        if not user_orm_model:
+            raise ValueError(f"No user with id ({user_id}) was found.")
+        # Delete row from database.
+        crud.delete(UserPhoneNumberOrm(phone_number=phone_number, user=user_orm_model))
     # End of function.

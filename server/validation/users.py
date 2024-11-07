@@ -58,7 +58,7 @@ class UserValidator(BaseModel):
             # Format the phone number.
             formatted_phone_number = PhoneNumberUtils.format(phone_number)
             # Validate the phone numbers uniqueness.
-            if PhoneNumberUtils.does_E164_phone_number_exist(phone_number):
+            if PhoneNumberUtils.does_phone_number_exist(phone_number):
                 raise ValueError({ "message": f"Phone number ({phone_number}) is already assigned." })
             # Append formatted phone number to list.
             formatted_phone_numbers.append(formatted_phone_number)
