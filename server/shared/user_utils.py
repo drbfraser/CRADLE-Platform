@@ -57,6 +57,38 @@ class UserUtils:
     # End of function.
 
     @staticmethod
+    def does_email_exist(email: str) -> bool:
+        """
+        :param email: The email to check.
+        :return bool: True if the email is already in the database, False if it is not.
+        """
+        return (crud.read(UserOrm, email=email)) is not None
+    # End of function.
+
+    @staticmethod
+    def does_email_belong_to_user(email: str, user_id: int) -> bool:
+        """
+        :param email: The email to check.
+        :param user_id: The id of the user to check for ownership.
+        :return bool: True if the email belongs to the user.
+        """
+        return (crud.read(UserOrm, email=email, id=user_id)) is not None
+    # End of function.
+
+    @staticmethod
+    def is_email_unique_to_user(email: str, user_id: int) -> bool:
+        """
+        :param email: The email to check.
+        :param user_id: The id of the user to check for ownership.
+        :return bool: True if the email belongs to the user or is not in the
+            database.
+        """
+        return (crud.read(UserOrm, email=email) is None
+                or
+                crud.read(UserOrm, email=email, id=user_id) is not None)
+    # End of function.
+
+    @staticmethod
     def register_user(username: str,
                         email: str,
                         name: str,
