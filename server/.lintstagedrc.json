@@ -1,3 +1,0 @@
-{
-  "!(migrations/**/*)*.py": "ruff check"
-}
