@@ -2,18 +2,11 @@ from typing import List, Optional
 
 from pydantic import BaseModel, ValidationError, field_validator
 
-from common.regexUtil import phoneNumber_regex_check
 from enums import RoleEnum
+from shared.phone_number_utils import PhoneNumberUtils
 from validation.validation_exception import ValidationExceptionError
 
 supported_roles = [role.value for role in RoleEnum]
-
-# Error messages
-invalid_phone_number = (
-    "Phone number {phoneNumber} has wrong format. The format for phone number should be +x-xxx-xxx-xxxx, "
-    "+x-xxx-xxx-xxxxx, xxx-xxx-xxxx or xxx-xxx-xxxxx"
-)
-
 
 class UserValidator(BaseModel):
     first_name: str
@@ -34,17 +27,18 @@ class UserValidator(BaseModel):
 
     @field_validator("phone_numbers", mode="before")
     @classmethod
-    def validate_phone_number(cls, phone_numbers: List[str]):
-        error = {"message": invalid_phone_number}
-
-        if not isinstance(phone_numbers, List):
-            raise ValueError(error)
-
+    def validate_phone_numbers(cls, phone_numbers: List[str]):
+        formatted_phone_numbers: list[str] = []
         for phone_number in phone_numbers:
-            if phone_number is not None and not phoneNumber_regex_check(phone_number):
-                raise ValueError(error)
-
-        return phone_numbers
+            # Format the phone number.
+            formatted_phone_number = PhoneNumberUtils.format(phone_number)
+            # Validate the phone numbers uniqueness.
+            if PhoneNumberUtils.does_E164_phone_number_exist(phone_number):
+                raise ValueError({ "message": f"Phone number ({phone_number}) is already assigned." })
+            # Append formatted phone number to list.
+            formatted_phone_numbers.append(formatted_phone_number)
+        # Return the formatted phone numbers.
+        return formatted_phone_numbers
 
     @staticmethod
     def validate(request_body: dict):
