@@ -5,6 +5,7 @@ from pydantic import BaseModel, ValidationError, field_validator, model_validato
 from typing_extensions import Self
 
 from enums import RoleEnum
+from server.shared.health_facility_utils import HealthFacilityUtils
 from shared.phone_number_utils import PhoneNumberUtils
 from shared.user_utils import UserUtils
 from validation.validation_exception import ValidationExceptionError
@@ -63,6 +64,24 @@ class UserValidator(BaseModel):
             formatted_phone_numbers.append(formatted_phone_number)
         # Return the formatted phone numbers.
         return formatted_phone_numbers
+
+    @field_validator("health_facility_name")
+    @classmethod
+    def validate_health_facility_existence(cls, health_facility_name: str) -> str:
+        health_facility_name = health_facility_name.title()
+        if not HealthFacilityUtils.does_facility_exist(health_facility_name):
+            raise ValueError(f"Health facility ({health_facility_name}) not found.")
+        return health_facility_name
+
+    @field_validator("name")
+    @classmethod
+    def format_name(cls, name: str) -> str:
+        """
+        Convert name to title case.
+        """
+        name = name.title()
+        return name
+
 
     @staticmethod
     def validate(request_body: dict):
