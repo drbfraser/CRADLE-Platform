@@ -105,34 +105,24 @@ def populate_user_pool(seed_users: list[SeedUserDict]):
     existing_users = cognito.list_users()
     existing_usernames = [ user.get("Username") for user in existing_users  ]
     for seed_user in seed_users:
-      username = seed_user["username"]
+      username = seed_user["username"].lower()
       if username in existing_usernames:
         UserUtils.delete_user(username)
         print("Deleted ", username)
 
-    for seed_user in seed_users:
-      # phone_numbers = seed_user.get("phone_numbers")
+    user_models = [UserRegisterValidator(**seed_user) for seed_user in seed_users]
 
-      user_model = UserRegisterValidator(**seed_user)
-      user_model.model_dump()
+    for user_model in user_models:
       UserUtils.create_user(**user_model.model_dump())
-      # UserUtils.create_user(username=seed_user["username"],
-      #                       email=seed_user["email"],
-      #                       name=seed_user["name"],
-      #                       health_facility_name=seed_user["health_facility_name"],
-      #                       role=seed_user["role"],
-      #                       password=seed_user["password"],
-      #                       phone_numbers=phone_numbers)
       user_id = UserUtils.get_user_id_from_username(seed_user["username"])
       print(f"Created user ({username} : {user_id})")
-
 
   except ClientError as err:
     print("ERROR: Failed to create user in user pool.")
     error = err.response.get("Error")
     print(error)
     exit(1)
-  except RuntimeError as err:
+  except ValueError as err:
     print("ERROR: Failed to create user in database.")
     print(err)
     exit(1)
