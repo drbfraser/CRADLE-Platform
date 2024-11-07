@@ -70,6 +70,4 @@ class SmsRelayDecryptedBody(BaseModel):
         except ValidationError as e:
             # Raises an exception with the first error message from the validation errors
             error_message = str(e.errors()[0]["msg"])
-            print("what error is expected?")
-            print(e.errors())
             raise ValidationExceptionError(error_message)

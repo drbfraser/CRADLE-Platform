@@ -9,7 +9,6 @@ import csv
 import datetime
 import json
 import os
-import re
 import secrets
 from typing import TYPE_CHECKING, Type
 
@@ -17,7 +16,7 @@ import flask_jwt_extended as jwt
 from flask import Request
 
 import utils
-from api.constants import (
+from common.constants import (
     FORM_TEMPLATE_LANGUAGES_COL,
     FORM_TEMPLATE_LANGUAGES_ROW,
     FORM_TEMPLATE_NAME_COL,
@@ -677,24 +676,6 @@ def getCsvFromFormTemplate(form_template: FormTemplate):
             rows.append(row)
 
     return list_to_csv(rows)
-
-
-# Abstract regex check into a module to avoid duplicate
-def phoneNumber_regex_check(phone_number):
-    # Add regex check for phone number, the format of phone number is xxx-xxx-xxxxx
-    regex_phone_number_format_with_area_code = (
-        r"^([0-9+-]\+?\d{1}?[-]?\(?\d{3}[)-]?\d{3}[-]?\d{4,5})$"
-    )
-    regex_phone_number_format_normal = r"^(\d{3}-?\d{3}-?\d{4,5})$"
-    checked_number_with_area_code = re.match(
-        regex_phone_number_format_with_area_code,
-        phone_number,
-    )
-    checked_number = re.match(regex_phone_number_format_normal, phone_number)
-
-    if not checked_number and not checked_number_with_area_code:
-        return False
-    return True
 
 
 # Check if the phone number is already in the database - if user_id is supplied the phone number should belong to that user
