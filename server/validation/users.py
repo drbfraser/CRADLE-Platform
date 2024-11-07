@@ -19,18 +19,17 @@ class UserValidator(BaseModel):
     role: str
     phone_numbers: List[str] = []
 
-    @field_validator("role", mode="before")
+    @field_validator("username", mode="before")
     @classmethod
     def validate_username_format(cls, username: str) -> str:
         username = username.lower()
         length = len(username)
         if length < 3 or length > 30:
             raise ValueError(f"Username ({username}) is invalid. Username must be between 3 and 30 characters.")
-        username_regex_pattern = r"^[A-Za-z]\w{3,30}$"
+        username_regex_pattern = r"^[A-Za-z]\w{2,29}$"
         if re.fullmatch(username_regex_pattern, username) is None:
-            raise ValueError(f"Username ({username}) is invalid. Username must contain only alphanumeric or underscore characters.")
+            raise ValueError(f"Username ({username}) is invalid. Username must start with a letter and must contain only alphanumeric or underscore characters.")
         return username
-
 
     @field_validator("role", mode="before")
     @classmethod
@@ -104,12 +103,12 @@ class UserRegisterValidator(UserValidator):
 
     @field_validator("username", mode="after")
     @classmethod
-    def validate_username_uniqueness(cls, email: str):
+    def validate_username_uniqueness(cls, username: str):
         # Username should already be converted to lowercase.
         # Validate that username isn't already taken.
-        if UserUtils.does_username_exist(email):
-            raise ValueError(f"Email ({email}) is already in use.")
-        return email
+        if UserUtils.does_username_exist(username):
+            raise ValueError(f"Email ({username}) is already in use.")
+        return username
 
     @staticmethod
     def validate(request_body: dict):
