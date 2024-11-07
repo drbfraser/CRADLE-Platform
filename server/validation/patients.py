@@ -23,13 +23,6 @@ class PatientPostValidator(BaseModel):
     allergy: Optional[str] = None
     isArchived: Optional[bool] = False
 
-    @field_validator("patientId", mode="before")
-    @classmethod
-    def check_patient_id_length(cls, patient_id):
-        if len(patient_id) > 14:
-            raise ValueError("patientId is too long. Max is 14 digits.")
-        return patient_id
-
     @model_validator(mode="before")
     @classmethod
     def validate_is_pregnant_field(cls, values):
@@ -40,6 +33,13 @@ class PatientPostValidator(BaseModel):
                     "If isPregnant is True, pregnancyStartDate and gestationalAgeUnit are required.",
                 )
         return values
+
+    @field_validator("patientId", mode="before")
+    @classmethod
+    def check_patient_id_length(cls, patient_id):
+        if len(patient_id) > 14:
+            raise ValueError("patientId is too long. Max is 14 digits.")
+        return patient_id
 
     @field_validator("pregnancyStartDate", mode="before")
     @classmethod
@@ -112,13 +112,6 @@ class PatientPutValidator(BaseModel):
     class Config:
         extra = "forbid"
 
-    @field_validator("patientId", mode="before")
-    @classmethod
-    def check_patient_id_length(cls, patient_id):
-        if len(patient_id) > 14:
-            raise ValueError("patientId is too long. Max is 14 digits.")
-        return patient_id
-
     @model_validator(mode="before")
     @classmethod
     def validate_is_pregnant_field(cls, values):
@@ -129,6 +122,13 @@ class PatientPutValidator(BaseModel):
                     "If isPregnant is True, pregnancyStartDate and gestationalAgeUnit are required.",
                 )
         return values
+
+    @field_validator("patientId", mode="before")
+    @classmethod
+    def check_patient_id_length(cls, patient_id):
+        if len(patient_id) > 14:
+            raise ValueError("patientId is too long. Max is 14 digits.")
+        return patient_id
 
     @field_validator("pregnancyStartDate", mode="before")
     @classmethod
