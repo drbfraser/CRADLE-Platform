@@ -5,8 +5,8 @@ from pydantic import BaseModel, ValidationError, field_validator, model_validato
 from typing_extensions import Self
 
 from enums import RoleEnum
-from server.shared.user_utils import UserUtils
 from shared.phone_number_utils import PhoneNumberUtils
+from shared.user_utils import UserUtils
 from validation.validation_exception import ValidationExceptionError
 
 supported_roles = [role.value for role in RoleEnum]

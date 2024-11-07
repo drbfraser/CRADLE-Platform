@@ -11,13 +11,13 @@ from authentication.CognitoClientWrapper import (
 from enums import FacilityTypeEnum, RoleEnum
 from shared.health_facility_utils import HealthFacilityUtils
 from shared.user_utils import UserUtils
+from validation.users import UserRegisterValidator
 
 """
-This script will seed the AWS Cognito user pool with fake users.
+This script will seed the database and the AWS Cognito user pool with fake users.
 """
 
 pprinter = pprint.PrettyPrinter(indent=4, sort_dicts=False, compact=False)
-
 
 class SeedUserDict(TypedDict):
     name: str
@@ -111,24 +111,21 @@ def populate_user_pool(seed_users: list[SeedUserDict]):
         print("Deleted ", username)
 
     for seed_user in seed_users:
-      phone_numbers = seed_user.get("phone_numbers")
-      UserUtils.create_user(username=seed_user["username"],
-                            email=seed_user["email"],
-                            name=seed_user["name"],
-                            health_facility_name=seed_user["health_facility_name"],
-                            role=seed_user["role"],
-                            password=seed_user["password"],
-                            phone_numbers=phone_numbers)
+      # phone_numbers = seed_user.get("phone_numbers")
+
+      user_model = UserRegisterValidator(**seed_user)
+      user_model.model_dump()
+      UserUtils.create_user(**user_model.model_dump())
+      # UserUtils.create_user(username=seed_user["username"],
+      #                       email=seed_user["email"],
+      #                       name=seed_user["name"],
+      #                       health_facility_name=seed_user["health_facility_name"],
+      #                       role=seed_user["role"],
+      #                       password=seed_user["password"],
+      #                       phone_numbers=phone_numbers)
       user_id = UserUtils.get_user_id_from_username(seed_user["username"])
       print(f"Created user ({username} : {user_id})")
-      # for phone_number in phone_numbers:
-      #   try:
-      #     PhoneNumberUtils.add_user_phone_number(user_id, phone_number)
-      #   except phonenumbers.NumberParseException as err:
-      #     print(err)
-      #     print(f"Username: ({username})")
-      #     print(f"Phone number: ({phone_number})")
-      #     raise
+
 
   except ClientError as err:
     print("ERROR: Failed to create user in user pool.")
