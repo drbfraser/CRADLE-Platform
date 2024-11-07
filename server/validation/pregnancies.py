@@ -1,91 +1,106 @@
 from typing import Optional
 
-from validation.validate import required_keys_present, values_correct_type
+from pydantic import BaseModel, ValidationError
+
+from validation.validation_exception import ValidationExceptionError
 
 
-def validate_post_request(request_body: dict, patient_id: str) -> Optional[str]:
-    """
-    Returns an error message if the /api/patients/<string:patient_id>/pregnancies
-    post request is not valid. Else, returns None.
+class PregnancyModel(BaseModel):
+    patientId: Optional[int] = None
+    pregnancyStartDate: int
+    gestationalAgeUnit: str
+    pregnancyEndDate: Optional[int] = None
+    pregnancyOutcome: Optional[str] = None
+    id: Optional[int] = None
+    lastEdited: Optional[int] = None
+    isPregnant: Optional[bool] = None
 
-    :param request_body: The request body as a dict object
+    # use this custom method to validate extra field instead of using config extra forbid so that we have a custom error message
+    @staticmethod
+    def validate_unallowed_fields(request_body: dict):
+        field_dict = PregnancyModel.model_fields
+        for key in request_body:
+            if key not in field_dict:
+                raise ValidationExceptionError(
+                    f"{{{(key)}}} is not a valid key in pregnancy.",
+                )
+
+    @staticmethod
+    def validate_date_sequence(request_body: dict):
+        if (
+            "pregnancyStartDate" in request_body
+            and request_body.get("pregnancyStartDate") is not None
+            and "pregnancyEndDate" in request_body
+            and request_body.get("pregnancyEndDate") is not None
+        ):
+            start_date = request_body["pregnancyStartDate"]
+            end_date = request_body["pregnancyEndDate"]
+            if start_date > end_date:
+                raise ValidationExceptionError(
+                    "Pregnancy end date must occur after the start date.",
+                )
+
+
+class PregnancyPostRequestValidator(PregnancyModel):
+    @staticmethod
+    def validate(request_body: dict, patient_id: str):
+        """
+        Validates the request body for the POST /api/patients/<string:patient_id>/pregnancies.
+        Raises ValidationExceptionError on invalid input, else returns None.
+
+        :param request_body: Request body as a dictionary, e.g.:
                         {
-                            "patientId": 120000,
+                            "patientId": 120000, - required
                             "pregnancyStartDate": 1620000002, - required
                             "gestationalAgeUnit": "WEEKS", - required
                             "pregnancyEndDate": 1620000002,
                             "pregnancyOutcome": "Mode of delivery assisted birth",
                         }
-    :return: An error message if request body in invalid in some way. None otherwise.
-    """
-    error = required_keys_present(
-        request_body,
-        [
-            "pregnancyStartDate",
-            "gestationalAgeUnit",
-        ],
-    )
-    if error:
-        return error
+        :param pregnancy_id: The pregnancy ID associated with the PUT request.
 
-    error = __validate(request_body)
-    if error:
-        return error
+        :return: Raises ValidationExceptionError on validation failure.
+        """
+        try:
+            # Pydantic will validate field presence and type
+            PregnancyPostRequestValidator(**request_body)
+        except ValidationError as e:
+            # Extracts the first error message from the validation errors list
+            error_message = str(e.errors()[0]["msg"])
+            raise ValidationExceptionError(error_message)
 
-    error = values_correct_type(
-        request_body,
-        ["patientId", "pregnancyStartDate", "pregnancyEndDate"],
-        int,
-    )
-    if error:
-        return error
+        # check for extra fields
+        PregnancyModel.validate_unallowed_fields(request_body)
+        PregnancyModel.validate_date_sequence(request_body)
 
-    error = values_correct_type(
-        request_body,
-        ["gestationalAgeUnit, pregnancyOutcome"],
-        str,
-    )
-    if error:
-        return error
-
-    if "patientId" in request_body and request_body.get("patientId") != patient_id:
-        return "Patient ID does not match."
+        if "patientId" in request_body and request_body.get("patientId") != patient_id:
+            raise ValidationExceptionError("Patient ID does not match.")
 
 
-def validate_put_request(request_body: dict, pregnancy_id: str) -> Optional[str]:
-    """
-    Returns an error message if the /api/pregnancies/<string:pregnancy_id> PUT
-    request is not valid. Else, returns None.
+class PrenancyPutRequestValidator(PregnancyModel):
+    pregnancyStartDate: Optional[int] = None
+    gestationalAgeUnit: Optional[str] = None
 
-    :param request_body: The request body as a dict object
-    :param pregnancy_id: The pregnancy ID the PUT request is being made for
+    @staticmethod
+    def validate(request_body: dict, pregnancy_id: str):
+        """
+        Validates the PUT request for /api/pregnancies/<string:pregnancy_id>.
+        Returns None if valid, otherwise raises ValidationExceptionError.
 
-    :return: An error message if request body in invalid in some way. None otherwise.
-    """
-    error = __validate(request_body)
-    if error:
-        return error
+        :param request_body: Request body as a dictionary.
+        :param pregnancy_id: The pregnancy ID associated with the PUT request.
 
-    error = values_correct_type(request_body, ["patientId", "id"], int)
-    if error:
-        return error
+        :return: Raises ValidationExceptionError on validation failure.
+        """
+        try:
+            # Pydantic will validate field presence and type
+            PrenancyPutRequestValidator(**request_body)
+        except ValidationError as e:
+            # Extracts the first error message from the validation errors list
+            error_message = str(e.errors()[0]["msg"])
+            raise ValidationExceptionError(error_message)
 
-    if "id" in request_body and request_body.get("id") != pregnancy_id:
-        return "Pregnancy ID cannot be changed."
+        PregnancyModel.validate_unallowed_fields(request_body)
+        PregnancyModel.validate_date_sequence(request_body)
 
-
-def __validate(request_body):
-    pregnancy_keys = [
-        "id",
-        "patientId",
-        "pregnancyStartDate",
-        "gestationalAgeUnit",
-        "pregnancyEndDate",
-        "pregnancyOutcome",
-        "lastEdited",
-        "isPregnant",
-    ]
-
-    for key in request_body:
-        if key not in pregnancy_keys:
-            return f"{key} is not a valid key in pregnancy."
+        if "id" in request_body and request_body.get("id") != pregnancy_id:
+            raise ValidationExceptionError("Pregnancy ID cannot be changed.")
