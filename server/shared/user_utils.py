@@ -34,25 +34,31 @@ class UserModelDict(TypedDict):
 
 class UserUtils:
     @staticmethod
-    def get_user_model(username: str):
+    def get_user_orm_model_from_username(username: str):
         username = username.lower()
         user_model = crud.read(UserOrm, username=username)
         if user_model is None:
-            raise RuntimeError(f"No user with username ({username}) found.")
+            raise ValueError(f"No user with username ({username}) found.")
         return user_model
     # End of function.
 
     @staticmethod
-    def get_user_dict_from_model(user_model: UserOrm) -> UserModelDict:
-        user_dict = marshal.marshal(user_model)
+    def get_user_dict_from_orm_model(user_orm_model: UserOrm) -> UserModelDict:
+        user_dict = marshal.marshal(user_orm_model)
         return cast(UserModelDict, user_dict)
+    # End of function.
+
+    @staticmethod
+    def get_user_dict_from_username(username: str) -> UserModelDict:
+        user_orm_model = UserUtils.get_user_orm_model_from_username(username)
+        return UserUtils.get_user_dict_from_orm_model(user_orm_model)
     # End of function.
 
     @staticmethod
     def get_user_id_from_username(username: str) -> int:
         username = username.lower()
-        user_model = UserUtils.get_user_model(username)
-        user_dict = UserUtils.get_user_dict_from_model(user_model)
+        user_model = UserUtils.get_user_orm_model_from_username(username)
+        user_dict = UserUtils.get_user_dict_from_orm_model(user_model)
         return user_dict["id"]
     # End of function.
 
@@ -257,7 +263,7 @@ class UserUtils:
         cognito_user_list = cognito.list_users()
         # Get list of users from our database.
         user_model_list = crud.read_all(UserOrm)
-        user_list = [ UserUtils.get_user_dict_from_model(user_model) for user_model in user_model_list ]
+        user_list = [ UserUtils.get_user_dict_from_orm_model(user_model) for user_model in user_model_list ]
         return user_list, cognito_user_list
     # End of function.
 
