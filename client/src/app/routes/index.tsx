@@ -1,8 +1,6 @@
 import { AppRoute, appRoutes } from './utils';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
-import { Box } from '@mui/material';
-import { DASHBOARD_PADDING } from 'src/shared/constants';
 import { PropsWithChildren, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/shared/hooks';
 import {
@@ -14,40 +12,27 @@ import { Loader } from 'src/shared/components/loader';
 
 export const AppRoutes: React.FC = () => {
   return (
-    <Box
-      component="main"
-      id="mainContainer"
-      sx={{
-        height: '100%',
-        width: '100%',
-        padding: DASHBOARD_PADDING,
-      }}>
-      <Routes>
-        {appRoutes.map((route: AppRoute): JSX.Element => {
-          if (route.private) {
-            return (
-              <Route
-                key={route.id}
-                path={route.to}
-                element={
-                  <RequireAuth path={route.to}>
-                    <route.component />
-                  </RequireAuth>
-                }
-              />
-            );
-          }
-
+    <Routes>
+      {appRoutes.map((route: AppRoute): JSX.Element => {
+        if (route.private) {
           return (
             <Route
               key={route.id}
               path={route.to}
-              element={<route.component />}
+              element={
+                <RequireAuth path={route.to}>
+                  <route.component />
+                </RequireAuth>
+              }
             />
           );
-        })}
-      </Routes>
-    </Box>
+        }
+
+        return (
+          <Route key={route.id} path={route.to} element={<route.component />} />
+        );
+      })}
+    </Routes>
   );
 };
 

@@ -4,16 +4,18 @@
  * that the parent component will be able to use the state and reset it.
  */
 
-import { Moment } from 'moment';
+import moment, { Moment } from 'moment';
 import { useState } from 'react';
 import {
   DateRangePreset,
   DateRangePickerWithPresetProps,
 } from './DateRangePicker';
 
+const createDate = () => moment();
+
 export const useDateRangeState = () => {
-  const [startDate, setStartDate] = useState<Moment | null>(null);
-  const [endDate, setEndDate] = useState<Moment | null>(null);
+  const [startDate, setStartDate] = useState<Moment | null>(createDate);
+  const [endDate, setEndDate] = useState<Moment | null>(createDate);
   const [presetDateRange, setPresetDateRange] =
     useState<DateRangePreset | null>(null);
 

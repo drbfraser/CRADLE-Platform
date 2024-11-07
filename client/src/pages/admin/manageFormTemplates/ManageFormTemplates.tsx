@@ -1,4 +1,4 @@
-import { FormControlLabel, IconButton, Switch, Tooltip } from '@mui/material';
+import { Button, FormControlLabel, Stack, Switch } from '@mui/material';
 import {
   getFormTemplateAsync,
   getFormTemplateCsvAsync,
@@ -6,12 +6,7 @@ import {
 } from 'src/shared/api';
 import { useCallback, useEffect, useState } from 'react';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import {
-  AdminTable,
-  AdminTableActionButtonsContainer,
-  AdminTableToolbar,
-  AdminToolBarButton,
-} from '../AdminTable';
+
 import ArchiveTemplateDialog from './ArchiveTemplateDialog';
 import { CloudDownloadOutlined, Edit } from '@mui/icons-material';
 import UploadTemplate from './UploadTemplate';
@@ -32,6 +27,15 @@ import {
   GridRowsProp,
 } from '@mui/x-data-grid';
 import UploadIcon from '@mui/icons-material/Upload';
+import {
+  TableAction,
+  TableActionButtons,
+} from 'src/shared/components/DataTable/TableActionButtons';
+import {
+  DataTable,
+  DataTableFooter,
+} from 'src/shared/components/DataTable/DataTable';
+import { DataTableHeader } from '../../../shared/components/DataTable/DataTableHeader';
 
 type FormTemplateWithIndex = FormTemplate & {
   index: number;
@@ -39,10 +43,7 @@ type FormTemplateWithIndex = FormTemplate & {
 
 export const ManageFormTemplates = () => {
   const [errorLoading, setErrorLoading] = useState(false);
-
-  const [search, setSearch] = useState('');
   const [showArchivedTemplates, setShowArchivedTemplates] = useState(false);
-
   const [formTemplates, setFormTemplates] = useState<FormTemplateWithIndex[]>(
     []
   );
@@ -85,84 +86,63 @@ export const ManageFormTemplates = () => {
     );
   };
 
-  const actions = [
-    {
-      tooltip: 'Edit Form Template',
-      Icon: Edit,
-      isVisible: (formTemplate: FormTemplateWithIndex) =>
-        !formTemplate.archived,
-      onClick: async (formTemplate: FormTemplateWithIndex) => {
-        getFormTemplateWithQuestions(formTemplate);
-      },
-    },
-    {
-      tooltip: 'Archive Form Template',
-      Icon: DeleteForever,
-      isVisible: (formTemplate: FormTemplateWithIndex) =>
-        !formTemplate.archived,
-      onClick: (formTemplate: FormTemplateWithIndex) => {
-        setArchivePopupForm(formTemplate);
-        setIsArchivePopupOpen(true);
-      },
-    },
-    {
-      tooltip: 'Download CSV',
-      Icon: CloudDownloadOutlined,
-      isVisible: () => true,
-      onClick: async (formTemplate: FormTemplateWithIndex) => {
-        try {
-          const file = await getFormTemplateCsvAsync(
-            formTemplate.id,
-            formTemplate.version
-          );
-
-          const objectURL = URL.createObjectURL(file);
-
-          const link = document.createElement('a');
-          link.href = objectURL;
-          link.setAttribute(
-            'download',
-            `${formTemplate.classification.name}.csv`
-          );
-          link.click();
-        } catch (e) {
-          setErrorLoading(true);
-        }
-      },
-    },
-    {
-      tooltip: 'Unarchive Form Template',
-      Icon: Unarchive,
-      isVisible: (formTemplate: FormTemplateWithIndex) => formTemplate.archived,
-      onClick: (formTemplate: FormTemplateWithIndex) => {
-        setUnarchivePopupForm(formTemplate);
-        setIsUnarchivePopupOpen(true);
-      },
-    },
-  ];
-
   const ActionButtons = useCallback(
     ({ formTemplate }: { formTemplate?: FormTemplateWithIndex }) => {
-      return formTemplate ? (
-        <AdminTableActionButtonsContainer>
-          {actions.map((action) =>
-            action.isVisible(formTemplate) ? (
-              <Tooltip
-                key={action.tooltip}
-                placement="top"
-                title={action.tooltip}>
-                <IconButton
-                  onClick={() => {
-                    action.onClick(formTemplate);
-                  }}
-                  size="large">
-                  <action.Icon />
-                </IconButton>
-              </Tooltip>
-            ) : null
-          )}
-        </AdminTableActionButtonsContainer>
-      ) : null;
+      if (!formTemplate) return null;
+      const actions: TableAction[] = [];
+      if (!formTemplate.archived) {
+        actions.push({
+          tooltip: 'Edit Form Template',
+          Icon: Edit,
+          onClick: async () => {
+            getFormTemplateWithQuestions(formTemplate);
+          },
+        });
+        actions.push({
+          tooltip: 'Archive Form Template',
+          Icon: DeleteForever,
+          onClick: () => {
+            setArchivePopupForm(formTemplate);
+            setIsArchivePopupOpen(true);
+          },
+        });
+      } else {
+        actions.push({
+          tooltip: 'Unarchive Form Template',
+          Icon: Unarchive,
+          onClick: () => {
+            setUnarchivePopupForm(formTemplate);
+            setIsUnarchivePopupOpen(true);
+          },
+        });
+      }
+
+      actions.push({
+        tooltip: 'Download CSV',
+        Icon: CloudDownloadOutlined,
+        onClick: async () => {
+          try {
+            const file = await getFormTemplateCsvAsync(
+              formTemplate.id,
+              formTemplate.version
+            );
+
+            const objectURL = URL.createObjectURL(file);
+
+            const link = document.createElement('a');
+            link.href = objectURL;
+            link.setAttribute(
+              'download',
+              `${formTemplate.classification.name}.csv`
+            );
+            link.click();
+          } catch (e) {
+            setErrorLoading(true);
+          }
+        },
+      });
+
+      return <TableActionButtons actions={actions} />;
     },
     []
   );
@@ -210,23 +190,16 @@ export const ManageFormTemplates = () => {
   ]);
 
   useEffect(() => {
-    const searchLowerCase = search.toLowerCase().trim();
-
     const formTemplateFilter = (formTemplate: FormTemplate) => {
       if (!showArchivedTemplates && formTemplate.archived) {
         return false;
       }
-      return (
-        formTemplate.classification.name
-          .toLowerCase()
-          .includes(searchLowerCase) ||
-        formTemplate.version.toLowerCase().includes(searchLowerCase)
-      );
+      return true;
     };
 
     const filteredTemplates = formTemplates.filter(formTemplateFilter);
     updateRowData(filteredTemplates);
-  }, [formTemplates, search]);
+  }, [formTemplates, showArchivedTemplates]);
 
   const getFormTemplateWithQuestions = async (
     formTemplate: FormTemplateWithIndex
@@ -271,24 +244,45 @@ export const ManageFormTemplates = () => {
     }
   };
 
-  const toolbar = useCallback(
-    () => (
-      <AdminTableToolbar title={'Form Templates'} setSearch={setSearch}>
-        <AdminToolBarButton
+  const HeaderButtons = () => {
+    return (
+      <Stack direction={'row'} gap={'8px'} flexWrap={'wrap'}>
+        <Button
+          variant={'contained'}
+          startIcon={<AddIcon />}
           onClick={() => {
             handleNewFormClick();
           }}>
-          <AddIcon /> {'Create Form Template'}
-        </AdminToolBarButton>
-        <AdminToolBarButton
+          {'New Form'}
+        </Button>
+        <Button
+          variant={'contained'}
+          startIcon={<UploadIcon />}
           onClick={() => {
             setIsUploadPopupOpen(true);
           }}>
-          <UploadIcon /> {'Upload Form Template'}
-        </AdminToolBarButton>
-      </AdminTableToolbar>
-    ),
-    [setSearch]
+          {'Upload Form'}
+        </Button>
+      </Stack>
+    );
+  };
+
+  const Footer = () => (
+    <DataTableFooter>
+      <FormControlLabel
+        sx={{
+          marginLeft: '8px',
+          display: 'flex',
+        }}
+        control={
+          <Switch
+            onClick={() => setShowArchivedTemplates(!showArchivedTemplates)}
+            checked={showArchivedTemplates}
+          />
+        }
+        label="View Archived Templates"
+      />
+    </DataTableFooter>
   );
 
   return (
@@ -311,7 +305,13 @@ export const ManageFormTemplates = () => {
         onClose={() => setIsUnarchivePopupOpen(false)}
         template={unarchivePopupForm}
       />
-      <AdminTable
+      <DataTableHeader title={'Form Templates'}>
+        <HeaderButtons />
+      </DataTableHeader>
+      <DataTable
+        rows={rows}
+        columns={columns}
+        footer={Footer}
         sx={{
           '& .row-archived': {
             backgroundColor: ARCHIVED_ROW_COLOR,
@@ -326,31 +326,12 @@ export const ManageFormTemplates = () => {
             backgroundColor: ARCHIVED_ROW_HOVERED_COLOR,
           },
         }}
-        columns={columns}
-        rows={rows}
-        toolbar={toolbar}
         getRowClassName={(params) => {
           const index = params.row.id;
           const formTemplate = formTemplates[index];
           if (!formTemplate) return '';
           return formTemplate.archived ? 'row-archived' : '';
         }}
-      />
-
-      <FormControlLabel
-        sx={{
-          marginTop: '10px',
-          marginLeft: 'auto',
-          marginRight: '10px',
-          display: 'flex',
-        }}
-        control={
-          <Switch
-            onClick={() => setShowArchivedTemplates(!showArchivedTemplates)}
-            checked={showArchivedTemplates}
-          />
-        }
-        label="View Archived Templates"
       />
     </>
   );

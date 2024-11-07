@@ -8,7 +8,7 @@ import {
   Tooltip,
 } from 'chart.js';
 import React, { useEffect, useState } from 'react';
-import { initialColorReading, initialStatsData } from '../utils';
+import { initialColorReading, initialStatsData } from '.';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Bar } from 'react-chartjs-2';
@@ -16,7 +16,7 @@ import Skeleton from '@mui/material/Skeleton';
 import { TrafficLightEnum } from 'src/shared/enums';
 import { trafficLightColors } from 'src/shared/constants';
 import { StatisticCard } from './StatisticCard';
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { StatisticGroup } from './StatisticGroup';
 
 Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -95,7 +95,6 @@ export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
             flexDirection: `column`,
             alignItems: `center`,
           }}>
-          {/* <Statistic.Group className={classes.statisticGroup}> */}
           <StatisticGroup>
             {[
               {
@@ -129,7 +128,16 @@ export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
                 )
             )}
           </StatisticGroup>
-          <h2>Reading Traffic Lights</h2>
+          <Typography
+            variant={'h2'}
+            sx={{
+              fontSize: '1.7rem',
+              fontWeight: '700',
+              marginTop: '2rem',
+              marginBottom: '1rem',
+            }}>
+            Reading Traffic Lights
+          </Typography>
           <Box
             id={'chart-container'}
             sx={{

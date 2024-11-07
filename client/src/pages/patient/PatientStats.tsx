@@ -9,15 +9,22 @@ import {
   Title,
   Tooltip,
 } from 'chart.js';
-import { Box, Divider, Paper, Typography } from '@mui/material';
-import { Form, InputOnChangeData, Select } from 'semantic-ui-react';
-import React, { useEffect, useState } from 'react';
+import {
+  Box,
+  Divider,
+  MenuItem,
+  Paper,
+  Select,
+  Typography,
+  ToggleButtonGroup,
+  ToggleButton,
+} from '@mui/material';
+import { useEffect, useState } from 'react';
 import { StatsOptionEnum, TrafficLightEnum } from 'src/shared/enums';
 import { statsUnitLabels, trafficLightColors } from 'src/shared/constants';
 
 import Alert from '@mui/material/Alert';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import { Menu } from 'semantic-ui-react';
 import { PatientStatistics } from 'src/shared/types';
 import { Skeleton } from '@mui/material';
 import { getPatientStatisticsAsync } from 'src/shared/api';
@@ -71,13 +78,6 @@ export const PatientStats = ({ patientId }: IProps) => {
     loadPatientStats();
   }, [patientId]);
 
-  const handleCurrentStatsUnitChange = (
-    _: React.ChangeEvent<HTMLInputElement>,
-    { value }: InputOnChangeData
-  ) => {
-    setCurrentStatsUnit(value as StatsOptionEnum);
-  };
-
   return (
     <Paper>
       <Box p={3}>
@@ -85,22 +85,37 @@ export const PatientStats = ({ patientId }: IProps) => {
           <FavoriteIcon fontSize="large" /> &nbsp; Patient Stats
         </Typography>
         <Divider />
-        <Menu fluid widths={2}>
-          <Menu.Item
-            name={
-              currentStatsUnit === StatsOptionEnum.THIS_YEAR
-                ? 'Show Vitals This Year'
-                : 'Show Vitals Last 12 Months'
-            }
-            active={chartSelected === ChartOption.VITALS}
-            onClick={() => setChartSelected(ChartOption.VITALS)}
-          />
-          <Menu.Item
-            name="Show Traffic Lights"
-            active={chartSelected === ChartOption.TRAFFIC_LIGHTS}
-            onClick={() => setChartSelected(ChartOption.TRAFFIC_LIGHTS)}
-          />
-        </Menu>
+        <ToggleButtonGroup
+          value={chartSelected}
+          exclusive
+          sx={{
+            width: '100%',
+            marginY: '16px',
+          }}>
+          <ToggleButton
+            value={ChartOption.VITALS}
+            onClick={() => {
+              setChartSelected(ChartOption.VITALS);
+            }}
+            sx={{
+              width: '100%',
+            }}>
+            {currentStatsUnit === StatsOptionEnum.THIS_YEAR
+              ? 'Show Vitals This Year'
+              : 'Show Vitals Last 12 Months'}
+          </ToggleButton>
+          <ToggleButton
+            value={ChartOption.TRAFFIC_LIGHTS}
+            onClick={() => {
+              setChartSelected(ChartOption.TRAFFIC_LIGHTS);
+            }}
+            sx={{
+              width: '100%',
+            }}>
+            {'Show Traffic Lights'}
+          </ToggleButton>
+        </ToggleButtonGroup>
+
         {errorLoading ? (
           <Alert severity="error">
             Something went wrong trying to load the stats for that patient.
@@ -118,16 +133,27 @@ export const PatientStats = ({ patientId }: IProps) => {
                   }}>
                   Average Vitals
                 </Typography>
-                <Form.Field
-                  name="statsUnit"
-                  control={Select}
-                  options={unitOptions}
-                  placeholder={statsUnitLabels[currentStatsUnit]}
-                  onChange={handleCurrentStatsUnitChange}
-                />
+
+                <Select
+                  sx={{
+                    minWidth: '160px',
+                  }}
+                  value={currentStatsUnit}
+                  onChange={(event) => {
+                    setCurrentStatsUnit(event.target.value as StatsOptionEnum);
+                  }}>
+                  {/* onChange={handleCurrentStatsUnitChange}> */}
+                  {unitOptions.map((option) => (
+                    <MenuItem key={option.key} value={option.value}>
+                      {option.text}
+                    </MenuItem>
+                  ))}
+                </Select>
+
                 <Box
                   sx={{
                     height: GRAPH_HEIGHT,
+                    marginTop: '16px',
                   }}>
                   <Line
                     data={getVitalsData(patientStats, currentStatsUnit)}
