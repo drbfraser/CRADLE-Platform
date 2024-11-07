@@ -1,8 +1,8 @@
-import json
 import logging
 import os
 import re
 
+from botocore.exceptions import ClientError
 from flasgger import swag_from
 from flask import Flask, request
 from flask_jwt_extended import (
@@ -37,7 +37,12 @@ from common.regexUtil import phoneNumber_regex_check
 from data import crud, marshal
 from enums import RoleEnum
 from models import UserOrm
-from validation.users import UserRegisterValidator, UserValidator
+from shared.user_utils import UserUtils
+from validation.users import (
+    UserAuthRequestValidator,
+    UserRegisterValidator,
+    UserValidator,
+)
 from validation.validation_exception import ValidationExceptionError
 
 LOGGER = logging.getLogger(__name__)
@@ -216,54 +221,15 @@ class UserRegisterApi(Resource):
             abort(400, message=error_message)
 
         # use pydantic model to generate validated dict for later processing
-        new_user = user_pydantic_model.model_dump()
+        new_user_dict = user_pydantic_model.model_dump()
 
-        # Get phone numbers.
-        phone_numbers = list(new_user.get("phone_numbers", []))
+        UserUtils.create_user(**new_user_dict)
 
-        # Remove phone numbers from new_user.
-        new_user = {k: v for k, v in new_user.items() if k != "phoneNumbers"}
 
-        # Ensure that email is unique
-        if (crud.read(UserOrm, email=new_user["email"])) is not None:
-            error_message = "There is already a user with this email."
-            LOGGER.error(error_message)
-            abort(400, message=error_message)
-
-        # Validate phone numbers.
-        for phone_number in phone_numbers:
-            if phoneNumber_exists(phone_number):
-                return {"message": phone_number_already_exists_message }, 400
-
-        create_user_response = cognito.create_user(username=new_user["username"],
-                                                   email=new_user["email"],
-                                                   name=new_user["name"])
-
-        print(create_user_response)
-
-        # Encrypt pass
-        # new_user["password"] = flask_bcrypt.generate_password_hash(new_user["password"])
-        list_of_vhts = new_user.pop("supervises", None)
-
-        # Create the new user
-        user_model = marshal.unmarshal(UserOrm, new_user)
-        crud.create(user_model)
-
-        # Getting the id of the created user
-        created_user = marshal.marshal(crud.read(UserOrm, email=new_user["email"]))
-        created_user.pop("password")
-        created_user_id = created_user["id"]
-
-        # Add the new user's phone numbers.
-        for phone_number in phone_numbers:
-            add_new_phoneNumber_for_user(phone_number, created_user_id)
-
-        # Updating the supervises table if necessary as well
-        if new_user["role"] == "CHO" and list_of_vhts is not None:
-            crud.add_vht_to_supervise(created_user_id, list_of_vhts)
-
-        response = getDictionaryOfUserInfo(created_user_id)
-        return response, 200
+        # # Updating the supervises table if necessary as well
+        # if new_user["role"] == "CHO" and list_of_vhts is not None:
+        #     crud.add_vht_to_supervise(created_user_id, list_of_vhts)
+        return UserUtils.get_user_dict_from_username(user_pydantic_model.username), 200
 
 
 def get_user_data_for_token(user: UserOrm) -> dict:
@@ -304,20 +270,6 @@ class UserAuthApi(Resource):
         # parsed by flask limiter library https://flask-limiter.readthedocs.io/en/stable/
     )
 
-    parser = reqparse.RequestParser()
-    parser.add_argument(
-        "email",
-        type=str,
-        required=True,
-        help="This field cannot be left blank!",
-    )
-    parser.add_argument(
-        "password",
-        type=str,
-        required=True,
-        help="This field cannot be left blank!",
-    )
-
     # login to account
     @limiter.limit(
         "10 per minute, 20 per hour, 30 per day",
@@ -338,25 +290,46 @@ class UserAuthApi(Resource):
             code 200
 
         """
-        data = self.parser.parse_args()
-        user = crud.read(UserOrm, email=data["email"])
+        # Parse and validate the form data.
+        form_data = request.form
+        credentials = UserAuthRequestValidator(**form_data)
 
+        # Attempt authentication with Cognito user pool.
+        try:
+            auth_response = cognito.start_sign_in(**credentials.model_dump())
+        except ClientError as err:
+            error = err.response.get("Error")
+            print(error)
+            abort(401, message=error)
 
-        if user is None:
-            return {"message": "Incorrect username or password."}, 401
+        # If no exception was raised, then authentication was successful.
+        auth_result = auth_response.get("AuthenticationResult")
+
+        # Get user data from database.
+        try:
+            user_orm_model = UserUtils.get_user_orm_model_from_username(credentials.username)
+        except ValueError as err:
+            LOGGER.error(err)
+            LOGGER.error("ERROR: Something has gone wrong. User authentication succeeded but username (%s) is not found in database.",
+                         credentials.username)
+            print(err)
+            abort(500, message=error)
+
+        user_dict = UserUtils.get_user_dict_from_orm_model(user_orm_model)
+        user_id = user_dict["id"]
 
         # setup any extra user params
-        user_data = get_user_data_for_token(user)
+        # user_data = get_user_data_for_token(user_orm_model)
 
-        user_data["token"] = get_access_token(user_data)
-        user_data["refresh"] = get_refresh_token(user_data)
+        # user_data["token"] = get_access_token(user_data)
+        # user_data["refresh"] = get_refresh_token(user_data)
 
         # construct and add the sms key information in the same format as api/user/<int:user_id>/smskey
-        sms_key = get_user_secret_key(user.id)
+        sms_key = get_user_secret_key(user_id)
         if sms_key:
             # remove extra items
             del sms_key["id"]
-            del sms_key["userId"]
+            del sms_key["user_id"]
             # change the key name
             sms_key["sms_key"] = sms_key.pop("secret_Key")
             # add message
@@ -370,11 +343,17 @@ class UserAuthApi(Resource):
             sms_key["stale_date"] = str(sms_key["stale_date"])
             sms_key["expiry_date"] = str(sms_key["expiry_date"])
             # store the constructed sms key
-            user_data["smsKey"] = json.dumps(sms_key)
-        else:
-            user_data["smsKey"] = "NOTFOUND"
+            # user_data["smsKey"] = json.dumps(sms_key)
+        # else:
+            # user_data["sms_key"] = "NOTFOUND"
 
-        return user_data, 200
+        res = {
+            "auth_result": auth_result,
+            "user": user_dict,
+            "sms_key": sms_key,
+        }
+
+        return res, 200
 
 
 # api/user/auth/refresh_token
