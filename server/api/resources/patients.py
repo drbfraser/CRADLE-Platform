@@ -140,7 +140,7 @@ class PatientInfo(Resource):
         json = request.get_json(force=True)
 
         try:
-            PatientPutValidator.validate_put_request(json, patient_id)
+            PatientPutValidator.validate(json, patient_id)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 

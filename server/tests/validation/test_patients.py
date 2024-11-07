@@ -183,7 +183,7 @@ def test_put_validation(json, expectation):
     patient_id = 123
     if expectation:
         with pytest.raises(expectation):
-            PatientPutValidator.validate_put_request(json, patient_id)
+            PatientPutValidator.validate(json, patient_id)
     else:
-        message = PatientPutValidator.validate_put_request(json, patient_id)
+        message = PatientPutValidator.validate(json, patient_id)
         assert message is None, f"Expected None, but got {message}"
