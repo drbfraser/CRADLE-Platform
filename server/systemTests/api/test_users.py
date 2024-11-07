@@ -13,9 +13,11 @@ def generate_random_email(domain="example.com", length=10):
     email = f"{username}@{domain}"
     return email
 
+
 def generate_random_phone_number():
     phone_number = f"{random.randint(1000000000, 9999999999)}"
     return phone_number
+
 
 # TEST COMMENT
 @pytest.fixture(scope="module")
