@@ -2,10 +2,10 @@ import React from 'react';
 
 import { AppRoutes } from './routes';
 import { CssBaseline } from '@mui/material';
-import { Sidebar } from './sidebar';
 import { TopBar } from './topBar';
 import { Box } from '@mui/material';
 import { TopLevelContextProviders } from 'src/context/providers/TopLevelContextProviders';
+import { SidebarWrapper } from './sidebar/SidebarWrapper';
 
 export const App: React.FC = () => {
   return (
@@ -23,17 +23,10 @@ export const App: React.FC = () => {
           justifyContent: 'start',
         }}>
         <TopBar />
-        <Box
-          id={'sidebarWrapper'}
-          sx={{
-            height: '100%',
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'row',
-          }}>
-          <Sidebar />
+
+        <SidebarWrapper>
           <AppRoutes />
-        </Box>
+        </SidebarWrapper>
       </Box>
     </TopLevelContextProviders>
   );

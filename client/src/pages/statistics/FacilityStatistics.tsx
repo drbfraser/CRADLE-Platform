@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   getFacilityStatisticsAsync,
   getHealthFacilitiesAsync,
@@ -10,22 +10,18 @@ import FormControl from '@mui/material/FormControl';
 import { IFacility } from 'src/shared/types';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import { StatisticDashboard } from './utils/StatisticDashboard';
+import { StatisticDashboard } from './utils/StatisticsInfo';
 import Typography from '@mui/material/Typography';
 import { useEffect } from 'react';
-import {
-  DIVIDER_SX,
-  FORM_CTRL_SX,
-  STATS_PAGE_SX,
-} from './utils/statisticStyles';
+import { DIVIDER_SX, STATS_PAGE_SX } from './utils/statisticStyles';
 import { Box } from '@mui/material';
 
-interface IProps {
+type FacilityStatisticsProps = {
   from: number;
   to: number;
-}
+};
 
-export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
+export const FacilityStatistics = ({ from, to }: FacilityStatisticsProps) => {
   const [facilities, setFacilities] = useState<IFacility[]>([]);
   const [facility, setFacility] = useState('');
   const [errorLoading, setErrorLoading] = useState(false);
@@ -52,24 +48,35 @@ export const FacilityStatistics: React.FC<IProps> = ({ from, to }) => {
         onClose={() => setErrorLoading(false)}
       />
       <Box>
-        <Typography variant="h5" gutterBottom sx={{ float: 'left' }}>
-          Please select a facility from the list:
-        </Typography>
-
-        <FormControl variant="standard" sx={FORM_CTRL_SX}>
-          <Select
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: '0.75rem',
+            flexWrap: 'wrap',
+          }}>
+          <Typography variant="h5" gutterBottom sx={{ margin: '0' }}>
+            Please select a facility from the list:
+          </Typography>
+          <FormControl
             variant="standard"
-            value={facility}
-            onChange={handleChange}
-            autoWidth>
-            {facilities.map((f, idx) => (
-              <MenuItem value={f.healthFacilityName} key={idx}>
-                {`${f.healthFacilityName}`}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
+            sx={{
+              width: '100px',
+            }}>
+            <Select
+              variant="standard"
+              value={facility}
+              onChange={handleChange}
+              autoWidth>
+              {facilities.map((f, idx) => (
+                <MenuItem value={f.healthFacilityName} key={idx}>
+                  {`${f.healthFacilityName}`}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
         <br />
         {facility !== '' && (
           <Box>

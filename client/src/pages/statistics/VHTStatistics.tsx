@@ -1,5 +1,5 @@
 import { IUserWithTokens, OrNull } from 'src/shared/types';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   getUserStatisticsAsync,
   getUserStatisticsExportAsync,
@@ -14,7 +14,7 @@ import { IVHT } from 'src/shared/types';
 import MenuItem from '@mui/material/MenuItem';
 import { ReduxState } from 'src/redux/reducers';
 import Select from '@mui/material/Select';
-import { StatisticDashboard } from './utils/StatisticDashboard';
+import { StatisticDashboard } from './utils/StatisticsInfo';
 import Typography from '@mui/material/Typography';
 import { UserRoleEnum } from 'src/shared/enums';
 import { getVHTsAsync } from 'src/shared/api';
@@ -26,16 +26,16 @@ import {
   STATS_PAGE_SX,
 } from './utils/statisticStyles';
 
-interface IProps {
+type Props = {
   from: number;
   to: number;
-}
+};
 
 type User = {
   user: OrNull<IUserWithTokens>;
 };
 
-export const VHTStatistics: React.FC<IProps> = ({ from, to }) => {
+export const VHTStatistics = ({ from, to }: Props) => {
   const { user } = useSelector(
     ({ user }: ReduxState): User => ({
       user: user.current.data,

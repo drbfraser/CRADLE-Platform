@@ -13,9 +13,11 @@ html {
 body {
   height: 100%;
   width: 100%;
+  max-width: 100vw;
   font-size: 1rem;
   line-height: 1.5;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 main {

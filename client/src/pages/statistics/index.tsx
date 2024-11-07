@@ -2,64 +2,21 @@ import moment from 'moment';
 
 import { AllStatistics } from './AllStatistics';
 import { FacilityStatistics } from './FacilityStatistics';
-import Grid from '@mui/material/Grid';
 import { MyFacility } from './MyFacility';
 import { MyStatistics } from './MyStatistics';
 import { ReduxState } from 'src/redux/reducers';
-import { Tab } from 'semantic-ui-react';
 import { Toast } from 'src/shared/components/toast';
 import { UserRoleEnum } from 'src/shared/enums';
 import { UserStatistics } from './UserStatistics';
 import { VHTStatistics } from './VHTStatistics';
 import { useSelector } from 'react-redux';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Box } from '@mui/material';
 import { useDateRangeState } from 'src/shared/components/Date/useDateRangeState';
 import { DateRangePickerWithPreset } from 'src/shared/components/Date/DateRangePicker';
-import { TAB_SX } from './utils/statisticStyles';
-
-const allPanes = [
-  {
-    name: 'My Statistics',
-    Component: MyStatistics,
-    roles: [
-      UserRoleEnum.VHT,
-      UserRoleEnum.CHO,
-      UserRoleEnum.HCW,
-      UserRoleEnum.ADMIN,
-    ],
-  },
-  {
-    name: 'My VHTs',
-    Component: VHTStatistics,
-    roles: [UserRoleEnum.CHO],
-  },
-  {
-    name: 'VHT Statistics',
-    Component: VHTStatistics,
-    roles: [UserRoleEnum.HCW],
-  },
-  {
-    name: 'My Facility',
-    Component: MyFacility,
-    roles: [UserRoleEnum.HCW],
-  },
-  {
-    name: 'User Statistics',
-    Component: UserStatistics,
-    roles: [UserRoleEnum.ADMIN],
-  },
-  {
-    name: 'Facility Statistics',
-    Component: FacilityStatistics,
-    roles: [UserRoleEnum.ADMIN],
-  },
-  {
-    name: 'All Users and Facilities',
-    Component: AllStatistics,
-    roles: [UserRoleEnum.ADMIN],
-  },
-];
+import { Tabs } from 'src/shared/components/Tabs/Tabs';
+import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
+import { DASHBOARD_PADDING } from 'src/shared/constants';
 
 export function StatisticsPage() {
   const user = useSelector((state: ReduxState) => state.user.current.data);
@@ -74,21 +31,56 @@ export function StatisticsPage() {
     setEndDate(moment().endOf('day'));
   }, []);
 
-  const panes = allPanes
-    .filter((p) => p?.roles.includes(user!.role))
-    .map((p) => ({
-      menuItem: p.name,
-      render: () => (
-        <Tab.Pane>
-          {startDate && endDate && (
-            <p.Component
-              from={startDate.toDate().getTime() / 1000}
-              to={endDate.toDate().getTime() / 1000}
-            />
-          )}
-        </Tab.Pane>
-      ),
-    }));
+  const from = useMemo(() => startDate!.toDate().getTime() / 1000, []);
+  const to = useMemo(() => endDate!.toDate().getTime() / 1000, []);
+  const range = {
+    from,
+    to,
+  };
+  const allPanels = [
+    {
+      label: 'My Statistics',
+      Component: () => <MyStatistics {...range} />,
+      roles: [
+        UserRoleEnum.VHT,
+        UserRoleEnum.CHO,
+        UserRoleEnum.HCW,
+        UserRoleEnum.ADMIN,
+      ],
+    },
+    {
+      label: 'My VHTs',
+      Component: () => <VHTStatistics {...range} />,
+      roles: [UserRoleEnum.CHO],
+    },
+    {
+      label: 'VHT Statistics',
+      Component: () => <VHTStatistics {...range} />,
+      roles: [UserRoleEnum.HCW],
+    },
+    {
+      label: 'My Facility',
+      Component: () => <MyFacility {...range} />,
+      roles: [UserRoleEnum.HCW],
+    },
+    {
+      label: 'User Statistics',
+      Component: () => <UserStatistics {...range} />,
+      roles: [UserRoleEnum.ADMIN],
+    },
+    {
+      label: 'Facility Statistics',
+      Component: () => <FacilityStatistics {...range} />,
+      roles: [UserRoleEnum.ADMIN],
+    },
+    {
+      label: 'All Users and Facilities',
+      Component: () => <AllStatistics {...range} />,
+      roles: [UserRoleEnum.ADMIN],
+    },
+  ];
+
+  const panels = allPanels.filter((panel) => panel?.roles.includes(user!.role));
 
   return (
     <Box
@@ -106,18 +98,21 @@ export function StatisticsPage() {
           onClose={() => setErrorLoading(false)}
         />
       )}
-
-      <Grid id={'statistics-container'} item sx={{ marginBottom: '10px' }}>
-        <DateRangePickerWithPreset {...dateRangeState} />
-        <Tab
-          menu={{
-            secondary: true,
-            pointing: true,
-            sx: TAB_SX,
-          }}
-          panes={panes}
-        />
-      </Grid>
+      <DashboardPaper>
+        <Box
+          id={'statistics-container'}
+          sx={{
+            marginBottom: '10px',
+            display: 'flex',
+            flexDirection: 'column',
+            padding: DASHBOARD_PADDING,
+          }}>
+          <DateRangePickerWithPreset {...dateRangeState} />
+          <Box sx={{ marginTop: '1rem', marginBottom: '2rem' }}>
+            <Tabs panels={panels} />
+          </Box>
+        </Box>
+      </DashboardPaper>
     </Box>
   );
 }

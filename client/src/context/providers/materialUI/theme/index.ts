@@ -22,4 +22,7 @@ export const theme = createTheme({
       main: cyan[500],
     },
   },
+  colorSchemes: {
+    light: true,
+  },
 });
