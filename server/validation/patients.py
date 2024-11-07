@@ -59,6 +59,7 @@ class PatientBase(BaseModel):
             raise ValueError("dob is not in the required YYYY-MM-DD format.")
         return dob
 
+
 class PatientPostValidator(PatientBase):
     patientId: str
     patientName: str

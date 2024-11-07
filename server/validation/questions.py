@@ -178,11 +178,9 @@ class QuestionLangVersionValidator(BaseModel):
         return
 
 
-class TemplateQuestionValidator(BaseModel):
+class QuestionBase(BaseModel):
     questionIndex: Annotated[int, Field(strict=True, ge=0)]  # Non-negative index
     questionType: QuestionTypeEnum
-    questionLangVersions: List[QuestionLangVersionValidator]
-    isBlank: bool = True  # Set to true for template questions
     questionId: Optional[str] = None
     required: Optional[bool] = None
     allowPastDates: Optional[bool] = None
@@ -194,6 +192,11 @@ class TemplateQuestionValidator(BaseModel):
     stringMaxLength: Optional[int] = None
     categoryIndex: Optional[int] = None
     stringMaxLines: Optional[int] = None
+
+
+class TemplateQuestionValidator(QuestionBase):
+    questionLangVersions: List[QuestionLangVersionValidator]
+    isBlank: bool = True  # Set to True for template questions
 
     class Config:
         extra = "forbid"
@@ -214,22 +217,9 @@ class TemplateQuestionValidator(BaseModel):
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
 
-class FormQuestionValidator(BaseModel):
-    questionIndex: Annotated[int, Field(strict=True, ge=0)]  # Non-negative index
-    questionType: QuestionTypeEnum
+class FormQuestionValidator(QuestionBase):
     questionText: str
     isBlank: bool = False  # Set to False for form questions
-    questionId: Optional[str] = None
-    required: Optional[bool] = None
-    allowPastDates: Optional[bool] = None
-    allowFutureDates: Optional[bool] = None
-    units: Optional[str] = None
-    visibleCondition: Optional[List[VisibleConditionValidator]] = None
-    numMin: Optional[Union[int, float]] = None
-    numMax: Optional[Union[int, float]] = None
-    stringMaxLength: Optional[int] = None
-    categoryIndex: Optional[int] = None
-    stringMaxLines: Optional[int] = None
     hasCommentAttached: Optional[bool] = None
     id: Optional[str] = None
     mcOptions: Optional[List[MultipleChoiceOptionValidator]] = None
