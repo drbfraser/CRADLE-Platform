@@ -22,7 +22,7 @@ class FormTemplateValidator(BaseModel):
         extra = "forbid"
 
     @staticmethod
-    def validate_template(request_body: dict):
+    def validate(request_body: dict):
         """
         Returns an error message if the template part in /api/forms/templates POST or PUT
         request is not valid. Else, returns None.

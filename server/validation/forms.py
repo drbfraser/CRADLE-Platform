@@ -25,7 +25,7 @@ class FormValidator(BaseModel):
         extra = "forbid"
 
     @staticmethod
-    def validate_form(request_body: dict):
+    def validate(request_body: dict):
         """
         Returns an error message if the form in /api/forms/responses
         POST request is not valid. Else, returns None.
@@ -51,7 +51,7 @@ class FormValidator(BaseModel):
         """
         # validate each question
         for q in request_body:
-            FormQuestionValidator.validate_form_question_post(q)
+            FormQuestionValidator.validate(q)
 
     @staticmethod
     def validate_put_request(request_body: dict):
@@ -85,4 +85,4 @@ class FormValidator(BaseModel):
 
         # validate question put content
         for q in request_body["questions"]:
-            FormQuestionPutValidator.validate_form_question_put(q)
+            FormQuestionPutValidator.validate(q)

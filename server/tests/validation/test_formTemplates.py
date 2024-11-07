@@ -70,9 +70,9 @@ invalid_keys = {
 def test_validate_template(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            FormTemplateValidator.validate_template(json)
+            FormTemplateValidator.validate(json)
     else:
-        message = FormTemplateValidator.validate_template(json)
+        message = FormTemplateValidator.validate(json)
         assert message is None, f"Expected None, but got {message}"
 
 

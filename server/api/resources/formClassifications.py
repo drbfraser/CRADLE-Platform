@@ -72,7 +72,7 @@ class Root(Resource):
                 abort(409, message="Form classification already exists")
 
         try:
-            FormClassificationValidator.validate_template(req)
+            FormClassificationValidator.validate(req)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 

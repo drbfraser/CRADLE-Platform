@@ -31,7 +31,7 @@ class Root(Resource):
                 abort(409, message="Form already exists")
 
         try:
-            FormValidator.validate_form(req)
+            FormValidator.validate(req)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 

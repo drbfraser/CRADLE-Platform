@@ -66,7 +66,7 @@ class Root(Resource):
                 abort(409, message="Form template already exists")
 
         try:
-            FormTemplateValidator.validate_template(req)
+            FormTemplateValidator.validate(req)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 

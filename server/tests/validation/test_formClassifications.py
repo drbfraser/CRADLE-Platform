@@ -24,7 +24,7 @@ invalid_keys = {"id": "123", "name": "test-name", "invalid": "This should be inv
 def test_validate_template(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            FormClassificationValidator.validate_template(json)
+            FormClassificationValidator.validate(json)
     else:
-        message = FormClassificationValidator.validate_template(json)
+        message = FormClassificationValidator.validate(json)
         assert message is None, f"Expected None, but got {message}"

@@ -134,9 +134,9 @@ invalid_type_questions = {
 def test_validate_form(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            FormValidator.validate_form(json)
+            FormValidator.validate(json)
     else:
-        message = FormValidator.validate_form(json)
+        message = FormValidator.validate(json)
         assert message is None, f"Expected None, but got {message}"
 
 

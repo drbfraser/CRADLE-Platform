@@ -12,7 +12,7 @@ class MultipleChoiceOptionValidator(BaseModel):
     opt: str
 
     @staticmethod
-    def validate_mc_options(q: dict):
+    def validate(q: dict):
         """
         Returns an error if the mcOptions is invalid.
         Else, returns None.
@@ -56,7 +56,7 @@ class AnswerValidator(BaseModel):
         extra = "forbid"
 
     @staticmethod
-    def validate_answers(q: dict):
+    def validate(q: dict):
         """
         Returns an error if the answer is invalid.
         Else, returns None.
@@ -93,7 +93,7 @@ class VisibleConditionValidator(BaseModel):
     relation: QRelationalEnum
 
     @staticmethod
-    def validate_visible_condition(q: dict):
+    def validate(q: dict):
         """
         Returns an error if the visible condition is invalid
         . Else, returns None.
@@ -138,7 +138,7 @@ class QuestionLangVersionValidator(BaseModel):
         extra = "forbid"
 
     @staticmethod
-    def validate_lang_versions(q: dict):
+    def validate(q: dict):
         """
         Returns an error if the lang versions is invalid.
         Else, returns None.
@@ -202,7 +202,7 @@ class TemplateQuestionValidator(QuestionBase):
         extra = "forbid"
 
     @staticmethod
-    def validate_template_question_post(q: dict):
+    def validate(q: dict):
         """
         Returns an error message if the question dict is not valid (after pre-process) when
         making template post request. Else, returns None.
@@ -229,7 +229,7 @@ class FormQuestionValidator(QuestionBase):
         extra = "forbid"
 
     @staticmethod
-    def validate_form_question_post(q: dict):
+    def validate(q: dict):
         """
         Returns an error message if the question dict is not valid (after pre-process) when
         making /api/forms/responses POST request. Else, returns None.
@@ -249,7 +249,7 @@ class FormQuestionPutValidator(BaseModel):
     answers: AnswerValidator
 
     @staticmethod
-    def validate_form_question_put(q: dict):
+    def validate(q: dict):
         """
         Returns an error message if the question dict is not valid when making
         /api/forms/responses PUT request. Else, returns None.
