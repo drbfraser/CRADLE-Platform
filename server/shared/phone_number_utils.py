@@ -25,6 +25,38 @@ https://www.sent.dm/resources/e164-phone-format
 
 class PhoneNumberUtils:
     @staticmethod
+    def parse(phone_number: str) -> phonenumbers.PhoneNumber:
+        """
+        Parses a phone number string into a PhoneNumber object. Throws a
+        ValueError exception if parsing fails or if phone number format is
+        invalid.
+
+        :param parsed_phone_number: The phone number to parse.
+        """
+        invalid_error = { "message": f"Phone number ({phone_number}) is invalid." }
+        try:
+            parsed_phone_number = phonenumbers.parse(phone_number)
+            if not phonenumbers.is_possible_number(parsed_phone_number):
+                raise ValueError(invalid_error)
+        except phonenumbers.NumberParseException:
+            raise ValueError(invalid_error)
+        else:
+            return parsed_phone_number
+    # End of function.
+
+    @staticmethod
+    def format(phone_number: str) -> str:
+        """
+        Formats the phone number into E. 164 format. Throws a ValueError exception
+        if the provided phone number is not in a valid format already.
+
+        :param parsed_phone_number: The phone number to format.
+        """
+        parsed_phone_number = PhoneNumberUtils.parse(phone_number)
+        return PhoneNumberUtils.format_parsed_to_E164(parsed_phone_number)
+    # End of function.
+
+    @staticmethod
     def format_parsed_to_E164(parsed_phone_number: phonenumbers.PhoneNumber):
         """
         Format phone number to be in E. 164 format.
@@ -44,6 +76,15 @@ class PhoneNumberUtils:
         parsed_phone_number = phonenumbers.parse(phone_number)
         return PhoneNumberUtils.format_parsed_to_E164(parsed_phone_number)
     # End of function.
+
+    @staticmethod
+    def is_parsed_format_valid(parsed_phone_number: phonenumbers.PhoneNumber) -> bool:
+        """
+        Validates the format of a parsed PhoneNumber object.
+
+        :param parsed_phone_number: The PhoneNumber object to validate.
+        """
+        return phonenumbers.is_possible_number(parsed_phone_number)
 
     @staticmethod
     def is_format_valid(phone_number: str) -> bool:
