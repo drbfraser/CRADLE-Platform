@@ -28,7 +28,9 @@ class PatientPostValidator(BaseModel):
     def validate_is_pregnant_field(cls, values):
         is_pregnant = values.get("isPregnant")
         if is_pregnant:
-            if not values.get("pregnancyStartDate") or not values.get("gestationalAgeUnit"):
+            if not values.get("pregnancyStartDate") or not values.get(
+                "gestationalAgeUnit",
+            ):
                 raise ValueError(
                     "If isPregnant is True, pregnancyStartDate and gestationalAgeUnit are required.",
                 )
@@ -117,7 +119,9 @@ class PatientPutValidator(BaseModel):
     def validate_is_pregnant_field(cls, values):
         is_pregnant = values.get("isPregnant")
         if is_pregnant:
-            if not values.get("pregnancyStartDate") or not values.get("gestationalAgeUnit"):
+            if not values.get("pregnancyStartDate") or not values.get(
+                "gestationalAgeUnit",
+            ):
                 raise ValueError(
                     "If isPregnant is True, pregnancyStartDate and gestationalAgeUnit are required.",
                 )
