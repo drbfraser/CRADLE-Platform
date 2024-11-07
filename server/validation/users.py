@@ -17,14 +17,26 @@ class UserValidator(BaseModel):
     email: str
     health_facility_name: str
     role: str
-    supervises: List[int] = []
     phone_numbers: List[str] = []
+
+    @field_validator("role", mode="before")
+    @classmethod
+    def validate_username_format(cls, username: str) -> str:
+        username = username.lower()
+        length = len(username)
+        if length < 3 or length > 30:
+            raise ValueError(f"Username ({username}) is invalid. Username must be between 3 and 30 characters.")
+        username_regex_pattern = r"^[A-Za-z]\w{3,30}$"
+        if re.fullmatch(username_regex_pattern, username) is None:
+            raise ValueError(f"Username ({username}) is invalid. Username must contain only alphanumeric or underscore characters.")
+        return username
+
 
     @field_validator("role", mode="before")
     @classmethod
     def validate_role(cls, value: str):
         if value not in supported_roles:
-            error = {"message": "Not a supported role"}
+            error = {"message": f"({value}) is not a supported role"}
             raise ValueError(error)
         return value
 
@@ -32,9 +44,9 @@ class UserValidator(BaseModel):
     @classmethod
     def validate_email_format(cls, email: str):
         # Validate email format.
-        email_regex_pattern = r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$"
+        email_regex_pattern = r"^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,4}$"
         email = email.lower()
-        if re.match(email_regex_pattern, email) is None:
+        if re.fullmatch(email_regex_pattern, email) is None:
             raise ValueError(f"Email ({email}) is invalid.")
         return email.lower()
 
@@ -81,14 +93,21 @@ class UserValidator(BaseModel):
 class UserRegisterValidator(UserValidator):
     password: str
 
-    # Override base class after field validator for email.
     @field_validator("email", mode="after")
     @classmethod
     def validate_email_uniqueness(cls, email: str):
         # Email should already be converted to lowercase.
-        print(f"Validate email uniqueness: ({email})")
         # Validate that email isn't already taken.
         if UserUtils.does_email_exist(email):
+            raise ValueError(f"Email ({email}) is already in use.")
+        return email
+
+    @field_validator("username", mode="after")
+    @classmethod
+    def validate_username_uniqueness(cls, email: str):
+        # Username should already be converted to lowercase.
+        # Validate that username isn't already taken.
+        if UserUtils.does_username_exist(email):
             raise ValueError(f"Email ({email}) is already in use.")
         return email
 
@@ -114,3 +133,18 @@ class UserPutRequestValidator(UserValidator):
         if not UserUtils.is_email_unique_to_user(self.email, self.id):
             raise ValueError(f"Email ({self.email}) is already in use.")
         return self
+
+class UserAuthRequestValidator(BaseModel):
+    """
+    Pydantic validation model for the `/api/user/auth [POST]` api endpoint.
+    Only needs to validate that the username and password fields are present,
+    and convert the username to all lowercase.
+    """
+
+    username: str # Can be username or email.
+    password: str
+
+    @field_validator("username")
+    @classmethod
+    def format_username(cls, username: str) -> str:
+        return username.lower()
