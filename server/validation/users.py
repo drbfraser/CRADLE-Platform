@@ -13,6 +13,7 @@ supported_roles = [role.value for role in RoleEnum]
 
 class UserValidator(BaseModel):
     name: str
+    username: str
     email: str
     health_facility_name: str
     role: str
