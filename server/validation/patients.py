@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import Any, Optional
 
-from pydantic import BaseModel, ValidationError, model_validator
+from pydantic import BaseModel, ValidationError, field_validator, model_validator
 
 from validation.validation_exception import ValidationExceptionError
 
@@ -23,42 +23,42 @@ class PatientPostValidator(BaseModel):
     allergy: Optional[str] = None
     isArchived: Optional[bool] = False
 
-    @model_validator(mode="before")
+    @field_validator("patientId", mode="before")
     @classmethod
-    def check_patient_id_length(cls, values):
-        if values.get("patientId"):
-            if len(values["patientId"]) > 14:
-                raise ValueError("patientId is too long. Max is 14 digits.")
-        return values
+    def check_patient_id_length(cls, patient_id):
+        if len(patient_id) > 14:
+            raise ValueError("patientId is too long. Max is 14 digits.")
+        return patient_id
 
     @model_validator(mode="before")
     @classmethod
-    def validate_pregnancy_fields(cls, values):
-        if values.get("isPregnant"):
-            if not values.get("pregnancyStartDate") or not values.get(
-                "gestationalAgeUnit",
-            ):
+    def validate_is_pregnant_field(cls, values):
+        is_pregnant = values.get("isPregnant")
+        if is_pregnant:
+            if not values.get("pregnancyStartDate") or not values.get("gestationalAgeUnit"):
                 raise ValueError(
                     "If isPregnant is True, pregnancyStartDate and gestationalAgeUnit are required.",
                 )
+        return values
 
-        # Check the gestational age if provided
-        if "pregnancyStartDate" in values:
-            error = check_gestational_age_under_limit(values["pregnancyStartDate"])
+    @field_validator("pregnancyStartDate", mode="before")
+    @classmethod
+    def validate_pregnancy_start_date_field(cls, pregnancy_start_date):
+        if pregnancy_start_date:
+            error = check_gestational_age_under_limit(pregnancy_start_date)
             if error:
                 raise ValueError(error)
-        return values
+        return pregnancy_start_date
 
-    @model_validator(mode="before")
+    @field_validator("dob", mode="before")
     @classmethod
-    def validate_date_format(cls, values):
-        dob = values.get("dob")
+    def validate_date_format(cls, dob):
         if dob and not is_correct_date_format(dob):
             raise ValueError("dob is not in the required YYYY-MM-DD format.")
-        return values
+        return dob
 
     @staticmethod
-    def validate(request_body: dict) -> Optional[str]:
+    def validate(request_body: dict):
         """
         Returns an error message if the /api/patients post request
         is not valid. Else, returns None.
@@ -112,43 +112,48 @@ class PatientPutValidator(BaseModel):
     class Config:
         extra = "forbid"
 
-    @model_validator(mode="before")
+    @field_validator("patientId", mode="before")
     @classmethod
-    def check_patient_id_length(cls, values):
-        if values.get("patientId"):
-            if len(values["patientId"]) > 14:
-                raise ValueError("patientId is too long. Max is 14 digits.")
-        return values
+    def check_patient_id_length(cls, patient_id):
+        if len(patient_id) > 14:
+            raise ValueError("patientId is too long. Max is 14 digits.")
+        return patient_id
 
     @model_validator(mode="before")
     @classmethod
-    def validate_pregnancy_fields(cls, values):
-        if values.get("isPregnant"):
-            if not values.get("pregnancyStartDate") or not values.get(
-                "gestationalAgeUnit",
-            ):
+    def validate_is_pregnant_field(cls, values):
+        is_pregnant = values.get("isPregnant")
+        if is_pregnant:
+            if not values.get("pregnancyStartDate") or not values.get("gestationalAgeUnit"):
                 raise ValueError(
                     "If isPregnant is True, pregnancyStartDate and gestationalAgeUnit are required.",
                 )
-
-        # Check the gestational age if provided
-        if values.get("pregnancyStartDate"):
-            error = check_gestational_age_under_limit(values["pregnancyStartDate"])
-            if error:
-                raise ValueError(error)
-        if values.get("gestationalTimestamp"):
-            error = check_gestational_age_under_limit(values["gestationalTimestamp"])
-            if error:
-                raise ValueError(error)
         return values
 
-    @model_validator(mode="before")
+    @field_validator("pregnancyStartDate", mode="before")
     @classmethod
-    def validate_date_format(cls, values):
-        dob = values.get("dob")
+    def validate_pregnancy_start_date_field(cls, pregnancy_start_date):
+        if pregnancy_start_date:
+            error = check_gestational_age_under_limit(pregnancy_start_date)
+            if error:
+                raise ValueError(error)
+        return pregnancy_start_date
+
+    @field_validator("gestationalTimestamp", mode="before")
+    @classmethod
+    def validate_gestational_timestamp_field(cls, gestational_timestamp):
+        if gestational_timestamp:
+            error = check_gestational_age_under_limit(gestational_timestamp)
+            if error:
+                raise ValueError(error)
+        return gestational_timestamp
+
+    @field_validator("dob", mode="before")
+    @classmethod
+    def validate_date_format(cls, dob):
         if dob and not is_correct_date_format(dob):
             raise ValueError("dob is not in the required YYYY-MM-DD format.")
-        return values
+        return dob
 
     @staticmethod
     def validate_put_request(request_body: dict, patient_id):
