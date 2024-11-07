@@ -9,8 +9,6 @@ from config import db
 from data import crud, marshal
 from enums import RoleEnum
 from models import UserOrm, UserPhoneNumberOrm
-from shared.health_facility_utils import HealthFacilityUtils
-from shared.phone_number_utils import PhoneNumberUtils
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +33,6 @@ class UserModelDict(TypedDict):
 class UserUtils:
     @staticmethod
     def get_user_orm_model_from_username(username: str):
-        username = username.lower()
         user_model = crud.read(UserOrm, username=username)
         if user_model is None:
             raise ValueError(f"No user with username ({username}) found.")
@@ -56,7 +53,6 @@ class UserUtils:
 
     @staticmethod
     def get_user_id_from_username(username: str) -> int:
-        username = username.lower()
         user_model = UserUtils.get_user_orm_model_from_username(username)
         user_dict = UserUtils.get_user_dict_from_orm_model(user_model)
         return user_dict["id"]
@@ -116,26 +112,6 @@ class UserUtils:
             assigned to.
         :param role: The role of the new user.
         """
-        username = username.lower()
-        email = email.lower()
-        name = name.lower()
-        health_facility_name = health_facility_name.lower()
-
-        phone_numbers = [PhoneNumberUtils.format_to_E164(phone_number) for phone_number in phone_numbers]
-        for phone_number in phone_numbers:
-            if PhoneNumberUtils.does_phone_number_exist(phone_number):
-                raise RuntimeError(f"Phone number ({phone_number}) is already assigned.")
-            if not PhoneNumberUtils.is_format_valid(phone_number):
-                raise RuntimeError(f"Phone number ({phone_number}) is not valid.")
-        if (role not in supported_roles):
-            raise RuntimeError(f"Role ({role}) is not a supported role.")
-        if (crud.read(UserOrm, username=username)) is not None:
-            raise RuntimeError(f"Username ({username}) is already in use.")
-        if (crud.read(UserOrm, email=email)) is not None:
-            raise RuntimeError(f"Email ({email}) is already in use.")
-        if not HealthFacilityUtils.does_facility_exist(facility_name=health_facility_name):
-            raise RuntimeError(f"Health facility ({health_facility_name}) does not exist.")
-
         try:
             # Create the user in the user pool.
             response = cognito.create_user(username=username,
@@ -144,12 +120,12 @@ class UserUtils:
             cognito_user = response.get("User")
             cognito_username = cognito_user.get("Username")
             if cognito_username is None:
-                raise RuntimeError("Could not retrieve username from user pool.")
+                raise ValueError("Could not retrieve username from user pool.")
             username = cognito_username
             user_attributes = cognito_user.get("Attributes")
             if user_attributes is None:
                 cognito.delete_user(username)
-                raise RuntimeError("Could not retrieve user attributes.")
+                raise ValueError("Could not retrieve user attributes.")
             # Find the 'sub' unique identifier for the new user.
             for attribute in user_attributes:
                 if attribute.get("Name") == "sub":
@@ -157,31 +133,25 @@ class UserUtils:
                     sub = attribute.get("Value")
             if sub is None:
                 cognito.delete_user(username)
-                raise RuntimeError("Could not retrieve user's 'sub' attribute.")
+                raise ValueError("Could not retrieve user's 'sub' attribute.")
         except ClientError as err:
             error = err.response.get("Error")
-            print(error)
-            code = ""
-            message = ""
-            if error is not None:
-                code = error.get("Code")
-                message = error.get("Message")
-            logger.exception("Failed to register user in user pool:\n(%s): %s",
-                        code,
-                        message)
+            raise ValueError(error)
 
         # Create the user entry in the database.
         try:
-            user_model = UserOrm(username=username, email=email, name=name, health_facility_name=health_facility_name, role=role, sub=sub)
+            user_orm_model = UserOrm(username=username, email=email, name=name, health_facility_name=health_facility_name, role=role, sub=sub)
+            # Add phone numbers to database.
             for phone_number in phone_numbers:
-                user_model.phone_numbers.append(UserPhoneNumberOrm(phone_number=phone_number))
-            crud.create(user_model)
+                user_orm_model.phone_numbers.append(UserPhoneNumberOrm(phone_number=phone_number))
+            crud.create(user_orm_model)
         except Exception as err:
             print(err)
             logger.error("Failed to add user (%s) to the database.", username)
             # If adding the user to the database failed, delete the user from the cognito
             # user pool.
             db.session.rollback()
+            # Delete user from user pool.
             cognito.delete_user(username)
             raise
     # End of function.
@@ -216,22 +186,13 @@ class UserUtils:
                                 health_facility_name=health_facility_name,
                                 role=role,
                                 phone_numbers=phone_numbers)
-        username = username.lower()
         try:
             # Override the new users temporary password.
             cognito.set_user_password(username=username, new_password=password)
         except ClientError as err:
             error = err.response.get("Error")
             print(error)
-            code = ""
-            message = ""
-            if error is not None:
-                code = error.get("Code")
-                message = error.get("Message")
-            logger.exception("Failed to set password for user:\n(%s): %s",
-                        code,
-                        message)
-            raise
+            raise ValueError(error)
     # End of function.
 
     @staticmethod
@@ -241,17 +202,16 @@ class UserUtils:
 
         :param username: The username of the user to be deleted.
         """
-        username = username.lower()
         # Find user in database.
-        user_model = crud.read(UserOrm, username=username)
+        user_orm_model = crud.read(UserOrm, username=username)
         cognito_user = cognito.get_user(username=username)
 
         if cognito_user is not None:
             # Delete from user pool.
             cognito.delete_user(username=username)
-        if user_model is not None:
+        if user_orm_model is not None:
             # Delete from database.
-            crud.delete(user_model)
+            crud.delete(user_orm_model)
     # End of function.
 
     @staticmethod
@@ -274,9 +234,7 @@ class UserUtils:
 
         :param username: The username to check.
         """
-        username = username.lower()
-        user_model = crud.read(UserOrm, username=username)
-        if user_model is None:
+        if crud.read(UserOrm, username=username) is None:
             return False
         return True
     # End of function.
