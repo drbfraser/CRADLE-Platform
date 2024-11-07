@@ -13,6 +13,10 @@ def generate_random_email(domain="example.com", length=10):
     email = f"{username}@{domain}"
     return email
 
+def generate_random_phone_number():
+    phone_number = f"{random.randint(1000000000, 9999999999)}"
+    return phone_number
+
 # TEST COMMENT
 @pytest.fixture(scope="module")
 def jwt_token():
@@ -26,11 +30,12 @@ def test_register_user(jwt_token):
     url_register_user = "http://localhost:5000/api/user/register"
     headers = {"Authorization": "Bearer " + jwt_token}
     random_email = generate_random_email()
+    random_number = generate_random_phone_number()
     payload = {
         "firstName": "ArshdeepS",
         "email": random_email,
-        "phoneNumber": "604-715-2845",
-        "phoneNumbers": ["604-715-2845"],
+        "phoneNumber": random_number,
+        "phoneNumbers": [random_number],
         "healthFacilityName": "H0000",
         "password": "1234567",
         "role": "VHT",
