@@ -1,4 +1,3 @@
-
 import logging
 from typing import TypedDict, cast
 
@@ -20,6 +19,7 @@ This file contains helper functions for managing users and keeping the
 AWS Cognito user pool in sync with our database.
 """
 
+
 # Dictionary representation of marshalled user model.
 class UserModelDict(TypedDict):
     id: int
@@ -30,32 +30,37 @@ class UserModelDict(TypedDict):
     role: str
     sub: str
 
+
 class UserUtils:
     @staticmethod
     def get_user_orm_model_from_username(username: str):
-        user_model = crud.read(UserOrm, username=username)
-        if user_model is None:
+        user_orm_model = crud.read(UserOrm, username=username)
+        if user_orm_model is None:
             raise ValueError(f"No user with username ({username}) found.")
-        return user_model
+        return user_orm_model
+
     # End of function.
 
     @staticmethod
     def get_user_dict_from_orm_model(user_orm_model: UserOrm) -> UserModelDict:
         user_dict = marshal.marshal(user_orm_model)
         return cast(UserModelDict, user_dict)
+
     # End of function.
 
     @staticmethod
     def get_user_dict_from_username(username: str) -> UserModelDict:
         user_orm_model = UserUtils.get_user_orm_model_from_username(username)
         return UserUtils.get_user_dict_from_orm_model(user_orm_model)
+
     # End of function.
 
     @staticmethod
     def get_user_id_from_username(username: str) -> int:
-        user_model = UserUtils.get_user_orm_model_from_username(username)
-        user_dict = UserUtils.get_user_dict_from_orm_model(user_model)
+        user_orm_model = UserUtils.get_user_orm_model_from_username(username)
+        user_dict = UserUtils.get_user_dict_from_orm_model(user_orm_model)
         return user_dict["id"]
+
     # End of function.
 
     @staticmethod
@@ -65,6 +70,7 @@ class UserUtils:
         :return bool: True if the email is already in the database, False if it is not.
         """
         return (crud.read(UserOrm, email=email)) is not None
+
     # End of function.
 
     @staticmethod
@@ -75,6 +81,7 @@ class UserUtils:
         :return bool: True if the email belongs to the user.
         """
         return (crud.read(UserOrm, email=email, id=user_id)) is not None
+
     # End of function.
 
     @staticmethod
@@ -85,19 +92,22 @@ class UserUtils:
         :return bool: True if the email belongs to the user or is not in the
             database.
         """
-        return (crud.read(UserOrm, email=email) is None
-                or
-                crud.read(UserOrm, email=email, id=user_id) is not None)
+        return (
+            crud.read(UserOrm, email=email) is None
+            or crud.read(UserOrm, email=email, id=user_id) is not None
+        )
+
     # End of function.
 
     @staticmethod
-    def register_user(username: str,
-                        email: str,
-                        name: str,
-                        health_facility_name: str,
-                        role: str,
-                        phone_numbers: list[str],
-        ):
+    def register_user(
+        username: str,
+        email: str,
+        name: str,
+        health_facility_name: str,
+        role: str,
+        phone_numbers: list[str],
+    ):
         """
         Creates a user in our database and registers the new user in the Cognito
         user pool. The new user will have a temporary password generated and an
@@ -114,9 +124,7 @@ class UserUtils:
         """
         try:
             # Create the user in the user pool.
-            response = cognito.create_user(username=username,
-                                            email=email,
-                                            name=name)
+            response = cognito.create_user(username=username, email=email, name=name)
             cognito_user = response.get("User")
             cognito_username = cognito_user.get("Username")
             if cognito_username is None:
@@ -140,10 +148,19 @@ class UserUtils:
 
         # Create the user entry in the database.
         try:
-            user_orm_model = UserOrm(username=username, email=email, name=name, health_facility_name=health_facility_name, role=role, sub=sub)
+            user_orm_model = UserOrm(
+                username=username,
+                email=email,
+                name=name,
+                health_facility_name=health_facility_name,
+                role=role,
+                sub=sub,
+            )
             # Add phone numbers to database.
             for phone_number in phone_numbers:
-                user_orm_model.phone_numbers.append(UserPhoneNumberOrm(phone_number=phone_number))
+                user_orm_model.phone_numbers.append(
+                    UserPhoneNumberOrm(phone_number=phone_number)
+                )
             crud.create(user_orm_model)
         except Exception as err:
             print(err)
@@ -154,17 +171,19 @@ class UserUtils:
             # Delete user from user pool.
             cognito.delete_user(username)
             raise
+
     # End of function.
 
     @staticmethod
-    def create_user(username: str,
-                    email: str,
-                    name: str,
-                    health_facility_name: str,
-                    role: str,
-                    password: str,
-                    phone_numbers: list[str],
-        ):
+    def create_user(
+        username: str,
+        email: str,
+        name: str,
+        health_facility_name: str,
+        role: str,
+        password: str,
+        phone_numbers: list[str],
+    ):
         """
         Creates a user in both our database and the Cognito user pool.
         Unlike register_user(), this function will create a user with the specified
@@ -180,12 +199,14 @@ class UserUtils:
         :param role: The role of the new user.
         """
         # Register the new user.
-        UserUtils.register_user(username=username,
-                                email=email,
-                                name=name,
-                                health_facility_name=health_facility_name,
-                                role=role,
-                                phone_numbers=phone_numbers)
+        UserUtils.register_user(
+            username=username,
+            email=email,
+            name=name,
+            health_facility_name=health_facility_name,
+            role=role,
+            phone_numbers=phone_numbers,
+        )
         try:
             # Override the new users temporary password.
             cognito.set_user_password(username=username, new_password=password)
@@ -193,6 +214,7 @@ class UserUtils:
             error = err.response.get("Error")
             print(error)
             raise ValueError(error)
+
     # End of function.
 
     @staticmethod
@@ -212,6 +234,7 @@ class UserUtils:
         if user_orm_model is not None:
             # Delete from database.
             crud.delete(user_orm_model)
+
     # End of function.
 
     @staticmethod
@@ -223,8 +246,12 @@ class UserUtils:
         cognito_user_list = cognito.list_users()
         # Get list of users from our database.
         user_model_list = crud.read_all(UserOrm)
-        user_list = [ UserUtils.get_user_dict_from_orm_model(user_model) for user_model in user_model_list ]
+        user_list = [
+            UserUtils.get_user_dict_from_orm_model(user_model)
+            for user_model in user_model_list
+        ]
         return user_list, cognito_user_list
+
     # End of function.
 
     @staticmethod
@@ -237,4 +264,5 @@ class UserUtils:
         if crud.read(UserOrm, username=username) is None:
             return False
         return True
+
     # End of function.
