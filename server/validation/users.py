@@ -1,5 +1,5 @@
 import re
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel, ValidationError, field_validator, model_validator
 from typing_extensions import Self
@@ -12,13 +12,14 @@ from validation.validation_exception import ValidationExceptionError
 
 supported_roles = [role.value for role in RoleEnum]
 
+
 class UserValidator(BaseModel):
     name: str
     username: str
     email: str
     health_facility_name: str
     role: str
-    phone_numbers: List[str] = []
+    phone_numbers: Optional[List[str]] = None
 
     @field_validator("username", mode="before")
     @classmethod
@@ -26,10 +27,14 @@ class UserValidator(BaseModel):
         username = username.lower()
         length = len(username)
         if length < 3 or length > 30:
-            raise ValueError(f"Username ({username}) is invalid. Username must be between 3 and 30 characters.")
+            raise ValueError(
+                f"Username ({username}) is invalid. Username must be between 3 and 30 characters."
+            )
         username_regex_pattern = r"^[A-Za-z]\w{2,29}$"
         if re.fullmatch(username_regex_pattern, username) is None:
-            raise ValueError(f"Username ({username}) is invalid. Username must start with a letter and must contain only alphanumeric or underscore characters.")
+            raise ValueError(
+                f"Username ({username}) is invalid. Username must start with a letter and must contain only alphanumeric or underscore characters."
+            )
         return username
 
     @field_validator("role", mode="before")
@@ -59,7 +64,9 @@ class UserValidator(BaseModel):
             formatted_phone_number = PhoneNumberUtils.format(phone_number)
             # Validate the phone numbers uniqueness.
             if PhoneNumberUtils.does_phone_number_exist(phone_number):
-                raise ValueError({ "message": f"Phone number ({phone_number}) is already assigned." })
+                raise ValueError(
+                    {"message": f"Phone number ({phone_number}) is already assigned."}
+                )
             # Append formatted phone number to list.
             formatted_phone_numbers.append(formatted_phone_number)
         # Return the formatted phone numbers.
@@ -81,7 +88,6 @@ class UserValidator(BaseModel):
         """
         name = name.title()
         return name
-
 
     @staticmethod
     def validate(request_body: dict):
@@ -137,6 +143,7 @@ class UserRegisterValidator(UserValidator):
             error_message = str(e.errors()[0]["msg"])
             raise ValidationExceptionError(error_message)
 
+
 class UserPutRequestValidator(UserValidator):
     """
     Pydantic validation model for the `/api/user/<int:userId> [PUT]`
@@ -152,6 +159,7 @@ class UserPutRequestValidator(UserValidator):
             raise ValueError(f"Email ({self.email}) is already in use.")
         return self
 
+
 class UserAuthRequestValidator(BaseModel):
     """
     Pydantic validation model for the `/api/user/auth [POST]` api endpoint.
@@ -159,7 +167,7 @@ class UserAuthRequestValidator(BaseModel):
     and convert the username to all lowercase.
     """
 
-    username: str # Can be username or email.
+    username: str  # Can be username or email.
     password: str
 
     @field_validator("username")
