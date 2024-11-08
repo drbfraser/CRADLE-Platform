@@ -11,9 +11,9 @@ from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 load_dotenv(dotenv_path="/run/secrets/.aws.secrets.env")
 
 """
-  Environment variable to control whether to enable creating fake users for
-  development purposes. If set to True, newly created users will not need to
-  verify their emails, and their temporary passwords will be set to one that we
+  Environment variable to enable creating fake users for development purposes.
+  If set to True, newly created users will not need to verify their emails,
+  and their temporary passwords will be set to one that we
   specify instead of being generated.
 """
 ENABLE_DEV_USERS: bool = (
