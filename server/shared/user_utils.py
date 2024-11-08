@@ -246,18 +246,26 @@ class UserUtils:
     # End of function.
 
     @staticmethod
-    def get_user_list():
+    def get_user_orm_list():
         """
-        Retrieves and returns a list containing data of all users.
+        :return: A list of user ORM models from the database.
         """
-        # Get list of users from cognito user pool.
-        cognito_user_list = cognito.list_users()
+        # Get list of users from our database.
+        return crud.read_all(UserOrm)
+
+    # End of function.
+
+    @staticmethod
+    def get_user_dict_list():
+        """
+        :return: A list of dicts containing user data from the database.
+        """
         # Get list of users from our database.
         user_orm_list = crud.read_all(UserOrm)
-        user_list = [
+        user_dict_list = [
             UserUtils.get_user_dict_from_orm(user_orm) for user_orm in user_orm_list
         ]
-        return user_list, cognito_user_list
+        return user_dict_list
 
     # End of function.
 
