@@ -220,7 +220,7 @@ def populate_test_users():
 
 
 def clear_user_pool():
-    user_list, cognito_user_list = UserUtils.get_user_list()
+    cognito_user_list = cognito.list_users()
     for cognito_user in cognito_user_list:
         username = cognito_user.get("Username")
         if username is not None:
