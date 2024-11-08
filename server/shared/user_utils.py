@@ -1,5 +1,5 @@
 import logging
-from typing import TypedDict, cast
+from typing import Any, TypedDict, cast
 
 from botocore.exceptions import ClientError
 
@@ -52,6 +52,13 @@ class UserUtils:
     @staticmethod
     def get_user_dict_from_username(username: str) -> UserModelDict:
         user_orm = UserUtils.get_user_orm_from_username(username)
+        return UserUtils.get_user_dict_from_orm(user_orm)
+
+    # End of function.
+
+    @staticmethod
+    def get_user_dict_from_id(user_id: int) -> UserModelDict:
+        user_orm = crud.read(UserOrm, id=user_id)
         return UserUtils.get_user_dict_from_orm(user_orm)
 
     # End of function.
@@ -268,27 +275,9 @@ class UserUtils:
     # End of function.
 
     @staticmethod
-    def update_user_phone_numbers(user_id: int, phone_numbers: set[str]):
-        """
-        Compares the set of provided phone numbers with those stored in the
-        database for the user and adds or removes from those in the database
-        such that the database will reflect the provided set.
-
-        Any phone numbers which are in the database but not in the set will be
-        deleted from the database.
-
-        Any phone numbers which are in the set but not in the database will be
-        added to the database.
-
-        :param user_id: The id of the user.
-        :param phone_numbers: The set of phone numbers to update the user with.
-        """
-        user_orm = crud.read(UserOrm, id=user_id)
-        if user_orm is None:
-            return ValueError(f"No user with id ({user_id}) found.")
-
+    def _update_user_phone_numbers(user_orm: UserOrm, phone_numbers: set[str]):
         # Get the user's existing phone numbers.
-        old_phone_numbers = set(PhoneNumberUtils.get_users_phone_numbers(user_id))
+        old_phone_numbers = set(PhoneNumberUtils.get_users_phone_numbers(user_orm.id))
 
         # Isolate those phone numbers which are not already in the database.
         new_phone_numbers = phone_numbers.difference(old_phone_numbers)
@@ -307,6 +296,75 @@ class UserUtils:
                 UserPhoneNumberOrm(phone_number=new_phone_number)
             )
 
+    @staticmethod
+    def update_user_phone_numbers(user_id: int, phone_numbers: set[str]):
+        """
+        Compares the set of provided phone numbers with those stored in the
+        database for the user and adds or removes from those in the database
+        such that the database will reflect the provided set.
+
+        Any phone numbers which are in the database but not in the set will be
+        deleted from the database.
+
+        Any phone numbers which are in the set but not in the database will be
+        added to the database.
+
+        :param user_id: The id of the user.
+        :param phone_numbers: The set of phone numbers to update the user with.
+        :param commit: If True, the database session will commit the changes. Defaults to True.
+        """
+        user_orm = crud.read(UserOrm, id=user_id)
+        if user_orm is None:
+            return ValueError(f"No user with id ({user_id}) found.")
+
+        UserUtils._update_user_phone_numbers(user_orm, phone_numbers)
+
         db.session.commit()
+
+    # End of function.
+
+    @staticmethod
+    def update_user(user_id: int, user_update_dict: dict[str, Any]):
+        """
+        Updates the user's fields.
+        Fields which are allowed to be changed
+        include email, name, role, health_facility_name, and phone_numbers.
+
+        The Cognito user pool will be updated in addition to the database.
+
+        :param user_id: The id of the user.
+        :param user_update_dict: The updated fields as a dict:
+                                {
+                                    "name": str,
+                                    "email: str,
+                                    "role": str,
+                                    "health_facility_name": str,
+                                    "phone_numbers": list[str]
+                                }
+        """
+        user_orm = crud.read(UserOrm, id=user_id)
+        if user_orm is None:
+            return ValueError(f"No user with id ({user_id}) found.")
+
+        username: str = user_orm.username
+        cognito.update_user_attributes(
+            username,
+            {"email": user_update_dict["email"], "name": user_update_dict["name"]},
+        )
+
+        UserUtils._update_user_phone_numbers(
+            user_orm, set(user_update_dict["phone_numbers"])
+        )
+
+        user_orm.email = user_update_dict["email"]
+        user_orm.name = user_update_dict["name"]
+        user_orm.role = user_update_dict["role"]
+        user_orm.health_facility_name = user_update_dict["health_facility_name"]
+
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            raise ValueError(e)
 
     # End of function.
