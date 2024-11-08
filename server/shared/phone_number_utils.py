@@ -1,6 +1,6 @@
 import phonenumbers
 
-from data import crud
+from data import crud, marshal
 from models import (
     HealthFacilityOrm,
     RelayServerPhoneNumberOrm,
@@ -23,6 +23,7 @@ https://www.sent.dm/resources/e164-phone-format
 
 """
 
+
 class PhoneNumberUtils:
     @staticmethod
     def parse(phone_number: str) -> phonenumbers.PhoneNumber:
@@ -33,7 +34,7 @@ class PhoneNumberUtils:
 
         :param parsed_phone_number: The phone number to parse.
         """
-        invalid_error = { "message": f"Phone number ({phone_number}) is invalid." }
+        invalid_error = {"message": f"Phone number ({phone_number}) is invalid."}
         try:
             parsed_phone_number = phonenumbers.parse(phone_number)
             if not phonenumbers.is_possible_number(parsed_phone_number):
@@ -42,6 +43,7 @@ class PhoneNumberUtils:
             raise ValueError(invalid_error)
         else:
             return parsed_phone_number
+
     # End of function.
 
     @staticmethod
@@ -54,6 +56,7 @@ class PhoneNumberUtils:
         """
         parsed_phone_number = PhoneNumberUtils.parse(phone_number)
         return PhoneNumberUtils.format_parsed_to_E164(parsed_phone_number)
+
     # End of function.
 
     @staticmethod
@@ -63,7 +66,10 @@ class PhoneNumberUtils:
 
         :param parsed_phone_number: The parsed PhoneNumber object to format.
         """
-        return phonenumbers.format_number(parsed_phone_number, phonenumbers.PhoneNumberFormat.E164)
+        return phonenumbers.format_number(
+            parsed_phone_number, phonenumbers.PhoneNumberFormat.E164
+        )
+
     # End of function.
 
     @staticmethod
@@ -75,6 +81,7 @@ class PhoneNumberUtils:
         """
         parsed_phone_number = phonenumbers.parse(phone_number)
         return PhoneNumberUtils.format_parsed_to_E164(parsed_phone_number)
+
     # End of function.
 
     @staticmethod
@@ -98,6 +105,7 @@ class PhoneNumberUtils:
             return phonenumbers.is_possible_number(parsed_phone_number)
         except phonenumbers.NumberParseException:
             return False
+
     # End of function.
 
     @staticmethod
@@ -119,6 +127,7 @@ class PhoneNumberUtils:
             return True
         # If none were found, phone number is not in the database.
         return False
+
     # End of function.
 
     @staticmethod
@@ -130,7 +139,29 @@ class PhoneNumberUtils:
         :param user_id: The id of the user.
         :param phone_number: The phone number to check (in E. 164 format).
         """
-        return crud.read(UserPhoneNumberOrm, user_id=user_id, phone_number=phone_number) is not None
+        return (
+            crud.read(UserPhoneNumberOrm, user_id=user_id, phone_number=phone_number)
+            is not None
+        )
+
+    # End of function.
+
+    @staticmethod
+    def is_phone_number_unique_to_user(user_id: int, phone_number: str):
+        """
+        Checks if a phone number doesn't exist in the database, or if it does,
+        if it belongs to the user.
+
+        :param user_id: The id of the user.
+        :param phone_number: The phone number to check (in E. 164 format).
+
+        :return: True if the phone number belongs to the user or if it doesn't
+            exist in the database at all. Otherwise, False.
+        """
+        return not PhoneNumberUtils.does_phone_number_exist(
+            phone_number
+        ) or PhoneNumberUtils.does_phone_number_belong_to_user(user_id, phone_number)
+
     # End of function.
 
     @staticmethod
@@ -144,6 +175,7 @@ class PhoneNumberUtils:
         # Add row to database.
         user_model = crud.read(UserOrm, id=user_id)
         crud.create(UserPhoneNumberOrm(phone_number=phone_number, user=user_model))
+
     # End of function.
 
     @staticmethod
@@ -161,4 +193,26 @@ class PhoneNumberUtils:
             raise ValueError(f"No user with id ({user_id}) was found.")
         # Delete row from database.
         crud.delete(UserPhoneNumberOrm(phone_number=phone_number, user=user_orm_model))
+
+    # End of function.
+
+    @staticmethod
+    def get_users_phone_numbers(user_id: int) -> list[str]:
+        """
+        Retrieves all of the phone numbers associated with the user and returns
+        them as a list.
+
+        :param user_id: The id of the user.
+        """
+        user_phone_number_orms = crud.read_all(UserPhoneNumberOrm, user_id=user_id)
+        phone_number_dicts = [
+            marshal.marshal(user_phone_number_orm)
+            for user_phone_number_orm in user_phone_number_orms
+        ]
+        phone_numbers = [
+            phone_number_dict["phone_number"]
+            for phone_number_dict in phone_number_dicts
+        ]
+        return phone_numbers
+
     # End of function.
