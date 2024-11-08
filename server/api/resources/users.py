@@ -55,7 +55,9 @@ invalid_phone_number_message = (
     "Phone number {phone_number} has wrong format. The format for phone number should be +x-xxx-xxx-xxxx, "
     "+x-xxx-xxx-xxxxx, xxx-xxx-xxxx or xxx-xxx-xxxxx"
 )
-phone_number_already_exists_message = "Phone number is already assigned to another user."
+phone_number_already_exists_message = (
+    "Phone number is already assigned to another user."
+)
 
 supported_roles = [role.value for role in RoleEnum]
 
@@ -225,7 +227,6 @@ class UserRegisterApi(Resource):
 
         UserUtils.create_user(**new_user_dict)
 
-
         # # Updating the supervises table if necessary as well
         # if new_user["role"] == "CHO" and list_of_vhts is not None:
         #     crud.add_vht_to_supervise(created_user_id, list_of_vhts)
@@ -307,15 +308,17 @@ class UserAuthApi(Resource):
 
         # Get user data from database.
         try:
-            user_orm_model = UserUtils.get_user_orm_model_from_username(credentials.username)
+            user_orm = UserUtils.get_user_orm_from_username(credentials.username)
         except ValueError as err:
             LOGGER.error(err)
-            LOGGER.error("ERROR: Something has gone wrong. User authentication succeeded but username (%s) is not found in database.",
-                         credentials.username)
+            LOGGER.error(
+                "ERROR: Something has gone wrong. User authentication succeeded but username (%s) is not found in database.",
+                credentials.username,
+            )
             print(err)
             abort(500, message=error)
 
-        user_dict = UserUtils.get_user_dict_from_orm_model(user_orm_model)
+        user_dict = UserUtils.get_user_dict_from_orm(user_orm)
         user_id = user_dict["id"]
 
         # setup any extra user params
@@ -345,7 +348,7 @@ class UserAuthApi(Resource):
             # store the constructed sms key
             # user_data["smsKey"] = json.dumps(sms_key)
         # else:
-            # user_data["sms_key"] = "NOTFOUND"
+        # user_data["sms_key"] = "NOTFOUND"
 
         res = {
             "auth_result": auth_result,
