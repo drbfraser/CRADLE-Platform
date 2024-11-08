@@ -17,7 +17,8 @@ from utils import get_current_time, get_uuid
 
 SupervisesTable = db.Table(
     "supervises",
-    db.Column("cho_id",
+    db.Column(
+        "cho_id",
         db.Integer,
         db.ForeignKey("users.id", ondelete="CASCADE"),
         index=True,
@@ -38,7 +39,9 @@ class UserOrm(db.Model):
     username = db.Column(db.String(64), index=True, unique=True, nullable=False)
     email = db.Column(db.String(120), index=True, unique=True, nullable=False)
     role = db.Column(db.String(50))
-    sub = db.Column(db.String(64), unique=True, nullable=False) # Unique identifier used by Cognito.
+    sub = db.Column(
+        db.String(64), unique=True, nullable=False
+    )  # Unique identifier used by Cognito.
 
     # FOREIGN KEYS
     health_facility_name = db.Column(
@@ -72,7 +75,7 @@ class UserOrm(db.Model):
 
     def __repr__(self):
         """Return a string with enough information to uniquely identify the user."""
-        return f"<User {self.username}>"
+        return f"<UserOrm {self.username}>"
 
 
 class UserPhoneNumberOrm(db.Model):
@@ -89,6 +92,10 @@ class UserPhoneNumberOrm(db.Model):
     @staticmethod
     def schema():
         return UserPhoneNumberSchema
+
+    def __repr__(self):
+        """Return a string with enough information to uniquely identify the user."""
+        return f"<UserPhoneNumberOrm {self.phone_number}>"
 
 
 class RelayServerPhoneNumberOrm(db.Model):
@@ -318,7 +325,9 @@ class FollowUpOrm(db.Model):
     )
 
     # RELATIONSHIPS
-    healthcare_worker = db.relationship(UserOrm, backref=db.backref("follow_ups", lazy=True))
+    healthcare_worker = db.relationship(
+        UserOrm, backref=db.backref("follow_ups", lazy=True)
+    )
     patient = db.relationship(
         PatientOrm,
         backref=db.backref("follow_ups", cascade="all, delete-orphan", lazy=True),
@@ -515,7 +524,9 @@ class FormOrm(db.Model):
         default=get_current_time,
         onupdate=get_current_time,
     )
-    last_edited_by = db.Column(db.ForeignKey(UserOrm.id, ondelete="SET NULL"), nullable=True)
+    last_edited_by = db.Column(
+        db.ForeignKey(UserOrm.id, ondelete="SET NULL"), nullable=True
+    )
 
     form_classification_id = db.Column(
         db.ForeignKey(FormClassificationOrm.id, ondelete="SET NULL"),
