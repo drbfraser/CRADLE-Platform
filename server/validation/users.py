@@ -188,7 +188,9 @@ class UserPutRequestValidator(UserValidator):
         # Should already be formatted.
         for phone_number in self.phone_numbers:
             # Validate that the phone number doesn't belong to another user.
-            if PhoneNumberUtils.does_phone_number_belong_to_user(self.id, phone_number):
+            if not PhoneNumberUtils.is_phone_number_unique_to_user(
+                self.id, phone_number
+            ):
                 raise ValueError(
                     {"message": f"Phone number ({phone_number}) is already assigned."}
                 )
