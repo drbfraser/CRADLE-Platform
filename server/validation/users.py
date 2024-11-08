@@ -4,7 +4,9 @@ from typing import List
 from pydantic import BaseModel, ValidationError, field_validator, model_validator
 from typing_extensions import Self
 
+from data import crud
 from enums import RoleEnum
+from models import UserOrm
 from shared.health_facility_utils import HealthFacilityUtils
 from shared.phone_number_utils import PhoneNumberUtils
 from shared.user_utils import UserUtils
@@ -161,6 +163,14 @@ class UserPutRequestValidator(UserValidator):
     """
 
     id: int  # Used in the route path to identify the user in the REST API.
+
+    @field_validator("id")
+    @classmethod
+    def validate_id_exists(cls, id: int) -> int:
+        # Check if id belongs to a user.
+        if crud.read(UserOrm, id=id) is None:
+            raise ValueError(f"No user with id ({id}) found.")
+        return id
 
     @model_validator(mode="after")
     def validate_email_unique_to_user(self) -> Self:
