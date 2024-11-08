@@ -63,22 +63,13 @@ class UserValidator(BaseModel):
             raise ValueError(error)
         return value
 
-    @field_validator("phone_numbers")
+    @field_validator("phone_numbers", mode="before")
     @classmethod
-    def validate_phone_numbers(cls, phone_numbers: List[str]):
-        formatted_phone_numbers: list[str] = []
+    def format_phone_numbers(cls, phone_numbers: List[str]) -> List[str]:
+        formatted_phone_numbers: set[str] = set()
         for phone_number in phone_numbers:
-            # Format the phone number.
-            formatted_phone_number = PhoneNumberUtils.format(phone_number)
-            # Validate the phone numbers uniqueness.
-            if PhoneNumberUtils.does_phone_number_exist(phone_number):
-                raise ValueError(
-                    {"message": f"Phone number ({phone_number}) is already assigned."}
-                )
-            # Append formatted phone number to list.
-            formatted_phone_numbers.append(formatted_phone_number)
-        # Return the formatted phone numbers.
-        return formatted_phone_numbers
+            formatted_phone_numbers.add(PhoneNumberUtils.format(phone_number))
+        return list(formatted_phone_numbers)
 
     @staticmethod
     def validate(request_body: dict):
@@ -147,6 +138,19 @@ class UserRegisterValidator(UserValidator):
             raise ValueError(f"Email ({username}) is already in use.")
         return username
 
+    @field_validator("phone_numbers", mode="after")
+    @classmethod
+    def validate_phone_numbers_uniqueness(cls, phone_numbers: List[str]):
+        # Should already be formatted.
+        for phone_number in phone_numbers:
+            # Validate the phone numbers uniqueness.
+            if PhoneNumberUtils.does_phone_number_exist(phone_number):
+                raise ValueError(
+                    {"message": f"Phone number ({phone_number}) is already assigned."}
+                )
+        # Return the formatted phone numbers.
+        return phone_numbers
+
     @staticmethod
     def validate(request_body: dict):
         try:
@@ -175,8 +179,19 @@ class UserPutRequestValidator(UserValidator):
     @model_validator(mode="after")
     def validate_email_unique_to_user(self) -> Self:
         # Validate that the email doesn't belong to another user.
-        if not UserUtils.is_email_unique_to_user(self.email, self.id):
+        if not UserUtils.is_email_unique_to_user(self.id, self.email):
             raise ValueError(f"Email ({self.email}) is already in use.")
+        return self
+
+    @model_validator(mode="after")
+    def validate_phone_numbers_unique_to_user(self) -> Self:
+        # Should already be formatted.
+        for phone_number in self.phone_numbers:
+            # Validate that the phone number doesn't belong to another user.
+            if PhoneNumberUtils.does_phone_number_belong_to_user(self.id, phone_number):
+                raise ValueError(
+                    {"message": f"Phone number ({phone_number}) is already assigned."}
+                )
         return self
 
 
