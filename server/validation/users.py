@@ -4,7 +4,7 @@ from typing import List
 from pydantic import BaseModel, ValidationError, field_validator, model_validator
 from typing_extensions import Self
 
-from common.constants import EMAIL_REGEX_PATTERN, USERNAME_REGEX_PATTERN
+from common.constants import USERNAME_REGEX_PATTERN
 from data import crud
 from enums import RoleEnum
 from models import UserOrm
@@ -36,8 +36,8 @@ class UserValidator(BaseModel):
     def validate_email_format(cls, email: str):
         # Validate email format.
         email = email.lower()
-        if re.fullmatch(EMAIL_REGEX_PATTERN, email) is None:
-            raise ValueError(f"Email ({email}) is invalid.")
+        if not UserUtils.is_valid_email_format(email):
+            raise ValueError(f"Email ({email}) format is invalid.")
         return email.lower()
 
     @field_validator("name")

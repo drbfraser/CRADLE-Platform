@@ -1,9 +1,11 @@
 import logging
+import re
 from typing import Any, TypedDict, cast
 
 from botocore.exceptions import ClientError
 
 from authentication import cognito
+from common.constants import EMAIL_REGEX_PATTERN
 from config import db
 from data import crud, marshal
 from enums import RoleEnum
@@ -34,8 +36,24 @@ class UserModelDict(TypedDict):
 
 class UserUtils:
     @staticmethod
+    def is_valid_email_format(email: str) -> bool:
+        return re.fullmatch(EMAIL_REGEX_PATTERN, email) is not None
+
+    # End of function.
+
+    @staticmethod
     def get_user_orm_from_username(username: str):
-        user_orm = crud.read(UserOrm, username=username)
+        """
+        :param username: String to identify user in the database. Can be either
+            the user's username or their email. Should be in lowercase.
+        :return user_orm: The ORM model of the user.
+        :raise ValueError: If the user can not be found in the database.
+        """
+        # Determine if username is an email or not.
+        if UserUtils.is_valid_email_format(username):
+            user_orm = crud.read(UserOrm, email=username)
+        else:
+            user_orm = crud.read(UserOrm, username=username)
         if user_orm is None:
             raise ValueError(f"No user with username ({username}) found.")
         return user_orm
@@ -44,6 +62,11 @@ class UserUtils:
 
     @staticmethod
     def get_user_dict_from_orm(user_orm_model: UserOrm) -> UserModelDict:
+        """
+        :param user_orm_model: ORM model of the user.
+        :return user_dict: A dict containing the data from the ORM model of the
+            user.
+        """
         user_dict = marshal.marshal(user_orm_model)
         return cast(UserModelDict, user_dict)
 
@@ -51,6 +74,13 @@ class UserUtils:
 
     @staticmethod
     def get_user_dict_from_username(username: str) -> UserModelDict:
+        """
+        :param username: String to identify user in the database. Can be either
+            the user's username or their email. Should be in lowercase.
+        :return user_dict: A dict containing the data from the ORM model of the
+            user.
+        :raise ValueError: If the user can not be found in the database.
+        """
         user_orm = UserUtils.get_user_orm_from_username(username)
         return UserUtils.get_user_dict_from_orm(user_orm)
 
