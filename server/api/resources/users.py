@@ -67,23 +67,19 @@ class UserAll(Resource):
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/user-all.yml", methods=["GET"])
     def get(self):
-        user_model_list = crud.read_all(UserOrm)
+        user_orm_list = crud.read_all(UserOrm)
         user_dict_list = []
 
-        for user in user_model_list:
-            user_dict = marshal.marshal(user)
-            user_dict.pop("password")
+        for user_orm in user_orm_list:
+            user_dict = marshal.marshal(user_orm)
 
             vht_list = []
-
-            for vht in user.vht_list:
+            for vht in user_orm.vht_list:
                 vht_list.append(vht.id)
 
             user_dict["supervises"] = vht_list
-            user_dict["user_id"] = user_dict["id"]
-            user_dict.pop("id")
             user_dict["phone_numbers"] = [
-                phone_number.number for phone_number in user.phone_numbers
+                phone_number.phone_number for phone_number in user_orm.phone_numbers
             ]
 
             user_dict_list.append(user_dict)
