@@ -392,12 +392,9 @@ class UserApi(Resource):
             return {"message": null_id_message}, 400
 
         request_body = request.get_json(force=True)
-
-        user_to_feed = filterPairsWithNone(request_body)
-
         try:
             # validate the new user
-            user_pydantic_model = UserValidator.model_validate(user_to_feed)
+            user_pydantic_model = UserValidator.model_validate(request_body)
         except ValidationExceptionError as e:
             error_message = str(e)
 
