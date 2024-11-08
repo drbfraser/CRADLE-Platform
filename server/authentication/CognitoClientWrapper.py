@@ -16,11 +16,14 @@ load_dotenv(dotenv_path="/run/secrets/.aws.secrets.env")
   verify their emails, and their temporary passwords will be set to one that we
   specify instead of being generated.
 """
-ENABLE_DEV_USERS: bool = os.getenv("ENABLE_DEV_USERS", default="false").lower() == "true"
+ENABLE_DEV_USERS: bool = (
+    os.getenv("ENABLE_DEV_USERS", default="false").lower() == "true"
+)
 if ENABLE_DEV_USERS:
     temporary_password = "Temporary_123"
 
 logger = logging.getLogger(__name__)
+
 
 # Wrapper to encapsulate the AWS Cognito Identity Provider client.
 class CognitoClientWrapper:
@@ -103,6 +106,7 @@ class CognitoClientWrapper:
 
         response = self.client.admin_create_user(**create_user_kwargs)
         return response
+
     # End of function
 
     def delete_user(self, username: str):
@@ -111,7 +115,8 @@ class CognitoClientWrapper:
         """
         try:
             self.client.admin_delete_user(
-                UserPoolId=self.user_pool_id, Username=username,
+                UserPoolId=self.user_pool_id,
+                Username=username,
             )
         except ClientError as err:
             logger.error("ERROR: Failed to delete user with username: %s", username)
@@ -133,6 +138,7 @@ class CognitoClientWrapper:
             raise
         else:
             return users
+
     # End of function
 
     def set_user_password(self, username: str, new_password: str):
@@ -145,7 +151,12 @@ class CognitoClientWrapper:
         :param username: The username of the user.
         :param new_password: The new password to set for the user.
         """
-        self.client.admin_set_user_password(UserPoolId=self.user_pool_id, Username=username, Password=new_password, Permanent=True)
+        self.client.admin_set_user_password(
+            UserPoolId=self.user_pool_id,
+            Username=username,
+            Password=new_password,
+            Permanent=True,
+        )
 
     def start_sign_in(self, username: str, password: str):
         try:
@@ -170,6 +181,7 @@ class CognitoClientWrapper:
             raise
         else:
             return init_response
+
     # End of function
 
     def respond_to_new_password_challenge(self, session_token: str, username: str):
@@ -192,6 +204,7 @@ class CognitoClientWrapper:
             },
         )
         return challenge_response["AuthenticationResult"]
+
     # End of function
 
     def get_user(self, username: str):
@@ -203,7 +216,9 @@ class CognitoClientWrapper:
             was not found.
         """
         try:
-            response = self.client.admin_get_user(UserPoolId=self.user_pool_id, Username=username)
+            response = self.client.admin_get_user(
+                UserPoolId=self.user_pool_id, Username=username
+            )
         except ClientError as err:
             error = err.response.get("Error")
             if error is None:
@@ -212,4 +227,26 @@ class CognitoClientWrapper:
                 return None
         else:
             return response
+
+    # End of function
+
+    def update_user_attributes(self, username: str, user_attributes: dict[str, str]):
+        """
+        Updates the user's attributes in the user pool.
+
+        :param username: The username of the user.
+        :param user_attributes: A dict of the new user attributes:
+                                {
+                                    "email": str,
+                                    "name": str
+                                }
+        """
+        self.client.admin_update_user_attributes(
+            UserPoolId=self.user_pool_id,
+            Username=username,
+            UserAttributes=[
+                {"Name": k, "Value": v} for k, v in user_attributes.items()
+            ],
+        )
+
     # End of function
