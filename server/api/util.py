@@ -694,7 +694,7 @@ def phoneNumber_exists(phone_number, user_id=-1):
 
 def get_all_phoneNumbers_for_user(user_id):
     phone_numbers = crud.read_all(UserPhoneNumberOrm, user_id=user_id)
-    numbers = [phone_number.number for phone_number in phone_numbers]
+    numbers = [phone_number.phone_number for phone_number in phone_numbers]
     return numbers
 
 
