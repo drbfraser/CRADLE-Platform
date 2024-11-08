@@ -4,6 +4,7 @@ from typing import List
 from pydantic import BaseModel, ValidationError, field_validator, model_validator
 from typing_extensions import Self
 
+from common.constants import EMAIL_REGEX_PATTERN, USERNAME_REGEX_PATTERN
 from data import crud
 from enums import RoleEnum
 from models import UserOrm
@@ -13,10 +14,6 @@ from shared.user_utils import UserUtils
 from validation.validation_exception import ValidationExceptionError
 
 supported_roles = [role.value for role in RoleEnum]
-
-
-email_regex_pattern = r"^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,4}$"
-username_regex_pattern = r"^[A-Za-z]\w{2,29}$"
 
 
 class UserValidator(BaseModel):
@@ -39,7 +36,7 @@ class UserValidator(BaseModel):
     def validate_email_format(cls, email: str):
         # Validate email format.
         email = email.lower()
-        if re.fullmatch(email_regex_pattern, email) is None:
+        if re.fullmatch(EMAIL_REGEX_PATTERN, email) is None:
             raise ValueError(f"Email ({email}) is invalid.")
         return email.lower()
 
@@ -116,7 +113,7 @@ class UserRegisterValidator(UserValidator):
             raise ValueError(
                 f"Username ({username}) is invalid. Username must be between 3 and 30 characters."
             )
-        if re.fullmatch(username_regex_pattern, username) is None:
+        if re.fullmatch(USERNAME_REGEX_PATTERN, username) is None:
             raise ValueError(
                 f"Username ({username}) is invalid. Username must start with a letter and must contain only alphanumeric or underscore characters."
             )
