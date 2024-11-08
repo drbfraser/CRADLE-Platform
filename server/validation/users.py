@@ -15,6 +15,10 @@ from validation.validation_exception import ValidationExceptionError
 supported_roles = [role.value for role in RoleEnum]
 
 
+email_regex_pattern = r"^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,4}$"
+username_regex_pattern = r"^[A-Za-z]\w{2,29}$"
+
+
 class UserValidator(BaseModel):
     """
     Base class for User models.
@@ -34,7 +38,6 @@ class UserValidator(BaseModel):
     @classmethod
     def validate_email_format(cls, email: str):
         # Validate email format.
-        email_regex_pattern = r"^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,4}$"
         email = email.lower()
         if re.fullmatch(email_regex_pattern, email) is None:
             raise ValueError(f"Email ({email}) is invalid.")
@@ -113,7 +116,6 @@ class UserRegisterValidator(UserValidator):
             raise ValueError(
                 f"Username ({username}) is invalid. Username must be between 3 and 30 characters."
             )
-        username_regex_pattern = r"^[A-Za-z]\w{2,29}$"
         if re.fullmatch(username_regex_pattern, username) is None:
             raise ValueError(
                 f"Username ({username}) is invalid. Username must start with a letter and must contain only alphanumeric or underscore characters."
