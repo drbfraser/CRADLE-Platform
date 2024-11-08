@@ -160,7 +160,7 @@ class UserRegisterValidator(UserValidator):
             raise ValidationExceptionError(error_message)
 
 
-class UserPutRequestValidator(UserValidator):
+class UserEditValidator(UserValidator):
     """
     Pydantic validation model for the `/api/user/<int:userId> [PUT]`
     api endpoint. For editing/updating an existing user's info.
@@ -199,7 +199,7 @@ class UserPutRequestValidator(UserValidator):
     @staticmethod
     def validate(request_body: dict):
         try:
-            return UserPutRequestValidator(**request_body)
+            return UserEditValidator(**request_body)
         except ValidationError as e:
             error_message = str(e.errors()[0]["msg"])
             raise ValidationExceptionError(error_message)

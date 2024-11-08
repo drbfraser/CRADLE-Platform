@@ -39,7 +39,7 @@ from models import UserOrm
 from shared.user_utils import UserUtils
 from validation.users import (
     UserAuthRequestValidator,
-    UserPutRequestValidator,
+    UserEditValidator,
     UserRegisterValidator,
 )
 from validation.validation_exception import ValidationExceptionError
@@ -390,7 +390,7 @@ class UserApi(Resource):
         request_body["id"] = id
         try:
             # validate the new user
-            user_model = UserPutRequestValidator.validate(request_body)
+            user_model = UserEditValidator.validate(request_body)
         except ValidationExceptionError as e:
             error_message = str(e)
             LOGGER.error(error_message)
