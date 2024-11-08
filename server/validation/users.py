@@ -14,38 +14,21 @@ supported_roles = [role.value for role in RoleEnum]
 
 
 class UserValidator(BaseModel):
-    name: str
-    username: str
+    """
+    Base class for User models.
+    Since the PUT request for updating a user's info should only be able to
+    modify certain fields, this base class only defines the fields which are
+    allowed to be changed. This way, the model for validating PUT requests does
+    not need to include fields which it should not be able to change.
+    """
+
     email: str
+    name: str
     health_facility_name: str
     role: str
-    phone_numbers: List[str] = []
+    phone_numbers: List[str]
 
-    @field_validator("username", mode="before")
-    @classmethod
-    def validate_username_format(cls, username: str) -> str:
-        username = username.lower()
-        length = len(username)
-        if length < 3 or length > 30:
-            raise ValueError(
-                f"Username ({username}) is invalid. Username must be between 3 and 30 characters."
-            )
-        username_regex_pattern = r"^[A-Za-z]\w{2,29}$"
-        if re.fullmatch(username_regex_pattern, username) is None:
-            raise ValueError(
-                f"Username ({username}) is invalid. Username must start with a letter and must contain only alphanumeric or underscore characters."
-            )
-        return username
-
-    @field_validator("role", mode="before")
-    @classmethod
-    def validate_role(cls, value: str):
-        if value not in supported_roles:
-            error = {"message": f"({value}) is not a supported role"}
-            raise ValueError(error)
-        return value
-
-    @field_validator("email", mode="before")
+    @field_validator("email")
     @classmethod
     def validate_email_format(cls, email: str):
         # Validate email format.
@@ -55,7 +38,30 @@ class UserValidator(BaseModel):
             raise ValueError(f"Email ({email}) is invalid.")
         return email.lower()
 
-    @field_validator("phone_numbers", mode="before")
+    @field_validator("name")
+    @classmethod
+    def format_name(cls, name: str) -> str:
+        """Convert name to title case."""
+        name = name.title()
+        return name
+
+    @field_validator("health_facility_name")
+    @classmethod
+    def validate_health_facility_existence(cls, health_facility_name: str) -> str:
+        health_facility_name = health_facility_name.title()
+        if not HealthFacilityUtils.does_facility_exist(health_facility_name):
+            raise ValueError(f"Health facility ({health_facility_name}) not found.")
+        return health_facility_name
+
+    @field_validator("role")
+    @classmethod
+    def validate_role(cls, value: str):
+        if value not in supported_roles:
+            error = {"message": f"({value}) is not a supported role"}
+            raise ValueError(error)
+        return value
+
+    @field_validator("phone_numbers")
     @classmethod
     def validate_phone_numbers(cls, phone_numbers: List[str]):
         formatted_phone_numbers: list[str] = []
@@ -71,23 +77,6 @@ class UserValidator(BaseModel):
             formatted_phone_numbers.append(formatted_phone_number)
         # Return the formatted phone numbers.
         return formatted_phone_numbers
-
-    @field_validator("health_facility_name")
-    @classmethod
-    def validate_health_facility_existence(cls, health_facility_name: str) -> str:
-        health_facility_name = health_facility_name.title()
-        if not HealthFacilityUtils.does_facility_exist(health_facility_name):
-            raise ValueError(f"Health facility ({health_facility_name}) not found.")
-        return health_facility_name
-
-    @field_validator("name")
-    @classmethod
-    def format_name(cls, name: str) -> str:
-        """
-        Convert name to title case.
-        """
-        name = name.title()
-        return name
 
     @staticmethod
     def validate(request_body: dict):
@@ -115,7 +104,28 @@ class UserValidator(BaseModel):
 
 
 class UserRegisterValidator(UserValidator):
+    """
+    User validation model for the `/api/user/register [POST]` api endpoint.
+    """
+
+    username: str
     password: str
+
+    @field_validator("username")
+    @classmethod
+    def validate_username_format(cls, username: str) -> str:
+        username = username.lower()
+        length = len(username)
+        if length < 3 or length > 30:
+            raise ValueError(
+                f"Username ({username}) is invalid. Username must be between 3 and 30 characters."
+            )
+        username_regex_pattern = r"^[A-Za-z]\w{2,29}$"
+        if re.fullmatch(username_regex_pattern, username) is None:
+            raise ValueError(
+                f"Username ({username}) is invalid. Username must start with a letter and must contain only alphanumeric or underscore characters."
+            )
+        return username
 
     @field_validator("email", mode="after")
     @classmethod
@@ -147,14 +157,14 @@ class UserRegisterValidator(UserValidator):
 class UserPutRequestValidator(UserValidator):
     """
     Pydantic validation model for the `/api/user/<int:userId> [PUT]`
-    api endpoint.
+    api endpoint. For editing/updating an existing user's info.
     """
 
-    id: int
+    id: int  # Used in the route path to identify the user in the REST API.
 
     @model_validator(mode="after")
-    def validate_email_uniqueness(self) -> Self:
-        # Validate that email doesn't belong to another user.
+    def validate_email_unique_to_user(self) -> Self:
+        # Validate that the email doesn't belong to another user.
         if not UserUtils.is_email_unique_to_user(self.email, self.id):
             raise ValueError(f"Email ({self.email}) is already in use.")
         return self
@@ -167,7 +177,7 @@ class UserAuthRequestValidator(BaseModel):
     and convert the username to all lowercase.
     """
 
-    username: str  # Can be username or email.
+    username: str
     password: str
 
     @field_validator("username")
