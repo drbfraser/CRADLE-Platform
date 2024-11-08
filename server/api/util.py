@@ -742,9 +742,11 @@ def replace_phoneNumber_for_user(current_phone_number, new_phone_number, user_id
     return False
 
 
-def get_user_roles(userId):
-    userInfo = crud.read(UserOrm, id=userId)
-    return userInfo.role
+def get_user_roles(user_id):
+    user_orm = crud.read(UserOrm, id=user_id)
+    if user_orm is None:
+        raise ValueError(f"No user with id ({user_id}) was found.")
+    return user_orm.role
 
 
 def is_date_passed(date) -> bool:
@@ -774,12 +776,12 @@ def validate_user(user_id):
     return None
 
 
-def create_secret_key_for_user(userId):
+def create_secret_key_for_user(user_id):
     stale_date = get_future_date(day_after=SMS_KEY_DURATION - 10)
     expiry_date = get_future_date(day_after=SMS_KEY_DURATION)
     secret_Key = generate_new_key()
     new_key = {
-        "userId": userId,
+        "user_id": user_id,
         "secret_Key": str(secret_Key),
         "expiry_date": str(expiry_date),
         "stale_date": str(stale_date),
@@ -789,7 +791,7 @@ def create_secret_key_for_user(userId):
     return new_key
 
 
-def update_secret_key_for_user(userId):
+def update_secret_key_for_user(user_id):
     stale_date = get_future_date(day_after=SMS_KEY_DURATION - 10)
     expiry_date = get_future_date(day_after=SMS_KEY_DURATION)
     secret_Key = generate_new_key()
@@ -798,20 +800,20 @@ def update_secret_key_for_user(userId):
         "expiry_date": str(expiry_date),
         "stale_date": str(stale_date),
     }
-    crud.update(SmsSecretKeyOrm, new_key, userId=userId)
+    crud.update(SmsSecretKeyOrm, new_key, user_id=user_id)
     return new_key
 
 
-def get_user_secret_key(userId):
-    sms_secret_key = crud.read(SmsSecretKeyOrm, userId=userId)
+def get_user_secret_key(user_id):
+    sms_secret_key = crud.read(SmsSecretKeyOrm, user_id=user_id)
     if sms_secret_key and sms_secret_key.secret_Key:
         sms_key = marshal.marshal(sms_secret_key, SmsSecretKeyOrm)
         return sms_key
     return None
 
 
-def get_user_secret_key_string(userId):
-    sms_secret_key = crud.read(SmsSecretKeyOrm, userId=userId)
+def get_user_secret_key_string(user_id):
+    sms_secret_key = crud.read(SmsSecretKeyOrm, user_id=user_id)
     if sms_secret_key:
         return sms_secret_key.secret_Key
     return None
