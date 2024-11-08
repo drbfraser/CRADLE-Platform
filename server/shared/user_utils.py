@@ -8,6 +8,7 @@ from config import db
 from data import crud, marshal
 from enums import RoleEnum
 from models import UserOrm, UserPhoneNumberOrm
+from shared.phone_number_utils import PhoneNumberUtils
 
 logger = logging.getLogger(__name__)
 
@@ -85,10 +86,10 @@ class UserUtils:
     # End of function.
 
     @staticmethod
-    def is_email_unique_to_user(email: str, user_id: int) -> bool:
+    def is_email_unique_to_user(user_id: int, email: str) -> bool:
         """
-        :param email: The email to check.
         :param user_id: The id of the user to check for ownership.
+        :param email: The email to check.
         :return bool: True if the email belongs to the user or is not in the
             database.
         """
@@ -263,5 +264,49 @@ class UserUtils:
         if crud.read(UserOrm, username=username) is None:
             return False
         return True
+
+    # End of function.
+
+    @staticmethod
+    def update_user_phone_numbers(user_id: int, phone_numbers: set[str]):
+        """
+        Compares the set of provided phone numbers with those stored in the
+        database for the user and adds or removes from those in the database
+        such that the database will reflect the provided set.
+
+        Any phone numbers which are in the database but not in the set will be
+        deleted from the database.
+
+        Any phone numbers which are in the set but not in the database will be
+        added to the database.
+
+        :param user_id: The id of the user.
+        :param phone_numbers: The set of phone numbers to update the user with.
+        """
+        user_orm = crud.read(UserOrm, id=user_id)
+        if user_orm is None:
+            return ValueError(f"No user with id ({user_id}) found.")
+
+        # Get the user's existing phone numbers.
+        old_phone_numbers = set(PhoneNumberUtils.get_users_phone_numbers(user_id))
+
+        # Isolate those phone numbers which are not already in the database.
+        new_phone_numbers = phone_numbers.difference(old_phone_numbers)
+
+        # Isolate the phone numbers to remove.
+        removed_phone_numbers = old_phone_numbers.difference(phone_numbers)
+
+        # Delete the removed phone numbers from the database.
+        for phone_number_orm in user_orm.phone_numbers:
+            if phone_number_orm.phone_number in removed_phone_numbers:
+                db.session.delete(phone_number_orm)
+
+        # Add new phone numbers.
+        for new_phone_number in new_phone_numbers:
+            user_orm.phone_numbers.append(
+                UserPhoneNumberOrm(phone_number=new_phone_number)
+            )
+
+        db.session.commit()
 
     # End of function.
