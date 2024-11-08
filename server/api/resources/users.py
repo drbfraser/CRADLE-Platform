@@ -27,7 +27,6 @@ from api.util import (
     getDictionaryOfUserInfo,
     is_date_passed,
     isGoodPassword,
-    phoneNumber_exists,
     replace_phoneNumber_for_user,
     update_secret_key_for_user,
     validate_user,
@@ -40,8 +39,8 @@ from models import UserOrm
 from shared.user_utils import UserUtils
 from validation.users import (
     UserAuthRequestValidator,
+    UserPutRequestValidator,
     UserRegisterValidator,
-    UserValidator,
 )
 from validation.validation_exception import ValidationExceptionError
 
@@ -381,87 +380,40 @@ class UserTokenApi(Resource):
         return getDictionaryOfUserInfo(userId), 200
 
 
-# api/user/<int:userId> [GET, PUT, DELETE]
+# api/user/<int:user_id> [GET, PUT, DELETE]
 class UserApi(Resource):
     # edit user with id
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/user-put.yml", methods=["PUT"])
     def put(self, id):
-        # Ensure we have id
-        if not id:
-            return {"message": null_id_message}, 400
-
         request_body = request.get_json(force=True)
+        request_body["id"] = id
         try:
             # validate the new user
-            user_pydantic_model = UserValidator.model_validate(request_body)
+            user_model = UserPutRequestValidator.validate(request_body)
         except ValidationExceptionError as e:
             error_message = str(e)
-
             LOGGER.error(error_message)
             abort(400, message=error_message)
 
         # use pydantic model to generate validated dict for later processing
-        new_user = user_pydantic_model.model_dump()
 
-        # Save the phoneNumbers field and remove it from new_user.
-        phone_numbers = new_user.get("phoneNumbers")
-        if phone_numbers is None:
-            return {"message": null_phone_number_message}, 400
-        phone_numbers = list(phone_numbers)
-        # new_user = {k: v for k, v in new_user.items() if k != "phoneNumbers"}
+        try:
+            # Update the user.
+            UserUtils.update_user(id, user_model.model_dump())
+        except ValueError as e:
+            error_message = str(e)
+            LOGGER.error(error_message)
+            abort(400, message=error_message)
 
-        # Ensure that id is valid
-        if not doesUserExist(id):
-            error = {"message": "no user with this id"}
-            LOGGER.error(error)
-            return error, 400
+        # supervises = []
+        # if new_user["role"] == RoleEnum.CHO.value:
+        #     supervises = new_user.get("supervises", [])
 
-        if new_user["role"] not in supported_roles:
-            error = {"message": "Not a supported role."}
-            LOGGER.error(error)
-            return error, 400
+        # crud.add_vht_to_supervise(id, supervises)
+        # new_user.pop("supervises", None)
 
-        # Validate the phone numbers.
-        for phone_number in phone_numbers:
-            if not phoneNumber_regex_check(phone_number):
-                return {"message": invalid_phone_number_message}, 400
-
-        # Get the user's existing phone numbers.
-        old_phone_numbers: list[str] = get_all_phoneNumbers_for_user(id)
-
-        # Isolate those phone numbers which are not already in the database.
-        new_phone_numbers = list(set(phone_numbers).difference(set(old_phone_numbers)))
-
-        # Isolate the phone numbers to remove.
-        remove_phone_numbers = list(
-            set(old_phone_numbers).difference(set(phone_numbers)),
-        )
-
-        # If new phone number belongs to an existing user, return an error message.
-        for phone_number in new_phone_numbers:
-            if phoneNumber_exists(phone_number):
-                return phone_number_already_exists_message, 400
-
-        supervises = []
-        if new_user["role"] == RoleEnum.CHO.value:
-            supervises = new_user.get("supervises", [])
-
-        crud.add_vht_to_supervise(id, supervises)
-        new_user.pop("supervises", None)
-
-        # Update the user.
-        crud.update(UserOrm, new_user, id=id)
-
-        # Add new phone numbers.
-        for phone_number in new_phone_numbers:
-            add_new_phoneNumber_for_user(phone_number, id)
-
-        # Remove phone numbers to be removed.
-        for phone_number in remove_phone_numbers:
-            delete_user_phoneNumber(phone_number, id)
-
-        return getDictionaryOfUserInfo(id)
+        return UserUtils.get_user_dict_from_id(id), 200
 
     @jwt_required()
     @swag_from("../../specifications/user-get.yml", methods=["GET"])
