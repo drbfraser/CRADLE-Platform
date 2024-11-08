@@ -33,16 +33,16 @@ class UserModelDict(TypedDict):
 
 class UserUtils:
     @staticmethod
-    def get_user_orm_model_from_username(username: str):
-        user_orm_model = crud.read(UserOrm, username=username)
-        if user_orm_model is None:
+    def get_user_orm_from_username(username: str):
+        user_orm = crud.read(UserOrm, username=username)
+        if user_orm is None:
             raise ValueError(f"No user with username ({username}) found.")
-        return user_orm_model
+        return user_orm
 
     # End of function.
 
     @staticmethod
-    def get_user_dict_from_orm_model(user_orm_model: UserOrm) -> UserModelDict:
+    def get_user_dict_from_orm(user_orm_model: UserOrm) -> UserModelDict:
         user_dict = marshal.marshal(user_orm_model)
         return cast(UserModelDict, user_dict)
 
@@ -50,15 +50,15 @@ class UserUtils:
 
     @staticmethod
     def get_user_dict_from_username(username: str) -> UserModelDict:
-        user_orm_model = UserUtils.get_user_orm_model_from_username(username)
-        return UserUtils.get_user_dict_from_orm_model(user_orm_model)
+        user_orm = UserUtils.get_user_orm_from_username(username)
+        return UserUtils.get_user_dict_from_orm(user_orm)
 
     # End of function.
 
     @staticmethod
     def get_user_id_from_username(username: str) -> int:
-        user_orm_model = UserUtils.get_user_orm_model_from_username(username)
-        user_dict = UserUtils.get_user_dict_from_orm_model(user_orm_model)
+        user_orm = UserUtils.get_user_orm_from_username(username)
+        user_dict = UserUtils.get_user_dict_from_orm(user_orm)
         return user_dict["id"]
 
     # End of function.
@@ -148,7 +148,7 @@ class UserUtils:
 
         # Create the user entry in the database.
         try:
-            user_orm_model = UserOrm(
+            user_orm = UserOrm(
                 username=username,
                 email=email,
                 name=name,
@@ -158,10 +158,10 @@ class UserUtils:
             )
             # Add phone numbers to database.
             for phone_number in phone_numbers:
-                user_orm_model.phone_numbers.append(
+                user_orm.phone_numbers.append(
                     UserPhoneNumberOrm(phone_number=phone_number)
                 )
-            crud.create(user_orm_model)
+            crud.create(user_orm)
         except Exception as err:
             print(err)
             logger.error("Failed to add user (%s) to the database.", username)
@@ -225,15 +225,15 @@ class UserUtils:
         :param username: The username of the user to be deleted.
         """
         # Find user in database.
-        user_orm_model = crud.read(UserOrm, username=username)
+        user_orm = crud.read(UserOrm, username=username)
         cognito_user = cognito.get_user(username=username)
 
         if cognito_user is not None:
             # Delete from user pool.
             cognito.delete_user(username=username)
-        if user_orm_model is not None:
+        if user_orm is not None:
             # Delete from database.
-            crud.delete(user_orm_model)
+            crud.delete(user_orm)
 
     # End of function.
 
@@ -245,10 +245,9 @@ class UserUtils:
         # Get list of users from cognito user pool.
         cognito_user_list = cognito.list_users()
         # Get list of users from our database.
-        user_model_list = crud.read_all(UserOrm)
+        user_orm_list = crud.read_all(UserOrm)
         user_list = [
-            UserUtils.get_user_dict_from_orm_model(user_model)
-            for user_model in user_model_list
+            UserUtils.get_user_dict_from_orm(user_orm) for user_orm in user_orm_list
         ]
         return user_list, cognito_user_list
 
