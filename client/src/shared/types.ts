@@ -146,7 +146,7 @@ export type SecretKey = {
  * keeping the "phoneNumber" attribute.
  */
 export type User = {
-  userId: number;
+  id: number;
   username?: string;
   email: string;
   name: string;

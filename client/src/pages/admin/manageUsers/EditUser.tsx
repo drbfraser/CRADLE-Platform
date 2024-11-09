@@ -40,7 +40,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
   const [errorMessage, setErrorMessage] = useState('');
   const creatingNew = editUser === undefined;
   const emailsInUse = users
-    .filter((u) => u.userId !== editUser?.userId)
+    .filter((u) => u.id !== editUser?.id)
     .map((u) => u.email);
 
   const handleSubmit = async (
@@ -53,7 +53,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
       user.phoneNumbers = [user.phoneNumber, ...user.phoneNumbers];
     }
     try {
-      await saveUserAsync(user, editUser?.userId);
+      await saveUserAsync(user, editUser?.id);
       onClose();
     } catch (e) {
       if (!(e instanceof Response)) return;
@@ -178,7 +178,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                             ids
                               .map(
                                 (id) =>
-                                  users.find((u) => u.userId === id)?.name ??
+                                  users.find((u) => u.id === id)?.name ??
                                   'Unknown'
                               )
                               .join(', '),
@@ -188,15 +188,15 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                         {users
                           .filter(
                             (u) =>
-                              editUser?.supervises.includes(u.userId) ||
+                              editUser?.supervises.includes(u.id) ||
                               (u.role === UserRoleEnum.VHT &&
-                                u.userId !== editUser?.userId)
+                                u.id !== editUser?.id)
                           )
                           .map((user) => (
-                            <MenuItem key={user.userId} value={user.userId}>
+                            <MenuItem key={user.id} value={user.id}>
                               <Checkbox
                                 checked={
-                                  values.supervises.indexOf(user.userId) >= 0
+                                  values.supervises.indexOf(user.id) >= 0
                                 }
                               />
                               {user.name} ({user.email})

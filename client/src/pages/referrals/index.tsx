@@ -39,7 +39,7 @@ export const ReferralsPage = () => {
   const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
 
   const userId = useSelector(({ user }: ReduxState): number | undefined => {
-    return user.current.data?.userId;
+    return user.current.data?.id;
   });
   const secretKey = useSelector(({ secretKey }: ReduxState): SecretKeyState => {
     return secretKey;

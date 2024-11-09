@@ -90,6 +90,7 @@ export const loginUser = (
         onSuccess: ({ data }): CurrentUserAction => {
           // Validate response data.
           const authResponse: AuthResponse = authResponseSchema.parse(data);
+
           // Store access token in local storage.
           localStorage.setItem(`accessToken`, authResponse.accessToken);
 

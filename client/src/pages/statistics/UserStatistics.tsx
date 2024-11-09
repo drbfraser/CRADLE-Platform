@@ -80,7 +80,7 @@ export const UserStatistics = ({ from, to }: Props) => {
             }}>
             <Select variant="standard" value={user} onChange={handleChange}>
               {users.map((user, idx) => (
-                <MenuItem value={user.userId} key={idx}>
+                <MenuItem value={user.id} key={idx}>
                   {`${user.name} (${user.email})`}
                 </MenuItem>
               ))}

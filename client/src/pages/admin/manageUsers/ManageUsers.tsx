@@ -55,7 +55,7 @@ export const ManageUsers = () => {
   const ActionButtons = useCallback(
     ({ user }: { user?: UserWithIndex }) => {
       const { data: currentUser } = useAppSelector(selectCurrentUser);
-      const isCurrentUser = currentUser?.userId === user?.userId;
+      const isCurrentUser = currentUser?.id === user?.id;
       const actions: TableAction[] = [
         {
           tooltip: 'Edit User',

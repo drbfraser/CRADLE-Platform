@@ -32,7 +32,7 @@ export const useSecretKey = (
 ): UseSecretKeyReturn => {
   const dispatch = useAppDispatch();
   const [focusUserId, setFocusUserId] = useState<number | undefined>(
-    userData?.userId
+    userData?.id
   );
   const [currentSecretKey, setCurrentSecretKey] = useState<
     SecretKey | undefined
@@ -56,7 +56,7 @@ export const useSecretKey = (
     setUsers(
       resp.map((user, index) => ({
         email: user.email,
-        userId: user.userId,
+        userId: user.id,
         index,
       }))
     );
@@ -85,7 +85,7 @@ export const useSecretKey = (
   };
 
   const updateSecretKey = useCallback(async () => {
-    if (userData && userData.userId === focusUserId) {
+    if (userData && userData.id === focusUserId) {
       const response = await updateSecretKeyAsync(focusUserId);
       setCurrentSecretKey({ ...response });
       return;

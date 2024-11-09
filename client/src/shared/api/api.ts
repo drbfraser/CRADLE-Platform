@@ -268,7 +268,7 @@ export const getAppFileHeadAsync = async () =>
   });
 
 export const deleteUserAsync = async (user: User) =>
-  apiFetch(API_URL + EndpointEnum.USER + String(user.userId), {
+  apiFetch(API_URL + EndpointEnum.USER + String(user.id), {
     method: 'DELETE',
   });
 
@@ -302,7 +302,7 @@ export const getUsersAsync = async (): Promise<User[]> => {
 
 export const resetUserPasswordAsync = async (user: User, password: string) => {
   const url =
-    API_URL + EndpointEnum.USER + String(user.userId) + EndpointEnum.RESET_PASS;
+    API_URL + EndpointEnum.USER + String(user.id) + EndpointEnum.RESET_PASS;
 
   const init = {
     method: 'POST',

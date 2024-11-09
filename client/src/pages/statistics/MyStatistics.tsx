@@ -28,7 +28,7 @@ export const MyStatistics = ({ from, to }: MyStatisticsProps) => {
       user: user.current.data,
     })
   );
-  const userId = user?.userId;
+  const userId = user?.id;
   return (
     <Box sx={STATS_PAGE_SX}>
       <Box sx={{ float: 'left' }}>

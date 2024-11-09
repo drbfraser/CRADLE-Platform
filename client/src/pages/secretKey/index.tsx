@@ -37,7 +37,7 @@ const SecretKeyPage: React.FC = () => {
       if (currentUser == null) {
         return null;
       }
-      return { userId: currentUser.userId, role: currentUser.role };
+      return { id: currentUser.id, role: currentUser.role };
     }
   );
   const secretKey = useSelector(({ secretKey }: ReduxState): SecretKeyState => {
@@ -99,7 +99,7 @@ const SecretKeyPage: React.FC = () => {
                 value={focusUserId + ''}
                 onChange={handleUserSelect}>
                 {users.map((u, index) => (
-                  <MenuItem key={index} value={u.userId}>
+                  <MenuItem key={index} value={u.id}>
                     {u.email}
                   </MenuItem>
                 ))}

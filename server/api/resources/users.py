@@ -345,11 +345,18 @@ class UserAuthApi(Resource):
         user_dict["sms_key"] = sms_key
         # Don't return sub.
         del user_dict["sub"]
+
+        challenge = auth_result["challenge"]
+
         resp_body = {
             "access_token": auth_result["access_token"],
             "user": user_dict,
-            "challenge": auth_result["challenge"],
+            "challenge": None,
         }
+
+        # Only include challenge in response if challenge_name is not None.
+        if challenge["challenge_name"] is not None:
+            resp_body["challenge"] = challenge
 
         resp = make_response(resp_body, 200)
         # Store refresh token in HTTP-Only cookie.
