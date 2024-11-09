@@ -2,15 +2,6 @@ import { z } from 'zod';
 import { lowerCase } from 'lodash';
 import { UserRoleEnum } from 'src/shared/enums';
 
-const roleEnumOptions = UserRoleEnum;
-
-const literalSchema = z.union([z.string(), z.number(), z.boolean(), z.null()]);
-type Literal = z.infer<typeof literalSchema>;
-type Json = Literal | { [key: string]: Json } | Json[];
-const jsonSchema: z.ZodType<Json> = z.lazy(() =>
-  z.union([literalSchema, z.array(jsonSchema), z.record(jsonSchema)])
-);
-
 export const authRequestSchema = z.object({
   // Username should be case-insensitive.
   username: z.string().transform((value) => lowerCase(value)),
@@ -33,7 +24,7 @@ const authChallengeSchema = z.object({
       z.literal('NEW_PASSWORD_REQUIRED'),
     ])
     .nullable(),
-  challengeParams: z.map(z.string(), z.string()),
+  challengeParams: z.record(z.string()),
   session: z.string().nullable(),
 });
 
