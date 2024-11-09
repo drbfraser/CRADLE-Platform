@@ -349,7 +349,6 @@ class UserAuthApi(Resource):
         }
 
         resp = make_response(resp_body, 200)
-        resp.headers["Cache-Control"] = "no-store"
         # Store refresh token in HTTP-Only cookie.
         if refresh_token is not None:
             resp.set_cookie(
