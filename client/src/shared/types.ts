@@ -9,6 +9,7 @@ import {
 } from 'src/shared/enums';
 
 import { FacilityField } from 'src/pages/admin/manageFacilities/state';
+import { UserSchema } from './api/validation/login';
 
 export type Callback<T, U = void> = (args: T) => U;
 
@@ -145,15 +146,7 @@ export type SecretKey = {
  * a "phoneNumber" attribute, so I have add the "phoneNumbers" array while
  * keeping the "phoneNumber" attribute.
  */
-export type User = {
-  id: number;
-  username?: string;
-  email: string;
-  name: string;
-  healthFacilityName: string;
-  role: UserRoleEnum;
-  supervises?: number[];
-  phoneNumbers: string[];
+export type User = UserSchema & {
   phoneNumber: string;
 };
 
