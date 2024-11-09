@@ -10,6 +10,11 @@ import { Dispatch } from 'redux';
 import { EndpointEnum, MethodEnum } from 'src/shared/enums';
 import { RootState } from 'src/redux/store';
 import { NavigateFunction } from 'react-router-dom';
+import {
+  AuthChallenge,
+  AuthResponse,
+  authResponseSchema,
+} from 'src/shared/api/validation/login';
 
 export enum CurrentUserActionEnum {
   CLEAR_CURRENT_USER_ERROR = 'currentUser/CLEAR_CURRENT_USER_ERROR',
@@ -20,6 +25,7 @@ export enum CurrentUserActionEnum {
   LOGIN_USER_SUCCESS = 'currentUser/LOGIN_USER_SUCCESS',
   LOGIN_USER_ERROR = 'currentUser/LOGIN_USER_ERROR',
   LOGOUT_USER = 'currentUser/LOGOUT_USER',
+  AUTH_CHALLENGE = 'currentUser/AUTH_CHALLENGE',
 }
 
 export const clearCurrentUserError = (): CurrentUserAction => ({
@@ -46,7 +52,11 @@ type CurrentUserAction =
       type: CurrentUserActionEnum.LOGIN_USER_ERROR;
       payload: { message: string };
     }
-  | { type: CurrentUserActionEnum.LOGOUT_USER };
+  | { type: CurrentUserActionEnum.LOGOUT_USER }
+  | {
+      type: CurrentUserActionEnum.AUTH_CHALLENGE;
+      payload: { user: IUserWithTokens };
+    };
 
 export const logoutUser = (): Callback<Dispatch> => {
   return (dispatch: Dispatch): void => {
@@ -77,14 +87,22 @@ export const loginUser = (
         endpoint: EndpointEnum.AUTH,
         method: MethodEnum.POST,
         data,
-        onSuccess: ({ data }: { data: IUserWithTokens }): CurrentUserAction => {
-          console.log('Login Success - Response Data: ', data);
+        onSuccess: ({ data }): CurrentUserAction => {
+          // Validate response data.
+          const authResponse: AuthResponse = authResponseSchema.parse(data);
           // Store access token in local storage.
-          localStorage.setItem(`accessToken`, data.accessToken);
-          navigate('/referrals');
+          localStorage.setItem(`accessToken`, authResponse.accessToken);
+
+          // If no auth challenge, proceed with login.
+          if (authResponse.challenge === null) {
+            navigate('/referrals');
+          } else {
+            // Handle auth challenge.
+          }
+
           return {
             type: CurrentUserActionEnum.LOGIN_USER_SUCCESS,
-            payload: { user: data },
+            payload: { user: authResponse.user },
           };
         },
         onError: ({ message }: ServerError) => {
@@ -137,6 +155,7 @@ export type CurrentUserState = {
   loading: boolean;
   loggedIn: boolean;
   message: OrNull<string>;
+  authChallenge?: AuthChallenge | null;
 };
 
 const initialState: CurrentUserState = {
@@ -145,6 +164,7 @@ const initialState: CurrentUserState = {
   loading: false,
   loggedIn: false,
   message: null,
+  authChallenge: null,
 };
 
 export const currentUserReducer = (
@@ -172,6 +192,9 @@ export const currentUserReducer = (
     }
     case CurrentUserActionEnum.LOGIN_USER_SUCCESS: {
       return { ...initialState, data: action.payload.user, loggedIn: true };
+    }
+    case CurrentUserActionEnum.AUTH_CHALLENGE: {
+      return { ...initialState, data: action.payload.user, loggedIn: false };
     }
     case CurrentUserActionEnum.GET_CURRENT_USER_SUCCESS: {
       return {
