@@ -1,7 +1,13 @@
 import re
 from typing import List
 
-from pydantic import BaseModel, ValidationError, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    ValidationError,
+    field_validator,
+    model_validator,
+)
 from typing_extensions import Self
 
 from common.constants import USERNAME_REGEX_PATTERN
@@ -210,6 +216,8 @@ class UserAuthRequestValidator(BaseModel):
     Only needs to validate that the username and password fields are present,
     and convert the username to all lowercase.
     """
+
+    model_config = ConfigDict(extra="forbid")
 
     username: str
     password: str
