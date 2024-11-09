@@ -61,13 +61,13 @@ class UserUtils:
     # End of function.
 
     @staticmethod
-    def get_user_dict_from_orm(user_orm_model: UserOrm) -> UserModelDict:
+    def get_user_dict_from_orm(user_orm: UserOrm) -> UserModelDict:
         """
-        :param user_orm_model: ORM model of the user.
+        :param user_orm: ORM model of the user.
         :return user_dict: A dict containing the data from the ORM model of the
             user.
         """
-        user_dict = marshal.marshal(user_orm_model)
+        user_dict = marshal.marshal(user_orm)
         return cast(UserModelDict, user_dict)
 
     # End of function.
