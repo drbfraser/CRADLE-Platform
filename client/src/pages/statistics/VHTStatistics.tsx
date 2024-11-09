@@ -10,7 +10,7 @@ import Box from '@mui/material/Box';
 import { Divider } from '@mui/material';
 import { ExportStatistics } from './utils/ExportStatistics';
 import FormControl from '@mui/material/FormControl';
-import { IVHT } from 'src/shared/types';
+import { VHT } from 'src/shared/types';
 import MenuItem from '@mui/material/MenuItem';
 import { ReduxState } from 'src/redux/reducers';
 import Select from '@mui/material/Select';
@@ -42,7 +42,7 @@ export const VHTStatistics = ({ from, to }: Props) => {
     })
   );
 
-  const [vhts, setVHTs] = useState<IVHT[]>([]);
+  const [vhts, setVHTs] = useState<VHT[]>([]);
   const [errorLoading, setErrorLoading] = useState(false);
   const [vht, setVht] = useState('');
 

@@ -9,7 +9,7 @@ import { RelayNumField, RelayNumTemplate, getValidationSchema } from './state';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 import { TextField } from 'formik-mui';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { IRelayNum } from 'src/shared/types';
+import { RelayNum } from 'src/shared/types';
 import { useState } from 'react';
 import { saveRelayNumAsync } from 'src/shared/api/api';
 import { Toast } from 'src/shared/components/toast';
@@ -17,8 +17,8 @@ import { Toast } from 'src/shared/components/toast';
 interface IProps {
   open: boolean;
   onClose: () => void;
-  relayNums: IRelayNum[];
-  editRelayNum?: IRelayNum;
+  relayNums: RelayNum[];
+  editRelayNum?: RelayNum;
 }
 
 const EditRelayNum = ({ open, onClose, relayNums, editRelayNum }: IProps) => {
@@ -27,8 +27,8 @@ const EditRelayNum = ({ open, onClose, relayNums, editRelayNum }: IProps) => {
   const creatingNew = editRelayNum === undefined;
 
   const handleSubmit = async (
-    values: IRelayNum,
-    { setSubmitting }: FormikHelpers<IRelayNum>
+    values: RelayNum,
+    { setSubmitting }: FormikHelpers<RelayNum>
   ) => {
     try {
       await saveRelayNumAsync(values);

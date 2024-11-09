@@ -8,9 +8,9 @@ import {
   FormTemplate,
   FormTemplateWithQuestions,
   IFacility,
-  IRelayNum,
+  RelayNum,
   User,
-  IVHT,
+  VHT,
   MedicalRecord,
   NewAssessment,
   PatientMedicalInfo,
@@ -646,7 +646,7 @@ export const getUserVhtsAsync = async (): Promise<Referrer[]> => {
   return response.json();
 };
 
-export const getVHTsAsync = async (): Promise<IVHT[]> => {
+export const getVHTsAsync = async (): Promise<VHT[]> => {
   const response = await apiFetch(API_URL + EndpointEnum.ALL_VHTS);
 
   return response.json();
@@ -766,14 +766,14 @@ export const addRelayServerPhone = async (
 export const getRelayServerPhones = async () =>
   (await apiFetch(API_URL + EndpointEnum.RELAY_SERVER_PHONE)).json();
 
-export const saveRelayNumAsync = async (relayNum: IRelayNum) => {
+export const saveRelayNumAsync = async (relayNum: RelayNum) => {
   apiFetch(API_URL + EndpointEnum.RELAY_SERVER_PHONE, {
     method: MethodEnum.PUT,
     body: JSON.stringify(relayNum),
   });
 };
 
-export const deleteRelayNumAsync = async (relayNum: IRelayNum) => {
+export const deleteRelayNumAsync = async (relayNum: RelayNum) => {
   apiFetch(API_URL + EndpointEnum.RELAY_SERVER_PHONE, {
     method: MethodEnum.DELETE,
     body: JSON.stringify(relayNum),

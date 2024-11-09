@@ -179,22 +179,22 @@ export interface IFacility {
   [FacilityField.location]: string;
   index: number;
 }
-export interface IRelayNum {
+export type RelayNum = {
   phone: string;
   description: string;
   lastReceived: number;
-}
+};
 
 export type UserWithTokens = User & {
   accessToken: string;
 };
 
-export interface IVHT {
+export type VHT = {
   userId: number;
   email: string;
   firstName: string;
   healthFacilityName: string;
-}
+};
 
 export type PatientTrafficLightStats = {
   green: number;

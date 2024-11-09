@@ -35,7 +35,7 @@ import {
 import * as yup from 'yup';
 import { formatBytes } from 'src/shared/utils';
 import { Field, Form, Formik } from 'formik';
-import { IRelayNum } from 'src/shared/types';
+import { RelayNum } from 'src/shared/types';
 import EditRelayNum from './editRelayNum';
 import DeleteRelayNum from './DeleteRelayNum';
 import {
@@ -63,7 +63,7 @@ export const ManageRelayApp = () => {
   const [errorLoading, setErrorLoading] = useState(false);
 
   // Table
-  const [relayNums, setRelayNums] = useState<IRelayNum[]>([]);
+  const [relayNums, setRelayNums] = useState<RelayNum[]>([]);
 
   // Relay App Actions
   const [AppActionsPopup, openAppActionsPopup] = useState(false);
@@ -71,11 +71,11 @@ export const ManageRelayApp = () => {
 
   // Relay Number Actions
   const [editPopupOpen, setEditPopupOpen] = useState(false);
-  const [popupRelayNum, setPopupRelayNum] = useState<IRelayNum>();
+  const [popupRelayNum, setPopupRelayNum] = useState<RelayNum>();
   const [deletePopupOpen, setDeletePopupOpen] = useState(false);
 
   const [rows, setRows] = useState<GridRowsProp>([]);
-  const updateRowData = (relayNums: IRelayNum[]) => {
+  const updateRowData = (relayNums: RelayNum[]) => {
     setRows(
       relayNums.map((relayNum, index) => ({
         id: index,
@@ -143,7 +143,7 @@ export const ManageRelayApp = () => {
 
   const getRelayNums = async () => {
     try {
-      const nums: IRelayNum[] = await getRelayServerPhones();
+      const nums: RelayNum[] = await getRelayServerPhones();
       if (nums) {
         setRelayNums(nums);
       }
@@ -180,7 +180,7 @@ export const ManageRelayApp = () => {
     loadAppFile();
   }, [numFileUploaded]);
 
-  const handleSubmit = async (values: IRelayNum) => {
+  const handleSubmit = async (values: RelayNum) => {
     try {
       await addRelayServerPhone(values.phone, values.description);
       const resp = await getRelayServerPhones();
@@ -192,37 +192,34 @@ export const ManageRelayApp = () => {
     }
   };
 
-  const ActionButtons = useCallback(
-    ({ relayNum }: { relayNum?: IRelayNum }) => {
-      const actions: TableAction[] = [
-        {
-          tooltip: 'Edit',
-          Icon: Edit,
-          onClick: () => {
-            setPopupRelayNum(relayNum);
-            setEditPopupOpen(true);
-          },
+  const ActionButtons = useCallback(({ relayNum }: { relayNum?: RelayNum }) => {
+    const actions: TableAction[] = [
+      {
+        tooltip: 'Edit',
+        Icon: Edit,
+        onClick: () => {
+          setPopupRelayNum(relayNum);
+          setEditPopupOpen(true);
         },
-        {
-          tooltip: 'Delete',
-          Icon: DeleteForever,
-          onClick: () => {
-            setPopupRelayNum(relayNum);
-            setDeletePopupOpen(true);
-          },
+      },
+      {
+        tooltip: 'Delete',
+        Icon: DeleteForever,
+        onClick: () => {
+          setPopupRelayNum(relayNum);
+          setDeletePopupOpen(true);
         },
-        {
-          tooltip: 'Download Logs',
-          Icon: CloudDownloadOutlined,
-          onClick: () => {
-            // TODO
-          },
+      },
+      {
+        tooltip: 'Download Logs',
+        Icon: CloudDownloadOutlined,
+        onClick: () => {
+          // TODO
         },
-      ];
-      return <TableActionButtons actions={actions} />;
-    },
-    []
-  );
+      },
+    ];
+    return <TableActionButtons actions={actions} />;
+  }, []);
 
   const columns: GridColDef[] = [
     { flex: 1, field: 'phoneNumber', headerName: 'Phone Number' },
@@ -238,7 +235,7 @@ export const ManageRelayApp = () => {
       headerName: 'Take Action',
       filterable: false,
       sortable: false,
-      renderCell: (params: GridRenderCellParams<any, IRelayNum>) => (
+      renderCell: (params: GridRenderCellParams<any, RelayNum>) => (
         <ActionButtons relayNum={params.value} />
       ),
     },
