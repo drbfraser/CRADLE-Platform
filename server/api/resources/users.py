@@ -281,10 +281,9 @@ class UserAuthApi(Resource):
         """
         Authentication endpoint.
         """
-        # Parse and validate the form data.
-        form_data = request.form
+        request_body = request.get_json(force=True)
         try:
-            credentials = UserAuthRequestValidator(**form_data)
+            credentials = UserAuthRequestValidator(**request_body)
         except ValidationExceptionError as err:
             error_message = str(err)
             LOGGER.error(error_message)
