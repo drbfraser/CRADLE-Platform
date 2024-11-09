@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 
-import { IUser } from 'src/shared/types';
+import { User } from 'src/shared/types';
 import { UserRoleEnum } from 'src/shared/enums';
 
 export enum UserField {
@@ -73,7 +73,7 @@ export const passwordValidationSchema = Yup.object().shape(
   passwordValidationShape
 );
 
-export const newUserTemplate: IUser = {
+export const newUserTemplate: User = {
   [UserField.firstName]: '',
   [UserField.email]: '',
   [UserField.phoneNumber]: '',

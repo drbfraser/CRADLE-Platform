@@ -10,7 +10,7 @@ import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import { ExportStatistics } from './utils/ExportStatistics';
 import FormControl from '@mui/material/FormControl';
-import { IUser } from 'src/shared/types';
+import { User } from 'src/shared/types';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import { StatisticDashboard } from './utils/StatisticsInfo';
@@ -24,7 +24,7 @@ type Props = {
 };
 
 export const UserStatistics = ({ from, to }: Props) => {
-  const [users, setUsers] = useState<IUser[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [user, setUser] = useState('');
   const [errorLoading, setErrorLoading] = useState(false);
 

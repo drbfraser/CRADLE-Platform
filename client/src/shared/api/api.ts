@@ -9,7 +9,7 @@ import {
   FormTemplateWithQuestions,
   IFacility,
   IRelayNum,
-  IUser,
+  User,
   IVHT,
   MedicalRecord,
   NewAssessment,
@@ -267,15 +267,12 @@ export const getAppFileHeadAsync = async () =>
     method: 'HEAD',
   });
 
-export const deleteUserAsync = async (user: IUser) =>
+export const deleteUserAsync = async (user: User) =>
   apiFetch(API_URL + EndpointEnum.USER + String(user.userId), {
     method: 'DELETE',
   });
 
-export const saveUserAsync = async (
-  user: IUser,
-  userId: number | undefined
-) => {
+export const saveUserAsync = async (user: User, userId: number | undefined) => {
   const url =
     API_URL +
     (userId ? EndpointEnum.USER + userId : EndpointEnum.USER_REGISTER);
@@ -291,19 +288,19 @@ export const saveUserAsync = async (
   return apiFetch(url, init, false, true);
 };
 
-export const getUsersAsync = async (): Promise<IUser[]> => {
+export const getUsersAsync = async (): Promise<User[]> => {
   const res = await apiFetch(API_URL + EndpointEnum.USER_ALL);
   const users = await res.json();
   /* Since much of the front-end was created with users only having a single 
   phone number, set the users 'phoneNumber' attribute to be the first 
   phone number in the 'phoneNumbers' array. */
-  return users.map((user: IUser) => {
+  return users.map((user: User) => {
     user.phoneNumber = user.phoneNumbers.length > 0 ? user.phoneNumbers[0] : '';
     return user;
   });
 };
 
-export const resetUserPasswordAsync = async (user: IUser, password: string) => {
+export const resetUserPasswordAsync = async (user: User, password: string) => {
   const url =
     API_URL + EndpointEnum.USER + String(user.userId) + EndpointEnum.RESET_PASS;
 

@@ -20,7 +20,7 @@ import {
 } from './state';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { IUser } from 'src/shared/types';
+import { User } from 'src/shared/types';
 import { UserRoleEnum } from 'src/shared/enums';
 import { saveUserAsync } from 'src/shared/api/api';
 import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
@@ -30,8 +30,8 @@ import { userRoleLabels } from 'src/shared/constants';
 interface IProps {
   open: boolean;
   onClose: () => void;
-  users: IUser[];
-  editUser?: IUser;
+  users: User[];
+  editUser?: User;
 }
 
 const EditUser = ({ open, onClose, users, editUser }: IProps) => {
@@ -44,8 +44,8 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
     .map((u) => u.email);
 
   const handleSubmit = async (
-    user: IUser,
-    { setSubmitting }: FormikHelpers<IUser>
+    user: User,
+    { setSubmitting }: FormikHelpers<User>
   ) => {
     /* If the phone number entered is not already in the user's array of 
     phone numbers, prepend it to the array. */

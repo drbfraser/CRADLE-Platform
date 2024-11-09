@@ -1,5 +1,5 @@
 import {
-  IUserWithTokens,
+  UserWithTokens,
   Callback,
   OrNull,
   ServerError,
@@ -37,7 +37,7 @@ type CurrentUserAction =
   | { type: CurrentUserActionEnum.GET_CURRENT_USER_REQUESTED }
   | {
       type: CurrentUserActionEnum.GET_CURRENT_USER_SUCCESS;
-      payload: { currentUser: IUserWithTokens };
+      payload: { currentUser: UserWithTokens };
     }
   | {
       type: CurrentUserActionEnum.GET_CURRENT_USER_ERROR;
@@ -46,7 +46,7 @@ type CurrentUserAction =
   | { type: CurrentUserActionEnum.LOGIN_USER_REQUESTED }
   | {
       type: CurrentUserActionEnum.LOGIN_USER_SUCCESS;
-      payload: { user: IUserWithTokens };
+      payload: { user: UserWithTokens };
     }
   | {
       type: CurrentUserActionEnum.LOGIN_USER_ERROR;
@@ -55,7 +55,7 @@ type CurrentUserAction =
   | { type: CurrentUserActionEnum.LOGOUT_USER }
   | {
       type: CurrentUserActionEnum.AUTH_CHALLENGE;
-      payload: { user: IUserWithTokens };
+      payload: { user: UserWithTokens };
     };
 
 export const logoutUser = (): Callback<Dispatch> => {
@@ -132,7 +132,7 @@ export const getCurrentUser = (): ((
         onSuccess: ({
           data: currentUser,
         }: {
-          data: IUserWithTokens;
+          data: UserWithTokens;
         }): CurrentUserAction => ({
           type: CurrentUserActionEnum.GET_CURRENT_USER_SUCCESS,
           payload: { currentUser },
@@ -150,7 +150,7 @@ export const getCurrentUser = (): ((
 };
 
 export type CurrentUserState = {
-  data: OrNull<IUserWithTokens>;
+  data: OrNull<UserWithTokens>;
   error: boolean;
   loading: boolean;
   loggedIn: boolean;

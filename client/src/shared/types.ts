@@ -145,7 +145,7 @@ export type SecretKey = {
  * a "phoneNumber" attribute, so I have add the "phoneNumbers" array while
  * keeping the "phoneNumber" attribute.
  */
-export interface IUser {
+export interface User {
   userId: number;
   username?: string;
   email: string;
@@ -157,7 +157,7 @@ export interface IUser {
   phoneNumber: string;
 }
 
-export interface IUserWithIndex extends IUser {
+export interface IUserWithIndex extends User {
   index: number;
 }
 
@@ -185,9 +185,9 @@ export interface IRelayNum {
   lastReceived: number;
 }
 
-export interface IUserWithTokens extends IUser {
+export type UserWithTokens = User & {
   accessToken: string;
-}
+};
 
 export interface IVHT {
   userId: number;

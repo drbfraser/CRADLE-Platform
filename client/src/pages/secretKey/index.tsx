@@ -18,7 +18,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import FormControl from '@mui/material/FormControl';
 import MenuItem from '@mui/material/MenuItem';
 import { ReduxState } from 'src/redux/reducers';
-import { IUserWithTokens, OrNull } from 'src/shared/types';
+import { UserWithTokens, OrNull } from 'src/shared/types';
 import { SecretKeyState } from 'src/redux/reducers/secretKey';
 import IconButton from '@mui/material/IconButton';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
@@ -32,9 +32,7 @@ const SecretKeyPage: React.FC = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [updateMessage, setUpdateMessage] = useState<boolean>(false);
   const currentUserData = useSelector(
-    ({
-      user,
-    }: ReduxState): OrNull<Pick<IUserWithTokens, 'role' | 'userId'>> => {
+    ({ user }: ReduxState): OrNull<Pick<UserWithTokens, 'role' | 'userId'>> => {
       const currentUser = user.current.data;
       if (currentUser == null) {
         return null;

@@ -1,4 +1,4 @@
-import { IUserWithTokens, OrNull } from 'src/shared/types';
+import { UserWithTokens, OrNull } from 'src/shared/types';
 
 import Divider from '@mui/material/Divider';
 import { ReduxState } from 'src/redux/reducers';
@@ -15,7 +15,7 @@ type Props = {
 };
 
 type User = {
-  user: OrNull<IUserWithTokens>;
+  user: OrNull<UserWithTokens>;
 };
 
 export const MyFacility = ({ from, to }: Props) => {

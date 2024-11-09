@@ -1,4 +1,4 @@
-import { IUserWithTokens, OrNull } from 'src/shared/types';
+import { UserWithTokens, OrNull } from 'src/shared/types';
 import {
   getUserStatisticsAsync,
   getUserStatisticsExportAsync,
@@ -19,7 +19,7 @@ type MyStatisticsProps = {
 };
 
 type User = {
-  user: OrNull<IUserWithTokens>;
+  user: OrNull<UserWithTokens>;
 };
 
 export const MyStatistics = ({ from, to }: MyStatisticsProps) => {

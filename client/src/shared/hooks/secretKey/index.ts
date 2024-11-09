@@ -8,9 +8,9 @@ import {
 } from 'src/shared/api/api';
 import { UserRoleEnum } from 'src/shared/enums';
 import {
-  IUser,
+  User,
   IUserWithIndex,
-  IUserWithTokens,
+  UserWithTokens,
   OrNull,
   SecretKey,
 } from 'src/shared/types';
@@ -26,7 +26,7 @@ type UseSecretKeyReturn = {
 
 export const useSecretKey = (
   secretKey: SecretKeyState,
-  userData: OrNull<Pick<IUserWithTokens, 'role' | 'userId'>>,
+  userData: OrNull<Pick<UserWithTokens, 'role' | 'userId'>>,
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>,
   setUpdateMessage: React.Dispatch<React.SetStateAction<boolean>>
 ): UseSecretKeyReturn => {
@@ -52,7 +52,7 @@ export const useSecretKey = (
     if (users.length > 0) {
       return;
     }
-    const resp: IUser[] = await getUsersAsync();
+    const resp: User[] = await getUsersAsync();
     setUsers(
       resp.map((user, index) => ({
         email: user.email,

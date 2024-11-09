@@ -1,4 +1,4 @@
-import { IUserWithTokens, OrNull } from 'src/shared/types';
+import { UserWithTokens, OrNull } from 'src/shared/types';
 import { useState } from 'react';
 import {
   getUserStatisticsAsync,
@@ -32,7 +32,7 @@ type Props = {
 };
 
 type User = {
-  user: OrNull<IUserWithTokens>;
+  user: OrNull<UserWithTokens>;
 };
 
 export const VHTStatistics = ({ from, to }: Props) => {
