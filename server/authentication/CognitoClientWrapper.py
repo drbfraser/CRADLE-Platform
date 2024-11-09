@@ -3,12 +3,24 @@ import hashlib
 import hmac
 import logging
 import os
+import pprint
+from typing import cast
 
+import jwt
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
+from flask import request
+
+# from jose import jwt as jose_jwt, jwk
+from jwt import PyJWK, PyJWKClient
 from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 
+from shared.user_utils import UserUtils
+
 load_dotenv(dotenv_path="/run/secrets/.aws.secrets.env")
+
+
+pprinter = pprint.PrettyPrinter(indent=4, sort_dicts=False, compact=False)
 
 """
   Environment variable to enable creating fake users for development purposes.
@@ -23,6 +35,16 @@ if ENABLE_DEV_USERS:
     temporary_password = "Temporary_123"
 
 logger = logging.getLogger(__name__)
+
+# URI to retrieve the JWKS (JSON Web Key Set) if the one we have cached has been rotated.
+JWKS_URI = os.getenv("JWKS_URI")
+if JWKS_URI is None:
+    raise ValueError("Could not retrieve JWKS_URI.")
+jwks_client = PyJWKClient(
+    JWKS_URI,
+    cache_jwk_set=True,
+    cache_keys=True,
+)
 
 
 # Wrapper to encapsulate the AWS Cognito Identity Provider client.
@@ -250,3 +272,96 @@ class CognitoClientWrapper:
         )
 
     # End of function
+
+    def get_access_token(self):
+        # Get JWT access token.
+        authorization = request.authorization
+        if authorization is None:
+            raise ValueError("No authorization header found.")
+        access_token = authorization.token
+        if access_token is None:
+            raise ValueError("Access token not found.")
+        return access_token
+
+    # End of function
+
+    def verify_access_token(self):
+        """
+        https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-verifying-a-jwt.html
+        """
+        """
+        The JWKS contains two public keys. The first is the signing key
+        for access tokens, the second is the signing key for ID tokens.
+        """
+        jwks = jwks_client.get_jwk_set()
+        if len(jwks.keys) < 1:
+            raise ValueError("Could not retrieve JWKS.")
+
+        # Get JWT access token.
+        access_token = self.get_access_token()
+
+        key_id = None
+        try:
+            token_header = jwt.get_unverified_header(access_token)
+            key_id = token_header.get("kid")
+        except jwt.DecodeError as err:
+            print(err)
+            raise ValueError("Could not decode access token's header.")
+        if key_id is None:
+            raise ValueError("Could not retrieve key_id from access token header.")
+
+        signing_key = None
+        for key in jwks.keys:
+            key = cast(PyJWK, key)
+            if key.key_id == key_id:
+                signing_key = key
+        if signing_key is None:
+            raise ValueError("No matching key_id found.")
+
+        # Decode JWT and verify signature.
+        try:
+            payload = jwt.decode(
+                access_token,
+                key=signing_key,
+                algorithms=["RS256"],
+            )
+            print("Payload: ")
+            pprinter.pprint(payload)
+        except jwt.DecodeError as err:
+            print(err)
+            raise ValueError(err)
+        else:
+            payload = cast(dict[str, str], payload)
+            client_id = payload.get("client_id")
+            if client_id is None or client_id != self.client_id:
+                raise ValueError("Invalid Access Token.")
+
+        # The GetUser API will throw an error if the token is invalid or expired.
+        try:
+            user_info = self.client.get_user(AccessToken=access_token)
+            logger.info(user_info)
+        except ClientError as err:
+            error = err.response.get("Error")
+            raise ValueError(error)
+
+    # End of function
+
+    def get_user_info_from_jwt(self):
+        """
+        Verifies access token in request authorization header and retrieves
+        the user's info from the database.
+
+        :return user_dict: Dict containing user's info.
+        """
+        # Verify access token.
+        self.verify_access_token()
+        access_token = self.get_access_token()
+        try:
+            cognito_user_info = self.client.get_user(AccessToken=access_token)
+        except ClientError as err:
+            error = err.response.get("Error")
+            raise ValueError(error)
+
+        username = cognito_user_info.get("Username")
+        # Retrieve user data from database.
+        return UserUtils.get_user_dict_from_username(username)
