@@ -342,6 +342,7 @@ class UserAuthApi(Resource):
         del auth_result["refresh_token"]
 
         user_dict["sms_key"] = sms_key
+        del user_dict["sub"]  # Don't return sub.
         resp_body = {
             "auth_result": auth_result,
             "user": user_dict,
