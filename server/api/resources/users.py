@@ -345,7 +345,6 @@ class UserAuthApi(Resource):
         resp_body = {
             "auth_result": auth_result,
             "user": user_dict,
-            "sms_key": sms_key,
         }
 
         resp = make_response(resp_body, 200)
