@@ -1,6 +1,7 @@
 import logging
 from functools import wraps
 
+from flask import abort
 from flask_jwt_extended import (
     get_jwt_identity,
     verify_jwt_in_request,
@@ -14,17 +15,35 @@ from models import PatientAssociationsOrm
 LOGGER = logging.getLogger(__name__)
 
 
+def require_auth():
+    """
+    Require user to be logged in to access this endpoint.
+    """
+
+    def wrapper(fn):
+        @wraps(fn)
+        def decorator(*args, **kwargs):
+            try:
+                cognito.verify_access_token()
+            except ValueError as err:
+                abort(401, err)
+
+        return decorator
+
+    return wrapper
+
+
 def roles_required(accepted_roles):
     def wrapper(fn):
         @wraps(fn)
         def decorator(*args, **kwargs):
             # Ensure that user is first and foremost actually logged in
-            user_info = cognito.get_user_info_from_jwt()
+            user_dict = cognito.get_user_info_from_jwt()
             user_has_permissions = False
 
             # Check that one of the accepted roles is in the JWT.
             for role in accepted_roles:
-                if role.value == user_info["role"]:
+                if role.value == user_dict.get("role"):
                     user_has_permissions = True
 
             if user_has_permissions:
