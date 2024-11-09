@@ -24,7 +24,7 @@ AWS Cognito user pool in sync with our database.
 
 
 # Dictionary representation of marshalled user model.
-class UserModelDict(TypedDict):
+class UserDict(TypedDict):
     id: int
     name: str
     username: str
@@ -32,6 +32,10 @@ class UserModelDict(TypedDict):
     facility: str
     role: str
     sub: str
+
+
+class UserDictWithPhoneNumbers(UserDict):
+    phone_numbers: list[str]
 
 
 class UserUtils:
@@ -61,19 +65,19 @@ class UserUtils:
     # End of function.
 
     @staticmethod
-    def get_user_dict_from_orm(user_orm: UserOrm) -> UserModelDict:
+    def get_user_dict_from_orm(user_orm: UserOrm) -> UserDict:
         """
         :param user_orm: ORM model of the user.
         :return user_dict: A dict containing the data from the ORM model of the
             user.
         """
         user_dict = marshal.marshal(user_orm)
-        return cast(UserModelDict, user_dict)
+        return cast(UserDict, user_dict)
 
     # End of function.
 
     @staticmethod
-    def get_user_dict_from_username(username: str) -> UserModelDict:
+    def get_user_dict_from_username(username: str) -> UserDict:
         """
         :param username: String to identify user in the database. Can be either
             the user's username or their email. Should be in lowercase.
@@ -87,7 +91,7 @@ class UserUtils:
     # End of function.
 
     @staticmethod
-    def get_user_dict_from_id(user_id: int) -> UserModelDict:
+    def get_user_dict_from_id(user_id: int) -> UserDict:
         user_orm = crud.read(UserOrm, id=user_id)
         return UserUtils.get_user_dict_from_orm(user_orm)
 
@@ -98,6 +102,14 @@ class UserUtils:
         user_orm = UserUtils.get_user_orm_from_username(username)
         user_dict = UserUtils.get_user_dict_from_orm(user_orm)
         return user_dict["id"]
+
+    @staticmethod
+    def get_user_dict_with_phone_numbers(username: str) -> UserDictWithPhoneNumbers:
+        user_dict = UserUtils.get_user_dict_from_username(username)
+        phone_numbers = PhoneNumberUtils.get_users_phone_numbers(user_dict["id"])
+        return UserDictWithPhoneNumbers(phone_numbers=phone_numbers, **user_dict)
+
+    # End of function.
 
     # End of function.
 

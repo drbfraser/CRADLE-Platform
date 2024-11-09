@@ -1,6 +1,7 @@
 import logging
 import os
 import re
+from typing import Any, cast
 
 from botocore.exceptions import ClientError
 from flasgger import swag_from
@@ -301,7 +302,7 @@ class UserAuthApi(Resource):
 
         # Get user data from database.
         try:
-            user_orm = UserUtils.get_user_orm_from_username(credentials.username)
+            user_dict = UserUtils.get_user_dict_with_phone_numbers(credentials.username)
         except ValueError as err:
             LOGGER.error(err)
             LOGGER.error(
@@ -310,8 +311,6 @@ class UserAuthApi(Resource):
             )
             print(err)
             abort(500, message=error)
-
-        user_dict = marshal.marshal(user_orm)
         user_id = user_dict["id"]
 
         # construct and add the sms key information in the same format as api/user/<int:user_id>/smskey
@@ -342,6 +341,7 @@ class UserAuthApi(Resource):
         del auth_result["refresh_token"]
 
         # Add sms key to user.
+        user_dict = cast(dict[str, Any], user_dict)
         user_dict["sms_key"] = sms_key
         # Don't return sub.
         del user_dict["sub"]

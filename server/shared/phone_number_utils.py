@@ -1,6 +1,6 @@
 import phonenumbers
 
-from data import crud, marshal
+from data import crud
 from models import (
     HealthFacilityOrm,
     RelayServerPhoneNumberOrm,
@@ -205,13 +205,8 @@ class PhoneNumberUtils:
         :param user_id: The id of the user.
         """
         user_phone_number_orms = crud.read_all(UserPhoneNumberOrm, user_id=user_id)
-        phone_number_dicts = [
-            marshal.marshal(user_phone_number_orm)
-            for user_phone_number_orm in user_phone_number_orms
-        ]
         phone_numbers = [
-            phone_number_dict["phone_number"]
-            for phone_number_dict in phone_number_dicts
+            phone_number_orm.phone_number for phone_number_orm in user_phone_number_orms
         ]
         return phone_numbers
 
