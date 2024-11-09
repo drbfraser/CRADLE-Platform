@@ -4,7 +4,7 @@ import re
 
 from botocore.exceptions import ClientError
 from flasgger import swag_from
-from flask import Flask, request
+from flask import Flask, make_response, request
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -15,7 +15,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_restful import Resource, abort, reqparse
 
-from api.decorator import roles_required
+from api.decorator import public_endpoint, roles_required
 from api.util import (
     add_new_phoneNumber_for_user,
     create_secret_key_for_user,
@@ -279,16 +279,16 @@ class UserAuthApi(Resource):
     )  # needs to be below limiter since it will point to limiter/... path
     def post(self):
         """
-        The implementation of Post method for user login. Two part included in this methods:
-        1. Validation check: if the user enters an email that does not exist or inputs the wrong password for their account, then in both cases
-            they will receive the following message: "Incorrect username or password."
-        2. User params loading: after user identification check is done, system will load the user data and return
-            code 200
-
+        Authentication endpoint.
         """
         # Parse and validate the form data.
         form_data = request.form
-        credentials = UserAuthRequestValidator(**form_data)
+        try:
+            credentials = UserAuthRequestValidator(**form_data)
+        except ValidationExceptionError as err:
+            error_message = str(err)
+            LOGGER.error(error_message)
+            abort(400, message=error_message)
 
         # Attempt authentication with Cognito user pool.
         try:
@@ -316,12 +316,6 @@ class UserAuthApi(Resource):
         user_dict = UserUtils.get_user_dict_from_orm(user_orm)
         user_id = user_dict["id"]
 
-        # setup any extra user params
-        # user_data = get_user_data_for_token(user_orm_model)
-
-        # user_data["token"] = get_access_token(user_data)
-        # user_data["refresh"] = get_refresh_token(user_data)
-
         # construct and add the sms key information in the same format as api/user/<int:user_id>/smskey
         sms_key = get_user_secret_key(user_id)
         if sms_key:
@@ -345,13 +339,30 @@ class UserAuthApi(Resource):
         # else:
         # user_data["sms_key"] = "NOTFOUND"
 
-        res = {
-            "auth_result": auth_result,
+        refresh_token = auth_result.get("RefreshToken")
+        access_token = auth_result.get("AccessToken")
+
+        if access_token is None:
+            abort(401, message="Could not get Access Token.")
+
+        resp_body = {
+            "access_token": auth_result,
             "user": user_dict,
             "sms_key": sms_key,
         }
 
-        return res, 200
+        resp = make_response(resp_body, 200)
+        resp.headers["Cache-Control"] = "no-store"
+        # Store refresh token in HTTP-Only cookie.
+        if refresh_token is not None:
+            resp.set_cookie(
+                "refresh_token",
+                refresh_token,
+                path="api/user/auth/refresh_token",
+                httponly=True,
+                secure=True,
+            )
+        return resp
 
 
 # api/user/auth/refresh_token
@@ -411,22 +422,19 @@ class UserApi(Resource):
 
         return UserUtils.get_user_dict_from_id(id), 200
 
-    @jwt_required()
+    # @jwt_required()
+    @public_endpoint
     @swag_from("../../specifications/user-get.yml", methods=["GET"])
+    @public_endpoint
     def get(self, id):
-        # Ensure we have id
-        if not id:
-            error = {"message": null_id_message}
-            LOGGER.error(error)
-            return error, 400
+        try:
+            user_dict = UserUtils.get_user_dict_from_id(id)
+        except ValueError as err:
+            error_message = str(err)
+            LOGGER.error(error_message)
+            abort(404, message=error_message)
 
-        # Ensure that id is valid
-        if not doesUserExist(id):
-            error = {"message": no_user_found_message}
-            LOGGER.error(error)
-            return error, 400
-
-        return getDictionaryOfUserInfo(id)
+        return user_dict, 200
 
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/user-delete.yml", methods=["DELETE"])
