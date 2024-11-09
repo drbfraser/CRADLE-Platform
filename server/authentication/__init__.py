@@ -1,10 +1,14 @@
-
+import logging
 import os
 
 import boto3
 from dotenv import load_dotenv
+from flask import Request, request
 
+import config
 from authentication.CognitoClientWrapper import CognitoClientWrapper
+
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 # Load aws secrets as environment variables.
@@ -29,3 +33,38 @@ cognito = CognitoClientWrapper(
     client_id=COGNITO_APP_CLIENT_ID,
     client_secret=COGNITO_CLIENT_SECRET,
 )
+
+app = config.app
+
+
+def is_public_endpoint(request: Request):
+    if request.endpoint is None:
+        return False
+
+    if request.endpoint.startswith("flasgger.") or request.endpoint in {
+        "userauthapi",
+        "version",
+        "static",
+    }:
+        return True
+
+    endpoint_handler_func = app.view_functions[request.endpoint]
+    is_public = getattr(endpoint_handler_func, "is_public_endpoint", False)
+    logger.debug(
+        "Check if route is public endpoint",
+        extra={
+            "endpoint": request.endpoint,
+            "url": request.path,
+            "is_public_endpoint": is_public,
+        },
+    )
+    return is_public
+
+
+@app.before_request
+def require_authorization():
+    """
+    Run authorization check for all urls by default
+    """
+    if not is_public_endpoint(request):
+        cognito.verify_access_token()
