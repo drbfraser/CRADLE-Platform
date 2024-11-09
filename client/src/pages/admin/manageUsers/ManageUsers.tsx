@@ -41,7 +41,7 @@ export const ManageUsers = () => {
     setRows(
       users.map((user, index) => ({
         id: index,
-        firstName: user.firstName,
+        firstName: user.name,
         email: user.email,
         phoneNumber: user.phoneNumber,
         healthFacility: user.healthFacilityName,

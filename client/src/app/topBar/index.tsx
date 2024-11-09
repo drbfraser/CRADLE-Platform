@@ -65,8 +65,7 @@ export const TopBar = () => {
     return (
       <div>
         <Typography variant="body1" noWrap>
-          {userData?.firstName} ({userData ? userRoleLabels[userData.role] : ''}
-          )
+          {userData?.name} ({userData ? userRoleLabels[userData.role] : ''})
         </Typography>
         {userData?.healthFacilityName && (
           <Typography variant="body2" noWrap>

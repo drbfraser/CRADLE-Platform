@@ -14,7 +14,7 @@ interface IProps {
 const DeleteUser = ({ open, onClose, user }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
-  const name = user?.firstName ?? '';
+  const name = user?.name ?? '';
 
   const handleDelete = async () => {
     if (!user) {

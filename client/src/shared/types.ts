@@ -149,7 +149,7 @@ export type User = {
   userId: number;
   username?: string;
   email: string;
-  firstName: string;
+  name: string;
   healthFacilityName: string;
   role: UserRoleEnum;
   supervises?: number[];

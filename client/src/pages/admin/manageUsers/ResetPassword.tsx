@@ -56,7 +56,7 @@ const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
       />
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <Dialog open={open} maxWidth="xs" fullWidth>
-        <DialogTitle>Reset Password: {resetUser?.firstName ?? ''}</DialogTitle>
+        <DialogTitle>Reset Password: {resetUser?.name ?? ''}</DialogTitle>
         <DialogContent>
           <Formik
             initialValues={resetPasswordTemplate}

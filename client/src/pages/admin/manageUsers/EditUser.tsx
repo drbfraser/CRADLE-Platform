@@ -178,8 +178,8 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                             ids
                               .map(
                                 (id) =>
-                                  users.find((u) => u.userId === id)
-                                    ?.firstName ?? 'Unknown'
+                                  users.find((u) => u.userId === id)?.name ??
+                                  'Unknown'
                               )
                               .join(', '),
                         }}
@@ -199,7 +199,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                                   values.supervises.indexOf(user.userId) >= 0
                                 }
                               />
-                              {user.firstName} ({user.email})
+                              {user.name} ({user.email})
                             </MenuItem>
                           ))}
                       </Field>
