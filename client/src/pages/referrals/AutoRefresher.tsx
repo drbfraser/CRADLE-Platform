@@ -1,4 +1,4 @@
-import { IFacility } from 'src/shared/types';
+import { Facility } from 'src/shared/types';
 import React, { useState } from 'react';
 
 import CircularProgress from '@mui/material/CircularProgress';
@@ -51,7 +51,7 @@ export const AutoRefresher = ({
     const timePerSlice = refreshTimer * 10;
 
     const refreshFacilities = async () => {
-      const healthFacility: IFacility = await getHealthFacilityAsync(
+      const healthFacility: Facility = await getHealthFacilityAsync(
         healthFacilityName
       );
 

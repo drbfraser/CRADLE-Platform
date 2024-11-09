@@ -5,7 +5,7 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 
 import CreateIcon from '@mui/icons-material/Create';
 import EditFacility from './EditFacility';
-import { IFacility } from 'src/shared/types';
+import { Facility } from 'src/shared/types';
 import { getHealthFacilitiesAsync } from 'src/shared/api/api';
 import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
 import { useAppDispatch } from 'src/shared/hooks';
@@ -25,13 +25,13 @@ import {
 export const ManageFacilities = () => {
   const dispatch = useAppDispatch();
   const [errorLoading, setErrorLoading] = useState(false);
-  const [facilities, setFacilities] = useState<IFacility[]>([]);
+  const [facilities, setFacilities] = useState<Facility[]>([]);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
-  const [facilityToEdit, setFacilityToEdit] = useState<IFacility>();
+  const [facilityToEdit, setFacilityToEdit] = useState<Facility>();
 
   const [rows, setRows] = useState<GridRowsProp>([]);
   // Map facility object to row data object.
-  const updateRows = (facilities: IFacility[]) => {
+  const updateRows = (facilities: Facility[]) => {
     setRows(
       facilities.map((facility, index) => ({
         id: index,
@@ -44,7 +44,7 @@ export const ManageFacilities = () => {
   };
 
   const ActionButtons = useCallback(
-    ({ facility }: { facility?: IFacility }) => {
+    ({ facility }: { facility?: Facility }) => {
       const actions: TableAction[] = [
         {
           tooltip: 'Edit Facility',
@@ -70,7 +70,7 @@ export const ManageFacilities = () => {
       headerName: 'Take Action',
       filterable: false,
       sortable: false,
-      renderCell: (params: GridRenderCellParams<any, IFacility>) => (
+      renderCell: (params: GridRenderCellParams<any, Facility>) => (
         <ActionButtons facility={params.value} />
       ),
     },
@@ -78,7 +78,7 @@ export const ManageFacilities = () => {
 
   const getFacilities = async () => {
     try {
-      const facilities: IFacility[] = await getHealthFacilitiesAsync();
+      const facilities: Facility[] = await getHealthFacilitiesAsync();
 
       setFacilities(facilities);
       updateRows(facilities);

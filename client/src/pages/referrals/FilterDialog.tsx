@@ -4,7 +4,7 @@ import {
   SecondaryButton,
 } from 'src/shared/components/Button';
 
-import { IFacility, ReferralFilter, Referrer } from 'src/shared/types';
+import { Facility, ReferralFilter, Referrer } from 'src/shared/types';
 import React, { SyntheticEvent, useEffect, useState } from 'react';
 import { getHealthFacilitiesAsync, getUserVhtsAsync } from 'src/shared/api/api';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -102,7 +102,7 @@ export const FilterDialog = ({
         const facilities = await getHealthFacilitiesAsync();
 
         setHealthFacilities(
-          facilities.map((facility: IFacility) => facility.healthFacilityName)
+          facilities.map((facility: Facility) => facility.healthFacilityName)
         );
       } catch (e) {
         console.log(e);

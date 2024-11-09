@@ -102,9 +102,9 @@ export type Patient = {
   isArchived: boolean;
 };
 
-export interface PatientWithIndex extends Patient {
+export type PatientWithIndex = Patient & {
   index: number;
-}
+};
 
 export type PatientMedicalInfo = {
   medicalHistoryId: string;
@@ -145,32 +145,32 @@ export type SecretKey = {
  * a "phoneNumber" attribute, so I have add the "phoneNumbers" array while
  * keeping the "phoneNumber" attribute.
  */
-export interface User {
+export type User = {
   userId: number;
   username?: string;
   email: string;
   firstName: string;
   healthFacilityName: string;
   role: UserRoleEnum;
-  supervises: number[];
+  supervises?: number[];
   phoneNumbers: string[];
   phoneNumber: string;
-}
+};
 
-export interface IUserWithIndex extends User {
+export type UserWithIndex = User & {
   index: number;
-}
+};
 
-export interface IForm {
+export type Form = {
   formTemplateId: number;
   name: string;
   category: string;
   version: string;
   dateCreated: string;
   lastEdited: string;
-}
+};
 
-export interface IFacility {
+export type Facility = {
   [FacilityField.about]: string;
   [FacilityField.type]: string;
   [FacilityField.name]: string;
@@ -178,7 +178,7 @@ export interface IFacility {
   [FacilityField.phoneNumber]: string;
   [FacilityField.location]: string;
   index: number;
-}
+};
 export type RelayNum = {
   phone: string;
   description: string;

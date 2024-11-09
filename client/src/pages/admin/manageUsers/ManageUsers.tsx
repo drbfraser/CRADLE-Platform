@@ -8,7 +8,7 @@ import DeleteForever from '@mui/icons-material/DeleteForever';
 import DeleteUser from './DeleteUser';
 import EditUser from './EditUser';
 import ResetPassword from './ResetPassword';
-import { IUserWithIndex } from 'src/shared/types';
+import { UserWithIndex } from 'src/shared/types';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import { getUsersAsync } from 'src/shared/api/api';
 import { userRoleLabels } from 'src/shared/constants';
@@ -30,14 +30,14 @@ import { DataTableHeader } from '../../../shared/components/DataTable/DataTableH
 
 export const ManageUsers = () => {
   const [errorLoading, setErrorLoading] = useState(false);
-  const [users, setUsers] = useState<IUserWithIndex[]>([]);
+  const [users, setUsers] = useState<UserWithIndex[]>([]);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [passwordPopupOpen, setPasswordPopupOpen] = useState(false);
   const [deletePopupOpen, setDeletePopupOpen] = useState(false);
-  const [popupUser, setPopupUser] = useState<IUserWithIndex>();
+  const [popupUser, setPopupUser] = useState<UserWithIndex>();
 
   const [rows, setRows] = useState<GridRowsProp>([]);
-  const updateRowData = (users: IUserWithIndex[]) => {
+  const updateRowData = (users: UserWithIndex[]) => {
     setRows(
       users.map((user, index) => ({
         id: index,
@@ -53,7 +53,7 @@ export const ManageUsers = () => {
 
   // Component to render buttons inside the last cell of each row.
   const ActionButtons = useCallback(
-    ({ user }: { user?: IUserWithIndex }) => {
+    ({ user }: { user?: UserWithIndex }) => {
       const { data: currentUser } = useAppSelector(selectCurrentUser);
       const isCurrentUser = currentUser?.userId === user?.userId;
       const actions: TableAction[] = [
@@ -104,7 +104,7 @@ export const ManageUsers = () => {
       headerName: 'Take Action',
       filterable: false,
       sortable: false,
-      renderCell: (params: GridRenderCellParams<any, IUserWithIndex>) => (
+      renderCell: (params: GridRenderCellParams<any, UserWithIndex>) => (
         <ActionButtons user={params.value} />
       ),
     },
@@ -112,7 +112,7 @@ export const ManageUsers = () => {
 
   const getUsers = async () => {
     try {
-      const users: IUserWithIndex[] = (await getUsersAsync()).map(
+      const users: UserWithIndex[] = (await getUsersAsync()).map(
         (user, index) => ({
           ...user,
           index,

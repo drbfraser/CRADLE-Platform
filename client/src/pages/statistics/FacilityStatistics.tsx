@@ -7,7 +7,7 @@ import {
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import Divider from '@mui/material/Divider';
 import FormControl from '@mui/material/FormControl';
-import { IFacility } from 'src/shared/types';
+import { Facility } from 'src/shared/types';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import { StatisticDashboard } from './utils/StatisticsInfo';
@@ -22,7 +22,7 @@ type FacilityStatisticsProps = {
 };
 
 export const FacilityStatistics = ({ from, to }: FacilityStatisticsProps) => {
-  const [facilities, setFacilities] = useState<IFacility[]>([]);
+  const [facilities, setFacilities] = useState<Facility[]>([]);
   const [facility, setFacility] = useState('');
   const [errorLoading, setErrorLoading] = useState(false);
 

@@ -7,7 +7,7 @@ import {
   FilterRequestBody,
   FormTemplate,
   FormTemplateWithQuestions,
-  IFacility,
+  Facility,
   RelayNum,
   User,
   VHT,
@@ -124,13 +124,13 @@ export const changePasswordAsync = async (
   return apiFetch(API_URL + EndpointEnum.CHANGE_PASS, init);
 };
 
-export const saveHealthFacilityAsync = async (facility: IFacility) =>
+export const saveHealthFacilityAsync = async (facility: Facility) =>
   apiFetch(API_URL + EndpointEnum.HEALTH_FACILITIES, {
     method: 'POST',
     body: JSON.stringify(facility),
   });
 
-export const getHealthFacilitiesAsync = async (): Promise<IFacility[]> => {
+export const getHealthFacilitiesAsync = async (): Promise<Facility[]> => {
   const response = await apiFetch(API_URL + EndpointEnum.HEALTH_FACILITIES);
 
   return response.json();
@@ -138,7 +138,7 @@ export const getHealthFacilitiesAsync = async (): Promise<IFacility[]> => {
 
 export const getHealthFacilityAsync = async (
   healthFacility?: string
-): Promise<IFacility> => {
+): Promise<Facility> => {
   const response = await apiFetch(
     API_URL + EndpointEnum.HEALTH_FACILITIES + `/${healthFacility}`
   );

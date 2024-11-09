@@ -9,14 +9,14 @@ import {
 import { UserRoleEnum } from 'src/shared/enums';
 import {
   User,
-  IUserWithIndex,
+  UserWithIndex,
   UserWithTokens,
   OrNull,
   SecretKey,
 } from 'src/shared/types';
 
 type UseSecretKeyReturn = {
-  users: Pick<IUserWithIndex, 'email' | 'index' | 'userId'>[];
+  users: Pick<UserWithIndex, 'email' | 'index' | 'userId'>[];
   role?: UserRoleEnum;
   currentSecretKey?: SecretKey;
   focusUserId?: number;
@@ -38,7 +38,7 @@ export const useSecretKey = (
     SecretKey | undefined
   >(secretKey.data);
   const [users, setUsers] = useState<
-    Pick<IUserWithIndex, 'email' | 'index' | 'userId'>[]
+    Pick<UserWithIndex, 'email' | 'index' | 'userId'>[]
   >([]);
 
   useEffect(() => {
