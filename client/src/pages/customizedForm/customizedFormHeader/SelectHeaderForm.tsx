@@ -10,7 +10,7 @@ import {
   getFormTemplateLangAsync,
   getFormTemplateLangsAsync,
   getAllFormTemplatesAsync,
-} from 'src/shared/api';
+} from 'src/shared/api/api';
 import { useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';

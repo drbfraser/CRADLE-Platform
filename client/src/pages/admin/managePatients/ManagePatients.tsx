@@ -7,7 +7,7 @@ import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 import ArchivePatient from './ArchivePatient';
 import UnarchivePatient from './UnarchivePatient';
 import { PatientWithIndex } from 'src/shared/types';
-import { getPatientsAdminAsync } from 'src/shared/api';
+import { getPatientsAdminAsync } from 'src/shared/api/api';
 import {
   GridColDef,
   GridRenderCellParams,

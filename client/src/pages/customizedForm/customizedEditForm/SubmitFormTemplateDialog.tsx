@@ -9,7 +9,7 @@ import {
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { FormTemplateWithQuestions } from 'src/shared/types';
 import { Toast } from 'src/shared/components/toast';
-import { submitFormTemplateAsync } from 'src/shared/api';
+import { submitFormTemplateAsync } from 'src/shared/api/api';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 

@@ -6,7 +6,7 @@ import Pagination from './Pagination';
 import SortBy from './SortBy';
 import ScrollArrow from './ScrollArrow';
 import { HeaderRow } from './HeaderRow';
-import { apiFetch, API_URL } from 'src/shared/api';
+import { apiFetch, API_URL } from 'src/shared/api/api';
 import APIErrorToast from '../apiErrorToast/APIErrorToast';
 import { ReferralFilter } from 'src/shared/types';
 import { TrafficLightEnum } from 'src/shared/enums';

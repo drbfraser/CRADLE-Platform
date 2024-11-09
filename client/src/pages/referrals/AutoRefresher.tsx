@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import { PrimaryButton } from 'src/shared/components/Button';
 import Typography from '@mui/material/Typography';
-import { getHealthFacilityAsync } from 'src/shared/api';
+import { getHealthFacilityAsync } from 'src/shared/api/api';
 import { Box, SxProps } from '@mui/material';
 import { useAppSelector } from 'src/shared/hooks';
 import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';

@@ -1,7 +1,7 @@
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { IRelayNum } from 'src/shared/types';
 import { Toast } from 'src/shared/components/toast';
-import { deleteRelayNumAsync } from 'src/shared/api';
+import { deleteRelayNumAsync } from 'src/shared/api/api';
 import { useState } from 'react';
 import {
   Dialog,

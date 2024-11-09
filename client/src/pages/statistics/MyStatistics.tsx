@@ -2,7 +2,7 @@ import { IUserWithTokens, OrNull } from 'src/shared/types';
 import {
   getUserStatisticsAsync,
   getUserStatisticsExportAsync,
-} from 'src/shared/api';
+} from 'src/shared/api/api';
 
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';

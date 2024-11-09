@@ -1,7 +1,7 @@
-import { API_URL } from 'src/shared/api';
+import { API_URL } from 'src/shared/api/api';
 import { MakeServerRequestEnum } from '../reducers/utils';
 import axios from 'axios';
-import { getApiToken } from 'src/shared/api';
+import { getApiToken } from 'src/shared/api/api';
 import { EndpointEnum } from 'src/shared/enums';
 import { snakeCase, camelCase } from 'lodash';
 
@@ -65,7 +65,9 @@ export const requestMiddleware =
       transformResponse: [
         (data: object) => {
           // Intercept data from the response and convert keys to camel case.
+          console.log('Response data pre-transform: ', data);
           const transformedData = convertKeysToCamelCase(data);
+          console.log('Response data post-transform: ', transformedData);
           return transformedData;
         },
       ],

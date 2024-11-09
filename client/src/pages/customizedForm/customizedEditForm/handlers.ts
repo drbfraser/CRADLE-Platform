@@ -1,7 +1,7 @@
 import { Answer, CForm, QAnswer, Question } from 'src/shared/types';
 
 import { QuestionTypeEnum } from 'src/shared/enums';
-import { saveFormResponseAsync } from 'src/shared/api';
+import { saveFormResponseAsync } from 'src/shared/api/api';
 import { NavigateFunction } from 'react-router-dom';
 
 export type ApiAnswer = {

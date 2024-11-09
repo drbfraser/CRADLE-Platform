@@ -1,4 +1,4 @@
-import { Box, Button, Container, SxProps } from '@mui/material';
+import { Box, Container } from '@mui/material';
 import { AuthProvider, AuthResponse, SignInPage } from '@toolpad/core';
 import { useSelector } from 'react-redux';
 import { ReduxState } from 'src/redux/reducers';
@@ -33,7 +33,7 @@ export const Login = () => {
     return new Promise<AuthResponse>((resolve) => {
       if (provider.id == 'credentials') {
         const loginData: LoginData = {
-          email: formData?.get('email') ?? '',
+          username: formData?.get('email') ?? '',
           password: formData?.get('password') ?? '',
         };
         dispatch(loginUser(loginData, navigate));

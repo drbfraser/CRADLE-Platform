@@ -28,7 +28,7 @@ import PregnantWomanIcon from '@mui/icons-material/PregnantWoman';
 import { RedirectButton } from 'src/shared/components/Button';
 import Table from '@mui/material/Table';
 import TableRow from '@mui/material/TableRow';
-import { getPatientPregnancySummaryAsync } from 'src/shared/api';
+import { getPatientPregnancySummaryAsync } from 'src/shared/api/api';
 
 type Props = {
   patientId: string;

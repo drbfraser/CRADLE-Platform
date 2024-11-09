@@ -1,4 +1,4 @@
-import { apiFetch, API_URL } from 'src/shared/api';
+import { apiFetch, API_URL } from 'src/shared/api/api';
 import {
   EndpointEnum,
   GestationalAgeUnitEnum,

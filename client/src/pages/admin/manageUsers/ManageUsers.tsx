@@ -10,7 +10,7 @@ import EditUser from './EditUser';
 import ResetPassword from './ResetPassword';
 import { IUserWithIndex } from 'src/shared/types';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
-import { getUsersAsync } from 'src/shared/api';
+import { getUsersAsync } from 'src/shared/api/api';
 import { userRoleLabels } from 'src/shared/constants';
 import AddIcon from '@mui/icons-material/Add';
 

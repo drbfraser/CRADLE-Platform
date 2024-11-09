@@ -3,7 +3,7 @@ import { useState } from 'react';
 import {
   getUserStatisticsAsync,
   getUserStatisticsExportAsync,
-} from 'src/shared/api';
+} from 'src/shared/api/api';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import Box from '@mui/material/Box';
@@ -17,7 +17,7 @@ import Select from '@mui/material/Select';
 import { StatisticDashboard } from './utils/StatisticsInfo';
 import Typography from '@mui/material/Typography';
 import { UserRoleEnum } from 'src/shared/enums';
-import { getVHTsAsync } from 'src/shared/api';
+import { getVHTsAsync } from 'src/shared/api/api';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import {

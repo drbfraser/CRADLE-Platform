@@ -186,8 +186,7 @@ export interface IRelayNum {
 }
 
 export interface IUserWithTokens extends IUser {
-  token: string;
-  refresh: string;
+  accessToken: string;
 }
 
 export interface IVHT {

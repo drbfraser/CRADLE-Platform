@@ -50,8 +50,7 @@ type CurrentUserAction =
 
 export const logoutUser = (): Callback<Dispatch> => {
   return (dispatch: Dispatch): void => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('refresh');
+    localStorage.removeItem('accessToken');
     dispatch({ type: CurrentUserActionEnum.LOGOUT_USER });
   };
 };
@@ -79,6 +78,7 @@ export const loginUser = (
         method: MethodEnum.POST,
         data,
         onSuccess: ({ data }: { data: IUserWithTokens }): CurrentUserAction => {
+          console.log('Login Success - Response Data: ', data);
           // Store access token in local storage.
           localStorage.setItem(`accessToken`, data.accessToken);
           navigate('/referrals');

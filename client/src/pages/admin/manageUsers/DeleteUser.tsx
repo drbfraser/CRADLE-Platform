@@ -2,7 +2,7 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { ConfirmDialog } from 'src/shared/components/confirmDialog/index';
 import { IUser } from 'src/shared/types';
 import { Toast } from 'src/shared/components/toast';
-import { deleteUserAsync } from 'src/shared/api';
+import { deleteUserAsync } from 'src/shared/api/api';
 import { useState } from 'react';
 
 interface IProps {

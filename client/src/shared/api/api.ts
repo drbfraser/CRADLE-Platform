@@ -18,8 +18,8 @@ import {
   PatientStatistics,
   Pregnancy,
   Referrer,
-} from './types';
-import { EndpointEnum, MethodEnum, UserRoleEnum } from './enums';
+} from '../types';
+import { EndpointEnum, MethodEnum, UserRoleEnum } from '../enums';
 
 import { IExportStatRow } from 'src/pages/statistics/utils';
 import { PasswordField } from 'src/app/topBar/changePassword/state';
@@ -36,7 +36,7 @@ export const API_URL =
     : '/api';
 
 export const getApiToken = async () => {
-  let accessToken = localStorage.getItem(`token`);
+  let accessToken = localStorage.getItem(`accessToken`);
 
   try {
     const decodedToken = accessToken

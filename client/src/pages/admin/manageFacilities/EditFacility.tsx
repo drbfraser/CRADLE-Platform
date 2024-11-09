@@ -17,7 +17,7 @@ import { TextField } from 'formik-mui';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { IFacility } from 'src/shared/types';
-import { saveHealthFacilityAsync } from 'src/shared/api';
+import { saveHealthFacilityAsync } from 'src/shared/api/api';
 import { useState } from 'react';
 
 interface IProps {

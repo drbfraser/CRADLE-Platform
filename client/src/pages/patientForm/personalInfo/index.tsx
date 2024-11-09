@@ -11,7 +11,7 @@ import Paper from '@mui/material/Paper';
 import { PatientIDExists } from './PatientIDExists';
 import ToggleButton from '@mui/material/ToggleButton';
 import { ToggleButtonGroup } from 'formik-mui';
-import { getPatientPregnancyInfoAsync } from 'src/shared/api';
+import { getPatientPregnancyInfoAsync } from 'src/shared/api/api';
 import { handleChangeCustom } from '../handlers';
 import { sexOptions } from 'src/shared/constants';
 import { SxProps } from '@mui/material';

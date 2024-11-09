@@ -13,7 +13,7 @@ import {
   API_URL,
   deletePregnancyAsync,
   getPatientPregnanciesAsync,
-} from 'src/shared/api';
+} from 'src/shared/api/api';
 import { useCallback, useEffect, useState } from 'react';
 import { Pregnancy } from 'src/shared/types';
 import {

@@ -22,7 +22,7 @@ import {
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { IUser } from 'src/shared/types';
 import { UserRoleEnum } from 'src/shared/enums';
-import { saveUserAsync } from 'src/shared/api';
+import { saveUserAsync } from 'src/shared/api/api';
 import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
 import { useState } from 'react';
 import { userRoleLabels } from 'src/shared/constants';

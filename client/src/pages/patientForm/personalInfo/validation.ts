@@ -2,7 +2,7 @@ import * as Yup from 'yup';
 
 import { PatientField } from '../state';
 import { getAgeBasedOnDOB } from 'src/shared/utils';
-import { getPatientPregnancyInfoAsync } from 'src/shared/api';
+import { getPatientPregnancyInfoAsync } from 'src/shared/api/api';
 
 const ageIsValid = (age: number): boolean => {
   return Math.floor(age) >= 0;

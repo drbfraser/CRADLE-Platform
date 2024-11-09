@@ -1,5 +1,5 @@
 import { ReadingField, ReadingState } from './state';
-import { saveDrugHistoryAsync, saveReadingAsync } from 'src/shared/api';
+import { saveDrugHistoryAsync, saveReadingAsync } from 'src/shared/api/api';
 
 import { getSymptomsFromFormState } from './symptoms/symptoms';
 

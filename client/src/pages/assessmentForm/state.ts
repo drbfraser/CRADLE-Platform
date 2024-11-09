@@ -1,4 +1,4 @@
-import { getAssessmentAsync, getDrugHistoryAsync } from 'src/shared/api';
+import { getAssessmentAsync, getDrugHistoryAsync } from 'src/shared/api/api';
 
 // field names here match /api/assessments
 export enum AssessmentField {

@@ -28,7 +28,7 @@ import { FormRenderStateEnum } from 'src/shared/enums';
 import { LanguageModalProps } from 'src/shared/types';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { CustomizedFormWQuestions } from 'src/pages/customizedForm/customizedEditForm/CustomizedFormWQuestions';
-import { getFormClassificationTemplates } from 'src/shared/api';
+import { getFormClassificationTemplates } from 'src/shared/api/api';
 import moment from 'moment';
 
 export enum FormEditMainComponents {

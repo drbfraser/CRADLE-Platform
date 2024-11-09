@@ -16,7 +16,7 @@ import {
   saveAssessmentAsync,
   saveDrugHistoryAsync,
   saveReferralAssessmentAsync,
-} from 'src/shared/api';
+} from 'src/shared/api/api';
 
 interface IProps {
   initialState: AssessmentState;

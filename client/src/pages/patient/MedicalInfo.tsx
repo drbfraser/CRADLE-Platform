@@ -14,7 +14,7 @@ import { Link } from 'react-router-dom';
 import { OrNull } from 'src/shared/types';
 import RecentActorsIcon from '@mui/icons-material/RecentActors';
 import { RedirectButton } from 'src/shared/components/Button';
-import { getPatientMedicalHistoryAsync } from 'src/shared/api';
+import { getPatientMedicalHistoryAsync } from 'src/shared/api/api';
 
 const headerSx: SxProps = {
   display: 'flex',

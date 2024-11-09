@@ -2,7 +2,7 @@ import { useState } from 'react';
 import {
   getFacilityStatisticsAsync,
   getHealthFacilitiesAsync,
-} from 'src/shared/api';
+} from 'src/shared/api/api';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import Divider from '@mui/material/Divider';

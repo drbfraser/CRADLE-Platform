@@ -6,7 +6,7 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import CreateIcon from '@mui/icons-material/Create';
 import EditFacility from './EditFacility';
 import { IFacility } from 'src/shared/types';
-import { getHealthFacilitiesAsync } from 'src/shared/api';
+import { getHealthFacilitiesAsync } from 'src/shared/api/api';
 import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
 import { useAppDispatch } from 'src/shared/hooks';
 import {

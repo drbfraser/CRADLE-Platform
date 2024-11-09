@@ -17,7 +17,7 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { IUser } from 'src/shared/types';
 import { TextField } from 'formik-mui';
 import { Toast } from 'src/shared/components/toast';
-import { resetUserPasswordAsync } from 'src/shared/api';
+import { resetUserPasswordAsync } from 'src/shared/api/api';
 import { useState } from 'react';
 
 interface IProps {

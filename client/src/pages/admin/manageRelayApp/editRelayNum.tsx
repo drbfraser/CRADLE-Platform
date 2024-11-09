@@ -11,7 +11,7 @@ import { TextField } from 'formik-mui';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { IRelayNum } from 'src/shared/types';
 import { useState } from 'react';
-import { saveRelayNumAsync } from 'src/shared/api';
+import { saveRelayNumAsync } from 'src/shared/api/api';
 import { Toast } from 'src/shared/components/toast';
 
 interface IProps {

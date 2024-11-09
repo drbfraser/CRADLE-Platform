@@ -6,7 +6,7 @@ import {
 
 import { IFacility, ReferralFilter, Referrer } from 'src/shared/types';
 import React, { SyntheticEvent, useEffect, useState } from 'react';
-import { getHealthFacilitiesAsync, getUserVhtsAsync } from 'src/shared/api';
+import { getHealthFacilitiesAsync, getUserVhtsAsync } from 'src/shared/api/api';
 import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';

@@ -8,7 +8,7 @@ import {
   getMedicalRecordAsync,
   getPatientPregnancyInfoAsync,
   getPregnancyAsync,
-} from 'src/shared/api';
+} from 'src/shared/api/api';
 
 import { FormikProps } from 'formik';
 import { GestationalAgeUnitEnum } from 'src/shared/enums';

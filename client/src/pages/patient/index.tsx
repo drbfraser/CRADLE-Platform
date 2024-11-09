@@ -13,7 +13,7 @@ import {
   getPatientAsync,
   getPatientRecordsAsync,
   getPatientReferralsAsync,
-} from 'src/shared/api';
+} from 'src/shared/api/api';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 

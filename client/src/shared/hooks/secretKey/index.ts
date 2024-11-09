@@ -5,7 +5,7 @@ import {
   getSecretKeyAsync,
   getUsersAsync,
   updateSecretKeyAsync,
-} from 'src/shared/api';
+} from 'src/shared/api/api';
 import { UserRoleEnum } from 'src/shared/enums';
 import {
   IUser,

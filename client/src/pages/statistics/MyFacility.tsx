@@ -4,7 +4,7 @@ import Divider from '@mui/material/Divider';
 import { ReduxState } from 'src/redux/reducers';
 import { StatisticDashboard } from './utils/StatisticsInfo';
 import Typography from '@mui/material/Typography';
-import { getFacilityStatisticsAsync } from 'src/shared/api';
+import { getFacilityStatisticsAsync } from 'src/shared/api/api';
 import { useSelector } from 'react-redux';
 import { DIVIDER_SX } from './utils/statisticStyles';
 import { Box } from '@mui/material';

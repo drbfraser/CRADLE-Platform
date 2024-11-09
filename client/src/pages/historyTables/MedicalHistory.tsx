@@ -8,7 +8,7 @@ import {
 import { useDialogs } from '@toolpad/core';
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { deleteMedicalRecordAsync } from 'src/shared/api';
+import { deleteMedicalRecordAsync } from 'src/shared/api/api';
 import {
   TableAction,
   TableActionButtons,
