@@ -18,10 +18,8 @@ const recursivelyTransformKeys = (
       return recursivelyTransformKeys(elem, transformKey);
     });
   }
-  console.log('typeof obj: ', typeof obj);
   if (typeof obj !== 'object') return obj;
   const o: { [key: string]: any } = obj;
-
   return Object.keys(obj).reduce((prevVal, key) => {
     return {
       ...prevVal,
@@ -82,9 +80,7 @@ export const requestMiddleware =
           // Parse json string into object.
           const parsedData = JSON.parse(data);
           // Intercept data from the response and convert keys to camel case.
-          console.log('Response data pre-transform: ', parsedData);
           const transformedData = convertKeysToCamelCase(parsedData);
-          console.log('Response data post-transform: ', transformedData);
           return transformedData;
         },
       ],
