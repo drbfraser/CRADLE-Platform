@@ -5,23 +5,38 @@ import { getApiToken } from 'src/shared/api/api';
 import { EndpointEnum } from 'src/shared/enums';
 import { snakeCase, camelCase } from 'lodash';
 
+/* Applies transform function to the keys of the object recursively, so nested
+properties will be transformed correctly. */
+const recursivelyTransformKeys = (
+  obj: unknown,
+  transformKey: (key: string) => string
+): any => {
+  if (!obj) return obj;
+  if (Array.isArray(obj)) {
+    return obj.map((elem) => {
+      // Recursively call function on elements of array.
+      return recursivelyTransformKeys(elem, transformKey);
+    });
+  }
+  console.log('typeof obj: ', typeof obj);
+  if (typeof obj !== 'object') return obj;
+  const o: { [key: string]: any } = obj;
+
+  return Object.keys(obj).reduce((prevVal, key) => {
+    return {
+      ...prevVal,
+      [transformKey(key)]: recursivelyTransformKeys(o[key], transformKey),
+    };
+  }, {});
+};
+
 // Convert the object's keys to snake case.
 const convertKeysToSnakeCase = (data: object) => {
-  if (data == null) return null;
-  const transformedData: { [key: string]: any } = {};
-  for (const [key, value] of Object.entries(data)) {
-    transformedData[snakeCase(key)] = value;
-  }
-  return transformedData;
+  return recursivelyTransformKeys(data, snakeCase);
 };
 // Convert the object's keys to camel case.
 const convertKeysToCamelCase = (data: object) => {
-  if (data == null) return null;
-  const transformedData: { [key: string]: any } = {};
-  for (const [key, value] of Object.entries(data)) {
-    transformedData[camelCase(key)] = value;
-  }
-  return transformedData;
+  return recursivelyTransformKeys(data, camelCase);
 };
 
 export const requestMiddleware =
@@ -63,10 +78,12 @@ export const requestMiddleware =
         },
       ],
       transformResponse: [
-        (data: object) => {
+        (data: string) => {
+          // Parse json string into object.
+          const parsedData = JSON.parse(data);
           // Intercept data from the response and convert keys to camel case.
-          console.log('Response data pre-transform: ', data);
-          const transformedData = convertKeysToCamelCase(data);
+          console.log('Response data pre-transform: ', parsedData);
+          const transformedData = convertKeysToCamelCase(parsedData);
           console.log('Response data post-transform: ', transformedData);
           return transformedData;
         },
