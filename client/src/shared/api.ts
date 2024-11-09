@@ -25,7 +25,7 @@ import { IExportStatRow } from 'src/pages/statistics/utils';
 import { PasswordField } from 'src/app/topBar/changePassword/state';
 import { PostBody } from 'src/pages/customizedForm/customizedEditForm/handlers';
 import { UserField } from 'src/pages/admin/manageUsers/state';
-import jwt_decode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
 import { reduxStore } from 'src/redux/store';
 import { showMessage } from 'src/redux/actions/messageActions';
@@ -36,45 +36,48 @@ export const API_URL =
     : '/api';
 
 export const getApiToken = async () => {
-  let token = localStorage.getItem(`token`);
+  let accessToken = localStorage.getItem(`token`);
 
   try {
-    const decodedToken = token ? jwt_decode<{ exp: number }>(token) : null;
+    const decodedToken = accessToken
+      ? jwtDecode<{ exp: number }>(accessToken)
+      : null;
     const currentTime = new Date().getTime() / 1000;
 
+    // If access token is expired, we must fetch a new one.
     const shouldRefreshToken =
       !decodedToken || currentTime > decodedToken.exp + 30;
 
     if (shouldRefreshToken) {
-      const refreshToken = localStorage.refresh;
-
-      if (!refreshToken) {
-        throw new Error();
-      }
-
+      /* Refresh token is stored in HTTP-Only cookie. It should automatically be
+      sent along with our request to the refresh_token endpoint.
+      */
       const init = {
         method: MethodEnum.POST,
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
-          Authorization: `Bearer ${refreshToken}`,
         },
       };
 
       const resp = await fetch(`${API_URL}${EndpointEnum.REFRESH}`, init);
 
       if (!resp.ok) {
+        console.error(
+          `ERROR (${resp.status}): Failed to get new access token.`,
+          resp
+        );
         throw new Error();
       }
 
-      token = (await resp.json()).data.token;
-      localStorage.setItem('token', token!);
+      accessToken = (await resp.json()).data.access_token;
+      localStorage.setItem('access_token', accessToken!);
     }
   } catch (e) {
+    console.error(e);
     reduxStore.dispatch(logoutUser());
   }
-
-  return token;
+  return accessToken;
 };
 
 export const apiFetch = async (
@@ -83,7 +86,7 @@ export const apiFetch = async (
   isFormData?: boolean,
   needErrorInfo?: boolean
 ): Promise<Response> => {
-  const token = await getApiToken();
+  const accessToken = await getApiToken();
   const contentType = isFormData
     ? undefined
     : {
@@ -95,7 +98,7 @@ export const apiFetch = async (
     ...init,
     headers: {
       ...contentType,
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${accessToken}`,
       ...init?.headers,
     },
   }).then((resp) => {
