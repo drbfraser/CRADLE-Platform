@@ -79,7 +79,7 @@
     "formik": "^2.2.9",
     "formik-mui": "^5.0.0-alpha.0",
     "iso-639-1": "^2.1.15",
-    "jwt-decode": "^3.1.2",
+    "jwt-decode": "^4.0.0",
     "libphonenumber-js": "^1.11.12",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
