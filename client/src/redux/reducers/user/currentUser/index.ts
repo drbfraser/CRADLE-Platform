@@ -1,9 +1,4 @@
-import {
-  UserWithTokens,
-  Callback,
-  OrNull,
-  ServerError,
-} from 'src/shared/types';
+import { UserWithToken, Callback, OrNull, ServerError } from 'src/shared/types';
 import { ServerRequestAction, serverRequestActionCreator } from '../../utils';
 
 import { Dispatch } from 'redux';
@@ -37,7 +32,7 @@ type CurrentUserAction =
   | { type: CurrentUserActionEnum.GET_CURRENT_USER_REQUESTED }
   | {
       type: CurrentUserActionEnum.GET_CURRENT_USER_SUCCESS;
-      payload: { currentUser: UserWithTokens };
+      payload: { currentUser: UserWithToken };
     }
   | {
       type: CurrentUserActionEnum.GET_CURRENT_USER_ERROR;
@@ -46,7 +41,7 @@ type CurrentUserAction =
   | { type: CurrentUserActionEnum.LOGIN_USER_REQUESTED }
   | {
       type: CurrentUserActionEnum.LOGIN_USER_SUCCESS;
-      payload: { user: UserWithTokens };
+      payload: { user: UserWithToken };
     }
   | {
       type: CurrentUserActionEnum.LOGIN_USER_ERROR;
@@ -55,7 +50,7 @@ type CurrentUserAction =
   | { type: CurrentUserActionEnum.LOGOUT_USER }
   | {
       type: CurrentUserActionEnum.AUTH_CHALLENGE;
-      payload: { user: UserWithTokens };
+      payload: { user: UserWithToken };
     };
 
 export const logoutUser = (): Callback<Dispatch> => {
@@ -94,17 +89,28 @@ export const loginUser = (
           // Store access token in local storage.
           localStorage.setItem(`accessToken`, authResponse.accessToken);
 
+          const user: UserWithToken = {
+            ...authResponse.user,
+            accessToken: authResponse.accessToken,
+          };
+
+          if (authResponse.user.phoneNumbers.length > 0) {
+            user.phoneNumber = authResponse.user.phoneNumbers[0];
+          }
           // If no auth challenge, proceed with login.
           if (authResponse.challenge === null) {
             navigate('/referrals');
+            return {
+              type: CurrentUserActionEnum.LOGIN_USER_SUCCESS,
+              payload: { user: user },
+            };
           } else {
             // Handle auth challenge.
+            return {
+              type: CurrentUserActionEnum.AUTH_CHALLENGE,
+              payload: { user: user },
+            };
           }
-
-          return {
-            type: CurrentUserActionEnum.LOGIN_USER_SUCCESS,
-            payload: { user: authResponse.user },
-          };
         },
         onError: ({ message }: ServerError) => {
           return {
@@ -133,7 +139,7 @@ export const getCurrentUser = (): ((
         onSuccess: ({
           data: currentUser,
         }: {
-          data: UserWithTokens;
+          data: UserWithToken;
         }): CurrentUserAction => ({
           type: CurrentUserActionEnum.GET_CURRENT_USER_SUCCESS,
           payload: { currentUser },
@@ -151,7 +157,7 @@ export const getCurrentUser = (): ((
 };
 
 export type CurrentUserState = {
-  data: OrNull<UserWithTokens>;
+  data: OrNull<UserWithToken>;
   error: boolean;
   loading: boolean;
   loggedIn: boolean;

@@ -5,7 +5,6 @@ import {
   QuestionTypeEnum,
   SexEnum,
   TrafficLightEnum,
-  UserRoleEnum,
 } from 'src/shared/enums';
 
 import { FacilityField } from 'src/pages/admin/manageFacilities/state';
@@ -147,7 +146,7 @@ export type SecretKey = {
  * keeping the "phoneNumber" attribute.
  */
 export type User = UserSchema & {
-  phoneNumber: string;
+  phoneNumber?: string;
 };
 
 export type UserWithIndex = User & {
@@ -178,7 +177,7 @@ export type RelayNum = {
   lastReceived: number;
 };
 
-export type UserWithTokens = User & {
+export type UserWithToken = User & {
   accessToken: string;
 };
 

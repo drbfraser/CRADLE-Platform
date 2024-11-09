@@ -10,7 +10,7 @@ import { UserRoleEnum } from 'src/shared/enums';
 import {
   User,
   UserWithIndex,
-  UserWithTokens,
+  UserWithToken,
   OrNull,
   SecretKey,
 } from 'src/shared/types';
@@ -26,7 +26,7 @@ type UseSecretKeyReturn = {
 
 export const useSecretKey = (
   secretKey: SecretKeyState,
-  userData: OrNull<Pick<UserWithTokens, 'role' | 'userId'>>,
+  userData: OrNull<Pick<UserWithToken, 'role' | 'userId'>>,
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>,
   setUpdateMessage: React.Dispatch<React.SetStateAction<boolean>>
 ): UseSecretKeyReturn => {
