@@ -212,12 +212,16 @@ class CognitoClientWrapper:
             refresh_token = auth_result.get("RefreshToken")
             if access_token is None:
                 raise ValueError("Failed to get Access Token.")
-            return {
-                "access_token": access_token,
-                "refresh_token": refresh_token,
+
+            challenge = {
                 "challenge_name": challenge_name,
                 "challenge_params": challenge_params,
                 "session": session,
+            }
+            return {
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+                "challenge": challenge,
             }
 
     # End of function

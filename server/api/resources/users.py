@@ -341,11 +341,14 @@ class UserAuthApi(Resource):
         refresh_token = auth_result["refresh_token"]
         del auth_result["refresh_token"]
 
+        # Add sms key to user.
         user_dict["sms_key"] = sms_key
-        del user_dict["sub"]  # Don't return sub.
+        # Don't return sub.
+        del user_dict["sub"]
         resp_body = {
-            "auth_result": auth_result,
+            "access_token": auth_result["access_token"],
             "user": user_dict,
+            "challenge": auth_result["challenge"],
         }
 
         resp = make_response(resp_body, 200)
