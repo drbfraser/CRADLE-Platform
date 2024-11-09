@@ -15,7 +15,8 @@ from flask import request
 from jwt import PyJWK, PyJWKClient
 from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 
-from shared.user_utils import UserUtils
+from data import crud, marshal
+from models import UserOrm
 
 load_dotenv(dotenv_path="/run/secrets/.aws.secrets.env")
 
@@ -182,7 +183,7 @@ class CognitoClientWrapper:
 
     def start_sign_in(self, username: str, password: str):
         try:
-            init_response = self.client.admin_initiate_auth(
+            auth_response = self.client.admin_initiate_auth(
                 UserPoolId=self.user_pool_id,
                 ClientId=self.client_id,
                 AuthFlow="ADMIN_USER_PASSWORD_AUTH",
@@ -202,7 +203,22 @@ class CognitoClientWrapper:
             )
             raise
         else:
-            return init_response
+            # Authentication response may require user to set a new password.
+            auth_result = auth_response.get("AuthenticationResult")
+            challenge_name = auth_response.get("ChallengeName")
+            challenge_params = auth_response.get("ChallengeParameters")
+            session = auth_response.get("Session")
+            access_token = auth_result.get("AccessToken")
+            refresh_token = auth_result.get("RefreshToken")
+            if access_token is None:
+                raise ValueError("Failed to get Access Token.")
+            return {
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+                "challenge_name": challenge_name,
+                "challenge_params": challenge_params,
+                "session": session,
+            }
 
     # End of function
 
@@ -363,5 +379,8 @@ class CognitoClientWrapper:
             raise ValueError(error)
 
         username = cognito_user_info.get("Username")
+        user_orm = crud.read(UserOrm, username=username)
+        if user_orm is None:
+            raise ValueError(f"User ({username}) not found.")
         # Retrieve user data from database.
-        return UserUtils.get_user_dict_from_username(username)
+        return marshal.marshal(user_orm)

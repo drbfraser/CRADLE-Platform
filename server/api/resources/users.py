@@ -292,14 +292,13 @@ class UserAuthApi(Resource):
 
         # Attempt authentication with Cognito user pool.
         try:
-            auth_response = cognito.start_sign_in(**credentials.model_dump())
+            auth_result = cognito.start_sign_in(**credentials.model_dump())
         except ClientError as err:
             error = err.response.get("Error")
             print(error)
             abort(401, message=error)
 
         # If no exception was raised, then authentication was successful.
-        auth_result = auth_response.get("AuthenticationResult")
 
         # Get user data from database.
         try:
@@ -313,7 +312,7 @@ class UserAuthApi(Resource):
             print(err)
             abort(500, message=error)
 
-        user_dict = UserUtils.get_user_dict_from_orm(user_orm)
+        user_dict = marshal.marshal(user_orm)
         user_id = user_dict["id"]
 
         # construct and add the sms key information in the same format as api/user/<int:user_id>/smskey
@@ -339,14 +338,13 @@ class UserAuthApi(Resource):
         # else:
         # user_data["sms_key"] = "NOTFOUND"
 
-        refresh_token = auth_result.get("RefreshToken")
-        access_token = auth_result.get("AccessToken")
+        # Don't include refresh token in body of response.
+        refresh_token = auth_result["refresh_token"]
+        del auth_result["refresh_token"]
 
-        if access_token is None:
-            abort(401, message="Could not get Access Token.")
-
+        user_dict["sms_key"] = sms_key
         resp_body = {
-            "access_token": auth_result,
+            "auth_result": auth_result,
             "user": user_dict,
             "sms_key": sms_key,
         }
