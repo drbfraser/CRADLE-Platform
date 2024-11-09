@@ -3,7 +3,7 @@ environs==9.3.1
 flasgger==0.9.5
 Flask~=2.2.5
 Flask-Cors==3.0.10
-Flask-JWT-Extended==4.3.0
+Flask-JWT-Extended[asymmetric_crypto]==4.6.0
 Flask-Limiter==3.3.0
 flask-marshmallow==0.14.0
 Flask-Migrate==2.7.0
@@ -34,3 +34,4 @@ botocore~=1.35.49
 botocore-stubs~=1.35.49
 phonenumbers~=8.13.49    # Python port of Google's `libphonenumber` library
 # phonenumberslite # Use this instead of `phonenumbers` if the memory usage is too high.
+pyjwt[crypto]==2.9.0
