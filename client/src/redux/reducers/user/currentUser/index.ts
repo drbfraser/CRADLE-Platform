@@ -57,7 +57,7 @@ export const logoutUser = (): Callback<Dispatch> => {
 };
 
 export type LoginData = {
-  email: string;
+  username: string;
   password: string;
 };
 
@@ -79,8 +79,8 @@ export const loginUser = (
         method: MethodEnum.POST,
         data,
         onSuccess: ({ data }: { data: IUserWithTokens }): CurrentUserAction => {
-          localStorage.setItem(`token`, data.token);
-          localStorage.setItem(`refresh`, data.refresh);
+          // Store access token in local storage.
+          localStorage.setItem(`accessToken`, data.accessToken);
           navigate('/referrals');
           return {
             type: CurrentUserActionEnum.LOGIN_USER_SUCCESS,
