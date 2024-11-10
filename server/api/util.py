@@ -6,10 +6,8 @@ from requests.
 from __future__ import annotations
 
 import csv
-import datetime
 import json
 import os
-import secrets
 from typing import TYPE_CHECKING, Type
 
 import flask_jwt_extended as jwt
@@ -42,7 +40,6 @@ from models import (
     FormOrm,
     FormTemplateOrm,
     QuestionOrm,
-    SmsSecretKeyOrm,
     UserOrm,
     UserPhoneNumberOrm,
 )
@@ -749,21 +746,11 @@ def get_user_roles(user_id):
     return user_orm.role
 
 
-def is_date_passed(date) -> bool:
-    if date >= datetime.datetime.now():
-        return False
-    return True
-
-
-def get_future_date(day_after=1):
-    return datetime.datetime.today() + datetime.timedelta(days=day_after)
-
-
 def hex2bytes(key):
     return bytes.fromhex(key)
 
 
-def bytes2hex(key):
+def bytes2hex(key: bytes):
     return key.hex()
 
 
@@ -774,50 +761,3 @@ def validate_user(user_id):
     if not doesUserExist(user_id):
         return {"message": "There is no user with this id"}, 404
     return None
-
-
-def create_secret_key_for_user(user_id):
-    stale_date = get_future_date(day_after=SMS_KEY_DURATION - 10)
-    expiry_date = get_future_date(day_after=SMS_KEY_DURATION)
-    secret_Key = generate_new_key()
-    new_key = {
-        "user_id": user_id,
-        "secret_Key": str(secret_Key),
-        "expiry_date": str(expiry_date),
-        "stale_date": str(stale_date),
-    }
-    sms_new_key_model = marshal.unmarshal(SmsSecretKeyOrm, new_key)
-    crud.create(sms_new_key_model)
-    return new_key
-
-
-def update_secret_key_for_user(user_id):
-    stale_date = get_future_date(day_after=SMS_KEY_DURATION - 10)
-    expiry_date = get_future_date(day_after=SMS_KEY_DURATION)
-    secret_Key = generate_new_key()
-    new_key = {
-        "secret_Key": str(secret_Key),
-        "expiry_date": str(expiry_date),
-        "stale_date": str(stale_date),
-    }
-    crud.update(SmsSecretKeyOrm, new_key, user_id=user_id)
-    return new_key
-
-
-def get_user_secret_key(user_id):
-    sms_secret_key = crud.read(SmsSecretKeyOrm, user_id=user_id)
-    if sms_secret_key and sms_secret_key.secret_Key:
-        sms_key = marshal.marshal(sms_secret_key, SmsSecretKeyOrm)
-        return sms_key
-    return None
-
-
-def get_user_secret_key_string(user_id):
-    sms_secret_key = crud.read(SmsSecretKeyOrm, user_id=user_id)
-    if sms_secret_key:
-        return sms_secret_key.secret_Key
-    return None
-
-
-def generate_new_key():
-    return bytes2hex(secrets.randbits(256).to_bytes(32, "little"))

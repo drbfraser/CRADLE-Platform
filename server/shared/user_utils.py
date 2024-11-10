@@ -1,5 +1,7 @@
 import logging
+import os
 import re
+import secrets
 from typing import Any, TypedDict, cast
 
 from botocore.exceptions import ClientError
@@ -9,8 +11,15 @@ from common.constants import EMAIL_REGEX_PATTERN
 from config import db
 from data import crud, marshal
 from enums import RoleEnum
-from models import UserOrm, UserPhoneNumberOrm
+from models import SmsSecretKeyOrm, UserOrm, UserPhoneNumberOrm
+from server.common.date_utils import get_future_date
 from shared.phone_number_utils import PhoneNumberUtils
+
+sms_key_duration = os.getenv("SMS_KEY_DURATION")
+if sms_key_duration is None:
+    SMS_KEY_DURATION = 40
+else:
+    SMS_KEY_DURATION = int(sms_key_duration)
 
 logger = logging.getLogger(__name__)
 
@@ -416,5 +425,62 @@ class UserUtils:
         except Exception as e:
             db.session.rollback()
             raise ValueError(e)
+
+    # End of function.
+
+    @staticmethod
+    def create_secret_key_for_user(user_id):
+        stale_date = get_future_date(days_after=SMS_KEY_DURATION - 10)
+        expiry_date = get_future_date(days_after=SMS_KEY_DURATION)
+        secret_Key = UserUtils.generate_new_sms_secret_key()
+        new_key = {
+            "user_id": user_id,
+            "secret_Key": str(secret_Key),
+            "expiry_date": str(expiry_date),
+            "stale_date": str(stale_date),
+        }
+        sms_new_key_model = marshal.unmarshal(SmsSecretKeyOrm, new_key)
+        crud.create(sms_new_key_model)
+        return new_key
+
+    # End of function.
+
+    @staticmethod
+    def update_sms_secret_key_for_user(user_id):
+        stale_date = get_future_date(days_after=SMS_KEY_DURATION - 10)
+        expiry_date = get_future_date(days_after=SMS_KEY_DURATION)
+        secret_Key = UserUtils.generate_new_sms_secret_key()
+        new_key = {
+            "secret_Key": str(secret_Key),
+            "expiry_date": str(expiry_date),
+            "stale_date": str(stale_date),
+        }
+        crud.update(SmsSecretKeyOrm, new_key, user_id=user_id)
+        return new_key
+
+    # End of function.
+
+    @staticmethod
+    def get_user_sms_secret_key(user_id):
+        sms_secret_key = crud.read(SmsSecretKeyOrm, user_id=user_id)
+        if sms_secret_key and sms_secret_key.secret_Key:
+            sms_key = marshal.marshal(sms_secret_key, SmsSecretKeyOrm)
+            return sms_key
+        return None
+
+    # End of function.
+
+    @staticmethod
+    def get_user_sms_secret_key_string(user_id):
+        sms_secret_key = crud.read(SmsSecretKeyOrm, user_id=user_id)
+        if sms_secret_key:
+            return sms_secret_key.secret_Key
+        return None
+
+    # End of function.
+
+    @staticmethod
+    def generate_new_sms_secret_key():
+        return secrets.randbits(256).to_bytes(32, "little").hex()
 
     # End of function.
