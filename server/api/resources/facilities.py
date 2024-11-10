@@ -83,9 +83,12 @@ class SingleFacility(Resource):
     )
     def get(facility_name: str):
         facility = crud.read(HealthFacilityOrm, healthFacilityName=facility_name)
-        if util.query_param_bool(request, "newReferrals"):
-            newReferrals = facility.newReferrals
-            # If responding to a "newReferrals" request, only return the timestamp of newReferrals of that facility
-            return newReferrals
+        if facility is None:
+            abort(404, message=f"Facility ({facility_name}) not found.")
+
+        if util.query_param_bool(request, "new_referrals"):
+            new_referrals = facility.new_referrals
+            # If responding to a "new_referrals" request, only return the timestamp of new_referrals of that facility
+            return new_referrals
         # Otherwise, return all information about the health facilities
         return marshal.marshal(facility)
