@@ -2,7 +2,7 @@ import logging
 import os
 import re
 import secrets
-from typing import Any, TypedDict, cast
+from typing import Any, Optional, TypedDict, cast
 
 from botocore.exceptions import ClientError
 
@@ -146,6 +146,9 @@ class UserUtils:
         health_facility_name: str,
         role: str,
         phone_numbers: list[str],
+        auto_verify: bool = False,
+        suppress_invitation: bool = False,
+        temporary_password: Optional[str] = None,
     ):
         """
         Creates a user in our database and registers the new user in the Cognito
@@ -163,7 +166,14 @@ class UserUtils:
         """
         try:
             # Create the user in the user pool.
-            response = cognito.create_user(username=username, email=email, name=name)
+            response = cognito.create_user(
+                username=username,
+                email=email,
+                name=name,
+                auto_verify=auto_verify,
+                suppress_invitation=suppress_invitation,
+                temporary_password=temporary_password,
+            )
             cognito_user = response.get("User")
             cognito_username = cognito_user.get("Username")
             if cognito_username is None:
@@ -247,6 +257,8 @@ class UserUtils:
             health_facility_name=health_facility_name,
             role=role,
             phone_numbers=phone_numbers,
+            auto_verify=True,
+            suppress_invitation=True,
         )
         try:
             # Override the new users temporary password.

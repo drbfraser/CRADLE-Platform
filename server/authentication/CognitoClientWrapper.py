@@ -4,7 +4,7 @@ import hmac
 import logging
 import os
 import pprint
-from typing import cast
+from typing import Optional, cast
 
 import jwt
 from botocore.exceptions import ClientError
@@ -73,11 +73,17 @@ class CognitoClientWrapper:
         ).decode()
         return secret_hash
 
-    def create_user(self, username: str, email: str, name: str):
+    def create_user(
+        self,
+        username: str,
+        email: str,
+        name: str,
+        auto_verify: bool = False,
+        suppress_invitation: bool = False,
+        temporary_password: Optional[str] = None,
+    ):
         """
-        Creates a user in the user pool. Self-service signup is disabled, so only
-        admins can create users. This means that the 'sign_up' action will fail,
-        and instead we must use the 'admin_create_user' API.
+        Creates a user in the user pool.
 
         A temporary password will be generated automatically for the new user,
         and an invite email with their temporary password will be sent to them.
@@ -94,40 +100,47 @@ class CognitoClientWrapper:
 
         :param username: The username for the new user.
         :param email: The email address for the new user.
+        :param name: Name of the new user.
+        :param email_verified: If true, the new user's email will be auto-verified.
+        :param suppress_invitation: If true, the email invitation will not be sent.
+        :param temporary_password: If given, will be used as the temporary password.
+            If not, then one will be generated.
         """
-        create_user_kwargs = {
-            "UserPoolId": self.user_pool_id,
-            "Username": username,
-            "UserAttributes": [
-                {
-                    "Name": "email",
-                    "Value": email,
-                },
-                {
-                    "Name": "name",
-                    "Value": name,
-                },
-            ],
-            "DesiredDeliveryMediums": [
-                "EMAIL",
-            ],
-        }
+        user_attributes = [
+            {
+                "Name": "email",
+                "Value": email,
+            },
+            {
+                "Name": "name",
+                "Value": name,
+            },
+        ]
 
-        if ENABLE_DEV_USERS:
-            user_attributes: list = create_user_kwargs["UserAttributes"]
+        if auto_verify:
             user_attributes.append(
                 {
                     "Name": "email_verified",
                     "Value": "true",
                 },
             )
-            create_user_kwargs["UserAttributes"] = user_attributes
+
+        create_user_kwargs = {
+            "UserPoolId": self.user_pool_id,
+            "Username": username,
+            "UserAttributes": user_attributes,
+            "DesiredDeliveryMediums": [
+                "EMAIL",
+            ],
+        }
+
+        if suppress_invitation:
+            create_user_kwargs["MessageAction"] = "SUPPRESS"
+
+        if temporary_password is not None:
             create_user_kwargs["TemporaryPassword"] = temporary_password
 
-        response = self.client.admin_create_user(**create_user_kwargs)
-        return response
-
-    # End of function
+        return self.client.admin_create_user(**create_user_kwargs)
 
     def delete_user(self, username: str):
         """
@@ -143,8 +156,6 @@ class CognitoClientWrapper:
             logger.error("%s", err)
             raise
 
-    # End of function
-
     def list_users(self):
         try:
             response = self.client.list_users(UserPoolId=self.user_pool_id)
@@ -158,8 +169,6 @@ class CognitoClientWrapper:
             raise
         else:
             return users
-
-    # End of function
 
     def set_user_password(self, username: str, new_password: str):
         """
@@ -221,8 +230,6 @@ class CognitoClientWrapper:
                 "challenge": challenge,
             }
 
-    # End of function
-
     def respond_to_new_password_challenge(self, session_token: str, username: str):
         while True:
             new_password = input("Please enter a new password: ")
@@ -230,7 +237,6 @@ class CognitoClientWrapper:
             if new_password == confirm_password:
                 break
             logger.error("ERROR: Passwords do not match.")
-        # End while
         challenge_response = self.client.admin_respond_to_auth_challenge(
             UserPoolId=self.user_pool_id,
             ClientId=self.client_id,
@@ -243,8 +249,6 @@ class CognitoClientWrapper:
             },
         )
         return challenge_response["AuthenticationResult"]
-
-    # End of function
 
     def get_user(self, username: str):
         """
@@ -267,8 +271,6 @@ class CognitoClientWrapper:
         else:
             return response
 
-    # End of function
-
     def update_user_attributes(self, username: str, user_attributes: dict[str, str]):
         """
         Updates the user's attributes in the user pool.
@@ -288,8 +290,6 @@ class CognitoClientWrapper:
             ],
         )
 
-    # End of function
-
     def get_access_token(self):
         # Get JWT access token.
         authorization = request.authorization
@@ -299,8 +299,6 @@ class CognitoClientWrapper:
         if access_token is None:
             raise ValueError("Access token not found.")
         return access_token
-
-    # End of function
 
     def verify_access_token(self):
         """
@@ -358,8 +356,6 @@ class CognitoClientWrapper:
         except ClientError as err:
             error = err.response.get("Error")
             raise ValueError(error)
-
-    # End of function
 
     def get_username_from_jwt(self):
         """
