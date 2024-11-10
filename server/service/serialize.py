@@ -207,8 +207,7 @@ def deserialize_pregnancy(
 
     d = {
         "patient_id": data.get("patient_id"),
-        "startDate": data.get("pregnancy_start_date"),
-        "defaultTimeUnit": data.get("gestationalAgeUnit"),
+        "start_date": data.get("pregnancy_start_date"),
     }
     return schema().load(d)
 
@@ -220,12 +219,12 @@ def deserialize_medical_record(data: dict, is_drug_record: bool) -> MedicalRecor
         "information": (
             data.get("drug_history") if is_drug_record else data.get("medical_history")
         ),
-        "isDrugRecord": is_drug_record,
+        "is_drug_record": is_drug_record,
     }
-    if (not is_drug_record and data.get("medicalLastEdited")) or (
-        is_drug_record and data.get("drugLastEdited")
+    if (not is_drug_record and data.get("medical_last_edited")) or (
+        is_drug_record and data.get("drug_last_edited")
     ):
         d["date_created"] = (
-            data["drugLastEdited"] if is_drug_record else data["medicalLastEdited"]
+            data["drug_last_edited"] if is_drug_record else data["medical_last_edited"]
         )
     return schema().load(d)
