@@ -1,4 +1,5 @@
 import time
+from typing import Any, cast
 
 from flasgger import swag_from
 from flask import request
@@ -7,6 +8,7 @@ from flask_restful import Resource, abort
 
 import data
 from api import util
+from authentication import cognito
 from data import crud, marshal
 from models import HealthFacilityOrm, PatientOrm, ReferralOrm
 from service import assoc, serialize, view
@@ -18,24 +20,23 @@ from validation.validation_exception import ValidationExceptionError
 # /api/referrals
 class Root(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/referrals-get.yml",
         methods=["GET"],
         endpoint="referrals",
     )
     def get():
-        user = get_jwt_identity()
+        user = cognito.get_user_info_from_jwt()
 
         params = util.get_query_params(request)
         if params.get("health_facilities") and "default" in params["health_facilities"]:
-            params["health_facilities"].append(user["healthFacilityName"])
+            params["health_facilities"].append(user["health_facility_name"])
 
+        user = cast(dict[Any, Any], user)
         referrals = view.referral_list_view(user, **params)
         return serialize.serialize_referral_list(referrals)
 
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/referrals-post.yml",
         methods=["POST"],
