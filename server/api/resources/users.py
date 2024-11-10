@@ -65,26 +65,8 @@ class UserAll(Resource):
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/user-all.yml", methods=["GET"])
     def get(self):
-        user_orm_list = crud.read_all(UserOrm)
-        user_dict_list = []
-
-        for user_orm in user_orm_list:
-            user_dict = marshal.marshal(user_orm)
-
-            vht_list = []
-            for vht in user_orm.vht_list:
-                vht_list.append(vht.id)
-
-            user_dict["supervises"] = vht_list
-            user_dict["phone_numbers"] = [
-                phone_number.phone_number for phone_number in user_orm.phone_numbers
-            ]
-
-            user_dict_list.append(user_dict)
-
-        if user_dict_list is None:
-            return {"message": "No users currently exist"}, 404
-        return user_dict_list
+        user_list = UserUtils.get_all_users_data()
+        return user_list, 200
 
 
 # api/user/vhts [GET]

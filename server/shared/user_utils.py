@@ -118,6 +118,19 @@ class UserUtils:
         return UserData(sms_key=sms_key, phone_numbers=phone_numbers, **user_dict)
 
     @staticmethod
+    def get_all_users_data():
+        user_dict_list = UserUtils.get_user_dict_list()
+        user_data_list = []
+        for user_dict in user_dict_list:
+            user_id = user_dict["id"]
+            phone_numbers = PhoneNumberUtils.get_users_phone_numbers(user_id)
+            sms_key = UserUtils.get_user_sms_secret_key_formatted(user_id)
+            user_data_list.append(
+                UserData(sms_key=sms_key, phone_numbers=phone_numbers, **user_dict)
+            )
+        return user_data_list
+
+    @staticmethod
     def does_email_exist(email: str) -> bool:
         """
         :param email: The email to check.
@@ -465,7 +478,7 @@ class UserUtils:
     def get_user_sms_secret_key_formatted(user_id):
         sms_secret_key = UserUtils.get_user_sms_secret_key(user_id)
         if sms_secret_key is None:
-            return
+            return None
         # remove extra items
         del sms_secret_key["id"]
         del sms_secret_key["user_id"]
@@ -481,6 +494,7 @@ class UserUtils:
         # convert dates to string
         sms_secret_key["stale_date"] = str(sms_secret_key["stale_date"])
         sms_secret_key["expiry_date"] = str(sms_secret_key["expiry_date"])
+        return sms_secret_key
 
     @staticmethod
     def get_user_sms_secret_key_string(user_id):
