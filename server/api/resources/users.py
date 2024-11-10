@@ -23,7 +23,6 @@ from api.util import (
     doesUserExist,
     filterPairsWithNone,
     get_all_phoneNumbers_for_user,
-    getDictionaryOfUserInfo,
     isGoodPassword,
     replace_phoneNumber_for_user,
 )
@@ -334,13 +333,12 @@ class UserAuthTokenRefreshApi(Resource):
 # /api/user/current
 # Get identity of current user with jwt token
 class UserTokenApi(Resource):
-    @jwt_required()
     @swag_from("../../specifications/user-current.yml", methods=["GET"])
     def get(self):
-        token_data = get_jwt_identity()
-        user_id = token_data["user_id"]
+        username = cognito.get_username_from_jwt()
+        user_data = UserUtils.get_user_data_from_username(username)
 
-        return getDictionaryOfUserInfo(user_id), 200
+        return user_data, 200
 
 
 # api/user/<int:user_id> [GET, PUT, DELETE]
@@ -358,8 +356,6 @@ class UserApi(Resource):
             error_message = str(e)
             LOGGER.error(error_message)
             abort(400, message=error_message)
-
-        # use pydantic model to generate validated dict for later processing
 
         try:
             # Update the user.
