@@ -451,7 +451,7 @@ class UserUtils:
         sms_secret_key_orm.user = user_orm
         db.session.add(sms_secret_key_orm)
         db.session.commit()
-        return marshal.marshal(sms_secret_key_orm)
+        return UserUtils.get_user_sms_secret_key_formatted(user_id)
 
     @staticmethod
     def update_sms_secret_key_for_user(user_id):
@@ -464,7 +464,7 @@ class UserUtils:
             "stale_date": str(stale_date),
         }
         crud.update(SmsSecretKeyOrm, new_key, user_id=user_id)
-        return new_key
+        return UserUtils.get_user_sms_secret_key_formatted(user_id)
 
     @staticmethod
     def get_user_sms_secret_key(user_id):

@@ -26,10 +26,8 @@ from api.util import (
     getDictionaryOfUserInfo,
     isGoodPassword,
     replace_phoneNumber_for_user,
-    validate_user,
 )
 from authentication import cognito
-from common.date_utils import is_date_passed
 from common.regexUtil import phoneNumber_regex_check
 from data import crud, marshal
 from enums import RoleEnum
@@ -319,7 +317,6 @@ class UserAuthApi(Resource):
                 refresh_token,
                 path="api/user/auth/refresh_token",
                 httponly=True,
-                secure=True,
             )
         return resp
 
@@ -439,7 +436,6 @@ class UserPhoneUpdate(Resource):
     )
 
     # Handle the GET request for adding a new phone number
-    @jwt_required()
     @swag_from("../../specifications/user-phone-get.yml", methods=["GET"])
     def get(self, user_id):
         if not user_id:
@@ -452,7 +448,6 @@ class UserPhoneUpdate(Resource):
         return {"phone_numbers": phone_numbers}, 200
 
     # Handle the PUT request updating a current phone number to a new phone number
-    @jwt_required()
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/user-phone-put.yml", methods=["PUT"])
     def put(self, user_id):
@@ -482,7 +477,6 @@ class UserPhoneUpdate(Resource):
         return {"message": "Phone number cannot be updated"}, 400
 
     # Handle the POST request for adding a new phone number
-    @jwt_required()
     @swag_from("../../specifications/user-phone-post.yml", methods=["POST"])
     def post(self, user_id):
         if not user_id:
@@ -504,7 +498,6 @@ class UserPhoneUpdate(Resource):
         return {"message": "Phone number already exists"}, 400
 
     # Handle the DELETE request for deleting an existing phone number
-    @jwt_required()
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/user-phone-delete.yml", methods=["DELETE"])
     def delete(self, user_id):
@@ -532,107 +525,59 @@ class UserSMSKey(Resource):
     # Handle the PUT request for updating the phone number
     parser = reqparse.RequestParser()
 
-    @jwt_required()
     @swag_from("../../specifications/user-sms-key-get.yml", methods=["GET"])
     def get(self, user_id):
-        user_info = get_jwt_identity()
-        if user_info["role"] != "ADMIN" and user_info["user_id"] is not user_id:
+        username = cognito.get_username_from_jwt()
+        user_info = UserUtils.get_user_data_from_username(username)
+        if user_info["role"] != "ADMIN" and user_info["id"] is not user_id:
             return (
                 {
-                    "message": "Permission denied, you can only get your sms-key or use the admin account",
+                    "message": "Permission denied, you can only get your own sms-key or use the admin account",
                 },
                 403,
             )
-        validate_result = validate_user(user_id)
-        if validate_result is not None:
-            return validate_result
-        sms_key = UserUtils.get_user_sms_secret_key(user_id)
-        if not sms_key:
-            return {"message": "NOTFOUND"}, 424
-        if is_date_passed(sms_key["expiry_date"]):
-            return (
-                {
-                    "message": "EXPIRED",
-                    "expiry_date": str(sms_key["expiry_date"]),
-                    "stale_date": str(sms_key["stale_date"]),
-                    "sms_key": sms_key["secret_key"],
-                },
-                200,
-            )
-        if is_date_passed(sms_key["stale_date"]):
-            return (
-                {
-                    "message": "WARN",
-                    "expiry_date": str(sms_key["expiry_date"]),
-                    "stale_date": str(sms_key["stale_date"]),
-                    "sms_key": sms_key["secret_key"],
-                },
-                200,
-            )
-        return (
-            {
-                "message": "NORMAL",
-                "expiry_date": str(sms_key["expiry_date"]),
-                "stale_date": str(sms_key["stale_date"]),
-                "sms_key": sms_key["secret_key"],
-            },
-            200,
-        )
 
-    @jwt_required()
+        sms_key = UserUtils.get_user_sms_secret_key_formatted(user_id)
+        if sms_key is None:
+            return {"message": "NOTFOUND"}, 424
+        return sms_key, 200
+
     @swag_from("../../specifications/user-sms-key-put.yml", methods=["PUT"])
     def put(self, user_id):
-        user_info = get_jwt_identity()
-        if user_info["role"] != "ADMIN" and user_info["user_id"] is not user_id:
+        username = cognito.get_username_from_jwt()
+        user_info = UserUtils.get_user_data_from_username(username)
+        if user_info["role"] != "ADMIN" and user_info["id"] is not user_id:
             return (
                 {
-                    "message": "Permission denied, you can only get your sms-key or use the admin account",
+                    "message": "Permission denied, you can only get your own sms-key or use the admin account",
                 },
                 403,
             )
-        validate_result = validate_user(user_id)
-        if validate_result is not None:
-            return validate_result
-        sms_key = UserUtils.get_user_sms_secret_key(user_id)
-        if not sms_key:
+        sms_key = UserUtils.get_user_sms_secret_key_formatted(user_id)
+        if sms_key is None:
             return {"message": "NOTFOUND"}, 424
-        new_key = UserUtils.get_user_sms_secret_key(user_id)
-        return (
-            {
-                "message": "NORMAL",
-                "sms_key": new_key["secret_key"],
-                "expiry_date": str(new_key["expiry_date"]),
-                "stale_date": str(new_key["stale_date"]),
-            },
-            200,
-        )
 
-    @jwt_required()
+        # Create new key.
+        new_key = UserUtils.update_sms_secret_key_for_user(user_id)
+        return new_key, 200
+
     @swag_from("../../specifications/user-sms-key-post.yml", methods=["POST"])
     def post(self, user_id):
-        user_info = get_jwt_identity()
-        if user_info["role"] != "ADMIN" and user_info["user_id"] is not user_id:
+        username = cognito.get_username_from_jwt()
+        user_info = UserUtils.get_user_data_from_username(username)
+        if user_info["role"] != "ADMIN" and user_info["id"] is not user_id:
             return (
                 {
-                    "message": "Permission denied, you can only get your sms-key or use the admin account",
+                    "message": "Permission denied, you can only get your own sms-key or use the admin account",
                 },
                 403,
             )
-        validate_result = validate_user(user_id)
-        if validate_result is not None:
-            return validate_result
-        sms_key = UserUtils.get_user_sms_secret_key(user_id)
-        if not sms_key:
+
+        sms_key = UserUtils.get_user_sms_secret_key_formatted(user_id)
+        if sms_key is None:
             new_key = UserUtils.create_sms_secret_key_for_user(user_id)
-            return (
-                {
-                    "message": "NORMAL",
-                    "sms_key": new_key["secret_key"],
-                    "expiry_date": str(new_key["expiry_date"]),
-                    "stale_date": str(new_key["stale_date"]),
-                },
-                201,
-            )
+            return new_key, 201
+
         return {"message": "DUPLICATE"}, 200
 
 
