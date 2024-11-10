@@ -3,7 +3,7 @@ import os
 
 import boto3
 from dotenv import load_dotenv
-from flask import Request, request
+from flask import Request, abort, request
 
 import config
 from authentication.CognitoClientWrapper import CognitoClientWrapper
@@ -67,4 +67,7 @@ def require_authorization():
     Run authorization check for all urls by default
     """
     if not is_public_endpoint(request):
-        cognito.verify_access_token()
+        try:
+            cognito.verify_access_token()
+        except ValueError as err:
+            abort(401, err)
