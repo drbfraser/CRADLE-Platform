@@ -200,7 +200,11 @@ class UserUtils:
                 user_orm.phone_numbers.append(
                     UserPhoneNumberOrm(phone_number=phone_number)
                 )
-            crud.create(user_orm)
+            sms_secret_key_orm = UserUtils.create_new_sms_secret_key_orm()
+            user_orm.sms_secret_keys.append(sms_secret_key_orm)
+            db.session.add(user_orm)
+            db.session.commit()
+
         except Exception as err:
             print(err)
             logger.error("Failed to add user (%s) to the database.", username)
@@ -393,19 +397,25 @@ class UserUtils:
             raise ValueError(e)
 
     @staticmethod
-    def create_sms_secret_key_for_user(user_id):
+    def create_new_sms_secret_key_orm():
         stale_date = get_future_date(days_after=SMS_KEY_DURATION - 10)
         expiry_date = get_future_date(days_after=SMS_KEY_DURATION)
         secret_Key = UserUtils.generate_new_sms_secret_key()
-        new_key = {
-            "user_id": user_id,
-            "secret_Key": str(secret_Key),
-            "expiry_date": str(expiry_date),
-            "stale_date": str(stale_date),
-        }
-        sms_new_key_model = marshal.unmarshal(SmsSecretKeyOrm, new_key)
-        crud.create(sms_new_key_model)
-        return new_key
+        sms_new_key_orm = SmsSecretKeyOrm(
+            secret_Key=str(secret_Key), expiry_date=str(expiry_date), stale_date=str(stale_date)
+        )
+        return sms_new_key_orm
+
+    @staticmethod
+    def create_sms_secret_key_for_user(user_id):
+        sms_secret_key_orm = UserUtils.create_new_sms_secret_key_orm()
+        user_orm = crud.read(UserOrm, id=user_id)
+        if user_orm is None:
+            raise ValueError(f"No user with id ({user_id}) found.")
+        sms_secret_key_orm.user = user_orm
+        db.session.add(sms_secret_key_orm)
+        db.session.commit()
+        return marshal.marshal(sms_secret_key_orm)
 
     @staticmethod
     def update_sms_secret_key_for_user(user_id):
