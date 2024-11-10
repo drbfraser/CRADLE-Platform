@@ -345,8 +345,6 @@ class CognitoClientWrapper:
                 key=signing_key,
                 algorithms=["RS256"],
             )
-            print("Payload: ")
-            pprinter.pprint(payload)
         except jwt.DecodeError as err:
             print(err)
             raise ValueError(err)
