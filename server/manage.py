@@ -80,7 +80,8 @@ def get_username_from_email(email):
 
 # USAGE: python manage.py seed_minimal
 @cli.command("seed_minimal")
-def seed_minimal():
+@click.pass_context
+def seed_minimal(ctx):
     """
     Seeds the database with the minimum amount of data required for it to be functional.
 
@@ -94,6 +95,7 @@ def seed_minimal():
     Defaults can be overridden, such as:
        python ./manage.py seed_minimal --email="abc@test.com" --password="TeyHo5@e!0B" --facility_name="Sunny Creek"
     """
+    ctx.invoke(reset_db)
     seed_minimal_users()
     print("Finished seeding minimal data set")
 
