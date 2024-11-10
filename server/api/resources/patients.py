@@ -18,7 +18,6 @@ from validation import assessments, patients, readings
 # /api/patients
 class Root(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/patients-get.yml",
         methods=["GET"],
@@ -32,7 +31,6 @@ class Root(Resource):
         return serialize.serialize_patient_list(patients)
 
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/patients-post.yml",
         methods=["POST"],
@@ -50,17 +48,17 @@ class Root(Resource):
             abort(400, message=error_message)
 
         patient = marshal.unmarshal(PatientOrm, json)
-        patient_id = patient.patientId
-        if crud.read(PatientOrm, patientId=patient_id):
+        patient_id = patient.id
+        if crud.read(PatientOrm, patient_id=patient_id):
             abort(409, message=f"A patient already exists with id: {patient_id}")
 
         # Resolve invariants and set the creation timestamp for the patient ensuring
-        # that both the created and lastEdited fields have the exact same value.
+        # that both the created and last_edited fields have the exact same value.
         invariant.resolve_reading_invariants(patient)
         creation_time = get_current_time()
-        patient.created = creation_time
-        patient.lastEdited = creation_time
-        patient.isArchived = False
+        patient.date_created = creation_time
+        patient.last_edited = creation_time
+        patient.is_archived = False
 
         crud.create(patient, refresh=True)
 
@@ -70,8 +68,8 @@ class Root(Resource):
 
         # If the patient has any referrals, associate the patient with the facilities they were referred to
         for referral in patient.referrals:
-            if not assoc.has_association(patient, referral.healthFacility):
-                assoc.associate(patient, facility=referral.healthFacility)
+            if not assoc.has_association(patient, referral.health_facility_name):
+                assoc.associate(patient, facility=referral.health_facility_name)
                 # The associate function performs a database commit, since this will
                 # wipe out the patient we want to return we must refresh it.
                 data.db_session.refresh(patient)
@@ -91,7 +89,6 @@ class Root(Resource):
 class SinglePatient(Resource):
     @staticmethod
     @patient_association_required()
-    @jwt_required()
     @swag_from(
         "../../specifications/single-patient-get.yml",
         methods=["GET"],
@@ -101,6 +98,7 @@ class SinglePatient(Resource):
         patient = crud.read_patients(patient_id)
         if not patient:
             abort(404, message=f"No patient with id {patient_id}")
+            return None
 
         readings = crud.read_readings(patient_id)
         referrals = crud.read_referrals_or_assessments(ReferralOrm, patient_id)
@@ -113,20 +111,18 @@ class SinglePatient(Resource):
 class PatientInfo(Resource):
     @staticmethod
     @patient_association_required()
-    @jwt_required()
     @swag_from(
         "../../specifications/patient-info-get.yml",
         methods=["GET"],
         endpoint="patient_info",
     )
     def get(patient_id: str):
-        patient = crud.read(PatientOrm, patientId=patient_id)
+        patient = crud.read(PatientOrm, patient_id=patient_id)
         if not patient:
             abort(404, message=f"No patient with id {patient_id}")
         return marshal.marshal(patient, shallow=True)
 
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/patient-info-put.yml",
         methods=["PUT"],
@@ -140,7 +136,7 @@ class PatientInfo(Resource):
             abort(400, message=error_message)
 
         # If the inbound JSON contains a `base` field then we need to check if it is the
-        # same as the `lastEdited` field of the existing patient. If it is then that
+        # same as the `last_edited` field of the existing patient. If it is then that
         # means that the patient has not been edited on the server since this inbound
         # patient was last synced and we can apply the changes. If they are not equal,
         # then that means the patient has been edited on the server after it was last
@@ -149,7 +145,7 @@ class PatientInfo(Resource):
         # You can think of this like aborting a git merge due to conflicts.
         base = json.get("base")
         if base:
-            last_edited = crud.read(PatientOrm, patientId=patient_id).lastEdited
+            last_edited = crud.read(PatientOrm, patient_id=patient_id).last_edited
             if base != last_edited:
                 abort(409, message="Unable to merge changes, conflict detected")
 
@@ -157,15 +153,15 @@ class PatientInfo(Resource):
             # ORM as there is no "base" column in the database for patients.
             del json["base"]
 
-        crud.update(PatientOrm, json, patientId=patient_id)
-        patient = crud.read(PatientOrm, patientId=patient_id)
+        crud.update(PatientOrm, json, patient_id=patient_id)
+        patient = crud.read(PatientOrm, patient_id=patient_id)
 
-        # Update the patient's lastEdited timestamp only if there was no `base` field
+        # Update the patient's last_edited timestamp only if there was no `base` field
         # in the request JSON. If there was then that means that this edit happened some
         # time in the past and is just being synced. In this case we want to keep the
-        # `lastEdited` value which is present in the request.
+        # `last_edited` value which is present in the request.
         if not base:
-            patient.lastEdited = get_current_time()
+            patient.last_edited = get_current_time()
             data.db_session.commit()
             data.db_session.refresh(patient)  # Need to refresh the patient after commit
 
@@ -176,14 +172,13 @@ class PatientInfo(Resource):
 class PatientStats(Resource):
     @staticmethod
     @patient_association_required()
-    @jwt_required()
     @swag_from(
         "../../specifications/patient-stats-get.yml",
         methods=["GET"],
         endpoint="patient_stats",
     )
     def get(patient_id: str):
-        patient = crud.read(PatientOrm, patientId=patient_id)
+        patient = crud.read(PatientOrm, patient_id=patient_id)
         if not patient:
             abort(404, message=f"No patient with id {patient_id}")
 
@@ -252,20 +247,20 @@ class PatientStats(Resource):
 
         # putting data into one object now
         data = {
-            "bpSystolicReadingsMonthly": bp_systolic,
-            "bpDiastolicReadingsMonthly": bp_diastolic,
-            "heartRateReadingsMonthly": heart_rate,
-            "bpSystolicReadingsLastTwelveMonths": bp_systolic_last_twelve_months,
-            "bpDiastolicReadingsLastTwelveMonths": bp_diastolic_last_twelve_months,
-            "heartRateReadingsLastTwelveMonths": heart_rate_last_twelve_months,
-            "trafficLightCountsFromDay1": {
-                "green": traffic_light_statuses[0],  # dont
-                "yellowUp": traffic_light_statuses[1],  # hate
-                "yellowDown": traffic_light_statuses[2],  # the
-                "redUp": traffic_light_statuses[3],  # magic
-                "redDown": traffic_light_statuses[4],  # numbers
+            "bp_systolic_readings_monthly": bp_systolic,
+            "bp_diastolic_readings_monthly": bp_diastolic,
+            "heart_rate_readings_monthly": heart_rate,
+            "bp_systolic_readings_last_twelve_months": bp_systolic_last_twelve_months,
+            "bp_diastolic_readings_last_twelve_months": bp_diastolic_last_twelve_months,
+            "heart_rate_readings_last_twelve_months": heart_rate_last_twelve_months,
+            "traffic_light_counts_from_day_1": {
+                "green": traffic_light_statuses[0],
+                "yellow_up": traffic_light_statuses[1],
+                "yellow_down": traffic_light_statuses[2],
+                "red_up": traffic_light_statuses[3],
+                "red_down": traffic_light_statuses[4],
             },
-            "currentMonth": current_month,
+            "current_month": current_month,
         }
         return data
 
@@ -273,14 +268,16 @@ class PatientStats(Resource):
 # /api/patients/<string:patient_id>/readings
 class PatientReadings(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/patient-readings-get.yml",
         methods=["GET"],
         endpoint="patient_readings",
     )
     def get(patient_id: str):
-        patient = crud.read(PatientOrm, patientId=patient_id)
+        patient = crud.read(PatientOrm, patient_id=patient_id)
+        if patient is None:
+            abort(404, message=f"Patient with id ({patient_id}) not found.")
+            return None
         return [marshal.marshal(r) for r in patient.readings]
 
 
@@ -294,7 +291,10 @@ class PatientMostRecentReading(Resource):
         endpoint="patient_most_recent_reading",
     )
     def get(patient_id: str):
-        patient = crud.read(PatientOrm, patientId=patient_id)
+        patient = crud.read(PatientOrm, patient_id=patient_id)
+        if patient is None:
+            abort(404, message=f"Patient with id ({patient_id}) not found.")
+            return None
         readings = [marshal.marshal(r) for r in patient.readings]
         if not len(readings):
             return []
@@ -317,7 +317,7 @@ class PatientReferrals(Resource):
         endpoint="patient_referrals",
     )
     def get(patient_id: str):
-        patient = crud.read(PatientOrm, patientId=patient_id)
+        patient = crud.read(PatientOrm, patient_id=patient_id)
         return [marshal.marshal(ref) for ref in patient.referrals]
 
 
@@ -331,7 +331,7 @@ class PatientForms(Resource):
         endpoint="patient_forms",
     )
     def get(patient_id: str):
-        patient = crud.read(PatientOrm, patientId=patient_id)
+        patient = crud.read(PatientOrm, patient_id=patient_id)
         return [marshal.marshal(form, True) for form in patient.forms]
 
 
@@ -345,7 +345,9 @@ class PatientPregnancySummary(Resource):
         endpoint="patient_pregnancy_summary",
     )
     def get(patient_id: str):
-        pregnancies = crud.read_medical_records(PregnancyOrm, patient_id, direction="DESC")
+        pregnancies = crud.read_medical_records(
+            PregnancyOrm, patient_id, direction="DESC"
+        )
         return marshal.marshal_patient_pregnancy_summary(pregnancies)
 
 
@@ -405,8 +407,8 @@ class ReadingAssessment(Resource):
 
         reading = marshal.unmarshal(ReadingOrm, reading_json)
 
-        if crud.read(ReadingOrm, readingId=reading.readingId):
-            abort(409, message=f"A reading already exists with id: {reading.readingId}")
+        if crud.read(ReadingOrm, id=reading.id):
+            abort(409, message=f"A reading already exists with id: {reading.id}")
 
         invariant.resolve_reading_invariants(reading)
 
@@ -429,7 +431,6 @@ class ReadingAssessment(Resource):
 # /api/patients/<string:patient_id>/get_all_records
 class PatientAllRecords(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/patient-all-records-get.yml",
         methods=["GET"],
@@ -444,7 +445,6 @@ class PatientAllRecords(Resource):
 # /api/patients/admin
 class PatientsAdmin(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/patients-admin-get.yml",
         methods=["GET"],
