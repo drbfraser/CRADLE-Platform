@@ -15,8 +15,7 @@ from flask import request
 from jwt import PyJWK, PyJWKClient
 from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 
-from data import crud, marshal
-from models import UserOrm
+from server.shared.user_utils import UserUtils
 
 load_dotenv(dotenv_path="/run/secrets/.aws.secrets.env")
 
@@ -381,8 +380,4 @@ class CognitoClientWrapper:
             raise ValueError(error)
 
         username = cognito_user_info.get("Username")
-        user_orm = crud.read(UserOrm, username=username)
-        if user_orm is None:
-            raise ValueError(f"User ({username}) not found.")
-        # Retrieve user data from database.
-        return marshal.marshal(user_orm)
+        return UserUtils.get_user_dict_with_phone_numbers(username)
