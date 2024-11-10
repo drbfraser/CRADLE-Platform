@@ -13,7 +13,20 @@ from flask.cli import FlaskGroup
 
 import models
 from data import crud, marshal
-from models import db
+from models import (
+    FormClassificationOrm,
+    FormOrm,
+    FormTemplateOrm,
+    MedicalRecordOrm,
+    PatientAssociationsOrm,
+    PatientOrm,
+    PregnancyOrm,
+    QuestionLangVersionOrm,
+    ReferralOrm,
+    RelayServerPhoneNumberOrm,
+    VillageOrm,
+    db,
+)
 from seed_users import (
     clear_user_pool as empty_user_pool,
 )
@@ -214,16 +227,12 @@ def seed(ctx):
 
     # SEED villages
     print("Seeding Villages...")
-    village_schema = models.VillageSchema()
-    for village in village_list:
-        v_schema = {"village_number": village}
-        db.session.add(village_schema.load(v_schema))
+    for village_number in village_numbers_list:
+        village = {"village_number": village_number}
+        db.session.add(VillageOrm(**village))
 
     print("Seeding Patients with readings and referrals...")
     # seed patients with readings and referrals
-    patient_schema = models.PatientSchema()
-    models.ReadingSchema()
-    referral_schema = models.ReferralSchema()
 
     first_names, last_names = get_names()
     generated_names = set()
@@ -262,16 +271,15 @@ def seed(ctx):
             "is_archived": False,
         }
 
-        db.session.add(patient_schema.load(patient_1))
+        db.session.add(PatientOrm(**patient_1))
         db.session.commit()
 
         if pregnant:
-            pregnancy_schema = models.PregnancySchema()
             pregnancy_record = {
                 "patient_id": patient_id,
                 "start_date": gestational_timestamp,
             }
-            db.session.add(pregnancy_schema.load(pregnancy_record))
+            db.session.add(PregnancyOrm(**pregnancy_record))
             db.session.commit()
 
         num_of_readings = random.randint(1, 5)
@@ -310,14 +318,15 @@ def seed(ctx):
                     + int(datetime.timedelta(days=10).total_seconds()),
                     int(datetime.datetime.now().timestamp()),
                 )
-                referral_1 = {
+                referral = {
                     "user_id": get_random_user(),
                     "patient_id": patient_id,
                     "date_referred": refer_date,
                     "health_facility_name": health_facility_name,
                     "comment": name + random.choice(referral_comments),
                 }
-                db.session.add(referral_schema.load(referral_1))
+
+                db.session.add(ReferralOrm(**referral))
                 db.session.commit()
 
         if count > 0 and count % 25 == 0:
@@ -397,20 +406,17 @@ def create_patient_reading_referral_pregnancy(
         "is_assessed": is_assessed,
     }
 
-    patient_schema = models.PatientSchema()
-    db.session.add(patient_schema.load(patient))
+    db.session.add(PatientOrm(**patient))
     db.session.commit()
 
     reading_orm = marshal.unmarshal(models.ReadingOrm, reading)
     crud.create(reading_orm, refresh=True)
 
-    referral_schema = models.ReferralSchema()
-    db.session.add(referral_schema.load(referral))
+    db.session.add(ReferralOrm(**referral))
     db.session.commit()
 
     if pregnancy:
-        pregnancy_schema = models.PregnancySchema()
-        db.session.add(pregnancy_schema.load(pregnancy))
+        db.session.add(PregnancyOrm(**pregnancy))
         db.session.commit()
 
 
@@ -426,8 +432,7 @@ def create_pregnancy(
         "end_date": end_date,
         "outcome": outcome,
     }
-    schema = models.PregnancySchema()
-    db.session.add(schema.load(pregnancy))
+    db.session.add(PregnancyOrm(**pregnancy))
     db.session.commit()
 
 
@@ -438,15 +443,13 @@ def create_medical_record(patient_id, info, is_drug_record, date_created=1622541
         "is_drug_record": is_drug_record,
         "date_created": date_created,
     }
-    schema = models.MedicalRecordSchema()
-    db.session.add(schema.load(record))
+    db.session.add(MedicalRecordOrm(**record))
     db.session.commit()
 
 
 def create_patient_association(patient_id, user_id):
     association = {"patient_id": patient_id, "user_id": user_id}
-    schema = models.PatientAssociationsSchema()
-    db.session.add(schema.load(association))
+    db.session.add(PatientAssociationsOrm(**association))
     db.session.commit()
 
 
@@ -455,8 +458,7 @@ def create_form_classification():
         "id": "dc9",
         "name": "Personal Intake Form",
     }
-    form_classification_schema = models.FormClassificationSchema()
-    db.session.add(form_classification_schema.load(form_classification))
+    db.session.add(FormClassificationOrm(**form_classification))
     db.session.commit()
 
 
@@ -540,8 +542,7 @@ def create_form_template():
         ],
     }
 
-    form_template_schema = models.FormTemplateSchema()
-    db.session.add(form_template_schema.load(form_template))
+    db.session.add(FormTemplateOrm(**form_template))
     db.session.commit()
 
     lang_versions = [
@@ -572,8 +573,7 @@ def create_form_template():
     ]
 
     for curr_q in lang_versions:
-        ques_lang_schema = models.QuestionLangVersionSchema()
-        db.session.add(ques_lang_schema.load(curr_q))
+        db.session.add(QuestionLangVersionOrm(**curr_q))
         db.session.commit()
 
 
@@ -646,8 +646,7 @@ def create_form(patient_id, fname, lname, age):
         ],
     }
 
-    form_schema = models.FormSchema()
-    db.session.add(form_schema.load(form))
+    db.session.add(FormOrm(**form))
     db.session.commit()
 
 
@@ -674,8 +673,7 @@ def create_relay_nums():
     ]
 
     for curr_num in relay_nums:
-        relay_schema = models.RelayServerPhoneNumberSchema()
-        db.session.add(relay_schema.load(curr_num))
+        db.session.add(RelayServerPhoneNumberOrm(**curr_num))
         db.session.commit()
 
 
@@ -686,7 +684,7 @@ def get_random_initials():
 
 
 def get_random_village():
-    return random.choice(village_list)
+    return random.choice(village_numbers_list)
 
 
 def get_random_systolic_bp():
@@ -776,7 +774,7 @@ def generate_phone_numbers():
     return numbers
 
 
-def generate_villages():
+def generate_village_numbers():
     n = len(facility_locations)
     villages = set()
     while len(villages) < n:
@@ -823,7 +821,7 @@ if __name__ == "__main__":
         facility_locations = json.load(f)["locations"]
 
     users_list = [1, 2, 3, 4]
-    village_list = generate_villages()
+    village_numbers_list = generate_village_numbers()
     health_facility_list = facilities_list
 
     facility_type = ["HCF_2", "HCF_3", "HCF_4", "HOSPITAL"]
