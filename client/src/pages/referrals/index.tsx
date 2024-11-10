@@ -14,13 +14,13 @@ import { RefreshDialog } from './RefreshDialog';
 import { SortDir } from 'src/shared/components/apiTable/types';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { useAppDispatch } from 'src/shared/hooks';
+import { useAppDispatch, useAppSelector } from 'src/shared/hooks';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { SecretKeyState, getSecretKey } from 'src/redux/reducers/secretKey';
-import { ReduxState } from 'src/redux/reducers';
+import { getSecretKey, selectSecretKey } from 'src/redux/reducers/secretKey';
 import { Toast } from 'src/shared/components/toast';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
-import { Box, SxProps, useTheme } from '@mui/material';
+import { Box, SxProps } from '@mui/material';
+import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
 
 export const ReferralsPage = () => {
   const [expiredMessage, setExpiredMessage] = useState<boolean>(false);
@@ -35,15 +35,11 @@ export const ReferralsPage = () => {
 
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
-  const theme = useTheme();
   const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
 
-  const userId = useSelector(({ user }: ReduxState): number | undefined => {
-    return user.current.data?.id;
-  });
-  const secretKey = useSelector(({ secretKey }: ReduxState): SecretKeyState => {
-    return secretKey;
-  });
+  const { data: user } = useAppSelector(selectCurrentUser);
+  const userId = user?.id;
+  const secretKey = useAppSelector(selectSecretKey);
   const dispatch = useAppDispatch();
 
   React.useEffect(() => {
@@ -53,7 +49,7 @@ export const ReferralsPage = () => {
     }
     setRefreshTimer(parseInt(localStorage.getItem('refreshInterval')!));
 
-    if (userId && secretKey.data == undefined) {
+    if (userId && secretKey == undefined) {
       dispatch(getSecretKey(userId));
     }
   }, []);
@@ -61,9 +57,9 @@ export const ReferralsPage = () => {
   React.useEffect(() => {
     if (
       userId &&
-      secretKey.data !== undefined &&
-      (secretKey.data.message === SecretKeyMessage.WARN ||
-        secretKey.data.message === SecretKeyMessage.EXPIRED)
+      secretKey !== undefined &&
+      (secretKey.message === SecretKeyMessage.WARN ||
+        secretKey.message === SecretKeyMessage.EXPIRED)
     ) {
       setExpiredMessage(true);
     }

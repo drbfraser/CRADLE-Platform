@@ -3,6 +3,7 @@ import { ServerRequestAction, serverRequestActionCreator } from '../utils';
 
 import { Dispatch } from 'redux';
 import { EndpointEnum, MethodEnum } from 'src/shared/enums';
+import { RootState } from 'src/redux/store';
 
 export enum SecretKeyActionEnum {
   GET_SECRETKEY = 'secretKey/GET_SECRETKEY',
@@ -158,4 +159,8 @@ export const secretKeyReducer = (
     default:
       return state;
   }
+};
+
+export const selectSecretKey = (state: RootState) => {
+  return state?.secretKey.data;
 };
