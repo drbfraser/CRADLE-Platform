@@ -358,7 +358,7 @@ def __marshal_form_classification(
 def __marshal_SmsSecretKey(s: SmsSecretKeyOrm):
     return {
         "id": s.id,
-        "user_id": s.userId,
+        "user_id": s.user_id,
         "secret_key": s.secret_key,
         "stale_date": s.stale_date,
         "expiry_date": s.expiry_date,
