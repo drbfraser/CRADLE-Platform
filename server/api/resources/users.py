@@ -34,6 +34,7 @@ from common.regexUtil import phoneNumber_regex_check
 from data import crud, marshal
 from enums import RoleEnum
 from models import UserOrm
+from shared.phone_number_utils import PhoneNumberUtils
 from shared.user_utils import UserUtils
 from validation.users import (
     UserAuthRequestValidator,
@@ -145,7 +146,6 @@ class UserPasswordChange(Resource):
         help="This field cannot be left blank!",
     )
 
-    @jwt_required()
     @swag_from("../../specifications/user-change-pass.yml", methods=["POST"])
     def post(self):
         data = self.parser.parse_args()
@@ -212,11 +212,11 @@ def get_user_data_for_token(user: UserOrm) -> dict:
     data = {}
     data["email"] = user.email
     data["role"] = user.role
-    data["firstName"] = user.first_name
-    data["healthFacilityName"] = user.health_facility_name
-    data["isLoggedIn"] = True
+    data["name"] = user.name
+    data["health_facility_name"] = user.health_facility_name
+    data["is_logged_in"] = True
     data["user_id"] = user.id
-    data["phoneNumbers"] = get_all_phoneNumbers_for_user(user.id)
+    data["phone_numbers"] = PhoneNumberUtils.get_users_phone_numbers(user.id)
     vhtList = []
     data["supervises"] = []
     if data["role"] == RoleEnum.CHO.value:
