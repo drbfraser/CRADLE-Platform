@@ -50,13 +50,14 @@ def serialize_referral_list(referrals: List[Any]) -> list[dict]:
         {
             "referral_id": referral.referral_id,
             "patient_id": referral.patient_id,
-            "name": referral.name,
+            "patient_name": referral.patient_name,
             "village_number": referral.village_number,
             "date_referred": referral.date_referred,
             "is_assessed": referral.is_assessed,
             "vital_sign": referral.vital_sign.value,
         }
         for referral in referrals
+        if referral.referral_id is not None
     ]
 
 
