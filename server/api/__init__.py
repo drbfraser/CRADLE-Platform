@@ -80,7 +80,7 @@ def __init_sync_resources(api: Api):
 
 
 def __init_patient_associations_resources(api: Api):
-    import api.resources.patientAssociations as r
+    import server.api.resources.patient_associations as r
 
     api.add_resource(
         r.Root,
@@ -101,7 +101,7 @@ def __init_pregnancy_resources(api: Api):
 
 
 def __init_medical_record_resources(api: Api):
-    import api.resources.medicalRecords as m
+    import server.api.resources.medical_records as m
 
     api.add_resource(
         m.Root,

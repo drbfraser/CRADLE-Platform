@@ -114,7 +114,9 @@ class SingleFormClassification(Resource):
         endpoint="single_form_classification",
     )
     def get(form_classification_id: str):
-        form_classification = crud.read(FormClassificationOrm, id=form_classification_id)
+        form_classification = crud.read(
+            FormClassificationOrm, id=form_classification_id
+        )
 
         if not form_classification:
             abort(
@@ -132,7 +134,9 @@ class SingleFormClassification(Resource):
         endpoint="single_form_classification",
     )
     def put(form_classification_id: str):
-        form_classification = crud.read(FormClassificationOrm, id=form_classification_id)
+        form_classification = crud.read(
+            FormClassificationOrm, id=form_classification_id
+        )
 
         if not form_classification:
             abort(
