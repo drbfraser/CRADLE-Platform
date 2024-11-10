@@ -3,7 +3,7 @@ from typing import Any, cast
 
 from flasgger import swag_from
 from flask import request
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 
 import data
@@ -408,7 +408,6 @@ class PatientTimeline(Resource):
 # /api/patients/reading-assessment
 class ReadingAssessment(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/reading-assessment-post.yml",
         methods=["POST"],
@@ -437,9 +436,9 @@ class ReadingAssessment(Resource):
 
         invariant.resolve_reading_invariants(reading)
 
-        # Populate the dateAssessed and healthCareWorkerId fields of the followup
-        assessment_json["dateAssessed"] = get_current_time()
-        assessment_json["healthcareWorkerId"] = user_id
+        # Populate the date_assessed and healthcare_worker_id fields of the followup
+        assessment_json["date_assessed"] = get_current_time()
+        assessment_json["healthcare_worker_id"] = user_id
 
         assessment = marshal.unmarshal(FollowUpOrm, assessment_json)
 
@@ -477,7 +476,8 @@ class PatientsAdmin(Resource):
     )
     # gets all patients, including archived, for admin use
     def get():
-        user = get_jwt_identity()
+        current_user = UserUtils.get_current_user_from_jwt()
+        current_user = cast(dict[Any, Any], current_user)
         params = util.get_query_params(request)
-        patients = view.admin_patient_view(user, **params)
+        patients = view.admin_patient_view(current_user, **params)
         return serialize.serialize_patients_admin(patients)
