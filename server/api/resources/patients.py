@@ -126,7 +126,8 @@ class PatientInfo(Resource):
     def get(patient_id: str):
         patient = crud.read(PatientOrm, patient_id=patient_id)
         if not patient:
-            abort(404, message=f"No patient with id {patient_id}")
+            abort(404, message=patient_not_found_message.format(patient_id))
+            return None
         return marshal.marshal(patient, shallow=True)
 
     @staticmethod
