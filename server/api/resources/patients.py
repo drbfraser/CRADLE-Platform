@@ -142,6 +142,7 @@ class PatientInfo(Resource):
         error_message = patients.validate_put_request(json, patient_id)
         if error_message is not None:
             abort(400, message=error_message)
+            return None
 
         # If the inbound JSON contains a `base` field then we need to check if it is the
         # same as the `last_edited` field of the existing patient. If it is then that
@@ -203,9 +204,9 @@ class PatientStats(Resource):
         current_year = today.year
         current_month = today.month
 
-        # getting all bpSystolic readings for each month
+        # getting all systolic_blood_pressure readings for each month
         bp_systolic = statsCalculation.get_stats_data(
-            "bpSystolic",
+            "systolic_blood_pressure",
             patient.readings,
             current_year,
             current_month,
@@ -213,7 +214,7 @@ class PatientStats(Resource):
 
         # getting all bpDiastolic readings for each month
         bp_diastolic = statsCalculation.get_stats_data(
-            "bpDiastolic",
+            "diastolic_blood_pressure",
             patient.readings,
             current_year,
             current_month,
@@ -229,7 +230,7 @@ class PatientStats(Resource):
 
         # getting all bpSystolic readings for each month dated from 12 months before the current month
         bp_systolic_last_twelve_months = statsCalculation.get_stats_data(
-            "bpSystolicLastTwelveMonths",
+            "bp_systolic_last_twelve_months",
             patient.readings,
             current_year,
             current_month,
@@ -238,7 +239,7 @@ class PatientStats(Resource):
 
         # getting all bpDiastolic readings for each month dated from 12 months before the current month
         bp_diastolic_last_twelve_months = statsCalculation.get_stats_data(
-            "bpDiastolicLastTwelveMonths",
+            "bp_diastolic_last_twelve_months",
             patient.readings,
             current_year,
             current_month,
@@ -247,7 +248,7 @@ class PatientStats(Resource):
 
         # getting all heart rate readings for each month dated from 12 months before the current month
         heart_rate_last_twelve_months = statsCalculation.get_stats_data(
-            "heartRateBPMLastTwelveMonths",
+            "heart_rate_BPM_last_twelve_months",
             patient.readings,
             current_year,
             current_month,
@@ -256,7 +257,7 @@ class PatientStats(Resource):
 
         # getting all traffic lights from day 1 for this patient
         traffic_light_statuses = statsCalculation.get_stats_data(
-            "trafficLightStatus",
+            "traffic_light_status",
             patient.readings,
             current_year,
             current_month,
@@ -293,7 +294,7 @@ class PatientReadings(Resource):
     def get(patient_id: str):
         patient = crud.read(PatientOrm, patient_id=patient_id)
         if patient is None:
-            abort(404, message=f"Patient with id ({patient_id}) not found.")
+            abort(404, message=patient_not_found_message.format(patient_id))
             return None
         return [marshal.marshal(r) for r in patient.readings]
 
@@ -310,7 +311,7 @@ class PatientMostRecentReading(Resource):
     def get(patient_id: str):
         patient = crud.read(PatientOrm, patient_id=patient_id)
         if patient is None:
-            abort(404, message=f"Patient with id ({patient_id}) not found.")
+            abort(404, message=patient_not_found_message.format(patient_id))
             return None
         readings = [marshal.marshal(r) for r in patient.readings]
         if not len(readings):
@@ -425,8 +426,8 @@ class ReadingAssessment(Resource):
         if error_message is not None:
             abort(400, message=error_message)
 
-        userId = get_jwt_identity()["userId"]
-        reading_json["userId"] = userId
+        user_id = get_jwt_identity()["user_id"]
+        reading_json["user_id"] = user_id
 
         reading = marshal.unmarshal(ReadingOrm, reading_json)
 
@@ -437,7 +438,7 @@ class ReadingAssessment(Resource):
 
         # Populate the dateAssessed and healthCareWorkerId fields of the followup
         assessment_json["dateAssessed"] = get_current_time()
-        assessment_json["healthcareWorkerId"] = userId
+        assessment_json["healthcareWorkerId"] = user_id
 
         assessment = marshal.unmarshal(FollowUpOrm, assessment_json)
 
