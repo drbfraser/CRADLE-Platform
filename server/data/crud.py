@@ -274,7 +274,7 @@ def read_admin_patient(
     Queries the database for patients filtered by query criteria in keyword arguments.
 
     :param user_id: ID of user to filter patients wrt patient associations; None to get
-    patients associated with all users
+        patients associated with all users
     :param kwargs: Query params including search_text, order_by, direction, limit, page
 
     :return: A list of patients
@@ -329,7 +329,7 @@ def read_referral_list(
     vital_sign_field = func.coalesce(
         ReadingOrm.traffic_light_status,
         TrafficLightEnum.NONE.value,
-    ).label("vitalSign")
+    ).label("vital_sign")
     query = (
         db_session.query(
             ReferralOrm.id,
