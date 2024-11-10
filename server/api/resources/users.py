@@ -299,7 +299,7 @@ class UserAuthApi(Resource):
 
         # Get user data from database.
         try:
-            user_dict = UserUtils.get_user_dict_with_phone_numbers(credentials.username)
+            user_dict = UserUtils.get_user_data(credentials.username)
         except ValueError as err:
             LOGGER.error(err)
             LOGGER.error(
@@ -308,35 +308,13 @@ class UserAuthApi(Resource):
             )
             print(err)
             abort(500, message=error)
-        user_id = user_dict["id"]
-
-        # construct and add the sms key information in the same format as api/user/<int:user_id>/smskey
-        sms_key = UserUtils.get_user_sms_secret_key(user_id)
-        if sms_key:
-            # remove extra items
-            del sms_key["id"]
-            del sms_key["user_id"]
-            # change the key name
-            sms_key["key"] = sms_key.pop("secret_key")
-            # add message
-            if is_date_passed(sms_key["expiry_date"]):
-                sms_key["message"] = "EXPIRED"
-            elif is_date_passed(sms_key["stale_date"]):
-                sms_key["message"] = "WARN"
-            else:
-                sms_key["message"] = "NORMAL"
-            # convert dates to string
-            sms_key["stale_date"] = str(sms_key["stale_date"])
-            sms_key["expiry_date"] = str(sms_key["expiry_date"])
 
         # Don't include refresh token in body of response.
         refresh_token = auth_result["refresh_token"]
         del auth_result["refresh_token"]
 
-        # Add sms key to user.
-        user_dict = cast(dict[str, Any], user_dict)
-        user_dict["sms_key"] = sms_key
         # Don't return sub.
+        user_dict = cast(dict[str, Any], user_dict)
         del user_dict["sub"]
 
         challenge = auth_result["challenge"]

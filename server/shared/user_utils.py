@@ -8,7 +8,7 @@ from botocore.exceptions import ClientError
 
 from authentication import cognito
 from common.constants import EMAIL_REGEX_PATTERN
-from common.date_utils import get_future_date
+from common.date_utils import get_future_date, is_date_passed
 from config import db
 from data import crud, marshal
 from enums import RoleEnum
@@ -45,6 +45,10 @@ class UserDict(TypedDict):
 
 class UserDictWithPhoneNumbers(UserDict):
     phone_numbers: list[str]
+
+
+class UserData(UserDictWithPhoneNumbers):
+    sms_key: Optional[dict[str, str]]
 
 
 class UserUtils:
@@ -107,6 +111,12 @@ class UserUtils:
         user_dict = UserUtils.get_user_dict_from_username(username)
         phone_numbers = PhoneNumberUtils.get_users_phone_numbers(user_dict["id"])
         return UserDictWithPhoneNumbers(phone_numbers=phone_numbers, **user_dict)
+
+    @staticmethod
+    def get_user_data(username: str):
+        user_dict = UserUtils.get_user_dict_with_phone_numbers(username)
+        sms_key = UserUtils.get_user_sms_secret_key_formatted(user_dict["id"])
+        return UserData(sms_key=sms_key, **user_dict)
 
     @staticmethod
     def does_email_exist(email: str) -> bool:
@@ -446,11 +456,32 @@ class UserUtils:
 
     @staticmethod
     def get_user_sms_secret_key(user_id):
-        sms_secret_key = crud.read(SmsSecretKeyOrm, user_id=user_id)
-        if sms_secret_key and sms_secret_key.secret_key:
-            sms_key = marshal.marshal(sms_secret_key, SmsSecretKeyOrm)
-            return sms_key
+        sms_secret_key_orm = crud.read(SmsSecretKeyOrm, user_id=user_id)
+        if sms_secret_key_orm and sms_secret_key_orm.secret_key:
+            sms_secret_key = marshal.marshal(sms_secret_key_orm, SmsSecretKeyOrm)
+            return sms_secret_key
         return None
+
+    @staticmethod
+    def get_user_sms_secret_key_formatted(user_id):
+        sms_secret_key = UserUtils.get_user_sms_secret_key(user_id)
+        if sms_secret_key is None:
+            return
+        # remove extra items
+        del sms_secret_key["id"]
+        del sms_secret_key["user_id"]
+        # change the key name
+        sms_secret_key["key"] = sms_secret_key.pop("secret_key")
+        # add message
+        if is_date_passed(sms_secret_key["expiry_date"]):
+            sms_secret_key["message"] = "EXPIRED"
+        elif is_date_passed(sms_secret_key["stale_date"]):
+            sms_secret_key["message"] = "WARN"
+        else:
+            sms_secret_key["message"] = "NORMAL"
+        # convert dates to string
+        sms_secret_key["stale_date"] = str(sms_secret_key["stale_date"])
+        sms_secret_key["expiry_date"] = str(sms_secret_key["expiry_date"])
 
     @staticmethod
     def get_user_sms_secret_key_string(user_id):
