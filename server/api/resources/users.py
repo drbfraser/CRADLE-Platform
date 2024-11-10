@@ -112,7 +112,7 @@ class UserAllVHT(Resource):
         return vht_dictionary_list
 
 
-# api/user/{int: userId}/change_pass [POST]
+# api/user/{int: user_id}/change_pass [POST]
 class AdminPasswordChange(Resource):
     # Ensure that we have the fields we want in JSON payload
     parser = reqparse.RequestParser()
@@ -178,7 +178,7 @@ class UserPasswordChange(Resource):
         # identity = get_jwt_identity()
 
         # Get all information about the user who is using this endpoint
-        # user = crud.read(User, id=identity["userId"])
+        # user = crud.read(User, id=identity["user_id"])
 
         # If old password and password we have on file match
         # if user and flask_bcrypt.check_password_hash(
@@ -191,7 +191,7 @@ class UserPasswordChange(Resource):
         #     }
 
         #     # Perform update
-        #     crud.update(User, updated_payload, id=identity["userId"])
+        #     crud.update(User, updated_payload, id=identity["user_id"])
 
         #     return {"message": "Success! Password has been changed"}, 200
         return {"error": "old_password incorrect"}, 400
@@ -233,7 +233,7 @@ def get_user_data_for_token(user: UserOrm) -> dict:
     data["firstName"] = user.first_name
     data["healthFacilityName"] = user.health_facility_name
     data["isLoggedIn"] = True
-    data["userId"] = user.id
+    data["user_id"] = user.id
     data["phoneNumbers"] = get_all_phoneNumbers_for_user(user.id)
     vhtList = []
     data["supervises"] = []
@@ -385,9 +385,9 @@ class UserTokenApi(Resource):
     @swag_from("../../specifications/user-current.yml", methods=["GET"])
     def get(self):
         tokenData = get_jwt_identity()
-        userId = tokenData["userId"]
+        user_id = tokenData["user_id"]
 
-        return getDictionaryOfUserInfo(userId), 200
+        return getDictionaryOfUserInfo(user_id), 200
 
 
 # api/user/<int:user_id> [GET, PUT, DELETE]
@@ -580,7 +580,7 @@ class UserSMSKey(Resource):
     @swag_from("../../specifications/user-sms-key-get.yml", methods=["GET"])
     def get(self, user_id):
         user_info = get_jwt_identity()
-        if user_info["role"] != "ADMIN" and user_info["userId"] is not user_id:
+        if user_info["role"] != "ADMIN" and user_info["user_id"] is not user_id:
             return (
                 {
                     "message": "Permission denied, you can only get your sms-key or use the admin account",
@@ -627,7 +627,7 @@ class UserSMSKey(Resource):
     @swag_from("../../specifications/user-sms-key-put.yml", methods=["PUT"])
     def put(self, user_id):
         user_info = get_jwt_identity()
-        if user_info["role"] != "ADMIN" and user_info["userId"] is not user_id:
+        if user_info["role"] != "ADMIN" and user_info["user_id"] is not user_id:
             return (
                 {
                     "message": "Permission denied, you can only get your sms-key or use the admin account",
@@ -655,7 +655,7 @@ class UserSMSKey(Resource):
     @swag_from("../../specifications/user-sms-key-post.yml", methods=["POST"])
     def post(self, user_id):
         user_info = get_jwt_identity()
-        if user_info["role"] != "ADMIN" and user_info["userId"] is not user_id:
+        if user_info["role"] != "ADMIN" and user_info["user_id"] is not user_id:
             return (
                 {
                     "message": "Permission denied, you can only get your sms-key or use the admin account",
