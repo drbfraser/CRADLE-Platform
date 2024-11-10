@@ -19,17 +19,13 @@ from flask_restful import Resource, abort, reqparse
 from api.decorator import public_endpoint, roles_required
 from api.util import (
     add_new_phoneNumber_for_user,
-    create_secret_key_for_user,
     delete_user_phoneNumber,
     doesUserExist,
     filterPairsWithNone,
     get_all_phoneNumbers_for_user,
-    get_user_secret_key,
     getDictionaryOfUserInfo,
-    is_date_passed,
     isGoodPassword,
     replace_phoneNumber_for_user,
-    update_secret_key_for_user,
     validate_user,
 )
 from authentication import cognito
@@ -37,6 +33,7 @@ from common.regexUtil import phoneNumber_regex_check
 from data import crud, marshal
 from enums import RoleEnum
 from models import UserOrm
+from server.common.date_utils import is_date_passed
 from shared.user_utils import UserUtils
 from validation.users import (
     UserAuthRequestValidator,
@@ -314,7 +311,7 @@ class UserAuthApi(Resource):
         user_id = user_dict["id"]
 
         # construct and add the sms key information in the same format as api/user/<int:user_id>/smskey
-        sms_key = get_user_secret_key(user_id)
+        sms_key = UserUtils.get_user_sms_secret_key(user_id)
         if sms_key:
             # remove extra items
             del sms_key["id"]
@@ -593,7 +590,7 @@ class UserSMSKey(Resource):
         validate_result = validate_user(user_id)
         if validate_result is not None:
             return validate_result
-        sms_key = get_user_secret_key(user_id)
+        sms_key = UserUtils.get_user_sms_secret_key(user_id)
         if not sms_key:
             return {"message": "NOTFOUND"}, 424
         if is_date_passed(sms_key["expiry_date"]):
@@ -640,10 +637,10 @@ class UserSMSKey(Resource):
         validate_result = validate_user(user_id)
         if validate_result is not None:
             return validate_result
-        sms_key = get_user_secret_key(user_id)
+        sms_key = UserUtils.get_user_sms_secret_key(user_id)
         if not sms_key:
             return {"message": "NOTFOUND"}, 424
-        new_key = update_secret_key_for_user(user_id)
+        new_key = UserUtils.get_user_sms_secret_key(user_id)
         return (
             {
                 "message": "NORMAL",
@@ -668,9 +665,9 @@ class UserSMSKey(Resource):
         validate_result = validate_user(user_id)
         if validate_result is not None:
             return validate_result
-        sms_key = get_user_secret_key(user_id)
+        sms_key = UserUtils.get_user_sms_secret_key(user_id)
         if not sms_key:
-            new_key = create_secret_key_for_user(user_id)
+            new_key = UserUtils.create_sms_secret_key_for_user(user_id)
             return (
                 {
                     "message": "NORMAL",

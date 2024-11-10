@@ -8,11 +8,11 @@ from botocore.exceptions import ClientError
 
 from authentication import cognito
 from common.constants import EMAIL_REGEX_PATTERN
+from common.date_utils import get_future_date
 from config import db
 from data import crud, marshal
 from enums import RoleEnum
 from models import SmsSecretKeyOrm, UserOrm, UserPhoneNumberOrm
-from server.common.date_utils import get_future_date
 from shared.phone_number_utils import PhoneNumberUtils
 
 sms_key_duration = os.getenv("SMS_KEY_DURATION")
@@ -393,7 +393,7 @@ class UserUtils:
             raise ValueError(e)
 
     @staticmethod
-    def create_secret_key_for_user(user_id):
+    def create_sms_secret_key_for_user(user_id):
         stale_date = get_future_date(days_after=SMS_KEY_DURATION - 10)
         expiry_date = get_future_date(days_after=SMS_KEY_DURATION)
         secret_Key = UserUtils.generate_new_sms_secret_key()
