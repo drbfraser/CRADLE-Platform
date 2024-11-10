@@ -9,12 +9,12 @@ from flask_restful import Resource, abort
 from api.resources.users import get_access_token, get_user_data_for_token
 from api.util import (
     get_user_from_phone_number,
-    get_user_secret_key_string,
     phoneNumber_exists,
 )
 from common.regexUtil import phoneNumber_regex_check as regex_check
 from models import UserOrm
 from service import compressor, encryptor
+from shared.user_utils import UserUtils
 from validation.sms_relay import SmsRelay, SmsRelayDecryptedBody
 from validation.validation_exception import ValidationExceptionError
 
@@ -119,13 +119,17 @@ def sms_relay_procedure():
     # get user id for the user that phoneNumber belongs to
     user = get_user_from_phone_number(phone_number)
 
-    if not user:
+    if user is None:
         abort(400, message=invalid_user.format(type="JSON"))
+        return None
 
     encrypted_data = json_request["encryptedData"]
 
     try:
-        user_secret_key = get_user_secret_key_string(user.id)
+        user_secret_key = UserUtils.get_user_sms_secret_key_string(user.id)
+        if user_secret_key is None:
+            abort(400, message="Could not retrieve user's sms secret key.")
+            return None
 
         decrypted_message = encryptor.decrypt(encrypted_data, user_secret_key)
 
