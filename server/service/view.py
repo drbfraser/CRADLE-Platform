@@ -160,7 +160,7 @@ def admin_patient_view(user: dict, **kwargs) -> List[Any]:
 
 def __get_view(user: dict, func: Callable, **kwargs) -> List[Any]:
     role = user["role"]
-    user_id = int(user["userId"])
+    user_id = int(user["user_id"])
     if role == RoleEnum.ADMIN.value or role == RoleEnum.HCW.value:
         return func(**kwargs)
     if role == RoleEnum.CHO.value:
