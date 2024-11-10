@@ -17,16 +17,16 @@ class HealthFacilityUtils:
 
     @staticmethod
     def create_health_facility(
-        facility_name: str,
+        name: str,
         phone_number: str,
-        facility_type: str,
+        type: str,
         location: str,
         about: str,
     ):
-        facility_name = facility_name.title()
+        name = name.title()
 
-        if facility_type not in valid_facility_types:
-            raise RuntimeError(f"Type ({facility_type}) is not a valid facility type.")
+        if type not in valid_facility_types:
+            raise RuntimeError(f"Type ({type}) is not a valid facility type.")
 
         # Check if phone number is valid.
         if not PhoneNumberUtils.is_format_valid(phone_number):
@@ -42,14 +42,14 @@ class HealthFacilityUtils:
             raise RuntimeError(f"Phone number ({phone_number}) is already assigned.")
 
         # Check if facility already exists.
-        if HealthFacilityUtils.does_facility_exist(facility_name):
-            raise RuntimeError(f"Facility ({facility_name}) already exists.")
+        if HealthFacilityUtils.does_facility_exist(name):
+            raise RuntimeError(f"Facility ({name}) already exists.")
 
         crud.create(
             HealthFacilityOrm(
-                name=facility_name,
+                name=name,
                 phone_number=formatted_phone_number,
-                type=facility_type,
+                type=type,
                 location=location,
                 about=about,
             )
