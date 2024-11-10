@@ -74,8 +74,8 @@ def serialize_medical_record(record: MedicalRecordOrm) -> dict:
     return {
         "medicalRecordId": record.id,
         "information": record.information,
-        "dateCreated": record.dateCreated,
-        "lastEdited": record.lastEdited,
+        "date_created": record.date_created,
+        "last_edited": record.last_edited,
     }
 
 
@@ -103,18 +103,15 @@ def serialize_patient(
         "household_number": patient.household_number,
         "village_number": patient.village_number,
         "allergy": patient.allergy,
-        "isPregnant": bool(patient.pregnancyStartDate),
-        "pregnancyId": patient.pregnancyId,
-        "pregnancyStartDate": patient.pregnancyStartDate,
-        "gestationalAgeUnit": (
-            patient.gestationalAgeUnit.value if patient.gestationalAgeUnit else None
-        ),
-        "medicalHistoryId": patient.medicalHistoryId,
-        "medicalHistory": patient.medicalHistory,
-        "drugHistoryId": patient.drugHistoryId,
-        "drugHistory": patient.drugHistory,
-        "lastEdited": patient.lastEdited,
-        "base": patient.lastEdited,
+        "is_pregnant": bool(patient.pregnancy_start_date),
+        "pregnancy_id": patient.pregnancy_id,
+        "pregnancy_start_date": patient.pregnancy_start_date,
+        "medical_history_id": patient.medical_history_id,
+        "medical_history": patient.medical_history,
+        "drug_history_id": patient.drug_history_id,
+        "drug_history": patient.drug_history,
+        "last_edited": patient.last_edited,
+        "base": patient.last_edited,
         "readings": [serialize_reading(r) for r in readings] if readings else [],
         "referrals": (
             [serialize_referral_or_assessment(r) for r in referrals]
@@ -134,7 +131,7 @@ def serialize_patient(
 def serialize_reading(tup: Tuple[ReadingOrm, UrineTestOrm]) -> dict:
     reading = marshal.marshal(tup[0], True)
     if tup[1]:
-        reading["urineTests"] = marshal.marshal(tup[1])
+        reading["urine_tests"] = marshal.marshal(tup[1])
     return reading
 
 
@@ -143,8 +140,8 @@ def serialize_referral_or_assessment(model: Union[ReferralOrm, FollowUpOrm]) -> 
 
 
 def serialize_blank_form_template(form_template: dict) -> dict:
-    del form_template["dateCreated"]
-    del form_template["lastEdited"]
+    del form_template["date_created"]
+    del form_template["last_edited"]
     del form_template["version"]
 
     return form_template
@@ -178,13 +175,13 @@ def deserialize_patient(
         return patient
 
     medical_records = list()
-    if data.get("medicalHistory"):
+    if data.get("medical_history"):
         medical_records.append(deserialize_medical_record(data, False))
-    if data.get("drugHistory"):
+    if data.get("drug_history"):
         medical_records.append(deserialize_medical_record(data, True))
 
     pregnancies = list()
-    if data.get("pregnancyStartDate"):
+    if data.get("pregnancy_start_date"):
         pregnancies.append(deserialize_pregnancy(data))
 
     if medical_records:
@@ -210,7 +207,7 @@ def deserialize_pregnancy(
 
     d = {
         "patient_id": data.get("patient_id"),
-        "startDate": data.get("pregnancyStartDate"),
+        "startDate": data.get("pregnancy_start_date"),
         "defaultTimeUnit": data.get("gestationalAgeUnit"),
     }
     return schema().load(d)
@@ -221,14 +218,14 @@ def deserialize_medical_record(data: dict, is_drug_record: bool) -> MedicalRecor
     d = {
         "patient_id": data.get("patient_id"),
         "information": (
-            data.get("drugHistory") if is_drug_record else data.get("medicalHistory")
+            data.get("drug_history") if is_drug_record else data.get("medical_history")
         ),
         "isDrugRecord": is_drug_record,
     }
     if (not is_drug_record and data.get("medicalLastEdited")) or (
         is_drug_record and data.get("drugLastEdited")
     ):
-        d["dateCreated"] = (
+        d["date_created"] = (
             data["drugLastEdited"] if is_drug_record else data["medicalLastEdited"]
         )
     return schema().load(d)
