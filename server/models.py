@@ -217,7 +217,7 @@ class PatientOrm(db.Model):
 
 class ReadingOrm(db.Model):
     __tablename__ = "readings"
-    id = db.Column(db.String(50), primary_key=True)
+    id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     systolic_blood_pressure = db.Column(db.Integer)
     diastolic_blood_pressure = db.Column(db.Integer)
     heart_rate_BPM = db.Column(db.Integer)
@@ -563,7 +563,7 @@ class QuestionOrm(db.Model):
 
     isBlank: true means the question is related to form template, vice versa
     questionIndex: a custom-defined question number index e.g. 1,2,3...
-    visibleCondition: any json format string indicating a visible condition,
+    visible_condition: any json format string indicating a visible condition,
     the content logic should be handled in frontend
     e.g.
     [{
