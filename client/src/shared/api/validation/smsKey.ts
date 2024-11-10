@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 export const smsKeySchema = z.object({
-  smsKey: z.string(),
+  key: z.string(),
   message: z.string(),
-  expiryDate: z.date(),
-  staleDate: z.date(),
+  expiryDate: z.coerce.date(),
+  staleDate: z.coerce.date(),
 });
