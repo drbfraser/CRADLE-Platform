@@ -28,7 +28,7 @@ class Root(Resource):
     )
     def get():
         username = cognito.get_username_from_jwt()
-        user_dict = UserUtils.get_user_dict_with_phone_numbers(username)
+        user_dict = UserUtils.get_user_data_from_username(username)
 
         params = util.get_query_params(request)
         if params.get("health_facilities") and "default" in params["health_facilities"]:
