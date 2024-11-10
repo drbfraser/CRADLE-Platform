@@ -34,7 +34,7 @@ class SeedUserDict(TypedDict):
 The minimal users needed for the application to be functional. Includes only
 a single admin user.
 """
-minimal_seed_users: list[SeedUserDict] = [
+minimal_users: list[SeedUserDict] = [
     {
         "name": "Admin",
         "username": "admin",
@@ -50,7 +50,7 @@ minimal_seed_users: list[SeedUserDict] = [
     },
 ]
 
-seed_users: list[SeedUserDict] = [
+users: list[SeedUserDict] = [
     {
         "name": "Brian Fraser",
         "username": "brian_fraser",
@@ -138,46 +138,55 @@ def populate_user_pool(seed_users: list[SeedUserDict]):
 print("Seeding users complete!")
 # End of function.
 
-facilities = [
+
+class FacilityDict(TypedDict):
+    name: str
+    phone_number: str
+    type: str
+    location: str
+    about: str
+
+
+facilities: list[FacilityDict] = [
     {
-        "facility_name": "H0000",
+        "name": "H0000",
         "phone_number": "+256-414-999999",
-        "facility_type": FacilityTypeEnum.HOSPITAL.value,
+        "type": FacilityTypeEnum.HOSPITAL.value,
         "location": "Kampala",
         "about": "Sample hospital.",
     },
     {
-        "facility_name": "H1000",
+        "name": "H1000",
         "phone_number": "+256-0414-100000",
-        "facility_type": FacilityTypeEnum.HOSPITAL.value,
+        "type": FacilityTypeEnum.HOSPITAL.value,
         "location": "Kampala",
         "about": "Sample hospital.",
     },
     {
-        "facility_name": "H2000",
+        "name": "H2000",
         "phone_number": "+256-414-200000",
-        "facility_type": FacilityTypeEnum.HOSPITAL.value,
+        "type": FacilityTypeEnum.HOSPITAL.value,
         "location": "Kampala",
         "about": "Sample hospital.",
     },
     {
-        "facility_name": "H3000",
+        "name": "H3000",
         "phone_number": "+256-0434-300000",
-        "facility_type": FacilityTypeEnum.HCF_2.value,
+        "type": FacilityTypeEnum.HCF_2.value,
         "location": "Jinja",
         "about": "Sample health facility.",
     },
     {
-        "facility_name": "H4000",
+        "name": "H4000",
         "phone_number": "+256-4644-40000",
-        "facility_type": FacilityTypeEnum.HCF_3.value,
+        "type": FacilityTypeEnum.HCF_3.value,
         "location": "Mubende",
         "about": "Sample health facility.",
     },
     {
-        "facility_name": "H5000",
+        "name": "H5000",
         "phone_number": "+256-4714-50000",
-        "facility_type": FacilityTypeEnum.HCF_4.value,
+        "type": FacilityTypeEnum.HCF_4.value,
         "location": "Gulu",
         "about": "Sample health facility.",
     },
@@ -185,16 +194,16 @@ facilities = [
 
 
 # Facilities need to exist first, since user table rows depend on them.
-def seed_facilities():
+def seed_facilities(facilities: list[FacilityDict]):
     try:
         for facility in facilities:
             if not HealthFacilityUtils.does_facility_exist(
-                facility_name=facility["facility_name"]
+                facility_name=facility["name"]
             ):
                 HealthFacilityUtils.create_health_facility(**facility)
-                print(f"Health facility ({facility['facility_name']}) created!")
+                print(f"Health facility ({facility['name']}) created!")
             else:
-                print(f"Health facility ({facility['facility_name']}) already exists.")
+                print(f"Health facility ({facility['name']}) already exists.")
     except ValueError as err:
         print(err)
 
@@ -202,18 +211,18 @@ def seed_facilities():
 # End of function.
 
 
-def populate_minimal_users():
-    seed_facilities()
-    populate_user_pool(minimal_seed_users)
+def seed_minimal_users():
+    seed_facilities(facilities[:1])
+    populate_user_pool(minimal_users)
 
 
 # End of function.
 
 
-def populate_test_users():
-    seed_facilities()
-    populate_minimal_users()
-    populate_user_pool(seed_users)
+def seed_test_users():
+    seed_minimal_users()
+    seed_facilities(facilities[1:])
+    populate_user_pool(users)
 
 
 # End of function.
