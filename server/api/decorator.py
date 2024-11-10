@@ -38,7 +38,7 @@ def roles_required(accepted_roles):
         @wraps(fn)
         def decorator(*args, **kwargs):
             # Ensure that user is first and foremost actually logged in
-            user_dict = cognito.get_user_info_from_jwt()
+            user_dict = cognito.get_username_from_jwt()
             user_has_permissions = False
 
             # Check that one of the accepted roles is in the JWT.

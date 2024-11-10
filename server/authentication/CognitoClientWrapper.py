@@ -15,8 +15,6 @@ from flask import request
 from jwt import PyJWK, PyJWKClient
 from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 
-from server.shared.user_utils import UserUtils
-
 load_dotenv(dotenv_path="/run/secrets/.aws.secrets.env")
 
 
@@ -363,7 +361,7 @@ class CognitoClientWrapper:
 
     # End of function
 
-    def get_user_info_from_jwt(self):
+    def get_username_from_jwt(self):
         """
         Verifies access token in request authorization header and retrieves
         the user's info from the database.
@@ -380,4 +378,4 @@ class CognitoClientWrapper:
             raise ValueError(error)
 
         username = cognito_user_info.get("Username")
-        return UserUtils.get_user_dict_with_phone_numbers(username)
+        return username

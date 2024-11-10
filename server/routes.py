@@ -9,8 +9,24 @@ from api.resources.assessments import Root as Assessments
 from api.resources.assessments import SingleAssessment
 from api.resources.facilities import Root as Facilities
 from api.resources.facilities import SingleFacility
+from api.resources.form_classifications import (
+    FormClassificationSummary,
+    FormClassificationTemplates,
+    SingleFormClassification,
+)
+from api.resources.form_classifications import Root as FormClassification
+from api.resources.form_templates import (
+    BlankFormTemplate,
+    FormTemplateResource,
+    TemplateVersion,
+    TemplateVersionCsv,
+)
+from api.resources.form_templates import Root as FormTemplate
 from api.resources.forms import Root as Forms
 from api.resources.forms import SingleForm
+from api.resources.medical_records import Root as MedicalRecords
+from api.resources.medical_records import SingleMedicalRecord
+from api.resources.patient_associations import Root as PatientAssociations
 from api.resources.patients import (
     PatientAllRecords,
     PatientForms,
@@ -38,27 +54,11 @@ from api.resources.referrals import (
     SingleReferral,
 )
 from api.resources.referrals import Root as Referrals
+from api.resources.relay_server_phone_numbers import RelayServerPhoneNumbers
 from api.resources.sms_relay import Root as SmsRelay
 from api.resources.stats import AllStats, ExportStats, FacilityReadings, UserReadings
 from api.resources.upload import Root as Upload
 from api.resources.version import Version
-from server.api.resources.form_classifications import (
-    FormClassificationSummary,
-    FormClassificationTemplates,
-    SingleFormClassification,
-)
-from server.api.resources.form_classifications import Root as FormClassification
-from server.api.resources.form_templates import (
-    BlankFormTemplate,
-    FormTemplateResource,
-    TemplateVersion,
-    TemplateVersionCsv,
-)
-from server.api.resources.form_templates import Root as FormTemplate
-from server.api.resources.medical_records import Root as MedicalRecords
-from server.api.resources.medical_records import SingleMedicalRecord
-from server.api.resources.patient_associations import Root as PatientAssociations
-from server.api.resources.relay_server_phone_numbers import RelayServerPhoneNumbers
 
 
 def init(api):

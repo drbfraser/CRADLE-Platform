@@ -12,6 +12,7 @@ from authentication import cognito
 from data import crud, marshal
 from models import HealthFacilityOrm, PatientOrm, ReferralOrm
 from service import assoc, serialize, view
+from shared.user_utils import UserUtils
 from utils import get_current_time
 from validation.referrals import CancelStatus, NotAttend, ReferralEntity
 from validation.validation_exception import ValidationExceptionError
@@ -26,13 +27,14 @@ class Root(Resource):
         endpoint="referrals",
     )
     def get():
-        user = cognito.get_user_info_from_jwt()
+        username = cognito.get_username_from_jwt()
+        user_dict = UserUtils.get_user_dict_with_phone_numbers(username)
 
         params = util.get_query_params(request)
         if params.get("health_facilities") and "default" in params["health_facilities"]:
-            params["health_facilities"].append(user["health_facility_name"])
+            params["health_facilities"].append(user_dict["health_facility_name"])
 
-        user = cast(dict[Any, Any], user)
+        user = cast(dict[Any, Any], user_dict)
         referrals = view.referral_list_view(user, **params)
         return serialize.serialize_referral_list(referrals)
 

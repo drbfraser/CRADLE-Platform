@@ -45,7 +45,7 @@ class Root(Resource):
             if not user:
                 abort(400, message=f"No user with id: {user_id}")
             #     if user exists but no health facility then assign the patient to the user's health facility
-            facility = user.healthFacility
+            facility = user.health_facility_name
         else:
             user = None
 
