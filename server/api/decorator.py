@@ -11,6 +11,7 @@ from authentication import cognito
 from data import crud
 from enums import RoleEnum
 from models import PatientAssociationsOrm
+from shared.user_utils import UserUtils
 
 LOGGER = logging.getLogger(__name__)
 
@@ -38,7 +39,8 @@ def roles_required(accepted_roles):
         @wraps(fn)
         def decorator(*args, **kwargs):
             # Ensure that user is first and foremost actually logged in
-            user_dict = cognito.get_username_from_jwt()
+            username = cognito.get_username_from_jwt()
+            user_dict = UserUtils.get_user_dict_from_username(username)
             user_has_permissions = False
 
             # Check that one of the accepted roles is in the JWT.
