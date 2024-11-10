@@ -2,7 +2,6 @@ import time
 
 from flasgger import swag_from
 from flask import request
-from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort, reqparse
 
 from api import util
@@ -30,7 +29,6 @@ class Root(Resource):
     # Ensuring that we select only these keys from the JSON payload.
 
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/facilities-get.yml",
         methods=["GET"],
@@ -78,7 +76,6 @@ class Root(Resource):
 # /api/facilities/<str:facility_name>
 class SingleFacility(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/single-facility-get.yml",
         methods=["GET"],
