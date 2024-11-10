@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Any, cast
 
 from flasgger import swag_from
 from flask import request
@@ -11,6 +12,7 @@ from api.decorator import patient_association_required
 from data import crud, marshal
 from models import FollowUpOrm, PatientOrm, PregnancyOrm, ReadingOrm, ReferralOrm
 from service import assoc, invariant, serialize, statsCalculation, view
+from shared.user_utils import UserUtils
 from utils import get_current_time
 from validation import assessments, patients, readings
 
@@ -27,9 +29,10 @@ class Root(Resource):
     )
     # gets all UNARCHIVED patients
     def get():
-        user = get_jwt_identity()
+        current_user = UserUtils.get_current_user_from_jwt()
+        current_user = cast(dict[Any, Any], current_user)
         params = util.get_query_params(request)
-        patients = view.patient_list_view(user, **params)
+        patients = view.patient_list_view(current_user, **params)
         return serialize.serialize_patient_list(patients)
 
     @staticmethod
@@ -41,9 +44,9 @@ class Root(Resource):
     def post():
         json = request.get_json(force=True)
 
-        if "gestationalTimestamp" in json:
+        if "gestational_timestamp" in json:
             # Changing the key that comes from the android app to work with validation
-            json["pregnancyStartDate"] = json.pop("gestationalTimestamp")
+            json["pregnancy_start_date"] = json.pop("gestational_timestamp")
 
         error_message = patients.validate(json)
         if error_message is not None:
