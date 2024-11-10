@@ -29,11 +29,11 @@ from api.util import (
     validate_user,
 )
 from authentication import cognito
+from common.date_utils import is_date_passed
 from common.regexUtil import phoneNumber_regex_check
 from data import crud, marshal
 from enums import RoleEnum
 from models import UserOrm
-from server.common.date_utils import is_date_passed
 from shared.user_utils import UserUtils
 from validation.users import (
     UserAuthRequestValidator,
