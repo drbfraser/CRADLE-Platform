@@ -3,7 +3,6 @@ import json
 import random
 import string
 import time
-import uuid
 from random import choice, randint, randrange
 from string import ascii_lowercase, digits
 
@@ -22,6 +21,8 @@ from models import (
     PatientOrm,
     PregnancyOrm,
     QuestionLangVersionOrm,
+    QuestionOrm,
+    ReadingOrm,
     ReferralOrm,
     RelayServerPhoneNumberOrm,
     VillageOrm,
@@ -90,7 +91,7 @@ def seed_minimal(ctx):
 
     The minimal set of data is as follows:
      - A single health facility (default name 'H0000')
-     - A single admin user      (default email 'admin123@admin.com')
+     - A single admin user      (default email 'admin@admin.com')
 
     Defaults can be overridden, such as:
        python ./manage.py seed_minimal --email="abc@test.com" --password="TeyHo5@e!0B" --facility_name="Sunny Creek"
@@ -109,6 +110,8 @@ def seed_test_data(ctx):
 
     The data inserted here should be deterministically generated to ease testing.
     """
+    ctx.invoke(reset_db)
+
     # Seed users and health facilities.
     seed_test_users()
 
@@ -290,23 +293,21 @@ def seed(ctx):
 
         user_id = get_random_user()
         for i in range(num_of_readings):
-            reading_id = str(uuid.uuid4())
             health_facility_name = get_random_health_facility_name()
 
             # get random reading(s) for patient
-            reading_1 = {
+            reading = {
                 "user_id": user_id,
-                "patient_Id": patient_id,
+                "patient_id": patient_id,
                 "date_taken": date_list[i],
-                "reading_id": reading_id,
                 "systolic_blood_pressure": get_random_systolic_bp(),
                 "diastolic_blood_pressure": get_random_diastolic_bp(),
                 "heart_rate_BPM": get_random_heart_rate_BPM(),
                 "symptoms": get_random_symptoms(),
             }
 
-            reading_1_model = marshal.unmarshal(models.ReadingOrm, reading_1)
-            crud.create(reading_1_model, refresh=True)
+            reading_orm = ReadingOrm(**reading)
+            crud.create(reading_orm, refresh=True)
 
             referral_comments = [
                 " needs help!",
@@ -316,7 +317,7 @@ def seed(ctx):
             if random.choice([True, False]):
                 # Cap the referral date at today, if it goes into future
                 refer_date = min(
-                    reading_1["date_taken"]
+                    reading["date_taken"]
                     + int(datetime.timedelta(days=10).total_seconds()),
                     int(datetime.datetime.now().timestamp()),
                 )
@@ -456,6 +457,9 @@ def create_patient_association(patient_id, user_id):
 
 
 def create_form_classification():
+    if crud.read(FormClassificationOrm, id="dc9") is not None:
+        return
+
     form_classification = {
         "id": "dc9",
         "name": "Personal Intake Form",
@@ -465,86 +469,93 @@ def create_form_classification():
 
 
 def create_form_template():
+    if crud.read(FormTemplateOrm, id="dt9") is not None:
+        return
+
     form_template = {
-        "classification": {"name": "Personal Intake Form", "id": "dc9"},
         "id": "dt9",
         "version": "V1",
-        "questions": [
-            {
-                "id": "cat1_seed_test_data",
-                "form_template_id": "dt9",
-                "category_index": None,
-                "question_index": 0,
-                "is_blank": True,
-                "question_type": "CATEGORY",
-                "required": False,
-                "allow_future_dates": True,
-                "allow_past_dates": True,
-                "num_min": None,
-                "num_max": None,
-                "string_max_length": None,
-                "units": None,
-                "visible_condition": "[]",
-                "string_max_lines": None,
-            },
-            {
-                "id": "fname_seed_test_data",
-                "form_template_id": "dt9",
-                "category_index": 0,
-                "question_id": "",
-                "question_index": 1,
-                "is_blank": True,
-                "question_type": "STRING",
-                "required": False,
-                "allow_future_dates": True,
-                "allow_past_dates": True,
-                "num_min": None,
-                "num_max": None,
-                "string_max_length": None,
-                "units": None,
-                "visible_condition": "[]",
-                "string_max_lines": None,
-            },
-            {
-                "id": "lname_seed_test_data",
-                "form_template_id": "dt9",
-                "category_index": 0,
-                "question_id": "",
-                "question_index": 2,
-                "is_blank": True,
-                "question_type": "STRING",
-                "required": False,
-                "allow_future_dates": True,
-                "allow_past_dates": True,
-                "num_min": None,
-                "num_max": None,
-                "string_max_length": None,
-                "units": None,
-                "visible_condition": "[]",
-                "string_max_lines": None,
-            },
-            {
-                "id": "age_seed_test_data",
-                "form_template_id": "dt9",
-                "category_index": 0,
-                "question_id": "",
-                "question_index": 3,
-                "is_blank": True,
-                "question_type": "INTEGER",
-                "required": False,
-                "allow_future_dates": True,
-                "allow_past_dates": True,
-                "num_min": None,
-                "num_max": None,
-                "string_max_length": None,
-                "units": None,
-                "visible_condition": "[]",
-                "string_max_lines": None,
-            },
-        ],
     }
+    questions = [
+        {
+            "id": "cat1_seed_test_data",
+            "category_index": None,
+            "question_id": "cat1_seed_test_data",
+            "question_index": 0,
+            "is_blank": True,
+            "question_type": "CATEGORY",
+            "required": False,
+            "allow_future_dates": True,
+            "allow_past_dates": True,
+            "num_min": None,
+            "num_max": None,
+            "string_max_length": None,
+            "units": None,
+            "visible_condition": "[]",
+            "string_max_lines": None,
+        },
+        {
+            "id": "fname_seed_test_data",
+            "category_index": 0,
+            "question_id": "fname_seed_test_data",
+            "question_index": 1,
+            "is_blank": True,
+            "question_type": "STRING",
+            "required": False,
+            "allow_future_dates": True,
+            "allow_past_dates": True,
+            "num_min": None,
+            "num_max": None,
+            "string_max_length": None,
+            "units": None,
+            "visible_condition": "[]",
+            "string_max_lines": None,
+        },
+        {
+            "id": "lname_seed_test_data",
+            "category_index": 0,
+            "question_id": "lname_seed_test_data",
+            "question_index": 2,
+            "is_blank": True,
+            "question_type": "STRING",
+            "required": False,
+            "allow_future_dates": True,
+            "allow_past_dates": True,
+            "num_min": None,
+            "num_max": None,
+            "string_max_length": None,
+            "units": None,
+            "visible_condition": "[]",
+            "string_max_lines": None,
+        },
+        {
+            "id": "age_seed_test_data",
+            "category_index": 0,
+            "question_id": "age_seed_test_data",
+            "question_index": 3,
+            "is_blank": True,
+            "question_type": "INTEGER",
+            "required": False,
+            "allow_future_dates": True,
+            "allow_past_dates": True,
+            "num_min": None,
+            "num_max": None,
+            "string_max_length": None,
+            "units": None,
+            "visible_condition": "[]",
+            "string_max_lines": None,
+        },
+    ]
+    create_form_classification()
+    form_classification_orm = crud.read(FormClassificationOrm, id="dc9")
+    form_template_orm = FormTemplateOrm(
+        classification=form_classification_orm, **form_template
+    )
+    for question in questions:
+        question_orm = QuestionOrm(**question)
+        form_template_orm.questions.append(question_orm)
 
-    db.session.add(FormTemplateOrm(**form_template))
+    db.session.add(form_template_orm)
     db.session.commit()
 
     lang_versions = [
@@ -581,74 +592,81 @@ def create_form_template():
 
 def create_form(patient_id, fname, lname, age):
     form = {
-        "id": patient_id,
+        "id": "form_1_" + patient_id,
         "lang": "English",
         "patient_id": patient_id,
         "form_template_id": "dt9",
-        "form_classification_id": "dc9",
-        "questions": [
-            {
-                "id": "cat1_seed_test_data" + patient_id,
-                "has_comment_attached": False,
-                "required": False,
-                "form_id": patient_id,
-                "visible_condition": "[]",
-                "is_blank": False,
-                "mc_options": "[]",
-                "category_index": None,
-                "question_index": 0,
-                "question_text": "Personal Information",
-                "question_type": "CATEGORY",
-            },
-            {
-                "has_comment_attached": False,
-                "required": False,
-                "id": "fname_seed_test_data" + patient_id,
-                "form_id": patient_id,
-                "visible_condition": "[]",
-                "is_blank": False,
-                "answers": f'{{"text": "{fname}"}}',
-                "mc_options": "[]",
-                "category_index": 0,
-                "question_index": 1,
-                "question_id": "",
-                "question_text": "First Name",
-                "question_type": "STRING",
-            },
-            {
-                "has_comment_attached": False,
-                "required": False,
-                "id": "lname_seed_test_data" + patient_id,
-                "form_id": patient_id,
-                "visible_condition": "[]",
-                "is_blank": False,
-                "answers": f'{{"text": "{lname}"}}',
-                "mc_options": "[]",
-                "category_index": 0,
-                "question_index": 2,
-                "question_id": "",
-                "question_text": "Last Name",
-                "question_type": "STRING",
-            },
-            {
-                "has_comment_attached": False,
-                "required": False,
-                "id": "age_seed_test_data" + patient_id,
-                "form_id": patient_id,
-                "visible_condition": "[]",
-                "is_blank": False,
-                "answers": f'{{"number": {age}}}',
-                "mc_options": "[]",
-                "category_index": 0,
-                "question_index": 3,
-                "question_id": "",
-                "question_text": "Approximate Age",
-                "question_type": "INTEGER",
-            },
-        ],
     }
 
-    db.session.add(FormOrm(**form))
+    questions = [
+        {
+            "id": "cat1_seed_test_data-" + patient_id,
+            "has_comment_attached": False,
+            "required": False,
+            "form_id": patient_id,
+            "visible_condition": "[]",
+            "is_blank": False,
+            "mc_options": "[]",
+            "category_index": None,
+            "question_index": 0,
+            "question_text": "Personal Information",
+            "question_type": "CATEGORY",
+        },
+        {
+            "has_comment_attached": False,
+            "required": False,
+            "id": "fname_seed_test_data-" + patient_id,
+            "form_id": patient_id,
+            "visible_condition": "[]",
+            "is_blank": False,
+            "answers": f'{{"text": "{fname}"}}',
+            "mc_options": "[]",
+            "category_index": 0,
+            "question_index": 1,
+            "question_id": "",
+            "question_text": "First Name",
+            "question_type": "STRING",
+        },
+        {
+            "has_comment_attached": False,
+            "required": False,
+            "id": "lname_seed_test_data-" + patient_id,
+            "form_id": patient_id,
+            "visible_condition": "[]",
+            "is_blank": False,
+            "answers": f'{{"text": "{lname}"}}',
+            "mc_options": "[]",
+            "category_index": 0,
+            "question_index": 2,
+            "question_id": "",
+            "question_text": "Last Name",
+            "question_type": "STRING",
+        },
+        {
+            "has_comment_attached": False,
+            "required": False,
+            "id": "age_seed_test_data-" + patient_id,
+            "form_id": patient_id,
+            "visible_condition": "[]",
+            "is_blank": False,
+            "answers": f'{{"number": {age}}}',
+            "mc_options": "[]",
+            "category_index": 0,
+            "question_index": 3,
+            "question_id": "",
+            "question_text": "Approximate Age",
+            "question_type": "INTEGER",
+        },
+    ]
+    create_form_template()
+    form_classification_orm = crud.read(FormClassificationOrm, id="dc9")
+
+    form_orm = FormOrm(classification=form_classification_orm, **form)
+
+    for question in questions:
+        form_orm.questions.append(QuestionOrm(**question))
+
+    db.session.add(form_orm)
     db.session.commit()
 
 
@@ -702,7 +720,7 @@ def get_random_heart_rate_BPM():
 
 
 def get_random_health_facility_name():
-    return random.choice(health_facility_list)
+    return random.choice(health_facility_list)["name"]
 
 
 def get_random_user():
