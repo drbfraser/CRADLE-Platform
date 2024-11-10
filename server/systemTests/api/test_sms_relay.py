@@ -185,7 +185,9 @@ def test_update_assessments_with_sms_relay(
     response_dict = json.loads(response.text)
     assert response.status_code == 200
     assert response_dict["code"] == 200
-    assert crud.read(FollowUpOrm, id=assessment_id).followupInstructions == newInstructions
+    assert (
+        crud.read(FollowUpOrm, id=assessment_id).followupInstructions == newInstructions
+    )
 
 
 def make_sms_relay_json(
@@ -196,9 +198,9 @@ def make_sms_relay_json(
     body: str = None,
 ) -> dict:
     user = crud.read(UserOrm, id=1)
-    secretKey = crud.read(SmsSecretKeyOrm, userId=1)
-    # update for multiple phone numbers schema: each user is guaranteed to have atleast one phone number
-    phoneNumber = crud.read_all(
+    secret_key = crud.read(SmsSecretKeyOrm, user_id=1)
+    # update for multiple phone numbers schema: each user is guaranteed to have at least one phone number
+    phone_number = crud.read_all(
         UserPhoneNumberOrm,
         user_id=user.id,
     ).pop()  # just need one phone number that belongs to the user
@@ -214,16 +216,16 @@ def make_sms_relay_json(
 
     compressed_data = compressor.compress_from_string(json.dumps(data))
     iv = "00112233445566778899aabbccddeeff"
-    encrypted_data = encryptor.encrypt(compressed_data, iv, secretKey.secret_Key)
+    encrypted_data = encryptor.encrypt(compressed_data, iv, secret_key.secret_key)
 
-    return {"phoneNumber": phoneNumber.number, "encryptedData": encrypted_data}
+    return {"phone_number": phone_number.phone_number, "encryptedData": encrypted_data}
 
 
 def get_sms_relay_response(response: requests.Response) -> dict:
-    secretKey = crud.read(SmsSecretKeyOrm, userId=1)
+    secret_key = crud.read(SmsSecretKeyOrm, userId=1)
 
     response_dict = json.loads(response.text)
-    decrypted_data = encryptor.decrypt(response_dict["body"], secretKey.secret_Key)
+    decrypted_data = encryptor.decrypt(response_dict["body"], secret_key.secret_key)
     decoded_string = (
         gzip.GzipFile(fileobj=io.BytesIO(decrypted_data), mode="r").read().decode()
     )
