@@ -400,9 +400,11 @@ class UserUtils:
     def create_new_sms_secret_key_orm():
         stale_date = get_future_date(days_after=SMS_KEY_DURATION - 10)
         expiry_date = get_future_date(days_after=SMS_KEY_DURATION)
-        secret_Key = UserUtils.generate_new_sms_secret_key()
+        secret_key = UserUtils.generate_new_sms_secret_key()
         sms_new_key_orm = SmsSecretKeyOrm(
-            secret_Key=str(secret_Key), expiry_date=str(expiry_date), stale_date=str(stale_date)
+            secret_key=str(secret_key),
+            expiry_date=str(expiry_date),
+            stale_date=str(stale_date),
         )
         return sms_new_key_orm
 
@@ -421,9 +423,9 @@ class UserUtils:
     def update_sms_secret_key_for_user(user_id):
         stale_date = get_future_date(days_after=SMS_KEY_DURATION - 10)
         expiry_date = get_future_date(days_after=SMS_KEY_DURATION)
-        secret_Key = UserUtils.generate_new_sms_secret_key()
+        secret_key = UserUtils.generate_new_sms_secret_key()
         new_key = {
-            "secret_Key": str(secret_Key),
+            "secret_key": str(secret_key),
             "expiry_date": str(expiry_date),
             "stale_date": str(stale_date),
         }

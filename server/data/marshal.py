@@ -361,7 +361,7 @@ def __marshal_SmsSecretKey(s: SmsSecretKeyOrm):
     return {
         "id": s.id,
         "userId": s.userId,
-        "secret_Key": s.secret_key,
+        "secret_key": s.secret_key,
         "stale_date": s.stale_date,
         "expiry_date": s.expiry_date,
     }
@@ -601,23 +601,23 @@ def __unmarshal_question(d: dict) -> QuestionOrm:
     if visible_condition is not None:
         d["visibleCondition"] = json.dumps(visible_condition)
     # Convert "mcOptions" from json dict to string
-    mc_options = d.get("mcOptions")
+    mc_options = d.get("mc_options")
     if mc_options is not None:
         if isinstance(mc_options, list):
-            d["mcOptions"] = json.dumps(mc_options)
+            d["mc_options"] = json.dumps(mc_options)
     # Convert "answers" from json dict to string
     answers = d.get("answers")
     if answers is not None:
         d["answers"] = json.dumps(answers)
     # Unmarshal any lang versions found within the question
     lang_versions = []
-    if d.get("questionLangVersions") is not None:
+    if d.get("question_lang_versions") is not None:
         lang_versions = [
-            unmarshal(QuestionLangVersionOrm, v) for v in d["questionLangVersions"]
+            unmarshal(QuestionLangVersionOrm, v) for v in d["question_lang_versions"]
         ]
         # Delete the entry so that we don't try to unmarshal them again by loading from
         # the question schema.
-        del d["questionLangVersions"]
+        del d["question_lang_versions"]
 
     question = __load(QuestionOrm, d)
 
@@ -636,8 +636,8 @@ def __unmarshal_RelayServerPhoneNumber(d: dict) -> RelayServerPhoneNumberOrm:
 
 def __unmarshal_SmsSecretKey(d: dict) -> SmsSecretKeyOrm:
     sms_secret_key = __load(SmsSecretKeyOrm, d)
-    sms_secret_key.userId = d["userId"]
-    sms_secret_key.secret_key = d["secret_Key"]
+    sms_secret_key.user_id = d["user_id"]
+    sms_secret_key.secret_key = d["secret_key"]
     sms_secret_key.stale_date = d["stale_date"]
     sms_secret_key.expiry_date = d["expiry_date"]
     return sms_secret_key

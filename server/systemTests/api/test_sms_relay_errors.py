@@ -119,7 +119,7 @@ def test_sms_relay_corrupted_base64(api_post):
 def test_sms_relay_failed_decompression(api_post):
     user = crud.read(UserOrm, id=1)
     phoneNumber = crud.read_all(UserPhoneNumberOrm, user_id=user.id).pop()
-    secretKey = crud.read(SmsSecretKeyOrm, userId=1)
+    secret_key = crud.read(SmsSecretKeyOrm, userId=1)
     iv = "00112233445566778899aabbccddeeff"
 
     data = {"endpoint": None, "body": None}
@@ -128,7 +128,7 @@ def test_sms_relay_failed_decompression(api_post):
     encrypted_data = encryptor.encrypt(
         bytes(json_data, "utf-8"),
         iv,
-        secretKey.secret_Key,
+        secret_key.secret_key,
     )
 
     json_body = {"phoneNumber": phoneNumber.number, "encryptedData": encrypted_data}
@@ -150,7 +150,7 @@ def test_sms_relay_invalid_encrypted_json(api_post):
     data = {"method": "PUT", "endpoint": "a"}
 
     compressed_data = compressor.compress_from_string(json.dumps(data))
-    encrypted_data = encryptor.encrypt(compressed_data, iv, secretKey.secret_Key)
+    encrypted_data = encryptor.encrypt(compressed_data, iv, secretKey.secret_key)
 
     json_body = {"phoneNumber": phoneNumber.number, "encryptedData": encrypted_data}
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
