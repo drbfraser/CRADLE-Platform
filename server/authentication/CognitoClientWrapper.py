@@ -343,6 +343,8 @@ class CognitoClientWrapper:
         except jwt.DecodeError as err:
             print(err)
             raise ValueError(err)
+        except Exception as err:
+            raise ValueError(err)
         else:
             payload = cast(dict[str, str], payload)
             client_id = payload.get("client_id")
