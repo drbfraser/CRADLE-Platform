@@ -34,7 +34,7 @@ SupervisesTable = db.Table(
 
 class UserOrm(db.Model):
     __tablename__ = "users"
-    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(25), nullable=False)
     username = db.Column(db.String(64), index=True, unique=True, nullable=False)
     email = db.Column(db.String(120), index=True, unique=True, nullable=False)
@@ -59,8 +59,8 @@ class UserOrm(db.Model):
     vht_list = db.relationship(
         "UserOrm",
         secondary=SupervisesTable,
-        primaryjoin=id == SupervisesTable.c.cho_id,
-        secondaryjoin=id == SupervisesTable.c.vht_id,
+        primaryjoin=user_id == SupervisesTable.c.cho_id,
+        secondaryjoin=user_id == SupervisesTable.c.vht_id,
     )
     phone_numbers = db.relationship(
         "UserPhoneNumberOrm",
@@ -86,11 +86,14 @@ class UserOrm(db.Model):
 
 class UserPhoneNumberOrm(db.Model):
     __tablename__ = "user_phone_numbers"
-    id = db.Column(db.String(36), primary_key=True, default=get_uuid)
-    phone_number = db.Column(db.String(20), unique=True)
+    id = db.Column(db.Integer, primary_key=True)
+    phone_number = db.Column(
+        db.String(20),
+        unique=True,
+    )
 
     # FOREIGN KEYS
-    user_id = db.Column(db.Integer, db.ForeignKey(UserOrm.id), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey(UserOrm.user_id), nullable=False)
 
     # RELATIONSHIPS
     user = db.relationship(UserOrm, back_populates="phone_numbers")
@@ -142,7 +145,7 @@ class ReferralOrm(db.Model):
     )
 
     # FOREIGN KEYS
-    user_id = db.Column(db.Integer, db.ForeignKey(UserOrm.id))
+    user_id = db.Column(db.Integer, db.ForeignKey(UserOrm.user_id))
     patient_id = db.Column(db.String(50), db.ForeignKey("patients.id"))
     health_facility_name = db.Column(
         db.String(50),
@@ -239,7 +242,7 @@ class ReadingOrm(db.Model):
     # FOREIGN KEYS
     user_id = db.Column(
         db.Integer,
-        db.ForeignKey(UserOrm.id, ondelete="SET NULL"),
+        db.ForeignKey(UserOrm.user_id, ondelete="SET NULL"),
         nullable=True,
     )
     patient_id = db.Column(
@@ -323,7 +326,7 @@ class FollowUpOrm(db.Model):
     follow_up_needed = db.Column(db.Boolean)
 
     # FOREIGN KEYS
-    healthcare_worker_id = db.Column(db.ForeignKey(UserOrm.id), nullable=False)
+    healthcare_worker_id = db.Column(db.ForeignKey(UserOrm.user_id), nullable=False)
     patient_id = db.Column(
         db.String(50),
         db.ForeignKey(PatientOrm.id),
@@ -389,7 +392,9 @@ class PatientAssociationsOrm(db.Model):
         db.ForeignKey(HealthFacilityOrm.name, ondelete="CASCADE"),
         nullable=True,
     )
-    user_id = db.Column(db.ForeignKey(UserOrm.id, ondelete="CASCADE"), nullable=True)
+    user_id = db.Column(
+        db.ForeignKey(UserOrm.user_id, ondelete="CASCADE"), nullable=True
+    )
 
     # RELATIONSHIPS
     patient = db.relationship(
@@ -531,7 +536,7 @@ class FormOrm(db.Model):
         onupdate=get_current_time,
     )
     last_edited_by = db.Column(
-        db.ForeignKey(UserOrm.id, ondelete="SET NULL"), nullable=True
+        db.ForeignKey(UserOrm.user_id, ondelete="SET NULL"), nullable=True
     )
 
     form_classification_id = db.Column(
