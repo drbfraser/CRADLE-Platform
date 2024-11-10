@@ -6,17 +6,17 @@ from models import ReadingOrm
 
 def get_stats_data(
     data_needed,
-    readings: ReadingOrm,
+    readings: list[ReadingOrm],
     current_year,
     current_month,
     is_from_last_twelve_months=False,
 ):
-    if data_needed == "trafficLightStatus":
+    if data_needed == "traffic_light_status":
         data = [0, 0, 0, 0, 0]
     else:
         data = [[], [], [], [], [], [], [], [], [], [], [], []]
 
-    if data_needed == "trafficLightStatus":
+    if data_needed == "traffic_light_ltatus":
         # do traffic light status stuff here
         data = get_traffic_light(readings, data)
 
@@ -24,7 +24,7 @@ def get_stats_data(
         # month_index is used for indexing purpose when is_from_last_twelve_months is True
         month_index = 0
         for reading in readings:
-            date_unix_ts = reading.dateTimeTaken
+            date_unix_ts = reading.date_taken
             date_object = date.fromtimestamp(date_unix_ts)
             item_month = date_object.month
             item_year = date_object.year
@@ -40,18 +40,18 @@ def get_stats_data(
                         current_year,
                         current_month,
                     )
-                if data_needed == "bpSystolic":
-                    data[item_month - 1].append(reading.bpSystolic)
-                elif data_needed == "bpDiastolic":
-                    data[item_month - 1].append(reading.bpDiastolic)
-                elif data_needed == "heartRateBPM":
-                    data[item_month - 1].append(reading.heartRateBPM)
+                if data_needed == "systolic_blood_pressure":
+                    data[item_month - 1].append(reading.systolic_blood_pressure)
+                elif data_needed == "diastolic_blood_pressure":
+                    data[item_month - 1].append(reading.diastolic_blood_pressure)
+                elif data_needed == "heart_rate_BPM":
+                    data[item_month - 1].append(reading.heart_rate_BPM)
                 elif data_needed == "bpSystolicLastTwelveMonths":
-                    data[month_index].append(reading.bpSystolic)
+                    data[month_index].append(reading.systolic_blood_pressure)
                 elif data_needed == "bpDiastolicLastTwelveMonths":
-                    data[month_index].append(reading.bpDiastolic)
+                    data[month_index].append(reading.diastolic_blood_pressure)
                 elif data_needed == "heartRateBPMLastTwelveMonths":
-                    data[month_index].append(reading.heartRateBPM)
+                    data[month_index].append(reading.heart_rate_BPM)
     return data
 
 
@@ -72,7 +72,7 @@ def get_traffic_light(readings, data):
     }
 
     for reading in readings:
-        index = traffic_light_indexes[reading.trafficLightStatus]
+        index = traffic_light_indexes[reading.traffic_light_status]
         data[index] += 1
 
     return data
