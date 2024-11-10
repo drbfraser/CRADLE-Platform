@@ -180,7 +180,7 @@ def getDictionaryOfUserInfo(id: int) -> dict:
 
     # The vhtlist has to be marshalled manually
     vhtList = []
-    for user in user.vhtList:
+    for user in user.vht_list:
         vhtList.append(user.id)
     userDict["supervises"] = vhtList
 
@@ -192,7 +192,7 @@ def getDictionaryOfUserInfo(id: int) -> dict:
 
     # Add user's phone numbers to the dictionary
     userDict["phoneNumbers"] = [
-        phone_number.number for phone_number in user.phoneNumbers
+        phone_number.number for phone_number in user.phone_numbers
     ]
 
     return userDict
@@ -639,27 +639,27 @@ def getCsvFromFormTemplate(form_template: FormTemplateOrm):
 
     for question in questions:
         row = [
-            question.questionId,
-            question.lang_versions[0].questionText,
-            question.questionType.value,
+            question.question_id,
+            question.lang_versions[0].question_text,
+            question.question_type.value,
             question.lang_versions[0].lang,
             "Y" if question.required else "N",
             question.units,
             get_visible_condition_options(
-                question.visibleCondition,
+                question.visible_condition,
                 questions=questions,
             ),
-            question.numMin,
-            question.numMax,
-            question.stringMaxLength,
-            mcoptions_to_str(question.lang_versions[0].mcOptions),
+            question.num_min,
+            question.num_max,
+            question.string_max_length,
+            mcoptions_to_str(question.lang_versions[0].mc_options),
         ]
         rows.append(row)
 
         for lang in question.lang_versions[1:]:
             row = [
                 "",
-                lang.questionText,
+                lang.question_text,
                 "",
                 lang.lang,
                 "",
@@ -668,7 +668,7 @@ def getCsvFromFormTemplate(form_template: FormTemplateOrm):
                 "",
                 "",
                 "",
-                mcoptions_to_str(lang.mcOptions),
+                mcoptions_to_str(lang.mc_options),
             ]
             rows.append(row)
 
