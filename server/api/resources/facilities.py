@@ -39,7 +39,7 @@ class Root(Resource):
         if util.query_param_bool(request, "simplified"):
             # If responding to a "simplified" request, only return the names of the
             # facilities and no other information
-            return [f.healthFacilityName for f in facilities]
+            return [f.name for f in facilities]
         # Otherwise, return all information about the health facilities
         return [marshal.marshal(f) for f in facilities]
 
@@ -62,15 +62,15 @@ class Root(Resource):
 
         # Create a DB Model instance for the new facility and load into DB
         facility = marshal.unmarshal(HealthFacilityOrm, args)
-        facility.newReferrals = str(round(time.time() * 1000))
+        facility.new_referrals = str(round(time.time() * 1000))
 
         crud.create(facility)
 
         # Get back a dict for return
-        facilityDict = marshal.marshal(
-            crud.read(HealthFacilityOrm, healthFacilityName=args["healthFacilityName"]),
+        facility_dict = marshal.marshal(
+            crud.read(HealthFacilityOrm, name=args["health_facility_name"]),
         )
-        return facilityDict, 201
+        return facility_dict, 201
 
 
 # /api/facilities/<str:facility_name>
