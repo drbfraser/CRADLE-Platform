@@ -14,6 +14,8 @@ from service import assoc, invariant, serialize, statsCalculation, view
 from utils import get_current_time
 from validation import assessments, patients, readings
 
+patient_not_found_message = "Patient with id ({}) not found."
+
 
 # /api/patients
 class Root(Resource):
@@ -75,7 +77,9 @@ class Root(Resource):
                 data.db_session.refresh(patient)
 
         patient = crud.read_patients(patient_id)
-        readings = crud.read_readings(patient_id)
+        if patient is None:
+            abort(404, message=patient_not_found_message.format(patient_id))
+            return None
         referrals = crud.read_referrals_or_assessments(ReferralOrm, patient_id)
         assessments = crud.read_referrals_or_assessments(FollowUpOrm, patient_id)
 
@@ -96,8 +100,8 @@ class SinglePatient(Resource):
     )
     def get(patient_id: str):
         patient = crud.read_patients(patient_id)
-        if not patient:
-            abort(404, message=f"No patient with id {patient_id}")
+        if patient is None:
+            abort(404, message=patient_not_found_message.format(patient_id))
             return None
 
         readings = crud.read_readings(patient_id)
@@ -145,9 +149,14 @@ class PatientInfo(Resource):
         # You can think of this like aborting a git merge due to conflicts.
         base = json.get("base")
         if base:
-            last_edited = crud.read(PatientOrm, patient_id=patient_id).last_edited
+            patient = crud.read(PatientOrm, patient_id=patient_id)
+            if patient is None:
+                abort(404, message=patient_not_found_message.format(patient_id))
+                return None
+            last_edited = patient.last_edited
             if base != last_edited:
                 abort(409, message="Unable to merge changes, conflict detected")
+                return None
 
             # Delete the `base` field once we are done with it as to not confuse the
             # ORM as there is no "base" column in the database for patients.
@@ -155,6 +164,9 @@ class PatientInfo(Resource):
 
         crud.update(PatientOrm, json, patient_id=patient_id)
         patient = crud.read(PatientOrm, patient_id=patient_id)
+        if patient is None:
+            abort(404, message=patient_not_found_message.format(patient_id))
+            return None
 
         # Update the patient's last_edited timestamp only if there was no `base` field
         # in the request JSON. If there was then that means that this edit happened some
@@ -179,8 +191,9 @@ class PatientStats(Resource):
     )
     def get(patient_id: str):
         patient = crud.read(PatientOrm, patient_id=patient_id)
-        if not patient:
-            abort(404, message=f"No patient with id {patient_id}")
+        if patient is None:
+            abort(404, message=patient_not_found_message.format(patient_id))
+            return None
 
         today = date.today()
         current_year = today.year
@@ -318,6 +331,9 @@ class PatientReferrals(Resource):
     )
     def get(patient_id: str):
         patient = crud.read(PatientOrm, patient_id=patient_id)
+        if patient is None:
+            abort(404, message=patient_not_found_message.format(patient_id))
+            return None
         return [marshal.marshal(ref) for ref in patient.referrals]
 
 
@@ -332,6 +348,9 @@ class PatientForms(Resource):
     )
     def get(patient_id: str):
         patient = crud.read(PatientOrm, patient_id=patient_id)
+        if patient is None:
+            abort(404, message=patient_not_found_message.format(patient_id))
+            return None
         return [marshal.marshal(form, True) for form in patient.forms]
 
 
