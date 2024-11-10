@@ -16,7 +16,7 @@ def get_stats_data(
     else:
         data = [[], [], [], [], [], [], [], [], [], [], [], []]
 
-    if data_needed == "traffic_light_ltatus":
+    if data_needed == "traffic_light_status":
         # do traffic light status stuff here
         data = get_traffic_light(readings, data)
 
