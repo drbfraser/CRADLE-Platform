@@ -68,6 +68,12 @@ class UserOrm(db.Model):
         lazy=True,
         cascade="all, delete-orphan",
     )
+    sms_secret_keys = db.relationship(
+        "SmsSecretKeyOrm",
+        back_populates="user",
+        lazy=True,
+        cascade="all, delete-orphan",
+    )
 
     @staticmethod
     def schema():
@@ -687,6 +693,8 @@ class SmsSecretKeyOrm(db.Model):
 
     # FOREIGNKEY
     user_id = db.Column(db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+
+    user = db.relationship(UserOrm, back_populates="sms_secret_keys")
 
     @staticmethod
     def schema():
