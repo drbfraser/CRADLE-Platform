@@ -29,7 +29,7 @@ class UserDict(TypedDict):
     name: str
     username: str
     email: str
-    facility: str
+    health_facility_name: str
     role: str
     sub: str
 
