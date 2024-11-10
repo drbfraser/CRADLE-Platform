@@ -332,10 +332,10 @@ def read_referral_list(
     ).label("vital_sign")
     query = (
         db_session.query(
-            ReferralOrm.id,
+            ReferralOrm.id.label("referral_id"),
             ReferralOrm.date_referred,
             ReferralOrm.is_assessed,
-            PatientOrm.id,
+            PatientOrm.id.label("patient_id"),
             PatientOrm.name,
             PatientOrm.village_number,
             vital_sign_field,
