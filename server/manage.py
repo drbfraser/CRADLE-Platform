@@ -287,7 +287,7 @@ def seed(ctx):
             reading_1 = {
                 "user_id": user_id,
                 "patient_Id": patient_id,
-                "date_time_taken": date_list[i],
+                "date_taken": date_list[i],
                 "reading_id": reading_id,
                 "systolic_blood_pressure": get_random_systolic_bp(),
                 "diastolic_blood_pressure": get_random_diastolic_bp(),
@@ -306,7 +306,7 @@ def seed(ctx):
             if random.choice([True, False]):
                 # Cap the referral date at today, if it goes into future
                 refer_date = min(
-                    reading_1["date_time_taken"]
+                    reading_1["date_taken"]
                     + int(datetime.timedelta(days=10).total_seconds()),
                     int(datetime.datetime.now().timestamp()),
                 )
