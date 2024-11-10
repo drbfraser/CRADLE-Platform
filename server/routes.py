@@ -54,11 +54,11 @@ from api.resources.referrals import (
     SingleReferral,
 )
 from api.resources.referrals import Root as Referrals
-from api.resources.relayServerPhoneNumbers import RelayServerPhoneNumbers
 from api.resources.sms_relay import Root as SmsRelay
 from api.resources.stats import AllStats, ExportStats, FacilityReadings, UserReadings
 from api.resources.upload import Root as Upload
 from api.resources.version import Version
+from server.api.resources.relay_server_phone_numbers import RelayServerPhoneNumbers
 
 
 def init(api):
