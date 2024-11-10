@@ -96,7 +96,7 @@ def medical_record_view(
 
 def patient_view(user: dict, last_sync: Optional[int] = None) -> List[Any]:
     """
-    Returns a list of patients each with the latest pregnancy, medical and durg records.
+    Returns a list of patients each with the latest pregnancy, medical and drug records.
 
     :param user: JWT identity
     :return: A list of patients

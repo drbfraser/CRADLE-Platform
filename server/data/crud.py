@@ -646,7 +646,7 @@ def read_patients(
     last_edited: Optional[int] = None,
 ) -> Union[Any, List[Any]]:
     """
-    Queries the database for patient(s) each with the latest pregnancy, medical and durg
+    Queries the database for patient(s) each with the latest pregnancy, medical and drug
     records.
 
     :param patient_id: ID of patient to filter patients; by default this filter is not
@@ -658,9 +658,9 @@ def read_patients(
 
     :return: A patient if patient ID is specified; a list of patients otherwise
     """
-    # Aliased classes to be used in join clauses for geting the latest pregnancy, medical
+    # Aliased classes to be used in join clauses for getting the latest pregnancy, medical
     # and drug records.
-    pr = aliased(PregnancyOrm)
+    pregnancy = aliased(PregnancyOrm)
     MedicalHistory = aliased(MedicalRecordOrm)
     md = aliased(MedicalRecordOrm)
     DrugHistory = aliased(MedicalRecordOrm)
@@ -668,7 +668,7 @@ def read_patients(
 
     query = (
         db_session.query(
-            PatientOrm.id,
+            PatientOrm.id.label("patient_id"),
             PatientOrm.name,
             PatientOrm.sex,
             PatientOrm.date_of_birth,
@@ -694,10 +694,10 @@ def read_patients(
             ),
         )
         .outerjoin(
-            pr,
+            pregnancy,
             and_(
-                PregnancyOrm.id == pr.patient_id,
-                PregnancyOrm.start_date < pr.start_date,
+                PregnancyOrm.id == pregnancy.patient_id,
+                PregnancyOrm.start_date < pregnancy.start_date,
             ),
         )
         .outerjoin(
@@ -731,7 +731,7 @@ def read_patients(
             ),
         )
         .filter(
-            pr.start_date.is_(None),
+            pregnancy.start_date.is_(None),
             md.date_created.is_(None),
             dr.date_created.is_(None),
         )
