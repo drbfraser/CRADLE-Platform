@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { lowerCase } from 'lodash';
-import { UserRoleEnum } from 'src/shared/enums';
+import { userSchema } from './user';
 
 export const authRequestSchema = z.object({
   // Username should be case-insensitive.
@@ -28,17 +28,6 @@ const authChallengeSchema = z.object({
   session: z.string().nullable(),
 });
 
-const userSchema = z.object({
-  id: z.number().int().positive(),
-  username: z.string(),
-  email: z.string().email({ message: 'Invalid email address.' }),
-  healthFacilityName: z.string(),
-  role: z.nativeEnum(UserRoleEnum),
-  smsKey: z.string().nullable(),
-  supervises: z.array(z.number().int().positive()).optional(),
-  phoneNumbers: z.array(z.string()),
-});
-
 // Schema for validating the response body of authentication request.
 export const authResponseSchema = z.object({
   accessToken: z.string(),
@@ -48,4 +37,3 @@ export const authResponseSchema = z.object({
 
 export type AuthResponse = z.infer<typeof authResponseSchema>;
 export type AuthChallenge = z.infer<typeof authChallengeSchema>;
-export type UserSchema = z.infer<typeof userSchema>;
