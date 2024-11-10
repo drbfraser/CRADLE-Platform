@@ -10,6 +10,7 @@ import { apiFetch, API_URL } from 'src/shared/api/api';
 import APIErrorToast from '../apiErrorToast/APIErrorToast';
 import { ReferralFilter } from 'src/shared/types';
 import { TrafficLightEnum } from 'src/shared/enums';
+import { axiosFetch } from 'src/shared/api/fetch';
 
 interface IProps {
   endpoint: string;
@@ -75,9 +76,9 @@ export const APITable = ({
     // allow aborting a fetch early if the user clicks things rapidly
     const controller = new AbortController();
 
-    const fetchOptions = {
-      signal: controller.signal,
-    };
+    // const fetchOptions = {
+    //   signal: controller.signal,
+    // };
 
     const params = new URLSearchParams({
       limit: limit.toString(),
@@ -114,23 +115,24 @@ export const APITable = ({
       );
     }
 
-    apiFetch(
-      API_URL + endpoint + '?' + params + '&' + referralFilterParams,
-      fetchOptions
-    )
+    axiosFetch({
+      method: 'GET',
+      endpoint: endpoint,
+      params: { ...params, ...referralFilterParams },
+    })
       .then(async (resp) => {
-        const json = await resp.json();
+        const data = resp.data;
 
         //The case for drug history records on the past records page
         if (isDrugRecord === true) {
-          setRows(json.drug);
+          setRows(data.drug);
           //The case for medical history records on the past records page
         } else if (isDrugRecord === false) {
-          setRows(json.medical);
+          setRows(data.medical);
         } else if (isReferralListPage === true) {
-          setRows(json);
+          setRows(data);
         } else {
-          setRows(json);
+          setRows(data);
         }
         setLoading(false);
       })
@@ -140,6 +142,33 @@ export const APITable = ({
           setLoading(false);
         }
       });
+
+    // apiFetch(
+    //   API_URL + endpoint + '?' + params + '&' + referralFilterParams,
+    //   fetchOptions
+    // )
+    //   .then(async (resp) => {
+    //     const json = await resp.json();
+
+    //     //The case for drug history records on the past records page
+    //     if (isDrugRecord === true) {
+    //       setRows(json.drug);
+    //       //The case for medical history records on the past records page
+    //     } else if (isDrugRecord === false) {
+    //       setRows(json.medical);
+    //     } else if (isReferralListPage === true) {
+    //       setRows(json);
+    //     } else {
+    //       setRows(json);
+    //     }
+    //     setLoading(false);
+    //   })
+    //   .catch((e) => {
+    //     if (e.name !== 'AbortError') {
+    //       setLoadingError(true);
+    //       setLoading(false);
+    //     }
+    //   });
 
     // if the user does something else, cancel the fetch
     return () => controller.abort();

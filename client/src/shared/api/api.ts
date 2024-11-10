@@ -9,7 +9,6 @@ import {
   FormTemplateWithQuestions,
   Facility,
   RelayNum,
-  User,
   VHT,
   MedicalRecord,
   NewAssessment,
@@ -24,11 +23,13 @@ import { EndpointEnum, MethodEnum, UserRoleEnum } from '../enums';
 import { IExportStatRow } from 'src/pages/statistics/utils';
 import { PasswordField } from 'src/app/topBar/changePassword/state';
 import { PostBody } from 'src/pages/customizedForm/customizedEditForm/handlers';
-import { UserField } from 'src/pages/admin/manageUsers/state';
 import { jwtDecode } from 'jwt-decode';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
 import { reduxStore } from 'src/redux/store';
 import { showMessage } from 'src/redux/actions/messageActions';
+import { axiosFetch } from './fetch';
+import { User } from './validation/user';
+import axios from 'axios';
 
 export const API_URL =
   process.env.NODE_ENV === `development`
@@ -81,7 +82,7 @@ export const getApiToken = async () => {
 };
 
 export const apiFetch = async (
-  input: RequestInfo,
+  url: string,
   init?: RequestInit | undefined,
   isFormData?: boolean,
   needErrorInfo?: boolean
@@ -94,7 +95,10 @@ export const apiFetch = async (
         Accept: 'application/json',
       };
 
-  return fetch(input, {
+  console.log('RequestInit:', init);
+  console.log('RequestInput:', url);
+
+  return fetch(url, {
     ...init,
     headers: {
       ...contentType,
@@ -113,37 +117,59 @@ export const changePasswordAsync = async (
   currentPass: string,
   newPass: string
 ) => {
-  const init = {
+  // const init = {
+  //   method: 'POST',
+  //   body: JSON.stringify({
+  //     [PasswordField.currentPass]: currentPass,
+  //     [PasswordField.newPass]: newPass,
+  //   }),
+  // };
+  return axiosFetch({
+    endpoint: EndpointEnum.CHANGE_PASS,
     method: 'POST',
-    body: JSON.stringify({
+    data: {
       [PasswordField.currentPass]: currentPass,
       [PasswordField.newPass]: newPass,
-    }),
-  };
-
-  return apiFetch(API_URL + EndpointEnum.CHANGE_PASS, init);
+    },
+  });
+  // return apiFetch(API_URL + EndpointEnum.CHANGE_PASS, init);
 };
 
-export const saveHealthFacilityAsync = async (facility: Facility) =>
-  apiFetch(API_URL + EndpointEnum.HEALTH_FACILITIES, {
+export const saveHealthFacilityAsync = async (facility: Facility) => {
+  return axiosFetch({
     method: 'POST',
-    body: JSON.stringify(facility),
+    endpoint: EndpointEnum.HEALTH_FACILITIES,
+    data: facility,
   });
+  // return apiFetch(API_URL + EndpointEnum.HEALTH_FACILITIES, {
+  //   method: 'POST',
+  //   body: JSON.stringify(facility),
+  // });
+};
 
 export const getHealthFacilitiesAsync = async (): Promise<Facility[]> => {
-  const response = await apiFetch(API_URL + EndpointEnum.HEALTH_FACILITIES);
+  // const response = await apiFetch(API_URL + EndpointEnum.HEALTH_FACILITIES);
+  const response = await axiosFetch({
+    method: 'GET',
+    endpoint: EndpointEnum.HEALTH_FACILITIES,
+  });
 
-  return response.json();
+  return response.data;
+  // return response.json();
 };
 
 export const getHealthFacilityAsync = async (
   healthFacility?: string
 ): Promise<Facility> => {
-  const response = await apiFetch(
-    API_URL + EndpointEnum.HEALTH_FACILITIES + `/${healthFacility}`
-  );
+  // const response = await apiFetch(
+  //   API_URL + EndpointEnum.HEALTH_FACILITIES + `/${healthFacility}`
+  // );
+  const response = await axiosFetch({
+    method: 'GET',
+    endpoint: EndpointEnum.HEALTH_FACILITIES + `/${healthFacility}`,
+  });
 
-  return response.json();
+  return response.data;
 };
 
 export const handleArchiveFormTemplateAsync = async (template: FormTemplate) =>
@@ -289,8 +315,12 @@ export const saveUserAsync = async (user: User, userId: number | undefined) => {
 };
 
 export const getUsersAsync = async (): Promise<User[]> => {
-  const res = await apiFetch(API_URL + EndpointEnum.USER_ALL);
-  const users = await res.json();
+  // const res = await apiFetch(API_URL + EndpointEnum.USER_ALL);
+  const res = await axiosFetch({
+    method: 'GET',
+    endpoint: EndpointEnum.USER_ALL,
+  });
+  const users = await res.data;
   /* Since much of the front-end was created with users only having a single 
   phone number, set the users 'phoneNumber' attribute to be the first 
   phone number in the 'phoneNumbers' array. */
@@ -301,17 +331,22 @@ export const getUsersAsync = async (): Promise<User[]> => {
 };
 
 export const resetUserPasswordAsync = async (user: User, password: string) => {
-  const url =
-    API_URL + EndpointEnum.USER + String(user.id) + EndpointEnum.RESET_PASS;
+  // const url =
+  //   API_URL + EndpointEnum.USER + String(user.id) + EndpointEnum.RESET_PASS;
+  const url = EndpointEnum.USER + String(user.id) + EndpointEnum.RESET_PASS;
 
-  const init = {
+  // const init = {
+  //   method: 'POST',
+  //   body: JSON.stringify({
+  //     [UserField.password]: password,
+  //   }),
+  // };
+  return axiosFetch({
     method: 'POST',
-    body: JSON.stringify({
-      [UserField.password]: password,
-    }),
-  };
-
-  return apiFetch(url, init);
+    endpoint: url,
+    data: { password: password },
+  });
+  // return apiFetch(url, init);
 };
 
 export const saveAssessmentAsync = async (
@@ -339,11 +374,16 @@ export const saveAssessmentAsync = async (
 export const getAssessmentAsync = async (
   assessmentId: string
 ): Promise<AssessmentState> => {
-  const resp = await apiFetch(
-    API_URL + EndpointEnum.ASSESSMENTS + '/' + assessmentId
-  );
+  // const resp = await apiFetch(
+  //   API_URL + EndpointEnum.ASSESSMENTS + '/' + assessmentId
+  // );
+  const resp = await axiosFetch({
+    method: 'GET',
+    endpoint: EndpointEnum.ASSESSMENTS + '/' + assessmentId,
+  });
 
-  return resp.json();
+  // return resp.json();
+  return resp.data;
 };
 
 export const saveDrugHistoryAsync = async (
@@ -479,9 +519,14 @@ export const getPatientMedicalHistoryAsync = async (
 };
 
 export const getAllPatientsAsync = async () => {
-  const response = await apiFetch(API_URL + EndpointEnum.PATIENTS);
+  // const response = await apiFetch(API_URL + EndpointEnum.PATIENTS);
 
-  return response.json();
+  // return response.json();
+  const response = await axiosFetch({
+    method: 'GET',
+    endpoint: EndpointEnum.PATIENTS,
+  });
+  return response.data;
 };
 
 export const getPatientsAdminAsync = async (includeArchived: boolean) => {
@@ -641,15 +686,26 @@ export const saveReferralAsync = async (referral: any) => {
 };
 
 export const getUserVhtsAsync = async (): Promise<Referrer[]> => {
-  const response = await apiFetch(API_URL + EndpointEnum.USER_VHTS);
+  // const response = await apiFetch(API_URL + EndpointEnum.USER_VHTS);
 
-  return response.json();
+  // return response.json();
+
+  const response = await axiosFetch({
+    method: 'GET',
+    endpoint: EndpointEnum.USER_VHTS,
+  });
+  return response.data;
 };
 
 export const getVHTsAsync = async (): Promise<VHT[]> => {
-  const response = await apiFetch(API_URL + EndpointEnum.ALL_VHTS);
+  // const response = await apiFetch(API_URL + EndpointEnum.ALL_VHTS);
 
-  return response.json();
+  // return response.json();
+  const response = await axiosFetch({
+    method: 'GET',
+    endpoint: EndpointEnum.ALL_VHTS,
+  });
+  return response.data;
 };
 
 export const setReferralCancelStatusAsync = async (
@@ -730,23 +786,32 @@ export const getAllStatisticsAsync = async (
 };
 
 export const getSecretKeyAsync = async (userId: number) => {
-  const response = await apiFetch(
-    API_URL + `/user/${userId}` + EndpointEnum.SECRETKEY,
-    {
-      method: MethodEnum.GET,
-    }
-  );
-  return response.json();
+  // const response = await apiFetch(
+  //   API_URL + `/user/${userId}` + EndpointEnum.SECRETKEY,
+  //   {
+  //     method: MethodEnum.GET,
+  //   }
+  // );
+  // return response.json();
+  const response = await axiosFetch({
+    method: 'GET',
+    endpoint: `/user/${userId}` + EndpointEnum.SECRETKEY,
+  });
+  return response.data;
 };
 
 export const updateSecretKeyAsync = async (userId: number) => {
-  const response = await apiFetch(
-    API_URL + `/user/${userId}` + EndpointEnum.SECRETKEY,
-    {
-      method: MethodEnum.PUT,
-    }
-  );
-  return response.json();
+  // const response = await apiFetch(
+  //   API_URL + `/user/${userId}` + EndpointEnum.SECRETKEY,
+  //   {
+  //     method: MethodEnum.PUT,
+  //   }
+  // );
+  const response = await axiosFetch({
+    method: 'PUT',
+    endpoint: `/user/${userId}` + EndpointEnum.SECRETKEY,
+  });
+  return response.data;
 };
 
 export const addRelayServerPhone = async (
