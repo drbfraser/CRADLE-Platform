@@ -43,11 +43,8 @@ class UserDict(TypedDict):
     sub: str
 
 
-class UserDictWithPhoneNumbers(UserDict):
+class UserData(UserDict):
     phone_numbers: list[str]
-
-
-class UserData(UserDictWithPhoneNumbers):
     sms_key: Optional[dict[str, str]]
 
 
@@ -107,16 +104,18 @@ class UserUtils:
         return user_dict["id"]
 
     @staticmethod
-    def get_user_dict_with_phone_numbers(username: str) -> UserDictWithPhoneNumbers:
+    def get_user_data_from_username(username: str):
         user_dict = UserUtils.get_user_dict_from_username(username)
         phone_numbers = PhoneNumberUtils.get_users_phone_numbers(user_dict["id"])
-        return UserDictWithPhoneNumbers(phone_numbers=phone_numbers, **user_dict)
+        sms_key = UserUtils.get_user_sms_secret_key_formatted(user_dict["id"])
+        return UserData(sms_key=sms_key, phone_numbers=phone_numbers, **user_dict)
 
     @staticmethod
-    def get_user_data(username: str):
-        user_dict = UserUtils.get_user_dict_with_phone_numbers(username)
-        sms_key = UserUtils.get_user_sms_secret_key_formatted(user_dict["id"])
-        return UserData(sms_key=sms_key, **user_dict)
+    def get_user_data_from_id(user_id: int):
+        user_dict = UserUtils.get_user_dict_from_id(user_id)
+        phone_numbers = PhoneNumberUtils.get_users_phone_numbers(user_id)
+        sms_key = UserUtils.get_user_sms_secret_key_formatted(user_id)
+        return UserData(sms_key=sms_key, phone_numbers=phone_numbers, **user_dict)
 
     @staticmethod
     def does_email_exist(email: str) -> bool:

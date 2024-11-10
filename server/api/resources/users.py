@@ -299,7 +299,7 @@ class UserAuthApi(Resource):
 
         # Get user data from database.
         try:
-            user_dict = UserUtils.get_user_data(credentials.username)
+            user_dict = UserUtils.get_user_data_from_username(credentials.username)
         except ValueError as err:
             LOGGER.error(err)
             LOGGER.error(
@@ -349,7 +349,7 @@ class UserAuthTokenRefreshApi(Resource):
     def post(self):
         current_user = get_jwt_identity()
         new_token = create_access_token(identity=current_user, fresh=False)
-        return {"token": new_token}, 200
+        return {"access_token": new_token}, 200
 
 
 # /api/user/current
@@ -358,8 +358,8 @@ class UserTokenApi(Resource):
     @jwt_required()
     @swag_from("../../specifications/user-current.yml", methods=["GET"])
     def get(self):
-        tokenData = get_jwt_identity()
-        user_id = tokenData["user_id"]
+        token_data = get_jwt_identity()
+        user_id = token_data["user_id"]
 
         return getDictionaryOfUserInfo(user_id), 200
 
@@ -405,7 +405,7 @@ class UserApi(Resource):
     @public_endpoint
     def get(self, id):
         try:
-            user_dict = UserUtils.get_user_dict_from_id(id)
+            user_dict = UserUtils.get_user_data_from_id(id)
         except ValueError as err:
             error_message = str(err)
             LOGGER.error(error_message)
