@@ -317,7 +317,7 @@ class UserAuthApi(Resource):
             del sms_key["id"]
             del sms_key["user_id"]
             # change the key name
-            sms_key["sms_key"] = sms_key.pop("secret_key")
+            sms_key["key"] = sms_key.pop("secret_key")
             # add message
             if is_date_passed(sms_key["expiry_date"]):
                 sms_key["message"] = "EXPIRED"
@@ -328,10 +328,6 @@ class UserAuthApi(Resource):
             # convert dates to string
             sms_key["stale_date"] = str(sms_key["stale_date"])
             sms_key["expiry_date"] = str(sms_key["expiry_date"])
-            # store the constructed sms key
-            # user_data["smsKey"] = json.dumps(sms_key)
-        # else:
-        # user_data["sms_key"] = "NOTFOUND"
 
         # Don't include refresh token in body of response.
         refresh_token = auth_result["refresh_token"]
