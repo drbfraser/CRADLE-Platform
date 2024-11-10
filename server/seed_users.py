@@ -34,7 +34,7 @@ class SeedUserDict(TypedDict):
 The minimal users needed for the application to be functional. Includes only
 a single admin user.
 """
-minimal_users: list[SeedUserDict] = [
+minimal_users_list: list[SeedUserDict] = [
     {
         "name": "Admin",
         "username": "admin",
@@ -50,7 +50,7 @@ minimal_users: list[SeedUserDict] = [
     },
 ]
 
-users: list[SeedUserDict] = [
+users_list: list[SeedUserDict] = [
     {
         "name": "Brian Fraser",
         "username": "brian_fraser",
@@ -147,7 +147,7 @@ class FacilityDict(TypedDict):
     about: str
 
 
-facilities: list[FacilityDict] = [
+facilities_list: list[FacilityDict] = [
     {
         "name": "H0000",
         "phone_number": "+256-414-999999",
@@ -212,8 +212,8 @@ def seed_facilities(facilities: list[FacilityDict]):
 
 
 def seed_minimal_users():
-    seed_facilities(facilities[:1])
-    populate_user_pool(minimal_users)
+    seed_facilities(facilities_list[:1])
+    populate_user_pool(minimal_users_list)
 
 
 # End of function.
@@ -221,8 +221,8 @@ def seed_minimal_users():
 
 def seed_test_users():
     seed_minimal_users()
-    seed_facilities(facilities[1:])
-    populate_user_pool(users)
+    seed_facilities(facilities_list[1:])
+    populate_user_pool(users_list)
 
 
 # End of function.
