@@ -53,17 +53,25 @@ export const getApiToken = async () => {
       /* Refresh token is stored in HTTP-Only cookie. It should automatically be
       sent along with our request to the refresh_token endpoint.
       */
-      const init = {
-        method: MethodEnum.POST,
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-      };
+      // const init = {
+      //   method: MethodEnum.POST,
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     Accept: 'application/json',
+      //   },
+      // };
 
-      const resp = await fetch(`${API_URL}${EndpointEnum.REFRESH}`, init);
+      // const url = `${API_URL}${EndpointEnum.REFRESH}`;
+      // const resp = await axios({
+      //   method: 'POST',
+      //   url: url
+      // })
+      const resp = await axiosFetch({
+        method: 'POST',
+        endpoint: EndpointEnum.REFRESH,
+      });
 
-      if (!resp.ok) {
+      if (resp.status !== 200) {
         console.error(
           `ERROR (${resp.status}): Failed to get new access token.`,
           resp
@@ -71,8 +79,17 @@ export const getApiToken = async () => {
         throw new Error();
       }
 
-      accessToken = (await resp.json()).data.access_token;
-      localStorage.setItem('access_token', accessToken!);
+      // if (!resp.ok) {
+      //   console.error(
+      //     `ERROR (${resp.status}): Failed to get new access token.`,
+      //     resp
+      //   );
+      //   throw new Error();
+      // }
+
+      // accessToken = (await resp.json()).data.access_token;
+      accessToken = resp.data.accessToken;
+      localStorage.setItem('accessToken', accessToken!);
     }
   } catch (e) {
     console.error(e);
