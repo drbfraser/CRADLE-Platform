@@ -179,8 +179,8 @@ def __marshal_reading(r: ReadingOrm, shallow) -> dict:
         d["symptoms"] = []
     if d.get("symptoms"):
         d["symptoms"] = d["symptoms"].split(",")
-    if not shallow and r.urineTests is not None:
-        d["urineTests"] = marshal(r.urineTests)
+    if not shallow and r.urine_tests is not None:
+        d["urine_tests"] = marshal(r.urine_tests)
     return d
 
 
@@ -188,8 +188,8 @@ def __marshal_referral(r: ReferralOrm) -> dict:
     d = vars(r).copy()
     __pre_process(d)
     # Remove relationship object
-    if d.get("healthFacility"):
-        del d["healthFacility"]
+    if d.get("health_facility"):
+        del d["health_facility"]
     if d.get("patient"):
         del d["patient"]
     return d
@@ -199,8 +199,8 @@ def __marshal_followup(f: FollowUpOrm) -> dict:
     d = vars(f).copy()
     __pre_process(d)
     # Remove relationship objects
-    if d.get("healthFacility"):
-        del d["healthFacility"]
+    if d.get("health_facility"):
+        del d["health_facility"]
     return d
 
 
@@ -223,7 +223,7 @@ def __marshal_medical_record(r: MedicalRecordOrm) -> dict:
         "last_edited": r.last_edited,
     }
 
-    if r.isDrugRecord:
+    if r.is_drug_record:
         d["drug_history"] = r.information
     else:
         d["medical_history"] = r.information
@@ -246,7 +246,7 @@ def __marshal_form_template(
             __marshal_question(q, if_include_versions) for q in f.questions
         ]
         # sort question list based on question index in ascending order
-        d["questions"].sort(key=lambda q: q["questionIndex"])
+        d["questions"].sort(key=lambda q: q["question_index"])
 
     return d
 
@@ -262,7 +262,7 @@ def marshal_template_to_single_version(f: FormTemplateOrm, version: str) -> dict
 
     # sort question list based on question index in ascending order
     if d["questions"]:
-        d["questions"].sort(key=lambda q: q["questionIndex"])
+        d["questions"].sort(key=lambda q: q["question_index"])
 
     return d
 
@@ -280,7 +280,7 @@ def __marshal_form(f: FormOrm, shallow) -> dict:
     if not shallow:
         d["questions"] = [marshal(q) for q in f.questions]
         # sort question list based on question index in ascending order
-        d["questions"].sort(key=lambda q: q["questionIndex"])
+        d["questions"].sort(key=lambda q: q["question_index"])
 
     return d
 
@@ -292,21 +292,21 @@ def __marshal_question(q: QuestionOrm, if_include_versions: bool) -> dict:
     # Remove relationship object
     if d.get("form"):
         del d["form"]
-    if d.get("formTemplate"):
-        del d["formTemplate"]
-    if d.get("categoryQuestion"):
-        del d["categoryQuestion"]
+    if d.get("form_template"):
+        del d["form_template"]
+    if d.get("category_question"):
+        del d["category_question"]
 
-    # marshal visibleConditions, mcOptions, answers to json dict
-    visible_condition = d["visibleCondition"]
-    d["visibleCondition"] = json.loads(visible_condition)
-    mc_options = d["mcOptions"]
-    d["mcOptions"] = json.loads(mc_options)
+    # marshal visible_conditions, mc_options, answers to json dict
+    visible_condition = d["visible_condition"]
+    d["visible_condition"] = json.loads(visible_condition)
+    mc_options = d["mc_options"]
+    d["mc_options"] = json.loads(mc_options)
     answers = d["answers"]
     d["answers"] = json.loads(answers)
 
     if if_include_versions:
-        d["questionLangVersions"] = [marshal(v) for v in q.lang_versions]
+        d["question_lang_versions"] = [marshal(v) for v in q.lang_versions]
 
     return d
 
@@ -315,9 +315,9 @@ def marshal_question_to_single_version(q: QuestionOrm, version: str) -> dict:
     d = __marshal_question(q, False)
     version_info = [marshal(v) for v in q.lang_versions if v.lang == version][0]
 
-    d["questionText"] = version_info["questionText"]
-    if "mcOptions" in version_info:
-        d["mcOptions"] = version_info["mcOptions"]
+    d["question_text"] = version_info["question_text"]
+    if "mc_options" in version_info:
+        d["mc_options"] = version_info["mc_options"]
 
     return d
 
@@ -329,12 +329,12 @@ def __marshal_lang_version(v: QuestionLangVersionOrm) -> dict:
     # Remove relationship object
     if d.get("question"):
         del d["question"]
-    # Remove mcOptions if default empty list
-    if d.get("mcOptions") == "[]":
-        del d["mcOptions"]
+    # Remove mc_options if default empty list
+    if d.get("mc_options") == "[]":
+        del d["mc_options"]
     else:
-        # marshal mcOptions to json dict
-        d["mcOptions"] = json.loads(d["mcOptions"])
+        # marshal mc_options to json dict
+        d["mc_options"] = json.loads(d["mc_options"])
 
     return d
 
@@ -358,7 +358,7 @@ def __marshal_form_classification(
 def __marshal_SmsSecretKey(s: SmsSecretKeyOrm):
     return {
         "id": s.id,
-        "userId": s.userId,
+        "user_id": s.userId,
         "secret_key": s.secret_key,
         "stale_date": s.stale_date,
         "expiry_date": s.expiry_date,
@@ -497,7 +497,7 @@ def make_medical_record_from_patient(patient: dict) -> MedicalRecordOrm:
             drug_record = {
                 "patient_id": patient["patient_id"],
                 "information": patient["drug_history"],
-                "isDrugRecord": True,
+                "is_drug_record": True,
             }
         del patient["drug_history"]
     if "medical_history" in patient:
@@ -505,7 +505,7 @@ def make_medical_record_from_patient(patient: dict) -> MedicalRecordOrm:
             medical_record = {
                 "patient_id": patient["patient_id"],
                 "information": patient["medical_history"],
-                "isDrugRecord": False,
+                "is_drug_record": False,
             }
         del patient["medical_history"]
 
@@ -515,8 +515,8 @@ def make_medical_record_from_patient(patient: dict) -> MedicalRecordOrm:
     if medical_record:
         records.append(medical_record)
 
-    medicalRecord = [unmarshal(MedicalRecordOrm, m) for m in records]
-    return medicalRecord
+    record = [unmarshal(MedicalRecordOrm, m) for m in records]
+    return record
 
 
 def makePregnancyFromPatient(patient: dict) -> PregnancyOrm:
@@ -581,11 +581,11 @@ def __unmarshal_reading(d: dict) -> ReadingOrm:
 
 
 def __unmarshal_lang_version(d: dict) -> QuestionLangVersionOrm:
-    # Convert "mcOptions" from json dict to string
-    mc_options = d.get("mcOptions")
+    # Convert "mc_options" from json dict to string
+    mc_options = d.get("mc_options")
     if mc_options is not None:
         if isinstance(mc_options, list):
-            d["mcOptions"] = json.dumps(mc_options)
+            d["mc_options"] = json.dumps(mc_options)
 
     lang_version = __load(QuestionLangVersionOrm, d)
 
@@ -593,11 +593,11 @@ def __unmarshal_lang_version(d: dict) -> QuestionLangVersionOrm:
 
 
 def __unmarshal_question(d: dict) -> QuestionOrm:
-    # Convert "visibleCondition" from json dict to string
-    visible_condition = d.get("visibleCondition")
+    # Convert "visible_condition" from json dict to string
+    visible_condition = d.get("visible_condition")
     if visible_condition is not None:
-        d["visibleCondition"] = json.dumps(visible_condition)
-    # Convert "mcOptions" from json dict to string
+        d["visible_condition"] = json.dumps(visible_condition)
+    # Convert "mc_options" from json dict to string
     mc_options = d.get("mc_options")
     if mc_options is not None:
         if isinstance(mc_options, list):
