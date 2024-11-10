@@ -426,7 +426,8 @@ class ReadingAssessment(Resource):
         if error_message is not None:
             abort(400, message=error_message)
 
-        user_id = get_jwt_identity()["user_id"]
+        current_user = UserUtils.get_current_user_from_jwt()
+        user_id = current_user["id"]
         reading_json["user_id"] = user_id
 
         reading = marshal.unmarshal(ReadingOrm, reading_json)
