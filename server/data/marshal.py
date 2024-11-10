@@ -103,18 +103,17 @@ def marshal_with_type(obj: Any, shallow=False) -> dict:
 
 def marshal_patient_pregnancy_summary(records: List[PregnancyOrm]) -> dict:
     summary = {
-        "isPregnant": False,
-        "pastPregnancies": list(),
+        "is_pregnant": False,
+        "past_pregnancies": list(),
     }
 
     if records:
         record = records[0]
-        if not record.endDate:
+        if not record.end_date:
             current_pregnancy = {
-                "isPregnant": True,
-                "pregnancyId": record.id,
-                "pregnancyStartDate": record.startDate,
-                "gestationalAgeUnit": record.defaultTimeUnit.value,
+                "is_pregnant": True,
+                "pregnancy_id": record.id,
+                "pregnancy_start_date": record.start_date,
             }
             summary.update(current_pregnancy)
             del records[0]
@@ -122,13 +121,13 @@ def marshal_patient_pregnancy_summary(records: List[PregnancyOrm]) -> dict:
         past_pregnancies = list()
         for record in records:
             pregnancy = {
-                "pregnancyId": record.id,
-                "pregnancyOutcome": record.outcome,
-                "pregnancyEndDate": record.endDate,
-                "pregnancyStartDate": record.startDate,
+                "id": record.id,
+                "outcome": record.outcome,
+                "pregnancy_end_date": record.end_date,
+                "pregnancy_start_date": record.start_date,
             }
             past_pregnancies.append(pregnancy)
-        summary["pastPregnancies"] = past_pregnancies
+        summary["past_pregnancies"] = past_pregnancies
 
     return summary
 
@@ -141,15 +140,15 @@ def marshal_patient_medical_history(
 
     if medical:
         info = {
-            "medicalHistoryId": medical.id,
-            "medicalHistory": medical.information,
+            "medical_history_id": medical.id,
+            "medical_history": medical.information,
         }
         records.update(info)
 
     if drug:
         info = {
-            "drugHistoryId": drug.id,
-            "drugHistory": drug.information,
+            "drug_history_id": drug.id,
+            "drug_history": drug.information,
         }
         records.update(info)
 
@@ -159,17 +158,17 @@ def marshal_patient_medical_history(
 def __marshal_patient(p: PatientOrm, shallow) -> dict:
     d = vars(p).copy()
     __pre_process(d)
-    if d.get("dob"):
-        d["dob"] = str(d["dob"])
+    if d.get("date_of_birth"):
+        d["date_of_birth"] = str(d["date_of_birth"])
 
     # The API representation of a patient contains a "base" field which is used by
     # mobile for syncing. When getting a patient from an API, this value is always
-    # equivalent to "lastEdited".
-    d["base"] = d["lastEdited"]
+    # equivalent to "last_edited".
+    d["base"] = d["last_edited"]
     if not shallow:
         d["readings"] = [marshal(r) for r in p.readings]
         d["referrals"] = [marshal(r) for r in p.referrals]
-        d["assessments"] = [marshal(a) for a in p.followups]
+        d["assessments"] = [marshal(a) for a in p.follow_ups]
     return d
 
 
@@ -208,27 +207,26 @@ def __marshal_followup(f: FollowUpOrm) -> dict:
 def __marshal_pregnancy(p: PregnancyOrm) -> dict:
     return {
         "id": p.id,
-        "patientId": p.patientId,
-        "pregnancyStartDate": p.startDate,
-        "gestationalAgeUnit": p.defaultTimeUnit.value,
-        "pregnancyEndDate": p.endDate,
-        "pregnancyOutcome": p.outcome,
-        "lastEdited": p.lastEdited,
+        "patient_id": p.patient_id,
+        "start_date": p.start_date,
+        "end_date": p.end_date,
+        "outcome": p.outcome,
+        "last_edited": p.last_edited,
     }
 
 
 def __marshal_medical_record(r: MedicalRecordOrm) -> dict:
     d = {
         "id": r.id,
-        "patientId": r.patientId,
-        "dataCreated": r.dateCreated,
-        "lastEdited": r.lastEdited,
+        "patient_id": r.patient_id,
+        "dataCreated": r.date_created,
+        "last_edited": r.last_edited,
     }
 
     if r.isDrugRecord:
-        d["drugHistory"] = r.information
+        d["drug_history"] = r.information
     else:
-        d["medicalHistory"] = r.information
+        d["medical_history"] = r.information
 
     return d
 
@@ -465,7 +463,7 @@ def __unmarshal_patient(d: dict) -> PatientOrm:
     else:
         forms = []
 
-    medRecords = makeMedRecFromPatient(d)
+    medRecords = make_medical_record_from_patient(d)
     pregnancy = makePregnancyFromPatient(d)
 
     # Since "base" doesn't have a column in the database, we must remove it from its
@@ -480,7 +478,7 @@ def __unmarshal_patient(d: dict) -> PatientOrm:
     if referrals:
         patient.referrals = referrals
     if assessments:
-        patient.followups = assessments
+        patient.follow_ups = assessments
     if medRecords:
         patient.records = medRecords
     if pregnancy:
@@ -491,31 +489,31 @@ def __unmarshal_patient(d: dict) -> PatientOrm:
     return patient
 
 
-def makeMedRecFromPatient(patient: dict) -> MedicalRecordOrm:
-    drugRec = {}
-    medRec = {}
-    if "drugHistory" in patient:
-        if patient["drugHistory"]:
-            drugRec = {
-                "patientId": patient["patientId"],
-                "information": patient["drugHistory"],
+def make_medical_record_from_patient(patient: dict) -> MedicalRecordOrm:
+    drug_record = {}
+    medical_record = {}
+    if "drug_history" in patient:
+        if patient["drug_history"]:
+            drug_record = {
+                "patient_id": patient["patient_id"],
+                "information": patient["drug_history"],
                 "isDrugRecord": True,
             }
-        del patient["drugHistory"]
-    if "medicalHistory" in patient:
-        if patient["medicalHistory"]:
-            medRec = {
-                "patientId": patient["patientId"],
-                "information": patient["medicalHistory"],
+        del patient["drug_history"]
+    if "medical_history" in patient:
+        if patient["medical_history"]:
+            medical_record = {
+                "patient_id": patient["patient_id"],
+                "information": patient["medical_history"],
                 "isDrugRecord": False,
             }
-        del patient["medicalHistory"]
+        del patient["medical_history"]
 
     records = []
-    if drugRec:
-        records.append(drugRec)
-    if medRec:
-        records.append(medRec)
+    if drug_record:
+        records.append(drug_record)
+    if medical_record:
+        records.append(medical_record)
 
     medicalRecord = [unmarshal(MedicalRecordOrm, m) for m in records]
     return medicalRecord
@@ -523,17 +521,16 @@ def makeMedRecFromPatient(patient: dict) -> MedicalRecordOrm:
 
 def makePregnancyFromPatient(patient: dict) -> PregnancyOrm:
     pregnancyObj = {}
-    if patient.get("pregnancyStartDate"):
+    if patient.get("pregnancy_start_date"):
         pregnancyObj = {
-            "patientId": patient["patientId"],
-            "startDate": patient.pop("pregnancyStartDate"),
-            "defaultTimeUnit": patient.pop("gestationalAgeUnit"),
+            "patient_id": patient["id"],
+            "start_date": patient.pop("pregnancy_start_date"),
         }
 
-    if "isPregnant" in patient:
-        del patient["isPregnant"]
-    if "pregnancyStartDate" in patient:
-        del patient["pregnancyStartDate"]
+    if "is_pregnant" in patient:
+        del patient["is_pregnant"]
+    if "start" in patient:
+        del patient["pregnancy_start_date"]
 
     if pregnancyObj:
         pregnancy = [unmarshal(PregnancyOrm, pregnancyObj)]
