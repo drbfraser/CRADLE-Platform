@@ -361,7 +361,7 @@ def __marshal_SmsSecretKey(s: SmsSecretKeyOrm):
     return {
         "id": s.id,
         "userId": s.userId,
-        "secret_Key": s.secret_Key,
+        "secret_Key": s.secret_key,
         "stale_date": s.stale_date,
         "expiry_date": s.expiry_date,
     }
@@ -637,7 +637,7 @@ def __unmarshal_RelayServerPhoneNumber(d: dict) -> RelayServerPhoneNumberOrm:
 def __unmarshal_SmsSecretKey(d: dict) -> SmsSecretKeyOrm:
     sms_secret_key = __load(SmsSecretKeyOrm, d)
     sms_secret_key.userId = d["userId"]
-    sms_secret_key.secret_Key = d["secret_Key"]
+    sms_secret_key.secret_key = d["secret_Key"]
     sms_secret_key.stale_date = d["stale_date"]
     sms_secret_key.expiry_date = d["expiry_date"]
     return sms_secret_key

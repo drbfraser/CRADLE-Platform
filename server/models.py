@@ -677,7 +677,7 @@ class QuestionLangVersionOrm(db.Model):
 class SmsSecretKeyOrm(db.Model):
     __tablename__ = "sms_secret_keys"
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
-    secret_Key = db.Column(db.String(256), default="", nullable=False)
+    secret_key = db.Column(db.String(256), default="", nullable=False)
     stale_date = db.Column(db.DateTime, default=datetime.datetime.now(), nullable=False)
     expiry_date = db.Column(
         db.DateTime,

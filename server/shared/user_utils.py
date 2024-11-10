@@ -52,8 +52,6 @@ class UserUtils:
     def is_valid_email_format(email: str) -> bool:
         return re.fullmatch(EMAIL_REGEX_PATTERN, email) is not None
 
-    # End of function.
-
     @staticmethod
     def get_user_orm_from_username(username: str):
         """
@@ -71,8 +69,6 @@ class UserUtils:
             raise ValueError(f"No user with username ({username}) found.")
         return user_orm
 
-    # End of function.
-
     @staticmethod
     def get_user_dict_from_orm(user_orm: UserOrm) -> UserDict:
         """
@@ -82,8 +78,6 @@ class UserUtils:
         """
         user_dict = marshal.marshal(user_orm)
         return cast(UserDict, user_dict)
-
-    # End of function.
 
     @staticmethod
     def get_user_dict_from_username(username: str) -> UserDict:
@@ -97,14 +91,10 @@ class UserUtils:
         user_orm = UserUtils.get_user_orm_from_username(username)
         return UserUtils.get_user_dict_from_orm(user_orm)
 
-    # End of function.
-
     @staticmethod
     def get_user_dict_from_id(user_id: int) -> UserDict:
         user_orm = crud.read(UserOrm, id=user_id)
         return UserUtils.get_user_dict_from_orm(user_orm)
-
-    # End of function.
 
     @staticmethod
     def get_user_id_from_username(username: str) -> int:
@@ -118,10 +108,6 @@ class UserUtils:
         phone_numbers = PhoneNumberUtils.get_users_phone_numbers(user_dict["id"])
         return UserDictWithPhoneNumbers(phone_numbers=phone_numbers, **user_dict)
 
-    # End of function.
-
-    # End of function.
-
     @staticmethod
     def does_email_exist(email: str) -> bool:
         """
@@ -129,8 +115,6 @@ class UserUtils:
         :return bool: True if the email is already in the database, False if it is not.
         """
         return (crud.read(UserOrm, email=email)) is not None
-
-    # End of function.
 
     @staticmethod
     def does_email_belong_to_user(email: str, user_id: int) -> bool:
@@ -140,8 +124,6 @@ class UserUtils:
         :return bool: True if the email belongs to the user.
         """
         return (crud.read(UserOrm, email=email, id=user_id)) is not None
-
-    # End of function.
 
     @staticmethod
     def is_email_unique_to_user(user_id: int, email: str) -> bool:
@@ -155,8 +137,6 @@ class UserUtils:
             crud.read(UserOrm, email=email) is None
             or crud.read(UserOrm, email=email, id=user_id) is not None
         )
-
-    # End of function.
 
     @staticmethod
     def register_user(
@@ -231,8 +211,6 @@ class UserUtils:
             cognito.delete_user(username)
             raise
 
-    # End of function.
-
     @staticmethod
     def create_user(
         username: str,
@@ -274,8 +252,6 @@ class UserUtils:
             print(error)
             raise ValueError(error)
 
-    # End of function.
-
     @staticmethod
     def delete_user(username: str):
         """
@@ -294,8 +270,6 @@ class UserUtils:
             # Delete from database.
             crud.delete(user_orm)
 
-    # End of function.
-
     @staticmethod
     def get_user_orm_list():
         """
@@ -303,8 +277,6 @@ class UserUtils:
         """
         # Get list of users from our database.
         return crud.read_all(UserOrm)
-
-    # End of function.
 
     @staticmethod
     def get_user_dict_list():
@@ -318,8 +290,6 @@ class UserUtils:
         ]
         return user_dict_list
 
-    # End of function.
-
     @staticmethod
     def does_username_exist(username: str) -> bool:
         """
@@ -330,8 +300,6 @@ class UserUtils:
         if crud.read(UserOrm, username=username) is None:
             return False
         return True
-
-    # End of function.
 
     @staticmethod
     def _update_user_phone_numbers(user_orm: UserOrm, phone_numbers: set[str]):
@@ -380,8 +348,6 @@ class UserUtils:
 
         db.session.commit()
 
-    # End of function.
-
     @staticmethod
     def update_user(user_id: int, user_update_dict: dict[str, Any]):
         """
@@ -426,8 +392,6 @@ class UserUtils:
             db.session.rollback()
             raise ValueError(e)
 
-    # End of function.
-
     @staticmethod
     def create_secret_key_for_user(user_id):
         stale_date = get_future_date(days_after=SMS_KEY_DURATION - 10)
@@ -443,8 +407,6 @@ class UserUtils:
         crud.create(sms_new_key_model)
         return new_key
 
-    # End of function.
-
     @staticmethod
     def update_sms_secret_key_for_user(user_id):
         stale_date = get_future_date(days_after=SMS_KEY_DURATION - 10)
@@ -458,29 +420,21 @@ class UserUtils:
         crud.update(SmsSecretKeyOrm, new_key, user_id=user_id)
         return new_key
 
-    # End of function.
-
     @staticmethod
     def get_user_sms_secret_key(user_id):
         sms_secret_key = crud.read(SmsSecretKeyOrm, user_id=user_id)
-        if sms_secret_key and sms_secret_key.secret_Key:
+        if sms_secret_key and sms_secret_key.secret_key:
             sms_key = marshal.marshal(sms_secret_key, SmsSecretKeyOrm)
             return sms_key
         return None
-
-    # End of function.
 
     @staticmethod
     def get_user_sms_secret_key_string(user_id):
         sms_secret_key = crud.read(SmsSecretKeyOrm, user_id=user_id)
         if sms_secret_key:
-            return sms_secret_key.secret_Key
+            return sms_secret_key.secret_key
         return None
-
-    # End of function.
 
     @staticmethod
     def generate_new_sms_secret_key():
         return secrets.randbits(256).to_bytes(32, "little").hex()
-
-    # End of function.

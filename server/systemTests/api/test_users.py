@@ -89,8 +89,8 @@ def test_sms_secret_key_for_sms_relay(jwt_token, admin_user_id):
 
     assert get_response.status_code == 200
     assert resp_body["message"] == "NORMAL"
-    assert resp_body["sms_key"] is not None and resp_body["sms_key"] == user.secret_Key
-    assert user.secret_Key is not None and user.secret_Key == resp_body["sms_key"]
+    assert resp_body["sms_key"] is not None and resp_body["sms_key"] == user.secret_key
+    assert user.secret_key is not None and user.secret_key == resp_body["sms_key"]
 
     put_response = requests.put(url_sms_secret_key_for_user, headers=headers)
     put_resp_body = put_response.json()
