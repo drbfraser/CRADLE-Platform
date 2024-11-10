@@ -362,9 +362,9 @@ class CognitoClientWrapper:
     def get_username_from_jwt(self):
         """
         Verifies access token in request authorization header and retrieves
-        the user's info from the database.
+        the user's username from the token.
 
-        :return user_dict: Dict containing user's info.
+        :return username: Username extracted from the JWT.
         """
         # Verify access token.
         self.verify_access_token()
@@ -376,4 +376,15 @@ class CognitoClientWrapper:
             raise ValueError(error)
 
         username = cognito_user_info.get("Username")
+        return username
+
+    def get_user_data_from_jwt(self):
+        """
+        Verifies access token in request authorization header and retrieves
+        the user's info from the database.
+
+        :return user_data: Dict containing user's info.
+        """
+        username = self.get_username_from_jwt()
+
         return username

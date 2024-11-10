@@ -131,6 +131,18 @@ class UserUtils:
         return user_data_list
 
     @staticmethod
+    def get_current_user_from_jwt():
+        """
+        Verifies access token in request authorization header and retrieves
+        the user's info from the database.
+
+        :return user_data: Dict containing user's info.
+        """
+        username = cognito.get_username_from_jwt()
+        user_data = UserUtils.get_user_data_from_username(username)
+        return user_data
+
+    @staticmethod
     def does_email_exist(email: str) -> bool:
         """
         :param email: The email to check.

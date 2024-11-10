@@ -8,7 +8,6 @@ from flask_restful import Resource, abort
 
 import data
 from api import util
-from authentication import cognito
 from data import crud, marshal
 from models import HealthFacilityOrm, PatientOrm, ReferralOrm
 from service import assoc, serialize, view
@@ -27,14 +26,13 @@ class Root(Resource):
         endpoint="referrals",
     )
     def get():
-        username = cognito.get_username_from_jwt()
-        user_dict = UserUtils.get_user_data_from_username(username)
+        user_data = UserUtils.get_current_user_from_jwt()
 
         params = util.get_query_params(request)
         if params.get("health_facilities") and "default" in params["health_facilities"]:
-            params["health_facilities"].append(user_dict["health_facility_name"])
+            params["health_facilities"].append(user_data["health_facility_name"])
 
-        user = cast(dict[Any, Any], user_dict)
+        user = cast(dict[Any, Any], user_data)
         referrals = view.referral_list_view(user, **params)
         return serialize.serialize_referral_list(referrals)
 

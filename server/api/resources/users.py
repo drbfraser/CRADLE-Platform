@@ -9,8 +9,6 @@ from flask import Flask, make_response, request
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
-    get_jwt_identity,
-    jwt_required,
 )
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -80,7 +78,7 @@ class UserAllVHT(Resource):
             marshal.marshal(vht)
             vht_dictionary_list.append(
                 {
-                    "id": vht.id,
+                    "user_id": vht.id,
                     "email": vht.email,
                     "health_facility_name": vht.health_facility_name,
                     "name": vht.name,
@@ -322,10 +320,9 @@ class UserAuthApi(Resource):
 
 # api/user/auth/refresh_token
 class UserAuthTokenRefreshApi(Resource):
-    @jwt_required(refresh=True)
     @swag_from("../../specifications/user-auth-refresh.yml", methods=["POST"])
     def post(self):
-        current_user = get_jwt_identity()
+        current_user = UserUtils.get_current_user_from_jwt()
         new_token = create_access_token(identity=current_user, fresh=False)
         return {"access_token": new_token}, 200
 
@@ -335,10 +332,8 @@ class UserAuthTokenRefreshApi(Resource):
 class UserTokenApi(Resource):
     @swag_from("../../specifications/user-current.yml", methods=["GET"])
     def get(self):
-        username = cognito.get_username_from_jwt()
-        user_data = UserUtils.get_user_data_from_username(username)
-
-        return user_data, 200
+        current_user = UserUtils.get_current_user_from_jwt()
+        return current_user, 200
 
 
 # api/user/<int:user_id> [GET, PUT, DELETE]
@@ -374,7 +369,6 @@ class UserApi(Resource):
 
         return UserUtils.get_user_dict_from_id(id), 200
 
-    # @jwt_required()
     @public_endpoint
     @swag_from("../../specifications/user-get.yml", methods=["GET"])
     @public_endpoint
@@ -523,9 +517,8 @@ class UserSMSKey(Resource):
 
     @swag_from("../../specifications/user-sms-key-get.yml", methods=["GET"])
     def get(self, user_id):
-        username = cognito.get_username_from_jwt()
-        user_info = UserUtils.get_user_data_from_username(username)
-        if user_info["role"] != "ADMIN" and user_info["id"] is not user_id:
+        current_user = UserUtils.get_current_user_from_jwt()
+        if current_user["role"] != "ADMIN" and current_user["id"] is not user_id:
             return (
                 {
                     "message": "Permission denied, you can only get your own sms-key or use the admin account",
@@ -540,9 +533,8 @@ class UserSMSKey(Resource):
 
     @swag_from("../../specifications/user-sms-key-put.yml", methods=["PUT"])
     def put(self, user_id):
-        username = cognito.get_username_from_jwt()
-        user_info = UserUtils.get_user_data_from_username(username)
-        if user_info["role"] != "ADMIN" and user_info["id"] is not user_id:
+        current_user = UserUtils.get_current_user_from_jwt()
+        if current_user["role"] != "ADMIN" and current_user["id"] is not user_id:
             return (
                 {
                     "message": "Permission denied, you can only get your own sms-key or use the admin account",
@@ -559,9 +551,8 @@ class UserSMSKey(Resource):
 
     @swag_from("../../specifications/user-sms-key-post.yml", methods=["POST"])
     def post(self, user_id):
-        username = cognito.get_username_from_jwt()
-        user_info = UserUtils.get_user_data_from_username(username)
-        if user_info["role"] != "ADMIN" and user_info["id"] is not user_id:
+        current_user = UserUtils.get_current_user_from_jwt()
+        if current_user["role"] != "ADMIN" and current_user["id"] is not user_id:
             return (
                 {
                     "message": "Permission denied, you can only get your own sms-key or use the admin account",
@@ -588,11 +579,10 @@ class ValidateRelayPhoneNumber(Resource):
         help="Phone number is required.",
     )
 
-    @jwt_required()
     @swag_from("../../specifications/is-phone-number-relay-get.yml", methods=["GET"])
     def get(self):
         data = self.parser.parse_args()
-        phone_number = data["phoneNumber"]
+        phone_number = data["phone_number"]
         # remove dashes from the user's entered phone number
         phone_number = re.sub(r"[-]", "", phone_number)
 
@@ -609,7 +599,6 @@ class RelayPhoneNumbers(Resource):
     # Define the request parser
     parser = reqparse.RequestParser()
 
-    @jwt_required()
     @swag_from("../../specifications/relay-phone-number-get.yml", methods=["GET"])
     def get(self):
         self.parser.parse_args()
