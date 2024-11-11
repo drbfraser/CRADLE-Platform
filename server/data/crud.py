@@ -104,7 +104,7 @@ def read(m: Type[M], **kwargs) -> Optional[M]:
 
     :param m: Type of the model to query for
     :param kwargs: Keyword arguments mapping column names to values to parameterize the
-                   query (e.g., ``patientId="abc"``)
+                   query (e.g., ``patient_id="abc"``)
     :except sqlalchemy.orm.exc.MultipleResultsFound: If multiple models are found
     :return: A model from the database or ``None`` if no model was found
     """
@@ -128,7 +128,7 @@ def update(m: Type[M], changes: dict, autocommit: bool = True, **kwargs):
     :param autocommit: If true, the current transaction is committed before return; the
     default is true
     :param kwargs: Keyword arguments mapping column names to values to parameterize the
-                   query (e.g., ``patientId="abc"``)
+                   query (e.g., ``patient_id="abc"``)
     :except sqlalchemy.orm.exc.MultipleResultsFound: If multiple models are found
     :return: The updated model
     """
@@ -165,7 +165,7 @@ def delete_by(m: Type[M], **kwargs):
 
     :param m: Type of the model to delete
     :param kwargs: Keyword arguments mapping column names to values to parameterize the
-                   query (e.g., ``patientId="abc"``)
+                   query (e.g., ``patient_id="abc"``)
     :except sqlalchemy.orm.exc.MultipleResultsFound: If multiple models are found
     """
     model = read(m, **kwargs)
@@ -179,7 +179,7 @@ def delete_all(m: Type[M], **kwargs):
 
     :param m: Type of the models to delete
     :param kwargs: Keyword arguments mapping column names to values to parameterize the
-                   query (e.g., ``patientId="abc"``)
+                   query (e.g., ``patient_id="abc"``)
     """
     db_session.query(m).filter_by(**kwargs).delete()
     db_session.commit()
@@ -192,7 +192,7 @@ def find(m: Type[M], *args) -> List[M]:
     Criteria are provided as a series of comparison expressions performed on the static
     attributes of the model class. For example::
 
-        crud.find(Reading, Reading.dateTimeTaken >= 1595131500)
+        crud.find(Reading, Reading.date_taken >= 1595131500)
 
     See the SQLAlchemy documentation for more info:
     https://docs.sqlalchemy.org/en/13/orm/query.html#sqlalchemy.orm.query.Query.filter
@@ -210,7 +210,7 @@ def read_all(m: Type[M], **kwargs) -> List[M]:
 
     :param m: Type of the model to query for
     :param kwargs: Keyword arguments mapping column names to values to parameterize the
-                   query (e.g., ``patientId="abc"``)
+                   query (e.g., ``patient_id="abc"``)
     :return: A list of models from the database
     """
     if not kwargs:
@@ -423,7 +423,7 @@ def read_medical_records(m: Type[M], patient_id: str, **kwargs) -> List[M]:
 
     :return: A list of models
     """
-    query = db_session.query(m).filter_by(patientId=patient_id)
+    query = db_session.query(m).filter_by(patient_id=patient_id)
 
     # Get kwargs values into variables
     search_text = kwargs.get("search_text")
@@ -470,7 +470,7 @@ def read_patient_current_medical_record(
     """
     query = (
         db_session.query(MedicalRecordOrm)
-        .filter_by(patientId=patient_id, isDrugRecord=is_drug_record)
+        .filter_by(patient_id=patient_id, isDrugRecord=is_drug_record)
         .order_by(MedicalRecordOrm.date_created.desc())
     )
 
@@ -558,7 +558,7 @@ def read_patient_all_records(patient_id: str, **kwargs) -> List[Any]:
     if reading_required == "1":
         reading_list = (
             db_session.query(ReadingOrm)
-            .filter_by(patientId=patient_id)
+            .filter_by(patient_id=patient_id)
             .order_by(ReadingOrm.date_taken.desc())
             .all()
         )
@@ -567,7 +567,7 @@ def read_patient_all_records(patient_id: str, **kwargs) -> List[Any]:
     if referral_required == "1":
         referral_list = (
             db_session.query(ReferralOrm)
-            .filter_by(patientId=patient_id)
+            .filter_by(patient_id=patient_id)
             .order_by(ReferralOrm.date_referred.desc())
             .all()
         )
@@ -576,7 +576,7 @@ def read_patient_all_records(patient_id: str, **kwargs) -> List[Any]:
     if assessment_required == "1":
         assessment_list = (
             db_session.query(FollowUpOrm)
-            .filter_by(patientId=patient_id)
+            .filter_by(patient_id=patient_id)
             .order_by(FollowUpOrm.date_assessed.desc())
             .all()
         )
@@ -585,7 +585,7 @@ def read_patient_all_records(patient_id: str, **kwargs) -> List[Any]:
     if form_required == "1":
         form_list = (
             db_session.query(FormOrm)
-            .filter_by(patientId=patient_id)
+            .filter_by(patient_id=patient_id)
             .order_by(FormOrm.date_created.desc())
             .all()
         )
@@ -950,20 +950,20 @@ def get_unique_patients_with_readings(facility="%", user="%", filter={}) -> List
     :return: A number of unique patients
     """
     query = """
-        SELECT COUNT(pat.patientId) as patients
+        SELECT COUNT(pat.id) as patients
                 FROM (
-                    SELECT DISTINCT(P.patientId)
-                    FROM (SELECT R.patientId FROM reading R
-                        JOIN user U ON R.userId = U.id
-                        WHERE R.dateTimeTaken BETWEEN :from and :to
+                    SELECT DISTINCT(P.id)
+                    FROM (SELECT R.patient_id FROM reading R
+                        JOIN user U ON R.user_id = U.id
+                        WHERE R.date_taken BETWEEN :from and :to
                         AND (
-                            (userId LIKE :user OR userId is NULL)
-                            AND (U.healthFacilityName LIKE :facility or U.healthFacilityName is NULL)
+                            (user_id LIKE :user OR user_id is NULL)
+                            AND (U.health_facility_name LIKE :facility or U.health_facility_name is NULL)
                         )
                     ) as P
-                JOIN reading R ON P.patientID = R.patientId
-                GROUP BY P.patientId
-                HAVING COUNT(R.readingId) > 0) as pat
+                JOIN reading R ON P.id = R.patient_id
+                GROUP BY P.id
+                HAVING COUNT(R.id) > 0) as pat
     """
 
     # params used to prevent direct string interpolation inside query
@@ -994,13 +994,13 @@ def get_total_readings_completed(facility="%", user="%", filter={}) -> List[M]:
     :return: Number of total readings
     """
     query = """
-        SELECT COUNT(R.readingId) AS total_readings
+        SELECT COUNT(R.id) AS total_readings
         FROM reading R
-        JOIN user U ON U.id = R.userId
-        WHERE R.dateTimeTaken BETWEEN :from AND :to
+        JOIN user U ON U.id = R.user_id
+        WHERE R.date_taken BETWEEN :from AND :to
         AND (
-            (R.userId LIKE :user OR R.userId IS NULL)
-            AND (U.healthFacilityName LIKE :facility OR U.healthFacilityName IS NULL)
+            (R.user_id LIKE :user OR R.user_id IS NULL)
+            AND (U.health_facility_name LIKE :facility OR U.health_facility_name IS NULL)
         )
     """
 
@@ -1028,15 +1028,15 @@ def get_total_color_readings(facility="%", user="%", filter={}) -> List[M]:
     :return: Total number of respective coloured readings
     """
     query = """
-        SELECT R.trafficLightStatus, COUNT(R.trafficLightStatus) AS total_readings
+        SELECT R.traffic_light_status, COUNT(R.traffic_light_status) AS total_readings
         FROM reading R
-        JOIN user U ON U.id = R.userId
-        WHERE R.dateTimeTaken BETWEEN :from AND :to
+        JOIN user U ON U.id = R.user_id
+        WHERE R.date_taken BETWEEN :from AND :to
         AND (
-            (R.userId LIKE :user OR R.userId IS NULL)
-            AND (U.healthFacilityName LIKE :facility OR U.healthFacilityName IS NULL)
+            (R.user_id LIKE :user OR R.user_id IS NULL)
+            AND (U.health_facility_name LIKE :facility OR U.health_facility_name IS NULL)
         )
-        GROUP BY R.trafficLightStatus
+        GROUP BY R.traffic_light_status
     """
 
     # params used to prevent direct string interpolation inside query
@@ -1064,11 +1064,11 @@ def get_sent_referrals(facility="%", user="%", filter={}) -> List[M]:
     query = """
         SELECT COUNT(R.id) AS total_referrals
         FROM referral R
-        JOIN user U ON U.id = R.userId
-        WHERE R.dateReferred BETWEEN :from AND :to
+        JOIN user U ON U.id = R.user_id
+        WHERE R.date_referred BETWEEN :from AND :to
         AND (
-            (R.userId LIKE :user OR R.userId IS NULL)
-            AND (U.healthFacilityName LIKE :facility OR U.healthFacilityName IS NULL)
+            (R.user_id LIKE :user OR R.user_id IS NULL)
+            AND (U.health_facility_name LIKE :facility OR U.health_facility_name IS NULL)
         )
     """
 
@@ -1094,7 +1094,7 @@ def get_referred_patients(facility="%", filter={}) -> List[M]:
     :return: Total number of referred patients
     """
     query = """
-        SELECT COUNT(DISTINCT R.patientId) AS referred_patients
+        SELECT COUNT(DISTINCT R.patient_id) AS referred_patients
         FROM referral R
         WHERE R.dateReferred BETWEEN :from AND :to
         AND (R.referralHealthFacilityName LIKE :facility OR R.referralHealthFacilityName IS NULL)
@@ -1122,13 +1122,13 @@ def get_days_with_readings(facility="%", user="%", filter={}):
     :return: number of days
     """
     query = """
-        SELECT COUNT(DISTINCT FLOOR(R.dateTimeTaken / 86400)) AS days_with_readings
+        SELECT COUNT(DISTINCT FLOOR(R.date_taken / 86400)) AS days_with_readings
         FROM reading R
-        JOIN user U ON U.id = R.userId
-        WHERE R.dateTimeTaken BETWEEN :from AND :to
+        JOIN user U ON U.id = R.user_id
+        WHERE R.date_taken BETWEEN :from AND :to
         AND (
-            (R.userId LIKE :user OR R.userId IS NULL)
-            AND (U.healthFacilityName LIKE :facility OR U.healthFacilityName IS NULL)
+            (R.user_id LIKE :user OR R.user_id IS NULL)
+            AND (U.health_facility_name LIKE :facility OR U.health_facility_name IS NULL)
         )
     """
 
@@ -1143,6 +1143,7 @@ def get_days_with_readings(facility="%", user="%", filter={}):
         result = db_session.execute(query, params)
         return list(result)
     except Exception as e:
+        print(e)
         LOGGER.error(e)
         return None
 

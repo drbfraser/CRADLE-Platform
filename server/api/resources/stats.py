@@ -1,5 +1,4 @@
 from datetime import date
-from typing import Union
 
 from dateutil.relativedelta import relativedelta
 from flasgger import swag_from
@@ -15,7 +14,7 @@ from shared.user_utils import UserUtils
 MYSQL_BIGINT_MAX = (2**63) - 1
 
 
-def query_stats_data(args, facility_id="%", user_id: Union[int, str] = "%"):
+def query_stats_data(args, facility_id="%", user_id="%"):
     patients = crud.get_unique_patients_with_readings(
         facility=facility_id,
         user=user_id,

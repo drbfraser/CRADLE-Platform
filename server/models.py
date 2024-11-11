@@ -20,10 +20,10 @@ SupervisesTable = db.Table(
     db.Column(
         "cho_id",
         db.Integer,
-        db.ForeignKey("users.id", ondelete="CASCADE"),
+        db.ForeignKey("user.id", ondelete="CASCADE"),
         index=True,
     ),
-    db.Column("vht_id", db.Integer, db.ForeignKey("users.id", ondelete="CASCADE")),
+    db.Column("vht_id", db.Integer, db.ForeignKey("user.id", ondelete="CASCADE")),
 )
 
 
@@ -33,7 +33,7 @@ SupervisesTable = db.Table(
 
 
 class UserOrm(db.Model):
-    __tablename__ = "users"
+    __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(25), nullable=False)
     username = db.Column(db.String(64), index=True, unique=True, nullable=False)
@@ -46,7 +46,7 @@ class UserOrm(db.Model):
     # FOREIGN KEYS
     health_facility_name = db.Column(
         db.String(50),
-        db.ForeignKey("health_facilities.name"),
+        db.ForeignKey("health_facility.name"),
         nullable=True,
     )
 
@@ -55,7 +55,7 @@ class UserOrm(db.Model):
         "HealthFacilityOrm",
         backref=db.backref("users", lazy=True),
     )
-    referrals = db.relationship("ReferralOrm", backref=db.backref("users", lazy=True))
+    referrals = db.relationship("ReferralOrm", backref=db.backref("user", lazy=True))
     vht_list = db.relationship(
         "UserOrm",
         secondary=SupervisesTable,
@@ -85,7 +85,7 @@ class UserOrm(db.Model):
 
 
 class UserPhoneNumberOrm(db.Model):
-    __tablename__ = "user_phone_numbers"
+    __tablename__ = "user_phone_number"
     id = db.Column(db.String(36), primary_key=True, default=get_uuid)
     phone_number = db.Column(db.String(20), unique=True)
 
@@ -105,7 +105,7 @@ class UserPhoneNumberOrm(db.Model):
 
 
 class RelayServerPhoneNumberOrm(db.Model):
-    __tablename__ = "relay_server_phone_numbers"
+    __tablename__ = "relay_server_phone_number"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     phone_number = db.Column(db.String(20), unique=True)
     description = db.Column(db.String(50), unique=False)
@@ -117,7 +117,7 @@ class RelayServerPhoneNumberOrm(db.Model):
 
 
 class ReferralOrm(db.Model):
-    __tablename__ = "referrals"
+    __tablename__ = "referral"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     date_referred = db.Column(
         db.BigInteger,
@@ -143,10 +143,10 @@ class ReferralOrm(db.Model):
 
     # FOREIGN KEYS
     user_id = db.Column(db.Integer, db.ForeignKey(UserOrm.id))
-    patient_id = db.Column(db.String(50), db.ForeignKey("patients.id"))
+    patient_id = db.Column(db.String(50), db.ForeignKey("patient.id"))
     health_facility_name = db.Column(
         db.String(50),
-        db.ForeignKey("health_facilities.name"),
+        db.ForeignKey("health_facility.name"),
     )
 
     # RELATIONSHIPS
@@ -165,7 +165,7 @@ class ReferralOrm(db.Model):
 
 
 class HealthFacilityOrm(db.Model):
-    __tablename__ = "health_facilities"
+    __tablename__ = "health_facility"
     # TODO: should probably have a unique id as primary key here, in addition to facility name
     name = db.Column(db.String(50), primary_key=True)
     type = db.Column(db.Enum(FacilityTypeEnum))
@@ -184,7 +184,7 @@ class HealthFacilityOrm(db.Model):
 
 
 class PatientOrm(db.Model):
-    __tablename__ = "patients"
+    __tablename__ = "patient"
     id = db.Column(db.String(50), primary_key=True)
     name = db.Column(db.String(50))
     sex = db.Column(db.Enum(SexEnum), nullable=False)
@@ -216,7 +216,7 @@ class PatientOrm(db.Model):
 
 
 class ReadingOrm(db.Model):
-    __tablename__ = "readings"
+    __tablename__ = "reading"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     systolic_blood_pressure = db.Column(db.Integer)
     diastolic_blood_pressure = db.Column(db.Integer)
@@ -260,7 +260,7 @@ class ReadingOrm(db.Model):
     )
     referral = db.relationship(
         "ReferralOrm",
-        backref=db.backref("reading", uselist=False),
+        backref=db.backref("readings", uselist=False),
         uselist=False,
         cascade="all, delete-orphan",
         single_parent=True,
@@ -311,7 +311,7 @@ class ReadingOrm(db.Model):
 
 
 class FollowUpOrm(db.Model):
-    __tablename__ = "follow_ups"
+    __tablename__ = "follow_up"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
 
     follow_up_instructions = db.Column(db.Text)
@@ -345,13 +345,13 @@ class FollowUpOrm(db.Model):
 
 
 class VillageOrm(db.Model):
-    __tablename__ = "villages"
+    __tablename__ = "village"
     village_number = db.Column(db.String(50), primary_key=True)
     zone_number = db.Column(db.String(50))
 
 
 class UrineTestOrm(db.Model):
-    __tablename__ = "urine_tests"
+    __tablename__ = "urine_test"
     id = db.Column(db.Integer, primary_key=True)
     leuc = db.Column(db.String(5))
     nit = db.Column(db.String(5))
@@ -379,7 +379,7 @@ class UrineTestOrm(db.Model):
 
 
 class PatientAssociationsOrm(db.Model):
-    __tablename__ = "patient_associations"
+    __tablename__ = "patient_association"
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(
         db.ForeignKey(PatientOrm.id, ondelete="CASCADE"),
@@ -411,7 +411,7 @@ class PatientAssociationsOrm(db.Model):
 
 
 class PregnancyOrm(db.Model):
-    __tablename__ = "pregnancies"
+    __tablename__ = "pregnancy"
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(
         db.ForeignKey(PatientOrm.id, ondelete="CASCADE"),
@@ -439,7 +439,7 @@ class PregnancyOrm(db.Model):
 
 
 class MedicalRecordOrm(db.Model):
-    __tablename__ = "medical_records"
+    __tablename__ = "medical_record"
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(
         db.ForeignKey(PatientOrm.id, ondelete="CASCADE"),
@@ -471,7 +471,7 @@ class MedicalRecordOrm(db.Model):
 
 
 class FormClassificationOrm(db.Model):
-    __tablename__ = "form_classifications"
+    __tablename__ = "form_classification"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
 
@@ -481,7 +481,7 @@ class FormClassificationOrm(db.Model):
 
 
 class FormTemplateOrm(db.Model):
-    __tablename__ = "form_templates"
+    __tablename__ = "form_template"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     version = db.Column(db.Text, nullable=True)
     date_created = db.Column(
@@ -506,7 +506,7 @@ class FormTemplateOrm(db.Model):
 
 
 class FormOrm(db.Model):
-    __tablename__ = "forms"
+    __tablename__ = "form"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     lang = db.Column(db.Text, nullable=False)
     name = db.Column(db.Text, nullable=False, default="")
@@ -557,7 +557,7 @@ class FormOrm(db.Model):
 
 
 class QuestionOrm(db.Model):
-    __tablename__ = "questions"
+    __tablename__ = "question"
     """
     Question: a child model related to a form template or a form
 
@@ -649,7 +649,7 @@ class QuestionOrm(db.Model):
 
 
 class QuestionLangVersionOrm(db.Model):
-    __tablename__ = "question_lang_versions"
+    __tablename__ = "question_lang_version"
     """
     This model is used to store different language versions of a single question.
     """
@@ -681,7 +681,7 @@ class QuestionLangVersionOrm(db.Model):
 
 
 class SmsSecretKeyOrm(db.Model):
-    __tablename__ = "sms_secret_keys"
+    __tablename__ = "sms_secret_key"
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
     secret_key = db.Column(db.String(256), default="", nullable=False)
     stale_date = db.Column(db.DateTime, default=datetime.datetime.now(), nullable=False)
@@ -692,7 +692,7 @@ class SmsSecretKeyOrm(db.Model):
     )
 
     # FOREIGNKEY
-    user_id = db.Column(db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id = db.Column(db.ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
 
     user = db.relationship(UserOrm, back_populates="sms_secret_keys")
 
