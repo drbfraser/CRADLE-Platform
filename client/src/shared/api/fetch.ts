@@ -36,6 +36,11 @@ const convertKeysToCamelCase = (data: object) => {
   return recursivelyTransformKeys(data, camelCase);
 };
 
+axios.defaults.baseURL =
+  process.env.NODE_ENV === `development`
+    ? `http://${window.location.hostname}:5000/api`
+    : '/api';
+
 axios.defaults.transformRequest = [
   (data: object) => {
     // Before putting the data in the request, convert keys to snake case
@@ -79,7 +84,7 @@ export const axiosFetch = async ({
 
   return axios({
     method: method,
-    url: `${API_URL}${endpoint}`,
+    url: endpoint,
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
