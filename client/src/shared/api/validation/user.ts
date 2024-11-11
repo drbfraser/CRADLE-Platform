@@ -14,13 +14,13 @@ import { smsKeySchema } from './smsKey';
  */
 
 export const userSchema = z.object({
-  id: z.number().int().positive(),
+  id: z.number().int(),
   username: z.string(),
   email: z.string().email({ message: 'Invalid email address.' }),
   healthFacilityName: z.string(),
   role: z.nativeEnum(UserRoleEnum),
   smsKey: smsKeySchema.nullable(),
-  supervises: z.array(z.number().int().positive()).optional(),
+  supervises: z.array(z.number().int()).optional(),
   phoneNumbers: z.array(z.string()),
   phoneNumber: z.string().optional(),
 });
