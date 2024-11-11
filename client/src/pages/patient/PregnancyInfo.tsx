@@ -234,24 +234,19 @@ export const PregnancyInfo = ({ patientId, patientName }: Props) => {
                           cursor: 'pointer',
                           height: 40,
                         }}
-                        key={pastPregnancy.pregnancyId}
-                        onClick={() => handleClick(pastPregnancy.pregnancyId)}>
+                        key={pastPregnancy.id}
+                        onClick={() => handleClick(pastPregnancy.id)}>
                         <TableCell>
-                          {getYearToDisplay(pastPregnancy.pregnancyEndDate)}
+                          {getYearToDisplay(pastPregnancy.endDate)}
                         </TableCell>
                         <TableCell>
                           Pregnancy carried to{' '}
                           {gestationalAgeUnitFormatters[
                             previousPregnancyUnit ??
                               GestationalAgeUnitEnum.WEEKS
-                          ](
-                            pastPregnancy.pregnancyStartDate,
-                            pastPregnancy.pregnancyEndDate
-                          )}
+                          ](pastPregnancy.startDate, pastPregnancy.endDate)}
                         </TableCell>
-                        <TableCell>
-                          {pastPregnancy.pregnancyOutcome ?? 'N/A'}
-                        </TableCell>
+                        <TableCell>{pastPregnancy.outcome ?? 'N/A'}</TableCell>
                       </TableRow>
                     ))
                   ) : (
