@@ -567,7 +567,7 @@ def getCsvFromFormTemplate(form_template: FormTemplateOrm):
 
     questions: list[QuestionOrm] = form_template.questions
 
-    questions = sorted(questions, key=lambda q: q.questionIndex)
+    questions = sorted(questions, key=lambda q: q.question_index)
 
     rows = [
         [
