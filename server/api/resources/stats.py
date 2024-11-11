@@ -1,20 +1,21 @@
 from datetime import date
+from typing import Union
 
 from dateutil.relativedelta import relativedelta
 from flasgger import swag_from
 from flask import request
-from flask_jwt_extended import get_jwt_identity
 from flask_restful import Resource
 
 from api.decorator import roles_required
 from data import crud
 from enums import RoleEnum, TrafficLightEnum
 from models import UserOrm
+from shared.user_utils import UserUtils
 
 MYSQL_BIGINT_MAX = (2**63) - 1
 
 
-def query_stats_data(args, facility_id="%", user_id="%"):
+def query_stats_data(args, facility_id="%", user_id: Union[int, str] = "%"):
     patients = crud.get_unique_patients_with_readings(
         facility=facility_id,
         user=user_id,
@@ -107,11 +108,11 @@ class FacilityReadings(Resource):
     @roles_required([RoleEnum.ADMIN, RoleEnum.HCW])
     @swag_from("../../specifications/stats-facility.yml", methods=["GET"])
     def get(facility_id: str):
-        jwt = get_jwt_identity()
+        current_user = UserUtils.get_current_user_from_jwt()
 
         if (
-            jwt["role"] == RoleEnum.HCW.value
-            and jwt["healthFacilityName"] != facility_id
+            current_user["role"] == RoleEnum.HCW.value
+            and current_user["health_facility_name"] != facility_id
         ):
             return "Unauthorized to view this facility", 401
 
@@ -122,25 +123,29 @@ class FacilityReadings(Resource):
 
 
 def hasPermissionToViewUser(user_id):
-    jwt = get_jwt_identity()
-    role = jwt["role"]
-    isCurrentUser = jwt["userId"] == user_id
+    current_user = UserUtils.get_current_user_from_jwt()
+    role = current_user["role"]
+    is_current_user = current_user["id"] == user_id
 
-    if isCurrentUser:
+    if is_current_user:
         return True
 
     if role == RoleEnum.VHT.value:
         return False
 
     if role == RoleEnum.CHO.value:
-        supervised = crud.get_supervised_vhts(jwt["userId"])
+        supervised = crud.get_supervised_vhts(current_user["id"])
+        if supervised is None:
+            return False
         supervised = [user[0] for user in supervised]
         if user_id not in supervised:
             return False
 
     if role == RoleEnum.HCW.value:
         user = crud.read(UserOrm, id=user_id)
-        if jwt["healthFacilityName"] != user.healthFacilityName:
+        if user is None:
+            return False
+        if current_user["health_facility_name"] != user.health_facility_name:
             return False
 
     return True
