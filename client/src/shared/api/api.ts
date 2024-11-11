@@ -473,7 +473,11 @@ export const getPatientMedicalHistoryAsync = async (patientId: string) => {
   return response.data;
 };
 
-export const getAllPatientsAsync = async () => {
+/** Fetches the entries for the patient table of the patients page.
+ *  Entries contain a subset of patient data joined with a subset of reading
+ *  data.
+ */
+export const getPatientTableEntries = async () => {
   const response = await axiosFetch({
     method: 'GET',
     url: EndpointEnum.PATIENTS,
