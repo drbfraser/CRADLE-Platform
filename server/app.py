@@ -18,6 +18,8 @@ import os
 import re
 import json
 
+from werkzeug import Response
+
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 import config
@@ -31,6 +33,7 @@ from flask_jwt_extended import (
     verify_jwt_in_request,
 )
 from flask import request
+from werkzeug.exceptions import HTTPException
 
 dictConfig(Config.LOGGING)
 LOGGER = logging.getLogger(__name__)
@@ -50,34 +53,20 @@ else:
 print("Binding to " + host + ":" + port)
 
 
-# def is_public_endpoint(request):
-#     if request.endpoint.startswith("flasgger.") or request.endpoint in {
-#         "userauthapi",
-#         "version",
-#         "static",
-#     }:
-#         return True
-
-#     endpoint_handler_func = app.view_functions[request.endpoint]
-#     is_public = getattr(endpoint_handler_func, "is_public_endpoint", False)
-#     LOGGER.debug(
-#         "Check if route is public endpoint",
-#         extra={
-#             "endpoint": request.endpoint,
-#             "url": request.path,
-#             "is_public_endpoint": is_public,
-#         },
-#     )
-#     return is_public
-
-
-# @app.before_request
-# def require_authorization():
-#     """
-#     Run authorization check for all urls by default
-#     """
-#     if not is_public_endpoint(request):
-#         # verify_jwt_in_request()
+@app.errorhandler(HTTPException)
+def handle_http_exception(e):
+    """Return JSON instead of HTML for HTTP errors."""
+    response: Response = e.get_response()
+    # replace the body with JSON
+    response.data = json.dumps(
+        {
+            "code": e.code,
+            "name": e.name,
+            "description": e.description,
+        }
+    )
+    response.content_type = "application/json"
+    return response
 
 
 @app.after_request
