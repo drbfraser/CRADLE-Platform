@@ -3,8 +3,7 @@ import json
 import random
 import string
 import time
-from random import choice, randint, randrange
-from string import ascii_lowercase, digits
+from random import randint, randrange
 
 import click
 import numpy as np
@@ -754,20 +753,6 @@ def get_random_pregnancy_date():
     max_preg = randint(1, 273)
     date = datetime.datetime.today() - datetime.timedelta(max_preg)
     return int(date.strftime("%s"))
-
-
-def generate_random_reading_id():
-    pool = ascii_lowercase + digits
-    reading_id = (
-        "".join([choice(pool) for _ in range(3)])
-        + "-"
-        + "".join([choice(pool) for _ in range(3)])
-        + "-"
-        + "".join([choice(pool) for _ in range(3)])
-        + "-"
-        + "".join([choice(pool) for _ in range(4)])
-    )
-    return reading_id
 
 
 def get_names():
