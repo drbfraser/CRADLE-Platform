@@ -40,14 +40,14 @@ def validate_template(request_body: dict):
 def validate_questions(questions: list):
     """
     Returns an error message if the questions part in /api/forms/templates POST or PUT
-    request is not valid (json format, lang versions consistency, qindex constraint).
+    request is not valid (json format, lang versions consistency, question_index constraint).
     Else, returns None.
 
     :param questions: The request body as a dict object
 
     :return: An error message if request body is invalid in some way. None otherwise.
     """
-    lang_version_list, qindex = None, None
+    lang_version_list, question_index = None, None
     for index, question in enumerate(questions):
         # validate each question
         try:
@@ -57,14 +57,14 @@ def validate_questions(questions: list):
 
         # further validate for extra requirements:
         # lang versions consistency: all questions should have same kinds of versions
-        # qindex constraint: question index in ascending order
+        # question_index constraint: question index in ascending order
         if index == 0:
             lang_version_list = [
                 v.get("lang") for v in question.get("questionLangVersions")
             ]
             lang_version_list.sort()
 
-            qindex = question.get("questionIndex")
+            question_index = question.get("questionIndex")
         else:
             tmp_lang_version_list = [
                 v.get("lang") for v in question.get("questionLangVersions")
@@ -75,15 +75,15 @@ def validate_questions(questions: list):
                     "lang versions provided between questions are not consistent",
                 )
 
-            cur_qindex = question.get("questionIndex")
-            if qindex < cur_qindex:
-                qindex = cur_qindex
+            cur_question_index = question.get("questionIndex")
+            if question_index < cur_question_index:
+                question_index = cur_question_index
             else:
                 raise ValidationExceptionError(
                     "questions should be in index-ascending order",
                 )
 
-    # validate question qindex tree dfs order
+    # validate question question_index tree dfs order
     error = questionTree.is_dfs_order(questions)
     if error:
         raise ValidationExceptionError(str(error))

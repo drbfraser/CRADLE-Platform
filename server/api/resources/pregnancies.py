@@ -11,7 +11,7 @@ from service import serialize, view
 from utils import get_current_time
 from validation.pregnancies import (
     PregnancyPostRequestValidator,
-    PrenancyPutRequestValidator,
+    PregnancyPutRequestValidator,
 )
 from validation.validation_exception import ValidationExceptionError
 
@@ -92,7 +92,7 @@ class SinglePregnancy(Resource):
         request_body = request.get_json(force=True)
 
         try:
-            PrenancyPutRequestValidator.validate(request_body, pregnancy_id)
+            PregnancyPutRequestValidator.validate(request_body, pregnancy_id)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 

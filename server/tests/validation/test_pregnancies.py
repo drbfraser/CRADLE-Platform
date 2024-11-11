@@ -3,7 +3,7 @@ import pytest
 from validation.pregnancies import (
     PregnancyModel,
     PregnancyPostRequestValidator,
-    PrenancyPutRequestValidator,
+    PregnancyPutRequestValidator,
 )
 from validation.validation_exception import ValidationExceptionError
 
@@ -228,10 +228,10 @@ pregnancy_put_id_unmatch_patientId_should_throw_exception = {
 def test_validate_put_request(json, pregnancy_id, output_type):
     if type(output_type) is type and issubclass(output_type, Exception):
         with pytest.raises(output_type):
-            PrenancyPutRequestValidator.validate(json, pregnancy_id)
+            PregnancyPutRequestValidator.validate(json, pregnancy_id)
     else:
         try:
-            PrenancyPutRequestValidator.validate(json, pregnancy_id)
+            PregnancyPutRequestValidator.validate(json, pregnancy_id)
         except ValidationExceptionError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e
 

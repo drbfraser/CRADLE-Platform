@@ -6,9 +6,9 @@ from validation.validation_exception import ValidationExceptionError
 
 
 class Association(BaseModel):
-    patientId: int
-    healthFacilityName: Optional[str] = None
-    userId: Optional[int] = None
+    patient_id: int
+    health_facility_name: Optional[str] = None
+    user_id: Optional[int] = None
 
 
 def validate(request_body: dict):
@@ -17,9 +17,9 @@ def validate(request_body: dict):
     is not valid. Else, returns None.
     :param request_body: The request body as a dict object
                         {
-                            "patientId": 47, - required
-                            "healthFacilityName": "H0000",
-                            "userId": 1,
+                            "patient_id": 47, - required
+                            "health_facility_name": "H0000",
+                            "user_id": 1,
                         }
     :return: An error message if request body in invalid in some way. None otherwise.
     """

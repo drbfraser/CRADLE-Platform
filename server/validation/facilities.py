@@ -8,10 +8,10 @@ from validation.validation_exception import ValidationExceptionError
 
 
 class Facility(BaseModel):
-    healthFacilityName: str
-    healthFacilityPhoneNumber: Optional[str] = None
+    health_facility_name: str
+    phone_number: Optional[str] = None
     location: Optional[str] = None
-    facilityType: Optional[str] = None
+    type: Optional[str] = None
     about: Optional[str] = None
 
     @staticmethod
@@ -22,10 +22,10 @@ class Facility(BaseModel):
 
         :param request_body: The request body as a dict object
                             {
-                                "healthFacilityName": "H12", - required
-                                "healthFacilityPhoneNumber": "444-444-4444",
+                                "health_facility_name": "H12", - required
+                                "phone_number": "444-444-4444",
                                 "about": "Biggest hospital",
-                                "facilityType": "HOSPITAL"
+                                "type": "HOSPITAL"
                             }
         """
         try:

@@ -8,13 +8,13 @@ from validation.validation_exception import ValidationExceptionError
 
 
 class MultipleChoiceOption(BaseModel):
-    mcid: int
+    mc_id: int
     opt: str
 
 
 class Answer(BaseModel):
     comment: Optional[str] = None
-    mcidArray: Optional[List[int]] = None
+    mc_id_aArray: Optional[List[int]] = None
     number: Optional[Union[int, float]] = None
     text: Optional[str] = None
 
@@ -24,59 +24,59 @@ class Answer(BaseModel):
 
 class VisibleCondition(BaseModel):
     answers: Answer
-    qidx: int
+    question_index: int
     relation: QRelationalEnum
 
 
 class QuestionLangVersion(BaseModel):
     lang: str
-    mcOptions: Optional[List[MultipleChoiceOption]] = None
-    questionText: str
+    mc_options: Optional[List[MultipleChoiceOption]] = None
+    question_text: str
 
     class Config:
         extra = "forbid"
 
 
 class TemplateQuestion(BaseModel):
-    questionIndex: Annotated[int, Field(strict=True, ge=0)]  # Non-negative index
-    questionType: QuestionTypeEnum
-    questionLangVersions: List[QuestionLangVersion]
-    isBlank: bool = True  # Set to true for template questions
-    questionId: Optional[str] = None
+    question_index: Annotated[int, Field(strict=True, ge=0)]  # Non-negative index
+    question_type: QuestionTypeEnum
+    question_lang_versions: List[QuestionLangVersion]
+    is_blank: bool = True  # Set to true for template questions
+    question_id: Optional[str] = None
     required: Optional[bool] = None
-    allowPastDates: Optional[bool] = None
-    allowFutureDates: Optional[bool] = None
+    allow_past_dates: Optional[bool] = None
+    allow_future_dates: Optional[bool] = None
     units: Optional[str] = None
-    visibleCondition: Optional[List[VisibleCondition]] = None
-    numMin: Optional[Union[int, float]] = None
-    numMax: Optional[Union[int, float]] = None
-    stringMaxLength: Optional[int] = None
-    categoryIndex: Optional[int] = None
-    stringMaxLines: Optional[int] = None
+    visible_condition: Optional[List[VisibleCondition]] = None
+    num_min: Optional[Union[int, float]] = None
+    num_max: Optional[Union[int, float]] = None
+    string_max_length: Optional[int] = None
+    category_index: Optional[int] = None
+    string_max_lines: Optional[int] = None
 
     class Config:
         extra = "forbid"
 
 
 class FormQuestion(BaseModel):
-    questionIndex: Annotated[int, Field(strict=True, ge=0)]  # Non-negative index
-    questionType: QuestionTypeEnum
-    questionText: str
-    isBlank: bool = False  # Set to False for form questions
-    questionId: Optional[str] = None
+    question_index: Annotated[int, Field(strict=True, ge=0)]  # Non-negative index
+    question_type: QuestionTypeEnum
+    question_text: str
+    is_blank: bool = False  # Set to False for form questions
+    question_id: Optional[str] = None
     required: Optional[bool] = None
-    allowPastDates: Optional[bool] = None
-    allowFutureDates: Optional[bool] = None
+    allow_past_dates: Optional[bool] = None
+    allow_future_dates: Optional[bool] = None
     units: Optional[str] = None
-    visibleCondition: Optional[List[VisibleCondition]] = None
-    numMin: Optional[Union[int, float]] = None
-    numMax: Optional[Union[int, float]] = None
-    stringMaxLength: Optional[int] = None
-    categoryIndex: Optional[int] = None
-    stringMaxLines: Optional[int] = None
-    hasCommentAttached: Optional[bool] = None
+    visible_condition: Optional[List[VisibleCondition]] = None
+    num_min: Optional[Union[int, float]] = None
+    num_max: Optional[Union[int, float]] = None
+    string_max_length: Optional[int] = None
+    category_index: Optional[int] = None
+    string_max_lines: Optional[int] = None
+    has_comment_attached: Optional[bool] = None
     id: Optional[str] = None
-    mcOptions: Optional[List[MultipleChoiceOption]] = None
+    mc_options: Optional[List[MultipleChoiceOption]] = None
     answers: Optional[Answer] = None
 
     class Config:
@@ -88,92 +88,92 @@ class FormQuestionPut(BaseModel):
     answers: Answer
 
 
-def check_target_not_null(target, q: dict) -> Optional[str]:
+def check_target_not_null(target, question: dict) -> Optional[str]:
     """
     Returns an error if the target key has value null.
     Else, returns None.
     """
-    if target in q and q.get(target) is None:
+    if target in question and question.get(target) is None:
         return f"Can not provide key={target} with null value"
     return None
 
 
-def validate_mc_options(q: dict):
+def validate_mc_options(question: dict):
     """
-    Returns an error if the mcOptions is invalid.
+    Returns an error if the mc_options is invalid.
     Else, returns None.
 
-    :param q: the parent dict for mcOptions
+    :param question: the parent dict for mc_options
 
     valid example:
     [
         {
-            "mcid": 0,
+            "mc_id": 0,
             "opt": "abcd"
         },
         ... (maximum 5 answers)
     ]
     """
-    target = "mcOptions"
+    target = "mc_options"
 
-    if target not in q:
+    if target not in question:
         return
 
-    error = check_target_not_null(target, q)
+    error = check_target_not_null(target, question)
     if error:
         raise ValidationExceptionError(str(error))
 
     try:
-        mcopts = q[target]
-        for opt in mcopts:
+        mc_options = question[target]
+        for opt in mc_options:
             MultipleChoiceOption(**opt)
     except ValidationError as e:
         raise ValidationExceptionError(str(e.errors()[0]["msg"]))
     return
 
 
-def validate_answers(q: dict):
+def validate_answers(question: dict):
     """
     Returns an error if the answer is invalid.
     Else, returns None.
 
-    :param q: the parent dict for answers
+    :param question: the parent dict for answers
 
     valid example (all fields, in real case only present one part of it):
     {
         "number": 5/5.0,
         "text": "a",
-        "mcidArray":[0,1],
+        "mc_id_aArray":[0,1],
         "comment": "other opt"
     }
     """
     target = "answers"
 
-    if target not in q:
+    if target not in question:
         return
 
-    error = check_target_not_null(target, q)
+    error = check_target_not_null(target, question)
     if error:
         raise ValidationExceptionError(str(error))
 
     try:
-        Answer(**q[target])
+        Answer(**question[target])
     except ValidationError as e:
         raise ValidationExceptionError(str(e.errors()[0]["msg"]))
     return
 
 
-def validate_visible_condition(q: dict):
+def validate_visible_condition(question: dict):
     """
     Returns an error if the visible condition is invalid
     . Else, returns None.
 
-    :param q: the parent dict for visible condition
+    :param question: the parent dict for visible condition
 
     valid example:
     [
         {
-            "qidx": 1,
+            "question_index": 1,
             "relation": "EQUAL_TO",
             "answers": {
                 "number": 5
@@ -181,17 +181,17 @@ def validate_visible_condition(q: dict):
         },...
     ]
     """
-    target = "visibleCondition"
+    target = "visible_condition"
 
-    if target not in q:
+    if target not in question:
         return
 
-    error = check_target_not_null(target, q)
+    error = check_target_not_null(target, question)
     if error:
         raise ValidationExceptionError(str(error))
 
     try:
-        visible_conditions = q[target]
+        visible_conditions = question[target]
         for visible_condition in visible_conditions:
             VisibleCondition(**visible_condition)
     except ValidationError as e:
@@ -199,21 +199,21 @@ def validate_visible_condition(q: dict):
     return
 
 
-def validate_lang_versions(q: dict):
+def validate_lang_versions(question: dict):
     """
     Returns an error if the lang versions is invalid.
     Else, returns None.
 
-    :param q: the parent dict for visible condition
+    :param question: the parent dict for visible condition
 
     valid example:
     [
         {
            "lang": "English",
-           "questionText": "How the patient's condition?",
-            "mcOptions": [
+           "question_text": "How the patient's condition?",
+            "mc_options": [
                 {
-                    "mcid":0,
+                    "mc_id":0,
                     "opt": "Decent"
                 }
             ],
@@ -221,17 +221,17 @@ def validate_lang_versions(q: dict):
 
     ]
     """
-    target = "questionLangVersions"
+    target = "question_lang_versions"
 
-    if target not in q:
+    if target not in question:
         return
 
-    error = check_target_not_null(target, q)
+    error = check_target_not_null(target, question)
     if error:
         raise ValidationExceptionError(str(error))
 
     try:
-        question_lang_versions = q[target]
+        question_lang_versions = question[target]
         for question_lang_version in question_lang_versions:
             QuestionLangVersion(**question_lang_version)
     except ValidationError as e:
@@ -239,46 +239,46 @@ def validate_lang_versions(q: dict):
     return
 
 
-def validate_template_question_post(q: dict):
+def validate_template_question_post(question: dict):
     """
     Returns an error message if the question dict is not valid (after pre-process) when
     making template post request. Else, returns None.
 
-    :param q: question as a dict object
+    :param question: question as a dict object
 
     :return: An error message if request body is invalid in some way. None otherwise.
     """
     try:
-        TemplateQuestion(**q)
+        TemplateQuestion(**question)
     except ValidationError as e:
         raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
 
-def validate_form_question_post(q: dict):
+def validate_form_question_post(question: dict):
     """
     Returns an error message if the question dict is not valid (after pre-process) when
     making /api/forms/responses POST request. Else, returns None.
 
-    :param q: question as a dict object
+    :param question: question as a dict object
 
     :return: An error message if request body is invalid in some way. None otherwise.
     """
     try:
-        FormQuestion(**q)
+        FormQuestion(**question)
     except ValidationError as e:
         raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
 
-def validate_form_question_put(q: dict):
+def validate_form_question_put(question: dict):
     """
     Returns an error message if the question dict is not valid when making
     /api/forms/responses PUT request. Else, returns None.
 
-    :param q: question as a dict object
+    :param question: question as a dict object
 
     :return: An error message if request body in invalid in some way. None otherwise.
     """
     try:
-        FormQuestionPut(**q)
+        FormQuestionPut(**question)
     except ValidationError as e:
         raise ValidationExceptionError(str(e.errors()[0]["msg"]))
