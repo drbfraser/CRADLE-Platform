@@ -2,7 +2,6 @@ import json
 
 from flasgger import swag_from
 from flask import request
-from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource, abort
 from pydantic import ValidationError
 
@@ -10,6 +9,7 @@ import data
 from api import util
 from data import crud, marshal
 from models import FormOrm, FormTemplateOrm, PatientOrm, UserOrm
+from shared.user_utils import UserUtils
 from utils import get_current_time
 from validation import forms
 
@@ -17,7 +17,6 @@ from validation import forms
 # /api/forms/responses
 class Root(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/forms-post.yml",
         methods=["POST"],
@@ -29,38 +28,44 @@ class Root(Resource):
         if req.get("id") is not None:
             if crud.read(FormOrm, id=req["id"]):
                 abort(409, message="Form already exists")
+                return None
 
         try:
             forms.validate_form(req)
         except ValidationError as e:
             abort(400, message=str(e))
+            return None
 
-        patient = crud.read(PatientOrm, patientId=req["patientId"])
+        patient = crud.read(PatientOrm, id=req["id"])
         if not patient:
             abort(404, message="Patient does not exist")
+            return None
 
-        if req.get("formTemplateId") is not None:
-            form_template = crud.read(FormTemplateOrm, id=req["formTemplateId"])
+        if req.get("form_template_id") is not None:
+            form_template = crud.read(FormTemplateOrm, id=req["form_template_id"])
             if not form_template:
                 abort(404, message="Form template does not exist")
-            elif form_template.formClassificationId != req["formClassificationId"]:
+                return None
+            if form_template.form_classification_id != req["form_classification_id"]:
                 abort(404, message="Form classification does not match template")
+                return None
 
-        if req.get("lastEditedBy") is not None:
-            user = crud.read(UserOrm, id=req["lastEditedBy"])
+        if req.get("last_edited_by") is not None:
+            user = crud.read(UserOrm, id=req["last_edited_by"])
             if not user:
                 abort(404, message="User does not exist")
+                return None
         else:
-            user = get_jwt_identity()
-            user_id = int(user["userId"])
-            req["lastEditedBy"] = user_id
+            current_user = UserUtils.get_current_user_from_jwt()
+            user_id = int(current_user["id"])
+            req["last_edited_by"] = user_id
 
         util.assign_form_or_template_ids(FormOrm, req)
 
         form = marshal.unmarshal(FormOrm, req)
 
-        form.dateCreated = get_current_time()
-        form.lastEdited = form.dateCreated
+        form.date_created = get_current_time()
+        form.last_edited = form.date_created
 
         crud.create(form, refresh=True)
 
@@ -70,7 +75,6 @@ class Root(Resource):
 # /api/forms/responses/<string:form_id>
 class SingleForm(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/single-form-get.yml",
         methods=["GET"],
@@ -80,11 +84,11 @@ class SingleForm(Resource):
         form = crud.read(FormOrm, id=form_id)
         if not form:
             abort(404, message=f"No form with id {form_id}")
+            return None
 
         return marshal.marshal(form, False)
 
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/single-form-put.yml",
         methods=["PUT"],
@@ -94,6 +98,7 @@ class SingleForm(Resource):
         form = crud.read(FormOrm, id=form_id)
         if not form:
             abort(404, message=f"No form with id {form_id}")
+            return None
 
         req = request.get_json(force=True)
 
@@ -117,10 +122,10 @@ class SingleForm(Resource):
             if qans != questions_dict[qid].answers:
                 questions_dict[qid].answers = qans
 
-        user = get_jwt_identity()
-        user_id = int(user["userId"])
-        form.lastEditedBy = user_id
-        form.lastEdited = get_current_time()
+        current_user = UserUtils.get_current_user_from_jwt()
+        user_id = int(current_user["id"])
+        form.last_edited_by = user_id
+        form.last_edited = get_current_time()
 
         data.db_session.commit()
         data.db_session.refresh(form)
