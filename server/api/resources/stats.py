@@ -122,7 +122,7 @@ class FacilityReadings(Resource):
         return response, 200
 
 
-def hasPermissionToViewUser(user_id):
+def has_permission_to_view_user(user_id):
     current_user = UserUtils.get_current_user_from_jwt()
     role = current_user["role"]
     is_current_user = current_user["id"] == user_id
@@ -157,7 +157,7 @@ class UserReadings(Resource):
     @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
     @swag_from("../../specifications/stats-user.yml", methods=["GET"])
     def get(user_id: int):
-        if not hasPermissionToViewUser(user_id):
+        if not has_permission_to_view_user(user_id):
             return "Unauthorized to view this endpoint", 401
 
         filter = get_filter_data(request)
@@ -178,14 +178,16 @@ class ExportStats(Resource):
         if crud.read(UserOrm, id=user_id) is None:
             return "User with this ID does not exist", 404
 
-        if not hasPermissionToViewUser(user_id):
+        if not has_permission_to_view_user(user_id):
             return "Unauthorized to view this endpoint", 401
 
         query_response = crud.get_export_data(user_id, filter)
         response = []
+        if query_response is None:
+            return response, 200
         for entry in query_response:
-            age = relativedelta(date.today(), entry["dob"]).years
-            traffic_light = entry.get("trafficLightStatus").name
+            age = relativedelta(date.today(), entry["date_of_birth"]).years
+            traffic_light = entry.get("traffic_light_status").name
             color = None
             if traffic_light:
                 traffic_light = traffic_light.split("_")
@@ -197,14 +199,14 @@ class ExportStats(Resource):
 
             response.append(
                 {
-                    "referral_date": entry.get("dateReferred"),
-                    "patientId": entry.get("patientId"),
-                    "name": entry.get("patientName"),
-                    "sex": entry.get("patientSex").name,
+                    "referral_date": entry.get("date_referred"),
+                    "patient_id": entry.get("patient_id"),
+                    "name": entry.get("patient_name"),
+                    "sex": entry.get("sex").name,
                     "age": age,
-                    "pregnant": bool(entry.get("isPregnant")),
-                    "systolic_bp": entry.get("bpSystolic"),
-                    "diastolic_bp": entry.get("bpDiastolic"),
+                    "pregnant": bool(entry.get("is_pregnant")),
+                    "systolic__blood_pressure": entry.get("systolic_blood_pressure"),
+                    "diastolic__blood_pressure": entry.get("diastolic_blood_pressure"),
                     "heart_rate": entry.get("heartRateBPM"),
                     "traffic_color": color,
                     "traffic_arrow": arrow,
