@@ -3,7 +3,6 @@ from typing import Any, cast
 
 from flasgger import swag_from
 from flask import request
-from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 
 import data
@@ -302,7 +301,6 @@ class PatientReadings(Resource):
 # /api/patients/<string:patient_id>/most_recent_reading
 class PatientMostRecentReading(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/patient-most-recent-reading-get.yml",
         methods=["GET"],
@@ -328,7 +326,6 @@ class PatientMostRecentReading(Resource):
 # /api/patients/<string:patient_id>/referrals
 class PatientReferrals(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/patient-referrals-get.yml",
         methods=["GET"],
@@ -345,7 +342,6 @@ class PatientReferrals(Resource):
 # /api/patients/<string:patient_id>/forms
 class PatientForms(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/patient-forms-get.yml",
         methods=["GET"],
