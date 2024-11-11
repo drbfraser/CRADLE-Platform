@@ -1,6 +1,6 @@
 from typing import Union
 
-import data
+from config import db
 from models import PatientOrm, ReadingOrm
 
 
@@ -20,10 +20,10 @@ def resolve_reading_invariants(obj: Union[PatientOrm, ReadingOrm]):
         return
 
     # Ensure that the reading's traffic light status is present and valid
-    obj.trafficLightStatus = obj.get_traffic_light()
+    obj.traffic_light_status = obj.get_traffic_light()
 
     # Commit any changes to the database
-    data.db_session.commit()
+    db.session.commit()
 
 
 def resolve_reading_invariants_mobile(obj: Union[PatientOrm, ReadingOrm]):
@@ -42,9 +42,10 @@ def resolve_reading_invariants_mobile(obj: Union[PatientOrm, ReadingOrm]):
         return
 
     # Ensure that the reading's traffic light status is present and valid
-    obj.trafficLightStatus = obj.get_traffic_light()
+    obj.traffic_light_status = obj.get_traffic_light()
 
     # Ensure that if a obj has both a referral and assessment, then it's referral
     # is marked as assessed.
     if obj.referral and obj.followup:
-        obj.referral.isAssessed = True
+        obj.referral.is_assessed = True
+    db.session.commit()
