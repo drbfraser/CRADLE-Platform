@@ -67,8 +67,8 @@ export const PatientsPage = () => {
         search={search}
         columns={COLUMNS}
         sortableColumns={SORTABLE_COLUMNS}
-        rowKey={'patientId'}
-        initialSortBy={'patientName'}
+        rowKey={'id'}
+        initialSortBy={'name'}
         initialSortDir={SortDir.ASC}
         RowComponent={PatientRow}
         isTransformed={isTransformed}

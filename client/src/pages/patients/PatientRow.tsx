@@ -18,7 +18,7 @@ export const PatientRow = ({ row }: IProps) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/patients/${row.patientId}`);
+    navigate(`/patients/${row.id}`);
   };
 
   const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
@@ -27,11 +27,11 @@ export const PatientRow = ({ row }: IProps) => {
     <ApiTableRow onClick={handleClick}>
       <TableCell label={COLUMNS.patientName} isTransformed={isTransformed}>
         <Box component="span" sx={{ fontSize: '18px' }}>
-          {row.patientName}
+          {row.name}
         </Box>
       </TableCell>
       <TableCell label={COLUMNS.patientId} isTransformed={isTransformed}>
-        {row.patientId}
+        {row.id}
       </TableCell>
       <TableCell label={COLUMNS.villageNumber} isTransformed={isTransformed}>
         {row.villageNumber}
@@ -48,9 +48,9 @@ export const PatientRow = ({ row }: IProps) => {
         />
       </TableCell>
       <TableCell label={COLUMNS.dateTimeTaken} isTransformed={isTransformed}>
-        {!row.dateTimeTaken
+        {!row.dateTaken
           ? 'No reading'
-          : moment(row.dateTimeTaken * 1000).format('YYYY-MM-DD')}
+          : moment(row.dateTaken * 1000).format('YYYY-MM-DD')}
       </TableCell>
     </ApiTableRow>
   );
