@@ -512,7 +512,7 @@ class UserUtils:
     def get_user_sms_secret_key_string(user_id):
         sms_secret_key = crud.read(SmsSecretKeyOrm, user_id=user_id)
         if sms_secret_key:
-            return sms_secret_key.secret_key
+            return cast(str, sms_secret_key.secret_key)
         return None
 
     @staticmethod

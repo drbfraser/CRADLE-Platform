@@ -1,6 +1,5 @@
 from flasgger import swag_from
 from flask import request
-from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort, reqparse
 
 from api.decorator import roles_required
@@ -18,11 +17,10 @@ parser.add_argument(
     required=True,
     help="ID is required for this operation.",
 )
-parser.add_argument("lastRecieved", type=int, required=False)
+parser.add_argument("last_received", type=int, required=False)
 
 
 class RelayServerPhoneNumbers(Resource):
-    @jwt_required()
     @swag_from(
         "../../specifications/relay-server-phone-number-get.yml",
         methods=["GET"],
@@ -41,11 +39,13 @@ class RelayServerPhoneNumbers(Resource):
         req = request.get_json(force=True)
         if len(req) == 0:
             abort(400, message="Request body is empty")
+            return None
 
         serverDetails = marshal.unmarshal(RelayServerPhoneNumberOrm, req)
         phone = serverDetails.phone
         if crud.read(RelayServerPhoneNumberOrm, phone=phone):
             abort(409, message=f"A SMS relay server is already using {phone}")
+            return None
 
         crud.create(serverDetails, refresh=True)
         return {"message": "Relay server phone number added successfully"}, 200
@@ -61,6 +61,7 @@ class RelayServerPhoneNumbers(Resource):
 
         if len(req) == 0:
             abort(400, message="Request body is empty")
+            return None
 
         serverUpdates = filterPairsWithNone(parser.parse_args())
 
@@ -84,6 +85,7 @@ class RelayServerPhoneNumbers(Resource):
 
         if len(req) == 0:
             abort(400, message="Request body is empty")
+            return None
 
         serverDelete = filterPairsWithNone(parser.parse_args())
 

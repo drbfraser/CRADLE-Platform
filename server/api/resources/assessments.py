@@ -1,6 +1,5 @@
 from flasgger import swag_from
 from flask import request
-from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 
 from api import util
@@ -13,7 +12,6 @@ from validation import assessments
 # /api/assessments
 class Root(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/assessments-post.yml",
         methods=["POST"],
@@ -39,7 +37,6 @@ class Root(Resource):
         return assessment.id, 201
 
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/assessments-get.yml",
         methods=["GET"],
@@ -53,7 +50,6 @@ class Root(Resource):
 # /api/assessments/<string:assessment_id>
 class SingleAssessment(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/single-assessment-get.yml",
         methods=["GET"],
@@ -67,7 +63,6 @@ class SingleAssessment(Resource):
         return marshal.marshal(follow_up)
 
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/single-assessment-put.yml",
         methods=["PUT"],

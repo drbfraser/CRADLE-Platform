@@ -2,20 +2,18 @@ import time
 
 from flasgger import swag_from
 from flask import request
-from flask_jwt_extended import jwt_required
-from flask_jwt_extended.utils import get_jwt_identity
 from flask_restful import Resource, abort
 
 from data import crud, marshal
 from models import HealthFacilityOrm, PatientOrm, ReadingOrm, ReferralOrm
 from service import assoc, invariant
+from shared.user_utils import UserUtils
 from validation import readings
 
 
 # /api/readings
 class Root(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/readings-post.yml",
         methods=["POST"],
@@ -29,12 +27,13 @@ class Root(Resource):
         except Exception as e:
             abort(400, message=str(e))
 
-        if not crud.read(PatientOrm, patientId=json["patientId"]):
+        if not crud.read(PatientOrm, id=json["patient_id"]):
             abort(400, message="Patient does not exist")
 
-        userId = get_jwt_identity()["userId"]
+        current_user = UserUtils.get_current_user_from_jwt()
+        user_id = current_user["id"]
 
-        json["userId"] = userId
+        json["user_id"] = user_id
 
         if "referral" in json:
             healthFacility = crud.read(
@@ -44,28 +43,29 @@ class Root(Resource):
 
             if not healthFacility:
                 abort(400, message="Health facility does not exist")
-            else:
-                UTCTime = str(round(time.time() * 1000))
-                crud.update(
-                    HealthFacilityOrm,
-                    {"newReferrals": UTCTime},
-                    True,
-                    healthFacilityName=json["referral"]["referralHealthFacilityName"],
-                )
+                return None
+            UTCTime = str(round(time.time() * 1000))
+            crud.update(
+                HealthFacilityOrm,
+                {"newReferrals": UTCTime},
+                True,
+                healthFacilityName=json["referral"]["referralHealthFacilityName"],
+            )
 
             referral = marshal.unmarshal(ReferralOrm, json["referral"])
             crud.create(referral, refresh=True)
 
             patient = referral.patient
-            facility = referral.healthFacility
+            facility = referral.health_facility
             if not assoc.has_association(patient, facility):
                 assoc.associate(patient, facility=facility)
             del json["referral"]
 
         reading = marshal.unmarshal(ReadingOrm, json)
 
-        if crud.read(ReadingOrm, readingId=reading.readingId):
-            abort(409, message=f"A reading already exists with id: {reading.readingId}")
+        if crud.read(ReadingOrm, id=reading.id):
+            abort(409, message=f"A reading already exists with id: {reading.id}")
+            return None
 
         invariant.resolve_reading_invariants(reading)
         crud.create(reading, refresh=True)
@@ -75,7 +75,6 @@ class Root(Resource):
 # /api/readings/<string:id>
 class SingleReading(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/single-reading-get.yml",
         methods=["GET"],

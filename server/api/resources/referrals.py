@@ -3,7 +3,6 @@ from typing import Any, cast
 
 from flasgger import swag_from
 from flask import request
-from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource, abort
 
 import data
@@ -49,13 +48,15 @@ class Root(Resource):
             ReferralEntity.validate(request_body)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
+            return None
 
-        healthFacility = crud.read(
+        health_facility_name = request_body["health_facility_name"]
+        health_facility = crud.read(
             HealthFacilityOrm,
-            healthFacilityName=request_body["referralHealthFacilityName"],
+            name=health_facility_name,
         )
 
-        if not healthFacility:
+        if not health_facility:
             abort(400, message="Health facility does not exist")
         else:
             UTCTime = str(round(time.time() * 1000))
@@ -63,15 +64,16 @@ class Root(Resource):
                 HealthFacilityOrm,
                 {"newReferrals": UTCTime},
                 True,
-                healthFacilityName=request_body["referralHealthFacilityName"],
+                name=health_facility_name,
             )
 
-        if "userId" not in request_body:
-            request_body["userId"] = get_jwt_identity()["userId"]
+        if "user_id" not in request_body:
+            request_body["user_id"] = UserUtils.get_current_user_from_jwt()["id"]
 
-        patient = crud.read(PatientOrm, patientId=request_body["patientId"])
+        patient = crud.read(PatientOrm, id=request_body["patient_id"])
         if not patient:
             abort(400, message="Patient does not exist")
+            return None
 
         referral = marshal.unmarshal(ReferralOrm, request_body)
 
@@ -79,7 +81,7 @@ class Root(Resource):
         # Creating a referral also associates the corresponding patient to the health
         # facility they were referred to.
         patient = referral.patient
-        facility = referral.healthFacility
+        facility = referral.health_facility
         if not assoc.has_association(patient, facility):
             assoc.associate(patient, facility=facility)
 
@@ -89,7 +91,6 @@ class Root(Resource):
 # /api/referrals/<int:referral_id>
 class SingleReferral(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/single-referral-get.yml",
         methods=["GET"],
@@ -106,7 +107,6 @@ class SingleReferral(Resource):
 # /api/referrals/assess/<string:referral_id>
 class AssessReferral(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/referrals-assess-update-put.yml",
         methods=["PUT"],
@@ -114,12 +114,13 @@ class AssessReferral(Resource):
     )
     def put(referral_id: str):
         referral = crud.read(ReferralOrm, id=referral_id)
-        if not referral:
+        if referral is None:
             abort(404, message=f"No referral with id {referral_id}")
+            return None
 
-        if not referral.isAssessed:
-            referral.isAssessed = True
-            referral.dateAssessed = get_current_time()
+        if not referral.is_assessed:
+            referral.is_assessed = True
+            referral.date_assessed = get_current_time()
             data.db_session.commit()
             data.db_session.refresh(referral)
 
@@ -129,15 +130,15 @@ class AssessReferral(Resource):
 # /api/referrals/cancel-status-switch/<string:referral_id>
 class ReferralCancelStatus(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/referrals-cancel-update-put.yml",
         methods=["PUT"],
         endpoint="referral_cancel_status",
     )
     def put(referral_id: str):
-        if not crud.read(ReferralOrm, id=referral_id):
+        if crud.read(ReferralOrm, id=referral_id) is None:
             abort(404, message=f"No referral with id {referral_id}")
+            return None
 
         request_body = request.get_json(force=True)
 
@@ -146,11 +147,11 @@ class ReferralCancelStatus(Resource):
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 
-        if not request_body["isCancelled"]:
-            request_body["cancelReason"] = None
-            request_body["dateCancelled"] = None
+        if not request_body["is_cancelled"]:
+            request_body["cancel_reason"] = None
+            request_body["date_cancelled"] = None
         else:
-            request_body["dateCancelled"] = get_current_time()
+            request_body["date_cancelled"] = get_current_time()
 
         crud.update(ReferralOrm, request_body, id=referral_id)
 
@@ -164,15 +165,16 @@ class ReferralCancelStatus(Resource):
 # /api/referrals/not-attend/<string:referral_id>
 class ReferralNotAttend(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/referrals-not-attend-update-put.yml",
         methods=["PUT"],
         endpoint="referral_not_attend",
     )
     def put(referral_id: str):
-        if not crud.read(ReferralOrm, id=referral_id):
+        referral = crud.read(ReferralOrm, id=referral_id)
+        if referral is None:
             abort(404, message=f"No referral with id {referral_id}")
+            return None
 
         request_body = request.get_json(force=True)
 
@@ -180,12 +182,12 @@ class ReferralNotAttend(Resource):
             NotAttend.validate_not_attend_put_request(request_body)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
+            return None
 
-        referral = crud.read(ReferralOrm, id=referral_id)
-        if not referral.notAttended:
-            referral.notAttended = True
-            referral.notAttendReason = request_body["notAttendReason"]
-            referral.dateNotAttended = get_current_time()
+        if not referral.not_attended:
+            referral.not_attended = True
+            referral.not_attend_reason = request_body["not_attend_reason"]
+            referral.date_not_attended = get_current_time()
             data.db_session.commit()
             data.db_session.refresh(referral)
 

@@ -3,7 +3,6 @@ import json
 import requests
 from flasgger import swag_from
 from flask import Response, jsonify, make_response, request
-from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 
 from api.resources.users import get_access_token, get_user_data_for_token
@@ -107,9 +106,11 @@ def sms_relay_procedure():
 
     if not phone_number:
         abort(400, message=null_phone_number)
+        return None
 
     if not regex_check(phone_number):
         abort(400, message=invalid_phone_number.format(phoneNumber=phone_number))
+        return None
 
     user_exists = phoneNumber_exists(phone_number)
 
@@ -205,7 +206,6 @@ def sms_relay_procedure():
 # /api/sms_relay
 class Root(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/sms-relay-post.yaml",
         methods=["POST"],

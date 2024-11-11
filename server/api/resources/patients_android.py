@@ -1,8 +1,4 @@
 from flasgger import swag_from
-from flask_jwt_extended import (
-    get_jwt_identity,
-    jwt_required,
-)
 from flask_restful import Resource, abort
 
 import service.FilterHelper as filter
@@ -16,6 +12,7 @@ from models import (
     UserOrm,
 )
 from service import serialize, view
+from shared.user_utils import UserUtils
 
 ## Functions that are only used for these endpoints ##
 
@@ -74,10 +71,9 @@ def get_global_search_patients(current_user, search):
 #           a portion/full match of the patient's initials
 class AndroidPatientGlobalSearch(Resource):
     # get all patient information (patientinfo, readings, and referrals)
-    @jwt_required()
     @swag_from("../../specifications/patient-search-get.yml", methods=["GET"])
     def get(self, search):
-        current_user = get_jwt_identity()
+        current_user = UserUtils.get_current_user_from_jwt()
         patients_readings_referrals = get_global_search_patients(
             current_user,
             search.upper(),
@@ -91,15 +87,14 @@ class AndroidPatientGlobalSearch(Resource):
 # /api/mobile/patients/
 class AndroidPatients(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/android-patients-get.yml",
         methods=["GET"],
         endpoint="android_patient",
     )
     def get():
-        user = get_jwt_identity()
-        patients = view.patient_view(user)
+        current_user = UserUtils.get_current_user_from_jwt()
+        patients = view.patient_view(current_user)
 
         return [serialize.serialize_patient(p) for p in patients]
 
@@ -107,15 +102,14 @@ class AndroidPatients(Resource):
 # /api/mobile/readings
 class AndroidReadings(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/android-readings-get.yml",
         methods=["GET"],
         endpoint="android_readings",
     )
     def get():
-        user = get_jwt_identity()
-        readings = view.reading_view(user)
+        current_user = UserUtils.get_current_user_from_jwt()
+        readings = view.reading_view(current_user)
 
         return [serialize.serialize_reading(r) for r in readings]
 
@@ -123,37 +117,34 @@ class AndroidReadings(Resource):
 # /api/mobile/referrals
 class AndroidReferrals(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/android-referrals-get.yml",
         methods=["GET"],
         endpoint="android_referrals",
     )
     def get():
-        user = get_jwt_identity()
-        referrals = view.referral_view(user)
+        current_user = UserUtils.get_current_user_from_jwt()
+        referrals = view.referral_view(current_user)
         return [serialize.serialize_referral_or_assessment(r) for r in referrals]
 
 
 # /api/mobile/assessments
 class AndroidAssessments(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/android-assessments-get.yml",
         methods=["GET"],
         endpoint="android_assessments",
     )
     def get():
-        user = get_jwt_identity()
-        assessments = view.assessment_view(user)
+        current_user = UserUtils.get_current_user_from_jwt()
+        assessments = view.assessment_view(current_user)
         return [serialize.serialize_referral_or_assessment(a) for a in assessments]
 
 
 # /api/mobile/forms/<str:patient_id>/<str:form_template_id>
 class AndroidForms(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/android-forms-get.yml",
         methods=["GET"],
