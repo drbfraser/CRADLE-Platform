@@ -95,7 +95,7 @@ def serialize_patient(
     assessments: Optional[List[FollowUpOrm]] = None,
 ) -> dict:
     p = {
-        "patient_id": patient.patient_id,
+        "id": patient.patient_id,
         "name": patient.name,
         "sex": patient.sex.value,
         "date_of_birth": str(patient.date_of_birth),
