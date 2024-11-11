@@ -3,7 +3,8 @@ import os
 
 import boto3
 from dotenv import load_dotenv
-from flask import Request, Response, abort, request
+from flask import Request, Response, request
+from werkzeug.exceptions import Unauthorized
 
 import config
 from authentication.CognitoClientWrapper import CognitoClientWrapper
@@ -41,8 +42,13 @@ def is_public_endpoint(request: Request):
     if request.endpoint is None:
         return False
 
+    # Public route paths.
+    if request.path in {
+        "/api/user/auth",
+        "/api/user/auth/refresh_token",
+    }:
+        return True
     if request.endpoint.startswith("flasgger.") or request.endpoint in {
-        "userauthapi",
         "version",
         "static",
     }:
@@ -74,4 +80,4 @@ def require_authorization():
         try:
             cognito.verify_access_token()
         except ValueError as err:
-            abort(401, err)
+            raise Unauthorized(str(err))
