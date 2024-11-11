@@ -3,7 +3,6 @@ from functools import wraps
 
 from flask import abort
 from flask_jwt_extended import (
-    get_jwt_identity,
     verify_jwt_in_request,
 )
 
@@ -92,10 +91,10 @@ def patient_association_required():
         def decorator(patient_id, *args, **kwargs):
             verify_jwt_in_request()
 
-            identity = get_jwt_identity()
-            user_role = identity["role"]
+            current_user = UserUtils.get_current_user_from_jwt()
+            user_role = current_user["role"]
             if user_role == RoleEnum.VHT.value:  # Changed the condition here
-                user_id = identity["user_id"]
+                user_id = current_user["id"]
                 if not crud.read(
                     PatientAssociationsOrm,
                     patientId=patient_id,
