@@ -1,6 +1,10 @@
 import pytest
 
-from validation.referrals import CancelStatus, NotAttend, ReferralEntity
+from validation.referrals import (
+    CancelStatusValidator,
+    NotAttendValidator,
+    ReferralEntityValidator,
+)
 from validation.validation_exception import ValidationExceptionError
 
 valid_json = {
@@ -63,51 +67,59 @@ invalid_field_type_for_not_attend_put_request = {
 @pytest.mark.parametrize(
     "json, output_type, entity",
     [
-        (valid_json, type(None), ReferralEntity),
-        (invalid_missing_health_facility, ValidationExceptionError, ReferralEntity),
-        (invalid_missing_patient_id, ValidationExceptionError, ReferralEntity),
-        (invalid_extra_field, ValidationExceptionError, ReferralEntity),
-        (valid_cancel_put_request, type(None), CancelStatus),
+        (valid_json, type(None), ReferralEntityValidator),
+        (
+            invalid_missing_health_facility,
+            ValidationExceptionError,
+            ReferralEntityValidator,
+        ),
+        (invalid_missing_patient_id, ValidationExceptionError, ReferralEntityValidator),
+        (invalid_extra_field, ValidationExceptionError, ReferralEntityValidator),
+        (valid_cancel_put_request, type(None), CancelStatusValidator),
         (
             invalid_extra_field_for_cancel_put_request,
             ValidationExceptionError,
-            CancelStatus,
+            CancelStatusValidator,
         ),
-        (missing_field_for_cancel_put_request, ValidationExceptionError, CancelStatus),
+        (
+            missing_field_for_cancel_put_request,
+            ValidationExceptionError,
+            CancelStatusValidator,
+        ),
         (
             invalid_field_type_for_cancel_put_request,
             ValidationExceptionError,
-            CancelStatus,
+            CancelStatusValidator,
         ),
-        (valid_not_attend_put_request, type(None), NotAttend),
+        (valid_not_attend_put_request, type(None), NotAttendValidator),
         (
             invalid_extra_field_for_not_attend_put_request,
             ValidationExceptionError,
-            NotAttend,
+            NotAttendValidator,
         ),
         (
             invalid_field_type_for_not_attend_put_request,
             ValidationExceptionError,
-            NotAttend,
+            NotAttendValidator,
         ),
     ],
 )
 def test_validation(json, output_type, entity):
     if type(output_type) is type and issubclass(output_type, Exception):
         with pytest.raises(output_type):
-            if entity is ReferralEntity:
+            if entity is ReferralEntityValidator:
                 entity.validate(json)
-            if entity is CancelStatus:
-                entity.validate_cancel_put_request(json)
-            if entity is NotAttend:
-                entity.validate_not_attend_put_request(json)
+            if entity is CancelStatusValidator:
+                entity.validate(json)
+            if entity is NotAttendValidator:
+                entity.validate(json)
     else:
         try:
-            if entity is ReferralEntity:
+            if entity is ReferralEntityValidator:
                 entity.validate(json)
-            if entity is CancelStatus:
-                entity.validate_cancel_put_request(json)
-            if entity is NotAttend:
-                entity.validate_not_attend_put_request(json)
+            if entity is CancelStatusValidator:
+                entity.validate(json)
+            if entity is NotAttendValidator:
+                entity.validate(json)
         except ValidationExceptionError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e
