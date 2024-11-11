@@ -517,7 +517,6 @@ export const getPatientAsync = async (patientId: string) => {
       method: 'GET',
       url: EndpointEnum.PATIENTS + `/${patientId}`,
     });
-    console.log(response.data);
     return response.data;
   } catch (error: any) {
     if (error.status === 403) {
