@@ -1,170 +1,137 @@
 from datetime import date, datetime
 from typing import Any, Optional
 
-from validation.validate import required_keys_present, values_correct_type
+from pydantic import BaseModel, ValidationError, field_validator, model_validator
+
+from validation.validation_exception import ValidationExceptionError
 
 
-def validate(request_body: dict) -> Optional[str]:
-    """
-    Returns an error message if the /api/patients post request
-    is not valid. Else, returns None.
+class PatientBase(BaseModel):
+    patientId: Optional[str] = None
+    patientName: Optional[str] = None
+    patientSex: Optional[str] = "FEMALE"
+    dob: Optional[str] = None
+    isExactDob: Optional[bool] = False
+    isPregnant: Optional[bool] = False
+    householdNumber: Optional[str] = None
+    zone: Optional[str] = None
+    villageNumber: Optional[str] = None
+    pregnancyStartDate: Optional[int] = None
+    gestationalAgeUnit: Optional[str] = None
+    drugHistory: Optional[str] = None
+    medicalHistory: Optional[str] = None
+    allergy: Optional[str] = None
+    isArchived: Optional[bool] = False
 
-    :param request_body: The request body as a dict object
-                        {
-                            "patientId": "123456", - required
-                            "patientName": "testName", - required
-                            "isPregnant": True, - required
-                            "patientSex": "FEMALE", - required
-                            "householdNumber": "20",
-                            "dob": "1990-05-30",
-                            "isExactDob: false
-                            "zone": "15",
-                            "villageNumber": "50",
-                            "pregnancyStartDate": 1587068710, - required if isPregnant = True
-                            "gestationalAgeUnit": "WEEKS", - required isPregnant = True
-                            "drugHistory": "too much tylenol",
-                            "medicalHistory": "not enough advil",
-                            "allergy": "seafood",
-                            "isArchived": false
-                        }
-    :return: An error message if request body in invalid in some way. None otherwise.
-    """
-    error_message = None
+    @model_validator(mode="before")
+    @classmethod
+    def validate_is_pregnant_field(cls, values):
+        is_pregnant = values.get("isPregnant")
+        if is_pregnant:
+            if not values.get("pregnancyStartDate") or not values.get(
+                "gestationalAgeUnit",
+            ):
+                raise ValueError(
+                    "If isPregnant is True, pregnancyStartDate and gestationalAgeUnit are required.",
+                )
+        return values
 
-    # Check if required keys are present
-    required_keys = [
-        "patientId",
-        "patientName",
-        "patientSex",
-        "dob",
-        "isExactDob",
-    ]
-    error_message = required_keys_present(request_body, required_keys)
-    if error_message is not None:
-        return error_message
+    @field_validator("patientId", mode="before")
+    @classmethod
+    def check_patient_id_length(cls, patient_id):
+        if len(patient_id) > 14:
+            raise ValueError("patientId is too long. Max is 14 digits.")
+        return patient_id
 
-    # Check that certain fields are of type bool
-    error_message = values_correct_type(request_body, ["isPregnant"], bool)
-    if error_message is not None:
-        return error_message
+    @field_validator("pregnancyStartDate", mode="before")
+    @classmethod
+    def validate_pregnancy_start_date_field(cls, pregnancy_start_date):
+        if pregnancy_start_date:
+            error = check_gestational_age_under_limit(pregnancy_start_date)
+            if error:
+                raise ValueError(error)
+        return pregnancy_start_date
 
-    # If patient is pregnant, check  if certain pregnancy related fields are present
-    if request_body.get("isPregnant") is True:
-        error_message = required_keys_present(
-            request_body,
-            ["pregnancyStartDate", "gestationalAgeUnit"],
-        )
-    if error_message is not None:
-        return error_message
-
-    # Check if gestational age is less than or equal to 43 weeks/10 months
-    if "pregnancyStartDate" in request_body:
-        error_message = check_gestational_age_under_limit(
-            int(request_body.get("pregnancyStartDate")),
-        )
-    if error_message is not None:
-        return error_message
-
-    # Check that certain fields are of type string
-    error_message = values_correct_type(request_body, ["patientName"], str)
-    if error_message is not None:
-        return error_message
-
-    # Check that certain fields are of type int
-    error_message = values_correct_type(request_body, ["patientId"], str)
-    if error_message is not None:
-        return error_message
-
-    # Check that patientId is not over the 14 digit limit.
-    if len(str(request_body.get("patientId"))) > 14:
-        return "patientId is too long. Max is 14 digits."
-
-    # Make sure the dob is in YYYY-mm-dd format
-    if not is_correct_date_format(request_body.get("dob")):
-        return "dob is not in the required YYYY-MM-DD format."
-
-    return error_message
+    @field_validator("dob", mode="before")
+    @classmethod
+    def validate_date_format(cls, dob):
+        if dob and not is_correct_date_format(dob):
+            raise ValueError("dob is not in the required YYYY-MM-DD format.")
+        return dob
 
 
-def validate_put_request(request_body: dict, patient_id) -> Optional[str]:
-    """
-    Returns an error message if the /api/patients/<string:patient_id>/info PUT
-    request is not valid. Else, returns None.
+class PatientPostValidator(PatientBase):
+    patientId: str
+    patientName: str
+    patientSex: str
+    dob: str
+    isExactDob: bool
+    isPregnant: bool
 
-    :param request_body: The request body as a dict object
-    :param patient_id: The patient ID the PUT request is being made for
+    @staticmethod
+    def validate(request_body: dict):
+        """
+        Raises an error if the /api/patients post request
+        is not valid.
 
-    :return: An error message if request body in invalid in some way. None otherwise.
-    """
-    error_message = None
+        :param request_body: The request body as a dict object
+                            {
+                                "patientId": "123456", - required
+                                "patientName": "testName", - required
+                                "isPregnant": True, - required
+                                "patientSex": "FEMALE", - required
+                                "dob": "1990-05-30", - required
+                                "isExactDob: false - required
+                                "householdNumber": "20",
+                                "zone": "15",
+                                "villageNumber": "50",
+                                "pregnancyStartDate": 1587068710, - required if isPregnant = True
+                                "gestationalAgeUnit": "WEEKS", - required isPregnant = True
+                                "drugHistory": "too much tylenol",
+                                "medicalHistory": "not enough advil",
+                                "allergy": "seafood",
+                                "isArchived": false
+                            }
+        """
+        try:
+            PatientPostValidator(**request_body)
+        except ValidationError as e:
+            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
-    # Check that each key in the request body is a patient field
-    patient_keys = [
-        "patientId",
-        "patientName",
-        "patientSex",
-        "isPregnant",
-        "householdNumber",
-        "dob",
-        "villageNumber",
-        "gestationalTimestamp",
-        "gestationalAgeUnit",
-        "pregnancyStartDate",
-        "drugHistory",
-        "medicalHistory",
-        "zone",
-        "lastEdited",
-        "base",
-        "isExactDob",
-        "allergy",
-        "isArchived",
-    ]
-    for key in request_body:
-        if key not in patient_keys:
-            return "The key " + key + " is not a valid field in patient"
 
-    # Check that the patientId is not being edited
-    if "patientId" in request_body and request_body.get("patientId") != patient_id:
-        return "Patient ID cannot be changed."
+class PatientPutValidator(PatientBase):
+    gestationalTimestamp: Optional[int] = None
+    lastEdited: Optional[int] = None
+    base: Optional[int] = None
 
-    # Check that certain fields are of type bool
-    if "isPregnant" in request_body:
-        error_message = values_correct_type(request_body, ["isPregnant"], bool)
-        if error_message is not None:
-            return error_message
+    class Config:
+        extra = "forbid"
 
-    # Check if gestational age is less than or equal to 43 weeks/10 months
-    if (
-        "gestationalTimestamp" in request_body
-        and request_body.get("gestationalTimestamp") is not None
-    ):
-        error_message = check_gestational_age_under_limit(
-            int(request_body.get("gestationalTimestamp")),
-        )
-    if error_message is not None:
-        return error_message
+    @field_validator("gestationalTimestamp", mode="before")
+    @classmethod
+    def validate_gestational_timestamp_field(cls, gestational_timestamp):
+        if gestational_timestamp:
+            error = check_gestational_age_under_limit(gestational_timestamp)
+            if error:
+                raise ValueError(error)
+        return gestational_timestamp
 
-    if (
-        "pregnancyStartDate" in request_body
-        and request_body.get("pregnancyStartDate") is not None
-    ):
-        error_message = check_gestational_age_under_limit(
-            int(request_body.get("pregnancyStartDate")),
-        )
-    if error_message is not None:
-        return error_message
+    @staticmethod
+    def validate(request_body: dict, patient_id):
+        """
+        Raises an error if the /api/patients/<string:patient_id>/info PUT
+        request is not valid. Else, returns None.
 
-    # Check that certain fields are of type string
-    if "patientName" in request_body:
-        error_message = values_correct_type(request_body, ["patientName"], str)
-        if error_message is not None:
-            return error_message
+        :param request_body: The request body as a dict object
+        :param patient_id: The patient ID the PUT request is being made for
+        """
+        try:
+            patient = PatientPutValidator(**request_body)
+        except ValidationError as e:
+            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
-    # Make sure the dob is in YYYY-mm-dd format
-    if "dob" in request_body and not is_correct_date_format(request_body.get("dob")):
-        return "dob is not in the required YYYY-MM-DD format."
-
-    return error_message
+        if patient.patientId and patient.patientId != patient_id:
+            raise ValidationExceptionError("Patient ID cannot be changed.")
 
 
 def check_gestational_age_under_limit(gestation_timestamp: int) -> Optional[str]:

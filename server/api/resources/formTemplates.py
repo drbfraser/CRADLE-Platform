@@ -4,7 +4,6 @@ from flasgger import swag_from
 from flask import make_response, request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
-from pydantic import ValidationError
 from werkzeug.datastructures import FileStorage
 
 import data
@@ -14,7 +13,8 @@ from data import crud, marshal
 from enums import ContentTypeEnum, RoleEnum
 from models import FormClassification, FormTemplate
 from service import serialize
-from validation import formTemplates
+from validation.formTemplates import FormTemplateValidator
+from validation.validation_exception import ValidationExceptionError
 
 
 # /api/forms/templates
@@ -66,8 +66,8 @@ class Root(Resource):
                 abort(409, message="Form template already exists")
 
         try:
-            formTemplates.validate_template(req)
-        except ValidationError as e:
+            FormTemplateValidator.validate(req)
+        except ValidationExceptionError as e:
             abort(400, message=str(e))
 
         classification = crud.read(

@@ -1,76 +1,73 @@
 from typing import Optional
 
-from validation.validate import required_keys_present, values_correct_type
+from pydantic import BaseModel, ValidationError, model_validator
+
+from validation.validation_exception import ValidationExceptionError
 
 
-def validate_post_request(request_body: dict, patient_id: str) -> Optional[str]:
-    """
-    Returns an error message if the /api/patients/<string:patient_id>/pregnancies
-    post request is not valid. Else, returns None.
+class MedicalRecordValidator(BaseModel):
+    id: Optional[int] = None
+    patientId: Optional[int] = None
+    medicalHistory: Optional[str] = None
+    drugHistory: Optional[str] = None
+    dateCreated: Optional[int] = None
+    lastEdited: Optional[int] = None
 
-    :param request_body: The request body as a dict object
-                        {
-                            "patientId": "120000",
-                            "medicalHistory" or "drugHistory": "Aspirin 75mg", - required
-                        }
-    :param patient_id: The id of the patient, used to validate request_body input
-    :return: An error message if request body in invalid in some way. None otherwise.
-    """
-    error = __validate(request_body)
-    if error:
-        return error
+    class Config:
+        extra = "forbid"
 
-    # if drugHistory is not present, then we check if medicalHistory is not present
-    # if both are not present, then return an error
-    if required_keys_present(request_body, ["drugHistory"]):
-        error = required_keys_present(request_body, ["medicalHistory"])
-        if error:
-            return error
+    @model_validator(mode="before")
+    @classmethod
+    def validate_histories(cls, values):
+        if not values.get("drugHistory") and not values.get("medicalHistory"):
+            raise ValidationExceptionError(
+                "Either 'medicalHistory' or 'drugHistory' must be present.",
+            )
+        return values
 
-    error = values_correct_type(request_body, ["medicalHistory", "drugHistory"], str)
-    if error:
-        return error
+    @staticmethod
+    def validate_post_request(request_body: dict, patient_id: str):
+        """
+        Raises an error if the /api/patients/<string:patient_id>/medical_records
+        post request is not valid.
 
-    error = values_correct_type(request_body, ["patientId"], int)
-    if error:
-        return error
+        :param request_body: The request body as a dict object
+                            {
+                                "patientId": "120000",
+                                "medicalHistory" or "drugHistory": "Aspirin 75mg", - required
+                            }
+        :param patient_id: The id of the patient, used to validate request_body input
+        """
+        try:
+            record = MedicalRecordValidator(**request_body)
 
-    if "patientId" in request_body and request_body.get("patientId") != patient_id:
-        return "Patient ID does not match."
+            if record.patientId and record.patientId != patient_id:
+                raise ValidationExceptionError("Patient ID does not match.")
 
+        except ValidationError as e:
+            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
-def validate_put_request(request_body: dict, record_id: str) -> Optional[str]:
-    """
-    Returns an error message if the /api/medical_records/<string:record_id> PUT
-    request is not valid. Else, returns None.
+    @staticmethod
+    def validate_put_request(request_body: dict, record_id: str):
+        """
+        Raises an error if the /api/medical_records/<string:record_id> PUT
+        request is not valid.
 
-    :param request_body: The request body as a dict object
-    :param record_id: The medical record ID the PUT request is being made for
+        :param request_body: The request body as a dict object
+        :param record_id: The medical record ID the PUT request is being made for
+        """
+        try:
+            record = MedicalRecordValidator(**request_body)
 
-    :return: An error message if request body is invalid in some way. None otherwise.
-    """
-    error = __validate(request_body)
-    if error:
-        return error
+            if record.id and record.id != record_id:
+                raise ValidationExceptionError("Medical record ID cannot be changed.")
 
-    error = values_correct_type(request_body, ["medicalHistory", "drugHistory"], str)
-    if error:
-        return error
+        except ValidationError as e:
+            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
-    if "id" in request_body and request_body.get("id") != record_id:
-        return "Medical record ID cannot be changed."
-
-
-def __validate(request_body):
-    record_keys = [
-        "id",
-        "patientId",
-        "medicalHistory",
-        "drugHistory",
-        "dateCreated",
-        "lastEdited",
-    ]
-
-    for key in request_body:
-        if key not in record_keys:
-            return f"{key} is not a valid key in medical record."
+    @staticmethod
+    def validate_key(request_body):
+        try:
+            MedicalRecordValidator(**request_body)
+        except ValidationError as e:
+            raise ValidationExceptionError(str(e.errors()[0]["msg"]))

@@ -9,7 +9,7 @@ from flask_restful import Resource, abort
 from data import crud, marshal
 from models import HealthFacility, Patient, Reading, Referral
 from service import assoc, invariant
-from validation import readings
+from validation.readings import ReadingValidator
 
 
 # /api/readings
@@ -25,7 +25,7 @@ class Root(Resource):
         json = request.get_json(force=True)
 
         try:
-            readings.validate(json)
+            ReadingValidator.validate(json)
         except Exception as e:
             abort(400, message=str(e))
 

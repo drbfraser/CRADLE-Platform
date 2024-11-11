@@ -1,6 +1,6 @@
 import pytest
 
-from validation.forms import validate_form, validate_put_request, validate_questions
+from validation.forms import FormValidator
 from validation.validation_exception import ValidationExceptionError
 
 valid_form_json_empty_questions = {
@@ -134,10 +134,12 @@ invalid_type_questions = {
 def test_validate_form(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            validate_form(json)
+            FormValidator.validate(json)
     else:
-        message = validate_form(json)
-        assert message is None, f"Expected None, but got {message}"
+        try:
+            FormValidator.validate(json)
+        except ValidationExceptionError as e:
+            raise AssertionError(f"Unexpected validation error:{e}") from e
 
 
 empty_questions = []
@@ -230,10 +232,12 @@ invalid_question = [{}]
 def test_validate_questions(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            validate_questions(json)
+            FormValidator.validate_questions(json)
     else:
-        message = validate_questions(json)
-        assert message is None, f"Expected None, but got {message}"
+        try:
+            FormValidator.validate_questions(json)
+        except ValidationExceptionError as e:
+            raise AssertionError(f"Unexpected validation error:{e}") from e
 
 
 valid_put_request = {"questions": [{"id": "asdsd-1123123", "answers": {"number": 4}}]}
@@ -254,7 +258,9 @@ invalid_keys_put_request = {
 def test_validate_put_request(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            validate_put_request(json)
+            FormValidator.validate_put_request(json)
     else:
-        message = validate_put_request(json)
-        assert message is None, f"Expected None, but got {message}"
+        try:
+            FormValidator.validate_put_request(json)
+        except ValidationExceptionError as e:
+            raise AssertionError(f"Unexpected validation error:{e}") from e
