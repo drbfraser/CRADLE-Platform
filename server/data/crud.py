@@ -470,7 +470,7 @@ def read_patient_current_medical_record(
     """
     query = (
         db_session.query(MedicalRecordOrm)
-        .filter_by(patient_id=patient_id, isDrugRecord=is_drug_record)
+        .filter_by(patient_id=patient_id, is_drug_record=is_drug_record)
         .order_by(MedicalRecordOrm.date_created.desc())
     )
 

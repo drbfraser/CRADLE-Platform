@@ -53,7 +53,7 @@ class Root(Resource):
 
         patient = marshal.unmarshal(PatientOrm, json)
         patient_id = patient.id
-        if crud.read(PatientOrm, patient_id=patient_id):
+        if crud.read(PatientOrm, id=patient_id):
             abort(409, message=f"A patient already exists with id: {patient_id}")
 
         # Resolve invariants and set the creation timestamp for the patient ensuring
@@ -123,7 +123,7 @@ class PatientInfo(Resource):
         endpoint="patient_info",
     )
     def get(patient_id: str):
-        patient = crud.read(PatientOrm, patient_id=patient_id)
+        patient = crud.read(PatientOrm, id=patient_id)
         if not patient:
             abort(404, message=patient_not_found_message.format(patient_id))
             return None
@@ -166,8 +166,8 @@ class PatientInfo(Resource):
             # ORM as there is no "base" column in the database for patients.
             del json["base"]
 
-        crud.update(PatientOrm, json, patient_id=patient_id)
-        patient = crud.read(PatientOrm, patient_id=patient_id)
+        crud.update(PatientOrm, json, id=patient_id)
+        patient = crud.read(PatientOrm, id=patient_id)
         if patient is None:
             abort(404, message=patient_not_found_message.format(patient_id))
             return None
@@ -194,7 +194,7 @@ class PatientStats(Resource):
         endpoint="patient_stats",
     )
     def get(patient_id: str):
-        patient = crud.read(PatientOrm, patient_id=patient_id)
+        patient = crud.read(PatientOrm, id=patient_id)
         if patient is None:
             abort(404, message=patient_not_found_message.format(patient_id))
             return None
@@ -291,7 +291,7 @@ class PatientReadings(Resource):
         endpoint="patient_readings",
     )
     def get(patient_id: str):
-        patient = crud.read(PatientOrm, patient_id=patient_id)
+        patient = crud.read(PatientOrm, id=patient_id)
         if patient is None:
             abort(404, message=patient_not_found_message.format(patient_id))
             return None
@@ -307,7 +307,7 @@ class PatientMostRecentReading(Resource):
         endpoint="patient_most_recent_reading",
     )
     def get(patient_id: str):
-        patient = crud.read(PatientOrm, patient_id=patient_id)
+        patient = crud.read(PatientOrm, id=patient_id)
         if patient is None:
             abort(404, message=patient_not_found_message.format(patient_id))
             return None
@@ -332,7 +332,7 @@ class PatientReferrals(Resource):
         endpoint="patient_referrals",
     )
     def get(patient_id: str):
-        patient = crud.read(PatientOrm, patient_id=patient_id)
+        patient = crud.read(PatientOrm, id=patient_id)
         if patient is None:
             abort(404, message=patient_not_found_message.format(patient_id))
             return None
@@ -348,7 +348,7 @@ class PatientForms(Resource):
         endpoint="patient_forms",
     )
     def get(patient_id: str):
-        patient = crud.read(PatientOrm, patient_id=patient_id)
+        patient = crud.read(PatientOrm, id=patient_id)
         if patient is None:
             abort(404, message=patient_not_found_message.format(patient_id))
             return None
