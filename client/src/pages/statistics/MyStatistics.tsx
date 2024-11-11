@@ -12,6 +12,8 @@ import { StatisticDashboard } from './utils/StatisticsInfo';
 import Typography from '@mui/material/Typography';
 import { useSelector } from 'react-redux';
 import { DIVIDER_SX, STATS_PAGE_SX } from './utils/statisticStyles';
+import { useAppSelector } from 'src/shared/hooks';
+import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
 
 type MyStatisticsProps = {
   from: number;
@@ -23,12 +25,8 @@ type User = {
 };
 
 export const MyStatistics = ({ from, to }: MyStatisticsProps) => {
-  const { user } = useSelector(
-    ({ user }: ReduxState): User => ({
-      user: user.current.data,
-    })
-  );
-  const userId = user?.id;
+  const { data: currentUser } = useAppSelector(selectCurrentUser);
+  const userId = currentUser?.id;
   return (
     <Box sx={STATS_PAGE_SX}>
       <Box sx={{ float: 'left' }}>
