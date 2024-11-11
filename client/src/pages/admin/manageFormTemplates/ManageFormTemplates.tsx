@@ -122,7 +122,7 @@ export const ManageFormTemplates = () => {
         Icon: CloudDownloadOutlined,
         onClick: async () => {
           try {
-            const file = await getFormTemplateCsvAsync(
+            const file: Blob = await getFormTemplateCsvAsync(
               formTemplate.id,
               formTemplate.version
             );
