@@ -2,9 +2,6 @@ import logging
 from functools import wraps
 
 from flask import abort
-from flask_jwt_extended import (
-    verify_jwt_in_request,
-)
 
 from authentication import cognito
 from data import crud
@@ -89,7 +86,7 @@ def patient_association_required():
     def wrapper(fn):
         @wraps(fn)
         def decorator(patient_id, *args, **kwargs):
-            verify_jwt_in_request()
+            cognito.verify_access_token()
 
             current_user = UserUtils.get_current_user_from_jwt()
             user_role = current_user["role"]
