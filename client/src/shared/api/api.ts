@@ -12,36 +12,98 @@ import {
   VHT,
   MedicalRecord,
   NewAssessment,
-  PatientMedicalInfo,
   PatientPregnancyInfo,
   PatientStatistics,
   Pregnancy,
   Referrer,
 } from '../types';
 import { EndpointEnum, MethodEnum, UserRoleEnum } from '../enums';
-
+import axios from 'axios';
 import { IExportStatRow } from 'src/pages/statistics/utils';
-import { PasswordField } from 'src/app/topBar/changePassword/state';
 import { PostBody } from 'src/pages/customizedForm/customizedEditForm/handlers';
-import { jwtDecode } from 'jwt-decode';
-import { logoutUser } from 'src/redux/reducers/user/currentUser';
 import { reduxStore } from 'src/redux/store';
 import { showMessage } from 'src/redux/actions/messageActions';
-import { axiosFetch } from './fetch';
 import { User } from './validation/user';
-import axios from 'axios';
+import { snakeCase, camelCase } from 'lodash';
+import { jwtDecode } from 'jwt-decode';
+import { logoutUser } from 'src/redux/reducers/user/currentUser';
 
 export const API_URL =
   process.env.NODE_ENV === `development`
     ? `http://${window.location.hostname}:5000/api`
     : '/api';
 
+/* Applies transform function to the keys of the object recursively, so nested
+properties will be transformed correctly. */
+const recursivelyTransformKeys = (
+  obj: unknown,
+  transformKey: (key: string) => string
+): any => {
+  if (!obj) return obj;
+  if (Array.isArray(obj)) {
+    return obj.map((elem) => {
+      // Recursively call function on elements of array.
+      return recursivelyTransformKeys(elem, transformKey);
+    });
+  }
+  if (typeof obj !== 'object') return obj;
+  const o: { [key: string]: any } = obj;
+  return Object.keys(obj).reduce((prevVal, key) => {
+    return {
+      ...prevVal,
+      [transformKey(key)]: recursivelyTransformKeys(o[key], transformKey),
+    };
+  }, {});
+};
+
+// Convert the object's keys to snake case.
+const convertKeysToSnakeCase = (data: object) => {
+  return recursivelyTransformKeys(data, snakeCase);
+};
+// Convert the object's keys to camel case.
+const convertKeysToCamelCase = (data: object) => {
+  return recursivelyTransformKeys(data, camelCase);
+};
+
+// Create an axios instance to apply default configs to.
+export const axiosFetch = axios.create({
+  baseURL: API_URL,
+  transformRequest: [
+    (data: object) => {
+      // Before putting the data in the request, convert keys to snake case
+      // as the server will be expecting the data to be in snake case.
+      const transformedData = convertKeysToSnakeCase(data);
+      return JSON.stringify(transformedData);
+    },
+  ],
+  transformResponse: [
+    (data) => {
+      try {
+        // Parse json string into object.
+        const parsedData = JSON.parse(data);
+        // Convert keys to camel case.
+        const transformedData = convertKeysToCamelCase(parsedData);
+        return transformedData;
+      } catch {
+        /** If data couldn't be parsed as a JSON object, then it may be a file.
+         *  Pass it along as is. */
+        return data;
+      }
+    },
+  ],
+});
+
 export const getApiToken = async () => {
   let accessToken = localStorage.getItem(`accessToken`);
 
+  if (!accessToken) {
+    reduxStore.dispatch(logoutUser());
+    return null;
+  }
+
   try {
     const decodedToken = accessToken
-      ? jwtDecode<{ exp: number }>(accessToken)
+      ? jwtDecode<{ exp: number; username: string }>(accessToken)
       : null;
     const currentTime = new Date().getTime() / 1000;
 
@@ -50,25 +112,19 @@ export const getApiToken = async () => {
       !decodedToken || currentTime > decodedToken.exp + 30;
 
     if (shouldRefreshToken) {
-      /* Refresh token is stored in HTTP-Only cookie. It should automatically be
-      sent along with our request to the refresh_token endpoint.
-      */
-      // const init = {
-      //   method: MethodEnum.POST,
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     Accept: 'application/json',
-      //   },
-      // };
-
-      // const url = `${API_URL}${EndpointEnum.REFRESH}`;
-      // const resp = await axios({
-      //   method: 'POST',
-      //   url: url
-      // })
-      const resp = await axiosFetch({
+      const username = decodedToken?.username;
+      /** Refresh token is stored in HTTP-Only cookie. It should automatically
+       *  be sent along with our request to the refresh_token endpoint.
+       *  NOTE: To avoid an infinite loop from our axios instance calling
+       *  itself which calls this function which calls itself, we cannot use
+       *  our axios instance to call the refresh token endpoint. Instead, we
+       *  can use the base axios instance. */
+      const resp = await axios({
         method: 'POST',
-        endpoint: EndpointEnum.REFRESH,
+        url: EndpointEnum.REFRESH,
+        data: {
+          username: username,
+        },
       });
 
       if (resp.status !== 200) {
@@ -79,15 +135,6 @@ export const getApiToken = async () => {
         throw new Error();
       }
 
-      // if (!resp.ok) {
-      //   console.error(
-      //     `ERROR (${resp.status}): Failed to get new access token.`,
-      //     resp
-      //   );
-      //   throw new Error();
-      // }
-
-      // accessToken = (await resp.json()).data.access_token;
       accessToken = resp.data.accessToken;
       localStorage.setItem('accessToken', accessToken!);
     }
@@ -98,246 +145,181 @@ export const getApiToken = async () => {
   return accessToken;
 };
 
-export const apiFetch = async (
-  url: string,
-  init?: RequestInit | undefined,
-  isFormData?: boolean,
-  needErrorInfo?: boolean
-): Promise<Response> => {
-  const accessToken = await getApiToken();
-  const contentType = isFormData
-    ? undefined
-    : {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      };
-
-  console.log('RequestInit:', init);
-  console.log('RequestInput:', url);
-
-  return fetch(url, {
-    ...init,
-    headers: {
-      ...contentType,
-      Authorization: `Bearer ${accessToken}`,
-      ...init?.headers,
-    },
-  }).then((resp) => {
-    if (!resp.ok) {
-      throw needErrorInfo ? resp : resp.status;
-    }
-    return resp;
-  });
-};
+// Set interceptor to attach access token to authorization header.
+axiosFetch.interceptors.request.use(async (config) => {
+  if (config.url !== EndpointEnum.AUTH) {
+    const accessToken = await getApiToken();
+    config.headers.Authorization = `Bearer ${accessToken}`;
+  }
+  return config;
+});
 
 export const changePasswordAsync = async (
   currentPass: string,
   newPass: string
 ) => {
-  // const init = {
-  //   method: 'POST',
-  //   body: JSON.stringify({
-  //     [PasswordField.currentPass]: currentPass,
-  //     [PasswordField.newPass]: newPass,
-  //   }),
-  // };
   return axiosFetch({
-    endpoint: EndpointEnum.CHANGE_PASS,
+    url: EndpointEnum.CHANGE_PASS,
     method: 'POST',
     data: {
-      [PasswordField.currentPass]: currentPass,
-      [PasswordField.newPass]: newPass,
+      old_password: currentPass,
+      new_password: newPass,
     },
   });
-  // return apiFetch(API_URL + EndpointEnum.CHANGE_PASS, init);
 };
 
 export const saveHealthFacilityAsync = async (facility: Facility) => {
   return axiosFetch({
     method: 'POST',
-    endpoint: EndpointEnum.HEALTH_FACILITIES,
+    url: EndpointEnum.HEALTH_FACILITIES,
     data: facility,
   });
-  // return apiFetch(API_URL + EndpointEnum.HEALTH_FACILITIES, {
-  //   method: 'POST',
-  //   body: JSON.stringify(facility),
-  // });
 };
 
 export const getHealthFacilitiesAsync = async (): Promise<Facility[]> => {
-  // const response = await apiFetch(API_URL + EndpointEnum.HEALTH_FACILITIES);
   const response = await axiosFetch({
     method: 'GET',
-    endpoint: EndpointEnum.HEALTH_FACILITIES,
+    url: EndpointEnum.HEALTH_FACILITIES,
   });
 
   return response.data;
-  // return response.json();
 };
 
 export const getHealthFacilityAsync = async (
   healthFacility?: string
 ): Promise<Facility> => {
-  // const response = await apiFetch(
-  //   API_URL + EndpointEnum.HEALTH_FACILITIES + `/${healthFacility}`
-  // );
   const response = await axiosFetch({
     method: 'GET',
-    endpoint: EndpointEnum.HEALTH_FACILITIES + `/${healthFacility}`,
+    url: EndpointEnum.HEALTH_FACILITIES + `/${healthFacility}`,
   });
-
   return response.data;
 };
 
 export const handleArchiveFormTemplateAsync = async (template: FormTemplate) =>
-  apiFetch(
-    API_URL + EndpointEnum.FORM_TEMPLATES + '/' + template.id,
-    {
-      method: 'PUT',
-      body: JSON.stringify(template),
-    },
-    false
-  );
+  axiosFetch({
+    method: 'PUT',
+    url: EndpointEnum.FORM_TEMPLATES + '/' + template.id,
+    data: template,
+  });
 
 export const saveFormTemplateWithFileAsync = async (file: File) => {
-  const data: FormData = new FormData();
-  data.append('file', file);
-
-  return apiFetch(
-    API_URL + EndpointEnum.FORM_TEMPLATES,
-    {
-      method: 'POST',
-      body: data,
-    },
-    true,
-    true
-  );
+  // Axios will automatically serialize the object into proper form format.
+  return axiosFetch.postForm(EndpointEnum.FORM_TEMPLATES, {
+    file: file,
+  });
 };
 
 export const submitFormTemplateAsync = async (
   form: FormTemplateWithQuestions
 ) => {
-  return apiFetch(
-    API_URL + EndpointEnum.FORM_TEMPLATES,
-    {
-      method: 'POST',
-      body: JSON.stringify(form),
-    },
-    true,
-    true
-  );
+  return axiosFetch.postForm(EndpointEnum.FORM_TEMPLATES, form);
 };
 
 export const getFormClassificationTemplates = async (
   formClassificationId: string
-) =>
-  (
-    await apiFetch(
-      API_URL +
-        EndpointEnum.FORM_CLASSIFICATIONS +
-        '/' +
-        formClassificationId +
-        '/templates'
-    )
-  ).json();
+) => {
+  const response = await axiosFetch.get(
+    `${EndpointEnum.FORM_CLASSIFICATIONS}/${formClassificationId}/templates`
+  );
+  return response.data;
+};
 
-export const getAllFormTemplatesAsync = async (
-  includeArchived: boolean
-): Promise<FormTemplate[]> =>
-  (
-    await apiFetch(
-      API_URL +
-        EndpointEnum.FORM_TEMPLATES +
-        `?includeArchived=${includeArchived}`
-    )
-  ).json();
+export const getAllFormTemplatesAsync = async (includeArchived: boolean) => {
+  const response = await axiosFetch.get(
+    EndpointEnum.FORM_TEMPLATES + `?includeArchived=${includeArchived}`
+  );
+  return response.data;
+};
 
-export const getFormTemplateAsync = async (formTemplateId: string) =>
-  (
-    await apiFetch(API_URL + EndpointEnum.FORM_TEMPLATES + `/${formTemplateId}`)
-  ).json();
+export const getFormTemplateAsync = async (formTemplateId: string) => {
+  const response = await axiosFetch.get(
+    `${EndpointEnum.FORM_TEMPLATES}/${formTemplateId}`
+  );
+  return response.data;
+};
 
 export const getFormTemplateLangAsync = async (
   formTemplateId: string,
   lang: string
 ) =>
   (
-    await apiFetch(
-      API_URL + EndpointEnum.FORM_TEMPLATES + `/${formTemplateId}?lang=${lang}`
+    await axiosFetch.get(
+      `${EndpointEnum.FORM_TEMPLATES}/${formTemplateId}?lang=${lang}`
     )
-  ).json();
+  ).data;
 
 export const getFormTemplateLangsAsync = async (formTemplateId: string) =>
   (
-    await apiFetch(
-      API_URL + EndpointEnum.FORM_TEMPLATES + `/${formTemplateId}/versions`
+    await axiosFetch.get(
+      EndpointEnum.FORM_TEMPLATES + `/${formTemplateId}/versions`
     )
-  ).json();
+  ).data;
 
 export const getFormTemplateCsvAsync = async (
   formTemplateId: string,
   version: string
-): Promise<Blob> => {
-  const response = await apiFetch(
-    API_URL +
-      EndpointEnum.FORM_TEMPLATES +
-      `/${formTemplateId}/versions/${version}/csv`
-  );
-
-  return response.blob();
+) => {
+  try {
+    const response = await axiosFetch({
+      url:
+        EndpointEnum.FORM_TEMPLATES +
+        `/${formTemplateId}/versions/${version}/csv`,
+      responseType: 'blob',
+    });
+    return response.data;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 };
 
 export const uploadAppFileAsync = async (file: File) => {
-  const data = new FormData();
-  data.append('file', file);
-  return apiFetch(
-    API_URL + EndpointEnum.UPLOAD_ADMIN,
-    {
-      method: 'POST',
-      body: data,
-    },
-    true
-  );
+  return axiosFetch.postForm(EndpointEnum.UPLOAD_ADMIN, {
+    file: file,
+  });
 };
 
-export const getAppFileAsync = async (): Promise<Blob> =>
-  (
-    await apiFetch(API_URL + EndpointEnum.UPLOAD_ADMIN + '?' + Date.now())
-  ).blob();
-
-export const getAppFileHeadAsync = async () =>
-  apiFetch(API_URL + EndpointEnum.UPLOAD_ADMIN + '?' + Date.now(), {
-    method: 'HEAD',
+export const getAppFileAsync = async () => {
+  const response = await axiosFetch({
+    method: 'GET',
+    url: EndpointEnum.UPLOAD_ADMIN + '?' + Date.now(),
+    responseType: 'blob',
   });
+  return response.data;
+};
+
+export const getAppFileHeadAsync = async () => {
+  const response = await axiosFetch({
+    method: 'HEAD',
+    url: EndpointEnum.UPLOAD_ADMIN + '?' + Date.now(),
+    responseType: 'blob',
+  });
+  return response.data;
+};
 
 export const deleteUserAsync = async (user: User) =>
-  apiFetch(API_URL + EndpointEnum.USER + String(user.id), {
+  axiosFetch({
+    url: EndpointEnum.USER + String(user.id),
     method: 'DELETE',
   });
 
 export const saveUserAsync = async (user: User, userId: number | undefined) => {
-  const url =
-    API_URL +
-    (userId ? EndpointEnum.USER + userId : EndpointEnum.USER_REGISTER);
-
-  const init: RequestInit = {
+  axiosFetch({
     method: userId ? 'PUT' : 'POST',
-    body: JSON.stringify({
+    url: userId ? EndpointEnum.USER + userId : EndpointEnum.USER_REGISTER,
+    data: {
       ...user,
       supervises: user.role === UserRoleEnum.CHO ? user.supervises : [],
-    }),
-  };
-
-  return apiFetch(url, init, false, true);
+    },
+  });
 };
 
 export const getUsersAsync = async (): Promise<User[]> => {
-  // const res = await apiFetch(API_URL + EndpointEnum.USER_ALL);
-  const res = await axiosFetch({
+  const response = await axiosFetch({
     method: 'GET',
-    endpoint: EndpointEnum.USER_ALL,
+    url: EndpointEnum.USER_ALL,
   });
-  const users = await res.data;
+  const users = await response.data;
   /* Since much of the front-end was created with users only having a single 
   phone number, set the users 'phoneNumber' attribute to be the first 
   phone number in the 'phoneNumbers' array. */
@@ -348,22 +330,11 @@ export const getUsersAsync = async (): Promise<User[]> => {
 };
 
 export const resetUserPasswordAsync = async (user: User, password: string) => {
-  // const url =
-  //   API_URL + EndpointEnum.USER + String(user.id) + EndpointEnum.RESET_PASS;
-  const url = EndpointEnum.USER + String(user.id) + EndpointEnum.RESET_PASS;
-
-  // const init = {
-  //   method: 'POST',
-  //   body: JSON.stringify({
-  //     [UserField.password]: password,
-  //   }),
-  // };
   return axiosFetch({
     method: 'POST',
-    endpoint: url,
+    url: EndpointEnum.USER + String(user.id) + EndpointEnum.RESET_PASS,
     data: { password: password },
   });
-  // return apiFetch(url, init);
 };
 
 export const saveAssessmentAsync = async (
@@ -371,35 +342,24 @@ export const saveAssessmentAsync = async (
   assessmentId: string | undefined,
   patientId: string
 ) => {
-  let url = API_URL + EndpointEnum.ASSESSMENTS;
-  let method = 'POST';
-
-  if (assessmentId !== undefined) {
-    url += `/${assessmentId}`;
-    method = 'PUT';
-  }
-
-  return apiFetch(url, {
-    method,
-    body: JSON.stringify({
+  return axiosFetch({
+    url:
+      assessmentId !== undefined
+        ? `${EndpointEnum.ASSESSMENTS}/${assessmentId}`
+        : EndpointEnum.ASSESSMENTS,
+    method: assessmentId !== undefined ? 'PUT' : 'POST',
+    data: {
       patientId,
       ...assessment,
-    }),
+    },
   });
 };
 
-export const getAssessmentAsync = async (
-  assessmentId: string
-): Promise<AssessmentState> => {
-  // const resp = await apiFetch(
-  //   API_URL + EndpointEnum.ASSESSMENTS + '/' + assessmentId
-  // );
+export const getAssessmentAsync = async (assessmentId: string) => {
   const resp = await axiosFetch({
     method: 'GET',
-    endpoint: EndpointEnum.ASSESSMENTS + '/' + assessmentId,
+    url: EndpointEnum.ASSESSMENTS + '/' + assessmentId,
   });
-
-  // return resp.json();
   return resp.data;
 };
 
@@ -407,34 +367,25 @@ export const saveDrugHistoryAsync = async (
   drugHistory: string,
   patientId: string
 ) =>
-  apiFetch(
-    API_URL +
-      EndpointEnum.PATIENTS +
-      `/${patientId}` +
-      EndpointEnum.MEDICAL_RECORDS,
-    {
-      method: 'POST',
-      body: JSON.stringify({
-        [AssessmentField.drugHistory]: drugHistory,
-      }),
-    }
-  );
+  axiosFetch({
+    url: EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.MEDICAL_RECORDS,
+    method: 'POST',
+    data: {
+      [AssessmentField.drugHistory]: drugHistory,
+    },
+  });
 
 export const getDrugHistoryAsync = async (patientId: string) => {
-  const response = await apiFetch(
-    API_URL +
-      EndpointEnum.PATIENTS +
-      `/${patientId}` +
-      EndpointEnum.MEDICAL_HISTORY
+  const response = await axiosFetch.get(
+    EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.MEDICAL_HISTORY
   );
-
-  const assessment = await response.json();
-
+  const assessment = response.data;
   return assessment.drugHistory;
 };
 
 export const saveReferralAssessmentAsync = async (referralId: string) =>
-  apiFetch(API_URL + EndpointEnum.REFERRALS + `/assess/${referralId}`, {
+  axiosFetch({
+    url: EndpointEnum.REFERRALS + `/assess/${referralId}`,
     method: 'PUT',
   });
 
@@ -442,155 +393,132 @@ export const saveFormResponseAsync = async (
   postBody: PostBody,
   formId?: string
 ) => {
-  const url = API_URL + EndpointEnum.FORM + (formId ? '/' + formId : '');
-
-  const init = {
+  return axiosFetch({
+    url: EndpointEnum.FORM + (formId ? '/' + formId : ''),
     method: formId ? 'PUT' : 'POST',
-    body: JSON.stringify(
-      formId ? { questions: postBody.edit } : postBody.create
-    ),
-  };
-
-  return apiFetch(url, init, false);
+    data: formId
+      ? {
+          questions: postBody.edit,
+        }
+      : postBody.create,
+  });
 };
 
 export const getFormResponseAsync = async (formId: string): Promise<CForm> => {
-  const response = await apiFetch(API_URL + EndpointEnum.FORM + `/${formId}`);
-
-  return response.json();
+  const response = await axiosFetch.get(EndpointEnum.FORM + `/${formId}`);
+  return response.data;
 };
 
-export const getPatientTimelineAsync = async (
-  patientId: string,
-  page = 1
-): Promise<[]> => {
-  const params = new URLSearchParams({
-    limit: '20',
-    page: page.toString(),
-  });
-
+export const getPatientTimelineAsync = async (patientId: string, page = 1) => {
   return (
-    await apiFetch(
-      API_URL +
-        EndpointEnum.PATIENTS +
-        `/${patientId}` +
-        EndpointEnum.PATIENT_TIMELINE +
-        '?' +
-        params
-    )
-  ).json();
+    await axiosFetch({
+      url:
+        EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.PATIENT_TIMELINE,
+      method: 'GET',
+      params: {
+        limit: '20',
+        page: page.toString(),
+      },
+    })
+  ).data;
 };
 
 export const getPregnancyAsync = async (pregnancyId: string) => {
-  const response = await apiFetch(
-    API_URL + EndpointEnum.PREGNANCIES + `/${pregnancyId}`
+  const response = await axiosFetch.get(
+    EndpointEnum.PREGNANCIES + `/${pregnancyId}`
   );
-  return response.json();
+  return response.data;
 };
 
 export const deletePregnancyAsync = async (pregnancy: Pregnancy) =>
-  apiFetch(API_URL + EndpointEnum.PREGNANCIES + `/${pregnancy.pregnancyId}`, {
+  axiosFetch({
+    url: EndpointEnum.PREGNANCIES + `/${pregnancy.pregnancyId}`,
     method: 'DELETE',
   });
 
 export const deleteMedicalRecordAsync = async (medicalRecord: MedicalRecord) =>
-  apiFetch(
-    API_URL +
-      EndpointEnum.MEDICAL_RECORDS +
-      `/${medicalRecord.medicalRecordId}`,
-    {
-      method: 'DELETE',
-    }
-  );
+  axiosFetch({
+    url: EndpointEnum.MEDICAL_RECORDS + `/${medicalRecord.medicalRecordId}`,
+    method: 'DELETE',
+  });
 
 export const getPatientMedicalRecordsAsync = async (patientId: string) => {
-  const response = await apiFetch(
-    `${API_URL}/patients/${patientId}/medical_records`
+  const response = await axiosFetch.get(
+    `/patients/${patientId}/medical_records`
   );
-  const data = await response.json();
+  const data = await response.data;
   return data.medical as MedicalRecord[];
 };
 
 export const getPatientDrugRecordsAsync = async (patientId: string) => {
-  const response = await apiFetch(
-    `${API_URL}/patients/${patientId}/medical_records`
+  const response = await axiosFetch.get(
+    `/patients/${patientId}/medical_records`
   );
-  const data = await response.json();
+  const data = await response.data;
   return data.drug as MedicalRecord[];
 };
 
 export const getMedicalRecordAsync = async (medicalRecordId: string) => {
-  apiFetch(API_URL + EndpointEnum.MEDICAL_RECORDS + `/${medicalRecordId}`);
+  const response = await axiosFetch({
+    method: 'GET',
+    url: EndpointEnum.MEDICAL_RECORDS + `/${medicalRecordId}`,
+  });
+  return response.data;
 };
-export const getPatientMedicalHistoryAsync = async (
-  patientId: string
-): Promise<PatientMedicalInfo> => {
-  const response = await apiFetch(
-    API_URL +
-      EndpointEnum.PATIENTS +
-      `/${patientId}` +
-      EndpointEnum.MEDICAL_HISTORY
-  );
-
-  return response.json();
+export const getPatientMedicalHistoryAsync = async (patientId: string) => {
+  const response = await axiosFetch({
+    method: 'GET',
+    url: EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.MEDICAL_HISTORY,
+  });
+  return response.data;
 };
 
 export const getAllPatientsAsync = async () => {
-  // const response = await apiFetch(API_URL + EndpointEnum.PATIENTS);
-
-  // return response.json();
   const response = await axiosFetch({
     method: 'GET',
-    endpoint: EndpointEnum.PATIENTS,
+    url: EndpointEnum.PATIENTS,
   });
   return response.data;
 };
 
 export const getPatientsAdminAsync = async (includeArchived: boolean) => {
-  const response = await apiFetch(
-    API_URL +
-      EndpointEnum.PATIENTS +
-      '/admin' +
-      `?includeArchived=${includeArchived}`
-  );
-
-  return response.json();
+  const response = await axiosFetch({
+    url:
+      EndpointEnum.PATIENTS + '/admin' + `?includeArchived=${includeArchived}`,
+  });
+  return response.data;
 };
 
 export const archivePatientAsync = async (patientId: string) => {
-  const response = await apiFetch(
-    API_URL + EndpointEnum.PATIENTS + '/' + patientId + '/info',
-    {
-      method: 'PUT',
-      body: JSON.stringify({
-        isArchived: true,
-      }),
-    }
-  );
-
-  return response.json();
+  const response = await axiosFetch({
+    method: 'PUT',
+    url: EndpointEnum.PATIENTS + '/' + patientId + '/info',
+    data: {
+      isArchived: true,
+    },
+  });
+  return response.data;
 };
 
 export const unarchivePatientAsync = async (patientId: string) => {
-  const response = await apiFetch(
-    API_URL + EndpointEnum.PATIENTS + '/' + patientId + '/info',
-    {
-      method: 'PUT',
-      body: JSON.stringify({
-        isArchived: false,
-      }),
-    }
-  );
-
-  return response.json();
+  const response = await axiosFetch({
+    url: EndpointEnum.PATIENTS + '/' + patientId + '/info',
+    method: 'PUT',
+    data: {
+      isArchived: false,
+    },
+  });
+  return response.data;
 };
 
 export const getPatientAsync = async (patientId: string) => {
   try {
-    const response = await apiFetch(
-      API_URL + EndpointEnum.PATIENTS + `/${patientId}`
-    );
-    return response.json();
+    const response = await axiosFetch({
+      method: 'GET',
+      url: EndpointEnum.PATIENTS + `/${patientId}`,
+    });
+    console.log(response.data);
+    return response.data;
   } catch (error: any) {
     if (error.status === 403) {
       reduxStore.dispatch(
@@ -605,18 +533,15 @@ export const getPatientAsync = async (patientId: string) => {
 };
 
 export const getPatientInfoAsync = async (patientId: string) => {
-  const response = await apiFetch(
-    API_URL + EndpointEnum.PATIENTS + `/${patientId}` + '/info'
+  const response = await axiosFetch.get(
+    EndpointEnum.PATIENTS + `/${patientId}` + '/info'
   );
-
-  return response.json();
+  return response.data;
 };
 
 export const getPatientPregnanciesAsync = async (patientId: string) => {
-  const response = await apiFetch(
-    `${API_URL}/patients/${patientId}/pregnancies`
-  );
-  const data = await response.json();
+  const response = await axiosFetch.get(`/patients/${patientId}/pregnancies`);
+  const data = await response.data;
   return data as Pregnancy[];
 };
 
@@ -624,103 +549,76 @@ export const getPatientRecordsAsync = async (
   patientId: string,
   filterRequestBody: FilterRequestBody
 ) => {
-  const response = await apiFetch(
-    `${API_URL}${EndpointEnum.PATIENTS}/${patientId}/get_all_records?readings=${
+  const response = await axiosFetch.get(
+    `${EndpointEnum.PATIENTS}/${patientId}/get_all_records?readings=${
       filterRequestBody.readings ? 1 : 0
     }&referrals=${filterRequestBody.referrals ? 1 : 0}&assessments=${
       filterRequestBody.assessments ? 1 : 0
     }&forms=${filterRequestBody.forms ? 1 : 0}`
   );
-  return response.json();
+  return response.data;
 };
 
 export const getPatientReferralsAsync = async (patientId: string) => {
-  const response = await apiFetch(
-    API_URL + EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.REFERRALS
+  const response = await axiosFetch.get(
+    EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.REFERRALS
   );
 
-  return response.json();
+  return response.data;
 };
 
-export const getPatientStatisticsAsync = async (
-  patientId: string
-): Promise<PatientStatistics> => {
-  const response = await apiFetch(
-    API_URL + EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.STATISTICS
+export const getPatientStatisticsAsync = async (patientId: string) => {
+  const response = await axiosFetch.get(
+    EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.STATISTICS
   );
 
-  return response.json();
+  return response.data;
 };
 
-export const getPatientPregnancySummaryAsync = async (
-  patientId: string
-): Promise<PatientPregnancyInfo> => {
-  const response = await apiFetch(
-    API_URL +
-      EndpointEnum.PATIENTS +
-      `/${patientId}` +
-      EndpointEnum.PREGNANCY_SUMMARY
+export const getPatientPregnancySummaryAsync = async (patientId: string) => {
+  const response = await axiosFetch.get(
+    EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.PREGNANCY_SUMMARY
   );
-
-  return response.json();
+  return response.data;
 };
 
-export const getPatientPregnancyInfoAsync = async (
-  patientId: string
-): Promise<PatientPregnancyInfo> => {
-  const response = await apiFetch(
-    API_URL +
-      EndpointEnum.PATIENTS +
-      '/' +
-      patientId +
-      EndpointEnum.PATIENT_INFO
+export const getPatientPregnancyInfoAsync = async (patientId: string) => {
+  const response = await axiosFetch.get(
+    EndpointEnum.PATIENTS + '/' + patientId + EndpointEnum.PATIENT_INFO
   );
-
-  return response.json();
+  return response.data;
 };
 
 export const saveReadingAsync = async (reading: any) => {
-  const response = await apiFetch(API_URL + EndpointEnum.READINGS, {
+  const response = await axiosFetch({
+    url: EndpointEnum.READINGS,
     method: 'POST',
-    body: JSON.stringify(reading),
+    data: reading,
   });
-
-  return response.json();
+  return response.data;
 };
 
 export const saveReferralAsync = async (referral: any) => {
-  const response = await apiFetch(
-    API_URL + EndpointEnum.REFERRALS,
-    {
-      method: 'POST',
-      body: JSON.stringify(referral),
-    },
-    false,
-    true
-  );
-
-  return response.json();
+  const response = await axiosFetch({
+    url: EndpointEnum.REFERRALS,
+    method: 'POST',
+    data: referral,
+  });
+  return response.data;
 };
 
 export const getUserVhtsAsync = async (): Promise<Referrer[]> => {
-  // const response = await apiFetch(API_URL + EndpointEnum.USER_VHTS);
-
-  // return response.json();
-
   const response = await axiosFetch({
     method: 'GET',
-    endpoint: EndpointEnum.USER_VHTS,
+    url: EndpointEnum.USER_VHTS,
   });
   return response.data;
 };
 
 export const getVHTsAsync = async (): Promise<VHT[]> => {
-  // const response = await apiFetch(API_URL + EndpointEnum.ALL_VHTS);
-
-  // return response.json();
   const response = await axiosFetch({
     method: 'GET',
-    endpoint: EndpointEnum.ALL_VHTS,
+    url: EndpointEnum.ALL_VHTS,
   });
   return response.data;
 };
@@ -730,53 +628,47 @@ export const setReferralCancelStatusAsync = async (
   comment: string,
   isCancelled: boolean
 ) =>
-  await apiFetch(
-    API_URL + EndpointEnum.REFERRALS + '/cancel-status-switch/' + referralId,
-    {
-      method: 'PUT',
-      body: JSON.stringify({
-        cancelReason: comment,
-        isCancelled,
-      }),
-    }
-  );
+  await axiosFetch({
+    url: EndpointEnum.REFERRALS + '/cancel-status-switch/' + referralId,
+    method: 'PUT',
+    data: {
+      cancelReason: comment,
+      isCancelled,
+    },
+  });
 
 export const setReferralNotAttendedAsync = async (
   referralId: string,
   comment: string
 ) =>
-  await apiFetch(
-    API_URL + EndpointEnum.REFERRALS + '/not-attend/' + referralId,
-    {
-      method: 'PUT',
-      body: JSON.stringify({
-        notAttendReason: comment,
-      }),
-    }
-  );
+  await axiosFetch({
+    url: EndpointEnum.REFERRALS + '/not-attend/' + referralId,
+    method: 'PUT',
+    data: {
+      notAttendReason: comment,
+    },
+  });
 
 export const getUserStatisticsExportAsync = async (
   user: string,
   from: number,
   to: number
-): Promise<IExportStatRow[]> => {
-  const response = await apiFetch(
-    API_URL + EndpointEnum.STATS_USER_EXPORT + `/${user}?from=${from}&to=${to}`
+) => {
+  const response = await axiosFetch.get(
+    EndpointEnum.STATS_USER_EXPORT + `/${user}?from=${from}&to=${to}`
   );
-
-  return response.json();
+  return response.data;
 };
 
 export const getUserStatisticsAsync = async (
   user: string,
   from: number,
   to: number
-): Promise<IExportStatRow[]> => {
-  const response = await apiFetch(
-    API_URL + EndpointEnum.STATS_USER + `/${user}?from=${from}&to=${to}`
+) => {
+  const response = await axiosFetch.get(
+    EndpointEnum.STATS_USER + `/${user}?from=${from}&to=${to}`
   );
-
-  return response.json();
+  return response.data;
 };
 
 export const getFacilityStatisticsAsync = async (
@@ -784,49 +676,34 @@ export const getFacilityStatisticsAsync = async (
   from: number,
   to: number
 ): Promise<IExportStatRow[]> => {
-  const response = await apiFetch(
-    API_URL + EndpointEnum.STATS_FACILITY + `/${facility}?from=${from}&to=${to}`
+  const response = await axiosFetch.get(
+    EndpointEnum.STATS_FACILITY + `/${facility}?from=${from}&to=${to}`
   );
-
-  return response.json();
+  return response.data;
 };
 
 export const getAllStatisticsAsync = async (
   from: number,
   to: number
 ): Promise<IExportStatRow[]> => {
-  const response = await apiFetch(
-    API_URL + EndpointEnum.STATS_ALL + `?from=${from}&to=${to}`
+  const response = await axiosFetch.get(
+    EndpointEnum.STATS_ALL + `?from=${from}&to=${to}`
   );
-
-  return response.json();
+  return response.data;
 };
 
 export const getSecretKeyAsync = async (userId: number) => {
-  // const response = await apiFetch(
-  //   API_URL + `/user/${userId}` + EndpointEnum.SECRETKEY,
-  //   {
-  //     method: MethodEnum.GET,
-  //   }
-  // );
-  // return response.json();
   const response = await axiosFetch({
     method: 'GET',
-    endpoint: `/user/${userId}` + EndpointEnum.SECRETKEY,
+    url: `/user/${userId}` + EndpointEnum.SECRETKEY,
   });
   return response.data;
 };
 
 export const updateSecretKeyAsync = async (userId: number) => {
-  // const response = await apiFetch(
-  //   API_URL + `/user/${userId}` + EndpointEnum.SECRETKEY,
-  //   {
-  //     method: MethodEnum.PUT,
-  //   }
-  // );
   const response = await axiosFetch({
     method: 'PUT',
-    endpoint: `/user/${userId}` + EndpointEnum.SECRETKEY,
+    url: `/user/${userId}` + EndpointEnum.SECRETKEY,
   });
   return response.data;
 };
@@ -835,29 +712,32 @@ export const addRelayServerPhone = async (
   phone: string,
   description: string
 ) => {
-  const response = await apiFetch(API_URL + EndpointEnum.RELAY_SERVER_PHONE, {
+  const response = await axiosFetch({
+    url: EndpointEnum.RELAY_SERVER_PHONE,
     method: MethodEnum.POST,
-    body: JSON.stringify({
+    data: {
       phone: phone,
       description: description,
-    }),
+    },
   });
-  return response.json();
+  return response.data;
 };
 
 export const getRelayServerPhones = async () =>
-  (await apiFetch(API_URL + EndpointEnum.RELAY_SERVER_PHONE)).json();
+  (await axiosFetch.get(EndpointEnum.RELAY_SERVER_PHONE)).data;
 
 export const saveRelayNumAsync = async (relayNum: RelayNum) => {
-  apiFetch(API_URL + EndpointEnum.RELAY_SERVER_PHONE, {
+  axiosFetch({
+    url: EndpointEnum.RELAY_SERVER_PHONE,
     method: MethodEnum.PUT,
-    body: JSON.stringify(relayNum),
+    data: relayNum,
   });
 };
 
 export const deleteRelayNumAsync = async (relayNum: RelayNum) => {
-  apiFetch(API_URL + EndpointEnum.RELAY_SERVER_PHONE, {
+  axiosFetch({
+    url: EndpointEnum.RELAY_SERVER_PHONE,
     method: MethodEnum.DELETE,
-    body: JSON.stringify(relayNum),
+    data: relayNum,
   });
 };

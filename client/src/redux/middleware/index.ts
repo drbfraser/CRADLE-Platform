@@ -1,5 +1,5 @@
 import { MakeServerRequestEnum } from '../reducers/utils';
-import { axiosFetch } from 'src/shared/api/fetch';
+import { axiosFetch } from 'src/shared/api/api';
 
 export const requestMiddleware =
   () =>
@@ -12,8 +12,11 @@ export const requestMiddleware =
     }
 
     const { endpoint, method, data, onSuccess, onError } = action.payload;
-
-    axiosFetch({ method, endpoint, data })
+    axiosFetch({
+      method: method,
+      url: endpoint,
+      data: data,
+    })
       .then((res) => {
         return dispatch(onSuccess(res));
       })

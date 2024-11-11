@@ -9,7 +9,7 @@ import { HeaderRow } from './HeaderRow';
 import APIErrorToast from '../apiErrorToast/APIErrorToast';
 import { ReferralFilter } from 'src/shared/types';
 import { TrafficLightEnum } from 'src/shared/enums';
-import { axiosFetch } from 'src/shared/api/fetch';
+import { axiosFetch } from 'src/shared/api/api';
 
 interface IProps {
   endpoint: string;
@@ -116,7 +116,7 @@ export const APITable = ({
 
     axiosFetch({
       method: 'GET',
-      endpoint: endpoint,
+      url: endpoint,
       params: { ...params, ...referralFilterParams },
     })
       .then(async (resp) => {

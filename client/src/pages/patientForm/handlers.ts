@@ -1,4 +1,4 @@
-import { apiFetch, API_URL } from 'src/shared/api/api';
+import { API_URL, axiosFetch } from 'src/shared/api/api';
 import {
   EndpointEnum,
   GestationalAgeUnitEnum,
@@ -252,13 +252,12 @@ const handleApiFetch = async (
   setSubmitting: React.Dispatch<React.SetStateAction<any>>,
   setErrorMessage?: React.Dispatch<React.SetStateAction<string>>
 ) => {
-  apiFetch(url, {
+  axiosFetch(url, {
     method: method,
-    body: JSON.stringify(submitValues),
+    data: submitValues,
   })
-    .then((resp) => resp.json())
-    .then((respJson) => {
-      const patientPageUrl = '/patients/' + respJson['patientId'];
+    .then((resp) => {
+      const patientPageUrl = '/patients/' + resp.data['patientId'];
       if (creatingNew) {
         navigate(patientPageUrl, { replace: true });
       } else {
