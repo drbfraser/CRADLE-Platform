@@ -52,7 +52,7 @@ class Timeframe(BaseModel):
         """
         try:
             Timeframe(**request_body)
-            Timestamp.validate_timestamp(request_body.get("timeframe"))
+            Timestamp.validate_timestamp(request_body["timeframe"])
         except ValidationError as e:
             # Extracts the first error message from the validation errors list
             error_message = str(e.errors()[0]["msg"])

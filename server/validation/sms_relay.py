@@ -6,8 +6,8 @@ from validation.validation_exception import ValidationExceptionError
 
 
 class SmsRelay(BaseModel):
-    phoneNumber: str
-    encryptedData: str
+    phone_number: str
+    encrypted_data: str
 
     # forbid extra attributes
     class Config:
@@ -31,7 +31,7 @@ class SmsRelay(BaseModel):
 
 
 class SmsRelayDecryptedBody(BaseModel):
-    requestNumber: int
+    request_number: int
     method: str
     endpoint: str
     headers: Optional[str] = None
@@ -46,7 +46,7 @@ class SmsRelayDecryptedBody(BaseModel):
     def request_number_is_required(cls, values):
         missing_fields = [
             field
-            for field in ["requestNumber", "method", "endpoint"]
+            for field in ["request_number", "method", "endpoint"]
             if field not in values or values[field] is None
         ]
 
