@@ -294,20 +294,19 @@ def seed(ctx):
         for i in range(num_of_readings):
             health_facility_name = get_random_health_facility_name()
 
+            reading_date = date_list[i]
             # get random reading(s) for patient
             reading = {
                 "user_id": user_id,
                 "patient_id": patient_id,
-                "date_taken": date_list[i],
+                "date_taken": reading_date,
                 "systolic_blood_pressure": get_random_systolic_bp(),
                 "diastolic_blood_pressure": get_random_diastolic_bp(),
                 "heart_rate_BPM": get_random_heart_rate_BPM(),
                 "symptoms": get_random_symptoms(),
             }
 
-            # reading_orm = ReadingOrm(**reading)
             reading_orm = marshal.unmarshal(ReadingOrm, reading)
-            crud.create(reading_orm, refresh=True)
 
             referral_comments = [
                 " needs help!",
@@ -315,22 +314,17 @@ def seed(ctx):
                 " is seeking urgent care!",
             ]
             if random.choice([True, False]):
-                # Cap the referral date at today, if it goes into future
-                refer_date = min(
-                    reading["date_taken"]
-                    + int(datetime.timedelta(days=10).total_seconds()),
-                    int(datetime.datetime.now().timestamp()),
-                )
                 referral = {
                     "user_id": get_random_user(),
                     "patient_id": patient_id,
-                    "date_referred": refer_date,
+                    "date_referred": reading["date_taken"],
                     "health_facility_name": health_facility_name,
                     "comment": name + random.choice(referral_comments),
                 }
-
-                db.session.add(ReferralOrm(**referral))
-                db.session.commit()
+                referral_orm = ReferralOrm(**referral)
+                reading_orm.referral = referral_orm
+            db.session.add(reading_orm)
+            db.session.commit()
 
         if count > 0 and count % 25 == 0:
             print(f"{count}/{len(patient_list)} Patients have been seeded")
