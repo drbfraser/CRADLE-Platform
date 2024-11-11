@@ -3,9 +3,10 @@ import operator
 import re
 from typing import Any, List, NamedTuple, Optional, Tuple, Type, TypeVar, Union
 
-from sqlalchemy import func, or_
+from sqlalchemy import or_
 from sqlalchemy.orm import Query, aliased
 from sqlalchemy.sql.expression import and_, asc, desc, literal, null, text
+from sqlalchemy.sql.functions import coalesce
 
 from data import db_session
 from enums import RoleEnum, TrafficLightEnum
@@ -326,10 +327,11 @@ def read_referral_list(
         .limit(1)
         .correlate(ReferralOrm)
     )
-    vital_sign_field = func.coalesce(
+    vital_sign_field = coalesce(
         ReadingOrm.traffic_light_status,
         TrafficLightEnum.NONE.value,
     ).label("vital_sign")
+
     query = (
         db_session.query(
             ReferralOrm.id.label("referral_id"),
