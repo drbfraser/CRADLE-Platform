@@ -81,23 +81,22 @@ export type TimelineRecord = {
 
 export type Patient = {
   allergy: OrNull<string>;
-  dob: OrNull<string>;
+  dateOfBirth: OrNull<string>;
   drugHistory: OrNull<string>;
-  gestationalAgeUnit: GestationalAgeUnitEnum;
   gestationalAgeValue: string;
   pregnancyStartDate: number;
   isPregnant: boolean;
   medicalHistory: OrNull<string>;
   needsAssessment: boolean;
   patientAge: OrNull<number>;
-  patientId: string;
-  patientName: string;
-  patientSex: SexEnum;
+  id: string;
+  name: string;
+  sex: SexEnum;
   villageNumber: string;
   readings: Array<Reading>;
   tableData: { id: number };
   zone: OrNull<string>;
-  isExactDob: boolean;
+  isExactDateOfBirth: boolean;
   householdNumber: OrNull<string>;
   isArchived: boolean;
 };
@@ -114,7 +113,6 @@ export type PatientMedicalInfo = {
 };
 
 export type PatientPregnancyInfo = {
-  gestationalAgeUnit: GestationalAgeUnitEnum;
   isPregnant: boolean;
   pregnancyId: string;
   pregnancyStartDate: number;
@@ -122,16 +120,16 @@ export type PatientPregnancyInfo = {
 };
 
 export type PastPregnancy = {
-  pregnancyId: string;
-  pregnancyEndDate: number;
-  pregnancyOutcome: OrNull<string>;
-  pregnancyStartDate: number;
+  id: string;
+  startDate: number;
+  endDate: number;
+  outcome: string | null;
 };
 
 export type SecretKey = {
-  sms_key: string;
-  stale_date: string;
-  expiry_date: string;
+  smsKey: string;
+  staleDate: string;
+  expiryDate: string;
   message: string;
 };
 
@@ -149,12 +147,12 @@ export type Form = {
 };
 
 export type Facility = {
-  [FacilityField.about]: string;
-  [FacilityField.type]: string;
-  [FacilityField.name]: string;
-  [FacilityField.newReferrals]: number;
-  [FacilityField.phoneNumber]: string;
-  [FacilityField.location]: string;
+  about: string;
+  type: string;
+  name: string;
+  newReferrals: number;
+  phoneNumber: string;
+  location: string;
   index: number;
 };
 export type RelayNum = {

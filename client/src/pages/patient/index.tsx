@@ -188,10 +188,10 @@ export const PatientPage = () => {
           </Grid>
 
           <Grid item>
-            {patient?.patientSex === SexEnum.FEMALE ? (
+            {patient?.sex === SexEnum.FEMALE ? (
               <PregnancyInfo
                 patientId={patientId}
-                patientName={patient?.patientName}
+                patientName={patient?.name}
               />
             ) : (
               <MedicalInfo patient={patient} patientId={patientId} />
@@ -205,7 +205,7 @@ export const PatientPage = () => {
           </Grid>
 
           <Grid item>
-            {patient?.patientSex === SexEnum.FEMALE && (
+            {patient?.sex === SexEnum.FEMALE && (
               <MedicalInfo patient={patient} patientId={patientId} />
             )}
           </Grid>
