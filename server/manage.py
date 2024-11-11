@@ -263,7 +263,7 @@ def seed(ctx):
         if sex == models.SexEnum.FEMALE.value and pregnant:
             gestational_timestamp = get_random_pregnancy_date()
 
-        patient_1 = {
+        patient = {
             "id": patient_id,
             "name": name + " " + last_name,
             "gestational_timestamp": gestational_timestamp,
@@ -275,7 +275,7 @@ def seed(ctx):
             "is_archived": False,
         }
 
-        db.session.add(PatientOrm(**patient_1))
+        db.session.add(marshal.unmarshal(PatientOrm, patient))
         db.session.commit()
 
         if pregnant:
@@ -305,7 +305,8 @@ def seed(ctx):
                 "symptoms": get_random_symptoms(),
             }
 
-            reading_orm = ReadingOrm(**reading)
+            # reading_orm = ReadingOrm(**reading)
+            reading_orm = marshal.unmarshal(ReadingOrm, reading)
             crud.create(reading_orm, refresh=True)
 
             referral_comments = [
