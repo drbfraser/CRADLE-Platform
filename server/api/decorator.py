@@ -95,7 +95,7 @@ def patient_association_required():
             identity = get_jwt_identity()
             user_role = identity["role"]
             if user_role == RoleEnum.VHT.value:  # Changed the condition here
-                user_id = identity["userId"]
+                user_id = identity["user_id"]
                 if not crud.read(
                     PatientAssociationsOrm,
                     patientId=patient_id,
