@@ -75,10 +75,6 @@ export const APITable = ({
     // allow aborting a fetch early if the user clicks things rapidly
     const controller = new AbortController();
 
-    // const fetchOptions = {
-    //   signal: controller.signal,
-    // };
-
     const params = new URLSearchParams({
       limit: limit.toString(),
       page: page.toString(),

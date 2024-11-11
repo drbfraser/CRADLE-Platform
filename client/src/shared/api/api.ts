@@ -671,6 +671,8 @@ export const getUserStatisticsAsync = async (
   const response = await axiosFetch.get(
     EndpointEnum.STATS_USER + `/${user}?from=${from}&to=${to}`
   );
+  console.log(response);
+  console.log(response.data);
   return response.data;
 };
 
