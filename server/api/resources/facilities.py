@@ -82,7 +82,7 @@ class SingleFacility(Resource):
         endpoint="single_facility",
     )
     def get(facility_name: str):
-        facility = crud.read(HealthFacilityOrm, healthFacilityName=facility_name)
+        facility = crud.read(HealthFacilityOrm, name=facility_name)
         if facility is None:
             abort(404, message=f"Facility ({facility_name}) not found.")
 
