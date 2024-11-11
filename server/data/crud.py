@@ -950,9 +950,9 @@ def get_unique_patients_with_readings(facility="%", user="%", filter={}) -> List
     :return: A number of unique patients
     """
     query = """
-        SELECT COUNT(pat.id) as patients
+        SELECT COUNT(pat.patient_id) as patients
                 FROM (
-                    SELECT DISTINCT(P.id)
+                    SELECT DISTINCT(P.patient_id)
                     FROM (SELECT R.patient_id FROM reading R
                         JOIN user U ON R.user_id = U.id
                         WHERE R.date_taken BETWEEN :from and :to
@@ -961,8 +961,8 @@ def get_unique_patients_with_readings(facility="%", user="%", filter={}) -> List
                             AND (U.health_facility_name LIKE :facility or U.health_facility_name is NULL)
                         )
                     ) as P
-                JOIN reading R ON P.id = R.patient_id
-                GROUP BY P.id
+                JOIN reading R ON P.patient_id = R.patient_id
+                GROUP BY P.patient_id
                 HAVING COUNT(R.id) > 0) as pat
     """
 
@@ -1017,6 +1017,7 @@ def get_total_readings_completed(facility="%", user="%", filter={}) -> List[M]:
         return list(result)
     except Exception as e:
         LOGGER.error(e)
+        print(e)
         return None
 
 
@@ -1052,6 +1053,7 @@ def get_total_color_readings(facility="%", user="%", filter={}) -> List[M]:
         return list(result)
     except Exception as e:
         LOGGER.error(e)
+        print(e)
         return None
 
 
@@ -1111,6 +1113,7 @@ def get_referred_patients(facility="%", filter={}) -> List[M]:
         return list(result)
     except Exception as e:
         LOGGER.error(e)
+        print(e)
         return None
 
 
