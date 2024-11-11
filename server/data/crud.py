@@ -1098,8 +1098,8 @@ def get_referred_patients(facility="%", filter={}) -> List[M]:
     query = """
         SELECT COUNT(DISTINCT R.patient_id) AS referred_patients
         FROM referral R
-        WHERE R.dateReferred BETWEEN :from AND :to
-        AND (R.referralHealthFacilityName LIKE :facility OR R.referralHealthFacilityName IS NULL)
+        WHERE R.date_referred BETWEEN :from AND :to
+        AND (R.health_facility_name LIKE :facility OR R.health_facility_name IS NULL)
     """
 
     params = {
