@@ -1,6 +1,6 @@
 import pytest
 
-from validation.facilities import Facility
+from validation.facilities import FacilityValidator
 from validation.validation_exception import ValidationExceptionError
 
 valid_json = {
@@ -37,9 +37,9 @@ not_type_string = {
 def test_validation(json, expectation):
     if type(expectation) is type and issubclass(expectation, Exception):
         with pytest.raises(expectation):
-            Facility.validate(json)
+            FacilityValidator.validate(json)
     else:
         try:
-            Facility.validate(json)
+            FacilityValidator.validate(json)
         except ValidationExceptionError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e
