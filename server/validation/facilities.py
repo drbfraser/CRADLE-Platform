@@ -27,7 +27,7 @@ class FacilityValidator(BaseModel):
                                 "about": "Biggest hospital",
                                 "facilityType": "HOSPITAL"
                             }
-        :throw: An error message if the request body is invalid. None otherwise
+        :throw: An error if the request body is invalid. None otherwise
         :return pydantic model representation of the request body param
         """
         try:

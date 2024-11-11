@@ -29,6 +29,8 @@ class TimestampValidator(BaseModel):
                     "from": "1546702448",
                     "to": "1547212259"
                 }
+        :throw: An error if the request body is invalid. None otherwise
+        :return pydantic model representation of the request body param
 
         """
         try:
