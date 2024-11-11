@@ -56,7 +56,11 @@ export const FacilityStatistics = ({ from, to }: FacilityStatisticsProps) => {
             gap: '0.75rem',
             flexWrap: 'wrap',
           }}>
-          <Typography variant="h5" gutterBottom sx={{ margin: '0' }}>
+          <Typography
+            variant={'h5'}
+            component={'h5'}
+            gutterBottom
+            sx={{ margin: '0' }}>
             Please select a facility from the list:
           </Typography>
           <FormControl
@@ -69,9 +73,9 @@ export const FacilityStatistics = ({ from, to }: FacilityStatisticsProps) => {
               value={facility}
               onChange={handleChange}
               autoWidth>
-              {facilities.map((f, idx) => (
-                <MenuItem value={f.healthFacilityName} key={idx}>
-                  {`${f.healthFacilityName}`}
+              {facilities.map((facility, idx) => (
+                <MenuItem value={facility.name} key={idx}>
+                  {`${facility.name}`}
                 </MenuItem>
               ))}
             </Select>
