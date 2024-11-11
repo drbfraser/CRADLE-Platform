@@ -131,5 +131,9 @@ ignore = [
     "D212", # `multi-line-summary-first-line` (D212) and `multi-line-summary-second-line` (D213) are incompatible.
 
     "E712", # SQLAlchemy uses `==` overrides so `a == False` is valid code in CRADLE
-    "E711" # SQLAlchemy uses `==` overrides so `a == None` is valid code in CRADLE
+    "E711", # SQLAlchemy uses `==` overrides so `a == None` is valid code in CRADLE
+
+    # As per warning about formatter
+    "COM812",   # missing-trailing-comma
+    "ISC001"    # single-line-implicit-string-concatenation
 ]

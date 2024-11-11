@@ -1,10 +1,16 @@
 {
-  "type": "module",
-  "devDependencies": {
-    "husky": "^8.0.0",
-    "lint-staged": "^13.1.2"
-  },
-  "scripts": {
-    "prepare": "husky install"
-  }
+    "type": "module",
+    "devDependencies": {
+        "husky": "^9.1.6",
+        "lint-staged": "^15.2.10"
+    },
+    "scripts": {
+        "prepare": "husky install"
+    },
+    "lint-staged": {
+        "!(migrations/**/*)*.py": [
+            "ruff format",
+            "ruff check --fix"
+        ]
+    }
 }
