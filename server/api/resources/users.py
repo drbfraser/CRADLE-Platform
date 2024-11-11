@@ -314,6 +314,7 @@ class UserAuthApi(Resource):
                 refresh_token,
                 path="api/user/auth/refresh_token",
                 httponly=True,
+                secure=True,
             )
         return resp
 
@@ -321,10 +322,15 @@ class UserAuthApi(Resource):
 # api/user/auth/refresh_token
 class UserAuthTokenRefreshApi(Resource):
     @swag_from("../../specifications/user-auth-refresh.yml", methods=["POST"])
+    @public_endpoint
     def post(self):
-        current_user = UserUtils.get_current_user_from_jwt()
-        new_token = create_access_token(identity=current_user, fresh=False)
-        return {"access_token": new_token}, 200
+        try:
+            access_token = cognito.refresh_access_token()
+        except ValueError as err:
+            print(err)
+            LOGGER.error(err)
+            return abort(401, message=str(err))
+        return {"access_token": access_token}, 200
 
 
 # /api/user/current

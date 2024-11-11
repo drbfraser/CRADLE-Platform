@@ -291,6 +291,9 @@ class CognitoClientWrapper:
         )
 
     def get_access_token(self):
+        """
+        Gets the JWT access token from the authorization header.
+        """
         # Get JWT access token.
         authorization = request.authorization
         if authorization is None:
@@ -388,3 +391,42 @@ class CognitoClientWrapper:
         username = self.get_username_from_jwt()
 
         return username
+
+    def refresh_access_token(self):
+        """
+        Extracts refresh token from cookies and uses it to get a new access
+        token.
+        """
+        access_token = self.get_access_token()
+        refresh_token = request.cookies.get("refresh_token")
+        if refresh_token is None:
+            raise ValueError("No Refresh Token found.")
+
+        # Get username from access token.
+        decoded_access_token = jwt.decode(
+            access_token.replace(".", "===.", 2), options={"verify_signature": False}
+        )
+        username = decoded_access_token["username"]
+
+        if username is None:
+            raise ValueError("Could not extract username from token.")
+        try:
+            auth_response = self.client.admin_initiate_auth(
+                UserPoolId=self.user_pool_id,
+                ClientId=self.client_id,
+                AuthFlow="REFRESH_TOKEN_AUTH",
+                AuthParameters={
+                    "REFRESH_TOKEN": refresh_token,
+                    "SECRET_HASH": self._secret_hash(username),
+                },
+            )
+        except ClientError as err:
+            print(err)
+            logger.error(err)
+            raise ValueError(err)
+
+        auth_result = auth_response.get("AuthenticationResult")
+        new_access_token = auth_result.get("AccessToken")
+        if new_access_token is None:
+            raise ValueError("Could not get new access token.")
+        return new_access_token
