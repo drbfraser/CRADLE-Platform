@@ -7,11 +7,10 @@ from validation.validation_exception import ValidationExceptionError
 
 
 class Reading(BaseModel):
-    id: str
     patient_id: str
     systolic_blood_pressure: int
     diastolic_blood_pressure: int
-    heart_rate_BPM: int
+    heart_rate: int
     is_flagged_for_follow_up: Optional[bool] = None
     symptoms: List[str]
     date_taken: Optional[int] = None
@@ -26,11 +25,10 @@ def validate(request_body: dict):
 
     :param request_body: The request body as a dict object
                         {
-                            "id": "asdasd82314278226313803", - required
                             "patient_id": "123456", - required
                             "systolic_blood_pressure" : 150, - required
                             "diastolic_blood_pressure" : 150, - required
-                            "heart_rate_BPM" : 35, - required
+                            "heart_rate" : 35, - required
                             "is_flagged_for_follow_up" : True,
                             "symptoms": ["Headache,Blurred vision,Bleeding,sleepy"], - required
                             "date_taken": 868545,

@@ -302,7 +302,7 @@ def seed(ctx):
                 "date_taken": reading_date,
                 "systolic_blood_pressure": get_random_systolic_bp(),
                 "diastolic_blood_pressure": get_random_diastolic_bp(),
-                "heart_rate_BPM": get_random_heart_rate_BPM(),
+                "heart_rate": get_random_heart_rate(),
                 "symptoms": get_random_symptoms(),
             }
 
@@ -389,7 +389,7 @@ def create_patient_reading_referral_pregnancy(
         "date_taken": date_referred,
         "systolic_blood_pressure": 50,
         "diastolic_blood_pressure": 60,
-        "heart_rate_BPM": 70,
+        "heart_rate": 70,
         "traffic_light_status": "YELLOW_DOWN",
         "symptoms": "FEVERISH",
     }
@@ -709,7 +709,7 @@ def get_random_diastolic_bp():
     return random.choice(bp_diastolic_list)
 
 
-def get_random_heart_rate_BPM():
+def get_random_heart_rate():
     return random.choice(heart_rate_list)
 
 

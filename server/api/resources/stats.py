@@ -206,7 +206,7 @@ class ExportStats(Resource):
                     "pregnant": bool(entry.get("is_pregnant")),
                     "systolic_blood_pressure": entry.get("systolic_blood_pressure"),
                     "diastolic_blood_pressure": entry.get("diastolic_blood_pressure"),
-                    "heart_rate": entry.get("heart_rate_BPM"),
+                    "heart_rate": entry.get("heart_rate"),
                     "traffic_color": color,
                     "traffic_arrow": arrow,
                 },

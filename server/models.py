@@ -220,7 +220,7 @@ class ReadingOrm(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     systolic_blood_pressure = db.Column(db.Integer)
     diastolic_blood_pressure = db.Column(db.Integer)
-    heart_rate_BPM = db.Column(db.Integer)
+    heart_rate = db.Column(db.Integer)
 
     symptoms = db.Column(db.Text)
     traffic_light_status = db.Column(db.Enum(TrafficLightEnum, nullable=False))
@@ -277,11 +277,11 @@ class ReadingOrm(db.Model):
         if (
             self.systolic_blood_pressure is None
             or self.diastolic_blood_pressure is None
-            or self.heart_rate_BPM is None
+            or self.heart_rate is None
         ):
             return TrafficLightEnum.NONE.value
 
-        shock_index = self.heart_rate_BPM / self.systolic_blood_pressure
+        shock_index = self.heart_rate / self.systolic_blood_pressure
 
         is_bp_very_high = (self.systolic_blood_pressure >= red_systolic) or (
             self.diastolic_blood_pressure >= red_diastolic

@@ -3,23 +3,12 @@ import { saveDrugHistoryAsync, saveReadingAsync } from 'src/shared/api/api';
 
 import { getSymptomsFromFormState } from './symptoms/symptoms';
 
-// TODO: not sure why the GUID is being generated client side... this should be moved server side
-const guid = () => {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-};
-
 const getSubmitObject = (patientId: string, values: ReadingState) => {
   const currentTimestamp = Math.floor(Date.now() / 1000);
-  const readingGuid = guid();
 
   // user ID and healthcare worker ID should be moved to the backend
   const submitValues = {
     patientId: patientId,
-    readingId: readingGuid,
     dateTaken: currentTimestamp,
     diastolicBloodPressure: values[ReadingField.bpDiastolic],
     systolicBloodPressure: values[ReadingField.bpSystolic],

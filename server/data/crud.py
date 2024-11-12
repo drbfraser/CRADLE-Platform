@@ -1168,7 +1168,7 @@ def get_export_data(user_id, filter):
                 PatientOrm.is_pregnant,
                 ReadingOrm.systolic_blood_pressure,
                 ReadingOrm.diastolic_blood_pressure,
-                ReadingOrm.heart_rate_BPM,
+                ReadingOrm.heart_rate,
                 ReadingOrm.traffic_light_status,
             )
         )

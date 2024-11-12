@@ -247,7 +247,7 @@ class PatientStats(Resource):
 
         # getting all heart rate readings for each month dated from 12 months before the current month
         heart_rate_last_twelve_months = statsCalculation.get_stats_data(
-            "heart_rate_BPM_last_twelve_months",
+            "heart_rate_last_twelve_months",
             patient.readings,
             current_year,
             current_month,

@@ -44,14 +44,14 @@ def get_stats_data(
                     data[item_month - 1].append(reading.systolic_blood_pressure)
                 elif data_needed == "diastolic_blood_pressure":
                     data[item_month - 1].append(reading.diastolic_blood_pressure)
-                elif data_needed == "heart_rate_BPM":
-                    data[item_month - 1].append(reading.heart_rate_BPM)
+                elif data_needed == "heart_rate":
+                    data[item_month - 1].append(reading.heart_rate)
                 elif data_needed == "bpSystolicLastTwelveMonths":
                     data[month_index].append(reading.systolic_blood_pressure)
                 elif data_needed == "bpDiastolicLastTwelveMonths":
                     data[month_index].append(reading.diastolic_blood_pressure)
                 elif data_needed == "heartRateBPMLastTwelveMonths":
-                    data[month_index].append(reading.heart_rate_BPM)
+                    data[month_index].append(reading.heart_rate)
     return data
 
 
