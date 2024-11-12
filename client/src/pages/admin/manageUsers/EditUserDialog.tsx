@@ -12,29 +12,24 @@ import {
 } from '@mui/material';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
-import {
-  UserField,
-  fieldLabels,
-  newEditValidationSchema,
-  newUserTemplate,
-} from './state';
+import { UserField, fieldLabels, newEditValidationSchema } from './state';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { UserRoleEnum } from 'src/shared/enums';
-import { saveUserAsync } from 'src/shared/api/api';
+import { editUserAsync } from 'src/shared/api/api';
 import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
 import { useState } from 'react';
 import { userRoleLabels } from 'src/shared/constants';
-import { User } from 'src/shared/api/validation/user';
+import { EditUser, User } from 'src/shared/api/validation/user';
 
 interface IProps {
   open: boolean;
   onClose: () => void;
   users: User[];
-  editUser?: User;
+  editUser?: EditUser;
 }
 
-const EditUser = ({ open, onClose, users, editUser }: IProps) => {
+export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
   const healthFacilities = useHealthFacilities();
   const [submitError, setSubmitError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -44,16 +39,17 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
     .map((u) => u.email);
 
   const handleSubmit = async (
-    user: User,
-    { setSubmitting }: FormikHelpers<User>
+    user: EditUser,
+    { setSubmitting }: FormikHelpers<EditUser>
   ) => {
+    if (!editUser) return;
     /* If the phone number entered is not already in the user's array of 
     phone numbers, prepend it to the array. */
     if (user.phoneNumber && !user.phoneNumbers.includes(user.phoneNumber)) {
       user.phoneNumbers = [user.phoneNumber, ...user.phoneNumbers];
     }
     try {
-      await saveUserAsync(user, editUser?.id);
+      await editUserAsync(user, editUser.id);
       onClose();
     } catch (e) {
       if (!(e instanceof Response)) return;
@@ -64,7 +60,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
     }
   };
 
-  return (
+  return editUser ? (
     <>
       <APIErrorToast
         open={submitError}
@@ -78,7 +74,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
         <DialogTitle>{creatingNew ? 'Create' : 'Edit'} User</DialogTitle>
         <DialogContent>
           <Formik
-            initialValues={editUser ?? newUserTemplate}
+            initialValues={editUser}
             validationSchema={newEditValidationSchema(creatingNew, emailsInUse)}
             onSubmit={handleSubmit}>
             {({ values, touched, errors, isSubmitting, isValid }) => (
@@ -96,10 +92,10 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                     required
                     inputProps={{ maxLength: 25 }}
                     variant="outlined"
-                    label={fieldLabels[UserField.firstName]}
-                    name={UserField.firstName}
+                    label={fieldLabels[UserField.name]}
+                    name={UserField.name}
                   />
-                  <Field
+                  {/* <Field
                     component={FormikTextField}
                     fullWidth
                     required
@@ -107,7 +103,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                     variant="outlined"
                     label={'username'}
                     name={'username'}
-                  />
+                  /> */}
                   <Field
                     component={FormikTextField}
                     fullWidth
@@ -206,28 +202,6 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                       </Field>
                     </>
                   )}
-                  {creatingNew && (
-                    <>
-                      <Field
-                        component={FormikTextField}
-                        fullWidth
-                        required
-                        variant="outlined"
-                        type="password"
-                        label={fieldLabels[UserField.password]}
-                        name={UserField.password}
-                      />
-                      <Field
-                        component={FormikTextField}
-                        fullWidth
-                        required
-                        variant="outlined"
-                        type="password"
-                        label={fieldLabels[UserField.confirmPassword]}
-                        name={UserField.confirmPassword}
-                      />
-                    </>
-                  )}
                   <DialogActions>
                     <CancelButton type="button" onClick={onClose}>
                       Cancel
@@ -245,7 +219,5 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
         </DialogContent>
       </Dialog>
     </>
-  );
+  ) : null;
 };
-
-export default EditUser;

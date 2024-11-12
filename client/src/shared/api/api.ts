@@ -18,7 +18,7 @@ import { IExportStatRow } from 'src/pages/statistics/utils';
 import { PostBody } from 'src/pages/customizedForm/customizedEditForm/handlers';
 import { reduxStore } from 'src/redux/store';
 import { showMessage } from 'src/redux/actions/messageActions';
-import { User } from './validation/user';
+import { EditUser, NewUser, User } from './validation/user';
 import { snakeCase, camelCase } from 'lodash';
 import { jwtDecode } from 'jwt-decode';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
@@ -302,13 +302,24 @@ export const deleteUserAsync = async (user: User) =>
     method: 'DELETE',
   });
 
-export const saveUserAsync = async (user: User, userId: number | undefined) => {
+export const createUserAsync = async (newUser: NewUser) => {
   axiosFetch({
-    method: userId ? 'PUT' : 'POST',
-    url: userId ? EndpointEnum.USER + userId : EndpointEnum.USER_REGISTER,
+    method: 'POST',
+    url: EndpointEnum.USER_REGISTER,
     data: {
-      ...user,
-      supervises: user.role === UserRoleEnum.CHO ? user.supervises : [],
+      ...newUser,
+      supervises: newUser.role === UserRoleEnum.CHO ? newUser.supervises : [],
+    },
+  });
+};
+
+export const editUserAsync = async (editUser: EditUser, userId: number) => {
+  axiosFetch({
+    method: 'PUT',
+    url: EndpointEnum.USER + userId,
+    data: {
+      ...editUser,
+      supervises: editUser.role === UserRoleEnum.CHO ? editUser.supervises : [],
     },
   });
 };

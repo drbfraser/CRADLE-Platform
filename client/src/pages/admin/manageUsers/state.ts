@@ -1,10 +1,10 @@
 import * as Yup from 'yup';
 
 import { UserRoleEnum } from 'src/shared/enums';
-import { User } from 'src/shared/api/validation/user';
+import { EditUser, NewUser, User } from 'src/shared/api/validation/user';
 
 export enum UserField {
-  firstName = 'name',
+  name = 'name',
   email = 'email',
   phoneNumber = 'phoneNumber',
   healthFacilityName = 'healthFacilityName',
@@ -16,7 +16,7 @@ export enum UserField {
 }
 
 export const fieldLabels = {
-  [UserField.firstName]: 'Name',
+  [UserField.name]: 'Name',
   [UserField.email]: 'Email',
   [UserField.phoneNumber]: 'Phone Number',
   [UserField.healthFacilityName]: 'Health Facility',
@@ -27,9 +27,7 @@ export const fieldLabels = {
 };
 
 const detailsValidationShape = (emailsInUse: string[]) => ({
-  [UserField.firstName]: Yup.string()
-    .label(fieldLabels[UserField.firstName])
-    .required(),
+  [UserField.name]: Yup.string().label(fieldLabels[UserField.name]).required(),
   [UserField.email]: Yup.string()
     .label(fieldLabels[UserField.email])
     .required()
@@ -73,15 +71,15 @@ export const passwordValidationSchema = Yup.object().shape(
   passwordValidationShape
 );
 
-export const newUserTemplate: Omit<User, 'smsKey' | 'username'> = {
-  [UserField.firstName]: '',
-  [UserField.email]: '',
-  [UserField.phoneNumber]: '',
+export const newUserTemplate: NewUser = {
+  email: '',
+  username: '',
+  name: '',
+  phoneNumber: '',
   phoneNumbers: [],
-  [UserField.healthFacilityName]: '',
-  [UserField.role]: UserRoleEnum.VHT,
-  [UserField.supervises]: [] as number[],
-  [UserField.id]: 0,
+  healthFacilityName: '',
+  role: UserRoleEnum.VHT,
+  supervises: [] as number[],
 };
 
 export const resetPasswordTemplate = {

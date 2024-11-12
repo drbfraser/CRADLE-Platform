@@ -25,5 +25,22 @@ export const userSchema = z.object({
   phoneNumbers: z.array(z.string()),
   phoneNumber: z.string().optional(),
 });
-
 export type User = z.infer<typeof userSchema>;
+
+/** Schema of object to send to endpoint for creating a new user.
+ *  These properties are generated automatically on the server.
+ */
+export const newUserSchema = userSchema.omit({
+  id: true,
+  smsKey: true,
+});
+export type NewUser = z.infer<typeof newUserSchema>;
+
+/** Schema of object to send to endpoint for editing/updating an existing user.
+ *  Some fields like `username` cannot be changed and so are excluded here.
+ */
+export const editUserSchema = userSchema.omit({
+  username: true,
+  smsKey: true,
+});
+export type EditUser = z.infer<typeof editUserSchema>;
