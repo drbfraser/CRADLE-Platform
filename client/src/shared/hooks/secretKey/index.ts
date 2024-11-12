@@ -8,15 +8,15 @@ import {
 } from 'src/shared/api/api';
 import { UserRoleEnum } from 'src/shared/enums';
 import {
-  User,
   UserWithIndex,
   UserWithToken,
   OrNull,
   SecretKey,
 } from 'src/shared/types';
+import { User } from 'src/shared/api/validation/user';
 
 type UseSecretKeyReturn = {
-  users: Pick<UserWithIndex, 'email' | 'index' | 'userId'>[];
+  users: Pick<UserWithIndex, 'email' | 'index' | 'id'>[];
   role?: UserRoleEnum;
   currentSecretKey?: SecretKey;
   focusUserId?: number;
@@ -26,7 +26,7 @@ type UseSecretKeyReturn = {
 
 export const useSecretKey = (
   secretKey: SecretKeyState,
-  userData: OrNull<Pick<UserWithToken, 'role' | 'userId'>>,
+  userData: OrNull<Pick<UserWithToken, 'role' | 'id'>>,
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>,
   setUpdateMessage: React.Dispatch<React.SetStateAction<boolean>>
 ): UseSecretKeyReturn => {
@@ -38,7 +38,7 @@ export const useSecretKey = (
     SecretKey | undefined
   >(secretKey.data);
   const [users, setUsers] = useState<
-    Pick<UserWithIndex, 'email' | 'index' | 'userId'>[]
+    Pick<UserWithIndex, 'email' | 'index' | 'id'>[]
   >([]);
 
   useEffect(() => {
@@ -56,7 +56,7 @@ export const useSecretKey = (
     setUsers(
       resp.map((user, index) => ({
         email: user.email,
-        userId: user.id,
+        id: user.id,
         index,
       }))
     );

@@ -18,7 +18,6 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import FormControl from '@mui/material/FormControl';
 import MenuItem from '@mui/material/MenuItem';
 import { ReduxState } from 'src/redux/reducers';
-import { UserWithToken, OrNull } from 'src/shared/types';
 import { SecretKeyState } from 'src/redux/reducers/secretKey';
 import IconButton from '@mui/material/IconButton';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
@@ -26,20 +25,14 @@ import { styled, SxProps } from '@mui/material/styles';
 import { UserRoleEnum } from 'src/shared/enums';
 import { Toast } from 'src/shared/components/toast';
 import { Box } from '@mui/material';
+import { useAppSelector } from 'src/shared/hooks';
+import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
 
 const SecretKeyPage: React.FC = () => {
   const [showPassword, setShowPassWord] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [updateMessage, setUpdateMessage] = useState<boolean>(false);
-  const currentUserData = useSelector(
-    ({ user }: ReduxState): OrNull<Pick<UserWithToken, 'role' | 'userId'>> => {
-      const currentUser = user.current.data;
-      if (currentUser == null) {
-        return null;
-      }
-      return { id: currentUser.id, role: currentUser.role };
-    }
-  );
+  const { data: currentUser } = useAppSelector(selectCurrentUser);
   const secretKey = useSelector(({ secretKey }: ReduxState): SecretKeyState => {
     return secretKey;
   });
@@ -58,7 +51,7 @@ const SecretKeyPage: React.FC = () => {
     focusUserId,
     setFocusUserId,
     updateSecretKeyHandler,
-  } = useSecretKey(secretKey, currentUserData, setShowModal, setUpdateMessage);
+  } = useSecretKey(secretKey, currentUser, setShowModal, setUpdateMessage);
   return (
     <>
       <Toast
@@ -98,9 +91,9 @@ const SecretKeyPage: React.FC = () => {
                 id="focus-users"
                 value={focusUserId + ''}
                 onChange={handleUserSelect}>
-                {users.map((u, index) => (
-                  <MenuItem key={index} value={u.id}>
-                    {u.email}
+                {users.map((user, index) => (
+                  <MenuItem key={index} value={user.id}>
+                    {user.email}
                   </MenuItem>
                 ))}
               </Select>
@@ -123,7 +116,7 @@ const SecretKeyPage: React.FC = () => {
                     label="Key"
                     type={showPassword ? 'text' : 'password'}
                     fullWidth
-                    value={currentSecretKey?.sms_key}
+                    value={currentSecretKey?.smsKey}
                     variant="filled"
                     aria-readonly
                     InputProps={{
@@ -147,7 +140,7 @@ const SecretKeyPage: React.FC = () => {
                 </Typography>
                 <Typography>
                   {currentSecretKey
-                    ? currentSecretKey.expiry_date.split(' ')[0]
+                    ? currentSecretKey.expiryDate.split(' ')[0]
                     : 'No stale date available'}
                 </Typography>
               </Box>
@@ -157,7 +150,7 @@ const SecretKeyPage: React.FC = () => {
                 </Typography>
                 <Typography>
                   {currentSecretKey
-                    ? currentSecretKey.stale_date.split(' ')[0]
+                    ? currentSecretKey.staleDate.split(' ')[0]
                     : 'No stale date available'}
                 </Typography>
               </Box>
@@ -186,8 +179,8 @@ const SecretKeyPage: React.FC = () => {
             The Stale-date and the Expiry-date. The Stale-date is like a
             freshness indicator. After this date, the key gets automatically
             refreshed by the server, like making it new again The Expiry-date is
-            like a deadline. After this date, theserver will not let your mobile
-            device send any more messages.
+            like a deadline. After this date, the server will not let your
+            mobile device send any more messages.
             <br />
             <br />
             <br />
