@@ -8,6 +8,7 @@ from flask_restful import Resource, abort
 import data
 from api import util
 from api.decorator import patient_association_required
+from common import commonUtil
 from data import crud, marshal
 from models import FollowUp, Patient, Pregnancy, Reading, Referral
 from service import assoc, invariant, serialize, statsCalculation, view
@@ -43,17 +44,18 @@ class Root(Resource):
     )
     def post():
         json = request.get_json(force=True)
-
         if "gestationalTimestamp" in json:
             # Changing the key that comes from the android app to work with validation
             json["pregnancyStartDate"] = json.pop("gestationalTimestamp")
 
         try:
-            PatientPostValidator.validate(json)
+            patient_pydantic_model = PatientPostValidator.validate(json)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 
-        patient = marshal.unmarshal(Patient, json)
+        new_patient = patient_pydantic_model.model_dump()
+        new_patient = commonUtil.filterNestedAttributeWithValueNone(new_patient)
+        patient = marshal.unmarshal(Patient, new_patient)
         patient_id = patient.patientId
         if crud.read(Patient, patientId=patient_id):
             abort(409, message=f"A patient already exists with id: {patient_id}")
@@ -140,9 +142,12 @@ class PatientInfo(Resource):
         json = request.get_json(force=True)
 
         try:
-            PatientPutValidator.validate(json, patient_id)
+            patient_pydantic_model = PatientPutValidator.validate(json, patient_id)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
+
+        update_patient = patient_pydantic_model.model_dump()
+        update_patient = util.filterPairsWithNone(update_patient)
 
         # If the inbound JSON contains a `base` field then we need to check if it is the
         # same as the `lastEdited` field of the existing patient. If it is then that
@@ -152,7 +157,7 @@ class PatientInfo(Resource):
         # synced with the client. In these cases, we reject the changes for the client.
         #
         # You can think of this like aborting a git merge due to conflicts.
-        base = json.get("base")
+        base = update_patient.get("base")
         if base:
             last_edited = crud.read(Patient, patientId=patient_id).lastEdited
             if base != last_edited:
@@ -160,9 +165,9 @@ class PatientInfo(Resource):
 
             # Delete the `base` field once we are done with it as to not confuse the
             # ORM as there is no "base" column in the database for patients.
-            del json["base"]
+            del update_patient["base"]
 
-        crud.update(Patient, json, patientId=patient_id)
+        crud.update(Patient, update_patient, patientId=patient_id)
         patient = crud.read(Patient, patientId=patient_id)
 
         # Update the patient's lastEdited timestamp only if there was no `base` field
@@ -398,12 +403,16 @@ class ReadingAssessment(Resource):
         reading_json = json["reading"]
         assessment_json = json["assessment"]
 
-        error_message = ReadingValidator.validate(reading_json)
-        if error_message is not None:
-            abort(400, message=error_message)
-        error_message = AssessmentValidator.validate(assessment_json)
-        if error_message is not None:
-            abort(400, message=error_message)
+        try:
+            reading_pydantic_model = ReadingValidator.validate(reading_json)
+            assessment_pydantic_model = AssessmentValidator.validate(assessment_json)
+        except ValidationExceptionError as e:
+            abort(400, message=str(e))
+
+        new_reading = reading_pydantic_model.model_dump()
+        reading_json = util.filterPairsWithNone(new_reading)
+        new_assessment = assessment_pydantic_model.model_dump()
+        assessment_json = util.filterPairsWithNone(new_assessment)
 
         userId = get_jwt_identity()["userId"]
         reading_json["userId"] = userId

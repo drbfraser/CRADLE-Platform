@@ -1,8 +1,9 @@
 from datetime import date, datetime
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 from pydantic import BaseModel, ValidationError, field_validator, model_validator
 
+from validation.readings import ReadingValidator
 from validation.validation_exception import ValidationExceptionError
 
 
@@ -21,7 +22,7 @@ class PatientBase(BaseModel):
     drugHistory: Optional[str] = None
     medicalHistory: Optional[str] = None
     allergy: Optional[str] = None
-    isArchived: Optional[bool] = False
+    isArchived: Optional[bool] = None
 
     @model_validator(mode="before")
     @classmethod
@@ -67,6 +68,7 @@ class PatientPostValidator(PatientBase):
     dob: str
     isExactDob: bool
     isPregnant: bool
+    readings: Optional[List[ReadingValidator]] = None
 
     @staticmethod
     def validate(request_body: dict):
@@ -94,7 +96,7 @@ class PatientPostValidator(PatientBase):
                             }
         """
         try:
-            PatientPostValidator(**request_body)
+            return PatientPostValidator(**request_body)
         except ValidationError as e:
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
@@ -132,6 +134,8 @@ class PatientPutValidator(PatientBase):
 
         if patient.patientId and patient.patientId != patient_id:
             raise ValidationExceptionError("Patient ID cannot be changed.")
+
+        return patient
 
 
 def check_gestational_age_under_limit(gestation_timestamp: int) -> Optional[str]:

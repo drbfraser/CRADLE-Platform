@@ -353,21 +353,21 @@ def test_create_patient_with_nested_readings(database, api_post):
         "65acfe28-b0d6-4a63-a484-eceb3277fb4e",
         "90293637-d763-494a-8cc7-85a88d023f3e",
     ]
-    p = __make_patient(patient_id, reading_ids)
-    response = api_post(endpoint="/api/patients", json=p)
+    patient = __make_patient(patient_id, reading_ids)
+    response = api_post(endpoint="/api/patients", json=patient)
     database.session.commit()
 
     try:
         assert response.status_code == 201
         assert crud.read(Patient, patientId=patient_id) is not None
 
-        for r in reading_ids:
-            reading = crud.read(Reading, readingId=r)
+        for reading_id in reading_ids:
+            reading = crud.read(Reading, readingId=reading_id)
             assert reading is not None
             assert reading.trafficLightStatus == TrafficLightEnum.GREEN
     finally:
-        for r in reading_ids:
-            crud.delete_by(Reading, readingId=r)
+        for reading_id in reading_ids:
+            crud.delete_by(Reading, readingId=reading_id)
         crud.delete_by(Patient, patientId=patient_id)
 
 
