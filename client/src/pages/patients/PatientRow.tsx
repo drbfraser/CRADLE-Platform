@@ -25,7 +25,7 @@ export const PatientRow = ({ row }: IProps) => {
 
   return (
     <ApiTableRow onClick={handleClick}>
-      <TableCell label={COLUMNS.patientName} isTransformed={isTransformed}>
+      <TableCell label={COLUMNS.name} isTransformed={isTransformed}>
         <Box component="span" sx={{ fontSize: '18px' }}>
           {row.name}
         </Box>
