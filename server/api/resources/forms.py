@@ -36,7 +36,7 @@ class Root(Resource):
             abort(400, message=str(e))
             return None
 
-        patient = crud.read(PatientOrm, id=req["id"])
+        patient = crud.read(PatientOrm, id=req["patient_id"])
         if not patient:
             abort(404, message="Patient does not exist")
             return None
