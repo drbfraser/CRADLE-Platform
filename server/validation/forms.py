@@ -41,6 +41,7 @@ def validate_form(request_body: dict):
     try:
         Form(**request_body)
     except ValidationError as e:
+        print(e)
         raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
 

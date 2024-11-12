@@ -298,14 +298,14 @@ export interface CForm {
 }
 
 export type QAnswer = {
-  qidx: number;
-  qtype: QuestionTypeEnum | null;
-  anstype: AnswerTypeEnum | null; //value,text,mc,me,comment
+  questionIndex: number;
+  questionType: QuestionTypeEnum | null;
+  answerType: AnswerTypeEnum | null; //value,text,mc,me,comment
   val: any;
 };
 
 export interface QCondition {
-  qidx: number;
+  questionIndex: number;
   relation: QRelationEnum;
   answers: Answer;
 }
@@ -313,7 +313,7 @@ export interface QCondition {
 export type Answer = {
   number?: number | undefined;
   text?: string | undefined;
-  mcidArray?: number[] | undefined;
+  mcIdArray?: number[] | undefined;
   comment?: string | undefined;
 };
 
@@ -371,7 +371,7 @@ export interface QuestionLangVersion {
 }
 
 export type McOption = {
-  mcid: number;
+  mcId: number;
   opt: string;
 };
 

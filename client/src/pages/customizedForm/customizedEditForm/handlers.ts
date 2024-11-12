@@ -35,19 +35,21 @@ export const TransferQAnswerToAPIStandard = (
   return answers
     .filter((answer) =>
       questions.some((q) => {
-        if (q.questionIndex === answer.qidx) {
+        if (q.questionIndex === answer.questionIndex) {
           return VALID_QUESTION_TYPES.includes(q.questionType);
         }
         return false;
       })
     )
     .map((answer) => {
-      const question = questions.find((q) => q.questionIndex === answer.qidx);
+      const question = questions.find(
+        (q) => q.questionIndex === answer.questionIndex
+      );
 
       const options = question?.mcOptions?.map((option) => option.opt);
 
       const apiAnswer = {
-        qidx: answer.qidx,
+        qidx: answer.questionIndex,
         answer: { mcidArray: [], text: undefined, number: undefined },
       };
 
@@ -121,7 +123,7 @@ export const TransferQAnswerToPostBody = (
 
         case QuestionTypeEnum.MULTIPLE_CHOICE:
         case QuestionTypeEnum.MULTIPLE_SELECT:
-          question.isBlank = apiAnswer.answer.mcidArray!.length === 0;
+          question.isBlank = apiAnswer.answer.mcIdArray!.length === 0;
 
           break;
         case QuestionTypeEnum.STRING:
@@ -166,11 +168,11 @@ export const areMcResponsesValid = (
   answers
     .filter(
       (answer) =>
-        answer.qtype === QuestionTypeEnum.MULTIPLE_CHOICE ||
-        answer.qtype === QuestionTypeEnum.MULTIPLE_SELECT
+        answer.questionType === QuestionTypeEnum.MULTIPLE_CHOICE ||
+        answer.questionType === QuestionTypeEnum.MULTIPLE_SELECT
     )
     .every((answer) => {
-      const qidx = answer.qidx;
+      const qidx = answer.questionIndex;
       const isHidden = questions[qidx].shouldHidden;
       const required = questions[qidx].required;
 

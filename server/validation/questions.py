@@ -128,6 +128,7 @@ def validate_mc_options(question: dict):
         for opt in mc_options:
             MultipleChoiceOption(**opt)
     except ValidationError as e:
+        print(e)
         raise ValidationExceptionError(str(e.errors()[0]["msg"]))
     return
 
@@ -159,6 +160,7 @@ def validate_answers(question: dict):
     try:
         Answer(**question[target])
     except ValidationError as e:
+        print(e)
         raise ValidationExceptionError(str(e.errors()[0]["msg"]))
     return
 
@@ -195,6 +197,7 @@ def validate_visible_condition(question: dict):
         for visible_condition in visible_conditions:
             VisibleCondition(**visible_condition)
     except ValidationError as e:
+        print(e)
         raise ValidationExceptionError(str(e.errors()[0]["msg"]))
     return
 
@@ -235,6 +238,7 @@ def validate_lang_versions(question: dict):
         for question_lang_version in question_lang_versions:
             QuestionLangVersion(**question_lang_version)
     except ValidationError as e:
+        print(e)
         raise ValidationExceptionError(str(e.errors()[0]["msg"]))
     return
 
@@ -251,6 +255,7 @@ def validate_template_question_post(question: dict):
     try:
         TemplateQuestion(**question)
     except ValidationError as e:
+        print(e)
         raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
 
@@ -266,6 +271,7 @@ def validate_form_question_post(question: dict):
     try:
         FormQuestion(**question)
     except ValidationError as e:
+        print(e)
         raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
 
@@ -281,4 +287,5 @@ def validate_form_question_put(question: dict):
     try:
         FormQuestionPut(**question)
     except ValidationError as e:
+        print(e)
         raise ValidationExceptionError(str(e.errors()[0]["msg"]))
