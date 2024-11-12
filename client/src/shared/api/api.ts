@@ -296,14 +296,16 @@ export const getAppFileHeadAsync = async () => {
   return response.data;
 };
 
-export const deleteUserAsync = async (user: User) =>
-  axiosFetch({
+export const deleteUserAsync = async (user: User) => {
+  const response = await axiosFetch({
     url: EndpointEnum.USER + String(user.id),
     method: 'DELETE',
   });
+  return response.data;
+};
 
 export const createUserAsync = async (newUser: NewUser) => {
-  axiosFetch({
+  const response = await axiosFetch({
     method: 'POST',
     url: EndpointEnum.USER_REGISTER,
     data: {
@@ -311,10 +313,11 @@ export const createUserAsync = async (newUser: NewUser) => {
       supervises: newUser.role === UserRoleEnum.CHO ? newUser.supervises : [],
     },
   });
+  return response.data;
 };
 
 export const editUserAsync = async (editUser: EditUser, userId: number) => {
-  axiosFetch({
+  const response = await axiosFetch({
     method: 'PUT',
     url: EndpointEnum.USER + userId,
     data: {
@@ -322,6 +325,7 @@ export const editUserAsync = async (editUser: EditUser, userId: number) => {
       supervises: editUser.role === UserRoleEnum.CHO ? editUser.supervises : [],
     },
   });
+  return response;
 };
 
 export const getUsersAsync = async (): Promise<User[]> => {
