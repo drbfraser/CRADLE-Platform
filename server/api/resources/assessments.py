@@ -23,7 +23,7 @@ class Root(Resource):
         # Populate the date_assessed and healthCareWorkerId fields of the followup
         json["date_assessed"] = get_current_time()
         current_user = UserUtils.get_current_user_from_jwt()
-        json["health_care_worker_id"] = current_user["id"]
+        json["healthcare_worker_id"] = current_user["id"]
 
         try:
             assessments.validate(json)
@@ -78,7 +78,7 @@ class SingleAssessment(Resource):
 
         # get current UserID
         current_user = UserUtils.get_current_user_from_jwt()
-        json["health_care_worker_id"] = current_user["id"]
+        json["healthcare_worker_id"] = current_user["id"]
 
         assessment = crud.read(FollowUpOrm, id=assessment_id)
         if not assessment:

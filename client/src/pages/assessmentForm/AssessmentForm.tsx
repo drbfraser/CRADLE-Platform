@@ -63,8 +63,8 @@ export const AssessmentForm = ({
       [AssessmentField.treatment]: values[AssessmentField.treatment],
       [AssessmentField.medication]: values[AssessmentField.drugHistory],
       [AssessmentField.followUp]: values[AssessmentField.followUp],
-      [AssessmentField.followUpInstruc]:
-        values[AssessmentField.followUpInstruc],
+      [AssessmentField.followUpInstructions]:
+        values[AssessmentField.followUpInstructions],
     };
 
     try {
@@ -191,7 +191,7 @@ export const AssessmentForm = ({
                         variant="outlined"
                         fullWidth
                         multiline
-                        name={AssessmentField.followUpInstruc}
+                        name={AssessmentField.followUpInstructions}
                         label="Instructions for Follow-up"
                         required={values[AssessmentField.followUp]}
                         disabled={!values[AssessmentField.followUp]}

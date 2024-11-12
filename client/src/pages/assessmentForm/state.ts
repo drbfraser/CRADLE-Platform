@@ -6,8 +6,8 @@ export enum AssessmentField {
   finalDiagnosis = 'diagnosis',
   treatment = 'treatment',
   medication = 'medicationPrescribed',
-  followUp = 'followupNeeded',
-  followUpInstruc = 'followupInstructions',
+  followUp = 'followUpNeeded',
+  followUpInstructions = 'followUpInstructions',
   drugHistory = 'drugHistory',
 }
 
@@ -16,7 +16,7 @@ export const initialState = {
   [AssessmentField.finalDiagnosis]: '',
   [AssessmentField.treatment]: '',
   [AssessmentField.followUp]: false,
-  [AssessmentField.followUpInstruc]: '',
+  [AssessmentField.followUpInstructions]: '',
   [AssessmentField.drugHistory]: '',
 };
 
