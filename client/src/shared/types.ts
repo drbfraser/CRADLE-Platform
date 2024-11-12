@@ -23,14 +23,14 @@ export type ServerError = {
 
 export type Reading = {
   appVersion: OrNull<string>;
-  bpDiastolic: number;
-  bpSystolic: number;
+  diastolicBloodPressure: number;
+  systolicBloodPressure: number;
   dateLastSaved: OrNull<number>;
   dateRecheckVitalsNeeded: OrNull<number>;
-  dateTimeTaken: OrNull<number>;
+  dateTaken: OrNull<number>;
   dateUploadedToServer: OrNull<number>;
   deviceInfo: OrNull<string>;
-  followup: OrNull<FollowUp>;
+  followUp: OrNull<FollowUp>;
   gpsLocationOfReading: OrNull<string>;
   heartRate: number;
   isFlaggedForFollowup: OrNull<boolean>;
@@ -52,11 +52,11 @@ export type Reading = {
 };
 
 export type UrineTests = {
-  urineTestNit: string;
-  urineTestBlood: string;
-  urineTestLeuc: string;
-  urineTestPro: string;
-  urineTestGlu: string;
+  nit: string;
+  blood: string;
+  leuc: string;
+  pro: string;
+  glu: string;
 };
 
 export type MedicalRecord = {

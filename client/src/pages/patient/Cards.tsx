@@ -23,7 +23,7 @@ interface IFollowUpCardProps {
 
 export const AssessmentCard = ({ followUp }: IFollowUpCardProps) => (
   <>
-    <Typography variant="h5">
+    <Typography variant={'h5'} component={'h5'}>
       <DiagnosisIcon fontSize="large" />
       Assessment
     </Typography>
@@ -92,7 +92,7 @@ interface ICustomizedFormCardProps {
 
 export const CustomizedFormCard = ({ form }: ICustomizedFormCardProps) => (
   <>
-    <Typography variant="h5">
+    <Typography variant={'h5'} component={'h5'}>
       <>
         <AssignmentInd fontSize="large" /> {form.classification.name}
       </>
@@ -122,7 +122,7 @@ export const ReadingCard = ({ reading }: IReadingCardProps) => {
 
   return (
     <>
-      <Typography variant="h5">
+      <Typography variant={'h5'} component={'h5'}>
         <AssignmentInd fontSize="large" />
         Reading
       </Typography>
@@ -133,10 +133,11 @@ export const ReadingCard = ({ reading }: IReadingCardProps) => {
           status={reading.trafficLightStatus}
         />
         <p>
-          <b>Systolic Blood Pressure:</b> {reading.bpSystolic} mm/Hg
+          <b>Systolic Blood Pressure:</b> {reading.systolicBloodPressure} mm/Hg
         </p>
         <p>
-          <b>Diastolic Blood Pressure:</b> {reading.bpDiastolic} mm/Hg
+          <b>Diastolic Blood Pressure:</b> {reading.diastolicBloodPressure}{' '}
+          mm/Hg
         </p>
         <p>
           <b>Heart Rate:</b> {reading.heartRate} bpm
@@ -159,23 +160,23 @@ export const ReadingCard = ({ reading }: IReadingCardProps) => {
                 {[
                   {
                     label: 'Leukocytes',
-                    value: reading.urineTests.urineTestLeuc,
+                    value: reading.urineTests.leuc,
                   },
                   {
                     label: 'Nitrites',
-                    value: reading.urineTests.urineTestNit,
+                    value: reading.urineTests.nit,
                   },
                   {
                     label: 'Glucose',
-                    value: reading.urineTests.urineTestGlu,
+                    value: reading.urineTests.glu,
                   },
                   {
                     label: 'Protein',
-                    value: reading.urineTests.urineTestPro,
+                    value: reading.urineTests.pro,
                   },
                   {
                     label: 'Blood',
-                    value: reading.urineTests.urineTestBlood,
+                    value: reading.urineTests.blood,
                   },
                 ].map((info) => (
                   <p key={info.label}>
