@@ -18,11 +18,11 @@ const getSubmitObject = (patientId: string, values: ReadingState) => {
 
   if (values[ReadingField.urineTest]) {
     submitValues['urineTests'] = {
+      leukocytes: values[ReadingField.leukocytes],
+      nitrites: values[ReadingField.nitrites],
+      glucose: values[ReadingField.glucose],
+      protein: values[ReadingField.protein],
       blood: values[ReadingField.blood],
-      glu: values[ReadingField.glucose],
-      leuc: values[ReadingField.leukocytes],
-      nit: values[ReadingField.nitrites],
-      pro: values[ReadingField.protein],
     };
   }
 

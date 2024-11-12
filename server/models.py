@@ -353,10 +353,10 @@ class VillageOrm(db.Model):
 class UrineTestOrm(db.Model):
     __tablename__ = "urine_test"
     id = db.Column(db.Integer, primary_key=True)
-    leuc = db.Column(db.String(5))
-    nit = db.Column(db.String(5))
-    glu = db.Column(db.String(5))
-    pro = db.Column(db.String(5))
+    leukocytes = db.Column(db.String(5))
+    nitrites = db.Column(db.String(5))
+    glucose = db.Column(db.String(5))
+    protein = db.Column(db.String(5))
     blood = db.Column(db.String(5))
 
     # FOREIGN KEYS

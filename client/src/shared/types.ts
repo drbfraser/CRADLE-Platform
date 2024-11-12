@@ -52,11 +52,11 @@ export type Reading = {
 };
 
 export type UrineTests = {
-  nit: string;
+  leukocytes: string;
+  nitrites: string;
+  glucose: string;
+  protein: string;
   blood: string;
-  leuc: string;
-  pro: string;
-  glu: string;
 };
 
 export type MedicalRecord = {

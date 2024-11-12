@@ -160,19 +160,19 @@ export const ReadingCard = ({ reading }: IReadingCardProps) => {
                 {[
                   {
                     label: 'Leukocytes',
-                    value: reading.urineTests.leuc,
+                    value: reading.urineTests.leukocytes,
                   },
                   {
                     label: 'Nitrites',
-                    value: reading.urineTests.nit,
+                    value: reading.urineTests.nitrites,
                   },
                   {
                     label: 'Glucose',
-                    value: reading.urineTests.glu,
+                    value: reading.urineTests.glucose,
                   },
                   {
                     label: 'Protein',
-                    value: reading.urineTests.pro,
+                    value: reading.urineTests.protein,
                   },
                   {
                     label: 'Blood',
