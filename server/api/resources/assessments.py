@@ -2,9 +2,9 @@ from flasgger import swag_from
 from flask import request
 from flask_restful import Resource, abort
 
-from api import util
 from data import crud, marshal
 from models import FollowUpOrm
+from shared.user_utils import UserUtils
 from utils import get_current_time
 from validation import assessments
 
@@ -20,10 +20,10 @@ class Root(Resource):
     def post():
         json = request.get_json(force=True)
 
-        # Populate the dateAssessed and healthCareWorkerId fields of the followup
-        json["dateAssessed"] = get_current_time()
-        user = util.current_user()
-        json["healthcareWorkerId"] = user.id
+        # Populate the date_assessed and healthCareWorkerId fields of the followup
+        json["date_assessed"] = get_current_time()
+        current_user = UserUtils.get_current_user_from_jwt()
+        json["health_care_worker_id"] = current_user["id"]
 
         try:
             assessments.validate(json)
@@ -59,6 +59,7 @@ class SingleAssessment(Resource):
         follow_up = crud.read(FollowUpOrm, id=assessment_id)
         if not follow_up:
             abort(404, message=f"No assessment with id {id}")
+            return None
 
         return marshal.marshal(follow_up)
 
@@ -73,20 +74,22 @@ class SingleAssessment(Resource):
             abort(404, message="Assessment id is required")
         json = request.get_json(force=True)
 
-        json["dateAssessed"] = get_current_time()
+        json["date_assessed"] = get_current_time()
 
         # get current UserID
-        user = util.current_user()
-        json["healthcareWorkerId"] = user.id
+        current_user = UserUtils.get_current_user_from_jwt()
+        json["health_care_worker_id"] = current_user["id"]
 
         assessment = crud.read(FollowUpOrm, id=assessment_id)
         if not assessment:
             abort(404, message=f"No assessment with id {assessment_id}")
+            return None
 
         try:
             assessments.validate(json)
         except Exception as e:
             abort(400, message=str(e))
+            return None
 
         crud.update(FollowUpOrm, json, id=assessment.id)
 
