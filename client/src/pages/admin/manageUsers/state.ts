@@ -1,10 +1,10 @@
 import * as Yup from 'yup';
 
-import { User } from 'src/shared/types';
 import { UserRoleEnum } from 'src/shared/enums';
+import { User } from 'src/shared/api/validation/user';
 
 export enum UserField {
-  firstName = 'firstName',
+  firstName = 'name',
   email = 'email',
   phoneNumber = 'phoneNumber',
   healthFacilityName = 'healthFacilityName',
@@ -12,11 +12,11 @@ export enum UserField {
   supervises = 'supervises',
   password = 'password',
   confirmPassword = 'confirmPassword',
-  id = 'userId',
+  id = 'id',
 }
 
 export const fieldLabels = {
-  [UserField.firstName]: 'First Name',
+  [UserField.firstName]: 'Name',
   [UserField.email]: 'Email',
   [UserField.phoneNumber]: 'Phone Number',
   [UserField.healthFacilityName]: 'Health Facility',
@@ -73,7 +73,7 @@ export const passwordValidationSchema = Yup.object().shape(
   passwordValidationShape
 );
 
-export const newUserTemplate: User = {
+export const newUserTemplate: Omit<User, 'smsKey' | 'username'> = {
   [UserField.firstName]: '',
   [UserField.email]: '',
   [UserField.phoneNumber]: '',
