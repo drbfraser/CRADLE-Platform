@@ -20,12 +20,12 @@ import {
 } from './state';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { User } from 'src/shared/types';
 import { UserRoleEnum } from 'src/shared/enums';
 import { saveUserAsync } from 'src/shared/api/api';
 import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
 import { useState } from 'react';
 import { userRoleLabels } from 'src/shared/constants';
+import { User } from 'src/shared/api/validation/user';
 
 interface IProps {
   open: boolean;
@@ -49,7 +49,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
   ) => {
     /* If the phone number entered is not already in the user's array of 
     phone numbers, prepend it to the array. */
-    if (!user.phoneNumbers.includes(user.phoneNumber)) {
+    if (user.phoneNumber && !user.phoneNumbers.includes(user.phoneNumber)) {
       user.phoneNumbers = [user.phoneNumber, ...user.phoneNumbers];
     }
     try {
@@ -188,7 +188,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                         {users
                           .filter(
                             (u) =>
-                              editUser?.supervises.includes(u.id) ||
+                              editUser?.supervises?.includes(u.id) ||
                               (u.role === UserRoleEnum.VHT &&
                                 u.id !== editUser?.id)
                           )
@@ -196,6 +196,7 @@ const EditUser = ({ open, onClose, users, editUser }: IProps) => {
                             <MenuItem key={user.id} value={user.id}>
                               <Checkbox
                                 checked={
+                                  values.supervises &&
                                   values.supervises.indexOf(user.id) >= 0
                                 }
                               />
