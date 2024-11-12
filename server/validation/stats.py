@@ -37,6 +37,7 @@ class TimestampValidator(BaseModel):
             # Pydantic will validate field presence and type
             return TimestampValidator(**request_body)
         except ValidationError as e:
+            print(e)
             # Extracts the first error message from the validation errors list
             error_message = str(e.errors()[0]["msg"])
             raise ValidationExceptionError(error_message)
@@ -63,6 +64,7 @@ class Timeframe(BaseModel):
             Timeframe(**request_body)
             TimestampValidator.validate(request_body["timeframe"])
         except ValidationError as e:
+            print(e)
             # Extracts the first error message from the validation errors list
             error_message = str(e.errors()[0]["msg"])
             raise ValidationExceptionError(error_message)

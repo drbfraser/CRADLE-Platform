@@ -3,10 +3,9 @@ from datetime import date
 
 from dateutil.relativedelta import relativedelta
 from flasgger import swag_from
-from flask import request
+from flask import Request, request
 from flask_restful import Resource, abort
 
-from api import util
 from api.decorator import roles_required
 from data import crud
 from enums import RoleEnum, TrafficLightEnum
@@ -82,15 +81,15 @@ def create_color_readings(color_readings_q):
     return color_readings
 
 
-def get_filter_data(request):
-    request_body = request.get_json(force=True)
-    new_timestamp_to_feed = util.filterPairsWithNone(request_body)
+def get_filter_data(request: Request):
+    params = request.args
     try:
-        timestamp_pydantic_model = TimestampValidator.validate(new_timestamp_to_feed)
+        timestamp_pydantic_model = TimestampValidator.validate(params)
     except ValidationExceptionError as e:
         error_message = str(e)
         LOGGER.error(error_message)
         abort(400, message=error_message)
+        return None
 
     timestamp = timestamp_pydantic_model.model_dump(by_alias=True)
 
@@ -173,7 +172,7 @@ class UserReadings(Resource):
 
         filter = get_filter_data(request)
 
-        response = query_stats_data(filter, user_id=user_id)
+        response = query_stats_data(filter, user_id=str(user_id))
 
         return response, 200
 
