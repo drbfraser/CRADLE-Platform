@@ -1,4 +1,3 @@
-import { UserWithToken, OrNull } from 'src/shared/types';
 import {
   getUserStatisticsAsync,
   getUserStatisticsExportAsync,
