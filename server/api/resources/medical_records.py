@@ -59,8 +59,8 @@ class Root(Resource):
                 )
 
         _process_request_body(request_body)
-        request_body["patientId"] = patient_id
-        request_body["dateCreated"] = get_current_time()
+        request_body["patient_id"] = patient_id
+        request_body["date_created"] = get_current_time()
         new_record = marshal.unmarshal(MedicalRecordOrm, request_body)
 
         crud.create(new_record, refresh=True)
@@ -94,9 +94,9 @@ class SingleMedicalRecord(Resource):
         if error:
             abort(400, message=error)
 
-        if "patientId" in request_body:
-            patient_id = crud.read(MedicalRecordOrm, id=record_id).patientId
-            if request_body.get("patientId") != patient_id:
+        if "patient_id" in request_body:
+            patient_id = crud.read(MedicalRecordOrm, id=record_id).patient_id
+            if request_body.get("patient_id") != patient_id:
                 abort(400, message="Patient ID cannot be changed.")
 
         _process_request_body(request_body)
@@ -120,12 +120,12 @@ class SingleMedicalRecord(Resource):
 
 
 def _process_request_body(request_body):
-    request_body["lastEdited"] = get_current_time()
-    request_body["isDrugRecord"] = "drugHistory" in request_body
+    request_body["last_edited"] = get_current_time()
+    request_body["is_drug_record"] = "drug_history" in request_body
     request_body["information"] = (
-        request_body.pop("drugHistory")
-        if request_body["isDrugRecord"]
-        else request_body.pop("medicalHistory")
+        request_body.pop("drug_history")
+        if request_body["is_drug_record"]
+        else request_body.pop("medical_history")
     )
 
 
