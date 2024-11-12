@@ -3,7 +3,7 @@ import * as Yup from 'yup';
 // field names here match POST /api/referrals
 export enum ReferralField {
   comment = 'comment',
-  healthFacility = 'referralHealthFacilityName',
+  healthFacility = 'healthFacilityName',
 }
 
 export const initialState = {

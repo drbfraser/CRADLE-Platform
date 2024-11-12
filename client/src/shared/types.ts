@@ -235,7 +235,7 @@ export type Referral = {
   isAssessed: boolean;
   patientId: string;
   readingId: string;
-  referralHealthFacilityName: string;
+  healthFacilityName: string;
   userId: OrNull<number>;
   dateAssessed: number;
   isCancelled: boolean;

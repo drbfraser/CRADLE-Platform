@@ -210,7 +210,7 @@ export const ReferralAssessedCard = ({ referral }: IReferralCardProps) => (
         Assessed on {getPrettyDateTime(referral.dateAssessed)}
       </Typography>
       <Typography variant="subtitle1">
-        Referred to {referral.referralHealthFacilityName}
+        Referred to {referral.healthFacilityName}
       </Typography>
       {Boolean(referral.comment) && (
         <div>
@@ -238,7 +238,7 @@ export const ReferralCancelledCard = ({ referral }: IReferralCardProps) => (
         Cancelled on {getPrettyDateTime(referral.dateCancelled)}
       </Typography>
       <Typography variant="subtitle1">
-        Referred to {referral.referralHealthFacilityName}
+        Referred to {referral.healthFacilityName}
       </Typography>
       {Boolean(referral.comment) && (
         <div>
@@ -279,7 +279,7 @@ export const ReferralNotAttendedCard = ({ referral }: IReferralCardProps) => (
         Marked Not Attended on {getPrettyDateTime(referral.dateNotAttended)}
       </Typography>
       <Typography variant="subtitle1">
-        Referred to {referral.referralHealthFacilityName}
+        Referred to {referral.healthFacilityName}
       </Typography>
       {Boolean(referral.comment) && (
         <div>
@@ -306,7 +306,7 @@ export const ReferralPendingCard = ({ referral }: IReferralCardProps) => (
         Referred on {getPrettyDateTime(referral.dateReferred)}
       </Typography>
       <Typography variant="subtitle1">
-        Referred to {referral.referralHealthFacilityName}
+        Referred to {referral.healthFacilityName}
       </Typography>
       {Boolean(referral.comment) && (
         <div>
