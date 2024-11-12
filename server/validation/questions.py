@@ -90,6 +90,9 @@ class VisibleConditionValidator(BaseModel):
     qidx: int
     relation: QRelationalEnum
 
+    class Config:
+        use_enum_values = True
+
     @staticmethod
     def validate(q: dict):
         """
@@ -188,6 +191,9 @@ class QuestionBase(BaseModel):
     stringMaxLength: Optional[int] = None
     categoryIndex: Optional[int] = None
     stringMaxLines: Optional[int] = None
+
+    class Config:
+        use_enum_values = True
 
 
 class TemplateQuestionValidator(QuestionBase):

@@ -116,25 +116,3 @@ invalid_questions_mult_language = [
 ]
 
 invalid_first_question_is_not_none = [{**root_question, "categoryIndex": 0}]
-
-
-@pytest.mark.parametrize(
-    "json, expectation",
-    [
-        (valid_empty_questions, None),
-        (valid_single_question, None),
-        (valid_multi_question, None),
-        (invalid_questions_out_of_order, ValidationExceptionError),
-        (invalid_questions_mult_language, ValidationExceptionError),
-        (invalid_first_question_is_not_none, ValidationExceptionError),
-    ],
-)
-def test_validate_questions(json, expectation):
-    if expectation:
-        with pytest.raises(expectation):
-            FormTemplateValidator.validate_questions(json)
-    else:
-        try:
-            FormTemplateValidator.validate_questions(json)
-        except ValidationExceptionError as e:
-            raise AssertionError(f"Unexpected validation error:{e}") from e

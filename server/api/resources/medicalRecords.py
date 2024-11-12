@@ -46,8 +46,6 @@ class Root(Resource):
     )
     def post(patient_id: str):
         request_body = request.get_json(force=True)
-        print("debuggg")
-        print(request_body)
 
         try:
             medical_record_pydantic_model = (
@@ -59,8 +57,6 @@ class Root(Resource):
         new_medical_record = medical_record_pydantic_model.model_dump()
         new_medical_record = util.filterPairsWithNone(new_medical_record)
 
-        print("debuggg2")
-        print(new_medical_record)
         if "id" in new_medical_record:
             record_id = new_medical_record.get("id")
             if crud.read(MedicalRecord, id=record_id):
@@ -105,7 +101,8 @@ class SingleMedicalRecord(Resource):
 
         try:
             medical_record_pydantic_model = MedicalRecordValidator.validate_put_request(
-                request_body, record_id,
+                request_body,
+                record_id,
             )
         except ValidationExceptionError as e:
             abort(400, message=str(e))
