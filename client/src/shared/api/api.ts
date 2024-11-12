@@ -121,7 +121,7 @@ export const getApiToken = async () => {
        *  can use the base axios instance. */
       const resp = await axios({
         method: 'POST',
-        url: EndpointEnum.REFRESH,
+        url: API_URL + EndpointEnum.REFRESH,
         data: {
           username: username,
         },
