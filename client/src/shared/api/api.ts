@@ -18,7 +18,7 @@ import {
   Referrer,
 } from '../types';
 import { EndpointEnum, MethodEnum, UserRoleEnum } from '../enums';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { IExportStatRow } from 'src/pages/statistics/utils';
 import { PostBody } from 'src/pages/customizedForm/customizedEditForm/handlers';
 import { reduxStore } from 'src/redux/store';
@@ -149,6 +149,13 @@ axiosFetch.interceptors.request.use(async (config) => {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
   return config;
+});
+
+// Set interceptor to catch errors.
+axiosFetch.interceptors.response.use(undefined, (e) => {
+  if (!(e instanceof AxiosError)) return Promise.reject(e);
+  console.log('Error Response: ', e.response?.data);
+  return Promise.reject(e);
 });
 
 export const changePasswordAsync = async (
