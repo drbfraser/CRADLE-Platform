@@ -51,18 +51,8 @@ const passwordValidationShape = {
     .oneOf([Yup.ref(UserField.password)], 'Passwords must match'),
 };
 
-export const newEditValidationSchema = (
-  creatingNew: boolean,
-  emailsInUse: string[]
-) => {
-  let shape = detailsValidationShape(emailsInUse);
-
-  if (creatingNew) {
-    shape = {
-      ...shape,
-      ...passwordValidationShape,
-    };
-  }
+export const newEditValidationSchema = (emailsInUse: string[]) => {
+  const shape = detailsValidationShape(emailsInUse);
 
   return Yup.object().shape(shape);
 };
@@ -70,17 +60,6 @@ export const newEditValidationSchema = (
 export const passwordValidationSchema = Yup.object().shape(
   passwordValidationShape
 );
-
-export const newUserTemplate: NewUser = {
-  email: '',
-  username: '',
-  name: '',
-  phoneNumber: '',
-  phoneNumbers: [],
-  healthFacilityName: '',
-  role: UserRoleEnum.VHT,
-  supervises: [] as number[],
-};
 
 export const resetPasswordTemplate = {
   [UserField.password]: '',

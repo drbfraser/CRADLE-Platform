@@ -1,7 +1,6 @@
 import { Autocomplete, TextField as FormikTextField } from 'formik-mui';
 import {
   AutocompleteRenderInputParams,
-  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
@@ -12,19 +11,27 @@ import {
 } from '@mui/material';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
-import {
-  UserField,
-  fieldLabels,
-  newEditValidationSchema,
-  newUserTemplate,
-} from './state';
+import { UserField, fieldLabels, newEditValidationSchema } from './state';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { createUserAsync } from 'src/shared/api/api';
 import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
 import { useState } from 'react';
 import { userRoleLabels } from 'src/shared/constants';
-import { EditUser, NewUser, User } from 'src/shared/api/validation/user';
+import { NewUser, User } from 'src/shared/api/validation/user';
+import { lowerCase } from 'lodash';
+import { UserRoleEnum } from 'src/shared/enums';
+
+const newUserTemplate: NewUser = {
+  email: '',
+  username: '',
+  name: '',
+  phoneNumber: '',
+  phoneNumbers: [] as string[],
+  healthFacilityName: '',
+  role: UserRoleEnum.VHT,
+  supervises: [] as number[],
+};
 
 interface IProps {
   open: boolean;
@@ -36,7 +43,32 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
   const healthFacilities = useHealthFacilities();
   const [submitError, setSubmitError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const emailsInUse = users.map((u) => u.email);
+  const emailsInUse = users.map((user) => user.email);
+  const usernamesInUse = users.map((user) => user.username);
+
+  const validateEmail = (value?: string) => {
+    if (!value) {
+      return 'Email is required';
+    }
+    if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)) {
+      return 'Invalid email address';
+    }
+    if (emailsInUse.includes(lowerCase(value))) {
+      return 'Email already in use';
+    }
+    return null;
+  };
+
+  const validateUsername = (value?: string) => {
+    if (!value) {
+      return 'Username is required';
+    }
+
+    if (usernamesInUse.includes(lowerCase(value))) {
+      return 'Username already in use';
+    }
+    return null;
+  };
 
   const handleSubmit = async (
     newUser: NewUser,
@@ -75,12 +107,9 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
       <Dialog open={open} maxWidth={'sm'} fullWidth>
         <DialogTitle>{'Create New User'}</DialogTitle>
         <DialogContent>
-          <Formik
-            initialValues={newUserTemplate}
-            validationSchema={newEditValidationSchema(true, emailsInUse)}
-            onSubmit={handleSubmit}>
+          <Formik initialValues={newUserTemplate} onSubmit={handleSubmit}>
             {({ values, touched, errors, isSubmitting, isValid }) => (
-              <Form>
+              <Form autoComplete={'new-password'}>
                 <FormGroup
                   sx={{
                     padding: '0.5rem',
@@ -89,6 +118,7 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
                     gap: '1rem',
                   }}>
                   <Field
+                    id={'new-user-field-name'}
                     component={FormikTextField}
                     fullWidth
                     required
@@ -98,15 +128,19 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
                     name={UserField.name}
                   />
                   <Field
+                    id={'new-user-field-username'}
                     component={FormikTextField}
                     fullWidth
                     required
                     inputProps={{ maxLength: 25 }}
                     variant="outlined"
-                    label={'username'}
+                    label={'Username'}
                     name={'username'}
+                    validate={validateUsername}
+                    autoComplete={'new-password'}
                   />
                   <Field
+                    id={'new-user-field-email'}
                     component={FormikTextField}
                     fullWidth
                     required
@@ -114,8 +148,10 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
                     variant="outlined"
                     label={fieldLabels[UserField.email]}
                     name={UserField.email}
+                    validate={validateEmail}
                   />
                   <Field
+                    id={'new-user-field-phone-number'}
                     component={FormikTextField}
                     fullWidth
                     required
@@ -125,6 +161,7 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
                     name={UserField.phoneNumber}
                   />
                   <Field
+                    id={'new-user-field-facility'}
                     component={Autocomplete}
                     fullWidth
                     name={UserField.healthFacilityName}
@@ -150,6 +187,7 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
                     )}
                   />
                   <Field
+                    id={'new-user-field-role'}
                     component={FormikTextField}
                     fullWidth
                     select
@@ -164,6 +202,7 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
                     ))}
                   </Field>
                   <Field
+                    id={'new-user-field-password'}
                     component={FormikTextField}
                     fullWidth
                     required
@@ -171,8 +210,10 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
                     type="password"
                     label={fieldLabels[UserField.password]}
                     name={UserField.password}
+                    autoComplete={'new-password'}
                   />
                   <Field
+                    id={'new-user-field-confirm-password'}
                     component={FormikTextField}
                     fullWidth
                     required
@@ -180,6 +221,7 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
                     type="password"
                     label={fieldLabels[UserField.confirmPassword]}
                     name={UserField.confirmPassword}
+                    autoComplete={'new-password'}
                   />
 
                   <DialogActions>

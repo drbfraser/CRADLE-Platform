@@ -75,7 +75,7 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
         <DialogContent>
           <Formik
             initialValues={editUser}
-            validationSchema={newEditValidationSchema(creatingNew, emailsInUse)}
+            validationSchema={newEditValidationSchema(emailsInUse)}
             onSubmit={handleSubmit}>
             {({ values, touched, errors, isSubmitting, isValid }) => (
               <Form>
