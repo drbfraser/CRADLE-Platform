@@ -141,6 +141,7 @@ class TemplateVersion(Resource):
         form_template = crud.read(FormTemplateOrm, id=form_template_id)
         if not form_template:
             abort(404, message=f"No form with id {form_template_id}")
+            return None
 
         lang_list = crud.read_form_template_versions(form_template)
 
