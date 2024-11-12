@@ -138,33 +138,6 @@ export const APITable = ({
         }
       });
 
-    // apiFetch(
-    //   API_URL + endpoint + '?' + params + '&' + referralFilterParams,
-    //   fetchOptions
-    // )
-    //   .then(async (resp) => {
-    //     const json = await resp.json();
-
-    //     //The case for drug history records on the past records page
-    //     if (isDrugRecord === true) {
-    //       setRows(json.drug);
-    //       //The case for medical history records on the past records page
-    //     } else if (isDrugRecord === false) {
-    //       setRows(json.medical);
-    //     } else if (isReferralListPage === true) {
-    //       setRows(json);
-    //     } else {
-    //       setRows(json);
-    //     }
-    //     setLoading(false);
-    //   })
-    //   .catch((e) => {
-    //     if (e.name !== 'AbortError') {
-    //       setLoadingError(true);
-    //       setLoading(false);
-    //     }
-    //   });
-
     // if the user does something else, cancel the fetch
     return () => controller.abort();
   }, [
