@@ -28,6 +28,7 @@ import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
 import { DataTable } from 'src/shared/components/DataTable/DataTable';
 import { DataTableHeader } from '../../../shared/components/DataTable/DataTableHeader';
 import { CreateUserDialog } from './CreateUserDialog';
+import { useNavigate } from 'react-router-dom';
 
 export const ManageUsers = () => {
   const [errorLoading, setErrorLoading] = useState(false);
@@ -43,7 +44,7 @@ export const ManageUsers = () => {
     setRows(
       users.map((user, index) => ({
         id: index,
-        firstName: user.name,
+        name: user.name,
         email: user.email,
         phoneNumber: user.phoneNumber,
         healthFacility: user.healthFacilityName,
@@ -95,7 +96,7 @@ export const ManageUsers = () => {
   );
 
   const columns: GridColDef[] = [
-    { flex: 1, field: 'firstName', headerName: 'First Name' },
+    { flex: 1, field: 'name', headerName: 'Name' },
     { flex: 1, field: 'email', headerName: 'Email' },
     { flex: 1, field: 'phoneNumber', headerName: 'Phone Number' },
     { flex: 1, field: 'healthFacility', headerName: 'Health Facility' },
@@ -121,7 +122,6 @@ export const ManageUsers = () => {
         })
       );
       setUsers(users);
-      updateRowData(users);
     } catch (e) {
       setErrorLoading(true);
     }
@@ -130,6 +130,10 @@ export const ManageUsers = () => {
   useEffect(() => {
     getUsers();
   }, []);
+
+  useEffect(() => {
+    updateRowData(users);
+  }, [users]);
 
   const addNewUser = useCallback(() => {
     setPopupUser(undefined);

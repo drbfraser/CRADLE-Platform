@@ -95,15 +95,6 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
                     label={fieldLabels[UserField.name]}
                     name={UserField.name}
                   />
-                  {/* <Field
-                    component={FormikTextField}
-                    fullWidth
-                    required
-                    inputProps={{ maxLength: 25 }}
-                    variant="outlined"
-                    label={'username'}
-                    name={'username'}
-                  /> */}
                   <Field
                     component={FormikTextField}
                     fullWidth

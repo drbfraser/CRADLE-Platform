@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
-import { UserField, fieldLabels, newEditValidationSchema } from './state';
+import { UserField, fieldLabels } from './state';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { createUserAsync } from 'src/shared/api/api';
@@ -109,7 +109,7 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
         <DialogContent>
           <Formik initialValues={newUserTemplate} onSubmit={handleSubmit}>
             {({ values, touched, errors, isSubmitting, isValid }) => (
-              <Form autoComplete={'new-password'}>
+              <Form autoComplete={'off'}>
                 <FormGroup
                   sx={{
                     padding: '0.5rem',

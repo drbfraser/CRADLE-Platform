@@ -47,6 +47,11 @@ export const DataTable = ({
     apiRef.current.autosizeColumns(autosizeOptions);
   }, [rows, apiRef]);
 
+  useEffect(() => {
+    // Force the table to update whenever rows change.
+    apiRef.current.forceUpdate();
+  }, [rows]);
+
   return (
     <Box
       sx={{
