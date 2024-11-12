@@ -8,7 +8,7 @@ from data import crud, marshal
 from models import HealthFacilityOrm, PatientOrm, ReadingOrm, ReferralOrm
 from service import assoc, invariant
 from shared.user_utils import UserUtils
-from validation import readings
+from validation.readings import ReadingValidator
 
 
 # /api/readings
@@ -23,7 +23,7 @@ class Root(Resource):
         json = request.get_json(force=True)
 
         try:
-            readings.validate(json)
+            ReadingValidator.validate(json)
         except Exception as e:
             abort(400, message=str(e))
             return None

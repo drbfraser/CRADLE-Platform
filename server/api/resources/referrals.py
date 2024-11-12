@@ -12,7 +12,11 @@ from models import HealthFacilityOrm, PatientOrm, ReferralOrm
 from service import assoc, serialize, view
 from shared.user_utils import UserUtils
 from utils import get_current_time
-from validation.referrals import CancelStatus, NotAttend, ReferralEntity
+from validation.referrals import (
+    CancelStatusValidator,
+    NotAttendValidator,
+    ReferralEntityValidator,
+)
 from validation.validation_exception import ValidationExceptionError
 
 
@@ -45,15 +49,17 @@ class Root(Resource):
         request_body = request.get_json(force=True)
 
         try:
-            ReferralEntity.validate(request_body)
+            referral_pydantic_model = ReferralEntityValidator.validate(request_body)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
             return None
 
-        health_facility_name = request_body["health_facility_name"]
+        new_referral = referral_pydantic_model.model_dump()
+        new_referral = util.filterPairsWithNone(new_referral)
+
         health_facility = crud.read(
             HealthFacilityOrm,
-            name=health_facility_name,
+            name=new_referral["health_facility_name"],
         )
 
         if not health_facility:
@@ -64,18 +70,19 @@ class Root(Resource):
                 HealthFacilityOrm,
                 {"newReferrals": UTCTime},
                 True,
-                name=health_facility_name,
+                name=new_referral["health_facility_name"],
             )
 
-        if "user_id" not in request_body:
-            request_body["user_id"] = UserUtils.get_current_user_from_jwt()["id"]
+        if "user_id" not in new_referral:
+            new_referral["user_id"] = UserUtils.get_current_user_from_jwt()["id"]
 
-        patient = crud.read(PatientOrm, id=request_body["patient_id"])
+        patient = crud.read(PatientOrm, id=new_referral["patient_id"])
+
         if not patient:
             abort(400, message="Patient does not exist")
             return None
 
-        referral = marshal.unmarshal(ReferralOrm, request_body)
+        referral = marshal.unmarshal(ReferralOrm, new_referral)
 
         crud.create(referral, refresh=True)
         # Creating a referral also associates the corresponding patient to the health
@@ -143,17 +150,19 @@ class ReferralCancelStatus(Resource):
         request_body = request.get_json(force=True)
 
         try:
-            CancelStatus.validate_cancel_put_request(request_body)
+            cancel_status_pydantic_model = CancelStatusValidator.validate(request_body)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 
-        if not request_body["is_cancelled"]:
-            request_body["cancel_reason"] = None
-            request_body["date_cancelled"] = None
-        else:
-            request_body["date_cancelled"] = get_current_time()
+        cancel_status_model_dump = cancel_status_pydantic_model.model_dump()
 
-        crud.update(ReferralOrm, request_body, id=referral_id)
+        if not cancel_status_model_dump["is_cancelled"]:
+            cancel_status_model_dump["cancel_reason"] = None
+            cancel_status_model_dump["date_cancelled"] = None
+        else:
+            cancel_status_model_dump["date_cancelled"] = get_current_time()
+
+        crud.update(ReferralOrm, cancel_status_model_dump, id=referral_id)
 
         referral = crud.read(ReferralOrm, id=referral_id)
         data.db_session.commit()
@@ -179,14 +188,16 @@ class ReferralNotAttend(Resource):
         request_body = request.get_json(force=True)
 
         try:
-            NotAttend.validate_not_attend_put_request(request_body)
+            not_attend_pydantic_model = NotAttendValidator.validate(request_body)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
             return None
 
+        not_attend_model_dump = not_attend_pydantic_model.model_dump()
+
         if not referral.not_attended:
             referral.not_attended = True
-            referral.not_attend_reason = request_body["not_attend_reason"]
+            referral.not_attend_reason = not_attend_model_dump["not_attend_reason"]
             referral.date_not_attended = get_current_time()
             data.db_session.commit()
             data.db_session.refresh(referral)

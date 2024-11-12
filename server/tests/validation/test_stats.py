@@ -1,6 +1,6 @@
 import pytest
 
-from validation.stats import Timeframe, Timestamp
+from validation.stats import MYSQL_BIGINT_MAX, Timeframe, TimestampValidator
 from validation.validation_exception import ValidationExceptionError
 
 # unix epoch code for Monday, January 1, 2024 12:00:00 AM
@@ -10,16 +10,21 @@ TO_TIMESTAMP = "1729744672"
 FROM_TIMESTAMP_INTEGER = 1547212259
 TO_TIMESTAMP_INTEGER = 1729744672
 
-timestamp_with_valid_fields_should_return_none = {
+expection_default_timestamp = {
+    "from": "0",
+    "to": str(MYSQL_BIGINT_MAX),
+}
+
+timestamp_with_valid_fields_should_return_model = {
     "from": FROM_TIMESTAMP,
     "to": TO_TIMESTAMP,
 }
 
-timestamp_missing_field_from_should_throw_exception = {"to": TO_TIMESTAMP}
+timestamp_missing_field_from_should_return_model = {"to": TO_TIMESTAMP}
 
-timestamp_missing_field_to_should_throw_exception = {"from": FROM_TIMESTAMP}
+timestamp_missing_field_to_should_return_model = {"from": FROM_TIMESTAMP}
 
-timestamp_missing_all_fields_should_throw_exception = {}
+timestamp_missing_all_fields_should_return_model = {}
 
 timestamp_field_from_has_wrong_type_shoud_throw_exception = {
     "from": FROM_TIMESTAMP_INTEGER,
@@ -54,30 +59,33 @@ timeframe_field_from_has_invalid_type_should_throw_exception = {
 
 timeframe_missing_all_fields_should_thrown_exception = {}
 
-timeframe_missing_field_to_should_throw_exception = {
+timeframe_missing_field_to_should_return_none = {
     "timeframe": {
-        "from": FROM_TIMESTAMP_INTEGER,
+        "from": FROM_TIMESTAMP,
     },
 }
 
-timeframe_missing_field_from_should_throw_exception = {
+timeframe_missing_field_from_should_return_none = {
     "timeframe": {
         "to": TO_TIMESTAMP,
     },
 }
 
-timeframe_missing_field_from_and_to_should_throw_exception = {
+timeframe_missing_field_from_and_to_should_return_none = {
     "timeframe": {},
 }
 
 
 @pytest.mark.parametrize(
-    "json, output_type",
+    "json, output",
     [
-        (timestamp_with_valid_fields_should_return_none, None),
-        (timestamp_missing_field_from_should_throw_exception, ValidationExceptionError),
-        (timestamp_missing_field_to_should_throw_exception, ValidationExceptionError),
-        (timestamp_missing_all_fields_should_throw_exception, ValidationExceptionError),
+        (
+            timestamp_with_valid_fields_should_return_model,
+            timestamp_with_valid_fields_should_return_model,
+        ),
+        (timestamp_missing_field_from_should_return_model, None),
+        (timestamp_missing_field_to_should_return_model, None),
+        (timestamp_missing_all_fields_should_return_model, expection_default_timestamp),
         (
             timestamp_field_from_has_wrong_type_shoud_throw_exception,
             ValidationExceptionError,
@@ -88,13 +96,19 @@ timeframe_missing_field_from_and_to_should_throw_exception = {
         ),
     ],
 )
-def test_validate_timestamp(json, output_type):
-    if type(output_type) is type and issubclass(output_type, Exception):
-        with pytest.raises(output_type):
-            Timestamp.validate_timestamp(json)
+def test_validate_timestamp(json, output):
+    if type(output) is type and issubclass(output, Exception):
+        with pytest.raises(output):
+            TimestampValidator.validate(json)
     else:
         try:
-            Timestamp.validate_timestamp(json)
+            timestamp_pydantic_model = TimestampValidator.validate(json)
+
+            if output is not None:
+                timestamp_actual = timestamp_pydantic_model.model_dump(by_alias=True)
+
+                assert output == timestamp_actual
+
         except ValidationExceptionError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e
 
@@ -115,11 +129,11 @@ def test_validate_timestamp(json, output_type):
             timeframe_missing_all_fields_should_thrown_exception,
             ValidationExceptionError,
         ),
-        (timeframe_missing_field_to_should_throw_exception, ValidationExceptionError),
-        (timeframe_missing_field_from_should_throw_exception, ValidationExceptionError),
+        (timeframe_missing_field_to_should_return_none, None),
+        (timeframe_missing_field_from_should_return_none, None),
         (
-            timeframe_missing_field_from_and_to_should_throw_exception,
-            ValidationExceptionError,
+            timeframe_missing_field_from_and_to_should_return_none,
+            None,
         ),
     ],
 )

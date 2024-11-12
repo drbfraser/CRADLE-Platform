@@ -14,7 +14,7 @@ from common.regexUtil import phoneNumber_regex_check as regex_check
 from models import UserOrm
 from service import compressor, encryptor
 from shared.user_utils import UserUtils
-from validation.sms_relay import SmsRelay, SmsRelayDecryptedBody
+from validation.sms_relay import SmsRelayDecryptedBodyValidator, SmsRelayValidator
 from validation.validation_exception import ValidationExceptionError
 
 api_url = "http://localhost:5000/{endpoint}"
@@ -98,11 +98,12 @@ def sms_relay_procedure():
     json_request = request.get_json(force=True)
 
     try:
-        SmsRelay.validate_request(json_request)
+        sms_relay_pydantic_model = SmsRelayValidator.validate_request(json_request)
     except ValidationExceptionError:
         abort(400, message=corrupted_message.format(type="JSON"))
 
-    phone_number = json_request["phoneNumber"]
+    sms_relay_model_dump = sms_relay_pydantic_model.model_dump()
+    phone_number = sms_relay_model_dump["phoneNumber"]
 
     if not phone_number:
         abort(400, message=null_phone_number)
@@ -124,7 +125,7 @@ def sms_relay_procedure():
         abort(400, message=invalid_user.format(type="JSON"))
         return None
 
-    encrypted_data = json_request["encryptedData"]
+    encrypted_data = sms_relay_model_dump["encryptedData"]
 
     try:
         user_secret_key = UserUtils.get_user_sms_secret_key_string(user.id)
@@ -145,7 +146,9 @@ def sms_relay_procedure():
         abort(401, message=error_message)
 
     try:
-        SmsRelayDecryptedBody.validate_decrypted_body(json_dict_data)
+        sms_relay_decrypted_pydantic_model = SmsRelayDecryptedBodyValidator.validate(
+            json_dict_data,
+        )
     except ValidationExceptionError as e:
         return create_flask_response(
             400,
@@ -154,7 +157,9 @@ def sms_relay_procedure():
             user_secret_key,
         )
 
-    request_number = json_dict_data["requestNumber"]
+    sms_relay_decrypted_model_dump = sms_relay_decrypted_pydantic_model.model_dump()
+
+    request_number = sms_relay_decrypted_model_dump["requestNumber"]
     request_number = int(request_number)
     if (
         not isinstance(request_number, int)
@@ -168,7 +173,7 @@ def sms_relay_procedure():
             user_secret_key,
         )
 
-    method = json_dict_data["method"]
+    method = sms_relay_decrypted_model_dump["method"]
     if method not in http_methods:
         return create_flask_response(
             400,
@@ -177,13 +182,13 @@ def sms_relay_procedure():
             user_secret_key,
         )
 
-    endpoint = json_dict_data["endpoint"]
+    endpoint = sms_relay_decrypted_model_dump["endpoint"]
 
-    header = json_dict_data.get("header")
+    header = sms_relay_decrypted_model_dump.get("header")
     if not header:
         header = {}
 
-    json_body = json_dict_data.get("body")
+    json_body = sms_relay_decrypted_model_dump.get("body")
     if not json_body:
         json_body = "{}"
 

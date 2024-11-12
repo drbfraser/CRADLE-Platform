@@ -3,7 +3,6 @@ import json
 from flasgger import swag_from
 from flask import request
 from flask_restful import Resource, abort
-from pydantic import ValidationError
 
 import data
 from api import util
@@ -11,7 +10,8 @@ from data import crud, marshal
 from models import FormOrm, FormTemplateOrm, PatientOrm, UserOrm
 from shared.user_utils import UserUtils
 from utils import get_current_time
-from validation import forms
+from validation.forms import FormValidator
+from validation.validation_exception import ValidationExceptionError
 
 
 # /api/forms/responses
@@ -31,8 +31,8 @@ class Root(Resource):
                 return None
 
         try:
-            forms.validate_form(req)
-        except ValidationError as e:
+            FormValidator.validate(req)
+        except ValidationExceptionError as e:
             abort(400, message=str(e))
             return None
 
@@ -103,8 +103,8 @@ class SingleForm(Resource):
         req = request.get_json(force=True)
 
         try:
-            forms.validate_put_request(req)
-        except ValidationError as e:
+            FormValidator.validate_put_request(req)
+        except ValidationExceptionError as e:
             abort(400, message=str(e))
 
         questions_upload = req["questions"]

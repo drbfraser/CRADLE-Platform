@@ -13,7 +13,10 @@ from models import FollowUpOrm, PatientOrm, PregnancyOrm, ReadingOrm, ReferralOr
 from service import assoc, invariant, serialize, statsCalculation, view
 from shared.user_utils import UserUtils
 from utils import get_current_time
-from validation import assessments, patients, readings
+from validation.assessments import AssessmentValidator
+from validation.patients import PatientPostValidator, PatientPutValidator
+from validation.readings import ReadingValidator
+from validation.validation_exception import ValidationExceptionError
 
 patient_not_found_message = "Patient with id ({}) not found."
 
@@ -47,9 +50,10 @@ class Root(Resource):
             # Changing the key that comes from the android app to work with validation
             json["pregnancy_start_date"] = json.pop("gestational_timestamp")
 
-        error_message = patients.validate(json)
-        if error_message is not None:
-            abort(400, message=error_message)
+        try:
+            PatientPostValidator.validate(json)
+        except ValidationExceptionError as e:
+            abort(400, message=str(e))
 
         patient = marshal.unmarshal(PatientOrm, json)
         patient_id = patient.id
@@ -82,6 +86,7 @@ class Root(Resource):
         if patient is None:
             abort(404, message=patient_not_found_message.format(patient_id))
             return None
+        readings = crud.read_readings(patient_id)
         referrals = crud.read_referrals_or_assessments(ReferralOrm, patient_id)
         assessments = crud.read_referrals_or_assessments(FollowUpOrm, patient_id)
 
@@ -138,9 +143,10 @@ class PatientInfo(Resource):
     def put(patient_id: str):
         json = request.get_json(force=True)
 
-        error_message = patients.validate_put_request(json, patient_id)
-        if error_message is not None:
-            abort(400, message=error_message)
+        try:
+            PatientPutValidator.validate(json, patient_id)
+        except ValidationExceptionError as e:
+            abort(400, message=str(e))
             return None
 
         # If the inbound JSON contains a `base` field then we need to check if it is the
@@ -414,10 +420,10 @@ class ReadingAssessment(Resource):
         reading_json = json["reading"]
         assessment_json = json["assessment"]
 
-        error_message = readings.validate(reading_json)
+        error_message = ReadingValidator.validate(reading_json)
         if error_message is not None:
             abort(400, message=error_message)
-        error_message = assessments.validate(assessment_json)
+        error_message = AssessmentValidator.validate(assessment_json)
         if error_message is not None:
             abort(400, message=error_message)
 

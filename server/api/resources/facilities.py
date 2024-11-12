@@ -2,26 +2,15 @@ import time
 
 from flasgger import swag_from
 from flask import request
-from flask_restful import Resource, abort, reqparse
+from flask_restful import Resource, abort
 
 from api import util
 from api.decorator import roles_required
 from data import crud, marshal
 from enums import RoleEnum
 from models import HealthFacilityOrm
-from validation.facilities import Facility
+from validation.facilities import FacilityValidator
 from validation.validation_exception import ValidationExceptionError
-
-
-def add_model(parser, model):
-    fields = model.__fields__
-    for name, field in fields.items():
-        parser.add_argument(
-            name,
-            dest=name,
-            default=field.default,
-            help=field.description,
-        )
 
 
 # /api/facilities
@@ -51,24 +40,27 @@ class Root(Resource):
         endpoint="facilities",
     )
     def post():
-        # continue using parser but with pydantic to construct model
-        parser = reqparse.RequestParser()
-        add_model(parser, Facility)
-        args = parser.parse_args()
+        request_body = request.get_json(force=True)
+        new_facility_to_feed = util.filterPairsWithNone(request_body)
         try:
-            Facility.validate(args)
+            facility_pydantic_model = FacilityValidator.validate(new_facility_to_feed)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 
+        new_facility = facility_pydantic_model.model_dump()
+
         # Create a DB Model instance for the new facility and load into DB
-        facility = marshal.unmarshal(HealthFacilityOrm, args)
+        facility = marshal.unmarshal(HealthFacilityOrm, new_facility)
         facility.new_referrals = str(round(time.time() * 1000))
 
         crud.create(facility)
 
         # Get back a dict for return
         facility_dict = marshal.marshal(
-            crud.read(HealthFacilityOrm, name=args["health_facility_name"]),
+            crud.read(
+                HealthFacilityOrm,
+                name=new_facility["health_facility_name"],
+            ),
         )
         return facility_dict, 201
 

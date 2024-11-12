@@ -6,7 +6,8 @@ from data import crud, marshal
 from models import FollowUpOrm
 from shared.user_utils import UserUtils
 from utils import get_current_time
-from validation import assessments
+from validation.assessments import AssessmentValidator
+from validation.validation_exception import ValidationExceptionError
 
 
 # /api/assessments
@@ -26,8 +27,8 @@ class Root(Resource):
         json["healthcare_worker_id"] = current_user["id"]
 
         try:
-            assessments.validate(json)
-        except Exception as e:
+            AssessmentValidator.validate(json)
+        except ValidationExceptionError as e:
             abort(400, message=str(e))
 
         assessment = marshal.unmarshal(FollowUpOrm, json)
@@ -86,8 +87,8 @@ class SingleAssessment(Resource):
             return None
 
         try:
-            assessments.validate(json)
-        except Exception as e:
+            AssessmentValidator.validate(json)
+        except ValidationExceptionError as e:
             abort(400, message=str(e))
             return None
 

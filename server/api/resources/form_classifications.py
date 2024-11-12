@@ -4,7 +4,6 @@ import logging
 from flasgger import swag_from
 from flask import request
 from flask_restful import Resource, abort
-from pydantic import ValidationError
 from werkzeug.datastructures import FileStorage
 
 import data
@@ -13,7 +12,8 @@ from api.decorator import roles_required
 from data import crud, marshal
 from enums import ContentTypeEnum, RoleEnum
 from models import FormClassificationOrm, FormTemplateOrm
-from validation import formClassifications
+from validation.formClassifications import FormClassificationValidator
+from validation.validation_exception import ValidationExceptionError
 
 LOGGER = logging.getLogger(__name__)
 
@@ -71,8 +71,8 @@ class Root(Resource):
                 abort(409, message="Form classification already exists")
 
         try:
-            formClassifications.validate_template(req)
-        except ValidationError as e:
+            FormClassificationValidator.validate(req)
+        except ValidationExceptionError as e:
             abort(400, message=str(e))
 
         if req.get("name") is not None:

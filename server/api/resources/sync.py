@@ -16,8 +16,8 @@ from models import (
 )
 from service import invariant, serialize, view
 from shared.user_utils import UserUtils
-from validation.readings import validate as validate_reading
-from validation.referrals import ReferralEntity
+from validation.readings import ReadingValidator
+from validation.referrals import ReferralEntityValidator
 from validation.validation_exception import ValidationExceptionError
 
 LOGGER = logging.getLogger(__name__)
@@ -203,9 +203,11 @@ class SyncReadings(Resource):
                     id=reading_dict.get("id"),
                 )
             else:
-                error_message = validate_reading(reading_dict)
-                if error_message is not None:
-                    abort(400, message=error_message)
+                try:
+                    ReadingValidator.validate(reading_dict)
+                except ValidationExceptionError as e:
+                    abort(400, message=str(e))
+                    return None
                 reading = marshal.unmarshal(ReadingOrm, reading_dict)
                 invariant.resolve_reading_invariants(reading)
                 crud.create(reading, refresh=True)
@@ -243,7 +245,7 @@ class SyncReferrals(Resource):
                 # skip them
                 continue
             try:
-                ReferralEntity.validate(referral_dict)
+                ReferralEntityValidator.validate(referral_dict)
             except ValidationExceptionError as e:
                 abort(400, message=str(e))
             referral = marshal.unmarshal(ReferralOrm, referral_dict)

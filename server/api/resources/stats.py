@@ -1,17 +1,21 @@
+import logging
 from datetime import date
 
 from dateutil.relativedelta import relativedelta
 from flasgger import swag_from
 from flask import request
-from flask_restful import Resource
+from flask_restful import Resource, abort
 
+from api import util
 from api.decorator import roles_required
 from data import crud
 from enums import RoleEnum, TrafficLightEnum
 from models import UserOrm
 from shared.user_utils import UserUtils
+from validation.stats import TimestampValidator
+from validation.validation_exception import ValidationExceptionError
 
-MYSQL_BIGINT_MAX = (2**63) - 1
+LOGGER = logging.getLogger(__name__)
 
 
 def query_stats_data(args, facility_id="%", user_id="%"):
@@ -79,10 +83,18 @@ def create_color_readings(color_readings_q):
 
 
 def get_filter_data(request):
-    filter = {}
-    filter["from"] = str(request.args.get("from", default="0", type=str))
-    filter["to"] = str(request.args.get("to", default=str(MYSQL_BIGINT_MAX), type=str))
-    return filter
+    request_body = request.get_json(force=True)
+    new_timestamp_to_feed = util.filterPairsWithNone(request_body)
+    try:
+        timestamp_pydantic_model = TimestampValidator.validate(new_timestamp_to_feed)
+    except ValidationExceptionError as e:
+        error_message = str(e)
+        LOGGER.error(error_message)
+        abort(400, message=error_message)
+
+    timestamp = timestamp_pydantic_model.model_dump(by_alias=True)
+
+    return timestamp
 
 
 # api/stats/all [GET]

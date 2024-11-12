@@ -91,7 +91,8 @@ class UserValidator(BaseModel):
                                 "role": "admin",
                                 "phone_numbers": [ "+604-555-1234" ]
                             }
-        :throw: An error message if the request body is invalid. None otherwise
+        :throw: An error if the request body is invalid. None otherwise
+        :return pydantic model representation of the request body param
         """
         try:
             # Pydantic will validate field presence and type

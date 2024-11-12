@@ -1,6 +1,6 @@
 import pytest
 
-from validation.associations import validate
+from validation.associations import AssociationValidator
 from validation.validation_exception import ValidationExceptionError
 
 valid_json = {"patientId": 47, "healthFacilityName": "H0000", "userId": 1}
@@ -19,7 +19,9 @@ missing_field = {"healthFacilityName": "H0000", "userId": 1}
 def test_validation(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            validate(json)
+            AssociationValidator.validate(json)
     else:
-        message = validate(json)
-        assert message is None, f"Expected None, but got {message}"
+        try:
+            AssociationValidator.validate(json)
+        except ValidationExceptionError as e:
+            raise AssertionError(f"Unexpected validation error:{e}") from e
