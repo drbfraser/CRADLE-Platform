@@ -35,8 +35,8 @@ export const ManageFacilities = () => {
     setRows(
       facilities.map((facility, index) => ({
         id: index,
-        facilityName: facility.healthFacilityName,
-        phoneNumber: facility.healthFacilityPhoneNumber,
+        name: facility.name,
+        phoneNumber: facility.phoneNumber,
         location: facility.location,
         takeAction: facility,
       }))
@@ -61,7 +61,7 @@ export const ManageFacilities = () => {
   );
 
   const columns: GridColDef[] = [
-    { flex: 1, field: 'facilityName', headerName: 'Facility Name' },
+    { flex: 1, field: 'name', headerName: 'Facility Name' },
     { flex: 1, field: 'phoneNumber', headerName: 'Phone Number' },
     { flex: 1, field: 'location', headerName: 'Location' },
     {

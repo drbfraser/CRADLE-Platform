@@ -2,9 +2,9 @@ import * as Yup from 'yup';
 
 export enum FacilityField {
   about = 'about',
-  type = 'facilityType',
-  name = 'healthFacilityName',
-  phoneNumber = 'healthFacilityPhoneNumber',
+  type = 'type',
+  name = 'name',
+  phoneNumber = 'phoneNumber',
   location = 'location',
   newReferrals = 'newReferrals',
   index = 'index',
@@ -12,9 +12,9 @@ export enum FacilityField {
 
 export const getValidationSchema = (existingNames: string[]) => {
   return Yup.object().shape({
-    [FacilityField.about]: Yup.string(),
-    [FacilityField.type]: Yup.string().label('Facility Type').required(),
-    [FacilityField.name]: Yup.string()
+    about: Yup.string(),
+    type: Yup.string().label('Facility Type').required(),
+    name: Yup.string()
       .label('Facility Name')
       .max(50)
       .required()
@@ -26,19 +26,19 @@ export const getValidationSchema = (existingNames: string[]) => {
           return !existingNames.map((n) => format(n)).includes(format(value));
         }
       ),
-    [FacilityField.phoneNumber]: Yup.string().max(50),
-    [FacilityField.location]: Yup.string().max(50),
+    phoneNumber: Yup.string().max(50),
+    location: Yup.string().max(50),
   });
 };
 
 export const facilityTemplate = {
-  [FacilityField.about]: '',
-  [FacilityField.type]: '',
-  [FacilityField.name]: '',
-  [FacilityField.phoneNumber]: '',
-  [FacilityField.location]: '',
-  [FacilityField.newReferrals]: 0,
-  [FacilityField.index]: 0,
+  about: '',
+  type: '',
+  name: '',
+  phoneNumber: '',
+  location: '',
+  newReferrals: 0,
+  index: 0,
 };
 
 export const facilityTypes = ['HCF_2', 'HCF_3', 'HCF_4', 'HOSPITAL'];
