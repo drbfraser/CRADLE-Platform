@@ -102,8 +102,6 @@ class SingleForm(Resource):
             abort(404, message=f"No form with id {form_id}")
 
         request_json = request.get_json(force=True)
-        print("debugggg2")
-        print(request_json)
         try:
             form_pydantic_model = FormPutValidator.validate(request_json)
         except ValidationExceptionError as e:
@@ -111,8 +109,6 @@ class SingleForm(Resource):
 
         update_form = form_pydantic_model.model_dump()
         update_form = commonUtil.filterNestedAttributeWithValueNone(update_form)
-        print("debugggg3")
-        print(update_form)
 
         questions_upload = update_form["questions"]
         questions = form.questions
