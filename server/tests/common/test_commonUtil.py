@@ -24,6 +24,4 @@ valid_nested_list_with_int_none_dict = {"k": "v", "list": [1, 2, 3, None]}
     ],
 )
 def test_encryptor_wrong_key(json, expected):
-    print(commonUtil.filterNestedAttributeWithValueNone(json))
-
     assert expected == commonUtil.filterNestedAttributeWithValueNone(json)

@@ -95,8 +95,6 @@ class SingleForm(Resource):
         endpoint="single_form",
     )
     def put(form_id: str):
-        print("debugggg")
-        print(form_id)
         form = crud.read(Form, id=form_id)
         if not form:
             abort(404, message=f"No form with id {form_id}")
