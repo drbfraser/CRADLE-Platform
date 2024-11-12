@@ -29,7 +29,9 @@ export const ReferralFormPage = () => {
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>
-        <Typography variant="h4">New Referral</Typography>
+        <Typography variant={'h4'} component={'h4'}>
+          New Referral
+        </Typography>
       </Box>
       <br />
       <ReferralForm patientId={patientId} />

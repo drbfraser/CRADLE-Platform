@@ -26,9 +26,11 @@ class Root(Resource):
             readings.validate(json)
         except Exception as e:
             abort(400, message=str(e))
+            return None
 
         if not crud.read(PatientOrm, id=json["patient_id"]):
             abort(400, message="Patient does not exist")
+            return None
 
         current_user = UserUtils.get_current_user_from_jwt()
         user_id = current_user["id"]
@@ -38,7 +40,7 @@ class Root(Resource):
         if "referral" in json:
             healthFacility = crud.read(
                 HealthFacilityOrm,
-                healthFacilityName=json["referral"]["referralHealthFacilityName"],
+                health_facility_name=json["referral"]["health_facility_name"],
             )
 
             if not healthFacility:
@@ -47,9 +49,9 @@ class Root(Resource):
             UTCTime = str(round(time.time() * 1000))
             crud.update(
                 HealthFacilityOrm,
-                {"newReferrals": UTCTime},
+                {"new_referrals": UTCTime},
                 True,
-                healthFacilityName=json["referral"]["referralHealthFacilityName"],
+                health_facility_name=json["referral"]["health_facility_name"],
             )
 
             referral = marshal.unmarshal(ReferralOrm, json["referral"])

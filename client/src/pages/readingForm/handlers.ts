@@ -20,20 +20,20 @@ const getSubmitObject = (patientId: string, values: ReadingState) => {
   const submitValues = {
     patientId: patientId,
     readingId: readingGuid,
-    dateTimeTaken: currentTimestamp,
-    bpDiastolic: values[ReadingField.bpDiastolic],
-    bpSystolic: values[ReadingField.bpSystolic],
+    dateTaken: currentTimestamp,
+    diastolicBloodPressure: values[ReadingField.bpDiastolic],
+    systolicBloodPressure: values[ReadingField.bpSystolic],
     heartRateBPM: values[ReadingField.heartRateBPM],
     symptoms: getSymptomsFromFormState(values, true),
   } as any;
 
   if (values[ReadingField.urineTest]) {
     submitValues['urineTests'] = {
-      urineTestBlood: values[ReadingField.blood],
-      urineTestGlu: values[ReadingField.glucose],
-      urineTestLeuc: values[ReadingField.leukocytes],
-      urineTestNit: values[ReadingField.nitrites],
-      urineTestPro: values[ReadingField.protein],
+      blood: values[ReadingField.blood],
+      glu: values[ReadingField.glucose],
+      leuc: values[ReadingField.leukocytes],
+      nit: values[ReadingField.nitrites],
+      pro: values[ReadingField.protein],
     };
   }
 

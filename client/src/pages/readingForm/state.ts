@@ -19,8 +19,8 @@ export enum ReadingField {
   lossOfSmell = 'lossOfSmell',
   otherSymptoms = 'otherSymptoms',
   // vital signs
-  bpSystolic = 'bpSystolic',
-  bpDiastolic = 'bpDiastolic',
+  bpSystolic = 'systolicBloopPressure',
+  bpDiastolic = 'diastolicBloodPressure',
   heartRateBPM = 'heartRateBPM',
   // urine test
   urineTest = 'urineTest',
@@ -35,7 +35,7 @@ export enum ReadingField {
   treatment = 'treatment',
   medication = 'medication',
   followUp = 'followUp',
-  followUpInstruc = 'followUpInstruc',
+  followUpInstructions = 'followUpInstructions',
   drugHistory = 'drugHistory',
 }
 
@@ -73,7 +73,7 @@ export const initialState = {
   [ReadingField.treatment]: '',
   [ReadingField.medication]: '',
   [ReadingField.followUp]: false,
-  [ReadingField.followUpInstruc]: '',
+  [ReadingField.followUpInstructions]: '',
   [ReadingField.drugHistory]: '',
 };
 
