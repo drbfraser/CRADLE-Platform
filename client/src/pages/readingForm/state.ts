@@ -21,7 +21,7 @@ export enum ReadingField {
   // vital signs
   bpSystolic = 'systolicBloopPressure',
   bpDiastolic = 'diastolicBloodPressure',
-  heartRateBPM = 'heartRateBPM',
+  heartRate = 'heartRate',
   // urine test
   urineTest = 'urineTest',
   leukocytes = 'leukocytes',
@@ -59,7 +59,7 @@ export const initialState = {
   // vital signs
   [ReadingField.bpSystolic]: '',
   [ReadingField.bpDiastolic]: '',
-  [ReadingField.heartRateBPM]: '',
+  [ReadingField.heartRate]: '',
   // urine test
   [ReadingField.urineTest]: false,
   [ReadingField.leukocytes]: '',

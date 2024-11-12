@@ -12,7 +12,7 @@ const getSubmitObject = (patientId: string, values: ReadingState) => {
     dateTaken: currentTimestamp,
     diastolicBloodPressure: values[ReadingField.bpDiastolic],
     systolicBloodPressure: values[ReadingField.bpSystolic],
-    heartRateBPM: values[ReadingField.heartRateBPM],
+    heartRate: values[ReadingField.heartRate],
     symptoms: getSymptomsFromFormState(values, true),
   } as any;
 

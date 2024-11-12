@@ -67,7 +67,7 @@ export const VitalSigns = ({ formikProps }: FormPageProps) => {
                 fullWidth
                 required
                 label={'Heart Rate'}
-                name={ReadingField.heartRateBPM}
+                name={ReadingField.heartRate}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">BPM</InputAdornment>

@@ -32,7 +32,7 @@ export type Reading = {
   deviceInfo: OrNull<string>;
   followup: OrNull<FollowUp>;
   gpsLocationOfReading: OrNull<string>;
-  heartRateBPM: number;
+  heartRate: number;
   isFlaggedForFollowup: OrNull<boolean>;
   manuallyChangeOcrResults: OrNull<number>;
   patient: string;

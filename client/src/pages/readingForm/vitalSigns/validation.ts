@@ -20,7 +20,7 @@ export const vitalSignsValidationSchema = Yup.object().shape({
     .min(30, wholeNumErr(30, 200))
     .max(200, wholeNumErr(30, 200))
     .required(requiredErr),
-  [ReadingField.heartRateBPM]: Yup.number()
+  [ReadingField.heartRate]: Yup.number()
     .integer(wholeNumErr(30, 250))
     .min(30, wholeNumErr(30, 250))
     .max(250, wholeNumErr(30, 250))

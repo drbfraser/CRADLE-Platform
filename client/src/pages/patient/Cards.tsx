@@ -139,7 +139,7 @@ export const ReadingCard = ({ reading }: IReadingCardProps) => {
           <b>Diastolic Blood Pressure:</b> {reading.bpDiastolic} mm/Hg
         </p>
         <p>
-          <b>Heart Rate:</b> {reading.heartRateBPM} bpm
+          <b>Heart Rate:</b> {reading.heartRate} bpm
         </p>
         {Boolean(reading.symptoms?.length) && (
           <p>

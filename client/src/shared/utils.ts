@@ -155,12 +155,12 @@ export const calculateShockIndex = (reading: Reading): TrafficLightEnum => {
   if (
     reading.bpSystolic === undefined ||
     reading.bpDiastolic === undefined ||
-    reading.heartRateBPM === undefined
+    reading.heartRate === undefined
   ) {
     return TrafficLightEnum.NONE;
   }
 
-  const shockIndex = reading.heartRateBPM / reading.bpSystolic;
+  const shockIndex = reading.heartRate / reading.bpSystolic;
 
   const isBpVeryHigh =
     reading.bpSystolic >= RED_SYSTOLIC || reading.bpDiastolic >= RED_DIASTOLIC;
