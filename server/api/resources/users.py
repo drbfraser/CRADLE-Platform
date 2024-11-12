@@ -325,12 +325,12 @@ class UserAuthTokenRefreshApi(Resource):
     @public_endpoint
     def post(self):
         try:
-            access_token = cognito.refresh_access_token()
+            new_access_token = cognito.refresh_access_token()
         except ValueError as err:
             print(err)
             LOGGER.error(err)
             return abort(401, message=str(err))
-        return {"access_token": access_token}, 200
+        return {"access_token": new_access_token}, 200
 
 
 # /api/user/current
