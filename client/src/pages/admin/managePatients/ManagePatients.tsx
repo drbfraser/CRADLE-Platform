@@ -35,8 +35,8 @@ export const ManagePatients = () => {
     setRows(
       patients.map((patient, index) => ({
         id: index,
-        patientName: patient.patientName,
-        patientId: patient.patientId,
+        patientName: patient.name,
+        patientId: patient.id,
         isArchived: patient.isArchived,
         takeAction: patient,
       }))

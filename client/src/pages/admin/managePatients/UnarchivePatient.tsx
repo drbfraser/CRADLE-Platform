@@ -14,7 +14,7 @@ interface IProps {
 const UnarchivePatient = ({ open, onClose, patient }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
-  const name = patient?.patientName;
+  const name = patient?.name;
 
   const handleDelete = async () => {
     if (!patient) {
@@ -22,7 +22,7 @@ const UnarchivePatient = ({ open, onClose, patient }: IProps) => {
     }
 
     try {
-      await unarchivePatientAsync(patient.patientId);
+      await unarchivePatientAsync(patient.id);
 
       setSubmitError(false);
       setSubmitSuccess(true);
