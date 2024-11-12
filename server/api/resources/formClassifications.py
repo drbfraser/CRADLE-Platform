@@ -94,7 +94,8 @@ class Root(Resource):
         util.assign_form_or_template_ids(FormClassification, new_form_classification)
 
         formClassification = marshal.unmarshal(
-            FormClassification, new_form_classification,
+            FormClassification,
+            new_form_classification,
         )
 
         crud.create(formClassification, refresh=True)
