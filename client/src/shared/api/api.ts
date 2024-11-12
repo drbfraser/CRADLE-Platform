@@ -1,7 +1,4 @@
-import {
-  AssessmentField,
-  AssessmentState,
-} from 'src/pages/assessmentForm/state';
+import { AssessmentField } from 'src/pages/assessmentForm/state';
 import {
   CForm,
   FilterRequestBody,
@@ -12,8 +9,6 @@ import {
   VHT,
   MedicalRecord,
   NewAssessment,
-  PatientPregnancyInfo,
-  PatientStatistics,
   Pregnancy,
   Referrer,
 } from '../types';

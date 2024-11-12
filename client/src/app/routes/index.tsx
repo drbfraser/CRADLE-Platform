@@ -1,12 +1,9 @@
 import { AppRoute, appRoutes } from './utils';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
-import { PropsWithChildren, useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from 'src/shared/hooks';
-import {
-  getCurrentUser,
-  selectCurrentUser,
-} from 'src/redux/reducers/user/currentUser';
+import { PropsWithChildren } from 'react';
+import { useAppSelector } from 'src/shared/hooks';
+import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
 import { UserRoleEnum } from 'src/shared/enums';
 import { Loader } from 'src/shared/components/loader';
 
@@ -42,16 +39,12 @@ type RequireAuthProps = PropsWithChildren & {
 const RequireAuth = ({ children, path }: RequireAuthProps) => {
   const currentUser = useAppSelector(selectCurrentUser);
 
-  const dispatch = useAppDispatch();
-
-  useEffect((): void => {
-    if (!currentUser.data) {
-      dispatch(getCurrentUser());
-    }
-  }, [dispatch, currentUser.data]);
-
-  if (currentUser.error) {
+  if (currentUser.error || !currentUser.loggedIn) {
     return <Navigate to="/" replace />;
+  }
+
+  if (currentUser.loading) {
+    return <Loader message="Getting things ready..." show={true} />;
   }
 
   if (currentUser.loggedIn) {
@@ -65,5 +58,5 @@ const RequireAuth = ({ children, path }: RequireAuthProps) => {
     return children;
   }
 
-  return <Loader message="Getting things ready..." show={true} />;
+  return null;
 };
