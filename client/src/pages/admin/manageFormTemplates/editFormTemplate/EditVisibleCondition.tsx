@@ -205,7 +205,7 @@ const EditVisibleCondition = ({
                       case AnswerTypeEnum.NUM:
                         setSelectedAnswer({ number: answer.val });
                         break;
-                      case AnswerTypeEnum.MCID_ARRAY:
+                      case AnswerTypeEnum.MC_ID_ARRAY:
                         filteredQs[
                           +selectedQIndex
                         ].questionLangVersions[0].mcOptions.forEach(

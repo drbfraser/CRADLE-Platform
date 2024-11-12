@@ -579,7 +579,7 @@ class QuestionOrm(db.Model):
     e.g.
     [
         {
-            "mcid": 0,
+            "mcId": 0,
             "opt": "abcd"
         },
         ... (maximum 5 answers)
@@ -590,7 +590,7 @@ class QuestionOrm(db.Model):
     {
         "number": 5/5.0,
         "text": "a",
-        "mcidArray":[0,1],
+        "mcIdArray":[0,1],
         "comment": "other opt"
     }
     """

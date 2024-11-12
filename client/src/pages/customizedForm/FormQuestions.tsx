@@ -106,12 +106,12 @@ export const FormQuestions = ({
   useEffect(() => {
     const getValuesFromIDs = (
       question: Question,
-      mcidArray: number[] | undefined
+      mcIdArray: number[] | undefined
     ): string[] => {
       const res: string[] = [];
 
       const mcOptions: McOption[] = question.mcOptions ?? [];
-      mcidArray?.forEach((optionIndex) => {
+      mcIdArray?.forEach((optionIndex) => {
         res.push(mcOptions[optionIndex].opt);
       });
 
@@ -131,7 +131,7 @@ export const FormQuestions = ({
       switch (question.questionType) {
         case QuestionTypeEnum.MULTIPLE_CHOICE:
         case QuestionTypeEnum.MULTIPLE_SELECT:
-          answer.answerType = AnswerTypeEnum.MCID_ARRAY;
+          answer.answerType = AnswerTypeEnum.MC_ID_ARRAY;
           answer.val = getValuesFromIDs(question, question.answers?.mcIdArray);
           break;
 
@@ -209,11 +209,11 @@ export const FormQuestions = ({
               // switch (condition.relation) {
               //   case QRelationEnum.EQUAL_TO:
               //     isConditionMet =
-              //       condition.answers.mcidArray!.length > 0 &&
+              //       condition.answers.mcIdArray!.length > 0 &&
               //       parentAnswer.val?.length > 0 &&
               //       parentAnswer.val?.length ===
-              //         condition.answers.mcidArray?.length &&
-              //       condition.answers.mcidArray!.every((item) =>
+              //         condition.answers.mcIdArray?.length &&
+              //       condition.answers.mcIdArray!.every((item) =>
               //         parentAnswer.val?.includes(
               //           parentQuestion.mcOptions[item].opt
               //         )

@@ -50,7 +50,7 @@ export const TransferQAnswerToAPIStandard = (
 
       const apiAnswer = {
         qidx: answer.questionIndex,
-        answer: { mcidArray: [], text: undefined, number: undefined },
+        answer: { mcIdArray: [], text: undefined, number: undefined },
       };
 
       switch (question?.questionType) {
@@ -59,7 +59,7 @@ export const TransferQAnswerToAPIStandard = (
 
         case QuestionTypeEnum.MULTIPLE_CHOICE:
         case QuestionTypeEnum.MULTIPLE_SELECT:
-          apiAnswer.answer.mcidArray = answer.val.map((item: any) =>
+          apiAnswer.answer.mcIdArray = answer.val.map((item: any) =>
             options?.indexOf(item)
           );
 

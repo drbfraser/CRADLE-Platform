@@ -107,7 +107,7 @@ export enum QuestionTypeEnum {
 export enum AnswerTypeEnum {
   NUM = 'number',
   TEXT = 'text',
-  MCID_ARRAY = 'mcidArray',
+  MC_ID_ARRAY = 'mcIdArray',
   COMMENT = 'comment',
   CATEGORY = '',
 }

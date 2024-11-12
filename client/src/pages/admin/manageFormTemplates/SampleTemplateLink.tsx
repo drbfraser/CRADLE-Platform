@@ -46,19 +46,19 @@ const SampleTemplateLink = () => {
             lang: 'english',
             mcOptions: [
               {
-                mcid: 0,
+                mcId: 0,
                 opt: 'very much',
               },
               {
-                mcid: 1,
+                mcId: 1,
                 opt: 'a little',
               },
               {
-                mcid: 2,
+                mcId: 2,
                 opt: 'no idea',
               },
               {
-                mcid: 3,
+                mcId: 3,
                 opt: 'just so so',
               },
             ],

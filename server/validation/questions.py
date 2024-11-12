@@ -14,7 +14,7 @@ class MultipleChoiceOption(BaseModel):
 
 class Answer(BaseModel):
     comment: Optional[str] = None
-    mc_id_aArray: Optional[List[int]] = None
+    mc_id_array: Optional[List[int]] = None
     number: Optional[Union[int, float]] = None
     text: Optional[str] = None
 
@@ -53,6 +53,7 @@ class TemplateQuestion(BaseModel):
     string_max_length: Optional[int] = None
     category_index: Optional[int] = None
     string_max_lines: Optional[int] = None
+    form_template_id: Optional[str] = None
 
     class Config:
         extra = "forbid"
@@ -78,6 +79,7 @@ class FormQuestion(BaseModel):
     id: Optional[str] = None
     mc_options: Optional[List[MultipleChoiceOption]] = None
     answers: Optional[Answer] = None
+    form_template_id: Optional[str] = None
 
     class Config:
         extra = "forbid"
@@ -144,7 +146,7 @@ def validate_answers(question: dict):
     {
         "number": 5/5.0,
         "text": "a",
-        "mc_id_aArray":[0,1],
+        "mc_id_array":[0,1],
         "comment": "other opt"
     }
     """
