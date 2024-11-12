@@ -122,23 +122,20 @@ export const getApiToken = async () => {
       const resp = await axios({
         method: 'POST',
         url: API_URL + EndpointEnum.REFRESH,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
         data: {
+          /* Username is needed for the server to get a new access token. */
           username: username,
         },
       });
-
-      if (resp.status !== 200) {
-        console.error(
-          `ERROR (${resp.status}): Failed to get new access token.`,
-          resp
-        );
-        throw new Error();
-      }
 
       accessToken = resp.data.accessToken;
       localStorage.setItem('accessToken', accessToken!);
     }
   } catch (e) {
+    console.error(`ERROR Failed to get new access token.`);
     console.error(e);
     reduxStore.dispatch(logoutUser());
   }
