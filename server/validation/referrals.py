@@ -7,8 +7,8 @@ from validation.validation_exception import ValidationExceptionError
 
 
 # Represents a referral entity with validations to prevent unrecognized fields.
-class ReferralEntity(BaseModel):
-    patientId: int
+class ReferralEntityValidator(BaseModel):
+    patientId: str
     referralHealthFacilityName: str
     comment: Optional[str] = None
     id: Optional[str] = None
@@ -37,10 +37,12 @@ class ReferralEntity(BaseModel):
                                 "patientId": "123",
                                 "referralHealthFacilityName": "H0000",
                             }
+        :throw: An error if the request body is invalid. None otherwise
+        :return pydantic model representation of the request body param
         """
         try:
             # Pydantic will validate field presence and type
-            ReferralEntity(**request_body)
+            return ReferralEntityValidator(**request_body)
         except ValidationError as e:
             # Extracts the first error message from the validation errors list
             error_message = str(e.errors()[0]["msg"])
@@ -48,7 +50,7 @@ class ReferralEntity(BaseModel):
 
 
 # Manages cancellation status with strict attribute enforcement to prevent unrecognized fields.
-class CancelStatus(BaseModel):
+class CancelStatusValidator(BaseModel):
     # forbid extra attributes
     model_config = ConfigDict(extra="forbid")
 
@@ -56,14 +58,16 @@ class CancelStatus(BaseModel):
     cancelReason: str
 
     @staticmethod
-    def validate_cancel_put_request(request_body: dict):
+    def validate(request_body: dict):
         """
         Validates the /api/referrals/cancel-status-switch/<string:referral_id> PUT request for changing the cancellation status of a referral. Raises an exception with an error message if the request is invalid.
 
         :param request_body: The request body as a dict object
+        :throw: An error if the request body is invalid. None otherwise
+        :return pydantic model representation of the request body param
         """
         try:
-            CancelStatus(**request_body)
+            return CancelStatusValidator(**request_body)
         except ValidationError as e:
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
@@ -71,21 +75,23 @@ class CancelStatus(BaseModel):
 # Manages non-attendance reasons with strict attribute enforcement to prevent unrecognized fields.
 
 
-class NotAttend(BaseModel):
+class NotAttendValidator(BaseModel):
     # forbid extra attributes
     model_config = ConfigDict(extra="forbid")
 
     notAttendReason: str
 
     @staticmethod
-    def validate_not_attend_put_request(request_body: dict):
+    def validate(request_body: dict):
         """
         Validate the /api/referrals/not-attend/<string:referral_id> PUT
         request for recording a non-attendance reason. Raises an exception with an error message if the request is invalid.
 
         :param request_body: The request body as a dict object
+        :throw: An error if the request body is invalid. None otherwise
+        :return pydantic model representation of the request body param
         """
         try:
-            NotAttend(**request_body)
+            return NotAttendValidator(**request_body)
         except ValidationError as e:
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))

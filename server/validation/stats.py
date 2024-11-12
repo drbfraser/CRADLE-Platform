@@ -1,17 +1,24 @@
 # Stats post requests validation
+from typing import Optional
+
 from pydantic import BaseModel, Field, ValidationError
 
 from validation.validation_exception import ValidationExceptionError
 
+MYSQL_BIGINT_MAX = (2**63) - 1
 
-class Timestamp(BaseModel):
-    from_: str = Field(
+
+class TimestampValidator(BaseModel):
+    from_: Optional[str] = Field(
         alias="from",
+        default="0",
     )  # Use from_ to avoid conflict with Python's reserved keyword 'from'
-    to: str
+    to: Optional[str] = Field(
+        default=str(MYSQL_BIGINT_MAX),
+    )
 
     @staticmethod
-    def validate_timestamp(request_body: dict):
+    def validate(request_body: dict):
         """
         Validates the presence and format of required timestamp fields using the Timestamp Pydantic model.
         Raises ValidationExceptionError if the timestamp in the request body is invalid.
@@ -22,11 +29,13 @@ class Timestamp(BaseModel):
                     "from": "1546702448",
                     "to": "1547212259"
                 }
+        :throw: An error if the request body is invalid. None otherwise
+        :return pydantic model representation of the request body param
 
         """
         try:
             # Pydantic will validate field presence and type
-            Timestamp(**request_body)
+            return TimestampValidator(**request_body)
         except ValidationError as e:
             # Extracts the first error message from the validation errors list
             error_message = str(e.errors()[0]["msg"])
@@ -52,7 +61,7 @@ class Timeframe(BaseModel):
         """
         try:
             Timeframe(**request_body)
-            Timestamp.validate_timestamp(request_body.get("timeframe"))
+            TimestampValidator.validate(request_body.get("timeframe"))
         except ValidationError as e:
             # Extracts the first error message from the validation errors list
             error_message = str(e.errors()[0]["msg"])

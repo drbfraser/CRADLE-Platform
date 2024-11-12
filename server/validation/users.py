@@ -59,7 +59,8 @@ class UserValidator(BaseModel):
                                 "healthFacilityName": "facility7",
                                 "role": "admin"
                             }
-        :throw: An error message if the request body is invalid. None otherwise
+        :throw: An error if the request body is invalid. None otherwise
+        :return pydantic model representation of the request body param
         """
         try:
             # Pydantic will validate field presence and type

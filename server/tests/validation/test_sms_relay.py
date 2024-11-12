@@ -1,6 +1,6 @@
 import pytest
 
-from validation.sms_relay import SmsRelay, SmsRelayDecryptedBody
+from validation.sms_relay import SmsRelayDecryptedBodyValidator, SmsRelayValidator
 from validation.validation_exception import ValidationExceptionError
 
 valid_sms_relay_request = {
@@ -93,10 +93,10 @@ invalid_field_type_endpoint = {
 def test_validate_request(json, expectation):
     if type(expectation) is type and issubclass(expectation, Exception):
         with pytest.raises(expectation):
-            SmsRelay.validate_request(json)
+            SmsRelayValidator.validate_request(json)
     else:
         try:
-            SmsRelay.validate_request(json)
+            SmsRelayValidator.validate_request(json)
         except ValidationExceptionError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e
 
@@ -117,9 +117,9 @@ def test_validate_request(json, expectation):
 def test_validate_decrypted_body(json, expectation):
     if type(expectation) is type and issubclass(expectation, Exception):
         with pytest.raises(expectation):
-            SmsRelayDecryptedBody.validate_decrypted_body(json)
+            SmsRelayDecryptedBodyValidator.validate(json)
     else:
         try:
-            SmsRelayDecryptedBody.validate_decrypted_body(json)
+            SmsRelayDecryptedBodyValidator.validate(json)
         except ValidationExceptionError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e
