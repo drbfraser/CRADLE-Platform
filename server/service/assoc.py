@@ -27,13 +27,15 @@ def associate_by_user_role(patient: PatientOrm, user: UserOrm):
     :param user: The user making the association
     """
     if user.role == RoleEnum.HCW.value:
-        if not has_association(patient, facility=user.healthFacility):
-            associate(patient, facility=user.healthFacility)
+        if not has_association(patient, facility=user.health_facility):
+            associate(patient, facility=user.health_facility)
     elif not has_association(patient, user=user):
         associate(patient, user=user)
 
 
-def associate(patient: PatientOrm, facility: HealthFacilityOrm = None, user: UserOrm = None):
+def associate(
+    patient: PatientOrm, facility: HealthFacilityOrm = None, user: UserOrm = None
+):
     """
     Creates an association between a patient and facility, patient and user, or patient,
     user and facility.
@@ -47,9 +49,9 @@ def associate(patient: PatientOrm, facility: HealthFacilityOrm = None, user: Use
         raise ValueError("either a facility or user must be provided")
 
     association = PatientAssociationsOrm(
-        patientId=patient.patientId,
-        healthFacilityName=facility.healthFacilityName if facility else None,
-        userId=user.id if user else None,
+        patient_id=patient.id,
+        health_facility_name=facility.name if facility else None,
+        user_id=user.id if user else None,
     )
     crud.create(association)
 
@@ -70,8 +72,8 @@ def associate_by_id(
     :except ValueError: If any of the identifiers don't identify a value
     :return: An association object
     """
-    patient = crud.read(PatientOrm, patientId=patient_id)
-    facility = crud.read(HealthFacilityOrm, healthFacilityName=facility_name)
+    patient = crud.read(PatientOrm, id=id)
+    facility = crud.read(HealthFacilityOrm, name=facility_name)
     user = crud.read(UserOrm, id=user_id)
 
     if not patient or not facility or not user:
@@ -93,8 +95,8 @@ def has_association(
     :return: True if there is an association between the objects, otherwise False
     """
     return has_association_by_id(
-        patient.patientId if patient else None,
-        facility.healthFacilityName if facility else None,
+        patient.id if patient else None,
+        facility.name if facility else None,
         user.id if user else None,
     )
 
@@ -114,11 +116,11 @@ def has_association_by_id(
     """
     kw = dict()
     if patient_id:
-        kw["patientId"] = patient_id
+        kw["patient_id"] = patient_id
     if facility_name:
-        kw["healthFacilityName"] = facility_name
+        kw["health_facility_name"] = facility_name
     if user_id:
-        kw["userId"] = user_id
+        kw["user_id"] = user_id
     if not kw:
         raise TypeError("at least one keyword argument is required")
     return crud.read_all(PatientAssociationsOrm, **kw) != []
