@@ -63,14 +63,13 @@ export const MedicalHistory = ({
             );
 
             if (confirmed) {
-              const response = await deleteMedicalRecordAsync(record);
-              if (response.ok) {
+              try {
+                await deleteMedicalRecordAsync(record);
                 await dialogs.alert('Medical record successfully deleted.');
                 getRowData();
-              } else {
-                const responseBody = await response.json();
+              } catch (e) {
                 await dialogs.alert(
-                  `Error: Medical record could not be deleted.\n${responseBody}`
+                  `Error: Medical record could not be deleted.\n${e}`
                 );
               }
             }

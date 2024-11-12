@@ -14,16 +14,16 @@ import {
 } from './state';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { User } from 'src/shared/types';
 import { TextField } from 'formik-mui';
 import { Toast } from 'src/shared/components/toast';
 import { resetUserPasswordAsync } from 'src/shared/api/api';
 import { useState } from 'react';
+import { User } from 'src/shared/api/validation/user';
 
 interface IProps {
   open: boolean;
   onClose: () => void;
-  resetUser: User | undefined;
+  resetUser?: User;
 }
 
 const ResetPassword = ({ open, onClose, resetUser }: IProps) => {

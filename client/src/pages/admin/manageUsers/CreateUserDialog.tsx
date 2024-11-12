@@ -108,7 +108,7 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
         <DialogTitle>{'Create New User'}</DialogTitle>
         <DialogContent>
           <Formik initialValues={newUserTemplate} onSubmit={handleSubmit}>
-            {({ values, touched, errors, isSubmitting, isValid }) => (
+            {({ touched, errors, isSubmitting, isValid }) => (
               <Form autoComplete={'off'}>
                 <FormGroup
                   sx={{

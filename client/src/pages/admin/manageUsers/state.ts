@@ -1,8 +1,5 @@
 import * as Yup from 'yup';
 
-import { UserRoleEnum } from 'src/shared/enums';
-import { EditUser, NewUser, User } from 'src/shared/api/validation/user';
-
 export enum UserField {
   name = 'name',
   email = 'email',

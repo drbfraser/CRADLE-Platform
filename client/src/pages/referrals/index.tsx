@@ -2,7 +2,6 @@ import { BREAKPOINT, COLUMNS, SORTABLE_COLUMNS } from './constants';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import React, { useState } from 'react';
 import { debounce, parseInt } from 'lodash';
-import { useSelector } from 'react-redux';
 
 import { APITable } from 'src/shared/components/apiTable';
 import { AutoRefresher } from './AutoRefresher';
@@ -19,7 +18,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { getSecretKey, selectSecretKey } from 'src/redux/reducers/secretKey';
 import { Toast } from 'src/shared/components/toast';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
-import { Box, SxProps } from '@mui/material';
+import { Box } from '@mui/material';
 import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
 
 export const ReferralsPage = () => {
@@ -227,16 +226,4 @@ export const ReferralsPage = () => {
       </DashboardPaper>
     </>
   );
-};
-
-const SEARCH_SX: SxProps = {
-  float: 'right',
-  display: 'flex',
-  alignItems: 'self-start',
-  columnGap: '10px',
-};
-const SEARCH_THIN_SX: SxProps = {
-  display: 'flex',
-  flexDirection: 'column',
-  rowGap: '10px',
 };

@@ -102,7 +102,7 @@ export const FilterDialog = ({
         const facilities = await getHealthFacilitiesAsync();
 
         setHealthFacilities(
-          facilities.map((facility: Facility) => facility.healthFacilityName)
+          facilities.map((facility: Facility) => facility.name)
         );
       } catch (e) {
         console.log(e);

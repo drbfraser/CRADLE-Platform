@@ -28,7 +28,6 @@ import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
 import { DataTable } from 'src/shared/components/DataTable/DataTable';
 import { DataTableHeader } from '../../../shared/components/DataTable/DataTableHeader';
 import { CreateUserDialog } from './CreateUserDialog';
-import { useNavigate } from 'react-router-dom';
 
 export const ManageUsers = () => {
   const [errorLoading, setErrorLoading] = useState(false);

@@ -111,13 +111,12 @@ export const PregnancyHistory = () => {
               }
             );
             if (confirmed) {
-              const response = await deletePregnancyAsync(pregnancy);
-              if (response.ok) {
+              try {
+                await deletePregnancyAsync(pregnancy);
                 await dialogs.alert('Pregnancy successfully deleted.');
-              } else {
-                const responseBody = await response.json();
+              } catch (e) {
                 await dialogs.alert(
-                  `Error: Pregnancy could not be deleted.\n${responseBody}`
+                  `Error: Pregnancy could not be deleted.\n${e}`
                 );
               }
             }
