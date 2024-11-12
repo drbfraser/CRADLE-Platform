@@ -151,7 +151,17 @@ export const ManagePatients = () => {
         patient={popupPatient}
       />
       <DataTableHeader title={'Patients'} />
-      <DataTable columns={columns} rows={rows} footer={Footer} />
+      <DataTable
+        columns={columns}
+        rows={rows}
+        footer={Footer}
+        getRowClassName={(params) => {
+          const index = params.row.id;
+          const patient = patients[index];
+          if (!patient) return '';
+          return patient.isArchived ? 'row-archived' : '';
+        }}
+      />
     </>
   );
 };

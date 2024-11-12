@@ -312,20 +312,6 @@ export const ManageFormTemplates = () => {
         rows={rows}
         columns={columns}
         footer={Footer}
-        sx={{
-          '& .row-archived': {
-            backgroundColor: ARCHIVED_ROW_COLOR,
-          },
-          '& .row-archived:hover': {
-            backgroundColor: ARCHIVED_ROW_HOVERED_COLOR,
-          },
-          '& .row-archived.Mui-selected': {
-            backgroundColor: ARCHIVED_ROW_SELECTED_COLOR,
-          },
-          '& .row-archived.Mui-selected:hover': {
-            backgroundColor: ARCHIVED_ROW_HOVERED_COLOR,
-          },
-        }}
         getRowClassName={(params) => {
           const index = params.row.id;
           const formTemplate = formTemplates[index];
@@ -336,7 +322,3 @@ export const ManageFormTemplates = () => {
     </>
   );
 };
-
-const ARCHIVED_ROW_COLOR = 'rgb(251 193 193)';
-const ARCHIVED_ROW_HOVERED_COLOR = '#e57373';
-const ARCHIVED_ROW_SELECTED_COLOR = '#ea8f8f';
