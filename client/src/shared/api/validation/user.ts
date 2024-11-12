@@ -16,6 +16,7 @@ import { smsKeySchema } from './smsKey';
 export const userSchema = z.object({
   id: z.number().int(),
   username: z.string(),
+  name: z.string(),
   email: z.string().email({ message: 'Invalid email address.' }),
   healthFacilityName: z.string(),
   role: z.nativeEnum(UserRoleEnum),
