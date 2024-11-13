@@ -10,6 +10,7 @@ from werkzeug.datastructures import FileStorage
 import data
 from api import util
 from api.decorator import roles_required
+from common import commonUtil
 from data import crud, marshal
 from enums import ContentTypeEnum, RoleEnum
 from models import FormClassification, FormTemplate
@@ -29,7 +30,7 @@ class Root(Resource):
         endpoint="form_classifications",
     )
     def post():
-        req = {}
+        request_json = {}
 
         # provide file upload method from web
         if "file" in request.files:
@@ -41,14 +42,14 @@ class Root(Resource):
             file_str = str(file.read(), "utf-8")
             if file.content_type == ContentTypeEnum.JSON.value:
                 try:
-                    req = json.loads(file_str)
+                    request_json = json.loads(file_str)
                 except json.JSONDecodeError as err:
                     LOGGER.error(err)
                     abort(400, message="File content is not valid json-format")
 
             elif file.content_type == ContentTypeEnum.CSV.value:
                 try:
-                    req = util.getFormTemplateDictFromCSV(file_str)
+                    request_json = util.getFormTemplateDictFromCSV(file_str)
                 except RuntimeError as err:
                     LOGGER.error(err)
                     abort(400, message=err.args[0])
@@ -62,30 +63,40 @@ class Root(Resource):
                         message="Something went wrong while parsing the CSV file.",
                     )
         else:
-            req = request.get_json(force=True)
+            request_json = request.get_json(force=True)
 
-        if len(req) == 0:
+        if len(request_json) == 0:
             abort(400, message="Request body is empty")
 
-        if req.get("id") is not None:
-            if crud.read(FormClassification, id=req["id"]):
+        if request_json.get("id") is not None:
+            if crud.read(FormClassification, id=request_json["id"]):
                 abort(409, message="Form classification already exists")
 
         try:
-            FormClassificationValidator.validate(req)
+            form_classification_pydantic_model = FormClassificationValidator.validate(
+                request_json,
+            )
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 
-        if req.get("name") is not None:
-            if crud.read(FormClassification, id=req["name"]):
+        new_form_classification = form_classification_pydantic_model.model_dump()
+        new_form_classification = commonUtil.filterNestedAttributeWithValueNone(
+            new_form_classification,
+        )
+
+        if new_form_classification.get("name") is not None:
+            if crud.read(FormClassification, id=new_form_classification["name"]):
                 abort(
                     409,
                     message="Form classification with the same name already exists",
                 )
 
-        util.assign_form_or_template_ids(FormClassification, req)
+        util.assign_form_or_template_ids(FormClassification, new_form_classification)
 
-        formClassification = marshal.unmarshal(FormClassification, req)
+        formClassification = marshal.unmarshal(
+            FormClassification,
+            new_form_classification,
+        )
 
         crud.create(formClassification, refresh=True)
 

@@ -49,6 +49,6 @@ class AssessmentValidator(BaseModel):
                             }
         """
         try:
-            AssessmentValidator(**request_body)
+            return AssessmentValidator(**request_body)
         except ValidationError as e:
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))

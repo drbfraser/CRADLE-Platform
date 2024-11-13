@@ -41,11 +41,13 @@ class MedicalRecordValidator(BaseModel):
         try:
             record = MedicalRecordValidator(**request_body)
 
-            if record.patientId and record.patientId != patient_id:
-                raise ValidationExceptionError("Patient ID does not match.")
-
         except ValidationError as e:
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+
+        if record.patientId and record.patientId != patient_id:
+            raise ValidationExceptionError("Patient ID does not match.")
+
+        return record
 
     @staticmethod
     def validate_put_request(request_body: dict, record_id: str):
@@ -59,15 +61,10 @@ class MedicalRecordValidator(BaseModel):
         try:
             record = MedicalRecordValidator(**request_body)
 
-            if record.id and record.id != record_id:
-                raise ValidationExceptionError("Medical record ID cannot be changed.")
-
         except ValidationError as e:
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
-    @staticmethod
-    def validate_key(request_body):
-        try:
-            MedicalRecordValidator(**request_body)
-        except ValidationError as e:
-            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+        if record.id and record.id != record_id:
+            raise ValidationExceptionError("Medical record ID cannot be changed.")
+
+        return record

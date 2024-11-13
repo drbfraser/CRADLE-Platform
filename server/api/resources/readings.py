@@ -6,6 +6,7 @@ from flask_jwt_extended import jwt_required
 from flask_jwt_extended.utils import get_jwt_identity
 from flask_restful import Resource, abort
 
+from api import util
 from data import crud, marshal
 from models import HealthFacility, Patient, Reading, Referral
 from service import assoc, invariant
@@ -25,21 +26,26 @@ class Root(Resource):
         json = request.get_json(force=True)
 
         try:
-            ReadingValidator.validate(json)
+            reading_pydantic_model = ReadingValidator.validate(json)
         except Exception as e:
             abort(400, message=str(e))
 
-        if not crud.read(Patient, patientId=json["patientId"]):
+        new_reading = reading_pydantic_model.model_dump()
+        new_reading = util.filterPairsWithNone(new_reading)
+
+        if not crud.read(Patient, patientId=new_reading["patientId"]):
             abort(400, message="Patient does not exist")
 
         userId = get_jwt_identity()["userId"]
 
-        json["userId"] = userId
+        new_reading["userId"] = userId
 
-        if "referral" in json:
+        if "referral" in new_reading:
             healthFacility = crud.read(
                 HealthFacility,
-                healthFacilityName=json["referral"]["referralHealthFacilityName"],
+                healthFacilityName=new_reading["referral"][
+                    "referralHealthFacilityName"
+                ],
             )
 
             if not healthFacility:
@@ -50,19 +56,21 @@ class Root(Resource):
                     HealthFacility,
                     {"newReferrals": UTCTime},
                     True,
-                    healthFacilityName=json["referral"]["referralHealthFacilityName"],
+                    healthFacilityName=new_reading["referral"][
+                        "referralHealthFacilityName"
+                    ],
                 )
 
-            referral = marshal.unmarshal(Referral, json["referral"])
+            referral = marshal.unmarshal(Referral, new_reading["referral"])
             crud.create(referral, refresh=True)
 
             patient = referral.patient
             facility = referral.healthFacility
             if not assoc.has_association(patient, facility):
                 assoc.associate(patient, facility=facility)
-            del json["referral"]
+            del new_reading["referral"]
 
-        reading = marshal.unmarshal(Reading, json)
+        reading = marshal.unmarshal(Reading, new_reading)
 
         if crud.read(Reading, readingId=reading.readingId):
             abort(409, message=f"A reading already exists with id: {reading.readingId}")

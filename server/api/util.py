@@ -162,7 +162,7 @@ def isGoodPassword(password: str) -> bool:
 
 def filterPairsWithNone(payload: dict) -> dict:
     """
-    Returns  dict with all the key-value pairs wherein the value is not None
+    Returns dict with all the key-value pairs wherein the value is not None
 
     :param payload: The dictionary to evaluate
     """

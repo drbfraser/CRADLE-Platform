@@ -4,6 +4,7 @@ from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 
 from api import util
+from common import commonUtil
 from data import crud, marshal
 from models import FollowUp
 from utils import get_current_time
@@ -29,11 +30,15 @@ class Root(Resource):
         json["healthcareWorkerId"] = user.id
 
         try:
-            AssessmentValidator.validate(json)
+            assessment_pydantic_model = AssessmentValidator.validate(json)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
+        new_assessment = assessment_pydantic_model.model_dump()
+        new_assessment = commonUtil.filterNestedAttributeWithValueNone(
+            new_assessment,
+        )
 
-        assessment = marshal.unmarshal(FollowUp, json)
+        assessment = marshal.unmarshal(FollowUp, new_assessment)
 
         crud.create(assessment)
 
@@ -90,10 +95,14 @@ class SingleAssessment(Resource):
             abort(404, message=f"No assessment with id {assessment_id}")
 
         try:
-            AssessmentValidator.validate(json)
+            assessment_pydantic_model = AssessmentValidator.validate(json)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 
-        crud.update(FollowUp, json, id=assessment.id)
+        update_assessment = assessment_pydantic_model.model_dump()
+        update_assessment = commonUtil.filterNestedAttributeWithValueNone(
+            update_assessment,
+        )
+        crud.update(FollowUp, update_assessment, id=assessment.id)
 
         return assessment.id, 200

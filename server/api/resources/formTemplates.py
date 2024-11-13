@@ -9,6 +9,7 @@ from werkzeug.datastructures import FileStorage
 import data
 from api import util
 from api.decorator import roles_required
+from common import commonUtil
 from data import crud, marshal
 from enums import ContentTypeEnum, RoleEnum
 from models import FormClassification, FormTemplate
@@ -27,7 +28,7 @@ class Root(Resource):
         endpoint="form_templates",
     )
     def post():
-        req = {}
+        request_json = {}
 
         # provide file upload method from web
         if "file" in request.files:
@@ -39,13 +40,13 @@ class Root(Resource):
             file_str = str(file.read(), "utf-8")
             if file.content_type == ContentTypeEnum.JSON.value:
                 try:
-                    req = json.loads(file_str)
+                    request_json = json.loads(file_str)
                 except json.JSONDecodeError:
                     abort(400, message="File content is not valid json-format")
 
             elif file.content_type == ContentTypeEnum.CSV.value:
                 try:
-                    req = util.getFormTemplateDictFromCSV(file_str)
+                    request_json = util.getFormTemplateDictFromCSV(file_str)
                 except RuntimeError as err:
                     abort(400, message=err.args[0])
                 except TypeError as err:
@@ -56,39 +57,44 @@ class Root(Resource):
                         message="Something went wrong while parsing the CSV file.",
                     )
         else:
-            req = request.get_json(force=True)
+            request_json = request.get_json(force=True)
 
-        if len(req) == 0:
+        if len(request_json) == 0:
             abort(400, message="Request body is empty")
 
-        if req.get("id") is not None:
-            if crud.read(FormTemplate, id=req["id"]):
+        if request_json.get("id") is not None:
+            if crud.read(FormTemplate, id=request_json["id"]):
                 abort(409, message="Form template already exists")
 
         try:
-            FormTemplateValidator.validate(req)
+            form_template_pydantic_model = FormTemplateValidator.validate(request_json)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 
+        new_form_template = form_template_pydantic_model.model_dump()
+        new_form_template = commonUtil.filterNestedAttributeWithValueNone(
+            new_form_template,
+        )
+
         classification = crud.read(
             FormClassification,
-            name=req["classification"].get("name"),
+            name=new_form_template["classification"].get("name"),
         )
 
         if classification is not None:
             if crud.read(
                 FormTemplate,
                 formClassificationId=classification.id,
-                version=req["version"],
+                version=new_form_template["version"],
             ):
                 abort(
                     409,
                     message="Form template with the same version already exists - change the version to upload",
                 )
 
-            del req["classification"]
+            del new_form_template["classification"]
 
-            req["formClassificationId"] = classification.id
+            new_form_template["formClassificationId"] = classification.id
 
             previousTemplate = crud.read(
                 FormTemplate,
@@ -100,9 +106,9 @@ class Root(Resource):
                 previousTemplate.archived = True
                 data.db_session.commit()
 
-        util.assign_form_or_template_ids(FormTemplate, req)
+        util.assign_form_or_template_ids(FormTemplate, new_form_template)
 
-        formTemplate = marshal.unmarshal(FormTemplate, req)
+        formTemplate = marshal.unmarshal(FormTemplate, new_form_template)
 
         crud.create(formTemplate, refresh=True)
 

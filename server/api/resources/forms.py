@@ -7,10 +7,11 @@ from flask_restful import Resource, abort
 
 import data
 from api import util
+from common import commonUtil
 from data import crud, marshal
 from models import Form, FormTemplate, Patient, User
 from utils import get_current_time
-from validation.forms import FormValidator
+from validation.forms import FormPutValidator, FormValidator
 from validation.validation_exception import ValidationExceptionError
 
 
@@ -24,40 +25,43 @@ class Root(Resource):
         endpoint="forms",
     )
     def post():
-        req = request.get_json(force=True)
+        request_json = request.get_json(force=True)
 
-        if req.get("id") is not None:
-            if crud.read(Form, id=req["id"]):
+        if request_json.get("id") is not None:
+            if crud.read(Form, id=request_json["id"]):
                 abort(409, message="Form already exists")
 
         try:
-            FormValidator.validate(req)
+            form_pydantic_model = FormValidator.validate(request_json)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 
-        patient = crud.read(Patient, patientId=req["patientId"])
+        new_form = form_pydantic_model.model_dump()
+        new_form = commonUtil.filterNestedAttributeWithValueNone(new_form)
+
+        patient = crud.read(Patient, patientId=new_form["patientId"])
         if not patient:
             abort(404, message="Patient does not exist")
 
-        if req.get("formTemplateId") is not None:
-            form_template = crud.read(FormTemplate, id=req["formTemplateId"])
+        if new_form.get("formTemplateId") is not None:
+            form_template = crud.read(FormTemplate, id=new_form["formTemplateId"])
             if not form_template:
                 abort(404, message="Form template does not exist")
-            elif form_template.formClassificationId != req["formClassificationId"]:
+            elif form_template.formClassificationId != new_form["formClassificationId"]:
                 abort(404, message="Form classification does not match template")
 
-        if req.get("lastEditedBy") is not None:
-            user = crud.read(User, id=req["lastEditedBy"])
+        if new_form.get("lastEditedBy") is not None:
+            user = crud.read(User, id=new_form["lastEditedBy"])
             if not user:
                 abort(404, message="User does not exist")
         else:
             user = get_jwt_identity()
             user_id = int(user["userId"])
-            req["lastEditedBy"] = user_id
+            new_form["lastEditedBy"] = user_id
 
-        util.assign_form_or_template_ids(Form, req)
+        util.assign_form_or_template_ids(Form, new_form)
 
-        form = marshal.unmarshal(Form, req)
+        form = marshal.unmarshal(Form, new_form)
 
         form.dateCreated = get_current_time()
         form.lastEdited = form.dateCreated
@@ -95,14 +99,16 @@ class SingleForm(Resource):
         if not form:
             abort(404, message=f"No form with id {form_id}")
 
-        req = request.get_json(force=True)
-
+        request_json = request.get_json(force=True)
         try:
-            FormValidator.validate_put_request(req)
+            form_pydantic_model = FormPutValidator.validate(request_json)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 
-        questions_upload = req["questions"]
+        update_form = form_pydantic_model.model_dump()
+        update_form = commonUtil.filterNestedAttributeWithValueNone(update_form)
+
+        questions_upload = update_form["questions"]
         questions = form.questions
         question_ids = [q.id for q in questions]
         questions_dict = dict(zip(question_ids, questions))
