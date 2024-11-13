@@ -33,8 +33,8 @@ from shared.phone_number_utils import PhoneNumberUtils
 from shared.user_utils import UserUtils
 from validation.users import (
     UserAuthRequestValidator,
-    UserEditValidator,
     UserRegisterValidator,
+    UserValidator,
 )
 from validation.validation_exception import ValidationExceptionError
 
@@ -349,10 +349,9 @@ class UserApi(Resource):
     @swag_from("../../specifications/user-put.yml", methods=["PUT"])
     def put(self, id):
         request_body = request.get_json(force=True)
-        request_body["id"] = id
         try:
             # validate the new user
-            user_model = UserEditValidator.validate(request_body)
+            user_model = UserValidator.validate(request_body)
         except ValidationExceptionError as e:
             error_message = str(e)
             LOGGER.error(error_message)

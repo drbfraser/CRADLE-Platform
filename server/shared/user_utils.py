@@ -13,6 +13,7 @@ from config import db
 from data import crud, marshal
 from enums import RoleEnum
 from models import SmsSecretKeyOrm, UserOrm, UserPhoneNumberOrm
+from shared.health_facility_utils import HealthFacilityUtils
 from shared.phone_number_utils import PhoneNumberUtils
 
 sms_key_duration = os.getenv("SMS_KEY_DURATION")
@@ -199,6 +200,24 @@ class UserUtils:
         :param role: The role of the new user.
         """
         try:
+            # Check email uniqueness.
+            if UserUtils.does_email_exist(email):
+                raise ValueError(f"Email ({email}) is already in use.")
+            # Check username uniqueness.
+            if UserUtils.does_username_exist(username):
+                raise ValueError(f"Email ({username}) is already in use.")
+            # Validate phone numbers uniqueness.
+            for phone_number in phone_numbers:
+                if PhoneNumberUtils.does_phone_number_exist(phone_number):
+                    raise ValueError(
+                        {
+                            "message": f"Phone number ({phone_number}) is already assigned."
+                        }
+                    )
+            # Check health facility existence.
+            if not HealthFacilityUtils.does_facility_exist(health_facility_name):
+                raise ValueError(f"Health facility ({health_facility_name}) not found.")
+
             # Create the user in the user pool.
             response = cognito.create_user(
                 username=username,
@@ -362,6 +381,13 @@ class UserUtils:
         # Isolate the phone numbers to remove.
         removed_phone_numbers = old_phone_numbers.difference(phone_numbers)
 
+        for phone_number in new_phone_numbers:
+            # Validate that the phone number doesn't belong to another user.
+            if not PhoneNumberUtils.is_phone_number_unique_to_user(
+                user_orm.id, phone_number
+            ):
+                raise ValueError(f"Phone number ({phone_number}) is already assigned.")
+
         # Delete the removed phone numbers from the database.
         for phone_number_orm in user_orm.phone_numbers:
             if phone_number_orm.phone_number in removed_phone_numbers:
@@ -417,6 +443,11 @@ class UserUtils:
                                     "phone_numbers": list[str]
                                 }
         """
+        # Check that email doesn't belong to another user.
+        email = user_update_dict["email"]
+        if not UserUtils.is_email_unique_to_user(user_id, email):
+            raise ValueError(f"Email ({email}) is already in use.")
+
         user_orm = crud.read(UserOrm, id=user_id)
         if user_orm is None:
             return ValueError(f"No user with id ({user_id}) found.")
