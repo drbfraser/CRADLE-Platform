@@ -61,7 +61,7 @@ def credentials() -> Tuple[str, str]:
 
     :return: A tuple containing an email and password
     """
-    return "admin@admin.com", "admin"
+    return "admin@admin.com", "Admin_123"
 
 
 @pytest.fixture

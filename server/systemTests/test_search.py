@@ -5,11 +5,13 @@ import requests
 
 def get_login_token(email, password):
     url = "http://localhost:5000/api/user/auth"
-    payload = {"email": email, "password": password}
+    payload = {"username": email, "password": password}
 
     response = requests.post(url, json=payload)
     resp_json = response.json()
-    return resp_json["token"]
+    if "access_token" not in resp_json:
+        print(resp_json)
+    return resp_json["access_token"]
 
 
 def get_bearer_token(email, password):
@@ -22,7 +24,7 @@ def get_authorization_header(email, password):
 
 
 BASE_URL = "http://localhost:5000"
-auth_header_hcw = get_authorization_header("hcw@hcw.com", "hcw123")
+auth_header_hcw = get_authorization_header("hcw@email.com", "Hcw_1234")
 
 
 def get_random_patient_id():

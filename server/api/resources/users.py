@@ -263,14 +263,17 @@ class UserAuthApi(Resource):
             error_message = str(err)
             LOGGER.error(error_message)
             abort(400, message=error_message)
+            return None
 
         # Attempt authentication with Cognito user pool.
         try:
             auth_result = cognito.start_sign_in(**credentials.model_dump())
         except ClientError as err:
+            print(err)
             error = err.response.get("Error")
             print(error)
             abort(401, message=error)
+            return None
 
         # If no exception was raised, then authentication was successful.
 
@@ -284,7 +287,7 @@ class UserAuthApi(Resource):
                 credentials.username,
             )
             print(err)
-            abort(500, message=error)
+            abort(500, message=err)
 
         # Don't include refresh token in body of response.
         refresh_token = auth_result["refresh_token"]
