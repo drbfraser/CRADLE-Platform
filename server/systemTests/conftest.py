@@ -98,7 +98,7 @@ def bearer_token(url: str, credentials: Tuple[str, str]) -> str:
     :return: A bearer token
     """
     url = f"{url}/api/user/auth"
-    payload = {"email": credentials[0], "password": credentials[1]}
+    payload = {"username": credentials[0], "password": credentials[1]}
     response = requests.post(url, json=payload)
     resp_json = response.json()
     return resp_json["access_token"]

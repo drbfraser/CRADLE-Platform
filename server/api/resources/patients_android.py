@@ -19,9 +19,9 @@ from shared.user_utils import UserUtils
 
 def to_global_search_patient(patient):
     global_search_patient = {
-        "patientName": patient["patientName"],
-        "patientId": patient["patientId"],
-        "villageNumber": patient["villageNumber"],
+        "name": patient["name"],
+        "id": patient["id"],
+        "village_number": patient["village_number"],
         "readings": patient["readings"],
         "state": patient["state"],
     }
@@ -35,11 +35,11 @@ def to_global_search_patient(patient):
             }
 
             reading_data = marshal.model_to_dict(
-                crud.read(ReadingOrm, readingId=reading),
+                crud.read(ReadingOrm, id=reading),
                 ReadingSchema,
             )
-            reading_json["dateTimeTaken"] = reading_data["dateTimeTaken"]
-            reading_json["trafficLightStatus"] = reading_data["trafficLightStatus"]
+            reading_json["date_taken"] = reading_data["date_taken"]
+            reading_json["traffic_light_status"] = reading_data["traffic_light_status"]
 
             # add reading dateReferred data to array
             readings_arr.append(reading_json)
@@ -152,8 +152,8 @@ class AndroidForms(Resource):
     )
     def get(patient_id: str, form_template_id: str):
         filters: dict = {
-            "patientId": patient_id,
-            "formClassificationId": form_template_id,
+            "id": patient_id,
+            "form_classification_id": form_template_id,
         }
 
         form = crud.read(FormOrm, **filters)

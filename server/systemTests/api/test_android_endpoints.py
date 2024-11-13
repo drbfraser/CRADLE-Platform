@@ -424,7 +424,7 @@ def test_sync_patients_partially_successful(
     finally:
         crud.delete_all(MedicalRecordOrm, patient_id=patient1_id)
         crud.delete_all(PatientAssociationsOrm, patient_id=patient1_id)
-        crud.delete_by(PatientOrm, patient_id=patient1_id)
+        crud.delete_by(PatientOrm, id=patient1_id)
         crud.delete_all(PregnancyOrm, patient_id=patient2_id)
         crud.delete_all(MedicalRecordOrm, patient_id=patient2_id)
         crud.delete_all(PatientAssociationsOrm, patient_id=patient2_id)
