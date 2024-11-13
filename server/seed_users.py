@@ -61,6 +61,15 @@ users_list: list[SeedUserDict] = [
         "phone_numbers": ["+1-604-123-4567", "+1-604-123-4568"],
     },
     {
+        "name": "Test VHT",
+        "username": "test_vht",
+        "email": "vht@email.com",
+        "password": "Vht_1234",
+        "health_facility_name": "H1000",
+        "role": RoleEnum.VHT.value,
+        "phone_numbers": ["+256-555-100000", "+256-555-100001", "+256-555-100002"],
+    },
+    {
         "name": "CHO User",
         "username": "cho",
         "email": "cho@email.com",
@@ -77,24 +86,6 @@ users_list: list[SeedUserDict] = [
         "health_facility_name": "H0000",
         "role": RoleEnum.HCW.value,
         "phone_numbers": ["+256-555-654321"],
-    },
-    {
-        "name": "VHT User 1",
-        "username": "vht1",
-        "email": "vht1@email.com",
-        "password": "Vht_1234",
-        "health_facility_name": "H1000",
-        "role": RoleEnum.VHT.value,
-        "phone_numbers": ["+256-555-100000", "+256-555-100001", "+256-555-100002"],
-    },
-    {
-        "name": "VHT User 2",
-        "username": "vht2",
-        "email": "vht2@email.com",
-        "password": "Vht_1234",
-        "health_facility_name": "H2000",
-        "role": RoleEnum.VHT.value,
-        "phone_numbers": ["+256-555-200000", "+256-555-200001", "+256-555-200002"],
     },
 ]
 

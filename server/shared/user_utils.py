@@ -287,6 +287,7 @@ class UserUtils:
         role: str,
         password: str,
         phone_numbers: list[str],
+        supervises: Optional[list[int]],
     ):
         """
         Creates a user in both our database and the Cognito user pool.
@@ -302,6 +303,8 @@ class UserUtils:
             assigned to.
         :param role: The role of the new user.
         """
+        if supervises:
+            print(supervises)
         # Register the new user.
         UserUtils.register_user(
             username=username,
