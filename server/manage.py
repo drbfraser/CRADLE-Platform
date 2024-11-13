@@ -42,6 +42,10 @@ cli = FlaskGroup()
 
 # USAGE: python manage.py reset_db
 @cli.command("reset_db")
+def reset_db_cli():
+    reset_db()
+
+
 def reset_db():
     db.drop_all()
     db.create_all()
@@ -53,12 +57,6 @@ def reset_db():
 def drop_all_tables():
     db.drop_all()
     db.session.commit()
-
-
-# USAGE: python manage.py seed_users
-@cli.command("seed_users")
-def seed_users():
-    seed_test_users()
 
 
 # USAGE: python manage.py clear_user_pool
@@ -95,7 +93,8 @@ def seed_minimal(ctx):
     Defaults can be overridden, such as:
        python ./manage.py seed_minimal --email="abc@test.com" --password="TeyHo5@e!0B" --facility_name="Sunny Creek"
     """
-    ctx.invoke(reset_db)
+    # ctx.invoke(reset_db)
+    reset_db()
     seed_minimal_users()
     print("Finished seeding minimal data set")
 
@@ -109,7 +108,8 @@ def seed_test_data(ctx):
 
     The data inserted here should be deterministically generated to ease testing.
     """
-    ctx.invoke(reset_db)
+    # ctx.invoke(reset_db)
+    reset_db()
 
     # Seed users and health facilities.
     seed_test_users()
@@ -181,6 +181,10 @@ def seed_test_data(ctx):
 
 # USAGE: python manage.py seed_test_patient
 @cli.command("seed_test_patient")
+def seed_test_patient_cli():
+    seed_test_patient()
+
+
 def seed_test_patient():
     create_patient_reading_referral_pregnancy(
         "4930004967",
@@ -225,9 +229,15 @@ def seed_test_patient():
 # USAGE: python manage.py seed
 @cli.command("seed")
 @click.pass_context
-def seed(ctx):
+def seed_cli(ctx):
     start = time.time()
-    ctx.invoke(seed_test_data)
+    seed()
+    end = time.time()
+    print(f"The seed script took: {round(end - start, 3)} seconds")
+
+
+def seed():
+    seed_test_data()
 
     # SEED villages
     print("Seeding Villages...")
@@ -331,9 +341,6 @@ def seed(ctx):
 
     print(f"{count + 1}/{len(patient_list)} Patients have been seeded")
     print("Complete!")
-
-    end = time.time()
-    print(f"The seed script took: {round(end - start, 3)} seconds")
 
 
 def create_patient_reading_referral_pregnancy(
