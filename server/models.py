@@ -748,7 +748,7 @@ class ReadingSchema(ma.SQLAlchemyAutoSchema):
 
 
 class HealthFacilitySchema(ma.SQLAlchemyAutoSchema):
-    facilityType = EnumField(FacilityTypeEnum, by_value=True)
+    type = EnumField(FacilityTypeEnum, by_value=True)
 
     class Meta:
         include_fk = True
@@ -758,7 +758,7 @@ class HealthFacilitySchema(ma.SQLAlchemyAutoSchema):
 
 
 class FollowUpSchema(ma.SQLAlchemyAutoSchema):
-    healthcareWorker = fields.Nested(UserSchema)
+    healthcare_worker = fields.Nested(UserSchema)
 
     class Meta:
         include_fk = True
