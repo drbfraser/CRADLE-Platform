@@ -76,7 +76,7 @@ def bearer_token(url: str, credentials: Tuple[str, str]) -> str:
     payload = {"email": credentials[0], "password": credentials[1]}
     response = requests.post(url, json=payload)
     resp_json = response.json()
-    return resp_json["token"]
+    return resp_json["access_token"]
 
 
 @pytest.fixture
