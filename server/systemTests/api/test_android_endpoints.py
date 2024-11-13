@@ -61,14 +61,14 @@ def test_download_readings(
 ):
     create_patient()
     create_reading_with_referral()
-    followup_factory.create(patient_id=patient_info["patient_id"])
+    followup_factory.create(patient_id=patient_info["id"])
 
     response = api_get(endpoint="/api/mobile/readings")
 
     assert response.status_code == 200
     assert any(
-        r["patient_id"] == patient_info["id"] and r["id"] == reading_id
-        for r in response.json()
+        reading["patient_id"] == patient_info["id"] and reading["id"] == reading_id
+        for reading in response.json()
     )
 
 
@@ -91,7 +91,7 @@ def test_sync_patients_fully_successful(
 
     mobile_patient_id = "80259047727"
     mobile_patient = {
-        "patient_id": mobile_patient_id,
+        "id": mobile_patient_id,
         "name": "Ava Jones",
         "sex": SexEnum.FEMALE.value,
         "date_of_birth": "2000-01-01",
@@ -269,7 +269,7 @@ def test_sync_patients_partially_successful(
 
     patient1_id = "77694597005"
     patient1 = {
-        "patient_id": patient1_id,
+        "id": patient1_id,
         "name": "Ava Jones",
         "sex": SexEnum.FEMALE.value,
         "date_of_birth": "2000-01-01",
@@ -292,7 +292,7 @@ def test_sync_patients_partially_successful(
         assert response.status_code == 207
         assert len(response.json()["patients"]) == 1
         assert response.json()["patients"][0]["id"] == patient1_id
-        assert response.json()["errors"][0]["id"] == patient2_id
+        assert response.json()["errors"][0]["patient_id"] == patient2_id
         assert crud.read(PatientOrm, id=patient1_id) is not None
         assert crud.read(PatientOrm, id=patient2_id) is None
 
@@ -322,7 +322,7 @@ def test_sync_patients_partially_successful(
         assert response.status_code == 207
         assert len(response.json()["patients"]) == 1
         assert response.json()["patients"][0]["id"] == patient1_id
-        assert response.json()["errors"][0]["id"] == patient2_id
+        assert response.json()["errors"][0]["patient_id"] == patient2_id
         assert (
             crud.read(MedicalRecordOrm, patient_id=patient1_id, information=history)
             is not None
