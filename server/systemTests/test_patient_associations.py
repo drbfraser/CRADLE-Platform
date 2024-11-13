@@ -12,8 +12,12 @@ def test_patients_for_user_only_returns_patients_associated_with_user(
     facility_factory,
     user_factory,
 ):
-    user_1 = user_factory.create(email="user_1@email.com")
-    user_2 = user_factory.create(email="user_2@email.com")
+    user_1 = user_factory.create(
+        email="user_1@email.com", name="user_1", username="user_1"
+    )
+    user_2 = user_factory.create(
+        email="user_2@email.com", name="user_2", username="user_2"
+    )
 
     facility_1 = facility_factory.create(name="F1")
 
@@ -34,7 +38,7 @@ def test_patients_for_user_doesnt_return_duplicate_patients(
     facility_factory,
     user_factory,
 ):
-    user = user_factory.create(email="user@email.com")
+    user = user_factory.create(email="user@email.com", name="user", username="user")
 
     facility_2 = facility_factory.create(healthFacilityName="F2")
     facility_3 = facility_factory.create(healthFacilityName="F3")
@@ -48,7 +52,7 @@ def test_patients_for_user_doesnt_return_duplicate_patients(
 
 
 def test_patients_for_user_returns_empty_list_if_no_associations(user_factory):
-    user = user_factory.create(email="user@email.com")
+    user = user_factory.create(email="user@email.com", name="user", username="user")
     assert patients_for_user(user) == []
 
 
@@ -57,7 +61,7 @@ def test_patients_at_facility_only_returns_patients_associated_with_facility(
     facility_factory,
     user_factory,
 ):
-    user = user_factory.create(email="user@email.com")
+    user = user_factory.create(email="user@email.com", name="user", username="user")
 
     facility_1 = facility_factory.create(name="F1")
     facility_2 = facility_factory.create(name="F2")
@@ -79,8 +83,12 @@ def test_patients_at_facility_doesnt_return_duplicate_patients(
     facility_factory,
     user_factory,
 ):
-    user_1 = user_factory.create(email="user_1@email.com")
-    user_2 = user_factory.create(email="user_2@email.com")
+    user_1 = user_factory.create(
+        email="user_1@email.com", name="user_1", username="user_1"
+    )
+    user_2 = user_factory.create(
+        email="user_2@email.com", name="user_2", username="user_2"
+    )
 
     facility_1 = facility_factory.create(name="F")
 
@@ -102,7 +110,7 @@ def test_associate_by_id_creates_association(
     facility_factory,
     user_factory,
 ):
-    user = user_factory.create(email="user@email.com")
+    user = user_factory.create(email="user@email.com", name="user", username="user")
     facility_1 = facility_factory.create(name="F")
     patient_4 = patient_factory.create(id="8900")
 
@@ -112,8 +120,12 @@ def test_associate_by_id_creates_association(
 
 
 def test_has_association(patient_factory, facility_factory, user_factory):
-    user_1 = user_factory.create(email="user_1@email.com")
-    user_2 = user_factory.create(email="user_2@email.com")
+    user_1 = user_factory.create(
+        email="user_1@email.com", name="user_1", username="user_1"
+    )
+    user_2 = user_factory.create(
+        email="user_2@email.com", name="user_2", username="user_2"
+    )
 
     facility_2 = facility_factory.create(name="F1")
     facility_3 = facility_factory.create(name="F2")

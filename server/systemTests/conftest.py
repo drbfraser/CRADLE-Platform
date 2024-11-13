@@ -2,8 +2,26 @@ from typing import Callable, Tuple
 
 import pytest
 import requests
+from flask import Flask
 
 from systemTests.mock import factory
+
+
+@pytest.fixture
+def app():
+    from config import app
+
+    app.config.update({"TESTING": True})
+    yield app
+    # Cleanup.
+    app.config.update({"TESTING": False})
+
+
+@pytest.fixture(autouse=True)
+def _provide_app_context(app: Flask):
+    with app.app_context():
+        yield
+
 
 #
 # database Fixtures
@@ -169,10 +187,10 @@ def api(url: str):
         @staticmethod
         def __get_bearer_token(email: str, password: str):
             u = f"{url}/api/user/auth"
-            payload = {"email": email, "password": password}
+            payload = {"username": email, "password": password}
             response = requests.post(u, json=payload)
             resp_json = response.json()
-            return resp_json["token"]
+            return resp_json["access_token"]
 
         @staticmethod
         def __make_request(
