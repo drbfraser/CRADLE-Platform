@@ -8,59 +8,59 @@ from validation.referrals import (
 from validation.validation_exception import ValidationExceptionError
 
 valid_json = {
-    "patientId": "49300028161",
+    "patient_id": "49300028161",
     "comment": "here is a comment",
-    "referralHealthFacilityName": "H0000",
+    "health_facility_name": "H0000",
 }
 
 invalid_missing_health_facility = {
-    "patientId": "49300028161",
+    "patient_id": "49300028161",
     "comment": "here is a comment",
 }
 
 invalid_missing_patient_id = {
     "comment": "here is a comment",
-    "referralHealthFacilityName": "H0000",
+    "health_facility_name": "H0000",
 }
 
 invalid_extra_field = {
-    "patientId": "49300028161",
+    "patient_id": "49300028161",
     "comment": "here is a comment",
-    "referralHealthFacilityName": "H0000",
+    "health_facility_name": "H0000",
     "some_extra_field": "some value",
 }
 
 valid_cancel_put_request = {
-    "isCancelled": True,
-    "cancelReason": "valid reason",
+    "is_cancelled": True,
+    "cancel_reason": "valid reason",
 }
 
 invalid_extra_field_for_cancel_put_request = {
-    "isCancelled": True,
-    "cancelReason": "valid reason",
+    "is_cancelled": True,
+    "cancel_reason": "valid reason",
     "some_extra_field": "some value",
 }
 
 invalid_field_type_for_cancel_put_request = {
-    "isCancelled": 11111,
-    "cancelReason": "valid reason",
+    "is_cancelled": 11111,
+    "cancel_reason": "valid reason",
 }
 
 missing_field_for_cancel_put_request = {
-    "isCancelled": True,
+    "is_cancelled": True,
 }
 
 valid_not_attend_put_request = {
-    "notAttendReason": "valid reason",
+    "not_attend_reason": "valid reason",
 }
 
 invalid_extra_field_for_not_attend_put_request = {
-    "notAttendReason": "valid reason",
+    "not_attend_reason": "valid reason",
     "some_extra_field": "some value",
 }
 
 invalid_field_type_for_not_attend_put_request = {
-    "notAttendReason": 11111,
+    "not_attend_reason": 11111,
 }
 
 

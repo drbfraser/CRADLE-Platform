@@ -176,7 +176,7 @@ class UserFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        import data
+        import crud_test
 
         # from config import flask_bcrypt
         from models import UserOrm
@@ -188,7 +188,7 @@ class UserFactory(ModelFactory):
 
         user = marshal.unmarshal(UserOrm, d)
         crud.create(user)
-        data.db_session.commit()
+        crud_test.db_session.commit()
         return user
 
 

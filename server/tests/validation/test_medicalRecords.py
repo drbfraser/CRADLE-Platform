@@ -4,8 +4,8 @@ from validation.medicalRecords import MedicalRecordValidator
 from validation.validation_exception import ValidationExceptionError
 
 valid_post_request = {
-    "medicalHistory": "Pregnancy induced hypertension",
-    "patientId": 120000,
+    "medical_history": "Pregnancy induced hypertension",
+    "patient_id": 120000,
 }
 
 valid_missing_id = {
@@ -13,37 +13,37 @@ valid_missing_id = {
 }
 
 invalid_mismatching_patient_id = {
-    "medicalHistory": "Pregnancy induced hypertension",
-    "patientId": 120000,
+    "medical_history": "Pregnancy induced hypertension",
+    "patient_id": 120000,
 }
 
-invalid_missing_histories = {"patientId": 120000}
+invalid_missing_histories = {"patient_id": 120000}
 
 invalid_extra_keys = {
     "test": "test",
-    "medicalHistory": "Pregnancy induced hypertension",
-    "patientId": 120000,
+    "medical_history": "Pregnancy induced hypertension",
+    "patient_id": 120000,
 }
 
 
 @pytest.mark.parametrize(
     "json, patient_id, expectation",
     [
-        (valid_post_request, valid_post_request.get("patientId"), None),
+        (valid_post_request, valid_post_request.get("patient_id"), None),
         (valid_missing_id, None, None),
         (
             invalid_mismatching_patient_id,
-            invalid_mismatching_patient_id.get("patientId") + 10,
+            invalid_mismatching_patient_id["patient_id"] + 10,
             ValidationExceptionError,
         ),
         (
             invalid_missing_histories,
-            invalid_missing_histories.get("patientId"),
+            invalid_missing_histories.get("patient_id"),
             ValidationExceptionError,
         ),
         (
             invalid_extra_keys,
-            invalid_extra_keys.get("patientId"),
+            invalid_extra_keys.get("patient_id"),
             ValidationExceptionError,
         ),
     ],
@@ -63,21 +63,21 @@ def test_validate_post_request(json, patient_id, expectation):
 @pytest.mark.parametrize(
     "json, record_id, expectation",
     [
-        (valid_post_request, valid_post_request.get("patientId"), None),
+        (valid_post_request, valid_post_request.get("patient_id"), None),
         (valid_missing_id, None, None),
         (
             invalid_mismatching_patient_id,
-            invalid_mismatching_patient_id.get("patientId") + 10,
+            invalid_mismatching_patient_id["patient_id"] + 10,
             ValidationExceptionError,
         ),
         (
             invalid_missing_histories,
-            invalid_missing_histories.get("patientId"),
+            invalid_missing_histories.get("patient_id"),
             ValidationExceptionError,
         ),
         (
             invalid_extra_keys,
-            invalid_extra_keys.get("patientId"),
+            invalid_extra_keys.get("patient_id"),
             ValidationExceptionError,
         ),
     ],
@@ -93,10 +93,14 @@ def test_validate_put_request(json, record_id, expectation):
             raise AssertionError(f"Unexpected validation error:{e}") from e
 
 
-valid_list_with_history = {"medicalHistory": "history"}
-valid_subset_list = {"id": "1", "medicalHistory": "history"}
+valid_list_with_history = {"medical_history": "history"}
+valid_subset_list = {"id": "1", "medical_history": "history"}
 invalid_extra_key_list = {"test": "test"}
-invalid_extra_key_subset_list = {"id": "1", "medicalHistory": "history", "test": "test"}
+invalid_extra_key_subset_list = {
+    "id": "1",
+    "medical_history": "history",
+    "test": "test",
+}
 
 
 @pytest.mark.parametrize(

@@ -16,56 +16,44 @@ PREGNANCY_START_DATE = 1577865600
 PREGNANCY_END_DATE = 1601535600
 
 pregnancy_post_with_valid_fields_should_return_none = {
-    "patientId": PATIENT_ID,
-    "pregnancyStartDate": PREGNANCY_START_DATE,
-    "gestationalAgeUnit": "WEEKS",
-    "pregnancyEndDate": PREGNANCY_END_DATE,
-    "pregnancyOutcome": "Mode of delivery assisted birth",
+    "patient_id": PATIENT_ID,
+    "start_date": PREGNANCY_START_DATE,
+    "end_date": PREGNANCY_END_DATE,
+    "outcome": "Mode of delivery assisted birth",
 }
 
-pregnancy_post_missing_optional_field_patientId_should_return_none = {
-    "pregnancyStartDate": PREGNANCY_START_DATE,
-    "gestationalAgeUnit": "WEEKS",
-    "pregnancyEndDate": PREGNANCY_END_DATE,
-    "pregnancyOutcome": "Mode of delivery assisted birth",
+pregnancy_post_missing_optional_field_patient_id_should_return_none = {
+    "start_date": PREGNANCY_START_DATE,
+    "end_date": PREGNANCY_END_DATE,
+    "outcome": "Mode of delivery assisted birth",
 }
 
-pregnancy_post_missing_required_field_gestational_age_unit_should_throw_exception = {
-    "patientId": PATIENT_ID,
-    "pregnancyStartDate": PREGNANCY_START_DATE,
-    "pregnancyEndDate": PREGNANCY_END_DATE,
-    "pregnancyOutcome": "Mode of delivery assisted birth",
-}
 
 pregnancy_post_missing_required_field_pregnancy_start_date_unit_should_throw_exception = {
-    "patientId": PATIENT_ID,
-    "gestationalAgeUnit": "WEEKS",
-    "pregnancyEndDate": PREGNANCY_END_DATE,
-    "pregnancyOutcome": "Mode of delivery assisted birth",
+    "patient_id": PATIENT_ID,
+    "end_date": PREGNANCY_END_DATE,
+    "outcome": "Mode of delivery assisted birth",
 }
 
 pregnancy_post_field_pregnancy_start_date_has_invalid_type_should_throw_exception = {
-    "patientId": PATIENT_ID,
-    "pregnancyStartDate": "temp",
-    "gestationalAgeUnit": "WEEKS",
-    "pregnancyEndDate": PREGNANCY_END_DATE,
-    "pregnancyOutcome": "Mode of delivery assisted birth",
+    "patient_id": PATIENT_ID,
+    "start_date": "temp",
+    "end_date": PREGNANCY_END_DATE,
+    "outcome": "Mode of delivery assisted birth",
 }
 
 pregnancy_post_has_unallowed_field_should_throw_exception = {
-    "patientId": PATIENT_ID,
-    "pregnancyStartDate": "temp",
-    "gestationalAgeUnit": "WEEKS",
-    "pregnancyEndDate": PREGNANCY_END_DATE,
-    "pregnancyOutcome": "Mode of delivery assisted birth",
-    "extra": "I am unwelcomed extra",
+    "patient_id": PATIENT_ID,
+    "start_date": "temp",
+    "end_date": PREGNANCY_END_DATE,
+    "outcome": "Mode of delivery assisted birth",
+    "extra": "I am an unwelcome extra",
 }
 
 pregnancy_post_start_date_occurs_after_end_date_should_throw_exception = {
-    "patientId": PATIENT_ID,
-    "gestationalAgeUnit": "WEEKS",
-    "pregnancyStartDate": PREGNANCY_END_DATE + 10000,
-    "pregnancyEndDate": PREGNANCY_END_DATE,
+    "patient_id": PATIENT_ID,
+    "start_date": PREGNANCY_END_DATE + 10000,
+    "end_date": PREGNANCY_END_DATE,
 }
 
 
@@ -74,53 +62,46 @@ pregnancy_post_start_date_occurs_after_end_date_should_throw_exception = {
     [
         (
             pregnancy_post_with_valid_fields_should_return_none,
-            pregnancy_post_with_valid_fields_should_return_none.get("patientId"),
+            pregnancy_post_with_valid_fields_should_return_none.get("patient_id"),
             type(None),
         ),
         (
-            pregnancy_post_missing_optional_field_patientId_should_return_none,
-            pregnancy_post_missing_optional_field_patientId_should_return_none.get(
-                "patientId",
+            pregnancy_post_missing_optional_field_patient_id_should_return_none,
+            pregnancy_post_missing_optional_field_patient_id_should_return_none.get(
+                "patient_id",
             ),
             type(None),
-        ),
-        (
-            pregnancy_post_missing_required_field_gestational_age_unit_should_throw_exception,
-            pregnancy_post_missing_required_field_gestational_age_unit_should_throw_exception.get(
-                "patientId",
-            ),
-            ValidationExceptionError,
         ),
         (
             pregnancy_post_missing_required_field_pregnancy_start_date_unit_should_throw_exception,
             pregnancy_post_missing_required_field_pregnancy_start_date_unit_should_throw_exception.get(
-                "patientId",
+                "patient_id",
             ),
             ValidationExceptionError,
         ),
         (
             pregnancy_post_field_pregnancy_start_date_has_invalid_type_should_throw_exception,
             pregnancy_post_field_pregnancy_start_date_has_invalid_type_should_throw_exception.get(
-                "patientId",
+                "patient_id",
             ),
             ValidationExceptionError,
         ),
         (
             pregnancy_post_has_unallowed_field_should_throw_exception,
-            pregnancy_post_has_unallowed_field_should_throw_exception.get("patientId"),
+            pregnancy_post_has_unallowed_field_should_throw_exception.get("patient_id"),
             ValidationExceptionError,
         ),
         (
             pregnancy_post_start_date_occurs_after_end_date_should_throw_exception,
             pregnancy_post_start_date_occurs_after_end_date_should_throw_exception.get(
-                "patientId",
+                "patient_id",
             ),
             ValidationExceptionError,
         ),
         (
             # this case should throw because unmatched patient id
             pregnancy_post_with_valid_fields_should_return_none,
-            "unmatched_patientId",
+            "unmatched_patient_id",
             ValidationExceptionError,
         ),
     ],
@@ -137,50 +118,44 @@ def test_validate_post_request(json, patient_id, output_type):
 
 
 pregnancy_put_request_with_valid_fields_should_return_none = {
-    "patientId": PATIENT_ID,
-    "pregnancyStartDate": PREGNANCY_START_DATE,
-    "gestationalAgeUnit": "WEEKS",
-    "pregnancyEndDate": PREGNANCY_END_DATE,
-    "pregnancyOutcome": "Mode of delivery assisted birth",
+    "patient_id": PATIENT_ID,
+    "start_date": PREGNANCY_START_DATE,
+    "end_date": PREGNANCY_END_DATE,
+    "outcome": "Mode of delivery assisted birth",
 }
 
 pregnancy_put_missing_optional_field_pregnancy_start_date_should_return_none = {
-    "patientId": PATIENT_ID,
-    "gestationalAgeUnit": "WEEKS",
-    "pregnancyEndDate": PREGNANCY_END_DATE,
-    "pregnancyOutcome": "Mode of delivery assisted birth",
+    "patient_id": PATIENT_ID,
+    "end_date": PREGNANCY_END_DATE,
+    "outcome": "Mode of delivery assisted birth",
 }
 
 pregnancy_put_field_pregnancy_start_date_has_invalid_type_should_throw_exception = {
-    "patientId": PATIENT_ID,
-    "pregnancyStartDate": "temp",
-    "gestationalAgeUnit": "WEEKS",
-    "pregnancyEndDate": PREGNANCY_END_DATE,
-    "pregnancyOutcome": "Mode of delivery assisted birth",
+    "patient_id": PATIENT_ID,
+    "start_date": "temp",
+    "end_date": PREGNANCY_END_DATE,
+    "outcome": "Mode of delivery assisted birth",
 }
 
 pregnancy_put_has_unallowed_field_should_throw_exception = {
-    "patientId": PATIENT_ID,
-    "pregnancyStartDate": PREGNANCY_START_DATE,
-    "gestationalAgeUnit": "WEEKS",
-    "pregnancyEndDate": PREGNANCY_END_DATE,
-    "pregnancyOutcome": "Mode of delivery assisted birth",
+    "patient_id": PATIENT_ID,
+    "start_date": PREGNANCY_START_DATE,
+    "end_date": PREGNANCY_END_DATE,
+    "outcome": "Mode of delivery assisted birth",
     "extra": "I am unwelcomed extra",
 }
 
 pregnancy_put_start_date_occurs_after_end_date_should_throw_exception = {
-    "patientId": PATIENT_ID,
-    "gestationalAgeUnit": "WEEKS",
-    "pregnancyStartDate": PREGNANCY_END_DATE + 10000,
-    "pregnancyEndDate": PREGNANCY_END_DATE,
+    "patient_id": PATIENT_ID,
+    "start_date": PREGNANCY_END_DATE + 10000,
+    "end_date": PREGNANCY_END_DATE,
 }
 
-pregnancy_put_id_unmatch_patientId_should_throw_exception = {
-    "id": "unmatchedId",
-    "patientId": PATIENT_ID,
-    "gestationalAgeUnit": "WEEKS",
-    "pregnancyStartDate": PREGNANCY_START_DATE,
-    "pregnancyEndDate": PREGNANCY_END_DATE,
+pregnancy_put_id_unmatch_patient_id_should_throw_exception = {
+    "id": "unmatched_id",
+    "patient_id": PATIENT_ID,
+    "start_date": PREGNANCY_START_DATE,
+    "end_date": PREGNANCY_END_DATE,
 }
 
 
@@ -189,38 +164,42 @@ pregnancy_put_id_unmatch_patientId_should_throw_exception = {
     [
         (
             pregnancy_put_request_with_valid_fields_should_return_none,
-            pregnancy_put_request_with_valid_fields_should_return_none.get("patientId"),
+            pregnancy_put_request_with_valid_fields_should_return_none.get(
+                "patient_id"
+            ),
             type(None),
         ),
         (
             pregnancy_put_missing_optional_field_pregnancy_start_date_should_return_none,
             pregnancy_put_missing_optional_field_pregnancy_start_date_should_return_none.get(
-                "patientId",
+                "patient_id",
             ),
             type(None),
         ),
         (
             pregnancy_put_field_pregnancy_start_date_has_invalid_type_should_throw_exception,
             pregnancy_put_field_pregnancy_start_date_has_invalid_type_should_throw_exception.get(
-                "patientId",
+                "patient_id",
             ),
             ValidationExceptionError,
         ),
         (
             pregnancy_put_has_unallowed_field_should_throw_exception,
-            pregnancy_put_has_unallowed_field_should_throw_exception.get("patientId"),
+            pregnancy_put_has_unallowed_field_should_throw_exception.get("patient_id"),
             ValidationExceptionError,
         ),
         (
             pregnancy_put_start_date_occurs_after_end_date_should_throw_exception,
             pregnancy_put_start_date_occurs_after_end_date_should_throw_exception.get(
-                "patientId",
+                "patient_id",
             ),
             ValidationExceptionError,
         ),
         (
-            pregnancy_put_id_unmatch_patientId_should_throw_exception,
-            pregnancy_put_id_unmatch_patientId_should_throw_exception.get("patientId"),
+            pregnancy_put_id_unmatch_patient_id_should_throw_exception,
+            pregnancy_put_id_unmatch_patient_id_should_throw_exception.get(
+                "patient_id"
+            ),
             ValidationExceptionError,
         ),
     ],
@@ -237,7 +216,7 @@ def test_validate_put_request(json, pregnancy_id, output_type):
 
 
 valid_empty_list = []
-valid_subset_list = ["id", "patientId"]
+valid_subset_list = ["id", "patient_id"]
 invalid_extra_key_list = ["test"]
 invalid_extra_key_subset_list = ["id", "test"]
 

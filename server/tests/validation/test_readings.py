@@ -4,99 +4,99 @@ from validation.readings import ReadingValidator
 from validation.validation_exception import ValidationExceptionError
 
 valid_json = {
-    "readingId": "asdasd82314278226313803",
-    "patientId": "123456",
-    "bpSystolic": 150,
-    "bpDiastolic": 150,
-    "heartRateBPM": 35,
-    "isFlaggedForFollowup": True,
+    "id": "asdasd82314278226313803",
+    "patient_id": "123456",
+    "systolic_blood_pressure": 150,
+    "diastolic_blood_pressure": 150,
+    "heart_rate": 35,
+    "is_flagged_for_follow_up": True,
     "symptoms": ["Headache,Blurred vision,Bleeding,sleepy"],
-    "dateTimeTaken": 868545,
-    "userId": 1,
-    "followup": {
+    "date_taken": 868545,
+    "user_id": 1,
+    "follow_up": {
         "dateAssessed": 1551447833,
-        "healthcareWorkerId": 2,
+        "healthcare_worker_id": 2,
         "diagnosis": "patient is fine",
-        "medicationPrescribed": "tylenol",
-        "specialInvestigations": "bcccccccccddeeeff",
+        "medication_prescribed": "tylenol",
+        "special_investigations": "bcccccccccddeeeff",
         "treatment": "b",
-        "patientId": "test3",
-        "followupNeeded": "TRUE",
-        "followupInstructions": "pls help, give lots of tylenol",
+        "patient_id": "test3",
+        "follow_up_needed": "TRUE",
+        "follow_up_instructions": "pls help, give lots of tylenol",
     },
 }
 
-# The readingId field is required
+# The id field is required
 required_keys_missing = {
-    "patientId": "123456",
-    "bpSystolic": 150,
-    "bpDiastolic": 150,
-    "heartRateBPM": 35,
-    "isFlaggedForFollowup": True,
+    "patient_id": "123456",
+    "systolic_blood_pressure": 150,
+    "diastolic_blood_pressure": 150,
+    "heart_rate": 35,
+    "is_flagged_for_follow_up": True,
     "symptoms": ["Headache,Blurred vision,Bleeding,sleepy"],
-    "dateTimeTaken": 868545,
-    "userId": 1,
+    "date_taken": 868545,
+    "user_id": 1,
 }
 
-# The readingId field must be type string
+# The id field must be type string
 not_type_string = {
-    "readingId": 123,
-    "patientId": "123456",
-    "bpSystolic": 150,
-    "bpDiastolic": 150,
-    "heartRateBPM": 35,
-    "isFlaggedForFollowup": True,
+    "id": 123,
+    "patient_id": "123456",
+    "systolic_blood_pressure": 150,
+    "diastolic_blood_pressure": 150,
+    "heart_rate": 35,
+    "is_flagged_for_follow_up": True,
     "symptoms": ["Headache,Blurred vision,Bleeding,sleepy"],
-    "dateTimeTaken": 868545,
-    "userId": 1,
+    "date_taken": 868545,
+    "user_id": 1,
 }
 
-# The bpSystolic field must be type int
+# The systolic_blood_pressure field must be type int
 not_type_int = {
-    "readingId": 123,
-    "patientId": "123456",
-    "bpSystolic": 150,
-    "bpDiastolic": "hello",
-    "heartRateBPM": 35,
-    "isFlaggedForFollowup": True,
+    "id": 123,
+    "patient_id": "123456",
+    "systolic_blood_pressure": 150,
+    "diastolic_blood_pressure": "hello",
+    "heart_rate": 35,
+    "is_flagged_for_follow_up": True,
     "symptoms": ["Headache,Blurred vision,Bleeding,sleepy"],
-    "dateTimeTaken": 868545,
-    "userId": 1,
+    "date_taken": 868545,
+    "user_id": 1,
 }
 
 # The symptoms field must be type list
 not_type_list = {
-    "readingId": 123,
-    "patientId": "123456",
-    "bpSystolic": 150,
-    "bpDiastolic": "hello",
-    "heartRateBPM": 35,
-    "isFlaggedForFollowup": True,
+    "id": 123,
+    "patient_id": "123456",
+    "systolic_blood_pressure": 150,
+    "diastolic_blood_pressure": "hello",
+    "heart_rate": 35,
+    "is_flagged_for_follow_up": True,
     "symptoms": "sleepy",
-    "dateTimeTaken": 868545,
-    "userId": 1,
+    "date_taken": 868545,
+    "user_id": 1,
 }
 
-# The followup is invalid as it is missing the dateAssessed field
+# The follow_up is invalid as it is missing the dateAssessed field
 followup_invalid = {
-    "readingId": "asdasd82314278226313803",
-    "patientId": "123456",
-    "bpSystolic": 150,
-    "bpDiastolic": 150,
-    "heartRateBPM": 35,
-    "isFlaggedForFollowup": True,
+    "id": "asdasd82314278226313803",
+    "patient_id": "123456",
+    "systolic_blood_pressure": 150,
+    "diastolic_blood_pressure": 150,
+    "heart_rate": 35,
+    "is_flagged_for_follow_up": True,
     "symptoms": ["Headache,Blurred vision,Bleeding,sleepy"],
-    "dateTimeTaken": 868545,
-    "userId": 1,
-    "followup": {
-        "healthcareWorkerId": 2,
+    "date_taken": 868545,
+    "user_id": 1,
+    "follow_up": {
+        "healthcare_worker_id": 2,
         "diagnosis": "patient is fine",
-        "medicationPrescribed": "tylenol",
-        "specialInvestigations": "bcccccccccddeeeff",
+        "medication_prescribed": "tylenol",
+        "special_investigations": "bcccccccccddeeeff",
         "treatment": "b",
-        "readingId": "test3",
-        "followupNeeded": "TRUE",
-        "followupInstructions": "pls help, give lots of tylenol",
+        "id": "test3",
+        "follow_up_needed": "TRUE",
+        "follow_up_instructions": "pls help, give lots of tylenol",
     },
 }
 

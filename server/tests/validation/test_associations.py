@@ -3,10 +3,10 @@ import pytest
 from validation.associations import AssociationValidator
 from validation.validation_exception import ValidationExceptionError
 
-valid_json = {"patientId": 47, "healthFacilityName": "H0000", "userId": 1}
+valid_json = {"patient_id": 47, "health_facility_name": "H0000", "user_id": 1}
 
-# patientId field is missing
-missing_field = {"healthFacilityName": "H0000", "userId": 1}
+# patient_id field is missing
+missing_field = {"health_facility_name": "H0000", "user_id": 1}
 
 
 @pytest.mark.parametrize(

@@ -11,126 +11,120 @@ two_weeks_ago = int((todays_date - timedelta(weeks=2)).strftime("%s"))
 fifty_weeks_ago = int((todays_date - timedelta(weeks=50)).strftime("%s"))
 
 valid_json = {
-    "patientId": "123456",
-    "patientName": "testName",
-    "isPregnant": True,
-    "patientSex": "FEMALE",
-    "householdNumber": "20",
-    "dob": "1990-05-30",
-    "isExactDob": False,
+    "id": "123456",
+    "name": "test_name",
+    "is_pregnant": True,
+    "sex": "FEMALE",
+    "household_number": "20",
+    "date_of_birth": "1990-05-30",
+    "is_exact_date_of_birth": False,
     "zone": "15",
-    "villageNumber": "50",
-    "pregnancyStartDate": two_weeks_ago,
-    "gestationalAgeUnit": "WEEKS",
-    "drugHistory": "too much tylenol",
-    "medicalHistory": "not enough advil",
+    "village_number": "50",
+    "pregnancy_start_date": two_weeks_ago,
+    "drug_history": "too much tylenol",
+    "medical_history": "not enough advil",
     "allergy": "seafood",
 }
 
-# Patient is pregnant but gestationalTimestamp is missing
+# Patient is pregnant but gestational_timestamp is missing
 missing_pregnancy_start_date = {
-    "patientId": "123456",
-    "patientName": "testName",
-    "isPregnant": True,
-    "patientSex": "FEMALE",
-    "householdNumber": "20",
-    "dob": "1990-05-30",
-    "isExactDob": False,
+    "id": "123456",
+    "name": "test_name",
+    "is_pregnant": True,
+    "sex": "FEMALE",
+    "household_number": "20",
+    "date_of_birth": "1990-05-30",
+    "is_exact_date_of_birth": False,
     "zone": "15",
-    "villageNumber": "50",
+    "village_number": "50",
     "gestationalAgeUnit": "WEEKS",
-    "drugHistory": "too much tylenol",
-    "medicalHistory": "not enough advil",
+    "drug_history": "too much tylenol",
+    "medical_history": "not enough advil",
     "allergy": "seafood",
 }
 
-# gestationalTimestamp must be less than or equal to 43 weeks/10 months
+# gestational_timestamp must be less than or equal to 43 weeks/10 months
 invalid_pregnancy_start_date = {
-    "patientId": "123456",
-    "patientName": "testName",
-    "isPregnant": True,
-    "patientSex": "FEMALE",
-    "householdNumber": "20",
-    "dob": "1990-05-30",
-    "isExactDob": False,
+    "id": "123456",
+    "name": "testName",
+    "is_pregnant": True,
+    "sex": "FEMALE",
+    "household_number": "20",
+    "date_of_birth": "1990-05-30",
+    "is_exact_date_of_birth": False,
     "zone": "15",
-    "villageNumber": "50",
-    "gestationalTimestamp": fifty_weeks_ago,
-    "gestationalAgeUnit": "WEEKS",
-    "drugHistory": "too much tylenol",
-    "medicalHistory": "not enough advil",
+    "village_number": "50",
+    "gestational_timestamp": fifty_weeks_ago,
+    "drug_history": "too much tylenol",
+    "medical_history": "not enough advil",
     "allergy": "seafood",
 }
 
-# patientName must be type string
+# name must be type string
 not_type_string = {
-    "patientId": "123456",
-    "patientName": 11,
-    "isPregnant": True,
-    "patientSex": "FEMALE",
-    "householdNumber": "20",
-    "dob": "1990-05-30",
-    "isExactDob": False,
+    "id": "123456",
+    "name": 11,
+    "is_pregnant": True,
+    "sex": "FEMALE",
+    "household_number": "20",
+    "date_of_birth": "1990-05-30",
+    "is_exact_date_of_birth": False,
     "zone": "15",
-    "villageNumber": "50",
-    "gestationalTimestamp": two_weeks_ago,
-    "gestationalAgeUnit": "WEEKS",
-    "drugHistory": "too much tylenol",
-    "medicalHistory": "not enough advil",
+    "village_number": "50",
+    "gestational_timestamp": two_weeks_ago,
+    "drug_history": "too much tylenol",
+    "medical_history": "not enough advil",
     "allergy": "seafood",
 }
 
-# patientId must be type int
+# id must be type int
 not_type_int = {
-    "patientId": "abc",
-    "patientName": "testName",
-    "isPregnant": True,
-    "patientSex": "FEMALE",
-    "householdNumber": "20",
-    "dob": "1990-05-30",
-    "isExactDob": False,
+    "id": "abc",
+    "name": "testName",
+    "is_pregnant": True,
+    "sex": "FEMALE",
+    "household_number": "20",
+    "date_of_birth": "1990-05-30",
+    "is_exact_date_of_birth": False,
     "zone": "15",
-    "villageNumber": "50",
-    "gestationalTimestamp": two_weeks_ago,
-    "gestationalAgeUnit": "WEEKS",
-    "drugHistory": "too much tylenol",
-    "medicalHistory": "not enough advil",
+    "village_number": "50",
+    "gestational_timestamp": two_weeks_ago,
+    "drug_history": "too much tylenol",
+    "medical_history": "not enough advil",
     "allergy": "seafood",
 }
 
-# patientId must be less than or equal to 14 digits long
+# id must be less than or equal to 14 digits long
 patient_id_too_long = {
-    "patientId": "123456789012345",
-    "patientName": "testName",
-    "isPregnant": True,
-    "patientSex": "FEMALE",
-    "householdNumber": "20",
-    "dob": "1990-05-30",
-    "isExactDob": False,
+    "id": "123456789012345",
+    "name": "testName",
+    "is_pregnant": True,
+    "sex": "FEMALE",
+    "household_number": "20",
+    "date_of_birth": "1990-05-30",
+    "is_exact_date_of_birth": False,
     "zone": "15",
-    "villageNumber": "50",
-    "gestationalTimestamp": two_weeks_ago,
-    "gestationalAgeUnit": "WEEKS",
-    "drugHistory": "too much tylenol",
-    "medicalHistory": "not enough advil",
+    "village_number": "50",
+    "gestational_timestamp": two_weeks_ago,
+    "drug_history": "too much tylenol",
+    "medical_history": "not enough advil",
     "allergy": "seafood",
 }
 
-# dob must be in YYYY-mm-dd format
+# date_of_birth must be in YYYY-mm-dd format
 incorrect_dob_format = {
-    "patientId": "123456",
-    "patientName": "testName",
-    "isPregnant": True,
-    "patientSex": "FEMALE",
-    "householdNumber": "20",
-    "dob": "January 1, 1990",
-    "isExactDob": False,
+    "id": "123456",
+    "name": "testName",
+    "is_pregnant": True,
+    "sex": "FEMALE",
+    "household_number": "20",
+    "date_of_birth": "January 1, 1990",
+    "is_exact_date_of_birth": False,
     "zone": "15",
-    "villageNumber": "50",
-    "gestationalTimestamp": two_weeks_ago,
-    "gestationalAgeUnit": "WEEKS",
-    "drugHistory": "too much tylenol",
-    "medicalHistory": "not enough advil",
+    "village_number": "50",
+    "gestational_timestamp": two_weeks_ago,
+    "drug_history": "too much tylenol",
+    "medical_history": "not enough advil",
     "allergy": "seafood",
 }
 
@@ -162,19 +156,19 @@ def test_validation(json, expectation):
 # Testing validation of PUT request #
 #####################################
 
-valid_put_request = {"patientName": "AA"}
-put_mismatched_patientId = {"patientId": "456"}
-put_invalid_key = {"readingId": "asdfg123"}
-put_not_type_str = {"patientName": 12}
-put_invalid_dob = {"dob": "Oct 12, 2000"}
-put_invalid_gest_timestamp = {"gestationalTimestamp": fifty_weeks_ago}
+valid_put_request = {"name": "AA"}
+put_mismatched_patient_id = {"id": "456"}
+put_invalid_key = {"reading_id": "asdfg123"}
+put_not_type_str = {"name": 12}
+put_invalid_dob = {"date_of_birth": "Oct 12, 2000"}
+put_invalid_gest_timestamp = {"gestational_timestamp": fifty_weeks_ago}
 
 
 @pytest.mark.parametrize(
     "json, expectation",
     [
         (valid_put_request, None),
-        (put_mismatched_patientId, ValidationExceptionError),
+        (put_mismatched_patient_id, ValidationExceptionError),
         (put_invalid_key, ValidationExceptionError),
         (put_not_type_str, ValidationExceptionError),
         (put_invalid_dob, ValidationExceptionError),
