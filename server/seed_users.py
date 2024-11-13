@@ -105,15 +105,12 @@ def populate_user_pool(seed_users: list[SeedUserDict]):
                 print("Deleted ", username)
 
         user_models = [UserRegisterValidator(**seed_user) for seed_user in seed_users]
-        line = "-" * 50
 
         for user_model in user_models:
             # user_dict.pop("supervises")
             UserUtils.create_user(**user_model.model_dump())
             user_id = UserUtils.get_user_id_from_username(user_model.username)
-            print(line)
             print(f"Created user ({username} : {user_id})")
-            print(line)
 
     except ClientError as err:
         print("ERROR: Failed to create user in user pool.")
@@ -127,7 +124,6 @@ def populate_user_pool(seed_users: list[SeedUserDict]):
 
 
 print("Seeding users complete!")
-# End of function.
 
 
 class FacilityDict(TypedDict):
@@ -199,15 +195,9 @@ def seed_facilities(facilities: list[FacilityDict]):
         print(err)
 
 
-# End of function.
-
-
 def seed_minimal_users():
     seed_facilities(facilities_list[:1])
     populate_user_pool(minimal_users_list)
-
-
-# End of function.
 
 
 def seed_test_users():
@@ -216,15 +206,9 @@ def seed_test_users():
     populate_user_pool(users_list)
 
 
-# End of function.
-
-
 def clear_user_pool():
     cognito_user_list = cognito.list_users()
     for cognito_user in cognito_user_list:
         username = cognito_user.get("Username")
         if username is not None:
             cognito.delete_user(username)
-
-
-# End of function.
