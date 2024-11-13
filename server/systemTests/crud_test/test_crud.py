@@ -1,5 +1,5 @@
-from data import crud
 from models import PatientOrm
+from server.data import crud
 
 
 def test_read(patient_factory):
