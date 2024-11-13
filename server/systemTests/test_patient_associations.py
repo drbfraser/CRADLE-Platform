@@ -83,7 +83,7 @@ def test_patients_at_facility_only_returns_patients_associated_with_facility(
     associate(patient_2, facility_2, user)
     associate(patient_3, facility_1, user)
 
-    assert patients_at_facility(facility_2) == [patient_1, patient_3]
+    assert patients_at_facility(facility_1) == [patient_1, patient_3]
     assert patients_at_facility(facility_2) == [patient_2]
 
     user_factory.cleanup()
