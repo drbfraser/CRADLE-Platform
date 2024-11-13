@@ -41,7 +41,6 @@ class UserDict(TypedDict):
     email: str
     health_facility_name: str
     role: str
-    sub: str
 
 
 class UserData(UserDict):
@@ -232,18 +231,6 @@ class UserUtils:
             if cognito_username is None:
                 raise ValueError("Could not retrieve username from user pool.")
             username = cognito_username
-            user_attributes = cognito_user.get("Attributes")
-            if user_attributes is None:
-                cognito.delete_user(username)
-                raise ValueError("Could not retrieve user attributes.")
-            # Find the 'sub' unique identifier for the new user.
-            for attribute in user_attributes:
-                if attribute.get("Name") == "sub":
-                    # Get the sub attribute.
-                    sub = attribute.get("Value")
-            if sub is None:
-                cognito.delete_user(username)
-                raise ValueError("Could not retrieve user's 'sub' attribute.")
         except ClientError as err:
             error = err.response.get("Error")
             raise ValueError(error)
@@ -256,7 +243,6 @@ class UserUtils:
                 name=name,
                 health_facility_name=health_facility_name,
                 role=role,
-                sub=sub,
             )
             # Add phone numbers to database.
             for phone_number in phone_numbers:

@@ -39,9 +39,6 @@ class UserOrm(db.Model):
     username = db.Column(db.String(64), index=True, unique=True, nullable=False)
     email = db.Column(db.String(120), index=True, unique=True, nullable=False)
     role = db.Column(db.String(50))
-    sub = db.Column(
-        db.String(64), unique=True, nullable=False
-    )  # Unique identifier used by Cognito.
 
     # FOREIGN KEYS
     health_facility_name = db.Column(
