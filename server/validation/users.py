@@ -57,7 +57,7 @@ class UserValidator(BaseModel):
             raise ValueError(error)
         return value
 
-    @field_validator("phone_numbers", mode="before")
+    @field_validator("phone_numbers")
     @classmethod
     def format_phone_numbers(cls, phone_numbers: List[str]) -> List[str]:
         formatted_phone_numbers: set[str] = set()
@@ -120,6 +120,7 @@ class UserRegisterValidator(UserValidator):
             return UserRegisterValidator(**request_body)
         except ValidationError as e:
             error_message = str(e.errors()[0]["msg"])
+            print(e)
             raise ValidationExceptionError(error_message)
 
 

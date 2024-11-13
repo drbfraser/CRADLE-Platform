@@ -128,6 +128,7 @@ user_field_phone_numbers_has_invalid_phone_format_should_throw_exception = {
 
 user_register_with_valid_fields_should_return_none = {
     "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
     "health_facility_name": "facility7",
     "role": "ADMIN",
@@ -138,6 +139,7 @@ user_register_with_valid_fields_should_return_none = {
 
 user_register_missing_required_field_password_should_throw_exception = {
     "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
     "health_facility_name": "facility7",
     "role": "ADMIN",
@@ -147,6 +149,7 @@ user_register_missing_required_field_password_should_throw_exception = {
 
 user_register_field_password_has_invalid_type_should_throw_exception = {
     "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
     "health_facility_name": "facility7",
     "role": "ADMIN",
@@ -157,6 +160,7 @@ user_register_field_password_has_invalid_type_should_throw_exception = {
 
 user_register_field_phone_numbers_has_invalid_phone_format_should_throw_exception = {
     "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
     "health_facility_name": "facility7",
     "role": "ADMIN",
@@ -167,6 +171,7 @@ user_register_field_phone_numbers_has_invalid_phone_format_should_throw_exceptio
 
 user_register_missing_required_field_email_should_throw_exception = {
     "name": "Jane",
+    "username": "jane",
     "health_facility_name": "facility7",
     "role": "ADMIN",
     "supervises": [111, 222, 333],
@@ -176,6 +181,7 @@ user_register_missing_required_field_email_should_throw_exception = {
 
 user_register_missing_required_field_health_facility_name_should_throw_exception = {
     "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
     "role": "ADMIN",
     "supervises": [111, 222, 333],
@@ -185,6 +191,7 @@ user_register_missing_required_field_health_facility_name_should_throw_exception
 
 user_register_missing_required_field_role_should_throw_exception = {
     "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
     "health_facility_name": "facility7",
     "supervises": [111, 222, 333],
@@ -194,6 +201,7 @@ user_register_missing_required_field_role_should_throw_exception = {
 
 user_register_missing_required_field_first_name_should_throw_exception = {
     "email": "jane@mail.com",
+    "username": "jane",
     "health_facility_name": "facility7",
     "role": "ADMIN",
     "supervises": [111, 222, 333],
@@ -203,6 +211,7 @@ user_register_missing_required_field_first_name_should_throw_exception = {
 
 user_register_missing_optional_field_supervises_should_return_none = {
     "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
     "health_facility_name": "facility7",
     "role": "ADMIN",
@@ -212,6 +221,7 @@ user_register_missing_optional_field_supervises_should_return_none = {
 
 user_register_field_first_name_has_invalid_type_should_throw_exception = {
     "name": SOME_INTEGER,
+    "username": "jane",
     "email": "jane@mail.com",
     "health_facility_name": "facility7",
     "role": "ADMIN",
@@ -222,6 +232,7 @@ user_register_field_first_name_has_invalid_type_should_throw_exception = {
 
 user_register_field_email_has_invalid_type_should_throw_exception = {
     "name": "Jane",
+    "username": "jane",
     "email": SOME_INTEGER,
     "health_facility_name": "facility7",
     "role": "ADMIN",
@@ -232,6 +243,7 @@ user_register_field_email_has_invalid_type_should_throw_exception = {
 
 user_register_field_health_facility_name_has_invalid_type_should_throw_exception = {
     "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
     "health_facility_name": SOME_INTEGER,
     "role": "ADMIN",
@@ -242,6 +254,7 @@ user_register_field_health_facility_name_has_invalid_type_should_throw_exception
 
 user_register_field_role_has_invalid_type_should_throw_exception = {
     "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
     "health_facility_name": "facility7",
     "role": SOME_INTEGER,
@@ -252,6 +265,7 @@ user_register_field_role_has_invalid_type_should_throw_exception = {
 
 user_register_field_supervises_has_invalid_type_should_throw_exception = {
     "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
     "health_facility_name": "facility7",
     "role": "ADMIN",
@@ -262,6 +276,7 @@ user_register_field_supervises_has_invalid_type_should_throw_exception = {
 
 user_register_field_phone_numbers_has_invalid_type_should_throw_exception = {
     "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
     "health_facility_name": "facility7",
     "role": "ADMIN",
@@ -272,6 +287,7 @@ user_register_field_phone_numbers_has_invalid_type_should_throw_exception = {
 
 user_register_role_is_not_supported_role_should_throw_exception = {
     "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
     "health_facility_name": "facility7",
     "role": "patient",
@@ -282,6 +298,7 @@ user_register_role_is_not_supported_role_should_throw_exception = {
 
 user_register_field_phone_numbers_has_invalid_phone_format_should_throw_exception = {
     "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
     "health_facility_name": "facility7",
     "role": "ADMIN",
