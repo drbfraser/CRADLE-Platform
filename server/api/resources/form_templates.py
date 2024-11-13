@@ -77,7 +77,7 @@ class Root(Resource):
         if classification is not None:
             if crud.read(
                 FormTemplateOrm,
-                formClassificationId=classification.id,
+                form_classification_id=classification.id,
                 version=req["version"],
             ):
                 abort(
@@ -87,25 +87,25 @@ class Root(Resource):
 
             del req["classification"]
 
-            req["formClassificationId"] = classification.id
+            req["form_classification_id"] = classification.id
 
-            previousTemplate = crud.read(
+            previous_template = crud.read(
                 FormTemplateOrm,
-                formClassificationId=classification.id,
+                form_classification_id=classification.id,
                 archived=False,
             )
 
-            if previousTemplate is not None:
-                previousTemplate.archived = True
+            if previous_template is not None:
+                previous_template.archived = True
                 data.db_session.commit()
 
         util.assign_form_or_template_ids(FormTemplateOrm, req)
 
-        formTemplate = marshal.unmarshal(FormTemplateOrm, req)
+        form_template = marshal.unmarshal(FormTemplateOrm, req)
 
-        crud.create(formTemplate, refresh=True)
+        crud.create(form_template, refresh=True)
 
-        return marshal.marshal(formTemplate, shallow=True), 201
+        return marshal.marshal(form_template, shallow=True), 201
 
     @staticmethod
     @swag_from(

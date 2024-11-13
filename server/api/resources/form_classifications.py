@@ -84,11 +84,11 @@ class Root(Resource):
 
         util.assign_form_or_template_ids(FormClassificationOrm, req)
 
-        formClassification = marshal.unmarshal(FormClassificationOrm, req)
+        form_classification = marshal.unmarshal(FormClassificationOrm, req)
 
-        crud.create(formClassification, refresh=True)
+        crud.create(form_classification, refresh=True)
 
-        return marshal.marshal(formClassification, shallow=True), 201
+        return marshal.marshal(form_classification, shallow=True), 201
 
     @staticmethod
     @swag_from(
@@ -164,7 +164,7 @@ class FormClassificationSummary(Resource):
         for form_classification in form_classifications:
             possible_templates = crud.find(
                 FormTemplateOrm,
-                FormTemplateOrm.formClassificationId == form_classification.id,
+                FormTemplateOrm.form_classification_id == form_classification.id,
             )
 
             if len(possible_templates) == 0:
@@ -174,7 +174,7 @@ class FormClassificationSummary(Resource):
             for possible_template in possible_templates:
                 if (
                     result_template is None
-                    or possible_template.dateCreated > result_template.dateCreated
+                    or possible_template.date_created > result_template.date_created
                 ):
                     result_template = possible_template
 
@@ -198,6 +198,6 @@ class FormClassificationTemplates(Resource):
     def get(form_classification_id: str):
         form_templates = crud.read_all(
             FormTemplateOrm,
-            formClassificationId=form_classification_id,
+            form_classification_id=form_classification_id,
         )
         return [marshal.marshal(f, shallow=True) for f in form_templates], 200
