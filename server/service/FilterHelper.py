@@ -19,7 +19,7 @@ def patients_for_hcw(user: UserOrm) -> List[PatientOrm]:
     :param user: A HCW user model
     :return: A list of patients
     """
-    facility = user.healthFacility
+    facility = user.health_facility
     return patients_at_facility(facility)
 
 
@@ -31,7 +31,7 @@ def patients_for_cho(user: UserOrm) -> List[PatientOrm]:
     :return: A list of patients
     """
     cho_patients = patients_for_user(user)
-    vht_patients = [u for vht in user.vhtList for u in patients_for_user(vht)]
+    vht_patients = [u for vht in user.vht_list for u in patients_for_user(vht)]
     return cho_patients + vht_patients
 
 
@@ -64,11 +64,11 @@ def annotated_global_patient_list(
     def __normalized_search(query: str, value: str) -> bool:
         return query.upper() in value.upper()
 
-    facility = user.healthFacility
+    facility = user.health_facility
     all_patients = PatientOrm.query.all()
     return [
         (patient, has_association(patient=patient, facility=facility))
         for patient in all_patients
-        if __normalized_search(search, patient.patientId)
-        or __normalized_search(search, patient.patientName)
+        if __normalized_search(search, patient.id)
+        or __normalized_search(search, patient.name)
     ]

@@ -32,7 +32,7 @@ def test_patients_for_cho(database, user_factory, facility_factory, patient_fact
 
     # Need to manually clean up this relation so that the factories can clean up their
     # objects as this table is not annotated with cascade=delete.
-    u1.vhtList = []
+    u1.vht_list = []
     database.session.commit()
 
 
