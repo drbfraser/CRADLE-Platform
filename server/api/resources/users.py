@@ -1,7 +1,6 @@
 import logging
 import os
 import re
-from typing import Any, cast
 
 from botocore.exceptions import ClientError
 from flasgger import swag_from
@@ -296,10 +295,6 @@ class UserAuthApi(Resource):
         # Don't include refresh token in body of response.
         refresh_token = auth_result["refresh_token"]
         del auth_result["refresh_token"]
-
-        # Don't return sub.
-        user_dict = cast(dict[str, Any], user_dict)
-        del user_dict["sub"]
 
         challenge = auth_result["challenge"]
 
