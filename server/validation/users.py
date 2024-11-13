@@ -70,6 +70,14 @@ class UserValidator(BaseModel):
             formatted_phone_numbers.add(PhoneNumberUtils.format(phone_number))
         return list(formatted_phone_numbers)
 
+    @field_validator("health_facility_name")
+    @classmethod
+    def validate_health_facility_existence(cls, health_facility_name: str) -> str:
+        health_facility_name = health_facility_name.title()
+        if not HealthFacilityUtils.does_facility_exist(health_facility_name):
+            raise ValueError(f"Health facility ({health_facility_name}) not found.")
+        return health_facility_name
+
     @staticmethod
     def validate(request_body: dict):
         """
@@ -150,14 +158,6 @@ class UserRegisterValidator(UserValidator):
         # Return the formatted phone numbers.
         return phone_numbers
 
-    @field_validator("health_facility_name")
-    @classmethod
-    def validate_health_facility_existence(cls, health_facility_name: str) -> str:
-        health_facility_name = health_facility_name.title()
-        if not HealthFacilityUtils.does_facility_exist(health_facility_name):
-            raise ValueError(f"Health facility ({health_facility_name}) not found.")
-        return health_facility_name
-
     @staticmethod
     def validate(request_body: dict):
         try:
@@ -202,14 +202,6 @@ class UserEditValidator(UserValidator):
                     {"message": f"Phone number ({phone_number}) is already assigned."}
                 )
         return self
-
-    @field_validator("health_facility_name")
-    @classmethod
-    def validate_health_facility_existence(cls, health_facility_name: str) -> str:
-        health_facility_name = health_facility_name.title()
-        if not HealthFacilityUtils.does_facility_exist(health_facility_name):
-            raise ValueError(f"Health facility ({health_facility_name}) not found.")
-        return health_facility_name
 
     @staticmethod
     def validate(request_body: dict):
