@@ -55,6 +55,7 @@ class ModelFactory:
         for model in self.models:
             self.db.session.delete(model)
         self.db.session.commit()
+        self.models = []
 
 
 class PatientFactory(ModelFactory):
@@ -176,7 +177,6 @@ class UserFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-
         # from config import flask_bcrypt
         from models import UserOrm
 
