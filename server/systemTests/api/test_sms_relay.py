@@ -45,11 +45,11 @@ def test_create_patient_with_sms_relay(database, api_post):
         for r in reading_ids:
             reading = crud.read(ReadingOrm, readingId=r)
             assert reading is not None
-            assert reading.trafficLightStatus == TrafficLightEnum.GREEN
+            assert reading.traffic_light_status == TrafficLightEnum.GREEN
     finally:
         for r in reading_ids:
-            crud.delete_by(ReadingOrm, readingId=r)
-        crud.delete_by(PatientOrm, patientId=patient_id)
+            crud.delete_by(ReadingOrm, id=r)
+        crud.delete_by(PatientOrm, id=patient_id)
 
 
 def test_create_referral_with_sms_relay(
@@ -59,7 +59,7 @@ def test_create_referral_with_sms_relay(
     patient_info,
 ):
     create_patient()
-    patient_id = patient_info["patientId"]
+    patient_id = patient_info["id"]
     referral_id = "65acfe28-b0d6-4a63-a484-eceb3277fb4e"
     referral_json = __make_referral(referral_id, patient_id)
 
@@ -88,7 +88,7 @@ def test_create_readings_with_sms_relay(
     patient_info,
 ):
     create_patient()
-    patient_id = patient_info["patientId"]
+    patient_id = patient_info["id"]
     reading_id = "65acfe28-b0d6-4a63-a484-eceb3277fb4e"
     referral_json = __make_reading(reading_id, patient_id)
 
@@ -115,7 +115,7 @@ def test_update_patient_name_with_sms_relay(database, patient_factory, api_post)
     patient_factory.create(patientId=patient_id, patientName="AB")
     new_patient_name = "CD"
 
-    patient_update_json = {"patientName": new_patient_name}
+    patient_update_json = {"name": new_patient_name}
 
     method = "PUT"
     endpoint = f"api/patients/{patient_id}/info"
@@ -128,7 +128,7 @@ def test_update_patient_name_with_sms_relay(database, patient_factory, api_post)
 
     assert response.status_code == 200
     assert response_dict["code"] == 200
-    assert crud.read(PatientOrm, patientId=patient_id).patientName == new_patient_name
+    assert crud.read(PatientOrm, id=patient_id).name == new_patient_name
 
 
 def test_create_assessments_with_sms_relay(
@@ -138,7 +138,7 @@ def test_create_assessments_with_sms_relay(
     api_post,
 ):
     create_patient()
-    patient_id = patient_info["patientId"]
+    patient_id = patient_info["id"]
     assessment_json = __make_assessment(patient_id)
 
     method = "POST"
@@ -149,14 +149,14 @@ def test_create_assessments_with_sms_relay(
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
     database.session.commit()
 
-    followupInstructions = assessment_json["followupInstructions"]
+    follow_up_instructions = assessment_json["follow_up_instructions"]
     response_dict = json.loads(response.text)
 
     assert response.status_code == 200
     assert response_dict["code"] == 201
     assert (
-        crud.read(FollowUpOrm, patientId=patient_id).followupInstructions
-        == followupInstructions
+        crud.read(FollowUpOrm, patientId=patient_id).follow_up_instructions
+        == follow_up_instructions
     )
 
 
@@ -174,7 +174,7 @@ def test_update_assessments_with_sms_relay(
     assessment_id = crud.read(FollowUpOrm, patientId=patient_id).id
 
     newInstructions = "II"
-    assessment_json["followupInstructions"] = newInstructions
+    assessment_json["follow_up_instructions"] = newInstructions
 
     method = "PUT"
     endpoint = f"api/assessments/{assessment_id}"
@@ -186,7 +186,8 @@ def test_update_assessments_with_sms_relay(
     assert response.status_code == 200
     assert response_dict["code"] == 200
     assert (
-        crud.read(FollowUpOrm, id=assessment_id).followupInstructions == newInstructions
+        crud.read(FollowUpOrm, id=assessment_id).follow_up_instructions
+        == newInstructions
     )
 
 
@@ -205,7 +206,7 @@ def make_sms_relay_json(
         user_id=user.id,
     ).pop()  # just need one phone number that belongs to the user
 
-    data = {"requestNumber": request_number, "method": method, "endpoint": endpoint}
+    data = {"request_number": request_number, "method": method, "endpoint": endpoint}
 
     if header:
         data["header"] = header
@@ -218,7 +219,7 @@ def make_sms_relay_json(
     iv = "00112233445566778899aabbccddeeff"
     encrypted_data = encryptor.encrypt(compressed_data, iv, secret_key.secret_key)
 
-    return {"phone_number": phone_number.phone_number, "encryptedData": encrypted_data}
+    return {"phone_number": phone_number.phone_number, "encrypted_data": encrypted_data}
 
 
 def get_sms_relay_response(response: requests.Response) -> dict:
@@ -237,13 +238,13 @@ def get_sms_relay_response(response: requests.Response) -> dict:
 
 def __make_patient(patient_id: str, reading_ids: List[str]) -> dict:
     return {
-        "patientId": patient_id,
-        "patientName": "TEST",
-        "patientSex": "FEMALE",
-        "isPregnant": False,
-        "dob": "2004-01-01",
-        "isExactDob": False,
-        "villageNumber": "1",
+        "id": patient_id,
+        "name": "TEST",
+        "sex": "FEMALE",
+        "is_pregnant": False,
+        "date_of_birth": "2004-01-01",
+        "is_exact_date_of_birth": False,
+        "village_number": "1",
         "zone": "1",
         "readings": [__make_reading(r, patient_id) for r in reading_ids],
     }
@@ -251,14 +252,14 @@ def __make_patient(patient_id: str, reading_ids: List[str]) -> dict:
 
 def __make_reading(reading_id: str, patient_id: str) -> dict:
     return {
-        "readingId": reading_id,
-        "bpSystolic": 99,
-        "bpDiastolic": 80,
-        "heartRateBPM": 70,
+        "id": reading_id,
+        "systolic_blood_pressure": 99,
+        "diastolic_blood_pressure": 80,
+        "heart_rate": 70,
         "symptoms": ["a", "b", "c"],
-        "dateTimeTaken": 100,
-        "userId": 1,
-        "patientId": patient_id,
+        "date_taken": 100,
+        "user_id": 1,
+        "patient_id": patient_id,
     }
 
 
@@ -266,18 +267,18 @@ def __make_referral(referral_id: str, patient_id: str) -> dict:
     return {
         "id": referral_id,
         "comment": "here is a comment",
-        "patientId": patient_id,
-        "referralHealthFacilityName": "H0000",
+        "patient_id": patient_id,
+        "health_facility_name": "H0000",
     }
 
 
 def __make_assessment(patient_id: str) -> dict:
     return {
-        "patientId": patient_id,
+        "patient_id": patient_id,
         "diagnosis": "D",
         "treatment": "T",
-        "medicationPrescribed": "M",
-        "specialInvestigations": "S",
-        "followupInstructions": "I",
-        "followupNeeded": True,
+        "medication_prescribed": "M",
+        "special_investigations": "S",
+        "follow_up_instructions": "I",
+        "follow_up_needed": True,
     }

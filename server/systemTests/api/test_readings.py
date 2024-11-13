@@ -12,8 +12,8 @@ def test_invalid_reading_not_created(
     api_post,
 ):
     patient_factory.create(patientId=patient_id)
-    # Removed bpSystolic to make the reading invalid
-    del reading["bpSystolic"]
+    # Removed systolic_blood_pressure to make the reading invalid
+    del reading["systolic_blood_pressure"]
 
     response = api_post(endpoint="/api/readings", json=reading)
     assert response.status_code == 400

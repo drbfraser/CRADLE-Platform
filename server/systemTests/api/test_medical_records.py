@@ -10,7 +10,7 @@ def test_get_record(create_patient, medical_record_factory, medical_record, api_
     response = api_get(endpoint=f"/api/medical_records/{record_id}")
 
     assert response.status_code == 200
-    assert response.json()["medicalHistory"] == medical_record["information"]
+    assert response.json()["medical_history"] == medical_record["information"]
 
 
 def test_put_record(create_patient, medical_record_factory, drug_record, api_put):
@@ -27,8 +27,9 @@ def test_put_record(create_patient, medical_record_factory, drug_record, api_put
     new_record = crud.read(MedicalRecordOrm, id=record_id)
 
     assert response.status_code == 200
+    assert new_record is not None
     assert new_record.information == info
-    assert new_record.isDrugRecord
+    assert new_record.is_drug_record
 
 
 def test_post_and_delete_record(
@@ -42,7 +43,7 @@ def test_post_and_delete_record(
     create_patient()
     record_id = medical_record["id"]
 
-    record = {"id": record_id, "medicalHistory": medical_record["information"]}
+    record = {"id": record_id, "medical_history": medical_record["information"]}
     response = api_post(
         endpoint=f"/api/patients/{patient_id}/medical_records",
         json=record,
@@ -51,9 +52,9 @@ def test_post_and_delete_record(
     new_record = crud.read(MedicalRecordOrm, id=record_id)
 
     assert response.status_code == 201
-    assert new_record.patientId == patient_id
-    assert new_record.information == record["medicalHistory"]
-    assert not new_record.isDrugRecord
+    assert new_record.patient_id == patient_id
+    assert new_record.information == record["medical_history"]
+    assert not new_record.is_drug_record
 
     response = api_delete(endpoint=f"/api/medical_records/{record_id}")
     database.session.commit()
@@ -93,13 +94,13 @@ def test_invalid_record_not_updated(
     record_id = drug_record["id"]
     response = api_put(
         endpoint=f"/api/medical_records/{record_id}",
-        json={"patientId": "0"},
+        json={"patient_id": "0"},
     )
 
     record = crud.read(MedicalRecordOrm, id=record_id)
-
+    assert record is not None
     assert response.status_code == 400
-    assert record.patientId == drug_record["patientId"]
+    assert record.patient_id == drug_record["patient_id"]
 
 
 def test_invalid_record_not_created(

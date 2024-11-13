@@ -11,16 +11,16 @@ def test_create_followup_without_referral(
     api_post,
 ):
     patient_id = "7800"
-    patient_factory.create(patientId=patient_id)
+    patient_factory.create(id=patient_id)
 
     followup_json = {
-        "patientId": patient_id,
+        "patient_id": patient_id,
         "diagnosis": "D",
         "treatment": "T",
-        "medicationPrescribed": "M",
-        "specialInvestigations": "S",
-        "followupInstructions": "I",
-        "followupNeeded": True,
+        "medication_prescribed": "M",
+        "special_investigations": "S",
+        "follow_up_instructions": "I",
+        "follow_up_needed": True,
     }
     response: Response = api_post(endpoint="/api/assessments", json=followup_json)
     database.session.commit()
@@ -40,19 +40,19 @@ def test_create_followup_marks_referral_as_assessed(
 ):
     patient_id = "7800"
     reading_id = "8311d551-03d2-44c6-857a-f1927c5177e3"
-    patient_factory.create(patientId=patient_id)
-    reading_factory.create(patientId=patient_id, readingId=reading_id)
-    referral = referral_factory.create(patientId=patient_id)
+    patient_factory.create(id=patient_id)
+    reading_factory.create(patient_id=patient_id, readingId=reading_id)
+    referral = referral_factory.create(patient_id=patient_id)
     assert not referral.isAssessed
 
     followup_json = {
-        "patientId": patient_id,
+        "patient_id": patient_id,
         "diagnosis": "D",
         "treatment": "T",
-        "medicationPrescribed": "M",
-        "specialInvestigations": "S",
-        "followupInstructions": "I",
-        "followupNeeded": True,
+        "medication_prescribed": "M",
+        "special_investigations": "S",
+        "follow_up_instructions": "I",
+        "follow_up_needed": True,
     }
     response: Response = api_post(endpoint="/api/assessments", json=followup_json)
     database.session.commit()
@@ -69,17 +69,17 @@ def test_invalid_followup_not_created(
     api_post,
 ):
     patient_id = "7800"
-    patient_factory.create(patientId=patient_id)
+    patient_factory.create(id=patient_id)
 
-    # Invalid as followupInstructions is missing when followupNeeded is True
+    # Invalid as follow_up_instructions is missing when follow_up_needed is True
     followup_json = {
-        "patientId": patient_id,
+        "patient_id": patient_id,
         "diagnosis": "D",
         "treatment": "T",
-        "medicationPrescribed": "M",
-        "specialInvestigations": "S",
-        "followupNeeded": True,
-        "followupInstructions": "",
+        "medication_prescribed": "M",
+        "special_investigations": "S",
+        "follow_up_needed": True,
+        "follow_up_instructions": "",
     }
     response: Response = api_post(endpoint="/api/assessments", json=followup_json)
     database.session.commit()

@@ -54,7 +54,7 @@ def form_question_put(qid):
             {
                 "id": qid,
                 "answers": {
-                    "mcidArray": [1],
+                    "mc_id_array": [1],
                 },
             },
         ],

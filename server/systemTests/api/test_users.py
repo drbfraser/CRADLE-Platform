@@ -15,14 +15,14 @@ def generate_random_email(domain="example.com", length=10):
 
 
 def generate_random_phone_number():
-    phone_number = f"{random.randint(1000000000, 9999999999)}"
+    phone_number = f"+1{random.randint(1000000000, 9999999999)}"
     return phone_number
 
 
 # TEST COMMENT
 @pytest.fixture(scope="module")
 def jwt_token():
-    payload = {"email": "admin123@admin.com", "password": "admin123"}
+    payload = {"username": "admin@admin.com", "password": "Admin_123"}
     response = requests.post("http://localhost:5000/api/user/auth", json=payload)
     resp_json = response.json()
     return resp_json["token"]
@@ -34,15 +34,15 @@ def test_register_user(jwt_token):
     random_email = generate_random_email()
     random_number = generate_random_phone_number()
     payload = {
-        "firstName": "ArshdeepS",
+        "name": "ArshdeepS",
         "email": random_email,
-        "phoneNumber": random_number,
-        "phoneNumbers": [random_number],
-        "healthFacilityName": "H0000",
+        "phone_number": random_number,
+        "phone_numbers": [random_number],
+        "health_facility_name": "H0000",
         "password": "1234567",
         "role": "VHT",
         "supervises": [],
-        "userId": 0,
+        "id": 0,
     }
 
     response = requests.post(url_register_user, json=payload, headers=headers)
@@ -53,16 +53,16 @@ def test_edit_user(jwt_token):
     url_edit_user = "http://localhost:5000/api/user/3"
     headers = {"Authorization": "Bearer " + jwt_token}
     payload = {
-        "healthFacilityName": "H0000",
+        "health_facility_name": "H0000",
         "username": "vht",
-        "firstName": "TestVHT***",
+        "name": "TestVHT***",
         "role": "VHT",
-        "email": "vht@vht.com",
+        "email": "vht@email.com",
         "supervises": [],
-        "userId": 3,
-        "phoneNumbers": ["666-666-6666", "555-555-5555", "777-777-7777"],
+        "id": 3,
+        "phone_numbers": ["+1-666-666-6666", "+1-555-555-5555", "+1-777-777-7777"],
         "index": 2,
-        "phoneNumber": "604-715-2845",
+        "phone_number": "+1-604-715-2845",
     }
 
     response = requests.put(url_edit_user, json=payload, headers=headers)
@@ -138,9 +138,9 @@ def test_user_phone_post(jwt_token, user_id, new_phone_number):
     headers = {"Authorization": "Bearer " + jwt_token}
 
     payload = {
-        "newPhoneNumber": new_phone_number,
-        "currentPhoneNumber": None,
-        "oldPhoneNumber": None,
+        "new_phone_number": new_phone_number,
+        "current_phone_number": None,
+        "old_phone_number": None,
     }
     response = requests.post(url_user_phone_update, json=payload, headers=headers)
     resp_body = response.json()
@@ -155,9 +155,9 @@ def test_duplicate_phone_numbers_post(jwt_token, user_id, new_phone_number):
     headers = {"Authorization": "Bearer " + jwt_token}
 
     payload = {
-        "newPhoneNumber": new_phone_number,
-        "currentPhoneNumber": None,
-        "oldPhoneNumber": None,
+        "new_phone_number": new_phone_number,
+        "current_phone_number": None,
+        "old_phone_number": None,
     }
     response = requests.post(url_user_phone_update, json=payload, headers=headers)
     resp_body = response.json()
@@ -171,9 +171,9 @@ def test_user_phone_put(jwt_token, user_id, new_phone_number, updated_phone_numb
     headers = {"Authorization": "Bearer " + jwt_token}
 
     payload = {
-        "newPhoneNumber": updated_phone_number,
-        "currentPhoneNumber": new_phone_number,
-        "oldPhoneNumber": None,
+        "new_phone_number": updated_phone_number,
+        "current_phone_number": new_phone_number,
+        "old_phone_number": None,
     }
     response = requests.put(url_user_phone_update, json=payload, headers=headers)
     resp_body = response.json()
@@ -183,9 +183,9 @@ def test_user_phone_put(jwt_token, user_id, new_phone_number, updated_phone_numb
 
     # after testing, below changes the phone number back to what it was
     payload = {
-        "newPhoneNumber": new_phone_number,
-        "currentPhoneNumber": updated_phone_number,
-        "oldPhoneNumber": None,
+        "new_phone_number": new_phone_number,
+        "current_phone_number": updated_phone_number,
+        "old_phone_number": None,
     }
     response = requests.put(url_user_phone_update, json=payload, headers=headers)
 
@@ -195,9 +195,9 @@ def test_user_phone_delete(jwt_token, user_id, old_phone_number):
     headers = {"Authorization": "Bearer " + jwt_token}
 
     payload = {
-        "oldPhoneNumber": old_phone_number,
-        "currentPhoneNumber": None,
-        "newPhoneNumber": None,
+        "old_phone_number": old_phone_number,
+        "current_phone_number": None,
+        "new_phone_number": None,
     }
     response = requests.delete(url_user_phone_update, json=payload, headers=headers)
     resp_body = response.json()

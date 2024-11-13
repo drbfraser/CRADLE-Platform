@@ -44,7 +44,9 @@ def test_form_template_created(database, form_template, form_template_2, api_pos
         database.session.commit()
         assert response.status_code == 201
     finally:
-        crud.delete_by(FormClassificationOrm, name=form_template["classification"]["name"])
+        crud.delete_by(
+            FormClassificationOrm, name=form_template["classification"]["name"]
+        )
         crud.delete_by(
             FormClassificationOrm,
             name=form_template_2["classification"]["name"],
@@ -71,7 +73,9 @@ def test_form_template_archival(
         assert response.status_code == 201
 
     finally:
-        crud.delete_by(FormClassificationOrm, name=form_template["classification"]["name"])
+        crud.delete_by(
+            FormClassificationOrm, name=form_template["classification"]["name"]
+        )
 
 
 @pytest.fixture
@@ -82,46 +86,50 @@ def form_template():
         "version": "V1",
         "questions": [
             {
-                "questionId": "section header",
-                "categoryIndex": None,
-                "questionIndex": 0,
-                "questionType": "CATEGORY",
+                "question_id": "section header",
+                "category_index": None,
+                "question_index": 0,
+                "question_type": "CATEGORY",
                 "required": True,
-                "questionLangVersions": [
+                "question_lang_versions": [
                     {
                         "lang": "english",
-                        "questionText": "information",
+                        "question_text": "information",
                     },
                     {
                         "lang": "chinese",
-                        "questionText": "信息",
+                        "question_text": "信息",
                     },
                 ],
             },
             {
-                "questionId": "referred-by-name",
-                "categoryIndex": 0,
-                "questionIndex": 1,
-                "questionType": "MULTIPLE_CHOICE",
+                "question_id": "referred-by-name",
+                "category_index": 0,
+                "question_index": 1,
+                "question_type": "MULTIPLE_CHOICE",
                 "required": True,
-                "visibleCondition": [
-                    {"qidx": 0, "relation": "EQUAL_TO", "answers": {"number": 4}},
+                "visible_condition": [
+                    {
+                        "question_index": 0,
+                        "relation": "EQUAL_TO",
+                        "answers": {"number": 4},
+                    },
                 ],
-                "questionLangVersions": [
+                "question_lang_versions": [
                     {
                         "lang": "english",
-                        "questionText": "what's your sex?",
-                        "mcOptions": [
-                            {"mcid": 0, "opt": "male"},
-                            {"mcid": 1, "opt": "female"},
+                        "question_text": "what's your sex?",
+                        "mc_options": [
+                            {"mc_id": 0, "opt": "male"},
+                            {"mc_id": 1, "opt": "female"},
                         ],
                     },
                     {
                         "lang": "chinese",
-                        "questionText": "你的性别？",
-                        "mcOptions": [
-                            {"mcid": 0, "opt": "男"},
-                            {"mcid": 1, "opt": "女"},
+                        "question_text": "你的性别？",
+                        "mc_options": [
+                            {"mc_id": 0, "opt": "男"},
+                            {"mc_id": 1, "opt": "女"},
                         ],
                     },
                 ],
@@ -138,70 +146,70 @@ def form_template_2():
         "version": "V2",
         "questions": [
             {
-                "questionId": "referred-by-name",
-                "categoryIndex": None,
-                "questionIndex": 0,
-                "questionType": "MULTIPLE_CHOICE",
+                "question_id": "referred-by-name",
+                "category_index": None,
+                "question_index": 0,
+                "question_type": "MULTIPLE_CHOICE",
                 "required": True,
-                "visibleCondition": [],
-                "questionLangVersions": [
+                "visible_condition": [],
+                "question_lang_versions": [
                     {
                         "lang": "english",
-                        "questionText": "what's your sex?",
-                        "mcOptions": [
-                            {"mcid": 0, "opt": "male"},
-                            {"mcid": 1, "opt": "female"},
+                        "question_text": "what's your sex?",
+                        "mc_options": [
+                            {"mc_id": 0, "opt": "male"},
+                            {"mc_id": 1, "opt": "female"},
                         ],
                     },
                     {
                         "lang": "chinese",
-                        "questionText": "你的性别？",
-                        "mcOptions": [
-                            {"mcid": 0, "opt": "男"},
-                            {"mcid": 1, "opt": "女"},
+                        "question_text": "你的性别？",
+                        "mc_options": [
+                            {"mc_id": 0, "opt": "男"},
+                            {"mc_id": 1, "opt": "女"},
                         ],
                     },
                 ],
             },
             {
-                "questionId": "section header",
-                "categoryIndex": None,
-                "questionIndex": 1,
-                "questionType": "CATEGORY",
+                "question_id": "section header",
+                "category_index": None,
+                "question_index": 1,
+                "question_type": "CATEGORY",
                 "required": True,
-                "questionLangVersions": [
+                "question_lang_versions": [
                     {
                         "lang": "english",
-                        "questionText": "information",
+                        "question_text": "information",
                     },
                     {
                         "lang": "chinese",
-                        "questionText": "信息",
+                        "question_text": "信息",
                     },
                 ],
             },
             {
-                "questionId": "referred-by-name",
-                "categoryIndex": 1,
-                "questionIndex": 2,
-                "questionType": "MULTIPLE_CHOICE",
+                "question_id": "referred-by-name",
+                "category_index": 1,
+                "question_index": 2,
+                "question_type": "MULTIPLE_CHOICE",
                 "required": True,
-                "visibleCondition": [],
-                "questionLangVersions": [
+                "visible_condition": [],
+                "question_lang_versions": [
                     {
                         "lang": "english",
-                        "questionText": "what's your sex?",
-                        "mcOptions": [
-                            {"mcid": 0, "opt": "male"},
-                            {"mcid": 1, "opt": "female"},
+                        "question_text": "what's your sex?",
+                        "mc_options": [
+                            {"mc_id": 0, "opt": "male"},
+                            {"mc_id": 1, "opt": "female"},
                         ],
                     },
                     {
                         "lang": "chinese",
-                        "questionText": "你的性别？",
-                        "mcOptions": [
-                            {"mcid": 0, "opt": "男"},
-                            {"mcid": 1, "opt": "女"},
+                        "question_text": "你的性别？",
+                        "mc_options": [
+                            {"mc_id": 0, "opt": "男"},
+                            {"mc_id": 1, "opt": "女"},
                         ],
                     },
                 ],
@@ -217,19 +225,19 @@ def form_template3():
         "version": "V1",
         "questions": [
             {
-                "questionId": "section header",
-                "categoryIndex": None,
-                "questionIndex": 0,
-                "questionType": "CATEGORY",
+                "question_id": "section header",
+                "category_index": None,
+                "question_index": 0,
+                "question_type": "CATEGORY",
                 "required": True,
-                "questionLangVersions": [
+                "question_lang_versions": [
                     {
                         "lang": "english",
-                        "questionText": "information",
+                        "question_text": "information",
                     },
                     {
                         "lang": "chinese",
-                        "questionText": "信息",
+                        "question_text": "信息",
                     },
                 ],
             },
@@ -244,19 +252,19 @@ def form_template4():
         "version": "V2",
         "questions": [
             {
-                "questionId": "section header",
-                "categoryIndex": None,
-                "questionIndex": 0,
-                "questionType": "CATEGORY",
+                "question_id": "section header",
+                "category_index": None,
+                "question_index": 0,
+                "question_type": "CATEGORY",
                 "required": True,
-                "questionLangVersions": [
+                "question_lang_versions": [
                     {
                         "lang": "english",
-                        "questionText": "information",
+                        "question_text": "information",
                     },
                     {
                         "lang": "chinese",
-                        "questionText": "信息",
+                        "question_text": "信息",
                     },
                 ],
             },
@@ -275,19 +283,19 @@ def remove_question():
         "version": "V1.2",
         "questions": [
             {
-                "questionId": "section header",
-                "categoryIndex": None,
-                "questionIndex": 0,
-                "questionType": "CATEGORY",
+                "question_id": "section header",
+                "category_index": None,
+                "question_index": 0,
+                "question_type": "CATEGORY",
                 "required": True,
-                "questionLangVersions": [
+                "question_lang_versions": [
                     {
                         "lang": "english",
-                        "questionText": "information",
+                        "question_text": "information",
                     },
                     {
                         "lang": "chinese",
-                        "questionText": "信息",
+                        "question_text": "信息",
                     },
                 ],
             },
@@ -301,72 +309,76 @@ def add_question():
         "version": "V1.3",
         "questions": [
             {
-                "questionId": "section header",
-                "categoryIndex": None,
-                "questionIndex": 0,
-                "questionType": "CATEGORY",
+                "question_id": "section header",
+                "category_index": None,
+                "question_index": 0,
+                "question_type": "CATEGORY",
                 "required": True,
-                "questionLangVersions": [
+                "question_lang_versions": [
                     {
                         "lang": "english",
-                        "questionText": "information",
+                        "question_text": "information",
                     },
                     {
                         "lang": "chinese",
-                        "questionText": "信息",
+                        "question_text": "信息",
                     },
                 ],
             },
             {
-                "questionId": "referred-by-name",
-                "categoryIndex": 0,
-                "questionIndex": 1,
-                "questionType": "MULTIPLE_CHOICE",
+                "question_id": "referred-by-name",
+                "category_index": 0,
+                "question_index": 1,
+                "question_type": "MULTIPLE_CHOICE",
                 "required": True,
-                "visibleCondition": [
-                    {"qidx": 0, "relation": "EQUAL_TO", "answers": {"number": 4}},
+                "visible_condition": [
+                    {
+                        "question_index": 0,
+                        "relation": "EQUAL_TO",
+                        "answers": {"number": 4},
+                    },
                 ],
-                "questionLangVersions": [
+                "question_lang_versions": [
                     {
                         "lang": "english",
-                        "questionText": "what's your sex?",
-                        "mcOptions": [
-                            {"mcid": 0, "opt": "male"},
-                            {"mcid": 1, "opt": "female"},
+                        "question_text": "what's your sex?",
+                        "mc_options": [
+                            {"mc_id": 0, "opt": "male"},
+                            {"mc_id": 1, "opt": "female"},
                         ],
                     },
                     {
                         "lang": "chinese",
-                        "questionText": "你的性别？",
-                        "mcOptions": [
-                            {"mcid": 0, "opt": "男"},
-                            {"mcid": 1, "opt": "女"},
+                        "question_text": "你的性别？",
+                        "mc_options": [
+                            {"mc_id": 0, "opt": "男"},
+                            {"mc_id": 1, "opt": "女"},
                         ],
                     },
                 ],
             },
             {
-                "questionId": "referred-by-name",
-                "categoryIndex": None,
-                "questionIndex": 2,
-                "questionType": "MULTIPLE_CHOICE",
+                "question_id": "referred-by-name",
+                "category_index": None,
+                "question_index": 2,
+                "question_type": "MULTIPLE_CHOICE",
                 "required": True,
-                "visibleCondition": [],
-                "questionLangVersions": [
+                "visible_condition": [],
+                "question_lang_versions": [
                     {
                         "lang": "english",
-                        "questionText": "what's your sex?",
-                        "mcOptions": [
-                            {"mcid": 0, "opt": "male"},
-                            {"mcid": 1, "opt": "female"},
+                        "question_text": "what's your sex?",
+                        "mc_options": [
+                            {"mc_id": 0, "opt": "male"},
+                            {"mc_id": 1, "opt": "female"},
                         ],
                     },
                     {
                         "lang": "chinese",
-                        "questionText": "你的性别？",
-                        "mcOptions": [
-                            {"mcid": 0, "opt": "男"},
-                            {"mcid": 1, "opt": "女"},
+                        "question_text": "你的性别？",
+                        "mc_options": [
+                            {"mc_id": 0, "opt": "男"},
+                            {"mc_id": 1, "opt": "女"},
                         ],
                     },
                 ],

@@ -6,8 +6,8 @@ def test_patients_for_hcw(user_factory, facility_factory, patient_factory):
     f = facility_factory.create(healthFacilityName="F")
     u1 = user_factory.create(email="u1@a", healthFacilityName="F")
     u2 = user_factory.create(email="u2@a", healthFacilityName="F")
-    p1 = patient_factory.create(patientId="9001")
-    p2 = patient_factory.create(patientId="9002")
+    p1 = patient_factory.create(id="9001")
+    p2 = patient_factory.create(id="9002")
 
     assoc.associate(p1, f, u1)
     assoc.associate(p2, f, u2)
@@ -16,11 +16,11 @@ def test_patients_for_hcw(user_factory, facility_factory, patient_factory):
 
 
 def test_patients_for_cho(database, user_factory, facility_factory, patient_factory):
-    f = facility_factory.create(healthFacilityName="F")
-    u1 = user_factory.create(email="u1@a", healthFacilityName="F")
-    u2 = user_factory.create(email="u2@a", healthFacilityName="F")
-    p1 = patient_factory.create(patientId="9001")
-    p2 = patient_factory.create(patientId="9002")
+    f = facility_factory.create(name="F")
+    u1 = user_factory.create(email="u1@a", health_facility_name="F")
+    u2 = user_factory.create(email="u2@a", health_facility_name="F")
+    p1 = patient_factory.create(id="9001")
+    p2 = patient_factory.create(id="9002")
 
     u1.vhtList.append(u2)
     database.session.commit()

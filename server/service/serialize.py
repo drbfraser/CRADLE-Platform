@@ -63,7 +63,7 @@ def serialize_referral_list(referrals: List[Any]) -> list[dict]:
 
 def serialize_pregnancy(pregnancy: PregnancyOrm) -> dict:
     return {
-        "pregnancy_id": pregnancy.id,
+        "id": pregnancy.id,
         "start_date": pregnancy.start_date,
         "end_date": pregnancy.end_date,
         "outcome": pregnancy.outcome,

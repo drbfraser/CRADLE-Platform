@@ -37,7 +37,7 @@ def patient_list_view(user: dict, **kwargs) -> List[Any]:
 
     :param user: JWT identity
     :param **kwargs: Optional query criteria
-    :return: A list of patients each with the fields patientId, patientName, villageNumber
+    :return: A list of patients each with the fields patient_id, patientName, villageNumber
     trafficLightStatus, dateTimeTaken
     """
     return __get_view(user, crud.read_patient_list, **kwargs)
@@ -49,7 +49,7 @@ def referral_list_view(user: dict, **kwargs) -> List[Any]:
 
     :param user: JWT identity
     :param **kwargs: Optional query criteria
-    :return: A list of referrals each with the fields id, patientId, patientName,
+    :return: A list of referrals each with the fields id, patient_id, patientName,
     villageNumber, trafficLightStatus, dateReferred, isAssessed
     """
     return __get_view(user, crud.read_referral_list, **kwargs)
@@ -64,7 +64,7 @@ def pregnancy_view(patient_id: str, **kwargs) -> List[PregnancyOrm]:
     :return: A list of pregnancies
     """
     if not kwargs:
-        return crud.read_all(PregnancyOrm, patientId=patient_id)
+        return crud.read_all(PregnancyOrm, patient_id=patient_id)
     return crud.read_medical_records(PregnancyOrm, patient_id, **kwargs)
 
 
@@ -83,7 +83,7 @@ def medical_record_view(
     if not kwargs:
         return crud.read_all(
             MedicalRecordOrm,
-            patientId=patient_id,
+            patient_id=patient_id,
             isDrugRecord=is_drug_record,
         )
     return crud.read_medical_records(
@@ -153,7 +153,7 @@ def admin_patient_view(user: dict, **kwargs) -> List[Any]:
 
     :param user: JWT identity
     :param **kwargs: Optional query criteria
-    :return: A list of patients each with the fields patientId, patientName, isArchived
+    :return: A list of patients each with the fields patient_id, patientName, isArchived
     """
     return __get_view(user, crud.read_admin_patient, **kwargs)
 
