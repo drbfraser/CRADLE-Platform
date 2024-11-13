@@ -1,5 +1,4 @@
 import logging
-import pprint
 from typing import Any, List, NamedTuple, Union, cast
 
 from flask import request
@@ -23,8 +22,6 @@ from validation.validation_exception import ValidationExceptionError
 
 LOGGER = logging.getLogger(__name__)
 
-pprinter = pprint.PrettyPrinter(indent=4, sort_dicts=False, compact=False)
-
 
 class ModelData(NamedTuple):
     key_value: Union[str, int]
@@ -43,8 +40,6 @@ class SyncPatients(Resource):
 
         # Validate and load patients
         mobile_patients = request.get_json(force=True)
-        print("mobile_patients:")
-        pprinter.pprint(mobile_patients)
         status_code = 200
         errors: List[dict] = list()
         patients_to_create: List[PatientOrm] = list()
@@ -186,7 +181,7 @@ class SyncPatients(Resource):
                     PatientOrm,
                     data.values,
                     autocommit=False,
-                    patient_id=data.key_value,
+                    id=data.key_value,
                 )
             for data in pregnancies_to_update:
                 crud.update(
@@ -196,12 +191,7 @@ class SyncPatients(Resource):
             # Read all patients that have been created or updated since last sync
             current_user = cast(dict[Any, Any], current_user)
             new_patients = view.patient_view(current_user, last_sync)
-            print("new_patients:", new_patients)
             patients_json = [serialize.serialize_patient(p) for p in new_patients]
-            print("patients_json:")
-            pprinter.pprint(patients_json)
-            print("errors:")
-            pprinter.pprint(errors)
         db_session.commit()
 
         return {"patients": patients_json, "errors": errors}, status_code
