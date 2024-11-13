@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 import data
 import models as models
 from data import crud, marshal
+from manage import get_username_from_email
 
 
 class ModelFactory:
@@ -161,9 +162,7 @@ class FollowUpFactory(ModelFactory):
 class UserFactory(ModelFactory):
     def __init__(self, db: SQLAlchemy):
         super(UserFactory, self).__init__(
-            db,
-            health_facility_name="H0000",
-            role="ADMIN",
+            db, health_facility_name="H0000", role="ADMIN", name="user"
         )
 
     def create(self, **kwargs) -> Any:
@@ -181,9 +180,12 @@ class UserFactory(ModelFactory):
         from models import UserOrm
 
         d = dict(**kwargs)
-
-        # # Hash the user's password so that they can login
-        # d["password"] = flask_bcrypt.generate_password_hash(d["password"])
+        email = d.get("email")
+        username = d.get("username")
+        if username is None and email is not None:
+            d["username"] = get_username_from_email(email)
+        elif email is None and username is not None:
+            d["email"] = f"{username}@email.com"
 
         user = marshal.unmarshal(UserOrm, d)
         crud.create(user)
