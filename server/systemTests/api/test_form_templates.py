@@ -22,15 +22,15 @@ def test_form_template_created_with_same_classification_ids(
         database.session.commit()
         assert response.status_code == 201
     finally:
-        classificationId = form_template["classification"]["id"]
+        classification_id = form_template["classification"]["id"]
         crud.delete_by(
             FormTemplateOrm,
-            formClassificationId=classificationId,
+            form_classification_id=classification_id,
             version=form_template["version"],
         )
         crud.delete_by(
             FormTemplateOrm,
-            formClassificationId=classificationId,
+            form_classification_id=classification_id,
             version=form_template4["version"],
         )
 

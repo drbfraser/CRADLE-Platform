@@ -210,7 +210,7 @@ def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
     """
     Assign form id if not provided.
     Assign question id and form_id or form_template_id.
-    Assign lang version qid.
+    Assign lang version question_id.
     Therefore, we can create the form or template one time.
     """
     if req.get("classification") is not None:
@@ -229,7 +229,7 @@ def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
         return
 
     # assign question id and form_id or form_template_id.
-    # assign lang version qid.
+    # assign lang version question_id.
     for question in req["questions"]:
         question["id"] = utils.get_uuid()
 
@@ -240,7 +240,7 @@ def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
 
         if question.get("question_lang_versions") is not None:
             for version in question.get("question_lang_versions"):
-                version["qid"] = question["id"]
+                version["question_id"] = question["id"]
 
 
 def get_query_params(request: Request) -> dict:
