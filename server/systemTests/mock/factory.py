@@ -187,6 +187,11 @@ class UserFactory(ModelFactory):
         elif email is None and username is not None:
             d["email"] = f"{username}@email.com"
 
+        # Default fields.
+        if email is None and username is None:
+            d["email"] = "user@email.com"
+            d["username"] = "user"
+
         user = marshal.unmarshal(UserOrm, d)
         crud.create(user)
         data.db_session.commit()
