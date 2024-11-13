@@ -1,11 +1,11 @@
 import pytest
 
-from enums import GestationalAgeUnitEnum, SexEnum
+from enums import SexEnum
 
 
 @pytest.fixture
 def vht_user_id():
-    # id of "TestVHT" (require seed_test_data)
+    # id of "Test VHT" (require seed_test_data)
     return 3
 
 
@@ -17,13 +17,13 @@ def patient_id():
 @pytest.fixture
 def patient_info(patient_id):
     return {
-        "patientId": patient_id,
-        "patientName": "Mary Brown",
-        "patientSex": SexEnum.FEMALE.value,
-        "dob": "1998-01-01",
-        "isExactDob": False,
-        "villageNumber": "1001",
-        "isArchived": False,
+        "id": patient_id,
+        "name": "Mary Brown",
+        "sex": SexEnum.FEMALE.value,
+        "date_of_birth": "1998-01-01",
+        "is_exact_date_of_birth": False,
+        "village_number": "1001",
+        "is_archived": False,
     }
 
 
@@ -45,11 +45,11 @@ def reading_id():
 def reading(reading_id, patient_id):
     # Invariant - trafficLightStatus: YELLOW_UP
     return {
-        "readingId": reading_id,
-        "patientId": patient_id,
-        "bpSystolic": 142,
-        "bpDiastolic": 91,
-        "heartRateBPM": 63,
+        "id": reading_id,
+        "patient_id": patient_id,
+        "systolic_blood_pressure": 142,
+        "diastolic_blood_pressure": 91,
+        "heart_rate": 63,
         "symptoms": [],
     }
 
@@ -71,17 +71,17 @@ def create_reading_with_referral(
         date_referred=1620000000,
         is_assessed=False,
     ):
-        facility_factory.create(healthFacilityName=facility_name)
+        facility_factory.create(name=facility_name)
         user_factory.create(id=user_id)
 
-        reading.update({"readingId": reading_id, "userId": user_id})
+        reading.update({"id": reading_id, "user_id": user_id})
         reading_factory.create(**reading)
         referral_factory.create(
-            patientId=patient_id,
-            userId=user_id,
-            dateReferred=date_referred,
-            referralHealthFacilityName=facility_name,
-            isAssessed=is_assessed,
+            patient_id=patient_id,
+            user_id=user_id,
+            date_referred=date_referred,
+            health_facility_name=facility_name,
+            is_assessed=is_assessed,
         )
 
     return f
@@ -91,10 +91,9 @@ def create_reading_with_referral(
 def pregnancy_earlier(patient_id):
     return {
         "id": 60360714,
-        "patientId": patient_id,
-        "startDate": 1561011126,
-        "defaultTimeUnit": GestationalAgeUnitEnum.MONTHS.value,
-        "endDate": 1584684726,
+        "patient_id": patient_id,
+        "start_date": 1561011126,
+        "end_date": 1584684726,
         "outcome": "Baby born at 9 months - spontaneous vaginal delivery. Baby weighed 3kg.",
     }
 
@@ -103,9 +102,8 @@ def pregnancy_earlier(patient_id):
 def pregnancy_later(patient_id):
     return {
         "id": 60360715,
-        "patientId": patient_id,
-        "startDate": 1600150326,
-        "defaultTimeUnit": GestationalAgeUnitEnum.WEEKS.value,
+        "patient_id": patient_id,
+        "start_date": 1600150326,
     }
 
 
@@ -113,9 +111,9 @@ def pregnancy_later(patient_id):
 def medical_record(patient_id):
     return {
         "id": 60360716,
-        "patientId": patient_id,
+        "patient_id": patient_id,
         "information": "Pregnancy induced hypertension - onset 5 months.",
-        "isDrugRecord": False,
+        "is_drug_record": False,
     }
 
 
@@ -123,9 +121,9 @@ def medical_record(patient_id):
 def drug_record(patient_id):
     return {
         "id": 60360717,
-        "patientId": patient_id,
+        "patient_id": patient_id,
         "information": "Labetalol 300mg three times daily.",
-        "isDrugRecord": True,
+        "is_drug_record": True,
     }
 
 
@@ -152,38 +150,42 @@ def form(patient_id):
     return {
         "id": "f9",
         "lang": "english",
-        "formTemplateId": "ft9",
-        "formClassificationId": "fc9",
-        "patientId": patient_id,
+        "form_template_id": "ft9",
+        "form_classification_id": "fc9",
+        "patient_id": patient_id,
         "questions": [
             {
-                "questionId": "referred-by-name",
-                "categoryIndex": None,
-                "questionIndex": 0,
-                "questionText": "How the patient's condition?",
-                "questionType": "MULTIPLE_CHOICE",
+                "question_id": "referred-by-name",
+                "category_index": None,
+                "question_index": 0,
+                "question_text": "How the patient's condition?",
+                "question_type": "MULTIPLE_CHOICE",
                 "required": True,
-                "visibleCondition": [
-                    {"qidx": 0, "relation": "EQUAL_TO", "answers": {"number": 4.0}},
-                ],
-                "mcOptions": [
+                "visible_condition": [
                     {
-                        "mcid": 0,
+                        "question_index": 0,
+                        "relation": "EQUAL_TO",
+                        "answers": {"number": 4.0},
+                    },
+                ],
+                "mc_options": [
+                    {
+                        "mc_id": 0,
                         "opt": "Decent",
                     },
                     {
-                        "mcid": 1,
+                        "mc_id": 1,
                         "opt": "French",
                     },
                 ],
-                "answers": {"mcidArray": [0]},
+                "answers": {"mc_idArray": [0]},
             },
             {
-                "questionId": None,
-                "categoryIndex": None,
-                "questionIndex": 1,
-                "questionText": "Info",
-                "questionType": "CATEGORY",
+                "question_id": None,
+                "category_index": None,
+                "question_index": 1,
+                "question_text": "Info",
+                "question_type": "CATEGORY",
                 "required": True,
             },
         ],
