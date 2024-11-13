@@ -27,13 +27,13 @@ class PregnancyModel(BaseModel):
     @staticmethod
     def validate_date_sequence(request_body: dict):
         if (
-            "pregnancy_start_date" in request_body
-            and request_body.get("pregnancy_start_date") is not None
-            and "pregnancy_end_date" in request_body
-            and request_body.get("pregnancy_end_date") is not None
+            "start_date" in request_body
+            and request_body.get("start_date") is not None
+            and "end_date" in request_body
+            and request_body.get("end_date") is not None
         ):
-            start_date = request_body["pregnancy_start_date"]
-            end_date = request_body["pregnancy_end_date"]
+            start_date = request_body["start_date"]
+            end_date = request_body["end_date"]
             if start_date > end_date:
                 raise ValidationExceptionError(
                     "Pregnancy end date must occur after the start date.",
@@ -50,11 +50,11 @@ class PregnancyPostRequestValidator(PregnancyModel):
         :param request_body: Request body as a dictionary, e.g.:
                         {
                             "patient_id": 120000, - required
-                            "pregnancy_start_date": 1620000002, - required
-                            "pregnancy_end_date": 1620000002,
+                            "start_date": 1620000002, - required
+                            "end_date": 1620000002,
                             "outcome": "Mode of delivery assisted birth",
                         }
-        :param pregnancy_id: The pregnancy ID associated with the PUT request.
+        :param id: The pregnancy ID associated with the PUT request.
 
         :return: Raises ValidationExceptionError on validation failure.
         """
@@ -78,7 +78,7 @@ class PregnancyPostRequestValidator(PregnancyModel):
 
 
 class PregnancyPutRequestValidator(PregnancyModel):
-    pregnancy_start_date: Optional[int] = None
+    start_date: Optional[int] = None
 
     @staticmethod
     def validate(request_body: dict, pregnancy_id: str):
@@ -95,6 +95,7 @@ class PregnancyPutRequestValidator(PregnancyModel):
             # Pydantic will validate field presence and type
             PregnancyPutRequestValidator(**request_body)
         except ValidationError as e:
+            print(e)
             # Extracts the first error message from the validation errors list
             error_message = str(e.errors()[0]["msg"])
             raise ValidationExceptionError(error_message)
