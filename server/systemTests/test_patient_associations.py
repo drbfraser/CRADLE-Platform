@@ -32,6 +32,10 @@ def test_patients_for_user_only_returns_patients_associated_with_user(
     assert patients_for_user(user_1) == [patient_1, patient_3]
     assert patients_for_user(user_2) == [patient_2]
 
+    user_factory.cleanup()
+    patient_factory.cleanup()
+    facility_factory.cleanup()
+
 
 def test_patients_for_user_doesnt_return_duplicate_patients(
     patient_factory,
@@ -40,20 +44,25 @@ def test_patients_for_user_doesnt_return_duplicate_patients(
 ):
     user = user_factory.create(email="user@email.com", name="user", username="user")
 
-    facility_2 = facility_factory.create(healthFacilityName="F2")
-    facility_3 = facility_factory.create(healthFacilityName="F3")
+    facility_2 = facility_factory.create(name="F2")
+    facility_3 = facility_factory.create(name="F3")
 
-    patient = patient_factory.create(patientId="8900")
+    patient = patient_factory.create(id="8900")
 
     associate(patient, facility_2, user)
     associate(patient, facility_3, user)
 
     assert patients_for_user(user) == [patient]
 
+    user_factory.cleanup()
+    patient_factory.cleanup()
+    facility_factory.cleanup()
+
 
 def test_patients_for_user_returns_empty_list_if_no_associations(user_factory):
     user = user_factory.create(email="user@email.com", name="user", username="user")
     assert patients_for_user(user) == []
+    user_factory.cleanup()
 
 
 def test_patients_at_facility_only_returns_patients_associated_with_facility(
@@ -77,6 +86,10 @@ def test_patients_at_facility_only_returns_patients_associated_with_facility(
     assert patients_at_facility(facility_2) == [patient_1, patient_3]
     assert patients_at_facility(facility_2) == [patient_2]
 
+    user_factory.cleanup()
+    patient_factory.cleanup()
+    facility_factory.cleanup()
+
 
 def test_patients_at_facility_doesnt_return_duplicate_patients(
     patient_factory,
@@ -99,10 +112,16 @@ def test_patients_at_facility_doesnt_return_duplicate_patients(
 
     assert patients_at_facility(facility_1) == [patient_4]
 
+    user_factory.cleanup()
+    patient_factory.cleanup()
+    facility_factory.cleanup()
+
 
 def test_patients_at_facility_returns_empty_list_if_no_associations(facility_factory):
     facility_1 = facility_factory.create(name="F")
     assert patients_at_facility(facility_1) == []
+
+    facility_factory.cleanup()
 
 
 def test_associate_by_id_creates_association(
@@ -118,8 +137,16 @@ def test_associate_by_id_creates_association(
 
     assert patients_for_user(user) == [patient_4]
 
+    user_factory.cleanup()
+    patient_factory.cleanup()
+    facility_factory.cleanup()
+
 
 def test_has_association(patient_factory, facility_factory, user_factory):
+    user_factory.cleanup()
+    patient_factory.cleanup()
+    facility_factory.cleanup()
+
     user_1 = user_factory.create(
         email="user_1@email.com", name="user_1", username="user_1"
     )
@@ -148,3 +175,7 @@ def test_has_association(patient_factory, facility_factory, user_factory):
     assert not has_association(patient=patient_2, facility=facility_2)
     assert not has_association(facility=facility_3, user=user_1)
     assert not has_association(patient=patient_1, user=user_2)
+
+    user_factory.cleanup()
+    patient_factory.cleanup()
+    facility_factory.cleanup()
