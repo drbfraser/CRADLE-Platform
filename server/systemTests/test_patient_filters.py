@@ -3,9 +3,9 @@ from service import assoc
 
 
 def test_patients_for_hcw(user_factory, facility_factory, patient_factory):
-    f = facility_factory.create(healthFacilityName="F")
-    u1 = user_factory.create(email="u1@a", healthFacilityName="F")
-    u2 = user_factory.create(email="u2@a", healthFacilityName="F")
+    f = facility_factory.create(name="F")
+    u1 = user_factory.create(email="u1@a", health_facility_name="F")
+    u2 = user_factory.create(email="u2@a", health_facility_name="F")
     p1 = patient_factory.create(id="9001")
     p2 = patient_factory.create(id="9002")
 
@@ -22,7 +22,7 @@ def test_patients_for_cho(database, user_factory, facility_factory, patient_fact
     p1 = patient_factory.create(id="9001")
     p2 = patient_factory.create(id="9002")
 
-    u1.vhtList.append(u2)
+    u1.vht_list.append(u2)
     database.session.commit()
 
     assoc.associate(p1, f, u1)
@@ -37,11 +37,11 @@ def test_patients_for_cho(database, user_factory, facility_factory, patient_fact
 
 
 def test_patients_for_vht(user_factory, facility_factory, patient_factory):
-    f = facility_factory.create(healthFacilityName="F")
-    u1 = user_factory.create(email="u1@a", healthFacilityName="F")
-    u2 = user_factory.create(email="u2@a", healthFacilityName="F")
-    p1 = patient_factory.create(patientId="9001")
-    p2 = patient_factory.create(patientId="9002")
+    f = facility_factory.create(name="F")
+    u1 = user_factory.create(email="u1@a", health_facility_name="F")
+    u2 = user_factory.create(email="u2@a", health_facility_name="F")
+    p1 = patient_factory.create(id="9001")
+    p2 = patient_factory.create(id="9002")
 
     assoc.associate(p1, f, u1)
     assoc.associate(p2, f, u2)
