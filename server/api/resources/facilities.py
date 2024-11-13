@@ -46,6 +46,7 @@ class Root(Resource):
             facility_pydantic_model = FacilityValidator.validate(new_facility_to_feed)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
+            return None
 
         new_facility = facility_pydantic_model.model_dump()
 
@@ -59,7 +60,7 @@ class Root(Resource):
         facility_dict = marshal.marshal(
             crud.read(
                 HealthFacilityOrm,
-                name=new_facility["health_facility_name"],
+                name=new_facility["name"],
             ),
         )
         return facility_dict, 201
