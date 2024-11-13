@@ -9,7 +9,7 @@ def test_read(patient_factory):
 
 
 def test_update(patient_factory):
-    patient_factory.create(id="abc", patientName="ABC")
+    patient_factory.create(id="abc", name="ABC")
 
     crud.update(PatientOrm, {"name": "CDE"}, id="abc")
 
