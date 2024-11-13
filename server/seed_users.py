@@ -101,7 +101,7 @@ users_list: list[SeedUserDict] = [
 
 def populate_user_pool(seed_users: list[SeedUserDict]):
     if not ENABLE_DEV_USERS:
-        raise RuntimeError("ERROR: ENABLE_DEV_USERS is not set to true.")
+        raise ValueError("ERROR: ENABLE_DEV_USERS is not set to true.")
 
     try:
         # If the seed users are already in the user pool, delete them and then recreate them.

@@ -26,24 +26,24 @@ class HealthFacilityUtils:
         name = name.title()
 
         if type not in valid_facility_types:
-            raise RuntimeError(f"Type ({type}) is not a valid facility type.")
+            raise ValueError(f"Type ({type}) is not a valid facility type.")
 
         # Check if phone number is valid.
         if not PhoneNumberUtils.is_format_valid(phone_number):
             formatted_phone_number = PhoneNumberUtils.format_to_E164(phone_number)
             print(f"Formatted number: {formatted_phone_number}")
-            raise RuntimeError(f"Phone number ({phone_number}) is not valid.")
+            raise ValueError(f"Phone number ({phone_number}) is not valid.")
 
         # Format phone number for storage.
         formatted_phone_number = PhoneNumberUtils.format_to_E164(phone_number)
 
         # Check if phone number is unique.
         if PhoneNumberUtils.does_phone_number_exist(formatted_phone_number):
-            raise RuntimeError(f"Phone number ({phone_number}) is already assigned.")
+            raise ValueError(f"Phone number ({phone_number}) is already assigned.")
 
         # Check if facility already exists.
         if HealthFacilityUtils.does_facility_exist(name):
-            raise RuntimeError(f"Facility ({name}) already exists.")
+            raise ValueError(f"Facility ({name}) already exists.")
 
         crud.create(
             HealthFacilityOrm(
