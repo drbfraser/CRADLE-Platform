@@ -21,7 +21,7 @@ class MedicalRecordValidator(BaseModel):
     def validate_histories(cls, values):
         if not values.get("drug_history") and not values.get("medical_history"):
             raise ValidationExceptionError(
-                "Either 'medicalHistory' or 'drugHistory' must be present.",
+                "Either 'medical_history' or 'drug_history' must be present.",
             )
         return values
 
@@ -45,6 +45,7 @@ class MedicalRecordValidator(BaseModel):
                 raise ValidationExceptionError("Patient ID does not match.")
 
         except ValidationError as e:
+            print(e)
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
     @staticmethod

@@ -75,6 +75,7 @@ class FormValidator(BaseModel):
 
         error_message = force_consistent_keys(request_body, force_fields)
         if error_message is not None:
+            print(error_message)
             raise ValidationExceptionError(str(error_message))
 
         # validate question put content

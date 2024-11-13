@@ -9,7 +9,7 @@ valid_post_request = {
 }
 
 valid_missing_id = {
-    "drugHistory": "Test drug history",
+    "drug_history": "Test drug history",
 }
 
 invalid_mismatching_patient_id = {

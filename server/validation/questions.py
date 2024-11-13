@@ -260,7 +260,7 @@ class TemplateQuestionValidator(QuestionBase):
 class FormQuestionValidator(QuestionBase):
     question_text: str
     is_blank: bool = False  # Set to False for form questions
-    hasCommentAttached: Optional[bool] = None
+    has_comment_attached: Optional[bool] = None
     id: Optional[str] = None
     mc_options: Optional[List[MultipleChoiceOptionValidator]] = None
     answers: Optional[AnswerValidator] = None

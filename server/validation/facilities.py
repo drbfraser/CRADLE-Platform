@@ -8,7 +8,7 @@ from validation.validation_exception import ValidationExceptionError
 
 
 class FacilityValidator(BaseModel):
-    health_facility_name: str
+    name: str
     phone_number: Optional[str] = None
     location: Optional[str] = None
     type: Optional[str] = None
@@ -22,7 +22,7 @@ class FacilityValidator(BaseModel):
 
         :param request_body: The request body as a dict object
                             {
-                                "health_facility_name": "H12", - required
+                                "name": "H12", - required
                                 "phone_number": "444-444-4444",
                                 "about": "Biggest hospital",
                                 "type": "HOSPITAL"
@@ -33,6 +33,7 @@ class FacilityValidator(BaseModel):
         try:
             return FacilityValidator(**request_body)
         except ValidationError as e:
+            print(e)
             # Extracts the first error message from the validation errors list
             error_message = str(e.errors()[0]["msg"])
             raise ValidationExceptionError(error_message)

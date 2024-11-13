@@ -137,4 +137,5 @@ def test_validate_questions(json, expectation):
         try:
             FormTemplateValidator.validate_questions(json)
         except ValidationExceptionError as e:
+            print(e)
             raise AssertionError(f"Unexpected validation error:{e}") from e

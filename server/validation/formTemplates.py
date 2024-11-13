@@ -32,6 +32,7 @@ class FormTemplateValidator(BaseModel):
         try:
             FormTemplateValidator(**request_body)
         except ValidationError as e:
+            print(e)
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
     @staticmethod
@@ -56,14 +57,14 @@ class FormTemplateValidator(BaseModel):
             # question_index constraint: question index in ascending order
             if index == 0:
                 lang_version_list = [
-                    v.get("lang") for v in question.get("questionLangVersions")
+                    v.get("lang") for v in question.get("question_lang_versions")
                 ]
                 lang_version_list.sort()
 
-                question_index = question.get("questionIndex")
+                question_index = question.get("question_index")
             else:
                 tmp_lang_version_list = [
-                    v.get("lang") for v in question.get("questionLangVersions")
+                    v.get("lang") for v in question.get("question_lang_versions")
                 ]
                 tmp_lang_version_list.sort()
                 if tmp_lang_version_list != lang_version_list:
@@ -71,7 +72,7 @@ class FormTemplateValidator(BaseModel):
                         "lang versions provided between questions are not consistent",
                     )
 
-                cur_question_index = question.get("questionIndex")
+                cur_question_index = question.get("question_index")
                 if question_index < cur_question_index:
                     question_index = cur_question_index
                 else:
