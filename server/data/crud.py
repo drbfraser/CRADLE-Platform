@@ -747,7 +747,7 @@ def read_patients(
         query = query.outerjoin(
             pr2,
             and_(
-                PatientOrm.patient_id == pr2.patient_id,
+                PatientOrm.id == pr2.patient_id,
                 pr2.end_date.isnot(None),
                 pr2.last_edited > last_edited,
             ),

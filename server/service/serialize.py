@@ -149,22 +149,22 @@ def serialize_blank_form_template(form_template: dict) -> dict:
 
 
 def deserialize_patient(
-    data: dict,
+    patient_data: dict,
     shallow: bool = True,
     partial: bool = False,
 ) -> Union[dict, PatientOrm]:
     schema = PatientOrm.schema()
     d = {
-        "id": data.get("id"),
-        "name": data.get("name"),
-        "sex": data.get("sex"),
-        "date_of_birth": data.get("date_of_birth"),
-        "is_exact_date_of_birth": data.get("is_exact_date_of_birth"),
-        "zone": data.get("zone"),
-        "village_number": data.get("village_number"),
-        "household_number": data.get("household_number"),
-        "allergy": data.get("allergy"),
-        "is_archived": data.get("is_archived"),
+        "id": patient_data.get("id"),
+        "name": patient_data.get("name"),
+        "sex": patient_data.get("sex"),
+        "date_of_birth": patient_data.get("date_of_birth"),
+        "is_exact_date_of_birth": patient_data.get("is_exact_date_of_birth"),
+        "zone": patient_data.get("zone"),
+        "village_number": patient_data.get("village_number"),
+        "household_number": patient_data.get("household_number"),
+        "allergy": patient_data.get("allergy"),
+        "is_archived": patient_data.get("is_archived"),
     }
     if partial:
         if err := schema().validate(d, partial=True):
@@ -176,14 +176,14 @@ def deserialize_patient(
         return patient
 
     medical_records = list()
-    if data.get("medical_history"):
-        medical_records.append(deserialize_medical_record(data, False))
-    if data.get("drug_history"):
-        medical_records.append(deserialize_medical_record(data, True))
+    if patient_data.get("medical_history"):
+        medical_records.append(deserialize_medical_record(patient_data, False))
+    if patient_data.get("drug_history"):
+        medical_records.append(deserialize_medical_record(patient_data, True))
 
     pregnancies = list()
-    if data.get("pregnancy_start_date"):
-        pregnancies.append(deserialize_pregnancy(data))
+    if patient_data.get("pregnancy_start_date"):
+        pregnancies.append(deserialize_pregnancy(patient_data))
 
     if medical_records:
         patient.records = medical_records
@@ -194,38 +194,44 @@ def deserialize_patient(
 
 
 def deserialize_pregnancy(
-    data: dict, partial: bool = False
+    patient_data: dict, partial: bool = False
 ) -> Union[dict, PregnancyOrm]:
     schema = PregnancyOrm.schema()
     if partial:
         d = {
-            "end_date": data.get("pregnancy_end_date"),
-            "outcome": data.get("pregnancy_outcome"),
+            "end_date": patient_data.get("pregnancy_end_date"),
+            "outcome": patient_data.get("pregnancy_outcome"),
         }
         if err := schema().validate(d, partial=True):
             raise ValidationError(err)
         return {k: v for k, v in d.items() if v}
 
     d = {
-        "patient_id": data.get("patient_id"),
-        "start_date": data.get("pregnancy_start_date"),
+        "patient_id": patient_data.get("id"),
+        "start_date": patient_data.get("pregnancy_start_date"),
     }
     return schema().load(d)
 
 
-def deserialize_medical_record(data: dict, is_drug_record: bool) -> MedicalRecordOrm:
+def deserialize_medical_record(
+    patient_data: dict, is_drug_record: bool
+) -> MedicalRecordOrm:
     schema = MedicalRecordOrm.schema()
     d = {
-        "patient_id": data.get("patient_id"),
+        "patient_id": patient_data.get("id"),
         "information": (
-            data.get("drug_history") if is_drug_record else data.get("medical_history")
+            patient_data.get("drug_history")
+            if is_drug_record
+            else patient_data.get("medical_history")
         ),
         "is_drug_record": is_drug_record,
     }
-    if (not is_drug_record and data.get("medical_last_edited")) or (
-        is_drug_record and data.get("drug_last_edited")
+    if (not is_drug_record and patient_data.get("medical_last_edited")) or (
+        is_drug_record and patient_data.get("drug_last_edited")
     ):
         d["date_created"] = (
-            data["drug_last_edited"] if is_drug_record else data["medical_last_edited"]
+            patient_data["drug_last_edited"]
+            if is_drug_record
+            else patient_data["medical_last_edited"]
         )
     return schema().load(d)

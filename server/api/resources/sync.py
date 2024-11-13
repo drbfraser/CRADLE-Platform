@@ -1,5 +1,6 @@
 import logging
-from typing import List, NamedTuple, Union
+import pprint
+from typing import Any, List, NamedTuple, Union, cast
 
 from flask import request
 from flask_restful import Resource, abort
@@ -22,6 +23,8 @@ from validation.validation_exception import ValidationExceptionError
 
 LOGGER = logging.getLogger(__name__)
 
+pprinter = pprint.PrettyPrinter(indent=4, sort_dicts=False, compact=False)
+
 
 class ModelData(NamedTuple):
     key_value: Union[str, int]
@@ -36,9 +39,12 @@ class SyncPatients(Resource):
         last_sync = request.args.get("since", None, type=int)
         if not last_sync:
             abort(400, message="'since' query parameter is required")
+            return None
 
         # Validate and load patients
         mobile_patients = request.get_json(force=True)
+        print("mobile_patients:")
+        pprinter.pprint(mobile_patients)
         status_code = 200
         errors: List[dict] = list()
         patients_to_create: List[PatientOrm] = list()
@@ -57,8 +63,8 @@ class SyncPatients(Resource):
             patients_to_update,
             pregnancies_to_update,
         ]
-        for p in mobile_patients:
-            patient_id = p.get("id")
+        for mobile_patient in mobile_patients:
+            patient_id = mobile_patient.get("id")
             # Loop variables each holding a singular model corresponding to a list in models_list
             pt_crt = None
             pr_crt = None
@@ -68,31 +74,47 @@ class SyncPatients(Resource):
             pt_upd = None
             pr_upd = None
             try:
-                server_patient = crud.read(PatientOrm, patient_id=patient_id)
+                server_patient = crud.read(PatientOrm, id=patient_id)
                 if not server_patient:
-                    pt_crt = serialize.deserialize_patient(p, shallow=False)
+                    pt_crt = serialize.deserialize_patient(
+                        mobile_patient, shallow=False
+                    )
                 else:
-                    if (p.get("last_edited") and p["last_edited"] > last_sync) and (
-                        p.get("base") and p["base"] == server_patient.last_edited
+                    if (
+                        mobile_patient.get("last_edited")
+                        and mobile_patient["last_edited"] > last_sync
+                    ) and (
+                        mobile_patient.get("base")
+                        and mobile_patient["base"] == server_patient.last_edited
                     ):
                         # Otherwise, patient personal info has been edited on Android or has
                         # been edited on the server; in the latter case personal info on Android
                         # will be overridden if sync succeeds
-                        values = serialize.deserialize_patient(p, partial=True)
+                        values = serialize.deserialize_patient(
+                            mobile_patient, partial=True
+                        )
                         pt_upd = ModelData(patient_id, values)
 
-                    if p.get("medical_last_edited"):
-                        mrc_crt = serialize.deserialize_medical_record(p, False)
+                    if mobile_patient.get("medical_last_edited"):
+                        mrc_crt = serialize.deserialize_medical_record(
+                            mobile_patient, False
+                        )
 
-                    if p.get("drug_last_edited"):
-                        drc_crt = serialize.deserialize_medical_record(p, True)
+                    if mobile_patient.get("drug_last_edited"):
+                        drc_crt = serialize.deserialize_medical_record(
+                            mobile_patient, True
+                        )
 
                     # Variables for checking conflicts with new pregnancy in the next condition block
                     pregnancy_id = None
                     pregnancy_end_date = None
-                    if p.get("pregnancy_end_date"):
-                        values = serialize.deserialize_pregnancy(p, partial=True)
-                        pregnancy = crud.read(PregnancyOrm, id=p.get("pregnancy_id"))
+                    if mobile_patient.get("pregnancy_end_date"):
+                        values = serialize.deserialize_pregnancy(
+                            mobile_patient, partial=True
+                        )
+                        pregnancy = crud.read(
+                            PregnancyOrm, id=mobile_patient.get("pregnancy_id")
+                        )
                         if not pregnancy or pregnancy.patient_id != patient_id:
                             err = _to_string("pregnancy_id", "invalid")
                             raise ValidationError(err)
@@ -116,11 +138,13 @@ class SyncPatients(Resource):
                             pr_upd = ModelData(pregnancy_id, values)
 
                     if (
-                        p.get("pregnancy_start_date") and not p.get("pregnancy_id")
+                        mobile_patient.get("pregnancy_start_date")
+                        and not mobile_patient.get("pregnancy_id")
                     ) or (
-                        p.get("pregnancy_start_date") and p.get("pregnancy_end_date")
+                        mobile_patient.get("pregnancy_start_date")
+                        and mobile_patient.get("pregnancy_end_date")
                     ):
-                        model = serialize.deserialize_pregnancy(p)
+                        model = serialize.deserialize_pregnancy(mobile_patient)
                         if (
                             pregnancy_end_date
                             and model.start_date <= pregnancy_end_date
@@ -170,8 +194,14 @@ class SyncPatients(Resource):
                 )
 
             # Read all patients that have been created or updated since last sync
+            current_user = cast(dict[Any, Any], current_user)
             new_patients = view.patient_view(current_user, last_sync)
+            print("new_patients:", new_patients)
             patients_json = [serialize.serialize_patient(p) for p in new_patients]
+            print("patients_json:")
+            pprinter.pprint(patients_json)
+            print("errors:")
+            pprinter.pprint(errors)
         db_session.commit()
 
         return {"patients": patients_json, "errors": errors}, status_code
