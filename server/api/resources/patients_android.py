@@ -152,8 +152,8 @@ class AndroidForms(Resource):
     )
     def get(patient_id: str, form_template_id: str):
         filters: dict = {
-            "id": patient_id,
-            "form_classification_id": form_template_id,
+            "patient_id": patient_id,
+            "form_template_id": form_template_id,
         }
 
         form = crud.read(FormOrm, **filters)
