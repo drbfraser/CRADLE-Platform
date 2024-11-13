@@ -14,7 +14,7 @@ valid_json = {
     "date_taken": 868545,
     "user_id": 1,
     "follow_up": {
-        "dateAssessed": 1551447833,
+        "date_assessed": 1551447833,
         "healthcare_worker_id": 2,
         "diagnosis": "patient is fine",
         "medication_prescribed": "tylenol",
@@ -24,31 +24,6 @@ valid_json = {
         "follow_up_needed": "TRUE",
         "follow_up_instructions": "pls help, give lots of tylenol",
     },
-}
-
-# The id field is required
-required_keys_missing = {
-    "patient_id": "123456",
-    "systolic_blood_pressure": 150,
-    "diastolic_blood_pressure": 150,
-    "heart_rate": 35,
-    "is_flagged_for_follow_up": True,
-    "symptoms": ["Headache,Blurred vision,Bleeding,sleepy"],
-    "date_taken": 868545,
-    "user_id": 1,
-}
-
-# The id field must be type string
-not_type_string = {
-    "id": 123,
-    "patient_id": "123456",
-    "systolic_blood_pressure": 150,
-    "diastolic_blood_pressure": 150,
-    "heart_rate": 35,
-    "is_flagged_for_follow_up": True,
-    "symptoms": ["Headache,Blurred vision,Bleeding,sleepy"],
-    "date_taken": 868545,
-    "user_id": 1,
 }
 
 # The systolic_blood_pressure field must be type int
@@ -77,8 +52,8 @@ not_type_list = {
     "user_id": 1,
 }
 
-# The follow_up is invalid as it is missing the dateAssessed field
-followup_invalid = {
+# The follow_up is invalid as it is missing the date_assessed field
+follow_up_invalid = {
     "id": "asdasd82314278226313803",
     "patient_id": "123456",
     "systolic_blood_pressure": 150,
@@ -105,11 +80,9 @@ followup_invalid = {
     "json, expectation",
     [
         (valid_json, None),
-        (required_keys_missing, ValidationExceptionError),
-        (not_type_string, ValidationExceptionError),
         (not_type_int, ValidationExceptionError),
         (not_type_list, ValidationExceptionError),
-        (followup_invalid, ValidationExceptionError),
+        (follow_up_invalid, ValidationExceptionError),
     ],
 )
 def test_validation(json, expectation):

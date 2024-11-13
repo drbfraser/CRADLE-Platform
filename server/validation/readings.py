@@ -25,7 +25,7 @@ class ReadingValidator(BaseModel):
 
         :param request_body: The request body as a dict object
                             {
-                                    "patient_id": "123456", - required
+                                "patient_id": "123456", - required
                                 "systolic_blood_pressure" : 150, - required
                                 "diastolic_blood_pressure" : 150, - required
                                 "heart_rate" : 35, - required
