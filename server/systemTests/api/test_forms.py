@@ -32,8 +32,8 @@ def test_form_created(
         form_id = "f9"
         question = crud.read(
             QuestionOrm,
-            formId=form_id,
-            questionText="How the patient's condition?",
+            form_id=form_id,
+            question_text="How the patient's condition?",
         )
         assert question is not None
         response = api_put(

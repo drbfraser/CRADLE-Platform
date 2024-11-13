@@ -178,7 +178,7 @@ def form(patient_id):
                         "opt": "French",
                     },
                 ],
-                "answers": {"mc_idArray": [0]},
+                "answers": {"mc_id_array": [0]},
             },
             {
                 "question_id": None,
