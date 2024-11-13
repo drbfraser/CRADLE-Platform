@@ -72,7 +72,7 @@ def associate_by_id(
     :except ValueError: If any of the identifiers don't identify a value
     :return: An association object
     """
-    patient = crud.read(PatientOrm, id=id)
+    patient = crud.read(PatientOrm, id=patient_id)
     facility = crud.read(HealthFacilityOrm, name=facility_name)
     user = crud.read(UserOrm, id=user_id)
 
