@@ -14,7 +14,7 @@ def test_admin_login():
     print(json.dumps(resp_json, indent=4))
     assert response.status_code == 200
     assert resp_json["access_token"] is not None
-    assert resp_json["is_logged_In"] is True
+    assert resp_json["user"] is not None
 
 
 def test_hcw_login():
@@ -26,7 +26,7 @@ def test_hcw_login():
     print(json.dumps(resp_json, indent=4))
     assert response.status_code == 200
     assert resp_json["access_token"] is not None
-    assert resp_json["is_logged_In"] is True
+    assert resp_json["user"] is not None
 
 
 def test_cho_login():
@@ -38,7 +38,7 @@ def test_cho_login():
     print(json.dumps(resp_json, indent=4))
     assert response.status_code == 200
     assert resp_json["access_token"] is not None
-    assert resp_json["is_logged_In"] is True
+    assert resp_json["user"] is not None
 
 
 def test_vht_login():
@@ -50,7 +50,7 @@ def test_vht_login():
     print(json.dumps(resp_json, indent=4))
     assert response.status_code == 200
     assert resp_json["access_token"] is not None
-    assert resp_json["is_logged_In"] is True
+    assert resp_json["user"] is not None
 
 
 def test_invalid_login():

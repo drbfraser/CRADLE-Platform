@@ -274,6 +274,10 @@ class UserAuthApi(Resource):
             print(error)
             abort(401, message=error)
             return None
+        except ValueError as err:
+            print(err)
+            abort(401, message=str(err))
+            return None
 
         # If no exception was raised, then authentication was successful.
 

@@ -207,7 +207,10 @@ class CognitoClientWrapper:
                 username,
                 error,
             )
-            raise
+            message = ""
+            if error is not None:
+                message = error.get("Message")
+            raise ValueError(message)
         else:
             # Authentication response may require user to set a new password.
             auth_result = auth_response.get("AuthenticationResult")
