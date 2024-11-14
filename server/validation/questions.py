@@ -1,6 +1,6 @@
 from typing import List, Optional, Union
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, field_serializer
 from typing_extensions import Annotated
 
 from enums import QRelationalEnum, QuestionTypeEnum
@@ -10,84 +10,6 @@ from validation.validation_exception import ValidationExceptionError
 class MultipleChoiceOptionValidator(BaseModel):
     mc_id: int
     opt: str
-
-
-class Answer(BaseModel):
-    comment: Optional[str] = None
-    mc_id_array: Optional[List[int]] = None
-    number: Optional[Union[int, float]] = None
-    text: Optional[str] = None
-
-    class Config:
-        extra = "forbid"
-
-
-class VisibleCondition(BaseModel):
-    answers: Answer
-    question_index: int
-    relation: QRelationalEnum
-
-
-class QuestionLangVersion(BaseModel):
-    lang: str
-    mc_options: Optional[List[MultipleChoiceOptionValidator]] = None
-    question_text: str
-
-    class Config:
-        extra = "forbid"
-
-
-class TemplateQuestion(BaseModel):
-    question_index: Annotated[int, Field(strict=True, ge=0)]  # Non-negative index
-    question_type: QuestionTypeEnum
-    question_lang_versions: List[QuestionLangVersion]
-    is_blank: bool = True  # Set to true for template questions
-    question_id: Optional[str] = None
-    required: Optional[bool] = None
-    allow_past_dates: Optional[bool] = None
-    allow_future_dates: Optional[bool] = None
-    units: Optional[str] = None
-    visible_condition: Optional[List[VisibleCondition]] = None
-    num_min: Optional[Union[int, float]] = None
-    num_max: Optional[Union[int, float]] = None
-    string_max_length: Optional[int] = None
-    category_index: Optional[int] = None
-    string_max_lines: Optional[int] = None
-    form_template_id: Optional[str] = None
-
-    class Config:
-        extra = "forbid"
-
-
-class FormQuestion(BaseModel):
-    question_index: Annotated[int, Field(strict=True, ge=0)]  # Non-negative index
-    question_type: QuestionTypeEnum
-    question_text: str
-    is_blank: bool = False  # Set to False for form questions
-    question_id: Optional[str] = None
-    required: Optional[bool] = None
-    allow_past_dates: Optional[bool] = None
-    allow_future_dates: Optional[bool] = None
-    units: Optional[str] = None
-    visible_condition: Optional[List[VisibleCondition]] = None
-    num_min: Optional[Union[int, float]] = None
-    num_max: Optional[Union[int, float]] = None
-    string_max_length: Optional[int] = None
-    category_index: Optional[int] = None
-    string_max_lines: Optional[int] = None
-    has_comment_attached: Optional[bool] = None
-    id: Optional[str] = None
-    mc_options: Optional[List[MultipleChoiceOptionValidator]] = None
-    answers: Optional[Answer] = None
-    form_template_id: Optional[str] = None
-
-    class Config:
-        extra = "forbid"
-
-
-class FormQuestionPut(BaseModel):
-    id: str
-    answers: Answer
 
 
 class AnswerValidator(BaseModel):
@@ -134,6 +56,10 @@ class VisibleConditionValidator(BaseModel):
     answers: AnswerValidator
     question_index: int
     relation: QRelationalEnum
+
+    @field_serializer("relation")
+    def serialize_relation(self, relation: QRelationalEnum):
+        return relation.value
 
     @staticmethod
     def validate(question: dict):
