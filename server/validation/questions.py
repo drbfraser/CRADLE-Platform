@@ -117,14 +117,14 @@ class AnswerValidator(BaseModel):
         target = "answers"
 
         if target not in question:
-            return None
+            return
 
         error = check_target_not_null(target, question)
         if error:
             raise ValidationExceptionError(str(error))
 
         try:
-            return AnswerValidator(**question[target])
+            AnswerValidator(**question[target])
         except ValidationError as e:
             print(e)
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
