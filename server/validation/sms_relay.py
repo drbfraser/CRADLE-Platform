@@ -1,13 +1,20 @@
 from typing import Optional
 
-from pydantic import BaseModel, ValidationError, model_validator
+from pydantic import BaseModel, ValidationError, field_validator, model_validator
 
+from shared.phone_number_utils import PhoneNumberUtils
 from validation.validation_exception import ValidationExceptionError
 
 
 class SmsRelayValidator(BaseModel):
     phone_number: str
     encrypted_data: str
+
+    @field_validator("phone_number")
+    @classmethod
+    def format_phone_numbers(cls, phone_number: str) -> str:
+        formatted_phone_numbers = PhoneNumberUtils.format(phone_number)
+        return formatted_phone_numbers
 
     # forbid extra attributes
     class Config:
