@@ -13,12 +13,13 @@ sms_relay_endpoint = "/api/sms_relay"
 
 
 def test_sms_relay_invalid_json(api_post):
-    json_body = {"phone": "1234567890"}
-    response = api_post(endpoint=sms_relay_endpoint, json=json_body)
+    request_body = {"phone": "1234567890"}
+    response = api_post(endpoint=sms_relay_endpoint, json=request_body)
 
     assert response.status_code == 400
-    actual_json = json.loads(response.text)
-    assert actual_json["message"] == sms_relay.corrupted_message.format(type="JSON")
+    response_body = response.json()
+    print(response_body)
+    assert response_body["message"] == sms_relay.corrupted_message.format(type="JSON")
 
 
 def test_sms_relay_none_phone_number(api_post):
@@ -31,16 +32,14 @@ def test_sms_relay_none_phone_number(api_post):
 
 
 def test_sms_relay_invalid_phone_number(api_post):
-    phone_number = "+1-555-555-5555"
+    phone_number = "+11234567890"
     json_body = {"phone_number": phone_number, "encrypted_data": "a"}
     response: Response = api_post(endpoint=sms_relay_endpoint, json=json_body)
 
+    assert response.status_code == 401
     response_body = response.json()
     print(response_body)
-
-    assert response.status_code == 401
-    actual_json = json.loads(response.text)
-    assert actual_json["message"] == sms_relay.invalid_message.format(
+    assert response_body["message"] == sms_relay.invalid_message.format(
         phone_number=phone_number,
     )
 
@@ -48,34 +47,30 @@ def test_sms_relay_invalid_phone_number(api_post):
 def test_sms_relay_invalid_phone_number_format(api_post):
     # test fot the general cases
     phone_number = "This is wrong phone number"
-    json_body = {"phone_number": phone_number, "encrypted_data": "a"}
-    response = api_post(endpoint=sms_relay_endpoint, json=json_body)
-
+    request_body = {"phone_number": phone_number, "encrypted_data": "a"}
+    response = api_post(endpoint=sms_relay_endpoint, json=request_body)
     assert response.status_code == 400
-    actual_json = json.loads(response.text)
-    assert actual_json["message"] == sms_relay.invalid_phone_number.format(
-        phone_number=phone_number,
-    )
+    response_body = response.json()
+    print(response_body)
+    assert response_body["message"] == sms_relay.corrupted_message.format(type="JSON")
+
     # test for the phone number with extra symbol and alphabet
     phone_number = "+223-445d-0ggff"
-    json_body = {"phone_number": phone_number, "encrypted_data": "a"}
-    response = api_post(endpoint=sms_relay_endpoint, json=json_body)
+    request_body = {"phone_number": phone_number, "encrypted_data": "a"}
+    response = api_post(endpoint=sms_relay_endpoint, json=request_body)
 
     assert response.status_code == 400
-    actual_json = json.loads(response.text)
-    assert actual_json["message"] == sms_relay.invalid_phone_number.format(
-        phone_number=phone_number,
-    )
+    response_body = response.json()
+    assert response_body["message"] == sms_relay.corrupted_message.format(type="JSON")
+
     # test for the phone number with other extreme cases
     phone_number = "sssss+1-555-555-5555vdfsger"
-    json_body = {"phone_number": phone_number, "encrypted_data": "a"}
-    response = api_post(endpoint=sms_relay_endpoint, json=json_body)
+    request_body = {"phone_number": phone_number, "encrypted_data": "a"}
+    response = api_post(endpoint=sms_relay_endpoint, json=request_body)
 
     assert response.status_code == 400
-    actual_json = json.loads(response.text)
-    assert actual_json["message"] == sms_relay.invalid_phone_number.format(
-        phone_number=phone_number,
-    )
+    response_body = response.json()
+    assert response_body["message"] == sms_relay.corrupted_message.format(type="JSON")
 
 
 def test_sms_relay_invalid_encryption_key(api_post):

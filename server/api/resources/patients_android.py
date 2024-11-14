@@ -31,7 +31,7 @@ def to_global_search_patient(patient):
         for reading in global_search_patient["readings"]:
             # build the reading json to add to array
             reading_json = {
-                "dateReferred": None,
+                "date_referred": None,
             }
 
             reading_data = marshal.model_to_dict(
@@ -39,9 +39,11 @@ def to_global_search_patient(patient):
                 ReadingSchema,
             )
             reading_json["date_taken"] = reading_data["date_taken"]
-            reading_json["traffic_light_status"] = reading_data["traffic_light_status"]
+            reading_json["traffic_light_status"] = str(
+                reading_data["traffic_light_status"]
+            )
 
-            # add reading dateReferred data to array
+            # add reading date_referred data to array
             readings_arr.append(reading_json)
 
         # add reading key to global_search_patient key
@@ -56,7 +58,7 @@ def get_global_search_patients(current_user, search):
         patient_dict["state"] = "Added" if is_added else "Add"
         return patient_dict
 
-    user = crud.read(UserOrm, id=current_user["userId"])
+    user = crud.read(UserOrm, id=current_user["id"])
     pairs = filter.annotated_global_patient_list(user, search)
     patients_query = [__make_gs_patient_dict(p, state) for (p, state) in pairs]
     return [to_global_search_patient(p) for p in patients_query]

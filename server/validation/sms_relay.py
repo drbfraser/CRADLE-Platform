@@ -33,7 +33,7 @@ class SmsRelayValidator(BaseModel):
             return SmsRelayValidator(**request_body)
         except ValidationError as e:
             # Raises an exception with the first error message from the validation errors
-            error_message = str(e.errors()[0]["msg"])
+            error_message = e.errors()[0]["msg"]
             raise ValidationExceptionError(error_message)
 
 

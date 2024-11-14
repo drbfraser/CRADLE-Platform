@@ -33,22 +33,23 @@ def test_create_patient_with_sms_relay(database, api_post):
     method = "POST"
     endpoint = "api/patients"
 
-    json_body = make_sms_relay_json(1, method, endpoint, body=patient_json)
-    response = api_post(endpoint=sms_relay_endpoint, json=json_body)
+    request_body = make_sms_relay_json(1, method, endpoint, body=patient_json)
+    response = api_post(endpoint=sms_relay_endpoint, json=request_body)
     database.session.commit()
-    response_dict = json.loads(response.text)
+    response_body = response.json()
+    print(response_body)
     try:
         assert response.status_code == 200
-        assert response_dict["code"] == 201
-        assert crud.read(PatientOrm, patientId=patient_id) is not None
+        assert response_body["code"] == 201
+        assert crud.read(PatientOrm, id=patient_id) is not None
 
-        for r in reading_ids:
-            reading = crud.read(ReadingOrm, readingId=r)
+        for reading_id in reading_ids:
+            reading = crud.read(ReadingOrm, id=reading_id)
             assert reading is not None
             assert reading.traffic_light_status == TrafficLightEnum.GREEN
     finally:
-        for r in reading_ids:
-            crud.delete_by(ReadingOrm, id=r)
+        for reading_id in reading_ids:
+            crud.delete_by(ReadingOrm, id=reading_id)
         crud.delete_by(PatientOrm, id=patient_id)
 
 
@@ -66,15 +67,15 @@ def test_create_referral_with_sms_relay(
     method = "POST"
     endpoint = "api/referrals"
 
-    json_body = make_sms_relay_json(2, method, endpoint, body=referral_json)
+    request_body = make_sms_relay_json(2, method, endpoint, body=referral_json)
 
-    response = api_post(endpoint=sms_relay_endpoint, json=json_body)
+    response = api_post(endpoint=sms_relay_endpoint, json=request_body)
     database.session.commit()
-    response_dict = json.loads(response.text)
+    response_body = response.json()
 
     try:
         assert response.status_code == 200
-        assert response_dict["code"] == 201
+        assert response_body["code"] == 201
         assert crud.read(ReferralOrm, id=referral_id) is not None
 
     finally:
@@ -95,24 +96,24 @@ def test_create_readings_with_sms_relay(
     method = "POST"
     endpoint = "api/readings"
 
-    json_body = make_sms_relay_json(3, method, endpoint, body=referral_json)
+    request_body = make_sms_relay_json(3, method, endpoint, body=referral_json)
 
-    response = api_post(endpoint=sms_relay_endpoint, json=json_body)
+    response = api_post(endpoint=sms_relay_endpoint, json=request_body)
     database.session.commit()
-    response_dict = json.loads(response.text)
+    response_body = response.json()
 
     try:
         assert response.status_code == 200
-        assert response_dict["code"] == 201
-        assert crud.read(ReadingOrm, readingId=reading_id) is not None
+        assert response_body["code"] == 201
+        assert crud.read(ReadingOrm, id=reading_id) is not None
 
     finally:
-        crud.delete_by(ReadingOrm, readingId=reading_id)
+        crud.delete_by(ReadingOrm, id=reading_id)
 
 
 def test_update_patient_name_with_sms_relay(database, patient_factory, api_post):
     patient_id = "64164134515"
-    patient_factory.create(patientId=patient_id, patientName="AB")
+    patient_factory.create(id=patient_id, name="AB")
     new_patient_name = "CD"
 
     patient_update_json = {"name": new_patient_name}
@@ -120,14 +121,14 @@ def test_update_patient_name_with_sms_relay(database, patient_factory, api_post)
     method = "PUT"
     endpoint = f"api/patients/{patient_id}/info"
 
-    json_body = make_sms_relay_json(4, method, endpoint, body=patient_update_json)
+    request_body = make_sms_relay_json(4, method, endpoint, body=patient_update_json)
 
-    response = api_post(endpoint=sms_relay_endpoint, json=json_body)
+    response = api_post(endpoint=sms_relay_endpoint, json=request_body)
     database.session.commit()
-    response_dict = json.loads(response.text)
+    response_body = response.json()
 
     assert response.status_code == 200
-    assert response_dict["code"] == 200
+    assert response_body["code"] == 200
     assert crud.read(PatientOrm, id=patient_id).name == new_patient_name
 
 
@@ -144,18 +145,18 @@ def test_create_assessments_with_sms_relay(
     method = "POST"
     endpoint = "api/assessments"
 
-    json_body = make_sms_relay_json(5, method, endpoint, body=assessment_json)
+    request_body = make_sms_relay_json(5, method, endpoint, body=assessment_json)
 
-    response = api_post(endpoint=sms_relay_endpoint, json=json_body)
+    response = api_post(endpoint=sms_relay_endpoint, json=request_body)
     database.session.commit()
 
     follow_up_instructions = assessment_json["follow_up_instructions"]
-    response_dict = json.loads(response.text)
+    response_body = response.json()
 
     assert response.status_code == 200
-    assert response_dict["code"] == 201
+    assert response_body["code"] == 201
     assert (
-        crud.read(FollowUpOrm, patientId=patient_id).follow_up_instructions
+        crud.read(FollowUpOrm, patient_id=patient_id).follow_up_instructions
         == follow_up_instructions
     )
 
@@ -167,27 +168,27 @@ def test_update_assessments_with_sms_relay(
     api_post,
 ):
     patient_id = "64164134515"
-    patient_factory.create(patientId=patient_id, patientName="AB")
+    patient_factory.create(id=patient_id, name="AB")
 
     assessment_json = __make_assessment(patient_id)
-    followup_factory.create(patientId=patient_id)
-    assessment_id = crud.read(FollowUpOrm, patientId=patient_id).id
+    followup_factory.create(patient_id=patient_id)
+    assessment_id = crud.read(FollowUpOrm, patient_id=patient_id).id
 
-    newInstructions = "II"
-    assessment_json["follow_up_instructions"] = newInstructions
+    new_instructions = "II"
+    assessment_json["follow_up_instructions"] = new_instructions
 
     method = "PUT"
     endpoint = f"api/assessments/{assessment_id}"
 
-    json_body = make_sms_relay_json(6, method, endpoint, body=assessment_json)
-    response = api_post(endpoint=sms_relay_endpoint, json=json_body)
+    request_body = make_sms_relay_json(6, method, endpoint, body=assessment_json)
+    response = api_post(endpoint=sms_relay_endpoint, json=request_body)
     database.session.commit()
-    response_dict = json.loads(response.text)
+    response_body = response.json()
     assert response.status_code == 200
-    assert response_dict["code"] == 200
+    assert response_body["code"] == 200
     assert (
         crud.read(FollowUpOrm, id=assessment_id).follow_up_instructions
-        == newInstructions
+        == new_instructions
     )
 
 

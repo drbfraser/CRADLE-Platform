@@ -46,8 +46,8 @@ def test_pass_search_partial_initials():
     partial_patient_initials = "A"
     url = BASE_URL + "/api/patients/global/" + partial_patient_initials
     response = requests.get(url, headers=auth_header_hcw)
-    response_body = response.json()
     assert response.status_code == 200
+    response_body = response.json()
     expected_matching_patients = 1
     # cannot determine exact amount because we are creating patients with random initials in some tests
     # to-do: change existing tests make them enter non-random data

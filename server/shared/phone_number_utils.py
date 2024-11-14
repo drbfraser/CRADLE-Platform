@@ -25,6 +25,8 @@ https://www.sent.dm/resources/e164-phone-format
 
 
 class PhoneNumberUtils:
+    invalid_error = "Phone number ({phone_number}) is invalid."
+
     @staticmethod
     def parse(phone_number: str) -> phonenumbers.PhoneNumber:
         """
@@ -34,13 +36,16 @@ class PhoneNumberUtils:
 
         :param parsed_phone_number: The phone number to parse.
         """
-        invalid_error = {"message": f"Phone number ({phone_number}) is invalid."}
         try:
             parsed_phone_number = phonenumbers.parse(phone_number)
             if not phonenumbers.is_possible_number(parsed_phone_number):
-                raise ValueError(invalid_error)
+                raise ValueError(
+                    PhoneNumberUtils.invalid_error.format(phone_number=phone_number)
+                )
         except phonenumbers.NumberParseException:
-            raise ValueError(invalid_error)
+            raise ValueError(
+                PhoneNumberUtils.invalid_error.format(phone_number=phone_number)
+            )
         else:
             return parsed_phone_number
 

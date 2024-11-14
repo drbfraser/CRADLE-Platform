@@ -1,11 +1,13 @@
 import random
 import string
 
+import phonenumbers
 import pytest
 import requests
 
 from models import SmsSecretKeyOrm
 from server.data import crud
+from shared.user_utils import UserUtils
 
 
 def generate_random_email(domain="example.com", length=10):
@@ -16,6 +18,16 @@ def generate_random_email(domain="example.com", length=10):
 
 def generate_random_phone_number():
     phone_number = f"+1{random.randint(1000000000, 9999999999)}"
+    return phone_number
+
+
+def get_example_phone_number():
+    phone_number_obj = phonenumbers.example_number("CA")
+    print(phone_number_obj)
+    phone_number = phonenumbers.format_number(
+        phone_number_obj, phonenumbers.PhoneNumberFormat.E164
+    )
+    print(phone_number)
     return phone_number
 
 
@@ -32,21 +44,24 @@ def test_register_user(jwt_token):
     url_register_user = "http://localhost:5000/api/user/register"
     headers = {"Authorization": "Bearer " + jwt_token}
     random_email = generate_random_email()
-    random_number = generate_random_phone_number()
+    phone_number = get_example_phone_number()
+    username = "test_register"
     payload = {
-        "name": "ArshdeepS",
+        "name": "Test Register User",
+        "username": username,
         "email": random_email,
-        "phone_number": random_number,
-        "phone_numbers": [random_number],
+        "phone_number": phone_number,
+        "phone_numbers": [phone_number],
         "health_facility_name": "H0000",
-        "password": "1234567",
+        "password": "Password_123",
         "role": "VHT",
         "supervises": [],
-        "id": 0,
     }
 
     response = requests.post(url_register_user, json=payload, headers=headers)
     assert response.status_code == 200
+    # Cleanup
+    UserUtils.delete_user(username)
 
 
 def test_edit_user(jwt_token):
@@ -54,12 +69,10 @@ def test_edit_user(jwt_token):
     headers = {"Authorization": "Bearer " + jwt_token}
     payload = {
         "health_facility_name": "H0000",
-        "username": "vht",
         "name": "TestVHT***",
         "role": "VHT",
         "email": "vht@email.com",
         "supervises": [],
-        "id": 3,
         "phone_numbers": ["+1-666-666-6666", "+1-555-555-5555", "+1-777-777-7777"],
         "index": 2,
         "phone_number": "+1-604-715-2845",
@@ -91,21 +104,18 @@ def test_sms_secret_key_for_sms_relay(jwt_token, admin_user_id):
     headers = {"Authorization": "Bearer " + jwt_token}
     get_response = requests.get(url_sms_secret_key_for_user, headers=headers)
     resp_body = get_response.json()
-    user = crud.read(SmsSecretKeyOrm, userId=admin_user_id)
-
+    user = crud.read(SmsSecretKeyOrm, user_id=admin_user_id)
+    print(resp_body)
     assert get_response.status_code == 200
     assert resp_body["message"] == "NORMAL"
-    assert resp_body["sms_key"] is not None and resp_body["sms_key"] == user.secret_key
-    assert user.secret_key is not None and user.secret_key == resp_body["sms_key"]
+    assert resp_body["key"] == user.secret_key
+    assert user.secret_key is not None and user.secret_key == resp_body["key"]
 
     put_response = requests.put(url_sms_secret_key_for_user, headers=headers)
     put_resp_body = put_response.json()
     assert put_response.status_code == 200
     assert put_resp_body["message"] == "NORMAL"
-    assert (
-        put_resp_body["sms_key"] is not None
-        and put_resp_body["sms_key"] != resp_body["sms_key"]
-    )
+    assert put_resp_body["key"] is not None and put_resp_body["key"] != resp_body["key"]
 
 
 @pytest.fixture

@@ -4,7 +4,7 @@ from validation.sms_relay import SmsRelayDecryptedBodyValidator, SmsRelayValidat
 from validation.validation_exception import ValidationExceptionError
 
 valid_sms_relay_request = {
-    "phone_number": "604-715-2845",
+    "phone_number": "+1-604-715-2845",
     "encrypted_data": "thisdataisencrypted",
 }
 
@@ -13,7 +13,7 @@ invalid_missing_field_phone_number = {
 }
 
 invalid_missing_field_encrypted_data = {
-    "phone_number": "604-715-2845",
+    "phone_number": "+1-604-715-2845",
 }
 
 invalid_field_type_phone_number = {
@@ -22,12 +22,12 @@ invalid_field_type_phone_number = {
 }
 
 invalid_field_type_encrypted_data = {
-    "phone_number": "604-715-2845",
+    "phone_number": "+1-604-715-2845",
     "encrypted_data": 1234567890,
 }
 
 invalid_extra_field_for_sms_relay_request = {
-    "phone_number": "604-715-2845",
+    "phone_number": "+1-604-715-2845",
     "encrypted_data": "thisdataisencrypted",
     "invalid": "invalidkey",
 }

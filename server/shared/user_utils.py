@@ -214,7 +214,7 @@ class UserUtils:
                 raise ValueError(f"Email ({email}) is already in use.")
             # Check username uniqueness.
             if UserUtils.does_username_exist(username):
-                raise ValueError(f"Email ({username}) is already in use.")
+                raise ValueError(f"Username ({username}) is already in use.")
             # Validate phone numbers uniqueness.
             for phone_number in phone_numbers:
                 if PhoneNumberUtils.does_phone_number_exist(phone_number):

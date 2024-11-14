@@ -454,8 +454,8 @@ class UserPhoneUpdate(Resource):
         if not doesUserExist(user_id):
             return {"message": no_user_found_message}, 404
         args = self.parser.parse_args()
-        new_phone_number = args["newPhoneNumber"]
-        current_phone_number = args["currentPhoneNumber"]
+        new_phone_number = args["new_phone_number"]
+        current_phone_number = args["current_phone_number"]
 
         if not phoneNumber_regex_check(new_phone_number):
             return {"message": invalid_phone_number_message}, 400
@@ -483,7 +483,7 @@ class UserPhoneUpdate(Resource):
             return {"message": no_user_found_message}, 400
 
         args = self.parser.parse_args()
-        new_phone_number = args["newPhoneNumber"]
+        new_phone_number = args["new_phone_number"]
 
         if new_phone_number is None:
             return {"message": "Phone number cannot be null"}, 400
@@ -506,7 +506,7 @@ class UserPhoneUpdate(Resource):
             return {"message": no_user_found_message}, 400
 
         args = self.parser.parse_args()
-        number_to_delete = args["oldPhoneNumber"]
+        number_to_delete = args["old_phone_number"]
 
         if number_to_delete is None:
             return {"message": null_phone_number_message}, 400

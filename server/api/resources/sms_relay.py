@@ -5,7 +5,6 @@ from flasgger import swag_from
 from flask import Response, jsonify, make_response, request
 from flask_restful import Resource, abort
 
-from api.resources.users import get_access_token, get_user_data_for_token
 from models import UserOrm
 from service import compressor, encryptor
 from shared.phone_number_utils import PhoneNumberUtils
@@ -25,8 +24,7 @@ corrupted_message = (
 
 invalid_message = (
     "Unable to verify message from ({phone_number}). "
-    "Either the phone number is not associated with a user, "
-    "or the App and server don't agree on the security key, "
+    "Either the App and server don't agree on the security key "
     "or the message was corrupted. Retry the action or resync "
     "with the server using an internet connection (WiFi, 3G, …) "
 )
@@ -58,9 +56,8 @@ def send_request_to_endpoint(
     body: str,
     user: UserOrm,
 ) -> requests.Response:
-    data = get_user_data_for_token(user)
-    token = get_access_token(data)
-    header["Authorization"] = f"Bearer {token}"
+    access_token = request.authorization.token
+    header["Authorization"] = f"Bearer {access_token}"
     return requests.request(
         method=method,
         url=api_url.format(endpoint=endpoint),
@@ -106,6 +103,7 @@ def sms_relay_procedure():
 
     if not user_exists:
         abort(400, message=phone_number_not_exists.format(type="JSON"))
+        return None
 
     # Get user id for the user that phone_number belongs to
     user = UserUtils.get_user_orm_from_phone_number(phone_number)
@@ -116,22 +114,19 @@ def sms_relay_procedure():
 
     encrypted_data = sms_relay_model_dump["encrypted_data"]
 
+    user_secret_key = UserUtils.get_user_sms_secret_key_string(user.id)
+    if user_secret_key is None:
+        abort(400, message="Could not retrieve user's sms secret key.")
+        return None
+
     try:
-        user_secret_key = UserUtils.get_user_sms_secret_key_string(user.id)
-        if user_secret_key is None:
-            abort(400, message="Could not retrieve user's sms secret key.")
-            return None
-
         decrypted_message = encryptor.decrypt(encrypted_data, user_secret_key)
-
         decrypted_data = compressor.decompress(decrypted_message)
-
         string_data = decrypted_data.decode("utf-8")
-
         json_dict_data = json.loads(string_data)
-
     except Exception:
         error_message = str(invalid_message.format(phone_number=phone_number))
+        print(error_message)
         abort(401, message=error_message)
 
     try:
