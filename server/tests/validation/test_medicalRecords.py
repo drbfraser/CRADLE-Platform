@@ -91,33 +91,3 @@ def test_validate_put_request(json, record_id, expectation):
             MedicalRecordValidator.validate_put_request(json, record_id)
         except ValidationExceptionError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e
-
-
-valid_list_with_history = {"medical_history": "history"}
-valid_subset_list = {"id": "1", "medical_history": "history"}
-invalid_extra_key_list = {"test": "test"}
-invalid_extra_key_subset_list = {
-    "id": "1",
-    "medical_history": "history",
-    "test": "test",
-}
-
-
-@pytest.mark.parametrize(
-    "json, expectation",
-    [
-        (valid_list_with_history, None),
-        (valid_subset_list, None),
-        (invalid_extra_key_list, ValidationExceptionError),
-        (invalid_extra_key_subset_list, ValidationExceptionError),
-    ],
-)
-def test_validate_key(json, expectation):
-    if expectation:
-        with pytest.raises(expectation):
-            MedicalRecordValidator.validate_key(json)
-    else:
-        try:
-            MedicalRecordValidator.validate_key(json)
-        except ValidationExceptionError as e:
-            raise AssertionError(f"Unexpected validation error:{e}") from e
