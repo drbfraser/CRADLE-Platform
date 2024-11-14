@@ -7,6 +7,7 @@ from validation.validation_exception import ValidationExceptionError
 
 
 class ReadingValidator(BaseModel):
+    id: Optional[str] = None
     patient_id: str
     systolic_blood_pressure: int
     diastolic_blood_pressure: int

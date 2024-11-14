@@ -100,10 +100,10 @@ class Root(Resource):
         referrals = crud.read_referrals_or_assessments(ReferralOrm, patient_id)
         assessments = crud.read_referrals_or_assessments(FollowUpOrm, patient_id)
 
-        return (
-            serialize.serialize_patient(patient, readings, referrals, assessments),
-            201,
+        response_body = serialize.serialize_patient(
+            patient, readings, referrals, assessments
         )
+        return response_body, 201
 
 
 # /api/patients/<string:patient_id>

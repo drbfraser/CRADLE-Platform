@@ -355,8 +355,6 @@ def test_create_patient_with_nested_readings(database, api_post):
     ]
     patient = __make_patient(patient_id, reading_ids)
     response = api_post(endpoint="/api/patients", json=patient)
-    patient = __make_patient(patient_id, reading_ids)
-    response = api_post(endpoint="/api/patients", json=patient)
     database.session.commit()
 
     try:
