@@ -3,6 +3,7 @@ from flask import request
 from flask_restful import Resource, abort
 
 from api import util
+from common import commonUtil
 from data import crud
 from models import HealthFacilityOrm, PatientOrm, UserOrm
 from service import assoc
@@ -22,13 +23,17 @@ class Root(Resource):
         json: dict = request.get_json(force=True)
 
         try:
-            AssociationValidator.validate(json)
+            association_pydantic_model = AssociationValidator.validate(json)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 
-        patient_id = json.get("patientId")
-        facility_name = json.get("healthFacilityName")
-        user_id = json.get("userId")
+        new_association = association_pydantic_model.model_dump()
+        new_association = commonUtil.filterNestedAttributeWithValueNone(
+            new_association,
+        )
+        patient_id = new_association.get("patientId")
+        facility_name = new_association.get("healthFacilityName")
+        user_id = new_association.get("userId")
 
         patient = crud.read(PatientOrm, patientId=patient_id)
         if not patient:

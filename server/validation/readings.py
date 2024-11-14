@@ -45,9 +45,8 @@ class ReadingValidator(BaseModel):
                             }
         """
         try:
-            ReadingValidator(**request_body)
+            reading_model = ReadingValidator(**request_body)
         except ValidationError as e:
-            print(e)
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
         # Check if the nested assessment (follow_up) object is valid
@@ -55,5 +54,6 @@ class ReadingValidator(BaseModel):
             try:
                 AssessmentValidator(**(request_body["follow_up"]))
             except ValidationError as e:
-                print(e)
                 raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+
+        return reading_model

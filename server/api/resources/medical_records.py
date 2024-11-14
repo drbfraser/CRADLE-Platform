@@ -47,22 +47,27 @@ class Root(Resource):
         request_body = request.get_json(force=True)
 
         try:
-            MedicalRecordValidator.validate_post_request(request_body, patient_id)
+            medical_record_pydantic_model = (
+                MedicalRecordValidator.validate_post_request(request_body, patient_id)
+            )
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 
-        if "id" in request_body:
-            record_id = request_body.get("id")
+        new_medical_record = medical_record_pydantic_model.model_dump()
+        new_medical_record = util.filterPairsWithNone(new_medical_record)
+
+        if "id" in new_medical_record:
+            record_id = new_medical_record.get("id")
             if crud.read(MedicalRecordOrm, id=record_id):
                 abort(
                     409,
                     message=f"A medical record with ID {record_id} already exists.",
                 )
 
-        _process_request_body(request_body)
-        request_body["patient_id"] = patient_id
-        request_body["date_created"] = get_current_time()
-        new_record = marshal.unmarshal(MedicalRecordOrm, request_body)
+        _process_request_body(new_medical_record)
+        new_medical_record["patient_id"] = patient_id
+        new_medical_record["date_created"] = get_current_time()
+        new_record = marshal.unmarshal(MedicalRecordOrm, new_medical_record)
 
         crud.create(new_record, refresh=True)
 
@@ -92,19 +97,25 @@ class SingleMedicalRecord(Resource):
         request_body = request.get_json(force=True)
 
         try:
-            MedicalRecordValidator.validate_put_request(request_body, record_id)
+            medical_record_pydantic_model = MedicalRecordValidator.validate_put_request(
+                request_body,
+                record_id,
+            )
         except ValidationExceptionError as e:
             abort(400, message=str(e))
             return None
 
-        if "patient_id" in request_body:
+        update_medical_record = medical_record_pydantic_model.model_dump()
+        update_medical_record = util.filterPairsWithNone(update_medical_record)
+
+        if "patient_id" in update_medical_record:
             patient_id = crud.read(MedicalRecordOrm, id=record_id).patient_id
-            if request_body.get("patient_id") != patient_id:
+            if update_medical_record.get("patient_id") != patient_id:
                 abort(400, message="Patient ID cannot be changed.")
                 return None
 
-        _process_request_body(request_body)
-        crud.update(MedicalRecordOrm, request_body, id=record_id)
+        _process_request_body(update_medical_record)
+        crud.update(MedicalRecordOrm, update_medical_record, id=record_id)
 
         new_record = crud.read(MedicalRecordOrm, id=record_id)
         record_dict = marshal.marshal(new_record)

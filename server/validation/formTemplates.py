@@ -30,7 +30,7 @@ class FormTemplateValidator(BaseModel):
         :param request_body: The request body as a dict object
         """
         try:
-            FormTemplateValidator(**request_body)
+            return FormTemplateValidator(**request_body)
         except ValidationError as e:
             print(e)
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))

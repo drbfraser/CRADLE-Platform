@@ -234,6 +234,9 @@ class QuestionBase(BaseModel):
     category_index: Optional[int] = None
     string_max_lines: Optional[int] = None
 
+    class Config:
+        use_enum_values = True
+
 
 class TemplateQuestionValidator(QuestionBase):
     question_lang_versions: List[QuestionLangVersionValidator]

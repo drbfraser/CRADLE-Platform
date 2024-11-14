@@ -60,7 +60,7 @@ class PregnancyPostRequestValidator(PregnancyModel):
         """
         try:
             # Pydantic will validate field presence and type
-            PregnancyPostRequestValidator(**request_body)
+            model = PregnancyPostRequestValidator(**request_body)
         except ValidationError as e:
             # Extracts the first error message from the validation errors list
             error_message = str(e.errors()[0]["msg"])
@@ -75,6 +75,8 @@ class PregnancyPostRequestValidator(PregnancyModel):
             and request_body.get("patient_id") != patient_id
         ):
             raise ValidationExceptionError("Patient ID does not match.")
+
+        return model
 
 
 class PregnancyPutRequestValidator(PregnancyModel):
@@ -93,7 +95,7 @@ class PregnancyPutRequestValidator(PregnancyModel):
         """
         try:
             # Pydantic will validate field presence and type
-            PregnancyPutRequestValidator(**request_body)
+            model = PregnancyPutRequestValidator(**request_body)
         except ValidationError as e:
             print(e)
             # Extracts the first error message from the validation errors list
@@ -105,3 +107,5 @@ class PregnancyPutRequestValidator(PregnancyModel):
 
         if "id" in request_body and request_body.get("id") != pregnancy_id:
             raise ValidationExceptionError("Pregnancy ID cannot be changed.")
+
+        return model

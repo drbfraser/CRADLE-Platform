@@ -23,7 +23,7 @@ class AssociationValidator(BaseModel):
                             }
         """
         try:
-            AssociationValidator(**request_body)
+            return AssociationValidator(**request_body)
         except ValidationError as e:
             print(e)
             raise ValidationExceptionError(e.errors()[0]["msg"])

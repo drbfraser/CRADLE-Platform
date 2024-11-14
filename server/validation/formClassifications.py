@@ -21,6 +21,6 @@ class FormClassificationValidator(BaseModel):
         :param request_body: The request body as a dict object
         """
         try:
-            FormClassificationValidator(**request_body)
+            return FormClassificationValidator(**request_body)
         except ValidationError as e:
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))

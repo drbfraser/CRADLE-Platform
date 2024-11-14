@@ -89,24 +89,30 @@ class SinglePregnancy(Resource):
         request_body = request.get_json(force=True)
 
         try:
-            PregnancyPutRequestValidator.validate(request_body, pregnancy_id)
+            pregnancy_pydantic_model = PregnancyPutRequestValidator.validate(
+                request_body,
+                pregnancy_id,
+            )
         except ValidationExceptionError as e:
             abort(400, message=str(e))
 
-        _process_request_body(request_body)
+        pregnancy_model_dump = pregnancy_pydantic_model.model_dump()
+        pregnancy_model_dump = util.filterPairsWithNone(pregnancy_model_dump)
+
+        _process_request_body(pregnancy_model_dump)
 
         pregnancy = crud.read(PregnancyOrm, id=pregnancy_id)
         if (
-            "patient_id" in request_body
-            and request_body["patient_id"] != pregnancy.patient_id
+            "patient_id" in pregnancy_model_dump
+            and pregnancy_model_dump["patient_id"] != pregnancy.patient_id
         ):
             abort(400, message="Patient ID cannot be changed.")
-        if "start_date" not in request_body:
-            request_body["start_date"] = pregnancy.start_date
+        if "start_date" not in pregnancy_model_dump:
+            pregnancy_model_dump["start_date"] = pregnancy.start_date
 
-        _check_conflicts(request_body, pregnancy.patient_id, pregnancy_id)
+        _check_conflicts(pregnancy_model_dump, pregnancy.patient_id, pregnancy_id)
 
-        crud.update(PregnancyOrm, request_body, id=pregnancy_id)
+        crud.update(PregnancyOrm, pregnancy_model_dump, id=pregnancy_id)
         new_pregnancy = crud.read(PregnancyOrm, id=pregnancy_id)
 
         return marshal.marshal(new_pregnancy)

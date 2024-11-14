@@ -2,6 +2,7 @@ from flasgger import swag_from
 from flask import request
 from flask_restful import Resource, abort
 
+from common import commonUtil
 from data import crud, marshal
 from models import FollowUpOrm
 from shared.user_utils import UserUtils
@@ -27,11 +28,15 @@ class Root(Resource):
         json["healthcare_worker_id"] = current_user["id"]
 
         try:
-            AssessmentValidator.validate(json)
+            assessment_pydantic_model = AssessmentValidator.validate(json)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
+        new_assessment = assessment_pydantic_model.model_dump()
+        new_assessment = commonUtil.filterNestedAttributeWithValueNone(
+            new_assessment,
+        )
 
-        assessment = marshal.unmarshal(FollowUpOrm, json)
+        assessment = marshal.unmarshal(FollowUpOrm, new_assessment)
 
         crud.create(assessment)
 
@@ -87,11 +92,15 @@ class SingleAssessment(Resource):
             return None
 
         try:
-            AssessmentValidator.validate(json)
+            assessment_pydantic_model = AssessmentValidator.validate(json)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
             return None
 
-        crud.update(FollowUpOrm, json, id=assessment.id)
+        update_assessment = assessment_pydantic_model.model_dump()
+        update_assessment = commonUtil.filterNestedAttributeWithValueNone(
+            update_assessment,
+        )
+        crud.update(FollowUpOrm, update_assessment, id=assessment.id)
 
         return assessment.id, 200

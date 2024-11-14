@@ -3,9 +3,6 @@ from typing import List, Optional
 from pydantic import BaseModel, StrictBool, ValidationError
 
 from validation.questions import FormQuestionPutValidator, FormQuestionValidator
-from validation.validate import (
-    force_consistent_keys,
-)
 from validation.validation_exception import ValidationExceptionError
 
 
@@ -33,25 +30,20 @@ class FormValidator(BaseModel):
         :param request_body: The request body as a dict object
         """
         try:
-            FormValidator(**request_body)
+            return FormValidator(**request_body)
         except ValidationError as e:
             print(e)
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
-    @staticmethod
-    def validate_questions(request_body: list):
-        """
-        Raises an error if the questions part in /api/forms/responses POST request
-        is not valid.
 
-        :param request_body: The request body as a dict object
-        """
-        # validate each question
-        for q in request_body:
-            FormQuestionValidator.validate(q)
+class FormPutValidator(BaseModel):
+    questions: List[FormQuestionPutValidator]
+
+    class Config:
+        extra = "forbid"
 
     @staticmethod
-    def validate_put_request(request_body: dict):
+    def validate(request_body: dict):
         """
         Raises an error if the /api/forms/responses PUT request is not valid.
 
@@ -69,15 +61,7 @@ class FormValidator(BaseModel):
             ]
         }
         """
-        force_fields = ["questions"]
-
-        error_message = None
-
-        error_message = force_consistent_keys(request_body, force_fields)
-        if error_message is not None:
-            print(error_message)
-            raise ValidationExceptionError(str(error_message))
-
-        # validate question put content
-        for q in request_body["questions"]:
-            FormQuestionPutValidator.validate(q)
+        try:
+            return FormPutValidator(**request_body)
+        except ValidationError as e:
+            raise ValidationExceptionError(str(e.errors()[0]["msg"]))

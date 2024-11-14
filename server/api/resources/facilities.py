@@ -6,6 +6,7 @@ from flask_restful import Resource, abort
 
 from api import util
 from api.decorator import roles_required
+from common import commonUtil
 from data import crud, marshal
 from enums import RoleEnum
 from models import HealthFacilityOrm
@@ -49,6 +50,7 @@ class Root(Resource):
             return None
 
         new_facility = facility_pydantic_model.model_dump()
+        new_facility = commonUtil.filterNestedAttributeWithValueNone(new_facility)
 
         # Create a DB Model instance for the new facility and load into DB
         facility = marshal.unmarshal(HealthFacilityOrm, new_facility)

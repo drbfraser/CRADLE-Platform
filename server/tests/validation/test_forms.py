@@ -1,6 +1,6 @@
 import pytest
 
-from validation.forms import FormValidator
+from validation.forms import FormPutValidator, FormValidator
 from validation.validation_exception import ValidationExceptionError
 
 valid_form_json_empty_questions = {
@@ -233,28 +233,6 @@ multi_question = [
     },
 ]
 
-invalid_question = [{}]
-
-
-@pytest.mark.parametrize(
-    "json, expectation",
-    [
-        (empty_questions, None),
-        (single_question, None),
-        (multi_question, None),
-        (invalid_question, ValidationExceptionError),
-    ],
-)
-def test_validate_questions(json, expectation):
-    if expectation:
-        with pytest.raises(expectation):
-            FormValidator.validate_questions(json)
-    else:
-        try:
-            FormValidator.validate_questions(json)
-        except ValidationExceptionError as e:
-            raise AssertionError(f"Unexpected validation error:{e}") from e
-
 
 valid_put_request = {"questions": [{"id": "asdsd-1123123", "answers": {"number": 4}}]}
 
@@ -274,9 +252,9 @@ invalid_keys_put_request = {
 def test_validate_put_request(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            FormValidator.validate_put_request(json)
+            FormPutValidator.validate(json)
     else:
         try:
-            FormValidator.validate_put_request(json)
+            FormPutValidator.validate(json)
         except ValidationExceptionError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e
