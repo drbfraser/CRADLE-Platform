@@ -495,7 +495,7 @@ def make_medical_record_from_patient(patient: dict) -> MedicalRecordOrm:
     if "drug_history" in patient:
         if patient["drug_history"]:
             drug_record = {
-                "patient_id": patient["patient_id"],
+                "patient_id": patient["id"],
                 "information": patient["drug_history"],
                 "is_drug_record": True,
             }
@@ -503,7 +503,7 @@ def make_medical_record_from_patient(patient: dict) -> MedicalRecordOrm:
     if "medical_history" in patient:
         if patient["medical_history"]:
             medical_record = {
-                "patient_id": patient["patient_id"],
+                "patient_id": patient["id"],
                 "information": patient["medical_history"],
                 "is_drug_record": False,
             }

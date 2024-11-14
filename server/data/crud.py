@@ -449,7 +449,7 @@ def read_medical_records(m: Type[M], patient_id: str, **kwargs) -> List[M]:
             safe_search_text = f"%{search_text}%"
             query = query.filter(m.information.like(safe_search_text))
 
-        query = query.filter_by(isDrugRecord=is_drug_record).order_by(
+        query = query.filter_by(is_drug_record=is_drug_record).order_by(
             order_by_direction(m.date_created),
         )
 

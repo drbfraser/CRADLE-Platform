@@ -95,18 +95,20 @@ class SingleMedicalRecord(Resource):
             MedicalRecordValidator.validate_put_request(request_body, record_id)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
+            return None
 
         if "patient_id" in request_body:
             patient_id = crud.read(MedicalRecordOrm, id=record_id).patient_id
             if request_body.get("patient_id") != patient_id:
                 abort(400, message="Patient ID cannot be changed.")
+                return None
 
         _process_request_body(request_body)
         crud.update(MedicalRecordOrm, request_body, id=record_id)
 
         new_record = crud.read(MedicalRecordOrm, id=record_id)
-
-        return marshal.marshal(new_record)
+        record_dict = marshal.marshal(new_record)
+        return record_dict, 200
 
     @staticmethod
     @swag_from(
@@ -118,7 +120,7 @@ class SingleMedicalRecord(Resource):
         record = _get_medical_record(record_id)
         crud.delete(record)
 
-        return {"message": "Medical record deleted"}
+        return {"message": "Medical record deleted"}, 200
 
 
 def _process_request_body(request_body):
@@ -135,5 +137,6 @@ def _get_medical_record(record_id):
     record = crud.read(MedicalRecordOrm, id=record_id)
     if not record:
         abort(404, message=f"No medical record with id {record_id}")
+        return None
 
     return record

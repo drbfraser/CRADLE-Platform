@@ -84,7 +84,7 @@ def medical_record_view(
         return crud.read_all(
             MedicalRecordOrm,
             patient_id=patient_id,
-            isDrugRecord=is_drug_record,
+            is_drug_record=is_drug_record,
         )
     return crud.read_medical_records(
         MedicalRecordOrm,

@@ -85,10 +85,10 @@ def test_get_patient(
     medical_record_factory.create(**drug_record)
 
     reading_id1 = "w3d0aklrs4wenm6hk5z3"
-    reading_factory.create(readingId=reading_id1, id=patient_id)
+    reading_factory.create(id=reading_id1, patient_id=patient_id)
 
     reading_id2 = "w3d0aklrs4wenm6hk5z4"
-    reading_factory.create(readingId=reading_id2, id=patient_id)
+    reading_factory.create(id=reading_id2, patient_id=patient_id)
 
     response = api_get(endpoint=f"/api/patients/{patient_id}")
 
@@ -261,16 +261,16 @@ def test_get_mobile_patient(database, api_post, api_get):
             assert reading is not None
 
         # Get all the patients from /api/mobile/patients.
-        responseMobile = api_get(endpoint="/api/mobile/patients")
-        assert responseMobile.status_code == 200
+        response_mobile = api_get(endpoint="/api/mobile/patients")
+        assert response_mobile.status_code == 200
 
         # Setup an error message to return when an assert fails.
         # Note: Since this is usually tested with the test seed data, there will
         # be more than just 1 patient here.
         patient_number_info = (
-            f"There were {len(responseMobile.json())} patients "
+            f"There were {len(response_mobile.json())} patients "
             + "returned by api/mobile/patients. Dumping them all now:\n"
-            + pformat(responseMobile.json(), width=48)
+            + pformat(response_mobile.json(), width=48)
             + "\n"
             + "========================================================"
         )
@@ -279,7 +279,7 @@ def test_get_mobile_patient(database, api_post, api_get):
         # For every patient in the database (as admin user, /api/mobile/patients returns
         # all the patients), get the patient info from the /api/patients/:id endpont
         # and then determine if they match.
-        for patient_from_mobile_patients in responseMobile.json():
+        for patient_from_mobile_patients in response_mobile.json():
             patient_id = patient_from_mobile_patients["id"]
             # Validate that the GET requests for /api/patients/{patient_id} and
             # /api/mobile/patients give back the same information.
@@ -307,7 +307,7 @@ def test_get_mobile_patient(database, api_post, api_get):
                 # From the reading from the api/mobile/patients, find the corresponding reading
                 # from the api/patients/:id endpoint
                 current_reading_id = readingFromMobile["id"]
-                readingFromNormalApi = [
+                reading_from_normal_api = [
                     r
                     for r in patient_from_patients_api["readings"]
                     if r["id"] == current_reading_id
@@ -315,25 +315,25 @@ def test_get_mobile_patient(database, api_post, api_get):
                 # Check that they give the exact same information.
                 __assert_dicts_are_equal(
                     readingFromMobile,
-                    readingFromNormalApi,
+                    reading_from_normal_api,
                     f"reading {current_reading_id} from api/mobile/patients",
                     f"reading {current_reading_id} from api/patients/:id",
                     other_error_messages=patient_number_info,
                     ignored_keys=["user_id"],
                 )
-            for readingFromNormalApi in patient_from_patients_api["readings"]:
+            for reading_from_normal_api in patient_from_patients_api["readings"]:
                 # From the reading from the api/patients/:id, find the corresponding reading
                 # from the api/mobile/patients endpoint
-                current_reading_id = readingFromNormalApi["readingId"]
+                current_reading_id = reading_from_normal_api["id"]
                 readingFromMobile = [
                     r
                     for r in patient_from_mobile_patients["readings"]
-                    if r["readingId"] == current_reading_id
+                    if r["id"] == current_reading_id
                 ][0]
                 # Check that they give the exact same information.
                 __assert_dicts_are_equal(
                     readingFromMobile,
-                    readingFromNormalApi,
+                    reading_from_normal_api,
                     f"reading {current_reading_id} from api/mobile/patients",
                     f"reading {current_reading_id} from api/patients/:id",
                     other_error_messages=patient_number_info,
@@ -342,7 +342,7 @@ def test_get_mobile_patient(database, api_post, api_get):
 
     finally:
         for r in reading_ids:
-            crud.delete_by(ReadingOrm, readingId=r)
+            crud.delete_by(ReadingOrm, id=r)
         for p in patient_ids:
             crud.delete_by(PatientOrm, id=p)
 
@@ -353,21 +353,21 @@ def test_create_patient_with_nested_readings(database, api_post):
         "65acfe28-b0d6-4a63-a484-eceb3277fb4e",
         "90293637-d763-494a-8cc7-85a88d023f3e",
     ]
-    p = __make_patient(patient_id, reading_ids)
-    response = api_post(endpoint="/api/patients", json=p)
+    patient = __make_patient(patient_id, reading_ids)
+    response = api_post(endpoint="/api/patients", json=patient)
     database.session.commit()
 
     try:
         assert response.status_code == 201
         assert crud.read(PatientOrm, id=patient_id) is not None
 
-        for r in reading_ids:
-            reading = crud.read(ReadingOrm, readingId=r)
+        for reading_id in reading_ids:
+            reading = crud.read(ReadingOrm, id=reading_id)
             assert reading is not None
             assert reading.traffic_light_status == TrafficLightEnum.GREEN
     finally:
-        for r in reading_ids:
-            crud.delete_by(ReadingOrm, readingId=r)
+        for reading_id in reading_ids:
+            crud.delete_by(ReadingOrm, id=reading_id)
         crud.delete_by(PatientOrm, id=patient_id)
 
 
@@ -385,13 +385,13 @@ def test_create_patient_with_pregnancy_and_medical_records(database, api_post):
         assert (
             crud.read(PregnancyOrm, patient_id=patient_id, start_date=date) is not None
         )
-        assert crud.read(MedicalRecordOrm, patient_id=patient_id, isDrugRecord=False)
-        assert crud.read(MedicalRecordOrm, patient_id=patient_id, isDrugRecord=True)
+        assert crud.read(MedicalRecordOrm, patient_id=patient_id, is_drug_record=False)
+        assert crud.read(MedicalRecordOrm, patient_id=patient_id, is_drug_record=True)
 
     finally:
         crud.delete_by(PregnancyOrm, patient_id=patient_id, start_date=date)
-        crud.delete_by(MedicalRecordOrm, patient_id=patient_id, isDrugRecord=False)
-        crud.delete_by(MedicalRecordOrm, patient_id=patient_id, isDrugRecord=True)
+        crud.delete_by(MedicalRecordOrm, patient_id=patient_id, is_drug_record=False)
+        crud.delete_by(MedicalRecordOrm, patient_id=patient_id, is_drug_record=True)
         crud.delete_by(PatientOrm, id=patient_id)
 
 
@@ -500,8 +500,7 @@ def __make_full_patient(patient_id: str, reading_ids: List[str]) -> dict:
         "name": "TEST_FULL",
         "sex": "FEMALE",
         "is_pregnant": True,
-        "gestationalAgeUnit": "MONTHS",
-        "gestationalTimestamp": 1595211991,
+        "gestational_timestamp": 1595211991,
         "medical_history": "TEST_FULL: This is fully fleshed out medical history for testing.",
         "drug_history": "TEST_FULL: This is fully fleshed out drug history for testing.",
         "zone": "9999",

@@ -9,7 +9,14 @@ import data
 from api import util
 from api.decorator import patient_association_required
 from data import crud, marshal
-from models import FollowUpOrm, PatientOrm, PregnancyOrm, ReadingOrm, ReferralOrm
+from models import (
+    FollowUpOrm,
+    PatientOrm,
+    PregnancyOrm,
+    ReadingOrm,
+    ReferralOrm,
+    UserOrm,
+)
 from service import assoc, invariant, serialize, statsCalculation, view
 from shared.user_utils import UserUtils
 from utils import get_current_time
@@ -71,8 +78,9 @@ class Root(Resource):
         crud.create(patient, refresh=True)
 
         # Associate the patient with the user who created them
-        user = util.current_user()
-        assoc.associate_by_user_role(patient, user)
+        current_user = UserUtils.get_current_user_from_jwt()
+        current_user_orm = crud.read(UserOrm, id=current_user["id"])
+        assoc.associate_by_user_role(patient, current_user_orm)
 
         # If the patient has any referrals, associate the patient with the facilities they were referred to
         for referral in patient.referrals:
@@ -159,7 +167,7 @@ class PatientInfo(Resource):
         # You can think of this like aborting a git merge due to conflicts.
         base = json.get("base")
         if base:
-            patient = crud.read(PatientOrm, patient_id=patient_id)
+            patient = crud.read(PatientOrm, id=patient_id)
             if patient is None:
                 abort(404, message=patient_not_found_message.format(patient_id))
                 return None

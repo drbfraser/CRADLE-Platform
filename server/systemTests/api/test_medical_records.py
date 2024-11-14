@@ -1,3 +1,5 @@
+from flask import Response
+
 from data import crud
 from models import MedicalRecordOrm
 
@@ -19,11 +21,10 @@ def test_put_record(create_patient, medical_record_factory, drug_record, api_put
 
     record_id = drug_record["id"]
     info = "Labetalol 200mg three times daily."
-    response = api_put(
+    response: Response = api_put(
         endpoint=f"/api/medical_records/{record_id}",
-        json={"drugHistory": info},
+        json={"drug_history": info},
     )
-
     new_record = crud.read(MedicalRecordOrm, id=record_id)
 
     assert response.status_code == 200
@@ -115,7 +116,7 @@ def test_invalid_record_not_created(
 
     response = api_post(
         endpoint=f"/api/patients/{patient_id}/medical_records",
-        json={"id": drug_record["id"], "drugHistory": "Aspirin 75mg"},
+        json={"id": drug_record["id"], "drug_history": "Aspirin 75mg"},
     )
 
     assert response.status_code == 409
