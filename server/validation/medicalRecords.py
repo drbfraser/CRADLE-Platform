@@ -48,7 +48,7 @@ class MedicalRecordValidator(BaseModel):
             print(e)
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
-        if record.patientId and record.patientId != patient_id:
+        if record.patient_id and record.patient_id != patient_id:
             raise ValidationExceptionError("Patient ID does not match.")
 
         return record
