@@ -1,15 +1,24 @@
 from typing import List, Optional, Union
 
-from pydantic import BaseModel, Field, ValidationError, field_serializer
+from pydantic import BaseModel, Field
 from typing_extensions import Annotated
 
 from enums import QRelationalEnum, QuestionTypeEnum
-from validation.validation_exception import ValidationExceptionError
 
 
 class MultipleChoiceOptionValidator(BaseModel):
     mc_id: int
     opt: str
+    """
+    valid example:
+    [
+        {
+            "mc_id": 0,
+            "opt": "abcd"
+        },
+        ... (maximum 5 answers)
+    ]
+    """
 
 
 class AnswerValidator(BaseModel):
@@ -21,35 +30,15 @@ class AnswerValidator(BaseModel):
     class Config:
         extra = "forbid"
 
-    @staticmethod
-    def validate(question: dict):
-        """
-        Raises an error if the answer is invalid.
-
-        :param question: the parent dict for answers
-
-        valid example (all fields, in real case only present one part of it):
-        {
-            "number": 5/5.0,
-            "text": "a",
-            "mc_id_array":[0,1],
-            "comment": "other opt"
-        }
-        """
-        target = "answers"
-
-        if target not in question:
-            return
-
-        error = check_target_not_null(target, question)
-        if error:
-            raise ValidationExceptionError(str(error))
-
-        try:
-            AnswerValidator(**question[target])
-        except ValidationError as e:
-            print(e)
-            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+    """
+    valid example (all fields, in real case only present one part of it):
+    {
+        "number": 5/5.0,
+        "text": "a",
+        "mc_id_array":[0,1],
+        "comment": "other opt"
+    }
+    """
 
 
 class VisibleConditionValidator(BaseModel):
@@ -57,44 +46,21 @@ class VisibleConditionValidator(BaseModel):
     question_index: int
     relation: QRelationalEnum
 
-    @field_serializer("relation")
-    def serialize_relation(self, relation: QRelationalEnum):
-        return relation.value
+    class Config:
+        use_enum_values = True
 
-    @staticmethod
-    def validate(question: dict):
-        """
-        Raises an error if the visible condition is invalid.
-
-        :param question: the parent dict for visible condition
-
-        valid example:
-        [
-            {
-                "question_index": 1,
-                "relation": "EQUAL_TO",
-                "answers": {
-                    "number": 5
-                }
-            },...
-        ]
-        """
-        target = "visible_condition"
-
-        if target not in question:
-            return
-
-        error = check_target_not_null(target, question)
-        if error:
-            raise ValidationExceptionError(str(error))
-
-        try:
-            visible_conditions = question[target]
-            for visible_condition in visible_conditions:
-                VisibleConditionValidator(**visible_condition)
-        except ValidationError as e:
-            print(e)
-            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+    """
+    valid example:
+    [
+        {
+            "question_index": 1,
+            "relation": "EQUAL_TO",
+            "answers": {
+                "number": 5
+            }
+        },...
+    ]
+    """
 
 
 class QuestionLangVersionValidator(BaseModel):
@@ -105,44 +71,22 @@ class QuestionLangVersionValidator(BaseModel):
     class Config:
         extra = "forbid"
 
-    @staticmethod
-    def validate(question: dict):
-        """
-        Raises an error if the lang versions is invalid.
+    """
+    valid example:
+    [
+        {
+        "lang": "English",
+        "question_text": "How the patient's condition?",
+            "mc_options": [
+                {
+                    "mc_id":0,
+                    "opt": "Decent"
+                }
+            ],
+        },
 
-        :param question: the parent dict for visible condition
-
-        valid example:
-        [
-            {
-            "lang": "English",
-            "question_text": "How the patient's condition?",
-                "mc_options": [
-                    {
-                        "mc_id":0,
-                        "opt": "Decent"
-                    }
-                ],
-            },
-
-        ]
-        """
-        target = "question_lang_versions"
-
-        if target not in question:
-            return
-
-        error = check_target_not_null(target, question)
-        if error:
-            raise ValidationExceptionError(str(error))
-
-        try:
-            question_lang_versions = question[target]
-            for question_lang_version in question_lang_versions:
-                QuestionLangVersionValidator(**question_lang_version)
-        except ValidationError as e:
-            print(e)
-            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+    ]
+    """
 
 
 class QuestionBase(BaseModel):
@@ -171,20 +115,6 @@ class TemplateQuestionValidator(QuestionBase):
     class Config:
         extra = "forbid"
 
-    @staticmethod
-    def validate(question: dict):
-        """
-        Raises an error if the question dict is not valid (after pre-process) when
-        making template post request.
-
-        :param question: question as a dict object
-        """
-        try:
-            TemplateQuestionValidator(**question)
-        except ValidationError as e:
-            print(e)
-            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
-
 
 class FormQuestionValidator(QuestionBase):
     question_text: str
@@ -197,45 +127,7 @@ class FormQuestionValidator(QuestionBase):
     class Config:
         extra = "forbid"
 
-    @staticmethod
-    def validate(question: dict):
-        """
-        Raises an error if the question dict is not valid (after pre-process) when
-        making /api/forms/responses POST request.
-
-        :param question: question as a dict object
-        """
-        try:
-            FormQuestionValidator(**question)
-        except ValidationError as e:
-            print(e)
-            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
-
 
 class FormQuestionPutValidator(BaseModel):
     id: str
     answers: AnswerValidator
-
-    @staticmethod
-    def validate(question: dict):
-        """
-        Raises an error if the question dict is not valid when making
-        /api/forms/responses PUT request. Else, returns None.
-
-        :param question: question as a dict object
-        """
-        try:
-            FormQuestionPutValidator(**question)
-        except ValidationError as e:
-            print(e)
-            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
-
-
-def check_target_not_null(target, q: dict) -> Optional[str]:
-    """
-    Returns an error if the target key has value null.
-    Else, returns None.
-    """
-    if target in q and q.get(target) is None:
-        return f"Can not provide key={target} with null value"
-    return None
