@@ -55,11 +55,11 @@ class Root(Resource):
                     409,
                     message=f"A pregnancy record with ID {pregnancy_id} already exists.",
                 )
-
+        print(request_body)
         _process_request_body(request_body)
         _check_conflicts(request_body, patient_id)
 
-        request_body["patientId"] = patient_id
+        request_body["patient_id"] = patient_id
         new_pregnancy = marshal.unmarshal(PregnancyOrm, request_body)
         crud.create(new_pregnancy, refresh=True)
 
@@ -97,14 +97,14 @@ class SinglePregnancy(Resource):
 
         pregnancy = crud.read(PregnancyOrm, id=pregnancy_id)
         if (
-            "patientId" in request_body
-            and request_body["patientId"] != pregnancy.patientId
+            "patient_id" in request_body
+            and request_body["patient_id"] != pregnancy.patient_id
         ):
             abort(400, message="Patient ID cannot be changed.")
-        if "startDate" not in request_body:
-            request_body["startDate"] = pregnancy.startDate
+        if "start_date" not in request_body:
+            request_body["start_date"] = pregnancy.start_date
 
-        _check_conflicts(request_body, pregnancy.patientId, pregnancy_id)
+        _check_conflicts(request_body, pregnancy.patient_id, pregnancy_id)
 
         crud.update(PregnancyOrm, request_body, id=pregnancy_id)
         new_pregnancy = crud.read(PregnancyOrm, id=pregnancy_id)
@@ -125,20 +125,18 @@ class SinglePregnancy(Resource):
 
 
 def _process_request_body(request_body):
-    request_body["lastEdited"] = get_current_time()
-    if "pregnancyStartDate" in request_body:
-        request_body["startDate"] = request_body.pop("pregnancyStartDate")
-    if "gestationalAgeUnit" in request_body:
-        request_body["defaultTimeUnit"] = request_body.pop("gestationalAgeUnit")
+    request_body["last_edited"] = get_current_time()
+    if "pregnancy_start_date" in request_body:
+        request_body["start_date"] = request_body.pop("pregnancy_start_date")
     if "pregnancyEndDate" in request_body:
-        request_body["endDate"] = request_body.pop("pregnancyEndDate")
-    if "pregnancyOutcome" in request_body:
-        request_body["outcome"] = request_body.pop("pregnancyOutcome")
+        request_body["end_date"] = request_body.pop("pregnancy_end_date")
+    if "pregnancy_outcome" in request_body:
+        request_body["outcome"] = request_body.pop("pregnancy_outcome")
 
 
 def _check_conflicts(request_body, patient_id, pregnancy_id=None):
-    start_date = request_body.get("startDate")
-    end_date = request_body.get("endDate")
+    start_date = request_body.get("start_date")
+    end_date = request_body.get("end_date")
     if crud.has_conflicting_pregnancy_record(
         patient_id,
         start_date,

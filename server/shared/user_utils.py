@@ -71,6 +71,16 @@ class UserUtils:
         return user_orm
 
     @staticmethod
+    def get_user_orm_from_phone_number(phone_number: str) -> UserOrm:
+        user_phone_number_orm = crud.read(UserPhoneNumberOrm, phone_number=phone_number)
+        if user_phone_number_orm is None:
+            raise ValueError(
+                f"Phone number ({phone_number}) does not belong to any user."
+            )
+        user_orm = user_phone_number_orm.user
+        return user_orm
+
+    @staticmethod
     def get_user_dict_from_orm(user_orm: UserOrm) -> UserDict:
         """
         :param user_orm: ORM model of the user.

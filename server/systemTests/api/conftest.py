@@ -72,7 +72,7 @@ def create_reading_with_referral(
         is_assessed=False,
     ):
         facility_factory.create(name=facility_name)
-        user_factory.create(id=user_id)
+        user_factory.create(id=user_id, username=f"user_{user_id}")
 
         reading.update({"id": reading_id, "user_id": user_id})
         reading_factory.create(**reading)

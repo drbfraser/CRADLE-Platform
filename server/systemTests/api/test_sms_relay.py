@@ -223,7 +223,7 @@ def make_sms_relay_json(
 
 
 def get_sms_relay_response(response: requests.Response) -> dict:
-    secret_key = crud.read(SmsSecretKeyOrm, userId=1)
+    secret_key = crud.read(SmsSecretKeyOrm, user_id=1)
 
     response_dict = json.loads(response.text)
     decrypted_data = encryptor.decrypt(response_dict["body"], secret_key.secret_key)

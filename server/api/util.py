@@ -677,7 +677,7 @@ def getCsvFromFormTemplate(form_template: FormTemplateOrm):
 def phoneNumber_exists(phone_number, user_id=-1):
     existing_phone_number = None
     if user_id == -1:
-        existing_phone_number = crud.read(UserPhoneNumberOrm, number=phone_number)
+        existing_phone_number = crud.read(UserPhoneNumberOrm, phone_number=phone_number)
     else:
         existing_phone_number = crud.read(
             UserPhoneNumberOrm,
@@ -694,7 +694,7 @@ def get_all_phoneNumbers_for_user(user_id):
 
 
 def get_user_from_phone_number(phone_number):
-    phone_number_object = crud.read(UserPhoneNumberOrm, number=phone_number)
+    phone_number_object = crud.read(UserPhoneNumberOrm, phone_number=phone_number)
     if phone_number_object:
         user = crud.read(UserOrm, id=phone_number_object.user_id)
         return user
@@ -708,7 +708,7 @@ def add_new_phoneNumber_for_user(new_phone_number, user_id):
         return False
 
     user = crud.read(UserOrm, id=user_id)
-    crud.create(UserPhoneNumberOrm(number=new_phone_number, user=user))
+    crud.create(UserPhoneNumberOrm(phone_number=new_phone_number, user=user))
 
     return True
 
@@ -716,7 +716,7 @@ def add_new_phoneNumber_for_user(new_phone_number, user_id):
 # Delete phone_number from the list of phone numbers of user with user_id if the number belongs to them
 def delete_user_phoneNumber(phone_number, user_id):
     if phoneNumber_exists(phone_number, user_id):
-        crud.delete_by(UserPhoneNumberOrm, number=phone_number, user_id=user_id)
+        crud.delete_by(UserPhoneNumberOrm, phone_number=phone_number, user_id=user_id)
         return True
     return False
 
@@ -729,8 +729,8 @@ def replace_phoneNumber_for_user(current_phone_number, new_phone_number, user_id
     ):
         crud.update(
             UserPhoneNumberOrm,
-            {"number": new_phone_number},
-            number=current_phone_number,
+            {"phone_number": new_phone_number},
+            phone_number=current_phone_number,
             user_id=user_id,
         )
         return True
