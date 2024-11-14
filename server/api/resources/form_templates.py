@@ -69,6 +69,7 @@ class Root(Resource):
             form_template_pydantic_model = FormTemplateValidator.validate(request_json)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
+            return None
 
         new_form_template = form_template_pydantic_model.model_dump()
         new_form_template = commonUtil.filterNestedAttributeWithValueNone(
