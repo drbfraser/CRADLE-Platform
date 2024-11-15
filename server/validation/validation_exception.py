@@ -1,4 +1,2 @@
-
-
 class ValidationExceptionError(Exception):
     pass
