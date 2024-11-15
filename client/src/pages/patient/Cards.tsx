@@ -70,10 +70,10 @@ export const AssessmentCard = ({ followUp }: IFollowUpCardProps) => (
         </p>
       )}
 
-      {Boolean(followUp && followUp.followupInstructions) && (
+      {Boolean(followUp && followUp.followUpInstructions) && (
         <p>
           <b>Followup Instructions: </b>
-          {followUp?.followupInstructions}
+          {followUp?.followUpInstructions}
         </p>
       )}
     </Box>
