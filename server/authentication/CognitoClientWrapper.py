@@ -412,11 +412,11 @@ class CognitoClientWrapper:
                 },
             )
         except ClientError as err:
-            print(err)
-            logger.error(err)
-            raise ValueError(err)
+            error = err.response.get("Error")
+            raise ValueError(error)
 
         auth_result = auth_response.get("AuthenticationResult")
+
         new_access_token = auth_result.get("AccessToken")
         if new_access_token is None:
             raise ValueError("Could not get new access token.")

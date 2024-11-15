@@ -110,14 +110,10 @@ export const getApiToken = async () => {
     if (shouldRefreshToken) {
       const username = decodedToken?.username;
       /** Refresh token is stored in HTTP-Only cookie. It should automatically
-       *  be sent along with our request to the refresh_token endpoint.
-       *  NOTE: To avoid an infinite loop from our axios instance calling
-       *  itself which calls this function which calls itself, we cannot use
-       *  our axios instance to call the refresh token endpoint. Instead, we
-       *  can use the base axios instance. */
-      const response = await axios({
+       *  be sent along with our request to the refresh_token endpoint. */
+      const response = await axiosFetch({
         method: 'POST',
-        url: API_URL + EndpointEnum.REFRESH,
+        url: EndpointEnum.REFRESH,
         withCredentials: true, // Necessary for cookies.
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -129,7 +125,10 @@ export const getApiToken = async () => {
       });
 
       accessToken = response.data.accessToken;
-      localStorage.setItem('accessToken', accessToken!);
+      if (!accessToken) {
+        throw new Error('Access token was not found in response.');
+      }
+      localStorage.setItem('accessToken', accessToken);
       console.log('REFRESH SUCCESSFUL!');
     }
   } catch (e) {
@@ -142,7 +141,10 @@ export const getApiToken = async () => {
 
 // Set interceptor to attach access token to authorization header.
 axiosFetch.interceptors.request.use(async (config) => {
-  if (config.url !== EndpointEnum.AUTH) {
+  /** Need to be careful here, as it is very easy to accidentally cause an
+   *  infinite loop since the refresh endpoint gets called inside of getApiToken.
+   */
+  if (config.url !== EndpointEnum.AUTH && config.url !== EndpointEnum.REFRESH) {
     const accessToken = await getApiToken();
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
