@@ -446,7 +446,7 @@ export const getPregnancyAsync = async (pregnancyId: string) => {
 
 export const deletePregnancyAsync = async (pregnancy: Pregnancy) =>
   axiosFetch({
-    url: EndpointEnum.PREGNANCIES + `/${pregnancy.pregnancyId}`,
+    url: EndpointEnum.PREGNANCIES + `/${pregnancy.id}`,
     method: 'DELETE',
   });
 
