@@ -6,10 +6,6 @@ from typing import Any
 from botocore.exceptions import ClientError
 from flasgger import swag_from
 from flask import Flask, make_response, request
-from flask_jwt_extended import (
-    create_access_token,
-    create_refresh_token,
-)
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_restful import Resource, abort, reqparse
@@ -25,7 +21,7 @@ from api.util import (
     replace_phoneNumber_for_user,
 )
 from authentication import cognito
-from common import phone_number_utils, user_utils
+from common import user_utils
 from common.regexUtil import phoneNumber_regex_check
 from data import crud, marshal
 from enums import RoleEnum
@@ -202,33 +198,6 @@ class UserRegisterApi(Resource):
         return user_utils.get_user_dict_from_username(user_pydantic_model.username), 200
 
 
-def get_user_data_for_token(user: UserOrm) -> dict:
-    data = {}
-    data["email"] = user.email
-    data["role"] = user.role
-    data["name"] = user.name
-    data["health_facility_name"] = user.health_facility_name
-    data["is_logged_in"] = True
-    data["user_id"] = user.id
-    data["phone_numbers"] = phone_number_utils.get_users_phone_numbers(user.id)
-    vhtList = []
-    data["supervises"] = []
-    if data["role"] == RoleEnum.CHO.value:
-        if user.vhtList:
-            for user_in_vht_list in user.vhtList:
-                vhtList.append(user_in_vht_list.id)
-            data["supervises"] = vhtList
-    return data
-
-
-def get_access_token(data: dict) -> str:
-    return create_access_token(identity=data)
-
-
-def get_refresh_token(data: dict) -> str:
-    return create_refresh_token(identity=data)
-
-
 # api/user/auth [POST]
 class UserAuthApi(Resource):
     app = Flask(__name__)
@@ -291,6 +260,7 @@ class UserAuthApi(Resource):
             )
             print(err)
             abort(500, message=err)
+            return None
 
         # Don't include refresh token in body of response.
         refresh_token = auth_result["refresh_token"]
