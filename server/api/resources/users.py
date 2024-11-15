@@ -284,7 +284,6 @@ class UserAuthApi(Resource):
             resp.set_cookie(
                 "refresh_token",
                 refresh_token,
-                path="/api/user/auth/refresh_token",
                 httponly=True,
                 # secure=True,
             )
