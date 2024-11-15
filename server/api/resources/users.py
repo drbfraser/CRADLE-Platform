@@ -391,12 +391,6 @@ class UserApi(Resource):
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/user-delete.yml", methods=["DELETE"])
     def delete(self, id):
-        # Ensure we have id
-        if not id:
-            error = {"message": null_id_message}
-            LOGGER.error(error)
-            return error, 400
-
         # Ensure that id is valid
         user = crud.read(UserOrm, id=id)
         if user is None:
@@ -404,7 +398,12 @@ class UserApi(Resource):
             LOGGER.error(error)
             return error, 400
 
-        crud.delete(user)
+        try:
+            user_utils.delete_user(user.username)
+        except ValueError as err:
+            error = {"message": str(err)}
+            LOGGER.error(error)
+            return error, 400
 
         return {"message": "User deleted"}, 200
 
