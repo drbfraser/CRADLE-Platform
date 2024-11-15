@@ -211,8 +211,8 @@ export type NewAssessment = {
   treatment: string;
   specialInvestigations: string;
   medicationPrescribed: string;
-  followupNeeded: boolean;
-  followupInstructions: OrNull<string>;
+  followUpNeeded: boolean;
+  followUpInstructions: OrNull<string>;
 };
 //FollowUp == Assessment
 export type FollowUp = NewAssessment & {
