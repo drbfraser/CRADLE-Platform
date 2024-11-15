@@ -60,7 +60,7 @@ export const PregnancyHistory = () => {
   const updateRowData = (pregnancies: Pregnancy[]) => {
     setRows(
       pregnancies.map((pregnancy) => ({
-        id: pregnancy.pregnancyId,
+        id: pregnancy.id,
         startDate: getPrettyDate(pregnancy.startDate),
         endDate: pregnancy.endDate
           ? getPrettyDate(pregnancy.endDate)
@@ -89,11 +89,9 @@ export const PregnancyHistory = () => {
           Icon: CreateIcon,
           onClick: () => {
             if (!pregnancy || !patientId) return;
-            const { pregnancyId } = pregnancy;
+            const { id } = pregnancy;
             // Navigate to edit page.
-            navigate(
-              `/patients/${patientId}/edit/pregnancyInfo/${pregnancyId}`
-            );
+            navigate(`/patients/${patientId}/edit/pregnancyInfo/${id}`);
           },
         },
         {

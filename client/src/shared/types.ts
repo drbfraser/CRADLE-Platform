@@ -70,7 +70,7 @@ export type Pregnancy = {
   startDate: number;
   endDate: OrNull<number>;
   outcome: OrNull<string>;
-  pregnancyId: string;
+  id: number;
 };
 
 export type TimelineRecord = {
