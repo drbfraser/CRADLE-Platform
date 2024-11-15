@@ -348,15 +348,22 @@ def get_user_dict_list():
     return user_dict_list
 
 
+def does_user_exist(user_id: int) -> bool:
+    """
+    Queries the database to determine if the specified user id is in the system.
+
+    :param user_id: The user id to check.
+    """
+    return crud.read(UserOrm, id=user_id) is not None
+
+
 def does_username_exist(username: str) -> bool:
     """
     Queries the database to determine if the specified username is in the system.
 
     :param username: The username to check.
     """
-    if crud.read(UserOrm, username=username) is None:
-        return False
-    return True
+    return crud.read(UserOrm, username=username) is not None
 
 
 def _update_user_phone_numbers(user_orm: UserOrm, phone_numbers: set[str]):
