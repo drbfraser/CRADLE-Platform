@@ -8,15 +8,9 @@ from typing import Optional, cast
 
 import jwt
 from botocore.exceptions import ClientError
-from dotenv import load_dotenv
 from flask import request
-
-# from jose import jwt as jose_jwt, jwk
 from jwt import PyJWK, PyJWKClient
 from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
-
-load_dotenv(dotenv_path="/run/secrets/.aws.secrets.env")
-
 
 pprinter = pprint.PrettyPrinter(indent=4, sort_dicts=False, compact=False)
 
@@ -34,7 +28,7 @@ if COGNITO_ENABLE_DEV_USERS:
 
 logger = logging.getLogger(__name__)
 
-# URI to retrieve the JWKS (JSON Web Key Set) if the one we have cached has been rotated.
+# URL to retrieve the JWKS (JSON Web Key Set) if the one we have cached has been rotated.
 COGNITO_JWKS_URL = os.getenv("COGNITO_JWKS_URL")
 if COGNITO_JWKS_URL is None:
     raise ValueError("Could not retrieve COGNITO_JWKS_URL.")
