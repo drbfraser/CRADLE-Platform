@@ -1,13 +1,11 @@
 import {
   AnswerTypeEnum,
-  GestationalAgeUnitEnum,
   QRelationEnum,
   QuestionTypeEnum,
   SexEnum,
   TrafficLightEnum,
 } from 'src/shared/enums';
 
-import { FacilityField } from 'src/pages/admin/manageFacilities/state';
 import { User } from './api/validation/user';
 
 export type Callback<T, U = void> = (args: T) => U;

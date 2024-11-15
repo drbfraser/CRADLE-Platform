@@ -8,7 +8,7 @@ import {
   Tooltip,
 } from 'chart.js';
 import React, { useEffect, useState } from 'react';
-import { initialColorReading, initialStatsData } from '.';
+import { initialStatsData } from '.';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Bar } from 'react-chartjs-2';
@@ -19,7 +19,6 @@ import { StatisticCard } from './StatisticCard';
 import { Box, Typography } from '@mui/material';
 import { StatisticGroup } from './StatisticGroup';
 import {
-  ColorReading,
   StatsData,
   statsDataSchema,
 } from 'src/shared/api/validation/statistics';
