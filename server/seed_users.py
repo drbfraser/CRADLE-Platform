@@ -6,7 +6,7 @@ from botocore.exceptions import ClientError
 
 from authentication import cognito
 from authentication.CognitoClientWrapper import (
-    ENABLE_DEV_USERS,
+    COGNITO_ENABLE_DEV_USERS,
 )
 from common import health_facility_utils, user_utils
 from enums import FacilityTypeEnum, RoleEnum
@@ -90,7 +90,7 @@ users_list: list[SeedUserDict] = [
 
 
 def populate_user_pool(seed_users: list[SeedUserDict]):
-    if not ENABLE_DEV_USERS:
+    if not COGNITO_ENABLE_DEV_USERS:
         raise ValueError("ERROR: ENABLE_DEV_USERS is not set to true.")
 
     try:

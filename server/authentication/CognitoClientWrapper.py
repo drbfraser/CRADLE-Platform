@@ -26,20 +26,20 @@ pprinter = pprint.PrettyPrinter(indent=4, sort_dicts=False, compact=False)
   and their temporary passwords will be set to one that we
   specify instead of being generated.
 """
-ENABLE_DEV_USERS: bool = (
-    os.getenv("ENABLE_DEV_USERS", default="false").lower() == "true"
+COGNITO_ENABLE_DEV_USERS: bool = (
+    os.getenv("COGNITO_ENABLE_DEV_USERS", default="false").lower() == "true"
 )
-if ENABLE_DEV_USERS:
+if COGNITO_ENABLE_DEV_USERS:
     temporary_password = "Temporary_123"
 
 logger = logging.getLogger(__name__)
 
 # URI to retrieve the JWKS (JSON Web Key Set) if the one we have cached has been rotated.
-JWKS_URI = os.getenv("JWKS_URI")
-if JWKS_URI is None:
-    raise ValueError("Could not retrieve JWKS_URI.")
+COGNITO_JWKS_URL = os.getenv("COGNITO_JWKS_URL")
+if COGNITO_JWKS_URL is None:
+    raise ValueError("Could not retrieve COGNITO_JWKS_URL.")
 jwks_client = PyJWKClient(
-    JWKS_URI,
+    COGNITO_JWKS_URL,
     cache_jwk_set=True,
     cache_keys=True,
 )
