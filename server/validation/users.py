@@ -1,5 +1,5 @@
 import re
-from typing import List, Optional
+from typing import List
 
 from pydantic import (
     BaseModel,
@@ -30,7 +30,7 @@ class UserValidator(BaseModel):
     health_facility_name: str
     role: str
     phone_numbers: List[str]
-    supervises: Optional[list[int]] = []
+    supervises: list[int] = []
 
     @field_validator("email")
     @classmethod
