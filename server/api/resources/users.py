@@ -1,6 +1,7 @@
 import logging
 import os
 import re
+from typing import Any
 
 from botocore.exceptions import ClientError
 from flasgger import swag_from
@@ -325,12 +326,18 @@ class UserAuthTokenRefreshApi(Resource):
     @swag_from("../../specifications/user-auth-refresh.yml", methods=["POST"])
     @public_endpoint
     def post(self):
+        request_body: dict[str, Any] = request.get_json(force=True)
+        username = request_body.get("username")
+        if username is None:
+            abort(400, message="No username was provided.")
+            return None
         try:
-            new_access_token = cognito.refresh_access_token()
+            new_access_token = cognito.refresh_access_token(username)
         except ValueError as err:
             print(err)
             LOGGER.error(err)
-            return abort(401, message=str(err))
+            abort(401, message=str(err))
+            return None
         return {"access_token": new_access_token}, 200
 
 
@@ -357,6 +364,7 @@ class UserApi(Resource):
             error_message = str(e)
             LOGGER.error(error_message)
             abort(400, message=error_message)
+            return None
 
         try:
             # Update the user.
@@ -365,6 +373,7 @@ class UserApi(Resource):
             error_message = str(e)
             LOGGER.error(error_message)
             abort(400, message=error_message)
+            return None
 
         return user_utils.get_user_dict_from_id(id), 200
 

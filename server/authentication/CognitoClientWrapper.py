@@ -389,24 +389,18 @@ class CognitoClientWrapper:
 
         return username
 
-    def refresh_access_token(self):
+    def refresh_access_token(self, username: str):
         """
         Extracts refresh token from cookies and uses it to get a new access
         token.
+
+        :param username: The username of the user who the tokens belong to.
+        :return access_token: New access token.
         """
-        access_token = self.get_access_token()
         refresh_token = request.cookies.get("refresh_token")
         if refresh_token is None:
             raise ValueError("No Refresh Token found.")
 
-        # Get username from access token.
-        decoded_access_token = jwt.decode(
-            access_token.replace(".", "===.", 2), options={"verify_signature": False}
-        )
-        username = decoded_access_token["username"]
-
-        if username is None:
-            raise ValueError("Could not extract username from token.")
         try:
             auth_response = self.client.admin_initiate_auth(
                 UserPoolId=self.user_pool_id,
