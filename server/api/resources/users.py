@@ -409,6 +409,7 @@ class UserApi(Resource):
         return {"message": "User deleted"}, 200
 
 
+# TODO: Rework these endpoints. Users should be able to have multiple phone numbers.
 # api/user/<int:user_id>/phone
 class UserPhoneUpdate(Resource):
     parser = reqparse.RequestParser()
@@ -447,11 +448,10 @@ class UserPhoneUpdate(Resource):
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/user-phone-put.yml", methods=["PUT"])
     def put(self, user_id):
-        if not user_id:
-            return {"message": null_id_message}, 400
         # check if user exists
-        if not doesUserExist(user_id):
+        if not user_utils.does_user_exist(user_id):
             return {"message": no_user_found_message}, 404
+
         args = self.parser.parse_args()
         new_phone_number = args["new_phone_number"]
         current_phone_number = args["current_phone_number"]
