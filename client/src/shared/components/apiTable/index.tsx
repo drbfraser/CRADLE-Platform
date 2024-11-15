@@ -83,27 +83,22 @@ export const APITable = ({
       sortDir: sortDir,
     });
 
-    const referralFilterParams = referralFilter
-      ? new URLSearchParams({
-          dateRange: referralFilter.dateRange,
-          isPregnant: referralFilter.isPregnant
-            ? referralFilter.isPregnant
-            : '',
-          isAssessed: referralFilter.isAssessed
-            ? referralFilter.isAssessed
-            : '',
-        })
-      : new URLSearchParams();
-
     if (referralFilter) {
+      params.append('dateRange', referralFilter.dateRange);
+      if (referralFilter.isPregnant) {
+        params.append('isPregnant', referralFilter.isPregnant);
+      }
+      if (referralFilter.isAssessed) {
+        params.append('isAssessed', referralFilter.isAssessed);
+      }
       referralFilter.healthFacilityNames.forEach((facilityName) =>
-        referralFilterParams.append('healthFacility', facilityName)
+        params.append('healthFacility', facilityName)
       );
       referralFilter.referrers.forEach((referrer) =>
-        referralFilterParams.append('referrer', referrer)
+        params.append('referrer', referrer)
       );
       referralFilter.vitalSigns.forEach((vitalSign) =>
-        referralFilterParams.append(
+        params.append(
           'vitalSigns',
           TrafficLightEnum[vitalSign as keyof typeof TrafficLightEnum]
         )
@@ -113,7 +108,7 @@ export const APITable = ({
     axiosFetch({
       method: 'GET',
       url: endpoint,
-      params: { ...params, ...referralFilterParams },
+      params: params,
     })
       .then(async (resp) => {
         const data = resp.data;
