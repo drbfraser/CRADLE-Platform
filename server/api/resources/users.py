@@ -366,13 +366,6 @@ class UserApi(Resource):
             LOGGER.error(error_message)
             abort(400, message=error_message)
 
-        # supervises = []
-        # if new_user["role"] == RoleEnum.CHO.value:
-        #     supervises = new_user.get("supervises", [])
-
-        # crud.add_vht_to_supervise(id, supervises)
-        # new_user.pop("supervises", None)
-
         return user_utils.get_user_dict_from_id(id), 200
 
     @public_endpoint

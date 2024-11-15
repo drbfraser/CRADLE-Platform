@@ -421,8 +421,8 @@ def update_user_phone_numbers(user_id: int, phone_numbers: set[str]):
 def update_user(user_id: int, user_update_dict: dict[str, Any]):
     """
     Updates the user's fields.
-    Fields which are allowed to be changed
-    include email, name, role, health_facility_name, and phone_numbers.
+    Fields which are allowed to be changed include email, name, role,
+    health_facility_name, supervises, and phone_numbers.
 
     The Cognito user pool will be updated in addition to the database.
 
@@ -433,7 +433,8 @@ def update_user(user_id: int, user_update_dict: dict[str, Any]):
                                 "email: str,
                                 "role": str,
                                 "health_facility_name": str,
-                                "phone_numbers": list[str]
+                                "phone_numbers": list[str],
+                                "supervises": list[int]
                             }
     """
     # Check that email doesn't belong to another user.
@@ -457,6 +458,14 @@ def update_user(user_id: int, user_update_dict: dict[str, Any]):
     user_orm.name = user_update_dict["name"]
     user_orm.role = user_update_dict["role"]
     user_orm.health_facility_name = user_update_dict["health_facility_name"]
+
+    # Update supervises list.
+    if user_update_dict["role"] == RoleEnum.CHO.value:
+        supervises = user_update_dict.get("supervises", [])
+        for vht_id in supervises:
+            vht = crud.read(UserOrm, id=vht_id)
+            if vht not in user_orm.vht_list:
+                user_orm.vht_list.append(vht)
 
     try:
         db.session.commit()
