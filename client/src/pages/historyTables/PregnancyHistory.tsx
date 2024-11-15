@@ -92,7 +92,7 @@ export const PregnancyHistory = () => {
             const { pregnancyId } = pregnancy;
             // Navigate to edit page.
             navigate(
-              `${API_URL}/patients/${patientId}/edit/pregnancyInfo/${pregnancyId}`
+              `/patients/${patientId}/edit/pregnancyInfo/${pregnancyId}`
             );
           },
         },
