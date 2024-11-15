@@ -7,10 +7,10 @@ from flask_restful import Resource, abort
 
 import data
 from api import util
+from common import user_utils
 from data import crud, marshal
 from models import HealthFacilityOrm, PatientOrm, ReferralOrm
 from service import assoc, serialize, view
-from shared.user_utils import UserUtils
 from utils import get_current_time
 from validation.referrals import (
     CancelStatusValidator,
@@ -29,7 +29,7 @@ class Root(Resource):
         endpoint="referrals",
     )
     def get():
-        user_data = UserUtils.get_current_user_from_jwt()
+        user_data = user_utils.get_current_user_from_jwt()
 
         params = util.get_query_params(request)
         if params.get("health_facilities") and "default" in params["health_facilities"]:
@@ -74,7 +74,7 @@ class Root(Resource):
             )
 
         if "user_id" not in new_referral:
-            new_referral["user_id"] = UserUtils.get_current_user_from_jwt()["id"]
+            new_referral["user_id"] = user_utils.get_current_user_from_jwt()["id"]
 
         patient = crud.read(PatientOrm, id=new_referral["patient_id"])
 

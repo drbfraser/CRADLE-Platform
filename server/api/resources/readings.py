@@ -5,10 +5,10 @@ from flask import request
 from flask_restful import Resource, abort
 
 from api import util
+from common import user_utils
 from data import crud, marshal
 from models import HealthFacilityOrm, PatientOrm, ReadingOrm, ReferralOrm
 from service import assoc, invariant
-from shared.user_utils import UserUtils
 from validation.readings import ReadingValidator
 
 
@@ -36,7 +36,7 @@ class Root(Resource):
             abort(400, message="Patient does not exist")
             return None
 
-        current_user = UserUtils.get_current_user_from_jwt()
+        current_user = user_utils.get_current_user_from_jwt()
         user_id = current_user["id"]
 
         new_reading["user_id"] = user_id

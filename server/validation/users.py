@@ -8,10 +8,9 @@ from pydantic import (
     field_validator,
 )
 
+from common import phone_number_utils, user_utils
 from common.constants import USERNAME_REGEX_PATTERN
 from enums import RoleEnum
-from shared.phone_number_utils import PhoneNumberUtils
-from shared.user_utils import UserUtils
 from validation.validation_exception import ValidationExceptionError
 
 supported_roles = [role.value for role in RoleEnum]
@@ -38,7 +37,7 @@ class UserValidator(BaseModel):
     def validate_email_format(cls, email: str):
         # Validate email format.
         email = email.lower()
-        if not UserUtils.is_valid_email_format(email):
+        if not user_utils.is_valid_email_format(email):
             raise ValueError(f"Email ({email}) format is invalid.")
         return email.lower()
 
@@ -62,7 +61,7 @@ class UserValidator(BaseModel):
     def format_phone_numbers(cls, phone_numbers: List[str]) -> List[str]:
         formatted_phone_numbers: set[str] = set()
         for phone_number in phone_numbers:
-            formatted_phone_numbers.add(PhoneNumberUtils.format(phone_number))
+            formatted_phone_numbers.add(phone_number_utils.format(phone_number))
         return list(formatted_phone_numbers)
 
     @staticmethod

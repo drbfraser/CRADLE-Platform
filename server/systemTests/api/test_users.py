@@ -5,9 +5,9 @@ import phonenumbers
 import pytest
 import requests
 
+from common import user_utils
+from data import crud
 from models import SmsSecretKeyOrm
-from server.data import crud
-from shared.user_utils import UserUtils
 
 
 def generate_random_email(domain="example.com", length=10):
@@ -61,7 +61,7 @@ def test_register_user(jwt_token):
     response = requests.post(url_register_user, json=payload, headers=headers)
     assert response.status_code == 200
     # Cleanup
-    UserUtils.delete_user(username)
+    user_utils.delete_user(username)
 
 
 def test_edit_user(jwt_token):

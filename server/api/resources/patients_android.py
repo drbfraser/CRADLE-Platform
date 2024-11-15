@@ -2,6 +2,7 @@ from flasgger import swag_from
 from flask_restful import Resource, abort
 
 import service.FilterHelper as filter
+from common import user_utils
 from data import crud, marshal
 from models import (
     FormOrm,
@@ -12,7 +13,6 @@ from models import (
     UserOrm,
 )
 from service import serialize, view
-from shared.user_utils import UserUtils
 
 ## Functions that are only used for these endpoints ##
 
@@ -75,7 +75,7 @@ class AndroidPatientGlobalSearch(Resource):
     # get all patient information (patientinfo, readings, and referrals)
     @swag_from("../../specifications/patient-search-get.yml", methods=["GET"])
     def get(self, search):
-        current_user = UserUtils.get_current_user_from_jwt()
+        current_user = user_utils.get_current_user_from_jwt()
         patients_readings_referrals = get_global_search_patients(
             current_user,
             search.upper(),
@@ -95,7 +95,7 @@ class AndroidPatients(Resource):
         endpoint="android_patient",
     )
     def get():
-        current_user = UserUtils.get_current_user_from_jwt()
+        current_user = user_utils.get_current_user_from_jwt()
         patients = view.patient_view(current_user)
 
         return [serialize.serialize_patient(p) for p in patients]
@@ -110,7 +110,7 @@ class AndroidReadings(Resource):
         endpoint="android_readings",
     )
     def get():
-        current_user = UserUtils.get_current_user_from_jwt()
+        current_user = user_utils.get_current_user_from_jwt()
         readings = view.reading_view(current_user)
 
         return [serialize.serialize_reading(r) for r in readings]
@@ -125,7 +125,7 @@ class AndroidReferrals(Resource):
         endpoint="android_referrals",
     )
     def get():
-        current_user = UserUtils.get_current_user_from_jwt()
+        current_user = user_utils.get_current_user_from_jwt()
         referrals = view.referral_view(current_user)
         return [serialize.serialize_referral_or_assessment(r) for r in referrals]
 
@@ -139,7 +139,7 @@ class AndroidAssessments(Resource):
         endpoint="android_assessments",
     )
     def get():
-        current_user = UserUtils.get_current_user_from_jwt()
+        current_user = user_utils.get_current_user_from_jwt()
         assessments = view.assessment_view(current_user)
         return [serialize.serialize_referral_or_assessment(a) for a in assessments]
 

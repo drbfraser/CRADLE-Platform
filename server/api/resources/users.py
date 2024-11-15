@@ -24,12 +24,11 @@ from api.util import (
     replace_phoneNumber_for_user,
 )
 from authentication import cognito
+from common import phone_number_utils, user_utils
 from common.regexUtil import phoneNumber_regex_check
 from data import crud, marshal
 from enums import RoleEnum
 from models import UserOrm
-from shared.phone_number_utils import PhoneNumberUtils
-from shared.user_utils import UserUtils
 from validation.users import (
     UserAuthRequestValidator,
     UserRegisterValidator,
@@ -60,7 +59,7 @@ class UserAll(Resource):
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/user-all.yml", methods=["GET"])
     def get(self):
-        user_list = UserUtils.get_all_users_data()
+        user_list = user_utils.get_all_users_data()
         return user_list, 200
 
 
@@ -194,12 +193,12 @@ class UserRegisterApi(Resource):
         # use pydantic model to generate validated dict for later processing
         new_user_dict = user_pydantic_model.model_dump()
 
-        UserUtils.create_user(**new_user_dict)
+        user_utils.create_user(**new_user_dict)
 
         # # Updating the supervises table if necessary as well
         # if new_user["role"] == "CHO" and list_of_vhts is not None:
         #     crud.add_vht_to_supervise(created_user_id, list_of_vhts)
-        return UserUtils.get_user_dict_from_username(user_pydantic_model.username), 200
+        return user_utils.get_user_dict_from_username(user_pydantic_model.username), 200
 
 
 def get_user_data_for_token(user: UserOrm) -> dict:
@@ -210,7 +209,7 @@ def get_user_data_for_token(user: UserOrm) -> dict:
     data["health_facility_name"] = user.health_facility_name
     data["is_logged_in"] = True
     data["user_id"] = user.id
-    data["phone_numbers"] = PhoneNumberUtils.get_users_phone_numbers(user.id)
+    data["phone_numbers"] = phone_number_utils.get_users_phone_numbers(user.id)
     vhtList = []
     data["supervises"] = []
     if data["role"] == RoleEnum.CHO.value:
@@ -282,7 +281,7 @@ class UserAuthApi(Resource):
 
         # Get user data from database.
         try:
-            user_dict = UserUtils.get_user_data_from_username(credentials.username)
+            user_dict = user_utils.get_user_data_from_username(credentials.username)
         except ValueError as err:
             LOGGER.error(err)
             LOGGER.error(
@@ -340,7 +339,7 @@ class UserAuthTokenRefreshApi(Resource):
 class UserTokenApi(Resource):
     @swag_from("../../specifications/user-current.yml", methods=["GET"])
     def get(self):
-        current_user = UserUtils.get_current_user_from_jwt()
+        current_user = user_utils.get_current_user_from_jwt()
         return current_user, 200
 
 
@@ -361,7 +360,7 @@ class UserApi(Resource):
 
         try:
             # Update the user.
-            UserUtils.update_user(id, user_model.model_dump())
+            user_utils.update_user(id, user_model.model_dump())
         except ValueError as e:
             error_message = str(e)
             LOGGER.error(error_message)
@@ -374,14 +373,14 @@ class UserApi(Resource):
         # crud.add_vht_to_supervise(id, supervises)
         # new_user.pop("supervises", None)
 
-        return UserUtils.get_user_dict_from_id(id), 200
+        return user_utils.get_user_dict_from_id(id), 200
 
     @public_endpoint
     @swag_from("../../specifications/user-get.yml", methods=["GET"])
     @public_endpoint
     def get(self, id):
         try:
-            user_dict = UserUtils.get_user_data_from_id(id)
+            user_dict = user_utils.get_user_data_from_id(id)
         except ValueError as err:
             error_message = str(err)
             LOGGER.error(error_message)
@@ -524,7 +523,7 @@ class UserSMSKey(Resource):
 
     @swag_from("../../specifications/user-sms-key-get.yml", methods=["GET"])
     def get(self, user_id):
-        current_user = UserUtils.get_current_user_from_jwt()
+        current_user = user_utils.get_current_user_from_jwt()
         if current_user["role"] != "ADMIN" and current_user["id"] is not user_id:
             return (
                 {
@@ -533,14 +532,14 @@ class UserSMSKey(Resource):
                 403,
             )
 
-        sms_key = UserUtils.get_user_sms_secret_key_formatted(user_id)
+        sms_key = user_utils.get_user_sms_secret_key_formatted(user_id)
         if sms_key is None:
             return {"message": "NOTFOUND"}, 424
         return sms_key, 200
 
     @swag_from("../../specifications/user-sms-key-put.yml", methods=["PUT"])
     def put(self, user_id):
-        current_user = UserUtils.get_current_user_from_jwt()
+        current_user = user_utils.get_current_user_from_jwt()
         if current_user["role"] != "ADMIN" and current_user["id"] is not user_id:
             return (
                 {
@@ -548,17 +547,17 @@ class UserSMSKey(Resource):
                 },
                 403,
             )
-        sms_key = UserUtils.get_user_sms_secret_key_formatted(user_id)
+        sms_key = user_utils.get_user_sms_secret_key_formatted(user_id)
         if sms_key is None:
             return {"message": "NOTFOUND"}, 424
 
         # Create new key.
-        new_key = UserUtils.update_sms_secret_key_for_user(user_id)
+        new_key = user_utils.update_sms_secret_key_for_user(user_id)
         return new_key, 200
 
     @swag_from("../../specifications/user-sms-key-post.yml", methods=["POST"])
     def post(self, user_id):
-        current_user = UserUtils.get_current_user_from_jwt()
+        current_user = user_utils.get_current_user_from_jwt()
         if current_user["role"] != "ADMIN" and current_user["id"] is not user_id:
             return (
                 {
@@ -567,9 +566,9 @@ class UserSMSKey(Resource):
                 403,
             )
 
-        sms_key = UserUtils.get_user_sms_secret_key_formatted(user_id)
+        sms_key = user_utils.get_user_sms_secret_key_formatted(user_id)
         if sms_key is None:
-            new_key = UserUtils.create_sms_secret_key_for_user(user_id)
+            new_key = user_utils.create_sms_secret_key_for_user(user_id)
             return new_key, 201
 
         return {"message": "DUPLICATE"}, 200

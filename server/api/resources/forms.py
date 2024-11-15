@@ -6,10 +6,9 @@ from flask_restful import Resource, abort
 
 import data
 from api import util
-from common import commonUtil
+from common import commonUtil, user_utils
 from data import crud, marshal
 from models import FormOrm, FormTemplateOrm, PatientOrm, UserOrm
-from shared.user_utils import UserUtils
 from utils import get_current_time
 from validation.forms import FormPutValidator, FormValidator
 from validation.validation_exception import ValidationExceptionError
@@ -63,7 +62,7 @@ class Root(Resource):
                 abort(404, message="User does not exist")
                 return None
         else:
-            current_user = UserUtils.get_current_user_from_jwt()
+            current_user = user_utils.get_current_user_from_jwt()
             user_id = int(current_user["id"])
             new_form["last_edited_by"] = user_id
 
@@ -131,7 +130,7 @@ class SingleForm(Resource):
             if qans != questions_dict[qid].answers:
                 questions_dict[qid].answers = qans
 
-        current_user = UserUtils.get_current_user_from_jwt()
+        current_user = user_utils.get_current_user_from_jwt()
         user_id = int(current_user["id"])
         form.last_edited_by = user_id
         form.last_edited = get_current_time()

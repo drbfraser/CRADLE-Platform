@@ -5,10 +5,9 @@ from flasgger import swag_from
 from flask import Response, jsonify, make_response, request
 from flask_restful import Resource, abort
 
+from common import phone_number_utils, user_utils
 from models import UserOrm
 from service import compressor, encryptor
-from shared.phone_number_utils import PhoneNumberUtils
-from shared.user_utils import UserUtils
 from validation.sms_relay import SmsRelayDecryptedBodyValidator, SmsRelayValidator
 from validation.validation_exception import ValidationExceptionError
 
@@ -99,14 +98,14 @@ def sms_relay_procedure():
     sms_relay_model_dump = sms_relay_pydantic_model.model_dump()
     phone_number = sms_relay_model_dump["phone_number"]
 
-    user_exists = PhoneNumberUtils.does_phone_number_exist(phone_number)
+    user_exists = phone_number_utils.does_phone_number_exist(phone_number)
 
     if not user_exists:
         abort(400, message=phone_number_not_exists.format(type="JSON"))
         return None
 
     # Get user id for the user that phone_number belongs to
-    user = UserUtils.get_user_orm_from_phone_number(phone_number)
+    user = user_utils.get_user_orm_from_phone_number(phone_number)
 
     if user is None:
         abort(400, message=invalid_user.format(type="JSON"))
@@ -114,7 +113,7 @@ def sms_relay_procedure():
 
     encrypted_data = sms_relay_model_dump["encrypted_data"]
 
-    user_secret_key = UserUtils.get_user_sms_secret_key_string(user.id)
+    user_secret_key = user_utils.get_user_sms_secret_key_string(user.id)
     if user_secret_key is None:
         abort(400, message="Could not retrieve user's sms secret key.")
         return None

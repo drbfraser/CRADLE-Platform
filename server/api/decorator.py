@@ -4,10 +4,10 @@ from functools import wraps
 from flask import abort
 
 from authentication import cognito
+from common import user_utils
 from data import crud
 from enums import RoleEnum
 from models import PatientAssociationsOrm
-from shared.user_utils import UserUtils
 
 LOGGER = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ def roles_required(accepted_roles):
         def decorator(*args, **kwargs):
             # Ensure that user is first and foremost actually logged in
             username = cognito.get_username_from_jwt()
-            user_dict = UserUtils.get_user_dict_from_username(username)
+            user_dict = user_utils.get_user_dict_from_username(username)
             user_has_permissions = False
 
             # Check that one of the accepted roles is in the JWT.
@@ -88,7 +88,7 @@ def patient_association_required():
         def decorator(patient_id, *args, **kwargs):
             cognito.verify_access_token()
 
-            current_user = UserUtils.get_current_user_from_jwt()
+            current_user = user_utils.get_current_user_from_jwt()
             user_role = current_user["role"]
             if user_role == RoleEnum.VHT.value:  # Changed the condition here
                 user_id = current_user["id"]

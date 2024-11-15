@@ -8,9 +8,8 @@ from authentication import cognito
 from authentication.CognitoClientWrapper import (
     ENABLE_DEV_USERS,
 )
+from common import health_facility_utils, user_utils
 from enums import FacilityTypeEnum, RoleEnum
-from shared.health_facility_utils import HealthFacilityUtils
-from shared.user_utils import UserUtils
 from validation.users import UserRegisterValidator
 
 """
@@ -101,15 +100,15 @@ def populate_user_pool(seed_users: list[SeedUserDict]):
         for seed_user in seed_users:
             username = seed_user["username"].lower()
             if username in existing_usernames:
-                UserUtils.delete_user(username)
+                user_utils.delete_user(username)
                 print("Deleted ", username)
 
         user_models = [UserRegisterValidator(**seed_user) for seed_user in seed_users]
 
         for user_model in user_models:
             # user_dict.pop("supervises")
-            UserUtils.create_user(**user_model.model_dump())
-            user_id = UserUtils.get_user_id_from_username(user_model.username)
+            user_utils.create_user(**user_model.model_dump())
+            user_id = user_utils.get_user_id_from_username(user_model.username)
             print(f"Created user ({username} : {user_id})")
 
     except ClientError as err:
@@ -184,10 +183,10 @@ facilities_list: list[FacilityDict] = [
 def seed_facilities(facilities: list[FacilityDict]):
     try:
         for facility in facilities:
-            if not HealthFacilityUtils.does_facility_exist(
+            if not health_facility_utils.does_facility_exist(
                 facility_name=facility["name"]
             ):
-                HealthFacilityUtils.create_health_facility(**facility)
+                health_facility_utils.create_health_facility(**facility)
                 print(f"Health facility ({facility['name']}) created!")
             else:
                 print(f"Health facility ({facility['name']}) already exists.")

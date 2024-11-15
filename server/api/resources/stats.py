@@ -7,10 +7,10 @@ from flask import Request, request
 from flask_restful import Resource, abort
 
 from api.decorator import roles_required
+from common import user_utils
 from data import crud
 from enums import RoleEnum, TrafficLightEnum
 from models import UserOrm
-from shared.user_utils import UserUtils
 from validation.stats import TimestampValidator
 from validation.validation_exception import ValidationExceptionError
 
@@ -118,7 +118,7 @@ class FacilityReadings(Resource):
     @roles_required([RoleEnum.ADMIN, RoleEnum.HCW])
     @swag_from("../../specifications/stats-facility.yml", methods=["GET"])
     def get(facility_id: str):
-        current_user = UserUtils.get_current_user_from_jwt()
+        current_user = user_utils.get_current_user_from_jwt()
 
         if (
             current_user["role"] == RoleEnum.HCW.value
@@ -133,7 +133,7 @@ class FacilityReadings(Resource):
 
 
 def has_permission_to_view_user(user_id):
-    current_user = UserUtils.get_current_user_from_jwt()
+    current_user = user_utils.get_current_user_from_jwt()
     role = current_user["role"]
     is_current_user = current_user["id"] == user_id
 

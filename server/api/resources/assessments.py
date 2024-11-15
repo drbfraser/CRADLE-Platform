@@ -2,10 +2,9 @@ from flasgger import swag_from
 from flask import request
 from flask_restful import Resource, abort
 
-from common import commonUtil
+from common import commonUtil, user_utils
 from data import crud, marshal
 from models import FollowUpOrm
-from shared.user_utils import UserUtils
 from utils import get_current_time
 from validation.assessments import AssessmentValidator
 from validation.validation_exception import ValidationExceptionError
@@ -24,7 +23,7 @@ class Root(Resource):
 
         # Populate the date_assessed and healthCareWorkerId fields of the followup
         json["date_assessed"] = get_current_time()
-        current_user = UserUtils.get_current_user_from_jwt()
+        current_user = user_utils.get_current_user_from_jwt()
         json["healthcare_worker_id"] = current_user["id"]
 
         try:
@@ -83,7 +82,7 @@ class SingleAssessment(Resource):
         json["date_assessed"] = get_current_time()
 
         # get current UserID
-        current_user = UserUtils.get_current_user_from_jwt()
+        current_user = user_utils.get_current_user_from_jwt()
         json["healthcare_worker_id"] = current_user["id"]
 
         assessment = crud.read(FollowUpOrm, id=assessment_id)

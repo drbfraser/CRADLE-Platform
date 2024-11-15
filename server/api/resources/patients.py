@@ -8,7 +8,7 @@ from flask_restful import Resource, abort
 import data
 from api import util
 from api.decorator import patient_association_required
-from common import commonUtil
+from common import commonUtil, user_utils
 from data import crud, marshal
 from models import (
     FollowUpOrm,
@@ -19,7 +19,6 @@ from models import (
     UserOrm,
 )
 from service import assoc, invariant, serialize, statsCalculation, view
-from shared.user_utils import UserUtils
 from utils import get_current_time
 from validation.assessments import AssessmentValidator
 from validation.patients import PatientPostValidator, PatientPutValidator
@@ -39,7 +38,7 @@ class Root(Resource):
     )
     # gets all UNARCHIVED patients
     def get():
-        current_user = UserUtils.get_current_user_from_jwt()
+        current_user = user_utils.get_current_user_from_jwt()
         current_user = cast(dict[Any, Any], current_user)
         params = util.get_query_params(request)
         patients = view.patient_list_view(current_user, **params)
@@ -80,7 +79,7 @@ class Root(Resource):
         crud.create(patient, refresh=True)
 
         # Associate the patient with the user who created them
-        current_user = UserUtils.get_current_user_from_jwt()
+        current_user = user_utils.get_current_user_from_jwt()
         current_user_orm = crud.read(UserOrm, id=current_user["id"])
         assoc.associate_by_user_role(patient, current_user_orm)
 
@@ -447,7 +446,7 @@ class ReadingAssessment(Resource):
         new_assessment = assessment_pydantic_model.model_dump()
         assessment_json = util.filterPairsWithNone(new_assessment)
 
-        current_user = UserUtils.get_current_user_from_jwt()
+        current_user = user_utils.get_current_user_from_jwt()
         user_id = current_user["id"]
         reading_json["user_id"] = user_id
 
@@ -498,7 +497,7 @@ class PatientsAdmin(Resource):
     )
     # gets all patients, including archived, for admin use
     def get():
-        current_user = UserUtils.get_current_user_from_jwt()
+        current_user = user_utils.get_current_user_from_jwt()
         current_user = cast(dict[Any, Any], current_user)
         params = util.get_query_params(request)
         patients = view.admin_patient_view(current_user, **params)

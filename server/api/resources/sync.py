@@ -5,6 +5,7 @@ from flask import request
 from flask_restful import Resource, abort
 from marshmallow import ValidationError
 
+from common import user_utils
 from data import crud, db_session, marshal
 from models import (
     MedicalRecordOrm,
@@ -15,7 +16,6 @@ from models import (
     ReferralOrm,
 )
 from service import invariant, serialize, view
-from shared.user_utils import UserUtils
 from validation.readings import ReadingValidator
 from validation.referrals import ReferralEntityValidator
 from validation.validation_exception import ValidationExceptionError
@@ -32,7 +32,7 @@ class ModelData(NamedTuple):
 class SyncPatients(Resource):
     @staticmethod
     def post():
-        current_user = UserUtils.get_current_user_from_jwt()
+        current_user = user_utils.get_current_user_from_jwt()
         last_sync = request.args.get("since", None, type=int)
         if not last_sync:
             abort(400, message="'since' query parameter is required")
@@ -233,7 +233,7 @@ class SyncReadings(Resource):
                 crud.create(reading, refresh=True)
 
         # Read all readings that have been created or updated since last sync
-        current_user = UserUtils.get_current_user_from_jwt()
+        current_user = user_utils.get_current_user_from_jwt()
         new_readings = view.reading_view(current_user, last_sync)
 
         return {
@@ -272,7 +272,7 @@ class SyncReferrals(Resource):
             crud.create(referral, refresh=True)
 
         # Read all referrals that have been created or updated since last sync
-        current_user = UserUtils.get_current_user_from_jwt()
+        current_user = user_utils.get_current_user_from_jwt()
         new_referrals = view.referral_view(current_user, last_sync)
 
         return {
@@ -291,7 +291,7 @@ class SyncAssessments(Resource):
             abort(400, message="'since' query parameter is required")
 
         # Read all assessments that have been updated since last sync
-        current_user = UserUtils.get_current_user_from_jwt()
+        current_user = user_utils.get_current_user_from_jwt()
         new_assessments = view.assessment_view(current_user, last_sync)
 
         return {
