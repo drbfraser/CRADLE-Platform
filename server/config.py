@@ -118,7 +118,7 @@ app.config["UPLOAD_FOLDER"] = "/uploads"
 app.config["MAX_CONTENT_LENGTH"] = 64 * 1e6
 swagger = Swagger(app)
 
-CORS(app)
+CORS(app, supports_credentials=True)
 api = Api(app)
 app.config.from_object(Config)
 

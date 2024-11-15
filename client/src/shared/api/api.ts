@@ -63,6 +63,7 @@ const convertKeysToCamelCase = (data: object) => {
 // Create an axios instance to apply default configs to.
 export const axiosFetch = axios.create({
   baseURL: API_URL,
+  withCredentials: true, // Necessary for cookies.
   transformRequest: [
     (data: object) => {
       // Before putting the data in the request, convert keys to snake case

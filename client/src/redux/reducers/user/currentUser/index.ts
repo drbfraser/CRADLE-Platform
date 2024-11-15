@@ -82,9 +82,11 @@ export const loginUser = (
         endpoint: EndpointEnum.AUTH,
         method: MethodEnum.POST,
         data,
-        onSuccess: ({ data }): CurrentUserAction => {
+        onSuccess: (response): CurrentUserAction => {
           // Validate response data.
-          const authResponse: AuthResponse = authResponseSchema.parse(data);
+          const authResponse: AuthResponse = authResponseSchema.parse(
+            response.data
+          );
 
           // Store access token in local storage.
           localStorage.setItem(`accessToken`, authResponse.accessToken);
