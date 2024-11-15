@@ -21,7 +21,7 @@ export const userSchema = z.object({
   healthFacilityName: z.string(),
   role: z.nativeEnum(UserRoleEnum),
   smsKey: smsKeySchema.nullable(),
-  supervises: z.array(z.number().int()).optional(),
+  supervises: z.array(z.number().int()).default([]),
   phoneNumbers: z.array(z.string()),
   phoneNumber: z.string().optional(),
 });
