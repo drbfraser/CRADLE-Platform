@@ -114,7 +114,7 @@ export const getApiToken = async () => {
        *  itself which calls this function which calls itself, we cannot use
        *  our axios instance to call the refresh token endpoint. Instead, we
        *  can use the base axios instance. */
-      const resp = await axios({
+      const response = await axios({
         method: 'POST',
         url: API_URL + EndpointEnum.REFRESH,
         headers: {
@@ -126,7 +126,7 @@ export const getApiToken = async () => {
         },
       });
 
-      accessToken = resp.data.accessToken;
+      accessToken = response.data.accessToken;
       localStorage.setItem('accessToken', accessToken!);
     }
   } catch (e) {
