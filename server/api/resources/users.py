@@ -285,7 +285,6 @@ class UserAuthApi(Resource):
                 "refresh_token",
                 refresh_token,
                 httponly=True,
-                # secure=True,
             )
         return resp
 

@@ -116,7 +116,7 @@ export const getApiToken = async () => {
        *  our axios instance to call the refresh token endpoint. Instead, we
        *  can use the base axios instance. */
       const response = await axios({
-        method: 'GET',
+        method: 'POST',
         url: API_URL + EndpointEnum.REFRESH,
         withCredentials: true, // Necessary for cookies.
         headers: {
