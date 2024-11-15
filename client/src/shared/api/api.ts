@@ -105,7 +105,7 @@ export const getApiToken = async () => {
 
     // If access token is expired, we must fetch a new one.
     const shouldRefreshToken =
-      !decodedToken || currentTime > decodedToken.exp + 30;
+      !decodedToken || currentTime > decodedToken.exp - 60;
 
     if (shouldRefreshToken) {
       const username = decodedToken?.username;
@@ -116,8 +116,9 @@ export const getApiToken = async () => {
        *  our axios instance to call the refresh token endpoint. Instead, we
        *  can use the base axios instance. */
       const response = await axios({
-        method: 'POST',
+        method: 'GET',
         url: API_URL + EndpointEnum.REFRESH,
+        withCredentials: true, // Necessary for cookies.
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -129,6 +130,7 @@ export const getApiToken = async () => {
 
       accessToken = response.data.accessToken;
       localStorage.setItem('accessToken', accessToken!);
+      console.log('REFRESH SUCCESSFUL!');
     }
   } catch (e) {
     console.error(`ERROR Failed to get new access token.`);
