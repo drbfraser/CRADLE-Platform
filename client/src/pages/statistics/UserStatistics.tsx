@@ -10,13 +10,13 @@ import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import { ExportStatistics } from './utils/ExportStatistics';
 import FormControl from '@mui/material/FormControl';
-import { User } from 'src/shared/types';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import { StatisticDashboard } from './utils/StatisticsInfo';
 import Typography from '@mui/material/Typography';
 import { useEffect } from 'react';
 import { DIVIDER_SX, STATS_PAGE_SX } from './utils/statisticStyles';
+import { User } from 'src/shared/api/validation/user';
 
 type Props = {
   from: number;
