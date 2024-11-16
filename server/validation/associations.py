@@ -13,8 +13,7 @@ class AssociationValidator(BaseModel):
     @staticmethod
     def validate(request_body: dict):
         """
-        Raises an error if the /api/associations post request
-        is not valid.
+        Raises an error if the /api/associations post request is not valid.
         :param request_body: The request body as a dict object
                             {
                                 "patientId": 47, - required

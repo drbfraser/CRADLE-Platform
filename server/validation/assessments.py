@@ -21,7 +21,9 @@ class AssessmentValidator(BaseModel):
 
     @field_validator("followupInstructions", mode="before")
     @classmethod
-    def check_followup_instructions(cls, followup_instructions, values: ValidationInfo):
+    def __check_followup_instructions(
+        cls, followup_instructions, values: ValidationInfo,
+    ):
         followup_needed = values.data.get("followupNeeded", False)
         if followup_needed and (
             followup_instructions is None or followup_instructions == ""

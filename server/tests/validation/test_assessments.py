@@ -3,11 +3,15 @@ import pytest
 from validation.assessments import AssessmentValidator
 from validation.validation_exception import ValidationExceptionError
 
-valid_json = {
-    "dateAssessed": 1551447833,
+ASSESSED_DATE = 1551447833
+
+HEALTHCARE_WORKER_ID = 2
+
+assessments_with_valid_fields_should_return_none = {
+    "dateAssessed": ASSESSED_DATE,
     "diagnosis": "patient is fine",
     "medicationPrescribed": "tylenol",
-    "healthcareWorkerId": 2,
+    "healthcareWorkerId": HEALTHCARE_WORKER_ID,
     "specialInvestigations": "bcccccccccddeeeff",
     "treatment": "b",
     "patientId": "asdasd82314278226313803",
@@ -15,11 +19,10 @@ valid_json = {
     "followupInstructions": "pls help, give lots of tylenol",
 }
 
-# dateAssessed field is missing
-missing_field = {
-    "diagnosis": "patient is fine",
+assessments_missing_optional_field_diagnosis_should_return_none = {
+    "dateAssessed": ASSESSED_DATE,
     "medicationPrescribed": "tylenol",
-    "healthcareWorkerId": 2,
+    "healthcareWorkerId": HEALTHCARE_WORKER_ID,
     "specialInvestigations": "bcccccccccddeeeff",
     "treatment": "b",
     "patientId": "asdasd82314278226313803",
@@ -27,11 +30,57 @@ missing_field = {
     "followupInstructions": "pls help, give lots of tylenol",
 }
 
-missing_followupInstructions_when_followupNeeded_true = {
-    "dateAssessed": 1551447833,
+assessments_missing_required_field_dateAssessed_should_throw_exception = {
     "diagnosis": "patient is fine",
     "medicationPrescribed": "tylenol",
-    "healthcareWorkerId": 2,
+    "healthcareWorkerId": HEALTHCARE_WORKER_ID,
+    "specialInvestigations": "bcccccccccddeeeff",
+    "treatment": "b",
+    "patientId": "asdasd82314278226313803",
+    "followupNeeded": True,
+    "followupInstructions": "pls help, give lots of tylenol",
+}
+
+assessments_field_dateAssessed_has_invalid_type_should_throw_exception = {
+    "dateAssessed": "2020-01-01",
+    "diagnosis": "patient is fine",
+    "medicationPrescribed": "tylenol",
+    "healthcareWorkerId": HEALTHCARE_WORKER_ID,
+    "specialInvestigations": "bcccccccccddeeeff",
+    "treatment": "b",
+    "patientId": "asdasd82314278226313803",
+    "followupNeeded": True,
+    "followupInstructions": "pls help, give lots of tylenol",
+}
+
+assessments_missing_required_field_followupNeeded_should_throw_exception = {
+    "dateAssessed": ASSESSED_DATE,
+    "diagnosis": "patient is fine",
+    "medicationPrescribed": "tylenol",
+    "healthcareWorkerId": HEALTHCARE_WORKER_ID,
+    "specialInvestigations": "bcccccccccddeeeff",
+    "treatment": "b",
+    "patientId": "asdasd82314278226313803",
+    "followupInstructions": "pls help, give lots of tylenol",
+}
+
+assessments_has_followupInstructions_when_followupNeeded_true_should_return_none = {
+    "dateAssessed": ASSESSED_DATE,
+    "diagnosis": "patient is fine",
+    "medicationPrescribed": "tylenol",
+    "healthcareWorkerId": HEALTHCARE_WORKER_ID,
+    "specialInvestigations": "bcccccccccddeeeff",
+    "treatment": "b",
+    "patientId": "asdasd82314278226313803",
+    "followupNeeded": True,
+    "followupInstructions": "pls help, give lots of tylenol",
+}
+
+assessments_missing_followupInstructions_when_followupNeeded_true_should_throw_exception = {
+    "dateAssessed": ASSESSED_DATE,
+    "diagnosis": "patient is fine",
+    "medicationPrescribed": "tylenol",
+    "healthcareWorkerId": HEALTHCARE_WORKER_ID,
     "specialInvestigations": "bcccccccccddeeeff",
     "treatment": "b",
     "patientId": "asdasd82314278226313803",
@@ -39,30 +88,32 @@ missing_followupInstructions_when_followupNeeded_true = {
     "followupInstructions": "",
 }
 
-# dateAssessed must be int
-not_type_int = {
-    "dateAssessed": "2020-01-01",
-    "diagnosis": "patient is fine",
-    "medicationPrescribed": "tylenol",
-    "healthcareWorkerId": 2,
-    "specialInvestigations": "bcccccccccddeeeff",
-    "treatment": "b",
-    "patientId": "asdasd82314278226313803",
-    "followupNeeded": True,
-    "followupInstructions": "pls help, give lots of tylenol",
-}
-
 
 @pytest.mark.parametrize(
     "json, expectation",
     [
-        (valid_json, None),
-        (missing_field, ValidationExceptionError),
+        (assessments_with_valid_fields_should_return_none, None),
+        (assessments_missing_optional_field_diagnosis_should_return_none, None),
         (
-            missing_followupInstructions_when_followupNeeded_true,
+            assessments_missing_required_field_dateAssessed_should_throw_exception,
             ValidationExceptionError,
         ),
-        (not_type_int, ValidationExceptionError),
+        (
+            assessments_field_dateAssessed_has_invalid_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            assessments_missing_required_field_followupNeeded_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            assessments_has_followupInstructions_when_followupNeeded_true_should_return_none,
+            None,
+        ),
+        (
+            assessments_missing_followupInstructions_when_followupNeeded_true_should_throw_exception,
+            ValidationExceptionError,
+        ),
     ],
 )
 def test_validation(json, expectation):
