@@ -31,6 +31,7 @@ cognito = CognitoClientWrapper(
     user_pool_id=COGNITO_USER_POOL_ID,
     client_id=COGNITO_APP_CLIENT_ID,
     client_secret=COGNITO_CLIENT_SECRET,
+    aws_region=AWS_REGION,
 )
 
 app = config.app

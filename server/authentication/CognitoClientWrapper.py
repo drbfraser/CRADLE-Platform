@@ -11,8 +11,6 @@ from flask import request
 from jwt import PyJWK, PyJWKClient
 from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 
-from authentication import AWS_REGION, COGNITO_USER_POOL_ID
-
 """
   Environment variable to enable creating fake users for development purposes.
   If set to True, newly created users will not need to verify their emails,
@@ -27,14 +25,6 @@ if COGNITO_ENABLE_DEV_USERS:
 
 logger = logging.getLogger(__name__)
 
-# URL to retrieve the JWKS (JSON Web Key Set) if the one we have cached has been rotated.
-COGNITO_JWKS_URL = f"https://cognito-idp.{AWS_REGION}.amazonaws.com/{COGNITO_USER_POOL_ID}/.well-known/jwks.json"
-jwks_client = PyJWKClient(
-    COGNITO_JWKS_URL,
-    cache_jwk_set=True,
-    cache_keys=True,
-)
-
 
 # Wrapper to encapsulate the AWS Cognito Identity Provider client.
 class CognitoClientWrapper:
@@ -44,11 +34,18 @@ class CognitoClientWrapper:
         user_pool_id: str,
         client_id: str,
         client_secret: str,
+        aws_region: str,
     ):
         self.client: CognitoIdentityProviderClient = cognito_idp_client
         self.user_pool_id: str = user_pool_id
         self.client_id: str = client_id
         self.client_secret: str = client_secret
+        self.aws_region = aws_region
+        self.jwks_client = PyJWKClient(
+            uri=f"https://cognito-idp.{aws_region}.amazonaws.com/{user_pool_id}/.well-known/jwks.json",
+            cache_jwk_set=True,
+            cache_keys=True,
+        )
 
     def _secret_hash(self, username: str) -> str:
         """
@@ -305,7 +302,7 @@ class CognitoClientWrapper:
         The JWKS contains two public keys. The first is the signing key
         for access tokens, the second is the signing key for ID tokens.
         """
-        jwks = jwks_client.get_jwk_set()
+        jwks = self.jwks_client.get_jwk_set()
         if len(jwks.keys) < 1:
             raise ValueError("Could not retrieve JWKS.")
 
