@@ -26,7 +26,7 @@ valid_json = {
     "allergy": "seafood",
 }
 
-# Patient is pregnant but gestational_timestamp is missing
+# Patient is pregnant but pregnancy_start_date is missing
 missing_pregnancy_start_date = {
     "id": "123456",
     "name": "test_name",
@@ -43,7 +43,7 @@ missing_pregnancy_start_date = {
     "allergy": "seafood",
 }
 
-# gestational_timestamp must be less than or equal to 43 weeks/10 months
+# pregnancy_start_date must be less than or equal to 43 weeks/10 months
 invalid_pregnancy_start_date = {
     "id": "123456",
     "name": "testName",
@@ -54,7 +54,7 @@ invalid_pregnancy_start_date = {
     "is_exact_date_of_birth": False,
     "zone": "15",
     "village_number": "50",
-    "gestational_timestamp": fifty_weeks_ago,
+    "pregnancy_start_date": fifty_weeks_ago,
     "drug_history": "too much tylenol",
     "medical_history": "not enough advil",
     "allergy": "seafood",
@@ -71,7 +71,7 @@ not_type_string = {
     "is_exact_date_of_birth": False,
     "zone": "15",
     "village_number": "50",
-    "gestational_timestamp": two_weeks_ago,
+    "pregnancy_start_date": two_weeks_ago,
     "drug_history": "too much tylenol",
     "medical_history": "not enough advil",
     "allergy": "seafood",
@@ -88,7 +88,7 @@ not_type_int = {
     "is_exact_date_of_birth": False,
     "zone": "15",
     "village_number": "50",
-    "gestational_timestamp": two_weeks_ago,
+    "pregnancy_start_date": two_weeks_ago,
     "drug_history": "too much tylenol",
     "medical_history": "not enough advil",
     "allergy": "seafood",
@@ -105,7 +105,7 @@ patient_id_too_long = {
     "is_exact_date_of_birth": False,
     "zone": "15",
     "village_number": "50",
-    "gestational_timestamp": two_weeks_ago,
+    "pregnancy_start_date": two_weeks_ago,
     "drug_history": "too much tylenol",
     "medical_history": "not enough advil",
     "allergy": "seafood",
@@ -122,7 +122,7 @@ incorrect_dob_format = {
     "is_exact_date_of_birth": False,
     "zone": "15",
     "village_number": "50",
-    "gestational_timestamp": two_weeks_ago,
+    "pregnancy_start_date": two_weeks_ago,
     "drug_history": "too much tylenol",
     "medical_history": "not enough advil",
     "allergy": "seafood",
@@ -161,7 +161,7 @@ put_mismatched_patient_id = {"id": "456"}
 put_invalid_key = {"reading_id": "asdfg123"}
 put_not_type_str = {"name": 12}
 put_invalid_dob = {"date_of_birth": "Oct 12, 2000"}
-put_invalid_gest_timestamp = {"gestational_timestamp": fifty_weeks_ago}
+put_invalid_gest_timestamp = {"pregnancy_start_date": fifty_weeks_ago}
 
 
 @pytest.mark.parametrize(

@@ -262,15 +262,14 @@ def seed():
         else:
             pregnant = bool(random.getrandbits(1))
 
-        gestational_timestamp = None
+        pregnancy_start_date = None
 
         if sex == models.SexEnum.FEMALE.value and pregnant:
-            gestational_timestamp = get_random_pregnancy_date()
+            pregnancy_start_date = get_random_pregnancy_date()
 
         patient = {
             "id": patient_id,
             "name": name + " " + last_name,
-            "gestational_timestamp": gestational_timestamp,
             "village_number": get_random_village(),
             "sex": sex,
             "is_pregnant": pregnant,
@@ -285,7 +284,7 @@ def seed():
         if pregnant:
             pregnancy_record = {
                 "patient_id": patient_id,
-                "start_date": gestational_timestamp,
+                "start_date": pregnancy_start_date,
             }
             db.session.add(PregnancyOrm(**pregnancy_record))
             db.session.commit()
@@ -359,7 +358,7 @@ def create_patient_reading_referral_pregnancy(
     health_facility_name,
     is_assessed,
     is_pregnant=False,
-    gestational_timestamp=None,
+    pregnancy_start_date=None,
 ):
     """
     Creates a patient in the database.
@@ -368,7 +367,6 @@ def create_patient_reading_referral_pregnancy(
         patient = {
             "id": patient_id,
             "name": patient_name,
-            "gestational_timestamp": gestational_timestamp,
             "village_number": village_number,
             "sex": sex,
             "is_pregnant": True,
@@ -378,7 +376,7 @@ def create_patient_reading_referral_pregnancy(
         }
         pregnancy = {
             "patient_id": patient_id,
-            "start_date": gestational_timestamp,
+            "start_date": pregnancy_start_date,
         }
     else:
         patient = {

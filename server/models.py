@@ -186,7 +186,6 @@ class PatientOrm(db.Model):
     name = db.Column(db.String(50))
     sex = db.Column(db.Enum(SexEnum), nullable=False)
     is_pregnant = db.Column(db.Boolean)
-    gestational_timestamp = db.Column(db.BigInteger)
     medical_history = db.Column(db.Text)
     drug_history = db.Column(db.Text)
     allergy = db.Column(db.Text)

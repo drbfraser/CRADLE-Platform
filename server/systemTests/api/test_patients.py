@@ -500,7 +500,7 @@ def __make_full_patient(patient_id: str, reading_ids: List[str]) -> dict:
         "name": "TEST_FULL",
         "sex": "FEMALE",
         "is_pregnant": True,
-        "gestational_timestamp": 1595211991,
+        "pregnancy_start_date": 1595211991,
         "medical_history": "TEST_FULL: This is fully fleshed out medical history for testing.",
         "drug_history": "TEST_FULL: This is fully fleshed out drug history for testing.",
         "zone": "9999",

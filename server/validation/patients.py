@@ -98,21 +98,20 @@ class PatientPostValidator(PatientBase):
 
 
 class PatientPutValidator(PatientBase):
-    gestational_timestamp: Optional[int] = None
     last_edited: Optional[int] = None
     base: Optional[int] = None
 
     class Config:
         extra = "forbid"
 
-    @field_validator("gestational_timestamp", mode="before")
+    @field_validator("pregnancy_start_date", mode="before")
     @classmethod
-    def validate_gestational_timestamp_field(cls, gestational_timestamp):
-        if gestational_timestamp:
-            error = check_gestational_age_under_limit(gestational_timestamp)
+    def validate_pregnancy_start_date_field(cls, pregnancy_start_date):
+        if pregnancy_start_date:
+            error = check_gestational_age_under_limit(pregnancy_start_date)
             if error:
                 raise ValueError(error)
-        return gestational_timestamp
+        return pregnancy_start_date
 
     @staticmethod
     def validate(request_body: dict, patient_id):
@@ -134,18 +133,18 @@ class PatientPutValidator(PatientBase):
         return patient
 
 
-def check_gestational_age_under_limit(gestational_timestamp: int) -> Optional[str]:
+def check_gestational_age_under_limit(pregnancy_start_date: int) -> Optional[str]:
     """
     Checks if a Unix timestamp is a valid gestational age.
     Is a valid gestational age if is from no more than 43 weeks/10 months ago
 
-    :param gestation_timestamp: The Unix timestamp to validate
+    :param pregnancy_start_date: The Unix timestamp to validate
     :return: Returns None if the timestamp is valid, a string message otherwise
     """
-    if gestational_timestamp == 0:
+    if pregnancy_start_date == 0:
         return None
 
-    gestation_date = datetime.fromtimestamp(gestational_timestamp)
+    gestation_date = datetime.fromtimestamp(pregnancy_start_date)
     today = date.today()
     num_of_weeks = (today - gestation_date.date()).days // 7
     if num_of_weeks > 43:

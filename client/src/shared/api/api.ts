@@ -606,7 +606,7 @@ export const getPatientPregnancySummaryAsync = async (patientId: string) => {
 
 export const getPatientPregnancyInfoAsync = async (patientId: string) => {
   const response = await axiosFetch.get(
-    EndpointEnum.PATIENTS + '/' + patientId + EndpointEnum.PATIENT_INFO
+    EndpointEnum.PATIENTS + '/' + patientId + '/info'
   );
   return response.data;
 };
