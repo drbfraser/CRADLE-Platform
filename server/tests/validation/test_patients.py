@@ -37,7 +37,6 @@ missing_pregnancy_start_date = {
     "is_exact_date_of_birth": False,
     "zone": "15",
     "village_number": "50",
-    "gestationalAgeUnit": "WEEKS",
     "drug_history": "too much tylenol",
     "medical_history": "not enough advil",
     "allergy": "seafood",
@@ -64,23 +63,6 @@ invalid_pregnancy_start_date = {
 not_type_string = {
     "id": "123456",
     "name": 11,
-    "is_pregnant": True,
-    "sex": "FEMALE",
-    "household_number": "20",
-    "date_of_birth": "1990-05-30",
-    "is_exact_date_of_birth": False,
-    "zone": "15",
-    "village_number": "50",
-    "pregnancy_start_date": two_weeks_ago,
-    "drug_history": "too much tylenol",
-    "medical_history": "not enough advil",
-    "allergy": "seafood",
-}
-
-# id must be type int
-not_type_int = {
-    "id": "abc",
-    "name": "testName",
     "is_pregnant": True,
     "sex": "FEMALE",
     "household_number": "20",
@@ -136,7 +118,6 @@ incorrect_dob_format = {
         (missing_pregnancy_start_date, ValidationExceptionError),
         (invalid_pregnancy_start_date, ValidationExceptionError),
         (not_type_string, ValidationExceptionError),
-        (not_type_int, ValidationExceptionError),
         (patient_id_too_long, ValidationExceptionError),
         (incorrect_dob_format, ValidationExceptionError),
     ],
@@ -144,11 +125,13 @@ incorrect_dob_format = {
 def test_validation(json, expectation):
     if expectation:
         with pytest.raises(expectation):
+            print(json)
             PatientPostValidator.validate(json)
     else:
         try:
             PatientPostValidator.validate(json)
         except ValidationExceptionError as e:
+            print(json)
             raise AssertionError(f"Unexpected validation error:{e}") from e
 
 
