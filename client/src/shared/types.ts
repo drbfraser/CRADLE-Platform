@@ -81,7 +81,6 @@ export type Patient = {
   allergy: OrNull<string>;
   dateOfBirth: OrNull<string>;
   drugHistory: OrNull<string>;
-  gestationalAgeValue: string;
   pregnancyStartDate: number;
   isPregnant: boolean;
   medicalHistory: OrNull<string>;
