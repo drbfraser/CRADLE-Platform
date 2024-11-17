@@ -101,7 +101,7 @@ def populate_user_pool(seed_users: list[SeedUserDict]):
             username = seed_user["username"].lower()
             if username in existing_usernames:
                 user_utils.delete_user(username)
-                print("Deleted ", username)
+                print("Deleted", username)
 
         # Run the user data through the validator just to be sure everything is good.
         user_models = [UserRegisterValidator(**seed_user) for seed_user in seed_users]
