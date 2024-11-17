@@ -1,5 +1,4 @@
 import os
-import pprint
 from typing import TypedDict
 
 from botocore.exceptions import ClientError
@@ -15,8 +14,6 @@ from validation.users import UserRegisterValidator
 """
 This script will seed the database and the AWS Cognito user pool with fake users.
 """
-
-pprinter = pprint.PrettyPrinter(indent=4, sort_dicts=False, compact=False)
 
 
 class SeedUserDict(TypedDict):
@@ -90,6 +87,9 @@ users_list: list[SeedUserDict] = [
 
 
 def populate_user_pool(seed_users: list[SeedUserDict]):
+    """
+    Will create the seed users. If the seed users already exist in the user pool, they will be deleted and recreated.
+    """
     if not COGNITO_ENABLE_DEV_USERS:
         raise ValueError("ERROR: ENABLE_DEV_USERS is not set to true.")
 
@@ -103,13 +103,14 @@ def populate_user_pool(seed_users: list[SeedUserDict]):
                 user_utils.delete_user(username)
                 print("Deleted ", username)
 
+        # Run the user data through the validator just to be sure everything is good.
         user_models = [UserRegisterValidator(**seed_user) for seed_user in seed_users]
 
         for user_model in user_models:
             # user_dict.pop("supervises")
             user_utils.create_user(**user_model.model_dump())
             user_id = user_utils.get_user_id_from_username(user_model.username)
-            print(f"Created user ({username} : {user_id})")
+            print(f"Created user ({user_model.username} : {user_id})")
 
     except ClientError as err:
         print("ERROR: Failed to create user in user pool.")
@@ -133,6 +134,7 @@ class FacilityDict(TypedDict):
     about: str
 
 
+# Facilities need to exist in the database before the users are created.
 facilities_list: list[FacilityDict] = [
     {
         "name": "H0000",
