@@ -3,7 +3,6 @@ import hashlib
 import hmac
 import logging
 import os
-import pprint
 from typing import Optional, cast
 
 import jwt
@@ -12,7 +11,7 @@ from flask import request
 from jwt import PyJWK, PyJWKClient
 from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 
-pprinter = pprint.PrettyPrinter(indent=4, sort_dicts=False, compact=False)
+from authentication import AWS_REGION, COGNITO_USER_POOL_ID
 
 """
   Environment variable to enable creating fake users for development purposes.
@@ -29,9 +28,7 @@ if COGNITO_ENABLE_DEV_USERS:
 logger = logging.getLogger(__name__)
 
 # URL to retrieve the JWKS (JSON Web Key Set) if the one we have cached has been rotated.
-COGNITO_JWKS_URL = os.getenv("COGNITO_JWKS_URL")
-if COGNITO_JWKS_URL is None:
-    raise ValueError("Could not retrieve COGNITO_JWKS_URL.")
+COGNITO_JWKS_URL = f"https://cognito-idp.{AWS_REGION}.amazonaws.com/{COGNITO_USER_POOL_ID}/.well-known/jwks.json"
 jwks_client = PyJWKClient(
     COGNITO_JWKS_URL,
     cache_jwk_set=True,
