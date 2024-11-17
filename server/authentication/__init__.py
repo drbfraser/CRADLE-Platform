@@ -12,8 +12,6 @@ from authentication.CognitoClientWrapper import CognitoClientWrapper
 logger = logging.getLogger(__name__)
 
 load_dotenv()
-# Load aws secrets as environment variables.
-load_dotenv(dotenv_path="/run/secrets/.aws.secrets.env")
 
 AWS_REGION = os.environ["AWS_REGION"]
 COGNITO_USER_POOL_ID = os.environ["COGNITO_USER_POOL_ID"]
