@@ -2,7 +2,7 @@ import pytest
 
 import data
 from data import crud
-from models import FollowUpOrm, PatientOrm, ReadingOrm, ReferralOrm
+from models import AssessmentOrm, PatientOrm, ReadingOrm, ReferralOrm
 from service import assoc
 
 
@@ -71,12 +71,12 @@ def test_vht_referring_new_patient_and_hcw_assessing_them(
 
         # Ensure that the assessment has been created and that the referral has been
         # marked as assessed
-        assert crud.read(FollowUpOrm, reading_id=reading_id) is not None
+        assert crud.read(AssessmentOrm, reading_id=reading_id) is not None
         assert referral.is_assessed
 
     finally:
         # Cleanup
-        crud.delete_by(FollowUpOrm, reading_id=reading_id)
+        crud.delete_by(AssessmentOrm, reading_id=reading_id)
         crud.delete_by(ReferralOrm, reading_id=reading_id)
         crud.delete_by(ReadingOrm, id=reading_id)
         crud.delete_by(PatientOrm, id=patient_id)

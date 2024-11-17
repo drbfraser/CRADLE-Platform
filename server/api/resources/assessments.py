@@ -4,7 +4,7 @@ from flask_restful import Resource, abort
 
 from common import commonUtil, user_utils
 from data import crud, marshal
-from models import FollowUpOrm
+from models import AssessmentOrm
 from utils import get_current_time
 from validation.assessments import AssessmentValidator
 from validation.validation_exception import ValidationExceptionError
@@ -35,7 +35,7 @@ class Root(Resource):
             new_assessment,
         )
 
-        assessment = marshal.unmarshal(FollowUpOrm, new_assessment)
+        assessment = marshal.unmarshal(AssessmentOrm, new_assessment)
 
         crud.create(assessment)
 
@@ -48,8 +48,8 @@ class Root(Resource):
         endpoint="assessments",
     )
     def get():
-        follow_ups = crud.read_all(FollowUpOrm)
-        return [marshal.marshal(f) for f in follow_ups]
+        assessments = crud.read_all(AssessmentOrm)
+        return [marshal.marshal(assessment) for assessment in assessments]
 
 
 # /api/assessments/<string:assessment_id>
@@ -61,12 +61,12 @@ class SingleAssessment(Resource):
         endpoint="single_assessment",
     )
     def get(assessment_id: str):
-        follow_up = crud.read(FollowUpOrm, id=assessment_id)
-        if not follow_up:
+        assessment = crud.read(AssessmentOrm, id=assessment_id)
+        if not assessment:
             abort(404, message=f"No assessment with id {id}")
             return None
 
-        return marshal.marshal(follow_up)
+        return marshal.marshal(assessment)
 
     @staticmethod
     @swag_from(
@@ -81,11 +81,11 @@ class SingleAssessment(Resource):
 
         json["date_assessed"] = get_current_time()
 
-        # get current UserID
+        # get current user id
         current_user = user_utils.get_current_user_from_jwt()
         json["healthcare_worker_id"] = current_user["id"]
 
-        assessment = crud.read(FollowUpOrm, id=assessment_id)
+        assessment = crud.read(AssessmentOrm, id=assessment_id)
         if not assessment:
             abort(404, message=f"No assessment with id {assessment_id}")
             return None
@@ -100,6 +100,6 @@ class SingleAssessment(Resource):
         update_assessment = commonUtil.filterNestedAttributeWithValueNone(
             update_assessment,
         )
-        crud.update(FollowUpOrm, update_assessment, id=assessment.id)
+        crud.update(AssessmentOrm, update_assessment, id=assessment.id)
 
         return assessment.id, 200

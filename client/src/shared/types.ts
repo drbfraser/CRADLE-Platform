@@ -28,7 +28,7 @@ export type Reading = {
   dateTaken: OrNull<number>;
   dateUploadedToServer: OrNull<number>;
   deviceInfo: OrNull<string>;
-  followUp: OrNull<FollowUp>;
+  assessment: OrNull<Assessment>;
   gpsLocationOfReading: OrNull<string>;
   heartRate: number;
   isFlaggedForFollowup: OrNull<boolean>;
@@ -211,8 +211,8 @@ export type NewAssessment = {
   followUpNeeded: boolean;
   followUpInstructions: OrNull<string>;
 };
-//FollowUp == Assessment
-export type FollowUp = NewAssessment & {
+
+export type Assessment = NewAssessment & {
   id: number;
   dateAssessed: number;
   healthcareWorkerId: string;
@@ -221,7 +221,7 @@ export type FollowUp = NewAssessment & {
   patientId: string;
 };
 
-export type Card = Reading & FollowUp & Referral & CustomizedForm;
+export type Card = Reading & Assessment & Referral & CustomizedForm;
 
 export type Referral = {
   id: string;

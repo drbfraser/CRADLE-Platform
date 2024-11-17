@@ -9,7 +9,7 @@ from marshmallow import ValidationError
 
 from data import marshal
 from models import (
-    FollowUpOrm,
+    AssessmentOrm,
     MedicalRecordOrm,
     PatientOrm,
     PregnancyOrm,
@@ -92,7 +92,7 @@ def serialize_patient(
     patient: Any,
     readings: Optional[List[ReadingOrm]] = None,
     referrals: Optional[List[ReferralOrm]] = None,
-    assessments: Optional[List[FollowUpOrm]] = None,
+    assessments: Optional[List[AssessmentOrm]] = None,
 ) -> dict:
     p = {
         "id": patient.patient_id,
@@ -136,7 +136,7 @@ def serialize_reading(tup: Tuple[ReadingOrm, UrineTestOrm]) -> dict:
     return reading
 
 
-def serialize_referral_or_assessment(model: Union[ReferralOrm, FollowUpOrm]) -> dict:
+def serialize_referral_or_assessment(model: Union[ReferralOrm, AssessmentOrm]) -> dict:
     return marshal.marshal(model)
 
 

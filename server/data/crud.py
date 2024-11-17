@@ -11,7 +11,7 @@ from sqlalchemy.sql.functions import coalesce
 from data import db_session
 from enums import RoleEnum, TrafficLightEnum
 from models import (
-    FollowUpOrm,
+    AssessmentOrm,
     FormOrm,
     FormTemplateOrm,
     MedicalRecordOrm,
@@ -575,9 +575,9 @@ def read_patient_all_records(patient_id: str, **kwargs) -> List[Any]:
     assessment_required = kwargs.get("assessments")
     if assessment_required == "1":
         assessment_list = (
-            db_session.query(FollowUpOrm)
+            db_session.query(AssessmentOrm)
             .filter_by(patient_id=patient_id)
-            .order_by(FollowUpOrm.date_assessed.desc())
+            .order_by(AssessmentOrm.date_assessed.desc())
             .all()
         )
 
@@ -802,12 +802,12 @@ def read_readings(
 
 
 def read_referrals_or_assessments(
-    model: Union[ReferralOrm, FollowUpOrm],
+    model: Union[ReferralOrm, AssessmentOrm],
     patient_id: Optional[str] = None,
     user_id: Optional[int] = None,
     is_cho: bool = False,
     last_edited: Optional[int] = None,
-) -> Union[List[ReferralOrm], List[FollowUpOrm]]:
+) -> Union[List[ReferralOrm], List[AssessmentOrm]]:
     """
     Queries the database for referrals or assessments
 

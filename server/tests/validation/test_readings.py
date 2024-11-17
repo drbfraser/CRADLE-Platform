@@ -13,7 +13,7 @@ valid_json = {
     "symptoms": ["Headache,Blurred vision,Bleeding,sleepy"],
     "date_taken": 868545,
     "user_id": 1,
-    "follow_up": {
+    "assessment": {
         "date_assessed": 1551447833,
         "healthcare_worker_id": 2,
         "diagnosis": "patient is fine",
@@ -52,8 +52,8 @@ not_type_list = {
     "user_id": 1,
 }
 
-# The follow_up is invalid as it is missing the date_assessed field
-follow_up_invalid = {
+# The assessment is invalid as it is missing the date_assessed field
+assessment_invalid = {
     "id": "asdasd82314278226313803",
     "patient_id": "123456",
     "systolic_blood_pressure": 150,
@@ -63,7 +63,7 @@ follow_up_invalid = {
     "symptoms": ["Headache,Blurred vision,Bleeding,sleepy"],
     "date_taken": 868545,
     "user_id": 1,
-    "follow_up": {
+    "assessment": {
         "healthcare_worker_id": 2,
         "diagnosis": "patient is fine",
         "medication_prescribed": "tylenol",
@@ -82,7 +82,7 @@ follow_up_invalid = {
         (valid_json, None),
         (not_type_int, ValidationExceptionError),
         (not_type_list, ValidationExceptionError),
-        (follow_up_invalid, ValidationExceptionError),
+        (assessment_invalid, ValidationExceptionError),
     ],
 )
 def test_validation(json, expectation):

@@ -16,7 +16,7 @@ class ReadingValidator(BaseModel):
     symptoms: List[str]
     date_taken: Optional[int] = None
     user_id: Optional[int] = None
-    follow_up: Optional[AssessmentValidator] = None
+    assessment: Optional[AssessmentValidator] = None
 
     @staticmethod
     def validate(request_body: dict):
@@ -33,7 +33,7 @@ class ReadingValidator(BaseModel):
                                 "is_flagged_for_follow_up" : True,
                                 "symptoms": ["Headache,Blurred vision,Bleeding,sleepy"], - required
                                 "date_taken": 868545,
-                                "follow_up": {
+                                "assessment": {
                                     "date_assessed": 1551447833,
                                     "diagnosis": "patient is fine",
                                     "medication_prescribed": "tylenol",
@@ -50,10 +50,10 @@ class ReadingValidator(BaseModel):
         except ValidationError as e:
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
-        # Check if the nested assessment (follow_up) object is valid
-        if "follow_up" in request_body:
+        # Check if the nested assessment object is valid
+        if "assessment" in request_body:
             try:
-                AssessmentValidator(**(request_body["follow_up"]))
+                AssessmentValidator(**(request_body["assessment"]))
             except ValidationError as e:
                 raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 

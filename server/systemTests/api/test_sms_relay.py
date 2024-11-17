@@ -8,7 +8,7 @@ import requests
 from data import crud
 from enums import TrafficLightEnum
 from models import (
-    FollowUpOrm,
+    AssessmentOrm,
     PatientOrm,
     ReadingOrm,
     ReferralOrm,
@@ -156,7 +156,7 @@ def test_create_assessments_with_sms_relay(
     assert response.status_code == 200
     assert response_body["code"] == 201
     assert (
-        crud.read(FollowUpOrm, patient_id=patient_id).follow_up_instructions
+        crud.read(AssessmentOrm, patient_id=patient_id).follow_up_instructions
         == follow_up_instructions
     )
 
@@ -172,7 +172,7 @@ def test_update_assessments_with_sms_relay(
 
     assessment_json = __make_assessment(patient_id)
     followup_factory.create(patient_id=patient_id)
-    assessment_id = crud.read(FollowUpOrm, patient_id=patient_id).id
+    assessment_id = crud.read(AssessmentOrm, patient_id=patient_id).id
 
     new_instructions = "II"
     assessment_json["follow_up_instructions"] = new_instructions
@@ -187,7 +187,7 @@ def test_update_assessments_with_sms_relay(
     assert response.status_code == 200
     assert response_body["code"] == 200
     assert (
-        crud.read(FollowUpOrm, id=assessment_id).follow_up_instructions
+        crud.read(AssessmentOrm, id=assessment_id).follow_up_instructions
         == new_instructions
     )
 

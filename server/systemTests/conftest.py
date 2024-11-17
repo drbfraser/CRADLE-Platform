@@ -235,8 +235,8 @@ def referral_factory(database) -> factory.ReferralFactory:
 
 
 @pytest.fixture
-def followup_factory(database) -> factory.FollowUpFactory:
-    yield from __make_factory(database, factory.FollowUpFactory)
+def followup_factory(database) -> factory.AssessmentFactory:
+    yield from __make_factory(database, factory.AssessmentFactory)
 
 
 @pytest.fixture

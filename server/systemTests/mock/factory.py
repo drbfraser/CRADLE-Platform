@@ -137,9 +137,9 @@ class ReferralFactory(ModelFactory):
         return crud.create_model(dict(**kwargs), models.ReferralSchema)
 
 
-class FollowUpFactory(ModelFactory):
+class AssessmentFactory(ModelFactory):
     def __init__(self, db: SQLAlchemy):
-        super(FollowUpFactory, self).__init__(
+        super(AssessmentFactory, self).__init__(
             db,
             date_assessed=1594514397,
             healthcare_worker_id=1,
@@ -147,16 +147,16 @@ class FollowUpFactory(ModelFactory):
 
     def create(self, **kwargs):
         """
-        Creates a new follow_up.
+        Creates a new assessment.
 
         :param kwargs: Keyword arguments
-        :key patient_id: Id of the patient to associate this followup with
+        :key patient_id: Id of the patient to associate this assessment with
         :return:
         """
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        return crud.create_model(dict(**kwargs), models.FollowUpSchema)
+        return crud.create_model(dict(**kwargs), models.AssessmentSchema)
 
 
 class UserFactory(ModelFactory):

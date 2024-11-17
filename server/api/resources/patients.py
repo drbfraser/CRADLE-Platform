@@ -11,7 +11,7 @@ from api.decorator import patient_association_required
 from common import commonUtil, user_utils
 from data import crud, marshal
 from models import (
-    FollowUpOrm,
+    AssessmentOrm,
     PatientOrm,
     PregnancyOrm,
     ReadingOrm,
@@ -97,7 +97,7 @@ class Root(Resource):
             return None
         readings = crud.read_readings(patient_id)
         referrals = crud.read_referrals_or_assessments(ReferralOrm, patient_id)
-        assessments = crud.read_referrals_or_assessments(FollowUpOrm, patient_id)
+        assessments = crud.read_referrals_or_assessments(AssessmentOrm, patient_id)
 
         response_body = serialize.serialize_patient(
             patient, readings, referrals, assessments
@@ -122,7 +122,7 @@ class SinglePatient(Resource):
 
         readings = crud.read_readings(patient_id)
         referrals = crud.read_referrals_or_assessments(ReferralOrm, patient_id)
-        assessments = crud.read_referrals_or_assessments(FollowUpOrm, patient_id)
+        assessments = crud.read_referrals_or_assessments(AssessmentOrm, patient_id)
 
         return serialize.serialize_patient(patient, readings, referrals, assessments)
 
@@ -461,7 +461,7 @@ class ReadingAssessment(Resource):
         assessment_json["date_assessed"] = get_current_time()
         assessment_json["healthcare_worker_id"] = user_id
 
-        assessment = marshal.unmarshal(FollowUpOrm, assessment_json)
+        assessment = marshal.unmarshal(AssessmentOrm, assessment_json)
 
         crud.create(reading, refresh=True)
         crud.create(assessment)

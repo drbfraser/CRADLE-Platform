@@ -11,17 +11,22 @@ import {
   LocalHospital as DiagnosisIcon,
   KeyboardArrowDown,
 } from '@mui/icons-material';
-import { CustomizedForm, FollowUp, Reading, Referral } from 'src/shared/types';
+import {
+  CustomizedForm,
+  Assessment,
+  Reading,
+  Referral,
+} from 'src/shared/types';
 
 import { RedirectButton } from 'src/shared/components/Button';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { getPrettyDateTime } from 'src/shared/utils';
 
-interface IFollowUpCardProps {
-  followUp: FollowUp;
+interface IAssessmentCardProps {
+  assessment: Assessment;
 }
 
-export const AssessmentCard = ({ followUp }: IFollowUpCardProps) => (
+export const AssessmentCard = ({ assessment }: IAssessmentCardProps) => (
   <>
     <Typography variant={'h5'} component={'h5'}>
       <DiagnosisIcon fontSize="large" />
@@ -29,58 +34,59 @@ export const AssessmentCard = ({ followUp }: IFollowUpCardProps) => (
     </Typography>
 
     <Box px={3}>
-      {Boolean(followUp && followUp.healthcareWorkerId) && (
+      {Boolean(assessment && assessment.healthcareWorkerId) && (
         <p>
-          <b>Assessed By: </b> Healthcare Worker:{followUp?.healthcareWorkerId}
+          <b>Assessed By: </b> Healthcare Worker:
+          {assessment?.healthcareWorkerId}
         </p>
       )}
 
-      {Boolean(followUp && followUp.dateAssessed) && (
+      {Boolean(assessment && assessment.dateAssessed) && (
         <p>
           <b>Date Last Assessed: </b>
-          {getPrettyDateTime(followUp?.dateAssessed)}
+          {getPrettyDateTime(assessment?.dateAssessed)}
         </p>
       )}
 
-      {Boolean(followUp && followUp.specialInvestigations) && (
+      {Boolean(assessment && assessment.specialInvestigations) && (
         <p>
           <b>Special Investigations + Results: </b>
-          {followUp?.specialInvestigations}
+          {assessment?.specialInvestigations}
         </p>
       )}
 
-      {Boolean(followUp && followUp.diagnosis) && (
+      {Boolean(assessment && assessment.diagnosis) && (
         <p>
           <b>Final Diagnosis: </b>
-          {followUp?.diagnosis}
+          {assessment?.diagnosis}
         </p>
       )}
 
-      {Boolean(followUp && followUp.treatment) && (
+      {Boolean(assessment && assessment.treatment) && (
         <p>
           <b>Treatment/Operation: </b>
-          {followUp?.treatment}
+          {assessment?.treatment}
         </p>
       )}
 
-      {Boolean(followUp && followUp.medicationPrescribed) && (
+      {Boolean(assessment && assessment.medicationPrescribed) && (
         <p>
           <b>Medication Prescribed: </b>
-          {followUp?.medicationPrescribed}
+          {assessment?.medicationPrescribed}
         </p>
       )}
 
-      {Boolean(followUp && followUp.followUpInstructions) && (
+      {Boolean(assessment && assessment.followUpInstructions) && (
         <p>
           <b>Followup Instructions: </b>
-          {followUp?.followUpInstructions}
+          {assessment?.followUpInstructions}
         </p>
       )}
     </Box>
 
     <RedirectButton
-      disabled={!followUp}
-      url={`/assessments/edit/${followUp.patientId}/${followUp.id}`}>
+      disabled={!assessment}
+      url={`/assessments/edit/${assessment.patientId}/${assessment.id}`}>
       Update Assessment
     </RedirectButton>
   </>

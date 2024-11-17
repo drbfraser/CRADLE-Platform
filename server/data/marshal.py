@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Type
 
 from data.crud import M
 from models import (
-    FollowUpOrm,
+    AssessmentOrm,
     FormClassificationOrm,
     FormOrm,
     FormTemplateOrm,
@@ -37,8 +37,8 @@ def marshal(obj: Any, shallow=False, if_include_versions=False) -> dict:
         return __marshal_reading(obj, shallow)
     if isinstance(obj, ReferralOrm):
         return __marshal_referral(obj)
-    if isinstance(obj, FollowUpOrm):
-        return __marshal_followup(obj)
+    if isinstance(obj, AssessmentOrm):
+        return __marshal_assessment(obj)
     if isinstance(obj, PregnancyOrm):
         return __marshal_pregnancy(obj)
     if isinstance(obj, MedicalRecordOrm):
@@ -79,8 +79,8 @@ def marshal_with_type(obj: Any, shallow=False) -> dict:
         referral_dict = __marshal_referral(obj)
         referral_dict["type"] = "referral"
         return referral_dict
-    if isinstance(obj, FollowUpOrm):
-        assessment_dict = __marshal_followup(obj)
+    if isinstance(obj, AssessmentOrm):
+        assessment_dict = __marshal_assessment(obj)
         assessment_dict["type"] = "assessment"
         return assessment_dict
     if isinstance(obj, PregnancyOrm):
@@ -168,7 +168,7 @@ def __marshal_patient(p: PatientOrm, shallow) -> dict:
     if not shallow:
         d["readings"] = [marshal(r) for r in p.readings]
         d["referrals"] = [marshal(r) for r in p.referrals]
-        d["assessments"] = [marshal(a) for a in p.follow_ups]
+        d["assessments"] = [marshal(a) for a in p.assessments]
     return d
 
 
@@ -195,7 +195,7 @@ def __marshal_referral(r: ReferralOrm) -> dict:
     return d
 
 
-def __marshal_followup(f: FollowUpOrm) -> dict:
+def __marshal_assessment(f: AssessmentOrm) -> dict:
     d = vars(f).copy()
     __pre_process(d)
     # Remove relationship objects
@@ -447,7 +447,7 @@ def __unmarshal_patient(d: dict) -> PatientOrm:
 
     # Unmarshal any assessments found within the patient
     if d.get("assessments") is not None:
-        assessments = [unmarshal(FollowUpOrm, a) for a in d["assessments"]]
+        assessments = [unmarshal(AssessmentOrm, a) for a in d["assessments"]]
         # Delete the entry so that we don't try to unmarshal them again by loading from
         # the patient schema.
         del d["assessments"]
@@ -478,7 +478,7 @@ def __unmarshal_patient(d: dict) -> PatientOrm:
     if referrals:
         patient.referrals = referrals
     if assessments:
-        patient.follow_ups = assessments
+        patient.assessments = assessments
     if medRecords:
         patient.records = medRecords
     if pregnancy:

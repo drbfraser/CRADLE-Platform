@@ -533,11 +533,11 @@ def __make_full_reading(reading_id: str, patient_id: str) -> dict:
         "heart_rate": 155,
         "symptoms": ["These are", "symptoms", "for full reading"],
         "date_taken": 5435345,
-        "dateRecheckVitalsNeeded": 11111111,
+        "date_recheck_vitals_needed": 11111111,
         "user_id": 1,
         "patient_id": patient_id,
-        "retestOfPreviousReadingIds": "aed6818f-fd9f-4d4c-8137-fbfe3e1c91e9",
-        "isFlaggedForFollowup": True,
+        "retest_of_previous_reading_ids": "aed6818f-fd9f-4d4c-8137-fbfe3e1c91e9",
+        "is_flagged_for_follow_up": True,
     }
 
 

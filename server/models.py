@@ -306,8 +306,8 @@ class ReadingOrm(db.Model):
         return ReadingSchema
 
 
-class FollowUpOrm(db.Model):
-    __tablename__ = "follow_up"
+class AssessmentOrm(db.Model):
+    __tablename__ = "assessment"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
 
     follow_up_instructions = db.Column(db.Text)
@@ -328,16 +328,16 @@ class FollowUpOrm(db.Model):
 
     # RELATIONSHIPS
     healthcare_worker = db.relationship(
-        UserOrm, backref=db.backref("follow_ups", lazy=True)
+        UserOrm, backref=db.backref("assessments", lazy=True)
     )
     patient = db.relationship(
         PatientOrm,
-        backref=db.backref("follow_ups", cascade="all, delete-orphan", lazy=True),
+        backref=db.backref("assessments", cascade="all, delete-orphan", lazy=True),
     )
 
     @staticmethod
     def schema():
-        return FollowUpSchema
+        return AssessmentSchema
 
 
 class VillageOrm(db.Model):
@@ -756,12 +756,12 @@ class HealthFacilitySchema(ma.SQLAlchemyAutoSchema):
         include_relationships = True
 
 
-class FollowUpSchema(ma.SQLAlchemyAutoSchema):
+class AssessmentSchema(ma.SQLAlchemyAutoSchema):
     healthcare_worker = fields.Nested(UserSchema)
 
     class Meta:
         include_fk = True
-        model = FollowUpOrm
+        model = AssessmentOrm
         load_instance = True
         include_relationships = True
 

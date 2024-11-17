@@ -22,7 +22,7 @@ from typing import Any, Callable, List, Optional, Tuple
 from data import crud
 from enums import RoleEnum
 from models import (
-    FollowUpOrm,
+    AssessmentOrm,
     MedicalRecordOrm,
     PregnancyOrm,
     ReadingOrm,
@@ -132,7 +132,7 @@ def referral_view(user: dict, last_sync: Optional[int] = None) -> List[ReferralO
     )
 
 
-def assessment_view(user: dict, last_sync: Optional[int] = None) -> List[FollowUpOrm]:
+def assessment_view(user: dict, last_sync: Optional[int] = None) -> List[AssessmentOrm]:
     """
     Returns a list of assessments of readings associated with user.
 
@@ -142,7 +142,7 @@ def assessment_view(user: dict, last_sync: Optional[int] = None) -> List[FollowU
     return __get_view(
         user,
         crud.read_referrals_or_assessments,
-        model=FollowUpOrm,
+        model=AssessmentOrm,
         last_edited=last_sync,
     )
 

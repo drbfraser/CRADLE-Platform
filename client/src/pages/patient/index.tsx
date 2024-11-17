@@ -109,7 +109,7 @@ export const PatientPage = () => {
       const mapCardToJSX = (card: any) => {
         switch (card.type) {
           case 'assessment':
-            return <AssessmentCard followUp={card} />;
+            return <AssessmentCard assessment={card} />;
           case 'form':
             return <CustomizedFormCard form={card} />;
           case 'reading':
