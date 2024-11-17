@@ -99,10 +99,7 @@ def seed_minimal(ctx):
     print("Finished seeding minimal data set")
 
 
-# USAGE: python manage.py seed_test_data
-@cli.command("seed_test_data")
-@click.pass_context
-def seed_test_data(ctx):
+def seed_test_data():
     """
     Seeds data for testing.
 
@@ -185,6 +182,13 @@ def seed_test_patient_cli():
     seed_test_patient()
 
 
+# USAGE: python manage.py seed_test_data
+@cli.command("seed_test_data")
+@click.pass_context
+def seed_test_data_cli(ctx):
+    seed_test_data()
+
+
 def seed_test_patient():
     create_patient_reading_referral_pregnancy(
         "4930004967",
@@ -224,16 +228,6 @@ def seed_test_patient():
     )
     create_pregnancy("4930004967", 1609840628)
     create_pregnancy("4930004967", 1549015028, 1573379828, "SVD. Baby weighed 3kg.")
-
-
-# USAGE: python manage.py seed
-@cli.command("seed")
-@click.pass_context
-def seed_cli(ctx):
-    start = time.time()
-    seed()
-    end = time.time()
-    print(f"The seed script took: {round(end - start, 3)} seconds")
 
 
 def seed():
@@ -341,6 +335,16 @@ def seed():
 
     print(f"{count + 1}/{len(patient_list)} Patients have been seeded")
     print("Complete!")
+
+
+# USAGE: python manage.py seed
+@cli.command("seed")
+@click.pass_context
+def seed_cli(ctx):
+    start = time.time()
+    seed()
+    end = time.time()
+    print(f"The seed script took: {round(end - start, 3)} seconds")
 
 
 def create_patient_reading_referral_pregnancy(
