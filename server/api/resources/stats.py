@@ -5,6 +5,7 @@ from dateutil.relativedelta import relativedelta
 from flasgger import swag_from
 from flask import Request, request
 from flask_restful import Resource, abort
+from humps import decamelize
 
 from api.decorator import roles_required
 from common import user_utils
@@ -82,7 +83,7 @@ def create_color_readings(color_readings_q):
 
 
 def get_filter_data(request: Request):
-    params = request.args
+    params = decamelize(request.args)
     try:
         timestamp_pydantic_model = TimestampValidator.validate(params)
     except ValidationExceptionError as e:

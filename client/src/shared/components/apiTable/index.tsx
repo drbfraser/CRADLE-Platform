@@ -84,7 +84,9 @@ export const APITable = ({
     });
 
     if (referralFilter) {
-      params.append('dateRange', referralFilter.dateRange);
+      if (referralFilter.dateRange !== '') {
+        params.append('dateRange', referralFilter.dateRange);
+      }
       if (referralFilter.isPregnant) {
         params.append('isPregnant', referralFilter.isPregnant);
       }
@@ -112,7 +114,7 @@ export const APITable = ({
     })
       .then(async (resp) => {
         const data = resp.data;
-
+        console.log(data);
         //The case for drug history records on the past records page
         if (isDrugRecord === true) {
           setRows(data.drug);
