@@ -10,7 +10,6 @@ import json
 import os
 from typing import TYPE_CHECKING, Type
 
-import flask_jwt_extended as jwt
 from flask import Request
 
 import utils
@@ -116,33 +115,6 @@ def query_param_search(request: Request, name: str) -> str:
 
     """
     return request.args.get(name, "", type=str)
-
-
-def current_user() -> UserOrm:
-    """
-    Returns the the model for the user making the request.
-
-    :return:
-    """
-    identity = jwt.get_jwt_identity()
-    return crud.read(UserOrm, id=identity["userId"])
-
-
-def isGoodPassword(password: str) -> bool:
-    """
-    Returns a Boolean indicating if the password inputted meets the desired characteristics or not
-
-    :param password: The password string to evaluate
-    """
-    # To-Do: if anything requirements are necessary for a good password (having a number or special character
-    # etc, these should be added here as well)
-
-    passlength = False
-
-    if len(password) >= 8:
-        passlength = True
-
-    return passlength
 
 
 def filterPairsWithNone(payload: dict) -> dict:
