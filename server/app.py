@@ -6,10 +6,10 @@
 @File: app.py
 @ Description:
 - This file is the main entry point for the server
-- It's main job is to initilize all of its connections including:
+- It's main job is to initialize all of its connections including:
   * Connect to database
   * Serve React App
-  * Initilize server routes
+  * Initialize server routes
   * Start Flask server
 """
 
@@ -17,8 +17,6 @@ import sys
 import os
 import re
 import json
-
-from werkzeug import Response
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
@@ -32,8 +30,9 @@ from flask_jwt_extended import (
     get_jwt_identity,
     verify_jwt_in_request,
 )
-from flask import request
+from flask import request, Response
 from werkzeug.exceptions import HTTPException
+from humps import camelize
 
 dictConfig(Config.LOGGING)
 LOGGER = logging.getLogger(__name__)
@@ -110,6 +109,17 @@ def log_request_details(response):
             "An unexpected error occurred while logging request and response data",
         )
         LOGGER.error(err)
+    return response
+
+
+@app.after_request
+def convert_response_body_to_camel_case(response: Response):
+    """
+    Intercepts responses and converts keys to camel case.
+    """
+    if response.mimetype == "application/json":
+        response_body = camelize(json.loads(response.data))
+        response.data = json.dumps(response_body)
     return response
 
 
