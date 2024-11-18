@@ -1,9 +1,9 @@
 from flasgger import swag_from
-from flask import request
 from flask_restful import Resource, abort, reqparse
 
 from api.decorator import roles_required
 from api.util import filterPairsWithNone
+from common import api_utils
 from data import crud, marshal
 from enums import RoleEnum
 from models import RelayServerPhoneNumberOrm
@@ -36,18 +36,18 @@ class RelayServerPhoneNumbers(Resource):
         methods=["POST"],
     )
     def post():
-        req = request.get_json(force=True)
-        if len(req) == 0:
+        request_body = api_utils.get_request_body()
+        if len(request_body) == 0:
             abort(400, message="Request body is empty")
             return None
 
-        serverDetails = marshal.unmarshal(RelayServerPhoneNumberOrm, req)
-        phone = serverDetails.phone
-        if crud.read(RelayServerPhoneNumberOrm, phone=phone):
-            abort(409, message=f"A SMS relay server is already using {phone}")
+        server_details = marshal.unmarshal(RelayServerPhoneNumberOrm, request_body)
+        phone_number = server_details.phone_number
+        if crud.read(RelayServerPhoneNumberOrm, phone_number=phone_number):
+            abort(409, message=f"A SMS relay server is already using {phone_number}")
             return None
 
-        crud.create(serverDetails, refresh=True)
+        crud.create(server_details, refresh=True)
         return {"message": "Relay server phone number added successfully"}, 200
 
     @staticmethod
@@ -57,20 +57,20 @@ class RelayServerPhoneNumbers(Resource):
         methods=["PUT"],
     )
     def put():
-        req = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
 
-        if len(req) == 0:
+        if len(request_body) == 0:
             abort(400, message="Request body is empty")
             return None
 
-        serverUpdates = filterPairsWithNone(parser.parse_args())
+        server_updates = filterPairsWithNone(parser.parse_args())
 
-        if "id" not in serverUpdates:
+        if "id" not in server_updates:
             return {"message": "No id found in the request"}, 400
 
-        id = serverUpdates["id"]
+        id = server_updates["id"]
 
-        crud.update(RelayServerPhoneNumberOrm, serverUpdates, id=id)
+        crud.update(RelayServerPhoneNumberOrm, server_updates, id=id)
 
         return {"message": "Relay server updated"}, 200
 
@@ -81,18 +81,18 @@ class RelayServerPhoneNumbers(Resource):
         methods=["DELETE"],
     )
     def delete():
-        req = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
 
-        if len(req) == 0:
+        if len(request_body) == 0:
             abort(400, message="Request body is empty")
             return None
 
-        serverDelete = filterPairsWithNone(parser.parse_args())
+        server_delete = filterPairsWithNone(parser.parse_args())
 
-        if "id" not in serverDelete:
+        if "id" not in server_delete:
             return {"message": "No id found in the request"}, 400
 
-        id = serverDelete["id"]
+        id = server_delete["id"]
 
         num = crud.read(RelayServerPhoneNumberOrm, id=id)
 

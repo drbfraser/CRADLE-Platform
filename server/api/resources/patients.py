@@ -2,13 +2,12 @@ from datetime import date
 from typing import Any, cast
 
 from flasgger import swag_from
-from flask import request
 from flask_restful import Resource, abort
 
 import data
 from api import util
 from api.decorator import patient_association_required
-from common import commonUtil, user_utils
+from common import api_utils, commonUtil, user_utils
 from data import crud, marshal
 from models import (
     AssessmentOrm,
@@ -40,7 +39,7 @@ class Root(Resource):
     def get():
         current_user = user_utils.get_current_user_from_jwt()
         current_user = cast(dict[Any, Any], current_user)
-        params = util.get_query_params(request)
+        params = api_utils.get_query_params()
         patients = view.patient_list_view(current_user, **params)
         return serialize.serialize_patient_list(patients)
 
@@ -51,15 +50,18 @@ class Root(Resource):
         endpoint="patients",
     )
     def post():
-        json = request.get_json(force=True)
-        if "gestational_timestamp" in json:
+        request_body = api_utils.get_request_body()
+        if "gestational_timestamp" in request_body:
             # Changing the key that comes from the android app to work with validation
-            json["pregnancy_start_date"] = json.pop("gestational_timestamp")
+            request_body["pregnancy_start_date"] = request_body.pop(
+                "gestational_timestamp"
+            )
 
         try:
-            patient_pydantic_model = PatientPostValidator.validate(json)
+            patient_pydantic_model = PatientPostValidator.validate(request_body)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
+            return None
 
         new_patient = patient_pydantic_model.model_dump()
         new_patient = commonUtil.filterNestedAttributeWithValueNone(new_patient)
@@ -67,6 +69,7 @@ class Root(Resource):
         patient_id = patient.id
         if crud.read(PatientOrm, id=patient_id):
             abort(409, message=f"A patient already exists with id: {patient_id}")
+            return None
 
         # Resolve invariants and set the creation timestamp for the patient ensuring
         # that both the created and last_edited fields have the exact same value.
@@ -150,10 +153,12 @@ class PatientInfo(Resource):
         endpoint="patient_info",
     )
     def put(patient_id: str):
-        json = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
 
         try:
-            patient_pydantic_model = PatientPutValidator.validate(json, patient_id)
+            patient_pydantic_model = PatientPutValidator.validate(
+                request_body, patient_id
+            )
         except ValidationExceptionError as e:
             abort(400, message=str(e))
             return None
@@ -417,7 +422,7 @@ class PatientTimeline(Resource):
         endpoint="patient_timeline",
     )
     def get(patient_id: str):
-        params = util.get_query_params(request)
+        params = api_utils.get_query_params()
         records = crud.read_patient_timeline(patient_id, **params)
         return [serialize.serialize_patient_timeline(r) for r in records]
 
@@ -431,46 +436,48 @@ class ReadingAssessment(Resource):
         endpoint="reading_assessment",
     )
     def post():
-        json = request.get_json(force=True)
-        reading_json = json["reading"]
-        assessment_json = json["assessment"]
+        request_body = api_utils.get_request_body()
+        reading_dict = request_body["reading"]
+        assessment_dict = request_body["assessment"]
 
         try:
-            reading_pydantic_model = ReadingValidator.validate(reading_json)
-            assessment_pydantic_model = AssessmentValidator.validate(assessment_json)
+            reading_pydantic_model = ReadingValidator.validate(reading_dict)
+            assessment_pydantic_model = AssessmentValidator.validate(assessment_dict)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
+            return None
 
         new_reading = reading_pydantic_model.model_dump()
-        reading_json = util.filterPairsWithNone(new_reading)
+        reading_dict = util.filterPairsWithNone(new_reading)
         new_assessment = assessment_pydantic_model.model_dump()
-        assessment_json = util.filterPairsWithNone(new_assessment)
+        assessment_dict = util.filterPairsWithNone(new_assessment)
 
         current_user = user_utils.get_current_user_from_jwt()
         user_id = current_user["id"]
-        reading_json["user_id"] = user_id
+        reading_dict["user_id"] = user_id
 
-        reading = marshal.unmarshal(ReadingOrm, reading_json)
+        reading = marshal.unmarshal(ReadingOrm, reading_dict)
 
         if crud.read(ReadingOrm, id=reading.id):
             abort(409, message=f"A reading already exists with id: {reading.id}")
+            return None
 
         invariant.resolve_reading_invariants(reading)
 
         # Populate the date_assessed and healthcare_worker_id fields of the followup
-        assessment_json["date_assessed"] = get_current_time()
-        assessment_json["healthcare_worker_id"] = user_id
+        assessment_dict["date_assessed"] = get_current_time()
+        assessment_dict["healthcare_worker_id"] = user_id
 
-        assessment = marshal.unmarshal(AssessmentOrm, assessment_json)
+        assessment = marshal.unmarshal(AssessmentOrm, assessment_dict)
 
         crud.create(reading, refresh=True)
         crud.create(assessment)
 
-        reading_json = marshal.marshal(reading)
-        assessment_json = marshal.marshal(assessment)
-        response_json = {"reading": reading_json, "assessment": assessment_json}
+        reading_dict = marshal.marshal(reading)
+        assessment_dict = marshal.marshal(assessment)
+        response_body = {"reading": reading_dict, "assessment": assessment_dict}
 
-        return response_json, 201
+        return response_body, 201
 
 
 # /api/patients/<string:patient_id>/get_all_records
@@ -482,7 +489,7 @@ class PatientAllRecords(Resource):
         endpoint="patient_get_all_records",
     )
     def get(patient_id: str):
-        params = util.get_query_params(request)
+        params = api_utils.get_query_params()
         records = crud.read_patient_all_records(patient_id, **params)
         return [marshal.marshal_with_type(r) for r in records]
 
@@ -499,6 +506,6 @@ class PatientsAdmin(Resource):
     def get():
         current_user = user_utils.get_current_user_from_jwt()
         current_user = cast(dict[Any, Any], current_user)
-        params = util.get_query_params(request)
+        params = api_utils.get_query_params()
         patients = view.admin_patient_view(current_user, **params)
         return serialize.serialize_patients_admin(patients)

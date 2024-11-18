@@ -1,11 +1,10 @@
 import logging
 import os
 import re
-from typing import Any
 
 from botocore.exceptions import ClientError
 from flasgger import swag_from
-from flask import Flask, make_response, request
+from flask import Flask, make_response
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_restful import Resource, abort, reqparse
@@ -17,11 +16,10 @@ from api.util import (
     doesUserExist,
     filterPairsWithNone,
     get_all_phoneNumbers_for_user,
-    isGoodPassword,
     replace_phoneNumber_for_user,
 )
 from authentication import cognito
-from common import user_utils
+from common import api_utils, user_utils
 from common.regexUtil import phoneNumber_regex_check
 from data import crud, marshal
 from enums import RoleEnum
@@ -105,15 +103,6 @@ class AdminPasswordChange(Resource):
         if not doesUserExist(id):
             return {"message": no_user_found_message}, 400
 
-        # check if password given is suitable
-        if not isGoodPassword(data["password"]):
-            return (
-                {"message": "The new password must be at least 8 characters long"},
-                400,
-            )
-
-        # data["password"] = flask_bcrypt.generate_password_hash(data["password"])
-
         # Update password
         crud.update(UserOrm, data, id=id)
 
@@ -138,14 +127,7 @@ class UserPasswordChange(Resource):
 
     @swag_from("../../specifications/user-change-pass.yml", methods=["POST"])
     def post(self):
-        data = self.parser.parse_args()
-
-        # check if password given is suitable
-        if not isGoodPassword(data["new_password"]):
-            return (
-                {"message": "The new password must be at least 8 characters long."},
-                400,
-            )
+        # data = self.parser.parse_args()
 
         # identity = get_jwt_identity()
 
@@ -175,7 +157,7 @@ class UserRegisterApi(Resource):
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/user-register.yml", methods=["POST"])
     def post(self):
-        request_body = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
 
         new_user_to_feed = filterPairsWithNone(request_body)
 
@@ -186,6 +168,7 @@ class UserRegisterApi(Resource):
             error_message = str(e)
             LOGGER.error(error_message)
             abort(400, message=error_message)
+            return None
 
         # use pydantic model to generate validated dict for later processing
         new_user_dict = user_pydantic_model.model_dump()
@@ -224,7 +207,7 @@ class UserAuthApi(Resource):
         """
         Authentication endpoint.
         """
-        request_body = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
         try:
             credentials = UserAuthRequestValidator(**request_body)
         except ValidationExceptionError as err:
@@ -268,7 +251,7 @@ class UserAuthApi(Resource):
 
         challenge = auth_result["challenge"]
 
-        resp_body = {
+        response_body = {
             "access_token": auth_result["access_token"],
             "user": user_dict,
             "challenge": None,
@@ -276,17 +259,17 @@ class UserAuthApi(Resource):
 
         # Only include challenge in response if challenge_name is not None.
         if challenge["challenge_name"] is not None:
-            resp_body["challenge"] = challenge
+            response_body["challenge"] = challenge
 
-        resp = make_response(resp_body, 200)
+        response = make_response(response_body, 200)
         # Store refresh token in HTTP-Only cookie.
         if refresh_token is not None:
-            resp.set_cookie(
+            response.set_cookie(
                 "refresh_token",
                 refresh_token,
                 httponly=True,
             )
-        return resp
+        return response
 
 
 # api/user/auth/refresh_token
@@ -294,7 +277,7 @@ class UserAuthTokenRefreshApi(Resource):
     @swag_from("../../specifications/user-auth-refresh.yml", methods=["POST"])
     @public_endpoint
     def post(self):
-        request_body: dict[str, Any] = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
         username = request_body.get("username")
         if username is None:
             abort(400, message="No username was provided.")
@@ -324,7 +307,7 @@ class UserApi(Resource):
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/user-put.yml", methods=["PUT"])
     def put(self, id):
-        request_body = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
         try:
             # validate the new user
             user_model = UserValidator.validate(request_body)
@@ -421,9 +404,9 @@ class UserPhoneUpdate(Resource):
         if not user_utils.does_user_exist(user_id):
             return {"message": no_user_found_message}, 404
 
-        args = self.parser.parse_args()
-        new_phone_number = args["new_phone_number"]
-        current_phone_number = args["current_phone_number"]
+        request_body = api_utils.get_request_body()
+        new_phone_number = request_body["new_phone_number"]
+        current_phone_number = request_body["current_phone_number"]
 
         if not phoneNumber_regex_check(new_phone_number):
             return {"message": invalid_phone_number_message}, 400
@@ -450,8 +433,8 @@ class UserPhoneUpdate(Resource):
         if not doesUserExist(user_id):
             return {"message": no_user_found_message}, 400
 
-        args = self.parser.parse_args()
-        new_phone_number = args["new_phone_number"]
+        request_body = api_utils.get_request_body()
+        new_phone_number = request_body["new_phone_number"]
 
         if new_phone_number is None:
             return {"message": "Phone number cannot be null"}, 400
@@ -473,8 +456,8 @@ class UserPhoneUpdate(Resource):
         if not doesUserExist(user_id):
             return {"message": no_user_found_message}, 400
 
-        args = self.parser.parse_args()
-        number_to_delete = args["old_phone_number"]
+        request_body = api_utils.get_request_body()
+        number_to_delete = request_body["old_phone_number"]
 
         if number_to_delete is None:
             return {"message": null_phone_number_message}, 400
@@ -556,8 +539,8 @@ class ValidateRelayPhoneNumber(Resource):
 
     @swag_from("../../specifications/is-phone-number-relay-get.yml", methods=["GET"])
     def get(self):
-        data = self.parser.parse_args()
-        phone_number = data["phone_number"]
+        request_body = api_utils.get_request_body()
+        phone_number = request_body["phone_number"]
         # remove dashes from the user's entered phone number
         phone_number = re.sub(r"[-]", "", phone_number)
 

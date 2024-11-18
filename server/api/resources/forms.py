@@ -1,12 +1,11 @@
 import json
 
 from flasgger import swag_from
-from flask import request
 from flask_restful import Resource, abort
 
 import data
 from api import util
-from common import commonUtil, user_utils
+from common import api_utils, commonUtil, user_utils
 from data import crud, marshal
 from models import FormOrm, FormTemplateOrm, PatientOrm, UserOrm
 from utils import get_current_time
@@ -23,15 +22,15 @@ class Root(Resource):
         endpoint="forms",
     )
     def post():
-        request_json = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
 
-        if request_json.get("id") is not None:
-            if crud.read(FormOrm, id=request_json["id"]):
+        if request_body.get("id") is not None:
+            if crud.read(FormOrm, id=request_body["id"]):
                 abort(409, message="Form already exists")
                 return None
 
         try:
-            form_pydantic_model = FormValidator.validate(request_json)
+            form_pydantic_model = FormValidator.validate(request_body)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
             return None
@@ -106,11 +105,12 @@ class SingleForm(Resource):
             abort(404, message=f"No form with id {form_id}")
             return None
 
-        request_json = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
         try:
-            form_pydantic_model = FormPutValidator.validate(request_json)
+            form_pydantic_model = FormPutValidator.validate(request_body)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
+            return None
 
         update_form = form_pydantic_model.model_dump()
         update_form = commonUtil.filterNestedAttributeWithValueNone(update_form)
@@ -119,16 +119,16 @@ class SingleForm(Resource):
         questions = form.questions
         question_ids = [q.id for q in questions]
         questions_dict = dict(zip(question_ids, questions))
-        for q in questions_upload:
-            qid = q["id"]
-            if qid not in question_ids:
+        for question in questions_upload:
+            question_id = question["id"]
+            if question_id not in question_ids:
                 abort(
                     404,
-                    message=f"request question id={qid} does not exist in server",
+                    message=f"request question id={question_id} does not exist in server",
                 )
-            qans = json.dumps(q["answers"])
-            if qans != questions_dict[qid].answers:
-                questions_dict[qid].answers = qans
+            answers = json.dumps(question["answers"])
+            if answers != questions_dict[question_id].answers:
+                questions_dict[question_id].answers = answers
 
         current_user = user_utils.get_current_user_from_jwt()
         user_id = int(current_user["id"])

@@ -4,12 +4,13 @@ import logging
 from flasgger import swag_from
 from flask import request
 from flask_restful import Resource, abort
+from humps import decamelize
 from werkzeug.datastructures import FileStorage
 
 import data
 from api import util
 from api.decorator import roles_required
-from common import commonUtil
+from common import api_utils, commonUtil
 from data import crud, marshal
 from enums import ContentTypeEnum, RoleEnum
 from models import FormClassificationOrm, FormTemplateOrm
@@ -29,7 +30,7 @@ class Root(Resource):
         endpoint="form_classifications",
     )
     def post():
-        request_json = {}
+        request_body = {}
 
         # provide file upload method from web
         if "file" in request.files:
@@ -37,43 +38,51 @@ class Root(Resource):
 
             if file.content_type not in ContentTypeEnum.listValues():
                 abort(400, message="File Type not supported")
+                return None
 
             file_str = str(file.read(), "utf-8")
             if file.content_type == ContentTypeEnum.JSON.value:
                 try:
-                    request_json = json.loads(file_str)
+                    request_body = json.loads(file_str)
                 except json.JSONDecodeError as err:
                     LOGGER.error(err)
                     abort(400, message="File content is not valid json-format")
 
             elif file.content_type == ContentTypeEnum.CSV.value:
                 try:
-                    request_json = util.getFormTemplateDictFromCSV(file_str)
+                    request_body = util.getFormTemplateDictFromCSV(file_str)
                 except RuntimeError as err:
                     LOGGER.error(err)
                     abort(400, message=err.args[0])
+                    return None
                 except TypeError as err:
                     LOGGER.error(err)
                     abort(400, message=err.args[0])
+                    return None
                 except Exception as err:
                     LOGGER.error(err)
                     abort(
                         400,
                         message="Something went wrong while parsing the CSV file.",
                     )
+                    return None
         else:
-            request_json = request.get_json(force=True)
+            request_body = request.get_json(force=True)
 
-        if len(request_json) == 0:
+        if len(request_body) == 0:
             abort(400, message="Request body is empty")
+            return None
 
-        if request_json.get("id") is not None:
-            if crud.read(FormClassificationOrm, id=request_json["id"]):
+        # Convert keys to snake case.
+        request_body = decamelize(request_body)
+
+        if request_body.get("id") is not None:
+            if crud.read(FormClassificationOrm, id=request_body["id"]):
                 abort(409, message="Form classification already exists")
 
         try:
             form_classification_pydantic_model = FormClassificationValidator.validate(
-                request_json,
+                request_body,
             )
         except ValidationExceptionError as e:
             abort(400, message=str(e))
@@ -145,15 +154,16 @@ class SingleFormClassification(Resource):
             FormClassificationOrm, id=form_classification_id
         )
 
-        if not form_classification:
+        if form_classification is None:
             abort(
                 400,
                 message=f"No form classification with id {form_classification_id}",
             )
+            return None
 
-        req = request.get_json()
-        if req.get("name") is not None:
-            form_classification.name = req.get("name")
+        request_body = api_utils.get_request_body()
+        if request_body.get("name") is not None:
+            form_classification.name = request_body.get("name")
             data.db_session.commit()
             data.db_session.refresh(form_classification)
 

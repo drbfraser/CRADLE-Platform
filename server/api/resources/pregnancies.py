@@ -1,9 +1,9 @@
 from flasgger import swag_from
-from flask import request
 from flask_restful import Resource, abort
 
 from api import util
 from api.decorator import patient_association_required
+from common import api_utils
 from data import crud, marshal
 from models import PregnancyOrm
 from service import serialize, view
@@ -25,7 +25,7 @@ class Root(Resource):
         endpoint="pregnancies",
     )
     def get(patient_id: str):
-        params = util.get_query_params(request)
+        params = api_utils.get_query_params()
         pregnancies = view.pregnancy_view(patient_id, **params)
 
         return [serialize.serialize_pregnancy(p) for p in pregnancies]
@@ -38,7 +38,7 @@ class Root(Resource):
         endpoint="pregnancies",
     )
     def post(patient_id: str):
-        request_body = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
 
         try:
             PregnancyPostRequestValidator.validate(
@@ -47,6 +47,7 @@ class Root(Resource):
             )
         except ValidationExceptionError as e:
             abort(400, message=str(e))
+            return None
 
         if "id" in request_body:
             pregnancy_id = request_body["id"]
@@ -55,6 +56,7 @@ class Root(Resource):
                     409,
                     message=f"A pregnancy record with ID {pregnancy_id} already exists.",
                 )
+                return None
         print(request_body)
         _process_request_body(request_body)
         _check_conflicts(request_body, patient_id)
@@ -86,7 +88,7 @@ class SinglePregnancy(Resource):
         endpoint="single_pregnancy",
     )
     def put(pregnancy_id: str):
-        request_body = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
 
         try:
             pregnancy_pydantic_model = PregnancyPutRequestValidator.validate(
@@ -95,6 +97,7 @@ class SinglePregnancy(Resource):
             )
         except ValidationExceptionError as e:
             abort(400, message=str(e))
+            return None
 
         pregnancy_model_dump = pregnancy_pydantic_model.model_dump()
         pregnancy_model_dump = util.filterPairsWithNone(pregnancy_model_dump)
@@ -102,6 +105,9 @@ class SinglePregnancy(Resource):
         _process_request_body(pregnancy_model_dump)
 
         pregnancy = crud.read(PregnancyOrm, id=pregnancy_id)
+        if pregnancy is None:
+            abort(400, message="No pregnancy found.")
+            return None
         if (
             "patient_id" in pregnancy_model_dump
             and pregnancy_model_dump["patient_id"] != pregnancy.patient_id
@@ -150,11 +156,13 @@ def _check_conflicts(request_body, patient_id, pregnancy_id=None):
         pregnancy_id,
     ):
         abort(409, message="A conflict with existing pregnancy records occurred.")
+        return
 
 
 def _get_pregnancy(pregnancy_id):
     pregnancy = crud.read(PregnancyOrm, id=pregnancy_id)
     if not pregnancy:
         abort(404, message=f"No pregnancy record with id {pregnancy_id}")
+        return None
 
     return pregnancy

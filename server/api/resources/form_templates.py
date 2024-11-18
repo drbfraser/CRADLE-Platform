@@ -3,12 +3,13 @@ import json
 from flasgger import swag_from
 from flask import make_response, request
 from flask_restful import Resource, abort
+from humps import decamelize
 from werkzeug.datastructures import FileStorage
 
 import data
 from api import util
 from api.decorator import roles_required
-from common import commonUtil
+from common import api_utils, commonUtil
 from data import crud, marshal
 from enums import ContentTypeEnum, RoleEnum
 from models import FormClassificationOrm, FormTemplateOrm
@@ -27,7 +28,7 @@ class Root(Resource):
         endpoint="form_templates",
     )
     def post():
-        request_json = {}
+        request_body = {}
 
         # provide file upload method from web
         if "file" in request.files:
@@ -35,38 +36,48 @@ class Root(Resource):
 
             if file.content_type not in ContentTypeEnum.listValues():
                 abort(400, message="File Type not supported")
+                return None
 
             file_str = str(file.read(), "utf-8")
             if file.content_type == ContentTypeEnum.JSON.value:
                 try:
-                    request_json = json.loads(file_str)
+                    request_body = json.loads(file_str)
                 except json.JSONDecodeError:
                     abort(400, message="File content is not valid json-format")
+                    return None
 
             elif file.content_type == ContentTypeEnum.CSV.value:
                 try:
-                    request_json = util.getFormTemplateDictFromCSV(file_str)
+                    request_body = util.getFormTemplateDictFromCSV(file_str)
                 except RuntimeError as err:
                     abort(400, message=err.args[0])
+                    return None
                 except TypeError as err:
                     abort(400, message=err.args[0])
+                    return None
                 except Exception:
                     abort(
                         400,
                         message="Something went wrong while parsing the CSV file.",
                     )
+                    return None
         else:
-            request_json = request.get_json(force=True)
+            request_body = request.get_json(force=True)
 
-        if len(request_json) == 0:
+        if len(request_body) == 0:
             abort(400, message="Request body is empty")
+            return None
 
-        if request_json.get("id") is not None:
-            if crud.read(FormTemplateOrm, id=request_json["id"]):
+        # Convert keys to snake case.
+        request_body = decamelize(request_body)
+
+        if request_body.get("id") is not None:
+            if crud.read(FormTemplateOrm, id=request_body["id"]):
                 abort(409, message="Form template already exists")
+                return None
 
         try:
-            form_template_pydantic_model = FormTemplateValidator.validate(request_json)
+            form_template_pydantic_model = FormTemplateValidator.validate(request_body)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
             return None
@@ -121,7 +132,7 @@ class Root(Resource):
         endpoint="form_templates",
     )
     def get():
-        params = util.get_query_params(request)
+        params = api_utils.get_query_params()
 
         filters: dict = {}
 
@@ -146,7 +157,7 @@ class TemplateVersion(Resource):
     )
     def get(form_template_id: str):
         form_template = crud.read(FormTemplateOrm, id=form_template_id)
-        if not form_template:
+        if form_template is None:
             abort(404, message=f"No form with id {form_template_id}")
             return None
 
@@ -196,10 +207,11 @@ class FormTemplateResource(Resource):
         endpoint="single_form_template",
     )
     def get(form_template_id: str):
-        params = util.get_query_params(request)
+        params = api_utils.get_query_params()
         form_template = crud.read(FormTemplateOrm, id=form_template_id)
-        if not form_template:
+        if form_template is None:
             abort(404, message=f"No form with id {form_template_id}")
+            return None
 
         version = params.get("lang")
         if version is None:
@@ -219,6 +231,7 @@ class FormTemplateResource(Resource):
                 404,
                 message=f"Template(id={form_template_id}) doesn't have language version = {version}",
             )
+            return None
 
         return marshal.marshal_template_to_single_version(form_template, version)
 
@@ -233,10 +246,11 @@ class FormTemplateResource(Resource):
 
         if not form_template:
             abort(404, message=f"No form template with id {form_template_id}")
+            return None
 
-        req = request.get_json()
-        if req.get("archived") is not None:
-            form_template.archived = req.get("archived")
+        request_body = api_utils.get_request_body()
+        if request_body.get("archived") is not None:
+            form_template.archived = request_body.get("archived")
             data.db_session.commit()
             data.db_session.refresh(form_template)
 
@@ -252,14 +266,15 @@ class BlankFormTemplate(Resource):
         endpoint="blank_form_template",
     )
     def get(form_template_id: str):
-        params = util.get_query_params(request)
+        params = api_utils.get_query_params()
         form_template = crud.read(FormTemplateOrm, id=form_template_id)
-        if not form_template:
+        if form_template is None:
             abort(404, message=f"No form with id {form_template_id}")
+            return None
 
         version = params.get("lang")
         if version is None:
-            # admin user get template of full verions
+            # admin user get template of full versions
             blank_template = marshal.marshal(
                 form_template,
                 shallow=False,
@@ -277,6 +292,7 @@ class BlankFormTemplate(Resource):
                 404,
                 message=f"Template(id={form_template_id}) doesn't have language version = {version}",
             )
+            return None
 
         blank_template = marshal.marshal_template_to_single_version(
             form_template,

@@ -5,7 +5,7 @@ from flasgger import swag_from
 from flask import Response, jsonify, make_response, request
 from flask_restful import Resource, abort
 
-from common import phone_number_utils, user_utils
+from common import api_utils, phone_number_utils, user_utils
 from models import UserOrm
 from service import compressor, encryptor
 from validation.sms_relay import SmsRelayDecryptedBodyValidator, SmsRelayValidator
@@ -87,10 +87,10 @@ iv_size = 32
 
 
 def sms_relay_procedure():
-    json_request = request.get_json(force=True)
+    request_body = api_utils.get_request_body()
 
     try:
-        sms_relay_pydantic_model = SmsRelayValidator.validate_request(json_request)
+        sms_relay_pydantic_model = SmsRelayValidator.validate_request(request_body)
     except ValidationExceptionError:
         abort(400, message=corrupted_message.format(type="JSON"))
         return None

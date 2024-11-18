@@ -1,9 +1,7 @@
 from flasgger import swag_from
-from flask import request
 from flask_restful import Resource, abort
 
-from api import util
-from common import commonUtil
+from common import api_utils, commonUtil, user_utils
 from data import crud
 from models import HealthFacilityOrm, PatientOrm, UserOrm
 from service import assoc
@@ -20,12 +18,13 @@ class Root(Resource):
         endpoint="patientAssociations",
     )
     def post():
-        json: dict = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
 
         try:
-            association_pydantic_model = AssociationValidator.validate(json)
+            association_pydantic_model = AssociationValidator.validate(request_body)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
+            return None
 
         new_association = association_pydantic_model.model_dump()
         new_association = commonUtil.filterNestedAttributeWithValueNone(
@@ -36,30 +35,34 @@ class Root(Resource):
         user_id = new_association.get("userId")
 
         patient = crud.read(PatientOrm, patientId=patient_id)
-        if not patient:
+        if patient is None:
             abort(400, message=f"No patient exists with id: {patient_id}")
+            return None
 
         if facility_name:
             facility = crud.read(HealthFacilityOrm, healthFacilityName=facility_name)
-            if not facility:
+            if facility is None:
                 abort(400, message=f"No health facility with name: {facility_name}")
+                return None
         else:
             facility = None
 
-        if user_id:
+        if user_id is not None:
             user = crud.read(UserOrm, id=user_id)
-            if not user:
+            if user is None:
                 abort(400, message=f"No user with id: {user_id}")
+                return None
             #     if user exists but no health facility then assign the patient to the user's health facility
             facility = user.health_facility_name
         else:
             user = None
 
-        if not facility_name and not user_id:
+        if facility_name is None and user_id is None:
             # If neither facility_name or user_id are present in the request, create a
             # associate patient with the current user's health facility
-            user = util.current_user()
-            assoc.associate(patient, user.healthFacility, user)
+            user_dict = user_utils.get_current_user_from_jwt()
+            user_orm = crud.read(UserOrm, id=user_dict["id"])
+            assoc.associate(patient, user_orm.health_facility, user_orm)
         elif not assoc.has_association(patient, facility, user):
             assoc.associate(patient, facility, user)
 

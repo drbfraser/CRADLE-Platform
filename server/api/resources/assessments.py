@@ -1,8 +1,7 @@
 from flasgger import swag_from
-from flask import request
 from flask_restful import Resource, abort
 
-from common import commonUtil, user_utils
+from common import api_utils, commonUtil, user_utils
 from data import crud, marshal
 from models import AssessmentOrm
 from utils import get_current_time
@@ -19,15 +18,15 @@ class Root(Resource):
         endpoint="assessments",
     )
     def post():
-        json = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
 
         # Populate the date_assessed and healthCareWorkerId fields of the followup
-        json["date_assessed"] = get_current_time()
+        request_body["date_assessed"] = get_current_time()
         current_user = user_utils.get_current_user_from_jwt()
-        json["healthcare_worker_id"] = current_user["id"]
+        request_body["healthcare_worker_id"] = current_user["id"]
 
         try:
-            assessment_pydantic_model = AssessmentValidator.validate(json)
+            assessment_pydantic_model = AssessmentValidator.validate(request_body)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
         new_assessment = assessment_pydantic_model.model_dump()
@@ -77,13 +76,13 @@ class SingleAssessment(Resource):
     def put(assessment_id: str):
         if not assessment_id:
             abort(404, message="Assessment id is required")
-        json = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
 
-        json["date_assessed"] = get_current_time()
+        request_body["date_assessed"] = get_current_time()
 
         # get current user id
         current_user = user_utils.get_current_user_from_jwt()
-        json["healthcare_worker_id"] = current_user["id"]
+        request_body["healthcare_worker_id"] = current_user["id"]
 
         assessment = crud.read(AssessmentOrm, id=assessment_id)
         if not assessment:
@@ -91,7 +90,7 @@ class SingleAssessment(Resource):
             return None
 
         try:
-            assessment_pydantic_model = AssessmentValidator.validate(json)
+            assessment_pydantic_model = AssessmentValidator.validate(request_body)
         except ValidationExceptionError as e:
             abort(400, message=str(e))
             return None

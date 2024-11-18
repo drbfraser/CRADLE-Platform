@@ -1,12 +1,11 @@
 import time
 
 from flasgger import swag_from
-from flask import request
 from flask_restful import Resource, abort
 
 from api import util
 from api.decorator import roles_required
-from common import commonUtil
+from common import api_utils, commonUtil
 from data import crud, marshal
 from enums import RoleEnum
 from models import HealthFacilityOrm
@@ -26,7 +25,7 @@ class Root(Resource):
     )
     def get():
         facilities = crud.read_all(HealthFacilityOrm)
-        if util.query_param_bool(request, "simplified"):
+        if api_utils.get_query_param_bool("simplified"):
             # If responding to a "simplified" request, only return the names of the
             # facilities and no other information
             return [f.name for f in facilities]
@@ -41,7 +40,7 @@ class Root(Resource):
         endpoint="facilities",
     )
     def post():
-        request_body = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
         new_facility_to_feed = util.filterPairsWithNone(request_body)
         try:
             facility_pydantic_model = FacilityValidator.validate(new_facility_to_feed)
@@ -81,7 +80,7 @@ class SingleFacility(Resource):
         if facility is None:
             abort(404, message=f"Facility ({facility_name}) not found.")
 
-        if util.query_param_bool(request, "new_referrals"):
+        if api_utils.get_query_param_bool("new_referrals"):
             if facility is not None:
                 new_referrals = facility.new_referrals
             # If responding to a "new_referrals" request, only return the timestamp of new_referrals of that facility

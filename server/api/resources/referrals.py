@@ -7,7 +7,7 @@ from flask_restful import Resource, abort
 
 import data
 from api import util
-from common import user_utils
+from common import api_utils, user_utils
 from data import crud, marshal
 from models import HealthFacilityOrm, PatientOrm, ReferralOrm
 from service import assoc, serialize, view
@@ -31,7 +31,7 @@ class Root(Resource):
     def get():
         user_data = user_utils.get_current_user_from_jwt()
 
-        params = util.get_query_params(request)
+        params = api_utils.get_query_params()
         if params.get("health_facilities") and "default" in params["health_facilities"]:
             params["health_facilities"].append(user_data["health_facility_name"])
 
@@ -46,7 +46,7 @@ class Root(Resource):
         endpoint="referrals",
     )
     def post():
-        request_body = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
 
         try:
             referral_pydantic_model = ReferralEntityValidator.validate(request_body)
@@ -64,14 +64,14 @@ class Root(Resource):
 
         if not health_facility:
             abort(400, message="Health facility does not exist")
-        else:
-            UTCTime = str(round(time.time() * 1000))
-            crud.update(
-                HealthFacilityOrm,
-                {"newReferrals": UTCTime},
-                True,
-                name=new_referral["health_facility_name"],
-            )
+            return None
+        UTCTime = str(round(time.time() * 1000))
+        crud.update(
+            HealthFacilityOrm,
+            {"newReferrals": UTCTime},
+            True,
+            name=new_referral["health_facility_name"],
+        )
 
         if "user_id" not in new_referral:
             new_referral["user_id"] = user_utils.get_current_user_from_jwt()["id"]
@@ -147,7 +147,7 @@ class ReferralCancelStatus(Resource):
             abort(404, message=f"No referral with id {referral_id}")
             return None
 
-        request_body = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
 
         try:
             cancel_status_pydantic_model = CancelStatusValidator.validate(request_body)

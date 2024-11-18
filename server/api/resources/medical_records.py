@@ -1,11 +1,11 @@
 import logging
 
 from flasgger import swag_from
-from flask import request
 from flask_restful import Resource, abort
 
 from api import util
 from api.decorator import patient_association_required
+from common import api_utils
 from data import crud, marshal
 from models import MedicalRecordOrm
 from service import serialize, view
@@ -26,7 +26,7 @@ class Root(Resource):
         endpoint="medical_records",
     )
     def get(patient_id: str):
-        params = util.get_query_params(request)
+        params = api_utils.get_query_params()
 
         medical = view.medical_record_view(patient_id, False, **params)
         drug = view.medical_record_view(patient_id, True, **params)
@@ -44,7 +44,7 @@ class Root(Resource):
         endpoint="medical_records",
     )
     def post(patient_id: str):
-        request_body = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
 
         try:
             medical_record_pydantic_model = (
@@ -52,6 +52,7 @@ class Root(Resource):
             )
         except ValidationExceptionError as e:
             abort(400, message=str(e))
+            return None
 
         new_medical_record = medical_record_pydantic_model.model_dump()
         new_medical_record = util.filterPairsWithNone(new_medical_record)
@@ -63,6 +64,7 @@ class Root(Resource):
                     409,
                     message=f"A medical record with ID {record_id} already exists.",
                 )
+                return None
 
         _process_request_body(new_medical_record)
         new_medical_record["patient_id"] = patient_id
@@ -94,7 +96,7 @@ class SingleMedicalRecord(Resource):
         endpoint="single_medical_record",
     )
     def put(record_id: str):
-        request_body = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
 
         try:
             medical_record_pydantic_model = MedicalRecordValidator.validate_put_request(

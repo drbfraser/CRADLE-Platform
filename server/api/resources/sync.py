@@ -5,7 +5,7 @@ from flask import request
 from flask_restful import Resource, abort
 from marshmallow import ValidationError
 
-from common import user_utils
+from common import api_utils, user_utils
 from data import crud, db_session, marshal
 from models import (
     MedicalRecordOrm,
@@ -204,10 +204,11 @@ class SyncReadings(Resource):
         last_sync: int = request.args.get("since", None, type=int)
         if not last_sync:
             abort(400, message="'since' query parameter is required")
+            return None
 
-        json = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
         patients_on_server_cache = set()
-        for reading_dict in json:
+        for reading_dict in request_body:
             if reading_dict.get("patient_id") not in patients_on_server_cache:
                 patient_on_server = crud.read(
                     PatientOrm, id=reading_dict.get("patient_id")
@@ -249,9 +250,9 @@ class SyncReferrals(Resource):
         if not last_sync:
             abort(400, message="'since' query parameter is required")
 
-        json = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
         patients_on_server_cache = set()
-        for referral_dict in json:
+        for referral_dict in request_body:
             if referral_dict.get("patient_id") not in patients_on_server_cache:
                 patient_on_server = crud.read(
                     PatientOrm, id=referral_dict.get("patient_id")

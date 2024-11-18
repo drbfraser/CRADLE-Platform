@@ -165,5 +165,6 @@ class AndroidForms(Resource):
                 404,
                 message=f"No forms for patient with id {patient_id} and form template with id {form_template_id}",
             )
+            return None
 
         return marshal.marshal(form, False)

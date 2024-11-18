@@ -1,11 +1,10 @@
 import time
 
 from flasgger import swag_from
-from flask import request
 from flask_restful import Resource, abort
 
 from api import util
-from common import user_utils
+from common import api_utils, user_utils
 from data import crud, marshal
 from models import HealthFacilityOrm, PatientOrm, ReadingOrm, ReferralOrm
 from service import assoc, invariant
@@ -21,10 +20,10 @@ class Root(Resource):
         endpoint="readings",
     )
     def post():
-        json = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
 
         try:
-            reading_pydantic_model = ReadingValidator.validate(json)
+            reading_pydantic_model = ReadingValidator.validate(request_body)
         except Exception as e:
             abort(400, message=str(e))
             return None
@@ -47,7 +46,7 @@ class Root(Resource):
                 name=new_reading["referral"]["health_facility_name"],
             )
 
-            if not health_facility:
+            if health_facility is None:
                 abort(400, message="Health facility does not exist")
                 return None
             UTCTime = str(round(time.time() * 1000))
@@ -90,5 +89,6 @@ class SingleReading(Resource):
         reading = crud.read(ReadingOrm, readingId=reading_id)
         if not reading:
             abort(404, message=f"No reading with id {reading_id}")
+            return None
 
         return marshal.marshal(reading)

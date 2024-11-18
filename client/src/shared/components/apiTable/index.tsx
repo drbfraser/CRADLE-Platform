@@ -114,7 +114,6 @@ export const APITable = ({
     })
       .then(async (resp) => {
         const data = resp.data;
-        console.log(data);
         //The case for drug history records on the past records page
         if (isDrugRecord === true) {
           setRows(data.drug);
