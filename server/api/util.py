@@ -59,18 +59,6 @@ else:
 SMS_KEY_DURATION = duration
 
 
-def query_param_bool(request: Request, name: str) -> bool:
-    """
-    Returns true if the request URL contains a boolean query parameter with a given
-    ``name`` who's value is "true".
-
-    :param request: A request
-    :param name: The name of the parameter to check for
-    :return: True if the value for the parameter is "true", otherwise False.
-    """
-    return request.args.get(name, "false", type=str) == "true"
-
-
 def query_param_limit(request: Request, name: str) -> int:
     """
     Returns Integer if the request URL contains a limit query parameter.
@@ -241,39 +229,6 @@ def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
         if question.get("question_lang_versions") is not None:
             for version in question.get("question_lang_versions"):
                 version["question_id"] = question["id"]
-
-
-def get_query_params(request: Request) -> dict:
-    """
-    Extracts URL search params contained in the request.
-
-    :param request: Flask request object
-
-    :return: URL search params stored in a dictionary
-    """
-    params = {
-        "search_text": request.args.get("search"),
-        "order_by": request.args.get("sort_by"),
-        "direction": request.args.get("sort_dir"),
-        "limit": request.args.get("limit"),
-        "page": request.args.get("page"),
-        "date_range": request.args.get("date_range"),
-        "readings": request.args.get("readings"),
-        "referrals": request.args.get("referrals"),
-        "assessments": request.args.get("assessments"),
-        "forms": request.args.get("forms"),
-        "lang": request.args.get("lang"),
-        "is_assessed": request.args.get("is_assessed"),
-        "is_pregnant": request.args.get("is_pregnant"),
-        "include_archived": request.args.get("include_archived"),
-        "vital_signs": list(filter(None, request.args.getlist("vital_signs"))),
-        "referrers": list(filter(None, request.args.getlist("referrer"))),
-        "health_facilities": list(
-            filter(None, request.args.getlist("health_facility"))
-        ),
-    }
-
-    return {k: v for k, v in params.items() if v}
 
 
 def parseCondition(parentQuestion: dict, conditionText: str) -> dict:
