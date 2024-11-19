@@ -39,10 +39,8 @@ def get_query_params() -> dict:
         "is_pregnant": request_args.get("is_pregnant"),
         "include_archived": request_args.get("include_archived"),
         "vital_signs": list(filter(None, request_args.get("vital_signs", []))),
-        "referrers": list(filter(None, request_args.get("referrer", []))),
-        "health_facilities": list(
-            filter(None, request_args.get("health_facility", []))
-        ),
+        "referrers": list(filter(None, [request_args.get("referrer")])),
+        "health_facilities": list(filter(None, [request_args.get("health_facility")])),
     }
 
     return {k: v for k, v in params.items() if v and k is not None}
