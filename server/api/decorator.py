@@ -1,8 +1,6 @@
 import logging
 from functools import wraps
 
-from flask import abort
-
 from authentication import cognito
 from common import user_utils
 from data import crud
@@ -10,24 +8,6 @@ from enums import RoleEnum
 from models import PatientAssociationsOrm
 
 LOGGER = logging.getLogger(__name__)
-
-
-def require_auth():
-    """
-    Require user to be logged in to access this endpoint.
-    """
-
-    def wrapper(fn):
-        @wraps(fn)
-        def decorator(*args, **kwargs):
-            try:
-                cognito.verify_access_token()
-            except ValueError as err:
-                abort(401, err)
-
-        return decorator
-
-    return wrapper
 
 
 def roles_required(accepted_roles):
