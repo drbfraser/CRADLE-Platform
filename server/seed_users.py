@@ -4,9 +4,6 @@ from typing import TypedDict
 from botocore.exceptions import ClientError
 
 from authentication import cognito
-from authentication.CognitoClientWrapper import (
-    COGNITO_ENABLE_DEV_USERS,
-)
 from common import health_facility_utils, user_utils
 from enums import FacilityTypeEnum, RoleEnum
 from validation.users import UserRegisterValidator
@@ -34,8 +31,8 @@ minimal_users_list: list[SeedUserDict] = [
     {
         "name": "Admin",
         "username": "admin",
-        "email": "admin@admin.com",
-        "password": "Admin_123",
+        "email": "admin@email.com",
+        "password": "cradle-admin",
         "health_facility_name": "H0000",
         "role": RoleEnum.ADMIN.value,
         "phone_numbers": [
@@ -48,19 +45,10 @@ minimal_users_list: list[SeedUserDict] = [
 
 users_list: list[SeedUserDict] = [
     {
-        "name": "Brian Fraser",
-        "username": "brian_fraser",
-        "email": "brian@admin.com",
-        "password": "Brian_123",
-        "health_facility_name": "H0000",
-        "role": RoleEnum.ADMIN.value,
-        "phone_numbers": ["+1-604-123-4567", "+1-604-123-4568"],
-    },
-    {
         "name": "Test VHT",
         "username": "test_vht",
         "email": "vht@email.com",
-        "password": "Vht_1234",
+        "password": "cradle-vht",
         "health_facility_name": "H1000",
         "role": RoleEnum.VHT.value,
         "phone_numbers": ["+256-555-100000", "+256-555-100001", "+256-555-100002"],
@@ -69,7 +57,7 @@ users_list: list[SeedUserDict] = [
         "name": "CHO User",
         "username": "cho",
         "email": "cho@email.com",
-        "password": "Cho_1234",
+        "password": "cradle-cho",
         "health_facility_name": "H0000",
         "role": RoleEnum.CHO.value,
         "phone_numbers": ["+256-555-123456"],
@@ -78,7 +66,7 @@ users_list: list[SeedUserDict] = [
         "name": "HCW User",
         "username": "hcw",
         "email": "hcw@email.com",
-        "password": "Hcw_1234",
+        "password": "cradle-hcw",
         "health_facility_name": "H0000",
         "role": RoleEnum.HCW.value,
         "phone_numbers": ["+256-555-654321"],
@@ -90,9 +78,6 @@ def populate_user_pool(seed_users: list[SeedUserDict]):
     """
     Will create the seed users. If the seed users already exist in the user pool, they will be deleted and recreated.
     """
-    if not COGNITO_ENABLE_DEV_USERS:
-        raise ValueError("ERROR: ENABLE_DEV_USERS is not set to true.")
-
     try:
         # If the seed users are already in the user pool, delete them and then recreate them.
         existing_users = cognito.list_users()

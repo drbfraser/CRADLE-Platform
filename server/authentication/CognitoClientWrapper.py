@@ -2,8 +2,7 @@ import base64
 import hashlib
 import hmac
 import logging
-import os
-from typing import Optional, cast
+from typing import cast
 
 import jwt
 from botocore.exceptions import ClientError
@@ -11,17 +10,7 @@ from flask import request
 from jwt import PyJWK, PyJWKClient
 from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 
-"""
-  Environment variable to enable creating fake users for development purposes.
-  If set to True, newly created users will not need to verify their emails,
-  and their temporary passwords will be set to one that we
-  specify instead of being generated.
-"""
-COGNITO_ENABLE_DEV_USERS: bool = (
-    os.getenv("COGNITO_ENABLE_DEV_USERS", default="false").lower() == "true"
-)
-if COGNITO_ENABLE_DEV_USERS:
-    temporary_password = "Temporary_123"
+TEMPORARY_PASSWORD = "temporary123"
 
 logger = logging.getLogger(__name__)
 
@@ -66,9 +55,6 @@ class CognitoClientWrapper:
         username: str,
         email: str,
         name: str,
-        auto_verify: bool = False,
-        suppress_invitation: bool = False,
-        temporary_password: Optional[str] = None,
     ):
         """
         Creates a user in the user pool.
@@ -90,9 +76,6 @@ class CognitoClientWrapper:
         :param email: The email address for the new user.
         :param name: Name of the new user.
         :param email_verified: If true, the new user's email will be auto-verified.
-        :param suppress_invitation: If true, the email invitation will not be sent.
-        :param temporary_password: If given, will be used as the temporary password.
-            If not, then one will be generated.
         """
         user_attributes = [
             {
@@ -103,15 +86,11 @@ class CognitoClientWrapper:
                 "Name": "name",
                 "Value": name,
             },
+            {
+                "Name": "email_verified",
+                "Value": "true",
+            },
         ]
-
-        if auto_verify:
-            user_attributes.append(
-                {
-                    "Name": "email_verified",
-                    "Value": "true",
-                },
-            )
 
         create_user_kwargs = {
             "UserPoolId": self.user_pool_id,
@@ -120,14 +99,9 @@ class CognitoClientWrapper:
             "DesiredDeliveryMediums": [
                 "EMAIL",
             ],
+            "MessageAction": "SUPPRESS",  # Suppress invitation emails.
+            "TemporaryPassword": TEMPORARY_PASSWORD,
         }
-
-        if suppress_invitation:
-            create_user_kwargs["MessageAction"] = "SUPPRESS"
-
-        if temporary_password is not None:
-            create_user_kwargs["TemporaryPassword"] = temporary_password
-
         return self.client.admin_create_user(**create_user_kwargs)
 
     def delete_user(self, username: str):
