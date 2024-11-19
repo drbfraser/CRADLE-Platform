@@ -3,132 +3,364 @@ import pytest
 from validation.forms import FormPutValidator, FormValidator
 from validation.validation_exception import ValidationExceptionError
 
-valid_form_json_empty_questions = {
-    "id": "123",
-    "lang": "english",
-    "patientId": "123",
-    "formTemplateId": "adas-d82314-27822-63139",
-    "formClassificationId": "adas-d82314-27822-63139",
-    "dateCreated": 1592339808,
-    "lastEdited": 1592339808,
-    "lastEditedBy": 123,
-    "archived": True,
-    "questions": [],
-}
-
-valid_form_json_filled_questions = {
-    "archived": False,
-    "dateCreated": 1592339808,
-    "formClassificationId": "adas-d82314-27822-63139",
-    "formTemplateId": "adas-d82314-27822-63139",
-    "id": "adas-d82314-27822-63138",
-    "lang": "english",
-    "lastEdited": 1592339808,
-    "lastEditedBy": 2,
-    "patientId": "123",
-    "questions": [
-        {
-            "answers": {
-                "comment": None,
-                "mcidArray": [0],
-                "number": None,
-                "text": "today",
-            },
-            "categoryIndex": 0,
-            "hasCommentAttached": False,
-            "mcOptions": [{"mcid": 0, "opt": "Decent"}],
-            "numMax": None,
-            "numMin": None,
-            "questionId": "referred-by-name",
-            "questionIndex": 1,
-            "questionText": "How the patient's condition?",
-            "questionType": "MULTIPLE_CHOICE",
-            "required": True,
-            "stringMaxLength": None,
-            "units": None,
-            "visibleCondition": [
-                {"answers": {"mcidArray": [0]}, "qidx": 0, "relation": "EQUAL_TO"},
-            ],
+LANGUAGE = "eng"
+PATIENT_ID = "123"
+QUESTION_LIST = [
+    {
+        "answers": {
+            "comment": None,
+            "mcidArray": [0],
+            "number": None,
+            "text": "today",
         },
-    ],
+        "categoryIndex": 0,
+        "hasCommentAttached": False,
+        "mcOptions": [{"mcid": 0, "opt": "Decent"}],
+        "numMax": None,
+        "numMin": None,
+        "questionId": "referred-by-name",
+        "questionIndex": 1,
+        "questionText": "How the patient's condition?",
+        "questionType": "MULTIPLE_CHOICE",
+        "required": True,
+        "stringMaxLength": None,
+        "units": None,
+        "visibleCondition": [
+            {"answers": {"mcidArray": [0]}, "qidx": 0, "relation": "EQUAL_TO"},
+        ],
+    },
+    {
+        "answers": {
+            "comment": None,
+            "mcidArray": [0],
+            "number": None,
+            "text": "today",
+        },
+        "categoryIndex": 0,
+        "hasCommentAttached": False,
+        "mcOptions": [{"mcid": 0, "opt": "Decent"}],
+        "numMax": None,
+        "numMin": None,
+        "questionId": "referred-by-name",
+        "questionIndex": 1,
+        "questionText": "How the patient's condition?",
+        "questionType": "MULTIPLE_CHOICE",
+        "required": True,
+        "stringMaxLength": None,
+        "units": None,
+        "visibleCondition": [
+            {"answers": {"mcidArray": [0]}, "qidx": 0, "relation": "EQUAL_TO"},
+        ],
+    },
+]
+ID = "adas-d82314-27822-63138"
+FORM_TEMPLATE_ID = "adas-d82314-27822-63139"
+FORM_CLASSIFICATION_ID = "adas-d82314-27822-63139"
+DATE_CREATED = 1592339808
+DATE_LAST_EDITED = 1592339808
+LAST_EDITED_BY = 123
+IS_ARCHIVED = True
+
+form_with_valid_fields_should_return_none = {
+    "lang": LANGUAGE,
+    "patientId": PATIENT_ID,
+    "questions": QUESTION_LIST,
+    "id": ID,
+    "formTemplateId": FORM_TEMPLATE_ID,
+    "formClassificationId": FORM_CLASSIFICATION_ID,
+    "dateCreated": DATE_CREATED,
+    "lastEdited": DATE_LAST_EDITED,
+    "lastEditedBy": LAST_EDITED_BY,
+    "archived": IS_ARCHIVED,
 }
 
-missing_field = {
-    "id": "123",
-    "lang": "english",
-    "patientId": "123",
-    "formTemplateId": "adas-d82314-27822-63139",
-    "formClassificationId": "adas-d82314-27822-63139",
-    "dateCreated": 1592339808,
-    "lastEdited": 1592339808,
-    "lastEditedBy": 123,
-    "archived": True,
+form_missing_optional_fields_should_return_none = {
+    "lang": LANGUAGE,
+    "patientId": PATIENT_ID,
+    "questions": QUESTION_LIST,
 }
 
-invalid_keys = {
-    "test": "test",
-    "id": "123",
-    "lang": "english",
-    "patientId": "123",
-    "formTemplateId": "adas-d82314-27822-63139",
-    "formClassificationId": "adas-d82314-27822-63139",
-    "dateCreated": 1592339808,
-    "lastEdited": 1592339808,
-    "lastEditedBy": 123,
-    "archived": True,
+form_with_empty_questions_should_return_none = {
+    "lang": LANGUAGE,
+    "patientId": PATIENT_ID,
     "questions": [],
+    "id": ID,
+    "formTemplateId": FORM_TEMPLATE_ID,
+    "formClassificationId": FORM_CLASSIFICATION_ID,
+    "dateCreated": DATE_CREATED,
+    "lastEdited": DATE_LAST_EDITED,
+    "lastEditedBy": LAST_EDITED_BY,
+    "archived": IS_ARCHIVED,
 }
 
-invalid_type_patientId = {
-    "id": "123",
-    "lang": "english",
-    "patientId": 123,
-    "formTemplateId": "adas-d82314-27822-63139",
-    "formClassificationId": "adas-d82314-27822-63139",
-    "dateCreated": 1592339808,
-    "lastEdited": 1592339808,
-    "lastEditedBy": 123,
-    "archived": True,
-    "questions": [],
+form_with_multiple_questions_should_return_none = {
+    "lang": LANGUAGE,
+    "patientId": PATIENT_ID,
+    "questions": QUESTION_LIST,
+    "id": ID,
+    "formTemplateId": FORM_TEMPLATE_ID,
+    "formClassificationId": FORM_CLASSIFICATION_ID,
+    "dateCreated": DATE_CREATED,
+    "lastEdited": DATE_LAST_EDITED,
+    "lastEditedBy": LAST_EDITED_BY,
+    "archived": IS_ARCHIVED,
 }
 
-invalid_type_archived = {
-    "id": "123",
-    "lang": "english",
-    "patientId": "123",
-    "formTemplateId": "adas-d82314-27822-63139",
-    "formClassificationId": "adas-d82314-27822-63139",
-    "dateCreated": 1592339808,
-    "lastEdited": 1592339808,
-    "lastEditedBy": 123,
-    "archived": "True",
-    "questions": [],
+form_missing_required_field_lang_should_throw_exception = {
+    "patientId": PATIENT_ID,
+    "questions": QUESTION_LIST,
+    "id": ID,
+    "formTemplateId": FORM_TEMPLATE_ID,
+    "formClassificationId": FORM_CLASSIFICATION_ID,
+    "dateCreated": DATE_CREATED,
+    "lastEdited": DATE_LAST_EDITED,
+    "lastEditedBy": LAST_EDITED_BY,
+    "archived": IS_ARCHIVED,
 }
 
-invalid_type_questions = {
-    "id": "123",
-    "lang": "english",
-    "patientId": "123",
-    "formTemplateId": "adas-d82314-27822-63139",
-    "formClassificationId": "adas-d82314-27822-63139",
-    "dateCreated": 1592339808,
-    "lastEdited": 1592339808,
-    "lastEditedBy": 123,
-    "archived": True,
-    "questions": "",
+form_missing_required_field_patientId_should_throw_exception = {
+    "lang": LANGUAGE,
+    "questions": QUESTION_LIST,
+    "id": ID,
+    "formTemplateId": FORM_TEMPLATE_ID,
+    "formClassificationId": FORM_CLASSIFICATION_ID,
+    "dateCreated": DATE_CREATED,
+    "lastEdited": DATE_LAST_EDITED,
+    "lastEditedBy": LAST_EDITED_BY,
+    "archived": IS_ARCHIVED,
+}
+
+form_missing_required_field_questions_should_throw_exception = {
+    "lang": LANGUAGE,
+    "patientId": PATIENT_ID,
+    "id": ID,
+    "formTemplateId": FORM_TEMPLATE_ID,
+    "formClassificationId": FORM_CLASSIFICATION_ID,
+    "dateCreated": DATE_CREATED,
+    "lastEdited": DATE_LAST_EDITED,
+    "lastEditedBy": LAST_EDITED_BY,
+    "archived": IS_ARCHIVED,
+}
+
+form_field_lang_has_wrong_type_should_throw_exception = {
+    "lang": 123,
+    "patientId": PATIENT_ID,
+    "questions": QUESTION_LIST,
+    "id": ID,
+    "formTemplateId": FORM_TEMPLATE_ID,
+    "formClassificationId": FORM_CLASSIFICATION_ID,
+    "dateCreated": DATE_CREATED,
+    "lastEdited": DATE_LAST_EDITED,
+    "lastEditedBy": LAST_EDITED_BY,
+    "archived": IS_ARCHIVED,
+}
+
+form_field_patientId_has_wrong_type_should_throw_exception = {
+    "lang": LANGUAGE,
+    "patientId": True,
+    "questions": QUESTION_LIST,
+    "id": ID,
+    "formTemplateId": FORM_TEMPLATE_ID,
+    "formClassificationId": FORM_CLASSIFICATION_ID,
+    "dateCreated": DATE_CREATED,
+    "lastEdited": DATE_LAST_EDITED,
+    "lastEditedBy": LAST_EDITED_BY,
+    "archived": IS_ARCHIVED,
+}
+
+form_field_questions_has_wrong_type_should_throw_exception = {
+    "lang": LANGUAGE,
+    "patientId": PATIENT_ID,
+    "questions": "string",
+    "id": ID,
+    "formTemplateId": FORM_TEMPLATE_ID,
+    "formClassificationId": FORM_CLASSIFICATION_ID,
+    "dateCreated": DATE_CREATED,
+    "lastEdited": DATE_LAST_EDITED,
+    "lastEditedBy": LAST_EDITED_BY,
+    "archived": IS_ARCHIVED,
+}
+
+form_field_id_has_wrong_type_should_throw_exception = {
+    "lang": LANGUAGE,
+    "patientId": PATIENT_ID,
+    "questions": QUESTION_LIST,
+    "id": 123,
+    "formTemplateId": FORM_TEMPLATE_ID,
+    "formClassificationId": FORM_CLASSIFICATION_ID,
+    "dateCreated": DATE_CREATED,
+    "lastEdited": DATE_LAST_EDITED,
+    "lastEditedBy": LAST_EDITED_BY,
+    "archived": IS_ARCHIVED,
+}
+
+form_field_formTemplateId_has_wrong_type_should_throw_exception = {
+    "lang": LANGUAGE,
+    "patientId": PATIENT_ID,
+    "questions": QUESTION_LIST,
+    "id": ID,
+    "formTemplateId": 123,
+    "formClassificationId": FORM_CLASSIFICATION_ID,
+    "dateCreated": DATE_CREATED,
+    "lastEdited": DATE_LAST_EDITED,
+    "lastEditedBy": LAST_EDITED_BY,
+    "archived": IS_ARCHIVED,
+}
+
+form_field_formClassificationId_has_wrong_type_should_throw_exception = {
+    "lang": LANGUAGE,
+    "patientId": PATIENT_ID,
+    "questions": QUESTION_LIST,
+    "id": ID,
+    "formTemplateId": FORM_TEMPLATE_ID,
+    "formClassificationId": 123,
+    "dateCreated": DATE_CREATED,
+    "lastEdited": DATE_LAST_EDITED,
+    "lastEditedBy": LAST_EDITED_BY,
+    "archived": IS_ARCHIVED,
+}
+
+form_field_dateCreated_has_wrong_type_should_throw_exception = {
+    "lang": LANGUAGE,
+    "patientId": PATIENT_ID,
+    "questions": QUESTION_LIST,
+    "id": ID,
+    "formTemplateId": FORM_TEMPLATE_ID,
+    "formClassificationId": FORM_CLASSIFICATION_ID,
+    "dateCreated": "string",
+    "lastEdited": DATE_LAST_EDITED,
+    "lastEditedBy": LAST_EDITED_BY,
+    "archived": IS_ARCHIVED,
+}
+
+form_field_lastEdited_has_wrong_type_should_throw_exception = {
+    "lang": LANGUAGE,
+    "patientId": PATIENT_ID,
+    "questions": QUESTION_LIST,
+    "id": ID,
+    "formTemplateId": FORM_TEMPLATE_ID,
+    "formClassificationId": FORM_CLASSIFICATION_ID,
+    "dateCreated": DATE_CREATED,
+    "lastEdited": True,
+    "lastEditedBy": LAST_EDITED_BY,
+    "archived": IS_ARCHIVED,
+}
+
+form_field_lastEditedBy_has_wrong_type_should_throw_exception = {
+    "lang": LANGUAGE,
+    "patientId": PATIENT_ID,
+    "questions": QUESTION_LIST,
+    "id": ID,
+    "formTemplateId": FORM_TEMPLATE_ID,
+    "formClassificationId": FORM_CLASSIFICATION_ID,
+    "dateCreated": DATE_CREATED,
+    "lastEdited": DATE_LAST_EDITED,
+    "lastEditedBy": "string",
+    "archived": IS_ARCHIVED,
+}
+
+form_field_archived_has_wrong_type_should_throw_exception = {
+    "lang": LANGUAGE,
+    "patientId": PATIENT_ID,
+    "questions": QUESTION_LIST,
+    "id": ID,
+    "formTemplateId": FORM_TEMPLATE_ID,
+    "formClassificationId": FORM_CLASSIFICATION_ID,
+    "dateCreated": DATE_CREATED,
+    "lastEdited": DATE_LAST_EDITED,
+    "lastEditedBy": LAST_EDITED_BY,
+    "archived": 123,
+}
+
+form_has_invalid_extra_field_should_throw_exception = {
+    "lang": LANGUAGE,
+    "patientId": PATIENT_ID,
+    "questions": QUESTION_LIST,
+    "id": ID,
+    "formTemplateId": FORM_TEMPLATE_ID,
+    "formClassificationId": FORM_CLASSIFICATION_ID,
+    "dateCreated": DATE_CREATED,
+    "lastEdited": DATE_LAST_EDITED,
+    "lastEditedBy": LAST_EDITED_BY,
+    "archived": IS_ARCHIVED,
+    "extra_field": 1,
+}
+
+form_dateCreated_occurs_after_dateEdited_should_throw_exception = {
+    "lang": LANGUAGE,
+    "patientId": PATIENT_ID,
+    "questions": QUESTION_LIST,
+    "id": ID,
+    "formTemplateId": FORM_TEMPLATE_ID,
+    "formClassificationId": FORM_CLASSIFICATION_ID,
+    "dateCreated": DATE_LAST_EDITED + 100000,
+    "lastEdited": DATE_LAST_EDITED,
+    "lastEditedBy": LAST_EDITED_BY,
+    "archived": IS_ARCHIVED,
 }
 
 
 @pytest.mark.parametrize(
     "json, expectation",
     [
-        (valid_form_json_empty_questions, None),
-        (valid_form_json_filled_questions, None),
-        (missing_field, ValidationExceptionError),
-        (invalid_keys, ValidationExceptionError),
-        (invalid_type_patientId, ValidationExceptionError),
-        (invalid_type_archived, ValidationExceptionError),
-        (invalid_type_questions, ValidationExceptionError),
+        (form_with_valid_fields_should_return_none, None),
+        (form_missing_optional_fields_should_return_none, None),
+        (form_with_empty_questions_should_return_none, None),
+        (form_with_multiple_questions_should_return_none, None),
+        (
+            form_missing_required_field_lang_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            form_missing_required_field_patientId_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            form_missing_required_field_questions_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            form_field_lang_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            form_field_patientId_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            form_field_questions_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (form_field_id_has_wrong_type_should_throw_exception, ValidationExceptionError),
+        (
+            form_field_formTemplateId_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            form_field_formClassificationId_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            form_field_dateCreated_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            form_field_lastEdited_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            form_field_lastEditedBy_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            form_field_archived_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (form_has_invalid_extra_field_should_throw_exception, ValidationExceptionError),
+        (
+            form_dateCreated_occurs_after_dateEdited_should_throw_exception,
+            ValidationExceptionError,
+        ),
     ],
 )
 def test_validate_form(json, expectation):
@@ -142,95 +374,37 @@ def test_validate_form(json, expectation):
             raise AssertionError(f"Unexpected validation error:{e}") from e
 
 
-empty_questions = []
-single_question = [
-    {
-        "answers": {
-            "comment": None,
-            "mcidArray": [0],
-            "number": None,
-            "text": "today",
-        },
-        "categoryIndex": 0,
-        "hasCommentAttached": False,
-        "mcOptions": [{"mcid": 0, "opt": "Decent"}],
-        "numMax": None,
-        "numMin": None,
-        "questionId": "referred-by-name",
-        "questionIndex": 1,
-        "questionText": "How the patient's condition?",
-        "questionType": "MULTIPLE_CHOICE",
-        "required": True,
-        "stringMaxLength": None,
-        "units": None,
-        "visibleCondition": [
-            {"answers": {"mcidArray": [0]}, "qidx": 0, "relation": "EQUAL_TO"},
-        ],
-    },
-]
-multi_question = [
-    {
-        "answers": {
-            "comment": None,
-            "mcidArray": [0],
-            "number": None,
-            "text": "today",
-        },
-        "categoryIndex": 0,
-        "hasCommentAttached": False,
-        "mcOptions": [{"mcid": 0, "opt": "Decent"}],
-        "numMax": None,
-        "numMin": None,
-        "questionId": "referred-by-name",
-        "questionIndex": 1,
-        "questionText": "How the patient's condition?",
-        "questionType": "MULTIPLE_CHOICE",
-        "required": True,
-        "stringMaxLength": None,
-        "units": None,
-        "visibleCondition": [
-            {"answers": {"mcidArray": [0]}, "qidx": 0, "relation": "EQUAL_TO"},
-        ],
-    },
-    {
-        "answers": {
-            "comment": None,
-            "mcidArray": [0],
-            "number": None,
-            "text": "today",
-        },
-        "categoryIndex": 0,
-        "hasCommentAttached": False,
-        "mcOptions": [{"mcid": 0, "opt": "Decent"}],
-        "numMax": None,
-        "numMin": None,
-        "questionId": "referred-by-name",
-        "questionIndex": 1,
-        "questionText": "How the patient's condition?",
-        "questionType": "MULTIPLE_CHOICE",
-        "required": True,
-        "stringMaxLength": None,
-        "units": None,
-        "visibleCondition": [
-            {"answers": {"mcidArray": [0]}, "qidx": 0, "relation": "EQUAL_TO"},
-        ],
-    },
-]
+form_put_with_valid_fields_should_return_none = {
+    "questions": [{"id": "asdsd-1123123", "answers": {"number": 4}}]
+}
 
+form_put_with_empty_questions_should_return_none = {
+    "questions": [],
+}
 
-valid_put_request = {"questions": [{"id": "asdsd-1123123", "answers": {"number": 4}}]}
-
-invalid_keys_put_request = {
-    "test": "test",
+form_put_has_invalid_extra_field_should_throw_exception = {
+    "extra_field": "test",
     "questions": [{"id": "asdsd-1123123", "answers": {"number": 4}}],
+}
+
+form_put_field_questions_has_wrong_type_should_throw_exception = {
+    "questions": "string",
 }
 
 
 @pytest.mark.parametrize(
     "json, expectation",
     [
-        (valid_put_request, None),
-        (invalid_keys_put_request, ValidationExceptionError),
+        (form_put_with_valid_fields_should_return_none, None),
+        (form_put_with_empty_questions_should_return_none, None),
+        (
+            form_put_has_invalid_extra_field_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            form_put_field_questions_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
     ],
 )
 def test_validate_put_request(json, expectation):

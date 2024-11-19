@@ -22,6 +22,23 @@ class FormValidator(BaseModel):
         extra = "forbid"
 
     @staticmethod
+    def validate_date_sequence(request_body: dict):
+        if (
+            "dateCreated" in request_body
+            and request_body.get("dateCreated") is not None
+            and isinstance(request_body.get("dateCreated"), int)
+            and "lastEdited" in request_body
+            and request_body.get("lastEdited") is not None
+            and isinstance(request_body.get("lastEdited"), int)
+        ):
+            start_date = request_body["dateCreated"]
+            end_date = request_body["lastEdited"]
+            if start_date > end_date:
+                raise ValidationExceptionError(
+                    "Form created date must occur before its last edited date.",
+                )
+
+    @staticmethod
     def validate(request_body: dict):
         """
         Raises an error if the form in /api/forms/responses
@@ -29,6 +46,7 @@ class FormValidator(BaseModel):
 
         :param request_body: The request body as a dict object
         """
+        FormValidator.validate_date_sequence(request_body)
         try:
             return FormValidator(**request_body)
         except ValidationError as e:

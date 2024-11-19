@@ -3,91 +3,68 @@ import pytest
 from validation.sms_relay import SmsRelayDecryptedBodyValidator, SmsRelayValidator
 from validation.validation_exception import ValidationExceptionError
 
-valid_sms_relay_request = {
-    "phoneNumber": "604-715-2845",
-    "encryptedData": "thisdataisencrypted",
+PHONE_NUMBER = "604-715-2845"
+ENCRYPTED_DATA = "thisdataisencrypted"
+REQUEST_NUMBER = 12345
+METHOD = "GET"
+ENDPOINT = "my/endpoint"
+HEADER = "header example"
+BODY = "body example"
+
+sms_relay_with_valid_fields_should_return_none = {
+    "phoneNumber": PHONE_NUMBER,
+    "encryptedData": ENCRYPTED_DATA,
 }
 
-invalid_missing_field_phone_number = {
-    "encryptedData": "thisdataisencrypted",
+sms_relay_missing_required_field_phoneNumber_should_throw_exception = {
+    "encryptedData": ENCRYPTED_DATA,
 }
 
-invalid_missing_field_encrypted_data = {
-    "phoneNumber": "604-715-2845",
+sms_relay_missing_required_field_encryptedData_should_throw_exception = {
+    "phoneNumber": PHONE_NUMBER,
 }
 
-invalid_field_type_phone_number = {
+sms_relay_field_phoneNumber_has_invalid_type_should_throw_exception = {
     "phoneNumber": 604 - 715 - 2845,
-    "encryptedData": "thisdataisencrypted",
+    "encryptedData": ENCRYPTED_DATA,
 }
 
-invalid_field_type_encrypted_data = {
-    "phoneNumber": "604-715-2845",
+sms_relay_field_encryptedData_has_invalid_type_should_throw_exception = {
+    "phoneNumber": PHONE_NUMBER,
     "encryptedData": 1234567890,
 }
 
-invalid_extra_field_for_sms_relay_request = {
-    "phoneNumber": "604-715-2845",
-    "encryptedData": "thisdataisencrypted",
+sms_relay_has_invalid_extra_field_should_throw_exception = {
+    "phoneNumber": PHONE_NUMBER,
+    "encryptedData": ENCRYPTED_DATA,
     "invalid": "invalidkey",
-}
-
-valid_sms_relay_decrypted_body_with_int_request_number = {
-    "requestNumber": 12345,
-    "method": "GET",
-    "endpoint": "my/endpoint",
-}
-
-valid_sms_relay_decrypted_body_with_str_request_number = {
-    "requestNumber": "12345",
-    "method": "GET",
-    "endpoint": "my/endpoint",
-}
-
-invalid_missing_field_method = {
-    "requestNumber": 12345,
-    "endpoint": "my/endpoint",
-}
-
-invalid_missing_field_endpoint = {
-    "requestNumber": 12345,
-    "method": "GET",
-}
-
-invalid_missing_field_request_number = {
-    "method": "GET",
-    "endpoint": "my/endpoint",
-}
-
-invalid_extra_field_for_decrypted_body = {
-    "requestNumber": 12345,
-    "method": "GET",
-    "endpoint": "my/endpoint",
-    "invalid": "invalidkey",
-}
-
-invalid_field_type_method = {
-    "requestNumber": 12345,
-    "method": 12345,
-    "endpoint": "my/endpoint",
-}
-
-invalid_field_type_endpoint = {
-    "requestNumber": 12345,
-    "method": "GET",
-    "endpoint": 12345,
 }
 
 
 @pytest.mark.parametrize(
     "json, expectation",
     [
-        (valid_sms_relay_request, type(None)),
-        (invalid_missing_field_phone_number, ValidationExceptionError),
-        (invalid_missing_field_encrypted_data, ValidationExceptionError),
-        (invalid_field_type_phone_number, ValidationExceptionError),
-        (invalid_field_type_encrypted_data, ValidationExceptionError),
-        (invalid_extra_field_for_sms_relay_request, ValidationExceptionError),
+        (sms_relay_with_valid_fields_should_return_none, None),
+        (
+            sms_relay_missing_required_field_phoneNumber_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            sms_relay_missing_required_field_encryptedData_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            sms_relay_field_phoneNumber_has_invalid_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            sms_relay_field_encryptedData_has_invalid_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            sms_relay_has_invalid_extra_field_should_throw_exception,
+            ValidationExceptionError,
+        ),
     ],
 )
 def test_validate_request(json, expectation):
@@ -101,17 +78,144 @@ def test_validate_request(json, expectation):
             raise AssertionError(f"Unexpected validation error:{e}") from e
 
 
+sms_relay_decrypted_body_with_valid_fields_should_return_none = {
+    "requestNumber": REQUEST_NUMBER,
+    "method": METHOD,
+    "endpoint": ENDPOINT,
+    "header": HEADER,
+    "body": BODY,
+}
+
+sms_relay_decrypted_body_missing_optional_fields_should_return_none = {
+    "requestNumber": REQUEST_NUMBER,
+    "method": METHOD,
+    "endpoint": ENDPOINT,
+}
+
+sms_relay_decrypted_body_missing_required_field_requestNumber_should_throw_exception = {
+    "method": METHOD,
+    "endpoint": ENDPOINT,
+    "header": HEADER,
+    "body": BODY,
+}
+
+sms_relay_decrypted_body_missing_required_field_method_should_throw_exception = {
+    "requestNumber": REQUEST_NUMBER,
+    "endpoint": ENDPOINT,
+    "header": HEADER,
+    "body": BODY,
+}
+
+sms_relay_decrypted_body_missing_required_field_endpoint_should_throw_exception = {
+    "requestNumber": REQUEST_NUMBER,
+    "method": METHOD,
+    "header": HEADER,
+    "body": BODY,
+}
+
+sms_relay_decrypted_body_field_requestNumber_is_number_of_type_string_should_return_none = {
+    "requestNumber": "12345",
+    "method": METHOD,
+    "endpoint": ENDPOINT,
+    "header": HEADER,
+    "body": BODY,
+}
+
+sms_relay_decrypted_body_field_requestNumber_has_wrong_type_should_throw_exception = {
+    "requestNumber": "string",
+    "method": METHOD,
+    "endpoint": ENDPOINT,
+    "header": HEADER,
+    "body": BODY,
+}
+
+sms_relay_decrypted_body_field_method_has_wrong_type_should_throw_exception = {
+    "requestNumber": REQUEST_NUMBER,
+    "method": "method",
+    "endpoint": ENDPOINT,
+    "header": HEADER,
+    "body": BODY,
+}
+
+sms_relay_decrypted_body_field_endpoint_has_wrong_type_should_throw_exception = {
+    "requestNumber": REQUEST_NUMBER,
+    "method": METHOD,
+    "endpoint": 123,
+    "header": HEADER,
+    "body": BODY,
+}
+
+sms_relay_decrypted_body_field_header_has_wrong_type_should_throw_exception = {
+    "requestNumber": REQUEST_NUMBER,
+    "method": METHOD,
+    "endpoint": ENDPOINT,
+    "header": 123,
+    "body": BODY,
+}
+
+sms_relay_decrypted_body_field_body_has_wrong_type_should_throw_exception = {
+    "requestNumber": REQUEST_NUMBER,
+    "method": METHOD,
+    "endpoint": ENDPOINT,
+    "header": HEADER,
+    "body": 123,
+}
+
+sms_relay_decrypted_body_has_unallowed_extra_field_should_throw_exception = {
+    "requestNumber": REQUEST_NUMBER,
+    "method": METHOD,
+    "endpoint": ENDPOINT,
+    "header": HEADER,
+    "body": BODY,
+    "extra": 123,
+}
+
+
 @pytest.mark.parametrize(
     "json, expectation",
     [
-        (valid_sms_relay_decrypted_body_with_int_request_number, type(None)),
-        (valid_sms_relay_decrypted_body_with_str_request_number, type(None)),
-        (invalid_missing_field_method, ValidationExceptionError),
-        (invalid_missing_field_endpoint, ValidationExceptionError),
-        (invalid_missing_field_request_number, ValidationExceptionError),
-        (invalid_extra_field_for_decrypted_body, ValidationExceptionError),
-        (invalid_field_type_method, ValidationExceptionError),
-        (invalid_field_type_endpoint, ValidationExceptionError),
+        (sms_relay_decrypted_body_with_valid_fields_should_return_none, None),
+        (sms_relay_decrypted_body_missing_optional_fields_should_return_none, None),
+        (
+            sms_relay_decrypted_body_missing_required_field_requestNumber_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            sms_relay_decrypted_body_missing_required_field_method_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            sms_relay_decrypted_body_missing_required_field_endpoint_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            sms_relay_decrypted_body_field_requestNumber_is_number_of_type_string_should_return_none,
+            ValidationExceptionError,
+        ),
+        (
+            sms_relay_decrypted_body_field_requestNumber_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            sms_relay_decrypted_body_field_method_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            sms_relay_decrypted_body_field_endpoint_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            sms_relay_decrypted_body_field_header_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            sms_relay_decrypted_body_field_body_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            sms_relay_decrypted_body_has_unallowed_extra_field_should_throw_exception,
+            ValidationExceptionError,
+        ),
     ],
 )
 def test_validate_decrypted_body(json, expectation):

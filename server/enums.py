@@ -75,3 +75,10 @@ class QRelationalEnum(Enum):
 class ContentTypeEnum(EnumWithList):
     JSON = "application/json"
     CSV = "text/csv"
+
+
+class MethodEnum(Enum):
+    GET = "GET"
+    POST = "POST"
+    PUT = "PUT"
+    DELETE = "DELETE"

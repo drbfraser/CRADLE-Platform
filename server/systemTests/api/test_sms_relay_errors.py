@@ -167,7 +167,7 @@ def test_sms_relay_invalid_request_number(api_post):
     endpoint = "a"
     method = "PUT"
 
-    json_body = sms_relay_test.make_sms_relay_json(request_number, endpoint, method)
+    json_body = sms_relay_test.make_sms_relay_json(request_number, method, endpoint)
 
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
 
@@ -184,11 +184,13 @@ def test_sms_relay_invalid_method(api_post):
     endpoint = "a"
     method = "A"
 
-    json_body = sms_relay_test.make_sms_relay_json(request_number, endpoint, method)
+    json_body = sms_relay_test.make_sms_relay_json(request_number, method, endpoint)
 
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
 
     assert response.status_code == 200
     response_dict = sms_relay_test.get_sms_relay_response(response)
     assert response_dict["code"] == 400
-    assert response_dict["body"] == sms_relay.invalid_method
+    assert response_dict["body"] == sms_relay.invalid_json.format(
+        error=sms_relay.invalid_method
+    )

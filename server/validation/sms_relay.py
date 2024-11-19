@@ -1,7 +1,8 @@
 from typing import Optional
 
-from pydantic import BaseModel, ValidationError, model_validator
+from pydantic import BaseModel, ValidationError, field_validator, model_validator
 
+from enums import MethodEnum
 from validation.validation_exception import ValidationExceptionError
 
 
@@ -32,7 +33,7 @@ class SmsRelayValidator(BaseModel):
 
 class SmsRelayDecryptedBodyValidator(BaseModel):
     requestNumber: int
-    method: str
+    method: MethodEnum
     endpoint: str
     headers: Optional[str] = None
     body: Optional[str] = None
@@ -40,6 +41,7 @@ class SmsRelayDecryptedBodyValidator(BaseModel):
     # forbid extra attributes
     class Config:
         extra = "forbid"
+        use_enum_values = True
 
     @model_validator(mode="before")
     @classmethod
@@ -55,6 +57,15 @@ class SmsRelayDecryptedBodyValidator(BaseModel):
                 f"The request body key {{{(missing_fields[0])}}} is required.",
             )
         return values
+
+    @field_validator("method", mode="before")
+    @classmethod
+    def __method_must_be_method_enum(cls, method):
+        if method not in MethodEnum._member_names_:
+            raise ValidationExceptionError(
+                "Invalid Method; Must be either GET, POST, HEAD, PUT, DELETE, or PATCH",
+            )
+        return method
 
     @staticmethod
     def validate(request_body: dict):

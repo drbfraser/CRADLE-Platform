@@ -30,8 +30,10 @@ class PregnancyModel(BaseModel):
         if (
             "pregnancyStartDate" in request_body
             and request_body.get("pregnancyStartDate") is not None
+            and isinstance(request_body.get("pregnancyStartDate"), int)
             and "pregnancyEndDate" in request_body
             and request_body.get("pregnancyEndDate") is not None
+            and isinstance(request_body.get("pregnancyEndDate"), int)
         ):
             start_date = request_body["pregnancyStartDate"]
             end_date = request_body["pregnancyEndDate"]
