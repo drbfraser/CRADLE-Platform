@@ -1,7 +1,8 @@
 import re
 
 import phonenumbers
-from server.common.constants import EMAIL_REGEX_PATTERN
+
+from common.constants import EMAIL_REGEX_PATTERN
 
 
 def filterNestedAttributeWithValueNone(payload: dict) -> dict:
