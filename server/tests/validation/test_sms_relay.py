@@ -82,7 +82,7 @@ sms_relay_decrypted_body_with_valid_fields_should_return_none = {
     "requestNumber": REQUEST_NUMBER,
     "method": METHOD,
     "endpoint": ENDPOINT,
-    "headers": HEADER,
+    "header": HEADER,
     "body": BODY,
 }
 
@@ -95,21 +95,21 @@ sms_relay_decrypted_body_missing_optional_fields_should_return_none = {
 sms_relay_decrypted_body_missing_required_field_requestNumber_should_throw_exception = {
     "method": METHOD,
     "endpoint": ENDPOINT,
-    "headers": HEADER,
+    "header": HEADER,
     "body": BODY,
 }
 
 sms_relay_decrypted_body_missing_required_field_method_should_throw_exception = {
     "requestNumber": REQUEST_NUMBER,
     "endpoint": ENDPOINT,
-    "headers": HEADER,
+    "header": HEADER,
     "body": BODY,
 }
 
 sms_relay_decrypted_body_missing_required_field_endpoint_should_throw_exception = {
     "requestNumber": REQUEST_NUMBER,
     "method": METHOD,
-    "headers": HEADER,
+    "header": HEADER,
     "body": BODY,
 }
 
@@ -125,7 +125,7 @@ sms_relay_decrypted_body_field_requestNumber_has_wrong_type_should_throw_excepti
     "requestNumber": "string",
     "method": METHOD,
     "endpoint": ENDPOINT,
-    "headers": HEADER,
+    "header": HEADER,
     "body": BODY,
 }
 
@@ -133,7 +133,7 @@ sms_relay_decrypted_body_field_method_has_wrong_type_should_throw_exception = {
     "requestNumber": REQUEST_NUMBER,
     "method": "method",
     "endpoint": ENDPOINT,
-    "headers": HEADER,
+    "header": HEADER,
     "body": BODY,
 }
 
@@ -141,7 +141,7 @@ sms_relay_decrypted_body_field_endpoint_has_wrong_type_should_throw_exception = 
     "requestNumber": REQUEST_NUMBER,
     "method": METHOD,
     "endpoint": 123,
-    "headers": HEADER,
+    "header": HEADER,
     "body": BODY,
 }
 
@@ -149,7 +149,7 @@ sms_relay_decrypted_body_field_header_has_wrong_type_should_throw_exception = {
     "requestNumber": REQUEST_NUMBER,
     "method": METHOD,
     "endpoint": ENDPOINT,
-    "headers": 123,
+    "header": 123,
     "body": BODY,
 }
 
@@ -157,7 +157,7 @@ sms_relay_decrypted_body_field_body_has_wrong_type_should_throw_exception = {
     "requestNumber": REQUEST_NUMBER,
     "method": METHOD,
     "endpoint": ENDPOINT,
-    "headers": HEADER,
+    "header": HEADER,
     "body": 123,
 }
 
@@ -165,7 +165,7 @@ sms_relay_decrypted_body_has_unallowed_extra_field_should_throw_exception = {
     "requestNumber": REQUEST_NUMBER,
     "method": METHOD,
     "endpoint": ENDPOINT,
-    "headers": HEADER,
+    "header": HEADER,
     "body": BODY,
     "extra": 123,
 }
