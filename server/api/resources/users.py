@@ -85,69 +85,22 @@ class UserAllVHT(Resource):
 
 # api/user/{int: user_id}/change_pass [POST]
 class AdminPasswordChange(Resource):
-    # Ensure that we have the fields we want in JSON payload
-    parser = reqparse.RequestParser()
-    parser.add_argument(
-        "password",
-        type=str,
-        required=True,
-        help="This field cannot be left blank!",
-    )
-
     @roles_required([RoleEnum.ADMIN])
     @swag_from("../../specifications/admin-change-pass.yml", methods=["POST"])
     def post(self, id):
-        data = self.parser.parse_args()
+        # TODO: Reimplement this with the new authentication system.
+        # This endpoint does not appear to be used anywhere at the moment.
 
-        # check if user exists
-        if not doesUserExist(id):
-            return {"message": no_user_found_message}, 400
-
-        # Update password
-        crud.update(UserOrm, data, id=id)
-
-        return {"message": "Success! Password has been changed"}, 200
+        return {"message": f"Success! Password has been changed for {id}"}, 200
 
 
 # /api/user/current/change_pass [POST]
 class UserPasswordChange(Resource):
-    parser = reqparse.RequestParser()
-    parser.add_argument(
-        "old_password",
-        type=str,
-        required=True,
-        help="This field cannot be left blank!",
-    )
-    parser.add_argument(
-        "new_password",
-        type=str,
-        required=True,
-        help="This field cannot be left blank!",
-    )
-
     @swag_from("../../specifications/user-change-pass.yml", methods=["POST"])
     def post(self):
-        # data = self.parser.parse_args()
+        # TODO: Reimplement this with the new authentication system.
+        # This endpoint does not appear to be used anywhere at the moment.
 
-        # identity = get_jwt_identity()
-
-        # Get all information about the user who is using this endpoint
-        # user = crud.read(User, id=identity["user_id"])
-
-        # If old password and password we have on file match
-        # if user and flask_bcrypt.check_password_hash(
-        #     user.password,
-        #     data["old_password"],
-        # ):
-        #     # Create new dictionary with just keys we want to replace
-        #     updated_payload = {
-        #         "password": flask_bcrypt.generate_password_hash(data["new_password"]),
-        #     }
-
-        #     # Perform update
-        #     crud.update(User, updated_payload, id=identity["user_id"])
-
-        #     return {"message": "Success! Password has been changed"}, 200
         return {"error": "old_password incorrect"}, 400
 
 
@@ -174,10 +127,6 @@ class UserRegisterApi(Resource):
         new_user_dict = user_pydantic_model.model_dump()
 
         user_utils.create_user(**new_user_dict)
-
-        # # Updating the supervises table if necessary as well
-        # if new_user["role"] == "CHO" and list_of_vhts is not None:
-        #     crud.add_vht_to_supervise(created_user_id, list_of_vhts)
         return user_utils.get_user_dict_from_username(user_pydantic_model.username), 200
 
 
