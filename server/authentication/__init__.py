@@ -12,7 +12,8 @@ from authentication.CognitoClientWrapper import CognitoClientWrapper
 logger = logging.getLogger(__name__)
 
 load_dotenv()
-
+COGNITO_SECRETS_FILE = os.environ.get("COGNITO_SECRETS_FILE")
+load_dotenv(COGNITO_SECRETS_FILE)
 AWS_REGION = os.environ["AWS_REGION"]
 COGNITO_USER_POOL_ID = os.environ["COGNITO_USER_POOL_ID"]
 COGNITO_APP_CLIENT_ID = os.environ["COGNITO_APP_CLIENT_ID"]
