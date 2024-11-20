@@ -11,6 +11,12 @@ on:
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_REGION: us-west-2
+  COGNITO_AWS_ACCESS_KEY_ID: ${{ secrets.COGNITO_AWS_ACCESS_KEY_ID }}
+  COGNITO_AWS_SECRET_ACCESS_KEY: ${{ secrets.COGNITO_AWS_SECRET_ACCESS_KEY }}
+  COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
+  COGNITO_APP_CLIENT_ID: ${{ secrets.COGNITO_APP_CLIENT_ID }}
+  COGNITO_CLIENT_SECRET: ${{ secrets.COGNITO_CLIENT_SECRET }}
   HUB_TOKEN: "${{ secrets.HUB_TOKEN }}"
   HUB_USER: "${{ secrets.HUB_USER }}"
   HUB_REPO_FRONTEND: "${{ secrets.HUB_REPO_FRONTEND }}"
@@ -22,8 +28,8 @@ env:
   # Using the /isolated_build/ folder (inside the container) keeps permissions straight
   npm_config_cache: /isolated-build/.npm-cache 
   CYPRESS_CACHE_FOLDER: /isolated_build/.cypress-cache   
-jobs:
 
+jobs:
   display_github_contexts:
     runs-on: [self-hosted, docker]
     container:
@@ -128,6 +134,7 @@ jobs:
     container: 
       image: python:3.9.1-buster
     needs: backend_unit_tests
+    environment: cicd
     env:
       DB_USERNAME: "root"
       DB_PASSWORD: "ci-password"
@@ -141,6 +148,11 @@ jobs:
       LIMITER_DISABLED: "True"
       EMULATOR_PHONE_NUMBER: "+1-123-456-7890"
       SMS_KEY_DURATION: "100"
+      COGNITO_AWS_ACCESS_KEY_ID: ${{ secrets.COGNITO_AWS_ACCESS_KEY_ID }}
+      COGNITO_AWS_SECRET_ACCESS_KEY: ${{ secrets.COGNITO_AWS_SECRET_ACCESS_KEY }}
+      COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
+      COGNITO_APP_CLIENT_ID: ${{ secrets.COGNITO_APP_CLIENT_ID }}
+      COGNITO_CLIENT_SECRET: ${{ secrets.COGNITO_CLIENT_SECRET }}
     services:
       mysql:
         image: mysql:5.7
@@ -392,6 +404,7 @@ jobs:
     if: ${{ github.ref_name == 'main' }}
     uses: ./.github/workflows/deploy-from-dockerhub.yml
     with:
+      ENVIRONMENT: dev
       RUNNER_NAME: deploy-development
       DOMAIN:      cradle-dev.cmpt.sfu.ca
       IMAGE_TAG:   ${{ needs.export-image-tag.outputs.image_tag }}
@@ -415,9 +428,10 @@ jobs:
     if: false
     uses: ./.github/workflows/deploy-from-dockerhub.yml
     with:
-        RUNNER_NAME: deploy-staging
-        DOMAIN:      cradle-stg.cmpt.sfu.ca
-        IMAGE_TAG:   ${{ needs.export-image-tag.outputs.image_tag }}
+      ENVIRONMENT: stg
+      RUNNER_NAME: deploy-staging
+      DOMAIN:      cradle-stg.cmpt.sfu.ca
+      IMAGE_TAG:   ${{ needs.export-image-tag.outputs.image_tag }}
     secrets: inherit
 
   staging-retag-and-upload-to-dockerhub:

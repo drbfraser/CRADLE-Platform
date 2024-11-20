@@ -14,6 +14,9 @@ on:
       IMAGE_TAG:
         required: true
         type: string
+      ENVIRONMENT:
+        required: true
+        type: string
 
     secrets:
       HUB_REPO_BACKEND:
@@ -32,8 +35,18 @@ env:
   HUB_REPO_FRONTEND: "${{ secrets.HUB_REPO_FRONTEND }}"
   DOMAIN:    "${{ inputs.DOMAIN }}"
   IMAGE_TAG: "${{ inputs.IMAGE_TAG }}"
+  AWS_REGION: us-west-2
+  COGNITO_AWS_ACCESS_KEY_ID: ${{ secrets.COGNITO_AWS_ACCESS_KEY_ID }}
+  COGNITO_AWS_SECRET_ACCESS_KEY: ${{ secrets.COGNITO_AWS_SECRET_ACCESS_KEY }}
+
 jobs:
   deploy-from-dockerhub:
+    environment:
+      name: ${{ inputs.ENVIRONMENT }}
+    env:
+      COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
+      COGNITO_APP_CLIENT_ID: ${{ secrets.COGNITO_APP_CLIENT_ID }}
+      COGNITO_CLIENT_SECRET: ${{ secrets.COGNITO_CLIENT_SECRET }}
     runs-on: [self-hosted, '${{ inputs.RUNNER_NAME }}']
     timeout-minutes: 60
     steps:
