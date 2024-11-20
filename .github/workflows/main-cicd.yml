@@ -12,11 +12,6 @@ env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_REGION: us-west-2
-  COGNITO_AWS_ACCESS_KEY_ID: ${{ secrets.COGNITO_AWS_ACCESS_KEY_ID }}
-  COGNITO_AWS_SECRET_ACCESS_KEY: ${{ secrets.COGNITO_AWS_SECRET_ACCESS_KEY }}
-  COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
-  COGNITO_APP_CLIENT_ID: ${{ secrets.COGNITO_APP_CLIENT_ID }}
-  COGNITO_CLIENT_SECRET: ${{ secrets.COGNITO_CLIENT_SECRET }}
   HUB_TOKEN: "${{ secrets.HUB_TOKEN }}"
   HUB_USER: "${{ secrets.HUB_USER }}"
   HUB_REPO_FRONTEND: "${{ secrets.HUB_REPO_FRONTEND }}"
@@ -106,6 +101,7 @@ jobs:
 
   backend_unit_tests:
     runs-on: [self-hosted, docker]
+    environment: cicd
     container: 
       image: python:3.9.1-buster
     outputs: 
@@ -148,6 +144,11 @@ jobs:
       LIMITER_DISABLED: "True"
       EMULATOR_PHONE_NUMBER: "+1-123-456-7890"
       SMS_KEY_DURATION: "100"
+      COGNITO_AWS_ACCESS_KEY_ID: ${{ secrets.COGNITO_AWS_ACCESS_KEY_ID }}
+      COGNITO_AWS_SECRET_ACCESS_KEY: ${{ secrets.COGNITO_AWS_SECRET_ACCESS_KEY }}
+      COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
+      COGNITO_APP_CLIENT_ID: ${{ secrets.COGNITO_APP_CLIENT_ID }}
+      COGNITO_CLIENT_SECRET: ${{ secrets.COGNITO_CLIENT_SECRET }}
     services:
       mysql:
         image: mysql:5.7
