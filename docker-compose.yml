@@ -23,6 +23,9 @@ services:
             LIMITER_DISABLED: ${LIMITER_DISABLED:-False}
             EMULATOR_PHONE_NUMBER: ${EMULATOR_PHONE_NUMBER:-+1-123-456-7890}
             SMS_KEY_DURATION: ${SMS_KEY_DURATION:-40}
+            COGNITO_SECRETS_FILE: /run/secrets/.env.cognito_secrets
+        secrets:
+            - .env.cognito_secrets
         depends_on: 
             - mysql
     mysql:
@@ -40,3 +43,7 @@ services:
 volumes:
     flask_uploads:
     mysql_data:
+
+secrets:
+    .env.cognito_secrets:
+       file: ./.env.cognito_secrets # Will be accessible at /run/secrets/.env.cognito_secrets  
