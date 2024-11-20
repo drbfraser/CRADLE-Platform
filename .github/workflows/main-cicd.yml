@@ -130,7 +130,7 @@ jobs:
     container: 
       image: python:3.9.1-buster
     needs: backend_unit_tests
-    environment: cicd
+    # environment: cicd
     env:
       DB_USERNAME: "root"
       DB_PASSWORD: "ci-password"
@@ -144,12 +144,12 @@ jobs:
       LIMITER_DISABLED: "True"
       EMULATOR_PHONE_NUMBER: "+1-123-456-7890"
       SMS_KEY_DURATION: "100"
-      AWS_REGION: us-west-2
-      COGNITO_AWS_ACCESS_KEY_ID: ${{ secrets.COGNITO_AWS_ACCESS_KEY_ID }}
-      COGNITO_AWS_SECRET_ACCESS_KEY: ${{ secrets.COGNITO_AWS_SECRET_ACCESS_KEY }}
-      COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
-      COGNITO_APP_CLIENT_ID: ${{ secrets.COGNITO_APP_CLIENT_ID }}
-      COGNITO_CLIENT_SECRET: ${{ secrets.COGNITO_CLIENT_SECRET }}
+      # AWS_REGION: us-west-2
+      # COGNITO_AWS_ACCESS_KEY_ID: ${{ secrets.COGNITO_AWS_ACCESS_KEY_ID }}
+      # COGNITO_AWS_SECRET_ACCESS_KEY: ${{ secrets.COGNITO_AWS_SECRET_ACCESS_KEY }}
+      # COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
+      # COGNITO_APP_CLIENT_ID: ${{ secrets.COGNITO_APP_CLIENT_ID }}
+      # COGNITO_CLIENT_SECRET: ${{ secrets.COGNITO_CLIENT_SECRET }}
     services:
       mysql:
         image: mysql:5.7
