@@ -1,10 +1,10 @@
+import json
 import os
 import pprint
 import sys
 from dotenv import load_dotenv
 
 import boto3
-
 
 """
 This script programmatically creates an AWS Cognito User Pool.
@@ -16,11 +16,11 @@ Example: `python create_user_pool.py ryan` will create a user pool with
 """
 
 load_dotenv()
+COGNITO_SECRETS_FILE = ".env.cognito_secrets"
+load_dotenv(COGNITO_SECRETS_FILE)
 
 
-AWS_REGION = os.environ["AWS_REGION"]
-if AWS_REGION is None:
-    raise Exception("AWS_REGION not found!")
+AWS_REGION = "us-west-2"
 
 COGNITO_AWS_ACCESS_KEY_ID = os.environ["COGNITO_AWS_ACCESS_KEY_ID"]
 if COGNITO_AWS_ACCESS_KEY_ID is None:
@@ -29,6 +29,9 @@ COGNITO_AWS_SECRET_ACCESS_KEY = os.environ["COGNITO_AWS_SECRET_ACCESS_KEY"]
 if COGNITO_AWS_SECRET_ACCESS_KEY is None:
     raise Exception("COGNITO_AWS_SECRET_ACCESS_KEY not found!")
 
+print("AWS_REGION:", AWS_REGION)
+print("COGNITO_AWS_ACCESS_KEY_ID:", COGNITO_AWS_ACCESS_KEY_ID)
+print("COGNITO_AWS_SECRET_ACCESS_KEY:", COGNITO_AWS_SECRET_ACCESS_KEY)
 
 pprinter = pprint.PrettyPrinter(indent=4, sort_dicts=False, compact=False)
 
@@ -108,18 +111,24 @@ def main():
     COGNITO_APP_CLIENT_ID = user_pool_client.get("ClientId")
     COGNITO_CLIENT_SECRET = user_pool_client.get("ClientSecret")
 
-    # Files name should be changed after creation.
-    with open(".env.cognito.temp", "w") as output_file:
+    # Writing the secrets to a temporary file to avoid accidentally overwriting
+    # an existing file. Files name should be changed after creation to remove
+    # the name that was passed as a command-line argument.
+    with open(f"{COGNITO_SECRETS_FILE}.{name}", "w") as output_file:
         # Write to .env file.
+        output_file.write(f"COGNITO_AWS_ACCESS_KEY_ID={COGNITO_AWS_ACCESS_KEY_ID}\n")
+        output_file.write(
+            f"COGNITO_AWS_SECRET_ACCESS_KEY={COGNITO_AWS_SECRET_ACCESS_KEY}\n"
+        )
         output_file.write(f"COGNITO_USER_POOL_ID={COGNITO_USER_POOL_ID}\n")
         output_file.write(f"COGNITO_APP_CLIENT_ID={COGNITO_APP_CLIENT_ID}\n")
         output_file.write(f"COGNITO_CLIENT_SECRET={COGNITO_CLIENT_SECRET}\n")
 
-    # with open("user_pool.json", "w") as output_file:
-    #     output_file.write(json.dumps(user_pool, indent=4, default=str))
+    with open("user_pool.json", "w") as output_file:
+        output_file.write(json.dumps(user_pool, indent=4, default=str))
 
-    # with open("user_pool_client.json", "w") as output_file:
-    #     output_file.write(json.dumps(user_pool_client, indent=4, default=str))
+    with open("user_pool_client.json", "w") as output_file:
+        output_file.write(json.dumps(user_pool_client, indent=4, default=str))
 
     print(f"User pool ({user_pool.get('Name')}) created!")
 
