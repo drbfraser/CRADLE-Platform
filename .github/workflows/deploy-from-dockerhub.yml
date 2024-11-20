@@ -36,17 +36,11 @@ env:
   DOMAIN:    "${{ inputs.DOMAIN }}"
   IMAGE_TAG: "${{ inputs.IMAGE_TAG }}"
   AWS_REGION: us-west-2
-  COGNITO_AWS_ACCESS_KEY_ID: ${{ secrets.COGNITO_AWS_ACCESS_KEY_ID }}
-  COGNITO_AWS_SECRET_ACCESS_KEY: ${{ secrets.COGNITO_AWS_SECRET_ACCESS_KEY }}
 
 jobs:
   deploy-from-dockerhub:
     environment:
       name: ${{ inputs.ENVIRONMENT }}
-    env:
-      COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
-      COGNITO_APP_CLIENT_ID: ${{ secrets.COGNITO_APP_CLIENT_ID }}
-      COGNITO_CLIENT_SECRET: ${{ secrets.COGNITO_CLIENT_SECRET }}
     runs-on: [self-hosted, '${{ inputs.RUNNER_NAME }}']
     timeout-minutes: 60
     steps:
@@ -55,9 +49,17 @@ jobs:
       # Checkout the code, not into a container, because all work here is not in a container
       with:
         fetch-depth: 50
-    - name: Copy server's existing config file into local path before deployment
+    - name: Copy server's existing .env file into local path before deployment
       run:  |
         cp /var/cradle/.env ./.env
+    - name: Copy secrets into local secrets file. 
+      run:  |
+        # This is more secure than providing them as environment variables.
+        echo "COGNITO_AWS_ACCESS_KEY_ID=${{ secrets.COGNITO_AWS_ACCESS_KEY_ID }}" >> .env.cognito_secrets
+        echo "COGNITO_AWS_SECRET_ACCESS_KEY=${{ secrets.COGNITO_AWS_SECRET_ACCESS_KEY }}" >> .env.cognito_secrets
+        echo "COGNITO_USER_POOL_ID=${{ secrets.COGNITO_USER_POOL_ID }}" >> .env.cognito_secrets
+        echo "COGNITO_APP_CLIENT_ID=${{ secrets.COGNITO_APP_CLIENT_ID }}" >> .env.cognito_secrets
+        echo "COGNITO_CLIENT_SECRET=${{ secrets.COGNITO_CLIENT_SECRET }}" >> .env.cognito_secrets
     - name: Pull docker images from Docker Hub
       run:  |
         docker compose -f docker-compose.yml -f docker-compose.deploy.yml pull
