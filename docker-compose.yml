@@ -6,45 +6,44 @@
 #########################################
 
 services:
-  flask:
-    container_name: cradle_flask
-    build:
-      context: ./server
-    volumes:
-      - flask_uploads:/uploads
-    environment:
-      PORT: 5000
-      DB_HOSTNAME: cradle_mysql
-      DB_PORT: 3306
-      DB_NAME: cradle
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
-      LIMITER_DISABLED: ${LIMITER_DISABLED:-False}
-      EMULATOR_PHONE_NUMBER: ${EMULATOR_PHONE_NUMBER:-+1-555-521-5556}
-      SMS_KEY_DURATION: ${SMS_KEY_DURATION:-40}
-
-      # Environment variables for AWS Cognito
-      AWS_REGION: ${AWS_REGION}
-      COGNITO_AWS_ACCESS_KEY_ID: ${COGNITO_AWS_ACCESS_KEY_ID}
-      COGNITO_AWS_SECRET_ACCESS_KEY: ${COGNITO_AWS_SECRET_ACCESS_KEY}
-      COGNITO_USER_POOL_ID: ${COGNITO_USER_POOL_ID}
-      COGNITO_APP_CLIENT_ID: ${COGNITO_APP_CLIENT_ID}
-      COGNITO_CLIENT_SECRET: ${COGNITO_CLIENT_SECRET}
-    depends_on:
-      - mysql
-  mysql:
-    container_name: cradle_mysql
-    platform: linux/x86_64
-    image: mysql:5.7
-    volumes:
-      - mysql_data:/var/lib/mysql
-    environment:
-      MYSQL_DATABASE: cradle
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    flask:
+        container_name: cradle_flask
+        build:
+            context: ./server
+        volumes:
+            - flask_uploads:/uploads
+        environment:
+            PORT: 5000
+            DB_HOSTNAME: cradle_mysql
+            DB_PORT: 3306
+            DB_NAME: cradle
+            DB_USERNAME: ${DB_USERNAME}
+            DB_PASSWORD: ${DB_PASSWORD}
+            JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+            LIMITER_DISABLED: ${LIMITER_DISABLED:-False}
+            EMULATOR_PHONE_NUMBER: ${EMULATOR_PHONE_NUMBER:-+1-123-456-7890}
+            SMS_KEY_DURATION: ${SMS_KEY_DURATION:-40}
+            COGNITO_SECRETS_FILE: /run/secrets/.env.cognito_secrets
+        secrets:
+            - .env.cognito_secrets
+        depends_on: 
+            - mysql
+    mysql:
+        container_name: cradle_mysql
+        platform: linux/x86_64
+        image: mysql:5.7
+        volumes:
+            - mysql_data:/var/lib/mysql
+        environment:
+            MYSQL_DATABASE: cradle
+            MYSQL_USER: ${DB_USERNAME}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
 
 volumes:
-  flask_uploads:
-  mysql_data:
+    flask_uploads:
+    mysql_data:
+
+secrets:
+    .env.cognito_secrets:
+       file: ./.env.cognito_secrets # Will be accessible at /run/secrets/.env.cognito_secrets  
