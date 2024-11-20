@@ -55,7 +55,7 @@ jobs:
     - name: Copy secrets into local secrets file. 
       run:  |
         # This is more secure than providing them as environment variables.
-        echo "COGNITO_AWS_ACCESS_KEY_ID=${{ secrets.COGNITO_AWS_ACCESS_KEY_ID }}" >> .env.cognito_secrets
+        echo "COGNITO_AWS_ACCESS_KEY_ID=${{ secrets.COGNITO_AWS_ACCESS_KEY_ID }}" > .env.cognito_secrets
         echo "COGNITO_AWS_SECRET_ACCESS_KEY=${{ secrets.COGNITO_AWS_SECRET_ACCESS_KEY }}" >> .env.cognito_secrets
         echo "COGNITO_USER_POOL_ID=${{ secrets.COGNITO_USER_POOL_ID }}" >> .env.cognito_secrets
         echo "COGNITO_APP_CLIENT_ID=${{ secrets.COGNITO_APP_CLIENT_ID }}" >> .env.cognito_secrets
