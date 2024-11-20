@@ -1,4 +1,4 @@
-import json
+# import json
 import os
 import pprint
 import sys
@@ -46,6 +46,15 @@ client = boto3.client(
 def create_user_pool(name: str):
     response = client.create_user_pool(
         PoolName=f"cradle_user_pool-{name}",
+        Policies={
+            "PasswordPolicy": {
+                "MinimumLength": 10,
+                "RequireUppercase": False,
+                "RequireLowercase": False,
+                "RequireNumbers": False,
+                "RequireSymbols": False,
+            }
+        },
         AutoVerifiedAttributes=[
             "email",
         ],
@@ -124,11 +133,11 @@ def main():
         output_file.write(f"COGNITO_APP_CLIENT_ID={COGNITO_APP_CLIENT_ID}\n")
         output_file.write(f"COGNITO_CLIENT_SECRET={COGNITO_CLIENT_SECRET}\n")
 
-    with open("user_pool.json", "w") as output_file:
-        output_file.write(json.dumps(user_pool, indent=4, default=str))
+    # with open("user_pool.json", "w") as output_file:
+    #     output_file.write(json.dumps(user_pool, indent=4, default=str))
 
-    with open("user_pool_client.json", "w") as output_file:
-        output_file.write(json.dumps(user_pool_client, indent=4, default=str))
+    # with open("user_pool_client.json", "w") as output_file:
+    #     output_file.write(json.dumps(user_pool_client, indent=4, default=str))
 
     print(f"User pool ({user_pool.get('Name')}) created!")
 
