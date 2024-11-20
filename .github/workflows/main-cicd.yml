@@ -393,6 +393,9 @@ jobs:
 # #     use 'timeout-minutes:', 'environment:', 'env:', or 'steps:' because
 # #     those break the allowable syntax for a job calling a reusable workflow.
 # #     https://docs.github.com/en/actions/using-workflows/reusing-workflows
+# #     
+# #     We can pass the environment in as an input, so that the reuseable 
+# #     workflow will use the proper secrets.
 # #   ----------------------------------------------------------------------------
 # #   Development (dev) server
   dev-server-deploy-from-dockerhub:
