@@ -27,10 +27,6 @@ class Root(Resource):
     def post():
         request_json = request.get_json(force=True)
 
-        if request_json.get("id") is not None:
-            if crud.read(Form, id=request_json["id"]):
-                abort(409, message="Form already exists")
-
         try:
             form_pydantic_model = FormValidator.validate(request_json)
         except ValidationExceptionError as e:

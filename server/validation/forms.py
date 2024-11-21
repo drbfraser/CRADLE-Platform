@@ -1,7 +1,10 @@
 from typing import List, Optional
 
+from flask_restful import abort
 from pydantic import BaseModel, StrictBool, ValidationError
 
+from data import crud
+from models import Form
 from validation.questions import FormQuestionPutValidator, FormQuestionValidator
 from validation.validation_exception import ValidationExceptionError
 
@@ -29,6 +32,10 @@ class FormValidator(BaseModel):
 
         :param request_body: The request body as a dict object
         """
+        if request_body.get("id") is not None:
+            if crud.read(Form, id=request_body["id"]):
+                abort(409, message="Form already exists")
+
         try:
             return FormValidator(**request_body)
         except ValidationError as e:
