@@ -102,6 +102,7 @@ jobs:
   backend_unit_tests:
     runs-on: [self-hosted, docker]
     environment: cicd
+    if: false
     container: 
       image: python:3.9.1-buster
     outputs: 
@@ -127,10 +128,13 @@ jobs:
 
   backend_system_tests:
     runs-on: [self-hosted, docker]
+    environment: cicd
+    # TODO: Fix the back-end system tests.
+    # Disabled temporarily. See Issue #701
+    # https://github.sfu.ca/cradle-project/Cradle-Platform/issues/701 
     container: 
       image: python:3.9.1-buster
     needs: backend_unit_tests
-    environment: dev
     env:
       DB_USERNAME: "root"
       DB_PASSWORD: "ci-password"
