@@ -4,8 +4,8 @@ FROM python:3.9.1-buster
 
 WORKDIR /usr/src/server
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
 RUN pip install --upgrade pip
 COPY requirements.txt .
