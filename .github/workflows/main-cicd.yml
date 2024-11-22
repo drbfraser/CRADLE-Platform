@@ -131,6 +131,7 @@ jobs:
       image: python:3.9.1-buster
     needs: backend_unit_tests
     environment: dev
+    concurrency: dev
     env:
       DB_USERNAME: "root"
       DB_PASSWORD: "ci-password"
