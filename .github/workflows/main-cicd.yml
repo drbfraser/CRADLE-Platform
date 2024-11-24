@@ -130,8 +130,8 @@ jobs:
     container:
       image: python:3.9.1-buster
     needs: backend_unit_tests
-    environment: dev
-    concurrency: dev
+    environment: cicd
+    concurrency: cicd
     env:
       DB_USERNAME: "root"
       DB_PASSWORD: "ci-password"
