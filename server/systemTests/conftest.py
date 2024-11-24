@@ -86,7 +86,7 @@ def credentials() -> Tuple[str, str]:
 
     :return: A tuple containing an email and password
     """
-    return "admin@admin.com", "Admin_123"
+    return "admin@email.com", "cradle-admin"
 
 
 @pytest.fixture
@@ -168,7 +168,7 @@ def api(url: str):
         @staticmethod
         def get(
             endpoint: str,
-            email: str = "admin@admin.com",
+            email: str = "admin@email.com",
             password: str = "admin",
         ):
             return Api.__make_request(requests.get, endpoint, {}, email, password)
@@ -177,7 +177,7 @@ def api(url: str):
         def post(
             endpoint: str,
             payload: dict,
-            email: str = "admin@admin.com",
+            email: str = "admin@email.com",
             password: str = "admin",
         ):
             return Api.__make_request(requests.post, endpoint, payload, email, password)
@@ -186,7 +186,7 @@ def api(url: str):
         def put(
             endpoint: str,
             payload: dict,
-            email: str = "admin@admin.com",
+            email: str = "admin@email.com",
             password: str = "admin",
         ):
             return Api.__make_request(requests.put, endpoint, payload, email, password)

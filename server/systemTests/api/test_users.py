@@ -34,7 +34,7 @@ def get_example_phone_number():
 # TEST COMMENT
 @pytest.fixture(scope="module")
 def jwt_token():
-    payload = {"username": "admin@admin.com", "password": "Admin_123"}
+    payload = {"username": "admin@email.com", "password": "cradle-admin"}
     response = requests.post("http://localhost:5000/api/user/auth", json=payload)
     resp_json = response.json()
     return resp_json["access_token"]

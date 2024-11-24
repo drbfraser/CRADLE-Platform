@@ -24,7 +24,7 @@ def get_authorization_header(email, password):
 
 
 BASE_URL = "http://localhost:5000"
-auth_header_hcw = get_authorization_header("hcw@email.com", "Hcw_1234")
+auth_header_hcw = get_authorization_header("hcw@email.com", "cradle-hcw")
 
 
 def get_random_patient_id():

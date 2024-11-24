@@ -6,7 +6,7 @@ url = "http://localhost:5000/api/user/auth"
 
 
 def test_admin_login():
-    payload = {"username": "admin@admin.com", "password": "Admin_123"}
+    payload = {"username": "admin@email.com", "password": "cradle-admin"}
 
     response = requests.post(url, json=payload)
     resp_json = response.json()
@@ -18,7 +18,7 @@ def test_admin_login():
 
 
 def test_hcw_login():
-    payload = {"username": "hcw@email.com", "password": "Hcw_1234"}
+    payload = {"username": "hcw@email.com", "password": "cradle-hcw"}
 
     response = requests.post(url, json=payload)
     resp_json = response.json()
@@ -30,7 +30,7 @@ def test_hcw_login():
 
 
 def test_cho_login():
-    payload = {"username": "cho@email.com", "password": "Cho_1234"}
+    payload = {"username": "cho@email.com", "password": "cradle-cho"}
 
     response = requests.post(url, json=payload)
     resp_json = response.json()
@@ -42,7 +42,7 @@ def test_cho_login():
 
 
 def test_vht_login():
-    payload = {"username": "vht@email.com", "password": "Vht_1234"}
+    payload = {"username": "vht@email.com", "password": "cradle-vht"}
 
     response = requests.post(url, json=payload)
     resp_json = response.json()
@@ -54,7 +54,7 @@ def test_vht_login():
 
 
 def test_invalid_login():
-    payload = {"username": "admin@admin.com", "password": "Wrong_Password"}
+    payload = {"username": "admin@email.com", "password": "Wrong_Password"}
 
     response = requests.post(url, json=payload)
     resp_json = response.json()
