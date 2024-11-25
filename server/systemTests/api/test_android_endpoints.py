@@ -1,6 +1,7 @@
 import time
 
 import pytest
+from humps import decamelize
 
 from data import crud
 from enums import SexEnum, TrafficLightEnum
@@ -35,8 +36,10 @@ def test_download_patients(
 
     assert response.status_code == 200
 
+    response_body = decamelize(response.json())
+
     patient = None
-    for p in response.json():
+    for p in response_body:
         if p["id"] == patient_info["id"]:
             patient = p
             break
@@ -65,10 +68,12 @@ def test_download_readings(
 
     response = api_get(endpoint="/api/mobile/readings")
 
+    response_body = decamelize(response.json())
+
     assert response.status_code == 200
     assert any(
         reading["patient_id"] == patient_info["id"] and reading["id"] == reading_id
-        for reading in response.json()
+        for reading in response_body
     )
 
 
@@ -109,11 +114,13 @@ def test_sync_patients_fully_successful(
         )
         database.session.commit()
 
+        response_body = decamelize(response.json())
+
         assert response.status_code == 200
-        assert len(response.json()["patients"]) == 2
+        assert len(response_body["patients"]) == 2
 
         new_server_patient = None
-        for p in response.json()["patients"]:
+        for p in response_body["patients"]:
             if p["id"] == server_patient_id:
                 new_server_patient = p
                 break
@@ -123,7 +130,7 @@ def test_sync_patients_fully_successful(
         assert new_server_patient["date_of_birth"] == patient_info["date_of_birth"]
 
         new_mobile_patient = None
-        for p in response.json()["patients"]:
+        for p in response_body["patients"]:
             if p["id"] == mobile_patient_id:
                 new_mobile_patient = p
                 break
@@ -168,10 +175,12 @@ def test_sync_patients_fully_successful(
         )
         database.session.commit()
 
-        assert response.status_code == 200
-        assert len(response.json()["patients"]) == 1
+        response_body = decamelize(response.json())
 
-        new_mobile_patient = response.json()["patients"][0]
+        assert response.status_code == 200
+        assert len(response_body["patients"]) == 1
+
+        new_mobile_patient = response_body["patients"][0]
         assert new_mobile_patient is not None
         assert mobile_patient is not None
         assert new_mobile_patient["name"] == mobile_patient["name"]
@@ -207,10 +216,12 @@ def test_sync_patients_fully_successful(
         response = api_post(endpoint=f"/api/sync/patients?since={last_sync}")
         database.session.commit()
 
-        assert response.status_code == 200
-        assert len(response.json()["patients"]) == 1
+        response_body = decamelize(response.json())
 
-        new_server_patient = response.json()["patients"][0]
+        assert response.status_code == 200
+        assert len(response_body["patients"]) == 1
+
+        new_server_patient = response_body["patients"][0]
         assert new_server_patient["village_number"] == village_number
         assert new_server_patient["pregnancy_start_date"] == pregnancy.start_date
         assert new_server_patient["medical_history"] == medical_record.information
@@ -240,10 +251,12 @@ def test_sync_patients_fully_successful(
         )
         database.session.commit()
 
-        assert response.status_code == 200
-        assert len(response.json()["patients"]) == 1
+        response_body = decamelize(response.json())
 
-        new_server_patient = response.json()["patients"][0]
+        assert response.status_code == 200
+        assert len(response_body["patients"]) == 1
+
+        new_server_patient = response_body["patients"][0]
         assert new_server_patient["village_number"] == village_number
 
         new_pregnancy = crud.read(PregnancyOrm, id=pregnancy.id)
@@ -289,14 +302,16 @@ def test_sync_patients_partially_successful(
         )
         database.session.commit()
 
+        response_body = decamelize(response.json())
+
         assert response.status_code == 207
-        assert len(response.json()["patients"]) == 1
-        assert response.json()["patients"][0]["id"] == patient1_id
-        assert response.json()["errors"][0]["patient_id"] == patient2_id
+        assert len(response_body["patients"]) == 1
+        assert response_body["patients"][0]["id"] == patient1_id
+        assert response_body["errors"][0]["patient_id"] == patient2_id
         assert crud.read(PatientOrm, id=patient1_id) is not None
         assert crud.read(PatientOrm, id=patient2_id) is None
 
-        patient1 = response.json()["patients"][0]
+        patient1 = response_body["patients"][0]
         last_sync = int(time.time())
         time.sleep(1)
 
@@ -319,10 +334,12 @@ def test_sync_patients_partially_successful(
         )
         database.session.commit()
 
+        response_body = decamelize(response.json())
+
         assert response.status_code == 207
-        assert len(response.json()["patients"]) == 1
-        assert response.json()["patients"][0]["id"] == patient1_id
-        assert response.json()["errors"][0]["patient_id"] == patient2_id
+        assert len(response_body["patients"]) == 1
+        assert response_body["patients"][0]["id"] == patient1_id
+        assert response_body["errors"][0]["patient_id"] == patient2_id
         assert (
             crud.read(MedicalRecordOrm, patient_id=patient1_id, information=history)
             is not None
@@ -345,16 +362,18 @@ def test_sync_patients_partially_successful(
         )
         database.session.commit()
 
+        response_body = decamelize(response.json())
+
         assert response.status_code == 200
-        assert len(response.json()["patients"]) == 1
-        assert response.json()["patients"][0]["id"] == patient2_id
+        assert len(response_body["patients"]) == 1
+        assert response_body["patients"][0]["id"] == patient2_id
         assert crud.read(PatientOrm, id=patient2_id) is not None
         assert (
             crud.read(MedicalRecordOrm, patient_id=patient2_id, information=history)
             is not None
         )
 
-        patient2 = response.json()["patients"][0]
+        patient2 = response_body["patients"][0]
         last_sync = int(time.time())
         time.sleep(1)
 
@@ -377,8 +396,10 @@ def test_sync_patients_partially_successful(
         )
         database.session.commit()
 
+        response_body = decamelize(response.json())
+
         assert response.status_code == 207
-        assert response.json()["errors"][0]["patient_id"] == patient2_id
+        assert response_body["errors"][0]["patient_id"] == patient2_id
         assert crud.read(PregnancyOrm, id=pregnancy_id, end_date=end_date) is None
 
         last_sync = int(time.time())
@@ -397,8 +418,10 @@ def test_sync_patients_partially_successful(
         )
         database.session.commit()
 
+        response_body = decamelize(response.json())
+
         assert response.status_code == 207
-        assert response.json()["errors"][0]["patient_id"] == patient2_id
+        assert response_body["errors"][0]["patient_id"] == patient2_id
         assert (
             crud.read(PregnancyOrm, patient_id=patient2_id, start_date=start_date)
             is None
@@ -413,9 +436,11 @@ def test_sync_patients_partially_successful(
         )
         database.session.commit()
 
+        response_body = decamelize(response.json())
+
         assert response.status_code == 200
-        assert len(response.json()["patients"]) == 1
-        assert response.json()["patients"][0]["id"] == patient2_id
+        assert len(response_body["patients"]) == 1
+        assert response_body["patients"][0]["id"] == patient2_id
         assert (
             crud.read(PregnancyOrm, patient_id=patient2_id, start_date=start_date)
             is not None
@@ -466,13 +491,15 @@ def test_sync_readings(
         )
         database.session.commit()
 
+        response_body = decamelize(response.json())
+
         assert response.status_code == 200
-        assert len(response.json()["readings"]) == 2
+        assert len(response_body["readings"]) == 2
         assert any(
             r["patient_id"] == patient_id
             and r["id"] == reading_id
             and r["traffic_light_status"] == TrafficLightEnum.YELLOW_UP.value
-            for r in response.json()["readings"]
+            for r in response_body["readings"]
         )
         assert any(
             r["patient_id"] == patient_id
@@ -482,7 +509,7 @@ def test_sync_readings(
             and r["diastolic_blood_pressure"]
             == mobile_reading["diastolic_blood_pressure"]
             and r["heart_rate"] == mobile_reading["heart_rate"]
-            for r in response.json()["readings"]
+            for r in response_body["readings"]
         )
 
     finally:

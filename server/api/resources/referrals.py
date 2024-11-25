@@ -32,11 +32,18 @@ class Root(Resource):
         user_data = user_utils.get_current_user_from_jwt()
 
         params = api_utils.get_query_params()
+        line = "-" * 100
+        print(line)
+        print(line)
+        print(params)
+        print(line)
+        print(line)
         if params.get("health_facilities") and "default" in params["health_facilities"]:
             params["health_facilities"].append(user_data["health_facility_name"])
 
         user = cast(dict[Any, Any], user_data)
         referrals = view.referral_list_view(user, **params)
+        print(referrals)
         return serialize.serialize_referral_list(referrals)
 
     @staticmethod

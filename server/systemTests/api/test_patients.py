@@ -3,6 +3,7 @@ from pprint import pformat
 from typing import List
 
 import pytest
+from humps import decamelize
 
 from data import crud
 from enums import TrafficLightEnum
@@ -34,8 +35,10 @@ def test_get_patient_list(create_patient, patient_info, reading_factory, api_get
 
     assert response.status_code == 200
 
+    response_body = decamelize(response.json())
+
     patient = None
-    for p in response.json():
+    for p in response_body:
         if p["id"] == patient_id:
             patient = p
             break
@@ -54,8 +57,10 @@ def test_get_patients_admin(create_patient, patient_info, api_get):
 
     assert response.status_code == 200
 
+    response_body = decamelize(response.json())
+
     patient = None
-    for p in response.json():
+    for p in response_body:
         if p["id"] == patient_id:
             patient = p
             break
@@ -94,7 +99,9 @@ def test_get_patient(
 
     assert response.status_code == 200
 
-    patient = response.json()
+    response_body = decamelize(response.json())
+
+    patient = response_body
 
     assert patient["id"] == patient_id
     assert patient["name"] == patient_info["name"]
@@ -123,8 +130,11 @@ def test_get_patient_pregnancy_summary(
     )
 
     assert response.status_code == 200
-    assert response.json()["is_pregnant"] is False
-    assert len(response.json()["past_pregnancies"]) == 0
+
+    response_body = decamelize(response.json())
+
+    assert response_body["is_pregnant"] is False
+    assert len(response_body["past_pregnancies"]) == 0
 
     pregnancy_factory.create(**pregnancy_earlier)
     pregnancy_factory.create(**pregnancy_later)
@@ -134,11 +144,14 @@ def test_get_patient_pregnancy_summary(
     )
 
     assert response.status_code == 200
-    assert response.json()["is_pregnant"] is True
-    assert response.json()["pregnancy_start_date"] == pregnancy_later["start_date"]
-    assert len(response.json()["past_pregnancies"]) == 1
 
-    past_pregnancy = response.json()["past_pregnancies"][0]
+    response_body = decamelize(response.json())
+
+    assert response_body["is_pregnant"] is True
+    assert response_body["pregnancy_start_date"] == pregnancy_later["start_date"]
+    assert len(response_body["past_pregnancies"]) == 1
+
+    past_pregnancy = response_body["past_pregnancies"][0]
     assert past_pregnancy["outcome"] == pregnancy_earlier["outcome"]
 
 
@@ -159,8 +172,11 @@ def test_get_patient_medical_history(
     )
 
     assert response.status_code == 200
-    assert response.json()["medical_history"] == medical_record["information"]
-    assert response.json()["drug_history"] == drug_record["information"]
+
+    response_body = decamelize(response.json())
+
+    assert response_body["medical_history"] == medical_record["information"]
+    assert response_body["drug_history"] == drug_record["information"]
 
 
 def test_get_patient_timeline(
@@ -187,7 +203,9 @@ def test_get_patient_timeline(
 
     assert response.status_code == 200
 
-    timeline = response.json()
+    response_body = decamelize(response.json())
+
+    timeline = response_body
     assert len(timeline) >= 5
     assert timeline[0]["information"] == drug_record["information"]
     assert timeline[2]["date"] == pregnancy_later["start_date"]

@@ -1,5 +1,7 @@
 import datetime
 
+from humps import decamelize
+
 from data import crud
 from models import PregnancyOrm
 
@@ -24,7 +26,7 @@ def test_get_pregnancy(create_patient, pregnancy_factory, pregnancy_earlier, api
         "outcome": pregnancy_earlier["outcome"],
     }
 
-    response_body = response.json()
+    response_body = decamelize(response.json())
     del response_body["last_edited"]
     assert response_body == expected
 
@@ -94,9 +96,10 @@ def test_get_pregnancy_list(
     pregnancy_factory.create(**pregnancy_later)
 
     response = api_get(endpoint=f"/api/patients/{patient_id}/pregnancies")
+    response_body = decamelize(response.json())
 
     assert response.status_code == 200
-    assert len(response.json()) >= 2
+    assert len(response_body) >= 2
 
 
 def test_invalid_pregnancy_not_updated(

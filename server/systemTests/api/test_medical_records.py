@@ -1,4 +1,5 @@
 from flask import Response
+from humps import decamelize
 
 from data import crud
 from models import MedicalRecordOrm
@@ -12,7 +13,8 @@ def test_get_record(create_patient, medical_record_factory, medical_record, api_
     response = api_get(endpoint=f"/api/medical_records/{record_id}")
 
     assert response.status_code == 200
-    assert response.json()["medical_history"] == medical_record["information"]
+    response_body = decamelize(response.json())
+    assert response_body["medical_history"] == medical_record["information"]
 
 
 def test_put_record(create_patient, medical_record_factory, drug_record, api_put):
@@ -77,10 +79,11 @@ def test_get_record_lists(
     medical_record_factory.create(**drug_record)
 
     response = api_get(endpoint=f"/api/patients/{patient_id}/medical_records")
+    response_body = decamelize(response.json())
 
     assert response.status_code == 200
-    assert len(response.json()["medical"]) >= 1
-    assert len(response.json()["drug"]) >= 1
+    assert len(response_body["medical"]) >= 1
+    assert len(response_body["drug"]) >= 1
 
 
 def test_invalid_record_not_updated(

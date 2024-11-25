@@ -3,6 +3,7 @@ from typing import Callable, Tuple
 import pytest
 import requests
 from flask import Flask
+from humps import decamelize
 
 from systemTests.mock import factory
 
@@ -100,8 +101,8 @@ def bearer_token(url: str, credentials: Tuple[str, str]) -> str:
     url = f"{url}/api/user/auth"
     payload = {"username": credentials[0], "password": credentials[1]}
     response = requests.post(url, json=payload)
-    resp_json = response.json()
-    return resp_json["access_token"]
+    response_body = decamelize(response.json())
+    return response_body["access_token"]
 
 
 @pytest.fixture
@@ -196,8 +197,8 @@ def api(url: str):
             u = f"{url}/api/user/auth"
             payload = {"username": email, "password": password}
             response = requests.post(u, json=payload)
-            resp_json = response.json()
-            return resp_json["access_token"]
+            response_body = decamelize(response.json())
+            return response_body["access_token"]
 
         @staticmethod
         def __make_request(

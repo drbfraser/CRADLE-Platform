@@ -1,6 +1,7 @@
 import random
 
 import requests
+from humps import decamelize
 
 
 def get_login_token(email, password):
@@ -8,10 +9,11 @@ def get_login_token(email, password):
     payload = {"username": email, "password": password}
 
     response = requests.post(url, json=payload)
-    resp_json = response.json()
-    if "access_token" not in resp_json:
-        print(resp_json)
-    return resp_json["access_token"]
+    response_body = decamelize(response.json())
+
+    if "access_token" not in response_body:
+        print(response_body)
+    return response_body["access_token"]
 
 
 def get_bearer_token(email, password):

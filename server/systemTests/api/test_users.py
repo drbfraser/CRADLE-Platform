@@ -4,6 +4,7 @@ import string
 import phonenumbers
 import pytest
 import requests
+from humps import decamelize
 
 from common import user_utils
 from data import crud
@@ -36,8 +37,8 @@ def get_example_phone_number():
 def jwt_token():
     payload = {"username": "admin@email.com", "password": "cradle-admin"}
     response = requests.post("http://localhost:5000/api/user/auth", json=payload)
-    resp_json = response.json()
-    return resp_json["access_token"]
+    response_body = decamelize(response.json())
+    return response_body["access_token"]
 
 
 def test_register_user(jwt_token):
@@ -65,7 +66,7 @@ def test_register_user(jwt_token):
 
 
 def test_edit_user(jwt_token):
-    url_edit_user = "http://localhost:5000/api/user/3"
+    url_edit_user = "http://localhost:5000/api/user/2"
     headers = {"Authorization": "Bearer " + jwt_token}
     payload = {
         "health_facility_name": "H0000",
@@ -103,19 +104,22 @@ def test_sms_secret_key_for_sms_relay(jwt_token, admin_user_id):
     )
     headers = {"Authorization": "Bearer " + jwt_token}
     get_response = requests.get(url_sms_secret_key_for_user, headers=headers)
-    resp_body = get_response.json()
+    get_response_body = decamelize(get_response.json())
     user = crud.read(SmsSecretKeyOrm, user_id=admin_user_id)
-    print(resp_body)
+    print(get_response_body)
     assert get_response.status_code == 200
-    assert resp_body["message"] == "NORMAL"
-    assert resp_body["key"] == user.secret_key
-    assert user.secret_key is not None and user.secret_key == resp_body["key"]
+    assert get_response_body["message"] == "NORMAL"
+    assert get_response_body["key"] == user.secret_key
+    assert user.secret_key is not None and user.secret_key == get_response_body["key"]
 
     put_response = requests.put(url_sms_secret_key_for_user, headers=headers)
-    put_resp_body = put_response.json()
+    put_response_body = decamelize(put_response.json())
     assert put_response.status_code == 200
-    assert put_resp_body["message"] == "NORMAL"
-    assert put_resp_body["key"] is not None and put_resp_body["key"] != resp_body["key"]
+    assert put_response_body["message"] == "NORMAL"
+    assert (
+        put_response_body["key"] is not None
+        and put_response_body["key"] != get_response_body["key"]
+    )
 
 
 @pytest.fixture
@@ -153,10 +157,10 @@ def test_user_phone_post(jwt_token, user_id, new_phone_number):
         "old_phone_number": None,
     }
     response = requests.post(url_user_phone_update, json=payload, headers=headers)
-    resp_body = response.json()
+    response_body = decamelize(response.json())
 
     assert response.status_code == 200
-    assert resp_body["message"] == "User phone number added successfully"
+    assert response_body["message"] == "User phone number added successfully"
 
 
 # add new_phone_number again
@@ -170,10 +174,10 @@ def test_duplicate_phone_numbers_post(jwt_token, user_id, new_phone_number):
         "old_phone_number": None,
     }
     response = requests.post(url_user_phone_update, json=payload, headers=headers)
-    resp_body = response.json()
+    response_body = decamelize(response.json())
 
     assert response.status_code == 400
-    assert resp_body["message"] == "Phone number already exists"
+    assert response_body["message"] == "Phone number already exists"
 
 
 def test_user_phone_put(jwt_token, user_id, new_phone_number, updated_phone_number):
@@ -186,10 +190,10 @@ def test_user_phone_put(jwt_token, user_id, new_phone_number, updated_phone_numb
         "old_phone_number": None,
     }
     response = requests.put(url_user_phone_update, json=payload, headers=headers)
-    resp_body = response.json()
+    response_body = decamelize(response.json())
 
     assert response.status_code == 200
-    assert resp_body["message"] == "User phone number updated successfully"
+    assert response_body["message"] == "User phone number updated successfully"
 
     # after testing, below changes the phone number back to what it was
     payload = {
@@ -210,7 +214,7 @@ def test_user_phone_delete(jwt_token, user_id, old_phone_number):
         "new_phone_number": None,
     }
     response = requests.delete(url_user_phone_update, json=payload, headers=headers)
-    resp_body = response.json()
+    response_body = decamelize(response.json())
 
     assert response.status_code == 200
-    assert resp_body["message"] == "User phone number deleted successfully"
+    assert response_body["message"] == "User phone number deleted successfully"

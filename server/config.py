@@ -85,12 +85,12 @@ class Config:
                 "interval": 1,
             },
         },
-        "loggers": {
-            "": {"handlers": ["console", "file"], "level": "DEBUG"},
-            "flask": {"level": "INFO"},
-            "sqlalchemy": {"level": "INFO"},
-            "werkzeug": {"level": "INFO"},
-        },
+        # "loggers": {
+        #     "": {"handlers": ["console", "file"], "level": "DEBUG"},
+        #     "flask": {"level": "INFO"},
+        #     "sqlalchemy": {"level": "INFO"},
+        #     "werkzeug": {"level": "INFO"},
+        # },
     }
     logging.config.dictConfig(LOGGING)
     logger = logging.getLogger(__name__)
