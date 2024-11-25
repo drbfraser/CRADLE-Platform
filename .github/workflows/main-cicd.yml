@@ -11,6 +11,7 @@ on:
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  # AWS_REGION: us-west-2
   HUB_TOKEN: "${{ secrets.HUB_TOKEN }}"
   HUB_USER: "${{ secrets.HUB_USER }}"
   HUB_REPO_FRONTEND: "${{ secrets.HUB_REPO_FRONTEND }}"
@@ -22,8 +23,8 @@ env:
   # Using the /isolated_build/ folder (inside the container) keeps permissions straight
   npm_config_cache: /isolated-build/.npm-cache 
   CYPRESS_CACHE_FOLDER: /isolated_build/.cypress-cache   
-jobs:
 
+jobs:
   display_github_contexts:
     runs-on: [self-hosted, docker]
     container:
@@ -100,6 +101,7 @@ jobs:
 
   backend_unit_tests:
     runs-on: [self-hosted, docker]
+    environment: cicd
     container: 
       image: python:3.9.1-buster
     outputs: 
@@ -125,6 +127,11 @@ jobs:
 
   backend_system_tests:
     runs-on: [self-hosted, docker]
+    environment: cicd
+    # TODO: Fix the back-end system tests.
+    # Disabled temporarily. See Issue #701
+    # https://github.sfu.ca/cradle-project/Cradle-Platform/issues/701 
+    if: false
     container: 
       image: python:3.9.1-buster
     needs: backend_unit_tests
@@ -141,6 +148,12 @@ jobs:
       LIMITER_DISABLED: "True"
       EMULATOR_PHONE_NUMBER: "+1-123-456-7890"
       SMS_KEY_DURATION: "100"
+      AWS_REGION: us-west-2
+      COGNITO_AWS_ACCESS_KEY_ID: ${{ secrets.COGNITO_AWS_ACCESS_KEY_ID }}
+      COGNITO_AWS_SECRET_ACCESS_KEY: ${{ secrets.COGNITO_AWS_SECRET_ACCESS_KEY }}
+      COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
+      COGNITO_APP_CLIENT_ID: ${{ secrets.COGNITO_APP_CLIENT_ID }}
+      COGNITO_CLIENT_SECRET: ${{ secrets.COGNITO_CLIENT_SECRET }}
     services:
       mysql:
         image: mysql:5.7
@@ -332,6 +345,7 @@ jobs:
           # However, as of July 2023, SFU's GitHub runner is v2.296.x, so using old syntax (which works on newer)
           # https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
           echo "::set-output name=tag::$IMAGE_TAG"
+
   build-docker-publish-docker-images:
     needs: [build-frontend, update-aws, export-image-tag]
     # needs: [export-image-tag]   # Used for faking and testing
@@ -385,6 +399,9 @@ jobs:
 # #     use 'timeout-minutes:', 'environment:', 'env:', or 'steps:' because
 # #     those break the allowable syntax for a job calling a reusable workflow.
 # #     https://docs.github.com/en/actions/using-workflows/reusing-workflows
+# #     
+# #     We can pass the environment in as an input, so that the reuseable 
+# #     workflow will use the proper secrets.
 # #   ----------------------------------------------------------------------------
 # #   Development (dev) server
   dev-server-deploy-from-dockerhub:
@@ -392,6 +409,7 @@ jobs:
     if: ${{ github.ref_name == 'main' }}
     uses: ./.github/workflows/deploy-from-dockerhub.yml
     with:
+      ENVIRONMENT: dev
       RUNNER_NAME: deploy-development
       DOMAIN:      cradle-dev.cmpt.sfu.ca
       IMAGE_TAG:   ${{ needs.export-image-tag.outputs.image_tag }}
@@ -415,9 +433,10 @@ jobs:
     if: false
     uses: ./.github/workflows/deploy-from-dockerhub.yml
     with:
-        RUNNER_NAME: deploy-staging
-        DOMAIN:      cradle-stg.cmpt.sfu.ca
-        IMAGE_TAG:   ${{ needs.export-image-tag.outputs.image_tag }}
+      ENVIRONMENT: stg
+      RUNNER_NAME: deploy-staging
+      DOMAIN:      cradle-stg.cmpt.sfu.ca
+      IMAGE_TAG:   ${{ needs.export-image-tag.outputs.image_tag }}
     secrets: inherit
 
   staging-retag-and-upload-to-dockerhub:
