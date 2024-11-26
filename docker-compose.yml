@@ -27,7 +27,8 @@ services:
         secrets:
             - .env.cognito_secrets
         depends_on: 
-            - mysql
+            mysql:
+                condition: service_healthy
     mysql:
         container_name: cradle_mysql
         platform: linux/x86_64
@@ -39,6 +40,12 @@ services:
             MYSQL_USER: ${DB_USERNAME}
             MYSQL_PASSWORD: ${DB_PASSWORD}
             MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+        healthcheck:
+            test: mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD
+            start_period: 5s
+            interval: 2s
+            timeout: 5s
+            retries: 20
 
 volumes:
     flask_uploads:
