@@ -1,0 +1,100 @@
+name: Cradle-Platform-Backend-Tests
+# This is a manually initiated version of the backend unit and system tests jobs 
+# in main-cicd.yml.
+
+on: workflow_dispatch # Can only run manually.
+
+env:
+  CUSTOM_WORKSPACE: /isolated-build/repo
+  
+jobs:
+  backend_unit_tests:
+    runs-on: [self-hosted, docker]
+    environment: cicd
+    if: false
+    container: 
+      image: python:3.9.1-buster
+    outputs: 
+      unit_test_results: report.xml
+    steps:
+    - name: Checkout code into container
+      uses: bfraser/cicd/actions/checkout@v1
+      with: 
+        path: ${{ env.CUSTOM_WORKSPACE }}
+    - name: Install dependencies
+      run:  |
+        pip install --upgrade pip
+        pip install -r requirements.txt
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
+    - name: Run Unit Tests
+      run: python -m pytest --junitxml=report.xml tests
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
+    - name: Upload Test Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+          name: unit_test_results
+          path: /isolated-build/repo/server/report.xml
+  backend_system_tests:
+    runs-on: [self-hosted, docker]
+    environment: cicd
+    concurrency: cicd # Only allow one of these jobs to run at a time.
+    container: 
+      image: python:3.9.1-buster
+    needs: backend_unit_tests
+    env:
+      DB_USERNAME: "root"
+      DB_PASSWORD: "ci-password"
+      DB_HOSTNAME: "mysql"
+      DB_PORT: "3306"
+      DB_NAME: "cradle"
+      PORT: "5000"
+      MYSQL_DATABASE: "cradle"
+      MYSQL_ROOT_PASSWORD: "ci-password"
+      JWT_SECRET_KEY: "testkey"
+      LIMITER_DISABLED: "True"
+      EMULATOR_PHONE_NUMBER: "+1-123-456-7890"
+      SMS_KEY_DURATION: "100"
+      AWS_REGION: us-west-2
+      COGNITO_AWS_ACCESS_KEY_ID: ${{ secrets.COGNITO_AWS_ACCESS_KEY_ID }}
+      COGNITO_AWS_SECRET_ACCESS_KEY: ${{ secrets.COGNITO_AWS_SECRET_ACCESS_KEY }}
+      COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
+      COGNITO_APP_CLIENT_ID: ${{ secrets.COGNITO_APP_CLIENT_ID }}
+      COGNITO_CLIENT_SECRET: ${{ secrets.COGNITO_CLIENT_SECRET }}
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
+        ports:
+          - 3306:3306
+    outputs: 
+      system_test_results: report.xml
+    steps:
+    - name: Checkout code into container
+      uses: bfraser/cicd/actions/checkout@v1
+      with: 
+        path: ${{ env.CUSTOM_WORKSPACE }}
+    - name: Install dependencies
+      run:  |
+        apt-get update -y
+        apt-get install default-mysql-client -y
+        pip install --upgrade pip
+        pip install -r requirements.txt
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
+    - name: Start backend service
+      run: python3 app.py &
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
+    - name: Rebuild database
+      run: python3 db.py rebuild --no-docker
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
+    - name: Seed test data
+      run: python3 manage.py seed_test_data
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
+    - name: Run System Tests
+      run: python -m pytest --junitxml=report.xml systemTests
+      working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
+    - name: Upload Test Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: system_test_results
+        path: ${{ env.CUSTOM_WORKSPACE }}/server/report.xml
