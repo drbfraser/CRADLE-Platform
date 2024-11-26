@@ -3,6 +3,10 @@ import pytest
 from validation.formTemplates import FormTemplateValidator
 from validation.validation_exception import ValidationExceptionError
 
+CLASSIFICATION = {"id": "123", "name": "example_name"}
+VERSION = "V1"
+ID = "asdsd-sdsw1231"
+
 root_question = {
     "categoryIndex": None,  # root question has to have first categoryIndex as None
     "numMax": None,
@@ -25,46 +29,122 @@ root_question = {
     ],
 }
 
-valid_template_no_questions = {
-    "classification": {"id": "123", "name": "example_name"},
-    "id": "asdsd-sdsw1231",
+template_with_valid_fields_and_no_question_should_return_none = {
+    "classification": CLASSIFICATION,
+    "id": ID,
     "questions": [],
-    "version": "V1",
+    "version": VERSION,
 }
 
-valid_template_one_question = {
-    "classification": {"id": "123", "name": "example_name"},
-    "id": "asdsd-sdsw1231",
+template_with_valid_fields_and_one_question_should_return_none = {
+    "classification": CLASSIFICATION,
+    "id": ID,
     "questions": [root_question],
-    "version": "V1",
+    "version": VERSION,
 }
 
-invalid_type_classification = {
+template_missing_required_field_classification_should_throw_exception = {
+    "id": ID,
+    "questions": [],
+    "version": VERSION,
+}
+
+template_missing_required_field_version_should_throw_exception = {
+    "classification": CLASSIFICATION,
+    "id": ID,
+    "questions": [],
+}
+
+template_missing_required_field_questions_should_throw_exception = {
+    "classification": CLASSIFICATION,
+    "id": ID,
+    "version": VERSION,
+}
+
+template_missing_optional_field_id_should_return_none = {
+    "classification": CLASSIFICATION,
+    "questions": [],
+    "version": VERSION,
+}
+
+template_field_classification_has_wrong_type_should_throw_exception = {
     "classification": "",
-    "id": "asdsd-sdsw1231",
+    "id": ID,
     "questions": [],
-    "version": "V1",
+    "version": VERSION,
 }
 
-invalid_missing_field = {"id": "asdsd-sdsw1231", "questions": [], "version": "V1"}
-
-invalid_keys = {
-    "test": "test",
-    "classification": {"id": "123", "name": "example_name"},
-    "id": "asdsd-sdsw1231",
+template_field_id_has_wrong_type_should_throw_exception = {
+    "classification": CLASSIFICATION,
+    "id": 111,
     "questions": [],
-    "version": "V1",
+    "version": VERSION,
+}
+
+template_field_questions_has_wrong_type_should_throw_exception = {
+    "classification": CLASSIFICATION,
+    "id": ID,
+    "questions": "string",
+    "version": VERSION,
+}
+
+template_field_version_has_wrong_type_should_throw_exception = {
+    "classification": CLASSIFICATION,
+    "id": ID,
+    "questions": [],
+    "version": 111,
+}
+
+template_has_invalid_extra_field_should_throw_exception = {
+    "classification": CLASSIFICATION,
+    "id": ID,
+    "questions": [],
+    "version": VERSION,
+    "extra": "extra field is not acceptable",
 }
 
 
 @pytest.mark.parametrize(
     "json, expectation",
     [
-        (valid_template_no_questions, None),
-        (valid_template_one_question, None),
-        (invalid_type_classification, ValidationExceptionError),
-        (invalid_missing_field, ValidationExceptionError),
-        (invalid_keys, ValidationExceptionError),
+        (
+            template_with_valid_fields_and_no_question_should_return_none,
+            None,
+        ),
+        (template_with_valid_fields_and_one_question_should_return_none, None),
+        (
+            template_missing_required_field_classification_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            template_missing_required_field_version_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            template_missing_required_field_questions_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (template_missing_optional_field_id_should_return_none, None),
+        (
+            template_field_classification_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            template_field_id_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            template_field_questions_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            template_field_version_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            template_has_invalid_extra_field_should_throw_exception,
+            ValidationExceptionError,
+        ),
     ],
 )
 def test_validate_template(json, expectation):
@@ -76,43 +156,3 @@ def test_validate_template(json, expectation):
             FormTemplateValidator.validate(json)
         except ValidationExceptionError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e
-
-
-valid_empty_questions = []
-
-valid_single_question = [root_question]
-
-valid_multi_question = [
-    {**root_question, "questionIndex": 0},
-    {**root_question, "questionIndex": 1},
-]
-
-invalid_questions_out_of_order = [
-    {**root_question, "questionIndex": 1},
-    {**root_question, "questionIndex": 0},
-]
-
-invalid_questions_mult_language = [
-    {
-        **root_question,
-        "questionLangVersions": [
-            {
-                "lang": "english",
-                "mcOptions": [{"mcid": 0, "opt": "england"}],
-                "questionText": "what's your nation",
-            },
-        ],
-    },
-    {
-        **root_question,
-        "questionLangVersions": [
-            {
-                "lang": "chinese",
-                "mcOptions": [{"mcid": 0, "opt": "china"}],
-                "questionText": "what's your nation",
-            },
-        ],
-    },
-]
-
-invalid_first_question_is_not_none = [{**root_question, "categoryIndex": 0}]
