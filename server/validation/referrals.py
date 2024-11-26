@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, ValidationError
+from pydantic import BaseModel, ValidationError
 
 from validation.validation_exception import ValidationExceptionError
 
@@ -51,11 +51,12 @@ class ReferralEntityValidator(BaseModel):
 
 # Manages cancellation status with strict attribute enforcement to prevent unrecognized fields.
 class CancelStatusValidator(BaseModel):
-    # forbid extra attributes
-    model_config = ConfigDict(extra="forbid")
-
     isCancelled: bool
     cancelReason: str
+
+    # forbid extra attributes
+    class Config:
+        extra = "forbid"
 
     @staticmethod
     def validate(request_body: dict):
@@ -76,10 +77,11 @@ class CancelStatusValidator(BaseModel):
 
 
 class NotAttendValidator(BaseModel):
-    # forbid extra attributes
-    model_config = ConfigDict(extra="forbid")
-
     notAttendReason: str
+
+    # forbid extra attributes
+    class Config:
+        extra = "forbid"
 
     @staticmethod
     def validate(request_body: dict):
