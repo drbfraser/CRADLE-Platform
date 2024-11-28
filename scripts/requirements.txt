@@ -1,4 +1,4 @@
 # This requirements.txt is for the create_user_pool.py script.
 python-dotenv
-boto3~=1.35.49 # AWS SDK
-botocore~=1.35.49
+boto3==1.35.49 # AWS SDK
+botocore==1.35.49
