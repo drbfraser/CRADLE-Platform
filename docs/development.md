@@ -48,7 +48,7 @@ In case connecting with cradle-sms-relay is needed, you should append your emula
 
 For example, add this line at the end of the lines mentioned above:
 
-```bash
+```
 EMULATOR_PHONE_NUMBER=<PHONE_NUMBER_OF_EMULATOR_RUNNING_CRADLE_MOBILE_APP>
 ```
 
@@ -56,13 +56,13 @@ Your emulator's phone number will very likely be 5555215554 or 5555215556. The f
 
 For example, let's say that you start the CRADLE Mobile app's emulator SECOND (this is AFTER you start the emulator for SMS relay), assuming you have no other emulators open before opening the emulator for SMS relay:
 
-```bash
+```
 EMULATOR_PHONE_NUMBER=5555215556
 ```
 
 Or in full:
 
-```bash
+```
 DB_USERNAME=user
 DB_PASSWORD=abcd1234
 LIMITER_DISABLED=True
@@ -76,7 +76,7 @@ needed to connect with the AWS Cognito user pool. Put the access key and secret 
 that Dr. Brian gave you in this file. If you have not been provided with these, you will
 need to ask Dr. Brian for them.
 
-```bash
+```
 COGNITO_AWS_ACCESS_KEY_ID=<access-key-id>
 COGNITO_AWS_SECRET_ACCESS_KEY=<secret-access-key>
 ```
@@ -94,19 +94,19 @@ You will then need to activate the environment.
 
 If using Windows Powershell, run:
 
-```bash
+```
 env/Scripts/activate.ps1
 ```
 
 If using CMD, run:
 
-```bash
+```
 env/Scripts/activate.bat
 ```
 
 If using Bash, Zsh or a similar Unix shell, run:
 
-```bash
+```
 source .venv/bin/activate
 ```
 
@@ -117,14 +117,14 @@ In the scripts folder of the project, there is a `requirements.txt` with the nec
 You can then install the Python dependencies from the project's root directory
 by running:
 
-```bash
+```
 pip install -r scripts/requirements.txt
 ```
 
 Once the dependencies are installed, you can run the script:
 
-```bash
-python scripts/create_user_pool.py < your-name >
+```
+python scripts/create_user_pool.py <your-name>
 ```
 
 This will create a remote user pool named `cradle_user_pool-<your-name>`.
@@ -140,7 +140,7 @@ so you will need to copy them from `.env.cognito_secrets-<your-name>` to
 
 From your OS's terminal (such as PowerShell in Windows) run:
 
-```bash
+```
 docker compose up
 ```
 
@@ -151,7 +151,7 @@ If there are issues starting up Docker containers after recent changes to packag
 
 Now it's time to run the database migrations. Once the containers have fully started, run the following command in a new terminal window.
 
-```bash
+```
 docker exec cradle_flask flask db upgrade
 ```
 
@@ -165,7 +165,7 @@ Data seeding is handled by the `manage.py` script in the `server` directory. The
 
 In order to seed data, run `docker exec cradle_flask python manage.py <SEED_OPTION>` where `<SEED_OPTION>` is one of the options listed above. For example:
 
-```bash
+```
 docker exec cradle_flask python manage.py seed_test_data
 ```
 
@@ -174,7 +174,7 @@ docker exec cradle_flask python manage.py seed_test_data
 NPM is not run inside Docker (due to poor filesystem performance), so you'll need to run the following to start the NPM development server:
 (Make sure you have `NPM 7`)
 
-```bash
+```
 cd client
 npm install
 npm start
