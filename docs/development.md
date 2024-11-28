@@ -95,13 +95,13 @@ You will then need to activate the environment.
 If using Windows Powershell, run:
 
 ```
-env/Scripts/activate.ps1
+.venv/Scripts/activate.ps1
 ```
 
 If using CMD, run:
 
 ```
-env/Scripts/activate.bat
+.venv/Scripts/activate.bat
 ```
 
 If using Bash, Zsh or a similar Unix shell, run:
