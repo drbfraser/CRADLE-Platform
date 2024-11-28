@@ -110,7 +110,7 @@ If using Bash, Zsh or a similar Unix shell, run:
 source .venv/bin/activate
 ```
 
-You should then see `(.venv) appear before your terminal path.
+You should then see (.venv) appear before your terminal path.
 
 In the scripts folder of the project, there is a `requirements.txt` with the necessary dependencies.
 
