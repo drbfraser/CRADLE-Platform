@@ -52,12 +52,12 @@ For example, add this line at the end of the lines mentioned above:
 EMULATOR_PHONE_NUMBER=<PHONE_NUMBER_OF_EMULATOR_RUNNING_CRADLE_MOBILE_APP>
 ```
 
-Your emulator's phone number will very likely be 5555215554 or 5555215556. The former is assigned to the first emulator that starts. The latter is assigned to the second emulator that starts.
+Your emulator's phone number will very likely be +15555215554 or +15555215556. The former is assigned to the first emulator that starts. The latter is assigned to the second emulator that starts.
 
 For example, let's say that you start the CRADLE Mobile app's emulator SECOND (this is AFTER you start the emulator for SMS relay), assuming you have no other emulators open before opening the emulator for SMS relay:
 
 ```
-EMULATOR_PHONE_NUMBER=5555215556
+EMULATOR_PHONE_NUMBER=+15555215556
 ```
 
 Or in full:
@@ -66,8 +66,10 @@ Or in full:
 DB_USERNAME=user
 DB_PASSWORD=abcd1234
 LIMITER_DISABLED=True
-EMULATOR_PHONE_NUMBER=5555215556
+EMULATOR_PHONE_NUMBER=+15555215556
 ```
+
+Note: The "+1" is the country code, and is required.
 
 ## 4. Set up the user pool
 
