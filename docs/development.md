@@ -106,10 +106,16 @@ If using CMD, run:
 .venv/Scripts/activate.bat
 ```
 
-If using Bash, Zsh or a similar Unix shell, run:
+If on MacOS or Linux, run:
 
 ```
 source .venv/bin/activate
+```
+
+If you are using Git Bash on Windows, run:
+
+```
+source .venv/Scripts/activate
 ```
 
 You should then see (.venv) appear before your terminal path.
@@ -123,20 +129,32 @@ by running:
 pip install -r scripts/requirements.txt
 ```
 
-Once the dependencies are installed, you can run the script:
+Once the dependencies are installed, running the script will create a remote
+user pool named `cradle_user_pool-<your-name>`. Where `<your-name>` is the
+command line argument that you provide to the script. It is recommended that
+you use a unique identifier such as your SFU computing ID to avoid potential
+naming conflicts.
 
 ```
 python scripts/create_user_pool.py <your-name>
 ```
 
-This will create a remote user pool named `cradle_user_pool-<your-name>`.
-It will also create a file named `.env.cognito_secrets-<your-name>` in the
+This will also create a file named `.env.cognito_secrets-<your-name>` in the
 project's root directory. This file has been populated with the values necessary
 to connect to your user pool. Don't lose these! If you lose these values, you will
 need to ask Dr. Brian to delete your user pool so you can create a new one. The
 project's code will be looking for these values in the `.env.cognito_secrets` file,
 so you will need to copy them from `.env.cognito_secrets-<your-name>` to
 `.env.cognito_secrets`.
+
+You can copy the contents from this new file to `.env.cognito_secrets` by running:
+
+```
+cat .env.cognito_secrets-<your-name> > .env.cognito_secrets
+```
+
+It is strongly recommended that you keep the `.env.cognito_secrets-<your-name>`
+file as a backup.
 
 ## 5. Spin up the Docker Containers
 
