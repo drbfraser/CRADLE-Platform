@@ -1265,7 +1265,7 @@ def __filter_by_patient_association(
     is_cho,
 ) -> Query:
     if user_id is not None:
-        if model.patient_id is not None:
+        if hasattr(model, model.patient_id):
             join_column = model.patient_id
         else:
             join_column = model.id
