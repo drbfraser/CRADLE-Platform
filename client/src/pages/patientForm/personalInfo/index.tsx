@@ -97,8 +97,8 @@ export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
               exclusive
               size="large"
               type="checkbox"
-              value={Boolean(formikProps.values.isExactDob)}
-              name={PatientField.isExactDob}
+              value={Boolean(formikProps.values.isExactDateOfBirth)}
+              name={PatientField.isExactDateOfBirth}
               sx={{ width: '100%' }}>
               <ToggleButton sx={TOGGLE_SX} value={true}>
                 Date of Birth
@@ -109,7 +109,7 @@ export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
             </Field>
           </Grid>
           <Grid item md={2} sm={12}>
-            {formikProps.values.isExactDob ? (
+            {formikProps.values.isExactDateOfBirth ? (
               <Field
                 component={TextField}
                 fullWidth
@@ -117,7 +117,7 @@ export const PersonalInfoForm = ({ formikProps, creatingNew }: IProps) => {
                 variant="outlined"
                 type="date"
                 label="Date of Birth"
-                name={PatientField.dob}
+                name={PatientField.dateOfBirth}
                 InputLabelProps={{
                   shrink: true,
                 }}

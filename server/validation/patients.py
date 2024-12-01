@@ -64,7 +64,6 @@ class PatientPostValidator(PatientBase):
     sex: str
     date_of_birth: str
     is_exact_date_of_birth: bool
-    is_pregnant: bool
     readings: Optional[List[ReadingValidator]] = None
 
     @staticmethod

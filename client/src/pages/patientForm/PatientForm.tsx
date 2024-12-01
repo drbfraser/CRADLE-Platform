@@ -153,7 +153,8 @@ export const PatientForm = ({
           false,
           navigate,
           setSubmitError,
-          helpers.setSubmitting
+          helpers.setSubmitting,
+          setErrorMessage
         );
       }
     } else if (isFinalPage) {
@@ -162,7 +163,8 @@ export const PatientForm = ({
         true,
         navigate,
         setSubmitError,
-        helpers.setSubmitting
+        helpers.setSubmitting,
+        setErrorMessage
       );
     } else {
       helpers.setTouched({});
