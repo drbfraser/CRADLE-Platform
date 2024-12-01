@@ -68,7 +68,7 @@ export const handleSubmit = async (
   create the pregnancy record in a separate request to the server. */
   const pregnancyData = {
     isPregnant: Boolean(values[PatientField.isPregnant]),
-    pregnancyStartDate: 0,
+    startDate: 0,
   };
 
   if (!patientData.isExactDateOfBirth) {
@@ -78,7 +78,7 @@ export const handleSubmit = async (
   }
 
   if (pregnancyData.isPregnant) {
-    pregnancyData.pregnancyStartDate =
+    pregnancyData.startDate =
       values.gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS
         ? gestationalAgeUnitTimestamp[GestationalAgeUnitEnum.WEEKS](
             values.gestationalAgeWeeks,
@@ -87,6 +87,8 @@ export const handleSubmit = async (
         : gestationalAgeUnitTimestamp[GestationalAgeUnitEnum.MONTHS](
             values.gestationalAgeMonths
           );
+
+    pregnancyData.startDate = Math.round(pregnancyData.startDate);
   }
 
   let method = 'POST';
@@ -134,7 +136,9 @@ export const handleSubmit = async (
     method = 'POST';
     await axiosFetch(url, {
       method: method,
-      data: pregnancyData,
+      data: {
+        startDate: pregnancyData.startDate,
+      },
     });
   } catch (e) {
     setSubmitError(true);
