@@ -250,7 +250,9 @@ export const PregnancyInfo = ({ patientId, patientName }: Props) => {
                       </TableRow>
                     ))
                   ) : (
-                    <TableRow>No previous pregnancy records</TableRow>
+                    <TableRow>
+                      <TableCell>No previous pregnancy records</TableCell>
+                    </TableRow>
                   )}
                 </TableBody>
               </Table>
