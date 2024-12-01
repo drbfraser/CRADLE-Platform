@@ -129,7 +129,6 @@ export const getApiToken = async () => {
         throw new Error('Access token was not found in response.');
       }
       localStorage.setItem('accessToken', accessToken);
-      console.log('REFRESH SUCCESSFUL!');
     }
   } catch (e) {
     console.error(`ERROR Failed to get new access token.`);
