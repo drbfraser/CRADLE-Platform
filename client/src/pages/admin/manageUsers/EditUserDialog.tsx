@@ -1,4 +1,8 @@
-import { Autocomplete, TextField as FormikTextField } from 'formik-mui';
+import {
+  Autocomplete,
+  TextField as FormikTextField,
+  Select as FormikSelect,
+} from 'formik-mui';
 import {
   AutocompleteRenderInputParams,
   Checkbox,
@@ -9,6 +13,7 @@ import {
   FormGroup,
   MenuItem,
   TextField,
+  Select,
 } from '@mui/material';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
@@ -34,7 +39,6 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
   const healthFacilities = useHealthFacilities();
   const [submitError, setSubmitError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const creatingNew = editUser === undefined;
   const emailsInUse = users
     .filter((u) => u.id !== editUser?.id)
     .map((u) => u.email);
@@ -55,15 +59,16 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
       await editUserAsync(editedUser, editUser.id);
       onClose();
     } catch (e) {
-      let message = '';
-      if (e instanceof Response) {
-        const responseBody = await e.json();
+      let message = 'Something went wrong';
+      if (e instanceof AxiosError) {
+        const responseBody = e.response?.data;
+        message = responseBody.message;
         if ('message' in responseBody) {
           message = responseBody.message;
         }
-      } else if (e instanceof AxiosError) {
-        const responseBody = e.response?.data as { message: string };
-        message = responseBody.message;
+      } else if (typeof e == 'string') {
+        console.log('e is a string');
+        message = e;
       }
       setSubmitting(false);
       setErrorMessage(`Error: ${message}`);
@@ -71,7 +76,8 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
     }
   };
 
-  return editUser ? (
+  if (!editUser) return null;
+  return (
     <>
       <APIErrorToast
         open={submitError}
@@ -82,13 +88,24 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
         errorMessage={errorMessage}
       />
       <Dialog open={open} maxWidth="sm" fullWidth>
-        <DialogTitle>{creatingNew ? 'Create' : 'Edit'} User</DialogTitle>
+        <DialogTitle>{'Edit'} User</DialogTitle>
         <DialogContent>
           <Formik
-            initialValues={editUser}
+            initialValues={{
+              ...editUser,
+              supervises: editUser.supervises ?? [],
+            }}
             validationSchema={newEditValidationSchema(emailsInUse)}
             onSubmit={handleSubmit}>
-            {({ values, touched, errors, isSubmitting, isValid }) => (
+            {({
+              values,
+              touched,
+              errors,
+              isSubmitting,
+              isValid,
+              handleChange,
+              handleBlur,
+            }) => (
               <Form>
                 <FormGroup
                   sx={{
@@ -150,9 +167,8 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
                     )}
                   />
                   <Field
-                    component={FormikTextField}
+                    component={FormikSelect}
                     fullWidth
-                    select
                     required
                     variant="outlined"
                     label={fieldLabels[UserField.role]}
@@ -165,43 +181,49 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
                   </Field>
                   {values.role === UserRoleEnum.CHO && (
                     <>
-                      <Field
-                        component={FormikTextField}
+                      <TextField
+                        label={fieldLabels[UserField.supervises]}
+                        name={UserField.supervises}
+                        value={values.supervises}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={touched.supervises && !!errors.supervises}
+                        helperText={touched.supervises && errors.supervises}
                         variant="outlined"
                         fullWidth
                         select
-                        SelectProps={{
-                          multiple: true,
-                          renderValue: (ids: number[]) =>
-                            ids
-                              .map(
-                                (id) =>
-                                  users.find((u) => u.id === id)?.name ??
-                                  'Unknown'
-                              )
-                              .join(', '),
-                        }}
-                        label={fieldLabels[UserField.supervises]}
-                        name={UserField.supervises}>
+                        slotProps={{
+                          select: {
+                            multiple: true,
+                            renderValue: (ids: unknown) =>
+                              (ids as number[])
+                                .map(
+                                  (id) =>
+                                    users.find((u) => u.id === id)?.name ??
+                                    'Unknown'
+                                )
+                                .join(', '),
+                          },
+                        }}>
                         {users
                           .filter(
-                            (u) =>
-                              editUser?.supervises?.includes(u.id) ||
-                              (u.role === UserRoleEnum.VHT &&
-                                u.id !== editUser?.id)
+                            (user) =>
+                              editUser?.supervises?.includes(user.id) ||
+                              (user.role === UserRoleEnum.VHT &&
+                                user.id !== editUser?.id)
                           )
                           .map((user) => (
                             <MenuItem key={user.id} value={user.id}>
                               <Checkbox
                                 checked={
                                   values.supervises &&
-                                  values.supervises.indexOf(user.id) >= 0
+                                  values.supervises?.indexOf(user.id) >= 0
                                 }
                               />
                               {user.name} ({user.email})
                             </MenuItem>
                           ))}
-                      </Field>
+                      </TextField>
                     </>
                   )}
                   <DialogActions>
@@ -211,7 +233,7 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
                     <PrimaryButton
                       type="submit"
                       disabled={isSubmitting || !isValid}>
-                      {creatingNew ? 'Create' : 'Save'}
+                      {'Save'}
                     </PrimaryButton>
                   </DialogActions>
                 </FormGroup>
@@ -221,5 +243,5 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
         </DialogContent>
       </Dialog>
     </>
-  ) : null;
+  );
 };
