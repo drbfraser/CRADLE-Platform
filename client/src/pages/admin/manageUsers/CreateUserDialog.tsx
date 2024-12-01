@@ -72,9 +72,10 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
   };
 
   const handleSubmit = async (
-    newUser: NewUser,
+    user: NewUser,
     { setSubmitting }: FormikHelpers<NewUser>
   ) => {
+    const newUser = { ...user };
     /* If the phone number entered is not already in the user's array of 
     phone numbers, prepend it to the array. */
     if (

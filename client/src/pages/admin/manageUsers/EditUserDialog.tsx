@@ -44,13 +44,15 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
     { setSubmitting }: FormikHelpers<EditUser>
   ) => {
     if (!editUser) return;
+    const editedUser = { ...user };
+
     /* If the phone number entered is not already in the user's array of 
     phone numbers, prepend it to the array. */
     if (user.phoneNumber && !user.phoneNumbers.includes(user.phoneNumber)) {
-      user.phoneNumbers = [user.phoneNumber, ...user.phoneNumbers];
+      editedUser.phoneNumbers = [user.phoneNumber, ...user.phoneNumbers];
     }
     try {
-      await editUserAsync(user, editUser.id);
+      await editUserAsync(editedUser, editUser.id);
       onClose();
     } catch (e) {
       let message = '';

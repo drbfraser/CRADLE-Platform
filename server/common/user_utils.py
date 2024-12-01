@@ -301,7 +301,8 @@ def create_user(
     except ClientError as err:
         error = err.response.get("Error")
         print(error)
-        raise ValueError(error)
+        error_message = error.get("Message", "Something has gone wrong.")
+        raise ValueError(error_message)
 
 
 def delete_user(username: str):

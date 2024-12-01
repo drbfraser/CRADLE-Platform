@@ -126,7 +126,13 @@ class UserRegisterApi(Resource):
         # use pydantic model to generate validated dict for later processing
         new_user_dict = user_pydantic_model.model_dump()
 
-        user_utils.create_user(**new_user_dict)
+        try:
+            user_utils.create_user(**new_user_dict)
+        except ValueError as e:
+            error_message = str(e)
+            LOGGER.error(error_message)
+            return error_message, 400
+
         return user_utils.get_user_dict_from_username(user_pydantic_model.username), 200
 
 
