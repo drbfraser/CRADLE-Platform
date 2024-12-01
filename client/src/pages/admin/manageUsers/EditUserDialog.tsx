@@ -13,7 +13,6 @@ import {
   FormGroup,
   MenuItem,
   TextField,
-  Select,
 } from '@mui/material';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
