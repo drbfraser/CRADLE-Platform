@@ -21,6 +21,7 @@ import { userRoleLabels } from 'src/shared/constants';
 import { NewUser, User } from 'src/shared/api/validation/user';
 import { lowerCase } from 'lodash';
 import { UserRoleEnum } from 'src/shared/enums';
+import { AxiosError } from 'axios';
 
 const newUserTemplate: NewUser = {
   email: '',
@@ -86,8 +87,16 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
       await createUserAsync(newUser);
       onClose();
     } catch (e) {
-      if (!(e instanceof Response)) return;
-      const { message } = (await e.json()) as { message: string };
+      let message = '';
+      if (e instanceof Response) {
+        const responseBody = await e.json();
+        if ('message' in responseBody) {
+          message = responseBody.message;
+        }
+      } else if (e instanceof AxiosError) {
+        const responseBody = e.response?.data as { message: string };
+        message = responseBody.message;
+      }
       setSubmitting(false);
       setErrorMessage(`Error: ${message}`);
       setSubmitError(true);

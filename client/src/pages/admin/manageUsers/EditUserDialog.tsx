@@ -21,6 +21,7 @@ import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
 import { useState } from 'react';
 import { userRoleLabels } from 'src/shared/constants';
 import { EditUser, User } from 'src/shared/api/validation/user';
+import { AxiosError } from 'axios';
 
 interface IProps {
   open: boolean;
@@ -52,8 +53,16 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
       await editUserAsync(user, editUser.id);
       onClose();
     } catch (e) {
-      if (!(e instanceof Response)) return;
-      const { message } = (await e.json()) as { message: string };
+      let message = '';
+      if (e instanceof Response) {
+        const responseBody = await e.json();
+        if ('message' in responseBody) {
+          message = responseBody.message;
+        }
+      } else if (e instanceof AxiosError) {
+        const responseBody = e.response?.data as { message: string };
+        message = responseBody.message;
+      }
       setSubmitting(false);
       setErrorMessage(`Error: ${message}`);
       setSubmitError(true);
