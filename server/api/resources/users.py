@@ -131,7 +131,8 @@ class UserRegisterApi(Resource):
         except ValueError as e:
             error_message = str(e)
             LOGGER.error(error_message)
-            return error_message, 400
+            abort(400, message=error_message)
+            return None
 
         return user_utils.get_user_dict_from_username(user_pydantic_model.username), 200
 

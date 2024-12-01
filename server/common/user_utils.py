@@ -210,9 +210,7 @@ def register_user(
         # Validate phone numbers uniqueness.
         for phone_number in phone_numbers:
             if phone_number_utils.does_phone_number_exist(phone_number):
-                raise ValueError(
-                    {"message": f"Phone number ({phone_number}) is already assigned."}
-                )
+                raise ValueError(f"Phone number ({phone_number}) is already assigned.")
         # Check health facility existence.
         if not health_facility_utils.does_facility_exist(health_facility_name):
             raise ValueError(f"Health facility ({health_facility_name}) not found.")
