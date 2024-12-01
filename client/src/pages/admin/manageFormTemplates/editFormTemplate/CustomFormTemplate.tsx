@@ -126,7 +126,7 @@ export const CustomFormTemplate = () => {
           </IconButton>
         </Tooltip>
         {/*TODO: Allow template name to change depending on if we are editing a new or existing form template*/}
-        <Typography variant="h4">
+        <Typography variant={'h4'} component={'h4'}>
           {targetFrom ? 'Edit Template' : 'Create New Template'}
         </Typography>
       </Box>
