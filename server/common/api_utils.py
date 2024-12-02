@@ -47,6 +47,12 @@ def get_query_params() -> dict:
         ),
     }
 
+    # If not None, order_by will be assigned a field name, so it too must
+    # me converted to snake case.
+    order_by = params.get("order_by")
+    if order_by is not None:
+        params["order_by"] = decamelize(order_by)
+
     return {k: v for k, v in params.items() if v and k is not None}
 
 
