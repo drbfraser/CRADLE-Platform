@@ -121,6 +121,7 @@ export const Login = () => {
                     <Button
                       variant={'contained'}
                       fullWidth
+                      disabled={formikProps.isSubmitting}
                       type={'submit'}
                       size={'large'}
                       sx={{
