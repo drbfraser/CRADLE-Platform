@@ -72,7 +72,7 @@ def test_edit_user(jwt_token):
         "health_facility_name": "H0000",
         "name": "TestVHT***",
         "role": "VHT",
-        "email": "vht@email.com",
+        "email": "test_vht@email.com",
         "supervises": [],
         "phone_numbers": ["+1-666-666-6666", "+1-555-555-5555", "+1-777-777-7777"],
         "index": 2,

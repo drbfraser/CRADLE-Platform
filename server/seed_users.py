@@ -47,11 +47,20 @@ users_list: list[SeedUserDict] = [
     {
         "name": "Test VHT",
         "username": "test_vht",
-        "email": "vht@email.com",
+        "email": "test_vht@email.com",
         "password": "cradle-vht",
         "health_facility_name": "H1000",
         "role": RoleEnum.VHT.value,
         "phone_numbers": ["+256-555-100000", "+256-555-100001", "+256-555-100002"],
+    },
+    {
+        "name": "VHT",
+        "username": "vht",
+        "email": "vht@email.com",
+        "password": "cradle-vht",
+        "health_facility_name": "H1000",
+        "role": RoleEnum.VHT.value,
+        "phone_numbers": ["+256-555-100003"],
     },
     {
         "name": "CHO User",
