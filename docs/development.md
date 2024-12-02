@@ -129,6 +129,10 @@ If there are errors during `npm start`, try running `npm ci` to install directly
 
 # Development
 
+## Get-Started Documentation
+
+For a comprehensive guide to backend development, please refer to the "Backend-Onboarding-Doc" located in the shared CRADLE Docs Google Drive under Guides/Tutorials > Backend-Onboarding-Doc. This document provides all the essential information for new backend developers to get started, offering a detailed overview of the codebase and an explanation of what each each file does. It also includes step-by-step instructions for running automated tests, creating and utilizing Pydantic test models, and accessing, migrating, or resetting database data.
+
 ## General Tips
 
 - Make sure to check out the API documentation at http://localhost:5000/apidocs
@@ -182,12 +186,11 @@ If something has gone wrong and you're having issues with your database, you can
 6. Upgrade your database schema: `docker exec cradle_flask flask db upgrade`
 7. Reseed: `docker exec cradle_flask python manage.py seed` (see setup above for more seed options)
 
-
 ## Useful Tools / Dev Software
 
 * [Postman](https://www.getpostman.com/): 
    - Used to test API endpoints and send HTTP requests with a GUI 
-   - Check out the [Postman Workspace Setup Guide](https://csil-git1.cs.surrey.sfu.ca/415-cradle/cradle-platform/-/wikis/Postman-Workspace-Setup) for how to set up the Postman Workspaces to begin testing the project REST APIs
+   - Check out the [Postman Workspace Setup Guide](https://github.sfu.ca/cradle-project/Cradle-Platform/wiki) for how to set up the Postman Workspaces to begin testing the project REST APIs
 * [React Developer Tools](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en) 
   - allows you to observe what components make up the webpage/DOM
   - allows you to observe the live values of props and state in components
