@@ -129,9 +129,15 @@ If there are errors during `npm start`, try running `npm ci` to install directly
 
 # Development
 
-## Get-Started Documentation
+## Backend Onboarding Guide - Useful Documentation to Get Started
 
-For a comprehensive guide to backend development, please refer to the "Backend-Onboarding-Doc" located in the shared CRADLE Docs Google Drive under Guides/Tutorials > Backend-Onboarding-Doc. This document provides all the essential information for new backend developers to get started, offering a detailed overview of the codebase and an explanation of what each each file does. It also includes step-by-step instructions for running automated tests, creating and utilizing Pydantic test models, and accessing, migrating, or resetting database data.
+For a comprehensive guide to backend development, please refer to the "Backend-Onboarding-Doc" located in the shared CRADLE Docs Google Drive under Guides/Tutorials > Backend-Onboarding-Doc. 
+
+This document provides all the essential information for new backend developers to get started, offering a detailed overview of the codebase and an explanation of 
+- What each each file does
+- Step-by-step instructions for running automated tests
+- Creating and utilizing Pydantic test models
+- Accessing, migrating, or resetting database data
 
 ## General Tips
 
@@ -160,7 +166,7 @@ It's always best to avoid adding additional dependencies to the project if possi
 ### Frontend
 
 - New packages can be installed in the frontend by running `npm install PACKAGE_NAME` in the `client` folder
--  If another team member has installed a new package, you'll need to run `npm install` (or `npm install --legacy-peer-deps`)
+- If another team member has installed a new package, you'll need to run `npm install` (or `npm install --legacy-peer-deps`)
 
 ### Backend
 
