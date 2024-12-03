@@ -65,6 +65,8 @@ class Root(Resource):
         else:
             request_json = request.get_json(force=True)
 
+        # Note: This validation logic is left out of the Pydantic validation system
+        # because it relies on the database, which the unit tests do not have access to (Issue #689)
         if len(request_json) == 0:
             abort(400, message="Request body is empty")
 

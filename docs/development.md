@@ -129,6 +129,16 @@ If there are errors during `npm start`, try running `npm ci` to install directly
 
 # Development
 
+## Backend Onboarding Guide - Useful Documentation to Get Started
+
+For a comprehensive guide to backend development, please refer to the "Backend-Onboarding-Doc" located in the shared CRADLE Docs Google Drive under **Guides/Tutorials > Backend-Onboarding-Doc**. 
+
+This document provides all the essential information for new backend developers to get started, offering a detailed overview of the codebase and an explanation of 
+- What each each file does
+- Step-by-step instructions for running automated tests
+- Creating and utilizing Pydantic test models
+- Accessing, migrating, or resetting database data
+
 ## General Tips
 
 - Make sure to check out the API documentation at http://localhost:5000/apidocs
@@ -156,7 +166,7 @@ It's always best to avoid adding additional dependencies to the project if possi
 ### Frontend
 
 - New packages can be installed in the frontend by running `npm install PACKAGE_NAME` in the `client` folder
--  If another team member has installed a new package, you'll need to run `npm install` (or `npm install --legacy-peer-deps`)
+- If another team member has installed a new package, you'll need to run `npm install` (or `npm install --legacy-peer-deps`)
 
 ### Backend
 
@@ -182,12 +192,11 @@ If something has gone wrong and you're having issues with your database, you can
 6. Upgrade your database schema: `docker exec cradle_flask flask db upgrade`
 7. Reseed: `docker exec cradle_flask python manage.py seed` (see setup above for more seed options)
 
-
 ## Useful Tools / Dev Software
 
 * [Postman](https://www.getpostman.com/): 
    - Used to test API endpoints and send HTTP requests with a GUI 
-   - Check out the [Postman Workspace Setup Guide](https://csil-git1.cs.surrey.sfu.ca/415-cradle/cradle-platform/-/wikis/Postman-Workspace-Setup) for how to set up the Postman Workspaces to begin testing the project REST APIs
+   - Check out the [Postman Workspace Setup Guide](https://github.sfu.ca/cradle-project/Cradle-Platform/wiki) for how to set up the Postman Workspaces to begin testing the project REST APIs
 * [React Developer Tools](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en) 
   - allows you to observe what components make up the webpage/DOM
   - allows you to observe the live values of props and state in components
