@@ -132,7 +132,6 @@ jobs:
     # TODO: Fix the back-end system tests.
     # Disabled temporarily. See Issue #701
     # https://github.sfu.ca/cradle-project/Cradle-Platform/issues/701 
-    if: false
     container: 
       image: python:3.9.1-buster
     needs: backend_unit_tests
