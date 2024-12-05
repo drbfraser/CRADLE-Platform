@@ -39,10 +39,13 @@ class AnswerValidator(BaseModel, extra="forbid"):
     """
 
 
-class VisibleConditionValidator(BaseModel, extra="forbid"):
+class VisibleConditionValidator(BaseModel):
     answers: AnswerValidator
     qidx: int
     relation: QRelationalEnum
+
+    class Config:
+        use_enum_values = True
 
     """
     valid example:
@@ -81,7 +84,7 @@ class QuestionLangVersionValidator(BaseModel, extra="forbid"):
     """
 
 
-class QuestionBase(BaseModel, extra="forbid"):
+class QuestionBase(BaseModel):
     questionIndex: Annotated[int, Field(strict=True, ge=0)]  # Non-negative index
     questionType: QuestionTypeEnum
     questionId: Optional[str] = None
@@ -95,6 +98,9 @@ class QuestionBase(BaseModel, extra="forbid"):
     stringMaxLength: Optional[int] = None
     categoryIndex: Optional[int] = None
     stringMaxLines: Optional[int] = None
+
+    class Config:
+        use_enum_values = True
 
 
 class TemplateQuestionValidator(QuestionBase, extra="forbid"):
