@@ -10,7 +10,6 @@ from environs import Env
 from flasgger import Swagger
 from flask import Flask
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from flask_restful import Api
@@ -122,7 +121,6 @@ CORS(app, supports_credentials=True)
 api = Api(app)
 app.config.from_object(Config)
 
-jwt = JWTManager(app)
 app.json_encoder = JSONEncoder
 
 db = SQLAlchemy(
