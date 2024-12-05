@@ -299,7 +299,9 @@ def create_user(
     except ClientError as err:
         error = err.response.get("Error")
         print(error)
-        error_message = error.get("Message", "Something has gone wrong.")
+        error_message = "Something has gone wrong."
+        if error is not None:
+            error_message = error.get("Message", error_message)
         raise ValueError(error_message)
 
 

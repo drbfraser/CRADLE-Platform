@@ -346,17 +346,6 @@ class CognitoClientWrapper:
         username = cognito_user_info.get("Username")
         return username
 
-    def get_user_data_from_jwt(self):
-        """
-        Verifies access token in request authorization header and retrieves
-        the user's info from the database.
-
-        :return user_data: Dict containing user's info.
-        """
-        username = self.get_username_from_jwt()
-
-        return username
-
     def refresh_access_token(self, username: str):
         """
         Extracts refresh token from cookies and uses it to get a new access

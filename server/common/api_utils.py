@@ -1,5 +1,11 @@
+import json
+import re
+
 from flask import request
 from humps import decamelize
+
+from common import user_utils
+from config import app
 
 
 def get_request_body():
@@ -67,3 +73,46 @@ def get_query_param_bool(name: str) -> bool:
     """
     request_args: dict = decamelize(request.args)
     return request_args.get(name, "false") == "true"
+
+
+@app.after_request
+def log_request_details(response):
+    """
+    middleware function for logging changes made by users
+    """
+    try:
+        try:
+            requestor_data = user_utils.get_current_user_from_jwt()
+        except Exception:
+            requestor_data = {}
+
+        if len(request.data) == 0:
+            req_data = request.args.to_dict()
+        else:
+            req_data = json.loads(request.data.decode("utf-8"))
+
+        request_data = {}
+        for key in req_data:
+            if "password" in key.lower():
+                continue
+            request_data[key] = req_data[key]
+
+        if response.status_code == 200:
+            status_str = "Successful"
+        else:
+            status_str = "Unsuccessful"
+
+        extra = {
+            "Response Status": f"{response.status_code} ({status_str})",
+            "Request Information": request_data,
+            "Requestor Information": requestor_data,
+        }
+
+        message = f"Accessing Endpoint: {re.search(r'/api/.*', request.url).group(0)} Request Method: {request.method}"
+        app.logger.info(message, extra=extra)
+    except Exception as err:
+        app.logger.info(
+            "An unexpected error occurred while logging request and response data",
+        )
+        app.logger.error(err)
+    return response
