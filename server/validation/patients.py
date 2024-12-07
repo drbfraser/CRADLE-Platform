@@ -18,6 +18,7 @@ class PatientBase(BaseModel):
     zone: Optional[str] = None
     villageNumber: Optional[str] = None
     pregnancyStartDate: Optional[int] = None
+    gestationalAgeUnit: Optional[str] = None
     drugHistory: Optional[str] = None
     medicalHistory: Optional[str] = None
     allergy: Optional[str] = None
@@ -37,7 +38,7 @@ class PatientBase(BaseModel):
     @field_validator("patientId", mode="before")
     @classmethod
     def check_patient_id_length(cls, patient_id):
-        if len(patient_id) > 14:
+        if type(patient_id) is str and len(patient_id) > 14:
             raise ValueError("patientId is too long. Max is 14 digits.")
         return patient_id
 
