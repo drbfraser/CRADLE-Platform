@@ -18,7 +18,6 @@ class PatientBase(BaseModel):
     zone: Optional[str] = None
     villageNumber: Optional[str] = None
     pregnancyStartDate: Optional[int] = None
-    gestationalAgeUnit: Optional[str] = None
     drugHistory: Optional[str] = None
     medicalHistory: Optional[str] = None
     allergy: Optional[str] = None
@@ -29,11 +28,9 @@ class PatientBase(BaseModel):
     def validate_is_pregnant_field(cls, values):
         is_pregnant = values.get("isPregnant")
         if is_pregnant:
-            if not values.get("pregnancyStartDate") or not values.get(
-                "gestationalAgeUnit",
-            ):
+            if not values.get("pregnancyStartDate"):
                 raise ValueError(
-                    "If isPregnant is True, pregnancyStartDate and gestationalAgeUnit are required.",
+                    "If isPregnant is True, pregnancyStartDate is required.",
                 )
         return values
 
