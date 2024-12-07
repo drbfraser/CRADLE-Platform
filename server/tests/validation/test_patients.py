@@ -349,7 +349,8 @@ patient_put_has_mismatched_patientId_hould_throw_exception = {
     "json, expectation",
     [
         (patient_put_with_valid_fields_should_return_none, None),
-        (patient_put_missing_optional_field_patientId_should_return_none, None)(
+        (patient_put_missing_optional_field_patientId_should_return_none, None),
+        (
             patient_put_has_mismatched_patientId_hould_throw_exception,
             ValidationExceptionError,
         ),
