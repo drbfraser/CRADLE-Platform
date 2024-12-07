@@ -10,116 +10,290 @@ todays_date = datetime.today()
 two_weeks_ago = int((todays_date - timedelta(weeks=2)).strftime("%s"))
 fifty_weeks_ago = int((todays_date - timedelta(weeks=50)).strftime("%s"))
 
-valid_json = {
-    "id": "123456",
-    "name": "test_name",
-    "is_pregnant": True,
-    "sex": "FEMALE",
-    "household_number": "20",
-    "date_of_birth": "1990-05-30",
-    "is_exact_date_of_birth": False,
-    "zone": "15",
-    "village_number": "50",
-    "pregnancy_start_date": two_weeks_ago,
-    "drug_history": "too much tylenol",
-    "medical_history": "not enough advil",
-    "allergy": "seafood",
+PATIENT_ID = "123456"
+PATIENT_NAME = "testName"
+SEX = "FEMALE"
+HOUSEHOLD_NUMBER = "20"
+DATE_STRING = "1990-05-30"
+ZONE = "15"
+VILLAGE_NUMBER = "50"
+UNIT = "WEEKS"
+HISTORY = "too much tylenol"
+ALLERGY = "seafood"
+PREGNANCY_START_DATE = two_weeks_ago
+
+patient_with_valid_fields_should_return_none = {
+    "patientId": PATIENT_ID,
+    "patientName": PATIENT_NAME,
+    "isPregnant": True,
+    "patientSex": SEX,
+    "householdNumber": HOUSEHOLD_NUMBER,
+    "dob": DATE_STRING,
+    "isExactDob": False,
+    "zone": ZONE,
+    "villageNumber": VILLAGE_NUMBER,
+    "pregnancyStartDate": PREGNANCY_START_DATE,
+    "gestationalAgeUnit": UNIT,
+    "drugHistory": HISTORY,
+    "medicalHistory": HISTORY,
+    "allergy": ALLERGY,
 }
 
-# Patient is pregnant but pregnancy_start_date is missing
-missing_pregnancy_start_date = {
-    "id": "123456",
-    "name": "test_name",
-    "is_pregnant": True,
-    "sex": "FEMALE",
-    "household_number": "20",
-    "date_of_birth": "1990-05-30",
-    "is_exact_date_of_birth": False,
-    "zone": "15",
-    "village_number": "50",
-    "drug_history": "too much tylenol",
-    "medical_history": "not enough advil",
-    "allergy": "seafood",
+patient_post_missing_required_field_patientId_should_throw_exception = {
+    "patientName": PATIENT_NAME,
+    "isPregnant": True,
+    "patientSex": SEX,
+    "householdNumber": HOUSEHOLD_NUMBER,
+    "dob": DATE_STRING,
+    "isExactDob": False,
+    "zone": ZONE,
+    "villageNumber": VILLAGE_NUMBER,
+    "pregnancyStartDate": PREGNANCY_START_DATE,
+    "gestationalAgeUnit": UNIT,
+    "drugHistory": HISTORY,
+    "medicalHistory": HISTORY,
+    "allergy": ALLERGY,
 }
 
-# pregnancy_start_date must be less than or equal to 43 weeks/10 months
-invalid_pregnancy_start_date = {
-    "id": "123456",
-    "name": "testName",
-    "is_pregnant": True,
-    "sex": "FEMALE",
-    "household_number": "20",
-    "date_of_birth": "1990-05-30",
-    "is_exact_date_of_birth": False,
-    "zone": "15",
-    "village_number": "50",
-    "pregnancy_start_date": fifty_weeks_ago,
-    "drug_history": "too much tylenol",
-    "medical_history": "not enough advil",
-    "allergy": "seafood",
+patient_post_missing_required_field_patientName_should_throw_exception = {
+    "patientId": PATIENT_ID,
+    "isPregnant": True,
+    "patientSex": SEX,
+    "householdNumber": HOUSEHOLD_NUMBER,
+    "dob": DATE_STRING,
+    "isExactDob": False,
+    "zone": ZONE,
+    "villageNumber": VILLAGE_NUMBER,
+    "pregnancyStartDate": PREGNANCY_START_DATE,
+    "gestationalAgeUnit": UNIT,
+    "drugHistory": HISTORY,
+    "medicalHistory": HISTORY,
+    "allergy": ALLERGY,
 }
 
-# name must be type string
-not_type_string = {
-    "id": "123456",
-    "name": 11,
-    "is_pregnant": True,
-    "sex": "FEMALE",
-    "household_number": "20",
-    "date_of_birth": "1990-05-30",
-    "is_exact_date_of_birth": False,
-    "zone": "15",
-    "village_number": "50",
-    "pregnancy_start_date": two_weeks_ago,
-    "drug_history": "too much tylenol",
-    "medical_history": "not enough advil",
-    "allergy": "seafood",
+patient_post_missing_required_field_patientSex_should_throw_exception = {
+    "patientId": PATIENT_ID,
+    "patientName": PATIENT_NAME,
+    "isPregnant": True,
+    "householdNumber": HOUSEHOLD_NUMBER,
+    "dob": DATE_STRING,
+    "isExactDob": False,
+    "zone": ZONE,
+    "villageNumber": VILLAGE_NUMBER,
+    "pregnancyStartDate": PREGNANCY_START_DATE,
+    "gestationalAgeUnit": UNIT,
+    "drugHistory": HISTORY,
+    "medicalHistory": HISTORY,
+    "allergy": ALLERGY,
 }
 
-# id must be less than or equal to 14 digits long
-patient_id_too_long = {
-    "id": "123456789012345",
-    "name": "testName",
-    "is_pregnant": True,
-    "sex": "FEMALE",
-    "household_number": "20",
-    "date_of_birth": "1990-05-30",
-    "is_exact_date_of_birth": False,
-    "zone": "15",
-    "village_number": "50",
-    "pregnancy_start_date": two_weeks_ago,
-    "drug_history": "too much tylenol",
-    "medical_history": "not enough advil",
-    "allergy": "seafood",
+patient_post_missing_required_field_dob_should_throw_exception = {
+    "patientId": PATIENT_ID,
+    "patientName": PATIENT_NAME,
+    "isPregnant": True,
+    "patientSex": SEX,
+    "householdNumber": HOUSEHOLD_NUMBER,
+    "isExactDob": False,
+    "zone": ZONE,
+    "villageNumber": VILLAGE_NUMBER,
+    "pregnancyStartDate": PREGNANCY_START_DATE,
+    "gestationalAgeUnit": UNIT,
+    "drugHistory": HISTORY,
+    "medicalHistory": HISTORY,
+    "allergy": ALLERGY,
 }
 
-# date_of_birth must be in YYYY-mm-dd format
-incorrect_dob_format = {
-    "id": "123456",
-    "name": "testName",
-    "is_pregnant": True,
-    "sex": "FEMALE",
-    "household_number": "20",
-    "date_of_birth": "January 1, 1990",
-    "is_exact_date_of_birth": False,
-    "zone": "15",
-    "village_number": "50",
-    "pregnancy_start_date": two_weeks_ago,
-    "drug_history": "too much tylenol",
-    "medical_history": "not enough advil",
-    "allergy": "seafood",
+patient_post_missing_required_field_isExactDob_should_throw_exception = {
+    "patientId": PATIENT_ID,
+    "patientName": PATIENT_NAME,
+    "isPregnant": True,
+    "patientSex": SEX,
+    "householdNumber": HOUSEHOLD_NUMBER,
+    "dob": DATE_STRING,
+    "zone": ZONE,
+    "villageNumber": VILLAGE_NUMBER,
+    "pregnancyStartDate": PREGNANCY_START_DATE,
+    "gestationalAgeUnit": UNIT,
+    "drugHistory": HISTORY,
+    "medicalHistory": HISTORY,
+    "allergy": ALLERGY,
+}
+
+patient_post_missing_required_field_isPregnant_should_throw_exception = {
+    "patientId": PATIENT_ID,
+    "patientName": PATIENT_NAME,
+    "patientSex": SEX,
+    "householdNumber": HOUSEHOLD_NUMBER,
+    "dob": DATE_STRING,
+    "isExactDob": False,
+    "zone": ZONE,
+    "villageNumber": VILLAGE_NUMBER,
+    "pregnancyStartDate": PREGNANCY_START_DATE,
+    "gestationalAgeUnit": UNIT,
+    "drugHistory": HISTORY,
+    "medicalHistory": HISTORY,
+    "allergy": ALLERGY,
+}
+
+patient_is_pregant_but_missing_pregnancyStartDate_should_throw_exception = {
+    "patientId": PATIENT_ID,
+    "patientName": PATIENT_NAME,
+    "isPregnant": True,
+    "patientSex": SEX,
+    "householdNumber": HOUSEHOLD_NUMBER,
+    "dob": DATE_STRING,
+    "isExactDob": False,
+    "zone": ZONE,
+    "villageNumber": VILLAGE_NUMBER,
+    "gestationalAgeUnit": UNIT,
+    "drugHistory": HISTORY,
+    "medicalHistory": HISTORY,
+    "allergy": ALLERGY,
+}
+
+# gestationalTimestamp must be less than or equal to 43 weeks/10 months
+patient_pregnancy_period_exceed_43weeks_should_throw_exception = {
+    "patientId": PATIENT_ID,
+    "patientName": PATIENT_NAME,
+    "isPregnant": True,
+    "patientSex": SEX,
+    "householdNumber": HOUSEHOLD_NUMBER,
+    "dob": DATE_STRING,
+    "isExactDob": False,
+    "zone": ZONE,
+    "villageNumber": VILLAGE_NUMBER,
+    "pregnancyStartDate": fifty_weeks_ago,
+    "gestationalAgeUnit": UNIT,
+    "drugHistory": HISTORY,
+    "medicalHistory": HISTORY,
+    "allergy": ALLERGY,
+}
+
+# patientName must be type string
+patient_field_patientName_has_invalid_type_should_throw_exception = {
+    "patientId": PATIENT_ID,
+    "patientName": 1,
+    "isPregnant": True,
+    "patientSex": SEX,
+    "householdNumber": HOUSEHOLD_NUMBER,
+    "dob": DATE_STRING,
+    "isExactDob": False,
+    "zone": ZONE,
+    "villageNumber": VILLAGE_NUMBER,
+    "pregnancyStartDate": PREGNANCY_START_DATE,
+    "gestationalAgeUnit": UNIT,
+    "drugHistory": HISTORY,
+    "medicalHistory": HISTORY,
+    "allergy": ALLERGY,
+}
+
+# patientId must be type str
+patient_field_patientId_has_invalid_type_should_throw_exception = {
+    "patientId": 1,
+    "patientName": PATIENT_NAME,
+    "isPregnant": True,
+    "patientSex": SEX,
+    "householdNumber": HOUSEHOLD_NUMBER,
+    "dob": DATE_STRING,
+    "isExactDob": False,
+    "zone": ZONE,
+    "villageNumber": VILLAGE_NUMBER,
+    "pregnancyStartDate": PREGNANCY_START_DATE,
+    "gestationalAgeUnit": UNIT,
+    "drugHistory": HISTORY,
+    "medicalHistory": HISTORY,
+    "allergy": ALLERGY,
+}
+
+# patientId must be less than or equal to 14 digits long
+patient_field_patientId_has_more_than_14digits_should_throw_exception = {
+    "patientId": "123456789012345",
+    "patientName": PATIENT_NAME,
+    "isPregnant": True,
+    "patientSex": SEX,
+    "householdNumber": HOUSEHOLD_NUMBER,
+    "dob": DATE_STRING,
+    "isExactDob": False,
+    "zone": ZONE,
+    "villageNumber": VILLAGE_NUMBER,
+    "pregnancyStartDate": PREGNANCY_START_DATE,
+    "gestationalAgeUnit": UNIT,
+    "drugHistory": HISTORY,
+    "medicalHistory": HISTORY,
+    "allergy": ALLERGY,
+}
+
+# dob must be in YYYY-mm-dd format
+patient_field_dob_has_wrong_format_should_throw_exception = {
+    "patientId": PATIENT_ID,
+    "patientName": PATIENT_NAME,
+    "isPregnant": True,
+    "patientSex": SEX,
+    "householdNumber": HOUSEHOLD_NUMBER,
+    "dob": "January 1, 1990",
+    "isExactDob": False,
+    "zone": ZONE,
+    "villageNumber": VILLAGE_NUMBER,
+    "pregnancyStartDate": PREGNANCY_START_DATE,
+    "gestationalAgeUnit": UNIT,
+    "drugHistory": HISTORY,
+    "medicalHistory": HISTORY,
+    "allergy": ALLERGY,
 }
 
 
 @pytest.mark.parametrize(
     "json, expectation",
     [
-        (valid_json, None),
-        (missing_pregnancy_start_date, ValidationExceptionError),
-        (invalid_pregnancy_start_date, ValidationExceptionError),
-        (not_type_string, ValidationExceptionError),
-        (patient_id_too_long, ValidationExceptionError),
-        (incorrect_dob_format, ValidationExceptionError),
+        (patient_with_valid_fields_should_return_none, None),
+        (
+            patient_post_missing_required_field_patientId_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            patient_post_missing_required_field_patientName_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            patient_post_missing_required_field_patientSex_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            patient_post_missing_required_field_dob_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            patient_post_missing_required_field_isExactDob_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            patient_post_missing_required_field_isPregnant_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            patient_is_pregant_but_missing_pregnancyStartDate_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            patient_pregnancy_period_exceed_43weeks_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            patient_field_patientName_has_invalid_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            patient_field_patientId_has_invalid_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            patient_field_patientId_has_more_than_14digits_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            patient_field_dob_has_wrong_format_should_throw_exception,
+            ValidationExceptionError,
+        ),
     ],
 )
 def test_validation(json, expectation):
@@ -138,24 +312,89 @@ def test_validation(json, expectation):
 #####################################
 # Testing validation of PUT request #
 #####################################
+patient_put_with_valid_fields_should_return_none = {
+    "patientName": PATIENT_NAME,
+    "isPregnant": True,
+    "patientSex": SEX,
+    "householdNumber": HOUSEHOLD_NUMBER,
+    "dob": DATE_STRING,
+    "isExactDob": False,
+    "zone": ZONE,
+    "villageNumber": VILLAGE_NUMBER,
+    "pregnancyStartDate": PREGNANCY_START_DATE,
+    "gestationalAgeUnit": UNIT,
+    "drugHistory": HISTORY,
+    "medicalHistory": HISTORY,
+    "allergy": ALLERGY,
+}
 
-valid_put_request = {"name": "AA"}
-put_mismatched_patient_id = {"id": "456"}
-put_invalid_key = {"reading_id": "asdfg123"}
-put_not_type_str = {"name": 12}
-put_invalid_dob = {"date_of_birth": "Oct 12, 2000"}
-put_invalid_gest_timestamp = {"pregnancy_start_date": fifty_weeks_ago}
+patient_put_missing_optional_field_patientId_should_return_none = {
+    "patientName": PATIENT_NAME,
+    "isPregnant": True,
+    "patientSex": SEX,
+    "householdNumber": HOUSEHOLD_NUMBER,
+    "dob": DATE_STRING,
+    "isExactDob": False,
+    "zone": ZONE,
+    "villageNumber": VILLAGE_NUMBER,
+    "pregnancyStartDate": PREGNANCY_START_DATE,
+    "gestationalAgeUnit": UNIT,
+    "drugHistory": HISTORY,
+    "medicalHistory": HISTORY,
+    "allergy": ALLERGY,
+}
+
+patient_put_has_mismatched_patientId_hould_throw_exception = {
+    "patientId": PATIENT_ID,
+    "patientName": PATIENT_NAME,
+    "isPregnant": True,
+    "patientSex": SEX,
+    "householdNumber": HOUSEHOLD_NUMBER,
+    "dob": DATE_STRING,
+    "isExactDob": False,
+    "zone": ZONE,
+    "villageNumber": VILLAGE_NUMBER,
+    "pregnancyStartDate": PREGNANCY_START_DATE,
+    "gestationalAgeUnit": UNIT,
+    "drugHistory": HISTORY,
+    "medicalHistory": HISTORY,
+    "allergy": ALLERGY,
+}
 
 
 @pytest.mark.parametrize(
     "json, expectation",
     [
-        (valid_put_request, None),
-        (put_mismatched_patient_id, ValidationExceptionError),
-        (put_invalid_key, ValidationExceptionError),
-        (put_not_type_str, ValidationExceptionError),
-        (put_invalid_dob, ValidationExceptionError),
-        (put_invalid_gest_timestamp, ValidationExceptionError),
+        (patient_put_with_valid_fields_should_return_none, None),
+        (patient_put_missing_optional_field_patientId_should_return_none, None),
+        (
+            patient_put_has_mismatched_patientId_hould_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            patient_is_pregant_but_missing_pregnancyStartDate_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            patient_pregnancy_period_exceed_43weeks_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            patient_field_patientName_has_invalid_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            patient_field_patientId_has_invalid_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            patient_field_patientId_has_more_than_14digits_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            patient_field_dob_has_wrong_format_should_throw_exception,
+            ValidationExceptionError,
+        ),
     ],
 )
 def test_put_validation(json, expectation):
