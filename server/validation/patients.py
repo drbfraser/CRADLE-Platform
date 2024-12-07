@@ -102,21 +102,11 @@ class PatientPostValidator(PatientBase):
 
 
 class PatientPutValidator(PatientBase):
-    gestationalTimestamp: Optional[int] = None
     lastEdited: Optional[int] = None
     base: Optional[int] = None
 
     class Config:
         extra = "forbid"
-
-    @field_validator("gestationalTimestamp", mode="before")
-    @classmethod
-    def validate_gestational_timestamp_field(cls, gestational_timestamp):
-        if gestational_timestamp:
-            error = check_gestational_age_under_limit(gestational_timestamp)
-            if error:
-                raise ValueError(error)
-        return gestational_timestamp
 
     @staticmethod
     def validate(request_body: dict, patient_id):
