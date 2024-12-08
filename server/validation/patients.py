@@ -101,13 +101,10 @@ class PatientPostValidator(PatientBase):
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
 
-class PatientPutValidator(PatientBase):
+class PatientPutValidator(PatientBase, extra="forbid"):
     gestationalTimestamp: Optional[int] = None
     lastEdited: Optional[int] = None
     base: Optional[int] = None
-
-    class Config:
-        extra = "forbid"
 
     @field_validator("gestationalTimestamp", mode="before")
     @classmethod

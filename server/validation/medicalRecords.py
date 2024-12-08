@@ -5,16 +5,13 @@ from pydantic import BaseModel, ValidationError, model_validator
 from validation.validation_exception import ValidationExceptionError
 
 
-class MedicalRecordValidator(BaseModel):
+class MedicalRecordValidator(BaseModel, extra="forbid"):
     id: Optional[int] = None
     patientId: Optional[int] = None
     medicalHistory: Optional[str] = None
     drugHistory: Optional[str] = None
     dateCreated: Optional[int] = None
     lastEdited: Optional[int] = None
-
-    class Config:
-        extra = "forbid"
 
     @model_validator(mode="before")
     @classmethod

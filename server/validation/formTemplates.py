@@ -11,14 +11,11 @@ class ClassificationValidator(BaseModel):
     id: Optional[str] = None
 
 
-class FormTemplateValidator(BaseModel):
+class FormTemplateValidator(BaseModel, extra="forbid"):
     classification: ClassificationValidator
     version: str
     questions: List[TemplateQuestionValidator]
     id: Optional[str] = None
-
-    class Config:
-        extra = "forbid"
 
     @staticmethod
     def validate(request_body: dict):

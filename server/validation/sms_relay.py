@@ -5,13 +5,9 @@ from pydantic import BaseModel, ValidationError, model_validator
 from validation.validation_exception import ValidationExceptionError
 
 
-class SmsRelayValidator(BaseModel):
+class SmsRelayValidator(BaseModel, extra="forbid"):
     phoneNumber: str
     encryptedData: str
-
-    # forbid extra attributes
-    class Config:
-        extra = "forbid"
 
     @staticmethod
     def validate_request(request_body: dict):
@@ -30,16 +26,12 @@ class SmsRelayValidator(BaseModel):
             raise ValidationExceptionError(error_message)
 
 
-class SmsRelayDecryptedBodyValidator(BaseModel):
+class SmsRelayDecryptedBodyValidator(BaseModel, extra="forbid"):
     requestNumber: int
     method: str
     endpoint: str
     headers: Optional[str] = None
     body: Optional[str] = None
-
-    # forbid extra attributes
-    class Config:
-        extra = "forbid"
 
     @model_validator(mode="before")
     @classmethod
