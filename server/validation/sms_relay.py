@@ -2,7 +2,7 @@ from typing import Optional
 
 from pydantic import BaseModel, ValidationError, field_validator, model_validator
 
-from enums import MethodEnum
+from enums import HTTPMethodEnum
 from validation.validation_exception import ValidationExceptionError
 
 
@@ -33,7 +33,7 @@ class SmsRelayValidator(BaseModel):
 
 class SmsRelayDecryptedBodyValidator(BaseModel):
     requestNumber: int
-    method: MethodEnum
+    method: HTTPMethodEnum
     endpoint: str
     headers: Optional[str] = None
     body: Optional[str] = None
@@ -61,7 +61,7 @@ class SmsRelayDecryptedBodyValidator(BaseModel):
     @field_validator("method", mode="before")
     @classmethod
     def __method_must_be_method_enum(cls, method):
-        if method not in MethodEnum._member_names_:
+        if method not in HTTPMethodEnum._member_names_:
             raise ValidationExceptionError(
                 "Invalid Method; Must be either GET, POST, HEAD, PUT, DELETE, or PATCH",
             )

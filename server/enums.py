@@ -77,7 +77,7 @@ class ContentTypeEnum(EnumWithList):
     CSV = "text/csv"
 
 
-class MethodEnum(Enum):
+class HTTPMethodEnum(Enum):
     GET = "GET"
     POST = "POST"
     PUT = "PUT"
