@@ -29,9 +29,11 @@ class PatientBase(BaseModel):
     def validate_is_pregnant_field(cls, values):
         is_pregnant = values.get("isPregnant")
         if is_pregnant:
-            if not values.get("pregnancyStartDate"):
+            if not values.get("pregnancyStartDate") or not values.get(
+                "gestationalAgeUnit",
+            ):
                 raise ValueError(
-                    "If isPregnant is True, pregnancyStartDate is required.",
+                    "If isPregnant is True, pregnancyStartDate and gestationalAgeUnit are required.",
                 )
         return values
 
@@ -100,11 +102,21 @@ class PatientPostValidator(PatientBase):
 
 
 class PatientPutValidator(PatientBase):
+    gestationalTimestamp: Optional[int] = None
     lastEdited: Optional[int] = None
     base: Optional[int] = None
 
     class Config:
         extra = "forbid"
+
+    @field_validator("gestationalTimestamp", mode="before")
+    @classmethod
+    def validate_gestational_timestamp_field(cls, gestational_timestamp):
+        if gestational_timestamp:
+            error = check_gestational_age_under_limit(gestational_timestamp)
+            if error:
+                raise ValueError(error)
+        return gestational_timestamp
 
     @staticmethod
     def validate(request_body: dict, patient_id):
