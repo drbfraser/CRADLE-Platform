@@ -6,7 +6,7 @@ import { CustomizedForm } from '../customizedEditForm/CustomizedForm';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import { getFormResponseAsync } from 'src/shared/api';
+import { getFormResponseAsync } from 'src/shared/api/api';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FormRenderStateEnum } from 'src/shared/enums';
 import { Box } from '@mui/material';

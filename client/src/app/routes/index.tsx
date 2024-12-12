@@ -41,14 +41,13 @@ type RequireAuthProps = PropsWithChildren & {
 };
 const RequireAuth = ({ children, path }: RequireAuthProps) => {
   const currentUser = useAppSelector(selectCurrentUser);
-
   const dispatch = useAppDispatch();
 
-  useEffect((): void => {
+  useEffect(() => {
     if (!currentUser.data) {
       dispatch(getCurrentUser());
     }
-  }, [dispatch, currentUser.data]);
+  }, [dispatch]);
 
   if (currentUser.error) {
     return <Navigate to="/" replace />;

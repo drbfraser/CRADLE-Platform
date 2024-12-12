@@ -23,6 +23,7 @@ services:
             LIMITER_DISABLED: ${LIMITER_DISABLED:-False}
             EMULATOR_PHONE_NUMBER: ${EMULATOR_PHONE_NUMBER:-+1-123-456-7890}
             SMS_KEY_DURATION: ${SMS_KEY_DURATION:-40}
+            AWS_REGION: us-west-2
             COGNITO_SECRETS_FILE: /run/secrets/.env.cognito_secrets
         secrets:
             - .env.cognito_secrets

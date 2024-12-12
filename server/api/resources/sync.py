@@ -1,19 +1,19 @@
 import logging
-from typing import List, NamedTuple, Union
+from typing import Any, List, NamedTuple, Union, cast
 
 from flask import request
-from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource, abort
 from marshmallow import ValidationError
 
+from common import api_utils, user_utils
 from data import crud, db_session, marshal
 from models import (
-    MedicalRecord,
-    Patient,
-    PatientAssociations,
-    Pregnancy,
-    Reading,
-    Referral,
+    MedicalRecordOrm,
+    PatientAssociationsOrm,
+    PatientOrm,
+    PregnancyOrm,
+    ReadingOrm,
+    ReferralOrm,
 )
 from service import invariant, serialize, view
 from validation.readings import ReadingValidator
@@ -31,22 +31,22 @@ class ModelData(NamedTuple):
 # /api/sync/patients
 class SyncPatients(Resource):
     @staticmethod
-    @jwt_required()
     def post():
-        user = get_jwt_identity()
+        current_user = user_utils.get_current_user_from_jwt()
         last_sync = request.args.get("since", None, type=int)
         if not last_sync:
             abort(400, message="'since' query parameter is required")
+            return None
 
         # Validate and load patients
         mobile_patients = request.get_json(force=True)
         status_code = 200
         errors: List[dict] = list()
-        patients_to_create: List[Patient] = list()
-        pregnancies_to_create: List[Pregnancy] = list()
-        mrecords_to_create: List[MedicalRecord] = list()
-        drecords_to_create: List[MedicalRecord] = list()
-        associations_to_create: List[PatientAssociations] = list()
+        patients_to_create: List[PatientOrm] = list()
+        pregnancies_to_create: List[PregnancyOrm] = list()
+        mrecords_to_create: List[MedicalRecordOrm] = list()
+        drecords_to_create: List[MedicalRecordOrm] = list()
+        associations_to_create: List[PatientAssociationsOrm] = list()
         patients_to_update: List[ModelData] = list()
         pregnancies_to_update: List[ModelData] = list()
         models_list = [
@@ -58,8 +58,8 @@ class SyncPatients(Resource):
             patients_to_update,
             pregnancies_to_update,
         ]
-        for p in mobile_patients:
-            patient_id = p.get("patientId")
+        for mobile_patient in mobile_patients:
+            patient_id = mobile_patient.get("id")
             # Loop variables each holding a singular model corresponding to a list in models_list
             pt_crt = None
             pr_crt = None
@@ -69,75 +69,96 @@ class SyncPatients(Resource):
             pt_upd = None
             pr_upd = None
             try:
-                server_patient = crud.read(Patient, patientId=patient_id)
+                server_patient = crud.read(PatientOrm, id=patient_id)
                 if not server_patient:
-                    pt_crt = serialize.deserialize_patient(p, shallow=False)
+                    pt_crt = serialize.deserialize_patient(
+                        mobile_patient, shallow=False
+                    )
                 else:
-                    if (p.get("lastEdited") and p["lastEdited"] > last_sync) and (
-                        p.get("base") and p["base"] == server_patient.lastEdited
+                    if (
+                        mobile_patient.get("last_edited")
+                        and mobile_patient["last_edited"] > last_sync
+                    ) and (
+                        mobile_patient.get("base")
+                        and mobile_patient["base"] == server_patient.last_edited
                     ):
                         # Otherwise, patient personal info has been edited on Android or has
                         # been edited on the server; in the latter case personal info on Android
                         # will be overridden if sync succeeds
-                        values = serialize.deserialize_patient(p, partial=True)
+                        values = serialize.deserialize_patient(
+                            mobile_patient, partial=True
+                        )
                         pt_upd = ModelData(patient_id, values)
 
-                    if p.get("medicalLastEdited"):
-                        mrc_crt = serialize.deserialize_medical_record(p, False)
+                    if mobile_patient.get("medical_last_edited"):
+                        mrc_crt = serialize.deserialize_medical_record(
+                            mobile_patient, False
+                        )
 
-                    if p.get("drugLastEdited"):
-                        drc_crt = serialize.deserialize_medical_record(p, True)
+                    if mobile_patient.get("drug_last_edited"):
+                        drc_crt = serialize.deserialize_medical_record(
+                            mobile_patient, True
+                        )
 
                     # Variables for checking conflicts with new pregnancy in the next condition block
                     pregnancy_id = None
                     pregnancy_end_date = None
-                    if p.get("pregnancyEndDate"):
-                        values = serialize.deserialize_pregnancy(p, partial=True)
-                        pregnancy = crud.read(Pregnancy, id=p.get("pregnancyId"))
-                        if not pregnancy or pregnancy.patientId != patient_id:
-                            err = _to_string("pregnancyId", "invalid")
+                    if mobile_patient.get("pregnancy_end_date"):
+                        values = serialize.deserialize_pregnancy(
+                            mobile_patient, partial=True
+                        )
+                        pregnancy = crud.read(
+                            PregnancyOrm, id=mobile_patient.get("pregnancy_id")
+                        )
+                        if not pregnancy or pregnancy.patient_id != patient_id:
+                            err = _to_string("pregnancy_id", "invalid")
                             raise ValidationError(err)
                         pregnancy_id = pregnancy.id
-                        pregnancy_end_date = pregnancy.endDate
+                        pregnancy_end_date = pregnancy.end_date
                         if not pregnancy_end_date:
                             # Otherwise, pregnancy has been edited on server; end date inputted
                             # on Android will be discarded if sync succeeds
-                            pregnancy_end_date = values["endDate"]
+                            pregnancy_end_date = values["end_date"]
                             if (
-                                pregnancy.startDate >= pregnancy_end_date
+                                pregnancy.start_date >= pregnancy_end_date
                                 or crud.has_conflicting_pregnancy_record(
                                     patient_id,
-                                    pregnancy.startDate,
+                                    pregnancy.start_date,
                                     pregnancy_end_date,
                                     pregnancy_id,
                                 )
                             ):
-                                err = _to_string("pregnancyEndDate", "conflict")
+                                err = _to_string("pregnancy_end_date", "conflict")
                                 raise ValidationError(err)
                             pr_upd = ModelData(pregnancy_id, values)
 
-                    if (p.get("pregnancyStartDate") and not p.get("pregnancyId")) or (
-                        p.get("pregnancyStartDate") and p.get("pregnancyEndDate")
+                    if (
+                        mobile_patient.get("pregnancy_start_date")
+                        and not mobile_patient.get("pregnancy_id")
+                    ) or (
+                        mobile_patient.get("pregnancy_start_date")
+                        and mobile_patient.get("pregnancy_end_date")
                     ):
-                        model = serialize.deserialize_pregnancy(p)
+                        model = serialize.deserialize_pregnancy(mobile_patient)
                         if (
-                            pregnancy_end_date and model.startDate <= pregnancy_end_date
+                            pregnancy_end_date
+                            and model.start_date <= pregnancy_end_date
                         ) or crud.has_conflicting_pregnancy_record(
                             patient_id,
-                            model.startDate,
+                            model.start_date,
                             pregnancy_id=pregnancy_id,
                         ):
-                            err = _to_string("pregnancyStartDate", "conflict")
+                            err = _to_string("pregnancy_start_date", "conflict")
                             raise ValidationError(err)
                         pr_crt = model
 
                 association = {
-                    "patientId": patient_id,
-                    "healthFacilityName": user.get("healthFacilityName"),
-                    "userId": user["userId"],
+                    "patient_id": patient_id,
+                    "health_facility_name": current_user.get("health_facility_name"),
+                    "user_id": current_user["id"],
                 }
-                if not crud.read(PatientAssociations, **association):
-                    as_crt = marshal.unmarshal(PatientAssociations, association)
+                if not crud.read(PatientAssociationsOrm, **association):
+                    as_crt = marshal.unmarshal(PatientAssociationsOrm, association)
 
                 # Queue models as validation completes without exceptions
                 models = [pt_crt, pr_crt, mrc_crt, drc_crt, as_crt, pt_upd, pr_upd]
@@ -145,7 +166,7 @@ class SyncPatients(Resource):
                     if m:
                         ms.append(m)
             except ValidationError as err:
-                errors.append({"patientId": patient_id, "errors": str(err)})
+                errors.append({"patient_id": patient_id, "errors": str(err)})
                 status_code = 207
             except:
                 raise
@@ -157,16 +178,19 @@ class SyncPatients(Resource):
                     crud.create_all(models, autocommit=False)
             for data in patients_to_update:
                 crud.update(
-                    Patient,
+                    PatientOrm,
                     data.values,
                     autocommit=False,
-                    patientId=data.key_value,
+                    id=data.key_value,
                 )
             for data in pregnancies_to_update:
-                crud.update(Pregnancy, data.values, autocommit=False, id=data.key_value)
+                crud.update(
+                    PregnancyOrm, data.values, autocommit=False, id=data.key_value
+                )
 
             # Read all patients that have been created or updated since last sync
-            new_patients = view.patient_view(user, last_sync)
+            current_user = cast(dict[Any, Any], current_user)
+            new_patients = view.patient_view(current_user, last_sync)
             patients_json = [serialize.serialize_patient(p) for p in new_patients]
         db_session.commit()
 
@@ -176,39 +200,42 @@ class SyncPatients(Resource):
 # /api/sync/readings
 class SyncReadings(Resource):
     @staticmethod
-    @jwt_required()
     def post():
         last_sync: int = request.args.get("since", None, type=int)
         if not last_sync:
             abort(400, message="'since' query parameter is required")
+            return None
 
-        json = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
         patients_on_server_cache = set()
-        for r in json:
-            if r.get("patientId") not in patients_on_server_cache:
-                patient_on_server = crud.read(Patient, patientId=r.get("patientId"))
+        for reading_dict in request_body:
+            if reading_dict.get("patient_id") not in patients_on_server_cache:
+                patient_on_server = crud.read(
+                    PatientOrm, id=reading_dict.get("patient_id")
+                )
                 if patient_on_server is None:
                     continue
-                patients_on_server_cache.add(patient_on_server.patientId)
+                patients_on_server_cache.add(patient_on_server.id)
 
-            if crud.read(Reading, readingId=r.get("readingId")):
+            if crud.read(ReadingOrm, id=reading_dict.get("id")):
                 crud.update(
-                    Reading,
-                    {"dateRecheckVitalsNeeded": r.get("dateRecheckVitalsNeeded")},
-                    readingId=r.get("readingId"),
+                    ReadingOrm,
+                    {"date_retest_needed": reading_dict.get("date_retest_needed")},
+                    id=reading_dict.get("id"),
                 )
             else:
                 try:
-                    ReadingValidator.validate(r)
+                    ReadingValidator.validate(reading_dict)
                 except ValidationExceptionError as e:
                     abort(400, message=str(e))
-                reading = marshal.unmarshal(Reading, r)
+                    return None
+                reading = marshal.unmarshal(ReadingOrm, reading_dict)
                 invariant.resolve_reading_invariants(reading)
                 crud.create(reading, refresh=True)
 
         # Read all readings that have been created or updated since last sync
-        user = get_jwt_identity()
-        new_readings = view.reading_view(user, last_sync)
+        current_user = user_utils.get_current_user_from_jwt()
+        new_readings = view.reading_view(current_user, last_sync)
 
         return {
             "readings": [serialize.serialize_reading(r) for r in new_readings],
@@ -218,35 +245,36 @@ class SyncReadings(Resource):
 # /api/sync/referrals
 class SyncReferrals(Resource):
     @staticmethod
-    @jwt_required()
     def post():
         last_sync: int = request.args.get("since", None, type=int)
         if not last_sync:
             abort(400, message="'since' query parameter is required")
 
-        json = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
         patients_on_server_cache = set()
-        for r in json:
-            if r.get("patientId") not in patients_on_server_cache:
-                patient_on_server = crud.read(Patient, patientId=r.get("patientId"))
+        for referral_dict in request_body:
+            if referral_dict.get("patient_id") not in patients_on_server_cache:
+                patient_on_server = crud.read(
+                    PatientOrm, id=referral_dict.get("patient_id")
+                )
                 if patient_on_server is None:
                     continue
-                patients_on_server_cache.add(patient_on_server.patientId)
+                patients_on_server_cache.add(patient_on_server.id)
 
-            if crud.read(Referral, id=r.get("id")):
+            if crud.read(ReferralOrm, id=referral_dict.get("id")):
                 # currently, for referrals that exist in server already we will
                 # skip them
                 continue
             try:
-                ReferralEntityValidator.validate(r)
+                ReferralEntityValidator.validate(referral_dict)
             except ValidationExceptionError as e:
                 abort(400, message=str(e))
-            referral = marshal.unmarshal(Referral, r)
+            referral = marshal.unmarshal(ReferralOrm, referral_dict)
             crud.create(referral, refresh=True)
 
         # Read all referrals that have been created or updated since last sync
-        user = get_jwt_identity()
-        new_referrals = view.referral_view(user, last_sync)
+        current_user = user_utils.get_current_user_from_jwt()
+        new_referrals = view.referral_view(current_user, last_sync)
 
         return {
             "referrals": [
@@ -258,15 +286,14 @@ class SyncReferrals(Resource):
 # /api/sync/assessments
 class SyncAssessments(Resource):
     @staticmethod
-    @jwt_required()
     def post():
         last_sync: int = request.args.get("since", None, type=int)
         if not last_sync:
             abort(400, message="'since' query parameter is required")
 
         # Read all assessments that have been updated since last sync
-        user = get_jwt_identity()
-        new_assessments = view.assessment_view(user, last_sync)
+        current_user = user_utils.get_current_user_from_jwt()
+        new_assessments = view.assessment_view(current_user, last_sync)
 
         return {
             "assessments": [

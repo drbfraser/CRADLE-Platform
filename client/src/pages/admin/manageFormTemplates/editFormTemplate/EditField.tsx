@@ -314,7 +314,7 @@ const EditField = ({
       if (qLangVersion.mcOptions) {
         qLangVersion.mcOptions.forEach((mcOption) => {
           mcOptions.push({
-            mcid: mcOption.mcid,
+            mcId: mcOption.mcId,
             opt: mcOption.opt,
           });
         });

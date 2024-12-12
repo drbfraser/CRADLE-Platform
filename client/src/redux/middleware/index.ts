@@ -1,8 +1,5 @@
-import { API_URL } from 'src/shared/api';
 import { MakeServerRequestEnum } from '../reducers/utils';
-import axios from 'axios';
-import { getApiToken } from 'src/shared/api';
-import { EndpointEnum } from 'src/shared/enums';
+import { axiosFetch } from 'src/shared/api/api';
 
 export const requestMiddleware =
   () =>
@@ -15,25 +12,9 @@ export const requestMiddleware =
     }
 
     const { endpoint, method, data, onSuccess, onError } = action.payload;
-
-    let authHeader = {};
-
-    if (endpoint !== EndpointEnum.AUTH) {
-      const token = await getApiToken();
-
-      authHeader = {
-        Authorization: `Bearer ${token}`,
-      };
-    }
-
-    axios({
+    axiosFetch({
       method: method,
-      url: `${API_URL}${endpoint}`,
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        ...authHeader,
-      },
+      url: endpoint,
       data: data,
     })
       .then((res) => {

@@ -1,20 +1,20 @@
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { ConfirmDialog } from 'src/shared/components/confirmDialog/index';
-import { IUser } from 'src/shared/types';
 import { Toast } from 'src/shared/components/toast';
-import { deleteUserAsync } from 'src/shared/api';
+import { deleteUserAsync } from 'src/shared/api/api';
 import { useState } from 'react';
+import { User } from 'src/shared/api/validation/user';
 
 interface IProps {
   open: boolean;
   onClose: () => void;
-  user: IUser | undefined;
+  user?: User;
 }
 
 const DeleteUser = ({ open, onClose, user }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
-  const name = user?.firstName ?? '';
+  const name = user?.name ?? '';
 
   const handleDelete = async () => {
     if (!user) {

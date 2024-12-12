@@ -1,7 +1,10 @@
 # See https://help.github.com/ignore-files/ for more about ignoring files.
 
-# CLIENT GITIGNORE 
+# CLIENT GITIGNORE
 # ---------------------------------------------------------------------
+
+# secrets
+*.secrets*
 
 # dependencies
 node_modules

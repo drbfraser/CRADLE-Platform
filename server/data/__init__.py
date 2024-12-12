@@ -1,5 +1,3 @@
-from flask_sqlalchemy import SessionBase
-
 import config
 
-db_session: SessionBase = config.db.session
+db_session = config.db.session

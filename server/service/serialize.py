@@ -9,73 +9,74 @@ from marshmallow import ValidationError
 
 from data import marshal
 from models import (
-    FollowUp,
-    MedicalRecord,
-    Patient,
-    Pregnancy,
-    Reading,
-    Referral,
-    UrineTest,
+    AssessmentOrm,
+    MedicalRecordOrm,
+    PatientOrm,
+    PregnancyOrm,
+    ReadingOrm,
+    ReferralOrm,
+    UrineTestOrm,
 )
 
 
-def serialize_patient_list(patients: List[Any]) -> dict:
+def serialize_patient_list(patients: List[Any]) -> list[dict]:
     return [
         {
-            "patientId": p.patientId,
-            "patientName": p.patientName,
-            "villageNumber": p.villageNumber,
-            "trafficLightStatus": (
-                p.trafficLightStatus.value if p.trafficLightStatus else ""
+            "id": p.id,
+            "name": p.name,
+            "village_number": p.village_number,
+            "traffic_light_status": (
+                p.traffic_light_status.value if p.traffic_light_status else ""
             ),
-            "dateTimeTaken": p.dateTimeTaken if p.dateTimeTaken else "",
+            "date_taken": p.date_taken if p.date_taken else "",
         }
         for p in patients
     ]
 
 
-def serialize_patients_admin(patients: List[Any]) -> dict:
+def serialize_patients_admin(patients: List[Any]) -> list[dict]:
     return [
         {
-            "patientId": p.patientId,
-            "patientName": p.patientName,
-            "isArchived": p.isArchived,
+            "id": p.id,
+            "name": p.name,
+            "is_archived": p.is_archived,
         }
         for p in patients
     ]
 
 
-def serialize_referral_list(referrals: List[Any]) -> dict:
+def serialize_referral_list(referrals: List[Any]) -> list[dict]:
     return [
         {
-            "referralId": r.id,
-            "patientId": r.patientId,
-            "patientName": r.patientName,
-            "villageNumber": r.villageNumber,
-            "dateReferred": r.dateReferred,
-            "isAssessed": r.isAssessed,
-            "vitalSign": r.vitalSign.value,
+            "referral_id": referral.referral_id,
+            "patient_id": referral.patient_id,
+            "patient_name": referral.patient_name,
+            "village_number": referral.village_number,
+            "date_referred": referral.date_referred,
+            "is_assessed": referral.is_assessed,
+            "vital_sign": referral.vital_sign.value,
         }
-        for r in referrals
+        for referral in referrals
+        if referral.referral_id is not None
     ]
 
 
-def serialize_pregnancy(p: Pregnancy) -> dict:
+def serialize_pregnancy(pregnancy: PregnancyOrm) -> dict:
     return {
-        "pregnancyId": p.id,
-        "startDate": p.startDate,
-        "endDate": p.endDate,
-        "outcome": p.outcome,
-        "lastEdited": p.lastEdited,
+        "id": pregnancy.id,
+        "start_date": pregnancy.start_date,
+        "end_date": pregnancy.end_date,
+        "outcome": pregnancy.outcome,
+        "last_edited": pregnancy.last_edited,
     }
 
 
-def serialize_medical_record(r: MedicalRecord) -> dict:
+def serialize_medical_record(record: MedicalRecordOrm) -> dict:
     return {
-        "medicalRecordId": r.id,
-        "information": r.information,
-        "dateCreated": r.dateCreated,
-        "lastEdited": r.lastEdited,
+        "medicalRecordId": record.id,
+        "information": record.information,
+        "date_created": record.date_created,
+        "last_edited": record.last_edited,
     }
 
 
@@ -89,32 +90,29 @@ def serialize_patient_timeline(r: Any) -> dict:
 
 def serialize_patient(
     patient: Any,
-    readings: Optional[List[Reading]] = None,
-    referrals: Optional[List[Referral]] = None,
-    assessments: Optional[List[FollowUp]] = None,
+    readings: Optional[List[ReadingOrm]] = None,
+    referrals: Optional[List[ReferralOrm]] = None,
+    assessments: Optional[List[AssessmentOrm]] = None,
 ) -> dict:
     p = {
-        "patientId": patient.patientId,
-        "patientName": patient.patientName,
-        "patientSex": patient.patientSex.value,
-        "dob": str(patient.dob),
-        "isExactDob": patient.isExactDob,
+        "id": patient.patient_id,
+        "name": patient.name,
+        "sex": patient.sex.value,
+        "date_of_birth": str(patient.date_of_birth),
+        "is_exact_date_of_birth": patient.is_exact_date_of_birth,
         "zone": patient.zone,
-        "householdNumber": patient.householdNumber,
-        "villageNumber": patient.villageNumber,
+        "household_number": patient.household_number,
+        "village_number": patient.village_number,
         "allergy": patient.allergy,
-        "isPregnant": bool(patient.pregnancyStartDate),
-        "pregnancyId": patient.pregnancyId,
-        "pregnancyStartDate": patient.pregnancyStartDate,
-        "gestationalAgeUnit": (
-            patient.gestationalAgeUnit.value if patient.gestationalAgeUnit else None
-        ),
-        "medicalHistoryId": patient.medicalHistoryId,
-        "medicalHistory": patient.medicalHistory,
-        "drugHistoryId": patient.drugHistoryId,
-        "drugHistory": patient.drugHistory,
-        "lastEdited": patient.lastEdited,
-        "base": patient.lastEdited,
+        "is_pregnant": bool(patient.pregnancy_start_date),
+        "pregnancy_id": patient.pregnancy_id,
+        "pregnancy_start_date": patient.pregnancy_start_date,
+        "medical_history_id": patient.medical_history_id,
+        "medical_history": patient.medical_history,
+        "drug_history_id": patient.drug_history_id,
+        "drug_history": patient.drug_history,
+        "last_edited": patient.last_edited,
+        "base": patient.last_edited,
         "readings": [serialize_reading(r) for r in readings] if readings else [],
         "referrals": (
             [serialize_referral_or_assessment(r) for r in referrals]
@@ -126,47 +124,47 @@ def serialize_patient(
             if assessments
             else []
         ),
-        "isArchived": patient.isArchived,
+        "is_archived": patient.is_archived,
     }
     return {k: v for k, v in p.items() if v or v is False}
 
 
-def serialize_reading(tup: Tuple[Reading, UrineTest]) -> dict:
+def serialize_reading(tup: Tuple[ReadingOrm, UrineTestOrm]) -> dict:
     reading = marshal.marshal(tup[0], True)
     if tup[1]:
-        reading["urineTests"] = marshal.marshal(tup[1])
+        reading["urine_tests"] = marshal.marshal(tup[1])
     return reading
 
 
-def serialize_referral_or_assessment(model: Union[Referral, FollowUp]) -> dict:
+def serialize_referral_or_assessment(model: Union[ReferralOrm, AssessmentOrm]) -> dict:
     return marshal.marshal(model)
 
 
 def serialize_blank_form_template(form_template: dict) -> dict:
-    del form_template["dateCreated"]
-    del form_template["lastEdited"]
+    del form_template["date_created"]
+    del form_template["last_edited"]
     del form_template["version"]
 
     return form_template
 
 
 def deserialize_patient(
-    data: dict,
+    patient_data: dict,
     shallow: bool = True,
     partial: bool = False,
-) -> Union[dict, Patient]:
-    schema = Patient.schema()
+) -> Union[dict, PatientOrm]:
+    schema = PatientOrm.schema()
     d = {
-        "patientId": data.get("patientId"),
-        "patientName": data.get("patientName"),
-        "patientSex": data.get("patientSex"),
-        "dob": data.get("dob"),
-        "isExactDob": data.get("isExactDob"),
-        "zone": data.get("zone"),
-        "villageNumber": data.get("villageNumber"),
-        "householdNumber": data.get("householdNumber"),
-        "allergy": data.get("allergy"),
-        "isArchived": data.get("isArchived"),
+        "id": patient_data.get("id"),
+        "name": patient_data.get("name"),
+        "sex": patient_data.get("sex"),
+        "date_of_birth": patient_data.get("date_of_birth"),
+        "is_exact_date_of_birth": patient_data.get("is_exact_date_of_birth"),
+        "zone": patient_data.get("zone"),
+        "village_number": patient_data.get("village_number"),
+        "household_number": patient_data.get("household_number"),
+        "allergy": patient_data.get("allergy"),
+        "is_archived": patient_data.get("is_archived"),
     }
     if partial:
         if err := schema().validate(d, partial=True):
@@ -178,14 +176,14 @@ def deserialize_patient(
         return patient
 
     medical_records = list()
-    if data.get("medicalHistory"):
-        medical_records.append(deserialize_medical_record(data, False))
-    if data.get("drugHistory"):
-        medical_records.append(deserialize_medical_record(data, True))
+    if patient_data.get("medical_history"):
+        medical_records.append(deserialize_medical_record(patient_data, False))
+    if patient_data.get("drug_history"):
+        medical_records.append(deserialize_medical_record(patient_data, True))
 
     pregnancies = list()
-    if data.get("pregnancyStartDate"):
-        pregnancies.append(deserialize_pregnancy(data))
+    if patient_data.get("pregnancy_start_date"):
+        pregnancies.append(deserialize_pregnancy(patient_data))
 
     if medical_records:
         patient.records = medical_records
@@ -195,38 +193,45 @@ def deserialize_patient(
     return patient
 
 
-def deserialize_pregnancy(data: dict, partial: bool = False) -> Union[dict, Pregnancy]:
-    schema = Pregnancy.schema()
+def deserialize_pregnancy(
+    patient_data: dict, partial: bool = False
+) -> Union[dict, PregnancyOrm]:
+    schema = PregnancyOrm.schema()
     if partial:
         d = {
-            "endDate": data.get("pregnancyEndDate"),
-            "outcome": data.get("pregnancyOutcome"),
+            "end_date": patient_data.get("pregnancy_end_date"),
+            "outcome": patient_data.get("pregnancy_outcome"),
         }
         if err := schema().validate(d, partial=True):
             raise ValidationError(err)
         return {k: v for k, v in d.items() if v}
 
     d = {
-        "patientId": data.get("patientId"),
-        "startDate": data.get("pregnancyStartDate"),
-        "defaultTimeUnit": data.get("gestationalAgeUnit"),
+        "patient_id": patient_data.get("id"),
+        "start_date": patient_data.get("pregnancy_start_date"),
     }
     return schema().load(d)
 
 
-def deserialize_medical_record(data: dict, is_drug_record: bool) -> MedicalRecord:
-    schema = MedicalRecord.schema()
+def deserialize_medical_record(
+    patient_data: dict, is_drug_record: bool
+) -> MedicalRecordOrm:
+    schema = MedicalRecordOrm.schema()
     d = {
-        "patientId": data.get("patientId"),
+        "patient_id": patient_data.get("id"),
         "information": (
-            data.get("drugHistory") if is_drug_record else data.get("medicalHistory")
+            patient_data.get("drug_history")
+            if is_drug_record
+            else patient_data.get("medical_history")
         ),
-        "isDrugRecord": is_drug_record,
+        "is_drug_record": is_drug_record,
     }
-    if (not is_drug_record and data.get("medicalLastEdited")) or (
-        is_drug_record and data.get("drugLastEdited")
+    if (not is_drug_record and patient_data.get("medical_last_edited")) or (
+        is_drug_record and patient_data.get("drug_last_edited")
     ):
-        d["dateCreated"] = (
-            data["drugLastEdited"] if is_drug_record else data["medicalLastEdited"]
+        d["date_created"] = (
+            patient_data["drug_last_edited"]
+            if is_drug_record
+            else patient_data["medical_last_edited"]
         )
     return schema().load(d)

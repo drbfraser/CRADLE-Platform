@@ -7,18 +7,18 @@ from validation.validation_exception import ValidationExceptionError
 
 class MedicalRecordValidator(BaseModel, extra="forbid"):
     id: Optional[int] = None
-    patientId: Optional[int] = None
-    medicalHistory: Optional[str] = None
-    drugHistory: Optional[str] = None
-    dateCreated: Optional[int] = None
-    lastEdited: Optional[int] = None
+    patient_id: Optional[int] = None
+    medical_history: Optional[str] = None
+    drug_history: Optional[str] = None
+    date_created: Optional[int] = None
+    last_edited: Optional[int] = None
 
     @model_validator(mode="before")
     @classmethod
     def validate_histories(cls, values):
-        if not values.get("drugHistory") and not values.get("medicalHistory"):
+        if not values.get("drug_history") and not values.get("medical_history"):
             raise ValidationExceptionError(
-                "Either 'medicalHistory' or 'drugHistory' must be present.",
+                "Either 'medical_history' or 'drug_history' must be present.",
             )
         return values
 
@@ -30,18 +30,22 @@ class MedicalRecordValidator(BaseModel, extra="forbid"):
 
         :param request_body: The request body as a dict object
                             {
-                                "patientId": "120000",
-                                "medicalHistory" or "drugHistory": "Aspirin 75mg", - required
+                                "patient_id": "120000",
+                                "medical_history" or "drug_history": "Aspirin 75mg", - required
                             }
         :param patient_id: The id of the patient, used to validate request_body input
         """
         try:
             record = MedicalRecordValidator(**request_body)
 
+            if record.patient_id and record.patient_id != patient_id:
+                raise ValidationExceptionError("Patient ID does not match.")
+
         except ValidationError as e:
+            print(e)
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
-        if record.patientId and record.patientId != patient_id:
+        if record.patient_id and record.patient_id != patient_id:
             raise ValidationExceptionError("Patient ID does not match.")
 
         return record
@@ -59,6 +63,7 @@ class MedicalRecordValidator(BaseModel, extra="forbid"):
             record = MedicalRecordValidator(**request_body)
 
         except ValidationError as e:
+            print(e)
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
         if record.id and record.id != record_id:

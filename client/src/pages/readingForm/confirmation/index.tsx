@@ -69,7 +69,7 @@ export const Confirmation = ({ formikProps }: FormPageProps) => {
               fullWidth
               variant="outlined"
               label="Heart Rate"
-              value={formikProps.values[ReadingField.heartRateBPM]}
+              value={formikProps.values[ReadingField.heartRate]}
             />
           </Grid>
           <br />

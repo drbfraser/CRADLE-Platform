@@ -10,7 +10,7 @@ import {
   getFormTemplateLangAsync,
   getFormTemplateLangsAsync,
   getAllFormTemplatesAsync,
-} from 'src/shared/api';
+} from 'src/shared/api/api';
 import { useEffect, useState } from 'react';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -56,8 +56,8 @@ export const SelectHeaderForm = ({ setForm }: IProps) => {
   const fetchAllLangVersions = async (form_template_id: string) => {
     try {
       const formTemplate = await getFormTemplateLangsAsync(form_template_id);
-
-      setAvailableLanguages(formTemplate.lang_versions);
+      console.log('formTemplate:', formTemplate);
+      setAvailableLanguages(formTemplate.langVersions);
       setResetLanguage(!resetLanguage);
     } catch (e) {
       console.log('Error Loading !!!!!!');
@@ -70,7 +70,7 @@ export const SelectHeaderForm = ({ setForm }: IProps) => {
     const browserLanguage: string = getLanguageName(
       navigator.language || window.navigator.language
     );
-    const languageOptions = formTemplate.lang_versions;
+    const languageOptions = formTemplate.langVersions;
     let defaultLang: string = languageOptions[0];
     languageOptions.forEach((languageOption: string) => {
       const language = languageOption === undefined ? '' : languageOption;

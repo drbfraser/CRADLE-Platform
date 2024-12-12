@@ -5,19 +5,19 @@ from typing import Any, Dict, List, Optional, Type
 
 from data.crud import M
 from models import (
-    FollowUp,
-    Form,
-    FormClassification,
-    FormTemplate,
-    MedicalRecord,
-    Patient,
-    Pregnancy,
-    Question,
-    QuestionLangVersion,
-    Reading,
-    Referral,
-    RelayServerPhoneNumber,
-    SmsSecretKey,
+    AssessmentOrm,
+    FormClassificationOrm,
+    FormOrm,
+    FormTemplateOrm,
+    MedicalRecordOrm,
+    PatientOrm,
+    PregnancyOrm,
+    QuestionLangVersionOrm,
+    QuestionOrm,
+    ReadingOrm,
+    ReferralOrm,
+    RelayServerPhoneNumberOrm,
+    SmsSecretKeyOrm,
 )
 from service import invariant
 
@@ -31,27 +31,27 @@ def marshal(obj: Any, shallow=False, if_include_versions=False) -> dict:
     :param if_include_versions: If true, lang versions will be attached to questions
     :return: A dictionary mapping fields to values
     """
-    if isinstance(obj, Patient):
+    if isinstance(obj, PatientOrm):
         return __marshal_patient(obj, shallow)
-    if isinstance(obj, Reading):
+    if isinstance(obj, ReadingOrm):
         return __marshal_reading(obj, shallow)
-    if isinstance(obj, Referral):
+    if isinstance(obj, ReferralOrm):
         return __marshal_referral(obj)
-    if isinstance(obj, FollowUp):
-        return __marshal_followup(obj)
-    if isinstance(obj, Pregnancy):
+    if isinstance(obj, AssessmentOrm):
+        return __marshal_assessment(obj)
+    if isinstance(obj, PregnancyOrm):
         return __marshal_pregnancy(obj)
-    if isinstance(obj, MedicalRecord):
+    if isinstance(obj, MedicalRecordOrm):
         return __marshal_medical_record(obj)
-    if isinstance(obj, FormTemplate):
+    if isinstance(obj, FormTemplateOrm):
         return __marshal_form_template(obj, shallow, if_include_versions)
-    if isinstance(obj, Form):
+    if isinstance(obj, FormOrm):
         return __marshal_form(obj, shallow)
-    if isinstance(obj, Question):
+    if isinstance(obj, QuestionOrm):
         return __marshal_question(obj, if_include_versions)
-    if isinstance(obj, QuestionLangVersion):
+    if isinstance(obj, QuestionLangVersionOrm):
         return __marshal_lang_version(obj)
-    if isinstance(obj, SmsSecretKey):
+    if isinstance(obj, SmsSecretKeyOrm):
         return __marshal_SmsSecretKey(obj)
     d = vars(obj).copy()
     __pre_process(d)
@@ -67,31 +67,31 @@ def marshal_with_type(obj: Any, shallow=False) -> dict:
     :param shallow: If true, only the top level fields will be marshalled
     :return: A dictionary mapping fields to values
     """
-    if isinstance(obj, Patient):
+    if isinstance(obj, PatientOrm):
         patient_dict = __marshal_patient(obj, shallow)
         patient_dict["type"] = "patient"
         return patient_dict
-    if isinstance(obj, Reading):
+    if isinstance(obj, ReadingOrm):
         reading_dict = __marshal_reading(obj, shallow)
         reading_dict["type"] = "reading"
         return reading_dict
-    if isinstance(obj, Referral):
+    if isinstance(obj, ReferralOrm):
         referral_dict = __marshal_referral(obj)
         referral_dict["type"] = "referral"
         return referral_dict
-    if isinstance(obj, FollowUp):
-        assessment_dict = __marshal_followup(obj)
+    if isinstance(obj, AssessmentOrm):
+        assessment_dict = __marshal_assessment(obj)
         assessment_dict["type"] = "assessment"
         return assessment_dict
-    if isinstance(obj, Pregnancy):
+    if isinstance(obj, PregnancyOrm):
         pregnancy_dict = __marshal_pregnancy(obj)
         pregnancy_dict["type"] = "pregnancy"
         return pregnancy_dict
-    if isinstance(obj, MedicalRecord):
+    if isinstance(obj, MedicalRecordOrm):
         medical_record_dict = __marshal_medical_record(obj)
         medical_record_dict["type"] = "medical_record"
         return medical_record_dict
-    if isinstance(obj, Form):
+    if isinstance(obj, FormOrm):
         form_dict = __marshal_form(obj, True)
         form_dict["type"] = "form"
         return form_dict
@@ -101,20 +101,19 @@ def marshal_with_type(obj: Any, shallow=False) -> dict:
     return d
 
 
-def marshal_patient_pregnancy_summary(records: List[Pregnancy]) -> dict:
+def marshal_patient_pregnancy_summary(records: List[PregnancyOrm]) -> dict:
     summary = {
-        "isPregnant": False,
-        "pastPregnancies": list(),
+        "is_pregnant": False,
+        "past_pregnancies": list(),
     }
 
     if records:
         record = records[0]
-        if not record.endDate:
+        if not record.end_date:
             current_pregnancy = {
-                "isPregnant": True,
-                "pregnancyId": record.id,
-                "pregnancyStartDate": record.startDate,
-                "gestationalAgeUnit": record.defaultTimeUnit.value,
+                "is_pregnant": True,
+                "pregnancy_id": record.id,
+                "pregnancy_start_date": record.start_date,
             }
             summary.update(current_pregnancy)
             del records[0]
@@ -122,119 +121,118 @@ def marshal_patient_pregnancy_summary(records: List[Pregnancy]) -> dict:
         past_pregnancies = list()
         for record in records:
             pregnancy = {
-                "pregnancyId": record.id,
-                "pregnancyOutcome": record.outcome,
-                "pregnancyEndDate": record.endDate,
-                "pregnancyStartDate": record.startDate,
+                "id": record.id,
+                "outcome": record.outcome,
+                "pregnancy_end_date": record.end_date,
+                "pregnancy_start_date": record.start_date,
             }
             past_pregnancies.append(pregnancy)
-        summary["pastPregnancies"] = past_pregnancies
+        summary["past_pregnancies"] = past_pregnancies
 
     return summary
 
 
 def marshal_patient_medical_history(
-    medical: Optional[MedicalRecord] = None,
-    drug: Optional[MedicalRecord] = None,
+    medical: Optional[MedicalRecordOrm] = None,
+    drug: Optional[MedicalRecordOrm] = None,
 ) -> dict:
     records = dict()
 
     if medical:
         info = {
-            "medicalHistoryId": medical.id,
-            "medicalHistory": medical.information,
+            "medical_history_id": medical.id,
+            "medical_history": medical.information,
         }
         records.update(info)
 
     if drug:
         info = {
-            "drugHistoryId": drug.id,
-            "drugHistory": drug.information,
+            "drug_history_id": drug.id,
+            "drug_history": drug.information,
         }
         records.update(info)
 
     return records
 
 
-def __marshal_patient(p: Patient, shallow) -> dict:
+def __marshal_patient(p: PatientOrm, shallow) -> dict:
     d = vars(p).copy()
     __pre_process(d)
-    if d.get("dob"):
-        d["dob"] = str(d["dob"])
+    if d.get("date_of_birth"):
+        d["date_of_birth"] = str(d["date_of_birth"])
 
     # The API representation of a patient contains a "base" field which is used by
     # mobile for syncing. When getting a patient from an API, this value is always
-    # equivalent to "lastEdited".
-    d["base"] = d["lastEdited"]
+    # equivalent to "last_edited".
+    d["base"] = d["last_edited"]
     if not shallow:
         d["readings"] = [marshal(r) for r in p.readings]
         d["referrals"] = [marshal(r) for r in p.referrals]
-        d["assessments"] = [marshal(a) for a in p.followups]
+        d["assessments"] = [marshal(a) for a in p.assessments]
     return d
 
 
-def __marshal_reading(r: Reading, shallow) -> dict:
+def __marshal_reading(r: ReadingOrm, shallow) -> dict:
     d = vars(r).copy()
     __pre_process(d)
     if not d.get("symptoms"):
         d["symptoms"] = []
     if d.get("symptoms"):
         d["symptoms"] = d["symptoms"].split(",")
-    if not shallow and r.urineTests is not None:
-        d["urineTests"] = marshal(r.urineTests)
+    if not shallow and r.urine_tests is not None:
+        d["urine_tests"] = marshal(r.urine_tests)
     return d
 
 
-def __marshal_referral(r: Referral) -> dict:
+def __marshal_referral(r: ReferralOrm) -> dict:
     d = vars(r).copy()
     __pre_process(d)
     # Remove relationship object
-    if d.get("healthFacility"):
-        del d["healthFacility"]
+    if d.get("health_facility"):
+        del d["health_facility"]
     if d.get("patient"):
         del d["patient"]
     return d
 
 
-def __marshal_followup(f: FollowUp) -> dict:
+def __marshal_assessment(f: AssessmentOrm) -> dict:
     d = vars(f).copy()
     __pre_process(d)
     # Remove relationship objects
-    if d.get("healthFacility"):
-        del d["healthFacility"]
+    if d.get("health_facility"):
+        del d["health_facility"]
     return d
 
 
-def __marshal_pregnancy(p: Pregnancy) -> dict:
+def __marshal_pregnancy(p: PregnancyOrm) -> dict:
     return {
         "id": p.id,
-        "patientId": p.patientId,
-        "pregnancyStartDate": p.startDate,
-        "gestationalAgeUnit": p.defaultTimeUnit.value,
-        "pregnancyEndDate": p.endDate,
-        "pregnancyOutcome": p.outcome,
-        "lastEdited": p.lastEdited,
+        "patient_id": p.patient_id,
+        "start_date": p.start_date,
+        "end_date": p.end_date,
+        "outcome": p.outcome,
+        "last_edited": p.last_edited,
     }
 
 
-def __marshal_medical_record(r: MedicalRecord) -> dict:
+def __marshal_medical_record(r: MedicalRecordOrm) -> dict:
     d = {
         "id": r.id,
-        "patientId": r.patientId,
-        "dataCreated": r.dateCreated,
-        "lastEdited": r.lastEdited,
+        "patient_id": r.patient_id,
+        "dataCreated": r.date_created,
+        "last_edited": r.last_edited,
     }
 
-    if r.isDrugRecord:
-        d["drugHistory"] = r.information
+    if r.is_drug_record:
+        d["drug_history"] = r.information
     else:
-        d["medicalHistory"] = r.information
+        d["medical_history"] = r.information
 
     return d
 
 
 def __marshal_form_template(
-    f: FormTemplate,
+    f: FormTemplateOrm,
     shallow: bool = False,
     if_include_versions: bool = False,
 ) -> dict:
@@ -248,12 +246,12 @@ def __marshal_form_template(
             __marshal_question(q, if_include_versions) for q in f.questions
         ]
         # sort question list based on question index in ascending order
-        d["questions"].sort(key=lambda q: q["questionIndex"])
+        d["questions"].sort(key=lambda q: q["question_index"])
 
     return d
 
 
-def marshal_template_to_single_version(f: FormTemplate, version: str) -> dict:
+def marshal_template_to_single_version(f: FormTemplateOrm, version: str) -> dict:
     d = vars(f).copy()
     __pre_process(d)
 
@@ -264,12 +262,12 @@ def marshal_template_to_single_version(f: FormTemplate, version: str) -> dict:
 
     # sort question list based on question index in ascending order
     if d["questions"]:
-        d["questions"].sort(key=lambda q: q["questionIndex"])
+        d["questions"].sort(key=lambda q: q["question_index"])
 
     return d
 
 
-def __marshal_form(f: Form, shallow) -> dict:
+def __marshal_form(f: FormOrm, shallow) -> dict:
     d = vars(f).copy()
     __pre_process(d)
 
@@ -282,67 +280,67 @@ def __marshal_form(f: Form, shallow) -> dict:
     if not shallow:
         d["questions"] = [marshal(q) for q in f.questions]
         # sort question list based on question index in ascending order
-        d["questions"].sort(key=lambda q: q["questionIndex"])
+        d["questions"].sort(key=lambda q: q["question_index"])
 
     return d
 
 
-def __marshal_question(q: Question, if_include_versions: bool) -> dict:
+def __marshal_question(q: QuestionOrm, if_include_versions: bool) -> dict:
     d = vars(q).copy()
     __pre_process(d)
 
     # Remove relationship object
     if d.get("form"):
         del d["form"]
-    if d.get("formTemplate"):
-        del d["formTemplate"]
-    if d.get("categoryQuestion"):
-        del d["categoryQuestion"]
+    if d.get("form_template"):
+        del d["form_template"]
+    if d.get("category_question"):
+        del d["category_question"]
 
-    # marshal visibleConditions, mcOptions, answers to json dict
-    visible_condition = d["visibleCondition"]
-    d["visibleCondition"] = json.loads(visible_condition)
-    mc_options = d["mcOptions"]
-    d["mcOptions"] = json.loads(mc_options)
+    # marshal visible_conditions, mc_options, answers to json dict
+    visible_condition = d["visible_condition"]
+    d["visible_condition"] = json.loads(visible_condition)
+    mc_options = d["mc_options"]
+    d["mc_options"] = json.loads(mc_options)
     answers = d["answers"]
     d["answers"] = json.loads(answers)
 
     if if_include_versions:
-        d["questionLangVersions"] = [marshal(v) for v in q.lang_versions]
+        d["question_lang_versions"] = [marshal(v) for v in q.lang_versions]
 
     return d
 
 
-def marshal_question_to_single_version(q: Question, version: str) -> dict:
+def marshal_question_to_single_version(q: QuestionOrm, version: str) -> dict:
     d = __marshal_question(q, False)
     version_info = [marshal(v) for v in q.lang_versions if v.lang == version][0]
 
-    d["questionText"] = version_info["questionText"]
-    if "mcOptions" in version_info:
-        d["mcOptions"] = version_info["mcOptions"]
+    d["question_text"] = version_info["question_text"]
+    if "mc_options" in version_info:
+        d["mc_options"] = version_info["mc_options"]
 
     return d
 
 
-def __marshal_lang_version(v: QuestionLangVersion) -> dict:
+def __marshal_lang_version(v: QuestionLangVersionOrm) -> dict:
     d = vars(v).copy()
     __pre_process(d)
 
     # Remove relationship object
     if d.get("question"):
         del d["question"]
-    # Remove mcOptions if default empty list
-    if d.get("mcOptions") == "[]":
-        del d["mcOptions"]
+    # Remove mc_options if default empty list
+    if d.get("mc_options") == "[]":
+        del d["mc_options"]
     else:
-        # marshal mcOptions to json dict
-        d["mcOptions"] = json.loads(d["mcOptions"])
+        # marshal mc_options to json dict
+        d["mc_options"] = json.loads(d["mc_options"])
 
     return d
 
 
 def __marshal_form_classification(
-    fc: FormClassification,
+    fc: FormClassificationOrm,
     if_include_templates: bool = False,
 ) -> dict:
     d = vars(fc).copy()
@@ -357,11 +355,11 @@ def __marshal_form_classification(
     return d
 
 
-def __marshal_SmsSecretKey(s: SmsSecretKey):
+def __marshal_SmsSecretKey(s: SmsSecretKeyOrm):
     return {
         "id": s.id,
-        "userId": s.userId,
-        "secret_Key": s.secret_Key,
+        "user_id": s.user_id,
+        "secret_key": s.secret_key,
         "stale_date": s.stale_date,
         "expiry_date": s.expiry_date,
     }
@@ -391,12 +389,12 @@ def unmarshal(m: Type[M], d: dict) -> M:
     """
     Converts a dictionary into a model instance by loading it from the model's schema.
 
-    Special care is taken for ``Reading`` models (and any thing which contains a nested
-    ``Reading`` model) because their database schema is different from their dictionary
+    Special care is taken for ``ReadingOrm`` models (and any thing which contains a nested
+    ``ReadingOrm`` model) because their database schema is different from their dictionary
     representation, most notably the symptoms field.
 
-    For ``Patient`` and ``Reading`` types, the instance returned by this function may
-    not be sound as there are various invariants that must be held for ``Reading``
+    For ``PatientOrm`` and ``ReadingOrm`` types, the instance returned by this function may
+    not be sound as there are various invariants that must be held for ``ReadingOrm``
     objects. One should call ``service.invariant.resolve_reading_invariants`` on the
     instance created by this function.
 
@@ -404,21 +402,21 @@ def unmarshal(m: Type[M], d: dict) -> M:
     :param d: A dictionary mapping columns to values used to construct the model
     :return: A model
     """
-    if m is Patient:
+    if m is PatientOrm:
         return __unmarshal_patient(d)
-    if m is Reading:
+    if m is ReadingOrm:
         return __unmarshal_reading(d)
-    if m is Form:
+    if m is FormOrm:
         return __unmarshal_form(d)
-    if m is FormTemplate:
+    if m is FormTemplateOrm:
         return __unmarshal_form_template(d)
-    if m is Question:
+    if m is QuestionOrm:
         return __unmarshal_question(d)
-    if m is QuestionLangVersion:
+    if m is QuestionLangVersionOrm:
         return __unmarshal_lang_version(d)
-    if m is SmsSecretKey:
+    if m is SmsSecretKeyOrm:
         return __unmarshal_SmsSecretKey(d)
-    if m is RelayServerPhoneNumber:
+    if m is RelayServerPhoneNumberOrm:
         return __unmarshal_RelayServerPhoneNumber(d)
     return __load(m, d)
 
@@ -428,7 +426,7 @@ def __load(m: Type[M], d: dict) -> M:
     return schema().load(d)
 
 
-def __unmarshal_patient(d: dict) -> Patient:
+def __unmarshal_patient(d: dict) -> PatientOrm:
     # Unmarshal any readings found within the patient
     if d.get("readings") is not None:
         readings = [__unmarshal_reading(r) for r in d["readings"]]
@@ -440,7 +438,7 @@ def __unmarshal_patient(d: dict) -> Patient:
 
     # Unmarshal any referrals found within the patient
     if d.get("referrals") is not None:
-        referrals = [unmarshal(Referral, r) for r in d["referrals"]]
+        referrals = [unmarshal(ReferralOrm, r) for r in d["referrals"]]
         # Delete the entry so that we don't try to unmarshal them again by loading from
         # the patient schema.
         del d["referrals"]
@@ -449,7 +447,7 @@ def __unmarshal_patient(d: dict) -> Patient:
 
     # Unmarshal any assessments found within the patient
     if d.get("assessments") is not None:
-        assessments = [unmarshal(FollowUp, a) for a in d["assessments"]]
+        assessments = [unmarshal(AssessmentOrm, a) for a in d["assessments"]]
         # Delete the entry so that we don't try to unmarshal them again by loading from
         # the patient schema.
         del d["assessments"]
@@ -458,14 +456,14 @@ def __unmarshal_patient(d: dict) -> Patient:
 
     # Unmarshal any forms found within the patient
     if d.get("forms") is not None:
-        forms = [unmarshal(Form, f) for f in d["forms"]]
+        forms = [unmarshal(FormOrm, f) for f in d["forms"]]
         # Delete the entry so that we don't try to unmarshal them again by loading from
         # the patient schema.
         del d["forms"]
     else:
         forms = []
 
-    medRecords = makeMedRecFromPatient(d)
+    medRecords = make_medical_record_from_patient(d)
     pregnancy = makePregnancyFromPatient(d)
 
     # Since "base" doesn't have a column in the database, we must remove it from its
@@ -474,13 +472,13 @@ def __unmarshal_patient(d: dict) -> Patient:
         del d["base"]
 
     # Put the readings back into the patient
-    patient = __load(Patient, d)
+    patient = __load(PatientOrm, d)
     if readings:
         patient.readings = readings
     if referrals:
         patient.referrals = referrals
     if assessments:
-        patient.followups = assessments
+        patient.assessments = assessments
     if medRecords:
         patient.records = medRecords
     if pregnancy:
@@ -491,64 +489,63 @@ def __unmarshal_patient(d: dict) -> Patient:
     return patient
 
 
-def makeMedRecFromPatient(patient: dict) -> MedicalRecord:
-    drugRec = {}
-    medRec = {}
-    if "drugHistory" in patient:
-        if patient["drugHistory"]:
-            drugRec = {
-                "patientId": patient["patientId"],
-                "information": patient["drugHistory"],
-                "isDrugRecord": True,
+def make_medical_record_from_patient(patient: dict) -> MedicalRecordOrm:
+    drug_record = {}
+    medical_record = {}
+    if "drug_history" in patient:
+        if patient["drug_history"]:
+            drug_record = {
+                "patient_id": patient["id"],
+                "information": patient["drug_history"],
+                "is_drug_record": True,
             }
-        del patient["drugHistory"]
-    if "medicalHistory" in patient:
-        if patient["medicalHistory"]:
-            medRec = {
-                "patientId": patient["patientId"],
-                "information": patient["medicalHistory"],
-                "isDrugRecord": False,
+        del patient["drug_history"]
+    if "medical_history" in patient:
+        if patient["medical_history"]:
+            medical_record = {
+                "patient_id": patient["id"],
+                "information": patient["medical_history"],
+                "is_drug_record": False,
             }
-        del patient["medicalHistory"]
+        del patient["medical_history"]
 
     records = []
-    if drugRec:
-        records.append(drugRec)
-    if medRec:
-        records.append(medRec)
+    if drug_record:
+        records.append(drug_record)
+    if medical_record:
+        records.append(medical_record)
 
-    medicalRecord = [unmarshal(MedicalRecord, m) for m in records]
-    return medicalRecord
+    record = [unmarshal(MedicalRecordOrm, m) for m in records]
+    return record
 
 
-def makePregnancyFromPatient(patient: dict) -> Pregnancy:
+def makePregnancyFromPatient(patient: dict) -> PregnancyOrm:
     pregnancyObj = {}
-    if patient.get("pregnancyStartDate"):
+    if patient.get("pregnancy_start_date"):
         pregnancyObj = {
-            "patientId": patient["patientId"],
-            "startDate": patient.pop("pregnancyStartDate"),
-            "defaultTimeUnit": patient.pop("gestationalAgeUnit"),
+            "patient_id": patient["id"],
+            "start_date": patient.pop("pregnancy_start_date"),
         }
 
-    if "isPregnant" in patient:
-        del patient["isPregnant"]
-    if "pregnancyStartDate" in patient:
-        del patient["pregnancyStartDate"]
+    if "is_pregnant" in patient:
+        del patient["is_pregnant"]
+    if "start" in patient:
+        del patient["pregnancy_start_date"]
 
     if pregnancyObj:
-        pregnancy = [unmarshal(Pregnancy, pregnancyObj)]
+        pregnancy = [unmarshal(PregnancyOrm, pregnancyObj)]
     else:
         pregnancy = []
 
     return pregnancy
 
 
-def __unmarshal_form(d: dict) -> Form:
+def __unmarshal_form(d: dict) -> FormOrm:
     questions = []
     if d.get("questions") is not None:
         questions = unmarshal_question_list(d["questions"])
 
-    form = __load(Form, d)
+    form = __load(FormOrm, d)
 
     if questions:
         form.questions = questions
@@ -556,12 +553,12 @@ def __unmarshal_form(d: dict) -> Form:
     return form
 
 
-def __unmarshal_form_template(d: dict) -> FormTemplate:
+def __unmarshal_form_template(d: dict) -> FormTemplateOrm:
     questions = []
     if d.get("questions") is not None:
         questions = unmarshal_question_list(d["questions"])
 
-    form_template = __load(FormTemplate, d)
+    form_template = __load(FormTemplateOrm, d)
 
     if questions:
         form_template.questions = questions
@@ -569,57 +566,57 @@ def __unmarshal_form_template(d: dict) -> FormTemplate:
     return form_template
 
 
-def __unmarshal_reading(d: dict) -> Reading:
+def __unmarshal_reading(d: dict) -> ReadingOrm:
     # Convert "symptoms" from array to string, if plural number of symptoms
     symptomsGiven = d.get("symptoms")
     if symptomsGiven is not None:
         if isinstance(symptomsGiven, list):
             d["symptoms"] = ",".join(d["symptoms"])
 
-    reading = __load(Reading, d)
+    reading = __load(ReadingOrm, d)
 
     invariant.resolve_reading_invariants(reading)
 
     return reading
 
 
-def __unmarshal_lang_version(d: dict) -> QuestionLangVersion:
-    # Convert "mcOptions" from json dict to string
-    mc_options = d.get("mcOptions")
+def __unmarshal_lang_version(d: dict) -> QuestionLangVersionOrm:
+    # Convert "mc_options" from json dict to string
+    mc_options = d.get("mc_options")
     if mc_options is not None:
         if isinstance(mc_options, list):
-            d["mcOptions"] = json.dumps(mc_options)
+            d["mc_options"] = json.dumps(mc_options)
 
-    lang_version = __load(QuestionLangVersion, d)
+    lang_version = __load(QuestionLangVersionOrm, d)
 
     return lang_version
 
 
-def __unmarshal_question(d: dict) -> Question:
-    # Convert "visibleCondition" from json dict to string
-    visible_condition = d.get("visibleCondition")
+def __unmarshal_question(d: dict) -> QuestionOrm:
+    # Convert "visible_condition" from json dict to string
+    visible_condition = d.get("visible_condition")
     if visible_condition is not None:
-        d["visibleCondition"] = json.dumps(visible_condition)
-    # Convert "mcOptions" from json dict to string
-    mc_options = d.get("mcOptions")
+        d["visible_condition"] = json.dumps(visible_condition)
+    # Convert "mc_options" from json dict to string
+    mc_options = d.get("mc_options")
     if mc_options is not None:
         if isinstance(mc_options, list):
-            d["mcOptions"] = json.dumps(mc_options)
+            d["mc_options"] = json.dumps(mc_options)
     # Convert "answers" from json dict to string
     answers = d.get("answers")
     if answers is not None:
         d["answers"] = json.dumps(answers)
     # Unmarshal any lang versions found within the question
     lang_versions = []
-    if d.get("questionLangVersions") is not None:
+    if d.get("question_lang_versions") is not None:
         lang_versions = [
-            unmarshal(QuestionLangVersion, v) for v in d["questionLangVersions"]
+            unmarshal(QuestionLangVersionOrm, v) for v in d["question_lang_versions"]
         ]
         # Delete the entry so that we don't try to unmarshal them again by loading from
         # the question schema.
-        del d["questionLangVersions"]
+        del d["question_lang_versions"]
 
-    question = __load(Question, d)
+    question = __load(QuestionOrm, d)
 
     if lang_versions:
         question.lang_versions = lang_versions
@@ -627,23 +624,23 @@ def __unmarshal_question(d: dict) -> Question:
     return question
 
 
-def __unmarshal_RelayServerPhoneNumber(d: dict) -> RelayServerPhoneNumber:
-    relay_server_phone = __load(RelayServerPhoneNumber, d)
+def __unmarshal_RelayServerPhoneNumber(d: dict) -> RelayServerPhoneNumberOrm:
+    relay_server_phone = __load(RelayServerPhoneNumberOrm, d)
     relay_server_phone.phone = d["phone"]
     relay_server_phone.description = d["description"]
     return relay_server_phone
 
 
-def __unmarshal_SmsSecretKey(d: dict) -> SmsSecretKey:
-    sms_secret_key = __load(SmsSecretKey, d)
-    sms_secret_key.userId = d["userId"]
-    sms_secret_key.secret_Key = d["secret_Key"]
+def __unmarshal_SmsSecretKey(d: dict) -> SmsSecretKeyOrm:
+    sms_secret_key = __load(SmsSecretKeyOrm, d)
+    sms_secret_key.user_id = d["user_id"]
+    sms_secret_key.secret_key = d["secret_key"]
     sms_secret_key.stale_date = d["stale_date"]
     sms_secret_key.expiry_date = d["expiry_date"]
     return sms_secret_key
 
 
-def unmarshal_question_list(d: list) -> List[Question]:
+def unmarshal_question_list(d: list) -> List[QuestionOrm]:
     # Unmarshal any questions found within the list, return a list of questions
     return [__unmarshal_question(q) for q in d]
 

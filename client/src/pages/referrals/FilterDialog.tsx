@@ -4,15 +4,9 @@ import {
   SecondaryButton,
 } from 'src/shared/components/Button';
 
-import {
-  IFacility,
-  IUserWithTokens,
-  OrNull,
-  ReferralFilter,
-  Referrer,
-} from 'src/shared/types';
+import { Facility, ReferralFilter, Referrer } from 'src/shared/types';
 import React, { SyntheticEvent, useEffect, useState } from 'react';
-import { getHealthFacilitiesAsync, getUserVhtsAsync } from 'src/shared/api';
+import { getHealthFacilitiesAsync, getUserVhtsAsync } from 'src/shared/api/api';
 import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
@@ -26,14 +20,14 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
-import { ReduxState } from 'src/redux/reducers';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import { TextField } from '@mui/material';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { TrafficLightEnum } from 'src/shared/enums';
-import { useSelector } from 'react-redux';
 import { DateRangePickerWithPreset } from 'src/shared/components/Date/DateRangePicker';
 import { useDateRangeState } from 'src/shared/components/Date/useDateRangeState';
+import { useAppSelector } from 'src/shared/hooks';
+import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
 
 interface IProps {
   open: boolean;
@@ -76,10 +70,6 @@ const vitalSigns: VitalSign[] = [
   },
 ];
 
-type SelectorState = {
-  user: OrNull<IUserWithTokens>;
-};
-
 export const FilterDialog = ({
   open,
   filter,
@@ -88,11 +78,7 @@ export const FilterDialog = ({
   setFilter,
   setIsPromptShown,
 }: IProps) => {
-  const { user } = useSelector(
-    ({ user }: ReduxState): SelectorState => ({
-      user: user.current.data,
-    })
-  );
+  const { data: user } = useAppSelector(selectCurrentUser);
   const [selectedHealthFacilities, setSelectedHealthFacilities] = useState<
     string[]
   >([]);
@@ -116,7 +102,7 @@ export const FilterDialog = ({
         const facilities = await getHealthFacilitiesAsync();
 
         setHealthFacilities(
-          facilities.map((facility: IFacility) => facility.healthFacilityName)
+          facilities.map((facility: Facility) => facility.name)
         );
       } catch (e) {
         console.log(e);

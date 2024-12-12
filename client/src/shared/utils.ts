@@ -153,21 +153,22 @@ export const calculateShockIndex = (reading: Reading): TrafficLightEnum => {
   const SHOCK_MEDIUM = 0.9;
 
   if (
-    reading.bpSystolic === undefined ||
-    reading.bpDiastolic === undefined ||
-    reading.heartRateBPM === undefined
+    reading.systolicBloodPressure === undefined ||
+    reading.diastolicBloodPressure === undefined ||
+    reading.heartRate === undefined
   ) {
     return TrafficLightEnum.NONE;
   }
 
-  const shockIndex = reading.heartRateBPM / reading.bpSystolic;
+  const shockIndex = reading.heartRate / reading.systolicBloodPressure;
 
   const isBpVeryHigh =
-    reading.bpSystolic >= RED_SYSTOLIC || reading.bpDiastolic >= RED_DIASTOLIC;
+    reading.systolicBloodPressure >= RED_SYSTOLIC ||
+    reading.diastolicBloodPressure >= RED_DIASTOLIC;
 
   const isBpHigh =
-    reading.bpSystolic >= YELLOW_SYSTOLIC ||
-    reading.bpDiastolic >= YELLOW_DIASTOLIC;
+    reading.systolicBloodPressure >= YELLOW_SYSTOLIC ||
+    reading.diastolicBloodPressure >= YELLOW_DIASTOLIC;
 
   const isSevereShock = shockIndex >= SHOCK_HIGH;
 
@@ -212,8 +213,8 @@ export const getYearToDisplay = (timestamp: number) => {
 export const getLatestReading = (readings: Array<Reading>): Reading => {
   const sortedReadings = readings.sort(
     (reading: Reading, otherReading: Reading) =>
-      getMomentDate(otherReading.dateTimeTaken).valueOf() -
-      getMomentDate(reading.dateTimeTaken).valueOf()
+      getMomentDate(otherReading.dateTaken).valueOf() -
+      getMomentDate(reading.dateTaken).valueOf()
   );
   return sortedReadings[0];
 };

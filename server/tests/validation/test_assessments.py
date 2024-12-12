@@ -4,52 +4,52 @@ from validation.assessments import AssessmentValidator
 from validation.validation_exception import ValidationExceptionError
 
 valid_json = {
-    "dateAssessed": 1551447833,
+    "date_assessed": 1551447833,
     "diagnosis": "patient is fine",
-    "medicationPrescribed": "tylenol",
-    "healthcareWorkerId": 2,
-    "specialInvestigations": "bcccccccccddeeeff",
+    "medication_prescribed": "tylenol",
+    "healthcare_worker_id": 2,
+    "special_investigations": "bcccccccccddeeeff",
     "treatment": "b",
-    "patientId": "asdasd82314278226313803",
-    "followupNeeded": True,
-    "followupInstructions": "pls help, give lots of tylenol",
+    "patient_id": "asdasd82314278226313803",
+    "follow_up_needed": True,
+    "follow_up_instructions": "pls help, give lots of tylenol",
 }
 
-# dateAssessed field is missing
+# date_assessed field is missing
 missing_field = {
     "diagnosis": "patient is fine",
-    "medicationPrescribed": "tylenol",
-    "healthcareWorkerId": 2,
-    "specialInvestigations": "bcccccccccddeeeff",
+    "medication_prescribed": "tylenol",
+    "healthcare_worker_id": 2,
+    "special_investigations": "bcccccccccddeeeff",
     "treatment": "b",
-    "patientId": "asdasd82314278226313803",
-    "followupNeeded": True,
-    "followupInstructions": "pls help, give lots of tylenol",
+    "patient_id": "asdasd82314278226313803",
+    "follow_up_needed": True,
+    "follow_up_instructions": "pls help, give lots of tylenol",
 }
 
-missing_followupInstructions_when_followupNeeded_true = {
-    "dateAssessed": 1551447833,
+missing_follow_up_instructions_when_follow_up_needed_true = {
+    "date_assessed": 1551447833,
     "diagnosis": "patient is fine",
-    "medicationPrescribed": "tylenol",
-    "healthcareWorkerId": 2,
-    "specialInvestigations": "bcccccccccddeeeff",
+    "medication_prescribed": "tylenol",
+    "healthcare_worker_id": 2,
+    "special_investigations": "bcccccccccddeeeff",
     "treatment": "b",
-    "patientId": "asdasd82314278226313803",
-    "followupNeeded": True,
-    "followupInstructions": "",
+    "patient_id": "asdasd82314278226313803",
+    "follow_up_needed": True,
+    "follow_up_instructions": "",
 }
 
-# dateAssessed must be int
+# date_assessed must be int
 not_type_int = {
-    "dateAssessed": "2020-01-01",
+    "date_assessed": "2020-01-01",
     "diagnosis": "patient is fine",
-    "medicationPrescribed": "tylenol",
-    "healthcareWorkerId": 2,
-    "specialInvestigations": "bcccccccccddeeeff",
+    "medication_prescribed": "tylenol",
+    "healthcare_worker_id": 2,
+    "special_investigations": "bcccccccccddeeeff",
     "treatment": "b",
-    "patientId": "asdasd82314278226313803",
-    "followupNeeded": True,
-    "followupInstructions": "pls help, give lots of tylenol",
+    "patient_id": "asdasd82314278226313803",
+    "follow_up_needed": True,
+    "follow_up_instructions": "pls help, give lots of tylenol",
 }
 
 
@@ -59,7 +59,7 @@ not_type_int = {
         (valid_json, None),
         (missing_field, ValidationExceptionError),
         (
-            missing_followupInstructions_when_followupNeeded_true,
+            missing_follow_up_instructions_when_follow_up_needed_true,
             ValidationExceptionError,
         ),
         (not_type_int, ValidationExceptionError),

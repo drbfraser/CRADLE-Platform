@@ -3,8 +3,8 @@ from typing import NamedTuple, Optional
 
 class Node(NamedTuple):
     is_category: bool
-    qindex: int
-    cindex: Optional[int]
+    question_index: int
+    category_index: Optional[int]
 
 
 def is_dfs_order(question_list: list[dict]) -> Optional[str]:
@@ -14,7 +14,7 @@ def is_dfs_order(question_list: list[dict]) -> Optional[str]:
     -------------------------------------------------------------------
     Currently, each question has a category index field that points to
     another question. If this field is None, it means this question is a
-    root normal question or a root category (depending on the questionType
+    root normal question or a root category (depending on the question_type
     ), else it means this question is a normal question with category or
     a sub-category.
 
@@ -42,12 +42,12 @@ def is_dfs_order(question_list: list[dict]) -> Optional[str]:
        Q3 Q4
 
     Then the question order should follow dfs preorder traversal
-    (with their corresponding categoryIndex, with n indicating null):
+    (with their corresponding category_index, with n indicating null):
     [C1,C3,Q3,Q4,Q2,C2,Q5,Q6,Q1]
     [ n  0  1  1  0  n  5  5  n]
     """
     node_list = [
-        Node(q["questionType"] == "CATEGORY", q["questionIndex"], q["categoryIndex"])
+        Node(q["question_type"] == "CATEGORY", q["question_index"], q["category_index"])
         for q in question_list
     ]
 
@@ -57,28 +57,31 @@ def is_dfs_order(question_list: list[dict]) -> Optional[str]:
     for node in node_list:
         top_node: Node = tree_stack[-1]
         if top_node == "root":
-            if node.cindex is not None:
-                return f"root question {node.qindex} should have categoryIndex = null"
+            if node.category_index is not None:
+                return f"root question {node.question_index} should have category_index = null"
             if node.is_category:
                 # push category node into stack
-                category_index_set.add(node.qindex)
+                category_index_set.add(node.question_index)
                 tree_stack.append(node)
         else:
-            if node.cindex is None:
+            if node.category_index is None:
                 # initial stack with root only, clear set
                 tree_stack = ["root"]
                 category_index_set.clear()
-            elif top_node.qindex != node.cindex:
-                if node.cindex not in category_index_set:
+            elif top_node.question_index != node.category_index:
+                if node.category_index not in category_index_set:
                     # detect node with invalid category index ahead
-                    return f"internal question {node.qindex}'s category index doesn't point to an available question"
-                while len(tree_stack) > 1 and tree_stack[-1].qindex != node.cindex:
-                    # pop stack nodes and set index and until cur node's cindex equal to top node's qid
-                    category_index_set.remove(tree_stack.pop().qindex)
+                    return f"internal question {node.question_index}'s category index doesn't point to an available question"
+                while (
+                    len(tree_stack) > 1
+                    and tree_stack[-1].question_index != node.category_index
+                ):
+                    # pop stack nodes and set index and until cur node's category_index equal to top node's qid
+                    category_index_set.remove(tree_stack.pop().question_index)
 
             if node.is_category:
                 # push category node into stack
-                category_index_set.add(node.qindex)
+                category_index_set.add(node.question_index)
                 tree_stack.append(node)
 
     return None

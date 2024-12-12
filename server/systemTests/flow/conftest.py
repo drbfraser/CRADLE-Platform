@@ -3,29 +3,29 @@ import pytest
 
 @pytest.fixture
 def single_facility_actors(user_factory, facility_factory):
-    facility = facility_factory.create(healthFacilityName="SFT")
+    facility = facility_factory.create(health_facility_name="SFT")
     admin = user_factory.create(
         email="admin@ft.a",
-        password="ftest",
-        healthFacilityName="SFT",
+        password="Test_Password",
+        health_facility_name="SFT",
         role="ADMIN",
     )
     hcw = user_factory.create(
         email="hcw@ft.a",
-        password="ftest",
-        healthFacilityName="SFT",
+        password="Test_Password",
+        health_facility_name="SFT",
         role="HCW",
     )
     cho = user_factory.create(
         email="cho@ft.a",
-        password="ftest",
-        healthFacilityName="SFT",
+        password="Test_Password",
+        health_facility_name="SFT",
         role="CHO",
     )
     vht = user_factory.create(
         email="vht@ft.a",
-        password="ftest",
-        healthFacilityName="SFT",
+        password="Test_Password",
+        health_facility_name="SFT",
         role="VHT",
     )
 
@@ -46,44 +46,44 @@ def make_patient(make_assessment):
         created_by: int = None,
     ):
         patient: dict = {
-            "patientId": patient_id,
-            "patientName": "TEST",
-            "patientSex": "FEMALE",
-            "isPregnant": False,
+            "id": patient_id,
+            "name": "TEST",
+            "sex": "FEMALE",
+            "is_pregnant": False,
             "zone": "1",
-            "villageNumber": "1",
-            "dob": "2004-01-01",
-            "isExactDob": "false",
+            "village_number": "1",
+            "date_of_birth": "2004-01-01",
+            "is_exact_date_of_birth": "false",
         }
 
         if reading_id:
             patient["readings"] = [
                 {
-                    "readingId": reading_id,
-                    "patientId": patient_id,
-                    "bpSystolic": 110,
-                    "bpDiastolic": 80,
-                    "heartRateBPM": 70,
+                    "reading_id": reading_id,
+                    "patient_id": patient_id,
+                    "systolic_blood_pressure": 110,
+                    "diastolic_blood_pressure": 80,
+                    "heart_rate": 70,
                     "symptoms": [],
-                    "dateTimeTaken": (
+                    "date_taken": (
                         reading_timestamp if reading_timestamp else 1595118199
                     ),
-                    "userId": created_by if created_by else 1,
+                    "user_id": created_by if created_by else 1,
                 },
             ]
 
         if refer_to:
             patient["referrals"] = [
                 {
-                    "dateReferred": (
+                    "date_referred": (
                         referral_timestamp if referral_timestamp else 1595118445
                     ),
                     "comment": "A comment",
-                    "actionTaken": "An action",
-                    "userId": created_by if created_by else 1,
-                    "patientId": patient_id,
-                    "referralHealthFacilityName": refer_to,
-                    "isAssessed": is_assessed,
+                    "action_taken": "An action",
+                    "user_id": created_by if created_by else 1,
+                    "patient_id": patient_id,
+                    "health_facility_name": refer_to,
+                    "is_assessed": is_assessed,
                 },
             ]
 
@@ -109,14 +109,14 @@ def make_assessment():
         return {
             "diagnosis": "A diagnosis",
             "treatment": "A treatment",
-            "dateAssessed": (
+            "date_assessed": (
                 assessment_timestamp if assessment_timestamp else 1595118647
             ),
-            "healthcareWorkerId": assessed_by,
-            "medicationPrescribed": "Some medication",
-            "specialInvestigations": "Some investigations",
-            "followupNeeded": False,
-            "readingId": reading_id,
+            "healthcare_worker_id": assessed_by,
+            "medication_prescribed": "Some medication",
+            "special_investigations": "Some investigations",
+            "follow_up_needed": False,
+            "reading_id": reading_id,
         }
 
     return __builder

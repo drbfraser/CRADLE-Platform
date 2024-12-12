@@ -35,7 +35,7 @@ export const TopBar = () => {
   const theme = useTheme();
   const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
-  const { data: user } = useAppSelector(selectCurrentUser);
+  const { data: userData } = useAppSelector(selectCurrentUser);
 
   const dispatch = useAppDispatch();
 
@@ -65,11 +65,11 @@ export const TopBar = () => {
     return (
       <div>
         <Typography variant="body1" noWrap>
-          {user?.firstName} ({user ? userRoleLabels[user.role] : ''})
+          {userData?.name} ({userData ? userRoleLabels[userData.role] : ''})
         </Typography>
-        {user?.healthFacilityName && (
+        {userData?.healthFacilityName && (
           <Typography variant="body2" noWrap>
-            Healthcare Facility: {user?.healthFacilityName}
+            Healthcare Facility: {userData?.healthFacilityName}
           </Typography>
         )}
       </div>

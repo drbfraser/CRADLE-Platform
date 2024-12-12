@@ -2,7 +2,7 @@ import pytest
 
 import data
 from data import crud
-from models import FollowUp, Patient, Reading, Referral
+from models import AssessmentOrm, PatientOrm, ReadingOrm, ReferralOrm
 from service import assoc
 
 
@@ -25,14 +25,14 @@ def test_vht_referring_new_patient_and_hcw_assessing_them(
         patient_dict = make_patient(
             patient_id=patient_id,
             reading_id=reading_id,
-            refer_to=facility.healthFacilityName,
+            refer_to=facility.name,
             created_by=vht.id,
         )
         response = api.post(
             endpoint="/api/patients",
             payload=patient_dict,
             email=vht.email,
-            password="ftest",
+            password="Test_Password",
         )
         assert response.status_code == 201
 
@@ -40,20 +40,20 @@ def test_vht_referring_new_patient_and_hcw_assessing_them(
         data.db_session.commit()
 
         # Ensure that the patient, reading, and referral have been created
-        referral = crud.read(Referral, readingId=reading_id)
+        referral = crud.read(ReferralOrm, id=reading_id)
 
-        assert crud.read(Patient, patientId=patient_id) is not None
-        assert crud.read(Reading, readingId=reading_id) is not None
+        assert crud.read(PatientOrm, id=patient_id) is not None
+        assert crud.read(ReadingOrm, id=reading_id) is not None
         assert referral is not None
 
         # The referral should not be marked as assessed yet
-        assert not referral.isAssessed
+        assert not referral.is_assessed
 
         # The patient should have an association with the facility and an association
         # with the VHT who created it
         assert assoc.has_association_by_id(
             patient_id=patient_id,
-            facility_name=facility.healthFacilityName,
+            facility_name=facility.name,
         )
         assert assoc.has_association_by_id(patient_id=patient_id, user_id=vht.id)
 
@@ -63,7 +63,7 @@ def test_vht_referring_new_patient_and_hcw_assessing_them(
             endpoint="/api/assessments",
             payload=assessment_dict,
             email=hcw.email,
-            password="ftest",
+            password="Test_Password",
         )
         assert response.status_code == 201
 
@@ -71,13 +71,13 @@ def test_vht_referring_new_patient_and_hcw_assessing_them(
 
         # Ensure that the assessment has been created and that the referral has been
         # marked as assessed
-        assert crud.read(FollowUp, readingId=reading_id) is not None
-        assert referral.isAssessed
+        assert crud.read(AssessmentOrm, reading_id=reading_id) is not None
+        assert referral.is_assessed
 
     finally:
         # Cleanup
-        crud.delete_by(FollowUp, readingId=reading_id)
-        crud.delete_by(Referral, readingId=reading_id)
-        crud.delete_by(Reading, readingId=reading_id)
-        crud.delete_by(Patient, patientId=patient_id)
+        crud.delete_by(AssessmentOrm, reading_id=reading_id)
+        crud.delete_by(ReferralOrm, reading_id=reading_id)
+        crud.delete_by(ReadingOrm, id=reading_id)
+        crud.delete_by(PatientOrm, id=patient_id)
         data.db_session.commit()

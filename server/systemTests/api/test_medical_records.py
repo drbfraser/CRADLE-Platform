@@ -1,5 +1,8 @@
+from flask import Response
+from humps import decamelize
+
 from data import crud
-from models import MedicalRecord
+from models import MedicalRecordOrm
 
 
 def test_get_record(create_patient, medical_record_factory, medical_record, api_get):
@@ -10,7 +13,8 @@ def test_get_record(create_patient, medical_record_factory, medical_record, api_
     response = api_get(endpoint=f"/api/medical_records/{record_id}")
 
     assert response.status_code == 200
-    assert response.json()["medicalHistory"] == medical_record["information"]
+    response_body = decamelize(response.json())
+    assert response_body["medical_history"] == medical_record["information"]
 
 
 def test_put_record(create_patient, medical_record_factory, drug_record, api_put):
@@ -19,16 +23,16 @@ def test_put_record(create_patient, medical_record_factory, drug_record, api_put
 
     record_id = drug_record["id"]
     info = "Labetalol 200mg three times daily."
-    response = api_put(
+    response: Response = api_put(
         endpoint=f"/api/medical_records/{record_id}",
-        json={"drugHistory": info},
+        json={"drug_history": info},
     )
-
-    new_record = crud.read(MedicalRecord, id=record_id)
+    new_record = crud.read(MedicalRecordOrm, id=record_id)
 
     assert response.status_code == 200
+    assert new_record is not None
     assert new_record.information == info
-    assert new_record.isDrugRecord
+    assert new_record.is_drug_record
 
 
 def test_post_and_delete_record(
@@ -42,24 +46,24 @@ def test_post_and_delete_record(
     create_patient()
     record_id = medical_record["id"]
 
-    record = {"id": record_id, "medicalHistory": medical_record["information"]}
+    record = {"id": record_id, "medical_history": medical_record["information"]}
     response = api_post(
         endpoint=f"/api/patients/{patient_id}/medical_records",
         json=record,
     )
 
-    new_record = crud.read(MedicalRecord, id=record_id)
+    new_record = crud.read(MedicalRecordOrm, id=record_id)
 
     assert response.status_code == 201
-    assert new_record.patientId == patient_id
-    assert new_record.information == record["medicalHistory"]
-    assert not new_record.isDrugRecord
+    assert new_record.patient_id == patient_id
+    assert new_record.information == record["medical_history"]
+    assert not new_record.is_drug_record
 
     response = api_delete(endpoint=f"/api/medical_records/{record_id}")
     database.session.commit()
 
     assert response.status_code == 200
-    assert crud.read(MedicalRecord, id=record_id) is None
+    assert crud.read(MedicalRecordOrm, id=record_id) is None
 
 
 def test_get_record_lists(
@@ -75,10 +79,11 @@ def test_get_record_lists(
     medical_record_factory.create(**drug_record)
 
     response = api_get(endpoint=f"/api/patients/{patient_id}/medical_records")
+    response_body = decamelize(response.json())
 
     assert response.status_code == 200
-    assert len(response.json()["medical"]) >= 1
-    assert len(response.json()["drug"]) >= 1
+    assert len(response_body["medical"]) >= 1
+    assert len(response_body["drug"]) >= 1
 
 
 def test_invalid_record_not_updated(
@@ -93,13 +98,13 @@ def test_invalid_record_not_updated(
     record_id = drug_record["id"]
     response = api_put(
         endpoint=f"/api/medical_records/{record_id}",
-        json={"patientId": "0"},
+        json={"patient_id": "0"},
     )
 
-    record = crud.read(MedicalRecord, id=record_id)
-
+    record = crud.read(MedicalRecordOrm, id=record_id)
+    assert record is not None
     assert response.status_code == 400
-    assert record.patientId == drug_record["patientId"]
+    assert record.patient_id == drug_record["patient_id"]
 
 
 def test_invalid_record_not_created(
@@ -114,7 +119,7 @@ def test_invalid_record_not_created(
 
     response = api_post(
         endpoint=f"/api/patients/{patient_id}/medical_records",
-        json={"id": drug_record["id"], "drugHistory": "Aspirin 75mg"},
+        json={"id": drug_record["id"], "drug_history": "Aspirin 75mg"},
     )
 
     assert response.status_code == 409

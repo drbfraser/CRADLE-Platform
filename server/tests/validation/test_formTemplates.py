@@ -4,24 +4,24 @@ from validation.formTemplates import FormTemplateValidator
 from validation.validation_exception import ValidationExceptionError
 
 root_question = {
-    "categoryIndex": None,  # root question has to have first categoryIndex as None
-    "numMax": None,
-    "numMin": None,
-    "questionId": "referred-by-name",
-    "questionIndex": 1,
-    "questionLangVersions": [
+    "category_index": None,  # root question has to have first category_index as None
+    "num_max": None,
+    "num_min": None,
+    "question_id": "referred-by-name",
+    "question_index": 1,
+    "question_lang_versions": [
         {
             "lang": "english",
-            "mcOptions": [{"mcid": 0, "opt": "england"}],
-            "questionText": "what's your nation",
+            "mc_options": [{"mc_id": 0, "opt": "england"}],
+            "question_text": "what's your nation",
         },
     ],
-    "questionType": "MULTIPLE_CHOICE",
+    "question_type": "MULTIPLE_CHOICE",
     "required": True,
-    "stringMaxLength": None,
+    "string_max_length": None,
     "units": None,
-    "visibleCondition": [
-        {"answers": {"mcidArray": [0]}, "qidx": 0, "relation": "EQUAL_TO"},
+    "visible_condition": [
+        {"answers": {"mc_id_array": [0]}, "question_index": 0, "relation": "EQUAL_TO"},
     ],
 }
 
@@ -83,36 +83,59 @@ valid_empty_questions = []
 valid_single_question = [root_question]
 
 valid_multi_question = [
-    {**root_question, "questionIndex": 0},
-    {**root_question, "questionIndex": 1},
+    {**root_question, "question_index": 0},
+    {**root_question, "question_index": 1},
 ]
 
 invalid_questions_out_of_order = [
-    {**root_question, "questionIndex": 1},
-    {**root_question, "questionIndex": 0},
+    {**root_question, "question_index": 1},
+    {**root_question, "question_index": 0},
 ]
 
 invalid_questions_mult_language = [
     {
         **root_question,
-        "questionLangVersions": [
+        "question_lang_versions": [
             {
                 "lang": "english",
-                "mcOptions": [{"mcid": 0, "opt": "england"}],
-                "questionText": "what's your nation",
+                "mc_options": [{"mc_id": 0, "opt": "england"}],
+                "question_text": "what's your nation",
             },
         ],
     },
     {
         **root_question,
-        "questionLangVersions": [
+        "question_lang_versions": [
             {
                 "lang": "chinese",
-                "mcOptions": [{"mcid": 0, "opt": "china"}],
-                "questionText": "what's your nation",
+                "mc_options": [{"mc_id": 0, "opt": "china"}],
+                "question_text": "what's your nation",
             },
         ],
     },
 ]
 
-invalid_first_question_is_not_none = [{**root_question, "categoryIndex": 0}]
+invalid_first_question_is_not_none = [{**root_question, "category_index": 0}]
+
+
+@pytest.mark.parametrize(
+    "json, expectation",
+    [
+        (valid_empty_questions, None),
+        (valid_single_question, None),
+        (valid_multi_question, None),
+        (invalid_questions_out_of_order, ValidationExceptionError),
+        (invalid_questions_mult_language, ValidationExceptionError),
+        (invalid_first_question_is_not_none, ValidationExceptionError),
+    ],
+)
+def test_validate_questions(json, expectation):
+    if expectation:
+        with pytest.raises(expectation):
+            FormTemplateValidator.validate_questions(json)
+    else:
+        try:
+            FormTemplateValidator.validate_questions(json)
+        except ValidationExceptionError as e:
+            print(e)
+            raise AssertionError(f"Unexpected validation error:{e}") from e

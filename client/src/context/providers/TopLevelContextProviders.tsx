@@ -9,7 +9,6 @@ import { MaterialUIContextProvider } from 'src/context/providers/materialUI';
 import { MuiToolpadProvider } from './materialUI/MuiToolpadProvider';
 
 /** Combined Context Providers to wrap the top level App component. */
-
 export const TopLevelContextProviders = ({ children }: PropsWithChildren) => {
   return (
     <BrowserRouter>

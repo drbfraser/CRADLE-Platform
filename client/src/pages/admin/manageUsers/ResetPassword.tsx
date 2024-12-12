@@ -14,16 +14,16 @@ import {
 } from './state';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { IUser } from 'src/shared/types';
 import { TextField } from 'formik-mui';
 import { Toast } from 'src/shared/components/toast';
-import { resetUserPasswordAsync } from 'src/shared/api';
+import { resetUserPasswordAsync } from 'src/shared/api/api';
 import { useState } from 'react';
+import { User } from 'src/shared/api/validation/user';
 
 interface IProps {
   open: boolean;
   onClose: () => void;
-  resetUser: IUser | undefined;
+  resetUser?: User;
 }
 
 const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
@@ -56,7 +56,7 @@ const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
       />
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <Dialog open={open} maxWidth="xs" fullWidth>
-        <DialogTitle>Reset Password: {resetUser?.firstName ?? ''}</DialogTitle>
+        <DialogTitle>Reset Password: {resetUser?.name ?? ''}</DialogTitle>
         <DialogContent>
           <Formik
             initialValues={resetPasswordTemplate}

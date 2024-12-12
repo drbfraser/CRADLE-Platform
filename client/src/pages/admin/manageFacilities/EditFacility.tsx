@@ -16,15 +16,15 @@ import { Field, Form, Formik, FormikHelpers } from 'formik';
 import { TextField } from 'formik-mui';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { IFacility } from 'src/shared/types';
-import { saveHealthFacilityAsync } from 'src/shared/api';
+import { Facility } from 'src/shared/types';
+import { saveHealthFacilityAsync } from 'src/shared/api/api';
 import { useState } from 'react';
 
 interface IProps {
   open: boolean;
   onClose: () => void;
-  facilities: IFacility[];
-  editFacility?: IFacility;
+  facilities: Facility[];
+  editFacility?: Facility;
 }
 
 const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
@@ -32,8 +32,8 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
   const creatingNew = editFacility === undefined;
 
   const handleSubmit = async (
-    values: IFacility,
-    { setSubmitting }: FormikHelpers<IFacility>
+    values: Facility,
+    { setSubmitting }: FormikHelpers<Facility>
   ) => {
     try {
       await saveHealthFacilityAsync(values);
@@ -48,13 +48,13 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
   return (
     <>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
-      <Dialog open={open} maxWidth="sm" fullWidth>
+      <Dialog open={open} maxWidth={'sm'} fullWidth>
         <DialogTitle>{creatingNew ? 'Create' : 'Edit'} Facility</DialogTitle>
         <DialogContent>
           <Formik
             initialValues={editFacility ?? facilityTemplate}
             validationSchema={getValidationSchema(
-              creatingNew ? facilities.map((f) => f.healthFacilityName) : []
+              creatingNew ? facilities.map((f) => f.name) : []
             )}
             onSubmit={handleSubmit}>
             {({ isSubmitting, isValid }) => (
@@ -92,7 +92,7 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
                   inputProps={{ maxLength: 50 }}
                   variant="outlined"
                   label="Phone Number"
-                  name={FacilityField.phoneNumber}
+                  name={'phoneNumber'}
                 />
                 <br />
                 <br />
@@ -102,7 +102,7 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
                   inputProps={{ maxLength: 50 }}
                   variant="outlined"
                   label="Location"
-                  name={FacilityField.location}
+                  name={'location'}
                 />
                 <br />
                 <br />
@@ -113,7 +113,7 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
                   rows={3}
                   variant="outlined"
                   label="About"
-                  name={FacilityField.about}
+                  name={'about'}
                 />
                 <DialogActions>
                   <CancelButton type="button" onClick={onClose}>

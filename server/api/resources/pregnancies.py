@@ -1,17 +1,16 @@
 from flasgger import swag_from
-from flask import request
-from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 
 from api import util
 from api.decorator import patient_association_required
+from common import api_utils
 from data import crud, marshal
-from models import Pregnancy
+from models import PregnancyOrm
 from service import serialize, view
 from utils import get_current_time
 from validation.pregnancies import (
     PregnancyPostRequestValidator,
-    PrenancyPutRequestValidator,
+    PregnancyPutRequestValidator,
 )
 from validation.validation_exception import ValidationExceptionError
 
@@ -26,7 +25,7 @@ class Root(Resource):
         endpoint="pregnancies",
     )
     def get(patient_id: str):
-        params = util.get_query_params(request)
+        params = api_utils.get_query_params()
         pregnancies = view.pregnancy_view(patient_id, **params)
 
         return [serialize.serialize_pregnancy(p) for p in pregnancies]
@@ -39,7 +38,7 @@ class Root(Resource):
         endpoint="pregnancies",
     )
     def post(patient_id: str):
-        request_body = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
 
         try:
             PregnancyPostRequestValidator.validate(
@@ -48,20 +47,22 @@ class Root(Resource):
             )
         except ValidationExceptionError as e:
             abort(400, message=str(e))
+            return None
 
         if "id" in request_body:
             pregnancy_id = request_body["id"]
-            if crud.read(Pregnancy, id=pregnancy_id):
+            if crud.read(PregnancyOrm, id=pregnancy_id):
                 abort(
                     409,
                     message=f"A pregnancy record with ID {pregnancy_id} already exists.",
                 )
-
+                return None
+        print(request_body)
         _process_request_body(request_body)
         _check_conflicts(request_body, patient_id)
 
-        request_body["patientId"] = patient_id
-        new_pregnancy = marshal.unmarshal(Pregnancy, request_body)
+        request_body["patient_id"] = patient_id
+        new_pregnancy = marshal.unmarshal(PregnancyOrm, request_body)
         crud.create(new_pregnancy, refresh=True)
 
         return marshal.marshal(new_pregnancy), 201
@@ -70,7 +71,6 @@ class Root(Resource):
 # /api/pregnancies/<string:pregnancy_id>
 class SinglePregnancy(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/single-pregnancy-get.yml",
         methods=["GET"],
@@ -82,46 +82,48 @@ class SinglePregnancy(Resource):
         return marshal.marshal(pregnancy)
 
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/single-pregnancy-put.yml",
         methods=["PUT"],
         endpoint="single_pregnancy",
     )
     def put(pregnancy_id: str):
-        request_body = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
 
         try:
-            pregnancy_pydantic_model = PrenancyPutRequestValidator.validate(
+            pregnancy_pydantic_model = PregnancyPutRequestValidator.validate(
                 request_body,
                 pregnancy_id,
             )
         except ValidationExceptionError as e:
             abort(400, message=str(e))
+            return None
 
         pregnancy_model_dump = pregnancy_pydantic_model.model_dump()
         pregnancy_model_dump = util.filterPairsWithNone(pregnancy_model_dump)
 
         _process_request_body(pregnancy_model_dump)
 
-        pregnancy = crud.read(Pregnancy, id=pregnancy_id)
+        pregnancy = crud.read(PregnancyOrm, id=pregnancy_id)
+        if pregnancy is None:
+            abort(400, message="No pregnancy found.")
+            return None
         if (
-            "patientId" in pregnancy_model_dump
-            and pregnancy_model_dump["patientId"] != pregnancy.patientId
+            "patient_id" in pregnancy_model_dump
+            and pregnancy_model_dump["patient_id"] != pregnancy.patient_id
         ):
             abort(400, message="Patient ID cannot be changed.")
-        if "startDate" not in pregnancy_model_dump:
-            pregnancy_model_dump["startDate"] = pregnancy.startDate
+        if "start_date" not in pregnancy_model_dump:
+            pregnancy_model_dump["start_date"] = pregnancy.start_date
 
-        _check_conflicts(pregnancy_model_dump, pregnancy.patientId, pregnancy_id)
+        _check_conflicts(pregnancy_model_dump, pregnancy.patient_id, pregnancy_id)
 
-        crud.update(Pregnancy, pregnancy_model_dump, id=pregnancy_id)
-        new_pregnancy = crud.read(Pregnancy, id=pregnancy_id)
+        crud.update(PregnancyOrm, pregnancy_model_dump, id=pregnancy_id)
+        new_pregnancy = crud.read(PregnancyOrm, id=pregnancy_id)
 
         return marshal.marshal(new_pregnancy)
 
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/single-pregnancy-delete.yml",
         methods=["DELETE"],
@@ -135,20 +137,18 @@ class SinglePregnancy(Resource):
 
 
 def _process_request_body(request_body):
-    request_body["lastEdited"] = get_current_time()
-    if "pregnancyStartDate" in request_body:
-        request_body["startDate"] = request_body.pop("pregnancyStartDate")
-    if "gestationalAgeUnit" in request_body:
-        request_body["defaultTimeUnit"] = request_body.pop("gestationalAgeUnit")
+    request_body["last_edited"] = get_current_time()
+    if "pregnancy_start_date" in request_body:
+        request_body["start_date"] = request_body.pop("pregnancy_start_date")
     if "pregnancyEndDate" in request_body:
-        request_body["endDate"] = request_body.pop("pregnancyEndDate")
-    if "pregnancyOutcome" in request_body:
-        request_body["outcome"] = request_body.pop("pregnancyOutcome")
+        request_body["end_date"] = request_body.pop("pregnancy_end_date")
+    if "pregnancy_outcome" in request_body:
+        request_body["outcome"] = request_body.pop("pregnancy_outcome")
 
 
 def _check_conflicts(request_body, patient_id, pregnancy_id=None):
-    start_date = request_body.get("startDate")
-    end_date = request_body.get("endDate")
+    start_date = request_body.get("start_date")
+    end_date = request_body.get("end_date")
     if crud.has_conflicting_pregnancy_record(
         patient_id,
         start_date,
@@ -156,11 +156,13 @@ def _check_conflicts(request_body, patient_id, pregnancy_id=None):
         pregnancy_id,
     ):
         abort(409, message="A conflict with existing pregnancy records occurred.")
+        return
 
 
 def _get_pregnancy(pregnancy_id):
-    pregnancy = crud.read(Pregnancy, id=pregnancy_id)
+    pregnancy = crud.read(PregnancyOrm, id=pregnancy_id)
     if not pregnancy:
         abort(404, message=f"No pregnancy record with id {pregnancy_id}")
+        return None
 
     return pregnancy

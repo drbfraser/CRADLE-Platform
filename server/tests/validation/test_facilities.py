@@ -4,25 +4,25 @@ from validation.facilities import FacilityValidator
 from validation.validation_exception import ValidationExceptionError
 
 valid_json = {
-    "healthFacilityName": "H12",
-    "healthFacilityPhoneNumber": "444-444-4444",
+    "name": "H12",
+    "phone_number": "444-444-4444",
     "about": "Biggest hospital",
-    "facilityType": "HOSPITAL",
+    "type": "HOSPITAL",
 }
 
-# healthFacilityName field is missing
+# name field is missing
 missing_field = {
-    "healthFacilityPhoneNumber": "444-444-4444",
+    "phone_number": "444-444-4444",
     "about": "Biggest hospital",
-    "facilityType": "HOSPITAL",
+    "type": "HOSPITAL",
 }
 
-# healthFacilityName must be string
+# name must be string
 not_type_string = {
-    "healthFacilityName": 7,
-    "healthFacilityPhoneNumber": "444-444-4444",
+    "name": 7,
+    "phone_number": "444-444-4444",
     "about": "Biggest hospital",
-    "facilityType": "HOSPITAL",
+    "type": "HOSPITAL",
 }
 
 

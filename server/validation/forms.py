@@ -8,14 +8,14 @@ from validation.validation_exception import ValidationExceptionError
 
 class FormValidator(BaseModel, extra="forbid"):
     lang: str
-    patientId: str
+    patient_id: str
     questions: List[FormQuestionValidator]
     id: Optional[str] = None
-    formTemplateId: Optional[str] = None
-    formClassificationId: Optional[str] = None
-    dateCreated: Optional[int] = None
-    lastEdited: Optional[int] = None
-    lastEditedBy: Optional[int] = None
+    form_template_id: Optional[str] = None
+    form_classification_id: Optional[str] = None
+    date_created: Optional[int] = None
+    last_edited: Optional[int] = None
+    last_edited_by: Optional[int] = None
     archived: Optional[StrictBool] = None
 
     @staticmethod
@@ -29,6 +29,7 @@ class FormValidator(BaseModel, extra="forbid"):
         try:
             return FormValidator(**request_body)
         except ValidationError as e:
+            print(e)
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
 

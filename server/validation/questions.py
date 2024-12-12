@@ -7,14 +7,13 @@ from enums import QRelationalEnum, QuestionTypeEnum
 
 
 class MultipleChoiceOptionValidator(BaseModel):
-    mcid: int
+    mc_id: int
     opt: str
-
     """
     valid example:
     [
         {
-            "mcid": 0,
+            "mc_id": 0,
             "opt": "abcd"
         },
         ... (maximum 5 answers)
@@ -24,7 +23,7 @@ class MultipleChoiceOptionValidator(BaseModel):
 
 class AnswerValidator(BaseModel, extra="forbid"):
     comment: Optional[str] = None
-    mcidArray: Optional[List[int]] = None
+    mc_id_array: Optional[List[int]] = None
     number: Optional[Union[int, float]] = None
     text: Optional[str] = None
 
@@ -33,7 +32,7 @@ class AnswerValidator(BaseModel, extra="forbid"):
     {
         "number": 5/5.0,
         "text": "a",
-        "mcidArray":[0,1],
+        "mc_id_array":[0,1],
         "comment": "other opt"
     }
     """
@@ -41,14 +40,14 @@ class AnswerValidator(BaseModel, extra="forbid"):
 
 class VisibleConditionValidator(BaseModel, use_enum_values=True):
     answers: AnswerValidator
-    qidx: int
+    question_index: int
     relation: QRelationalEnum
 
     """
     valid example:
     [
         {
-            "qidx": 1,
+            "question_index": 1,
             "relation": "EQUAL_TO",
             "answers": {
                 "number": 5
@@ -60,18 +59,18 @@ class VisibleConditionValidator(BaseModel, use_enum_values=True):
 
 class QuestionLangVersionValidator(BaseModel, extra="forbid"):
     lang: str
-    mcOptions: Optional[List[MultipleChoiceOptionValidator]] = None
-    questionText: str
+    mc_options: Optional[List[MultipleChoiceOptionValidator]] = None
+    question_text: str
 
     """
     valid example:
     [
         {
         "lang": "English",
-        "questionText": "How the patient's condition?",
-            "mcOptions": [
+        "question_text": "How the patient's condition?",
+            "mc_options": [
                 {
-                    "mcid":0,
+                    "mc_id":0,
                     "opt": "Decent"
                 }
             ],
@@ -82,32 +81,32 @@ class QuestionLangVersionValidator(BaseModel, extra="forbid"):
 
 
 class QuestionBase(BaseModel, use_enum_values=True):
-    questionIndex: Annotated[int, Field(strict=True, ge=0)]  # Non-negative index
-    questionType: QuestionTypeEnum
-    questionId: Optional[str] = None
+    question_index: Annotated[int, Field(strict=True, ge=0)]  # Non-negative index
+    question_type: QuestionTypeEnum
+    question_id: Optional[str] = None
     required: Optional[bool] = None
-    allowPastDates: Optional[bool] = None
-    allowFutureDates: Optional[bool] = None
+    allow_past_dates: Optional[bool] = None
+    allow_future_dates: Optional[bool] = None
     units: Optional[str] = None
-    visibleCondition: Optional[List[VisibleConditionValidator]] = None
-    numMin: Optional[Union[int, float]] = None
-    numMax: Optional[Union[int, float]] = None
-    stringMaxLength: Optional[int] = None
-    categoryIndex: Optional[int] = None
-    stringMaxLines: Optional[int] = None
+    visible_condition: Optional[List[VisibleConditionValidator]] = None
+    num_min: Optional[Union[int, float]] = None
+    num_max: Optional[Union[int, float]] = None
+    string_max_length: Optional[int] = None
+    category_index: Optional[int] = None
+    string_max_lines: Optional[int] = None
 
 
 class TemplateQuestionValidator(QuestionBase, extra="forbid"):
-    questionLangVersions: List[QuestionLangVersionValidator]
-    isBlank: bool = True  # Set to True for template questions
+    question_lang_versions: List[QuestionLangVersionValidator]
+    is_blank: bool = True  # Set to True for template questions
 
 
 class FormQuestionValidator(QuestionBase, extra="forbid"):
-    questionText: str
-    isBlank: bool = False  # Set to False for form questions
-    hasCommentAttached: Optional[bool] = None
+    question_text: str
+    is_blank: bool = False  # Set to False for form questions
+    has_comment_attached: Optional[bool] = None
     id: Optional[str] = None
-    mcOptions: Optional[List[MultipleChoiceOptionValidator]] = None
+    mc_options: Optional[List[MultipleChoiceOptionValidator]] = None
     answers: Optional[AnswerValidator] = None
 
 

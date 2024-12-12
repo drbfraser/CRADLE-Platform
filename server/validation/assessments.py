@@ -6,30 +6,32 @@ from validation.validation_exception import ValidationExceptionError
 
 
 class AssessmentValidator(BaseModel):
-    dateAssessed: int
+    date_assessed: int
     diagnosis: Optional[str] = None
-    medicationPrescribed: Optional[str] = None
-    healthcareWorkerId: Optional[int] = None
-    specialInvestigations: Optional[str] = None
+    medication_prescribed: Optional[str] = None
+    healthcare_worker_id: Optional[int] = None
+    special_investigations: Optional[str] = None
     treatment: Optional[str] = None
-    patientId: Optional[str] = None
-    followupNeeded: bool
-    followupInstructions: Optional[str] = Field(
+    patient_id: Optional[str] = None
+    follow_up_needed: bool
+    follow_up_instructions: Optional[str] = Field(
         default=None,
-        description="Required if followupNeeded is True",
+        description="Required if follow_up_needed is True",
     )
 
-    @field_validator("followupInstructions", mode="before")
+    @field_validator("follow_up_instructions", mode="before")
     @classmethod
-    def check_followup_instructions(cls, followup_instructions, values: ValidationInfo):
-        followup_needed = values.data.get("followupNeeded", False)
-        if followup_needed and (
-            followup_instructions is None or followup_instructions == ""
+    def check_follow_up_instructions(
+        cls, follow_up_instructions, values: ValidationInfo
+    ):
+        follow_up_needed = values.data.get("follow_up_needed", False)
+        if follow_up_needed and (
+            follow_up_instructions is None or follow_up_instructions == ""
         ):
             raise ValueError(
-                "followupInstructions must be provided if followupNeeded is True",
+                "follow_up_instructions must be provided if follow_up_needed is True",
             )
-        return followup_instructions
+        return follow_up_instructions
 
     @staticmethod
     def validate(request_body: dict):
@@ -39,16 +41,17 @@ class AssessmentValidator(BaseModel):
 
         :param request_body: The request body as a dict object
                             {
-                                "dateAssessed": 1551447833, - required
+                                "date_assessed": 1551447833, - required
                                 "diagnosis": "patient is fine",
-                                "medicationPrescribed": "tylenol",
-                                "specialInvestigations": "bcccccccccddeeeff",
+                                "medication_prescribed": "tylenol",
+                                "special_investigations": "bcccccccccddeeeff",
                                 "treatment": "b",
-                                "followupNeeded": True, - required
-                                "followupInstructions": "pls help, give lots of tylenol" - required if followupNeeded = True
+                                "follow_up_needed": True, - required
+                                "follow_up_instructions": "pls help, give lots of tylenol" - required if follow_up_needed = True
                             }
         """
         try:
             return AssessmentValidator(**request_body)
         except ValidationError as e:
+            print(e)
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))

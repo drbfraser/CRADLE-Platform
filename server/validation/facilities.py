@@ -8,10 +8,10 @@ from validation.validation_exception import ValidationExceptionError
 
 
 class FacilityValidator(BaseModel):
-    healthFacilityName: str
-    healthFacilityPhoneNumber: Optional[str] = None
+    name: str
+    phone_number: Optional[str] = None
     location: Optional[str] = None
-    facilityType: Optional[str] = None
+    type: Optional[str] = None
     about: Optional[str] = None
 
     @staticmethod
@@ -22,10 +22,10 @@ class FacilityValidator(BaseModel):
 
         :param request_body: The request body as a dict object
                             {
-                                "healthFacilityName": "H12", - required
-                                "healthFacilityPhoneNumber": "444-444-4444",
+                                "name": "H12", - required
+                                "phone_number": "444-444-4444",
                                 "about": "Biggest hospital",
-                                "facilityType": "HOSPITAL"
+                                "type": "HOSPITAL"
                             }
         :throw: An error if the request body is invalid. None otherwise
         :return pydantic model representation of the request body param
@@ -33,6 +33,7 @@ class FacilityValidator(BaseModel):
         try:
             return FacilityValidator(**request_body)
         except ValidationError as e:
+            print(e)
             # Extracts the first error message from the validation errors list
             error_message = str(e.errors()[0]["msg"])
             raise ValidationExceptionError(error_message)

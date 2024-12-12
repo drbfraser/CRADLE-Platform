@@ -13,7 +13,7 @@ import {
   getPatientAsync,
   getPatientRecordsAsync,
   getPatientReferralsAsync,
-} from 'src/shared/api';
+} from 'src/shared/api/api';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -109,7 +109,7 @@ export const PatientPage = () => {
       const mapCardToJSX = (card: any) => {
         switch (card.type) {
           case 'assessment':
-            return <AssessmentCard followUp={card} />;
+            return <AssessmentCard assessment={card} />;
           case 'form':
             return <CustomizedFormCard form={card} />;
           case 'reading':
@@ -188,10 +188,10 @@ export const PatientPage = () => {
           </Grid>
 
           <Grid item>
-            {patient?.patientSex === SexEnum.FEMALE ? (
+            {patient?.sex === SexEnum.FEMALE ? (
               <PregnancyInfo
                 patientId={patientId}
-                patientName={patient?.patientName}
+                patientName={patient?.name}
               />
             ) : (
               <MedicalInfo patient={patient} patientId={patientId} />
@@ -205,7 +205,7 @@ export const PatientPage = () => {
           </Grid>
 
           <Grid item>
-            {patient?.patientSex === SexEnum.FEMALE && (
+            {patient?.sex === SexEnum.FEMALE && (
               <MedicalInfo patient={patient} patientId={patientId} />
             )}
           </Grid>

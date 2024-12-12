@@ -62,7 +62,6 @@
     "wait-on": "^7.2.0"
   },
   "dependencies": {
-    "@auth0/auth0-react": "^2.2.4",
     "@emotion/babel-plugin": "^11.12.0",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
@@ -74,13 +73,14 @@
     "@mui/x-date-pickers": "^7.19.0",
     "@reduxjs/toolkit": "^1.8.4",
     "@testing-library/user-event": "^14.4.3",
-    "@toolpad/core": "^0.7.0",
+    "@toolpad/core": "^0.9.0",
     "axios": "^1.6.8",
     "chart.js": "^3.9.1",
     "formik": "^2.2.9",
     "formik-mui": "^5.0.0-alpha.0",
     "iso-639-1": "^2.1.15",
-    "jwt-decode": "^3.1.2",
+    "jwt-decode": "^4.0.0",
+    "libphonenumber-js": "^1.11.12",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "react": "^18.2.0",
@@ -96,7 +96,8 @@
     "tslib": "^2.4.0",
     "uuid": "^8.3.2",
     "xtypejs": "^0.7.1",
-    "yup": "^0.32.11"
+    "yup": "^0.32.11",
+    "zod": "^3.23.8"
   },
   "resolutions": {
     "moment": "2.24.0"

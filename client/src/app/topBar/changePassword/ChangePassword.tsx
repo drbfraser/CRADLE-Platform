@@ -16,7 +16,7 @@ import {
 import Alert from '@mui/material/Alert';
 import { TextField } from 'formik-mui';
 import { Toast } from 'src/shared/components/toast';
-import { changePasswordAsync } from 'src/shared/api';
+import { changePasswordAsync } from 'src/shared/api/api';
 import { useState } from 'react';
 
 interface IProps {

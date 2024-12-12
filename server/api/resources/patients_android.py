@@ -1,19 +1,16 @@
 from flasgger import swag_from
-from flask_jwt_extended import (
-    get_jwt_identity,
-    jwt_required,
-)
 from flask_restful import Resource, abort
 
 import service.FilterHelper as filter
+from common import user_utils
 from data import crud, marshal
 from models import (
-    Form,
-    Patient,
+    FormOrm,
+    PatientOrm,
     PatientSchema,
-    Reading,
+    ReadingOrm,
     ReadingSchema,
-    User,
+    UserOrm,
 )
 from service import serialize, view
 
@@ -22,9 +19,9 @@ from service import serialize, view
 
 def to_global_search_patient(patient):
     global_search_patient = {
-        "patientName": patient["patientName"],
-        "patientId": patient["patientId"],
-        "villageNumber": patient["villageNumber"],
+        "name": patient["name"],
+        "id": patient["id"],
+        "village_number": patient["village_number"],
         "readings": patient["readings"],
         "state": patient["state"],
     }
@@ -34,17 +31,19 @@ def to_global_search_patient(patient):
         for reading in global_search_patient["readings"]:
             # build the reading json to add to array
             reading_json = {
-                "dateReferred": None,
+                "date_referred": None,
             }
 
             reading_data = marshal.model_to_dict(
-                crud.read(Reading, readingId=reading),
+                crud.read(ReadingOrm, id=reading),
                 ReadingSchema,
             )
-            reading_json["dateTimeTaken"] = reading_data["dateTimeTaken"]
-            reading_json["trafficLightStatus"] = reading_data["trafficLightStatus"]
+            reading_json["date_taken"] = reading_data["date_taken"]
+            reading_json["traffic_light_status"] = str(
+                reading_data["traffic_light_status"]
+            )
 
-            # add reading dateReferred data to array
+            # add reading date_referred data to array
             readings_arr.append(reading_json)
 
         # add reading key to global_search_patient key
@@ -54,12 +53,12 @@ def to_global_search_patient(patient):
 
 
 def get_global_search_patients(current_user, search):
-    def __make_gs_patient_dict(p: Patient, is_added: bool) -> dict:
+    def __make_gs_patient_dict(p: PatientOrm, is_added: bool) -> dict:
         patient_dict = marshal.model_to_dict(p, PatientSchema)
         patient_dict["state"] = "Added" if is_added else "Add"
         return patient_dict
 
-    user = crud.read(User, id=current_user["userId"])
+    user = crud.read(UserOrm, id=current_user["id"])
     pairs = filter.annotated_global_patient_list(user, search)
     patients_query = [__make_gs_patient_dict(p, state) for (p, state) in pairs]
     return [to_global_search_patient(p) for p in patients_query]
@@ -74,10 +73,9 @@ def get_global_search_patients(current_user, search):
 #           a portion/full match of the patient's initials
 class AndroidPatientGlobalSearch(Resource):
     # get all patient information (patientinfo, readings, and referrals)
-    @jwt_required()
     @swag_from("../../specifications/patient-search-get.yml", methods=["GET"])
     def get(self, search):
-        current_user = get_jwt_identity()
+        current_user = user_utils.get_current_user_from_jwt()
         patients_readings_referrals = get_global_search_patients(
             current_user,
             search.upper(),
@@ -91,15 +89,14 @@ class AndroidPatientGlobalSearch(Resource):
 # /api/mobile/patients/
 class AndroidPatients(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/android-patients-get.yml",
         methods=["GET"],
         endpoint="android_patient",
     )
     def get():
-        user = get_jwt_identity()
-        patients = view.patient_view(user)
+        current_user = user_utils.get_current_user_from_jwt()
+        patients = view.patient_view(current_user)
 
         return [serialize.serialize_patient(p) for p in patients]
 
@@ -107,15 +104,14 @@ class AndroidPatients(Resource):
 # /api/mobile/readings
 class AndroidReadings(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/android-readings-get.yml",
         methods=["GET"],
         endpoint="android_readings",
     )
     def get():
-        user = get_jwt_identity()
-        readings = view.reading_view(user)
+        current_user = user_utils.get_current_user_from_jwt()
+        readings = view.reading_view(current_user)
 
         return [serialize.serialize_reading(r) for r in readings]
 
@@ -123,37 +119,34 @@ class AndroidReadings(Resource):
 # /api/mobile/referrals
 class AndroidReferrals(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/android-referrals-get.yml",
         methods=["GET"],
         endpoint="android_referrals",
     )
     def get():
-        user = get_jwt_identity()
-        referrals = view.referral_view(user)
+        current_user = user_utils.get_current_user_from_jwt()
+        referrals = view.referral_view(current_user)
         return [serialize.serialize_referral_or_assessment(r) for r in referrals]
 
 
 # /api/mobile/assessments
 class AndroidAssessments(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/android-assessments-get.yml",
         methods=["GET"],
         endpoint="android_assessments",
     )
     def get():
-        user = get_jwt_identity()
-        assessments = view.assessment_view(user)
+        current_user = user_utils.get_current_user_from_jwt()
+        assessments = view.assessment_view(current_user)
         return [serialize.serialize_referral_or_assessment(a) for a in assessments]
 
 
 # /api/mobile/forms/<str:patient_id>/<str:form_template_id>
 class AndroidForms(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/android-forms-get.yml",
         methods=["GET"],
@@ -161,16 +154,17 @@ class AndroidForms(Resource):
     )
     def get(patient_id: str, form_template_id: str):
         filters: dict = {
-            "patientId": patient_id,
-            "formClassificationId": form_template_id,
+            "patient_id": patient_id,
+            "form_template_id": form_template_id,
         }
 
-        form = crud.read(Form, **filters)
+        form = crud.read(FormOrm, **filters)
 
         if not form:
             abort(
                 404,
                 message=f"No forms for patient with id {patient_id} and form template with id {form_template_id}",
             )
+            return None
 
         return marshal.marshal(form, False)

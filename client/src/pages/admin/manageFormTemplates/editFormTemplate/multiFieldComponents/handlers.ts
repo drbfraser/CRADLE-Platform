@@ -41,7 +41,7 @@ export const handleRemoveMultiChoice = (
 
         // reset indices for options
         qLangVersions[i].mcOptions.forEach((mcOption, mci) => {
-          mcOption.mcid = mci;
+          mcOption.mcId = mci;
         });
       }
     }
@@ -72,7 +72,7 @@ export const handleMultiChoiceOptionChange = (
 
   if (!qLangVersion) {
     newQLangVersion.mcOptions.push({
-      mcid: index,
+      mcId: index,
       opt: option,
     });
     qLangVersions.push(newQLangVersion);
@@ -82,7 +82,7 @@ export const handleMultiChoiceOptionChange = (
       qLangVersions[i].mcOptions[index].opt = option;
     } else {
       qLangVersions[i].mcOptions.push({
-        mcid: index,
+        mcId: index,
         opt: option,
       });
     }

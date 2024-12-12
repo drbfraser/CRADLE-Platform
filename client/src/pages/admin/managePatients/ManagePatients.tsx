@@ -7,7 +7,7 @@ import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 import ArchivePatient from './ArchivePatient';
 import UnarchivePatient from './UnarchivePatient';
 import { PatientWithIndex } from 'src/shared/types';
-import { getPatientsAdminAsync } from 'src/shared/api';
+import { getPatientsAdminAsync } from 'src/shared/api/api';
 import {
   GridColDef,
   GridRenderCellParams,
@@ -35,8 +35,8 @@ export const ManagePatients = () => {
     setRows(
       patients.map((patient, index) => ({
         id: index,
-        patientName: patient.patientName,
-        patientId: patient.patientId,
+        patientName: patient.name,
+        patientId: patient.id,
         isArchived: patient.isArchived,
         takeAction: patient,
       }))
@@ -151,7 +151,17 @@ export const ManagePatients = () => {
         patient={popupPatient}
       />
       <DataTableHeader title={'Patients'} />
-      <DataTable columns={columns} rows={rows} footer={Footer} />
+      <DataTable
+        columns={columns}
+        rows={rows}
+        footer={Footer}
+        getRowClassName={(params) => {
+          const index = params.row.id;
+          const patient = patients[index];
+          if (!patient) return '';
+          return patient.isArchived ? 'row-archived' : '';
+        }}
+      />
     </>
   );
 };

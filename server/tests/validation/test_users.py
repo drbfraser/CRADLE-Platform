@@ -6,287 +6,304 @@ from validation.validation_exception import ValidationExceptionError
 SOME_INTEGER = 12345
 
 user_with_valid_fields_should_return_none = {
-    "firstName": "Jane",
+    "name": "Jane",
     "email": "jane@mail.com",
-    "healthFacilityName": "facility7",
+    "health_facility_name": "facility7",
     "role": "ADMIN",
     "supervises": [111, 222, 333],
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
 }
 
 user_missing_required_field_email_should_throw_exception = {
-    "firstName": "Jane",
-    "healthFacilityName": "facility7",
+    "name": "Jane",
+    "health_facility_name": "facility7",
     "role": "ADMIN",
     "supervises": [111, 222, 333],
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
 }
 
 user_missing_required_field_health_facility_name_should_throw_exception = {
-    "firstName": "Jane",
+    "name": "Jane",
     "email": "jane@mail.com",
     "role": "ADMIN",
     "supervises": [111, 222, 333],
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
 }
 
 user_missing_required_field_role_should_throw_exception = {
-    "firstName": "Jane",
+    "name": "Jane",
     "email": "jane@mail.com",
-    "healthFacilityName": "facility7",
+    "health_facility_name": "facility7",
     "supervises": [111, 222, 333],
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
 }
 
 user_missing_required_field_first_name_should_throw_exception = {
     "email": "jane@mail.com",
-    "healthFacilityName": "facility7",
+    "health_facility_name": "facility7",
     "role": "ADMIN",
     "supervises": [111, 222, 333],
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
 }
 
 user_missing_optional_field_supervises_should_return_none = {
-    "firstName": "Jane",
+    "name": "Jane",
     "email": "jane@mail.com",
-    "healthFacilityName": "facility7",
+    "health_facility_name": "facility7",
     "role": "ADMIN",
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
 }
 
 user_field_first_name_has_invalid_type_should_throw_exception = {
-    "firstName": SOME_INTEGER,
+    "name": SOME_INTEGER,
     "email": "jane@mail.com",
-    "healthFacilityName": "facility7",
+    "health_facility_name": "facility7",
     "role": "ADMIN",
     "supervises": [111, 222, 333],
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
 }
 
 user_field_email_has_invalid_type_should_throw_exception = {
-    "firstName": "Jane",
+    "name": "Jane",
     "email": SOME_INTEGER,
-    "healthFacilityName": "facility7",
+    "health_facility_name": "facility7",
     "role": "ADMIN",
     "supervises": [111, 222, 333],
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
 }
 
 user_field_health_facility_name_has_invalid_type_should_throw_exception = {
-    "firstName": "Jane",
+    "name": "Jane",
     "email": "jane@mail.com",
-    "healthFacilityName": SOME_INTEGER,
+    "health_facility_name": SOME_INTEGER,
     "role": "ADMIN",
     "supervises": [111, 222, 333],
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
 }
 
 user_field_role_has_invalid_type_should_throw_exception = {
-    "firstName": "Jane",
+    "name": "Jane",
     "email": "jane@mail.com",
-    "healthFacilityName": "facility7",
+    "health_facility_name": "facility7",
     "role": SOME_INTEGER,
     "supervises": [111, 222, 333],
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
 }
 
 user_field_supervises_has_invalid_type_should_throw_exception = {
-    "firstName": "Jane",
+    "name": "Jane",
     "email": "jane@mail.com",
-    "healthFacilityName": "facility7",
+    "health_facility_name": "facility7",
     "role": "ADMIN",
     "supervises": "SOME_INTEGER",
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
 }
 
 user_field_phone_numbers_has_invalid_type_should_throw_exception = {
-    "firstName": "Jane",
+    "name": "Jane",
     "email": "jane@mail.com",
-    "healthFacilityName": "facility7",
+    "health_facility_name": "facility7",
     "role": "ADMIN",
     "supervises": [111, 222, 333],
-    "phoneNumbers": SOME_INTEGER,
+    "phone_numbers": SOME_INTEGER,
 }
 
 user_role_is_not_supported_role_should_throw_exception = {
-    "firstName": "Jane",
+    "name": "Jane",
     "email": "jane@mail.com",
-    "healthFacilityName": "facility7",
+    "health_facility_name": "facility7",
     "role": "patient",
     "supervises": [111, 222, 333],
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
 }
 
 user_field_phone_numbers_has_invalid_phone_format_should_throw_exception = {
-    "firstName": "Jane",
+    "name": "Jane",
     "email": "jane@mail.com",
-    "healthFacilityName": "facility7",
+    "health_facility_name": "facility7",
     "role": "ADMIN",
     "supervises": [111, 222, 333],
-    "phoneNumbers": ["123"],
+    "phone_numbers": ["123"],
 }
 
 user_register_with_valid_fields_should_return_none = {
-    "firstName": "Jane",
+    "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
-    "healthFacilityName": "facility7",
+    "health_facility_name": "facility7",
     "role": "ADMIN",
     "supervises": [111, 222, 333],
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
     "password": "pwd123",
 }
 
 user_register_missing_required_field_password_should_throw_exception = {
-    "firstName": "Jane",
+    "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
-    "healthFacilityName": "facility7",
+    "health_facility_name": "facility7",
     "role": "ADMIN",
     "supervises": [111, 222, 333],
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
 }
 
 user_register_field_password_has_invalid_type_should_throw_exception = {
-    "firstName": "Jane",
+    "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
-    "healthFacilityName": "facility7",
+    "health_facility_name": "facility7",
     "role": "ADMIN",
     "supervises": [111, 222, 333],
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
     "password": SOME_INTEGER,
 }
 
 user_register_field_phone_numbers_has_invalid_phone_format_should_throw_exception = {
-    "firstName": "Jane",
+    "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
-    "healthFacilityName": "facility7",
+    "health_facility_name": "facility7",
     "role": "ADMIN",
     "supervises": [111, 222, 333],
-    "phoneNumbers": ["123"],
+    "phone_numbers": ["123"],
     "password": "pwd123",
 }
 
 user_register_missing_required_field_email_should_throw_exception = {
-    "firstName": "Jane",
-    "healthFacilityName": "facility7",
+    "name": "Jane",
+    "username": "jane",
+    "health_facility_name": "facility7",
     "role": "ADMIN",
     "supervises": [111, 222, 333],
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
     "password": "pwd123",
 }
 
 user_register_missing_required_field_health_facility_name_should_throw_exception = {
-    "firstName": "Jane",
+    "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
     "role": "ADMIN",
     "supervises": [111, 222, 333],
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
     "password": "pwd123",
 }
 
 user_register_missing_required_field_role_should_throw_exception = {
-    "firstName": "Jane",
+    "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
-    "healthFacilityName": "facility7",
+    "health_facility_name": "facility7",
     "supervises": [111, 222, 333],
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
     "password": "pwd123",
 }
 
 user_register_missing_required_field_first_name_should_throw_exception = {
     "email": "jane@mail.com",
-    "healthFacilityName": "facility7",
+    "username": "jane",
+    "health_facility_name": "facility7",
     "role": "ADMIN",
     "supervises": [111, 222, 333],
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
     "password": "pwd123",
 }
 
 user_register_missing_optional_field_supervises_should_return_none = {
-    "firstName": "Jane",
+    "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
-    "healthFacilityName": "facility7",
+    "health_facility_name": "facility7",
     "role": "ADMIN",
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
     "password": "pwd123",
 }
 
 user_register_field_first_name_has_invalid_type_should_throw_exception = {
-    "firstName": SOME_INTEGER,
+    "name": SOME_INTEGER,
+    "username": "jane",
     "email": "jane@mail.com",
-    "healthFacilityName": "facility7",
+    "health_facility_name": "facility7",
     "role": "ADMIN",
     "supervises": [111, 222, 333],
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
     "password": "pwd123",
 }
 
 user_register_field_email_has_invalid_type_should_throw_exception = {
-    "firstName": "Jane",
+    "name": "Jane",
+    "username": "jane",
     "email": SOME_INTEGER,
-    "healthFacilityName": "facility7",
+    "health_facility_name": "facility7",
     "role": "ADMIN",
     "supervises": [111, 222, 333],
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
     "password": "pwd123",
 }
 
 user_register_field_health_facility_name_has_invalid_type_should_throw_exception = {
-    "firstName": "Jane",
+    "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
-    "healthFacilityName": SOME_INTEGER,
+    "health_facility_name": SOME_INTEGER,
     "role": "ADMIN",
     "supervises": [111, 222, 333],
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
     "password": "pwd123",
 }
 
 user_register_field_role_has_invalid_type_should_throw_exception = {
-    "firstName": "Jane",
+    "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
-    "healthFacilityName": "facility7",
+    "health_facility_name": "facility7",
     "role": SOME_INTEGER,
     "supervises": [111, 222, 333],
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
     "password": "pwd123",
 }
 
 user_register_field_supervises_has_invalid_type_should_throw_exception = {
-    "firstName": "Jane",
+    "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
-    "healthFacilityName": "facility7",
+    "health_facility_name": "facility7",
     "role": "ADMIN",
     "supervises": "SOME_INTEGER",
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
     "password": "pwd123",
 }
 
 user_register_field_phone_numbers_has_invalid_type_should_throw_exception = {
-    "firstName": "Jane",
+    "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
-    "healthFacilityName": "facility7",
+    "health_facility_name": "facility7",
     "role": "ADMIN",
     "supervises": [111, 222, 333],
-    "phoneNumbers": SOME_INTEGER,
+    "phone_numbers": SOME_INTEGER,
     "password": "pwd123",
 }
 
 user_register_role_is_not_supported_role_should_throw_exception = {
-    "firstName": "Jane",
+    "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
-    "healthFacilityName": "facility7",
+    "health_facility_name": "facility7",
     "role": "patient",
     "supervises": [111, 222, 333],
-    "phoneNumbers": ["604-111-1111", "604-222-2222", "604-333-3333"],
+    "phone_numbers": ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"],
     "password": "pwd123",
 }
 
 user_register_field_phone_numbers_has_invalid_phone_format_should_throw_exception = {
-    "firstName": "Jane",
+    "name": "Jane",
+    "username": "jane",
     "email": "jane@mail.com",
-    "healthFacilityName": "facility7",
+    "health_facility_name": "facility7",
     "role": "ADMIN",
     "supervises": [111, 222, 333],
-    "phoneNumbers": ["123"],
+    "phone_numbers": ["123"],
     "password": "pwd123",
 }
 

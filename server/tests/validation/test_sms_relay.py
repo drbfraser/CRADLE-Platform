@@ -4,53 +4,53 @@ from validation.sms_relay import SmsRelayDecryptedBodyValidator, SmsRelayValidat
 from validation.validation_exception import ValidationExceptionError
 
 valid_sms_relay_request = {
-    "phoneNumber": "604-715-2845",
-    "encryptedData": "thisdataisencrypted",
+    "phone_number": "+1-604-715-2845",
+    "encrypted_data": "thisdataisencrypted",
 }
 
 invalid_missing_field_phone_number = {
-    "encryptedData": "thisdataisencrypted",
+    "encrypted_data": "thisdataisencrypted",
 }
 
 invalid_missing_field_encrypted_data = {
-    "phoneNumber": "604-715-2845",
+    "phone_number": "+1-604-715-2845",
 }
 
 invalid_field_type_phone_number = {
-    "phoneNumber": 604 - 715 - 2845,
-    "encryptedData": "thisdataisencrypted",
+    "phone_number": 604 - 715 - 2845,
+    "encrypted_data": "thisdataisencrypted",
 }
 
 invalid_field_type_encrypted_data = {
-    "phoneNumber": "604-715-2845",
-    "encryptedData": 1234567890,
+    "phone_number": "+1-604-715-2845",
+    "encrypted_data": 1234567890,
 }
 
 invalid_extra_field_for_sms_relay_request = {
-    "phoneNumber": "604-715-2845",
-    "encryptedData": "thisdataisencrypted",
+    "phone_number": "+1-604-715-2845",
+    "encrypted_data": "thisdataisencrypted",
     "invalid": "invalidkey",
 }
 
 valid_sms_relay_decrypted_body_with_int_request_number = {
-    "requestNumber": 12345,
+    "request_number": 12345,
     "method": "GET",
     "endpoint": "my/endpoint",
 }
 
 valid_sms_relay_decrypted_body_with_str_request_number = {
-    "requestNumber": "12345",
+    "request_number": "12345",
     "method": "GET",
     "endpoint": "my/endpoint",
 }
 
 invalid_missing_field_method = {
-    "requestNumber": 12345,
+    "request_number": 12345,
     "endpoint": "my/endpoint",
 }
 
 invalid_missing_field_endpoint = {
-    "requestNumber": 12345,
+    "request_number": 12345,
     "method": "GET",
 }
 
@@ -60,20 +60,20 @@ invalid_missing_field_request_number = {
 }
 
 invalid_extra_field_for_decrypted_body = {
-    "requestNumber": 12345,
+    "request_number": 12345,
     "method": "GET",
     "endpoint": "my/endpoint",
     "invalid": "invalidkey",
 }
 
 invalid_field_type_method = {
-    "requestNumber": 12345,
+    "request_number": 12345,
     "method": 12345,
     "endpoint": "my/endpoint",
 }
 
 invalid_field_type_endpoint = {
-    "requestNumber": 12345,
+    "request_number": 12345,
     "method": "GET",
     "endpoint": 12345,
 }

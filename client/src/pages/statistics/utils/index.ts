@@ -1,27 +1,20 @@
-import { TrafficLightEnum } from 'src/shared/enums';
+import { ColorReading, StatsData } from 'src/shared/api/validation/statistics';
 
-export type StatsData = {
-  patients_referred: number;
-  sent_referrals: number;
-  days_with_readings: number;
-  unique_patient_readings: number;
-  total_readings: number;
+export const initialColorReading: ColorReading = {
+  green: 0,
+  yellowUp: 0,
+  yellowDown: 0,
+  redUp: 0,
+  redDown: 0,
 };
 
 export const initialStatsData: StatsData = {
-  patients_referred: 0,
-  sent_referrals: 0,
-  days_with_readings: 0,
-  unique_patient_readings: 0,
-  total_readings: 0,
-};
-
-export const initialColorReading = {
-  [TrafficLightEnum.GREEN]: 0,
-  [TrafficLightEnum.YELLOW_UP]: 0,
-  [TrafficLightEnum.YELLOW_DOWN]: 0,
-  [TrafficLightEnum.RED_UP]: 0,
-  [TrafficLightEnum.RED_DOWN]: 0,
+  patientsReferred: 0,
+  sentReferrals: 0,
+  daysWithReadings: 0,
+  uniquePatientReadings: 0,
+  totalReadings: 0,
+  colorReadings: initialColorReading,
 };
 
 export interface IExportStatRow {

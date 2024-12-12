@@ -1,3 +1,5 @@
+from humps import decamelize
+
 from enums import TrafficLightEnum
 
 
@@ -37,59 +39,69 @@ def test_get_referral_list(
     response = api_get(endpoint="/api/referrals")
 
     assert response.status_code == 200
-    assert any(r["dateReferred"] == date1 for r in response.json())
-    assert any(r["dateReferred"] == date2 for r in response.json())
+    response_body = decamelize(response.json())
+    assert any(r["date_referred"] == date1 for r in response_body)
+    assert any(r["date_referred"] == date2 for r in response_body)
 
-    response = api_get(endpoint=f"/api/referrals?healthFacility={facility1}")
+    response = api_get(endpoint=f"/api/referrals?health_facility={facility1}")
 
     assert response.status_code == 200
-    assert any(r["dateReferred"] == date1 for r in response.json())
-    assert not any(r["dateReferred"] == date2 for r in response.json())
+    response_body = decamelize(response.json())
+    assert any(r["date_referred"] == date1 for r in response_body)
+    assert not any(r["date_referred"] == date2 for r in response_body)
 
     response = api_get(
-        endpoint=f"/api/referrals?healthFacility={facility1}&healthFacility={facility2}",
+        endpoint=f"/api/referrals?health_facility={facility1}&health_facility={facility2}",
     )
 
     assert response.status_code == 200
-    assert any(r["dateReferred"] == date1 for r in response.json())
-    assert any(r["dateReferred"] == date2 for r in response.json())
+    response_body = decamelize(response.json())
+    print(response_body)
+    assert any(r["date_referred"] == date1 for r in response_body)
+    assert any(r["date_referred"] == date2 for r in response_body)
 
     response = api_get(endpoint=f"/api/referrals?referrer={user1}")
 
     assert response.status_code == 200
-    assert any(r["dateReferred"] == date1 for r in response.json())
-    assert not any(r["dateReferred"] == date2 for r in response.json())
+    response_body = decamelize(response.json())
+    assert any(r["date_referred"] == date1 for r in response_body)
+    assert not any(r["date_referred"] == date2 for r in response_body)
 
-    response = api_get(endpoint=f"/api/referrals?dateRange=0:{date1}")
-
-    assert response.status_code == 200
-    assert any(r["dateReferred"] == date1 for r in response.json())
-    assert not any(r["dateReferred"] == date2 for r in response.json())
-
-    response = api_get(endpoint="/api/referrals?isAssessed=1")
+    response = api_get(endpoint=f"/api/referrals?date_range=0:{date1}")
 
     assert response.status_code == 200
-    assert any(r["dateReferred"] == date1 for r in response.json())
-    assert not any(r["dateReferred"] == date2 for r in response.json())
+    response_body = decamelize(response.json())
+    assert any(r["date_referred"] == date1 for r in response_body)
+    assert not any(r["date_referred"] == date2 for r in response_body)
 
-    response = api_get(endpoint="/api/referrals?isPregnant=1")
+    response = api_get(endpoint="/api/referrals?is_assessed=1")
 
     assert response.status_code == 200
-    assert not any(r["dateReferred"] == date1 for r in response.json())
-    assert not any(r["dateReferred"] == date2 for r in response.json())
+    response_body = decamelize(response.json())
+    assert any(r["date_referred"] == date1 for r in response_body)
+    assert not any(r["date_referred"] == date2 for r in response_body)
+
+    response = api_get(endpoint="/api/referrals?is_pregnant=1")
+
+    assert response.status_code == 200
+    response_body = decamelize(response.json())
+    assert not any(r["date_referred"] == date1 for r in response_body)
+    assert not any(r["date_referred"] == date2 for r in response_body)
 
     pregnancy_factory.create(**pregnancy_later)
-    response = api_get(endpoint="/api/referrals?isPregnant=1")
+    response = api_get(endpoint="/api/referrals?is_pregnant=1")
 
     assert response.status_code == 200
-    assert any(r["dateReferred"] == date1 for r in response.json())
-    assert any(r["dateReferred"] == date2 for r in response.json())
+    response_body = decamelize(response.json())
+    assert any(r["date_referred"] == date1 for r in response_body)
+    assert any(r["date_referred"] == date2 for r in response_body)
 
     pregnancy_factory.create(**pregnancy_later)
     response = api_get(
-        endpoint=f"/api/referrals?vitalSigns={TrafficLightEnum.NONE.value}",
+        endpoint=f"/api/referrals?vital_signs={TrafficLightEnum.NONE.value}",
     )
 
     assert response.status_code == 200
-    assert any(r["dateReferred"] == date1 for r in response.json())
-    assert any(r["dateReferred"] == date2 for r in response.json())
+    response_body = decamelize(response.json())
+    assert any(r["date_referred"] == date1 for r in response_body)
+    assert any(r["date_referred"] == date2 for r in response_body)

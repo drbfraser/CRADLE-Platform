@@ -1,9 +1,9 @@
 import { TrafficLightEnum } from 'src/shared/enums';
 
 export interface IPatient {
-  patientId: string;
-  patientName: string;
+  id: string;
+  name: string;
   villageNumber: string;
   trafficLightStatus: TrafficLightEnum;
-  dateTimeTaken: number | null;
+  dateTaken: number | null;
 }

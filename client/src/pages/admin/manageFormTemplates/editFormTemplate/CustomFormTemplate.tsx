@@ -28,7 +28,7 @@ import { FormRenderStateEnum } from 'src/shared/enums';
 import { LanguageModalProps } from 'src/shared/types';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { CustomizedFormWQuestions } from 'src/pages/customizedForm/customizedEditForm/CustomizedFormWQuestions';
-import { getFormClassificationTemplates } from 'src/shared/api';
+import { getFormClassificationTemplates } from 'src/shared/api/api';
 import moment from 'moment';
 
 export enum FormEditMainComponents {
@@ -121,12 +121,14 @@ export const CustomFormTemplate = () => {
     <>
       <Box sx={{ display: `flex`, alignItems: `center` }}>
         <Tooltip title="Go back" placement="top">
-          <IconButton onClick={() => navigate(`/admin`)} size="large">
+          <IconButton
+            onClick={() => navigate(`/admin/form-templates`)}
+            size="large">
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>
         {/*TODO: Allow template name to change depending on if we are editing a new or existing form template*/}
-        <Typography variant="h4">
+        <Typography variant={'h4'} component={'h4'}>
           {targetFrom ? 'Edit Template' : 'Create New Template'}
         </Typography>
       </Box>

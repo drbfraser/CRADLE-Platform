@@ -26,7 +26,7 @@ export const PregnancyInfoForm = ({
   creatingNewPregnancy,
   creatingNew,
 }: IProps) => {
-  const isFemale = formikProps.values.patientSex === SexEnum.FEMALE;
+  const isFemale = formikProps.values.sex === SexEnum.FEMALE;
   const isPregnant = formikProps.values.isPregnant;
   return (
     <Paper>
@@ -174,7 +174,7 @@ export const PregnancyInfoForm = ({
             Filling in end date and outcome will close this pregnancy
           </Typography>
         )}
-        {formikProps.values.patientSex === SexEnum.MALE && (
+        {formikProps.values.sex === SexEnum.MALE && (
           <Typography color="textSecondary" variant="caption">
             Cannot fill because the patient is Male, click Next
           </Typography>

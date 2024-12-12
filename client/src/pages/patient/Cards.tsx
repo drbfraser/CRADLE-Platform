@@ -11,76 +11,82 @@ import {
   LocalHospital as DiagnosisIcon,
   KeyboardArrowDown,
 } from '@mui/icons-material';
-import { CustomizedForm, FollowUp, Reading, Referral } from 'src/shared/types';
+import {
+  CustomizedForm,
+  Assessment,
+  Reading,
+  Referral,
+} from 'src/shared/types';
 
 import { RedirectButton } from 'src/shared/components/Button';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { getPrettyDateTime } from 'src/shared/utils';
 
-interface IFollowUpCardProps {
-  followUp: FollowUp;
+interface IAssessmentCardProps {
+  assessment: Assessment;
 }
 
-export const AssessmentCard = ({ followUp }: IFollowUpCardProps) => (
+export const AssessmentCard = ({ assessment }: IAssessmentCardProps) => (
   <>
-    <Typography variant="h5">
+    <Typography variant={'h5'} component={'h5'}>
       <DiagnosisIcon fontSize="large" />
       Assessment
     </Typography>
 
     <Box px={3}>
-      {Boolean(followUp && followUp.healthcareWorkerId) && (
+      {Boolean(assessment && assessment.healthcareWorkerId) && (
         <p>
-          <b>Assessed By: </b> Healthcare Worker:{followUp?.healthcareWorkerId}
+          <b>Assessed By: </b> Healthcare Worker:
+          {assessment?.healthcareWorkerId}
         </p>
       )}
 
-      {Boolean(followUp && followUp.dateAssessed) && (
+      {Boolean(assessment && assessment.dateAssessed) && (
         <p>
           <b>Date Last Assessed: </b>
-          {getPrettyDateTime(followUp?.dateAssessed)}
+          {getPrettyDateTime(assessment?.dateAssessed)}
         </p>
       )}
 
-      {Boolean(followUp && followUp.specialInvestigations) && (
+      {Boolean(assessment && assessment.specialInvestigations) && (
         <p>
           <b>Special Investigations + Results: </b>
-          {followUp?.specialInvestigations}
+          {assessment?.specialInvestigations}
         </p>
       )}
 
-      {Boolean(followUp && followUp.diagnosis) && (
+      {Boolean(assessment && assessment.diagnosis) && (
         <p>
           <b>Final Diagnosis: </b>
-          {followUp?.diagnosis}
+          {assessment?.diagnosis}
         </p>
       )}
 
-      {Boolean(followUp && followUp.treatment) && (
+      {Boolean(assessment && assessment.treatment) && (
         <p>
           <b>Treatment/Operation: </b>
-          {followUp?.treatment}
+          {assessment?.treatment}
         </p>
       )}
 
-      {Boolean(followUp && followUp.medicationPrescribed) && (
+      {Boolean(assessment && assessment.medicationPrescribed) && (
         <p>
           <b>Medication Prescribed: </b>
-          {followUp?.medicationPrescribed}
+          {assessment?.medicationPrescribed}
         </p>
       )}
 
-      {Boolean(followUp && followUp.followupInstructions) && (
+      {Boolean(assessment && assessment.followUpInstructions) && (
         <p>
           <b>Followup Instructions: </b>
-          {followUp?.followupInstructions}
+          {assessment?.followUpInstructions}
         </p>
       )}
     </Box>
 
     <RedirectButton
-      disabled={!followUp}
-      url={`/assessments/edit/${followUp.patientId}/${followUp.id}`}>
+      disabled={!assessment}
+      url={`/assessments/edit/${assessment.patientId}/${assessment.id}`}>
       Update Assessment
     </RedirectButton>
   </>
@@ -92,7 +98,7 @@ interface ICustomizedFormCardProps {
 
 export const CustomizedFormCard = ({ form }: ICustomizedFormCardProps) => (
   <>
-    <Typography variant="h5">
+    <Typography variant={'h5'} component={'h5'}>
       <>
         <AssignmentInd fontSize="large" /> {form.classification.name}
       </>
@@ -122,7 +128,7 @@ export const ReadingCard = ({ reading }: IReadingCardProps) => {
 
   return (
     <>
-      <Typography variant="h5">
+      <Typography variant={'h5'} component={'h5'}>
         <AssignmentInd fontSize="large" />
         Reading
       </Typography>
@@ -133,13 +139,14 @@ export const ReadingCard = ({ reading }: IReadingCardProps) => {
           status={reading.trafficLightStatus}
         />
         <p>
-          <b>Systolic Blood Pressure:</b> {reading.bpSystolic} mm/Hg
+          <b>Systolic Blood Pressure:</b> {reading.systolicBloodPressure} mm/Hg
         </p>
         <p>
-          <b>Diastolic Blood Pressure:</b> {reading.bpDiastolic} mm/Hg
+          <b>Diastolic Blood Pressure:</b> {reading.diastolicBloodPressure}{' '}
+          mm/Hg
         </p>
         <p>
-          <b>Heart Rate:</b> {reading.heartRateBPM} bpm
+          <b>Heart Rate:</b> {reading.heartRate} bpm
         </p>
         {Boolean(reading.symptoms?.length) && (
           <p>
@@ -159,23 +166,23 @@ export const ReadingCard = ({ reading }: IReadingCardProps) => {
                 {[
                   {
                     label: 'Leukocytes',
-                    value: reading.urineTests.urineTestLeuc,
+                    value: reading.urineTests.leukocytes,
                   },
                   {
                     label: 'Nitrites',
-                    value: reading.urineTests.urineTestNit,
+                    value: reading.urineTests.nitrites,
                   },
                   {
                     label: 'Glucose',
-                    value: reading.urineTests.urineTestGlu,
+                    value: reading.urineTests.glucose,
                   },
                   {
                     label: 'Protein',
-                    value: reading.urineTests.urineTestPro,
+                    value: reading.urineTests.protein,
                   },
                   {
                     label: 'Blood',
-                    value: reading.urineTests.urineTestBlood,
+                    value: reading.urineTests.blood,
                   },
                 ].map((info) => (
                   <p key={info.label}>
@@ -209,7 +216,7 @@ export const ReferralAssessedCard = ({ referral }: IReferralCardProps) => (
         Assessed on {getPrettyDateTime(referral.dateAssessed)}
       </Typography>
       <Typography variant="subtitle1">
-        Referred to {referral.referralHealthFacilityName}
+        Referred to {referral.healthFacilityName}
       </Typography>
       {Boolean(referral.comment) && (
         <div>
@@ -237,7 +244,7 @@ export const ReferralCancelledCard = ({ referral }: IReferralCardProps) => (
         Cancelled on {getPrettyDateTime(referral.dateCancelled)}
       </Typography>
       <Typography variant="subtitle1">
-        Referred to {referral.referralHealthFacilityName}
+        Referred to {referral.healthFacilityName}
       </Typography>
       {Boolean(referral.comment) && (
         <div>
@@ -278,7 +285,7 @@ export const ReferralNotAttendedCard = ({ referral }: IReferralCardProps) => (
         Marked Not Attended on {getPrettyDateTime(referral.dateNotAttended)}
       </Typography>
       <Typography variant="subtitle1">
-        Referred to {referral.referralHealthFacilityName}
+        Referred to {referral.healthFacilityName}
       </Typography>
       {Boolean(referral.comment) && (
         <div>
@@ -305,7 +312,7 @@ export const ReferralPendingCard = ({ referral }: IReferralCardProps) => (
         Referred on {getPrettyDateTime(referral.dateReferred)}
       </Typography>
       <Typography variant="subtitle1">
-        Referred to {referral.referralHealthFacilityName}
+        Referred to {referral.healthFacilityName}
       </Typography>
       {Boolean(referral.comment) && (
         <div>
