@@ -6,7 +6,7 @@ from common.commonUtil import format_phone_number
 from validation.validation_exception import ValidationExceptionError
 
 
-class SmsRelayValidator(BaseModel):
+class SmsRelayValidator(BaseModel, extra="forbid"):
     phone_number: str
     encrypted_data: str
 
@@ -15,10 +15,6 @@ class SmsRelayValidator(BaseModel):
     def format_phone_numbers(cls, phone_number: str) -> str:
         formatted_phone_numbers = format_phone_number(phone_number)
         return formatted_phone_numbers
-
-    # forbid extra attributes
-    class Config:
-        extra = "forbid"
 
     @staticmethod
     def validate_request(request_body: dict):
@@ -37,16 +33,12 @@ class SmsRelayValidator(BaseModel):
             raise ValidationExceptionError(error_message)
 
 
-class SmsRelayDecryptedBodyValidator(BaseModel):
+class SmsRelayDecryptedBodyValidator(BaseModel, extra="forbid"):
     request_number: int
     method: str
     endpoint: str
     headers: Optional[str] = None
     body: Optional[str] = None
-
-    # forbid extra attributes
-    class Config:
-        extra = "forbid"
 
     @model_validator(mode="before")
     @classmethod

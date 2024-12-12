@@ -7,24 +7,21 @@ from validation.validation_exception import ValidationExceptionError
 
 
 # Represents a referral entity with validations to prevent unrecognized fields.
-class ReferralEntityValidator(BaseModel):
+class ReferralEntityValidator(BaseModel, extra="forbid"):
     id: Optional[str] = None
     patient_id: str
     health_facility_name: str
     comment: Optional[str] = None
-    date_referred: Optional[datetime] = None
-    action_taken: Optional[str] = None
-    is_assessed: Optional[bool] = None
-    is_cancelled: Optional[bool] = None
-    cancel_reason: Optional[str] = None
-    not_attended: Optional[bool] = None
-    not_attend_reason: Optional[str] = None
-    last_edited: Optional[datetime] = None
-    user_id: Optional[int] = None
-
-    # forbid extra attributes
-    class Config:
-        extra = "forbid"
+    id: Optional[str] = None
+    dateReferred: Optional[datetime] = None
+    actionTaken: Optional[str] = None
+    isAssessed: Optional[bool] = None
+    isCancelled: Optional[bool] = None
+    cancelReason: Optional[str] = None
+    notAttended: Optional[bool] = None
+    notAttendReason: Optional[str] = None
+    lastEdited: Optional[datetime] = None
+    userId: Optional[int] = None
 
     @staticmethod
     def validate(request_body: dict):

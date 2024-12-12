@@ -6,7 +6,7 @@ from validation.questions import FormQuestionPutValidator, FormQuestionValidator
 from validation.validation_exception import ValidationExceptionError
 
 
-class FormValidator(BaseModel):
+class FormValidator(BaseModel, extra="forbid"):
     lang: str
     patient_id: str
     questions: List[FormQuestionValidator]
@@ -17,9 +17,6 @@ class FormValidator(BaseModel):
     last_edited: Optional[int] = None
     last_edited_by: Optional[int] = None
     archived: Optional[StrictBool] = None
-
-    class Config:
-        extra = "forbid"
 
     @staticmethod
     def validate(request_body: dict):
@@ -36,11 +33,8 @@ class FormValidator(BaseModel):
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
 
-class FormPutValidator(BaseModel):
+class FormPutValidator(BaseModel, extra="forbid"):
     questions: List[FormQuestionPutValidator]
-
-    class Config:
-        extra = "forbid"
 
     @staticmethod
     def validate(request_body: dict):

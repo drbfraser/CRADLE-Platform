@@ -215,6 +215,17 @@ If there are errors during `npm start`, try running `npm ci` to install directly
 
 # Development
 
+## Backend Onboarding Guide - Useful Documentation to Get Started
+
+For a comprehensive guide to backend development, please refer to the "Backend-Onboarding-Doc" located in the shared CRADLE Docs Google Drive under **Guides/Tutorials > Backend-Onboarding-Doc**.
+
+This document provides all the essential information for new backend developers to get started, offering a detailed overview of the codebase and an explanation of
+
+- What each each file does
+- Step-by-step instructions for running automated tests
+- Creating and utilizing Pydantic test models
+- Accessing, migrating, or resetting database data
+
 ## General Tips
 
 - Make sure to check out the API documentation at http://localhost:5000/apidocs
@@ -271,11 +282,12 @@ If something has gone wrong and you're having issues with your database, you can
 
 - [Postman](https://www.getpostman.com/):
   - Used to test API endpoints and send HTTP requests with a GUI
-  - Check out the [Postman Workspace Setup Guide](https://csil-git1.cs.surrey.sfu.ca/415-cradle/cradle-platform/-/wikis/Postman-Workspace-Setup) for how to set up the Postman Workspaces to begin testing the project REST APIs
+  - Check out the [Postman Workspace Setup Guide](https://github.sfu.ca/cradle-project/Cradle-Platform/wiki) for how to set up the Postman Workspaces to begin testing the project REST APIs
 - [React Developer Tools](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en)
   - allows you to observe what components make up the webpage/DOM
   - allows you to observe the live values of props and state in components
-- [Redux DevTools](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)
+
+* [Redux DevTools](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)
   - allows you to view and debug how data is being passed to and from Redux
 
 ## Troubleshooting

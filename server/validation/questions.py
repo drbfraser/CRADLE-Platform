@@ -21,14 +21,11 @@ class MultipleChoiceOptionValidator(BaseModel):
     """
 
 
-class AnswerValidator(BaseModel):
+class AnswerValidator(BaseModel, extra="forbid"):
     comment: Optional[str] = None
     mc_id_array: Optional[List[int]] = None
     number: Optional[Union[int, float]] = None
     text: Optional[str] = None
-
-    class Config:
-        extra = "forbid"
 
     """
     valid example (all fields, in real case only present one part of it):
@@ -41,13 +38,10 @@ class AnswerValidator(BaseModel):
     """
 
 
-class VisibleConditionValidator(BaseModel):
+class VisibleConditionValidator(BaseModel, use_enum_values=True):
     answers: AnswerValidator
     question_index: int
     relation: QRelationalEnum
-
-    class Config:
-        use_enum_values = True
 
     """
     valid example:
@@ -63,13 +57,10 @@ class VisibleConditionValidator(BaseModel):
     """
 
 
-class QuestionLangVersionValidator(BaseModel):
+class QuestionLangVersionValidator(BaseModel, extra="forbid"):
     lang: str
-    mc_options: Optional[List[MultipleChoiceOptionValidator]] = None
-    question_text: str
-
-    class Config:
-        extra = "forbid"
+    mcOptions: Optional[List[MultipleChoiceOptionValidator]] = None
+    questionText: str
 
     """
     valid example:
@@ -89,7 +80,7 @@ class QuestionLangVersionValidator(BaseModel):
     """
 
 
-class QuestionBase(BaseModel):
+class QuestionBase(BaseModel, use_enum_values=True):
     question_index: Annotated[int, Field(strict=True, ge=0)]  # Non-negative index
     question_type: QuestionTypeEnum
     question_id: Optional[str] = None
@@ -104,28 +95,19 @@ class QuestionBase(BaseModel):
     category_index: Optional[int] = None
     string_max_lines: Optional[int] = None
 
-    class Config:
-        use_enum_values = True
 
-
-class TemplateQuestionValidator(QuestionBase):
+class TemplateQuestionValidator(QuestionBase, extra="forbid"):
     question_lang_versions: List[QuestionLangVersionValidator]
     is_blank: bool = True  # Set to True for template questions
 
-    class Config:
-        extra = "forbid"
 
-
-class FormQuestionValidator(QuestionBase):
+class FormQuestionValidator(QuestionBase, extra="forbid"):
     question_text: str
     is_blank: bool = False  # Set to False for form questions
     has_comment_attached: Optional[bool] = None
     id: Optional[str] = None
     mc_options: Optional[List[MultipleChoiceOptionValidator]] = None
     answers: Optional[AnswerValidator] = None
-
-    class Config:
-        extra = "forbid"
 
 
 class FormQuestionPutValidator(BaseModel):

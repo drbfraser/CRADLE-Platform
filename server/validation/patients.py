@@ -96,12 +96,9 @@ class PatientPostValidator(PatientBase):
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
 
-class PatientPutValidator(PatientBase):
+class PatientPutValidator(PatientBase, extra="forbid"):
     last_edited: Optional[int] = None
     base: Optional[int] = None
-
-    class Config:
-        extra = "forbid"
 
     @field_validator("pregnancy_start_date", mode="before")
     @classmethod
