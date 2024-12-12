@@ -59,8 +59,8 @@ class VisibleConditionValidator(BaseModel, use_enum_values=True):
 
 class QuestionLangVersionValidator(BaseModel, extra="forbid"):
     lang: str
-    mcOptions: Optional[List[MultipleChoiceOptionValidator]] = None
-    questionText: str
+    mc_options: Optional[List[MultipleChoiceOptionValidator]] = None
+    question_text: str
 
     """
     valid example:
