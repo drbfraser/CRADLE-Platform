@@ -34,7 +34,7 @@ class SmsRelayValidator(BaseModel, extra="forbid"):
             raise ValidationExceptionError(error_message)
 
 
-class SmsRelayDecryptedBodyValidator(BaseModel, extra="forbid"):
+class SmsRelayDecryptedBodyValidator(BaseModel, extra="forbid", use_enum_values=True):
     request_number: int
     method: HTTPMethodEnum
     endpoint: str
