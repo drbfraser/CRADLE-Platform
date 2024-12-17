@@ -12,7 +12,7 @@ association_with_valid_fields_should_return_none = {
     "user_id": USER_ID,
 }
 
-association_missing_optional_field_userID_should_return_none = {
+association_missing_optional_field_user_id_should_return_none = {
     "patient_id": PATIENT_ID,
     "health_facility_name": "H0000",
 }
@@ -50,7 +50,7 @@ association_field_user_id_has_wrong_type_should_throw_exception = {
     "json, expectation",
     [
         (association_with_valid_fields_should_return_none, None),
-        (association_missing_optional_field_userID_should_return_none, None),
+        (association_missing_optional_field_user_id_should_return_none, None),
         (
             association_missing_optional_field_health_facility_name_should_return_none,
             None,

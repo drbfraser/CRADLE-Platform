@@ -2,7 +2,6 @@ from datetime import date
 from typing import Any, cast
 
 from flasgger import swag_from
-from flask import request
 from flask_restful import Resource, abort
 
 import data
@@ -51,7 +50,7 @@ class Root(Resource):
         endpoint="patients",
     )
     def post():
-        request_body = request.get_json(force=True)
+        request_body = api_utils.get_request_body()
 
         try:
             patient_pydantic_model = PatientPostValidator.validate(request_body)

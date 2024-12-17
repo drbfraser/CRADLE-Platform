@@ -39,7 +39,7 @@ patient_with_valid_fields_should_return_none = {
     "is_archived": False,
 }
 
-patient_post_missing_required_field_patientId_should_throw_exception = {
+patient_post_missing_required_field_id_should_throw_exception = {
     "name": PATIENT_NAME,
     "is_pregnant": True,
     "sex": SEX,
@@ -54,7 +54,7 @@ patient_post_missing_required_field_patientId_should_throw_exception = {
     "allergy": ALLERGY,
 }
 
-patient_post_missing_required_field_patientName_should_throw_exception = {
+patient_post_missing_required_field_name_should_throw_exception = {
     "id": PATIENT_ID,
     "is_pregnant": True,
     "sex": SEX,
@@ -69,7 +69,7 @@ patient_post_missing_required_field_patientName_should_throw_exception = {
     "allergy": ALLERGY,
 }
 
-patient_post_missing_required_field_patientSex_should_throw_exception = {
+patient_post_missing_required_field_sex_should_throw_exception = {
     "id": PATIENT_ID,
     "name": PATIENT_NAME,
     "is_pregnant": True,
@@ -84,7 +84,7 @@ patient_post_missing_required_field_patientSex_should_throw_exception = {
     "allergy": ALLERGY,
 }
 
-patient_post_missing_required_field_dob_should_throw_exception = {
+patient_post_missing_required_field_date_of_birth_should_throw_exception = {
     "id": PATIENT_ID,
     "name": PATIENT_NAME,
     "is_pregnant": True,
@@ -114,7 +114,7 @@ patient_post_missing_required_field_isExactDob_should_throw_exception = {
     "allergy": ALLERGY,
 }
 
-patient_post_missing_optional_field_isPregnant_return_none = {
+patient_post_missing_optional_field_is_pregnant_return_none = {
     "id": PATIENT_ID,
     "name": PATIENT_NAME,
     "sex": SEX,
@@ -129,7 +129,7 @@ patient_post_missing_optional_field_isPregnant_return_none = {
     "allergy": ALLERGY,
 }
 
-patient_is_pregant_but_missing_pregnancyStartDate_should_throw_exception = {
+patient_is_pregant_but_missing_pregnancy_start_date_should_throw_exception = {
     "id": PATIENT_ID,
     "name": PATIENT_NAME,
     "is_pregnant": True,
@@ -144,7 +144,7 @@ patient_is_pregant_but_missing_pregnancyStartDate_should_throw_exception = {
     "allergy": ALLERGY,
 }
 
-# gestationalTimestamp must be less than or equal to 43 weeks/10 months
+# pregnancy period must be less than or equal to 43 weeks/10 months
 patient_pregnancy_period_exceed_43weeks_should_throw_exception = {
     "id": PATIENT_ID,
     "name": PATIENT_NAME,
@@ -162,7 +162,7 @@ patient_pregnancy_period_exceed_43weeks_should_throw_exception = {
 }
 
 # name must be type string
-patient_field_patientName_has_invalid_type_should_throw_exception = {
+patient_field_name_has_invalid_type_should_throw_exception = {
     "id": PATIENT_ID,
     "name": 1,
     "is_pregnant": True,
@@ -179,7 +179,7 @@ patient_field_patientName_has_invalid_type_should_throw_exception = {
 }
 
 # id must be type str
-patient_field_patientId_has_invalid_type_should_throw_exception = {
+patient_field_id_has_invalid_type_should_throw_exception = {
     "id": 1,
     "name": PATIENT_NAME,
     "is_pregnant": True,
@@ -196,7 +196,7 @@ patient_field_patientId_has_invalid_type_should_throw_exception = {
 }
 
 # id must be less than or equal to 14 digits long
-patient_field_patientId_has_more_than_14digits_should_throw_exception = {
+patient_field_id_has_more_than_14digits_should_throw_exception = {
     "id": "123456789012345",
     "name": PATIENT_NAME,
     "is_pregnant": True,
@@ -213,7 +213,7 @@ patient_field_patientId_has_more_than_14digits_should_throw_exception = {
 }
 
 # date_of_birth must be in YYYY-mm-dd format
-patient_field_dob_has_wrong_format_should_throw_exception = {
+patient_field_date_of_birth_has_wrong_format_should_throw_exception = {
     "id": PATIENT_ID,
     "name": PATIENT_NAME,
     "is_pregnant": True,
@@ -235,19 +235,19 @@ patient_field_dob_has_wrong_format_should_throw_exception = {
     [
         (patient_with_valid_fields_should_return_none, None),
         (
-            patient_post_missing_required_field_patientId_should_throw_exception,
+            patient_post_missing_required_field_id_should_throw_exception,
             ValidationExceptionError,
         ),
         (
-            patient_post_missing_required_field_patientName_should_throw_exception,
+            patient_post_missing_required_field_name_should_throw_exception,
             ValidationExceptionError,
         ),
         (
-            patient_post_missing_required_field_patientSex_should_throw_exception,
+            patient_post_missing_required_field_sex_should_throw_exception,
             ValidationExceptionError,
         ),
         (
-            patient_post_missing_required_field_dob_should_throw_exception,
+            patient_post_missing_required_field_date_of_birth_should_throw_exception,
             ValidationExceptionError,
         ),
         (
@@ -255,11 +255,11 @@ patient_field_dob_has_wrong_format_should_throw_exception = {
             ValidationExceptionError,
         ),
         (
-            patient_post_missing_optional_field_isPregnant_return_none,
+            patient_post_missing_optional_field_is_pregnant_return_none,
             None,
         ),
         (
-            patient_is_pregant_but_missing_pregnancyStartDate_should_throw_exception,
+            patient_is_pregant_but_missing_pregnancy_start_date_should_throw_exception,
             ValidationExceptionError,
         ),
         (
@@ -267,19 +267,19 @@ patient_field_dob_has_wrong_format_should_throw_exception = {
             ValidationExceptionError,
         ),
         (
-            patient_field_patientName_has_invalid_type_should_throw_exception,
+            patient_field_name_has_invalid_type_should_throw_exception,
             ValidationExceptionError,
         ),
         (
-            patient_field_patientId_has_invalid_type_should_throw_exception,
+            patient_field_id_has_invalid_type_should_throw_exception,
             ValidationExceptionError,
         ),
         (
-            patient_field_patientId_has_more_than_14digits_should_throw_exception,
+            patient_field_id_has_more_than_14digits_should_throw_exception,
             ValidationExceptionError,
         ),
         (
-            patient_field_dob_has_wrong_format_should_throw_exception,
+            patient_field_date_of_birth_has_wrong_format_should_throw_exception,
             ValidationExceptionError,
         ),
     ],
@@ -357,7 +357,7 @@ patient_put_has_mismatched_patientId_hould_throw_exception = {
             ValidationExceptionError,
         ),
         (
-            patient_is_pregant_but_missing_pregnancyStartDate_should_throw_exception,
+            patient_is_pregant_but_missing_pregnancy_start_date_should_throw_exception,
             ValidationExceptionError,
         ),
         (
@@ -365,19 +365,19 @@ patient_put_has_mismatched_patientId_hould_throw_exception = {
             ValidationExceptionError,
         ),
         (
-            patient_field_patientName_has_invalid_type_should_throw_exception,
+            patient_field_name_has_invalid_type_should_throw_exception,
             ValidationExceptionError,
         ),
         (
-            patient_field_patientId_has_invalid_type_should_throw_exception,
+            patient_field_id_has_invalid_type_should_throw_exception,
             ValidationExceptionError,
         ),
         (
-            patient_field_patientId_has_more_than_14digits_should_throw_exception,
+            patient_field_id_has_more_than_14digits_should_throw_exception,
             ValidationExceptionError,
         ),
         (
-            patient_field_dob_has_wrong_format_should_throw_exception,
+            patient_field_date_of_birth_has_wrong_format_should_throw_exception,
             ValidationExceptionError,
         ),
     ],

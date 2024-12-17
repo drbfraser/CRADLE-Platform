@@ -241,7 +241,7 @@ form_field_date_created_has_wrong_type_should_throw_exception = {
     "archived": IS_ARCHIVED,
 }
 
-form_field_lastEdited_has_wrong_type_should_throw_exception = {
+form_field_last_edited_has_wrong_type_should_throw_exception = {
     "lang": LANGUAGE,
     "patient_id": PATIENT_ID,
     "questions": QUESTION_LIST,
@@ -254,7 +254,7 @@ form_field_lastEdited_has_wrong_type_should_throw_exception = {
     "archived": IS_ARCHIVED,
 }
 
-form_field_lastEditedBy_has_wrong_type_should_throw_exception = {
+form_field_last_edited_by_has_wrong_type_should_throw_exception = {
     "lang": LANGUAGE,
     "patient_id": PATIENT_ID,
     "questions": QUESTION_LIST,
@@ -294,7 +294,7 @@ form_has_invalid_extra_field_should_throw_exception = {
     "extra_field": 1,
 }
 
-form_date_created_occurs_after_dateEdited_should_throw_exception = {
+form_date_created_occurs_after_date_edited_should_throw_exception = {
     "lang": LANGUAGE,
     "patient_id": PATIENT_ID,
     "questions": QUESTION_LIST,
@@ -353,11 +353,11 @@ form_date_created_occurs_after_dateEdited_should_throw_exception = {
             ValidationExceptionError,
         ),
         (
-            form_field_lastEdited_has_wrong_type_should_throw_exception,
+            form_field_last_edited_has_wrong_type_should_throw_exception,
             ValidationExceptionError,
         ),
         (
-            form_field_lastEditedBy_has_wrong_type_should_throw_exception,
+            form_field_last_edited_by_has_wrong_type_should_throw_exception,
             ValidationExceptionError,
         ),
         (
@@ -366,7 +366,7 @@ form_date_created_occurs_after_dateEdited_should_throw_exception = {
         ),
         (form_has_invalid_extra_field_should_throw_exception, ValidationExceptionError),
         (
-            form_date_created_occurs_after_dateEdited_should_throw_exception,
+            form_date_created_occurs_after_date_edited_should_throw_exception,
             ValidationExceptionError,
         ),
     ],
