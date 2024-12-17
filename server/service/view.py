@@ -22,12 +22,12 @@ from typing import Any, Callable, List, Optional, Tuple
 from data import crud
 from enums import RoleEnum
 from models import (
-    FollowUp,
-    MedicalRecord,
-    Pregnancy,
-    Reading,
-    Referral,
-    UrineTest,
+    AssessmentOrm,
+    MedicalRecordOrm,
+    PregnancyOrm,
+    ReadingOrm,
+    ReferralOrm,
+    UrineTestOrm,
 )
 
 
@@ -37,7 +37,7 @@ def patient_list_view(user: dict, **kwargs) -> List[Any]:
 
     :param user: JWT identity
     :param **kwargs: Optional query criteria
-    :return: A list of patients each with the fields patientId, patientName, villageNumber
+    :return: A list of patients each with the fields patient_id, patientName, villageNumber
     trafficLightStatus, dateTimeTaken
     """
     return __get_view(user, crud.read_patient_list, **kwargs)
@@ -49,13 +49,13 @@ def referral_list_view(user: dict, **kwargs) -> List[Any]:
 
     :param user: JWT identity
     :param **kwargs: Optional query criteria
-    :return: A list of referrals each with the fields id, patientId, patientName,
+    :return: A list of referrals each with the fields id, patient_id, patientName,
     villageNumber, trafficLightStatus, dateReferred, isAssessed
     """
     return __get_view(user, crud.read_referral_list, **kwargs)
 
 
-def pregnancy_view(patient_id: str, **kwargs) -> List[Pregnancy]:
+def pregnancy_view(patient_id: str, **kwargs) -> List[PregnancyOrm]:
     """
     Returns a list of pregnancies filtered by query criteria in keyword arguments.
 
@@ -64,15 +64,15 @@ def pregnancy_view(patient_id: str, **kwargs) -> List[Pregnancy]:
     :return: A list of pregnancies
     """
     if not kwargs:
-        return crud.read_all(Pregnancy, patientId=patient_id)
-    return crud.read_medical_records(Pregnancy, patient_id, **kwargs)
+        return crud.read_all(PregnancyOrm, patient_id=patient_id)
+    return crud.read_medical_records(PregnancyOrm, patient_id, **kwargs)
 
 
 def medical_record_view(
     patient_id: str,
     is_drug_record: bool,
     **kwargs,
-) -> List[MedicalRecord]:
+) -> List[MedicalRecordOrm]:
     """
     Returns a list of medical records filtered by query criteria in keyword arguments.
 
@@ -82,12 +82,12 @@ def medical_record_view(
     """
     if not kwargs:
         return crud.read_all(
-            MedicalRecord,
-            patientId=patient_id,
-            isDrugRecord=is_drug_record,
+            MedicalRecordOrm,
+            patient_id=patient_id,
+            is_drug_record=is_drug_record,
         )
     return crud.read_medical_records(
-        MedicalRecord,
+        MedicalRecordOrm,
         patient_id,
         is_drug_record=is_drug_record,
         **kwargs,
@@ -96,7 +96,7 @@ def medical_record_view(
 
 def patient_view(user: dict, last_sync: Optional[int] = None) -> List[Any]:
     """
-    Returns a list of patients each with the latest pregnancy, medical and durg records.
+    Returns a list of patients each with the latest pregnancy, medical and drug records.
 
     :param user: JWT identity
     :return: A list of patients
@@ -107,7 +107,7 @@ def patient_view(user: dict, last_sync: Optional[int] = None) -> List[Any]:
 def reading_view(
     user: dict,
     last_sync: Optional[int] = None,
-) -> List[Tuple[Reading, UrineTest]]:
+) -> List[Tuple[ReadingOrm, UrineTestOrm]]:
     """
     Returns a list of readings each with corresponding urine test.
 
@@ -117,7 +117,7 @@ def reading_view(
     return __get_view(user, crud.read_readings, last_edited=last_sync)
 
 
-def referral_view(user: dict, last_sync: Optional[int] = None) -> List[Referral]:
+def referral_view(user: dict, last_sync: Optional[int] = None) -> List[ReferralOrm]:
     """
     Returns a list of referrals of readings associated with user.
 
@@ -127,12 +127,12 @@ def referral_view(user: dict, last_sync: Optional[int] = None) -> List[Referral]
     return __get_view(
         user,
         crud.read_referrals_or_assessments,
-        model=Referral,
+        model=ReferralOrm,
         last_edited=last_sync,
     )
 
 
-def assessment_view(user: dict, last_sync: Optional[int] = None) -> List[FollowUp]:
+def assessment_view(user: dict, last_sync: Optional[int] = None) -> List[AssessmentOrm]:
     """
     Returns a list of assessments of readings associated with user.
 
@@ -142,7 +142,7 @@ def assessment_view(user: dict, last_sync: Optional[int] = None) -> List[FollowU
     return __get_view(
         user,
         crud.read_referrals_or_assessments,
-        model=FollowUp,
+        model=AssessmentOrm,
         last_edited=last_sync,
     )
 
@@ -153,14 +153,14 @@ def admin_patient_view(user: dict, **kwargs) -> List[Any]:
 
     :param user: JWT identity
     :param **kwargs: Optional query criteria
-    :return: A list of patients each with the fields patientId, patientName, isArchived
+    :return: A list of patients each with the fields patient_id, patientName, isArchived
     """
     return __get_view(user, crud.read_admin_patient, **kwargs)
 
 
 def __get_view(user: dict, func: Callable, **kwargs) -> List[Any]:
     role = user["role"]
-    user_id = int(user["userId"])
+    user_id = int(user["id"])
     if role == RoleEnum.ADMIN.value or role == RoleEnum.HCW.value:
         return func(**kwargs)
     if role == RoleEnum.CHO.value:

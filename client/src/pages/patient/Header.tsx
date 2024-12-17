@@ -21,19 +21,19 @@ export const Header = ({
   const navigate = useNavigate();
   const handleSubmitNewFormClick = () => {
     if (patient) {
-      navigate(`/forms/new/${patient.patientId}`);
+      navigate(`/forms/new/${patient.id}`);
     }
   };
 
   const handleAddReadingClick = () => {
     if (patient) {
-      navigate(`/readings/new/${patient.patientId}`);
+      navigate(`/readings/new/${patient.id}`);
     }
   };
 
   const handleCreateReferralClick = () => {
     if (patient) {
-      navigate(`/referrals/new/${patient.patientId}`);
+      navigate(`/referrals/new/${patient.id}`);
     }
   };
 
@@ -41,7 +41,7 @@ export const Header = ({
     if (isThereAPendingReferral) {
       setConfirmDialogPerformAssessmentOpen(true);
     } else if (patient) {
-      navigate(`/assessments/new/${patient.patientId}`);
+      navigate(`/assessments/new/${patient.id}`);
     }
   };
 
@@ -56,7 +56,7 @@ export const Header = ({
           </Tooltip>
           <Typography variant="h4">
             {patient ? (
-              `Patient Summary for ${patient.patientName}`
+              `Patient Summary for ${patient.id}`
             ) : (
               <Skeleton width={500} />
             )}

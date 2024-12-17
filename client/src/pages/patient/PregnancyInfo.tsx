@@ -28,7 +28,7 @@ import PregnantWomanIcon from '@mui/icons-material/PregnantWoman';
 import { RedirectButton } from 'src/shared/components/Button';
 import Table from '@mui/material/Table';
 import TableRow from '@mui/material/TableRow';
-import { getPatientPregnancySummaryAsync } from 'src/shared/api';
+import { getPatientPregnancySummaryAsync } from 'src/shared/api/api';
 
 type Props = {
   patientId: string;
@@ -234,28 +234,25 @@ export const PregnancyInfo = ({ patientId, patientName }: Props) => {
                           cursor: 'pointer',
                           height: 40,
                         }}
-                        key={pastPregnancy.pregnancyId}
-                        onClick={() => handleClick(pastPregnancy.pregnancyId)}>
+                        key={pastPregnancy.id}
+                        onClick={() => handleClick(pastPregnancy.id)}>
                         <TableCell>
-                          {getYearToDisplay(pastPregnancy.pregnancyEndDate)}
+                          {getYearToDisplay(pastPregnancy.endDate)}
                         </TableCell>
                         <TableCell>
                           Pregnancy carried to{' '}
                           {gestationalAgeUnitFormatters[
                             previousPregnancyUnit ??
                               GestationalAgeUnitEnum.WEEKS
-                          ](
-                            pastPregnancy.pregnancyStartDate,
-                            pastPregnancy.pregnancyEndDate
-                          )}
+                          ](pastPregnancy.startDate, pastPregnancy.endDate)}
                         </TableCell>
-                        <TableCell>
-                          {pastPregnancy.pregnancyOutcome ?? 'N/A'}
-                        </TableCell>
+                        <TableCell>{pastPregnancy.outcome ?? 'N/A'}</TableCell>
                       </TableRow>
                     ))
                   ) : (
-                    <TableRow>No previous pregnancy records</TableRow>
+                    <TableRow>
+                      <TableCell>No previous pregnancy records</TableCell>
+                    </TableRow>
                   )}
                 </TableBody>
               </Table>

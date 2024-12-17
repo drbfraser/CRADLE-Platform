@@ -3,15 +3,15 @@ from datetime import date
 
 from dateutil.relativedelta import relativedelta
 from flasgger import swag_from
-from flask import request
-from flask_jwt_extended import get_jwt_identity
+from flask import Request, request
 from flask_restful import Resource, abort
+from humps import decamelize
 
-from api import util
 from api.decorator import roles_required
+from common import user_utils
 from data import crud
 from enums import RoleEnum, TrafficLightEnum
-from models import User
+from models import UserOrm
 from validation.stats import TimestampValidator
 from validation.validation_exception import ValidationExceptionError
 
@@ -82,15 +82,15 @@ def create_color_readings(color_readings_q):
     return color_readings
 
 
-def get_filter_data(request):
-    request_body = request.get_json(force=True)
-    new_timestamp_to_feed = util.filterPairsWithNone(request_body)
+def get_filter_data(request: Request):
+    params = decamelize(request.args)
     try:
-        timestamp_pydantic_model = TimestampValidator.validate(new_timestamp_to_feed)
+        timestamp_pydantic_model = TimestampValidator.validate(params)
     except ValidationExceptionError as e:
         error_message = str(e)
         LOGGER.error(error_message)
         abort(400, message=error_message)
+        return None
 
     timestamp = timestamp_pydantic_model.model_dump(by_alias=True)
 
@@ -119,11 +119,11 @@ class FacilityReadings(Resource):
     @roles_required([RoleEnum.ADMIN, RoleEnum.HCW])
     @swag_from("../../specifications/stats-facility.yml", methods=["GET"])
     def get(facility_id: str):
-        jwt = get_jwt_identity()
+        current_user = user_utils.get_current_user_from_jwt()
 
         if (
-            jwt["role"] == RoleEnum.HCW.value
-            and jwt["healthFacilityName"] != facility_id
+            current_user["role"] == RoleEnum.HCW.value
+            and current_user["health_facility_name"] != facility_id
         ):
             return "Unauthorized to view this facility", 401
 
@@ -133,26 +133,30 @@ class FacilityReadings(Resource):
         return response, 200
 
 
-def hasPermissionToViewUser(user_id):
-    jwt = get_jwt_identity()
-    role = jwt["role"]
-    isCurrentUser = jwt["userId"] == user_id
+def has_permission_to_view_user(user_id):
+    current_user = user_utils.get_current_user_from_jwt()
+    role = current_user["role"]
+    is_current_user = current_user["id"] == user_id
 
-    if isCurrentUser:
+    if is_current_user:
         return True
 
     if role == RoleEnum.VHT.value:
         return False
 
     if role == RoleEnum.CHO.value:
-        supervised = crud.get_supervised_vhts(jwt["userId"])
+        supervised = crud.get_supervised_vhts(current_user["id"])
+        if supervised is None:
+            return False
         supervised = [user[0] for user in supervised]
         if user_id not in supervised:
             return False
 
     if role == RoleEnum.HCW.value:
-        user = crud.read(User, id=user_id)
-        if jwt["healthFacilityName"] != user.healthFacilityName:
+        user = crud.read(UserOrm, id=user_id)
+        if user is None:
+            return False
+        if current_user["health_facility_name"] != user.health_facility_name:
             return False
 
     return True
@@ -164,12 +168,12 @@ class UserReadings(Resource):
     @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
     @swag_from("../../specifications/stats-user.yml", methods=["GET"])
     def get(user_id: int):
-        if not hasPermissionToViewUser(user_id):
+        if not has_permission_to_view_user(user_id):
             return "Unauthorized to view this endpoint", 401
 
         filter = get_filter_data(request)
 
-        response = query_stats_data(filter, user_id=user_id)
+        response = query_stats_data(filter, user_id=str(user_id))
 
         return response, 200
 
@@ -182,17 +186,19 @@ class ExportStats(Resource):
     def get(user_id: int):
         filter = get_filter_data(request)
 
-        if crud.read(User, id=user_id) is None:
+        if crud.read(UserOrm, id=user_id) is None:
             return "User with this ID does not exist", 404
 
-        if not hasPermissionToViewUser(user_id):
+        if not has_permission_to_view_user(user_id):
             return "Unauthorized to view this endpoint", 401
 
         query_response = crud.get_export_data(user_id, filter)
         response = []
+        if query_response is None:
+            return response, 200
         for entry in query_response:
-            age = relativedelta(date.today(), entry["dob"]).years
-            traffic_light = entry.get("trafficLightStatus").name
+            age = relativedelta(date.today(), entry["date_of_birth"]).years
+            traffic_light = entry.get("traffic_light_status").name
             color = None
             if traffic_light:
                 traffic_light = traffic_light.split("_")
@@ -204,15 +210,15 @@ class ExportStats(Resource):
 
             response.append(
                 {
-                    "referral_date": entry.get("dateReferred"),
-                    "patientId": entry.get("patientId"),
-                    "name": entry.get("patientName"),
-                    "sex": entry.get("patientSex").name,
+                    "referral_date": entry.get("date_referred"),
+                    "patient_id": entry.get("patient_id"),
+                    "name": entry.get("patient_name"),
+                    "sex": entry.get("sex").name,
                     "age": age,
-                    "pregnant": bool(entry.get("isPregnant")),
-                    "systolic_bp": entry.get("bpSystolic"),
-                    "diastolic_bp": entry.get("bpDiastolic"),
-                    "heart_rate": entry.get("heartRateBPM"),
+                    "pregnant": bool(entry.get("is_pregnant")),
+                    "systolic_blood_pressure": entry.get("systolic_blood_pressure"),
+                    "diastolic_blood_pressure": entry.get("diastolic_blood_pressure"),
+                    "heart_rate": entry.get("heart_rate"),
                     "traffic_color": color,
                     "traffic_arrow": arrow,
                 },

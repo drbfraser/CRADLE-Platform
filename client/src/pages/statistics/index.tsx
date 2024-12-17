@@ -31,8 +31,14 @@ export function StatisticsPage() {
     setEndDate(moment().endOf('day'));
   }, []);
 
-  const from = useMemo(() => startDate!.toDate().getTime() / 1000, []);
-  const to = useMemo(() => endDate!.toDate().getTime() / 1000, []);
+  const from = useMemo(
+    () => (startDate ? startDate.toDate().getTime() / 1000 : 0),
+    []
+  );
+  const to = useMemo(
+    () => (endDate ? endDate.toDate().getTime() / 1000 : 0),
+    []
+  );
   const range = {
     from,
     to,

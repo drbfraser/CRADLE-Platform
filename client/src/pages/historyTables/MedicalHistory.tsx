@@ -8,7 +8,7 @@ import {
 import { useDialogs } from '@toolpad/core';
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { deleteMedicalRecordAsync } from 'src/shared/api';
+import { deleteMedicalRecordAsync } from 'src/shared/api/api';
 import {
   TableAction,
   TableActionButtons,
@@ -63,14 +63,13 @@ export const MedicalHistory = ({
             );
 
             if (confirmed) {
-              const response = await deleteMedicalRecordAsync(record);
-              if (response.ok) {
+              try {
+                await deleteMedicalRecordAsync(record);
                 await dialogs.alert('Medical record successfully deleted.');
                 getRowData();
-              } else {
-                const responseBody = await response.json();
+              } catch (e) {
                 await dialogs.alert(
-                  `Error: Medical record could not be deleted.\n${responseBody}`
+                  `Error: Medical record could not be deleted.\n${e}`
                 );
               }
             }

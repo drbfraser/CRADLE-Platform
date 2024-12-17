@@ -19,7 +19,7 @@ import TimelineItem from '@mui/lab/TimelineItem';
 import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
 import { TimelineRecord } from 'src/shared/types';
 import TimelineSeparator from '@mui/lab/TimelineSeparator';
-import { getPatientTimelineAsync } from 'src/shared/api';
+import { getPatientTimelineAsync } from 'src/shared/api/api';
 import { getPrettyDate } from 'src/shared/utils';
 import { useParams } from 'react-router-dom';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';

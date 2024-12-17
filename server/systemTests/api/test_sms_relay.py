@@ -8,13 +8,13 @@ import requests
 from data import crud
 from enums import TrafficLightEnum
 from models import (
-    FollowUp,
-    Patient,
-    Reading,
-    Referral,
-    SmsSecretKey,
-    User,
-    UserPhoneNumber,
+    AssessmentOrm,
+    PatientOrm,
+    ReadingOrm,
+    ReferralOrm,
+    SmsSecretKeyOrm,
+    UserOrm,
+    UserPhoneNumberOrm,
 )
 from service import compressor, encryptor
 
@@ -33,23 +33,24 @@ def test_create_patient_with_sms_relay(database, api_post):
     method = "POST"
     endpoint = "api/patients"
 
-    json_body = make_sms_relay_json(1, method, endpoint, body=patient_json)
-    response = api_post(endpoint=sms_relay_endpoint, json=json_body)
+    request_body = make_sms_relay_json(1, method, endpoint, body=patient_json)
+    response = api_post(endpoint=sms_relay_endpoint, json=request_body)
     database.session.commit()
-    response_dict = json.loads(response.text)
+    response_body = response.json()
+    print(response_body)
     try:
         assert response.status_code == 200
-        assert response_dict["code"] == 201
-        assert crud.read(Patient, patientId=patient_id) is not None
+        assert response_body["code"] == 201
+        assert crud.read(PatientOrm, id=patient_id) is not None
 
-        for r in reading_ids:
-            reading = crud.read(Reading, readingId=r)
+        for reading_id in reading_ids:
+            reading = crud.read(ReadingOrm, id=reading_id)
             assert reading is not None
-            assert reading.trafficLightStatus == TrafficLightEnum.GREEN
+            assert reading.traffic_light_status == TrafficLightEnum.GREEN
     finally:
-        for r in reading_ids:
-            crud.delete_by(Reading, readingId=r)
-        crud.delete_by(Patient, patientId=patient_id)
+        for reading_id in reading_ids:
+            crud.delete_by(ReadingOrm, id=reading_id)
+        crud.delete_by(PatientOrm, id=patient_id)
 
 
 def test_create_referral_with_sms_relay(
@@ -59,26 +60,26 @@ def test_create_referral_with_sms_relay(
     patient_info,
 ):
     create_patient()
-    patient_id = patient_info["patientId"]
+    patient_id = patient_info["id"]
     referral_id = "65acfe28-b0d6-4a63-a484-eceb3277fb4e"
     referral_json = __make_referral(referral_id, patient_id)
 
     method = "POST"
     endpoint = "api/referrals"
 
-    json_body = make_sms_relay_json(2, method, endpoint, body=referral_json)
+    request_body = make_sms_relay_json(2, method, endpoint, body=referral_json)
 
-    response = api_post(endpoint=sms_relay_endpoint, json=json_body)
+    response = api_post(endpoint=sms_relay_endpoint, json=request_body)
     database.session.commit()
-    response_dict = json.loads(response.text)
+    response_body = response.json()
 
     try:
         assert response.status_code == 200
-        assert response_dict["code"] == 201
-        assert crud.read(Referral, id=referral_id) is not None
+        assert response_body["code"] == 201
+        assert crud.read(ReferralOrm, id=referral_id) is not None
 
     finally:
-        crud.delete_by(Referral, id=referral_id)
+        crud.delete_by(ReferralOrm, id=referral_id)
 
 
 def test_create_readings_with_sms_relay(
@@ -88,47 +89,47 @@ def test_create_readings_with_sms_relay(
     patient_info,
 ):
     create_patient()
-    patient_id = patient_info["patientId"]
+    patient_id = patient_info["id"]
     reading_id = "65acfe28-b0d6-4a63-a484-eceb3277fb4e"
     referral_json = __make_reading(reading_id, patient_id)
 
     method = "POST"
     endpoint = "api/readings"
 
-    json_body = make_sms_relay_json(3, method, endpoint, body=referral_json)
+    request_body = make_sms_relay_json(3, method, endpoint, body=referral_json)
 
-    response = api_post(endpoint=sms_relay_endpoint, json=json_body)
+    response = api_post(endpoint=sms_relay_endpoint, json=request_body)
     database.session.commit()
-    response_dict = json.loads(response.text)
+    response_body = response.json()
 
     try:
         assert response.status_code == 200
-        assert response_dict["code"] == 201
-        assert crud.read(Reading, readingId=reading_id) is not None
+        assert response_body["code"] == 201
+        assert crud.read(ReadingOrm, id=reading_id) is not None
 
     finally:
-        crud.delete_by(Reading, readingId=reading_id)
+        crud.delete_by(ReadingOrm, id=reading_id)
 
 
 def test_update_patient_name_with_sms_relay(database, patient_factory, api_post):
     patient_id = "64164134515"
-    patient_factory.create(patientId=patient_id, patientName="AB")
+    patient_factory.create(id=patient_id, name="AB")
     new_patient_name = "CD"
 
-    patient_update_json = {"patientName": new_patient_name}
+    patient_update_json = {"name": new_patient_name}
 
     method = "PUT"
     endpoint = f"api/patients/{patient_id}/info"
 
-    json_body = make_sms_relay_json(4, method, endpoint, body=patient_update_json)
+    request_body = make_sms_relay_json(4, method, endpoint, body=patient_update_json)
 
-    response = api_post(endpoint=sms_relay_endpoint, json=json_body)
+    response = api_post(endpoint=sms_relay_endpoint, json=request_body)
     database.session.commit()
-    response_dict = json.loads(response.text)
+    response_body = response.json()
 
     assert response.status_code == 200
-    assert response_dict["code"] == 200
-    assert crud.read(Patient, patientId=patient_id).patientName == new_patient_name
+    assert response_body["code"] == 200
+    assert crud.read(PatientOrm, id=patient_id).name == new_patient_name
 
 
 def test_create_assessments_with_sms_relay(
@@ -138,25 +139,25 @@ def test_create_assessments_with_sms_relay(
     api_post,
 ):
     create_patient()
-    patient_id = patient_info["patientId"]
+    patient_id = patient_info["id"]
     assessment_json = __make_assessment(patient_id)
 
     method = "POST"
     endpoint = "api/assessments"
 
-    json_body = make_sms_relay_json(5, method, endpoint, body=assessment_json)
+    request_body = make_sms_relay_json(5, method, endpoint, body=assessment_json)
 
-    response = api_post(endpoint=sms_relay_endpoint, json=json_body)
+    response = api_post(endpoint=sms_relay_endpoint, json=request_body)
     database.session.commit()
 
-    followupInstructions = assessment_json["followupInstructions"]
-    response_dict = json.loads(response.text)
+    follow_up_instructions = assessment_json["follow_up_instructions"]
+    response_body = response.json()
 
     assert response.status_code == 200
-    assert response_dict["code"] == 201
+    assert response_body["code"] == 201
     assert (
-        crud.read(FollowUp, patientId=patient_id).followupInstructions
-        == followupInstructions
+        crud.read(AssessmentOrm, patient_id=patient_id).follow_up_instructions
+        == follow_up_instructions
     )
 
 
@@ -167,25 +168,28 @@ def test_update_assessments_with_sms_relay(
     api_post,
 ):
     patient_id = "64164134515"
-    patient_factory.create(patientId=patient_id, patientName="AB")
+    patient_factory.create(id=patient_id, name="AB")
 
     assessment_json = __make_assessment(patient_id)
-    followup_factory.create(patientId=patient_id)
-    assessment_id = crud.read(FollowUp, patientId=patient_id).id
+    followup_factory.create(patient_id=patient_id)
+    assessment_id = crud.read(AssessmentOrm, patient_id=patient_id).id
 
-    newInstructions = "II"
-    assessment_json["followupInstructions"] = newInstructions
+    new_instructions = "II"
+    assessment_json["follow_up_instructions"] = new_instructions
 
     method = "PUT"
     endpoint = f"api/assessments/{assessment_id}"
 
-    json_body = make_sms_relay_json(6, method, endpoint, body=assessment_json)
-    response = api_post(endpoint=sms_relay_endpoint, json=json_body)
+    request_body = make_sms_relay_json(6, method, endpoint, body=assessment_json)
+    response = api_post(endpoint=sms_relay_endpoint, json=request_body)
     database.session.commit()
-    response_dict = json.loads(response.text)
+    response_body = response.json()
     assert response.status_code == 200
-    assert response_dict["code"] == 200
-    assert crud.read(FollowUp, id=assessment_id).followupInstructions == newInstructions
+    assert response_body["code"] == 200
+    assert (
+        crud.read(AssessmentOrm, id=assessment_id).follow_up_instructions
+        == new_instructions
+    )
 
 
 def make_sms_relay_json(
@@ -195,15 +199,15 @@ def make_sms_relay_json(
     header: str = None,
     body: str = None,
 ) -> dict:
-    user = crud.read(User, id=1)
-    secretKey = crud.read(SmsSecretKey, userId=1)
-    # update for multiple phone numbers schema: each user is guaranteed to have atleast one phone number
-    phoneNumber = crud.read_all(
-        UserPhoneNumber,
+    user = crud.read(UserOrm, id=1)
+    secret_key = crud.read(SmsSecretKeyOrm, user_id=1)
+    # update for multiple phone numbers schema: each user is guaranteed to have at least one phone number
+    phone_number = crud.read_all(
+        UserPhoneNumberOrm,
         user_id=user.id,
     ).pop()  # just need one phone number that belongs to the user
 
-    data = {"requestNumber": request_number, "method": method, "endpoint": endpoint}
+    data = {"request_number": request_number, "method": method, "endpoint": endpoint}
 
     if header:
         data["header"] = header
@@ -214,16 +218,16 @@ def make_sms_relay_json(
 
     compressed_data = compressor.compress_from_string(json.dumps(data))
     iv = "00112233445566778899aabbccddeeff"
-    encrypted_data = encryptor.encrypt(compressed_data, iv, secretKey.secret_Key)
+    encrypted_data = encryptor.encrypt(compressed_data, iv, secret_key.secret_key)
 
-    return {"phoneNumber": phoneNumber.number, "encryptedData": encrypted_data}
+    return {"phone_number": phone_number.phone_number, "encrypted_data": encrypted_data}
 
 
 def get_sms_relay_response(response: requests.Response) -> dict:
-    secretKey = crud.read(SmsSecretKey, userId=1)
+    secret_key = crud.read(SmsSecretKeyOrm, user_id=1)
 
     response_dict = json.loads(response.text)
-    decrypted_data = encryptor.decrypt(response_dict["body"], secretKey.secret_Key)
+    decrypted_data = encryptor.decrypt(response_dict["body"], secret_key.secret_key)
     decoded_string = (
         gzip.GzipFile(fileobj=io.BytesIO(decrypted_data), mode="r").read().decode()
     )
@@ -235,13 +239,13 @@ def get_sms_relay_response(response: requests.Response) -> dict:
 
 def __make_patient(patient_id: str, reading_ids: List[str]) -> dict:
     return {
-        "patientId": patient_id,
-        "patientName": "TEST",
-        "patientSex": "FEMALE",
-        "isPregnant": False,
-        "dob": "2004-01-01",
-        "isExactDob": False,
-        "villageNumber": "1",
+        "id": patient_id,
+        "name": "TEST",
+        "sex": "FEMALE",
+        "is_pregnant": False,
+        "date_of_birth": "2004-01-01",
+        "is_exact_date_of_birth": False,
+        "village_number": "1",
         "zone": "1",
         "readings": [__make_reading(r, patient_id) for r in reading_ids],
     }
@@ -249,14 +253,14 @@ def __make_patient(patient_id: str, reading_ids: List[str]) -> dict:
 
 def __make_reading(reading_id: str, patient_id: str) -> dict:
     return {
-        "readingId": reading_id,
-        "bpSystolic": 99,
-        "bpDiastolic": 80,
-        "heartRateBPM": 70,
+        "id": reading_id,
+        "systolic_blood_pressure": 99,
+        "diastolic_blood_pressure": 80,
+        "heart_rate": 70,
         "symptoms": ["a", "b", "c"],
-        "dateTimeTaken": 100,
-        "userId": 1,
-        "patientId": patient_id,
+        "date_taken": 100,
+        "user_id": 1,
+        "patient_id": patient_id,
     }
 
 
@@ -264,18 +268,18 @@ def __make_referral(referral_id: str, patient_id: str) -> dict:
     return {
         "id": referral_id,
         "comment": "here is a comment",
-        "patientId": patient_id,
-        "referralHealthFacilityName": "H0000",
+        "patient_id": patient_id,
+        "health_facility_name": "H0000",
     }
 
 
 def __make_assessment(patient_id: str) -> dict:
     return {
-        "patientId": patient_id,
+        "patient_id": patient_id,
         "diagnosis": "D",
         "treatment": "T",
-        "medicationPrescribed": "M",
-        "specialInvestigations": "S",
-        "followupInstructions": "I",
-        "followupNeeded": True,
+        "medication_prescribed": "M",
+        "special_investigations": "S",
+        "follow_up_instructions": "I",
+        "follow_up_needed": True,
     }

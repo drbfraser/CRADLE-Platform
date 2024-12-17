@@ -11,7 +11,7 @@ import { useAppSelector } from 'src/shared/hooks';
 export const LoginPage: React.FC = () => {
   // if the user has reached the login page, they likely came directly here
   // therefore Redux will be empty and we must check local storage for a token
-  if (localStorage.getItem('token') !== null) {
+  if (localStorage.getItem('accessToken') !== null) {
     return <Navigate to={'/referrals'} replace />;
   }
 

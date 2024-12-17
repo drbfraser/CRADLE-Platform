@@ -4,6 +4,7 @@ import { createTheme } from '@mui/material/styles';
 import type {} from '@mui/x-data-grid/themeAugmentation';
 
 export const theme = createTheme({
+  colorSchemes: { light: true, dark: false },
   components: {
     MuiButton: {
       styleOverrides: {
@@ -21,8 +22,5 @@ export const theme = createTheme({
     secondary: {
       main: cyan[500],
     },
-  },
-  colorSchemes: {
-    light: true,
   },
 });

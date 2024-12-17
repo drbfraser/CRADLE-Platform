@@ -3,20 +3,20 @@ import {
   getUserStatisticsAsync,
   getUserStatisticsExportAsync,
   getUsersAsync,
-} from 'src/shared/api';
+} from 'src/shared/api/api';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import { ExportStatistics } from './utils/ExportStatistics';
 import FormControl from '@mui/material/FormControl';
-import { IUser } from 'src/shared/types';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import { StatisticDashboard } from './utils/StatisticsInfo';
 import Typography from '@mui/material/Typography';
 import { useEffect } from 'react';
 import { DIVIDER_SX, STATS_PAGE_SX } from './utils/statisticStyles';
+import { User } from 'src/shared/api/validation/user';
 
 type Props = {
   from: number;
@@ -24,7 +24,7 @@ type Props = {
 };
 
 export const UserStatistics = ({ from, to }: Props) => {
-  const [users, setUsers] = useState<IUser[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [user, setUser] = useState('');
   const [errorLoading, setErrorLoading] = useState(false);
 
@@ -80,8 +80,8 @@ export const UserStatistics = ({ from, to }: Props) => {
             }}>
             <Select variant="standard" value={user} onChange={handleChange}>
               {users.map((user, idx) => (
-                <MenuItem value={user.userId} key={idx}>
-                  {`${user.firstName} (${user.email})`}
+                <MenuItem value={user.id} key={idx}>
+                  {`${user.name} (${user.email})`}
                 </MenuItem>
               ))}
             </Select>

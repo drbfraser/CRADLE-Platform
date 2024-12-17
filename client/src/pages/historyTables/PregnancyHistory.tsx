@@ -10,10 +10,9 @@ import {
 } from 'src/shared/components/DataTable/DataTable';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-  API_URL,
   deletePregnancyAsync,
   getPatientPregnanciesAsync,
-} from 'src/shared/api';
+} from 'src/shared/api/api';
 import { useCallback, useEffect, useState } from 'react';
 import { Pregnancy } from 'src/shared/types';
 import {
@@ -60,7 +59,7 @@ export const PregnancyHistory = () => {
   const updateRowData = (pregnancies: Pregnancy[]) => {
     setRows(
       pregnancies.map((pregnancy) => ({
-        id: pregnancy.pregnancyId,
+        id: pregnancy.id,
         startDate: getPrettyDate(pregnancy.startDate),
         endDate: pregnancy.endDate
           ? getPrettyDate(pregnancy.endDate)
@@ -89,11 +88,9 @@ export const PregnancyHistory = () => {
           Icon: CreateIcon,
           onClick: () => {
             if (!pregnancy || !patientId) return;
-            const { pregnancyId } = pregnancy;
+            const { id } = pregnancy;
             // Navigate to edit page.
-            navigate(
-              `${API_URL}/patients/${patientId}/edit/pregnancyInfo/${pregnancyId}`
-            );
+            navigate(`/patients/${patientId}/edit/pregnancyInfo/${id}`);
           },
         },
         {
@@ -111,13 +108,12 @@ export const PregnancyHistory = () => {
               }
             );
             if (confirmed) {
-              const response = await deletePregnancyAsync(pregnancy);
-              if (response.ok) {
+              try {
+                await deletePregnancyAsync(pregnancy);
                 await dialogs.alert('Pregnancy successfully deleted.');
-              } else {
-                const responseBody = await response.json();
+              } catch (e) {
                 await dialogs.alert(
-                  `Error: Pregnancy could not be deleted.\n${responseBody}`
+                  `Error: Pregnancy could not be deleted.\n${e}`
                 );
               }
             }

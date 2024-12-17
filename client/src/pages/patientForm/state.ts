@@ -8,7 +8,7 @@ import {
   getMedicalRecordAsync,
   getPatientPregnancyInfoAsync,
   getPregnancyAsync,
-} from 'src/shared/api';
+} from 'src/shared/api/api';
 
 import { FormikProps } from 'formik';
 import { GestationalAgeUnitEnum } from 'src/shared/enums';
@@ -26,15 +26,15 @@ export const gestationalAgeUnitOptions = [
 ];
 
 export enum PatientField {
-  patientId = 'patientId',
-  patientName = 'patientName',
+  patientId = 'id',
+  patientName = 'name',
   householdNumber = 'householdNumber',
-  isExactDob = 'isExactDob',
-  dob = 'dob',
+  isExactDateOfBirth = 'isExactDateOfBirth',
+  dateOfBirth = 'dateOfBirth',
   estimatedAge = 'estimatedAge',
   zone = 'zone',
   villageNumber = 'villageNumber',
-  patientSex = 'patientSex',
+  patientSex = 'sex',
   isPregnant = 'isPregnant',
   gestationalAgeDays = 'gestationalAgeDays',
   gestationalAgeWeeks = 'gestationalAgeWeeks',
@@ -51,8 +51,8 @@ export const initialState = {
   [PatientField.patientId]: '',
   [PatientField.patientName]: '',
   [PatientField.householdNumber]: '',
-  [PatientField.isExactDob]: true,
-  [PatientField.dob]: '',
+  [PatientField.isExactDateOfBirth]: true,
+  [PatientField.dateOfBirth]: '',
   [PatientField.estimatedAge]: '',
   [PatientField.zone]: '',
   [PatientField.villageNumber]: '',
@@ -100,11 +100,13 @@ export const getPatientState = async (
     [PatientField.patientId]: data.patientId,
     [PatientField.patientName]: data.patientName,
     [PatientField.householdNumber]: data.householdNumber,
-    [PatientField.isExactDob]: Boolean(data.isExactDob),
-    [PatientField.dob]: data.isExactDob ? data.dob : initialState.dob,
-    [PatientField.estimatedAge]: data.isExactDob
+    [PatientField.isExactDateOfBirth]: Boolean(data.isExactDateOfBirth),
+    [PatientField.dateOfBirth]: data.isExactDateOfBirth
+      ? data.dateOfBirth
+      : initialState.dateOfBirth,
+    [PatientField.estimatedAge]: data.isExactDateOfBirth
       ? initialState.estimatedAge
-      : String(getAgeBasedOnDOB(data.dob)),
+      : String(getAgeBasedOnDOB(data.dateOfBirth)),
     [PatientField.zone]: data.zone,
     [PatientField.villageNumber]: data.villageNumber,
     [PatientField.patientSex]: data.patientSex,

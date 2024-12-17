@@ -1,6 +1,6 @@
 from typing import List, Tuple
 
-from models import Patient, User
+from models import PatientOrm, UserOrm
 from service.assoc import (
     has_association,
     patients_at_facility,
@@ -8,7 +8,7 @@ from service.assoc import (
 )
 
 
-def patients_for_hcw(user: User) -> List[Patient]:
+def patients_for_hcw(user: UserOrm) -> List[PatientOrm]:
     """
     Returns the list of patients that are associated with a health care worker.
 
@@ -19,11 +19,11 @@ def patients_for_hcw(user: User) -> List[Patient]:
     :param user: A HCW user model
     :return: A list of patients
     """
-    facility = user.healthFacility
+    facility = user.health_facility
     return patients_at_facility(facility)
 
 
-def patients_for_cho(user: User) -> List[Patient]:
+def patients_for_cho(user: UserOrm) -> List[PatientOrm]:
     """
     Returns the list of patients that are associated with a CHO.
 
@@ -31,11 +31,11 @@ def patients_for_cho(user: User) -> List[Patient]:
     :return: A list of patients
     """
     cho_patients = patients_for_user(user)
-    vht_patients = [u for vht in user.vhtList for u in patients_for_user(vht)]
+    vht_patients = [u for vht in user.vht_list for u in patients_for_user(vht)]
     return cho_patients + vht_patients
 
 
-def patients_for_vht(user: User) -> List[Patient]:
+def patients_for_vht(user: UserOrm) -> List[PatientOrm]:
     """
     Returns the list of patients that are associated with a VHT.
 
@@ -49,9 +49,9 @@ def patients_for_vht(user: User) -> List[Patient]:
 
 
 def annotated_global_patient_list(
-    user: User,
+    user: UserOrm,
     search: str,
-) -> List[Tuple[Patient, bool]]:
+) -> List[Tuple[PatientOrm, bool]]:
     """
     Returns the global list of patients where each patient is paired with a boolean that
     is True if the patient is a member of the user's health facility and False if not.
@@ -64,11 +64,11 @@ def annotated_global_patient_list(
     def __normalized_search(query: str, value: str) -> bool:
         return query.upper() in value.upper()
 
-    facility = user.healthFacility
-    all_patients = Patient.query.all()
+    facility = user.health_facility
+    all_patients = PatientOrm.query.all()
     return [
         (patient, has_association(patient=patient, facility=facility))
         for patient in all_patients
-        if __normalized_search(search, patient.patientId)
-        or __normalized_search(search, patient.patientName)
+        if __normalized_search(search, patient.id)
+        or __normalized_search(search, patient.name)
     ]

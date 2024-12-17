@@ -8,7 +8,7 @@ import {
   Tooltip,
 } from 'chart.js';
 import React, { useEffect, useState } from 'react';
-import { initialColorReading, initialStatsData } from '.';
+import { initialStatsData } from '.';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Bar } from 'react-chartjs-2';
@@ -18,6 +18,10 @@ import { trafficLightColors } from 'src/shared/constants';
 import { StatisticCard } from './StatisticCard';
 import { Box, Typography } from '@mui/material';
 import { StatisticGroup } from './StatisticGroup';
+import {
+  StatsData,
+  statsDataSchema,
+} from 'src/shared/api/validation/statistics';
 
 Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -26,8 +30,7 @@ interface IProps {
 }
 
 export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
-  const [data, setData] = useState(initialStatsData);
-  const [colorReading, setColorReading] = useState(initialColorReading);
+  const [data, setData] = useState<StatsData>(initialStatsData);
   const [loaded, setLoaded] = useState(false);
   const [errorLoading, setErrorLoading] = useState(false);
 
@@ -36,12 +39,12 @@ export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
     const loadData = async () => {
       try {
         const data = await getData();
+        const statsData = await statsDataSchema.parseAsync(data);
 
-        setData(data);
-        setColorReading(data.color_readings);
-
+        setData(statsData);
         setLoaded(true);
       } catch (e) {
+        console.error(e);
         setErrorLoading(true);
       }
     };
@@ -55,11 +58,11 @@ export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
       {
         label: 'Traffic Light',
         data: [
-          colorReading[TrafficLightEnum.GREEN],
-          colorReading[TrafficLightEnum.YELLOW_UP],
-          colorReading[TrafficLightEnum.YELLOW_DOWN],
-          colorReading[TrafficLightEnum.RED_UP],
-          colorReading[TrafficLightEnum.RED_DOWN],
+          data.colorReadings.green,
+          data.colorReadings.yellowUp,
+          data.colorReadings.yellowDown,
+          data.colorReadings.redUp,
+          data.colorReadings.redDown,
         ],
         backgroundColor: [
           trafficLightColors[TrafficLightEnum.GREEN],
@@ -99,23 +102,23 @@ export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
             {[
               {
                 label: 'Days with Readings',
-                value: data.days_with_readings,
+                value: data.daysWithReadings,
               },
               {
                 label: 'Unique Patient Readings',
-                value: data.unique_patient_readings,
+                value: data.uniquePatientReadings,
               },
               {
                 label: 'Total Readings',
-                value: data.total_readings,
+                value: data.totalReadings,
               },
               {
                 label: 'Patients Referred',
-                value: data.patients_referred,
+                value: data.patientsReferred,
               },
               {
                 label: 'Referrals Sent',
-                value: data.sent_referrals,
+                value: data.sentReferrals,
               },
             ].map(
               (stat, i) =>

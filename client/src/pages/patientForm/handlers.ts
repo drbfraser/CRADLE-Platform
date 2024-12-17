@@ -1,4 +1,4 @@
-import { apiFetch, API_URL } from 'src/shared/api';
+import { API_URL, axiosFetch } from 'src/shared/api/api';
 import {
   EndpointEnum,
   GestationalAgeUnitEnum,
@@ -11,6 +11,7 @@ import {
   gestationalAgeUnitTimestampWithEndDate,
 } from 'src/shared/constants';
 import { NavigateFunction } from 'react-router-dom';
+import { AxiosError } from 'axios';
 
 export const handleChangeCustom = (handleChange: any, setFieldValue: any) => {
   const resetGestational = () => {
@@ -44,36 +45,41 @@ export const handleSubmit = async (
   creatingNew: boolean,
   navigate: NavigateFunction,
   setSubmitError: React.Dispatch<React.SetStateAction<any>>,
-  setSubmitting: React.Dispatch<React.SetStateAction<any>>
+  setSubmitting: React.Dispatch<React.SetStateAction<any>>,
+  setErrorMessage: (message: string) => void
 ) => {
   setSubmitting(true);
 
-  const submitValues = {
-    patientId: values[PatientField.patientId],
-    patientName: values[PatientField.patientName],
+  const patientData = {
+    id: values[PatientField.patientId],
+    name: values[PatientField.patientName],
     householdNumber: values[PatientField.householdNumber],
-    isExactDob: Boolean(values[PatientField.isExactDob]),
-    dob: values[PatientField.dob],
+    isExactDateOfBirth: Boolean(values[PatientField.isExactDateOfBirth]),
+    dateOfBirth: values[PatientField.dateOfBirth],
     zone: values[PatientField.zone],
     villageNumber: values[PatientField.villageNumber],
-    patientSex: values[PatientField.patientSex],
-    isPregnant: Boolean(values[PatientField.isPregnant]),
-    gestationalAgeUnit: values[PatientField.gestationalAgeUnit],
-    pregnancyStartDate: 0,
+    sex: values[PatientField.patientSex],
     drugHistory: values[PatientField.drugHistory],
     medicalHistory: values[PatientField.medicalHistory],
     allergy: values[PatientField.allergy],
   };
 
-  if (!submitValues.isExactDob) {
-    submitValues.dob = getDOBForEstimatedAge(
+  /* Separate the pregnancy data from the patient data so that we can
+  create the pregnancy record in a separate request to the server. */
+  const pregnancyData = {
+    isPregnant: Boolean(values[PatientField.isPregnant]),
+    startDate: 0,
+  };
+
+  if (!patientData.isExactDateOfBirth) {
+    patientData.dateOfBirth = getDOBForEstimatedAge(
       parseInt(values[PatientField.estimatedAge])
     );
   }
 
-  if (submitValues.isPregnant) {
-    submitValues.pregnancyStartDate =
-      submitValues.gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS
+  if (pregnancyData.isPregnant) {
+    pregnancyData.startDate =
+      values.gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS
         ? gestationalAgeUnitTimestamp[GestationalAgeUnitEnum.WEEKS](
             values.gestationalAgeWeeks,
             values.gestationalAgeDays
@@ -81,10 +87,8 @@ export const handleSubmit = async (
         : gestationalAgeUnitTimestamp[GestationalAgeUnitEnum.MONTHS](
             values.gestationalAgeMonths
           );
-  }
 
-  if (!submitValues.gestationalAgeUnit) {
-    submitValues.gestationalAgeUnit = GestationalAgeUnitEnum.WEEKS;
+    pregnancyData.startDate = Math.round(pregnancyData.startDate);
   }
 
   let method = 'POST';
@@ -95,15 +99,63 @@ export const handleSubmit = async (
     url += '/' + values[PatientField.patientId] + EndpointEnum.PATIENT_INFO;
   }
 
-  await handleApiFetch(
-    url,
-    method,
-    submitValues,
-    creatingNew,
-    navigate,
-    setSubmitError,
-    setSubmitting
-  );
+  let patientId = '';
+  try {
+    // Submit Patient data.
+    const response = await axiosFetch(url, {
+      method: method,
+      data: patientData,
+    });
+    const { id } = response.data;
+    patientId = id;
+  } catch (e) {
+    setSubmitError(true);
+    setSubmitting(false);
+    if (!(e instanceof AxiosError)) {
+      console.error(e);
+      throw e;
+    }
+    const responseBody = e.response?.data;
+    if (responseBody && 'message' in responseBody) {
+      console.error('Creating patient failed.');
+      console.error(responseBody.message);
+      setErrorMessage(responseBody.message);
+      return;
+    }
+  }
+
+  const patientPageUrl = `/patients/${patientId}`;
+  // If no pregnancy data to submit, navigate to the patient summary page.
+  if (!pregnancyData.isPregnant) {
+    navigate(patientPageUrl);
+    return;
+  }
+
+  try {
+    url = API_URL + EndpointEnum.PATIENTS + `/${patientId}/pregnancies`;
+    method = 'POST';
+    await axiosFetch(url, {
+      method: method,
+      data: {
+        startDate: pregnancyData.startDate,
+      },
+    });
+  } catch (e) {
+    setSubmitError(true);
+    setSubmitting(false);
+    if (!(e instanceof AxiosError)) {
+      console.error(e);
+      throw e;
+    }
+    const responseBody = e.response?.data;
+    if (responseBody && 'message' in responseBody) {
+      console.error('Creating pregnancy failed.');
+      console.error(responseBody.message);
+      setErrorMessage(responseBody.message);
+    }
+  }
+
+  navigate(patientPageUrl);
 };
 
 export const handlePregnancyInfo = async (
@@ -252,13 +304,12 @@ const handleApiFetch = async (
   setSubmitting: React.Dispatch<React.SetStateAction<any>>,
   setErrorMessage?: React.Dispatch<React.SetStateAction<string>>
 ) => {
-  apiFetch(url, {
+  axiosFetch(url, {
     method: method,
-    body: JSON.stringify(submitValues),
+    data: submitValues,
   })
-    .then((resp) => resp.json())
-    .then((respJson) => {
-      const patientPageUrl = '/patients/' + respJson['patientId'];
+    .then((resp) => {
+      const patientPageUrl = '/patients/' + resp.data['patientId'];
       if (creatingNew) {
         navigate(patientPageUrl, { replace: true });
       } else {

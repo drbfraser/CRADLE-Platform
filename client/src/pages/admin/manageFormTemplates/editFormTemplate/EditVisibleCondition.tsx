@@ -44,7 +44,7 @@ const EditVisibleCondition = ({
       ? '' +
           filteredQs.indexOf(
             filteredQs.find((q) => {
-              return q.questionIndex === currVisCond.qidx;
+              return q.questionIndex === currVisCond.questionIndex;
             }) ?? filteredQs[0]
           )
       : '0'
@@ -93,8 +93,8 @@ const EditVisibleCondition = ({
       if (
         (selectedAnswer.comment !== undefined &&
           selectedAnswer.comment !== null) ||
-        (selectedAnswer.mcidArray !== undefined &&
-          selectedAnswer.mcidArray !== null) ||
+        (selectedAnswer.mcIdArray !== undefined &&
+          selectedAnswer.mcIdArray !== null) ||
         (selectedAnswer.number !== undefined &&
           selectedAnswer.number !== null) ||
         (selectedAnswer.text !== undefined && selectedAnswer.text !== null)
@@ -105,7 +105,7 @@ const EditVisibleCondition = ({
       }
       setVisibleCondition([
         {
-          qidx: filteredQs[+selectedQIndex].questionIndex,
+          questionIndex: filteredQs[+selectedQIndex].questionIndex,
           relation: selectedConditional,
           answers: selectedAnswer,
         },
@@ -198,20 +198,20 @@ const EditVisibleCondition = ({
                     filteredQs[+selectedQIndex].questionLangVersions[0].lang,
                   handleAnswers: (answers) => {
                     const answer = answers[0];
-                    switch (answer.anstype) {
+                    switch (answer.answerType) {
                       case AnswerTypeEnum.TEXT:
                         setSelectedAnswer({ text: answer.val });
                         break;
                       case AnswerTypeEnum.NUM:
                         setSelectedAnswer({ number: answer.val });
                         break;
-                      case AnswerTypeEnum.MCID_ARRAY:
+                      case AnswerTypeEnum.MC_ID_ARRAY:
                         filteredQs[
                           +selectedQIndex
                         ].questionLangVersions[0].mcOptions.forEach(
                           (option) => {
                             if (option.opt == answer.val) {
-                              setSelectedAnswer({ mcidArray: [option.mcid] });
+                              setSelectedAnswer({ mcIdArray: [option.mcId] });
                             }
                           }
                         );

@@ -1,22 +1,16 @@
-import { Box, Button, Container, SxProps } from '@mui/material';
-import { AuthProvider, AuthResponse, SignInPage } from '@toolpad/core';
+import { Box, Container, Typography, TextField, Button } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { ReduxState } from 'src/redux/reducers';
 import { Toast } from 'src/shared/components/toast';
 import { useAppDispatch } from 'src/shared/hooks';
 import { OrNull } from 'src/shared/types';
 import {
-  LoginData,
   clearCurrentUserError,
   loginUser,
 } from 'src/redux/reducers/user/currentUser';
 import { useNavigate } from 'react-router-dom';
-import { useAuth0 } from '@auth0/auth0-react';
 import { DASHBOARD_PADDING } from 'src/shared/constants';
-
-const AUTH_PROVIDERS: AuthProvider[] = [
-  { id: 'credentials', name: 'Email and Password' },
-];
+import { Form, Formik } from 'formik';
 
 export const Login = () => {
   const errorMessage = useSelector(
@@ -29,24 +23,6 @@ export const Login = () => {
   };
 
   const navigate = useNavigate();
-
-  const signIn = async (provider: AuthProvider, formData?: any) => {
-    return new Promise<AuthResponse>((resolve) => {
-      if (provider.id == 'credentials') {
-        const loginData: LoginData = {
-          email: formData?.get('email') ?? '',
-          password: formData?.get('password') ?? '',
-        };
-        dispatch(loginUser(loginData, navigate));
-        resolve({
-          type: 'CredentialsSignin',
-        });
-      }
-      resolve({
-        type: provider.id,
-      });
-    });
-  };
 
   return (
     <>
@@ -81,80 +57,85 @@ export const Login = () => {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            '@media (min-height: 500px)': {
+            '@media (max-height: 500px)': {
               transform: 'scale(0.75)',
             },
-            '& .MuiContainer-root': {
-              width: '333px',
-              margin: '0px',
-              padding: '0px',
-            },
-            '& .MuiBox-root': {
-              margin: '0px',
-              padding: '0px',
-            },
-            // Hide the "Remember me" check box.
-            '& .MuiFormControlLabel-root': {
-              border: 'solid',
-              borderColor: 'red',
-              borderWidth: '2px',
-              display: 'none',
-            },
           }}>
-          <SignInPage providers={AUTH_PROVIDERS} signIn={signIn} />
+          <Container
+            sx={{
+              width: '350px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}>
+            <Typography
+              variant={'h4'}
+              component={'h4'}
+              fontWeight={'bold'}
+              sx={{ marginY: '0.5rem' }}>
+              Log in
+            </Typography>
+            <Formik
+              initialValues={{
+                username: '',
+                password: '',
+              }}
+              onSubmit={({ username, password }) => {
+                dispatch(loginUser({ username, password }, navigate));
+              }}>
+              {(formikProps) => (
+                <Form onSubmit={formikProps.handleSubmit}>
+                  <Container
+                    sx={{
+                      width: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                    }}>
+                    <TextField
+                      name={'username'}
+                      variant={'filled'}
+                      label={'Username / Email'}
+                      id={'username-field'}
+                      required
+                      fullWidth
+                      onBlur={formikProps.handleBlur}
+                      onChange={formikProps.handleChange}
+                      value={formikProps.values.username}
+                      InputLabelProps={{ shrink: true }}
+                    />
+                    <TextField
+                      name={'password'}
+                      variant={'filled'}
+                      label={'Password'}
+                      id={'password-field'}
+                      required
+                      type={'password'}
+                      fullWidth
+                      onBlur={formikProps.handleBlur}
+                      onChange={formikProps.handleChange}
+                      value={formikProps.values.password}
+                      InputLabelProps={{ shrink: true }}
+                    />
+                    <Button
+                      variant={'contained'}
+                      fullWidth
+                      disabled={formikProps.isSubmitting}
+                      type={'submit'}
+                      size={'large'}
+                      sx={{
+                        fontSize: 'large',
+                      }}>
+                      Log in
+                    </Button>
+                  </Container>
+                </Form>
+              )}
+            </Formik>
+          </Container>
         </Container>
       </Box>
     </>
-  );
-};
-
-const LOGIN_CALLBACK_ROUTE = '/loginCallback';
-const LOGIN_BUTTON_SX: SxProps = {
-  width: '100%',
-  marginY: '8px',
-  fontSize: 'large',
-};
-
-// For Auth0:
-export const LoginButton = () => {
-  const { loginWithRedirect } = useAuth0();
-  const handleLogin = async () => {
-    await loginWithRedirect({
-      appState: {
-        returnTo: LOGIN_CALLBACK_ROUTE,
-      },
-    });
-  };
-  return (
-    <Button
-      sx={LOGIN_BUTTON_SX}
-      variant={'contained'}
-      size={'large'}
-      onClick={handleLogin}>
-      Log In
-    </Button>
-  );
-};
-
-export const SignUpButton = () => {
-  const { loginWithRedirect } = useAuth0();
-  const handleSignUp = async () => {
-    await loginWithRedirect({
-      appState: {
-        returnTo: LOGIN_CALLBACK_ROUTE,
-      },
-      authorizationParams: {
-        screen_hint: 'signup',
-      },
-    });
-  };
-  return (
-    <Button
-      sx={LOGIN_BUTTON_SX}
-      variant={'contained'}
-      size={'large'}
-      onClick={handleSignUp}>
-      Sign Up
-    </Button>
   );
 };

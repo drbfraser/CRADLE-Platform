@@ -5,12 +5,9 @@ from pydantic import BaseModel, ValidationError
 from validation.validation_exception import ValidationExceptionError
 
 
-class FormClassificationValidator(BaseModel):
+class FormClassificationValidator(BaseModel, extra="forbid"):
     name: str
     id: Optional[str] = None
-
-    class Config:
-        extra = "forbid"
 
     @staticmethod
     def validate(request_body: dict):

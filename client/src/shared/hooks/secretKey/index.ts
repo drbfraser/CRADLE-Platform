@@ -5,18 +5,18 @@ import {
   getSecretKeyAsync,
   getUsersAsync,
   updateSecretKeyAsync,
-} from 'src/shared/api';
+} from 'src/shared/api/api';
 import { UserRoleEnum } from 'src/shared/enums';
 import {
-  IUser,
-  IUserWithIndex,
-  IUserWithTokens,
+  UserWithIndex,
+  UserWithToken,
   OrNull,
   SecretKey,
 } from 'src/shared/types';
+import { User } from 'src/shared/api/validation/user';
 
 type UseSecretKeyReturn = {
-  users: Pick<IUserWithIndex, 'email' | 'index' | 'userId'>[];
+  users: Pick<UserWithIndex, 'email' | 'index' | 'id'>[];
   role?: UserRoleEnum;
   currentSecretKey?: SecretKey;
   focusUserId?: number;
@@ -26,19 +26,19 @@ type UseSecretKeyReturn = {
 
 export const useSecretKey = (
   secretKey: SecretKeyState,
-  userData: OrNull<Pick<IUserWithTokens, 'role' | 'userId'>>,
+  userData: OrNull<Pick<UserWithToken, 'role' | 'id'>>,
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>,
   setUpdateMessage: React.Dispatch<React.SetStateAction<boolean>>
 ): UseSecretKeyReturn => {
   const dispatch = useAppDispatch();
   const [focusUserId, setFocusUserId] = useState<number | undefined>(
-    userData?.userId
+    userData?.id
   );
   const [currentSecretKey, setCurrentSecretKey] = useState<
     SecretKey | undefined
   >(secretKey.data);
   const [users, setUsers] = useState<
-    Pick<IUserWithIndex, 'email' | 'index' | 'userId'>[]
+    Pick<UserWithIndex, 'email' | 'index' | 'id'>[]
   >([]);
 
   useEffect(() => {
@@ -52,11 +52,11 @@ export const useSecretKey = (
     if (users.length > 0) {
       return;
     }
-    const resp: IUser[] = await getUsersAsync();
+    const resp: User[] = await getUsersAsync();
     setUsers(
       resp.map((user, index) => ({
         email: user.email,
-        userId: user.userId,
+        id: user.id,
         index,
       }))
     );
@@ -85,7 +85,7 @@ export const useSecretKey = (
   };
 
   const updateSecretKey = useCallback(async () => {
-    if (userData && userData.userId === focusUserId) {
+    if (userData && userData.id === focusUserId) {
       const response = await updateSecretKeyAsync(focusUserId);
       setCurrentSecretKey({ ...response });
       return;

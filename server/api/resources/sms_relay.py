@@ -3,17 +3,10 @@ import json
 import requests
 from flasgger import swag_from
 from flask import Response, jsonify, make_response, request
-from flask_jwt_extended import jwt_required
 from flask_restful import Resource, abort
 
-from api.resources.users import get_access_token, get_user_data_for_token
-from api.util import (
-    get_user_from_phone_number,
-    get_user_secret_key_string,
-    phoneNumber_exists,
-)
-from common.regexUtil import phoneNumber_regex_check as regex_check
-from models import User
+from common import api_utils, phone_number_utils, user_utils
+from models import UserOrm
 from service import compressor, encryptor
 from validation.sms_relay import SmsRelayDecryptedBodyValidator, SmsRelayValidator
 from validation.validation_exception import ValidationExceptionError
@@ -29,9 +22,8 @@ corrupted_message = (
 )
 
 invalid_message = (
-    "Unable to verify message from ({phoneNumber}). "
-    "Either the phone number is not associated with a user, "
-    "or the App and server don't agree on the security key, "
+    "Unable to verify message from ({phone_number}). "
+    "Either the App and server don't agree on the security key "
     "or the message was corrupted. Retry the action or resync "
     "with the server using an internet connection (WiFi, 3G, …) "
 )
@@ -41,7 +33,7 @@ invalid_user = "User does not exist"
 null_phone_number = "No phone number was provided"
 
 invalid_phone_number = (
-    "Phone number {phoneNumber} has wrong format. The format for phone number should be +x-xxx-xxx-xxxx, "
+    "Phone number {phone_number} has wrong format. The format for phone number should be +x-xxx-xxx-xxxx, "
     "+x-xxx-xxx-xxxxx, xxx-xxx-xxxx or xxx-xxx-xxxxx"
 )
 
@@ -53,7 +45,7 @@ error_req_range = "Must be between 0-999999"
 
 invalid_method = "Invalid Method; Must be either GET, POST, HEAD, PUT, DELETE, or PATCH"
 
-phone_number_not_exists = "The phone number provided does not belong any users"
+phone_number_not_exists = "The phone number provided does not belong to any users"
 
 
 def send_request_to_endpoint(
@@ -61,11 +53,10 @@ def send_request_to_endpoint(
     endpoint: str,
     header: dict,
     body: str,
-    user: User,
+    user: UserOrm,
 ) -> requests.Response:
-    data = get_user_data_for_token(user)
-    token = get_access_token(data)
-    header["Authorization"] = f"Bearer {token}"
+    access_token = request.authorization.token
+    header["Authorization"] = f"Bearer {access_token}"
     return requests.request(
         method=method,
         url=api_url.format(endpoint=endpoint),
@@ -96,48 +87,45 @@ iv_size = 32
 
 
 def sms_relay_procedure():
-    json_request = request.get_json(force=True)
+    request_body = api_utils.get_request_body()
 
     try:
-        sms_relay_pydantic_model = SmsRelayValidator.validate_request(json_request)
+        sms_relay_pydantic_model = SmsRelayValidator.validate_request(request_body)
     except ValidationExceptionError:
         abort(400, message=corrupted_message.format(type="JSON"))
+        return None
 
     sms_relay_model_dump = sms_relay_pydantic_model.model_dump()
-    phone_number = sms_relay_model_dump["phoneNumber"]
+    phone_number = sms_relay_model_dump["phone_number"]
 
-    if not phone_number:
-        abort(400, message=null_phone_number)
-
-    if not regex_check(phone_number):
-        abort(400, message=invalid_phone_number.format(phoneNumber=phone_number))
-
-    user_exists = phoneNumber_exists(phone_number)
+    user_exists = phone_number_utils.does_phone_number_exist(phone_number)
 
     if not user_exists:
         abort(400, message=phone_number_not_exists.format(type="JSON"))
+        return None
 
-    # get user id for the user that phoneNumber belongs to
-    user = get_user_from_phone_number(phone_number)
+    # Get user id for the user that phone_number belongs to
+    user = user_utils.get_user_orm_from_phone_number(phone_number)
 
-    if not user:
+    if user is None:
         abort(400, message=invalid_user.format(type="JSON"))
+        return None
 
-    encrypted_data = sms_relay_model_dump["encryptedData"]
+    encrypted_data = sms_relay_model_dump["encrypted_data"]
+
+    user_secret_key = user_utils.get_user_sms_secret_key_string(user.id)
+    if user_secret_key is None:
+        abort(400, message="Could not retrieve user's sms secret key.")
+        return None
 
     try:
-        user_secret_key = get_user_secret_key_string(user.id)
-
         decrypted_message = encryptor.decrypt(encrypted_data, user_secret_key)
-
         decrypted_data = compressor.decompress(decrypted_message)
-
         string_data = decrypted_data.decode("utf-8")
-
         json_dict_data = json.loads(string_data)
-
     except Exception:
-        error_message = str(invalid_message.format(phoneNumber=phone_number))
+        error_message = str(invalid_message.format(phone_number=phone_number))
+        print(error_message)
         abort(401, message=error_message)
 
     try:
@@ -154,7 +142,7 @@ def sms_relay_procedure():
 
     sms_relay_decrypted_model_dump = sms_relay_decrypted_pydantic_model.model_dump()
 
-    request_number = sms_relay_decrypted_model_dump["requestNumber"]
+    request_number = sms_relay_decrypted_model_dump["request_number"]
     request_number = int(request_number)
     if (
         not isinstance(request_number, int)
@@ -198,7 +186,6 @@ def sms_relay_procedure():
 # /api/sms_relay
 class Root(Resource):
     @staticmethod
-    @jwt_required()
     @swag_from(
         "../../specifications/sms-relay-post.yaml",
         methods=["POST"],

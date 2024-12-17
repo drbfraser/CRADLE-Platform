@@ -1,29 +1,51 @@
 import datetime
 import json
-import os
 import random
 import string
 import time
-import uuid
-from random import choice, randint, randrange
-from string import ascii_lowercase, digits
+from random import randint, randrange
 
 import click
 import numpy as np
 from flask.cli import FlaskGroup
 
 import models
-from api.util import create_secret_key_for_user
-from config import app, flask_bcrypt
 from data import crud, marshal
-from enums import RoleEnum
-from models import db
+from models import (
+    FormClassificationOrm,
+    FormOrm,
+    FormTemplateOrm,
+    MedicalRecordOrm,
+    PatientAssociationsOrm,
+    PatientOrm,
+    PregnancyOrm,
+    QuestionLangVersionOrm,
+    QuestionOrm,
+    ReadingOrm,
+    ReferralOrm,
+    RelayServerPhoneNumberOrm,
+    VillageOrm,
+    db,
+)
+from seed_users import (
+    clear_user_pool as empty_user_pool,
+)
+from seed_users import (
+    facilities_list,
+    seed_minimal_users,
+    seed_test_users,
+)
 
-cli = FlaskGroup(app)
+# cli = FlaskGroup(app)
+cli = FlaskGroup()
 
 
 # USAGE: python manage.py reset_db
 @cli.command("reset_db")
+def reset_db_cli():
+    reset_db()
+
+
 def reset_db():
     db.drop_all()
     db.create_all()
@@ -37,7 +59,13 @@ def drop_all_tables():
     db.session.commit()
 
 
-# Extracts a username fomr the email address of a user - Only used in manage.py to generate seed test data
+# USAGE: python manage.py clear_user_pool
+@cli.command("clear_user_pool")
+def clear_user_pool():
+    empty_user_pool()
+
+
+# Extracts a username from the email address of a user - Only used in manage.py to generate seed test data
 def get_username_from_email(email):
     try:
         username = email.split("@")[0]
@@ -50,11 +78,8 @@ def get_username_from_email(email):
 
 # USAGE: python manage.py seed_minimal
 @cli.command("seed_minimal")
-def seed_minimal(
-    email="admin123@admin.com",
-    password="admin123",
-    facility_name="H0000",
-):
+@click.pass_context
+def seed_minimal(ctx):
     """
     Seeds the database with the minimum amount of data required for it to be functional.
 
@@ -63,89 +88,28 @@ def seed_minimal(
 
     The minimal set of data is as follows:
      - A single health facility (default name 'H0000')
-     - A single admin user      (default email 'admin123@admin.com')
+     - A single admin user      (default email 'admin@admin.com')
 
     Defaults can be overridden, such as:
        python ./manage.py seed_minimal --email="abc@test.com" --password="TeyHo5@e!0B" --facility_name="Sunny Creek"
     """
-    print("Seeding health facility...")
-    create_health_facility(facility_name)
-
-    print("Creating admin user...")
-    create_user(
-        email,
-        "Admin",
-        password,
-        facility_name,
-        RoleEnum.ADMIN.value,
-        ["+1-888-456-7890", "+1-098-765-4321", os.environ.get("EMULATOR_PHONE_NUMBER")],
-        1,
-    )
-
+    # ctx.invoke(reset_db)
+    reset_db()
+    seed_minimal_users()
     print("Finished seeding minimal data set")
 
 
-# USAGE: python manage.py seed_test_data
-@cli.command("seed_test_data")
-@click.pass_context
-def seed_test_data(ctx):
+def seed_test_data():
     """
     Seeds data for testing.
 
     The data inserted here should be deterministically generated to ease testing.
     """
-    # Start with a minimal setup.
-    ctx.invoke(seed_minimal)
+    # ctx.invoke(reset_db)
+    reset_db()
 
-    # Add the rest of the users.
-    print("Creating test health facilities and users...")
-    create_health_facility("H1000")
-    create_health_facility("H2000")
-    create_user(
-        "brian@admin.com",
-        "Brian",
-        "brian123",
-        "H0000",
-        RoleEnum.ADMIN.value,
-        ["+1-604-123-4567", "+1-604-123-4568"],
-        2,
-    )
-    create_user(
-        "vht@vht.com",
-        "TestVHT",
-        "vht123",
-        "H0000",
-        RoleEnum.VHT.value,
-        ["555-555-5555", "666-666-6666", "777-777-7777"],
-        3,
-    )
-    create_user(
-        "vht2@vht.com",
-        "TestVHT2",
-        "vht123",
-        "H1000",
-        RoleEnum.VHT.value,
-        ["+256-415-123456", "+256-415-123457", "+256-415-123458", "+256-415-123459"],
-        4,
-    )
-    create_user(
-        "hcw@hcw.com",
-        "TestHCW",
-        "hcw123",
-        "H0000",
-        RoleEnum.HCW.value,
-        ["+256-416-123456"],
-        5,
-    )
-    create_user(
-        "cho@cho.com",
-        "TestCHO",
-        "cho123",
-        "H0000",
-        RoleEnum.CHO.value,
-        ["+256-417-123456"],
-        6,
-    )
+    # Seed users and health facilities.
+    seed_test_users()
 
     print("Creating test patients, readings, referrals, and records...")
     create_patient_reading_referral_pregnancy(
@@ -172,7 +136,6 @@ def seed_test_data(ctx):
         "H0000",
         False,
         True,
-        "WEEKS",
         1610925778,
     )
     create_patient_reading_referral_pregnancy(
@@ -215,6 +178,17 @@ def seed_test_data(ctx):
 
 # USAGE: python manage.py seed_test_patient
 @cli.command("seed_test_patient")
+def seed_test_patient_cli():
+    seed_test_patient()
+
+
+# USAGE: python manage.py seed_test_data
+@cli.command("seed_test_data")
+@click.pass_context
+def seed_test_data_cli(ctx):
+    seed_test_data()
+
+
 def seed_test_patient():
     create_patient_reading_referral_pregnancy(
         "4930004967",
@@ -256,122 +230,86 @@ def seed_test_patient():
     create_pregnancy("4930004967", 1549015028, 1573379828, "SVD. Baby weighed 3kg.")
 
 
-# USAGE: python manage.py seed
-@cli.command("seed")
-@click.pass_context
-def seed(ctx):
-    start = time.time()
+def seed():
+    seed_test_data()
 
     # SEED villages
     print("Seeding Villages...")
-    village_schema = models.VillageSchema()
-    for village in villageList:
-        v_schema = {"villageNumber": village}
-        db.session.add(village_schema.load(v_schema))
-
-    # SEED health facilities
-    print("Seeding health facilities...")
-
-    healthfacility_schema = models.HealthFacilitySchema()
-    for index, hf in enumerate(facilityLocations):
-        hf_schema = {
-            "healthFacilityName": getFacilityName(index),
-            "healthFacilityPhoneNumber": getFacilityPhoneNumber(hf["areaCode"]),
-            "facilityType": getFacilityType(),
-            "about": getFacilityAbout(),
-            "location": hf["city"],
-            "newReferrals": str(round(time.time() * 1000)),
-        }
-        db.session.add(healthfacility_schema.load(hf_schema))
-
-    ctx.invoke(seed_test_data)
+    for village_number in village_numbers_list:
+        village = {"village_number": village_number}
+        db.session.add(VillageOrm(**village))
 
     print("Seeding Patients with readings and referrals...")
     # seed patients with readings and referrals
-    patient_schema = models.PatientSchema()
-    models.ReadingSchema()
-    referral_schema = models.ReferralSchema()
 
-    fnames, lnames = getNames()
+    first_names, last_names = get_names()
     generated_names = set()
-    for count, patientId in enumerate(patientList):
+    for count, patient_id in enumerate(patient_list):
         # get random patient
-        person = random.choice(fnames)
+        person = random.choice(first_names)
         name, sex = person["name"], person["sex"]
-        lname = random.choice(lnames)
+        last_name = random.choice(last_names)
 
-        while name + lname in generated_names:
-            person = random.choice(fnames)
+        while name + last_name in generated_names:
+            person = random.choice(first_names)
             name, sex = person["name"], person["sex"]
-            lname = random.choice(lnames)
+            last_name = random.choice(last_names)
 
-        generated_names.add(name + lname)
+        generated_names.add(name + last_name)
 
         if sex == models.SexEnum.MALE.value:
             pregnant = False
         else:
             pregnant = bool(random.getrandbits(1))
 
-        gestational_age_unit = None
-        gestational_timestamp = None
-        gestational_units = [
-            models.GestationalAgeUnitEnum.WEEKS.value,
-            models.GestationalAgeUnitEnum.MONTHS.value,
-        ]
+        pregnancy_start_date = None
 
         if sex == models.SexEnum.FEMALE.value and pregnant:
-            gestational_age_unit = random.choice(gestational_units)
-            gestational_timestamp = getRandomPregnancyDate()
+            pregnancy_start_date = get_random_pregnancy_date()
 
-        p1 = {
-            "patientId": patientId,
-            "patientName": name + " " + lname,
-            "gestationalAgeUnit": gestational_age_unit,
-            "gestationalTimestamp": gestational_timestamp,
-            "villageNumber": getRandomVillage(),
-            "patientSex": sex,
-            "isPregnant": pregnant,
-            "dob": getRandomDOB(),
-            "isExactDob": bool(random.getrandbits(1)),
-            "isArchived": False,
+        patient = {
+            "id": patient_id,
+            "name": name + " " + last_name,
+            "village_number": get_random_village(),
+            "sex": sex,
+            "is_pregnant": pregnant,
+            "date_of_birth": get_random_DOB(),
+            "is_exact_date_of_birth": bool(random.getrandbits(1)),
+            "is_archived": False,
         }
 
-        db.session.add(patient_schema.load(p1))
+        db.session.add(marshal.unmarshal(PatientOrm, patient))
         db.session.commit()
 
         if pregnant:
-            pregnancy_schema = models.PregnancySchema()
-            pRecord = {
-                "patientId": patientId,
-                "startDate": gestational_timestamp,
-                "defaultTimeUnit": gestational_age_unit,
+            pregnancy_record = {
+                "patient_id": patient_id,
+                "start_date": pregnancy_start_date,
             }
-            db.session.add(pregnancy_schema.load(pRecord))
+            db.session.add(PregnancyOrm(**pregnancy_record))
             db.session.commit()
 
-        numOfReadings = random.randint(1, 5)
-        dateList = [getRandomDate() for i in range(numOfReadings)]
-        dateList.sort()
+        num_of_readings = random.randint(1, 5)
+        date_list = [get_random_date() for i in range(num_of_readings)]
+        date_list.sort()
 
-        userId = getRandomUser()
-        for i in range(numOfReadings):
-            readingId = str(uuid.uuid4())
-            healthFacilityName = getRandomHealthFacilityName()
+        user_id = get_random_user()
+        for i in range(num_of_readings):
+            health_facility_name = get_random_health_facility_name()
 
+            reading_date = date_list[i]
             # get random reading(s) for patient
-            r1 = {
-                "userId": userId,
-                "patientId": patientId,
-                "dateTimeTaken": dateList[i],
-                "readingId": readingId,
-                "bpSystolic": getRandomBpSystolic(),
-                "bpDiastolic": getRandomBpDiastolic(),
-                "heartRateBPM": getRandomHeartRateBPM(),
-                "symptoms": getRandomSymptoms(),
+            reading = {
+                "user_id": user_id,
+                "patient_id": patient_id,
+                "date_taken": reading_date,
+                "systolic_blood_pressure": get_random_systolic_bp(),
+                "diastolic_blood_pressure": get_random_diastolic_bp(),
+                "heart_rate": get_random_heart_rate(),
+                "symptoms": get_random_symptoms(),
             }
 
-            r1Model = marshal.unmarshal(models.Reading, r1)
-            crud.create(r1Model, refresh=True)
+            reading_orm = marshal.unmarshal(ReadingOrm, reading)
 
             referral_comments = [
                 " needs help!",
@@ -379,425 +317,359 @@ def seed(ctx):
                 " is seeking urgent care!",
             ]
             if random.choice([True, False]):
-                # Cap the referral date at today, if it goes into future
-                refer_date = min(
-                    r1["dateTimeTaken"]
-                    + int(datetime.timedelta(days=10).total_seconds()),
-                    int(datetime.datetime.now().timestamp()),
-                )
-                referral1 = {
-                    "userId": getRandomUser(),
-                    "patientId": patientId,
-                    "dateReferred": refer_date,
-                    "referralHealthFacilityName": healthFacilityName,
+                referral = {
+                    "user_id": get_random_user(),
+                    "patient_id": patient_id,
+                    "date_referred": reading["date_taken"],
+                    "health_facility_name": health_facility_name,
                     "comment": name + random.choice(referral_comments),
                 }
-                db.session.add(referral_schema.load(referral1))
-                db.session.commit()
+                referral_orm = ReferralOrm(**referral)
+                reading_orm.referral = referral_orm
+            db.session.add(reading_orm)
+            db.session.commit()
 
         if count > 0 and count % 25 == 0:
-            print(f"{count}/{len(patientList)} Patients have been seeded")
+            print(f"{count}/{len(patient_list)} Patients have been seeded")
 
-    print(f"{count + 1}/{len(patientList)} Patients have been seeded")
+    print(f"{count + 1}/{len(patient_list)} Patients have been seeded")
     print("Complete!")
 
+
+# USAGE: python manage.py seed
+@cli.command("seed")
+@click.pass_context
+def seed_cli(ctx):
+    start = time.time()
+    seed()
     end = time.time()
     print(f"The seed script took: {round(end - start, 3)} seconds")
 
 
-# Creates a user and adds it to the database
-def create_user(email, name, password, hf_name, role, phoneNumbers, user_id):
-    # Check if the email already exists
-    existing_user = models.User.query.filter_by(username=name).first()
-    if existing_user:
-        print(f"User with username '{name}' already exists.")
-        return None
-
-    # Create a new User instance
-    new_user = models.User(
-        id=user_id,
-        firstName=name,
-        email=email,
-        username=get_username_from_email(email),
-        healthFacilityName=hf_name,
-        password=flask_bcrypt.generate_password_hash(password),
-        role=role,
-    )
-
-    new_phone_numbers = []
-    for phoneNumber in phoneNumbers:
-        # Check if the phone number already exists
-        existing_phone = models.UserPhoneNumber.query.filter_by(
-            number=phoneNumber,
-        ).first()
-        if existing_phone:
-            print(
-                f"Phone number '{phoneNumber}' is already associated with another user.",
-            )
-            return None
-
-        # Create a new UserPhoneNumber instance and associate it with the user
-        new_phone_numbers.append(
-            models.UserPhoneNumber(number=phoneNumber, user=new_user),
-        )
-
-    try:
-        # Add the new user and phone numbers to the database
-        db.session.add(new_user)
-        db.session.add_all(new_phone_numbers)
-        db.session.commit()
-        create_secret_key_for_user(user_id)
-        print(f"User '{name}' created successfully.")
-        return new_user
-    except Exception as e:
-        db.session.rollback()
-        print(f"Failed to create user: {e}")
-        return None
-
-
-def create_health_facility(
-    facilityName,
-    facilityType="HOSPITAL",
-    phone="555-555-55555",
-    location="Sample Location",
-    about="Sample health centre",
-):
-    facility = {
-        "healthFacilityName": facilityName,
-        "facilityType": facilityType,
-        "healthFacilityPhoneNumber": phone,
-        "location": location,
-        "about": about,
-        "newReferrals": str(round(time.time() * 1000)),
-    }
-    schema = models.HealthFacilitySchema()
-    db.session.add(schema.load(facility))
-    db.session.commit()
-
-
 def create_patient_reading_referral_pregnancy(
-    patientId,
-    readingId,
-    userId,
-    patientName,
-    dob,
+    patient_id,
+    reading_id,
+    user_id,
+    patient_name,
+    date_of_birth,
     sex,
-    villageNum,
-    dateReferred,
-    healthFacility,
-    isAssessed,
-    isPregnant=False,
-    gestAgeUnit=None,
-    gestTimestamp=None,
+    village_number,
+    date_referred,
+    health_facility_name,
+    is_assessed,
+    is_pregnant=False,
+    pregnancy_start_date=None,
 ):
     """
     Creates a patient in the database.
     """
-    if isPregnant:
+    if is_pregnant:
         patient = {
-            "patientId": patientId,
-            "patientName": patientName,
-            "gestationalAgeUnit": gestAgeUnit,
-            "gestationalTimestamp": gestTimestamp,
-            "villageNumber": villageNum,
-            "patientSex": sex,
-            "isPregnant": "true",
-            "dob": dob,
-            "isExactDob": False,
-            "isArchived": False,
+            "id": patient_id,
+            "name": patient_name,
+            "village_number": village_number,
+            "sex": sex,
+            "is_pregnant": True,
+            "date_of_birth": date_of_birth,
+            "is_exact_date_of_birth": False,
+            "is_archived": False,
         }
         pregnancy = {
-            "patientId": patientId,
-            "startDate": gestTimestamp,
-            "defaultTimeUnit": gestAgeUnit,
+            "patient_id": patient_id,
+            "start_date": pregnancy_start_date,
         }
     else:
         patient = {
-            "patientId": patientId,
-            "patientName": patientName,
-            "villageNumber": villageNum,
-            "patientSex": sex,
-            "isPregnant": "false",
-            "dob": dob,
-            "isExactDob": False,
-            "isArchived": False,
+            "id": patient_id,
+            "name": patient_name,
+            "village_number": village_number,
+            "sex": sex,
+            "is_pregnant": False,
+            "date_of_birth": date_of_birth,
+            "is_exact_date_of_birth": False,
+            "is_archived": False,
         }
         pregnancy = None
 
     reading = {
-        "userId": userId,
-        "patientId": patientId,
-        "dateTimeTaken": dateReferred,
-        "readingId": readingId,
-        "bpSystolic": 50,
-        "bpDiastolic": 60,
-        "heartRateBPM": 70,
-        "trafficLightStatus": "YELLOW_DOWN",
+        "id": reading_id,
+        "user_id": user_id,
+        "patient_id": patient_id,
+        "date_taken": date_referred,
+        "systolic_blood_pressure": 50,
+        "diastolic_blood_pressure": 60,
+        "heart_rate": 70,
+        "traffic_light_status": "YELLOW_DOWN",
         "symptoms": "FEVERISH",
     }
 
     # health facility name based on one defined in seed_minimal()
     referral = {
-        "patientId": patientId,
-        "userId": userId,
-        "dateReferred": dateReferred,
-        "referralHealthFacilityName": healthFacility,
-        "isAssessed": isAssessed,
+        "patient_id": patient_id,
+        "user_id": user_id,
+        "date_referred": date_referred,
+        "health_facility_name": health_facility_name,
+        "is_assessed": is_assessed,
     }
 
-    patient_schema = models.PatientSchema()
-    db.session.add(patient_schema.load(patient))
+    db.session.add(PatientOrm(**patient))
     db.session.commit()
 
-    readingModel = marshal.unmarshal(models.Reading, reading)
-    crud.create(readingModel, refresh=True)
+    reading_orm = marshal.unmarshal(models.ReadingOrm, reading)
+    crud.create(reading_orm, refresh=True)
 
-    referral_schema = models.ReferralSchema()
-    db.session.add(referral_schema.load(referral))
+    db.session.add(ReferralOrm(**referral))
     db.session.commit()
 
     if pregnancy:
-        pregnancy_schema = models.PregnancySchema()
-        db.session.add(pregnancy_schema.load(pregnancy))
+        db.session.add(PregnancyOrm(**pregnancy))
         db.session.commit()
 
 
 def create_pregnancy(
-    patientId,
-    startDate,
-    endDate=None,
+    patient_id,
+    start_date,
+    end_date=None,
     outcome=None,
-    defaultTimeUnit="WEEKS",
 ):
     pregnancy = {
-        "patientId": patientId,
-        "startDate": startDate,
-        "defaultTimeUnit": defaultTimeUnit,
-        "endDate": endDate,
+        "patient_id": patient_id,
+        "start_date": start_date,
+        "end_date": end_date,
         "outcome": outcome,
     }
-    schema = models.PregnancySchema()
-    db.session.add(schema.load(pregnancy))
+    db.session.add(PregnancyOrm(**pregnancy))
     db.session.commit()
 
 
-def create_medical_record(patientId, info, isDrugRecord, dateCreated=1622541428):
+def create_medical_record(patient_id, info, is_drug_record, date_created=1622541428):
     record = {
-        "patientId": patientId,
+        "patient_id": patient_id,
         "information": info,
-        "isDrugRecord": isDrugRecord,
-        "dateCreated": dateCreated,
+        "is_drug_record": is_drug_record,
+        "date_created": date_created,
     }
-    schema = models.MedicalRecordSchema()
-    db.session.add(schema.load(record))
+    db.session.add(MedicalRecordOrm(**record))
     db.session.commit()
 
 
-def create_patient_association(patientId, userId):
-    association = {"patientId": patientId, "userId": userId}
-    schema = models.PatientAssociationsSchema()
-    db.session.add(schema.load(association))
+def create_patient_association(patient_id, user_id):
+    association = {"patient_id": patient_id, "user_id": user_id}
+    db.session.add(PatientAssociationsOrm(**association))
     db.session.commit()
 
 
 def create_form_classification():
+    if crud.read(FormClassificationOrm, id="dc9") is not None:
+        return
+
     form_classification = {
         "id": "dc9",
         "name": "Personal Intake Form",
     }
-    form_classification_schema = models.FormClassificationSchema()
-    db.session.add(form_classification_schema.load(form_classification))
+    db.session.add(FormClassificationOrm(**form_classification))
     db.session.commit()
 
 
 def create_form_template():
+    if crud.read(FormTemplateOrm, id="dt9") is not None:
+        return
+
     form_template = {
-        "classification": {"name": "Personal Intake Form", "id": "dc9"},
         "id": "dt9",
         "version": "V1",
-        "questions": [
-            {
-                "formTemplateId": "dt9",
-                "id": "cat1_seed_test_data",
-                "categoryIndex": None,
-                "questionIndex": 0,
-                "isBlank": True,
-                "questionType": "CATEGORY",
-                "required": False,
-                "allowFutureDates": True,
-                "allowPastDates": True,
-                "numMin": None,
-                "numMax": None,
-                "stringMaxLength": None,
-                "units": None,
-                "visibleCondition": "[]",
-                "stringMaxLines": None,
-            },
-            {
-                "formTemplateId": "dt9",
-                "id": "fname_seed_test_data",
-                "categoryIndex": 0,
-                "questionId": "",
-                "questionIndex": 1,
-                "isBlank": True,
-                "questionType": "STRING",
-                "required": False,
-                "allowFutureDates": True,
-                "allowPastDates": True,
-                "numMin": None,
-                "numMax": None,
-                "stringMaxLength": None,
-                "units": None,
-                "visibleCondition": "[]",
-                "stringMaxLines": None,
-            },
-            {
-                "formTemplateId": "dt9",
-                "id": "lname_seed_test_data",
-                "categoryIndex": 0,
-                "questionId": "",
-                "questionIndex": 2,
-                "isBlank": True,
-                "questionType": "STRING",
-                "required": False,
-                "allowFutureDates": True,
-                "allowPastDates": True,
-                "numMin": None,
-                "numMax": None,
-                "stringMaxLength": None,
-                "units": None,
-                "visibleCondition": "[]",
-                "stringMaxLines": None,
-            },
-            {
-                "formTemplateId": "dt9",
-                "id": "age_seed_test_data",
-                "categoryIndex": 0,
-                "questionId": "",
-                "questionIndex": 3,
-                "isBlank": True,
-                "questionType": "INTEGER",
-                "required": False,
-                "allowFutureDates": True,
-                "allowPastDates": True,
-                "numMin": None,
-                "numMax": None,
-                "stringMaxLength": None,
-                "units": None,
-                "visibleCondition": "[]",
-                "stringMaxLines": None,
-            },
-        ],
     }
+    questions = [
+        {
+            "id": "cat1_seed_test_data",
+            "category_index": None,
+            "question_id": "cat1_seed_test_data",
+            "question_index": 0,
+            "is_blank": True,
+            "question_type": "CATEGORY",
+            "required": False,
+            "allow_future_dates": True,
+            "allow_past_dates": True,
+            "num_min": None,
+            "num_max": None,
+            "string_max_length": None,
+            "units": None,
+            "visible_condition": "[]",
+            "string_max_lines": None,
+        },
+        {
+            "id": "fname_seed_test_data",
+            "category_index": 0,
+            "question_id": "fname_seed_test_data",
+            "question_index": 1,
+            "is_blank": True,
+            "question_type": "STRING",
+            "required": False,
+            "allow_future_dates": True,
+            "allow_past_dates": True,
+            "num_min": None,
+            "num_max": None,
+            "string_max_length": None,
+            "units": None,
+            "visible_condition": "[]",
+            "string_max_lines": None,
+        },
+        {
+            "id": "lname_seed_test_data",
+            "category_index": 0,
+            "question_id": "lname_seed_test_data",
+            "question_index": 2,
+            "is_blank": True,
+            "question_type": "STRING",
+            "required": False,
+            "allow_future_dates": True,
+            "allow_past_dates": True,
+            "num_min": None,
+            "num_max": None,
+            "string_max_length": None,
+            "units": None,
+            "visible_condition": "[]",
+            "string_max_lines": None,
+        },
+        {
+            "id": "age_seed_test_data",
+            "category_index": 0,
+            "question_id": "age_seed_test_data",
+            "question_index": 3,
+            "is_blank": True,
+            "question_type": "INTEGER",
+            "required": False,
+            "allow_future_dates": True,
+            "allow_past_dates": True,
+            "num_min": None,
+            "num_max": None,
+            "string_max_length": None,
+            "units": None,
+            "visible_condition": "[]",
+            "string_max_lines": None,
+        },
+    ]
+    create_form_classification()
+    form_classification_orm = crud.read(FormClassificationOrm, id="dc9")
+    form_template_orm = FormTemplateOrm(
+        classification=form_classification_orm, **form_template
+    )
+    for question in questions:
+        question_orm = QuestionOrm(**question)
+        form_template_orm.questions.append(question_orm)
 
-    form_template_schema = models.FormTemplateSchema()
-    db.session.add(form_template_schema.load(form_template))
+    db.session.add(form_template_orm)
     db.session.commit()
 
     lang_versions = [
         {
             "id": 100,
             "lang": "English",
-            "questionText": "Personal Information",
-            "qid": "cat1_seed_test_data",
+            "question_text": "Personal Information",
+            "question_id": "cat1_seed_test_data",
         },
         {
             "id": 101,
             "lang": "English",
-            "questionText": "First Name",
-            "qid": "fname_seed_test_data",
+            "question_text": "First Name",
+            "question_id": "fname_seed_test_data",
         },
         {
             "id": 102,
             "lang": "English",
-            "questionText": "Last Name",
-            "qid": "lname_seed_test_data",
+            "question_text": "Last Name",
+            "question_id": "lname_seed_test_data",
         },
         {
             "id": 103,
             "lang": "English",
-            "questionText": "Approximate Age",
-            "qid": "age_seed_test_data",
+            "question_text": "Approximate Age",
+            "question_id": "age_seed_test_data",
         },
     ]
 
     for curr_q in lang_versions:
-        ques_lang_schema = models.QuestionLangVersionSchema()
-        db.session.add(ques_lang_schema.load(curr_q))
+        db.session.add(QuestionLangVersionOrm(**curr_q))
         db.session.commit()
 
 
 def create_form(patient_id, fname, lname, age):
     form = {
-        "id": patient_id,
+        "id": "form_1_" + patient_id,
         "lang": "English",
-        "patientId": patient_id,
-        "formTemplateId": "dt9",
-        "formClassificationId": "dc9",
-        "questions": [
-            {
-                "hasCommentAttached": False,
-                "required": False,
-                "id": "cat1_seed_test_data" + patient_id,
-                "formId": patient_id,
-                "visibleCondition": "[]",
-                "isBlank": False,
-                "mcOptions": "[]",
-                "categoryIndex": None,
-                "questionIndex": 0,
-                "questionText": "Personal Information",
-                "questionType": "CATEGORY",
-            },
-            {
-                "hasCommentAttached": False,
-                "required": False,
-                "id": "fname_seed_test_data" + patient_id,
-                "formId": patient_id,
-                "visibleCondition": "[]",
-                "isBlank": False,
-                "answers": f'{{"text": "{fname}"}}',
-                "mcOptions": "[]",
-                "categoryIndex": 0,
-                "questionIndex": 1,
-                "questionId": "",
-                "questionText": "First Name",
-                "questionType": "STRING",
-            },
-            {
-                "hasCommentAttached": False,
-                "required": False,
-                "id": "lname_seed_test_data" + patient_id,
-                "formId": patient_id,
-                "visibleCondition": "[]",
-                "isBlank": False,
-                "answers": f'{{"text": "{lname}"}}',
-                "mcOptions": "[]",
-                "categoryIndex": 0,
-                "questionIndex": 2,
-                "questionId": "",
-                "questionText": "Last Name",
-                "questionType": "STRING",
-            },
-            {
-                "hasCommentAttached": False,
-                "required": False,
-                "id": "age_seed_test_data" + patient_id,
-                "formId": patient_id,
-                "visibleCondition": "[]",
-                "isBlank": False,
-                "answers": f'{{"number": {age}}}',
-                "mcOptions": "[]",
-                "categoryIndex": 0,
-                "questionIndex": 3,
-                "questionId": "",
-                "questionText": "Approximate Age",
-                "questionType": "INTEGER",
-            },
-        ],
+        "patient_id": patient_id,
+        "form_template_id": "dt9",
     }
 
-    form_schema = models.FormSchema()
-    db.session.add(form_schema.load(form))
+    questions = [
+        {
+            "id": "cat1_seed_test_data-" + patient_id,
+            "has_comment_attached": False,
+            "required": False,
+            "form_id": patient_id,
+            "visible_condition": "[]",
+            "is_blank": False,
+            "mc_options": "[]",
+            "category_index": None,
+            "question_index": 0,
+            "question_text": "Personal Information",
+            "question_type": "CATEGORY",
+        },
+        {
+            "has_comment_attached": False,
+            "required": False,
+            "id": "fname_seed_test_data-" + patient_id,
+            "form_id": patient_id,
+            "visible_condition": "[]",
+            "is_blank": False,
+            "answers": f'{{"text": "{fname}"}}',
+            "mc_options": "[]",
+            "category_index": 0,
+            "question_index": 1,
+            "question_id": "",
+            "question_text": "First Name",
+            "question_type": "STRING",
+        },
+        {
+            "has_comment_attached": False,
+            "required": False,
+            "id": "lname_seed_test_data-" + patient_id,
+            "form_id": patient_id,
+            "visible_condition": "[]",
+            "is_blank": False,
+            "answers": f'{{"text": "{lname}"}}',
+            "mc_options": "[]",
+            "category_index": 0,
+            "question_index": 2,
+            "question_id": "",
+            "question_text": "Last Name",
+            "question_type": "STRING",
+        },
+        {
+            "has_comment_attached": False,
+            "required": False,
+            "id": "age_seed_test_data-" + patient_id,
+            "form_id": patient_id,
+            "visible_condition": "[]",
+            "is_blank": False,
+            "answers": f'{{"number": {age}}}',
+            "mc_options": "[]",
+            "category_index": 0,
+            "question_index": 3,
+            "question_id": "",
+            "question_text": "Approximate Age",
+            "question_type": "INTEGER",
+        },
+    ]
+    create_form_template()
+    form_classification_orm = crud.read(FormClassificationOrm, id="dc9")
+
+    form_orm = FormOrm(classification=form_classification_orm, **form)
+
+    for question in questions:
+        form_orm.questions.append(QuestionOrm(**question))
+
+    db.session.add(form_orm)
     db.session.commit()
 
 
@@ -805,76 +677,75 @@ def create_relay_nums():
     relay_nums = [
         {
             "id": "num1_seed_test_data",
-            "lastReceived": 1702801536,
+            "last_received": 1702801536,
             "description": "Main Server",
-            "phone": "+232 301 3425",
+            "phone_number": "+232 301 3425",
         },
         {
             "id": "num2_seed_test_data",
-            "lastReceived": 1702788502,
+            "last_received": 1702788502,
             "description": "Hospital H000",
-            "phone": "+232 221 5555",
+            "phone_number": "+232 221 5555",
         },
         {
             "id": "num3_seed_test_data",
-            "lastReceived": 1667356312,
+            "last_received": 1667356312,
             "description": "Backup Server",
-            "phone": "+232 865 1245",
+            "phone_number": "+232 865 1245",
         },
     ]
 
     for curr_num in relay_nums:
-        relay_schema = models.RelayServerPhoneNumberSchema()
-        db.session.add(relay_schema.load(curr_num))
+        db.session.add(RelayServerPhoneNumberOrm(**curr_num))
         db.session.commit()
 
 
-def getRandomInitials():
+def get_random_initials():
     return (
         random.choice(string.ascii_letters) + random.choice(string.ascii_letters)
     ).upper()
 
 
-def getRandomVillage():
-    return random.choice(villageList)
+def get_random_village():
+    return random.choice(village_numbers_list)
 
 
-def getRandomBpSystolic():
-    return random.choice(bpSystolicList)
+def get_random_systolic_bp():
+    return random.choice(bp_systolic_list)
 
 
-def getRandomBpDiastolic():
-    return random.choice(bpDiastolicList)
+def get_random_diastolic_bp():
+    return random.choice(bp_diastolic_list)
 
 
-def getRandomHeartRateBPM():
-    return random.choice(heartRateList)
+def get_random_heart_rate():
+    return random.choice(heart_rate_list)
 
 
-def getRandomHealthFacilityName():
-    return random.choice(healthFacilityList)
+def get_random_health_facility_name():
+    return random.choice(health_facility_list)["name"]
 
 
-def getRandomUser():
-    return random.choice(usersList)
+def get_random_user():
+    return random.choice(users_list)
 
 
-def getRandomSymptoms():
+def get_random_symptoms():
     numOfSymptoms = random.randint(0, 4)
     if numOfSymptoms == 0:
         return ""
 
-    symptoms = random.sample(population=symptomsList, k=numOfSymptoms)
+    symptoms = random.sample(population=symptoms_list, k=numOfSymptoms)
     return ", ".join(symptoms)
 
 
-def getRandomDate():
+def get_random_date():
     """
     This function will return a random datetime between two datetime
     objects.
     """
-    start = d1
-    end = d2
+    start = date_1
+    end = date_2
     delta = end - start
     int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
     random_second = randrange(int_delta)
@@ -882,40 +753,26 @@ def getRandomDate():
     return int(new_date.strftime("%s"))
 
 
-def getRandomPregnancyDate():
+def get_random_pregnancy_date():
     max_preg = randint(1, 273)
     date = datetime.datetime.today() - datetime.timedelta(max_preg)
     return int(date.strftime("%s"))
 
 
-def generateRandomReadingID():
-    pool = ascii_lowercase + digits
-    reading_id = (
-        "".join([choice(pool) for _ in range(3)])
-        + "-"
-        + "".join([choice(pool) for _ in range(3)])
-        + "-"
-        + "".join([choice(pool) for _ in range(3)])
-        + "-"
-        + "".join([choice(pool) for _ in range(4)])
-    )
-    return reading_id
-
-
-def getNames():
+def get_names():
     with open("./data/seed_data/seed.json") as f:
         names = json.load(f)
         return names["firstNames"], names["lastNames"]
 
 
-def getDateTime(dateStr):
+def get_date_time(dateStr):
     return datetime.datetime.strptime(dateStr, "%Y-%m-%dT%H:%M:%S")
 
 
-def generatePhoneNumbers():
+def generate_phone_numbers():
     prefix = "+256"
 
-    area_codes = [loc["areaCode"] for loc in facilityLocations]
+    area_codes = [loc["areaCode"] for loc in facility_locations]
     n = len(area_codes)
     post_fixes = ["".join([f"{randint(0, 9)}" for num in range(6)]) for x in range(n)]
 
@@ -926,27 +783,8 @@ def generatePhoneNumbers():
     return numbers
 
 
-def getFacilityPhoneNumber(area_code):
-    return facilityPhoneNumbers[area_code]
-
-
-def generateHealthFacilities():
-    n = len(facilityLocations)
-
-    # Sets are unique element lists, prevents from having duplicates
-    facilities = set()
-    while len(facilities) < n:
-        facilities.add(
-            "H" + "".join([f"{randint(0, 9)}" for num in range(4)]),
-        )
-
-    facilities = list(facilities)
-
-    return sorted(facilities)
-
-
-def generateVillages():
-    n = len(facilityLocations)
+def generate_village_numbers():
+    n = len(facility_locations)
     villages = set()
     while len(villages) < n:
         villages.add("1" + "".join([f"{randint(0, 9)}" for num in range(3)]))
@@ -954,27 +792,27 @@ def generateVillages():
     return villages
 
 
-def getRandomDOB():
+def get_random_DOB():
     format = "%Y-%m-%d"
     start = time.mktime(time.strptime("1950-1-1", format))
     end = time.mktime(time.strptime("2010-1-1", format))
     rand_range = random.random()
 
-    ptime = start + rand_range * (end - start)
+    p_time = start + rand_range * (end - start)
 
-    return time.strftime(format, time.localtime(ptime))
-
-
-def getFacilityName(index):
-    return healthFacilityList[index]
+    return time.strftime(format, time.localtime(p_time))
 
 
-def getFacilityType():
-    return random.choice(facilityType)
+def get_facility_name(index):
+    return health_facility_list[index]
 
 
-def getFacilityAbout():
-    return random.choice(facilityAbout)
+def get_facility_type():
+    return random.choice(facility_type)
+
+
+def get_facility_about():
+    return random.choice(facility_about)
 
 
 if __name__ == "__main__":
@@ -983,35 +821,33 @@ if __name__ == "__main__":
     # TODO: This should be updated once in a while, for readings to be displayed in the frontend.
     START_DATE = "1/1/2022 12:01 AM"
 
-    patientList = random.sample(range(48300027408, 48300099999), NUM_OF_PATIENTS)
-    random.shuffle(patientList)
-    patientList = list(map(str, patientList))
+    patient_list = random.sample(range(48300027408, 48300099999), NUM_OF_PATIENTS)
+    random.shuffle(patient_list)
+    patient_list = list(map(str, patient_list))
 
     # Get cities
     with open("./data/seed_data/seed.json") as f:
-        facilityLocations = json.load(f)["locations"]
+        facility_locations = json.load(f)["locations"]
 
-    usersList = [1, 2, 3, 4]
-    villageList = generateVillages()
-    healthFacilityList = generateHealthFacilities()
+    users_list = [1, 2, 3, 4]
+    village_numbers_list = generate_village_numbers()
+    health_facility_list = facilities_list
 
-    facilityType = ["HCF_2", "HCF_3", "HCF_4", "HOSPITAL"]
-    facilityAbout = [
+    facility_type = ["HCF_2", "HCF_3", "HCF_4", "HOSPITAL"]
+    facility_about = [
         "Has minimal resources",
         "Can do full checkup",
         "Has specialized equipment",
         "Urgent requests only",
     ]
 
-    facilityPhoneNumbers = generatePhoneNumbers()
+    symptoms_list = ["HEADACHE", "BLURRED VISION", "ABDO PAIN", "BLEEDING", "FEVERISH"]
+    sex_list = ["FEMALE", "MALE"]
+    bp_systolic_list = np.clip(np.random.normal(120, 35, 1000).astype(int), 50, 300)
+    bp_diastolic_list = np.clip(np.random.normal(80, 25, 1000).astype(int), 30, 200)
+    heart_rate_list = np.clip(np.random.normal(60, 17, 1000).astype(int), 30, 250)
 
-    symptomsList = ["HEADACHE", "BLURRED VISION", "ABDO PAIN", "BLEEDING", "FEVERISH"]
-    sexList = ["FEMALE", "MALE"]
-    bpSystolicList = np.clip(np.random.normal(120, 35, 1000).astype(int), 50, 300)
-    bpDiastolicList = np.clip(np.random.normal(80, 25, 1000).astype(int), 30, 200)
-    heartRateList = np.clip(np.random.normal(60, 17, 1000).astype(int), 30, 250)
-
-    d1 = datetime.datetime.strptime(START_DATE, "%m/%d/%Y %I:%M %p")
-    d2 = datetime.datetime.today().replace(microsecond=0)
+    date_1 = datetime.datetime.strptime(START_DATE, "%m/%d/%Y %I:%M %p")
+    date_2 = datetime.datetime.today().replace(microsecond=0)
 
     cli()

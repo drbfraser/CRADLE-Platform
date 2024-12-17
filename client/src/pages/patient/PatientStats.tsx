@@ -27,7 +27,7 @@ import Alert from '@mui/material/Alert';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { PatientStatistics } from 'src/shared/types';
 import { Skeleton } from '@mui/material';
-import { getPatientStatisticsAsync } from 'src/shared/api';
+import { getPatientStatisticsAsync } from 'src/shared/api/api';
 
 Chart.register(
   CategoryScale,

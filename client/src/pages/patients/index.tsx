@@ -25,6 +25,12 @@ export const PatientsPage = () => {
     <DashboardPaper>
       <Box
         sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'between',
+          marginRight: '1rem',
+          width: '100%',
           padding: {
             xs: '15px',
             lg: '30px',
@@ -41,6 +47,11 @@ export const PatientsPage = () => {
         </Typography>
         <Box
           sx={(theme) => ({
+            marginLeft: 'auto',
+            display: 'flex',
+            flexDirection: 'row',
+            gap: '0.5rem',
+            alignItems: 'center',
             [theme.breakpoints.up('lg')]: {
               float: 'right',
               height: '56px',
@@ -67,8 +78,8 @@ export const PatientsPage = () => {
         search={search}
         columns={COLUMNS}
         sortableColumns={SORTABLE_COLUMNS}
-        rowKey={'patientId'}
-        initialSortBy={'patientName'}
+        rowKey={'id'}
+        initialSortBy={'name'}
         initialSortDir={SortDir.ASC}
         RowComponent={PatientRow}
         isTransformed={isTransformed}

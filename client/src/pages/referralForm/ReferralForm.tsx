@@ -14,7 +14,7 @@ import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { PrimaryButton } from 'src/shared/components/Button';
 import TextField from '@mui/material/TextField';
-import { saveReferralAsync } from 'src/shared/api';
+import { saveReferralAsync } from 'src/shared/api/api';
 import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';

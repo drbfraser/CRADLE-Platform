@@ -219,7 +219,7 @@ export const CustomizedFormWQuestions = ({
       if (
         q.visibleCondition &&
         q.visibleCondition[0] &&
-        q.visibleCondition[0].qidx == index
+        q.visibleCondition[0].questionIndex == index
       ) {
         q.visibleCondition = [];
       }
@@ -265,8 +265,11 @@ export const CustomizedFormWQuestions = ({
   // check if any questions in form have a vis cond dependant on a question whos index changed
   const updateVisCond = (oldIndex: number, newIndex: number) => {
     questions.forEach((q) => {
-      if (q.visibleCondition && q.visibleCondition[0]?.qidx == oldIndex) {
-        q.visibleCondition[0].qidx = newIndex;
+      if (
+        q.visibleCondition &&
+        q.visibleCondition[0]?.questionIndex == oldIndex
+      ) {
+        q.visibleCondition[0].questionIndex = newIndex;
       }
     });
   };

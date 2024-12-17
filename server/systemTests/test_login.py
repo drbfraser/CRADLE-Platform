@@ -1,68 +1,65 @@
 import json
 
 import requests
+from humps import decamelize
 
 url = "http://localhost:5000/api/user/auth"
 
 
 def test_admin_login():
-    payload = {"email": "admin123@admin.com", "password": "admin123"}
+    payload = {"username": "admin@email.com", "password": "cradle-admin"}
 
     response = requests.post(url, json=payload)
-    resp_json = response.json()
+    response_body = decamelize(response.json())
 
-    print(json.dumps(resp_json, indent=4))
+    print(json.dumps(response_body, indent=4))
     assert response.status_code == 200
-    assert resp_json["token"] is not None
-    assert resp_json["refresh"] is not None
-    assert resp_json["isLoggedIn"] is True
+    assert response_body["access_token"] is not None
+    assert response_body["user"] is not None
 
 
 def test_hcw_login():
-    payload = {"email": "hcw@hcw.com", "password": "hcw123"}
+    payload = {"username": "hcw@email.com", "password": "cradle-hcw"}
 
     response = requests.post(url, json=payload)
-    resp_json = response.json()
+    response_body = decamelize(response.json())
 
-    print(json.dumps(resp_json, indent=4))
+    print(json.dumps(response_body, indent=4))
     assert response.status_code == 200
-    assert resp_json["token"] is not None
-    assert resp_json["refresh"] is not None
-    assert resp_json["isLoggedIn"] is True
+    assert response_body["access_token"] is not None
+    assert response_body["user"] is not None
 
 
 def test_cho_login():
-    payload = {"email": "cho@cho.com", "password": "cho123"}
+    payload = {"username": "cho@email.com", "password": "cradle-cho"}
 
     response = requests.post(url, json=payload)
-    resp_json = response.json()
+    response_body = decamelize(response.json())
 
-    print(json.dumps(resp_json, indent=4))
+    print(json.dumps(response_body, indent=4))
     assert response.status_code == 200
-    assert resp_json["token"] is not None
-    assert resp_json["refresh"] is not None
-    assert resp_json["isLoggedIn"] is True
+    assert response_body["access_token"] is not None
+    assert response_body["user"] is not None
 
 
 def test_vht_login():
-    payload = {"email": "vht@vht.com", "password": "vht123"}
+    payload = {"username": "vht@email.com", "password": "cradle-vht"}
 
     response = requests.post(url, json=payload)
-    resp_json = response.json()
+    response_body = decamelize(response.json())
 
-    print(json.dumps(resp_json, indent=4))
+    print(json.dumps(response_body, indent=4))
     assert response.status_code == 200
-    assert resp_json["token"] is not None
-    assert resp_json["refresh"] is not None
-    assert resp_json["isLoggedIn"] is True
+    assert response_body["access_token"] is not None
+    assert response_body["user"] is not None
 
 
 def test_invalid_login():
-    payload = {"email": "admin123@admin.com", "password": "wrongPassword"}
+    payload = {"username": "admin@email.com", "password": "Wrong_Password"}
 
     response = requests.post(url, json=payload)
-    resp_json = response.json()
+    response_body = decamelize(response.json())
 
-    print(json.dumps(resp_json, indent=4))
+    print(json.dumps(response_body, indent=4))
     assert response.status_code == 401
-    assert resp_json["message"] == "Incorrect username or password."
+    assert response_body["message"] == "Incorrect username or password."

@@ -1,5 +1,5 @@
 from data import crud
-from models import Form, FormClassification, FormTemplate, Question
+from models import FormClassificationOrm, FormOrm, FormTemplateOrm, QuestionOrm
 
 
 def test_form_created(
@@ -31,9 +31,9 @@ def test_form_created(
 
         form_id = "f9"
         question = crud.read(
-            Question,
-            formId=form_id,
-            questionText="How the patient's condition?",
+            QuestionOrm,
+            form_id=form_id,
+            question_text="How the patient's condition?",
         )
         assert question is not None
         response = api_put(
@@ -43,9 +43,9 @@ def test_form_created(
         database.session.commit()
         assert response.status_code == 201
     finally:
-        crud.delete_all(Form, id="f9")
-        crud.delete_all(FormTemplate, id="ft9")
-        crud.delete_all(FormClassification, name="fc9")
+        crud.delete_all(FormOrm, id="f9")
+        crud.delete_all(FormTemplateOrm, id="ft9")
+        crud.delete_all(FormClassificationOrm, name="fc9")
 
 
 def form_question_put(qid):
@@ -54,7 +54,7 @@ def form_question_put(qid):
             {
                 "id": qid,
                 "answers": {
-                    "mcidArray": [1],
+                    "mc_id_array": [1],
                 },
             },
         ],

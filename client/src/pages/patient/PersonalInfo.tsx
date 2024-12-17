@@ -14,7 +14,7 @@ interface IProps {
 export const PersonalInfo = ({ patient }: IProps) => {
   const navigate = useNavigate();
   const handleEditClick = () =>
-    navigate(`/patients/${patient?.patientId}/edit/personalInfo`);
+    navigate(`/patients/${patient?.id}/edit/personalInfo`);
 
   return (
     <Paper>
@@ -30,18 +30,22 @@ export const PersonalInfo = ({ patient }: IProps) => {
               <Grid container spacing={2}>
                 <Grid size={6}>
                   <b>ID: </b>
-                  {patient.patientId}
+                  {patient.id}
                 </Grid>
                 <Grid size={6}>
                   <b>Sex: </b>
-                  {patient.patientSex}
+                  {patient.sex}
                 </Grid>
 
                 <Grid size={12}>
                   <b>Age: </b>
-                  {patient.dob === undefined || patient.dob === null
+                  {patient.dateOfBirth === undefined ||
+                  patient.dateOfBirth === null
                     ? `N/A`
-                    : getAgeToDisplay(patient.dob, patient.isExactDob)}
+                    : getAgeToDisplay(
+                        patient.dateOfBirth,
+                        patient.isExactDateOfBirth
+                      )}
                 </Grid>
 
                 <Grid size={6}>

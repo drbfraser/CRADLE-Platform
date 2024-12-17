@@ -1,10 +1,7 @@
 import * as Yup from 'yup';
 
-import { IUser } from 'src/shared/types';
-import { UserRoleEnum } from 'src/shared/enums';
-
 export enum UserField {
-  firstName = 'firstName',
+  name = 'name',
   email = 'email',
   phoneNumber = 'phoneNumber',
   healthFacilityName = 'healthFacilityName',
@@ -12,11 +9,11 @@ export enum UserField {
   supervises = 'supervises',
   password = 'password',
   confirmPassword = 'confirmPassword',
-  id = 'userId',
+  id = 'id',
 }
 
 export const fieldLabels = {
-  [UserField.firstName]: 'First Name',
+  [UserField.name]: 'Name',
   [UserField.email]: 'Email',
   [UserField.phoneNumber]: 'Phone Number',
   [UserField.healthFacilityName]: 'Health Facility',
@@ -27,9 +24,7 @@ export const fieldLabels = {
 };
 
 const detailsValidationShape = (emailsInUse: string[]) => ({
-  [UserField.firstName]: Yup.string()
-    .label(fieldLabels[UserField.firstName])
-    .required(),
+  [UserField.name]: Yup.string().label(fieldLabels[UserField.name]).required(),
   [UserField.email]: Yup.string()
     .label(fieldLabels[UserField.email])
     .required()
@@ -53,18 +48,8 @@ const passwordValidationShape = {
     .oneOf([Yup.ref(UserField.password)], 'Passwords must match'),
 };
 
-export const newEditValidationSchema = (
-  creatingNew: boolean,
-  emailsInUse: string[]
-) => {
-  let shape = detailsValidationShape(emailsInUse);
-
-  if (creatingNew) {
-    shape = {
-      ...shape,
-      ...passwordValidationShape,
-    };
-  }
+export const newEditValidationSchema = (emailsInUse: string[]) => {
+  const shape = detailsValidationShape(emailsInUse);
 
   return Yup.object().shape(shape);
 };
@@ -72,17 +57,6 @@ export const newEditValidationSchema = (
 export const passwordValidationSchema = Yup.object().shape(
   passwordValidationShape
 );
-
-export const newUserTemplate: IUser = {
-  [UserField.firstName]: '',
-  [UserField.email]: '',
-  [UserField.phoneNumber]: '',
-  phoneNumbers: [],
-  [UserField.healthFacilityName]: '',
-  [UserField.role]: UserRoleEnum.VHT,
-  [UserField.supervises]: [] as number[],
-  [UserField.id]: 0,
-};
 
 export const resetPasswordTemplate = {
   [UserField.password]: '',

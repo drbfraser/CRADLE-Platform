@@ -299,11 +299,13 @@ patient_field_dob_has_wrong_format_should_throw_exception = {
 def test_validation(json, expectation):
     if expectation:
         with pytest.raises(expectation):
+            print(json)
             PatientPostValidator.validate(json)
     else:
         try:
             PatientPostValidator.validate(json)
         except ValidationExceptionError as e:
+            print(json)
             raise AssertionError(f"Unexpected validation error:{e}") from e
 
 

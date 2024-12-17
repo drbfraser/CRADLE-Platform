@@ -37,7 +37,9 @@ export const CustomizedFormPage = () => {
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>
-        <Typography variant="h4">New Form for {patientId}</Typography>
+        <Typography variant={'h4'} component={'h4'}>
+          New Form for {patientId}
+        </Typography>
       </Box>
 
       <SelectHeaderForm setForm={setForm} />

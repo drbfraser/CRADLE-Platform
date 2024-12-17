@@ -1,14 +1,12 @@
 import {
   AnswerTypeEnum,
-  GestationalAgeUnitEnum,
   QRelationEnum,
   QuestionTypeEnum,
   SexEnum,
   TrafficLightEnum,
-  UserRoleEnum,
 } from 'src/shared/enums';
 
-import { FacilityField } from 'src/pages/admin/manageFacilities/state';
+import { User } from './api/validation/user';
 
 export type Callback<T, U = void> = (args: T) => U;
 
@@ -23,16 +21,16 @@ export type ServerError = {
 
 export type Reading = {
   appVersion: OrNull<string>;
-  bpDiastolic: number;
-  bpSystolic: number;
+  diastolicBloodPressure: number;
+  systolicBloodPressure: number;
   dateLastSaved: OrNull<number>;
   dateRecheckVitalsNeeded: OrNull<number>;
-  dateTimeTaken: OrNull<number>;
+  dateTaken: OrNull<number>;
   dateUploadedToServer: OrNull<number>;
   deviceInfo: OrNull<string>;
-  followup: OrNull<FollowUp>;
+  assessment: OrNull<Assessment>;
   gpsLocationOfReading: OrNull<string>;
-  heartRateBPM: number;
+  heartRate: number;
   isFlaggedForFollowup: OrNull<boolean>;
   manuallyChangeOcrResults: OrNull<number>;
   patient: string;
@@ -52,11 +50,11 @@ export type Reading = {
 };
 
 export type UrineTests = {
-  urineTestNit: string;
-  urineTestBlood: string;
-  urineTestLeuc: string;
-  urineTestPro: string;
-  urineTestGlu: string;
+  leukocytes: string;
+  nitrites: string;
+  glucose: string;
+  protein: string;
+  blood: string;
 };
 
 export type MedicalRecord = {
@@ -70,7 +68,7 @@ export type Pregnancy = {
   startDate: number;
   endDate: OrNull<number>;
   outcome: OrNull<string>;
-  pregnancyId: string;
+  id: number;
 };
 
 export type TimelineRecord = {
@@ -81,30 +79,28 @@ export type TimelineRecord = {
 
 export type Patient = {
   allergy: OrNull<string>;
-  dob: OrNull<string>;
+  dateOfBirth: OrNull<string>;
   drugHistory: OrNull<string>;
-  gestationalAgeUnit: GestationalAgeUnitEnum;
-  gestationalAgeValue: string;
   pregnancyStartDate: number;
   isPregnant: boolean;
   medicalHistory: OrNull<string>;
   needsAssessment: boolean;
   patientAge: OrNull<number>;
-  patientId: string;
-  patientName: string;
-  patientSex: SexEnum;
+  id: string;
+  name: string;
+  sex: SexEnum;
   villageNumber: string;
   readings: Array<Reading>;
   tableData: { id: number };
   zone: OrNull<string>;
-  isExactDob: boolean;
+  isExactDateOfBirth: boolean;
   householdNumber: OrNull<string>;
   isArchived: boolean;
 };
 
-export interface PatientWithIndex extends Patient {
+export type PatientWithIndex = Patient & {
   index: number;
-}
+};
 
 export type PatientMedicalInfo = {
   medicalHistoryId: string;
@@ -114,7 +110,6 @@ export type PatientMedicalInfo = {
 };
 
 export type PatientPregnancyInfo = {
-  gestationalAgeUnit: GestationalAgeUnitEnum;
   isPregnant: boolean;
   pregnancyId: string;
   pregnancyStartDate: number;
@@ -122,79 +117,57 @@ export type PatientPregnancyInfo = {
 };
 
 export type PastPregnancy = {
-  pregnancyId: string;
-  pregnancyEndDate: number;
-  pregnancyOutcome: OrNull<string>;
-  pregnancyStartDate: number;
+  id: string;
+  startDate: number;
+  endDate: number;
+  outcome: string | null;
 };
 
 export type SecretKey = {
-  sms_key: string;
-  stale_date: string;
-  expiry_date: string;
+  smsKey: string;
+  staleDate: string;
+  expiryDate: string;
   message: string;
 };
 
-/**
- * Oct 24, 2024 - It seems that for the last 2 years, there has been a pretty
- * major bug with this User model definition. The "phoneNumber" attribute was
- * not aligned with the "phoneNumbers" attribute of the objects returned from
- * the server. Apparently the front-end was completely unaware of this
- * one-to-many relationship where users can have multiple phone numbers.
- * Consequently there are various things in the client-side code which expect
- * a "phoneNumber" attribute, so I have add the "phoneNumbers" array while
- * keeping the "phoneNumber" attribute.
- */
-export interface IUser {
-  userId: number;
-  email: string;
-  firstName: string;
-  healthFacilityName: string;
-  role: UserRoleEnum;
-  supervises: number[];
-  phoneNumbers: string[];
-  phoneNumber: string;
-}
-
-export interface IUserWithIndex extends IUser {
+export type UserWithIndex = User & {
   index: number;
-}
+};
 
-export interface IForm {
+export type Form = {
   formTemplateId: number;
   name: string;
   category: string;
   version: string;
   dateCreated: string;
   lastEdited: string;
-}
+};
 
-export interface IFacility {
-  [FacilityField.about]: string;
-  [FacilityField.type]: string;
-  [FacilityField.name]: string;
-  [FacilityField.newReferrals]: number;
-  [FacilityField.phoneNumber]: string;
-  [FacilityField.location]: string;
+export type Facility = {
+  about: string;
+  type: string;
+  name: string;
+  newReferrals: number;
+  phoneNumber: string;
+  location: string;
   index: number;
-}
-export interface IRelayNum {
+};
+export type RelayNum = {
   phone: string;
   description: string;
   lastReceived: number;
-}
+};
 
-export interface IUserWithTokens extends IUser {
-  token: string;
-  refresh: string;
-}
+export type UserWithToken = User & {
+  accessToken: string;
+};
 
-export interface IVHT {
+export type VHT = {
   userId: number;
   email: string;
   firstName: string;
   healthFacilityName: string;
-}
+};
 
 export type PatientTrafficLightStats = {
   green: number;
@@ -235,11 +208,11 @@ export type NewAssessment = {
   treatment: string;
   specialInvestigations: string;
   medicationPrescribed: string;
-  followupNeeded: boolean;
-  followupInstructions: OrNull<string>;
+  followUpNeeded: boolean;
+  followUpInstructions: OrNull<string>;
 };
-//FollowUp == Assessment
-export type FollowUp = NewAssessment & {
+
+export type Assessment = NewAssessment & {
   id: number;
   dateAssessed: number;
   healthcareWorkerId: string;
@@ -248,7 +221,7 @@ export type FollowUp = NewAssessment & {
   patientId: string;
 };
 
-export type Card = Reading & FollowUp & Referral & CustomizedForm;
+export type Card = Reading & Assessment & Referral & CustomizedForm;
 
 export type Referral = {
   id: string;
@@ -259,7 +232,7 @@ export type Referral = {
   isAssessed: boolean;
   patientId: string;
   readingId: string;
-  referralHealthFacilityName: string;
+  healthFacilityName: string;
   userId: OrNull<number>;
   dateAssessed: number;
   isCancelled: boolean;
@@ -276,8 +249,8 @@ export type ReferralFilter = {
   dateRange: string;
   referrers: string[];
   vitalSigns: TrafficLightEnum[];
-  isAssessed: string | undefined;
-  isPregnant: string | undefined;
+  isAssessed?: string;
+  isPregnant?: string;
 };
 
 export type Referrer = {
@@ -322,14 +295,14 @@ export interface CForm {
 }
 
 export type QAnswer = {
-  qidx: number;
-  qtype: QuestionTypeEnum | null;
-  anstype: AnswerTypeEnum | null; //value,text,mc,me,comment
+  questionIndex: number;
+  questionType: QuestionTypeEnum | null;
+  answerType: AnswerTypeEnum | null; //value,text,mc,me,comment
   val: any;
 };
 
 export interface QCondition {
-  qidx: number;
+  questionIndex: number;
   relation: QRelationEnum;
   answers: Answer;
 }
@@ -337,7 +310,7 @@ export interface QCondition {
 export type Answer = {
   number?: number | undefined;
   text?: string | undefined;
-  mcidArray?: number[] | undefined;
+  mcIdArray?: number[] | undefined;
   comment?: string | undefined;
 };
 
@@ -395,7 +368,7 @@ export interface QuestionLangVersion {
 }
 
 export type McOption = {
-  mcid: number;
+  mcId: number;
   opt: string;
 };
 

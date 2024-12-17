@@ -106,12 +106,12 @@ export const FormQuestions = ({
   useEffect(() => {
     const getValuesFromIDs = (
       question: Question,
-      mcidArray: number[] | undefined
+      mcIdArray: number[] | undefined
     ): string[] => {
       const res: string[] = [];
 
       const mcOptions: McOption[] = question.mcOptions ?? [];
-      mcidArray?.forEach((optionIndex) => {
+      mcIdArray?.forEach((optionIndex) => {
         res.push(mcOptions[optionIndex].opt);
       });
 
@@ -120,35 +120,35 @@ export const FormQuestions = ({
 
     const getAnswerFromQuestion = (question: Question): QAnswer => {
       const answer: QAnswer = {
-        qidx: question.questionIndex,
-        qtype: null,
-        anstype: null,
+        questionIndex: question.questionIndex,
+        questionType: null,
+        answerType: null,
         val: null,
       };
 
-      answer.qtype = question.questionType;
+      answer.questionType = question.questionType;
 
       switch (question.questionType) {
         case QuestionTypeEnum.MULTIPLE_CHOICE:
         case QuestionTypeEnum.MULTIPLE_SELECT:
-          answer.anstype = AnswerTypeEnum.MCID_ARRAY;
-          answer.val = getValuesFromIDs(question, question.answers?.mcidArray);
+          answer.answerType = AnswerTypeEnum.MC_ID_ARRAY;
+          answer.val = getValuesFromIDs(question, question.answers?.mcIdArray);
           break;
 
         case QuestionTypeEnum.INTEGER:
         case QuestionTypeEnum.DATE:
         case QuestionTypeEnum.DATETIME:
-          answer.anstype = AnswerTypeEnum.NUM;
+          answer.answerType = AnswerTypeEnum.NUM;
           answer.val = question.answers?.number ?? null;
           break;
 
         case QuestionTypeEnum.STRING:
-          answer.anstype = AnswerTypeEnum.TEXT;
+          answer.answerType = AnswerTypeEnum.TEXT;
           answer.val = question.answers?.text ?? null;
           break;
 
         case QuestionTypeEnum.CATEGORY:
-          answer.anstype = AnswerTypeEnum.CATEGORY;
+          answer.answerType = AnswerTypeEnum.CATEGORY;
           answer.val = null;
           break;
 
@@ -175,7 +175,7 @@ export const FormQuestions = ({
     if (isQuestionArr(questions)) {
       const ans = [...answers];
       ans.forEach((a) => {
-        if (a.qidx === index) {
+        if (a.questionIndex === index) {
           a.val = newValue;
         }
       });
@@ -193,7 +193,7 @@ export const FormQuestions = ({
       question.shouldHidden =
         question.visibleCondition?.length !== 0 &&
         question.visibleCondition.some((condition: QCondition) => {
-          const parentQuestion = questions[condition.qidx];
+          const parentQuestion = questions[condition.questionIndex];
           const parentAnswer: QAnswer = answers[parentQuestion.questionIndex];
 
           if (!parentAnswer.val) {
@@ -209,11 +209,11 @@ export const FormQuestions = ({
               // switch (condition.relation) {
               //   case QRelationEnum.EQUAL_TO:
               //     isConditionMet =
-              //       condition.answers.mcidArray!.length > 0 &&
+              //       condition.answers.mcIdArray!.length > 0 &&
               //       parentAnswer.val?.length > 0 &&
               //       parentAnswer.val?.length ===
-              //         condition.answers.mcidArray?.length &&
-              //       condition.answers.mcidArray!.every((item) =>
+              //         condition.answers.mcIdArray?.length &&
+              //       condition.answers.mcIdArray!.every((item) =>
               //         parentAnswer.val?.includes(
               //           parentQuestion.mcOptions[item].opt
               //         )
@@ -313,9 +313,9 @@ export const FormQuestions = ({
     }
     if (!answer) {
       answer = {
-        qidx: question.questionIndex,
-        qtype: question.questionType,
-        anstype: null, //value,text,mc,me,comment
+        questionIndex: question.questionIndex,
+        questionType: question.questionType,
+        answerType: null, //value,text,mc,me,comment
         val: '',
       };
     }

@@ -7,16 +7,16 @@ from validation.validation_exception import ValidationExceptionError
 
 
 class ReadingValidator(BaseModel):
-    readingId: str
-    patientId: str
-    bpSystolic: int
-    bpDiastolic: int
-    heartRateBPM: int
-    isFlaggedForFollowup: Optional[bool] = None
+    id: Optional[str] = None
+    patient_id: str
+    systolic_blood_pressure: int
+    diastolic_blood_pressure: int
+    heart_rate: int
+    is_flagged_for_follow_up: Optional[bool] = None
     symptoms: List[str]
-    dateTimeTaken: Optional[int] = None
-    userId: Optional[int] = None
-    followup: Optional[AssessmentValidator] = None
+    date_taken: Optional[int] = None
+    user_id: Optional[int] = None
+    assessment: Optional[AssessmentValidator] = None
 
     @staticmethod
     def validate(request_body: dict):
@@ -26,27 +26,35 @@ class ReadingValidator(BaseModel):
 
         :param request_body: The request body as a dict object
                             {
-                                "readingId": "asdasd82314278226313803", - required
-                                "patientId": "123456", - required
-                                "bpSystolic" : 150, - required
-                                "bpDiastolic" : 150, - required
-                                "heartRateBPM" : 35, - required
-                                "isFlaggedForFollowup" : True,
+                                "patient_id": "123456", - required
+                                "systolic_blood_pressure" : 150, - required
+                                "diastolic_blood_pressure" : 150, - required
+                                "heart_rate" : 35, - required
+                                "is_flagged_for_follow_up" : True,
                                 "symptoms": ["Headache,Blurred vision,Bleeding,sleepy"], - required
-                                "dateTimeTaken": 868545,
-                                "followup": {
-                                    "dateAssessed": 1551447833,
+                                "date_taken": 868545,
+                                "assessment": {
+                                    "date_assessed": 1551447833,
                                     "diagnosis": "patient is fine",
-                                    "medicationPrescribed": "tylenol",
-                                    "specialInvestigations": "bcccccccccddeeeff",
+                                    "medication_prescribed": "tylenol",
+                                    "special_investigations": "bcccccccccddeeeff",
                                     "treatment": "b",
-                                    "readingId": "test3",
-                                    "followupNeeded": "TRUE",
-                                    "followupInstructions": "pls help, give lots of tylenol"
+                                    "reading_id": "test3",
+                                    "follow_up_needed": "TRUE",
+                                    "follow_up_instructions": "pls help, give lots of tylenol"
                                 }
                             }
         """
         try:
-            return ReadingValidator(**request_body)
+            reading_model = ReadingValidator(**request_body)
         except ValidationError as e:
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+
+        # Check if the nested assessment object is valid
+        if "assessment" in request_body:
+            try:
+                AssessmentValidator(**(request_body["assessment"]))
+            except ValidationError as e:
+                raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+
+        return reading_model

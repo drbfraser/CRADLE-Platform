@@ -1,15 +1,19 @@
 import random
 
 import requests
+from humps import decamelize
 
 
 def get_login_token(email, password):
     url = "http://localhost:5000/api/user/auth"
-    payload = {"email": email, "password": password}
+    payload = {"username": email, "password": password}
 
     response = requests.post(url, json=payload)
-    resp_json = response.json()
-    return resp_json["token"]
+    response_body = decamelize(response.json())
+
+    if "access_token" not in response_body:
+        print(response_body)
+    return response_body["access_token"]
 
 
 def get_bearer_token(email, password):
@@ -22,7 +26,7 @@ def get_authorization_header(email, password):
 
 
 BASE_URL = "http://localhost:5000"
-auth_header_hcw = get_authorization_header("hcw@hcw.com", "hcw123")
+auth_header_hcw = get_authorization_header("hcw@email.com", "cradle-hcw")
 
 
 def get_random_patient_id():
@@ -44,8 +48,8 @@ def test_pass_search_partial_initials():
     partial_patient_initials = "A"
     url = BASE_URL + "/api/patients/global/" + partial_patient_initials
     response = requests.get(url, headers=auth_header_hcw)
-    response_body = response.json()
     assert response.status_code == 200
+    response_body = response.json()
     expected_matching_patients = 1
     # cannot determine exact amount because we are creating patients with random initials in some tests
     # to-do: change existing tests make them enter non-random data

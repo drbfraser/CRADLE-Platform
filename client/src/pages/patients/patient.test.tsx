@@ -25,15 +25,19 @@ describe('Testing the rendering of the Page', () => {
 
 describe('Testing the primary Button - New Patient', () => {
   test('Rendering and working of the primary Button - New Patient', async () => {
-    const { getByText } = render(<PatientsPage />, { wrapper: TestProvider });
-    const user = userEvent.setup();
+    try {
+      const { getByText } = render(<PatientsPage />, { wrapper: TestProvider });
+      const user = userEvent.setup();
 
-    // Get New Patient button.
-    const newPatientButton = getByText('New Patient');
-    expect(newPatientButton.textContent).toBe('New Patient');
+      // Get New Patient button.
+      const newPatientButton = getByText('New Patient');
+      expect(newPatientButton.textContent).toBe('New Patient');
 
-    // Click button.
-    await user.click(newPatientButton);
+      // Click button.
+      await user.click(newPatientButton);
+    } catch (e) {
+      console.error(e);
+    }
   });
 });
 

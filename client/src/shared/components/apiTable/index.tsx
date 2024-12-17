@@ -6,10 +6,10 @@ import Pagination from './Pagination';
 import SortBy from './SortBy';
 import ScrollArrow from './ScrollArrow';
 import { HeaderRow } from './HeaderRow';
-import { apiFetch, API_URL } from 'src/shared/api';
 import APIErrorToast from '../apiErrorToast/APIErrorToast';
 import { ReferralFilter } from 'src/shared/types';
 import { TrafficLightEnum } from 'src/shared/enums';
+import { axiosFetch } from 'src/shared/api/api';
 
 interface IProps {
   endpoint: string;
@@ -75,10 +75,6 @@ export const APITable = ({
     // allow aborting a fetch early if the user clicks things rapidly
     const controller = new AbortController();
 
-    const fetchOptions = {
-      signal: controller.signal,
-    };
-
     const params = new URLSearchParams({
       limit: limit.toString(),
       page: page.toString(),
@@ -87,50 +83,47 @@ export const APITable = ({
       sortDir: sortDir,
     });
 
-    const referralFilterParams = referralFilter
-      ? new URLSearchParams({
-          dateRange: referralFilter.dateRange,
-          isPregnant: referralFilter.isPregnant
-            ? referralFilter.isPregnant
-            : '',
-          isAssessed: referralFilter.isAssessed
-            ? referralFilter.isAssessed
-            : '',
-        })
-      : new URLSearchParams();
-
     if (referralFilter) {
+      if (referralFilter.dateRange !== '') {
+        params.append('dateRange', referralFilter.dateRange);
+      }
+      if (referralFilter.isPregnant) {
+        params.append('isPregnant', referralFilter.isPregnant);
+      }
+      if (referralFilter.isAssessed) {
+        params.append('isAssessed', referralFilter.isAssessed);
+      }
       referralFilter.healthFacilityNames.forEach((facilityName) =>
-        referralFilterParams.append('healthFacility', facilityName)
+        params.append('healthFacility', facilityName)
       );
       referralFilter.referrers.forEach((referrer) =>
-        referralFilterParams.append('referrer', referrer)
+        params.append('referrer', referrer)
       );
       referralFilter.vitalSigns.forEach((vitalSign) =>
-        referralFilterParams.append(
+        params.append(
           'vitalSigns',
           TrafficLightEnum[vitalSign as keyof typeof TrafficLightEnum]
         )
       );
     }
 
-    apiFetch(
-      API_URL + endpoint + '?' + params + '&' + referralFilterParams,
-      fetchOptions
-    )
+    axiosFetch({
+      method: 'GET',
+      url: endpoint,
+      params: params,
+    })
       .then(async (resp) => {
-        const json = await resp.json();
-
+        const data = resp.data;
         //The case for drug history records on the past records page
         if (isDrugRecord === true) {
-          setRows(json.drug);
+          setRows(data.drug);
           //The case for medical history records on the past records page
         } else if (isDrugRecord === false) {
-          setRows(json.medical);
+          setRows(data.medical);
         } else if (isReferralListPage === true) {
-          setRows(json);
+          setRows(data);
         } else {
-          setRows(json);
+          setRows(data);
         }
         setLoading(false);
       })

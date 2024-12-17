@@ -7,24 +7,20 @@ from validation.validation_exception import ValidationExceptionError
 
 
 # Represents a referral entity with validations to prevent unrecognized fields.
-class ReferralEntityValidator(BaseModel):
-    patientId: str
-    referralHealthFacilityName: str
-    comment: Optional[str] = None
+class ReferralEntityValidator(BaseModel, extra="forbid"):
     id: Optional[str] = None
-    dateReferred: Optional[datetime] = None
-    actionTaken: Optional[str] = None
-    isAssessed: Optional[bool] = None
-    isCancelled: Optional[bool] = None
-    cancelReason: Optional[str] = None
-    notAttended: Optional[bool] = None
-    notAttendReason: Optional[str] = None
-    lastEdited: Optional[datetime] = None
-    userId: Optional[int] = None
-
-    # forbid extra attributes
-    class Config:
-        extra = "forbid"
+    patient_id: str
+    health_facility_name: str
+    comment: Optional[str] = None
+    date_referred: Optional[datetime] = None
+    action_taken: Optional[str] = None
+    is_assessed: Optional[bool] = None
+    is_cancelled: Optional[bool] = None
+    cancel_reason: Optional[str] = None
+    not_attended: Optional[bool] = None
+    not_attend_reason: Optional[str] = None
+    last_edited: Optional[datetime] = None
+    user_id: Optional[int] = None
 
     @staticmethod
     def validate(request_body: dict):
@@ -34,8 +30,8 @@ class ReferralEntityValidator(BaseModel):
         :param request_body: The request body as a dict object
                             {
                                 "comment": "here is a comment",
-                                "patientId": "123",
-                                "referralHealthFacilityName": "H0000",
+                                "patient_id": "123",
+                                "health_facility_name": "H0000",
                             }
         :throw: An error if the request body is invalid. None otherwise
         :return pydantic model representation of the request body param
@@ -50,13 +46,9 @@ class ReferralEntityValidator(BaseModel):
 
 
 # Manages cancellation status with strict attribute enforcement to prevent unrecognized fields.
-class CancelStatusValidator(BaseModel):
+class CancelStatusValidator(BaseModel, extra="forbid"):
     isCancelled: bool
     cancelReason: str
-
-    # forbid extra attributes
-    class Config:
-        extra = "forbid"
 
     @staticmethod
     def validate(request_body: dict):
@@ -76,12 +68,8 @@ class CancelStatusValidator(BaseModel):
 # Manages non-attendance reasons with strict attribute enforcement to prevent unrecognized fields.
 
 
-class NotAttendValidator(BaseModel):
+class NotAttendValidator(BaseModel, extra="forbid"):
     notAttendReason: str
-
-    # forbid extra attributes
-    class Config:
-        extra = "forbid"
 
     @staticmethod
     def validate(request_body: dict):

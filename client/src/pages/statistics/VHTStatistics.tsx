@@ -1,23 +1,23 @@
-import { IUserWithTokens, OrNull } from 'src/shared/types';
+import { UserWithToken, OrNull } from 'src/shared/types';
 import { useState } from 'react';
 import {
   getUserStatisticsAsync,
   getUserStatisticsExportAsync,
-} from 'src/shared/api';
+} from 'src/shared/api/api';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import Box from '@mui/material/Box';
 import { Divider } from '@mui/material';
 import { ExportStatistics } from './utils/ExportStatistics';
 import FormControl from '@mui/material/FormControl';
-import { IVHT } from 'src/shared/types';
+import { VHT } from 'src/shared/types';
 import MenuItem from '@mui/material/MenuItem';
 import { ReduxState } from 'src/redux/reducers';
 import Select from '@mui/material/Select';
 import { StatisticDashboard } from './utils/StatisticsInfo';
 import Typography from '@mui/material/Typography';
 import { UserRoleEnum } from 'src/shared/enums';
-import { getVHTsAsync } from 'src/shared/api';
+import { getVHTsAsync } from 'src/shared/api/api';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import {
@@ -32,7 +32,7 @@ type Props = {
 };
 
 type User = {
-  user: OrNull<IUserWithTokens>;
+  user: OrNull<UserWithToken>;
 };
 
 export const VHTStatistics = ({ from, to }: Props) => {
@@ -42,7 +42,7 @@ export const VHTStatistics = ({ from, to }: Props) => {
     })
   );
 
-  const [vhts, setVHTs] = useState<IVHT[]>([]);
+  const [vhts, setVHTs] = useState<VHT[]>([]);
   const [errorLoading, setErrorLoading] = useState(false);
   const [vht, setVht] = useState('');
 

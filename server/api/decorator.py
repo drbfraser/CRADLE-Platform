@@ -1,14 +1,11 @@
 import logging
 from functools import wraps
 
-from flask_jwt_extended import (
-    get_jwt_identity,
-    verify_jwt_in_request,
-)
-
+from authentication import cognito
+from common import user_utils
 from data import crud
 from enums import RoleEnum
-from models import PatientAssociations
+from models import PatientAssociationsOrm
 
 LOGGER = logging.getLogger(__name__)
 
@@ -18,19 +15,19 @@ def roles_required(accepted_roles):
         @wraps(fn)
         def decorator(*args, **kwargs):
             # Ensure that user is first and foremost actually logged in
-            verify_jwt_in_request()
-            user_info = get_jwt_identity()
+            username = cognito.get_username_from_jwt()
+            user_dict = user_utils.get_user_dict_from_username(username)
             user_has_permissions = False
 
             # Check that one of the accepted roles is in the JWT.
             for role in accepted_roles:
-                if role.value == user_info["role"]:
+                if role.value == user_dict.get("role"):
                     user_has_permissions = True
 
             if user_has_permissions:
                 return fn(*args, **kwargs)
             return {
-                "message": "This user does not have the required privilege",
+                "message": "This user does not have the required privileges",
             }, 401
 
         return decorator
@@ -69,14 +66,14 @@ def patient_association_required():
     def wrapper(fn):
         @wraps(fn)
         def decorator(patient_id, *args, **kwargs):
-            verify_jwt_in_request()
+            cognito.verify_access_token()
 
-            identity = get_jwt_identity()
-            user_role = identity["role"]
+            current_user = user_utils.get_current_user_from_jwt()
+            user_role = current_user["role"]
             if user_role == RoleEnum.VHT.value:  # Changed the condition here
-                user_id = identity["userId"]
+                user_id = current_user["id"]
                 if not crud.read(
-                    PatientAssociations,
+                    PatientAssociationsOrm,
                     patientId=patient_id,
                     userId=user_id,
                 ):

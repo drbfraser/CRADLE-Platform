@@ -16,6 +16,10 @@ import { PropsWithChildren, useEffect } from 'react';
 
 const DATA_TABLE_BORDER_COLOR = 'rgb(224, 224, 224)';
 
+export const ARCHIVED_ROW_COLOR = 'rgb(251 193 193)';
+export const ARCHIVED_ROW_HOVERED_COLOR = '#e57373';
+export const ARCHIVED_ROW_SELECTED_COLOR = '#ea8f8f';
+
 const autosizeOptions = {
   includeHeaders: true,
   includeOutliers: true,
@@ -42,6 +46,11 @@ export const DataTable = ({
   useEffect(() => {
     apiRef.current.autosizeColumns(autosizeOptions);
   }, [rows, apiRef]);
+
+  useEffect(() => {
+    // Force the table to update whenever rows change.
+    apiRef.current.forceUpdate();
+  }, [rows]);
 
   return (
     <Box
@@ -75,6 +84,18 @@ export const DataTable = ({
             borderTop: '1px solid',
             borderBottom: '1px solid',
             borderColor: DATA_TABLE_BORDER_COLOR,
+          },
+          '& .row-archived': {
+            backgroundColor: ARCHIVED_ROW_COLOR,
+          },
+          '& .row-archived:hover': {
+            backgroundColor: ARCHIVED_ROW_HOVERED_COLOR,
+          },
+          '& .row-archived.Mui-selected': {
+            backgroundColor: ARCHIVED_ROW_SELECTED_COLOR,
+          },
+          '& .row-archived.Mui-selected:hover': {
+            backgroundColor: ARCHIVED_ROW_HOVERED_COLOR,
           },
           ...sx,
         }}

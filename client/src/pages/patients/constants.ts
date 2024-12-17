@@ -1,5 +1,5 @@
 export const COLUMNS = {
-  patientName: 'Patient Name',
+  name: 'Patient Name',
   patientId: 'Patient ID',
   villageNumber: 'Village',
   trafficLightStatus: 'Last Vital Sign',

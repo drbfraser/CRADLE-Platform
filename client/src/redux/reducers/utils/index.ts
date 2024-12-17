@@ -19,7 +19,7 @@ interface IServerRequestActionCreatorArgs<
 }
 
 export type ServerRequestAction = {
-  type: MakeServerRequestEnum;
+  type: MakeServerRequestEnum.MAKE_SERVER_REQUEST;
   payload: IServerRequestActionCreatorArgs;
 };
 

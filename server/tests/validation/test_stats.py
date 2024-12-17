@@ -26,7 +26,7 @@ timestamp_missing_field_to_should_return_model = {"from": FROM_TIMESTAMP}
 
 timestamp_missing_all_fields_should_return_model = {}
 
-timestamp_field_from_has_wrong_type_shoud_throw_exception = {
+timestamp_field_from_has_wrong_type_should_throw_exception = {
     "from": FROM_TIMESTAMP_INTEGER,
     "to": TO_TIMESTAMP,
 }
@@ -87,7 +87,7 @@ timeframe_missing_field_from_and_to_should_return_none = {
         (timestamp_missing_field_to_should_return_model, None),
         (timestamp_missing_all_fields_should_return_model, expection_default_timestamp),
         (
-            timestamp_field_from_has_wrong_type_shoud_throw_exception,
+            timestamp_field_from_has_wrong_type_should_throw_exception,
             ValidationExceptionError,
         ),
         (

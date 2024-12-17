@@ -2,8 +2,34 @@ from typing import Callable, Tuple
 
 import pytest
 import requests
+from flask import Flask
+from humps import decamelize
 
 from systemTests.mock import factory
+
+
+@pytest.fixture
+def app():
+    from config import app
+    # from manage import seed
+
+    app.config.update({"TESTING": True})
+    app.logger.disabled = True
+
+    yield app
+
+    # Cleanup.
+    app.logger.disabled = False
+    app.config.update({"TESTING": False})
+
+
+@pytest.fixture(autouse=True)
+def _provide_app_context(app: Flask):
+    with app.app_context():
+        # seed_test_data()
+        yield
+        # seed_test_data()
+
 
 #
 # database Fixtures
@@ -61,7 +87,7 @@ def credentials() -> Tuple[str, str]:
 
     :return: A tuple containing an email and password
     """
-    return "admin123@admin.com", "admin123"
+    return "admin@email.com", "cradle-admin"
 
 
 @pytest.fixture
@@ -73,10 +99,10 @@ def bearer_token(url: str, credentials: Tuple[str, str]) -> str:
     :return: A bearer token
     """
     url = f"{url}/api/user/auth"
-    payload = {"email": credentials[0], "password": credentials[1]}
+    payload = {"username": credentials[0], "password": credentials[1]}
     response = requests.post(url, json=payload)
-    resp_json = response.json()
-    return resp_json["token"]
+    response_body = decamelize(response.json())
+    return response_body["access_token"]
 
 
 @pytest.fixture
@@ -143,8 +169,8 @@ def api(url: str):
         @staticmethod
         def get(
             endpoint: str,
-            email: str = "admin123@admin.com",
-            password: str = "admin123",
+            email: str = "admin@email.com",
+            password: str = "admin",
         ):
             return Api.__make_request(requests.get, endpoint, {}, email, password)
 
@@ -152,8 +178,8 @@ def api(url: str):
         def post(
             endpoint: str,
             payload: dict,
-            email: str = "admin123@admin.com",
-            password: str = "admin123",
+            email: str = "admin@email.com",
+            password: str = "admin",
         ):
             return Api.__make_request(requests.post, endpoint, payload, email, password)
 
@@ -161,18 +187,18 @@ def api(url: str):
         def put(
             endpoint: str,
             payload: dict,
-            email: str = "admin123@admin.com",
-            password: str = "admin123",
+            email: str = "admin@email.com",
+            password: str = "admin",
         ):
             return Api.__make_request(requests.put, endpoint, payload, email, password)
 
         @staticmethod
         def __get_bearer_token(email: str, password: str):
             u = f"{url}/api/user/auth"
-            payload = {"email": email, "password": password}
+            payload = {"username": email, "password": password}
             response = requests.post(u, json=payload)
-            resp_json = response.json()
-            return resp_json["token"]
+            response_body = decamelize(response.json())
+            return response_body["access_token"]
 
         @staticmethod
         def __make_request(
@@ -210,8 +236,8 @@ def referral_factory(database) -> factory.ReferralFactory:
 
 
 @pytest.fixture
-def followup_factory(database) -> factory.FollowUpFactory:
-    yield from __make_factory(database, factory.FollowUpFactory)
+def followup_factory(database) -> factory.AssessmentFactory:
+    yield from __make_factory(database, factory.AssessmentFactory)
 
 
 @pytest.fixture

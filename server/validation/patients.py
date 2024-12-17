@@ -8,40 +8,40 @@ from validation.validation_exception import ValidationExceptionError
 
 
 class PatientBase(BaseModel):
-    patientId: Optional[str] = None
-    patientName: Optional[str] = None
-    patientSex: Optional[str] = "FEMALE"
-    dob: Optional[str] = None
-    isExactDob: Optional[bool] = False
-    isPregnant: Optional[bool] = False
-    householdNumber: Optional[str] = None
+    id: Optional[str] = None
+    name: Optional[str] = None
+    sex: Optional[str] = "FEMALE"
+    date_of_birth: Optional[str] = None
+    is_exact_date_of_birth: Optional[bool] = False
+    is_pregnant: Optional[bool] = False
+    household_number: Optional[str] = None
     zone: Optional[str] = None
-    villageNumber: Optional[str] = None
-    pregnancyStartDate: Optional[int] = None
-    drugHistory: Optional[str] = None
-    medicalHistory: Optional[str] = None
+    village_number: Optional[str] = None
+    pregnancy_start_date: Optional[int] = None
+    drug_history: Optional[str] = None
+    medical_history: Optional[str] = None
     allergy: Optional[str] = None
-    isArchived: Optional[bool] = None
+    is_archived: Optional[bool] = None
 
     @model_validator(mode="before")
     @classmethod
     def validate_is_pregnant_field(cls, values):
-        is_pregnant = values.get("isPregnant")
+        is_pregnant = values.get("is_pregnant")
         if is_pregnant:
-            if not values.get("pregnancyStartDate"):
+            if values.get("pregnancy_start_date") is None:
                 raise ValueError(
-                    "If isPregnant is True, pregnancyStartDate is required.",
+                    "If is_pregnant is True, pregnancy_start_date is required.",
                 )
         return values
 
-    @field_validator("patientId", mode="before")
+    @field_validator("id", mode="before")
     @classmethod
     def check_patient_id_length(cls, patient_id):
         if type(patient_id) is str and len(patient_id) > 14:
             raise ValueError("patientId is too long. Max is 14 digits.")
         return patient_id
 
-    @field_validator("pregnancyStartDate", mode="before")
+    @field_validator("pregnancy_start_date", mode="before")
     @classmethod
     def validate_pregnancy_start_date_field(cls, pregnancy_start_date):
         if pregnancy_start_date:
@@ -50,21 +50,20 @@ class PatientBase(BaseModel):
                 raise ValueError(error)
         return pregnancy_start_date
 
-    @field_validator("dob", mode="before")
+    @field_validator("date_of_birth", mode="before")
     @classmethod
-    def validate_date_format(cls, dob):
-        if dob and not is_correct_date_format(dob):
-            raise ValueError("dob is not in the required YYYY-MM-DD format.")
-        return dob
+    def validate_date_format(cls, date_of_birth):
+        if date_of_birth and not is_correct_date_format(date_of_birth):
+            raise ValueError("date_of_birth is not in the required YYYY-MM-DD format.")
+        return date_of_birth
 
 
 class PatientPostValidator(PatientBase):
-    patientId: str
-    patientName: str
-    patientSex: str
-    dob: str
-    isExactDob: bool
-    isPregnant: bool
+    id: str
+    name: str
+    sex: str
+    date_of_birth: str
+    is_exact_date_of_birth: bool
     readings: Optional[List[ReadingValidator]] = None
 
     @staticmethod
@@ -75,21 +74,20 @@ class PatientPostValidator(PatientBase):
 
         :param request_body: The request body as a dict object
                             {
-                                "patientId": "123456", - required
-                                "patientName": "testName", - required
-                                "isPregnant": True, - required
-                                "patientSex": "FEMALE", - required
-                                "dob": "1990-05-30", - required
-                                "isExactDob: false - required
-                                "householdNumber": "20",
+                                "id": "123456", - required
+                                "name": "testName", - required
+                                "is_pregnant": True, - required
+                                "sex": "FEMALE", - required
+                                "date_of_birth": "1990-05-30", - required
+                                "is_exact_date_of_birth: false - required
+                                "household_number": "20",
                                 "zone": "15",
-                                "villageNumber": "50",
-                                "pregnancyStartDate": 1587068710, - required if isPregnant = True
-                                "gestationalAgeUnit": "WEEKS", - required isPregnant = True
-                                "drugHistory": "too much tylenol",
-                                "medicalHistory": "not enough advil",
+                                "village_number": "50",
+                                "pregnancy_start_date": 1587068710, - required if is_pregnant = True
+                                "drug_history": "too much tylenol",
+                                "medical_history": "not enough advil",
                                 "allergy": "seafood",
-                                "isArchived": false
+                                "is_archived": false
                             }
         """
         try:
@@ -98,12 +96,18 @@ class PatientPostValidator(PatientBase):
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
 
-class PatientPutValidator(PatientBase):
-    lastEdited: Optional[int] = None
+class PatientPutValidator(PatientBase, extra="forbid"):
+    last_edited: Optional[int] = None
     base: Optional[int] = None
 
-    class Config:
-        extra = "forbid"
+    @field_validator("pregnancy_start_date", mode="before")
+    @classmethod
+    def validate_pregnancy_start_date_field(cls, pregnancy_start_date):
+        if pregnancy_start_date:
+            error = check_gestational_age_under_limit(pregnancy_start_date)
+            if error:
+                raise ValueError(error)
+        return pregnancy_start_date
 
     @staticmethod
     def validate(request_body: dict, patient_id):
@@ -119,24 +123,24 @@ class PatientPutValidator(PatientBase):
         except ValidationError as e:
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
-        if patient.patientId and patient.patientId != patient_id:
+        if patient.id and patient.id != patient_id:
             raise ValidationExceptionError("Patient ID cannot be changed.")
 
         return patient
 
 
-def check_gestational_age_under_limit(gestation_timestamp: int) -> Optional[str]:
+def check_gestational_age_under_limit(pregnancy_start_date: int) -> Optional[str]:
     """
     Checks if a Unix timestamp is a valid gestational age.
     Is a valid gestational age if is from no more than 43 weeks/10 months ago
 
-    :param gestation_timestamp: The Unix timestamp to validate
+    :param pregnancy_start_date: The Unix timestamp to validate
     :return: Returns None if the timestamp is valid, a string message otherwise
     """
-    if gestation_timestamp == 0:
+    if pregnancy_start_date == 0:
         return None
 
-    gestation_date = datetime.fromtimestamp(gestation_timestamp)
+    gestation_date = datetime.fromtimestamp(pregnancy_start_date)
     today = date.today()
     num_of_weeks = (today - gestation_date.date()).days // 7
     if num_of_weeks > 43:

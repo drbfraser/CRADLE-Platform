@@ -8,24 +8,24 @@ VERSION = "V1"
 ID = "asdsd-sdsw1231"
 
 root_question = {
-    "categoryIndex": None,  # root question has to have first categoryIndex as None
-    "numMax": None,
-    "numMin": None,
-    "questionId": "referred-by-name",
-    "questionIndex": 1,
-    "questionLangVersions": [
+    "category_index": None,  # root question has to have first category_index as None
+    "num_max": None,
+    "num_min": None,
+    "question_id": "referred-by-name",
+    "question_index": 1,
+    "question_lang_versions": [
         {
             "lang": "english",
-            "mcOptions": [{"mcid": 0, "opt": "england"}],
-            "questionText": "what's your nation",
+            "mc_options": [{"mc_id": 0, "opt": "england"}],
+            "question_text": "what's your nation",
         },
     ],
-    "questionType": "MULTIPLE_CHOICE",
+    "question_type": "MULTIPLE_CHOICE",
     "required": True,
-    "stringMaxLength": None,
+    "string_max_length": None,
     "units": None,
-    "visibleCondition": [
-        {"answers": {"mcidArray": [0]}, "qidx": 0, "relation": "EQUAL_TO"},
+    "visible_condition": [
+        {"answers": {"mc_id_array": [0]}, "question_index": 0, "relation": "EQUAL_TO"},
     ],
 }
 

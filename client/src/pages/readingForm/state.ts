@@ -1,5 +1,5 @@
 import { FormikProps } from 'formik';
-import { getPatientMedicalHistoryAsync } from 'src/shared/api';
+import { getPatientMedicalHistoryAsync } from 'src/shared/api/api';
 
 export enum ReadingField {
   // symptoms
@@ -19,9 +19,9 @@ export enum ReadingField {
   lossOfSmell = 'lossOfSmell',
   otherSymptoms = 'otherSymptoms',
   // vital signs
-  bpSystolic = 'bpSystolic',
-  bpDiastolic = 'bpDiastolic',
-  heartRateBPM = 'heartRateBPM',
+  bpSystolic = 'systolicBloopPressure',
+  bpDiastolic = 'diastolicBloodPressure',
+  heartRate = 'heartRate',
   // urine test
   urineTest = 'urineTest',
   leukocytes = 'leukocytes',
@@ -35,7 +35,7 @@ export enum ReadingField {
   treatment = 'treatment',
   medication = 'medication',
   followUp = 'followUp',
-  followUpInstruc = 'followUpInstruc',
+  followUpInstructions = 'followUpInstructions',
   drugHistory = 'drugHistory',
 }
 
@@ -59,7 +59,7 @@ export const initialState = {
   // vital signs
   [ReadingField.bpSystolic]: '',
   [ReadingField.bpDiastolic]: '',
-  [ReadingField.heartRateBPM]: '',
+  [ReadingField.heartRate]: '',
   // urine test
   [ReadingField.urineTest]: false,
   [ReadingField.leukocytes]: '',
@@ -73,7 +73,7 @@ export const initialState = {
   [ReadingField.treatment]: '',
   [ReadingField.medication]: '',
   [ReadingField.followUp]: false,
-  [ReadingField.followUpInstruc]: '',
+  [ReadingField.followUpInstructions]: '',
   [ReadingField.drugHistory]: '',
 };
 

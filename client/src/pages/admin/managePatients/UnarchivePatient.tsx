@@ -2,7 +2,7 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { ConfirmDialog } from 'src/shared/components/confirmDialog/index';
 import { Patient } from 'src/shared/types';
 import { Toast } from 'src/shared/components/toast';
-import { unarchivePatientAsync } from 'src/shared/api';
+import { unarchivePatientAsync } from 'src/shared/api/api';
 import { useState } from 'react';
 
 interface IProps {
@@ -14,7 +14,7 @@ interface IProps {
 const UnarchivePatient = ({ open, onClose, patient }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
-  const name = patient?.patientName;
+  const name = patient?.name;
 
   const handleDelete = async () => {
     if (!patient) {
@@ -22,7 +22,7 @@ const UnarchivePatient = ({ open, onClose, patient }: IProps) => {
     }
 
     try {
-      await unarchivePatientAsync(patient.patientId);
+      await unarchivePatientAsync(patient.id);
 
       setSubmitError(false);
       setSubmitSuccess(true);

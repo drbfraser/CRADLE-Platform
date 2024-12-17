@@ -9,7 +9,7 @@ import {
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { FormTemplate } from 'src/shared/types';
 import { Toast } from 'src/shared/components/toast';
-import { handleArchiveFormTemplateAsync } from 'src/shared/api';
+import { handleArchiveFormTemplateAsync } from 'src/shared/api/api';
 import { useState } from 'react';
 
 interface IProps {

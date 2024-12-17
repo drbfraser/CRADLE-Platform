@@ -14,9 +14,9 @@ assessments_with_valid_fields_should_return_none = {
     "healthcareWorkerId": HEALTHCARE_WORKER_ID,
     "specialInvestigations": "bcccccccccddeeeff",
     "treatment": "b",
-    "patientId": "asdasd82314278226313803",
-    "followupNeeded": True,
-    "followupInstructions": "pls help, give lots of tylenol",
+    "patient_id": "asdasd82314278226313803",
+    "follow_up_needed": True,
+    "follow_up_instructions": "pls help, give lots of tylenol",
 }
 
 assessments_missing_optional_field_diagnosis_should_return_none = {
@@ -25,9 +25,9 @@ assessments_missing_optional_field_diagnosis_should_return_none = {
     "healthcareWorkerId": HEALTHCARE_WORKER_ID,
     "specialInvestigations": "bcccccccccddeeeff",
     "treatment": "b",
-    "patientId": "asdasd82314278226313803",
-    "followupNeeded": True,
-    "followupInstructions": "pls help, give lots of tylenol",
+    "patient_id": "asdasd82314278226313803",
+    "follow_up_needed": True,
+    "follow_up_instructions": "pls help, give lots of tylenol",
 }
 
 assessments_missing_required_field_dateAssessed_should_throw_exception = {
@@ -71,9 +71,9 @@ assessments_has_followupInstructions_when_followupNeeded_true_should_return_none
     "healthcareWorkerId": HEALTHCARE_WORKER_ID,
     "specialInvestigations": "bcccccccccddeeeff",
     "treatment": "b",
-    "patientId": "asdasd82314278226313803",
-    "followupNeeded": True,
-    "followupInstructions": "pls help, give lots of tylenol",
+    "patient_id": "asdasd82314278226313803",
+    "follow_up_needed": True,
+    "follow_up_instructions": "pls help, give lots of tylenol",
 }
 
 assessments_missing_followupInstructions_when_followupNeeded_true_should_throw_exception = {

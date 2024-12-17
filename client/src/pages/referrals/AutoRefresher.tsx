@@ -1,13 +1,13 @@
-import { IFacility, IUserWithTokens, OrNull } from 'src/shared/types';
+import { Facility } from 'src/shared/types';
 import React, { useState } from 'react';
 
 import CircularProgress from '@mui/material/CircularProgress';
 import { PrimaryButton } from 'src/shared/components/Button';
-import { ReduxState } from 'src/redux/reducers';
 import Typography from '@mui/material/Typography';
-import { getHealthFacilityAsync } from 'src/shared/api';
-import { useSelector } from 'react-redux';
+import { getHealthFacilityAsync } from 'src/shared/api/api';
 import { Box, SxProps } from '@mui/material';
+import { useAppSelector } from 'src/shared/hooks';
+import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
 
 const ENABLE_BUTTON_SX: SxProps = {
   verticalAlign: 'middle',
@@ -21,10 +21,6 @@ interface IProps {
   setIsRefreshDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-type SelectorState = {
-  user: OrNull<IUserWithTokens>;
-};
-
 export const AutoRefresher = ({
   setRefresh,
   refreshTimer,
@@ -34,11 +30,7 @@ export const AutoRefresher = ({
   const [ifAutoRefreshOn, setIfAutoRefreshOn] = useState<boolean>(true);
   const [healthFacilityName, setHealthFacilityName] = useState<string>();
 
-  const { user } = useSelector(
-    ({ user }: ReduxState): SelectorState => ({
-      user: user.current.data,
-    })
-  );
+  const { data: user } = useAppSelector(selectCurrentUser);
 
   React.useEffect(() => {
     if (user) {
@@ -59,7 +51,7 @@ export const AutoRefresher = ({
     const timePerSlice = refreshTimer * 10;
 
     const refreshFacilities = async () => {
-      const healthFacility: IFacility = await getHealthFacilityAsync(
+      const healthFacility: Facility = await getHealthFacilityAsync(
         healthFacilityName
       );
 

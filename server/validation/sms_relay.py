@@ -2,17 +2,20 @@ from typing import Optional
 
 from pydantic import BaseModel, ValidationError, field_validator, model_validator
 
+from common.commonUtil import format_phone_number
 from enums import HTTPMethodEnum
 from validation.validation_exception import ValidationExceptionError
 
 
-class SmsRelayValidator(BaseModel):
-    phoneNumber: str
-    encryptedData: str
+class SmsRelayValidator(BaseModel, extra="forbid"):
+    phone_number: str
+    encrypted_data: str
 
-    # forbid extra attributes
-    class Config:
-        extra = "forbid"
+    @field_validator("phone_number")
+    @classmethod
+    def format_phone_numbers(cls, phone_number: str) -> str:
+        formatted_phone_numbers = format_phone_number(phone_number)
+        return formatted_phone_numbers
 
     @staticmethod
     def validate_request(request_body: dict):
@@ -27,28 +30,23 @@ class SmsRelayValidator(BaseModel):
             return SmsRelayValidator(**request_body)
         except ValidationError as e:
             # Raises an exception with the first error message from the validation errors
-            error_message = str(e.errors()[0]["msg"])
+            error_message = e.errors()[0]["msg"]
             raise ValidationExceptionError(error_message)
 
 
-class SmsRelayDecryptedBodyValidator(BaseModel):
-    requestNumber: int
+class SmsRelayDecryptedBodyValidator(BaseModel, extra="forbid"):
+    request_number: int
     method: HTTPMethodEnum
     endpoint: str
     headers: Optional[str] = None
     body: Optional[str] = None
-
-    # forbid extra attributes
-    class Config:
-        extra = "forbid"
-        use_enum_values = True
 
     @model_validator(mode="before")
     @classmethod
     def request_number_is_required(cls, values):
         missing_fields = [
             field
-            for field in ["requestNumber", "method", "endpoint"]
+            for field in ["request_number", "method", "endpoint"]
             if field not in values or values[field] is None
         ]
 

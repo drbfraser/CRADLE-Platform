@@ -1,38 +1,29 @@
-import { IUserWithTokens, OrNull } from 'src/shared/types';
 import {
   getUserStatisticsAsync,
   getUserStatisticsExportAsync,
-} from 'src/shared/api';
+} from 'src/shared/api/api';
 
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import { ExportStatistics } from './utils/ExportStatistics';
-import { ReduxState } from 'src/redux/reducers';
 import { StatisticDashboard } from './utils/StatisticsInfo';
 import Typography from '@mui/material/Typography';
-import { useSelector } from 'react-redux';
 import { DIVIDER_SX, STATS_PAGE_SX } from './utils/statisticStyles';
+import { useAppSelector } from 'src/shared/hooks';
+import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
 
 type MyStatisticsProps = {
   from: number;
   to: number;
 };
 
-type User = {
-  user: OrNull<IUserWithTokens>;
-};
-
 export const MyStatistics = ({ from, to }: MyStatisticsProps) => {
-  const { user } = useSelector(
-    ({ user }: ReduxState): User => ({
-      user: user.current.data,
-    })
-  );
-  const userId = user?.userId;
+  const { data: currentUser } = useAppSelector(selectCurrentUser);
+  const userId = currentUser?.id;
   return (
     <Box sx={STATS_PAGE_SX}>
       <Box sx={{ float: 'left' }}>
-        <Typography variant="h5" gutterBottom>
+        <Typography variant={'h5'} component={'h5'} gutterBottom>
           During this period, you have assessed:
         </Typography>
       </Box>

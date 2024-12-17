@@ -3,65 +3,70 @@ from pprint import pformat
 from typing import List
 
 import pytest
+from humps import decamelize
 
 from data import crud
 from enums import TrafficLightEnum
-from models import MedicalRecord, Patient, Pregnancy, Reading
+from models import MedicalRecordOrm, PatientOrm, PregnancyOrm, ReadingOrm
 from utils import get_current_time
 
 
 def test_get_patient_list(create_patient, patient_info, reading_factory, api_get):
     create_patient()
-    patient_id = patient_info["patientId"]
+    patient_id = patient_info["id"]
 
     reading_id1 = "w3d0aklrs4wenm6hk5z1"
     date1 = 1604514300
     reading_factory.create(
-        readingId=reading_id1,
-        patientId=patient_id,
-        dateTimeTaken=date1,
+        id=reading_id1,
+        patient_id=patient_id,
+        date_taken=date1,
     )
 
     reading_id2 = "w3d0aklrs4wenm6hk5z2"
     date2 = date1 + 2e7
     reading_factory.create(
-        readingId=reading_id2,
-        patientId=patient_id,
-        dateTimeTaken=date2,
+        id=reading_id2,
+        patient_id=patient_id,
+        date_taken=date2,
     )
 
     response = api_get(endpoint="/api/patients")
 
     assert response.status_code == 200
 
+    response_body = decamelize(response.json())
+
     patient = None
-    for p in response.json():
-        if p["patientId"] == patient_id:
+    for p in response_body:
+        if p["id"] == patient_id:
             patient = p
             break
 
-    assert patient["patientName"] == patient_info["patientName"]
-    assert patient["villageNumber"] == patient_info["villageNumber"]
-    assert patient["trafficLightStatus"] == TrafficLightEnum.GREEN.value
-    assert patient["dateTimeTaken"] == date2
+    assert patient["name"] == patient_info["name"]
+    assert patient["village_number"] == patient_info["village_number"]
+    assert patient["traffic_light_status"] == TrafficLightEnum.GREEN.value
+    assert patient["date_taken"] == date2
 
 
 def test_get_patients_admin(create_patient, patient_info, api_get):
     create_patient()
-    patient_id = patient_info["patientId"]
+    patient_id = patient_info["id"]
 
     response = api_get(endpoint="/api/patients/admin")
 
     assert response.status_code == 200
 
+    response_body = decamelize(response.json())
+
     patient = None
-    for p in response.json():
-        if p["patientId"] == patient_id:
+    for p in response_body:
+        if p["id"] == patient_id:
             patient = p
             break
 
-    assert patient["patientName"] == patient_info["patientName"]
-    assert patient["isArchived"] == patient_info["isArchived"]
+    assert patient["name"] == patient_info["name"]
+    assert patient["is_archived"] == patient_info["is_archived"]
 
 
 def test_get_patient(
@@ -77,7 +82,7 @@ def test_get_patient(
     api_get,
 ):
     create_patient()
-    patient_id = patient_info["patientId"]
+    patient_id = patient_info["id"]
 
     pregnancy_factory.create(**pregnancy_earlier)
     pregnancy_factory.create(**pregnancy_later)
@@ -85,28 +90,30 @@ def test_get_patient(
     medical_record_factory.create(**drug_record)
 
     reading_id1 = "w3d0aklrs4wenm6hk5z3"
-    reading_factory.create(readingId=reading_id1, patientId=patient_id)
+    reading_factory.create(id=reading_id1, patient_id=patient_id)
 
     reading_id2 = "w3d0aklrs4wenm6hk5z4"
-    reading_factory.create(readingId=reading_id2, patientId=patient_id)
+    reading_factory.create(id=reading_id2, patient_id=patient_id)
 
     response = api_get(endpoint=f"/api/patients/{patient_id}")
 
     assert response.status_code == 200
 
-    patient = response.json()
+    response_body = decamelize(response.json())
 
-    assert patient["patientId"] == patient_id
-    assert patient["patientName"] == patient_info["patientName"]
-    assert patient["dob"] == patient_info["dob"]
-    assert patient["pregnancyStartDate"] == pregnancy_later["startDate"]
-    assert patient["medicalHistory"] == medical_record["information"]
-    assert patient["drugHistory"] == drug_record["information"]
+    patient = response_body
+
+    assert patient["id"] == patient_id
+    assert patient["name"] == patient_info["name"]
+    assert patient["date_of_birth"] == patient_info["date_of_birth"]
+    assert patient["pregnancy_start_date"] == pregnancy_later["start_date"]
+    assert patient["medical_history"] == medical_record["information"]
+    assert patient["drug_history"] == drug_record["information"]
 
     readings = patient["readings"]
 
-    assert any(r["readingId"] == reading_id1 for r in readings)
-    assert any(r["readingId"] == reading_id2 for r in readings)
+    assert any(r["id"] == reading_id1 for r in readings)
+    assert any(r["id"] == reading_id2 for r in readings)
 
 
 def test_get_patient_pregnancy_summary(
@@ -123,8 +130,11 @@ def test_get_patient_pregnancy_summary(
     )
 
     assert response.status_code == 200
-    assert response.json()["isPregnant"] is False
-    assert len(response.json()["pastPregnancies"]) == 0
+
+    response_body = decamelize(response.json())
+
+    assert response_body["is_pregnant"] is False
+    assert len(response_body["past_pregnancies"]) == 0
 
     pregnancy_factory.create(**pregnancy_earlier)
     pregnancy_factory.create(**pregnancy_later)
@@ -134,12 +144,15 @@ def test_get_patient_pregnancy_summary(
     )
 
     assert response.status_code == 200
-    assert response.json()["isPregnant"] is True
-    assert response.json()["pregnancyStartDate"] == pregnancy_later["startDate"]
-    assert len(response.json()["pastPregnancies"]) == 1
 
-    past_pregnancy = response.json()["pastPregnancies"][0]
-    assert past_pregnancy["pregnancyOutcome"] == pregnancy_earlier["outcome"]
+    response_body = decamelize(response.json())
+
+    assert response_body["is_pregnant"] is True
+    assert response_body["pregnancy_start_date"] == pregnancy_later["start_date"]
+    assert len(response_body["past_pregnancies"]) == 1
+
+    past_pregnancy = response_body["past_pregnancies"][0]
+    assert past_pregnancy["outcome"] == pregnancy_earlier["outcome"]
 
 
 def test_get_patient_medical_history(
@@ -159,8 +172,11 @@ def test_get_patient_medical_history(
     )
 
     assert response.status_code == 200
-    assert response.json()["medicalHistory"] == medical_record["information"]
-    assert response.json()["drugHistory"] == drug_record["information"]
+
+    response_body = decamelize(response.json())
+
+    assert response_body["medical_history"] == medical_record["information"]
+    assert response_body["drug_history"] == drug_record["information"]
 
 
 def test_get_patient_timeline(
@@ -187,11 +203,13 @@ def test_get_patient_timeline(
 
     assert response.status_code == 200
 
-    timeline = response.json()
+    response_body = decamelize(response.json())
+
+    timeline = response_body
     assert len(timeline) >= 5
     assert timeline[0]["information"] == drug_record["information"]
-    assert timeline[2]["date"] == pregnancy_later["startDate"]
-    assert timeline[3]["date"] == pregnancy_earlier["endDate"]
+    assert timeline[2]["date"] == pregnancy_later["start_date"]
+    assert timeline[3]["date"] == pregnancy_earlier["end_date"]
 
 
 @pytest.mark.skip(reason="API deprecated")
@@ -223,7 +241,7 @@ def test_get_mobile_patient(database, api_post, api_get):
         assert response.status_code == 201
 
         for p in patient_ids:
-            patient = crud.read(Patient, patientId=p)
+            patient = crud.read(PatientOrm, id=p)
             assert patient is not None
 
         # Add a more fleshed-out reading to the first patient.
@@ -257,20 +275,20 @@ def test_get_mobile_patient(database, api_post, api_get):
         assert reading_response.status_code == 201
 
         for r in reading_ids:
-            reading = crud.read(Reading, readingId=r)
+            reading = crud.read(ReadingOrm, readingId=r)
             assert reading is not None
 
         # Get all the patients from /api/mobile/patients.
-        responseMobile = api_get(endpoint="/api/mobile/patients")
-        assert responseMobile.status_code == 200
+        response_mobile = api_get(endpoint="/api/mobile/patients")
+        assert response_mobile.status_code == 200
 
         # Setup an error message to return when an assert fails.
         # Note: Since this is usually tested with the test seed data, there will
         # be more than just 1 patient here.
         patient_number_info = (
-            f"There were {len(responseMobile.json())} patients "
+            f"There were {len(response_mobile.json())} patients "
             + "returned by api/mobile/patients. Dumping them all now:\n"
-            + pformat(responseMobile.json(), width=48)
+            + pformat(response_mobile.json(), width=48)
             + "\n"
             + "========================================================"
         )
@@ -279,8 +297,8 @@ def test_get_mobile_patient(database, api_post, api_get):
         # For every patient in the database (as admin user, /api/mobile/patients returns
         # all the patients), get the patient info from the /api/patients/:id endpont
         # and then determine if they match.
-        for patient_from_mobile_patients in responseMobile.json():
-            patient_id = patient_from_mobile_patients["patientId"]
+        for patient_from_mobile_patients in response_mobile.json():
+            patient_id = patient_from_mobile_patients["id"]
             # Validate that the GET requests for /api/patients/{patient_id} and
             # /api/mobile/patients give back the same information.
             # We first validate that the patient info returned is consistent.
@@ -306,45 +324,45 @@ def test_get_mobile_patient(database, api_post, api_get):
             for readingFromMobile in patient_from_mobile_patients["readings"]:
                 # From the reading from the api/mobile/patients, find the corresponding reading
                 # from the api/patients/:id endpoint
-                current_reading_id = readingFromMobile["readingId"]
-                readingFromNormalApi = [
+                current_reading_id = readingFromMobile["id"]
+                reading_from_normal_api = [
                     r
                     for r in patient_from_patients_api["readings"]
-                    if r["readingId"] == current_reading_id
+                    if r["id"] == current_reading_id
                 ][0]
                 # Check that they give the exact same information.
                 __assert_dicts_are_equal(
                     readingFromMobile,
-                    readingFromNormalApi,
+                    reading_from_normal_api,
                     f"reading {current_reading_id} from api/mobile/patients",
                     f"reading {current_reading_id} from api/patients/:id",
                     other_error_messages=patient_number_info,
-                    ignored_keys=["userId"],
+                    ignored_keys=["user_id"],
                 )
-            for readingFromNormalApi in patient_from_patients_api["readings"]:
+            for reading_from_normal_api in patient_from_patients_api["readings"]:
                 # From the reading from the api/patients/:id, find the corresponding reading
                 # from the api/mobile/patients endpoint
-                current_reading_id = readingFromNormalApi["readingId"]
+                current_reading_id = reading_from_normal_api["id"]
                 readingFromMobile = [
                     r
                     for r in patient_from_mobile_patients["readings"]
-                    if r["readingId"] == current_reading_id
+                    if r["id"] == current_reading_id
                 ][0]
                 # Check that they give the exact same information.
                 __assert_dicts_are_equal(
                     readingFromMobile,
-                    readingFromNormalApi,
+                    reading_from_normal_api,
                     f"reading {current_reading_id} from api/mobile/patients",
                     f"reading {current_reading_id} from api/patients/:id",
                     other_error_messages=patient_number_info,
-                    ignored_keys=["userId"],
+                    ignored_keys=["user_id"],
                 )
 
     finally:
         for r in reading_ids:
-            crud.delete_by(Reading, readingId=r)
+            crud.delete_by(ReadingOrm, id=r)
         for p in patient_ids:
-            crud.delete_by(Patient, patientId=p)
+            crud.delete_by(PatientOrm, id=p)
 
 
 def test_create_patient_with_nested_readings(database, api_post):
@@ -359,16 +377,16 @@ def test_create_patient_with_nested_readings(database, api_post):
 
     try:
         assert response.status_code == 201
-        assert crud.read(Patient, patientId=patient_id) is not None
+        assert crud.read(PatientOrm, id=patient_id) is not None
 
         for reading_id in reading_ids:
-            reading = crud.read(Reading, readingId=reading_id)
+            reading = crud.read(ReadingOrm, id=reading_id)
             assert reading is not None
-            assert reading.trafficLightStatus == TrafficLightEnum.GREEN
+            assert reading.traffic_light_status == TrafficLightEnum.GREEN
     finally:
         for reading_id in reading_ids:
-            crud.delete_by(Reading, readingId=reading_id)
-        crud.delete_by(Patient, patientId=patient_id)
+            crud.delete_by(ReadingOrm, id=reading_id)
+        crud.delete_by(PatientOrm, id=patient_id)
 
 
 def test_create_patient_with_pregnancy_and_medical_records(database, api_post):
@@ -381,110 +399,112 @@ def test_create_patient_with_pregnancy_and_medical_records(database, api_post):
 
     try:
         assert response.status_code == 201
-        assert crud.read(Patient, patientId=patient_id) is not None
-        assert crud.read(Pregnancy, patientId=patient_id, startDate=date) is not None
-        assert crud.read(MedicalRecord, patientId=patient_id, isDrugRecord=False)
-        assert crud.read(MedicalRecord, patientId=patient_id, isDrugRecord=True)
+        assert crud.read(PatientOrm, id=patient_id) is not None
+        assert (
+            crud.read(PregnancyOrm, patient_id=patient_id, start_date=date) is not None
+        )
+        assert crud.read(MedicalRecordOrm, patient_id=patient_id, is_drug_record=False)
+        assert crud.read(MedicalRecordOrm, patient_id=patient_id, is_drug_record=True)
 
     finally:
-        crud.delete_by(Pregnancy, patientId=patient_id, startDate=date)
-        crud.delete_by(MedicalRecord, patientId=patient_id, isDrugRecord=False)
-        crud.delete_by(MedicalRecord, patientId=patient_id, isDrugRecord=True)
-        crud.delete_by(Patient, patientId=patient_id)
+        crud.delete_by(PregnancyOrm, patient_id=patient_id, start_date=date)
+        crud.delete_by(MedicalRecordOrm, patient_id=patient_id, is_drug_record=False)
+        crud.delete_by(MedicalRecordOrm, patient_id=patient_id, is_drug_record=True)
+        crud.delete_by(PatientOrm, id=patient_id)
 
 
 def __make_full_patient_no_readings(patient_id: str, date: int) -> dict:
     return {
-        "patientId": patient_id,
-        "patientName": "TEST_FULL",
-        "patientSex": "FEMALE",
-        "isPregnant": True,
-        "pregnancyStartDate": date,
-        "medicalHistory": "TEST_FULL: This is fully fleshed out medical history for testing.",
-        "drugHistory": "TEST_FULL: This is fully fleshed out drug history for testing.",
+        "id": patient_id,
+        "name": "TEST_FULL",
+        "sex": "FEMALE",
+        "is_pregnant": True,
+        "pregnancy_start_date": date,
+        "medical_history": "TEST_FULL: This is fully fleshed out medical history for testing.",
+        "drug_history": "TEST_FULL: This is fully fleshed out drug history for testing.",
         "zone": "9999",
-        "dob": "1995-08-23",
-        "isExactDob": True,
-        "villageNumber": "9999",
-        "householdNumber": "4544",
+        "date_of_birth": "1995-08-23",
+        "is_exact_date_of_birth": True,
+        "village_number": "9999",
+        "household_number": "4544",
     }
 
 
 def test_update_patient_name(patient_factory, api_put):
     patient_id = "64164134514"
-    patient_factory.create(patientId=patient_id, patientName="AB")
+    patient_factory.create(id=patient_id, name="AB")
 
     response = api_put(
         endpoint=f"/api/patients/{patient_id}/info",
-        json={"patientName": "CD"},
+        json={"name": "CD"},
     )
 
     assert response.status_code == 200
-    assert crud.read(Patient, patientId=patient_id).patientName == "CD"
+    assert crud.read(PatientOrm, id=patient_id).name == "CD"
 
 
 def test_update_patient_with_base(patient_factory, api_put):
     patient_id = "45642677524614"
-    patient_factory.create(patientId=patient_id, patientName="AB", lastEdited=5)
+    patient_factory.create(id=patient_id, name="AB", last_edited=5)
 
     json = {
-        "patientName": "CD",
-        "lastEdited": 6,
-        "base": 5,  # base == lastEdited -> request is accepted
+        "name": "CD",
+        "last_edited": 6,
+        "base": 5,  # base == last_edited -> request is accepted
     }
     response = api_put(endpoint=f"/api/patients/{patient_id}/info", json=json)
 
     assert response.status_code == 200
-    patient = crud.read(Patient, patientId=patient_id)
-    assert patient.patientName == "CD"
-    assert patient.lastEdited == 6
+    patient = crud.read(PatientOrm, id=patient_id)
+    assert patient.name == "CD"
+    assert patient.last_edited == 6
 
 
 def test_update_patient_abort_due_to_conflict(patient_factory, api_put):
     patient_id = "45642677524614"
-    patient_factory.create(patientId=patient_id, patientName="AB", lastEdited=7)
+    patient_factory.create(id=patient_id, name="AB", last_edited=7)
 
     json = {
-        "patientName": "CD",
-        "lastEdited": 6,
-        "base": 5,  # base != lastEdited -> request is rejected
+        "name": "CD",
+        "last_edited": 6,
+        "base": 5,  # base != last_edited -> request is rejected
     }
     response = api_put(endpoint=f"/api/patients/{patient_id}/info", json=json)
 
     assert response.status_code == 409
-    patient = crud.read(Patient, patientId=patient_id)
-    assert patient.patientName == "AB"
-    assert patient.lastEdited == 7
+    patient = crud.read(PatientOrm, id=patient_id)
+    assert patient.name == "AB"
+    assert patient.last_edited == 7
 
 
 def test_invalid_patient_not_created(patient_factory, api_post):
     patient_id = "48375354"
-    # invalid as patientName is missing
+    # invalid as name is missing
     patient = {
-        "patientId": patient_id,
-        "patientSex": "FEMALE",
-        "isPregnant": False,
+        "id": patient_id,
+        "sex": "FEMALE",
+        "is_pregnant": False,
         "zone": "37",
-        "villageNumber": "37",
+        "village_number": "37",
         "created": 1,
-        "lastEdited": 5,
+        "last_edited": 5,
         "base": 5,
         "readings": [],
     }
     response = api_post(endpoint="/api/patients", json=patient)
     assert response.status_code == 400
-    assert crud.read(Patient, patientId=patient_id) is None
+    assert crud.read(PatientOrm, id=patient_id) is None
 
 
 def __make_patient(patient_id: str, reading_ids: List[str]) -> dict:
     return {
-        "patientId": patient_id,
-        "patientName": "TEST",
-        "patientSex": "FEMALE",
-        "isPregnant": False,
-        "dob": "2004-01-01",
-        "isExactDob": False,
-        "villageNumber": "1",
+        "id": patient_id,
+        "name": "TEST",
+        "sex": "FEMALE",
+        "is_pregnant": False,
+        "date_of_birth": "2004-01-01",
+        "is_exact_date_of_birth": False,
+        "village_number": "1",
         "zone": "1",
         "readings": [
             __make_reading_no_extra_vitals(r, patient_id) for r in reading_ids
@@ -494,17 +514,18 @@ def __make_patient(patient_id: str, reading_ids: List[str]) -> dict:
 
 def __make_full_patient(patient_id: str, reading_ids: List[str]) -> dict:
     return {
-        "patientId": patient_id,
-        "patientName": "TEST_FULL",
-        "patientSex": "FEMALE",
-        "isPregnant": True,
-        "medicalHistory": "TEST_FULL: This is fully fleshed out medical history for testing.",
-        "drugHistory": "TEST_FULL: This is fully fleshed out drug history for testing.",
+        "id": patient_id,
+        "name": "TEST_FULL",
+        "sex": "FEMALE",
+        "is_pregnant": True,
+        "pregnancy_start_date": 1595211991,
+        "medical_history": "TEST_FULL: This is fully fleshed out medical history for testing.",
+        "drug_history": "TEST_FULL: This is fully fleshed out drug history for testing.",
         "zone": "9999",
-        "dob": "1995-08-23",
-        "isExactDob": True,
-        "villageNumber": "9999",
-        "householdNumber": "4544",
+        "date_of_birth": "1995-08-23",
+        "is_exact_date_of_birth": True,
+        "village_number": "9999",
+        "household_number": "4544",
         "readings": [__make_full_reading(r, patient_id) for r in reading_ids],
     }
 
@@ -512,42 +533,42 @@ def __make_full_patient(patient_id: str, reading_ids: List[str]) -> dict:
 def __make_reading(reading_id: str, patient_id: str) -> dict:
     return {
         "readingId": reading_id,
-        "bpSystolic": 110,
-        "bpDiastolic": 80,
-        "heartRateBPM": 70,
+        "systolic_blood_pressure": 110,
+        "diastolic_blood_pressure": 80,
+        "heart_rate": 70,
         "symptoms": ["a", "b", "c"],
-        "dateTimeTaken": 100,
-        "userId": 1,
-        "patientId": patient_id,
+        "date_taken": 100,
+        "user_id": 1,
+        "patient_id": patient_id,
     }
 
 
 def __make_full_reading(reading_id: str, patient_id: str) -> dict:
     return {
-        "readingId": reading_id,
-        "bpSystolic": 155,
-        "bpDiastolic": 155,
-        "heartRateBPM": 155,
+        "id": reading_id,
+        "systolic_blood_pressure": 155,
+        "diastolic_blood_pressure": 155,
+        "heart_rate": 155,
         "symptoms": ["These are", "symptoms", "for full reading"],
-        "dateTimeTaken": 5435345,
-        "dateRecheckVitalsNeeded": 11111111,
-        "userId": 1,
-        "patientId": patient_id,
-        "retestOfPreviousReadingIds": "aed6818f-fd9f-4d4c-8137-fbfe3e1c91e9",
-        "isFlaggedForFollowup": True,
+        "date_taken": 5435345,
+        "date_recheck_vitals_needed": 11111111,
+        "user_id": 1,
+        "patient_id": patient_id,
+        "retest_of_previous_reading_ids": "aed6818f-fd9f-4d4c-8137-fbfe3e1c91e9",
+        "is_flagged_for_follow_up": True,
     }
 
 
 def __make_reading_no_extra_vitals(reading_id: str, patient_id: str) -> dict:
     return {
-        "readingId": reading_id,
-        "bpSystolic": 99,
-        "bpDiastolic": 80,
-        "heartRateBPM": 70,
+        "id": reading_id,
+        "systolic_blood_pressure": 99,
+        "diastolic_blood_pressure": 80,
+        "heart_rate": 70,
         "symptoms": ["a", "b", "c"],
-        "dateTimeTaken": 100,
-        "userId": 1,
-        "patientId": patient_id,
+        "date_taken": 100,
+        "user_id": 1,
+        "patient_id": patient_id,
     }
 
 
