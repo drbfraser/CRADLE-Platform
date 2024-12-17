@@ -3,6 +3,7 @@ import pytest
 from validation.users import UserRegisterValidator, UserValidator
 from validation.validation_exception import ValidationExceptionError
 
+USERNAME = "JaneAdmin"
 NAME = "Jane"
 EMAIL = "jane@mail.com"
 FACILITY = "facility7"
@@ -207,6 +208,17 @@ user_register_with_valid_fields_should_return_none = {
     "role": ROLE,
     "supervises": LIST_OF_INT,
     "phone_numbers": LIST_OF_PHONE_NUMBERS,
+    "username": USERNAME,
+    "password": PASSWORD,
+}
+
+user_register_missing_required_field_username_should_throw_exception = {
+    "name": NAME,
+    "email": EMAIL,
+    "health_facility_name": FACILITY,
+    "role": ROLE,
+    "supervises": LIST_OF_INT,
+    "phone_numbers": LIST_OF_PHONE_NUMBERS,
     "password": PASSWORD,
 }
 
@@ -217,6 +229,7 @@ user_register_missing_required_field_password_should_throw_exception = {
     "role": ROLE,
     "supervises": LIST_OF_INT,
     "phone_numbers": LIST_OF_PHONE_NUMBERS,
+    "username": USERNAME,
 }
 
 user_register_field_password_has_invalid_type_should_throw_exception = {
@@ -226,6 +239,7 @@ user_register_field_password_has_invalid_type_should_throw_exception = {
     "role": ROLE,
     "supervises": LIST_OF_INT,
     "phone_numbers": LIST_OF_PHONE_NUMBERS,
+    "username": USERNAME,
     "password": SOME_INTEGER,
 }
 
@@ -235,6 +249,7 @@ user_register_missing_required_field_email_should_throw_exception = {
     "role": ROLE,
     "supervises": LIST_OF_INT,
     "phone_numbers": LIST_OF_PHONE_NUMBERS,
+    "username": USERNAME,
     "password": PASSWORD,
 }
 
@@ -244,6 +259,7 @@ user_register_missing_required_field_health_facility_name_should_throw_exception
     "role": ROLE,
     "supervises": LIST_OF_INT,
     "phone_numbers": LIST_OF_PHONE_NUMBERS,
+    "username": USERNAME,
     "password": PASSWORD,
 }
 
@@ -253,6 +269,7 @@ user_register_missing_required_field_role_should_throw_exception = {
     "health_facility_name": FACILITY,
     "supervises": LIST_OF_INT,
     "phone_numbers": LIST_OF_PHONE_NUMBERS,
+    "username": USERNAME,
     "password": PASSWORD,
 }
 
@@ -262,6 +279,7 @@ user_register_missing_required_field_first_name_should_throw_exception = {
     "role": ROLE,
     "supervises": LIST_OF_INT,
     "phone_numbers": LIST_OF_PHONE_NUMBERS,
+    "username": USERNAME,
     "password": PASSWORD,
 }
 
@@ -271,6 +289,7 @@ user_register_missing_optional_field_supervises_should_return_none = {
     "health_facility_name": FACILITY,
     "role": ROLE,
     "phone_numbers": LIST_OF_PHONE_NUMBERS,
+    "username": USERNAME,
     "password": PASSWORD,
 }
 
@@ -281,6 +300,7 @@ user_register_field_first_name_has_invalid_type_should_throw_exception = {
     "role": ROLE,
     "supervises": LIST_OF_INT,
     "phone_numbers": LIST_OF_PHONE_NUMBERS,
+    "username": USERNAME,
     "password": PASSWORD,
 }
 
@@ -291,6 +311,7 @@ user_register_field_email_has_invalid_type_should_throw_exception = {
     "role": ROLE,
     "supervises": LIST_OF_INT,
     "phone_numbers": LIST_OF_PHONE_NUMBERS,
+    "username": USERNAME,
     "password": PASSWORD,
 }
 
@@ -301,6 +322,7 @@ user_register_field_health_facility_name_has_invalid_type_should_throw_exception
     "role": ROLE,
     "supervises": LIST_OF_INT,
     "phone_numbers": LIST_OF_PHONE_NUMBERS,
+    "username": USERNAME,
     "password": PASSWORD,
 }
 
@@ -311,6 +333,7 @@ user_register_field_role_has_invalid_type_should_throw_exception = {
     "role": SOME_INTEGER,
     "supervises": LIST_OF_INT,
     "phone_numbers": LIST_OF_PHONE_NUMBERS,
+    "username": USERNAME,
     "password": PASSWORD,
 }
 
@@ -321,6 +344,7 @@ user_register_field_supervises_has_invalid_type_should_throw_exception = {
     "role": ROLE,
     "supervises": SOME_INTEGER,
     "phone_numbers": LIST_OF_PHONE_NUMBERS,
+    "username": USERNAME,
     "password": PASSWORD,
 }
 
@@ -331,6 +355,7 @@ user_register_field_phone_numbers_has_invalid_type_should_throw_exception = {
     "role": ROLE,
     "supervises": LIST_OF_INT,
     "phone_numbers": SOME_INTEGER,
+    "username": USERNAME,
     "password": PASSWORD,
 }
 
@@ -341,6 +366,7 @@ user_register_role_is_not_supported_role_should_throw_exception = {
     "role": "patient",
     "supervises": LIST_OF_INT,
     "phone_numbers": LIST_OF_PHONE_NUMBERS,
+    "username": USERNAME,
     "password": PASSWORD,
 }
 
@@ -351,6 +377,7 @@ user_register_field_phone_numbers_has_invalid_phone_format_should_throw_exceptio
     "role": "ADMIN",
     "supervises": [111, 222, 333],
     "phone_numbers": ["123"],
+    "username": USERNAME,
     "password": "pwd123",
 }
 
@@ -359,6 +386,10 @@ user_register_field_phone_numbers_has_invalid_phone_format_should_throw_exceptio
     "json, output_type",
     [
         (user_register_with_valid_fields_should_return_none, None),
+        (
+            user_register_missing_required_field_username_should_throw_exception,
+            ValidationExceptionError,
+        ),
         (
             user_register_missing_required_field_password_should_throw_exception,
             ValidationExceptionError,
