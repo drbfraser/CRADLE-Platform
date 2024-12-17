@@ -21,178 +21,178 @@ USER_ID = 10
 
 # tests for ReferralEntityValidator model
 referral_with_valid_fields_should_return_none = {
-    "patientId": PATIENT_ID,
-    "referralHealthFacilityName": FACILITY,
+    "patient_id": PATIENT_ID,
+    "health_facility_name": FACILITY,
     "comment": COMMENT,
     "id": ID,
-    "dateReferred": DATE_REFERRED,
-    "actionTaken": ACTION,
-    "isAssessed": True,
-    "isCancelled": False,
-    "cancelReason": REASON,
-    "notAttended": True,
-    "notAttendReason": REASON,
-    "lastEdited": DATE_LAST_EDITED,
-    "userId": USER_ID,
+    "date_referred": DATE_REFERRED,
+    "action_taken": ACTION,
+    "is_assessed": True,
+    "is_cancelled": False,
+    "cancel_reason": REASON,
+    "not_attended": True,
+    "not_attend_reason": REASON,
+    "last_edited": DATE_LAST_EDITED,
+    "user_id": USER_ID,
 }
 
 referral_missing_optional_field_comment_should_return_none = {
-    "patientId": PATIENT_ID,
-    "referralHealthFacilityName": FACILITY,
+    "patient_id": PATIENT_ID,
+    "health_facility_name": FACILITY,
     "id": ID,
-    "dateReferred": DATE_REFERRED,
-    "actionTaken": ACTION,
-    "isAssessed": True,
-    "isCancelled": False,
-    "cancelReason": REASON,
-    "notAttended": True,
-    "notAttendReason": REASON,
-    "lastEdited": DATE_LAST_EDITED,
-    "userId": USER_ID,
+    "date_referred": DATE_REFERRED,
+    "action_taken": ACTION,
+    "is_assessed": True,
+    "is_cancelled": False,
+    "cancel_reason": REASON,
+    "not_attended": True,
+    "not_attend_reason": REASON,
+    "last_edited": DATE_LAST_EDITED,
+    "user_id": USER_ID,
 }
 
-referral_missing_optional_field_dateReferred_should_return_none = {
-    "patientId": PATIENT_ID,
-    "referralHealthFacilityName": FACILITY,
+referral_missing_optional_field_date_referred_should_return_none = {
+    "patient_id": PATIENT_ID,
+    "health_facility_name": FACILITY,
     "comment": COMMENT,
     "id": ID,
-    "actionTaken": ACTION,
-    "isAssessed": True,
-    "isCancelled": False,
-    "cancelReason": REASON,
-    "notAttended": True,
-    "notAttendReason": REASON,
-    "lastEdited": DATE_LAST_EDITED,
-    "userId": USER_ID,
+    "action_taken": ACTION,
+    "is_assessed": True,
+    "is_cancelled": False,
+    "cancel_reason": REASON,
+    "not_attended": True,
+    "not_attend_reason": REASON,
+    "last_edited": DATE_LAST_EDITED,
+    "user_id": USER_ID,
 }
 
-referral_missing_required_field_patientId_should_throw_exception = {
-    "referralHealthFacilityName": FACILITY,
+referral_missing_required_field_patient_id_should_throw_exception = {
+    "health_facility_name": FACILITY,
     "comment": COMMENT,
     "id": ID,
-    "dateReferred": DATE_REFERRED,
-    "actionTaken": ACTION,
-    "isAssessed": True,
-    "isCancelled": False,
-    "cancelReason": REASON,
-    "notAttended": True,
-    "notAttendReason": REASON,
-    "lastEdited": DATE_LAST_EDITED,
-    "userId": USER_ID,
+    "date_referred": DATE_REFERRED,
+    "action_taken": ACTION,
+    "is_assessed": True,
+    "is_cancelled": False,
+    "cancel_reason": REASON,
+    "not_attended": True,
+    "not_attend_reason": REASON,
+    "last_edited": DATE_LAST_EDITED,
+    "user_id": USER_ID,
 }
 
 
-referral_missing_required_field_referralHealthFacilityName_should_throw_exception = {
-    "patientId": PATIENT_ID,
+referral_missing_required_field_health_facility_name_should_throw_exception = {
+    "patient_id": PATIENT_ID,
     "comment": COMMENT,
     "id": ID,
-    "dateReferred": DATE_REFERRED,
-    "actionTaken": ACTION,
-    "isAssessed": True,
-    "isCancelled": False,
-    "cancelReason": REASON,
-    "notAttended": True,
-    "notAttendReason": REASON,
-    "lastEdited": DATE_LAST_EDITED,
-    "userId": USER_ID,
+    "date_referred": DATE_REFERRED,
+    "action_taken": ACTION,
+    "is_assessed": True,
+    "is_cancelled": False,
+    "cancel_reason": REASON,
+    "not_attended": True,
+    "not_attend_reason": REASON,
+    "last_edited": DATE_LAST_EDITED,
+    "user_id": USER_ID,
 }
 
-referral_field_patientId_has_wrong_type_should_throw_exception = {
-    "patientId": 111,
-    "referralHealthFacilityName": FACILITY,
+referral_field_patient_id_has_wrong_type_should_throw_exception = {
+    "patient_id": 111,
+    "health_facility_name": FACILITY,
     "comment": COMMENT,
     "id": ID,
-    "dateReferred": DATE_REFERRED,
-    "actionTaken": ACTION,
-    "isAssessed": True,
-    "isCancelled": False,
-    "cancelReason": REASON,
-    "notAttended": True,
-    "notAttendReason": REASON,
-    "lastEdited": DATE_LAST_EDITED,
-    "userId": USER_ID,
+    "date_referred": DATE_REFERRED,
+    "action_taken": ACTION,
+    "is_assessed": True,
+    "is_cancelled": False,
+    "cancel_reason": REASON,
+    "not_attended": True,
+    "not_attend_reason": REASON,
+    "last_edited": DATE_LAST_EDITED,
+    "user_id": USER_ID,
 }
 
-referral_field_referralHealthFacilityName_has_wrong_type_should_throw_exception = {
-    "patientId": PATIENT_ID,
-    "referralHealthFacilityName": 111,
+referral_field_health_facility_name_has_wrong_type_should_throw_exception = {
+    "patient_id": PATIENT_ID,
+    "health_facility_name": 111,
     "comment": COMMENT,
     "id": ID,
-    "dateReferred": DATE_REFERRED,
-    "actionTaken": ACTION,
-    "isAssessed": True,
-    "isCancelled": False,
-    "cancelReason": REASON,
-    "notAttended": True,
-    "notAttendReason": REASON,
-    "lastEdited": DATE_LAST_EDITED,
-    "userId": USER_ID,
+    "date_referred": DATE_REFERRED,
+    "action_taken": ACTION,
+    "is_assessed": True,
+    "is_cancelled": False,
+    "cancel_reason": REASON,
+    "not_attended": True,
+    "not_attend_reason": REASON,
+    "last_edited": DATE_LAST_EDITED,
+    "user_id": USER_ID,
 }
 
 referral_has_invalid_extra_field_should_throw_exception = {
-    "patientId": PATIENT_ID,
-    "referralHealthFacilityName": FACILITY,
+    "patient_id": PATIENT_ID,
+    "health_facility_name": FACILITY,
     "comment": COMMENT,
     "id": ID,
-    "dateReferred": DATE_REFERRED,
-    "actionTaken": ACTION,
-    "isAssessed": True,
-    "isCancelled": False,
-    "cancelReason": REASON,
-    "notAttended": True,
-    "notAttendReason": REASON,
-    "lastEdited": DATE_LAST_EDITED,
-    "userId": USER_ID,
+    "date_referred": DATE_REFERRED,
+    "action_taken": ACTION,
+    "is_assessed": True,
+    "is_cancelled": False,
+    "cancel_reason": REASON,
+    "not_attended": True,
+    "not_attend_reason": REASON,
+    "last_edited": DATE_LAST_EDITED,
+    "user_id": USER_ID,
     "extra": "invalid extra field",
 }
 
 # tests for CancelStatusValidator model
 cancel_put_with_valid_fields_should_return_none = {
-    "isCancelled": True,
-    "cancelReason": REASON,
+    "is_cancelled": True,
+    "cancel_reason": REASON,
 }
 
-cancel_put_missing_required_field_isCancelled_should_throw_exception = {
-    "cancelReason": REASON,
+cancel_put_missing_required_field_is_cancelled_should_throw_exception = {
+    "cancel_reason": REASON,
 }
 
-cancel_put_missing_required_field_cancelReason_should_throw_exception = {
-    "isCancelled": True,
+cancel_put_missing_required_field_cancel_reason_should_throw_exception = {
+    "is_cancelled": True,
 }
 
-cancel_put_field_isCancelled_has_wrong_type_should_throw_exception = {
-    "isCancelled": 11111,
-    "cancelReason": "valid reason",
+cancel_put_field_is_cancelled_has_wrong_type_should_throw_exception = {
+    "is_cancelled": 11111,
+    "cancel_reason": "valid reason",
 }
 
-cancel_put_field_cancelReason_has_wrong_type_should_throw_exception = {
-    "isCancelled": True,
-    "cancelReason": 11111,
+cancel_put_field_cancel_reason_has_wrong_type_should_throw_exception = {
+    "is_cancelled": True,
+    "cancel_reason": 11111,
 }
 
 cancel_put_has_invalid_extra_field_should_throw_exception = {
-    "isCancelled": True,
-    "cancelReason": REASON,
+    "is_cancelled": True,
+    "cancel_reason": REASON,
     "some_extra_field": "some value",
 }
 
-# cancel_put_field_cancelReason_is_not_empty_while_isCancelled_is_false_should_throw_exception = {
-#     "isCancelled": False,
-#     "cancelReason": REASON,
+# cancel_put_field_cancel_reason_is_not_empty_while_is_cancelled_is_false_should_throw_exception = {
+#     "is_cancelled": False,
+#     "cancel_reason": REASON,
 # }
 
 
 # tests for NotAttendValidator model
 not_attend_with_valid_fields_should_return_none = {
-    "notAttendReason": REASON,
+    "not_attend_reason": REASON,
 }
 
-not_attend_field_notAttendReason_has_wrong_type_should_throw_exception = {
-    "notAttendReason": 11111,
+not_attend_field_not_attend_reason_has_wrong_type_should_throw_exception = {
+    "not_attend_reason": 11111,
 }
 
 not_attend_has_invalid_extra_field_should_throw_exception = {
-    "notAttendReason": REASON,
+    "not_attend_reason": REASON,
     "some_extra_field": "some value",
 }
 
@@ -207,27 +207,27 @@ not_attend_has_invalid_extra_field_should_throw_exception = {
             ReferralEntityValidator,
         ),
         (
-            referral_missing_optional_field_dateReferred_should_return_none,
+            referral_missing_optional_field_date_referred_should_return_none,
             None,
             ReferralEntityValidator,
         ),
         (
-            referral_missing_required_field_patientId_should_throw_exception,
+            referral_missing_required_field_patient_id_should_throw_exception,
             ValidationExceptionError,
             ReferralEntityValidator,
         ),
         (
-            referral_missing_required_field_referralHealthFacilityName_should_throw_exception,
+            referral_missing_required_field_health_facility_name_should_throw_exception,
             ValidationExceptionError,
             ReferralEntityValidator,
         ),
         (
-            referral_field_patientId_has_wrong_type_should_throw_exception,
+            referral_field_patient_id_has_wrong_type_should_throw_exception,
             ValidationExceptionError,
             ReferralEntityValidator,
         ),
         (
-            referral_field_referralHealthFacilityName_has_wrong_type_should_throw_exception,
+            referral_field_health_facility_name_has_wrong_type_should_throw_exception,
             ValidationExceptionError,
             ReferralEntityValidator,
         ),
@@ -238,22 +238,22 @@ not_attend_has_invalid_extra_field_should_throw_exception = {
         ),
         (cancel_put_with_valid_fields_should_return_none, None, CancelStatusValidator),
         (
-            cancel_put_missing_required_field_isCancelled_should_throw_exception,
+            cancel_put_missing_required_field_is_cancelled_should_throw_exception,
             ValidationExceptionError,
             CancelStatusValidator,
         ),
         (
-            cancel_put_missing_required_field_cancelReason_should_throw_exception,
+            cancel_put_missing_required_field_cancel_reason_should_throw_exception,
             ValidationExceptionError,
             CancelStatusValidator,
         ),
         (
-            cancel_put_field_isCancelled_has_wrong_type_should_throw_exception,
+            cancel_put_field_is_cancelled_has_wrong_type_should_throw_exception,
             ValidationExceptionError,
             CancelStatusValidator,
         ),
         (
-            cancel_put_field_cancelReason_has_wrong_type_should_throw_exception,
+            cancel_put_field_cancel_reason_has_wrong_type_should_throw_exception,
             ValidationExceptionError,
             CancelStatusValidator,
         ),
@@ -264,7 +264,7 @@ not_attend_has_invalid_extra_field_should_throw_exception = {
         ),
         (not_attend_with_valid_fields_should_return_none, None, NotAttendValidator),
         (
-            not_attend_field_notAttendReason_has_wrong_type_should_throw_exception,
+            not_attend_field_not_attend_reason_has_wrong_type_should_throw_exception,
             ValidationExceptionError,
             NotAttendValidator,
         ),

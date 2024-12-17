@@ -21,15 +21,15 @@ class FormValidator(BaseModel, extra="forbid"):
     @staticmethod
     def validate_date_sequence(request_body: dict):
         if (
-            "dateCreated" in request_body
-            and request_body.get("dateCreated") is not None
-            and isinstance(request_body.get("dateCreated"), int)
-            and "lastEdited" in request_body
-            and request_body.get("lastEdited") is not None
-            and isinstance(request_body.get("lastEdited"), int)
+            "date_created" in request_body
+            and request_body.get("date_created") is not None
+            and isinstance(request_body.get("date_created"), int)
+            and "last_edited" in request_body
+            and request_body.get("last_edited") is not None
+            and isinstance(request_body.get("last_edited"), int)
         ):
-            start_date = request_body["dateCreated"]
-            end_date = request_body["lastEdited"]
+            start_date = request_body["date_created"]
+            end_date = request_body["last_edited"]
             if start_date > end_date:
                 raise ValidationExceptionError(
                     "Form created date must occur before its last edited date.",

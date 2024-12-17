@@ -14,85 +14,85 @@ DATE_EDITED = 1601535600
 
 medical_record_with_valid_fields_should_return_none = {
     "id": ID,
-    "patientId": PATIENT_ID,
-    "medicalHistory": MEDICAL_HISTORY,
-    "drugHistory": DRUG_HISTORY,
-    "dateCreated": DATE_CREATED,
-    "lastEdited": DATE_EDITED,
+    "patient_id": PATIENT_ID,
+    "medical_history": MEDICAL_HISTORY,
+    "drug_history": DRUG_HISTORY,
+    "date_created": DATE_CREATED,
+    "last_edited": DATE_EDITED,
 }
 
 medical_record_missing_optional_field_id_should_return_none = {
-    "patientId": PATIENT_ID,
-    "medicalHistory": MEDICAL_HISTORY,
-    "drugHistory": DRUG_HISTORY,
-    "dateCreated": DATE_CREATED,
-    "lastEdited": DATE_EDITED,
+    "patient_id": PATIENT_ID,
+    "medical_history": MEDICAL_HISTORY,
+    "drug_history": DRUG_HISTORY,
+    "date_created": DATE_CREATED,
+    "last_edited": DATE_EDITED,
 }
 
 medical_record_missing_optional_field_patientId_should_return_none = {
     "id": ID,
-    "medicalHistory": MEDICAL_HISTORY,
-    "drugHistory": DRUG_HISTORY,
-    "dateCreated": DATE_CREATED,
-    "lastEdited": DATE_EDITED,
+    "medical_history": MEDICAL_HISTORY,
+    "drug_history": DRUG_HISTORY,
+    "date_created": DATE_CREATED,
+    "last_edited": DATE_EDITED,
 }
 
 medical_record_missing_optional_field_medicalHistory_should_return_none = {
     "id": ID,
-    "patientId": PATIENT_ID,
-    "drugHistory": DRUG_HISTORY,
-    "dateCreated": DATE_CREATED,
-    "lastEdited": DATE_EDITED,
+    "patient_id": PATIENT_ID,
+    "drug_history": DRUG_HISTORY,
+    "date_created": DATE_CREATED,
+    "last_edited": DATE_EDITED,
 }
 
 medical_record_missing_optional_field_drugHistory_should_return_none = {
     "id": ID,
-    "patientId": PATIENT_ID,
-    "medicalHistory": MEDICAL_HISTORY,
-    "dateCreated": DATE_CREATED,
-    "lastEdited": DATE_EDITED,
+    "patient_id": PATIENT_ID,
+    "medical_history": MEDICAL_HISTORY,
+    "date_created": DATE_CREATED,
+    "last_edited": DATE_EDITED,
 }
 
 medical_record_missing_optional_field_dateCreated_should_return_none = {
     "id": ID,
-    "patientId": PATIENT_ID,
-    "medicalHistory": MEDICAL_HISTORY,
-    "drugHistory": DRUG_HISTORY,
-    "lastEdited": DATE_EDITED,
+    "patient_id": PATIENT_ID,
+    "medical_history": MEDICAL_HISTORY,
+    "drug_history": DRUG_HISTORY,
+    "last_edited": DATE_EDITED,
 }
 
 medical_record_missing_optional_field_lastEdited_should_return_none = {
     "id": ID,
-    "patientId": PATIENT_ID,
-    "medicalHistory": MEDICAL_HISTORY,
-    "drugHistory": DRUG_HISTORY,
-    "dateCreated": DATE_CREATED,
+    "patient_id": PATIENT_ID,
+    "medical_history": MEDICAL_HISTORY,
+    "drug_history": DRUG_HISTORY,
+    "date_created": DATE_CREATED,
 }
 
 medical_record_missing_both_medicalHistory_and_drugHistory_should_throw_exception = {
     "id": ID,
-    "patientId": PATIENT_ID,
-    "dateCreated": DATE_CREATED,
-    "lastEdited": DATE_EDITED,
+    "patient_id": PATIENT_ID,
+    "date_created": DATE_CREATED,
+    "last_edited": DATE_EDITED,
 }
 
 medical_record_with_mismatching_patient_id_should_throw_exception = {
     "id": ID,
-    "patientId": PATIENT_ID,
-    "medicalHistory": MEDICAL_HISTORY,
-    "drugHistory": DRUG_HISTORY,
-    "dateCreated": DATE_CREATED,
-    "lastEdited": DATE_EDITED,
+    "patient_id": PATIENT_ID,
+    "medical_history": MEDICAL_HISTORY,
+    "drug_history": DRUG_HISTORY,
+    "date_created": DATE_CREATED,
+    "last_edited": DATE_EDITED,
 }
 
 medical_record_has_invalid_extra_field_should_throw_exception = {
     "test": "test",
     "id": ID,
-    "patientId": PATIENT_ID,
-    "medicalHistory": MEDICAL_HISTORY,
-    "drugHistory": DRUG_HISTORY,
-    "dateCreated": DATE_CREATED,
-    "lastEdited": DATE_EDITED,
+    "patient_id": PATIENT_ID,
+    "medical_history": MEDICAL_HISTORY,
+    "drug_history": DRUG_HISTORY,
+    "date_created": DATE_CREATED,
+    "last_edited": DATE_EDITED,
 }
 
 
@@ -101,13 +101,13 @@ medical_record_has_invalid_extra_field_should_throw_exception = {
     [
         (
             medical_record_with_valid_fields_should_return_none,
-            medical_record_with_valid_fields_should_return_none.get("patientId"),
+            medical_record_with_valid_fields_should_return_none.get("patient_id"),
             None,
         ),
         (
             medical_record_missing_optional_field_id_should_return_none,
             medical_record_missing_optional_field_id_should_return_none.get(
-                "patientId"
+                "patient_id"
             ),
             None,
         ),
@@ -119,42 +119,42 @@ medical_record_has_invalid_extra_field_should_throw_exception = {
         (
             medical_record_missing_optional_field_medicalHistory_should_return_none,
             medical_record_missing_optional_field_medicalHistory_should_return_none.get(
-                "patientId"
+                "patient_id"
             ),
             None,
         ),
         (
             medical_record_missing_optional_field_drugHistory_should_return_none,
             medical_record_missing_optional_field_drugHistory_should_return_none.get(
-                "patientId"
+                "patient_id"
             ),
             None,
         ),
         (
             medical_record_missing_optional_field_dateCreated_should_return_none,
             medical_record_missing_optional_field_dateCreated_should_return_none.get(
-                "patientId"
+                "patient_id"
             ),
             None,
         ),
         (
             medical_record_missing_optional_field_lastEdited_should_return_none,
             medical_record_missing_optional_field_lastEdited_should_return_none.get(
-                "patientId"
+                "patient_id"
             ),
             None,
         ),
         (
             medical_record_missing_both_medicalHistory_and_drugHistory_should_throw_exception,
             medical_record_missing_both_medicalHistory_and_drugHistory_should_throw_exception.get(
-                "patientId"
+                "patient_id"
             ),
             ValidationExceptionError,
         ),
         (
             medical_record_with_mismatching_patient_id_should_throw_exception,
             medical_record_with_mismatching_patient_id_should_throw_exception.get(
-                "patientId"
+                "patient_id"
             )
             + 10,
             ValidationExceptionError,
@@ -162,7 +162,7 @@ medical_record_has_invalid_extra_field_should_throw_exception = {
         (
             medical_record_has_invalid_extra_field_should_throw_exception,
             medical_record_has_invalid_extra_field_should_throw_exception.get(
-                "patientId"
+                "patient_id"
             ),
             ValidationExceptionError,
         ),
@@ -185,14 +185,14 @@ def test_validate_post_request(json, patient_id, expectation):
     [
         (
             medical_record_with_valid_fields_should_return_none,
-            medical_record_with_valid_fields_should_return_none.get("patientId"),
+            medical_record_with_valid_fields_should_return_none.get("patient_id"),
             None,
         ),
         (medical_record_missing_optional_field_id_should_return_none, None, None),
         (
             medical_record_with_mismatching_patient_id_should_throw_exception,
             medical_record_with_mismatching_patient_id_should_throw_exception.get(
-                "patientId"
+                "patient_id"
             )
             + 10,
             ValidationExceptionError,
@@ -200,14 +200,14 @@ def test_validate_post_request(json, patient_id, expectation):
         (
             medical_record_missing_both_medicalHistory_and_drugHistory_should_throw_exception,
             medical_record_missing_both_medicalHistory_and_drugHistory_should_throw_exception.get(
-                "patientId"
+                "patient_id"
             ),
             ValidationExceptionError,
         ),
         (
             medical_record_has_invalid_extra_field_should_throw_exception,
             medical_record_has_invalid_extra_field_should_throw_exception.get(
-                "patientId"
+                "patient_id"
             ),
             ValidationExceptionError,
         ),

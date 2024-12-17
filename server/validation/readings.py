@@ -53,7 +53,7 @@ class ReadingValidator(BaseModel):
         # Check if the nested assessment object is valid
         if "assessment" in request_body:
             try:
-                AssessmentValidator(**(request_body["assessment"]))
+                AssessmentValidator.validate(request_body["assessment"])
             except ValidationError as e:
                 raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 

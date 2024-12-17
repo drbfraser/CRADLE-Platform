@@ -26,8 +26,8 @@ class AssessmentValidator(BaseModel):
         follow_up_instructions,
         values: ValidationInfo,
     ):
-        followup_needed = values.data.get("followupNeeded", False)
-        if followup_needed and (
+        follow_up_needed = values.data.get("follow_up_needed", False)
+        if follow_up_needed and (
             follow_up_instructions is None or follow_up_instructions == ""
         ):
             raise ValueError(
@@ -55,5 +55,4 @@ class AssessmentValidator(BaseModel):
         try:
             return AssessmentValidator(**request_body)
         except ValidationError as e:
-            print(e)
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))

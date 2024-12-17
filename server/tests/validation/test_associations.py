@@ -7,42 +7,42 @@ PATIENT_ID = 20
 USER_ID = 1
 
 association_with_valid_fields_should_return_none = {
-    "patientId": PATIENT_ID,
-    "healthFacilityName": "H0000",
-    "userId": USER_ID,
+    "patient_id": PATIENT_ID,
+    "health_facility_name": "H0000",
+    "user_id": USER_ID,
 }
 
 association_missing_optional_field_userID_should_return_none = {
-    "patientId": PATIENT_ID,
-    "healthFacilityName": "H0000",
+    "patient_id": PATIENT_ID,
+    "health_facility_name": "H0000",
 }
 
-association_missing_optional_field_healthFacilityName_should_return_none = {
-    "patientId": PATIENT_ID,
-    "userId": USER_ID,
+association_missing_optional_field_health_facility_name_should_return_none = {
+    "patient_id": PATIENT_ID,
+    "user_id": USER_ID,
 }
 
-association_missing_required_field_patientId_should_throw_exception = {
-    "healthFacilityName": "H0000",
-    "userId": USER_ID,
+association_missing_required_field_patient_id_should_throw_exception = {
+    "health_facility_name": "H0000",
+    "user_id": USER_ID,
 }
 
 association_field_patiendID_has_wrong_type_should_throw_exception = {
-    "patientId": "not integer",
-    "healthFacilityName": "H0000",
-    "userId": USER_ID,
+    "patient_id": "not integer",
+    "health_facility_name": "H0000",
+    "user_id": USER_ID,
 }
 
-association_field_healthFacilityName_has_wrong_type_should_throw_exception = {
-    "patientId": PATIENT_ID,
-    "healthFacilityName": 1,
-    "userId": USER_ID,
+association_field_health_facility_name_has_wrong_type_should_throw_exception = {
+    "patient_id": PATIENT_ID,
+    "health_facility_name": 1,
+    "user_id": USER_ID,
 }
 
-association_field_userId_has_wrong_type_should_throw_exception = {
-    "patientId": PATIENT_ID,
-    "healthFacilityName": "H0000",
-    "userId": "not integer",
+association_field_user_id_has_wrong_type_should_throw_exception = {
+    "patient_id": PATIENT_ID,
+    "health_facility_name": "H0000",
+    "user_id": "not integer",
 }
 
 
@@ -52,11 +52,11 @@ association_field_userId_has_wrong_type_should_throw_exception = {
         (association_with_valid_fields_should_return_none, None),
         (association_missing_optional_field_userID_should_return_none, None),
         (
-            association_missing_optional_field_healthFacilityName_should_return_none,
+            association_missing_optional_field_health_facility_name_should_return_none,
             None,
         ),
         (
-            association_missing_required_field_patientId_should_throw_exception,
+            association_missing_required_field_patient_id_should_throw_exception,
             ValidationExceptionError,
         ),
         (
@@ -64,11 +64,11 @@ association_field_userId_has_wrong_type_should_throw_exception = {
             ValidationExceptionError,
         ),
         (
-            association_field_healthFacilityName_has_wrong_type_should_throw_exception,
+            association_field_health_facility_name_has_wrong_type_should_throw_exception,
             ValidationExceptionError,
         ),
         (
-            association_field_userId_has_wrong_type_should_throw_exception,
+            association_field_user_id_has_wrong_type_should_throw_exception,
             ValidationExceptionError,
         ),
     ],

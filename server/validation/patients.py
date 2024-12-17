@@ -38,7 +38,7 @@ class PatientBase(BaseModel):
     @classmethod
     def check_patient_id_length(cls, patient_id):
         if type(patient_id) is str and len(patient_id) > 14:
-            raise ValueError("patientId is too long. Max is 14 digits.")
+            raise ValueError("id is too long. Max is 14 digits.")
         return patient_id
 
     @field_validator("pregnancy_start_date", mode="before")

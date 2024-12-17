@@ -94,23 +94,23 @@ class UserRegisterValidator(UserValidator):
     User validation model for the `/api/user/register [POST]` api endpoint.
     """
 
-    username: str
+    name: str
     password: str
 
-    @field_validator("username")
+    @field_validator("name")
     @classmethod
-    def validate_username_format(cls, username: str) -> str:
-        username = username.lower()
-        length = len(username)
+    def validate_username_format(cls, name: str) -> str:
+        name = name.lower()
+        length = len(name)
         if length < 3 or length > 30:
             raise ValueError(
-                f"Username ({username}) is invalid. Username must be between 3 and 30 characters."
+                f"Username ({name}) is invalid. Username must be between 3 and 30 characters."
             )
-        if re.fullmatch(USERNAME_REGEX_PATTERN, username) is None:
+        if re.fullmatch(USERNAME_REGEX_PATTERN, name) is None:
             raise ValueError(
-                f"Username ({username}) is invalid. Username must start with a letter and must contain only alphanumeric or underscore characters."
+                f"Username ({name}) is invalid. Username must start with a letter and must contain only alphanumeric or underscore characters."
             )
-        return username
+        return name
 
     @staticmethod
     def validate(request_body: dict):
@@ -125,14 +125,14 @@ class UserRegisterValidator(UserValidator):
 class UserAuthRequestValidator(BaseModel, extra="forbid"):
     """
     Pydantic validation model for the `/api/user/auth [POST]` api endpoint.
-    Only needs to validate that the username and password fields are present,
-    and convert the username to all lowercase.
+    Only needs to validate that the name and password fields are present,
+    and convert the name to all lowercase.
     """
 
-    username: str
+    name: str
     password: str
 
-    @field_validator("username")
+    @field_validator("name")
     @classmethod
-    def format_username(cls, username: str) -> str:
-        return username.lower()
+    def format_username(cls, name: str) -> str:
+        return name.lower()

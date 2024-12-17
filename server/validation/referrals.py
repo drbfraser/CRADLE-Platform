@@ -47,8 +47,8 @@ class ReferralEntityValidator(BaseModel, extra="forbid"):
 
 # Manages cancellation status with strict attribute enforcement to prevent unrecognized fields.
 class CancelStatusValidator(BaseModel, extra="forbid"):
-    isCancelled: bool
-    cancelReason: str
+    is_cancelled: bool
+    cancel_reason: str
 
     @staticmethod
     def validate(request_body: dict):
@@ -69,7 +69,7 @@ class CancelStatusValidator(BaseModel, extra="forbid"):
 
 
 class NotAttendValidator(BaseModel, extra="forbid"):
-    notAttendReason: str
+    not_attend_reason: str
 
     @staticmethod
     def validate(request_body: dict):
