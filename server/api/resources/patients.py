@@ -51,11 +51,6 @@ class Root(Resource):
     )
     def post():
         request_body = api_utils.get_request_body()
-        if "gestational_timestamp" in request_body:
-            # Changing the key that comes from the android app to work with validation
-            request_body["pregnancy_start_date"] = request_body.pop(
-                "gestational_timestamp"
-            )
 
         try:
             patient_pydantic_model = PatientPostValidator.validate(request_body)

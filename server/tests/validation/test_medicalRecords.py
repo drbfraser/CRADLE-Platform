@@ -3,47 +3,167 @@ import pytest
 from validation.medicalRecords import MedicalRecordValidator
 from validation.validation_exception import ValidationExceptionError
 
-valid_post_request = {
-    "medical_history": "Pregnancy induced hypertension",
-    "patient_id": 120000,
+ID = 1
+PATIENT_ID = 120000
+MEDICAL_HISTORY = "Pregnancy induced hypertension"
+DRUG_HISTORY = "Test drug history"
+# unix epoch code for January 1, 2020 12:00:00 AM
+DATE_CREATED = 1577865600
+# unix epoch code for October 1, 2020 12:00:00 AM
+DATE_EDITED = 1601535600
+
+medical_record_with_valid_fields_should_return_none = {
+    "id": ID,
+    "patient_id": PATIENT_ID,
+    "medical_history": MEDICAL_HISTORY,
+    "drug_history": DRUG_HISTORY,
+    "date_created": DATE_CREATED,
+    "last_edited": DATE_EDITED,
 }
 
-valid_missing_id = {
-    "drug_history": "Test drug history",
+medical_record_missing_optional_field_id_should_return_none = {
+    "patient_id": PATIENT_ID,
+    "medical_history": MEDICAL_HISTORY,
+    "drug_history": DRUG_HISTORY,
+    "date_created": DATE_CREATED,
+    "last_edited": DATE_EDITED,
 }
 
-invalid_mismatching_patient_id = {
-    "medical_history": "Pregnancy induced hypertension",
-    "patient_id": 120000,
+medical_record_missing_optional_field_patient_id_should_return_none = {
+    "id": ID,
+    "medical_history": MEDICAL_HISTORY,
+    "drug_history": DRUG_HISTORY,
+    "date_created": DATE_CREATED,
+    "last_edited": DATE_EDITED,
 }
 
-invalid_missing_histories = {"patient_id": 120000}
+medical_record_missing_optional_field_medical_history_should_return_none = {
+    "id": ID,
+    "patient_id": PATIENT_ID,
+    "drug_history": DRUG_HISTORY,
+    "date_created": DATE_CREATED,
+    "last_edited": DATE_EDITED,
+}
 
-invalid_extra_keys = {
+medical_record_missing_optional_field_drug_history_should_return_none = {
+    "id": ID,
+    "patient_id": PATIENT_ID,
+    "medical_history": MEDICAL_HISTORY,
+    "date_created": DATE_CREATED,
+    "last_edited": DATE_EDITED,
+}
+
+medical_record_missing_optional_field_date_created_should_return_none = {
+    "id": ID,
+    "patient_id": PATIENT_ID,
+    "medical_history": MEDICAL_HISTORY,
+    "drug_history": DRUG_HISTORY,
+    "last_edited": DATE_EDITED,
+}
+
+medical_record_missing_optional_field_last_edited_should_return_none = {
+    "id": ID,
+    "patient_id": PATIENT_ID,
+    "medical_history": MEDICAL_HISTORY,
+    "drug_history": DRUG_HISTORY,
+    "date_created": DATE_CREATED,
+}
+
+medical_record_missing_both_medical_history_and_drug_history_should_throw_exception = {
+    "id": ID,
+    "patient_id": PATIENT_ID,
+    "date_created": DATE_CREATED,
+    "last_edited": DATE_EDITED,
+}
+
+medical_record_with_mismatching_patient_id_should_throw_exception = {
+    "id": ID,
+    "patient_id": PATIENT_ID,
+    "medical_history": MEDICAL_HISTORY,
+    "drug_history": DRUG_HISTORY,
+    "date_created": DATE_CREATED,
+    "last_edited": DATE_EDITED,
+}
+
+medical_record_has_invalid_extra_field_should_throw_exception = {
     "test": "test",
-    "medical_history": "Pregnancy induced hypertension",
-    "patient_id": 120000,
+    "id": ID,
+    "patient_id": PATIENT_ID,
+    "medical_history": MEDICAL_HISTORY,
+    "drug_history": DRUG_HISTORY,
+    "date_created": DATE_CREATED,
+    "last_edited": DATE_EDITED,
 }
 
 
 @pytest.mark.parametrize(
     "json, patient_id, expectation",
     [
-        (valid_post_request, valid_post_request.get("patient_id"), None),
-        (valid_missing_id, None, None),
         (
-            invalid_mismatching_patient_id,
-            invalid_mismatching_patient_id["patient_id"] + 10,
+            medical_record_with_valid_fields_should_return_none,
+            medical_record_with_valid_fields_should_return_none.get("patient_id"),
+            None,
+        ),
+        (
+            medical_record_missing_optional_field_id_should_return_none,
+            medical_record_missing_optional_field_id_should_return_none.get(
+                "patient_id"
+            ),
+            None,
+        ),
+        (
+            medical_record_missing_optional_field_patient_id_should_return_none,
+            None,
+            None,
+        ),
+        (
+            medical_record_missing_optional_field_medical_history_should_return_none,
+            medical_record_missing_optional_field_medical_history_should_return_none.get(
+                "patient_id"
+            ),
+            None,
+        ),
+        (
+            medical_record_missing_optional_field_drug_history_should_return_none,
+            medical_record_missing_optional_field_drug_history_should_return_none.get(
+                "patient_id"
+            ),
+            None,
+        ),
+        (
+            medical_record_missing_optional_field_date_created_should_return_none,
+            medical_record_missing_optional_field_date_created_should_return_none.get(
+                "patient_id"
+            ),
+            None,
+        ),
+        (
+            medical_record_missing_optional_field_last_edited_should_return_none,
+            medical_record_missing_optional_field_last_edited_should_return_none.get(
+                "patient_id"
+            ),
+            None,
+        ),
+        (
+            medical_record_missing_both_medical_history_and_drug_history_should_throw_exception,
+            medical_record_missing_both_medical_history_and_drug_history_should_throw_exception.get(
+                "patient_id"
+            ),
             ValidationExceptionError,
         ),
         (
-            invalid_missing_histories,
-            invalid_missing_histories.get("patient_id"),
+            medical_record_with_mismatching_patient_id_should_throw_exception,
+            medical_record_with_mismatching_patient_id_should_throw_exception.get(
+                "patient_id"
+            )
+            + 10,
             ValidationExceptionError,
         ),
         (
-            invalid_extra_keys,
-            invalid_extra_keys.get("patient_id"),
+            medical_record_has_invalid_extra_field_should_throw_exception,
+            medical_record_has_invalid_extra_field_should_throw_exception.get(
+                "patient_id"
+            ),
             ValidationExceptionError,
         ),
     ],
@@ -63,21 +183,32 @@ def test_validate_post_request(json, patient_id, expectation):
 @pytest.mark.parametrize(
     "json, record_id, expectation",
     [
-        (valid_post_request, valid_post_request.get("patient_id"), None),
-        (valid_missing_id, None, None),
         (
-            invalid_mismatching_patient_id,
-            invalid_mismatching_patient_id["patient_id"] + 10,
+            medical_record_with_valid_fields_should_return_none,
+            medical_record_with_valid_fields_should_return_none.get("patient_id"),
+            None,
+        ),
+        (medical_record_missing_optional_field_id_should_return_none, None, None),
+        (
+            medical_record_with_mismatching_patient_id_should_throw_exception,
+            medical_record_with_mismatching_patient_id_should_throw_exception.get(
+                "patient_id"
+            )
+            + 10,
             ValidationExceptionError,
         ),
         (
-            invalid_missing_histories,
-            invalid_missing_histories.get("patient_id"),
+            medical_record_missing_both_medical_history_and_drug_history_should_throw_exception,
+            medical_record_missing_both_medical_history_and_drug_history_should_throw_exception.get(
+                "patient_id"
+            ),
             ValidationExceptionError,
         ),
         (
-            invalid_extra_keys,
-            invalid_extra_keys.get("patient_id"),
+            medical_record_has_invalid_extra_field_should_throw_exception,
+            medical_record_has_invalid_extra_field_should_throw_exception.get(
+                "patient_id"
+            ),
             ValidationExceptionError,
         ),
     ],

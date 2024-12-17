@@ -66,17 +66,16 @@ class Root(Resource):
                         message="Something went wrong while parsing the CSV file.",
                     )
                     return None
+            # Convert keys to snake case.
+            request_body = decamelize(request_body)
         else:
-            request_body = request.get_json(force=True)
+            request_body = api_utils.get_request_body()
 
         # Note: This validation logic is left out of the Pydantic validation system
         # because it relies on the database, which the unit tests do not have access to (Issue #689)
         if len(request_body) == 0:
             abort(400, message="Request body is empty")
             return None
-
-        # Convert keys to snake case.
-        request_body = decamelize(request_body)
 
         if request_body.get("id") is not None:
             if crud.read(FormClassificationOrm, id=request_body["id"]):

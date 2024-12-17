@@ -157,14 +157,6 @@ def sms_relay_procedure():
         )
 
     method = sms_relay_decrypted_model_dump["method"]
-    if method not in http_methods:
-        return create_flask_response(
-            400,
-            invalid_method,
-            encrypted_data[0:iv_size],
-            user_secret_key,
-        )
-
     endpoint = sms_relay_decrypted_model_dump["endpoint"]
 
     header = sms_relay_decrypted_model_dump.get("header")

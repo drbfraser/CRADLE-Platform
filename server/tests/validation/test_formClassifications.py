@@ -3,22 +3,55 @@ import pytest
 from validation.formClassifications import FormClassificationValidator
 from validation.validation_exception import ValidationExceptionError
 
-valid_json = {"id": "123", "name": "test-name"}
+ID = "123"
+NAME = "test-name"
 
-missing_field = {"id": "123"}
+form_classification_with_valid_fields_should_return_none = {"name": NAME, "id": ID}
 
-not_type_string = {"id": 123, "name": "test-name"}
+form_classification_missing_optional_field_id_should_return_none = {
+    "name": NAME,
+}
 
-invalid_keys = {"id": "123", "name": "test-name", "invalid": "This should be invalid"}
+form_classification_missing_required_field_name_should_throw_exception = {"id": ID}
+
+form_classification_field_name_has_wrong_type_should_throw_exception = {
+    "name": 123,
+    "id": ID,
+}
+
+form_classification_field_id_has_wrong_type_should_throw_exception = {
+    "name": NAME,
+    "id": 123,
+}
+
+form_classification_has_invalid_extra_field_should_throw_exception = {
+    "name": NAME,
+    "id": 123,
+    "invalid": "This should be invalid",
+}
 
 
 @pytest.mark.parametrize(
     "json, expectation",
     [
-        (valid_json, None),
-        (missing_field, ValidationExceptionError),
-        (not_type_string, ValidationExceptionError),
-        (invalid_keys, ValidationExceptionError),
+        (form_classification_with_valid_fields_should_return_none, None),
+        (form_classification_missing_optional_field_id_should_return_none, None),
+        (
+            form_classification_missing_required_field_name_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            form_classification_field_name_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            form_classification_field_id_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            form_classification_has_invalid_extra_field_should_throw_exception,
+            ValidationExceptionError,
+        ),
     ],
 )
 def test_validate_template(json, expectation):

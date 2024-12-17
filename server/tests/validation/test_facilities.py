@@ -3,35 +3,143 @@ import pytest
 from validation.facilities import FacilityValidator
 from validation.validation_exception import ValidationExceptionError
 
-valid_json = {
-    "name": "H12",
-    "phone_number": "444-444-4444",
-    "about": "Biggest hospital",
-    "type": "HOSPITAL",
+FACILITY_NAME = "H12"
+PHONE_NUMBER = "+1-604-715-2845"
+LOCATION = "some location"
+DESCRIPTION = "Biggest hospital"
+FACILITY_TYPE = "HOSPITAL"
+
+facility_with_valid_fields_should_return_none = {
+    "name": FACILITY_NAME,
+    "phone_number": PHONE_NUMBER,
+    "location": LOCATION,
+    "about": DESCRIPTION,
+    "type": FACILITY_TYPE,
 }
 
-# name field is missing
-missing_field = {
-    "phone_number": "444-444-4444",
-    "about": "Biggest hospital",
-    "type": "HOSPITAL",
+facility_missing_optional_field_phone_number_should_return_none = {
+    "name": FACILITY_NAME,
+    "location": LOCATION,
+    "about": DESCRIPTION,
+    "type": FACILITY_TYPE,
 }
 
-# name must be string
-not_type_string = {
-    "name": 7,
-    "phone_number": "444-444-4444",
-    "about": "Biggest hospital",
-    "type": "HOSPITAL",
+facility_missing_optional_field_location_should_return_none = {
+    "name": FACILITY_NAME,
+    "phone_number": PHONE_NUMBER,
+    "about": DESCRIPTION,
+    "type": FACILITY_TYPE,
+}
+
+facility_missing_optional_field_about_should_return_none = {
+    "name": FACILITY_NAME,
+    "phone_number": PHONE_NUMBER,
+    "location": LOCATION,
+    "type": FACILITY_TYPE,
+}
+
+facility_missing_optional_field_type_should_return_none = {
+    "name": FACILITY_NAME,
+    "phone_number": PHONE_NUMBER,
+    "location": LOCATION,
+    "about": DESCRIPTION,
+}
+
+facility_missing_required_field_name_should_throw_exception = {
+    "phone_number": PHONE_NUMBER,
+    "location": LOCATION,
+    "about": DESCRIPTION,
+    "type": FACILITY_TYPE,
+}
+
+facility_field_name_has_wrong_type_should_throw_exception = {
+    "name": 1,
+    "phone_number": PHONE_NUMBER,
+    "location": LOCATION,
+    "about": DESCRIPTION,
+    "type": FACILITY_TYPE,
+}
+
+facility_field_phone_number_has_wrong_type_should_throw_exception = {
+    "name": FACILITY_NAME,
+    "phone_number": 1,
+    "location": 1,
+    "about": DESCRIPTION,
+    "type": FACILITY_TYPE,
+}
+
+facility_field_location_has_wrong_type_should_throw_exception = {
+    "name": FACILITY_NAME,
+    "phone_number": PHONE_NUMBER,
+    "location": 1,
+    "about": DESCRIPTION,
+    "type": FACILITY_TYPE,
+}
+
+facility_field_about_has_wrong_type_should_throw_exception = {
+    "name": FACILITY_NAME,
+    "phone_number": PHONE_NUMBER,
+    "location": LOCATION,
+    "about": 1,
+    "type": FACILITY_TYPE,
+}
+
+facility_field_type_has_wrong_type_should_throw_exception = {
+    "name": FACILITY_NAME,
+    "phone_number": PHONE_NUMBER,
+    "location": LOCATION,
+    "about": DESCRIPTION,
+    "type": 1,
+}
+
+facility_field_type_is_not_FacilityTypeEnum_should_throw_exception = {
+    "name": FACILITY_NAME,
+    "phone_number": PHONE_NUMBER,
+    "location": LOCATION,
+    "about": DESCRIPTION,
+    "type": "wrong FacilityTypeEnum",
 }
 
 
 @pytest.mark.parametrize(
     "json, expectation",
     [
-        (valid_json, None),
-        (missing_field, ValidationExceptionError),
-        (not_type_string, ValidationExceptionError),
+        (facility_with_valid_fields_should_return_none, None),
+        (
+            facility_missing_optional_field_phone_number_should_return_none,
+            None,
+        ),
+        (facility_missing_optional_field_location_should_return_none, None),
+        (facility_missing_optional_field_about_should_return_none, None),
+        (facility_missing_optional_field_type_should_return_none, None),
+        (
+            facility_missing_required_field_name_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            facility_field_name_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            facility_field_phone_number_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            facility_field_location_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            facility_field_about_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            facility_field_type_has_wrong_type_should_throw_exception,
+            ValidationExceptionError,
+        ),
+        (
+            facility_field_type_is_not_FacilityTypeEnum_should_throw_exception,
+            ValidationExceptionError,
+        ),
     ],
 )
 def test_validation(json, expectation):

@@ -2,17 +2,20 @@ from typing import Optional
 
 from pydantic import BaseModel, ValidationError
 
+from enums import FacilityTypeEnum
 from validation.validation_exception import ValidationExceptionError
 
+
 # Define a Pydantic model for incoming requests
-
-
 class FacilityValidator(BaseModel):
     name: str
     phone_number: Optional[str] = None
     location: Optional[str] = None
-    type: Optional[str] = None
+    type: Optional[FacilityTypeEnum] = None
     about: Optional[str] = None
+
+    class Config:
+        use_enum_values = True
 
     @staticmethod
     def validate(request_body: dict):

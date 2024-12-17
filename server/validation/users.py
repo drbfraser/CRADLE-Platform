@@ -3,7 +3,6 @@ from typing import List
 
 from pydantic import (
     BaseModel,
-    ConfigDict,
     ValidationError,
     field_validator,
 )
@@ -123,14 +122,12 @@ class UserRegisterValidator(UserValidator):
             raise ValidationExceptionError(error_message)
 
 
-class UserAuthRequestValidator(BaseModel):
+class UserAuthRequestValidator(BaseModel, extra="forbid"):
     """
     Pydantic validation model for the `/api/user/auth [POST]` api endpoint.
     Only needs to validate that the username and password fields are present,
     and convert the username to all lowercase.
     """
-
-    model_config = ConfigDict(extra="forbid")
 
     username: str
     password: str

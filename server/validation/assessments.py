@@ -21,8 +21,10 @@ class AssessmentValidator(BaseModel):
 
     @field_validator("follow_up_instructions", mode="before")
     @classmethod
-    def check_follow_up_instructions(
-        cls, follow_up_instructions, values: ValidationInfo
+    def __check_followup_instructions(
+        cls,
+        follow_up_instructions,
+        values: ValidationInfo,
     ):
         follow_up_needed = values.data.get("follow_up_needed", False)
         if follow_up_needed and (
@@ -53,5 +55,4 @@ class AssessmentValidator(BaseModel):
         try:
             return AssessmentValidator(**request_body)
         except ValidationError as e:
-            print(e)
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))

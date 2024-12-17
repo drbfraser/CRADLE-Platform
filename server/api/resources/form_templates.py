@@ -61,15 +61,14 @@ class Root(Resource):
                         message="Something went wrong while parsing the CSV file.",
                     )
                     return None
+            # Convert keys to snake case.
+            request_body = decamelize(request_body)
         else:
-            request_body = request.get_json(force=True)
+            request_body = api_utils.get_request_body()
 
         if len(request_body) == 0:
             abort(400, message="Request body is empty")
             return None
-
-        # Convert keys to snake case.
-        request_body = decamelize(request_body)
 
         if request_body.get("id") is not None:
             if crud.read(FormTemplateOrm, id=request_body["id"]):
