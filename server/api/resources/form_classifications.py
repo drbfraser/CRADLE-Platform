@@ -77,7 +77,6 @@ class Root(Resource):
             abort(400, message="Request body is empty")
             return None
 
-
         if request_body.get("id") is not None:
             if crud.read(FormClassificationOrm, id=request_body["id"]):
                 abort(409, message="Form classification already exists")
