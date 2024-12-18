@@ -15,7 +15,11 @@ def get_request_body():
 
     Use this function in place of `request.get_json()`.
     """
-    return decamelize(request.get_json(force=True))
+    request_body = request.get_json(force=True, silent=True)
+    if request_body is None:
+        print("NO REQUEST BODY")
+        return {}
+    return decamelize(request_body)
 
 
 def get_query_params() -> dict:
