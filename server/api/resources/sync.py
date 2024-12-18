@@ -245,7 +245,7 @@ class SyncReadings(Resource):
 
         # Read all readings that have been created or updated since last sync
         current_user = user_utils.get_current_user_from_jwt()
-        new_readings = view.reading_view(current_user, last_sync)
+        new_readings = view.reading_view(cast(dict[Any, Any], current_user), last_sync)
 
         return {
             "readings": [serialize.serialize_reading(r) for r in new_readings],
@@ -256,9 +256,10 @@ class SyncReadings(Resource):
 class SyncReferrals(Resource):
     @staticmethod
     def post():
-        last_sync: int = request.args.get("since", None, type=int)
-        if not last_sync:
+        last_sync = request.args.get("since", None, type=int)
+        if last_sync is None:
             abort(400, message="'since' query parameter is required")
+            return None
 
         request_body = api_utils.get_request_body()
         patients_on_server_cache = set()
@@ -284,7 +285,9 @@ class SyncReferrals(Resource):
 
         # Read all referrals that have been created or updated since last sync
         current_user = user_utils.get_current_user_from_jwt()
-        new_referrals = view.referral_view(current_user, last_sync)
+        new_referrals = view.referral_view(
+            cast(dict[Any, Any], current_user), last_sync
+        )
 
         return {
             "referrals": [
@@ -297,13 +300,16 @@ class SyncReferrals(Resource):
 class SyncAssessments(Resource):
     @staticmethod
     def post():
-        last_sync: int = request.args.get("since", None, type=int)
-        if not last_sync:
+        last_sync = request.args.get("since", None, type=int)
+        if last_sync is None:
             abort(400, message="'since' query parameter is required")
+            return None
 
         # Read all assessments that have been updated since last sync
         current_user = user_utils.get_current_user_from_jwt()
-        new_assessments = view.assessment_view(current_user, last_sync)
+        new_assessments = view.assessment_view(
+            cast(dict[Any, Any], current_user), last_sync
+        )
 
         return {
             "assessments": [
