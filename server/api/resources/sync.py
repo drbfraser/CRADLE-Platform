@@ -44,16 +44,16 @@ class SyncPatients(Resource):
         errors: List[dict] = list()
         patients_to_create: List[PatientOrm] = list()
         pregnancies_to_create: List[PregnancyOrm] = list()
-        mrecords_to_create: List[MedicalRecordOrm] = list()
-        drecords_to_create: List[MedicalRecordOrm] = list()
+        medical_records_to_create: List[MedicalRecordOrm] = list()
+        drug_records_to_create: List[MedicalRecordOrm] = list()
         associations_to_create: List[PatientAssociationsOrm] = list()
         patients_to_update: List[ModelData] = list()
         pregnancies_to_update: List[ModelData] = list()
         models_list = [
             patients_to_create,
             pregnancies_to_create,
-            mrecords_to_create,
-            drecords_to_create,
+            medical_records_to_create,
+            drug_records_to_create,
             associations_to_create,
             patients_to_update,
             pregnancies_to_update,
@@ -61,17 +61,17 @@ class SyncPatients(Resource):
         for mobile_patient in mobile_patients:
             patient_id = mobile_patient.get("id")
             # Loop variables each holding a singular model corresponding to a list in models_list
-            pt_crt = None
-            pr_crt = None
-            mrc_crt = None
-            drc_crt = None
-            as_crt = None
-            pt_upd = None
-            pr_upd = None
+            created_patient = None
+            created_pregnancy = None
+            created_medical_record = None
+            created_drug_record = None
+            created_assessment = None
+            updated_patient = None
+            updated_pregnancy = None
             try:
                 server_patient = crud.read(PatientOrm, id=patient_id)
                 if not server_patient:
-                    pt_crt = serialize.deserialize_patient(
+                    created_patient = serialize.deserialize_patient(
                         mobile_patient, shallow=False
                     )
                 else:
@@ -88,15 +88,15 @@ class SyncPatients(Resource):
                         values = serialize.deserialize_patient(
                             mobile_patient, partial=True
                         )
-                        pt_upd = ModelData(patient_id, values)
+                        updated_patient = ModelData(patient_id, values)
 
                     if mobile_patient.get("medical_last_edited"):
-                        mrc_crt = serialize.deserialize_medical_record(
+                        created_medical_record = serialize.deserialize_medical_record(
                             mobile_patient, False
                         )
 
                     if mobile_patient.get("drug_last_edited"):
-                        drc_crt = serialize.deserialize_medical_record(
+                        created_drug_record = serialize.deserialize_medical_record(
                             mobile_patient, True
                         )
 
@@ -130,7 +130,7 @@ class SyncPatients(Resource):
                             ):
                                 err = _to_string("pregnancy_end_date", "conflict")
                                 raise ValidationError(err)
-                            pr_upd = ModelData(pregnancy_id, values)
+                            updated_pregnancy = ModelData(pregnancy_id, values)
 
                     if (
                         mobile_patient.get("pregnancy_start_date")
@@ -150,7 +150,7 @@ class SyncPatients(Resource):
                         ):
                             err = _to_string("pregnancy_start_date", "conflict")
                             raise ValidationError(err)
-                        pr_crt = model
+                        created_pregnancy = model
 
                 association = {
                     "patient_id": patient_id,
@@ -158,10 +158,10 @@ class SyncPatients(Resource):
                     "user_id": current_user["id"],
                 }
                 if not crud.read(PatientAssociationsOrm, **association):
-                    as_crt = marshal.unmarshal(PatientAssociationsOrm, association)
+                    created_assessment = marshal.unmarshal(PatientAssociationsOrm, association)
 
                 # Queue models as validation completes without exceptions
-                models = [pt_crt, pr_crt, mrc_crt, drc_crt, as_crt, pt_upd, pr_upd]
+                models = [created_patient, created_pregnancy, created_medical_record, created_drug_record, created_assessment, updated_patient, updated_pregnancy]
                 for m, ms in zip(models, models_list):
                     if m:
                         ms.append(m)
