@@ -39,21 +39,21 @@ class SyncPatients(Resource):
             return None
 
         # Validate and load patients
-        mobile_patients = request.get_json(force=True)
+        mobile_patients = api_utils.get_request_body()
         status_code = 200
         errors: List[dict] = list()
         patients_to_create: List[PatientOrm] = list()
         pregnancies_to_create: List[PregnancyOrm] = list()
-        mrecords_to_create: List[MedicalRecordOrm] = list()
-        drecords_to_create: List[MedicalRecordOrm] = list()
+        medical_records_to_create: List[MedicalRecordOrm] = list()
+        drug_records_to_create: List[MedicalRecordOrm] = list()
         associations_to_create: List[PatientAssociationsOrm] = list()
         patients_to_update: List[ModelData] = list()
         pregnancies_to_update: List[ModelData] = list()
         models_list = [
             patients_to_create,
             pregnancies_to_create,
-            mrecords_to_create,
-            drecords_to_create,
+            medical_records_to_create,
+            drug_records_to_create,
             associations_to_create,
             patients_to_update,
             pregnancies_to_update,
@@ -61,17 +61,17 @@ class SyncPatients(Resource):
         for mobile_patient in mobile_patients:
             patient_id = mobile_patient.get("id")
             # Loop variables each holding a singular model corresponding to a list in models_list
-            pt_crt = None
-            pr_crt = None
-            mrc_crt = None
-            drc_crt = None
-            as_crt = None
-            pt_upd = None
-            pr_upd = None
+            patient_to_create = None
+            pregnancy_to_create = None
+            medical_record_to_create = None
+            drug_record_to_create = None
+            assessment_to_create = None
+            patient_to_update = None
+            pregnancy_to_update = None
             try:
                 server_patient = crud.read(PatientOrm, id=patient_id)
                 if not server_patient:
-                    pt_crt = serialize.deserialize_patient(
+                    patient_to_create = serialize.deserialize_patient(
                         mobile_patient, shallow=False
                     )
                 else:
@@ -88,15 +88,15 @@ class SyncPatients(Resource):
                         values = serialize.deserialize_patient(
                             mobile_patient, partial=True
                         )
-                        pt_upd = ModelData(patient_id, values)
+                        patient_to_update = ModelData(patient_id, values)
 
                     if mobile_patient.get("medical_last_edited"):
-                        mrc_crt = serialize.deserialize_medical_record(
+                        medical_record_to_create = serialize.deserialize_medical_record(
                             mobile_patient, False
                         )
 
                     if mobile_patient.get("drug_last_edited"):
-                        drc_crt = serialize.deserialize_medical_record(
+                        drug_record_to_create = serialize.deserialize_medical_record(
                             mobile_patient, True
                         )
 
@@ -130,7 +130,7 @@ class SyncPatients(Resource):
                             ):
                                 err = _to_string("pregnancy_end_date", "conflict")
                                 raise ValidationError(err)
-                            pr_upd = ModelData(pregnancy_id, values)
+                            pregnancy_to_update = ModelData(pregnancy_id, values)
 
                     if (
                         mobile_patient.get("pregnancy_start_date")
@@ -150,7 +150,7 @@ class SyncPatients(Resource):
                         ):
                             err = _to_string("pregnancy_start_date", "conflict")
                             raise ValidationError(err)
-                        pr_crt = model
+                        pregnancy_to_create = model
 
                 association = {
                     "patient_id": patient_id,
@@ -158,10 +158,20 @@ class SyncPatients(Resource):
                     "user_id": current_user["id"],
                 }
                 if not crud.read(PatientAssociationsOrm, **association):
-                    as_crt = marshal.unmarshal(PatientAssociationsOrm, association)
+                    assessment_to_create = marshal.unmarshal(
+                        PatientAssociationsOrm, association
+                    )
 
                 # Queue models as validation completes without exceptions
-                models = [pt_crt, pr_crt, mrc_crt, drc_crt, as_crt, pt_upd, pr_upd]
+                models = [
+                    patient_to_create,
+                    pregnancy_to_create,
+                    medical_record_to_create,
+                    drug_record_to_create,
+                    assessment_to_create,
+                    patient_to_update,
+                    pregnancy_to_update,
+                ]
                 for m, ms in zip(models, models_list):
                     if m:
                         ms.append(m)
@@ -201,8 +211,8 @@ class SyncPatients(Resource):
 class SyncReadings(Resource):
     @staticmethod
     def post():
-        last_sync: int = request.args.get("since", None, type=int)
-        if not last_sync:
+        last_sync = request.args.get("since", None, type=int)
+        if last_sync is None:
             abort(400, message="'since' query parameter is required")
             return None
 
@@ -235,7 +245,7 @@ class SyncReadings(Resource):
 
         # Read all readings that have been created or updated since last sync
         current_user = user_utils.get_current_user_from_jwt()
-        new_readings = view.reading_view(current_user, last_sync)
+        new_readings = view.reading_view(cast(dict[Any, Any], current_user), last_sync)
 
         return {
             "readings": [serialize.serialize_reading(r) for r in new_readings],
@@ -246,9 +256,10 @@ class SyncReadings(Resource):
 class SyncReferrals(Resource):
     @staticmethod
     def post():
-        last_sync: int = request.args.get("since", None, type=int)
-        if not last_sync:
+        last_sync = request.args.get("since", None, type=int)
+        if last_sync is None:
             abort(400, message="'since' query parameter is required")
+            return None
 
         request_body = api_utils.get_request_body()
         patients_on_server_cache = set()
@@ -274,7 +285,9 @@ class SyncReferrals(Resource):
 
         # Read all referrals that have been created or updated since last sync
         current_user = user_utils.get_current_user_from_jwt()
-        new_referrals = view.referral_view(current_user, last_sync)
+        new_referrals = view.referral_view(
+            cast(dict[Any, Any], current_user), last_sync
+        )
 
         return {
             "referrals": [
@@ -287,13 +300,16 @@ class SyncReferrals(Resource):
 class SyncAssessments(Resource):
     @staticmethod
     def post():
-        last_sync: int = request.args.get("since", None, type=int)
-        if not last_sync:
+        last_sync = request.args.get("since", None, type=int)
+        if last_sync is None:
             abort(400, message="'since' query parameter is required")
+            return None
 
         # Read all assessments that have been updated since last sync
         current_user = user_utils.get_current_user_from_jwt()
-        new_assessments = view.assessment_view(current_user, last_sync)
+        new_assessments = view.assessment_view(
+            cast(dict[Any, Any], current_user), last_sync
+        )
 
         return {
             "assessments": [
