@@ -211,8 +211,8 @@ class SyncPatients(Resource):
 class SyncReadings(Resource):
     @staticmethod
     def post():
-        last_sync: int = request.args.get("since", None, type=int)
-        if not last_sync:
+        last_sync = request.args.get("since", None, type=int)
+        if last_sync is None:
             abort(400, message="'since' query parameter is required")
             return None
 
