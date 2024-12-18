@@ -61,17 +61,17 @@ class SyncPatients(Resource):
         for mobile_patient in mobile_patients:
             patient_id = mobile_patient.get("id")
             # Loop variables each holding a singular model corresponding to a list in models_list
-            created_patient = None
-            created_pregnancy = None
-            created_medical_record = None
-            created_drug_record = None
-            created_assessment = None
-            updated_patient = None
-            updated_pregnancy = None
+            patient_to_create = None
+            pregnancy_to_create = None
+            medical_record_to_create = None
+            drug_record_to_create = None
+            assessment_to_create = None
+            patient_to_update = None
+            pregnancy_to_update = None
             try:
                 server_patient = crud.read(PatientOrm, id=patient_id)
                 if not server_patient:
-                    created_patient = serialize.deserialize_patient(
+                    patient_to_create = serialize.deserialize_patient(
                         mobile_patient, shallow=False
                     )
                 else:
@@ -88,15 +88,15 @@ class SyncPatients(Resource):
                         values = serialize.deserialize_patient(
                             mobile_patient, partial=True
                         )
-                        updated_patient = ModelData(patient_id, values)
+                        patient_to_update = ModelData(patient_id, values)
 
                     if mobile_patient.get("medical_last_edited"):
-                        created_medical_record = serialize.deserialize_medical_record(
+                        medical_record_to_create = serialize.deserialize_medical_record(
                             mobile_patient, False
                         )
 
                     if mobile_patient.get("drug_last_edited"):
-                        created_drug_record = serialize.deserialize_medical_record(
+                        drug_record_to_create = serialize.deserialize_medical_record(
                             mobile_patient, True
                         )
 
@@ -130,7 +130,7 @@ class SyncPatients(Resource):
                             ):
                                 err = _to_string("pregnancy_end_date", "conflict")
                                 raise ValidationError(err)
-                            updated_pregnancy = ModelData(pregnancy_id, values)
+                            pregnancy_to_update = ModelData(pregnancy_id, values)
 
                     if (
                         mobile_patient.get("pregnancy_start_date")
@@ -150,7 +150,7 @@ class SyncPatients(Resource):
                         ):
                             err = _to_string("pregnancy_start_date", "conflict")
                             raise ValidationError(err)
-                        created_pregnancy = model
+                        pregnancy_to_create = model
 
                 association = {
                     "patient_id": patient_id,
@@ -158,10 +158,20 @@ class SyncPatients(Resource):
                     "user_id": current_user["id"],
                 }
                 if not crud.read(PatientAssociationsOrm, **association):
-                    created_assessment = marshal.unmarshal(PatientAssociationsOrm, association)
+                    assessment_to_create = marshal.unmarshal(
+                        PatientAssociationsOrm, association
+                    )
 
                 # Queue models as validation completes without exceptions
-                models = [created_patient, created_pregnancy, created_medical_record, created_drug_record, created_assessment, updated_patient, updated_pregnancy]
+                models = [
+                    patient_to_create,
+                    pregnancy_to_create,
+                    medical_record_to_create,
+                    drug_record_to_create,
+                    assessment_to_create,
+                    patient_to_update,
+                    pregnancy_to_update,
+                ]
                 for m, ms in zip(models, models_list):
                     if m:
                         ms.append(m)
