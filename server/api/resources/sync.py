@@ -39,7 +39,7 @@ class SyncPatients(Resource):
             return None
 
         # Validate and load patients
-        mobile_patients = request.get_json(force=True)
+        mobile_patients = api_utils.get_request_body()
         status_code = 200
         errors: List[dict] = list()
         patients_to_create: List[PatientOrm] = list()
