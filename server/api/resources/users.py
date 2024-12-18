@@ -201,14 +201,17 @@ class UserAuthApi(Resource):
             abort(500, message=err)
             return None
 
-        # Don't include refresh token in body of response.
         refresh_token = auth_result["refresh_token"]
-        del auth_result["refresh_token"]
 
         challenge = auth_result["challenge"]
 
+        """
+        HTTP-Only cookie doesn't seem to work for mobile, so put refresh token
+        in the response body as well.
+        """
         response_body = {
             "access_token": auth_result["access_token"],
+            "refresh_token": refresh_token,
             "user": user_dict,
             "challenge": None,
         }
