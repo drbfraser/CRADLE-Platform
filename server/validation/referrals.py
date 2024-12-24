@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, ValidationError
@@ -12,14 +11,14 @@ class ReferralEntityValidator(BaseModel, extra="forbid"):
     patient_id: str
     health_facility_name: str
     comment: Optional[str] = None
-    date_referred: Optional[datetime] = None
+    date_referred: Optional[int] = None
     action_taken: Optional[str] = None
     is_assessed: Optional[bool] = None
     is_cancelled: Optional[bool] = None
     cancel_reason: Optional[str] = None
     not_attended: Optional[bool] = None
     not_attend_reason: Optional[str] = None
-    last_edited: Optional[datetime] = None
+    last_edited: Optional[int] = None
     user_id: Optional[int] = None
 
     @staticmethod
