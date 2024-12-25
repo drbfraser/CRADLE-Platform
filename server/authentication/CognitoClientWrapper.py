@@ -307,6 +307,7 @@ class CognitoClientWrapper:
                 access_token,
                 key=signing_key,
                 algorithms=["RS256"],
+                leeway=60 # Leeway to account for clock skew.
             )
         except jwt.DecodeError as err:
             print(err)
