@@ -30,9 +30,9 @@ def create_assessment(body: AssessmentValidator):
     assessment_dict = body.model_dump()
     assessment = marshal.unmarshal(AssessmentOrm, assessment_dict)
 
-    crud.create(assessment)
+    crud.create(assessment, refresh=True)
 
-    return assessment_dict, 201
+    return marshal.marshal(assessment), 201
 
 
 # /api/assessments/<string:assessment_id> [GET]
@@ -65,4 +65,4 @@ def update_assessment(path: AssessmentsPath, body: AssessmentValidator):
     update_assessment = marshal.unmarshal(AssessmentOrm, update_assessment_dict)
     crud.update(AssessmentOrm, update_assessment, id=assessment_id)
 
-    return update_assessment_dict, 200
+    return marshal.marshal(update_assessment), 200
