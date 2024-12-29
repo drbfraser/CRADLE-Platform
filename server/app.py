@@ -25,7 +25,7 @@ import routes
 import logging
 from config import Config
 from logging.config import dictConfig
-from flask import Response
+from flask import Response, request
 from werkzeug.exceptions import HTTPException
 from humps import camelize
 
@@ -68,6 +68,9 @@ def convert_response_body_to_camel_case(response: Response):
     """
     Intercepts responses and converts keys to camel case.
     """
+    if request.path.startswith(("/openapi", "/apidocs")):
+        return response
+
     if response.mimetype == "application/json":
         response_body = camelize(json.loads(response.data))
         response.data = json.dumps(response_body)
