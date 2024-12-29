@@ -2,11 +2,12 @@ from typing import Optional
 
 from pydantic import BaseModel, Field, ValidationError, ValidationInfo, field_validator
 
+from utils import get_current_time
 from validation.validation_exception import ValidationExceptionError
 
 
 class AssessmentValidator(BaseModel):
-    date_assessed: int
+    date_assessed: int = Field(default_factory=lambda: get_current_time())
     diagnosis: Optional[str] = None
     medication_prescribed: Optional[str] = None
     healthcare_worker_id: Optional[int] = None
