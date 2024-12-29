@@ -2,15 +2,14 @@ from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from pydantic import BaseModel, Field
 
-from config import app
 from data import crud, marshal
 from models import AssessmentOrm
 from validation.assessments import AssessmentValidator
 
-api = APIBlueprint(
+api_assessments = APIBlueprint(
     name="assessments",
     import_name=__name__,
-    url_prefix="/api/assessments",
+    url_prefix="/assessments",
 )
 
 
@@ -19,14 +18,14 @@ class AssessmentsPath(BaseModel):
 
 
 # /api/assessments [GET]
-@api.get("/")
+@api_assessments.get("")
 def get_all_assessments():
     assessments = crud.read_all(AssessmentOrm)
     return [marshal.marshal(assessment) for assessment in assessments]
 
 
 # /api/assessments [POST]
-@api.post("/")
+@api_assessments.post("")
 def create_assessment(body: AssessmentValidator):
     assessment_dict = body.model_dump()
     assessment = marshal.unmarshal(AssessmentOrm, assessment_dict)
@@ -37,7 +36,7 @@ def create_assessment(body: AssessmentValidator):
 
 
 # /api/assessments/<string:assessment_id> [GET]
-@api.get("/<string:assessment_id>")
+@api_assessments.get("/<string:assessment_id>")
 def get_assessment(path: AssessmentsPath):
     assessment_id = path.assessment_id
     assessment = crud.read(AssessmentOrm, id=assessment_id)
@@ -48,7 +47,7 @@ def get_assessment(path: AssessmentsPath):
 
 
 # /api/assessments/<string:assessment_id> [PUT]
-@api.put("/<string:assessment_id>")
+@api_assessments.put("/<string:assessment_id>")
 def update_assessment(path: AssessmentsPath, body: AssessmentValidator):
     assessment_id = path.assessment_id
 
@@ -67,6 +66,3 @@ def update_assessment(path: AssessmentsPath, body: AssessmentValidator):
     crud.update(AssessmentOrm, update_assessment, id=assessment_id)
 
     return update_assessment_dict, 200
-
-
-app.register_api(api)

@@ -28,11 +28,13 @@ from logging.config import dictConfig
 from flask import Response, request
 from werkzeug.exceptions import HTTPException
 from humps import camelize
+from api.resources import api
 
 dictConfig(Config.LOGGING)
 LOGGER = logging.getLogger(__name__)
 
 app = config.app
+app.register_api(api)
 routes.init(config.api)
 
 host = "0.0.0.0"
