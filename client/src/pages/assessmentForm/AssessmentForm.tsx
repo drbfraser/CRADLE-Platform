@@ -17,6 +17,8 @@ import {
   saveDrugHistoryAsync,
   saveReferralAssessmentAsync,
 } from 'src/shared/api/api';
+import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
+import { useAppSelector } from 'src/shared/hooks';
 
 interface IProps {
   initialState: AssessmentState;
@@ -31,6 +33,7 @@ export const AssessmentForm = ({
   assessmentId,
   referralId,
 }: IProps) => {
+  const { data: currentUser } = useAppSelector(selectCurrentUser);
   const [submitError, setSubmitError] = useState(false);
   const [displayEmptyFormError, setDisplayEmptyFormError] = useState(false);
   const drugHistory = initialState.drugHistory;
@@ -65,6 +68,7 @@ export const AssessmentForm = ({
       [AssessmentField.followUp]: values[AssessmentField.followUp],
       [AssessmentField.followUpInstructions]:
         values[AssessmentField.followUpInstructions],
+      [AssessmentField.healthcareWorkerId]: currentUser?.id,
     };
 
     try {
