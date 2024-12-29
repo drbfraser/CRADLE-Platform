@@ -41,10 +41,13 @@ app = config.app
 def is_public_endpoint(request: Request):
     # Public route paths.
     if request.path in {
-        "/apidocs",
         "/api/user/auth",
         "/api/user/auth/refresh_token",
     }:
+        return True
+
+    whitelist: tuple[str, ...] = ("/openapi", "/apidocs")
+    if request.path.startswith(whitelist):
         return True
 
     if request.endpoint is None:
