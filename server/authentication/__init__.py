@@ -39,15 +39,17 @@ app = config.app
 
 
 def is_public_endpoint(request: Request):
-    if request.endpoint is None:
-        return False
-
     # Public route paths.
     if request.path in {
+        "/apidocs",
         "/api/user/auth",
         "/api/user/auth/refresh_token",
     }:
         return True
+
+    if request.endpoint is None:
+        return False
+
     if request.endpoint.startswith("flasgger.") or request.endpoint in {
         "version",
         "static",
