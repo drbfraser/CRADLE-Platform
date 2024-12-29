@@ -8,10 +8,11 @@ from typing import ClassVar
 import environs
 from environs import Env
 from flasgger import Swagger
-from flask import Flask
 from flask_cors import CORS
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
+from flask_openapi3.models.info import Info
+from flask_openapi3.openapi import OpenAPI as FlaskOpenAPI
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
@@ -109,7 +110,11 @@ class JSONEncoder(json.JSONEncoder):
 
 FLASK_APP = "app.py"
 
-app = Flask(__name__, static_folder="../client/build")
+app = FlaskOpenAPI(
+    import_name=__name__,
+    static_folder="../client/build",
+    info=Info(title="Cradle-Platform REST API", version=app_version),
+)
 app.config["SWAGGER"] = {"openapi": "3.0.2", "title": "Cradle-Platform REST API"}
 app.config["PROPAGATE_EXCEPTIONS"] = True
 app.config["BASE_URL"] = ""
