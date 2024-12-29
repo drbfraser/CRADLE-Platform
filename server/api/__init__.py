@@ -10,7 +10,6 @@ def init_routes(api: Api):
     __init_patients_resources(api)
     __init_readings_resources(api)
     __init_referral_resources(api)
-    __init_assessment_resources(api)
     __init_facilities_resources(api)
     __init_sync_resources(api)
     __init_patient_associations_resources(api)
@@ -55,13 +54,6 @@ def __init_referral_resources(api: Api):
     api.add_resource(r.Root, "/api/referrals", endpoint="referral_root")
     api.add_resource(r.SingleReferral, "/api/referrals/<int:referral_id>")
     api.add_resource(r.AssessReferral, "/api/referrals/assess/<string:referral_id>")
-
-
-def __init_assessment_resources(api: Api):
-    import api.resources.assessments as r
-
-    api.add_resource(r.Root, "/api/assessments", endpoint="assessment_root")
-    api.add_resource(r.SingleAssessment, "/api/assessments/<string:assessment_id>")
 
 
 def __init_facilities_resources(api: Api):

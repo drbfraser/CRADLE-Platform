@@ -5,8 +5,6 @@
 
 import api as new_api
 from api.resources import patients_android, users
-from api.resources.assessments import Root as Assessments
-from api.resources.assessments import SingleAssessment
 from api.resources.facilities import Root as Facilities
 from api.resources.facilities import SingleFacility
 from api.resources.form_classifications import (
@@ -117,18 +115,6 @@ def init(api):
     )  # [GET]
 
     #### New Endpoints ####
-    api.add_resource(
-        Assessments,
-        "/api/assessments",
-        endpoint="assessment",
-    )  # [POST, GET]
-
-    api.add_resource(
-        SingleAssessment,
-        "/api/assessments/<string:assessment_id>",
-        endpoint="single_assessment",
-    )  # [GET]
-
     api.add_resource(
         PatientAssociations,
         "/api/patientAssociations",
