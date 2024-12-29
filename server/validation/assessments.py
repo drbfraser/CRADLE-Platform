@@ -12,7 +12,7 @@ class AssessmentValidator(BaseModel):
     healthcare_worker_id: Optional[int] = None
     special_investigations: Optional[str] = None
     treatment: Optional[str] = None
-    patient_id: Optional[str] = None
+    patient_id: str
     follow_up_needed: bool
     follow_up_instructions: Optional[str] = Field(
         default=None,
@@ -43,6 +43,7 @@ class AssessmentValidator(BaseModel):
 
         :param request_body: The request body as a dict object
                             {
+                                "patient_id": "123456" - required
                                 "date_assessed": 1551447833, - required
                                 "diagnosis": "patient is fine",
                                 "medication_prescribed": "tylenol",
