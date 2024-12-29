@@ -110,7 +110,7 @@ class JSONEncoder(json.JSONEncoder):
 FLASK_APP = "app.py"
 
 app = Flask(__name__, static_folder="../client/build")
-app.config["SWAGGER"] = {"openapi": "3.0.2"}
+app.config["SWAGGER"] = {"openapi": "3.0.2", "title": "Cradle-Platform REST API"}
 app.config["PROPAGATE_EXCEPTIONS"] = True
 app.config["BASE_URL"] = ""
 app.config["UPLOAD_FOLDER"] = "/uploads"
