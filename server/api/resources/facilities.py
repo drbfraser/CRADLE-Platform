@@ -1,89 +1,89 @@
 import time
+from typing import Optional
 
-from flasgger import swag_from
-from flask_restful import Resource, abort
+from flask import abort
+from flask_openapi3.blueprint import APIBlueprint
+from pydantic import BaseModel, Field
 
-from api import util
 from api.decorator import roles_required
-from common import api_utils, commonUtil
 from data import crud, marshal
 from enums import RoleEnum
 from models import HealthFacilityOrm
 from validation.facilities import FacilityValidator
-from validation.validation_exception import ValidationExceptionError
-
 
 # /api/facilities
-class Root(Resource):
-    # Ensuring that we select only these keys from the JSON payload.
 
-    @staticmethod
-    @swag_from(
-        "../../specifications/facilities-get.yml",
-        methods=["GET"],
-        endpoint="facilities",
+api_facilities = APIBlueprint(
+    name="facilities",
+    import_name=__name__,
+    url_prefix="/facilities",
+)
+
+
+class FacilitiesGetQuery(BaseModel):
+    simplified: Optional[bool] = Field(
+        ..., description="If true, only the names of facilities will be returned."
     )
-    def get():
-        facilities = crud.read_all(HealthFacilityOrm)
-        if api_utils.get_query_param_bool("simplified"):
-            # If responding to a "simplified" request, only return the names of the
-            # facilities and no other information
-            return [f.name for f in facilities]
-        # Otherwise, return all information about the health facilities
-        return [marshal.marshal(f) for f in facilities]
 
-    @staticmethod
-    @roles_required([RoleEnum.ADMIN])
-    @swag_from(
-        "../../specifications/facilities-post.yml",
-        methods=["POST"],
-        endpoint="facilities",
+
+# /api/facilities [GET]
+@api_facilities.get("")
+def get_all_facilities(query: FacilitiesGetQuery):
+    facilities = crud.read_all(HealthFacilityOrm)
+    if query.simplified:
+        # If responding to a "simplified" request, only return the names of the
+        # facilities and no other information.
+        return [f.name for f in facilities]
+    # Otherwise, return all information about the health facilities
+    return [marshal.marshal(f) for f in facilities]
+
+
+# /api/facilities [POST]
+@api_facilities.post("")
+@roles_required([RoleEnum.ADMIN])
+def create_facility(body: FacilityValidator):
+    new_facility = body.model_dump()
+    # Create a DB Model instance for the new facility and load into DB
+    facility = marshal.unmarshal(HealthFacilityOrm, new_facility)
+    facility.new_referrals = str(round(time.time() * 1000))
+
+    crud.create(facility)
+
+    # Get back a dict for return
+    facility_dict = marshal.marshal(
+        crud.read(
+            HealthFacilityOrm,
+            name=new_facility["name"],
+        ),
     )
-    def post():
-        request_body = api_utils.get_request_body()
-        new_facility_to_feed = util.filterPairsWithNone(request_body)
-        try:
-            facility_pydantic_model = FacilityValidator.validate(new_facility_to_feed)
-        except ValidationExceptionError as e:
-            abort(400, message=str(e))
-            return None
-
-        new_facility = facility_pydantic_model.model_dump()
-        new_facility = commonUtil.filterNestedAttributeWithValueNone(new_facility)
-
-        # Create a DB Model instance for the new facility and load into DB
-        facility = marshal.unmarshal(HealthFacilityOrm, new_facility)
-        facility.new_referrals = str(round(time.time() * 1000))
-
-        crud.create(facility)
-
-        # Get back a dict for return
-        facility_dict = marshal.marshal(
-            crud.read(
-                HealthFacilityOrm,
-                name=new_facility["name"],
-            ),
-        )
-        return facility_dict, 201
+    return facility_dict, 201
 
 
-# /api/facilities/<str:facility_name>
-class SingleFacility(Resource):
-    @staticmethod
-    @swag_from(
-        "../../specifications/single-facility-get.yml",
-        methods=["GET"],
-        endpoint="single_facility",
+class GetFacilityPath(BaseModel):
+    facility_name: str
+
+
+class GetFacilityQuery(BaseModel):
+    new_referrals: Optional[bool] = Field(
+        False,
+        description="If true, will only return the timestamp of new_referrals of the facility.",
     )
-    def get(facility_name: str):
-        facility = crud.read(HealthFacilityOrm, name=facility_name)
-        if facility is None:
-            abort(404, message=f"Facility ({facility_name}) not found.")
 
-        if api_utils.get_query_param_bool("new_referrals"):
-            if facility is not None:
-                new_referrals = facility.new_referrals
-            # If responding to a "new_referrals" request, only return the timestamp of new_referrals of that facility
-            return new_referrals
-        # Otherwise, return all information about the health facilities
-        return marshal.marshal(facility)
+
+# /api/facilities/<str:facility_name> [GET]
+api_facilities.get("/<str:facility_name>")
+
+
+def get_facility(path: GetFacilityPath, query: GetFacilityQuery):
+    facility_name = path.facility_name
+    facility = crud.read(HealthFacilityOrm, name=facility_name)
+    if facility is None:
+        return abort(404, message=f"Facility ({facility_name}) not found.")
+
+    if query.new_referrals:
+        if facility is not None:
+            new_referrals = facility.new_referrals
+        # If responding to a "new_referrals" request, only return the timestamp of new_referrals of that facility
+        return new_referrals
+    # Otherwise, return all information about the health facilities
+    return marshal.marshal(facility)
