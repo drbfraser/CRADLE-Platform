@@ -1,9 +1,10 @@
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from data import crud, marshal
 from models import AssessmentOrm
+from validation import CradleBaseModel
 from validation.assessments import AssessmentValidator
 
 api_assessments = APIBlueprint(
@@ -13,7 +14,7 @@ api_assessments = APIBlueprint(
 )
 
 
-class AssessmentsPath(BaseModel):
+class AssessmentsPath(CradleBaseModel):
     assessment_id: str = Field(..., description="Assessment ID.")
 
 

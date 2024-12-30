@@ -9,6 +9,7 @@ from api.decorator import roles_required
 from data import crud, marshal
 from enums import RoleEnum
 from models import HealthFacilityOrm
+from validation import CradleBaseModel
 from validation.facilities import FacilityValidator
 
 # /api/facilities
@@ -20,7 +21,7 @@ api_facilities = APIBlueprint(
 )
 
 
-class FacilitiesGetQuery(BaseModel):
+class FacilitiesGetQuery(CradleBaseModel):
     simplified: Optional[bool] = Field(
         ..., description="If true, only the names of facilities will be returned."
     )
