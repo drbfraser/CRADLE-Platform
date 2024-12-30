@@ -9,7 +9,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_restful import Resource, abort, reqparse
 
-from api.decorator import public_endpoint, roles_required
+from api.decorator import roles_required
 from api.util import (
     add_new_phoneNumber_for_user,
     delete_user_phoneNumber,
@@ -231,7 +231,6 @@ class UserAuthApi(Resource):
 # api/user/auth/refresh_token
 class UserAuthTokenRefreshApi(Resource):
     @swag_from("../../specifications/user-auth-refresh.yml", methods=["POST"])
-    @public_endpoint
     def post(self):
         request_body = api_utils.get_request_body()
         username = request_body.get("username")
@@ -284,9 +283,7 @@ class UserApi(Resource):
 
         return user_utils.get_user_dict_from_id(id), 200
 
-    @public_endpoint
     @swag_from("../../specifications/user-get.yml", methods=["GET"])
-    @public_endpoint
     def get(self, id):
         try:
             user_dict = user_utils.get_user_data_from_id(id)
