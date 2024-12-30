@@ -8,7 +8,7 @@ from __future__ import annotations
 import csv
 import json
 import os
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING, Any, Type
 
 from flask import Request
 
@@ -216,7 +216,7 @@ def parseCondition(parentQuestion: dict, conditionText: str) -> dict:
     def mc_optionsToDict(mc_options):
         return {option["opt"].casefold(): option["mc_id"] for option in mc_options}
 
-    condition: dict[str, any] = {
+    condition: dict[str, Any] = {
         "question_index": parentQuestion["question_index"],
         "relation": QRelationalEnum.EQUAL_TO.value,
         "answers": {},
@@ -293,7 +293,7 @@ def getFormTemplateDictFromCSV(csvData: str):
         }
 
     def findCategoryIndex(
-        categoryList: list[dict[str, any]],
+        categoryList: list[dict[str, Any]],
         categoryText: str,
     ) -> int | None:
         for category in categoryList:
@@ -330,7 +330,7 @@ def getFormTemplateDictFromCSV(csvData: str):
     result["questions"] = []
 
     categoryIndex = None
-    categoryList: list[dict[str, any]] = []
+    categoryList: list[dict[str, Any]] = []
 
     questionRows = iter(rows[4:])
     question_index = 0
