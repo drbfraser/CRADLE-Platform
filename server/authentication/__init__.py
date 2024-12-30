@@ -43,6 +43,7 @@ def is_public_endpoint(request: Request):
     if request.path in {
         "/api/user/auth",
         "/api/user/auth/refresh_token",
+        "/api/version",
     }:
         return True
 
