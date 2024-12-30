@@ -1,12 +1,13 @@
 from typing import Optional
 
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 
+from validation import CradleBaseModel
 from validation.validation_exception import ValidationExceptionError
 
 
 # Represents a referral entity with validations to prevent unrecognized fields.
-class ReferralEntityValidator(BaseModel, extra="forbid"):
+class ReferralEntityValidator(CradleBaseModel, extra="forbid"):
     id: Optional[str] = None
     patient_id: str
     health_facility_name: str
@@ -45,7 +46,7 @@ class ReferralEntityValidator(BaseModel, extra="forbid"):
 
 
 # Manages cancellation status with strict attribute enforcement to prevent unrecognized fields.
-class CancelStatusValidator(BaseModel, extra="forbid"):
+class CancelStatusValidator(CradleBaseModel, extra="forbid"):
     is_cancelled: bool
     cancel_reason: str
 
@@ -67,7 +68,7 @@ class CancelStatusValidator(BaseModel, extra="forbid"):
 # Manages non-attendance reasons with strict attribute enforcement to prevent unrecognized fields.
 
 
-class NotAttendValidator(BaseModel, extra="forbid"):
+class NotAttendValidator(CradleBaseModel, extra="forbid"):
     not_attend_reason: str
 
     @staticmethod

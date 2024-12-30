@@ -1,12 +1,13 @@
 from typing import List, Optional
 
-from pydantic import BaseModel, StrictBool, ValidationError
+from pydantic import StrictBool, ValidationError
 
+from validation import CradleBaseModel
 from validation.questions import FormQuestionPutValidator, FormQuestionValidator
 from validation.validation_exception import ValidationExceptionError
 
 
-class FormValidator(BaseModel, extra="forbid"):
+class FormValidator(CradleBaseModel, extra="forbid"):
     lang: str
     patient_id: str
     questions: List[FormQuestionValidator]
@@ -51,7 +52,7 @@ class FormValidator(BaseModel, extra="forbid"):
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
 
-class FormPutValidator(BaseModel, extra="forbid"):
+class FormPutValidator(CradleBaseModel, extra="forbid"):
     questions: List[FormQuestionPutValidator]
 
     @staticmethod

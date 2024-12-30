@@ -1,12 +1,13 @@
 from typing import List, Optional, Union
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 from typing_extensions import Annotated
 
 from enums import QRelationalEnum, QuestionTypeEnum
+from validation import CradleBaseModel
 
 
-class MultipleChoiceOptionValidator(BaseModel):
+class MultipleChoiceOptionValidator(CradleBaseModel):
     mc_id: int
     opt: str
     """
@@ -21,7 +22,7 @@ class MultipleChoiceOptionValidator(BaseModel):
     """
 
 
-class AnswerValidator(BaseModel, extra="forbid"):
+class AnswerValidator(CradleBaseModel, extra="forbid"):
     comment: Optional[str] = None
     mc_id_array: Optional[List[int]] = None
     number: Optional[Union[int, float]] = None
@@ -38,7 +39,7 @@ class AnswerValidator(BaseModel, extra="forbid"):
     """
 
 
-class VisibleConditionValidator(BaseModel, use_enum_values=True):
+class VisibleConditionValidator(CradleBaseModel, use_enum_values=True):
     answers: AnswerValidator
     question_index: int
     relation: QRelationalEnum
@@ -57,7 +58,7 @@ class VisibleConditionValidator(BaseModel, use_enum_values=True):
     """
 
 
-class QuestionLangVersionValidator(BaseModel, extra="forbid"):
+class QuestionLangVersionValidator(CradleBaseModel, extra="forbid"):
     lang: str
     mc_options: Optional[List[MultipleChoiceOptionValidator]] = None
     question_text: str
@@ -80,7 +81,7 @@ class QuestionLangVersionValidator(BaseModel, extra="forbid"):
     """
 
 
-class QuestionBase(BaseModel, use_enum_values=True):
+class QuestionBase(CradleBaseModel, use_enum_values=True):
     question_index: Annotated[int, Field(strict=True, ge=0)]  # Non-negative index
     question_type: QuestionTypeEnum
     question_id: Optional[str] = None
@@ -110,6 +111,6 @@ class FormQuestionValidator(QuestionBase, extra="forbid"):
     answers: Optional[AnswerValidator] = None
 
 
-class FormQuestionPutValidator(BaseModel):
+class FormQuestionPutValidator(CradleBaseModel):
     id: str
     answers: AnswerValidator

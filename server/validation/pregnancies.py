@@ -1,11 +1,12 @@
 from typing import Optional
 
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 
+from validation import CradleBaseModel
 from validation.validation_exception import ValidationExceptionError
 
 
-class PregnancyModel(BaseModel):
+class PregnancyModel(CradleBaseModel):
     patient_id: Optional[int] = None
     start_date: int
     end_date: Optional[int] = None

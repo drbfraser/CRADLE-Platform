@@ -1,11 +1,12 @@
 from typing import Optional
 
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 
+from validation import CradleBaseModel
 from validation.validation_exception import ValidationExceptionError
 
 
-class AssociationValidator(BaseModel):
+class AssociationValidator(CradleBaseModel):
     patient_id: int
     health_facility_name: Optional[str] = None
     user_id: Optional[int] = None

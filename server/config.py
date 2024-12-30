@@ -86,10 +86,10 @@ class Config:
             },
         },
         "loggers": {
-            "": {"handlers": ["console", "file"], "level": "DEBUG"},
-            "flask": {"level": "INFO"},
-            "sqlalchemy": {"level": "INFO"},
-            "werkzeug": {"level": "INFO"},
+            # "": {"handlers": ["console", "file"], "level": "DEBUG"},
+            # "flask": {"level": "INFO"},
+            # "sqlalchemy": {"level": "INFO"},
+            # "werkzeug": {"level": "INFO"},
         },
     }
     logging.config.dictConfig(LOGGING)

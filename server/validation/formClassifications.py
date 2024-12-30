@@ -1,11 +1,12 @@
 from typing import Optional
 
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 
+from validation import CradleBaseModel
 from validation.validation_exception import ValidationExceptionError
 
 
-class FormClassificationValidator(BaseModel, extra="forbid"):
+class FormClassificationValidator(CradleBaseModel, extra="forbid"):
     name: str
     id: Optional[str] = None
 

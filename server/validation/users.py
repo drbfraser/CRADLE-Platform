@@ -2,7 +2,6 @@ import re
 from typing import List
 
 from pydantic import (
-    BaseModel,
     ValidationError,
     field_validator,
 )
@@ -10,12 +9,13 @@ from pydantic import (
 from common.commonUtil import format_phone_number, is_valid_email_format
 from common.constants import USERNAME_REGEX_PATTERN
 from enums import RoleEnum
+from validation import CradleBaseModel
 from validation.validation_exception import ValidationExceptionError
 
 supported_roles = [role.value for role in RoleEnum]
 
 
-class UserValidator(BaseModel):
+class UserValidator(CradleBaseModel):
     """
     Base class for User models.
     Since the PUT request for updating a user's info should only be able to
@@ -28,7 +28,7 @@ class UserValidator(BaseModel):
     name: str
     health_facility_name: str
     role: str
-    phone_numbers: List[str]
+    phone_numbers: list[str]
     supervises: list[int] = []
 
     @field_validator("email")
@@ -122,7 +122,7 @@ class UserRegisterValidator(UserValidator):
             raise ValidationExceptionError(error_message)
 
 
-class UserAuthRequestValidator(BaseModel, extra="forbid"):
+class UserAuthRequestValidator(CradleBaseModel, extra="forbid"):
     """
     Pydantic validation model for the `/api/user/auth [POST]` api endpoint.
     Only needs to validate that the username and password fields are present,

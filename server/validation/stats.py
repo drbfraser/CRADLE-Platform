@@ -1,14 +1,15 @@
 # Stats post requests validation
 from typing import Optional
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import Field, ValidationError
 
+from validation import CradleBaseModel
 from validation.validation_exception import ValidationExceptionError
 
 MYSQL_BIGINT_MAX = (2**63) - 1
 
 
-class TimestampValidator(BaseModel):
+class TimestampValidator(CradleBaseModel):
     from_: Optional[str] = Field(
         alias="from",
         default="0",
@@ -43,7 +44,7 @@ class TimestampValidator(BaseModel):
             raise ValidationExceptionError(error_message)
 
 
-class Timeframe(BaseModel):
+class Timeframe(CradleBaseModel):
     timeframe: dict
 
     @staticmethod

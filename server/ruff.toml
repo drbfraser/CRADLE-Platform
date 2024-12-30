@@ -138,5 +138,7 @@ ignore = [
     "ISC001",    # single-line-implicit-string-concatenation
 
     # Trailing whitespace
-    "W291" # Trailing whitespace
+    "W291", # Trailing whitespace
+    
+    "RUF012" 
 ]

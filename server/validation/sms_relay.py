@@ -1,13 +1,14 @@
 from typing import Optional
 
-from pydantic import BaseModel, ValidationError, field_validator, model_validator
+from pydantic import ValidationError, field_validator, model_validator
 
 from common.commonUtil import format_phone_number
 from enums import HTTPMethodEnum
+from validation import CradleBaseModel
 from validation.validation_exception import ValidationExceptionError
 
 
-class SmsRelayValidator(BaseModel, extra="forbid"):
+class SmsRelayValidator(CradleBaseModel, extra="forbid"):
     phone_number: str
     encrypted_data: str
 
@@ -34,7 +35,9 @@ class SmsRelayValidator(BaseModel, extra="forbid"):
             raise ValidationExceptionError(error_message)
 
 
-class SmsRelayDecryptedBodyValidator(BaseModel, extra="forbid", use_enum_values=True):
+class SmsRelayDecryptedBodyValidator(
+    CradleBaseModel, extra="forbid", use_enum_values=True
+):
     request_number: int
     method: HTTPMethodEnum
     endpoint: str

@@ -1,18 +1,19 @@
 from typing import List, Optional
 
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 
 from service import questionTree
+from validation import CradleBaseModel
 from validation.questions import TemplateQuestionValidator
 from validation.validation_exception import ValidationExceptionError
 
 
-class ClassificationValidator(BaseModel):
+class ClassificationValidator(CradleBaseModel):
     name: str
     id: Optional[str] = None
 
 
-class FormTemplateValidator(BaseModel, extra="forbid"):
+class FormTemplateValidator(CradleBaseModel, extra="forbid"):
     classification: ClassificationValidator
     version: str
     questions: List[TemplateQuestionValidator]

@@ -1,11 +1,12 @@
 from typing import Optional
 
-from pydantic import BaseModel, ValidationError, model_validator
+from pydantic import ValidationError, model_validator
 
+from validation import CradleBaseModel
 from validation.validation_exception import ValidationExceptionError
 
 
-class MedicalRecordValidator(BaseModel, extra="forbid"):
+class MedicalRecordValidator(CradleBaseModel, extra="forbid"):
     id: Optional[int] = None
     patient_id: Optional[int] = None
     medical_history: Optional[str] = None

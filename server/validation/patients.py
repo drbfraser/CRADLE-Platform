@@ -1,13 +1,14 @@
 from datetime import date, datetime
 from typing import Any, List, Optional
 
-from pydantic import BaseModel, ValidationError, field_validator, model_validator
+from pydantic import ValidationError, field_validator, model_validator
 
+from validation import CradleBaseModel
 from validation.readings import ReadingValidator
 from validation.validation_exception import ValidationExceptionError
 
 
-class PatientBase(BaseModel):
+class PatientBase(CradleBaseModel):
     id: Optional[str] = None
     name: Optional[str] = None
     sex: Optional[str] = "FEMALE"

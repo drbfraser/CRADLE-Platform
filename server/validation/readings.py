@@ -1,12 +1,13 @@
 from typing import List, Optional
 
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 
+from validation import CradleBaseModel
 from validation.assessments import AssessmentValidator
 from validation.validation_exception import ValidationExceptionError
 
 
-class ReadingValidator(BaseModel):
+class ReadingValidator(CradleBaseModel):
     id: Optional[str] = None
     patient_id: str
     systolic_blood_pressure: int
