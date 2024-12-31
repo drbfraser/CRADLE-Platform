@@ -8,7 +8,7 @@ from validation.validation_exception import ValidationExceptionError
 
 class MedicalRecordValidator(CradleBaseModel, extra="forbid"):
     id: Optional[int] = None
-    patient_id: Optional[int] = None
+    patient_id: Optional[str] = None
     medical_history: Optional[str] = None
     drug_history: Optional[str] = None
     date_created: Optional[int] = None
