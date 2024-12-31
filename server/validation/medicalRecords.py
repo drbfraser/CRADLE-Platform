@@ -1,7 +1,8 @@
 from typing import Optional
 
-from pydantic import ValidationError, model_validator
+from pydantic import Field, ValidationError, model_validator
 
+from server.utils import get_current_time
 from validation import CradleBaseModel
 from validation.validation_exception import ValidationExceptionError
 
@@ -11,7 +12,7 @@ class MedicalRecordValidator(CradleBaseModel, extra="forbid"):
     patient_id: Optional[str] = None
     medical_history: Optional[str] = None
     drug_history: Optional[str] = None
-    date_created: Optional[int] = None
+    date_created: Optional[int] = Field(default_factory=get_current_time)
     last_edited: Optional[int] = None
 
     @model_validator(mode="before")
