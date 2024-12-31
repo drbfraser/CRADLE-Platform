@@ -3,9 +3,9 @@ from typing import Optional
 
 from flask import make_response
 from flask_openapi3.blueprint import APIBlueprint
+from flask_openapi3.models.file import FileStorage
 from flask_restful import abort
 from pydantic import Field, field_validator
-from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
 import data
@@ -49,6 +49,8 @@ class FormTemplateFileUploadForm(CradleBaseModel):
     Files are passed into the View through the `form` parameter.
     https://luolingchun.github.io/flask-openapi3/v3.x/Usage/Request/#form
     """
+
+    # model_config = ConfigDict(arbitrary_types_allowed=True)
 
     file: FileStorage  # request.files["file"]
     file_type: ContentTypeEnum = Field(..., description="File type")

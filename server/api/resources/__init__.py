@@ -2,6 +2,8 @@ from flask_openapi3.blueprint import APIBlueprint
 
 from api.resources.assessments import api_assessments
 from api.resources.facilities import api_facilities
+from api.resources.form_classifications import api_form_classifications
+from api.resources.form_templates import api_form_templates
 
 """
 The `flask-openapi3` plugin for Flask is used to generate API Specification 
@@ -25,3 +27,5 @@ api = APIBlueprint(
 
 api.register_api(api_assessments)
 api.register_api(api_facilities)
+api.register_api(api_form_classifications)
+api.register_api(api_form_templates)

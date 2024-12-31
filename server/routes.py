@@ -5,19 +5,6 @@
 
 import api as new_api
 from api.resources import patients_android, users
-from api.resources.form_classifications import (
-    FormClassificationSummary,
-    FormClassificationTemplates,
-    SingleFormClassification,
-)
-from api.resources.form_classifications import Root as FormClassification
-from api.resources.form_templates import (
-    BlankFormTemplate,
-    FormTemplateResource,
-    TemplateVersion,
-    TemplateVersionCsv,
-)
-from api.resources.form_templates import Root as FormTemplate
 from api.resources.forms import Root as Forms
 from api.resources.forms import SingleForm
 from api.resources.medical_records import Root as MedicalRecords
@@ -236,53 +223,6 @@ def init(api):
         "/api/medical_records/<string:record_id>",
         endpoint="single_medical_record",
     )  # [GET, PUT, DELETE]
-
-    api.add_resource(
-        FormTemplate,
-        "/api/forms/templates",
-        endpoint="form_templates",
-    )  # [GET, POST]
-    api.add_resource(
-        FormTemplateResource,
-        "/api/forms/templates/<string:form_template_id>",
-        endpoint="single_form_template",
-    )  # [GET, PUT]
-    api.add_resource(
-        TemplateVersion,
-        "/api/forms/templates/<string:form_template_id>/versions",
-        endpoint="single_form_template_version",
-    )  # [GET]
-    api.add_resource(
-        TemplateVersionCsv,
-        "/api/forms/templates/<string:form_template_id>/versions/<string:version>/csv",
-        endpoint="single_form_template_csv",
-    )  # [GET, PUT]
-    api.add_resource(
-        BlankFormTemplate,
-        "/api/forms/templates/blank/<string:form_template_id>",
-        endpoint="blank_form_template",
-    )  # [GET]
-
-    api.add_resource(
-        FormClassification,
-        "/api/forms/classifications",
-        endpoint="form_classifications",
-    )  # [GET, POST]
-    api.add_resource(
-        SingleFormClassification,
-        "/api/forms/classifications/<string:form_classification_id>",
-        endpoint="single_form_classification",
-    )  # [GET, PUT]
-    api.add_resource(
-        FormClassificationSummary,
-        "/api/forms/classifications/summary",
-        endpoint="form_classification_summary",
-    )  # [GET]
-    api.add_resource(
-        FormClassificationTemplates,
-        "/api/forms/classifications/<string:form_classification_id>/templates",
-        endpoint="form_classification_templates",
-    )  # [GET]
 
     api.add_resource(Forms, "/api/forms/responses", endpoint="forms")  # [POST]
     api.add_resource(
