@@ -1,7 +1,5 @@
-from typing import Any
-
-from humps import decamelize
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict
+from pydantic.alias_generators import to_camel
 
 
 class CradleBaseModel(BaseModel):
@@ -11,12 +9,9 @@ class CradleBaseModel(BaseModel):
     """
 
     # Common configs shared by all of our Pydantic models.
-    model_config = ConfigDict(validate_assignment=True, use_enum_values=True)
-
-    # Convert input data to be in snake case.
-    @model_validator(mode="before")
-    @classmethod
-    def convert_to_snake_case(cls, data: Any):
-        if isinstance(data, (list, dict, str)):
-            return decamelize(data)
-        return data
+    model_config = ConfigDict(
+        validate_assignment=True,
+        use_enum_values=True,
+        validate_default=True,
+        alias_generator=to_camel,  # Will allow Pydantic models to accept data in camel case. Internal fields will still be snake case. Will also allow serialization to camel case.
+    )
