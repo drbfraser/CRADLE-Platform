@@ -7,7 +7,7 @@ from validation.validation_exception import ValidationExceptionError
 
 
 class PregnancyModel(CradleBaseModel):
-    patient_id: Optional[int] = None
+    patient_id: Optional[str] = None
     start_date: int
     end_date: Optional[int] = None
     outcome: Optional[str] = None
