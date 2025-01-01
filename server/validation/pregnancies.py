@@ -84,7 +84,7 @@ class PregnancyPutRequestValidator(PregnancyModel):
     start_date: Optional[int] = None
 
     @staticmethod
-    def validate(request_body: dict, pregnancy_id: str):
+    def validate(request_body: dict, pregnancy_id: int):
         """
         Validates the PUT request for /api/pregnancies/<string:pregnancy_id>.
         Returns None if valid, otherwise raises ValidationExceptionError.
