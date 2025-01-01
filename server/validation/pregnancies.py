@@ -1,7 +1,8 @@
 from typing import Optional
 
-from pydantic import ValidationError
+from pydantic import Field, ValidationError
 
+from server.utils import get_current_time
 from validation import CradleBaseModel
 from validation.validation_exception import ValidationExceptionError
 
@@ -12,7 +13,7 @@ class PregnancyModel(CradleBaseModel):
     end_date: Optional[int] = None
     outcome: Optional[str] = None
     id: Optional[int] = None
-    last_edited: Optional[int] = None
+    last_edited: int = Field(default_factory=get_current_time)
     is_pregnant: Optional[bool] = None
 
     # use this custom method to validate extra field instead of using config extra forbid so that we have a custom error message
