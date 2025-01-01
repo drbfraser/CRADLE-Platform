@@ -8,7 +8,7 @@ from validation.validation_exception import ValidationExceptionError
 
 
 class PregnancyModel(CradleBaseModel):
-    patient_id: Optional[str] = None
+    patient_id: str
     start_date: int
     end_date: Optional[int] = None
     outcome: Optional[str] = None
@@ -43,6 +43,8 @@ class PregnancyModel(CradleBaseModel):
 
 
 class PregnancyPostRequestValidator(PregnancyModel):
+    patient_id: Optional[str] = None
+
     @staticmethod
     def validate(request_body: dict, patient_id: str):
         """
