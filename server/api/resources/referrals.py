@@ -24,7 +24,7 @@ from validation.referrals import (
 api_referrals = APIBlueprint(
     name="referrals",
     import_name=__name__,
-    url_prefix="/api/referrals",
+    url_prefix="/referrals",
 )
 
 
@@ -59,7 +59,7 @@ def create_referral(body: ReferralEntityValidator):
     UTCTime = str(round(time.time() * 1000))
     crud.update(
         HealthFacilityOrm,
-        {"newReferrals": UTCTime},
+        {"new_referrals": UTCTime},
         True,
         name=body.health_facility_name,
     )
@@ -83,8 +83,8 @@ def create_referral(body: ReferralEntityValidator):
     return marshal.marshal(referral), 201
 
 
-# /api/referrals/<int:referral_id> [GET]
-@api_referrals.get("/<int:referral_id>")
+# /api/referrals/<string:referral_id> [GET]
+@api_referrals.get("/<string:referral_id>")
 def get_referral(path: ReferralIdPath):
     referral = crud.read(ReferralOrm, id=path.referral_id)
     if referral is None:
@@ -132,6 +132,7 @@ def update_referral_cancel_status(path: ReferralIdPath, body: CancelStatusValida
 
 
 # /api/referrals/not-attend/<string:referral_id> [PUT]
+@api_referrals.put("/referrals/not-attend/<string:referral_id>")
 def update_referral_not_attend(path: ReferralIdPath, body: NotAttendValidator):
     referral = crud.read(ReferralOrm, id=path.referral_id)
     if referral is None:

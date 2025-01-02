@@ -8,7 +8,7 @@ from api.resources.forms import api_form_submissions
 from api.resources.medical_records import api_medical_records
 from api.resources.patient_associations import api_patient_associations
 from api.resources.patients import api_patients
-from api.resources.patients_android import api_patients_android
+from api.resources.patients_android import api_patients_mobile
 from api.resources.pregnancies import api_pregnancies
 from api.resources.readings import api_readings
 from api.resources.referrals import api_referrals
@@ -17,7 +17,7 @@ from api.resources.sms_relay import api_sms_relay
 from api.resources.stats import api_stats
 from api.resources.sync import api_sync
 from api.resources.upload import api_upload
-from api.resources.users import api_users
+from api.resources.users import api_phone, api_users
 from api.resources.version import api_version
 
 """
@@ -47,7 +47,7 @@ api.register_api(api_form_templates)
 api.register_api(api_form_submissions)
 api.register_api(api_medical_records)
 api.register_api(api_patient_associations)
-api.register_api(api_patients_android)
+api.register_api(api_patients_mobile)
 api.register_api(api_patients)
 api.register_api(api_pregnancies)
 api.register_api(api_readings)
@@ -58,4 +58,5 @@ api.register_api(api_stats)
 api.register_api(api_sync)
 api.register_api(api_upload)
 api.register_api(api_users)
+api.register_api(api_phone)
 api.register_api(api_version)

@@ -29,7 +29,7 @@ LOGGER = logging.getLogger(__name__)
 api_sync = APIBlueprint(
     name="sync",
     import_name=__name__,
-    url_prefix="/api/sync",
+    url_prefix="/sync",
 )
 
 

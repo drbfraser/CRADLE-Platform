@@ -4,6 +4,7 @@ from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 
 from api.decorator import patient_association_required
+from api.resources.patients import api_patients
 from common.api_utils import PatientIdPath, PregnancyIdPath, SearchFilterQueryParams
 from data import crud, marshal
 from models import PregnancyOrm
@@ -13,15 +14,9 @@ from validation.pregnancies import (
     PregnancyPutRequestValidator,
 )
 
-api_pregnancies = APIBlueprint(
-    name="pregnancies",
-    import_name=__name__,
-    url_prefix="/api",
-)
-
 
 # /api/patients/<string:patient_id>/pregnancies [GET]
-@api_pregnancies.get("/patients/<string:patient_id>/pregnancies")
+@api_patients.get("/<string:patient_id>/pregnancies")
 @patient_association_required()
 def get_patient_pregnancies(path: PatientIdPath, query: SearchFilterQueryParams):
     params = query.model_dump()
@@ -30,7 +25,7 @@ def get_patient_pregnancies(path: PatientIdPath, query: SearchFilterQueryParams)
 
 
 # /api/patients/<string:patient_id>/pregnancies [POST]
-@api_pregnancies.post("/patients/<string:patient_id>/pregnancies")
+@api_patients.post("/<string:patient_id>/pregnancies")
 @patient_association_required()
 def create_patient_pregnancy(path: PatientIdPath, body: PregnancyPostRequestValidator):
     if body.id is not None:
@@ -50,15 +45,22 @@ def create_patient_pregnancy(path: PatientIdPath, body: PregnancyPostRequestVali
     return marshal.marshal(new_pregnancy), 201
 
 
+api_pregnancies = APIBlueprint(
+    name="pregnancies",
+    import_name=__name__,
+    url_prefix="/pregnancies",
+)
+
+
 # /api/pregnancies/<string:pregnancy_id> [GET]
-@api_pregnancies.get("/pregnancies/<string:pregnancy_id>")
+@api_pregnancies.get("/<string:pregnancy_id>")
 def get(path: PregnancyIdPath):
     pregnancy = _get_pregnancy(path.pregnancy_id)
     return marshal.marshal(pregnancy)
 
 
 # /api/pregnancies/<string:pregnancy_id> [PUT]
-@api_pregnancies.put("/pregnancies/<string:pregnancy_id>")
+@api_pregnancies.put("/<string:pregnancy_id>")
 def update_pregnancy(path: PregnancyIdPath, body: PregnancyPutRequestValidator):
     pregnancy_model_dump = body.model_dump()
 
@@ -81,7 +83,7 @@ def update_pregnancy(path: PregnancyIdPath, body: PregnancyPutRequestValidator):
 
 
 # /api/pregnancies/<string:pregnancy_id> [DELETE]
-@api_pregnancies.delete("/pregnancies/<string:pregnancy_id>")
+@api_pregnancies.delete("/<string:pregnancy_id>")
 def delete_pregnancy(path: PregnancyIdPath):
     pregnancy = _get_pregnancy(path.pregnancy_id)
     crud.delete(pregnancy)

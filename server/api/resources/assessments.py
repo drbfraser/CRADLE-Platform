@@ -1,10 +1,9 @@
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
-from pydantic import Field
 
+from common.api_utils import AssessmentIdPath
 from data import crud, marshal
 from models import AssessmentOrm
-from validation import CradleBaseModel
 from validation.assessments import AssessmentValidator
 
 api_assessments = APIBlueprint(
@@ -12,10 +11,6 @@ api_assessments = APIBlueprint(
     import_name=__name__,
     url_prefix="/assessments",
 )
-
-
-class AssessmentsPath(CradleBaseModel):
-    assessment_id: str = Field(..., description="Assessment ID.")
 
 
 # /api/assessments [GET]
@@ -38,23 +33,20 @@ def create_assessment(body: AssessmentValidator):
 
 # /api/assessments/<string:assessment_id> [GET]
 @api_assessments.get("/<string:assessment_id>")
-def get_assessment(path: AssessmentsPath):
-    assessment_id = path.assessment_id
-    assessment = crud.read(AssessmentOrm, id=assessment_id)
+def get_assessment(path: AssessmentIdPath):
+    assessment = crud.read(AssessmentOrm, id=path.assessment_id)
     if assessment is None:
-        return abort(404, message=f"No assessment with id: {id}")
+        return abort(404, message=f"No assessment with ID: {path.assessment_id}")
 
     return marshal.marshal(assessment)
 
 
 # /api/assessments/<string:assessment_id> [PUT]
 @api_assessments.put("/<string:assessment_id>")
-def update_assessment(path: AssessmentsPath, body: AssessmentValidator):
-    assessment_id = path.assessment_id
-
-    old_assessment = crud.read(AssessmentOrm, id=assessment_id)
+def update_assessment(path: AssessmentIdPath, body: AssessmentValidator):
+    old_assessment = crud.read(AssessmentOrm, id=path.assessment_id)
     if old_assessment is None:
-        return abort(404, message=f"No assessment with id: {assessment_id}")
+        return abort(404, message=f"No assessment with id: {path.assessment_id}")
 
     """ 
     TODO: We should probably reconsider how we are handling updating assessments.
@@ -64,6 +56,6 @@ def update_assessment(path: AssessmentsPath, body: AssessmentValidator):
 
     update_assessment_dict = body.model_dump()
     update_assessment = marshal.unmarshal(AssessmentOrm, update_assessment_dict)
-    crud.update(AssessmentOrm, update_assessment, id=assessment_id)
+    crud.update(AssessmentOrm, update_assessment, id=path.assessment_id)
 
     return marshal.marshal(update_assessment), 200

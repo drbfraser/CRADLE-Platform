@@ -45,7 +45,7 @@ supported_roles = [role.value for role in RoleEnum]
 api_users = APIBlueprint(
     name="users",
     import_name=__name__,
-    url_prefix="/api/user",
+    url_prefix="/user",
 )
 
 
@@ -354,7 +354,15 @@ class RelayPhoneNumber(CradleBaseModel):
     phone_number: PhoneNumberE164
 
 
+api_phone = APIBlueprint(
+    name="phone",
+    import_name=__name__,
+    url_prefix="/api/phone",
+)
+
+
 # api/phone/is_relay [GET]
+@api_phone.get("/is_relay")
 def is_relay_phone_number(body: RelayPhoneNumber):
     phone_number = str(body.phone_number)
     phone_relay_stat = crud.is_phone_number_relay(phone_number)
@@ -366,6 +374,7 @@ def is_relay_phone_number(body: RelayPhoneNumber):
 
 
 # api/phone/relays [GET]
+@api_phone.get("/relays")
 def get_all_relay_phone_numbers():
     relay_phone_numbers = crud.get_all_relay_phone_numbers()
     if relay_phone_numbers is None:

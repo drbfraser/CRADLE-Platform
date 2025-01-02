@@ -6,6 +6,7 @@ from flask_openapi3.blueprint import APIBlueprint
 from pydantic import BaseModel, Field
 
 from api.decorator import roles_required
+from common.api_utils import FacilityNamePath
 from data import crud, marshal
 from enums import RoleEnum
 from models import HealthFacilityOrm
@@ -13,7 +14,6 @@ from validation import CradleBaseModel
 from validation.facilities import FacilityValidator
 
 # /api/facilities
-
 api_facilities = APIBlueprint(
     name="facilities",
     import_name=__name__,
@@ -60,10 +60,6 @@ def create_facility(body: FacilityValidator):
     return facility_dict, 201
 
 
-class GetFacilityPath(BaseModel):
-    facility_name: str
-
-
 class GetFacilityQuery(BaseModel):
     new_referrals: Optional[bool] = Field(
         False,
@@ -71,12 +67,10 @@ class GetFacilityQuery(BaseModel):
     )
 
 
-# /api/facilities/<str:facility_name> [GET]
-api_facilities.get("/<str:facility_name>")
-
-
-def get_facility(path: GetFacilityPath, query: GetFacilityQuery):
-    facility_name = path.facility_name
+# /api/facilities/<string:health_facility_name> [GET]
+@api_facilities.get("/<string:health_facility_name>")
+def get_facility(path: FacilityNamePath, query: GetFacilityQuery):
+    facility_name = path.health_facility_name
     facility = crud.read(HealthFacilityOrm, name=facility_name)
     if facility is None:
         return abort(404, message=f"Facility ({facility_name}) not found.")

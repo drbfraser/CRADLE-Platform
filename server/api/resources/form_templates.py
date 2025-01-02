@@ -220,13 +220,8 @@ def archive_form_template(path: FormTemplateIdPath, body: ArchiveFormTemplateBod
     return marshal.marshal(form_template, shallow=True), 201
 
 
-# /api/forms/templates/blank/<string:form_template_id>
-
-
 # /api/forms/templates/blank/<string:form_template_id> [GET]
-api_form_templates.get("/blank/<string:form_template_id>")
-
-
+@api_form_templates.get("/blank/<string:form_template_id>")
 def get_blank_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuery):
     form_template = crud.read(FormTemplateOrm, id=path.form_template_id)
     if form_template is None:

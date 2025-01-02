@@ -4,6 +4,7 @@ from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 
 from api.decorator import patient_association_required
+from api.resources.patients import api_patients
 from common.api_utils import (
     PatientIdPath,
     RecordIdPath,
@@ -17,15 +18,9 @@ from validation.medicalRecords import MedicalRecordValidator
 
 LOGGER = logging.getLogger(__name__)
 
-api_medical_records = APIBlueprint(
-    name="medical_records",
-    import_name=__name__,
-    url_prefix="/api",
-)
-
 
 # /api/patients/<string:patient_id>/medical_records [GET]
-@api_medical_records.get("/patients/<string:patient_id>/medical_records")
+@api_patients.get("/<string:patient_id>/medical_records")
 @patient_association_required()
 def get_patients_medical_records(path: PatientIdPath, query: SearchFilterQueryParams):
     params = query.model_dump()
@@ -39,7 +34,7 @@ def get_patients_medical_records(path: PatientIdPath, query: SearchFilterQueryPa
 
 
 # /api/patients/<string:patient_id>/medical_records [POST]
-@api_medical_records.post("/patients/<string:patient_id>/medical_records")
+@api_patients.post("/<string:patient_id>/medical_records")
 @patient_association_required()
 def create_medical_record(path: PatientIdPath, body: MedicalRecordValidator):
     if body.id is not None:
@@ -59,13 +54,22 @@ def create_medical_record(path: PatientIdPath, body: MedicalRecordValidator):
     return marshal.marshal(new_record), 201
 
 
+api_medical_records = APIBlueprint(
+    name="medical_records",
+    import_name=__name__,
+    url_prefix="/medical_records",
+)
+
+
 # /api/medical_records/<string:record_id> [GET]
+@api_medical_records.get("/<string:record_id>")
 def get_medical_record(path: RecordIdPath):
     record = _get_medical_record(path.record_id)
     return marshal.marshal(record)
 
 
 # /api/medical_records/<string:record_id> [PUT]
+@api_medical_records.put("/<string:record_id>")
 def update_medical_record(path: RecordIdPath, body: MedicalRecordValidator):
     update_medical_record = body.model_dump()
 
@@ -84,6 +88,8 @@ def update_medical_record(path: RecordIdPath, body: MedicalRecordValidator):
     return record_dict, 200
 
 
+# /api/medical_records/<string:record_id> [DELETE]
+@api_medical_records.delete("/<string:record_id>")
 def delete_medical_record(path: RecordIdPath):
     record = _get_medical_record(path.record_id)
     crud.delete(record)

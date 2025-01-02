@@ -20,7 +20,6 @@ import json
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 import config
-import routes
 
 import logging
 from config import Config
@@ -34,8 +33,8 @@ dictConfig(Config.LOGGING)
 LOGGER = logging.getLogger(__name__)
 
 app = config.app
+# Register Blueprints
 app.register_api(api)
-routes.init(config.api)
 
 host = "0.0.0.0"
 port = os.environ.get("PORT")
@@ -51,7 +50,9 @@ print("Binding to " + host + ":" + port)
 
 @app.errorhandler(HTTPException)
 def handle_http_exception(e):
-    """Return JSON instead of HTML for HTTP errors."""
+    """
+    Return JSON instead of HTML for HTTP errors.
+    """
     response: Response = e.get_response()
     # replace the body with JSON
     response.data = json.dumps(

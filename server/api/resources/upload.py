@@ -12,7 +12,7 @@ from validation.file_upload import FileUploadForm
 api_upload = APIBlueprint(
     name="upload",
     import_name=__name__,
-    url_prefix="/api/upload",
+    url_prefix="/upload",
 )
 
 

@@ -12,14 +12,12 @@ from validation.associations import AssociationValidator
 api_patient_associations = APIBlueprint(
     name="patient_associations",
     import_name=__name__,
-    url_prefix="/api/patientAssociations",
+    url_prefix="/patientAssociations",
 )
 
 
 # /api/patientAssociations [POST]
-api_patient_associations.post("")
-
-
+@api_patient_associations.post("")
 def create_patient_association(body: AssociationValidator):
     patient_id = body.patient_id
     facility_name = body.health_facility_name

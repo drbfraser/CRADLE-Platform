@@ -87,7 +87,7 @@ iv_size = 32
 api_sms_relay = APIBlueprint(
     name="sms_relay",
     import_name=__name__,
-    url_prefix="/api/sms_relay",
+    url_prefix="/sms_relay",
 )
 
 

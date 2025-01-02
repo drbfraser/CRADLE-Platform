@@ -36,7 +36,7 @@ patient_not_found_message = "Patient with ID: ({}) not found."
 api_patients = APIBlueprint(
     name="patients",
     import_name=__name__,
-    url_prefix="/api/patients",
+    url_prefix="/patients",
 )
 
 

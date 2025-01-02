@@ -6,7 +6,7 @@ import config as config
 api_version = APIBlueprint(
     name="version",
     import_name=__name__,
-    url_prefix="/api/version",
+    url_prefix="/version",
 )
 
 

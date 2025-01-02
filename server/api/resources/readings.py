@@ -13,7 +13,7 @@ from validation.readings import ReadingValidator
 api_readings = APIBlueprint(
     name="readings",
     import_name=__name__,
-    url_prefix="/api/readings",
+    url_prefix="/readings",
 )
 
 

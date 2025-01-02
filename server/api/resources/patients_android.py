@@ -2,6 +2,7 @@ from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 
 import service.FilterHelper as filter
+from api.resources.patients import api_patients
 from common import user_utils
 from data import crud, marshal
 from models import (
@@ -69,13 +70,6 @@ def get_global_search_patients(current_user, search):
     return [to_global_search_patient(p) for p in patients_query]
 
 
-api_patients_android = APIBlueprint(
-    name="patients_android",
-    import_name=__name__,
-    url_prefix="/api",
-)
-
-
 class SearchPath(CradleBaseModel):
     search: str
 
@@ -87,7 +81,7 @@ class SearchPath(CradleBaseModel):
 #        For now search criteria could be:
 #           a portion/full match of the patient's id
 #           a portion/full match of the patient's initials
-@api_patients_android.get("/patients/global/<string:search>")
+@api_patients.get("/global/<string:search>")
 def get(path: SearchPath):
     # TODO: Use query params for "search"
     # get all patient information (patientinfo, readings, and referrals)
@@ -102,8 +96,15 @@ def get(path: SearchPath):
     return patients_readings_referrals
 
 
+api_patients_mobile = APIBlueprint(
+    name="patients_android",
+    import_name=__name__,
+    url_prefix="/mobile",
+)
+
+
 # /api/mobile/patients [GET]
-@api_patients_android.get("/mobile/patients")
+@api_patients_mobile.get("/patients")
 def get_patients_mobile():
     current_user = user_utils.get_current_user_from_jwt()
     patients = view.patient_view(current_user)
@@ -112,7 +113,7 @@ def get_patients_mobile():
 
 
 # /api/mobile/readings [GET]
-@api_patients_android.get("/mobile/readings")
+@api_patients_mobile.get("/readings")
 def get_readings_mobile():
     current_user = user_utils.get_current_user_from_jwt()
     readings = view.reading_view(current_user)
@@ -121,7 +122,7 @@ def get_readings_mobile():
 
 
 # /api/mobile/referrals [GET]
-@api_patients_android.get("/mobile/referrals")
+@api_patients_mobile.get("/referrals")
 def get_referrals_mobile():
     current_user = user_utils.get_current_user_from_jwt()
     referrals = view.referral_view(current_user)
@@ -129,7 +130,7 @@ def get_referrals_mobile():
 
 
 # /api/mobile/assessments
-@api_patients_android.get("/mobile/assessments")
+@api_patients_mobile.get("/assessments")
 def get_assessments_mobile():
     current_user = user_utils.get_current_user_from_jwt()
     assessments = view.assessment_view(current_user)
@@ -141,8 +142,8 @@ class GetFormMobilePath(CradleBaseModel):
     form_template_id: str
 
 
-# /api/mobile/forms/<str:patient_id>/<str:form_template_id>
-@api_patients_android.get("/mobile/forms/<str:patient_id>/<str:form_template_id>")
+# /api/mobile/forms/<string:patient_id>/<string:form_template_id>
+@api_patients_mobile.get("/forms/<string:patient_id>/<string:form_template_id>")
 def get_form_mobile(path: GetFormMobilePath):
     filters: dict = {
         "patient_id": path.patient_id,
