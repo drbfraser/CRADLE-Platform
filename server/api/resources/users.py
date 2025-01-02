@@ -11,13 +11,12 @@ from flask_openapi3.blueprint import APIBlueprint
 import config
 from api.decorator import roles_required
 from authentication import cognito
-from common import user_utils
+from common import phone_number_utils, user_utils
 from common.api_utils import UserIdPath
 from data import crud, marshal
 from enums import RoleEnum
 from models import UserOrm
-from server.common import phone_number_utils
-from server.validation import CradleBaseModel
+from validation import CradleBaseModel
 from validation.phone_numbers import PhoneNumberE164
 from validation.users import (
     UserAuthValidator,

@@ -3,7 +3,7 @@ from typing import Any, List, Optional
 
 from pydantic import Field, ValidationError, field_validator
 
-from server.utils import get_current_time
+from utils import get_current_time
 from validation import CradleBaseModel
 from validation.readings import ReadingValidator
 from validation.validation_exception import ValidationExceptionError

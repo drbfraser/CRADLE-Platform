@@ -11,9 +11,9 @@ from common.api_utils import (
 )
 from data import crud, marshal
 from models import HealthFacilityOrm, PatientOrm, ReferralOrm
-from server.validation import CradleBaseModel
 from service import assoc, serialize, view
 from utils import get_current_time
+from validation import CradleBaseModel
 from validation.referrals import (
     CancelStatusValidator,
     NotAttendValidator,
