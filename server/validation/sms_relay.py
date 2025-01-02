@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import ValidationError, field_validator, model_validator
+from pydantic import ValidationError, field_validator
 
 from common.commonUtil import format_phone_number
 from enums import HTTPMethodEnum
@@ -44,26 +44,11 @@ class SmsRelayDecryptedBodyValidator(
     headers: Optional[dict[str, str]] = None
     body: Optional[str] = None
 
-    @model_validator(mode="before")
-    @classmethod
-    def request_number_is_required(cls, values):
-        missing_fields = [
-            field
-            for field in ["request_number", "method", "endpoint"]
-            if field not in values or values[field] is None
-        ]
-
-        if missing_fields:
-            raise ValidationExceptionError(
-                f"The request body key {{{(missing_fields[0])}}} is required.",
-            )
-        return values
-
     @field_validator("method", mode="before")
     @classmethod
-    def __method_must_be_method_enum(cls, method):
+    def __validate_method_enum(cls, method):
         if method not in HTTPMethodEnum._member_names_:
-            raise ValidationExceptionError(
+            raise ValueError(
                 "Invalid Method; Must be either GET, POST, HEAD, PUT, DELETE, or PATCH",
             )
         return method
