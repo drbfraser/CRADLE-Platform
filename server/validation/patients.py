@@ -1,39 +1,28 @@
-from datetime import date, datetime
+from datetime import datetime
 from typing import Any, List, Optional
 
-from pydantic import ValidationError, field_validator, model_validator
+from pydantic import Field, ValidationError, field_validator
 
+from server.utils import get_current_time
 from validation import CradleBaseModel
 from validation.readings import ReadingValidator
 from validation.validation_exception import ValidationExceptionError
 
 
-class PatientBase(CradleBaseModel):
-    id: Optional[str] = None
-    name: Optional[str] = None
-    sex: Optional[str] = "FEMALE"
-    date_of_birth: Optional[str] = None
-    is_exact_date_of_birth: Optional[bool] = False
-    is_pregnant: Optional[bool] = False
+class PatientValidator(CradleBaseModel):
+    id: str
+    name: str
+    sex: str
+    date_of_birth: str
+    is_exact_date_of_birth: bool
+    is_pregnant: bool = False
     household_number: Optional[str] = None
     zone: Optional[str] = None
     village_number: Optional[str] = None
-    pregnancy_start_date: Optional[int] = None
     drug_history: Optional[str] = None
     medical_history: Optional[str] = None
     allergy: Optional[str] = None
-    is_archived: Optional[bool] = None
-
-    @model_validator(mode="before")
-    @classmethod
-    def validate_is_pregnant_field(cls, values):
-        is_pregnant = values.get("is_pregnant")
-        if is_pregnant:
-            if values.get("pregnancy_start_date") is None:
-                raise ValueError(
-                    "If is_pregnant is True, pregnancy_start_date is required.",
-                )
-        return values
+    is_archived: bool = False
 
     @field_validator("id", mode="after")
     @classmethod
@@ -41,15 +30,6 @@ class PatientBase(CradleBaseModel):
         if len(patient_id) > 14:
             raise ValueError("id is too long. Max is 14 digits.")
         return patient_id
-
-    @field_validator("pregnancy_start_date", mode="before")
-    @classmethod
-    def validate_pregnancy_start_date_field(cls, pregnancy_start_date):
-        if pregnancy_start_date:
-            error = check_gestational_age_under_limit(pregnancy_start_date)
-            if error:
-                raise ValueError(error)
-        return pregnancy_start_date
 
     @field_validator("date_of_birth", mode="before")
     @classmethod
@@ -59,12 +39,7 @@ class PatientBase(CradleBaseModel):
         return date_of_birth
 
 
-class PatientPostValidator(PatientBase):
-    id: str
-    name: str
-    sex: str
-    date_of_birth: str
-    is_exact_date_of_birth: bool
+class PatientPostValidator(PatientValidator):
     readings: Optional[List[ReadingValidator]] = None
 
     @staticmethod
@@ -97,18 +72,9 @@ class PatientPostValidator(PatientBase):
             raise ValidationExceptionError(str(e.errors()[0]["msg"]))
 
 
-class PatientPutValidator(PatientBase, extra="forbid"):
-    last_edited: Optional[int] = None
+class PatientPutValidator(PatientValidator, extra="forbid"):
+    last_edited: int = Field(default_factory=get_current_time)
     base: Optional[int] = None
-
-    @field_validator("pregnancy_start_date", mode="before")
-    @classmethod
-    def validate_pregnancy_start_date_field(cls, pregnancy_start_date):
-        if pregnancy_start_date:
-            error = check_gestational_age_under_limit(pregnancy_start_date)
-            if error:
-                raise ValueError(error)
-        return pregnancy_start_date
 
     @staticmethod
     def validate(request_body: dict, patient_id):
@@ -128,25 +94,6 @@ class PatientPutValidator(PatientBase, extra="forbid"):
             raise ValidationExceptionError("Patient ID cannot be changed.")
 
         return patient
-
-
-def check_gestational_age_under_limit(pregnancy_start_date: int) -> Optional[str]:
-    """
-    Checks if a Unix timestamp is a valid gestational age.
-    Is a valid gestational age if is from no more than 43 weeks/10 months ago
-
-    :param pregnancy_start_date: The Unix timestamp to validate
-    :return: Returns None if the timestamp is valid, a string message otherwise
-    """
-    if pregnancy_start_date == 0:
-        return None
-
-    gestation_date = datetime.fromtimestamp(pregnancy_start_date)
-    today = date.today()
-    num_of_weeks = (today - gestation_date.date()).days // 7
-    if num_of_weeks > 43:
-        return "Gestation is greater than 43 weeks/10 months."
-    return None
 
 
 def is_correct_date_format(s: Any) -> bool:

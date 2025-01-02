@@ -1,11 +1,11 @@
-
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
-from pydantic import Field
 
 import data
 from api.decorator import roles_required
-from common import api_utils
+from common.api_utils import (
+    FormClassificationIdPath,
+)
 from data import crud, marshal
 from enums import RoleEnum
 from models import FormClassificationOrm, FormTemplateOrm
@@ -54,11 +54,6 @@ def create_form_classification(body: ClassificationValidator):
     return marshal.marshal(form_classification, shallow=True), 201
 
 
-# /api/forms/classifications/<string:form_classification_id>
-class FormClassificationIdPath(CradleBaseModel):
-    form_classification_id: str = Field(..., description="Form Classification ID")
-
-
 # /api/forms/classifications/<string:form_classification_id> [GET]
 api_form_classifications.get("/<string:form_classification_id>")
 
@@ -92,22 +87,17 @@ def update_form_classification_name(
     )
 
     if form_classification is None:
-        abort(
-            400,
+        return abort(
+            404,
             message=f"No form classification with ID: {path.form_classification_id}",
         )
-        return None
 
-    request_body = api_utils.get_request_body()
-    if request_body.get("name") is not None:
-        form_classification.name = request_body.get("name")
+    if body.name is not None:
+        form_classification.name = body.name
         data.db_session.commit()
         data.db_session.refresh(form_classification)
 
     return marshal.marshal(form_classification, True), 201
-
-
-# /api/forms/classifications/summary
 
 
 # /api/forms/classifications/summary [GET]

@@ -1,35 +1,29 @@
 import logging
 import os
-import re
+from typing import List
 
 from botocore.exceptions import ClientError
-from flasgger import swag_from
-from flask import Flask, make_response
+from flask import abort, make_response
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from flask_restful import Resource, abort, reqparse
+from flask_openapi3.blueprint import APIBlueprint
 
+import config
 from api.decorator import roles_required
-from api.util import (
-    add_new_phoneNumber_for_user,
-    delete_user_phoneNumber,
-    doesUserExist,
-    filterPairsWithNone,
-    get_all_phoneNumbers_for_user,
-    replace_phoneNumber_for_user,
-)
 from authentication import cognito
-from common import api_utils, user_utils
-from common.regexUtil import phoneNumber_regex_check
+from common import user_utils
+from common.api_utils import UserIdPath
 from data import crud, marshal
 from enums import RoleEnum
 from models import UserOrm
+from server.common import phone_number_utils
+from server.validation import CradleBaseModel
+from validation.phone_numbers import PhoneNumberE164
 from validation.users import (
-    UserAuthRequestValidator,
+    UserAuthValidator,
     UserRegisterValidator,
     UserValidator,
 )
-from validation.validation_exception import ValidationExceptionError
 
 LOGGER = logging.getLogger(__name__)
 
@@ -48,473 +42,333 @@ phone_number_already_exists_message = (
 supported_roles = [role.value for role in RoleEnum]
 
 
-# api/user/all [GET]
-class UserAll(Resource):
-    # get all users
-    @roles_required([RoleEnum.ADMIN])
-    @swag_from("../../specifications/user-all.yml", methods=["GET"])
-    def get(self):
-        user_list = user_utils.get_all_users_data()
-        return user_list, 200
+# /api/user
+api_users = APIBlueprint(
+    name="users",
+    import_name=__name__,
+    url_prefix="/api/user",
+)
+
+
+# /api/user/all [GET]
+@api_users.get("/all")
+@roles_required([RoleEnum.ADMIN])
+def get_all_users():
+    user_list = user_utils.get_all_users_data()
+    return user_list, 200
 
 
 # api/user/vhts [GET]
-class UserAllVHT(Resource):
-    # get all VHT's Info
-    @roles_required([RoleEnum.CHO, RoleEnum.ADMIN, RoleEnum.HCW])
-    @swag_from("../../specifications/user-vhts.yml", methods=["GET"])
-    def get(self):
-        vht_model_list = crud.find(UserOrm, UserOrm.role == RoleEnum.VHT.value)
+@api_users.get("/vhts")
+@roles_required([RoleEnum.CHO, RoleEnum.ADMIN, RoleEnum.HCW])
+def get_all_vhts():
+    vht_model_list = crud.find(UserOrm, UserOrm.role == RoleEnum.VHT.value)
+    vht_dictionary_list = []
+    for vht in vht_model_list:
+        marshal.marshal(vht)
+        vht_dictionary_list.append(
+            {
+                "user_id": vht.id,
+                "email": vht.email,
+                "health_facility_name": vht.health_facility_name,
+                "name": vht.name,
+            },
+        )
 
-        vht_dictionary_list = []
-        for vht in vht_model_list:
-            marshal.marshal(vht)
-            vht_dictionary_list.append(
-                {
-                    "user_id": vht.id,
-                    "email": vht.email,
-                    "health_facility_name": vht.health_facility_name,
-                    "name": vht.name,
-                },
-            )
-
-        if vht_dictionary_list is None:
-            return []
-        return vht_dictionary_list
+    if vht_dictionary_list is None:
+        return []
+    return vht_dictionary_list
 
 
-# api/user/{int: user_id}/change_pass [POST]
-class AdminPasswordChange(Resource):
-    @roles_required([RoleEnum.ADMIN])
-    @swag_from("../../specifications/admin-change-pass.yml", methods=["POST"])
-    def post(self, id):
-        # TODO: Reimplement this with the new authentication system.
-        # This endpoint does not appear to be used anywhere at the moment.
-
-        return {"message": f"Success! Password has been changed for {id}"}, 200
+# api/user/<int:user_id>/change_pass [POST]
+@api_users.post("/<int:user_id>/change_pass")
+@roles_required([RoleEnum.ADMIN])
+def change_password_admin(path: UserIdPath):
+    # TODO: Reimplement this with the new authentication system.
+    return abort(500, message="This endpoint has not yet been implemented.")
 
 
 # /api/user/current/change_pass [POST]
-class UserPasswordChange(Resource):
-    @swag_from("../../specifications/user-change-pass.yml", methods=["POST"])
-    def post(self):
-        # TODO: Reimplement this with the new authentication system.
-        # This endpoint does not appear to be used anywhere at the moment.
-
-        return {"error": "old_password incorrect"}, 400
+@api_users.post("/current/change_pass")
+def change_password_current_user():
+    # TODO: Reimplement this with the new authentication system.
+    return abort(500, message="This endpoint has not yet been implemented.")
 
 
 # api/user/register [POST]
-class UserRegisterApi(Resource):
-    # Create a new user
-    @roles_required([RoleEnum.ADMIN])
-    @swag_from("../../specifications/user-register.yml", methods=["POST"])
-    def post(self):
-        request_body = api_utils.get_request_body()
+@api_users.post("/register")
+@roles_required([RoleEnum.ADMIN])
+def register_user(body: UserRegisterValidator):
+    """
+    Create a new User.
+    """
+    new_user_dict = body.model_dump()
+    try:
+        user_utils.create_user(**new_user_dict)
+    except ValueError as e:
+        error_message = str(e)
+        LOGGER.error(error_message)
+        return abort(400, message=error_message)
 
-        new_user_to_feed = filterPairsWithNone(request_body)
+    return user_utils.get_user_dict_from_username(body.username), 200
 
-        try:
-            # validate the new user
-            user_pydantic_model = UserRegisterValidator.validate(new_user_to_feed)
-        except ValidationExceptionError as e:
-            error_message = str(e)
-            LOGGER.error(error_message)
-            abort(400, message=error_message)
-            return None
 
-        # use pydantic model to generate validated dict for later processing
-        new_user_dict = user_pydantic_model.model_dump()
-
-        try:
-            user_utils.create_user(**new_user_dict)
-        except ValueError as e:
-            error_message = str(e)
-            LOGGER.error(error_message)
-            abort(400, message=error_message)
-            return None
-
-        return user_utils.get_user_dict_from_username(user_pydantic_model.username), 200
+app = config.app
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["10 per minute", "20 per hour", "50 per day"],
+    # parsed by flask limiter library https://flask-limiter.readthedocs.io/en/stable/
+)
 
 
 # api/user/auth [POST]
-class UserAuthApi(Resource):
-    app = Flask(__name__)
+@api_users.post("/auth")
+@limiter.limit(
+    "10 per minute, 20 per hour, 30 per day",
+    error_message="Login attempt limit reached please try again later.",
+    exempt_when=lambda: os.environ.get("LIMITER_DISABLED")
+    == "True",  # disable limiter during testing stage
+)
+def authenticate(body: UserAuthValidator):
+    """
+    Authentication endpoint.
+    """
+    # Attempt authentication with Cognito user pool.
+    try:
+        auth_result = cognito.start_sign_in(**body.model_dump())
+    except ClientError as err:
+        error = err.response.get("Error")
+        LOGGER.error(error)
+        return abort(401, message=error)
+    except ValueError as err:
+        error = str(err)
+        LOGGER.error(error)
+        return abort(401, message=error)
+    # If no exception was raised, then authentication was successful.
 
-    limiter = Limiter(
-        get_remote_address,
-        app=app,
-        default_limits=["10 per minute", "20 per hour", "50 per day"],
-        # parsed by flask limiter library https://flask-limiter.readthedocs.io/en/stable/
-    )
+    # Get user data from database.
+    try:
+        user_dict = user_utils.get_user_data_from_username(body.username)
+    except ValueError as err:
+        error = str(err)
+        LOGGER.error(error)
+        LOGGER.error(
+            "ERROR: Something has gone wrong. User authentication succeeded but username (%s) is not found in database.",
+            body.username,
+        )
+        return abort(500, message=err)
 
-    # login to account
-    @limiter.limit(
-        "10 per minute, 20 per hour, 30 per day",
-        error_message="Login attempt limit reached please try again later.",
-        exempt_when=lambda: os.environ.get("LIMITER_DISABLED")
-        == "True",  # disable limiter during testing stage
-    )
-    @swag_from(
-        "../../specifications/user-auth.yml",
-        methods=["POST"],
-    )  # needs to be below limiter since it will point to limiter/... path
-    def post(self):
-        """
-        Authentication endpoint.
-        """
-        request_body = api_utils.get_request_body()
-        try:
-            credentials = UserAuthRequestValidator(**request_body)
-        except ValidationExceptionError as err:
-            error_message = str(err)
-            LOGGER.error(error_message)
-            abort(400, message=error_message)
-            return None
+    # Don't include refresh token in body of response.
+    refresh_token = auth_result["refresh_token"]
+    del auth_result["refresh_token"]
 
-        # Attempt authentication with Cognito user pool.
-        try:
-            auth_result = cognito.start_sign_in(**credentials.model_dump())
-        except ClientError as err:
-            print(err)
-            error = err.response.get("Error")
-            print(error)
-            abort(401, message=error)
-            return None
-        except ValueError as err:
-            print(err)
-            abort(401, message=str(err))
-            return None
+    challenge = auth_result["challenge"]
 
-        # If no exception was raised, then authentication was successful.
+    response_body = {
+        "access_token": auth_result["access_token"],
+        "user": user_dict,
+        "challenge": None,
+    }
 
-        # Get user data from database.
-        try:
-            user_dict = user_utils.get_user_data_from_username(credentials.username)
-        except ValueError as err:
-            LOGGER.error(err)
-            LOGGER.error(
-                "ERROR: Something has gone wrong. User authentication succeeded but username (%s) is not found in database.",
-                credentials.username,
-            )
-            print(err)
-            abort(500, message=err)
-            return None
+    # Only include challenge in response if challenge_name is not None.
+    if challenge["challenge_name"] is not None:
+        response_body["challenge"] = challenge
 
-        # Don't include refresh token in body of response.
-        refresh_token = auth_result["refresh_token"]
-        del auth_result["refresh_token"]
-
-        challenge = auth_result["challenge"]
-
-        response_body = {
-            "access_token": auth_result["access_token"],
-            "user": user_dict,
-            "challenge": None,
-        }
-
-        # Only include challenge in response if challenge_name is not None.
-        if challenge["challenge_name"] is not None:
-            response_body["challenge"] = challenge
-
-        response = make_response(response_body, 200)
-        # Store refresh token in HTTP-Only cookie.
-        if refresh_token is not None:
-            response.set_cookie(
-                "refresh_token",
-                refresh_token,
-                httponly=True,
-            )
-        return response
+    response = make_response(response_body, 200)
+    # Store refresh token in HTTP-Only cookie.
+    if refresh_token is not None:
+        response.set_cookie(
+            "refresh_token",
+            refresh_token,
+            httponly=True,
+        )
+    return response
 
 
-# api/user/auth/refresh_token
-class UserAuthTokenRefreshApi(Resource):
-    @swag_from("../../specifications/user-auth-refresh.yml", methods=["POST"])
-    def post(self):
-        request_body = api_utils.get_request_body()
-        username = request_body.get("username")
-        if username is None:
-            abort(400, message="No username was provided.")
-            return None
-        try:
-            new_access_token = cognito.refresh_access_token(username)
-        except ValueError as err:
-            print(err)
-            LOGGER.error(err)
-            abort(401, message=str(err))
-            return None
-        return {"access_token": new_access_token}, 200
+class RefreshTokenApiBody(CradleBaseModel):
+    username: str
 
 
-# /api/user/current
-# Get identity of current user with jwt token
-class UserTokenApi(Resource):
-    @swag_from("../../specifications/user-current.yml", methods=["GET"])
-    def get(self):
-        current_user = user_utils.get_current_user_from_jwt()
-        return current_user, 200
+# api/user/auth/refresh_token [POST]
+@api_users.post("/auth/refresh_token")
+def refresh_access_token(body: RefreshTokenApiBody):
+    username = body.username
+    try:
+        new_access_token = cognito.refresh_access_token(username)
+    except ValueError as err:
+        error = str(err)
+        LOGGER.error(error)
+        return abort(401, message=error)
+    return {"access_token": new_access_token}, 200
 
 
-# api/user/<int:user_id> [GET, PUT, DELETE]
-class UserApi(Resource):
-    # edit user with id
-    @roles_required([RoleEnum.ADMIN])
-    @swag_from("../../specifications/user-put.yml", methods=["PUT"])
-    def put(self, id):
-        request_body = api_utils.get_request_body()
-        try:
-            # validate the new user
-            user_model = UserValidator.validate(request_body)
-        except ValidationExceptionError as e:
-            error_message = str(e)
-            LOGGER.error(error_message)
-            abort(400, message=error_message)
-            return None
+# /api/user/current [GET]
+@api_users.get("/current")
+def get_current_user():
+    """
+    # Get identity of current user from access token.
+    """
+    current_user = user_utils.get_current_user_from_jwt()
+    return current_user, 200
 
-        try:
-            # Update the user.
-            user_utils.update_user(id, user_model.model_dump())
-        except ValueError as e:
-            error_message = str(e)
-            LOGGER.error(error_message)
-            abort(400, message=error_message)
-            return None
 
-        return user_utils.get_user_dict_from_id(id), 200
+# api/user/<int:user_id> [PUT]
+@api_users.put("/<int:user_id>")
+@roles_required([RoleEnum.ADMIN])
+def edit_user(path: UserIdPath, body: UserValidator):
+    try:
+        # Update the user.
+        user_utils.update_user(path.user_id, body.model_dump())
+    except ValueError as e:
+        error_message = str(e)
+        LOGGER.error(error_message)
+        return abort(400, message=error_message)
+    return user_utils.get_user_dict_from_id(path.user_id), 200
 
-    @swag_from("../../specifications/user-get.yml", methods=["GET"])
-    def get(self, id):
-        try:
-            user_dict = user_utils.get_user_data_from_id(id)
-        except ValueError as err:
-            error_message = str(err)
-            LOGGER.error(error_message)
-            abort(404, message=error_message)
 
-        return user_dict, 200
+# api/user/<int:user_id> [GET]
+@api_users.get("/<int:user_id>")
+def get_user(path: UserIdPath):
+    try:
+        user_dict = user_utils.get_user_data_from_id(path.user_id)
+    except ValueError as err:
+        error_message = str(err)
+        LOGGER.error(error_message)
+        return abort(404, message=error_message)
+    return user_dict, 200
 
-    @roles_required([RoleEnum.ADMIN])
-    @swag_from("../../specifications/user-delete.yml", methods=["DELETE"])
-    def delete(self, id):
-        # Ensure that id is valid
-        user = crud.read(UserOrm, id=id)
-        if user is None:
-            error = {"message": no_user_found_message}
-            LOGGER.error(error)
-            return error, 400
 
-        try:
-            user_utils.delete_user(user.username)
-        except ValueError as err:
-            error = {"message": str(err)}
-            LOGGER.error(error)
-            return error, 400
+# api/user/<int:user_id> [DELETE]
+@api_users.delete("/<int:user_id>")
+@roles_required([RoleEnum.ADMIN])
+def delete_user(path: UserIdPath):
+    # Ensure that id is valid
+    user = crud.read(UserOrm, id=path.user_id)
+    if user is None:
+        error = no_user_found_message
+        LOGGER.error(error)
+        return abort(400, message=error)
 
-        return {"message": "User deleted"}, 200
+    try:
+        user_utils.delete_user(user.username)
+    except ValueError as err:
+        error = str(err)
+        LOGGER.error(error)
+        return abort(400, message=error)
+
+    return {"message": "User deleted."}, 200
+
+
+class UserPhoneNumbers(CradleBaseModel):
+    phone_numbers: List[PhoneNumberE164]
 
 
 # TODO: Rework these endpoints. Users should be able to have multiple phone numbers.
-# api/user/<int:user_id>/phone
-class UserPhoneUpdate(Resource):
-    parser = reqparse.RequestParser()
-    parser.add_argument(
-        "new_phone_number",
-        type=str,
-        required=True,
-        help="New phone number is required",
-    )
-    parser.add_argument(
-        "current_phone_number",
-        type=str,
-        required=True,
-        help="Current phone number is required",
-    )
-    parser.add_argument(
-        "old_phone_number",
-        type=str,
-        required=True,
-        help="Old phone number is required",
-    )
-
-    # Handle the GET request for adding a new phone number
-    @swag_from("../../specifications/user-phone-get.yml", methods=["GET"])
-    def get(self, user_id):
-        if not user_id:
-            return {"message": null_id_message}, 400
-        # check if user exists
-        if not doesUserExist(user_id):
-            return {"message": no_user_found_message}, 400
-
-        phone_numbers = get_all_phoneNumbers_for_user(user_id)
-        return {"phone_numbers": phone_numbers}, 200
-
-    # Handle the PUT request updating a current phone number to a new phone number
-    @roles_required([RoleEnum.ADMIN])
-    @swag_from("../../specifications/user-phone-put.yml", methods=["PUT"])
-    def put(self, user_id):
-        # check if user exists
-        if not user_utils.does_user_exist(user_id):
-            return {"message": no_user_found_message}, 404
-
-        request_body = api_utils.get_request_body()
-        new_phone_number = request_body["new_phone_number"]
-        current_phone_number = request_body["current_phone_number"]
-
-        if not phoneNumber_regex_check(new_phone_number):
-            return {"message": invalid_phone_number_message}, 400
-
-        if new_phone_number is None:
-            return {"message": null_phone_number_message}, 400
-
-        # Add the phone number to user's phoneNumbers
-        if replace_phoneNumber_for_user(
-            current_phone_number,
-            new_phone_number,
-            user_id,
-        ):
-            return {"message": "User phone number updated successfully"}, 200
-
-        return {"message": "Phone number cannot be updated"}, 400
-
-    # Handle the POST request for adding a new phone number
-    @swag_from("../../specifications/user-phone-post.yml", methods=["POST"])
-    def post(self, user_id):
-        if not user_id:
-            return {"message": null_id_message}, 400
-        # check if user exists
-        if not doesUserExist(user_id):
-            return {"message": no_user_found_message}, 400
-
-        request_body = api_utils.get_request_body()
-        new_phone_number = request_body["new_phone_number"]
-
-        if new_phone_number is None:
-            return {"message": "Phone number cannot be null"}, 400
-
-        # Add the phone number to user's phoneNumbers
-        if add_new_phoneNumber_for_user(new_phone_number, user_id):
-            return {"message": "User phone number added successfully"}, 200
-
-        return {"message": "Phone number already exists"}, 400
-
-    # Handle the DELETE request for deleting an existing phone number
-    @roles_required([RoleEnum.ADMIN])
-    @swag_from("../../specifications/user-phone-delete.yml", methods=["DELETE"])
-    def delete(self, user_id):
-        if not user_id:
-            return {"message": null_id_message}, 400
-
-        # check if user exists
-        if not doesUserExist(user_id):
-            return {"message": no_user_found_message}, 400
-
-        request_body = api_utils.get_request_body()
-        number_to_delete = request_body["old_phone_number"]
-
-        if number_to_delete is None:
-            return {"message": null_phone_number_message}, 400
-
-        if delete_user_phoneNumber(number_to_delete, user_id):
-            return {"message": "User phone number deleted successfully"}, 200
-
-        return {"message": "Cannot delete the phone number"}, 400
 
 
-# api/user/<int:user_id>/smskey
-class UserSMSKey(Resource):
-    # Handle the PUT request for updating the phone number
-    parser = reqparse.RequestParser()
-
-    @swag_from("../../specifications/user-sms-key-get.yml", methods=["GET"])
-    def get(self, user_id):
-        current_user = user_utils.get_current_user_from_jwt()
-        if current_user["role"] != "ADMIN" and current_user["id"] is not user_id:
-            return (
-                {
-                    "message": "Permission denied, you can only get your own sms-key or use the admin account",
-                },
-                403,
-            )
-
-        sms_key = user_utils.get_user_sms_secret_key_formatted(user_id)
-        if sms_key is None:
-            return {"message": "NOTFOUND"}, 424
-        return sms_key, 200
-
-    @swag_from("../../specifications/user-sms-key-put.yml", methods=["PUT"])
-    def put(self, user_id):
-        current_user = user_utils.get_current_user_from_jwt()
-        if current_user["role"] != "ADMIN" and current_user["id"] is not user_id:
-            return (
-                {
-                    "message": "Permission denied, you can only get your own sms-key or use the admin account",
-                },
-                403,
-            )
-        sms_key = user_utils.get_user_sms_secret_key_formatted(user_id)
-        if sms_key is None:
-            return {"message": "NOTFOUND"}, 424
-
-        # Create new key.
-        new_key = user_utils.update_sms_secret_key_for_user(user_id)
-        return new_key, 200
-
-    @swag_from("../../specifications/user-sms-key-post.yml", methods=["POST"])
-    def post(self, user_id):
-        current_user = user_utils.get_current_user_from_jwt()
-        if current_user["role"] != "ADMIN" and current_user["id"] is not user_id:
-            return (
-                {
-                    "message": "Permission denied, you can only get your own sms-key or use the admin account",
-                },
-                403,
-            )
-
-        sms_key = user_utils.get_user_sms_secret_key_formatted(user_id)
-        if sms_key is None:
-            new_key = user_utils.create_sms_secret_key_for_user(user_id)
-            return new_key, 201
-
-        return {"message": "DUPLICATE"}, 200
+# api/user/<int:user_id>/phone [GET]
+@api_users.get("/<int:user_id>/phone")
+def get_users_phone_numbers(path: UserIdPath):
+    # Check if user exists.
+    if not user_utils.does_user_exist(path.user_id):
+        return abort(404, message=no_user_found_message)
+    phone_numbers = phone_number_utils.get_users_phone_numbers(path.user_id)
+    return {"phone_numbers": phone_numbers}, 200
 
 
-# api/phone/is_relay
-class ValidateRelayPhoneNumber(Resource):
-    # Define the request parser
-    parser = reqparse.RequestParser()
-    parser.add_argument(
-        "phone_number",
-        type=str,
-        required=True,
-        help="Phone number is required.",
-    )
-
-    @swag_from("../../specifications/is-phone-number-relay-get.yml", methods=["GET"])
-    def get(self):
-        request_body = api_utils.get_request_body()
-        phone_number = request_body["phone_number"]
-        # remove dashes from the user's entered phone number
-        phone_number = re.sub(r"[-]", "", phone_number)
-
-        phone_relay_stat = crud.is_phone_number_relay(phone_number)
-        if phone_relay_stat == 1:
-            return {"message": "YES"}, 200
-        if phone_relay_stat == 0:
-            return {"message": "NO"}, 200
-        return {"message": "Permission denied"}, 403
+# api/user/<int:user_id>/phone [PUT]
+@api_users.put("/<int:user_id>/phone")
+@roles_required([RoleEnum.ADMIN])
+def update_users_phone_numbers(path: UserIdPath, body: UserPhoneNumbers):
+    # Check if user exists.
+    if not user_utils.does_user_exist(path.user_id):
+        return abort(404, message=no_user_found_message)
+    phone_numbers: set[str] = {str(phone_number) for phone_number in body.phone_numbers}
+    try:
+        user_utils.update_user_phone_numbers(path.user_id, phone_numbers)
+    except ValueError as err:
+        error = str(err)
+        return abort(400, error)
 
 
-# api/phone/relays
-class RelayPhoneNumbers(Resource):
-    # Define the request parser
-    parser = reqparse.RequestParser()
+# api/user/<int:user_id>/smskey [GET]
+@api_users.get("/<int:user_id>/smskey")
+def get_users_sms_key(path: UserIdPath):
+    current_user = user_utils.get_current_user_from_jwt()
+    if current_user["role"] != "ADMIN" and current_user["id"] is not path.user_id:
+        return (
+            {
+                "message": "Permission denied, you can only get your own sms-key or use the admin account",
+            },
+            403,
+        )
 
-    @swag_from("../../specifications/relay-phone-number-get.yml", methods=["GET"])
-    def get(self):
-        self.parser.parse_args()
-        relay_phone_numbers = crud.get_all_relay_phone_numbers()
+    sms_key = user_utils.get_user_sms_secret_key_formatted(path.user_id)
+    if sms_key is None:
+        return abort(424, message="NOTFOUND")
+    return sms_key, 200
 
-        if relay_phone_numbers:
-            return {"relayPhoneNumbers": relay_phone_numbers}, 200
-        return {"message": "Permission denied"}, 403
+
+# api/user/<int:user_id>/smskey [PUT]
+@api_users.put("/<int:user_id>/smskey")
+def update_users_sms_key(path: UserIdPath):
+    current_user = user_utils.get_current_user_from_jwt()
+    if current_user["role"] != "ADMIN" and current_user["id"] is not path.user_id:
+        return (
+            {
+                "message": "Permission denied, you can only get your own sms-key or use the admin account",
+            },
+            403,
+        )
+    sms_key = user_utils.get_user_sms_secret_key_formatted(path.user_id)
+    if sms_key is None:
+        return abort(424, message="NOTFOUND")
+
+    # Create new key.
+    new_key = user_utils.update_sms_secret_key_for_user(path.user_id)
+    return new_key, 200
+
+
+# api/user/<int:user_id>/smskey [POST])
+@api_users.post("/<int:user_id>/smskey")
+def create_users_sms_key(path: UserIdPath):
+    current_user = user_utils.get_current_user_from_jwt()
+    if current_user["role"] != "ADMIN" and current_user["id"] is not path.user_id:
+        return (
+            {
+                "message": "Permission denied, you can only get your own sms-key or use the admin account",
+            },
+            403,
+        )
+
+    sms_key = user_utils.get_user_sms_secret_key_formatted(path.user_id)
+    if sms_key is None:
+        new_key = user_utils.create_sms_secret_key_for_user(path.user_id)
+        return new_key, 201
+
+    return sms_key, 200
+
+
+# TODO: Move these SMS Relay endpoints into their own file.
+class RelayPhoneNumber(CradleBaseModel):
+    phone_number: PhoneNumberE164
+
+
+# api/phone/is_relay [GET]
+def is_relay_phone_number(body: RelayPhoneNumber):
+    phone_number = str(body.phone_number)
+    phone_relay_stat = crud.is_phone_number_relay(phone_number)
+    if phone_relay_stat == 1:
+        return {"message": "YES"}, 200
+    if phone_relay_stat == 0:
+        return {"message": "NO"}, 200
+    return abort(403, message="Permission denied.")
+
+
+# api/phone/relays [GET]
+def get_all_relay_phone_numbers():
+    relay_phone_numbers = crud.get_all_relay_phone_numbers()
+    if relay_phone_numbers is None:
+        return abort(403, message="Permission denied.")
+    return {"phone_numbers": relay_phone_numbers}, 200

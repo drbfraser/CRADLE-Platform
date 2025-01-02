@@ -1,94 +1,71 @@
 import time
 
-from flasgger import swag_from
-from flask_restful import Resource, abort
+from flask import abort
+from flask_openapi3.blueprint import APIBlueprint
 
-from api import util
-from common import api_utils, user_utils
+from common import user_utils
+from common.api_utils import ReadingIdPath
 from data import crud, marshal
 from models import HealthFacilityOrm, PatientOrm, ReadingOrm, ReferralOrm
 from service import assoc, invariant
 from validation.readings import ReadingValidator
 
-
-# /api/readings
-class Root(Resource):
-    @staticmethod
-    @swag_from(
-        "../../specifications/readings-post.yml",
-        methods=["POST"],
-        endpoint="readings",
-    )
-    def post():
-        request_body = api_utils.get_request_body()
-
-        try:
-            reading_pydantic_model = ReadingValidator.validate(request_body)
-        except Exception as e:
-            abort(400, message=str(e))
-            return None
-
-        new_reading = reading_pydantic_model.model_dump()
-        new_reading = util.filterPairsWithNone(new_reading)
-
-        if not crud.read(PatientOrm, id=new_reading["patient_id"]):
-            abort(400, message="Patient does not exist")
-            return None
-
-        current_user = user_utils.get_current_user_from_jwt()
-        user_id = current_user["id"]
-
-        new_reading["user_id"] = user_id
-
-        if "referral" in new_reading:
-            health_facility = crud.read(
-                HealthFacilityOrm,
-                name=new_reading["referral"]["health_facility_name"],
-            )
-
-            if health_facility is None:
-                abort(400, message="Health facility does not exist")
-                return None
-            UTCTime = str(round(time.time() * 1000))
-            crud.update(
-                HealthFacilityOrm,
-                {"new_referrals": UTCTime},
-                True,
-                name=new_reading["referral"]["health_facility_name"],
-            )
-
-            referral = marshal.unmarshal(ReferralOrm, new_reading["referral"])
-            crud.create(referral, refresh=True)
-
-            patient = referral.patient
-            facility = referral.health_facility
-            if not assoc.has_association(patient, facility):
-                assoc.associate(patient, facility=facility)
-            del new_reading["referral"]
-
-        reading = marshal.unmarshal(ReadingOrm, new_reading)
-
-        if crud.read(ReadingOrm, id=reading.id):
-            abort(409, message=f"A reading already exists with id: {reading.id}")
-            return None
-
-        invariant.resolve_reading_invariants(reading)
-        crud.create(reading, refresh=True)
-        return marshal.marshal(reading), 201
+api_readings = APIBlueprint(
+    name="readings",
+    import_name=__name__,
+    url_prefix="/api/readings",
+)
 
 
-# /api/readings/<string:id>
-class SingleReading(Resource):
-    @staticmethod
-    @swag_from(
-        "../../specifications/single-reading-get.yml",
-        methods=["GET"],
-        endpoint="single_reading",
-    )
-    def get(reading_id: str):
-        reading = crud.read(ReadingOrm, readingId=reading_id)
-        if not reading:
-            abort(404, message=f"No reading with id {reading_id}")
-            return None
+# /api/readings [POST]
+@api_readings.post("")
+def create_reading(body: ReadingValidator):
+    if crud.read(PatientOrm, id=body.patient_id) is None:
+        return abort(404, message=f"No Patient found with ID: {body.patient_id}")
 
-        return marshal.marshal(reading)
+    current_user = user_utils.get_current_user_from_jwt()
+    user_id = current_user["id"]
+    body.user_id = user_id
+
+    new_reading_dict = body.model_dump()
+    if body.referral is not None:
+        health_facility = crud.read(
+            HealthFacilityOrm,
+            name=body.referral.health_facility_name,
+        )
+        if health_facility is None:
+            return abort(404, message="Health facility does not exist")
+        UTCTime = str(round(time.time() * 1000))
+        crud.update(
+            HealthFacilityOrm,
+            {"new_referrals": UTCTime},
+            True,
+            name=body.referral.health_facility_name,
+        )
+
+        referral = marshal.unmarshal(ReferralOrm, body.referral.model_dump())
+        crud.create(referral, refresh=True)
+
+        patient = referral.patient
+        facility = referral.health_facility
+        if not assoc.has_association(patient, facility):
+            assoc.associate(patient, facility=facility)
+        del new_reading_dict["referral"]
+
+    reading = marshal.unmarshal(ReadingOrm, new_reading_dict)
+
+    if crud.read(ReadingOrm, id=reading.id):
+        return abort(409, message=f"A reading already exists with id: {reading.id}")
+
+    invariant.resolve_reading_invariants(reading)
+    crud.create(reading, refresh=True)
+    return marshal.marshal(reading), 201
+
+
+# /api/readings/<string:reading_id> [GET]
+@api_readings.get("/<string:reading_id>")
+def get_reading(path: ReadingIdPath):
+    reading = crud.read(ReadingOrm, reading_id=path.reading_id)
+    if reading is None:
+        return abort(404, message=f"No reading with ID: {path.reading_id}")
+    return marshal.marshal(reading)

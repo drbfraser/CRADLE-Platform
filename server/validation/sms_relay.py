@@ -41,7 +41,7 @@ class SmsRelayDecryptedBodyValidator(
     request_number: int
     method: HTTPMethodEnum
     endpoint: str
-    headers: Optional[str] = None
+    headers: Optional[dict[str, str]] = None
     body: Optional[str] = None
 
     @model_validator(mode="before")

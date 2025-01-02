@@ -1,12 +1,10 @@
 import json
 
 import requests
-from flasgger import swag_from
-from flask import Response, jsonify, make_response, request
-from flask_restful import Resource, abort
+from flask import Response, abort, jsonify, make_response, request
+from flask_openapi3.blueprint import APIBlueprint
 
-from common import api_utils, phone_number_utils, user_utils
-from models import UserOrm
+from common import phone_number_utils, user_utils
 from service import compressor, encryptor
 from validation.sms_relay import SmsRelayDecryptedBodyValidator, SmsRelayValidator
 from validation.validation_exception import ValidationExceptionError
@@ -53,7 +51,6 @@ def send_request_to_endpoint(
     endpoint: str,
     header: dict,
     body: str,
-    user: UserOrm,
 ) -> requests.Response:
     access_token = request.authorization.token
     header["Authorization"] = f"Bearer {access_token}"
@@ -86,37 +83,33 @@ def create_flask_response(code: int, body: str, iv: str, user_sms_key: str) -> R
 iv_size = 32
 
 
-def sms_relay_procedure():
-    request_body = api_utils.get_request_body()
+# /api/sms_relay
+api_sms_relay = APIBlueprint(
+    name="sms_relay",
+    import_name=__name__,
+    url_prefix="/api/sms_relay",
+)
 
-    try:
-        sms_relay_pydantic_model = SmsRelayValidator.validate_request(request_body)
-    except ValidationExceptionError:
-        abort(400, message=corrupted_message.format(type="JSON"))
-        return None
 
-    sms_relay_model_dump = sms_relay_pydantic_model.model_dump()
-    phone_number = sms_relay_model_dump["phone_number"]
-
-    user_exists = phone_number_utils.does_phone_number_exist(phone_number)
-
-    if not user_exists:
-        abort(400, message=phone_number_not_exists.format(type="JSON"))
-        return None
+# /api/sms_relay [POST]
+@api_sms_relay.post("")
+def relay_sms_request(body: SmsRelayValidator):
+    phone_number = body.phone_number
+    phone_number_exists = phone_number_utils.does_phone_number_exist(phone_number)
+    if not phone_number_exists:
+        return abort(400, message=phone_number_not_exists.format(type="JSON"))
 
     # Get user id for the user that phone_number belongs to
     user = user_utils.get_user_orm_from_phone_number(phone_number)
 
     if user is None:
-        abort(400, message=invalid_user.format(type="JSON"))
-        return None
+        return abort(404, message=invalid_user.format(type="JSON"))
 
-    encrypted_data = sms_relay_model_dump["encrypted_data"]
+    encrypted_data = body.encrypted_data
 
     user_secret_key = user_utils.get_user_sms_secret_key_string(user.id)
     if user_secret_key is None:
-        abort(400, message="Could not retrieve user's sms secret key.")
-        return None
+        return abort(400, message="Could not retrieve user's SMS Secret Key.")
 
     try:
         decrypted_message = encryptor.decrypt(encrypted_data, user_secret_key)
@@ -126,12 +119,10 @@ def sms_relay_procedure():
     except Exception:
         error_message = str(invalid_message.format(phone_number=phone_number))
         print(error_message)
-        abort(401, message=error_message)
+        return abort(401, message=error_message)
 
     try:
-        sms_relay_decrypted_pydantic_model = SmsRelayDecryptedBodyValidator.validate(
-            json_dict_data,
-        )
+        decrypted_data = SmsRelayDecryptedBodyValidator(**json_dict_data)
     except ValidationExceptionError as e:
         return create_flask_response(
             400,
@@ -140,10 +131,8 @@ def sms_relay_procedure():
             user_secret_key,
         )
 
-    sms_relay_decrypted_model_dump = sms_relay_decrypted_pydantic_model.model_dump()
+    request_number = decrypted_data.request_number
 
-    request_number = sms_relay_decrypted_model_dump["request_number"]
-    request_number = int(request_number)
     if (
         not isinstance(request_number, int)
         or request_number < 0
@@ -156,19 +145,19 @@ def sms_relay_procedure():
             user_secret_key,
         )
 
-    method = sms_relay_decrypted_model_dump["method"]
-    endpoint = sms_relay_decrypted_model_dump["endpoint"]
+    method = decrypted_data.method
+    endpoint = decrypted_data.endpoint
 
-    header = sms_relay_decrypted_model_dump.get("header")
-    if not header:
-        header = {}
+    headers = decrypted_data.headers
+    if headers is None:
+        headers = {}
 
-    json_body = sms_relay_decrypted_model_dump.get("body")
-    if not json_body:
+    json_body = decrypted_data.body
+    if json_body is None:
         json_body = "{}"
 
     # Sending request to endpoint
-    response = send_request_to_endpoint(method, endpoint, header, json_body, user)
+    response = send_request_to_endpoint(method.value, endpoint, headers, json_body)
 
     # Creating Response
     response_code = response.status_code
@@ -181,15 +170,3 @@ def sms_relay_procedure():
         encrypted_data[0:iv_size],
         user_secret_key,
     )
-
-
-# /api/sms_relay
-class Root(Resource):
-    @staticmethod
-    @swag_from(
-        "../../specifications/sms-relay-post.yaml",
-        methods=["POST"],
-        endpoint="sms_relay",
-    )
-    def post():
-        return sms_relay_procedure()

@@ -1,24 +1,15 @@
 import json
 import re
+from typing import Optional
 
 from flask import request
 from humps import decamelize
+from pydantic import AliasChoices, Field, field_validator
+from pydantic.alias_generators import to_snake
 
 from common import user_utils
 from config import app
-
-
-def get_request_body():
-    """
-    Gets the body of the request as a python object and
-    recursively converts the keys to be in snake case.
-
-    Use this function in place of `request.get_json()`.
-    """
-    request_body = request.get_json(force=True, silent=True)
-    if request_body is None:
-        return {}
-    return decamelize(request_body)
+from validation import CradleBaseModel
 
 
 def get_query_params() -> dict:
@@ -119,3 +110,78 @@ def log_request_details(response):
         )
         app.logger.error(err)
     return response
+
+
+# Pydantic Models for API Path and Query parameters
+class AssessmentIdPath(CradleBaseModel):
+    assessment_id: int
+
+
+class PatientIdPath(CradleBaseModel):
+    patient_id: str
+
+
+class PregnancyIdPath(CradleBaseModel):
+    pregnancy_id: int
+
+
+class UserIdPath(CradleBaseModel):
+    user_id: int
+
+
+class RecordIdPath(CradleBaseModel):
+    record_id: int
+
+
+class ReadingIdPath(CradleBaseModel):
+    reading_id: int
+
+
+class ReferralIdPath(CradleBaseModel):
+    referral_id: int
+
+
+class FormClassificationIdPath(CradleBaseModel):
+    form_classification_id: int
+
+
+class FormTemplateIdPath(CradleBaseModel):
+    form_template_id: int
+
+
+class FormIdPath(CradleBaseModel):
+    form_id: int
+
+
+class FacilityNamePath(CradleBaseModel):
+    health_facility_name: str
+
+
+class PageLimitFilterQueryParams(CradleBaseModel):
+    limit: int = Field(5, description="The maximum number of records per page.")
+    page: int = Field(1, description="The number of pages to return.")
+
+
+class SearchFilterQueryParams(PageLimitFilterQueryParams):
+    search_text: Optional[str] = Field(
+        None, description="Search term for filtering returned Patients."
+    )
+    order_by: Optional[str] = Field(
+        None,
+        description="Name of the field to perform the sorting around.",
+        validation_alias=AliasChoices("sort_by", "sortBy", "orderBy"),
+    )
+    direction: Optional[str] = Field(
+        None,
+        description="Whether ordering should be done in ascending or descending order. Must be either `ASC` or `DESC`",
+        validation_alias=AliasChoices("sort_dir", "sortDir"),
+    )
+
+    @field_validator("order_by")
+    @classmethod
+    def convert_order_by_field_name_to_snake_case(
+        cls, order_by: Optional[str]
+    ) -> Optional[str]:
+        if order_by is None:
+            return None
+        return to_snake(order_by)

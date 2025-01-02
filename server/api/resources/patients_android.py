@@ -1,5 +1,5 @@
-from flasgger import swag_from
-from flask_restful import Resource, abort
+from flask import abort
+from flask_openapi3.blueprint import APIBlueprint
 
 import service.FilterHelper as filter
 from common import user_utils
@@ -13,8 +13,11 @@ from models import (
     UserOrm,
 )
 from service import serialize, view
+from validation import CradleBaseModel
 
 ## Functions that are only used for these endpoints ##
+
+# TODO: Add type annotations and error checking to this file.
 
 
 def to_global_search_patient(patient):
@@ -38,6 +41,8 @@ def to_global_search_patient(patient):
                 crud.read(ReadingOrm, id=reading),
                 ReadingSchema,
             )
+            if reading_data is None:
+                return abort(404, "No Reading found.")
             reading_json["date_taken"] = reading_data["date_taken"]
             reading_json["traffic_light_status"] = str(
                 reading_data["traffic_light_status"]
@@ -64,107 +69,92 @@ def get_global_search_patients(current_user, search):
     return [to_global_search_patient(p) for p in patients_query]
 
 
-# URI: api/patients/global/<string:search>
+api_patients_android = APIBlueprint(
+    name="patients_android",
+    import_name=__name__,
+    url_prefix="/api",
+)
+
+
+class SearchPath(CradleBaseModel):
+    search: str
+
+
+# api/patients/global/<string:search>
 # [GET]: Get a list of ALL patients and their basic information
 #        (information necessary for the patient page)
 #        if they match search criteria
 #        For now search criteria could be:
 #           a portion/full match of the patient's id
 #           a portion/full match of the patient's initials
-class AndroidPatientGlobalSearch(Resource):
+@api_patients_android.get("/patients/global/<string:search>")
+def get(path: SearchPath):
+    # TODO: Use query params for "search"
     # get all patient information (patientinfo, readings, and referrals)
-    @swag_from("../../specifications/patient-search-get.yml", methods=["GET"])
-    def get(self, search):
-        current_user = user_utils.get_current_user_from_jwt()
-        patients_readings_referrals = get_global_search_patients(
-            current_user,
-            search.upper(),
-        )
-
-        if not patients_readings_referrals:
-            return []
-        return patients_readings_referrals
-
-
-# /api/mobile/patients/
-class AndroidPatients(Resource):
-    @staticmethod
-    @swag_from(
-        "../../specifications/android-patients-get.yml",
-        methods=["GET"],
-        endpoint="android_patient",
+    current_user = user_utils.get_current_user_from_jwt()
+    patients_readings_referrals = get_global_search_patients(
+        current_user,
+        path.search.upper(),
     )
-    def get():
-        current_user = user_utils.get_current_user_from_jwt()
-        patients = view.patient_view(current_user)
 
-        return [serialize.serialize_patient(p) for p in patients]
-
-
-# /api/mobile/readings
-class AndroidReadings(Resource):
-    @staticmethod
-    @swag_from(
-        "../../specifications/android-readings-get.yml",
-        methods=["GET"],
-        endpoint="android_readings",
-    )
-    def get():
-        current_user = user_utils.get_current_user_from_jwt()
-        readings = view.reading_view(current_user)
-
-        return [serialize.serialize_reading(r) for r in readings]
+    if patients_readings_referrals is None:
+        return []
+    return patients_readings_referrals
 
 
-# /api/mobile/referrals
-class AndroidReferrals(Resource):
-    @staticmethod
-    @swag_from(
-        "../../specifications/android-referrals-get.yml",
-        methods=["GET"],
-        endpoint="android_referrals",
-    )
-    def get():
-        current_user = user_utils.get_current_user_from_jwt()
-        referrals = view.referral_view(current_user)
-        return [serialize.serialize_referral_or_assessment(r) for r in referrals]
+# /api/mobile/patients [GET]
+@api_patients_android.get("/mobile/patients")
+def get_patients_mobile():
+    current_user = user_utils.get_current_user_from_jwt()
+    patients = view.patient_view(current_user)
+
+    return [serialize.serialize_patient(p) for p in patients]
+
+
+# /api/mobile/readings [GET]
+@api_patients_android.get("/mobile/readings")
+def get_readings_mobile():
+    current_user = user_utils.get_current_user_from_jwt()
+    readings = view.reading_view(current_user)
+
+    return [serialize.serialize_reading(r) for r in readings]
+
+
+# /api/mobile/referrals [GET]
+@api_patients_android.get("/mobile/referrals")
+def get_referrals_mobile():
+    current_user = user_utils.get_current_user_from_jwt()
+    referrals = view.referral_view(current_user)
+    return [serialize.serialize_referral_or_assessment(r) for r in referrals]
 
 
 # /api/mobile/assessments
-class AndroidAssessments(Resource):
-    @staticmethod
-    @swag_from(
-        "../../specifications/android-assessments-get.yml",
-        methods=["GET"],
-        endpoint="android_assessments",
-    )
-    def get():
-        current_user = user_utils.get_current_user_from_jwt()
-        assessments = view.assessment_view(current_user)
-        return [serialize.serialize_referral_or_assessment(a) for a in assessments]
+@api_patients_android.get("/mobile/assessments")
+def get_assessments_mobile():
+    current_user = user_utils.get_current_user_from_jwt()
+    assessments = view.assessment_view(current_user)
+    return [serialize.serialize_referral_or_assessment(a) for a in assessments]
+
+
+class GetFormMobilePath(CradleBaseModel):
+    patient_id: str
+    form_template_id: str
 
 
 # /api/mobile/forms/<str:patient_id>/<str:form_template_id>
-class AndroidForms(Resource):
-    @staticmethod
-    @swag_from(
-        "../../specifications/android-forms-get.yml",
-        methods=["GET"],
-        endpoint="android_forms",
-    )
-    def get(patient_id: str, form_template_id: str):
-        filters: dict = {
-            "patient_id": patient_id,
-            "form_template_id": form_template_id,
-        }
+@api_patients_android.get("/mobile/forms/<str:patient_id>/<str:form_template_id>")
+def get_form_mobile(path: GetFormMobilePath):
+    filters: dict = {
+        "patient_id": path.patient_id,
+        "form_template_id": path.form_template_id,
+    }
 
-        form = crud.read(FormOrm, **filters)
+    form = crud.read(FormOrm, **filters)
 
-        if not form:
-            abort(
-                404,
-                message=f"No forms for patient with id {patient_id} and form template with id {form_template_id}",
-            )
-            return None
+    if form is None:
+        return abort(
+            404,
+            message=f"No forms for Patient with ID: {path.patient_id} and Form Template with ID: {path.form_template_id}",
+        )
 
-        return marshal.marshal(form, False)
+    return marshal.marshal(form, False)

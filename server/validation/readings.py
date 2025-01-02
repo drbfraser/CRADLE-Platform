@@ -2,6 +2,7 @@ from typing import List, Optional
 
 from pydantic import ValidationError
 
+from server.validation.referrals import ReferralEntityValidator
 from validation import CradleBaseModel
 from validation.assessments import AssessmentValidator
 from validation.validation_exception import ValidationExceptionError
@@ -18,6 +19,7 @@ class ReadingValidator(CradleBaseModel):
     date_taken: Optional[int] = None
     user_id: Optional[int] = None
     assessment: Optional[AssessmentValidator] = None
+    referral: Optional[ReferralEntityValidator]
 
     @staticmethod
     def validate(request_body: dict):

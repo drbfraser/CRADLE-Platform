@@ -1,38 +1,49 @@
 import os
 
-from flask import current_app, request, send_from_directory
-from flask_restful import Resource, abort
+from flask import abort, current_app, send_from_directory
+from flask_openapi3.blueprint import APIBlueprint
+from pydantic import Field
 
 from api.decorator import roles_required
 from enums import RoleEnum
+from validation.file_upload import FileUploadForm
+
+# /api/upload
+api_upload = APIBlueprint(
+    name="upload",
+    import_name=__name__,
+    url_prefix="/api/upload",
+)
 
 
-# /api/upload/admin
-class Root(Resource):
-    @staticmethod
-    @roles_required([RoleEnum.ADMIN])
-    def get():
-        return send_from_directory(
-            current_app.config["UPLOAD_FOLDER"],
-            "cradle_sms_relay.apk",
-        )
+class FileUpload(FileUploadForm):
+    file_type: str = Field(..., description="File type.")
 
-    @staticmethod
-    @roles_required([RoleEnum.ADMIN])
-    def post():
-        if "file" not in request.files:
-            abort(400, message="No file part")
 
-        file = request.files["file"]
+# /api/upload/admin [GET]
+@api_upload.get("/admin")
+@roles_required([RoleEnum.ADMIN])
+def get_sms_relay_apk():
+    return send_from_directory(
+        current_app.config["UPLOAD_FOLDER"],
+        "cradle_sms_relay.apk",
+    )
 
-        if not file or not is_allowed_file(file.filename):
-            abort(422, message="File not allowed")
 
-        file.save(
-            os.path.join(current_app.config["UPLOAD_FOLDER"], "cradle_sms_relay.apk"),
-        )
+# /api/upload/admin [POST]
+@api_upload.post("/admin")
+@roles_required([RoleEnum.ADMIN])
+def upload_apk_file(form: FileUpload):
+    file = form.file
 
-        return {"message": "File saved"}, 201
+    if not is_allowed_file(file.filename):
+        return abort(422, message="File not allowed")
+
+    file.save(
+        os.path.join(current_app.config["UPLOAD_FOLDER"], "cradle_sms_relay.apk"),
+    )
+
+    return {"message": "File saved"}, 201
 
 
 def is_allowed_file(filename):

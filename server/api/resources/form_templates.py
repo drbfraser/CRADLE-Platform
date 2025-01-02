@@ -1,21 +1,22 @@
 import json
 from typing import Optional
 
-from flask import make_response
+from flask import abort, make_response
 from flask_openapi3.blueprint import APIBlueprint
-from flask_openapi3.models.file import FileStorage
-from flask_restful import abort
-from pydantic import Field, field_validator
-from werkzeug.utils import secure_filename
+from pydantic import Field
 
 import data
 from api import util
 from api.decorator import roles_required
+from common.api_utils import (
+    FormTemplateIdPath,
+)
 from data import crud, marshal
 from enums import ContentTypeEnum, RoleEnum
 from models import FormClassificationOrm, FormTemplateOrm
 from service import serialize
 from validation import CradleBaseModel
+from validation.file_upload import FileUploadForm
 from validation.formTemplates import FormTemplateValidator
 
 # /api/forms/templates
@@ -44,25 +45,8 @@ def get_all_form_templates(query: GetAllFormTemplatesQuery):
     return [marshal.marshal(f, shallow=True) for f in form_templates]
 
 
-class FormTemplateFileUploadForm(CradleBaseModel):
-    """
-    Files are passed into the View through the `form` parameter.
-    https://luolingchun.github.io/flask-openapi3/v3.x/Usage/Request/#form
-    """
-
-    # model_config = ConfigDict(arbitrary_types_allowed=True)
-
-    file: FileStorage  # request.files["file"]
-    file_type: ContentTypeEnum = Field(..., description="File type")
-
-    @field_validator("file")
-    @classmethod
-    def validate_filename(cls, file: FileStorage):
-        if file.filename is None:
-            raise ValueError("Missing filename.")
-        if not secure_filename(file.filename):
-            raise ValueError("Insecure filename.")
-        return file
+class FormTemplateFileUploadForm(FileUploadForm):
+    file_type: ContentTypeEnum = Field(..., description="File type.")
 
 
 # /api/forms/templates [POST]
@@ -131,11 +115,6 @@ def create_form_template(form: FormTemplateFileUploadForm):
     crud.create(form_template, refresh=True)
 
     return marshal.marshal(form_template, shallow=True), 201
-
-
-# /api/forms/templates/<string:form_template_id>/versions
-class FormTemplateIdPath(CradleBaseModel):
-    form_template_id: str = Field(..., description="Form Template ID.")
 
 
 # /api/forms/templates/<string:form_template_id>/versions [GET]

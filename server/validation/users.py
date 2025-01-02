@@ -122,7 +122,7 @@ class UserRegisterValidator(UserValidator):
             raise ValidationExceptionError(error_message)
 
 
-class UserAuthRequestValidator(CradleBaseModel, extra="forbid"):
+class UserAuthValidator(CradleBaseModel, extra="forbid"):
     """
     Pydantic validation model for the `/api/user/auth [POST]` api endpoint.
     Only needs to validate that the username and password fields are present,

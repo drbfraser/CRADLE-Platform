@@ -2,18 +2,16 @@ import logging
 from datetime import date
 
 from dateutil.relativedelta import relativedelta
-from flasgger import swag_from
-from flask import Request, request
-from flask_restful import Resource, abort
-from humps import decamelize
+from flask import abort
+from flask_openapi3.blueprint import APIBlueprint
 
 from api.decorator import roles_required
 from common import user_utils
+from common.api_utils import FacilityNamePath, UserIdPath
 from data import crud
 from enums import RoleEnum, TrafficLightEnum
 from models import UserOrm
 from validation.stats import TimestampValidator
-from validation.validation_exception import ValidationExceptionError
 
 LOGGER = logging.getLogger(__name__)
 
@@ -82,55 +80,40 @@ def create_color_readings(color_readings_q):
     return color_readings
 
 
-def get_filter_data(request: Request):
-    params = decamelize(request.args)
-    try:
-        timestamp_pydantic_model = TimestampValidator.validate(params)
-    except ValidationExceptionError as e:
-        error_message = str(e)
-        LOGGER.error(error_message)
-        abort(400, message=error_message)
-        return None
-
-    timestamp = timestamp_pydantic_model.model_dump(by_alias=True)
-
-    return timestamp
+# api/stats
+api_stats = APIBlueprint(
+    name="stats",
+    import_name=__name__,
+    url_prefix="/api/stats",
+)
 
 
 # api/stats/all [GET]
-class AllStats(Resource):
-    @staticmethod
-    @roles_required([RoleEnum.ADMIN])
-    @swag_from("../../specifications/stats-all.yml", methods=["GET"])
-
-    ## Get all statistics for patients
-    def get():
-        # Date filters default to max range
-        filter = get_filter_data(request)
-
-        response = query_stats_data(filter)
-
-        return response, 200
+@api_stats.get("all")
+@roles_required([RoleEnum.ADMIN])
+def get_all_stats(query: TimestampValidator):
+    """
+    Get all statistics for patients.
+    """
+    # Date filters default to max range
+    filter = query.model_dump()
+    response = query_stats_data(filter)
+    return response, 200
 
 
 # api/stats/facility/<string:facility_id> [GET]
-class FacilityReadings(Resource):
-    @staticmethod
-    @roles_required([RoleEnum.ADMIN, RoleEnum.HCW])
-    @swag_from("../../specifications/stats-facility.yml", methods=["GET"])
-    def get(facility_id: str):
-        current_user = user_utils.get_current_user_from_jwt()
-
-        if (
-            current_user["role"] == RoleEnum.HCW.value
-            and current_user["health_facility_name"] != facility_id
-        ):
-            return "Unauthorized to view this facility", 401
-
-        filter = get_filter_data(request)
-
-        response = query_stats_data(filter, facility_id=facility_id)
-        return response, 200
+@api_stats.get("/facility/<string:facility_id>")
+@roles_required([RoleEnum.ADMIN, RoleEnum.HCW])
+def get_facility_stats(path: FacilityNamePath, query: TimestampValidator):
+    current_user = user_utils.get_current_user_from_jwt()
+    if (
+        current_user["role"] == RoleEnum.HCW.value
+        and current_user["health_facility_name"] != path.health_facility_name
+    ):
+        return abort(401, message="Unauthorized to view this facility")
+    filter = query.model_dump()
+    response = query_stats_data(filter, facility_id=path.health_facility_name)
+    return response, 200
 
 
 def has_permission_to_view_user(user_id):
@@ -163,65 +146,58 @@ def has_permission_to_view_user(user_id):
 
 
 # api/stats/user/<int:user_id> [GET]
-class UserReadings(Resource):
-    @staticmethod
-    @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
-    @swag_from("../../specifications/stats-user.yml", methods=["GET"])
-    def get(user_id: int):
-        if not has_permission_to_view_user(user_id):
-            return "Unauthorized to view this endpoint", 401
-
-        filter = get_filter_data(request)
-
-        response = query_stats_data(filter, user_id=str(user_id))
-
-        return response, 200
+@api_stats.get("/user/<int:user_id>")
+@roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
+def get_user_stats(path: UserIdPath, query: TimestampValidator):
+    if not has_permission_to_view_user(path.user_id):
+        return abort(401, "Unauthorized to view this endpoint")
+    filter = query.model_dump()
+    response = query_stats_data(filter, user_id=str(path.user_id))
+    return response, 200
 
 
 # api/stats/export/<int:user_id> [GET]
-class ExportStats(Resource):
-    @staticmethod
-    @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
-    @swag_from("../../specifications/stats-export.yml")
-    def get(user_id: int):
-        filter = get_filter_data(request)
+@api_stats.get("/export/<int:user_id>")
+@roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
+def get_stats_export(path: UserIdPath, query: TimestampValidator):
+    filter = query.model_dump()
 
-        if crud.read(UserOrm, id=user_id) is None:
-            return "User with this ID does not exist", 404
+    if crud.read(UserOrm, id=path.user_id) is None:
+        return abort(404, "User with this ID does not exist")
 
-        if not has_permission_to_view_user(user_id):
-            return "Unauthorized to view this endpoint", 401
+    if not has_permission_to_view_user(path.user_id):
+        return abort(401, "Unauthorized to view this endpoint")
 
-        query_response = crud.get_export_data(user_id, filter)
-        response = []
-        if query_response is None:
-            return response, 200
-        for entry in query_response:
-            age = relativedelta(date.today(), entry["date_of_birth"]).years
-            traffic_light = entry.get("traffic_light_status").name
-            color = None
-            if traffic_light:
-                traffic_light = traffic_light.split("_")
-                color = traffic_light[0]
-
-            arrow = None
-            if len(traffic_light) > 1:
-                arrow = traffic_light[1]
-
-            response.append(
-                {
-                    "referral_date": entry.get("date_referred"),
-                    "patient_id": entry.get("patient_id"),
-                    "name": entry.get("patient_name"),
-                    "sex": entry.get("sex").name,
-                    "age": age,
-                    "pregnant": bool(entry.get("is_pregnant")),
-                    "systolic_blood_pressure": entry.get("systolic_blood_pressure"),
-                    "diastolic_blood_pressure": entry.get("diastolic_blood_pressure"),
-                    "heart_rate": entry.get("heart_rate"),
-                    "traffic_color": color,
-                    "traffic_arrow": arrow,
-                },
-            )
-
+    query_response = crud.get_export_data(path.user_id, filter)
+    response = []
+    if query_response is None:
         return response, 200
+    for entry in query_response:
+        age = relativedelta(date.today(), entry["date_of_birth"]).years
+        traffic_light = entry.get("traffic_light_status").name
+        color = None
+        if traffic_light:
+            traffic_light = traffic_light.split("_")
+            color = traffic_light[0]
+
+        arrow = None
+        if len(traffic_light) > 1:
+            arrow = traffic_light[1]
+
+        response.append(
+            {
+                "referral_date": entry.get("date_referred"),
+                "patient_id": entry.get("patient_id"),
+                "name": entry.get("patient_name"),
+                "sex": entry.get("sex").name,
+                "age": age,
+                "pregnant": bool(entry.get("is_pregnant")),
+                "systolic_blood_pressure": entry.get("systolic_blood_pressure"),
+                "diastolic_blood_pressure": entry.get("diastolic_blood_pressure"),
+                "heart_rate": entry.get("heart_rate"),
+                "traffic_color": color,
+                "traffic_arrow": arrow,
+            },
+        )
+
+    return response, 200

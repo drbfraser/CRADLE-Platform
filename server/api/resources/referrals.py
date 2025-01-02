@@ -1,15 +1,17 @@
 import time
-from typing import Any, cast
+from typing import Any, Optional, cast
 
-from flasgger import swag_from
-from flask import request
-from flask_restful import Resource, abort
+from flask import abort
+from flask_openapi3.blueprint import APIBlueprint
 
 import data
-from api import util
-from common import api_utils, user_utils
+from common import user_utils
+from common.api_utils import (
+    ReferralIdPath,
+)
 from data import crud, marshal
 from models import HealthFacilityOrm, PatientOrm, ReferralOrm
+from server.validation import CradleBaseModel
 from service import assoc, serialize, view
 from utils import get_current_time
 from validation.referrals import (
@@ -17,190 +19,130 @@ from validation.referrals import (
     NotAttendValidator,
     ReferralEntityValidator,
 )
-from validation.validation_exception import ValidationExceptionError
-
 
 # /api/referrals
-class Root(Resource):
-    @staticmethod
-    @swag_from(
-        "../../specifications/referrals-get.yml",
-        methods=["GET"],
-        endpoint="referrals",
+api_referrals = APIBlueprint(
+    name="referrals",
+    import_name=__name__,
+    url_prefix="/api/referrals",
+)
+
+
+class GetAllReferralsQueryParams(CradleBaseModel):
+    health_facilities: Optional[list[str]] = None
+
+
+# /api/referrals [GET]
+@api_referrals.get("")
+def get_all_referrals(query: GetAllReferralsQueryParams):
+    user_data = user_utils.get_current_user_from_jwt()
+
+    if query.health_facilities is not None and "default" in query.health_facilities:
+        query.health_facilities.append(user_data["health_facility_name"])
+
+    user = cast(dict[Any, Any], user_data)
+    referrals = view.referral_list_view(user, **query.model_dump())
+
+    return serialize.serialize_referral_list(referrals)
+
+
+# /api/referrals [POST]
+@api_referrals.post("")
+def create_referral(body: ReferralEntityValidator):
+    health_facility = crud.read(
+        HealthFacilityOrm,
+        name=body.health_facility_name,
     )
-    def get():
-        user_data = user_utils.get_current_user_from_jwt()
 
-        params = api_utils.get_query_params()
-        if params.get("health_facilities") and "default" in params["health_facilities"]:
-            params["health_facilities"].append(user_data["health_facility_name"])
-
-        user = cast(dict[Any, Any], user_data)
-        referrals = view.referral_list_view(user, **params)
-        print(referrals)
-        return serialize.serialize_referral_list(referrals)
-
-    @staticmethod
-    @swag_from(
-        "../../specifications/referrals-post.yml",
-        methods=["POST"],
-        endpoint="referrals",
+    if health_facility is None:
+        return abort(404, message="Health facility does not exist.")
+    UTCTime = str(round(time.time() * 1000))
+    crud.update(
+        HealthFacilityOrm,
+        {"newReferrals": UTCTime},
+        True,
+        name=body.health_facility_name,
     )
-    def post():
-        request_body = api_utils.get_request_body()
 
-        try:
-            referral_pydantic_model = ReferralEntityValidator.validate(request_body)
-        except ValidationExceptionError as e:
-            abort(400, message=str(e))
-            return None
+    if body.user_id is None:
+        body.user_id = user_utils.get_current_user_from_jwt()["id"]
 
-        new_referral = referral_pydantic_model.model_dump()
-        new_referral = util.filterPairsWithNone(new_referral)
+    patient = crud.read(PatientOrm, id=body.patient_id)
+    if patient is None:
+        return abort(404, message="Patient does not exist.")
 
-        health_facility = crud.read(
-            HealthFacilityOrm,
-            name=new_referral["health_facility_name"],
-        )
+    referral = marshal.unmarshal(ReferralOrm, body.model_dump())
 
-        if not health_facility:
-            abort(400, message="Health facility does not exist")
-            return None
-        UTCTime = str(round(time.time() * 1000))
-        crud.update(
-            HealthFacilityOrm,
-            {"newReferrals": UTCTime},
-            True,
-            name=new_referral["health_facility_name"],
-        )
-
-        if "user_id" not in new_referral:
-            new_referral["user_id"] = user_utils.get_current_user_from_jwt()["id"]
-
-        patient = crud.read(PatientOrm, id=new_referral["patient_id"])
-
-        if not patient:
-            abort(400, message="Patient does not exist")
-            return None
-
-        referral = marshal.unmarshal(ReferralOrm, new_referral)
-
-        crud.create(referral, refresh=True)
-        # Creating a referral also associates the corresponding patient to the health
-        # facility they were referred to.
-        patient = referral.patient
-        facility = referral.health_facility
-        if not assoc.has_association(patient, facility):
-            assoc.associate(patient, facility=facility)
-
-        return marshal.marshal(referral), 201
+    crud.create(referral, refresh=True)
+    # Creating a referral also associates the corresponding patient to the health
+    # facility they were referred to.
+    patient = referral.patient
+    facility = referral.health_facility
+    if not assoc.has_association(patient, facility):
+        assoc.associate(patient, facility=facility)
+    return marshal.marshal(referral), 201
 
 
-# /api/referrals/<int:referral_id>
-class SingleReferral(Resource):
-    @staticmethod
-    @swag_from(
-        "../../specifications/single-referral-get.yml",
-        methods=["GET"],
-        endpoint="single_referral",
-    )
-    def get(referral_id: int):
-        referral = crud.read(ReferralOrm, id=referral_id)
-        if not referral:
-            abort(404, message=f"No referral with id {id}")
-
-        return marshal.marshal(referral)
+# /api/referrals/<int:referral_id> [GET]
+@api_referrals.get("/<int:referral_id>")
+def get_referral(path: ReferralIdPath):
+    referral = crud.read(ReferralOrm, id=path.referral_id)
+    if referral is None:
+        return abort(404, message=f"No Referral with ID: {path.referral_id}")
+    return marshal.marshal(referral)
 
 
-# /api/referrals/assess/<string:referral_id>
-class AssessReferral(Resource):
-    @staticmethod
-    @swag_from(
-        "../../specifications/referrals-assess-update-put.yml",
-        methods=["PUT"],
-        endpoint="referral_assess",
-    )
-    def put(referral_id: str):
-        referral = crud.read(ReferralOrm, id=referral_id)
-        if referral is None:
-            abort(404, message=f"No referral with id {referral_id}")
-            return None
+# /api/referrals/assess/<string:referral_id> [PUT]
+@api_referrals.put("/assess/<string:referral_id>")
+def update_referral_assess(path: ReferralIdPath):
+    referral = crud.read(ReferralOrm, id=path.referral_id)
+    if referral is None:
+        return abort(404, message=f"No Referral with ID: {path.referral_id}")
 
-        if not referral.is_assessed:
-            referral.is_assessed = True
-            referral.date_assessed = get_current_time()
-            data.db_session.commit()
-            data.db_session.refresh(referral)
-
-        return marshal.marshal(referral), 201
-
-
-# /api/referrals/cancel-status-switch/<string:referral_id>
-class ReferralCancelStatus(Resource):
-    @staticmethod
-    @swag_from(
-        "../../specifications/referrals-cancel-update-put.yml",
-        methods=["PUT"],
-        endpoint="referral_cancel_status",
-    )
-    def put(referral_id: str):
-        if crud.read(ReferralOrm, id=referral_id) is None:
-            abort(404, message=f"No referral with id {referral_id}")
-            return None
-
-        request_body = api_utils.get_request_body()
-
-        try:
-            cancel_status_pydantic_model = CancelStatusValidator.validate(request_body)
-        except ValidationExceptionError as e:
-            abort(400, message=str(e))
-
-        cancel_status_model_dump = cancel_status_pydantic_model.model_dump()
-
-        if not cancel_status_model_dump["is_cancelled"]:
-            cancel_status_model_dump["cancel_reason"] = None
-            cancel_status_model_dump["date_cancelled"] = None
-        else:
-            cancel_status_model_dump["date_cancelled"] = get_current_time()
-
-        crud.update(ReferralOrm, cancel_status_model_dump, id=referral_id)
-
-        referral = crud.read(ReferralOrm, id=referral_id)
+    if not referral.is_assessed:
+        referral.is_assessed = True
+        referral.date_assessed = get_current_time()
         data.db_session.commit()
         data.db_session.refresh(referral)
 
-        return marshal.marshal(referral)
+    return marshal.marshal(referral), 201
 
 
-# /api/referrals/not-attend/<string:referral_id>
-class ReferralNotAttend(Resource):
-    @staticmethod
-    @swag_from(
-        "../../specifications/referrals-not-attend-update-put.yml",
-        methods=["PUT"],
-        endpoint="referral_not_attend",
-    )
-    def put(referral_id: str):
-        referral = crud.read(ReferralOrm, id=referral_id)
-        if referral is None:
-            abort(404, message=f"No referral with id {referral_id}")
-            return None
+# /api/referrals/cancel-status-switch/<string:referral_id> [PUT]
+@api_referrals.put("/cancel-status-switch/<string:referral_id>")
+def update_referral_cancel_status(path: ReferralIdPath, body: CancelStatusValidator):
+    if crud.read(ReferralOrm, id=path.referral_id) is None:
+        return abort(404, message=f"No referral with ID: {path.referral_id}")
 
-        request_body = request.get_json(force=True)
+    cancel_status_model_dump = body.model_dump()
 
-        try:
-            not_attend_pydantic_model = NotAttendValidator.validate(request_body)
-        except ValidationExceptionError as e:
-            abort(400, message=str(e))
-            return None
+    if not body.is_cancelled:
+        cancel_status_model_dump["cancel_reason"] = None
+        cancel_status_model_dump["date_cancelled"] = None
+    else:
+        cancel_status_model_dump["date_cancelled"] = get_current_time()
 
-        not_attend_model_dump = not_attend_pydantic_model.model_dump()
+    crud.update(ReferralOrm, cancel_status_model_dump, id=path.referral_id)
 
-        if not referral.not_attended:
-            referral.not_attended = True
-            referral.not_attend_reason = not_attend_model_dump["not_attend_reason"]
-            referral.date_not_attended = get_current_time()
-            data.db_session.commit()
-            data.db_session.refresh(referral)
+    referral = crud.read(ReferralOrm, id=path.referral_id)
+    data.db_session.commit()
+    data.db_session.refresh(referral)
 
-        return marshal.marshal(referral)
+    return marshal.marshal(referral)
+
+
+# /api/referrals/not-attend/<string:referral_id> [PUT]
+def update_referral_not_attend(path: ReferralIdPath, body: NotAttendValidator):
+    referral = crud.read(ReferralOrm, id=path.referral_id)
+    if referral is None:
+        return abort(404, message=f"No referral with id {path.referral_id}")
+
+    not_attend_model_dump = body.model_dump()
+    if not referral.not_attended:
+        referral.not_attended = True
+        referral.not_attend_reason = not_attend_model_dump["not_attend_reason"]
+        referral.date_not_attended = get_current_time()
+        data.db_session.commit()
+        data.db_session.refresh(referral)
+
+    return marshal.marshal(referral)

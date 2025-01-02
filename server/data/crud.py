@@ -414,6 +414,7 @@ def read_referral_list(
     return query.all()
 
 
+# TODO: Why is there not a separate function for getting pregnancy records?
 def read_medical_records(m: Type[M], patient_id: str, **kwargs) -> List[M]:
     """
     Queries the database for medical records of a patient

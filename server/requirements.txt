@@ -17,6 +17,7 @@ marshmallow-sqlalchemy==0.24.2
 numpy==1.26.4
 pycryptodome==3.18.0
 pydantic==2.9.2
+pydantic-extra-types==2.10.1
 PyMySQL==1.0.2
 pytest==6.2.2
 python-dateutil==2.9.0
