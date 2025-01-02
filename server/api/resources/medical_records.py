@@ -60,12 +60,14 @@ def create_medical_record(path: PatientIdPath, body: MedicalRecordValidator):
 
 
 # /api/medical_records/<string:record_id> [GET]
+@api_medical_records.get("/medical_records/<string:record_id>")
 def get_medical_record(path: RecordIdPath):
     record = _get_medical_record(path.record_id)
     return marshal.marshal(record)
 
 
 # /api/medical_records/<string:record_id> [PUT]
+@api_medical_records.put("/medical_records/<string:record_id>")
 def update_medical_record(path: RecordIdPath, body: MedicalRecordValidator):
     update_medical_record = body.model_dump()
 
@@ -84,6 +86,8 @@ def update_medical_record(path: RecordIdPath, body: MedicalRecordValidator):
     return record_dict, 200
 
 
+# /api/medical_records/<string:record_id> [DELETE]
+@api_medical_records.delete("/medical_records/<string:record_id>")
 def delete_medical_record(path: RecordIdPath):
     record = _get_medical_record(path.record_id)
     crud.delete(record)

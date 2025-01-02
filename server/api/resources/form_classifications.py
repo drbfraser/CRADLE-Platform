@@ -55,9 +55,7 @@ def create_form_classification(body: ClassificationValidator):
 
 
 # /api/forms/classifications/<string:form_classification_id> [GET]
-api_form_classifications.get("/<string:form_classification_id>")
-
-
+@api_form_classifications.get("/<string:form_classification_id>")
 def get_form_classification(path: FormClassificationIdPath):
     form_classification = crud.read(
         FormClassificationOrm, id=path.form_classification_id
@@ -76,9 +74,7 @@ class FormClassificationPutBody(CradleBaseModel):
 
 
 # /api/forms/classifications/<string:form_classification_id> [PUT]
-api_form_classifications.put("/<string:form_classification_id>")
-
-
+@api_form_classifications.put("/<string:form_classification_id>")
 def update_form_classification_name(
     path: FormClassificationIdPath, body: FormClassificationPutBody
 ):

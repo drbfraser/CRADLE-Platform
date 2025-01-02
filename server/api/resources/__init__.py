@@ -17,7 +17,7 @@ from api.resources.sms_relay import api_sms_relay
 from api.resources.stats import api_stats
 from api.resources.sync import api_sync
 from api.resources.upload import api_upload
-from api.resources.users import api_users
+from api.resources.users import api_phone, api_users
 from api.resources.version import api_version
 
 """
@@ -58,4 +58,5 @@ api.register_api(api_stats)
 api.register_api(api_sync)
 api.register_api(api_upload)
 api.register_api(api_users)
+api.register_api(api_phone)
 api.register_api(api_version)

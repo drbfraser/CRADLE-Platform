@@ -101,8 +101,8 @@ def get_all_stats(query: TimestampValidator):
     return response, 200
 
 
-# api/stats/facility/<string:facility_id> [GET]
-@api_stats.get("/facility/<string:facility_id>")
+# api/stats/facility/<string:health_facility_name> [GET]
+@api_stats.get("/facility/<string:health_facility_name>")
 @roles_required([RoleEnum.ADMIN, RoleEnum.HCW])
 def get_facility_stats(path: FacilityNamePath, query: TimestampValidator):
     current_user = user_utils.get_current_user_from_jwt()

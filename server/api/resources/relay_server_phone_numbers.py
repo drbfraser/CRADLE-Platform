@@ -55,6 +55,7 @@ def update_relay_phone_number(body: RelayServerPhone):
 
 
 # /api/relay/server/phone [DELETE]
+@api_relay_phone_numbers.delete("")
 @roles_required([RoleEnum.ADMIN])
 def delete_relay_phone_number(body: RelayServerPhone):
     relay_phone_number = crud.read(RelayServerPhoneNumberOrm, id=body.id)

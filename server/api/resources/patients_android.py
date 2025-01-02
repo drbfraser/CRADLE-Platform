@@ -141,8 +141,8 @@ class GetFormMobilePath(CradleBaseModel):
     form_template_id: str
 
 
-# /api/mobile/forms/<str:patient_id>/<str:form_template_id>
-@api_patients_android.get("/mobile/forms/<str:patient_id>/<str:form_template_id>")
+# /api/mobile/forms/<string:patient_id>/<string:form_template_id>
+@api_patients_android.get("/mobile/forms/<string:patient_id>/<string:form_template_id>")
 def get_form_mobile(path: GetFormMobilePath):
     filters: dict = {
         "patient_id": path.patient_id,
