@@ -357,7 +357,7 @@ class RelayPhoneNumber(CradleBaseModel):
 api_phone = APIBlueprint(
     name="phone",
     import_name=__name__,
-    url_prefix="/api/phone",
+    url_prefix="/phone",
 )
 
 
