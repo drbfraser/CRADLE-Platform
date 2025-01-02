@@ -1,7 +1,7 @@
 import pytest
+from pydantic import ValidationError
 
 from validation.formTemplates import FormTemplateValidator
-from validation.validation_exception import ValidationExceptionError
 
 CLASSIFICATION = {"id": "123", "name": "example_name"}
 VERSION = "V1"
@@ -114,45 +114,45 @@ template_has_invalid_extra_field_should_throw_exception = {
         (template_with_valid_fields_and_one_question_should_return_none, None),
         (
             template_missing_required_field_classification_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             template_missing_required_field_version_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             template_missing_required_field_questions_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (template_missing_optional_field_id_should_return_none, None),
         (
             template_field_classification_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             template_field_id_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             template_field_questions_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             template_field_version_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             template_has_invalid_extra_field_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
     ],
 )
 def test_validate_template(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            FormTemplateValidator.validate(json)
+            FormTemplateValidator(**json)
     else:
         try:
-            FormTemplateValidator.validate(json)
-        except ValidationExceptionError as e:
+            FormTemplateValidator(**json)
+        except ValidationError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e

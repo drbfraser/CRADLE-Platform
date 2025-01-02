@@ -1,7 +1,7 @@
 import pytest
+from pydantic import ValidationError
 
 from validation.associations import AssociationValidator
-from validation.validation_exception import ValidationExceptionError
 
 PATIENT_ID = 20
 USER_ID = 1
@@ -57,28 +57,28 @@ association_field_user_id_has_wrong_type_should_throw_exception = {
         ),
         (
             association_missing_required_field_patient_id_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             association_field_patiendID_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             association_field_health_facility_name_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             association_field_user_id_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
     ],
 )
 def test_validation(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            AssociationValidator.validate(json)
+            AssociationValidator(**json)
     else:
         try:
-            AssociationValidator.validate(json)
-        except ValidationExceptionError as e:
+            AssociationValidator(**json)
+        except ValidationError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e

@@ -1,11 +1,11 @@
 import pytest
+from pydantic import ValidationError
 
 from validation.referrals import (
     CancelStatusValidator,
     NotAttendValidator,
     ReferralEntityValidator,
 )
-from validation.validation_exception import ValidationExceptionError
 
 PATIENT_ID = "49300028161"
 FACILITY = "H0000"
@@ -213,64 +213,64 @@ not_attend_has_invalid_extra_field_should_throw_exception = {
         ),
         (
             referral_missing_required_field_patient_id_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
             ReferralEntityValidator,
         ),
         (
             referral_missing_required_field_health_facility_name_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
             ReferralEntityValidator,
         ),
         (
             referral_field_patient_id_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
             ReferralEntityValidator,
         ),
         (
             referral_field_health_facility_name_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
             ReferralEntityValidator,
         ),
         (
             referral_has_invalid_extra_field_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
             ReferralEntityValidator,
         ),
         (cancel_put_with_valid_fields_should_return_none, None, CancelStatusValidator),
         (
             cancel_put_missing_required_field_is_cancelled_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
             CancelStatusValidator,
         ),
         (
             cancel_put_missing_required_field_cancel_reason_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
             CancelStatusValidator,
         ),
         (
             cancel_put_field_is_cancelled_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
             CancelStatusValidator,
         ),
         (
             cancel_put_field_cancel_reason_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
             CancelStatusValidator,
         ),
         (
             cancel_put_has_invalid_extra_field_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
             CancelStatusValidator,
         ),
         (not_attend_with_valid_fields_should_return_none, None, NotAttendValidator),
         (
             not_attend_field_not_attend_reason_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
             NotAttendValidator,
         ),
         (
             not_attend_has_invalid_extra_field_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
             NotAttendValidator,
         ),
     ],
@@ -278,9 +278,9 @@ not_attend_has_invalid_extra_field_should_throw_exception = {
 def test_validation(json, output_type, entity):
     if type(output_type) is type and issubclass(output_type, Exception):
         with pytest.raises(output_type):
-            entity.validate(json)
+            entity(**json)
     else:
         try:
-            entity.validate(json)
-        except ValidationExceptionError as e:
+            entity(**json)
+        except ValidationError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e

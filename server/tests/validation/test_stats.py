@@ -1,7 +1,7 @@
 import pytest
+from pydantic import ValidationError
 
 from validation.stats import MYSQL_BIGINT_MAX, Timeframe, TimestampValidator
-from validation.validation_exception import ValidationExceptionError
 
 # unix epoch code for Monday, January 1, 2024 12:00:00 AM
 FROM_TIMESTAMP = "1704067200"
@@ -88,28 +88,28 @@ timeframe_missing_field_from_and_to_should_return_none = {
         (timestamp_missing_all_fields_should_return_model, expection_default_timestamp),
         (
             timestamp_field_from_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             timestamp_field_to_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
     ],
 )
 def test_validate_timestamp(json, output):
     if type(output) is type and issubclass(output, Exception):
         with pytest.raises(output):
-            TimestampValidator.validate(json)
+            TimestampValidator(**json)
     else:
         try:
-            timestamp_pydantic_model = TimestampValidator.validate(json)
+            timestamp_pydantic_model = TimestampValidator(**json)
 
             if output is not None:
                 timestamp_actual = timestamp_pydantic_model.model_dump(by_alias=True)
 
                 assert output == timestamp_actual
 
-        except ValidationExceptionError as e:
+        except ValidationError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e
 
 
@@ -119,15 +119,15 @@ def test_validate_timestamp(json, output):
         (timeframe_with_valid_fields_return_none, None),
         (
             timeframe_field_to_has_invalid_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             timeframe_field_from_has_invalid_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             timeframe_missing_all_fields_should_thrown_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (timeframe_missing_field_to_should_return_none, None),
         (timeframe_missing_field_from_should_return_none, None),
@@ -140,9 +140,9 @@ def test_validate_timestamp(json, output):
 def test_validate_validate_time_frame_readings(json, output_type):
     if type(output_type) is type and issubclass(output_type, Exception):
         with pytest.raises(output_type):
-            Timeframe.validate_time_frame_readings(json)
+            Timeframe(**json)
     else:
         try:
-            Timeframe.validate_time_frame_readings(json)
-        except ValidationExceptionError as e:
+            Timeframe(**json)
+        except ValidationError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e

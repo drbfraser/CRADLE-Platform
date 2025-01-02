@@ -1,11 +1,11 @@
 import pytest
+from pydantic import ValidationError
 
 from validation.pregnancies import (
     PregnancyModel,
     PregnancyPostRequestValidator,
     PregnancyPutRequestValidator,
 )
-from validation.validation_exception import ValidationExceptionError
 
 PATIENT_ID = 120000
 
@@ -58,62 +58,42 @@ pregnancy_post_start_date_occurs_after_end_date_should_throw_exception = {
 
 
 @pytest.mark.parametrize(
-    "json, patient_id, output_type",
+    "json, output_type",
     [
         (
             pregnancy_post_with_valid_fields_should_return_none,
-            pregnancy_post_with_valid_fields_should_return_none.get("patient_id"),
             type(None),
         ),
         (
             pregnancy_post_missing_optional_field_patient_id_should_return_none,
-            pregnancy_post_missing_optional_field_patient_id_should_return_none.get(
-                "patient_id",
-            ),
             type(None),
         ),
         (
             pregnancy_post_missing_required_field_pregnancy_start_date_unit_should_throw_exception,
-            pregnancy_post_missing_required_field_pregnancy_start_date_unit_should_throw_exception.get(
-                "patient_id",
-            ),
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             pregnancy_post_field_pregnancy_start_date_has_invalid_type_should_throw_exception,
-            pregnancy_post_field_pregnancy_start_date_has_invalid_type_should_throw_exception.get(
-                "patient_id",
-            ),
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             pregnancy_post_has_unallowed_field_should_throw_exception,
-            pregnancy_post_has_unallowed_field_should_throw_exception.get("patient_id"),
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             pregnancy_post_start_date_occurs_after_end_date_should_throw_exception,
-            pregnancy_post_start_date_occurs_after_end_date_should_throw_exception.get(
-                "patient_id",
-            ),
-            ValidationExceptionError,
-        ),
-        (
-            # this case should throw because unmatched patient id
-            pregnancy_post_with_valid_fields_should_return_none,
-            "unmatched_patient_id",
-            ValidationExceptionError,
+            ValidationError,
         ),
     ],
 )
-def test_validate_post_request(json, patient_id, output_type):
+def test_validate_post_request(json, output_type):
     if type(output_type) is type and issubclass(output_type, Exception):
         with pytest.raises(output_type):
-            PregnancyPostRequestValidator.validate(json, patient_id)
+            PregnancyPostRequestValidator(**json)
     else:
         try:
-            PregnancyPostRequestValidator.validate(json, patient_id)
-        except ValidationExceptionError as e:
+            PregnancyPostRequestValidator(**json)
+        except ValidationError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e
 
 
@@ -160,58 +140,42 @@ pregnancy_put_id_unmatch_patient_id_should_throw_exception = {
 
 
 @pytest.mark.parametrize(
-    "json, pregnancy_id, output_type",
+    "json, output_type",
     [
         (
             pregnancy_put_request_with_valid_fields_should_return_none,
-            pregnancy_put_request_with_valid_fields_should_return_none.get(
-                "patient_id"
-            ),
             type(None),
         ),
         (
             pregnancy_put_missing_optional_field_pregnancy_start_date_should_return_none,
-            pregnancy_put_missing_optional_field_pregnancy_start_date_should_return_none.get(
-                "patient_id",
-            ),
             type(None),
         ),
         (
             pregnancy_put_field_pregnancy_start_date_has_invalid_type_should_throw_exception,
-            pregnancy_put_field_pregnancy_start_date_has_invalid_type_should_throw_exception.get(
-                "patient_id",
-            ),
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             pregnancy_put_has_unallowed_field_should_throw_exception,
-            pregnancy_put_has_unallowed_field_should_throw_exception.get("patient_id"),
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             pregnancy_put_start_date_occurs_after_end_date_should_throw_exception,
-            pregnancy_put_start_date_occurs_after_end_date_should_throw_exception.get(
-                "patient_id",
-            ),
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             pregnancy_put_id_unmatch_patient_id_should_throw_exception,
-            pregnancy_put_id_unmatch_patient_id_should_throw_exception.get(
-                "patient_id"
-            ),
-            ValidationExceptionError,
+            ValidationError,
         ),
     ],
 )
-def test_validate_put_request(json, pregnancy_id, output_type):
+def test_validate_put_request(json, output_type):
     if type(output_type) is type and issubclass(output_type, Exception):
         with pytest.raises(output_type):
-            PregnancyPutRequestValidator.validate(json, pregnancy_id)
+            PregnancyPutRequestValidator(**json)
     else:
         try:
-            PregnancyPutRequestValidator.validate(json, pregnancy_id)
-        except ValidationExceptionError as e:
+            PregnancyPutRequestValidator(**json)
+        except ValidationError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e
 
 
@@ -226,16 +190,16 @@ invalid_extra_key_subset_list = ["id", "test"]
     [
         (valid_empty_list, type(None)),
         (valid_subset_list, type(None)),
-        (invalid_extra_key_list, ValidationExceptionError),
-        (invalid_extra_key_subset_list, ValidationExceptionError),
+        (invalid_extra_key_list, ValidationError),
+        (invalid_extra_key_subset_list, ValidationError),
     ],
 )
 def test_validate(json, output_type):
     if type(output_type) is type and issubclass(output_type, Exception):
         with pytest.raises(output_type):
-            PregnancyModel.validate_unallowed_fields(json)
+            PregnancyModel(**json)
     else:
         try:
-            PregnancyModel.validate_unallowed_fields(json)
-        except ValidationExceptionError as e:
-            raise AssertionError(f"Unexpected validation error:{e}") from e
+            PregnancyModel(**json)
+        except ValidationError as e:
+            raise AssertionError(f"Unexpected validation error: {e}") from e

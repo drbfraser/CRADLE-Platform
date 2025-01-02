@@ -1,7 +1,7 @@
 import pytest
+from pydantic import ValidationError
 
 from validation.forms import FormPutValidator, FormValidator
-from validation.validation_exception import ValidationExceptionError
 
 LANGUAGE = "eng"
 PATIENT_ID = "123"
@@ -317,68 +317,68 @@ form_date_created_occurs_after_date_edited_should_throw_exception = {
         (form_with_multiple_questions_should_return_none, None),
         (
             form_missing_required_field_lang_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             form_missing_required_field_patient_id_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             form_missing_required_field_questions_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             form_field_lang_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             form_field_patient_id_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             form_field_questions_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
-        (form_field_id_has_wrong_type_should_throw_exception, ValidationExceptionError),
+        (form_field_id_has_wrong_type_should_throw_exception, ValidationError),
         (
             form_field_form_template_id_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             form_field_form_classification_id_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             form_field_date_created_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             form_field_last_edited_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             form_field_last_edited_by_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             form_field_archived_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
-        (form_has_invalid_extra_field_should_throw_exception, ValidationExceptionError),
+        (form_has_invalid_extra_field_should_throw_exception, ValidationError),
         (
             form_date_created_occurs_after_date_edited_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
     ],
 )
 def test_validate_form(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            FormValidator.validate(json)
+            FormValidator(**json)
     else:
         try:
-            FormValidator.validate(json)
-        except ValidationExceptionError as e:
+            FormValidator(**json)
+        except ValidationError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e
 
 
@@ -407,20 +407,20 @@ form_put_field_questions_has_wrong_type_should_throw_exception = {
         (form_put_with_empty_questions_should_return_none, None),
         (
             form_put_has_invalid_extra_field_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             form_put_field_questions_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
     ],
 )
 def test_validate_put_request(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            FormPutValidator.validate(json)
+            FormPutValidator(**json)
     else:
         try:
-            FormPutValidator.validate(json)
-        except ValidationExceptionError as e:
+            FormPutValidator(**json)
+        except ValidationError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e

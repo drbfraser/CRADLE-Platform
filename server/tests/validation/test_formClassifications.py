@@ -1,7 +1,7 @@
 import pytest
+from pydantic import ValidationError
 
 from validation.formClassifications import FormClassificationValidator
-from validation.validation_exception import ValidationExceptionError
 
 ID = "123"
 NAME = "test-name"
@@ -38,28 +38,28 @@ form_classification_has_invalid_extra_field_should_throw_exception = {
         (form_classification_missing_optional_field_id_should_return_none, None),
         (
             form_classification_missing_required_field_name_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             form_classification_field_name_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             form_classification_field_id_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             form_classification_has_invalid_extra_field_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
     ],
 )
 def test_validate_template(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            FormClassificationValidator.validate(json)
+            FormClassificationValidator(**json)
     else:
         try:
-            FormClassificationValidator.validate(json)
-        except ValidationExceptionError as e:
+            FormClassificationValidator(**json)
+        except ValidationError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e

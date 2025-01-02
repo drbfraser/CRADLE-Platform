@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta
 
 import pytest
+from pydantic import ValidationError
 
 from validation.patients import PatientPostValidator, PatientPutValidator
-from validation.validation_exception import ValidationExceptionError
 
-# Dynamically calculate valid and invalid gestatation ages from todays date.
+# Dynamically calculate valid and invalid gestation ages from todays date.
 todays_date = datetime.today()
 two_weeks_ago = int((todays_date - timedelta(weeks=2)).strftime("%s"))
 fifty_weeks_ago = int((todays_date - timedelta(weeks=50)).strftime("%s"))
@@ -236,23 +236,23 @@ patient_field_date_of_birth_has_wrong_format_should_throw_exception = {
         (patient_with_valid_fields_should_return_none, None),
         (
             patient_post_missing_required_field_id_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             patient_post_missing_required_field_name_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             patient_post_missing_required_field_sex_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             patient_post_missing_required_field_date_of_birth_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             patient_post_missing_required_field_isExactDob_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             patient_post_missing_optional_field_is_pregnant_return_none,
@@ -260,27 +260,27 @@ patient_field_date_of_birth_has_wrong_format_should_throw_exception = {
         ),
         (
             patient_is_pregant_but_missing_pregnancy_start_date_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             patient_pregnancy_period_exceed_43weeks_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             patient_field_name_has_invalid_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             patient_field_id_has_invalid_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             patient_field_id_has_more_than_14digits_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             patient_field_date_of_birth_has_wrong_format_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
     ],
 )
@@ -288,11 +288,11 @@ def test_validation(json, expectation):
     if expectation:
         with pytest.raises(expectation):
             print(json)
-            PatientPostValidator.validate(json)
+            PatientPostValidator(**json)
     else:
         try:
-            PatientPostValidator.validate(json)
-        except ValidationExceptionError as e:
+            PatientPostValidator(**json)
+        except ValidationError as e:
             print(json)
             raise AssertionError(f"Unexpected validation error:{e}") from e
 
@@ -354,41 +354,40 @@ patient_put_has_mismatched_patientId_hould_throw_exception = {
         (patient_put_missing_optional_field_patientId_should_return_none, None),
         (
             patient_put_has_mismatched_patientId_hould_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             patient_is_pregant_but_missing_pregnancy_start_date_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             patient_pregnancy_period_exceed_43weeks_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             patient_field_name_has_invalid_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             patient_field_id_has_invalid_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             patient_field_id_has_more_than_14digits_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             patient_field_date_of_birth_has_wrong_format_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
     ],
 )
 def test_put_validation(json, expectation):
-    patient_id = 123
     if expectation:
         with pytest.raises(expectation):
-            PatientPutValidator.validate(json, patient_id)
+            PatientPutValidator(**json)
     else:
         try:
-            PatientPutValidator.validate(json, patient_id)
-        except ValidationExceptionError as e:
+            PatientPutValidator(**json)
+        except ValidationError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e

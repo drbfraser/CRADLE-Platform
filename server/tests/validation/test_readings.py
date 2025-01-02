@@ -1,7 +1,7 @@
 import pytest
+from pydantic import ValidationError
 
 from validation.readings import ReadingValidator
-from validation.validation_exception import ValidationExceptionError
 
 READING_ID = "asdasd82314278226313803"
 PATIENT_ID = "123456"
@@ -296,19 +296,19 @@ referral_field_assessment_has_wrong_type_should_throw_exception = {
         ),
         (
             reading_missing_required_field_patient_id_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             reading_missing_required_field_systolic_blood_pressure_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             reading_missing_required_field_diastolic_blood_pressure_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             reading_missing_required_field_heart_rate_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             reading_missing_optional_field_is_flagged_for_follow_up_should_return_none,
@@ -316,59 +316,59 @@ referral_field_assessment_has_wrong_type_should_throw_exception = {
         ),
         (
             reading_missing_required_field_symptoms_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (reading_missing_optional_field_date_taken_should_return_none, None),
         (reading_missing_optional_field_user_id_should_return_none, None),
         (reading_missing_optional_field_assessment_should_return_none, None),
         (
             referral_field_id_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             referral_field_patient_id_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             referral_field_systolic_blood_pressure_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             referral_field_diastolic_blood_pressure_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             referral_field_heart_rate_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             referral_field_is_flagged_for_follow_up_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             referral_field_symptoms_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             referral_field_date_taken_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             referral_field_user_id_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             referral_field_assessment_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
     ],
 )
 def test_validation(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            ReadingValidator.validate(json)
+            ReadingValidator(**json)
     else:
         try:
-            ReadingValidator.validate(json)
-        except ValidationExceptionError as e:
-            raise AssertionError(f"Unexpected validation error:{e}") from e
+            ReadingValidator(**json)
+        except ValidationError as e:
+            raise AssertionError(f"Unexpected validation error: {e}") from e
