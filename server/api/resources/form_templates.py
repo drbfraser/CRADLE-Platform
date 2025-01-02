@@ -61,18 +61,18 @@ def create_form_template(form: FormTemplateFileUploadForm):
         try:
             file_contents = json.loads(file_str)
         except json.JSONDecodeError:
-            return abort(415, message="File content is not valid JSON format")
+            return abort(415, description="File content is not valid JSON format")
     elif file.content_type == ContentTypeEnum.CSV.value:
         try:
             file_contents = util.getFormTemplateDictFromCSV(file_str)
         except RuntimeError as err:
-            return abort(400, message=err.args[0])
+            return abort(400, description=err.args[0])
         except TypeError as err:
-            return abort(400, message=err.args[0])
+            return abort(400, description=err.args[0])
         except Exception:
             return abort(
                 400,
-                message="Something went wrong while parsing the CSV file.",
+                description="Something went wrong while parsing the CSV file.",
             )
     form_template_model = FormTemplateValidator(**file_contents)
     new_form_template = form_template_model.model_dump()
@@ -91,7 +91,7 @@ def create_form_template(form: FormTemplateFileUploadForm):
         ):
             abort(
                 409,
-                message="Form template with the same version already exists - change the version to upload",
+                description="Form template with the same version already exists - change the version to upload",
             )
 
         del new_form_template["classification"]
@@ -122,7 +122,7 @@ def create_form_template(form: FormTemplateFileUploadForm):
 def get_form_template_versions(path: FormTemplateIdPath):
     form_template = crud.read(FormTemplateOrm, id=path.form_template_id)
     if form_template is None:
-        return abort(404, message=f"No form with ID: {path.form_template_id}")
+        return abort(404, description=f"No form with ID: {path.form_template_id}")
 
     # Why is it called "lang_versions" and not just "versions"?
     lang_list = crud.read_form_template_versions(form_template)
@@ -149,7 +149,7 @@ def get_form_template_version_as_csv(path: FormTemplateVersionPath):
     )
 
     if form_template is None:
-        return abort(404, message=f"No form with ID: {path.form_template_id}")
+        return abort(404, description=f"No form with ID: {path.form_template_id}")
 
     form_template_csv: str = util.getCsvFromFormTemplate(form_template)
 
@@ -169,7 +169,7 @@ class GetFormTemplateQuery(CradleBaseModel):
 def get_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuery):
     form_template = crud.read(FormTemplateOrm, id=path.form_template_id)
     if form_template is None:
-        return abort(404, message=f"No form with ID: {path.form_template_id}")
+        return abort(404, description=f"No form with ID: {path.form_template_id}")
 
     # WHY IS THE QUERY PARAM CALLED "lang" AND NOT "version"???
     version = query.lang
@@ -192,7 +192,7 @@ def get_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuery):
     if version not in available_versions:
         return abort(
             404,
-            message=f"Template(id={path.form_template_id}) doesn't have language version = {version}",
+            description=f"Template(id={path.form_template_id}) doesn't have language version = {version}",
         )
 
     return marshal.marshal_template_to_single_version(form_template, version)
@@ -211,7 +211,9 @@ def archive_form_template(path: FormTemplateIdPath, body: ArchiveFormTemplateBod
     form_template = crud.read(FormTemplateOrm, id=path.form_template_id)
 
     if form_template is None:
-        return abort(404, message=f"No form template with ID: {path.form_template_id}")
+        return abort(
+            404, description=f"No form template with ID: {path.form_template_id}"
+        )
 
     form_template.archived = body.archived
     data.db_session.commit()
@@ -225,7 +227,7 @@ def archive_form_template(path: FormTemplateIdPath, body: ArchiveFormTemplateBod
 def get_blank_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuery):
     form_template = crud.read(FormTemplateOrm, id=path.form_template_id)
     if form_template is None:
-        return abort(404, message=f"No form with ID: {path.form_template_id}")
+        return abort(404, description=f"No form with ID: {path.form_template_id}")
 
     version = query.lang
     if version is None:
@@ -245,7 +247,7 @@ def get_blank_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuer
     if version not in available_versions:
         abort(
             404,
-            message=f"Template(id={path.form_template_id}) doesn't have language version = {version}",
+            description=f"Template(id={path.form_template_id}) doesn't have language version = {version}",
         )
         return None
 

@@ -21,7 +21,7 @@ api_readings = APIBlueprint(
 @api_readings.post("")
 def create_reading(body: ReadingValidator):
     if crud.read(PatientOrm, id=body.patient_id) is None:
-        return abort(404, message=f"No Patient found with ID: {body.patient_id}")
+        return abort(404, description=f"No Patient found with ID: {body.patient_id}")
 
     current_user = user_utils.get_current_user_from_jwt()
     user_id = current_user["id"]
@@ -34,7 +34,7 @@ def create_reading(body: ReadingValidator):
             name=body.referral.health_facility_name,
         )
         if health_facility is None:
-            return abort(404, message="Health facility does not exist")
+            return abort(404, description="Health facility does not exist")
         UTCTime = str(round(time.time() * 1000))
         crud.update(
             HealthFacilityOrm,
@@ -55,7 +55,7 @@ def create_reading(body: ReadingValidator):
     reading = marshal.unmarshal(ReadingOrm, new_reading_dict)
 
     if crud.read(ReadingOrm, id=reading.id):
-        return abort(409, message=f"A reading already exists with id: {reading.id}")
+        return abort(409, description=f"A reading already exists with id: {reading.id}")
 
     invariant.resolve_reading_invariants(reading)
     crud.create(reading, refresh=True)
@@ -67,5 +67,5 @@ def create_reading(body: ReadingValidator):
 def get_reading(path: ReadingIdPath):
     reading = crud.read(ReadingOrm, reading_id=path.reading_id)
     if reading is None:
-        return abort(404, message=f"No reading with ID: {path.reading_id}")
+        return abort(404, description=f"No reading with ID: {path.reading_id}")
     return marshal.marshal(reading)

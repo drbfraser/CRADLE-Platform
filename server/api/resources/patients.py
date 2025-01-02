@@ -59,7 +59,7 @@ def get_all_unarchived_patients(query: SearchFilterQueryParams):
 def create_patient(body: PatientPostValidator):
     patient_id = body.id
     if crud.read(PatientOrm, id=patient_id):
-        return abort(409, message=f"A patient already exists with ID: {patient_id}")
+        return abort(409, description=f"A patient already exists with ID: {patient_id}")
 
     new_patient = body.model_dump()
     patient = marshal.unmarshal(PatientOrm, new_patient)
@@ -103,7 +103,7 @@ def create_patient(body: PatientPostValidator):
 def get_patient(path: PatientIdPath):
     patient = crud.read_patients(path.patient_id)
     if patient is None:
-        return abort(404, message=patient_not_found_message.format(path.patient_id))
+        return abort(404, description=patient_not_found_message.format(path.patient_id))
 
     readings = crud.read_readings(path.patient_id)
     referrals = crud.read_referrals_or_assessments(ReferralOrm, path.patient_id)
@@ -118,7 +118,7 @@ def get_patient(path: PatientIdPath):
 def get_patient_info(path: PatientIdPath):
     patient = crud.read(PatientOrm, id=path.patient_id)
     if not patient:
-        return abort(404, message=patient_not_found_message.format(path.patient_id))
+        return abort(404, description=patient_not_found_message.format(path.patient_id))
     return marshal.marshal(patient, shallow=True)
 
 
@@ -138,10 +138,12 @@ def update_patient_info(path: PatientIdPath, body: PatientPutValidator):
     if base:
         patient = crud.read(PatientOrm, id=path.patient_id)
         if patient is None:
-            return abort(404, message=patient_not_found_message.format(path.patient_id))
+            return abort(
+                404, description=patient_not_found_message.format(path.patient_id)
+            )
         last_edited = patient.last_edited
         if base != last_edited:
-            return abort(409, message="Unable to merge changes, conflict detected")
+            return abort(409, description="Unable to merge changes, conflict detected")
 
         # Delete the `base` field once we are done with it as to not confuse the
         # ORM as there is no "base" column in the database for patients.
@@ -150,7 +152,7 @@ def update_patient_info(path: PatientIdPath, body: PatientPutValidator):
     crud.update(PatientOrm, update_patient, id=path.patient_id)
     patient = crud.read(PatientOrm, id=path.patient_id)
     if patient is None:
-        return abort(404, message=patient_not_found_message.format(path.patient_id))
+        return abort(404, description=patient_not_found_message.format(path.patient_id))
 
     # Update the patient's last_edited timestamp only if there was no `base` field
     # in the request JSON. If there was then that means that this edit happened some
@@ -170,7 +172,7 @@ def update_patient_info(path: PatientIdPath, body: PatientPutValidator):
 def get_patient_stats(path: PatientIdPath):
     patient = crud.read(PatientOrm, id=path.patient_id)
     if patient is None:
-        return abort(404, message=patient_not_found_message.format(path.patient_id))
+        return abort(404, description=patient_not_found_message.format(path.patient_id))
 
     today = date.today()
     current_year = today.year
@@ -260,7 +262,7 @@ def get_patient_stats(path: PatientIdPath):
 def get_patient_readings(path: PatientIdPath):
     patient = crud.read(PatientOrm, id=path.patient_id)
     if patient is None:
-        return abort(404, message=patient_not_found_message.format(path.patient_id))
+        return abort(404, description=patient_not_found_message.format(path.patient_id))
     return [marshal.marshal(r) for r in patient.readings]
 
 
@@ -269,7 +271,7 @@ def get_patient_readings(path: PatientIdPath):
 def get_patient_most_recent_reading(path: PatientIdPath):
     patient = crud.read(PatientOrm, id=path.patient_id)
     if patient is None:
-        return abort(404, message=patient_not_found_message.format(path.patient_id))
+        return abort(404, description=patient_not_found_message.format(path.patient_id))
     readings = [marshal.marshal(r) for r in patient.readings]
     if len(readings) == 0:
         return []
@@ -287,7 +289,7 @@ def get_patient_most_recent_reading(path: PatientIdPath):
 def get_patient_referrals(path: PatientIdPath):
     patient = crud.read(PatientOrm, id=path.patient_id)
     if patient is None:
-        return abort(404, message=patient_not_found_message.format(path.patient_id))
+        return abort(404, description=patient_not_found_message.format(path.patient_id))
     return [marshal.marshal(ref) for ref in patient.referrals]
 
 
@@ -296,7 +298,7 @@ def get_patient_referrals(path: PatientIdPath):
 def get_patient_forms(path: PatientIdPath):
     patient = crud.read(PatientOrm, id=path.patient_id)
     if patient is None:
-        return abort(404, message=patient_not_found_message.format(path.patient_id))
+        return abort(404, description=patient_not_found_message.format(path.patient_id))
     return [marshal.marshal(form, True) for form in patient.forms]
 
 
@@ -347,7 +349,7 @@ def create_reading_with_assessment(body: CreateReadingWithAssessmentBody):
     new_reading = marshal.unmarshal(ReadingOrm, reading.model_dump())
 
     if crud.read(ReadingOrm, id=new_reading.id):
-        return abort(409, message=f"A reading already exists with id: {reading.id}")
+        return abort(409, description=f"A reading already exists with id: {reading.id}")
 
     invariant.resolve_reading_invariants(new_reading)
 

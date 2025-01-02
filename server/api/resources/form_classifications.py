@@ -35,11 +35,11 @@ def create_form_classification(body: ClassificationValidator):
     # because it relies on the database, which the unit tests do not have access to (Issue #689)
     if body.id is not None:
         if crud.read(FormClassificationOrm, id=body.id):
-            return abort(409, message="Form classification already exists.")
+            return abort(409, description="Form classification already exists.")
     if crud.read(FormClassificationOrm, id=body.name):
         return abort(
             409,
-            message="Form classification with the same name already exists.",
+            description="Form classification with the same name already exists.",
         )
 
     new_form_classification_dict = body.model_dump()
@@ -63,7 +63,7 @@ def get_form_classification(path: FormClassificationIdPath):
     if form_classification is None:
         return abort(
             400,
-            message=f"No form classification with ID: {path.form_classification_id}",
+            description=f"No form classification with ID: {path.form_classification_id}",
         )
 
     return marshal.marshal(form_classification), 200
@@ -85,7 +85,7 @@ def update_form_classification_name(
     if form_classification is None:
         return abort(
             404,
-            message=f"No form classification with ID: {path.form_classification_id}",
+            description=f"No form classification with ID: {path.form_classification_id}",
         )
 
     if body.name is not None:

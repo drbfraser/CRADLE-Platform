@@ -258,7 +258,7 @@ def sync_readings(query: LastSyncQueryParam, body: SyncReadingsBody):
             try:
                 ReadingValidator.validate(mobile_reading_dict)
             except ValidationExceptionError as e:
-                return abort(400, message=str(e))
+                return abort(400, description=str(e))
             reading = marshal.unmarshal(ReadingOrm, mobile_reading_dict)
             invariant.resolve_reading_invariants(reading)
             crud.create(reading, refresh=True)
@@ -294,7 +294,7 @@ def sync_referrals(query: LastSyncQueryParam, body: SyncReferralsBody):
         try:
             ReferralEntityValidator.validate(mobile_referral_dict)
         except ValidationExceptionError as e:
-            return abort(400, message=str(e))
+            return abort(400, description=str(e))
         referral = marshal.unmarshal(ReferralOrm, mobile_referral_dict)
         crud.create(referral, refresh=True)
 

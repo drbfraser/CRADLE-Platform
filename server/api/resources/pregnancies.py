@@ -33,7 +33,7 @@ def create_patient_pregnancy(path: PatientIdPath, body: PregnancyPostRequestVali
         if crud.read(PregnancyOrm, id=pregnancy_id):
             return abort(
                 409,
-                message=f"A pregnancy record with ID {pregnancy_id} already exists.",
+                description=f"A pregnancy record with ID {pregnancy_id} already exists.",
             )
 
     _check_conflicts(body.start_date, body.end_date, path.patient_id)
@@ -66,9 +66,9 @@ def update_pregnancy(path: PregnancyIdPath, body: PregnancyPutRequestValidator):
 
     pregnancy = crud.read(PregnancyOrm, id=path.pregnancy_id)
     if pregnancy is None:
-        return abort(404, message="No pregnancy found.")
+        return abort(404, description="No pregnancy found.")
     if body.patient_id != pregnancy.patient_id:
-        return abort(400, message="Patient ID cannot be changed.")
+        return abort(400, description="Patient ID cannot be changed.")
     if body.start_date is None:
         body.start_date = int(pregnancy.start_date)
 
@@ -103,12 +103,12 @@ def _check_conflicts(
         pregnancy_id,
     ):
         return abort(
-            409, message="A conflict with existing pregnancy records occurred."
+            409, description="A conflict with existing pregnancy records occurred."
         )
 
 
 def _get_pregnancy(pregnancy_id: int):
     pregnancy = crud.read(PregnancyOrm, id=pregnancy_id)
     if pregnancy is None:
-        return abort(404, message=f"No pregnancy record with ID: {pregnancy_id}")
+        return abort(404, description=f"No pregnancy record with ID: {pregnancy_id}")
     return pregnancy

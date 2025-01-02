@@ -155,7 +155,7 @@ def get_form_mobile(path: GetFormMobilePath):
     if form is None:
         return abort(
             404,
-            message=f"No forms for Patient with ID: {path.patient_id} and Form Template with ID: {path.form_template_id}",
+            description=f"No forms for Patient with ID: {path.patient_id} and Form Template with ID: {path.form_template_id}",
         )
 
     return marshal.marshal(form, False)

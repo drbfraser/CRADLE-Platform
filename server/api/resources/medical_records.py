@@ -41,7 +41,7 @@ def create_medical_record(path: PatientIdPath, body: MedicalRecordValidator):
         if crud.read(MedicalRecordOrm, id=body.id) is not None:
             return abort(
                 409,
-                message=f"A medical record with ID {body.id} already exists.",
+                description=f"A medical record with ID {body.id} already exists.",
             )
 
     body.patient_id = path.patient_id
@@ -75,10 +75,10 @@ def update_medical_record(path: RecordIdPath, body: MedicalRecordValidator):
 
     old_record = crud.read(MedicalRecordOrm, id=path.record_id)
     if old_record is None:
-        return abort(404, message=f"No Medical Record with ID: {path.record_id}")
+        return abort(404, description=f"No Medical Record with ID: {path.record_id}")
 
     if body.patient_id != old_record.patient_id:
-        return abort(400, message="Patient ID cannot be changed.")
+        return abort(400, description="Patient ID cannot be changed.")
 
     _process_request_body(update_medical_record)
     crud.update(MedicalRecordOrm, update_medical_record, id=path.record_id)
@@ -110,5 +110,5 @@ def _process_request_body(request_body):
 def _get_medical_record(record_id):
     record = crud.read(MedicalRecordOrm, id=record_id)
     if record is None:
-        return abort(404, message=f"No medical record with ID: {record_id}")
+        return abort(404, description=f"No medical record with ID: {record_id}")
     return record

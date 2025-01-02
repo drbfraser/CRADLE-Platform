@@ -73,7 +73,7 @@ def get_facility(path: FacilityNamePath, query: GetFacilityQuery):
     facility_name = path.health_facility_name
     facility = crud.read(HealthFacilityOrm, name=facility_name)
     if facility is None:
-        return abort(404, message=f"Facility ({facility_name}) not found.")
+        return abort(404, description=f"Facility ({facility_name}) not found.")
 
     if query.new_referrals:
         if facility is not None:

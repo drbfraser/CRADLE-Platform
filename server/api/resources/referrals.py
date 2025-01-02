@@ -55,7 +55,7 @@ def create_referral(body: ReferralEntityValidator):
     )
 
     if health_facility is None:
-        return abort(404, message="Health facility does not exist.")
+        return abort(404, description="Health facility does not exist.")
     UTCTime = str(round(time.time() * 1000))
     crud.update(
         HealthFacilityOrm,
@@ -69,7 +69,7 @@ def create_referral(body: ReferralEntityValidator):
 
     patient = crud.read(PatientOrm, id=body.patient_id)
     if patient is None:
-        return abort(404, message="Patient does not exist.")
+        return abort(404, description="Patient does not exist.")
 
     referral = marshal.unmarshal(ReferralOrm, body.model_dump())
 
@@ -88,7 +88,7 @@ def create_referral(body: ReferralEntityValidator):
 def get_referral(path: ReferralIdPath):
     referral = crud.read(ReferralOrm, id=path.referral_id)
     if referral is None:
-        return abort(404, message=f"No Referral with ID: {path.referral_id}")
+        return abort(404, description=f"No Referral with ID: {path.referral_id}")
     return marshal.marshal(referral)
 
 
@@ -97,7 +97,7 @@ def get_referral(path: ReferralIdPath):
 def update_referral_assess(path: ReferralIdPath):
     referral = crud.read(ReferralOrm, id=path.referral_id)
     if referral is None:
-        return abort(404, message=f"No Referral with ID: {path.referral_id}")
+        return abort(404, description=f"No Referral with ID: {path.referral_id}")
 
     if not referral.is_assessed:
         referral.is_assessed = True
@@ -112,7 +112,7 @@ def update_referral_assess(path: ReferralIdPath):
 @api_referrals.put("/cancel-status-switch/<string:referral_id>")
 def update_referral_cancel_status(path: ReferralIdPath, body: CancelStatusValidator):
     if crud.read(ReferralOrm, id=path.referral_id) is None:
-        return abort(404, message=f"No referral with ID: {path.referral_id}")
+        return abort(404, description=f"No referral with ID: {path.referral_id}")
 
     cancel_status_model_dump = body.model_dump()
 
@@ -136,7 +136,7 @@ def update_referral_cancel_status(path: ReferralIdPath, body: CancelStatusValida
 def update_referral_not_attend(path: ReferralIdPath, body: NotAttendValidator):
     referral = crud.read(ReferralOrm, id=path.referral_id)
     if referral is None:
-        return abort(404, message=f"No referral with id {path.referral_id}")
+        return abort(404, description=f"No referral with id {path.referral_id}")
 
     not_attend_model_dump = body.model_dump()
     if not referral.not_attended:

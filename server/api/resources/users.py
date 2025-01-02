@@ -84,14 +84,14 @@ def get_all_vhts():
 @roles_required([RoleEnum.ADMIN])
 def change_password_admin(path: UserIdPath):
     # TODO: Reimplement this with the new authentication system.
-    return abort(500, message="This endpoint has not yet been implemented.")
+    return abort(500, description="This endpoint has not yet been implemented.")
 
 
 # /api/user/current/change_pass [POST]
 @api_users.post("/current/change_pass")
 def change_password_current_user():
     # TODO: Reimplement this with the new authentication system.
-    return abort(500, message="This endpoint has not yet been implemented.")
+    return abort(500, description="This endpoint has not yet been implemented.")
 
 
 # api/user/register [POST]
@@ -107,7 +107,7 @@ def register_user(body: UserRegisterValidator):
     except ValueError as e:
         error_message = str(e)
         LOGGER.error(error_message)
-        return abort(400, message=error_message)
+        return abort(400, description=error_message)
 
     return user_utils.get_user_dict_from_username(body.username), 200
 
@@ -139,11 +139,11 @@ def authenticate(body: UserAuthValidator):
     except ClientError as err:
         error = err.response.get("Error")
         LOGGER.error(error)
-        return abort(401, message=error)
+        return abort(401, description=error)
     except ValueError as err:
         error = str(err)
         LOGGER.error(error)
-        return abort(401, message=error)
+        return abort(401, description=error)
     # If no exception was raised, then authentication was successful.
 
     # Get user data from database.
@@ -156,7 +156,7 @@ def authenticate(body: UserAuthValidator):
             "ERROR: Something has gone wrong. User authentication succeeded but username (%s) is not found in database.",
             body.username,
         )
-        return abort(500, message=err)
+        return abort(500, description=err)
 
     # Don't include refresh token in body of response.
     refresh_token = auth_result["refresh_token"]
@@ -198,7 +198,7 @@ def refresh_access_token(body: RefreshTokenApiBody):
     except ValueError as err:
         error = str(err)
         LOGGER.error(error)
-        return abort(401, message=error)
+        return abort(401, description=error)
     return {"access_token": new_access_token}, 200
 
 
@@ -222,7 +222,7 @@ def edit_user(path: UserIdPath, body: UserValidator):
     except ValueError as e:
         error_message = str(e)
         LOGGER.error(error_message)
-        return abort(400, message=error_message)
+        return abort(400, description=error_message)
     return user_utils.get_user_dict_from_id(path.user_id), 200
 
 
@@ -234,7 +234,7 @@ def get_user(path: UserIdPath):
     except ValueError as err:
         error_message = str(err)
         LOGGER.error(error_message)
-        return abort(404, message=error_message)
+        return abort(404, description=error_message)
     return user_dict, 200
 
 
@@ -247,14 +247,14 @@ def delete_user(path: UserIdPath):
     if user is None:
         error = no_user_found_message
         LOGGER.error(error)
-        return abort(400, message=error)
+        return abort(400, description=error)
 
     try:
         user_utils.delete_user(user.username)
     except ValueError as err:
         error = str(err)
         LOGGER.error(error)
-        return abort(400, message=error)
+        return abort(400, description=error)
 
     return {"message": "User deleted."}, 200
 
@@ -271,7 +271,7 @@ class UserPhoneNumbers(CradleBaseModel):
 def get_users_phone_numbers(path: UserIdPath):
     # Check if user exists.
     if not user_utils.does_user_exist(path.user_id):
-        return abort(404, message=no_user_found_message)
+        return abort(404, description=no_user_found_message)
     phone_numbers = phone_number_utils.get_users_phone_numbers(path.user_id)
     return {"phone_numbers": phone_numbers}, 200
 
@@ -282,7 +282,7 @@ def get_users_phone_numbers(path: UserIdPath):
 def update_users_phone_numbers(path: UserIdPath, body: UserPhoneNumbers):
     # Check if user exists.
     if not user_utils.does_user_exist(path.user_id):
-        return abort(404, message=no_user_found_message)
+        return abort(404, description=no_user_found_message)
     phone_numbers: set[str] = {str(phone_number) for phone_number in body.phone_numbers}
     try:
         user_utils.update_user_phone_numbers(path.user_id, phone_numbers)
@@ -305,7 +305,7 @@ def get_users_sms_key(path: UserIdPath):
 
     sms_key = user_utils.get_user_sms_secret_key_formatted(path.user_id)
     if sms_key is None:
-        return abort(424, message="NOTFOUND")
+        return abort(424, description="NOTFOUND")
     return sms_key, 200
 
 
@@ -322,7 +322,7 @@ def update_users_sms_key(path: UserIdPath):
         )
     sms_key = user_utils.get_user_sms_secret_key_formatted(path.user_id)
     if sms_key is None:
-        return abort(424, message="NOTFOUND")
+        return abort(424, description="NOTFOUND")
 
     # Create new key.
     new_key = user_utils.update_sms_secret_key_for_user(path.user_id)
@@ -370,7 +370,7 @@ def is_relay_phone_number(body: RelayPhoneNumber):
         return {"message": "YES"}, 200
     if phone_relay_stat == 0:
         return {"message": "NO"}, 200
-    return abort(403, message="Permission denied.")
+    return abort(403, description="Permission denied.")
 
 
 # api/phone/relays [GET]
@@ -378,5 +378,5 @@ def is_relay_phone_number(body: RelayPhoneNumber):
 def get_all_relay_phone_numbers():
     relay_phone_numbers = crud.get_all_relay_phone_numbers()
     if relay_phone_numbers is None:
-        return abort(403, message="Permission denied.")
+        return abort(403, description="Permission denied.")
     return {"phone_numbers": relay_phone_numbers}, 200

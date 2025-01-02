@@ -36,7 +36,7 @@ def create_assessment(body: AssessmentValidator):
 def get_assessment(path: AssessmentIdPath):
     assessment = crud.read(AssessmentOrm, id=path.assessment_id)
     if assessment is None:
-        return abort(404, message=f"No assessment with ID: {path.assessment_id}")
+        return abort(404, description=f"No assessment with ID: {path.assessment_id}")
 
     return marshal.marshal(assessment)
 
@@ -46,7 +46,7 @@ def get_assessment(path: AssessmentIdPath):
 def update_assessment(path: AssessmentIdPath, body: AssessmentValidator):
     old_assessment = crud.read(AssessmentOrm, id=path.assessment_id)
     if old_assessment is None:
-        return abort(404, message=f"No assessment with id: {path.assessment_id}")
+        return abort(404, description=f"No assessment with id: {path.assessment_id}")
 
     """ 
     TODO: We should probably reconsider how we are handling updating assessments.

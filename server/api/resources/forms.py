@@ -27,23 +27,25 @@ api_form_submissions = APIBlueprint(
 def submit_form(body: FormValidator):
     if body.id is not None:
         if crud.read(FormOrm, id=body.id):
-            return abort(409, message="Form already exists.")
+            return abort(409, description="Form already exists.")
 
     patient = crud.read(PatientOrm, id=body.patient_id)
     if patient is None:
-        return abort(404, message="Patient does not exist.")
+        return abort(404, description="Patient does not exist.")
 
     if body.form_template_id is not None:
         form_template = crud.read(FormTemplateOrm, id=body.form_template_id)
         if form_template is None:
-            return abort(404, message="Form template does not exist.")
+            return abort(404, description="Form template does not exist.")
         if form_template.form_classification_id != body.form_classification_id:
-            return abort(400, message="Form classification does not match template.")
+            return abort(
+                400, description="Form classification does not match template."
+            )
 
     if body.last_edited_by is not None:
         user = crud.read(UserOrm, id=body.last_edited_by)
         if user is None:
-            return abort(404, message="User does not exist.")
+            return abort(404, description="User does not exist.")
     else:
         current_user = user_utils.get_current_user_from_jwt()
         user_id = int(current_user["id"])
@@ -67,7 +69,7 @@ def submit_form(body: FormValidator):
 def get_form(path: FormIdPath):
     form = crud.read(FormOrm, id=path.form_id)
     if form is None:
-        return abort(404, message=f"No form with ID: {path.form_id}.")
+        return abort(404, description=f"No form with ID: {path.form_id}.")
 
     return marshal.marshal(form, False)
 
@@ -77,7 +79,7 @@ def get_form(path: FormIdPath):
 def update_form(path: FormIdPath, body: FormPutValidator):
     form = crud.read(FormOrm, id=path.form_id)
     if form is None:
-        return abort(404, message=f"No form with id {path.form_id}")
+        return abort(404, description=f"No form with id {path.form_id}")
 
     update_form = body.model_dump()
 
@@ -90,7 +92,7 @@ def update_form(path: FormIdPath, body: FormPutValidator):
         if question_id not in question_ids:
             return abort(
                 404,
-                message=f"Request question id={question_id} does not exist in server.",
+                description=f"Request question id={question_id} does not exist in server.",
             )
         answers = json.dumps(question["answers"])
         if answers != questions_dict[question_id].answers:

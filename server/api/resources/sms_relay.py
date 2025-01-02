@@ -95,19 +95,19 @@ def relay_sms_request(body: SmsRelayValidator):
     phone_number = body.phone_number
     phone_number_exists = phone_number_utils.does_phone_number_exist(phone_number)
     if not phone_number_exists:
-        return abort(400, message=phone_number_not_exists.format(type="JSON"))
+        return abort(400, description=phone_number_not_exists.format(type="JSON"))
 
     # Get user id for the user that phone_number belongs to
     user = user_utils.get_user_orm_from_phone_number(phone_number)
 
     if user is None:
-        return abort(404, message=invalid_user.format(type="JSON"))
+        return abort(404, description=invalid_user.format(type="JSON"))
 
     encrypted_data = body.encrypted_data
 
     user_secret_key = user_utils.get_user_sms_secret_key_string(user.id)
     if user_secret_key is None:
-        return abort(400, message="Could not retrieve user's SMS Secret Key.")
+        return abort(400, description="Could not retrieve user's SMS Secret Key.")
 
     try:
         decrypted_message = encryptor.decrypt(encrypted_data, user_secret_key)
@@ -117,7 +117,7 @@ def relay_sms_request(body: SmsRelayValidator):
     except Exception:
         error_message = str(invalid_message.format(phone_number=phone_number))
         print(error_message)
-        return abort(401, message=error_message)
+        return abort(401, description=error_message)
 
     try:
         decrypted_data = SmsRelayDecryptedBodyValidator(**json_dict_data)

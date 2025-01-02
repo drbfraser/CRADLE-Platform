@@ -37,7 +37,7 @@ def upload_apk_file(form: FileUpload):
     file = form.file
 
     if not is_allowed_file(file.filename):
-        return abort(422, message="File not allowed")
+        return abort(422, description="File not allowed")
 
     file.save(
         os.path.join(current_app.config["UPLOAD_FOLDER"], "cradle_sms_relay.apk"),

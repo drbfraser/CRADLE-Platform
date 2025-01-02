@@ -39,7 +39,7 @@ def create_relay_phone_number(body: RelayServerPhone):
     phone_number = server_details.phone_number
     if crud.read(RelayServerPhoneNumberOrm, phone_number=phone_number):
         return abort(
-            409, message=f"An SMS Relay Server is already using {phone_number}"
+            409, description=f"An SMS Relay Server is already using {phone_number}"
         )
 
     crud.create(server_details, refresh=True)

@@ -110,7 +110,7 @@ def get_facility_stats(path: FacilityNamePath, query: TimestampValidator):
         current_user["role"] == RoleEnum.HCW.value
         and current_user["health_facility_name"] != path.health_facility_name
     ):
-        return abort(401, message="Unauthorized to view this facility")
+        return abort(401, description="Unauthorized to view this facility")
     filter = query.model_dump()
     response = query_stats_data(filter, facility_id=path.health_facility_name)
     return response, 200
