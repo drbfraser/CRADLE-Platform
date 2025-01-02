@@ -10,11 +10,10 @@ MYSQL_BIGINT_MAX = (2**63) - 1
 
 
 class TimestampValidator(CradleBaseModel):
-    from_: Optional[str] = Field(
-        alias="from",
-        default="0",
+    from_: Optional[int] = Field(
+        default=0, alias="from"
     )  # Use from_ to avoid conflict with Python's reserved keyword 'from'
-    to: Optional[str] = Field(
+    to: Optional[int] = Field(
         default=str(MYSQL_BIGINT_MAX),
     )
 
@@ -27,8 +26,8 @@ class TimestampValidator(CradleBaseModel):
         Args:
             request_body (dict): The request body containing timestamps. Example payload:
                 {
-                    "from": "1546702448",
-                    "to": "1547212259"
+                    "from": 1546702448,
+                    "to": 1547212259
                 }
         :throw: An error if the request body is invalid. None otherwise
         :return pydantic model representation of the request body param
