@@ -1,7 +1,9 @@
 from typing import List, Optional
 
-from pydantic import StrictBool, ValidationError
+from pydantic import Field, StrictBool, ValidationError, model_validator
+from typing_extensions import Self
 
+from utils import get_current_time
 from validation import CradleBaseModel
 from validation.questions import FormQuestionPutValidator, FormQuestionValidator
 from validation.validation_exception import ValidationExceptionError
@@ -14,27 +16,18 @@ class FormValidator(CradleBaseModel, extra="forbid"):
     id: Optional[str] = None
     form_template_id: Optional[str] = None
     form_classification_id: Optional[str] = None
-    date_created: Optional[int] = None
-    last_edited: Optional[int] = None
+    date_created: int
+    last_edited: Optional[int] = Field(default_factory=get_current_time)
     last_edited_by: Optional[int] = None
     archived: Optional[StrictBool] = None
 
-    @staticmethod
-    def validate_date_sequence(request_body: dict):
-        if (
-            "date_created" in request_body
-            and request_body.get("date_created") is not None
-            and isinstance(request_body.get("date_created"), int)
-            and "last_edited" in request_body
-            and request_body.get("last_edited") is not None
-            and isinstance(request_body.get("last_edited"), int)
-        ):
-            start_date = request_body["date_created"]
-            end_date = request_body["last_edited"]
-            if start_date > end_date:
-                raise ValidationExceptionError(
-                    "Form created date must occur before its last edited date.",
-                )
+    @model_validator(mode="after")
+    def validate_date_sequence(self) -> Self:
+        if self.last_edited is not None and self.last_edited < self.date_created:
+            raise ValueError(
+                "last_edited cannot be before date_created.",
+            )
+        return self
 
     @staticmethod
     def validate(request_body: dict):
@@ -44,7 +37,6 @@ class FormValidator(CradleBaseModel, extra="forbid"):
 
         :param request_body: The request body as a dict object
         """
-        FormValidator.validate_date_sequence(request_body)
         try:
             return FormValidator(**request_body)
         except ValidationError as e:

@@ -2,12 +2,11 @@ import pytest
 from pydantic import ValidationError
 
 from validation.pregnancies import (
-    PregnancyModel,
     PregnancyPostRequestValidator,
     PregnancyPutRequestValidator,
 )
 
-PATIENT_ID = 120000
+PATIENT_ID = "120000"
 
 # unix epoch code for January 1, 2020 12:00:00 AM
 PREGNANCY_START_DATE = 1577865600
@@ -104,7 +103,7 @@ pregnancy_put_request_with_valid_fields_should_return_none = {
     "outcome": "Mode of delivery assisted birth",
 }
 
-pregnancy_put_missing_optional_field_pregnancy_start_date_should_return_none = {
+pregnancy_put_missing_field_start_date_should_throw_exception = {
     "patient_id": PATIENT_ID,
     "end_date": PREGNANCY_END_DATE,
     "outcome": "Mode of delivery assisted birth",
@@ -112,7 +111,7 @@ pregnancy_put_missing_optional_field_pregnancy_start_date_should_return_none = {
 
 pregnancy_put_field_pregnancy_start_date_has_invalid_type_should_throw_exception = {
     "patient_id": PATIENT_ID,
-    "start_date": "temp",
+    "start_date": "not an int",
     "end_date": PREGNANCY_END_DATE,
     "outcome": "Mode of delivery assisted birth",
 }
@@ -147,8 +146,8 @@ pregnancy_put_id_unmatch_patient_id_should_throw_exception = {
             type(None),
         ),
         (
-            pregnancy_put_missing_optional_field_pregnancy_start_date_should_return_none,
-            type(None),
+            pregnancy_put_missing_field_start_date_should_throw_exception,
+            ValidationError,
         ),
         (
             pregnancy_put_field_pregnancy_start_date_has_invalid_type_should_throw_exception,
@@ -177,29 +176,3 @@ def test_validate_put_request(json, output_type):
             PregnancyPutRequestValidator(**json)
         except ValidationError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e
-
-
-valid_empty_list = []
-valid_subset_list = ["id", "patient_id"]
-invalid_extra_key_list = ["test"]
-invalid_extra_key_subset_list = ["id", "test"]
-
-
-@pytest.mark.parametrize(
-    "json, output_type",
-    [
-        (valid_empty_list, type(None)),
-        (valid_subset_list, type(None)),
-        (invalid_extra_key_list, ValidationError),
-        (invalid_extra_key_subset_list, ValidationError),
-    ],
-)
-def test_validate(json, output_type):
-    if type(output_type) is type and issubclass(output_type, Exception):
-        with pytest.raises(output_type):
-            PregnancyModel(**json)
-    else:
-        try:
-            PregnancyModel(**json)
-        except ValidationError as e:
-            raise AssertionError(f"Unexpected validation error: {e}") from e

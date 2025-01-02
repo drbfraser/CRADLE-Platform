@@ -6,7 +6,7 @@ from validation.readings import ReadingValidator
 READING_ID = "asdasd82314278226313803"
 PATIENT_ID = "123456"
 SOME_INTEGER = 120
-LIST_OF_SYMPTOMS = ["Headache,Blurred vision,Bleeding,sleepy"]
+LIST_OF_SYMPTOMS = ["Headache", "Blurred vision", "Bleeding", "sleepy"]
 # unix epoch code for Monday, January 1, 2024 12:00:00 AM
 TIMESTAMP = 1704067200
 USER_ID = 1

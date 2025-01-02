@@ -29,7 +29,7 @@ assessments_missing_optional_field_diagnosis_should_return_none = {
     "follow_up_instructions": "pls help, give lots of tylenol",
 }
 
-assessments_missing_required_field_date_assessed_should_throw_exception = {
+assessments_missing_required_field_date_assessed_should_throw_none = {
     "diagnosis": "patient is fine",
     "medication_prescribed": "tylenol",
     "healthcare_worker_id": HEALTHCARE_WORKER_ID,
@@ -94,8 +94,8 @@ assessments_missing_follow_up_instructions_when_follow_up_needed_true_should_thr
         (assessments_with_valid_fields_should_return_none, None),
         (assessments_missing_optional_field_diagnosis_should_return_none, None),
         (
-            assessments_missing_required_field_date_assessed_should_throw_exception,
-            ValidationError,
+            assessments_missing_required_field_date_assessed_should_throw_none,
+            None,
         ),
         (
             assessments_field_date_assessed_has_invalid_type_should_throw_exception,

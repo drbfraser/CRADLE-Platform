@@ -1,13 +1,14 @@
 from typing import Optional
 
-from pydantic import Field, ValidationError
+from pydantic import Field, ValidationError, model_validator
+from typing_extensions import Self
 
 from utils import get_current_time
 from validation import CradleBaseModel
 from validation.validation_exception import ValidationExceptionError
 
 
-class PregnancyModel(CradleBaseModel):
+class PregnancyModel(CradleBaseModel, extra="forbid"):
     patient_id: str
     start_date: int
     end_date: Optional[int] = None
@@ -16,30 +17,11 @@ class PregnancyModel(CradleBaseModel):
     last_edited: int = Field(default_factory=get_current_time)
     is_pregnant: Optional[bool] = None
 
-    # use this custom method to validate extra field instead of using config extra forbid so that we have a custom error message
-    @staticmethod
-    def validate_unallowed_fields(request_body: dict):
-        field_dict = PregnancyModel.model_fields
-        for key in request_body:
-            if key not in field_dict:
-                raise ValidationExceptionError(
-                    f"{{{(key)}}} is not a valid key in pregnancy.",
-                )
-
-    @staticmethod
-    def validate_date_sequence(request_body: dict):
-        if (
-            "start_date" in request_body
-            and request_body.get("start_date") is not None
-            and "end_date" in request_body
-            and request_body.get("end_date") is not None
-        ):
-            start_date = request_body["start_date"]
-            end_date = request_body["end_date"]
-            if start_date > end_date:
-                raise ValidationExceptionError(
-                    "Pregnancy end date must occur after the start date.",
-                )
+    @model_validator(mode="after")
+    def validate_date_sequence(self) -> Self:
+        if (self.end_date is not None) and (self.start_date > self.end_date):
+            raise ValueError("Pregnancy end date cannot be before the start date.")
+        return self
 
 
 class PregnancyPostRequestValidator(PregnancyModel):
@@ -70,10 +52,6 @@ class PregnancyPostRequestValidator(PregnancyModel):
             error_message = str(e.errors()[0]["msg"])
             raise ValidationExceptionError(error_message)
 
-        # check for extra fields
-        PregnancyModel.validate_unallowed_fields(request_body)
-        PregnancyModel.validate_date_sequence(request_body)
-
         if (
             "patient_id" in request_body
             and request_body.get("patient_id") != patient_id
@@ -84,8 +62,6 @@ class PregnancyPostRequestValidator(PregnancyModel):
 
 
 class PregnancyPutRequestValidator(PregnancyModel):
-    start_date: Optional[int] = None
-
     @staticmethod
     def validate(request_body: dict, pregnancy_id: int):
         """
@@ -105,9 +81,6 @@ class PregnancyPutRequestValidator(PregnancyModel):
             # Extracts the first error message from the validation errors list
             error_message = str(e.errors()[0]["msg"])
             raise ValidationExceptionError(error_message)
-
-        PregnancyModel.validate_unallowed_fields(request_body)
-        PregnancyModel.validate_date_sequence(request_body)
 
         if "id" in request_body and request_body.get("id") != pregnancy_id:
             raise ValidationExceptionError("Pregnancy ID cannot be changed.")

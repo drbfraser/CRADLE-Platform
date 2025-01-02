@@ -84,6 +84,8 @@ form_with_valid_fields_should_return_none = {
 
 form_missing_optional_fields_should_return_none = {
     "lang": LANGUAGE,
+    "date_created": DATE_CREATED,
+    "last_edited": DATE_LAST_EDITED,
     "patient_id": PATIENT_ID,
     "questions": QUESTION_LIST,
 }

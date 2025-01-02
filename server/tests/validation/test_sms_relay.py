@@ -8,7 +8,7 @@ ENCRYPTED_DATA = "thisdataisencrypted"
 REQUEST_NUMBER = 12345
 METHOD = "GET"
 ENDPOINT = "my/endpoint"
-HEADER = "header example"
+HEADER = {"header": "example"}
 BODY = "body example"
 
 sms_relay_with_valid_fields_should_return_none = {
@@ -37,7 +37,7 @@ sms_relay_field_encrypted_data_has_invalid_type_should_throw_exception = {
 sms_relay_has_invalid_extra_field_should_throw_exception = {
     "phone_number": PHONE_NUMBER,
     "encrypted_data": ENCRYPTED_DATA,
-    "invalid": "invalidkey",
+    "invalid": "invalid_key",
 }
 
 

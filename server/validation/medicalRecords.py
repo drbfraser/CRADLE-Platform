@@ -1,28 +1,29 @@
 from typing import Optional
 
 from pydantic import Field, ValidationError, model_validator
+from typing_extensions import Self
 
 from utils import get_current_time
 from validation import CradleBaseModel
 from validation.validation_exception import ValidationExceptionError
 
 
+# TODO: Separate DrugRecord and MedicalRecord into two different models.
 class MedicalRecordValidator(CradleBaseModel, extra="forbid"):
     id: Optional[int] = None
-    patient_id: Optional[str] = None
+    patient_id: str
     medical_history: Optional[str] = None
     drug_history: Optional[str] = None
     date_created: Optional[int] = Field(default_factory=get_current_time)
     last_edited: Optional[int] = None
 
-    @model_validator(mode="before")
-    @classmethod
-    def validate_histories(cls, values):
-        if not values.get("drug_history") and not values.get("medical_history"):
-            raise ValidationExceptionError(
+    @model_validator(mode="after")
+    def validate_histories(self) -> Self:
+        if self.drug_history is None and self.medical_history is None:
+            raise ValueError(
                 "Either 'medical_history' or 'drug_history' must be present.",
             )
-        return values
+        return self
 
     @staticmethod
     def validate_post_request(request_body: dict, patient_id: str):

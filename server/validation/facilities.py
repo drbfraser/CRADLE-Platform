@@ -4,13 +4,14 @@ from pydantic import ValidationError
 
 from enums import FacilityTypeEnum
 from validation import CradleBaseModel
+from validation.phone_numbers import PhoneNumberE164
 from validation.validation_exception import ValidationExceptionError
 
 
 # Define a Pydantic model for incoming requests
 class FacilityValidator(CradleBaseModel):
     name: str
-    phone_number: Optional[str] = None
+    phone_number: Optional[PhoneNumberE164] = None
     location: Optional[str] = None
     type: Optional[FacilityTypeEnum] = None
     about: Optional[str] = None

@@ -4,7 +4,7 @@ from pydantic import ValidationError
 from validation.medicalRecords import MedicalRecordValidator
 
 ID = 1
-PATIENT_ID = 120000
+PATIENT_ID = "120000"
 MEDICAL_HISTORY = "Pregnancy induced hypertension"
 DRUG_HISTORY = "Test drug history"
 # unix epoch code for January 1, 2020 12:00:00 AM
@@ -29,7 +29,7 @@ medical_record_missing_optional_field_id_should_return_none = {
     "last_edited": DATE_EDITED,
 }
 
-medical_record_missing_optional_field_patient_id_should_return_none = {
+medical_record_missing_field_patient_id_should_throw = {
     "id": ID,
     "medical_history": MEDICAL_HISTORY,
     "drug_history": DRUG_HISTORY,
@@ -76,15 +76,6 @@ medical_record_missing_both_medical_history_and_drug_history_should_throw_except
     "last_edited": DATE_EDITED,
 }
 
-medical_record_with_mismatching_patient_id_should_throw_exception = {
-    "id": ID,
-    "patient_id": PATIENT_ID,
-    "medical_history": MEDICAL_HISTORY,
-    "drug_history": DRUG_HISTORY,
-    "date_created": DATE_CREATED,
-    "last_edited": DATE_EDITED,
-}
-
 medical_record_has_invalid_extra_field_should_throw_exception = {
     "test": "test",
     "id": ID,
@@ -108,8 +99,8 @@ medical_record_has_invalid_extra_field_should_throw_exception = {
             None,
         ),
         (
-            medical_record_missing_optional_field_patient_id_should_return_none,
-            None,
+            medical_record_missing_field_patient_id_should_throw,
+            ValidationError,
         ),
         (
             medical_record_missing_optional_field_medical_history_should_return_none,
@@ -129,10 +120,6 @@ medical_record_has_invalid_extra_field_should_throw_exception = {
         ),
         (
             medical_record_missing_both_medical_history_and_drug_history_should_throw_exception,
-            ValidationError,
-        ),
-        (
-            medical_record_with_mismatching_patient_id_should_throw_exception,
             ValidationError,
         ),
         (
@@ -160,11 +147,7 @@ def test_validate_post_request(json, expectation):
             medical_record_with_valid_fields_should_return_none,
             None,
         ),
-        (medical_record_missing_optional_field_id_should_return_none, None, None),
-        (
-            medical_record_with_mismatching_patient_id_should_throw_exception,
-            ValidationError,
-        ),
+        (medical_record_missing_optional_field_id_should_return_none, None),
         (
             medical_record_missing_both_medical_history_and_drug_history_should_throw_exception,
             ValidationError,
@@ -175,12 +158,12 @@ def test_validate_post_request(json, expectation):
         ),
     ],
 )
-def test_validate_put_request(json, record_id, expectation):
-    if expectation:
+def test_validate_put_request(json, expectation):
+    if expectation is not None:
         with pytest.raises(expectation):
             MedicalRecordValidator(**json)
     else:
         try:
             MedicalRecordValidator(**json)
         except ValidationError as e:
-            raise AssertionError(f"Unexpected validation error:{e}") from e
+            raise AssertionError(f"Unexpected validation error: {e}") from e

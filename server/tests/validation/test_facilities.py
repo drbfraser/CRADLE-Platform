@@ -100,6 +100,14 @@ facility_field_type_is_not_FacilityTypeEnum_should_throw_exception = {
     "type": "wrong FacilityTypeEnum",
 }
 
+facility_invalid_phone_number_should_throw = {
+    "name": FACILITY_NAME,
+    "phone_number": "1234",
+    "location": LOCATION,
+    "about": DESCRIPTION,
+    "type": FACILITY_TYPE,
+}
+
 
 @pytest.mark.parametrize(
     "json, expectation",
@@ -140,6 +148,7 @@ facility_field_type_is_not_FacilityTypeEnum_should_throw_exception = {
             facility_field_type_is_not_FacilityTypeEnum_should_throw_exception,
             ValidationError,
         ),
+        (facility_invalid_phone_number_should_throw, ValidationError),
     ],
 )
 def test_validation(json, expectation):
@@ -150,4 +159,4 @@ def test_validation(json, expectation):
         try:
             FacilityValidator(**json)
         except ValidationError as e:
-            raise AssertionError(f"Unexpected validation error:{e}") from e
+            raise AssertionError(f"Unexpected validation error: {e}") from e

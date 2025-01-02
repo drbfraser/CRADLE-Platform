@@ -1,7 +1,7 @@
 import json
 
 import requests
-from flask import Response, abort, jsonify, make_response, request
+from flask import Response, abort, jsonify, make_response
 from flask_openapi3.blueprint import APIBlueprint
 
 from common import phone_number_utils, user_utils
@@ -52,8 +52,6 @@ def send_request_to_endpoint(
     header: dict,
     body: str,
 ) -> requests.Response:
-    access_token = request.authorization.token
-    header["Authorization"] = f"Bearer {access_token}"
     return requests.request(
         method=method,
         url=api_url.format(endpoint=endpoint),

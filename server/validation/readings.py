@@ -19,7 +19,7 @@ class ReadingValidator(CradleBaseModel):
     date_taken: Optional[int] = None
     user_id: Optional[int] = None
     assessment: Optional[AssessmentValidator] = None
-    referral: Optional[ReferralEntityValidator]
+    referral: Optional[ReferralEntityValidator] = None
 
     @staticmethod
     def validate(request_body: dict):
