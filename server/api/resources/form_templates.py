@@ -49,10 +49,50 @@ class FormTemplateFileUploadForm(FileUploadForm):
     file_type: ContentTypeEnum = Field(..., description="File type.")
 
 
+def handle_form_template_upload(form_template: FormTemplateValidator):
+    """
+    Common logic for handling uploaded form template. Whether it was uploaded
+    as a file, or in the request body.
+    """
+    new_form_template = form_template.model_dump()
+
+    # FormClassification is basically the name of the FormTemplate. FormTemplates can have multiple versions, and the FormClassification is used to group different versions of the same FormTemplate.
+    classification = crud.read(
+        FormClassificationOrm,
+        name=form_template.classification.name,
+    )
+    if classification is not None:
+        if crud.read(
+            FormTemplateOrm,
+            form_classification_id=classification.id,
+            version=form_template.version,
+        ):
+            return abort(
+                409,
+                description="Form template with the same version already exists - change the version to upload",
+            )
+
+        del new_form_template["classification"]
+        new_form_template["form_classification_id"] = classification.id
+        previous_template = crud.read(
+            FormTemplateOrm,
+            form_classification_id=classification.id,
+            archived=False,
+        )
+        if previous_template is not None:
+            previous_template.archived = True
+            data.db_session.commit()
+
+    util.assign_form_or_template_ids(FormTemplateOrm, new_form_template)
+    form_template = marshal.unmarshal(FormTemplateOrm, new_form_template)
+    crud.create(form_template, refresh=True)
+    return marshal.marshal(form_template, shallow=True), 201
+
+
 # /api/forms/templates [POST]
 @api_form_templates.post("")
 @roles_required([RoleEnum.ADMIN])
-def create_form_template(form: FormTemplateFileUploadForm):
+def upload_form_template_file(form: FormTemplateFileUploadForm):
     file_contents = {}
     file = form.file
     file_str = str(file.stream.read(), "utf-8")
@@ -74,47 +114,18 @@ def create_form_template(form: FormTemplateFileUploadForm):
                 400,
                 description="Something went wrong while parsing the CSV file.",
             )
-    form_template_model = FormTemplateValidator(**file_contents)
-    new_form_template = form_template_model.model_dump()
+    form_template = FormTemplateValidator(**file_contents)
+    return handle_form_template_upload(form_template)
 
-    classification = crud.read(
-        FormClassificationOrm,
-        name=form_template_model.classification.name,
-    )
 
-    # FormClassification is basically the name of the FormTemplate. FormTemplates can have multiple versions, and the FormClassification is used to group different versions of the same FormTemplate.
-    if classification is not None:
-        if crud.read(
-            FormTemplateOrm,
-            form_classification_id=classification.id,
-            version=new_form_template["version"],
-        ):
-            abort(
-                409,
-                description="Form template with the same version already exists - change the version to upload",
-            )
-
-        del new_form_template["classification"]
-
-        new_form_template["form_classification_id"] = classification.id
-
-        previous_template = crud.read(
-            FormTemplateOrm,
-            form_classification_id=classification.id,
-            archived=False,
-        )
-
-        if previous_template is not None:
-            previous_template.archived = True
-            data.db_session.commit()
-
-    util.assign_form_or_template_ids(FormTemplateOrm, new_form_template)
-
-    form_template = marshal.unmarshal(FormTemplateOrm, new_form_template)
-
-    crud.create(form_template, refresh=True)
-
-    return marshal.marshal(form_template, shallow=True), 201
+# /api/forms/templates/body [POST]
+@api_form_templates.post("/body")
+@roles_required([RoleEnum.ADMIN])
+def upload_form_template_body(body: FormTemplateValidator):
+    """
+    Upload form template through request body, rather than as a file.
+    """
+    return handle_form_template_upload(body)
 
 
 # /api/forms/templates/<string:form_template_id>/versions [GET]
