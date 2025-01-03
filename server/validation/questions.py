@@ -84,7 +84,6 @@ class QuestionLangVersionValidator(CradleBaseModel, extra="forbid"):
 class QuestionBase(CradleBaseModel, use_enum_values=True):
     question_index: Annotated[int, Field(strict=True, ge=0)]  # Non-negative index
     question_type: QuestionTypeEnum
-    question_id: Optional[str] = None
     required: Optional[bool] = None
     allow_past_dates: Optional[bool] = None
     allow_future_dates: Optional[bool] = None

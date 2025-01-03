@@ -594,7 +594,6 @@ class QuestionOrm(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     is_blank = db.Column(db.Boolean, nullable=False, default=0)
     question_index = db.Column(db.Integer, nullable=False)
-    question_id = db.Column(db.Text, nullable=True)
     question_text = db.Column(
         db.Text(collation="utf8mb4_general_ci"),
         nullable=False,
