@@ -1,9 +1,8 @@
-from typing import Annotated, Union
+from typing import Annotated
 
-import phonenumbers
 from pydantic_extra_types.phone_numbers import PhoneNumberValidator
 
 PhoneNumberE164 = Annotated[
-    Union[str, phonenumbers.PhoneNumber],
+    str,
     PhoneNumberValidator(default_region="US", number_format="E164"),
 ]
