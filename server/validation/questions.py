@@ -85,8 +85,8 @@ class QuestionBase(CradleBaseModel, use_enum_values=True):
     question_index: Annotated[int, Field(strict=True, ge=0)]  # Non-negative index
     question_type: QuestionTypeEnum
     required: Optional[bool] = None
-    allow_past_dates: Optional[bool] = None
-    allow_future_dates: Optional[bool] = None
+    allow_past_dates: Optional[bool] = True
+    allow_future_dates: Optional[bool] = True
     units: Optional[str] = None
     visible_condition: Optional[List[VisibleConditionValidator]] = None
     num_min: Optional[Union[int, float]] = None
