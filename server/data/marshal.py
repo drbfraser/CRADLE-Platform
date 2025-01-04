@@ -3,6 +3,7 @@ import json
 from enum import Enum
 from typing import Any, Dict, List, Optional, Type
 
+from common import commonUtil
 from data.crud import M
 from models import (
     AssessmentOrm,
@@ -402,6 +403,10 @@ def unmarshal(m: Type[M], d: dict) -> M:
     :param d: A dictionary mapping columns to values used to construct the model
     :return: A model
     """
+    # Marshmallow will throw an exception if a field is None, but doesn't throw
+    # if the field is absent entirely.
+    d = commonUtil.filterNestedAttributeWithValueNone(d)
+
     if m is PatientOrm:
         return __unmarshal_patient(d)
     if m is ReadingOrm:
