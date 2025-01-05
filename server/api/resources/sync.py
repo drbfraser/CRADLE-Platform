@@ -21,7 +21,6 @@ from validation import CradleBaseModel
 from validation.patients import PatientSyncValidator
 from validation.readings import ReadingValidator
 from validation.referrals import ReferralEntityValidator
-from validation.validation_exception import ValidationExceptionError
 
 LOGGER = logging.getLogger(__name__)
 
@@ -267,9 +266,9 @@ def sync_readings(query: LastSyncQueryParam, body: SyncReadingsBody):
             )
         else:
             try:
-                ReadingValidator.validate(mobile_reading_dict)
-            except ValidationExceptionError as e:
-                return abort(400, description=str(e))
+                ReadingValidator(**mobile_reading_dict)
+            except ValidationError as e:
+                return abort(422, description=str(e))
             reading = marshal.unmarshal(ReadingOrm, mobile_reading_dict)
             invariant.resolve_reading_invariants(reading)
             crud.create(reading, refresh=True)
@@ -302,10 +301,8 @@ def sync_referrals(query: LastSyncQueryParam, body: SyncReferralsBody):
             # currently, for referrals that exist in server already we will
             # skip them
             continue
-        try:
-            ReferralEntityValidator.validate(mobile_referral_dict)
-        except ValidationExceptionError as e:
-            return abort(400, description=str(e))
+        ReferralEntityValidator(**mobile_referral_dict)
+
         referral = marshal.unmarshal(ReferralOrm, mobile_referral_dict)
         crud.create(referral, refresh=True)
 
