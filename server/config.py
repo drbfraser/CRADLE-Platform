@@ -13,7 +13,6 @@ from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from flask_openapi3.models.info import Info
 from flask_openapi3.openapi import OpenAPI as FlaskOpenAPI
-from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 
@@ -110,12 +109,14 @@ class JSONEncoder(json.JSONEncoder):
 
 FLASK_APP = "app.py"
 
+API_DOCS_TITLE = "Cradle-Platform REST API"
 app = FlaskOpenAPI(
     import_name=__name__,
     static_folder="../client/build",
-    info=Info(title="Cradle-Platform REST API", version=app_version),
+    info=Info(title=API_DOCS_TITLE, version=app_version),
 )
-app.config["SWAGGER"] = {"openapi": "3.0.2", "title": "Cradle-Platform REST API"}
+app.config["SWAGGER"] = {"openapi": "3.0.2", "title": API_DOCS_TITLE}
+
 app.config["PROPAGATE_EXCEPTIONS"] = True
 app.config["BASE_URL"] = ""
 app.config["UPLOAD_FOLDER"] = "/uploads"
@@ -123,7 +124,6 @@ app.config["MAX_CONTENT_LENGTH"] = 64 * 1e6
 swagger = Swagger(app)
 
 CORS(app, supports_credentials=True)
-api = Api(app)
 app.config.from_object(Config)
 
 app.json_encoder = JSONEncoder
