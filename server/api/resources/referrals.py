@@ -8,12 +8,12 @@ import data
 from common import user_utils
 from common.api_utils import (
     ReferralIdPath,
+    SearchFilterQueryParams,
 )
 from data import crud, marshal
 from models import HealthFacilityOrm, PatientOrm, ReferralOrm
 from service import assoc, serialize, view
 from utils import get_current_time
-from validation import CradleBaseModel
 from validation.referrals import (
     CancelStatusValidator,
     NotAttendValidator,
@@ -28,8 +28,13 @@ api_referrals = APIBlueprint(
 )
 
 
-class GetAllReferralsQueryParams(CradleBaseModel):
-    health_facilities: Optional[list[str]] = None
+class GetAllReferralsQueryParams(SearchFilterQueryParams):
+    health_facilities: list[str] = []
+    referrers: list[str] = []
+    vital_signs: list[str] = []
+    is_pregnant: Optional[str] = None
+    is_assessed: Optional[str] = None
+    date_range: Optional[str] = None
 
 
 # /api/referrals [GET]
@@ -37,7 +42,7 @@ class GetAllReferralsQueryParams(CradleBaseModel):
 def get_all_referrals(query: GetAllReferralsQueryParams):
     user_data = user_utils.get_current_user_from_jwt()
 
-    if query.health_facilities is not None and "default" in query.health_facilities:
+    if "default" in query.health_facilities:
         query.health_facilities.append(user_data["health_facility_name"])
 
     user = cast(dict[Any, Any], user_data)
