@@ -114,7 +114,7 @@ def log_request_details(response):
 
 # Pydantic Models for API Path and Query parameters
 class AssessmentIdPath(CradleBaseModel):
-    assessment_id: int
+    assessment_id: str
 
 
 class PatientIdPath(CradleBaseModel):
@@ -134,23 +134,23 @@ class RecordIdPath(CradleBaseModel):
 
 
 class ReadingIdPath(CradleBaseModel):
-    reading_id: int
+    reading_id: str
 
 
 class ReferralIdPath(CradleBaseModel):
-    referral_id: int
+    referral_id: str
 
 
 class FormClassificationIdPath(CradleBaseModel):
-    form_classification_id: int
+    form_classification_id: str
 
 
 class FormTemplateIdPath(CradleBaseModel):
-    form_template_id: int
+    form_template_id: str
 
 
 class FormIdPath(CradleBaseModel):
-    form_id: int
+    form_id: str
 
 
 class FacilityNamePath(CradleBaseModel):
@@ -158,23 +158,28 @@ class FacilityNamePath(CradleBaseModel):
 
 
 class PageLimitFilterQueryParams(CradleBaseModel):
-    limit: int = Field(5, description="The maximum number of records per page.")
-    page: int = Field(1, description="The number of pages to return.")
+    limit: Optional[int] = Field(
+        5, description="The maximum number of records per page."
+    )
+    page: Optional[int] = Field(1, description="The number of pages to return.")
 
 
 class SearchFilterQueryParams(PageLimitFilterQueryParams):
-    search_text: Optional[str] = Field(
-        None, description="Search term for filtering returned Patients."
+    search: Optional[str] = Field(
+        default=None,
+        description="Search term for filtering returned Patients.",
+        validation_alias=AliasChoices("search", "search_text", "searchText"),
+        serialization_alias="search_text",
     )
     order_by: Optional[str] = Field(
-        None,
+        default=None,
         description="Name of the field to perform the sorting around.",
-        validation_alias=AliasChoices("sort_by", "sortBy", "orderBy"),
+        validation_alias=AliasChoices("order_by", "sort_by", "sortBy", "orderBy"),
     )
     direction: Optional[str] = Field(
-        None,
+        default="ASC",
         description="Whether ordering should be done in ascending or descending order. Must be either `ASC` or `DESC`",
-        validation_alias=AliasChoices("sort_dir", "sortDir"),
+        validation_alias=AliasChoices("direction", "sort_dir", "sortDir"),
     )
 
     @field_validator("order_by")
