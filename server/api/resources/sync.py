@@ -18,7 +18,7 @@ from models import (
 )
 from service import invariant, serialize, view
 from validation import CradleBaseModel
-from validation.patients import PatientValidator
+from validation.patients import PatientSyncValidator
 from validation.readings import ReadingValidator
 from validation.referrals import ReferralEntityValidator
 from validation.validation_exception import ValidationExceptionError
@@ -43,7 +43,7 @@ class LastSyncQueryParam(CradleBaseModel):
 
 
 class SyncPatientsBody(CradleBaseModel):
-    patients: List[PatientValidator]
+    patients: List[PatientSyncValidator]
 
 
 class SyncReadingsBody(CradleBaseModel):
@@ -132,6 +132,11 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
                 pregnancy_id = None
                 pregnancy_end_date = None
                 if mobile_patient_dict.get("pregnancy_end_date") is not None:
+                    """
+                    TODO: Why is this a dict or a Pregnancy ORM model?
+                    Why is it just called 'values' and not something more descriptive?
+                    This entire file needs to be massively refactored. 
+                    """
                     values = serialize.deserialize_pregnancy(
                         mobile_patient_dict, partial=True
                     )
@@ -161,13 +166,16 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
                         pregnancy_to_update = ModelData(pregnancy_id, values)
 
                 if (
-                    mobile_patient_dict.get("pregnancy_start_date")
-                    and not mobile_patient_dict.get("pregnancy_id")
+                    mobile_patient_dict.get("pregnancy_start_date") is not None
+                    and mobile_patient_dict.get("pregnancy_id") is None
                 ) or (
-                    mobile_patient_dict.get("pregnancy_start_date")
-                    and mobile_patient_dict.get("pregnancy_end_date")
+                    mobile_patient_dict.get("pregnancy_start_date") is not None
+                    and mobile_patient_dict.get("pregnancy_end_date") is not None
                 ):
+                    # TODO: PLEASE GIVE MEANINGFUL NAMES TO YOUR VARIABLES!!!
+                    # TODO: DON'T NAME THEM "model" or "values"
                     model = serialize.deserialize_pregnancy(mobile_patient_dict)
+
                     if (
                         pregnancy_end_date and model.start_date <= pregnancy_end_date
                     ) or crud.has_conflicting_pregnancy_record(
@@ -205,8 +213,9 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
             for m, ms in zip(models, models_list):
                 if m:
                     ms.append(m)
-        except ValidationError as err:
+        except Exception as err:
             errors.append({"patient_id": patient_id, "errors": str(err)})
+            print(str(err))
             status_code = 207
 
     with db_session.begin_nested():
@@ -215,6 +224,8 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
             if models:
                 crud.create_all(models, autocommit=False)
         for data in patients_to_update:
+            print("data:")
+            print(data)
             crud.update(
                 PatientOrm,
                 data.values,
@@ -223,12 +234,12 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
             )
         for data in pregnancies_to_update:
             crud.update(PregnancyOrm, data.values, autocommit=False, id=data.key_value)
-
-        # Read all patients that have been created or updated since last sync
-        current_user = cast(dict[Any, Any], current_user)
-        new_patients = view.patient_view(current_user, last_sync)
-        patients_json = [serialize.serialize_patient(p) for p in new_patients]
     db_session.commit()
+
+    # Read all patients that have been created or updated since last sync
+    current_user = cast(dict[Any, Any], current_user)
+    new_patients = view.patient_view(current_user, last_sync)
+    patients_json = [serialize.serialize_patient(p) for p in new_patients]
 
     return {"patients": patients_json, "errors": errors}, status_code
 

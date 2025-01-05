@@ -20,8 +20,8 @@ LOGGER = logging.getLogger(__name__)
 
 
 # /api/patients/<string:patient_id>/medical_records [GET]
-@api_patients.get("/<string:patient_id>/medical_records")
 @patient_association_required()
+@api_patients.get("/<string:patient_id>/medical_records")
 def get_patients_medical_records(path: PatientIdPath, query: SearchFilterQueryParams):
     params = query.model_dump()
     medical = view.medical_record_view(path.patient_id, False, **params)
@@ -34,8 +34,8 @@ def get_patients_medical_records(path: PatientIdPath, query: SearchFilterQueryPa
 
 
 # /api/patients/<string:patient_id>/medical_records [POST]
-@api_patients.post("/<string:patient_id>/medical_records")
 @patient_association_required()
+@api_patients.post("/<string:patient_id>/medical_records")
 def create_medical_record(path: PatientIdPath, body: MedicalRecordValidator):
     if body.id is not None:
         if crud.read(MedicalRecordOrm, id=body.id) is not None:
@@ -46,7 +46,7 @@ def create_medical_record(path: PatientIdPath, body: MedicalRecordValidator):
 
     body.patient_id = path.patient_id
     new_medical_record = body.model_dump()
-    _process_request_body(new_medical_record)
+    new_medical_record = _process_request_body(new_medical_record)
     new_record = marshal.unmarshal(MedicalRecordOrm, new_medical_record)
 
     crud.create(new_record, refresh=True)
@@ -99,12 +99,16 @@ def delete_medical_record(path: RecordIdPath):
 def _process_request_body(request_body):
     request_body["last_edited"] = get_current_time()
     # TODO: We should really refactor drug records into a separate Database model.
-    request_body["is_drug_record"] = "drug_history" in request_body
+    if "is_drug_record" not in request_body or request_body["is_drug_record"] is None:
+        request_body["is_drug_record"] = (
+            "drug_history" in request_body and request_body["drug_history"] is not None
+        )
     request_body["information"] = (
         request_body.pop("drug_history")
         if request_body["is_drug_record"]
         else request_body.pop("medical_history")
     )
+    return request_body
 
 
 def _get_medical_record(record_id):

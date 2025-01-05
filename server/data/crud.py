@@ -364,15 +364,15 @@ def read_referral_list(
     page = kwargs.get("page", 1)
 
     # Filter by health facilities
-    if health_facilities:
+    if health_facilities is not None and len(health_facilities) > 0:
         query = query.filter(ReferralOrm.health_facility_name.in_(health_facilities))
 
     # Filter by referrers
-    if referrers:
+    if referrers is not None and len(referrers) > 0:
         query = query.filter(ReferralOrm.user_id.in_(referrers))
 
     # Filter by date range
-    if date_range:
+    if date_range is not None:
         start_date, end_date = date_range.split(":")
         query = query.filter(
             ReferralOrm.date_referred >= start_date,
@@ -406,7 +406,7 @@ def read_referral_list(
         )
 
     # Filter by vital signs
-    if vital_signs:
+    if vital_signs is not None and len(vital_signs) > 0:
         query = query.filter(vital_sign_field.in_(vital_signs))
 
     if limit:
@@ -661,6 +661,9 @@ def read_patients(
 
     :return: A patient if patient ID is specified; a list of patients otherwise
     """
+    # TODO: Why does this function return either a single object or a list of objects?
+    #  This should really be split into two different functions.
+
     # Aliased classes to be used in join clauses for getting the latest pregnancy, medical
     # and drug records.
     pregnancy = aliased(PregnancyOrm)
@@ -699,7 +702,7 @@ def read_patients(
         .outerjoin(
             pregnancy,
             and_(
-                PregnancyOrm.id == pregnancy.patient_id,
+                PregnancyOrm.patient_id == pregnancy.patient_id,
                 PregnancyOrm.start_date < pregnancy.start_date,
             ),
         )

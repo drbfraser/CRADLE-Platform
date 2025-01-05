@@ -3,6 +3,7 @@ import os
 from typing import List
 
 from botocore.exceptions import ClientError
+from dotenv import load_dotenv
 from flask import abort, make_response
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -25,6 +26,9 @@ from validation.users import (
 )
 
 LOGGER = logging.getLogger(__name__)
+
+load_dotenv()
+LIMITER_DISABLED = os.getenv("LIMITER_DISABLED", "False").lower() == "true"
 
 # Error messages
 null_phone_number_message = "No phone number was provided."
@@ -116,7 +120,8 @@ app = config.app
 limiter = Limiter(
     get_remote_address,
     app=app,
-    default_limits=["10 per minute", "20 per hour", "50 per day"],
+    enabled=not LIMITER_DISABLED,
+    default_limits=["50 per hour", "200 per day"],
     # parsed by flask limiter library https://flask-limiter.readthedocs.io/en/stable/
 )
 

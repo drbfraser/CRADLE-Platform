@@ -19,7 +19,7 @@ def test_invalid_facility_not_created(facility_name, health_facility, api_post):
     del health_facility["name"]
 
     response = api_post(endpoint="/api/facilities", json=health_facility)
-    assert response.status_code == 400
+    assert response.status_code == 422
     assert crud.read(HealthFacilityOrm, name=facility_name) is None
 
 
@@ -32,7 +32,7 @@ def facility_name():
 def health_facility(facility_name):
     return {
         "name": facility_name,
-        "phone_number": "444-444-4444",
+        "phone_number": "604-715-2845",
         "about": "Biggest hospital",
         "type": "HOSPITAL",
     }

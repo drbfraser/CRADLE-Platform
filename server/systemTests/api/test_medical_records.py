@@ -1,4 +1,3 @@
-from flask import Response
 from humps import decamelize
 
 from data import crud
@@ -12,6 +11,7 @@ def test_get_record(create_patient, medical_record_factory, medical_record, api_
     record_id = medical_record["id"]
     response = api_get(endpoint=f"/api/medical_records/{record_id}")
 
+    print(response.json())
     assert response.status_code == 200
     response_body = decamelize(response.json())
     assert response_body["medical_history"] == medical_record["information"]
@@ -23,12 +23,17 @@ def test_put_record(create_patient, medical_record_factory, drug_record, api_put
 
     record_id = drug_record["id"]
     info = "Labetalol 200mg three times daily."
-    response: Response = api_put(
+    response = api_put(
         endpoint=f"/api/medical_records/{record_id}",
-        json={"drug_history": info},
+        json={
+            "id": drug_record["id"],
+            "patient_id": drug_record["patient_id"],
+            "drug_history": info,
+        },
     )
     new_record = crud.read(MedicalRecordOrm, id=record_id)
 
+    print(response.json())
     assert response.status_code == 200
     assert new_record is not None
     assert new_record.information == info
@@ -46,7 +51,11 @@ def test_post_and_delete_record(
     create_patient()
     record_id = medical_record["id"]
 
-    record = {"id": record_id, "medical_history": medical_record["information"]}
+    record = {
+        "id": record_id,
+        "patient_id": medical_record["patient_id"],
+        "medical_history": medical_record["information"],
+    }
     response = api_post(
         endpoint=f"/api/patients/{patient_id}/medical_records",
         json=record,
@@ -54,6 +63,7 @@ def test_post_and_delete_record(
 
     new_record = crud.read(MedicalRecordOrm, id=record_id)
 
+    print(response.json())
     assert response.status_code == 201
     assert new_record.patient_id == patient_id
     assert new_record.information == record["medical_history"]
@@ -81,6 +91,7 @@ def test_get_record_lists(
     response = api_get(endpoint=f"/api/patients/{patient_id}/medical_records")
     response_body = decamelize(response.json())
 
+    print(response_body)
     assert response.status_code == 200
     assert len(response_body["medical"]) >= 1
     assert len(response_body["drug"]) >= 1
@@ -98,9 +109,10 @@ def test_invalid_record_not_updated(
     record_id = drug_record["id"]
     response = api_put(
         endpoint=f"/api/medical_records/{record_id}",
-        json={"patient_id": "0"},
+        json={"patient_id": "0", "drug_history": drug_record["information"]},
     )
 
+    print(response.json())
     record = crud.read(MedicalRecordOrm, id=record_id)
     assert record is not None
     assert response.status_code == 400
@@ -117,9 +129,34 @@ def test_invalid_record_not_created(
     create_patient()
     medical_record_factory.create(**drug_record)
 
+    # Missing `patient_id` field.
     response = api_post(
         endpoint=f"/api/patients/{patient_id}/medical_records",
-        json={"id": drug_record["id"], "drug_history": "Aspirin 75mg"},
+        json={"drug_history": "Aspirin 75mg"},
     )
 
+    print(response.json())
+    assert response.status_code == 422
+
+
+def test_record_conflict_not_created(
+    create_patient,
+    medical_record_factory,
+    patient_id,
+    drug_record,
+    api_post,
+):
+    create_patient()
+    medical_record_factory.create(**drug_record)
+
+    response = api_post(
+        endpoint=f"/api/patients/{patient_id}/medical_records",
+        json={
+            "id": drug_record["id"],
+            "patient_id": drug_record["patient_id"],
+            "drug_history": "Aspirin 75mg",
+        },
+    )
+
+    print(response.json())
     assert response.status_code == 409

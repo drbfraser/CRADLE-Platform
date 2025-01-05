@@ -36,21 +36,14 @@ def create_form_classification(body: ClassificationValidator):
     if body.id is not None:
         if crud.read(FormClassificationOrm, id=body.id):
             return abort(409, description="Form classification already exists.")
-    if crud.read(FormClassificationOrm, id=body.name):
+    if crud.read(FormClassificationOrm, name=body.name):
         return abort(
             409,
             description="Form classification with the same name already exists.",
         )
 
-    new_form_classification_dict = body.model_dump()
-
-    form_classification = marshal.unmarshal(
-        FormClassificationOrm,
-        new_form_classification_dict,
-    )
-
+    form_classification = marshal.unmarshal(FormClassificationOrm, body.model_dump())
     crud.create(form_classification, refresh=True)
-
     return marshal.marshal(form_classification, shallow=True), 201
 
 

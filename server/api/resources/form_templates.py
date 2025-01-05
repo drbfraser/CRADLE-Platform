@@ -45,10 +45,6 @@ def get_all_form_templates(query: GetAllFormTemplatesQuery):
     return [marshal.marshal(f, shallow=True) for f in form_templates]
 
 
-class FormTemplateFileUploadForm(FileUploadForm):
-    file_type: ContentTypeEnum = Field(..., description="File type.")
-
-
 def handle_form_template_upload(form_template: FormTemplateValidator):
     """
     Common logic for handling uploaded form template. Whether it was uploaded
@@ -92,7 +88,7 @@ def handle_form_template_upload(form_template: FormTemplateValidator):
 # /api/forms/templates [POST]
 @api_form_templates.post("")
 @roles_required([RoleEnum.ADMIN])
-def upload_form_template_file(form: FormTemplateFileUploadForm):
+def upload_form_template_file(form: FileUploadForm):
     file_contents = {}
     file = form.file
     file_str = str(file.stream.read(), "utf-8")
@@ -114,6 +110,8 @@ def upload_form_template_file(form: FormTemplateFileUploadForm):
                 400,
                 description="Something went wrong while parsing the CSV file.",
             )
+        else:
+            return abort(422, description="Invalid content-type.")
     form_template = FormTemplateValidator(**file_contents)
     return handle_form_template_upload(form_template)
 
@@ -217,6 +215,7 @@ class ArchiveFormTemplateBody(CradleBaseModel):
 
 
 # /api/forms/templates/<string:form_template_id> [PUT]
+@api_form_templates.put("/<string:form_template_id>")
 def archive_form_template(path: FormTemplateIdPath, body: ArchiveFormTemplateBody):
     # TODO: It would make more sense to take the "archived" bool from query params.
     form_template = crud.read(FormTemplateOrm, id=path.form_template_id)

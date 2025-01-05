@@ -1,25 +1,30 @@
+import json
+
 import pytest
+import requests
 
 from data import crud
 from models import FormClassificationOrm, FormTemplateOrm
 
 
 def test_form_template_created_with_same_classification_ids(
-    database,
-    form_template,
-    form_template3,
-    form_template4,
-    api_post,
+    database, form_template, form_template3, form_template4, api_post
 ):
     try:
-        response = api_post(endpoint="/api/forms/templates", json=form_template)
+        # Upload Form Templates via request body.
+        response = api_post(endpoint="/api/forms/templates/body", json=form_template)
         database.session.commit()
+        print(response.json())
         assert response.status_code == 201
-        response = api_post(endpoint="/api/forms/templates", json=form_template3)
+
+        response = api_post(endpoint="/api/forms/templates/body", json=form_template3)
         database.session.commit()
+        print(response.json())
         assert response.status_code == 409
-        response = api_post(endpoint="/api/forms/templates", json=form_template4)
+
+        response = api_post(endpoint="/api/forms/templates/body", json=form_template4)
         database.session.commit()
+        print(response.json())
         assert response.status_code == 201
     finally:
         classification_id = form_template["classification"]["id"]
@@ -35,14 +40,43 @@ def test_form_template_created_with_same_classification_ids(
         )
 
 
-def test_form_template_created(database, form_template, form_template_2, api_post):
+def test_form_template_created(
+    database, form_template, form_template_2, url, auth_header
+):
     try:
-        response = api_post(endpoint="/api/forms/templates", json=form_template)
+        # Post Form Template as file.
+        response = requests.post(
+            url=f"{url}/api/forms/templates",
+            files={
+                "file": (
+                    "form_template.json",
+                    json.dumps(form_template),
+                    "application/json",
+                ),
+            },
+            headers=auth_header,
+        )
         database.session.commit()
+        print(response.json())
         assert response.status_code == 201
-        response = api_post(endpoint="/api/forms/templates", json=form_template_2)
+
+        response = requests.post(
+            url=f"{url}/api/forms/templates",
+            files={
+                "file": (
+                    "form_template_2.json",
+                    json.dumps(form_template_2),
+                    "application/json",
+                ),
+            },
+            headers=auth_header,
+        )
         database.session.commit()
+        print(response.json())
         assert response.status_code == 201
+
+        # TODO: Test uploading a Form Template as a .csv file.
+
     finally:
         crud.delete_by(
             FormClassificationOrm, name=form_template["classification"]["name"]
@@ -54,15 +88,23 @@ def test_form_template_created(database, form_template, form_template_2, api_pos
 
 
 def test_form_template_archival(
-    database,
-    update_info_in_question,
-    api_put,
-    api_post,
-    form_template,
+    database, update_info_in_question, api_put, form_template, url, auth_header
 ):
     try:
-        response = api_post(endpoint="/api/forms/templates", json=form_template)
+        # Post form template as file.
+        response = requests.post(
+            url=f"{url}/api/forms/templates",
+            files={
+                "file": (
+                    "form_template.json",
+                    json.dumps(form_template),
+                    "application/json",
+                ),
+            },
+            headers=auth_header,
+        )
         database.session.commit()
+        print(response.json())
         assert response.status_code == 201
 
         response = api_put(
@@ -70,6 +112,7 @@ def test_form_template_archival(
             json=update_info_in_question,
         )
         database.session.commit()
+        print(response.json())
         assert response.status_code == 201
 
     finally:
@@ -86,7 +129,7 @@ def form_template():
         "version": "V1",
         "questions": [
             {
-                "question_id": "section header",
+                "id": "section header",
                 "category_index": None,
                 "question_index": 0,
                 "question_type": "CATEGORY",
@@ -103,7 +146,7 @@ def form_template():
                 ],
             },
             {
-                "question_id": "referred-by-name",
+                "id": "referred-by-name",
                 "category_index": 0,
                 "question_index": 1,
                 "question_type": "MULTIPLE_CHOICE",
@@ -146,7 +189,7 @@ def form_template_2():
         "version": "V2",
         "questions": [
             {
-                "question_id": "referred-by-name",
+                "id": "referred-by-name",
                 "category_index": None,
                 "question_index": 0,
                 "question_type": "MULTIPLE_CHOICE",
@@ -172,7 +215,7 @@ def form_template_2():
                 ],
             },
             {
-                "question_id": "section header",
+                "id": "section header",
                 "category_index": None,
                 "question_index": 1,
                 "question_type": "CATEGORY",
@@ -189,7 +232,7 @@ def form_template_2():
                 ],
             },
             {
-                "question_id": "referred-by-name",
+                "id": "referred-by-name",
                 "category_index": 1,
                 "question_index": 2,
                 "question_type": "MULTIPLE_CHOICE",
@@ -225,7 +268,7 @@ def form_template3():
         "version": "V1",
         "questions": [
             {
-                "question_id": "section header",
+                "id": "section header",
                 "category_index": None,
                 "question_index": 0,
                 "question_type": "CATEGORY",
@@ -252,7 +295,7 @@ def form_template4():
         "version": "V2",
         "questions": [
             {
-                "question_id": "section header",
+                "id": "section header",
                 "category_index": None,
                 "question_index": 0,
                 "question_type": "CATEGORY",
@@ -283,7 +326,7 @@ def remove_question():
         "version": "V1.2",
         "questions": [
             {
-                "question_id": "section header",
+                "id": "section header",
                 "category_index": None,
                 "question_index": 0,
                 "question_type": "CATEGORY",
@@ -309,7 +352,7 @@ def add_question():
         "version": "V1.3",
         "questions": [
             {
-                "question_id": "section header",
+                "id": "section header",
                 "category_index": None,
                 "question_index": 0,
                 "question_type": "CATEGORY",
@@ -326,7 +369,7 @@ def add_question():
                 ],
             },
             {
-                "question_id": "referred-by-name",
+                "id": "referred-by-name",
                 "category_index": 0,
                 "question_index": 1,
                 "question_type": "MULTIPLE_CHOICE",
@@ -358,7 +401,7 @@ def add_question():
                 ],
             },
             {
-                "question_id": "referred-by-name",
+                "id": "referred-by-name",
                 "category_index": None,
                 "question_index": 2,
                 "question_type": "MULTIPLE_CHOICE",

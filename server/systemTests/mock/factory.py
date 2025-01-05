@@ -68,6 +68,8 @@ class PatientFactory(ModelFactory):
             is_pregnant=False,
             zone="37",
             village_number="37",
+            date_of_birth="1990-01-01",
+            is_exact_date_of_birth=True,
         )
 
     def create(self, **kwargs) -> Any:

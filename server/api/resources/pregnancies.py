@@ -16,8 +16,8 @@ from validation.pregnancies import (
 
 
 # /api/patients/<string:patient_id>/pregnancies [GET]
-@api_patients.get("/<string:patient_id>/pregnancies")
 @patient_association_required()
+@api_patients.get("/<string:patient_id>/pregnancies")
 def get_patient_pregnancies(path: PatientIdPath, query: SearchFilterQueryParams):
     params = query.model_dump()
     pregnancies = view.pregnancy_view(path.patient_id, **params)
@@ -25,8 +25,8 @@ def get_patient_pregnancies(path: PatientIdPath, query: SearchFilterQueryParams)
 
 
 # /api/patients/<string:patient_id>/pregnancies [POST]
-@api_patients.post("/<string:patient_id>/pregnancies")
 @patient_association_required()
+@api_patients.post("/<string:patient_id>/pregnancies")
 def create_patient_pregnancy(path: PatientIdPath, body: PregnancyPostRequestValidator):
     if body.id is not None:
         pregnancy_id = body.id
@@ -69,8 +69,6 @@ def update_pregnancy(path: PregnancyIdPath, body: PregnancyPutRequestValidator):
         return abort(404, description="No pregnancy found.")
     if body.patient_id != pregnancy.patient_id:
         return abort(400, description="Patient ID cannot be changed.")
-    if body.start_date is None:
-        body.start_date = int(pregnancy.start_date)
 
     _check_conflicts(
         body.start_date, body.end_date, pregnancy.patient_id, path.pregnancy_id

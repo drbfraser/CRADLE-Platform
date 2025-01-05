@@ -4,7 +4,7 @@ from requests import Response
 import models
 
 
-def test_create_followup_without_referral(
+def test_create_assessment_without_referral(
     database,
     patient_factory,
     reading_factory,
@@ -13,7 +13,7 @@ def test_create_followup_without_referral(
     patient_id = "7800"
     patient_factory.create(id=patient_id)
 
-    followup_json = {
+    assessment_json = {
         "patient_id": patient_id,
         "diagnosis": "D",
         "treatment": "T",
@@ -22,9 +22,10 @@ def test_create_followup_without_referral(
         "follow_up_instructions": "I",
         "follow_up_needed": True,
     }
-    response: Response = api_post(endpoint="/api/assessments", json=followup_json)
+    response: Response = api_post(endpoint="/api/assessments", json=assessment_json)
     database.session.commit()
 
+    # print(response.json())
     assert response.status_code == 201
 
 
@@ -45,7 +46,7 @@ def test_create_followup_marks_referral_as_assessed(
     referral = referral_factory.create(patient_id=patient_id)
     assert not referral.isAssessed
 
-    followup_json = {
+    assessment_json = {
         "patient_id": patient_id,
         "diagnosis": "D",
         "treatment": "T",
@@ -54,7 +55,7 @@ def test_create_followup_marks_referral_as_assessed(
         "follow_up_instructions": "I",
         "follow_up_needed": True,
     }
-    response: Response = api_post(endpoint="/api/assessments", json=followup_json)
+    response: Response = api_post(endpoint="/api/assessments", json=assessment_json)
     database.session.commit()
 
     assert response.status_code == 201
@@ -62,7 +63,7 @@ def test_create_followup_marks_referral_as_assessed(
     assert referral.isAssessed
 
 
-def test_invalid_followup_not_created(
+def test_invalid_assessment_not_created(
     database,
     patient_factory,
     referral_factory,
@@ -72,15 +73,14 @@ def test_invalid_followup_not_created(
     patient_factory.create(id=patient_id)
 
     # Invalid as follow_up_instructions is missing when follow_up_needed is True
-    followup_json = {
+    assessment_json = {
         "patient_id": patient_id,
         "diagnosis": "D",
         "treatment": "T",
         "medication_prescribed": "M",
         "special_investigations": "S",
         "follow_up_needed": True,
-        "follow_up_instructions": "",
     }
-    response: Response = api_post(endpoint="/api/assessments", json=followup_json)
+    response: Response = api_post(endpoint="/api/assessments", json=assessment_json)
     database.session.commit()
-    assert response.status_code == 400
+    assert response.status_code == 422

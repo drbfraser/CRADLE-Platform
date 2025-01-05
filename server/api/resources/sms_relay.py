@@ -3,11 +3,11 @@ import json
 import requests
 from flask import Response, abort, jsonify, make_response
 from flask_openapi3.blueprint import APIBlueprint
+from pydantic import ValidationError
 
 from common import phone_number_utils, user_utils
 from service import compressor, encryptor
 from validation.sms_relay import SmsRelayDecryptedBodyValidator, SmsRelayValidator
-from validation.validation_exception import ValidationExceptionError
 
 api_url = "http://localhost:5000/{endpoint}"
 
@@ -121,9 +121,9 @@ def relay_sms_request(body: SmsRelayValidator):
 
     try:
         decrypted_data = SmsRelayDecryptedBodyValidator(**json_dict_data)
-    except ValidationExceptionError as e:
+    except ValidationError as e:
         return create_flask_response(
-            400,
+            422,
             invalid_json.format(error=str(e)),
             encrypted_data[0:iv_size],
             user_secret_key,
@@ -143,7 +143,7 @@ def relay_sms_request(body: SmsRelayValidator):
             user_secret_key,
         )
 
-    method = decrypted_data.method
+    method = str(decrypted_data.method)
     endpoint = decrypted_data.endpoint
 
     headers = decrypted_data.headers
@@ -155,7 +155,7 @@ def relay_sms_request(body: SmsRelayValidator):
         json_body = "{}"
 
     # Sending request to endpoint
-    response = send_request_to_endpoint(method.value, endpoint, headers, json_body)
+    response = send_request_to_endpoint(method, endpoint, headers, json_body)
 
     # Creating Response
     response_code = response.status_code

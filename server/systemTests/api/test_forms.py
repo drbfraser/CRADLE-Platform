@@ -19,14 +19,18 @@ def test_form_created(
             json=form_classification,
         )
         database.session.commit()
+        print(response.json())
         assert response.status_code == 201
 
-        response = api_post(endpoint="/api/forms/templates", json=form_template)
+        # Upload form template via request body.
+        response = api_post(endpoint="/api/forms/templates/body", json=form_template)
         database.session.commit()
+        print(response.json())
         assert response.status_code == 201
 
         response = api_post(endpoint="/api/forms/responses", json=form)
         database.session.commit()
+        print(response.json())
         assert response.status_code == 201
 
         form_id = "f9"
@@ -36,11 +40,13 @@ def test_form_created(
             question_text="How the patient's condition?",
         )
         assert question is not None
+
         response = api_put(
             endpoint=f"/api/forms/responses/{form_id}",
             json=form_question_put(question.id),
         )
         database.session.commit()
+        print(response.json())
         assert response.status_code == 201
     finally:
         crud.delete_all(FormOrm, id="f9")

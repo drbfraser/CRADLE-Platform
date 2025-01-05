@@ -51,10 +51,11 @@ def submit_form(body: FormValidator):
         user_id = int(current_user["id"])
         body.last_edited_by = user_id
 
-    new_form = body.model_dump()
-    util.assign_form_or_template_ids(FormOrm, new_form)
+    new_form_dict = body.model_dump()
 
-    form = marshal.unmarshal(FormOrm, new_form)
+    util.assign_form_or_template_ids(FormOrm, new_form_dict)
+
+    form = marshal.unmarshal(FormOrm, new_form_dict)
 
     form.date_created = get_current_time()
     form.last_edited = form.date_created
@@ -75,7 +76,7 @@ def get_form(path: FormIdPath):
 
 
 # /api/forms/responses/<string:form_id> [PUT]
-@api_form_submissions.get("/<string:form_id>")
+@api_form_submissions.put("/<string:form_id>")
 def update_form(path: FormIdPath, body: FormPutValidator):
     form = crud.read(FormOrm, id=path.form_id)
     if form is None:

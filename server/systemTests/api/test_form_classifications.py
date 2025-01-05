@@ -24,6 +24,7 @@ def test_form_classification_created(
             json=form_classification_1,
         )
         database.session.commit()
+
         assert response.status_code == 201
 
         response = api_post(
@@ -71,6 +72,7 @@ def test_form_classification_updated(
             json=form_classification_2,
         )
         database.session.commit()
+
         assert response.status_code == 201
 
         response = api_get(endpoint=f"/api/forms/classifications/{id}")
@@ -113,21 +115,22 @@ def test_form_classification_summary(
         assert response.status_code == 201 or response.status_code == 409
 
         crud.delete_all(FormTemplateOrm, id="ft1")
-        response = api_post(endpoint="/api/forms/templates", json=form_template_1)
+        response = api_post(endpoint="/api/forms/templates/body", json=form_template_1)
         database.session.commit()
+
         assert response.status_code == 201
 
         time.sleep(1)
 
         crud.delete_all(FormTemplateOrm, id="ft2")
-        response = api_post(endpoint="/api/forms/templates", json=form_template_2)
+        response = api_post(endpoint="/api/forms/templates/body", json=form_template_2)
         database.session.commit()
         assert response.status_code == 201
 
         time.sleep(1)
 
         crud.delete_all(FormTemplateOrm, id="ft3")
-        response = api_post(endpoint="/api/forms/templates", json=form_template_3)
+        response = api_post(endpoint="/api/forms/templates/body", json=form_template_3)
         database.session.commit()
         assert response.status_code == 201
 

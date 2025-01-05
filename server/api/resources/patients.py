@@ -87,19 +87,12 @@ def create_patient(body: PatientPostValidator):
             # wipe out the patient we want to return we must refresh it.
             data.db_session.refresh(patient)
 
-    readings = crud.read_readings(patient_id)
-    referrals = crud.read_referrals_or_assessments(ReferralOrm, patient_id)
-    assessments = crud.read_referrals_or_assessments(AssessmentOrm, patient_id)
-
-    response_body = serialize.serialize_patient(
-        patient, readings, referrals, assessments
-    )
-    return response_body, 201
+    return marshal.marshal(patient), 201
 
 
-# /api/patients/<string:patient_id>
-@api_patients.get("/<string:patient_id>")
+# /api/patients/<string:patient_id> [GET]
 @patient_association_required()
+@api_patients.get("/<string:patient_id>")
 def get_patient(path: PatientIdPath):
     patient = crud.read_patients(path.patient_id)
     if patient is None:
@@ -113,8 +106,8 @@ def get_patient(path: PatientIdPath):
 
 
 # /api/patients/<string:patient_id>/info [GET]
-@api_patients.get("/<string:patient_id>/info")
 @patient_association_required()
+@api_patients.get("/<string:patient_id>/info")
 def get_patient_info(path: PatientIdPath):
     patient = crud.read(PatientOrm, id=path.patient_id)
     if not patient:
@@ -167,8 +160,8 @@ def update_patient_info(path: PatientIdPath, body: PatientPutValidator):
 
 
 # /api/patients/<string:patient_id>/stats [GET]
-@api_patients.get("/<string:patient_id>/stats")
 @patient_association_required()
+@api_patients.get("/<string:patient_id>/stats")
 def get_patient_stats(path: PatientIdPath):
     patient = crud.read(PatientOrm, id=path.patient_id)
     if patient is None:
@@ -303,8 +296,8 @@ def get_patient_forms(path: PatientIdPath):
 
 
 # /api/patients/<string:patient_id>/pregnancy_summary [GET]
-@api_patients.get("/<string:patient_id>/pregnancy_summary")
 @patient_association_required()
+@api_patients.get("/<string:patient_id>/pregnancy_summary")
 def get_patient_pregnancy_summary(path: PatientIdPath):
     pregnancies = crud.read_medical_records(
         PregnancyOrm, path.patient_id, direction="DESC"
@@ -313,8 +306,8 @@ def get_patient_pregnancy_summary(path: PatientIdPath):
 
 
 # /api/patients/<string:patient_id>/medical_history [GET]
-@api_patients.get("/<string:patient_id>/medical_history")
 @patient_association_required()
+@api_patients.get("/<string:patient_id>/medical_history")
 def get_patient_medical_history(path: PatientIdPath):
     medical = crud.read_patient_current_medical_record(path.patient_id, False)
     drug = crud.read_patient_current_medical_record(path.patient_id, True)
@@ -322,8 +315,8 @@ def get_patient_medical_history(path: PatientIdPath):
 
 
 # /api/patients/<string:patient_id>/timeline [GET]
-@api_patients.get("/<string:patient_id>/timeline")
 @patient_association_required()
+@api_patients.get("/<string:patient_id>/timeline")
 def get_patient_timeline(path: PatientIdPath, query: PageLimitFilterQueryParams):
     params = query.model_dump()
     records = crud.read_patient_timeline(path.patient_id, **params)

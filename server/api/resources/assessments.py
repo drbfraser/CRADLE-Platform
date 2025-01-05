@@ -2,6 +2,7 @@ from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 
 from common.api_utils import AssessmentIdPath
+from common.user_utils import get_current_user_from_jwt
 from data import crud, marshal
 from models import AssessmentOrm
 from validation.assessments import AssessmentValidator
@@ -23,11 +24,10 @@ def get_all_assessments():
 # /api/assessments [POST]
 @api_assessments.post("")
 def create_assessment(body: AssessmentValidator):
-    assessment_dict = body.model_dump()
-    assessment = marshal.unmarshal(AssessmentOrm, assessment_dict)
-
+    if body.healthcare_worker_id is None:
+        body.healthcare_worker_id = get_current_user_from_jwt()["id"]
+    assessment = marshal.unmarshal(AssessmentOrm, body.model_dump())
     crud.create(assessment, refresh=True)
-
     return marshal.marshal(assessment), 201
 
 
@@ -37,16 +37,19 @@ def get_assessment(path: AssessmentIdPath):
     assessment = crud.read(AssessmentOrm, id=path.assessment_id)
     if assessment is None:
         return abort(404, description=f"No assessment with ID: {path.assessment_id}")
-
     return marshal.marshal(assessment)
 
 
 # /api/assessments/<string:assessment_id> [PUT]
 @api_assessments.put("/<string:assessment_id>")
 def update_assessment(path: AssessmentIdPath, body: AssessmentValidator):
-    old_assessment = crud.read(AssessmentOrm, id=path.assessment_id)
-    if old_assessment is None:
+    if crud.read(AssessmentOrm, id=path.assessment_id) is None:
         return abort(404, description=f"No assessment with id: {path.assessment_id}")
+    if body.id is not None:
+        if body.id != path.assessment_id:
+            return abort(400, description="Cannot change ID.")
+    else:
+        body.id = path.assessment_id
 
     """ 
     TODO: We should probably reconsider how we are handling updating assessments.
@@ -55,7 +58,7 @@ def update_assessment(path: AssessmentIdPath, body: AssessmentValidator):
     """
 
     update_assessment_dict = body.model_dump()
-    update_assessment = marshal.unmarshal(AssessmentOrm, update_assessment_dict)
-    crud.update(AssessmentOrm, update_assessment, id=path.assessment_id)
+    crud.update(AssessmentOrm, update_assessment_dict, id=path.assessment_id)
 
-    return marshal.marshal(update_assessment), 200
+    updated_assessment = crud.read(AssessmentOrm, id=path.assessment_id)
+    return marshal.marshal(updated_assessment), 200

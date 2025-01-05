@@ -30,8 +30,8 @@ def patient_info(patient_id):
 @pytest.fixture
 def create_patient(database, patient_factory, patient_info):
     def f():
-        database.session.commit()
         patient_factory.create(**patient_info)
+        database.session.commit()
 
     return f
 
@@ -153,9 +153,10 @@ def form(patient_id):
         "form_template_id": "ft9",
         "form_classification_id": "fc9",
         "patient_id": patient_id,
+        "date_created": 1561011126,
         "questions": [
             {
-                "question_id": "referred-by-name",
+                "id": "referred-by-name",
                 "category_index": None,
                 "question_index": 0,
                 "question_text": "How the patient's condition?",
@@ -181,7 +182,7 @@ def form(patient_id):
                 "answers": {"mc_id_array": [0]},
             },
             {
-                "question_id": None,
+                "id": None,
                 "category_index": None,
                 "question_index": 1,
                 "question_text": "Info",

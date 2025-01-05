@@ -16,7 +16,8 @@ def test_invalid_reading_not_created(
     del reading["systolic_blood_pressure"]
 
     response = api_post(endpoint="/api/readings", json=reading)
-    assert response.status_code == 400
+    print(response.json())
+    assert response.status_code == 422
     assert crud.read(ReadingOrm, id=reading_id) is None
 
 

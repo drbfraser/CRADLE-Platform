@@ -82,13 +82,14 @@ class QuestionLangVersionValidator(CradleBaseModel, extra="forbid"):
 
 
 class QuestionBase(CradleBaseModel, use_enum_values=True):
+    id: Optional[str] = None
     question_index: Annotated[int, Field(strict=True, ge=0)]  # Non-negative index
     question_type: QuestionTypeEnum
     required: Optional[bool] = None
     allow_past_dates: Optional[bool] = True
     allow_future_dates: Optional[bool] = True
     units: Optional[str] = None
-    visible_condition: Optional[List[VisibleConditionValidator]] = None
+    visible_condition: Optional[List[VisibleConditionValidator]] = []
     num_min: Optional[Union[int, float]] = None
     num_max: Optional[Union[int, float]] = None
     string_max_length: Optional[int] = None
@@ -104,9 +105,8 @@ class TemplateQuestionValidator(QuestionBase, extra="forbid"):
 class FormQuestionValidator(QuestionBase, extra="forbid"):
     question_text: str
     is_blank: bool = False  # Set to False for form questions
-    has_comment_attached: Optional[bool] = None
-    id: Optional[str] = None
-    mc_options: Optional[List[MultipleChoiceOptionValidator]] = None
+    has_comment_attached: Optional[bool] = False
+    mc_options: Optional[List[MultipleChoiceOptionValidator]] = []
     answers: Optional[AnswerValidator] = None
 
 

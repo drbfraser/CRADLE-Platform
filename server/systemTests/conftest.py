@@ -26,9 +26,7 @@ def app():
 @pytest.fixture(autouse=True)
 def _provide_app_context(app: Flask):
     with app.app_context():
-        # seed_test_data()
         yield
-        # seed_test_data()
 
 
 #

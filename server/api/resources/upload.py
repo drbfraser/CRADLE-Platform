@@ -2,7 +2,6 @@ import os
 
 from flask import abort, current_app, send_from_directory
 from flask_openapi3.blueprint import APIBlueprint
-from pydantic import Field
 
 from api.decorator import roles_required
 from enums import RoleEnum
@@ -14,10 +13,6 @@ api_upload = APIBlueprint(
     import_name=__name__,
     url_prefix="/upload",
 )
-
-
-class FileUpload(FileUploadForm):
-    file_type: str = Field(..., description="File type.")
 
 
 # /api/upload/admin [GET]
@@ -33,7 +28,7 @@ def get_sms_relay_apk():
 # /api/upload/admin [POST]
 @api_upload.post("/admin")
 @roles_required([RoleEnum.ADMIN])
-def upload_apk_file(form: FileUpload):
+def upload_apk_file(form: FileUploadForm):
     file = form.file
 
     if not is_allowed_file(file.filename):

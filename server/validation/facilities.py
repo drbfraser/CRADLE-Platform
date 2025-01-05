@@ -16,9 +16,6 @@ class FacilityValidator(CradleBaseModel):
     type: Optional[FacilityTypeEnum] = None
     about: Optional[str] = None
 
-    class Config:
-        use_enum_values = True
-
     @staticmethod
     def validate(request_body: dict):
         """
@@ -28,7 +25,7 @@ class FacilityValidator(CradleBaseModel):
         :param request_body: The request body as a dict object
                             {
                                 "name": "H12", - required
-                                "phone_number": "444-444-4444",
+                                "phone_number": "+1-604-715-2845",
                                 "about": "Biggest hospital",
                                 "type": "HOSPITAL"
                             }
