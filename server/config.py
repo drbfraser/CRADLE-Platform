@@ -7,7 +7,6 @@ from typing import ClassVar
 
 import environs
 from environs import Env
-from flasgger import Swagger
 from flask_cors import CORS
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
@@ -115,13 +114,11 @@ app = FlaskOpenAPI(
     static_folder="../client/build",
     info=Info(title=API_DOCS_TITLE, version=app_version),
 )
-app.config["SWAGGER"] = {"openapi": "3.0.2", "title": API_DOCS_TITLE}
 
 app.config["PROPAGATE_EXCEPTIONS"] = True
 app.config["BASE_URL"] = ""
 app.config["UPLOAD_FOLDER"] = "/uploads"
 app.config["MAX_CONTENT_LENGTH"] = 64 * 1e6
-swagger = Swagger(app)
 
 CORS(app, supports_credentials=True)
 app.config.from_object(Config)
