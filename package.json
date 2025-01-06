@@ -6,11 +6,5 @@
   },
   "scripts": {
     "prepare": "husky install"
-  },
-  "lint-staged": {
-    "**/!(migrations/**/*)*.py": [
-      "ruff format",
-      "ruff check --fix"
-    ]
   }
 }
