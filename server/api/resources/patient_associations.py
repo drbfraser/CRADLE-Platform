@@ -1,5 +1,6 @@
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
+from flask_openapi3.models.tag import Tag
 
 from common import user_utils
 from data import crud
@@ -13,6 +14,7 @@ api_patient_associations = APIBlueprint(
     name="patient_associations",
     import_name=__name__,
     url_prefix="/patientAssociations",
+    abp_tags=[Tag(name="Patient Associations", description="")],
 )
 
 

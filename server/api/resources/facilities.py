@@ -3,6 +3,7 @@ from typing import Optional
 
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
+from flask_openapi3.models.tag import Tag
 from pydantic import BaseModel, Field
 
 from api.decorator import roles_required
@@ -18,6 +19,7 @@ api_facilities = APIBlueprint(
     name="facilities",
     import_name=__name__,
     url_prefix="/facilities",
+    abp_tags=[Tag(name="Facilities", description="")],
 )
 
 

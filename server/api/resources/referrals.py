@@ -3,6 +3,7 @@ from typing import Any, Optional, cast
 
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
+from flask_openapi3.models.tag import Tag
 
 import data
 from common import user_utils
@@ -25,6 +26,7 @@ api_referrals = APIBlueprint(
     name="referrals",
     import_name=__name__,
     url_prefix="/referrals",
+    abp_tags=[Tag(name="Referrals", description="")],
 )
 
 

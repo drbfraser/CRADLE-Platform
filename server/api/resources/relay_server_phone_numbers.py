@@ -2,6 +2,7 @@ from typing import Optional
 
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
+from flask_openapi3.models.tag import Tag
 
 from api.decorator import roles_required
 from data import crud, marshal
@@ -14,6 +15,7 @@ api_relay_phone_numbers = APIBlueprint(
     name="relay_server_phone_numbers",
     import_name=__name__,
     url_prefix="/relay/server/phone",
+    abp_tags=[Tag(name="SMS Relay Server Phone Numbers", description="")],
 )
 
 

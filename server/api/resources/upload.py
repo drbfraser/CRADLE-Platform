@@ -2,6 +2,7 @@ import os
 
 from flask import abort, current_app, send_from_directory
 from flask_openapi3.blueprint import APIBlueprint
+from flask_openapi3.models.tag import Tag
 
 from api.decorator import roles_required
 from enums import RoleEnum
@@ -12,6 +13,7 @@ api_upload = APIBlueprint(
     name="upload",
     import_name=__name__,
     url_prefix="/upload",
+    abp_tags=[Tag(name="Upload", description="")],
 )
 
 

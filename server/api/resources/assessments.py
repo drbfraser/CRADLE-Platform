@@ -8,12 +8,12 @@ from data import crud, marshal
 from models import AssessmentOrm
 from validation.assessments import AssessmentValidator
 
-assessments_tag = Tag(name="Assessments", description="")
+# /api/assessments
 api_assessments = APIBlueprint(
     name="assessments",
     import_name=__name__,
     url_prefix="/assessments",
-    abp_tags=[assessments_tag],
+    abp_tags=[Tag(name="Assessments", description="")],
 )
 
 

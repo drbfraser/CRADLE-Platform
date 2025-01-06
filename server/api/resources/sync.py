@@ -3,6 +3,7 @@ from typing import Any, List, NamedTuple, Union, cast
 
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
+from flask_openapi3.models.tag import Tag
 from marshmallow import ValidationError
 from pydantic import Field
 
@@ -29,6 +30,7 @@ api_sync = APIBlueprint(
     name="sync",
     import_name=__name__,
     url_prefix="/sync",
+    abp_tags=[Tag(name="Sync", description="")],
 )
 
 

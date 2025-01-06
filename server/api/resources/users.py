@@ -8,6 +8,7 @@ from flask import abort, make_response
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_openapi3.blueprint import APIBlueprint
+from flask_openapi3.models.tag import Tag
 
 import config
 from api.decorator import roles_required
@@ -50,6 +51,7 @@ api_users = APIBlueprint(
     name="users",
     import_name=__name__,
     url_prefix="/user",
+    abp_tags=[Tag(name="Users", description="")],
 )
 
 

@@ -3,6 +3,7 @@ import json
 import requests
 from flask import Response, abort, jsonify, make_response
 from flask_openapi3.blueprint import APIBlueprint
+from flask_openapi3.models.tag import Tag
 from pydantic import ValidationError
 
 from common import phone_number_utils, user_utils
@@ -86,6 +87,7 @@ api_sms_relay = APIBlueprint(
     name="sms_relay",
     import_name=__name__,
     url_prefix="/sms_relay",
+    abp_tags=[Tag(name="SMS Relay", description="")],
 )
 
 

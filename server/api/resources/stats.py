@@ -4,6 +4,7 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
+from flask_openapi3.models.tag import Tag
 
 from api.decorator import roles_required
 from common import user_utils
@@ -85,6 +86,7 @@ api_stats = APIBlueprint(
     name="stats",
     import_name=__name__,
     url_prefix="/stats",
+    abp_tags=[Tag(name="Stats", description="")],
 )
 
 

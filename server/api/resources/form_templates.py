@@ -3,6 +3,7 @@ from typing import Optional
 
 from flask import abort, make_response
 from flask_openapi3.blueprint import APIBlueprint
+from flask_openapi3.models.tag import Tag
 from pydantic import Field
 
 import data
@@ -24,6 +25,7 @@ api_form_templates = APIBlueprint(
     name="form_templates",
     import_name=__name__,
     url_prefix="/forms/templates",
+    abp_tags=[Tag(name="Form Templates", description="")],
 )
 
 

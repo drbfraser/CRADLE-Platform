@@ -2,6 +2,7 @@ import logging
 
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
+from flask_openapi3.models.tag import Tag
 
 from api.decorator import patient_association_required
 from api.resources.patients import api_patients
@@ -18,10 +19,12 @@ from validation.medicalRecords import MedicalRecordValidator
 
 LOGGER = logging.getLogger(__name__)
 
+medical_records_tag = Tag(name="Medical Records", description="")
+
 
 # /api/patients/<string:patient_id>/medical_records [GET]
 @patient_association_required()
-@api_patients.get("/<string:patient_id>/medical_records")
+@api_patients.get("/<string:patient_id>/medical_records", tags=[medical_records_tag])
 def get_patients_medical_records(path: PatientIdPath, query: SearchFilterQueryParams):
     params = query.model_dump()
     medical = view.medical_record_view(path.patient_id, False, **params)
@@ -35,7 +38,7 @@ def get_patients_medical_records(path: PatientIdPath, query: SearchFilterQueryPa
 
 # /api/patients/<string:patient_id>/medical_records [POST]
 @patient_association_required()
-@api_patients.post("/<string:patient_id>/medical_records")
+@api_patients.post("/<string:patient_id>/medical_records", tags=[medical_records_tag])
 def create_medical_record(path: PatientIdPath, body: MedicalRecordValidator):
     if body.id is not None:
         if crud.read(MedicalRecordOrm, id=body.id) is not None:
@@ -57,10 +60,12 @@ def create_medical_record(path: PatientIdPath, body: MedicalRecordValidator):
     return marshal.marshal(new_record), 201
 
 
+# /api/medical_records
 api_medical_records = APIBlueprint(
     name="medical_records",
     import_name=__name__,
     url_prefix="/medical_records",
+    abp_tags=[medical_records_tag],
 )
 
 

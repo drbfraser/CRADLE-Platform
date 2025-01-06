@@ -1,4 +1,5 @@
 from flask_openapi3.blueprint import APIBlueprint
+from flask_openapi3.models.tag import Tag
 
 import config as config
 
@@ -7,6 +8,7 @@ api_version = APIBlueprint(
     name="version",
     import_name=__name__,
     url_prefix="/version",
+    abp_tags=[Tag(name="Version", description="")],
 )
 
 

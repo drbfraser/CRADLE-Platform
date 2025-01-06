@@ -3,6 +3,7 @@ from typing import Any, cast
 
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
+from flask_openapi3.models.tag import Tag
 from pydantic import Field
 
 import data
@@ -37,6 +38,7 @@ api_patients = APIBlueprint(
     name="patients",
     import_name=__name__,
     url_prefix="/patients",
+    abp_tags=[Tag(name="Patients", description="")],
 )
 
 

@@ -2,6 +2,7 @@ import json
 
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
+from flask_openapi3.models.tag import Tag
 
 import data
 from api import util
@@ -19,6 +20,7 @@ api_form_submissions = APIBlueprint(
     name="forms",
     import_name=__name__,
     url_prefix="/forms/responses",
+    abp_tags=[Tag(name="Forms", description="")],
 )
 
 

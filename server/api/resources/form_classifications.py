@@ -1,5 +1,6 @@
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
+from flask_openapi3.models.tag import Tag
 
 import data
 from api.decorator import roles_required
@@ -17,6 +18,7 @@ api_form_classifications = APIBlueprint(
     name="form_classifications",
     import_name=__name__,
     url_prefix="/forms/classifications",
+    abp_tags=[Tag(name="Form Classifications", description="")],
 )
 
 

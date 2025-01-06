@@ -2,6 +2,7 @@ from typing import Optional
 
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
+from flask_openapi3.models.tag import Tag
 
 from api.decorator import patient_association_required
 from api.resources.patients import api_patients
@@ -48,6 +49,7 @@ api_pregnancies = APIBlueprint(
     name="pregnancies",
     import_name=__name__,
     url_prefix="/pregnancies",
+    abp_tags=[Tag(name="Pregnancies", description="")],
 )
 
 

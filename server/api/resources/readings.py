@@ -2,6 +2,7 @@ import time
 
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
+from flask_openapi3.models.tag import Tag
 
 from common import user_utils
 from common.api_utils import ReadingIdPath
@@ -10,10 +11,12 @@ from models import HealthFacilityOrm, PatientOrm, ReadingOrm, ReferralOrm
 from service import assoc, invariant
 from validation.readings import ReadingValidator
 
+# /api/readings
 api_readings = APIBlueprint(
     name="readings",
     import_name=__name__,
     url_prefix="/readings",
+    abp_tags=[Tag(name="Readings", description="")],
 )
 
 
