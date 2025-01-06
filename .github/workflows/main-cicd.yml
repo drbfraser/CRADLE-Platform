@@ -101,7 +101,6 @@ jobs:
 
   backend_unit_tests:
     runs-on: [self-hosted, docker]
-    environment: cicd
     container: 
       image: python:3.9.1-buster
     outputs:
