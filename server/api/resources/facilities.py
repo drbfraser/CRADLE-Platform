@@ -24,8 +24,8 @@ api_facilities = APIBlueprint(
 
 
 class FacilitiesGetQuery(CradleBaseModel):
-    simplified: Optional[bool] = Field(
-        ..., description="If true, only the names of facilities will be returned."
+    simplified: bool = Field(
+        False, description="If true, only the names of facilities will be returned."
     )
 
 
