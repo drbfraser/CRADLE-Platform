@@ -1,5 +1,4 @@
 import time
-from typing import Optional
 
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
@@ -63,7 +62,7 @@ def create_facility(body: FacilityValidator):
 
 
 class GetFacilityQuery(BaseModel):
-    new_referrals: Optional[bool] = Field(
+    new_referrals: bool = Field(
         False,
         description="If true, will only return the timestamp of new_referrals of the facility.",
     )
