@@ -7,6 +7,7 @@ LANGUAGE = "eng"
 PATIENT_ID = "123"
 QUESTION_LIST = [
     {
+        "id": "question_1",
         "answers": {
             "comment": None,
             "mc_id_array": [0],
@@ -18,7 +19,6 @@ QUESTION_LIST = [
         "mc_options": [{"mc_id": 0, "opt": "Decent"}],
         "num_max": None,
         "num_min": None,
-        "question_id": "referred-by-name",
         "question_index": 1,
         "question_text": "How the patient's condition?",
         "question_type": "MULTIPLE_CHOICE",
@@ -34,6 +34,7 @@ QUESTION_LIST = [
         ],
     },
     {
+        "id": "question_2",
         "answers": {
             "comment": None,
             "mc_id_array": [0],
@@ -45,7 +46,6 @@ QUESTION_LIST = [
         "mc_options": [{"mc_id": 0, "opt": "Decent"}],
         "num_max": None,
         "num_min": None,
-        "question_id": "referred-by-name",
         "question_index": 1,
         "question_text": "How the patient's condition?",
         "question_type": "MULTIPLE_CHOICE",

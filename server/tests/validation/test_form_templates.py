@@ -8,10 +8,10 @@ VERSION = "V1"
 ID = "asdsd-sdsw1231"
 
 root_question = {
+    "id": "root_question",
     "category_index": None,  # root question has to have first category_index as None
     "num_max": None,
     "num_min": None,
-    "question_id": "referred-by-name",
     "question_index": 1,
     "question_lang_versions": [
         {
