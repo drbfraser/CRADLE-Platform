@@ -1,13 +1,25 @@
 from typing import Optional
 
-from pydantic import Field, ValidationError, ValidationInfo, field_validator
+from pydantic import Field, ValidationInfo, field_validator
 
 from utils import get_current_time
 from validation import CradleBaseModel
-from validation.validation_exception import ValidationExceptionError
 
 
 class AssessmentValidator(CradleBaseModel):
+    """
+    {
+        "patient_id": "123456"
+        "date_assessed": 1551447833,
+        "diagnosis": "Patient is fine.",
+        "medication_prescribed": "Tylenol",
+        "special_investigations": "This is some text.",
+        "treatment": "Take Tylenol twice a day.",
+        "follow_up_needed": true,
+        "follow_up_instructions": "Give lots of tylenol." - required if follow_up_needed = True
+    }
+    """
+
     id: Optional[str] = None
     date_assessed: int = Field(default_factory=lambda: get_current_time())
     diagnosis: Optional[str] = None
@@ -37,26 +49,3 @@ class AssessmentValidator(CradleBaseModel):
                 "follow_up_instructions must be provided if follow_up_needed is True",
             )
         return follow_up_instructions
-
-    @staticmethod
-    def validate(request_body: dict):
-        """
-        Raises an error if the /api/assessments post request
-        is not valid.
-
-        :param request_body: The request body as a dict object
-                            {
-                                "patient_id": "123456" - required
-                                "date_assessed": 1551447833, - required
-                                "diagnosis": "patient is fine",
-                                "medication_prescribed": "tylenol",
-                                "special_investigations": "bcccccccccddeeeff",
-                                "treatment": "b",
-                                "follow_up_needed": True, - required
-                                "follow_up_instructions": "pls help, give lots of tylenol" - required if follow_up_needed = True
-                            }
-        """
-        try:
-            return AssessmentValidator(**request_body)
-        except ValidationError as e:
-            raise ValidationExceptionError(str(e.errors()[0]["msg"]))

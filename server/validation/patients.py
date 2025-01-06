@@ -1,15 +1,33 @@
 from datetime import datetime
 from typing import Any, List, Optional
 
-from pydantic import Field, ValidationError, field_validator
+from pydantic import Field, field_validator
 
 from utils import get_current_time
 from validation import CradleBaseModel
 from validation.readings import ReadingValidator
-from validation.validation_exception import ValidationExceptionError
 
 
 class PatientValidator(CradleBaseModel):
+    """
+    {
+        "id": "123456",
+        "name": "Jane Doe",
+        "is_pregnant": true,
+        "sex": "FEMALE",
+        "date_of_birth": "1990-05-30",
+        "is_exact_date_of_birth: false
+        "household_number": "20",
+        "zone": "15",
+        "village_number": "50",
+        "pregnancy_start_date": 1587068710, - required if is_pregnant = True
+        "drug_history": "too much tylenol",
+        "medical_history": "not enough advil",
+        "allergy": "seafood",
+        "is_archived": false
+    }
+    """
+
     id: str
     name: str
     sex: str
@@ -45,58 +63,10 @@ class PatientValidator(CradleBaseModel):
 class PatientPostValidator(PatientValidator):
     readings: Optional[List[ReadingValidator]] = None
 
-    @staticmethod
-    def validate(request_body: dict):
-        """
-        Raises an error if the /api/patients post request
-        is not valid.
-
-        :param request_body: The request body as a dict object
-                            {
-                                "id": "123456", - required
-                                "name": "testName", - required
-                                "is_pregnant": True, - required
-                                "sex": "FEMALE", - required
-                                "date_of_birth": "1990-05-30", - required
-                                "is_exact_date_of_birth: false - required
-                                "household_number": "20",
-                                "zone": "15",
-                                "village_number": "50",
-                                "pregnancy_start_date": 1587068710, - required if is_pregnant = True
-                                "drug_history": "too much tylenol",
-                                "medical_history": "not enough advil",
-                                "allergy": "seafood",
-                                "is_archived": false
-                            }
-        """
-        try:
-            return PatientPostValidator(**request_body)
-        except ValidationError as e:
-            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
-
 
 class PatientPutValidator(PatientValidator, extra="forbid"):
     last_edited: int = Field(default_factory=get_current_time)
     base: Optional[int] = None
-
-    @staticmethod
-    def validate(request_body: dict, patient_id):
-        """
-        Raises an error if the /api/patients/<string:patient_id>/info PUT
-        request is not valid. Else, returns None.
-
-        :param request_body: The request body as a dict object
-        :param patient_id: The patient ID the PUT request is being made for
-        """
-        try:
-            patient = PatientPutValidator(**request_body)
-        except ValidationError as e:
-            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
-
-        if patient.id and patient.id != patient_id:
-            raise ValidationExceptionError("Patient ID cannot be changed.")
-
-        return patient
 
 
 def is_correct_date_format(s: Any) -> bool:
@@ -115,8 +85,8 @@ def is_correct_date_format(s: Any) -> bool:
 
 class PatientSyncValidator(PatientValidator):
     """
-    The mobile app stores pregnancy information inside of the Patient model. We
-    should really refactor that at some point. For now, the body of the sync
+    The mobile app stores pregnancy information inside of the Patient model.
+    We should really refactor that at some point. For now, the body of the sync
     request will contain both patient and pregnancy data.
     """
 

@@ -1,12 +1,11 @@
 from typing import List, Optional
 
-from pydantic import Field, StrictBool, ValidationError, model_validator
+from pydantic import Field, StrictBool, model_validator
 from typing_extensions import Self
 
 from utils import get_current_time
 from validation import CradleBaseModel
 from validation.questions import FormQuestionPutValidator, FormQuestionValidator
-from validation.validation_exception import ValidationExceptionError
 
 
 class FormValidator(CradleBaseModel, extra="forbid"):
@@ -29,44 +28,20 @@ class FormValidator(CradleBaseModel, extra="forbid"):
             )
         return self
 
-    @staticmethod
-    def validate(request_body: dict):
-        """
-        Raises an error if the form in /api/forms/responses
-        POST request is not valid.
-
-        :param request_body: The request body as a dict object
-        """
-        try:
-            return FormValidator(**request_body)
-        except ValidationError as e:
-            print(e)
-            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
-
 
 class FormPutValidator(CradleBaseModel, extra="forbid"):
-    questions: List[FormQuestionPutValidator]
-
-    @staticmethod
-    def validate(request_body: dict):
-        """
-        Raises an error if the /api/forms/responses PUT request is not valid.
-
-        :param request_body: The request body as a dict object
-
-        example valid case:
-        {
-            "questions": [
-                {
-                    "id":"asdsd-1123123",
-                    "answers": {
-                        "number": 4
-                    }
+    """
+    example valid case:
+    {
+        "questions": [
+            {
+                "id":"1234-5678",
+                "answers": {
+                    "number": 4
                 }
-            ]
-        }
-        """
-        try:
-            return FormPutValidator(**request_body)
-        except ValidationError as e:
-            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+            }
+        ]
+    }
+    """
+
+    questions: List[FormQuestionPutValidator]

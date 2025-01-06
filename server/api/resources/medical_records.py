@@ -43,8 +43,11 @@ def create_medical_record(path: PatientIdPath, body: MedicalRecordValidator):
                 409,
                 description=f"A medical record with ID {body.id} already exists.",
             )
-
-    body.patient_id = path.patient_id
+    if body.patient_id is not None:
+        if body.patient_id != path.patient_id:
+            return abort(400, description="Patient IDs must match.")
+    else:
+        body.patient_id = path.patient_id
     new_medical_record = body.model_dump()
     new_medical_record = _process_request_body(new_medical_record)
     new_record = marshal.unmarshal(MedicalRecordOrm, new_medical_record)

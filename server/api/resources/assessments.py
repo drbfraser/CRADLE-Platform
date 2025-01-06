@@ -1,5 +1,6 @@
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
+from flask_openapi3.models.tag import Tag
 
 from common.api_utils import AssessmentIdPath
 from common.user_utils import get_current_user_from_jwt
@@ -7,16 +8,19 @@ from data import crud, marshal
 from models import AssessmentOrm
 from validation.assessments import AssessmentValidator
 
+assessments_tag = Tag(name="Assessments", description="")
 api_assessments = APIBlueprint(
     name="assessments",
     import_name=__name__,
     url_prefix="/assessments",
+    abp_tags=[assessments_tag],
 )
 
 
 # /api/assessments [GET]
 @api_assessments.get("")
 def get_all_assessments():
+    """Get all assessments"""
     assessments = crud.read_all(AssessmentOrm)
     return [marshal.marshal(assessment) for assessment in assessments]
 
