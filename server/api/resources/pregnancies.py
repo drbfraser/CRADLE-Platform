@@ -10,8 +10,7 @@ from data import crud, marshal
 from models import PregnancyOrm
 from service import serialize, view
 from validation.pregnancies import (
-    PregnancyPostRequestValidator,
-    PregnancyPutRequestValidator,
+    PregnancyValidator,
 )
 
 
@@ -27,7 +26,7 @@ def get_patient_pregnancies(path: PatientIdPath, query: SearchFilterQueryParams)
 # /api/patients/<string:patient_id>/pregnancies [POST]
 @patient_association_required()
 @api_patients.post("/<string:patient_id>/pregnancies")
-def create_patient_pregnancy(path: PatientIdPath, body: PregnancyPostRequestValidator):
+def create_patient_pregnancy(path: PatientIdPath, body: PregnancyValidator):
     if body.id is not None:
         pregnancy_id = body.id
         if crud.read(PregnancyOrm, id=pregnancy_id):
@@ -61,7 +60,7 @@ def get(path: PregnancyIdPath):
 
 # /api/pregnancies/<string:pregnancy_id> [PUT]
 @api_pregnancies.put("/<string:pregnancy_id>")
-def update_pregnancy(path: PregnancyIdPath, body: PregnancyPutRequestValidator):
+def update_pregnancy(path: PregnancyIdPath, body: PregnancyValidator):
     pregnancy_model_dump = body.model_dump()
 
     pregnancy = crud.read(PregnancyOrm, id=path.pregnancy_id)
