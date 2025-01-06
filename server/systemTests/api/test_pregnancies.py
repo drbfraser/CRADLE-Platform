@@ -73,6 +73,7 @@ def test_post_and_delete_pregnancy(
 
     pregnancy = {
         "id": pregnancy_id,
+        "patient_id": patient_id,
         "start_date": pregnancy_later["start_date"],
     }
     response = api_post(
@@ -205,6 +206,7 @@ def test_invalid_pregnancy_not_created(
     start_date = pregnancy_earlier["end_date"] + approx_1_month
     pregnancy = {
         "id": pregnancy_earlier["id"],
+        "patient_id": patient_id,
         "start_date": start_date,
     }
     response = api_post(
@@ -220,6 +222,7 @@ def test_invalid_pregnancy_not_created(
 
     start_date = pregnancy_earlier["end_date"] - approx_1_month
     pregnancy = {
+        "patient_id": patient_id,
         "start_date": start_date,
     }
     response = api_post(
@@ -236,6 +239,7 @@ def test_invalid_pregnancy_not_created(
     end_date = pregnancy_earlier["start_date"] + approx_1_month
     start_date = end_date - approx_8_months
     pregnancy = {
+        "patient_id": patient_id,
         "start_date": start_date,
         "end_date": end_date,
     }
