@@ -19,7 +19,6 @@ import { PostBody } from 'src/pages/customizedForm/customizedEditForm/handlers';
 import { reduxStore } from 'src/redux/store';
 import { showMessage } from 'src/redux/actions/messageActions';
 import { EditUser, NewUser, User } from './validation/user';
-import { snakeCase, camelCase } from 'lodash';
 import { jwtDecode } from 'jwt-decode';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
 
@@ -28,65 +27,10 @@ export const API_URL =
     ? `http://${window.location.hostname}:5000/api`
     : '/api';
 
-/* Applies transform function to the keys of the object recursively, so nested
-properties will be transformed correctly. */
-const recursivelyTransformKeys = (
-  obj: unknown,
-  transformKey: (key: string) => string
-): any => {
-  if (!obj) return obj;
-  if (Array.isArray(obj)) {
-    return obj.map((elem) => {
-      // Recursively call function on elements of array.
-      return recursivelyTransformKeys(elem, transformKey);
-    });
-  }
-  if (typeof obj !== 'object') return obj;
-  const o: { [key: string]: any } = obj;
-  return Object.keys(obj).reduce((prevVal, key) => {
-    return {
-      ...prevVal,
-      [transformKey(key)]: recursivelyTransformKeys(o[key], transformKey),
-    };
-  }, {});
-};
-
-// Convert the object's keys to snake case.
-const convertKeysToSnakeCase = (data: object) => {
-  return recursivelyTransformKeys(data, snakeCase);
-};
-// Convert the object's keys to camel case.
-const convertKeysToCamelCase = (data: object) => {
-  return recursivelyTransformKeys(data, camelCase);
-};
-
 // Create an axios instance to apply default configs to.
 export const axiosFetch = axios.create({
   baseURL: API_URL,
   withCredentials: true, // Necessary for cookies.
-  transformRequest: [
-    (data: object) => {
-      // Before putting the data in the request, convert keys to snake case
-      // as the server will be expecting the data to be in snake case.
-      const transformedData = convertKeysToSnakeCase(data);
-      return JSON.stringify(transformedData);
-    },
-  ],
-  transformResponse: [
-    (data) => {
-      try {
-        // Parse json string into object.
-        const parsedData = JSON.parse(data);
-        // Convert keys to camel case.
-        const transformedData = convertKeysToCamelCase(parsedData);
-        return transformedData;
-      } catch {
-        /** If data couldn't be parsed as a JSON object, then it may be a file.
-         *  Pass it along as is. */
-        return data;
-      }
-    },
-  ],
 });
 
 export const getApiToken = async () => {
