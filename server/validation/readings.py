@@ -1,14 +1,32 @@
 from typing import List, Optional
 
-from pydantic import ValidationError
-
 from validation import CradleBaseModel
 from validation.assessments import AssessmentValidator
 from validation.referrals import ReferralEntityValidator
-from validation.validation_exception import ValidationExceptionError
 
 
 class ReadingValidator(CradleBaseModel):
+    """
+    {
+        "patient_id": "123456",
+        "systolic_blood_pressure" : 150,
+        "diastolic_blood_pressure" : 150,
+        "heart_rate" : 55,
+        "is_flagged_for_follow_up" : true,
+        "symptoms": ["Headache, "Blurred vision", "Bleeding", "Sleepy"],
+        "date_taken": 868545,
+        "assessment": {
+            "date_assessed": 1551447833,
+            "diagnosis": "Patient is fine.",
+            "medication_prescribed": "Tylenol",
+            "special_investigations": "Lorem ipsum.",
+            "treatment": "Take Tylenol twice a day.",
+            "follow_up_needed": true,
+            "follow_up_instructions": "Give lots of Tylenol."
+        }
+    }
+    """
+
     id: Optional[str] = None
     patient_id: str
     systolic_blood_pressure: int
@@ -20,44 +38,3 @@ class ReadingValidator(CradleBaseModel):
     user_id: Optional[int] = None
     assessment: Optional[AssessmentValidator] = None
     referral: Optional[ReferralEntityValidator] = None
-
-    @staticmethod
-    def validate(request_body: dict):
-        """
-        Raises an error if the /api/readings post request
-        is not valid.
-
-        :param request_body: The request body as a dict object
-                            {
-                                "patient_id": "123456", - required
-                                "systolic_blood_pressure" : 150, - required
-                                "diastolic_blood_pressure" : 150, - required
-                                "heart_rate" : 35, - required
-                                "is_flagged_for_follow_up" : True,
-                                "symptoms": ["Headache,Blurred vision,Bleeding,sleepy"], - required
-                                "date_taken": 868545,
-                                "assessment": {
-                                    "date_assessed": 1551447833,
-                                    "diagnosis": "patient is fine",
-                                    "medication_prescribed": "tylenol",
-                                    "special_investigations": "bcccccccccddeeeff",
-                                    "treatment": "b",
-                                    "reading_id": "test3",
-                                    "follow_up_needed": "TRUE",
-                                    "follow_up_instructions": "pls help, give lots of tylenol"
-                                }
-                            }
-        """
-        try:
-            reading_model = ReadingValidator(**request_body)
-        except ValidationError as e:
-            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
-
-        # Check if the nested assessment object is valid
-        if "assessment" in request_body:
-            try:
-                AssessmentValidator.validate(request_body["assessment"])
-            except ValidationError as e:
-                raise ValidationExceptionError(str(e.errors()[0]["msg"]))
-
-        return reading_model

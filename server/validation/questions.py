@@ -23,62 +23,65 @@ class MultipleChoiceOptionValidator(CradleBaseModel):
 
 
 class AnswerValidator(CradleBaseModel, extra="forbid"):
+    """
+    valid example (all fields, in real case only present one part of it):
+    {
+        "number": 5.0,
+        "text": "a",
+        "mc_id_array": [0, 1],
+        "comment": "other option"
+    }
+    TODO: Refactor this into separate classes. These shouldn't all be in
+        one class if only one is expected to be present at a time.
+    """
+
     comment: Optional[str] = None
     mc_id_array: Optional[List[int]] = None
     number: Optional[Union[int, float]] = None
     text: Optional[str] = None
 
-    """
-    valid example (all fields, in real case only present one part of it):
-    {
-        "number": 5/5.0,
-        "text": "a",
-        "mc_id_array":[0,1],
-        "comment": "other opt"
-    }
-    """
-
 
 class VisibleConditionValidator(CradleBaseModel, use_enum_values=True):
-    answers: AnswerValidator
-    question_index: int
-    relation: QRelationalEnum
-
     """
-    valid example:
-    [
+    Valid example:
         {
             "question_index": 1,
             "relation": "EQUAL_TO",
             "answers": {
                 "number": 5
             }
-        },...
-    ]
+        }
+    TODO: Figure out how this works and write an explanation of it.
     """
+
+    question_index: int
+    answers: AnswerValidator
+    relation: QRelationalEnum
 
 
 class QuestionLangVersionValidator(CradleBaseModel, extra="forbid"):
-    lang: str
-    mc_options: Optional[List[MultipleChoiceOptionValidator]] = None
-    question_text: str
-
     """
     valid example:
-    [
-        {
+    {
         "lang": "English",
-        "question_text": "How the patient's condition?",
-            "mc_options": [
-                {
-                    "mc_id":0,
-                    "opt": "Decent"
-                }
-            ],
-        },
+        "question_text": "How is the patient's condition?",
+        "mc_options": [
+            {
+                "mc_id": 0,
+                "opt": "Good"
+            },
+            {
+                "mc_id": 1,
+                "opt": "Bad"
+            }
+        ],
+    },
 
-    ]
     """
+
+    lang: str
+    question_text: str
+    mc_options: Optional[List[MultipleChoiceOptionValidator]] = None
 
 
 class QuestionBase(CradleBaseModel, use_enum_values=True):
