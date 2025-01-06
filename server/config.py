@@ -112,6 +112,7 @@ API_DOCS_TITLE = "Cradle-Platform REST API"
 app = FlaskOpenAPI(
     import_name=__name__,
     static_folder="../client/build",
+    doc_prefix="/apidocs",
     info=Info(title=API_DOCS_TITLE, version=app_version),
 )
 
