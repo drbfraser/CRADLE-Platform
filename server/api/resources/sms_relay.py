@@ -88,6 +88,7 @@ api_sms_relay = APIBlueprint(
     import_name=__name__,
     url_prefix="/sms_relay",
     abp_tags=[Tag(name="SMS Relay", description="")],
+    abp_security=[{"jwt": []}],
 )
 
 

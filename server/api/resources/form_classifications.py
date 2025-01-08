@@ -19,6 +19,7 @@ api_form_classifications = APIBlueprint(
     import_name=__name__,
     url_prefix="/forms/classifications",
     abp_tags=[Tag(name="Form Classifications", description="")],
+    abp_security=[{"jwt": []}],
 )
 
 

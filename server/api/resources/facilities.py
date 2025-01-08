@@ -19,6 +19,7 @@ api_facilities = APIBlueprint(
     import_name=__name__,
     url_prefix="/facilities",
     abp_tags=[Tag(name="Facilities", description="")],
+    abp_security=[{"jwt": []}],
 )
 
 

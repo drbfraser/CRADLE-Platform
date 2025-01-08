@@ -104,6 +104,8 @@ api_patients_mobile = APIBlueprint(
     name="patients_android",
     import_name=__name__,
     url_prefix="/mobile",
+    abp_tags=[Tag(name="Mobile Patients", description="")],
+    abp_security=[{"jwt": []}],
 )
 
 

@@ -50,6 +50,7 @@ api_pregnancies = APIBlueprint(
     import_name=__name__,
     url_prefix="/pregnancies",
     abp_tags=[Tag(name="Pregnancies", description="")],
+    abp_security=[{"jwt": []}],
 )
 
 

@@ -52,70 +52,17 @@ api_users = APIBlueprint(
     import_name=__name__,
     url_prefix="/user",
     abp_tags=[Tag(name="Users", description="")],
+    abp_security=[{"jwt": []}],
 )
 
-
-# /api/user/all [GET]
-@api_users.get("/all")
-@roles_required([RoleEnum.ADMIN])
-def get_all_users():
-    user_list = user_utils.get_all_users_data()
-    return user_list, 200
-
-
-# api/user/vhts [GET]
-@api_users.get("/vhts")
-@roles_required([RoleEnum.CHO, RoleEnum.ADMIN, RoleEnum.HCW])
-def get_all_vhts():
-    vht_model_list = crud.find(UserOrm, UserOrm.role == RoleEnum.VHT.value)
-    vht_dictionary_list = []
-    for vht in vht_model_list:
-        marshal.marshal(vht)
-        vht_dictionary_list.append(
-            {
-                "user_id": vht.id,
-                "email": vht.email,
-                "health_facility_name": vht.health_facility_name,
-                "name": vht.name,
-            },
-        )
-
-    if vht_dictionary_list is None:
-        return []
-    return vht_dictionary_list
-
-
-# api/user/<int:user_id>/change_pass [POST]
-@api_users.post("/<int:user_id>/change_pass")
-@roles_required([RoleEnum.ADMIN])
-def change_password_admin(path: UserIdPath):
-    # TODO: Reimplement this with the new authentication system.
-    return abort(500, description="This endpoint has not yet been implemented.")
-
-
-# /api/user/current/change_pass [POST]
-@api_users.post("/current/change_pass")
-def change_password_current_user():
-    # TODO: Reimplement this with the new authentication system.
-    return abort(500, description="This endpoint has not yet been implemented.")
-
-
-# api/user/register [POST]
-@api_users.post("/register")
-@roles_required([RoleEnum.ADMIN])
-def register_user(body: UserRegisterValidator):
-    """
-    Create a new User.
-    """
-    new_user_dict = body.model_dump()
-    try:
-        user_utils.create_user(**new_user_dict)
-    except ValueError as e:
-        error_message = str(e)
-        LOGGER.error(error_message)
-        return abort(400, description=error_message)
-
-    return user_utils.get_user_dict_from_username(body.username), 200
+# /api/user/auth
+api_auth = APIBlueprint(
+    name="auth",
+    import_name=__name__,
+    url_prefix="/auth",
+    abp_tags=[Tag(name="Auth", description="")],
+    # abp_security=None,
+)
 
 
 app = config.app
@@ -128,8 +75,8 @@ limiter = Limiter(
 )
 
 
-# api/user/auth [POST]
-@api_users.post("/auth", security=[])
+# /api/user/auth [POST]
+@api_auth.post("")
 @limiter.limit(
     "10 per minute, 20 per hour, 30 per day",
     error_message="Login attempt limit reached please try again later.",
@@ -196,8 +143,8 @@ class RefreshTokenApiBody(CradleBaseModel):
     username: str
 
 
-# api/user/auth/refresh_token [POST]
-@api_users.post("/auth/refresh_token", security=[])
+# /api/user/auth/refresh_token [POST]
+@api_auth.post("/refresh_token")
 def refresh_access_token(body: RefreshTokenApiBody):
     username = body.username
     try:
@@ -207,6 +154,72 @@ def refresh_access_token(body: RefreshTokenApiBody):
         LOGGER.error(error)
         return abort(401, description=error)
     return {"access_token": new_access_token}, 200
+
+
+api_users.register_api(api_auth)
+
+
+# /api/user/all [GET]
+@api_users.get("/all")
+@roles_required([RoleEnum.ADMIN])
+def get_all_users():
+    user_list = user_utils.get_all_users_data()
+    return user_list, 200
+
+
+# /api/user/vhts [GET]
+@api_users.get("/vhts")
+@roles_required([RoleEnum.CHO, RoleEnum.ADMIN, RoleEnum.HCW])
+def get_all_vhts():
+    vht_model_list = crud.find(UserOrm, UserOrm.role == RoleEnum.VHT.value)
+    vht_dictionary_list = []
+    for vht in vht_model_list:
+        marshal.marshal(vht)
+        vht_dictionary_list.append(
+            {
+                "user_id": vht.id,
+                "email": vht.email,
+                "health_facility_name": vht.health_facility_name,
+                "name": vht.name,
+            },
+        )
+
+    if vht_dictionary_list is None:
+        return []
+    return vht_dictionary_list
+
+
+# /api/user/<int:user_id>/change_pass [POST]
+@api_users.post("/<int:user_id>/change_pass")
+@roles_required([RoleEnum.ADMIN])
+def change_password_admin(path: UserIdPath):
+    # TODO: Reimplement this with the new authentication system.
+    return abort(500, description="This endpoint has not yet been implemented.")
+
+
+# /api/user/current/change_pass [POST]
+@api_users.post("/current/change_pass")
+def change_password_current_user():
+    # TODO: Reimplement this with the new authentication system.
+    return abort(500, description="This endpoint has not yet been implemented.")
+
+
+# /api/user/register [POST]
+@api_users.post("/register")
+@roles_required([RoleEnum.ADMIN])
+def register_user(body: UserRegisterValidator):
+    """
+    Create a new User.
+    """
+    new_user_dict = body.model_dump()
+    try:
+        user_utils.create_user(**new_user_dict)
+    except ValueError as e:
+        error_message = str(e)
+        LOGGER.error(error_message)
+        return abort(400, description=error_message)
+
+    return user_utils.get_user_dict_from_username(body.username), 200
 
 
 # /api/user/current [GET]
@@ -219,7 +232,7 @@ def get_current_user():
     return current_user, 200
 
 
-# api/user/<int:user_id> [PUT]
+# /api/user/<int:user_id> [PUT]
 @api_users.put("/<int:user_id>")
 @roles_required([RoleEnum.ADMIN])
 def edit_user(path: UserIdPath, body: UserValidator):
@@ -233,7 +246,7 @@ def edit_user(path: UserIdPath, body: UserValidator):
     return user_utils.get_user_dict_from_id(path.user_id), 200
 
 
-# api/user/<int:user_id> [GET]
+# /api/user/<int:user_id> [GET]
 @api_users.get("/<int:user_id>")
 def get_user(path: UserIdPath):
     try:
@@ -245,7 +258,7 @@ def get_user(path: UserIdPath):
     return user_dict, 200
 
 
-# api/user/<int:user_id> [DELETE]
+# /api/user/<int:user_id> [DELETE]
 @api_users.delete("/<int:user_id>")
 @roles_required([RoleEnum.ADMIN])
 def delete_user(path: UserIdPath):
@@ -263,7 +276,7 @@ def delete_user(path: UserIdPath):
         LOGGER.error(error)
         return abort(400, description=error)
 
-    return {"message": "User deleted."}, 200
+    return {"description": "User deleted."}, 200
 
 
 class UserPhoneNumbers(CradleBaseModel):
@@ -273,7 +286,7 @@ class UserPhoneNumbers(CradleBaseModel):
 # TODO: Rework these endpoints. Users should be able to have multiple phone numbers.
 
 
-# api/user/<int:user_id>/phone [GET]
+# /api/user/<int:user_id>/phone [GET]
 @api_users.get("/<int:user_id>/phone")
 def get_users_phone_numbers(path: UserIdPath):
     # Check if user exists.
@@ -283,7 +296,7 @@ def get_users_phone_numbers(path: UserIdPath):
     return {"phone_numbers": phone_numbers}, 200
 
 
-# api/user/<int:user_id>/phone [PUT]
+# /api/user/<int:user_id>/phone [PUT]
 @api_users.put("/<int:user_id>/phone")
 @roles_required([RoleEnum.ADMIN])
 def update_users_phone_numbers(path: UserIdPath, body: UserPhoneNumbers):
@@ -298,14 +311,14 @@ def update_users_phone_numbers(path: UserIdPath, body: UserPhoneNumbers):
         return abort(400, error)
 
 
-# api/user/<int:user_id>/smskey [GET]
+# /api/user/<int:user_id>/smskey [GET]
 @api_users.get("/<int:user_id>/smskey")
 def get_users_sms_key(path: UserIdPath):
     current_user = user_utils.get_current_user_from_jwt()
     if current_user["role"] != "ADMIN" and current_user["id"] is not path.user_id:
         return (
             {
-                "message": "Permission denied, you can only get your own sms-key or use the admin account",
+                "description": "Permission denied, you can only get your own sms-key or use the admin account",
             },
             403,
         )
@@ -316,14 +329,14 @@ def get_users_sms_key(path: UserIdPath):
     return sms_key, 200
 
 
-# api/user/<int:user_id>/smskey [PUT]
+# /api/user/<int:user_id>/smskey [PUT]
 @api_users.put("/<int:user_id>/smskey")
 def update_users_sms_key(path: UserIdPath):
     current_user = user_utils.get_current_user_from_jwt()
     if current_user["role"] != "ADMIN" and current_user["id"] is not path.user_id:
         return (
             {
-                "message": "Permission denied, you can only get your own sms-key or use the admin account",
+                "description": "Permission denied, you can only get your own sms-key or use the admin account",
             },
             403,
         )
@@ -336,14 +349,14 @@ def update_users_sms_key(path: UserIdPath):
     return new_key, 200
 
 
-# api/user/<int:user_id>/smskey [POST])
+# /api/user/<int:user_id>/smskey [POST])
 @api_users.post("/<int:user_id>/smskey")
 def create_users_sms_key(path: UserIdPath):
     current_user = user_utils.get_current_user_from_jwt()
     if current_user["role"] != "ADMIN" and current_user["id"] is not path.user_id:
         return (
             {
-                "message": "Permission denied, you can only get your own sms-key or use the admin account",
+                "description": "Permission denied, you can only get your own sms-key or use the admin account",
             },
             403,
         )
@@ -368,7 +381,7 @@ api_phone = APIBlueprint(
 )
 
 
-# api/phone/is_relay [GET]
+# /api/phone/is_relay [GET]
 @api_phone.get("/is_relay")
 def is_relay_phone_number(body: RelayPhoneNumber):
     phone_number = str(body.phone_number)
@@ -380,7 +393,7 @@ def is_relay_phone_number(body: RelayPhoneNumber):
     return abort(403, description="Permission denied.")
 
 
-# api/phone/relays [GET]
+# /api/phone/relays [GET]
 @api_phone.get("/relays")
 def get_all_relay_phone_numbers():
     relay_phone_numbers = crud.get_all_relay_phone_numbers()

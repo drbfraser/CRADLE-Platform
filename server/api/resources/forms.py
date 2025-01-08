@@ -21,6 +21,7 @@ api_form_submissions = APIBlueprint(
     import_name=__name__,
     url_prefix="/forms/responses",
     abp_tags=[Tag(name="Forms", description="")],
+    abp_security=[{"jwt": []}],
 )
 
 

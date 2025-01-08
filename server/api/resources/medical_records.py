@@ -66,6 +66,7 @@ api_medical_records = APIBlueprint(
     import_name=__name__,
     url_prefix="/medical_records",
     abp_tags=[medical_records_tag],
+    abp_security=[{"jwt": []}],
 )
 
 

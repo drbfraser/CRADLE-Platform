@@ -87,6 +87,7 @@ api_stats = APIBlueprint(
     import_name=__name__,
     url_prefix="/stats",
     abp_tags=[Tag(name="Stats", description="")],
+    abp_security=[{"jwt": []}],
 )
 
 

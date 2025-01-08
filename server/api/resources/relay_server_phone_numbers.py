@@ -16,6 +16,7 @@ api_relay_phone_numbers = APIBlueprint(
     import_name=__name__,
     url_prefix="/relay/server/phone",
     abp_tags=[Tag(name="SMS Relay Server Phone Numbers", description="")],
+    abp_security=[{"jwt": []}],
 )
 
 

@@ -31,6 +31,7 @@ api_sync = APIBlueprint(
     import_name=__name__,
     url_prefix="/sync",
     abp_tags=[Tag(name="Sync", description="")],
+    abp_security=[{"jwt": []}],
 )
 
 

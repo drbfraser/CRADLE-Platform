@@ -14,6 +14,7 @@ api_upload = APIBlueprint(
     import_name=__name__,
     url_prefix="/upload",
     abp_tags=[Tag(name="Upload", description="")],
+    abp_security=[{"jwt": []}],
 )
 
 

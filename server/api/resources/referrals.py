@@ -27,6 +27,7 @@ api_referrals = APIBlueprint(
     import_name=__name__,
     url_prefix="/referrals",
     abp_tags=[Tag(name="Referrals", description="")],
+    abp_security=[{"jwt": []}],
 )
 
 

@@ -26,6 +26,7 @@ api_form_templates = APIBlueprint(
     import_name=__name__,
     url_prefix="/forms/templates",
     abp_tags=[Tag(name="Form Templates", description="")],
+    abp_security=[{"jwt": []}],
 )
 
 

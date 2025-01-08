@@ -17,6 +17,7 @@ api_readings = APIBlueprint(
     import_name=__name__,
     url_prefix="/readings",
     abp_tags=[Tag(name="Readings", description="")],
+    abp_security=[{"jwt": []}],
 )
 
 
