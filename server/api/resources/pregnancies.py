@@ -19,6 +19,7 @@ from validation.pregnancies import (
 @patient_association_required()
 @api_patients.get("/<string:patient_id>/pregnancies")
 def get_patient_pregnancies(path: PatientIdPath, query: SearchFilterQueryParams):
+    """Get Patient's Pregnancies"""
     params = query.model_dump()
     pregnancies = view.pregnancy_view(path.patient_id, **params)
     return [serialize.serialize_pregnancy(p) for p in pregnancies]
@@ -27,7 +28,8 @@ def get_patient_pregnancies(path: PatientIdPath, query: SearchFilterQueryParams)
 # /api/patients/<string:patient_id>/pregnancies [POST]
 @patient_association_required()
 @api_patients.post("/<string:patient_id>/pregnancies")
-def create_patient_pregnancy(path: PatientIdPath, body: PregnancyValidator):
+def create_new_pregnancy(path: PatientIdPath, body: PregnancyValidator):
+    """Create New Pregnancy"""
     if body.id is not None:
         pregnancy_id = body.id
         if crud.read(PregnancyOrm, id=pregnancy_id):
@@ -56,7 +58,8 @@ api_pregnancies = APIBlueprint(
 
 # /api/pregnancies/<string:pregnancy_id> [GET]
 @api_pregnancies.get("/<string:pregnancy_id>")
-def get(path: PregnancyIdPath):
+def get_pregnancy(path: PregnancyIdPath):
+    """Get Pregnancy"""
     pregnancy = _get_pregnancy(path.pregnancy_id)
     return marshal.marshal(pregnancy)
 
@@ -64,6 +67,7 @@ def get(path: PregnancyIdPath):
 # /api/pregnancies/<string:pregnancy_id> [PUT]
 @api_pregnancies.put("/<string:pregnancy_id>")
 def update_pregnancy(path: PregnancyIdPath, body: PregnancyValidator):
+    """Update Pregnancy"""
     pregnancy_model_dump = body.model_dump()
 
     pregnancy = crud.read(PregnancyOrm, id=path.pregnancy_id)
@@ -85,6 +89,7 @@ def update_pregnancy(path: PregnancyIdPath, body: PregnancyValidator):
 # /api/pregnancies/<string:pregnancy_id> [DELETE]
 @api_pregnancies.delete("/<string:pregnancy_id>")
 def delete_pregnancy(path: PregnancyIdPath):
+    """Delete Pregnancy"""
     pregnancy = _get_pregnancy(path.pregnancy_id)
     crud.delete(pregnancy)
     return {"message": "Pregnancy record deleted"}

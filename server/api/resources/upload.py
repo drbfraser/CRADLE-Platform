@@ -22,6 +22,7 @@ api_upload = APIBlueprint(
 @api_upload.get("/admin")
 @roles_required([RoleEnum.ADMIN])
 def get_sms_relay_apk():
+    """Get SMS Relay APK"""
     return send_from_directory(
         current_app.config["UPLOAD_FOLDER"],
         "cradle_sms_relay.apk",
@@ -32,6 +33,7 @@ def get_sms_relay_apk():
 @api_upload.post("/admin")
 @roles_required([RoleEnum.ADMIN])
 def upload_apk_file(form: FileUploadForm):
+    """Upload APK File"""
     file = form.file
 
     if not is_allowed_file(file.filename):

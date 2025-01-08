@@ -95,9 +95,7 @@ api_stats = APIBlueprint(
 @api_stats.get("all")
 @roles_required([RoleEnum.ADMIN])
 def get_all_stats(query: TimeframeValidator):
-    """
-    Get all statistics for patients.
-    """
+    """Get All Stats"""
     # Date filters default to max range
     filter = query.model_dump()
     response = query_stats_data(filter)
@@ -108,6 +106,7 @@ def get_all_stats(query: TimeframeValidator):
 @api_stats.get("/facility/<string:health_facility_name>")
 @roles_required([RoleEnum.ADMIN, RoleEnum.HCW])
 def get_facility_stats(path: FacilityNamePath, query: TimeframeValidator):
+    """Get Facility Stats"""
     current_user = user_utils.get_current_user_from_jwt()
     if (
         current_user["role"] == RoleEnum.HCW.value
@@ -152,6 +151,7 @@ def has_permission_to_view_user(user_id):
 @api_stats.get("/user/<int:user_id>")
 @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
 def get_user_stats(path: UserIdPath, query: TimeframeValidator):
+    """Get User Stats"""
     if not has_permission_to_view_user(path.user_id):
         return abort(401, "Unauthorized to view this endpoint")
     filter = query.model_dump()
@@ -163,6 +163,7 @@ def get_user_stats(path: UserIdPath, query: TimeframeValidator):
 @api_stats.get("/export/<int:user_id>")
 @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
 def get_stats_export(path: UserIdPath, query: TimeframeValidator):
+    """Get Stats (Export)"""
     filter = query.model_dump()
 
     if crud.read(UserOrm, id=path.user_id) is None:

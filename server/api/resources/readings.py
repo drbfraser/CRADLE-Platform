@@ -23,7 +23,8 @@ api_readings = APIBlueprint(
 
 # /api/readings [POST]
 @api_readings.post("")
-def create_reading(body: ReadingValidator):
+def create_new_reading(body: ReadingValidator):
+    """Create New Reading"""
     if crud.read(PatientOrm, id=body.patient_id) is None:
         return abort(404, description=f"No Patient found with ID: {body.patient_id}")
 
@@ -69,6 +70,7 @@ def create_reading(body: ReadingValidator):
 # /api/readings/<string:reading_id> [GET]
 @api_readings.get("/<string:reading_id>")
 def get_reading(path: ReadingIdPath):
+    """Get Reading"""
     reading = crud.read(ReadingOrm, reading_id=path.reading_id)
     if reading is None:
         return abort(404, description=f"No reading with ID: {path.reading_id}")

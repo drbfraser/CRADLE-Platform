@@ -26,6 +26,7 @@ api_form_classifications = APIBlueprint(
 # /api/forms/classifications [GET]
 @api_form_classifications.get("")
 def get_all_form_classifications():
+    """Get All Form Classifications"""
     form_classifications = crud.read_all(FormClassificationOrm)
     return [marshal.marshal(f, shallow=True) for f in form_classifications], 200
 
@@ -34,6 +35,7 @@ def get_all_form_classifications():
 @api_form_classifications.post("")
 @roles_required([RoleEnum.ADMIN])
 def create_form_classification(body: ClassificationValidator):
+    """Create Form Classification"""
     # Note: This validation logic is left out of the Pydantic validation system
     # because it relies on the database, which the unit tests do not have access to (Issue #689)
     if body.id is not None:
@@ -53,6 +55,7 @@ def create_form_classification(body: ClassificationValidator):
 # /api/forms/classifications/<string:form_classification_id> [GET]
 @api_form_classifications.get("/<string:form_classification_id>")
 def get_form_classification(path: FormClassificationIdPath):
+    """Get Form Classification"""
     form_classification = crud.read(
         FormClassificationOrm, id=path.form_classification_id
     )
@@ -74,6 +77,7 @@ class FormClassificationPutBody(CradleBaseModel):
 def update_form_classification_name(
     path: FormClassificationIdPath, body: FormClassificationPutBody
 ):
+    """Update Form Classification"""
     form_classification = crud.read(
         FormClassificationOrm, id=path.form_classification_id
     )
@@ -95,6 +99,7 @@ def update_form_classification_name(
 # /api/forms/classifications/summary [GET]
 @api_form_classifications.get("/summary")
 def get_form_classification_summary():
+    """Get Form Classification Summary"""
     form_classifications = crud.read_all(FormClassificationOrm)
     result_templates = []
 
@@ -127,6 +132,7 @@ def get_form_classification_summary():
 # /api/forms/classifications/<string:form_classification_id>/templates [GET]
 @api_form_classifications.get("/<string:form_classification_name>/templates")
 def get_form_classification_templates(path: FormClassificationIdPath):
+    """Get Form Classification Templates"""
     form_templates = crud.read_all(
         FormTemplateOrm,
         form_classification_id=path.form_classification_id,

@@ -31,7 +31,7 @@ api_referrals = APIBlueprint(
 )
 
 
-class GetAllReferralsQueryParams(SearchFilterQueryParams):
+class GetReferralsListQueryParams(SearchFilterQueryParams):
     health_facilities: list[str] = []
     referrers: list[str] = []
     vital_signs: list[str] = []
@@ -42,13 +42,18 @@ class GetAllReferralsQueryParams(SearchFilterQueryParams):
 
 # /api/referrals [GET]
 @api_referrals.get("")
-def get_all_referrals(query: GetAllReferralsQueryParams):
-    user_data = user_utils.get_current_user_from_jwt()
+def get_referrals_list(query: GetReferralsListQueryParams):
+    """
+    Get Referrals List
+    Returns a list of Referrals that match the search criteria specified by the
+    query parameters.
+    """
+    current_user = user_utils.get_current_user_from_jwt()
 
     if "default" in query.health_facilities:
-        query.health_facilities.append(user_data["health_facility_name"])
+        query.health_facilities.append(current_user["health_facility_name"])
 
-    user = cast(dict[Any, Any], user_data)
+    user = cast(dict[Any, Any], current_user)
     referrals = view.referral_list_view(user, **query.model_dump())
 
     return serialize.serialize_referral_list(referrals)
@@ -56,7 +61,8 @@ def get_all_referrals(query: GetAllReferralsQueryParams):
 
 # /api/referrals [POST]
 @api_referrals.post("")
-def create_referral(body: ReferralEntityValidator):
+def create_new_referral(body: ReferralEntityValidator):
+    """Create New Referral"""
     health_facility = crud.read(
         HealthFacilityOrm,
         name=body.health_facility_name,
@@ -94,6 +100,7 @@ def create_referral(body: ReferralEntityValidator):
 # /api/referrals/<string:referral_id> [GET]
 @api_referrals.get("/<string:referral_id>")
 def get_referral(path: ReferralIdPath):
+    """Get Referral"""
     referral = crud.read(ReferralOrm, id=path.referral_id)
     if referral is None:
         return abort(404, description=f"No Referral with ID: {path.referral_id}")
@@ -102,7 +109,11 @@ def get_referral(path: ReferralIdPath):
 
 # /api/referrals/assess/<string:referral_id> [PUT]
 @api_referrals.put("/assess/<string:referral_id>")
-def update_referral_assess(path: ReferralIdPath):
+def update_referral_assessed(path: ReferralIdPath):
+    """
+    Update Referral (Assessed)
+    Marks the Referral as having been assessed.
+    """
     referral = crud.read(ReferralOrm, id=path.referral_id)
     if referral is None:
         return abort(404, description=f"No Referral with ID: {path.referral_id}")
@@ -119,6 +130,7 @@ def update_referral_assess(path: ReferralIdPath):
 # /api/referrals/cancel-status-switch/<string:referral_id> [PUT]
 @api_referrals.put("/cancel-status-switch/<string:referral_id>")
 def update_referral_cancel_status(path: ReferralIdPath, body: CancelStatusValidator):
+    """Update Referral (Cancel Status)"""
     if crud.read(ReferralOrm, id=path.referral_id) is None:
         return abort(404, description=f"No referral with ID: {path.referral_id}")
 
@@ -142,6 +154,7 @@ def update_referral_cancel_status(path: ReferralIdPath, body: CancelStatusValida
 # /api/referrals/not-attend/<string:referral_id> [PUT]
 @api_referrals.put("/referrals/not-attend/<string:referral_id>")
 def update_referral_not_attend(path: ReferralIdPath, body: NotAttendValidator):
+    """Update Referral (Not Attend)"""
     referral = crud.read(ReferralOrm, id=path.referral_id)
     if referral is None:
         return abort(404, description=f"No referral with id {path.referral_id}")

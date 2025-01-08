@@ -26,6 +26,7 @@ medical_records_tag = Tag(name="Medical Records", description="")
 @patient_association_required()
 @api_patients.get("/<string:patient_id>/medical_records", tags=[medical_records_tag])
 def get_patients_medical_records(path: PatientIdPath, query: SearchFilterQueryParams):
+    """Get Patient's Medical Records"""
     params = query.model_dump()
     medical = view.medical_record_view(path.patient_id, False, **params)
     drug = view.medical_record_view(path.patient_id, True, **params)
@@ -40,6 +41,7 @@ def get_patients_medical_records(path: PatientIdPath, query: SearchFilterQueryPa
 @patient_association_required()
 @api_patients.post("/<string:patient_id>/medical_records", tags=[medical_records_tag])
 def create_medical_record(path: PatientIdPath, body: MedicalRecordValidator):
+    """Create Medical Record"""
     if body.id is not None:
         if crud.read(MedicalRecordOrm, id=body.id) is not None:
             return abort(
@@ -73,6 +75,7 @@ api_medical_records = APIBlueprint(
 # /api/medical_records/<string:record_id> [GET]
 @api_medical_records.get("/<string:record_id>")
 def get_medical_record(path: RecordIdPath):
+    """Get Medical Record"""
     record = _get_medical_record(path.record_id)
     return marshal.marshal(record)
 
@@ -80,6 +83,7 @@ def get_medical_record(path: RecordIdPath):
 # /api/medical_records/<string:record_id> [PUT]
 @api_medical_records.put("/<string:record_id>")
 def update_medical_record(path: RecordIdPath, body: MedicalRecordValidator):
+    """Update Medical Record"""
     update_medical_record = body.model_dump()
 
     old_record = crud.read(MedicalRecordOrm, id=path.record_id)
@@ -100,6 +104,7 @@ def update_medical_record(path: RecordIdPath, body: MedicalRecordValidator):
 # /api/medical_records/<string:record_id> [DELETE]
 @api_medical_records.delete("/<string:record_id>")
 def delete_medical_record(path: RecordIdPath):
+    """Delete Medical Record"""
     record = _get_medical_record(path.record_id)
     crud.delete(record)
     return {"message": f"Deleted Medical Record with ID: {path.record_id}"}, 200

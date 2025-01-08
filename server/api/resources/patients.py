@@ -7,7 +7,7 @@ from flask_openapi3.models.tag import Tag
 from pydantic import Field
 
 import data
-from api.decorator import patient_association_required
+from api.decorator import patient_association_required, roles_required
 from common import user_utils
 from common.api_utils import (
     PageLimitFilterQueryParams,
@@ -15,6 +15,7 @@ from common.api_utils import (
     SearchFilterQueryParams,
 )
 from data import crud, marshal
+from enums import RoleEnum
 from models import (
     AssessmentOrm,
     PatientOrm,
@@ -47,8 +48,8 @@ api_patients = APIBlueprint(
 @api_patients.get("")
 def get_all_unarchived_patients(query: SearchFilterQueryParams):
     """
-    Get all Patients
-    Returns all UNARCHIVED Patients.
+    Get all Unarchived Patients
+    Returns all UNARCHIVED Patients associated with the current user.
     """
     current_user = user_utils.get_current_user_from_jwt()
     current_user = cast(dict[Any, Any], current_user)
@@ -60,6 +61,7 @@ def get_all_unarchived_patients(query: SearchFilterQueryParams):
 # /api/patients [POST]
 @api_patients.post("")
 def create_patient(body: PatientPostValidator):
+    """Create New Patient"""
     patient_id = body.id
     if crud.read(PatientOrm, id=patient_id):
         return abort(409, description=f"A patient already exists with ID: {patient_id}")
@@ -97,6 +99,11 @@ def create_patient(body: PatientPostValidator):
 @patient_association_required()
 @api_patients.get("/<string:patient_id>")
 def get_patient(path: PatientIdPath):
+    """
+    Get Patient
+    Gets Patient by their ID.
+    Returns Patient info with nested Readings, Referrals, and Assessments.
+    """
     patient = crud.read_patients(path.patient_id)
     if patient is None:
         return abort(404, description=patient_not_found_message.format(path.patient_id))
@@ -112,6 +119,7 @@ def get_patient(path: PatientIdPath):
 @patient_association_required()
 @api_patients.get("/<string:patient_id>/info")
 def get_patient_info(path: PatientIdPath):
+    """Get Patient Info"""
     patient = crud.read(PatientOrm, id=path.patient_id)
     if not patient:
         return abort(404, description=patient_not_found_message.format(path.patient_id))
@@ -121,6 +129,7 @@ def get_patient_info(path: PatientIdPath):
 # /api/patients/<string:patient_id>/info [PUT]
 @api_patients.put("/<string:patient_id>/info")
 def update_patient_info(path: PatientIdPath, body: PatientPutValidator):
+    """Update Patient Info"""
     update_patient = body.model_dump()
     # If the inbound JSON contains a `base` field then we need to check if it is the
     # same as the `last_edited` field of the existing patient. If it is then that
@@ -166,6 +175,7 @@ def update_patient_info(path: PatientIdPath, body: PatientPutValidator):
 @patient_association_required()
 @api_patients.get("/<string:patient_id>/stats")
 def get_patient_stats(path: PatientIdPath):
+    """Get Patient Stats"""
     patient = crud.read(PatientOrm, id=path.patient_id)
     if patient is None:
         return abort(404, description=patient_not_found_message.format(path.patient_id))
@@ -256,6 +266,7 @@ def get_patient_stats(path: PatientIdPath):
 # /api/patients/<string:patient_id>/readings
 @api_patients.get("/<string:patient_id>/readings")
 def get_patient_readings(path: PatientIdPath):
+    """Get Patient's Readings"""
     patient = crud.read(PatientOrm, id=path.patient_id)
     if patient is None:
         return abort(404, description=patient_not_found_message.format(path.patient_id))
@@ -265,6 +276,7 @@ def get_patient_readings(path: PatientIdPath):
 # /api/patients/<string:patient_id>/most_recent_reading [GET]
 @api_patients.get("/<string:patient_id>/most_recent_reading")
 def get_patient_most_recent_reading(path: PatientIdPath):
+    """Get Patient's Most Recent Reading"""
     patient = crud.read(PatientOrm, id=path.patient_id)
     if patient is None:
         return abort(404, description=patient_not_found_message.format(path.patient_id))
@@ -283,6 +295,7 @@ def get_patient_most_recent_reading(path: PatientIdPath):
 # /api/patients/<string:patient_id>/referrals [GET]
 @api_patients.get("/<string:patient_id>/referrals")
 def get_patient_referrals(path: PatientIdPath):
+    """Get Patient's Referrals"""
     patient = crud.read(PatientOrm, id=path.patient_id)
     if patient is None:
         return abort(404, description=patient_not_found_message.format(path.patient_id))
@@ -292,6 +305,7 @@ def get_patient_referrals(path: PatientIdPath):
 # /api/patients/<string:patient_id>/forms [GET]
 @api_patients.get("/<string:patient_id>/forms")
 def get_patient_forms(path: PatientIdPath):
+    """Get Patient's Forms"""
     patient = crud.read(PatientOrm, id=path.patient_id)
     if patient is None:
         return abort(404, description=patient_not_found_message.format(path.patient_id))
@@ -302,6 +316,7 @@ def get_patient_forms(path: PatientIdPath):
 @patient_association_required()
 @api_patients.get("/<string:patient_id>/pregnancy_summary")
 def get_patient_pregnancy_summary(path: PatientIdPath):
+    """Get Patient Summary"""
     pregnancies = crud.read_medical_records(
         PregnancyOrm, path.patient_id, direction="DESC"
     )
@@ -312,6 +327,7 @@ def get_patient_pregnancy_summary(path: PatientIdPath):
 @patient_association_required()
 @api_patients.get("/<string:patient_id>/medical_history")
 def get_patient_medical_history(path: PatientIdPath):
+    """Get Patient Medical History"""
     medical = crud.read_patient_current_medical_record(path.patient_id, False)
     drug = crud.read_patient_current_medical_record(path.patient_id, True)
     return marshal.marshal_patient_medical_history(medical=medical, drug=drug)
@@ -321,6 +337,7 @@ def get_patient_medical_history(path: PatientIdPath):
 @patient_association_required()
 @api_patients.get("/<string:patient_id>/timeline")
 def get_patient_timeline(path: PatientIdPath, query: PageLimitFilterQueryParams):
+    """Get Patient Timeline"""
     params = query.model_dump()
     records = crud.read_patient_timeline(path.patient_id, **params)
     return [serialize.serialize_patient_timeline(r) for r in records]
@@ -334,6 +351,8 @@ class CreateReadingWithAssessmentBody(CradleBaseModel):
 # /api/patients/reading-assessment [POST]
 @api_patients.post("/patients/reading-assessment")
 def create_reading_with_assessment(body: CreateReadingWithAssessmentBody):
+    """Create Reading With Assessment"""
+    # TODO: This endpoint should probably be moved to readings.py
     reading = body.reading
     assessment = body.assessment
 
@@ -375,6 +394,7 @@ class GetAllRecordsForPatientQueryParams(CradleBaseModel):
 def get_all_records_for_patient(
     path: PatientIdPath, query: GetAllRecordsForPatientQueryParams
 ):
+    """Get All Records for Patient"""
     params = query.model_dump()
     records = crud.read_patient_all_records(path.patient_id, **params)
     return [marshal.marshal_with_type(r) for r in records]
@@ -382,9 +402,12 @@ def get_all_records_for_patient(
 
 # /api/patients/admin
 @api_patients.get("/admin")
+@roles_required([RoleEnum.ADMIN])
 def get_all_patients_admin(query: SearchFilterQueryParams):
     """
-    Gets all patients, including archived, for admin use.
+    Get All Patients (Admin)
+    Gets ALL patients, including archived, regardless of association with
+    current user. For admin use.
     """
     current_user = user_utils.get_current_user_from_jwt()
     current_user = cast(dict[Any, Any], current_user)

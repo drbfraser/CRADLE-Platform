@@ -28,6 +28,7 @@ api_form_submissions = APIBlueprint(
 # /api/forms/responses [POST]
 @api_form_submissions.post("")
 def submit_form(body: FormValidator):
+    """Submit Form"""
     if body.id is not None:
         if crud.read(FormOrm, id=body.id):
             return abort(409, description="Form already exists.")
@@ -71,6 +72,7 @@ def submit_form(body: FormValidator):
 # /api/forms/responses/<string:form_id> [GET]
 @api_form_submissions.get("/<string:form_id>")
 def get_form(path: FormIdPath):
+    """Get Form"""
     form = crud.read(FormOrm, id=path.form_id)
     if form is None:
         return abort(404, description=f"No form with ID: {path.form_id}.")
@@ -81,6 +83,7 @@ def get_form(path: FormIdPath):
 # /api/forms/responses/<string:form_id> [PUT]
 @api_form_submissions.put("/<string:form_id>")
 def update_form(path: FormIdPath, body: FormPutValidator):
+    """Update Form"""
     form = crud.read(FormOrm, id=path.form_id)
     if form is None:
         return abort(404, description=f"No form with id {path.form_id}")

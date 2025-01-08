@@ -32,6 +32,7 @@ class FacilitiesGetQuery(CradleBaseModel):
 # /api/facilities [GET]
 @api_facilities.get("")
 def get_all_facilities(query: FacilitiesGetQuery):
+    """Get All Facilities"""
     facilities = crud.read_all(HealthFacilityOrm)
     if query.simplified:
         # If responding to a "simplified" request, only return the names of the
@@ -45,6 +46,7 @@ def get_all_facilities(query: FacilitiesGetQuery):
 @api_facilities.post("")
 @roles_required([RoleEnum.ADMIN])
 def create_facility(body: FacilityValidator):
+    """Create Facility"""
     new_facility = body.model_dump()
     # Create a DB Model instance for the new facility and load into DB
     facility = marshal.unmarshal(HealthFacilityOrm, new_facility)
@@ -72,6 +74,7 @@ class GetFacilityQuery(BaseModel):
 # /api/facilities/<string:health_facility_name> [GET]
 @api_facilities.get("/<string:health_facility_name>")
 def get_facility(path: FacilityNamePath, query: GetFacilityQuery):
+    """Get Facility"""
     facility_name = path.health_facility_name
     facility = crud.read(HealthFacilityOrm, name=facility_name)
     if facility is None:

@@ -86,7 +86,17 @@ mobile_patient_tag = Tag(name="Mobile Patients", description="")
 #           a portion/full match of the patient's id
 #           a portion/full match of the patient's initials
 @api_patients.get("/global/<string:search>", tags=[mobile_patient_tag])
-def get(path: SearchPath):
+def search_patient_list_mobile(path: SearchPath):
+    """
+    Search Patient List (Mobile)
+    Get a list of ALL patients and their basic information
+    (information necessary for the patient page) that match the search criteria.
+    For now search criteria could be:
+        - A portion/full match of the patient's ID.
+        - A portion/full match of the patient's initials.
+
+    Returns info for Patient and their Readings and Referrals.
+    """
     # TODO: Use query params for "search"
     # get all patient information (patientinfo, readings, and referrals)
     current_user = user_utils.get_current_user_from_jwt()
@@ -112,6 +122,11 @@ api_patients_mobile = APIBlueprint(
 # /api/mobile/patients [GET]
 @api_patients_mobile.get("/patients", tags=[mobile_patient_tag])
 def get_patients_mobile():
+    """
+    Get Patients (Mobile)
+    Retrieve info for all Patients associated with the current user.
+    Returns info for Patient, their Medical/Drug Records, and their latest Pregnancy.
+    """
     current_user = user_utils.get_current_user_from_jwt()
     patients = view.patient_view(current_user)
 
@@ -121,6 +136,7 @@ def get_patients_mobile():
 # /api/mobile/readings [GET]
 @api_patients_mobile.get("/readings", tags=[mobile_patient_tag])
 def get_readings_mobile():
+    """Get Readings (Mobile)"""
     current_user = user_utils.get_current_user_from_jwt()
     readings = view.reading_view(current_user)
 
@@ -130,6 +146,7 @@ def get_readings_mobile():
 # /api/mobile/referrals [GET]
 @api_patients_mobile.get("/referrals", tags=[mobile_patient_tag])
 def get_referrals_mobile():
+    """Get Referrals (Mobile)"""
     current_user = user_utils.get_current_user_from_jwt()
     referrals = view.referral_view(current_user)
     return [serialize.serialize_referral_or_assessment(r) for r in referrals]
@@ -138,6 +155,7 @@ def get_referrals_mobile():
 # /api/mobile/assessments
 @api_patients_mobile.get("/assessments", tags=[mobile_patient_tag])
 def get_assessments_mobile():
+    """Get Assessments (Mobile)"""
     current_user = user_utils.get_current_user_from_jwt()
     assessments = view.assessment_view(current_user)
     return [serialize.serialize_referral_or_assessment(a) for a in assessments]
@@ -153,6 +171,7 @@ class GetFormMobilePath(CradleBaseModel):
     "/forms/<string:patient_id>/<string:form_template_id>", tags=[mobile_patient_tag]
 )
 def get_form_mobile(path: GetFormMobilePath):
+    """Get Form Mobile"""
     filters: dict = {
         "patient_id": path.patient_id,
         "form_template_id": path.form_template_id,

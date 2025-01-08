@@ -114,7 +114,6 @@ class RefreshTokenApiBody(CradleBaseModel):
 def refresh_access_token(body: RefreshTokenApiBody):
     """
     Refresh Access Token
-
     Refreshes expired Access token and returns a new Access Token.
     Refresh Token is taken from HTTP-Only cookie.
     """

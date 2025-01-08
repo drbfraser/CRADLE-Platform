@@ -95,6 +95,7 @@ api_sms_relay = APIBlueprint(
 # /api/sms_relay [POST]
 @api_sms_relay.post("")
 def relay_sms_request(body: SmsRelayValidator):
+    """Relay SMS Request"""
     phone_number = body.phone_number
     phone_number_exists = phone_number_utils.does_phone_number_exist(phone_number)
     if not phone_number_exists:

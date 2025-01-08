@@ -21,7 +21,7 @@ api_assessments = APIBlueprint(
 # /api/assessments [GET]
 @api_assessments.get("")
 def get_all_assessments():
-    """Get all assessments"""
+    """Get All Assessments"""
     assessments = crud.read_all(AssessmentOrm)
     return [marshal.marshal(assessment) for assessment in assessments]
 
@@ -29,6 +29,7 @@ def get_all_assessments():
 # /api/assessments [POST]
 @api_assessments.post("")
 def create_assessment(body: AssessmentValidator):
+    """Create Assessment"""
     if body.healthcare_worker_id is None:
         body.healthcare_worker_id = get_current_user_from_jwt()["id"]
     assessment = marshal.unmarshal(AssessmentOrm, body.model_dump())
@@ -39,6 +40,7 @@ def create_assessment(body: AssessmentValidator):
 # /api/assessments/<string:assessment_id> [GET]
 @api_assessments.get("/<string:assessment_id>")
 def get_assessment(path: AssessmentIdPath):
+    """Get Assessment"""
     assessment = crud.read(AssessmentOrm, id=path.assessment_id)
     if assessment is None:
         return abort(404, description=f"No assessment with ID: {path.assessment_id}")
@@ -48,6 +50,7 @@ def get_assessment(path: AssessmentIdPath):
 # /api/assessments/<string:assessment_id> [PUT]
 @api_assessments.put("/<string:assessment_id>")
 def update_assessment(path: AssessmentIdPath, body: AssessmentValidator):
+    """Update Assessment"""
     if crud.read(AssessmentOrm, id=path.assessment_id) is None:
         return abort(404, description=f"No assessment with id: {path.assessment_id}")
     if body.id is not None:

@@ -15,4 +15,5 @@ api_version = APIBlueprint(
 # /api/version [GET]
 @api_version.get("")
 def get_version():
+    """Get App Version"""
     return {"version": config.app_version}, 200

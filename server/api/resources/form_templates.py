@@ -39,6 +39,7 @@ class GetAllFormTemplatesQuery(CradleBaseModel):
 # /api/forms/templates [GET]
 @api_form_templates.get("")
 def get_all_form_templates(query: GetAllFormTemplatesQuery):
+    """Get All Form Templates"""
     filters: dict = {}
     if not query.include_archived:
         filters["archived"] = 0
@@ -92,6 +93,11 @@ def handle_form_template_upload(form_template: FormTemplateValidator):
 @api_form_templates.post("")
 @roles_required([RoleEnum.ADMIN])
 def upload_form_template_file(form: FileUploadForm):
+    """
+    Upload Form Template VIA File
+    Accepts Form Template as a file.
+    Supports `.json` and `.csv` file formats.
+    """
     file_contents = {}
     file = form.file
     file_str = str(file.stream.read(), "utf-8")
@@ -124,7 +130,8 @@ def upload_form_template_file(form: FileUploadForm):
 @roles_required([RoleEnum.ADMIN])
 def upload_form_template_body(body: FormTemplateValidator):
     """
-    Upload form template through request body, rather than as a file.
+    Upload Form Template VIA Request Body
+    Accepts Form Template through the request body, rather than as a file.
     """
     return handle_form_template_upload(body)
 
@@ -132,6 +139,7 @@ def upload_form_template_body(body: FormTemplateValidator):
 # /api/forms/templates/<string:form_template_id>/versions [GET]
 @api_form_templates.get("<string:form_template_id>/versions")
 def get_form_template_versions(path: FormTemplateIdPath):
+    """Get Form Template Versions"""
     form_template = crud.read(FormTemplateOrm, id=path.form_template_id)
     if form_template is None:
         return abort(404, description=f"No form with ID: {path.form_template_id}")
@@ -150,6 +158,7 @@ class FormTemplateVersionPath(FormTemplateIdPath):
 # /api/forms/templates/<string:form_template_id>/versions/<string:version>/csv [GET]
 @api_form_templates.get("/<string:form_template_id>/versions/<string:version>/csv")
 def get_form_template_version_as_csv(path: FormTemplateVersionPath):
+    """Get Form Template Version as CSV"""
     filters: dict = {
         "id": path.form_template_id,
         "version": path.version,
@@ -179,6 +188,7 @@ class GetFormTemplateQuery(CradleBaseModel):
 # /api/forms/templates/<string:form_template_id> [GET]
 @api_form_templates.get("/<string:form_template_id>")
 def get_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuery):
+    """Get Form Template"""
     form_template = crud.read(FormTemplateOrm, id=path.form_template_id)
     if form_template is None:
         return abort(404, description=f"No form with ID: {path.form_template_id}")
@@ -220,6 +230,7 @@ class ArchiveFormTemplateBody(CradleBaseModel):
 # /api/forms/templates/<string:form_template_id> [PUT]
 @api_form_templates.put("/<string:form_template_id>")
 def archive_form_template(path: FormTemplateIdPath, body: ArchiveFormTemplateBody):
+    """Archive Form Template"""
     # TODO: It would make more sense to take the "archived" bool from query params.
     form_template = crud.read(FormTemplateOrm, id=path.form_template_id)
 
@@ -238,6 +249,7 @@ def archive_form_template(path: FormTemplateIdPath, body: ArchiveFormTemplateBod
 # /api/forms/templates/blank/<string:form_template_id> [GET]
 @api_form_templates.get("/blank/<string:form_template_id>")
 def get_blank_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuery):
+    """Get Blank Form Template"""
     form_template = crud.read(FormTemplateOrm, id=path.form_template_id)
     if form_template is None:
         return abort(404, description=f"No form with ID: {path.form_template_id}")

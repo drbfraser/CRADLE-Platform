@@ -59,6 +59,7 @@ class SyncReferralsBody(CradleBaseModel):
 # /api/sync/patients [POST]
 @api_sync.post("/patients")
 def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
+    """Sync Patients"""
     current_user = user_utils.get_current_user_from_jwt()
     last_sync = query.since
 
@@ -249,6 +250,7 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
 # /api/sync/readings [POST]
 @api_sync.post("/readings")
 def sync_readings(query: LastSyncQueryParam, body: SyncReadingsBody):
+    """Sync Readings"""
     last_sync = query.since
     patients_on_server_cache = set()
     for mobile_reading in body.readings:
@@ -288,6 +290,7 @@ def sync_readings(query: LastSyncQueryParam, body: SyncReadingsBody):
 # /api/sync/referrals [POST]
 @api_sync.post("/referrals")
 def sync_referrals(query: LastSyncQueryParam, body: SyncReferralsBody):
+    """Sync Referrals"""
     last_sync = query.since
     patients_on_server_cache = set()
     for mobile_referral in body.referrals:
@@ -322,6 +325,7 @@ def sync_referrals(query: LastSyncQueryParam, body: SyncReferralsBody):
 
 # /api/sync/assessments [POST]
 def sync_assessments(query: LastSyncQueryParam):
+    """Sync Assessments"""
     last_sync = query.since
 
     # Read all assessments that have been updated since last sync

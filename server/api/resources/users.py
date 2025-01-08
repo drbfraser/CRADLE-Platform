@@ -49,6 +49,7 @@ api_users = APIBlueprint(
 @api_users.get("/all")
 @roles_required([RoleEnum.ADMIN])
 def get_all_users():
+    """Get All Users"""
     user_list = user_utils.get_all_users_data()
     return user_list, 200
 
@@ -56,7 +57,8 @@ def get_all_users():
 # /api/user/vhts [GET]
 @api_users.get("/vhts")
 @roles_required([RoleEnum.CHO, RoleEnum.ADMIN, RoleEnum.HCW])
-def get_all_vhts():
+def get_vht_list():
+    """Get VHT List"""
     vht_model_list = crud.find(UserOrm, UserOrm.role == RoleEnum.VHT.value)
     vht_dictionary_list = []
     for vht in vht_model_list:
@@ -79,6 +81,7 @@ def get_all_vhts():
 @api_users.post("/<int:user_id>/change_pass")
 @roles_required([RoleEnum.ADMIN])
 def change_password_admin(path: UserIdPath):
+    """Change Password (Admin)"""
     # TODO: Reimplement this with the new authentication system.
     return abort(500, description="This endpoint has not yet been implemented.")
 
@@ -86,6 +89,7 @@ def change_password_admin(path: UserIdPath):
 # /api/user/current/change_pass [POST]
 @api_users.post("/current/change_pass")
 def change_password_current_user():
+    """Change Password (Current User)"""
     # TODO: Reimplement this with the new authentication system.
     return abort(500, description="This endpoint has not yet been implemented.")
 
@@ -94,9 +98,7 @@ def change_password_current_user():
 @api_users.post("/register")
 @roles_required([RoleEnum.ADMIN])
 def register_user(body: UserRegisterValidator):
-    """
-    Create a new User.
-    """
+    """Register New User"""
     new_user_dict = body.model_dump()
     try:
         user_utils.create_user(**new_user_dict)
@@ -112,7 +114,8 @@ def register_user(body: UserRegisterValidator):
 @api_users.get("/current")
 def get_current_user():
     """
-    # Get identity of current user from access token.
+    Get Current User
+    Get info of current user from Access Token.
     """
     current_user = user_utils.get_current_user_from_jwt()
     return current_user, 200
@@ -122,6 +125,7 @@ def get_current_user():
 @api_users.put("/<int:user_id>")
 @roles_required([RoleEnum.ADMIN])
 def edit_user(path: UserIdPath, body: UserValidator):
+    """Edit User"""
     try:
         # Update the user.
         user_utils.update_user(path.user_id, body.model_dump())
@@ -135,6 +139,7 @@ def edit_user(path: UserIdPath, body: UserValidator):
 # /api/user/<int:user_id> [GET]
 @api_users.get("/<int:user_id>")
 def get_user(path: UserIdPath):
+    """Get User"""
     try:
         user_dict = user_utils.get_user_data_from_id(path.user_id)
     except ValueError as err:
@@ -148,6 +153,7 @@ def get_user(path: UserIdPath):
 @api_users.delete("/<int:user_id>")
 @roles_required([RoleEnum.ADMIN])
 def delete_user(path: UserIdPath):
+    """Delete User"""
     # Ensure that id is valid
     user = crud.read(UserOrm, id=path.user_id)
     if user is None:
@@ -175,6 +181,7 @@ class UserPhoneNumbers(CradleBaseModel):
 # /api/user/<int:user_id>/phone [GET]
 @api_users.get("/<int:user_id>/phone")
 def get_users_phone_numbers(path: UserIdPath):
+    """Get User's Phone Numbers"""
     # Check if user exists.
     if not user_utils.does_user_exist(path.user_id):
         return abort(404, description=no_user_found_message)
@@ -186,6 +193,7 @@ def get_users_phone_numbers(path: UserIdPath):
 @api_users.put("/<int:user_id>/phone")
 @roles_required([RoleEnum.ADMIN])
 def update_users_phone_numbers(path: UserIdPath, body: UserPhoneNumbers):
+    """Update User's Phone Numbers"""
     # Check if user exists.
     if not user_utils.does_user_exist(path.user_id):
         return abort(404, description=no_user_found_message)
@@ -200,6 +208,7 @@ def update_users_phone_numbers(path: UserIdPath, body: UserPhoneNumbers):
 # /api/user/<int:user_id>/smskey [GET]
 @api_users.get("/<int:user_id>/smskey")
 def get_users_sms_key(path: UserIdPath):
+    """Get User's SMS Key"""
     current_user = user_utils.get_current_user_from_jwt()
     if current_user["role"] != "ADMIN" and current_user["id"] is not path.user_id:
         return (
@@ -218,6 +227,7 @@ def get_users_sms_key(path: UserIdPath):
 # /api/user/<int:user_id>/smskey [PUT]
 @api_users.put("/<int:user_id>/smskey")
 def update_users_sms_key(path: UserIdPath):
+    """Update User's SMS Key"""
     current_user = user_utils.get_current_user_from_jwt()
     if current_user["role"] != "ADMIN" and current_user["id"] is not path.user_id:
         return (
@@ -237,7 +247,8 @@ def update_users_sms_key(path: UserIdPath):
 
 # /api/user/<int:user_id>/smskey [POST])
 @api_users.post("/<int:user_id>/smskey")
-def create_users_sms_key(path: UserIdPath):
+def create_new_sms_key(path: UserIdPath):
+    """Create New SMS Key"""
     current_user = user_utils.get_current_user_from_jwt()
     if current_user["role"] != "ADMIN" and current_user["id"] is not path.user_id:
         return (
@@ -266,10 +277,16 @@ api_phone = APIBlueprint(
     url_prefix="/phone",
 )
 
+# TODO: Move these SMS Relay endpoints to other file, as they are not related to Users.
+
 
 # /api/phone/is_relay [GET]
 @api_phone.get("/is_relay")
 def is_relay_phone_number(body: RelayPhoneNumber):
+    """
+    Is Relay Phone Number
+    Checks if Phone Number belongs to an SMS Relay Server
+    """
     phone_number = str(body.phone_number)
     phone_relay_stat = crud.is_phone_number_relay(phone_number)
     if phone_relay_stat == 1:
@@ -282,6 +299,7 @@ def is_relay_phone_number(body: RelayPhoneNumber):
 # /api/phone/relays [GET]
 @api_phone.get("/relays")
 def get_all_relay_phone_numbers():
+    """Get All SMS Relay Phone Numbers"""
     relay_phone_numbers = crud.get_all_relay_phone_numbers()
     if relay_phone_numbers is None:
         return abort(403, description="Permission denied.")

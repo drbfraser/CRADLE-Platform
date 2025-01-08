@@ -30,6 +30,7 @@ class RelayServerPhone(CradleBaseModel):
 # /api/relay/server/phone [GET]
 @api_relay_phone_numbers.get("")
 def get_all_relay_phone_numbers():
+    """Get All SMS Relay Server Phone Numbers"""
     phone_numbers = crud.read_all(RelayServerPhoneNumberOrm)
     return [marshal.marshal(f, shallow=True) for f in phone_numbers]
 
@@ -37,7 +38,8 @@ def get_all_relay_phone_numbers():
 # /api/relay/server/phone [POST]
 @api_relay_phone_numbers.post("")
 @roles_required([RoleEnum.ADMIN])
-def create_relay_phone_number(body: RelayServerPhone):
+def add_relay_phone_number(body: RelayServerPhone):
+    """Add SMS Relay Server Phone Number"""
     server_details = marshal.unmarshal(RelayServerPhoneNumberOrm, body.model_dump())
     phone_number = server_details.phone_number
     if crud.read(RelayServerPhoneNumberOrm, phone_number=phone_number):
@@ -53,6 +55,7 @@ def create_relay_phone_number(body: RelayServerPhone):
 @api_relay_phone_numbers.put("")
 @roles_required([RoleEnum.ADMIN])
 def update_relay_phone_number(body: RelayServerPhone):
+    """Update SMS Relay Server Phone Number"""
     crud.update(RelayServerPhoneNumberOrm, body.model_dump(), id=body.id)
     return {"message": "Relay server updated"}, 200
 
@@ -61,6 +64,7 @@ def update_relay_phone_number(body: RelayServerPhone):
 @api_relay_phone_numbers.delete("")
 @roles_required([RoleEnum.ADMIN])
 def delete_relay_phone_number(body: RelayServerPhone):
+    """Delete SMS Relay Server Phone Number"""
     relay_phone_number = crud.read(RelayServerPhoneNumberOrm, id=body.id)
     if relay_phone_number is None:
         return abort(404, "No Relay Server Phone Number found.")
