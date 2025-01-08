@@ -129,7 +129,7 @@ limiter = Limiter(
 
 
 # api/user/auth [POST]
-@api_users.post("/auth")
+@api_users.post("/auth", security=[])
 @limiter.limit(
     "10 per minute, 20 per hour, 30 per day",
     error_message="Login attempt limit reached please try again later.",
@@ -197,7 +197,7 @@ class RefreshTokenApiBody(CradleBaseModel):
 
 
 # api/user/auth/refresh_token [POST]
-@api_users.post("/auth/refresh_token")
+@api_users.post("/auth/refresh_token", security=[])
 def refresh_access_token(body: RefreshTokenApiBody):
     username = body.username
     try:

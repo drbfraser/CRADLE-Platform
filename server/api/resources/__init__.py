@@ -34,10 +34,9 @@ See https://luolingchun.github.io/flask-openapi3/v3.x/Usage/Request/ for all of
 the parameter names.
 """
 
+
 api = APIBlueprint(
-    name="api",
-    import_name=__name__,
-    url_prefix="/api",
+    name="api", import_name=__name__, url_prefix="/api", abp_security=[{"jwt": []}]
 )
 
 api.register_api(api_assessments)

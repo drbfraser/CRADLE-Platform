@@ -109,11 +109,13 @@ class JSONEncoder(json.JSONEncoder):
 FLASK_APP = "app.py"
 
 API_DOCS_TITLE = "Cradle-Platform REST API"
+jwt_security = {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"}
 app = FlaskOpenAPI(
     import_name=__name__,
     static_folder="../client/build",
     doc_prefix="/apidocs",
     info=Info(title=API_DOCS_TITLE, version=app_version),
+    security_schemes={"jwt": jwt_security},
 )
 
 app.config["PROPAGATE_EXCEPTIONS"] = True
