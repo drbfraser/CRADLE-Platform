@@ -6,7 +6,7 @@ from common.api_utils import AssessmentIdPath
 from common.user_utils import get_current_user_from_jwt
 from data import crud, marshal
 from models import AssessmentOrm
-from validation.assessments import AssessmentPostBody
+from validation.assessments import AssessmentPostBody, AssessmentPutBody
 
 # /api/assessments
 api_assessments = APIBlueprint(
@@ -51,7 +51,7 @@ def get_assessment(path: AssessmentIdPath):
 
 # /api/assessments/<string:assessment_id> [PUT]
 @api_assessments.put("/<string:assessment_id>")
-def update_assessment(path: AssessmentIdPath, body: AssessmentPostBody):
+def update_assessment(path: AssessmentIdPath, body: AssessmentPutBody):
     """Update Assessment"""
     if crud.read(AssessmentOrm, id=path.assessment_id) is None:
         return abort(404, description=f"No assessment with id: {path.assessment_id}")
