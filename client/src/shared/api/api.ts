@@ -97,7 +97,7 @@ axiosFetch.interceptors.request.use(async (config) => {
 // Set interceptor to catch errors.
 axiosFetch.interceptors.response.use(undefined, (e) => {
   if (!(e instanceof AxiosError)) return Promise.reject(e);
-  console.log('Error Response: ', e.response?.data);
+  console.error('Error Response: ', e.response?.data);
   return Promise.reject(e);
 });
 
