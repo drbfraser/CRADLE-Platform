@@ -28,9 +28,7 @@ api_assessments = APIBlueprint(
 def get_all_assessments():
     """Get All Assessments"""
     assessments = crud.read_all(AssessmentOrm)
-    return {
-        "assessments": [marshal.marshal(assessment) for assessment in assessments]
-    }, 200
+    return [marshal.marshal(assessment) for assessment in assessments], 200
 
 
 # /api/assessments [POST]

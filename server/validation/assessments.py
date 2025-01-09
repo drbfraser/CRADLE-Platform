@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import Field, model_validator
+from pydantic import Field, RootModel, model_validator
 from typing_extensions import Self
 
 from utils import get_current_time
@@ -8,55 +8,70 @@ from validation import CradleBaseModel
 
 
 class _AssessmentExamples:
+    _id_01 = "abcd1234"
+    _id_02 = "efgh4567"
+    _patient_id = "0123456"
+    _date_assessed = 1551447833
+    _diagnosis = "Patient is fine."
+    _medication_prescribed_01 = "Tylenol"
+    _medication_prescribed_02 = "Aspirin"
+    _special_investigations = "This is some text."
+    _treatment_01 = f"Take {_medication_prescribed_01} twice a day."
+    _treatment_02 = f"Take {_medication_prescribed_02} twice a day."
+    _follow_up_needed = True
+    _follow_up_instructions_01 = f"Give lots of {_medication_prescribed_01}."
+    _follow_up_instructions_02 = f"Give lots of {_medication_prescribed_02}."
+
     without_id = {
-        "patient_id": "123456",
-        "date_assessed": 1551447833,
-        "diagnosis": "Patient is fine.",
-        "medication_prescribed": "Tylenol",
-        "special_investigations": "This is some text.",
-        "treatment": "Take Tylenol twice a day.",
+        "patient_id": _patient_id,
+        "date_assessed": _date_assessed,
+        "diagnosis": _diagnosis,
+        "medication_prescribed": _medication_prescribed_01,
+        "special_investigations": _special_investigations,
+        "treatment": _treatment_01,
         "follow_up_needed": True,
-        "follow_up_instructions": "Give lots of Tylenol.",
+        "follow_up_instructions": _follow_up_instructions_01,
     }
     with_id_01 = {
-        "id": "abcd1234",
-        "patient_id": "123456",
-        "date_assessed": 1551447833,
-        "diagnosis": "Patient is fine.",
-        "medication_prescribed": "Tylenol",
-        "special_investigations": "This is some text.",
-        "treatment": "Take Tylenol twice a day.",
+        "id": _id_01,
+        "patient_id": _patient_id,
+        "date_assessed": _date_assessed,
+        "diagnosis": _diagnosis,
+        "medication_prescribed": _medication_prescribed_01,
+        "special_investigations": _special_investigations,
+        "treatment": _treatment_01,
         "follow_up_needed": True,
-        "follow_up_instructions": "Give lots of Tylenol.",
+        "follow_up_instructions": _follow_up_instructions_01,
     }
     with_id_02 = {
-        "id": "efgh4567",
-        "patient_id": "123456",
-        "date_assessed": 1551447834,
-        "diagnosis": "Patient is fine.",
-        "medication_prescribed": "Aspirin",
-        "special_investigations": "This is some text.",
-        "treatment": "Take Aspirin twice a day.",
+        "id": _id_02,
+        "patient_id": _patient_id,
+        "date_assessed": _date_assessed,
+        "diagnosis": _diagnosis,
+        "medication_prescribed": _medication_prescribed_02,
+        "special_investigations": _special_investigations,
+        "treatment": _treatment_02,
         "follow_up_needed": True,
-        "follow_up_instructions": "Give lots of Aspirin.",
+        "follow_up_instructions": _follow_up_instructions_02,
     }
     missing_patient_id = {
-        "id": "abcd1234",
-        "date_assessed": 1551447833,
-        "diagnosis": "Patient is fine.",
-        "medication_prescribed": "Tylenol",
-        "special_investigations": "This is some text.",
-        "treatment": "Take Tylenol twice a day.",
+        "id": _id_01,
+        "date_assessed": _date_assessed,
+        "diagnosis": _diagnosis,
+        "medication_prescribed": _medication_prescribed_01,
+        "special_investigations": _special_investigations,
+        "treatment": _treatment_01,
         "follow_up_needed": True,
-        "follow_up_instructions": "Give lots of Tylenol.",
+        "follow_up_instructions": _follow_up_instructions_01,
     }
     invalid_follow_up = {
-        "id": "abcd1234",
-        "date_assessed": 1551447833,
-        "diagnosis": "Patient is fine.",
-        "medication_prescribed": "Tylenol",
-        "special_investigations": "This is some text.",
-        "treatment": "Take Tylenol twice a day.",
+        "id": _id_01,
+        "patient_id": _patient_id,
+        "date_assessed": _date_assessed,
+        "diagnosis": _diagnosis,
+        "medication_prescribed": _medication_prescribed_01,
+        "special_investigations": _special_investigations,
+        "treatment": _treatment_01,
         "follow_up_needed": True,
     }
 
@@ -146,29 +161,19 @@ class AssessmentPutBody(AssessmentModel):
 class AssessmentResponseBody(AssessmentModel):
     model_config = dict(
         openapi_extra={
-            "description": "Assessment Response Body",
+            "description": "An Assessment object.",
             "example": _AssessmentExamples.with_id_01,
         }
     )
 
 
-"""
-`flask-openapi3 doesn't really handle raw lists, as it will only accept objects
-that are derived from Pydantic's `BaseModel`. So, we must wrap any list that we
-want documented inside of a Pydantic model.
-"""
-
-
-class AssessmentListResponseBody(CradleBaseModel):
-    assessments: list[AssessmentModel]
+class AssessmentListResponseBody(RootModel[list[AssessmentModel]]):
     model_config = dict(
         openapi_extra={
-            "description": "Assessment List Response Body",
-            "example": {
-                "assessments": [
-                    _AssessmentExamples.with_id_01,
-                    _AssessmentExamples.with_id_02,
-                ],
-            },
+            "description": "An array of Assessment objects.",
+            "example": [
+                _AssessmentExamples.with_id_01,
+                _AssessmentExamples.with_id_02,
+            ],
         }
-    )
+    )  # type: ignore[reportAssignmentType]
