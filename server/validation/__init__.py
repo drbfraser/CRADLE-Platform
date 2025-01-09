@@ -24,4 +24,5 @@ class CradleBaseModel(BaseModel):
             ),
             serialization_alias=to_camel,
         ),
+        from_attributes=True,  # Allows us to instantiate Pydantic models from our ORM models.
     )
