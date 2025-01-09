@@ -6,7 +6,12 @@ from common.api_utils import AssessmentIdPath
 from common.user_utils import get_current_user_from_jwt
 from data import crud, marshal
 from models import AssessmentOrm
-from validation.assessments import AssessmentPostBody, AssessmentPutBody
+from validation.assessments import (
+    AssessmentListResponseBody,
+    AssessmentPostBody,
+    AssessmentPutBody,
+    AssessmentResponseBody,
+)
 
 # /api/assessments
 api_assessments = APIBlueprint(
@@ -19,15 +24,20 @@ api_assessments = APIBlueprint(
 
 
 # /api/assessments [GET]
-@api_assessments.get("")
+@api_assessments.get("", responses={200: AssessmentListResponseBody})
 def get_all_assessments():
     """Get All Assessments"""
     assessments = crud.read_all(AssessmentOrm)
-    return [marshal.marshal(assessment) for assessment in assessments]
+    return {
+        "assessments": [marshal.marshal(assessment) for assessment in assessments]
+    }, 200
 
 
 # /api/assessments [POST]
-@api_assessments.post("")
+@api_assessments.post(
+    "",
+    responses={201: AssessmentResponseBody},
+)
 def create_new_assessment(body: AssessmentPostBody):
     """Create New Assessment"""
     if body.id is not None and crud.read(AssessmentOrm, id=body.id):
@@ -50,25 +60,27 @@ def get_assessment(path: AssessmentIdPath):
 
 
 # /api/assessments/<string:assessment_id> [PUT]
-@api_assessments.put("/<string:assessment_id>")
+@api_assessments.put(
+    "/<string:assessment_id>",
+    responses={200: AssessmentResponseBody},
+)
 def update_assessment(path: AssessmentIdPath, body: AssessmentPutBody):
     """Update Assessment"""
     if crud.read(AssessmentOrm, id=path.assessment_id) is None:
         return abort(404, description=f"No assessment with id: {path.assessment_id}")
-    if body.id is not None:
-        if body.id != path.assessment_id:
-            return abort(400, description="Cannot change ID.")
-    else:
-        body.id = path.assessment_id
+    if body.id != path.assessment_id:
+        return abort(400, description="Cannot change ID.")
 
     """ 
     TODO: We should probably reconsider how we are handling updating assessments.
-    Rather than overwriting the old assessment, we should probably be recording 
-    in some way that this is a revision?
+    Rather than overwriting the old assessment, we should probably be creating a 
+    new assessment and recording in some way that this is a revision, rather than
+    overwriting the old assessment entirely. 
     """
 
     update_assessment_dict = body.model_dump()
-    crud.update(AssessmentOrm, update_assessment_dict, id=path.assessment_id)
+    crud.update(AssessmentOrm, update_assessment_dict, id=body.id)
 
-    updated_assessment = crud.read(AssessmentOrm, id=path.assessment_id)
+    updated_assessment = crud.read(AssessmentOrm, id=body.id)
+
     return marshal.marshal(updated_assessment), 200
