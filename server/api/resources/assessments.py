@@ -28,8 +28,10 @@ def get_all_assessments():
 
 # /api/assessments [POST]
 @api_assessments.post("")
-def create_assessment(body: AssessmentValidator):
-    """Create Assessment"""
+def create_new_assessment(body: AssessmentValidator):
+    """Create New Assessment"""
+    if body.id is not None and crud.read(AssessmentOrm, id=body.id):
+        return abort(409, description=f"Assessment with ID: {body.id} already exists.")
     if body.healthcare_worker_id is None:
         body.healthcare_worker_id = get_current_user_from_jwt()["id"]
     assessment = marshal.unmarshal(AssessmentOrm, body.model_dump())
