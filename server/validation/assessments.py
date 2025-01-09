@@ -1,6 +1,7 @@
 from typing import Optional
 
-from pydantic import Field, ValidationInfo, field_validator
+from pydantic import Field, model_validator
+from typing_extensions import Self
 
 from utils import get_current_time
 from validation import CradleBaseModel
@@ -68,18 +69,12 @@ class AssessmentPostBody(CradleBaseModel):
         description="Required if follow_up_needed is True",
     )
 
-    @field_validator("follow_up_instructions", mode="before")
-    @classmethod
-    def __check_follow_up_instructions(
-        cls,
-        follow_up_instructions,
-        values: ValidationInfo,
-    ):
-        follow_up_needed = values.data.get("follow_up_needed", False)
-        if follow_up_needed and (
-            follow_up_instructions is None or follow_up_instructions == ""
+    @model_validator(mode="after")
+    def __check_follow_up_instructions(self) -> Self:
+        if self.follow_up_needed and (
+            self.follow_up_instructions is None or self.follow_up_instructions == ""
         ):
             raise ValueError(
                 "follow_up_instructions must be provided if follow_up_needed is True.",
             )
-        return follow_up_instructions
+        return self
