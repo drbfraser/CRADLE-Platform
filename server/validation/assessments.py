@@ -158,7 +158,7 @@ class AssessmentPutBody(AssessmentModel):
     )
 
 
-class AssessmentResponseBody(AssessmentModel):
+class AssessmentResponse(AssessmentModel):
     model_config = dict(
         openapi_extra={
             "description": "An Assessment object.",
@@ -167,7 +167,7 @@ class AssessmentResponseBody(AssessmentModel):
     )
 
 
-class AssessmentListResponseBody(RootModel[list[AssessmentModel]]):
+class AssessmentListResponse(RootModel[list[AssessmentModel]]):
     model_config = dict(
         openapi_extra={
             "description": "An array of Assessment objects.",

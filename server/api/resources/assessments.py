@@ -7,10 +7,10 @@ from common.user_utils import get_current_user_from_jwt
 from data import crud, marshal
 from models import AssessmentOrm
 from validation.assessments import (
-    AssessmentListResponseBody,
+    AssessmentListResponse,
     AssessmentPostBody,
     AssessmentPutBody,
-    AssessmentResponseBody,
+    AssessmentResponse,
 )
 
 # /api/assessments
@@ -24,7 +24,7 @@ api_assessments = APIBlueprint(
 
 
 # /api/assessments [GET]
-@api_assessments.get("", responses={200: AssessmentListResponseBody})
+@api_assessments.get("", responses={200: AssessmentListResponse})
 def get_all_assessments():
     """Get All Assessments"""
     assessments = crud.read_all(AssessmentOrm)
@@ -34,7 +34,7 @@ def get_all_assessments():
 # /api/assessments [POST]
 @api_assessments.post(
     "",
-    responses={201: AssessmentResponseBody},
+    responses={201: AssessmentResponse},
 )
 def create_new_assessment(body: AssessmentPostBody):
     """Create New Assessment"""
@@ -60,7 +60,7 @@ def get_assessment(path: AssessmentIdPath):
 # /api/assessments/<string:assessment_id> [PUT]
 @api_assessments.put(
     "/<string:assessment_id>",
-    responses={200: AssessmentResponseBody},
+    responses={200: AssessmentResponse},
 )
 def update_assessment(path: AssessmentIdPath, body: AssessmentPutBody):
     """Update Assessment"""
