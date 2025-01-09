@@ -27,7 +27,7 @@ from models import (
 from service import assoc, invariant, serialize, statsCalculation, view
 from utils import get_current_time
 from validation import CradleBaseModel
-from validation.assessments import AssessmentValidator
+from validation.assessments import AssessmentPostBody
 from validation.patients import PatientPostValidator, PatientPutValidator
 from validation.readings import ReadingValidator
 
@@ -345,7 +345,7 @@ def get_patient_timeline(path: PatientIdPath, query: PageLimitFilterQueryParams)
 
 class CreateReadingWithAssessmentBody(CradleBaseModel):
     reading: ReadingValidator
-    assessment: AssessmentValidator
+    assessment: AssessmentPostBody
 
 
 # /api/patients/reading-assessment [POST]

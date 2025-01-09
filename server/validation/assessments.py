@@ -6,7 +6,7 @@ from utils import get_current_time
 from validation import CradleBaseModel
 
 
-class AssessmentValidator(CradleBaseModel):
+class AssessmentPostBody(CradleBaseModel):
     model_config = dict(
         openapi_extra={
             "description": "Assessment Post Body",

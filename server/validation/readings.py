@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from validation import CradleBaseModel
-from validation.assessments import AssessmentValidator
+from validation.assessments import AssessmentPostBody
 from validation.referrals import ReferralEntityValidator
 
 
@@ -36,5 +36,5 @@ class ReadingValidator(CradleBaseModel):
     symptoms: List[str]
     date_taken: Optional[int] = None
     user_id: Optional[int] = None
-    assessment: Optional[AssessmentValidator] = None
+    assessment: Optional[AssessmentPostBody] = None
     referral: Optional[ReferralEntityValidator] = None

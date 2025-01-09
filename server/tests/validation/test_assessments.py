@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from validation.assessments import AssessmentValidator
+from validation.assessments import AssessmentPostBody
 
 ASSESSED_DATE = 1551447833
 HEALTHCARE_WORKER_ID = 2
@@ -118,9 +118,9 @@ assessments_missing_follow_up_instructions_when_follow_up_needed_true_should_thr
 def test_validation(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            AssessmentValidator(**json)
+            AssessmentPostBody(**json)
     else:
         try:
-            AssessmentValidator(**json)
+            AssessmentPostBody(**json)
         except ValidationError as e:
             raise AssertionError(f"Unexpected error: {e}") from e
