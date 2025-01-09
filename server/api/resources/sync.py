@@ -19,6 +19,7 @@ from models import (
 )
 from service import invariant, serialize, view
 from validation import CradleBaseModel
+from validation.assessments import AssessmentModel
 from validation.patients import PatientSyncValidator
 from validation.readings import ReadingValidator
 from validation.referrals import ReferralEntityValidator
@@ -323,7 +324,12 @@ def sync_referrals(query: LastSyncQueryParam, body: SyncReferralsBody):
     }
 
 
+class SyncAssessmentsResponse(CradleBaseModel):
+    assessments: list[AssessmentModel]
+
+
 # /api/sync/assessments [POST]
+@api_sync.post("/assessments", responses={200: SyncAssessmentsResponse})
 def sync_assessments(query: LastSyncQueryParam):
     """Sync Assessments"""
     last_sync = query.since
@@ -338,7 +344,7 @@ def sync_assessments(query: LastSyncQueryParam):
         "assessments": [
             serialize.serialize_referral_or_assessment(a) for a in new_assessments
         ],
-    }
+    }, 200
 
 
 ERROR_MESSAGES = {

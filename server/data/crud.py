@@ -805,6 +805,8 @@ def read_readings(
     return query.all()
 
 
+# Why is this one function?
+# TODO: Split this into two different functions.
 def read_referrals_or_assessments(
     model: Union[ReferralOrm, AssessmentOrm],
     patient_id: Optional[str] = None,
