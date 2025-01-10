@@ -6,7 +6,7 @@ from validation.phone_numbers import PhoneNumberE164
 
 
 # Define a Pydantic model for incoming requests
-class FacilityValidator(CradleBaseModel):
+class HealthFacilityModel(CradleBaseModel):
     """
     {
         "name": "H1200",

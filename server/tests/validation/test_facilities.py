@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from validation.facilities import FacilityValidator
+from validation.facilities import HealthFacilityModel
 
 FACILITY_NAME = "H12"
 PHONE_NUMBER = "+1-604-715-2845"
@@ -154,9 +154,9 @@ facility_invalid_phone_number_should_throw = {
 def test_validation(json, expectation):
     if type(expectation) is type and issubclass(expectation, Exception):
         with pytest.raises(expectation):
-            FacilityValidator(**json)
+            HealthFacilityModel(**json)
     else:
         try:
-            FacilityValidator(**json)
+            HealthFacilityModel(**json)
         except ValidationError as e:
             raise AssertionError(f"Unexpected validation error: {e}") from e

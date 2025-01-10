@@ -11,7 +11,7 @@ from data import crud, marshal
 from enums import RoleEnum
 from models import HealthFacilityOrm
 from validation import CradleBaseModel
-from validation.facilities import FacilityValidator
+from validation.facilities import HealthFacilityModel
 
 # /api/facilities
 api_facilities = APIBlueprint(
@@ -45,7 +45,7 @@ def get_all_facilities(query: GetAllFacilitiesQuery):
 # /api/facilities [POST]
 @api_facilities.post("")
 @roles_required([RoleEnum.ADMIN])
-def create_facility(body: FacilityValidator):
+def create_facility(body: HealthFacilityModel):
     """Create Facility"""
     new_facility = body.model_dump()
     # Create a DB Model instance for the new facility and load into DB
