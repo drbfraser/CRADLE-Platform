@@ -32,10 +32,7 @@ def get_all_assessments():
 
 
 # /api/assessments [POST]
-@api_assessments.post(
-    "",
-    responses={201: AssessmentResponse},
-)
+@api_assessments.post("", responses={201: AssessmentResponse})
 def create_new_assessment(body: AssessmentPostBody):
     """Create New Assessment"""
     if body.id is not None and crud.read(AssessmentOrm, id=body.id):
@@ -48,7 +45,7 @@ def create_new_assessment(body: AssessmentPostBody):
 
 
 # /api/assessments/<string:assessment_id> [GET]
-@api_assessments.get("/<string:assessment_id>")
+@api_assessments.get("/<string:assessment_id>", responses={200: AssessmentResponse})
 def get_assessment(path: AssessmentIdPath):
     """Get Assessment"""
     assessment = crud.read(AssessmentOrm, id=path.assessment_id)
@@ -58,10 +55,7 @@ def get_assessment(path: AssessmentIdPath):
 
 
 # /api/assessments/<string:assessment_id> [PUT]
-@api_assessments.put(
-    "/<string:assessment_id>",
-    responses={200: AssessmentResponse},
-)
+@api_assessments.put("/<string:assessment_id>", responses={200: AssessmentResponse})
 def update_assessment(path: AssessmentIdPath, body: AssessmentPutBody):
     """Update Assessment"""
     if crud.read(AssessmentOrm, id=path.assessment_id) is None:
