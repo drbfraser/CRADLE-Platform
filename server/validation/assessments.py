@@ -7,7 +7,7 @@ from utils import get_current_time
 from validation import CradleBaseModel
 
 
-class _AssessmentExamples:
+class AssessmentExamples:
     _id_01 = "abcd1234"
     _id_02 = "efgh4567"
     _patient_id = "0123456"
@@ -110,22 +110,22 @@ class AssessmentPostBody(AssessmentModel):
                 "example_01": {
                     "summary": "Valid example without `id`",
                     "description": "If `id` field is not provided, it will be assigned by the server.",
-                    "value": _AssessmentExamples.without_id,
+                    "value": AssessmentExamples.without_id,
                 },
                 "example_02": {
                     "summary": "Valid example with `id`",
                     "description": "If `id` field is provided, it must not conflict with an existing `Assessment` entity's `id`.",
-                    "value": _AssessmentExamples.with_id_01,
+                    "value": AssessmentExamples.with_id_01,
                 },
                 "example_03": {
                     "summary": "Invalid example: Missing `patient_id`",
                     "description": "Missing required `patient_id` field.",
-                    "value": _AssessmentExamples.missing_patient_id,
+                    "value": AssessmentExamples.missing_patient_id,
                 },
                 "example_04": {
                     "summary": "Invalid Example: Invalid `follow_up_needed`",
                     "description": "Field `follow_up_needed` is `true`, but `follow_up_instructions` field is missing.",
-                    "value": _AssessmentExamples.invalid_follow_up,
+                    "value": AssessmentExamples.invalid_follow_up,
                 },
             },
         }
@@ -141,17 +141,17 @@ class AssessmentPutBody(AssessmentModel):
             "examples": {
                 "example_01": {
                     "summary": "Valid Example",
-                    "value": _AssessmentExamples.with_id_01,
+                    "value": AssessmentExamples.with_id_01,
                 },
                 "example_02": {
                     "summary": "Invalid example: Missing `patient_id`",
                     "description": "Missing required `patient_id` field.",
-                    "value": _AssessmentExamples.missing_patient_id,
+                    "value": AssessmentExamples.missing_patient_id,
                 },
                 "example_03": {
                     "summary": "Invalid Example: Invalid `follow_up_needed`",
                     "description": "Field `follow_up_needed` is `true`, but `follow_up_instructions` field is missing.",
-                    "value": _AssessmentExamples.invalid_follow_up,
+                    "value": AssessmentExamples.invalid_follow_up,
                 },
             },
         }
@@ -162,7 +162,7 @@ class AssessmentResponse(AssessmentModel):
     model_config = dict(
         openapi_extra={
             "description": "An Assessment object.",
-            "example": _AssessmentExamples.with_id_01,
+            "example": AssessmentExamples.with_id_01,
         }
     )
 
@@ -172,8 +172,8 @@ class AssessmentListResponse(RootModel[list[AssessmentModel]]):
         openapi_extra={
             "description": "An array of Assessment objects.",
             "example": [
-                _AssessmentExamples.with_id_01,
-                _AssessmentExamples.with_id_02,
+                AssessmentExamples.with_id_01,
+                AssessmentExamples.with_id_02,
             ],
         }
     )  # type: ignore[reportAssignmentType]
