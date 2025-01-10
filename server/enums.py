@@ -19,7 +19,11 @@ class EnumWithList(Enum):
         return [e.value for e in cls]
 
 
-class RoleEnum(Enum):
+class StrEnum(str, Enum):
+    pass
+
+
+class RoleEnum(StrEnum):
     VHT = "VHT"
     HCW = "HCW"
     ADMIN = "ADMIN"
