@@ -50,7 +50,7 @@ class TrafficLightEnum(Enum):
     RED_DOWN = "RED_DOWN"
 
 
-class FacilityTypeEnum(Enum):
+class FacilityTypeEnum(StrEnum):
     HCF_2 = "HCF_2"
     HCF_3 = "HCF_3"
     HCF_4 = "HCF_4"
