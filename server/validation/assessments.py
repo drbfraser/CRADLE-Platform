@@ -8,70 +8,70 @@ from validation import CradleBaseModel
 
 
 class AssessmentExamples:
-    _id_01 = "abcd1234"
-    _id_02 = "efgh4567"
-    _patient_id = "0123456"
-    _date_assessed = 1551447833
-    _diagnosis = "Patient is fine."
-    _medication_prescribed_01 = "Tylenol"
-    _medication_prescribed_02 = "Aspirin"
-    _special_investigations = "This is some text."
-    _treatment_01 = f"Take {_medication_prescribed_01} twice a day."
-    _treatment_02 = f"Take {_medication_prescribed_02} twice a day."
-    _follow_up_needed = True
-    _follow_up_instructions_01 = f"Give lots of {_medication_prescribed_01}."
-    _follow_up_instructions_02 = f"Give lots of {_medication_prescribed_02}."
+    id_01 = "abcd1234"
+    id_02 = "efgh4567"
+    patient_id = "0123456"
+    date_assessed = 1551447833
+    diagnosis = "Patient is fine."
+    medication_prescribed_01 = "Tylenol"
+    medication_prescribed_02 = "Aspirin"
+    special_investigations = "This is some text."
+    treatment_01 = f"Take {medication_prescribed_01} twice a day."
+    treatment_02 = f"Take {medication_prescribed_02} twice a day."
+    follow_up_needed = True
+    follow_up_instructions_01 = f"Give lots of {medication_prescribed_01}."
+    follow_up_instructions_02 = f"Give lots of {medication_prescribed_02}."
 
     without_id = {
-        "patient_id": _patient_id,
-        "date_assessed": _date_assessed,
-        "diagnosis": _diagnosis,
-        "medication_prescribed": _medication_prescribed_01,
-        "special_investigations": _special_investigations,
-        "treatment": _treatment_01,
+        "patient_id": patient_id,
+        "date_assessed": date_assessed,
+        "diagnosis": diagnosis,
+        "medication_prescribed": medication_prescribed_01,
+        "special_investigations": special_investigations,
+        "treatment": treatment_01,
         "follow_up_needed": True,
-        "follow_up_instructions": _follow_up_instructions_01,
+        "follow_up_instructions": follow_up_instructions_01,
     }
     with_id_01 = {
-        "id": _id_01,
-        "patient_id": _patient_id,
-        "date_assessed": _date_assessed,
-        "diagnosis": _diagnosis,
-        "medication_prescribed": _medication_prescribed_01,
-        "special_investigations": _special_investigations,
-        "treatment": _treatment_01,
+        "id": id_01,
+        "patient_id": patient_id,
+        "date_assessed": date_assessed,
+        "diagnosis": diagnosis,
+        "medication_prescribed": medication_prescribed_01,
+        "special_investigations": special_investigations,
+        "treatment": treatment_01,
         "follow_up_needed": True,
-        "follow_up_instructions": _follow_up_instructions_01,
+        "follow_up_instructions": follow_up_instructions_01,
     }
     with_id_02 = {
-        "id": _id_02,
-        "patient_id": _patient_id,
-        "date_assessed": _date_assessed,
-        "diagnosis": _diagnosis,
-        "medication_prescribed": _medication_prescribed_02,
-        "special_investigations": _special_investigations,
-        "treatment": _treatment_02,
+        "id": id_02,
+        "patient_id": patient_id,
+        "date_assessed": date_assessed,
+        "diagnosis": diagnosis,
+        "medication_prescribed": medication_prescribed_02,
+        "special_investigations": special_investigations,
+        "treatment": treatment_02,
         "follow_up_needed": True,
-        "follow_up_instructions": _follow_up_instructions_02,
+        "follow_up_instructions": follow_up_instructions_02,
     }
     missing_patient_id = {
-        "id": _id_01,
-        "date_assessed": _date_assessed,
-        "diagnosis": _diagnosis,
-        "medication_prescribed": _medication_prescribed_01,
-        "special_investigations": _special_investigations,
-        "treatment": _treatment_01,
+        "id": id_01,
+        "date_assessed": date_assessed,
+        "diagnosis": diagnosis,
+        "medication_prescribed": medication_prescribed_01,
+        "special_investigations": special_investigations,
+        "treatment": treatment_01,
         "follow_up_needed": True,
-        "follow_up_instructions": _follow_up_instructions_01,
+        "follow_up_instructions": follow_up_instructions_01,
     }
     invalid_follow_up = {
-        "id": _id_01,
-        "patient_id": _patient_id,
-        "date_assessed": _date_assessed,
-        "diagnosis": _diagnosis,
-        "medication_prescribed": _medication_prescribed_01,
-        "special_investigations": _special_investigations,
-        "treatment": _treatment_01,
+        "id": id_01,
+        "patient_id": patient_id,
+        "date_assessed": date_assessed,
+        "diagnosis": diagnosis,
+        "medication_prescribed": medication_prescribed_01,
+        "special_investigations": special_investigations,
+        "treatment": treatment_01,
         "follow_up_needed": True,
     }
 
