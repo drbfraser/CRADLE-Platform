@@ -46,3 +46,11 @@ def format_phone_number(phone_number: str):
         return phonenumbers.format_number(
             parsed_phone_number, phonenumbers.PhoneNumberFormat.E164
         )
+
+
+def to_lower(string: str) -> str:
+    return string.lower()
+
+
+def to_upper(string: str) -> str:
+    return string.upper()
