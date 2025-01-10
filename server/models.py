@@ -173,7 +173,7 @@ class HealthFacilityOrm(db.Model):
     phone_number = db.Column(db.String(50), unique=True)
     location = db.Column(db.String(50))
     about = db.Column(db.Text)
-    new_referrals = db.Column(db.String(50))
+    new_referrals = db.Column(db.BigInteger, nullable=True)
 
     @staticmethod
     def schema():
