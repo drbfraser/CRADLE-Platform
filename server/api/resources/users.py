@@ -14,8 +14,8 @@ from models import UserOrm
 from validation import CradleBaseModel
 from validation.phone_numbers import PhoneNumberE164
 from validation.users import (
+    UserModel,
     UserRegisterValidator,
-    UserValidator,
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -124,7 +124,7 @@ def get_current_user():
 # /api/user/<int:user_id> [PUT]
 @api_users.put("/<int:user_id>")
 @roles_required([RoleEnum.ADMIN])
-def edit_user(path: UserIdPath, body: UserValidator):
+def edit_user(path: UserIdPath, body: UserModel):
     """Edit User"""
     try:
         # Update the user.

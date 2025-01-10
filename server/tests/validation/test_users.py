@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from validation.users import UserRegisterValidator, UserValidator
+from validation.users import UserModel, UserRegisterValidator
 
 USERNAME = "JaneAdmin"
 NAME = "Jane"
@@ -9,11 +9,12 @@ EMAIL = "jane@mail.com"
 FACILITY = "facility7"
 ROLE = "ADMIN"
 LIST_OF_INT = [111, 222, 333]
-LIST_OF_PHONE_NUMBERS = ["+1-604-111-1111", "+1-604-222-2222", "+1-604-333-3333"]
+LIST_OF_PHONE_NUMBERS = ["+1-604-321-4567", "+1-604-464-2112", "+1-604-323-3539"]
 PASSWORD = "pwd123"
 SOME_INTEGER = 12345
 
 user_with_valid_fields_should_return_none = {
+    "username": USERNAME,
     "name": NAME,
     "email": EMAIL,
     "health_facility_name": FACILITY,
@@ -23,6 +24,7 @@ user_with_valid_fields_should_return_none = {
 }
 
 user_missing_required_field_email_should_throw_exception = {
+    "username": USERNAME,
     "name": NAME,
     "health_facility_name": FACILITY,
     "role": ROLE,
@@ -31,6 +33,7 @@ user_missing_required_field_email_should_throw_exception = {
 }
 
 user_missing_required_field_health_facility_name_should_throw_exception = {
+    "username": USERNAME,
     "name": NAME,
     "email": EMAIL,
     "role": ROLE,
@@ -39,6 +42,7 @@ user_missing_required_field_health_facility_name_should_throw_exception = {
 }
 
 user_missing_required_field_role_should_throw_exception = {
+    "username": USERNAME,
     "name": NAME,
     "email": EMAIL,
     "health_facility_name": FACILITY,
@@ -47,6 +51,7 @@ user_missing_required_field_role_should_throw_exception = {
 }
 
 user_missing_required_field_first_name_should_throw_exception = {
+    "username": USERNAME,
     "email": EMAIL,
     "health_facility_name": FACILITY,
     "role": ROLE,
@@ -55,6 +60,7 @@ user_missing_required_field_first_name_should_throw_exception = {
 }
 
 user_missing_optional_field_supervises_should_return_none = {
+    "username": USERNAME,
     "name": NAME,
     "email": EMAIL,
     "health_facility_name": FACILITY,
@@ -63,6 +69,7 @@ user_missing_optional_field_supervises_should_return_none = {
 }
 
 user_field_first_name_has_invalid_type_should_throw_exception = {
+    "username": USERNAME,
     "name": SOME_INTEGER,
     "email": EMAIL,
     "health_facility_name": FACILITY,
@@ -72,6 +79,7 @@ user_field_first_name_has_invalid_type_should_throw_exception = {
 }
 
 user_field_email_has_invalid_type_should_throw_exception = {
+    "username": USERNAME,
     "name": NAME,
     "email": SOME_INTEGER,
     "health_facility_name": FACILITY,
@@ -81,6 +89,7 @@ user_field_email_has_invalid_type_should_throw_exception = {
 }
 
 user_field_health_facility_name_has_invalid_type_should_throw_exception = {
+    "username": USERNAME,
     "name": NAME,
     "email": EMAIL,
     "health_facility_name": SOME_INTEGER,
@@ -90,6 +99,7 @@ user_field_health_facility_name_has_invalid_type_should_throw_exception = {
 }
 
 user_field_role_has_invalid_type_should_throw_exception = {
+    "username": USERNAME,
     "name": NAME,
     "email": EMAIL,
     "health_facility_name": FACILITY,
@@ -99,6 +109,7 @@ user_field_role_has_invalid_type_should_throw_exception = {
 }
 
 user_field_supervises_has_invalid_type_should_throw_exception = {
+    "username": USERNAME,
     "name": NAME,
     "email": EMAIL,
     "health_facility_name": FACILITY,
@@ -108,6 +119,7 @@ user_field_supervises_has_invalid_type_should_throw_exception = {
 }
 
 user_field_phone_numbers_has_invalid_type_should_throw_exception = {
+    "username": USERNAME,
     "name": NAME,
     "email": EMAIL,
     "health_facility_name": FACILITY,
@@ -117,6 +129,7 @@ user_field_phone_numbers_has_invalid_type_should_throw_exception = {
 }
 
 user_role_is_not_supported_role_should_throw_exception = {
+    "username": USERNAME,
     "name": NAME,
     "email": EMAIL,
     "health_facility_name": FACILITY,
@@ -126,6 +139,7 @@ user_role_is_not_supported_role_should_throw_exception = {
 }
 
 user_field_phone_numbers_has_invalid_phone_format_should_throw_exception = {
+    "username": USERNAME,
     "name": NAME,
     "email": EMAIL,
     "health_facility_name": FACILITY,
@@ -193,10 +207,10 @@ user_field_phone_numbers_has_invalid_phone_format_should_throw_exception = {
 def test_validation(json, output_type):
     if type(output_type) is type and issubclass(output_type, Exception):
         with pytest.raises(output_type):
-            UserValidator(**json)
+            UserModel(**json)
     else:
         try:
-            UserValidator(**json)
+            UserModel(**json)
         except ValidationError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e
 

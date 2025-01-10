@@ -1,16 +1,24 @@
 import re
+from typing import Annotated
 
-from pydantic import field_validator
+from pydantic import AfterValidator, EmailStr, field_validator
 
-from common.commonUtil import format_phone_number, is_valid_email_format
+from common.commonUtil import (
+    is_valid_email_format,
+    to_lower,
+    to_upper,
+)
 from common.constants import USERNAME_REGEX_PATTERN
 from enums import RoleEnum
 from validation import CradleBaseModel
+from validation.phone_numbers import PhoneNumberE164
 
 supported_roles = [role.value for role in RoleEnum]
 
+Username = Annotated[str, AfterValidator(to_lower)]
 
-class UserValidator(CradleBaseModel):
+
+class UserModel(CradleBaseModel):
     """
     Base class for User models.
     Since the PUT request for updating a user's info should only be able to
@@ -21,17 +29,18 @@ class UserValidator(CradleBaseModel):
     {
         "name": "Jane",
         "email": "jane@mail.com",
-        "health_facility_name": "facility7",
-        "role": "admin",
+        "health_facility_name": "H1000",
+        "role": "ADMIN",
         "phone_numbers": [ "+604-555-1234" ]
     }
     """
 
-    email: str
+    username: Username
+    email: EmailStr
     name: str
-    health_facility_name: str
-    role: str
-    phone_numbers: list[str]
+    health_facility_name: Annotated[str, AfterValidator(to_upper)]
+    role: RoleEnum
+    phone_numbers: list[PhoneNumberE164]
     supervises: list[int] = []
 
     @field_validator("email")
@@ -50,24 +59,15 @@ class UserValidator(CradleBaseModel):
         name = name.title()
         return name
 
-    @field_validator("role")
-    @classmethod
-    def validate_role(cls, value: str):
-        if value not in supported_roles:
-            error = {"message": f"({value}) is not a supported role"}
-            raise ValueError(error)
-        return value
-
-    @field_validator("phone_numbers")
-    @classmethod
-    def format_phone_numbers(cls, phone_numbers: list[str]) -> list[str]:
-        formatted_phone_numbers: set[str] = set()
-        for phone_number in phone_numbers:
-            formatted_phone_numbers.add(format_phone_number(phone_number))
-        return list(formatted_phone_numbers)
+    # @field_validator("role")
+    # @classmethod
+    # def validate_role(cls, value: str):
+    #     if value not in supported_roles:
+    #         raise ValueError(f"({value}) is not a supported role")
+    #     return value
 
 
-class UserRegisterValidator(UserValidator):
+class UserRegisterValidator(UserModel):
     """
     User validation model for the `/api/user/register [POST]` api endpoint.
     """
