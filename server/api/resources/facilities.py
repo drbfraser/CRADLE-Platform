@@ -23,7 +23,7 @@ api_facilities = APIBlueprint(
 )
 
 
-class FacilitiesGetQuery(CradleBaseModel):
+class GetAllFacilitiesQuery(CradleBaseModel):
     simplified: bool = Field(
         False, description="If true, only the names of facilities will be returned."
     )
@@ -31,7 +31,7 @@ class FacilitiesGetQuery(CradleBaseModel):
 
 # /api/facilities [GET]
 @api_facilities.get("")
-def get_all_facilities(query: FacilitiesGetQuery):
+def get_all_facilities(query: GetAllFacilitiesQuery):
     """Get All Facilities"""
     facilities = crud.read_all(HealthFacilityOrm)
     if query.simplified:
