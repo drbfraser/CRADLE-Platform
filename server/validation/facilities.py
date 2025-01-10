@@ -1,6 +1,9 @@
-from typing import Optional
+from typing import Annotated, Optional
+
+from pydantic import AfterValidator
 
 from enums import FacilityTypeEnum
+from server.common.commonUtil import to_uppercase
 from validation import CradleBaseModel
 from validation.phone_numbers import PhoneNumberE164
 
@@ -18,6 +21,8 @@ class HealthFacilityModel(CradleBaseModel):
 
     name: str
     phone_number: Optional[PhoneNumberE164] = None
-    location: Optional[str] = None
-    about: Optional[str] = None
-    type: Optional[FacilityTypeEnum] = None
+    location: Annotated[
+        str, AfterValidator(to_uppercase)
+    ]  # Store in uppercase for case-insensitivity
+    about: str
+    type: FacilityTypeEnum
