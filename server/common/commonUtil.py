@@ -48,9 +48,13 @@ def format_phone_number(phone_number: str):
         )
 
 
-def to_lower(string: str) -> str:
+def to_lowercase(string: str) -> str:
     return string.lower()
 
 
-def to_upper(string: str) -> str:
+def to_uppercase(string: str) -> str:
     return string.upper()
+
+
+def to_titlecase(string: str) -> str:
+    return string.title()
