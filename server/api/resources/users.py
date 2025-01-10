@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import List, Optional
 
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
@@ -15,7 +15,6 @@ from validation import CradleBaseModel
 from validation.phone_numbers import PhoneNumberE164
 from validation.users import (
     UserModel,
-    UserRegisterValidator,
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -94,14 +93,18 @@ def change_password_current_user():
     return abort(500, description="This endpoint has not yet been implemented.")
 
 
+class RegisterUserRequestBody(UserModel):
+    id: Optional[int] = None
+    password: str
+
+
 # /api/user/register [POST]
 @api_users.post("/register")
 @roles_required([RoleEnum.ADMIN])
-def register_user(body: UserRegisterValidator):
+def register_user(body: RegisterUserRequestBody):
     """Register New User"""
-    new_user_dict = body.model_dump()
     try:
-        user_utils.create_user(**new_user_dict)
+        user_utils.create_user(**body.model_dump())
     except ValueError as e:
         error_message = str(e)
         LOGGER.error(error_message)

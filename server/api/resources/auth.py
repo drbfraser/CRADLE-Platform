@@ -8,20 +8,27 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
+from pydantic import Field
 
 import config
 from authentication import cognito
 from common import user_utils
 from validation import CradleBaseModel
-from validation.users import (
-    UserAuthValidator,
-)
+from validation.users import UserModelWithSmsKey
 
 LOGGER = logging.getLogger(__name__)
 
 load_dotenv()
 LIMITER_DISABLED = os.getenv("LIMITER_DISABLED", "False").lower() == "true"
 
+app = config.app
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    enabled=not LIMITER_DISABLED,
+    default_limits=["50 per hour", "200 per day"],
+    # parsed by flask limiter library https://flask-limiter.readthedocs.io/en/stable/
+)
 
 # /api/user/auth
 api_auth = APIBlueprint(
@@ -33,14 +40,43 @@ api_auth = APIBlueprint(
 )
 
 
-app = config.app
-limiter = Limiter(
-    get_remote_address,
-    app=app,
-    enabled=not LIMITER_DISABLED,
-    default_limits=["50 per hour", "200 per day"],
-    # parsed by flask limiter library https://flask-limiter.readthedocs.io/en/stable/
-)
+# We don't need to do any additional validation, as Cognito will validate the credentials for us.
+class Credentials(CradleBaseModel, extra="forbid"):
+    username: str = Field(description="Username or email of the User to authenticate.")
+    password: str
+
+    model_config = dict(
+        openapi_extra={
+            "description": "Credentials of the User to authenticate. The `username` field may be either a username or email.",
+            "examples": {
+                "example_01": {
+                    "summary": "With username",
+                    "value": {
+                        "username": "admin",
+                        "password": "cradle-admin",
+                    },
+                },
+                "example_02": {
+                    "summary": "With email",
+                    "value": {
+                        "username": "admin@email.com",
+                        "password": "cradle-admin",
+                    },
+                },
+            },
+        }
+    )
+
+
+class AuthenticationResponse(CradleBaseModel):
+    access_token: str
+    user: UserModelWithSmsKey
+
+    model_config = dict(
+        openapi_extra={
+            "description": "Authentication Success Response",
+        }
+    )
 
 
 # /api/user/auth [POST]
@@ -51,7 +87,7 @@ limiter = Limiter(
     exempt_when=lambda: os.environ.get("LIMITER_DISABLED")
     == "True",  # disable limiter during testing stage
 )
-def authenticate(body: UserAuthValidator):
+def authenticate(body: Credentials):
     """Authenticate"""
     # Attempt authentication with Cognito user pool.
     try:
@@ -76,7 +112,7 @@ def authenticate(body: UserAuthValidator):
             "ERROR: Something has gone wrong. User authentication succeeded but username (%s) is not found in database.",
             body.username,
         )
-        return abort(500, description=err)
+        return abort(500, description=error)
 
     # Don't include refresh token in body of response.
     refresh_token = auth_result["refresh_token"]
