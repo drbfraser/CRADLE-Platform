@@ -11,7 +11,7 @@ from data import crud, marshal
 from enums import RoleEnum
 from models import FormClassificationOrm, FormTemplateOrm
 from validation import CradleBaseModel
-from validation.formTemplates import ClassificationValidator
+from validation.formClassifications import FormClassificationModel
 
 # /api/forms/classifications
 api_form_classifications = APIBlueprint(
@@ -34,7 +34,7 @@ def get_all_form_classifications():
 # /api/forms/classifications [POST]
 @api_form_classifications.post("")
 @roles_required([RoleEnum.ADMIN])
-def create_form_classification(body: ClassificationValidator):
+def create_form_classification(body: FormClassificationModel):
     """Create Form Classification"""
     # Note: This validation logic is left out of the Pydantic validation system
     # because it relies on the database, which the unit tests do not have access to (Issue #689)

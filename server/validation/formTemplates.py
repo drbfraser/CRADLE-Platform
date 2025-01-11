@@ -4,23 +4,19 @@ from pydantic import field_validator
 
 from service import questionTree
 from validation import CradleBaseModel
-from validation.questions import TemplateQuestionValidator
+from validation.formClassifications import FormClassificationModel
+from validation.questions import TemplateQuestionModel
 
 
-class ClassificationValidator(CradleBaseModel):
-    name: str
-    id: Optional[str] = None
-
-
-class FormTemplateValidator(CradleBaseModel, extra="forbid"):
-    classification: ClassificationValidator
+class FormTemplateModel(CradleBaseModel, extra="forbid"):
+    classification: FormClassificationModel
     version: str
-    questions: List[TemplateQuestionValidator]
+    questions: List[TemplateQuestionModel]
     id: Optional[str] = None
 
     @field_validator("questions", mode="after")
     @classmethod
-    def validate_questions(cls, questions: List[TemplateQuestionValidator]):
+    def validate_questions(cls, questions: List[TemplateQuestionModel]):
         """
         Raises an error if the questions part in /api/forms/templates POST or PUT
         request is not valid (json format, lang versions consistency, question_index constraint).

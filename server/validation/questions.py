@@ -100,7 +100,7 @@ class QuestionBase(CradleBaseModel, use_enum_values=True):
     string_max_lines: Optional[int] = None
 
 
-class TemplateQuestionValidator(QuestionBase, extra="forbid"):
+class TemplateQuestionModel(QuestionBase, extra="forbid"):
     question_lang_versions: List[QuestionLangVersionValidator]
     is_blank: bool = True  # Set to True for template questions
 

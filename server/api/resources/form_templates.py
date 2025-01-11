@@ -18,7 +18,7 @@ from models import FormClassificationOrm, FormTemplateOrm
 from service import serialize
 from validation import CradleBaseModel
 from validation.file_upload import FileUploadForm
-from validation.formTemplates import FormTemplateValidator
+from validation.formTemplates import FormTemplateModel
 
 # /api/forms/templates
 api_form_templates = APIBlueprint(
@@ -49,7 +49,7 @@ def get_all_form_templates(query: GetAllFormTemplatesQuery):
     return [marshal.marshal(f, shallow=True) for f in form_templates]
 
 
-def handle_form_template_upload(form_template: FormTemplateValidator):
+def handle_form_template_upload(form_template: FormTemplateModel):
     """
     Common logic for handling uploaded form template. Whether it was uploaded
     as a file, or in the request body.
@@ -121,14 +121,14 @@ def upload_form_template_file(form: FileUploadForm):
             )
         else:
             return abort(422, description="Invalid content-type.")
-    form_template = FormTemplateValidator(**file_contents)
+    form_template = FormTemplateModel(**file_contents)
     return handle_form_template_upload(form_template)
 
 
 # /api/forms/templates/body [POST]
 @api_form_templates.post("/body")
 @roles_required([RoleEnum.ADMIN])
-def upload_form_template_body(body: FormTemplateValidator):
+def upload_form_template_body(body: FormTemplateModel):
     """
     Upload Form Template VIA Request Body
     Accepts Form Template through the request body, rather than as a file.
