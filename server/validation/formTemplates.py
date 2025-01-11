@@ -1,27 +1,51 @@
 from typing import List, Optional
 
-from pydantic import field_validator
+from pydantic import RootModel, field_validator
 
 from service import questionTree
 from validation import CradleBaseModel
-from validation.formClassifications import FormClassificationModel
+from validation.formClassifications import (
+    FormClassificationExamples,
+)
 from validation.questions import TemplateQuestionModel
 
 
+class FormTemplateExamples:
+    id_01 = "dt9"
+    version = "V1"
+    date_created = 1551447833
+    questions = []
+    archived = False
+    example_01 = {
+        "id": id_01,
+        "version": version,
+        "date_created": date_created,
+        "questions": questions,
+        "form_classification_id": FormClassificationExamples.id,
+    }
+
+
 class FormTemplateModel(CradleBaseModel, extra="forbid"):
-    classification: FormClassificationModel
+    id: str
     version: str
+    date_created: int
     questions: List[TemplateQuestionModel]
-    id: Optional[str] = None
+    form_classification_id: Optional[str] = None
+    archived: bool = False
+
+    model_config = dict(
+        openapi_extra={
+            "description": "Form Template",
+            "example": FormTemplateExamples.example_01,
+        }
+    )
 
     @field_validator("questions", mode="after")
     @classmethod
-    def validate_questions(cls, questions: List[TemplateQuestionModel]):
+    def __validate_questions(cls, questions: List[TemplateQuestionModel]):
         """
         Raises an error if the questions part in /api/forms/templates POST or PUT
         request is not valid (json format, lang versions consistency, question_index constraint).
-
-        :param questions: The request body as a dict object
         """
         lang_version_list = None
         question_index = 0
@@ -59,3 +83,7 @@ class FormTemplateModel(CradleBaseModel, extra="forbid"):
             print(error)
             raise ValueError(error)
         return questions
+
+
+class FormTemplateList(RootModel[list[FormTemplateModel]]):
+    model_config = dict(openapi_extra={"example": [FormTemplateExamples.example_01]})  # type: ignore[reportAssignmentType]
