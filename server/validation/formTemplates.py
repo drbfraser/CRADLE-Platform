@@ -6,21 +6,21 @@ from service import questionTree
 from validation import CradleBaseModel
 from validation.formClassifications import (
     FormClassificationExamples,
+    FormClassificationModel,
 )
 from validation.questions import TemplateQuestionModel
 
 
 class FormTemplateExamples:
-    id_01 = "dt9"
+    id_01 = "dt9-01"
     version = "V1"
     date_created = 1551447833
-    questions = []
     archived = False
+
     example_01 = {
         "id": id_01,
         "version": version,
         "date_created": date_created,
-        "questions": questions,
         "form_classification_id": FormClassificationExamples.id,
     }
 
@@ -29,7 +29,6 @@ class FormTemplateModel(CradleBaseModel, extra="forbid"):
     id: str
     version: str
     date_created: int
-    questions: List[TemplateQuestionModel]
     form_classification_id: Optional[str] = None
     archived: bool = False
 
@@ -39,6 +38,14 @@ class FormTemplateModel(CradleBaseModel, extra="forbid"):
             "example": FormTemplateExamples.example_01,
         }
     )
+
+
+class FormTemplateModelNested(FormTemplateModel):
+    """Form Template model including nested Form Classification and Question models"""
+
+    lang: str
+    classification: FormClassificationModel
+    questions: List[TemplateQuestionModel]
 
     @field_validator("questions", mode="after")
     @classmethod

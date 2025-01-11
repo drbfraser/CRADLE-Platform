@@ -142,7 +142,6 @@ def serialize_referral_or_assessment(model: Union[ReferralOrm, AssessmentOrm]) -
 
 def serialize_blank_form_template(form_template: dict) -> dict:
     del form_template["date_created"]
-    del form_template["last_edited"]
     del form_template["version"]
 
     return form_template

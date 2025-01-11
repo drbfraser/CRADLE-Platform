@@ -18,7 +18,11 @@ from models import FormClassificationOrm, FormTemplateOrm
 from service import serialize
 from validation import CradleBaseModel
 from validation.file_upload import FileUploadForm
-from validation.formTemplates import FormTemplateModel
+from validation.formTemplates import (
+    FormTemplateList,
+    FormTemplateModel,
+    FormTemplateModelNested,
+)
 
 # /api/forms/templates
 api_form_templates = APIBlueprint(
@@ -37,7 +41,7 @@ class GetAllFormTemplatesQuery(CradleBaseModel):
 
 
 # /api/forms/templates [GET]
-@api_form_templates.get("")
+@api_form_templates.get("", responses={200: FormTemplateList})
 def get_all_form_templates(query: GetAllFormTemplatesQuery):
     """Get All Form Templates"""
     filters: dict = {}
@@ -59,7 +63,7 @@ def handle_form_template_upload(form_template: FormTemplateModel):
     # FormClassification is basically the name of the FormTemplate. FormTemplates can have multiple versions, and the FormClassification is used to group different versions of the same FormTemplate.
     classification = crud.read(
         FormClassificationOrm,
-        name=form_template.classification.name,
+        id=form_template.form_classification_id,
     )
     if classification is not None:
         if crud.read(
@@ -69,7 +73,7 @@ def handle_form_template_upload(form_template: FormTemplateModel):
         ):
             return abort(
                 409,
-                description="Form template with the same version already exists - change the version to upload",
+                description="Form Template with the same version already exists - change the version to upload.",
             )
 
         del new_form_template["classification"]
@@ -90,7 +94,7 @@ def handle_form_template_upload(form_template: FormTemplateModel):
 
 
 # /api/forms/templates [POST]
-@api_form_templates.post("")
+@api_form_templates.post("", responses={201: FormTemplateModel})
 @roles_required([RoleEnum.ADMIN])
 def upload_form_template_file(form: FileUploadForm):
     """
@@ -126,9 +130,9 @@ def upload_form_template_file(form: FileUploadForm):
 
 
 # /api/forms/templates/body [POST]
-@api_form_templates.post("/body")
+@api_form_templates.post("/body", responses={201: FormTemplateModel})
 @roles_required([RoleEnum.ADMIN])
-def upload_form_template_body(body: FormTemplateModel):
+def upload_form_template_body(body: FormTemplateModelNested):
     """
     Upload Form Template VIA Request Body
     Accepts Form Template through the request body, rather than as a file.
@@ -137,7 +141,9 @@ def upload_form_template_body(body: FormTemplateModel):
 
 
 # /api/forms/templates/<string:form_template_id>/versions [GET]
-@api_form_templates.get("<string:form_template_id>/versions")
+@api_form_templates.get(
+    "<string:form_template_id>/versions", responses={200: FormTemplateModel}
+)
 def get_form_template_versions(path: FormTemplateIdPath):
     """Get Form Template Versions"""
     form_template = crud.read(FormTemplateOrm, id=path.form_template_id)
@@ -156,7 +162,12 @@ class FormTemplateVersionPath(FormTemplateIdPath):
 
 
 # /api/forms/templates/<string:form_template_id>/versions/<string:version>/csv [GET]
-@api_form_templates.get("/<string:form_template_id>/versions/<string:version>/csv")
+@api_form_templates.get(
+    "/<string:form_template_id>/versions/<string:version>/csv",
+    responses={
+        200: {"content": {"text/csv": {"schema": {"type": "string"}}}},
+    },
+)
 def get_form_template_version_as_csv(path: FormTemplateVersionPath):
     """Get Form Template Version as CSV"""
     filters: dict = {
@@ -186,8 +197,12 @@ class GetFormTemplateQuery(CradleBaseModel):
 
 
 # /api/forms/templates/<string:form_template_id> [GET]
-@api_form_templates.get("/<string:form_template_id>")
-def get_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuery):
+@api_form_templates.get(
+    "/<string:form_template_id>", responses={200: FormTemplateModelNested}
+)
+def get_form_template_language_version(
+    path: FormTemplateIdPath, query: GetFormTemplateQuery
+):
     """Get Form Template"""
     form_template = crud.read(FormTemplateOrm, id=path.form_template_id)
     if form_template is None:
@@ -207,14 +222,16 @@ def get_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuery):
         form_template,
         refresh=True,
     )
-    """ 
-    What is a "language version"? Isn't the "version" field used to track 
-    modifications to the forms?
-    """
+    print(f"available_versions: {available_versions}")
+    print(f"available_versions: {available_versions}")
+    print(f"available_versions: {available_versions}")
+    print(f"available_versions: {available_versions}")
+    print(f"available_versions: {available_versions}")
+
     if version not in available_versions:
         return abort(
             404,
-            description=f"Template(id={path.form_template_id}) doesn't have language version = {version}",
+            description=f"FormTemplate(id={path.form_template_id}) doesn't have language version = {version}",
         )
 
     return marshal.marshal_template_to_single_version(form_template, version)
@@ -228,7 +245,9 @@ class ArchiveFormTemplateBody(CradleBaseModel):
 
 
 # /api/forms/templates/<string:form_template_id> [PUT]
-@api_form_templates.put("/<string:form_template_id>")
+@api_form_templates.put(
+    "/<string:form_template_id>", responses={200: FormTemplateModel}
+)
 def archive_form_template(path: FormTemplateIdPath, body: ArchiveFormTemplateBody):
     """Archive Form Template"""
     # TODO: It would make more sense to take the "archived" bool from query params.
@@ -247,7 +266,9 @@ def archive_form_template(path: FormTemplateIdPath, body: ArchiveFormTemplateBod
 
 
 # /api/forms/templates/blank/<string:form_template_id> [GET]
-@api_form_templates.get("/blank/<string:form_template_id>")
+@api_form_templates.get(
+    "/blank/<string:form_template_id>", responses={200: FormTemplateModelNested}
+)
 def get_blank_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuery):
     """Get Blank Form Template"""
     form_template = crud.read(FormTemplateOrm, id=path.form_template_id)

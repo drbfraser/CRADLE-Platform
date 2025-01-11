@@ -564,7 +564,7 @@ def getCsvFromFormTemplate(form_template: FormTemplateOrm):
 
     for question in questions:
         row = [
-            question.question_id,
+            question.form_template_id,
             question.lang_versions[0].question_text,
             question.question_type.value,
             question.lang_versions[0].lang,
