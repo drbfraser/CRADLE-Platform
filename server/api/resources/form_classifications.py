@@ -10,8 +10,10 @@ from common.api_utils import (
 from data import crud, marshal
 from enums import RoleEnum
 from models import FormClassificationOrm, FormTemplateOrm
-from validation import CradleBaseModel
-from validation.formClassifications import FormClassificationModel
+from validation.formClassifications import (
+    FormClassificationModel,
+    FormClassificationModelOptionalId,
+)
 
 # /api/forms/classifications
 api_form_classifications = APIBlueprint(
@@ -24,7 +26,7 @@ api_form_classifications = APIBlueprint(
 
 
 # /api/forms/classifications [GET]
-@api_form_classifications.get("")
+@api_form_classifications.get("", responses={200: FormClassificationModel})
 def get_all_form_classifications():
     """Get All Form Classifications"""
     form_classifications = crud.read_all(FormClassificationOrm)
@@ -34,17 +36,18 @@ def get_all_form_classifications():
 # /api/forms/classifications [POST]
 @api_form_classifications.post("")
 @roles_required([RoleEnum.ADMIN])
-def create_form_classification(body: FormClassificationModel):
+def create_form_classification(body: FormClassificationModelOptionalId):
     """Create Form Classification"""
-    # Note: This validation logic is left out of the Pydantic validation system
-    # because it relies on the database, which the unit tests do not have access to (Issue #689)
     if body.id is not None:
         if crud.read(FormClassificationOrm, id=body.id):
-            return abort(409, description="Form classification already exists.")
+            return abort(
+                409,
+                description=f"Form Classification with id=({body.id}) already exists.",
+            )
     if crud.read(FormClassificationOrm, name=body.name):
         return abort(
             409,
-            description="Form classification with the same name already exists.",
+            description=f"Form Classification with name=({body.name}) already exists.",
         )
 
     form_classification = marshal.unmarshal(FormClassificationOrm, body.model_dump())
@@ -62,22 +65,23 @@ def get_form_classification(path: FormClassificationIdPath):
     if form_classification is None:
         return abort(
             400,
-            description=f"No form classification with ID: {path.form_classification_id}",
+            description=f"No Form Classification with id=({path.form_classification_id}) found.",
         )
 
     return marshal.marshal(form_classification), 200
 
 
-class FormClassificationPutBody(CradleBaseModel):
-    name: str
-
-
 # /api/forms/classifications/<string:form_classification_id> [PUT]
-@api_form_classifications.put("/<string:form_classification_id>")
+@api_form_classifications.put(
+    "/<string:form_classification_id>", responses={200: FormClassificationModel}
+)
 def update_form_classification_name(
-    path: FormClassificationIdPath, body: FormClassificationPutBody
+    path: FormClassificationIdPath, body: FormClassificationModel
 ):
     """Update Form Classification"""
+    if body.id != path.form_classification_id:
+        return abort(400, "Cannot change id.")
+
     form_classification = crud.read(
         FormClassificationOrm, id=path.form_classification_id
     )
@@ -85,7 +89,7 @@ def update_form_classification_name(
     if form_classification is None:
         return abort(
             404,
-            description=f"No form classification with ID: {path.form_classification_id}",
+            description=f"No Form Classification with id=({path.form_classification_id}) found.",
         )
 
     if body.name is not None:
