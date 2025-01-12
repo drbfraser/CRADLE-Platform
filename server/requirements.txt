@@ -16,7 +16,7 @@ marshmallow-enum==1.5.1
 marshmallow-sqlalchemy==0.24.2
 numpy==1.26.4
 pycryptodome==3.18.0
-pydantic==2.9.2
+pydantic[email]==2.9.2
 pydantic-extra-types==2.10.1
 PyMySQL==1.0.2
 pytest==6.2.2
@@ -29,7 +29,6 @@ SQLAlchemy==1.4.18
 sqlalchemy-stubs
 uWSGI==2.0.26
 boto3==1.35.49 # AWS SDK
-boto3-stubs==1.35.49
 boto3-stubs[cognito-idp]==1.35.49
 botocore==1.35.49
 botocore-stubs==1.35.49
