@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Optional
 
 from pydantic import AfterValidator, EmailStr
 
@@ -18,31 +18,35 @@ Username = Annotated[str, AfterValidator(to_lowercase)]
 
 
 class UserExamples:
-    _username = "jane-vht"
-    _name = "Jane Smith"
-    _email = "jane@email.com"
-    _health_facility_name = "H1000"
-    _role = "VHT"
-    _phone_numbers = ["+1-604-321-1234"]
-    _sms_key = SmsKeyExamples.valid_example
+    id_01 = 7
+    id_02 = 8
+    username = "jane-vht"
+    name = "Jane Smith"
+    email = "jane@email.com"
+    health_facility_name = "H1000"
+    role = "VHT"
+    phone_numbers = ["+16043211234"]
+    sms_key = SmsKeyExamples.valid_example
 
     valid_example = {
-        "username": _username,
-        "name": _name,
-        "email": _email,
-        "health_facility_name": _health_facility_name,
-        "role": _role,
-        "phone_numbers": _phone_numbers,
+        "id": id_01,
+        "username": username,
+        "name": name,
+        "email": email,
+        "health_facility_name": health_facility_name,
+        "role": role,
+        "phone_numbers": phone_numbers,
     }
 
     with_sms_key = {
-        "username": _username,
-        "name": _name,
-        "email": _email,
-        "health_facility_name": _health_facility_name,
-        "role": _role,
-        "phone_numbers": _phone_numbers,
-        "sms_key": _sms_key,
+        "id": id_01,
+        "username": username,
+        "name": name,
+        "email": email,
+        "health_facility_name": health_facility_name,
+        "role": role,
+        "phone_numbers": phone_numbers,
+        "sms_key": sms_key,
     }
 
 
@@ -59,3 +63,8 @@ class UserModel(CradleBaseModel):
 
 class UserModelWithSmsKey(UserModel):
     sms_key: SmsKeyModel
+
+
+class RegisterUserRequestBody(UserModel):
+    id: Optional[int] = None
+    password: str

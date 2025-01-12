@@ -1,5 +1,5 @@
 import logging
-from typing import List, Optional
+from typing import List
 
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
@@ -14,6 +14,7 @@ from models import UserOrm
 from validation import CradleBaseModel
 from validation.phone_numbers import PhoneNumberE164
 from validation.users import (
+    RegisterUserRequestBody,
     UserModel,
 )
 
@@ -91,11 +92,6 @@ def change_password_current_user():
     """Change Password (Current User)"""
     # TODO: Reimplement this with the new authentication system.
     return abort(500, description="This endpoint has not yet been implemented.")
-
-
-class RegisterUserRequestBody(UserModel):
-    id: Optional[int] = None
-    password: str
 
 
 # /api/user/register [POST]
