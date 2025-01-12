@@ -8,10 +8,6 @@ NAME = "test-name"
 
 form_classification_with_valid_fields_should_return_none = {"name": NAME, "id": ID}
 
-form_classification_missing_optional_field_id_should_return_none = {
-    "name": NAME,
-}
-
 form_classification_missing_required_field_name_should_throw_exception = {"id": ID}
 
 form_classification_field_name_has_wrong_type_should_throw_exception = {
@@ -35,7 +31,6 @@ form_classification_has_invalid_extra_field_should_throw_exception = {
     "json, expectation",
     [
         (form_classification_with_valid_fields_should_return_none, None),
-        (form_classification_missing_optional_field_id_should_return_none, None),
         (
             form_classification_missing_required_field_name_should_throw_exception,
             ValidationError,

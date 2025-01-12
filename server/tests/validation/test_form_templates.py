@@ -1,11 +1,13 @@
 import pytest
 from pydantic import ValidationError
 
-from validation.formTemplates import FormTemplateModel
+from validation.formTemplates import FormTemplateModelNested
 
 CLASSIFICATION = {"id": "123", "name": "example_name"}
 VERSION = "V1"
 ID = "asdsd-sdsw1231"
+DATE_CREATED = 1551447833
+LANGUAGE = "ENGLISH"
 
 root_question = {
     "id": "root_question",
@@ -30,77 +32,91 @@ root_question = {
 }
 
 template_with_valid_fields_and_no_question_should_return_none = {
-    "classification": CLASSIFICATION,
     "id": ID,
+    "classification": CLASSIFICATION,
     "questions": [],
     "version": VERSION,
+    "date_created": DATE_CREATED,
+    "lang": LANGUAGE,
 }
 
 template_with_valid_fields_and_one_question_should_return_none = {
-    "classification": CLASSIFICATION,
     "id": ID,
+    "classification": CLASSIFICATION,
     "questions": [root_question],
     "version": VERSION,
+    "date_created": DATE_CREATED,
+    "lang": LANGUAGE,
 }
 
 template_missing_required_field_classification_should_throw_exception = {
     "id": ID,
     "questions": [],
     "version": VERSION,
+    "date_created": DATE_CREATED,
+    "lang": LANGUAGE,
 }
 
 template_missing_required_field_version_should_throw_exception = {
     "classification": CLASSIFICATION,
     "id": ID,
     "questions": [],
+    "date_created": DATE_CREATED,
+    "lang": LANGUAGE,
 }
 
 template_missing_required_field_questions_should_throw_exception = {
     "classification": CLASSIFICATION,
     "id": ID,
     "version": VERSION,
-}
-
-template_missing_optional_field_id_should_return_none = {
-    "classification": CLASSIFICATION,
-    "questions": [],
-    "version": VERSION,
+    "date_created": DATE_CREATED,
+    "lang": LANGUAGE,
 }
 
 template_field_classification_has_wrong_type_should_throw_exception = {
-    "classification": "",
     "id": ID,
+    "classification": "",
     "questions": [],
     "version": VERSION,
+    "date_created": DATE_CREATED,
+    "lang": LANGUAGE,
 }
 
 template_field_id_has_wrong_type_should_throw_exception = {
-    "classification": CLASSIFICATION,
     "id": 111,
+    "classification": CLASSIFICATION,
     "questions": [],
     "version": VERSION,
+    "date_created": DATE_CREATED,
+    "lang": LANGUAGE,
 }
 
 template_field_questions_has_wrong_type_should_throw_exception = {
-    "classification": CLASSIFICATION,
     "id": ID,
+    "classification": CLASSIFICATION,
     "questions": "string",
     "version": VERSION,
+    "date_created": DATE_CREATED,
+    "lang": LANGUAGE,
 }
 
 template_field_version_has_wrong_type_should_throw_exception = {
-    "classification": CLASSIFICATION,
     "id": ID,
+    "classification": CLASSIFICATION,
     "questions": [],
     "version": 111,
+    "date_created": DATE_CREATED,
+    "lang": LANGUAGE,
 }
 
 template_has_invalid_extra_field_should_throw_exception = {
-    "classification": CLASSIFICATION,
     "id": ID,
+    "classification": CLASSIFICATION,
     "questions": [],
     "version": VERSION,
     "extra": "extra field is not acceptable",
+    "date_created": DATE_CREATED,
+    "lang": LANGUAGE,
 }
 
 
@@ -124,7 +140,6 @@ template_has_invalid_extra_field_should_throw_exception = {
             template_missing_required_field_questions_should_throw_exception,
             ValidationError,
         ),
-        (template_missing_optional_field_id_should_return_none, None),
         (
             template_field_classification_has_wrong_type_should_throw_exception,
             ValidationError,
@@ -150,9 +165,9 @@ template_has_invalid_extra_field_should_throw_exception = {
 def test_validate_template(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            FormTemplateModel(**json)
+            FormTemplateModelNested(**json)
     else:
         try:
-            FormTemplateModel(**json)
+            FormTemplateModelNested(**json)
         except ValidationError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e

@@ -24,25 +24,11 @@ facility_missing_optional_field_phone_number_should_return_none = {
     "type": FACILITY_TYPE,
 }
 
-facility_missing_optional_field_location_should_return_none = {
-    "name": FACILITY_NAME,
-    "phone_number": PHONE_NUMBER,
-    "about": DESCRIPTION,
-    "type": FACILITY_TYPE,
-}
-
 facility_missing_optional_field_about_should_return_none = {
     "name": FACILITY_NAME,
     "phone_number": PHONE_NUMBER,
     "location": LOCATION,
     "type": FACILITY_TYPE,
-}
-
-facility_missing_optional_field_type_should_return_none = {
-    "name": FACILITY_NAME,
-    "phone_number": PHONE_NUMBER,
-    "location": LOCATION,
-    "about": DESCRIPTION,
 }
 
 facility_missing_required_field_name_should_throw_exception = {
@@ -117,9 +103,7 @@ facility_invalid_phone_number_should_throw = {
             facility_missing_optional_field_phone_number_should_return_none,
             None,
         ),
-        (facility_missing_optional_field_location_should_return_none, None),
         (facility_missing_optional_field_about_should_return_none, None),
-        (facility_missing_optional_field_type_should_return_none, None),
         (
             facility_missing_required_field_name_should_throw_exception,
             ValidationError,

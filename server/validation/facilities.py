@@ -43,7 +43,7 @@ class HealthFacilityModel(CradleBaseModel):
     location: Annotated[
         str, AfterValidator(to_uppercase)
     ]  # Store in uppercase for case-insensitivity
-    about: str
+    about: str = ""
     type: FacilityTypeEnum
     new_referrals: Optional[int] = Field(
         None, description="Timestamp of most recent referral to this facility."
