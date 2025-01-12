@@ -6,7 +6,7 @@ from botocore.exceptions import ClientError
 from authentication import cognito
 from common import health_facility_utils, user_utils
 from enums import FacilityTypeEnum, RoleEnum
-from validation.users import UserRegisterValidator
+from validation.users import RegisterUserRequestBody
 
 """
 This script will seed the database and the AWS Cognito user pool with fake users.
@@ -19,7 +19,7 @@ class SeedUserDict(TypedDict):
     email: str
     password: str
     health_facility_name: str
-    role: str
+    role: RoleEnum
     phone_numbers: list[str]
 
 
@@ -34,7 +34,7 @@ minimal_users_list: list[SeedUserDict] = [
         "email": "admin@email.com",
         "password": "cradle-admin",
         "health_facility_name": "H0000",
-        "role": RoleEnum.ADMIN.value,
+        "role": RoleEnum.ADMIN,
         "phone_numbers": [
             "+1-123-456-7890",
             "+256-0414-123456",
@@ -50,7 +50,7 @@ users_list: list[SeedUserDict] = [
         "email": "test_vht@email.com",
         "password": "cradle-vht",
         "health_facility_name": "H1000",
-        "role": RoleEnum.VHT.value,
+        "role": RoleEnum.VHT,
         "phone_numbers": ["+256-555-100000", "+256-555-100001", "+256-555-100002"],
     },
     {
@@ -59,7 +59,7 @@ users_list: list[SeedUserDict] = [
         "email": "vht@email.com",
         "password": "cradle-vht",
         "health_facility_name": "H1000",
-        "role": RoleEnum.VHT.value,
+        "role": RoleEnum.VHT,
         "phone_numbers": ["+256-555-100003"],
     },
     {
@@ -68,7 +68,7 @@ users_list: list[SeedUserDict] = [
         "email": "cho@email.com",
         "password": "cradle-cho",
         "health_facility_name": "H0000",
-        "role": RoleEnum.CHO.value,
+        "role": RoleEnum.CHO,
         "phone_numbers": ["+256-555-123456"],
     },
     {
@@ -77,7 +77,7 @@ users_list: list[SeedUserDict] = [
         "email": "hcw@email.com",
         "password": "cradle-hcw",
         "health_facility_name": "H0000",
-        "role": RoleEnum.HCW.value,
+        "role": RoleEnum.HCW,
         "phone_numbers": ["+256-555-654321"],
     },
 ]
@@ -98,7 +98,7 @@ def populate_user_pool(seed_users: list[SeedUserDict]):
                 print("Deleted", username)
 
         # Run the user data through the validator just to be sure everything is good.
-        user_models = [UserRegisterValidator(**seed_user) for seed_user in seed_users]
+        user_models = [RegisterUserRequestBody(**seed_user) for seed_user in seed_users]
 
         for user_model in user_models:
             # user_dict.pop("supervises")
