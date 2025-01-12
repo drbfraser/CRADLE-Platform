@@ -1,11 +1,11 @@
 import logging
-from typing import Any, List, NamedTuple, Union, cast
+from typing import Any, NamedTuple, Union, cast
 
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 from marshmallow import ValidationError
-from pydantic import Field
+from pydantic import Field, RootModel
 
 from common import user_utils
 from data import crud, db_session, marshal
@@ -45,35 +45,39 @@ class LastSyncQueryParam(CradleBaseModel):
     since: int = Field(..., description="Timestamp of last sync.")
 
 
-class SyncPatientsBody(CradleBaseModel):
-    patients: List[PatientSyncValidator]
+class SyncPatientsBody(RootModel[list[PatientSyncValidator]]):
+    model_config = dict(openapi_extra={"description": "List of Patient objects."})  # type: ignore[reportAssignmentType]
 
 
-class SyncReadingsBody(CradleBaseModel):
-    readings: List[ReadingValidator]
+class SyncReadingsBody(RootModel[list[ReadingValidator]]):
+    model_config = dict(openapi_extra={"description": "List of Reading objects."})  # type: ignore[reportAssignmentType]
 
 
-class SyncReferralsBody(CradleBaseModel):
-    referrals: List[ReferralEntityValidator]
+class SyncReferralsBody(RootModel[list[ReferralEntityValidator]]):
+    model_config = dict(openapi_extra={"description": "List of Referral objects."})  # type: ignore[reportAssignmentType]
+
+
+class SyncPatientsResponse(CradleBaseModel):
+    patients: list[PatientSyncValidator]
 
 
 # /api/sync/patients [POST]
-@api_sync.post("/patients")
+@api_sync.post("/patients", responses={200: SyncPatientsResponse})
 def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
     """Sync Patients"""
     current_user = user_utils.get_current_user_from_jwt()
     last_sync = query.since
 
-    mobile_patients = body.patients
+    mobile_patients = body.root
     status_code = 200
-    errors: List[dict] = list()
-    patients_to_create: List[PatientOrm] = list()
-    pregnancies_to_create: List[PregnancyOrm] = list()
-    medical_records_to_create: List[MedicalRecordOrm] = list()
-    drug_records_to_create: List[MedicalRecordOrm] = list()
-    associations_to_create: List[PatientAssociationsOrm] = list()
-    patients_to_update: List[ModelData] = list()
-    pregnancies_to_update: List[ModelData] = list()
+    errors: list[dict] = list()
+    patients_to_create: list[PatientOrm] = list()
+    pregnancies_to_create: list[PregnancyOrm] = list()
+    medical_records_to_create: list[MedicalRecordOrm] = list()
+    drug_records_to_create: list[MedicalRecordOrm] = list()
+    associations_to_create: list[PatientAssociationsOrm] = list()
+    patients_to_update: list[ModelData] = list()
+    pregnancies_to_update: list[ModelData] = list()
     models_list = [
         patients_to_create,
         pregnancies_to_create,
@@ -101,7 +105,7 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
                 TODO: Why are these functions called `deserialize`? 
                 TODO: Why aren't the marshal/unmarshal functions being used??
                 TODO: Why does it return a dict or a database model???
-                TODO: WHY DO PEOPLE NOT TYPE ANNOTATE THEIR FUNCTIONS PROPERLY????
+                TODO: WHY DO PEOPLE NOT TYPE ANNOTATE THEIR FUNCTIONS????
                 """
                 patient_to_create = serialize.deserialize_patient(
                     mobile_patient_dict, shallow=False
@@ -248,13 +252,18 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
     return {"patients": patients_json, "errors": errors}, status_code
 
 
+class SyncReadingsResponse(CradleBaseModel):
+    readings: list[ReadingValidator]
+
+
 # /api/sync/readings [POST]
-@api_sync.post("/readings")
+@api_sync.post("/readings", responses={200: SyncReadingsResponse})
 def sync_readings(query: LastSyncQueryParam, body: SyncReadingsBody):
     """Sync Readings"""
     last_sync = query.since
     patients_on_server_cache = set()
-    for mobile_reading in body.readings:
+    mobile_readings = body.root
+    for mobile_reading in mobile_readings:
         mobile_reading_dict = mobile_reading.model_dump()
         if mobile_reading_dict.get("patient_id") not in patients_on_server_cache:
             patient_on_server = crud.read(
@@ -288,13 +297,18 @@ def sync_readings(query: LastSyncQueryParam, body: SyncReadingsBody):
     }
 
 
+class SyncReferralsResponse(CradleBaseModel):
+    referrals: list[ReferralEntityValidator]
+
+
 # /api/sync/referrals [POST]
-@api_sync.post("/referrals")
+@api_sync.post("/referrals", responses={200: SyncReferralsResponse})
 def sync_referrals(query: LastSyncQueryParam, body: SyncReferralsBody):
     """Sync Referrals"""
     last_sync = query.since
     patients_on_server_cache = set()
-    for mobile_referral in body.referrals:
+    mobile_referrals = body.root
+    for mobile_referral in mobile_referrals:
         mobile_referral_dict = mobile_referral.model_dump()
         if mobile_referral_dict.get("patient_id") not in patients_on_server_cache:
             patient_on_server = crud.read(
