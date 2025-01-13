@@ -5,13 +5,15 @@ from typing_extensions import Self
 
 from utils import get_current_time
 from validation import CradleBaseModel
-from validation.questions import FormQuestionModel, UpdateFormQuestionModel
+from validation.questions import FormQuestion, UpdateFormQuestionModel
 
 
 class FormModel(CradleBaseModel, extra="forbid"):
+    """Model representing a submitted Form"""
+
     lang: str
     patient_id: str
-    questions: list[FormQuestionModel]
+    questions: list[FormQuestion]
     id: Optional[str] = None
     form_template_id: Optional[str] = None
     form_classification_id: Optional[str] = None

@@ -99,9 +99,10 @@ class QuestionBase(CradleBaseModel, use_enum_values=True):
     string_max_length: Optional[int] = None
     category_index: Optional[int] = None
     string_max_lines: Optional[int] = None
+    form_template_id: Optional[str] = None
 
 
-class TemplateQuestionModel(QuestionBase, extra="forbid"):
+class TemplateQuestion(QuestionBase, extra="forbid"):
     question_lang_versions: list[QuestionLangVersionModel]
     is_blank: bool = True  # Set to True for template questions
 
@@ -112,7 +113,7 @@ class TemplateQuestionModel(QuestionBase, extra="forbid"):
         return self
 
 
-class FormQuestionModel(QuestionBase, extra="forbid"):
+class FormQuestion(QuestionBase, extra="forbid"):
     question_text: str
     is_blank: bool = False  # Set to False for form questions
     has_comment_attached: Optional[bool] = False

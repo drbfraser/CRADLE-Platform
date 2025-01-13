@@ -10,7 +10,7 @@ from validation.formClassifications import (
     FormClassificationModel,
     FormClassificationModelOptionalId,
 )
-from validation.questions import TemplateQuestionModel
+from validation.questions import TemplateQuestion
 
 
 class FormTemplateExamples:
@@ -58,11 +58,11 @@ class FormTemplateWithClassification(FormTemplateModel):
 class FormTemplateWithQuestions(FormTemplateWithClassification):
     """Form Template model including nested Form Classification and Question models"""
 
-    questions: list[TemplateQuestionModel]
+    questions: list[TemplateQuestion]
 
     @field_validator("questions", mode="after")
     @classmethod
-    def __validate_questions(cls, questions: list[TemplateQuestionModel]):
+    def __validate_questions(cls, questions: list[TemplateQuestion]):
         """
         Raises an error if the questions part in /api/forms/templates POST or PUT
         request is not valid (json format, lang versions consistency, question_index constraint).
