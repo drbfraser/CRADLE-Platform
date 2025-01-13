@@ -48,6 +48,8 @@ export const ReferralForm = ({ patientId }: IProps) => {
     }
   };
 
+  const healthFacilityNames = healthFacilities.map((facility) => facility.name);
+
   return (
     <>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
@@ -67,7 +69,7 @@ export const ReferralForm = ({ patientId }: IProps) => {
                         component={Autocomplete}
                         fullWidth
                         name={ReferralField.healthFacility}
-                        options={healthFacilities}
+                        options={healthFacilityNames}
                         disableClearable={true}
                         renderInput={(
                           params: AutocompleteRenderInputParams
