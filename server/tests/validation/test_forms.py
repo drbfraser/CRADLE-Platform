@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from validation.forms import FormValidator, UpdateFormRequestBody
+from validation.forms import FormModel, UpdateFormRequestBody
 
 LANGUAGE = "eng"
 PATIENT_ID = "123"
@@ -376,10 +376,10 @@ form_date_created_occurs_after_date_edited_should_throw_exception = {
 def test_validate_form(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            FormValidator(**json)
+            FormModel(**json)
     else:
         try:
-            FormValidator(**json)
+            FormModel(**json)
         except ValidationError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e
 

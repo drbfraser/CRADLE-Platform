@@ -3,7 +3,7 @@ from typing import Optional
 from validation import CradleBaseModel
 
 
-class AssociationValidator(CradleBaseModel):
+class PatientAssociationModel(CradleBaseModel):
     """
     {
         "patient_id": 47, - required

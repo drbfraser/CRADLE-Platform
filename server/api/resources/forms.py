@@ -13,7 +13,7 @@ from common.api_utils import (
 from data import crud, marshal
 from models import FormOrm, FormTemplateOrm, PatientOrm, UserOrm
 from utils import get_current_time
-from validation.forms import FormValidator, UpdateFormRequestBody
+from validation.forms import FormModel, UpdateFormRequestBody
 
 # /api/forms/responses
 api_form_submissions = APIBlueprint(
@@ -27,7 +27,7 @@ api_form_submissions = APIBlueprint(
 
 # /api/forms/responses [POST]
 @api_form_submissions.post("")
-def submit_form(body: FormValidator):
+def submit_form(body: FormModel):
     """Submit Form"""
     if body.id is not None:
         if crud.read(FormOrm, id=body.id):

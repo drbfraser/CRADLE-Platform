@@ -6,7 +6,7 @@ from common import user_utils
 from data import crud
 from models import HealthFacilityOrm, PatientOrm, UserOrm
 from service import assoc
-from validation.associations import AssociationValidator
+from validation.associations import PatientAssociationModel
 
 # TODO: Change this path to be in snake case.
 # /api/patientAssociations
@@ -21,7 +21,7 @@ api_patient_associations = APIBlueprint(
 
 # /api/patientAssociations [POST]
 @api_patient_associations.post("")
-def create_patient_association(body: AssociationValidator):
+def create_patient_association(body: PatientAssociationModel):
     """Create Patient Association"""
     patient_id = body.patient_id
     facility_name = body.health_facility_name

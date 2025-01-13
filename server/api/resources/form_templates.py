@@ -155,7 +155,6 @@ def get_form_template_versions(path: FormTemplateIdPath):
     if form_template is None:
         return abort(404, description=f"No form with ID: {path.form_template_id}")
 
-    # Why is it called "lang_versions" and not just "versions"?
     lang_list = crud.read_form_template_versions(form_template)
 
     return {"lang_versions": lang_list}, 200
@@ -227,11 +226,6 @@ def get_form_template_language_version(
         form_template,
         refresh=True,
     )
-    print(f"available_versions: {available_versions}")
-    print(f"available_versions: {available_versions}")
-    print(f"available_versions: {available_versions}")
-    print(f"available_versions: {available_versions}")
-    print(f"available_versions: {available_versions}")
 
     if version not in available_versions:
         return abort(

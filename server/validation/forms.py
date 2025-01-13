@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import Field, StrictBool, model_validator
 from typing_extensions import Self
@@ -8,10 +8,10 @@ from validation import CradleBaseModel
 from validation.questions import FormQuestionModel, UpdateFormQuestionModel
 
 
-class FormValidator(CradleBaseModel, extra="forbid"):
+class FormModel(CradleBaseModel, extra="forbid"):
     lang: str
     patient_id: str
-    questions: List[FormQuestionModel]
+    questions: list[FormQuestionModel]
     id: Optional[str] = None
     form_template_id: Optional[str] = None
     form_classification_id: Optional[str] = None

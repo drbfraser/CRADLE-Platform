@@ -1,8 +1,7 @@
-from typing import Annotated, Optional
+from typing import Optional
 
-from pydantic import AfterValidator, Field, RootModel
+from pydantic import Field, RootModel
 
-from common.commonUtil import to_uppercase
 from enums import FacilityTypeEnum
 from validation import CradleBaseModel
 from validation.phone_numbers import PhoneNumberE164
@@ -40,9 +39,7 @@ class HealthFacilityExamples:
 class HealthFacilityModel(CradleBaseModel):
     name: str
     phone_number: Optional[PhoneNumberE164] = None
-    location: Annotated[
-        str, AfterValidator(to_uppercase)
-    ]  # Store in uppercase for case-insensitivity
+    location: str
     about: str = ""
     type: FacilityTypeEnum
     new_referrals: Optional[int] = Field(
@@ -51,7 +48,7 @@ class HealthFacilityModel(CradleBaseModel):
 
     model_config = dict(
         openapi_extra={
-            "description": "A HealthFacilityObject",
+            "description": "A HealthFacility object",
             "example": HealthFacilityExamples.without_new_referrals_01,
         }
     )
@@ -82,7 +79,7 @@ class HealthFacilityNewReferrals(CradleBaseModel):
     new_referrals: Optional[int] = None
     model_config = dict(
         openapi_extra={
-            "description": "An object containing a timestamp of the most recent referral to the Health Facility.",
+            "description": "An object containing a timestamp of the most recent referral to the HealthFacility.",
             "example": {"new_referrals": HealthFacilityExamples.new_referrals},
         }
     )
