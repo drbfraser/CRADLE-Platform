@@ -260,7 +260,13 @@ export type Referrer = {
   userId: string;
 };
 
-export type HealthFacility = string;
+export type HealthFacility = {
+  name: string;
+  type: string;
+  phoneNumber: string;
+  about: string;
+  location: string;
+};
 
 export interface IFormClassification {
   id: string | undefined;
