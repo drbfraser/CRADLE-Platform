@@ -126,17 +126,10 @@ def authenticate(body: Credentials):
     refresh_token = auth_result["refresh_token"]
     del auth_result["refresh_token"]
 
-    challenge = auth_result["challenge"]
-
     response_body = {
         "access_token": auth_result["access_token"],
         "user": user_dict,
-        "challenge": None,
     }
-
-    # Only include challenge in response if challenge_name is not None.
-    if challenge["challenge_name"] is not None:
-        response_body["challenge"] = challenge
 
     response = make_response(response_body, 200)
     # Store refresh token in HTTP-Only cookie.
