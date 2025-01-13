@@ -16,8 +16,8 @@ from models import HealthFacilityOrm, PatientOrm, ReferralOrm
 from service import assoc, serialize, view
 from utils import get_current_time
 from validation.referrals import (
-    CancelStatusValidator,
-    NotAttendValidator,
+    CancelStatus,
+    NotAttend,
     ReferralModel,
 )
 
@@ -129,7 +129,7 @@ def update_referral_assessed(path: ReferralIdPath):
 
 # /api/referrals/cancel-status-switch/<string:referral_id> [PUT]
 @api_referrals.put("/cancel-status-switch/<string:referral_id>")
-def update_referral_cancel_status(path: ReferralIdPath, body: CancelStatusValidator):
+def update_referral_cancel_status(path: ReferralIdPath, body: CancelStatus):
     """Update Referral (Cancel Status)"""
     if crud.read(ReferralOrm, id=path.referral_id) is None:
         return abort(404, description=f"No referral with ID: {path.referral_id}")
@@ -153,7 +153,7 @@ def update_referral_cancel_status(path: ReferralIdPath, body: CancelStatusValida
 
 # /api/referrals/not-attend/<string:referral_id> [PUT]
 @api_referrals.put("/referrals/not-attend/<string:referral_id>")
-def update_referral_not_attend(path: ReferralIdPath, body: NotAttendValidator):
+def update_referral_not_attend(path: ReferralIdPath, body: NotAttend):
     """Update Referral (Not Attend)"""
     referral = crud.read(ReferralOrm, id=path.referral_id)
     if referral is None:

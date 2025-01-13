@@ -8,7 +8,7 @@ from validation import CradleBaseModel
 MYSQL_BIGINT_MAX = (2**63) - 1
 
 
-class TimeframeValidator(CradleBaseModel):
+class Timeframe(CradleBaseModel):
     """
     {
         "from": 1546702448,

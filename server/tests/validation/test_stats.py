@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from validation.stats import MYSQL_BIGINT_MAX, TimeframeValidator
+from validation.stats import MYSQL_BIGINT_MAX, Timeframe
 
 # unix epoch code for Monday, January 1, 2024 12:00:00 AM
 FROM_TIMEFRAME = 1704067200
@@ -61,10 +61,10 @@ timestamp_field_to_has_wrong_type_should_return_model = {
 def test_validate_timeframe(json, output):
     if type(output) is type and issubclass(output, Exception):
         with pytest.raises(output):
-            TimeframeValidator(**json)
+            Timeframe(**json)
     else:
         try:
-            timeframe_model = TimeframeValidator(**json)
+            timeframe_model = Timeframe(**json)
 
             if output is not None:
                 timeframe_dict = timeframe_model.model_dump(by_alias=True)

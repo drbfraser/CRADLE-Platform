@@ -12,7 +12,7 @@ from common.api_utils import FacilityNamePath, UserIdPath
 from data import crud
 from enums import RoleEnum, TrafficLightEnum
 from models import UserOrm
-from validation.stats import TimeframeValidator
+from validation.stats import Timeframe
 
 LOGGER = logging.getLogger(__name__)
 
@@ -94,7 +94,7 @@ api_stats = APIBlueprint(
 # api/stats/all [GET]
 @api_stats.get("all")
 @roles_required([RoleEnum.ADMIN])
-def get_all_stats(query: TimeframeValidator):
+def get_all_stats(query: Timeframe):
     """Get All Stats"""
     # Date filters default to max range
     filter = query.model_dump()
@@ -105,7 +105,7 @@ def get_all_stats(query: TimeframeValidator):
 # api/stats/facility/<string:health_facility_name> [GET]
 @api_stats.get("/facility/<string:health_facility_name>")
 @roles_required([RoleEnum.ADMIN, RoleEnum.HCW])
-def get_facility_stats(path: FacilityNamePath, query: TimeframeValidator):
+def get_facility_stats(path: FacilityNamePath, query: Timeframe):
     """Get Facility Stats"""
     current_user = user_utils.get_current_user_from_jwt()
     if (
@@ -150,7 +150,7 @@ def has_permission_to_view_user(user_id):
 # api/stats/user/<int:user_id> [GET]
 @api_stats.get("/user/<int:user_id>")
 @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
-def get_user_stats(path: UserIdPath, query: TimeframeValidator):
+def get_user_stats(path: UserIdPath, query: Timeframe):
     """Get User Stats"""
     if not has_permission_to_view_user(path.user_id):
         return abort(401, "Unauthorized to view this endpoint")
@@ -162,7 +162,7 @@ def get_user_stats(path: UserIdPath, query: TimeframeValidator):
 # api/stats/export/<int:user_id> [GET]
 @api_stats.get("/export/<int:user_id>")
 @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
-def get_stats_export(path: UserIdPath, query: TimeframeValidator):
+def get_stats_export(path: UserIdPath, query: Timeframe):
     """Get Stats (Export)"""
     filter = query.model_dump()
 

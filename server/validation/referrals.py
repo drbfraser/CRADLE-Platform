@@ -29,7 +29,7 @@ class ReferralModel(CradleBaseModel, extra="forbid"):
 
 
 # Manages cancellation status with strict attribute enforcement to prevent unrecognized fields.
-class CancelStatusValidator(CradleBaseModel, extra="forbid"):
+class CancelStatus(CradleBaseModel, extra="forbid"):
     is_cancelled: bool
     cancel_reason: str
 
@@ -37,5 +37,5 @@ class CancelStatusValidator(CradleBaseModel, extra="forbid"):
 # Manages non-attendance reasons with strict attribute enforcement to prevent unrecognized fields.
 
 
-class NotAttendValidator(CradleBaseModel, extra="forbid"):
+class NotAttend(CradleBaseModel, extra="forbid"):
     not_attend_reason: str

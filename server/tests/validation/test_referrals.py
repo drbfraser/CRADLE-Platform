@@ -2,8 +2,8 @@ import pytest
 from pydantic import ValidationError
 
 from validation.referrals import (
-    CancelStatusValidator,
-    NotAttendValidator,
+    CancelStatus,
+    NotAttend,
     ReferralModel,
 )
 
@@ -236,42 +236,42 @@ not_attend_has_invalid_extra_field_should_throw_exception = {
             ValidationError,
             ReferralModel,
         ),
-        (cancel_put_with_valid_fields_should_return_none, None, CancelStatusValidator),
+        (cancel_put_with_valid_fields_should_return_none, None, CancelStatus),
         (
             cancel_put_missing_required_field_is_cancelled_should_throw_exception,
             ValidationError,
-            CancelStatusValidator,
+            CancelStatus,
         ),
         (
             cancel_put_missing_required_field_cancel_reason_should_throw_exception,
             ValidationError,
-            CancelStatusValidator,
+            CancelStatus,
         ),
         (
             cancel_put_field_is_cancelled_has_wrong_type_should_throw_exception,
             ValidationError,
-            CancelStatusValidator,
+            CancelStatus,
         ),
         (
             cancel_put_field_cancel_reason_has_wrong_type_should_throw_exception,
             ValidationError,
-            CancelStatusValidator,
+            CancelStatus,
         ),
         (
             cancel_put_has_invalid_extra_field_should_throw_exception,
             ValidationError,
-            CancelStatusValidator,
+            CancelStatus,
         ),
-        (not_attend_with_valid_fields_should_return_none, None, NotAttendValidator),
+        (not_attend_with_valid_fields_should_return_none, None, NotAttend),
         (
             not_attend_field_not_attend_reason_has_wrong_type_should_throw_exception,
             ValidationError,
-            NotAttendValidator,
+            NotAttend,
         ),
         (
             not_attend_has_invalid_extra_field_should_throw_exception,
             ValidationError,
-            NotAttendValidator,
+            NotAttend,
         ),
     ],
 )
