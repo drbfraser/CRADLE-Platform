@@ -39,7 +39,9 @@ error_req_range = "Must be between 0-999999"
 
 invalid_method = "Invalid Method; Must be either GET, POST, HEAD, PUT, DELETE, or PATCH"
 
-phone_number_not_exists = "The phone number provided does not belong to any users"
+phone_number_not_exists = (
+    "The phone number: ({phone_number}) does not belong to any users"
+)
 
 
 def send_request_to_endpoint(
@@ -94,7 +96,12 @@ def relay_sms_request(body: SmsRelayRequestBody):
     phone_number = body.phone_number
     phone_number_exists = phone_number_utils.does_phone_number_exist(phone_number)
     if not phone_number_exists:
-        return abort(400, description=phone_number_not_exists.format(type="JSON"))
+        return abort(
+            400,
+            description=phone_number_not_exists.format(
+                phone_number=phone_number, type="JSON"
+            ),
+        )
 
     # Get user id for the user that phone_number belongs to
     user = user_utils.get_user_orm_from_phone_number(phone_number)
