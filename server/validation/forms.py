@@ -5,13 +5,13 @@ from typing_extensions import Self
 
 from utils import get_current_time
 from validation import CradleBaseModel
-from validation.questions import FormQuestionPutValidator, FormQuestionValidator
+from validation.questions import FormQuestionModel, UpdateFormQuestionModel
 
 
 class FormValidator(CradleBaseModel, extra="forbid"):
     lang: str
     patient_id: str
-    questions: List[FormQuestionValidator]
+    questions: List[FormQuestionModel]
     id: Optional[str] = None
     form_template_id: Optional[str] = None
     form_classification_id: Optional[str] = None
@@ -29,7 +29,7 @@ class FormValidator(CradleBaseModel, extra="forbid"):
         return self
 
 
-class FormPutValidator(CradleBaseModel, extra="forbid"):
+class UpdateFormRequestBody(CradleBaseModel, extra="forbid"):
     """
     example valid case:
     {
@@ -44,4 +44,4 @@ class FormPutValidator(CradleBaseModel, extra="forbid"):
     }
     """
 
-    questions: List[FormQuestionPutValidator]
+    questions: list[UpdateFormQuestionModel]

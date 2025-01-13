@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from validation.sms_relay import SmsRelayDecryptedBodyValidator, SmsRelayValidator
+from validation.sms_relay import SmsRelayDecryptedBody, SmsRelayRequestBody
 
 PHONE_NUMBER = "+1-604-715-2845"
 ENCRYPTED_DATA = "thisdataisencrypted"
@@ -70,10 +70,10 @@ sms_relay_has_invalid_extra_field_should_throw_exception = {
 def test_validate_request(json, expectation):
     if type(expectation) is type and issubclass(expectation, Exception):
         with pytest.raises(expectation):
-            SmsRelayValidator(**json)
+            SmsRelayRequestBody(**json)
     else:
         try:
-            SmsRelayValidator(**json)
+            SmsRelayRequestBody(**json)
         except ValidationError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e
 
@@ -221,9 +221,9 @@ sms_relay_decrypted_body_has_unallowed_extra_field_should_throw_exception = {
 def test_validate_decrypted_body(json, expectation):
     if type(expectation) is type and issubclass(expectation, Exception):
         with pytest.raises(expectation):
-            SmsRelayDecryptedBodyValidator(**json)
+            SmsRelayDecryptedBody(**json)
     else:
         try:
-            SmsRelayDecryptedBodyValidator(**json)
+            SmsRelayDecryptedBody(**json)
         except ValidationError as e:
             raise AssertionError(f"Unexpected validation error: {e}") from e

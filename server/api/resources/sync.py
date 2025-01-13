@@ -20,9 +20,9 @@ from models import (
 from service import invariant, serialize, view
 from validation import CradleBaseModel
 from validation.assessments import AssessmentModel
-from validation.patients import PatientSyncValidator
-from validation.readings import ReadingValidator
-from validation.referrals import ReferralEntityValidator
+from validation.patients import PatientSyncModel
+from validation.readings import ReadingModel
+from validation.referrals import ReferralModel
 
 LOGGER = logging.getLogger(__name__)
 
@@ -45,20 +45,20 @@ class LastSyncQueryParam(CradleBaseModel):
     since: int = Field(..., description="Timestamp of last sync.")
 
 
-class SyncPatientsBody(RootModel[list[PatientSyncValidator]]):
+class SyncPatientsBody(RootModel[list[PatientSyncModel]]):
     model_config = dict(openapi_extra={"description": "List of Patient objects."})  # type: ignore[reportAssignmentType]
 
 
-class SyncReadingsBody(RootModel[list[ReadingValidator]]):
+class SyncReadingsBody(RootModel[list[ReadingModel]]):
     model_config = dict(openapi_extra={"description": "List of Reading objects."})  # type: ignore[reportAssignmentType]
 
 
-class SyncReferralsBody(RootModel[list[ReferralEntityValidator]]):
+class SyncReferralsBody(RootModel[list[ReferralModel]]):
     model_config = dict(openapi_extra={"description": "List of Referral objects."})  # type: ignore[reportAssignmentType]
 
 
 class SyncPatientsResponse(CradleBaseModel):
-    patients: list[PatientSyncValidator]
+    patients: list[PatientSyncModel]
 
 
 # /api/sync/patients [POST]
@@ -253,7 +253,7 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
 
 
 class SyncReadingsResponse(CradleBaseModel):
-    readings: list[ReadingValidator]
+    readings: list[ReadingModel]
 
 
 # /api/sync/readings [POST]
@@ -281,7 +281,7 @@ def sync_readings(query: LastSyncQueryParam, body: SyncReadingsBody):
             )
         else:
             try:
-                ReadingValidator(**mobile_reading_dict)
+                ReadingModel(**mobile_reading_dict)
             except ValidationError as e:
                 return abort(422, description=str(e))
             reading = marshal.unmarshal(ReadingOrm, mobile_reading_dict)
@@ -298,7 +298,7 @@ def sync_readings(query: LastSyncQueryParam, body: SyncReadingsBody):
 
 
 class SyncReferralsResponse(CradleBaseModel):
-    referrals: list[ReferralEntityValidator]
+    referrals: list[ReferralModel]
 
 
 # /api/sync/referrals [POST]
@@ -322,7 +322,7 @@ def sync_referrals(query: LastSyncQueryParam, body: SyncReferralsBody):
             # currently, for referrals that exist in server already we will
             # skip them
             continue
-        ReferralEntityValidator(**mobile_referral_dict)
+        ReferralModel(**mobile_referral_dict)
 
         referral = marshal.unmarshal(ReferralOrm, mobile_referral_dict)
         crud.create(referral, refresh=True)

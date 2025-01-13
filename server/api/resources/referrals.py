@@ -18,7 +18,7 @@ from utils import get_current_time
 from validation.referrals import (
     CancelStatusValidator,
     NotAttendValidator,
-    ReferralEntityValidator,
+    ReferralModel,
 )
 
 # /api/referrals
@@ -61,7 +61,7 @@ def get_referrals_list(query: GetReferralsListQueryParams):
 
 # /api/referrals [POST]
 @api_referrals.post("")
-def create_new_referral(body: ReferralEntityValidator):
+def create_new_referral(body: ReferralModel):
     """Create New Referral"""
     health_facility = crud.read(
         HealthFacilityOrm,

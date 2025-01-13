@@ -30,18 +30,13 @@ class RoleEnum(StrEnum):
     CHO = "CHO"
 
 
-class SexEnum(Enum):
+class SexEnum(StrEnum):
     MALE = "MALE"
     FEMALE = "FEMALE"
     OTHER = "OTHER"
 
 
-class GestationalAgeUnitEnum(Enum):
-    MONTHS = "MONTHS"
-    WEEKS = "WEEKS"
-
-
-class TrafficLightEnum(Enum):
+class TrafficLightEnum(StrEnum):
     NONE = "NONE"
     GREEN = "GREEN"
     YELLOW_UP = "YELLOW_UP"
@@ -69,7 +64,7 @@ class QuestionTypeEnum(EnumWithList):
     CATEGORY = "CATEGORY"
 
 
-class QRelationalEnum(Enum):
+class QRelationalEnum(StrEnum):
     LARGER_THAN = "LARGER_THAN"
     SMALLER_THAN = "SMALLER_THAN"
     EQUAL_TO = "EQUAL_TO"
@@ -81,7 +76,7 @@ class ContentTypeEnum(EnumWithList):
     CSV = "text/csv"
 
 
-class HTTPMethodEnum(Enum):
+class HTTPMethodEnum(StrEnum):
     GET = "GET"
     POST = "POST"
     PUT = "PUT"

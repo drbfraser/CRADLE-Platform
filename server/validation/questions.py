@@ -22,7 +22,7 @@ class MultipleChoiceOption(CradleBaseModel):
     """
 
 
-class AnswerValidator(CradleBaseModel, extra="forbid"):
+class Answer(CradleBaseModel, extra="forbid"):
     """
     valid example (all fields, in real case only present one part of it):
     {
@@ -55,7 +55,7 @@ class VisibleCondition(CradleBaseModel, use_enum_values=True):
     """
 
     question_index: int
-    answers: AnswerValidator
+    answers: Answer
     relation: QRelationalEnum
 
 
@@ -112,14 +112,14 @@ class TemplateQuestionModel(QuestionBase, extra="forbid"):
         return self
 
 
-class FormQuestionValidator(QuestionBase, extra="forbid"):
+class FormQuestionModel(QuestionBase, extra="forbid"):
     question_text: str
     is_blank: bool = False  # Set to False for form questions
     has_comment_attached: Optional[bool] = False
     mc_options: Optional[list[MultipleChoiceOption]] = []
-    answers: Optional[AnswerValidator] = None
+    answers: Optional[Answer] = None
 
 
-class FormQuestionPutValidator(CradleBaseModel):
+class UpdateFormQuestionModel(CradleBaseModel):
     id: str
-    answers: AnswerValidator
+    answers: Answer

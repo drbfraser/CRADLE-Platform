@@ -59,7 +59,7 @@ def test_register_user(auth_header):
     assert crud.read(UserOrm, username=username) is None
 
 
-def test_edit_user(auth_header):
+def test_edit_user(auth_header, database):
     url_edit_user = "http://localhost:5000/api/user/2"
     username = "test_vht"
 
@@ -77,6 +77,7 @@ def test_edit_user(auth_header):
         json=vht,
         headers=auth_header,
     )
+    database.session.commit()
     response_body = decamelize(response.json())
     print(response_body)
     assert response.status_code == 200

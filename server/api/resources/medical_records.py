@@ -15,7 +15,7 @@ from data import crud, marshal
 from models import MedicalRecordOrm
 from service import serialize, view
 from utils import get_current_time
-from validation.medicalRecords import MedicalRecordValidator
+from validation.medicalRecords import MedicalRecordModel
 
 LOGGER = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ def get_patients_medical_records(path: PatientIdPath, query: SearchFilterQueryPa
 # /api/patients/<string:patient_id>/medical_records [POST]
 @patient_association_required()
 @api_patients.post("/<string:patient_id>/medical_records", tags=[medical_records_tag])
-def create_medical_record(path: PatientIdPath, body: MedicalRecordValidator):
+def create_medical_record(path: PatientIdPath, body: MedicalRecordModel):
     """Create Medical Record"""
     if body.id is not None:
         if crud.read(MedicalRecordOrm, id=body.id) is not None:
@@ -82,7 +82,7 @@ def get_medical_record(path: RecordIdPath):
 
 # /api/medical_records/<string:record_id> [PUT]
 @api_medical_records.put("/<string:record_id>")
-def update_medical_record(path: RecordIdPath, body: MedicalRecordValidator):
+def update_medical_record(path: RecordIdPath, body: MedicalRecordModel):
     """Update Medical Record"""
     update_medical_record = body.model_dump()
 

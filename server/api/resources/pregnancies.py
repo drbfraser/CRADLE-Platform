@@ -11,7 +11,7 @@ from data import crud, marshal
 from models import PregnancyOrm
 from service import serialize, view
 from validation.pregnancies import (
-    PregnancyValidator,
+    PregnancyModel,
 )
 
 
@@ -28,7 +28,7 @@ def get_patient_pregnancies(path: PatientIdPath, query: SearchFilterQueryParams)
 # /api/patients/<string:patient_id>/pregnancies [POST]
 @patient_association_required()
 @api_patients.post("/<string:patient_id>/pregnancies")
-def create_new_pregnancy(path: PatientIdPath, body: PregnancyValidator):
+def create_new_pregnancy(path: PatientIdPath, body: PregnancyModel):
     """Create New Pregnancy"""
     if body.id is not None:
         pregnancy_id = body.id
@@ -66,7 +66,7 @@ def get_pregnancy(path: PregnancyIdPath):
 
 # /api/pregnancies/<string:pregnancy_id> [PUT]
 @api_pregnancies.put("/<string:pregnancy_id>")
-def update_pregnancy(path: PregnancyIdPath, body: PregnancyValidator):
+def update_pregnancy(path: PregnancyIdPath, body: PregnancyModel):
     """Update Pregnancy"""
     pregnancy_model_dump = body.model_dump()
 

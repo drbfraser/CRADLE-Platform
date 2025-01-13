@@ -7,7 +7,7 @@ from utils import get_current_time
 from validation import CradleBaseModel
 
 
-class PregnancyValidator(CradleBaseModel, extra="forbid"):
+class PregnancyModel(CradleBaseModel, extra="forbid"):
     """
     {
         "patient_id": 120000,

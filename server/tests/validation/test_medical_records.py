@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from validation.medicalRecords import MedicalRecordValidator
+from validation.medicalRecords import MedicalRecordModel
 
 ID = 1
 PATIENT_ID = "120000"
@@ -131,10 +131,10 @@ medical_record_has_invalid_extra_field_should_throw_exception = {
 def test_validate_post_request(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            MedicalRecordValidator(**json)
+            MedicalRecordModel(**json)
     else:
         try:
-            MedicalRecordValidator(**json)
+            MedicalRecordModel(**json)
         except ValidationError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e
 
@@ -161,9 +161,9 @@ def test_validate_post_request(json, expectation):
 def test_validate_put_request(json, expectation):
     if expectation is not None:
         with pytest.raises(expectation):
-            MedicalRecordValidator(**json)
+            MedicalRecordModel(**json)
     else:
         try:
-            MedicalRecordValidator(**json)
+            MedicalRecordModel(**json)
         except ValidationError as e:
             raise AssertionError(f"Unexpected validation error: {e}") from e

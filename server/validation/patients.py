@@ -5,10 +5,10 @@ from pydantic import Field, field_validator
 
 from utils import get_current_time
 from validation import CradleBaseModel
-from validation.readings import ReadingValidator
+from validation.readings import ReadingModel
 
 
-class PatientValidator(CradleBaseModel):
+class PatientModel(CradleBaseModel):
     """
     {
         "id": "123456",
@@ -60,11 +60,15 @@ class PatientValidator(CradleBaseModel):
         return date_of_birth
 
 
-class PatientPostValidator(PatientValidator):
-    readings: Optional[List[ReadingValidator]] = None
+class PatientModelWithReadings(PatientModel):
+    """Includes nested Readings"""
+
+    readings: Optional[List[ReadingModel]] = None
 
 
-class PatientPutValidator(PatientValidator, extra="forbid"):
+class UpdatePatientRequestBody(PatientModel, extra="forbid"):
+    """Request Body for Update Patient Endpoint"""
+
     last_edited: int = Field(default_factory=get_current_time)
     base: Optional[int] = None
 
@@ -83,7 +87,7 @@ def is_correct_date_format(s: Any) -> bool:
         return False
 
 
-class PatientSyncValidator(PatientValidator):
+class PatientSyncModel(PatientModel):
     """
     The mobile app stores pregnancy information inside of the Patient model.
     We should really refactor that at some point. For now, the body of the sync

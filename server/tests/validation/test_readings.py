@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from validation.readings import ReadingValidator
+from validation.readings import ReadingModel
 
 READING_ID = "asdasd82314278226313803"
 PATIENT_ID = "123456"
@@ -366,9 +366,9 @@ referral_field_assessment_has_wrong_type_should_throw_exception = {
 def test_validation(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            ReadingValidator(**json)
+            ReadingModel(**json)
     else:
         try:
-            ReadingValidator(**json)
+            ReadingModel(**json)
         except ValidationError as e:
             raise AssertionError(f"Unexpected validation error: {e}") from e

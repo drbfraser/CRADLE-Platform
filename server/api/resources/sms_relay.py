@@ -8,7 +8,7 @@ from pydantic import ValidationError
 
 from common import phone_number_utils, user_utils
 from service import compressor, encryptor
-from validation.sms_relay import SmsRelayDecryptedBodyValidator, SmsRelayValidator
+from validation.sms_relay import SmsRelayDecryptedBody, SmsRelayRequestBody
 
 api_url = "http://localhost:5000/{endpoint}"
 
@@ -89,7 +89,7 @@ api_sms_relay = APIBlueprint(
 
 # /api/sms_relay [POST]
 @api_sms_relay.post("")
-def relay_sms_request(body: SmsRelayValidator):
+def relay_sms_request(body: SmsRelayRequestBody):
     """Relay SMS Request"""
     phone_number = body.phone_number
     phone_number_exists = phone_number_utils.does_phone_number_exist(phone_number)
@@ -119,7 +119,7 @@ def relay_sms_request(body: SmsRelayValidator):
         return abort(401, description=error_message)
 
     try:
-        decrypted_data = SmsRelayDecryptedBodyValidator(**json_dict_data)
+        decrypted_data = SmsRelayDecryptedBody(**json_dict_data)
     except ValidationError as e:
         return create_flask_response(
             422,

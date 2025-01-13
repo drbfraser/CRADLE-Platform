@@ -4,7 +4,7 @@ from validation import CradleBaseModel
 
 
 # Represents a referral entity with validations to prevent unrecognized fields.
-class ReferralEntityValidator(CradleBaseModel, extra="forbid"):
+class ReferralModel(CradleBaseModel, extra="forbid"):
     """
     {
         "comment": "here is a comment",

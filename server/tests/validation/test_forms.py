@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from validation.forms import FormPutValidator, FormValidator
+from validation.forms import FormValidator, UpdateFormRequestBody
 
 LANGUAGE = "eng"
 PATIENT_ID = "123"
@@ -420,9 +420,9 @@ form_put_field_questions_has_wrong_type_should_throw_exception = {
 def test_validate_put_request(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            FormPutValidator(**json)
+            UpdateFormRequestBody(**json)
     else:
         try:
-            FormPutValidator(**json)
+            UpdateFormRequestBody(**json)
         except ValidationError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e

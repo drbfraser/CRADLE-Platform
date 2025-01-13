@@ -13,7 +13,7 @@ from common.api_utils import (
 from data import crud, marshal
 from models import FormOrm, FormTemplateOrm, PatientOrm, UserOrm
 from utils import get_current_time
-from validation.forms import FormPutValidator, FormValidator
+from validation.forms import FormValidator, UpdateFormRequestBody
 
 # /api/forms/responses
 api_form_submissions = APIBlueprint(
@@ -83,7 +83,7 @@ def get_form(path: FormIdPath):
 
 # /api/forms/responses/<string:form_id> [PUT]
 @api_form_submissions.put("/<string:form_id>")
-def update_form(path: FormIdPath, body: FormPutValidator):
+def update_form(path: FormIdPath, body: UpdateFormRequestBody):
     """Update Form"""
     form = crud.read(FormOrm, id=path.form_id)
     if form is None:

@@ -9,7 +9,7 @@ from common.api_utils import ReadingIdPath
 from data import crud, marshal
 from models import HealthFacilityOrm, PatientOrm, ReadingOrm, ReferralOrm
 from service import assoc, invariant
-from validation.readings import ReadingValidator
+from validation.readings import ReadingModel
 
 # /api/readings
 api_readings = APIBlueprint(
@@ -23,7 +23,7 @@ api_readings = APIBlueprint(
 
 # /api/readings [POST]
 @api_readings.post("")
-def create_new_reading(body: ReadingValidator):
+def create_new_reading(body: ReadingModel):
     """Create New Reading"""
     if crud.read(PatientOrm, id=body.patient_id) is None:
         return abort(404, description=f"No Patient found with ID: {body.patient_id}")

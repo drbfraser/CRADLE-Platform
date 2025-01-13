@@ -8,7 +8,7 @@ from validation import CradleBaseModel
 
 
 # TODO: Separate DrugRecord and MedicalRecord into two different models.
-class MedicalRecordValidator(CradleBaseModel, extra="forbid"):
+class MedicalRecordModel(CradleBaseModel, extra="forbid"):
     """
     {
         "patient_id": "120000",

@@ -4,7 +4,7 @@ from pydantic import ValidationError
 from validation.referrals import (
     CancelStatusValidator,
     NotAttendValidator,
-    ReferralEntityValidator,
+    ReferralModel,
 )
 
 PATIENT_ID = "49300028161"
@@ -200,41 +200,41 @@ not_attend_has_invalid_extra_field_should_throw_exception = {
 @pytest.mark.parametrize(
     "json, output_type, entity",
     [
-        (referral_with_valid_fields_should_return_none, None, ReferralEntityValidator),
+        (referral_with_valid_fields_should_return_none, None, ReferralModel),
         (
             referral_missing_optional_field_comment_should_return_none,
             None,
-            ReferralEntityValidator,
+            ReferralModel,
         ),
         (
             referral_missing_optional_field_date_referred_should_return_none,
             None,
-            ReferralEntityValidator,
+            ReferralModel,
         ),
         (
             referral_missing_required_field_patient_id_should_throw_exception,
             ValidationError,
-            ReferralEntityValidator,
+            ReferralModel,
         ),
         (
             referral_missing_required_field_health_facility_name_should_throw_exception,
             ValidationError,
-            ReferralEntityValidator,
+            ReferralModel,
         ),
         (
             referral_field_patient_id_has_wrong_type_should_throw_exception,
             ValidationError,
-            ReferralEntityValidator,
+            ReferralModel,
         ),
         (
             referral_field_health_facility_name_has_wrong_type_should_throw_exception,
             ValidationError,
-            ReferralEntityValidator,
+            ReferralModel,
         ),
         (
             referral_has_invalid_extra_field_should_throw_exception,
             ValidationError,
-            ReferralEntityValidator,
+            ReferralModel,
         ),
         (cancel_put_with_valid_fields_should_return_none, None, CancelStatusValidator),
         (

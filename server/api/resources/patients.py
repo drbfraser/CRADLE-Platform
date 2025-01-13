@@ -28,8 +28,8 @@ from service import assoc, invariant, serialize, statsCalculation, view
 from utils import get_current_time
 from validation import CradleBaseModel
 from validation.assessments import AssessmentPostBody
-from validation.patients import PatientPostValidator, PatientPutValidator
-from validation.readings import ReadingValidator
+from validation.patients import PatientModelWithReadings, UpdatePatientRequestBody
+from validation.readings import ReadingModel
 
 patient_not_found_message = "Patient with ID: ({}) not found."
 
@@ -60,7 +60,7 @@ def get_all_unarchived_patients(query: SearchFilterQueryParams):
 
 # /api/patients [POST]
 @api_patients.post("")
-def create_patient(body: PatientPostValidator):
+def create_patient(body: PatientModelWithReadings):
     """Create New Patient"""
     patient_id = body.id
     if crud.read(PatientOrm, id=patient_id):
@@ -128,7 +128,7 @@ def get_patient_info(path: PatientIdPath):
 
 # /api/patients/<string:patient_id>/info [PUT]
 @api_patients.put("/<string:patient_id>/info")
-def update_patient_info(path: PatientIdPath, body: PatientPutValidator):
+def update_patient_info(path: PatientIdPath, body: UpdatePatientRequestBody):
     """Update Patient Info"""
     update_patient = body.model_dump()
     # If the inbound JSON contains a `base` field then we need to check if it is the
@@ -344,7 +344,7 @@ def get_patient_timeline(path: PatientIdPath, query: PageLimitFilterQueryParams)
 
 
 class CreateReadingWithAssessmentBody(CradleBaseModel):
-    reading: ReadingValidator
+    reading: ReadingModel
     assessment: AssessmentPostBody
 
 

@@ -7,7 +7,7 @@ from enums import HTTPMethodEnum
 from validation import CradleBaseModel
 
 
-class SmsRelayValidator(CradleBaseModel, extra="forbid"):
+class SmsRelayRequestBody(CradleBaseModel, extra="forbid"):
     phone_number: str
     encrypted_data: str
 
@@ -18,7 +18,7 @@ class SmsRelayValidator(CradleBaseModel, extra="forbid"):
         return formatted_phone_numbers
 
 
-class SmsRelayDecryptedBodyValidator(CradleBaseModel, extra="forbid"):
+class SmsRelayDecryptedBody(CradleBaseModel, extra="forbid"):
     request_number: int
     method: HTTPMethodEnum
     endpoint: str
