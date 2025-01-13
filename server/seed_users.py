@@ -193,7 +193,8 @@ def seed_minimal_users():
     populate_user_pool(minimal_users_list)
     # Pydantic validator won't accept emulator phone number, but we can set it separately.
     admin_phone_numbers = set(phone_number_utils.get_users_phone_numbers(user_id=0))
-    admin_phone_numbers.add(EMULATOR_PHONE_NUMBER)
+    emulator_phone_number = phone_number_utils.format(EMULATOR_PHONE_NUMBER)
+    admin_phone_numbers.add(emulator_phone_number)
     user_utils.update_user_phone_numbers(user_id=1, phone_numbers=admin_phone_numbers)
 
 
