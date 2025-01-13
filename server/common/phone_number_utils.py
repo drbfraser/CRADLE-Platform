@@ -118,6 +118,15 @@ def does_phone_number_exist(phone_number: str) -> bool:
     return False
 
 
+def does_phone_number_belong_to_a_user(phone_number: str):
+    """
+    Checks if the phone number belongs to any user in the system.
+
+    :param phone_number: The phone number to check (in E. 164 format).
+    """
+    return crud.read(UserPhoneNumberOrm, phone_number=phone_number) is not None
+
+
 def does_phone_number_belong_to_user(user_id: int, phone_number: str):
     """
     Checks if the phone number belongs to the user identified by username.

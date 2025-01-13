@@ -6,6 +6,7 @@ from typing import List, Optional
 import requests
 from humps import decamelize
 
+from common import phone_number_utils
 from data import crud
 from enums import TrafficLightEnum
 from models import (
@@ -15,7 +16,6 @@ from models import (
     ReferralOrm,
     SmsSecretKeyOrm,
     UserOrm,
-    UserPhoneNumberOrm,
 )
 from service import compressor, encryptor
 
@@ -250,10 +250,9 @@ def make_sms_relay_json(
     assert user is not None
     secret_key = crud.read(SmsSecretKeyOrm, user_id=1)
     # update for multiple phone numbers schema: each user is guaranteed to have at least one phone number
-    phone_number = crud.read_all(
-        UserPhoneNumberOrm,
-        user_id=user.id,
-    ).pop()  # just need one phone number that belongs to the user
+    phone_number = phone_number_utils.get_users_phone_numbers(user_id=1)[
+        0
+    ]  # just need one phone number that belongs to the user
 
     data = {
         "request_number": request_number,
@@ -270,7 +269,7 @@ def make_sms_relay_json(
     iv = "00112233445566778899aabbccddeeff"
     encrypted_data = encryptor.encrypt(compressed_data, iv, secret_key.secret_key)
 
-    return {"phone_number": phone_number.phone_number, "encrypted_data": encrypted_data}
+    return {"phone_number": phone_number, "encrypted_data": encrypted_data}
 
 
 def get_sms_relay_response(response: requests.Response) -> dict:
