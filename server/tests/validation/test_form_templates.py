@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from validation.formTemplates import FormTemplateModelNested
+from validation.formTemplates import FormTemplateWithQuestions
 
 CLASSIFICATION = {"id": "123", "name": "example_name"}
 VERSION = "V1"
@@ -155,9 +155,9 @@ template_has_invalid_extra_field_should_throw_exception = {
 def test_validate_template(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            FormTemplateModelNested(**json)
+            FormTemplateWithQuestions(**json)
     else:
         try:
-            FormTemplateModelNested(**json)
+            FormTemplateWithQuestions(**json)
         except ValidationError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e

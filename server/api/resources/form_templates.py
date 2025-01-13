@@ -19,10 +19,10 @@ from service import serialize
 from validation import CradleBaseModel
 from validation.file_upload import FileUploadForm
 from validation.formTemplates import (
+    FormTemplateFull,
     FormTemplateList,
     FormTemplateModel,
-    FormTemplateModelNestedOptionalId,
-    FormTemplateModelNestedWithLanguage,
+    FormTemplateUpload,
 )
 
 # /api/forms/templates
@@ -54,7 +54,7 @@ def get_all_form_templates(query: GetAllFormTemplatesQuery):
     return [marshal.marshal(f, shallow=True) for f in form_templates]
 
 
-def handle_form_template_upload(form_template: FormTemplateModelNestedOptionalId):
+def handle_form_template_upload(form_template: FormTemplateUpload):
     """
     Common logic for handling uploaded form template. Whether it was uploaded
     as a file, or in the request body.
@@ -128,7 +128,7 @@ def upload_form_template_file(form: FileUploadForm):
         else:
             return abort(422, description="Invalid content-type.")
     try:
-        form_template = FormTemplateModelNestedOptionalId(**file_contents)
+        form_template = FormTemplateUpload(**file_contents)
     except ValidationError as e:
         return abort(422, description=e.errors())
     return handle_form_template_upload(form_template)
@@ -137,7 +137,7 @@ def upload_form_template_file(form: FileUploadForm):
 # /api/forms/templates/body [POST]
 @api_form_templates.post("/body", responses={201: FormTemplateModel})
 @roles_required([RoleEnum.ADMIN])
-def upload_form_template_body(body: FormTemplateModelNestedOptionalId):
+def upload_form_template_body(body: FormTemplateUpload):
     """
     Upload Form Template VIA Request Body
     Accepts Form Template through the request body, rather than as a file.
@@ -146,9 +146,7 @@ def upload_form_template_body(body: FormTemplateModelNestedOptionalId):
 
 
 # /api/forms/templates/<string:form_template_id>/versions [GET]
-@api_form_templates.get(
-    "<string:form_template_id>/versions", responses={200: FormTemplateModel}
-)
+@api_form_templates.get("<string:form_template_id>/versions")
 def get_form_template_versions(path: FormTemplateIdPath):
     """Get Form Template Versions"""
     form_template = crud.read(FormTemplateOrm, id=path.form_template_id)
@@ -201,9 +199,7 @@ class GetFormTemplateQuery(CradleBaseModel):
 
 
 # /api/forms/templates/<string:form_template_id> [GET]
-@api_form_templates.get(
-    "/<string:form_template_id>", responses={200: FormTemplateModelNestedWithLanguage}
-)
+@api_form_templates.get("/<string:form_template_id>", responses={200: FormTemplateFull})
 def get_form_template_language_version(
     path: FormTemplateIdPath, query: GetFormTemplateQuery
 ):
@@ -267,7 +263,7 @@ def archive_form_template(path: FormTemplateIdPath, body: ArchiveFormTemplateBod
 # /api/forms/templates/blank/<string:form_template_id> [GET]
 @api_form_templates.get(
     "/blank/<string:form_template_id>",
-    responses={200: FormTemplateModelNestedWithLanguage},
+    responses={200: FormTemplateFull},
 )
 def get_blank_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuery):
     """Get Blank Form Template"""

@@ -26,6 +26,14 @@ class FormTemplateExamples:
         "form_classification_id": FormClassificationExamples.id,
     }
 
+    with_classification = {
+        "id": id_01,
+        "version": version,
+        "date_created": date_created,
+        "form_classification_id": FormClassificationExamples.id,
+        "classification": FormClassificationExamples.example_01,
+    }
+
 
 class FormTemplateModel(CradleBaseModel, extra="forbid"):
     id: str
@@ -42,10 +50,14 @@ class FormTemplateModel(CradleBaseModel, extra="forbid"):
     )
 
 
-class FormTemplateModelNested(FormTemplateModel):
+class FormTemplateWithClassification(FormTemplateModel):
+    """"Form Template model including nested Form Classification""" ""
+    classification: FormClassificationModel
+
+
+class FormTemplateWithQuestions(FormTemplateWithClassification):
     """Form Template model including nested Form Classification and Question models"""
 
-    classification: FormClassificationModel
     questions: list[TemplateQuestionModel]
 
     @field_validator("questions", mode="after")
@@ -93,14 +105,14 @@ class FormTemplateModelNested(FormTemplateModel):
         return questions
 
 
-class FormTemplateModelNestedOptionalId(FormTemplateModelNested):
+class FormTemplateUpload(FormTemplateWithQuestions):
     id: Optional[str] = None
     classification: FormClassificationModelOptionalId
 
 
-class FormTemplateModelNestedWithLanguage(FormTemplateModelNested):
+class FormTemplateFull(FormTemplateWithQuestions):
     lang: str
 
 
-class FormTemplateList(RootModel[list[FormTemplateModel]]):
+class FormTemplateList(RootModel[list[FormTemplateWithClassification]]):
     model_config = dict(openapi_extra={"example": [FormTemplateExamples.example_01]})  # type: ignore[reportAssignmentType]

@@ -240,8 +240,9 @@ def __marshal_form_template(
     d = vars(f).copy()
     __pre_process(d)
 
+    d["classification"] = __marshal_form_classification(f.classification)
+
     if not shallow:
-        d["classification"] = __marshal_form_classification(f.classification)
         d["questions"] = [
             __marshal_question(q, if_include_versions) for q in f.questions
         ]
