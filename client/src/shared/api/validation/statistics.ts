@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
 export const colorReadingSchema = z.object({
-  green: z.number(),
-  yellowUp: z.number(),
-  yellowDown: z.number(),
-  redUp: z.number(),
-  redDown: z.number(),
+  GREEN: z.number(),
+  YELLOW_UP: z.number(),
+  YELLOW_DOWN: z.number(),
+  RED_UP: z.number(),
+  RED_DOWN: z.number(),
 });
 
 export type ColorReading = z.infer<typeof colorReadingSchema>;
