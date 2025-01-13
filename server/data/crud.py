@@ -556,7 +556,7 @@ def read_patient_all_records(patient_id: str, **kwargs) -> List[Any]:
     reading_list, referral_list, assessment_list, form_list = [], [], [], []
 
     reading_required = kwargs.get("readings")
-    if reading_required == "1":
+    if reading_required:
         reading_list = (
             db_session.query(ReadingOrm)
             .filter_by(patient_id=patient_id)
@@ -565,7 +565,7 @@ def read_patient_all_records(patient_id: str, **kwargs) -> List[Any]:
         )
 
     referral_required = kwargs.get("referrals")
-    if referral_required == "1":
+    if referral_required:
         referral_list = (
             db_session.query(ReferralOrm)
             .filter_by(patient_id=patient_id)
@@ -574,7 +574,7 @@ def read_patient_all_records(patient_id: str, **kwargs) -> List[Any]:
         )
 
     assessment_required = kwargs.get("assessments")
-    if assessment_required == "1":
+    if assessment_required:
         assessment_list = (
             db_session.query(AssessmentOrm)
             .filter_by(patient_id=patient_id)
@@ -583,7 +583,7 @@ def read_patient_all_records(patient_id: str, **kwargs) -> List[Any]:
         )
 
     form_required = kwargs.get("forms")
-    if form_required == "1":
+    if form_required:
         form_list = (
             db_session.query(FormOrm)
             .filter_by(patient_id=patient_id)
