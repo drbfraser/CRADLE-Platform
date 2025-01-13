@@ -7,7 +7,7 @@ from common.user_utils import get_current_user_from_jwt
 from data import crud, marshal
 from models import AssessmentOrm
 from validation.assessments import (
-    AssessmentList,
+    AssessmentListResponse,
     AssessmentPostBody,
     AssessmentPutBody,
     AssessmentResponse,
@@ -24,7 +24,7 @@ api_assessments = APIBlueprint(
 
 
 # /api/assessments [GET]
-@api_assessments.get("", responses={200: AssessmentList})
+@api_assessments.get("", responses={200: AssessmentListResponse})
 def get_all_assessments():
     """Get All Assessments"""
     assessments = crud.read_all(AssessmentOrm)
