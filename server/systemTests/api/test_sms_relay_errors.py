@@ -6,7 +6,7 @@ from humps import decamelize
 import systemTests.api.test_sms_relay as sms_relay_test
 from api.resources import sms_relay
 from data import crud
-from models import SmsSecretKeyOrm, UserOrm, UserPhoneNumberOrm
+from models import SmsSecretKeyOrm, UserOrm
 from server.common import phone_number_utils
 from service import compressor, encryptor
 
@@ -14,7 +14,7 @@ sms_relay_endpoint = "/api/sms_relay"
 
 
 def test_sms_relay_invalid_json(api_post):
-    request_body = {"phone": "604-456-7890"}
+    request_body = {"phone": "+1-604-456-7890"}
     response = api_post(endpoint=sms_relay_endpoint, json=request_body)
 
     response_body = decamelize(response.json())
@@ -32,7 +32,7 @@ def test_sms_relay_none_phone_number(api_post):
 
 
 def test_sms_relay_invalid_encrypted_data(api_post):
-    phone_number = phone_number_utils.get_users_phone_numbers(user_id=1)[0]
+    phone_number = phone_number_utils.get_users_phone_numbers(user_id=1).pop()
     json_body = {"phone_number": phone_number, "encrypted_data": "a"}
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
 
@@ -76,7 +76,7 @@ def test_sms_relay_invalid_phone_number_format(api_post):
 def test_sms_relay_invalid_encryption_key(api_post):
     user_orm = crud.read(UserOrm, id=1)
     assert user_orm is not None
-    phone_number = crud.read_all(UserPhoneNumberOrm, user_id=user_orm.id).pop()
+    phone_number = phone_number_utils.get_users_phone_numbers(user_orm.id).pop()
 
     new_key = "1a9b4f7c3e8d2f5a6b4f7c3e8d2f5a1a"
 
@@ -88,7 +88,7 @@ def test_sms_relay_invalid_encryption_key(api_post):
     encrypted_data = encryptor.encrypt(bytes(json_data, "utf-8"), iv, new_key)
 
     json_body = {
-        "phone_number": phone_number.phone_number,
+        "phone_number": phone_number,
         "encrypted_data": encrypted_data,
     }
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
@@ -98,13 +98,14 @@ def test_sms_relay_invalid_encryption_key(api_post):
     assert response.status_code == 401
     actual_json = json.loads(response.text)
     assert actual_json["description"] == sms_relay.invalid_message.format(
-        phone_number=phone_number.phone_number,
+        phone_number=phone_number,
     )
 
 
 def test_sms_relay_corrupted_base64(api_post):
-    user = crud.read(UserOrm, id=1)
-    phone_number = crud.read_all(UserPhoneNumberOrm, user_id=user.id).pop()
+    user_orm = crud.read(UserOrm, id=1)
+    assert user_orm is not None
+    phone_number = phone_number_utils.get_users_phone_numbers(user_orm.id).pop()
 
     data = {"endpoint": None, "body": None}
     json_data = json.dumps(data)
@@ -113,7 +114,7 @@ def test_sms_relay_corrupted_base64(api_post):
     base64_string = base64_data.decode("utf-8")
 
     json_body = {
-        "phone_number": phone_number.phone_number,
+        "phone_number": phone_number,
         "encrypted_data": base64_string,
     }
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
@@ -123,15 +124,16 @@ def test_sms_relay_corrupted_base64(api_post):
     assert response.status_code == 401
     actual_json = json.loads(response.text)
     assert actual_json["description"] == sms_relay.invalid_message.format(
-        phone_number=phone_number.phone_number,
+        phone_number=phone_number,
     )
 
 
 def test_sms_relay_failed_decompression(api_post):
-    user = crud.read(UserOrm, id=1)
-    assert user is not None
-    phone_number = crud.read_all(UserPhoneNumberOrm, user_id=user.id).pop()
+    user_orm = crud.read(UserOrm, id=1)
+    assert user_orm is not None
+    phone_number = phone_number_utils.get_users_phone_numbers(user_orm.id).pop()
     secret_key = crud.read(SmsSecretKeyOrm, user_id=1)
+    assert secret_key is not None
     iv = "00112233445566778899aabbccddeeff"
 
     data = {"endpoint": None, "body": None}
@@ -146,7 +148,7 @@ def test_sms_relay_failed_decompression(api_post):
     response = api_post(
         endpoint=sms_relay_endpoint,
         json={
-            "phone_number": phone_number.phone_number,
+            "phone_number": phone_number,
             "encrypted_data": encrypted_data,
         },
     )
@@ -155,14 +157,16 @@ def test_sms_relay_failed_decompression(api_post):
     assert response.status_code == 401
     actual_json = json.loads(response.text)
     assert actual_json["description"] == sms_relay.invalid_message.format(
-        phone_number=phone_number.phone_number,
+        phone_number=phone_number,
     )
 
 
 def test_sms_relay_invalid_encrypted_json(api_post):
-    user = crud.read(UserOrm, id=1)
-    phone_number = crud.read_all(UserPhoneNumberOrm, user_id=user.id).pop()
+    user_orm = crud.read(UserOrm, id=1)
+    assert user_orm is not None
+    phone_number = phone_number_utils.get_users_phone_numbers(user_orm.id).pop()
     secret_key = crud.read(SmsSecretKeyOrm, user_id=1)
+    assert secret_key is not None
     iv = "00112233445566778899aabbccddeeff"
 
     data = {"method": "PUT", "endpoint": "a"}
@@ -171,7 +175,7 @@ def test_sms_relay_invalid_encrypted_json(api_post):
     encrypted_data = encryptor.encrypt(compressed_data, iv, secret_key.secret_key)
 
     json_body = {
-        "phone_number": phone_number.phone_number,
+        "phone_number": phone_number,
         "encrypted_data": encrypted_data,
     }
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
