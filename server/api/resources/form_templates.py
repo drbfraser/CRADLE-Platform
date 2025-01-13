@@ -4,7 +4,7 @@ from typing import Optional
 from flask import abort, make_response
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
-from pydantic import Field
+from pydantic import Field, ValidationError
 
 import data
 from api import util
@@ -21,7 +21,8 @@ from validation.file_upload import FileUploadForm
 from validation.formTemplates import (
     FormTemplateList,
     FormTemplateModel,
-    FormTemplateModelNested,
+    FormTemplateModelNestedOptionalId,
+    FormTemplateModelNestedWithLanguage,
 )
 
 # /api/forms/templates
@@ -53,7 +54,7 @@ def get_all_form_templates(query: GetAllFormTemplatesQuery):
     return [marshal.marshal(f, shallow=True) for f in form_templates]
 
 
-def handle_form_template_upload(form_template: FormTemplateModel):
+def handle_form_template_upload(form_template: FormTemplateModelNestedOptionalId):
     """
     Common logic for handling uploaded form template. Whether it was uploaded
     as a file, or in the request body.
@@ -63,7 +64,7 @@ def handle_form_template_upload(form_template: FormTemplateModel):
     # FormClassification is basically the name of the FormTemplate. FormTemplates can have multiple versions, and the FormClassification is used to group different versions of the same FormTemplate.
     classification = crud.read(
         FormClassificationOrm,
-        id=form_template.form_classification_id,
+        id=form_template.classification.id,
     )
     if classification is not None:
         if crud.read(
@@ -87,7 +88,8 @@ def handle_form_template_upload(form_template: FormTemplateModel):
             previous_template.archived = True
             data.db_session.commit()
 
-    util.assign_form_or_template_ids(FormTemplateOrm, new_form_template)
+    if form_template.id is None:
+        util.assign_form_or_template_ids(FormTemplateOrm, new_form_template)
     form_template = marshal.unmarshal(FormTemplateOrm, new_form_template)
     crud.create(form_template, refresh=True)
     return marshal.marshal(form_template, shallow=True), 201
@@ -125,14 +127,17 @@ def upload_form_template_file(form: FileUploadForm):
             )
         else:
             return abort(422, description="Invalid content-type.")
-    form_template = FormTemplateModel(**file_contents)
+    try:
+        form_template = FormTemplateModelNestedOptionalId(**file_contents)
+    except ValidationError as e:
+        return abort(422, description=e.errors())
     return handle_form_template_upload(form_template)
 
 
 # /api/forms/templates/body [POST]
 @api_form_templates.post("/body", responses={201: FormTemplateModel})
 @roles_required([RoleEnum.ADMIN])
-def upload_form_template_body(body: FormTemplateModelNested):
+def upload_form_template_body(body: FormTemplateModelNestedOptionalId):
     """
     Upload Form Template VIA Request Body
     Accepts Form Template through the request body, rather than as a file.
@@ -198,7 +203,7 @@ class GetFormTemplateQuery(CradleBaseModel):
 
 # /api/forms/templates/<string:form_template_id> [GET]
 @api_form_templates.get(
-    "/<string:form_template_id>", responses={200: FormTemplateModelNested}
+    "/<string:form_template_id>", responses={200: FormTemplateModelNestedWithLanguage}
 )
 def get_form_template_language_version(
     path: FormTemplateIdPath, query: GetFormTemplateQuery
@@ -267,7 +272,8 @@ def archive_form_template(path: FormTemplateIdPath, body: ArchiveFormTemplateBod
 
 # /api/forms/templates/blank/<string:form_template_id> [GET]
 @api_form_templates.get(
-    "/blank/<string:form_template_id>", responses={200: FormTemplateModelNested}
+    "/blank/<string:form_template_id>",
+    responses={200: FormTemplateModelNestedWithLanguage},
 )
 def get_blank_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuery):
     """Get Blank Form Template"""

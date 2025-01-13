@@ -1,6 +1,7 @@
 import time
 
 import pytest
+from humps import decamelize
 
 from data import crud
 from models import FormClassificationOrm, FormTemplateOrm
@@ -15,8 +16,9 @@ def test_form_classification_created(
 ):
     try:
         response = api_get(endpoint="/api/forms/classifications")
+        response_body = decamelize(response.json())
+        print(response_body)
         assert response.status_code == 200
-        response_body = response.json()
         existing = len(response_body)
 
         response = api_post(
@@ -35,8 +37,9 @@ def test_form_classification_created(
         assert response.status_code == 201
 
         response = api_get(endpoint="/api/forms/classifications")
+        response_body = decamelize(response.json())
+        print(response_body)
         assert response.status_code == 200
-        response_body = response.json()
         assert len(response_body) == existing + 2
     finally:
         crud.delete_all(FormClassificationOrm, name="fc1")
@@ -60,8 +63,9 @@ def test_form_classification_updated(
         assert response.status_code == 201
 
         response = api_get(endpoint="/api/forms/classifications")
+        response_body = decamelize(response.json())
+        print(response_body)
         assert response.status_code == 200
-        response_body = response.json()
         for classification in response_body:
             if classification["name"] == form_classification_1["name"]:
                 id = classification["id"]
@@ -69,15 +73,20 @@ def test_form_classification_updated(
 
         response = api_put(
             endpoint=f"/api/forms/classifications/{id}",
-            json=form_classification_2,
+            json={
+                "id": id,
+                "name": form_classification_2["name"],
+            },
         )
         database.session.commit()
-
+        response_body = decamelize(response.json())
+        print(response_body)
         assert response.status_code == 201
 
         response = api_get(endpoint=f"/api/forms/classifications/{id}")
+        response_body = decamelize(response.json())
+        print(response_body)
         assert response.status_code == 200
-        response_body = response.json()
         assert response_body["name"] == form_classification_2["name"]
     finally:
         crud.delete_all(FormClassificationOrm, name="fc1")
@@ -96,8 +105,9 @@ def test_form_classification_summary(
 ):
     try:
         response = api_get(endpoint="/api/forms/classifications/summary")
+        response_body = decamelize(response.json())
+        print(response_body)
         assert response.status_code == 200
-        response_body = response.json()
         existing = len(response_body)
 
         response = api_post(
@@ -105,6 +115,8 @@ def test_form_classification_summary(
             json=form_classification_1,
         )
         database.session.commit()
+        response_body = decamelize(response.json())
+        print(response_body)
         assert response.status_code == 201 or response.status_code == 409
 
         response = api_post(
@@ -112,12 +124,15 @@ def test_form_classification_summary(
             json=form_classification_2,
         )
         database.session.commit()
+        response_body = decamelize(response.json())
+        print(response_body)
         assert response.status_code == 201 or response.status_code == 409
 
         crud.delete_all(FormTemplateOrm, id="ft1")
         response = api_post(endpoint="/api/forms/templates/body", json=form_template_1)
         database.session.commit()
-
+        response_body = decamelize(response.json())
+        print(response_body)
         assert response.status_code == 201
 
         time.sleep(1)
@@ -125,6 +140,8 @@ def test_form_classification_summary(
         crud.delete_all(FormTemplateOrm, id="ft2")
         response = api_post(endpoint="/api/forms/templates/body", json=form_template_2)
         database.session.commit()
+        response_body = decamelize(response.json())
+        print(response_body)
         assert response.status_code == 201
 
         time.sleep(1)
@@ -132,11 +149,14 @@ def test_form_classification_summary(
         crud.delete_all(FormTemplateOrm, id="ft3")
         response = api_post(endpoint="/api/forms/templates/body", json=form_template_3)
         database.session.commit()
+        response_body = decamelize(response.json())
+        print(response_body)
         assert response.status_code == 201
 
         response = api_get(endpoint="/api/forms/classifications/summary")
+        response_body = decamelize(response.json())
+        print(response_body)
         assert response.status_code == 200
-        response_body = response.json()
         assert len(response_body) == existing + 2
 
         filtered = [
@@ -165,13 +185,19 @@ def test_form_classification_summary(
 
 @pytest.fixture
 def form_classification_1():
-    return {"name": "fc1"}
+    return {
+        "id": "fc1",
+        "name": "fc1",
+    }
 
 
 @pytest.fixture
 def form_template_1():
     return {
-        "classification": {"name": "fc1"},
+        "classification": {
+            "id": "fc1",
+            "name": "fc1",
+        },
         "id": "ft1",
         "version": "V1",
         "questions": [],
@@ -180,13 +206,19 @@ def form_template_1():
 
 @pytest.fixture
 def form_classification_2():
-    return {"name": "fc2"}
+    return {
+        "id": "fc2",
+        "name": "fc2",
+    }
 
 
 @pytest.fixture
 def form_template_2():
     return {
-        "classification": {"name": "fc2"},
+        "classification": {
+            "id": "fc2",
+            "name": "fc2",
+        },
         "id": "ft2",
         "version": "V1",
         "questions": [],
@@ -196,7 +228,10 @@ def form_template_2():
 @pytest.fixture
 def form_template_3():
     return {
-        "classification": {"name": "fc2"},
+        "classification": {
+            "id": "fc2",
+            "name": "fc2",
+        },
         "id": "ft3",
         "version": "V2",
         "questions": [],

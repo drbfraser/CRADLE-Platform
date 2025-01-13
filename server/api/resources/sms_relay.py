@@ -31,11 +31,6 @@ invalid_user = "User does not exist"
 
 null_phone_number = "No phone number was provided"
 
-invalid_phone_number = (
-    "Phone number {phone_number} has wrong format. The format for phone number should be +x-xxx-xxx-xxxx, "
-    "+x-xxx-xxx-xxxxx, xxx-xxx-xxxx or xxx-xxx-xxxxx"
-)
-
 invalid_json = "Invalid JSON Request Structure; {error}"
 
 invalid_req_number = "Invalid Request Number; {error}"

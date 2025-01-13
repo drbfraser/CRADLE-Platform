@@ -41,9 +41,10 @@ def submit_form(body: FormValidator):
         form_template = crud.read(FormTemplateOrm, id=body.form_template_id)
         if form_template is None:
             return abort(404, description="Form template does not exist.")
+        # TODO: Why do Forms have a foreign key to Form Classifications? This seems redundant.
         if form_template.form_classification_id != body.form_classification_id:
             return abort(
-                400, description="Form classification does not match template."
+                400, description="Form classification does not match Template."
             )
 
     if body.last_edited_by is not None:

@@ -7,6 +7,7 @@ import systemTests.api.test_sms_relay as sms_relay_test
 from api.resources import sms_relay
 from data import crud
 from models import SmsSecretKeyOrm, UserOrm, UserPhoneNumberOrm
+from server.common import phone_number_utils
 from service import compressor, encryptor
 
 sms_relay_endpoint = "/api/sms_relay"
@@ -30,8 +31,8 @@ def test_sms_relay_none_phone_number(api_post):
     assert response.status_code == 422
 
 
-def test_sms_relay_invalid_phone_number(api_post):
-    phone_number = "+11234567890"
+def test_sms_relay_invalid_encrypted_data(api_post):
+    phone_number = phone_number_utils.get_users_phone_numbers(user_id=1)[0]
     json_body = {"phone_number": phone_number, "encrypted_data": "a"}
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
 
@@ -73,8 +74,9 @@ def test_sms_relay_invalid_phone_number_format(api_post):
 
 
 def test_sms_relay_invalid_encryption_key(api_post):
-    user = crud.read(UserOrm, id=1)
-    phone_number = crud.read_all(UserPhoneNumberOrm, user_id=user.id).pop()
+    user_orm = crud.read(UserOrm, id=1)
+    assert user_orm is not None
+    phone_number = crud.read_all(UserPhoneNumberOrm, user_id=user_orm.id).pop()
 
     new_key = "1a9b4f7c3e8d2f5a6b4f7c3e8d2f5a1a"
 

@@ -138,7 +138,7 @@ def form_classification():
 @pytest.fixture
 def form_template():
     return {
-        "classification": {"name": "fc9"},
+        "classification": {"id": "fc9", "name": "fc9"},
         "id": "ft9",
         "version": "V1",
         "questions": [],
@@ -156,7 +156,7 @@ def form(patient_id):
         "date_created": 1561011126,
         "questions": [
             {
-                "id": "referred-by-name",
+                "id": "test-question-01",
                 "category_index": None,
                 "question_index": 0,
                 "question_text": "How the patient's condition?",

@@ -1,13 +1,13 @@
-from typing import List, Optional, Union
+from typing import Optional, Union
 
-from pydantic import Field
-from typing_extensions import Annotated
+from pydantic import Field, model_validator
+from typing_extensions import Annotated, Self
 
 from enums import QRelationalEnum, QuestionTypeEnum
 from validation import CradleBaseModel
 
 
-class MultipleChoiceOptionValidator(CradleBaseModel):
+class MultipleChoiceOption(CradleBaseModel):
     mc_id: int
     opt: str
     """
@@ -36,12 +36,12 @@ class AnswerValidator(CradleBaseModel, extra="forbid"):
     """
 
     comment: Optional[str] = None
-    mc_id_array: Optional[List[int]] = None
+    mc_id_array: Optional[list[int]] = None
     number: Optional[Union[int, float]] = None
     text: Optional[str] = None
 
 
-class VisibleConditionValidator(CradleBaseModel, use_enum_values=True):
+class VisibleCondition(CradleBaseModel, use_enum_values=True):
     """
     Valid example:
         {
@@ -59,7 +59,7 @@ class VisibleConditionValidator(CradleBaseModel, use_enum_values=True):
     relation: QRelationalEnum
 
 
-class QuestionLangVersionValidator(CradleBaseModel, extra="forbid"):
+class QuestionLangVersionModel(CradleBaseModel, extra="forbid"):
     """
     valid example:
     {
@@ -79,9 +79,10 @@ class QuestionLangVersionValidator(CradleBaseModel, extra="forbid"):
 
     """
 
+    question_id: Optional[str] = None  # Foreign Key to parent Question
     lang: str
     question_text: str
-    mc_options: Optional[List[MultipleChoiceOptionValidator]] = None
+    mc_options: Optional[list[MultipleChoiceOption]] = None
 
 
 class QuestionBase(CradleBaseModel, use_enum_values=True):
@@ -92,7 +93,7 @@ class QuestionBase(CradleBaseModel, use_enum_values=True):
     allow_past_dates: Optional[bool] = True
     allow_future_dates: Optional[bool] = True
     units: Optional[str] = None
-    visible_condition: Optional[List[VisibleConditionValidator]] = []
+    visible_condition: Optional[list[VisibleCondition]] = []
     num_min: Optional[Union[int, float]] = None
     num_max: Optional[Union[int, float]] = None
     string_max_length: Optional[int] = None
@@ -101,15 +102,21 @@ class QuestionBase(CradleBaseModel, use_enum_values=True):
 
 
 class TemplateQuestionModel(QuestionBase, extra="forbid"):
-    question_lang_versions: List[QuestionLangVersionValidator]
+    question_lang_versions: list[QuestionLangVersionModel]
     is_blank: bool = True  # Set to True for template questions
+
+    @model_validator(mode="after")
+    def set_lang_version_foreign_keys(self) -> Self:
+        for question_lang_version in self.question_lang_versions:
+            question_lang_version.question_id = self.id
+        return self
 
 
 class FormQuestionValidator(QuestionBase, extra="forbid"):
     question_text: str
     is_blank: bool = False  # Set to False for form questions
     has_comment_attached: Optional[bool] = False
-    mc_options: Optional[List[MultipleChoiceOptionValidator]] = []
+    mc_options: Optional[list[MultipleChoiceOption]] = []
     answers: Optional[AnswerValidator] = None
 
 

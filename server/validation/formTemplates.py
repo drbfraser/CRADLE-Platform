@@ -1,12 +1,14 @@
-from typing import List, Optional
+from typing import Optional
 
-from pydantic import RootModel, field_validator
+from pydantic import Field, RootModel, field_validator
 
 from service import questionTree
+from utils import get_current_time
 from validation import CradleBaseModel
 from validation.formClassifications import (
     FormClassificationExamples,
     FormClassificationModel,
+    FormClassificationModelOptionalId,
 )
 from validation.questions import TemplateQuestionModel
 
@@ -28,7 +30,7 @@ class FormTemplateExamples:
 class FormTemplateModel(CradleBaseModel, extra="forbid"):
     id: str
     version: str
-    date_created: int
+    date_created: int = Field(default_factory=get_current_time)
     form_classification_id: Optional[str] = None
     archived: bool = False
 
@@ -43,13 +45,12 @@ class FormTemplateModel(CradleBaseModel, extra="forbid"):
 class FormTemplateModelNested(FormTemplateModel):
     """Form Template model including nested Form Classification and Question models"""
 
-    lang: str
     classification: FormClassificationModel
-    questions: List[TemplateQuestionModel]
+    questions: list[TemplateQuestionModel]
 
     @field_validator("questions", mode="after")
     @classmethod
-    def __validate_questions(cls, questions: List[TemplateQuestionModel]):
+    def __validate_questions(cls, questions: list[TemplateQuestionModel]):
         """
         Raises an error if the questions part in /api/forms/templates POST or PUT
         request is not valid (json format, lang versions consistency, question_index constraint).
@@ -90,6 +91,15 @@ class FormTemplateModelNested(FormTemplateModel):
             print(error)
             raise ValueError(error)
         return questions
+
+
+class FormTemplateModelNestedOptionalId(FormTemplateModelNested):
+    id: Optional[str] = None
+    classification: FormClassificationModelOptionalId
+
+
+class FormTemplateModelNestedWithLanguage(FormTemplateModelNested):
+    lang: str
 
 
 class FormTemplateList(RootModel[list[FormTemplateModel]]):

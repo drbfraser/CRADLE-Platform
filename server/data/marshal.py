@@ -610,22 +610,39 @@ def __unmarshal_question(d: dict) -> QuestionOrm:
     answers = d.get("answers")
     if answers is not None:
         d["answers"] = json.dumps(answers)
+
     # Unmarshal any lang versions found within the question
-    lang_versions = []
-    if d.get("question_lang_versions") is not None:
-        lang_versions = [
-            unmarshal(QuestionLangVersionOrm, v) for v in d["question_lang_versions"]
-        ]
-        # Delete the entry so that we don't try to unmarshal them again by loading from
-        # the question schema.
+    question_lang_version_orms: list[QuestionLangVersionOrm] = []
+    lang_version_dicts = d.get("question_lang_versions")
+    if lang_version_dicts is not None:
         del d["question_lang_versions"]
 
-    question = __load(QuestionOrm, d)
+    question_orm = __load(QuestionOrm, d)
 
-    if lang_versions:
-        question.lang_versions = lang_versions
+    # if d.get("question_lang_versions") is not None:
+    #     lang_versions = [
+    # unmarshal(QuestionLangVersionOrm, v) for v in d["question_lang_versions"]
+    #     ]
+    #     # Delete the entry so that we don't try to unmarshal them again by loading from
+    #     # the question schema.
+    #     del d["question_lang_versions"]
 
-    return question
+    question_orm = __load(QuestionOrm, d)
+
+    if lang_version_dicts is not None:
+        for question_lang_version in lang_version_dicts:
+            mc_options = question_lang_version.get("mc_options")
+            if mc_options is not None:
+                if isinstance(mc_options, list):
+                    mc_options = json.dumps(mc_options)
+                    question_lang_version["mc_options"] = mc_options
+            question_lang_version_orm = QuestionLangVersionOrm(
+                question=question_orm,
+                **question_lang_version,
+            )
+            question_lang_version_orms.append(question_lang_version_orm)
+
+    return question_orm
 
 
 def __unmarshal_RelayServerPhoneNumber(d: dict) -> RelayServerPhoneNumberOrm:

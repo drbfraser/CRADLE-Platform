@@ -17,7 +17,7 @@ root_question = {
     "question_index": 1,
     "question_lang_versions": [
         {
-            "lang": "english",
+            "lang": LANGUAGE,
             "mc_options": [{"mc_id": 0, "opt": "england"}],
             "question_text": "what's your nation",
         },
@@ -37,7 +37,6 @@ template_with_valid_fields_and_no_question_should_return_none = {
     "questions": [],
     "version": VERSION,
     "date_created": DATE_CREATED,
-    "lang": LANGUAGE,
 }
 
 template_with_valid_fields_and_one_question_should_return_none = {
@@ -46,7 +45,6 @@ template_with_valid_fields_and_one_question_should_return_none = {
     "questions": [root_question],
     "version": VERSION,
     "date_created": DATE_CREATED,
-    "lang": LANGUAGE,
 }
 
 template_missing_required_field_classification_should_throw_exception = {
@@ -54,7 +52,6 @@ template_missing_required_field_classification_should_throw_exception = {
     "questions": [],
     "version": VERSION,
     "date_created": DATE_CREATED,
-    "lang": LANGUAGE,
 }
 
 template_missing_required_field_version_should_throw_exception = {
@@ -62,7 +59,6 @@ template_missing_required_field_version_should_throw_exception = {
     "id": ID,
     "questions": [],
     "date_created": DATE_CREATED,
-    "lang": LANGUAGE,
 }
 
 template_missing_required_field_questions_should_throw_exception = {
@@ -70,7 +66,6 @@ template_missing_required_field_questions_should_throw_exception = {
     "id": ID,
     "version": VERSION,
     "date_created": DATE_CREATED,
-    "lang": LANGUAGE,
 }
 
 template_field_classification_has_wrong_type_should_throw_exception = {
@@ -79,7 +74,6 @@ template_field_classification_has_wrong_type_should_throw_exception = {
     "questions": [],
     "version": VERSION,
     "date_created": DATE_CREATED,
-    "lang": LANGUAGE,
 }
 
 template_field_id_has_wrong_type_should_throw_exception = {
@@ -88,7 +82,6 @@ template_field_id_has_wrong_type_should_throw_exception = {
     "questions": [],
     "version": VERSION,
     "date_created": DATE_CREATED,
-    "lang": LANGUAGE,
 }
 
 template_field_questions_has_wrong_type_should_throw_exception = {
@@ -97,7 +90,6 @@ template_field_questions_has_wrong_type_should_throw_exception = {
     "questions": "string",
     "version": VERSION,
     "date_created": DATE_CREATED,
-    "lang": LANGUAGE,
 }
 
 template_field_version_has_wrong_type_should_throw_exception = {
@@ -106,7 +98,6 @@ template_field_version_has_wrong_type_should_throw_exception = {
     "questions": [],
     "version": 111,
     "date_created": DATE_CREATED,
-    "lang": LANGUAGE,
 }
 
 template_has_invalid_extra_field_should_throw_exception = {
@@ -116,7 +107,6 @@ template_has_invalid_extra_field_should_throw_exception = {
     "version": VERSION,
     "extra": "extra field is not acceptable",
     "date_created": DATE_CREATED,
-    "lang": LANGUAGE,
 }
 
 

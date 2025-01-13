@@ -1,5 +1,6 @@
 import random
 import string
+from typing import Any, cast
 
 import phonenumbers
 import pytest
@@ -24,6 +25,7 @@ def generate_random_phone_number():
 
 def get_example_phone_number():
     phone_number_obj = phonenumbers.example_number("CA")
+    assert phone_number_obj is not None
     print(phone_number_obj)
     phone_number = phonenumbers.format_number(
         phone_number_obj, phonenumbers.PhoneNumberFormat.E164
@@ -59,37 +61,31 @@ def test_register_user(auth_header):
 
 def test_edit_user(auth_header):
     url_edit_user = "http://localhost:5000/api/user/2"
+    username = "test_vht"
 
-    payload = {
-        "health_facility_name": "H0000",
-        "name": "TestVHT***",
-        "role": "VHT",
-        "email": "test_vht@email.com",
-        "supervises": [],
-        "phone_numbers": ["+1-666-666-6666", "+1-555-555-5555", "+1-777-777-7777"],
-        "phone_number": "+1-604-715-2845",
-    }
+    # Get test VHT.
+    vht = user_utils.get_user_data_from_username(username)
+    original_name = vht["name"]
+    new_name = "Test Name Changed"
+    vht = cast(dict[Any, Any], vht)
+    del vht["sms_key"]
 
+    # Edit VHT
+    vht["name"] = new_name
     response = requests.put(
         url_edit_user,
-        json=payload,
+        json=vht,
         headers=auth_header,
     )
     response_body = decamelize(response.json())
     print(response_body)
     assert response.status_code == 200
+    vht = user_utils.get_user_dict_from_username(username)
+    # Check that name has been changed correctly.
+    assert vht["name"] == new_name
 
     # Change the name back.
-    payload["name"] = "TestVHT"
-
-    response = requests.put(
-        url_edit_user,
-        json=payload,
-        headers=auth_header,
-    )
-    response_body = decamelize(response.json())
-    print(response_body)
-    assert response.status_code == 200
+    crud.update(UserOrm, {"name": original_name}, id=vht["id"])
 
 
 def test_get_all_users(auth_header):

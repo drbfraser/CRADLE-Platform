@@ -44,7 +44,7 @@ minimal_users_list: list[SeedUserDict] = [admin]
 
 users_list: list[SeedUserDict] = [
     {
-        "name": "Test VHT",
+        "name": "Test Vht",
         "username": "test_vht",
         "email": "test_vht@email.com",
         "password": "cradle-vht",

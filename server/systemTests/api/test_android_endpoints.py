@@ -110,7 +110,7 @@ def test_sync_patients_fully_successful(
     try:
         response = api_post(
             endpoint=f"/api/sync/patients?since={last_sync}",
-            json={"patients": [mobile_patient]},
+            json=[mobile_patient],
         )
         database.session.commit()
 
@@ -169,7 +169,7 @@ def test_sync_patients_fully_successful(
 
         response = api_post(
             endpoint=f"/api/sync/patients?since={last_sync}",
-            json={"patients": [mobile_patient]},
+            json=[mobile_patient],
         )
         database.session.commit()
 
@@ -209,9 +209,7 @@ def test_sync_patients_fully_successful(
         medical_record = medical_record_factory.create(**medical_record)
         drug_record = medical_record_factory.create(**drug_record)
 
-        response = api_post(
-            endpoint=f"/api/sync/patients?since={last_sync}", json={"patients": []}
-        )
+        response = api_post(endpoint=f"/api/sync/patients?since={last_sync}", json=[])
         database.session.commit()
 
         response_body = decamelize(response.json())
@@ -245,7 +243,7 @@ def test_sync_patients_fully_successful(
 
         response = api_post(
             endpoint=f"/api/sync/patients?since={last_sync}",
-            json={"patients": [server_patient]},
+            json=[server_patient],
         )
         database.session.commit()
 
@@ -307,7 +305,7 @@ def test_sync_patients_partially_successful(
 
         response = api_post(
             endpoint=f"/api/sync/patients?since={last_sync}",
-            json={"patients": [patient1, patient2]},
+            json=[patient1, patient2],
         )
         database.session.commit()
 
@@ -340,7 +338,7 @@ def test_sync_patients_partially_successful(
 
         response = api_post(
             endpoint=f"/api/sync/patients?since={last_sync}",
-            json={"patients": [patient1, patient2]},
+            json=[patient1, patient2],
         )
         database.session.commit()
 
@@ -402,7 +400,7 @@ def test_sync_patients_partially_successful(
 
         response = api_post(
             endpoint=f"/api/sync/patients?since={last_sync}",
-            json={"patients": [patient2]},
+            json=[patient2],
         )
         database.session.commit()
 
@@ -442,7 +440,7 @@ def test_sync_patients_partially_successful(
 
         response = api_post(
             endpoint=f"/api/sync/patients?since={last_sync}",
-            json={"patients": [patient2]},
+            json=[patient2],
         )
         database.session.commit()
 
@@ -497,7 +495,7 @@ def test_sync_readings(
     try:
         response = api_post(
             endpoint=f"/api/sync/readings?since={last_sync}",
-            json={"readings": [mobile_reading]},
+            json=[mobile_reading],
         )
         database.session.commit()
 

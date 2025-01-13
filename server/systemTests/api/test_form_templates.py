@@ -2,6 +2,7 @@ import json
 
 import pytest
 import requests
+from humps import decamelize
 
 from data import crud
 from models import FormClassificationOrm, FormTemplateOrm
@@ -14,17 +15,20 @@ def test_form_template_created_with_same_classification_ids(
         # Upload Form Templates via request body.
         response = api_post(endpoint="/api/forms/templates/body", json=form_template)
         database.session.commit()
-        print(response.json())
+        response_body = decamelize(response.json())
+        print(response_body)
         assert response.status_code == 201
 
         response = api_post(endpoint="/api/forms/templates/body", json=form_template3)
         database.session.commit()
-        print(response.json())
+        response_body = decamelize(response.json())
+        print(response_body)
         assert response.status_code == 409
 
         response = api_post(endpoint="/api/forms/templates/body", json=form_template4)
         database.session.commit()
-        print(response.json())
+        response_body = decamelize(response.json())
+        print(response_body)
         assert response.status_code == 201
     finally:
         classification_id = form_template["classification"]["id"]
@@ -57,7 +61,8 @@ def test_form_template_created(
             headers=auth_header,
         )
         database.session.commit()
-        print(response.json())
+        response_body = decamelize(response.json())
+        print(response_body)
         assert response.status_code == 201
 
         response = requests.post(
@@ -72,7 +77,8 @@ def test_form_template_created(
             headers=auth_header,
         )
         database.session.commit()
-        print(response.json())
+        response_body = decamelize(response.json())
+        print(response_body)
         assert response.status_code == 201
 
         # TODO: Test uploading a Form Template as a .csv file.
@@ -104,7 +110,8 @@ def test_form_template_archival(
             headers=auth_header,
         )
         database.session.commit()
-        print(response.json())
+        response_body = decamelize(response.json())
+        print(response_body)
         assert response.status_code == 201
 
         response = api_put(
@@ -112,7 +119,8 @@ def test_form_template_archival(
             json=update_info_in_question,
         )
         database.session.commit()
-        print(response.json())
+        response_body = decamelize(response.json())
+        print(response_body)
         assert response.status_code == 201
 
     finally:
@@ -129,7 +137,6 @@ def form_template():
         "version": "V1",
         "questions": [
             {
-                "id": "section header",
                 "category_index": None,
                 "question_index": 0,
                 "question_type": "CATEGORY",
@@ -146,7 +153,6 @@ def form_template():
                 ],
             },
             {
-                "id": "referred-by-name",
                 "category_index": 0,
                 "question_index": 1,
                 "question_type": "MULTIPLE_CHOICE",
@@ -189,7 +195,6 @@ def form_template_2():
         "version": "V2",
         "questions": [
             {
-                "id": "referred-by-name",
                 "category_index": None,
                 "question_index": 0,
                 "question_type": "MULTIPLE_CHOICE",
@@ -215,7 +220,6 @@ def form_template_2():
                 ],
             },
             {
-                "id": "section header",
                 "category_index": None,
                 "question_index": 1,
                 "question_type": "CATEGORY",
@@ -232,7 +236,6 @@ def form_template_2():
                 ],
             },
             {
-                "id": "referred-by-name",
                 "category_index": 1,
                 "question_index": 2,
                 "question_type": "MULTIPLE_CHOICE",
@@ -326,7 +329,6 @@ def remove_question():
         "version": "V1.2",
         "questions": [
             {
-                "id": "section header",
                 "category_index": None,
                 "question_index": 0,
                 "question_type": "CATEGORY",
@@ -352,7 +354,6 @@ def add_question():
         "version": "V1.3",
         "questions": [
             {
-                "id": "section header",
                 "category_index": None,
                 "question_index": 0,
                 "question_type": "CATEGORY",
@@ -369,7 +370,6 @@ def add_question():
                 ],
             },
             {
-                "id": "referred-by-name",
                 "category_index": 0,
                 "question_index": 1,
                 "question_type": "MULTIPLE_CHOICE",
@@ -401,7 +401,6 @@ def add_question():
                 ],
             },
             {
-                "id": "referred-by-name",
                 "category_index": None,
                 "question_index": 2,
                 "question_type": "MULTIPLE_CHOICE",

@@ -530,6 +530,7 @@ class FormOrm(db.Model):
         db.ForeignKey(UserOrm.id, ondelete="SET NULL"), nullable=True
     )
 
+    # TODO: Why do Forms have a foreign key to Form Classifications? This seems redundant.
     form_classification_id = db.Column(
         db.ForeignKey(FormClassificationOrm.id, ondelete="SET NULL"),
         nullable=True,
