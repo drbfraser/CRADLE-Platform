@@ -195,7 +195,7 @@ def get_form_template_version_as_csv(path: FormTemplateVersionPath):
 
 # /api/forms/templates/<string:form_template_id>
 class GetFormTemplateQuery(CradleBaseModel):
-    lang: Optional[str]
+    lang: Optional[str] = None
 
 
 # /api/forms/templates/<string:form_template_id> [GET]
