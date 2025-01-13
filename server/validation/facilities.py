@@ -54,7 +54,7 @@ class HealthFacilityModel(CradleBaseModel):
     )
 
 
-class HealthFacilityListResponse(RootModel[list[HealthFacilityModel]]):
+class HealthFacilityList(RootModel[list[HealthFacilityModel]]):
     model_config = dict(
         openapi_extra={
             "description": "An array of HealthFacility objects.",
@@ -66,7 +66,7 @@ class HealthFacilityListResponse(RootModel[list[HealthFacilityModel]]):
     )  # type: ignore[reportAssignmentType]
 
 
-class HealthFacilityNameListResponse(RootModel[list[str]]):
+class HealthFacilityNameList(RootModel[list[str]]):
     model_config = dict(
         openapi_extra={
             "description": "An array containing names of HealthFacility objects.",
@@ -75,7 +75,7 @@ class HealthFacilityNameListResponse(RootModel[list[str]]):
     )  # type: ignore[reportAssignmentType]
 
 
-class HealthFacilityNewReferrals(CradleBaseModel):
+class HealthFacilityWithNewReferrals(CradleBaseModel):
     new_referrals: Optional[int] = None
     model_config = dict(
         openapi_extra={

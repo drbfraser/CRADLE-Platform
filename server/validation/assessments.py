@@ -167,7 +167,7 @@ class AssessmentResponse(AssessmentModel):
     )
 
 
-class AssessmentListResponse(RootModel[list[AssessmentModel]]):
+class AssessmentList(RootModel[list[AssessmentModel]]):
     model_config = dict(
         openapi_extra={
             "description": "An array of Assessment objects.",

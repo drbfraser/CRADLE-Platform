@@ -85,19 +85,3 @@ def is_correct_date_format(s: Any) -> bool:
         return True
     except ValueError:
         return False
-
-
-class PatientSyncModel(PatientModel):
-    """
-    The mobile app stores pregnancy information inside of the Patient model.
-    We should really refactor that at some point. For now, the body of the sync
-    request will contain both patient and pregnancy data.
-    """
-
-    base: Optional[int] = None
-    pregnancy_start_date: Optional[int] = None
-    pregnancy_end_date: Optional[int] = None
-    pregnancy_outcome: Optional[str] = None
-    pregnancy_id: Optional[int] = None
-    medical_last_edited: Optional[int] = None
-    drug_last_edited: Optional[int] = None

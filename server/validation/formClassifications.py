@@ -19,7 +19,7 @@ class FormClassificationModel(CradleBaseModel, extra="forbid"):
     )
 
 
-class FormClassificationModelOptionalId(FormClassificationModel):
+class FormClassificationOptionalId(FormClassificationModel):
     id: Optional[str] = None
 
     model_config = dict(

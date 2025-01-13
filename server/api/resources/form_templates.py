@@ -19,7 +19,7 @@ from service import serialize
 from validation import CradleBaseModel
 from validation.file_upload import FileUploadForm
 from validation.formTemplates import (
-    FormTemplateFull,
+    FormTemplateLang,
     FormTemplateList,
     FormTemplateModel,
     FormTemplateUpload,
@@ -199,7 +199,7 @@ class GetFormTemplateQuery(CradleBaseModel):
 
 
 # /api/forms/templates/<string:form_template_id> [GET]
-@api_form_templates.get("/<string:form_template_id>", responses={200: FormTemplateFull})
+@api_form_templates.get("/<string:form_template_id>", responses={200: FormTemplateLang})
 def get_form_template_language_version(
     path: FormTemplateIdPath, query: GetFormTemplateQuery
 ):
@@ -208,7 +208,6 @@ def get_form_template_language_version(
     if form_template is None:
         return abort(404, description=f"No form with ID: {path.form_template_id}")
 
-    # WHY IS THE QUERY PARAM CALLED "lang" AND NOT "version"???
     version = query.lang
     if version is None:
         # admin user get template of full versions
@@ -263,7 +262,7 @@ def archive_form_template(path: FormTemplateIdPath, body: ArchiveFormTemplateBod
 # /api/forms/templates/blank/<string:form_template_id> [GET]
 @api_form_templates.get(
     "/blank/<string:form_template_id>",
-    responses={200: FormTemplateFull},
+    responses={200: FormTemplateLang},
 )
 def get_blank_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuery):
     """Get Blank Form Template"""

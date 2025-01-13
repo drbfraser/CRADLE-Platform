@@ -5,7 +5,7 @@ from typing_extensions import Self
 
 from utils import get_current_time
 from validation import CradleBaseModel
-from validation.questions import FormQuestion, UpdateFormQuestionModel
+from validation.questions import FormQuestion, UpdateFormQuestion
 
 
 class FormModel(CradleBaseModel, extra="forbid"):
@@ -32,6 +32,8 @@ class FormModel(CradleBaseModel, extra="forbid"):
 
 
 class UpdateFormRequestBody(CradleBaseModel, extra="forbid"):
+    """Request body for updating a submitted Form"""
+
     """
     example valid case:
     {
@@ -45,5 +47,4 @@ class UpdateFormRequestBody(CradleBaseModel, extra="forbid"):
         ]
     }
     """
-
-    questions: list[UpdateFormQuestionModel]
+    questions: list[UpdateFormQuestion]

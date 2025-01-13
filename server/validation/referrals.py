@@ -35,7 +35,5 @@ class CancelStatus(CradleBaseModel, extra="forbid"):
 
 
 # Manages non-attendance reasons with strict attribute enforcement to prevent unrecognized fields.
-
-
-class NotAttend(CradleBaseModel, extra="forbid"):
+class NotAttendReason(CradleBaseModel, extra="forbid"):
     not_attend_reason: str

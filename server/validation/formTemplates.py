@@ -8,7 +8,7 @@ from validation import CradleBaseModel
 from validation.formClassifications import (
     FormClassificationExamples,
     FormClassificationModel,
-    FormClassificationModelOptionalId,
+    FormClassificationOptionalId,
 )
 from validation.questions import TemplateQuestion
 
@@ -44,7 +44,7 @@ class FormTemplateModel(CradleBaseModel, extra="forbid"):
 
     model_config = dict(
         openapi_extra={
-            "description": "Form Template",
+            "description": "Form Template object",
             "example": FormTemplateExamples.example_01,
         }
     )
@@ -106,11 +106,15 @@ class FormTemplateWithQuestions(FormTemplateWithClassification):
 
 
 class FormTemplateUpload(FormTemplateWithQuestions):
+    """Model for validating an uploaded Form Template"""
+
     id: Optional[str] = None
-    classification: FormClassificationModelOptionalId
+    classification: FormClassificationOptionalId
 
 
-class FormTemplateFull(FormTemplateWithQuestions):
+class FormTemplateLang(FormTemplateWithQuestions):
+    """Form Template with lang field and nested Questions"""
+
     lang: str
 
 

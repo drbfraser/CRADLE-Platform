@@ -61,7 +61,7 @@ class UserModel(CradleBaseModel):
     supervises: list[int] = []
 
 
-class UserModelWithSmsKey(UserModel):
+class UserWithSmsKey(UserModel):
     sms_key: SmsKeyModel
 
 

@@ -17,7 +17,7 @@ from service import assoc, serialize, view
 from utils import get_current_time
 from validation.referrals import (
     CancelStatus,
-    NotAttend,
+    NotAttendReason,
     ReferralModel,
 )
 
@@ -153,7 +153,7 @@ def update_referral_cancel_status(path: ReferralIdPath, body: CancelStatus):
 
 # /api/referrals/not-attend/<string:referral_id> [PUT]
 @api_referrals.put("/referrals/not-attend/<string:referral_id>")
-def update_referral_not_attend(path: ReferralIdPath, body: NotAttend):
+def update_referral_not_attend(path: ReferralIdPath, body: NotAttendReason):
     """Update Referral (Not Attend)"""
     referral = crud.read(ReferralOrm, id=path.referral_id)
     if referral is None:

@@ -14,7 +14,7 @@ import config
 from authentication import cognito
 from common import user_utils
 from validation import CradleBaseModel
-from validation.users import UserModelWithSmsKey
+from validation.users import UserWithSmsKey
 
 LOGGER = logging.getLogger(__name__)
 
@@ -70,7 +70,7 @@ class Credentials(CradleBaseModel, extra="forbid"):
 
 class AuthenticationResponse(CradleBaseModel):
     access_token: str
-    user: UserModelWithSmsKey
+    user: UserWithSmsKey
 
     model_config = dict(
         openapi_extra={

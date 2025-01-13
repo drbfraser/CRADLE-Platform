@@ -12,7 +12,7 @@ from enums import RoleEnum
 from models import FormClassificationOrm, FormTemplateOrm
 from validation.formClassifications import (
     FormClassificationModel,
-    FormClassificationModelOptionalId,
+    FormClassificationOptionalId,
 )
 from validation.formTemplates import FormTemplateList
 
@@ -37,7 +37,7 @@ def get_all_form_classifications():
 # /api/forms/classifications [POST]
 @api_form_classifications.post("")
 @roles_required([RoleEnum.ADMIN])
-def create_form_classification(body: FormClassificationModelOptionalId):
+def create_form_classification(body: FormClassificationOptionalId):
     """Create Form Classification"""
     if body.id is not None:
         if crud.read(FormClassificationOrm, id=body.id):

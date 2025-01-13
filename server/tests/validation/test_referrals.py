@@ -3,7 +3,7 @@ from pydantic import ValidationError
 
 from validation.referrals import (
     CancelStatus,
-    NotAttend,
+    NotAttendReason,
     ReferralModel,
 )
 
@@ -262,16 +262,16 @@ not_attend_has_invalid_extra_field_should_throw_exception = {
             ValidationError,
             CancelStatus,
         ),
-        (not_attend_with_valid_fields_should_return_none, None, NotAttend),
+        (not_attend_with_valid_fields_should_return_none, None, NotAttendReason),
         (
             not_attend_field_not_attend_reason_has_wrong_type_should_throw_exception,
             ValidationError,
-            NotAttend,
+            NotAttendReason,
         ),
         (
             not_attend_has_invalid_extra_field_should_throw_exception,
             ValidationError,
-            NotAttend,
+            NotAttendReason,
         ),
     ],
 )

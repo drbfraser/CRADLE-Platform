@@ -10,10 +10,10 @@ from data import crud, marshal
 from enums import RoleEnum
 from models import HealthFacilityOrm
 from validation.facilities import (
-    HealthFacilityListResponse,
+    HealthFacilityList,
     HealthFacilityModel,
-    HealthFacilityNameListResponse,
-    HealthFacilityNewReferrals,
+    HealthFacilityNameList,
+    HealthFacilityWithNewReferrals,
 )
 
 # /api/facilities
@@ -27,7 +27,7 @@ api_facilities = APIBlueprint(
 
 
 # /api/facilities [GET]
-@api_facilities.get("", responses={200: HealthFacilityListResponse})
+@api_facilities.get("", responses={200: HealthFacilityList})
 def get_all_facilities():
     """Get All Health Facilities"""
     facilities = crud.read_all(HealthFacilityOrm)
@@ -35,7 +35,7 @@ def get_all_facilities():
 
 
 # /api/facilities/names [GET]
-@api_facilities.get("/names", responses={200: HealthFacilityNameListResponse})
+@api_facilities.get("/names", responses={200: HealthFacilityNameList})
 def get_all_facility_names():
     """
     Get All Health Facility Names
@@ -83,7 +83,7 @@ def get_facility(path: FacilityNamePath):
 
 # /api/facilities/<string:health_facility_name>/new_referrals [GET]
 @api_facilities.get(
-    "/<string:health_facility_name>", responses={200: HealthFacilityNewReferrals}
+    "/<string:health_facility_name>", responses={200: HealthFacilityWithNewReferrals}
 )
 def get_facility_new_referrals(path: FacilityNamePath):
     """Get Health Facility's New Referrals Timestamp"""

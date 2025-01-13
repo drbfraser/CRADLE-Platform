@@ -121,6 +121,6 @@ class FormQuestion(QuestionBase, extra="forbid"):
     answers: Optional[Answer] = None
 
 
-class UpdateFormQuestionModel(CradleBaseModel):
+class UpdateFormQuestion(CradleBaseModel):
     id: str
     answers: Answer
