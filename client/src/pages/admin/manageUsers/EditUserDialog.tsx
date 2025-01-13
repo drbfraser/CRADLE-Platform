@@ -75,6 +75,8 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
     }
   };
 
+  const healthFacilityNames = healthFacilities.map((facility) => facility.name);
+
   if (!editUser) return null;
   return (
     <>
@@ -144,7 +146,7 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
                     component={Autocomplete}
                     fullWidth
                     name={UserField.healthFacilityName}
-                    options={healthFacilities}
+                    options={healthFacilityNames}
                     disableClearable={true}
                     renderInput={(params: AutocompleteRenderInputParams) => (
                       <TextField

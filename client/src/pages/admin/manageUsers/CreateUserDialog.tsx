@@ -109,6 +109,8 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
     }
   };
 
+  const healthFacilityNames = healthFacilities.map((facility) => facility.name);
+
   return (
     <>
       <APIErrorToast
@@ -192,7 +194,7 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
                     component={Autocomplete}
                     fullWidth
                     name={UserField.healthFacilityName}
-                    options={healthFacilities}
+                    options={healthFacilityNames}
                     disableClearable={true}
                     renderInput={(params: AutocompleteRenderInputParams) => (
                       <TextField
