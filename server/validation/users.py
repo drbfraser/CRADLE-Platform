@@ -26,9 +26,8 @@ class UserExamples:
     health_facility_name = "H1000"
     role = "VHT"
     phone_numbers = ["+16043211234"]
-    sms_key = SmsKeyExamples.valid_example
 
-    valid_example = {
+    example_01 = {
         "id": id_01,
         "username": username,
         "name": name,
@@ -46,7 +45,7 @@ class UserExamples:
         "health_facility_name": health_facility_name,
         "role": role,
         "phone_numbers": phone_numbers,
-        "sms_key": sms_key,
+        "sms_key": SmsKeyExamples.example,
     }
 
 

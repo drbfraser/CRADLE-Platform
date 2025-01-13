@@ -14,7 +14,7 @@ import config
 from authentication import cognito
 from common import user_utils
 from validation import CradleBaseModel
-from validation.users import UserWithSmsKey
+from validation.users import UserExamples, UserWithSmsKey
 
 LOGGER = logging.getLogger(__name__)
 
@@ -38,6 +38,10 @@ api_auth = APIBlueprint(
     abp_tags=[Tag(name="Auth", description="")],
     abp_security=None,
 )
+
+
+class AuthExamples:
+    access_token = "eyJraWQiOiJUWEpoSUxsbzMzbDVOTkRwaDlXbTdCYkFMYU1MVVBIYUtKblpQV0xUS3FvPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIwODUxODNmMC05MDcxLTcwOGQtMWM5ZC1jNzNjNjMzODY0ZDYiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtd2VzdC0yLmFtYXpvbmF3cy5jb21cL3VzLXdlc3QtMl9IUDhRTnRxVzEiLCJjbGllbnRfaWQiOiIzODBmaHJjNHQ0bDBidmFwOHBpYm4zYWFibCIsIm9yaWdpbl9qdGkiOiIyMTFlYjdkMi02NzQzLTQyNjctODE5Zi01NDBkNjdhNzhiYTQiLCJldmVudF9pZCI6ImUwMWEyNDVmLTg4MmQtNGY5YS05MDgzLTMxOWQ3MDIwOWEzMCIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiYXdzLmNvZ25pdG8uc2lnbmluLnVzZXIuYWRtaW4iLCJhdXRoX3RpbWUiOjE3MzY4MDEwNjgsImV4cCI6MTczNjgwNDY2OCwiaWF0IjoxNzM2ODAxMDY4LCJqdGkiOiI1NWRkODNkOC03OGQxLTRjMDYtYmUyZS1lZjkzNzc3Y2Q0OWYiLCJ1c2VybmFtZSI6ImFkbWluIn0.gH4eMrCAsw4Z0sNW4NZEUVTIp7xFYXhoby2_Q-rrpR2g_2_wOEnH-Vv_XqAA6Y7usbTCoDJt6D120Vs8pusFCmOEtDCAyHVVXTG6BUJMHyD3tGF7tyOf4L1wI0vqAOm6jVWgTCQiOiThJ_wp3qL0EsIo44LziB1XnWrXPb3Nn8SJ7s3hpNMI0ZmNZhhnDDrP3V15DMkEnzuMH4Q2B6WgSUoozPwimcYh5IzNv2qAqAZGjdzmfocWGCeiTCMMz1R6prBDDJhfG_I7j120jc43TaxEjzhtah6Mp0IXWd6dC2y0lU237pedRS9HQQwZYnNLCNRdbBVXBSNIKY83846s3A"
 
 
 # We don't need to do any additional validation, as Cognito will validate the credentials for us.
@@ -75,12 +79,16 @@ class AuthenticationResponse(CradleBaseModel):
     model_config = dict(
         openapi_extra={
             "description": "Authentication Success Response",
+            "example": {
+                "accessToken": AuthExamples.access_token,
+                "user": UserExamples.with_sms_key,
+            },
         }
     )
 
 
 # /api/user/auth [POST]
-@api_auth.post("")
+@api_auth.post("", responses={200: AuthenticationResponse})
 @limiter.limit(
     "10 per minute, 20 per hour, 30 per day",
     error_message="Login attempt limit reached please try again later.",
@@ -141,13 +149,13 @@ def authenticate(body: Credentials):
     return response
 
 
-class RefreshTokenApiBody(CradleBaseModel):
+class RefreshTokenRequestBody(CradleBaseModel):
     username: str
 
 
 # /api/user/auth/refresh_token [POST]
 @api_auth.post("/refresh_token")
-def refresh_access_token(body: RefreshTokenApiBody):
+def refresh_access_token(body: RefreshTokenRequestBody):
     """
     Refresh Access Token
     Refreshes expired Access token and returns a new Access Token.
