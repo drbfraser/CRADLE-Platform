@@ -352,7 +352,7 @@ export type Question = {
 // with * options will be used in creating template
 export interface TQuestion {
   categoryIndex: OrNull<number>;
-  questionId: string | undefined;
+  id: string | undefined;
   questionLangVersions: QuestionLangVersion[];
   questionIndex: number;
   questionType: QuestionTypeEnum;

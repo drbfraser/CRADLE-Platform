@@ -347,7 +347,7 @@ const EditField = ({
     } else {
       if (question) {
         setFieldType(getFieldType(question.questionType));
-        setQuestionId(question.questionId ? question.questionId : '');
+        setQuestionId(question.id ? question.id : '');
         setVisibilityToggle(
           visibilityToggle || question.visibleCondition.length > 0
         );
@@ -483,9 +483,7 @@ const EditField = ({
                   variant="outlined"
                   fullWidth
                   multiline
-                  defaultValue={
-                    question && question.questionId ? question.questionId : ''
-                  }
+                  defaultValue={question && question.id ? question.id : ''}
                   size="small"
                   inputProps={{
                     maxLength: Number.MAX_SAFE_INTEGER,
@@ -774,7 +772,7 @@ const EditField = ({
                       (q) => q.questionIndex === question.questionIndex
                     );
                     if (questionToUpdate) {
-                      questionToUpdate.questionId = questionId;
+                      questionToUpdate.id = questionId;
                       questionToUpdate.questionLangVersions =
                         questionLangVersions;
                       questionToUpdate.questionType =
@@ -817,7 +815,7 @@ const EditField = ({
                       units: null,
                       visibleCondition: visibleCondition,
                       categoryIndex: categoryIndex,
-                      questionId: questionId,
+                      id: questionId,
                     });
                     form.questions.forEach((q, index) => {
                       if (q.categoryIndex && q.categoryIndex >= indexToInsert) {

@@ -356,7 +356,7 @@ const EditCategory = ({
                       units: null,
                       visibleCondition: visibleCondition,
                       categoryIndex: categoryIndex,
-                      questionId: undefined,
+                      id: undefined,
                     });
                   }
                   setVisibleCondition([]);

@@ -151,15 +151,21 @@ export const handleArchiveFormTemplateAsync = async (template: FormTemplate) =>
 
 export const saveFormTemplateWithFileAsync = async (file: File) => {
   // Axios will automatically serialize the object into proper form format.
+
   return axiosFetch.postForm(EndpointEnum.FORM_TEMPLATES, {
     file: file,
   });
 };
 
-export const submitFormTemplateAsync = async (
-  form: FormTemplateWithQuestions
+export const saveFormTemplateAsync = async (
+  formTemplate: FormTemplateWithQuestions
 ) => {
-  return axiosFetch.postForm(EndpointEnum.FORM_TEMPLATES, form);
+  // Sends FormTemplate to server via request body rather than as a file.
+  return axiosFetch({
+    method: 'POST',
+    url: `${EndpointEnum.FORM_TEMPLATES}/body`,
+    data: formTemplate,
+  });
 };
 
 export const getFormClassificationTemplates = async (
