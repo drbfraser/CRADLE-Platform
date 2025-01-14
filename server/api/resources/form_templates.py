@@ -153,7 +153,7 @@ def get_form_template_versions(path: FormTemplateIdPath):
     if form_template is None:
         return abort(404, description=f"No form with ID: {path.form_template_id}")
 
-    lang_list = crud.read_form_template_versions(form_template)
+    lang_list = crud.read_form_template_language_versions(form_template)
 
     return {"lang_versions": lang_list}, 200
 
@@ -217,7 +217,7 @@ def get_form_template_language_version(
             if_include_versions=True,
         )
 
-    available_versions = crud.read_form_template_versions(
+    available_versions = crud.read_form_template_language_versions(
         form_template,
         refresh=True,
     )
@@ -281,7 +281,7 @@ def get_blank_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuer
         blank_template = serialize.serialize_blank_form_template(blank_template)
         return blank_template
 
-    available_versions = crud.read_form_template_versions(
+    available_versions = crud.read_form_template_language_versions(
         form_template,
         refresh=True,
     )

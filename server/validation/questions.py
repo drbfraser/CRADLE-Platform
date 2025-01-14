@@ -103,13 +103,15 @@ class QuestionBase(CradleBaseModel, use_enum_values=True):
 
 
 class TemplateQuestion(QuestionBase, extra="forbid"):
-    question_lang_versions: list[QuestionLangVersionModel]
+    lang_versions: list[QuestionLangVersionModel]
     is_blank: bool = True  # Set to True for template questions
 
     @model_validator(mode="after")
     def set_lang_version_foreign_keys(self) -> Self:
-        for question_lang_version in self.question_lang_versions:
-            question_lang_version.question_id = self.id
+        if len(self.lang_versions) < 1:
+            raise ValueError("lang_versions cannot be empty")
+        for lang_version in self.lang_versions:
+            lang_version.question_id = self.id
         return self
 
 

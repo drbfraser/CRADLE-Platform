@@ -863,9 +863,11 @@ def read_questions(
     return query.all()
 
 
-def read_form_template_versions(model: FormTemplateOrm, refresh=False) -> List[str]:
+def read_form_template_language_versions(
+    model: FormTemplateOrm, refresh=False
+) -> List[str]:
     """
-    Quries the template for current lang versions
+    Queries the template for current language versions
 
     :param model: formTemplate model (here we assume the template is valid)
     :param refresh: refresh the model in case it is invalid for later use
