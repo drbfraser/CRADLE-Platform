@@ -61,7 +61,7 @@ export type MedicalRecord = {
   dateCreated: number;
   information: OrNull<string>;
   lastEdited: number;
-  medicalRecordId: number;
+  id: number;
 };
 
 export type Pregnancy = {

@@ -406,7 +406,7 @@ export const deletePregnancyAsync = async (pregnancy: Pregnancy) =>
 
 export const deleteMedicalRecordAsync = async (medicalRecord: MedicalRecord) =>
   axiosFetch({
-    url: EndpointEnum.MEDICAL_RECORDS + `/${medicalRecord.medicalRecordId}`,
+    url: EndpointEnum.MEDICAL_RECORDS + `/${medicalRecord.id}`,
     method: 'DELETE',
   });
 

@@ -37,7 +37,7 @@ export const MedicalHistory = ({
   const updateRowData = (records: MedicalRecord[]) => {
     setRows(
       records.map((record) => ({
-        id: record.medicalRecordId,
+        id: record.id,
         dateCreated: getPrettyDate(record.dateCreated),
         information: record.information,
         takeAction: record,
