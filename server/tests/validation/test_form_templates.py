@@ -15,7 +15,7 @@ root_question = {
     "num_max": None,
     "num_min": None,
     "question_index": 1,
-    "question_lang_versions": [
+    "lang_versions": [
         {
             "lang": LANGUAGE,
             "mc_options": [{"mc_id": 0, "opt": "england"}],

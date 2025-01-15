@@ -74,14 +74,12 @@ class FormTemplateWithQuestions(FormTemplateWithClassification):
             # lang versions consistency: all questions should have same kinds of versions
             # question_index constraint: question index in ascending order
             if index == 0:
-                lang_version_list = [v.lang for v in question.question_lang_versions]
+                lang_version_list = [v.lang for v in question.lang_versions]
                 lang_version_list.sort()
 
                 question_index = question.question_index
             else:
-                tmp_lang_version_list = [
-                    v.lang for v in question.question_lang_versions
-                ]
+                tmp_lang_version_list = [v.lang for v in question.lang_versions]
                 tmp_lang_version_list.sort()
                 if tmp_lang_version_list != lang_version_list:
                     raise ValueError(
