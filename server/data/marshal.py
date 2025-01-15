@@ -220,7 +220,7 @@ def __marshal_medical_record(r: MedicalRecordOrm) -> dict:
     d = {
         "id": r.id,
         "patient_id": r.patient_id,
-        "dataCreated": r.date_created,
+        "date_created": r.date_created,
         "last_edited": r.last_edited,
     }
 
