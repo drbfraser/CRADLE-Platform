@@ -26,7 +26,7 @@ api_form_submissions = APIBlueprint(
 
 
 # /api/forms/responses [POST]
-@api_form_submissions.post("")
+@api_form_submissions.post("", responses={201: FormModel})
 def submit_form(body: FormModel):
     """Submit Form"""
     if body.id is not None:
@@ -71,7 +71,7 @@ def submit_form(body: FormModel):
 
 
 # /api/forms/responses/<string:form_id> [GET]
-@api_form_submissions.get("/<string:form_id>")
+@api_form_submissions.get("/<string:form_id>", responses={200: FormModel})
 def get_form(path: FormIdPath):
     """Get Form"""
     form = crud.read(FormOrm, id=path.form_id)
@@ -82,7 +82,7 @@ def get_form(path: FormIdPath):
 
 
 # /api/forms/responses/<string:form_id> [PUT]
-@api_form_submissions.put("/<string:form_id>")
+@api_form_submissions.put("/<string:form_id>", responses={200: FormModel})
 def update_form(path: FormIdPath, body: UpdateFormRequestBody):
     """Update Form"""
     form = crud.read(FormOrm, id=path.form_id)
