@@ -15,16 +15,26 @@ from data import crud, marshal
 from models import MedicalRecordOrm
 from service import serialize, view
 from utils import get_current_time
-from validation.medicalRecords import MedicalRecordModel
+from validation import CradleBaseModel
+from validation.medicalRecords import DrugHistory, MedicalRecordList, MedicalRecordModel
 
 LOGGER = logging.getLogger(__name__)
 
 medical_records_tag = Tag(name="Medical Records", description="")
 
 
+class GetMedicalRecordsResponse(CradleBaseModel):
+    medical: MedicalRecordList
+    drug: MedicalRecordList
+
+
 # /api/patients/<string:patient_id>/medical_records [GET]
 @patient_association_required()
-@api_patients.get("/<string:patient_id>/medical_records", tags=[medical_records_tag])
+@api_patients.get(
+    "/<string:patient_id>/medical_records",
+    tags=[medical_records_tag],
+    responses={200: GetMedicalRecordsResponse},
+)
 def get_patients_medical_records(path: PatientIdPath, query: SearchFilterQueryParams):
     """Get Patient's Medical Records"""
     params = query.model_dump()
@@ -54,8 +64,23 @@ def create_medical_record(path: PatientIdPath, body: MedicalRecordModel):
     else:
         body.patient_id = path.patient_id
     new_medical_record = body.model_dump()
-    new_medical_record = _process_request_body(new_medical_record)
+    new_medical_record = _process_medical_history(new_medical_record)
     new_record = marshal.unmarshal(MedicalRecordOrm, new_medical_record)
+
+    crud.create(new_record, refresh=True)
+
+    return marshal.marshal(new_record), 201
+
+
+# /api/patients/<string:patient_id>/drug_history [PUT]
+@patient_association_required()
+@api_patients.put("/<string:patient_id>/drug_history", tags=[medical_records_tag])
+def update_patient_drug_history(path: PatientIdPath, body: DrugHistory):
+    """Update Patient Drug History"""
+    drug_history = body.model_dump()
+    drug_history = _process_medical_history(drug_history)
+    drug_history["patient_id"] = path.patient_id
+    new_record = marshal.unmarshal(MedicalRecordOrm, drug_history)
 
     crud.create(new_record, refresh=True)
 
@@ -93,7 +118,7 @@ def update_medical_record(path: RecordIdPath, body: MedicalRecordModel):
     if body.patient_id != old_record.patient_id:
         return abort(400, description="Patient ID cannot be changed.")
 
-    _process_request_body(update_medical_record)
+    _process_medical_history(update_medical_record)
     crud.update(MedicalRecordOrm, update_medical_record, id=path.record_id)
 
     new_record = crud.read(MedicalRecordOrm, id=path.record_id)
@@ -110,7 +135,7 @@ def delete_medical_record(path: RecordIdPath):
     return {"message": f"Deleted Medical Record with ID: {path.record_id}"}, 200
 
 
-def _process_request_body(request_body):
+def _process_medical_history(request_body):
     request_body["last_edited"] = get_current_time()
     # TODO: We should really refactor drug records into a separate Database model.
     if "is_drug_record" not in request_body or request_body["is_drug_record"] is None:

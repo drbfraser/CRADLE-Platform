@@ -336,8 +336,8 @@ export const saveDrugHistoryAsync = async (
   patientId: string
 ) =>
   axiosFetch({
-    url: EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.MEDICAL_RECORDS,
-    method: 'POST',
+    url: `${EndpointEnum.PATIENTS}/${patientId}/drug_history`,
+    method: 'PUT',
     data: {
       [AssessmentField.drugHistory]: drugHistory,
     },
