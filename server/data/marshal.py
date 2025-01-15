@@ -307,7 +307,7 @@ def __marshal_question(q: QuestionOrm, if_include_versions: bool) -> dict:
     d["answers"] = json.loads(answers)
 
     if if_include_versions:
-        d["question_lang_versions"] = [marshal(v) for v in q.lang_versions]
+        d["lang_versions"] = [marshal(v) for v in q.lang_versions]
 
     return d
 
