@@ -74,6 +74,7 @@ def serialize_pregnancy(pregnancy: PregnancyOrm) -> dict:
 def serialize_medical_record(record: MedicalRecordOrm) -> dict:
     return {
         "id": record.id,
+        "patient_id": record.patient_id,
         "information": record.information,
         "date_created": record.date_created,
         "last_edited": record.last_edited,

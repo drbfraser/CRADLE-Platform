@@ -16,7 +16,12 @@ from models import MedicalRecordOrm
 from service import serialize, view
 from utils import get_current_time
 from validation import CradleBaseModel
-from validation.medicalRecords import DrugHistory, MedicalRecordList, MedicalRecordModel
+from validation.medicalRecords import (
+    DrugHistory,
+    MedicalRecordExamples,
+    MedicalRecordList,
+    MedicalRecordModel,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -26,6 +31,15 @@ medical_records_tag = Tag(name="Medical Records", description="")
 class GetMedicalRecordsResponse(CradleBaseModel):
     medical: MedicalRecordList
     drug: MedicalRecordList
+
+    model_config = dict(
+        openapi_extra={
+            "example": {
+                "medical": [MedicalRecordExamples.medical_record],
+                "drug": [MedicalRecordExamples.drug_record],
+            }
+        }
+    )
 
 
 # /api/patients/<string:patient_id>/medical_records [GET]
@@ -49,7 +63,11 @@ def get_patients_medical_records(path: PatientIdPath, query: SearchFilterQueryPa
 
 # /api/patients/<string:patient_id>/medical_records [POST]
 @patient_association_required()
-@api_patients.post("/<string:patient_id>/medical_records", tags=[medical_records_tag])
+@api_patients.post(
+    "/<string:patient_id>/medical_records",
+    tags=[medical_records_tag],
+    responses={201: MedicalRecordModel},
+)
 def create_medical_record(path: PatientIdPath, body: MedicalRecordModel):
     """Create Medical Record"""
     if body.id is not None:
@@ -74,7 +92,11 @@ def create_medical_record(path: PatientIdPath, body: MedicalRecordModel):
 
 # /api/patients/<string:patient_id>/drug_history [PUT]
 @patient_association_required()
-@api_patients.put("/<string:patient_id>/drug_history", tags=[medical_records_tag])
+@api_patients.put(
+    "/<string:patient_id>/drug_history",
+    tags=[medical_records_tag],
+    responses={200: MedicalRecordModel},
+)
 def update_patient_drug_history(path: PatientIdPath, body: DrugHistory):
     """Update Patient Drug History"""
     drug_history = body.model_dump()
@@ -98,7 +120,7 @@ api_medical_records = APIBlueprint(
 
 
 # /api/medical_records/<string:record_id> [GET]
-@api_medical_records.get("/<string:record_id>")
+@api_medical_records.get("/<string:record_id>", responses={200: MedicalRecordModel})
 def get_medical_record(path: RecordIdPath):
     """Get Medical Record"""
     record = _get_medical_record(path.record_id)
@@ -106,7 +128,7 @@ def get_medical_record(path: RecordIdPath):
 
 
 # /api/medical_records/<string:record_id> [PUT]
-@api_medical_records.put("/<string:record_id>")
+@api_medical_records.put("/<string:record_id>", responses={200: MedicalRecordModel})
 def update_medical_record(path: RecordIdPath, body: MedicalRecordModel):
     """Update Medical Record"""
     update_medical_record = body.model_dump()
