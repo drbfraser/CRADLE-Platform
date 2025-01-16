@@ -562,13 +562,15 @@ def __unmarshal_form_template(d: dict) -> FormTemplateOrm:
     questions = []
     if d.get("questions") is not None:
         questions = unmarshal_question_list(d["questions"])
+        del d["questions"]
 
-    form_template = __load(FormTemplateOrm, d)
+    form_template_orm = FormTemplateOrm(**d)
 
-    if questions:
-        form_template.questions = questions
+    # form_template = __load(FormTemplateOrm, d)
 
-    return form_template
+    form_template_orm.questions = questions
+
+    return form_template_orm
 
 
 def __unmarshal_reading(d: dict) -> ReadingOrm:
@@ -614,34 +616,16 @@ def __unmarshal_question(d: dict) -> QuestionOrm:
 
     # Unmarshal any lang versions found within the question
     question_lang_version_orms: list[QuestionLangVersionOrm] = []
-    lang_version_dicts = d.get("question_lang_versions")
+    lang_version_dicts = d.get("lang_versions")
     if lang_version_dicts is not None:
-        del d["question_lang_versions"]
+        del d["lang_versions"]
+        question_lang_version_orms = [
+            unmarshal(QuestionLangVersionOrm, v) for v in lang_version_dicts
+        ]
 
     question_orm = __load(QuestionOrm, d)
 
-    # if d.get("question_lang_versions") is not None:
-    #     lang_versions = [
-    # unmarshal(QuestionLangVersionOrm, v) for v in d["question_lang_versions"]
-    #     ]
-    #     # Delete the entry so that we don't try to unmarshal them again by loading from
-    #     # the question schema.
-    #     del d["question_lang_versions"]
-
-    question_orm = __load(QuestionOrm, d)
-
-    if lang_version_dicts is not None:
-        for question_lang_version in lang_version_dicts:
-            mc_options = question_lang_version.get("mc_options")
-            if mc_options is not None:
-                if isinstance(mc_options, list):
-                    mc_options = json.dumps(mc_options)
-                    question_lang_version["mc_options"] = mc_options
-            question_lang_version_orm = QuestionLangVersionOrm(
-                question=question_orm,
-                **question_lang_version,
-            )
-            question_lang_version_orms.append(question_lang_version_orm)
+    question_orm.lang_versions = question_lang_version_orms
 
     return question_orm
 

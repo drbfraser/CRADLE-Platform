@@ -59,40 +59,45 @@ def handle_form_template_upload(form_template: FormTemplateUpload):
     Common logic for handling uploaded form template. Whether it was uploaded
     as a file, or in the request body.
     """
-    new_form_template = form_template.model_dump()
+    form_template_dict = form_template.model_dump()
+    util.assign_form_or_template_ids(FormTemplateOrm, form_template_dict)
+    form_classification_dict = form_template_dict["classification"]
+    del form_template_dict["classification"]
 
     # FormClassification is basically the name of the FormTemplate. FormTemplates can have multiple versions, and the FormClassification is used to group different versions of the same FormTemplate.
-    classification = crud.read(
+    form_classification_orm = crud.read(
         FormClassificationOrm,
-        id=form_template.classification.id,
+        id=form_classification_dict["id"],
     )
-    if classification is not None:
+    if form_classification_orm is None:
+        form_classification_orm = marshal.unmarshal(
+            FormClassificationOrm, form_classification_dict
+        )
+    else:
         if crud.read(
             FormTemplateOrm,
-            form_classification_id=classification.id,
+            form_classification_id=form_classification_orm.id,
             version=form_template.version,
         ):
             return abort(
                 409,
                 description="Form Template with the same version already exists - change the version to upload.",
             )
-
-        del new_form_template["classification"]
-        new_form_template["form_classification_id"] = classification.id
         previous_template = crud.read(
             FormTemplateOrm,
-            form_classification_id=classification.id,
+            form_classification_id=form_classification_orm.id,
             archived=False,
         )
         if previous_template is not None:
             previous_template.archived = True
             data.db_session.commit()
 
-    if form_template.id is None:
-        util.assign_form_or_template_ids(FormTemplateOrm, new_form_template)
-    form_template = marshal.unmarshal(FormTemplateOrm, new_form_template)
-    crud.create(form_template, refresh=True)
-    return marshal.marshal(form_template, shallow=True), 201
+    form_template_dict["form_classification_id"] = form_classification_orm.id
+
+    form_template_orm = marshal.unmarshal(FormTemplateOrm, form_template_dict)
+    form_template_orm.classification = form_classification_orm
+    crud.create(form_template_orm, refresh=True)
+    return marshal.marshal(form_template_orm, shallow=True), 201
 
 
 # /api/forms/templates [POST]

@@ -131,17 +131,19 @@ def test_form_template_archival(
 
 @pytest.fixture
 def form_template():
+    form_classification_id = "e141d855-37e2-421f-a517-9a2fc9437993"
     return {
-        "classification": {"id": "e141d855-37e2-421f-a517-9a2fc9437993", "name": "ft1"},
+        "classification": {"id": form_classification_id, "name": "fc1"},
         "id": "ft1",
         "version": "V1",
+        "form_classification_id": form_classification_id,
         "questions": [
             {
                 "category_index": None,
                 "question_index": 0,
                 "question_type": "CATEGORY",
                 "required": True,
-                "question_lang_versions": [
+                "lang_versions": [
                     {
                         "lang": "english",
                         "question_text": "information",
@@ -164,10 +166,10 @@ def form_template():
                         "answers": {"number": 4},
                     },
                 ],
-                "question_lang_versions": [
+                "lang_versions": [
                     {
                         "lang": "english",
-                        "question_text": "what's your sex?",
+                        "question_text": "Patient sex?",
                         "mc_options": [
                             {"mc_id": 0, "opt": "male"},
                             {"mc_id": 1, "opt": "female"},
@@ -190,7 +192,7 @@ def form_template():
 @pytest.fixture
 def form_template_2():
     return {
-        "classification": {"name": "ft2"},
+        "classification": {"name": "fc2"},
         "id": "ft2",
         "version": "V2",
         "questions": [
@@ -200,10 +202,10 @@ def form_template_2():
                 "question_type": "MULTIPLE_CHOICE",
                 "required": True,
                 "visible_condition": [],
-                "question_lang_versions": [
+                "lang_versions": [
                     {
                         "lang": "english",
-                        "question_text": "what's your sex?",
+                        "question_text": "Patient sex?",
                         "mc_options": [
                             {"mc_id": 0, "opt": "male"},
                             {"mc_id": 1, "opt": "female"},
@@ -224,7 +226,7 @@ def form_template_2():
                 "question_index": 1,
                 "question_type": "CATEGORY",
                 "required": True,
-                "question_lang_versions": [
+                "lang_versions": [
                     {
                         "lang": "english",
                         "question_text": "information",
@@ -241,10 +243,10 @@ def form_template_2():
                 "question_type": "MULTIPLE_CHOICE",
                 "required": True,
                 "visible_condition": [],
-                "question_lang_versions": [
+                "lang_versions": [
                     {
                         "lang": "english",
-                        "question_text": "what's your sex?",
+                        "question_text": "Patient sex?",
                         "mc_options": [
                             {"mc_id": 0, "opt": "male"},
                             {"mc_id": 1, "opt": "female"},
@@ -267,7 +269,7 @@ def form_template_2():
 @pytest.fixture
 def form_template3():
     return {
-        "classification": {"id": "e141d855-37e2-421f-a517-9a2fc9437993", "name": "ft1"},
+        "classification": {"id": "e141d855-37e2-421f-a517-9a2fc9437993", "name": "fc1"},
         "version": "V1",
         "questions": [
             {
@@ -276,7 +278,7 @@ def form_template3():
                 "question_index": 0,
                 "question_type": "CATEGORY",
                 "required": True,
-                "question_lang_versions": [
+                "lang_versions": [
                     {
                         "lang": "english",
                         "question_text": "information",
@@ -294,7 +296,7 @@ def form_template3():
 @pytest.fixture
 def form_template4():
     return {
-        "classification": {"id": "e141d855-37e2-421f-a517-9a2fc9437993", "name": "ft1"},
+        "classification": {"id": "e141d855-37e2-421f-a517-9a2fc9437993", "name": "fc1"},
         "version": "V2",
         "questions": [
             {
@@ -303,7 +305,7 @@ def form_template4():
                 "question_index": 0,
                 "question_type": "CATEGORY",
                 "required": True,
-                "question_lang_versions": [
+                "lang_versions": [
                     {
                         "lang": "english",
                         "question_text": "information",
@@ -333,7 +335,7 @@ def remove_question():
                 "question_index": 0,
                 "question_type": "CATEGORY",
                 "required": True,
-                "question_lang_versions": [
+                "lang_versions": [
                     {
                         "lang": "english",
                         "question_text": "information",
@@ -358,7 +360,7 @@ def add_question():
                 "question_index": 0,
                 "question_type": "CATEGORY",
                 "required": True,
-                "question_lang_versions": [
+                "lang_versions": [
                     {
                         "lang": "english",
                         "question_text": "information",
@@ -381,10 +383,10 @@ def add_question():
                         "answers": {"number": 4},
                     },
                 ],
-                "question_lang_versions": [
+                "lang_versions": [
                     {
                         "lang": "english",
-                        "question_text": "what's your sex?",
+                        "question_text": "Patient sex?",
                         "mc_options": [
                             {"mc_id": 0, "opt": "male"},
                             {"mc_id": 1, "opt": "female"},
@@ -406,10 +408,10 @@ def add_question():
                 "question_type": "MULTIPLE_CHOICE",
                 "required": True,
                 "visible_condition": [],
-                "question_lang_versions": [
+                "lang_versions": [
                     {
                         "lang": "english",
-                        "question_text": "what's your sex?",
+                        "question_text": "Patient sex?",
                         "mc_options": [
                             {"mc_id": 0, "opt": "male"},
                             {"mc_id": 1, "opt": "female"},

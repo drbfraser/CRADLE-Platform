@@ -198,8 +198,8 @@ def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
         elif model is FormTemplateOrm:
             question["form_template_id"] = id
 
-        if question.get("question_lang_versions") is not None:
-            for version in question.get("question_lang_versions"):
+        if question.get("lang_versions") is not None:
+            for version in question.get("lang_versions"):
                 version["question_id"] = question["id"]
 
 
@@ -232,7 +232,7 @@ def parseCondition(parentQuestion: dict, conditionText: str) -> dict:
         options = [option.strip().casefold() for option in conditionText.split(",")]
 
         previousQuestionOptions = mc_optionsToDict(
-            parentQuestion["question_lang_versions"][0]["mc_options"],
+            parentQuestion["lang_versions"][0]["mc_options"],
         )
 
         condition["answers"]["mc_id_array"] = []
@@ -297,7 +297,7 @@ def getFormTemplateDictFromCSV(csvData: str):
         categoryText: str,
     ) -> int | None:
         for category in categoryList:
-            for languageVersion in category["question_lang_versions"]:
+            for languageVersion in category["lang_versions"]:
                 if languageVersion["question_text"] == categoryText:
                     return category["question_index"]
 
@@ -367,7 +367,7 @@ def getFormTemplateDictFromCSV(csvData: str):
             "question_id": row[FORM_TEMPLATE_QUESTION_ID_COL],
             "question_index": question_index,
             "question_type": QuestionTypeEnum[type].value,
-            "question_lang_versions": [],
+            "lang_versions": [],
             "required": isQuestionRequired(row[FORM_TEMPLATE_QUESTION_REQUIRED_COL]),
             "num_max": toNumberOrNone(row[FORM_TEMPLATE_QUESTION_MAX_VALUE_COL]),
             "num_min": toNumberOrNone(row[FORM_TEMPLATE_QUESTION_MIN_VALUE_COL]),
@@ -422,7 +422,7 @@ def getFormTemplateDictFromCSV(csvData: str):
 
             question_lang_versions[language] = getQuestionLanguageVersionFromRow(row)
 
-        question["question_lang_versions"] = list(question_lang_versions.values())
+        question["lang_versions"] = list(question_lang_versions.values())
 
         if type == "CATEGORY":
             categoryList.append(question)
