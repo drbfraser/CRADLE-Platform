@@ -31,7 +31,6 @@ class Config:
         db_hostname = env("DB_HOSTNAME")
         db_port = env("DB_PORT")
         db_name = env("DB_NAME")
-        JWT_SECRET_KEY = env("JWT_SECRET_KEY")
 
     except environs.EnvError:
         print(
@@ -50,7 +49,6 @@ class Config:
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(days=7)
     LOGGING: ClassVar = {
         "version": 1,
         "disable_existing_loggers": False,
