@@ -8,9 +8,8 @@ import {
   ReferralPendingCard,
 } from './Cards';
 import { Box, Divider, Grid, Paper } from '@mui/material';
-import { Filter, FilterRequestBody, Patient, Referral } from 'src/shared/types';
+import { Filter, FilterRequestBody, Referral } from 'src/shared/types';
 import {
-  getPatientAsync,
   getPatientRecordsAsync,
   getPatientReferralsAsync,
 } from 'src/shared/api/api';
@@ -28,6 +27,7 @@ import { PersonalInfo } from './PersonalInfo';
 import { PregnancyInfo } from './PregnancyInfo';
 import { SexEnum } from 'src/shared/enums';
 import Typography from '@mui/material/Typography';
+import usePatient from 'src/shared/hooks/patient';
 
 type RouteParams = {
   patientId: string;
@@ -56,14 +56,10 @@ export const PatientPage = () => {
   const navigate = useNavigate();
 
   const { patientId } = useParams() as RouteParams;
-
-  const [patient, setPatient] = useState<Patient>();
   const [cards, setCards] = useState<JSX.Element[]>([]);
-
   const [errorLoading, setErrorLoading] = useState(false);
   const [hasPendingReferral, setHasPendingReferral] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-
   const [filterRequestBody, setFilterRequestBody] = useState<FilterRequestBody>(
     {
       referrals: true,
@@ -73,16 +69,12 @@ export const PatientPage = () => {
     }
   );
 
-  useEffect(() => {
-    const loadPatient = async () => {
-      try {
-        const patient: Patient = await getPatientAsync(patientId);
-        setPatient(patient);
-      } catch (e) {
-        setErrorLoading(true);
-      }
-    };
+  const [patient, errorLoadingPatient] = usePatient(patientId);
+  if (errorLoadingPatient) {
+    setErrorLoading(true);
+  }
 
+  useEffect(() => {
     const loadPatientReferrals = async () => {
       try {
         const referrals: Referral[] = await getPatientReferralsAsync(patientId);
@@ -100,7 +92,6 @@ export const PatientPage = () => {
       }
     };
 
-    loadPatient();
     loadPatientReferrals();
   }, [patientId]);
 
