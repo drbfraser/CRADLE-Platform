@@ -8,18 +8,17 @@ from models import HealthFacilityOrm, PatientOrm, UserOrm
 from service import assoc
 from validation.associations import PatientAssociationModel
 
-# TODO: Change this path to be in snake case.
-# /api/patientAssociations
+# /api/patient_associations
 api_patient_associations = APIBlueprint(
     name="patient_associations",
     import_name=__name__,
-    url_prefix="/patientAssociations",
+    url_prefix="/patient_associations",
     abp_tags=[Tag(name="Patient Associations", description="")],
     abp_security=[{"jwt": []}],
 )
 
 
-# /api/patientAssociations [POST]
+# /api/patient_associations [POST]
 @api_patient_associations.post("")
 def create_patient_association(body: PatientAssociationModel):
     """Create Patient Association"""
