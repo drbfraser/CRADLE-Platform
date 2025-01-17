@@ -1,5 +1,6 @@
 from humps import decamelize
 
+from common.print_utils import pretty_print
 from data import crud
 from models import MedicalRecordOrm
 
@@ -11,9 +12,9 @@ def test_get_record(create_patient, medical_record_factory, medical_record, api_
     record_id = medical_record["id"]
     response = api_get(endpoint=f"/api/medical_records/{record_id}")
 
-    print(response.json())
-    assert response.status_code == 200
     response_body = decamelize(response.json())
+    pretty_print(response_body)
+    assert response.status_code == 200
     assert response_body["medical_history"] == medical_record["information"]
 
 
@@ -28,12 +29,14 @@ def test_put_record(create_patient, medical_record_factory, drug_record, api_put
         json={
             "id": drug_record["id"],
             "patient_id": drug_record["patient_id"],
-            "drug_history": info,
+            "information": info,
+            "is_drug_record": True,
         },
     )
     new_record = crud.read(MedicalRecordOrm, id=record_id)
 
-    print(response.json())
+    response_body = decamelize(response.json())
+    pretty_print(response_body)
     assert response.status_code == 200
     assert new_record is not None
     assert new_record.information == info
@@ -54,19 +57,22 @@ def test_post_and_delete_record(
     record = {
         "id": record_id,
         "patient_id": medical_record["patient_id"],
-        "medical_history": medical_record["information"],
+        "information": medical_record["information"],
+        "is_drug_record": False,
     }
     response = api_post(
         endpoint=f"/api/patients/{patient_id}/medical_records",
         json=record,
     )
 
-    new_record = crud.read(MedicalRecordOrm, id=record_id)
-
-    print(response.json())
+    response_body = decamelize(response.json())
+    pretty_print(response_body)
     assert response.status_code == 201
+
+    new_record = crud.read(MedicalRecordOrm, id=record_id)
+    assert new_record is not None
     assert new_record.patient_id == patient_id
-    assert new_record.information == record["medical_history"]
+    assert new_record.information == record["information"]
     assert not new_record.is_drug_record
 
     response = api_delete(endpoint=f"/api/medical_records/{record_id}")
@@ -89,9 +95,9 @@ def test_get_record_lists(
     medical_record_factory.create(**drug_record)
 
     response = api_get(endpoint=f"/api/patients/{patient_id}/medical_records")
-    response_body = decamelize(response.json())
 
-    print(response_body)
+    response_body = decamelize(response.json())
+    pretty_print(response_body)
     assert response.status_code == 200
     assert len(response_body["medical"]) >= 1
     assert len(response_body["drug"]) >= 1
@@ -109,10 +115,15 @@ def test_invalid_record_not_updated(
     record_id = drug_record["id"]
     response = api_put(
         endpoint=f"/api/medical_records/{record_id}",
-        json={"patient_id": "0", "drug_history": drug_record["information"]},
+        json={
+            "patient_id": "0",
+            "information": drug_record["information"],
+            "is_drug_record": True,
+        },
     )
 
-    print(response.json())
+    response_body = decamelize(response.json())
+    pretty_print(response_body)
     record = crud.read(MedicalRecordOrm, id=record_id)
     assert record is not None
     assert response.status_code == 400
@@ -132,10 +143,14 @@ def test_invalid_record_not_created(
     # Missing `patient_id` field.
     response = api_post(
         endpoint=f"/api/patients/{patient_id}/medical_records",
-        json={"drug_history": "Aspirin 75mg"},
+        json={
+            "information": "Aspirin 75mg",
+            "is_drug_record": True,
+        },
     )
 
-    print(response.json())
+    response_body = decamelize(response.json())
+    pretty_print(response_body)
     assert response.status_code == 422
 
 
@@ -154,9 +169,11 @@ def test_record_conflict_not_created(
         json={
             "id": drug_record["id"],
             "patient_id": drug_record["patient_id"],
-            "drug_history": "Aspirin 75mg",
+            "information": "Aspirin 75mg",
+            "is_drug_record": True,
         },
     )
 
-    print(response.json())
+    response_body = decamelize(response.json())
+    pretty_print(response_body)
     assert response.status_code == 409

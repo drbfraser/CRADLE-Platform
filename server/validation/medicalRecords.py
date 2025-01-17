@@ -37,7 +37,7 @@ class MedicalRecordModel(CradleBaseModel, extra="forbid"):
     patient_id: str
     information: str
     date_created: Optional[int] = Field(default_factory=get_current_time)
-    last_edited: Optional[int] = None
+    last_edited: Optional[int] = Field(default_factory=get_current_time)
     is_drug_record: bool
 
     model_config = dict(

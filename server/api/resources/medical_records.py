@@ -82,7 +82,6 @@ def create_medical_record(path: PatientIdPath, body: MedicalRecordModel):
     else:
         body.patient_id = path.patient_id
     new_medical_record = body.model_dump()
-    new_medical_record = _process_medical_history(new_medical_record)
     new_record = marshal.unmarshal(MedicalRecordOrm, new_medical_record)
 
     crud.create(new_record, refresh=True)
@@ -140,7 +139,6 @@ def update_medical_record(path: RecordIdPath, body: MedicalRecordModel):
     if body.patient_id != old_record.patient_id:
         return abort(400, description="Patient ID cannot be changed.")
 
-    _process_medical_history(update_medical_record)
     crud.update(MedicalRecordOrm, update_medical_record, id=path.record_id)
 
     new_record = crud.read(MedicalRecordOrm, id=path.record_id)

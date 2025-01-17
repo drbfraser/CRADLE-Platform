@@ -1,3 +1,9 @@
-import pprint
+import json
 
-pprinter = pprint.PrettyPrinter(indent=4, compact=False, sort_dicts=False)
+
+def pretty_print(obj):
+    if isinstance(obj, str):
+        print(obj)
+    else:
+        formatted_string = json.dumps(obj, indent=4, sort_keys=False)
+        print(formatted_string)
