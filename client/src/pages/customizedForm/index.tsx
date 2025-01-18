@@ -1,55 +1,25 @@
 import { CForm } from 'src/shared/types';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { CustomizedForm } from './customizedEditForm/CustomizedForm';
-import IconButton from '@mui/material/IconButton';
 import { SelectHeaderForm } from './customizedFormHeader/SelectHeaderForm';
-import Tooltip from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useState } from 'react';
 import { FormRenderStateEnum } from 'src/shared/enums';
-import { Box, Skeleton, styled } from '@mui/material';
+import { Box } from '@mui/material';
 import usePatient from 'src/shared/hooks/patient';
+import PatientHeader from 'src/shared/components/patientHeader/PatientHeader';
 
 type RouteParams = {
   patientId: string;
 };
 
-const Container = styled(Box)(() => ({
-  maxWidth: 1250,
-  margin: '0 auto',
-}));
-
-const Header = styled(Box)(() => ({
-  display: 'flex',
-  alignItems: 'center',
-}));
-
 export const CustomizedFormPage = () => {
   const { patientId } = useParams() as RouteParams;
   const [form, setForm] = useState<CForm>();
-  const navigate = useNavigate();
-
   const [patient] = usePatient(patientId);
 
   return (
-    <Container>
-      <Header>
-        <Tooltip title="Go back" placement="top">
-          <IconButton
-            onClick={() => navigate(`/patients/${patientId}`)}
-            size="large">
-            <ChevronLeftIcon color="inherit" fontSize="large" />
-          </IconButton>
-        </Tooltip>
-        <Typography variant={'h4'} component={'h4'}>
-          {patient ? (
-            `New Form for: ${patient.name} (${patient.id})`
-          ) : (
-            <Skeleton width={500} />
-          )}
-        </Typography>
-      </Header>
+    <Box sx={{ margin: '0 auto', maxWidth: 1250 }}>
+      <PatientHeader title="New Form" patient={patient} />
 
       <SelectHeaderForm setForm={setForm} />
       {form && form.questions && form!.questions!.length > 0 && (
@@ -59,6 +29,6 @@ export const CustomizedFormPage = () => {
           renderState={FormRenderStateEnum.FIRST_SUBMIT}
         />
       )}
-    </Container>
+    </Box>
   );
 };
