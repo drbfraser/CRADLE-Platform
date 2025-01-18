@@ -24,34 +24,42 @@ type RouteParams = {
   patientId: string;
 };
 
+const pages = [
+  {
+    name: 'Symptoms',
+    component: Symptoms,
+    validationSchema: undefined,
+  },
+  {
+    name: 'Vital Signs',
+    component: VitalSigns,
+    validationSchema: vitalSignsValidationSchema,
+  },
+  {
+    name: 'Confirmation',
+    component: Confirmation,
+    validationSchema: undefined,
+  },
+];
+
 export const ReadingFormPage = () => {
   const theme = useTheme();
   const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
-  const navigate = useNavigate();
 
   const { patientId } = useParams() as RouteParams;
+  const navigate = useNavigate();
+
   const [submitError, setSubmitError] = useState(false);
   const [pageNum, setPageNum] = useState(0);
   const [formInitialState, setFormInitialState] = useState<ReadingState>(); // change needed in the ReadingState?
   const [drugHistory, setDrugHistory] = useState('');
 
-  const pages = [
-    {
-      name: 'Symptoms',
-      component: Symptoms,
-      validationSchema: undefined,
-    },
-    {
-      name: 'Vital Signs',
-      component: VitalSigns,
-      validationSchema: vitalSignsValidationSchema,
-    },
-    {
-      name: 'Confirmation',
-      component: Confirmation,
-      validationSchema: undefined,
-    },
-  ];
+  useEffect(() => {
+    getReadingState(patientId).then((state) => {
+      setDrugHistory(state.drugHistory);
+      setFormInitialState(state);
+    });
+  }, [patientId]);
 
   const PageComponent = pages[pageNum].component;
   const isFinalPage = pageNum === pages.length - 1;
@@ -76,25 +84,18 @@ export const ReadingFormPage = () => {
     }
   };
 
-  useEffect(() => {
-    getReadingState(patientId).then((state) => {
-      setDrugHistory(state.drugHistory);
-      setFormInitialState(state);
-    });
-  }, [patientId]);
-
   return (
     <Box
       sx={{
-        maxWidth: '1250px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '2rem',
         margin: '0 auto',
+        maxWidth: '1250px',
       }}>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
-      <Box
-        sx={{
-          display: `flex`,
-          alignItems: `center`,
-        }}>
+
+      <Box sx={{ display: `flex`, alignItems: `center` }}>
         <Tooltip title="Go back" placement="top">
           <IconButton
             onClick={() => navigate(`/patients/${patientId}`)}
@@ -106,7 +107,7 @@ export const ReadingFormPage = () => {
           New Reading for Patient {patientId}
         </Typography>
       </Box>
-      <br />
+
       <Stepper
         activeStep={pageNum}
         orientation={isBigScreen ? 'horizontal' : 'vertical'}>
@@ -116,7 +117,7 @@ export const ReadingFormPage = () => {
           </Step>
         ))}
       </Stepper>
-      <br />
+
       {formInitialState === undefined ? (
         <LinearProgress />
       ) : (
@@ -127,20 +128,20 @@ export const ReadingFormPage = () => {
           {(formikProps: FormikProps<ReadingState>) => (
             <Form>
               <PageComponent formikProps={formikProps} />
-              <br />
-              <SecondaryButton
-                onClick={() => setPageNum(pageNum - 1)}
-                disabled={pageNum === 0 || formikProps.isSubmitting}>
-                Back
-              </SecondaryButton>
-              <PrimaryButton
-                sx={{
-                  float: 'right',
-                }}
-                type="submit"
-                disabled={formikProps.isSubmitting}>
-                {isFinalPage ? 'Create' : 'Next'}
-              </PrimaryButton>
+
+              <Box sx={{ marginTop: '2rem' }}>
+                <SecondaryButton
+                  onClick={() => setPageNum(pageNum - 1)}
+                  disabled={pageNum === 0 || formikProps.isSubmitting}>
+                  Back
+                </SecondaryButton>
+                <PrimaryButton
+                  sx={{ float: 'right' }}
+                  type="submit"
+                  disabled={formikProps.isSubmitting}>
+                  {isFinalPage ? 'Create' : 'Next'}
+                </PrimaryButton>
+              </Box>
             </Form>
           )}
         </Formik>
