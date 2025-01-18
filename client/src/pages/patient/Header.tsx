@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { IconButton, Tooltip, Typography } from '@mui/material';
+import { Box, IconButton, Tooltip, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { Add } from '@mui/icons-material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -7,6 +7,7 @@ import Skeleton from '@mui/material/Skeleton';
 
 import { Patient } from 'src/shared/types';
 import { PrimaryButton } from 'src/shared/components/Button';
+import PatientHeader from 'src/shared/components/patientHeader/PatientHeader';
 
 interface IProps {
   patient?: Patient;
@@ -50,18 +51,11 @@ export const Header = ({
   return (
     <Grid container justifyContent="space-between" mb={2}>
       <Grid container alignItems="center">
-        <Tooltip title="Go back" placement="top">
-          <IconButton onClick={() => navigate('/patients')} size="large">
-            <ChevronLeftIcon color="inherit" fontSize="large" />
-          </IconButton>
-        </Tooltip>
-        <Typography variant="h4">
-          {patient ? (
-            `Patient Summary for: ${patient.name} (${patient.id})`
-          ) : (
-            <Skeleton width={500} />
-          )}
-        </Typography>
+        <PatientHeader
+          title="Patient Summary"
+          patient={patient}
+          goBackRoute="/patients"
+        />
       </Grid>
 
       <Grid

@@ -7,9 +7,10 @@ import { Patient } from 'src/shared/types';
 interface IProps {
   patient: Patient | undefined;
   title: string;
+  goBackRoute?: string;
 }
 
-const PatientHeader = ({ patient, title }: IProps) => {
+const PatientHeader = ({ patient, title, goBackRoute }: IProps) => {
   const navigate = useNavigate();
 
   if (!patient) {
@@ -19,7 +20,7 @@ const PatientHeader = ({ patient, title }: IProps) => {
     <Box sx={{ display: `flex`, alignItems: `center` }}>
       <Tooltip title="Go back" placement="top">
         <IconButton
-          onClick={() => navigate(`/patients/${patient.id}`)}
+          onClick={() => navigate(goBackRoute ?? `/patients/${patient.id}`)}
           size="large">
           <ChevronLeftIcon color="inherit" fontSize="large" />
         </IconButton>
