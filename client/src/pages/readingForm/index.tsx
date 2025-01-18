@@ -1,11 +1,7 @@
-import { Form, Formik, FormikHelpers, FormikProps } from 'formik';
-import { PrimaryButton, SecondaryButton } from 'src/shared/components/Button';
-import { ReadingState, getReadingState } from './state';
 import { useEffect, useState } from 'react';
-
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Form, Formik, FormikHelpers, FormikProps } from 'formik';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import { Confirmation } from './confirmation';
 import IconButton from '@mui/material/IconButton';
 import LinearProgress from '@mui/material/LinearProgress';
 import Step from '@mui/material/Step/Step';
@@ -14,11 +10,15 @@ import Stepper from '@mui/material/Stepper/Stepper';
 import { Symptoms } from './symptoms';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import { VitalSigns } from './vitalSigns';
-import { handleSubmit } from './handlers';
-import { useNavigate, useParams } from 'react-router-dom';
-import { vitalSignsValidationSchema } from './vitalSigns/validation';
 import { Box, useMediaQuery, useTheme } from '@mui/material';
+
+import { PrimaryButton, SecondaryButton } from 'src/shared/components/Button';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { VitalSigns } from './vitalSigns';
+import { vitalSignsValidationSchema } from './vitalSigns/validation';
+import { ReadingState, getReadingState } from './state';
+import { Confirmation } from './confirmation';
+import { handleSubmit } from './handlers';
 
 type RouteParams = {
   patientId: string;
