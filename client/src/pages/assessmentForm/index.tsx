@@ -2,13 +2,11 @@ import { AssessmentState, getAssessmentState } from './state';
 import { useEffect, useState } from 'react';
 
 import { AssessmentForm } from './AssessmentForm';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import IconButton from '@mui/material/IconButton';
 import LinearProgress from '@mui/material/LinearProgress';
-import Tooltip from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Box } from '@mui/material';
+import { useParams } from 'react-router-dom';
+import PatientHeader from 'src/shared/components/patientHeader/PatientHeader';
+import usePatient from 'src/shared/hooks/patient';
+import { FormContainer } from 'src/shared/components/layout/FormContainer';
 
 type RouteParams = {
   patientId: string;
@@ -18,37 +16,21 @@ type RouteParams = {
 
 export const AssessmentFormPage = () => {
   const { patientId, assessmentId, referralId } = useParams() as RouteParams;
+  const [patient] = usePatient(patientId);
   const [formInitialState, setFormInitialState] = useState<AssessmentState>();
 
   useEffect(() => {
     getAssessmentState(patientId, assessmentId).then(setFormInitialState);
   }, [patientId, assessmentId]);
 
-  const navigate = useNavigate();
-
   return (
-    <Box
-      sx={{
-        maxWidth: 1250,
-        margin: '0 auto',
-      }}>
-      <Box
-        sx={{
-          display: `flex`,
-          alignItems: `center`,
-        }}>
-        <Tooltip title="Go back" placement="top">
-          <IconButton
-            onClick={() => navigate(`/patients/${patientId}`)}
-            size="large">
-            <ChevronLeftIcon color="inherit" fontSize="large" />
-          </IconButton>
-        </Tooltip>
-        <Typography variant="h4">
-          {`${assessmentId !== undefined ? 'Update' : 'New'} Assessment`}
-        </Typography>
-      </Box>
-      <br />
+    <FormContainer
+      sx={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <PatientHeader
+        title={`${assessmentId !== undefined ? 'Update' : 'New'} Assessment`}
+        patient={patient}
+      />
+
       {formInitialState === undefined ? (
         <LinearProgress />
       ) : (
@@ -59,6 +41,6 @@ export const AssessmentFormPage = () => {
           referralId={referralId}
         />
       )}
-    </Box>
+    </FormContainer>
   );
 };
