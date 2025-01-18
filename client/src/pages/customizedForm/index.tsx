@@ -8,28 +8,33 @@ import Typography from '@mui/material/Typography';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useState } from 'react';
 import { FormRenderStateEnum } from 'src/shared/enums';
-import { Box } from '@mui/material';
+import { Box, Skeleton, styled } from '@mui/material';
+import usePatient from 'src/shared/hooks/patient';
 
 type RouteParams = {
   patientId: string;
 };
+
+const Container = styled(Box)(() => ({
+  maxWidth: 1250,
+  margin: '0 auto',
+}));
+
+const Header = styled(Box)(() => ({
+  display: 'flex',
+  alignItems: 'center',
+}));
 
 export const CustomizedFormPage = () => {
   const { patientId } = useParams() as RouteParams;
   const [form, setForm] = useState<CForm>();
   const navigate = useNavigate();
 
+  const [patient] = usePatient(patientId);
+
   return (
-    <Box
-      sx={{
-        maxWidth: 1250,
-        margin: '0 auto',
-      }}>
-      <Box
-        sx={{
-          display: `flex`,
-          alignItems: `center`,
-        }}>
+    <Container>
+      <Header>
         <Tooltip title="Go back" placement="top">
           <IconButton
             onClick={() => navigate(`/patients/${patientId}`)}
@@ -38,9 +43,13 @@ export const CustomizedFormPage = () => {
           </IconButton>
         </Tooltip>
         <Typography variant={'h4'} component={'h4'}>
-          New Form for {patientId}
+          {patient ? (
+            `New Form for: ${patient.name} (${patient.id})`
+          ) : (
+            <Skeleton width={500} />
+          )}
         </Typography>
-      </Box>
+      </Header>
 
       <SelectHeaderForm setForm={setForm} />
       {form && form.questions && form!.questions!.length > 0 && (
@@ -50,6 +59,6 @@ export const CustomizedFormPage = () => {
           renderState={FormRenderStateEnum.FIRST_SUBMIT}
         />
       )}
-    </Box>
+    </Container>
   );
 };
