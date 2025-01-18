@@ -1,12 +1,12 @@
-import { AssessmentState, getAssessmentState } from './state';
 import { useEffect, useState } from 'react';
-
-import { AssessmentForm } from './AssessmentForm';
-import LinearProgress from '@mui/material/LinearProgress';
 import { useParams } from 'react-router-dom';
+import LinearProgress from '@mui/material/LinearProgress';
+
 import PatientHeader from 'src/shared/components/patientHeader/PatientHeader';
 import usePatient from 'src/shared/hooks/patient';
 import { FormContainer } from 'src/shared/components/layout/FormContainer';
+import { AssessmentForm } from './AssessmentForm';
+import { AssessmentState, getAssessmentState } from './state';
 
 type RouteParams = {
   patientId: string;
