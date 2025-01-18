@@ -1,21 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Form, Formik, FormikHelpers, FormikProps } from 'formik';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import IconButton from '@mui/material/IconButton';
 import LinearProgress from '@mui/material/LinearProgress';
 import Step from '@mui/material/Step/Step';
 import StepLabel from '@mui/material/StepLabel/StepLabel';
 import Stepper from '@mui/material/Stepper/Stepper';
-import { Symptoms } from './symptoms';
-import Tooltip from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
 import { Box, useMediaQuery, useTheme } from '@mui/material';
 
 import { PrimaryButton, SecondaryButton } from 'src/shared/components/Button';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import PatientHeader from 'src/shared/components/patientHeader/PatientHeader';
+import usePatient from 'src/shared/hooks/patient';
 import { VitalSigns } from './vitalSigns';
 import { vitalSignsValidationSchema } from './vitalSigns/validation';
+import { Symptoms } from './symptoms';
 import { ReadingState, getReadingState } from './state';
 import { Confirmation } from './confirmation';
 import { handleSubmit } from './handlers';
@@ -47,6 +45,7 @@ export const ReadingFormPage = () => {
   const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
   const { patientId } = useParams() as RouteParams;
+  const [patient] = usePatient(patientId);
   const navigate = useNavigate();
 
   const [submitError, setSubmitError] = useState(false);
@@ -95,18 +94,7 @@ export const ReadingFormPage = () => {
       }}>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
 
-      <Box sx={{ display: `flex`, alignItems: `center` }}>
-        <Tooltip title="Go back" placement="top">
-          <IconButton
-            onClick={() => navigate(`/patients/${patientId}`)}
-            size="large">
-            <ChevronLeftIcon color="inherit" fontSize="large" />
-          </IconButton>
-        </Tooltip>
-        <Typography variant={'h4'} component={'h4'}>
-          New Reading for Patient {patientId}
-        </Typography>
-      </Box>
+      <PatientHeader title="New Reading" patient={patient} />
 
       <Stepper
         activeStep={pageNum}
