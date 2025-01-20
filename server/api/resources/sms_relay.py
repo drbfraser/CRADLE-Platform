@@ -1,5 +1,4 @@
 import json
-import pprint
 
 import requests
 from flasgger import swag_from
@@ -127,7 +126,6 @@ def sms_relay_procedure():
         json_dict_data = json.loads(string_data)
         # Convert keys to snake case.
         json_dict_data = decamelize(json_dict_data)
-        pprint.pp(json_dict_data, indent=4)
     except Exception:
         error_message = str(invalid_message.format(phone_number=phone_number))
         print(error_message)
