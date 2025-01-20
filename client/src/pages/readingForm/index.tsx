@@ -45,7 +45,7 @@ export const ReadingFormPage = () => {
   const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
   const { patientId } = useParams() as RouteParams;
-  const [patient] = usePatient(patientId);
+  const { patient } = usePatient(patientId);
   const navigate = useNavigate();
 
   const [submitError, setSubmitError] = useState(false);

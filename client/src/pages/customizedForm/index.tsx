@@ -15,7 +15,7 @@ type RouteParams = {
 export const CustomizedFormPage = () => {
   const { patientId } = useParams() as RouteParams;
   const [form, setForm] = useState<CForm>();
-  const [patient] = usePatient(patientId);
+  const { patient } = usePatient(patientId);
 
   return (
     <Box sx={{ margin: '0 auto', maxWidth: 1250 }}>

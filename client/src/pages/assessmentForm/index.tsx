@@ -16,7 +16,7 @@ type RouteParams = {
 
 export const AssessmentFormPage = () => {
   const { patientId, assessmentId, referralId } = useParams() as RouteParams;
-  const [patient] = usePatient(patientId);
+  const { patient } = usePatient(patientId);
   const [formInitialState, setFormInitialState] = useState<AssessmentState>();
 
   useEffect(() => {

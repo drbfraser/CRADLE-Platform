@@ -11,7 +11,7 @@ type RouteParams = {
 
 export const ReferralFormPage = () => {
   const { patientId } = useParams() as RouteParams;
-  const [patient] = usePatient(patientId);
+  const { patient } = usePatient(patientId);
 
   return (
     <FormContainer

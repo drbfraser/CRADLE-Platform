@@ -1,9 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { Box, IconButton, Tooltip, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { Add } from '@mui/icons-material';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import Skeleton from '@mui/material/Skeleton';
 
 import { Patient } from 'src/shared/types';
 import { PrimaryButton } from 'src/shared/components/Button';

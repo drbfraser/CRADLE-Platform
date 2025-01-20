@@ -69,7 +69,7 @@ export const PatientPage = () => {
     }
   );
 
-  const [patient, errorLoadingPatient] = usePatient(patientId);
+  const { patient, errorLoading: errorLoadingPatient } = usePatient(patientId);
   if (errorLoadingPatient) {
     setErrorLoading(true);
   }

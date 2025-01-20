@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Patient } from 'src/shared/types';
 import { getPatientAsync } from 'src/shared/api/api';
 
-const usePatient = (patientId: string): [Patient | undefined, boolean] => {
+const usePatient = (patientId: string) => {
   const [patient, setPatient] = useState<Patient>();
   const [errorLoading, setErrorLoading] = useState(false);
 
@@ -20,7 +20,7 @@ const usePatient = (patientId: string): [Patient | undefined, boolean] => {
     loadPatient();
   }, [patientId]);
 
-  return [patient, errorLoading];
+  return { patient, errorLoading };
 };
 
 export default usePatient;

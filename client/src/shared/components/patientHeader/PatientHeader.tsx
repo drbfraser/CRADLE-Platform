@@ -26,7 +26,7 @@ const PatientHeader = ({ patient, title, goBackRoute }: IProps) => {
         </IconButton>
       </Tooltip>
       <Typography variant={'h4'} component={'h4'}>
-        {`${title} for ${patient.name} (${patient.id})`}
+        {`${title} for: ${patient.name}`}
       </Typography>
     </Box>
   );
