@@ -20,7 +20,8 @@ class EnumWithList(Enum):
 
 
 class StrEnum(str, Enum):
-    pass
+    def __str__(self) -> str:
+        return self.value
 
 
 class RoleEnum(StrEnum):
