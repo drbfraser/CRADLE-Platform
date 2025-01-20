@@ -140,5 +140,6 @@ ignore = [
     # Trailing whitespace
     "W291", # Trailing whitespace
     
+    "D105", # Missing docstring in magic method
     "RUF012" 
 ]
