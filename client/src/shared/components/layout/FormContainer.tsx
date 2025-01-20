@@ -1,17 +1,7 @@
-import { Box } from '@mui/material';
-import { PropsWithChildren } from 'react';
+import { Box, styled } from '@mui/material';
 
 // For consistent layout.
-
-type Props = PropsWithChildren;
-export const FormContainer = ({ children }: Props) => {
-  return (
-    <Box
-      sx={{
-        maxWidth: '1250px',
-        margin: '0 auto',
-      }}>
-      {children}
-    </Box>
-  );
-};
+export const FormContainer = styled(Box)(() => ({
+  maxWidth: '1250px',
+  margin: '0 auto',
+}));
