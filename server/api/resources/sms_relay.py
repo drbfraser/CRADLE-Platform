@@ -4,6 +4,7 @@ import requests
 from flasgger import swag_from
 from flask import Response, jsonify, make_response, request
 from flask_restful import Resource, abort
+from humps import decamelize
 
 from common import api_utils, phone_number_utils, user_utils
 from models import UserOrm
@@ -123,6 +124,8 @@ def sms_relay_procedure():
         decrypted_data = compressor.decompress(decrypted_message)
         string_data = decrypted_data.decode("utf-8")
         json_dict_data = json.loads(string_data)
+        # Convert keys to snake case.
+        json_dict_data = decamelize(json_dict_data)
     except Exception:
         error_message = str(invalid_message.format(phone_number=phone_number))
         print(error_message)
