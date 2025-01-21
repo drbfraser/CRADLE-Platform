@@ -1,5 +1,7 @@
 from typing import Optional
 
+from pydantic import RootModel
+
 from validation import CradleBaseModel
 
 
@@ -37,3 +39,7 @@ class CancelStatus(CradleBaseModel, extra="forbid"):
 # Manages non-attendance reasons with strict attribute enforcement to prevent unrecognized fields.
 class NotAttendReason(CradleBaseModel, extra="forbid"):
     not_attend_reason: str
+
+
+class ReferralList(RootModel):
+    root: list[ReferralModel]

@@ -1,5 +1,7 @@
 from typing import List, Optional
 
+from pydantic import RootModel
+
 from validation import CradleBaseModel
 from validation.assessments import AssessmentPostBody
 from validation.referrals import ReferralModel
@@ -38,3 +40,23 @@ class ReadingModel(CradleBaseModel):
     user_id: Optional[int] = None
     assessment: Optional[AssessmentPostBody] = None
     referral: Optional[ReferralModel] = None
+
+
+class ReadingList(RootModel):
+    root: list[ReadingModel]
+
+
+class UrineTestModel(CradleBaseModel):
+    leukocytes: str
+    nitrites: str
+    glucose: str
+    protein: str
+    blood: str
+
+
+class ReadingWithUrineTests(ReadingModel):
+    urine_tests: list[UrineTestModel]
+
+
+class ReadingWithUrineTestsList(RootModel):
+    list[ReadingWithUrineTests]

@@ -1,5 +1,5 @@
 import logging
-from typing import Any, NamedTuple, Optional, Union, cast
+from typing import Any, NamedTuple, Union, cast
 
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
@@ -20,7 +20,7 @@ from models import (
 from service import invariant, serialize, view
 from validation import CradleBaseModel
 from validation.assessments import AssessmentModel
-from validation.patients import PatientModel
+from validation.patients import MobilePatient
 from validation.readings import ReadingModel
 from validation.referrals import ReferralModel
 
@@ -36,22 +36,6 @@ api_sync = APIBlueprint(
 )
 
 
-class PatientSyncModel(PatientModel):
-    """
-    The mobile app stores pregnancy information inside of the Patient model.
-    We should really refactor that at some point. For now, the body of the sync
-    request will contain both patient and pregnancy data.
-    """
-
-    base: Optional[int] = None
-    pregnancy_start_date: Optional[int] = None
-    pregnancy_end_date: Optional[int] = None
-    pregnancy_outcome: Optional[str] = None
-    pregnancy_id: Optional[int] = None
-    medical_last_edited: Optional[int] = None
-    drug_last_edited: Optional[int] = None
-
-
 class ModelData(NamedTuple):
     key_value: Union[str, int]
     values: dict
@@ -61,7 +45,7 @@ class LastSyncQueryParam(CradleBaseModel):
     since: int = Field(..., description="Timestamp of last sync.")
 
 
-class SyncPatientsBody(RootModel[list[PatientSyncModel]]):
+class SyncPatientsBody(RootModel[list[MobilePatient]]):
     model_config = dict(openapi_extra={"description": "List of Patient objects."})  # type: ignore[reportAssignmentType]
 
 
@@ -74,7 +58,7 @@ class SyncReferralsBody(RootModel[list[ReferralModel]]):
 
 
 class SyncPatientsResponse(CradleBaseModel):
-    patients: list[PatientSyncModel]
+    patients: list[MobilePatient]
 
 
 # /api/sync/patients [POST]
