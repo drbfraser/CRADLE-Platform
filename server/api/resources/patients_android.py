@@ -22,7 +22,7 @@ from service import serialize, view
 from validation import CradleBaseModel
 from validation.assessments import AssessmentModel
 from validation.forms import FormModel
-from validation.patients import MobilePatientNestedList
+from validation.patients import NestedPatientList
 from validation.readings import ReadingWithUrineTestsList
 from validation.referrals import ReferralModel
 
@@ -152,7 +152,7 @@ api_patients_mobile = APIBlueprint(
 
 # /api/mobile/patients [GET]
 @api_patients_mobile.get(
-    "/patients", tags=[mobile_patient_tag], responses={200: MobilePatientNestedList}
+    "/patients", tags=[mobile_patient_tag], responses={200: NestedPatientList}
 )
 def get_patients_mobile():
     """

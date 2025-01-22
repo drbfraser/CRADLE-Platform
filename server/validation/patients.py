@@ -88,30 +88,28 @@ def is_correct_date_format(s: Any) -> bool:
         return False
 
 
-class MobilePatient(PatientModel):
-    """
-    The mobile app stores pregnancy information inside of the Patient model.
-    We should really refactor that at some point. For now, the body of the sync
-    request will contain both patient and pregnancy data.
-    """
-
-    base: Optional[int] = None
+class PatientWithPregnancy(PatientModel):
     pregnancy_start_date: Optional[int] = None
     pregnancy_end_date: Optional[int] = None
     pregnancy_outcome: Optional[str] = None
     pregnancy_id: Optional[int] = None
+
+
+class MobilePatient(PatientWithPregnancy):
+    base: Optional[int] = None
     medical_last_edited: Optional[int] = None
     drug_last_edited: Optional[int] = None
 
 
-class MobilePatientNested(MobilePatient):
-    """
-    Includes nested Readings and Referrals
-    """
-
+class NestedPatient(MobilePatient):
     readings: list[ReadingWithUrineTests]
     referrals: list[ReferralModel]
+    base: Optional[int] = None
+    medical_last_edited: Optional[int] = None
+    drug_last_edited: Optional[int] = None
+    medical_history_id: Optional[str]
+    drug_history_id: Optional[str]
 
 
-class MobilePatientNestedList(RootModel):
-    root: list[MobilePatientNested]
+class NestedPatientList(RootModel):
+    root: list[NestedPatient]

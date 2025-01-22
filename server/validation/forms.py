@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import Field, StrictBool, model_validator
+from pydantic import Field, RootModel, StrictBool, model_validator
 from typing_extensions import Self
 
 from utils import get_current_time
@@ -48,3 +48,7 @@ class UpdateFormRequestBody(CradleBaseModel, extra="forbid"):
     }
     """
     questions: list[UpdateFormQuestion]
+
+
+class FormList(RootModel):
+    root: list[FormModel]

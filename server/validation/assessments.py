@@ -103,6 +103,8 @@ class AssessmentModel(CradleBaseModel):
 
 
 class AssessmentPostBody(AssessmentModel):
+    id: Optional[str] = None
+
     model_config = dict(
         openapi_extra={
             "description": "Assessment Post Request Body",
@@ -130,8 +132,6 @@ class AssessmentPostBody(AssessmentModel):
             },
         }
     )
-
-    id: Optional[str] = None
 
 
 class AssessmentPutBody(AssessmentModel):

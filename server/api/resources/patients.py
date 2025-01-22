@@ -4,7 +4,7 @@ from typing import Any, cast
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
-from pydantic import Field
+from pydantic import Field, RootModel
 
 import data
 from api.decorator import patient_association_required, roles_required
@@ -15,7 +15,7 @@ from common.api_utils import (
     SearchFilterQueryParams,
 )
 from data import crud, marshal
-from enums import RoleEnum
+from enums import RoleEnum, TrafficLightEnum
 from models import (
     AssessmentOrm,
     PatientOrm,
@@ -24,12 +24,21 @@ from models import (
     ReferralOrm,
     UserOrm,
 )
+from server.validation.pregnancies import PregnancyModel
 from service import assoc, invariant, serialize, statsCalculation, view
 from utils import get_current_time
 from validation import CradleBaseModel
 from validation.assessments import AssessmentPostBody
-from validation.patients import PatientModelWithReadings, UpdatePatientRequestBody
-from validation.readings import ReadingModel
+from validation.forms import FormList
+from validation.patients import (
+    NestedPatient,
+    PatientModel,
+    PatientModelWithReadings,
+    UpdatePatientRequestBody,
+)
+from validation.readings import ReadingList, ReadingModel
+from validation.referrals import ReferralList
+from validation.stats import PatientStats
 
 patient_not_found_message = "Patient with ID: ({}) not found."
 
@@ -44,8 +53,24 @@ api_patients = APIBlueprint(
 )
 
 
+class PatientTableEntry(CradleBaseModel):
+    """
+    Subset of Patient data + `traffic_light_status` and `date_taken` of most recent Reading
+    """
+
+    id: str
+    name: str
+    village_number: str
+    traffic_light_status: TrafficLightEnum
+    date_taken: str
+
+
+class PatientTableEntryList(RootModel):
+    root: list[PatientTableEntry]
+
+
 # /api/patients [GET]
-@api_patients.get("")
+@api_patients.get("", responses={200: PatientTableEntryList})
 def get_all_unarchived_patients(query: SearchFilterQueryParams):
     """
     Get all Unarchived Patients
@@ -59,7 +84,7 @@ def get_all_unarchived_patients(query: SearchFilterQueryParams):
 
 
 # /api/patients [POST]
-@api_patients.post("")
+@api_patients.post("", responses={201: PatientModel})
 def create_patient(body: PatientModelWithReadings):
     """Create New Patient"""
     patient_id = body.id
@@ -97,7 +122,7 @@ def create_patient(body: PatientModelWithReadings):
 
 # /api/patients/<string:patient_id> [GET]
 @patient_association_required()
-@api_patients.get("/<string:patient_id>")
+@api_patients.get("/<string:patient_id>", responses={200: NestedPatient})
 def get_patient(path: PatientIdPath):
     """
     Get Patient
@@ -117,7 +142,7 @@ def get_patient(path: PatientIdPath):
 
 # /api/patients/<string:patient_id>/info [GET]
 @patient_association_required()
-@api_patients.get("/<string:patient_id>/info")
+@api_patients.get("/<string:patient_id>/info", responses={200: PatientModel})
 def get_patient_info(path: PatientIdPath):
     """Get Patient Info"""
     patient = crud.read(PatientOrm, id=path.patient_id)
@@ -127,7 +152,7 @@ def get_patient_info(path: PatientIdPath):
 
 
 # /api/patients/<string:patient_id>/info [PUT]
-@api_patients.put("/<string:patient_id>/info")
+@api_patients.put("/<string:patient_id>/info", responses={201: PatientModel})
 def update_patient_info(path: PatientIdPath, body: UpdatePatientRequestBody):
     """Update Patient Info"""
     update_patient = body.model_dump()
@@ -173,7 +198,7 @@ def update_patient_info(path: PatientIdPath, body: UpdatePatientRequestBody):
 
 # /api/patients/<string:patient_id>/stats [GET]
 @patient_association_required()
-@api_patients.get("/<string:patient_id>/stats")
+@api_patients.get("/<string:patient_id>/stats", responses={200: PatientStats})
 def get_patient_stats(path: PatientIdPath):
     """Get Patient Stats"""
     patient = crud.read(PatientOrm, id=path.patient_id)
@@ -264,7 +289,7 @@ def get_patient_stats(path: PatientIdPath):
 
 
 # /api/patients/<string:patient_id>/readings
-@api_patients.get("/<string:patient_id>/readings")
+@api_patients.get("/<string:patient_id>/readings", responses={200: ReadingList})
 def get_patient_readings(path: PatientIdPath):
     """Get Patient's Readings"""
     patient = crud.read(PatientOrm, id=path.patient_id)
@@ -274,7 +299,9 @@ def get_patient_readings(path: PatientIdPath):
 
 
 # /api/patients/<string:patient_id>/most_recent_reading [GET]
-@api_patients.get("/<string:patient_id>/most_recent_reading")
+@api_patients.get(
+    "/<string:patient_id>/most_recent_reading", responses={200: ReadingList}
+)
 def get_patient_most_recent_reading(path: PatientIdPath):
     """Get Patient's Most Recent Reading"""
     patient = crud.read(PatientOrm, id=path.patient_id)
@@ -289,11 +316,13 @@ def get_patient_most_recent_reading(path: PatientIdPath):
         key=lambda r: r["date_taken"],
         reverse=True,
     )
+
+    # Why does this return a list with a single item and not just the item itself?
     return [sorted_readings[0]]
 
 
 # /api/patients/<string:patient_id>/referrals [GET]
-@api_patients.get("/<string:patient_id>/referrals")
+@api_patients.get("/<string:patient_id>/referrals", responses={200: ReferralList})
 def get_patient_referrals(path: PatientIdPath):
     """Get Patient's Referrals"""
     patient = crud.read(PatientOrm, id=path.patient_id)
@@ -303,7 +332,7 @@ def get_patient_referrals(path: PatientIdPath):
 
 
 # /api/patients/<string:patient_id>/forms [GET]
-@api_patients.get("/<string:patient_id>/forms")
+@api_patients.get("/<string:patient_id>/forms", responses={200: FormList})
 def get_patient_forms(path: PatientIdPath):
     """Get Patient's Forms"""
     patient = crud.read(PatientOrm, id=path.patient_id)
@@ -312,9 +341,16 @@ def get_patient_forms(path: PatientIdPath):
     return [marshal.marshal(form, True) for form in patient.forms]
 
 
+class PatientPregnancySummary(CradleBaseModel):
+    is_pregnant: bool
+    past_pregnancies: list[PregnancyModel]
+
+
 # /api/patients/<string:patient_id>/pregnancy_summary [GET]
 @patient_association_required()
-@api_patients.get("/<string:patient_id>/pregnancy_summary")
+@api_patients.get(
+    "/<string:patient_id>/pregnancy_summary", responses={200: PatientPregnancySummary}
+)
 def get_patient_pregnancy_summary(path: PatientIdPath):
     """Get Patient Summary"""
     pregnancies = crud.read_medical_records(
@@ -331,6 +367,12 @@ def get_patient_medical_history(path: PatientIdPath):
     medical = crud.read_patient_current_medical_record(path.patient_id, False)
     drug = crud.read_patient_current_medical_record(path.patient_id, True)
     return marshal.marshal_patient_medical_history(medical=medical, drug=drug)
+
+
+class PatientTimeline(CradleBaseModel):
+    title: str
+    information: str
+    date: int
 
 
 # /api/patients/<string:patient_id>/timeline [GET]
