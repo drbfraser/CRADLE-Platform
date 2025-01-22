@@ -24,7 +24,6 @@ from models import (
     ReferralOrm,
     UserOrm,
 )
-from server.validation.pregnancies import PregnancyModel
 from service import assoc, invariant, serialize, statsCalculation, view
 from utils import get_current_time
 from validation import CradleBaseModel
@@ -36,6 +35,7 @@ from validation.patients import (
     PatientModelWithReadings,
     UpdatePatientRequestBody,
 )
+from validation.pregnancies import PregnancyModel
 from validation.readings import ReadingList, ReadingModel
 from validation.referrals import ReferralList
 from validation.stats import PatientStats
@@ -359,9 +359,18 @@ def get_patient_pregnancy_summary(path: PatientIdPath):
     return marshal.marshal_patient_pregnancy_summary(pregnancies)
 
 
+class MedicalHistory(CradleBaseModel):
+    drug_history: str
+    drug_history_id: int
+    medical_history: str
+    medical_history_id: int
+
+
 # /api/patients/<string:patient_id>/medical_history [GET]
 @patient_association_required()
-@api_patients.get("/<string:patient_id>/medical_history")
+@api_patients.get(
+    "/<string:patient_id>/medical_history", responses={200: MedicalHistory}
+)
 def get_patient_medical_history(path: PatientIdPath):
     """Get Patient Medical History"""
     medical = crud.read_patient_current_medical_record(path.patient_id, False)
@@ -369,15 +378,19 @@ def get_patient_medical_history(path: PatientIdPath):
     return marshal.marshal_patient_medical_history(medical=medical, drug=drug)
 
 
-class PatientTimeline(CradleBaseModel):
+class PatientTimelineItem(CradleBaseModel):
     title: str
     information: str
     date: int
 
 
+class PatientTimeline(RootModel):
+    root: list[PatientTimelineItem]
+
+
 # /api/patients/<string:patient_id>/timeline [GET]
 @patient_association_required()
-@api_patients.get("/<string:patient_id>/timeline")
+@api_patients.get("/<string:patient_id>/timeline", responses={200: PatientTimeline})
 def get_patient_timeline(path: PatientIdPath, query: PageLimitFilterQueryParams):
     """Get Patient Timeline"""
     params = query.model_dump()
@@ -385,16 +398,17 @@ def get_patient_timeline(path: PatientIdPath, query: PageLimitFilterQueryParams)
     return [serialize.serialize_patient_timeline(r) for r in records]
 
 
-class CreateReadingWithAssessmentBody(CradleBaseModel):
+class NewReadingAndAssessment(CradleBaseModel):
     reading: ReadingModel
     assessment: AssessmentPostBody
 
 
 # /api/patients/reading-assessment [POST]
-@api_patients.post("/patients/reading-assessment")
-def create_reading_with_assessment(body: CreateReadingWithAssessmentBody):
+@api_patients.post(
+    "/patients/reading-assessment", responses={201: NewReadingAndAssessment}
+)
+def create_reading_with_assessment(body: NewReadingAndAssessment):
     """Create Reading With Assessment"""
-    # TODO: This endpoint should probably be moved to readings.py
     reading = body.reading
     assessment = body.assessment
 
@@ -439,11 +453,34 @@ def get_all_records_for_patient(
     """Get All Records for Patient"""
     params = query.model_dump()
     records = crud.read_patient_all_records(path.patient_id, **params)
+
+    """ 
+    TODO: Could we not return the data in a more organized manner? 
+    Like:
+    {
+        readings: [],
+        referrals: [],
+        assessments: [],
+        forms: []
+    }
+    Instead of just returning them all in one array and attaching a "type" attribute to them.
+    Its kind of difficult to document the way that it is now.
+    """
     return [marshal.marshal_with_type(r) for r in records]
 
 
+class AdminPatientListItem(CradleBaseModel):
+    id: str
+    is_archived: bool
+    name: str
+
+
+class AdminPatientList(RootModel):
+    root: list[AdminPatientListItem]
+
+
 # /api/patients/admin
-@api_patients.get("/admin")
+@api_patients.get("/admin", responses={200: AdminPatientList})
 @roles_required([RoleEnum.ADMIN])
 def get_all_patients_admin(query: SearchFilterQueryParams):
     """
