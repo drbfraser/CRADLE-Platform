@@ -187,12 +187,8 @@ export const PatientPage = () => {
         isThereAPendingReferral={hasPendingReferral}
         setConfirmDialogPerformAssessmentOpen={setConfirmDialogOpen}
       />
-      <Grid sx={{ marginTop: '3rem' }} container spacing={'4rem'}>
-        <Grid
-          container
-          size={{ xs: 12, lg: 6 }}
-          direction="column"
-          spacing={'2rem'}>
+      <Grid sx={{ marginTop: '3rem' }} container spacing={4}>
+        <Grid container size={{ xs: 12, lg: 6 }} direction="column" spacing={2}>
           <PersonalInfo patient={patient} />
 
           {patient?.sex === SexEnum.FEMALE ? (
@@ -200,8 +196,11 @@ export const PatientPage = () => {
           ) : (
             <MedicalInfo patient={patient} patientId={patientId} />
           )}
+        </Grid>
 
+        <Grid container size={{ xs: 12, lg: 6 }} direction="column" spacing={2}>
           <PatientStats patientId={patientId} />
+
           {patient?.sex === SexEnum.FEMALE && (
             <MedicalInfo patient={patient} patientId={patientId} />
           )}
