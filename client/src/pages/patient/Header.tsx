@@ -46,7 +46,7 @@ export const Header = ({
   };
 
   return (
-    <Grid container justifyContent="space-between" mb={2}>
+    <Grid container justifyContent="space-between" mb={2} gap={1}>
       <Grid container alignItems="center">
         <PatientHeader
           title="Patient Summary"
@@ -57,10 +57,10 @@ export const Header = ({
 
       <Grid
         container
+        height={'100%'}
         alignItems="center"
-        gap={1}
         alignContent="center"
-        height={'100%'}>
+        gap={3}>
         <PrimaryButton onClick={handleSubmitNewFormClick}>
           <Add /> Submit New Form
         </PrimaryButton>

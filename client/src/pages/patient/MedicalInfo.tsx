@@ -2,7 +2,6 @@ import {
   Alert,
   Box,
   Divider,
-  Paper,
   Skeleton,
   SxProps,
   Typography,
@@ -15,6 +14,7 @@ import { OrNull } from 'src/shared/types';
 import RecentActorsIcon from '@mui/icons-material/RecentActors';
 import { RedirectButton } from 'src/shared/components/Button';
 import { getPatientMedicalHistoryAsync } from 'src/shared/api/api';
+import ElevatedPaper from './ElevatedPaper';
 
 const headerSx: SxProps = {
   display: 'flex',
@@ -83,7 +83,7 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
   );
 
   return (
-    <Paper>
+    <ElevatedPaper>
       <Box p={3}>
         <Box sx={headerSx}>
           <Typography component="h3" variant="h5" sx={headerSx}>
@@ -123,6 +123,6 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
           <Skeleton variant="rectangular" height={200} />
         )}
       </Box>
-    </Paper>
+    </ElevatedPaper>
   );
 };
