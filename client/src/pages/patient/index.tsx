@@ -92,7 +92,7 @@ export const PatientPage = () => {
 
         setHasPendingReferral(hasPendingReferral);
       } catch (e) {
-        console.error('Error receiving referrals');
+        console.error(`Error receiving referrals: ${e}`);
       }
     };
 
@@ -145,6 +145,7 @@ export const PatientPage = () => {
         );
         UpdateCardsJsx(records);
       } catch (e) {
+        console.error(e);
         setErrorLoading(true);
       }
     };
