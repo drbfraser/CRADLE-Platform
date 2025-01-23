@@ -21,6 +21,7 @@ import {
   validationSchema,
 } from './state';
 import { Typography } from '@mui/material';
+import { Toast } from 'src/shared/hooks/toast';
 
 interface IProps {
   patientId: string;
@@ -43,12 +44,13 @@ export const ReferralForm = ({ patientId }: IProps) => {
     try {
       await saveReferralAsync(postBody);
 
+      const ToastData: Toast = {
+        severity: 'success',
+        message: 'Referral submitted successfully',
+      };
       navigate(`/patients/${patientId}`, {
         state: {
-          toast: {
-            type: 'success',
-            message: 'Referral submitted successfully',
-          },
+          toast: ToastData,
         },
       });
     } catch (e) {
