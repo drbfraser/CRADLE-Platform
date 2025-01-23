@@ -43,7 +43,14 @@ export const ReferralForm = ({ patientId }: IProps) => {
     try {
       await saveReferralAsync(postBody);
 
-      navigate(`/patients/${patientId}`);
+      navigate(`/patients/${patientId}`, {
+        state: {
+          toast: {
+            type: 'success',
+            message: 'Referral submitted successfully',
+          },
+        },
+      });
     } catch (e) {
       console.error(e);
       setSubmitError(true);
