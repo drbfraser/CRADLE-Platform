@@ -1,3 +1,20 @@
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Typography from '@mui/material/Typography';
+import { Box, Divider, Paper } from '@mui/material';
+import Grid from '@mui/material/Grid2';
+
+import {
+  getPatientRecordsAsync,
+  getPatientReferralsAsync,
+} from 'src/shared/api/api';
+import { Filter, FilterRequestBody, Referral } from 'src/shared/types';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { SexEnum } from 'src/shared/enums';
+import { ConfirmDialog } from 'src/shared/components/confirmDialog';
+import usePatient from 'src/shared/hooks/patient';
 import {
   AssessmentCard,
   CustomizedFormCard,
@@ -7,27 +24,11 @@ import {
   ReferralNotAttendedCard,
   ReferralPendingCard,
 } from './Cards';
-import { Box, Divider, Grid, Paper } from '@mui/material';
-import { Filter, FilterRequestBody, Referral } from 'src/shared/types';
-import {
-  getPatientRecordsAsync,
-  getPatientReferralsAsync,
-} from 'src/shared/api/api';
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import Checkbox from '@mui/material/Checkbox';
-import { ConfirmDialog } from '../../shared/components/confirmDialog';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import { Header } from './Header';
 import { MedicalInfo } from './MedicalInfo';
 import { PatientStats } from './PatientStats';
 import { PersonalInfo } from './PersonalInfo';
 import { PregnancyInfo } from './PregnancyInfo';
-import { SexEnum } from 'src/shared/enums';
-import Typography from '@mui/material/Typography';
-import usePatient from 'src/shared/hooks/patient';
 
 type RouteParams = {
   patientId: string;
@@ -122,7 +123,7 @@ export const PatientPage = () => {
 
       const UpdateCardsJsx = (cards: any[]) => {
         const cardsJsx = cards.map((card) => (
-          <Grid item key={card.id ?? card.readingId} xs={12}>
+          <Grid key={card.id ?? card.readingId} size={{ xs: 12 }}>
             <Paper variant="outlined">
               <Box p={1} my={1} bgcolor={'#f9f9f9'}>
                 {mapCardToJSX(card)}
@@ -167,42 +168,32 @@ export const PatientPage = () => {
           navigate(`/assessments/new/${patientId}`);
         }}
       />
+
       <Header
         patient={patient}
         isThereAPendingReferral={hasPendingReferral}
         setConfirmDialogPerformAssessmentOpen={setConfirmDialogOpen}
       />
       <Grid container spacing={2}>
-        <Grid container item xs={12} lg={6} direction="column" spacing={2}>
-          <Grid item>
-            <PersonalInfo patient={patient} />
-          </Grid>
+        <Grid container size={{ xs: 12, lg: 6 }} direction="column" spacing={2}>
+          <PersonalInfo patient={patient} />
 
-          <Grid item>
-            {patient?.sex === SexEnum.FEMALE ? (
-              <PregnancyInfo
-                patientId={patientId}
-                patientName={patient?.name}
-              />
-            ) : (
-              <MedicalInfo patient={patient} patientId={patientId} />
-            )}
-          </Grid>
+          {patient?.sex === SexEnum.FEMALE ? (
+            <PregnancyInfo patientId={patientId} patientName={patient?.name} />
+          ) : (
+            <MedicalInfo patient={patient} patientId={patientId} />
+          )}
         </Grid>
 
-        <Grid container item xs={12} lg={6} direction="column" spacing={2}>
-          <Grid item>
-            <PatientStats patientId={patientId} />
-          </Grid>
+        <Grid container size={{ xs: 12, lg: 6 }} direction="column" spacing={2}>
+          <PatientStats patientId={patientId} />
 
-          <Grid item>
-            {patient?.sex === SexEnum.FEMALE && (
-              <MedicalInfo patient={patient} patientId={patientId} />
-            )}
-          </Grid>
+          {patient?.sex === SexEnum.FEMALE && (
+            <MedicalInfo patient={patient} patientId={patientId} />
+          )}
         </Grid>
 
-        <Grid container item xs={12} spacing={2} direction="column">
+        <Grid container size={{ xs: 12 }} spacing={2} direction="column">
           <Paper
             sx={(theme) => ({
               width: '100%',
@@ -210,7 +201,6 @@ export const PatientPage = () => {
               marginTop: theme.spacing(2),
             })}>
             <Grid
-              item
               sx={{
                 display: 'flex',
                 placeContent: 'end',

@@ -6,7 +6,6 @@ import {
   AutocompleteRenderInputParams,
   TextField as FormikTextField,
 } from 'formik-mui';
-import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 import Grid from '@mui/material/Grid2';
