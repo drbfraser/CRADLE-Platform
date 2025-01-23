@@ -9,25 +9,26 @@ from api.resources.patients import api_patients
 from common.api_utils import PatientIdPath, PregnancyIdPath, SearchFilterQueryParams
 from data import crud, marshal
 from models import PregnancyOrm
-from service import serialize, view
+from service import view
 from validation.pregnancies import (
+    PregnancyList,
     PregnancyModel,
 )
 
 
 # /api/patients/<string:patient_id>/pregnancies [GET]
 @patient_association_required()
-@api_patients.get("/<string:patient_id>/pregnancies")
+@api_patients.get("/<string:patient_id>/pregnancies", responses={200: PregnancyList})
 def get_patient_pregnancies(path: PatientIdPath, query: SearchFilterQueryParams):
     """Get Patient's Pregnancies"""
     params = query.model_dump()
     pregnancies = view.pregnancy_view(path.patient_id, **params)
-    return [serialize.serialize_pregnancy(p) for p in pregnancies]
+    return [marshal.marshal(p) for p in pregnancies]
 
 
 # /api/patients/<string:patient_id>/pregnancies [POST]
 @patient_association_required()
-@api_patients.post("/<string:patient_id>/pregnancies")
+@api_patients.post("/<string:patient_id>/pregnancies", responses={200: PregnancyModel})
 def create_new_pregnancy(path: PatientIdPath, body: PregnancyModel):
     """Create New Pregnancy"""
     if body.id is not None:
@@ -57,7 +58,7 @@ api_pregnancies = APIBlueprint(
 
 
 # /api/pregnancies/<string:pregnancy_id> [GET]
-@api_pregnancies.get("/<string:pregnancy_id>")
+@api_pregnancies.get("/<string:pregnancy_id>", responses={200: PregnancyModel})
 def get_pregnancy(path: PregnancyIdPath):
     """Get Pregnancy"""
     pregnancy = _get_pregnancy(path.pregnancy_id)
@@ -65,7 +66,7 @@ def get_pregnancy(path: PregnancyIdPath):
 
 
 # /api/pregnancies/<string:pregnancy_id> [PUT]
-@api_pregnancies.put("/<string:pregnancy_id>")
+@api_pregnancies.put("/<string:pregnancy_id>", responses={200: PregnancyModel})
 def update_pregnancy(path: PregnancyIdPath, body: PregnancyModel):
     """Update Pregnancy"""
     pregnancy_model_dump = body.model_dump()
