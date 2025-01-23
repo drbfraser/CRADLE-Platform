@@ -4,6 +4,7 @@ import requests
 from flask import Response, abort, jsonify, make_response
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
+from humps import decamelize
 from pydantic import ValidationError
 
 from common import phone_number_utils, user_utils
@@ -122,6 +123,8 @@ def relay_sms_request(body: SmsRelayRequestBody):
         decrypted_data = compressor.decompress(decrypted_message)
         string_data = decrypted_data.decode("utf-8")
         json_dict_data = json.loads(string_data)
+        # Convert keys to snake case.
+        json_dict_data = decamelize(json_dict_data)
     except Exception:
         error_message = str(invalid_message.format(phone_number=phone_number))
         print(error_message)

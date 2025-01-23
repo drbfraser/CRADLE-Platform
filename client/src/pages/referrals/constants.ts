@@ -1,7 +1,7 @@
 export const COLUMNS = {
   patientName: 'Patient Name',
   patientId: 'Patient ID',
-  villageNumber: 'Village',
+  villageNumber: 'Village Number',
   trafficLightStatus: 'Vital Sign When Referred',
   dateReferred: 'Date Referred',
   isAssessed: 'Assessment',
