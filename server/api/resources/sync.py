@@ -20,7 +20,7 @@ from models import (
 from service import invariant, serialize, view
 from validation import CradleBaseModel
 from validation.assessments import AssessmentModel
-from validation.patients import MobilePatient
+from validation.patients import PatientWithHistory
 from validation.readings import ReadingModel
 from validation.referrals import ReferralModel
 
@@ -45,7 +45,7 @@ class LastSyncQueryParam(CradleBaseModel):
     since: int = Field(..., description="Timestamp of last sync.")
 
 
-class SyncPatientsBody(RootModel[list[MobilePatient]]):
+class SyncPatientsBody(RootModel[list[PatientWithHistory]]):
     model_config = dict(openapi_extra={"description": "List of Patient objects."})  # type: ignore[reportAssignmentType]
 
 
@@ -58,7 +58,7 @@ class SyncReferralsBody(RootModel[list[ReferralModel]]):
 
 
 class SyncPatientsResponse(CradleBaseModel):
-    patients: list[MobilePatient]
+    patients: list[PatientWithHistory]
 
 
 # /api/sync/patients [POST]

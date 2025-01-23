@@ -32,7 +32,6 @@ from validation.forms import FormList
 from validation.patients import (
     NestedPatient,
     PatientModel,
-    PatientModelWithReadings,
     UpdatePatientRequestBody,
 )
 from validation.pregnancies import PregnancyModel
@@ -85,7 +84,7 @@ def get_all_unarchived_patients(query: SearchFilterQueryParams):
 
 # /api/patients [POST]
 @api_patients.post("", responses={201: PatientModel})
-def create_patient(body: PatientModelWithReadings):
+def create_patient(body: NestedPatient):
     """Create New Patient"""
     patient_id = body.id
     if crud.read(PatientOrm, id=patient_id):
@@ -117,7 +116,7 @@ def create_patient(body: PatientModelWithReadings):
             # wipe out the patient we want to return we must refresh it.
             data.db_session.refresh(patient)
 
-    return marshal.marshal(patient), 201
+    return marshal.marshal(patient, shallow=True), 201
 
 
 # /api/patients/<string:patient_id> [GET]

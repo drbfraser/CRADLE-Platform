@@ -1,11 +1,11 @@
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from pydantic import Field, RootModel, field_validator
 
 from utils import get_current_time
 from validation import CradleBaseModel
-from validation.readings import ReadingModel, ReadingWithUrineTests
+from validation.readings import ReadingWithUrineTest
 from validation.referrals import ReferralModel
 
 
@@ -38,11 +38,10 @@ class PatientModel(CradleBaseModel):
     household_number: Optional[str] = None
     zone: Optional[str] = None
     village_number: Optional[str] = None
-    drug_history: Optional[str] = None
-    medical_history: Optional[str] = None
-    allergy: Optional[str] = None
-    is_archived: bool = False
+    is_archived: Optional[bool] = None
     last_edited: Optional[int] = None
+    date_created: Optional[int] = None
+    base: Optional[int] = None
 
     @field_validator("id", mode="after")
     @classmethod
@@ -61,17 +60,25 @@ class PatientModel(CradleBaseModel):
         return date_of_birth
 
 
-class PatientModelWithReadings(PatientModel):
-    """Includes nested Readings"""
+class PatientWithPregnancy(PatientModel):
+    pregnancy_start_date: Optional[int] = None
+    pregnancy_end_date: Optional[int] = None
+    pregnancy_outcome: Optional[str] = None
+    pregnancy_id: Optional[int] = None
 
-    readings: Optional[List[ReadingModel]] = None
+
+class PatientWithHistory(PatientWithPregnancy):
+    drug_history: Optional[str] = None
+    medical_history: Optional[str] = None
+    allergy: Optional[str] = None
+    medical_last_edited: Optional[int] = None
+    drug_last_edited: Optional[int] = None
 
 
 class UpdatePatientRequestBody(PatientModel, extra="forbid"):
     """Request Body for Update Patient Endpoint"""
 
     last_edited: int = Field(default_factory=get_current_time)
-    base: Optional[int] = None
 
 
 def is_correct_date_format(s: Any) -> bool:
@@ -88,27 +95,11 @@ def is_correct_date_format(s: Any) -> bool:
         return False
 
 
-class PatientWithPregnancy(PatientModel):
-    pregnancy_start_date: Optional[int] = None
-    pregnancy_end_date: Optional[int] = None
-    pregnancy_outcome: Optional[str] = None
-    pregnancy_id: Optional[int] = None
-
-
-class MobilePatient(PatientWithPregnancy):
-    base: Optional[int] = None
-    medical_last_edited: Optional[int] = None
-    drug_last_edited: Optional[int] = None
-
-
-class NestedPatient(MobilePatient):
-    readings: list[ReadingWithUrineTests]
-    referrals: list[ReferralModel]
-    base: Optional[int] = None
-    medical_last_edited: Optional[int] = None
-    drug_last_edited: Optional[int] = None
-    medical_history_id: Optional[str]
-    drug_history_id: Optional[str]
+class NestedPatient(PatientWithHistory):
+    readings: list[ReadingWithUrineTest] = []
+    referrals: list[ReferralModel] = []
+    medical_history_id: Optional[str] = None
+    drug_history_id: Optional[str] = None
 
 
 class NestedPatientList(RootModel):

@@ -23,7 +23,7 @@ from validation import CradleBaseModel
 from validation.assessments import AssessmentModel
 from validation.forms import FormModel
 from validation.patients import NestedPatientList
-from validation.readings import ReadingWithUrineTestsList
+from validation.readings import ReadingWithUrineTestList
 from validation.referrals import ReferralModel
 
 ## Functions that are only used for these endpoints ##
@@ -168,7 +168,7 @@ def get_patients_mobile():
 
 # /api/mobile/readings [GET]
 @api_patients_mobile.get(
-    "/readings", tags=[mobile_patient_tag], responses={200: ReadingWithUrineTestsList}
+    "/readings", tags=[mobile_patient_tag], responses={200: ReadingWithUrineTestList}
 )
 def get_readings_mobile():
     """Get Readings (Mobile)"""

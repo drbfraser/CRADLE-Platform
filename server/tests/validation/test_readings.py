@@ -107,18 +107,6 @@ reading_missing_optional_field_is_flagged_for_follow_up_should_return_none = {
     "assessment": ASSESSMENT,
 }
 
-reading_missing_required_field_symptoms_should_throw_exception = {
-    "id": READING_ID,
-    "patient_id": PATIENT_ID,
-    "systolic_blood_pressure": SOME_INTEGER,
-    "diastolic_blood_pressure": SOME_INTEGER,
-    "heart_rate": SOME_INTEGER,
-    "is_flagged_for_follow_up": True,
-    "date_taken": TIMESTAMP,
-    "user_id": USER_ID,
-    "assessment": ASSESSMENT,
-}
-
 reading_missing_optional_field_date_taken_should_return_none = {
     "id": READING_ID,
     "patient_id": PATIENT_ID,
@@ -313,10 +301,6 @@ referral_field_assessment_has_wrong_type_should_throw_exception = {
         (
             reading_missing_optional_field_is_flagged_for_follow_up_should_return_none,
             None,
-        ),
-        (
-            reading_missing_required_field_symptoms_should_throw_exception,
-            ValidationError,
         ),
         (reading_missing_optional_field_date_taken_should_return_none, None),
         (reading_missing_optional_field_user_id_should_return_none, None),

@@ -35,7 +35,7 @@ class ReadingModel(CradleBaseModel):
     diastolic_blood_pressure: int
     heart_rate: int
     is_flagged_for_follow_up: Optional[bool] = None
-    symptoms: List[str]
+    symptoms: List[str] = []
     date_taken: Optional[int] = None
     user_id: Optional[int] = None
     assessment: Optional[AssessmentPostBody] = None
@@ -54,9 +54,9 @@ class UrineTestModel(CradleBaseModel):
     blood: str
 
 
-class ReadingWithUrineTests(ReadingModel):
-    urine_tests: list[UrineTestModel]
+class ReadingWithUrineTest(ReadingModel):
+    urine_tests: Optional[UrineTestModel] = None
 
 
-class ReadingWithUrineTestsList(RootModel):
-    list[ReadingWithUrineTests]
+class ReadingWithUrineTestList(RootModel):
+    list[ReadingWithUrineTest]

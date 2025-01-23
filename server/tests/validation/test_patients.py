@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import pytest
 from pydantic import ValidationError
 
-from validation.patients import PatientModelWithReadings, UpdatePatientRequestBody
+from validation.patients import NestedPatient, UpdatePatientRequestBody
 
 # Dynamically calculate valid and invalid gestation ages from todays date.
 todays_date = datetime.today()
@@ -236,10 +236,10 @@ def test_validation(json, expectation):
     if expectation:
         with pytest.raises(expectation):
             print(json)
-            PatientModelWithReadings(**json)
+            NestedPatient(**json)
     else:
         try:
-            PatientModelWithReadings(**json)
+            NestedPatient(**json)
         except ValidationError as e:
             print(json)
             raise AssertionError(f"Unexpected validation error:{e}") from e
@@ -258,9 +258,6 @@ patient_put_with_valid_fields_should_return_none = {
     "is_exact_date_of_birth": False,
     "zone": ZONE,
     "village_number": VILLAGE_NUMBER,
-    "drug_history": HISTORY,
-    "medical_history": HISTORY,
-    "allergy": ALLERGY,
 }
 
 patient_put_missing_field_patient_id_should_throw_Exception = {
@@ -272,9 +269,6 @@ patient_put_missing_field_patient_id_should_throw_Exception = {
     "is_exact_date_of_birth": False,
     "zone": ZONE,
     "village_number": VILLAGE_NUMBER,
-    "drug_history": HISTORY,
-    "medical_history": HISTORY,
-    "allergy": ALLERGY,
 }
 
 

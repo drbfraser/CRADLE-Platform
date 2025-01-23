@@ -141,6 +141,7 @@ def test_sync_patients_fully_successful(
             synced_patient["pregnancy_start_date"]
             == mobile_patient["pregnancy_start_date"]
         )
+
         assert synced_patient["medical_history"] == mobile_patient["medical_history"]
         assert synced_patient["drug_history"] == mobile_patient["drug_history"]
         assert (

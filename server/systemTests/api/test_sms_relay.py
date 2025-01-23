@@ -7,6 +7,7 @@ import requests
 from humps import decamelize
 
 from common import phone_number_utils
+from common.print_utils import pretty_print
 from data import crud
 from enums import TrafficLightEnum
 from models import (
@@ -41,7 +42,8 @@ def test_create_patient_with_sms_relay(database, api_post, auth_header):
     database.session.commit()
 
     response_body = decamelize(response.json())
-    print(response_body)
+    decrypted_response = get_sms_relay_response(response)
+    pretty_print(decrypted_response)
 
     try:
         assert response.status_code == 200
@@ -78,7 +80,8 @@ def test_create_referral_with_sms_relay(
     database.session.commit()
 
     response_body = decamelize(response.json())
-    print(response_body)
+    decrypted_response = get_sms_relay_response(response)
+    pretty_print(decrypted_response)
 
     try:
         assert response.status_code == 200
@@ -113,7 +116,8 @@ def test_create_readings_with_sms_relay(
     database.session.commit()
 
     response_body = decamelize(response.json())
-    print(response_body)
+    decrypted_response = get_sms_relay_response(response)
+    pretty_print(decrypted_response)
 
     try:
         assert response.status_code == 200
@@ -135,7 +139,7 @@ def test_update_patient_name_with_sms_relay(
     patient_factory.create(id=patient_id, name="AB")
     new_patient_name = "CD"
 
-    response = api_get(endpoint=f"/api/patients/{patient_id}")
+    response = api_get(endpoint=f"/api/patients/{patient_id}/info")
     patient = decamelize(response.json())
 
     patient["name"] = new_patient_name
@@ -152,7 +156,8 @@ def test_update_patient_name_with_sms_relay(
     database.session.commit()
 
     response_body = decamelize(response.json())
-    print(response_body)
+    decrypted_response = get_sms_relay_response(response)
+    pretty_print(decrypted_response)
 
     assert response.status_code == 200
     assert response_body["code"] == 200
@@ -186,7 +191,8 @@ def test_create_assessments_with_sms_relay(
     follow_up_instructions = assessment_json["follow_up_instructions"]
 
     response_body = decamelize(response.json())
-    print(response_body)
+    decrypted_response = get_sms_relay_response(response)
+    pretty_print(decrypted_response)
 
     assert response.status_code == 200
     assert response_body["code"] == 201
@@ -229,7 +235,8 @@ def test_update_assessments_with_sms_relay(
     database.session.commit()
 
     response_body = decamelize(response.json())
-    print(response_body)
+    decrypted_response = get_sms_relay_response(response)
+    pretty_print(decrypted_response)
 
     assert response.status_code == 200
     assert response_body["code"] == 200
