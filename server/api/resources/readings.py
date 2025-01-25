@@ -22,7 +22,7 @@ api_readings = APIBlueprint(
 
 
 # /api/readings [POST]
-@api_readings.post("")
+@api_readings.post("", responses={201: ReadingModel})
 def create_new_reading(body: ReadingModel):
     """Create New Reading"""
     if crud.read(PatientOrm, id=body.patient_id) is None:
@@ -68,10 +68,10 @@ def create_new_reading(body: ReadingModel):
 
 
 # /api/readings/<string:reading_id> [GET]
-@api_readings.get("/<string:reading_id>")
+@api_readings.get("/<string:reading_id>", responses={200: ReadingModel})
 def get_reading(path: ReadingIdPath):
     """Get Reading"""
-    reading = crud.read(ReadingOrm, reading_id=path.reading_id)
+    reading = crud.read(ReadingOrm, id=path.reading_id)
     if reading is None:
         return abort(404, description=f"No reading with ID: {path.reading_id}")
     return marshal.marshal(reading)

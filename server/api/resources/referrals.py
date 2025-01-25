@@ -18,6 +18,7 @@ from utils import get_current_time
 from validation.referrals import (
     CancelStatus,
     NotAttendReason,
+    ReferralList,
     ReferralModel,
 )
 
@@ -41,7 +42,7 @@ class GetReferralsListQueryParams(SearchFilterQueryParams):
 
 
 # /api/referrals [GET]
-@api_referrals.get("")
+@api_referrals.get("", responses={200: ReferralList})
 def get_referrals_list(query: GetReferralsListQueryParams):
     """
     Get Referrals List
@@ -60,7 +61,7 @@ def get_referrals_list(query: GetReferralsListQueryParams):
 
 
 # /api/referrals [POST]
-@api_referrals.post("")
+@api_referrals.post("", responses={201: ReferralModel})
 def create_new_referral(body: ReferralModel):
     """Create New Referral"""
     health_facility = crud.read(
@@ -98,7 +99,7 @@ def create_new_referral(body: ReferralModel):
 
 
 # /api/referrals/<string:referral_id> [GET]
-@api_referrals.get("/<string:referral_id>")
+@api_referrals.get("/<string:referral_id>", responses={200: ReferralModel})
 def get_referral(path: ReferralIdPath):
     """Get Referral"""
     referral = crud.read(ReferralOrm, id=path.referral_id)
@@ -108,7 +109,7 @@ def get_referral(path: ReferralIdPath):
 
 
 # /api/referrals/assess/<string:referral_id> [PUT]
-@api_referrals.put("/assess/<string:referral_id>")
+@api_referrals.put("/assess/<string:referral_id>", responses={200: ReferralModel})
 def update_referral_assessed(path: ReferralIdPath):
     """
     Update Referral (Assessed)
@@ -124,11 +125,13 @@ def update_referral_assessed(path: ReferralIdPath):
         data.db_session.commit()
         data.db_session.refresh(referral)
 
-    return marshal.marshal(referral), 201
+    return marshal.marshal(referral), 200
 
 
 # /api/referrals/cancel-status-switch/<string:referral_id> [PUT]
-@api_referrals.put("/cancel-status-switch/<string:referral_id>")
+@api_referrals.put(
+    "/cancel-status-switch/<string:referral_id>", responses={200: ReferralModel}
+)
 def update_referral_cancel_status(path: ReferralIdPath, body: CancelStatus):
     """Update Referral (Cancel Status)"""
     if crud.read(ReferralOrm, id=path.referral_id) is None:
@@ -152,7 +155,9 @@ def update_referral_cancel_status(path: ReferralIdPath, body: CancelStatus):
 
 
 # /api/referrals/not-attend/<string:referral_id> [PUT]
-@api_referrals.put("/referrals/not-attend/<string:referral_id>")
+@api_referrals.put(
+    "/referrals/not-attend/<string:referral_id>", responses={200: ReferralModel}
+)
 def update_referral_not_attend(path: ReferralIdPath, body: NotAttendReason):
     """Update Referral (Not Attend)"""
     referral = crud.read(ReferralOrm, id=path.referral_id)
