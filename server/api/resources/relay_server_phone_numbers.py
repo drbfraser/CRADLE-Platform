@@ -3,6 +3,7 @@ from typing import Optional
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
+from pydantic import RootModel
 
 from api.decorator import roles_required
 from data import crud, marshal
@@ -20,15 +21,19 @@ api_relay_phone_numbers = APIBlueprint(
 )
 
 
-class RelayServerPhone(CradleBaseModel):
+class RelayServerPhoneNumberModel(CradleBaseModel):
     id: str
     phone_number: str
     description: str
     last_received: Optional[int] = None
 
 
+class RelayServerPhoneNumberList(RootModel):
+    root: list[RelayServerPhoneNumberModel]
+
+
 # /api/relay/server/phone [GET]
-@api_relay_phone_numbers.get("")
+@api_relay_phone_numbers.get("", responses={200: RelayServerPhoneNumberList})
 def get_all_relay_phone_numbers():
     """Get All SMS Relay Server Phone Numbers"""
     phone_numbers = crud.read_all(RelayServerPhoneNumberOrm)
@@ -36,9 +41,9 @@ def get_all_relay_phone_numbers():
 
 
 # /api/relay/server/phone [POST]
-@api_relay_phone_numbers.post("")
+@api_relay_phone_numbers.post("", responses={201: RelayServerPhoneNumberModel})
 @roles_required([RoleEnum.ADMIN])
-def add_relay_phone_number(body: RelayServerPhone):
+def add_relay_phone_number(body: RelayServerPhoneNumberModel):
     """Add SMS Relay Server Phone Number"""
     server_details = marshal.unmarshal(RelayServerPhoneNumberOrm, body.model_dump())
     phone_number = server_details.phone_number
@@ -48,22 +53,23 @@ def add_relay_phone_number(body: RelayServerPhone):
         )
 
     crud.create(server_details, refresh=True)
-    return {"message": "Relay server phone number added successfully"}, 200
+    return marshal.marshal(server_details, shallow=True), 200
 
 
 # /api/relay/server/phone [PUT]
-@api_relay_phone_numbers.put("")
+@api_relay_phone_numbers.put("", responses={200: RelayServerPhoneNumberModel})
 @roles_required([RoleEnum.ADMIN])
-def update_relay_phone_number(body: RelayServerPhone):
+def update_relay_phone_number(body: RelayServerPhoneNumberModel):
     """Update SMS Relay Server Phone Number"""
     crud.update(RelayServerPhoneNumberOrm, body.model_dump(), id=body.id)
-    return {"message": "Relay server updated"}, 200
+    relay_server_phone_number_orm = crud.read(RelayServerPhoneNumberOrm, id=body.id)
+    return marshal.marshal(relay_server_phone_number_orm, shallow=True), 200
 
 
 # /api/relay/server/phone [DELETE]
 @api_relay_phone_numbers.delete("")
 @roles_required([RoleEnum.ADMIN])
-def delete_relay_phone_number(body: RelayServerPhone):
+def delete_relay_phone_number(body: RelayServerPhoneNumberModel):
     """Delete SMS Relay Server Phone Number"""
     relay_phone_number = crud.read(RelayServerPhoneNumberOrm, id=body.id)
     if relay_phone_number is None:
