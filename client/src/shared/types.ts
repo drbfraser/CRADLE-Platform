@@ -353,7 +353,7 @@ export type Question = {
 export interface TQuestion {
   categoryIndex: OrNull<number>;
   id: string | undefined;
-  questionLangVersions: QuestionLangVersion[];
+  langVersions: QuestionLangVersion[];
   questionIndex: number;
   questionType: QuestionTypeEnum;
   required: boolean;

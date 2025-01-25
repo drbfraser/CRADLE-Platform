@@ -68,7 +68,7 @@ const EditCategory = ({
       setEnableVisiblity(enableVisibility);
     } else {
       if (question) {
-        setQuestionLangversions(getQlvCopy(question.questionLangVersions));
+        setQuestionLangversions(getQlvCopy(question.langVersions));
         setEnableVisiblity(
           enableVisibility || question.visibleCondition.length > 0
         );
@@ -103,7 +103,7 @@ const EditCategory = ({
   const getFieldName = (language: string) => {
     let fName = '';
     if (question) {
-      const qLangVersion = question.questionLangVersions.find(
+      const qLangVersion = question.langVersions.find(
         (version) => version.lang === language
       );
       if (qLangVersion) {
@@ -302,8 +302,7 @@ const EditCategory = ({
                       (q) => q.questionIndex === question.questionIndex
                     );
                     if (questionToUpdate) {
-                      questionToUpdate.questionLangVersions =
-                        questionLangVersions;
+                      questionToUpdate.langVersions = questionLangVersions;
                       questionToUpdate.visibleCondition = enableVisibility
                         ? visibleCondition
                         : [];
@@ -345,7 +344,7 @@ const EditCategory = ({
                   else {
                     form.questions.push({
                       questionIndex: form.questions.length,
-                      questionLangVersions: questionLangVersions,
+                      langVersions: questionLangVersions,
                       questionType: QuestionTypeEnum.CATEGORY,
                       required: false,
                       allowFutureDates: true,
