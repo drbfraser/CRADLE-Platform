@@ -33,3 +33,10 @@ class SmsRelayDecryptedBody(CradleBaseModel, extra="forbid"):
                 "Invalid Method; Must be either GET, POST, HEAD, PUT, DELETE, or PATCH",
             )
         return method
+
+
+class SmsRelayResponse(CradleBaseModel):
+    code: int
+    body: str
+    iv: str
+    user_sms_key: str

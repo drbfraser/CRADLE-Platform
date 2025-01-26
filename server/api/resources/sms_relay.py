@@ -9,7 +9,11 @@ from pydantic import ValidationError
 
 from common import phone_number_utils, user_utils
 from service import compressor, encryptor
-from validation.sms_relay import SmsRelayDecryptedBody, SmsRelayRequestBody
+from validation.sms_relay import (
+    SmsRelayDecryptedBody,
+    SmsRelayRequestBody,
+    SmsRelayResponse,
+)
 
 api_url = "http://localhost:5000/{endpoint}"
 
@@ -91,7 +95,7 @@ api_sms_relay = APIBlueprint(
 
 
 # /api/sms_relay [POST]
-@api_sms_relay.post("")
+@api_sms_relay.post("", responses={200: SmsRelayResponse})
 def relay_sms_request(body: SmsRelayRequestBody):
     """Relay SMS Request"""
     phone_number = body.phone_number

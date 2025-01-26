@@ -1,5 +1,6 @@
 import logging
 from datetime import date
+from typing import Optional
 
 from dateutil.relativedelta import relativedelta
 from flask import abort
@@ -12,9 +13,20 @@ from common.api_utils import FacilityNamePath, UserIdPath
 from data import crud
 from enums import RoleEnum, TrafficLightEnum
 from models import UserOrm
+from validation import CradleBaseModel
+from validation.readings import ColorReadingStats
 from validation.stats import Timeframe
 
 LOGGER = logging.getLogger(__name__)
+
+
+class StatsData(CradleBaseModel):
+    sent_referrals: int
+    days_with_readings: int
+    unique_patient_readings: int
+    patients_referred: Optional[int] = None
+    total_readings: int
+    color_readings: ColorReadingStats
 
 
 def query_stats_data(args, facility_id="%", user_id="%"):
@@ -92,7 +104,7 @@ api_stats = APIBlueprint(
 
 
 # api/stats/all [GET]
-@api_stats.get("all")
+@api_stats.get("all", responses={200: StatsData})
 @roles_required([RoleEnum.ADMIN])
 def get_all_stats(query: Timeframe):
     """Get All Stats"""
@@ -103,7 +115,7 @@ def get_all_stats(query: Timeframe):
 
 
 # api/stats/facility/<string:health_facility_name> [GET]
-@api_stats.get("/facility/<string:health_facility_name>")
+@api_stats.get("/facility/<string:health_facility_name>", responses={200: StatsData})
 @roles_required([RoleEnum.ADMIN, RoleEnum.HCW])
 def get_facility_stats(path: FacilityNamePath, query: Timeframe):
     """Get Facility Stats"""
@@ -148,7 +160,7 @@ def has_permission_to_view_user(user_id):
 
 
 # api/stats/user/<int:user_id> [GET]
-@api_stats.get("/user/<int:user_id>")
+@api_stats.get("/user/<int:user_id>", responses={200: StatsData})
 @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
 def get_user_stats(path: UserIdPath, query: Timeframe):
     """Get User Stats"""

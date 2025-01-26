@@ -57,3 +57,11 @@ class ReadingWithUrineTest(ReadingModel):
 
 class ReadingWithUrineTestList(RootModel):
     list[ReadingWithUrineTest]
+
+
+class ColorReadingStats(CradleBaseModel):
+    GREEN: int
+    YELLOW_DOWN: int
+    YELLOW_UP: int
+    RED_DOWN: int
+    RED_UP: int
