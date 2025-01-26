@@ -4,6 +4,7 @@ from typing import List
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
+from pydantic import RootModel
 
 from api.decorator import roles_required
 from common import phone_number_utils, user_utils
@@ -13,8 +14,10 @@ from enums import RoleEnum
 from models import UserOrm
 from validation import CradleBaseModel
 from validation.phone_numbers import PhoneNumberE164
+from validation.sms_key import SmsKeyModel
 from validation.users import (
     RegisterUserRequestBody,
+    UserList,
     UserModel,
 )
 
@@ -46,7 +49,7 @@ api_users = APIBlueprint(
 
 
 # /api/user/all [GET]
-@api_users.get("/all")
+@api_users.get("/all", responses={200: UserList})
 @roles_required([RoleEnum.ADMIN])
 def get_all_users():
     """Get All Users"""
@@ -54,8 +57,19 @@ def get_all_users():
     return user_list, 200
 
 
+class Vht(CradleBaseModel):
+    user_id: int
+    email: str
+    health_facility_name: str
+    name: str
+
+
+class VhtList(RootModel):
+    root: list[Vht]
+
+
 # /api/user/vhts [GET]
-@api_users.get("/vhts")
+@api_users.get("/vhts", responses={200: VhtList})
 @roles_required([RoleEnum.CHO, RoleEnum.ADMIN, RoleEnum.HCW])
 def get_vht_list():
     """Get VHT List"""
@@ -95,7 +109,7 @@ def change_password_current_user():
 
 
 # /api/user/register [POST]
-@api_users.post("/register")
+@api_users.post("/register", responses={201: UserModel})
 @roles_required([RoleEnum.ADMIN])
 def register_user(body: RegisterUserRequestBody):
     """Register New User"""
@@ -110,7 +124,7 @@ def register_user(body: RegisterUserRequestBody):
 
 
 # /api/user/current [GET]
-@api_users.get("/current")
+@api_users.get("/current", responses={200: UserModel})
 def get_current_user():
     """
     Get Current User
@@ -121,7 +135,7 @@ def get_current_user():
 
 
 # /api/user/<int:user_id> [PUT]
-@api_users.put("/<int:user_id>")
+@api_users.put("/<int:user_id>", responses={200: UserModel})
 @roles_required([RoleEnum.ADMIN])
 def edit_user(path: UserIdPath, body: UserModel):
     """Edit User"""
@@ -136,7 +150,7 @@ def edit_user(path: UserIdPath, body: UserModel):
 
 
 # /api/user/<int:user_id> [GET]
-@api_users.get("/<int:user_id>")
+@api_users.get("/<int:user_id>", responses={200: UserModel})
 def get_user(path: UserIdPath):
     """Get User"""
     try:
@@ -177,6 +191,10 @@ class UserPhoneNumbers(CradleBaseModel):
 # TODO: Rework these endpoints. Users should be able to have multiple phone numbers.
 
 
+class PhoneNumberList(CradleBaseModel):
+    phone_numbers: list[str]
+
+
 # /api/user/<int:user_id>/phone [GET]
 @api_users.get("/<int:user_id>/phone")
 def get_users_phone_numbers(path: UserIdPath):
@@ -205,7 +223,7 @@ def update_users_phone_numbers(path: UserIdPath, body: UserPhoneNumbers):
 
 
 # /api/user/<int:user_id>/smskey [GET]
-@api_users.get("/<int:user_id>/smskey")
+@api_users.get("/<int:user_id>/smskey", responses={200: SmsKeyModel})
 def get_users_sms_key(path: UserIdPath):
     """Get User's SMS Key"""
     current_user = user_utils.get_current_user_from_jwt()
@@ -224,7 +242,7 @@ def get_users_sms_key(path: UserIdPath):
 
 
 # /api/user/<int:user_id>/smskey [PUT]
-@api_users.put("/<int:user_id>/smskey")
+@api_users.put("/<int:user_id>/smskey", responses={200: SmsKeyModel})
 def update_users_sms_key(path: UserIdPath):
     """Update User's SMS Key"""
     current_user = user_utils.get_current_user_from_jwt()
@@ -245,7 +263,7 @@ def update_users_sms_key(path: UserIdPath):
 
 
 # /api/user/<int:user_id>/smskey [POST])
-@api_users.post("/<int:user_id>/smskey")
+@api_users.post("/<int:user_id>/smskey", responses={201: SmsKeyModel})
 def create_new_sms_key(path: UserIdPath):
     """Create New SMS Key"""
     current_user = user_utils.get_current_user_from_jwt()

@@ -1,6 +1,6 @@
 from typing import Annotated, Optional
 
-from pydantic import AfterValidator, EmailStr
+from pydantic import AfterValidator, EmailStr, RootModel
 
 from common.commonUtil import (
     to_lowercase,
@@ -67,3 +67,7 @@ class UserWithSmsKey(UserModel):
 class RegisterUserRequestBody(UserModel):
     id: Optional[int] = None
     password: str
+
+
+class UserList(RootModel):
+    root: list[UserModel]
