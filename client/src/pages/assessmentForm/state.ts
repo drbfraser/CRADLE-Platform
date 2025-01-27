@@ -12,7 +12,7 @@ export enum AssessmentField {
   healthcareWorkerId = 'healthcareWorkerId',
 }
 
-export const initialState = {
+const initialState = {
   [AssessmentField.investigation]: '',
   [AssessmentField.finalDiagnosis]: '',
   [AssessmentField.treatment]: '',
