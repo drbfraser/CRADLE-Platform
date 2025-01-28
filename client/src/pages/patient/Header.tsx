@@ -60,7 +60,7 @@ export const Header = ({
         height={'100%'}
         alignItems="center"
         alignContent="center"
-        gap={3}>
+        gap={2}>
         <PrimaryButton onClick={handleSubmitNewFormClick}>
           <Add /> Submit New Form
         </PrimaryButton>
