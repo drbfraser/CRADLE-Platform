@@ -137,7 +137,7 @@ def upload_form_template_file(form: FileUploadForm):
         form_template = FormTemplateUpload(**file_contents)
     except ValidationError as e:
         return abort(422, description=e.errors())
-    return handle_form_template_upload(form_template)
+    return _handle_form_template_upload(form_template)
 
 
 # /api/forms/templates/body [POST]
@@ -148,7 +148,7 @@ def upload_form_template_body(body: FormTemplateUpload):
     Upload Form Template VIA Request Body
     Accepts Form Template through the request body, rather than as a file.
     """
-    return handle_form_template_upload(body)
+    return _handle_form_template_upload(body)
 
 
 # /api/forms/templates/<string:form_template_id>/versions [GET]
