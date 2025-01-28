@@ -6,7 +6,7 @@ export type Toast = {
   message: string;
 };
 
-const useToast = () => {
+const useToastAfterNav = () => {
   const toastData: Toast | undefined = useLocation().state?.toast;
 
   const [open, setOpen] = useState<boolean>(toastData !== undefined);
@@ -14,4 +14,4 @@ const useToast = () => {
   return { toast: toastData ?? null, open, setOpen };
 };
 
-export default useToast;
+export default useToastAfterNav;

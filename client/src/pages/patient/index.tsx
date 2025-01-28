@@ -15,7 +15,7 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { SexEnum } from 'src/shared/enums';
 import { ConfirmDialog } from 'src/shared/components/confirmDialog';
 import usePatient from 'src/shared/hooks/patient';
-import useToast from 'src/shared/hooks/toast';
+import useToastAfterNav from 'src/shared/hooks/toastAfterNav';
 import { Toast } from 'src/shared/components/toast';
 import {
   AssessmentCard,
@@ -58,7 +58,7 @@ const filters: Filter[] = [
 
 export const PatientPage = () => {
   const navigate = useNavigate();
-  const { toast, open: toastOpen, setOpen: setToastOpen } = useToast();
+  const { toast, open: toastOpen, setOpen: setToastOpen } = useToastAfterNav();
 
   const { patientId } = useParams() as RouteParams;
   const [cards, setCards] = useState<JSX.Element[]>([]);
