@@ -187,7 +187,7 @@ export const PatientPage = () => {
         isThereAPendingReferral={hasPendingReferral}
         setConfirmDialogPerformAssessmentOpen={setConfirmDialogOpen}
       />
-      <Grid sx={{ marginTop: '3rem' }} container spacing={4}>
+      <Grid sx={{ marginTop: '2rem' }} container spacing={3}>
         <Grid container size={{ xs: 12, lg: 6 }} direction="column" spacing={2}>
           <PersonalInfo patient={patient} />
 
