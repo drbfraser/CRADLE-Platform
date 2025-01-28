@@ -15,7 +15,7 @@ import Paper from '@mui/material/Paper';
 import { PrimaryButton } from 'src/shared/components/Button';
 import TextField from '@mui/material/TextField';
 import { saveReferralAsync } from 'src/shared/api/api';
-import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
+import { useHealthFacilityNames } from 'src/shared/hooks/healthFacilities';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -24,7 +24,7 @@ interface IProps {
 }
 
 export const ReferralForm = ({ patientId }: IProps) => {
-  const healthFacilities = useHealthFacilities();
+  const healthFacilityNames = useHealthFacilityNames();
   const [submitError, setSubmitError] = useState(false);
   const navigate = useNavigate();
 
@@ -47,8 +47,6 @@ export const ReferralForm = ({ patientId }: IProps) => {
       setSubmitting(false);
     }
   };
-
-  const healthFacilityNames = healthFacilities.map((facility) => facility.name);
 
   return (
     <>
