@@ -132,7 +132,7 @@ def upload_form_template_file(form: FileUploadForm):
             )
     else:
         return abort(422, description="Invalid content-type.")
-    
+
     try:
         form_template = FormTemplateUpload(**file_contents)
     except ValidationError as e:
