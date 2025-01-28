@@ -130,8 +130,9 @@ def upload_form_template_file(form: FileUploadForm):
                 400,
                 description="Something went wrong while parsing the CSV file.",
             )
-        else:
-            return abort(422, description="Invalid content-type.")
+    else:
+        return abort(422, description="Invalid content-type.")
+    
     try:
         form_template = FormTemplateUpload(**file_contents)
     except ValidationError as e:
