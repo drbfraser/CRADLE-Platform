@@ -21,7 +21,7 @@ import {
   validationSchema,
 } from './state';
 import { Typography } from '@mui/material';
-import { Toast } from 'src/shared/hooks/toast';
+import { Toast } from 'src/shared/hooks/toastAfterNav';
 
 interface IProps {
   patientId: string;
