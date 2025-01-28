@@ -54,7 +54,7 @@ def get_all_form_templates(query: GetAllFormTemplatesQuery):
     return [marshal.marshal(f, shallow=True) for f in form_templates]
 
 
-def handle_form_template_upload(form_template: FormTemplateUpload):
+def _handle_form_template_upload(form_template: FormTemplateUpload):
     """
     Common logic for handling uploaded form template. Whether it was uploaded
     as a file, or in the request body.
