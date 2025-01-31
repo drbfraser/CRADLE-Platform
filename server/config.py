@@ -1,8 +1,6 @@
 import datetime
 import json
 import logging.config
-import os
-from pathlib import Path
 from typing import ClassVar
 
 import environs
@@ -18,8 +16,6 @@ from sqlalchemy import MetaData
 # Versioning system follows : https://semver.org/
 app_version = "1.0.0"
 
-basedir = Path(os.path.dirname(__file__)).resolve()
-
 
 class Config:
     env = Env()
@@ -31,7 +27,6 @@ class Config:
         db_hostname = env("DB_HOSTNAME")
         db_port = env("DB_PORT")
         db_name = env("DB_NAME")
-
     except environs.EnvError:
         print(
             "******************************************************************************************",
@@ -44,10 +39,7 @@ class Config:
         )
 
     SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{db_user}:{db_pw}@{db_hostname}:{db_port}/{db_name}"  # ex: 'mysql+pymysql://root:123456@localhost:3306/cradle'
-
-    print("SQLALCHEMY_DATABASE_URI: " + SQLALCHEMY_DATABASE_URI)
-
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    print(f"SQLALCHEMY_DATABASE_URI: {SQLALCHEMY_DATABASE_URI}")
 
     LOGGING: ClassVar = {
         "version": 1,
@@ -91,9 +83,6 @@ class Config:
     logging.config.dictConfig(LOGGING)
     logger = logging.getLogger(__name__)
 
-    logger.debug("Debug message")
-    logger.info("Info message")
-
 
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
@@ -103,8 +92,6 @@ class JSONEncoder(json.JSONEncoder):
             return str(o)
         return json.JSONEncoder.default(self, o)
 
-
-FLASK_APP = "app.py"
 
 API_DOCS_TITLE = "Cradle-Platform REST API"
 jwt_security = {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"}

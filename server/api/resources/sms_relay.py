@@ -49,7 +49,7 @@ phone_number_not_exists = (
 )
 
 
-def send_request_to_endpoint(
+def _send_request_to_endpoint(
     method: str,
     endpoint: str,
     header: dict,
@@ -63,7 +63,7 @@ def send_request_to_endpoint(
     )
 
 
-def create_flask_response(code: int, body: str, iv: str, user_sms_key: str) -> Response:
+def _create_flask_response(code: int, body: str, iv: str, user_sms_key: str) -> Response:
     # Create a response object with the JSON data and set the content type
     # This response structure is defined in the SMS-Relay App -> model.HTTPSResponse
     # Do not change without updating Retrofit configuration
@@ -81,7 +81,7 @@ def create_flask_response(code: int, body: str, iv: str, user_sms_key: str) -> R
     return response
 
 
-iv_size = 32
+_iv_size = 32
 
 
 # /api/sms_relay
@@ -99,6 +99,7 @@ api_sms_relay = APIBlueprint(
 def relay_sms_request(body: SmsRelayRequestBody):
     """Relay SMS Request"""
     phone_number = body.phone_number
+
     phone_number_exists = phone_number_utils.does_phone_number_belong_to_a_user(
         phone_number
     )
@@ -112,7 +113,6 @@ def relay_sms_request(body: SmsRelayRequestBody):
 
     # Get user id for the user that phone_number belongs to
     user = user_utils.get_user_orm_from_phone_number(phone_number)
-
     if user is None:
         return abort(404, description=invalid_user.format(type="JSON"))
 
@@ -137,29 +137,25 @@ def relay_sms_request(body: SmsRelayRequestBody):
     try:
         decrypted_data = SmsRelayDecryptedBody(**json_dict_data)
     except ValidationError as e:
-        return create_flask_response(
+        return _create_flask_response(
             422,
             invalid_json.format(error=str(e)),
-            encrypted_data[0:iv_size],
+            encrypted_data[0:_iv_size],
             user_secret_key,
         )
 
     request_number = decrypted_data.request_number
-
     if (
         not isinstance(request_number, int)
         or request_number < 0
         or request_number > 999999
     ):
-        return create_flask_response(
+        return _create_flask_response(
             400,
             invalid_req_number.format(error=error_req_range),
-            encrypted_data[0:iv_size],
+            encrypted_data[0:_iv_size],
             user_secret_key,
         )
-
-    method = str(decrypted_data.method)
-    endpoint = decrypted_data.endpoint
 
     headers = decrypted_data.headers
     if headers is None:
@@ -170,16 +166,16 @@ def relay_sms_request(body: SmsRelayRequestBody):
         json_body = "{}"
 
     # Sending request to endpoint
-    response = send_request_to_endpoint(method, endpoint, headers, json_body)
+    method = str(decrypted_data.method)
+    endpoint = decrypted_data.endpoint
+    response = _send_request_to_endpoint(method, endpoint, headers, json_body)
 
     # Creating Response
     response_code = response.status_code
-    print(response_code)
-
     response_body = json.dumps(response.json())
-    return create_flask_response(
+    return _create_flask_response(
         response_code,
         response_body,
-        encrypted_data[0:iv_size],
+        encrypted_data[0:_iv_size],
         user_secret_key,
     )

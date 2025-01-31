@@ -24,19 +24,10 @@ from validation.users import (
 LOGGER = logging.getLogger(__name__)
 
 # Error messages
-null_phone_number_message = "No phone number was provided."
-null_id_message = "No id provided."
-no_user_found_message = "There is no user with this id."
-invalid_phone_number_message = (
-    "Phone number {phone_number} has wrong format. The format for phone number should be +x-xxx-xxx-xxxx, "
-    "+x-xxx-xxx-xxxxx, xxx-xxx-xxxx or xxx-xxx-xxxxx"
+_no_user_found_message = "There is no user with this id."
+_insufficent_permissions_for_sms_key_message = (
+    "Permission denied, you can only get your own sms-key or use the admin account"
 )
-phone_number_already_exists_message = (
-    "Phone number is already assigned to another user."
-)
-
-supported_roles = [role.value for role in RoleEnum]
-
 
 # /api/user
 api_users = APIBlueprint(
@@ -140,12 +131,12 @@ def get_current_user():
 def edit_user(path: UserIdPath, body: UserModel):
     """Edit User"""
     try:
-        # Update the user.
         user_utils.update_user(path.user_id, body.model_dump())
     except ValueError as e:
         error_message = str(e)
         LOGGER.error(error_message)
         return abort(400, description=error_message)
+
     return user_utils.get_user_dict_from_id(path.user_id), 200
 
 
@@ -170,9 +161,8 @@ def delete_user(path: UserIdPath):
     # Ensure that id is valid
     user = crud.read(UserOrm, id=path.user_id)
     if user is None:
-        error = no_user_found_message
-        LOGGER.error(error)
-        return abort(400, description=error)
+        LOGGER.error(_no_user_found_message)
+        return abort(400, description=_no_user_found_message)
 
     try:
         user_utils.delete_user(user.username)
@@ -199,9 +189,9 @@ class PhoneNumberList(CradleBaseModel):
 @api_users.get("/<int:user_id>/phone")
 def get_users_phone_numbers(path: UserIdPath):
     """Get User's Phone Numbers"""
-    # Check if user exists.
     if not user_utils.does_user_exist(path.user_id):
-        return abort(404, description=no_user_found_message)
+        return abort(404, description=_no_user_found_message)
+
     phone_numbers = phone_number_utils.get_users_phone_numbers(path.user_id)
     return {"phone_numbers": phone_numbers}, 200
 
@@ -211,11 +201,13 @@ def get_users_phone_numbers(path: UserIdPath):
 @roles_required([RoleEnum.ADMIN])
 def update_users_phone_numbers(path: UserIdPath, body: UserPhoneNumbers):
     """Update User's Phone Numbers"""
-    # Check if user exists.
     if not user_utils.does_user_exist(path.user_id):
-        return abort(404, description=no_user_found_message)
-    phone_numbers: set[str] = {str(phone_number) for phone_number in body.phone_numbers}
+        return abort(404, description=_no_user_found_message)
+
     try:
+        phone_numbers: set[str] = {
+            str(phone_number) for phone_number in body.phone_numbers
+        }
         user_utils.update_user_phone_numbers(path.user_id, phone_numbers)
     except ValueError as err:
         error = str(err)
@@ -230,7 +222,7 @@ def get_users_sms_key(path: UserIdPath):
     if current_user["role"] != "ADMIN" and current_user["id"] is not path.user_id:
         return (
             {
-                "description": "Permission denied, you can only get your own sms-key or use the admin account",
+                "description": _insufficent_permissions_for_sms_key_message,
             },
             403,
         )
@@ -249,15 +241,15 @@ def update_users_sms_key(path: UserIdPath):
     if current_user["role"] != "ADMIN" and current_user["id"] is not path.user_id:
         return (
             {
-                "description": "Permission denied, you can only get your own sms-key or use the admin account",
+                "description": _insufficent_permissions_for_sms_key_message,
             },
             403,
         )
+
     sms_key = user_utils.get_user_sms_secret_key_formatted(path.user_id)
     if sms_key is None:
         return abort(424, description="NOTFOUND")
 
-    # Create new key.
     new_key = user_utils.update_sms_secret_key_for_user(path.user_id)
     return new_key, 200
 
@@ -270,7 +262,7 @@ def create_new_sms_key(path: UserIdPath):
     if current_user["role"] != "ADMIN" and current_user["id"] is not path.user_id:
         return (
             {
-                "description": "Permission denied, you can only get your own sms-key or use the admin account",
+                "description": _insufficent_permissions_for_sms_key_message,
             },
             403,
         )

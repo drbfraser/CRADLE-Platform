@@ -1,4 +1,3 @@
-import logging
 from typing import Any, NamedTuple, Union, cast
 
 from flask import abort
@@ -23,8 +22,6 @@ from validation.assessments import AssessmentModel
 from validation.patients import PatientWithHistory
 from validation.readings import ReadingModel
 from validation.referrals import ReferralModel
-
-LOGGER = logging.getLogger(__name__)
 
 # /api/sync
 api_sync = APIBlueprint(
@@ -101,8 +98,8 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
         try:
             server_patient = crud.read(PatientOrm, id=patient_id)
             if server_patient is None:
-                """ 
-                TODO: Why are these functions called `deserialize`? 
+                """
+                TODO: Why are these functions called `deserialize`?
                 TODO: Why aren't the marshal/unmarshal functions being used??
                 TODO: Why does it return a dict or a database model???
                 TODO: WHY DO PEOPLE NOT TYPE ANNOTATE THEIR FUNCTIONS????
@@ -143,7 +140,7 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
                     """
                     TODO: Why is this a dict or a Pregnancy ORM model?
                     Why is it just called 'values' and not something more descriptive?
-                    This entire file needs to be massively refactored. 
+                    This entire file needs to be massively refactored.
                     """
                     values = serialize.deserialize_pregnancy(
                         mobile_patient_dict, partial=True
@@ -260,7 +257,6 @@ class SyncReadingsResponse(CradleBaseModel):
 @api_sync.post("/readings", responses={200: SyncReadingsResponse})
 def sync_readings(query: LastSyncQueryParam, body: SyncReadingsBody):
     """Sync Readings"""
-    last_sync = query.since
     patients_on_server_cache = set()
     mobile_readings = body.root
     for mobile_reading in mobile_readings:
@@ -290,6 +286,7 @@ def sync_readings(query: LastSyncQueryParam, body: SyncReadingsBody):
 
     # Read all readings that have been created or updated since last sync
     current_user = user_utils.get_current_user_from_jwt()
+    last_sync = query.since
     new_readings = view.reading_view(cast(dict[Any, Any], current_user), last_sync)
 
     return {
@@ -305,7 +302,6 @@ class SyncReferralsResponse(CradleBaseModel):
 @api_sync.post("/referrals", responses={200: SyncReferralsResponse})
 def sync_referrals(query: LastSyncQueryParam, body: SyncReferralsBody):
     """Sync Referrals"""
-    last_sync = query.since
     patients_on_server_cache = set()
     mobile_referrals = body.root
     for mobile_referral in mobile_referrals:
@@ -319,8 +315,7 @@ def sync_referrals(query: LastSyncQueryParam, body: SyncReferralsBody):
             patients_on_server_cache.add(patient_on_server.id)
 
         if crud.read(ReferralOrm, id=mobile_referral_dict.get("id")):
-            # currently, for referrals that exist in server already we will
-            # skip them
+            # currently, for referrals that exist in server already we will skip them
             continue
         ReferralModel(**mobile_referral_dict)
 
@@ -329,6 +324,7 @@ def sync_referrals(query: LastSyncQueryParam, body: SyncReferralsBody):
 
     # Read all referrals that have been created or updated since last sync
     current_user = user_utils.get_current_user_from_jwt()
+    last_sync = query.since
     new_referrals = view.referral_view(cast(dict[Any, Any], current_user), last_sync)
 
     return {

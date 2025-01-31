@@ -17,8 +17,6 @@ from validation import CradleBaseModel
 from validation.readings import ColorReadingStats
 from validation.stats import Timeframe
 
-LOGGER = logging.getLogger(__name__)
-
 
 class StatsData(CradleBaseModel):
     sent_referrals: int
@@ -29,7 +27,7 @@ class StatsData(CradleBaseModel):
     color_readings: ColorReadingStats
 
 
-def query_stats_data(args, facility_id="%", user_id="%"):
+def _query_stats_data(args, facility_id="%", user_id="%"):
     patients = crud.get_unique_patients_with_readings(
         facility=facility_id,
         user=user_id,
@@ -57,7 +55,7 @@ def query_stats_data(args, facility_id="%", user_id="%"):
         filter=args,
     )[0][0]
 
-    color_readings = create_color_readings(color_readings_q)
+    color_readings = _create_color_readings(color_readings_q)
 
     response_json = {
         "sent_referrals": total_referrals,
@@ -77,7 +75,7 @@ def query_stats_data(args, facility_id="%", user_id="%"):
     return response_json
 
 
-def create_color_readings(color_readings_q):
+def _create_color_readings(color_readings_q):
     color_readings = {
         TrafficLightEnum.GREEN.value: 0,
         TrafficLightEnum.YELLOW_UP.value: 0,
@@ -110,7 +108,7 @@ def get_all_stats(query: Timeframe):
     """Get All Stats"""
     # Date filters default to max range
     filter = query.model_dump()
-    response = query_stats_data(filter)
+    response = _query_stats_data(filter)
     return response, 200
 
 
@@ -125,22 +123,22 @@ def get_facility_stats(path: FacilityNamePath, query: Timeframe):
         and current_user["health_facility_name"] != path.health_facility_name
     ):
         return abort(401, description="Unauthorized to view this facility")
+
     filter = query.model_dump()
-    response = query_stats_data(filter, facility_id=path.health_facility_name)
+    response = _query_stats_data(filter, facility_id=path.health_facility_name)
     return response, 200
 
 
-def has_permission_to_view_user(user_id):
+def _has_permission_to_view_user(user_id):
     current_user = user_utils.get_current_user_from_jwt()
-    role = current_user["role"]
-    is_current_user = current_user["id"] == user_id
 
+    is_current_user = current_user["id"] == user_id
     if is_current_user:
         return True
 
+    role = current_user["role"]
     if role == RoleEnum.VHT.value:
         return False
-
     if role == RoleEnum.CHO.value:
         supervised = crud.get_supervised_vhts(current_user["id"])
         if supervised is None:
@@ -148,7 +146,6 @@ def has_permission_to_view_user(user_id):
         supervised = [user[0] for user in supervised]
         if user_id not in supervised:
             return False
-
     if role == RoleEnum.HCW.value:
         user = crud.read(UserOrm, id=user_id)
         if user is None:
@@ -164,10 +161,10 @@ def has_permission_to_view_user(user_id):
 @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
 def get_user_stats(path: UserIdPath, query: Timeframe):
     """Get User Stats"""
-    if not has_permission_to_view_user(path.user_id):
+    if not _has_permission_to_view_user(path.user_id):
         return abort(401, "Unauthorized to view this endpoint")
     filter = query.model_dump()
-    response = query_stats_data(filter, user_id=str(path.user_id))
+    response = _query_stats_data(filter, user_id=str(path.user_id))
     return response, 200
 
 
@@ -176,18 +173,17 @@ def get_user_stats(path: UserIdPath, query: Timeframe):
 @roles_required([RoleEnum.ADMIN, RoleEnum.CHO, RoleEnum.HCW, RoleEnum.VHT])
 def get_stats_export(path: UserIdPath, query: Timeframe):
     """Get Stats (Export)"""
-    filter = query.model_dump()
-
     if crud.read(UserOrm, id=path.user_id) is None:
         return abort(404, "User with this ID does not exist")
-
-    if not has_permission_to_view_user(path.user_id):
+    if not _has_permission_to_view_user(path.user_id):
         return abort(401, "Unauthorized to view this endpoint")
 
+    filter = query.model_dump()
     query_response = crud.get_export_data(path.user_id, filter)
     response = []
     if query_response is None:
         return response, 200
+
     for entry in query_response:
         age = relativedelta(date.today(), entry["date_of_birth"]).years
         traffic_light = entry.get("traffic_light_status").name

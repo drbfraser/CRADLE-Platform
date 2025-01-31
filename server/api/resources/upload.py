@@ -35,8 +35,7 @@ def get_sms_relay_apk():
 def upload_apk_file(form: FileUploadForm):
     """Upload APK File"""
     file = form.file
-
-    if not is_allowed_file(file.filename):
+    if not _is_allowed_file(file.filename):
         return abort(422, description="File not allowed")
 
     file.save(
@@ -46,5 +45,5 @@ def upload_apk_file(form: FileUploadForm):
     return {"message": "File saved"}, 201
 
 
-def is_allowed_file(filename):
+def _is_allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() == "apk"

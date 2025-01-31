@@ -10,7 +10,7 @@ from validation.formTemplates import FormTemplateUpload
 from validation.questions import QuestionLangVersionModel, TemplateQuestion
 
 
-def create_question_lang_version_orm(
+def _create_question_lang_version_orm(
     lang_version: QuestionLangVersionModel,
 ) -> QuestionLangVersionOrm:
     lang_version_dict = lang_version.model_dump()
@@ -18,36 +18,35 @@ def create_question_lang_version_orm(
     return QuestionLangVersionOrm(**lang_version_dict)
 
 
-def create_question_orm(question: TemplateQuestion) -> QuestionOrm:
+def _create_question_orm(question: TemplateQuestion) -> QuestionOrm:
     lang_version_orms = [
-        create_question_lang_version_orm(lang_version)
+        _create_question_lang_version_orm(lang_version)
         for lang_version in question.lang_versions
     ]
+
     question_dict = question.model_dump()
     del question_dict["lang_versions"]
     question_dict = filterNestedAttributeWithValueNone(question_dict)
+
     question_orm = QuestionOrm(**question_dict)
     question_orm.lang_versions = lang_version_orms
     return question_orm
 
-
+# is this unused?
 def create_form_template_orm(form_template: FormTemplateUpload) -> FormTemplateOrm:
-    form_classification = form_template.classification
-    form_classification_dict = form_classification.model_dump()
-    form_classification_dict = filterNestedAttributeWithValueNone(
-        form_classification_dict
-    )
-
     question_orms = [
-        create_question_orm(question) for question in form_template.questions
+        _create_question_orm(question) for question in form_template.questions
     ]
 
     form_classification_orm = crud.read(
         FormClassificationOrm,
         id=form_template.classification.id,
     )
-
     if form_classification_orm is None:
+        form_classification_dict = form_template.classification.model_dump()
+        form_classification_dict = filterNestedAttributeWithValueNone(
+            form_classification_dict
+        )
         form_classification_orm = FormClassificationOrm(**form_classification_dict)
 
     form_template_dict = form_template.model_dump()
@@ -58,5 +57,4 @@ def create_form_template_orm(form_template: FormTemplateUpload) -> FormTemplateO
     form_template_orm = FormTemplateOrm(**form_template_dict)
     form_template_orm.classification = form_classification_orm
     form_template_orm.questions = question_orms
-
     return form_template_orm
