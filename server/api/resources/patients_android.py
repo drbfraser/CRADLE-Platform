@@ -106,12 +106,6 @@ class MobileGlobalSearchPatientsList(RootModel):
 
 
 # api/patients/global/<string:search>
-# [GET]: Get a list of ALL patients and their basic information
-#        (information necessary for the patient page)
-#        if they match search criteria
-#        For now search criteria could be:
-#           a portion/full match of the patient's id
-#           a portion/full match of the patient's initials
 @api_patients.get(
     "/global/<string:search>",
     tags=[mobile_patient_tag],
