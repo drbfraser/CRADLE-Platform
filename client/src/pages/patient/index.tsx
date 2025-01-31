@@ -31,7 +31,6 @@ import { MedicalInfo } from './MedicalInfo';
 import { PatientStats } from './PatientStats';
 import { PersonalInfo } from './PersonalInfo';
 import { PregnancyInfo } from './PregnancyInfo';
-import ElevatedPaper from './ElevatedPaper';
 
 type RouteParams = {
   patientId: string;
@@ -211,7 +210,7 @@ export const PatientPage = () => {
         </Grid>
 
         <Grid container size={{ xs: 12 }} spacing={2} direction="column">
-          <ElevatedPaper
+          <Paper
             sx={(theme) => ({
               width: '100%',
               padding: theme.spacing(2),
@@ -245,7 +244,7 @@ export const PatientPage = () => {
             </Grid>
             <Divider />
             {cards}
-          </ElevatedPaper>
+          </Paper>
         </Grid>
       </Grid>
     </>
