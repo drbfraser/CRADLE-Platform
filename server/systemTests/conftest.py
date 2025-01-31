@@ -11,6 +11,7 @@ from systemTests.mock import factory
 @pytest.fixture
 def app():
     from config import app
+
     # from manage import seed
 
     app.config.update({"TESTING": True})

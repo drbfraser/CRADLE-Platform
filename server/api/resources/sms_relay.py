@@ -63,7 +63,9 @@ def _send_request_to_endpoint(
     )
 
 
-def _create_flask_response(code: int, body: str, iv: str, user_sms_key: str) -> Response:
+def _create_flask_response(
+    code: int, body: str, iv: str, user_sms_key: str
+) -> Response:
     # Create a response object with the JSON data and set the content type
     # This response structure is defined in the SMS-Relay App -> model.HTTPSResponse
     # Do not change without updating Retrofit configuration

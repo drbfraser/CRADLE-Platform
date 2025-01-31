@@ -32,6 +32,7 @@ def _create_question_orm(question: TemplateQuestion) -> QuestionOrm:
     question_orm.lang_versions = lang_version_orms
     return question_orm
 
+
 # is this unused?
 def create_form_template_orm(form_template: FormTemplateUpload) -> FormTemplateOrm:
     question_orms = [
