@@ -51,7 +51,8 @@ class FormTemplateModel(CradleBaseModel, extra="forbid"):
 
 
 class FormTemplateWithClassification(FormTemplateModel):
-    """"Form Template model including nested Form Classification""" ""
+    """Form Template model including nested Form Classification"""
+
     classification: FormClassificationModel
 
 
