@@ -57,11 +57,7 @@ const filters: Filter[] = [
 
 export const PatientPage = () => {
   const navigate = useNavigate();
-  const {
-    toastData,
-    open: toastOpen,
-    setOpen: setToastOpen,
-  } = useToastAfterNav();
+  const { toastData, isToastOpen, setToastOpen } = useToastAfterNav();
 
   const { patientId } = useParams() as RouteParams;
   const [cards, setCards] = useState<JSX.Element[]>([]);
@@ -166,7 +162,7 @@ export const PatientPage = () => {
         <Toast
           severity={toastData.severity}
           message={toastData.message}
-          open={toastOpen}
+          open={isToastOpen}
           onClose={() => setToastOpen(false)}
         />
       )}
