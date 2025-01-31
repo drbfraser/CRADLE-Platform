@@ -49,9 +49,7 @@ export const ReferralForm = ({ patientId }: IProps) => {
         message: 'Referral submitted successfully',
       };
       navigate(`/patients/${patientId}`, {
-        state: {
-          toast: toastData,
-        },
+        state: { toastData },
       });
     } catch (e) {
       console.error(e);

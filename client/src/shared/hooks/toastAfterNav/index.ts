@@ -6,12 +6,15 @@ export type ToastData = {
   message: string;
 };
 
-const useToastAfterNav = () => {
-  const toastData: ToastData | undefined = useLocation().state?.toast;
+const useToastAfterNav = (): {
+  toastData: ToastData | null;
+  isToastOpen: boolean;
+  setToastOpen: (val: boolean) => void;
+} => {
+  const toastData: ToastData | null = useLocation().state?.toastData ?? null;
+  const [isToastOpen, setToastOpen] = useState<boolean>(toastData !== null);
 
-  const [open, setOpen] = useState<boolean>(toastData !== undefined);
-
-  return { toastData: toastData ?? null, open, setOpen };
+  return { toastData, isToastOpen, setToastOpen };
 };
 
 export default useToastAfterNav;
