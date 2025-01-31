@@ -14,6 +14,11 @@ export const theme = createTheme({
       },
     },
     MuiDataGrid: {},
+    MuiPaper: {
+      defaultProps: {
+        elevation: 5,
+      },
+    },
   },
   palette: {
     primary: {

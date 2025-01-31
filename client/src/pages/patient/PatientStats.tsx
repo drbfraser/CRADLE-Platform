@@ -17,6 +17,7 @@ import {
   Typography,
   ToggleButtonGroup,
   ToggleButton,
+  Paper,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { StatsOptionEnum, TrafficLightEnum } from 'src/shared/enums';
@@ -27,7 +28,6 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import { PatientStatistics } from 'src/shared/types';
 import { Skeleton } from '@mui/material';
 import { getPatientStatisticsAsync } from 'src/shared/api/api';
-import ElevatedPaper from './ElevatedPaper';
 
 Chart.register(
   CategoryScale,
@@ -79,7 +79,7 @@ export const PatientStats = ({ patientId }: IProps) => {
   }, [patientId]);
 
   return (
-    <ElevatedPaper>
+    <Paper>
       <Box p={3}>
         <Typography variant="h5" component="h3">
           <FavoriteIcon fontSize="large" /> &nbsp; Patient Stats
@@ -186,7 +186,7 @@ export const PatientStats = ({ patientId }: IProps) => {
           <Skeleton height={400} />
         )}
       </Box>
-    </ElevatedPaper>
+    </Paper>
   );
 };
 

@@ -5,6 +5,7 @@ import {
   FormControl,
   InputLabel,
   MenuItem,
+  Paper,
   Select,
   Skeleton,
   Stack,
@@ -28,7 +29,6 @@ import { RedirectButton } from 'src/shared/components/Button';
 import Table from '@mui/material/Table';
 import TableRow from '@mui/material/TableRow';
 import { getPatientPregnancySummaryAsync } from 'src/shared/api/api';
-import ElevatedPaper from './ElevatedPaper';
 
 type Props = {
   patientId: string;
@@ -53,6 +53,7 @@ export const PregnancyInfo = ({ patientId, patientName }: Props) => {
       try {
         setInfo(await getPatientPregnancySummaryAsync(patientId));
       } catch (e) {
+        console.error(e);
         setErrorLoading(true);
       }
     };
@@ -178,7 +179,7 @@ export const PregnancyInfo = ({ patientId, patientName }: Props) => {
   };
 
   return (
-    <ElevatedPaper
+    <Paper
       sx={{
         backgroundColor: '#fff',
       }}>
@@ -304,7 +305,7 @@ export const PregnancyInfo = ({ patientId, patientName }: Props) => {
           <Skeleton variant="rectangular" height={200} />
         )}
       </Box>
-    </ElevatedPaper>
+    </Paper>
   );
 };
 

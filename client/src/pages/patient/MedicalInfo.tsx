@@ -5,6 +5,7 @@ import {
   Skeleton,
   SxProps,
   Typography,
+  Paper,
 } from '@mui/material';
 import { Patient, PatientMedicalInfo } from 'src/shared/types';
 import { useEffect, useState } from 'react';
@@ -14,7 +15,6 @@ import { OrNull } from 'src/shared/types';
 import RecentActorsIcon from '@mui/icons-material/RecentActors';
 import { RedirectButton } from 'src/shared/components/Button';
 import { getPatientMedicalHistoryAsync } from 'src/shared/api/api';
-import ElevatedPaper from './ElevatedPaper';
 
 const headerSx: SxProps = {
   display: 'flex',
@@ -83,7 +83,7 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
   );
 
   return (
-    <ElevatedPaper>
+    <Paper>
       <Box p={3}>
         <Box sx={headerSx}>
           <Typography component="h3" variant="h5" sx={headerSx}>
@@ -123,6 +123,6 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
           <Skeleton variant="rectangular" height={200} />
         )}
       </Box>
-    </ElevatedPaper>
+    </Paper>
   );
 };

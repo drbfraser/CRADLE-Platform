@@ -1,4 +1,4 @@
-import { Box, Divider, Grid2 as Grid, Typography } from '@mui/material';
+import { Box, Divider, Grid2 as Grid, Paper, Typography } from '@mui/material';
 
 import { Patient } from 'src/shared/types';
 import RecentActorsIcon from '@mui/icons-material/RecentActors';
@@ -6,7 +6,6 @@ import { SecondaryButton } from 'src/shared/components/Button';
 import { Skeleton } from '@mui/material';
 import { getAgeToDisplay } from 'src/shared/utils';
 import { useNavigate } from 'react-router-dom';
-import ElevatedPaper from './ElevatedPaper';
 
 interface IProps {
   patient?: Patient;
@@ -18,7 +17,7 @@ export const PersonalInfo = ({ patient }: IProps) => {
     navigate(`/patients/${patient?.id}/edit/personalInfo`);
 
   return (
-    <ElevatedPaper>
+    <Paper>
       <Box p={3}>
         <Typography component="h5" variant="h5">
           <RecentActorsIcon fontSize="large" />
@@ -78,6 +77,6 @@ export const PersonalInfo = ({ patient }: IProps) => {
           <Skeleton variant="rectangular" height={200} />
         )}
       </Box>
-    </ElevatedPaper>
+    </Paper>
   );
 };
