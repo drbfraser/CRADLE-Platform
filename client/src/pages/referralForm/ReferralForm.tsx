@@ -6,8 +6,7 @@ import {
   AutocompleteRenderInputParams,
   TextField as FormikTextField,
 } from 'formik-mui';
-import Paper from '@mui/material/Paper';
-import TextField from '@mui/material/TextField';
+import { TextField, Typography, Paper } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -20,8 +19,7 @@ import {
   initialState,
   validationSchema,
 } from './state';
-import { Typography } from '@mui/material';
-import { ToastData } from 'src/shared/hooks/toastAfterNav';
+import { ToastData } from 'src/shared/components/toastAfterNav';
 
 interface IProps {
   patientId: string;

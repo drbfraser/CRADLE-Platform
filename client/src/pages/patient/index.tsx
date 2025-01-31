@@ -12,11 +12,10 @@ import {
 } from 'src/shared/api/api';
 import { Filter, FilterRequestBody, Referral } from 'src/shared/types';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import ToastAfterNav from 'src/shared/components/toastAfterNav';
 import { SexEnum } from 'src/shared/enums';
 import { ConfirmDialog } from 'src/shared/components/confirmDialog';
 import usePatient from 'src/shared/hooks/patient';
-import useToastAfterNav from 'src/shared/hooks/toastAfterNav';
-import { Toast } from 'src/shared/components/toast';
 import {
   AssessmentCard,
   CustomizedFormCard,
@@ -57,8 +56,6 @@ const filters: Filter[] = [
 
 export const PatientPage = () => {
   const navigate = useNavigate();
-  const { toastData, isToastOpen, setToastOpen } = useToastAfterNav();
-
   const { patientId } = useParams() as RouteParams;
   const [cards, setCards] = useState<JSX.Element[]>([]);
   const [errorLoading, setErrorLoading] = useState(false);
@@ -158,14 +155,7 @@ export const PatientPage = () => {
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
       />
-      {toastData && (
-        <Toast
-          severity={toastData.severity}
-          message={toastData.message}
-          open={isToastOpen}
-          onClose={() => setToastOpen(false)}
-        />
-      )}
+      <ToastAfterNav />
 
       <ConfirmDialog
         title={'Warning'}
