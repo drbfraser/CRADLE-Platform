@@ -376,7 +376,9 @@ jobs:
           ls -al
           echo "IMAGE_TAG = '$IMAGE_TAG'"
       - name: Running 'docker compose'...
+        # Remove `CADDY_DEBUG=debug` to disable verbose logging for Caddy.
         run: |
+          CADDY_DEBUG=debug
           docker compose -f docker-compose.yml -f docker-compose.deploy.yml build
           docker images
       - name: Pushing to docker hub...

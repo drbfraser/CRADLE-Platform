@@ -1,6 +1,9 @@
 {
     # Global Config options.
 
+    # Debug Mode
+    {$CADDY_DEBUG}
+
     # Logging.
     log caddy-runtime {
         output file /var/log/runtime.log {
