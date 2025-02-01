@@ -1,4 +1,4 @@
-FROM caddy:2.7.4
+FROM caddy:2.8.0
 
 # these paths are relative to the project root, not this folder
 ADD caddy/Caddyfile /etc/caddy/Caddyfile
