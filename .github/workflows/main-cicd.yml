@@ -377,8 +377,10 @@ jobs:
           echo "IMAGE_TAG = '$IMAGE_TAG'"
       - name: Running 'docker compose'...
         # Remove `CADDY_DEBUG=debug` to disable verbose logging for Caddy.
+        # Remove `CADDY_ACME_CA` environment variable in production.
         run: |
           CADDY_DEBUG=debug
+          CADDY_ACME_CA=https://acme-staging-v02.api.letsencrypt.org/directory
           docker compose -f docker-compose.yml -f docker-compose.deploy.yml build
           docker images
       - name: Pushing to docker hub...
