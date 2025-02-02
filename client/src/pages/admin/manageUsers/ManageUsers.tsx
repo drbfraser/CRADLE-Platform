@@ -45,7 +45,7 @@ export const ManageUsers = () => {
         id: index,
         name: user.name,
         email: user.email,
-        phoneNumber: user.phoneNumber,
+        phoneNumbers: user.phoneNumbers,
         healthFacility: user.healthFacilityName,
         role: userRoleLabels[user.role],
         takeAction: user,
@@ -97,7 +97,7 @@ export const ManageUsers = () => {
   const columns: GridColDef[] = [
     { flex: 1, field: 'name', headerName: 'Name' },
     { flex: 1, field: 'email', headerName: 'Email' },
-    { flex: 1, field: 'phoneNumber', headerName: 'Phone Number' },
+    { flex: 1, field: 'phoneNumbers', headerName: 'Phone Numbers' },
     { flex: 1, field: 'healthFacility', headerName: 'Health Facility' },
     { flex: 1, field: 'role', headerName: 'Role' },
     {
