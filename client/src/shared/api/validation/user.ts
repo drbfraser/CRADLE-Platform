@@ -12,9 +12,10 @@ export const userSchema = z.object({
   smsKey: smsKeySchema.nullable(),
   supervises: z.array(z.number().int()).default([]),
   phoneNumbers: z.array(z.string()),
-  phoneNumber: z.string().optional(),
 });
 export type User = z.infer<typeof userSchema>;
+
+export const userListSchema = userSchema.array();
 
 /** Schema of object to send to endpoint for creating a new user.
  *  These omitted properties are generated automatically on the server.
