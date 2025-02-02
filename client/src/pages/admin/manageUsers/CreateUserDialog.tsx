@@ -5,6 +5,7 @@ import {
 } from 'formik-mui';
 import {
   AutocompleteRenderInputParams,
+  Box,
   Dialog,
   DialogActions,
   DialogContent,
@@ -12,9 +13,12 @@ import {
   FormGroup,
   MenuItem,
   TextField,
+  Button,
+  IconButton,
+  Stack,
 } from '@mui/material';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
-import { Field, Form, Formik, FormikHelpers } from 'formik';
+import { Field, FieldArray, Form, Formik, FormikHelpers } from 'formik';
 import { UserField, fieldLabels } from './state';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -26,13 +30,15 @@ import { NewUser, User } from 'src/shared/api/validation/user';
 import { lowerCase } from 'lodash';
 import { UserRoleEnum } from 'src/shared/enums';
 import { AxiosError } from 'axios';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import { UserPhoneNumbersFieldArray } from 'src/shared/components/Form/UserForm/UserPhoneNumbersFieldArray';
 
 const newUserTemplate: NewUser = {
   email: '',
   username: '',
   name: '',
-  phoneNumber: '',
-  phoneNumbers: [] as string[],
+  phoneNumbers: [''],
   healthFacilityName: '',
   role: UserRoleEnum.VHT,
   supervises: [] as number[],
@@ -80,14 +86,11 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
     { setSubmitting }: FormikHelpers<NewUser>
   ) => {
     const newUser = { ...user };
-    /* If the phone number entered is not already in the user's array of 
-    phone numbers, prepend it to the array. */
-    if (
-      newUser.phoneNumber &&
-      !newUser.phoneNumbers.includes(newUser.phoneNumber)
-    ) {
-      newUser.phoneNumbers = [newUser.phoneNumber, ...newUser.phoneNumbers];
-    }
+    /* Remove any blank phone numbers. */
+    newUser.phoneNumbers = newUser.phoneNumbers.filter((phoneNumber) => {
+      return phoneNumber.trim().length > 0;
+    });
+
     try {
       await createUserAsync(newUser);
       onClose();
@@ -122,7 +125,7 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
       <Dialog open={open} maxWidth={'sm'} fullWidth>
         <DialogTitle>{'Create New User'}</DialogTitle>
         <DialogContent>
-          <Formik initialValues={newUserTemplate} onSubmit={handleSubmit} on>
+          <Formik initialValues={newUserTemplate} onSubmit={handleSubmit}>
             {({ touched, errors, isSubmitting, isValid }) => (
               <Form autoComplete={'off'}>
                 <FormGroup
@@ -174,19 +177,9 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
                     }}
                     error={touched.email && !!errors.email}
                   />
-                  <Field
-                    id={'new-user-field-phone-number'}
-                    component={FormikTextField}
-                    fullWidth
-                    required
-                    variant="outlined"
-                    label={fieldLabels[UserField.phoneNumber]}
-                    name={UserField.phoneNumber}
-                    inputProps={{
-                      maxLength: 25,
-                    }}
-                    error={touched.phoneNumber && !!errors.phoneNumber}
-                  />
+
+                  <UserPhoneNumbersFieldArray />
+
                   <Field
                     id={'new-user-field-facility'}
                     component={Autocomplete}
