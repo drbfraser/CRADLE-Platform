@@ -30,7 +30,6 @@ import { MedicalInfo } from './MedicalInfo';
 import { PatientStats } from './PatientStats';
 import { PersonalInfo } from './PersonalInfo';
 import { PregnancyInfo } from './PregnancyInfo';
-import { useQuery } from '@tanstack/react-query';
 
 type RouteParams = {
   patientId: string;
@@ -70,15 +69,6 @@ export const PatientPage = () => {
       forms: true,
     }
   );
-
-  // const { data: referrals } = useQuery({
-  //   queryKey: ['referrals'],
-  //   queryFn: () => getPatientReferralsAsync(patientId),
-  // });
-
-  // const _hasPendingReferral_ = (referrals as Referral[]).some(
-  //   (r) => !r.isAssessed && !r.isCancelled && !r.notAttended
-  // );
 
   const { patient, errorLoading: errorLoadingPatient } = usePatient(patientId);
   if (errorLoadingPatient) {
