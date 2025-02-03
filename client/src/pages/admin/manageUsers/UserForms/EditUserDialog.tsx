@@ -18,7 +18,7 @@ import { editUserAsync } from 'src/shared/api/api';
 import { useState } from 'react';
 import { EditUser, User } from 'src/shared/api/validation/user';
 import { AxiosError } from 'axios';
-import { UserPhoneNumbersFieldArray } from 'src/shared/components/Form/UserForm/UserPhoneNumbersFieldArray';
+import { UserPhoneNumbersFieldArray } from 'src/pages/admin/manageUsers/UserForms/UserPhoneNumbersFieldArray';
 import {
   UserEmailField,
   UserHealthFacilityField,

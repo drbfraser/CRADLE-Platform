@@ -13,7 +13,7 @@ import { useState } from 'react';
 import { NewUser, User } from 'src/shared/api/validation/user';
 import { UserRoleEnum } from 'src/shared/enums';
 import { AxiosError } from 'axios';
-import { UserPhoneNumbersFieldArray } from 'src/shared/components/Form/UserForm/UserPhoneNumbersFieldArray';
+import { UserPhoneNumbersFieldArray } from 'src/pages/admin/manageUsers/UserForms/UserPhoneNumbersFieldArray';
 import {
   UserEmailField,
   UserHealthFacilityField,
