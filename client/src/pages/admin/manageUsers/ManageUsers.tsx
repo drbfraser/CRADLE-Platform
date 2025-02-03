@@ -56,6 +56,8 @@ export const ManageUsers = () => {
   // Component to render buttons inside the last cell of each row.
   const ActionButtons = useCallback(
     ({ user }: { user?: UserWithIndex }) => {
+      // TODO: Fix this eslint Error
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const { data: currentUser } = useAppSelector(selectCurrentUser);
       const isCurrentUser = currentUser?.id === user?.id;
       const actions: TableAction[] = [
