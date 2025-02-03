@@ -11,7 +11,6 @@ import { TextField as FormikTextField } from 'formik-mui';
 
 export const UserPhoneNumbersFieldArray = () => {
   const { values } = useFormikContext<{ phoneNumbers: string[] }>();
-  console.log(values.phoneNumbers);
   return (
     <FieldArray
       name={'phoneNumbers'}
