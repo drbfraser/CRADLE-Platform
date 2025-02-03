@@ -3,6 +3,7 @@ import time
 import pytest
 from humps import decamelize
 
+from common.print_utils import pretty_print
 from data import crud
 from models import FormClassificationOrm, FormTemplateOrm
 
@@ -17,7 +18,7 @@ def test_form_classification_created(
     try:
         response = api_get(endpoint="/api/forms/classifications")
         response_body = decamelize(response.json())
-        print(response_body)
+        pretty_print(response_body)
         assert response.status_code == 200
         existing = len(response_body)
 
@@ -38,7 +39,7 @@ def test_form_classification_created(
 
         response = api_get(endpoint="/api/forms/classifications")
         response_body = decamelize(response.json())
-        print(response_body)
+        pretty_print(response_body)
         assert response.status_code == 200
         assert len(response_body) == existing + 2
     finally:
@@ -64,7 +65,7 @@ def test_form_classification_updated(
 
         response = api_get(endpoint="/api/forms/classifications")
         response_body = decamelize(response.json())
-        print(response_body)
+        pretty_print(response_body)
         assert response.status_code == 200
         for classification in response_body:
             if classification["name"] == form_classification_1["name"]:
@@ -80,12 +81,12 @@ def test_form_classification_updated(
         )
         database.session.commit()
         response_body = decamelize(response.json())
-        print(response_body)
+        pretty_print(response_body)
         assert response.status_code == 201
 
         response = api_get(endpoint=f"/api/forms/classifications/{id}")
         response_body = decamelize(response.json())
-        print(response_body)
+        pretty_print(response_body)
         assert response.status_code == 200
         assert response_body["name"] == form_classification_2["name"]
     finally:
@@ -106,7 +107,7 @@ def test_form_classification_summary(
     try:
         response = api_get(endpoint="/api/forms/classifications/summary")
         response_body = decamelize(response.json())
-        print(response_body)
+        pretty_print(response_body)
         assert response.status_code == 200
         existing = len(response_body)
 
@@ -116,7 +117,7 @@ def test_form_classification_summary(
         )
         database.session.commit()
         response_body = decamelize(response.json())
-        print(response_body)
+        pretty_print(response_body)
         assert response.status_code == 201 or response.status_code == 409
 
         response = api_post(
@@ -125,14 +126,14 @@ def test_form_classification_summary(
         )
         database.session.commit()
         response_body = decamelize(response.json())
-        print(response_body)
+        pretty_print(response_body)
         assert response.status_code == 201 or response.status_code == 409
 
         crud.delete_all(FormTemplateOrm, id="ft1")
         response = api_post(endpoint="/api/forms/templates/body", json=form_template_1)
         database.session.commit()
         response_body = decamelize(response.json())
-        print(response_body)
+        pretty_print(response_body)
         assert response.status_code == 201
 
         time.sleep(1)
@@ -141,7 +142,7 @@ def test_form_classification_summary(
         response = api_post(endpoint="/api/forms/templates/body", json=form_template_2)
         database.session.commit()
         response_body = decamelize(response.json())
-        print(response_body)
+        pretty_print(response_body)
         assert response.status_code == 201
 
         time.sleep(1)
@@ -150,12 +151,12 @@ def test_form_classification_summary(
         response = api_post(endpoint="/api/forms/templates/body", json=form_template_3)
         database.session.commit()
         response_body = decamelize(response.json())
-        print(response_body)
+        pretty_print(response_body)
         assert response.status_code == 201
 
         response = api_get(endpoint="/api/forms/classifications/summary")
         response_body = decamelize(response.json())
-        print(response_body)
+        pretty_print(response_body)
         assert response.status_code == 200
         assert len(response_body) == existing + 2
 

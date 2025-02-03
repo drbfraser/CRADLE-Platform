@@ -1,7 +1,9 @@
 import pytest
+from humps import decamelize
 from requests import Response
 
 import models
+from common.print_utils import pretty_print
 
 
 def test_create_assessment_without_referral(
@@ -25,7 +27,8 @@ def test_create_assessment_without_referral(
     response: Response = api_post(endpoint="/api/assessments", json=assessment_json)
     database.session.commit()
 
-    # print(response.json())
+    response_body = decamelize(response.json())
+    pretty_print(response_body)
     assert response.status_code == 201
 
 

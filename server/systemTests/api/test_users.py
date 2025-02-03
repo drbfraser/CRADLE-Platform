@@ -8,6 +8,7 @@ import requests
 from humps import decamelize
 
 from common import user_utils
+from common.print_utils import pretty_print
 from data import crud
 from models import SmsSecretKeyOrm, UserOrm
 
@@ -52,7 +53,7 @@ def test_register_user(auth_header):
     }
     response = requests.post(url_register_user, json=payload, headers=auth_header)
     response_body = decamelize(response.json())
-    print(response_body)
+    pretty_print(response_body)
     assert response.status_code == 200
     # Cleanup
     user_utils.delete_user(username)
@@ -79,7 +80,7 @@ def test_edit_user(auth_header, database):
     )
     database.session.commit()
     response_body = decamelize(response.json())
-    print(response_body)
+    pretty_print(response_body)
     assert response.status_code == 200
     vht = user_utils.get_user_dict_from_username(username)
     # Check that name has been changed correctly.
@@ -94,7 +95,7 @@ def test_get_all_users(auth_header):
 
     response = requests.get(url_get_all_users, headers=auth_header)
     response_body = decamelize(response.json())
-    print(response_body)
+    pretty_print(response_body)
     assert response.status_code == 200
 
 
@@ -102,7 +103,7 @@ def test_get_current_user(auth_header):
     url_get_current_user = "http://localhost:5000/api/user/current"
     response = requests.get(url_get_current_user, headers=auth_header)
     response_body = decamelize(response.json())
-    print(response_body)
+    pretty_print(response_body)
     assert response.status_code == 200
 
 
@@ -112,7 +113,7 @@ def test_sms_secret_key_for_sms_relay(auth_header, admin_user_id):
     )
     response = requests.get(url_sms_secret_key_for_user, headers=auth_header)
     response_body = decamelize(response.json())
-    print(response_body)
+    pretty_print(response_body)
 
     user = crud.read(SmsSecretKeyOrm, user_id=admin_user_id)
 
@@ -126,7 +127,7 @@ def test_sms_secret_key_for_sms_relay(auth_header, admin_user_id):
 
     response = requests.put(url_sms_secret_key_for_user, headers=auth_header)
     response_body = decamelize(response.json())
-    print(response_body)
+    pretty_print(response_body)
 
     assert response.status_code == 200
     assert response_body["message"] == "NORMAL"
@@ -174,7 +175,7 @@ def test_user_phone_post(auth_header, user_id, new_phone_number):
     }
     response = requests.post(url_user_phone_update, json=payload, headers=auth_header)
     response_body = decamelize(response.json())
-    print(response_body)
+    pretty_print(response_body)
     assert response.status_code == 200
     assert response_body["message"] == "User phone number added successfully"
 
@@ -193,6 +194,7 @@ def test_duplicate_phone_numbers_post(auth_header, user_id, new_phone_number):
     }
     response = requests.post(url_user_phone_update, json=payload, headers=auth_header)
     response_body = decamelize(response.json())
+    pretty_print(response_body)
 
     assert response.status_code == 400
     assert response_body["message"] == "Phone number already exists"
@@ -211,6 +213,7 @@ def test_user_phone_put(auth_header, user_id, new_phone_number, updated_phone_nu
     }
     response = requests.put(url_user_phone_update, json=payload, headers=auth_header)
     response_body = decamelize(response.json())
+    pretty_print(response_body)
 
     assert response.status_code == 200
     assert response_body["message"] == "User phone number updated successfully"
@@ -237,6 +240,7 @@ def test_user_phone_delete(auth_header, user_id, old_phone_number):
     }
     response = requests.delete(url_user_phone_update, json=payload, headers=auth_header)
     response_body = decamelize(response.json())
+    pretty_print(response_body)
 
     assert response.status_code == 200
     assert response_body["message"] == "User phone number deleted successfully"

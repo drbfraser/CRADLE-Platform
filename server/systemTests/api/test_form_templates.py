@@ -4,6 +4,7 @@ import pytest
 import requests
 from humps import decamelize
 
+from common.print_utils import pretty_print
 from data import crud
 from models import FormClassificationOrm, FormTemplateOrm
 
@@ -16,19 +17,19 @@ def test_form_template_created_with_same_classification_ids(
         response = api_post(endpoint="/api/forms/templates/body", json=form_template)
         database.session.commit()
         response_body = decamelize(response.json())
-        print(response_body)
+        pretty_print(response_body)
         assert response.status_code == 201
 
         response = api_post(endpoint="/api/forms/templates/body", json=form_template3)
         database.session.commit()
         response_body = decamelize(response.json())
-        print(response_body)
+        pretty_print(response_body)
         assert response.status_code == 409
 
         response = api_post(endpoint="/api/forms/templates/body", json=form_template4)
         database.session.commit()
         response_body = decamelize(response.json())
-        print(response_body)
+        pretty_print(response_body)
         assert response.status_code == 201
     finally:
         classification_id = form_template["classification"]["id"]
@@ -62,7 +63,7 @@ def test_form_template_created(
         )
         database.session.commit()
         response_body = decamelize(response.json())
-        print(response_body)
+        pretty_print(response_body)
         assert response.status_code == 201
 
         response = requests.post(
@@ -78,7 +79,7 @@ def test_form_template_created(
         )
         database.session.commit()
         response_body = decamelize(response.json())
-        print(response_body)
+        pretty_print(response_body)
         assert response.status_code == 201
 
         # TODO: Test uploading a Form Template as a .csv file.
@@ -111,7 +112,7 @@ def test_form_template_archival(
         )
         database.session.commit()
         response_body = decamelize(response.json())
-        print(response_body)
+        pretty_print(response_body)
         assert response.status_code == 201
 
         response = api_put(
@@ -120,7 +121,7 @@ def test_form_template_archival(
         )
         database.session.commit()
         response_body = decamelize(response.json())
-        print(response_body)
+        pretty_print(response_body)
         assert response.status_code == 201
 
     finally:

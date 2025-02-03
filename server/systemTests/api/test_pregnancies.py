@@ -2,6 +2,7 @@ import datetime
 
 from humps import decamelize
 
+from common.print_utils import pretty_print
 from data import crud
 from models import PregnancyOrm
 
@@ -16,7 +17,8 @@ def test_get_pregnancy(create_patient, pregnancy_factory, pregnancy_earlier, api
     pregnancy_id = pregnancy_earlier["id"]
     response = api_get(endpoint=f"/api/pregnancies/{pregnancy_id}")
 
-    print(response.json())
+    response_body = decamelize(response.json())
+    pretty_print(response_body)
     assert response.status_code == 200
 
     expected = {

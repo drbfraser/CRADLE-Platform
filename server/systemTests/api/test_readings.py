@@ -1,5 +1,7 @@
 import pytest
+from humps import decamelize
 
+from common.print_utils import pretty_print
 from data import crud
 from models import ReadingOrm
 
@@ -16,7 +18,8 @@ def test_invalid_reading_not_created(
     del reading["systolic_blood_pressure"]
 
     response = api_post(endpoint="/api/readings", json=reading)
-    print(response.json())
+    response_body = decamelize(response.json())
+    pretty_print(response_body)
     assert response.status_code == 422
     assert crud.read(ReadingOrm, id=reading_id) is None
 

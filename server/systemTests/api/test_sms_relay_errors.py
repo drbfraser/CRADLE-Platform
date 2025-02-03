@@ -5,6 +5,7 @@ from humps import decamelize
 
 import systemTests.api.test_sms_relay as sms_relay_test
 from api.resources import sms_relay
+from common.print_utils import pretty_print
 from data import crud
 from models import SmsSecretKeyOrm, UserOrm
 from server.common import phone_number_utils
@@ -18,7 +19,7 @@ def test_sms_relay_invalid_json(api_post):
     response = api_post(endpoint=sms_relay_endpoint, json=request_body)
 
     response_body = decamelize(response.json())
-    print(response_body)
+    pretty_print(response_body)
     assert response.status_code == 422
 
 
@@ -27,7 +28,7 @@ def test_sms_relay_none_phone_number(api_post):
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
 
     response_body = decamelize(response.json())
-    print(response_body)
+    pretty_print(response_body)
     assert response.status_code == 422
 
 
@@ -37,7 +38,7 @@ def test_sms_relay_invalid_encrypted_data(api_post):
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
 
     response_body = decamelize(response.json())
-    print(response_body)
+    pretty_print(response_body)
     assert response.status_code == 401
     assert response_body["description"] == sms_relay.invalid_message.format(
         phone_number=phone_number,
@@ -51,7 +52,7 @@ def test_sms_relay_invalid_phone_number_format(api_post):
     response = api_post(endpoint=sms_relay_endpoint, json=request_body)
 
     response_body = decamelize(response.json())
-    print(response_body)
+    pretty_print(response_body)
     assert response.status_code == 422
 
     # test for the phone number with extra symbol and alphabet
@@ -60,7 +61,7 @@ def test_sms_relay_invalid_phone_number_format(api_post):
     response = api_post(endpoint=sms_relay_endpoint, json=request_body)
 
     response_body = decamelize(response.json())
-    print(response_body)
+    pretty_print(response_body)
     assert response.status_code == 422
 
     # test for the phone number with other extreme cases
@@ -69,7 +70,7 @@ def test_sms_relay_invalid_phone_number_format(api_post):
     response = api_post(endpoint=sms_relay_endpoint, json=request_body)
 
     response_body = decamelize(response.json())
-    print(response_body)
+    pretty_print(response_body)
     assert response.status_code == 422
 
 
@@ -94,7 +95,7 @@ def test_sms_relay_invalid_encryption_key(api_post):
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
 
     response_body = decamelize(response.json())
-    print(response_body)
+    pretty_print(response_body)
     assert response.status_code == 401
     actual_json = json.loads(response.text)
     assert actual_json["description"] == sms_relay.invalid_message.format(
@@ -120,7 +121,7 @@ def test_sms_relay_corrupted_base64(api_post):
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
 
     response_body = decamelize(response.json())
-    print(response_body)
+    pretty_print(response_body)
     assert response.status_code == 401
     actual_json = json.loads(response.text)
     assert actual_json["description"] == sms_relay.invalid_message.format(
@@ -153,7 +154,7 @@ def test_sms_relay_failed_decompression(api_post):
         },
     )
     response_body = decamelize(response.json())
-    print(response_body)
+    pretty_print(response_body)
     assert response.status_code == 401
     actual_json = json.loads(response.text)
     assert actual_json["description"] == sms_relay.invalid_message.format(
@@ -196,7 +197,7 @@ def test_sms_relay_invalid_request_number(api_post):
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
 
     response_body = decamelize(response.json())
-    print(response_body)
+    pretty_print(response_body)
     assert response.status_code == 200
     response_dict = sms_relay_test.get_sms_relay_response(response)
     assert response_dict["code"] == 400
@@ -215,7 +216,7 @@ def test_sms_relay_invalid_method(api_post):
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
 
     response_body = decamelize(response.json())
-    print(response_body)
+    pretty_print(response_body)
     assert response.status_code == 200
     response_dict = sms_relay_test.get_sms_relay_response(response)
     assert response_dict["code"] == 422
