@@ -61,7 +61,7 @@ export type MedicalRecord = {
   dateCreated: number;
   information: OrNull<string>;
   lastEdited: number;
-  medicalRecordId: number;
+  id: number;
 };
 
 export type Pregnancy = {
@@ -260,7 +260,13 @@ export type Referrer = {
   userId: string;
 };
 
-export type HealthFacility = string;
+export type HealthFacility = {
+  name: string;
+  type: string;
+  phoneNumber: string;
+  about: string;
+  location: string;
+};
 
 export interface IFormClassification {
   id: string | undefined;
@@ -346,8 +352,8 @@ export type Question = {
 // with * options will be used in creating template
 export interface TQuestion {
   categoryIndex: OrNull<number>;
-  questionId: string | undefined;
-  questionLangVersions: QuestionLangVersion[];
+  id: string | undefined;
+  langVersions: QuestionLangVersion[];
   questionIndex: number;
   questionType: QuestionTypeEnum;
   required: boolean;

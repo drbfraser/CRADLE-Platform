@@ -74,7 +74,7 @@ export const CustomFormTemplate = () => {
   const browserLanguage =
     getDefaultLanguage() === undefined ? 'English' : getDefaultLanguage();
   const [language, setLanguage] = useState<string[]>(
-    targetFrom?.questions[0].questionLangVersions.map((q) => q.lang) ?? [
+    targetFrom?.questions[0].langVersions.map((q) => q.lang) ?? [
       browserLanguage,
     ]
   );

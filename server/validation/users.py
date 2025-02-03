@@ -1,138 +1,73 @@
-import re
-from typing import List
+from typing import Annotated, Optional
 
-from pydantic import (
-    BaseModel,
-    ValidationError,
-    field_validator,
+from pydantic import AfterValidator, EmailStr, RootModel
+
+from common.commonUtil import (
+    to_lowercase,
+    to_titlecase,
+    to_uppercase,
 )
-
-from common.commonUtil import format_phone_number, is_valid_email_format
-from common.constants import USERNAME_REGEX_PATTERN
 from enums import RoleEnum
-from validation.validation_exception import ValidationExceptionError
+from validation import CradleBaseModel
+from validation.phone_numbers import PhoneNumberE164
+from validation.sms_key import SmsKeyExamples, SmsKeyModel
 
 supported_roles = [role.value for role in RoleEnum]
 
+Username = Annotated[str, AfterValidator(to_lowercase)]
 
-class UserValidator(BaseModel):
-    """
-    Base class for User models.
-    Since the PUT request for updating a user's info should only be able to
-    modify certain fields, this base class only defines the fields which are
-    allowed to be changed. This way, the model for validating PUT requests does
-    not need to include fields which it should not be able to change.
-    """
 
-    email: str
-    name: str
-    health_facility_name: str
-    role: str
-    phone_numbers: List[str]
+class UserExamples:
+    id_01 = 7
+    id_02 = 8
+    username = "jane-vht"
+    name = "Jane Smith"
+    email = "jane@email.com"
+    health_facility_name = "H1000"
+    role = "VHT"
+    phone_numbers = ["+16043211234"]
+
+    example_01 = {
+        "id": id_01,
+        "username": username,
+        "name": name,
+        "email": email,
+        "health_facility_name": health_facility_name,
+        "role": role,
+        "phone_numbers": phone_numbers,
+    }
+
+    with_sms_key = {
+        "id": id_01,
+        "username": username,
+        "name": name,
+        "email": email,
+        "health_facility_name": health_facility_name,
+        "role": role,
+        "phone_numbers": phone_numbers,
+        "sms_key": SmsKeyExamples.example,
+    }
+
+
+class UserModel(CradleBaseModel):
+    id: int
+    username: Username
+    email: EmailStr
+    name: Annotated[str, AfterValidator(to_titlecase)]
+    health_facility_name: Annotated[str, AfterValidator(to_uppercase)]
+    role: RoleEnum
+    phone_numbers: list[PhoneNumberE164]
     supervises: list[int] = []
 
-    @field_validator("email")
-    @classmethod
-    def validate_email_format(cls, email: str):
-        # Validate email format.
-        email = email.lower()
-        if not is_valid_email_format(email):
-            raise ValueError(f"Email ({email}) format is invalid.")
-        return email.lower()
 
-    @field_validator("name")
-    @classmethod
-    def format_name(cls, name: str) -> str:
-        """Convert name to title case."""
-        name = name.title()
-        return name
-
-    @field_validator("role")
-    @classmethod
-    def validate_role(cls, value: str):
-        if value not in supported_roles:
-            error = {"message": f"({value}) is not a supported role"}
-            raise ValueError(error)
-        return value
-
-    @field_validator("phone_numbers")
-    @classmethod
-    def format_phone_numbers(cls, phone_numbers: List[str]) -> List[str]:
-        formatted_phone_numbers: set[str] = set()
-        for phone_number in phone_numbers:
-            formatted_phone_numbers.add(format_phone_number(phone_number))
-        return list(formatted_phone_numbers)
-
-    @staticmethod
-    def validate(request_body: dict):
-        """
-        Returns an error message if the /api/user post or put request
-        is not valid. Else, returns None.
-
-        :param request_body: The request body as a dict object
-                            {
-                                "name": "Jane",
-                                "email": "jane@mail.com",
-                                "health_facility_name": "facility7",
-                                "role": "admin",
-                                "phone_numbers": [ "+604-555-1234" ]
-                            }
-        :throw: An error if the request body is invalid. None otherwise
-        :return pydantic model representation of the request body param
-        """
-        try:
-            # Pydantic will validate field presence and type
-            return UserValidator(**request_body)
-        except ValidationError as e:
-            # Extracts the first error message from the validation errors list
-            error_message = str(e.errors()[0]["msg"])
-            raise ValidationExceptionError(error_message)
+class UserWithSmsKey(UserModel):
+    sms_key: SmsKeyModel
 
 
-class UserRegisterValidator(UserValidator):
-    """
-    User validation model for the `/api/user/register [POST]` api endpoint.
-    """
-
-    username: str
+class RegisterUserRequestBody(UserModel):
+    id: Optional[int] = None
     password: str
 
-    @field_validator("username")
-    @classmethod
-    def validate_username_format(cls, username: str) -> str:
-        username = username.lower()
-        length = len(username)
-        if length < 3 or length > 30:
-            raise ValueError(
-                f"Username ({username}) is invalid. Username must be between 3 and 30 characters."
-            )
-        if re.fullmatch(USERNAME_REGEX_PATTERN, username) is None:
-            raise ValueError(
-                f"Username ({username}) is invalid. Username must start with a letter and must contain only alphanumeric or underscore characters."
-            )
-        return username
 
-    @staticmethod
-    def validate(request_body: dict):
-        try:
-            return UserRegisterValidator(**request_body)
-        except ValidationError as e:
-            error_message = str(e.errors()[0]["msg"])
-            print(e)
-            raise ValidationExceptionError(error_message)
-
-
-class UserAuthRequestValidator(BaseModel, extra="forbid"):
-    """
-    Pydantic validation model for the `/api/user/auth [POST]` api endpoint.
-    Only needs to validate that the username and password fields are present,
-    and convert the username to all lowercase.
-    """
-
-    username: str
-    password: str
-
-    @field_validator("username")
-    @classmethod
-    def format_username(cls, username: str) -> str:
-        return username.lower()
+class UserList(RootModel):
+    root: list[UserModel]

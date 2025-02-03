@@ -20,20 +20,21 @@ import json
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 import config
-import routes
 
 import logging
 from config import Config
 from logging.config import dictConfig
-from flask import Response
+from flask import Response, request
 from werkzeug.exceptions import HTTPException
 from humps import camelize
+from api.resources import api
 
 dictConfig(Config.LOGGING)
 LOGGER = logging.getLogger(__name__)
 
 app = config.app
-routes.init(config.api)
+# Register Blueprints
+app.register_api(api)
 
 host = "0.0.0.0"
 port = os.environ.get("PORT")
@@ -49,7 +50,9 @@ print("Binding to " + host + ":" + port)
 
 @app.errorhandler(HTTPException)
 def handle_http_exception(e):
-    """Return JSON instead of HTML for HTTP errors."""
+    """
+    Return JSON instead of HTML for HTTP errors.
+    """
     response: Response = e.get_response()
     # replace the body with JSON
     response.data = json.dumps(
@@ -68,6 +71,9 @@ def convert_response_body_to_camel_case(response: Response):
     """
     Intercepts responses and converts keys to camel case.
     """
+    if request.path.startswith(("/openapi", "/apidocs")):
+        return response
+
     if response.mimetype == "application/json":
         response_body = camelize(json.loads(response.data))
         response.data = json.dumps(response_body)

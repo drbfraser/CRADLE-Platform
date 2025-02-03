@@ -21,7 +21,7 @@ import { UserField, fieldLabels, newEditValidationSchema } from './state';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { UserRoleEnum } from 'src/shared/enums';
 import { editUserAsync } from 'src/shared/api/api';
-import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
+import { useHealthFacilityNames } from 'src/shared/hooks/healthFacilities';
 import { useState } from 'react';
 import { userRoleLabels } from 'src/shared/constants';
 import { EditUser, User } from 'src/shared/api/validation/user';
@@ -35,7 +35,7 @@ interface IProps {
 }
 
 export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
-  const healthFacilities = useHealthFacilities();
+  const healthFacilityNames = useHealthFacilityNames();
   const [submitError, setSubmitError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const emailsInUse = users
@@ -144,7 +144,7 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
                     component={Autocomplete}
                     fullWidth
                     name={UserField.healthFacilityName}
-                    options={healthFacilities}
+                    options={healthFacilityNames}
                     disableClearable={true}
                     renderInput={(params: AutocompleteRenderInputParams) => (
                       <TextField

@@ -12,13 +12,14 @@ import Grid from '@mui/material/Grid2';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { saveReferralAsync } from 'src/shared/api/api';
-import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
+import { useHealthFacilityNames } from 'src/shared/hooks/healthFacilities';
 import {
   ReferralField,
   ReferralState,
   initialState,
   validationSchema,
 } from './state';
+
 import { ToastData } from 'src/shared/components/toastAfterNav';
 
 interface IProps {
@@ -26,9 +27,9 @@ interface IProps {
 }
 
 export const ReferralForm = ({ patientId }: IProps) => {
+  const healthFacilityNames = useHealthFacilityNames();
   const [submitError, setSubmitError] = useState(false);
   const navigate = useNavigate();
-  const healthFacilities = useHealthFacilities();
 
   const handleSubmit = async (
     values: ReferralState,
@@ -80,7 +81,7 @@ export const ReferralForm = ({ patientId }: IProps) => {
                     component={Autocomplete}
                     fullWidth
                     name={ReferralField.healthFacility}
-                    options={healthFacilities}
+                    options={healthFacilityNames}
                     disableClearable={true}
                     renderInput={(params: AutocompleteRenderInputParams) => (
                       <TextField

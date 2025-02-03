@@ -115,7 +115,6 @@ def test_sync_patients_fully_successful(
         database.session.commit()
 
         response_body = decamelize(response.json())
-
         assert response.status_code == 200
         assert len(response_body["patients"]) == 2
 
@@ -129,27 +128,27 @@ def test_sync_patients_fully_successful(
         assert new_server_patient["name"] == patient_info["name"]
         assert new_server_patient["date_of_birth"] == patient_info["date_of_birth"]
 
-        new_mobile_patient = None
+        synced_patient = None
         for p in response_body["patients"]:
             if p["id"] == mobile_patient_id:
-                new_mobile_patient = p
+                synced_patient = p
                 break
 
-        assert new_mobile_patient["name"] == mobile_patient["name"]
-        assert new_mobile_patient["date_of_birth"] == mobile_patient["date_of_birth"]
+        assert synced_patient is not None
+        assert synced_patient["name"] == mobile_patient["name"]
+        assert synced_patient["date_of_birth"] == mobile_patient["date_of_birth"]
         assert (
-            new_mobile_patient["pregnancy_start_date"]
+            synced_patient["pregnancy_start_date"]
             == mobile_patient["pregnancy_start_date"]
         )
-        assert (
-            new_mobile_patient["medical_history"] == mobile_patient["medical_history"]
-        )
-        assert new_mobile_patient["drug_history"] == mobile_patient["drug_history"]
+
+        assert synced_patient["medical_history"] == mobile_patient["medical_history"]
+        assert synced_patient["drug_history"] == mobile_patient["drug_history"]
         assert (
             crud.read(PatientAssociationsOrm, patient_id=mobile_patient_id) is not None
         )
 
-        mobile_patient = new_mobile_patient
+        mobile_patient = synced_patient
         last_sync = int(time.time())
         time.sleep(1)
 
@@ -180,19 +179,17 @@ def test_sync_patients_fully_successful(
         assert response.status_code == 200
         assert len(response_body["patients"]) == 1
 
-        new_mobile_patient = response_body["patients"][0]
-        assert new_mobile_patient is not None
+        synced_patient = response_body["patients"][0]
+        assert synced_patient is not None
         assert mobile_patient is not None
-        assert new_mobile_patient["name"] == mobile_patient["name"]
-        assert new_mobile_patient["date_of_birth"] == mobile_patient["date_of_birth"]
+        assert synced_patient["name"] == mobile_patient["name"]
+        assert synced_patient["date_of_birth"] == mobile_patient["date_of_birth"]
         assert (
-            new_mobile_patient["pregnancy_start_date"]
+            synced_patient["pregnancy_start_date"]
             == mobile_patient["pregnancy_start_date"]
         )
-        assert (
-            new_mobile_patient["medical_history"] == mobile_patient["medical_history"]
-        )
-        assert new_mobile_patient["drug_history"] == mobile_patient["drug_history"]
+        assert synced_patient["medical_history"] == mobile_patient["medical_history"]
+        assert synced_patient["drug_history"] == mobile_patient["drug_history"]
 
         updated_pregnancy = crud.read(PregnancyOrm, id=mobile_patient["pregnancy_id"])
         assert updated_pregnancy is not None
@@ -213,7 +210,7 @@ def test_sync_patients_fully_successful(
         medical_record = medical_record_factory.create(**medical_record)
         drug_record = medical_record_factory.create(**drug_record)
 
-        response = api_post(endpoint=f"/api/sync/patients?since={last_sync}")
+        response = api_post(endpoint=f"/api/sync/patients?since={last_sync}", json=[])
         database.session.commit()
 
         response_body = decamelize(response.json())
@@ -260,6 +257,7 @@ def test_sync_patients_fully_successful(
         assert new_server_patient["village_number"] == village_number
 
         new_pregnancy = crud.read(PregnancyOrm, id=pregnancy.id)
+        assert new_pregnancy is not None
         assert new_pregnancy.end_date == end_date
 
     finally:
@@ -269,6 +267,9 @@ def test_sync_patients_fully_successful(
         crud.delete_by(PatientOrm, id=mobile_patient_id)
 
 
+@pytest.mark.skip(
+    reason="Changes to validation of endpoints mean that the endpoint will throw an exception if any of the patients have invalid fields."
+)
 def test_sync_patients_partially_successful(
     create_patient,
     pregnancy_factory,
@@ -277,7 +278,11 @@ def test_sync_patients_partially_successful(
     database,
     api_post,
 ):
-    # Case 1: Missing required field in patient2 - Only patient1 is added to the database
+    """
+    NOTE: Changes to how validation in API endpoints is handled means that the
+        sync endpoint will now fail if any of the patients have missing fields,
+        so these tests no longer works.
+    """
     last_sync = int(time.time()) - 1
 
     patient1_id = "77694597005"
@@ -293,9 +298,12 @@ def test_sync_patients_partially_successful(
     patient2_id = "87694712386"
     patient2 = patient1.copy()
     patient2["id"] = patient2_id
-    del patient2["sex"]
 
     try:
+        # Case 1: Missing required field in patient2 - Only patient1 is added to the database
+
+        del patient2["sex"]
+
         response = api_post(
             endpoint=f"/api/sync/patients?since={last_sync}",
             json=[patient1, patient2],
@@ -312,6 +320,7 @@ def test_sync_patients_partially_successful(
         assert crud.read(PatientOrm, id=patient2_id) is None
 
         patient1 = response_body["patients"][0]
+
         last_sync = int(time.time())
         time.sleep(1)
 

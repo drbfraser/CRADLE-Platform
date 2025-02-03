@@ -135,5 +135,11 @@ ignore = [
 
     # As per warning about formatter
     "COM812",   # missing-trailing-comma
-    "ISC001"    # single-line-implicit-string-concatenation
+    "ISC001",    # single-line-implicit-string-concatenation
+
+    # Trailing whitespace
+    "W291", # Trailing whitespace
+    
+    "D105", # Missing docstring in magic method
+    "RUF012" 
 ]

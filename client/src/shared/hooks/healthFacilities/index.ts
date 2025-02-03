@@ -22,3 +22,8 @@ export const useHealthFacilities = () => {
 
   return healthFacilities ?? [];
 };
+
+export const useHealthFacilityNames = () => {
+  const healthFacilities = useHealthFacilities();
+  return healthFacilities.map((facility) => facility.name);
+};

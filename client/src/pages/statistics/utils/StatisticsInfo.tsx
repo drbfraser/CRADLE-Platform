@@ -58,11 +58,11 @@ export const StatisticDashboard: React.FC<IProps> = ({ getData }) => {
       {
         label: 'Traffic Light',
         data: [
-          data.colorReadings.green,
-          data.colorReadings.yellowUp,
-          data.colorReadings.yellowDown,
-          data.colorReadings.redUp,
-          data.colorReadings.redDown,
+          data.colorReadings.GREEN,
+          data.colorReadings.YELLOW_UP,
+          data.colorReadings.YELLOW_DOWN,
+          data.colorReadings.RED_UP,
+          data.colorReadings.RED_DOWN,
         ],
         backgroundColor: [
           trafficLightColors[TrafficLightEnum.GREEN],

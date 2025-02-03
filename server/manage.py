@@ -483,7 +483,6 @@ def create_form_template():
         {
             "id": "cat1_seed_test_data",
             "category_index": None,
-            "question_id": "cat1_seed_test_data",
             "question_index": 0,
             "is_blank": True,
             "question_type": "CATEGORY",
@@ -500,7 +499,6 @@ def create_form_template():
         {
             "id": "fname_seed_test_data",
             "category_index": 0,
-            "question_id": "fname_seed_test_data",
             "question_index": 1,
             "is_blank": True,
             "question_type": "STRING",
@@ -517,7 +515,6 @@ def create_form_template():
         {
             "id": "lname_seed_test_data",
             "category_index": 0,
-            "question_id": "lname_seed_test_data",
             "question_index": 2,
             "is_blank": True,
             "question_type": "STRING",
@@ -534,7 +531,6 @@ def create_form_template():
         {
             "id": "age_seed_test_data",
             "category_index": 0,
-            "question_id": "age_seed_test_data",
             "question_index": 3,
             "is_blank": True,
             "question_type": "INTEGER",
@@ -626,7 +622,6 @@ def create_form(patient_id, fname, lname, age):
             "mc_options": "[]",
             "category_index": 0,
             "question_index": 1,
-            "question_id": "",
             "question_text": "First Name",
             "question_type": "STRING",
         },
@@ -641,7 +636,6 @@ def create_form(patient_id, fname, lname, age):
             "mc_options": "[]",
             "category_index": 0,
             "question_index": 2,
-            "question_id": "",
             "question_text": "Last Name",
             "question_type": "STRING",
         },
@@ -656,7 +650,6 @@ def create_form(patient_id, fname, lname, age):
             "mc_options": "[]",
             "category_index": 0,
             "question_index": 3,
-            "question_id": "",
             "question_text": "Approximate Age",
             "question_type": "INTEGER",
         },

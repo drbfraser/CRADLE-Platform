@@ -1,13 +1,19 @@
-from flasgger import swag_from
-from flask_restful import Resource
+from flask_openapi3.blueprint import APIBlueprint
+from flask_openapi3.models.tag import Tag
 
 import config as config
-from api.decorator import public_endpoint
-
 
 # /api/version
-class Version(Resource):
-    @swag_from("../../specifications/version.yml", methods=["GET"])
-    @public_endpoint
-    def get(self):
-        return {"version": config.app_version}, 200
+api_version = APIBlueprint(
+    name="version",
+    import_name=__name__,
+    url_prefix="/version",
+    abp_tags=[Tag(name="Version", description="")],
+)
+
+
+# /api/version [GET]
+@api_version.get("")
+def get_version():
+    """Get App Version"""
+    return {"version": config.app_version}, 200
