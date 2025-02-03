@@ -96,9 +96,6 @@ export const loginUser = (
             accessToken: authResponse.accessToken,
           };
 
-          if (authResponse.user.phoneNumbers.length > 0) {
-            user.phoneNumber = authResponse.user.phoneNumbers[0];
-          }
           // If no auth challenge, proceed with login.
           if (authResponse.challenge === null) {
             navigate('/referrals');
