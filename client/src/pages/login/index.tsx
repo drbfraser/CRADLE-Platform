@@ -9,13 +9,13 @@ import { selectLoggedIn } from 'src/redux/reducers/user/currentUser';
 import { useAppSelector } from 'src/shared/hooks';
 
 export const LoginPage: React.FC = () => {
+  const loggedIn = useAppSelector(selectLoggedIn);
+
   // if the user has reached the login page, they likely came directly here
   // therefore Redux will be empty and we must check local storage for a token
   if (localStorage.getItem('accessToken') !== null) {
     return <Navigate to={'/referrals'} replace />;
   }
-
-  const loggedIn = useAppSelector(selectLoggedIn);
 
   return !loggedIn ? (
     <Stack
