@@ -6,7 +6,7 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import CreateIcon from '@mui/icons-material/Create';
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import DeleteUser from './DeleteUser';
-import { EditUserDialog } from './EditUserDialog';
+import { EditUserDialog } from './UserForms/EditUserDialog';
 import ResetPassword from './ResetPassword';
 import { UserWithIndex } from 'src/shared/types';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
@@ -27,7 +27,7 @@ import { useAppSelector } from 'src/shared/hooks';
 import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
 import { DataTable } from 'src/shared/components/DataTable/DataTable';
 import { DataTableHeader } from '../../../shared/components/DataTable/DataTableHeader';
-import { CreateUserDialog } from './CreateUserDialog';
+import { CreateUserDialog } from './UserForms/CreateUserDialog';
 
 export const ManageUsers = () => {
   const [errorLoading, setErrorLoading] = useState(false);
