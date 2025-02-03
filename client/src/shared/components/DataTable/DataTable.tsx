@@ -48,7 +48,6 @@ export const DataTable = ({
   const updateTable = () => {
     apiRef.current.autosizeColumns(autosizeOptions);
     apiRef.current.forceUpdate();
-    console.log('forced update');
   };
 
   useEffect(() => {
