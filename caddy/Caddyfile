@@ -1,5 +1,22 @@
 {
-    # Global caddy configuration for logging
+    # Global Config options.
+
+    # Debug Mode (Verbose logging if enabled).
+    {$CADDY_DEBUG}
+
+    # ACME Certificate Authority endpoint. 
+    # (Should be set to Let's Encrypt's staging endpoint for development and testing.
+    # Unset the environment variable for production and it will default to the production
+    # endpoints for ZeroSSL and Let's Encrypt. 
+    # https://caddyserver.com/docs/caddyfile/options#acme-ca
+    acme_ca {$CADDY_ACME_CA}
+
+    # Email address must be provided in order to use ZeroSSL as Certificate issuer.
+    email icradle2020@gmail.com 
+
+
+
+    # Logging.
     log caddy-runtime {
         output file /var/log/runtime.log {
             roll_keep_for 60d
@@ -9,6 +26,7 @@
         exclude http.log.access
     }
 }
+
 
 {$DOMAIN} {
     encode gzip
@@ -24,11 +42,12 @@
     }
 
     handle {
-        file_server
         root * /var/www
 
         # If there is a 404, serve index.html (required for React)
         try_files {path} index.html
+        
+        file_server
     }
 
     log {
