@@ -1,5 +1,18 @@
-import { Autocomplete, AutocompleteRenderInputParams } from 'formik-mui';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Field, Form, Formik } from 'formik';
+import {
+  Autocomplete,
+  AutocompleteRenderInputParams,
+  TextField as FormikTextField,
+} from 'formik-mui';
+import { TextField, Typography, Paper } from '@mui/material';
+import Grid from '@mui/material/Grid2';
+
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { PrimaryButton } from 'src/shared/components/Button';
+import { saveReferralAsync } from 'src/shared/api/api';
+import { useHealthFacilityNames } from 'src/shared/hooks/healthFacilities';
 import {
   ReferralField,
   ReferralState,
@@ -7,17 +20,7 @@ import {
   validationSchema,
 } from './state';
 
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import Box from '@mui/material/Box';
-import { TextField as FormikTextField } from 'formik-mui';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
-import { PrimaryButton } from 'src/shared/components/Button';
-import TextField from '@mui/material/TextField';
-import { saveReferralAsync } from 'src/shared/api/api';
-import { useHealthFacilityNames } from 'src/shared/hooks/healthFacilities';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { ToastData } from 'src/shared/components/toastAfterNav';
 
 interface IProps {
   patientId: string;
@@ -33,14 +36,20 @@ export const ReferralForm = ({ patientId }: IProps) => {
     { setSubmitting }: any
   ) => {
     const postBody = {
-      patientId: patientId,
+      patientId,
       ...values,
     };
 
     try {
       await saveReferralAsync(postBody);
 
-      navigate(`/patients/${patientId}`);
+      const toastData: ToastData = {
+        severity: 'success',
+        message: 'Referral submitted successfully',
+      };
+      navigate(`/patients/${patientId}`, {
+        state: { toastData },
+      });
     } catch (e) {
       console.error(e);
       setSubmitError(true);
@@ -51,66 +60,65 @@ export const ReferralForm = ({ patientId }: IProps) => {
   return (
     <>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
+
       <Formik
         initialValues={initialState}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}>
         {({ touched, errors, isSubmitting }) => (
           <Form>
-            <Paper>
-              <Box p={2}>
-                <h2>Referral</h2>
-                <Box pt={1} pl={3} pr={3}>
-                  <Grid container spacing={3}>
-                    <Grid item xs={12}>
-                      <Field
-                        component={Autocomplete}
-                        fullWidth
+            <Paper sx={{ marginBottom: '2rem', padding: '2rem' }}>
+              <Typography
+                sx={{ marginBottom: '1rem' }}
+                variant="h4"
+                component="h2">
+                Referral
+              </Typography>
+
+              <Grid container spacing={3}>
+                <Grid size={{ xs: 12 }}>
+                  <Field
+                    component={Autocomplete}
+                    fullWidth
+                    name={ReferralField.healthFacility}
+                    options={healthFacilityNames}
+                    disableClearable={true}
+                    renderInput={(params: AutocompleteRenderInputParams) => (
+                      <TextField
+                        {...params}
                         name={ReferralField.healthFacility}
-                        options={healthFacilityNames}
-                        disableClearable={true}
-                        renderInput={(
-                          params: AutocompleteRenderInputParams
-                        ) => (
-                          <TextField
-                            {...params}
-                            name={ReferralField.healthFacility}
-                            error={
-                              touched[ReferralField.healthFacility] &&
-                              !!errors[ReferralField.healthFacility]
-                            }
-                            helperText={
-                              touched[ReferralField.healthFacility]
-                                ? errors[ReferralField.healthFacility]
-                                : ''
-                            }
-                            label="Refer To"
-                            variant="outlined"
-                            required
-                          />
-                        )}
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Field
-                        component={FormikTextField}
+                        error={
+                          touched[ReferralField.healthFacility] &&
+                          !!errors[ReferralField.healthFacility]
+                        }
+                        helperText={
+                          touched[ReferralField.healthFacility]
+                            ? errors[ReferralField.healthFacility]
+                            : ''
+                        }
+                        label="Refer To"
                         variant="outlined"
-                        fullWidth
-                        multiline
-                        rows={4}
-                        name={ReferralField.comment}
-                        label="Comments"
+                        required
                       />
-                    </Grid>
-                  </Grid>
-                </Box>
-              </Box>
+                    )}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12 }}>
+                  <Field
+                    component={FormikTextField}
+                    variant="outlined"
+                    fullWidth
+                    multiline
+                    rows={4}
+                    name={ReferralField.comment}
+                    label="Comments"
+                  />
+                </Grid>
+              </Grid>
             </Paper>
-            <br />
+
             <PrimaryButton
-              sx={{
-                float: 'right',
-              }}
+              sx={{ float: 'right' }}
               type="submit"
               disabled={isSubmitting}>
               Submit Referral

@@ -2,10 +2,10 @@ import {
   Alert,
   Box,
   Divider,
-  Paper,
   Skeleton,
   SxProps,
   Typography,
+  Paper,
 } from '@mui/material';
 import { Patient, PatientMedicalInfo } from 'src/shared/types';
 import { useEffect, useState } from 'react';

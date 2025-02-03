@@ -97,3 +97,4 @@ the previously mentioned admin user is added along with a few additional users:
 | Huiyan Li           | hla110@sfu.ca        |
 | Jachak Sekhon       | jachaks@sfu.ca       |
 | Alex Mutwiri        | mutex@berkeley.edu   |
+| Paul Atwal          | psatwal@sfu.ca.      |

@@ -11,6 +11,7 @@ import {
   GridPagination,
   useGridApiRef,
   GridRowClassNameParams,
+  GridAutosizeOptions,
 } from '@mui/x-data-grid';
 import { PropsWithChildren, useEffect } from 'react';
 
@@ -20,9 +21,10 @@ export const ARCHIVED_ROW_COLOR = 'rgb(251 193 193)';
 export const ARCHIVED_ROW_HOVERED_COLOR = '#e57373';
 export const ARCHIVED_ROW_SELECTED_COLOR = '#ea8f8f';
 
-const autosizeOptions = {
+const autosizeOptions: GridAutosizeOptions = {
   includeHeaders: true,
   includeOutliers: true,
+  expand: true,
 } as const;
 
 type DataTableProps = {
@@ -43,14 +45,16 @@ export const DataTable = ({
 }: DataTableProps) => {
   const apiRef = useGridApiRef();
 
-  useEffect(() => {
+  const updateTable = () => {
     apiRef.current.autosizeColumns(autosizeOptions);
-  }, [rows, apiRef]);
+    apiRef.current.forceUpdate();
+    console.log('forced update');
+  };
 
   useEffect(() => {
     // Force the table to update whenever rows change.
-    apiRef.current.forceUpdate();
-  }, [rows]);
+    updateTable();
+  }, [rows, apiRef]);
 
   return (
     <Box
