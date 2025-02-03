@@ -1,23 +1,31 @@
 from typing import Optional
 
-from pydantic import BaseModel, ValidationError
-
-from validation.validation_exception import ValidationExceptionError
+from validation import CradleBaseModel
 
 
-class FormClassificationValidator(BaseModel, extra="forbid"):
+class FormClassificationExamples:
+    id = "dc9"
+    name = "Personal Intake Form"
+
+    example_01 = {"id": id, "name": name}
+
+
+class FormClassificationModel(CradleBaseModel, extra="forbid"):
+    id: str
     name: str
+
+    model_config = dict(
+        openapi_extra={"example": FormClassificationExamples.example_01}
+    )
+
+
+class FormClassificationOptionalId(FormClassificationModel):
     id: Optional[str] = None
 
-    @staticmethod
-    def validate(request_body: dict):
-        """
-        Raises an error if the classification part in /api/forms/classifications POST or PUT
-        request is not valid.
-
-        :param request_body: The request body as a dict object
-        """
-        try:
-            return FormClassificationValidator(**request_body)
-        except ValidationError as e:
-            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+    model_config = dict(
+        openapi_extra={
+            "example": {
+                "name": "Some Form",
+            }
+        }
+    )

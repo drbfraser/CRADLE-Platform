@@ -117,9 +117,9 @@ const EditVisibleCondition = ({
     if (selectedQIndex === '') return;
     setQuestion((question) => {
       question[0].questionText =
-        filteredQs[+selectedQIndex].questionLangVersions[0].questionText;
+        filteredQs[+selectedQIndex].langVersions[0].questionText;
       question[0].mcOptions =
-        filteredQs[+selectedQIndex].questionLangVersions[0].mcOptions;
+        filteredQs[+selectedQIndex].langVersions[0].mcOptions;
       question[0].questionType = filteredQs[+selectedQIndex].questionType;
       return [...question];
     });
@@ -159,7 +159,7 @@ const EditVisibleCondition = ({
                     {filteredQs.map((question, index) => {
                       return (
                         <MenuItem key={index} value={index}>
-                          {question.questionLangVersions[0].questionText}
+                          {question.langVersions[0].questionText}
                         </MenuItem>
                       );
                     })}
@@ -194,8 +194,7 @@ const EditVisibleCondition = ({
                   renderState: disabled
                     ? FormRenderStateEnum.VIS_COND_DISABLED
                     : FormRenderStateEnum.VIS_COND,
-                  language:
-                    filteredQs[+selectedQIndex].questionLangVersions[0].lang,
+                  language: filteredQs[+selectedQIndex].langVersions[0].lang,
                   handleAnswers: (answers) => {
                     const answer = answers[0];
                     switch (answer.answerType) {
@@ -208,13 +207,11 @@ const EditVisibleCondition = ({
                       case AnswerTypeEnum.MC_ID_ARRAY:
                         filteredQs[
                           +selectedQIndex
-                        ].questionLangVersions[0].mcOptions.forEach(
-                          (option) => {
-                            if (option.opt == answer.val) {
-                              setSelectedAnswer({ mcIdArray: [option.mcId] });
-                            }
+                        ].langVersions[0].mcOptions.forEach((option) => {
+                          if (option.opt == answer.val) {
+                            setSelectedAnswer({ mcIdArray: [option.mcId] });
                           }
-                        );
+                        });
                         break;
                       // case ...
                     }

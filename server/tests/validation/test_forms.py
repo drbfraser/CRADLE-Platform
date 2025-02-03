@@ -1,12 +1,13 @@
 import pytest
+from pydantic import ValidationError
 
-from validation.forms import FormPutValidator, FormValidator
-from validation.validation_exception import ValidationExceptionError
+from validation.forms import FormModel, UpdateFormRequestBody
 
 LANGUAGE = "eng"
 PATIENT_ID = "123"
 QUESTION_LIST = [
     {
+        "id": "question_1",
         "answers": {
             "comment": None,
             "mc_id_array": [0],
@@ -18,7 +19,6 @@ QUESTION_LIST = [
         "mc_options": [{"mc_id": 0, "opt": "Decent"}],
         "num_max": None,
         "num_min": None,
-        "question_id": "referred-by-name",
         "question_index": 1,
         "question_text": "How the patient's condition?",
         "question_type": "MULTIPLE_CHOICE",
@@ -34,6 +34,7 @@ QUESTION_LIST = [
         ],
     },
     {
+        "id": "question_2",
         "answers": {
             "comment": None,
             "mc_id_array": [0],
@@ -45,7 +46,6 @@ QUESTION_LIST = [
         "mc_options": [{"mc_id": 0, "opt": "Decent"}],
         "num_max": None,
         "num_min": None,
-        "question_id": "referred-by-name",
         "question_index": 1,
         "question_text": "How the patient's condition?",
         "question_type": "MULTIPLE_CHOICE",
@@ -84,6 +84,8 @@ form_with_valid_fields_should_return_none = {
 
 form_missing_optional_fields_should_return_none = {
     "lang": LANGUAGE,
+    "date_created": DATE_CREATED,
+    "last_edited": DATE_LAST_EDITED,
     "patient_id": PATIENT_ID,
     "questions": QUESTION_LIST,
 }
@@ -317,68 +319,68 @@ form_date_created_occurs_after_date_edited_should_throw_exception = {
         (form_with_multiple_questions_should_return_none, None),
         (
             form_missing_required_field_lang_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             form_missing_required_field_patient_id_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             form_missing_required_field_questions_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             form_field_lang_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             form_field_patient_id_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             form_field_questions_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
-        (form_field_id_has_wrong_type_should_throw_exception, ValidationExceptionError),
+        (form_field_id_has_wrong_type_should_throw_exception, ValidationError),
         (
             form_field_form_template_id_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             form_field_form_classification_id_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             form_field_date_created_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             form_field_last_edited_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             form_field_last_edited_by_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             form_field_archived_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
-        (form_has_invalid_extra_field_should_throw_exception, ValidationExceptionError),
+        (form_has_invalid_extra_field_should_throw_exception, ValidationError),
         (
             form_date_created_occurs_after_date_edited_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
     ],
 )
 def test_validate_form(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            FormValidator.validate(json)
+            FormModel(**json)
     else:
         try:
-            FormValidator.validate(json)
-        except ValidationExceptionError as e:
+            FormModel(**json)
+        except ValidationError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e
 
 
@@ -407,20 +409,20 @@ form_put_field_questions_has_wrong_type_should_throw_exception = {
         (form_put_with_empty_questions_should_return_none, None),
         (
             form_put_has_invalid_extra_field_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             form_put_field_questions_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
     ],
 )
 def test_validate_put_request(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            FormPutValidator.validate(json)
+            UpdateFormRequestBody(**json)
     else:
         try:
-            FormPutValidator.validate(json)
-        except ValidationExceptionError as e:
+            UpdateFormRequestBody(**json)
+        except ValidationError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e

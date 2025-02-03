@@ -53,6 +53,7 @@ export const PregnancyInfo = ({ patientId, patientName }: Props) => {
       try {
         setInfo(await getPatientPregnancySummaryAsync(patientId));
       } catch (e) {
+        console.error(e);
         setErrorLoading(true);
       }
     };

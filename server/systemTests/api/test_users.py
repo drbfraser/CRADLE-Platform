@@ -1,5 +1,6 @@
 import random
 import string
+from typing import Any, cast
 
 import phonenumbers
 import pytest
@@ -7,8 +8,9 @@ import requests
 from humps import decamelize
 
 from common import user_utils
+from common.print_utils import pretty_print
 from data import crud
-from models import SmsSecretKeyOrm
+from models import SmsSecretKeyOrm, UserOrm
 
 
 def generate_random_email(domain="example.com", length=10):
@@ -24,6 +26,7 @@ def generate_random_phone_number():
 
 def get_example_phone_number():
     phone_number_obj = phonenumbers.example_number("CA")
+    assert phone_number_obj is not None
     print(phone_number_obj)
     phone_number = phonenumbers.format_number(
         phone_number_obj, phonenumbers.PhoneNumberFormat.E164
@@ -32,94 +35,103 @@ def get_example_phone_number():
     return phone_number
 
 
-# TEST COMMENT
-@pytest.fixture(scope="module")
-def jwt_token():
-    payload = {"username": "admin@email.com", "password": "cradle-admin"}
-    response = requests.post("http://localhost:5000/api/user/auth", json=payload)
-    response_body = decamelize(response.json())
-    return response_body["access_token"]
-
-
-def test_register_user(jwt_token):
+def test_register_user(auth_header):
     url_register_user = "http://localhost:5000/api/user/register"
-    headers = {"Authorization": "Bearer " + jwt_token}
-    random_email = generate_random_email()
-    phone_number = get_example_phone_number()
+    username = "test_register_user"
+    email = "test_register@email.com"
+    phone_number = "+1-604-321-9999"
     username = "test_register"
     payload = {
         "name": "Test Register User",
         "username": username,
-        "email": random_email,
-        "phone_number": phone_number,
+        "email": email,
         "phone_numbers": [phone_number],
         "health_facility_name": "H0000",
         "password": "Password_123",
         "role": "VHT",
         "supervises": [],
     }
-
-    response = requests.post(url_register_user, json=payload, headers=headers)
+    response = requests.post(url_register_user, json=payload, headers=auth_header)
+    response_body = decamelize(response.json())
+    pretty_print(response_body)
     assert response.status_code == 200
     # Cleanup
     user_utils.delete_user(username)
+    assert crud.read(UserOrm, username=username) is None
 
 
-def test_edit_user(jwt_token):
+def test_edit_user(auth_header, database):
     url_edit_user = "http://localhost:5000/api/user/2"
-    headers = {"Authorization": "Bearer " + jwt_token}
-    payload = {
-        "health_facility_name": "H0000",
-        "name": "TestVHT***",
-        "role": "VHT",
-        "email": "test_vht@email.com",
-        "supervises": [],
-        "phone_numbers": ["+1-666-666-6666", "+1-555-555-5555", "+1-777-777-7777"],
-        "index": 2,
-        "phone_number": "+1-604-715-2845",
-    }
+    username = "test_vht"
 
-    response = requests.put(url_edit_user, json=payload, headers=headers)
+    # Get test VHT.
+    vht = user_utils.get_user_data_from_username(username)
+    original_name = vht["name"]
+    new_name = "Test Name Changed"
+    vht = cast(dict[Any, Any], vht)
+    del vht["sms_key"]
+
+    # Edit VHT
+    vht["name"] = new_name
+    response = requests.put(
+        url_edit_user,
+        json=vht,
+        headers=auth_header,
+    )
+    database.session.commit()
+    response_body = decamelize(response.json())
+    pretty_print(response_body)
     assert response.status_code == 200
+    vht = user_utils.get_user_dict_from_username(username)
+    # Check that name has been changed correctly.
+    assert vht["name"] == new_name
+
+    # Change the name back.
+    crud.update(UserOrm, {"name": original_name}, id=vht["id"])
 
 
-def test_get_all_users(jwt_token):
+def test_get_all_users(auth_header):
     url_get_all_users = "http://localhost:5000/api/user/all"
-    headers = {"Authorization": "Bearer " + jwt_token}
 
-    response = requests.get(url_get_all_users, headers=headers)
+    response = requests.get(url_get_all_users, headers=auth_header)
+    response_body = decamelize(response.json())
+    pretty_print(response_body)
     assert response.status_code == 200
 
 
-def test_get_current_user(jwt_token):
+def test_get_current_user(auth_header):
     url_get_current_user = "http://localhost:5000/api/user/current"
-    headers = {"Authorization": "Bearer " + jwt_token}
-    response = requests.get(url_get_current_user, headers=headers)
+    response = requests.get(url_get_current_user, headers=auth_header)
+    response_body = decamelize(response.json())
+    pretty_print(response_body)
     assert response.status_code == 200
 
 
-def test_sms_secret_key_for_sms_relay(jwt_token, admin_user_id):
+def test_sms_secret_key_for_sms_relay(auth_header, admin_user_id):
     url_sms_secret_key_for_user = (
         f"http://localhost:5000/api/user/{admin_user_id}/smskey"
     )
-    headers = {"Authorization": "Bearer " + jwt_token}
-    get_response = requests.get(url_sms_secret_key_for_user, headers=headers)
-    get_response_body = decamelize(get_response.json())
-    user = crud.read(SmsSecretKeyOrm, user_id=admin_user_id)
-    print(get_response_body)
-    assert get_response.status_code == 200
-    assert get_response_body["message"] == "NORMAL"
-    assert get_response_body["key"] == user.secret_key
-    assert user.secret_key is not None and user.secret_key == get_response_body["key"]
+    response = requests.get(url_sms_secret_key_for_user, headers=auth_header)
+    response_body = decamelize(response.json())
+    pretty_print(response_body)
 
-    put_response = requests.put(url_sms_secret_key_for_user, headers=headers)
-    put_response_body = decamelize(put_response.json())
-    assert put_response.status_code == 200
-    assert put_response_body["message"] == "NORMAL"
-    assert (
-        put_response_body["key"] is not None
-        and put_response_body["key"] != get_response_body["key"]
-    )
+    user = crud.read(SmsSecretKeyOrm, user_id=admin_user_id)
+
+    assert response.status_code == 200
+    assert response_body["message"] == "NORMAL"
+    assert user is not None
+    assert response_body["key"] == user.secret_key
+    assert user.secret_key is not None and user.secret_key == response_body["key"]
+
+    old_key = response_body["key"]
+
+    response = requests.put(url_sms_secret_key_for_user, headers=auth_header)
+    response_body = decamelize(response.json())
+    pretty_print(response_body)
+
+    assert response.status_code == 200
+    assert response_body["message"] == "NORMAL"
+    assert response_body["key"] is not None and response_body["key"] != old_key
 
 
 @pytest.fixture
@@ -147,50 +159,61 @@ def updated_phone_number():
     return "+12223333030"
 
 
-def test_user_phone_post(jwt_token, user_id, new_phone_number):
+# TODO: The tests that mutate phone numbers need to be reworked so that they restore the original state of the phone numbers.
+
+
+@pytest.mark.skip(
+    reason="This test should clean up after itself by removing the phone number that was added."
+)
+def test_user_phone_post(auth_header, user_id, new_phone_number):
     url_user_phone_update = f"http://localhost:5000/api/user/{user_id}/phone"
-    headers = {"Authorization": "Bearer " + jwt_token}
 
     payload = {
         "new_phone_number": new_phone_number,
         "current_phone_number": None,
         "old_phone_number": None,
     }
-    response = requests.post(url_user_phone_update, json=payload, headers=headers)
+    response = requests.post(url_user_phone_update, json=payload, headers=auth_header)
     response_body = decamelize(response.json())
-
+    pretty_print(response_body)
     assert response.status_code == 200
     assert response_body["message"] == "User phone number added successfully"
 
 
 # add new_phone_number again
-def test_duplicate_phone_numbers_post(jwt_token, user_id, new_phone_number):
+@pytest.mark.skip(
+    reason="Our tests shouldn't depend on other tests. This test logic should be moved into the first test that adds a phone number, and the phone number should be removed at the end."
+)
+def test_duplicate_phone_numbers_post(auth_header, user_id, new_phone_number):
     url_user_phone_update = f"http://localhost:5000/api/user/{user_id}/phone"
-    headers = {"Authorization": "Bearer " + jwt_token}
 
     payload = {
         "new_phone_number": new_phone_number,
         "current_phone_number": None,
         "old_phone_number": None,
     }
-    response = requests.post(url_user_phone_update, json=payload, headers=headers)
+    response = requests.post(url_user_phone_update, json=payload, headers=auth_header)
     response_body = decamelize(response.json())
+    pretty_print(response_body)
 
     assert response.status_code == 400
     assert response_body["message"] == "Phone number already exists"
 
 
-def test_user_phone_put(jwt_token, user_id, new_phone_number, updated_phone_number):
+@pytest.mark.skip(
+    reason="This test should clean up after itself by restoring the original phone numbers."
+)
+def test_user_phone_put(auth_header, user_id, new_phone_number, updated_phone_number):
     url_user_phone_update = f"http://localhost:5000/api/user/{user_id}/phone"
-    headers = {"Authorization": "Bearer " + jwt_token}
 
     payload = {
         "new_phone_number": updated_phone_number,
         "current_phone_number": new_phone_number,
         "old_phone_number": None,
     }
-    response = requests.put(url_user_phone_update, json=payload, headers=headers)
+    response = requests.put(url_user_phone_update, json=payload, headers=auth_header)
     response_body = decamelize(response.json())
+    pretty_print(response_body)
 
     assert response.status_code == 200
     assert response_body["message"] == "User phone number updated successfully"
@@ -201,20 +224,23 @@ def test_user_phone_put(jwt_token, user_id, new_phone_number, updated_phone_numb
         "current_phone_number": updated_phone_number,
         "old_phone_number": None,
     }
-    response = requests.put(url_user_phone_update, json=payload, headers=headers)
+    response = requests.put(url_user_phone_update, json=payload, headers=auth_header)
 
 
-def test_user_phone_delete(jwt_token, user_id, old_phone_number):
+@pytest.mark.skip(
+    reason="This test should clean up after itself by restoring the deleted phone number."
+)
+def test_user_phone_delete(auth_header, user_id, old_phone_number):
     url_user_phone_update = f"http://localhost:5000/api/user/{user_id}/phone"
-    headers = {"Authorization": "Bearer " + jwt_token}
 
     payload = {
         "old_phone_number": old_phone_number,
         "current_phone_number": None,
         "new_phone_number": None,
     }
-    response = requests.delete(url_user_phone_update, json=payload, headers=headers)
+    response = requests.delete(url_user_phone_update, json=payload, headers=auth_header)
     response_body = decamelize(response.json())
+    pretty_print(response_body)
 
     assert response.status_code == 200
     assert response_body["message"] == "User phone number deleted successfully"

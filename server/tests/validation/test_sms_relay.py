@@ -1,14 +1,14 @@
 import pytest
+from pydantic import ValidationError
 
-from validation.sms_relay import SmsRelayDecryptedBodyValidator, SmsRelayValidator
-from validation.validation_exception import ValidationExceptionError
+from validation.sms_relay import SmsRelayDecryptedBody, SmsRelayRequestBody
 
 PHONE_NUMBER = "+1-604-715-2845"
 ENCRYPTED_DATA = "thisdataisencrypted"
 REQUEST_NUMBER = 12345
 METHOD = "GET"
 ENDPOINT = "my/endpoint"
-HEADER = "header example"
+HEADER = {"header": "example"}
 BODY = "body example"
 
 sms_relay_with_valid_fields_should_return_none = {
@@ -37,7 +37,7 @@ sms_relay_field_encrypted_data_has_invalid_type_should_throw_exception = {
 sms_relay_has_invalid_extra_field_should_throw_exception = {
     "phone_number": PHONE_NUMBER,
     "encrypted_data": ENCRYPTED_DATA,
-    "invalid": "invalidkey",
+    "invalid": "invalid_key",
 }
 
 
@@ -47,34 +47,34 @@ sms_relay_has_invalid_extra_field_should_throw_exception = {
         (sms_relay_with_valid_fields_should_return_none, None),
         (
             sms_relay_missing_required_field_phone_number_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             sms_relay_missing_required_field_encrypted_data_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             sms_relay_field_phone_number_has_invalid_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             sms_relay_field_encrypted_data_has_invalid_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             sms_relay_has_invalid_extra_field_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
     ],
 )
 def test_validate_request(json, expectation):
     if type(expectation) is type and issubclass(expectation, Exception):
         with pytest.raises(expectation):
-            SmsRelayValidator.validate_request(json)
+            SmsRelayRequestBody(**json)
     else:
         try:
-            SmsRelayValidator.validate_request(json)
-        except ValidationExceptionError as e:
+            SmsRelayRequestBody(**json)
+        except ValidationError as e:
             raise AssertionError(f"Unexpected validation error:{e}") from e
 
 
@@ -178,15 +178,15 @@ sms_relay_decrypted_body_has_unallowed_extra_field_should_throw_exception = {
         (sms_relay_decrypted_body_missing_optional_fields_should_return_none, None),
         (
             sms_relay_decrypted_body_missing_required_field_request_number_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             sms_relay_decrypted_body_missing_required_field_method_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             sms_relay_decrypted_body_missing_required_field_endpoint_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             sms_relay_decrypted_body_field_request_number_is_number_of_type_string_should_return_none,
@@ -194,36 +194,36 @@ sms_relay_decrypted_body_has_unallowed_extra_field_should_throw_exception = {
         ),
         (
             sms_relay_decrypted_body_field_request_number_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             sms_relay_decrypted_body_field_method_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             sms_relay_decrypted_body_field_endpoint_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             sms_relay_decrypted_body_field_header_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             sms_relay_decrypted_body_field_body_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             sms_relay_decrypted_body_has_unallowed_extra_field_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
     ],
 )
 def test_validate_decrypted_body(json, expectation):
     if type(expectation) is type and issubclass(expectation, Exception):
         with pytest.raises(expectation):
-            SmsRelayDecryptedBodyValidator.validate(json)
+            SmsRelayDecryptedBody(**json)
     else:
         try:
-            SmsRelayDecryptedBodyValidator.validate(json)
-        except ValidationExceptionError as e:
-            raise AssertionError(f"Unexpected validation error:{e}") from e
+            SmsRelayDecryptedBody(**json)
+        except ValidationError as e:
+            raise AssertionError(f"Unexpected validation error: {e}") from e

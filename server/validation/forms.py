@@ -1,79 +1,54 @@
-from typing import List, Optional
+from typing import Optional
 
-from pydantic import BaseModel, StrictBool, ValidationError
+from pydantic import Field, RootModel, StrictBool, model_validator
+from typing_extensions import Self
 
-from validation.questions import FormQuestionPutValidator, FormQuestionValidator
-from validation.validation_exception import ValidationExceptionError
+from utils import get_current_time
+from validation import CradleBaseModel
+from validation.questions import FormQuestion, UpdateFormQuestion
 
 
-class FormValidator(BaseModel, extra="forbid"):
+class FormModel(CradleBaseModel, extra="forbid"):
+    """Model representing a submitted Form"""
+
     lang: str
     patient_id: str
-    questions: List[FormQuestionValidator]
+    questions: list[FormQuestion]
     id: Optional[str] = None
     form_template_id: Optional[str] = None
     form_classification_id: Optional[str] = None
-    date_created: Optional[int] = None
-    last_edited: Optional[int] = None
+    date_created: int
+    last_edited: Optional[int] = Field(default_factory=get_current_time)
     last_edited_by: Optional[int] = None
     archived: Optional[StrictBool] = None
 
-    @staticmethod
-    def validate_date_sequence(request_body: dict):
-        if (
-            "date_created" in request_body
-            and request_body.get("date_created") is not None
-            and isinstance(request_body.get("date_created"), int)
-            and "last_edited" in request_body
-            and request_body.get("last_edited") is not None
-            and isinstance(request_body.get("last_edited"), int)
-        ):
-            start_date = request_body["date_created"]
-            end_date = request_body["last_edited"]
-            if start_date > end_date:
-                raise ValidationExceptionError(
-                    "Form created date must occur before its last edited date.",
-                )
-
-    @staticmethod
-    def validate(request_body: dict):
-        """
-        Raises an error if the form in /api/forms/responses
-        POST request is not valid.
-
-        :param request_body: The request body as a dict object
-        """
-        FormValidator.validate_date_sequence(request_body)
-        try:
-            return FormValidator(**request_body)
-        except ValidationError as e:
-            print(e)
-            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+    @model_validator(mode="after")
+    def validate_date_sequence(self) -> Self:
+        if self.last_edited is not None and self.last_edited < self.date_created:
+            raise ValueError(
+                "last_edited cannot be before date_created.",
+            )
+        return self
 
 
-class FormPutValidator(BaseModel, extra="forbid"):
-    questions: List[FormQuestionPutValidator]
+class UpdateFormRequestBody(CradleBaseModel, extra="forbid"):
+    """Request body for updating a submitted Form"""
 
-    @staticmethod
-    def validate(request_body: dict):
-        """
-        Raises an error if the /api/forms/responses PUT request is not valid.
-
-        :param request_body: The request body as a dict object
-
-        example valid case:
-        {
-            "questions": [
-                {
-                    "id":"asdsd-1123123",
-                    "answers": {
-                        "number": 4
-                    }
+    """
+    example valid case:
+    {
+        "questions": [
+            {
+                "id":"1234-5678",
+                "answers": {
+                    "number": 4
                 }
-            ]
-        }
-        """
-        try:
-            return FormPutValidator(**request_body)
-        except ValidationError as e:
-            raise ValidationExceptionError(str(e.errors()[0]["msg"]))
+            }
+        ]
+    }
+    """
+    questions: list[UpdateFormQuestion]
+
+
+class FormList(RootModel):
+    root: list[FormModel]

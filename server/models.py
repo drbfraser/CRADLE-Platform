@@ -173,7 +173,7 @@ class HealthFacilityOrm(db.Model):
     phone_number = db.Column(db.String(50), unique=True)
     location = db.Column(db.String(50))
     about = db.Column(db.Text)
-    new_referrals = db.Column(db.String(50))
+    new_referrals = db.Column(db.BigInteger, nullable=True)
 
     @staticmethod
     def schema():
@@ -530,6 +530,7 @@ class FormOrm(db.Model):
         db.ForeignKey(UserOrm.id, ondelete="SET NULL"), nullable=True
     )
 
+    # TODO: Why do Forms have a foreign key to Form Classifications? This seems redundant.
     form_classification_id = db.Column(
         db.ForeignKey(FormClassificationOrm.id, ondelete="SET NULL"),
         nullable=True,
@@ -594,7 +595,6 @@ class QuestionOrm(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     is_blank = db.Column(db.Boolean, nullable=False, default=0)
     question_index = db.Column(db.Integer, nullable=False)
-    question_id = db.Column(db.Text, nullable=True)
     question_text = db.Column(
         db.Text(collation="utf8mb4_general_ci"),
         nullable=False,

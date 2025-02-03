@@ -1,25 +1,35 @@
-import pytest
+import json
 
+import pytest
+import requests
+from humps import decamelize
+
+from common.print_utils import pretty_print
 from data import crud
 from models import FormClassificationOrm, FormTemplateOrm
 
 
 def test_form_template_created_with_same_classification_ids(
-    database,
-    form_template,
-    form_template3,
-    form_template4,
-    api_post,
+    database, form_template, form_template3, form_template4, api_post
 ):
     try:
-        response = api_post(endpoint="/api/forms/templates", json=form_template)
+        # Upload Form Templates via request body.
+        response = api_post(endpoint="/api/forms/templates/body", json=form_template)
         database.session.commit()
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
         assert response.status_code == 201
-        response = api_post(endpoint="/api/forms/templates", json=form_template3)
+
+        response = api_post(endpoint="/api/forms/templates/body", json=form_template3)
         database.session.commit()
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
         assert response.status_code == 409
-        response = api_post(endpoint="/api/forms/templates", json=form_template4)
+
+        response = api_post(endpoint="/api/forms/templates/body", json=form_template4)
         database.session.commit()
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
         assert response.status_code == 201
     finally:
         classification_id = form_template["classification"]["id"]
@@ -35,14 +45,45 @@ def test_form_template_created_with_same_classification_ids(
         )
 
 
-def test_form_template_created(database, form_template, form_template_2, api_post):
+def test_form_template_created(
+    database, form_template, form_template_2, url, auth_header
+):
     try:
-        response = api_post(endpoint="/api/forms/templates", json=form_template)
+        # Post Form Template as file.
+        response = requests.post(
+            url=f"{url}/api/forms/templates",
+            files={
+                "file": (
+                    "form_template.json",
+                    json.dumps(form_template),
+                    "application/json",
+                ),
+            },
+            headers=auth_header,
+        )
         database.session.commit()
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
         assert response.status_code == 201
-        response = api_post(endpoint="/api/forms/templates", json=form_template_2)
+
+        response = requests.post(
+            url=f"{url}/api/forms/templates",
+            files={
+                "file": (
+                    "form_template_2.json",
+                    json.dumps(form_template_2),
+                    "application/json",
+                ),
+            },
+            headers=auth_header,
+        )
         database.session.commit()
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
         assert response.status_code == 201
+
+        # TODO: Test uploading a Form Template as a .csv file.
+
     finally:
         crud.delete_by(
             FormClassificationOrm, name=form_template["classification"]["name"]
@@ -54,15 +95,24 @@ def test_form_template_created(database, form_template, form_template_2, api_pos
 
 
 def test_form_template_archival(
-    database,
-    update_info_in_question,
-    api_put,
-    api_post,
-    form_template,
+    database, update_info_in_question, api_put, form_template, url, auth_header
 ):
     try:
-        response = api_post(endpoint="/api/forms/templates", json=form_template)
+        # Post form template as file.
+        response = requests.post(
+            url=f"{url}/api/forms/templates",
+            files={
+                "file": (
+                    "form_template.json",
+                    json.dumps(form_template),
+                    "application/json",
+                ),
+            },
+            headers=auth_header,
+        )
         database.session.commit()
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
         assert response.status_code == 201
 
         response = api_put(
@@ -70,6 +120,8 @@ def test_form_template_archival(
             json=update_info_in_question,
         )
         database.session.commit()
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
         assert response.status_code == 201
 
     finally:
@@ -80,18 +132,19 @@ def test_form_template_archival(
 
 @pytest.fixture
 def form_template():
+    form_classification_id = "e141d855-37e2-421f-a517-9a2fc9437993"
     return {
-        "classification": {"id": "e141d855-37e2-421f-a517-9a2fc9437993", "name": "ft1"},
+        "classification": {"id": form_classification_id, "name": "fc1"},
         "id": "ft1",
         "version": "V1",
+        "form_classification_id": form_classification_id,
         "questions": [
             {
-                "question_id": "section header",
                 "category_index": None,
                 "question_index": 0,
                 "question_type": "CATEGORY",
                 "required": True,
-                "question_lang_versions": [
+                "lang_versions": [
                     {
                         "lang": "english",
                         "question_text": "information",
@@ -103,7 +156,6 @@ def form_template():
                 ],
             },
             {
-                "question_id": "referred-by-name",
                 "category_index": 0,
                 "question_index": 1,
                 "question_type": "MULTIPLE_CHOICE",
@@ -115,10 +167,10 @@ def form_template():
                         "answers": {"number": 4},
                     },
                 ],
-                "question_lang_versions": [
+                "lang_versions": [
                     {
                         "lang": "english",
-                        "question_text": "what's your sex?",
+                        "question_text": "Patient sex?",
                         "mc_options": [
                             {"mc_id": 0, "opt": "male"},
                             {"mc_id": 1, "opt": "female"},
@@ -141,21 +193,20 @@ def form_template():
 @pytest.fixture
 def form_template_2():
     return {
-        "classification": {"name": "ft2"},
+        "classification": {"name": "fc2"},
         "id": "ft2",
         "version": "V2",
         "questions": [
             {
-                "question_id": "referred-by-name",
                 "category_index": None,
                 "question_index": 0,
                 "question_type": "MULTIPLE_CHOICE",
                 "required": True,
                 "visible_condition": [],
-                "question_lang_versions": [
+                "lang_versions": [
                     {
                         "lang": "english",
-                        "question_text": "what's your sex?",
+                        "question_text": "Patient sex?",
                         "mc_options": [
                             {"mc_id": 0, "opt": "male"},
                             {"mc_id": 1, "opt": "female"},
@@ -172,12 +223,11 @@ def form_template_2():
                 ],
             },
             {
-                "question_id": "section header",
                 "category_index": None,
                 "question_index": 1,
                 "question_type": "CATEGORY",
                 "required": True,
-                "question_lang_versions": [
+                "lang_versions": [
                     {
                         "lang": "english",
                         "question_text": "information",
@@ -189,16 +239,15 @@ def form_template_2():
                 ],
             },
             {
-                "question_id": "referred-by-name",
                 "category_index": 1,
                 "question_index": 2,
                 "question_type": "MULTIPLE_CHOICE",
                 "required": True,
                 "visible_condition": [],
-                "question_lang_versions": [
+                "lang_versions": [
                     {
                         "lang": "english",
-                        "question_text": "what's your sex?",
+                        "question_text": "Patient sex?",
                         "mc_options": [
                             {"mc_id": 0, "opt": "male"},
                             {"mc_id": 1, "opt": "female"},
@@ -221,16 +270,16 @@ def form_template_2():
 @pytest.fixture
 def form_template3():
     return {
-        "classification": {"id": "e141d855-37e2-421f-a517-9a2fc9437993", "name": "ft1"},
+        "classification": {"id": "e141d855-37e2-421f-a517-9a2fc9437993", "name": "fc1"},
         "version": "V1",
         "questions": [
             {
-                "question_id": "section header",
+                "id": "section header",
                 "category_index": None,
                 "question_index": 0,
                 "question_type": "CATEGORY",
                 "required": True,
-                "question_lang_versions": [
+                "lang_versions": [
                     {
                         "lang": "english",
                         "question_text": "information",
@@ -248,16 +297,16 @@ def form_template3():
 @pytest.fixture
 def form_template4():
     return {
-        "classification": {"id": "e141d855-37e2-421f-a517-9a2fc9437993", "name": "ft1"},
+        "classification": {"id": "e141d855-37e2-421f-a517-9a2fc9437993", "name": "fc1"},
         "version": "V2",
         "questions": [
             {
-                "question_id": "section header",
+                "id": "section header",
                 "category_index": None,
                 "question_index": 0,
                 "question_type": "CATEGORY",
                 "required": True,
-                "question_lang_versions": [
+                "lang_versions": [
                     {
                         "lang": "english",
                         "question_text": "information",
@@ -283,12 +332,11 @@ def remove_question():
         "version": "V1.2",
         "questions": [
             {
-                "question_id": "section header",
                 "category_index": None,
                 "question_index": 0,
                 "question_type": "CATEGORY",
                 "required": True,
-                "question_lang_versions": [
+                "lang_versions": [
                     {
                         "lang": "english",
                         "question_text": "information",
@@ -309,12 +357,11 @@ def add_question():
         "version": "V1.3",
         "questions": [
             {
-                "question_id": "section header",
                 "category_index": None,
                 "question_index": 0,
                 "question_type": "CATEGORY",
                 "required": True,
-                "question_lang_versions": [
+                "lang_versions": [
                     {
                         "lang": "english",
                         "question_text": "information",
@@ -326,7 +373,6 @@ def add_question():
                 ],
             },
             {
-                "question_id": "referred-by-name",
                 "category_index": 0,
                 "question_index": 1,
                 "question_type": "MULTIPLE_CHOICE",
@@ -338,10 +384,10 @@ def add_question():
                         "answers": {"number": 4},
                     },
                 ],
-                "question_lang_versions": [
+                "lang_versions": [
                     {
                         "lang": "english",
-                        "question_text": "what's your sex?",
+                        "question_text": "Patient sex?",
                         "mc_options": [
                             {"mc_id": 0, "opt": "male"},
                             {"mc_id": 1, "opt": "female"},
@@ -358,16 +404,15 @@ def add_question():
                 ],
             },
             {
-                "question_id": "referred-by-name",
                 "category_index": None,
                 "question_index": 2,
                 "question_type": "MULTIPLE_CHOICE",
                 "required": True,
                 "visible_condition": [],
-                "question_lang_versions": [
+                "lang_versions": [
                     {
                         "lang": "english",
-                        "question_text": "what's your sex?",
+                        "question_text": "Patient sex?",
                         "mc_options": [
                             {"mc_id": 0, "opt": "male"},
                             {"mc_id": 1, "opt": "female"},

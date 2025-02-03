@@ -1,11 +1,11 @@
 import { ColorReading, StatsData } from 'src/shared/api/validation/statistics';
 
 export const initialColorReading: ColorReading = {
-  green: 0,
-  yellowUp: 0,
-  yellowDown: 0,
-  redUp: 0,
-  redDown: 0,
+  GREEN: 0,
+  YELLOW_UP: 0,
+  YELLOW_DOWN: 0,
+  RED_UP: 0,
+  RED_DOWN: 0,
 };
 
 export const initialStatsData: StatsData = {

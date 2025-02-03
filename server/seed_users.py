@@ -4,13 +4,14 @@ from typing import TypedDict
 from botocore.exceptions import ClientError
 
 from authentication import cognito
-from common import health_facility_utils, user_utils
+from common import health_facility_utils, phone_number_utils, user_utils
 from enums import FacilityTypeEnum, RoleEnum
-from validation.users import UserRegisterValidator
+from validation.users import RegisterUserRequestBody
 
 """
 This script will seed the database and the AWS Cognito user pool with fake users.
 """
+EMULATOR_PHONE_NUMBER = os.environ["EMULATOR_PHONE_NUMBER"]
 
 
 class SeedUserDict(TypedDict):
@@ -19,7 +20,7 @@ class SeedUserDict(TypedDict):
     email: str
     password: str
     health_facility_name: str
-    role: str
+    role: RoleEnum
     phone_numbers: list[str]
 
 
@@ -27,31 +28,29 @@ class SeedUserDict(TypedDict):
 The minimal users needed for the application to be functional. Includes only
 a single admin user.
 """
-minimal_users_list: list[SeedUserDict] = [
-    {
-        "name": "Admin",
-        "username": "admin",
-        "email": "admin@email.com",
-        "password": "cradle-admin",
-        "health_facility_name": "H0000",
-        "role": RoleEnum.ADMIN.value,
-        "phone_numbers": [
-            "+1-123-456-7890",
-            "+256-0414-123456",
-            os.environ["EMULATOR_PHONE_NUMBER"],
-        ],
-    },
-]
+admin: SeedUserDict = {
+    "name": "Admin",
+    "username": "admin",
+    "email": "admin@email.com",
+    "password": "cradle-admin",
+    "health_facility_name": "H0000",
+    "role": RoleEnum.ADMIN,
+    "phone_numbers": [
+        "+1-604-456-7890",
+        "+256-0414-123456",
+    ],
+}
+minimal_users_list: list[SeedUserDict] = [admin]
 
 users_list: list[SeedUserDict] = [
     {
-        "name": "Test VHT",
+        "name": "Test Vht",
         "username": "test_vht",
         "email": "test_vht@email.com",
         "password": "cradle-vht",
         "health_facility_name": "H1000",
-        "role": RoleEnum.VHT.value,
-        "phone_numbers": ["+256-555-100000", "+256-555-100001", "+256-555-100002"],
+        "role": RoleEnum.VHT,
+        "phone_numbers": ["+256-400-100000", "+256-401-100001", "+256-402-100002"],
     },
     {
         "name": "VHT",
@@ -59,8 +58,8 @@ users_list: list[SeedUserDict] = [
         "email": "vht@email.com",
         "password": "cradle-vht",
         "health_facility_name": "H1000",
-        "role": RoleEnum.VHT.value,
-        "phone_numbers": ["+256-555-100003"],
+        "role": RoleEnum.VHT,
+        "phone_numbers": ["+256-403-100003"],
     },
     {
         "name": "CHO User",
@@ -68,8 +67,8 @@ users_list: list[SeedUserDict] = [
         "email": "cho@email.com",
         "password": "cradle-cho",
         "health_facility_name": "H0000",
-        "role": RoleEnum.CHO.value,
-        "phone_numbers": ["+256-555-123456"],
+        "role": RoleEnum.CHO,
+        "phone_numbers": ["+256-404-123456"],
     },
     {
         "name": "HCW User",
@@ -77,8 +76,8 @@ users_list: list[SeedUserDict] = [
         "email": "hcw@email.com",
         "password": "cradle-hcw",
         "health_facility_name": "H0000",
-        "role": RoleEnum.HCW.value,
-        "phone_numbers": ["+256-555-654321"],
+        "role": RoleEnum.HCW,
+        "phone_numbers": ["+256-405-654321"],
     },
 ]
 
@@ -98,10 +97,9 @@ def populate_user_pool(seed_users: list[SeedUserDict]):
                 print("Deleted", username)
 
         # Run the user data through the validator just to be sure everything is good.
-        user_models = [UserRegisterValidator(**seed_user) for seed_user in seed_users]
+        user_models = [RegisterUserRequestBody(**seed_user) for seed_user in seed_users]
 
         for user_model in user_models:
-            # user_dict.pop("supervises")
             user_utils.create_user(**user_model.model_dump())
             user_id = user_utils.get_user_id_from_username(user_model.username)
             print(f"Created user ({user_model.username} : {user_id})")
@@ -193,6 +191,11 @@ def seed_facilities(facilities: list[FacilityDict]):
 def seed_minimal_users():
     seed_facilities(facilities_list[:1])
     populate_user_pool(minimal_users_list)
+    # Pydantic validator won't accept emulator phone number, but we can set it separately.
+    admin_phone_numbers = set(phone_number_utils.get_users_phone_numbers(user_id=0))
+    emulator_phone_number = phone_number_utils.format(EMULATOR_PHONE_NUMBER)
+    admin_phone_numbers.add(emulator_phone_number)
+    user_utils.update_user_phone_numbers(user_id=1, phone_numbers=admin_phone_numbers)
 
 
 def seed_test_users():
