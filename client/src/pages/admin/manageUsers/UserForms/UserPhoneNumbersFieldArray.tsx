@@ -16,7 +16,7 @@ export const UserPhoneNumbersFieldArray = () => {
       name={'phoneNumbers'}
       render={(arrayHelpers) => (
         <Box>
-          <Typography variant={'h6'} component={'h6'}>
+          <Typography variant={'h6'} component={'h6'} sx={{ fontSize: '16px' }}>
             Phone Numbers
           </Typography>
           <Stack direction={'column'} gap={1}>
