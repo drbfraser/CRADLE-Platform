@@ -13,11 +13,11 @@ import {
   Box,
   Divider,
   MenuItem,
-  Paper,
   Select,
   Typography,
   ToggleButtonGroup,
   ToggleButton,
+  Paper,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { StatsOptionEnum, TrafficLightEnum } from 'src/shared/enums';

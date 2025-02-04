@@ -101,7 +101,6 @@ jobs:
 
   backend_unit_tests:
     runs-on: [self-hosted, docker]
-    environment: cicd
     container: 
       image: python:3.9.1-buster
     outputs:
@@ -129,9 +128,6 @@ jobs:
     runs-on: [self-hosted, docker]
     environment: cicd
     concurrency: cicd
-    # TODO: Fix the back-end system tests.
-    # Disabled temporarily. See Issue #701
-    # https://github.sfu.ca/cradle-project/Cradle-Platform/issues/701 
     container: 
       image: python:3.9.1-buster
     needs: backend_unit_tests
@@ -144,7 +140,6 @@ jobs:
       PORT: "5000"
       MYSQL_DATABASE: "cradle"
       MYSQL_ROOT_PASSWORD: "ci-password"
-      JWT_SECRET_KEY: "testkey"
       LIMITER_DISABLED: "True"
       EMULATOR_PHONE_NUMBER: "+1-123-456-7890"
       SMS_KEY_DURATION: "100"
@@ -229,7 +224,6 @@ jobs:
       DB_NAME: 'cradle'
       MYSQL_DATABASE: 'cradle'
       MYSQL_ROOT_PASSWORD: 'ci-password'
-      JWT_SECRET_KEY: 'testkey'
     services:
       mysql:
         image: mysql:5.7
@@ -376,7 +370,11 @@ jobs:
           ls -al
           echo "IMAGE_TAG = '$IMAGE_TAG'"
       - name: Running 'docker compose'...
+        # Remove `CADDY_DEBUG=debug` to disable verbose logging for Caddy.
+        # Remove `CADDY_ACME_CA` environment variable in production.
         run: |
+          CADDY_DEBUG=debug
+          CADDY_ACME_CA=https://acme-staging-v02.api.letsencrypt.org/directory
           docker compose -f docker-compose.yml -f docker-compose.deploy.yml build
           docker images
       - name: Pushing to docker hub...

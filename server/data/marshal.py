@@ -3,6 +3,7 @@ import json
 from enum import Enum
 from typing import Any, Dict, List, Optional, Type
 
+from common import commonUtil
 from data.crud import M
 from models import (
     AssessmentOrm,
@@ -219,7 +220,7 @@ def __marshal_medical_record(r: MedicalRecordOrm) -> dict:
     d = {
         "id": r.id,
         "patient_id": r.patient_id,
-        "dataCreated": r.date_created,
+        "date_created": r.date_created,
         "last_edited": r.last_edited,
     }
 
@@ -306,7 +307,7 @@ def __marshal_question(q: QuestionOrm, if_include_versions: bool) -> dict:
     d["answers"] = json.loads(answers)
 
     if if_include_versions:
-        d["question_lang_versions"] = [marshal(v) for v in q.lang_versions]
+        d["lang_versions"] = [marshal(v) for v in q.lang_versions]
 
     return d
 
@@ -402,6 +403,10 @@ def unmarshal(m: Type[M], d: dict) -> M:
     :param d: A dictionary mapping columns to values used to construct the model
     :return: A model
     """
+    # Marshmallow will throw an exception if a field is None, but doesn't throw
+    # if the field is absent entirely.
+    d = commonUtil.filterNestedAttributeWithValueNone(d)
+
     if m is PatientOrm:
         return __unmarshal_patient(d)
     if m is ReadingOrm:
@@ -557,13 +562,15 @@ def __unmarshal_form_template(d: dict) -> FormTemplateOrm:
     questions = []
     if d.get("questions") is not None:
         questions = unmarshal_question_list(d["questions"])
+        del d["questions"]
 
-    form_template = __load(FormTemplateOrm, d)
+    form_template_orm = FormTemplateOrm(**d)
 
-    if questions:
-        form_template.questions = questions
+    # form_template = __load(FormTemplateOrm, d)
 
-    return form_template
+    form_template_orm.questions = questions
+
+    return form_template_orm
 
 
 def __unmarshal_reading(d: dict) -> ReadingOrm:
@@ -606,22 +613,21 @@ def __unmarshal_question(d: dict) -> QuestionOrm:
     answers = d.get("answers")
     if answers is not None:
         d["answers"] = json.dumps(answers)
+
     # Unmarshal any lang versions found within the question
-    lang_versions = []
-    if d.get("question_lang_versions") is not None:
-        lang_versions = [
-            unmarshal(QuestionLangVersionOrm, v) for v in d["question_lang_versions"]
+    question_lang_version_orms: list[QuestionLangVersionOrm] = []
+    lang_version_dicts = d.get("lang_versions")
+    if lang_version_dicts is not None:
+        del d["lang_versions"]
+        question_lang_version_orms = [
+            unmarshal(QuestionLangVersionOrm, v) for v in lang_version_dicts
         ]
-        # Delete the entry so that we don't try to unmarshal them again by loading from
-        # the question schema.
-        del d["question_lang_versions"]
 
-    question = __load(QuestionOrm, d)
+    question_orm = __load(QuestionOrm, d)
 
-    if lang_versions:
-        question.lang_versions = lang_versions
+    question_orm.lang_versions = question_lang_version_orms
 
-    return question
+    return question_orm
 
 
 def __unmarshal_RelayServerPhoneNumber(d: dict) -> RelayServerPhoneNumberOrm:

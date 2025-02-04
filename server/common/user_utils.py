@@ -267,6 +267,7 @@ def create_user(
     password: str,
     phone_numbers: list[str],
     supervises: Optional[list[int]],
+    **kwargs,
 ):
     """
     Creates a user in both our database and the Cognito user pool.

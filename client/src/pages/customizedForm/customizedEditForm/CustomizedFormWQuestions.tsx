@@ -65,7 +65,7 @@ export const CustomizedFormWQuestions = ({
   const [errorMessage, setErrorMessage] = useState('');
   const [categoryIndex, setCategoryIndex] = useState<number | null>(null);
   const getInputLanguages = (question: TQuestion) => {
-    return question.questionLangVersions.map((item) => item.lang);
+    return question.langVersions.map((item) => item.lang);
   };
 
   const isMobile = useMediaQuery('(max-width:599px)');
@@ -78,19 +78,19 @@ export const CustomizedFormWQuestions = ({
 
   const updateAddedQuestions = (languages: string[]) => {
     questions.forEach((question) => {
-      const currentLanguages = question.questionLangVersions.map(
+      const currentLanguages = question.langVersions.map(
         (version) => version.lang
       );
 
       // if language is removed
-      question.questionLangVersions = question.questionLangVersions.filter(
-        (v) => languages.includes(v.lang)
+      question.langVersions = question.langVersions.filter((v) =>
+        languages.includes(v.lang)
       );
 
       languages.forEach((language) => {
         // if language is added
         if (!currentLanguages.includes(language)) {
-          question.questionLangVersions.push({
+          question.langVersions.push({
             lang: language,
             mcOptions: [],
             questionText: '',
@@ -275,7 +275,7 @@ export const CustomizedFormWQuestions = ({
   };
 
   const getEmptyLanguages = (question: TQuestion) => {
-    const emptyLangs = question.questionLangVersions
+    const emptyLangs = question.langVersions
       .filter((qlv) => qlv.questionText === '')
       .map((qlv) => qlv.lang);
 

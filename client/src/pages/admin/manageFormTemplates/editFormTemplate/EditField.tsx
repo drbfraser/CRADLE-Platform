@@ -347,11 +347,11 @@ const EditField = ({
     } else {
       if (question) {
         setFieldType(getFieldType(question.questionType));
-        setQuestionId(question.questionId ? question.questionId : '');
+        setQuestionId(question.id ? question.id : '');
         setVisibilityToggle(
           visibilityToggle || question.visibleCondition.length > 0
         );
-        const qlvCopy = getQLangVersionsCopy(question.questionLangVersions);
+        const qlvCopy = getQLangVersionsCopy(question.langVersions);
         setQuestionLangversions(qlvCopy);
         if (qlvCopy.length > 0) {
           setNumChoices(qlvCopy[0].mcOptions.length);
@@ -383,7 +383,7 @@ const EditField = ({
   const getFieldName = (language: string) => {
     let fName = '';
     if (question) {
-      const qLangVersion = question.questionLangVersions.find(
+      const qLangVersion = question.langVersions.find(
         (version) => version.lang === language
       );
       if (qLangVersion) {
@@ -483,9 +483,7 @@ const EditField = ({
                   variant="outlined"
                   fullWidth
                   multiline
-                  defaultValue={
-                    question && question.questionId ? question.questionId : ''
-                  }
+                  defaultValue={question && question.id ? question.id : ''}
                   size="small"
                   inputProps={{
                     maxLength: Number.MAX_SAFE_INTEGER,
@@ -774,9 +772,8 @@ const EditField = ({
                       (q) => q.questionIndex === question.questionIndex
                     );
                     if (questionToUpdate) {
-                      questionToUpdate.questionId = questionId;
-                      questionToUpdate.questionLangVersions =
-                        questionLangVersions;
+                      questionToUpdate.id = questionId;
+                      questionToUpdate.langVersions = questionLangVersions;
                       questionToUpdate.questionType =
                         fieldTypes[fieldType].type;
                       questionToUpdate.visibleCondition = visibilityToggle
@@ -805,7 +802,7 @@ const EditField = ({
                     }
                     form.questions.splice(indexToInsert, 0, {
                       questionIndex: indexToInsert,
-                      questionLangVersions: questionLangVersions,
+                      langVersions: questionLangVersions,
                       questionType: fieldTypes[fieldType].type,
                       required: isRequired,
                       allowFutureDates: allowFutureDates,
@@ -817,7 +814,7 @@ const EditField = ({
                       units: null,
                       visibleCondition: visibleCondition,
                       categoryIndex: categoryIndex,
-                      questionId: questionId,
+                      id: questionId,
                     });
                     form.questions.forEach((q, index) => {
                       if (q.categoryIndex && q.categoryIndex >= indexToInsert) {

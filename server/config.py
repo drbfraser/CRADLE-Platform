@@ -1,25 +1,20 @@
 import datetime
 import json
 import logging.config
-import os
-from pathlib import Path
 from typing import ClassVar
 
 import environs
 from environs import Env
-from flasgger import Swagger
-from flask import Flask
 from flask_cors import CORS
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
-from flask_restful import Api
+from flask_openapi3.models.info import Info
+from flask_openapi3.openapi import OpenAPI as FlaskOpenAPI
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 
 # Versioning system follows : https://semver.org/
 app_version = "1.0.0"
-
-basedir = Path(os.path.dirname(__file__)).resolve()
 
 
 class Config:
@@ -32,8 +27,6 @@ class Config:
         db_hostname = env("DB_HOSTNAME")
         db_port = env("DB_PORT")
         db_name = env("DB_NAME")
-        JWT_SECRET_KEY = env("JWT_SECRET_KEY")
-
     except environs.EnvError:
         print(
             "******************************************************************************************",
@@ -46,12 +39,8 @@ class Config:
         )
 
     SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{db_user}:{db_pw}@{db_hostname}:{db_port}/{db_name}"  # ex: 'mysql+pymysql://root:123456@localhost:3306/cradle'
+    print(f"SQLALCHEMY_DATABASE_URI: {SQLALCHEMY_DATABASE_URI}")
 
-    print("SQLALCHEMY_DATABASE_URI: " + SQLALCHEMY_DATABASE_URI)
-
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-
-    JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(days=7)
     LOGGING: ClassVar = {
         "version": 1,
         "disable_existing_loggers": False,
@@ -94,9 +83,6 @@ class Config:
     logging.config.dictConfig(LOGGING)
     logger = logging.getLogger(__name__)
 
-    logger.debug("Debug message")
-    logger.info("Info message")
-
 
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
@@ -107,18 +93,22 @@ class JSONEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, o)
 
 
-FLASK_APP = "app.py"
+API_DOCS_TITLE = "Cradle-Platform REST API"
+jwt_security = {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"}
+app = FlaskOpenAPI(
+    import_name=__name__,
+    static_folder="../client/build",
+    doc_prefix="/apidocs",
+    info=Info(title=API_DOCS_TITLE, version=app_version),
+    security_schemes={"jwt": jwt_security},
+)
 
-app = Flask(__name__, static_folder="../client/build")
-app.config["SWAGGER"] = {"openapi": "3.0.2"}
 app.config["PROPAGATE_EXCEPTIONS"] = True
 app.config["BASE_URL"] = ""
 app.config["UPLOAD_FOLDER"] = "/uploads"
 app.config["MAX_CONTENT_LENGTH"] = 64 * 1e6
-swagger = Swagger(app)
 
 CORS(app, supports_credentials=True)
-api = Api(app)
 app.config.from_object(Config)
 
 app.json_encoder = JSONEncoder

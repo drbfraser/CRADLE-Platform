@@ -7,7 +7,7 @@ interface IProps {
   open: boolean;
   onClose: () => void;
   transitionDuration?: number;
-  autoHideDuration?: number;
+  autoHideDuration?: number | null;
 }
 
 export const Toast: React.FC<IProps> = ({

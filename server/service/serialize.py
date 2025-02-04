@@ -73,7 +73,8 @@ def serialize_pregnancy(pregnancy: PregnancyOrm) -> dict:
 
 def serialize_medical_record(record: MedicalRecordOrm) -> dict:
     return {
-        "medicalRecordId": record.id,
+        "id": record.id,
+        "patient_id": record.patient_id,
         "information": record.information,
         "date_created": record.date_created,
         "last_edited": record.last_edited,
@@ -94,7 +95,7 @@ def serialize_patient(
     referrals: Optional[List[ReferralOrm]] = None,
     assessments: Optional[List[AssessmentOrm]] = None,
 ) -> dict:
-    p = {
+    return {
         "id": patient.patient_id,
         "name": patient.name,
         "sex": patient.sex.value,
@@ -126,13 +127,11 @@ def serialize_patient(
         ),
         "is_archived": patient.is_archived,
     }
-    return {k: v for k, v in p.items() if v or v is False}
 
 
 def serialize_reading(tup: Tuple[ReadingOrm, UrineTestOrm]) -> dict:
     reading = marshal.marshal(tup[0], True)
-    if tup[1]:
-        reading["urine_tests"] = marshal.marshal(tup[1])
+    reading["urine_tests"] = marshal.marshal(tup[1]) if tup[1] is not None else None
     return reading
 
 
@@ -142,7 +141,6 @@ def serialize_referral_or_assessment(model: Union[ReferralOrm, AssessmentOrm]) -
 
 def serialize_blank_form_template(form_template: dict) -> dict:
     del form_template["date_created"]
-    del form_template["last_edited"]
     del form_template["version"]
 
     return form_template

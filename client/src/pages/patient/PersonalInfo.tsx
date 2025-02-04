@@ -53,7 +53,7 @@ export const PersonalInfo = ({ patient }: IProps) => {
                   {patient.zone ? patient.zone : `N/A`}
                 </Grid>
                 <Grid size={6}>
-                  <b>Village: </b>
+                  <b>Village Number: </b>
                   {patient.villageNumber ? patient.villageNumber : `N/A`}
                 </Grid>
 

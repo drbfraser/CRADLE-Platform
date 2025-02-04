@@ -11,6 +11,7 @@ from systemTests.mock import factory
 @pytest.fixture
 def app():
     from config import app
+
     # from manage import seed
 
     app.config.update({"TESTING": True})
@@ -26,9 +27,7 @@ def app():
 @pytest.fixture(autouse=True)
 def _provide_app_context(app: Flask):
     with app.app_context():
-        # seed_test_data()
         yield
-        # seed_test_data()
 
 
 #

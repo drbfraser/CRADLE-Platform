@@ -19,25 +19,25 @@ class EnumWithList(Enum):
         return [e.value for e in cls]
 
 
-class RoleEnum(Enum):
+class StrEnum(str, Enum):
+    def __str__(self) -> str:
+        return self.value
+
+
+class RoleEnum(StrEnum):
     VHT = "VHT"
     HCW = "HCW"
     ADMIN = "ADMIN"
     CHO = "CHO"
 
 
-class SexEnum(Enum):
+class SexEnum(StrEnum):
     MALE = "MALE"
     FEMALE = "FEMALE"
     OTHER = "OTHER"
 
 
-class GestationalAgeUnitEnum(Enum):
-    MONTHS = "MONTHS"
-    WEEKS = "WEEKS"
-
-
-class TrafficLightEnum(Enum):
+class TrafficLightEnum(StrEnum):
     NONE = "NONE"
     GREEN = "GREEN"
     YELLOW_UP = "YELLOW_UP"
@@ -46,7 +46,7 @@ class TrafficLightEnum(Enum):
     RED_DOWN = "RED_DOWN"
 
 
-class FacilityTypeEnum(Enum):
+class FacilityTypeEnum(StrEnum):
     HCF_2 = "HCF_2"
     HCF_3 = "HCF_3"
     HCF_4 = "HCF_4"
@@ -65,7 +65,7 @@ class QuestionTypeEnum(EnumWithList):
     CATEGORY = "CATEGORY"
 
 
-class QRelationalEnum(Enum):
+class QRelationalEnum(StrEnum):
     LARGER_THAN = "LARGER_THAN"
     SMALLER_THAN = "SMALLER_THAN"
     EQUAL_TO = "EQUAL_TO"
@@ -77,7 +77,7 @@ class ContentTypeEnum(EnumWithList):
     CSV = "text/csv"
 
 
-class HTTPMethodEnum(Enum):
+class HTTPMethodEnum(StrEnum):
     GET = "GET"
     POST = "POST"
     PUT = "PUT"

@@ -3,7 +3,7 @@ import pytest
 from service import compressor
 
 
-@pytest.mark.parametrize("message", [("test")])
+@pytest.mark.parametrize("message", ["test"])
 def test_compressor(message):
     message_bytes = bytes(message, "utf-8")
 
@@ -18,7 +18,7 @@ def test_compressor(message):
     assert result_string == message
 
 
-@pytest.mark.parametrize("message", [("test")])
+@pytest.mark.parametrize("message", ["test"])
 def test_compressor_string(message):
     data = compressor.compress_from_string(message)
     assert isinstance(data, bytes)

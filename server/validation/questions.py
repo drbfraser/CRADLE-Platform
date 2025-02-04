@@ -1,12 +1,13 @@
-from typing import List, Optional, Union
+from typing import Optional, Union
 
-from pydantic import BaseModel, Field
-from typing_extensions import Annotated
+from pydantic import Field, model_validator
+from typing_extensions import Annotated, Self
 
 from enums import QRelationalEnum, QuestionTypeEnum
+from validation import CradleBaseModel
 
 
-class MultipleChoiceOptionValidator(BaseModel):
+class MultipleChoiceOption(CradleBaseModel):
     mc_id: int
     opt: str
     """
@@ -21,95 +22,107 @@ class MultipleChoiceOptionValidator(BaseModel):
     """
 
 
-class AnswerValidator(BaseModel, extra="forbid"):
-    comment: Optional[str] = None
-    mc_id_array: Optional[List[int]] = None
-    number: Optional[Union[int, float]] = None
-    text: Optional[str] = None
-
+class Answer(CradleBaseModel, extra="forbid"):
     """
     valid example (all fields, in real case only present one part of it):
     {
-        "number": 5/5.0,
+        "number": 5.0,
         "text": "a",
-        "mc_id_array":[0,1],
-        "comment": "other opt"
+        "mc_id_array": [0, 1],
+        "comment": "other option"
     }
+    TODO: Refactor this into separate classes. These shouldn't all be in
+        one class if only one is expected to be present at a time.
     """
 
+    comment: Optional[str] = None
+    mc_id_array: Optional[list[int]] = None
+    number: Optional[Union[int, float]] = None
+    text: Optional[str] = None
 
-class VisibleConditionValidator(BaseModel, use_enum_values=True):
-    answers: AnswerValidator
-    question_index: int
-    relation: QRelationalEnum
 
+class VisibleCondition(CradleBaseModel, use_enum_values=True):
     """
-    valid example:
-    [
+    Valid example:
         {
             "question_index": 1,
             "relation": "EQUAL_TO",
             "answers": {
                 "number": 5
             }
-        },...
-    ]
+        }
+    TODO: Figure out how this works and write an explanation of it.
     """
 
+    question_index: int
+    answers: Answer
+    relation: QRelationalEnum
 
-class QuestionLangVersionValidator(BaseModel, extra="forbid"):
-    lang: str
-    mc_options: Optional[List[MultipleChoiceOptionValidator]] = None
-    question_text: str
 
+class QuestionLangVersionModel(CradleBaseModel, extra="forbid"):
     """
     valid example:
-    [
-        {
+    {
         "lang": "English",
-        "question_text": "How the patient's condition?",
-            "mc_options": [
-                {
-                    "mc_id":0,
-                    "opt": "Decent"
-                }
-            ],
-        },
+        "question_text": "How is the patient's condition?",
+        "mc_options": [
+            {
+                "mc_id": 0,
+                "opt": "Good"
+            },
+            {
+                "mc_id": 1,
+                "opt": "Bad"
+            }
+        ],
+    },
 
-    ]
     """
 
+    question_id: Optional[str] = None  # Foreign Key to parent Question
+    lang: str
+    question_text: str
+    mc_options: Optional[list[MultipleChoiceOption]] = None
 
-class QuestionBase(BaseModel, use_enum_values=True):
+
+class QuestionBase(CradleBaseModel, use_enum_values=True):
+    id: Optional[str] = None
     question_index: Annotated[int, Field(strict=True, ge=0)]  # Non-negative index
     question_type: QuestionTypeEnum
-    question_id: Optional[str] = None
     required: Optional[bool] = None
-    allow_past_dates: Optional[bool] = None
-    allow_future_dates: Optional[bool] = None
+    allow_past_dates: Optional[bool] = True
+    allow_future_dates: Optional[bool] = True
     units: Optional[str] = None
-    visible_condition: Optional[List[VisibleConditionValidator]] = None
+    visible_condition: Optional[list[VisibleCondition]] = []
     num_min: Optional[Union[int, float]] = None
     num_max: Optional[Union[int, float]] = None
     string_max_length: Optional[int] = None
     category_index: Optional[int] = None
     string_max_lines: Optional[int] = None
+    form_template_id: Optional[str] = None
 
 
-class TemplateQuestionValidator(QuestionBase, extra="forbid"):
-    question_lang_versions: List[QuestionLangVersionValidator]
+class TemplateQuestion(QuestionBase, extra="forbid"):
+    lang_versions: list[QuestionLangVersionModel]
     is_blank: bool = True  # Set to True for template questions
 
+    @model_validator(mode="after")
+    def set_lang_version_foreign_keys(self) -> Self:
+        if len(self.lang_versions) < 1:
+            raise ValueError("lang_versions cannot be empty")
+        for lang_version in self.lang_versions:
+            lang_version.question_id = self.id
+        return self
 
-class FormQuestionValidator(QuestionBase, extra="forbid"):
+
+class FormQuestion(QuestionBase, extra="forbid"):
     question_text: str
     is_blank: bool = False  # Set to False for form questions
-    has_comment_attached: Optional[bool] = None
-    id: Optional[str] = None
-    mc_options: Optional[List[MultipleChoiceOptionValidator]] = None
-    answers: Optional[AnswerValidator] = None
+    has_comment_attached: Optional[bool] = False
+    mc_options: Optional[list[MultipleChoiceOption]] = []
+    answers: Optional[Answer] = None
 
 
-class FormQuestionPutValidator(BaseModel):
+class UpdateFormQuestion(CradleBaseModel):
     id: str
-    answers: AnswerValidator
+    answers: Answer

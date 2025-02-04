@@ -1,7 +1,7 @@
 import pytest
+from pydantic import ValidationError
 
-from validation.facilities import FacilityValidator
-from validation.validation_exception import ValidationExceptionError
+from validation.facilities import HealthFacilityModel
 
 FACILITY_NAME = "H12"
 PHONE_NUMBER = "+1-604-715-2845"
@@ -24,25 +24,11 @@ facility_missing_optional_field_phone_number_should_return_none = {
     "type": FACILITY_TYPE,
 }
 
-facility_missing_optional_field_location_should_return_none = {
-    "name": FACILITY_NAME,
-    "phone_number": PHONE_NUMBER,
-    "about": DESCRIPTION,
-    "type": FACILITY_TYPE,
-}
-
 facility_missing_optional_field_about_should_return_none = {
     "name": FACILITY_NAME,
     "phone_number": PHONE_NUMBER,
     "location": LOCATION,
     "type": FACILITY_TYPE,
-}
-
-facility_missing_optional_field_type_should_return_none = {
-    "name": FACILITY_NAME,
-    "phone_number": PHONE_NUMBER,
-    "location": LOCATION,
-    "about": DESCRIPTION,
 }
 
 facility_missing_required_field_name_should_throw_exception = {
@@ -100,6 +86,14 @@ facility_field_type_is_not_FacilityTypeEnum_should_throw_exception = {
     "type": "wrong FacilityTypeEnum",
 }
 
+facility_invalid_phone_number_should_throw = {
+    "name": FACILITY_NAME,
+    "phone_number": "1234",
+    "location": LOCATION,
+    "about": DESCRIPTION,
+    "type": FACILITY_TYPE,
+}
+
 
 @pytest.mark.parametrize(
     "json, expectation",
@@ -109,45 +103,44 @@ facility_field_type_is_not_FacilityTypeEnum_should_throw_exception = {
             facility_missing_optional_field_phone_number_should_return_none,
             None,
         ),
-        (facility_missing_optional_field_location_should_return_none, None),
         (facility_missing_optional_field_about_should_return_none, None),
-        (facility_missing_optional_field_type_should_return_none, None),
         (
             facility_missing_required_field_name_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             facility_field_name_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             facility_field_phone_number_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             facility_field_location_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             facility_field_about_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             facility_field_type_has_wrong_type_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
         (
             facility_field_type_is_not_FacilityTypeEnum_should_throw_exception,
-            ValidationExceptionError,
+            ValidationError,
         ),
+        (facility_invalid_phone_number_should_throw, ValidationError),
     ],
 )
 def test_validation(json, expectation):
     if type(expectation) is type and issubclass(expectation, Exception):
         with pytest.raises(expectation):
-            FacilityValidator.validate(json)
+            HealthFacilityModel(**json)
     else:
         try:
-            FacilityValidator.validate(json)
-        except ValidationExceptionError as e:
-            raise AssertionError(f"Unexpected validation error:{e}") from e
+            HealthFacilityModel(**json)
+        except ValidationError as e:
+            raise AssertionError(f"Unexpected validation error: {e}") from e

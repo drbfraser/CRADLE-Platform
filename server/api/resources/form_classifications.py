@@ -1,225 +1,152 @@
-import json
-import logging
-
-from flasgger import swag_from
-from flask import request
-from flask_restful import Resource, abort
-from humps import decamelize
-from werkzeug.datastructures import FileStorage
+from flask import abort
+from flask_openapi3.blueprint import APIBlueprint
+from flask_openapi3.models.tag import Tag
 
 import data
-from api import util
 from api.decorator import roles_required
-from common import api_utils, commonUtil
+from common.api_utils import (
+    FormClassificationIdPath,
+)
 from data import crud, marshal
-from enums import ContentTypeEnum, RoleEnum
+from enums import RoleEnum
 from models import FormClassificationOrm, FormTemplateOrm
-from validation.formClassifications import FormClassificationValidator
-from validation.validation_exception import ValidationExceptionError
-
-LOGGER = logging.getLogger(__name__)
-
+from validation.formClassifications import (
+    FormClassificationModel,
+    FormClassificationOptionalId,
+)
+from validation.formTemplates import FormTemplateList
 
 # /api/forms/classifications
-class Root(Resource):
-    @staticmethod
-    @roles_required([RoleEnum.ADMIN])
-    @swag_from(
-        "../../specifications/form-classifications-post.yml",
-        methods=["POST"],
-        endpoint="form_classifications",
-    )
-    def post():
-        request_body = {}
+api_form_classifications = APIBlueprint(
+    name="form_classifications",
+    import_name=__name__,
+    url_prefix="/forms/classifications",
+    abp_tags=[Tag(name="Form Classifications", description="")],
+    abp_security=[{"jwt": []}],
+)
 
-        # provide file upload method from web
-        if "file" in request.files:
-            file: FileStorage = request.files["file"]
 
-            if file.content_type not in ContentTypeEnum.listValues():
-                abort(400, message="File Type not supported")
-                return None
+# /api/forms/classifications [GET]
+@api_form_classifications.get("", responses={200: FormClassificationModel})
+def get_all_form_classifications():
+    """Get All Form Classifications"""
+    form_classifications = crud.read_all(FormClassificationOrm)
+    return [marshal.marshal(f, shallow=True) for f in form_classifications], 200
 
-            file_str = str(file.read(), "utf-8")
-            if file.content_type == ContentTypeEnum.JSON.value:
-                try:
-                    request_body = json.loads(file_str)
-                except json.JSONDecodeError as err:
-                    LOGGER.error(err)
-                    abort(400, message="File content is not valid json-format")
 
-            elif file.content_type == ContentTypeEnum.CSV.value:
-                try:
-                    request_body = util.getFormTemplateDictFromCSV(file_str)
-                except RuntimeError as err:
-                    LOGGER.error(err)
-                    abort(400, message=err.args[0])
-                    return None
-                except TypeError as err:
-                    LOGGER.error(err)
-                    abort(400, message=err.args[0])
-                    return None
-                except Exception as err:
-                    LOGGER.error(err)
-                    abort(
-                        400,
-                        message="Something went wrong while parsing the CSV file.",
-                    )
-                    return None
-            # Convert keys to snake case.
-            request_body = decamelize(request_body)
-        else:
-            request_body = api_utils.get_request_body()
-
-        # Note: This validation logic is left out of the Pydantic validation system
-        # because it relies on the database, which the unit tests do not have access to (Issue #689)
-        if len(request_body) == 0:
-            abort(400, message="Request body is empty")
-            return None
-
-        if request_body.get("id") is not None:
-            if crud.read(FormClassificationOrm, id=request_body["id"]):
-                abort(409, message="Form classification already exists")
-
-        try:
-            form_classification_pydantic_model = FormClassificationValidator.validate(
-                request_body,
+# /api/forms/classifications [POST]
+@api_form_classifications.post("")
+@roles_required([RoleEnum.ADMIN])
+def create_form_classification(body: FormClassificationOptionalId):
+    """Create Form Classification"""
+    if body.id is not None:
+        if crud.read(FormClassificationOrm, id=body.id):
+            return abort(
+                409,
+                description=f"Form Classification with id=({body.id}) already exists.",
             )
-        except ValidationExceptionError as e:
-            abort(400, message=str(e))
-
-        new_form_classification = form_classification_pydantic_model.model_dump()
-        new_form_classification = commonUtil.filterNestedAttributeWithValueNone(
-            new_form_classification,
+    if crud.read(FormClassificationOrm, name=body.name):
+        return abort(
+            409,
+            description=f"Form Classification with name=({body.name}) already exists.",
         )
 
-        if new_form_classification.get("name") is not None:
-            if crud.read(FormClassificationOrm, id=new_form_classification["name"]):
-                abort(
-                    409,
-                    message="Form classification with the same name already exists",
-                )
+    form_classification = marshal.unmarshal(FormClassificationOrm, body.model_dump())
+    crud.create(form_classification, refresh=True)
+    return marshal.marshal(form_classification, shallow=True), 201
 
-        util.assign_form_or_template_ids(FormClassificationOrm, new_form_classification)
 
-        form_classification = marshal.unmarshal(
-            FormClassificationOrm,
-            new_form_classification,
+# /api/forms/classifications/<string:form_classification_id> [GET]
+@api_form_classifications.get("/<string:form_classification_id>")
+def get_form_classification(path: FormClassificationIdPath):
+    """Get Form Classification"""
+    form_classification = crud.read(
+        FormClassificationOrm, id=path.form_classification_id
+    )
+    if form_classification is None:
+        return abort(
+            400,
+            description=f"No Form Classification with id=({path.form_classification_id}) found.",
         )
 
-        crud.create(form_classification, refresh=True)
-
-        return marshal.marshal(form_classification, shallow=True), 201
-
-    @staticmethod
-    @swag_from(
-        "../../specifications/form-classifications-get.yml",
-        methods=["GET"],
-        endpoint="form_classifications",
-    )
-    def get():
-        form_classifications = crud.read_all(FormClassificationOrm)
-
-        return [marshal.marshal(f, shallow=True) for f in form_classifications], 200
+    return marshal.marshal(form_classification), 200
 
 
-# /api/forms/classifications/<string:form_classification_id>
-class SingleFormClassification(Resource):
-    @staticmethod
-    @swag_from(
-        "../../specifications/single-form-classification-get.yml",
-        methods=["GET"],
-        endpoint="single_form_classification",
-    )
-    def get(form_classification_id: str):
-        form_classification = crud.read(
-            FormClassificationOrm, id=form_classification_id
+# /api/forms/classifications/<string:form_classification_id> [PUT]
+@api_form_classifications.put(
+    "/<string:form_classification_id>", responses={200: FormClassificationModel}
+)
+def edit_form_classification_name(
+    path: FormClassificationIdPath, body: FormClassificationModel
+):
+    """Edit Form Classification"""
+    if body.id != path.form_classification_id:
+        return abort(400, "Cannot change id.")
+
+    form_classification = crud.read(FormClassificationOrm, id=body.id)
+    # TODO: The POST endpoint for creating a new Form Classification checks for naming conflicts with
+    # existing Form Classifications, but this PUT endpoint does not. We should check for naming
+    # conflicts here as well.
+    if form_classification is None:
+        return abort(
+            404,
+            description=f"No Form Classification with id=({path.form_classification_id}) found.",
         )
 
-        if not form_classification:
-            abort(
-                400,
-                message=f"No form classification with id {form_classification_id}",
-            )
+    form_classification.name = body.name
+    data.db_session.commit()
+    data.db_session.refresh(form_classification)
 
-        return marshal.marshal(form_classification), 200
-
-    @staticmethod
-    @swag_from(
-        "../../specifications/single-form-classification-put.yml",
-        methods=["PUT"],
-        endpoint="single_form_classification",
-    )
-    def put(form_classification_id: str):
-        form_classification = crud.read(
-            FormClassificationOrm, id=form_classification_id
-        )
-
-        if form_classification is None:
-            abort(
-                400,
-                message=f"No form classification with id {form_classification_id}",
-            )
-            return None
-
-        request_body = api_utils.get_request_body()
-        if request_body.get("name") is not None:
-            form_classification.name = request_body.get("name")
-            data.db_session.commit()
-            data.db_session.refresh(form_classification)
-
-        return marshal.marshal(form_classification, True), 201
+    return marshal.marshal(form_classification, True), 201
 
 
-# /api/forms/classifications/summary
-class FormClassificationSummary(Resource):
-    @staticmethod
-    @swag_from(
-        "../../specifications/form-classification-summary-get.yml",
-        methods=["GET"],
-        endpoint="form_classification_summary",
-    )
-    def get():
-        form_classifications = crud.read_all(FormClassificationOrm)
-        result_templates = []
+# /api/forms/classifications/summary [GET]
+@api_form_classifications.get("/summary", responses={200: FormTemplateList})
+def get_form_classification_summary():
+    """
+    Get Form Classification Summary
+    Get a list containing the most recent Form Template version of each Form Classification.
+    """
+    form_classifications = crud.read_all(FormClassificationOrm)
+    result_templates = []
 
-        for form_classification in form_classifications:
-            possible_templates = crud.find(
-                FormTemplateOrm,
-                FormTemplateOrm.form_classification_id == form_classification.id,
-            )
-
-            if len(possible_templates) == 0:
-                continue
-
-            result_template = None
-            for possible_template in possible_templates:
-                if (
-                    result_template is None
-                    or possible_template.date_created > result_template.date_created
-                ):
-                    result_template = possible_template
-
-            if result_template is not None:
-                result_templates.append(result_template)
-
-        return [
-            marshal.marshal(f, shallow=False, if_include_versions=True)
-            for f in result_templates
-        ], 200
-
-
-# /api/forms/classifications/<string:form_classification_name>/templates
-class FormClassificationTemplates(Resource):
-    @staticmethod
-    @swag_from(
-        "../../specifications/form-classification-templates-get.yml",
-        methods=["GET"],
-        endpoint="form_classification_templates",
-    )
-    def get(form_classification_id: str):
-        form_templates = crud.read_all(
+    for form_classification in form_classifications:
+        possible_templates = crud.find(
             FormTemplateOrm,
-            form_classification_id=form_classification_id,
+            FormTemplateOrm.form_classification_id == form_classification.id,
         )
-        return [marshal.marshal(f, shallow=True) for f in form_templates], 200
+
+        if len(possible_templates) == 0:
+            continue
+
+        result_template = None
+        for possible_template in possible_templates:
+            if (
+                result_template is None
+                or possible_template.date_created > result_template.date_created
+            ):
+                result_template = possible_template
+
+        if result_template is not None:
+            result_templates.append(result_template)
+
+    return [
+        marshal.marshal(f, shallow=False, if_include_versions=True)
+        for f in result_templates
+    ], 200
+
+
+# /api/forms/classifications/<string:form_classification_id>/templates [GET]
+@api_form_classifications.get(
+    "/<string:form_classification_name>/templates", responses={200: FormTemplateList}
+)
+def get_form_classification_templates(path: FormClassificationIdPath):
+    """
+    Get Form Classification Templates
+    Get a list of all Form Template versions of a particular Form Classification.
+    """
+    form_templates = crud.read_all(
+        FormTemplateOrm,
+        form_classification_id=path.form_classification_id,
+    )
+    return [marshal.marshal(f, shallow=True) for f in form_templates], 200

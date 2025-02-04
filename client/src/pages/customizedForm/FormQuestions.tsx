@@ -324,12 +324,10 @@ export const FormQuestions = ({
     const qid = question.questionIndex;
     const text = isQuestion(question)
       ? question.questionText
-      : question.questionLangVersions.find((x) => x.lang == language)
-          ?.questionText;
+      : question.langVersions.find((x) => x.lang == language)?.questionText;
     const mcOptions = isQuestion(question)
       ? question.mcOptions
-      : question.questionLangVersions.find((x) => x.lang == language)
-          ?.mcOptions;
+      : question.langVersions.find((x) => x.lang == language)?.mcOptions;
     const required = question.required;
 
     switch (type) {

@@ -19,7 +19,7 @@ import { UserField, fieldLabels } from './state';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { createUserAsync } from 'src/shared/api/api';
-import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
+import { useHealthFacilityNames } from 'src/shared/hooks/healthFacilities';
 import { useState } from 'react';
 import { userRoleLabels } from 'src/shared/constants';
 import { NewUser, User } from 'src/shared/api/validation/user';
@@ -45,7 +45,7 @@ interface IProps {
 }
 
 export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
-  const healthFacilities = useHealthFacilities();
+  const healthFacilityNames = useHealthFacilityNames();
   const [submitError, setSubmitError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const emailsInUse = users.map((user) => user.email);
@@ -192,7 +192,7 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
                     component={Autocomplete}
                     fullWidth
                     name={UserField.healthFacilityName}
-                    options={healthFacilities}
+                    options={healthFacilityNames}
                     disableClearable={true}
                     renderInput={(params: AutocompleteRenderInputParams) => (
                       <TextField

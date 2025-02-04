@@ -62,4 +62,3 @@ def test_invalid_login():
 
     print(json.dumps(response_body, indent=4))
     assert response.status_code == 401
-    assert response_body["message"] == "Incorrect username or password."

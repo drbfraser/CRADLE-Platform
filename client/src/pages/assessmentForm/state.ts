@@ -9,18 +9,22 @@ export enum AssessmentField {
   followUp = 'followUpNeeded',
   followUpInstructions = 'followUpInstructions',
   drugHistory = 'drugHistory',
+  healthcareWorkerId = 'healthcareWorkerId',
 }
 
-export const initialState = {
+const initialState = {
   [AssessmentField.investigation]: '',
   [AssessmentField.finalDiagnosis]: '',
   [AssessmentField.treatment]: '',
   [AssessmentField.followUp]: false,
   [AssessmentField.followUpInstructions]: '',
   [AssessmentField.drugHistory]: '',
+  [AssessmentField.healthcareWorkerId]: null,
 };
 
-export type AssessmentState = typeof initialState;
+export type AssessmentState = typeof initialState & {
+  [AssessmentField.healthcareWorkerId]: number | null;
+};
 
 export const getAssessmentState = async (
   patientId: string,
