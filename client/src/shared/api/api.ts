@@ -13,6 +13,7 @@ import {
   Referrer,
   Referral,
   PatientMedicalInfo,
+  PatientPregnancyInfo,
 } from '../types';
 import { EndpointEnum, MethodEnum, UserRoleEnum } from '../enums';
 import axios, { AxiosError } from 'axios';
@@ -570,11 +571,18 @@ export const getPatientStatisticsAsync = async (patientId: string) => {
   return response.data;
 };
 
-export const getPatientPregnancySummaryAsync = async (patientId: string) => {
-  const response = await axiosFetch.get(
-    EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.PREGNANCY_SUMMARY
-  );
-  return response.data;
+export const getPatientPregnancySummaryAsync = async (
+  patientId: string
+): Promise<PatientPregnancyInfo> => {
+  try {
+    const response = await axiosFetch.get(
+      EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.PREGNANCY_SUMMARY
+    );
+    return response.data;
+  } catch (e) {
+    console.error(`Error loading patient pregnancy history: ${e}`);
+    throw e;
+  }
 };
 
 export const getPatientPregnancyInfoAsync = async (patientId: string) => {
