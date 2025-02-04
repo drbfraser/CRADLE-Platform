@@ -59,10 +59,11 @@
 	`01-CRADLE-008581-002-ACK` 	(to fragment 002)  
 9. If the Relay Server has now received all fragments of the full request, it reassembles them into a full (encrypted, compressed, Base64 encoded) message and sends it to the Server’s SMS relay endpoint (REST API).
 	1. Data transmitted to the server is still compressed, encrypted, and Base64 encoded.
-	2. Format of body of the request to the server:
+	2. Format of body of the request to the server:  
+	
 	```
 	{
-	   "phoneNumber": "555-555-5555",
+	   "phoneNumber": "555-555-5555",		(Phone number of the Client)
 	   "encryptedData": "<Base64 encrypted data>"
 	}
 	```
