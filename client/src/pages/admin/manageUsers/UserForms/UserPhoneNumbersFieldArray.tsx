@@ -1,8 +1,8 @@
 import { Box, Button, IconButton, Stack, Typography } from '@mui/material';
-import { Field, FieldArray, useFormikContext } from 'formik';
+import { FieldArray, useFormikContext } from 'formik';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
-import { TextField as FormikTextField } from 'formik-mui';
+import { PhoneNumberInput } from 'src/shared/components/PhoneNumber/PhoneNumberInput';
 
 /**
  * This component encapsulates logic for managing a variable number of
@@ -51,7 +51,7 @@ const PhoneNumberField = ({ index, handleRemove }: PhoneNumberFieldProps) => {
   const { values } = useFormikContext<{ phoneNumbers: string[] }>();
   return (
     <Stack direction={'row'}>
-      <Field
+      {/* <Field
         id={`new-user-field-phone-number-${index}`}
         component={FormikTextField}
         fullWidth
@@ -60,7 +60,8 @@ const PhoneNumberField = ({ index, handleRemove }: PhoneNumberFieldProps) => {
         inputProps={{
           maxLength: 25,
         }}
-      />
+      /> */}
+      <PhoneNumberInput index={index} />
       <IconButton
         sx={{
           aspectRatio: 1,
