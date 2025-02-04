@@ -41,7 +41,6 @@ services:
             - DOMAIN=${DOMAIN}
             - API_HOSTNAME=cradle_flask
             - CADDY_DEBUG=${CADDY_DEBUG}
-            - CADDY_ACME_CA=${CADDY_ACME_CA}
         ports:
             - 80:80
             - 443:443
