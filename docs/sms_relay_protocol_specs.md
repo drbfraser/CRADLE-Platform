@@ -25,7 +25,7 @@
 	}
 	```
 3. Client compresses & encrypts data.
-	1. Client uses GZip to compresses JSON format of HTTP request
+	1. Client uses GZip to compress JSON format of HTTP request
 	2. Client encrypts the compressed request using shared AES key
 	3. Client encodes encrypted data into Base64
 4. Client constructs the full text to send by including additional headers:
@@ -73,14 +73,14 @@
 	3. If the Relay Server does not receive a new fragment to an HTTP request it is assembling within 200 seconds of the most previous fragment then it records this as a failed request and discards it.
 
 ## 3. Server Processing
-1. Server’s SMS endpoint receives the REST API request
+1. Server’s SMS Relay endpoint receives the REST API request
 2. Server looks up the user by phone number and decrypts the encryptedData field using the stored AES key.
 	1. If the message fails to decode from Base64 encoding, then the server replies with an unencrypted error message:  
 	`“Server detected invalid message format (Base64); message may have been corrupted. Retry the action or contact your administrator.”`
 	2. If the message fails to decrypt, or unzip then the server replies with an error message in unencrypted data:  
 	`“Unable to verify message from {{phoneNumber}}. Either the phone number is not associated with a user, or the App and server don’t agree on the security key, or the message was corrupted. Retry the action or resync with the server using an internet connection (WiFi, 3G, …)”`
 3. Server processes the decrypted Json Request Structure. It will:
-	1. Check the request number to ensure it is valid. If invalid (see below Request Number section below) then reply with:
+	1. Check the request number to ensure it is valid. If invalid (see Request Number section below) then reply with:
 		```
 		HTTP Response Status: 425 (“Too Early”).
 		Body: “Invalid request number; expected {{expected request number}}”
