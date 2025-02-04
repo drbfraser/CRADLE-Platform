@@ -90,9 +90,6 @@ export const loginUser = (
             accessToken: authResponse.accessToken,
           };
 
-          if (authResponse.user.phoneNumbers.length > 0) {
-            user.phoneNumber = authResponse.user.phoneNumbers[0];
-          }
           // Navigate to Referrals page.
           navigate('/referrals');
           return {
