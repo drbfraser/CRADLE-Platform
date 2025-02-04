@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import {
   Alert,
   Box,
@@ -7,14 +9,11 @@ import {
   Typography,
   Paper,
 } from '@mui/material';
-import { Patient, PatientMedicalInfo } from 'src/shared/types';
-import { useEffect, useState } from 'react';
-
-import { Link } from 'react-router-dom';
-import { OrNull } from 'src/shared/types';
 import RecentActorsIcon from '@mui/icons-material/RecentActors';
-import { RedirectButton } from 'src/shared/components/Button';
+
+import { Patient, OrNull } from 'src/shared/types';
 import { getPatientMedicalHistoryAsync } from 'src/shared/api/api';
+import { RedirectButton } from 'src/shared/components/Button';
 
 const headerSx: SxProps = {
   display: 'flex',
@@ -37,20 +36,10 @@ interface IProps {
 }
 
 export const MedicalInfo = ({ patient, patientId }: IProps) => {
-  const [info, setInfo] = useState<PatientMedicalInfo>();
-  const [errorLoading, setErrorLoading] = useState(false);
-
-  useEffect(() => {
-    const loadMedicalHistory = async () => {
-      try {
-        setInfo(await getPatientMedicalHistoryAsync(patientId));
-      } catch (e) {
-        setErrorLoading(true);
-      }
-    };
-
-    loadMedicalHistory();
-  }, [patientId]);
+  const { data: info, isError: errorLoadingInfo } = useQuery({
+    queryKey: ['medicalHistory', patientId],
+    queryFn: () => getPatientMedicalHistoryAsync(patientId),
+  });
 
   const HistoryItem = ({
     title,
@@ -70,6 +59,7 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
           {medicalRecordId ? 'Update' : 'Add'}
         </RedirectButton>
       </Box>
+
       <Box>
         {historyRecord ? (
           <Typography style={{ whiteSpace: 'pre-line' }}>
@@ -83,46 +73,46 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
   );
 
   return (
-    <Paper>
-      <Box p={3}>
-        <Box sx={headerSx}>
-          <Typography component="h3" variant="h5" sx={headerSx}>
-            <RecentActorsIcon fontSize="large" />
-            &nbsp;Medical Information
-          </Typography>
-          <Link
-            to={
-              '/history/' + patientId + '/' + patient?.name + '/' + patient?.sex
-            }>
-            View Past Records
-          </Link>
-        </Box>
-        <Divider />
-        {errorLoading ? (
-          <Alert severity="error">
-            Something went wrong trying to load patient&rsquo;s medical
-            information. Please try refreshing.
-          </Alert>
-        ) : info ? (
-          <>
-            <HistoryItem
-              title="Medical History"
-              historyRecord={info?.medicalHistory}
-              editId="medicalHistory"
-              medicalRecordId={info.medicalHistoryId}
-            />
-            <Divider />
-            <HistoryItem
-              title="Drug History"
-              historyRecord={info?.drugHistory}
-              editId="drugHistory"
-              medicalRecordId={info.drugHistoryId}
-            />
-          </>
-        ) : (
-          <Skeleton variant="rectangular" height={200} />
-        )}
+    <Paper sx={{ padding: 3 }}>
+      <Box sx={headerSx}>
+        <Typography component="h3" variant="h5" sx={headerSx}>
+          <RecentActorsIcon fontSize="large" sx={{ marginRight: '8px' }} />
+          Medical Information
+        </Typography>
+        <Link
+          to={
+            '/history/' + patientId + '/' + patient?.name + '/' + patient?.sex
+          }>
+          View Past Records
+        </Link>
       </Box>
+
+      <Divider />
+
+      {errorLoadingInfo ? (
+        <Alert severity="error">
+          Something went wrong trying to load patient&rsquo;s medical
+          information. Please try refreshing.
+        </Alert>
+      ) : info ? (
+        <>
+          <HistoryItem
+            title="Medical History"
+            historyRecord={info?.medicalHistory}
+            editId="medicalHistory"
+            medicalRecordId={info.medicalHistoryId}
+          />
+          <Divider />
+          <HistoryItem
+            title="Drug History"
+            historyRecord={info?.drugHistory}
+            editId="drugHistory"
+            medicalRecordId={info.drugHistoryId}
+          />
+        </>
+      ) : (
+        <Skeleton variant="rectangular" height={200} />
+      )}
     </Paper>
   );
 };
