@@ -12,6 +12,7 @@ import {
   Pregnancy,
   Referrer,
   Referral,
+  PatientMedicalInfo,
 } from '../types';
 import { EndpointEnum, MethodEnum, UserRoleEnum } from '../enums';
 import axios, { AxiosError } from 'axios';
@@ -437,12 +438,20 @@ export const getMedicalRecordAsync = async (medicalRecordId: string) => {
   });
   return response.data;
 };
-export const getPatientMedicalHistoryAsync = async (patientId: string) => {
-  const response = await axiosFetch({
-    method: 'GET',
-    url: EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.MEDICAL_HISTORY,
-  });
-  return response.data;
+export const getPatientMedicalHistoryAsync = async (
+  patientId: string
+): Promise<PatientMedicalInfo> => {
+  try {
+    const response = await axiosFetch({
+      method: 'GET',
+      url:
+        EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.MEDICAL_HISTORY,
+    });
+    return response.data;
+  } catch (e) {
+    console.error(`Error loading patient medical history: ${e}`);
+    throw e;
+  }
 };
 
 /** Fetches the entries for the patient table of the patients page.
