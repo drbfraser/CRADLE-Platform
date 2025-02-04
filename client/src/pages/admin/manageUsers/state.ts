@@ -3,7 +3,7 @@ import * as Yup from 'yup';
 export enum UserField {
   name = 'name',
   email = 'email',
-  phoneNumber = 'phoneNumber',
+  phoneNumbers = 'phoneNumbers',
   healthFacilityName = 'healthFacilityName',
   role = 'role',
   supervises = 'supervises',
@@ -15,7 +15,7 @@ export enum UserField {
 export const fieldLabels = {
   [UserField.name]: 'Name',
   [UserField.email]: 'Email',
-  [UserField.phoneNumber]: 'Phone Number',
+  [UserField.phoneNumbers]: 'Phone Numbers',
   [UserField.healthFacilityName]: 'Health Facility',
   [UserField.role]: 'Role',
   [UserField.supervises]: 'VHTs Supervised',
