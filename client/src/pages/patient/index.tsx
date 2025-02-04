@@ -177,37 +177,40 @@ export const PatientPage = () => {
 
             <Divider />
 
-            {records !== undefined &&
-              records.map((r: any) => (
-                <Grid key={r.id ?? r.readingId} size={{ xs: 12 }}>
-                  <Paper variant="outlined">
-                    <Box p={1} my={1} bgcolor={'#f9f9f9'}>
-                      {(() => {
-                        switch (r.type) {
-                          case 'assessment':
-                            return <AssessmentCard assessment={r} />;
-                          case 'form':
-                            return <CustomizedFormCard form={r} />;
-                          case 'reading':
-                            return <ReadingCard reading={r} />;
-                          case 'referral':
-                            if (r.isAssessed) {
-                              return <ReferralAssessedCard referral={r} />;
-                            } else if (r.isCancelled) {
-                              return <ReferralCancelledCard referral={r} />;
-                            } else if (r.notAttended) {
-                              return <ReferralNotAttendedCard referral={r} />;
-                            } else {
-                              return <ReferralPendingCard referral={r} />;
-                            }
-                          default:
-                            return <div>error</div>;
-                        }
-                      })()}
-                    </Box>
-                  </Paper>
-                </Grid>
-              ))}
+            {records !== undefined && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {records.map((r: any) => (
+                  <Grid key={r.id ?? r.readingId} size={{ xs: 12 }}>
+                    <Paper variant="outlined">
+                      <Box p={1} my={1} bgcolor={'#f9f9f9'}>
+                        {(() => {
+                          switch (r.type) {
+                            case 'assessment':
+                              return <AssessmentCard assessment={r} />;
+                            case 'form':
+                              return <CustomizedFormCard form={r} />;
+                            case 'reading':
+                              return <ReadingCard reading={r} />;
+                            case 'referral':
+                              if (r.isAssessed) {
+                                return <ReferralAssessedCard referral={r} />;
+                              } else if (r.isCancelled) {
+                                return <ReferralCancelledCard referral={r} />;
+                              } else if (r.notAttended) {
+                                return <ReferralNotAttendedCard referral={r} />;
+                              } else {
+                                return <ReferralPendingCard referral={r} />;
+                              }
+                            default:
+                              return <div>error</div>;
+                          }
+                        })()}
+                      </Box>
+                    </Paper>
+                  </Grid>
+                ))}
+              </Box>
+            )}
           </Paper>
         </Grid>
       </Grid>
