@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Typography from '@mui/material/Typography';
@@ -10,7 +11,7 @@ import {
   getPatientRecordsAsync,
   getPatientReferralsAsync,
 } from 'src/shared/api/api';
-import { Filter, FilterRequestBody, Referral } from 'src/shared/types';
+import { Filter, FilterRequestBody } from 'src/shared/types';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import ToastAfterNav from 'src/shared/components/toastAfterNav';
 import { SexEnum } from 'src/shared/enums';
@@ -35,6 +36,16 @@ type RouteParams = {
   patientId: string;
 };
 
+// TODO: improve this custom type
+type Record = {
+  id: string | undefined;
+  readingId?: string;
+  type: string;
+  isAssessed: boolean;
+  isCancelled: boolean;
+  notAttended: boolean;
+};
+
 const filters: Filter[] = [
   {
     parameter: 'referrals',
@@ -57,9 +68,6 @@ const filters: Filter[] = [
 export const PatientPage = () => {
   const navigate = useNavigate();
   const { patientId } = useParams() as RouteParams;
-  const [cards, setCards] = useState<JSX.Element[]>([]);
-  const [errorLoading, setErrorLoading] = useState(false);
-  const [hasPendingReferral, setHasPendingReferral] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [filterRequestBody, setFilterRequestBody] = useState<FilterRequestBody>(
     {
@@ -70,91 +78,29 @@ export const PatientPage = () => {
     }
   );
 
-  const { patient, errorLoading: errorLoadingPatient } = usePatient(patientId);
-  if (errorLoadingPatient) {
-    setErrorLoading(true);
-  }
+  const { patient, errorLoading: errorLoadingPatientInfo } =
+    usePatient(patientId);
 
-  useEffect(() => {
-    const loadPatientReferrals = async () => {
-      try {
-        const referrals: Referral[] = await getPatientReferralsAsync(patientId);
-        const hasPendingReferral = referrals.some(
-          (referral) =>
-            !referral.isAssessed &&
-            !referral.isCancelled &&
-            !referral.notAttended
-        );
+  const { data: referrals, isError: errorLoadingReferrals } = useQuery({
+    queryKey: ['referrals', patientId],
+    queryFn: () => getPatientReferralsAsync(patientId),
+  });
 
-        setHasPendingReferral(hasPendingReferral);
-      } catch (e) {
-        console.error(`Error receiving referrals: ${e}`);
-      }
-    };
+  const { data: records, isError: errorLoadingRecords } = useQuery({
+    queryKey: ['records', patientId, filterRequestBody],
+    queryFn: (): Promise<Record[]> =>
+      getPatientRecordsAsync(patientId, filterRequestBody),
+  });
 
-    loadPatientReferrals();
-  }, [patientId]);
+  const hasPendingReferral =
+    referrals?.some((r) => !r.isAssessed && !r.isCancelled && !r.notAttended) ??
+    false;
 
-  useEffect(() => {
-    const loadRecords = async () => {
-      const mapCardToJSX = (card: any) => {
-        switch (card.type) {
-          case 'assessment':
-            return <AssessmentCard assessment={card} />;
-          case 'form':
-            return <CustomizedFormCard form={card} />;
-          case 'reading':
-            return <ReadingCard reading={card} />;
-          case 'referral':
-            if (card.isAssessed) {
-              return <ReferralAssessedCard referral={card} />;
-            } else if (card.isCancelled) {
-              return <ReferralCancelledCard referral={card} />;
-            } else if (card.notAttended) {
-              return <ReferralNotAttendedCard referral={card} />;
-            } else {
-              return <ReferralPendingCard referral={card} />;
-            }
-          default:
-            return <div>Error</div>;
-        }
-      };
-
-      const UpdateCardsJsx = (cards: any[]) => {
-        const cardsJsx = cards.map((card) => (
-          <Grid key={card.id ?? card.readingId} size={{ xs: 12 }}>
-            <Paper variant="outlined">
-              <Box p={1} my={1} bgcolor={'#f9f9f9'}>
-                {mapCardToJSX(card)}
-              </Box>
-            </Paper>
-          </Grid>
-        ));
-
-        setCards(cardsJsx);
-      };
-
-      try {
-        const records = await getPatientRecordsAsync(
-          patientId,
-          filterRequestBody
-        );
-        UpdateCardsJsx(records);
-      } catch (e) {
-        console.error(e);
-        setErrorLoading(true);
-      }
-    };
-
-    loadRecords();
-  }, [filterRequestBody, patientId]);
-
+  const errorLoading =
+    errorLoadingPatientInfo || errorLoadingRecords || errorLoadingReferrals;
   return (
     <>
-      <APIErrorToast
-        open={errorLoading}
-        onClose={() => setErrorLoading(false)}
-      />
+      <APIErrorToast open={errorLoading} onClose={() => {}} />
       <ToastAfterNav />
 
       <ConfirmDialog
@@ -176,6 +122,7 @@ export const PatientPage = () => {
         isThereAPendingReferral={hasPendingReferral}
         setConfirmDialogPerformAssessmentOpen={setConfirmDialogOpen}
       />
+
       <Grid sx={{ marginTop: '2rem' }} container spacing={3}>
         <Grid container size={{ xs: 12, lg: 6 }} direction="column" spacing={2}>
           <PersonalInfo patient={patient} />
@@ -209,7 +156,6 @@ export const PatientPage = () => {
                 alignItems: 'center',
               }}>
               <Typography component={'span'}>Show only: </Typography>
-
               {filters.map((filter) => (
                 <FormControlLabel
                   control={
@@ -228,8 +174,40 @@ export const PatientPage = () => {
                 />
               ))}
             </Grid>
+
             <Divider />
-            {cards}
+
+            {records !== undefined &&
+              records.map((r: any) => (
+                <Grid key={r.id ?? r.readingId} size={{ xs: 12 }}>
+                  <Paper variant="outlined">
+                    <Box p={1} my={1} bgcolor={'#f9f9f9'}>
+                      {(() => {
+                        switch (r.type) {
+                          case 'assessment':
+                            return <AssessmentCard assessment={r} />;
+                          case 'form':
+                            return <CustomizedFormCard form={r} />;
+                          case 'reading':
+                            return <ReadingCard reading={r} />;
+                          case 'referral':
+                            if (r.isAssessed) {
+                              return <ReferralAssessedCard referral={r} />;
+                            } else if (r.isCancelled) {
+                              return <ReferralCancelledCard referral={r} />;
+                            } else if (r.notAttended) {
+                              return <ReferralNotAttendedCard referral={r} />;
+                            } else {
+                              return <ReferralPendingCard referral={r} />;
+                            }
+                          default:
+                            return <div>error</div>;
+                        }
+                      })()}
+                    </Box>
+                  </Paper>
+                </Grid>
+              ))}
           </Paper>
         </Grid>
       </Grid>

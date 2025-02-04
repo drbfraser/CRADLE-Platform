@@ -11,6 +11,7 @@ import {
   NewAssessment,
   Pregnancy,
   Referrer,
+  Referral,
 } from '../types';
 import { EndpointEnum, MethodEnum, UserRoleEnum } from '../enums';
 import axios, { AxiosError } from 'axios';
@@ -523,22 +524,33 @@ export const getPatientRecordsAsync = async (
   patientId: string,
   filterRequestBody: FilterRequestBody
 ) => {
-  const response = await axiosFetch.get(
-    `${EndpointEnum.PATIENTS}/${patientId}/get_all_records?readings=${
-      filterRequestBody.readings ? 1 : 0
-    }&referrals=${filterRequestBody.referrals ? 1 : 0}&assessments=${
-      filterRequestBody.assessments ? 1 : 0
-    }&forms=${filterRequestBody.forms ? 1 : 0}`
-  );
-  return response.data;
+  try {
+    const response = await axiosFetch.get(
+      `${EndpointEnum.PATIENTS}/${patientId}/get_all_records?readings=${
+        filterRequestBody.readings ? 1 : 0
+      }&referrals=${filterRequestBody.referrals ? 1 : 0}&assessments=${
+        filterRequestBody.assessments ? 1 : 0
+      }&forms=${filterRequestBody.forms ? 1 : 0}`
+    );
+    return response.data;
+  } catch (e) {
+    console.error(`Error loading patient records: ${e}`);
+    throw e;
+  }
 };
 
-export const getPatientReferralsAsync = async (patientId: string) => {
-  const response = await axiosFetch.get(
-    EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.REFERRALS
-  );
-
-  return response.data;
+export const getPatientReferralsAsync = async (
+  patientId: string
+): Promise<Referral[]> => {
+  try {
+    const response = await axiosFetch.get(
+      EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.REFERRALS
+    );
+    return response.data;
+  } catch (e) {
+    console.error(`Error loading patient referrals: ${e}`);
+    throw e;
+  }
 };
 
 export const getPatientStatisticsAsync = async (patientId: string) => {
