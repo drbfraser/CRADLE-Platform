@@ -35,33 +35,6 @@ def roles_required(accepted_roles):
     return wrapper
 
 
-# def patient_association_required():
-#     def wrapper(fn):
-#         @wraps(fn)
-#         def decorator(patient_id, *args, **kwargs):
-#             verify_jwt_in_request()
-
-#             identity = get_jwt_identity()
-#             user_role = identity["role"]
-#             if user_role in (RoleEnum.VHT.value, RoleEnum.HCW.value):
-#                 user_id = identity["userId"]
-#                 if not crud.read(
-#                     PatientAssociations, patientId=patient_id, userId=user_id
-#                 ):
-#                     # TODO: convert print statement to system logging
-#                     current_time = datetime.now().strftime("%H:%M:%S")
-#                     print(
-#                         f"User {user_id} accessed patient {patient_id} at {current_time}"
-#                     )
-#                     return {"message": "Unauthorized to access this patient."}, 403
-
-#             return fn(patient_id, *args, **kwargs)
-
-#         return decorator
-
-#     return wrapper
-
-
 def patient_association_required():
     def wrapper(fn):
         @wraps(fn)
@@ -91,11 +64,3 @@ def patient_association_required():
         return decorator
 
     return wrapper
-
-
-def public_endpoint(function):
-    """
-    mark an endpoint handler as one that does not require login
-    """
-    function.is_public_endpoint = True
-    return function

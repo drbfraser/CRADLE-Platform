@@ -9,7 +9,7 @@ import {
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { FormTemplateWithQuestions } from 'src/shared/types';
 import { Toast } from 'src/shared/components/toast';
-import { submitFormTemplateAsync } from 'src/shared/api/api';
+import { saveFormTemplateAsync } from 'src/shared/api/api';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -19,23 +19,28 @@ interface IProps {
   form?: FormTemplateWithQuestions;
 }
 
-const SubmitFormTemplateDialog = ({ open, onClose, form }: IProps) => {
+const SubmitFormTemplateDialog = ({
+  open,
+  onClose,
+  form: formTemplate,
+}: IProps) => {
   const [submitError, setSubmitError] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const navigate = useNavigate();
 
   const submitForm = async () => {
-    if (!form) {
+    if (!formTemplate) {
       return;
     }
 
     try {
-      await submitFormTemplateAsync(form);
+      await saveFormTemplateAsync(formTemplate);
       setSubmitSuccess(true);
       setTimeout(() => {
         navigate(`/admin/form-templates`);
       }, 1000);
     } catch (e) {
+      console.error(e);
       setSubmitError(true);
     }
     onClose();

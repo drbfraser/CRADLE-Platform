@@ -1,155 +1,177 @@
 import logging
 
-from flasgger import swag_from
-from flask_restful import Resource, abort
+from flask import abort
+from flask_openapi3.blueprint import APIBlueprint
+from flask_openapi3.models.tag import Tag
 
-from api import util
 from api.decorator import patient_association_required
-from common import api_utils
+from api.resources.patients import api_patients
+from common.api_utils import (
+    PatientIdPath,
+    RecordIdPath,
+    SearchFilterQueryParams,
+)
 from data import crud, marshal
 from models import MedicalRecordOrm
 from service import serialize, view
 from utils import get_current_time
-from validation.medicalRecords import MedicalRecordValidator
-from validation.validation_exception import ValidationExceptionError
+from validation import CradleBaseModel
+from validation.medicalRecords import (
+    DrugHistory,
+    MedicalRecordExamples,
+    MedicalRecordList,
+    MedicalRecordModel,
+)
 
 LOGGER = logging.getLogger(__name__)
 
+medical_records_tag = Tag(name="Medical Records", description="")
 
-# /api/patients/<string:patient_id>/medical_records
-class Root(Resource):
-    @staticmethod
-    @patient_association_required()
-    @swag_from(
-        "../../specifications/medical-records-get.yml",
-        methods=["Get"],
-        endpoint="medical_records",
-    )
-    def get(patient_id: str):
-        params = api_utils.get_query_params()
 
-        medical = view.medical_record_view(patient_id, False, **params)
-        drug = view.medical_record_view(patient_id, True, **params)
+class GetMedicalRecordsResponse(CradleBaseModel):
+    medical: MedicalRecordList
+    drug: MedicalRecordList
 
-        return {
-            "medical": [serialize.serialize_medical_record(r) for r in medical],
-            "drug": [serialize.serialize_medical_record(r) for r in drug],
+    model_config = dict(
+        openapi_extra={
+            "example": {
+                "medical": [MedicalRecordExamples.medical_record],
+                "drug": [MedicalRecordExamples.drug_record],
+            }
         }
-
-    @staticmethod
-    @patient_association_required()
-    @swag_from(
-        "../../specifications/medical-records-post.yml",
-        methods=["POST"],
-        endpoint="medical_records",
     )
-    def post(patient_id: str):
-        request_body = api_utils.get_request_body()
 
-        try:
-            medical_record_pydantic_model = (
-                MedicalRecordValidator.validate_post_request(request_body, patient_id)
+
+# /api/patients/<string:patient_id>/medical_records [GET]
+@patient_association_required()
+@api_patients.get(
+    "/<string:patient_id>/medical_records",
+    tags=[medical_records_tag],
+    responses={200: GetMedicalRecordsResponse},
+)
+def get_patients_medical_records(path: PatientIdPath, query: SearchFilterQueryParams):
+    """Get Patient's Medical Records"""
+    params = query.model_dump()
+    medical = view.medical_record_view(path.patient_id, False, **params)
+    drug = view.medical_record_view(path.patient_id, True, **params)
+
+    return {
+        "medical": [serialize.serialize_medical_record(r) for r in medical],
+        "drug": [serialize.serialize_medical_record(r) for r in drug],
+    }
+
+
+# /api/patients/<string:patient_id>/medical_records [POST]
+@patient_association_required()
+@api_patients.post(
+    "/<string:patient_id>/medical_records",
+    tags=[medical_records_tag],
+    responses={201: MedicalRecordModel},
+)
+def create_medical_record(path: PatientIdPath, body: MedicalRecordModel):
+    """Create Medical Record"""
+    if body.id is not None:
+        if crud.read(MedicalRecordOrm, id=body.id) is not None:
+            return abort(
+                409,
+                description=f"A medical record with ID {body.id} already exists.",
             )
-        except ValidationExceptionError as e:
-            abort(400, message=str(e))
-            return None
+    if body.patient_id is not None:
+        if body.patient_id != path.patient_id:
+            return abort(400, description="Patient IDs must match.")
+    else:
+        body.patient_id = path.patient_id
+    new_medical_record = body.model_dump()
+    new_record = marshal.unmarshal(MedicalRecordOrm, new_medical_record)
 
-        new_medical_record = medical_record_pydantic_model.model_dump()
-        new_medical_record = util.filterPairsWithNone(new_medical_record)
+    crud.create(new_record, refresh=True)
 
-        if "id" in new_medical_record:
-            record_id = new_medical_record.get("id")
-            if crud.read(MedicalRecordOrm, id=record_id):
-                abort(
-                    409,
-                    message=f"A medical record with ID {record_id} already exists.",
-                )
-                return None
-
-        _process_request_body(new_medical_record)
-        new_medical_record["patient_id"] = patient_id
-        new_medical_record["date_created"] = get_current_time()
-        new_record = marshal.unmarshal(MedicalRecordOrm, new_medical_record)
-
-        crud.create(new_record, refresh=True)
-
-        return marshal.marshal(new_record), 201
+    return marshal.marshal(new_record), 201
 
 
-# /api/medical_records/<string:record_id>
-class SingleMedicalRecord(Resource):
-    @staticmethod
-    @swag_from(
-        "../../specifications/single-medical-record-get.yml",
-        methods=["GET"],
-        endpoint="single_medical_record",
-    )
-    def get(record_id: str):
-        record = _get_medical_record(record_id)
+# /api/patients/<string:patient_id>/drug_history [PUT]
+@patient_association_required()
+@api_patients.put(
+    "/<string:patient_id>/drug_history",
+    tags=[medical_records_tag],
+    responses={200: MedicalRecordModel},
+)
+def update_patient_drug_history(path: PatientIdPath, body: DrugHistory):
+    """Update Patient Drug History"""
+    drug_history = body.model_dump()
+    drug_history = _process_medical_history(drug_history)
+    drug_history["patient_id"] = path.patient_id
+    new_record = marshal.unmarshal(MedicalRecordOrm, drug_history)
 
-        return marshal.marshal(record)
+    crud.create(new_record, refresh=True)
 
-    @staticmethod
-    @swag_from(
-        "../../specifications/single-medical-record-put.yml",
-        methods=["PUT"],
-        endpoint="single_medical_record",
-    )
-    def put(record_id: str):
-        request_body = api_utils.get_request_body()
-
-        try:
-            medical_record_pydantic_model = MedicalRecordValidator.validate_put_request(
-                request_body,
-                record_id,
-            )
-        except ValidationExceptionError as e:
-            abort(400, message=str(e))
-            return None
-
-        update_medical_record = medical_record_pydantic_model.model_dump()
-        update_medical_record = util.filterPairsWithNone(update_medical_record)
-
-        if "patient_id" in update_medical_record:
-            patient_id = crud.read(MedicalRecordOrm, id=record_id).patient_id
-            if update_medical_record.get("patient_id") != patient_id:
-                abort(400, message="Patient ID cannot be changed.")
-                return None
-
-        _process_request_body(update_medical_record)
-        crud.update(MedicalRecordOrm, update_medical_record, id=record_id)
-
-        new_record = crud.read(MedicalRecordOrm, id=record_id)
-        record_dict = marshal.marshal(new_record)
-        return record_dict, 200
-
-    @staticmethod
-    @swag_from(
-        "../../specifications/single-medical-record-delete.yml",
-        methods=["DELETE"],
-        endpoint="single_medical_record",
-    )
-    def delete(record_id: str):
-        record = _get_medical_record(record_id)
-        crud.delete(record)
-
-        return {"message": "Medical record deleted"}, 200
+    return marshal.marshal(new_record), 201
 
 
-def _process_request_body(request_body):
+# /api/medical_records
+api_medical_records = APIBlueprint(
+    name="medical_records",
+    import_name=__name__,
+    url_prefix="/medical_records",
+    abp_tags=[medical_records_tag],
+    abp_security=[{"jwt": []}],
+)
+
+
+# /api/medical_records/<string:record_id> [GET]
+@api_medical_records.get("/<string:record_id>", responses={200: MedicalRecordModel})
+def get_medical_record(path: RecordIdPath):
+    """Get Medical Record"""
+    record = _get_medical_record(path.record_id)
+    return marshal.marshal(record)
+
+
+# /api/medical_records/<string:record_id> [PUT]
+@api_medical_records.put("/<string:record_id>", responses={200: MedicalRecordModel})
+def update_medical_record(path: RecordIdPath, body: MedicalRecordModel):
+    """Update Medical Record"""
+    update_medical_record = body.model_dump()
+
+    old_record = crud.read(MedicalRecordOrm, id=path.record_id)
+    if old_record is None:
+        return abort(404, description=f"No Medical Record with ID: {path.record_id}")
+
+    if body.patient_id != old_record.patient_id:
+        return abort(400, description="Patient ID cannot be changed.")
+
+    crud.update(MedicalRecordOrm, update_medical_record, id=path.record_id)
+
+    new_record = crud.read(MedicalRecordOrm, id=path.record_id)
+    record_dict = marshal.marshal(new_record)
+    return record_dict, 200
+
+
+# /api/medical_records/<string:record_id> [DELETE]
+@api_medical_records.delete("/<string:record_id>")
+def delete_medical_record(path: RecordIdPath):
+    """Delete Medical Record"""
+    record = _get_medical_record(path.record_id)
+    crud.delete(record)
+    return {"message": f"Deleted Medical Record with ID: {path.record_id}"}, 200
+
+
+def _process_medical_history(request_body):
     request_body["last_edited"] = get_current_time()
-    request_body["is_drug_record"] = "drug_history" in request_body
+    # TODO: We should really refactor drug records into a separate Database model.
+    if "is_drug_record" not in request_body or request_body["is_drug_record"] is None:
+        request_body["is_drug_record"] = (
+            "drug_history" in request_body and request_body["drug_history"] is not None
+        )
     request_body["information"] = (
         request_body.pop("drug_history")
         if request_body["is_drug_record"]
         else request_body.pop("medical_history")
     )
+    return request_body
 
 
 def _get_medical_record(record_id):
     record = crud.read(MedicalRecordOrm, id=record_id)
-    if not record:
-        abort(404, message=f"No medical record with id {record_id}")
-        return None
-
+    if record is None:
+        return abort(404, description=f"No medical record with ID: {record_id}")
     return record

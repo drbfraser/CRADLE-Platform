@@ -19,7 +19,7 @@ type HealthFacilitiesAction =
   | { type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_REQUESTED }
   | {
       type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_SUCCESS;
-      payload: { data: Array<string> };
+      payload: { data: Array<HealthFacility> };
     }
   | {
       type: HealthFacilitiesActionEnum.GET_HEALTH_FACILITY_ERROR;

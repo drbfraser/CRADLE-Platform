@@ -1,302 +1,307 @@
 import json
+from typing import Optional
 
-from flasgger import swag_from
-from flask import make_response, request
-from flask_restful import Resource, abort
-from humps import decamelize
-from werkzeug.datastructures import FileStorage
+from flask import abort, make_response
+from flask_openapi3.blueprint import APIBlueprint
+from flask_openapi3.models.tag import Tag
+from pydantic import Field, ValidationError
 
 import data
 from api import util
 from api.decorator import roles_required
-from common import api_utils, commonUtil
+from common.api_utils import (
+    FormTemplateIdPath,
+)
 from data import crud, marshal
 from enums import ContentTypeEnum, RoleEnum
 from models import FormClassificationOrm, FormTemplateOrm
 from service import serialize
-from validation.formTemplates import FormTemplateValidator
-from validation.validation_exception import ValidationExceptionError
-
+from validation import CradleBaseModel
+from validation.file_upload import FileUploadForm
+from validation.formTemplates import (
+    FormTemplateLang,
+    FormTemplateList,
+    FormTemplateModel,
+    FormTemplateUpload,
+)
 
 # /api/forms/templates
-class Root(Resource):
-    @staticmethod
-    @roles_required([RoleEnum.ADMIN])
-    @swag_from(
-        "../../specifications/form-templates-post.yml",
-        methods=["POST"],
-        endpoint="form_templates",
+api_form_templates = APIBlueprint(
+    name="form_templates",
+    import_name=__name__,
+    url_prefix="/forms/templates",
+    abp_tags=[Tag(name="Form Templates", description="")],
+    abp_security=[{"jwt": []}],
+)
+
+
+class GetAllFormTemplatesQuery(CradleBaseModel):
+    include_archived: bool = Field(
+        False, description="If true, archived Form Templates will be included."
     )
-    def post():
-        request_body = {}
 
-        # provide file upload method from web
-        if "file" in request.files:
-            file: FileStorage = request.files["file"]
 
-            if file.content_type not in ContentTypeEnum.listValues():
-                abort(400, message="File Type not supported")
-                return None
+# /api/forms/templates [GET]
+@api_form_templates.get("", responses={200: FormTemplateList})
+def get_all_form_templates(query: GetAllFormTemplatesQuery):
+    """Get All Form Templates"""
+    filters: dict = {}
+    if not query.include_archived:
+        filters["archived"] = 0
 
-            file_str = str(file.read(), "utf-8")
-            if file.content_type == ContentTypeEnum.JSON.value:
-                try:
-                    request_body = json.loads(file_str)
-                except json.JSONDecodeError:
-                    abort(400, message="File content is not valid json-format")
-                    return None
+    form_templates = crud.read_all(FormTemplateOrm, **filters)
 
-            elif file.content_type == ContentTypeEnum.CSV.value:
-                try:
-                    request_body = util.getFormTemplateDictFromCSV(file_str)
-                except RuntimeError as err:
-                    abort(400, message=err.args[0])
-                    return None
-                except TypeError as err:
-                    abort(400, message=err.args[0])
-                    return None
-                except Exception:
-                    abort(
-                        400,
-                        message="Something went wrong while parsing the CSV file.",
-                    )
-                    return None
-            # Convert keys to snake case.
-            request_body = decamelize(request_body)
-        else:
-            request_body = api_utils.get_request_body()
+    return [marshal.marshal(f, shallow=True) for f in form_templates]
 
-        if len(request_body) == 0:
-            abort(400, message="Request body is empty")
-            return None
 
-        if request_body.get("id") is not None:
-            if crud.read(FormTemplateOrm, id=request_body["id"]):
-                abort(409, message="Form template already exists")
-                return None
+def _handle_form_template_upload(form_template: FormTemplateUpload):
+    """
+    Common logic for handling uploaded form template. Whether it was uploaded
+    as a file, or in the request body.
+    """
+    form_template_dict = form_template.model_dump()
+    util.assign_form_or_template_ids(FormTemplateOrm, form_template_dict)
+    form_classification_dict = form_template_dict["classification"]
+    del form_template_dict["classification"]
 
-        try:
-            form_template_pydantic_model = FormTemplateValidator.validate(request_body)
-        except ValidationExceptionError as e:
-            abort(400, message=str(e))
-            return None
-
-        new_form_template = form_template_pydantic_model.model_dump()
-        new_form_template = commonUtil.filterNestedAttributeWithValueNone(
-            new_form_template,
-        )
-
-        classification = crud.read(
-            FormClassificationOrm,
-            name=new_form_template["classification"].get("name"),
-        )
-
-        if classification is not None:
-            if crud.read(
-                FormTemplateOrm,
-                form_classification_id=classification.id,
-                version=new_form_template["version"],
-            ):
-                abort(
-                    409,
-                    message="Form template with the same version already exists - change the version to upload",
-                )
-
-            del new_form_template["classification"]
-
-            new_form_template["form_classification_id"] = classification.id
-
-            previous_template = crud.read(
-                FormTemplateOrm,
-                form_classification_id=classification.id,
-                archived=False,
-            )
-
-            if previous_template is not None:
-                previous_template.archived = True
-                data.db_session.commit()
-
-        util.assign_form_or_template_ids(FormTemplateOrm, new_form_template)
-
-        form_template = marshal.unmarshal(FormTemplateOrm, new_form_template)
-
-        crud.create(form_template, refresh=True)
-
-        return marshal.marshal(form_template, shallow=True), 201
-
-    @staticmethod
-    @swag_from(
-        "../../specifications/form-templates-get.yml",
-        methods=["GET"],
-        endpoint="form_templates",
+    # FormClassification is basically the name of the FormTemplate. FormTemplates can have multiple versions, and the FormClassification is used to group different versions of the same FormTemplate.
+    form_classification_orm = crud.read(
+        FormClassificationOrm,
+        id=form_classification_dict["id"],
     )
-    def get():
-        params = api_utils.get_query_params()
-
-        filters: dict = {}
-
-        if (
-            params.get("include_archived") is None
-            or params.get("include_archived") == "false"
+    if form_classification_orm is None:
+        form_classification_orm = marshal.unmarshal(
+            FormClassificationOrm, form_classification_dict
+        )
+    else:
+        if crud.read(
+            FormTemplateOrm,
+            form_classification_id=form_classification_orm.id,
+            version=form_template.version,
         ):
-            filters["archived"] = 0
+            return abort(
+                409,
+                description="Form Template with the same version already exists - change the version to upload.",
+            )
+        previous_template = crud.read(
+            FormTemplateOrm,
+            form_classification_id=form_classification_orm.id,
+            archived=False,
+        )
+        if previous_template is not None:
+            previous_template.archived = True
+            data.db_session.commit()
 
-        form_templates = crud.read_all(FormTemplateOrm, **filters)
+    form_template_dict["form_classification_id"] = form_classification_orm.id
 
-        return [marshal.marshal(f, shallow=True) for f in form_templates]
+    form_template_orm = marshal.unmarshal(FormTemplateOrm, form_template_dict)
+    form_template_orm.classification = form_classification_orm
+    crud.create(form_template_orm, refresh=True)
+    return marshal.marshal(form_template_orm, shallow=True), 201
 
 
-# /api/forms/templates/<string:form_template_id>/versions
-class TemplateVersion(Resource):
-    @staticmethod
-    @swag_from(
-        "../../specifications/single-form-template-version-get.yml",
-        methods=["GET"],
-        endpoint="single_form_template_version",
-    )
-    def get(form_template_id: str):
-        form_template = crud.read(FormTemplateOrm, id=form_template_id)
-        if form_template is None:
-            abort(404, message=f"No form with id {form_template_id}")
-            return None
+# /api/forms/templates [POST]
+@api_form_templates.post("", responses={201: FormTemplateModel})
+@roles_required([RoleEnum.ADMIN])
+def upload_form_template_file(form: FileUploadForm):
+    """
+    Upload Form Template VIA File
+    Accepts Form Template as a file.
+    Supports `.json` and `.csv` file formats.
+    """
+    file_contents = {}
+    file = form.file
+    file_str = str(file.stream.read(), "utf-8")
 
-        lang_list = crud.read_form_template_versions(form_template)
+    if file.content_type == ContentTypeEnum.JSON.value:
+        try:
+            file_contents = json.loads(file_str)
+        except json.JSONDecodeError:
+            return abort(415, description="File content is not valid JSON format")
+    elif file.content_type == ContentTypeEnum.CSV.value:
+        try:
+            file_contents = util.getFormTemplateDictFromCSV(file_str)
+        except RuntimeError as err:
+            return abort(400, description=err.args[0])
+        except TypeError as err:
+            return abort(400, description=err.args[0])
+        except Exception:
+            return abort(
+                400,
+                description="Something went wrong while parsing the CSV file.",
+            )
+    else:
+        return abort(422, description="Invalid content-type.")
 
-        return {"lang_versions": lang_list}
+    try:
+        form_template = FormTemplateUpload(**file_contents)
+    except ValidationError as e:
+        return abort(422, description=e.errors())
+    return _handle_form_template_upload(form_template)
+
+
+# /api/forms/templates/body [POST]
+@api_form_templates.post("/body", responses={201: FormTemplateModel})
+@roles_required([RoleEnum.ADMIN])
+def upload_form_template_body(body: FormTemplateUpload):
+    """
+    Upload Form Template VIA Request Body
+    Accepts Form Template through the request body, rather than as a file.
+    """
+    return _handle_form_template_upload(body)
+
+
+# /api/forms/templates/<string:form_template_id>/versions [GET]
+@api_form_templates.get("<string:form_template_id>/versions")
+def get_form_template_versions(path: FormTemplateIdPath):
+    """Get Form Template Versions"""
+    form_template = crud.read(FormTemplateOrm, id=path.form_template_id)
+    if form_template is None:
+        return abort(404, description=f"No form with ID: {path.form_template_id}")
+
+    lang_list = crud.read_form_template_language_versions(form_template)
+
+    return {"lang_versions": lang_list}, 200
 
 
 # /api/forms/templates/<string:form_template_id>/versions/<string:version>/csv
-class TemplateVersionCsv(Resource):
-    @staticmethod
-    @swag_from(
-        "../../specifications/single-form-template-get-csv.yml",
-        methods=["GET"],
-        endpoint="single_form_template_csv",
+class FormTemplateVersionPath(FormTemplateIdPath):
+    version: str = Field(..., description="Form Template version.")
+
+
+# /api/forms/templates/<string:form_template_id>/versions/<string:version>/csv [GET]
+@api_form_templates.get(
+    "/<string:form_template_id>/versions/<string:version>/csv",
+    responses={
+        200: {"content": {"text/csv": {"schema": {"type": "string"}}}},
+    },
+)
+def get_form_template_version_as_csv(path: FormTemplateVersionPath):
+    """Get Form Template Version as CSV"""
+    filters: dict = {
+        "id": path.form_template_id,
+        "version": path.version,
+    }
+
+    form_template = crud.read(
+        FormTemplateOrm,
+        **filters,
     )
-    def get(form_template_id: str, version: str):
-        filters: dict = {
-            "id": form_template_id,
-            "version": version,
-        }
 
-        form_template = crud.read(
-            FormTemplateOrm,
-            **filters,
-        )
+    if form_template is None:
+        return abort(404, description=f"No form with ID: {path.form_template_id}")
 
-        if not form_template:
-            abort(404, message=f"No form with id {form_template_id}")
+    form_template_csv: str = util.getCsvFromFormTemplate(form_template)
 
-        csv: str = util.getCsvFromFormTemplate(form_template)
-
-        response = make_response(csv)
-        response.headers["Content-Disposition"] = (
-            "attachment; filename=form_template.csv"
-        )
-        response.headers["Content-Type"] = "text/csv"
-        return response
+    response = make_response(form_template_csv)
+    response.headers["Content-Disposition"] = "attachment; filename=form_template.csv"
+    response.headers["Content-Type"] = "text/csv"
+    return response
 
 
 # /api/forms/templates/<string:form_template_id>
-class FormTemplateResource(Resource):
-    @staticmethod
-    @swag_from(
-        "../../specifications/single-form-template-get.yml",
-        methods=["GET"],
-        endpoint="single_form_template",
-    )
-    def get(form_template_id: str):
-        params = api_utils.get_query_params()
-        form_template = crud.read(FormTemplateOrm, id=form_template_id)
-        if form_template is None:
-            abort(404, message=f"No form with id {form_template_id}")
-            return None
+class GetFormTemplateQuery(CradleBaseModel):
+    lang: Optional[str] = None
 
-        version = params.get("lang")
-        if version is None:
-            # admin user get template of full verions
-            return marshal.marshal(
-                form_template,
-                shallow=False,
-                if_include_versions=True,
-            )
 
-        available_versions = crud.read_form_template_versions(
+# /api/forms/templates/<string:form_template_id> [GET]
+@api_form_templates.get("/<string:form_template_id>", responses={200: FormTemplateLang})
+def get_form_template_language_version(
+    path: FormTemplateIdPath, query: GetFormTemplateQuery
+):
+    """Get Form Template"""
+    form_template = crud.read(FormTemplateOrm, id=path.form_template_id)
+    if form_template is None:
+        return abort(404, description=f"No form with ID: {path.form_template_id}")
+
+    version = query.lang
+    if version is None:
+        # admin user get template of full versions
+        return marshal.marshal(
             form_template,
-            refresh=True,
+            shallow=False,
+            if_include_versions=True,
         )
-        if version not in available_versions:
-            abort(
-                404,
-                message=f"Template(id={form_template_id}) doesn't have language version = {version}",
-            )
-            return None
 
-        return marshal.marshal_template_to_single_version(form_template, version)
-
-    @staticmethod
-    @swag_from(
-        "../../specifications/single-form-template-put.yml",
-        methods=["PUT"],
-        endpoint="single_form_template",
+    available_versions = crud.read_form_template_language_versions(
+        form_template,
+        refresh=True,
     )
-    def put(form_template_id: str):
-        form_template = crud.read(FormTemplateOrm, id=form_template_id)
 
-        if not form_template:
-            abort(404, message=f"No form template with id {form_template_id}")
-            return None
-
-        request_body = api_utils.get_request_body()
-        if request_body.get("archived") is not None:
-            form_template.archived = request_body.get("archived")
-            data.db_session.commit()
-            data.db_session.refresh(form_template)
-
-        return marshal.marshal(form_template, True), 201
-
-
-# /api/forms/templates/blank/<string:form_template_id>
-class BlankFormTemplate(Resource):
-    @staticmethod
-    @swag_from(
-        "../../specifications/blank-form-template-get.yml",
-        methods=["GET"],
-        endpoint="blank_form_template",
-    )
-    def get(form_template_id: str):
-        params = api_utils.get_query_params()
-        form_template = crud.read(FormTemplateOrm, id=form_template_id)
-        if form_template is None:
-            abort(404, message=f"No form with id {form_template_id}")
-            return None
-
-        version = params.get("lang")
-        if version is None:
-            # admin user get template of full versions
-            blank_template = marshal.marshal(
-                form_template,
-                shallow=False,
-                if_include_versions=True,
-            )
-            blank_template = serialize.serialize_blank_form_template(blank_template)
-            return blank_template
-
-        available_versions = crud.read_form_template_versions(
-            form_template,
-            refresh=True,
+    if version not in available_versions:
+        return abort(
+            404,
+            description=f"FormTemplate(id={path.form_template_id}) doesn't have language version = {version}",
         )
-        if version not in available_versions:
-            abort(
-                404,
-                message=f"Template(id={form_template_id}) doesn't have language version = {version}",
-            )
-            return None
 
-        blank_template = marshal.marshal_template_to_single_version(
+    return marshal.marshal_template_to_single_version(form_template, version)
+
+
+class ArchiveFormTemplateBody(CradleBaseModel):
+    archived: bool = Field(
+        True,
+        description="If true, the Form Template will be archived. If false, the Form Template will be unarchived.",
+    )
+
+
+# /api/forms/templates/<string:form_template_id> [PUT]
+@api_form_templates.put(
+    "/<string:form_template_id>", responses={200: FormTemplateModel}
+)
+def archive_form_template(path: FormTemplateIdPath, body: ArchiveFormTemplateBody):
+    """Archive Form Template"""
+    # TODO: It would make more sense to take the "archived" bool from query params.
+    form_template = crud.read(FormTemplateOrm, id=path.form_template_id)
+
+    if form_template is None:
+        return abort(
+            404, description=f"No form template with ID: {path.form_template_id}"
+        )
+
+    form_template.archived = body.archived
+    data.db_session.commit()
+    data.db_session.refresh(form_template)
+
+    return marshal.marshal(form_template, shallow=True), 201
+
+
+# /api/forms/templates/blank/<string:form_template_id> [GET]
+@api_form_templates.get(
+    "/blank/<string:form_template_id>",
+    responses={200: FormTemplateLang},
+)
+def get_blank_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuery):
+    """Get Blank Form Template"""
+    form_template = crud.read(FormTemplateOrm, id=path.form_template_id)
+    if form_template is None:
+        return abort(404, description=f"No form with ID: {path.form_template_id}")
+
+    version = query.lang
+    if version is None:
+        # admin user get template of full versions
+        blank_template = marshal.marshal(
             form_template,
-            version,
+            shallow=False,
+            if_include_versions=True,
         )
         blank_template = serialize.serialize_blank_form_template(blank_template)
-
         return blank_template
+
+    available_versions = crud.read_form_template_language_versions(
+        form_template,
+        refresh=True,
+    )
+    if version not in available_versions:
+        abort(
+            404,
+            description=f"Template(id={path.form_template_id}) doesn't have language version = {version}",
+        )
+        return None
+
+    blank_template = marshal.marshal_template_to_single_version(
+        form_template,
+        version,
+    )
+    blank_template = serialize.serialize_blank_form_template(blank_template)
+
+    return blank_template, 200

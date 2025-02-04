@@ -364,15 +364,15 @@ def read_referral_list(
     page = kwargs.get("page", 1)
 
     # Filter by health facilities
-    if health_facilities:
+    if health_facilities is not None and len(health_facilities) > 0:
         query = query.filter(ReferralOrm.health_facility_name.in_(health_facilities))
 
     # Filter by referrers
-    if referrers:
+    if referrers is not None and len(referrers) > 0:
         query = query.filter(ReferralOrm.user_id.in_(referrers))
 
     # Filter by date range
-    if date_range:
+    if date_range is not None:
         start_date, end_date = date_range.split(":")
         query = query.filter(
             ReferralOrm.date_referred >= start_date,
@@ -406,7 +406,7 @@ def read_referral_list(
         )
 
     # Filter by vital signs
-    if vital_signs:
+    if vital_signs is not None and len(vital_signs) > 0:
         query = query.filter(vital_sign_field.in_(vital_signs))
 
     if limit:
@@ -414,6 +414,7 @@ def read_referral_list(
     return query.all()
 
 
+# TODO: Why is there not a separate function for getting pregnancy records?
 def read_medical_records(m: Type[M], patient_id: str, **kwargs) -> List[M]:
     """
     Queries the database for medical records of a patient
@@ -555,7 +556,7 @@ def read_patient_all_records(patient_id: str, **kwargs) -> List[Any]:
     reading_list, referral_list, assessment_list, form_list = [], [], [], []
 
     reading_required = kwargs.get("readings")
-    if reading_required == "1":
+    if reading_required:
         reading_list = (
             db_session.query(ReadingOrm)
             .filter_by(patient_id=patient_id)
@@ -564,7 +565,7 @@ def read_patient_all_records(patient_id: str, **kwargs) -> List[Any]:
         )
 
     referral_required = kwargs.get("referrals")
-    if referral_required == "1":
+    if referral_required:
         referral_list = (
             db_session.query(ReferralOrm)
             .filter_by(patient_id=patient_id)
@@ -573,7 +574,7 @@ def read_patient_all_records(patient_id: str, **kwargs) -> List[Any]:
         )
 
     assessment_required = kwargs.get("assessments")
-    if assessment_required == "1":
+    if assessment_required:
         assessment_list = (
             db_session.query(AssessmentOrm)
             .filter_by(patient_id=patient_id)
@@ -582,7 +583,7 @@ def read_patient_all_records(patient_id: str, **kwargs) -> List[Any]:
         )
 
     form_required = kwargs.get("forms")
-    if form_required == "1":
+    if form_required:
         form_list = (
             db_session.query(FormOrm)
             .filter_by(patient_id=patient_id)
@@ -660,6 +661,9 @@ def read_patients(
 
     :return: A patient if patient ID is specified; a list of patients otherwise
     """
+    # TODO: Why does this function return either a single object or a list of objects?
+    #  This should really be split into two different functions.
+
     # Aliased classes to be used in join clauses for getting the latest pregnancy, medical
     # and drug records.
     pregnancy = aliased(PregnancyOrm)
@@ -698,7 +702,7 @@ def read_patients(
         .outerjoin(
             pregnancy,
             and_(
-                PregnancyOrm.id == pregnancy.patient_id,
+                PregnancyOrm.patient_id == pregnancy.patient_id,
                 PregnancyOrm.start_date < pregnancy.start_date,
             ),
         )
@@ -801,6 +805,8 @@ def read_readings(
     return query.all()
 
 
+# Why is this one function?
+# TODO: Split this into two different functions.
 def read_referrals_or_assessments(
     model: Union[ReferralOrm, AssessmentOrm],
     patient_id: Optional[str] = None,
@@ -857,9 +863,11 @@ def read_questions(
     return query.all()
 
 
-def read_form_template_versions(model: FormTemplateOrm, refresh=False) -> List[str]:
+def read_form_template_language_versions(
+    model: FormTemplateOrm, refresh=False
+) -> List[str]:
     """
-    Quries the template for current lang versions
+    Queries the template for current language versions
 
     :param model: formTemplate model (here we assume the template is valid)
     :param refresh: refresh the model in case it is invalid for later use

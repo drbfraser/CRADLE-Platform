@@ -1,70 +1,148 @@
 # Stats post requests validation
 from typing import Optional
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import Field
 
-from validation.validation_exception import ValidationExceptionError
+from validation import CradleBaseModel
 
 MYSQL_BIGINT_MAX = (2**63) - 1
 
 
-class TimestampValidator(BaseModel):
-    from_: Optional[str] = Field(
+class Timeframe(CradleBaseModel):
+    from_: Optional[int] = Field(
+        default=0,
         alias="from",
-        default="0",
     )  # Use from_ to avoid conflict with Python's reserved keyword 'from'
-    to: Optional[str] = Field(
+    to: Optional[int] = Field(
         default=str(MYSQL_BIGINT_MAX),
     )
 
-    @staticmethod
-    def validate(request_body: dict):
-        """
-        Validates the presence and format of required timestamp fields using the Timestamp Pydantic model.
-        Raises ValidationExceptionError if the timestamp in the request body is invalid.
-
-        Args:
-            request_body (dict): The request body containing timestamps. Example payload:
-                {
-                    "from": "1546702448",
-                    "to": "1547212259"
-                }
-        :throw: An error if the request body is invalid. None otherwise
-        :return pydantic model representation of the request body param
-
-        """
-        try:
-            # Pydantic will validate field presence and type
-            return TimestampValidator(**request_body)
-        except ValidationError as e:
-            print(e)
-            # Extracts the first error message from the validation errors list
-            error_message = str(e.errors()[0]["msg"])
-            raise ValidationExceptionError(error_message)
+    model_config = dict(
+        openapi_extra={
+            "example": {
+                "from": 1546702448,
+                "to": 1547212259,
+            },
+        }
+    )
 
 
-class Timeframe(BaseModel):
-    timeframe: dict
+class TrafficLightCounts(CradleBaseModel):
+    green: int
+    yellow_up: int
+    yellow_down: int
+    red_up: int
+    red_down: int
 
-    @staticmethod
-    def validate_time_frame_readings(request_body: dict):
-        """
-        Validates the 'api/stats-timeframed-readings' POST request format. If the request
-        format is invalid, it raises a ValidationExceptionError with an error message.Additionally, it verifies the timestamp values in the request.
 
-        :param request_body: A dictionary representing the POST request, structured as follows:
-            {
-                "timeframe": {              # This field is required
-                    "from": "1546702448",   # Start time as a string
-                    "to": "1547212259"      # End time as a string
-                }
+class PatientStats(CradleBaseModel):
+    bp_systolic_readings_monthly: list[int]
+    bp_diastolic_readings_monthly: list[int]
+    heart_rate_readings_monthly: list[int]
+
+    bp_systolic_readings_last_twelve_months: list[int]
+    bp_diastolic_readings_last_twelve_months: list[int]
+    heart_rate_readings_last_twelve_months: list[int]
+
+    traffic_light_counts_from_day_1: TrafficLightCounts
+
+    current_month: int
+
+    model_config = dict(
+        openapi_extra={
+            "example": {
+                "bp_systolic_readings_monthly": [
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                ],
+                "bp_diastolic_readings_monthly": [
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                ],
+                "heart_rate_readings_monthly": [
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                ],
+                "bp_systolic_readings_last_twelve_months": [
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                ],
+                "bp_diastolic_readings_last_twelve_months": [
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                ],
+                "heart_rate_readings_last_twelve_months": [
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                ],
+                "traffic_light_counts_from_day_1": {
+                    "green": 0,
+                    "yellow_up": 0,
+                    "yellow_down": 1,
+                    "red_up": 0,
+                    "red_down": 0,
+                },
+                "current_month": 1,
             }
-        """
-        try:
-            Timeframe(**request_body)
-            TimestampValidator.validate(request_body["timeframe"])
-        except ValidationError as e:
-            print(e)
-            # Extracts the first error message from the validation errors list
-            error_message = str(e.errors()[0]["msg"])
-            raise ValidationExceptionError(error_message)
+        }
+    )

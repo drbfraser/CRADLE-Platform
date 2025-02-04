@@ -40,10 +40,14 @@ services:
         environment:
             - DOMAIN=${DOMAIN}
             - API_HOSTNAME=cradle_flask
+            - CADDY_DEBUG=${CADDY_DEBUG}
         ports:
             - 80:80
             - 443:443
+            - "443:443/udp"
         volumes:
+            - caddy_data:/data
+            - caddy_config:/config
             - caddy_logs:/var/log
     fluentbit:
         container_name: cradle_fluentbit
@@ -67,6 +71,8 @@ services:
 volumes:
     flask_logs:
     caddy_logs:
+    caddy_data:
+    caddy_config:
     mysql_logs:
     fluentbit_logs_db:
     fluentbit_logs_output:

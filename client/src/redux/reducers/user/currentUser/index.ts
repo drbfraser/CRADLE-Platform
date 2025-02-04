@@ -6,7 +6,6 @@ import { EndpointEnum, MethodEnum } from 'src/shared/enums';
 import { RootState } from 'src/redux/store';
 import { NavigateFunction } from 'react-router-dom';
 import {
-  AuthChallenge,
   AuthResponse,
   authResponseSchema,
 } from 'src/shared/api/validation/login';
@@ -20,7 +19,6 @@ export enum CurrentUserActionEnum {
   LOGIN_USER_SUCCESS = 'currentUser/LOGIN_USER_SUCCESS',
   LOGIN_USER_ERROR = 'currentUser/LOGIN_USER_ERROR',
   LOGOUT_USER = 'currentUser/LOGOUT_USER',
-  AUTH_CHALLENGE = 'currentUser/AUTH_CHALLENGE',
 }
 
 export const clearCurrentUserError = (): CurrentUserAction => ({
@@ -47,11 +45,7 @@ type CurrentUserAction =
       type: CurrentUserActionEnum.LOGIN_USER_ERROR;
       payload: { message: string };
     }
-  | { type: CurrentUserActionEnum.LOGOUT_USER }
-  | {
-      type: CurrentUserActionEnum.AUTH_CHALLENGE;
-      payload: { user: UserWithToken };
-    };
+  | { type: CurrentUserActionEnum.LOGOUT_USER };
 
 export const logoutUser = (): Callback<Dispatch> => {
   return (dispatch: Dispatch): void => {
@@ -96,20 +90,15 @@ export const loginUser = (
             accessToken: authResponse.accessToken,
           };
 
-          // If no auth challenge, proceed with login.
-          if (authResponse.challenge === null) {
-            navigate('/referrals');
-            return {
-              type: CurrentUserActionEnum.LOGIN_USER_SUCCESS,
-              payload: { user: user },
-            };
-          } else {
-            // Handle auth challenge.
-            return {
-              type: CurrentUserActionEnum.AUTH_CHALLENGE,
-              payload: { user: user },
-            };
+          if (authResponse.user.phoneNumbers.length > 0) {
+            user.phoneNumber = authResponse.user.phoneNumbers[0];
           }
+          // Navigate to Referrals page.
+          navigate('/referrals');
+          return {
+            type: CurrentUserActionEnum.LOGIN_USER_SUCCESS,
+            payload: { user: user },
+          };
         },
         onError: ({ message }: ServerError) => {
           return {
@@ -161,7 +150,6 @@ export type CurrentUserState = {
   loading: boolean;
   loggedIn: boolean;
   message: OrNull<string>;
-  authChallenge?: AuthChallenge | null;
 };
 
 const initialState: CurrentUserState = {
@@ -170,7 +158,6 @@ const initialState: CurrentUserState = {
   loading: false,
   loggedIn: false,
   message: null,
-  authChallenge: null,
 };
 
 export const currentUserReducer = (
@@ -198,9 +185,6 @@ export const currentUserReducer = (
     }
     case CurrentUserActionEnum.LOGIN_USER_SUCCESS: {
       return { ...initialState, data: action.payload.user, loggedIn: true };
-    }
-    case CurrentUserActionEnum.AUTH_CHALLENGE: {
-      return { ...initialState, data: action.payload.user, loggedIn: false };
     }
     case CurrentUserActionEnum.GET_CURRENT_USER_SUCCESS: {
       return {
