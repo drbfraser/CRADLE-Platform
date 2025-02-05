@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Dialog,
   DialogActions,
@@ -10,7 +11,6 @@ import {
 
 import { CancelButton } from '../Button';
 import { Toast } from '../toast';
-import { useState } from 'react';
 
 interface IProps {
   open: boolean;
@@ -19,6 +19,9 @@ interface IProps {
 }
 
 const APIErrorToast = ({ open, onClose, errorMessage }: IProps) => {
+  // state to allow toast to close itself without needing to rely on parent state via `props.open`
+  const [toastOpen, setToastOpen] = useState(true);
+
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const Message = () =>
@@ -106,8 +109,11 @@ const APIErrorToast = ({ open, onClose, errorMessage }: IProps) => {
     <>
       <Toast
         severity="error"
-        open={open}
-        onClose={onClose}
+        open={toastOpen && open}
+        onClose={() => {
+          setToastOpen(false);
+          onClose();
+        }}
         message={<Message />}
       />
       <TroubleshootDialog />

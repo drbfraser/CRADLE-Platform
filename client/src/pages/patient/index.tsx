@@ -104,7 +104,7 @@ export const PatientPage = () => {
       <ToastAfterNav />
 
       <ConfirmDialog
-        title={'Warning'}
+        title="Warning"
         content={
           'You have at least one pending referral. Do you still want to perform an assessment without assessing a referral?'
         }
