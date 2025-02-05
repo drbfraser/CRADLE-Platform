@@ -98,3 +98,4 @@ the previously mentioned admin user is added along with a few additional users:
 | Jachak Sekhon       | jachaks@sfu.ca       |
 | Alex Mutwiri        | mutex@berkeley.edu   |
 | Paul Atwal          | psatwal@sfu.ca.      |
+| Harry Nguyen        | hln5@sfu.ca          |
