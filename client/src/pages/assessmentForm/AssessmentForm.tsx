@@ -4,19 +4,13 @@ import { CheckboxWithLabel, TextField } from 'formik-mui';
 import { Field, Form, Formik } from 'formik';
 import { Alert, Box, Grid, Paper, Typography } from '@mui/material';
 
-import {
-  saveAssessmentAsync,
-  saveDrugHistoryAsync,
-  saveReferralAssessmentAsync,
-} from 'src/shared/api/api';
 import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
 import { useAppSelector } from 'src/shared/hooks';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { assessmentFormValidationSchema } from './validation';
 import { AssessmentField, AssessmentState } from './state';
-import { useMutation } from '@tanstack/react-query';
-import { NewAssessment } from 'src/shared/types';
+import useSaveAssesment from './mutations';
 
 interface IProps {
   initialState: AssessmentState;
@@ -34,6 +28,7 @@ export const AssessmentForm = ({
   const { data: currentUser } = useAppSelector(selectCurrentUser);
   const navigate = useNavigate();
   const [displayEmptyFormError, setDisplayEmptyFormError] = useState(false);
+  const saveAssessment = useSaveAssesment();
 
   const validate = (values: AssessmentState) => {
     const errors: Partial<AssessmentState> = {};
@@ -47,45 +42,6 @@ export const AssessmentForm = ({
     return errors;
   };
 
-  const saveAssessment = useMutation({
-    mutationFn: (data: {
-      patientId: string;
-      assessmentId: string | undefined;
-      referralId: string | undefined;
-      values: AssessmentState;
-    }) => {
-      const { patientId, assessmentId, referralId, values } = data;
-      const newAssessment: NewAssessment = {
-        [AssessmentField.investigation]: values[AssessmentField.investigation],
-        [AssessmentField.finalDiagnosis]:
-          values[AssessmentField.finalDiagnosis],
-        [AssessmentField.treatment]: values[AssessmentField.treatment],
-        [AssessmentField.medication]: values[AssessmentField.drugHistory],
-        [AssessmentField.followUp]: values[AssessmentField.followUp],
-        [AssessmentField.followUpInstructions]:
-          values[AssessmentField.followUpInstructions],
-      };
-
-      return saveAssessmentAsync(newAssessment, assessmentId, patientId)
-        .then(() => {
-          // this case only happens when users click the 'assess referral' button on the
-          // referral pending button! this clicking will trigger two request:
-          //   1. create a new assessment
-          //   2. after successfully creating a new assessment, we will send a request to mark the
-          //      original referral record to be 'assessed'
-          if (referralId) {
-            saveReferralAssessmentAsync(referralId);
-          }
-        })
-        .then(() => {
-          const newDrugHistory = values[AssessmentField.drugHistory];
-          if (initialState.drugHistory !== newDrugHistory) {
-            saveDrugHistoryAsync(newDrugHistory, patientId);
-          }
-        });
-    },
-  });
-
   const handleSubmit = async (
     patientId: string,
     assessmentId: string | undefined,
@@ -94,7 +50,13 @@ export const AssessmentForm = ({
     setSubmitting: (submitting: boolean) => void
   ) => {
     saveAssessment.mutate(
-      { values, assessmentId, patientId, referralId },
+      {
+        patientId,
+        assessmentId,
+        referralId,
+        initialDrugHistory: initialState.drugHistory,
+        formValues: values,
+      },
       {
         onSuccess: () => navigate(`/patients/${patientId}`),
         onError: () => setSubmitting(false),
