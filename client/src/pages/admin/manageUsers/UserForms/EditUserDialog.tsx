@@ -1,10 +1,4 @@
 import {
-  Autocomplete,
-  TextField as FormikTextField,
-  Select as FormikSelect,
-} from 'formik-mui';
-import {
-  AutocompleteRenderInputParams,
   Checkbox,
   Dialog,
   DialogActions,
@@ -15,17 +9,22 @@ import {
   TextField,
 } from '@mui/material';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
-import { Field, Form, Formik, FormikHelpers } from 'formik';
-import { UserField, fieldLabels, newEditValidationSchema } from './state';
+import { Form, Formik, FormikHelpers } from 'formik';
+import { UserField, fieldLabels, newEditValidationSchema } from '../state';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { UserRoleEnum } from 'src/shared/enums';
 import { editUserAsync } from 'src/shared/api/api';
-import { useHealthFacilityNames } from 'src/shared/hooks/healthFacilities';
 import { useState } from 'react';
-import { userRoleLabels } from 'src/shared/constants';
 import { EditUser, User } from 'src/shared/api/validation/user';
 import { AxiosError } from 'axios';
+import { UserPhoneNumbersFieldArray } from 'src/pages/admin/manageUsers/UserForms/UserPhoneNumbersFieldArray';
+import {
+  UserEmailField,
+  UserHealthFacilityField,
+  UserNameField,
+  UserRoleField,
+} from './UserFormFields';
 
 interface IProps {
   open: boolean;
@@ -35,7 +34,6 @@ interface IProps {
 }
 
 export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
-  const healthFacilityNames = useHealthFacilityNames();
   const [submitError, setSubmitError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const emailsInUse = users
@@ -48,12 +46,11 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
   ) => {
     if (!editUser) return;
     const editedUser = { ...user };
+    /* Remove any blank phone numbers. */
+    editedUser.phoneNumbers = editedUser.phoneNumbers.filter((phoneNumber) => {
+      return phoneNumber.trim().length > 0;
+    });
 
-    /* If the phone number entered is not already in the user's array of 
-    phone numbers, prepend it to the array. */
-    if (user.phoneNumber && !user.phoneNumbers.includes(user.phoneNumber)) {
-      editedUser.phoneNumbers = [user.phoneNumber, ...user.phoneNumbers];
-    }
     try {
       await editUserAsync(editedUser, editUser.id);
       onClose();
@@ -113,71 +110,11 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
                     flexDirection: 'column',
                     gap: '1rem',
                   }}>
-                  <Field
-                    component={FormikTextField}
-                    fullWidth
-                    required
-                    inputProps={{ maxLength: 25 }}
-                    variant="outlined"
-                    label={fieldLabels[UserField.name]}
-                    name={UserField.name}
-                  />
-                  <Field
-                    component={FormikTextField}
-                    fullWidth
-                    required
-                    inputProps={{ maxLength: 120 }}
-                    variant="outlined"
-                    label={fieldLabels[UserField.email]}
-                    name={UserField.email}
-                  />
-                  <Field
-                    component={FormikTextField}
-                    fullWidth
-                    required
-                    inputProps={{ maxLength: 25 }}
-                    variant="outlined"
-                    label={fieldLabels[UserField.phoneNumber]}
-                    name={UserField.phoneNumber}
-                  />
-                  <Field
-                    component={Autocomplete}
-                    fullWidth
-                    name={UserField.healthFacilityName}
-                    options={healthFacilityNames}
-                    disableClearable={true}
-                    renderInput={(params: AutocompleteRenderInputParams) => (
-                      <TextField
-                        {...params}
-                        name={UserField.healthFacilityName}
-                        error={
-                          touched[UserField.healthFacilityName] &&
-                          !!errors[UserField.healthFacilityName]
-                        }
-                        helperText={
-                          touched[UserField.healthFacilityName]
-                            ? errors[UserField.healthFacilityName]
-                            : ''
-                        }
-                        label={fieldLabels[UserField.healthFacilityName]}
-                        variant="outlined"
-                        required
-                      />
-                    )}
-                  />
-                  <Field
-                    component={FormikSelect}
-                    fullWidth
-                    required
-                    variant="outlined"
-                    label={fieldLabels[UserField.role]}
-                    name={UserField.role}>
-                    {Object.entries(userRoleLabels).map(([value, name]) => (
-                      <MenuItem key={value} value={value}>
-                        {name}
-                      </MenuItem>
-                    ))}
-                  </Field>
+                  <UserNameField />
+                  <UserEmailField emailsInUse={emailsInUse} />
+                  <UserPhoneNumbersFieldArray />
+                  <UserHealthFacilityField />
+                  <UserRoleField />
                   {values.role === UserRoleEnum.CHO && (
                     <>
                       <TextField

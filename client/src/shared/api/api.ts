@@ -18,7 +18,7 @@ import { IExportStatRow } from 'src/pages/statistics/utils';
 import { PostBody } from 'src/pages/customizedForm/customizedEditForm/handlers';
 import { reduxStore } from 'src/redux/store';
 import { showMessage } from 'src/redux/actions/messageActions';
-import { EditUser, NewUser, User } from './validation/user';
+import { EditUser, NewUser, User, userListSchema } from './validation/user';
 import { jwtDecode } from 'jwt-decode';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
 
@@ -287,13 +287,16 @@ export const getUsersAsync = async (): Promise<User[]> => {
     method: 'GET',
     url: EndpointEnum.USER_ALL,
   });
-  const users = await response.data;
-  /* Since much of the front-end was created with users only having a single 
-  phone number, set the users 'phoneNumber' attribute to be the first 
-  phone number in the 'phoneNumbers' array. */
-  return users.map((user: User) => {
-    user.phoneNumber = user.phoneNumbers.length > 0 ? user.phoneNumbers[0] : '';
-    return user;
+  const data = await response.data;
+
+  return new Promise((resolve, reject) => {
+    const result = userListSchema.safeParse(data);
+    if (result.success) {
+      return resolve(result.data);
+    } else {
+      console.error(result.error);
+      return reject(result.error);
+    }
   });
 };
 
