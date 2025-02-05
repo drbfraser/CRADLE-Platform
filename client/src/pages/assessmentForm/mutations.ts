@@ -7,7 +7,7 @@ import {
 import { AssessmentField, AssessmentState } from './state';
 import { NewAssessment } from 'src/shared/types';
 
-const useSaveAssesment = () => {
+const useSaveAssessment = () => {
   return useMutation({
     mutationFn: ({
       patientId,
@@ -55,4 +55,4 @@ const useSaveAssesment = () => {
   });
 };
 
-export default useSaveAssesment;
+export default useSaveAssessment;

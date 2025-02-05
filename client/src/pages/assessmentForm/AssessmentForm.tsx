@@ -10,7 +10,7 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { assessmentFormValidationSchema } from './validation';
 import { AssessmentField, AssessmentState } from './state';
-import useSaveAssesment from './mutations';
+import useSaveAssessment from './mutations';
 
 interface IProps {
   initialState: AssessmentState;
@@ -28,7 +28,7 @@ export const AssessmentForm = ({
   const { data: currentUser } = useAppSelector(selectCurrentUser);
   const navigate = useNavigate();
   const [displayEmptyFormError, setDisplayEmptyFormError] = useState(false);
-  const saveAssessment = useSaveAssesment();
+  const saveAssessment = useSaveAssessment();
 
   const validate = (values: AssessmentState) => {
     const errors: Partial<AssessmentState> = {};
