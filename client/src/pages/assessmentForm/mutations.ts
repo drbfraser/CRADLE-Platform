@@ -4,7 +4,7 @@ import {
   saveDrugHistoryAsync,
   saveReferralAssessmentAsync,
 } from 'src/shared/api/api';
-import { AssessmentField, AssessmentState } from './state';
+import { AssessmentField } from './state';
 import { NewAssessment } from 'src/shared/types';
 
 const useSaveAssessment = () => {
@@ -14,26 +14,14 @@ const useSaveAssessment = () => {
       assessmentId,
       referralId,
       initialDrugHistory,
-      formValues,
+      newAssessment,
     }: {
       patientId: string;
       assessmentId: string | undefined;
       referralId: string | undefined;
       initialDrugHistory: string;
-      formValues: AssessmentState;
+      newAssessment: NewAssessment;
     }) => {
-      const newAssessment: NewAssessment = {
-        [AssessmentField.investigation]:
-          formValues[AssessmentField.investigation],
-        [AssessmentField.finalDiagnosis]:
-          formValues[AssessmentField.finalDiagnosis],
-        [AssessmentField.treatment]: formValues[AssessmentField.treatment],
-        [AssessmentField.medication]: formValues[AssessmentField.drugHistory],
-        [AssessmentField.followUp]: formValues[AssessmentField.followUp],
-        [AssessmentField.followUpInstructions]:
-          formValues[AssessmentField.followUpInstructions],
-      };
-
       return saveAssessmentAsync(newAssessment, assessmentId, patientId)
         .then(() => {
           // this case only happens when users click the 'assess referral' button on the
@@ -46,7 +34,7 @@ const useSaveAssessment = () => {
           }
         })
         .then(() => {
-          const newDrugHistory = formValues[AssessmentField.drugHistory];
+          const newDrugHistory = newAssessment[AssessmentField.medication];
           if (initialDrugHistory !== newDrugHistory) {
             saveDrugHistoryAsync(newDrugHistory, patientId);
           }
