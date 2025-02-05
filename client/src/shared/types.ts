@@ -210,6 +210,7 @@ export type NewAssessment = {
   medicationPrescribed: string;
   followUpNeeded: boolean;
   followUpInstructions: OrNull<string>;
+  healthcareWorkerId: number | undefined;
 };
 
 export type Assessment = NewAssessment & {
