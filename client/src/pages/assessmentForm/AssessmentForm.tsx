@@ -15,6 +15,8 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { assessmentFormValidationSchema } from './validation';
 import { AssessmentField, AssessmentState } from './state';
+import { useMutation } from '@tanstack/react-query';
+import { NewAssessment } from 'src/shared/types';
 
 interface IProps {
   initialState: AssessmentState;
@@ -31,11 +33,9 @@ export const AssessmentForm = ({
 }: IProps) => {
   const { data: currentUser } = useAppSelector(selectCurrentUser);
   const navigate = useNavigate();
-  const [submitError, setSubmitError] = useState(false);
   const [displayEmptyFormError, setDisplayEmptyFormError] = useState(false);
-  const drugHistory = initialState.drugHistory;
 
-  const validate = (values: any) => {
+  const validate = (values: AssessmentState) => {
     const errors: Partial<AssessmentState> = {};
     const valid = !!(
       values[AssessmentField.investigation]?.trim() ||
@@ -47,52 +47,64 @@ export const AssessmentForm = ({
     return errors;
   };
 
+  const saveAssessment = useMutation({
+    mutationFn: (data: {
+      patientId: string;
+      assessmentId: string | undefined;
+      referralId: string | undefined;
+      values: AssessmentState;
+    }) => {
+      const { patientId, assessmentId, referralId, values } = data;
+      const newAssessment: NewAssessment = {
+        [AssessmentField.investigation]: values[AssessmentField.investigation],
+        [AssessmentField.finalDiagnosis]:
+          values[AssessmentField.finalDiagnosis],
+        [AssessmentField.treatment]: values[AssessmentField.treatment],
+        [AssessmentField.medication]: values[AssessmentField.drugHistory],
+        [AssessmentField.followUp]: values[AssessmentField.followUp],
+        [AssessmentField.followUpInstructions]:
+          values[AssessmentField.followUpInstructions],
+      };
+
+      return saveAssessmentAsync(newAssessment, assessmentId, patientId)
+        .then(() => {
+          // this case only happens when users click the 'assess referral' button on the
+          // referral pending button! this clicking will trigger two request:
+          //   1. create a new assessment
+          //   2. after successfully creating a new assessment, we will send a request to mark the
+          //      original referral record to be 'assessed'
+          if (referralId) {
+            saveReferralAssessmentAsync(referralId);
+          }
+        })
+        .then(() => {
+          const newDrugHistory = values[AssessmentField.drugHistory];
+          if (initialState.drugHistory !== newDrugHistory) {
+            saveDrugHistoryAsync(newDrugHistory, patientId);
+          }
+        });
+    },
+  });
+
   const handleSubmit = async (
     patientId: string,
     assessmentId: string | undefined,
     referralId: string | undefined,
-    drugHistory: string,
-    setSubmitError: (error: boolean) => void,
     values: AssessmentState,
     setSubmitting: (submitting: boolean) => void
   ) => {
-    const newAssessment = {
-      [AssessmentField.investigation]: values[AssessmentField.investigation],
-      [AssessmentField.finalDiagnosis]: values[AssessmentField.finalDiagnosis],
-      [AssessmentField.treatment]: values[AssessmentField.treatment],
-      [AssessmentField.medication]: values[AssessmentField.drugHistory],
-      [AssessmentField.followUp]: values[AssessmentField.followUp],
-      [AssessmentField.followUpInstructions]:
-        values[AssessmentField.followUpInstructions],
-      [AssessmentField.healthcareWorkerId]: currentUser?.id,
-    };
-
-    try {
-      await saveAssessmentAsync(newAssessment, assessmentId, patientId);
-
-      const newDrugHistory = values[AssessmentField.drugHistory];
-
-      if (drugHistory !== newDrugHistory) {
-        await saveDrugHistoryAsync(newDrugHistory, patientId);
+    saveAssessment.mutate(
+      { values, assessmentId, patientId, referralId },
+      {
+        onSuccess: () => navigate(`/patients/${patientId}`),
+        onError: () => setSubmitting(false),
       }
-      // this case only happens when users click the 'assess referral' button on the
-      // referral pending button! this clicking will trigger two request: 1. create a new assessment
-      // 2.after successfully creating a new assessment, we will send a request to mark the
-      // original referral record to be 'assessed'
-      if (referralId !== undefined) {
-        await saveReferralAssessmentAsync(referralId);
-      }
-
-      navigate(`/patients/${patientId}`);
-    } catch (e) {
-      setSubmitError(true);
-      setSubmitting(false);
-    }
+    );
   };
 
   return (
     <>
-      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
+      <APIErrorToast open={saveAssessment.isError} onClose={() => {}} />
       {displayEmptyFormError && (
         <Alert
           sx={{ marginBottom: '1rem' }}
@@ -110,8 +122,6 @@ export const AssessmentForm = ({
             patientId,
             assessmentId,
             referralId,
-            drugHistory,
-            setSubmitError,
             values,
             setSubmitting
           )
@@ -127,7 +137,6 @@ export const AssessmentForm = ({
                 <Typography component="h2" variant="h4">
                   Assessment
                 </Typography>
-
                 <Typography color="primary" variant="subtitle1">
                   At least one of Investigation Results, Final Diagnosis,
                   Treatment / Operation, and Drug History must be entered
