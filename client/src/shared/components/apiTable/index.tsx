@@ -1,15 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
-import LinearProgress from '@mui/material/LinearProgress';
-import { Box, Table } from '@mui/material';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { Box, Table, LinearProgress } from '@mui/material';
+
+import { ReferralFilter } from 'src/shared/types';
+import { TrafficLightEnum } from 'src/shared/enums';
+import { axiosFetch } from 'src/shared/api/api';
+import APIErrorToast from '../apiErrorToast/APIErrorToast';
 import { SortDir } from './types';
 import Pagination from './Pagination';
 import SortBy from './SortBy';
 import ScrollArrow from './ScrollArrow';
 import { HeaderRow } from './HeaderRow';
-import APIErrorToast from '../apiErrorToast/APIErrorToast';
-import { ReferralFilter } from 'src/shared/types';
-import { TrafficLightEnum } from 'src/shared/enums';
-import { axiosFetch } from 'src/shared/api/api';
 
 interface IProps {
   endpoint: string;
@@ -50,16 +51,12 @@ export const APITable = ({
   setPopupRecord,
   refetch,
 }: IProps) => {
-  const [rows, setRows] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingError, setLoadingError] = useState(false);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [sortBy, setSortBy] = useState(initialSortBy);
   const [sortDir, setSortDir] = useState(initialSortDir);
   const prevPage = useRef(1);
 
-  // when something changes, load new data
   useEffect(() => {
     // if the user changed something other than the page number
     // then reset to page 1
@@ -69,89 +66,77 @@ export const APITable = ({
     } else {
       prevPage.current = page;
     }
-
-    setLoading(true);
-
-    // allow aborting a fetch early if the user clicks things rapidly
-    const controller = new AbortController();
-
-    const params = new URLSearchParams({
-      limit: limit.toString(),
-      page: page.toString(),
-      search: search,
-      sortBy: sortBy,
-      sortDir: sortDir,
-    });
-
-    if (referralFilter) {
-      if (referralFilter.dateRange !== '') {
-        params.append('dateRange', referralFilter.dateRange);
-      }
-      if (referralFilter.isPregnant) {
-        params.append('isPregnant', referralFilter.isPregnant);
-      }
-      if (referralFilter.isAssessed) {
-        params.append('isAssessed', referralFilter.isAssessed);
-      }
-      referralFilter.healthFacilityNames.forEach((facilityName) =>
-        params.append('healthFacility', facilityName)
-      );
-      referralFilter.referrers.forEach((referrer) =>
-        params.append('referrer', referrer)
-      );
-      referralFilter.vitalSigns.forEach((vitalSign) =>
-        params.append(
-          'vitalSigns',
-          TrafficLightEnum[vitalSign as keyof typeof TrafficLightEnum]
-        )
-      );
-    }
-
-    axiosFetch({
-      method: 'GET',
-      url: endpoint,
-      params: params,
-    })
-      .then(async (resp) => {
-        const data = resp.data;
-        //The case for drug history records on the past records page
-        if (isDrugRecord === true) {
-          setRows(data.drug);
-          //The case for medical history records on the past records page
-        } else if (isDrugRecord === false) {
-          setRows(data.medical);
-        } else if (isReferralListPage === true) {
-          setRows(data);
-        } else {
-          setRows(data);
-        }
-        setLoading(false);
-      })
-      .catch((e) => {
-        if (e.name !== 'AbortError') {
-          setLoadingError(true);
-          setLoading(false);
-        }
-      });
-
-    // if the user does something else, cancel the fetch
-    return () => controller.abort();
   }, [
-    endpoint,
     limit,
     page,
-    search,
     sortBy,
     sortDir,
-    isDrugRecord,
-    refetch,
+    search,
     referralFilter,
     isReferralListPage,
+    refetch,
   ]);
+
+  const { data, isFetching, isLoading, isError } = useQuery({
+    queryKey: [
+      `${endpoint}TableRows`,
+      sortDir,
+      sortBy,
+      search,
+      referralFilter,
+      refetch,
+    ],
+    queryFn: () => {
+      const params = new URLSearchParams({
+        limit: limit.toString(),
+        page: page.toString(),
+        search,
+        sortBy,
+        sortDir,
+      });
+      if (referralFilter) {
+        if (referralFilter.dateRange !== '') {
+          params.append('dateRange', referralFilter.dateRange);
+        }
+        if (referralFilter.isPregnant) {
+          params.append('isPregnant', referralFilter.isPregnant);
+        }
+        if (referralFilter.isAssessed) {
+          params.append('isAssessed', referralFilter.isAssessed);
+        }
+        referralFilter.healthFacilityNames.forEach((facilityName) =>
+          params.append('healthFacility', facilityName)
+        );
+        referralFilter.referrers.forEach((referrer) =>
+          params.append('referrer', referrer)
+        );
+        referralFilter.vitalSigns.forEach((vitalSign) =>
+          params.append(
+            'vitalSigns',
+            TrafficLightEnum[vitalSign as keyof typeof TrafficLightEnum]
+          )
+        );
+      }
+
+      return axiosFetch({ method: 'GET', url: endpoint, params }).then(
+        (resp) => {
+          const data = resp.data;
+          if (isDrugRecord === true) {
+            return data.drug;
+          } else if (isDrugRecord === false) {
+            return data.medical;
+          } else {
+            return data;
+          }
+        }
+      );
+    },
+    placeholderData: keepPreviousData,
+  });
+  const rows = data ?? [];
 
   const handleSort = (col: string) => {
     if (col === sortBy) {
-      // swap direction
       setSortDir(sortDir === SortDir.ASC ? SortDir.DESC : SortDir.ASC);
     } else {
       setSortBy(col);
@@ -161,11 +146,9 @@ export const APITable = ({
 
   return (
     <>
-      <APIErrorToast
-        open={loadingError}
-        onClose={() => setLoadingError(false)}
-      />
-      <Box sx={{ height: 15 }}>{loading && <LinearProgress />}</Box>
+      <APIErrorToast open={isError} onClose={() => {}} />
+
+      <Box sx={{ height: 15 }}>{isFetching && <LinearProgress />}</Box>
       {!isTransformed && initialSortBy && (
         <SortBy
           columns={columns}
@@ -217,9 +200,10 @@ export const APITable = ({
             textAlign: 'center',
             padding: '15px',
           }}>
-          {loading ? 'Retrieving records...' : 'No records to display.'}
+          {isLoading ? 'Retrieving records...' : 'No records to display.'}
         </Box>
       )}
+
       <Pagination
         dataLen={rows.length}
         page={page}
