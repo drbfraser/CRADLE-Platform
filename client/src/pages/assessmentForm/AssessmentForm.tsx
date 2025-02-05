@@ -43,9 +43,6 @@ export const AssessmentForm = ({
   };
 
   const handleSubmit = async (
-    patientId: string,
-    assessmentId: string | undefined,
-    referralId: string | undefined,
     values: AssessmentState,
     setSubmitting: (submitting: boolean) => void
   ) => {
@@ -80,13 +77,7 @@ export const AssessmentForm = ({
         initialValues={initialState}
         name={'assessmentForm'}
         onSubmit={(values: AssessmentState, { setSubmitting }: any) =>
-          handleSubmit(
-            patientId,
-            assessmentId,
-            referralId,
-            values,
-            setSubmitting
-          )
+          handleSubmit(values, setSubmitting)
         }
         validate={validate}
         validateOnChange={false}
