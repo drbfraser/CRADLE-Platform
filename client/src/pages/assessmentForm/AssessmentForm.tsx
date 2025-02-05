@@ -6,6 +6,7 @@ import { Alert, Box, Grid, Paper, Typography } from '@mui/material';
 
 import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
 import { useAppSelector } from 'src/shared/hooks';
+import { NewAssessment } from 'src/shared/types';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { assessmentFormValidationSchema } from './validation';
@@ -46,13 +47,23 @@ export const AssessmentForm = ({
     values: AssessmentState,
     setSubmitting: (submitting: boolean) => void
   ) => {
+    const newAssessment: NewAssessment = {
+      [AssessmentField.investigation]: values[AssessmentField.investigation],
+      [AssessmentField.finalDiagnosis]: values[AssessmentField.finalDiagnosis],
+      [AssessmentField.treatment]: values[AssessmentField.treatment],
+      [AssessmentField.medication]: values[AssessmentField.drugHistory],
+      [AssessmentField.followUp]: values[AssessmentField.followUp],
+      [AssessmentField.followUpInstructions]:
+        values[AssessmentField.followUpInstructions],
+    };
+
     saveAssessment.mutate(
       {
         patientId,
         assessmentId,
         referralId,
         initialDrugHistory: initialState.drugHistory,
-        formValues: values,
+        newAssessment,
       },
       {
         onSuccess: () => navigate(`/patients/${patientId}`),
