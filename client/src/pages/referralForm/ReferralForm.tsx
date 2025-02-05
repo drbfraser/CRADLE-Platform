@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
 import { Field, Form, Formik } from 'formik';
 import {
   Autocomplete,
@@ -9,10 +9,11 @@ import {
 import { TextField, Typography, Paper } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { PrimaryButton } from 'src/shared/components/Button';
 import { saveReferralAsync } from 'src/shared/api/api';
 import { useHealthFacilityNames } from 'src/shared/hooks/healthFacilities';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { PrimaryButton } from 'src/shared/components/Button';
+import { ToastData } from 'src/shared/components/toastAfterNav';
 import {
   ReferralField,
   ReferralState,
@@ -20,16 +21,23 @@ import {
   validationSchema,
 } from './state';
 
-import { ToastData } from 'src/shared/components/toastAfterNav';
-
 interface IProps {
   patientId: string;
 }
 
 export const ReferralForm = ({ patientId }: IProps) => {
   const healthFacilityNames = useHealthFacilityNames();
-  const [submitError, setSubmitError] = useState(false);
   const navigate = useNavigate();
+
+  const addReferral = useMutation({
+    mutationFn: (
+      postBody: {
+        patientId: string;
+      } & ReferralState
+    ) => {
+      return saveReferralAsync(postBody);
+    },
+  });
 
   const handleSubmit = async (
     values: ReferralState,
@@ -39,27 +47,26 @@ export const ReferralForm = ({ patientId }: IProps) => {
       patientId,
       ...values,
     };
-
-    try {
-      await saveReferralAsync(postBody);
-
-      const toastData: ToastData = {
-        severity: 'success',
-        message: 'Referral submitted successfully',
-      };
-      navigate(`/patients/${patientId}`, {
-        state: { toastData },
-      });
-    } catch (e) {
-      console.error(e);
-      setSubmitError(true);
-      setSubmitting(false);
-    }
+    addReferral.mutate(postBody, {
+      onSuccess: () => {
+        const toastData: ToastData = {
+          severity: 'success',
+          message: 'Referral submitted successfully',
+        };
+        navigate(`/patients/${patientId}`, {
+          state: { toastData },
+        });
+      },
+      onError: (e) => {
+        console.error(e);
+        setSubmitting(false);
+      },
+    });
   };
 
   return (
     <>
-      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
+      <APIErrorToast open={addReferral.isError} onClose={() => {}} />
 
       <Formik
         initialValues={initialState}
