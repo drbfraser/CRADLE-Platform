@@ -55,6 +55,7 @@ export const AssessmentForm = ({
       [AssessmentField.followUp]: values[AssessmentField.followUp],
       [AssessmentField.followUpInstructions]:
         values[AssessmentField.followUpInstructions],
+      [AssessmentField.healthcareWorkerId]: currentUser?.id,
     };
 
     saveAssessment.mutate(
