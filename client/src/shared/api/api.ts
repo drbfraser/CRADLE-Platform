@@ -554,7 +554,6 @@ export const getPatientReferralsAsync = async (
   patientId: string
 ): Promise<Referral[]> => {
   try {
-    throw new Error('testing');
     const response = await axiosFetch.get(
       EndpointEnum.PATIENTS + `/${patientId}` + EndpointEnum.REFERRALS
     );

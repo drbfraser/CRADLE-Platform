@@ -1,24 +1,11 @@
-import { useEffect, useState } from 'react';
-
-import { Patient } from 'src/shared/types';
+import { useQuery } from '@tanstack/react-query';
 import { getPatientAsync } from 'src/shared/api/api';
 
 const usePatient = (patientId: string) => {
-  const [patient, setPatient] = useState<Patient>();
-  const [errorLoading, setErrorLoading] = useState(false);
-
-  useEffect(() => {
-    const loadPatient = async () => {
-      try {
-        const patient: Patient = await getPatientAsync(patientId);
-        setPatient(patient);
-      } catch (e) {
-        setErrorLoading(true);
-      }
-    };
-
-    loadPatient();
-  }, [patientId]);
+  const { data: patient, isError: errorLoading } = useQuery({
+    queryKey: ['patient', patientId],
+    queryFn: () => getPatientAsync(patientId),
+  });
 
   return { patient, errorLoading };
 };
