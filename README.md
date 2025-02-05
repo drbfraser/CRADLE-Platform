@@ -100,3 +100,4 @@ the previously mentioned admin user is added along with a few additional users:
 | Paul Atwal          | psatwal@sfu.ca.      |
 | Harry Nguyen        | hln5@sfu.ca          |
 | Leslie Chow         | lcchow@sfu.ca        |
+| Gurveen Gill        | gkg24@sfu.ca         |
