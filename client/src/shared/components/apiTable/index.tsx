@@ -118,8 +118,6 @@ export const APITable = ({
         );
       }
 
-      throw new Error();
-
       return axiosFetch({ method: 'GET', url: endpoint, params }).then(
         (resp) => {
           const data = resp.data;
