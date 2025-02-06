@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogActions,
@@ -13,16 +13,24 @@ import { CancelButton } from '../Button';
 import { Toast } from '../toast';
 
 interface IProps {
-  open: boolean;
-  onClose: () => void;
+  // props.open and props.onClose can probably be completely removed once the entire codebase uses
+  // React Query instead of raw fetch's and useEffect's
+  open?: boolean;
+  onClose?: () => void;
   errorMessage?: string;
 }
 
 const APIErrorToast = ({ open, onClose, errorMessage }: IProps) => {
-  // state to allow toast to close itself without needing to rely on parent state via `props.open`
-  const [toastOpen, setToastOpen] = useState(true);
-
+  const [toastOpen, setToastOpen] = useState(open ?? true);
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  // this is only here to preserve existing behavior in components that do not yet use React Query
+  // it can be removed once React Query is used everywhere
+  useEffect(() => {
+    if (open) {
+      setToastOpen(open);
+    }
+  }, [open]);
 
   const Message = () =>
     errorMessage ? (
@@ -33,7 +41,7 @@ const APIErrorToast = ({ open, onClose, errorMessage }: IProps) => {
         some{' '}
         <Link
           onClick={() => {
-            onClose();
+            onClose?.();
             setDialogOpen(true);
           }}
           sx={{
@@ -109,10 +117,10 @@ const APIErrorToast = ({ open, onClose, errorMessage }: IProps) => {
     <>
       <Toast
         severity="error"
-        open={toastOpen && open}
+        open={toastOpen}
         onClose={() => {
           setToastOpen(false);
-          onClose();
+          onClose?.();
         }}
         message={<Message />}
       />

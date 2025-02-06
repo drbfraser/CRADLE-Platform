@@ -66,7 +66,7 @@ export const ReferralForm = ({ patientId }: IProps) => {
 
   return (
     <>
-      <APIErrorToast open={addReferral.isError} onClose={() => {}} />
+      {addReferral.isError && <APIErrorToast onClose={() => {}} />}
 
       <Formik
         initialValues={initialState}

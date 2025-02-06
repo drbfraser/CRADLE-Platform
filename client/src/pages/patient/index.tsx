@@ -100,7 +100,7 @@ export const PatientPage = () => {
     errorLoadingPatientInfo || errorLoadingRecords || errorLoadingReferrals;
   return (
     <>
-      <APIErrorToast open={errorLoading} onClose={() => {}} />
+      {errorLoading && <APIErrorToast onClose={() => {}} />}
       <ToastAfterNav />
 
       <ConfirmDialog

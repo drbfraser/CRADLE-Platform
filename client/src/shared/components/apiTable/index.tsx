@@ -118,6 +118,8 @@ export const APITable = ({
         );
       }
 
+      throw new Error();
+
       return axiosFetch({ method: 'GET', url: endpoint, params }).then(
         (resp) => {
           const data = resp.data;
@@ -146,7 +148,7 @@ export const APITable = ({
 
   return (
     <>
-      <APIErrorToast open={isError} onClose={() => {}} />
+      {isError && <APIErrorToast onClose={() => {}} />}
 
       <Box sx={{ height: 15 }}>{isFetching && <LinearProgress />}</Box>
       {!isTransformed && initialSortBy && (
