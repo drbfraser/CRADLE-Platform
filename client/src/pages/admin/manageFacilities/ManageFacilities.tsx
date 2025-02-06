@@ -1,20 +1,15 @@
+import { useCallback, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '@mui/material';
-import { useCallback, useEffect, useState } from 'react';
-
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-
 import CreateIcon from '@mui/icons-material/Create';
-import EditFacility from './EditFacility';
+import AddIcon from '@mui/icons-material/Add';
+import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+
 import { Facility } from 'src/shared/types';
 import { getHealthFacilitiesAsync } from 'src/shared/api/api';
 import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
 import { useAppDispatch } from 'src/shared/hooks';
-import {
-  GridColDef,
-  GridRenderCellParams,
-  GridRowsProp,
-} from '@mui/x-data-grid';
-import AddIcon from '@mui/icons-material/Add';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
 import { DataTable } from 'src/shared/components/DataTable/DataTable';
 import {
@@ -22,27 +17,18 @@ import {
   TableActionButtons,
 } from 'src/shared/components/DataTable/TableActionButtons';
 import { formatPhoneNumber } from 'src/shared/utils';
+import EditFacility from './EditFacility';
 
 export const ManageFacilities = () => {
   const dispatch = useAppDispatch();
-  const [errorLoading, setErrorLoading] = useState(false);
-  const [facilities, setFacilities] = useState<Facility[]>([]);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [facilityToEdit, setFacilityToEdit] = useState<Facility>();
 
-  const [rows, setRows] = useState<GridRowsProp>([]);
-  // Map facility object to row data object.
-  const updateRows = (facilities: Facility[]) => {
-    setRows(
-      facilities.map((facility, index) => ({
-        id: index,
-        name: facility.name,
-        phoneNumber: formatPhoneNumber(facility.phoneNumber),
-        location: facility.location,
-        takeAction: facility,
-      }))
-    );
-  };
+  const { data, isError, refetch } = useQuery({
+    queryKey: ['healthcareFacilitiesList'],
+    queryFn: getHealthFacilitiesAsync,
+  });
+  const facilities = data ?? [];
 
   const ActionButtons = useCallback(
     ({ facility }: { facility?: Facility }) => {
@@ -77,26 +63,11 @@ export const ManageFacilities = () => {
     },
   ];
 
-  const getFacilities = async () => {
-    try {
-      const facilities: Facility[] = await getHealthFacilitiesAsync();
-
-      setFacilities(facilities);
-      updateRows(facilities);
-    } catch (e) {
-      setErrorLoading(true);
-    }
-  };
-
-  useEffect(() => {
-    getFacilities();
-  }, []);
-
   const editFacility = useCallback(() => {
     setEditPopupOpen(false);
     dispatch(getHealthFacilityList());
-    getFacilities();
-  }, []);
+    refetch();
+  }, [dispatch, refetch]);
 
   const addNewFacility = useCallback(() => {
     setFacilityToEdit(undefined);
@@ -105,10 +76,8 @@ export const ManageFacilities = () => {
 
   return (
     <>
-      <APIErrorToast
-        open={errorLoading}
-        onClose={() => setErrorLoading(false)}
-      />
+      {isError && <APIErrorToast />}
+
       <EditFacility
         open={editPopupOpen}
         onClose={editFacility}
@@ -123,7 +92,16 @@ export const ManageFacilities = () => {
           {'New Facility'}
         </Button>
       </DataTableHeader>
-      <DataTable rows={rows} columns={columns} />
+      <DataTable
+        rows={facilities.map((f, index) => ({
+          id: index,
+          name: f.name,
+          phoneNumber: formatPhoneNumber(f.phoneNumber),
+          location: f.location,
+          takeAction: f,
+        }))}
+        columns={columns}
+      />
     </>
   );
 };
