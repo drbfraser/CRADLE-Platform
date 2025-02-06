@@ -68,7 +68,7 @@ def _create_success_response(
 ) -> Response:
     """
     Creates and returns a response object with a successful 200 status code,
-    the JSON data and content type for the outer SMS relay request. 
+    the JSON data and content type for the outer SMS relay request.
     Compresses and encrypts the inner destination API response and includes it in the outer response body.
 
     :param code: Response status code received from the inner API response.
@@ -88,11 +88,12 @@ def _create_success_response(
     response.status_code = 200
     return response
 
+
 def _create_error_response(
     error_code: int, error_body: str, iv: str, user_sms_key: str
 ) -> Response:
     """
-    Creates and returns a response object with an error status code for the outer API request. 
+    Creates and returns a response object with an error status code for the outer API request.
     Compresses and encrypts the error message and includes it in the response body.
 
     :param error_code: Error status code to send in response.
@@ -111,6 +112,7 @@ def _create_error_response(
     response.headers["Content-Type"] = "application/json"
     response.status_code = error_code
     return response
+
 
 _iv_size = 32
 
@@ -136,7 +138,7 @@ def relay_sms_request(body: SmsRelayRequestBody):
     )
     if not phone_number_exists:
         return abort(
-            400, 
+            400,
             description=phone_number_not_exists.format(
                 phone_number=phone_number, type="JSON"
             ),
