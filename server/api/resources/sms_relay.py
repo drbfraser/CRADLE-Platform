@@ -63,15 +63,21 @@ def _send_request_to_endpoint(
     )
 
 
-def _create_flask_response(
+def _create_success_response(
     code: int, body: str, iv: str, user_sms_key: str
 ) -> Response:
-    # Create a response object with the JSON data and set the content type
-    # This response structure is defined in the SMS-Relay App -> model.HTTPSResponse
-    # Do not change without updating Retrofit configuration
-    # Currently the body is not processed by the Relay app (only its existence is checked)
-    # Sending a generic success or failure string is an option
+    """
+    Creates and returns a response object with a successful 200 status code,
+    the JSON data and content type for the outer SMS relay request.
+    Compresses and encrypts the inner destination API response and includes it in the outer response body.
 
+    :param code: Response status code received from the inner API response.
+    :param body: Response body received from the inner API response.
+    :param iv: Initialization vector used for the AES data encryption.
+    :param user_sms_key: User-specific secret key used to encrypt the data.
+
+    :return: Returns a 200 status code response object with the inner API response stored as encrypted data in the response body.
+    """
     compressed_data = compressor.compress_from_string(body)
     encrypted_data = encryptor.encrypt(compressed_data, iv, user_sms_key)
 
@@ -80,6 +86,31 @@ def _create_flask_response(
     response = make_response(jsonify(response_body))
     response.headers["Content-Type"] = "application/json"
     response.status_code = 200
+    return response
+
+
+def _create_error_response(
+    error_code: int, error_body: str, iv: str, user_sms_key: str
+) -> Response:
+    """
+    Creates and returns a response object with an error status code for the outer API request.
+    Compresses and encrypts the error message and includes it in the response body.
+
+    :param error_code: Error status code to send in response.
+    :param error_body: Error message body to send in response.
+    :param iv: Initialization vector used for the AES data encryption.
+    :param user_sms_key: User-specific secret key used to encrypt the data.
+
+    :return: Returns a response object with the error status code and stores the encrypted error message data in the response body.
+    """
+    compressed_data = compressor.compress_from_string(error_body)
+    encrypted_data = encryptor.encrypt(compressed_data, iv, user_sms_key)
+
+    response_body = {"code": error_code, "body": encrypted_data}
+
+    response = make_response(jsonify(response_body))
+    response.headers["Content-Type"] = "application/json"
+    response.status_code = error_code
     return response
 
 
@@ -139,7 +170,7 @@ def relay_sms_request(body: SmsRelayRequestBody):
     try:
         decrypted_data = SmsRelayDecryptedBody(**json_dict_data)
     except ValidationError as e:
-        return _create_flask_response(
+        return _create_error_response(
             422,
             invalid_json.format(error=str(e)),
             encrypted_data[0:_iv_size],
@@ -152,7 +183,7 @@ def relay_sms_request(body: SmsRelayRequestBody):
         or request_number < 0
         or request_number > 999999
     ):
-        return _create_flask_response(
+        return _create_error_response(
             400,
             invalid_req_number.format(error=error_req_range),
             encrypted_data[0:_iv_size],
@@ -175,7 +206,7 @@ def relay_sms_request(body: SmsRelayRequestBody):
     # Creating Response
     response_code = response.status_code
     response_body = json.dumps(response.json())
-    return _create_flask_response(
+    return _create_success_response(
         response_code,
         response_body,
         encrypted_data[0:_iv_size],
