@@ -78,7 +78,6 @@ def _create_success_response(
 
     :return: Returns a 200 status code response object with the inner API response stored as encrypted data in the response body.
     """
-
     compressed_data = compressor.compress_from_string(body)
     encrypted_data = encryptor.encrypt(compressed_data, iv, user_sms_key)
 
@@ -103,7 +102,6 @@ def _create_error_response(
 
     :return: Returns a response object with the error status code and stores the encrypted error message data in the response body.
     """
-
     compressed_data = compressor.compress_from_string(error_body)
     encrypted_data = encryptor.encrypt(compressed_data, iv, user_sms_key)
 
