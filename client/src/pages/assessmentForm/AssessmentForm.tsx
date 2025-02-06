@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckboxWithLabel, TextField } from 'formik-mui';
-import { Field, Form, Formik } from 'formik';
+import { Field, Form, Formik, FormikHelpers } from 'formik';
 import { Alert, Box, Grid, Paper, Typography } from '@mui/material';
 
 import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
@@ -45,7 +45,7 @@ export const AssessmentForm = ({
 
   const handleSubmit = async (
     values: AssessmentState,
-    setSubmitting: (submitting: boolean) => void
+    { setSubmitting }: FormikHelpers<AssessmentState>
   ) => {
     const newAssessment: NewAssessment = {
       [AssessmentField.investigation]: values[AssessmentField.investigation],
@@ -88,9 +88,7 @@ export const AssessmentForm = ({
       <Formik
         initialValues={initialState}
         name={'assessmentForm'}
-        onSubmit={(values: AssessmentState, { setSubmitting }) =>
-          handleSubmit(values, setSubmitting)
-        }
+        onSubmit={handleSubmit}
         validate={validate}
         validateOnChange={false}
         validateOnBlur={false}
