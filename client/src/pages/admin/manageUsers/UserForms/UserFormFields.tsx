@@ -11,7 +11,10 @@ import {
 import { Field, useFormikContext } from 'formik';
 import { UserField, fieldLabels } from './state';
 import { userRoleLabels } from 'src/shared/constants';
-import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
+import {
+  useHealthFacilities,
+  useHealthFacilityNames,
+} from 'src/shared/hooks/healthFacilities';
 
 export const UserNameField = () => {
   return (
@@ -122,22 +125,25 @@ export const UserRoleField = () => {
 };
 
 export const UserHealthFacilityField = () => {
-  const healthFacilities = useHealthFacilities();
+  const healthFacilityNames = useHealthFacilityNames();
   const { touched, errors } = useFormikContext<{
     healthFacilityName: string;
   }>();
 
   return (
     <Field
+      name={UserField.healthFacilityName}
       component={Autocomplete}
       fullWidth
-      name={UserField.healthFacilityName}
-      options={healthFacilities}
       disableClearable={true}
+      options={healthFacilityNames}
       renderInput={(params: AutocompleteRenderInputParams) => (
         <TextField
           {...params}
           name={UserField.healthFacilityName}
+          label={fieldLabels[UserField.healthFacilityName]}
+          required
+          variant="outlined"
           error={
             touched[UserField.healthFacilityName] &&
             !!errors[UserField.healthFacilityName]
@@ -147,9 +153,6 @@ export const UserHealthFacilityField = () => {
               ? errors[UserField.healthFacilityName]
               : ''
           }
-          label={fieldLabels[UserField.healthFacilityName]}
-          variant="outlined"
-          required
         />
       )}
     />
