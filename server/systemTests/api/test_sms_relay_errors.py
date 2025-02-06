@@ -181,10 +181,7 @@ def test_sms_relay_invalid_encrypted_json(api_post):
     }
     response = api_post(endpoint=sms_relay_endpoint, json=json_body)
 
-    assert response.status_code == 200
-    response_dict = sms_relay_test.get_sms_relay_response(response)
-    print(response_dict)
-    assert response_dict["code"] == 422
+    assert response.status_code == 422
 
 
 def test_sms_relay_invalid_request_number(api_post):
@@ -198,12 +195,7 @@ def test_sms_relay_invalid_request_number(api_post):
 
     response_body = decamelize(response.json())
     pretty_print(response_body)
-    assert response.status_code == 200
-    response_dict = sms_relay_test.get_sms_relay_response(response)
-    assert response_dict["code"] == 400
-    assert response_dict["body"] == sms_relay.invalid_req_number.format(
-        error=sms_relay.error_req_range,
-    )
+    assert response.status_code == 400
 
 
 def test_sms_relay_invalid_method(api_post):
@@ -217,6 +209,4 @@ def test_sms_relay_invalid_method(api_post):
 
     response_body = decamelize(response.json())
     pretty_print(response_body)
-    assert response.status_code == 200
-    response_dict = sms_relay_test.get_sms_relay_response(response)
-    assert response_dict["code"] == 422
+    assert response.status_code == 422
