@@ -75,7 +75,7 @@ export const AssessmentForm = ({
 
   return (
     <>
-      {saveAssessment.isError && <APIErrorToast onClose={() => {}} />}
+      {saveAssessment.isError && <APIErrorToast />}
       {displayEmptyFormError && (
         <Alert
           sx={{ marginBottom: '1rem' }}
