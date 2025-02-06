@@ -158,7 +158,7 @@ def relay_sms_request(body: SmsRelayRequestBody):
 
         # Convert keys to snake case.
         json_dict_data = decamelize(json_dict_data)
-    except Exception as e:
+    except Exception:
         error_message = str(invalid_message.format(phone_number=phone_number))
         print(error_message)
         return abort(401, description=error_message)
