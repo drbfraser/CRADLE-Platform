@@ -135,7 +135,12 @@ def relay_sms_request(body: SmsRelayRequestBody):
         phone_number
     )
     if not phone_number_exists:
-        return abort(400, description=phone_number_not_exists.format(phone_number=phone_number, type="JSON"))
+        return abort(
+            400, 
+            description=phone_number_not_exists.format(
+                phone_number=phone_number, type="JSON"
+            ),
+        )
 
     # Get user id for the user that phone_number belongs to
     user = user_utils.get_user_orm_from_phone_number(phone_number)
@@ -153,7 +158,6 @@ def relay_sms_request(body: SmsRelayRequestBody):
         decrypted_data = compressor.decompress(decrypted_message)
         string_data = decrypted_data.decode("utf-8")
         json_dict_data = json.loads(string_data)
-
         # Convert keys to snake case.
         json_dict_data = decamelize(json_dict_data)
     except Exception:
