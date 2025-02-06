@@ -88,7 +88,7 @@ export const AssessmentForm = ({
       <Formik
         initialValues={initialState}
         name={'assessmentForm'}
-        onSubmit={(values: AssessmentState, { setSubmitting }: any) =>
+        onSubmit={(values: AssessmentState, { setSubmitting }) =>
           handleSubmit(values, setSubmitting)
         }
         validate={validate}
