@@ -146,7 +146,7 @@ export const APITable = ({
 
   return (
     <>
-      {isError && <APIErrorToast onClose={() => {}} />}
+      {isError && <APIErrorToast />}
 
       <Box sx={{ height: 15 }}>{isFetching && <LinearProgress />}</Box>
       {!isTransformed && initialSortBy && (
