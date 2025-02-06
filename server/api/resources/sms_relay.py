@@ -63,9 +63,11 @@ def _send_request_to_endpoint(
     )
 
 
-def create_success_response(code: int, body: str, iv: str, user_sms_key: str) -> Response:
+def _create_success_response(
+    code: int, body: str, iv: str, user_sms_key: str
+) -> Response:
     """
-    Creates and returns a new response object with a successful 200 status code,
+    Creates and returns a response object with a successful 200 status code,
     the JSON data and content type for the outer SMS relay request. 
     Compresses and encrypts the inner destination API response and includes it in the outer response body.
 
@@ -87,10 +89,11 @@ def create_success_response(code: int, body: str, iv: str, user_sms_key: str) ->
     response.status_code = 200
     return response
 
-def create_error_response(error_code: int, error_body: str, iv: str, user_sms_key: str) -> Response:
+def _create_error_response(
+    error_code: int, error_body: str, iv: str, user_sms_key: str
+) -> Response:
     """
-    Creates and returns a new response object with when there 
-    is an error for the outer API request. 
+    Creates and returns a response object with an error status code for the outer API request. 
     Compresses and encrypts the error message and includes it in the response body.
 
     :param error_code: Error status code to send in response.
@@ -100,7 +103,7 @@ def create_error_response(error_code: int, error_body: str, iv: str, user_sms_ke
 
     :return: Returns a response object with the error status code and stores the encrypted error message data in the response body.
     """
-   
+
     compressed_data = compressor.compress_from_string(error_body)
     encrypted_data = encryptor.encrypt(compressed_data, iv, user_sms_key)
 
@@ -110,7 +113,7 @@ def create_error_response(error_code: int, error_body: str, iv: str, user_sms_ke
     response.headers["Content-Type"] = "application/json"
     response.status_code = error_code
     return response
-    
+
 _iv_size = 32
 
 
@@ -134,12 +137,7 @@ def relay_sms_request(body: SmsRelayRequestBody):
         phone_number
     )
     if not phone_number_exists:
-        return abort(
-            400,
-            description=phone_number_not_exists.format(
-                phone_number=phone_number, type="JSON"
-            ),
-        )
+        return abort(400, description=phone_number_not_exists.format(phone_number=phone_number, type="JSON"))
 
     # Get user id for the user that phone_number belongs to
     user = user_utils.get_user_orm_from_phone_number(phone_number)
@@ -157,9 +155,10 @@ def relay_sms_request(body: SmsRelayRequestBody):
         decrypted_data = compressor.decompress(decrypted_message)
         string_data = decrypted_data.decode("utf-8")
         json_dict_data = json.loads(string_data)
+
         # Convert keys to snake case.
         json_dict_data = decamelize(json_dict_data)
-    except Exception:
+    except Exception as e:
         error_message = str(invalid_message.format(phone_number=phone_number))
         print(error_message)
         return abort(401, description=error_message)
@@ -180,7 +179,7 @@ def relay_sms_request(body: SmsRelayRequestBody):
         or request_number < 0
         or request_number > 999999
     ):
-        return create_error_response(
+        return _create_error_response(
             400,
             invalid_req_number.format(error=error_req_range),
             encrypted_data[0:_iv_size],
@@ -203,7 +202,7 @@ def relay_sms_request(body: SmsRelayRequestBody):
     # Creating Response
     response_code = response.status_code
     response_body = json.dumps(response.json())
-    return create_success_response(
+    return _create_success_response(
         response_code,
         response_body,
         encrypted_data[0:_iv_size],
