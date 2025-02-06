@@ -4,12 +4,17 @@ import { render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { PropsWithChildren } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const TestProvider = ({ children }: PropsWithChildren) => {
+  const queryClient = new QueryClient();
+
   return (
-    <MemoryRouter>
-      <ContextProvider>{children}</ContextProvider>
-    </MemoryRouter>
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter>
+        <ContextProvider>{children}</ContextProvider>
+      </MemoryRouter>
+    </QueryClientProvider>
   );
 };
 
