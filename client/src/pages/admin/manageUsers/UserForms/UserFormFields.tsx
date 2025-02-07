@@ -31,9 +31,9 @@ export const UserNameField = () => {
 };
 
 type UserEmailField = {
-  emailsInUse: string[];
+  otherUsersEmails: string[];
 };
-export const UserEmailField = ({ emailsInUse }: UserEmailField) => {
+export const UserEmailField = ({ otherUsersEmails }: UserEmailField) => {
   const validateEmail = (value?: string) => {
     if (!value) {
       return 'Email is required';
@@ -41,7 +41,7 @@ export const UserEmailField = ({ emailsInUse }: UserEmailField) => {
     if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)) {
       return 'Invalid email address';
     }
-    if (emailsInUse.includes(value.toLowerCase())) {
+    if (otherUsersEmails.includes(value.toLowerCase())) {
       return 'Email already in use';
     }
     return null;
