@@ -26,6 +26,13 @@ const EditRelayNum = ({ open, onClose, relayNums, editRelayNum }: IProps) => {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const creatingNew = editRelayNum === undefined;
 
+  const otherRelayNums = relayNums.filter(
+    (relayNum) => relayNum.phoneNumber !== editRelayNum?.phoneNumber
+  );
+  const otherPhoneNumbers = otherRelayNums.map(
+    (relayNum) => relayNum.phoneNumber
+  );
+
   const handleSubmit = async (
     values: RelayNum,
     { setSubmitting }: FormikHelpers<RelayNum>
@@ -56,7 +63,7 @@ const EditRelayNum = ({ open, onClose, relayNums, editRelayNum }: IProps) => {
           <Formik
             initialValues={editRelayNum ?? RelayNumTemplate}
             validationSchema={getValidationSchema(
-              creatingNew ? relayNums.map((num) => num.phone) : []
+              creatingNew ? relayNums.map((num) => num.phoneNumber) : []
             )}
             onSubmit={handleSubmit}>
             {({ isSubmitting, isValid }) => (
