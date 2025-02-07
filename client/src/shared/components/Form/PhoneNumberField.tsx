@@ -1,4 +1,5 @@
 import { useField, useFormikContext } from 'formik';
+import { isValidNumber } from 'libphonenumber-js';
 import { MuiTelInput } from 'mui-tel-input';
 
 type PhoneNumberFieldProps = {
@@ -37,4 +38,27 @@ export const PhoneNumberField = ({
       helperText={isError ? errorMessage : undefined}
     />
   );
+};
+
+/**
+ * Creates and returns a function which validates a phone number and checks
+ * for uniqueness against the array provided as argument to this function.
+ *
+ * @param {string[]} otherPhoneNumbers - An array of phone numbers to check for uniqueness against.
+ *
+ * @returns - A function which checks the validity of the
+ *  provided phone number and returns a string containing an error message if the phone number
+ *  is invalid. The validation function returns `undefined` if the phone number is valid.
+ * */
+export const makePhoneNumberValidator = (otherPhoneNumbers: string[]) => {
+  return (phoneNumber: string) => {
+    if (!isValidNumber(phoneNumber)) {
+      return 'Invalid Phone Number';
+    }
+    if (otherPhoneNumbers.includes(phoneNumber)) {
+      return 'Phone Number Already In Use';
+    }
+
+    return undefined;
+  };
 };

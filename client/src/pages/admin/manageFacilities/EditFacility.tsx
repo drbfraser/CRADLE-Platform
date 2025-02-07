@@ -19,7 +19,10 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Facility } from 'src/shared/types';
 import { saveHealthFacilityAsync } from 'src/shared/api/api';
 import { useState } from 'react';
-import { PhoneNumberField } from 'src/shared/components/Form/PhoneNumberField';
+import {
+  makePhoneNumberValidator,
+  PhoneNumberField,
+} from 'src/shared/components/Form/PhoneNumberField';
 import { isValidNumber } from 'libphonenumber-js';
 
 interface IProps {
@@ -40,16 +43,7 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
     (facility) => facility.phoneNumber
   );
 
-  const validateFacilityPhoneNumber = (phoneNumber: string) => {
-    if (!isValidNumber(phoneNumber)) {
-      return 'Invalid Phone Number';
-    }
-    if (otherPhoneNumbers.includes(phoneNumber)) {
-      return 'Phone Number Already In Use';
-    }
-
-    return undefined;
-  };
+  const validatePhoneNumber = makePhoneNumberValidator(otherPhoneNumbers);
 
   const handleSubmit = async (
     values: Facility,
@@ -109,7 +103,7 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
                 <PhoneNumberField
                   label={'Phone Number'}
                   name={'phoneNumber'}
-                  validatePhoneNumber={validateFacilityPhoneNumber}
+                  validatePhoneNumber={validatePhoneNumber}
                 />
                 <br />
                 <br />
