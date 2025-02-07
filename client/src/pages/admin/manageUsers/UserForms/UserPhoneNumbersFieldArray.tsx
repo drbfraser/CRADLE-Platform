@@ -5,6 +5,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { MuiTelInput } from 'mui-tel-input';
 import { useRef } from 'react';
 import { isValidNumber } from 'libphonenumber-js';
+import { PhoneNumberField } from 'src/shared/components/Form/PhoneNumberField';
 
 type UserPhoneNumbersFieldArrayProps = {
   otherUsersPhoneNumbers: string[];
@@ -31,7 +32,7 @@ export const UserPhoneNumbersFieldArray = ({
           <Stack direction={'column'} gap={1}>
             {values.phoneNumbers.length > 0 &&
               values.phoneNumbers.map((_, index) => (
-                <PhoneNumberField
+                <UserPhoneNumberField
                   key={index}
                   fieldName={`phoneNumbers.${index}`}
                   otherUsersPhoneNumbers={otherUsersPhoneNumbers}
@@ -58,44 +59,28 @@ type UserPhoneNumberFieldProps = {
   otherUsersPhoneNumbers: string[];
   handleRemove: () => void;
 };
-const PhoneNumberField = ({
+const UserPhoneNumberField = ({
   fieldName,
   otherUsersPhoneNumbers,
   handleRemove,
 }: UserPhoneNumberFieldProps) => {
-  const { values, handleBlur } = useFormikContext<{
+  const { values } = useFormikContext<{
     phoneNumbers: string[];
   }>();
 
-  const [field, metaData, helpers] = useField(fieldName);
-  const phoneNumber = field.value;
+  const validatePhoneNumber = (phoneNumber: string) => {
+    return validateUserPhoneNumber(
+      phoneNumber,
+      values.phoneNumbers,
+      otherUsersPhoneNumbers
+    );
+  };
 
-  const errorMessage = validatePhoneNumber(
-    phoneNumber,
-    values.phoneNumbers,
-    otherUsersPhoneNumbers
-  );
-  const isTouched = metaData.touched;
-  const isError = isTouched && Boolean(errorMessage);
-
-  const ref = useRef<HTMLInputElement>();
   return (
     <Stack direction={'row'}>
-      <MuiTelInput
-        inputRef={ref}
-        fullWidth
-        forceCallingCode
-        defaultCountry={'US'}
-        name={fieldName}
-        focusOnSelectCountry
-        value={phoneNumber}
-        onChange={(value) => {
-          /* We can't use Formik's `handleChange` because it takes different arguments.  */
-          helpers.setValue(value.replaceAll(' ', ''));
-        }}
-        onBlur={handleBlur}
-        error={isError}
-        helperText={isError ? errorMessage : undefined}
+      <PhoneNumberField
+        fieldName={fieldName}
+        validatePhoneNumber={validatePhoneNumber}
       />
       <IconButton
         sx={{
@@ -107,7 +92,7 @@ const PhoneNumberField = ({
         }}
         onClick={handleRemove}
         disabled={
-          values.phoneNumbers.length == 1
+          values.phoneNumbers.length === 1
         } /** Disable removal button if this is the only phone number. */
       >
         <CloseIcon />
@@ -116,7 +101,7 @@ const PhoneNumberField = ({
   );
 };
 
-const validatePhoneNumber = (
+const validateUserPhoneNumber = (
   phoneNumber: string,
   thisUsersPhoneNumbers: string[],
   otherUsersPhoneNumbers: string[]
@@ -127,12 +112,12 @@ const validatePhoneNumber = (
 
   // Check if phone number is already in use by this user.
   const thisUserOccurrences = thisUsersPhoneNumbers.filter((value) => {
-    return value == phoneNumber;
+    return value === phoneNumber;
   }).length;
 
   // Check if phone number is already in use by other users.
   const otherUserOccurrences = otherUsersPhoneNumbers.filter((value) => {
-    return value == phoneNumber;
+    return value === phoneNumber;
   }).length;
 
   if (thisUserOccurrences > 1 || otherUserOccurrences > 0) {
