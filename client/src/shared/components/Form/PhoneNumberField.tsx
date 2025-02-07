@@ -47,7 +47,7 @@ export const makePhoneNumberValidationSchema = (
     .label('Phone Number')
     .max(25)
     .required()
-    .notOneOf(existingPhoneNumbers, 'Phone number is already in use')
+    .notOneOf(existingPhoneNumbers, 'This phone number is already in use')
     .test({
       name: 'test-phone-number-validity',
       test: (value) => {
