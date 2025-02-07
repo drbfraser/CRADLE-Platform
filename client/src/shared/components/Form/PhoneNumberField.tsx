@@ -1,15 +1,14 @@
+import { TextFieldProps } from '@mui/material';
 import { useField, useFormikContext } from 'formik';
 import { isValidNumber } from 'libphonenumber-js';
 import { MuiTelInput } from 'mui-tel-input';
 import * as Yup from 'yup';
 
-type PhoneNumberFieldProps = {
-  name?: string;
-  label?: string;
-};
+type PhoneNumberFieldProps = TextFieldProps;
 export const PhoneNumberField = ({
   name = 'phoneNumber',
   label,
+  ...props
 }: PhoneNumberFieldProps) => {
   const { handleBlur } = useFormikContext();
   const [field, metaData, helpers] = useField<string>(name);
@@ -22,11 +21,12 @@ export const PhoneNumberField = ({
 
   return (
     <MuiTelInput
+      {...props}
+      name={name}
       label={label}
       fullWidth
       forceCallingCode
       defaultCountry={'US'}
-      name={name}
       focusOnSelectCountry
       value={phoneNumber}
       onChange={(value) => {
