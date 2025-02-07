@@ -10,6 +10,7 @@ import { Field, FieldArray, FieldProps, useFormikContext } from 'formik';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import { PhoneNumberField } from 'src/shared/components/Form/PhoneNumberField';
+import { MAX_PHONE_NUMBERS_PER_USER } from 'src/shared/constants';
 
 type PhoneNumberArrayFormState = {
   phoneNumbers: string[];
@@ -57,7 +58,10 @@ export const UserPhoneNumbersFieldArray = () => {
               ))}
             <Button
               startIcon={<AddIcon />}
-              onClick={() => arrayHelpers.push('')}>
+              onClick={() => arrayHelpers.push('')}
+              disabled={
+                values.phoneNumbers.length >= MAX_PHONE_NUMBERS_PER_USER
+              }>
               {'Add Phone Number'}
             </Button>
           </Stack>
