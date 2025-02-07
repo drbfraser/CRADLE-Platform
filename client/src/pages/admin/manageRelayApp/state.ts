@@ -1,13 +1,13 @@
 import * as Yup from 'yup';
 
 export enum RelayNumField {
-  phone = 'phone',
+  phone = 'phoneNumbers',
   description = 'description',
   lastReceived = 'lastReceived',
 }
 
 export const RelayNumTemplate = {
-  phone: '',
+  phoneNumber: '',
   description: '',
   lastReceived: 0,
 };
