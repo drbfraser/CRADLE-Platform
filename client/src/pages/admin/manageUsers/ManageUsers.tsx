@@ -28,6 +28,7 @@ import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
 import { DataTable } from 'src/shared/components/DataTable/DataTable';
 import { DataTableHeader } from '../../../shared/components/DataTable/DataTableHeader';
 import { CreateUserDialog } from './UserForms/CreateUserDialog';
+import { formatPhoneNumbers } from 'src/shared/utils';
 
 export const ManageUsers = () => {
   const [errorLoading, setErrorLoading] = useState(false);
@@ -45,7 +46,7 @@ export const ManageUsers = () => {
         id: index,
         name: user.name,
         email: user.email,
-        phoneNumbers: user.phoneNumbers,
+        phoneNumbers: formatPhoneNumbers(user.phoneNumbers),
         healthFacility: user.healthFacilityName,
         role: userRoleLabels[user.role],
         takeAction: user,

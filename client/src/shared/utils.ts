@@ -5,6 +5,7 @@ import { TrafficLightEnum } from 'src/shared/enums';
 import moment from 'moment';
 import { useNavigate } from 'react-router-dom';
 import { useCallback } from 'react';
+import parsePhoneNumberFromString from 'libphonenumber-js';
 
 export { v4 as makeUniqueId } from 'uuid';
 
@@ -264,4 +265,14 @@ export const formatBytes = (bytes: number) => {
 
 export const getLanguages = (): (string | undefined)[] => {
   return ISO6391.getAllNames();
+};
+
+export const formatPhoneNumber = (phoneNumber: string) => {
+  const formattedPhoneNumber =
+    parsePhoneNumberFromString(phoneNumber)?.formatInternational();
+  return formattedPhoneNumber ?? phoneNumber;
+};
+
+export const formatPhoneNumbers = (phoneNumbers: string[]) => {
+  return phoneNumbers.map(formatPhoneNumber);
 };
