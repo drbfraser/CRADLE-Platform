@@ -19,6 +19,8 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Facility } from 'src/shared/types';
 import { saveHealthFacilityAsync } from 'src/shared/api/api';
 import { useState } from 'react';
+import { PhoneNumberField } from 'src/shared/components/Form/PhoneNumberField';
+import { isValidNumber } from 'libphonenumber-js';
 
 interface IProps {
   open: boolean;
@@ -30,6 +32,24 @@ interface IProps {
 const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
   const creatingNew = editFacility === undefined;
+
+  const otherFacilities = facilities.filter(
+    (facility) => facility.name !== editFacility?.name
+  );
+  const otherPhoneNumbers = otherFacilities.map(
+    (facility) => facility.phoneNumber
+  );
+
+  const validateFacilityPhoneNumber = (phoneNumber: string) => {
+    if (!isValidNumber(phoneNumber)) {
+      return 'Invalid Phone Number';
+    }
+    if (otherPhoneNumbers.includes(phoneNumber)) {
+      return 'Phone Number Already In Use';
+    }
+
+    return undefined;
+  };
 
   const handleSubmit = async (
     values: Facility,
@@ -86,13 +106,10 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
                 </Field>
                 <br />
                 <br />
-                <Field
-                  component={TextField}
-                  fullWidth
-                  inputProps={{ maxLength: 50 }}
-                  variant="outlined"
-                  label="Phone Number"
+                <PhoneNumberField
+                  label={'Phone Number'}
                   name={'phoneNumber'}
+                  validatePhoneNumber={validateFacilityPhoneNumber}
                 />
                 <br />
                 <br />

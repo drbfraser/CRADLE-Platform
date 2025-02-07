@@ -2,15 +2,17 @@ import { useField, useFormikContext } from 'formik';
 import { MuiTelInput } from 'mui-tel-input';
 
 type PhoneNumberFieldProps = {
-  fieldName: string;
+  name?: string;
+  label?: string;
   validatePhoneNumber: (phoneNumber: string) => string | undefined;
 };
 export const PhoneNumberField = ({
-  fieldName = 'phoneNumber',
+  name = 'phoneNumber',
+  label,
   validatePhoneNumber,
 }: PhoneNumberFieldProps) => {
   const { handleBlur } = useFormikContext();
-  const [field, metaData, helpers] = useField<string>(fieldName);
+  const [field, metaData, helpers] = useField<string>(name);
 
   const phoneNumber = field.value;
   const errorMessage = validatePhoneNumber(phoneNumber);
@@ -19,10 +21,11 @@ export const PhoneNumberField = ({
 
   return (
     <MuiTelInput
+      label={label}
       fullWidth
       forceCallingCode
       defaultCountry={'US'}
-      name={fieldName}
+      name={name}
       focusOnSelectCountry
       value={phoneNumber}
       onChange={(value) => {

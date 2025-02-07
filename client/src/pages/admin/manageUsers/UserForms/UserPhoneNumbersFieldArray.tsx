@@ -1,9 +1,7 @@
 import { Box, Button, IconButton, Stack, Typography } from '@mui/material';
-import { FieldArray, useField, useFormikContext } from 'formik';
+import { FieldArray, useFormikContext } from 'formik';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
-import { MuiTelInput } from 'mui-tel-input';
-import { useRef } from 'react';
 import { isValidNumber } from 'libphonenumber-js';
 import { PhoneNumberField } from 'src/shared/components/Form/PhoneNumberField';
 
@@ -79,7 +77,7 @@ const UserPhoneNumberField = ({
   return (
     <Stack direction={'row'}>
       <PhoneNumberField
-        fieldName={fieldName}
+        name={fieldName}
         validatePhoneNumber={validatePhoneNumber}
       />
       <IconButton
