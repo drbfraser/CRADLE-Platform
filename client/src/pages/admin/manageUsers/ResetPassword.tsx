@@ -11,7 +11,7 @@ import {
   fieldLabels,
   passwordValidationSchema,
   resetPasswordTemplate,
-} from './state';
+} from './UserForms/state';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { TextField } from 'formik-mui';

@@ -1,3 +1,4 @@
+import { makePhoneNumberValidationSchema } from 'src/shared/components/Form/PhoneNumberField';
 import * as Yup from 'yup';
 
 export enum FacilityField {
@@ -10,7 +11,10 @@ export enum FacilityField {
   index = 'index',
 }
 
-export const getValidationSchema = (existingNames: string[]) => {
+export const makeFacilityValidationSchema = (
+  existingNames: string[],
+  otherFacilityPhoneNumbers: string[]
+) => {
   return Yup.object().shape({
     about: Yup.string(),
     type: Yup.string().label('Facility Type').required(),
@@ -26,7 +30,7 @@ export const getValidationSchema = (existingNames: string[]) => {
           return !existingNames.map((n) => format(n)).includes(format(value));
         }
       ),
-    phoneNumber: Yup.string().max(50),
+    phoneNumber: makePhoneNumberValidationSchema(otherFacilityPhoneNumbers),
     location: Yup.string().max(50),
   });
 };

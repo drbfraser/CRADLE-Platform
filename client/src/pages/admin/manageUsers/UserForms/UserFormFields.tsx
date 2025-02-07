@@ -9,7 +9,7 @@ import {
   TextField,
 } from '@mui/material';
 import { Field, useFormikContext } from 'formik';
-import { UserField, fieldLabels } from '../state';
+import { UserField, fieldLabels } from './state';
 import { userRoleLabels } from 'src/shared/constants';
 import { useHealthFacilities } from 'src/shared/hooks/healthFacilities';
 
@@ -30,23 +30,7 @@ export const UserNameField = () => {
   );
 };
 
-type UserEmailField = {
-  otherUsersEmails: string[];
-};
-export const UserEmailField = ({ otherUsersEmails }: UserEmailField) => {
-  const validateEmail = (value?: string) => {
-    if (!value) {
-      return 'Email is required';
-    }
-    if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)) {
-      return 'Invalid email address';
-    }
-    if (otherUsersEmails.includes(value.toLowerCase())) {
-      return 'Email already in use';
-    }
-    return null;
-  };
-
+export const UserEmailField = () => {
   return (
     <Field
       component={FormikTextField}
@@ -56,7 +40,6 @@ export const UserEmailField = ({ otherUsersEmails }: UserEmailField) => {
       variant="outlined"
       label={fieldLabels[UserField.email]}
       name={UserField.email}
-      validate={validateEmail}
     />
   );
 };

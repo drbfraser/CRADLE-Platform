@@ -23,6 +23,7 @@ import {
   UserUsernameField,
 } from './UserFormFields';
 import { getOtherUsersEmailsAndPhoneNumbers } from './userFormHelpers';
+import { makeNewUserValidationSchema } from './state';
 
 const newUserTemplate: NewUser = {
   email: '',
@@ -46,6 +47,11 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
 
   const { otherUsersEmails, otherUsersPhoneNumbers } =
     getOtherUsersEmailsAndPhoneNumbers(users, -1);
+
+  const validationSchema = makeNewUserValidationSchema(
+    otherUsersEmails,
+    otherUsersPhoneNumbers
+  );
 
   const usernamesInUse = users.map((user) => user.username);
 
@@ -93,7 +99,10 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
       <Dialog open={open} maxWidth={'sm'} fullWidth>
         <DialogTitle>{'Create New User'}</DialogTitle>
         <DialogContent>
-          <Formik initialValues={newUserTemplate} onSubmit={handleSubmit}>
+          <Formik
+            initialValues={newUserTemplate}
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}>
             {({ isSubmitting, isValid }) => (
               <Form autoComplete={'off'}>
                 <FormGroup
@@ -105,10 +114,8 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
                   }}>
                   <UserNameField />
                   <UserUsernameField usernamesInUse={usernamesInUse} />
-                  <UserEmailField otherUsersEmails={otherUsersEmails} />
-                  <UserPhoneNumbersFieldArray
-                    otherUsersPhoneNumbers={otherUsersPhoneNumbers}
-                  />
+                  <UserEmailField />
+                  <UserPhoneNumbersFieldArray />
                   <UserHealthFacilityField />
                   <UserRoleField />
                   <UserPasswordField />

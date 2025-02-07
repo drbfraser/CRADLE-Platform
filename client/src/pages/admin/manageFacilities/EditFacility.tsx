@@ -10,7 +10,7 @@ import {
   FacilityField,
   facilityTemplate,
   facilityTypes,
-  getValidationSchema,
+  makeFacilityValidationSchema,
 } from './state';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 import { TextField } from 'formik-mui';
@@ -19,11 +19,7 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Facility } from 'src/shared/types';
 import { saveHealthFacilityAsync } from 'src/shared/api/api';
 import { useState } from 'react';
-import {
-  makePhoneNumberValidator,
-  PhoneNumberField,
-} from 'src/shared/components/Form/PhoneNumberField';
-import { isValidNumber } from 'libphonenumber-js';
+import { PhoneNumberField } from 'src/shared/components/Form/PhoneNumberField';
 
 interface IProps {
   open: boolean;
@@ -42,8 +38,12 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
   const otherPhoneNumbers = otherFacilities.map(
     (facility) => facility.phoneNumber
   );
+  const otherFacilityNames = otherFacilities.map((facility) => facility.name);
 
-  const validatePhoneNumber = makePhoneNumberValidator(otherPhoneNumbers);
+  const validationSchema = makeFacilityValidationSchema(
+    otherFacilityNames,
+    otherPhoneNumbers
+  );
 
   const handleSubmit = async (
     values: Facility,
@@ -67,9 +67,7 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
         <DialogContent>
           <Formik
             initialValues={editFacility ?? facilityTemplate}
-            validationSchema={getValidationSchema(
-              creatingNew ? facilities.map((f) => f.name) : []
-            )}
+            validationSchema={validationSchema}
             onSubmit={handleSubmit}>
             {({ isSubmitting, isValid }) => (
               <Form>
@@ -100,11 +98,7 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
                 </Field>
                 <br />
                 <br />
-                <PhoneNumberField
-                  label={'Phone Number'}
-                  name={'phoneNumber'}
-                  validatePhoneNumber={validatePhoneNumber}
-                />
+                <PhoneNumberField label={'Phone Number'} name={'phoneNumber'} />
                 <br />
                 <br />
                 <Field

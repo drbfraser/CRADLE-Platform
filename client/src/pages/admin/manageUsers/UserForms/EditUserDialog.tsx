@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import { Form, Formik, FormikHelpers } from 'formik';
-import { UserField, fieldLabels, newEditValidationSchema } from '../state';
+import { UserField, fieldLabels, makeEditUserValidationSchema } from './state';
 
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { UserRoleEnum } from 'src/shared/enums';
@@ -38,10 +38,14 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  if (editUser == undefined) return null;
+  if (!editUser) return null;
 
   const { otherUsersEmails, otherUsersPhoneNumbers } =
     getOtherUsersEmailsAndPhoneNumbers(users, editUser.id);
+  const validationSchema = makeEditUserValidationSchema(
+    otherUsersEmails,
+    otherUsersPhoneNumbers
+  );
 
   const handleSubmit = async (
     user: EditUser,
@@ -75,7 +79,6 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
     }
   };
 
-  if (!editUser) return null;
   return (
     <>
       <APIErrorToast
@@ -94,7 +97,7 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
               ...editUser,
               supervises: editUser.supervises ?? [],
             }}
-            validationSchema={newEditValidationSchema(otherUsersEmails)}
+            validationSchema={validationSchema}
             onSubmit={handleSubmit}>
             {({
               values,
@@ -114,10 +117,8 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
                     gap: '1rem',
                   }}>
                   <UserNameField />
-                  <UserEmailField otherUsersEmails={otherUsersEmails} />
-                  <UserPhoneNumbersFieldArray
-                    otherUsersPhoneNumbers={otherUsersPhoneNumbers}
-                  />
+                  <UserEmailField />
+                  <UserPhoneNumbersFieldArray />
                   <UserHealthFacilityField />
                   <UserRoleField />
                   {values.role === UserRoleEnum.CHO && (

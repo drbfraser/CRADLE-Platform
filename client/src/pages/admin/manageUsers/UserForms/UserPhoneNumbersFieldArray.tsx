@@ -1,12 +1,12 @@
 import { Box, Button, IconButton, Stack, Typography } from '@mui/material';
-import { FieldArray, useFormikContext } from 'formik';
+import { Field, FieldArray, FieldProps, useFormikContext } from 'formik';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
-import { isValidNumber } from 'libphonenumber-js';
 import { PhoneNumberField } from 'src/shared/components/Form/PhoneNumberField';
+import { render } from '@testing-library/react';
 
-type UserPhoneNumbersFieldArrayProps = {
-  otherUsersPhoneNumbers: string[];
+type PhoneNumberArrayFormState = {
+  phoneNumbers: string[];
 };
 
 /**
@@ -14,10 +14,17 @@ type UserPhoneNumbersFieldArrayProps = {
  * user phone numbers in a form.
  */
 
-export const UserPhoneNumbersFieldArray = ({
-  otherUsersPhoneNumbers,
-}: UserPhoneNumbersFieldArrayProps) => {
-  const { values } = useFormikContext<{ phoneNumbers: string[] }>();
+export const UserPhoneNumbersFieldArray = () => {
+  const { values } = useFormikContext<PhoneNumberArrayFormState>();
+
+  const validatePhoneNumberUniqueness = (phoneNumber: string) => {
+    // Validate that phone number occurs at most once for this user.
+    const occurrences = values.phoneNumbers.filter(
+      (value) => value === phoneNumber
+    ).length;
+
+    return occurrences > 1 ? 'Duplicate phone number' : undefined;
+  };
 
   return (
     <FieldArray
@@ -30,12 +37,17 @@ export const UserPhoneNumbersFieldArray = ({
           <Stack direction={'column'} gap={1}>
             {values.phoneNumbers.length > 0 &&
               values.phoneNumbers.map((_, index) => (
-                <UserPhoneNumberField
+                <Field
+                  name={`phoneNumbers[${index}]`}
                   key={index}
-                  fieldName={`phoneNumbers.${index}`}
-                  otherUsersPhoneNumbers={otherUsersPhoneNumbers}
-                  handleRemove={() => arrayHelpers.remove(index)}
-                />
+                  validate={validatePhoneNumberUniqueness}>
+                  {({ field }: FieldProps<PhoneNumberArrayFormState>) => (
+                    <UserPhoneNumberField
+                      name={field.name}
+                      handleRemove={() => arrayHelpers.remove(index)}
+                    />
+                  )}
+                </Field>
               ))}
             <Button
               startIcon={<AddIcon />}
@@ -53,33 +65,18 @@ export const UserPhoneNumbersFieldArray = ({
  * otherwise the field will lose focus whenever the state changes.
  */
 type UserPhoneNumberFieldProps = {
-  fieldName: string;
-  otherUsersPhoneNumbers: string[];
+  name: string;
   handleRemove: () => void;
 };
 const UserPhoneNumberField = ({
-  fieldName,
-  otherUsersPhoneNumbers,
+  name,
   handleRemove,
 }: UserPhoneNumberFieldProps) => {
-  const { values } = useFormikContext<{
-    phoneNumbers: string[];
-  }>();
-
-  const validatePhoneNumber = (phoneNumber: string) => {
-    return validateUserPhoneNumber(
-      phoneNumber,
-      values.phoneNumbers,
-      otherUsersPhoneNumbers
-    );
-  };
+  const { values } = useFormikContext<PhoneNumberArrayFormState>();
 
   return (
     <Stack direction={'row'}>
-      <PhoneNumberField
-        name={fieldName}
-        validatePhoneNumber={validatePhoneNumber}
-      />
+      <Field name={name}>{() => <PhoneNumberField name={name} />}</Field>
       <IconButton
         sx={{
           aspectRatio: 1,
@@ -97,30 +94,4 @@ const UserPhoneNumberField = ({
       </IconButton>
     </Stack>
   );
-};
-
-const validateUserPhoneNumber = (
-  phoneNumber: string,
-  thisUsersPhoneNumbers: string[],
-  otherUsersPhoneNumbers: string[]
-) => {
-  if (!isValidNumber(phoneNumber)) {
-    return 'Invalid Phone Number';
-  }
-
-  // Check if phone number is already in use by this user.
-  const thisUserOccurrences = thisUsersPhoneNumbers.filter((value) => {
-    return value === phoneNumber;
-  }).length;
-
-  // Check if phone number is already in use by other users.
-  const otherUserOccurrences = otherUsersPhoneNumbers.filter((value) => {
-    return value === phoneNumber;
-  }).length;
-
-  if (thisUserOccurrences > 1 || otherUserOccurrences > 0) {
-    return 'Phone Number Already In Use';
-  }
-
-  return undefined;
 };
