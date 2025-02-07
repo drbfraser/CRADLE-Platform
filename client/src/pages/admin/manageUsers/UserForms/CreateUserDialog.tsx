@@ -22,6 +22,7 @@ import {
   UserRoleField,
   UserUsernameField,
 } from './UserFormFields';
+import { getOtherUsersEmailsAndPhoneNumbers } from './userFormHelpers';
 
 const newUserTemplate: NewUser = {
   email: '',
@@ -42,7 +43,10 @@ interface IProps {
 export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const emailsInUse = users.map((user) => user.email);
+
+  const { otherUsersEmails, otherUsersPhoneNumbers } =
+    getOtherUsersEmailsAndPhoneNumbers(users, -1);
+
   const usernamesInUse = users.map((user) => user.username);
 
   const handleSubmit = async (
@@ -101,8 +105,10 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
                   }}>
                   <UserNameField />
                   <UserUsernameField usernamesInUse={usernamesInUse} />
-                  <UserEmailField emailsInUse={emailsInUse} />
-                  <UserPhoneNumbersFieldArray />
+                  <UserEmailField otherUsersEmails={otherUsersEmails} />
+                  <UserPhoneNumbersFieldArray
+                    otherUsersPhoneNumbers={otherUsersPhoneNumbers}
+                  />
                   <UserHealthFacilityField />
                   <UserRoleField />
                   <UserPasswordField />

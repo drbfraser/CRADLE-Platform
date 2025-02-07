@@ -1,16 +1,25 @@
 import { Box, Button, IconButton, Stack, Typography } from '@mui/material';
-import { FieldArray, useFormikContext } from 'formik';
+import { FieldArray, useField, useFormikContext } from 'formik';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
-import { PhoneNumberInput } from 'src/shared/components/PhoneNumber/PhoneNumberInput';
+import { MuiTelInput } from 'mui-tel-input';
+import { useRef } from 'react';
+import { isValidNumber } from 'libphonenumber-js';
+
+type UserPhoneNumbersFieldArrayProps = {
+  otherUsersPhoneNumbers: string[];
+};
 
 /**
  * This component encapsulates logic for managing a variable number of
  * user phone numbers in a form.
  */
 
-export const UserPhoneNumbersFieldArray = () => {
+export const UserPhoneNumbersFieldArray = ({
+  otherUsersPhoneNumbers,
+}: UserPhoneNumbersFieldArrayProps) => {
   const { values } = useFormikContext<{ phoneNumbers: string[] }>();
+
   return (
     <FieldArray
       name={'phoneNumbers'}
@@ -21,10 +30,11 @@ export const UserPhoneNumbersFieldArray = () => {
           </Typography>
           <Stack direction={'column'} gap={1}>
             {values.phoneNumbers.length > 0 &&
-              values.phoneNumbers.map((phoneNumber, index) => (
+              values.phoneNumbers.map((_, index) => (
                 <PhoneNumberField
                   key={index}
-                  index={index}
+                  fieldName={`phoneNumbers.${index}`}
+                  otherUsersPhoneNumbers={otherUsersPhoneNumbers}
                   handleRemove={() => arrayHelpers.remove(index)}
                 />
               ))}
@@ -43,25 +53,50 @@ export const UserPhoneNumbersFieldArray = () => {
 /** This field component needs to be defined outside of the main component,
  * otherwise the field will lose focus whenever the state changes.
  */
-type PhoneNumberFieldProps = {
-  index: number;
+type UserPhoneNumberFieldProps = {
+  fieldName: string;
+  otherUsersPhoneNumbers: string[];
   handleRemove: () => void;
 };
-const PhoneNumberField = ({ index, handleRemove }: PhoneNumberFieldProps) => {
-  const { values } = useFormikContext<{ phoneNumbers: string[] }>();
+const PhoneNumberField = ({
+  fieldName,
+  otherUsersPhoneNumbers,
+  handleRemove,
+}: UserPhoneNumberFieldProps) => {
+  const { values, handleBlur } = useFormikContext<{
+    phoneNumbers: string[];
+  }>();
+
+  const [field, metaData, helpers] = useField(fieldName);
+  const phoneNumber = field.value;
+
+  const errorMessage = validatePhoneNumber(
+    phoneNumber,
+    values.phoneNumbers,
+    otherUsersPhoneNumbers
+  );
+  const isTouched = metaData.touched;
+  const isError = isTouched && Boolean(errorMessage);
+
+  const ref = useRef<HTMLInputElement>();
   return (
     <Stack direction={'row'}>
-      {/* <Field
-        id={`new-user-field-phone-number-${index}`}
-        component={FormikTextField}
+      <MuiTelInput
+        inputRef={ref}
         fullWidth
-        variant="outlined"
-        name={`phoneNumbers.${index}`}
-        inputProps={{
-          maxLength: 25,
+        forceCallingCode
+        defaultCountry={'US'}
+        name={fieldName}
+        focusOnSelectCountry
+        value={phoneNumber}
+        onChange={(value) => {
+          /* We can't use Formik's `handleChange` because it takes different arguments.  */
+          helpers.setValue(value.replaceAll(' ', ''));
         }}
-      /> */}
-      <PhoneNumberInput index={index} />
+        onBlur={handleBlur}
+        error={isError}
+        helperText={isError ? errorMessage : undefined}
+      />
       <IconButton
         sx={{
           aspectRatio: 1,
@@ -79,4 +114,30 @@ const PhoneNumberField = ({ index, handleRemove }: PhoneNumberFieldProps) => {
       </IconButton>
     </Stack>
   );
+};
+
+const validatePhoneNumber = (
+  phoneNumber: string,
+  thisUsersPhoneNumbers: string[],
+  otherUsersPhoneNumbers: string[]
+) => {
+  if (!isValidNumber(phoneNumber)) {
+    return 'Invalid Phone Number';
+  }
+
+  // Check if phone number is already in use by this user.
+  const thisUserOccurrences = thisUsersPhoneNumbers.filter((value) => {
+    return value == phoneNumber;
+  }).length;
+
+  // Check if phone number is already in use by other users.
+  const otherUserOccurrences = otherUsersPhoneNumbers.filter((value) => {
+    return value == phoneNumber;
+  }).length;
+
+  if (thisUserOccurrences > 1 || otherUserOccurrences > 0) {
+    return 'Phone Number Already In Use';
+  }
+
+  return undefined;
 };

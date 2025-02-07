@@ -25,6 +25,7 @@ import {
   UserNameField,
   UserRoleField,
 } from './UserFormFields';
+import { getOtherUsersEmailsAndPhoneNumbers } from './userFormHelpers';
 
 interface IProps {
   open: boolean;
@@ -36,9 +37,11 @@ interface IProps {
 export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const emailsInUse = users
-    .filter((u) => u.id !== editUser?.id)
-    .map((u) => u.email);
+
+  if (editUser == undefined) return null;
+
+  const { otherUsersEmails, otherUsersPhoneNumbers } =
+    getOtherUsersEmailsAndPhoneNumbers(users, editUser.id);
 
   const handleSubmit = async (
     user: EditUser,
@@ -91,7 +94,7 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
               ...editUser,
               supervises: editUser.supervises ?? [],
             }}
-            validationSchema={newEditValidationSchema(emailsInUse)}
+            validationSchema={newEditValidationSchema(otherUsersEmails)}
             onSubmit={handleSubmit}>
             {({
               values,
@@ -111,8 +114,10 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
                     gap: '1rem',
                   }}>
                   <UserNameField />
-                  <UserEmailField emailsInUse={emailsInUse} />
-                  <UserPhoneNumbersFieldArray />
+                  <UserEmailField otherUsersEmails={otherUsersEmails} />
+                  <UserPhoneNumbersFieldArray
+                    otherUsersPhoneNumbers={otherUsersPhoneNumbers}
+                  />
                   <UserHealthFacilityField />
                   <UserRoleField />
                   {values.role === UserRoleEnum.CHO && (
