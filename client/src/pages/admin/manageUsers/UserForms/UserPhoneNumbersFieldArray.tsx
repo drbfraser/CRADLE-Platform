@@ -10,7 +10,6 @@ import { Field, FieldArray, FieldProps, useFormikContext } from 'formik';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import { PhoneNumberField } from 'src/shared/components/Form/PhoneNumberField';
-import { render } from '@testing-library/react';
 
 type PhoneNumberArrayFormState = {
   phoneNumbers: string[];
