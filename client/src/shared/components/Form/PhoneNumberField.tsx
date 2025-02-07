@@ -17,6 +17,9 @@ export const PhoneNumberField = ({
   const phoneNumber = field.value;
   const { touched, error } = metaData;
 
+  const isError = touched && !!error;
+  const errorMessage = isError ? error : undefined;
+
   return (
     <MuiTelInput
       label={label}
@@ -31,8 +34,8 @@ export const PhoneNumberField = ({
         helpers.setValue(value.replaceAll(' ', ''));
       }}
       onBlur={handleBlur}
-      error={touched && !!error}
-      helperText={touched && error}
+      error={isError}
+      helperText={errorMessage}
     />
   );
 };

@@ -76,7 +76,7 @@ const UserPhoneNumberField = ({
 
   return (
     <Stack direction={'row'}>
-      <Field name={name}>{() => <PhoneNumberField name={name} />}</Field>
+      <PhoneNumberField name={name} />
       <IconButton
         sx={{
           aspectRatio: 1,
