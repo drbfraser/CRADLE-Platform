@@ -553,6 +553,9 @@ def read_patient_all_records(patient_id: str, **kwargs) -> List[Any]:
     :return: A list of models (Union[readings, referrals, assessments]) from the database
              in the descending create time order
     """
+
+    print(f"Received query parameters: {kwargs}")
+
     reading_list, referral_list, assessment_list, form_list = [], [], [], []
 
     reading_required = kwargs.get("readings")
@@ -583,6 +586,7 @@ def read_patient_all_records(patient_id: str, **kwargs) -> List[Any]:
         )
 
     form_required = kwargs.get("forms")
+    print(f"Forms query param value: {form_required}")  # Debugging print
     if form_required:
         form_list = (
             db_session.query(FormOrm)

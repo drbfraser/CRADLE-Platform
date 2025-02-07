@@ -58,9 +58,15 @@ def submit_form(body: FormModel):
 
     new_form_dict = body.model_dump()
 
+    # debug: what does the data look like before conversion?
+    print("DEBUG: New form data before marshaling:", json.dumps(new_form_dict, indent=2))
+
     util.assign_form_or_template_ids(FormOrm, new_form_dict)
 
     form = marshal.unmarshal(FormOrm, new_form_dict)
+
+    # debug what does the data look like after conversion?
+    print("DEBUG: Marshaled FormOrm object:", form)
 
     form.date_created = get_current_time()
     form.last_edited = form.date_created
