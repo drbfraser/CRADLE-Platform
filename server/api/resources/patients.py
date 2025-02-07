@@ -442,7 +442,7 @@ class GetAllRecordsForPatientQueryParams(CradleBaseModel):
     )
     readings: bool = Field(True, description="If true, readings will be included.")
     referrals: bool = Field(True, description="If true, referrals will be included.")
-    forms: bool = Field(True, description="If true, referrals will be included.")
+    forms: bool = Field(True, description="If true, forms will be included.")
 
 
 # /api/patients/<string:patient_id>/get_all_records [GET]

@@ -553,7 +553,6 @@ def read_patient_all_records(patient_id: str, **kwargs) -> List[Any]:
     :return: A list of models (Union[readings, referrals, assessments]) from the database
              in the descending create time order
     """
-
     reading_list, referral_list, assessment_list, form_list = [], [], [], []
 
     reading_required = kwargs.get("readings")
