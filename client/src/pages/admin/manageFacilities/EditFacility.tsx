@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import {
   Dialog,
   DialogActions,
@@ -30,8 +30,9 @@ interface IProps {
 }
 
 const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
-  const [submitError, setSubmitError] = useState(false);
-  const creatingNew = editFacility === undefined;
+  const mutation = useMutation({
+    mutationFn: saveHealthFacilityAsync,
+  });
 
   const otherFacilities = facilities.filter(
     (facility) => facility.name !== editFacility?.name
@@ -50,19 +51,16 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
     values: Facility,
     { setSubmitting }: FormikHelpers<Facility>
   ) => {
-    try {
-      await saveHealthFacilityAsync(values);
-
-      onClose();
-    } catch (e) {
-      setSubmitting(false);
-      setSubmitError(true);
-    }
+    mutation.mutate(values, {
+      onSuccess: () => onClose(),
+      onError: () => setSubmitting(false),
+    });
   };
 
+  const creatingNew = editFacility === undefined;
   return (
     <>
-      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
+      {mutation.isError && <APIErrorToast />}
 
       <Dialog open={open} maxWidth="sm" fullWidth>
         <DialogTitle>{creatingNew ? 'Create' : 'Edit'} Facility</DialogTitle>
