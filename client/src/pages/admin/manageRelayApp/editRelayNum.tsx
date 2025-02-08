@@ -39,10 +39,9 @@ const EditRelayNum = ({ open, onClose, relayNums, editRelayNum }: IProps) => {
   const otherPhoneNumbers = otherRelayNums.map(
     (relayNum) => relayNum.phoneNumber
   );
-
-  // const validatePhoneNumber = makePhoneNumberValidator(otherPhoneNumbers);
-
-  console.log(editRelayNum);
+  const validationSchema = Yup.object().shape({
+    phoneNumber: makePhoneNumberValidationSchema(otherPhoneNumbers),
+  });
 
   const handleSubmit = async (
     values: RelayNum,
@@ -58,10 +57,6 @@ const EditRelayNum = ({ open, onClose, relayNums, editRelayNum }: IProps) => {
       setSubmitError(true);
     }
   };
-
-  const validationSchema = Yup.object().shape({
-    phoneNumber: makePhoneNumberValidationSchema(otherPhoneNumbers),
-  });
 
   return (
     <>
