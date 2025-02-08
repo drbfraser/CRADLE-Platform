@@ -35,8 +35,6 @@ export const ManageUsers = () => {
   const { data, isError, refetch } = useQuery({
     queryKey: ['usersList'],
     queryFn: getUsersAsync,
-    select: (data): UserWithIndex[] =>
-      data.map((user, index) => ({ ...user, index })),
   });
   const users = data ?? [];
   const tableRows = users?.map((user, index) => ({
