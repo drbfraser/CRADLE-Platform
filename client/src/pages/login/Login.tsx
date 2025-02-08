@@ -1,28 +1,28 @@
-import { Box, Container, Typography, TextField, Button } from '@mui/material';
+import { Box, Container, Typography, TextField, Button, CircularProgress } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { ReduxState } from 'src/redux/reducers';
 import { Toast } from 'src/shared/components/toast';
 import { useAppDispatch } from 'src/shared/hooks';
 import { OrNull } from 'src/shared/types';
-import {
-  clearCurrentUserError,
-  loginUser,
-} from 'src/redux/reducers/user/currentUser';
+import { clearCurrentUserError, loginUser } from 'src/redux/reducers/user/currentUser';
 import { useNavigate } from 'react-router-dom';
 import { DASHBOARD_PADDING } from 'src/shared/constants';
 import { Form, Formik } from 'formik';
+import { useState } from 'react';
 
 export const Login = () => {
   const errorMessage = useSelector(
     ({ user }: ReduxState): OrNull<string> => user.current.message
   );
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
+  // New: State for loading spinner
+  const [loading, setLoading] = useState(false);
 
   const clearError = () => {
     dispatch(clearCurrentUserError());
   };
-
-  const navigate = useNavigate();
 
   return (
     <>
@@ -33,18 +33,9 @@ export const Login = () => {
         onClose={clearError}
         transitionDuration={0}
       />
-      <Box
-        sx={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'row',
-        }}>
+      <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'row' }}>
         {/* Empty box for padding */}
-        <Box
-          sx={{
-            width: DASHBOARD_PADDING,
-          }}></Box>
+        <Box sx={{ width: DASHBOARD_PADDING }}></Box>
         <Container
           id={'login-form-container'}
           disableGutters
@@ -68,11 +59,7 @@ export const Login = () => {
               flexDirection: 'column',
               alignItems: 'center',
             }}>
-            <Typography
-              variant={'h4'}
-              component={'h4'}
-              fontWeight={'bold'}
-              sx={{ marginY: '0.5rem' }}>
+            <Typography variant={'h4'} component={'h4'} fontWeight={'bold'} sx={{ marginY: '0.5rem' }}>
               Log in
             </Typography>
             <Formik
@@ -80,8 +67,10 @@ export const Login = () => {
                 username: '',
                 password: '',
               }}
-              onSubmit={({ username, password }) => {
-                dispatch(loginUser({ username, password }, navigate));
+              onSubmit={async ({ username, password }) => {
+                setLoading(true);  // Start spinner
+                await dispatch(loginUser({ username, password }, navigate));
+                setLoading(false);  // Stop spinner
               }}>
               {(formikProps) => (
                 <Form onSubmit={formikProps.handleSubmit}>
@@ -118,16 +107,22 @@ export const Login = () => {
                       value={formikProps.values.password}
                       InputLabelProps={{ shrink: true }}
                     />
+
+                    {/* Updated Button: Show Spinner while Submitting */}
                     <Button
                       variant={'contained'}
                       fullWidth
-                      disabled={formikProps.isSubmitting}
+                      disabled={loading}
                       type={'submit'}
                       size={'large'}
                       sx={{
                         fontSize: 'large',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
                       }}>
-                      Log in
+                      {loading ? <CircularProgress size={20} color="inherit" /> : 'Log in'}
                     </Button>
                   </Container>
                 </Form>
