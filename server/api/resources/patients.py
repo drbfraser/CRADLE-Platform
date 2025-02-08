@@ -442,6 +442,7 @@ class GetAllRecordsForPatientQueryParams(CradleBaseModel):
     )
     readings: bool = Field(True, description="If true, readings will be included.")
     referrals: bool = Field(True, description="If true, referrals will be included.")
+    forms: bool = Field(True, description="If true, forms will be included.")
 
 
 # /api/patients/<string:patient_id>/get_all_records [GET]
@@ -465,6 +466,7 @@ def get_all_records_for_patient(
     Instead of just returning them all in one array and attaching a "type" attribute to them.
     Its kind of difficult to document the way that it is now.
     """
+
     return [marshal.marshal_with_type(r) for r in records]
 
 
