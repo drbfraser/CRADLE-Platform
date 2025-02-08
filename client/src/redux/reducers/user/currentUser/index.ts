@@ -12,6 +12,7 @@ import {
 } from 'src/shared/api/validation/login';
 
 export enum CurrentUserActionEnum {
+  export enum CurrentUserActionEnum {
   CLEAR_CURRENT_USER_ERROR = 'currentUser/CLEAR_CURRENT_USER_ERROR',
   GET_CURRENT_USER_REQUESTED = 'currentUser/GET_CURRENT_USER_REQUESTED',
   GET_CURRENT_USER_SUCCESS = 'currentUser/GET_CURRENT_USER_SUCCESS',
@@ -20,7 +21,59 @@ export enum CurrentUserActionEnum {
   LOGIN_USER_SUCCESS = 'currentUser/LOGIN_USER_SUCCESS',
   LOGIN_USER_ERROR = 'currentUser/LOGIN_USER_ERROR',
   LOGOUT_USER = 'currentUser/LOGOUT_USER',
-  AUTH_CHALLENGE = 'currentUser/AUTH_CHALLENGE',
+  PASSWORD_RESET_REQUESTED = 'currentUser/PASSWORD_RESET_REQUESTED', // New action
+  PASSWORD_RESET_SUCCESS = 'currentUser/PASSWORD_RESET_SUCCESS',     // New action
+  PASSWORD_RESET_ERROR = 'currentUser/PASSWORD_RESET_ERROR',         // New action
+}
+//Add a function for confirming password reset (using OTP & new password):
+export const confirmPasswordReset = (otp: string, newPassword: string): ((dispatch: Dispatch) => ServerRequestAction) => {
+  return (dispatch: Dispatch) => {
+    dispatch({ type: CurrentUserActionEnum.PASSWORD_RESET_REQUESTED });
+
+    return dispatch(
+      serverRequestActionCreator({
+        endpoint: EndpointEnum.PASSWORD_RESET_CONFIRM,  // Update this if needed
+        method: MethodEnum.POST,
+        data: { otp, newPassword },  
+        onSuccess: () => {
+          return { type: CurrentUserActionEnum.PASSWORD_RESET_SUCCESS };
+        },
+        onError: ({ message }: ServerError) => {
+          return {
+            type: CurrentUserActionEnum.PASSWORD_RESET_ERROR,
+            payload: { message },
+          };
+        },
+      })
+    );
+  };
+};
+
+//Add a function for requesting a password reset:
+export const requestPasswordReset = (email: string): ((dispatch: Dispatch) => ServerRequestAction) => {
+  return (dispatch: Dispatch) => {
+    dispatch({ type: CurrentUserActionEnum.PASSWORD_RESET_REQUESTED });
+
+    return dispatch(
+      serverRequestActionCreator({
+        endpoint: EndpointEnum.PASSWORD_RESET_REQUEST,  // Update this if needed
+        method: MethodEnum.POST,
+        data: { email },  
+        onSuccess: () => {
+          return { type: CurrentUserActionEnum.PASSWORD_RESET_SUCCESS };
+        },
+        onError: ({ message }: ServerError) => {
+          return {
+            type: CurrentUserActionEnum.PASSWORD_RESET_ERROR,
+            payload: { message },
+          };
+        },
+      })
+    );
+  };
+};
+
+
 }
 
 export const clearCurrentUserError = (): CurrentUserAction => ({
@@ -188,11 +241,13 @@ export const currentUserReducer = (
       };
     }
     case CurrentUserActionEnum.LOGIN_USER_REQUESTED:
-    case CurrentUserActionEnum.GET_CURRENT_USER_REQUESTED: {
+    case CurrentUserActionEnum.GET_CURRENT_USER_REQUESTED:
+    case CurrentUserActionEnum.PASSWORD_RESET_REQUESTED: {  // 🔹 Handle password reset request
       return { ...initialState, loading: true };
     }
     case CurrentUserActionEnum.LOGIN_USER_ERROR:
-    case CurrentUserActionEnum.GET_CURRENT_USER_ERROR: {
+    case CurrentUserActionEnum.GET_CURRENT_USER_ERROR:
+    case CurrentUserActionEnum.PASSWORD_RESET_ERROR: {  // 🔹 Handle password reset error
       return {
         ...initialState,
         error: true,
@@ -202,9 +257,6 @@ export const currentUserReducer = (
     case CurrentUserActionEnum.LOGIN_USER_SUCCESS: {
       return { ...initialState, data: action.payload.user, loggedIn: true };
     }
-    case CurrentUserActionEnum.AUTH_CHALLENGE: {
-      return { ...initialState, data: action.payload.user, loggedIn: false };
-    }
     case CurrentUserActionEnum.GET_CURRENT_USER_SUCCESS: {
       return {
         ...initialState,
@@ -212,10 +264,14 @@ export const currentUserReducer = (
         loggedIn: true,
       };
     }
+    case CurrentUserActionEnum.PASSWORD_RESET_SUCCESS: {  // 🔹 Handle password reset success
+      return { ...initialState, message: "Password reset successful!" };
+    }
     default:
       return state;
   }
 };
+
 
 export const selectLoggedIn = (state: RootState) => {
   return Boolean(state?.user.current.loggedIn);
