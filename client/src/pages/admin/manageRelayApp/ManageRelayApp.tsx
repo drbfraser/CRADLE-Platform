@@ -79,7 +79,7 @@ export const ManageRelayApp = () => {
     setRows(
       relayNums.map((relayNum, index) => ({
         id: index,
-        phoneNumber: relayNum.phone,
+        phoneNumber: relayNum.phoneNumber,
         description: relayNum.description,
         lastReceived: relayNum.lastReceived,
         takeAction: relayNum,
@@ -90,7 +90,7 @@ export const ManageRelayApp = () => {
   const filename = 'cradle_sms_relay.apk';
 
   const relayNumberTemplate = {
-    phone: '',
+    phoneNumber: '',
     description: '',
     lastReceived: 0,
   };
@@ -182,7 +182,7 @@ export const ManageRelayApp = () => {
 
   const handleSubmit = async (values: RelayNum) => {
     try {
-      await addRelayServerPhone(values.phone, values.description);
+      await addRelayServerPhone(values.phoneNumber, values.description);
       const resp = await getRelayServerPhones();
       if (resp) {
         setRelayNums(resp);
@@ -294,8 +294,8 @@ export const ManageRelayApp = () => {
                       variant="outlined"
                       label="Phone Number"
                       name={'phone'}
-                      error={errors.phone !== undefined}
-                      helperText={errors.phone}
+                      error={errors.phoneNumber !== undefined}
+                      helperText={errors.phoneNumber}
                     />
                   </Grid>
                   <Grid item xs={12}>

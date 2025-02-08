@@ -1,8 +1,20 @@
-import { Box, Button, IconButton, Stack, Typography } from '@mui/material';
-import { Field, FieldArray, useFormikContext } from 'formik';
+import {
+  Box,
+  Button,
+  IconButton,
+  InputAdornment,
+  Stack,
+  Typography,
+} from '@mui/material';
+import { Field, FieldArray, FieldProps, useFormikContext } from 'formik';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
-import { TextField as FormikTextField } from 'formik-mui';
+import { PhoneNumberField } from 'src/shared/components/Form/PhoneNumberField';
+import { MAX_PHONE_NUMBERS_PER_USER } from 'src/shared/constants';
+
+type PhoneNumberArrayFormState = {
+  phoneNumbers: string[];
+};
 
 /**
  * This component encapsulates logic for managing a variable number of
@@ -10,7 +22,17 @@ import { TextField as FormikTextField } from 'formik-mui';
  */
 
 export const UserPhoneNumbersFieldArray = () => {
-  const { values } = useFormikContext<{ phoneNumbers: string[] }>();
+  const { values } = useFormikContext<PhoneNumberArrayFormState>();
+
+  const validatePhoneNumberUniqueness = (phoneNumber: string) => {
+    // Validate that phone number occurs at most once for this user.
+    const occurrences = values.phoneNumbers.filter(
+      (value) => value === phoneNumber
+    ).length;
+
+    return occurrences > 1 ? 'Duplicate phone number' : undefined;
+  };
+
   return (
     <FieldArray
       name={'phoneNumbers'}
@@ -21,16 +43,25 @@ export const UserPhoneNumbersFieldArray = () => {
           </Typography>
           <Stack direction={'column'} gap={1}>
             {values.phoneNumbers.length > 0 &&
-              values.phoneNumbers.map((phoneNumber, index) => (
-                <PhoneNumberField
+              values.phoneNumbers.map((_, index) => (
+                <Field
+                  name={`phoneNumbers[${index}]`}
                   key={index}
-                  index={index}
-                  handleRemove={() => arrayHelpers.remove(index)}
-                />
+                  validate={validatePhoneNumberUniqueness}>
+                  {({ field }: FieldProps<PhoneNumberArrayFormState>) => (
+                    <UserPhoneNumberField
+                      name={field.name}
+                      handleRemove={() => arrayHelpers.remove(index)}
+                    />
+                  )}
+                </Field>
               ))}
             <Button
               startIcon={<AddIcon />}
-              onClick={() => arrayHelpers.push('')}>
+              onClick={() => arrayHelpers.push('')}
+              disabled={
+                values.phoneNumbers.length >= MAX_PHONE_NUMBERS_PER_USER
+              }>
               {'Add Phone Number'}
             </Button>
           </Stack>
@@ -43,39 +74,37 @@ export const UserPhoneNumbersFieldArray = () => {
 /** This field component needs to be defined outside of the main component,
  * otherwise the field will lose focus whenever the state changes.
  */
-type PhoneNumberFieldProps = {
-  index: number;
+type UserPhoneNumberFieldProps = {
+  name: string;
   handleRemove: () => void;
 };
-const PhoneNumberField = ({ index, handleRemove }: PhoneNumberFieldProps) => {
-  const { values } = useFormikContext<{ phoneNumbers: string[] }>();
-  return (
-    <Stack direction={'row'}>
-      <Field
-        id={`new-user-field-phone-number-${index}`}
-        component={FormikTextField}
-        fullWidth
-        variant="outlined"
-        name={`phoneNumbers.${index}`}
-        inputProps={{
-          maxLength: 25,
-        }}
-      />
+const UserPhoneNumberField = ({
+  name,
+  handleRemove,
+}: UserPhoneNumberFieldProps) => {
+  const { values } = useFormikContext<PhoneNumberArrayFormState>();
+  const RemovalButton = () => (
+    <InputAdornment position={'end'}>
       <IconButton
-        sx={{
-          aspectRatio: 1,
-          padding: '4px',
-          width: '40px',
-          height: '40px',
-          marginY: 'auto',
-        }}
         onClick={handleRemove}
         disabled={
-          values.phoneNumbers.length == 1
+          values.phoneNumbers.length === 1
         } /** Disable removal button if this is the only phone number. */
       >
         <CloseIcon />
       </IconButton>
+    </InputAdornment>
+  );
+  return (
+    <Stack direction={'row'}>
+      <PhoneNumberField
+        name={name}
+        slotProps={{
+          input: {
+            endAdornment: <RemovalButton />,
+          },
+        }}
+      />
     </Stack>
   );
 };

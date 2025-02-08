@@ -86,6 +86,7 @@
     "libphonenumber-js": "^1.11.12",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
+    "mui-tel-input": "^7.0.0",
     "react": "^18.2.0",
     "react-chartjs-2": "^4.3.1",
     "react-csv": "^2.2.2",

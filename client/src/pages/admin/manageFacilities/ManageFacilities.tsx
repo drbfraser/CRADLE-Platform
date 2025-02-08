@@ -15,12 +15,13 @@ import {
   GridRowsProp,
 } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
-import { DataTableHeader } from '../../../shared/components/DataTable/DataTableHeader';
+import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
 import { DataTable } from 'src/shared/components/DataTable/DataTable';
 import {
   TableAction,
   TableActionButtons,
 } from 'src/shared/components/DataTable/TableActionButtons';
+import { formatPhoneNumber } from 'src/shared/utils';
 
 export const ManageFacilities = () => {
   const dispatch = useAppDispatch();
@@ -36,7 +37,7 @@ export const ManageFacilities = () => {
       facilities.map((facility, index) => ({
         id: index,
         name: facility.name,
-        phoneNumber: facility.phoneNumber,
+        phoneNumber: formatPhoneNumber(facility.phoneNumber),
         location: facility.location,
         takeAction: facility,
       }))

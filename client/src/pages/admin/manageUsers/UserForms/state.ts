@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+import { makePhoneNumberValidationSchema } from 'src/shared/components/Form/PhoneNumberField';
 
 export enum UserField {
   name = 'name',
@@ -23,18 +24,24 @@ export const fieldLabels = {
   [UserField.confirmPassword]: 'Confirm Password',
 };
 
-const detailsValidationShape = (emailsInUse: string[]) => ({
+const userValidationShape = (
+  otherUsersEmails: string[],
+  otherUsersPhoneNumbers: string[]
+) => ({
   [UserField.name]: Yup.string().label(fieldLabels[UserField.name]).required(),
   [UserField.email]: Yup.string()
     .label(fieldLabels[UserField.email])
     .required()
     .email('Please enter a valid email address')
-    .notOneOf(emailsInUse, 'This email address is already in use'),
+    .notOneOf(otherUsersEmails, 'This email address is already in use'),
   [UserField.healthFacilityName]: Yup.string()
     .label(fieldLabels[UserField.healthFacilityName])
     .required()
     .nullable(),
   [UserField.role]: Yup.string().label(fieldLabels[UserField.role]).required(),
+  [UserField.phoneNumbers]: Yup.array().of(
+    makePhoneNumberValidationSchema(otherUsersPhoneNumbers)
+  ),
 });
 
 const passwordValidationShape = {
@@ -48,9 +55,11 @@ const passwordValidationShape = {
     .oneOf([Yup.ref(UserField.password)], 'Passwords must match'),
 };
 
-export const newEditValidationSchema = (emailsInUse: string[]) => {
-  const shape = detailsValidationShape(emailsInUse);
-
+export const makeEditUserValidationSchema = (
+  otherUsersEmails: string[],
+  otherUsersPhoneNumbers: string[]
+) => {
+  const shape = userValidationShape(otherUsersEmails, otherUsersPhoneNumbers);
   return Yup.object().shape(shape);
 };
 
@@ -61,4 +70,15 @@ export const passwordValidationSchema = Yup.object().shape(
 export const resetPasswordTemplate = {
   [UserField.password]: '',
   [UserField.confirmPassword]: '',
+};
+
+export const makeNewUserValidationSchema = (
+  otherUsersEmails: string[],
+  otherUsersPhoneNumbers: string[]
+) => {
+  const shape = userValidationShape(otherUsersEmails, otherUsersPhoneNumbers);
+  return Yup.object().shape({
+    ...shape,
+    ...passwordValidationShape,
+  });
 };

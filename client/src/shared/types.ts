@@ -153,7 +153,7 @@ export type Facility = {
   index: number;
 };
 export type RelayNum = {
-  phone: string;
+  phoneNumber: string;
   description: string;
   lastReceived: number;
 };
