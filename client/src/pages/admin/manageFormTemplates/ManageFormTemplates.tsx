@@ -4,7 +4,7 @@ import {
   getFormTemplateCsvAsync,
   getAllFormTemplatesAsync,
 } from 'src/shared/api/api';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 
 import ArchiveTemplateDialog from './ArchiveTemplateDialog';
@@ -36,18 +36,18 @@ import {
   DataTableFooter,
 } from 'src/shared/components/DataTable/DataTable';
 import { DataTableHeader } from '../../../shared/components/DataTable/DataTableHeader';
+import { useQuery } from '@tanstack/react-query';
 
 type FormTemplateWithIndex = FormTemplate & {
   index: number;
 };
 
 export const ManageFormTemplates = () => {
+  // const [formTemplates, setFormTemplates] = useState<FormTemplateWithIndex[]>(
+  //   []
+  // );
   const [errorLoading, setErrorLoading] = useState(false);
   const [showArchivedTemplates, setShowArchivedTemplates] = useState(false);
-  const [formTemplates, setFormTemplates] = useState<FormTemplateWithIndex[]>(
-    []
-  );
-
   const [isUploadPopupOpen, setIsUploadPopupOpen] = useState(false);
   const [isArchivePopupOpen, setIsArchivePopupOpen] = useState(false);
   const [isUnarchivePopupOpen, setIsUnarchivePopupOpen] = useState(false);
@@ -65,13 +65,12 @@ export const ManageFormTemplates = () => {
   useEffect(() => {
     if (customFormWithQuestions != null) {
       navigate('/admin/form-templates/new', {
-        // search: `id=${customFormWithQuestions.classification.id}`,
         state: {
           ...customFormWithQuestions,
         },
       });
     }
-  }, [customFormWithQuestions]);
+  }, [customFormWithQuestions, navigate]);
 
   const [rows, setRows] = useState<GridRowsProp>([]);
   const updateRowData = (formTemplates: FormTemplateWithIndex[]) => {
@@ -167,27 +166,40 @@ export const ManageFormTemplates = () => {
     navigate('/admin/form-templates/new');
   };
 
-  const getFormTemplates = async (showArchivedTemplates: boolean) => {
-    try {
-      const resp: FormTemplate[] = await getAllFormTemplatesAsync(
-        showArchivedTemplates
-      );
+  // useEffect(() => {
+  //   const getFormTemplates = async () => {
+  //     try {
+  //       const resp: FormTemplate[] = await getAllFormTemplatesAsync(
+  //         showArchivedTemplates
+  //       );
 
-      setFormTemplates(
-        resp.map((form_template, index) => ({ ...form_template, index }))
-      );
-    } catch (e) {
-      setErrorLoading(true);
-    }
-  };
-  useEffect(() => {
-    getFormTemplates(showArchivedTemplates);
-  }, [
-    showArchivedTemplates,
-    isUploadPopupOpen,
-    isArchivePopupOpen,
-    isUnarchivePopupOpen,
-  ]);
+  //       setFormTemplates(
+  //         resp.map((form_template, index) => ({ ...form_template, index }))
+  //       );
+  //     } catch (e) {
+  //       setErrorLoading(true);
+  //     }
+  //   };
+  //   getFormTemplates();
+  // }, [
+  //   showArchivedTemplates,
+  //   isUploadPopupOpen,
+  //   isArchivePopupOpen,
+  //   isUnarchivePopupOpen,
+  // ]);
+
+  const { data, isError } = useQuery({
+    queryKey: ['allFormTemplates', showArchivedTemplates],
+    queryFn: () => getAllFormTemplatesAsync(showArchivedTemplates),
+    select: (data): FormTemplateWithIndex[] =>
+      data.map((data, index) => ({ ...data, index })),
+  });
+  const formTemplates = useMemo(() => data ?? [], [data]);
+
+  // const x = useQuery({
+  //   queryKey: ['formTemplate'],
+  //   queryFn:
+  // })
 
   useEffect(() => {
     const formTemplateFilter = (formTemplate: FormTemplate) => {
@@ -205,6 +217,7 @@ export const ManageFormTemplates = () => {
     formTemplate: FormTemplateWithIndex
   ) => {
     const questions = await getFormTemplateAsync(formTemplate.id);
+
     const formTemplateWithQuestions: FormTemplateWithQuestions = {
       classification: {
         name: formTemplate.classification.name,
@@ -244,29 +257,6 @@ export const ManageFormTemplates = () => {
     }
   };
 
-  const HeaderButtons = () => {
-    return (
-      <Stack direction={'row'} gap={'8px'} flexWrap={'wrap'}>
-        <Button
-          variant={'contained'}
-          startIcon={<AddIcon />}
-          onClick={() => {
-            handleNewFormClick();
-          }}>
-          {'New Form'}
-        </Button>
-        <Button
-          variant={'contained'}
-          startIcon={<UploadIcon />}
-          onClick={() => {
-            setIsUploadPopupOpen(true);
-          }}>
-          {'Upload Form'}
-        </Button>
-      </Stack>
-    );
-  };
-
   const Footer = () => (
     <DataTableFooter>
       <FormControlLabel
@@ -291,6 +281,7 @@ export const ManageFormTemplates = () => {
         open={errorLoading}
         onClose={() => setErrorLoading(false)}
       />
+
       <UploadTemplate
         open={isUploadPopupOpen}
         onClose={() => setIsUploadPopupOpen(false)}
@@ -305,8 +296,22 @@ export const ManageFormTemplates = () => {
         onClose={() => setIsUnarchivePopupOpen(false)}
         template={unarchivePopupForm}
       />
-      <DataTableHeader title={'Form Templates'}>
-        <HeaderButtons />
+
+      <DataTableHeader title="Form Templates">
+        <Stack direction={'row'} gap={'8px'} flexWrap={'wrap'}>
+          <Button
+            variant={'contained'}
+            startIcon={<AddIcon />}
+            onClick={() => handleNewFormClick()}>
+            New Form
+          </Button>
+          <Button
+            variant={'contained'}
+            startIcon={<UploadIcon />}
+            onClick={() => setIsUploadPopupOpen(true)}>
+            Upload Form
+          </Button>
+        </Stack>
       </DataTableHeader>
       <DataTable
         rows={rows}
