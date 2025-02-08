@@ -35,10 +35,11 @@ export const ManageUsers = () => {
   const { data, isError, refetch } = useQuery({
     queryKey: ['usersList'],
     queryFn: getUsersAsync,
+    select: (data): UserWithIndex[] =>
+      data.map((user, index) => ({ ...user, index })),
   });
-  const users: UserWithIndex[] =
-    data?.map((user, index) => ({ ...user, index })) ?? [];
-  const rows = users?.map((user, index) => ({
+  const users = data ?? [];
+  const tableRows = users?.map((user, index) => ({
     id: index,
     name: user.name,
     email: user.email,
@@ -146,15 +147,16 @@ export const ManageUsers = () => {
         }}
         user={popupUser}
       />
-      <DataTableHeader title={'Users'}>
+
+      <DataTableHeader title="Users">
         <Button
-          variant={'contained'}
+          variant="contained"
           startIcon={<AddIcon />}
           onClick={addNewUser}>
-          {'New User'}
+          New User
         </Button>
       </DataTableHeader>
-      <DataTable rows={rows} columns={columns} />
+      <DataTable rows={tableRows} columns={columns} />
     </>
   );
 };
