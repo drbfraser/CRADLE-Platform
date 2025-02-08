@@ -42,7 +42,7 @@ export const ManageUsers = () => {
     id: index,
     name: user.name,
     email: user.email,
-    phoneNumbers: user.phoneNumbers,
+    phoneNumbers: formatPhoneNumbers(user.phoneNumbers),
     healthFacility: user.healthFacilityName,
     role: userRoleLabels[user.role],
     takeAction: user,

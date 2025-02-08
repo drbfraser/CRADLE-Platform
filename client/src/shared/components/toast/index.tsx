@@ -5,7 +5,7 @@ interface IProps {
   severity: React.ComponentProps<typeof Alert>['severity'];
   message: string | JSX.Element;
   open: boolean;
-  onClose: () => void;
+  onClose?: () => void;
   transitionDuration?: number;
   autoHideDuration?: number | null;
 }
