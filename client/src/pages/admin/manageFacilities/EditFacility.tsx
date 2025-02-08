@@ -1,25 +1,26 @@
-import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
+import { useState } from 'react';
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   MenuItem,
+  Stack,
 } from '@mui/material';
+import { Field, Form, Formik, FormikHelpers } from 'formik';
+import { TextField } from 'formik-mui';
+
+import { Facility } from 'src/shared/types';
+import { saveHealthFacilityAsync } from 'src/shared/api/api';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
+import { PhoneNumberField } from 'src/shared/components/Form/PhoneNumberField';
 import {
   FacilityField,
   facilityTemplate,
   facilityTypes,
   makeFacilityValidationSchema,
 } from './state';
-import { Field, Form, Formik, FormikHelpers } from 'formik';
-import { TextField } from 'formik-mui';
-
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { Facility } from 'src/shared/types';
-import { saveHealthFacilityAsync } from 'src/shared/api/api';
-import { useState } from 'react';
-import { PhoneNumberField } from 'src/shared/components/Form/PhoneNumberField';
 
 interface IProps {
   open: boolean;
@@ -62,7 +63,8 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
   return (
     <>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
-      <Dialog open={open} maxWidth={'sm'} fullWidth>
+
+      <Dialog open={open} maxWidth="sm" fullWidth>
         <DialogTitle>{creatingNew ? 'Create' : 'Edit'} Facility</DialogTitle>
         <DialogContent>
           <Formik
@@ -71,55 +73,53 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
             onSubmit={handleSubmit}>
             {({ isSubmitting, isValid }) => (
               <Form>
-                <Field
-                  component={TextField}
-                  fullWidth
-                  required
-                  inputProps={{ maxLength: 50 }}
-                  variant="outlined"
-                  label="Facility Name"
-                  name={FacilityField.name}
-                  disabled={!creatingNew}
-                />
-                <br />
-                <br />
-                <Field
-                  component={TextField}
-                  fullWidth
-                  select
-                  required
-                  label="Facility Type"
-                  name={FacilityField.type}>
-                  {facilityTypes.map((facilityType) => (
-                    <MenuItem key={facilityType} value={facilityType}>
-                      {facilityType}
-                    </MenuItem>
-                  ))}
-                </Field>
-                <br />
-                <br />
-                <PhoneNumberField label={'Phone Number'} name={'phoneNumber'} />
-                <br />
-                <br />
-                <Field
-                  component={TextField}
-                  fullWidth
-                  inputProps={{ maxLength: 50 }}
-                  variant="outlined"
-                  label="Location"
-                  name={'location'}
-                />
-                <br />
-                <br />
-                <Field
-                  component={TextField}
-                  fullWidth
-                  multiline
-                  rows={3}
-                  variant="outlined"
-                  label="About"
-                  name={'about'}
-                />
+                <Stack sx={{ paddingY: '1rem' }} spacing="2rem">
+                  <Field
+                    component={TextField}
+                    fullWidth
+                    required
+                    inputProps={{ maxLength: 50 }}
+                    variant="outlined"
+                    label="Facility Name"
+                    name={FacilityField.name}
+                    disabled={!creatingNew}
+                  />
+                  <Field
+                    component={TextField}
+                    fullWidth
+                    select
+                    required
+                    label="Facility Type"
+                    name={FacilityField.type}>
+                    {facilityTypes.map((facilityType) => (
+                      <MenuItem key={facilityType} value={facilityType}>
+                        {facilityType}
+                      </MenuItem>
+                    ))}
+                  </Field>
+                  <PhoneNumberField
+                    label={'Phone Number'}
+                    name={'phoneNumber'}
+                  />
+                  <Field
+                    component={TextField}
+                    fullWidth
+                    inputProps={{ maxLength: 50 }}
+                    variant="outlined"
+                    label="Location"
+                    name="location"
+                  />
+                  <Field
+                    component={TextField}
+                    fullWidth
+                    multiline
+                    rows={3}
+                    variant="outlined"
+                    label="About"
+                    name="about"
+                  />
+                </Stack>
+
                 <DialogActions>
                   <CancelButton type="button" onClick={onClose}>
                     Cancel
