@@ -15,6 +15,7 @@ import {
   PatientMedicalInfo,
   PatientPregnancyInfo,
   PatientStatistics,
+  Patient,
 } from '../types';
 import { EndpointEnum, MethodEnum, UserRoleEnum } from '../enums';
 import axios, { AxiosError } from 'axios';
@@ -181,11 +182,18 @@ export const getFormClassificationTemplates = async (
   return response.data;
 };
 
-export const getAllFormTemplatesAsync = async (includeArchived: boolean) => {
-  const response = await axiosFetch.get(
-    EndpointEnum.FORM_TEMPLATES + `?includeArchived=${includeArchived}`
-  );
-  return response.data;
+export const getAllFormTemplatesAsync = async (
+  includeArchived: boolean
+): Promise<FormTemplate[]> => {
+  try {
+    const response = await axiosFetch.get(
+      EndpointEnum.FORM_TEMPLATES + `?includeArchived=${includeArchived}`
+    );
+    return response.data;
+  } catch (e) {
+    console.error(`Error getting all from templates: ${e}`);
+    throw e;
+  }
 };
 
 export const getFormTemplateAsync = async (formTemplateId: string) => {
@@ -468,12 +476,21 @@ export const getPatientTableEntries = async () => {
   return response.data;
 };
 
-export const getPatientsAdminAsync = async (includeArchived: boolean) => {
-  const response = await axiosFetch({
-    url:
-      EndpointEnum.PATIENTS + '/admin' + `?includeArchived=${includeArchived}`,
-  });
-  return response.data;
+export const getPatientsAdminAsync = async (
+  includeArchived: boolean
+): Promise<Patient[]> => {
+  try {
+    const response = await axiosFetch({
+      url:
+        EndpointEnum.PATIENTS +
+        '/admin' +
+        `?includeArchived=${includeArchived}`,
+    });
+    return response.data;
+  } catch (e) {
+    console.error(`Error fetching patients for admin: ${e}`);
+    throw e;
+  }
 };
 
 export const archivePatientAsync = async (patientId: string) => {
