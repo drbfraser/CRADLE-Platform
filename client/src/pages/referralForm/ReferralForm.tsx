@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { Field, Form, Formik } from 'formik';
+import { Field, Form, Formik, FormikHelpers } from 'formik';
 import {
   Autocomplete,
   AutocompleteRenderInputParams,
@@ -41,7 +41,7 @@ export const ReferralForm = ({ patientId }: IProps) => {
 
   const handleSubmit = async (
     values: ReferralState,
-    { setSubmitting }: any
+    { setSubmitting }: FormikHelpers<ReferralState>
   ) => {
     const postBody = {
       patientId,
