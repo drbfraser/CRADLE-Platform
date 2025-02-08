@@ -1,8 +1,8 @@
+import { useMutation } from '@tanstack/react-query';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { ConfirmDialog } from 'src/shared/components/confirmDialog/index';
 import { Toast } from 'src/shared/components/toast';
 import { deleteUserAsync } from 'src/shared/api/api';
-import { useState } from 'react';
 import { User } from 'src/shared/api/validation/user';
 
 interface IProps {
@@ -12,35 +12,26 @@ interface IProps {
 }
 
 const DeleteUser = ({ open, onClose, user }: IProps) => {
-  const [submitError, setSubmitError] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const name = user?.name ?? '';
+  const mutation = useMutation({
+    mutationFn: (user: User) => deleteUserAsync(user),
+  });
 
-  const handleDelete = async () => {
-    if (!user) {
-      return;
-    }
-
-    try {
-      await deleteUserAsync(user);
-
-      setSubmitError(false);
-      setSubmitSuccess(true);
-      onClose();
-    } catch (e) {
-      setSubmitError(true);
+  const handleDelete = () => {
+    if (user) {
+      mutation.mutate(user, { onSuccess: () => onClose() });
     }
   };
 
+  const name = user?.name ?? '';
   return (
     <>
       <Toast
         severity="success"
         message="User successfully deleted!"
-        open={submitSuccess}
-        onClose={() => setSubmitSuccess(false)}
+        open={mutation.isSuccess}
       />
-      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
+      {mutation.isError && <APIErrorToast />}
+
       <ConfirmDialog
         title={`Delete User: ${name}`}
         content={`Are you sure you want to delete ${name}'s account? This action
