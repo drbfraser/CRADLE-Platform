@@ -1,18 +1,13 @@
+import { useCallback, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { FormControlLabel, Switch } from '@mui/material';
-import { useCallback, useEffect, useState } from 'react';
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-
+import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
-import ArchivePatient from './ArchivePatient';
-import UnarchivePatient from './UnarchivePatient';
+
 import { PatientWithIndex } from 'src/shared/types';
 import { getPatientsAdminAsync } from 'src/shared/api/api';
-import {
-  GridColDef,
-  GridRenderCellParams,
-  GridRowsProp,
-} from '@mui/x-data-grid';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import {
   TableAction,
   TableActionButtons,
@@ -22,26 +17,29 @@ import {
   DataTableFooter,
 } from 'src/shared/components/DataTable/DataTable';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
+import ArchivePatient from './ArchivePatient';
+import UnarchivePatient from './UnarchivePatient';
+
 export const ManagePatients = () => {
-  const [errorLoading, setErrorLoading] = useState(false);
-  const [patients, setPatients] = useState<PatientWithIndex[]>([]);
   const [archivePopupOpen, setArchivePopupOpen] = useState(false);
   const [unarchivePopupOpen, setUnarchivePopupOpen] = useState(false);
   const [popupPatient, setPopupPatient] = useState<PatientWithIndex>();
   const [showArchivedPatients, setShowArchivedPatients] = useState(true);
 
-  const [rows, setRows] = useState<GridRowsProp>([]);
-  const updateRowData = (patients: PatientWithIndex[]) => {
-    setRows(
-      patients.map((patient, index) => ({
-        id: index,
-        patientName: patient.name,
-        patientId: patient.id,
-        isArchived: patient.isArchived,
-        takeAction: patient,
-      }))
-    );
-  };
+  const { data, isError, refetch } = useQuery({
+    queryKey: ['adminPatientList', showArchivedPatients],
+    queryFn: () => getPatientsAdminAsync(showArchivedPatients),
+    select: (data): PatientWithIndex[] =>
+      data.map((patient, index) => ({ ...patient, index })),
+  });
+  const patients = data ?? [];
+  const tableRows = patients.map((patient, index) => ({
+    id: index,
+    patientName: patient.name,
+    patientId: patient.id,
+    isArchived: patient.isArchived,
+    takeAction: patient,
+  }));
 
   const ActionButtons = useCallback(
     ({ patient }: { patient?: PatientWithIndex }) => {
@@ -89,33 +87,11 @@ export const ManagePatients = () => {
     },
   ];
 
-  const getPatients = async (showArchivedPatients: boolean) => {
-    try {
-      const resp: PatientWithIndex[] = await getPatientsAdminAsync(
-        showArchivedPatients
-      );
-      setPatients(resp.map((patient, index) => ({ ...patient, index })));
-    } catch (e) {
-      setErrorLoading(true);
-    }
-  };
-
-  useEffect(() => {
-    getPatients(showArchivedPatients);
-  }, [showArchivedPatients]);
-
-  useEffect(() => {
-    updateRowData(patients);
-  }, [patients]);
-
   const Footer = () => {
     return (
       <DataTableFooter>
         <FormControlLabel
-          style={{
-            marginLeft: '10px',
-            marginRight: '10px',
-          }}
+          sx={{ marginX: '10px' }}
           control={
             <Switch
               onClick={() => setShowArchivedPatients(!showArchivedPatients)}
@@ -130,15 +106,13 @@ export const ManagePatients = () => {
 
   return (
     <>
-      <APIErrorToast
-        open={errorLoading}
-        onClose={() => setErrorLoading(false)}
-      />
+      {isError && <APIErrorToast />}
+
       <ArchivePatient
         open={archivePopupOpen}
         onClose={() => {
           setArchivePopupOpen(false);
-          getPatients(showArchivedPatients);
+          refetch();
         }}
         patient={popupPatient}
       />
@@ -146,14 +120,15 @@ export const ManagePatients = () => {
         open={unarchivePopupOpen}
         onClose={() => {
           setUnarchivePopupOpen(false);
-          getPatients(showArchivedPatients);
+          refetch();
         }}
         patient={popupPatient}
       />
-      <DataTableHeader title={'Patients'} />
+
+      <DataTableHeader title="Patients" />
       <DataTable
         columns={columns}
-        rows={rows}
+        rows={tableRows}
         footer={Footer}
         getRowClassName={(params) => {
           const index = params.row.id;
