@@ -37,15 +37,6 @@ export const ManageUsers = () => {
     queryFn: getUsersAsync,
   });
   const users = data ?? [];
-  const tableRows = users?.map((user, index) => ({
-    id: index,
-    name: user.name,
-    email: user.email,
-    phoneNumbers: formatPhoneNumbers(user.phoneNumbers),
-    healthFacility: user.healthFacilityName,
-    role: userRoleLabels[user.role],
-    takeAction: user,
-  }));
 
   // Component to render buttons inside the last cell of each row.
   const { data: currentUser } = useAppSelector(selectCurrentUser);
@@ -154,7 +145,18 @@ export const ManageUsers = () => {
           New User
         </Button>
       </DataTableHeader>
-      <DataTable rows={tableRows} columns={columns} />
+      <DataTable
+        rows={users.map((u, index) => ({
+          id: index,
+          name: u.name,
+          email: u.email,
+          phoneNumbers: formatPhoneNumbers(u.phoneNumbers),
+          healthFacility: u.healthFacilityName,
+          role: userRoleLabels[u.role],
+          takeAction: u,
+        }))}
+        columns={columns}
+      />
     </>
   );
 };
