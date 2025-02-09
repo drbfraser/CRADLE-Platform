@@ -1,14 +1,13 @@
 import { useCallback, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { Button } from '@mui/material';
 import CreateIcon from '@mui/icons-material/Create';
 import AddIcon from '@mui/icons-material/Add';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
 import { Facility } from 'src/shared/types';
-import { getHealthFacilitiesAsync } from 'src/shared/api/api';
 import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
 import { useAppDispatch } from 'src/shared/hooks';
+import { useHealthFacilitiesQuery } from 'src/shared/queries';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
 import { DataTable } from 'src/shared/components/DataTable/DataTable';
@@ -24,10 +23,7 @@ export const ManageFacilities = () => {
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [facilityToEdit, setFacilityToEdit] = useState<Facility>();
 
-  const { data, isError, refetch } = useQuery({
-    queryKey: ['healthcareFacilitiesList'],
-    queryFn: getHealthFacilitiesAsync,
-  });
+  const { data, isError, refetch } = useHealthFacilitiesQuery();
   const facilities = data ?? [];
 
   const ActionButtons = useCallback(
