@@ -108,7 +108,7 @@ export const PregnancyInfo = ({ patientId, patientName }: Props) => {
     );
 
     return (
-      <Box sx={{ margin: '10px' }}>
+      <Stack spacing="1rem" sx={{ margin: '10px' }}>
         <Box sx={HEADER_SX}>
           <Typography variant={'h6'} component={'h6'} fontWeight={'bold'}>
             Current Pregnancy
@@ -169,12 +169,12 @@ export const PregnancyInfo = ({ patientId, patientName }: Props) => {
           <Alert
             severity="warning"
             sx={{
-              marginY: '16px',
+              margin: '16px',
             }}>
             Long term pregnancy of the patient detected
           </Alert>
         )}
-      </Box>
+      </Stack>
     );
   };
 
@@ -218,7 +218,6 @@ export const PregnancyInfo = ({ patientId, patientName }: Props) => {
                 Add
               </RedirectButton>
             </Box>
-
             <Table
               sx={{
                 clear: 'right',
