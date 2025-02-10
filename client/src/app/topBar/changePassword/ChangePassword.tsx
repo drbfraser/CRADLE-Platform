@@ -1,11 +1,17 @@
-import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
+import { useMutation } from '@tanstack/react-query';
 import {
+  Alert,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
 } from '@mui/material';
+import { TextField } from 'formik-mui';
 import { Field, Form, Formik } from 'formik';
+
+import { changePasswordAsync } from 'src/shared/api/api';
+import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
+import { Toast } from 'src/shared/components/toast';
 import {
   IPasswordForm,
   PasswordField,
@@ -13,34 +19,24 @@ import {
   validationSchema,
 } from './state';
 
-import Alert from '@mui/material/Alert';
-import { TextField } from 'formik-mui';
-import { Toast } from 'src/shared/components/toast';
-import { changePasswordAsync } from 'src/shared/api/api';
-import { useState } from 'react';
-
 interface IProps {
   open: boolean;
   onClose: () => void;
 }
 
 const ChangePassword = ({ open, onClose }: IProps) => {
-  const [submitError, setSubmitError] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-
-  const handleSubmit = async (values: IPasswordForm) => {
-    try {
-      await changePasswordAsync(
+  const { mutate, isSuccess, isError, isPending } = useMutation({
+    mutationFn: (values: IPasswordForm) =>
+      changePasswordAsync(
         values[PasswordField.currentPass],
         values[PasswordField.newPass]
-      );
+      ),
+  });
 
-      setSubmitError(false);
-      setSubmitSuccess(true);
-      onClose();
-    } catch (e) {
-      setSubmitError(true);
-    }
+  const handleSubmit = async (values: IPasswordForm) => {
+    mutate(values, {
+      onSuccess: () => onClose(),
+    });
   };
 
   return (
@@ -48,70 +44,66 @@ const ChangePassword = ({ open, onClose }: IProps) => {
       <Toast
         severity="success"
         message="Password change successful!"
-        open={submitSuccess}
-        onClose={() => setSubmitSuccess(false)}
+        open={isSuccess}
       />
+
       <Dialog open={open} maxWidth="xs" fullWidth>
         <DialogTitle>Change Password</DialogTitle>
         <DialogContent>
-          {submitError && (
+          {isError && (
             <>
-              <Alert severity="error" onClose={() => setSubmitError(false)}>
+              <Alert sx={{ marginBottom: '2rem' }} severity="error">
                 Unable to change your password. Did you enter your current
                 password correctly?
               </Alert>
-              <br />
-              <br />
             </>
           )}
           <Formik
             initialValues={initialValues}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}>
-            {({ isSubmitting }) => (
-              <Form
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  rowGap: '10px',
-                }}>
-                <Field
-                  component={TextField}
-                  type="password"
-                  fullWidth
-                  required
-                  variant="outlined"
-                  label="Current Password"
-                  name={PasswordField.currentPass}
-                />
-                <Field
-                  component={TextField}
-                  type="password"
-                  fullWidth
-                  required
-                  variant="outlined"
-                  label="New Password"
-                  name={PasswordField.newPass}
-                />
-                <Field
-                  component={TextField}
-                  type="password"
-                  fullWidth
-                  required
-                  variant="outlined"
-                  label="Confirm New Password"
-                  name={PasswordField.confirmNewPass}
-                />
-                <DialogActions>
-                  <CancelButton type="button" onClick={onClose}>
-                    Cancel
-                  </CancelButton>
-                  <PrimaryButton type="submit" disabled={isSubmitting}>
-                    Change
-                  </PrimaryButton>
-                </DialogActions>
-              </Form>
-            )}
+            <Form
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                rowGap: '10px',
+              }}>
+              <Field
+                component={TextField}
+                type="password"
+                fullWidth
+                required
+                variant="outlined"
+                label="Current Password"
+                name={PasswordField.currentPass}
+              />
+              <Field
+                component={TextField}
+                type="password"
+                fullWidth
+                required
+                variant="outlined"
+                label="New Password"
+                name={PasswordField.newPass}
+              />
+              <Field
+                component={TextField}
+                type="password"
+                fullWidth
+                required
+                variant="outlined"
+                label="Confirm New Password"
+                name={PasswordField.confirmNewPass}
+              />
+              <DialogActions>
+                <CancelButton type="button" onClick={onClose}>
+                  Cancel
+                </CancelButton>
+                <PrimaryButton type="submit" disabled={isPending}>
+                  Change
+                </PrimaryButton>
+              </DialogActions>
+            </Form>
           </Formik>
         </DialogContent>
       </Dialog>
