@@ -36,7 +36,7 @@ import {
   DataTable,
 } from 'src/shared/components/DataTable/DataTable';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 const UNIT_OPTIONS = Object.values(GestationalAgeUnitEnum).map((unit) => ({
   key: unit,
@@ -61,7 +61,7 @@ export const PregnancyHistory = () => {
     setUnit(value as GestationalAgeUnitEnum);
   };
 
-  const { data: pregnancyData } = useQuery({
+  const { data: pregnancyData, refetch } = useQuery({
     queryKey: ['patientPregnancies', patientId],
     queryFn: () => getPatientPregnanciesAsync(patientId!),
     enabled: !!patientId,
@@ -81,6 +81,9 @@ export const PregnancyHistory = () => {
     [pregnancyData, unit]
   );
 
+  const { mutate: deletePregnancy } = useMutation({
+    mutationFn: (pregnancy: Pregnancy) => deletePregnancyAsync(pregnancy),
+  });
   const ActionButtons = useCallback(
     ({ pregnancy }: { pregnancy?: Pregnancy }) => {
       const actions: TableAction[] = [
@@ -110,21 +113,21 @@ export const PregnancyHistory = () => {
               }
             );
             if (confirmed) {
-              try {
-                await deletePregnancyAsync(pregnancy);
-                await dialogs.alert('Pregnancy successfully deleted.');
-              } catch (e) {
-                await dialogs.alert(
-                  `Error: Pregnancy could not be deleted.\n${e}`
-                );
-              }
+              deletePregnancy(pregnancy, {
+                onSuccess: () => {
+                  dialogs.alert('Pregnancy successfully deleted.');
+                  refetch();
+                },
+                onError: (e) =>
+                  dialogs.alert(`Error: Pregnancy could not be deleted.\n${e}`),
+              });
             }
           },
         },
       ];
       return pregnancy ? <TableActionButtons actions={actions} /> : null;
     },
-    [dialogs, navigate, patientId]
+    [deletePregnancy, dialogs, navigate, patientId, refetch]
   );
 
   const columns: GridColDef[] = [
