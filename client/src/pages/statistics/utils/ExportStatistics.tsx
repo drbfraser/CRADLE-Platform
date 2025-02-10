@@ -1,28 +1,30 @@
-import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
-import React, { useEffect, useState } from 'react';
-
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { useState } from 'react';
 import { CSVLink } from 'react-csv';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import { IExportStatRow } from './index';
+import { useQuery } from '@tanstack/react-query';
+import {
+  Box,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from '@mui/material';
+
 import { SexEnum } from 'src/shared/enums';
-import { Box } from '@mui/material';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
+import { IExportStatRow } from './index';
 
 interface IProps {
   getData: () => Promise<IExportStatRow[]>;
 }
 
 export const ExportStatistics = ({ getData }: IProps) => {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   const handleClickOpen = () => {
     setOpen(true);
   };
-
   const handleClose = () => {
     setOpen(false);
   };
@@ -32,6 +34,7 @@ export const ExportStatistics = ({ getData }: IProps) => {
       <PrimaryButton sx={{ float: 'right' }} onClick={handleClickOpen}>
         Export Referrals
       </PrimaryButton>
+
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Export Referral Data</DialogTitle>
         <DialogContent>
@@ -65,40 +68,23 @@ const DownloadCSV = ({ getData }: IProps) => {
     { label: 'Traffic Arrow', key: 'traffic_arrow' },
   ];
 
-  const [data, setData] = useState<IExportStatRow[]>();
-  const [errorLoading, setErrorLoading] = useState(false);
-
-  useEffect(() => {
-    const getExportData = async () => {
-      try {
-        const data: IExportStatRow[] = await getData();
-
-        data.forEach((row) => {
-          parseRow(row);
-        });
-
-        setData(data);
-      } catch (e) {
-        setErrorLoading(true);
-      }
-    };
-
-    getExportData();
-  }, [getData]);
+  const { data, isPending, isError } = useQuery({
+    queryKey: ['exportData'],
+    queryFn: getData,
+  });
+  if (isPending) {
+    return <>Loading...</>;
+  }
+  if (isError) {
+    return <APIErrorToast />;
+  }
+  data.forEach((row) => parseRow(row));
 
   return (
     <Box>
-      <APIErrorToast
-        open={errorLoading}
-        onClose={() => setErrorLoading(false)}
-      />
-      {data ? (
-        <CSVLink data={data} headers={headers} filename="stats.csv">
-          Download stats.csv
-        </CSVLink>
-      ) : (
-        <>Loading...</>
-      )}
+      <CSVLink data={data} headers={headers} filename="stats.csv">
+        Download stats.csv
+      </CSVLink>
     </Box>
   );
 };

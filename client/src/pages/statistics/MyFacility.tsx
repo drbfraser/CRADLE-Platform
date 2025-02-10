@@ -1,13 +1,14 @@
+import { useQuery } from '@tanstack/react-query';
+import { useSelector } from 'react-redux';
+import { Box, Divider, Typography } from '@mui/material';
+
 import { UserWithToken, OrNull } from 'src/shared/types';
 
-import Divider from '@mui/material/Divider';
-import { ReduxState } from 'src/redux/reducers';
-import { StatisticDashboard } from './utils/StatisticsInfo';
-import Typography from '@mui/material/Typography';
 import { getFacilityStatisticsAsync } from 'src/shared/api/api';
-import { useSelector } from 'react-redux';
+import { ReduxState } from 'src/redux/reducers';
+import { StatisticDashboard } from './utils/StatisticsDashboard';
 import { DIVIDER_SX } from './utils/statisticStyles';
-import { Box } from '@mui/material';
+import { statsQueryFn } from './utils/queries';
 
 type Props = {
   from: number;
@@ -25,16 +26,22 @@ export const MyFacility = ({ from, to }: Props) => {
     })
   );
   const facilityName = user!.healthFacilityName;
+
+  const myFacilityStatsQuery = useQuery({
+    queryKey: ['MyFacilitiyStats', facilityName, from, to],
+    queryFn: () =>
+      statsQueryFn(getFacilityStatisticsAsync(facilityName, from, to)),
+  });
+
   return (
     <Box>
       <Typography variant="h5" gutterBottom>
         During this period, your facility has assessed:
       </Typography>
-      <Divider sx={DIVIDER_SX} />
-      <br />
-      <StatisticDashboard
-        getData={() => getFacilityStatisticsAsync(facilityName, from, to)}
-      />
+
+      <Divider sx={{ ...DIVIDER_SX, marginBottom: '2rem' }} />
+
+      <StatisticDashboard statsQuery={myFacilityStatsQuery} />
     </Box>
   );
 };
