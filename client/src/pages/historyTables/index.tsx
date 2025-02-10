@@ -1,20 +1,17 @@
-import { Box, Typography } from '@mui/material';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Box, IconButton, Typography, Tooltip } from '@mui/material';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+
 import { SexEnum } from 'src/shared/enums';
-import { useState } from 'react';
 import {
   getPatientDrugRecordsAsync,
   getPatientMedicalRecordsAsync,
 } from 'src/shared/api/api';
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import { HistoryTimeline } from './HistoryTimeline';
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
-import { useNavigate, useParams } from 'react-router-dom';
-import { PregnancyHistory } from './PregnancyHistory';
-import { MedicalHistory } from './MedicalHistory';
 import { Tabs } from 'src/shared/components/Tabs/Tabs';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
+import { HistoryTimeline } from './HistoryTimeline';
+import { PregnancyHistory } from './PregnancyHistory';
+import { MedicalHistory } from './MedicalHistory';
 
 type RouteParams = {
   patientId: string;
@@ -23,10 +20,8 @@ type RouteParams = {
 };
 
 export function HistoryTablesPage() {
-  const { patientId, patientName, patientSex } = useParams() as RouteParams;
-  const [submitError, setSubmitError] = useState(false);
-
   const navigate = useNavigate();
+  const { patientId, patientName, patientSex } = useParams() as RouteParams;
 
   const allPanels = [
     {
@@ -64,7 +59,6 @@ export function HistoryTablesPage() {
 
   return (
     <Box>
-      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
       <Box
         sx={{
           clear: 'right',
@@ -80,8 +74,8 @@ export function HistoryTablesPage() {
           </IconButton>
         </Tooltip>
         <Typography
-          variant={'h3'}
-          component={'h3'}
+          variant="h3"
+          component="h3"
           sx={{
             fontSize: {
               lg: 'xxx-large',
@@ -92,6 +86,7 @@ export function HistoryTablesPage() {
           Past Records of {patientName}
         </Typography>
       </Box>
+
       <DashboardPaper>
         <Tabs panels={filteredPanels} />
       </DashboardPaper>
