@@ -123,7 +123,7 @@ export const ManageUsers = () => {
               refetch();
             }}
             users={users}
-            editUser={popupUser}
+            userToEdit={popupUser}
           />
           <ResetPassword
             open={passwordPopupOpen}
