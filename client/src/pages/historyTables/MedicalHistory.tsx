@@ -17,7 +17,7 @@ import {
 } from 'src/shared/components/DataTable/TableActionButtons';
 import { DataTable } from 'src/shared/components/DataTable/DataTable';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 type RouteParams = {
   patientId: string;
@@ -44,14 +44,9 @@ export const MedicalHistory = ({
     },
   });
 
-  const tableRows =
-    medicalRecordsData?.map((r) => ({
-      id: r.id,
-      dateCreated: getPrettyDate(r.dateCreated),
-      information: r.information,
-      takeAction: r,
-    })) ?? [];
-
+  const { mutate: deleteRecord } = useMutation({
+    mutationFn: (record: MedicalRecord) => deleteMedicalRecordAsync(record),
+  });
   const ActionButtons = useCallback(
     ({ record }: { record?: MedicalRecord }) => {
       const actions: TableAction[] = [
@@ -70,23 +65,32 @@ export const MedicalHistory = ({
             );
 
             if (confirmed) {
-              try {
-                await deleteMedicalRecordAsync(record);
-                await dialogs.alert('Medical record successfully deleted.');
-                refetch();
-              } catch (e) {
-                await dialogs.alert(
-                  `Error: Medical record could not be deleted.\n${e}`
-                );
-              }
+              deleteRecord(record, {
+                onSuccess: () => {
+                  dialogs.alert('Medical record successfully deleted.');
+                  refetch();
+                },
+                onError: (e) =>
+                  dialogs.alert(
+                    `Error: Medical record could not be deleted.\n${e}`
+                  ),
+              });
             }
           },
         },
       ];
       return record ? <TableActionButtons actions={actions} /> : null;
     },
-    [dialogs, patientId, refetch]
+    [deleteRecord, dialogs, patientId, refetch]
   );
+
+  const rows =
+    medicalRecordsData?.map((r) => ({
+      id: r.id,
+      dateCreated: getPrettyDate(r.dateCreated),
+      information: r.information,
+      takeAction: r,
+    })) ?? [];
 
   const columns: GridColDef[] = [
     {
@@ -117,7 +121,7 @@ export const MedicalHistory = ({
   return (
     <>
       <DataTableHeader title={title} />
-      <DataTable rows={tableRows} columns={columns} />
+      <DataTable rows={rows} columns={columns} />
     </>
   );
 };
