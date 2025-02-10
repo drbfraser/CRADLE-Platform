@@ -106,15 +106,6 @@ export const ManageUsers = () => {
     <>
       {isError && <APIErrorToast />}
 
-      <EditUserDialog
-        open={editPopupOpen}
-        onClose={() => {
-          setEditPopupOpen(false);
-          refetch();
-        }}
-        users={users}
-        editUser={popupUser}
-      />
       <CreateUserDialog
         open={createPopupOpen}
         onClose={() => {
@@ -123,19 +114,32 @@ export const ManageUsers = () => {
         }}
         users={users}
       />
-      <ResetPassword
-        open={passwordPopupOpen}
-        onClose={() => setPasswordPopupOpen(false)}
-        resetUser={popupUser}
-      />
-      <DeleteUser
-        open={deletePopupOpen}
-        onClose={() => {
-          setDeletePopupOpen(false);
-          refetch();
-        }}
-        user={popupUser}
-      />
+      {popupUser && (
+        <>
+          <EditUserDialog
+            open={editPopupOpen}
+            onClose={() => {
+              setEditPopupOpen(false);
+              refetch();
+            }}
+            users={users}
+            editUser={popupUser}
+          />
+          <ResetPassword
+            open={passwordPopupOpen}
+            onClose={() => setPasswordPopupOpen(false)}
+            resetUser={popupUser}
+          />
+          <DeleteUser
+            open={deletePopupOpen}
+            onClose={() => {
+              setDeletePopupOpen(false);
+              refetch();
+            }}
+            user={popupUser}
+          />
+        </>
+      )}
 
       <DataTableHeader title="Users">
         <Button
