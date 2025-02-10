@@ -55,26 +55,17 @@ export function StatisticsPage() {
     {
       label: 'My VHTs',
       Component: () => <VHTStatistics {...range} />,
-      roles: [
-        UserRoleEnum.CHO,
-        UserRoleEnum.ADMIN, // for testing only. Remove after
-      ],
+      roles: [UserRoleEnum.CHO],
     },
     {
       label: 'VHT Statistics',
       Component: () => <VHTStatistics {...range} />,
-      roles: [
-        UserRoleEnum.HCW,
-        UserRoleEnum.ADMIN, // for testing only. Remove after
-      ],
+      roles: [UserRoleEnum.HCW],
     },
     {
       label: 'My Facility',
       Component: () => <MyFacility {...range} />,
-      roles: [
-        UserRoleEnum.HCW,
-        UserRoleEnum.ADMIN, // for testing only. Remove after
-      ],
+      roles: [UserRoleEnum.HCW],
     },
     {
       label: 'User Statistics',
