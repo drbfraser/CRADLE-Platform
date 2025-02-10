@@ -2,6 +2,7 @@ import { ReadingField, ReadingState } from './state';
 import { saveDrugHistoryAsync, saveReadingAsync } from 'src/shared/api/api';
 
 import { getSymptomsFromFormState } from './symptoms/symptoms';
+import { useMutation } from '@tanstack/react-query';
 
 const getSubmitObject = (patientId: string, values: ReadingState) => {
   const currentTimestamp = Math.floor(Date.now() / 1000);
@@ -29,24 +30,24 @@ const getSubmitObject = (patientId: string, values: ReadingState) => {
   return submitValues;
 };
 
-export const handleSubmit = async (
+export const useAddReadingMutation = (
   patientId: string,
-  values: ReadingState,
-  drugHistory: string
-) => {
-  const submitValues = getSubmitObject(patientId, values);
+  oldDrugHistory: string | undefined
+) =>
+  useMutation({
+    mutationFn: async (values: ReadingState) => {
+      const submitValues = getSubmitObject(patientId, values);
 
-  try {
-    await saveReadingAsync(submitValues);
+      try {
+        await saveReadingAsync(submitValues);
 
-    const newDrugHistory = values[ReadingField.drugHistory];
-    if (drugHistory !== newDrugHistory) {
-      await saveDrugHistoryAsync(patientId, newDrugHistory);
-    }
-  } catch (e) {
-    console.error(e);
-    return false;
-  }
-
-  return true;
-};
+        const newDrugHistory = values[ReadingField.drugHistory];
+        if (oldDrugHistory !== newDrugHistory) {
+          await saveDrugHistoryAsync(patientId, newDrugHistory);
+        }
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
+  });
