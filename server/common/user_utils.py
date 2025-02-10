@@ -8,12 +8,12 @@ from botocore.exceptions import ClientError
 
 from authentication import cognito
 from common import health_facility_utils, phone_number_utils
-from common.constants import EMAIL_REGEX_PATTERN
+from common.constants import EMAIL_REGEX_PATTERN, MAX_SMS_RELAY_REQUEST_NUMBER
 from common.date_utils import get_future_date, is_date_passed
 from config import db
 from data import crud, marshal
 from enums import RoleEnum
-from models import SmsSecretKeyOrm, UserOrm, UserPhoneNumberOrm
+from models import SmsSecretKeyOrm, UserOrm, UserPhoneNumberOrm, SmsRelayRequestNumberOrm
 
 sms_key_duration = os.getenv("SMS_KEY_DURATION")
 if sms_key_duration is None:
@@ -244,6 +244,9 @@ def register_user(
             user_orm.phone_numbers.append(UserPhoneNumberOrm(phone_number=phone_number))
         sms_secret_key_orm = create_new_sms_secret_key_orm()
         user_orm.sms_secret_keys.append(sms_secret_key_orm)
+        # Initiate expected SMS relay request number for user.
+        sms_relay_request_number_orm = create_new_sms_relay_request_number_orm()
+        user_orm.sms_relay_request_numbers.append(sms_relay_request_number_orm)
         db.session.add(user_orm)
         db.session.commit()
 
@@ -543,3 +546,28 @@ def get_user_sms_secret_key_string(user_id):
 
 def generate_new_sms_secret_key():
     return secrets.randbits(256).to_bytes(32, "little").hex()
+
+def create_new_sms_relay_request_number_orm():
+    last_received_request_number = 0
+    sms_relay_request_number_orm = SmsRelayRequestNumberOrm(
+        last_received_request_number=last_received_request_number
+    )
+    return sms_relay_request_number_orm
+
+def get_user_last_received_sms_relay_request_number(user_id):
+    last_received_request_number = crud.read(SmsRelayRequestNumberOrm, user_id=user_id)
+    return last_received_request_number
+
+def get_user_expected_sms_relay_request_number(user_id):
+    last_received_request_number = get_user_last_received_request_number(user_id)
+    return last_received_request_number + 1
+
+def increment_sms_relay_last_received_request_number(user_id):
+    last_received_request_number = get_user_last_received_request_number(user_id)
+
+    if last_received_request_number == MAX_SMS_RELAY_REQUEST_NUMBER:
+        updated_request_number = 0
+    else:
+        updated_request_number = last_received_request_number + 1
+
+    crud.update(SmsSecretKeyOrm, last_received_request_number=updated_request_number, user_id=user_id)
