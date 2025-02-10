@@ -1,22 +1,23 @@
+import { useCallback } from 'react';
+import { useParams } from 'react-router-dom';
 import { DeleteForever } from '@mui/icons-material';
 import {
   GridColDef,
   GridRenderCellParams,
-  GridRowsProp,
   GridValidRowModel,
 } from '@mui/x-data-grid';
 import { useDialogs } from '@toolpad/core';
-import { useCallback, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+
 import { deleteMedicalRecordAsync } from 'src/shared/api/api';
+import { MedicalRecord } from 'src/shared/types';
+import { getPrettyDate } from 'src/shared/utils';
 import {
   TableAction,
   TableActionButtons,
 } from 'src/shared/components/DataTable/TableActionButtons';
-import { MedicalRecord } from 'src/shared/types';
-import { getPrettyDate } from 'src/shared/utils';
 import { DataTable } from 'src/shared/components/DataTable/DataTable';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
+import { useQuery } from '@tanstack/react-query';
 
 type RouteParams = {
   patientId: string;
@@ -31,19 +32,25 @@ export const MedicalHistory = ({
   fetchRecords,
 }: MedicalHistoryProps) => {
   const { patientId } = useParams<RouteParams>();
-  const [rows, setRows] = useState<GridRowsProp>();
   const dialogs = useDialogs();
 
-  const updateRowData = (records: MedicalRecord[]) => {
-    setRows(
-      records.map((record) => ({
-        id: record.id,
-        dateCreated: getPrettyDate(record.dateCreated),
-        information: record.information,
-        takeAction: record,
-      }))
-    );
-  };
+  const { data: medicalRecordsData, refetch } = useQuery({
+    queryKey: [`patientMedicalRecords`, title, patientId],
+    queryFn: async () => {
+      if (!patientId) {
+        throw new Error('Patient ID not defined');
+      }
+      return fetchRecords(patientId);
+    },
+  });
+
+  const tableRows =
+    medicalRecordsData?.map((r) => ({
+      id: r.id,
+      dateCreated: getPrettyDate(r.dateCreated),
+      information: r.information,
+      takeAction: r,
+    })) ?? [];
 
   const ActionButtons = useCallback(
     ({ record }: { record?: MedicalRecord }) => {
@@ -66,7 +73,7 @@ export const MedicalHistory = ({
               try {
                 await deleteMedicalRecordAsync(record);
                 await dialogs.alert('Medical record successfully deleted.');
-                getRowData();
+                refetch();
               } catch (e) {
                 await dialogs.alert(
                   `Error: Medical record could not be deleted.\n${e}`
@@ -78,7 +85,7 @@ export const MedicalHistory = ({
       ];
       return record ? <TableActionButtons actions={actions} /> : null;
     },
-    []
+    [dialogs, patientId, refetch]
   );
 
   const columns: GridColDef[] = [
@@ -107,29 +114,10 @@ export const MedicalHistory = ({
     },
   ];
 
-  const getRowData = async () => {
-    if (!patientId) return;
-    try {
-      const data = await fetchRecords(patientId);
-      updateRowData(data);
-    } catch (e) {
-      if (e instanceof Response) {
-        const error = await e.json();
-        console.error(error);
-      } else {
-        console.error(e);
-      }
-    }
-  };
-
-  useEffect(() => {
-    getRowData();
-  }, []);
-
   return (
     <>
       <DataTableHeader title={title} />
-      <DataTable rows={rows} columns={columns} />
+      <DataTable rows={tableRows} columns={columns} />
     </>
   );
 };

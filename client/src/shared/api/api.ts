@@ -424,20 +424,44 @@ export const deleteMedicalRecordAsync = async (medicalRecord: MedicalRecord) =>
     method: 'DELETE',
   });
 
-export const getPatientMedicalRecordsAsync = async (patientId: string) => {
-  const response = await axiosFetch.get(
-    `/patients/${patientId}/medical_records`
-  );
-  const data = await response.data;
-  return data.medical as MedicalRecord[];
+export const getPatientMedicalRecordsAsync = async (
+  patientId: string
+): Promise<MedicalRecord[]> => {
+  try {
+    const response = await axiosFetch.get(
+      `/patients/${patientId}/medical_records`
+    );
+    const data = await response.data;
+    return data.medical;
+  } catch (e) {
+    if (e instanceof Response) {
+      const error = await e.json();
+      console.error(error);
+    } else {
+      console.error(e);
+    }
+    throw e;
+  }
 };
 
-export const getPatientDrugRecordsAsync = async (patientId: string) => {
-  const response = await axiosFetch.get(
-    `/patients/${patientId}/medical_records`
-  );
-  const data = await response.data;
-  return data.drug as MedicalRecord[];
+export const getPatientDrugRecordsAsync = async (
+  patientId: string
+): Promise<MedicalRecord[]> => {
+  try {
+    const response = await axiosFetch.get(
+      `/patients/${patientId}/medical_records`
+    );
+    const data = await response.data;
+    return data.drug;
+  } catch (e) {
+    if (e instanceof Response) {
+      const error = await e.json();
+      console.error(error);
+    } else {
+      console.error(e);
+    }
+    throw e;
+  }
 };
 
 export const getMedicalRecordAsync = async (medicalRecordId: string) => {
