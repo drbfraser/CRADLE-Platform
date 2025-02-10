@@ -25,7 +25,7 @@ type FormValues = typeof resetPasswordTemplate;
 interface IProps {
   open: boolean;
   onClose: () => void;
-  resetUser?: User;
+  resetUser: User;
 }
 
 const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
@@ -40,10 +40,6 @@ const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
   });
 
   const handleSubmit = async (values: FormValues) => {
-    if (!resetUser) {
-      return;
-    }
-
     mutation.mutate(
       { resetUser, newPassword: values[UserField.password] },
       { onSuccess: () => onClose() }
@@ -60,7 +56,7 @@ const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
       {mutation.isError && <APIErrorToast />}
 
       <Dialog open={open} maxWidth="xs" fullWidth>
-        <DialogTitle>Reset Password: {resetUser?.name ?? ''}</DialogTitle>
+        <DialogTitle>Reset Password: {resetUser.name}</DialogTitle>
         <DialogContent>
           <Formik
             initialValues={resetPasswordTemplate}

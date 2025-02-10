@@ -8,7 +8,7 @@ import { User } from 'src/shared/api/validation/user';
 interface IProps {
   open: boolean;
   onClose: () => void;
-  user?: User;
+  user: User;
 }
 
 const DeleteUser = ({ open, onClose, user }: IProps) => {
@@ -17,12 +17,10 @@ const DeleteUser = ({ open, onClose, user }: IProps) => {
   });
 
   const handleDelete = () => {
-    if (user) {
-      mutation.mutate(user, { onSuccess: () => onClose() });
-    }
+    mutation.mutate(user, { onSuccess: () => onClose() });
   };
 
-  const name = user?.name ?? '';
+  const name = user.name;
   return (
     <>
       <Toast

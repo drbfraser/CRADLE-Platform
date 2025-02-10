@@ -31,14 +31,12 @@ interface IProps {
   open: boolean;
   onClose: () => void;
   users: User[];
-  editUser?: EditUser;
+  editUser: EditUser;
 }
 
 export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
   const [submitError, setSubmitError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-
-  if (!editUser) return null;
 
   const { otherUsersEmails, otherUsersPhoneNumbers } =
     getOtherUsersEmailsAndPhoneNumbers(users, editUser.id);
@@ -51,7 +49,6 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
     user: EditUser,
     { setSubmitting }: FormikHelpers<EditUser>
   ) => {
-    if (!editUser) return;
     const editedUser = { ...user };
     /* Remove any blank phone numbers. */
     editedUser.phoneNumbers = editedUser.phoneNumbers.filter((phoneNumber) => {
@@ -95,7 +92,6 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
           <Formik
             initialValues={{
               ...editUser,
-              supervises: editUser.supervises ?? [],
             }}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}>
@@ -150,9 +146,9 @@ export const EditUserDialog = ({ open, onClose, users, editUser }: IProps) => {
                         {users
                           .filter(
                             (user) =>
-                              editUser?.supervises?.includes(user.id) ||
+                              editUser.supervises.includes(user.id) ||
                               (user.role === UserRoleEnum.VHT &&
-                                user.id !== editUser?.id)
+                                user.id !== editUser.id)
                           )
                           .map((user) => (
                             <MenuItem key={user.id} value={user.id}>
