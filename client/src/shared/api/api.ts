@@ -541,10 +541,21 @@ export const getPatientInfoAsync = async (patientId: string) => {
   return response.data;
 };
 
-export const getPatientPregnanciesAsync = async (patientId: string) => {
-  const response = await axiosFetch.get(`/patients/${patientId}/pregnancies`);
-  const data = await response.data;
-  return data as Pregnancy[];
+export const getPatientPregnanciesAsync = async (
+  patientId: string
+): Promise<Pregnancy[]> => {
+  try {
+    const response = await axiosFetch.get(`/patients/${patientId}/pregnancies`);
+    return await response.data;
+  } catch (e) {
+    if (e instanceof Response) {
+      const error = await e.json();
+      console.error(error);
+    } else {
+      console.error(e);
+    }
+    throw e;
+  }
 };
 
 export const getPatientRecordsAsync = async (
