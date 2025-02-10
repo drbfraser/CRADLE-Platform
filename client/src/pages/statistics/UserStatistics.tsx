@@ -1,22 +1,25 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
-  getUserStatisticsAsync,
+  Box,
+  Divider,
+  FormControl,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  Stack,
+  Typography,
+} from '@mui/material';
+
+import {
   getUserStatisticsExportAsync,
   getUsersAsync,
 } from 'src/shared/api/api';
-
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import Box from '@mui/material/Box';
-import Divider from '@mui/material/Divider';
 import { ExportStatistics } from './utils/ExportStatistics';
-import FormControl from '@mui/material/FormControl';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
-import { StatisticDashboard } from './utils/StatisticsInfo';
-import Typography from '@mui/material/Typography';
-import { useEffect } from 'react';
+import { StatisticDashboard } from './utils/StatisticsDashboard';
 import { DIVIDER_SX, STATS_PAGE_SX } from './utils/statisticStyles';
-import { User } from 'src/shared/api/validation/user';
+import { useUserStatsQuery } from './utils/queries';
 
 type Props = {
   from: number;
@@ -24,32 +27,21 @@ type Props = {
 };
 
 export const UserStatistics = ({ from, to }: Props) => {
-  const [users, setUsers] = useState<User[]>([]);
   const [user, setUser] = useState('');
-  const [errorLoading, setErrorLoading] = useState(false);
 
-  const handleChange = (event: any) => {
+  const { data: users, isError } = useQuery({
+    queryKey: ['UserStatistics'],
+    queryFn: getUsersAsync,
+  });
+
+  const userStatsQuery = useUserStatsQuery(user, from, to);
+  const handleChange = (event: SelectChangeEvent) => {
     setUser(event.target.value);
   };
 
-  useEffect(() => {
-    const getAllUsers = async () => {
-      try {
-        setUsers(await getUsersAsync());
-      } catch (e) {
-        setErrorLoading(true);
-      }
-    };
-
-    getAllUsers();
-  }, []);
-
   return (
-    <Box sx={STATS_PAGE_SX}>
-      <APIErrorToast
-        open={errorLoading}
-        onClose={() => setErrorLoading(false)}
-      />
+    <Stack sx={STATS_PAGE_SX} spacing="3rem">
+      {isError && <APIErrorToast />}
 
       <Box
         sx={{
@@ -79,7 +71,7 @@ export const UserStatistics = ({ from, to }: Props) => {
               minWidth: '200px',
             }}>
             <Select variant="standard" value={user} onChange={handleChange}>
-              {users.map((user, idx) => (
+              {users?.map((user, idx) => (
                 <MenuItem value={user.id} key={idx}>
                   {`${user.name} (${user.email})`}
                 </MenuItem>
@@ -88,25 +80,19 @@ export const UserStatistics = ({ from, to }: Props) => {
           </FormControl>
         </Box>
 
-        <Box sx={{}}>
-          {user !== '' && (
-            <ExportStatistics
-              getData={() => getUserStatisticsExportAsync(user, from, to)}
-            />
-          )}
-        </Box>
+        {user !== '' && (
+          <ExportStatistics
+            getData={() => getUserStatisticsExportAsync(user, from, to)}
+          />
+        )}
       </Box>
-      <br />
 
       {user !== '' && (
         <Box>
-          <Divider sx={DIVIDER_SX} />
-          <br />
-          <StatisticDashboard
-            getData={() => getUserStatisticsAsync(user, from, to)}
-          />
+          <Divider sx={{ ...DIVIDER_SX, marginBottom: '2rem' }} />
+          <StatisticDashboard statsQuery={userStatsQuery} />
         </Box>
       )}
-    </Box>
+    </Stack>
   );
 };

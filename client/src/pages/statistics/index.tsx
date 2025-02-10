@@ -5,12 +5,11 @@ import { FacilityStatistics } from './FacilityStatistics';
 import { MyFacility } from './MyFacility';
 import { MyStatistics } from './MyStatistics';
 import { ReduxState } from 'src/redux/reducers';
-import { Toast } from 'src/shared/components/toast';
 import { UserRoleEnum } from 'src/shared/enums';
 import { UserStatistics } from './UserStatistics';
 import { VHTStatistics } from './VHTStatistics';
 import { useSelector } from 'react-redux';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Box } from '@mui/material';
 import { useDateRangeState } from 'src/shared/components/Date/useDateRangeState';
 import { DateRangePickerWithPreset } from 'src/shared/components/Date/DateRangePicker';
@@ -21,7 +20,6 @@ import { DASHBOARD_PADDING } from 'src/shared/constants';
 export function StatisticsPage() {
   const user = useSelector((state: ReduxState) => state.user.current.data);
 
-  const [errorLoading, setErrorLoading] = useState(false);
   const dateRangeState = useDateRangeState();
   const { startDate, setStartDate, endDate, setEndDate } = dateRangeState;
 
@@ -29,15 +27,15 @@ export function StatisticsPage() {
   useEffect(() => {
     setStartDate(moment().endOf('day').subtract(1, 'month'));
     setEndDate(moment().endOf('day'));
-  }, []);
+  }, [setEndDate, setStartDate]);
 
   const from = useMemo(
-    () => (startDate ? startDate.toDate().getTime() / 1000 : 0),
-    []
+    () => Math.trunc(startDate ? startDate.toDate().getTime() / 1000 : 0),
+    [startDate]
   );
   const to = useMemo(
-    () => (endDate ? endDate.toDate().getTime() / 1000 : 0),
-    []
+    () => Math.trunc(endDate ? endDate.toDate().getTime() / 1000 : 0),
+    [endDate]
   );
   const range = {
     from,
@@ -57,17 +55,26 @@ export function StatisticsPage() {
     {
       label: 'My VHTs',
       Component: () => <VHTStatistics {...range} />,
-      roles: [UserRoleEnum.CHO],
+      roles: [
+        UserRoleEnum.CHO,
+        UserRoleEnum.ADMIN, // for testing only. Remove after
+      ],
     },
     {
       label: 'VHT Statistics',
       Component: () => <VHTStatistics {...range} />,
-      roles: [UserRoleEnum.HCW],
+      roles: [
+        UserRoleEnum.HCW,
+        UserRoleEnum.ADMIN, // for testing only. Remove after
+      ],
     },
     {
       label: 'My Facility',
       Component: () => <MyFacility {...range} />,
-      roles: [UserRoleEnum.HCW],
+      roles: [
+        UserRoleEnum.HCW,
+        UserRoleEnum.ADMIN, // for testing only. Remove after
+      ],
     },
     {
       label: 'User Statistics',
@@ -86,7 +93,7 @@ export function StatisticsPage() {
     },
   ];
 
-  const panels = allPanels.filter((panel) => panel?.roles.includes(user!.role));
+  const panels = allPanels.filter((panel) => panel.roles.includes(user!.role));
 
   return (
     <Box
@@ -96,17 +103,9 @@ export function StatisticsPage() {
         height: '100%',
         resize: 'both',
       }}>
-      {errorLoading && (
-        <Toast
-          severity="error"
-          message="Something went wrong loading all user lists. Please try again."
-          open={errorLoading}
-          onClose={() => setErrorLoading(false)}
-        />
-      )}
       <DashboardPaper>
         <Box
-          id={'statistics-container'}
+          id="statistics-container"
           sx={{
             marginBottom: '10px',
             display: 'flex',
