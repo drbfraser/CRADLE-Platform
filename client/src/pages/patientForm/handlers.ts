@@ -247,7 +247,9 @@ export const handleMedicalRecordInfo = async (
         drugHistory: values[PatientField.drugHistory],
       }
     : {
-        medicalHistory: values[PatientField.medicalHistory],
+        patientId,
+        isDrugRecord,
+        information: values[PatientField.medicalHistory],
       };
 
   const url =
