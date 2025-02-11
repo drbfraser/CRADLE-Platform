@@ -69,12 +69,12 @@ export const getDefaultLanguage = () => {
 
 export const CustomFormTemplate = () => {
   const location = useLocation();
-  const targetFrom = location.state as FormTemplateWithQuestions;
+  const targetForm = location.state as FormTemplateWithQuestions;
   const [submitError, setSubmitError] = useState(false);
   const browserLanguage =
     getDefaultLanguage() === undefined ? 'English' : getDefaultLanguage();
   const [language, setLanguage] = useState<string[]>(
-    targetFrom?.questions[0].langVersions.map((q) => q.lang) ?? [
+    targetForm?.questions[0].langVersions.map((q) => q.lang) ?? [
       browserLanguage,
     ]
   );
@@ -84,11 +84,11 @@ export const CustomFormTemplate = () => {
     .format('YYYY-MM-DD HH:mm:ss z');
 
   const [form, setForm] = useState<FormTemplateWithQuestions>(
-    targetFrom
+    targetForm
       ? {
-          classification: targetFrom.classification,
-          version: targetFrom.version,
-          questions: targetFrom.questions,
+          classification: targetForm.classification,
+          version: targetForm.version,
+          questions: targetForm.questions,
         }
       : {
           classification: { name: 'string', id: undefined },
@@ -98,7 +98,7 @@ export const CustomFormTemplate = () => {
   );
 
   const [versionError, setVersionError] = useState<boolean>(
-    targetFrom ? true : false
+    targetForm ? true : false
   );
 
   const getFormVersions = async (formClassificationId: string) => {
@@ -110,8 +110,8 @@ export const CustomFormTemplate = () => {
 
   let previousVersions: string[] = [];
   (async () => {
-    if (targetFrom?.classification?.id) {
-      previousVersions = await getFormVersions(targetFrom.classification.id);
+    if (targetForm?.classification?.id) {
+      previousVersions = await getFormVersions(targetForm.classification.id);
     }
   })();
 
@@ -129,7 +129,7 @@ export const CustomFormTemplate = () => {
         </Tooltip>
         {/*TODO: Allow template name to change depending on if we are editing a new or existing form template*/}
         <Typography variant={'h4'} component={'h4'}>
-          {targetFrom ? 'Edit Template' : 'Create New Template'}
+          {targetForm ? 'Edit Template' : 'Create New Template'}
         </Typography>
       </Box>
       <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
@@ -158,7 +158,7 @@ export const CustomFormTemplate = () => {
                       component={TextField}
                       required={true}
                       variant="outlined"
-                      defaultValue={targetFrom?.classification?.name ?? ''}
+                      defaultValue={targetForm?.classification?.name ?? ''}
                       fullWidth
                       inputProps={{
                         // TODO: Determine what types of input restrictions we should have for title
@@ -191,7 +191,7 @@ export const CustomFormTemplate = () => {
                       required={true}
                       variant="outlined"
                       defaultValue={
-                        targetFrom ? targetFrom.version : defaultVersion
+                        targetForm ? targetForm.version : defaultVersion
                       }
                       error={versionError}
                       helperText={
@@ -214,7 +214,7 @@ export const CustomFormTemplate = () => {
                             disableFocusListener
                             disableTouchListener
                             title={
-                              targetFrom
+                              targetForm
                                 ? 'Edit your form Version here'
                                 : 'Edit your form Version here. By default, Version is set to the current DateTime but can be edited'
                             }
