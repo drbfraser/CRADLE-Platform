@@ -44,10 +44,10 @@ const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
       return;
     }
 
-    mutation.mutate(
-      { resetUser, newPassword: values[UserField.password] },
-      { onSuccess: () => onClose() }
-    );
+    const submitValues = { resetUser, newPassword: values[UserField.password] };
+    mutation.mutate(submitValues, {
+      onSuccess: () => onClose(),
+    });
   };
 
   return (
@@ -57,7 +57,7 @@ const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
         message="Password reset successful!"
         open={mutation.isSuccess}
       />
-      {mutation.isError && <APIErrorToast />}
+      {mutation.isError && !mutation.isPending && <APIErrorToast />}
 
       <Dialog open={open} maxWidth="xs" fullWidth>
         <DialogTitle>Reset Password: {resetUser?.name ?? ''}</DialogTitle>

@@ -33,13 +33,6 @@ export const ManagePatients = () => {
       data.map((patient, index) => ({ ...patient, index })),
   });
   const patients = data ?? [];
-  const tableRows = patients.map((patient, index) => ({
-    id: index,
-    patientName: patient.name,
-    patientId: patient.id,
-    isArchived: patient.isArchived,
-    takeAction: patient,
-  }));
 
   const ActionButtons = useCallback(
     ({ patient }: { patient?: PatientWithIndex }) => {
@@ -86,6 +79,13 @@ export const ManagePatients = () => {
       ),
     },
   ];
+  const tableRows = patients.map((p, index) => ({
+    id: index,
+    patientName: p.name,
+    patientId: p.id,
+    isArchived: p.isArchived,
+    takeAction: p,
+  }));
 
   const Footer = () => {
     return (
