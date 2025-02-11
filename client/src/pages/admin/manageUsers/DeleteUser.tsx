@@ -30,7 +30,7 @@ const DeleteUser = ({ open, onClose, user }: IProps) => {
         message="User successfully deleted!"
         open={mutation.isSuccess}
       />
-      {mutation.isError && <APIErrorToast />}
+      {mutation.isError && !mutation.isPending && <APIErrorToast />}
 
       <ConfirmDialog
         title={`Delete User: ${name}`}
