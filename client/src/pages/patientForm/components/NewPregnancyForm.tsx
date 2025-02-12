@@ -1,16 +1,14 @@
-import { Form, Formik, FormikProps } from 'formik';
-import { PrimaryButton } from 'src/shared/components/Button';
-import { PatientState } from '../state';
-import { PregnancyInfoForm } from '.';
-import { EndpointEnum } from 'src/shared/enums';
-import { API_URL, axiosFetch } from 'src/shared/api/api';
-import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { Form, Formik, FormikProps } from 'formik';
+
+import { PrimaryButton } from 'src/shared/components/Button';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { AxiosError } from 'axios';
-import { pregnancyInfoValidationSchema } from './validation';
-import PatientFormHeader from '../PatientFormHeader';
-import { processValues, SubmitValues } from './utils';
+import { PatientState } from '../state';
+import { useAddPregnancyMutation } from '../mutations';
+import { pregnancyInfoValidationSchema } from './pregnancyInfo/validation';
+import { processValues } from './pregnancyInfo/utils';
+import PatientFormHeader from './PatientFormHeader';
+import { PregnancyInfoForm } from './pregnancyInfo';
 
 type Props = {
   initialState: PatientState;
@@ -20,26 +18,7 @@ type Props = {
 const NewPregnancyForm = ({ initialState, patientId }: Props) => {
   const navigate = useNavigate();
 
-  const addNewPregnancy = useMutation({
-    mutationFn: (submitValues: SubmitValues) => {
-      const endpoint =
-        API_URL +
-        EndpointEnum.PATIENTS +
-        `/${patientId}` +
-        EndpointEnum.PREGNANCIES;
-
-      return axiosFetch(endpoint, { method: 'POST', data: submitValues }).catch(
-        (e: AxiosError) => {
-          let errorMessage = '';
-          if (e.response?.status === 409) {
-            errorMessage =
-              'Failed to create pregnancy due to a conflict with the current pregnancy or previous pregnancies.';
-          }
-          throw new Error(errorMessage);
-        }
-      );
-    },
-  });
+  const addNewPregnancy = useAddPregnancyMutation();
 
   const handleSubmit = (values: PatientState) => {
     const submitValues = { patientId, ...processValues(values) };
@@ -47,6 +26,7 @@ const NewPregnancyForm = ({ initialState, patientId }: Props) => {
       onSuccess: () => navigate(`/patients/${patientId}`),
     });
   };
+
   return (
     <>
       {addNewPregnancy.isError && !addNewPregnancy.isPending && (

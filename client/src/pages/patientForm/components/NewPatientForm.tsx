@@ -1,28 +1,31 @@
-import { PrimaryButton, SecondaryButton } from 'src/shared/components/Button';
-import { Form, Formik, FormikHelpers, FormikProps } from 'formik';
-
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { MedicalInfoForm } from './medicalInfo';
-import { PatientField, PatientState } from './state';
-import { PersonalInfoForm } from './personalInfo';
-import Step from '@mui/material/Step/Step';
-import StepLabel from '@mui/material/StepLabel/StepLabel';
-import Stepper from '@mui/material/Stepper/Stepper';
-import { personalInfoValidationSchema } from './personalInfo/validation';
-import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { Box, useMediaQuery, useTheme } from '@mui/material';
-import { PregnancyInfoForm } from './pregnancyInfo';
-import { pregnancyInfoValidationSchema } from './pregnancyInfo/validation';
+import { useNavigate } from 'react-router-dom';
+import { Form, Formik, FormikHelpers, FormikProps } from 'formik';
 import {
-  getPatientData,
-  PatientData,
-} from './personalInfo/EditPersonalInfoForm';
-import { useMutation } from '@tanstack/react-query';
-import { API_URL, axiosFetch } from 'src/shared/api/api';
-import { EndpointEnum, GestationalAgeUnitEnum } from 'src/shared/enums';
+  Box,
+  Step,
+  StepLabel,
+  Stepper,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
+
+import { PrimaryButton, SecondaryButton } from 'src/shared/components/Button';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { getDOBForEstimatedAge } from 'src/shared/utils';
+import { GestationalAgeUnitEnum } from 'src/shared/enums';
 import { gestationalAgeUnitTimestamp } from 'src/shared/constants';
+import { PatientField, PatientState } from '../state';
+import {
+  useAddPatientInfoMutation,
+  useAddPregnancyMutation,
+} from '../mutations';
+import { personalInfoValidationSchema } from './personalInfo/validation';
+import { pregnancyInfoValidationSchema } from './pregnancyInfo/validation';
+import { getPatientData } from './EditPersonalInfoForm';
+import { MedicalInfoForm } from './medicalInfo';
+import { PersonalInfoForm } from './personalInfo';
+import { PregnancyInfoForm } from './pregnancyInfo';
 import PatientFormHeader from './PatientFormHeader';
 
 const STEPS = [
@@ -50,37 +53,17 @@ const STEPS = [
   },
 ];
 
-type PregnancyData = {
-  patientId: string;
-  startDate: number;
-};
-
 interface PatientFormProps {
   initialState: PatientState;
 }
 
-export const PatientForm = ({ initialState }: PatientFormProps) => {
+export const NewPatientForm = ({ initialState }: PatientFormProps) => {
   const theme = useTheme();
   const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
   const navigate = useNavigate();
 
-  const addPatientInfo = useMutation({
-    mutationFn: (patientData: PatientData) => {
-      const endpoint = API_URL + EndpointEnum.PATIENTS;
-      return axiosFetch(endpoint, { method: 'POST', data: patientData });
-    },
-  });
-
-  const addPregnancyInfo = useMutation({
-    mutationFn: (values: PregnancyData) => {
-      const endpoint =
-        API_URL +
-        EndpointEnum.PATIENTS +
-        `/${values.patientId}` +
-        EndpointEnum.PREGNANCIES;
-      return axiosFetch(endpoint, { method: 'POST', data: values });
-    },
-  });
+  const addPatientInfo = useAddPatientInfoMutation();
+  const addPregnancyInfo = useAddPregnancyMutation();
 
   const handleSubmit = async (values: PatientState) => {
     try {
@@ -106,8 +89,8 @@ export const PatientForm = ({ initialState }: PatientFormProps) => {
               );
         pregnancyStartDate = Math.round(pregnancyStartDate);
         await addPregnancyInfo.mutateAsync({
-          startDate: pregnancyStartDate,
           patientId,
+          startDate: pregnancyStartDate,
         });
       }
 

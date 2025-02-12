@@ -1,15 +1,15 @@
-import { PatientState, getPatientState } from './state';
 import { useEffect, useState } from 'react';
-
-import LinearProgress from '@mui/material/LinearProgress';
-import { PatientForm } from './PatientForm';
 import { useParams } from 'react-router-dom';
+import LinearProgress from '@mui/material/LinearProgress';
+
 import { FormContainer } from 'src/shared/components/layout/FormContainer';
-import NewPregnancyForm from './pregnancyInfo/NewPregnancyForm';
-import EditPregnancyForm from './pregnancyInfo/EditPregnancyForm';
-import EditPersonalInfoForm from './personalInfo/EditPersonalInfoForm';
-import EditMedicalRecordForm from './medicalInfo/EditMedicalRecordForm';
-import NewMedicalRecordForm from './medicalInfo/NewMedicalRecordForm';
+import { NewPatientForm } from './components/NewPatientForm';
+import NewPregnancyForm from './components/NewPregnancyForm';
+import EditPregnancyForm from './components/EditPregnancyForm';
+import EditPersonalInfoForm from './components/EditPersonalInfoForm';
+import EditMedicalRecordForm from './components/EditMedicalRecordForm';
+import NewMedicalRecordForm from './components/NewMedicalRecordForm';
+import { PatientState, getPatientState } from './state';
 
 type FormType =
   | 'newPatient'
@@ -26,47 +26,34 @@ const getFormType = (
   editId: string | undefined,
   universalRecordId: string | undefined
 ): FormType | undefined => {
-  if (
-    patientId === undefined &&
-    editId === undefined &&
-    universalRecordId === undefined
-  ) {
-    return 'newPatient';
-  } else if (
-    patientId !== undefined &&
-    editId === 'personalInfo' &&
-    universalRecordId === undefined
-  ) {
-    return 'editPatient';
-  }
-
-  if (
-    patientId !== undefined &&
-    editId === undefined &&
-    universalRecordId === undefined
-  ) {
-    return 'newPregnancy';
-  } else if (
-    patientId !== undefined &&
-    editId === 'pregnancyInfo' &&
-    universalRecordId !== undefined
-  ) {
-    return 'editPregnancy';
-  }
-
-  if (editId === 'medicalHistory') {
-    if (universalRecordId === undefined) {
-      return 'newMedicalHistory';
-    } else {
-      return 'editMedicalHistory';
+  if (universalRecordId) {
+    switch (editId) {
+      case 'pregnancyInfo':
+        return 'editPregnancy';
+      case 'medicalHistory':
+        return 'editMedicalHistory';
+      case 'drugHistory':
+        return 'editDrugHistory';
+      default:
+        console.warn(
+          `unknown edit id ${editId} for record ${universalRecordId}`
+        );
     }
-  }
+  } else {
+    switch (editId) {
+      case 'medicalHistory':
+        return 'newMedicalHistory';
+      case 'drugHistory':
+        return 'newDrugHistory';
+      case 'personalInfo':
+        return 'editPatient';
+    }
 
-  if (editId === 'drugHistory') {
-    if (universalRecordId === undefined) {
-      return 'newDrugHistory';
-    } else {
-      return 'editDrugHistory';
+    if (!patientId) {
+      return 'newPatient';
+    }
+    if (patientId) {
+      return 'newPregnancy';
     }
   }
 
@@ -92,11 +79,7 @@ export const PatientFormPage = () => {
     );
   }, [patientId, editId, universalRecordId]);
 
-  console.log(formInitialState);
-
   const formType = getFormType(patientId, editId, universalRecordId);
-  console.log(formType);
-
   let Form = null;
   switch (formType) {
     case 'editPatient':
@@ -129,7 +112,6 @@ export const PatientFormPage = () => {
         <NewMedicalRecordForm
           isDrugHistory={false}
           patientId={patientId!}
-          recordId={universalRecordId!}
           initialState={formInitialState!}
         />
       );
@@ -149,7 +131,6 @@ export const PatientFormPage = () => {
         <NewMedicalRecordForm
           isDrugHistory
           patientId={patientId!}
-          recordId={universalRecordId!}
           initialState={formInitialState!}
         />
       );
@@ -165,7 +146,7 @@ export const PatientFormPage = () => {
       );
       break;
     default:
-      Form = <PatientForm initialState={formInitialState!} />;
+      Form = <NewPatientForm initialState={formInitialState!} />;
   }
 
   return (
