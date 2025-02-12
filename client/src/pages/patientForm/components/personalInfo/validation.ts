@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 
-import { PatientField } from '../state';
+import { PatientField } from '../../state';
 import { getAgeBasedOnDOB } from 'src/shared/utils';
 import { getPatientPregnancyInfoAsync } from 'src/shared/api/api';
 

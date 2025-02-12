@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { PatientField } from '../state';
+import { PatientField } from '../../state';
 
 export const drugHistoryValidationSchema = () =>
   Yup.object().shape({
