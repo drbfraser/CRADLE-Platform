@@ -7,7 +7,7 @@ import {
   MenuItem,
   Stack,
 } from '@mui/material';
-import { Field, Form, Formik, FormikHelpers } from 'formik';
+import { Field, Form, Formik } from 'formik';
 import { TextField } from 'formik-mui';
 
 import { Facility } from 'src/shared/types';
