@@ -1,14 +1,14 @@
-import { Form, Formik, FormikProps } from 'formik';
-import PatientFormHeader from '../PatientFormHeader';
-import { PatientField, PatientState } from '../state';
-import { PersonalInfoForm } from '.';
-import { PrimaryButton } from 'src/shared/components/Button';
-import { personalInfoValidationSchema } from './validation';
-import { API_URL, axiosFetch } from 'src/shared/api/api';
-import { EndpointEnum, SexEnum } from 'src/shared/enums';
-import { useMutation } from '@tanstack/react-query';
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { useNavigate } from 'react-router-dom';
+import { Form, Formik, FormikProps } from 'formik';
+
+import { PrimaryButton } from 'src/shared/components/Button';
+import { SexEnum } from 'src/shared/enums';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { PatientField, PatientState } from '../state';
+import { useUpdatePatientMutation } from '../mutations';
+import { personalInfoValidationSchema } from './personalInfo/validation';
+import PatientFormHeader from './PatientFormHeader';
+import { PersonalInfoForm } from './personalInfo';
 
 export type PatientData = {
   id: string;
@@ -49,30 +49,18 @@ type Props = {
 const EditPersonalInfoForm = ({ patientId, initialState }: Props) => {
   const navigate = useNavigate();
 
-  const editPatient = useMutation({
-    mutationFn: (patientData: PatientData) => {
-      const endpoint =
-        API_URL +
-        EndpointEnum.PATIENTS +
-        `/${patientId}` +
-        EndpointEnum.PATIENT_INFO;
-      return axiosFetch(endpoint, {
-        method: 'PUT',
-        data: patientData,
-      });
-    },
-  });
+  const updatePatient = useUpdatePatientMutation(patientId);
 
   const handleSubmit = (values: PatientState) => {
     const patientData = getPatientData(values, patientId);
-    editPatient.mutate(patientData, {
+    updatePatient.mutate(patientData, {
       onSuccess: () => navigate(`/patients/${patientId}`),
     });
   };
 
   return (
     <>
-      {editPatient.isError && !editPatient.isPending && <APIErrorToast />}
+      {updatePatient.isError && !updatePatient.isPending && <APIErrorToast />}
 
       <PatientFormHeader
         patientId={patientId}
@@ -89,7 +77,7 @@ const EditPersonalInfoForm = ({ patientId, initialState }: Props) => {
             <PrimaryButton
               sx={{ marginTop: '1rem', float: 'right' }}
               type="submit"
-              disabled={editPatient.isPending}>
+              disabled={updatePatient.isPending}>
               Save
             </PrimaryButton>
           </Form>

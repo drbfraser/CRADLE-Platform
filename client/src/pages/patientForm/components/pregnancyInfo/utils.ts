@@ -3,13 +3,13 @@ import {
   gestationalAgeUnitTimestampWithEndDate,
 } from 'src/shared/constants';
 import { GestationalAgeUnitEnum } from 'src/shared/enums';
-import { PatientField, PatientState } from '../state';
+import { PatientField, PatientState } from '../../state';
 
 export type SubmitValues = {
   patientId: string;
   startDate: number;
-  endDate: number | undefined;
-  outcome: string;
+  endDate?: number;
+  outcome?: string;
 };
 
 export const processValues = (

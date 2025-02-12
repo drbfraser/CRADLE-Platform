@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
 
 import { GestationalAgeUnitEnum } from 'src/shared/enums';
-import { PatientField } from '../state';
+import { PatientField } from '../../state';
 
 export const pregnancyInfoValidationSchema = () =>
   Yup.object().shape({

@@ -1,56 +1,62 @@
-import { useNavigate } from 'react-router-dom';
-import { Box } from '@mui/material';
-import { Form, Formik, FormikProps } from 'formik';
-import { PatientState } from '../state';
-import { pregnancyInfoValidationSchema } from './validation';
-import { PregnancyInfoForm } from '.';
-import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
-import { processValues, SubmitValues } from './utils';
-import { useMutation } from '@tanstack/react-query';
-import { API_URL, axiosFetch } from 'src/shared/api/api';
-import { EndpointEnum } from 'src/shared/enums';
-import { ConfirmDialog } from 'src/shared/components/confirmDialog';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Form, Formik, FormikProps } from 'formik';
+import { Box } from '@mui/material';
+
+import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import PatientFormHeader from '../PatientFormHeader';
+import { ConfirmDialog } from 'src/shared/components/confirmDialog';
+import { PatientField, PatientState } from '../state';
+import {
+  useDeleteMedicalRecordMutation,
+  useUpdateMedicalRecordMutation,
+} from '../mutations';
+import {
+  drugHistoryValidationSchema,
+  medicalHistoryValidationSchema,
+} from './medicalInfo/validation';
+import { MedicalInfoForm } from './medicalInfo';
+import PatientFormHeader from './PatientFormHeader';
 
 type Props = {
   patientId: string;
-  pregnancyId: string;
+  recordId: string;
   initialState: PatientState;
+  isDrugHistory: boolean;
 };
 
-const EditPregnancyForm = ({ patientId, pregnancyId, initialState }: Props) => {
+const EditMedicalRecordForm = ({
+  patientId,
+  recordId,
+  initialState,
+  isDrugHistory,
+}: Props) => {
   const navigate = useNavigate();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const editPregnancy = useMutation({
-    mutationFn: (submitValues: SubmitValues) => {
-      const endpoint = API_URL + EndpointEnum.PREGNANCIES + `/${pregnancyId}`;
-      return axiosFetch(endpoint, { method: 'PUT', data: submitValues });
-    },
-  });
+  const updateRecord = useUpdateMedicalRecordMutation(patientId, isDrugHistory);
+  const deleteRecord = useDeleteMedicalRecordMutation(recordId);
+
   const handleSubmit = (values: PatientState) => {
-    const submitValues = { patientId, ...processValues(values) };
-    editPregnancy.mutate(submitValues, {
+    const submitValues = {
+      patientId,
+      information: isDrugHistory
+        ? values[PatientField.drugHistory]
+        : values[PatientField.medicalHistory],
+    };
+    updateRecord.mutate(submitValues, {
       onSuccess: () => navigate(`/patients/${patientId}`),
     });
   };
 
-  const deletePregnancy = useMutation({
-    mutationFn: () => {
-      const endpoint = API_URL + EndpointEnum.PREGNANCIES + `/${pregnancyId}`;
-      return axiosFetch(endpoint, { method: 'DELETE' });
-    },
-  });
   const handleDelete = () => {
-    deletePregnancy.mutate(undefined, {
+    deleteRecord.mutate(undefined, {
       onSuccess: () => navigate(`/patients/${patientId}`),
     });
   };
 
-  const isError = editPregnancy.isError || deletePregnancy.isError;
-  const isPending = editPregnancy.isPending || deletePregnancy.isPending;
+  const isError = updateRecord.isError || deleteRecord.isError;
+  const isPending = updateRecord.isPending || deleteRecord.isPending;
   return (
     <>
       {isError && !isPending && <APIErrorToast />}
@@ -66,17 +72,24 @@ const EditPregnancyForm = ({ patientId, pregnancyId, initialState }: Props) => {
         }}
       />
 
-      <PatientFormHeader patientId={patientId} title="Edit/Close Pregnancy" />
+      <PatientFormHeader
+        patientId={patientId}
+        title={`Update ${isDrugHistory ? 'Drug' : 'Medical'} History `}
+      />
       <Formik
         initialValues={initialState}
-        validationSchema={pregnancyInfoValidationSchema}
+        validationSchema={
+          isDrugHistory
+            ? drugHistoryValidationSchema
+            : medicalHistoryValidationSchema
+        }
         onSubmit={handleSubmit}>
         {(formikProps: FormikProps<PatientState>) => (
           <Form>
-            <PregnancyInfoForm
+            <MedicalInfoForm
               formikProps={formikProps}
               creatingNew={false}
-              creatingNewPregnancy
+              isDrugRecord={isDrugHistory}
             />
 
             <Box
@@ -90,9 +103,9 @@ const EditPregnancyForm = ({ patientId, pregnancyId, initialState }: Props) => {
                 Delete
               </CancelButton>
               <PrimaryButton
-                sx={{ float: 'right' }}
+                sx={{ marginTop: '1rem', float: 'right' }}
                 type="submit"
-                disabled={editPregnancy.isPending}>
+                disabled={updateRecord.isPending}>
                 Save
               </PrimaryButton>
             </Box>
@@ -103,4 +116,4 @@ const EditPregnancyForm = ({ patientId, pregnancyId, initialState }: Props) => {
   );
 };
 
-export default EditPregnancyForm;
+export default EditMedicalRecordForm;
