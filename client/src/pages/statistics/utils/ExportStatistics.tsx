@@ -38,7 +38,7 @@ export const ExportStatistics = ({ getData }: IProps) => {
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Export Referral Data</DialogTitle>
         <DialogContent>
-          <DialogContentText component={'div'}>
+          <DialogContentText component="div">
             Please click on the following link to download the CSV file.
             {open && <DownloadCSV getData={getData} />}
           </DialogContentText>

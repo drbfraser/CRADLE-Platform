@@ -11,10 +11,7 @@ import {
 import { Field, useFormikContext } from 'formik';
 import { UserField, fieldLabels } from './state';
 import { userRoleLabels } from 'src/shared/constants';
-import {
-  useHealthFacilities,
-  useHealthFacilityNames,
-} from 'src/shared/hooks/healthFacilities';
+import { useHealthFacilityNames } from 'src/shared/hooks/healthFacilities';
 
 export const UserNameField = () => {
   return (

@@ -32,11 +32,11 @@ export const ManageUsers = () => {
   const [deletePopupOpen, setDeletePopupOpen] = useState(false);
   const [popupUser, setPopupUser] = useState<UserWithIndex>();
 
-  const { data, isError, refetch } = useQuery({
+  const usersQuery = useQuery({
     queryKey: ['usersList'],
     queryFn: getUsersAsync,
   });
-  const users = data ?? [];
+  const users = usersQuery.data ?? [];
 
   // Component to render buttons inside the last cell of each row.
   const { data: currentUser } = useAppSelector(selectCurrentUser);
@@ -104,13 +104,13 @@ export const ManageUsers = () => {
 
   return (
     <>
-      {isError && <APIErrorToast />}
+      {usersQuery.isError && <APIErrorToast />}
 
       <CreateUserDialog
         open={createPopupOpen}
         onClose={() => {
           setCreatePopupOpen(false);
-          refetch();
+          usersQuery.refetch();
         }}
         users={users}
       />
@@ -120,7 +120,7 @@ export const ManageUsers = () => {
             open={editPopupOpen}
             onClose={() => {
               setEditPopupOpen(false);
-              refetch();
+              usersQuery.refetch();
             }}
             users={users}
             userToEdit={popupUser}
@@ -134,7 +134,7 @@ export const ManageUsers = () => {
             open={deletePopupOpen}
             onClose={() => {
               setDeletePopupOpen(false);
-              refetch();
+              usersQuery.refetch();
             }}
             user={popupUser}
           />

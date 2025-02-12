@@ -35,8 +35,8 @@ export const SingleReasonFormPage = () => {
       <Box
         sx={{
           marginBottom: '1rem',
-          display: `flex`,
-          alignItems: `center`,
+          display: 'flex',
+          alignItems: 'center',
         }}>
         <Tooltip title="Go back" placement="top">
           <IconButton onClick={() => navigate(-1)} size="large">

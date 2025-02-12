@@ -38,7 +38,11 @@ export const MyStatistics = ({ from, to }: MyStatisticsProps) => {
       </Box>
 
       <Divider
-        sx={{ ...DIVIDER_SX, marginTop: '4rem', marginBottom: '2rem' }}
+        sx={{
+          ...DIVIDER_SX,
+          marginTop: '4rem',
+          marginBottom: '2rem',
+        }}
       />
 
       {userId && <StatisticDashboard statsQuery={myStatsQuery} />}

@@ -47,6 +47,7 @@ export const MedicalHistory = ({
   const { mutate: deleteRecord } = useMutation({
     mutationFn: (record: MedicalRecord) => deleteMedicalRecordAsync(record),
   });
+
   const ActionButtons = useCallback(
     ({ record }: { record?: MedicalRecord }) => {
       const actions: TableAction[] = [
@@ -55,6 +56,7 @@ export const MedicalHistory = ({
           Icon: DeleteForever,
           onClick: async () => {
             if (!record || !patientId) return;
+
             const confirmed = await dialogs.confirm(
               'Are you sure you want to delete this record? This action cannot be reversed.',
               {
@@ -63,7 +65,6 @@ export const MedicalHistory = ({
                 severity: 'warning',
               }
             );
-
             if (confirmed) {
               deleteRecord(record, {
                 onSuccess: () => {
@@ -91,7 +92,6 @@ export const MedicalHistory = ({
       information: r.information,
       takeAction: r,
     })) ?? [];
-
   const columns: GridColDef[] = [
     {
       field: 'dateCreated',

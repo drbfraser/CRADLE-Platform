@@ -47,20 +47,16 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
     otherPhoneNumbers
   );
 
-  const handleSubmit = async (
-    values: Facility,
-    { setSubmitting }: FormikHelpers<Facility>
-  ) => {
+  const handleSubmit = async (values: Facility) => {
     mutation.mutate(values, {
       onSuccess: () => onClose(),
-      onError: () => setSubmitting(false),
     });
   };
 
   const creatingNew = editFacility === undefined;
   return (
     <>
-      {mutation.isError && <APIErrorToast />}
+      {mutation.isError && !mutation.isPending && <APIErrorToast />}
 
       <Dialog open={open} maxWidth="sm" fullWidth>
         <DialogTitle>{creatingNew ? 'Create' : 'Edit'} Facility</DialogTitle>
@@ -69,7 +65,7 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
             initialValues={editFacility ?? facilityTemplate}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}>
-            {({ isSubmitting, isValid }) => (
+            {({ isValid }) => (
               <Form>
                 <Stack sx={{ paddingY: '1rem' }} spacing="2rem">
                   <Field
@@ -124,7 +120,7 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
                   </CancelButton>
                   <PrimaryButton
                     type="submit"
-                    disabled={isSubmitting || !isValid}>
+                    disabled={mutation.isPending || !isValid}>
                     {creatingNew ? 'Create' : 'Save'}
                   </PrimaryButton>
                 </DialogActions>

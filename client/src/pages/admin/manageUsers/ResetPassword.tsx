@@ -53,7 +53,7 @@ const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
         message="Password reset successful!"
         open={mutation.isSuccess}
       />
-      {mutation.isError && <APIErrorToast />}
+      {mutation.isError && !mutation.isPending && <APIErrorToast />}
 
       <Dialog open={open} maxWidth="xs" fullWidth>
         <DialogTitle>Reset Password: {resetUser.name}</DialogTitle>

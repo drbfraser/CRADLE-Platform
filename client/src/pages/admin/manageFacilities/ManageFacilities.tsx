@@ -80,12 +80,12 @@ export const ManageFacilities = () => {
         facilities={facilities}
         editFacility={facilityToEdit}
       />
-      <DataTableHeader title={'Healthcare Facilities'}>
+      <DataTableHeader title="Healthcare Facilities">
         <Button
-          variant={'contained'}
+          variant="contained"
           startIcon={<AddIcon />}
           onClick={addNewFacility}>
-          {'New Facility'}
+          New Facility
         </Button>
       </DataTableHeader>
       <DataTable

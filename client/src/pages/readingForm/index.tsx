@@ -53,19 +53,18 @@ export const ReadingFormPage = () => {
   const { patientId } = useParams() as RouteParams;
   const { patient } = usePatient(patientId);
 
-  const [pageNum, setPageNum] = useState(0);
-  const PageComponent = pages[pageNum].component;
-  const isFinalPage = pageNum === pages.length - 1;
-
   const readingQuery = useQuery({
     queryKey: ['patientReading', patientId],
     queryFn: () => getReadingState(patientId),
   });
-
   const addReading = useAddReadingMutation(
     patientId,
     readingQuery.data?.drugHistory
   );
+
+  const [pageNum, setPageNum] = useState(0);
+  const PageComponent = pages[pageNum].component;
+  const isFinalPage = pageNum === pages.length - 1;
 
   const handleNextStep = (
     values: ReadingState,
@@ -98,8 +97,8 @@ export const ReadingFormPage = () => {
       <Stepper
         activeStep={pageNum}
         orientation={isBigScreen ? 'horizontal' : 'vertical'}>
-        {pages.map((page, idx) => (
-          <Step key={idx}>
+        {pages.map((page, index) => (
+          <Step key={index}>
             <StepLabel>{page.name}</StepLabel>
           </Step>
         ))}

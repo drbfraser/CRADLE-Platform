@@ -42,13 +42,10 @@ export const VHTStatistics = ({ from, to }: Props) => {
   );
 
   const [vht, setVht] = useState('');
-  const vhtStatsQuery = useUserStatsQuery(vht, from, to);
-  const handleChange = (event: SelectChangeEvent) => {
-    setVht(event.target.value);
-  };
 
-  const { data: vhts } = useQuery({
-    queryKey: ['VHTList'],
+  const vhtStatsQuery = useUserStatsQuery(vht, from, to);
+  const allVHTsQuery = useQuery({
+    queryKey: ['allVHTs'],
     queryFn: getVHTsAsync,
     select: (data) => {
       if (user?.role === UserRoleEnum.CHO) {
@@ -67,6 +64,10 @@ export const VHTStatistics = ({ from, to }: Props) => {
       </Box>
     );
   }
+
+  const handleChange = (event: SelectChangeEvent) => {
+    setVht(event.target.value);
+  };
 
   return (
     <Box sx={STATS_PAGE_SX}>
@@ -89,8 +90,8 @@ export const VHTStatistics = ({ from, to }: Props) => {
 
         <FormControl variant="standard" sx={FORM_CTRL_SX}>
           <Select variant="standard" value={vht} onChange={handleChange}>
-            {vhts?.map((vht, idx) => (
-              <MenuItem value={vht.userId} key={idx}>
+            {allVHTsQuery.data?.map((vht, index) => (
+              <MenuItem value={vht.userId} key={index}>
                 {vht?.firstName ?? 'Unknown'} ({vht?.email ?? 'Unknown'})
               </MenuItem>
             ))}
