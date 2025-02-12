@@ -39,9 +39,9 @@ const SampleTemplateLink = () => {
         categoryIndex: null,
         numMax: null,
         numMin: null,
-        questionId: 'pingpong-by-name01',
+        id: 'pingpong-by-name01',
         questionIndex: 0,
-        questionLangVersions: [
+        langVersions: [
           {
             lang: 'english',
             mcOptions: [
