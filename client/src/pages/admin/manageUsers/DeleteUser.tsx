@@ -12,12 +12,14 @@ interface IProps {
 }
 
 const DeleteUser = ({ open, onClose, user }: IProps) => {
-  const mutation = useMutation({
+  const { mutate, isSuccess, isError, isPending } = useMutation({
     mutationFn: (user: User) => deleteUserAsync(user),
   });
 
   const handleDelete = () => {
-    mutation.mutate(user, { onSuccess: () => onClose() });
+    mutate(user, {
+      onSuccess: () => onClose(),
+    });
   };
 
   const name = user.name;
@@ -26,9 +28,9 @@ const DeleteUser = ({ open, onClose, user }: IProps) => {
       <Toast
         severity="success"
         message="User successfully deleted!"
-        open={mutation.isSuccess}
+        open={isSuccess}
       />
-      {mutation.isError && <APIErrorToast />}
+      {isError && !isPending && <APIErrorToast />}
 
       <ConfirmDialog
         title={`Delete User: ${name}`}

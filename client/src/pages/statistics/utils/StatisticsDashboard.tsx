@@ -64,9 +64,9 @@ export const StatisticDashboard: React.FC<IProps> = ({ statsQuery }) => {
   return (
     <Box
       sx={{
-        display: `flex`,
-        flexDirection: `column`,
-        alignItems: `center`,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
       }}>
       <StatisticGroup>
         {[
@@ -116,7 +116,7 @@ export const StatisticDashboard: React.FC<IProps> = ({ statsQuery }) => {
         id="chart-container"
         sx={{
           maxWidth: '100%',
-          width: `100%`,
+          width: '100%',
           height: '100%',
         }}>
         <Bar data={barData} />

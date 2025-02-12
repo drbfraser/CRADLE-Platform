@@ -51,12 +51,10 @@ const ChangePassword = ({ open, onClose }: IProps) => {
         <DialogTitle>Change Password</DialogTitle>
         <DialogContent>
           {isError && (
-            <>
-              <Alert sx={{ marginBottom: '2rem' }} severity="error">
-                Unable to change your password. Did you enter your current
-                password correctly?
-              </Alert>
-            </>
+            <Alert sx={{ marginBottom: '2rem' }} severity="error">
+              Unable to change your password. Did you enter your current
+              password correctly?
+            </Alert>
           )}
           <Formik
             initialValues={initialValues}

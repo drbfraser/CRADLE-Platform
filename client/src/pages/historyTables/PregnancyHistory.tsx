@@ -52,8 +52,8 @@ export const PregnancyHistory = () => {
   const { patientId } = useParams<RouteParams>();
   const navigate = useNavigate();
   const dialogs = useDialogs();
-  const [unit, setUnit] = useState(GestationalAgeUnitEnum.MONTHS);
 
+  const [unit, setUnit] = useState(GestationalAgeUnitEnum.MONTHS);
   const handleUnitChange = (
     event: SelectChangeEvent<GestationalAgeUnitEnum>
   ) => {
@@ -66,24 +66,10 @@ export const PregnancyHistory = () => {
     queryFn: () => getPatientPregnanciesAsync(patientId!),
     enabled: !!patientId,
   });
-  const tableRows = useMemo(
-    () =>
-      pregnancyData?.map((p) => ({
-        id: p.id,
-        startDate: getPrettyDate(p.startDate),
-        endDate: p.endDate ? getPrettyDate(p.endDate) : 'Ongoing',
-        gestation: gestationalAgeUnitFormatters[
-          unit ?? GestationalAgeUnitEnum.WEEKS
-        ](p.startDate, p.endDate),
-        outcome: p.outcome,
-        takeAction: p,
-      })) ?? [],
-    [pregnancyData, unit]
-  );
-
   const { mutate: deletePregnancy } = useMutation({
     mutationFn: (pregnancy: Pregnancy) => deletePregnancyAsync(pregnancy),
   });
+
   const ActionButtons = useCallback(
     ({ pregnancy }: { pregnancy?: Pregnancy }) => {
       const actions: TableAction[] = [
@@ -130,6 +116,20 @@ export const PregnancyHistory = () => {
     [deletePregnancy, dialogs, navigate, patientId, refetch]
   );
 
+  const tableRows = useMemo(
+    () =>
+      pregnancyData?.map((p) => ({
+        id: p.id,
+        startDate: getPrettyDate(p.startDate),
+        endDate: p.endDate ? getPrettyDate(p.endDate) : 'Ongoing',
+        gestation: gestationalAgeUnitFormatters[
+          unit ?? GestationalAgeUnitEnum.WEEKS
+        ](p.startDate, p.endDate),
+        outcome: p.outcome,
+        takeAction: p,
+      })) ?? [],
+    [pregnancyData, unit]
+  );
   const columns: GridColDef[] = [
     {
       field: 'startDate',

@@ -26,20 +26,13 @@ export const ManagePatients = () => {
   const [popupPatient, setPopupPatient] = useState<PatientWithIndex>();
   const [showArchivedPatients, setShowArchivedPatients] = useState(true);
 
-  const { data, isError, refetch } = useQuery({
+  const patientsQuery = useQuery({
     queryKey: ['adminPatientList', showArchivedPatients],
     queryFn: () => getPatientsAdminAsync(showArchivedPatients),
     select: (data): PatientWithIndex[] =>
       data.map((patient, index) => ({ ...patient, index })),
   });
-  const patients = data ?? [];
-  const tableRows = patients.map((patient, index) => ({
-    id: index,
-    patientName: patient.name,
-    patientId: patient.id,
-    isArchived: patient.isArchived,
-    takeAction: patient,
-  }));
+  const patients = patientsQuery.data ?? [];
 
   const ActionButtons = useCallback(
     ({ patient }: { patient?: PatientWithIndex }) => {
@@ -86,6 +79,13 @@ export const ManagePatients = () => {
       ),
     },
   ];
+  const tableRows = patients.map((patient, index) => ({
+    id: index,
+    patientName: patient.name,
+    patientId: patient.id,
+    isArchived: patient.isArchived,
+    takeAction: patient,
+  }));
 
   const Footer = () => {
     return (
@@ -106,13 +106,13 @@ export const ManagePatients = () => {
 
   return (
     <>
-      {isError && <APIErrorToast />}
+      {patientsQuery.isError && <APIErrorToast />}
 
       <ArchivePatient
         open={archivePopupOpen}
         onClose={() => {
           setArchivePopupOpen(false);
-          refetch();
+          patientsQuery.refetch();
         }}
         patient={popupPatient}
       />
@@ -120,7 +120,7 @@ export const ManagePatients = () => {
         open={unarchivePopupOpen}
         onClose={() => {
           setUnarchivePopupOpen(false);
-          refetch();
+          patientsQuery.refetch();
         }}
         patient={popupPatient}
       />

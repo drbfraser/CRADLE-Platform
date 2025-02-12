@@ -29,19 +29,19 @@ type Props = {
 export const UserStatistics = ({ from, to }: Props) => {
   const [user, setUser] = useState('');
 
-  const { data: users, isError } = useQuery({
-    queryKey: ['UserStatistics'],
+  const userStatsQuery = useUserStatsQuery(user, from, to);
+  const allUsersQuery = useQuery({
+    queryKey: ['allUsers'],
     queryFn: getUsersAsync,
   });
 
-  const userStatsQuery = useUserStatsQuery(user, from, to);
   const handleChange = (event: SelectChangeEvent) => {
     setUser(event.target.value);
   };
 
   return (
     <Stack sx={STATS_PAGE_SX} spacing="3rem">
-      {isError && <APIErrorToast />}
+      {allUsersQuery.isError && <APIErrorToast />}
 
       <Box
         sx={{
@@ -71,8 +71,8 @@ export const UserStatistics = ({ from, to }: Props) => {
               minWidth: '200px',
             }}>
             <Select variant="standard" value={user} onChange={handleChange}>
-              {users?.map((user, idx) => (
-                <MenuItem value={user.id} key={idx}>
+              {allUsersQuery.data?.map((user, index) => (
+                <MenuItem value={user.id} key={index}>
                   {`${user.name} (${user.email})`}
                 </MenuItem>
               ))}

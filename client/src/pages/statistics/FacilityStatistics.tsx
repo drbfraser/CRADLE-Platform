@@ -24,6 +24,9 @@ type FacilityStatisticsProps = {
 
 export const FacilityStatistics = ({ from, to }: FacilityStatisticsProps) => {
   const [facilityName, setFacilityName] = useState('');
+  const handleChange = (event: SelectChangeEvent) => {
+    setFacilityName(event.target.value);
+  };
 
   const { data: facilities, isError } = useHealthFacilitiesQuery();
 
@@ -32,10 +35,6 @@ export const FacilityStatistics = ({ from, to }: FacilityStatisticsProps) => {
     queryFn: () =>
       statsQueryFn(getFacilityStatisticsAsync(facilityName, from, to)),
   });
-
-  const handleChange = (event: SelectChangeEvent) => {
-    setFacilityName(event.target.value);
-  };
 
   return (
     <Box sx={STATS_PAGE_SX}>
@@ -68,7 +67,7 @@ export const FacilityStatistics = ({ from, to }: FacilityStatisticsProps) => {
             autoWidth>
             {facilities?.map((facility, idx) => (
               <MenuItem value={facility.name} key={idx}>
-                {`${facility.name}`}
+                {facility.name}
               </MenuItem>
             ))}
           </Select>

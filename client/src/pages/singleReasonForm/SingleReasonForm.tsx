@@ -24,7 +24,7 @@ interface IProps {
 export const SingleReasonForm = ({ referralId, cancellationType }: IProps) => {
   const navigate = useNavigate();
 
-  const editReferralCancelStatus = useMutation({
+  const updateReferralCancelStatus = useMutation({
     mutationFn: (values: {
       referralId: string;
       comment: string;
@@ -37,32 +37,32 @@ export const SingleReasonForm = ({ referralId, cancellationType }: IProps) => {
       );
     },
   });
-
-  const editReferralAttendedStatus = useMutation({
+  const updateReferralAttendedStatus = useMutation({
     mutationFn: (values: { referralId: string; comment: string }) => {
       return setReferralNotAttendedAsync(values.referralId, values.comment);
     },
   });
 
-  const handleSubmit = async (values: SingleReason) => {
+  const handleSubmit = async ({ comment }: SingleReason) => {
     try {
       if (
         cancellationType === 'cancel_referral' ||
         cancellationType === 'undo_cancel_referral'
       ) {
-        await editReferralCancelStatus.mutateAsync({
+        await updateReferralCancelStatus.mutateAsync({
           referralId,
-          comment: values.comment,
+          comment,
           cancellationType,
         });
       } else if (cancellationType === 'not_attend_referral') {
-        await editReferralAttendedStatus.mutateAsync({
+        await updateReferralAttendedStatus.mutateAsync({
           referralId,
-          comment: values.comment,
+          comment,
         });
       } else {
         throw new Error(`unknown cancellation type: ${cancellationType}`);
       }
+
       navigate('/patients');
     } catch (e) {
       console.error(e);
@@ -70,9 +70,10 @@ export const SingleReasonForm = ({ referralId, cancellationType }: IProps) => {
   };
 
   const isPending =
-    editReferralCancelStatus.isPending || editReferralAttendedStatus.isPending;
+    updateReferralCancelStatus.isPending ||
+    updateReferralAttendedStatus.isPending;
   const isError =
-    editReferralCancelStatus.isError || editReferralAttendedStatus.isError;
+    updateReferralCancelStatus.isError || updateReferralAttendedStatus.isError;
   return (
     <>
       {isError && !isPending && <APIErrorToast />}

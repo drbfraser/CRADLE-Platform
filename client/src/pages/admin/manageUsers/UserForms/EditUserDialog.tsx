@@ -50,7 +50,7 @@ export const EditUserDialog = ({
     otherUsersPhoneNumbers
   );
 
-  const editUser = useMutation({
+  const updateUser = useMutation({
     mutationFn: (editedUser: EditUser) =>
       editUserAsync(editedUser, userToEdit.id),
   });
@@ -62,7 +62,7 @@ export const EditUserDialog = ({
       return phoneNumber.trim().length > 0;
     });
 
-    editUser.mutate(editedUser, {
+    updateUser.mutate(editedUser, {
       onSuccess: () => onClose(),
       onError: (e) => {
         let message = 'Something went wrong';
@@ -83,7 +83,7 @@ export const EditUserDialog = ({
 
   return (
     <>
-      {editUser.isError && !editUser.isPending && (
+      {updateUser.isError && !updateUser.isPending && (
         <APIErrorToast errorMessage={errorMessage} />
       )}
 
@@ -168,7 +168,7 @@ export const EditUserDialog = ({
                     </CancelButton>
                     <PrimaryButton
                       type="submit"
-                      disabled={editUser.isPending || !isValid}>
+                      disabled={updateUser.isPending || !isValid}>
                       Save
                     </PrimaryButton>
                   </DialogActions>
