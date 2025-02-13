@@ -214,8 +214,8 @@ export const ManageFormTemplates = () => {
       questions: questions.questions.map((q: TQuestion) => {
         return {
           categoryIndex: q.categoryIndex ?? null,
-          questionId: q.id,
-          questionLangVersions: q.langVersions.map((qlv) => {
+          id: q.id,
+          langVersions: q.langVersions.map((qlv) => {
             return {
               lang: qlv.lang,
               mcOptions: qlv.mcOptions,

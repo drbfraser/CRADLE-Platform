@@ -138,7 +138,7 @@ def get_form_classification_summary():
 
 # /api/forms/classifications/<string:form_classification_id>/templates [GET]
 @api_form_classifications.get(
-    "/<string:form_classification_name>/templates", responses={200: FormTemplateList}
+    "/<string:form_classification_id>/templates", responses={200: FormTemplateList}
 )
 def get_form_classification_templates(path: FormClassificationIdPath):
     """
