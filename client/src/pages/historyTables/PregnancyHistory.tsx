@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import {
   FormControl,
   InputLabel,
@@ -36,7 +37,6 @@ import {
   DataTable,
 } from 'src/shared/components/DataTable/DataTable';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
-import { useMutation, useQuery } from '@tanstack/react-query';
 
 const UNIT_OPTIONS = Object.values(GestationalAgeUnitEnum).map((unit) => ({
   key: unit,
@@ -61,13 +61,13 @@ export const PregnancyHistory = () => {
     setUnit(value as GestationalAgeUnitEnum);
   };
 
-  const { data: pregnancyData, refetch } = useQuery({
+  const { data: pregnancyData, refetch: refetchPregnancies } = useQuery({
     queryKey: ['patientPregnancies', patientId],
     queryFn: () => getPatientPregnanciesAsync(patientId!),
     enabled: !!patientId,
   });
   const { mutate: deletePregnancy } = useMutation({
-    mutationFn: (pregnancy: Pregnancy) => deletePregnancyAsync(pregnancy),
+    mutationFn: deletePregnancyAsync,
   });
 
   const ActionButtons = useCallback(
@@ -102,7 +102,7 @@ export const PregnancyHistory = () => {
               deletePregnancy(pregnancy, {
                 onSuccess: () => {
                   dialogs.alert('Pregnancy successfully deleted.');
-                  refetch();
+                  refetchPregnancies();
                 },
                 onError: (e) =>
                   dialogs.alert(`Error: Pregnancy could not be deleted.\n${e}`),
@@ -113,24 +113,10 @@ export const PregnancyHistory = () => {
       ];
       return pregnancy ? <TableActionButtons actions={actions} /> : null;
     },
-    [deletePregnancy, dialogs, navigate, patientId, refetch]
+    [deletePregnancy, dialogs, navigate, patientId, refetchPregnancies]
   );
 
-  const tableRows = useMemo(
-    () =>
-      pregnancyData?.map((p) => ({
-        id: p.id,
-        startDate: getPrettyDate(p.startDate),
-        endDate: p.endDate ? getPrettyDate(p.endDate) : 'Ongoing',
-        gestation: gestationalAgeUnitFormatters[
-          unit ?? GestationalAgeUnitEnum.WEEKS
-        ](p.startDate, p.endDate),
-        outcome: p.outcome,
-        takeAction: p,
-      })) ?? [],
-    [pregnancyData, unit]
-  );
-  const columns: GridColDef[] = [
+  const tableColumns: GridColDef[] = [
     {
       field: 'startDate',
       headerName: 'Start Date (Approx)',
@@ -167,6 +153,22 @@ export const PregnancyHistory = () => {
       ) => <ActionButtons pregnancy={params.value} />,
     },
   ];
+  const tableRows = useMemo(
+    () =>
+      pregnancyData?.map((pregnancy) => ({
+        id: pregnancy.id,
+        startDate: getPrettyDate(pregnancy.startDate),
+        endDate: pregnancy.endDate
+          ? getPrettyDate(pregnancy.endDate)
+          : 'Ongoing',
+        gestation: gestationalAgeUnitFormatters[
+          unit ?? GestationalAgeUnitEnum.WEEKS
+        ](pregnancy.startDate, pregnancy.endDate),
+        outcome: pregnancy.outcome,
+        takeAction: pregnancy,
+      })) ?? [],
+    [pregnancyData, unit]
+  );
 
   const GestationalAgeUnitSelect = () => {
     return (
@@ -202,8 +204,8 @@ export const PregnancyHistory = () => {
     <>
       <DataTableHeader title="Pregnancies" />
       <DataTable
+        columns={tableColumns}
         rows={tableRows}
-        columns={columns}
         footer={() => (
           <DataTableFooter>
             <GestationalAgeUnitSelect />

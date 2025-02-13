@@ -69,14 +69,14 @@ export const SingleReasonForm = ({ referralId, cancellationType }: IProps) => {
     }
   };
 
-  const isPending =
-    updateReferralCancelStatus.isPending ||
-    updateReferralAttendedStatus.isPending;
-  const isError =
-    updateReferralCancelStatus.isError || updateReferralAttendedStatus.isError;
   return (
     <>
-      {isError && !isPending && <APIErrorToast />}
+      {updateReferralCancelStatus.isError && (
+        <APIErrorToast onClose={() => updateReferralCancelStatus.reset()} />
+      )}
+      {updateReferralAttendedStatus.isError && (
+        <APIErrorToast onClose={() => updateReferralAttendedStatus.reset()} />
+      )}
 
       <Formik initialValues={initialState} onSubmit={handleSubmit}>
         <Form>
@@ -104,7 +104,10 @@ export const SingleReasonForm = ({ referralId, cancellationType }: IProps) => {
               },
             }}
             type="submit"
-            disabled={isPending}>
+            disabled={
+              updateReferralCancelStatus.isPending ||
+              updateReferralAttendedStatus.isPending
+            }>
             Submit
           </PrimaryButton>
         </Form>

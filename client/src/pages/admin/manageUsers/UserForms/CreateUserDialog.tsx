@@ -44,10 +44,21 @@ interface IProps {
 }
 
 export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
-  const [errorMessage, setErrorMessage] = useState('');
-
   const createUser = useMutation({
-    mutationFn: (newUser: NewUser) => createUserAsync(newUser),
+    mutationFn: (newUser: NewUser) =>
+      createUserAsync(newUser).catch((e) => {
+        let message = 'Something went wrong';
+        if (e instanceof AxiosError) {
+          const responseBody = e.response?.data;
+          message = responseBody.description;
+          if ('message' in responseBody) {
+            message = responseBody.description;
+          }
+        } else if (typeof e == 'string') {
+          message = e;
+        }
+        throw new Error(message);
+      }),
   });
 
   const handleSubmit = async (user: NewUser) => {
@@ -59,19 +70,6 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
 
     createUser.mutate(newUser, {
       onSuccess: () => onClose(),
-      onError: (e) => {
-        let message = 'Something went wrong';
-        if (e instanceof AxiosError) {
-          const responseBody = e.response?.data;
-          message = responseBody.description;
-          if ('message' in responseBody) {
-            message = responseBody.description;
-          }
-        } else if (typeof e == 'string') {
-          message = e;
-        }
-        setErrorMessage(`Error: ${message}`);
-      },
     });
   };
 
@@ -85,7 +83,7 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
   return (
     <>
       {createUser.isError && !createUser.isPending && (
-        <APIErrorToast errorMessage={errorMessage} />
+        <APIErrorToast errorMessage={createUser.error.message} />
       )}
 
       <Dialog open={open} maxWidth="sm" fullWidth>

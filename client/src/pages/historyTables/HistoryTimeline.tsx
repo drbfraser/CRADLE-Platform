@@ -34,28 +34,26 @@ type RouteParams = {
 export const HistoryTimeline = () => {
   const { patientId } = useParams<RouteParams>();
 
-  const { data, isPending, isError, isFetching, hasNextPage, fetchNextPage } =
-    useInfiniteQuery({
-      queryKey: ['patientHistoryTimeline', patientId!],
-      queryFn: ({ pageParam }) =>
-        getPatientTimelineAsync(patientId!, pageParam),
-      initialPageParam: 1,
-      getNextPageParam: (lastPage, allPages, lastPageParam) => {
-        if (lastPage.length === 0) {
-          return undefined;
-        }
-        return lastPageParam + 1;
-      },
-      enabled: !!patientId,
-    });
+  const timelineQuery = useInfiniteQuery({
+    queryKey: ['patientHistoryTimeline', patientId!],
+    queryFn: ({ pageParam }) => getPatientTimelineAsync(patientId!, pageParam),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages, lastPageParam) => {
+      if (lastPage.length === 0) {
+        return undefined;
+      }
+      return lastPageParam + 1;
+    },
+    enabled: !!patientId,
+  });
 
   const handleScroll = (event: UIEvent<HTMLDivElement>) => {
     const { scrollHeight, scrollTop, clientHeight } = event.currentTarget;
     const scroll = scrollHeight - scrollTop - clientHeight;
 
-    //User has reached the end of the scroll bar
-    if (scroll === 0 && hasNextPage) {
-      fetchNextPage();
+    // User has reached the end of the scroll bar
+    if (scroll === 0 && timelineQuery.hasNextPage) {
+      timelineQuery.fetchNextPage();
     }
   };
 
@@ -106,16 +104,16 @@ export const HistoryTimeline = () => {
         }}
         onScroll={handleScroll}>
         <Timeline>
-          {isError ? (
+          {timelineQuery.isError ? (
             <Alert severity="error">
               Something went wrong when trying to load history timeline. Please
               try refreshing.
             </Alert>
-          ) : isPending ? (
+          ) : timelineQuery.isPending ? (
             <Skeleton variant="rectangular" height={200} />
-          ) : data.pages.length > 0 ? (
+          ) : timelineQuery.data.pages.length > 0 ? (
             <>
-              {data.pages.map((page) =>
+              {timelineQuery.data.pages.map((page) =>
                 page.map((record: TimelineRecord) => (
                   <TimelineItem key={`${record.date}-${record.title}`}>
                     <TimelineOppositeContent
@@ -140,7 +138,8 @@ export const HistoryTimeline = () => {
                   </TimelineItem>
                 ))
               )}
-              {hasNextPage === false && (
+
+              {timelineQuery.hasNextPage === false && (
                 <TimelineItem>
                   <TimelineOppositeContent
                     style={{ flex: isTransformed ? 0.1 : 0.2 }}
@@ -153,7 +152,10 @@ export const HistoryTimeline = () => {
                   </TimelineContent>
                 </TimelineItem>
               )}
-              {isFetching && <CircularProgress sx={{ marginLeft: '50%' }} />}
+
+              {timelineQuery.isFetching && (
+                <CircularProgress sx={{ marginLeft: '50%' }} />
+              )}
             </>
           ) : (
             <p>No records for this patient.</p>

@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useParams } from 'react-router-dom';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { DeleteForever } from '@mui/icons-material';
 import {
   GridColDef,
@@ -17,7 +18,6 @@ import {
 } from 'src/shared/components/DataTable/TableActionButtons';
 import { DataTable } from 'src/shared/components/DataTable/DataTable';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
-import { useMutation, useQuery } from '@tanstack/react-query';
 
 type RouteParams = {
   patientId: string;
@@ -34,15 +34,17 @@ export const MedicalHistory = ({
   const { patientId } = useParams<RouteParams>();
   const dialogs = useDialogs();
 
-  const { data: medicalRecordsData, refetch } = useQuery({
-    queryKey: [`patientMedicalRecords`, title, patientId],
-    queryFn: async () => {
-      if (!patientId) {
-        throw new Error('Patient ID not defined');
-      }
-      return fetchRecords(patientId);
-    },
-  });
+  const { data: medicalRecordsData, refetch: refetchMedicalRecords } = useQuery(
+    {
+      queryKey: [`patientMedicalRecords`, title, patientId],
+      queryFn: async () => {
+        if (!patientId) {
+          throw new Error('Patient ID not defined');
+        }
+        return fetchRecords(patientId);
+      },
+    }
+  );
 
   const { mutate: deleteRecord } = useMutation({
     mutationFn: (record: MedicalRecord) => deleteMedicalRecordAsync(record),
@@ -69,7 +71,7 @@ export const MedicalHistory = ({
               deleteRecord(record, {
                 onSuccess: () => {
                   dialogs.alert('Medical record successfully deleted.');
-                  refetch();
+                  refetchMedicalRecords();
                 },
                 onError: (e) =>
                   dialogs.alert(
@@ -82,15 +84,15 @@ export const MedicalHistory = ({
       ];
       return record ? <TableActionButtons actions={actions} /> : null;
     },
-    [deleteRecord, dialogs, patientId, refetch]
+    [deleteRecord, dialogs, patientId, refetchMedicalRecords]
   );
 
   const rows =
-    medicalRecordsData?.map((r) => ({
-      id: r.id,
-      dateCreated: getPrettyDate(r.dateCreated),
-      information: r.information,
-      takeAction: r,
+    medicalRecordsData?.map((record) => ({
+      id: record.id,
+      dateCreated: getPrettyDate(record.dateCreated),
+      information: record.information,
+      takeAction: record,
     })) ?? [];
   const columns: GridColDef[] = [
     {

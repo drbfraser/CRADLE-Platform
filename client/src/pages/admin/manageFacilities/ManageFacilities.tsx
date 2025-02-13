@@ -16,15 +16,15 @@ import {
   TableActionButtons,
 } from 'src/shared/components/DataTable/TableActionButtons';
 import { formatPhoneNumber } from 'src/shared/utils';
-import EditFacility from './EditFacility';
+import EditFacilityDialog from './EditFacilityDialog';
 
 export const ManageFacilities = () => {
   const dispatch = useAppDispatch();
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [facilityToEdit, setFacilityToEdit] = useState<Facility>();
 
-  const { data, isError, refetch } = useHealthFacilitiesQuery();
-  const facilities = data ?? [];
+  const facilitiesQuery = useHealthFacilitiesQuery();
+  const facilities = facilitiesQuery.data ?? [];
 
   const ActionButtons = useCallback(
     ({ facility }: { facility?: Facility }) => {
@@ -43,7 +43,7 @@ export const ManageFacilities = () => {
     [setFacilityToEdit, setEditPopupOpen]
   );
 
-  const columns: GridColDef[] = [
+  const tableColumns: GridColDef[] = [
     { flex: 1, field: 'name', headerName: 'Facility Name' },
     { flex: 1, field: 'phoneNumber', headerName: 'Phone Number' },
     { flex: 1, field: 'location', headerName: 'Location' },
@@ -58,12 +58,19 @@ export const ManageFacilities = () => {
       ),
     },
   ];
+  const tableRows = facilities.map((facilitiy, index) => ({
+    id: index,
+    name: facilitiy.name,
+    phoneNumber: formatPhoneNumber(facilitiy.phoneNumber),
+    location: facilitiy.location,
+    takeAction: facilitiy,
+  }));
 
   const editFacility = useCallback(() => {
     setEditPopupOpen(false);
     dispatch(getHealthFacilityList());
-    refetch();
-  }, [dispatch, refetch]);
+    facilitiesQuery.refetch();
+  }, [dispatch, facilitiesQuery]);
 
   const addNewFacility = useCallback(() => {
     setFacilityToEdit(undefined);
@@ -72,13 +79,13 @@ export const ManageFacilities = () => {
 
   return (
     <>
-      {isError && <APIErrorToast />}
+      {facilitiesQuery.isError && <APIErrorToast />}
 
-      <EditFacility
+      <EditFacilityDialog
         open={editPopupOpen}
         onClose={editFacility}
         facilities={facilities}
-        editFacility={facilityToEdit}
+        selectedFacility={facilityToEdit}
       />
       <DataTableHeader title="Healthcare Facilities">
         <Button
@@ -88,16 +95,7 @@ export const ManageFacilities = () => {
           New Facility
         </Button>
       </DataTableHeader>
-      <DataTable
-        rows={facilities.map((f, index) => ({
-          id: index,
-          name: f.name,
-          phoneNumber: formatPhoneNumber(f.phoneNumber),
-          location: f.location,
-          takeAction: f,
-        }))}
-        columns={columns}
-      />
+      <DataTable rows={tableRows} columns={tableColumns} />
     </>
   );
 };

@@ -41,8 +41,6 @@ export const EditUserDialog = ({
   users,
   userToEdit,
 }: IProps) => {
-  const [errorMessage, setErrorMessage] = useState('');
-
   const { otherUsersEmails, otherUsersPhoneNumbers } =
     getOtherUsersEmailsAndPhoneNumbers(users, userToEdit.id);
   const validationSchema = makeEditUserValidationSchema(
@@ -52,7 +50,19 @@ export const EditUserDialog = ({
 
   const updateUser = useMutation({
     mutationFn: (editedUser: EditUser) =>
-      editUserAsync(editedUser, userToEdit.id),
+      editUserAsync(editedUser, userToEdit.id).catch((e) => {
+        let message = 'Something  wrong';
+        if (e instanceof AxiosError) {
+          const responseBody = e.response?.data;
+          message = responseBody.message;
+          if ('message' in responseBody) {
+            message = responseBody.message;
+          }
+        } else if (typeof e === 'string') {
+          message = e;
+        }
+        throw new Error(message);
+      }),
   });
 
   const handleSubmit = async (user: EditUser) => {
@@ -64,26 +74,16 @@ export const EditUserDialog = ({
 
     updateUser.mutate(editedUser, {
       onSuccess: () => onClose(),
-      onError: (e) => {
-        let message = 'Something went wrong';
-        if (e instanceof AxiosError) {
-          const responseBody = e.response?.data;
-          message = responseBody.message;
-          if ('message' in responseBody) {
-            message = responseBody.message;
-          }
-        } else if (typeof e == 'string') {
-          message = e;
-        }
-        setErrorMessage(`Error: ${message}`);
-      },
     });
   };
 
   return (
     <>
-      {updateUser.isError && !updateUser.isPending && (
-        <APIErrorToast errorMessage={errorMessage} />
+      {updateUser.isError && (
+        <APIErrorToast
+          errorMessage={updateUser.error.message}
+          onClose={() => updateUser.reset()}
+        />
       )}
 
       <Dialog open={open} maxWidth="sm" fullWidth>
@@ -135,7 +135,7 @@ export const EditUserDialog = ({
                             (ids as number[])
                               .map(
                                 (id) =>
-                                  users.find((u) => u.id === id)?.name ??
+                                  users.find((user) => user.id === id)?.name ??
                                   'Unknown'
                               )
                               .join(', '),

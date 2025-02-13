@@ -26,16 +26,21 @@ interface IProps {
   open: boolean;
   onClose: () => void;
   facilities: Facility[];
-  editFacility?: Facility;
+  selectedFacility?: Facility;
 }
 
-const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
-  const mutation = useMutation({
+const EditFacilityDialog = ({
+  open,
+  onClose,
+  facilities,
+  selectedFacility,
+}: IProps) => {
+  const updateFacility = useMutation({
     mutationFn: saveHealthFacilityAsync,
   });
 
   const otherFacilities = facilities.filter(
-    (facility) => facility.name !== editFacility?.name
+    (facility) => facility.name !== selectedFacility?.name
   );
   const otherPhoneNumbers = otherFacilities.map(
     (facility) => facility.phoneNumber
@@ -48,21 +53,23 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
   );
 
   const handleSubmit = async (values: Facility) => {
-    mutation.mutate(values, {
+    updateFacility.mutate(values, {
       onSuccess: () => onClose(),
     });
   };
 
-  const creatingNew = editFacility === undefined;
+  const creatingNew = selectedFacility === undefined;
   return (
     <>
-      {mutation.isError && !mutation.isPending && <APIErrorToast />}
+      {updateFacility.isError && (
+        <APIErrorToast onClose={() => updateFacility.reset()} />
+      )}
 
       <Dialog open={open} maxWidth="sm" fullWidth>
         <DialogTitle>{creatingNew ? 'Create' : 'Edit'} Facility</DialogTitle>
         <DialogContent>
           <Formik
-            initialValues={editFacility ?? facilityTemplate}
+            initialValues={selectedFacility ?? facilityTemplate}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}>
             {({ isValid }) => (
@@ -120,7 +127,7 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
                   </CancelButton>
                   <PrimaryButton
                     type="submit"
-                    disabled={mutation.isPending || !isValid}>
+                    disabled={updateFacility.isPending || !isValid}>
                     {creatingNew ? 'Create' : 'Save'}
                   </PrimaryButton>
                 </DialogActions>
@@ -133,4 +140,4 @@ const EditFacility = ({ open, onClose, facilities, editFacility }: IProps) => {
   );
 };
 
-export default EditFacility;
+export default EditFacilityDialog;
