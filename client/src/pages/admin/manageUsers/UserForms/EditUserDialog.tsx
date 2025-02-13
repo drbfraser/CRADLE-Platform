@@ -73,7 +73,6 @@ export const EditUserDialog = ({
             message = responseBody.message;
           }
         } else if (typeof e == 'string') {
-          console.log('e is a string');
           message = e;
         }
         setErrorMessage(`Error: ${message}`);
