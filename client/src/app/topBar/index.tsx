@@ -10,7 +10,7 @@ import { useAppDispatch, useAppSelector } from '../../shared/hooks';
 
 import AppBar from '@mui/material/AppBar';
 import AppImg from './img/app_icon.png';
-import ChangePasswordDialog from './changePassword/ChangePassword';
+import ChangePasswordDialog from './changePasswordDialog/ChangePasswordDialog';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';

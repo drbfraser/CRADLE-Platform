@@ -23,7 +23,7 @@ import { CreateUserDialog } from './UserForms/CreateUserDialog';
 import { formatPhoneNumbers } from 'src/shared/utils';
 import { EditUserDialog } from './UserForms/EditUserDialog';
 import DeleteUserDialog from './DeleteUserDialog';
-import ResetPasswordDialog from './ResetPassword';
+import ResetPasswordDialog from './ResetPasswordDialog';
 
 export const ManageUsers = () => {
   const [editPopupOpen, setEditPopupOpen] = useState(false);
