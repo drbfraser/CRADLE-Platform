@@ -1,6 +1,6 @@
 import { BREAKPOINT, COLUMNS, SORTABLE_COLUMNS } from './constants';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { debounce, parseInt } from 'lodash';
 
 import { APITable } from 'src/shared/components/apiTable';
@@ -41,7 +41,7 @@ export const ReferralsPage = () => {
   const secretKey = useAppSelector(selectSecretKey);
   const dispatch = useAppDispatch();
 
-  React.useEffect(() => {
+  useEffect(() => {
     sessionStorage.setItem('lastRefreshTime', '0');
     if (localStorage.getItem('refreshInterval') === null) {
       localStorage.setItem('refreshInterval', '60');
@@ -51,9 +51,9 @@ export const ReferralsPage = () => {
     if (userId && secretKey == undefined) {
       dispatch(getSecretKey(userId));
     }
-  }, []);
+  }, [dispatch, secretKey, userId]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (
       userId &&
       secretKey !== undefined &&
@@ -62,7 +62,7 @@ export const ReferralsPage = () => {
     ) {
       setExpiredMessage(true);
     }
-  }, [secretKey]);
+  }, [secretKey, userId]);
 
   return (
     <>
@@ -178,13 +178,12 @@ export const ReferralsPage = () => {
               isTransformed={isTransformed}
               setIsPromptShown={setIsPromptShown}
             />
-            <Box>
-              <AutoRefresher
-                setRefresh={setRefresh}
-                refreshTimer={refreshTimer}
-                setIsRefreshDialogOpen={setIsRefreshDialogOpen}
-              />
-            </Box>
+
+            <AutoRefresher
+              setRefresh={setRefresh}
+              refreshTimer={refreshTimer}
+              setIsRefreshDialogOpen={setIsRefreshDialogOpen}
+            />
 
             {isPromptShown && (
               <Box
