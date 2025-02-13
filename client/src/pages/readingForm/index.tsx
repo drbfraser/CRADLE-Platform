@@ -89,8 +89,10 @@ export const ReadingFormPage = () => {
         margin: '0 auto',
         maxWidth: '1250px',
       }}>
-      {(addReading.isError || readingQuery.isError) &&
-        !addReading.isPending && <APIErrorToast />}
+      {readingQuery.isError && <APIErrorToast />}
+      {addReading.isError && (
+        <APIErrorToast onClose={() => addReading.reset()} />
+      )}
 
       <PatientHeader title="New Reading" patient={patient} />
 

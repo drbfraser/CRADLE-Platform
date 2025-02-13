@@ -1,6 +1,5 @@
 import React from 'react';
 import { UseQueryResult } from '@tanstack/react-query';
-
 import { Box, Typography, Skeleton } from '@mui/material';
 import {
   BarElement,
@@ -27,11 +26,10 @@ interface IProps {
 }
 
 export const StatisticDashboard: React.FC<IProps> = ({ statsQuery }) => {
-  const { data, isPending, isError } = statsQuery;
-  if (isPending || isError) {
+  if (statsQuery.isPending || statsQuery.isError) {
     return (
       <Box>
-        {isError && <APIErrorToast />}
+        {statsQuery.isError && <APIErrorToast />}
         <Skeleton variant="rectangular" height={700} />
       </Box>
     );
@@ -43,11 +41,11 @@ export const StatisticDashboard: React.FC<IProps> = ({ statsQuery }) => {
       {
         label: 'Traffic Light',
         data: [
-          data.colorReadings.GREEN,
-          data.colorReadings.YELLOW_UP,
-          data.colorReadings.YELLOW_DOWN,
-          data.colorReadings.RED_UP,
-          data.colorReadings.RED_DOWN,
+          statsQuery.data.colorReadings.GREEN,
+          statsQuery.data.colorReadings.YELLOW_UP,
+          statsQuery.data.colorReadings.YELLOW_DOWN,
+          statsQuery.data.colorReadings.RED_UP,
+          statsQuery.data.colorReadings.RED_DOWN,
         ],
         backgroundColor: [
           trafficLightColors[TrafficLightEnum.GREEN],
@@ -72,23 +70,23 @@ export const StatisticDashboard: React.FC<IProps> = ({ statsQuery }) => {
         {[
           {
             label: 'Days with Readings',
-            value: data.daysWithReadings,
+            value: statsQuery.data.daysWithReadings,
           },
           {
             label: 'Unique Patient Readings',
-            value: data.uniquePatientReadings,
+            value: statsQuery.data.uniquePatientReadings,
           },
           {
             label: 'Total Readings',
-            value: data.totalReadings,
+            value: statsQuery.data.totalReadings,
           },
           {
             label: 'Patients Referred',
-            value: data.patientsReferred,
+            value: statsQuery.data.patientsReferred,
           },
           {
             label: 'Referrals Sent',
-            value: data.sentReferrals,
+            value: statsQuery.data.sentReferrals,
           },
         ].map(
           (stat, i) =>

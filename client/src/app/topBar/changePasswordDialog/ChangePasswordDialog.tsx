@@ -24,8 +24,8 @@ interface IProps {
   onClose: () => void;
 }
 
-const ChangePassword = ({ open, onClose }: IProps) => {
-  const { mutate, isSuccess, isError, isPending } = useMutation({
+const ChangePasswordDialog = ({ open, onClose }: IProps) => {
+  const changePassword = useMutation({
     mutationFn: (values: IPasswordForm) =>
       changePasswordAsync(
         values[PasswordField.currentPass],
@@ -34,7 +34,7 @@ const ChangePassword = ({ open, onClose }: IProps) => {
   });
 
   const handleSubmit = async (values: IPasswordForm) => {
-    mutate(values, {
+    changePassword.mutate(values, {
       onSuccess: () => onClose(),
     });
   };
@@ -44,13 +44,13 @@ const ChangePassword = ({ open, onClose }: IProps) => {
       <Toast
         severity="success"
         message="Password change successful!"
-        open={isSuccess}
+        open={changePassword.isSuccess}
       />
 
       <Dialog open={open} maxWidth="xs" fullWidth>
         <DialogTitle>Change Password</DialogTitle>
         <DialogContent>
-          {isError && (
+          {changePassword.isError && (
             <Alert sx={{ marginBottom: '2rem' }} severity="error">
               Unable to change your password. Did you enter your current
               password correctly?
@@ -97,7 +97,9 @@ const ChangePassword = ({ open, onClose }: IProps) => {
                 <CancelButton type="button" onClick={onClose}>
                   Cancel
                 </CancelButton>
-                <PrimaryButton type="submit" disabled={isPending}>
+                <PrimaryButton
+                  type="submit"
+                  disabled={changePassword.isPending}>
                   Change
                 </PrimaryButton>
               </DialogActions>
@@ -109,4 +111,4 @@ const ChangePassword = ({ open, onClose }: IProps) => {
   );
 };
 
-export default ChangePassword;
+export default ChangePasswordDialog;

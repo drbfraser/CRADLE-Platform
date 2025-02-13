@@ -22,8 +22,8 @@ import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader
 import { CreateUserDialog } from './UserForms/CreateUserDialog';
 import { formatPhoneNumbers } from 'src/shared/utils';
 import { EditUserDialog } from './UserForms/EditUserDialog';
-import DeleteUser from './DeleteUser';
-import ResetPassword from './ResetPassword';
+import DeleteUserDialog from './DeleteUserDialog';
+import ResetPasswordDialog from './ResetPassword';
 
 export const ManageUsers = () => {
   const [editPopupOpen, setEditPopupOpen] = useState(false);
@@ -79,7 +79,7 @@ export const ManageUsers = () => {
     [currentUser?.id]
   );
 
-  const columns: GridColDef[] = [
+  const tableColumns: GridColDef[] = [
     { flex: 1, field: 'name', headerName: 'Name' },
     { flex: 1, field: 'email', headerName: 'Email' },
     { flex: 1, field: 'phoneNumbers', headerName: 'Phone Numbers' },
@@ -96,6 +96,15 @@ export const ManageUsers = () => {
       ),
     },
   ];
+  const tableRows = users.map((user, index) => ({
+    id: index,
+    name: user.name,
+    email: user.email,
+    phoneNumbers: formatPhoneNumbers(user.phoneNumbers),
+    healthFacility: user.healthFacilityName,
+    role: userRoleLabels[user.role],
+    takeAction: user,
+  }));
 
   const addNewUser = useCallback(() => {
     setPopupUser(undefined);
@@ -125,12 +134,12 @@ export const ManageUsers = () => {
             users={users}
             userToEdit={popupUser}
           />
-          <ResetPassword
+          <ResetPasswordDialog
             open={passwordPopupOpen}
             onClose={() => setPasswordPopupOpen(false)}
             resetUser={popupUser}
           />
-          <DeleteUser
+          <DeleteUserDialog
             open={deletePopupOpen}
             onClose={() => {
               setDeletePopupOpen(false);
@@ -149,18 +158,7 @@ export const ManageUsers = () => {
           New User
         </Button>
       </DataTableHeader>
-      <DataTable
-        rows={users.map((u, index) => ({
-          id: index,
-          name: u.name,
-          email: u.email,
-          phoneNumbers: formatPhoneNumbers(u.phoneNumbers),
-          healthFacility: u.healthFacilityName,
-          role: userRoleLabels[u.role],
-          takeAction: u,
-        }))}
-        columns={columns}
-      />
+      <DataTable columns={tableColumns} rows={tableRows} />
     </>
   );
 };

@@ -5,7 +5,7 @@ import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 
-import { PatientWithIndex } from 'src/shared/types';
+import { Patient } from 'src/shared/types';
 import { getPatientsAdminAsync } from 'src/shared/api/api';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import {
@@ -23,48 +23,43 @@ import UnarchivePatient from './UnarchivePatient';
 export const ManagePatients = () => {
   const [archivePopupOpen, setArchivePopupOpen] = useState(false);
   const [unarchivePopupOpen, setUnarchivePopupOpen] = useState(false);
-  const [popupPatient, setPopupPatient] = useState<PatientWithIndex>();
+  const [popupPatient, setPopupPatient] = useState<Patient>();
   const [showArchivedPatients, setShowArchivedPatients] = useState(true);
 
   const patientsQuery = useQuery({
     queryKey: ['adminPatientList', showArchivedPatients],
     queryFn: () => getPatientsAdminAsync(showArchivedPatients),
-    select: (data): PatientWithIndex[] =>
-      data.map((patient, index) => ({ ...patient, index })),
   });
   const patients = patientsQuery.data ?? [];
 
-  const ActionButtons = useCallback(
-    ({ patient }: { patient?: PatientWithIndex }) => {
-      if (!patient) return null;
+  const ActionButtons = useCallback(({ patient }: { patient?: Patient }) => {
+    if (!patient) return null;
 
-      const actions: TableAction[] = [];
-      if (patient.isArchived) {
-        actions.push({
-          tooltip: 'Unarchive Patient',
-          Icon: RestoreFromTrashIcon,
-          onClick: () => {
-            setUnarchivePopupOpen(true);
-            setPopupPatient(patient);
-          },
-        });
-      } else {
-        actions.push({
-          tooltip: 'Archive Patient',
-          Icon: DeleteForever,
-          onClick: () => {
-            setArchivePopupOpen(true);
-            setPopupPatient(patient);
-          },
-        });
-      }
+    const actions: TableAction[] = [];
+    if (patient.isArchived) {
+      actions.push({
+        tooltip: 'Unarchive Patient',
+        Icon: RestoreFromTrashIcon,
+        onClick: () => {
+          setUnarchivePopupOpen(true);
+          setPopupPatient(patient);
+        },
+      });
+    } else {
+      actions.push({
+        tooltip: 'Archive Patient',
+        Icon: DeleteForever,
+        onClick: () => {
+          setArchivePopupOpen(true);
+          setPopupPatient(patient);
+        },
+      });
+    }
 
-      return <TableActionButtons actions={actions} />;
-    },
-    []
-  );
+    return <TableActionButtons actions={actions} />;
+  }, []);
 
-  const columns: GridColDef[] = [
+  const tableColumns: GridColDef[] = [
     { flex: 1, field: 'patientName', headerName: 'Patient Name' },
     { flex: 1, field: 'patientId', headerName: 'Patient ID' },
     { flex: 1, field: 'isArchived', headerName: 'Archived?' },
@@ -74,7 +69,7 @@ export const ManagePatients = () => {
       headerName: 'Take Action',
       filterable: false,
       sortable: false,
-      renderCell: (params: GridRenderCellParams<any, PatientWithIndex>) => (
+      renderCell: (params: GridRenderCellParams<any, Patient>) => (
         <ActionButtons patient={params.value} />
       ),
     },
@@ -127,7 +122,7 @@ export const ManagePatients = () => {
 
       <DataTableHeader title="Patients" />
       <DataTable
-        columns={columns}
+        columns={tableColumns}
         rows={tableRows}
         footer={Footer}
         getRowClassName={(params) => {

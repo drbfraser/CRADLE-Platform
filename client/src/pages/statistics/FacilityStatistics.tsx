@@ -28,7 +28,7 @@ export const FacilityStatistics = ({ from, to }: FacilityStatisticsProps) => {
     setFacilityName(event.target.value);
   };
 
-  const { data: facilities, isError } = useHealthFacilitiesQuery();
+  const allFacilitiesQuery = useHealthFacilitiesQuery();
 
   const facilityQuery = useQuery({
     queryKey: ['facility', facilityName, from, to],
@@ -38,7 +38,7 @@ export const FacilityStatistics = ({ from, to }: FacilityStatisticsProps) => {
 
   return (
     <Box sx={STATS_PAGE_SX}>
-      {isError && <APIErrorToast />}
+      {allFacilitiesQuery.isError && <APIErrorToast />}
 
       <Box
         sx={{
@@ -65,7 +65,7 @@ export const FacilityStatistics = ({ from, to }: FacilityStatisticsProps) => {
             value={facilityName}
             onChange={handleChange}
             autoWidth>
-            {facilities?.map((facility, idx) => (
+            {allFacilitiesQuery.data?.map((facility, idx) => (
               <MenuItem value={facility.name} key={idx}>
                 {facility.name}
               </MenuItem>

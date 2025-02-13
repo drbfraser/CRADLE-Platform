@@ -68,21 +68,24 @@ const DownloadCSV = ({ getData }: IProps) => {
     { label: 'Traffic Arrow', key: 'traffic_arrow' },
   ];
 
-  const { data, isPending, isError } = useQuery({
+  const exportDataQuery = useQuery({
     queryKey: ['exportData'],
     queryFn: getData,
   });
-  if (isPending) {
+  if (exportDataQuery.isPending) {
     return <>Loading...</>;
   }
-  if (isError) {
+  if (exportDataQuery.isError) {
     return <APIErrorToast />;
   }
-  data.forEach((row) => parseRow(row));
+  exportDataQuery.data.forEach((row) => parseRow(row));
 
   return (
     <Box>
-      <CSVLink data={data} headers={headers} filename="stats.csv">
+      <CSVLink
+        data={exportDataQuery.data}
+        headers={headers}
+        filename="stats.csv">
         Download stats.csv
       </CSVLink>
     </Box>

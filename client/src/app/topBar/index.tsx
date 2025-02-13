@@ -10,7 +10,7 @@ import { useAppDispatch, useAppSelector } from '../../shared/hooks';
 
 import AppBar from '@mui/material/AppBar';
 import AppImg from './img/app_icon.png';
-import ChangePassword from './changePassword/ChangePassword';
+import ChangePasswordDialog from './changePassword/ChangePassword';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
@@ -147,7 +147,7 @@ export const TopBar = () => {
               </MenuItem>
               <MenuItem onClick={handleLogout}>Logout</MenuItem>
             </Menu>
-            <ChangePassword
+            <ChangePasswordDialog
               open={changePasswordOpen}
               onClose={() => setChangePasswordOpen(false)}
             />

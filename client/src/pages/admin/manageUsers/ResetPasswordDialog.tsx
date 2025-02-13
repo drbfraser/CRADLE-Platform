@@ -28,8 +28,8 @@ interface IProps {
   resetUser: User;
 }
 
-const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
-  const mutation = useMutation({
+const ResetPasswordDialog = ({ open, onClose, resetUser }: IProps) => {
+  const updatePassword = useMutation({
     mutationFn: ({
       resetUser,
       newPassword,
@@ -40,7 +40,7 @@ const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
   });
 
   const handleSubmit = async (values: FormValues) => {
-    mutation.mutate(
+    updatePassword.mutate(
       { resetUser, newPassword: values[UserField.password] },
       { onSuccess: () => onClose() }
     );
@@ -51,9 +51,9 @@ const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
       <Toast
         severity="success"
         message="Password reset successful!"
-        open={mutation.isSuccess}
+        open={updatePassword.isSuccess}
       />
-      {mutation.isError && !mutation.isPending && <APIErrorToast />}
+      {updatePassword.isError && !updatePassword.isPending && <APIErrorToast />}
 
       <Dialog open={open} maxWidth="xs" fullWidth>
         <DialogTitle>Reset Password: {resetUser.name}</DialogTitle>
@@ -105,4 +105,4 @@ const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
   );
 };
 
-export default ResetPassword;
+export default ResetPasswordDialog;
