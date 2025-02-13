@@ -1,46 +1,39 @@
+import { useMutation } from '@tanstack/react-query';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { ConfirmDialog } from 'src/shared/components/confirmDialog/index';
 import { Patient } from 'src/shared/types';
 import { Toast } from 'src/shared/components/toast';
 import { unarchivePatientAsync } from 'src/shared/api/api';
-import { useState } from 'react';
 
 interface IProps {
   open: boolean;
   onClose: () => void;
-  patient: Patient | undefined;
+  patient: Patient;
 }
 
-const UnarchivePatient = ({ open, onClose, patient }: IProps) => {
-  const [submitError, setSubmitError] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const name = patient?.name;
+const UnarchivePatientDialog = ({ open, onClose, patient }: IProps) => {
+  const unarchivePatient = useMutation({
+    mutationFn: unarchivePatientAsync,
+  });
 
-  const handleDelete = async () => {
-    if (!patient) {
-      return;
-    }
-
-    try {
-      await unarchivePatientAsync(patient.id);
-
-      setSubmitError(false);
-      setSubmitSuccess(true);
-      onClose();
-    } catch (e) {
-      setSubmitError(true);
-    }
+  const handleDelete = () => {
+    unarchivePatient.mutate(patient.id, {
+      onSuccess: () => onClose(),
+    });
   };
 
+  const name = patient.name;
   return (
     <>
       <Toast
         severity="success"
         message="Patient successfully unarchived!"
-        open={submitSuccess}
-        onClose={() => setSubmitSuccess(false)}
+        open={unarchivePatient.isSuccess}
       />
-      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
+      {unarchivePatient.isError && (
+        <APIErrorToast onClose={() => unarchivePatient.reset()} />
+      )}
+
       <ConfirmDialog
         title={`Unarchive Patient: ${name}`}
         content={`Are you sure you want to unarchive ${name}'s account? `}
@@ -52,4 +45,4 @@ const UnarchivePatient = ({ open, onClose, patient }: IProps) => {
   );
 };
 
-export default UnarchivePatient;
+export default UnarchivePatientDialog;
