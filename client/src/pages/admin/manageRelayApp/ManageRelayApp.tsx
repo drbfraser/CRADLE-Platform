@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import * as yup from 'yup';
 import { Field, Form, Formik } from 'formik';
 import {
@@ -49,6 +49,26 @@ import { DataTable } from 'src/shared/components/DataTable/DataTable';
 import EditRelayNum from './editRelayNum';
 import DeleteRelayNum from './DeleteRelayNum';
 
+const filename = 'cradle_sms_relay.apk';
+
+const relayNumberTemplate = {
+  phoneNumber: '',
+  description: '',
+  lastReceived: 0,
+};
+
+const validationSchema = yup.object({
+  phone: yup.string().required('Required').max(20),
+  description: yup.string().max(250),
+});
+
+const errorMessages: { [name: number]: string } = {
+  400: 'Invalid file',
+  413: 'File too large',
+  422: 'Unsupported file type',
+  500: 'Internal Server Error',
+};
+
 export const ManageRelayApp = () => {
   const [hasFile, setHasFile] = useState(false);
   const [fileSize, setFileSize] = useState<string>();
@@ -74,26 +94,6 @@ export const ManageRelayApp = () => {
     queryKey: ['relayNumbers'],
     queryFn: getRelayServerPhones,
   });
-
-  const filename = 'cradle_sms_relay.apk';
-
-  const relayNumberTemplate = {
-    phoneNumber: '',
-    description: '',
-    lastReceived: 0,
-  };
-
-  const validationSchema = yup.object({
-    phone: yup.string().required('Required').max(20),
-    description: yup.string().max(250),
-  });
-
-  const errorMessages: { [name: number]: string } = {
-    400: 'Invalid file',
-    413: 'File too large',
-    422: 'Unsupported file type',
-    500: 'Internal Server Error',
-  };
 
   const handleChange = (event: React.ChangeEvent<any>) => {
     setSelectedFile(event.target.files[0]);
@@ -149,16 +149,15 @@ export const ManageRelayApp = () => {
     loadAppFile();
   }, [numFileUploaded]);
 
+  const addNewRelayServerPhone = useMutation({
+    mutationFn: ({ phoneNumber, description }: RelayNum) =>
+      addRelayServerPhone(phoneNumber, description),
+  });
+
   const handleSubmit = async (values: RelayNum) => {
-    try {
-      await addRelayServerPhone(values.phoneNumber, values.description);
-      const resp = await getRelayServerPhones();
-      if (resp) {
-        // setRelayNums(resp);
-      }
-    } catch (e: any) {
-      setErrorLoading(true);
-    }
+    addNewRelayServerPhone.mutate(values, {
+      onSuccess: () => relayNumbersQuery.refetch(),
+    });
   };
 
   const ActionButtons = useCallback(({ relayNum }: { relayNum?: RelayNum }) => {
@@ -245,6 +244,8 @@ export const ManageRelayApp = () => {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
   });
+
+  const isError = relayNumbersQuery.isError || addNewRelayServerPhone.isError;
 
   return (
     <>
