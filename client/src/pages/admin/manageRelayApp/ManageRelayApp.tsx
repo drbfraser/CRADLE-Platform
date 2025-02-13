@@ -1,4 +1,9 @@
+import { useCallback, useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import * as yup from 'yup';
+import { Field, Form, Formik } from 'formik';
 import {
+  Alert,
   Box,
   Button,
   Dialog,
@@ -14,7 +19,18 @@ import {
   Theme,
   Typography,
 } from '@mui/material';
-import React, { useCallback, useEffect, useState } from 'react';
+import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import {
+  CloudDownloadOutlined,
+  DeleteForever,
+  Edit,
+  UploadFile,
+} from '@mui/icons-material';
+import AddIcon from '@mui/icons-material/Add';
+import DownloadIcon from '@mui/icons-material/Download';
+
+import { formatBytes } from 'src/shared/utils';
+import { RelayNum } from 'src/shared/types';
 import {
   addRelayServerPhone,
   getAppFileAsync,
@@ -22,35 +38,16 @@ import {
   getRelayServerPhones,
   uploadAppFileAsync,
 } from 'src/shared/api/api';
-
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { Alert } from '@mui/material';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
-import {
-  CloudDownloadOutlined,
-  DeleteForever,
-  Edit,
-  UploadFile,
-} from '@mui/icons-material';
-import * as yup from 'yup';
-import { formatBytes } from 'src/shared/utils';
-import { Field, Form, Formik } from 'formik';
-import { RelayNum } from 'src/shared/types';
-import EditRelayNum from './editRelayNum';
-import DeleteRelayNum from './DeleteRelayNum';
-import {
-  GridColDef,
-  GridRenderCellParams,
-  GridRowsProp,
-} from '@mui/x-data-grid';
-import AddIcon from '@mui/icons-material/Add';
-import DownloadIcon from '@mui/icons-material/Download';
 import {
   TableAction,
   TableActionButtons,
 } from 'src/shared/components/DataTable/TableActionButtons';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
 import { DataTable } from 'src/shared/components/DataTable/DataTable';
+import EditRelayNum from './editRelayNum';
+import DeleteRelayNum from './DeleteRelayNum';
 
 export const ManageRelayApp = () => {
   const [hasFile, setHasFile] = useState(false);
@@ -63,7 +60,6 @@ export const ManageRelayApp = () => {
   const [errorLoading, setErrorLoading] = useState(false);
 
   // Table
-  const [relayNums, setRelayNums] = useState<RelayNum[]>([]);
 
   // Relay App Actions
   const [AppActionsPopup, openAppActionsPopup] = useState(false);
@@ -74,18 +70,10 @@ export const ManageRelayApp = () => {
   const [popupRelayNum, setPopupRelayNum] = useState<RelayNum>();
   const [deletePopupOpen, setDeletePopupOpen] = useState(false);
 
-  const [rows, setRows] = useState<GridRowsProp>([]);
-  const updateRowData = (relayNums: RelayNum[]) => {
-    setRows(
-      relayNums.map((relayNum, index) => ({
-        id: index,
-        phoneNumber: relayNum.phoneNumber,
-        description: relayNum.description,
-        lastReceived: relayNum.lastReceived,
-        takeAction: relayNum,
-      }))
-    );
-  };
+  const relayNumbersQuery = useQuery({
+    queryKey: ['relayNumbers'],
+    queryFn: getRelayServerPhones,
+  });
 
   const filename = 'cradle_sms_relay.apk';
 
@@ -141,25 +129,6 @@ export const ManageRelayApp = () => {
     }
   };
 
-  const getRelayNums = async () => {
-    try {
-      const nums: RelayNum[] = await getRelayServerPhones();
-      if (nums) {
-        setRelayNums(nums);
-      }
-    } catch (e) {
-      if (e !== 404) setErrorLoading(true);
-    }
-  };
-
-  useEffect(() => {
-    getRelayNums();
-  }, []);
-
-  useEffect(() => {
-    updateRowData(relayNums);
-  }, [relayNums]);
-
   useEffect(() => {
     const loadAppFile = async () => {
       try {
@@ -185,7 +154,7 @@ export const ManageRelayApp = () => {
       await addRelayServerPhone(values.phoneNumber, values.description);
       const resp = await getRelayServerPhones();
       if (resp) {
-        setRelayNums(resp);
+        // setRelayNums(resp);
       }
     } catch (e: any) {
       setErrorLoading(true);
@@ -221,7 +190,7 @@ export const ManageRelayApp = () => {
     return <TableActionButtons actions={actions} />;
   }, []);
 
-  const columns: GridColDef[] = [
+  const tableColumns: GridColDef[] = [
     { flex: 1, field: 'phoneNumber', headerName: 'Phone Number' },
     { flex: 1, field: 'description', headerName: 'Description' },
     {
@@ -240,6 +209,14 @@ export const ManageRelayApp = () => {
       ),
     },
   ];
+  const tableRows =
+    relayNumbersQuery.data?.map((relayNum, index) => ({
+      id: index,
+      phoneNumber: relayNum.phoneNumber,
+      description: relayNum.description,
+      lastReceived: relayNum.lastReceived,
+      takeAction: relayNum,
+    })) ?? [];
 
   const HeaderButtons = () => {
     return (
@@ -418,9 +395,9 @@ export const ManageRelayApp = () => {
         open={editPopupOpen}
         onClose={() => {
           setEditPopupOpen(false);
-          getRelayNums();
+          relayNumbersQuery.refetch();
         }}
-        relayNums={relayNums}
+        relayNums={relayNumbersQuery?.data ?? []}
         editRelayNum={popupRelayNum}
       />
 
@@ -428,14 +405,14 @@ export const ManageRelayApp = () => {
         open={deletePopupOpen}
         onClose={() => {
           setDeletePopupOpen(false);
-          getRelayNums();
+          relayNumbersQuery.refetch();
         }}
         deleteRelayNum={popupRelayNum}
       />
       <DataTableHeader title={'Relay App Servers'}>
         <HeaderButtons />
       </DataTableHeader>
-      <DataTable columns={columns} rows={rows} />
+      <DataTable columns={tableColumns} rows={tableRows} />
     </>
   );
 };

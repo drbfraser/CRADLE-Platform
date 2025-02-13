@@ -739,7 +739,7 @@ export const addRelayServerPhone = async (
   return response.data;
 };
 
-export const getRelayServerPhones = async () =>
+export const getRelayServerPhones = async (): Promise<RelayNum[]> =>
   (await axiosFetch.get(EndpointEnum.RELAY_SERVER_PHONE)).data;
 
 export const saveRelayNumAsync = async (relayNum: RelayNum) => {
