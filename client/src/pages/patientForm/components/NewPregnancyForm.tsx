@@ -6,7 +6,7 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { PatientState } from '../state';
 import { useAddPregnancyMutation } from '../mutations';
 import { pregnancyInfoValidationSchema } from './pregnancyInfo/validation';
-import { processValues } from './pregnancyInfo/utils';
+import { processPregnancyValues } from './pregnancyInfo/utils';
 import PatientFormHeader from './PatientFormHeader';
 import { PregnancyInfoForm } from './pregnancyInfo';
 
@@ -21,7 +21,7 @@ const NewPregnancyForm = ({ initialState, patientId }: Props) => {
   const addNewPregnancy = useAddPregnancyMutation();
 
   const handleSubmit = (values: PatientState) => {
-    const submitValues = { patientId, ...processValues(values) };
+    const submitValues = { patientId, ...processPregnancyValues(values) };
     addNewPregnancy.mutate(submitValues, {
       onSuccess: () => navigate(`/patients/${patientId}`),
     });
@@ -29,8 +29,11 @@ const NewPregnancyForm = ({ initialState, patientId }: Props) => {
 
   return (
     <>
-      {addNewPregnancy.isError && !addNewPregnancy.isPending && (
-        <APIErrorToast errorMessage={addNewPregnancy.error.message} />
+      {addNewPregnancy.isError && (
+        <APIErrorToast
+          errorMessage={addNewPregnancy.error.message}
+          onClose={() => addNewPregnancy.reset()}
+        />
       )}
 
       <PatientFormHeader patientId={patientId} title="Add New Pregnancy" />

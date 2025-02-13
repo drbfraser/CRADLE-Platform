@@ -41,7 +41,7 @@ const NewMedicalRecordForm = ({
 
   return (
     <>
-      {addRecord.isError && !addRecord.isError && <APIErrorToast />}
+      {addRecord.isError && <APIErrorToast onClose={() => addRecord.reset()} />}
 
       <PatientFormHeader
         patientId={patientId}

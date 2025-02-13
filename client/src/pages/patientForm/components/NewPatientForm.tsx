@@ -13,8 +13,6 @@ import {
 import { PrimaryButton, SecondaryButton } from 'src/shared/components/Button';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { getDOBForEstimatedAge } from 'src/shared/utils';
-import { GestationalAgeUnitEnum } from 'src/shared/enums';
-import { gestationalAgeUnitTimestamp } from 'src/shared/constants';
 import { PatientField, PatientState } from '../state';
 import {
   useAddPatientInfoMutation,
@@ -27,6 +25,7 @@ import { MedicalInfoForm } from './medicalInfo';
 import { PersonalInfoForm } from './personalInfo';
 import { PregnancyInfoForm } from './pregnancyInfo';
 import PatientFormHeader from './PatientFormHeader';
+import { processPregnancyValues } from './pregnancyInfo/utils';
 
 const STEPS = [
   {
@@ -78,19 +77,10 @@ export const NewPatientForm = ({ initialState }: PatientFormProps) => {
 
       const isPregnant = Boolean(values[PatientField.isPregnant]);
       if (isPregnant) {
-        let pregnancyStartDate =
-          values.gestationalAgeUnit === GestationalAgeUnitEnum.WEEKS
-            ? gestationalAgeUnitTimestamp[GestationalAgeUnitEnum.WEEKS](
-                values.gestationalAgeWeeks,
-                values.gestationalAgeDays
-              )
-            : gestationalAgeUnitTimestamp[GestationalAgeUnitEnum.MONTHS](
-                values.gestationalAgeMonths
-              );
-        pregnancyStartDate = Math.round(pregnancyStartDate);
+        const pregnancyValues = processPregnancyValues(values);
         await addPregnancyInfo.mutateAsync({
           patientId,
-          startDate: pregnancyStartDate,
+          startDate: pregnancyValues.startDate,
         });
       }
 
@@ -119,11 +109,17 @@ export const NewPatientForm = ({ initialState }: PatientFormProps) => {
   const isSubmitting = addPatientInfo.isPending || addPregnancyInfo.isPaused;
   return (
     <>
-      {addPatientInfo.isError && !addPatientInfo.isPending && (
-        <APIErrorToast errorMessage={addPatientInfo.error.message} />
+      {addPatientInfo.isError && (
+        <APIErrorToast
+          errorMessage={addPatientInfo.error.message}
+          onClose={() => addPatientInfo.reset()}
+        />
       )}
-      {addPregnancyInfo.isError && !addPregnancyInfo.isPending && (
-        <APIErrorToast errorMessage={addPregnancyInfo.error.message} />
+      {addPregnancyInfo.isError && (
+        <APIErrorToast
+          errorMessage={addPregnancyInfo.error.message}
+          onClose={() => addPregnancyInfo.reset()}
+        />
       )}
 
       <PatientFormHeader title={STEPS[stepNum].title} />

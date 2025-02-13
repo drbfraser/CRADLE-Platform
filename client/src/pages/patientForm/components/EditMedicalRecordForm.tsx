@@ -55,11 +55,14 @@ const EditMedicalRecordForm = ({
     });
   };
 
-  const isError = updateRecord.isError || deleteRecord.isError;
-  const isPending = updateRecord.isPending || deleteRecord.isPending;
   return (
     <>
-      {isError && !isPending && <APIErrorToast />}
+      {updateRecord.isError && (
+        <APIErrorToast onClose={() => updateRecord.reset()} />
+      )}
+      {deleteRecord.isError && (
+        <APIErrorToast onClose={() => deleteRecord.reset()} />
+      )}
 
       <ConfirmDialog
         title="Delete Record?"

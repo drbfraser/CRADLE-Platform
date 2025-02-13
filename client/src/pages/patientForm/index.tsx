@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import LinearProgress from '@mui/material/LinearProgress';
 
 import { FormContainer } from 'src/shared/components/layout/FormContainer';
@@ -9,7 +9,7 @@ import EditPregnancyForm from './components/EditPregnancyForm';
 import EditPersonalInfoForm from './components/EditPersonalInfoForm';
 import EditMedicalRecordForm from './components/EditMedicalRecordForm';
 import NewMedicalRecordForm from './components/NewMedicalRecordForm';
-import { PatientState, getPatientState } from './state';
+import { getPatientState } from './state';
 
 type FormType =
   | 'newPatient'
@@ -71,13 +71,13 @@ export const PatientFormPage = () => {
   // universalRecordId stands for pregnancyId and medicalRecordId because they share the same route matching
   const { patientId, editId, universalRecordId } = useParams() as RouteParams;
 
-  const [formInitialState, setFormInitialState] = useState<PatientState>();
-
-  useEffect(() => {
-    getPatientState(patientId, universalRecordId, editId).then((state) =>
-      setFormInitialState(state)
-    );
-  }, [patientId, editId, universalRecordId]);
+  const patientStateQuery = useQuery({
+    queryKey: ['patientState', patientId, universalRecordId, editId],
+    queryFn: () => getPatientState(patientId, universalRecordId, editId),
+  });
+  if (patientStateQuery.isPending || patientStateQuery.isError) {
+    return <LinearProgress />;
+  }
 
   const formType = getFormType(patientId, editId, universalRecordId);
   let Form = null;
@@ -86,7 +86,7 @@ export const PatientFormPage = () => {
       Form = (
         <EditPersonalInfoForm
           patientId={patientId!}
-          initialState={formInitialState!}
+          initialState={patientStateQuery.data}
         />
       );
       break;
@@ -95,7 +95,7 @@ export const PatientFormPage = () => {
         <EditPregnancyForm
           patientId={patientId!}
           pregnancyId={universalRecordId!}
-          initialState={formInitialState!}
+          initialState={patientStateQuery.data}
         />
       );
       break;
@@ -103,7 +103,7 @@ export const PatientFormPage = () => {
       Form = (
         <NewPregnancyForm
           patientId={patientId!}
-          initialState={formInitialState!}
+          initialState={patientStateQuery.data}
         />
       );
       break;
@@ -112,7 +112,7 @@ export const PatientFormPage = () => {
         <NewMedicalRecordForm
           isDrugHistory={false}
           patientId={patientId!}
-          initialState={formInitialState!}
+          initialState={patientStateQuery.data}
         />
       );
       break;
@@ -122,7 +122,7 @@ export const PatientFormPage = () => {
           isDrugHistory={false}
           patientId={patientId!}
           recordId={universalRecordId!}
-          initialState={formInitialState!}
+          initialState={patientStateQuery.data}
         />
       );
       break;
@@ -131,7 +131,7 @@ export const PatientFormPage = () => {
         <NewMedicalRecordForm
           isDrugHistory
           patientId={patientId!}
-          initialState={formInitialState!}
+          initialState={patientStateQuery.data}
         />
       );
       break;
@@ -141,17 +141,13 @@ export const PatientFormPage = () => {
           isDrugHistory
           patientId={patientId!}
           recordId={universalRecordId!}
-          initialState={formInitialState!}
+          initialState={patientStateQuery.data!}
         />
       );
       break;
     default:
-      Form = <NewPatientForm initialState={formInitialState!} />;
+      Form = <NewPatientForm initialState={patientStateQuery.data!} />;
   }
 
-  return (
-    <FormContainer>
-      {formInitialState === undefined ? <LinearProgress /> : <>{Form}</>}
-    </FormContainer>
-  );
+  return <FormContainer>{Form}</FormContainer>;
 };

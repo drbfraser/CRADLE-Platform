@@ -14,7 +14,7 @@ import {
 import PatientFormHeader from './PatientFormHeader';
 import { pregnancyInfoValidationSchema } from './pregnancyInfo/validation';
 import { PregnancyInfoForm } from './pregnancyInfo';
-import { processValues } from './pregnancyInfo/utils';
+import { processPregnancyValues } from './pregnancyInfo/utils';
 
 type Props = {
   patientId: string;
@@ -30,7 +30,7 @@ const EditPregnancyForm = ({ patientId, pregnancyId, initialState }: Props) => {
   const deletePregnancy = useDeletePregnancyMutation(pregnancyId);
 
   const handleSubmit = (values: PatientState) => {
-    const submitValues = { patientId, ...processValues(values) };
+    const submitValues = { patientId, ...processPregnancyValues(values) };
     updatePregnancy.mutate(submitValues, {
       onSuccess: () => navigate(`/patients/${patientId}`),
     });
@@ -42,11 +42,14 @@ const EditPregnancyForm = ({ patientId, pregnancyId, initialState }: Props) => {
     });
   };
 
-  const isError = updatePregnancy.isError || deletePregnancy.isError;
-  const isPending = updatePregnancy.isPending || deletePregnancy.isPending;
   return (
     <>
-      {isError && !isPending && <APIErrorToast />}
+      {updatePregnancy.isError && (
+        <APIErrorToast onClose={() => updatePregnancy.reset()} />
+      )}
+      {deletePregnancy.isError && (
+        <APIErrorToast onClose={() => updatePregnancy.reset()} />
+      )}
 
       <ConfirmDialog
         title="Delete Record?"

@@ -60,7 +60,9 @@ const EditPersonalInfoForm = ({ patientId, initialState }: Props) => {
 
   return (
     <>
-      {updatePatient.isError && !updatePatient.isPending && <APIErrorToast />}
+      {updatePatient.isError && (
+        <APIErrorToast onClose={() => updatePatient.reset()} />
+      )}
 
       <PatientFormHeader
         patientId={patientId}
