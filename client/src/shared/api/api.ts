@@ -190,7 +190,7 @@ export const getAllFormTemplatesAsync = async (includeArchived: boolean) => {
 
 export const getFormTemplateAsync = async (formTemplateId: string) => {
   const response = await axiosFetch.get(
-    `${EndpointEnum.FORM_TEMPLATES}/${formTemplateId}`
+    `${EndpointEnum.FORM_TEMPLATES}/blank/${formTemplateId}`
   );
   return response.data;
 };

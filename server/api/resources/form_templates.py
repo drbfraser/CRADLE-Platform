@@ -284,6 +284,15 @@ def get_blank_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuer
             shallow=False,
             if_include_versions=True,
         )
+
+        # filter to only include question entities that don't have an answer
+        filtered_questions = [] 
+        for question in blank_template["questions"]:
+            if question.get("is_blank", True): 
+                filtered_questions.append(question)
+        
+        blank_template["questions"] = filtered_questions
+
         blank_template = serialize.serialize_blank_form_template(blank_template)
         return blank_template
 

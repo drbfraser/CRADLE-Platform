@@ -108,7 +108,7 @@ def get_form_classification_summary():
     Get a list containing the most recent Form Template version of each Form Classification.
     """
     form_classifications = crud.read_all(FormClassificationOrm)
-    result_templates = []
+    valid_templates = []
 
     for form_classification in form_classifications:
         possible_templates = crud.find(
@@ -119,21 +119,28 @@ def get_form_classification_summary():
         if len(possible_templates) == 0:
             continue
 
-        result_template = None
+        latest_template = None
         for possible_template in possible_templates:
             if (
-                result_template is None
-                or possible_template.date_created > result_template.date_created
+                latest_template is None
+                or possible_template.date_created > latest_template.date_created
             ):
-                result_template = possible_template
+                latest_template = possible_template
 
-        if result_template is not None:
-            result_templates.append(result_template)
+        # only include questions that don't already have answers.
+        # this endpoint is used by Android when you go to Patients > Create New Form.
+        if latest_template is not None:
+            valid_questions = [] 
+            for question in latest_template.questions:
+                if question.is_blank:
+                    valid_questions.append(question)
+            latest_template.questions = valid_questions
+            valid_templates.append(latest_template)
 
-    return [
-        marshal.marshal(f, shallow=False, if_include_versions=True)
-        for f in result_templates
-    ], 200
+    marshaled_templates = [] 
+    for template in valid_templates:
+        marshaled_templates.append(marshal.marshal(template, shallow=False, if_include_versions=True))
+    return marshaled_templates, 200
 
 
 # /api/forms/classifications/<string:form_classification_id>/templates [GET]
