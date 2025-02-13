@@ -290,7 +290,6 @@ def get_blank_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuer
         for question in blank_template["questions"]:
             if question.get("is_blank", True): 
                 filtered_questions.append(question)
-        
         blank_template["questions"] = filtered_questions
 
         blank_template = serialize.serialize_blank_form_template(blank_template)
