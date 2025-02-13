@@ -18,7 +18,7 @@ import {
 } from 'src/shared/components/DataTable/DataTable';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
 import ArchivePatientDialog from './ArchivePatientDialog';
-import UnarchivePatient from './UnarchivePatient';
+import UnarchivePatientDialog from './UnarchivePatientDialog';
 
 export const ManagePatients = () => {
   const [archivePopupOpen, setArchivePopupOpen] = useState(false);
@@ -113,7 +113,7 @@ export const ManagePatients = () => {
             }}
             patient={popupPatient}
           />
-          <UnarchivePatient
+          <UnarchivePatientDialog
             open={unarchivePopupOpen}
             onClose={() => {
               setUnarchivePopupOpen(false);
