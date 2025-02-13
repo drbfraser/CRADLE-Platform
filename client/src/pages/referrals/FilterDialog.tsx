@@ -1,34 +1,39 @@
+import React, { SyntheticEvent, useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import {
+  Autocomplete,
+  Box,
+  Checkbox,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
+import Grid from '@mui/material/Grid2';
+import DoneIcon from '@mui/icons-material/Done';
+import ScheduleIcon from '@mui/icons-material/Schedule';
+
+import { ReferralFilter, Referrer } from 'src/shared/types';
+import { getUserVhtsAsync } from 'src/shared/api/api';
+import { TrafficLightEnum } from 'src/shared/enums';
+import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
+import { useAppSelector } from 'src/shared/hooks';
+import { useHealthFacilityNames } from 'src/shared/hooks/healthFacilities';
+import { TrafficLight } from 'src/shared/components/trafficLight';
+import { DateRangePickerWithPreset } from 'src/shared/components/Date/DateRangePicker';
+import { useDateRangeState } from 'src/shared/components/Date/useDateRangeState';
 import {
   CancelButton,
   PrimaryButton,
   SecondaryButton,
 } from 'src/shared/components/Button';
-
-import { Facility, ReferralFilter, Referrer } from 'src/shared/types';
-import React, { SyntheticEvent, useEffect, useState } from 'react';
-import { getHealthFacilitiesAsync, getUserVhtsAsync } from 'src/shared/api/api';
-import Autocomplete from '@mui/material/Autocomplete';
-import Box from '@mui/material/Box';
-import Checkbox from '@mui/material/Checkbox';
-import Chip from '@mui/material/Chip';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
-import DoneIcon from '@mui/icons-material/Done';
-import FormControlLabel from '@mui/material/FormControlLabel';
-
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import ScheduleIcon from '@mui/icons-material/Schedule';
-import { Stack, TextField, Typography } from '@mui/material';
-import Grid from '@mui/material/Grid2';
-import { TrafficLight } from 'src/shared/components/trafficLight';
-import { TrafficLightEnum } from 'src/shared/enums';
-import { DateRangePickerWithPreset } from 'src/shared/components/Date/DateRangePicker';
-import { useDateRangeState } from 'src/shared/components/Date/useDateRangeState';
-import { useAppSelector } from 'src/shared/hooks';
-import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
 
 interface IProps {
   open: boolean;
@@ -83,12 +88,10 @@ export const FilterDialog = ({
   const [selectedHealthFacilities, setSelectedHealthFacilities] = useState<
     string[]
   >([]);
-  const [healthFacilities, setHealthFacilities] = useState<string[]>([]);
 
   const dateRangeState = useDateRangeState();
 
   const [selectedReferrers, setSelectedReferrers] = useState<Referrer[]>([]);
-  const [referrers, setReferrers] = useState<Referrer[]>([]);
 
   const [selectedVitalSign, setSelectedVitalSign] = useState<
     TrafficLightEnum[]
@@ -97,30 +100,12 @@ export const FilterDialog = ({
   const [isPregnant, setIsPregnant] = useState<string>();
   const [isAssessed, setIsAssessed] = useState<string>();
 
-  useEffect(() => {
-    const fetchHealthFacilities = async () => {
-      try {
-        const facilities = await getHealthFacilitiesAsync();
+  const healthFacilityNames = useHealthFacilityNames();
 
-        setHealthFacilities(
-          facilities.map((facility: Facility) => facility.name)
-        );
-      } catch (e) {
-        console.log(e);
-      }
-    };
-
-    const fetchUserVhts = async () => {
-      try {
-        setReferrers(await getUserVhtsAsync());
-      } catch (e) {
-        console.log(e);
-      }
-    };
-
-    fetchHealthFacilities();
-    fetchUserVhts();
-  }, []);
+  const referrersQuery = useQuery({
+    queryKey: ['userVHTs'],
+    queryFn: getUserVhtsAsync,
+  });
 
   useEffect(() => {
     if (filter === undefined) {
@@ -263,7 +248,7 @@ export const FilterDialog = ({
               <Autocomplete
                 id="facility-select"
                 onChange={onFacilitySelect}
-                options={healthFacilities}
+                options={healthFacilityNames}
                 getOptionLabel={(facility) => facility}
                 renderInput={(params) => (
                   <TextField
@@ -275,7 +260,7 @@ export const FilterDialog = ({
               />
               <Box m={1.5} display="flex" flexWrap="wrap">
                 {selectedHealthFacilities.map((facility, index) => (
-                  <Box m={0.5} key={index}>
+                  <Box mx={0.5} key={index}>
                     <Chip
                       label={facility}
                       onDelete={() => handleDeleteFacilityChip(index)}
@@ -299,7 +284,7 @@ export const FilterDialog = ({
               <Autocomplete
                 id="referrer-select"
                 onChange={onReferrerSelect}
-                options={referrers}
+                options={referrersQuery.data ?? []}
                 getOptionLabel={(referrer) =>
                   `${referrer.firstName} - ${referrer.email} - ${referrer.healthFacilityName}`
                 }
@@ -313,7 +298,7 @@ export const FilterDialog = ({
               />
               <Box m={1.5} display="flex" flexWrap="wrap">
                 {selectedReferrers.map((referrer, index) => (
-                  <Box m={0.5} key={referrer.userId}>
+                  <Box mx={0.5} key={referrer.userId}>
                     <Chip
                       label={referrer.firstName}
                       onDelete={() => handleDeleteReferrerChip(index)}
