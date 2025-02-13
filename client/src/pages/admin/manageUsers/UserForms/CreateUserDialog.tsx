@@ -68,7 +68,6 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
             message = responseBody.description;
           }
         } else if (typeof e == 'string') {
-          console.log('e is a string');
           message = e;
         }
         setErrorMessage(`Error: ${message}`);
