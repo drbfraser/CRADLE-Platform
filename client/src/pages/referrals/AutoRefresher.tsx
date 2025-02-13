@@ -1,19 +1,11 @@
-import { Facility } from 'src/shared/types';
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Box, CircularProgress, SxProps, Typography } from '@mui/material';
 
-import CircularProgress from '@mui/material/CircularProgress';
-import { PrimaryButton } from 'src/shared/components/Button';
-import Typography from '@mui/material/Typography';
 import { getHealthFacilityAsync } from 'src/shared/api/api';
-import { Box, SxProps } from '@mui/material';
-import { useAppSelector } from 'src/shared/hooks';
 import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
-
-const ENABLE_BUTTON_SX: SxProps = {
-  verticalAlign: 'middle',
-  display: 'inline-block',
-  margin: 'auto 6px auto 6px',
-};
+import { useAppSelector } from 'src/shared/hooks';
+import { PrimaryButton } from 'src/shared/components/Button';
+import { useQuery } from '@tanstack/react-query';
 
 interface IProps {
   setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
@@ -27,55 +19,54 @@ export const AutoRefresher = ({
   setIsRefreshDialogOpen,
 }: IProps) => {
   const [progress, setProgress] = useState<number>(0);
-  const [ifAutoRefreshOn, setIfAutoRefreshOn] = useState<boolean>(true);
+  const [isAutoRefreshOn, setIsAutoRefreshOn] = useState<boolean>(true);
   const [healthFacilityName, setHealthFacilityName] = useState<string>();
 
-  const { data: user } = useAppSelector(selectCurrentUser);
+  const healthcareFacilityQuery = useQuery({
+    queryKey: ['healthcareFacility', healthFacilityName],
+    queryFn: () => getHealthFacilityAsync(healthFacilityName),
+  });
 
-  React.useEffect(() => {
+  const { data: user } = useAppSelector(selectCurrentUser);
+  useEffect(() => {
     if (user) {
       setHealthFacilityName(user.healthFacilityName);
     }
   }, [user]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setProgress(0);
 
     if (refreshTimer === 0) {
-      setIfAutoRefreshOn(false);
+      setIsAutoRefreshOn(false);
       return;
     }
-
-    setIfAutoRefreshOn(true);
+    setIsAutoRefreshOn(true);
 
     const timePerSlice = refreshTimer * 10;
 
     const refreshFacilities = async () => {
-      const healthFacility: Facility = await getHealthFacilityAsync(
-        healthFacilityName
-      );
+      if (!healthcareFacilityQuery.data) {
+        return;
+      }
 
       const lastRefreshTime = sessionStorage.getItem('lastRefreshTime');
+      const newReferrals = healthcareFacilityQuery.data.newReferrals;
 
-      if (Number(lastRefreshTime) < healthFacility.newReferrals) {
+      if (Number(lastRefreshTime) < newReferrals) {
         setRefresh((prevRefresh) => !prevRefresh);
-
-        sessionStorage.setItem(
-          'lastRefreshTime',
-          healthFacility.newReferrals.toString()
-        );
+        sessionStorage.setItem('lastRefreshTime', newReferrals.toString());
       }
     };
 
     const timer = setInterval(
-      async () =>
+      () =>
         setProgress((progress) => {
           if (progress < 100) {
             return progress + 1;
           }
 
           refreshFacilities();
-
           return 0;
         }),
       timePerSlice
@@ -86,24 +77,25 @@ export const AutoRefresher = ({
         clearInterval(timer);
       }
     };
-  }, [refreshTimer, setRefresh, healthFacilityName]);
+  }, [
+    refreshTimer,
+    setRefresh,
+    healthFacilityName,
+    healthcareFacilityQuery.data,
+  ]);
 
   return (
-    <Box
-      sx={{
-        display: 'inline-block',
-        margin: 'auto 0',
-      }}>
+    <Box>
       <Typography
         sx={{
-          display: 'inline-block',
           verticalAlign: 'middle',
         }}
         color="textSecondary"
         variant="overline">
-        Auto-Refresh{' '}
+        Auto-Refresh
       </Typography>
-      {ifAutoRefreshOn ? (
+
+      {isAutoRefreshOn ? (
         <PrimaryButton
           sx={ENABLE_BUTTON_SX}
           onClick={() => setIsRefreshDialogOpen(true)}>
@@ -117,7 +109,7 @@ export const AutoRefresher = ({
         </PrimaryButton>
       )}
       <CircularProgress
-        sx={ifAutoRefreshOn ? CIRCULAR_PROGRESS_SX : HIDDEN_SX}
+        sx={isAutoRefreshOn ? CIRCULAR_PROGRESS_SX : HIDDEN_SX}
         variant="determinate"
         value={progress}
       />
@@ -125,14 +117,15 @@ export const AutoRefresher = ({
   );
 };
 
+const ENABLE_BUTTON_SX: SxProps = {
+  verticalAlign: 'middle',
+  margin: 'auto 6px auto 6px',
+};
 const CIRCULAR_PROGRESS_SX: SxProps = {
   maxWidth: '1.6em',
   verticalAlign: 'middle',
   margin: 'auto 10px',
 };
 const HIDDEN_SX: SxProps = {
-  visibility: 'hidden',
-  maxWidth: '1.6em',
-  verticalAlign: 'middle',
-  margin: 'auto 10px',
+  display: 'none',
 };
