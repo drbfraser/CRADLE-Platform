@@ -17,11 +17,12 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import DoneIcon from '@mui/icons-material/Done';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import Grid from '@mui/material/Grid';
+
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import ScheduleIcon from '@mui/icons-material/Schedule';
-import { TextField } from '@mui/material';
+import { Stack, TextField, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { TrafficLightEnum } from 'src/shared/enums';
 import { DateRangePickerWithPreset } from 'src/shared/components/Date/DateRangePicker';
@@ -43,7 +44,7 @@ type VitalSign = {
   vitalSign: TrafficLightEnum;
 };
 
-const vitalSigns: VitalSign[] = [
+const VITAL_SIGNS: VitalSign[] = [
   {
     name: 'Green',
     vitalSign: TrafficLightEnum.GREEN,
@@ -246,205 +247,242 @@ export const FilterDialog = ({
       maxWidth={isTransformed ? 'md' : 'sm'}
       onClose={onClose}
       aria-labelledby="filter-dialog">
-      <DialogTitle id="filter-dialog">Advanced Search</DialogTitle>
-      <DialogContent
-        sx={{
-          maxHeight: '600px',
-        }}>
-        <Grid container spacing={3}>
-          <Grid item md={12} sm={12} xs={12}>
-            <h4>Health Facility</h4>
-            <Autocomplete
-              id="facility-select"
-              onChange={onFacilitySelect}
-              options={healthFacilities}
-              getOptionLabel={(facility) => facility}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Search Facility"
-                  variant="outlined"
-                />
-              )}
-            />
-            <Box m={1.5} display="flex" flexWrap="wrap">
-              {selectedHealthFacilities.map((facility, index) => (
-                <Box m={0.5} key={index}>
-                  <Chip
-                    label={facility}
-                    onDelete={() => handleDeleteFacilityChip(index)}
-                    color="primary"
+      <Stack sx={{ padding: '20px' }} spacing={'20px'}>
+        <DialogTitle id="filter-dialog" variant="h3">
+          Advanced Search
+        </DialogTitle>
+        <DialogContent
+          sx={{
+            maxHeight: '600px',
+          }}>
+          <Grid container spacing={3}>
+            <Grid size={12}>
+              <Typography variant="h4" component="h3">
+                Health Facility
+              </Typography>
+              <Autocomplete
+                id="facility-select"
+                onChange={onFacilitySelect}
+                options={healthFacilities}
+                getOptionLabel={(facility) => facility}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Search Facility"
+                    variant="outlined"
                   />
-                </Box>
-              ))}
-            </Box>
-          </Grid>
+                )}
+              />
+              <Box m={1.5} display="flex" flexWrap="wrap">
+                {selectedHealthFacilities.map((facility, index) => (
+                  <Box m={0.5} key={index}>
+                    <Chip
+                      label={facility}
+                      onDelete={() => handleDeleteFacilityChip(index)}
+                      color="primary"
+                    />
+                  </Box>
+                ))}
+              </Box>
+            </Grid>
 
-          <Grid item md={12} sm={12} xs={12}>
-            <h4>Date Range</h4>
-            <DateRangePickerWithPreset {...dateRangeState} clearButton />
-          </Grid>
-          <Grid item md={12} sm={12} xs={12}>
-            <h4>Referrer</h4>
-            <Autocomplete
-              id="referrer-select"
-              onChange={onReferrerSelect}
-              options={referrers}
-              getOptionLabel={(referrer) =>
-                `${referrer.firstName} - ${referrer.email} - ${referrer.healthFacilityName}`
-              }
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Search Referrer"
-                  variant="outlined"
-                />
-              )}
-            />
-            <Box m={1.5} display="flex" flexWrap="wrap">
-              {selectedReferrers.map((referrer, index) => (
-                <Box m={0.5} key={referrer.userId}>
-                  <Chip
-                    label={referrer.firstName}
-                    onDelete={() => handleDeleteReferrerChip(index)}
-                    color="primary"
+            <Grid size={12}>
+              <Typography variant="h4" component="h3">
+                Date Range
+              </Typography>
+              <DateRangePickerWithPreset {...dateRangeState} clearButton />
+            </Grid>
+            <Grid size={12}>
+              <Typography variant="h4" component="h3">
+                Referrer
+              </Typography>
+              <Autocomplete
+                id="referrer-select"
+                onChange={onReferrerSelect}
+                options={referrers}
+                getOptionLabel={(referrer) =>
+                  `${referrer.firstName} - ${referrer.email} - ${referrer.healthFacilityName}`
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Search Referrer"
+                    variant="outlined"
                   />
-                </Box>
-              ))}
-            </Box>
-          </Grid>
-          <Grid item>
-            <h4>Cradle Readings</h4>
-            {vitalSigns.map((vitalSign, index) => (
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={selectedVitalSign.includes(vitalSign.vitalSign)}
-                    onChange={(event, checked) => {
-                      if (checked) {
-                        setSelectedVitalSign([
-                          ...selectedVitalSign,
-                          TrafficLightEnum[
-                            event.target.value as keyof typeof TrafficLightEnum
-                          ],
-                        ]);
-                      } else {
-                        const newVitalSigns = [...selectedVitalSign];
-                        const i = newVitalSigns.indexOf(
-                          TrafficLightEnum[
-                            event.target.value as keyof typeof TrafficLightEnum
-                          ]
-                        );
-                        if (i > -1) {
-                          newVitalSigns.splice(i, 1);
+                )}
+              />
+              <Box m={1.5} display="flex" flexWrap="wrap">
+                {selectedReferrers.map((referrer, index) => (
+                  <Box m={0.5} key={referrer.userId}>
+                    <Chip
+                      label={referrer.firstName}
+                      onDelete={() => handleDeleteReferrerChip(index)}
+                      color="primary"
+                    />
+                  </Box>
+                ))}
+              </Box>
+            </Grid>
+
+            <Grid size={12}>
+              <Typography variant="h4" component="h3">
+                Cradle Readings
+              </Typography>
+              {VITAL_SIGNS.map((vitalSign, index) => (
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={selectedVitalSign.includes(vitalSign.vitalSign)}
+                      onChange={(event, checked) => {
+                        if (checked) {
+                          setSelectedVitalSign([
+                            ...selectedVitalSign,
+                            TrafficLightEnum[
+                              event.target
+                                .value as keyof typeof TrafficLightEnum
+                            ],
+                          ]);
+                        } else {
+                          const newVitalSigns = [...selectedVitalSign];
+                          const i = newVitalSigns.indexOf(
+                            TrafficLightEnum[
+                              event.target
+                                .value as keyof typeof TrafficLightEnum
+                            ]
+                          );
+                          if (i > -1) {
+                            newVitalSigns.splice(i, 1);
+                          }
+                          setSelectedVitalSign(newVitalSigns);
                         }
-                        setSelectedVitalSign(newVitalSigns);
-                      }
-                    }}
-                    value={vitalSign.vitalSign}
-                  />
-                }
-                label={
-                  <>
-                    <TrafficLight status={vitalSign.vitalSign} />{' '}
-                    {vitalSign.name}
-                  </>
-                }
-                key={index}
-              />
-            ))}
-          </Grid>
-          <Grid item md={6} sm={6}>
-            <h4>Pregnant</h4>
-            <RadioGroup
-              aria-label="isPregnant"
-              value={isPregnant}
-              onChange={(_, value) => setIsPregnant(value)}>
-              <FormControlLabel
-                value="1"
-                control={
-                  <Radio
-                    checked={isPregnant === `1`}
-                    onClick={(event) => {
-                      handleRadioButtonClick(event, isPregnant, setIsPregnant);
-                    }}
-                  />
-                }
-                label="Yes"
-              />
-              <FormControlLabel
-                value="0"
-                control={
-                  <Radio
-                    checked={isPregnant === `0`}
-                    onClick={(event) => {
-                      handleRadioButtonClick(event, isPregnant, setIsPregnant);
-                    }}
-                  />
-                }
-                label="No"
-              />
-            </RadioGroup>
-          </Grid>
-          <Grid item md={6} sm={6}>
-            <h4>Assessment Status</h4>
-            <RadioGroup
-              aria-label="isAssessed"
-              value={isAssessed}
-              onChange={(_, value) => setIsAssessed(value)}>
-              <FormControlLabel
-                value="1"
-                control={
-                  <Radio
-                    checked={isAssessed === `1`}
-                    onClick={(event) => {
-                      handleRadioButtonClick(event, isAssessed, setIsAssessed);
-                    }}
-                  />
-                }
-                label={
-                  <>
-                    <DoneIcon
-                      sx={{
-                        color: '#4caf50',
-                        padding: '2px',
+                      }}
+                      value={vitalSign.vitalSign}
+                    />
+                  }
+                  label={
+                    <>
+                      <TrafficLight status={vitalSign.vitalSign} />{' '}
+                      {vitalSign.name}
+                    </>
+                  }
+                  key={index}
+                />
+              ))}
+            </Grid>
+
+            <Grid size={6}>
+              <Typography variant="h4" component="h3">
+                Pregnant
+              </Typography>
+              <RadioGroup
+                aria-label="isPregnant"
+                value={isPregnant}
+                onChange={(_, value) => setIsPregnant(value)}>
+                <FormControlLabel
+                  value="1"
+                  control={
+                    <Radio
+                      checked={isPregnant === `1`}
+                      onClick={(event) => {
+                        handleRadioButtonClick(
+                          event,
+                          isPregnant,
+                          setIsPregnant
+                        );
                       }}
                     />
-                    Complete
-                  </>
-                }
-              />
-              <FormControlLabel
-                value="0"
-                control={
-                  <Radio
-                    checked={isAssessed === `0`}
-                    onClick={(event) => {
-                      handleRadioButtonClick(event, isAssessed, setIsAssessed);
-                    }}
-                  />
-                }
-                label={
-                  <>
-                    <ScheduleIcon
-                      sx={{
-                        color: '#f44336',
-                        padding: '2px',
+                  }
+                  label="Yes"
+                />
+                <FormControlLabel
+                  value="0"
+                  control={
+                    <Radio
+                      checked={isPregnant === `0`}
+                      onClick={(event) => {
+                        handleRadioButtonClick(
+                          event,
+                          isPregnant,
+                          setIsPregnant
+                        );
                       }}
                     />
-                    Pending
-                  </>
-                }
-              />
-            </RadioGroup>
+                  }
+                  label="No"
+                />
+              </RadioGroup>
+            </Grid>
+
+            <Grid size={6}>
+              <Typography variant="h4" component="h3">
+                Assessment Status
+              </Typography>
+              <RadioGroup
+                aria-label="isAssessed"
+                value={isAssessed}
+                onChange={(_, value) => setIsAssessed(value)}>
+                <FormControlLabel
+                  value="1"
+                  control={
+                    <Radio
+                      checked={isAssessed === `1`}
+                      onClick={(event) => {
+                        handleRadioButtonClick(
+                          event,
+                          isAssessed,
+                          setIsAssessed
+                        );
+                      }}
+                    />
+                  }
+                  label={
+                    <>
+                      <DoneIcon
+                        sx={{
+                          color: '#4caf50',
+                          padding: '2px',
+                        }}
+                      />
+                      Complete
+                    </>
+                  }
+                />
+                <FormControlLabel
+                  value="0"
+                  control={
+                    <Radio
+                      checked={isAssessed === `0`}
+                      onClick={(event) => {
+                        handleRadioButtonClick(
+                          event,
+                          isAssessed,
+                          setIsAssessed
+                        );
+                      }}
+                    />
+                  }
+                  label={
+                    <>
+                      <ScheduleIcon
+                        sx={{
+                          color: '#f44336',
+                          padding: '2px',
+                        }}
+                      />
+                      Pending
+                    </>
+                  }
+                />
+              </RadioGroup>
+            </Grid>
           </Grid>
-        </Grid>
-      </DialogContent>
-      <DialogActions>
-        <CancelButton onClick={onClose}>Cancel</CancelButton>
-        <SecondaryButton onClick={clearFilter}>Clear All</SecondaryButton>
-        <PrimaryButton onClick={onConfirm}>Apply Filter</PrimaryButton>
-      </DialogActions>
+        </DialogContent>
+        <DialogActions>
+          <CancelButton onClick={onClose}>Cancel</CancelButton>
+          <SecondaryButton onClick={clearFilter}>Clear All</SecondaryButton>
+          <PrimaryButton onClick={onConfirm}>Apply Filter</PrimaryButton>
+        </DialogActions>
+      </Stack>
     </Dialog>
   );
 };
