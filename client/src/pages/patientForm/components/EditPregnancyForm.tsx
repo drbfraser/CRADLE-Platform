@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Form, Formik, FormikProps } from 'formik';
+import { useQuery } from '@tanstack/react-query';
 import { Box, LinearProgress } from '@mui/material';
 
 import { ConfirmDialog } from 'src/shared/components/confirmDialog';
@@ -14,8 +15,7 @@ import {
 import PatientFormHeader from './PatientFormHeader';
 import { pregnancyInfoValidationSchema } from './pregnancyInfo/validation';
 import { PregnancyInfoForm } from './pregnancyInfo';
-import { getPregnancyValues } from './pregnancyInfo/utils';
-import { useQuery } from '@tanstack/react-query';
+import { processPregnancyValues } from './pregnancyInfo/utils';
 import { getPregnancyAsync } from 'src/shared/api/api';
 import { GestationalAgeUnitEnum } from 'src/shared/enums';
 import { Pregnancy } from 'src/shared/types';
@@ -64,7 +64,7 @@ const EditPregnancyForm = () => {
   }
 
   const handleSubmit = (values: PatientState) => {
-    const submitValues = { patientId, ...getPregnancyValues(values) };
+    const submitValues = { patientId, ...processPregnancyValues(values) };
     updatePregnancy.mutate(submitValues, {
       onSuccess: () => navigate(`/patients/${patientId}`),
     });

@@ -12,7 +12,7 @@ export type PregnancySubmitValues = {
   outcome?: string;
 };
 
-export const getPregnancyValues = (
+export const processPregnancyValues = (
   rawValues: PatientState
 ): Omit<PregnancySubmitValues, 'patientId'> => {
   const submitValues = {
