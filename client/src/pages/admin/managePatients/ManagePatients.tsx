@@ -17,7 +17,7 @@ import {
   DataTableFooter,
 } from 'src/shared/components/DataTable/DataTable';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
-import ArchivePatient from './ArchivePatient';
+import ArchivePatientDialog from './ArchivePatientDialog';
 import UnarchivePatient from './UnarchivePatient';
 
 export const ManagePatients = () => {
@@ -26,13 +26,13 @@ export const ManagePatients = () => {
   const [popupPatient, setPopupPatient] = useState<PatientWithIndex>();
   const [showArchivedPatients, setShowArchivedPatients] = useState(true);
 
-  const { data, isError, refetch } = useQuery({
+  const adminPatientListQuery = useQuery({
     queryKey: ['adminPatientList', showArchivedPatients],
     queryFn: () => getPatientsAdminAsync(showArchivedPatients),
     select: (data): PatientWithIndex[] =>
       data.map((patient, index) => ({ ...patient, index })),
   });
-  const patients = data ?? [];
+  const patients = adminPatientListQuery.data ?? [];
   const tableRows = patients.map((patient, index) => ({
     id: index,
     patientName: patient.name,
@@ -106,24 +106,28 @@ export const ManagePatients = () => {
 
   return (
     <>
-      {isError && <APIErrorToast />}
+      {adminPatientListQuery.isError && <APIErrorToast />}
 
-      <ArchivePatient
-        open={archivePopupOpen}
-        onClose={() => {
-          setArchivePopupOpen(false);
-          refetch();
-        }}
-        patient={popupPatient}
-      />
-      <UnarchivePatient
-        open={unarchivePopupOpen}
-        onClose={() => {
-          setUnarchivePopupOpen(false);
-          refetch();
-        }}
-        patient={popupPatient}
-      />
+      {popupPatient && (
+        <>
+          <ArchivePatientDialog
+            open={archivePopupOpen}
+            onClose={() => {
+              setArchivePopupOpen(false);
+              adminPatientListQuery.refetch();
+            }}
+            patient={popupPatient}
+          />
+          <UnarchivePatient
+            open={unarchivePopupOpen}
+            onClose={() => {
+              setUnarchivePopupOpen(false);
+              adminPatientListQuery.refetch();
+            }}
+            patient={popupPatient}
+          />
+        </>
+      )}
 
       <DataTableHeader title="Patients" />
       <DataTable
