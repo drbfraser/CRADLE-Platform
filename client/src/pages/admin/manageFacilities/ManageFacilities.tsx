@@ -58,24 +58,23 @@ export const ManageFacilities = () => {
       ),
     },
   ];
-  const tableRows = facilities.map((facilitiy, index) => ({
+  const tableRows = facilities.map((facility, index) => ({
     id: index,
-    name: facilitiy.name,
-    phoneNumber: formatPhoneNumber(facilitiy.phoneNumber),
-    location: facilitiy.location,
-    takeAction: facilitiy,
+    name: facility.name,
+    phoneNumber: formatPhoneNumber(facility.phoneNumber),
+    location: facility.location,
+    takeAction: facility,
   }));
 
-  const editFacility = useCallback(() => {
+  const editFacility = () => {
     setEditPopupOpen(false);
     dispatch(getHealthFacilityList());
     facilitiesQuery.refetch();
-  }, [dispatch, facilitiesQuery]);
-
-  const addNewFacility = useCallback(() => {
+  };
+  const addNewFacility = () => {
     setFacilityToEdit(undefined);
     setEditPopupOpen(true);
-  }, []);
+  };
 
   return (
     <>
