@@ -130,16 +130,18 @@ def get_form_classification_summary():
         # only include questions that don't already have answers.
         # this endpoint is used by Android when you go to Patients > Create New Form.
         if latest_template is not None:
-            valid_questions = [] 
+            valid_questions = []
             for question in latest_template.questions:
                 if question.is_blank:
                     valid_questions.append(question)
             latest_template.questions = valid_questions
             valid_templates.append(latest_template)
 
-    marshaled_templates = [] 
+    marshaled_templates = []
     for template in valid_templates:
-        marshaled_templates.append(marshal.marshal(template, shallow=False, if_include_versions=True))
+        marshaled_templates.append(
+            marshal.marshal(template, shallow=False, if_include_versions=True)
+        )
     return marshaled_templates, 200
 
 

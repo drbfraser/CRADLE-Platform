@@ -9,7 +9,7 @@ class Node(NamedTuple):
 
 def is_dfs_order(question_list: list[dict]) -> Optional[str]:
     r"""
-    return None if questions in the question list are in the reasonable
+    Return None if questions in the question list are in the reasonable
     question tree dfs order. Else, return error.
     -------------------------------------------------------------------
     Currently, each question has a category index field that points to
