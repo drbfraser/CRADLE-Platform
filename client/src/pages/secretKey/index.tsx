@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useSelector } from 'react-redux';
 import {
   Box,
@@ -29,42 +30,53 @@ import { UserRoleEnum } from 'src/shared/enums';
 import { ReduxState } from 'src/redux/reducers';
 import { SecretKeyState } from 'src/redux/reducers/secretKey';
 import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
-import { useSecretKey } from 'src/shared/hooks/secretKey';
+import { useSecretKey } from 'src/pages/secretKey/useSecretKey';
 import { useAppSelector } from 'src/shared/hooks';
 import { Toast } from 'src/shared/components/toast';
+import { getUsersAsync } from 'src/shared/api/api';
 
 const SecretKeyPage: React.FC = () => {
   const [showPassword, setShowPassWord] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [updateMessage, setUpdateMessage] = useState<boolean>(false);
-  const { data: currentUser } = useAppSelector(selectCurrentUser);
+  const { data: loggedInUser } = useAppSelector(selectCurrentUser);
   const secretKey = useSelector(({ secretKey }: ReduxState): SecretKeyState => {
     return secretKey;
   });
 
+  const usersQuery = useQuery({
+    queryKey: ['users'],
+    queryFn: getUsersAsync,
+    enabled: loggedInUser?.role === UserRoleEnum.ADMIN,
+  });
+  const users = usersQuery.data ?? [];
+
+  const [selectedUserId, setSelectedUserId] = useState<number | undefined>(
+    loggedInUser?.id
+  );
+
   const handleUserSelect = (event: SelectChangeEvent<string>) => {
     const currId = event.target.value;
     if (typeof currId === 'number') {
-      setFocusUserId(currId);
+      setSelectedUserId(currId);
     }
   };
 
   const {
-    users,
-    role,
     currentSecretKey,
-    focusUserId,
-    setFocusUserId,
-    updateSecretKeyHandler,
-  } = useSecretKey(secretKey, currentUser, setShowModal, setUpdateMessage);
+    updateSecretKey,
+    updateSecretKeySuccess,
+    resetSecretKeyMutation,
+  } = useSecretKey(secretKey, loggedInUser, selectedUserId);
+
   return (
     <>
       <Toast
         severity="success"
         message={'Your key is updated'}
-        open={updateMessage}
-        onClose={() => setUpdateMessage(false)}
+        open={updateSecretKeySuccess}
+        onClose={() => resetSecretKeyMutation()}
       />
+
       <Paper
         sx={{
           padding: '25px',
@@ -82,23 +94,25 @@ const SecretKeyPage: React.FC = () => {
             SMS secret key detail
           </Typography>
 
-          {role === UserRoleEnum.ADMIN && users.length > 1 && focusUserId && (
-            <FormControl
-              sx={{
-                minWidth: '300px',
-              }}>
-              <Select
-                id="focus-users"
-                value={focusUserId.toString()}
-                onChange={handleUserSelect}>
-                {users.map((user, index) => (
-                  <MenuItem key={index} value={user.id}>
-                    {user.email}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          )}
+          {loggedInUser?.role === UserRoleEnum.ADMIN &&
+            users.length > 1 &&
+            selectedUserId && (
+              <FormControl
+                sx={{
+                  minWidth: '300px',
+                }}>
+                <Select
+                  id="focus-users"
+                  value={selectedUserId.toString()}
+                  onChange={handleUserSelect}>
+                  {users.map((user, index) => (
+                    <MenuItem key={index} value={user.id}>
+                      {user.email}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
         </Box>
 
         <Card>
@@ -106,30 +120,28 @@ const SecretKeyPage: React.FC = () => {
             <Typography color="text.secondary" gutterBottom>
               Your SMS Key Details
             </Typography>
-            {role === UserRoleEnum.ADMIN && (
-              <Box>
-                <PasswordViewer
-                  focused={false}
-                  label="Key"
-                  type={showPassword ? 'text' : 'password'}
-                  fullWidth
-                  value={currentSecretKey?.smsKey}
-                  variant="filled"
-                  aria-readonly
-                  InputProps={{
-                    readOnly: true,
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowPassWord((prev) => !prev)}
-                          edge="end">
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Box>
+            {loggedInUser?.role === UserRoleEnum.ADMIN && (
+              <PasswordViewer
+                focused={false}
+                label="Key"
+                type={showPassword ? 'text' : 'password'}
+                fullWidth
+                value={currentSecretKey?.key}
+                variant="filled"
+                aria-readonly
+                InputProps={{
+                  readOnly: true,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassWord((prev) => !prev)}
+                        edge="end">
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
             )}
             <Box sx={SECTION_SX}>
               <Typography color="text.secondary" gutterBottom>
@@ -141,6 +153,7 @@ const SecretKeyPage: React.FC = () => {
                   : 'No stale date available'}
               </Typography>
             </Box>
+
             <Box sx={SECTION_SX}>
               <Typography color="text.secondary" gutterBottom>
                 Stale Day
@@ -171,7 +184,8 @@ const SecretKeyPage: React.FC = () => {
           <DialogContentText id="SMSrelay-secret-key-detail">
             Think of an SMS secret key like a special pass that lets your mobile
             device do a bunch of things using text messages.This key has two
-            important dates: <br />
+            important dates:
+            <br />
             <br />
             The Stale-date and the Expiry-date. The Stale-date is like a
             freshness indicator. After this date, the key gets automatically
@@ -187,7 +201,13 @@ const SecretKeyPage: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowModal(false)}>Close</Button>
-          <Button onClick={updateSecretKeyHandler}>Update key</Button>
+          <Button
+            onClick={() => {
+              updateSecretKey();
+              setShowModal(false);
+            }}>
+            Update key
+          </Button>
         </DialogActions>
       </Dialog>
     </>
