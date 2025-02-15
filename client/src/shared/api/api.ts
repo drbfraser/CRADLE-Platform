@@ -725,15 +725,15 @@ export const updateSecretKeyAsync = async (userId: number) => {
 };
 
 export const addRelayServerPhone = async (
-  phone: string,
+  phoneNumber: string,
   description: string
 ) => {
   const response = await axiosFetch({
     url: EndpointEnum.RELAY_SERVER_PHONE,
     method: MethodEnum.POST,
     data: {
-      phone: phone,
-      description: description,
+      phoneNumber,
+      description,
     },
   });
   return response.data;
