@@ -51,8 +51,8 @@ import {
 } from 'src/shared/components/DataTable/TableActionButtons';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
 import { DataTable } from 'src/shared/components/DataTable/DataTable';
-import EditRelayNum from './editRelayNum';
-import DeleteRelayNum from './DeleteRelayNum';
+import EditRelayNumDialog from './EditRelayNumDialog';
+import DeleteRelayNumDialog from './DeleteRelayNumDialog';
 
 const FILE_NAME = 'cradle_sms_relay.apk';
 
@@ -63,7 +63,7 @@ const RELAY_NUMBER_TEMPLATE = {
 };
 
 const NEW_NUMBER_VALIDATION_SCHEMA = yup.object({
-  phone: yup.string().required('Required').max(20),
+  phoneNumber: yup.string().required('Required').max(20),
   description: yup.string().max(250),
 });
 
@@ -95,7 +95,6 @@ export const ManageRelayApp = () => {
     queryFn: getRelayServerPhones,
     staleTime: 0,
   });
-  console.log(relayNumbersQuery.data);
 
   const appFileQuery = useQuery<Blob>({
     queryKey: ['appFile'],
@@ -160,7 +159,7 @@ export const ManageRelayApp = () => {
     mutationFn: ({ phoneNumber, description }: RelayNum) =>
       addRelayServerPhone(phoneNumber, description),
   });
-  const handleNewNumberSubmit = async (values: RelayNum) => {
+  const handleNewNumberSubmit = (values: RelayNum) => {
     addNewRelayServerPhone.mutate(values, {
       onSuccess: () => relayNumbersQuery.refetch(),
     });
@@ -246,11 +245,6 @@ export const ManageRelayApp = () => {
     );
   };
 
-  const boxSx: SxProps<Theme> = (theme) => ({
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  });
-
   const isError =
     relayNumbersQuery.isError ||
     addNewRelayServerPhone.isError ||
@@ -277,7 +271,7 @@ export const ManageRelayApp = () => {
                       inputProps={{ maxLength: 50 }}
                       variant="outlined"
                       label="Phone Number"
-                      name={'phone'}
+                      name={'phoneNumber'}
                       error={errors.phoneNumber !== undefined}
                       helperText={errors.phoneNumber}
                     />
@@ -310,7 +304,6 @@ export const ManageRelayApp = () => {
                         }
                         onClick={() => {
                           openAddNewNumberDialog(false);
-                          relayNumbersQuery.refetch();
                         }}>
                         Save
                       </PrimaryButton>
@@ -332,15 +325,17 @@ export const ManageRelayApp = () => {
               Download App
             </Typography>
             <Divider />
-            {hasFile ? (
-              <Box sx={boxSx}>
-                <div>Filename: {FILE_NAME}</div>
-                <div>File size: {fileSize}</div>
-                <div>Last modified: {fileLastModified}</div>
-              </Box>
-            ) : (
-              <Box sx={boxSx}>No file available.</Box>
-            )}
+            <Box>
+              {hasFile ? (
+                <>
+                  <div>Filename: {FILE_NAME}</div>
+                  <div>File size: {fileSize}</div>
+                  <div>Last modified: {fileLastModified}</div>
+                </>
+              ) : (
+                <>No File Available</>
+              )}
+            </Box>
             {hasFile && (
               <PrimaryButton onClick={handleClickDownload}>
                 Download
@@ -353,7 +348,7 @@ export const ManageRelayApp = () => {
               Upload App
             </Typography>
             <Divider />
-            <Box sx={boxSx}>
+            <Box>
               <Button
                 color="primary"
                 aria-label="upload androud package archive"
@@ -403,7 +398,7 @@ export const ManageRelayApp = () => {
         </DialogContent>
       </Dialog>
 
-      <EditRelayNum
+      <EditRelayNumDialog
         open={editPopupOpen}
         onClose={() => {
           setEditPopupOpen(false);
@@ -412,15 +407,15 @@ export const ManageRelayApp = () => {
         relayNums={relayNumbersQuery?.data ?? []}
         editRelayNum={popupRelayNum}
       />
-
-      <DeleteRelayNum
+      <DeleteRelayNumDialog
         open={deletePopupOpen}
         onClose={() => {
           setDeletePopupOpen(false);
           relayNumbersQuery.refetch();
         }}
-        deleteRelayNum={popupRelayNum}
+        relayNumToDelete={popupRelayNum}
       />
+
       <DataTableHeader title={'Relay App Servers'}>
         <HeaderButtons />
       </DataTableHeader>

@@ -22,7 +22,7 @@ api_relay_phone_numbers = APIBlueprint(
 
 
 class RelayServerPhoneNumberModel(CradleBaseModel):
-    id: str
+    id: Optional[str] = None
     phone_number: str
     description: str
     last_received: Optional[int] = None
