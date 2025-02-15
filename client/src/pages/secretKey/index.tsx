@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { useSelector } from 'react-redux';
+import { useQuery } from '@tanstack/react-query';
 import {
   Box,
   Button,
@@ -36,12 +36,23 @@ import { Toast } from 'src/shared/components/toast';
 import { getUsersAsync } from 'src/shared/api/api';
 
 const SecretKeyPage: React.FC = () => {
-  const [showPassword, setShowPassWord] = useState<boolean>(false);
+  const [showSecretKey, setShowSecretKey] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
+
   const { data: loggedInUser } = useAppSelector(selectCurrentUser);
   const secretKey = useSelector(({ secretKey }: ReduxState): SecretKeyState => {
     return secretKey;
   });
+
+  const [selectedUserId, setSelectedUserId] = useState<number | undefined>(
+    loggedInUser?.id
+  );
+  const handleUserSelect = (event: SelectChangeEvent<string>) => {
+    const currId = event.target.value;
+    if (typeof currId === 'number') {
+      setSelectedUserId(currId);
+    }
+  };
 
   const usersQuery = useQuery({
     queryKey: ['users'],
@@ -49,17 +60,6 @@ const SecretKeyPage: React.FC = () => {
     enabled: loggedInUser?.role === UserRoleEnum.ADMIN,
   });
   const users = usersQuery.data ?? [];
-
-  const [selectedUserId, setSelectedUserId] = useState<number | undefined>(
-    loggedInUser?.id
-  );
-
-  const handleUserSelect = (event: SelectChangeEvent<string>) => {
-    const currId = event.target.value;
-    if (typeof currId === 'number') {
-      setSelectedUserId(currId);
-    }
-  };
 
   const {
     currentSecretKey,
@@ -124,7 +124,7 @@ const SecretKeyPage: React.FC = () => {
               <PasswordViewer
                 focused={false}
                 label="Key"
-                type={showPassword ? 'text' : 'password'}
+                type={showSecretKey ? 'text' : 'password'}
                 fullWidth
                 value={currentSecretKey?.key}
                 variant="filled"
@@ -134,9 +134,9 @@ const SecretKeyPage: React.FC = () => {
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton
-                        onClick={() => setShowPassWord((prev) => !prev)}
+                        onClick={() => setShowSecretKey((prev) => !prev)}
                         edge="end">
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                        {showSecretKey ? <VisibilityOff /> : <Visibility />}
                       </IconButton>
                     </InputAdornment>
                   ),
