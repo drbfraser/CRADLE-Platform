@@ -124,7 +124,7 @@ export type PastPregnancy = {
 };
 
 export type SecretKey = {
-  smsKey: string;
+  key: string;
   staleDate: string;
   expiryDate: string;
   message: string;
