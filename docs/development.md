@@ -219,7 +219,7 @@ If there are errors during `npm start`, try running `npm ci` to install directly
 
 ### Automated Testing
 
-See the testing guide at:
+See the testing guide at: https://github.sfu.ca/cradle-project/Cradle-Platform/blob/main/docs/testing.md
 
 ### Backend Onboarding Guide - Useful Documentation to Get Started
 
