@@ -73,7 +73,7 @@ export const LoginForm = () => {
               component={'h4'}
               fontWeight={'bold'}
               sx={{ marginY: '0.5rem' }}>
-              Log in
+              Login
             </Typography>
             <Formik
               initialValues={{
