@@ -21,13 +21,15 @@
     "lint:fix": "npm run lint --fix",
     "format:safe": "npm run prettier && npm run lint:fix",
     "format": "npm run prettier && npm run lint",
-    "e2e": "cypress run",
-    "e2e:chrome": "cypress run --browser chrome",
-    "e2e:record": "cypress run --record",
-    "e2e:record:chrome": "cypress run --record --browser chrome",
-    "e2e:record:edge": "cypress run --record --browser edge",
-    "e2e:record:firefox": "cypress run --record --browser firefox",
-    "e2e:record:parallel": "cypress run --record --parallel"
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "cypress": "cypress run",
+    "cypress:chrome": "cypress run --browser chrome",
+    "cypress:record": "cypress run --record",
+    "cypress:record:chrome": "cypress run --record --browser chrome",
+    "cypress:record:edge": "cypress run --record --browser edge",
+    "cypress:record:firefox": "cypress run --record --browser firefox",
+    "cypress:record:parallel": "cypress run --record --parallel"
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
