@@ -3,7 +3,7 @@ import { BASE_URL, USERNAME, PASSWORD } from './constants';
 
 test.describe('Login Tests', () => {
   test('Login', async ({ page }) => {
-    await page.goto(BASE_URL);
+    await page.goto('/');
 
     await expect(page.getByRole('heading', { name: /Login/ })).toBeVisible();
 
@@ -19,7 +19,7 @@ test.describe('Login Tests', () => {
   });
 
   test('Login attempt without username', async ({ page }) => {
-    await page.goto(BASE_URL);
+    await page.goto('/');
 
     await page.getByRole('textbox', { name: 'username' }).fill(USERNAME);
 
@@ -28,7 +28,7 @@ test.describe('Login Tests', () => {
   });
 
   test('Login attempt without password', async ({ page }) => {
-    await page.goto(BASE_URL);
+    await page.goto('/');
 
     await page.getByRole('textbox', { name: 'password' }).fill(PASSWORD);
 
