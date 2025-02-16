@@ -180,7 +180,7 @@ jobs:
         run: python3 manage.py seed_test_data
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
       - name: Run System Tests
-        run: python -m pytest --junitxml=report.xml systemTests
+        run: python -m pytest --junitxml=report.xml system_tests
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
       - name: Upload Test Artifacts
         uses: actions/upload-artifact@v3
