@@ -1,5 +1,4 @@
 import { Box, Container, Typography, TextField, Button } from '@mui/material';
-import { TextField as FormikTextField } from 'formik-mui';
 import { useSelector } from 'react-redux';
 import { ReduxState } from 'src/redux/reducers';
 import { Toast } from 'src/shared/components/toast';
@@ -11,14 +10,7 @@ import {
 } from 'src/redux/reducers/user/currentUser';
 import { useNavigate } from 'react-router-dom';
 import { DASHBOARD_PADDING } from 'src/shared/constants';
-import {
-  Form,
-  Formik,
-  Field,
-  useField,
-  FieldHelperProps,
-  FieldProps,
-} from 'formik';
+import { Form, Formik, Field, FieldProps } from 'formik';
 
 export const LoginForm = () => {
   const errorMessage = useSelector(
