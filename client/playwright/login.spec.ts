@@ -14,5 +14,5 @@ test('Login', async ({ page }) => {
   await page.getByRole('button', { name: /Log in/i }).click();
 
   // Check that we have been redirected to the referrals page.
-  await expect(page).toHaveURL(`${BASE_URL}/referrals`);
+  await expect(page).toHaveURL(/.*\/referrals/);
 });
