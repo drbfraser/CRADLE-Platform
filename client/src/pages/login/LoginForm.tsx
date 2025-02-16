@@ -1,4 +1,5 @@
 import { Box, Container, Typography, TextField, Button } from '@mui/material';
+import { TextField as FormikTextField } from 'formik-mui';
 import { useSelector } from 'react-redux';
 import { ReduxState } from 'src/redux/reducers';
 import { Toast } from 'src/shared/components/toast';
@@ -10,7 +11,14 @@ import {
 } from 'src/redux/reducers/user/currentUser';
 import { useNavigate } from 'react-router-dom';
 import { DASHBOARD_PADDING } from 'src/shared/constants';
-import { Form, Formik } from 'formik';
+import {
+  Form,
+  Formik,
+  Field,
+  useField,
+  FieldHelperProps,
+  FieldProps,
+} from 'formik';
 
 export const LoginForm = () => {
   const errorMessage = useSelector(
@@ -93,35 +101,49 @@ export const LoginForm = () => {
                       alignItems: 'center',
                       gap: '0.5rem',
                     }}>
-                    <TextField
-                      name={'username'}
-                      variant={'filled'}
-                      label={'Username / Email'}
-                      id={'username-field'}
-                      required
-                      fullWidth
-                      onBlur={formikProps.handleBlur}
-                      onChange={formikProps.handleChange}
-                      value={formikProps.values.username}
-                      InputLabelProps={{ shrink: true }}
-                    />
-                    <TextField
-                      name={'password'}
-                      variant={'filled'}
-                      label={'Password'}
-                      id={'password-field'}
-                      required
-                      type={'password'}
-                      fullWidth
-                      onBlur={formikProps.handleBlur}
-                      onChange={formikProps.handleChange}
-                      value={formikProps.values.password}
-                      InputLabelProps={{ shrink: true }}
-                    />
+                    <Field name={'username'} validate={validateNotEmpty}>
+                      {({ field, form, meta }: FieldProps<Credentials>) => (
+                        <TextField
+                          fullWidth
+                          required
+                          id={'username-field'}
+                          name={field.name}
+                          label={'Username / Email'}
+                          variant={'filled'}
+                          slotProps={TEXT_FIELD_SLOT_PROPS}
+                          value={field.value}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          error={meta.touched && !!meta.error}
+                          helperText={meta.touched && meta.error}
+                        />
+                      )}
+                    </Field>
+                    <Field name={'password'} validate={validateNotEmpty}>
+                      {({ field, form, meta }: FieldProps<Credentials>) => (
+                        <TextField
+                          fullWidth
+                          required
+                          type={'password'}
+                          id={'password-field'}
+                          name={field.name}
+                          label={'Password'}
+                          variant={'filled'}
+                          slotProps={TEXT_FIELD_SLOT_PROPS}
+                          value={field.value}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          error={meta.touched && !!meta.error}
+                          helperText={meta.touched && meta.error}
+                        />
+                      )}
+                    </Field>
                     <Button
                       variant={'contained'}
                       fullWidth
-                      disabled={formikProps.isSubmitting}
+                      disabled={
+                        !formikProps.isValid || formikProps.isSubmitting
+                      }
                       type={'submit'}
                       size={'large'}
                       sx={{
@@ -139,3 +161,17 @@ export const LoginForm = () => {
     </>
   );
 };
+
+const TEXT_FIELD_SLOT_PROPS = {
+  inputLabel: {
+    shrink: true,
+  },
+};
+
+interface Credentials {
+  username: string;
+  password: string;
+}
+
+const validateNotEmpty = (value: string) =>
+  value.trim().length == 0 ? 'Field is required' : undefined;
