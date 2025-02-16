@@ -3,11 +3,11 @@ import { BASE_URL, USERNAME, PASSWORD } from '../../playwright/constants';
 describe('login spec', () => {
   it('Login', () => {
     cy.visit(BASE_URL);
-    cy.contains('Log in');
+    cy.contains('Login');
     cy.get('input[name=username]').type(USERNAME);
     cy.get('input[name=password]').type(PASSWORD);
 
-    cy.get('button').should('contain', 'Log in').click();
+    cy.get('button').should('contain', 'Login').click();
     // Check that we have been redirected to Referrals page.
     cy.url().should('contain', '/referrals');
   });
@@ -16,7 +16,7 @@ describe('login spec', () => {
     cy.get('input[name=username]').type(USERNAME);
     cy.get('input[name=password]').type(PASSWORD);
 
-    cy.get('button').should('contain', 'Log in').click();
+    cy.get('button').should('contain', 'Login').click();
     // Check that URL hasn't changed.
     cy.url().should('eq', BASE_URL);
   });
@@ -24,7 +24,7 @@ describe('login spec', () => {
     cy.visit(BASE_URL);
     cy.get('input[name=password]').type(PASSWORD);
 
-    cy.get('button').should('contain', 'Log in').click();
+    cy.get('button').should('contain', 'Login').click();
     // Check that URL hasn't changed.
     cy.url().should('eq', BASE_URL);
   });
