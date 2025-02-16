@@ -217,6 +217,10 @@ If there are errors during `npm start`, try running `npm ci` to install directly
 
 ## Development
 
+### Automated Testing
+
+See the testing guide at:
+
 ### Backend Onboarding Guide - Useful Documentation to Get Started
 
 For a comprehensive guide to backend development, please refer to the "Backend-Onboarding-Doc" located in the shared CRADLE Docs Google Drive under **Guides/Tutorials > Backend-Onboarding-Doc**.
