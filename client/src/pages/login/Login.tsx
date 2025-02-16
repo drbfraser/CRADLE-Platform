@@ -127,7 +127,7 @@ export const Login = () => {
                       sx={{
                         fontSize: 'large',
                       }}>
-                      Log in
+                      Login
                     </Button>
                   </Container>
                 </Form>

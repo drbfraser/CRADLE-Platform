@@ -1,4 +1,7 @@
 /// <reference types="cypress" />
+
+import { USERNAME, PASSWORD } from '../../playwright/constants';
+
 // ***********************************************
 // This example commands.ts shows you how to
 // create various custom commands and overwrite
@@ -10,15 +13,15 @@
 // ***********************************************
 //
 //
-// -- This is a parent command --
-Cypress.Commands.add('login', (user) => { 
-    cy.visit('localhost:3000/login')
-    cy.get('input[name=email]').type(user.email)
-    cy.get('input[name=password]').type(user.password)
-    cy.get('.MuiButtonBase-root').contains('Login').click()
-    .wait(1000)
 
-})
+// -- This is a parent command --
+Cypress.Commands.add('login', (user) => {
+  cy.visit('localhost:3000/');
+  cy.get('input[name=username]').type(USERNAME);
+  cy.get('input[name=password]').type(PASSWORD);
+  cy.get('button').contains('Login').click();
+});
+
 //
 //
 // -- This is a child command --
