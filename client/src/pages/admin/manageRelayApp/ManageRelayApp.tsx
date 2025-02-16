@@ -53,6 +53,7 @@ import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader
 import { DataTable } from 'src/shared/components/DataTable/DataTable';
 import EditRelayNumDialog from './EditRelayNumDialog';
 import DeleteRelayNumDialog from './DeleteRelayNumDialog';
+import AddRelayNumDialog from './AddRelayNumDialog';
 
 const FILE_NAME = 'cradle_sms_relay.apk';
 
@@ -81,11 +82,10 @@ export const ManageRelayApp = () => {
   const [selectedFile, setSelectedFile] = useState<File>();
   const [numFileUploaded, setNumFileUploaded] = useState(0);
 
-  // Relay App Actions
-  const [AppActionsPopup, openAppActionsPopup] = useState(false);
-  const [NewNumberDialog, openAddNewNumberDialog] = useState(false);
+  const [appActionsOpen, setAppActionsOpen] = useState(false);
 
   // Relay Number Actions
+  const [newNumberDialogOpen, setNewNumberDialogOpen] = useState(false);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [popupRelayNum, setPopupRelayNum] = useState<RelayNum>();
   const [deletePopupOpen, setDeletePopupOpen] = useState(false);
@@ -155,16 +155,6 @@ export const ManageRelayApp = () => {
   //   loadAppFile();
   // }, [numFileUploaded]);
 
-  const addNewRelayServerPhone = useMutation({
-    mutationFn: ({ phoneNumber, description }: RelayNum) =>
-      addRelayServerPhone(phoneNumber, description),
-  });
-  const handleNewNumberSubmit = (values: RelayNum) => {
-    addNewRelayServerPhone.mutate(values, {
-      onSuccess: () => relayNumbersQuery.refetch(),
-    });
-  };
-
   const ActionButtons = useCallback(({ relayNum }: { relayNum?: RelayNum }) => {
     const actions: TableAction[] = [
       {
@@ -229,7 +219,7 @@ export const ManageRelayApp = () => {
           variant={'contained'}
           startIcon={<AddIcon />}
           onClick={() => {
-            openAddNewNumberDialog(true);
+            setNewNumberDialogOpen(true);
           }}>
           {'Add Number'}
         </Button>
@@ -237,7 +227,7 @@ export const ManageRelayApp = () => {
           variant={'contained'}
           startIcon={<DownloadIcon />}
           onClick={() => {
-            openAppActionsPopup(true);
+            setAppActionsOpen(true);
           }}>
           {'Download App'}
         </Button>
@@ -245,79 +235,17 @@ export const ManageRelayApp = () => {
     );
   };
 
-  const isError =
-    relayNumbersQuery.isError ||
-    addNewRelayServerPhone.isError ||
-    appFileQuery.isError;
+  const isError = relayNumbersQuery.isError || appFileQuery.isError;
   return (
     <>
       {isError && <APIErrorToast />}
 
-      <Dialog open={NewNumberDialog} maxWidth="md" fullWidth>
-        <DialogTitle>Add Number</DialogTitle>
-        <DialogContent>
-          <Formik
-            initialValues={RELAY_NUMBER_TEMPLATE}
-            validationSchema={NEW_NUMBER_VALIDATION_SCHEMA}
-            onSubmit={handleNewNumberSubmit}>
-            {({ isValid, errors, dirty }) => (
-              <Form>
-                <Grid container spacing={3} sx={{ paddingTop: 1 }}>
-                  <Grid item xs={12}>
-                    <Field
-                      as={TextField}
-                      fullWidth
-                      required
-                      inputProps={{ maxLength: 50 }}
-                      variant="outlined"
-                      label="Phone Number"
-                      name={'phoneNumber'}
-                      error={errors.phoneNumber !== undefined}
-                      helperText={errors.phoneNumber}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Field
-                      as={TextField}
-                      fullWidth
-                      inputProps={{ maxLength: 300 }}
-                      variant="outlined"
-                      label="Description"
-                      name={'description'}
-                      error={errors.description !== undefined}
-                      helperText={errors.description}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <DialogActions>
-                      <CancelButton
-                        type="button"
-                        onClick={() => {
-                          openAddNewNumberDialog(false);
-                        }}>
-                        Cancel
-                      </CancelButton>
-                      <PrimaryButton
-                        type="submit"
-                        disabled={
-                          addNewRelayServerPhone.isPending || !isValid || !dirty
-                        }
-                        onClick={() => {
-                          openAddNewNumberDialog(false);
-                        }}>
-                        Save
-                      </PrimaryButton>
-                    </DialogActions>
-                  </Grid>
-                </Grid>
-              </Form>
-            )}
-          </Formik>
-        </DialogContent>
-      </Dialog>
-      {/*end*/}
+      <AddRelayNumDialog
+        open={newNumberDialogOpen}
+        onClose={() => setNewNumberDialogOpen(false)}
+      />
 
-      <Dialog open={AppActionsPopup} maxWidth="md" fullWidth>
+      <Dialog open={appActionsOpen} maxWidth="md" fullWidth>
         <DialogTitle>Relay App Actions</DialogTitle>
         <DialogContent>
           <Box>
@@ -382,7 +310,7 @@ export const ManageRelayApp = () => {
             <CancelButton
               type="button"
               onClick={() => {
-                openAppActionsPopup(false);
+                setAppActionsOpen(false);
               }}>
               Cancel
             </CancelButton>
@@ -390,7 +318,7 @@ export const ManageRelayApp = () => {
               type="submit"
               disabled={false}
               onClick={() => {
-                openAppActionsPopup(false); //redundant - rework ui
+                setAppActionsOpen(false); //redundant - rework ui
               }}>
               Done
             </PrimaryButton>
