@@ -1,28 +1,38 @@
+import { BASE_URL, USERNAME, PASSWORD } from '../../playwright/constants';
+
 describe('login spec', () => {
-  it('load website', () => {
-    cy.visit('localhost:3000/login')
-    cy.get('h1').should('contain', 'Log In')
-  });
-  it('No Password login', () => {
-    cy.visit('localhost:3000/login')
-    cy.get('input[name=email]').type('admin123@admin.com')
-    cy.get('.MuiButtonBase-root').contains('Login').click()
-    cy.get('.makeStyles-formError-27').should('contain', 'Password is required.')
-  });
-  it('No Email login', () => {
-    cy.visit('localhost:3000/login')
-    cy.get('input[name=password]').type('admin123')
-    cy.get('.MuiButtonBase-root').contains('Login').click()
-    cy.get('.makeStyles-formError-27').should('contain', 'Email is required.')
-  });
   it('Login', () => {
-    cy.visit('localhost:3000/login')
-    cy.get('input[name=email]').type('admin123@admin.com')
-    cy.get('input[name=password]').type('admin123')
-    cy.get('.MuiButtonBase-root').contains('Login').click()
-    .wait(5000)
-    cy.get('.makeStyles-toolbarButtons-13 > div > .MuiTypography-body1').should('contain', 'Admin (Admin)') 
+    cy.visit(BASE_URL);
+    cy.contains('Log in');
+    cy.get('input[name=username]').type(USERNAME);
+    cy.get('input[name=password]').type(PASSWORD);
+
+    cy.get('button').should('contain', 'Log in').click();
+    // Check that we have been redirected to Referrals page.
+    cy.url().should('contain', '/referrals');
   });
+  it('No Password Login', () => {
+    cy.visit(BASE_URL);
+    cy.get('input[name=username]').type(USERNAME);
+    cy.get('input[name=password]').type(PASSWORD);
 
-})
+    cy.get('button').should('contain', 'Log in').click();
+    // Check that URL hasn't changed.
+    cy.url().should('eq', BASE_URL);
+  });
+  it('No Email Login', () => {
+    cy.visit(BASE_URL);
+    cy.get('input[name=password]').type(PASSWORD);
 
+    cy.get('button').should('contain', 'Log in').click();
+    // Check that URL hasn't changed.
+    cy.url().should('eq', BASE_URL);
+  });
+  it('No Credentials Login', () => {
+    cy.visit(BASE_URL);
+
+    cy.get('button').should('contain', 'Log in').click();
+    // Check that URL hasn't changed.
+    cy.url().should('eq', BASE_URL);
+  });
+});
