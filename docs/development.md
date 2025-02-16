@@ -244,7 +244,7 @@ Frontend code is formatted using Prettier and must pass ESLint. Run `npm run for
 
 ### Backend
 
-Backend code is formatted using Black. With your Docker containers running, run `docker exec cradle_flask black .` to format all backend files.
+Backend code is formatted using Ruff. With your Docker containers running, run `docker exec cradle_flask ruff format .` to format all backend files.
 
 ## Package Changes
 
@@ -286,8 +286,7 @@ If something has gone wrong and you're having issues with your database, you can
 - [React Developer Tools](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en)
   - allows you to observe what components make up the webpage/DOM
   - allows you to observe the live values of props and state in components
-
-* [Redux DevTools](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)
+- [Redux DevTools](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)
   - allows you to view and debug how data is being passed to and from Redux
 
 ## Troubleshooting
