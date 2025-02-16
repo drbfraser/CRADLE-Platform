@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { DASHBOARD_PADDING } from 'src/shared/constants';
 import { Form, Formik } from 'formik';
 
-export const Login = () => {
+export const LoginForm = () => {
   const errorMessage = useSelector(
     ({ user }: ReduxState): OrNull<string> => user.current.message
   );
