@@ -1,7 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { BASE_URL, USERNAME, PASSWORD } from './constants';
+import { USERNAME, PASSWORD } from './constants';
 
 test.describe('Login Tests', () => {
+  // Reset storage state for this file to avoid being authenticated
+  test.use({ storageState: { cookies: [], origins: [] } });
+
   test('Login', async ({ page }) => {
     await page.goto('/');
 
@@ -15,7 +18,7 @@ test.describe('Login Tests', () => {
     await page.getByRole('button', { name: 'login' }).click();
 
     // Check that we have been redirected to the referrals page.
-    await expect(page).toHaveURL(/.*\/referrals/);
+    await expect(page).toHaveURL('/referrals');
   });
 
   test('Login attempt without username', async ({ page }) => {
