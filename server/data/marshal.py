@@ -258,7 +258,9 @@ def marshal_template_to_single_version(f: FormTemplateOrm, version: str) -> dict
 
     d["lang"] = version
     d["questions"] = [
-        marshal_question_to_single_version(q, version) for q in f.questions
+        marshal_question_to_single_version(q, version)
+        for q in f.questions
+        if q.is_blank
     ]
 
     # sort question list based on question index in ascending order

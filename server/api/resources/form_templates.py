@@ -214,27 +214,53 @@ def get_form_template_language_version(
     if form_template is None:
         return abort(404, description=f"No form with ID: {path.form_template_id}")
 
+    print(f"FormTemplate ID: {form_template.id}")
+    for question in form_template.questions:
+        print(
+            f"Question ID: {question.id}, Lang Versions: {[v.lang for v in question.lang_versions]}"
+        )
+
     version = query.lang
+    print(f"Debug Version: {version}")
     if version is None:
         # admin user get template of full versions
-        return marshal.marshal(
+        blank_template = marshal.marshal(
             form_template,
             shallow=False,
             if_include_versions=True,
         )
 
+        # add is_blank check to remove answered questions
+        blank_template["questions"] = [
+            question
+            for question in blank_template["questions"]
+            if question.get("is_blank", True)
+        ]
+
+        blank_template = serialize.serialize_blank_form_template(blank_template)
+        return blank_template
+
     available_versions = crud.read_form_template_language_versions(
         form_template,
         refresh=True,
     )
-
     if version not in available_versions:
         return abort(
             404,
             description=f"FormTemplate(id={path.form_template_id}) doesn't have language version = {version}",
         )
 
-    return marshal.marshal_template_to_single_version(form_template, version)
+    blank_template = marshal.marshal_template_to_single_version(form_template, version)
+
+    blank_template["questions"] = [
+        question
+        for question in blank_template["questions"]
+        if question.get("is_blank", True)
+    ]
+
+    blank_template = serialize.serialize_blank_form_template(blank_template)
+
+    return blank_template, 200
 
 
 class ArchiveFormTemplateBody(CradleBaseModel):
@@ -306,10 +332,14 @@ def get_blank_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuer
         )
         return None
 
-    blank_template = marshal.marshal_template_to_single_version(
-        form_template,
-        version,
-    )
+    blank_template = marshal.marshal_template_to_single_version(form_template, version)
+
+    blank_template["questions"] = [
+        question
+        for question in blank_template["questions"]
+        if question.get("is_blank", True)
+    ]
+
     blank_template = serialize.serialize_blank_form_template(blank_template)
 
     return blank_template, 200

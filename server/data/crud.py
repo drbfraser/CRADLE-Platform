@@ -874,7 +874,10 @@ def read_form_template_language_versions(
 
     :return: A list of lang version texts
     """
-    lang_versions = model.questions[0].lang_versions
+    questions = [
+        question for question in model.questions if getattr(question, "is_blank", True)
+    ]
+    lang_versions = questions[0].lang_versions
     if refresh:
         db_session.refresh(model)
     return [v.lang for v in lang_versions]
