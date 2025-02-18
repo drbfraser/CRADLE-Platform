@@ -1,16 +1,15 @@
+import { useNavigate } from 'react-router-dom';
 import { Form, Formik, FormikProps } from 'formik';
-import PatientFormHeader from './PatientFormHeader';
-import { PatientField, PatientState } from '../state';
-import { MedicalInfoForm } from './medicalInfo';
 import { PrimaryButton } from 'src/shared/components/Button';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { useUpdateMedicalRecordMutation } from '../mutations';
+import { PatientField, PatientState } from '../state';
+import PatientFormHeader from './PatientFormHeader';
+import { MedicalInfoForm } from './medicalInfo';
 import {
   drugHistoryValidationSchema,
   medicalHistoryValidationSchema,
 } from './medicalInfo/validation';
-
-import { useNavigate } from 'react-router-dom';
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { useUpdateMedicalRecordMutation } from '../mutations';
 
 type Props = {
   patientId: string;
@@ -41,7 +40,7 @@ const NewMedicalRecordForm = ({
 
   return (
     <>
-      {addRecord.isError && !addRecord.isError && <APIErrorToast />}
+      {addRecord.isError && <APIErrorToast onClose={() => addRecord.reset()} />}
 
       <PatientFormHeader
         patientId={patientId}

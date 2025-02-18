@@ -29,8 +29,11 @@ const NewPregnancyForm = ({ initialState, patientId }: Props) => {
 
   return (
     <>
-      {addNewPregnancy.isError && !addNewPregnancy.isPending && (
-        <APIErrorToast errorMessage={addNewPregnancy.error.message} />
+      {addNewPregnancy.isError && (
+        <APIErrorToast
+          errorMessage={addNewPregnancy.error.message}
+          onClose={() => addNewPregnancy.reset()}
+        />
       )}
 
       <PatientFormHeader patientId={patientId} title="Add New Pregnancy" />
