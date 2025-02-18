@@ -64,7 +64,9 @@ const EditRelayNumDialog = ({
         open={updateRelayNum.isSuccess}
         onClose={() => updateRelayNum.reset()}
       />
-      {updateRelayNum.isError && <APIErrorToast />}
+      {updateRelayNum.isError && (
+        <APIErrorToast onClose={() => updateRelayNum.reset()} />
+      )}
 
       <Dialog open={open} maxWidth="md" fullWidth>
         <DialogTitle>Edit Relay Server Phone Number</DialogTitle>
