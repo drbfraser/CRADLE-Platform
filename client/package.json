@@ -79,6 +79,7 @@
     "@mui/x-date-pickers": "^7.19.0",
     "@reduxjs/toolkit": "^1.8.4",
     "@tanstack/react-query": "^5.66.0",
+    "@tanstack/react-query-devtools": "^5.66.7",
     "@testing-library/user-event": "^14.4.3",
     "@toolpad/core": "^0.11.0",
     "axios": "^1.6.8",
