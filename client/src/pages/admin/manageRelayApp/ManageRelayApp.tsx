@@ -5,8 +5,6 @@ import {
   useState,
 } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import * as yup from 'yup';
-import { Field, Form, Formik } from 'formik';
 import {
   Alert,
   Box,
@@ -16,12 +14,8 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
-  Grid,
   Input,
   Stack,
-  SxProps,
-  TextField,
-  Theme,
   Typography,
 } from '@mui/material';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
@@ -37,7 +31,6 @@ import DownloadIcon from '@mui/icons-material/Download';
 // import { formatBytes } from 'src/shared/utils';
 import { RelayNum } from 'src/shared/types';
 import {
-  addRelayServerPhone,
   getAppFileAsync,
   // getAppFileHeadAsync,
   getRelayServerPhones,
@@ -56,17 +49,6 @@ import DeleteRelayNumDialog from './DeleteRelayNumDialog';
 import AddRelayNumDialog from './AddRelayNumDialog';
 
 const FILE_NAME = 'cradle_sms_relay.apk';
-
-const RELAY_NUMBER_TEMPLATE = {
-  phoneNumber: '',
-  description: '',
-  lastReceived: 0,
-};
-
-const NEW_NUMBER_VALIDATION_SCHEMA = yup.object({
-  phoneNumber: yup.string().required('Required').max(20),
-  description: yup.string().max(250),
-});
 
 const ERROR_MESSAGES: { [name: number]: string } = {
   400: 'Invalid file',
@@ -93,7 +75,6 @@ export const ManageRelayApp = () => {
   const relayNumbersQuery = useQuery({
     queryKey: ['relayNumbers'],
     queryFn: getRelayServerPhones,
-    staleTime: 0,
   });
 
   const appFileQuery = useQuery<Blob>({
