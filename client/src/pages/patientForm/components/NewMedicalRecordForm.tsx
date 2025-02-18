@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Form, Formik, FormikProps } from 'formik';
+import { Form, Formik } from 'formik';
 import { PrimaryButton } from 'src/shared/components/Button';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { useUpdateMedicalRecordMutation } from '../mutations';
@@ -54,22 +54,15 @@ const NewMedicalRecordForm = ({
             : medicalHistoryValidationSchema
         }
         onSubmit={handleSubmit}>
-        {(formikProps: FormikProps<PatientState>) => (
-          <Form>
-            <MedicalInfoForm
-              formikProps={formikProps}
-              creatingNew={false}
-              isDrugRecord={isDrugHistory}
-            />
-
-            <PrimaryButton
-              sx={{ marginTop: '1rem', float: 'right' }}
-              type="submit"
-              disabled={addRecord.isPending}>
-              Save
-            </PrimaryButton>
-          </Form>
-        )}
+        <Form>
+          <MedicalInfoForm creatingNew={false} isDrugRecord={isDrugHistory} />
+          <PrimaryButton
+            sx={{ marginTop: '1rem', float: 'right' }}
+            type="submit"
+            disabled={addRecord.isPending}>
+            Save
+          </PrimaryButton>
+        </Form>
       </Formik>
     </>
   );

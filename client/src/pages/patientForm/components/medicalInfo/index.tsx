@@ -1,54 +1,45 @@
-import { Field, FormikProps } from 'formik';
-import { PatientField, PatientState } from '../../state';
-
-import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
-import { TextField } from 'formik-mui';
+import { Field } from 'formik';
+import { Grid2 as Grid, Paper, TextField } from '@mui/material';
+import { PatientField } from '../../state';
 
 interface IProps {
-  formikProps: FormikProps<PatientState>;
   creatingNew: boolean;
   isDrugRecord?: boolean;
 }
 
-export const MedicalInfoForm = ({
-  formikProps,
-  creatingNew,
-  isDrugRecord,
-}: IProps) => {
+export const MedicalInfoForm = ({ creatingNew, isDrugRecord }: IProps) => {
+  const renderField = (label: string, name: string) => (
+    <Field
+      component={TextField}
+      label={label}
+      name={name}
+      variant="outlined"
+      fullWidth
+      multiline
+      rows={4}
+    />
+  );
+
   return (
-    <Paper>
-      <Box p={2}>
-        <Grid container spacing={2}>
-          {(creatingNew || (!creatingNew && !isDrugRecord!)) && (
-            <Grid item md={6} sm={12}>
-              <Field
-                component={TextField}
-                variant="outlined"
-                fullWidth
-                multiline
-                rows={4}
-                name={PatientField.medicalHistory}
-                label="Medical History"
-              />
+    <Paper sx={{ padding: 2 }}>
+      <Grid container spacing={2}>
+        {creatingNew ? (
+          <>
+            <Grid size={{ sm: 12, md: 6 }}>
+              {renderField('Medical History', PatientField.medicalHistory)}
             </Grid>
-          )}
-          {(creatingNew || (!creatingNew && isDrugRecord!)) && (
-            <Grid item md={6} sm={12}>
-              <Field
-                component={TextField}
-                variant="outlined"
-                fullWidth
-                multiline
-                rows={4}
-                name={PatientField.drugHistory}
-                label="Drug History"
-              />
+            <Grid size={{ sm: 12, md: 6 }}>
+              {renderField('Drug History', PatientField.drugHistory)}
             </Grid>
-          )}
-        </Grid>
-      </Box>
+          </>
+        ) : (
+          <Grid size={12}>
+            {isDrugRecord
+              ? renderField('Drug History', PatientField.drugHistory)
+              : renderField('Medical History', PatientField.medicalHistory)}
+          </Grid>
+        )}
+      </Grid>
     </Paper>
   );
 };

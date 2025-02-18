@@ -26,28 +26,30 @@ import { PersonalInfoForm } from './personalInfo';
 import { PregnancyInfoForm } from './pregnancyInfo';
 import PatientFormHeader from './PatientFormHeader';
 import { getPregnancyValues } from './pregnancyInfo/utils';
+import {
+  drugHistoryValidationSchema,
+  medicalHistoryValidationSchema,
+} from './medicalInfo/validation';
 
 const STEPS = [
   {
-    editId: 'personalInfo',
     name: 'Patient Personal Information',
     component: PersonalInfoForm,
     validationSchema: personalInfoValidationSchema(true),
     title: 'New Patient',
   },
   {
-    editId: 'pregnancyInfo',
     name: 'Pregnancy Information',
     component: PregnancyInfoForm,
     validationSchema: pregnancyInfoValidationSchema,
     title: 'New Patient',
   },
   {
-    editId: 'medicalHistory',
     name: 'Medical Information',
     component: MedicalInfoForm,
-    validationSchema: undefined,
-    isDrugRecord: undefined,
+    validationSchema: medicalHistoryValidationSchema.concat(
+      drugHistoryValidationSchema
+    ),
     title: 'Add Medical History',
   },
 ];
@@ -72,8 +74,8 @@ export const NewPatientForm = ({ initialState }: PatientFormProps) => {
           parseInt(values[PatientField.estimatedAge])
         );
       }
-      const res = await addPatientInfo.mutateAsync(patientData);
-      const patientId = res.data.id;
+      const response = await addPatientInfo.mutateAsync(patientData);
+      const patientId = response.data.id;
 
       const isPregnant = Boolean(values[PatientField.isPregnant]);
       if (isPregnant) {
@@ -92,14 +94,14 @@ export const NewPatientForm = ({ initialState }: PatientFormProps) => {
   };
 
   const [stepNum, setStepNum] = useState(0);
-  const PageComponent = STEPS[stepNum].component;
-  const isFinalPage = stepNum === STEPS.length - 1;
+  const StepComponent = STEPS[stepNum].component;
+  const isFinalStep = stepNum === STEPS.length - 1;
 
   const handleNextStep = (
     values: PatientState,
     helpers: FormikHelpers<PatientState>
   ) => {
-    if (isFinalPage) {
+    if (isFinalStep) {
       handleSubmit(values);
     } else {
       helpers.setTouched({});
@@ -142,11 +144,7 @@ export const NewPatientForm = ({ initialState }: PatientFormProps) => {
         validationSchema={STEPS[stepNum].validationSchema}>
         {(formikProps: FormikProps<PatientState>) => (
           <Form>
-            <PageComponent
-              formikProps={formikProps}
-              creatingNew={true}
-              isDrugRecord={STEPS[stepNum].isDrugRecord}
-            />
+            <StepComponent formikProps={formikProps} creatingNew={true} />
 
             <Box sx={{ marginTop: '1rem' }}>
               <SecondaryButton
@@ -161,7 +159,7 @@ export const NewPatientForm = ({ initialState }: PatientFormProps) => {
                 }}
                 type="submit"
                 disabled={isSubmitting}>
-                {isFinalPage ? 'Create' : 'Next'}
+                {isFinalStep ? 'Create' : 'Next'}
               </PrimaryButton>
             </Box>
           </Form>
