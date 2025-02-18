@@ -289,7 +289,8 @@ class CognitoClientWrapper:
             key_id = token_header.get("kid")
         except jwt.DecodeError as err:
             print(err)
-            raise ValueError("Could not decode access token's header.")
+            print(access_token)
+            raise ValueError(f"Could not decode access token's header - {err}")
         if key_id is None:
             raise ValueError("Could not retrieve key_id from access token header.")
 
@@ -310,23 +311,16 @@ class CognitoClientWrapper:
                 leeway=60,  # Leeway to account for clock skew.
             )
         except jwt.DecodeError as err:
-            print(err)
+            print("decode error:", err)
             raise ValueError(err)
         except Exception as err:
+            print("exception:", err)
             raise ValueError(err)
         else:
             payload = cast(dict[str, str], payload)
             client_id = payload.get("client_id")
             if client_id is None or client_id != self.client_id:
                 raise ValueError("Invalid Access Token.")
-
-        # The GetUser API will throw an error if the token is invalid or expired.
-        try:
-            user_info = self.client.get_user(AccessToken=access_token)
-            logger.info(user_info)
-        except ClientError as err:
-            error = err.response.get("Error")
-            raise ValueError(error)
 
     def get_username_from_jwt(self):
         """
