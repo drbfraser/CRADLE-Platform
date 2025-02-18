@@ -212,8 +212,7 @@ jobs:
     environment: cicd
     concurrency: cicd
     container:
-      image: mcr.microsoft.com/playwright:v1.50.1-noble
-      options: --user 1001
+      image: node:18
     needs: [frontend-unit_tests, backend_system_tests]
     env:
       CI: 'true'
