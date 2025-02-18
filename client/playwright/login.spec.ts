@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
-import { USERNAME, PASSWORD } from './constants';
+import { ADMIN_CREDENTIALS } from './constants';
+
+const { username, password } = ADMIN_CREDENTIALS;
 
 test.describe('Login Tests', () => {
   // Reset storage state for this file to avoid being authenticated
@@ -11,8 +13,8 @@ test.describe('Login Tests', () => {
     await expect(page.getByRole('heading', { name: /Login/ })).toBeVisible();
 
     // Fill in credentials.
-    await page.getByRole('textbox', { name: 'username' }).fill(USERNAME);
-    await page.getByRole('textbox', { name: 'password' }).fill(PASSWORD);
+    await page.getByRole('textbox', { name: 'username' }).fill(username);
+    await page.getByRole('textbox', { name: 'password' }).fill(password);
 
     // Click Log in button.
     await page.getByRole('button', { name: 'login' }).click();
@@ -24,7 +26,7 @@ test.describe('Login Tests', () => {
   test('Login attempt without username', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByRole('textbox', { name: 'username' }).fill(USERNAME);
+    await page.getByRole('textbox', { name: 'username' }).fill(username);
 
     // Login button should be disabled.
     await expect(page.getByRole('button', { name: 'login' })).toBeDisabled();
@@ -33,7 +35,7 @@ test.describe('Login Tests', () => {
   test('Login attempt without password', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByRole('textbox', { name: 'password' }).fill(PASSWORD);
+    await page.getByRole('textbox', { name: 'password' }).fill(password);
 
     // Login button should be disabled.
     await expect(page.getByRole('button', { name: 'login' })).toBeDisabled();
