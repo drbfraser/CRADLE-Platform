@@ -6,6 +6,7 @@ import { TopLevelContextProviders } from 'src/context/providers/TopLevelContextP
 import { AppRoutes } from './routes';
 import { TopBar } from './topBar';
 import { SidebarWrapper } from './sidebar/SidebarWrapper';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 export const App: React.FC = () => {
   return (
