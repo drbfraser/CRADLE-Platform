@@ -6,10 +6,12 @@ import { TopBar } from './topBar';
 import { Box } from '@mui/material';
 import { TopLevelContextProviders } from 'src/context/providers/TopLevelContextProviders';
 import { SidebarWrapper } from './sidebar/SidebarWrapper';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 export const App: React.FC = () => {
   return (
     <TopLevelContextProviders>
+      <ReactQueryDevtools />
       <CssBaseline />
       <Box
         id={'rootContainer'}
