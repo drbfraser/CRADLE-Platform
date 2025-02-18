@@ -206,15 +206,15 @@ jobs:
         run: npm run test --args a
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
 
-  frontend-integration-test:
+  end-to-end-tests:
+    name: "End-to-End Playwright Tests"
     runs-on: [self-hosted, docker]
-
-    # TODO: https://github.sfu.ca/bfraser/415-Cradle-Platform/issues/454
-    # disable due to incomplete workflow
-    if: false
+    environment: cicd
+    concurrency: cicd
     container:
-      image: node:18
-    needs: frontend-unit_tests
+      image: mcr.microsoft.com/playwright:v1.50.1-noble
+      options: --user 1001
+    needs: [frontend-unit_tests, backend_system_tests]
     env:
       CI: 'true'
       DB_USERNAME: 'root'
@@ -223,7 +223,17 @@ jobs:
       DB_PORT: '3306'
       DB_NAME: 'cradle'
       MYSQL_DATABASE: 'cradle'
-      MYSQL_ROOT_PASSWORD: 'ci-password'
+      PORT: "5000"
+      MYSQL_ROOT_PASSWORD: 'ci-password'      
+      LIMITER_DISABLED: "True"
+      EMULATOR_PHONE_NUMBER: "+1-123-456-7890"
+      SMS_KEY_DURATION: "100"
+      AWS_REGION: us-west-2
+      COGNITO_AWS_ACCESS_KEY_ID: ${{ secrets.COGNITO_AWS_ACCESS_KEY_ID }}
+      COGNITO_AWS_SECRET_ACCESS_KEY: ${{ secrets.COGNITO_AWS_SECRET_ACCESS_KEY }}
+      COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
+      COGNITO_APP_CLIENT_ID: ${{ secrets.COGNITO_APP_CLIENT_ID }}
+      COGNITO_CLIENT_SECRET: ${{ secrets.COGNITO_CLIENT_SECRET }}
     services:
       mysql:
         image: mysql:5.7
@@ -236,16 +246,17 @@ jobs:
         uses: bfraser/cicd/actions/checkout@v1
         with:
           path: ${{ env.CUSTOM_WORKSPACE }}
-      - name: Install Node
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - name: Install frontend dependencies 
         run: |
           npm install -g npm@$NPM_VERSION
           npm ci
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
-      - name: Install Cypress Dependencies
-        run: |
-          apt-get update -y
-          apt-get install -y default-mysql-client python3-pip python3-venv
-          apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+      - name: Install Playwright Browsers 
+        run: npx playwright install --with-deps
+        working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
       - name: Start backend service
         env:
           PORT: '5000'
@@ -258,7 +269,7 @@ jobs:
           /venv/bin/python3 db.py rebuild --no-docker
           /venv/bin/python3 manage.py seed_test_data
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
-      - name: Run Integration Tests
+      - name: Run End-toEnd Tests
         id: e2e_test
         env:
           PORT: '3000'
@@ -267,12 +278,12 @@ jobs:
           npx wait-on http://localhost:3000
           npm run e2e
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
-      - name: Upload Test Artifacts
+      - name: Upload Playwright Report
         uses: actions/upload-artifact@v2
-        if: failure() &&  ${{ steps.e2e_test.outcome == 'failure' }}
+        if: ${{ !cancelled() }}
         with:
-          name: integration_test_results
-          path: ${{ env.CUSTOM_WORKSPACE }}/client/cypress/screenshots/**/*.png, ${{ env.CUSTOM_WORKSPACE }}/client/cypress/videos/**/*.mp4
+          name: playwright-report
+          path: ${{ env.CUSTOM_WORKSPACE }}/client/playwright-report/
 
   frontend-lint-format:
     runs-on: [self-hosted, docker]
