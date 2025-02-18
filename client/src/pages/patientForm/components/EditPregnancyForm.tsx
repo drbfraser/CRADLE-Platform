@@ -14,7 +14,7 @@ import {
 import PatientFormHeader from './PatientFormHeader';
 import { pregnancyInfoValidationSchema } from './pregnancyInfo/validation';
 import { PregnancyInfoForm } from './pregnancyInfo';
-import { processValues } from './pregnancyInfo/utils';
+import { getPregnancyValues } from './pregnancyInfo/utils';
 
 type Props = {
   patientId: string;
@@ -30,7 +30,7 @@ const EditPregnancyForm = ({ patientId, pregnancyId, initialState }: Props) => {
   const deletePregnancy = useDeletePregnancyMutation(pregnancyId);
 
   const handleSubmit = (values: PatientState) => {
-    const submitValues = { patientId, ...processValues(values) };
+    const submitValues = { patientId, ...getPregnancyValues(values) };
     updatePregnancy.mutate(submitValues, {
       onSuccess: () => navigate(`/patients/${patientId}`),
     });

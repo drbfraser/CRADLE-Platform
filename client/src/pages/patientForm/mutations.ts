@@ -2,7 +2,7 @@ import { AxiosError } from 'axios';
 import { useMutation } from '@tanstack/react-query';
 import { API_URL, axiosFetch } from 'src/shared/api/api';
 import { EndpointEnum } from 'src/shared/enums';
-import { SubmitValues as PregnancySubmitValues } from './components/pregnancyInfo/utils';
+import { PregnancySubmitValues } from './components/pregnancyInfo/utils';
 import { PatientData } from './components/EditPersonalInfoForm';
 
 const createPregnancyURL = (pregnancyId: string) =>
