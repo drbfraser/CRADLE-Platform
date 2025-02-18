@@ -5,6 +5,8 @@ import { test, expect } from '@playwright/test';
  */
 
 test('Create Patient', async ({ page, browserName }) => {
+  test.skip(true, 'Skipping this test until it is completed.');
+
   await page.goto('/patients');
   await page.waitForURL('/patients');
   await expect(page).toHaveURL('/patients');
