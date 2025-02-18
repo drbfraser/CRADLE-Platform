@@ -42,11 +42,15 @@ const EditPregnancyForm = ({ patientId, pregnancyId, initialState }: Props) => {
     });
   };
 
-  const isError = updatePregnancy.isError || deletePregnancy.isError;
   const isPending = updatePregnancy.isPending || deletePregnancy.isPending;
   return (
     <>
-      {isError && !isPending && <APIErrorToast />}
+      {updatePregnancy.isError && (
+        <APIErrorToast onClose={() => updatePregnancy.reset()} />
+      )}
+      {deletePregnancy.isError && (
+        <APIErrorToast onClose={() => deletePregnancy.reset()} />
+      )}
 
       <ConfirmDialog
         title="Delete Record?"
@@ -79,13 +83,15 @@ const EditPregnancyForm = ({ patientId, pregnancyId, initialState }: Props) => {
                 alignItems: 'center',
                 justifyContent: 'space-between',
               }}>
-              <CancelButton onClick={() => setIsDialogOpen(true)}>
+              <CancelButton
+                onClick={() => setIsDialogOpen(true)}
+                disabled={isPending}>
                 Delete
               </CancelButton>
               <PrimaryButton
                 sx={{ float: 'right' }}
                 type="submit"
-                disabled={updatePregnancy.isPending}>
+                disabled={isPending}>
                 Save
               </PrimaryButton>
             </Box>
