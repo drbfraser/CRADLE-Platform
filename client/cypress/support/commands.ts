@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import { USERNAME, PASSWORD } from '../../playwright/constants';
+import { ADMIN_CREDENTIALS } from '../../playwright/constants';
 
 // ***********************************************
 // This example commands.ts shows you how to
@@ -14,11 +14,13 @@ import { USERNAME, PASSWORD } from '../../playwright/constants';
 //
 //
 
+const { username, password } = ADMIN_CREDENTIALS;
+
 // -- This is a parent command --
-Cypress.Commands.add('login', (user) => {
+Cypress.Commands.add('login', () => {
   cy.visit('localhost:3000/');
-  cy.get('input[name=username]').type(USERNAME);
-  cy.get('input[name=password]').type(PASSWORD);
+  cy.get('input[name=username]').type(username);
+  cy.get('input[name=password]').type(password);
   cy.get('button').contains('Login').click();
 });
 
