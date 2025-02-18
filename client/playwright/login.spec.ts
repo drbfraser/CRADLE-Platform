@@ -12,14 +12,11 @@ test.describe('Login Tests', () => {
 
     await expect(page.getByRole('heading', { name: /Login/ })).toBeVisible();
 
-    // Fill in credentials.
     await page.getByRole('textbox', { name: 'username' }).fill(username);
     await page.getByRole('textbox', { name: 'password' }).fill(password);
 
-    // Click Log in button.
     await page.getByRole('button', { name: 'login' }).click();
 
-    // Check that we have been redirected to the referrals page.
     await expect(page).toHaveURL('/referrals');
   });
 
@@ -28,7 +25,6 @@ test.describe('Login Tests', () => {
 
     await page.getByRole('textbox', { name: 'username' }).fill(username);
 
-    // Login button should be disabled.
     await expect(page.getByRole('button', { name: 'login' })).toBeDisabled();
   });
 
@@ -37,7 +33,6 @@ test.describe('Login Tests', () => {
 
     await page.getByRole('textbox', { name: 'password' }).fill(password);
 
-    // Login button should be disabled.
     await expect(page.getByRole('button', { name: 'login' })).toBeDisabled();
   });
 });
