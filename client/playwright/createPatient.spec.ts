@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-import { BASE_API_URL } from './constants';
 
 /**
  *
@@ -31,4 +30,8 @@ test('Create Patient', async ({ page, browserName }) => {
    * form at all, as this ID can be set to a unique value on the server side.
    *
    */
+
+  await page
+    .getByRole('textbox', { name: 'Patient Name' })
+    .fill(`E2E-Test-Patient-${browserName}`);
 });
