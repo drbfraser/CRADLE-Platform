@@ -245,9 +245,6 @@ jobs:
         uses: bfraser/cicd/actions/checkout@v1
         with:
           path: ${{ env.CUSTOM_WORKSPACE }}
-      - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
       - name: Install frontend dependencies 
         run: |
           npm install -g npm@$NPM_VERSION
