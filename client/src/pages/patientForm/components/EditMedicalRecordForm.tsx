@@ -55,11 +55,15 @@ const EditMedicalRecordForm = ({
     });
   };
 
-  const isError = updateRecord.isError || deleteRecord.isError;
   const isPending = updateRecord.isPending || deleteRecord.isPending;
   return (
     <>
-      {isError && !isPending && <APIErrorToast />}
+      {updateRecord.isError && (
+        <APIErrorToast onClose={() => updateRecord.reset()} />
+      )}
+      {deleteRecord.isError && (
+        <APIErrorToast onClose={() => deleteRecord.reset()} />
+      )}
 
       <ConfirmDialog
         title="Delete Record?"
@@ -99,13 +103,15 @@ const EditMedicalRecordForm = ({
                 alignItems: 'center',
                 justifyContent: 'space-between',
               }}>
-              <CancelButton onClick={() => setIsDialogOpen(true)}>
+              <CancelButton
+                onClick={() => setIsDialogOpen(true)}
+                disabled={isPending}>
                 Delete
               </CancelButton>
               <PrimaryButton
                 sx={{ marginTop: '1rem', float: 'right' }}
                 type="submit"
-                disabled={updateRecord.isPending}>
+                disabled={isPending}>
                 Save
               </PrimaryButton>
             </Box>

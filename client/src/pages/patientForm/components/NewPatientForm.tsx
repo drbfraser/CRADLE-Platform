@@ -116,14 +116,20 @@ export const NewPatientForm = ({ initialState }: PatientFormProps) => {
     }
   };
 
-  const isSubmitting = addPatientInfo.isPending || addPregnancyInfo.isPaused;
+  const isSubmitting = addPatientInfo.isPending || addPregnancyInfo.isPending;
   return (
     <>
-      {addPatientInfo.isError && !addPatientInfo.isPending && (
-        <APIErrorToast errorMessage={addPatientInfo.error.message} />
+      {addPatientInfo.isError && (
+        <APIErrorToast
+          errorMessage={addPatientInfo.error.message}
+          onClose={() => addPatientInfo.reset()}
+        />
       )}
-      {addPregnancyInfo.isError && !addPregnancyInfo.isPending && (
-        <APIErrorToast errorMessage={addPregnancyInfo.error.message} />
+      {addPregnancyInfo.isError && (
+        <APIErrorToast
+          errorMessage={addPregnancyInfo.error.message}
+          onClose={() => addPregnancyInfo.reset()}
+        />
       )}
 
       <PatientFormHeader title={STEPS[stepNum].title} />
