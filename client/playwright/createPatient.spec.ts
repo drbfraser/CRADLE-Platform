@@ -1,5 +1,4 @@
-import { expect } from '@playwright/test';
-import { test } from './fixtures';
+import { test, expect } from '@playwright/test';
 import { BASE_API_URL } from './constants';
 
 /**
@@ -7,12 +6,9 @@ import { BASE_API_URL } from './constants';
  */
 
 test('Create Patient', async ({ page, browserName }) => {
-  const responsePromise = page.waitForResponse(`${BASE_API_URL}/patients*`);
   await page.goto('/patients');
   await page.waitForURL('/patients');
   await expect(page).toHaveURL('/patients');
-  // Wait for patients list to load.
-  await responsePromise;
 
   // Click New Patient button.
   await page.getByRole('link', { name: 'New Patient' }).click();
