@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { AUTH_FILE } from './playwright/constants';
 
 /**
  * Read environment variables from file.
@@ -41,27 +42,25 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         // Use auth state.
-        storageState: 'test-results/.auth/user.json',
+        storageState: AUTH_FILE,
       },
       dependencies: ['setup'],
     },
-
     {
       name: 'firefox',
       use: {
         ...devices['Desktop Firefox'],
         // Use auth state.
-        storageState: 'test-results/.auth/user.json',
+        storageState: AUTH_FILE,
       },
       dependencies: ['setup'],
     },
-
     {
       name: 'webkit',
       use: {
         ...devices['Desktop Safari'],
         // Use auth state.
-        storageState: 'test-results/.auth/user.json',
+        storageState: AUTH_FILE,
       },
       dependencies: ['setup'],
     },
