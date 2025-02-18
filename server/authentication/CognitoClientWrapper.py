@@ -235,7 +235,7 @@ class CognitoClientWrapper:
             ],
         )
 
-    def get_access_token(self):
+    def _get_access_token(self):
         """
         Gets the JWT access token from the authorization header.
         """
@@ -248,7 +248,7 @@ class CognitoClientWrapper:
             raise ValueError("Access token not found.")
         return access_token
 
-    def decode_access_token(self):
+    def _decode_access_token(self):
         """
         Decrypts and decodes the access token in the Authentication header.
 
@@ -263,7 +263,7 @@ class CognitoClientWrapper:
             raise ValueError("Could not retrieve JWKS.")
 
         # Get JWT access token.
-        access_token = self.get_access_token()
+        access_token = self._get_access_token()
 
         key_id = None
         try:
@@ -304,7 +304,7 @@ class CognitoClientWrapper:
         """
         https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-verifying-a-jwt.html
         """
-        payload = self.decode_access_token()
+        payload = self._decode_access_token()
         client_id = payload.get("client_id")
         if client_id is None or client_id != self.client_id:
             raise ValueError("Invalid Access Token - Client IDs do not match.")
@@ -316,7 +316,7 @@ class CognitoClientWrapper:
 
         :return username: Username extracted from the JWT.
         """
-        payload = self.decode_access_token()
+        payload = self._decode_access_token()
         return payload.get("username")
 
     def refresh_access_token(self, username: str):
