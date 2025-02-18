@@ -17,7 +17,12 @@ class FormModel(CradleBaseModel, extra="forbid"):
     id: Optional[str] = None
     form_template_id: Optional[str] = None
     form_classification_id: Optional[str] = None
-    date_created: int
+    # I don't see why this date_created field is required. We save the date for when a template was created, but this
+    # is a submission, not a template. This is the same as last_edited. Plus, in /resources/forms.py submit_form(), we set
+    # date_created = get_current_time(). But because of this date_created being required and not having a default*,
+    # I get a failure when I try to submit a form through web app. I'm adding a default for this for now, but 
+    # we could possibly just remove this.  
+    date_created: int = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
     last_edited_by: Optional[int] = None
     archived: Optional[StrictBool] = None
