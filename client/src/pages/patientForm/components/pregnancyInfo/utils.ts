@@ -5,16 +5,16 @@ import {
 import { GestationalAgeUnitEnum } from 'src/shared/enums';
 import { PatientField, PatientState } from '../../state';
 
-export type SubmitValues = {
+export type PregnancySubmitValues = {
   patientId: string;
   startDate: number;
   endDate?: number;
   outcome?: string;
 };
 
-export const processValues = (
+export const getPregnancyValues = (
   rawValues: PatientState
-): Omit<SubmitValues, 'patientId'> => {
+): Omit<PregnancySubmitValues, 'patientId'> => {
   const submitValues = {
     startDate: 0,
     endDate: Number(rawValues[PatientField.pregnancyEndDate]) || undefined,
