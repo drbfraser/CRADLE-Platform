@@ -5,6 +5,15 @@ import { EndpointEnum } from 'src/shared/enums';
 import { SubmitValues as PregnancySubmitValues } from './components/pregnancyInfo/utils';
 import { PatientData } from './components/EditPersonalInfoForm';
 
+const createPregnancyURL = (pregnancyId: string) =>
+  API_URL + EndpointEnum.PREGNANCIES + `/${pregnancyId}`;
+
+const createPatientMedicalRecordsURL = (patientId: string) =>
+  API_URL +
+  EndpointEnum.PATIENTS +
+  `/${patientId}` +
+  EndpointEnum.MEDICAL_RECORDS;
+
 export const useUpdatePatientMutation = (patientId: string) => {
   const endpoint =
     API_URL +
@@ -14,9 +23,8 @@ export const useUpdatePatientMutation = (patientId: string) => {
 
   return useMutation({
     mutationFn: (data: PatientData) => {
-      return axiosFetch(endpoint, {
-        method: 'PUT',
-        data,
+      return axiosFetch.put(endpoint, {
+        ...data,
       });
     },
   });
@@ -27,27 +35,27 @@ export const useAddPatientInfoMutation = () => {
 
   return useMutation({
     mutationFn: (data: PatientData) => {
-      return axiosFetch(endpoint, { method: 'POST', data });
+      return axiosFetch.post(endpoint, {
+        ...data,
+      });
     },
   });
 };
 
 export const useUpdatePregnancyMutation = (pregnancyId: string) => {
-  const endpoint = API_URL + EndpointEnum.PREGNANCIES + `/${pregnancyId}`;
-
   return useMutation({
     mutationFn: (data: PregnancySubmitValues) => {
-      return axiosFetch(endpoint, { method: 'PUT', data });
+      return axiosFetch.put(createPregnancyURL(pregnancyId), {
+        ...data,
+      });
     },
   });
 };
 
 export const useDeletePregnancyMutation = (pregnancyId: string) => {
-  const endpoint = API_URL + EndpointEnum.PREGNANCIES + `/${pregnancyId}`;
-
   return useMutation({
     mutationFn: () => {
-      return axiosFetch(endpoint, { method: 'DELETE' });
+      return axiosFetch.delete(createPregnancyURL(pregnancyId));
     },
   });
 };
@@ -61,16 +69,18 @@ export const useAddPregnancyMutation = () => {
         `/${data.patientId}` +
         EndpointEnum.PREGNANCIES;
 
-      return axiosFetch(endpoint, { method: 'POST', data }).catch(
-        (e: AxiosError) => {
+      return axiosFetch
+        .post(endpoint, {
+          ...data,
+        })
+        .catch((e: AxiosError) => {
           let errorMessage = '';
           if (e.response?.status === 409) {
             errorMessage =
               'Failed to create pregnancy due to a conflict with the current pregnancy or previous pregnancies.';
           }
           throw new Error(errorMessage);
-        }
-      );
+        });
     },
   });
 };
@@ -79,17 +89,11 @@ export const useAddMedicalRecordMutation = (
   patientId: string,
   isDrugRecord: boolean
 ) => {
-  const endpoint =
-    API_URL +
-    EndpointEnum.PATIENTS +
-    `/${patientId}` +
-    EndpointEnum.MEDICAL_RECORDS;
-
   return useMutation({
     mutationFn: (submitValues: { patientId: string; information: string }) => {
-      return axiosFetch(endpoint, {
-        method: 'POST',
-        data: { ...submitValues, isDrugRecord },
+      return axiosFetch.post(createPatientMedicalRecordsURL(patientId), {
+        ...submitValues,
+        isDrugRecord,
       });
     },
   });
@@ -99,17 +103,11 @@ export const useUpdateMedicalRecordMutation = (
   patientId: string,
   isDrugRecord: boolean
 ) => {
-  const endpoint =
-    API_URL +
-    EndpointEnum.PATIENTS +
-    `/${patientId}` +
-    EndpointEnum.MEDICAL_RECORDS;
-
   return useMutation({
     mutationFn: (submitValues: { patientId: string; information: string }) => {
-      return axiosFetch(endpoint, {
-        method: 'POST',
-        data: { ...submitValues, isDrugRecord },
+      return axiosFetch.post(createPatientMedicalRecordsURL(patientId), {
+        ...submitValues,
+        isDrugRecord,
       });
     },
   });
@@ -120,7 +118,7 @@ export const useDeleteMedicalRecordMutation = (recordId: string) => {
 
   return useMutation({
     mutationFn: () => {
-      return axiosFetch(endpoint, { method: 'DELETE' });
+      return axiosFetch.delete(endpoint);
     },
   });
 };
