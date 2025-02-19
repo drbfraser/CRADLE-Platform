@@ -256,7 +256,6 @@ jobs:
           ls -la /
           ls -la /github/
           ls -la /github/home
-          nvm -v
           apt-get update && \
           apt-get -y install sudo
       - name: Manage Permissions
