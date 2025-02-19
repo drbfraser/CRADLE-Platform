@@ -264,20 +264,13 @@ jobs:
         run: find -name ".bashrc"
       - name: Manage Permissions
         run: |
-          groupadd sudo
-          groupadd sudoers
+          sudo groups
           usermod -a -G sudo root
-          usermod -a -G sudoers root
           sudo groups
       - name: Checkout code into container
         uses: bfraser/cicd/actions/checkout@v1
         with:
           path: ${{ env.CUSTOM_WORKSPACE }}
-      - name: Change $HOME
-        run: | 
-          echo $HOME
-          export HOME=${{ env.CUSTOM_WORKSPACE }}
-          echo $HOME
       - name: Install Node 
         run: |
           echo $HOME
