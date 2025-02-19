@@ -219,11 +219,12 @@ jobs:
     permissions:
       contents: read
     container:
-      image: mcr.microsoft.com/playwright:v1.50.1-noble
+      # image: mcr.microsoft.com/playwright:v1.50.1-noble
+      image: python:3.9.1-buster
       options: --user root
-    defaults:
-      run:
-        shell: bash -leo pipefail {0}
+    # defaults:
+    #   run:
+    #     shell: bash -leo pipefail {0}
     # needs: [frontend-unit_tests, backend_system_tests]
     env:
       NVM_DIR: /isolated-build/repo/.nvm
@@ -255,28 +256,10 @@ jobs:
     steps:
       - name: Set Noninteractive 
         run: echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
-      - name: Setup
-        run: | 
-          whoami
-          ls -la /
-          ls -la /github/
-          ls -la /github/home
-          apt-get update && \
-          apt-get -y install sudo
-
-
-      - name: Manage Permissions
-        run: |
-          sudo groups
-          usermod -a -G sudo root
-          sudo groups
       - name: Checkout code into container
         uses: bfraser/cicd/actions/checkout@v1
         with:
           path: ${{ env.CUSTOM_WORKSPACE }}
-      - name: Create .bashrc
-        run: | 
-          touch ${{ env.CUSTOM_WORKSPACE }}/.bashrc
       - name: Install Node 
         run: |
           echo $HOME
@@ -289,18 +272,10 @@ jobs:
           nvm current
           npm -v
         working-directory: ${{ env.CUSTOM_WORKSPACE }}
-      - name: Setup Python3.9
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9' 
-      # - uses: actions/setup-node@v4
-      #   with:
-      #     node-version: 18
       - name: Install frontend dependencies 
         run: |
           npm ci
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
-
       - name: Install Playwright Browsers 
         run: PLAYWRIGHT_BROWSERS_PATH=0 npx playwright install --with-deps
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
