@@ -563,7 +563,6 @@ def create_new_sms_relay_request_number_orm():
 
 def get_last_received_sms_relay_request_number(user_id):
     request_number_orm = crud.read(SmsRelayRequestNumberOrm, user_id=user_id)
-    print(request_number_orm)
     last_received_request_number: int = request_number_orm.last_received_request_number
     return last_received_request_number
 
