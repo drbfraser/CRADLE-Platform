@@ -9,7 +9,7 @@ import {
 import { UserRoleEnum } from 'src/shared/enums';
 import { Loader } from 'src/shared/components/loader';
 import { AppRoute, appRoutes } from './utils';
-import PatientRoutes from './PatientsRoute';
+import PatientRoutes from './PatientRoutes';
 
 export const AppRoutes: React.FC = () => {
   return (
