@@ -260,6 +260,27 @@ jobs:
         uses: bfraser/cicd/actions/checkout@v1
         with:
           path: ${{ env.CUSTOM_WORKSPACE }}
+      - name: Install Python3.9
+        run: |
+          export HOME=${{ env.CUSTOM_WORKSPACE }}
+          apt-get update -y
+          apt-get upgrade -y
+          apt-get install default-mysql-client -y
+          apt-get install build-essential zlib1g-dev \
+          libncurses5-dev libgdbm-dev libnss3-dev \
+          libssl-dev libreadline-dev libffi-dev curl software-properties-common -y
+          mkdir ~/tmp
+          cd ~/tmp
+          wget https://www.python.org/ftp/python/3.9.12/Python-3.9.12.tar.xz
+          tar -xf Python-3.9.12.tar.xz
+          cd Python-3.9.12
+          ./configure
+          make altinstall
+          python3.9 --version
+          find -L ~ -name python3.9
+          find -L ~ -name pip
+          echo "alias python3=python3.9" >> ~/.bashrc
+        working-directory: ${{ env.CUSTOM_WORKSPACE }}
       - name: Install Node 
         run: |
           echo $HOME
@@ -286,27 +307,6 @@ jobs:
           source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
           PLAYWRIGHT_BROWSERS_PATH=0 npx playwright install --with-deps
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
-      - name: Install Python3.9
-        run: |
-          export HOME=${{ env.CUSTOM_WORKSPACE }}
-          apt-get update -y
-          apt-get upgrade -y
-          apt-get install default-mysql-client -y
-          apt-get install build-essential zlib1g-dev \
-          libncurses5-dev libgdbm-dev libnss3-dev \
-          libssl-dev libreadline-dev libffi-dev curl software-properties-common -y
-          mkdir ~/tmp
-          cd ~/tmp
-          wget https://www.python.org/ftp/python/3.9.12/Python-3.9.12.tar.xz
-          tar -xf Python-3.9.12.tar.xz
-          cd Python-3.9.12
-          ./configure
-          make altinstall
-          python3.9 --version
-          find -L ~ -name python3.9
-          find -L ~ -name pip
-          echo "alias python3=python3.9" >> ~/.bashrc
-        working-directory: ${{ env.CUSTOM_WORKSPACE }}
       - name: Start backend service
         env:
           PORT: '5000'
