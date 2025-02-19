@@ -251,7 +251,7 @@ jobs:
       - name: Manage permissions 
         run: | 
           ls -la /
-          sudo chmod +rwx 
+          chmod +rwx 
       - name: Checkout code into container
         uses: bfraser/cicd/actions/checkout@v1
         with:
