@@ -82,8 +82,7 @@ const PregnancyStats = ({ patientId }: Props) => {
             borderColor: 'lightgrey',
           }}>
           <TableBody>
-            {pregnancyHistoryQuery.data.pastPregnancies &&
-            pregnancyHistoryQuery.data.pastPregnancies.length > 0 ? (
+            {pregnancyHistoryQuery.data.pastPregnancies.length > 0 ? (
               pregnancyHistoryQuery.data.pastPregnancies.map(
                 (pastPregnancy: PastPregnancy) => (
                   <TableRow
@@ -115,40 +114,39 @@ const PregnancyStats = ({ patientId }: Props) => {
           </TableBody>
         </Table>
 
-        {pregnancyHistoryQuery.data.pastPregnancies &&
-          pregnancyHistoryQuery.data.pastPregnancies.length > 0 && (
-            <Styled.GestationAgeUnitSelectContainer
-              sx={{
-                marginTop: '2rem',
-              }}>
-              <Typography fontWeight={'bold'}>
-                Gestational Age Unit View:
-              </Typography>
+        {pregnancyHistoryQuery.data.pastPregnancies.length > 0 && (
+          <Styled.GestationAgeUnitSelectContainer
+            sx={{
+              marginTop: '2rem',
+            }}>
+            <Typography fontWeight={'bold'}>
+              Gestational Age Unit View:
+            </Typography>
 
-              <FormControl>
-                <InputLabel id={'previous-pregnancy-unit-select-label'}>
-                  Gestational Age Unit
-                </InputLabel>
-                <Styled.GestationAgeUnitSelect
-                  id={'previous-pregnancy-unit-select'}
-                  labelId={'previous-pregnancy-unit-select'}
-                  label={'Gestational Age Unit'}
-                  name={'previous-pregnancy-unit'}
-                  value={previousPregnancyUnit}
-                  onChange={(event) => {
-                    setPreviousPregnancyUnit(
-                      event.target.value as GestationalAgeUnitEnum
-                    );
-                  }}>
-                  {UNIT_OPTIONS.map((option) => (
-                    <MenuItem key={option.key} value={option.value}>
-                      {option.text}
-                    </MenuItem>
-                  ))}
-                </Styled.GestationAgeUnitSelect>
-              </FormControl>
-            </Styled.GestationAgeUnitSelectContainer>
-          )}
+            <FormControl>
+              <InputLabel id={'previous-pregnancy-unit-select-label'}>
+                Gestational Age Unit
+              </InputLabel>
+              <Styled.GestationAgeUnitSelect
+                id={'previous-pregnancy-unit-select'}
+                labelId={'previous-pregnancy-unit-select'}
+                label={'Gestational Age Unit'}
+                name={'previous-pregnancy-unit'}
+                value={previousPregnancyUnit}
+                onChange={(event) => {
+                  setPreviousPregnancyUnit(
+                    event.target.value as GestationalAgeUnitEnum
+                  );
+                }}>
+                {UNIT_OPTIONS.map((option) => (
+                  <MenuItem key={option.key} value={option.value}>
+                    {option.text}
+                  </MenuItem>
+                ))}
+              </Styled.GestationAgeUnitSelect>
+            </FormControl>
+          </Styled.GestationAgeUnitSelectContainer>
+        )}
       </Box>
     </>
   );
