@@ -277,8 +277,8 @@ jobs:
         working-directory: ${{ env.CUSTOM_WORKSPACE }}
       - name: Install frontend dependencies 
         run: |
+          npm -v
           source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
-          npm current
           npm ci
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
       - name: Install Playwright Browsers 
