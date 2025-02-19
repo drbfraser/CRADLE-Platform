@@ -294,13 +294,13 @@ jobs:
           apt-get update -y
           apt-get upgrade -y
           apt-get install default-mysql-client -y
-          apt install build-essential zlib1g-dev \
+          apt-get install build-essential zlib1g-dev \
           libncurses5-dev libgdbm-dev libnss3-dev \
           libssl-dev libreadline-dev libffi-dev curl software-properties-common -y
           mkdir ~/tmp
           cd ~/tmp
           wget https://www.python.org/ftp/python/3.9.12/Python-3.9.12.tar.xz
-          tar -xvzf Python-3.9.12.tar.xz
+          tar -xf Python-3.9.12.tar.xz
           cd Python-3.9.12
           ./configure
           make altinstall
