@@ -211,6 +211,8 @@ jobs:
     runs-on: [self-hosted, docker]
     environment: cicd
     concurrency: cicd
+    permissions:
+      contents: read
     container:
       image: python:3.9.1-buster
       options: --user=root
