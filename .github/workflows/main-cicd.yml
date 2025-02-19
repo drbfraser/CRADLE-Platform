@@ -214,8 +214,8 @@ jobs:
     permissions:
       contents: read
     container:
-      image: python:3.9.1-buster
-      options: --user=root
+      image: mcr.microsoft.com/playwright:v1.50.1-noble
+      options: --user 1001
     needs: [frontend-unit_tests, backend_system_tests]
     env:
       CI: 'true'
@@ -248,15 +248,12 @@ jobs:
         uses: bfraser/cicd/actions/checkout@v1
         with:
           path: ${{ env.CUSTOM_WORKSPACE }}
-      - name: Install Node 
-        run : |
-          sudo chmod +rwx "$HOME"
-          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
-          \. "$HOME/.nvm/nvm.sh"
-          nvm install 18
-          node -v 
-          nvm current 
-          npm -v
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.9' 
       - name: Install frontend dependencies 
         run: |
           npm ci
@@ -278,7 +275,7 @@ jobs:
           python3 db.py rebuild --no-docker
           python3 manage.py seed_test_data
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
-      - name: Run End-toEnd Tests
+      - name: Run End-to-End Tests
         id: e2e_test
         env:
           PORT: '3000'
