@@ -248,9 +248,11 @@ jobs:
         ports:
           - 3306:3306
     steps:
-      - name: List contents 
+      - name: Manage Permissions
         run: | 
           ls -la /
+          chmod +rwx /github/
+          chmod +rwx /github/home
       - name: Set Noninteractive 
         run: echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
       - name: Checkout code into container
