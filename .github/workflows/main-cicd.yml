@@ -255,12 +255,22 @@ jobs:
         uses: bfraser/cicd/actions/checkout@v1
         with:
           path: ${{ env.CUSTOM_WORKSPACE }}
-      - uses: actions/setup-python@v4
+      - name: Install Node 
+        run: |
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+          \. "${{ env.CUSTOM_WORKSPACE }}/.nvm/nvm.sh"
+          nvm install 18
+          node -v
+          nvm current
+          npm -v
+        working-directory: ${{ env.CUSTOM_WORKSPACE }}
+      - name: Setup Python3.9
+        uses: actions/setup-python@v4
         with:
           python-version: '3.9' 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
+      # - uses: actions/setup-node@v4
+      #   with:
+      #     node-version: 18
       - name: Install frontend dependencies 
         run: |
           npm ci
