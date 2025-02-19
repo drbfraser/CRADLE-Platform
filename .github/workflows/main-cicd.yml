@@ -163,8 +163,6 @@ jobs:
         uses: bfraser/cicd/actions/checkout@v1
         with:
           path: ${{ env.CUSTOM_WORKSPACE }}
-      - name: Set NonInteractive 
-        run: export DEBIAN_FRONTEND=noninteractive
       - name: Install dependencies
         run: |
           apt-get update -y
@@ -252,6 +250,8 @@ jobs:
           npm install -g npm@$NPM_VERSION
           npm ci
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
+      - name: Set Noninteractive 
+        run: echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
       - name: Install Playwright Browsers 
         run: npx playwright install --with-deps
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
