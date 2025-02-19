@@ -218,8 +218,7 @@ jobs:
     permissions:
       contents: read
     container:
-      # image: mcr.microsoft.com/playwright:v1.50.1-noble
-      image: ubuntu:noble-20250127
+      image: mcr.microsoft.com/playwright:v1.50.1-noble
       options: --user root
     # needs: [frontend-unit_tests, backend_system_tests]
     env:
@@ -249,10 +248,11 @@ jobs:
         ports:
           - 3306:3306
     steps:
-      - name: Manage permissions 
+      - name: List contents 
         run: | 
           ls -la /
-          chmod -R +rwx /
+      - name: Set Noninteractive 
+        run: echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
       - name: Checkout code into container
         uses: bfraser/cicd/actions/checkout@v1
         with:
@@ -277,8 +277,7 @@ jobs:
         run: |
           npm ci
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
-      - name: Set Noninteractive 
-        run: echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+
       - name: Install Playwright Browsers 
         run: PLAYWRIGHT_BROWSERS_PATH=0 npx playwright install --with-deps
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
