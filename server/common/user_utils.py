@@ -554,22 +554,26 @@ def create_new_sms_relay_request_number_orm():
     )
     return sms_relay_request_number_orm
 
-def get_user_last_received_sms_relay_request_number(user_id):
+def get_last_received_sms_relay_request_number(user_id):
     request_number_orm = crud.read(SmsRelayRequestNumberOrm, user_id=user_id)
     print(request_number_orm)
     last_received_request_number: int = request_number_orm.last_received_request_number
     return last_received_request_number
 
-def get_user_expected_sms_relay_request_number(user_id):
-    last_received_request_number = get_user_last_received_sms_relay_request_number(user_id)
+def get_expected_sms_relay_request_number(user_id):
+    last_received_request_number = get_last_received_sms_relay_request_number(user_id)
     return last_received_request_number + 1
 
 def increment_sms_relay_last_received_request_number(user_id):
-    last_received_request_number = get_user_last_received_sms_relay_request_number(user_id)
+    last_received_request_number = get_last_received_sms_relay_request_number(user_id)
 
     if last_received_request_number == MAX_SMS_RELAY_REQUEST_NUMBER:
         updated_request_number = 0
     else:
         updated_request_number = last_received_request_number + 1
 
-    crud.update(SmsSecretKeyOrm, last_received_request_number=updated_request_number, user_id=user_id)
+    new_request_number = {
+        "last_received_request_number": updated_request_number,
+    }
+
+    crud.update(SmsRelayRequestNumberOrm, new_request_number, user_id=user_id)

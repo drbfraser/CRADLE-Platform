@@ -115,10 +115,10 @@ def _create_error_response(
     return response
 
 def _validate_request_number(
-    request_number: int, last_received_request_number: int
+    request_number: int, last_received_request_number: int, expected_request_number: int
 ) -> bool:
     """
-    Checks that request number received from SMS relay is valid.
+    Checks that request number received from SMS relay is valid and matches the expected request number.
     Each request from a user must have a request number that is:
         - higher than the previous request number for that user (so that old requests are ignored)
         - must be within (max-request-number / 1000) of the previous request number for that user 
@@ -132,15 +132,17 @@ def _validate_request_number(
 
     :param request_number: Decrypted request number from HTTP request sent through SMS relay from Mobile.
     :param last_received_request_number: Last request number server has received.
+    :param expected_received_request_number: Expected request number server expects.
 
-    :return: Returns True if request number is valid, otherwise returns False.
+    :return: Returns True if request number is valid and matches the expected request number, otherwise returns False.
     """
 
-    request_number_calc = (request_number - last_received_request_number + MAX_SMS_RELAY_REQUEST_NUMBER) % MAX_SMS_RELAY_REQUEST_NUMBER
+    request_number_check = (request_number - last_received_request_number + MAX_SMS_RELAY_REQUEST_NUMBER) % MAX_SMS_RELAY_REQUEST_NUMBER
 
     if (not isinstance(request_number, int)
-        or request_number_calc < 0
-        or request_number_calc > (MAX_SMS_RELAY_REQUEST_NUMBER/1000)
+        or request_number_check < 0
+        or request_number_check > (MAX_SMS_RELAY_REQUEST_NUMBER/1000
+        or request_number != expected_request_number)
     ):
         return False
     else:
@@ -211,32 +213,23 @@ def relay_sms_request(body: SmsRelayRequestBody):
         )
 
     # Gets last received user request number
-    user_last_received_request_number = user_utils.get_user_last_received_sms_relay_request_number
-    if user_last_received_request_number is None:
+    last_received_request_number = user_utils.get_last_received_sms_relay_request_number(user.id)
+    if last_received_request_number is None:
         print("No last received request number found for user")
         return abort(500, description="Internal Server Error")
 
     # Checks if request number is valid
     request_number = decrypted_data.request_number
-    if not _validate_request_number(request_number, user_last_received_request_number):
-        return _create_error_response(
-            400,
-            invalid_req_number.format(error=error_req_range),
-            encrypted_data[0:_iv_size],
-            user_secret_key,
-        )
-
-    # Checks if request number matches expected request number
-    expected_request_number = user_utils.get_user_expected_sms_relay_request_number(user.id)
-    if not (request_number == expected_request_number):
+    expected_request_number = user_utils.get_expected_sms_relay_request_number(user.id)
+    if not _validate_request_number(request_number, last_received_request_number, expected_request_number):
         request_number_error_body = {
-            "error": "Request number provided does not match the expected value.",
+            "message": "Request number provided does not match the expected value.",
             "expected_request_number": expected_request_number
         }
 
         return _create_error_response(
-            400,
-            jsonify(request_number_error_body),
+            409,
+            str(request_number_error_body),
             encrypted_data[0:_iv_size],
             user_secret_key,
         )
@@ -255,7 +248,7 @@ def relay_sms_request(body: SmsRelayRequestBody):
     response = _send_request_to_endpoint(method, endpoint, headers, json_body)
 
     # Update last received request number from user
-    increment_sms_relay_last_received_request_number(user.id)
+    user_utils.increment_sms_relay_last_received_request_number(user.id)
 
     # Creating Response
     response_code = response.status_code
