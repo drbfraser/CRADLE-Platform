@@ -267,6 +267,8 @@ jobs:
           sudo groups
           usermod -a -G sudo root
           sudo groups
+          sudo chown root:root /__w
+          sudo chown root:root /__e
       - name: Checkout code into container
         uses: bfraser/cicd/actions/checkout@v1
         with:
