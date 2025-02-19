@@ -212,7 +212,7 @@ jobs:
     environment: cicd
     concurrency: cicd
     container:
-      image: node:18
+      image: python:3.9.1-buster
       options: --user=root
     needs: [frontend-unit_tests, backend_system_tests]
     env:
@@ -246,9 +246,11 @@ jobs:
         uses: bfraser/cicd/actions/checkout@v1
         with:
           path: ${{ env.CUSTOM_WORKSPACE }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
       - name: Install frontend dependencies 
         run: |
-          npm install -g npm@$NPM_VERSION
           npm ci
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
       - name: Set Noninteractive 
@@ -261,7 +263,6 @@ jobs:
           PORT: '5000'
         run: |
           apt-get update -y
-          apt-get install python3.9
           apt-get install default-mysql-client -y
           pip install --upgrade pip
           pip install -r requirements.txt
