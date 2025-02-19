@@ -702,11 +702,12 @@ class SmsSecretKeyOrm(db.Model):
     def schema():
         return SmsSecretKeySchema
 
+
 class SmsRelayRequestNumberOrm(db.Model):
     __tablename__ = "sms_relay_request_number"
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
-    last_received_request_number = db.Column(db.Integer, default=0,nullable=False)
-    
+    last_received_request_number = db.Column(db.Integer, default=0, nullable=False)
+
     # FOREIGNKEY
     user_id = db.Column(db.ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
 
@@ -906,6 +907,7 @@ class SmsSecretKeySchema(ma.SQLAlchemyAutoSchema):
         model = SmsSecretKeyOrm
         load_instance = True
         include_relationships = True
+
 
 class SmsRelayRequestNumberSchema(ma.SQLAlchemyAutoSchema):
     class Meta:

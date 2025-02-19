@@ -114,6 +114,7 @@ def _create_error_response(
     response.status_code = error_code
     return response
 
+
 def _validate_request_number(
     request_number: int, last_received_request_number: int, expected_request_number: int
 ) -> bool:
@@ -121,7 +122,7 @@ def _validate_request_number(
     Checks that request number received from SMS relay is valid and matches the expected request number.
     Each request from a user must have a request number that is:
         - higher than the previous request number for that user (so that old requests are ignored)
-        - must be within (max-request-number / 1000) of the previous request number for that user 
+        - must be within (max-request-number / 1000) of the previous request number for that user
         (so that if request numbers roll over, recent high-numbered requests cannot be replayed)
 
     - Let Rp = the previous request number received from the client.
@@ -136,18 +137,21 @@ def _validate_request_number(
 
     :return: Returns True if request number is valid and matches the expected request number, otherwise returns False.
     """
+    request_number_check = (
+        request_number - last_received_request_number + MAX_SMS_RELAY_REQUEST_NUMBER
+    ) % MAX_SMS_RELAY_REQUEST_NUMBER
 
-    request_number_check = (request_number - last_received_request_number + MAX_SMS_RELAY_REQUEST_NUMBER) % MAX_SMS_RELAY_REQUEST_NUMBER
-
-    if (not isinstance(request_number, int)
+    if (
+        not isinstance(request_number, int)
         or request_number_check < 0
-        or request_number_check > (MAX_SMS_RELAY_REQUEST_NUMBER/1000
-        or request_number != expected_request_number)
+        or request_number_check
+        > (
+            MAX_SMS_RELAY_REQUEST_NUMBER / 1000
+            or request_number != expected_request_number
+        )
     ):
         return False
-    else:
-        return True
-    
+    return True
 
 
 _iv_size = 32
@@ -213,7 +217,9 @@ def relay_sms_request(body: SmsRelayRequestBody):
         )
 
     # Gets last received user request number
-    last_received_request_number = user_utils.get_last_received_sms_relay_request_number(user.id)
+    last_received_request_number = (
+        user_utils.get_last_received_sms_relay_request_number(user.id)
+    )
     if last_received_request_number is None:
         print("No last received request number found for user")
         return abort(500, description="Internal Server Error")
@@ -221,10 +227,12 @@ def relay_sms_request(body: SmsRelayRequestBody):
     # Checks if request number is valid
     request_number = decrypted_data.request_number
     expected_request_number = user_utils.get_expected_sms_relay_request_number(user.id)
-    if not _validate_request_number(request_number, last_received_request_number, expected_request_number):
+    if not _validate_request_number(
+        request_number, last_received_request_number, expected_request_number
+    ):
         request_number_error_body = {
             "message": "Request number provided does not match the expected value.",
-            "expected_request_number": expected_request_number
+            "expected_request_number": expected_request_number,
         }
 
         return _create_error_response(

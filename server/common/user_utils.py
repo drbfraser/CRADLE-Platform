@@ -13,7 +13,12 @@ from common.date_utils import get_future_date, is_date_passed
 from config import db
 from data import crud, marshal
 from enums import RoleEnum
-from models import SmsSecretKeyOrm, UserOrm, UserPhoneNumberOrm, SmsRelayRequestNumberOrm
+from models import (
+    SmsRelayRequestNumberOrm,
+    SmsSecretKeyOrm,
+    UserOrm,
+    UserPhoneNumberOrm,
+)
 
 sms_key_duration = os.getenv("SMS_KEY_DURATION")
 if sms_key_duration is None:
@@ -547,6 +552,7 @@ def get_user_sms_secret_key_string(user_id):
 def generate_new_sms_secret_key():
     return secrets.randbits(256).to_bytes(32, "little").hex()
 
+
 def create_new_sms_relay_request_number_orm():
     last_received_request_number = 0
     sms_relay_request_number_orm = SmsRelayRequestNumberOrm(
@@ -554,15 +560,18 @@ def create_new_sms_relay_request_number_orm():
     )
     return sms_relay_request_number_orm
 
+
 def get_last_received_sms_relay_request_number(user_id):
     request_number_orm = crud.read(SmsRelayRequestNumberOrm, user_id=user_id)
     print(request_number_orm)
     last_received_request_number: int = request_number_orm.last_received_request_number
     return last_received_request_number
 
+
 def get_expected_sms_relay_request_number(user_id):
     last_received_request_number = get_last_received_sms_relay_request_number(user_id)
     return last_received_request_number + 1
+
 
 def increment_sms_relay_last_received_request_number(user_id):
     last_received_request_number = get_last_received_sms_relay_request_number(user_id)
