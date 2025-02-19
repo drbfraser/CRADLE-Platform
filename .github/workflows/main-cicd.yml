@@ -215,7 +215,7 @@ jobs:
       contents: read
     container:
       image: mcr.microsoft.com/playwright:v1.50.1-noble
-      options: --user 1001
+      options: --user root
     needs: [frontend-unit_tests, backend_system_tests]
     env:
       CI: 'true'
