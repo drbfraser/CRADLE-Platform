@@ -260,8 +260,14 @@ jobs:
           ls -la /github/home
           apt-get update && \
           apt-get -y install sudo
+      - name: Find .bashrc
+        run: find -name ".bashrc"
       - name: Manage Permissions
         run: |
+          groupadd sudo
+          groupadd sudoers
+          usermod -a -G sudo root
+          usermod -a -G sudoers root
           sudo groups
       - name: Checkout code into container
         uses: bfraser/cicd/actions/checkout@v1
@@ -376,6 +382,7 @@ jobs:
   # Publish to DockerHub
   # ----------------------------------------------------------------------------
   export-image-tag:
+    if: false
     runs-on: [self-hosted, docker]
     outputs:
       image_tag: ${{ steps.set_step.outputs.tag }}
