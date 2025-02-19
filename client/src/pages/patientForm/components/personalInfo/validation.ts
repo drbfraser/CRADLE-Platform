@@ -2,7 +2,7 @@ import * as Yup from 'yup';
 
 import { PatientField } from '../../state';
 import { getAgeBasedOnDOB } from 'src/shared/utils';
-import { getPatientPregnancyInfoAsync } from 'src/shared/api/api';
+import { getPatientInfoAsync } from 'src/shared/api/api';
 
 const ageIsValid = (age: number): boolean => {
   return Math.floor(age) >= 0;
@@ -12,7 +12,7 @@ const isUniqueId = async (pId: number | undefined): Promise<boolean> => {
   console.log(pId);
   if (pId) {
     try {
-      await getPatientPregnancyInfoAsync(pId.toString());
+      await getPatientInfoAsync(pId.toString());
     } catch (e) {
       return true;
     }

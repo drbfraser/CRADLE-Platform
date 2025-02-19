@@ -11,7 +11,7 @@ import {
 import { Select, TextField, ToggleButtonGroup } from 'formik-mui';
 
 import { PatientIDExists } from './PatientIDExists';
-import { getPatientPregnancyInfoAsync } from 'src/shared/api/api';
+import { getPatientInfoAsync } from 'src/shared/api/api';
 import { sexOptions } from 'src/shared/constants';
 import { handleChangeCustom } from '../../handlers';
 import { PatientField, PatientState } from '../../state';
@@ -44,7 +44,7 @@ export const PersonalInfoForm = ({ creatingNew }: IProps) => {
       const patientId = e.target.value;
       setExistingPatientId(patientId);
       if (patientId) {
-        await getPatientPregnancyInfoAsync(patientId);
+        await getPatientInfoAsync(patientId);
       }
     } catch (e) {
       setExistingPatientId(null);
