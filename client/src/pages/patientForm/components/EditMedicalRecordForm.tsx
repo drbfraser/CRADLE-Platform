@@ -21,7 +21,7 @@ import { getMedicalRecordAsync } from 'src/shared/api/api';
 import { useQuery } from '@tanstack/react-query';
 import { PatientMedicalInfo } from 'src/shared/types';
 
-const transformMedicalRecordQueryData = (data: PatientMedicalInfo) => {
+const parseMedicalRecordQueryData = (data: PatientMedicalInfo) => {
   return {
     ...data,
     [PatientField.drugHistory]: data.drugHistory ?? '',
@@ -49,7 +49,7 @@ const EditMedicalRecordForm = ({ isDrugHistory }: Props) => {
   const medicalRecordQuery = useQuery({
     queryKey: ['medicalRecord', recordId],
     queryFn: () => getMedicalRecordAsync(recordId),
-    select: (medicalRecord) => transformMedicalRecordQueryData(medicalRecord),
+    select: parseMedicalRecordQueryData,
   });
   if (medicalRecordQuery.isPending || medicalRecordQuery.isError) {
     return <LinearProgress />;

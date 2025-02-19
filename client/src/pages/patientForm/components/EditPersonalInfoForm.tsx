@@ -46,7 +46,7 @@ export const getPatientData = (
   allergy: values[PatientField.allergy],
 });
 
-const transformPatientQueryData = (data: Patient) => {
+const parsePatientQueryData = (data: Patient) => {
   return {
     ...data,
     [PatientField.householdNumber]: data.householdNumber ?? '',
@@ -74,7 +74,7 @@ const EditPersonalInfoForm = () => {
   const patientInfoQuery = useQuery({
     queryKey: ['personalInfo', patientId],
     queryFn: () => getPatientInfoAsync(patientId),
-    select: (personalInfo) => transformPatientQueryData(personalInfo),
+    select: parsePatientQueryData,
   });
   if (patientInfoQuery.isPending || patientInfoQuery.isError) {
     return <LinearProgress />;
