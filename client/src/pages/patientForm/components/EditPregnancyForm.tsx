@@ -6,7 +6,7 @@ import { Box, LinearProgress } from '@mui/material';
 import { ConfirmDialog } from 'src/shared/components/confirmDialog';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { PatientState } from '../state';
+import { initialState, PatientField, PatientState } from '../state';
 import {
   useDeletePregnancyMutation,
   useUpdatePregnancyMutation,
@@ -17,10 +17,33 @@ import { PregnancyInfoForm } from './pregnancyInfo';
 import { getPregnancyValues } from './pregnancyInfo/utils';
 import { useQuery } from '@tanstack/react-query';
 import { getPregnancyAsync } from 'src/shared/api/api';
+import { GestationalAgeUnitEnum } from 'src/shared/enums';
+import { Pregnancy } from 'src/shared/types';
+import {
+  getNumOfMonthsNumeric,
+  getNumOfWeeksDaysNumeric,
+} from 'src/shared/utils';
 
 type RouteParams = {
   patientId: string;
   recordId: string;
+};
+
+const parsePregnancyData = (data: Pregnancy) => {
+  const { days, weeks } = getNumOfWeeksDaysNumeric(
+    data.startDate,
+    data.endDate
+  );
+  const months = getNumOfMonthsNumeric(data.startDate, data.endDate);
+
+  return {
+    ...data,
+    [PatientField.pregnancyEndDate]: data.endDate?.toString() ?? '',
+    [PatientField.gestationalAgeUnit]: GestationalAgeUnitEnum.WEEKS,
+    [PatientField.gestationalAgeDays]: String(days),
+    [PatientField.gestationalAgeWeeks]: String(weeks),
+    [PatientField.gestationalAgeMonths]: String(months),
+  };
 };
 
 const EditPregnancyForm = () => {
@@ -34,6 +57,7 @@ const EditPregnancyForm = () => {
   const pregnancyRecordQuery = useQuery({
     queryKey: ['pregnancyRecord', recordId],
     queryFn: () => getPregnancyAsync(recordId),
+    select: (pregnancy) => parsePregnancyData(pregnancy),
   });
   if (pregnancyRecordQuery.isPending || pregnancyRecordQuery.isError) {
     return <LinearProgress />;
@@ -75,7 +99,13 @@ const EditPregnancyForm = () => {
 
       <PatientFormHeader patientId={patientId} title="Edit/Close Pregnancy" />
       <Formik
-        initialValues={pregnancyRecordQuery.data}
+        initialValues={
+          // TODO: improve the typing here
+          {
+            ...initialState,
+            ...pregnancyRecordQuery.data,
+          } as unknown as PatientState
+        }
         validationSchema={pregnancyInfoValidationSchema}
         onSubmit={handleSubmit}>
         {(formikProps: FormikProps<PatientState>) => (
