@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Form, Formik, FormikProps } from 'formik';
+import { Form, Formik } from 'formik';
 
 import { PrimaryButton } from 'src/shared/components/Button';
 import { SexEnum } from 'src/shared/enums';
@@ -72,18 +72,15 @@ const EditPersonalInfoForm = ({ patientId, initialState }: Props) => {
         initialValues={initialState}
         validationSchema={personalInfoValidationSchema(false)}
         onSubmit={handleSubmit}>
-        {(formikProps: FormikProps<PatientState>) => (
-          <Form>
-            <PersonalInfoForm formikProps={formikProps} creatingNew={false} />
-
-            <PrimaryButton
-              sx={{ marginTop: '1rem', float: 'right' }}
-              type="submit"
-              disabled={updatePatient.isPending}>
-              Save
-            </PrimaryButton>
-          </Form>
-        )}
+        <Form>
+          <PersonalInfoForm creatingNew={false} />
+          <PrimaryButton
+            sx={{ marginTop: '1rem', float: 'right' }}
+            type="submit"
+            disabled={updatePatient.isPending}>
+            Save
+          </PrimaryButton>
+        </Form>
       </Formik>
     </>
   );
