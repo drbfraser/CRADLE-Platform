@@ -260,7 +260,7 @@ jobs:
         env:
           PORT: '5000'
         run: |
-          apt install python3.11-venv
+          DEBIAN_FRONTEND=noninteractive apt install python3.11-venv -y
           python3 -m venv /venv
           export PATH=$PATH:/venv/bin/
           /venv/bin/pip3 install --upgrade pip
