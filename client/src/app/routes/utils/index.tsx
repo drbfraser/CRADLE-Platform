@@ -7,8 +7,6 @@ import { HistoryTablesPage } from 'src/pages/historyTables';
 import { LoginPage } from 'src/pages/login';
 import { NotFoundPage } from 'src/pages/notFound';
 import { PatientFormPage } from 'src/pages/patientForm';
-import { PatientPage } from 'src/pages/patient';
-import { PatientsPage } from 'src/pages/patients';
 import PollIcon from '@mui/icons-material/Poll';
 import { ReadingFormPage } from 'src/pages/readingForm';
 import { ReferralFormPage } from 'src/pages/referralForm';
@@ -19,7 +17,6 @@ import SendIcon from '@mui/icons-material/Send';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { SingleReasonFormPage } from 'src/pages/singleReasonForm';
 import { StatisticsPage } from 'src/pages/statistics';
-import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import { makeUniqueId } from 'src/shared/utils';
 import SecretKeyPage from 'src/pages/secretKey';
 
@@ -29,38 +26,14 @@ export type AppRoute = {
   id: string;
   inNavigation: boolean;
   private: boolean;
-  icon?: React.ReactNode;
-  name?: string;
-  title?: string;
   to: string;
+  title?: string;
+  name?: string;
+  icon?: React.ReactNode;
 };
 
 // * Order here is important must match order of side bar for relevant routes
 export const appRoutes: Array<AppRoute> = [
-  {
-    component: PatientFormPage,
-    exactPath: true,
-    id: makeUniqueId(),
-    inNavigation: false,
-    private: true,
-    to: `/patients/new`,
-  },
-  {
-    component: PatientFormPage,
-    exactPath: true,
-    id: makeUniqueId(),
-    inNavigation: false,
-    private: true,
-    to: `/patients/:patientId/edit/:editId`,
-  },
-  {
-    component: PatientFormPage,
-    exactPath: true,
-    id: makeUniqueId(),
-    inNavigation: false,
-    private: true,
-    to: `/patients/:patientId/edit/:editId/:universalRecordId`,
-  },
   {
     component: PatientFormPage,
     exactPath: true,
@@ -162,17 +135,6 @@ export const appRoutes: Array<AppRoute> = [
     to: `/referrals/not-attend/:referralId/:cancellationType`,
   },
   {
-    component: PatientsPage,
-    exactPath: true,
-    id: makeUniqueId(),
-    icon: <SupervisorAccountIcon fontSize="large" />,
-    inNavigation: true,
-    name: `Patients`,
-    private: true,
-    title: `Patients`,
-    to: `/patients`,
-  },
-  {
     component: StatisticsPage,
     exactPath: true,
     id: makeUniqueId(),
@@ -204,14 +166,6 @@ export const appRoutes: Array<AppRoute> = [
     private: true,
     title: `Admin`,
     to: `/admin/*`,
-  },
-  {
-    component: PatientPage,
-    exactPath: false,
-    id: makeUniqueId(),
-    inNavigation: false,
-    private: true,
-    to: `/patients/:patientId`,
   },
   {
     component: HistoryTablesPage,

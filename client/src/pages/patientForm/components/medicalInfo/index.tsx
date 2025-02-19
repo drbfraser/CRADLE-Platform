@@ -10,9 +10,9 @@ interface IProps {
 export const MedicalInfoForm = ({ creatingNew, isDrugRecord }: IProps) => {
   const renderField = (label: string, name: string) => (
     <Field
-      component={TextField}
-      label={label}
       name={name}
+      as={TextField}
+      label={label}
       variant="outlined"
       fullWidth
       multiline

@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Form, Formik, FormikProps } from 'formik';
-import { Box } from '@mui/material';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Form, Formik } from 'formik';
+import { Box, LinearProgress } from '@mui/material';
 
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -17,25 +17,34 @@ import {
 } from './medicalInfo/validation';
 import { MedicalInfoForm } from './medicalInfo';
 import PatientFormHeader from './PatientFormHeader';
+import { getMedicalRecordAsync } from 'src/shared/api/api';
+import { useQuery } from '@tanstack/react-query';
 
-type Props = {
+type RouteParams = {
   patientId: string;
   recordId: string;
-  initialState: PatientState;
+};
+
+type Props = {
   isDrugHistory: boolean;
 };
 
-const EditMedicalRecordForm = ({
-  patientId,
-  recordId,
-  initialState,
-  isDrugHistory,
-}: Props) => {
+const EditMedicalRecordForm = ({ isDrugHistory }: Props) => {
+  const { patientId, recordId } = useParams() as RouteParams;
   const navigate = useNavigate();
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const updateRecord = useUpdateMedicalRecordMutation(patientId, isDrugHistory);
   const deleteRecord = useDeleteMedicalRecordMutation(recordId);
+
+  const medicalRecordQuery = useQuery({
+    queryKey: ['medicalRecord', recordId],
+    queryFn: () => getMedicalRecordAsync(recordId),
+  });
+  if (medicalRecordQuery.isPending || medicalRecordQuery.isError) {
+    return <LinearProgress />;
+  }
 
   const handleSubmit = (values: PatientState) => {
     const submitValues = {
@@ -81,42 +90,36 @@ const EditMedicalRecordForm = ({
         title={`Update ${isDrugHistory ? 'Drug' : 'Medical'} History `}
       />
       <Formik
-        initialValues={initialState}
+        initialValues={medicalRecordQuery.data}
         validationSchema={
           isDrugHistory
             ? drugHistoryValidationSchema
             : medicalHistoryValidationSchema
         }
         onSubmit={handleSubmit}>
-        {(formikProps: FormikProps<PatientState>) => (
-          <Form>
-            <MedicalInfoForm
-              formikProps={formikProps}
-              creatingNew={false}
-              isDrugRecord={isDrugHistory}
-            />
+        <Form>
+          <MedicalInfoForm creatingNew={false} isDrugRecord={isDrugHistory} />
 
-            <Box
-              sx={{
-                marginTop: '1rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}>
-              <CancelButton
-                onClick={() => setIsDialogOpen(true)}
-                disabled={isPending}>
-                Delete
-              </CancelButton>
-              <PrimaryButton
-                sx={{ marginTop: '1rem', float: 'right' }}
-                type="submit"
-                disabled={isPending}>
-                Save
-              </PrimaryButton>
-            </Box>
-          </Form>
-        )}
+          <Box
+            sx={{
+              marginTop: '1rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}>
+            <CancelButton
+              onClick={() => setIsDialogOpen(true)}
+              disabled={isPending}>
+              Delete
+            </CancelButton>
+            <PrimaryButton
+              sx={{ marginTop: '1rem', float: 'right' }}
+              type="submit"
+              disabled={isPending}>
+              Save
+            </PrimaryButton>
+          </Box>
+        </Form>
       </Formik>
     </>
   );

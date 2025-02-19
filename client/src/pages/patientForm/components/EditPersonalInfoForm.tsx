@@ -1,5 +1,7 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { Form, Formik } from 'formik';
+import { LinearProgress } from '@mui/material';
 
 import { PrimaryButton } from 'src/shared/components/Button';
 import { SexEnum } from 'src/shared/enums';
@@ -9,6 +11,7 @@ import { useUpdatePatientMutation } from '../mutations';
 import { personalInfoValidationSchema } from './personalInfo/validation';
 import PatientFormHeader from './PatientFormHeader';
 import { PersonalInfoForm } from './personalInfo';
+import { getPatientPregnancyInfoAsync } from 'src/shared/api/api';
 
 export type PatientData = {
   id: string;
@@ -41,15 +44,23 @@ export const getPatientData = (
   allergy: values[PatientField.allergy],
 });
 
-type Props = {
+type RouteParams = {
   patientId: string;
-  initialState: PatientState;
 };
 
-const EditPersonalInfoForm = ({ patientId, initialState }: Props) => {
+const EditPersonalInfoForm = () => {
+  const { patientId } = useParams() as RouteParams;
   const navigate = useNavigate();
 
   const updatePatient = useUpdatePatientMutation(patientId);
+
+  const patientStateQuery = useQuery({
+    queryKey: ['personalInfo', patientId],
+    queryFn: () => getPatientPregnancyInfoAsync(patientId),
+  });
+  if (patientStateQuery.isPending || patientStateQuery.isError) {
+    return <LinearProgress />;
+  }
 
   const handleSubmit = (values: PatientState) => {
     const patientData = getPatientData(values, patientId);
@@ -69,7 +80,7 @@ const EditPersonalInfoForm = ({ patientId, initialState }: Props) => {
         title="Edit Personal Information"
       />
       <Formik
-        initialValues={initialState}
+        initialValues={patientStateQuery.data}
         validationSchema={personalInfoValidationSchema(false)}
         onSubmit={handleSubmit}>
         <Form>
