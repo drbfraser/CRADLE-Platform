@@ -46,31 +46,35 @@ export const MedicalInfo = ({ patient, patientId }: IProps) => {
     historyRecord,
     editId,
     medicalRecordId,
-  }: HistoryItemProps) => (
-    <Box m="20px">
-      <Box sx={headerSx}>
-        <b>{title}</b>
-        <RedirectButton
-          size="small"
-          url={
-            `/patients/${patient?.id}/edit/${editId}` +
-            (medicalRecordId ? `/${medicalRecordId}` : '')
-          }>
-          {medicalRecordId ? 'Update' : 'Add'}
-        </RedirectButton>
-      </Box>
+  }: HistoryItemProps) => {
+    let url = `/patients/${patient?.id}`;
+    if (medicalRecordId) {
+      url = url.concat(`/edit/${editId}/${medicalRecordId}`);
+    } else {
+      url = url.concat(`/new/${editId}`);
+    }
 
-      <Box>
-        {historyRecord ? (
-          <Typography style={{ whiteSpace: 'pre-line' }}>
-            {historyRecord}
-          </Typography>
-        ) : (
-          `No additional ${title.toLowerCase()} information.`
-        )}
+    return (
+      <Box m="20px">
+        <Box sx={headerSx}>
+          <b>{title}</b>
+          <RedirectButton size="small" url={url}>
+            {medicalRecordId ? 'Update' : 'Add'}
+          </RedirectButton>
+        </Box>
+
+        <Box>
+          {historyRecord ? (
+            <Typography style={{ whiteSpace: 'pre-line' }}>
+              {historyRecord}
+            </Typography>
+          ) : (
+            `No additional ${title.toLowerCase()} information.`
+          )}
+        </Box>
       </Box>
-    </Box>
-  );
+    );
+  };
 
   return (
     <Paper sx={{ padding: 3 }}>

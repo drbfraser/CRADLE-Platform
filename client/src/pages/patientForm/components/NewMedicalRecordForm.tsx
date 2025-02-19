@@ -1,9 +1,9 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Form, Formik } from 'formik';
 import { PrimaryButton } from 'src/shared/components/Button';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { useUpdateMedicalRecordMutation } from '../mutations';
-import { PatientField, PatientState } from '../state';
+import { initialState, PatientField, PatientState } from '../state';
 import PatientFormHeader from './PatientFormHeader';
 import { MedicalInfoForm } from './medicalInfo';
 import {
@@ -11,17 +11,15 @@ import {
   medicalHistoryValidationSchema,
 } from './medicalInfo/validation';
 
-type Props = {
+type RouteParams = {
   patientId: string;
-  initialState: PatientState;
+};
+type Props = {
   isDrugHistory: boolean;
 };
 
-const NewMedicalRecordForm = ({
-  patientId,
-  initialState,
-  isDrugHistory,
-}: Props) => {
+const NewMedicalRecordForm = ({ isDrugHistory }: Props) => {
+  const { patientId } = useParams() as RouteParams;
   const navigate = useNavigate();
 
   const addRecord = useUpdateMedicalRecordMutation(patientId, isDrugHistory);
