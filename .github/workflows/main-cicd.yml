@@ -303,6 +303,7 @@ jobs:
         env:
           PORT: '3000'
         run: |
+          source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
           npm run start &
           npx wait-on http://localhost:3000
           npm run e2e
