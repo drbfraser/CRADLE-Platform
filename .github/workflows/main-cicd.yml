@@ -254,7 +254,7 @@ jobs:
       - name: Set Noninteractive 
         run: echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
       - name: Install Playwright Browsers 
-        run: npx playwright install --with-deps
+        run: PLAYWRIGHT_BROWSERS_PATH=0 npx playwright install --with-deps
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
       - name: Start backend service
         env:
