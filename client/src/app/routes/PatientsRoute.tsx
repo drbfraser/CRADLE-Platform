@@ -44,10 +44,7 @@ const PatientsRoute = () => {
               path="drugHistory/:recordId"
               element={<EditMedicalRecordForm isDrugHistory={true} />}
             />
-            <Route
-              path="pregnancyInfo/:recordId"
-              element={<EditPregnancyForm />}
-            />
+            <Route path="pregnancy/:recordId" element={<EditPregnancyForm />} />
           </Route>
         </Route>
       </Route>
