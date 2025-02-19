@@ -245,7 +245,7 @@ jobs:
           - 3306:3306
     steps:
       - name: Checkout code into container
-        uses: bfraser/cicd/actions/checkout@v1
+        uses: actions/checkout@v4
         with:
           path: ${{ env.CUSTOM_WORKSPACE }}
       - uses: actions/setup-node@v4
