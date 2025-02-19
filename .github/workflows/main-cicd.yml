@@ -261,7 +261,7 @@ jobs:
           apt-get -y install sudo
       - name: Manage Permissions
         run: |
-          sudo mkdir /github/home/.nvm
+          sudo bash -c 'mkdir /github/home/.nvm'
       - name: Checkout code into container
         uses: bfraser/cicd/actions/checkout@v1
         with:
