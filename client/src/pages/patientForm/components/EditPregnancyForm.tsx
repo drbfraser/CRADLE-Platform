@@ -57,7 +57,7 @@ const EditPregnancyForm = () => {
   const pregnancyRecordQuery = useQuery({
     queryKey: ['pregnancyRecord', recordId],
     queryFn: () => getPregnancyAsync(recordId),
-    select: (pregnancy) => parsePregnancyData(pregnancy),
+    select: parsePregnancyData,
   });
   if (pregnancyRecordQuery.isPending || pregnancyRecordQuery.isError) {
     return <LinearProgress />;
