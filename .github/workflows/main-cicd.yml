@@ -163,6 +163,8 @@ jobs:
         uses: bfraser/cicd/actions/checkout@v1
         with:
           path: ${{ env.CUSTOM_WORKSPACE }}
+      - name: Set NonInteractive 
+        run: export DEBIAN_FRONTEND=noninteractive
       - name: Install dependencies
         run: |
           apt-get update -y
@@ -191,7 +193,7 @@ jobs:
   frontend-unit_tests:
     runs-on: [self-hosted, docker]
     container:
-      image: node:18
+      image: mcr.microsoft.com/playwright:v1.50.1-noble
     steps:
       - name: Checkout code into container
         uses: bfraser/cicd/actions/checkout@v1
