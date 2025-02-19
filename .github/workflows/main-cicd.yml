@@ -25,6 +25,7 @@ env:
 
 jobs:
   display_github_contexts:
+    if: false
     runs-on: [self-hosted, docker]
     container:
       image: node:14
