@@ -279,13 +279,17 @@ jobs:
           python3 --version
           find -L ~ -name python3.9
           find -L ~ -name pip
+          rm /usr/bin/python3
           echo 'export PATH="/isolated-build/repo/Python-3.9.12:$PATH"' >> ${{ env.CUSTOM_WORKSPACE }}/.bashrc
-          echo 'alias python3="python3.9"' >> ${{ env.CUSTOM_WORKSPACE }}/.bashrc
+          echo 'alias python3="/isolated-build/repo/Python-3.9.12/python"' >> ${{ env.CUSTOM_WORKSPACE }}/.bashrc
           source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
-          python3 --version
+          echo "ls -la ~/Python-3.9.12"
           ls -la ~/Python-3.9.12
-          echo "ls /usr/bin/python*"
-          ls /usr/bin/python*
+          echo "ls -la ~/Python-3.9.12/Python"
+          ls -la ~/Python-3.9.12/Python
+          python3 --version
+          echo "ls -la /usr/local/bin/python*"
+          ls -la /usr/local/bin/python*
         working-directory: ${{ env.CUSTOM_WORKSPACE }}
       - name: Install Node 
         run: |
@@ -312,17 +316,25 @@ jobs:
           source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
           PLAYWRIGHT_BROWSERS_PATH=0 npx playwright install --with-deps
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
+      - name: Install Back-end dependencies 
+        run: |
+          export HOME=${{ env.CUSTOM_WORKSPACE }}
+          source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
+          python3.9 -m pip install --upgrade pip
+          python3.9 -m pip install -r requirements.txt
+        working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
       - name: Start backend service
         env:
           PORT: '5000'
         run: |
-          source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
-          # python3.9 -m pip install --upgrade pip
-          python3.9 -m pip install -r requirements.txt
           python3.9 app.py &
+        working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
+      - name: Seed Database
+        run: |
+          export HOME=${{ env.CUSTOM_WORKSPACE }}
+          source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
           python3.9 db.py rebuild --no-docker
           python3.9 manage.py seed_test_data
-        working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
       - name: Run End-to-End Tests
         id: e2e_test
         env:
