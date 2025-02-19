@@ -13,7 +13,7 @@ import {
 import { PrimaryButton, SecondaryButton } from 'src/shared/components/Button';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { getDOBForEstimatedAge } from 'src/shared/utils';
-import { PatientField, PatientState } from '../state';
+import { initialState, PatientField, PatientState } from '../state';
 import {
   useAddPatientInfoMutation,
   useAddPregnancyMutation,
@@ -54,11 +54,7 @@ const STEPS = [
   },
 ];
 
-interface PatientFormProps {
-  initialState: PatientState;
-}
-
-export const NewPatientForm = ({ initialState }: PatientFormProps) => {
+export const NewPatientForm = () => {
   const theme = useTheme();
   const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
   const navigate = useNavigate();

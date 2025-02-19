@@ -1,21 +1,21 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Form, Formik, FormikProps } from 'formik';
 
 import { PrimaryButton } from 'src/shared/components/Button';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { PatientState } from '../state';
+import { initialState, PatientState } from '../state';
 import { useAddPregnancyMutation } from '../mutations';
 import { pregnancyInfoValidationSchema } from './pregnancyInfo/validation';
 import { getPregnancyValues } from './pregnancyInfo/utils';
 import PatientFormHeader from './PatientFormHeader';
 import { PregnancyInfoForm } from './pregnancyInfo';
 
-type Props = {
-  initialState: PatientState;
+type RouteParams = {
   patientId: string;
 };
 
-const NewPregnancyForm = ({ initialState, patientId }: Props) => {
+const NewPregnancyForm = () => {
+  const { patientId } = useParams() as RouteParams;
   const navigate = useNavigate();
 
   const addNewPregnancy = useAddPregnancyMutation();
