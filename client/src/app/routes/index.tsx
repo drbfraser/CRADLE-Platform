@@ -9,7 +9,7 @@ import {
 import { UserRoleEnum } from 'src/shared/enums';
 import { Loader } from 'src/shared/components/loader';
 import { AppRoute, appRoutes } from './utils';
-import PatientsRoute from './PatientsRoute';
+import PatientRoutes from './PatientsRoute';
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -37,7 +37,7 @@ export const AppRoutes: React.FC = () => {
         path="/patients/*"
         element={
           <RequireAuth>
-            <PatientsRoute />
+            <PatientRoutes />
           </RequireAuth>
         }
       />

@@ -9,7 +9,7 @@ import { NewPatientForm } from 'src/pages/patientForm/components/NewPatientForm'
 import NewPregnancyForm from 'src/pages/patientForm/components/NewPregnancyForm';
 import { PatientsPage } from 'src/pages/patients';
 
-const PatientsRoute = () => {
+const PatientRoutes = () => {
   return (
     <Routes>
       <Route element={<Outlet />}>
@@ -52,4 +52,4 @@ const PatientsRoute = () => {
   );
 };
 
-export default PatientsRoute;
+export default PatientRoutes;
