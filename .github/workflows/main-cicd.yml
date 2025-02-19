@@ -248,22 +248,30 @@ jobs:
         ports:
           - 3306:3306
     steps:
+      - name: Set Noninteractive 
+        run: echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
       - name: Setup
         run: | 
+          whoami
           ls -la /
           ls -la /github/
+          ls -la /github/home
+          nvm -v
           apt-get update && \
           apt-get -y install sudo
       - name: Manage Permissions
         run: |
-          sudo chmod +rwx /github
-          sudo chmod +rwx /github/home
-      - name: Set Noninteractive 
-        run: echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+          sudo mkdir /github/home/.nvm
       - name: Checkout code into container
         uses: bfraser/cicd/actions/checkout@v1
         with:
           path: ${{ env.CUSTOM_WORKSPACE }}
+      - name: Change HOME env var 
+        run: | 
+          echo $HOME
+          export HOME=${{ env.CUSTOM_WORKSPACE }}
+          echo $HOME
+          
       - name: Install Node 
         run: |
           curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash -s -- -d ${{ env.CUSTOM_WORKSPACE }}
