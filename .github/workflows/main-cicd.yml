@@ -286,9 +286,7 @@ jobs:
           source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
           PLAYWRIGHT_BROWSERS_PATH=0 npx playwright install --with-deps
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
-      - name: Start backend service
-        env:
-          PORT: '5000'
+      - name: Install Python3.9
         run: |
           export HOME=${{ env.CUSTOM_WORKSPACE }}
           apt-get update -y
@@ -307,11 +305,13 @@ jobs:
           python3.9 --version
           find -L ~ -name python3.9
           find -L ~ -name pip
-          cd ~
           echo "alias python3=python3.9" >> ~/.bashrc
-          cd ~/server
-          source ~/.bashrc
-
+        working-directory: ${{ env.CUSTOM_WORKSPACE }}
+      - name: Start backend service
+        env:
+          PORT: '5000'
+        run: |
+          source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
           # python3 -m pip install --upgrade pip
           python3 -m pip install -r requirements.txt
           python3 app.py &
