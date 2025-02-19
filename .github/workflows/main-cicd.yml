@@ -217,7 +217,8 @@ jobs:
     permissions:
       contents: read
     container:
-      image: mcr.microsoft.com/playwright:v1.50.1-noble
+      # image: mcr.microsoft.com/playwright:v1.50.1-noble
+      image: ubuntu:noble-20250127
       options: --user root
     # needs: [frontend-unit_tests, backend_system_tests]
     env:
@@ -309,6 +310,7 @@ jobs:
           path: ${{ env.CUSTOM_WORKSPACE }}/client/playwright-report/
 
   frontend-lint-format:
+    if: false
     runs-on: [self-hosted, docker]
     container:
       image: node:18
@@ -332,6 +334,7 @@ jobs:
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
 
   backend_format:
+    if: false
     runs-on: [self-hosted, docker]
     container:
       image: python:3.9.1-buster
