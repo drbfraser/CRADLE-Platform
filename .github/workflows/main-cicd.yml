@@ -252,10 +252,7 @@ jobs:
       - name: Manage permissions 
         run: | 
           ls -la /
-          chmod -R +rwx __e
-          chmod -R +rwx __w
-          chmod -R +rwx github
-          chmod -R +rwx home
+          chmod -R +rwx /
       - name: Checkout code into container
         uses: bfraser/cicd/actions/checkout@v1
         with:
