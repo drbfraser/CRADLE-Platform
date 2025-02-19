@@ -6,12 +6,14 @@ import { LinearProgress } from '@mui/material';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { SexEnum } from 'src/shared/enums';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { PatientField, PatientState } from '../state';
+import { initialState, PatientField, PatientState } from '../state';
 import { useUpdatePatientMutation } from '../mutations';
 import { personalInfoValidationSchema } from './personalInfo/validation';
 import PatientFormHeader from './PatientFormHeader';
 import { PersonalInfoForm } from './personalInfo';
-import { getPatientPregnancyInfoAsync } from 'src/shared/api/api';
+import { getPatientInfoAsync } from 'src/shared/api/api';
+import { Patient } from 'src/shared/types';
+import { getAgeBasedOnDOB } from 'src/shared/utils';
 
 export type PatientData = {
   id: string;
@@ -44,6 +46,21 @@ export const getPatientData = (
   allergy: values[PatientField.allergy],
 });
 
+const transformPatientQueryData = (data: Patient) => {
+  return {
+    ...data,
+    [PatientField.householdNumber]: data.householdNumber ?? '',
+    [PatientField.dateOfBirth]:
+      data.isExactDateOfBirth && data.dateOfBirth !== null
+        ? data.dateOfBirth
+        : '',
+    [PatientField.estimatedAge]:
+      !data.isExactDateOfBirth && data.dateOfBirth !== null
+        ? String(getAgeBasedOnDOB(data.dateOfBirth))
+        : '',
+  };
+};
+
 type RouteParams = {
   patientId: string;
 };
@@ -54,11 +71,12 @@ const EditPersonalInfoForm = () => {
 
   const updatePatient = useUpdatePatientMutation(patientId);
 
-  const patientStateQuery = useQuery({
+  const patientInfoQuery = useQuery({
     queryKey: ['personalInfo', patientId],
-    queryFn: () => getPatientPregnancyInfoAsync(patientId),
+    queryFn: () => getPatientInfoAsync(patientId),
+    select: (personalInfo) => transformPatientQueryData(personalInfo),
   });
-  if (patientStateQuery.isPending || patientStateQuery.isError) {
+  if (patientInfoQuery.isPending || patientInfoQuery.isError) {
     return <LinearProgress />;
   }
 
@@ -80,7 +98,13 @@ const EditPersonalInfoForm = () => {
         title="Edit Personal Information"
       />
       <Formik
-        initialValues={patientStateQuery.data}
+        initialValues={
+          // TODO: improve the typing here
+          {
+            ...initialState,
+            ...patientInfoQuery.data,
+          } as unknown as PatientState
+        }
         validationSchema={personalInfoValidationSchema(false)}
         onSubmit={handleSubmit}>
         <Form>

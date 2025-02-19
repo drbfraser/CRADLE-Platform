@@ -6,7 +6,7 @@ import { Box, LinearProgress } from '@mui/material';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { ConfirmDialog } from 'src/shared/components/confirmDialog';
-import { PatientField, PatientState } from '../state';
+import { initialState, PatientField, PatientState } from '../state';
 import {
   useDeleteMedicalRecordMutation,
   useUpdateMedicalRecordMutation,
@@ -19,12 +19,20 @@ import { MedicalInfoForm } from './medicalInfo';
 import PatientFormHeader from './PatientFormHeader';
 import { getMedicalRecordAsync } from 'src/shared/api/api';
 import { useQuery } from '@tanstack/react-query';
+import { PatientMedicalInfo } from 'src/shared/types';
+
+const transformMedicalRecordQueryData = (data: PatientMedicalInfo) => {
+  return {
+    ...data,
+    [PatientField.drugHistory]: data.drugHistory ?? '',
+    [PatientField.medicalHistory]: data.medicalHistory ?? '',
+  };
+};
 
 type RouteParams = {
   patientId: string;
   recordId: string;
 };
-
 type Props = {
   isDrugHistory: boolean;
 };
@@ -41,6 +49,7 @@ const EditMedicalRecordForm = ({ isDrugHistory }: Props) => {
   const medicalRecordQuery = useQuery({
     queryKey: ['medicalRecord', recordId],
     queryFn: () => getMedicalRecordAsync(recordId),
+    select: (medicalRecord) => transformMedicalRecordQueryData(medicalRecord),
   });
   if (medicalRecordQuery.isPending || medicalRecordQuery.isError) {
     return <LinearProgress />;
@@ -90,7 +99,13 @@ const EditMedicalRecordForm = ({ isDrugHistory }: Props) => {
         title={`Update ${isDrugHistory ? 'Drug' : 'Medical'} History `}
       />
       <Formik
-        initialValues={medicalRecordQuery.data}
+        initialValues={
+          // TODO: improve the typing here
+          {
+            ...initialState,
+            ...medicalRecordQuery.data,
+          } as unknown as PatientState
+        }
         validationSchema={
           isDrugHistory
             ? drugHistoryValidationSchema

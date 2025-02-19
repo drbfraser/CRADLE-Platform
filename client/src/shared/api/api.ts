@@ -406,7 +406,9 @@ export const getPatientTimelineAsync = async (patientId: string, page = 1) => {
   ).data;
 };
 
-export const getPregnancyAsync = async (pregnancyId: string) => {
+export const getPregnancyAsync = async (
+  pregnancyId: string
+): Promise<Pregnancy> => {
   const response = await axiosFetch.get(
     EndpointEnum.PREGNANCIES + `/${pregnancyId}`
   );
@@ -465,7 +467,9 @@ export const getPatientDrugRecordsAsync = async (
   }
 };
 
-export const getMedicalRecordAsync = async (medicalRecordId: string) => {
+export const getMedicalRecordAsync = async (
+  medicalRecordId: string
+): Promise<PatientMedicalInfo> => {
   const response = await axiosFetch({
     method: 'GET',
     url: EndpointEnum.MEDICAL_RECORDS + `/${medicalRecordId}`,
@@ -559,13 +563,6 @@ export const getPatientAsync = async (patientId: string) => {
   }
 };
 
-export const getPatientInfoAsync = async (patientId: string) => {
-  const response = await axiosFetch.get(
-    EndpointEnum.PATIENTS + `/${patientId}` + '/info'
-  );
-  return response.data;
-};
-
 export const getPatientPregnanciesAsync = async (
   patientId: string
 ): Promise<Pregnancy[]> => {
@@ -644,9 +641,11 @@ export const getPatientPregnancySummaryAsync = async (
   }
 };
 
-export const getPatientPregnancyInfoAsync = async (patientId: string) => {
+export const getPatientInfoAsync = async (
+  patientId: string
+): Promise<Patient> => {
   const response = await axiosFetch.get(
-    EndpointEnum.PATIENTS + '/' + patientId + '/info'
+    EndpointEnum.PATIENTS + `/${patientId}` + '/info'
   );
   return response.data;
 };
