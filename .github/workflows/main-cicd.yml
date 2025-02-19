@@ -248,9 +248,14 @@ jobs:
         uses: bfraser/cicd/actions/checkout@v1
         with:
           path: ${{ env.CUSTOM_WORKSPACE }}
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
+      - name: Install Node 
+        run : |
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+          \. "$HOME/.nvm/nvm.sh"
+          nvm install 18
+          node -v 
+          nvm current 
+          npm -v
       - name: Install frontend dependencies 
         run: |
           npm ci
