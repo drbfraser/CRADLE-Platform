@@ -265,20 +265,20 @@ jobs:
           echo $HOME
           echo "$NVM_DIR"
           mkdir -p "$NVM_DIR"
-          export HOME=${{ env.CUSTOM_WORKSPACE }}
-          touch ${{ env.CUSTOM_WORKSPACE }}/.bashrc 
           curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash -s -- -d ${{ env.CUSTOM_WORKSPACE }}
           \. "${{ env.CUSTOM_WORKSPACE }}/.nvm/nvm.sh"
           nvm install 18
           node -v
           nvm current
           npm -v
-          # echo 'export NVM_DIR="/isolated-build/repo/.nvm"' >> ${{ env.CUSTOM_WORKSPACE }}/.bashrc 
-          # echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ${{ env.CUSTOM_WORKSPACE }}/.bashrc
+          touch ${{ env.CUSTOM_WORKSPACE }}/.bashrc 
+          echo 'export NVM_DIR="/isolated-build/repo/.nvm"' >> ${{ env.CUSTOM_WORKSPACE }}/.bashrc 
+          echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ${{ env.CUSTOM_WORKSPACE }}/.bashrc
         working-directory: ${{ env.CUSTOM_WORKSPACE }}
       - name: Install frontend dependencies 
         run: |
           source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
+          npm -v
           npm ci
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
       - name: Install Playwright Browsers 
