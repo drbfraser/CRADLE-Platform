@@ -248,10 +248,16 @@ jobs:
         ports:
           - 3306:3306
     steps:
-      - name: List contents
+      - name: Setup
         run: | 
           ls -la /
           ls -la /github/
+          apt-get update && \
+          apt-get -y install sudo
+      - name: Manage Permissions
+        run: |
+          sudo chmod +rwx /github
+          sudo chmod +rwx /github/home
       - name: Set Noninteractive 
         run: echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
       - name: Checkout code into container
