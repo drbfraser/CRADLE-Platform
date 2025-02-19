@@ -223,6 +223,7 @@ jobs:
       options: --user root
     # needs: [frontend-unit_tests, backend_system_tests]
     env:
+      NVM_DIR: /isolated-build/repo/.nvm
       CI: 'true'
       DB_USERNAME: 'root'
       DB_PASSWORD: 'ci-password'
@@ -273,6 +274,8 @@ jobs:
           echo $HOME
       - name: Install Node 
         run: |
+          echo $HOME
+          echo $NVM_DIR
           curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash -s -- -d ${{ env.CUSTOM_WORKSPACE }}
           \. "${{ env.CUSTOM_WORKSPACE }}/.nvm/nvm.sh"
           nvm install 18
