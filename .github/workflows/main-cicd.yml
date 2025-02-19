@@ -261,17 +261,16 @@ jobs:
           apt-get -y install sudo
       - name: Manage Permissions
         run: |
-          sudo bash -c 'mkdir /github/home/.nvm'
+          sudo groups
       - name: Checkout code into container
         uses: bfraser/cicd/actions/checkout@v1
         with:
           path: ${{ env.CUSTOM_WORKSPACE }}
-      - name: Change HOME env var 
+      - name: Change $HOME
         run: | 
           echo $HOME
           export HOME=${{ env.CUSTOM_WORKSPACE }}
           echo $HOME
-          
       - name: Install Node 
         run: |
           curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash -s -- -d ${{ env.CUSTOM_WORKSPACE }}
