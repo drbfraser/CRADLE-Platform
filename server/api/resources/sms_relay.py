@@ -129,7 +129,7 @@ def _validate_request_number(
     - Let Rc = the current request number received from the client.
     - Let Rmax = the maximum request number representable + 1
     - A request number is valid iff
-    0 < (Rc - Rp + Rmax) mod (Rmax) < (Rmax / 1000)
+    0 <= (Rc - Rp + Rmax) mod (Rmax) <= (Rmax / 1000)
 
     :param request_number: Decrypted request number from HTTP request sent through SMS relay from Mobile.
     :param last_received_request_number: Last request number server has received.
@@ -144,13 +144,11 @@ def _validate_request_number(
     if (
         not isinstance(request_number, int)
         or request_number_check < 0
-        or request_number_check
-        > (
-            MAX_SMS_RELAY_REQUEST_NUMBER / 1000
-            or request_number != expected_request_number
-        )
+        or request_number_check > (MAX_SMS_RELAY_REQUEST_NUMBER / 1000)
+        or request_number != expected_request_number
     ):
         return False
+
     return True
 
 
@@ -209,12 +207,7 @@ def relay_sms_request(body: SmsRelayRequestBody):
     try:
         decrypted_data = SmsRelayDecryptedBody(**json_dict_data)
     except ValidationError as e:
-        return _create_error_response(
-            422,
-            invalid_json.format(error=str(e)),
-            encrypted_data[0:_iv_size],
-            user_secret_key,
-        )
+        return abort(422, description=invalid_json.format(error=str(e)))
 
     # Gets last received user request number
     last_received_request_number = (
