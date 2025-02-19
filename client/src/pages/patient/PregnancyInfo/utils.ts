@@ -7,7 +7,7 @@ export const createNewPregnancyURL = (patientId: string) =>
 export const createEditPregnancyURL = (
   patientId: string,
   pregnancyId: string
-) => `/patients/${patientId}/edit/pregnancyInfo/${pregnancyId}`;
+) => `/patients/${patientId}/edit/pregnancy/${pregnancyId}`;
 
 export const UNIT_OPTIONS = Object.values(GestationalAgeUnitEnum).map(
   (unit) => ({
