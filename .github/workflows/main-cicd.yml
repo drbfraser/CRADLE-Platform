@@ -250,6 +250,7 @@ jobs:
           path: ${{ env.CUSTOM_WORKSPACE }}
       - name: Install Node 
         run : |
+          chmod +rwx "$HOME"
           curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
           \. "$HOME/.nvm/nvm.sh"
           nvm install 18
