@@ -330,15 +330,15 @@ jobs:
           python3.9 manage.py seed_test_data
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
       - name: Start Front-end service
+        env:
+          PORT: '3000'
         run: | 
           source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
           npm run start &
-          npx wait-on http://127.0.0.1:3000
+          # npx wait-on http://127.0.0.1:3000
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
       - name: Run End-to-End Tests
         id: e2e_test
-        env:
-          PORT: '3000'
         run: |
           source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
           npm run e2e
