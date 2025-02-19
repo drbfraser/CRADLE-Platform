@@ -62,6 +62,7 @@ jobs:
           path: ${{ env.CUSTOM_WORKSPACE }}/client/frontend.tar.gz
 
   update-aws:
+    if: false
     runs-on: [self-hosted, docker]
     timeout-minutes: 60
     container:
@@ -251,7 +252,10 @@ jobs:
       - name: Manage permissions 
         run: | 
           ls -la /
-          chmod +rwx 
+          chmod -R +rwx __e
+          chmod -R +rwx __w
+          chmod -R +rwx github
+          chmod -R +rwx home
       - name: Checkout code into container
         uses: bfraser/cicd/actions/checkout@v1
         with:
