@@ -13,6 +13,7 @@ import {
 import { FormikProps } from 'formik';
 import { GestationalAgeUnitEnum } from 'src/shared/enums';
 import { gestationalAgeUnitLabels } from 'src/shared/constants';
+import { MedicalRecord, Patient, Pregnancy } from 'src/shared/types';
 
 export const gestationalAgeUnitOptions = [
   {
@@ -76,7 +77,7 @@ export const getPatientState = async (
   universalMedicalId: string | undefined,
   editId: string | undefined
 ) => {
-  //Return when creating new patient
+  // Return when creating new patient
   if (
     !patientId ||
     !editId ||
@@ -85,60 +86,58 @@ export const getPatientState = async (
     return { ...initialState };
   }
 
-  const pages: { [key: string]: (id: string) => Promise<any> } = {
+  const pages: {
+    [key: string]: (id: string) => Promise<Pregnancy & Patient & MedicalRecord>;
+  } = {
     personalInfo: getPatientPregnancyInfoAsync,
     pregnancyInfo: getPregnancyAsync,
     drugHistory: getMedicalRecordAsync,
     medicalHistory: getMedicalRecordAsync,
   };
 
-  const data = await pages[editId!](
+  const data = await pages[editId](
     editId === 'personalInfo' ? patientId : universalMedicalId!
   );
 
   const patientState: PatientState = {
-    [PatientField.patientId]: data.patientId,
-    [PatientField.patientName]: data.patientName,
-    [PatientField.householdNumber]: data.householdNumber,
+    [PatientField.patientId]: data.id,
+    [PatientField.patientName]: data.name,
+    [PatientField.householdNumber]: data.householdNumber ?? '',
     [PatientField.isExactDateOfBirth]: Boolean(data.isExactDateOfBirth),
     [PatientField.dateOfBirth]: data.isExactDateOfBirth
-      ? data.dateOfBirth
+      ? data.dateOfBirth ?? initialState.dateOfBirth
       : initialState.dateOfBirth,
     [PatientField.estimatedAge]: data.isExactDateOfBirth
       ? initialState.estimatedAge
-      : String(getAgeBasedOnDOB(data.dateOfBirth)),
-    [PatientField.zone]: data.zone,
+      : String(getAgeBasedOnDOB(data.dateOfBirth!)),
+    [PatientField.zone]: data.zone ?? '',
     [PatientField.villageNumber]: data.villageNumber,
-    [PatientField.patientSex]: data.patientSex,
+    [PatientField.patientSex]: data.sex,
     [PatientField.isPregnant]: Boolean(data.isPregnant),
     [PatientField.gestationalAgeDays]: initialState.gestationalAgeDays,
     [PatientField.gestationalAgeWeeks]: initialState.gestationalAgeWeeks,
     [PatientField.gestationalAgeMonths]: initialState.gestationalAgeMonths,
-    [PatientField.gestationalAgeUnit]: data.gestationalAgeUnit ?? '',
-    [PatientField.drugHistory]: data.drugHistory,
-    [PatientField.medicalHistory]: data.medicalHistory,
-    [PatientField.allergy]: data.allergy,
-    [PatientField.pregnancyOutcome]: data.pregnancyOutcome ?? '',
+    [PatientField.gestationalAgeUnit]: initialState.gestationalAgeUnit,
+    [PatientField.drugHistory]: data.drugHistory ?? '',
+    [PatientField.medicalHistory]: data.medicalHistory ?? '',
+    [PatientField.allergy]: data.allergy ?? '',
+    [PatientField.pregnancyOutcome]: data.outcome ?? '',
     [PatientField.pregnancyEndDate]:
-      data.pregnancyEndDate ?? initialState.pregnancyEndDate,
+      data.endDate?.toString() ?? initialState.pregnancyEndDate,
   };
 
-  if (data.id && data.gestationalAgeUnit) {
+  if (data.id) {
     patientState.gestationalAgeDays = String(
-      getNumOfWeeksDaysNumeric(data.pregnancyStartDate, data.pregnancyEndDate)
-        .days
+      getNumOfWeeksDaysNumeric(data.startDate, data.endDate).days
     );
     patientState.gestationalAgeWeeks = String(
-      getNumOfWeeksDaysNumeric(data.pregnancyStartDate, data.pregnancyEndDate)
-        .weeks
+      getNumOfWeeksDaysNumeric(data.startDate, data.endDate).weeks
     );
     patientState.gestationalAgeMonths = String(
-      getNumOfMonthsNumeric(data.pregnancyStartDate, data.pregnancyEndDate)
+      getNumOfMonthsNumeric(data.startDate, data.endDate)
     );
-    if (data.pregnancyEndDate) {
-      patientState.pregnancyEndDate = String(
-        getPrettyDate(data.pregnancyEndDate)
-      );
+    if (data.endDate) {
+      patientState.pregnancyEndDate = String(getPrettyDate(data.endDate));
     }
   }
 
