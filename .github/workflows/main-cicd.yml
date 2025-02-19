@@ -222,10 +222,10 @@ jobs:
       # image: mcr.microsoft.com/playwright:v1.50.1-noble
       image: python:3.9.1-buster
       options: --user root
-    # defaults:
-    #   run:
-    #     shell: bash -leo pipefail {0}
-    # needs: [frontend-unit_tests, backend_system_tests]
+    defaults:
+      run:
+        shell: bash -leo pipefail {0}
+    needs: [frontend-unit_tests, backend_system_tests]
     env:
       NVM_DIR: /isolated-build/repo/.nvm
       CI: 'true'
@@ -271,9 +271,14 @@ jobs:
           node -v
           nvm current
           npm -v
+          touch ${{ env.CUSTOM_WORKSPACE }}/.bashrc 
+          echo 'export NVM_DIR="/isolated-build/repo/.nvm"' >> ${{ env.CUSTOM_WORKSPACE }}/.bashrc 
+          echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ${{ env.CUSTOM_WORKSPACE }}/.bashrc
         working-directory: ${{ env.CUSTOM_WORKSPACE }}
       - name: Install frontend dependencies 
         run: |
+          source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
+          npm current
           npm ci
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
       - name: Install Playwright Browsers 
