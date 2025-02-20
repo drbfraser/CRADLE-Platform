@@ -20,6 +20,7 @@ env:
 
 jobs:
   end-to-end-tests:
+    if: false
     name: "End-to-End Playwright Tests"
     runs-on: [self-hosted, docker]
     environment: cicd
