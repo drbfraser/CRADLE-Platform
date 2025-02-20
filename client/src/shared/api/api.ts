@@ -21,7 +21,6 @@ import { EndpointEnum, MethodEnum, UserRoleEnum } from '../enums';
 import axios, { AxiosError } from 'axios';
 import { PostBody } from 'src/pages/customizedForm/customizedEditForm/handlers';
 import { reduxStore } from 'src/redux/store';
-import { showMessage } from 'src/redux/actions/messageActions';
 import { EditUser, NewUser, User, userListSchema } from './validation/user';
 import { jwtDecode } from 'jwt-decode';
 import { logoutUser } from 'src/redux/reducers/user/currentUser';
@@ -542,23 +541,11 @@ export const unarchivePatientAsync = async (patientId: string) => {
 };
 
 export const getPatientAsync = async (patientId: string) => {
-  try {
-    const response = await axiosFetch({
-      method: 'GET',
-      url: EndpointEnum.PATIENTS + `/${patientId}`,
-    });
-    return response.data;
-  } catch (error: any) {
-    if (error.status === 403) {
-      reduxStore.dispatch(
-        showMessage(
-          "User is not authorized to access this patient's information"
-        )
-      );
-    }
-    // Handle other error cases if necessary
-    throw error;
-  }
+  const response = await axiosFetch({
+    method: 'GET',
+    url: EndpointEnum.PATIENTS + `/${patientId}`,
+  });
+  return response.data;
 };
 
 export const getPatientPregnanciesAsync = async (
