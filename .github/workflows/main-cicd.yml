@@ -17,11 +17,11 @@ env:
   HUB_REPO_BACKEND: "${{ secrets.HUB_REPO_BACKEND }}"
   NPM_VERSION: "7.0.0"
   CUSTOM_WORKSPACE: /isolated-build/repo
+  EMULATOR_PHONE_NUMBER: "+15555215556"
   # Keep npm's cache out of home directory (mounted from host)
   # otherwise, NPM gives EACCES error trying to mkdir /github/home/.npm
   # Using the /isolated_build/ folder (inside the container) keeps permissions straight
   npm_config_cache: /isolated-build/.npm-cache 
-  CYPRESS_CACHE_FOLDER: /isolated_build/.cypress-cache   
 
 jobs:
   display_github_contexts:
@@ -145,7 +145,7 @@ jobs:
       MYSQL_DATABASE: "cradle"
       MYSQL_ROOT_PASSWORD: "ci-password"
       LIMITER_DISABLED: "True"
-      EMULATOR_PHONE_NUMBER: "+1-123-456-7890"
+      EMULATOR_PHONE_NUMBER: "+15555215556"
       SMS_KEY_DURATION: "100"
       AWS_REGION: us-west-2
       COGNITO_AWS_ACCESS_KEY_ID: ${{ secrets.COGNITO_AWS_ACCESS_KEY_ID }}
@@ -219,9 +219,8 @@ jobs:
     permissions:
       contents: read
     container:
-      image: mcr.microsoft.com/playwright:v1.50.1-noble
-      # image: python:3.9.1-buster
-      options: --user root
+      image: mcr.microsoft.com/playwright/python:v1.50.0-noble
+      options: --user root --ipc host
     defaults:
       run:
         shell: bash -leo pipefail {0}
@@ -260,30 +259,30 @@ jobs:
         uses: bfraser/cicd/actions/checkout@v1
         with:
           path: ${{ env.CUSTOM_WORKSPACE }}
-      - name: Install Python3.9
-        run: |
-          export HOME=${{ env.CUSTOM_WORKSPACE }}
-          touch ${{ env.CUSTOM_WORKSPACE }}/.bashrc 
-          apt-get update -y
-          apt-get upgrade -y
-          apt-get install default-mysql-client -y
-          apt-get install build-essential zlib1g-dev \
-          libncurses5-dev libgdbm-dev libnss3-dev \
-          libssl-dev libreadline-dev libffi-dev curl software-properties-common -y
-          wget https://www.python.org/ftp/python/3.9.12/Python-3.9.12.tar.xz
-          tar -xf Python-3.9.12.tar.xz
-          cd Python-3.9.12
-          ./configure
-          make altinstall
-          python3.9 --version
-          python3 --version
-          echo 'export PATH="/usr/local/bin/python3.9:$PATH"' >> ${{ env.CUSTOM_WORKSPACE }}/.bashrc
-          source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
-          echo "Create symbolic link for python3.9"
-          unlink /usr/bin/python3
-          ln -s /usr/local/bin/python3.9 /usr/bin/python3
-          python3 --version
-        working-directory: ${{ env.CUSTOM_WORKSPACE }}
+      # - name: Install Python3.9
+      #   run: |
+      #     export HOME=${{ env.CUSTOM_WORKSPACE }}
+      #     touch ${{ env.CUSTOM_WORKSPACE }}/.bashrc 
+      #     apt-get update -y
+      #     apt-get upgrade -y
+      #     apt-get install default-mysql-client -y
+      #     apt-get install build-essential zlib1g-dev \
+      #     libncurses5-dev libgdbm-dev libnss3-dev \
+      #     libssl-dev libreadline-dev libffi-dev curl software-properties-common -y
+      #     wget https://www.python.org/ftp/python/3.9.12/Python-3.9.12.tar.xz
+      #     tar -xf Python-3.9.12.tar.xz
+      #     cd Python-3.9.12
+      #     ./configure
+      #     make altinstall
+      #     python3.9 --version
+      #     python3 --version
+      #     echo 'export PATH="/usr/local/bin/python3.9:$PATH"' >> ${{ env.CUSTOM_WORKSPACE }}/.bashrc
+      #     source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
+      #     echo "Create symbolic link for python3.9"
+      #     unlink /usr/bin/python3
+      #     ln -s /usr/local/bin/python3.9 /usr/bin/python3
+      #     python3 --version
+      #   working-directory: ${{ env.CUSTOM_WORKSPACE }}
       - name: Install Node 
         run: |
           echo $HOME
@@ -311,31 +310,24 @@ jobs:
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
       - name: Install Back-end dependencies 
         run: |
-          export HOME=${{ env.CUSTOM_WORKSPACE }}
-          source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
-          python3.9 -m pip install --upgrade pip
-          python3.9 -m pip install -r requirements.txt
+          # export HOME=${{ env.CUSTOM_WORKSPACE }}
+          # source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements.txt
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
       - name: Start backend service
         env:
           PORT: '5000'
         run: |
-          python3.9 app.py &
+          python3 app.py &
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
       - name: Seed Database
         run: |
-          export HOME=${{ env.CUSTOM_WORKSPACE }}
-          source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
-          python3.9 db.py rebuild --no-docker
-          python3.9 manage.py seed_test_data
+          # export HOME=${{ env.CUSTOM_WORKSPACE }}
+          # source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
+          python3 db.py rebuild --no-docker
+          python3 manage.py seed_test_data
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
-      # - name: Start Front-end service
-      #   env:
-      #     PORT: '3000'
-      #   run: | 
-      #     source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
-      #     npm run start &
-        # working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
       - name: Run End-to-End Tests
         id: e2e_test
         # Firefox is unable to launch if the $HOME folder isn't owned by the current user. 

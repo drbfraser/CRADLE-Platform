@@ -1,0 +1,154 @@
+name: Playwright Tests
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  HUB_TOKEN: "${{ secrets.HUB_TOKEN }}"
+  HUB_USER: "${{ secrets.HUB_USER }}"
+  HUB_REPO_FRONTEND: "${{ secrets.HUB_REPO_FRONTEND }}"
+  HUB_REPO_BACKEND: "${{ secrets.HUB_REPO_BACKEND }}"
+  NPM_VERSION: "7.0.0"
+  CUSTOM_WORKSPACE: /isolated-build/repo
+  # Keep npm's cache out of home directory (mounted from host)
+  # otherwise, NPM gives EACCES error trying to mkdir /github/home/.npm
+  # Using the /isolated_build/ folder (inside the container) keeps permissions straight
+  npm_config_cache: /isolated-build/.npm-cache 
+
+jobs:
+  end-to-end-tests:
+    name: "End-to-End Playwright Tests"
+    runs-on: [self-hosted, docker]
+    environment: cicd
+    concurrency: cicd
+    permissions:
+      contents: read
+    container:
+      image: mcr.microsoft.com/playwright:v1.50.1-noble
+      options: --user root --ipc host
+    defaults:
+      run:
+        shell: bash -leo pipefail {0}
+    # needs: [frontend-unit_tests, backend_system_tests]
+    env:
+      NVM_DIR: /isolated-build/repo/.nvm
+      CI: 'true'
+      DB_USERNAME: 'root'
+      DB_PASSWORD: 'ci-password'
+      DB_HOSTNAME: 'mysql'
+      DB_PORT: '3306'
+      DB_NAME: 'cradle'
+      MYSQL_DATABASE: 'cradle'
+      PORT: "5000"
+      MYSQL_ROOT_PASSWORD: 'ci-password'      
+      LIMITER_DISABLED: "True"
+      EMULATOR_PHONE_NUMBER: "+15555215556"
+      SMS_KEY_DURATION: "100"
+      AWS_REGION: us-west-2
+      COGNITO_AWS_ACCESS_KEY_ID: ${{ secrets.COGNITO_AWS_ACCESS_KEY_ID }}
+      COGNITO_AWS_SECRET_ACCESS_KEY: ${{ secrets.COGNITO_AWS_SECRET_ACCESS_KEY }}
+      COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
+      COGNITO_APP_CLIENT_ID: ${{ secrets.COGNITO_APP_CLIENT_ID }}
+      COGNITO_CLIENT_SECRET: ${{ secrets.COGNITO_CLIENT_SECRET }}
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
+        ports:
+          - 3306:3306
+    steps:
+      - name: Set Noninteractive 
+        run: echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+      - name: Checkout code into container
+        uses: bfraser/cicd/actions/checkout@v1
+        with:
+          path: ${{ env.CUSTOM_WORKSPACE }}
+      - name: Install Python3.9
+        run: |
+          export HOME=${{ env.CUSTOM_WORKSPACE }}
+          touch ${{ env.CUSTOM_WORKSPACE }}/.bashrc 
+          apt-get update -y
+          apt-get upgrade -y
+          apt-get install default-mysql-client -y
+          apt-get install build-essential zlib1g-dev \
+          libncurses5-dev libgdbm-dev libnss3-dev \
+          libssl-dev libreadline-dev libffi-dev curl software-properties-common -y
+          wget https://www.python.org/ftp/python/3.9.12/Python-3.9.12.tar.xz
+          tar -xf Python-3.9.12.tar.xz
+          cd Python-3.9.12
+          ./configure
+          make altinstall
+          python3.9 --version
+          python3 --version
+          echo 'export PATH="/usr/local/bin/python3.9:$PATH"' >> ${{ env.CUSTOM_WORKSPACE }}/.bashrc
+          source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
+          echo "Create symbolic link for python3.9"
+          unlink /usr/bin/python3
+          ln -s /usr/local/bin/python3.9 /usr/bin/python3
+          python3 --version
+        working-directory: ${{ env.CUSTOM_WORKSPACE }}
+      - name: Install Node 
+        run: |
+          echo $HOME
+          echo "$NVM_DIR"
+          mkdir -p "$NVM_DIR"
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash -s -- -d ${{ env.CUSTOM_WORKSPACE }}
+          \. "${{ env.CUSTOM_WORKSPACE }}/.nvm/nvm.sh"
+          nvm install 18
+          node -v
+          nvm current
+          npm -v
+          echo 'export NVM_DIR="/isolated-build/repo/.nvm"' >> ${{ env.CUSTOM_WORKSPACE }}/.bashrc 
+          echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ${{ env.CUSTOM_WORKSPACE }}/.bashrc
+        working-directory: ${{ env.CUSTOM_WORKSPACE }}
+      - name: Install Front-end dependencies 
+        run: |
+          source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
+          npm -v
+          npm ci
+        working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
+      - name: Install Playwright Browsers 
+        run: | 
+          source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
+          PLAYWRIGHT_BROWSERS_PATH=0 npx playwright install --with-deps
+        working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
+      - name: Install Back-end dependencies 
+        run: |
+          export HOME=${{ env.CUSTOM_WORKSPACE }}
+          source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
+          python3.9 -m pip install --upgrade pip
+          python3.9 -m pip install -r requirements.txt
+        working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
+      - name: Start backend service
+        env:
+          PORT: '5000'
+        run: |
+          python3.9 app.py &
+        working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
+      - name: Seed Database
+        run: |
+          export HOME=${{ env.CUSTOM_WORKSPACE }}
+          source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
+          python3.9 db.py rebuild --no-docker
+          python3.9 manage.py seed_test_data
+        working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
+      - name: Run End-to-End Tests
+        id: e2e_test
+        # Firefox is unable to launch if the $HOME folder isn't owned by the current user. 
+        run: |
+          source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
+          export HOME=${{ env.CUSTOM_WORKSPACE }}
+          npm run e2e
+        env:
+          PORT: '3000'
+        working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
+      - name: Upload Playwright Report
+        uses: actions/upload-artifact@v2
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: ${{ env.CUSTOM_WORKSPACE }}/client/playwright-report/
