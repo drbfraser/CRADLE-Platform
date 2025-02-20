@@ -256,6 +256,8 @@ jobs:
     steps:
       - name: Set Noninteractive 
         run: echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+      # - name: Setup
+      #   run: apt install xdg-utils --fix-missing 
       - name: Checkout code into container
         uses: bfraser/cicd/actions/checkout@v1
         with:

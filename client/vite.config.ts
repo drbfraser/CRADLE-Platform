@@ -17,8 +17,9 @@ export default defineConfig({
     svgr(),
   ],
   server: {
-    open: true, // Open browser when server starts.
+    open: !process.env.CI, // Open browser when server starts (Except in CI environment).
     port: 3000,
+    host: true,
   },
   define: {
     global: 'globalThis',
