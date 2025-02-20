@@ -220,8 +220,8 @@ jobs:
     permissions:
       contents: read
     container:
-      image: mcr.microsoft.com/playwright/python:v1.50.0-noble
-      options: --user root 
+      image: mcr.microsoft.com/playwright:v1.50.1-noble
+      options: --user root
     defaults:
       run:
         shell: bash -leo pipefail {0}
@@ -260,30 +260,30 @@ jobs:
         uses: bfraser/cicd/actions/checkout@v1
         with:
           path: ${{ env.CUSTOM_WORKSPACE }}
-      # - name: Install Python3.9
-      #   run: |
-      #     export HOME=${{ env.CUSTOM_WORKSPACE }}
-      #     touch ${{ env.CUSTOM_WORKSPACE }}/.bashrc 
-      #     apt-get update -y
-      #     apt-get upgrade -y
-      #     apt-get install default-mysql-client -y
-      #     apt-get install build-essential zlib1g-dev \
-      #     libncurses5-dev libgdbm-dev libnss3-dev \
-      #     libssl-dev libreadline-dev libffi-dev curl software-properties-common -y
-      #     wget https://www.python.org/ftp/python/3.9.12/Python-3.9.12.tar.xz
-      #     tar -xf Python-3.9.12.tar.xz
-      #     cd Python-3.9.12
-      #     ./configure
-      #     make altinstall
-      #     python3.9 --version
-      #     python3 --version
-      #     echo 'export PATH="/usr/local/bin/python3.9:$PATH"' >> ${{ env.CUSTOM_WORKSPACE }}/.bashrc
-      #     source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
-      #     echo "Create symbolic link for python3.9"
-      #     unlink /usr/bin/python3
-      #     ln -s /usr/local/bin/python3.9 /usr/bin/python3
-      #     python3 --version
-      #   working-directory: ${{ env.CUSTOM_WORKSPACE }}
+      - name: Install Python3.9
+        run: |
+          export HOME=${{ env.CUSTOM_WORKSPACE }}
+          touch ${{ env.CUSTOM_WORKSPACE }}/.bashrc 
+          apt-get update -y
+          apt-get upgrade -y
+          apt-get install default-mysql-client -y
+          apt-get install build-essential zlib1g-dev \
+          libncurses5-dev libgdbm-dev libnss3-dev \
+          libssl-dev libreadline-dev libffi-dev curl software-properties-common -y
+          wget https://www.python.org/ftp/python/3.9.12/Python-3.9.12.tar.xz
+          tar -xf Python-3.9.12.tar.xz
+          cd Python-3.9.12
+          ./configure
+          make altinstall
+          python3.9 --version
+          python3 --version
+          echo 'export PATH="/usr/local/bin/python3.9:$PATH"' >> ${{ env.CUSTOM_WORKSPACE }}/.bashrc
+          source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
+          echo "Create symbolic link for python3.9"
+          unlink /usr/bin/python3
+          ln -s /usr/local/bin/python3.9 /usr/bin/python3
+          python3 --version
+        working-directory: ${{ env.CUSTOM_WORKSPACE }}
       - name: Install Node 
         run: |
           echo $HOME
@@ -311,21 +311,19 @@ jobs:
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
       - name: Install Back-end dependencies 
         run: |
-          pip install --upgrade pip
-          pip install -r requirements.txt
+          python3.9 -m pip install --upgrade pip
+          python3.9 -m pip install -r requirements.txt
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
       - name: Start backend service
         env:
           PORT: '5000'
         run: |
-          python3 app.py &
+          python3.9 app.py &
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
       - name: Seed Database
         run: |
-          # export HOME=${{ env.CUSTOM_WORKSPACE }}
-          # source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
-          python3 db.py rebuild --no-docker
-          python3 manage.py seed_test_data
+          python3.9 db.py rebuild --no-docker
+          python3.9 manage.py seed_test_data
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
       - name: Run End-to-End Tests
         id: e2e_test
