@@ -17,6 +17,7 @@ env:
   # otherwise, NPM gives EACCES error trying to mkdir /github/home/.npm
   # Using the /isolated_build/ folder (inside the container) keeps permissions straight
   npm_config_cache: /isolated-build/.npm-cache 
+  CYPRESS_CACHE_FOLDER: /isolated_build/.cypress-cache  
 
 jobs:
   end-to-end-tests:
