@@ -30,7 +30,7 @@ jobs:
       contents: read
     container:
       image: mcr.microsoft.com/playwright:v1.50.1-noble
-      options: --user root --ipc host
+      options: --user root
     defaults:
       run:
         shell: bash -leo pipefail {0}
