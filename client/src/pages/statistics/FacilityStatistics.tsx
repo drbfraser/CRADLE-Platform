@@ -9,13 +9,12 @@ import {
   Select,
   SelectChangeEvent,
 } from '@mui/material';
-import { getFacilityStatisticsAsync } from 'src/shared/api/api';
+import { getFacilityStatisticsAsync } from 'src/shared/api/apiStatistics';
 
 import { useHealthFacilitiesQuery } from 'src/shared/queries';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { StatisticDashboard } from './utils/StatisticsDashboard';
 import { DIVIDER_SX, STATS_PAGE_SX } from './utils/statisticStyles';
-import { statsQueryFn } from './utils/queries';
 
 type FacilityStatisticsProps = {
   from: number;
@@ -32,8 +31,8 @@ export const FacilityStatistics = ({ from, to }: FacilityStatisticsProps) => {
 
   const facilityQuery = useQuery({
     queryKey: ['facility', facilityName, from, to],
-    queryFn: () =>
-      statsQueryFn(getFacilityStatisticsAsync(facilityName, from, to)),
+    queryFn: () => getFacilityStatisticsAsync(facilityName, from, to),
+    enabled: !!facilityName,
   });
 
   return (

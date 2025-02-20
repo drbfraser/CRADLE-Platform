@@ -11,10 +11,8 @@ import {
   Typography,
 } from '@mui/material';
 
-import {
-  getUserStatisticsExportAsync,
-  getUsersAsync,
-} from 'src/shared/api/api';
+import { getUsersAsync } from 'src/shared/api/api';
+import { getUserStatisticsExportAsync } from 'src/shared/api/apiStatistics';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { ExportStatistics } from './utils/ExportStatistics';
 import { StatisticDashboard } from './utils/StatisticsDashboard';

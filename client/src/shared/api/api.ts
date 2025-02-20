@@ -19,7 +19,6 @@ import {
 } from '../types';
 import { EndpointEnum, MethodEnum, UserRoleEnum } from '../enums';
 import axios, { AxiosError } from 'axios';
-import { IExportStatRow } from 'src/pages/statistics/utils';
 import { PostBody } from 'src/pages/customizedForm/customizedEditForm/handlers';
 import { reduxStore } from 'src/redux/store';
 import { showMessage } from 'src/redux/actions/messageActions';
@@ -709,49 +708,6 @@ export const setReferralNotAttendedAsync = async (
       notAttendReason: comment,
     },
   });
-
-export const getUserStatisticsExportAsync = async (
-  user: string,
-  from: number,
-  to: number
-) => {
-  const response = await axiosFetch.get(
-    EndpointEnum.STATS_USER_EXPORT + `/${user}?from=${from}&to=${to}`
-  );
-  return response.data;
-};
-
-export const getUserStatisticsAsync = async (
-  user: string,
-  from: number,
-  to: number
-) => {
-  const response = await axiosFetch.get(
-    EndpointEnum.STATS_USER + `/${user}?from=${from}&to=${to}`
-  );
-  return response.data;
-};
-
-export const getFacilityStatisticsAsync = async (
-  facility: string,
-  from: number,
-  to: number
-): Promise<IExportStatRow[]> => {
-  const response = await axiosFetch.get(
-    EndpointEnum.STATS_FACILITY + `/${facility}?from=${from}&to=${to}`
-  );
-  return response.data;
-};
-
-export const getAllStatisticsAsync = async (
-  from: number,
-  to: number
-): Promise<IExportStatRow[]> => {
-  const response = await axiosFetch.get(
-    EndpointEnum.STATS_ALL + `?from=${from}&to=${to}`
-  );
-  return response.data;
-};
 
 export const getSecretKeyAsync = async (userId: number) => {
   const response = await axiosFetch({

@@ -3,20 +3,18 @@ import { useSelector } from 'react-redux';
 import { Box, Divider, Typography } from '@mui/material';
 
 import { UserWithToken, OrNull } from 'src/shared/types';
-
-import { getFacilityStatisticsAsync } from 'src/shared/api/api';
 import { ReduxState } from 'src/redux/reducers';
 import { StatisticDashboard } from './utils/StatisticsDashboard';
 import { DIVIDER_SX } from './utils/statisticStyles';
-import { statsQueryFn } from './utils/queries';
+import { getFacilityStatisticsAsync } from 'src/shared/api/apiStatistics';
+
+type User = {
+  user: OrNull<UserWithToken>;
+};
 
 type Props = {
   from: number;
   to: number;
-};
-
-type User = {
-  user: OrNull<UserWithToken>;
 };
 
 export const MyFacility = ({ from, to }: Props) => {
@@ -29,8 +27,7 @@ export const MyFacility = ({ from, to }: Props) => {
 
   const myFacilityStatsQuery = useQuery({
     queryKey: ['MyFacilitiyStats', facilityName, from, to],
-    queryFn: () =>
-      statsQueryFn(getFacilityStatisticsAsync(facilityName, from, to)),
+    queryFn: () => getFacilityStatisticsAsync(facilityName, from, to),
   });
 
   return (

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z, ZodError } from 'zod';
 
 export const colorReadingSchema = z.object({
   GREEN: z.number(),
@@ -20,3 +20,14 @@ export const statsDataSchema = z.object({
 });
 
 export type StatsData = z.infer<typeof statsDataSchema>;
+
+export const validateStatsData = async (data: unknown): Promise<StatsData> => {
+  try {
+    return await statsDataSchema.parseAsync(data);
+  } catch (e) {
+    if (e instanceof ZodError) {
+      console.error(`Error validating statisitcs data: ${e}`);
+    }
+    throw e;
+  }
+};
