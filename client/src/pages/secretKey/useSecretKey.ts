@@ -1,8 +1,7 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { useAppDispatch } from 'src/shared/hooks';
-import { SecretKeyState, replaceSecretKey } from 'src/redux/reducers/secretKey';
-import { getSecretKeyAsync, updateSecretKeyAsync } from 'src/shared/api/api';
+import { useMutation } from '@tanstack/react-query';
+import { updateSecretKeyAsync } from 'src/shared/api/api';
 import { UserRoleEnum } from 'src/shared/enums';
+import { useSecretKeyQuery } from 'src/shared/queries';
 import { UserWithToken, OrNull, SecretKey } from 'src/shared/types';
 
 type UseSecretKeyReturn = {
@@ -13,18 +12,10 @@ type UseSecretKeyReturn = {
 };
 
 export const useSecretKey = (
-  secretKey: SecretKeyState,
   loggedInUser: OrNull<Pick<UserWithToken, 'role' | 'id'>>,
   selectedUserId: number | undefined
 ): UseSecretKeyReturn => {
-  const dispatch = useAppDispatch();
-
-  const secretKeyQuery = useQuery<SecretKey>({
-    queryKey: ['secretKey', selectedUserId!],
-    queryFn: () => getSecretKeyAsync(selectedUserId!),
-    initialData: secretKey.data,
-    enabled: selectedUserId !== undefined,
-  });
+  const secretKeyQuery = useSecretKeyQuery(selectedUserId);
 
   const updateSecretKeyMutation = useMutation({
     mutationFn: updateSecretKeyAsync,
@@ -40,11 +31,8 @@ export const useSecretKey = (
 
     // allow the admin to change any secret key
     if (loggedInUser?.role === UserRoleEnum.ADMIN && selectedUserId) {
-      const response = await updateSecretKeyMutation.mutateAsync(
-        selectedUserId
-      );
+      updateSecretKeyMutation.mutate(selectedUserId);
       secretKeyQuery.refetch();
-      dispatch(replaceSecretKey(response));
     }
   };
 
