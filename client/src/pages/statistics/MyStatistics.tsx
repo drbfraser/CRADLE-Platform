@@ -1,6 +1,6 @@
 import { Box, Divider, Typography } from '@mui/material';
 
-import { getUserStatisticsExportAsync } from 'src/shared/api/api';
+import { getUserStatisticsExportAsync } from 'src/shared/api/apiStatistics';
 import { useAppSelector } from 'src/shared/hooks';
 import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
 import { useUserStatsQuery } from './utils/queries';

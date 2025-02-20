@@ -13,7 +13,8 @@ import {
 } from '@mui/material';
 
 import { ReduxState } from 'src/redux/reducers';
-import { getUserStatisticsExportAsync, getVHTsAsync } from 'src/shared/api/api';
+import { getVHTsAsync } from 'src/shared/api/api';
+import { getUserStatisticsExportAsync } from 'src/shared/api/apiStatistics';
 import { UserRoleEnum } from 'src/shared/enums';
 import { UserWithToken, OrNull } from 'src/shared/types';
 import {
@@ -92,7 +93,7 @@ export const VHTStatistics = ({ from, to }: Props) => {
           <Select variant="standard" value={vht} onChange={handleChange}>
             {allVHTsQuery.data?.map((vht, index) => (
               <MenuItem value={vht.userId} key={index}>
-                {vht?.firstName ?? 'Unknown'} ({vht?.email ?? 'Unknown'})
+                {vht?.name ?? 'Unknown'} ({vht?.email ?? 'Unknown'})
               </MenuItem>
             ))}
           </Select>
