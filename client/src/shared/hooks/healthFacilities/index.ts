@@ -1,29 +1,18 @@
-import { HealthFacility, OrNull } from 'src/shared/types';
+import { useQuery } from '@tanstack/react-query';
+import { HealthFacility } from 'src/shared/types';
+import { axiosFetch } from 'src/shared/api/api';
+import { EndpointEnum } from 'src/shared/enums';
 
-import { ReduxState } from 'src/redux/reducers';
-import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
-import { useAppDispatch } from 'src/shared/hooks';
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
-
-export const useHealthFacilities = () => {
-  const healthFacilities = useSelector(
-    ({ healthFacilities }: ReduxState): OrNull<Array<HealthFacility>> =>
-      healthFacilities.data
-  );
-
-  const dispatch = useAppDispatch();
-
-  useEffect((): void => {
-    if (!healthFacilities) {
-      dispatch(getHealthFacilityList());
-    }
-  }, [dispatch, healthFacilities]);
-
-  return healthFacilities ?? [];
+const fetchHealthFacilities = async (): Promise<HealthFacility[]> => {
+  const response = await axiosFetch.get(EndpointEnum.HEALTH_FACILITY_LIST);
+  return response.data;
 };
 
-export const useHealthFacilityNames = () => {
-  const healthFacilities = useHealthFacilities();
-  return healthFacilities.map((facility) => facility.name);
+export const useHealthFacilityNames = (): string[] => {
+  const query = useQuery({
+    queryKey: ['healthFacilities'],
+    queryFn: fetchHealthFacilities,
+    select: (facilities) => facilities.map((facility) => facility.name),
+  });
+  return query.data ?? [];
 };
