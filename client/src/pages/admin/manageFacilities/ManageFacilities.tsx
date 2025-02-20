@@ -5,8 +5,6 @@ import AddIcon from '@mui/icons-material/Add';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
 import { Facility } from 'src/shared/types';
-import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
-import { useAppDispatch } from 'src/shared/hooks';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
 import { DataTable } from 'src/shared/components/DataTable/DataTable';
@@ -19,7 +17,6 @@ import EditFacilityDialog from './EditFacilityDialog';
 import { useHealthFacilitiesQuery } from 'src/shared/queries';
 
 export const ManageFacilities = () => {
-  const dispatch = useAppDispatch();
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [facilityToEdit, setFacilityToEdit] = useState<Facility>();
 
@@ -68,9 +65,9 @@ export const ManageFacilities = () => {
 
   const editFacility = () => {
     setEditPopupOpen(false);
-    dispatch(getHealthFacilityList());
     facilitiesQuery.refetch();
   };
+
   const addNewFacility = () => {
     setFacilityToEdit(undefined);
     setEditPopupOpen(true);
