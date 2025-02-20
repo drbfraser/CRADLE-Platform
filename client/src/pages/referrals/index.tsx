@@ -1,25 +1,22 @@
-import { BREAKPOINT, COLUMNS, SORTABLE_COLUMNS } from './constants';
-import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import { useState, useEffect } from 'react';
 import { debounce, parseInt } from 'lodash';
+import { Box, TextField, Typography, useMediaQuery } from '@mui/material';
 
+import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import { APITable } from 'src/shared/components/apiTable';
-import { AutoRefresher } from './AutoRefresher';
-import { EndpointEnum, SecretKeyMessage } from 'src/shared/enums';
-import { FilterDialog } from './FilterDialog';
+import { EndpointEnum } from 'src/shared/enums';
 import { ReferralFilter } from 'src/shared/types';
-import { ReferralRow } from './ReferralRow';
-import { RefreshDialog } from './RefreshDialog';
 import { SortDir } from 'src/shared/components/apiTable/types';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
 import { useAppDispatch, useAppSelector } from 'src/shared/hooks';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { getSecretKey, selectSecretKey } from 'src/redux/reducers/secretKey';
 import { Toast } from 'src/shared/components/toast';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
-import { Box } from '@mui/material';
 import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
+import { BREAKPOINT, COLUMNS, SORTABLE_COLUMNS } from './constants';
+import { FilterDialog } from './FilterDialog';
+import { AutoRefresher } from './AutoRefresher';
+import { ReferralRow } from './ReferralRow';
+import { RefreshDialog } from './RefreshDialog';
+import { useSecretKeyQuery } from 'src/shared/queries';
 
 export const ReferralsPage = () => {
   const [expiredMessage, setExpiredMessage] = useState<boolean>(false);
@@ -38,8 +35,9 @@ export const ReferralsPage = () => {
 
   const { data: user } = useAppSelector(selectCurrentUser);
   const userId = user?.id;
-  const secretKey = useAppSelector(selectSecretKey);
   const dispatch = useAppDispatch();
+
+  const { data: secretKeyQueryData } = useSecretKeyQuery(userId);
 
   useEffect(() => {
     sessionStorage.setItem('lastRefreshTime', '0');
@@ -47,22 +45,21 @@ export const ReferralsPage = () => {
       localStorage.setItem('refreshInterval', '60');
     }
     setRefreshTimer(parseInt(localStorage.getItem('refreshInterval')!));
-
-    if (userId && secretKey == undefined) {
-      dispatch(getSecretKey(userId));
-    }
-  }, [dispatch, secretKey, userId]);
+  }, [dispatch, userId]);
 
   useEffect(() => {
-    if (
-      userId &&
-      secretKey !== undefined &&
-      (secretKey.message === SecretKeyMessage.WARN ||
-        secretKey.message === SecretKeyMessage.EXPIRED)
-    ) {
-      setExpiredMessage(true);
+    if (secretKeyQueryData) {
+      const currentDate = new Date();
+      const staleDate = new Date(secretKeyQueryData.staleDate);
+      const expiryDate = new Date(secretKeyQueryData.expiryDate);
+
+      const staleDatePassed = currentDate > staleDate;
+      const expireDatePassed = currentDate > expiryDate;
+      if (staleDatePassed || expireDatePassed) {
+        setExpiredMessage(true);
+      }
     }
-  }, [secretKey, userId]);
+  }, [secretKeyQueryData, userId]);
 
   return (
     <>

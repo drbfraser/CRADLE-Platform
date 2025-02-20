@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
 import {
   Box,
@@ -27,8 +26,6 @@ import {
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 import { UserRoleEnum } from 'src/shared/enums';
-import { ReduxState } from 'src/redux/reducers';
-import { SecretKeyState } from 'src/redux/reducers/secretKey';
 import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
 import { useSecretKey } from 'src/pages/secretKey/useSecretKey';
 import { useAppSelector } from 'src/shared/hooks';
@@ -36,13 +33,10 @@ import { Toast } from 'src/shared/components/toast';
 import { getUsersAsync } from 'src/shared/api/api';
 
 const SecretKeyPage: React.FC = () => {
+  const { data: loggedInUser } = useAppSelector(selectCurrentUser);
+
   const [showSecretKey, setShowSecretKey] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
-
-  const { data: loggedInUser } = useAppSelector(selectCurrentUser);
-  const secretKey = useSelector(({ secretKey }: ReduxState): SecretKeyState => {
-    return secretKey;
-  });
 
   const [selectedUserId, setSelectedUserId] = useState<number | undefined>(
     loggedInUser?.id
@@ -66,7 +60,7 @@ const SecretKeyPage: React.FC = () => {
     updateSecretKey,
     updateSecretKeySuccess,
     resetSecretKeyMutation,
-  } = useSecretKey(secretKey, loggedInUser, selectedUserId);
+  } = useSecretKey(loggedInUser, selectedUserId);
 
   return (
     <>
