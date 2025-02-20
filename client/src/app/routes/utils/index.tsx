@@ -6,7 +6,6 @@ import { CustomizedViewFormPage } from 'src/pages/customizedForm/customizedViewF
 import { HistoryTablesPage } from 'src/pages/historyTables';
 import { LoginPage } from 'src/pages/login';
 import { NotFoundPage } from 'src/pages/notFound';
-import { PatientFormPage } from 'src/pages/patientForm';
 import PollIcon from '@mui/icons-material/Poll';
 import { ReadingFormPage } from 'src/pages/readingForm';
 import { ReferralFormPage } from 'src/pages/referralForm';
@@ -42,14 +41,6 @@ export const appRoutes: Array<AppRoute> = [
     inNavigation: false,
     private: true,
     to: `/patients/*`,
-  },
-  {
-    component: PatientFormPage,
-    exactPath: true,
-    id: makeUniqueId(),
-    inNavigation: false,
-    private: true,
-    to: `/pregnancies/new/:patientId`,
   },
   {
     component: CustomizedFormPage,
