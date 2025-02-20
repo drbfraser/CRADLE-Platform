@@ -57,7 +57,7 @@ const PatientRoutes = () => {
         <Route index element={<NewPatientForm />} />
       </Route>
 
-      <Route path=":patientId/">
+      <Route path=":patientId">
         <Route index element={<PatientPage />} />
         <Route path="*" element={<PatientFormRoutes />} />
       </Route>

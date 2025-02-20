@@ -20,6 +20,7 @@ import { StatisticsPage } from 'src/pages/statistics';
 import { makeUniqueId } from 'src/shared/utils';
 import SecretKeyPage from 'src/pages/secretKey';
 import { LoginCallbackPage } from 'src/pages/login/LoginCallbackPage';
+import PatientRoutes from './PatientRoutes';
 
 export type AppRoute = {
   component: React.ComponentType<any>;
@@ -35,6 +36,14 @@ export type AppRoute = {
 
 // * Order here is important must match order of side bar for relevant routes
 export const appRoutes: Array<AppRoute> = [
+  {
+    component: PatientRoutes,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    private: true,
+    to: `/patients/*`,
+  },
   {
     component: PatientFormPage,
     exactPath: true,
