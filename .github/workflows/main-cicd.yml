@@ -338,8 +338,10 @@ jobs:
         # working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
       - name: Run End-to-End Tests
         id: e2e_test
+        # Firefox is unable to launch if the $HOME folder isn't owned by the current user. 
         run: |
           source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
+          export HOME=${{ env.CUSTOM_WORKSPACE }}
           npm run e2e
         env:
           PORT: '3000'
