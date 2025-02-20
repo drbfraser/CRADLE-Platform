@@ -1,6 +1,8 @@
-# Development Environment Setup
+# Developer Onboarding
 
-## 1. Install Required Programs
+## Development Environment Setup
+
+### 1. Install Required Programs
 
 You'll need to install Docker and NodeJS + NPM.
 
@@ -11,7 +13,7 @@ Follow this guide to install Docker: https://docs.docker.com/get-docker/
 
 Install NodeJS 16 LTS from here: https://nodejs.org/en/
 
-## 2. Cloning the Repo
+### 2. Cloning the Repo
 
 Prior to cloning the repo, ensure you
 
@@ -24,7 +26,7 @@ Then run:
 git clone git@github.sfu.ca:cradle-project/Cradle-Platform.git
 ```
 
-## 3. Set up Environment Variables
+### 3. Set up Environment Variables
 
 Create a file named `.env` (extension only file) in the `cradle-platform` directory containing the following:
 
@@ -71,7 +73,7 @@ EMULATOR_PHONE_NUMBER=+15555215556
 
 Note: The "+1" is the country code, and is required.
 
-## 4. Set up the user pool
+### 4. Set up the user pool
 
 Create a file named `.env.cognito_secrets`. This file will be used to store secrets
 needed to connect with the AWS Cognito user pool. Put the access key and secret access key
@@ -156,7 +158,7 @@ cat .env.cognito_secrets-<your-name> > .env.cognito_secrets
 It is strongly recommended that you keep the `.env.cognito_secrets-<your-name>`
 file as a backup.
 
-## 5. Spin up the Docker Containers
+### 5. Spin up the Docker Containers
 
 From your OS's terminal (such as PowerShell in Windows) run:
 
@@ -175,7 +177,7 @@ Now it's time to run the database migrations. Once the containers have fully sta
 docker exec cradle_flask flask db upgrade
 ```
 
-## 6. Seeding Data
+### 6. Seeding Data
 
 Data seeding is handled by the `manage.py` script in the `server` directory. There are 3 data seeding options which give various amounts of data:
 
@@ -189,7 +191,7 @@ In order to seed data, run `docker exec cradle_flask python manage.py <SEED_OPTI
 docker exec cradle_flask python manage.py seed_test_data
 ```
 
-## 7. Run the NPM Dev Server
+### 7. Run the NPM Dev Server
 
 NPM is not run inside Docker (due to poor filesystem performance), so you'll need to run the following to start the NPM development server:
 (Make sure you have `NPM 7`)
@@ -206,16 +208,20 @@ If there are a lot of vulnerabilities, try to fix them by running `npm ci` to in
 
 If there are errors during `npm start`, try running `npm ci` to install directly from the `package-lock.json`.
 
-## Start Developing!
+### Start Developing!
 
 - Navigate to http://localhost:3000/ to check out the React client running in your browser, communicating to the server hosted at http://localhost:5000/ which is communicating with MySQL!
 - You will be able work on the client-side and server-side code, all while being able to enjoy hot-reloading!
 
 ---
 
-# Development
+## Development
 
-## Backend Onboarding Guide - Useful Documentation to Get Started
+### Automated Testing
+
+See the testing guide at: https://github.sfu.ca/cradle-project/Cradle-Platform/blob/main/docs/testing.md
+
+### Backend Onboarding Guide - Useful Documentation to Get Started
 
 For a comprehensive guide to backend development, please refer to the "Backend-Onboarding-Doc" located in the shared CRADLE Docs Google Drive under **Guides/Tutorials > Backend-Onboarding-Doc**.
 
@@ -226,47 +232,47 @@ This document provides all the essential information for new backend developers 
 - Creating and utilizing Pydantic test models
 - Accessing, migrating, or resetting database data
 
-## General Tips
+### General Tips
 
-- Make sure to check out the API documentation at http://localhost:5000/apidocs
+- Make sure to check out the API documentation at <http://localhost:5000/apidocs>
 
 - Once the initial setup is completed, you'll only need to run `docker compose up` in the `cradle-platform` directory and `npm start` in the client directory to run Cradle.
 
 - If using Docker Desktop, you may also start / restart / stop the containers from within the GUI.
 
-## Code Formatting
+### Code Formatting
 
 In order to pass the pipeline (and for readability) your code must be properly formatted.
 
-### Frontend
+#### Frontend
 
 Frontend code is formatted using Prettier and must pass ESLint. Run `npm run format` in the `client` directory to format all frontend files and run a lint check.
 
-### Backend
+#### Backend
 
-Backend code is formatted using Black. With your Docker containers running, run `docker exec cradle_flask black .` to format all backend files.
+Backend code is formatted using Ruff. With your Docker containers running, run `docker exec cradle_flask ruff format .` to format all backend files.
 
-## Package Changes
+### Package Changes
 
 It's always best to avoid adding additional dependencies to the project if possible. Try to use existing packages rather than installing a new one.
 
-### Frontend
+#### Frontend
 
 - New packages can be installed in the frontend by running `npm install PACKAGE_NAME` in the `client` folder
 - If another team member has installed a new package, you'll need to run `npm install` (or `npm install --legacy-peer-deps`)
 
-### Backend
+#### Backend
 
 - New packages can be installed in the backend by running `docker exec cradle_flask pip install PACKAGE_NAME` with your Docker containers running
 - If another team member has installed a new package, you'll need to run `docker compose build` with your Docker containers off
 
-## Database Changes
+### Database Changes
 
 - If working on the backend, when you make database changes you'll need to create migrations: run `docker exec cradle_flask flask db migrate` to do so
 
 - If database changes have been made (by you or other team members), run `docker exec cradle_flask flask db upgrade` to upgrade your database schema
 
-## Reseeding your Database
+### Reseeding your Database
 
 If something has gone wrong and you're having issues with your database, you can always wipe it and reseed. To do so, with your Docker containers off:
 
@@ -278,7 +284,7 @@ If something has gone wrong and you're having issues with your database, you can
 6. Upgrade your database schema: `docker exec cradle_flask flask db upgrade`
 7. Reseed: `docker exec cradle_flask python manage.py seed` (see setup above for more seed options)
 
-## Useful Tools / Dev Software
+### Useful Tools / Dev Software
 
 - [Postman](https://www.getpostman.com/):
   - Used to test API endpoints and send HTTP requests with a GUI
@@ -286,13 +292,12 @@ If something has gone wrong and you're having issues with your database, you can
 - [React Developer Tools](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en)
   - allows you to observe what components make up the webpage/DOM
   - allows you to observe the live values of props and state in components
-
-* [Redux DevTools](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)
+- [Redux DevTools](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)
   - allows you to view and debug how data is being passed to and from Redux
 
-## Troubleshooting
+### Troubleshooting
 
-### SMS Relay crashing and not working
+#### SMS Relay crashing and not working
 
 There is a rare case where the database will not seed properly and sending a response from the Flask server back to the SMS relay app will crash the SMS relay app. First, verify what the problem is by accessing Docker container's logs. Then, if the problem is that there is no matching phone number, you may need to manually modify values inside the database.
 

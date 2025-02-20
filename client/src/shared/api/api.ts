@@ -40,9 +40,8 @@ export const axiosFetch = axios.create({
 export const getApiToken = async () => {
   let accessToken = localStorage.getItem(`accessToken`);
 
-  if (!accessToken) {
-    reduxStore.dispatch(logoutUser());
-    return null;
+  if (accessToken === null) {
+    throw new Error('No access token found!');
   }
 
   try {

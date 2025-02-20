@@ -130,6 +130,7 @@ export const getCurrentUser = (): ((
           payload: { currentUser },
         }),
         onError: ({ message }: ServerError): CurrentUserAction => {
+          console.error(`Error getting currentUser - ${message}`);
           dispatch(logoutUser());
           return {
             type: CurrentUserActionEnum.GET_CURRENT_USER_ERROR,

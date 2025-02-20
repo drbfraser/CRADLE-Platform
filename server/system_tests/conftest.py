@@ -5,7 +5,7 @@ import requests
 from flask import Flask
 from humps import decamelize
 
-from systemTests.mock import factory
+from system_tests.mock import factory
 
 
 @pytest.fixture
