@@ -3,7 +3,7 @@ import image from './img/splash_screen_4.png';
 import Stack from '@mui/material/Stack';
 import { Box, useMediaQuery } from '@mui/material';
 import { DASHBOARD_PADDING, TOP_BAR_HEIGHT } from 'src/shared/constants';
-import { Login } from './Login';
+import { LoginForm } from './LoginForm';
 
 import { selectLoggedIn } from 'src/redux/reducers/user/currentUser';
 import { useAppSelector } from 'src/shared/hooks';
@@ -25,7 +25,7 @@ export const LoginPage: React.FC = () => {
         maxHeight: '100%',
       }}>
       <LoginSplashImage />
-      <Login />
+      <LoginForm />
     </Stack>
   ) : (
     <Navigate to={'/referrals'} replace />

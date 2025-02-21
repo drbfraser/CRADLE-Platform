@@ -68,7 +68,7 @@ export const PatientsPage = () => {
           <PrimaryButton
             component={Link}
             to={'/patients/new'}
-            data-testid="new patient button">
+            data-testid="new-patient-button">
             New Patient
           </PrimaryButton>
         </Box>

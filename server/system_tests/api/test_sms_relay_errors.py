@@ -3,7 +3,7 @@ import json
 
 from humps import decamelize
 
-import systemTests.api.test_sms_relay as sms_relay_test
+import system_tests.api.test_sms_relay as sms_relay_test
 from api.resources import sms_relay
 from common.print_utils import pretty_print
 from data import crud

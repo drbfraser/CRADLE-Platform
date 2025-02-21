@@ -40,9 +40,8 @@ export const axiosFetch = axios.create({
 export const getApiToken = async () => {
   let accessToken = localStorage.getItem(`accessToken`);
 
-  if (!accessToken) {
-    reduxStore.dispatch(logoutUser());
-    return null;
+  if (accessToken === null) {
+    throw new Error('No access token found!');
   }
 
   try {
@@ -190,7 +189,7 @@ export const getAllFormTemplatesAsync = async (includeArchived: boolean) => {
 
 export const getFormTemplateAsync = async (formTemplateId: string) => {
   const response = await axiosFetch.get(
-    `${EndpointEnum.FORM_TEMPLATES}/${formTemplateId}`
+    `${EndpointEnum.FORM_TEMPLATES}/blank/${formTemplateId}`
   );
   return response.data;
 };

@@ -14,7 +14,7 @@ from validation import CradleBaseModel
 @app.after_request
 def _log_request_details(response):
     """
-    middleware function for logging changes made by users
+    Middleware function for logging changes made by users
     """
     try:
         try:
