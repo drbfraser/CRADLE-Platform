@@ -7,6 +7,7 @@ import requests
 from humps import decamelize
 
 from common import phone_number_utils
+from common import user_utils
 from common.print_utils import pretty_print
 from data import crud
 from enums import TrafficLightEnum
@@ -21,7 +22,7 @@ from models import (
 from service import compressor, encryptor
 
 sms_relay_endpoint = "/api/sms_relay"
-
+USER_ID = 1
 
 def test_create_patient_with_sms_relay(database, api_post, auth_header):
     patient_id = "5390160146141"
@@ -29,10 +30,12 @@ def test_create_patient_with_sms_relay(database, api_post, auth_header):
         "65acfe28-b0d6-4a63-a484-eceb3277fb4e",
         "90293637-d763-494a-8cc7-85a88d023f3e",
     ]
-
+    
     patient_json = __make_patient(patient_id, reading_ids)
+    request_number = user_utils.get_expected_sms_relay_request_number(USER_ID)
+
     request_body = make_sms_relay_json(
-        request_number=1,
+        request_number=request_number,
         method="POST",
         endpoint="api/patients",
         headers=auth_header,
@@ -68,8 +71,10 @@ def test_create_referral_with_sms_relay(
     referral_id = "65acfe28-b0d6-4a63-a484-eceb3277fb4e"
     referral_json = __make_referral(referral_id, patient_id)
 
+    request_number = user_utils.get_expected_sms_relay_request_number(USER_ID)
+
     request_body = make_sms_relay_json(
-        2,
+        request_number,
         method="POST",
         endpoint="api/referrals",
         headers=auth_header,
@@ -104,8 +109,10 @@ def test_create_readings_with_sms_relay(
     reading_id = "65acfe28-b0d6-4a63-a484-eceb3277fb4e"
     referral_json = __make_reading(reading_id, patient_id)
 
+    request_number = user_utils.get_expected_sms_relay_request_number(USER_ID)
+
     request_body = make_sms_relay_json(
-        request_number=3,
+        request_number=request_number,
         method="POST",
         endpoint="api/readings",
         headers=auth_header,
@@ -143,9 +150,10 @@ def test_update_patient_name_with_sms_relay(
     patient = decamelize(response.json())
 
     patient["name"] = new_patient_name
+    request_number = user_utils.get_expected_sms_relay_request_number(USER_ID)
 
     request_body = make_sms_relay_json(
-        request_number=4,
+        request_number=request_number,
         method="PUT",
         endpoint=f"api/patients/{patient_id}/info",
         headers=auth_header,
@@ -176,9 +184,10 @@ def test_create_assessments_with_sms_relay(
     create_patient()
     patient_id = patient_info["id"]
     assessment_json = __make_assessment(patient_id)
+    request_number = user_utils.get_expected_sms_relay_request_number(USER_ID)
 
     request_body = make_sms_relay_json(
-        request_number=5,
+        request_number=request_number,
         method="POST",
         endpoint="api/assessments",
         headers=auth_header,
@@ -223,9 +232,10 @@ def test_update_assessments_with_sms_relay(
 
     new_instructions = "II"
     assessment_json["follow_up_instructions"] = new_instructions
+    request_number = user_utils.get_expected_sms_relay_request_number(USER_ID)
 
     request_body = make_sms_relay_json(
-        request_number=6,
+        request_number=request_number,
         method="PUT",
         endpoint=f"/api/assessments/{assessment_id}",
         headers=auth_header,
