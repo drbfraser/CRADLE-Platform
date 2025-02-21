@@ -6,8 +6,7 @@ from typing import List, Optional
 import requests
 from humps import decamelize
 
-from common import phone_number_utils
-from common import user_utils
+from common import phone_number_utils, user_utils
 from common.print_utils import pretty_print
 from data import crud
 from enums import TrafficLightEnum
@@ -24,13 +23,14 @@ from service import compressor, encryptor
 sms_relay_endpoint = "/api/sms_relay"
 USER_ID = 1
 
+
 def test_create_patient_with_sms_relay(database, api_post, auth_header):
     patient_id = "5390160146141"
     reading_ids = [
         "65acfe28-b0d6-4a63-a484-eceb3277fb4e",
         "90293637-d763-494a-8cc7-85a88d023f3e",
     ]
-    
+
     patient_json = __make_patient(patient_id, reading_ids)
     request_number = user_utils.get_expected_sms_relay_request_number(USER_ID)
 
