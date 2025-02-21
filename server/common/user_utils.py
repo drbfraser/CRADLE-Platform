@@ -554,10 +554,7 @@ def generate_new_sms_secret_key():
 
 
 def create_new_sms_relay_request_number_orm():
-    expected_request_number = 0
-    sms_relay_request_number_orm = SmsRelayRequestNumberOrm(
-        expected_request_number=expected_request_number
-    )
+    sms_relay_request_number_orm = SmsRelayRequestNumberOrm(expected_request_number=0)
     return sms_relay_request_number_orm
 
 

@@ -114,23 +114,6 @@ def _create_error_response(
     return response
 
 
-def _validate_request_number(request_number: int, expected_request_number: int) -> bool:
-    """
-    Checks that the request number received from SMS relay is valid and matches the expected request number.
-    Each request from a user must have a request number exactly one greater than the previous valid request number for that user (so that old requests are ignored).
-    If the request number reaches the maximum request number representable, it wraps around to 0.
-
-    :param request_number: Decrypted request number from HTTP request sent through SMS relay from Mobile.
-    :param expected_request_number: Expected request number server expects.
-
-    :return: Returns True if request number matches the expected request number, otherwise returns False.
-    """
-    if request_number != expected_request_number:
-        return False
-
-    return True
-
-
 _iv_size = 32
 
 # /api/sms_relay
@@ -194,9 +177,9 @@ def relay_sms_request(body: SmsRelayRequestBody):
         print("No expected request number found for user")
         return abort(500, description="Internal Server Error")
 
-    # Checks if request number is valid
+    # Checks if request number is valid (must be exactly one greater than the previous valid request number)
     request_number = decrypted_data.request_number
-    if not _validate_request_number(request_number, expected_request_number):
+    if request_number != expected_request_number:
         request_number_error_body = {
             "message": "Request number provided does not match the expected value.",
             "expected_request_number": expected_request_number,
