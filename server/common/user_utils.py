@@ -251,7 +251,7 @@ def register_user(
         user_orm.sms_secret_keys.append(sms_secret_key_orm)
         # Initiate expected SMS relay request number for user.
         sms_relay_request_number_orm = create_new_sms_relay_request_number_orm()
-        user_orm.sms_relay_request_numbers.append(sms_relay_request_number_orm)
+        user_orm.sms_relay_request_number = sms_relay_request_number_orm
         db.session.add(user_orm)
         db.session.commit()
 
@@ -554,34 +554,24 @@ def generate_new_sms_secret_key():
 
 
 def create_new_sms_relay_request_number_orm():
-    last_received_request_number = 0
+    expected_request_number = 0
     sms_relay_request_number_orm = SmsRelayRequestNumberOrm(
-        last_received_request_number=last_received_request_number
+        expected_request_number=expected_request_number
     )
     return sms_relay_request_number_orm
 
 
-def get_last_received_sms_relay_request_number(user_id):
-    request_number_orm = crud.read(SmsRelayRequestNumberOrm, user_id=user_id)
-    last_received_request_number: int = request_number_orm.last_received_request_number
-    return last_received_request_number
-
-
 def get_expected_sms_relay_request_number(user_id):
-    last_received_request_number = get_last_received_sms_relay_request_number(user_id)
-    return last_received_request_number + 1
+    request_number_orm = crud.read(SmsRelayRequestNumberOrm, user_id=user_id)
+    expected_request_number: int = request_number_orm.expected_request_number
+    return expected_request_number
 
 
-def increment_sms_relay_last_received_request_number(user_id):
-    last_received_request_number = get_last_received_sms_relay_request_number(user_id)
+def increment_sms_relay_expected_request_number(user_id):
+    last_request_number = get_expected_sms_relay_request_number(user_id)
 
-    if last_received_request_number == MAX_SMS_RELAY_REQUEST_NUMBER:
-        updated_request_number = 0
-    else:
-        updated_request_number = last_received_request_number + 1
+    updated_request_number = (last_request_number + 1) % MAX_SMS_RELAY_REQUEST_NUMBER
 
-    new_request_number = {
-        "last_received_request_number": updated_request_number,
-    }
+    new_request_number = {"expected_request_number": updated_request_number}
 
     crud.update(SmsRelayRequestNumberOrm, new_request_number, user_id=user_id)
