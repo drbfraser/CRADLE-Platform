@@ -195,7 +195,7 @@ def test_sms_relay_invalid_request_number(api_post):
 
     response_body = decamelize(response.json())
     pretty_print(response_body)
-    assert response.status_code == 409
+    assert response.status_code == 425
 
 
 def test_sms_relay_invalid_method(api_post):
