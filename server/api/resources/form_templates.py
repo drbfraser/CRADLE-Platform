@@ -5,6 +5,7 @@ from flask import abort, make_response
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 from pydantic import Field, ValidationError
+from common.formUtil import filter_blank_questions_dict, filter_blank_questions_orm
 
 import data
 from api import util
@@ -159,6 +160,7 @@ def get_form_template_versions(path: FormTemplateIdPath):
     if form_template is None:
         return abort(404, description=f"No form with ID: {path.form_template_id}")
 
+    form_template = filter_blank_questions_orm(form_template)
     lang_list = crud.read_form_template_language_versions(form_template)
 
     return {"lang_versions": lang_list}, 200
@@ -217,12 +219,15 @@ def get_form_template_language_version(
     version = query.lang
     if version is None:
         # admin user get template of full versions
-        return marshal.marshal(
+        blank_template = marshal.marshal(
             form_template,
             shallow=False,
             if_include_versions=True,
         )
 
+        blank_template = filter_blank_questions_dict(blank_template)
+        return blank_template
+    
     available_versions = crud.read_form_template_language_versions(
         form_template,
         refresh=True,
@@ -234,8 +239,9 @@ def get_form_template_language_version(
             description=f"FormTemplate(id={path.form_template_id}) doesn't have language version = {version}",
         )
 
-    return marshal.marshal_template_to_single_version(form_template, version)
-
+    blank_template = marshal.marshal_template_to_single_version(form_template, version)
+    blank_template = filter_blank_questions_dict(blank_template)
+    return blank_template, 200
 
 class ArchiveFormTemplateBody(CradleBaseModel):
     archived: bool = Field(
@@ -286,11 +292,7 @@ def get_blank_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuer
         )
 
         # filter to only include question entities that don't have an answer
-        blank_template["questions"] = [
-            question
-            for question in blank_template["questions"]
-            if question.get("is_blank", True)
-        ]
+        blank_template = filter_blank_questions_dict(blank_template)
 
         blank_template = serialize.serialize_blank_form_template(blank_template)
         return blank_template
@@ -310,6 +312,9 @@ def get_blank_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuer
         form_template,
         version,
     )
+
+    blank_template = filter_blank_questions_dict(blank_template)
+
     blank_template = serialize.serialize_blank_form_template(blank_template)
 
     return blank_template, 200
