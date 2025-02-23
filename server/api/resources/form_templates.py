@@ -5,7 +5,6 @@ from flask import abort, make_response
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 from pydantic import Field, ValidationError
-from common.formUtil import filter_blank_questions_dict, filter_blank_questions_orm
 
 import data
 from api import util
@@ -13,6 +12,7 @@ from api.decorator import roles_required
 from common.api_utils import (
     FormTemplateIdPath,
 )
+from common.formUtil import filter_blank_questions_dict, filter_blank_questions_orm
 from data import crud, marshal
 from enums import ContentTypeEnum, RoleEnum
 from models import FormClassificationOrm, FormTemplateOrm
@@ -160,8 +160,8 @@ def get_form_template_versions(path: FormTemplateIdPath):
     if form_template is None:
         return abort(404, description=f"No form with ID: {path.form_template_id}")
 
-    form_template = filter_blank_questions_orm(form_template)
-    lang_list = crud.read_form_template_language_versions(form_template)
+    blank_template = filter_blank_questions_orm(form_template)
+    lang_list = crud.read_form_template_language_versions(blank_template)
 
     return {"lang_versions": lang_list}, 200
 
@@ -227,7 +227,7 @@ def get_form_template_language_version(
 
         blank_template = filter_blank_questions_dict(blank_template)
         return blank_template
-    
+
     available_versions = crud.read_form_template_language_versions(
         form_template,
         refresh=True,
@@ -242,6 +242,7 @@ def get_form_template_language_version(
     blank_template = marshal.marshal_template_to_single_version(form_template, version)
     blank_template = filter_blank_questions_dict(blank_template)
     return blank_template, 200
+
 
 class ArchiveFormTemplateBody(CradleBaseModel):
     archived: bool = Field(
@@ -295,10 +296,13 @@ def get_blank_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuer
         blank_template = filter_blank_questions_dict(blank_template)
 
         blank_template = serialize.serialize_blank_form_template(blank_template)
+        print(
+            "Paul debug, blank_template question type", blank_template["questions"][0]
+        )
         return blank_template
 
     available_versions = crud.read_form_template_language_versions(
-        form_template,
+        filter_blank_questions_orm(form_template),
         refresh=True,
     )
     if version not in available_versions:
