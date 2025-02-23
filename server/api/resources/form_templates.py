@@ -296,9 +296,6 @@ def get_blank_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuer
         blank_template = filter_blank_questions_dict(blank_template)
 
         blank_template = serialize.serialize_blank_form_template(blank_template)
-        print(
-            "Paul debug, blank_template question type", blank_template["questions"][0]
-        )
         return blank_template
 
     available_versions = crud.read_form_template_language_versions(
