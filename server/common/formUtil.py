@@ -1,9 +1,9 @@
 def filter_blank_questions_dict(form_template):
-    filteredQuestions = []
-    for question in form_template["questions"]:
-        if question.get("is_blank", False) and question.get("answers") == {}:
-            filteredQuestions.append(question)
-    form_template["questions"] = filteredQuestions
+    form_template["questions"] = [
+        question
+        for question in form_template["questions"]
+        if question.get("is_blank", False) and question.get("answers") == {}
+    ]
     return form_template
 
 

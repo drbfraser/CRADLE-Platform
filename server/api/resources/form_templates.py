@@ -229,7 +229,7 @@ def get_form_template_language_version(
         return blank_template
 
     available_versions = crud.read_form_template_language_versions(
-        form_template,
+        filter_blank_questions_orm(form_template),
         refresh=True,
     )
 
