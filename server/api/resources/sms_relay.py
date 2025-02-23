@@ -116,7 +116,6 @@ def _create_error_response(
 
 _iv_size = 32
 
-
 # /api/sms_relay
 api_sms_relay = APIBlueprint(
     name="sms_relay",
@@ -170,22 +169,25 @@ def relay_sms_request(body: SmsRelayRequestBody):
     try:
         decrypted_data = SmsRelayDecryptedBody(**json_dict_data)
     except ValidationError as e:
-        return _create_error_response(
-            422,
-            invalid_json.format(error=str(e)),
-            encrypted_data[0:_iv_size],
-            user_secret_key,
-        )
+        return abort(422, description=invalid_json.format(error=str(e)))
 
+    # Gets expected user request number
+    expected_request_number = user_utils.get_expected_sms_relay_request_number(user.id)
+    if expected_request_number is None:
+        print("No expected request number found for user")
+        return abort(500, description="Internal Server Error")
+
+    # Checks if request number is valid (must be exactly one greater than the previous valid request number)
     request_number = decrypted_data.request_number
-    if (
-        not isinstance(request_number, int)
-        or request_number < 0
-        or request_number > 999999
-    ):
+    if request_number != expected_request_number:
+        request_number_error_body = {
+            "message": "Request number provided does not match the expected value.",
+            "expected_request_number": expected_request_number,
+        }
+
         return _create_error_response(
-            400,
-            invalid_req_number.format(error=error_req_range),
+            425,
+            str(request_number_error_body),
             encrypted_data[0:_iv_size],
             user_secret_key,
         )
@@ -202,6 +204,9 @@ def relay_sms_request(body: SmsRelayRequestBody):
     method = str(decrypted_data.method)
     endpoint = decrypted_data.endpoint
     response = _send_request_to_endpoint(method, endpoint, headers, json_body)
+
+    # Update last received request number from user
+    user_utils.increment_sms_relay_expected_request_number(user.id)
 
     # Creating Response
     response_code = response.status_code
