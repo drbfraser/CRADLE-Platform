@@ -12,7 +12,7 @@ from api.decorator import roles_required
 from common.api_utils import (
     FormTemplateIdPath,
 )
-from common.formUtil import filter_blank_questions_dict, filter_blank_questions_orm
+from common.form_utils import filter_blank_questions_dict, filter_blank_questions_orm
 from data import crud, marshal
 from enums import ContentTypeEnum, RoleEnum
 from models import FormClassificationOrm, FormTemplateOrm
@@ -299,7 +299,7 @@ def get_blank_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuer
         return blank_template
 
     available_versions = crud.read_form_template_language_versions(
-        filter_blank_questions_orm(form_template),
+        form_template,
         refresh=True,
     )
     if version not in available_versions:
