@@ -260,7 +260,7 @@ export const ManageRelayApp = () => {
             <Box>
               <Button
                 color="primary"
-                aria-label="upload androud package archive"
+                aria-label="upload android package archive"
                 component="label"
                 endIcon={<UploadFile />}>
                 <Input

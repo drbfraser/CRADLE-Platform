@@ -19,6 +19,9 @@ import { RefreshDialog } from './RefreshDialog';
 import { useSecretKeyQuery } from 'src/shared/queries';
 
 export const ReferralsPage = () => {
+  const { data: user } = useAppSelector(selectCurrentUser);
+  const userId = user?.id;
+
   const [expiredMessage, setExpiredMessage] = useState<boolean>(false);
   const [search, setSearch] = useState('');
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState<boolean>(false);
@@ -33,12 +36,9 @@ export const ReferralsPage = () => {
   const debounceSetSearch = debounce(setSearch, 500);
   const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
 
-  const { data: user } = useAppSelector(selectCurrentUser);
-  const userId = user?.id;
-  const dispatch = useAppDispatch();
-
   const { data: secretKeyQueryData } = useSecretKeyQuery(userId);
 
+  const dispatch = useAppDispatch();
   useEffect(() => {
     sessionStorage.setItem('lastRefreshTime', '0');
     if (localStorage.getItem('refreshInterval') === null) {
@@ -69,6 +69,7 @@ export const ReferralsPage = () => {
         open={expiredMessage}
         onClose={() => setExpiredMessage(false)}
       />
+
       <DashboardPaper>
         <Box
           sx={{

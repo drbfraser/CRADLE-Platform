@@ -29,7 +29,7 @@ import {
 import { PersonalInfoForm } from './personalInfo';
 import { PregnancyInfoForm } from './pregnancyInfo';
 import PatientFormHeader from './PatientFormHeader';
-import { processPregnancyValues } from './pregnancyInfo/utils';
+import { getPregnancyValues } from './pregnancyInfo/utils';
 
 const STEPS = [
   {
@@ -75,7 +75,7 @@ export const NewPatientForm = () => {
 
       const isPregnant = Boolean(values[PatientField.isPregnant]);
       if (isPregnant) {
-        const pregnancyValues = processPregnancyValues(values);
+        const pregnancyValues = getPregnancyValues(values);
         await addPregnancyInfo.mutateAsync({
           patientId,
           startDate: pregnancyValues.startDate,

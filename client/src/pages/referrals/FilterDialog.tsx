@@ -260,13 +260,13 @@ export const FilterDialog = ({
               />
               <Box m={1.5} display="flex" flexWrap="wrap">
                 {selectedHealthFacilities.map((facility, index) => (
-                  <Box mx={0.5} key={index}>
-                    <Chip
-                      label={facility}
-                      onDelete={() => handleDeleteFacilityChip(index)}
-                      color="primary"
-                    />
-                  </Box>
+                  <Chip
+                    key={index}
+                    sx={{ mx: 0.5 }}
+                    label={facility}
+                    onDelete={() => handleDeleteFacilityChip(index)}
+                    color="primary"
+                  />
                 ))}
               </Box>
             </Grid>

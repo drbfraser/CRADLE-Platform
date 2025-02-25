@@ -6,7 +6,7 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { initialState, PatientState } from '../state';
 import { useAddPregnancyMutation } from '../mutations';
 import { pregnancyInfoValidationSchema } from './pregnancyInfo/validation';
-import { processPregnancyValues } from './pregnancyInfo/utils';
+import { getPregnancyValues } from './pregnancyInfo/utils';
 import PatientFormHeader from './PatientFormHeader';
 import { PregnancyInfoForm } from './pregnancyInfo';
 
@@ -21,7 +21,7 @@ const NewPregnancyForm = () => {
   const addNewPregnancy = useAddPregnancyMutation();
 
   const handleSubmit = (values: PatientState) => {
-    const submitValues = { patientId, ...processPregnancyValues(values) };
+    const submitValues = { patientId, ...getPregnancyValues(values) };
     addNewPregnancy.mutate(submitValues, {
       onSuccess: () => navigate(`/patients/${patientId}`),
     });
