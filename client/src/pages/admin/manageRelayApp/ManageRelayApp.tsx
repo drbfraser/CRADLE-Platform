@@ -58,9 +58,18 @@ const ERROR_MESSAGES: { [name: number]: string } = {
 };
 
 export const ManageRelayApp = () => {
-  const [hasFile, setHasFile] = useState(false);
-  const [fileSize, setFileSize] = useState<string>();
-  const [fileLastModified, setFileLastModified] = useState<string>();
+  const [
+    hasFile,
+    // setHasFile
+  ] = useState(false);
+  const [
+    fileSize,
+    // setFileSize
+  ] = useState<string>();
+  const [
+    fileLastModified,
+    // setFileLastModified
+  ] = useState<string>();
   const [selectedFile, setSelectedFile] = useState<File>();
   const [numFileUploaded, setNumFileUploaded] = useState(0);
 
