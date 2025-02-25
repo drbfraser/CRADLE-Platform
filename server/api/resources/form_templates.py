@@ -12,7 +12,6 @@ from api.decorator import roles_required
 from common.api_utils import (
     FormTemplateIdPath,
 )
-from common.form_utils import filter_blank_questions_dict, filter_blank_questions_orm
 from data import crud, marshal
 from enums import ContentTypeEnum, RoleEnum
 from models import FormClassificationOrm, FormTemplateOrm
@@ -160,8 +159,7 @@ def get_form_template_versions(path: FormTemplateIdPath):
     if form_template is None:
         return abort(404, description=f"No form with ID: {path.form_template_id}")
 
-    blank_template = filter_blank_questions_orm(form_template)
-    lang_list = crud.read_form_template_language_versions(blank_template)
+    lang_list = crud.read_form_template_language_versions(form_template)
 
     return {"lang_versions": lang_list}, 200
 
@@ -225,11 +223,10 @@ def get_form_template_language_version(
             if_include_versions=True,
         )
 
-        blank_template = filter_blank_questions_dict(blank_template)
         return blank_template
 
     available_versions = crud.read_form_template_language_versions(
-        filter_blank_questions_orm(form_template),
+        form_template,
         refresh=True,
     )
 
@@ -240,7 +237,6 @@ def get_form_template_language_version(
         )
 
     blank_template = marshal.marshal_template_to_single_version(form_template, version)
-    blank_template = filter_blank_questions_dict(blank_template)
     return blank_template, 200
 
 
@@ -292,9 +288,6 @@ def get_blank_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuer
             if_include_versions=True,
         )
 
-        # filter to only include question entities that don't have an answer
-        blank_template = filter_blank_questions_dict(blank_template)
-
         blank_template = serialize.serialize_blank_form_template(blank_template)
         return blank_template
 
@@ -313,8 +306,6 @@ def get_blank_form_template(path: FormTemplateIdPath, query: GetFormTemplateQuer
         form_template,
         version,
     )
-
-    blank_template = filter_blank_questions_dict(blank_template)
 
     blank_template = serialize.serialize_blank_form_template(blank_template)
 

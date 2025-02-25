@@ -18,6 +18,8 @@ from models import (
     UrineTestOrm,
 )
 
+from common.form_utils import filter_blank_questions_dict
+
 
 def serialize_patient_list(patients: List[Any]) -> list[dict]:
     return [
@@ -143,7 +145,7 @@ def serialize_blank_form_template(form_template: dict) -> dict:
     del form_template["date_created"]
     del form_template["version"]
 
-    return form_template
+    return filter_blank_questions_dict(form_template)
 
 
 def deserialize_patient(

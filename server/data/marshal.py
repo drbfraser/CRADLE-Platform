@@ -21,6 +21,7 @@ from models import (
     SmsSecretKeyOrm,
 )
 from service import invariant
+from common.form_utils import filter_blank_questions_orm
 
 
 def marshal(obj: Any, shallow=False, if_include_versions=False) -> dict:
@@ -237,6 +238,8 @@ def __marshal_form_template(
     shallow: bool = False,
     if_include_versions: bool = False,
 ) -> dict:
+    f = filter_blank_questions_orm(f)
+
     d = vars(f).copy()
     __pre_process(d)
 
@@ -253,6 +256,8 @@ def __marshal_form_template(
 
 
 def marshal_template_to_single_version(f: FormTemplateOrm, version: str) -> dict:
+    f = filter_blank_questions_orm(f)
+
     d = vars(f).copy()
     __pre_process(d)
 
