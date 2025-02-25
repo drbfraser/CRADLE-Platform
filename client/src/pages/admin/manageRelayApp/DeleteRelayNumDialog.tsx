@@ -40,7 +40,9 @@ const DeleteRelayNumDialog = ({ open, onClose, relayNumToDelete }: IProps) => {
         open={deleteRelayNum.isSuccess}
         onClose={() => deleteRelayNum.reset()}
       />
-      {deleteRelayNum.isError && <APIErrorToast />}
+      {deleteRelayNum.isError && (
+        <APIErrorToast onClose={() => deleteRelayNum.reset()} />
+      )}
 
       <Dialog open={open} onClose={onClose}>
         <DialogTitle>Delete Relay Number</DialogTitle>
