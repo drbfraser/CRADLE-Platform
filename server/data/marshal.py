@@ -4,6 +4,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Type
 
 from common import commonUtil
+from common.form_utils import filter_blank_questions_orm
 from data.crud import M
 from models import (
     AssessmentOrm,
@@ -21,7 +22,6 @@ from models import (
     SmsSecretKeyOrm,
 )
 from service import invariant
-from common.form_utils import filter_blank_questions_orm
 
 
 def marshal(obj: Any, shallow=False, if_include_versions=False) -> dict:

@@ -7,6 +7,7 @@ from typing import Any, List, Optional, Tuple, Union
 
 from marshmallow import ValidationError
 
+from common.form_utils import filter_blank_questions_dict
 from data import marshal
 from models import (
     AssessmentOrm,
@@ -17,8 +18,6 @@ from models import (
     ReferralOrm,
     UrineTestOrm,
 )
-
-from common.form_utils import filter_blank_questions_dict
 
 
 def serialize_patient_list(patients: List[Any]) -> list[dict]:
