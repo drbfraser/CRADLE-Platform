@@ -7,7 +7,7 @@ from typing import Any, List, Optional, Tuple, Union
 
 from marshmallow import ValidationError
 
-from common.form_utils import filter_blank_questions_dict
+from common.form_utils import filter_template_questions_dict
 from data import marshal
 from models import (
     AssessmentOrm,
@@ -144,7 +144,7 @@ def serialize_blank_form_template(form_template: dict) -> dict:
     del form_template["date_created"]
     del form_template["version"]
 
-    return filter_blank_questions_dict(form_template)
+    return filter_template_questions_dict(form_template)
 
 
 def deserialize_patient(

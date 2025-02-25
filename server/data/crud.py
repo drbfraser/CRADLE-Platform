@@ -8,7 +8,7 @@ from sqlalchemy.orm import Query, aliased
 from sqlalchemy.sql.expression import and_, asc, desc, literal, null, text
 from sqlalchemy.sql.functions import coalesce
 
-from common.form_utils import filter_blank_questions_orm
+from common.form_utils import filter_template_questions_orm
 from data import db_session
 from enums import RoleEnum, TrafficLightEnum
 from models import (
@@ -875,7 +875,7 @@ def read_form_template_language_versions(
 
     :return: A list of lang version texts
     """
-    model = filter_blank_questions_orm(model)
+    model = filter_template_questions_orm(model)
     lang_versions = model.questions[0].lang_versions
     if refresh:
         db_session.refresh(model)
