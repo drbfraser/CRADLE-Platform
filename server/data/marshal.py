@@ -4,6 +4,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Type
 
 from common import commonUtil
+from common.form_utils import filter_template_questions_orm
 from data.crud import M
 from models import (
     AssessmentOrm,
@@ -237,12 +238,16 @@ def __marshal_form_template(
     shallow: bool = False,
     if_include_versions: bool = False,
 ) -> dict:
+    f = filter_template_questions_orm(f)
+
     d = vars(f).copy()
     __pre_process(d)
 
     d["classification"] = __marshal_form_classification(f.classification)
 
-    if not shallow:
+    if shallow:
+        del d["questions"]
+    else:
         d["questions"] = [
             __marshal_question(q, if_include_versions) for q in f.questions
         ]
@@ -253,6 +258,8 @@ def __marshal_form_template(
 
 
 def marshal_template_to_single_version(f: FormTemplateOrm, version: str) -> dict:
+    f = filter_template_questions_orm(f)
+
     d = vars(f).copy()
     __pre_process(d)
 

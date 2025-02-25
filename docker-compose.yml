@@ -26,7 +26,7 @@ services:
             COGNITO_SECRETS_FILE: /run/secrets/.env.cognito_secrets
         secrets:
             - .env.cognito_secrets
-        depends_on: 
+        depends_on:
             mysql:
                 condition: service_healthy
     mysql:
