@@ -247,8 +247,7 @@ def __marshal_form_template(
 
     if shallow:
         del d["questions"]
-
-    if not shallow:
+    else:
         d["questions"] = [
             __marshal_question(q, if_include_versions) for q in f.questions
         ]
