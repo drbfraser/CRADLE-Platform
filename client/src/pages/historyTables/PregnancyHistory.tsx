@@ -79,9 +79,7 @@ export const PregnancyHistory = () => {
           Icon: CreateIcon,
           onClick: () => {
             if (pregnancy && patientId) {
-              navigate(
-                createEditPregnancyRoute(patientId, pregnancy.id.toString())
-              );
+              navigate(createEditPregnancyRoute(patientId, pregnancy.id));
             }
           },
         },
