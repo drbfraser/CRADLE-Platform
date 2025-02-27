@@ -31,6 +31,7 @@ import {
 import { getNumOfWeeksNumeric, getYearToDisplay } from 'src/shared/utils';
 import { getPatientPregnancySummaryAsync } from 'src/shared/api/api';
 import { RedirectButton } from 'src/shared/components/Button';
+import { createEditPregnancyRoute } from 'src/app/routes/utils/PatientRoutes';
 
 const HEADER_SX: SxProps = {
   display: 'flex',
@@ -79,7 +80,7 @@ export const PregnancyInfo = ({ patientId, patientName }: Props) => {
     });
 
   const handleClick = (pregnancyId: string) =>
-    navigate(`/patients/${patientId}/edit/pregnancyInfo/${pregnancyId}`);
+    navigate(createEditPregnancyRoute(patientId, pregnancyId));
 
   const CurrentPregnancyStatus = () => {
     const status = pregnancyHistory!.isPregnant ? 'Yes' : 'No';
@@ -116,9 +117,10 @@ export const PregnancyInfo = ({ patientId, patientName }: Props) => {
           <RedirectButton
             url={
               pregnancyHistory!.isPregnant
-                ? `/patients/${patientId}/edit/pregnancyInfo/${
+                ? createEditPregnancyRoute(
+                    patientId,
                     pregnancyHistory!.pregnancyId
-                  }`
+                  )
                 : `/pregnancies/new/${patientId}`
             }
             size="small">

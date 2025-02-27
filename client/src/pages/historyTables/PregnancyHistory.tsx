@@ -37,6 +37,7 @@ import {
   DataTable,
 } from 'src/shared/components/DataTable/DataTable';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
+import { createEditPregnancyRoute } from 'src/app/routes/utils/PatientRoutes';
 
 const UNIT_OPTIONS = Object.values(GestationalAgeUnitEnum).map((unit) => ({
   key: unit,
@@ -79,7 +80,7 @@ export const PregnancyHistory = () => {
           onClick: () => {
             if (pregnancy && patientId) {
               navigate(
-                `/patients/${patientId}/edit/pregnancyInfo/${pregnancy.id}`
+                createEditPregnancyRoute(patientId, pregnancy.id.toString())
               );
             }
           },

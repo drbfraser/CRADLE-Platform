@@ -24,7 +24,11 @@ import { getPatientPregnancySummaryAsync } from 'src/shared/api/api';
 import { RedirectButton } from 'src/shared/components/Button';
 import CurrentPregnancy from './CurrentPregnancy';
 import * as Styled from './styled';
-import { createNewPregnancyURL, UNIT_OPTIONS } from './utils';
+import { UNIT_OPTIONS } from './utils';
+import {
+  createEditPregnancyRoute,
+  createNewPregnancyRoute,
+} from 'src/app/routes/utils/PatientRoutes';
 
 type Props = {
   patientId: string;
@@ -53,7 +57,7 @@ const PregnancyStats = ({ patientId }: Props) => {
   }
 
   const handleClick = (pregnancyId: string) =>
-    navigate(`/patients/${patientId}/edit/pregnancyInfo/${pregnancyId}`);
+    navigate(createEditPregnancyRoute(patientId, pregnancyId));
 
   return (
     <>
@@ -69,7 +73,7 @@ const PregnancyStats = ({ patientId }: Props) => {
           <Typography variant={'h6'} component={'h6'} fontWeight={'bold'}>
             Previous Obstetric History
           </Typography>
-          <RedirectButton url={createNewPregnancyURL(patientId)} size="small">
+          <RedirectButton url={createNewPregnancyRoute(patientId)} size="small">
             Add
           </RedirectButton>
         </Styled.Header>

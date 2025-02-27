@@ -15,11 +15,11 @@ import { gestationalAgeUnitFormatters } from 'src/shared/constants';
 import { getNumOfWeeksNumeric } from 'src/shared/utils';
 import { RedirectButton } from 'src/shared/components/Button';
 import * as Styled from './styled';
+import { UNIT_OPTIONS } from './utils';
 import {
-  createEditPregnancyURL,
-  createNewPregnancyURL,
-  UNIT_OPTIONS,
-} from './utils';
+  createEditPregnancyRoute,
+  createNewPregnancyRoute,
+} from 'src/app/routes/utils/PatientRoutes';
 
 type Props = {
   patientId: string;
@@ -65,8 +65,8 @@ const CurrentPregnancy = ({ patientId, pregnancyInfo }: Props) => {
         <RedirectButton
           url={
             pregnancyInfo.isPregnant
-              ? createEditPregnancyURL(patientId, pregnancyInfo.pregnancyId)
-              : createNewPregnancyURL(patientId)
+              ? createEditPregnancyRoute(patientId, pregnancyInfo.pregnancyId)
+              : createNewPregnancyRoute(patientId)
           }
           size="small">
           {pregnancyInfo.isPregnant ? 'Edit/Close' : 'Add'}
