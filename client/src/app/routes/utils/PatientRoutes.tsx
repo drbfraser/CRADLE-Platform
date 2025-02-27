@@ -10,11 +10,11 @@ import NewPregnancyForm from 'src/pages/patientForm/components/NewPregnancyForm'
 import { PatientsPage } from 'src/pages/patients';
 
 export const createEditPregnancyRoute = (
-  patientId: string,
-  pregnancyId: string
+  patientId: string | number,
+  pregnancyId: string | number
 ) => `/patients/${patientId}/edit/pregnancy/${pregnancyId}`;
 
-export const createNewPregnancyRoute = (patientId: string) =>
+export const createNewPregnancyRoute = (patientId: string | number) =>
   `/patients/${patientId}/new/pregnancy`;
 
 const PatientFormRoutes = () => {
