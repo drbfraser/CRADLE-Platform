@@ -15,10 +15,8 @@ export const App: React.FC = () => {
       <Box
         id={'rootContainer'}
         sx={{
-          height: '100vh',
-          width: '100%',
-          maxHeight: '100vh',
-          maxWidth: '100vw',
+          height: 'fit-content',
+          width: '100vw',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'start',
