@@ -1,20 +1,21 @@
+import { useCallback } from 'react';
+import { useParams } from 'react-router-dom';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { DeleteForever } from '@mui/icons-material';
 import {
   GridColDef,
   GridRenderCellParams,
-  GridRowsProp,
   GridValidRowModel,
 } from '@mui/x-data-grid';
 import { useDialogs } from '@toolpad/core';
-import { useCallback, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+
 import { deleteMedicalRecordAsync } from 'src/shared/api/api';
+import { MedicalRecord } from 'src/shared/types';
+import { getPrettyDate } from 'src/shared/utils';
 import {
   TableAction,
   TableActionButtons,
 } from 'src/shared/components/DataTable/TableActionButtons';
-import { MedicalRecord } from 'src/shared/types';
-import { getPrettyDate } from 'src/shared/utils';
 import { DataTable } from 'src/shared/components/DataTable/DataTable';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
 
@@ -31,19 +32,23 @@ export const MedicalHistory = ({
   fetchRecords,
 }: MedicalHistoryProps) => {
   const { patientId } = useParams<RouteParams>();
-  const [rows, setRows] = useState<GridRowsProp>();
   const dialogs = useDialogs();
 
-  const updateRowData = (records: MedicalRecord[]) => {
-    setRows(
-      records.map((record) => ({
-        id: record.id,
-        dateCreated: getPrettyDate(record.dateCreated),
-        information: record.information,
-        takeAction: record,
-      }))
-    );
-  };
+  const { data: medicalRecordsData, refetch: refetchMedicalRecords } = useQuery(
+    {
+      queryKey: [`patientMedicalRecords`, title, patientId],
+      queryFn: async () => {
+        if (!patientId) {
+          throw new Error('Patient ID not defined');
+        }
+        return fetchRecords(patientId);
+      },
+    }
+  );
+
+  const { mutate: deleteRecord } = useMutation({
+    mutationFn: (record: MedicalRecord) => deleteMedicalRecordAsync(record),
+  });
 
   const ActionButtons = useCallback(
     ({ record }: { record?: MedicalRecord }) => {
@@ -53,6 +58,7 @@ export const MedicalHistory = ({
           Icon: DeleteForever,
           onClick: async () => {
             if (!record || !patientId) return;
+
             const confirmed = await dialogs.confirm(
               'Are you sure you want to delete this record? This action cannot be reversed.',
               {
@@ -61,26 +67,33 @@ export const MedicalHistory = ({
                 severity: 'warning',
               }
             );
-
             if (confirmed) {
-              try {
-                await deleteMedicalRecordAsync(record);
-                await dialogs.alert('Medical record successfully deleted.');
-                getRowData();
-              } catch (e) {
-                await dialogs.alert(
-                  `Error: Medical record could not be deleted.\n${e}`
-                );
-              }
+              deleteRecord(record, {
+                onSuccess: () => {
+                  dialogs.alert('Medical record successfully deleted.');
+                  refetchMedicalRecords();
+                },
+                onError: (e) =>
+                  dialogs.alert(
+                    `Error: Medical record could not be deleted.\n${e}`
+                  ),
+              });
             }
           },
         },
       ];
       return record ? <TableActionButtons actions={actions} /> : null;
     },
-    []
+    [deleteRecord, dialogs, patientId, refetchMedicalRecords]
   );
 
+  const rows =
+    medicalRecordsData?.map((record) => ({
+      id: record.id,
+      dateCreated: getPrettyDate(record.dateCreated),
+      information: record.information,
+      takeAction: record,
+    })) ?? [];
   const columns: GridColDef[] = [
     {
       field: 'dateCreated',
@@ -106,25 +119,6 @@ export const MedicalHistory = ({
       ) => <ActionButtons record={params.value} />,
     },
   ];
-
-  const getRowData = async () => {
-    if (!patientId) return;
-    try {
-      const data = await fetchRecords(patientId);
-      updateRowData(data);
-    } catch (e) {
-      if (e instanceof Response) {
-        const error = await e.json();
-        console.error(error);
-      } else {
-        console.error(e);
-      }
-    }
-  };
-
-  useEffect(() => {
-    getRowData();
-  }, []);
 
   return (
     <>

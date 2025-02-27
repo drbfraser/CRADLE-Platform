@@ -108,9 +108,9 @@ export const PregnancyInfo = ({ patientId, patientName }: Props) => {
     );
 
     return (
-      <Box sx={{ margin: '10px' }}>
+      <Stack spacing="1rem" sx={{ margin: '10px' }}>
         <Box sx={HEADER_SX}>
-          <Typography variant={'h6'} component={'h6'} fontWeight={'bold'}>
+          <Typography variant="h6" component="h6" fontWeight="bold">
             Current Pregnancy
           </Typography>
           <RedirectButton
@@ -127,26 +127,26 @@ export const PregnancyInfo = ({ patientId, patientName }: Props) => {
         </Box>
 
         <Stack spacing="1rem">
-          <Stack direction={'row'} gap={'0.5rem'} sx={{ height: '30px' }}>
-            <Typography fontWeight={'bold'}>Pregnant: </Typography> {status}
+          <Stack direction="row" gap="0.5rem" sx={{ height: '30px' }}>
+            <Typography fontWeight="bold">Pregnant: </Typography> {status}
           </Stack>
 
           {pregnancyHistory?.isPregnant && (
             <>
               <GestationalAge />
               <GestationAgeUnitSelectContainer>
-                <Typography fontWeight={'bold'}>
+                <Typography fontWeight="bold">
                   Gestational Age Unit View:
                 </Typography>
 
                 <FormControl>
-                  <InputLabel id={'current-pregnancy-unit-select-label'}>
+                  <InputLabel id="current-pregnancy-unit-select-label">
                     Gestational Age Unit
                   </InputLabel>
                   <GestationAgeUnitSelect
-                    label={'Gestational Age Unit'}
-                    id={'current-pregnancy-unit-select'}
-                    name={'current-pregnancy-unit'}
+                    label="Gestational Age Unit"
+                    id="current-pregnancy-unit-select"
+                    name="current-pregnancy-unit"
                     value={currentPregnancyUnit}
                     onChange={(event) => {
                       setCurrentPregnancyUnit(
@@ -169,12 +169,12 @@ export const PregnancyInfo = ({ patientId, patientName }: Props) => {
           <Alert
             severity="warning"
             sx={{
-              marginY: '16px',
+              margin: '16px',
             }}>
             Long term pregnancy of the patient detected
           </Alert>
         )}
-      </Box>
+      </Stack>
     );
   };
 
@@ -218,7 +218,6 @@ export const PregnancyInfo = ({ patientId, patientName }: Props) => {
                 Add
               </RedirectButton>
             </Box>
-
             <Table
               sx={{
                 clear: 'right',

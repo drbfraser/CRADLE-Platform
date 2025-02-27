@@ -15,10 +15,10 @@ import {
   PatientMedicalInfo,
   PatientPregnancyInfo,
   PatientStatistics,
+  Patient,
 } from '../types';
 import { EndpointEnum, MethodEnum, UserRoleEnum } from '../enums';
 import axios, { AxiosError } from 'axios';
-import { IExportStatRow } from 'src/pages/statistics/utils';
 import { PostBody } from 'src/pages/customizedForm/customizedEditForm/handlers';
 import { reduxStore } from 'src/redux/store';
 import { showMessage } from 'src/redux/actions/messageActions';
@@ -180,11 +180,18 @@ export const getFormClassificationTemplates = async (
   return response.data;
 };
 
-export const getAllFormTemplatesAsync = async (includeArchived: boolean) => {
-  const response = await axiosFetch.get(
-    EndpointEnum.FORM_TEMPLATES + `?includeArchived=${includeArchived}`
-  );
-  return response.data;
+export const getAllFormTemplatesAsync = async (
+  includeArchived: boolean
+): Promise<FormTemplate[]> => {
+  try {
+    const response = await axiosFetch.get(
+      EndpointEnum.FORM_TEMPLATES + `?includeArchived=${includeArchived}`
+    );
+    return response.data;
+  } catch (e) {
+    console.error(`Error getting all from templates: ${e}`);
+    throw e;
+  }
 };
 
 export const getFormTemplateAsync = async (formTemplateId: string) => {
@@ -397,7 +404,9 @@ export const getPatientTimelineAsync = async (patientId: string, page = 1) => {
   ).data;
 };
 
-export const getPregnancyAsync = async (pregnancyId: string) => {
+export const getPregnancyAsync = async (
+  pregnancyId: string
+): Promise<Pregnancy> => {
   const response = await axiosFetch.get(
     EndpointEnum.PREGNANCIES + `/${pregnancyId}`
   );
@@ -416,23 +425,49 @@ export const deleteMedicalRecordAsync = async (medicalRecord: MedicalRecord) =>
     method: 'DELETE',
   });
 
-export const getPatientMedicalRecordsAsync = async (patientId: string) => {
-  const response = await axiosFetch.get(
-    `/patients/${patientId}/medical_records`
-  );
-  const data = await response.data;
-  return data.medical as MedicalRecord[];
+export const getPatientMedicalRecordsAsync = async (
+  patientId: string
+): Promise<MedicalRecord[]> => {
+  try {
+    const response = await axiosFetch.get(
+      `/patients/${patientId}/medical_records`
+    );
+    const data = await response.data;
+    return data.medical;
+  } catch (e) {
+    if (e instanceof Response) {
+      const error = await e.json();
+      console.error(error);
+    } else {
+      console.error(e);
+    }
+    throw e;
+  }
 };
 
-export const getPatientDrugRecordsAsync = async (patientId: string) => {
-  const response = await axiosFetch.get(
-    `/patients/${patientId}/medical_records`
-  );
-  const data = await response.data;
-  return data.drug as MedicalRecord[];
+export const getPatientDrugRecordsAsync = async (
+  patientId: string
+): Promise<MedicalRecord[]> => {
+  try {
+    const response = await axiosFetch.get(
+      `/patients/${patientId}/medical_records`
+    );
+    const data = await response.data;
+    return data.drug;
+  } catch (e) {
+    if (e instanceof Response) {
+      const error = await e.json();
+      console.error(error);
+    } else {
+      console.error(e);
+    }
+    throw e;
+  }
 };
 
-export const getMedicalRecordAsync = async (medicalRecordId: string) => {
+export const getMedicalRecordAsync = async (
+  medicalRecordId: string
+): Promise<PatientMedicalInfo> => {
   const response = await axiosFetch({
     method: 'GET',
     url: EndpointEnum.MEDICAL_RECORDS + `/${medicalRecordId}`,
@@ -467,12 +502,21 @@ export const getPatientTableEntries = async () => {
   return response.data;
 };
 
-export const getPatientsAdminAsync = async (includeArchived: boolean) => {
-  const response = await axiosFetch({
-    url:
-      EndpointEnum.PATIENTS + '/admin' + `?includeArchived=${includeArchived}`,
-  });
-  return response.data;
+export const getPatientsAdminAsync = async (
+  includeArchived: boolean
+): Promise<Patient[]> => {
+  try {
+    const response = await axiosFetch({
+      url:
+        EndpointEnum.PATIENTS +
+        '/admin' +
+        `?includeArchived=${includeArchived}`,
+    });
+    return response.data;
+  } catch (e) {
+    console.error(`Error fetching patients for admin: ${e}`);
+    throw e;
+  }
 };
 
 export const archivePatientAsync = async (patientId: string) => {
@@ -517,17 +561,21 @@ export const getPatientAsync = async (patientId: string) => {
   }
 };
 
-export const getPatientInfoAsync = async (patientId: string) => {
-  const response = await axiosFetch.get(
-    EndpointEnum.PATIENTS + `/${patientId}` + '/info'
-  );
-  return response.data;
-};
-
-export const getPatientPregnanciesAsync = async (patientId: string) => {
-  const response = await axiosFetch.get(`/patients/${patientId}/pregnancies`);
-  const data = await response.data;
-  return data as Pregnancy[];
+export const getPatientPregnanciesAsync = async (
+  patientId: string
+): Promise<Pregnancy[]> => {
+  try {
+    const response = await axiosFetch.get(`/patients/${patientId}/pregnancies`);
+    return await response.data;
+  } catch (e) {
+    if (e instanceof Response) {
+      const error = await e.json();
+      console.error(error);
+    } else {
+      console.error(e);
+    }
+    throw e;
+  }
 };
 
 export const getPatientRecordsAsync = async (
@@ -591,9 +639,11 @@ export const getPatientPregnancySummaryAsync = async (
   }
 };
 
-export const getPatientPregnancyInfoAsync = async (patientId: string) => {
+export const getPatientInfoAsync = async (
+  patientId: string
+): Promise<Patient> => {
   const response = await axiosFetch.get(
-    EndpointEnum.PATIENTS + '/' + patientId + '/info'
+    EndpointEnum.PATIENTS + `/${patientId}` + '/info'
   );
   return response.data;
 };
@@ -657,49 +707,6 @@ export const setReferralNotAttendedAsync = async (
       notAttendReason: comment,
     },
   });
-
-export const getUserStatisticsExportAsync = async (
-  user: string,
-  from: number,
-  to: number
-) => {
-  const response = await axiosFetch.get(
-    EndpointEnum.STATS_USER_EXPORT + `/${user}?from=${from}&to=${to}`
-  );
-  return response.data;
-};
-
-export const getUserStatisticsAsync = async (
-  user: string,
-  from: number,
-  to: number
-) => {
-  const response = await axiosFetch.get(
-    EndpointEnum.STATS_USER + `/${user}?from=${from}&to=${to}`
-  );
-  return response.data;
-};
-
-export const getFacilityStatisticsAsync = async (
-  facility: string,
-  from: number,
-  to: number
-): Promise<IExportStatRow[]> => {
-  const response = await axiosFetch.get(
-    EndpointEnum.STATS_FACILITY + `/${facility}?from=${from}&to=${to}`
-  );
-  return response.data;
-};
-
-export const getAllStatisticsAsync = async (
-  from: number,
-  to: number
-): Promise<IExportStatRow[]> => {
-  const response = await axiosFetch.get(
-    EndpointEnum.STATS_ALL + `?from=${from}&to=${to}`
-  );
-  return response.data;
-};
 
 export const getSecretKeyAsync = async (userId: number) => {
   const response = await axiosFetch({

@@ -1,33 +1,6 @@
-import {
-  GridColDef,
-  GridRenderCellParams,
-  GridRowsProp,
-  GridValidRowModel,
-} from '@mui/x-data-grid';
-import {
-  DataTableFooter,
-  DataTable,
-} from 'src/shared/components/DataTable/DataTable';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import {
-  deletePregnancyAsync,
-  getPatientPregnanciesAsync,
-} from 'src/shared/api/api';
-import { useCallback, useEffect, useState } from 'react';
-import { Pregnancy } from 'src/shared/types';
-import {
-  TableAction,
-  TableActionButtons,
-} from 'src/shared/components/DataTable/TableActionButtons';
-import CreateIcon from '@mui/icons-material/Create';
-import { DeleteForever } from '@mui/icons-material';
-import { useDialogs } from '@toolpad/core';
-import { getPrettyDate } from 'src/shared/utils';
-import { GestationalAgeUnitEnum } from 'src/shared/enums';
-import {
-  gestationalAgeUnitFormatters,
-  gestationalAgeUnitLabels,
-} from 'src/shared/constants';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import {
   FormControl,
   InputLabel,
@@ -35,7 +8,41 @@ import {
   Select,
   SelectChangeEvent,
 } from '@mui/material';
+import { DeleteForever } from '@mui/icons-material';
+import CreateIcon from '@mui/icons-material/Create';
+import {
+  GridColDef,
+  GridRenderCellParams,
+  GridValidRowModel,
+} from '@mui/x-data-grid';
+import { useDialogs } from '@toolpad/core';
+
+import {
+  deletePregnancyAsync,
+  getPatientPregnanciesAsync,
+} from 'src/shared/api/api';
+import { Pregnancy } from 'src/shared/types';
+import { GestationalAgeUnitEnum } from 'src/shared/enums';
+import {
+  gestationalAgeUnitFormatters,
+  gestationalAgeUnitLabels,
+} from 'src/shared/constants';
+import { getPrettyDate } from 'src/shared/utils';
+import {
+  TableAction,
+  TableActionButtons,
+} from 'src/shared/components/DataTable/TableActionButtons';
+import {
+  DataTableFooter,
+  DataTable,
+} from 'src/shared/components/DataTable/DataTable';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
+
+const UNIT_OPTIONS = Object.values(GestationalAgeUnitEnum).map((unit) => ({
+  key: unit,
+  text: gestationalAgeUnitLabels[unit],
+  value: unit,
+}));
 
 type RouteParams = {
   patientId: string;
@@ -43,42 +50,25 @@ type RouteParams = {
 
 export const PregnancyHistory = () => {
   const { patientId } = useParams<RouteParams>();
-  const [pregnancies, setPregnancies] = useState<Pregnancy[]>([]);
-  const [rows, setRows] = useState<GridRowsProp>();
   const navigate = useNavigate();
   const dialogs = useDialogs();
 
   const [unit, setUnit] = useState(GestationalAgeUnitEnum.MONTHS);
-
-  const unitOptions = Object.values(GestationalAgeUnitEnum).map((unit) => ({
-    key: unit,
-    text: gestationalAgeUnitLabels[unit],
-    value: unit,
-  }));
-
-  const updateRowData = (pregnancies: Pregnancy[]) => {
-    setRows(
-      pregnancies.map((pregnancy) => ({
-        id: pregnancy.id,
-        startDate: getPrettyDate(pregnancy.startDate),
-        endDate: pregnancy.endDate
-          ? getPrettyDate(pregnancy.endDate)
-          : 'Ongoing',
-        gestation: gestationalAgeUnitFormatters[
-          unit ?? GestationalAgeUnitEnum.WEEKS
-        ](pregnancy.startDate, pregnancy.endDate),
-        outcome: pregnancy.outcome,
-        takeAction: pregnancy,
-      }))
-    );
-  };
-
   const handleUnitChange = (
     event: SelectChangeEvent<GestationalAgeUnitEnum>
   ) => {
     const value = event.target.value;
     setUnit(value as GestationalAgeUnitEnum);
   };
+
+  const { data: pregnancyData, refetch: refetchPregnancies } = useQuery({
+    queryKey: ['patientPregnancies', patientId],
+    queryFn: () => getPatientPregnanciesAsync(patientId!),
+    enabled: !!patientId,
+  });
+  const { mutate: deletePregnancy } = useMutation({
+    mutationFn: deletePregnancyAsync,
+  });
 
   const ActionButtons = useCallback(
     ({ pregnancy }: { pregnancy?: Pregnancy }) => {
@@ -87,10 +77,11 @@ export const PregnancyHistory = () => {
           tooltip: 'Edit/Close Pregnancy',
           Icon: CreateIcon,
           onClick: () => {
-            if (!pregnancy || !patientId) return;
-            const { id } = pregnancy;
-            // Navigate to edit page.
-            navigate(`/patients/${patientId}/edit/pregnancyInfo/${id}`);
+            if (pregnancy && patientId) {
+              navigate(
+                `/patients/${patientId}/edit/pregnancyInfo/${pregnancy.id}`
+              );
+            }
           },
         },
         {
@@ -108,24 +99,24 @@ export const PregnancyHistory = () => {
               }
             );
             if (confirmed) {
-              try {
-                await deletePregnancyAsync(pregnancy);
-                await dialogs.alert('Pregnancy successfully deleted.');
-              } catch (e) {
-                await dialogs.alert(
-                  `Error: Pregnancy could not be deleted.\n${e}`
-                );
-              }
+              deletePregnancy(pregnancy, {
+                onSuccess: () => {
+                  dialogs.alert('Pregnancy successfully deleted.');
+                  refetchPregnancies();
+                },
+                onError: (e) =>
+                  dialogs.alert(`Error: Pregnancy could not be deleted.\n${e}`),
+              });
             }
           },
         },
       ];
       return pregnancy ? <TableActionButtons actions={actions} /> : null;
     },
-    [patientId]
+    [deletePregnancy, dialogs, navigate, patientId, refetchPregnancies]
   );
 
-  const columns: GridColDef[] = [
+  const tableColumns: GridColDef[] = [
     {
       field: 'startDate',
       headerName: 'Start Date (Approx)',
@@ -162,6 +153,22 @@ export const PregnancyHistory = () => {
       ) => <ActionButtons pregnancy={params.value} />,
     },
   ];
+  const tableRows = useMemo(
+    () =>
+      pregnancyData?.map((pregnancy) => ({
+        id: pregnancy.id,
+        startDate: getPrettyDate(pregnancy.startDate),
+        endDate: pregnancy.endDate
+          ? getPrettyDate(pregnancy.endDate)
+          : 'Ongoing',
+        gestation: gestationalAgeUnitFormatters[
+          unit ?? GestationalAgeUnitEnum.WEEKS
+        ](pregnancy.startDate, pregnancy.endDate),
+        outcome: pregnancy.outcome,
+        takeAction: pregnancy,
+      })) ?? [],
+    [pregnancyData, unit]
+  );
 
   const GestationalAgeUnitSelect = () => {
     return (
@@ -179,11 +186,11 @@ export const PregnancyHistory = () => {
             height: '100%',
           }}
           value={unit}
-          label={'Gestational Age Unit'}
-          labelId={'gestational-age-unit-select-label'}
-          id={'gestational-age-unit-select'}
+          label="Gestational Age Unit"
+          labelId="gestational-age-unit-select-label"
+          id="gestational-age-unit-select"
           onChange={handleUnitChange}>
-          {unitOptions.map((option) => (
+          {UNIT_OPTIONS.map((option) => (
             <MenuItem key={option.key} value={option.value}>
               {option.text}
             </MenuItem>
@@ -193,42 +200,18 @@ export const PregnancyHistory = () => {
     );
   };
 
-  const TableFooter = () => {
-    return (
-      <DataTableFooter>
-        <GestationalAgeUnitSelect />
-      </DataTableFooter>
-    );
-  };
-
-  const getRowData = async () => {
-    if (!patientId) return;
-    try {
-      const data = await getPatientPregnanciesAsync(patientId);
-      setPregnancies(data);
-    } catch (e) {
-      if (e instanceof Response) {
-        const error = await e.json();
-        console.error(error);
-      } else {
-        console.error(e);
-      }
-    }
-  };
-
-  useEffect(() => {
-    getRowData();
-  }, []);
-
-  // Update the rows whenever the unit changes or the pregnancies.
-  useEffect(() => {
-    updateRowData(pregnancies);
-  }, [unit, pregnancies]);
-
   return (
     <>
-      <DataTableHeader title={'Pregnancies'} />
-      <DataTable rows={rows} columns={columns} footer={TableFooter} />
+      <DataTableHeader title="Pregnancies" />
+      <DataTable
+        columns={tableColumns}
+        rows={tableRows}
+        footer={() => (
+          <DataTableFooter>
+            <GestationalAgeUnitSelect />
+          </DataTableFooter>
+        )}
+      />
     </>
   );
 };

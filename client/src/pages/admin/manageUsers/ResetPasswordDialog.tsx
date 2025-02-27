@@ -1,11 +1,18 @@
-import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
+import { useMutation } from '@tanstack/react-query';
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
 } from '@mui/material';
+import { TextField } from 'formik-mui';
 import { Field, Form, Formik } from 'formik';
+
+import { resetUserPasswordAsync } from 'src/shared/api/api';
+import { User } from 'src/shared/api/validation/user';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { Toast } from 'src/shared/components/toast';
+import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import {
   UserField,
   fieldLabels,
@@ -13,37 +20,30 @@ import {
   resetPasswordTemplate,
 } from './UserForms/state';
 
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { TextField } from 'formik-mui';
-import { Toast } from 'src/shared/components/toast';
-import { resetUserPasswordAsync } from 'src/shared/api/api';
-import { useState } from 'react';
-import { User } from 'src/shared/api/validation/user';
+type FormValues = typeof resetPasswordTemplate;
 
 interface IProps {
   open: boolean;
   onClose: () => void;
-  resetUser?: User;
+  resetUser: User;
 }
 
-const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
-  const [submitError, setSubmitError] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
+const ResetPasswordDialog = ({ open, onClose, resetUser }: IProps) => {
+  const updatePassword = useMutation({
+    mutationFn: ({
+      resetUser,
+      newPassword,
+    }: {
+      resetUser: User;
+      newPassword: string;
+    }) => resetUserPasswordAsync(resetUser, newPassword),
+  });
 
-  const handleSubmit = async (values: { [UserField.password]: string }) => {
-    if (!resetUser) {
-      return;
-    }
-
-    try {
-      await resetUserPasswordAsync(resetUser, values[UserField.password]);
-
-      setSubmitError(false);
-      setSubmitSuccess(true);
-      onClose();
-    } catch (e) {
-      setSubmitError(true);
-    }
+  const handleSubmit = async (values: FormValues) => {
+    updatePassword.mutate(
+      { resetUser, newPassword: values[UserField.password] },
+      { onSuccess: () => onClose() }
+    );
   };
 
   return (
@@ -51,12 +51,12 @@ const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
       <Toast
         severity="success"
         message="Password reset successful!"
-        open={submitSuccess}
-        onClose={() => setSubmitSuccess(false)}
+        open={updatePassword.isSuccess}
       />
-      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
+      {updatePassword.isError && !updatePassword.isPending && <APIErrorToast />}
+
       <Dialog open={open} maxWidth="xs" fullWidth>
-        <DialogTitle>Reset Password: {resetUser?.name ?? ''}</DialogTitle>
+        <DialogTitle>Reset Password: {resetUser.name}</DialogTitle>
         <DialogContent>
           <Formik
             initialValues={resetPasswordTemplate}
@@ -87,6 +87,7 @@ const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
                   label={fieldLabels[UserField.confirmPassword]}
                   name={UserField.confirmPassword}
                 />
+
                 <DialogActions>
                   <CancelButton type="button" onClick={onClose}>
                     Cancel
@@ -104,4 +105,4 @@ const ResetPassword = ({ open, onClose, resetUser }: IProps) => {
   );
 };
 
-export default ResetPassword;
+export default ResetPasswordDialog;

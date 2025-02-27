@@ -1,65 +1,47 @@
+import { useCallback, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '@mui/material';
-import { useCallback, useEffect, useState } from 'react';
-
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-
+import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import CreateIcon from '@mui/icons-material/Create';
 import DeleteForever from '@mui/icons-material/DeleteForever';
-import DeleteUser from './DeleteUser';
-import { EditUserDialog } from './UserForms/EditUserDialog';
-import ResetPassword from './ResetPassword';
-import { UserWithIndex } from 'src/shared/types';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
-import { getUsersAsync } from 'src/shared/api/api';
-import { userRoleLabels } from 'src/shared/constants';
 import AddIcon from '@mui/icons-material/Add';
 
-import {
-  GridRowsProp,
-  GridColDef,
-  GridRenderCellParams,
-} from '@mui/x-data-grid';
+import { UserWithIndex } from 'src/shared/types';
+import { getUsersAsync } from 'src/shared/api/api';
+import { userRoleLabels } from 'src/shared/constants';
+import { useAppSelector } from 'src/shared/hooks';
+import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
 import {
   TableAction,
   TableActionButtons,
 } from 'src/shared/components/DataTable/TableActionButtons';
-import { useAppSelector } from 'src/shared/hooks';
-import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { DataTable } from 'src/shared/components/DataTable/DataTable';
-import { DataTableHeader } from '../../../shared/components/DataTable/DataTableHeader';
+import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
 import { CreateUserDialog } from './UserForms/CreateUserDialog';
 import { formatPhoneNumbers } from 'src/shared/utils';
+import { EditUserDialog } from './UserForms/EditUserDialog';
+import DeleteUserDialog from './DeleteUserDialog';
+import ResetPasswordDialog from './ResetPasswordDialog';
 
 export const ManageUsers = () => {
-  const [errorLoading, setErrorLoading] = useState(false);
-  const [users, setUsers] = useState<UserWithIndex[]>([]);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [createPopupOpen, setCreatePopupOpen] = useState(false);
   const [passwordPopupOpen, setPasswordPopupOpen] = useState(false);
   const [deletePopupOpen, setDeletePopupOpen] = useState(false);
   const [popupUser, setPopupUser] = useState<UserWithIndex>();
 
-  const [rows, setRows] = useState<GridRowsProp>([]);
-  const updateRowData = (users: UserWithIndex[]) => {
-    setRows(
-      users.map((user, index) => ({
-        id: index,
-        name: user.name,
-        email: user.email,
-        phoneNumbers: formatPhoneNumbers(user.phoneNumbers),
-        healthFacility: user.healthFacilityName,
-        role: userRoleLabels[user.role],
-        takeAction: user,
-      }))
-    );
-  };
+  const usersQuery = useQuery({
+    queryKey: ['usersList'],
+    queryFn: getUsersAsync,
+  });
+  const users = usersQuery.data ?? [];
 
   // Component to render buttons inside the last cell of each row.
+  const { data: currentUser } = useAppSelector(selectCurrentUser);
   const ActionButtons = useCallback(
     ({ user }: { user?: UserWithIndex }) => {
-      // TODO: Fix this eslint Error
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { data: currentUser } = useAppSelector(selectCurrentUser);
       const isCurrentUser = currentUser?.id === user?.id;
       const actions: TableAction[] = [
         {
@@ -94,10 +76,10 @@ export const ManageUsers = () => {
 
       return <TableActionButtons actions={actions} />;
     },
-    [setPopupUser]
+    [currentUser?.id]
   );
 
-  const columns: GridColDef[] = [
+  const tableColumns: GridColDef[] = [
     { flex: 1, field: 'name', headerName: 'Name' },
     { flex: 1, field: 'email', headerName: 'Email' },
     { flex: 1, field: 'phoneNumbers', headerName: 'Phone Numbers' },
@@ -114,28 +96,15 @@ export const ManageUsers = () => {
       ),
     },
   ];
-
-  const getUsers = async () => {
-    try {
-      const users: UserWithIndex[] = (await getUsersAsync()).map(
-        (user, index) => ({
-          ...user,
-          index,
-        })
-      );
-      setUsers(users);
-    } catch (e) {
-      setErrorLoading(true);
-    }
-  };
-
-  useEffect(() => {
-    getUsers();
-  }, []);
-
-  useEffect(() => {
-    updateRowData(users);
-  }, [users]);
+  const tableRows = users.map((user, index) => ({
+    id: index,
+    name: user.name,
+    email: user.email,
+    phoneNumbers: formatPhoneNumbers(user.phoneNumbers),
+    healthFacility: user.healthFacilityName,
+    role: userRoleLabels[user.role],
+    takeAction: user,
+  }));
 
   const addNewUser = useCallback(() => {
     setPopupUser(undefined);
@@ -144,49 +113,52 @@ export const ManageUsers = () => {
 
   return (
     <>
-      <APIErrorToast
-        open={errorLoading}
-        onClose={() => setErrorLoading(false)}
-      />
-      <EditUserDialog
-        open={editPopupOpen}
-        onClose={() => {
-          setEditPopupOpen(false);
-          getUsers();
-        }}
-        users={users}
-        editUser={popupUser}
-      />
+      {usersQuery.isError && <APIErrorToast />}
+
       <CreateUserDialog
         open={createPopupOpen}
         onClose={() => {
           setCreatePopupOpen(false);
-          getUsers();
+          usersQuery.refetch();
         }}
         users={users}
       />
-      <ResetPassword
-        open={passwordPopupOpen}
-        onClose={() => setPasswordPopupOpen(false)}
-        resetUser={popupUser}
-      />
-      <DeleteUser
-        open={deletePopupOpen}
-        onClose={() => {
-          setDeletePopupOpen(false);
-          getUsers();
-        }}
-        user={popupUser}
-      />
-      <DataTableHeader title={'Users'}>
+      {popupUser && (
+        <>
+          <EditUserDialog
+            open={editPopupOpen}
+            onClose={() => {
+              setEditPopupOpen(false);
+              usersQuery.refetch();
+            }}
+            users={users}
+            userToEdit={popupUser}
+          />
+          <ResetPasswordDialog
+            open={passwordPopupOpen}
+            onClose={() => setPasswordPopupOpen(false)}
+            resetUser={popupUser}
+          />
+          <DeleteUserDialog
+            open={deletePopupOpen}
+            onClose={() => {
+              setDeletePopupOpen(false);
+              usersQuery.refetch();
+            }}
+            user={popupUser}
+          />
+        </>
+      )}
+
+      <DataTableHeader title="Users">
         <Button
-          variant={'contained'}
+          variant="contained"
           startIcon={<AddIcon />}
           onClick={addNewUser}>
-          {'New User'}
+          New User
         </Button>
       </DataTableHeader>
-      <DataTable rows={rows} columns={columns} />
+      <DataTable columns={tableColumns} rows={tableRows} />
     </>
   );
 };

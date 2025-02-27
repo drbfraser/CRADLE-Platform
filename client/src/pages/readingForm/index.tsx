@@ -1,11 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { Form, Formik, FormikHelpers, FormikProps } from 'formik';
-import LinearProgress from '@mui/material/LinearProgress';
-import Step from '@mui/material/Step/Step';
-import StepLabel from '@mui/material/StepLabel/StepLabel';
-import Stepper from '@mui/material/Stepper/Stepper';
-import { Box, useMediaQuery, useTheme } from '@mui/material';
+import {
+  Box,
+  LinearProgress,
+  Step,
+  Stepper,
+  StepLabel,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
 
 import { PrimaryButton, SecondaryButton } from 'src/shared/components/Button';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
@@ -16,7 +21,7 @@ import { vitalSignsValidationSchema } from './vitalSigns/validation';
 import { Symptoms } from './symptoms';
 import { ReadingState, getReadingState } from './state';
 import { Confirmation } from './confirmation';
-import { handleSubmit } from './handlers';
+import { useAddReadingMutation } from './mutations';
 
 type RouteParams = {
   patientId: string;
@@ -44,41 +49,33 @@ export const ReadingFormPage = () => {
   const theme = useTheme();
   const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
+  const navigate = useNavigate();
   const { patientId } = useParams() as RouteParams;
   const { patient } = usePatient(patientId);
-  const navigate = useNavigate();
 
-  const [submitError, setSubmitError] = useState(false);
+  const readingQuery = useQuery({
+    queryKey: ['patientReading', patientId],
+    queryFn: () => getReadingState(patientId),
+  });
+  const addReading = useAddReadingMutation(
+    patientId,
+    readingQuery.data?.drugHistory
+  );
+
   const [pageNum, setPageNum] = useState(0);
-  const [formInitialState, setFormInitialState] = useState<ReadingState>(); // change needed in the ReadingState?
-  const [drugHistory, setDrugHistory] = useState('');
-
-  useEffect(() => {
-    getReadingState(patientId).then((state) => {
-      setDrugHistory(state.drugHistory);
-      setFormInitialState(state);
-    });
-  }, [patientId]);
-
   const PageComponent = pages[pageNum].component;
   const isFinalPage = pageNum === pages.length - 1;
 
-  const handleNext = async (
+  const handleNextStep = (
     values: ReadingState,
     helpers: FormikHelpers<ReadingState>
   ) => {
     if (isFinalPage) {
-      const submitSuccess = await handleSubmit(patientId, values, drugHistory);
-
-      if (submitSuccess) {
-        navigate(`/patients/${patientId}`);
-      } else {
-        setSubmitError(true);
-        helpers.setSubmitting(false);
-      }
+      addReading.mutate(values, {
+        onSuccess: () => navigate(`/patients/${patientId}`),
+      });
     } else {
       helpers.setTouched({});
-      helpers.setSubmitting(false);
       setPageNum(pageNum + 1);
     }
   };
@@ -92,26 +89,29 @@ export const ReadingFormPage = () => {
         margin: '0 auto',
         maxWidth: '1250px',
       }}>
-      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
+      {readingQuery.isError && <APIErrorToast />}
+      {addReading.isError && (
+        <APIErrorToast onClose={() => addReading.reset()} />
+      )}
 
       <PatientHeader title="New Reading" patient={patient} />
 
       <Stepper
         activeStep={pageNum}
         orientation={isBigScreen ? 'horizontal' : 'vertical'}>
-        {pages.map((page, idx) => (
-          <Step key={idx}>
+        {pages.map((page, index) => (
+          <Step key={index}>
             <StepLabel>{page.name}</StepLabel>
           </Step>
         ))}
       </Stepper>
 
-      {formInitialState === undefined ? (
+      {readingQuery.isPending || readingQuery.isError ? (
         <LinearProgress />
       ) : (
         <Formik
-          initialValues={formInitialState}
-          onSubmit={handleNext}
+          initialValues={readingQuery.data}
+          onSubmit={handleNextStep}
           validationSchema={pages[pageNum].validationSchema}>
           {(formikProps: FormikProps<ReadingState>) => (
             <Form>
@@ -120,13 +120,13 @@ export const ReadingFormPage = () => {
               <Box sx={{ marginTop: '2rem' }}>
                 <SecondaryButton
                   onClick={() => setPageNum(pageNum - 1)}
-                  disabled={pageNum === 0 || formikProps.isSubmitting}>
+                  disabled={pageNum === 0 || addReading.isPending}>
                   Back
                 </SecondaryButton>
                 <PrimaryButton
                   sx={{ float: 'right' }}
                   type="submit"
-                  disabled={formikProps.isSubmitting}>
+                  disabled={addReading.isPending}>
                   {isFinalPage ? 'Create' : 'Next'}
                 </PrimaryButton>
               </Box>

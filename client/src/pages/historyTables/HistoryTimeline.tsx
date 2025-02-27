@@ -1,3 +1,6 @@
+import { PropsWithChildren, UIEvent } from 'react';
+import { useParams } from 'react-router-dom';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import {
   Alert,
   Box,
@@ -7,21 +10,21 @@ import {
   Typography,
   useMediaQuery,
 } from '@mui/material';
-import { useEffect, useState, PropsWithChildren } from 'react';
-
+import {
+  Timeline,
+  TimelineConnector,
+  TimelineContent,
+  TimelineDot,
+  TimelineItem,
+  TimelineOppositeContent,
+  TimelineSeparator,
+} from '@mui/lab';
 import CircularProgress from '@mui/material/CircularProgress';
 import HistoryIcon from '@mui/icons-material/History';
-import Timeline from '@mui/lab/Timeline';
-import TimelineConnector from '@mui/lab/TimelineConnector';
-import TimelineContent from '@mui/lab/TimelineContent';
-import TimelineDot from '@mui/lab/TimelineDot';
-import TimelineItem from '@mui/lab/TimelineItem';
-import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
+
 import { TimelineRecord } from 'src/shared/types';
-import TimelineSeparator from '@mui/lab/TimelineSeparator';
 import { getPatientTimelineAsync } from 'src/shared/api/api';
 import { getPrettyDate } from 'src/shared/utils';
-import { useParams } from 'react-router-dom';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
 
 type RouteParams = {
@@ -30,45 +33,28 @@ type RouteParams = {
 
 export const HistoryTimeline = () => {
   const { patientId } = useParams<RouteParams>();
-  const [records, setRecords] = useState<TimelineRecord[]>([]);
-  const [page, setPage] = useState<number>(1);
-  const [endOfData, setEndOfData] = useState(false);
-  const [isFetching, setIsFetching] = useState(false);
-  const [errorLoading, setErrorLoading] = useState(false);
 
-  useEffect(() => {
-    const getRecords = async () => {
-      if (!patientId) return;
-      setIsFetching(true);
-
-      try {
-        const timeline = await getPatientTimelineAsync(patientId, page);
-
-        if (timeline.length === 0) {
-          setEndOfData(true);
-        }
-
-        setRecords((records) => [...records, ...timeline]);
-      } catch (e) {
-        setErrorLoading(true);
+  const timelineQuery = useInfiniteQuery({
+    queryKey: ['patientHistoryTimeline', patientId!],
+    queryFn: ({ pageParam }) => getPatientTimelineAsync(patientId!, pageParam),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages, lastPageParam) => {
+      if (lastPage.length === 0) {
+        return undefined;
       }
+      return lastPageParam + 1;
+    },
+    enabled: !!patientId,
+  });
 
-      setIsFetching(false);
-    };
-
-    getRecords();
-  }, [patientId, page]);
-
-  const handleScroll = (event: any) => {
-    const { scrollHeight, scrollTop, clientHeight } = event.target;
+  const handleScroll = (event: UIEvent<HTMLDivElement>) => {
+    const { scrollHeight, scrollTop, clientHeight } = event.currentTarget;
     const scroll = scrollHeight - scrollTop - clientHeight;
 
-    //User has reached the end of the scroll bar
-    if (scroll === 0 && !endOfData) {
-      setPage(page + 1);
+    // User has reached the end of the scroll bar
+    if (scroll === 0 && timelineQuery.hasNextPage) {
+      timelineQuery.fetchNextPage();
     }
-
-    return true;
   };
 
   const isTransformed = useMediaQuery('(min-width: 560px)');
@@ -108,7 +94,9 @@ export const HistoryTimeline = () => {
           Medical History Timeline
         </Typography>
       </Box>
+
       <Divider />
+
       <Box
         sx={{
           overflowY: 'auto',
@@ -116,53 +104,61 @@ export const HistoryTimeline = () => {
         }}
         onScroll={handleScroll}>
         <Timeline>
-          {errorLoading ? (
+          {timelineQuery.isError ? (
             <Alert severity="error">
               Something went wrong when trying to load history timeline. Please
               try refreshing.
             </Alert>
-          ) : !records ? (
+          ) : timelineQuery.isPending ? (
             <Skeleton variant="rectangular" height={200} />
-          ) : records.length > 0 ? (
-            records.map((record, index) => (
-              <TimelineItem key={index}>
-                <TimelineOppositeContent
-                  style={{ flex: isTransformed ? 0.1 : 0.2 }}>
-                  <Typography variant="body2" color="textSecondary">
-                    {getPrettyDate(record.date)}
-                  </Typography>
-                </TimelineOppositeContent>
-                <TimelineSeparator>
+          ) : timelineQuery.data.pages.length > 0 ? (
+            <>
+              {timelineQuery.data.pages.map((page) =>
+                page.map((record: TimelineRecord) => (
+                  <TimelineItem key={`${record.date}-${record.title}`}>
+                    <TimelineOppositeContent
+                      style={{ flex: isTransformed ? 0.1 : 0.2 }}>
+                      <Typography variant="body2" color="textSecondary">
+                        {getPrettyDate(record.date)}
+                      </Typography>
+                    </TimelineOppositeContent>
+
+                    <TimelineSeparator>
+                      <TimelineDot />
+                      <TimelineConnector />
+                    </TimelineSeparator>
+                    <TimelineContent>
+                      <TimelinePaper>
+                        <b> {record.title} </b>
+                        <Typography style={{ whiteSpace: 'pre-line' }}>
+                          {record.information}
+                        </Typography>
+                      </TimelinePaper>
+                    </TimelineContent>
+                  </TimelineItem>
+                ))
+              )}
+
+              {timelineQuery.hasNextPage === false && (
+                <TimelineItem>
+                  <TimelineOppositeContent
+                    style={{ flex: isTransformed ? 0.1 : 0.2 }}
+                  />
                   <TimelineDot />
-                  <TimelineConnector />
-                </TimelineSeparator>
-                <TimelineContent>
-                  <TimelinePaper>
-                    <b> {record.title} </b>
-                    <Typography style={{ whiteSpace: 'pre-line' }}>
-                      {record.information}
-                    </Typography>
-                  </TimelinePaper>
-                </TimelineContent>
-              </TimelineItem>
-            ))
+                  <TimelineContent>
+                    <TimelinePaper>
+                      <b> End of records </b>
+                    </TimelinePaper>
+                  </TimelineContent>
+                </TimelineItem>
+              )}
+
+              {timelineQuery.isFetching && (
+                <CircularProgress sx={{ marginLeft: '50%' }} />
+              )}
+            </>
           ) : (
             <p>No records for this patient.</p>
-          )}
-          {isFetching && <CircularProgress sx={{ marginLeft: '50%' }} />}
-
-          {endOfData && (
-            <TimelineItem>
-              <TimelineOppositeContent
-                style={{ flex: isTransformed ? 0.1 : 0.2 }}
-              />
-              <TimelineDot />
-              <TimelineContent>
-                <TimelinePaper>
-                  <b> End of records </b>
-                </TimelinePaper>
-              </TimelineContent>
-            </TimelineItem>
           )}
         </Timeline>
       </Box>

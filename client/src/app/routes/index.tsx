@@ -1,7 +1,6 @@
-import { AppRoute, appRoutes } from './utils';
+import { PropsWithChildren, useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
-import { PropsWithChildren, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/shared/hooks';
 import {
   getCurrentUser,
@@ -9,6 +8,7 @@ import {
 } from 'src/redux/reducers/user/currentUser';
 import { UserRoleEnum } from 'src/shared/enums';
 import { Loader } from 'src/shared/components/loader';
+import { AppRoute, appRoutes } from './utils';
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -27,7 +27,6 @@ export const AppRoutes: React.FC = () => {
             />
           );
         }
-
         return (
           <Route key={route.id} path={route.to} element={<route.component />} />
         );
@@ -47,7 +46,7 @@ const RequireAuth = ({ children, path }: RequireAuthProps) => {
     if (!currentUser.data) {
       dispatch(getCurrentUser());
     }
-  }, [dispatch]);
+  }, [currentUser.data, dispatch]);
 
   if (currentUser.error) {
     return <Navigate to="/" replace />;

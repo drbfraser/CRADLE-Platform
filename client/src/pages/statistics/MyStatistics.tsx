@@ -1,16 +1,12 @@
-import {
-  getUserStatisticsAsync,
-  getUserStatisticsExportAsync,
-} from 'src/shared/api/api';
+import { Box, Divider, Typography } from '@mui/material';
 
-import Box from '@mui/material/Box';
-import Divider from '@mui/material/Divider';
-import { ExportStatistics } from './utils/ExportStatistics';
-import { StatisticDashboard } from './utils/StatisticsInfo';
-import Typography from '@mui/material/Typography';
-import { DIVIDER_SX, STATS_PAGE_SX } from './utils/statisticStyles';
+import { getUserStatisticsExportAsync } from 'src/shared/api/apiStatistics';
 import { useAppSelector } from 'src/shared/hooks';
 import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
+import { useUserStatsQuery } from './utils/queries';
+import { ExportStatistics } from './utils/ExportStatistics';
+import { StatisticDashboard } from './utils/StatisticsDashboard';
+import { DIVIDER_SX, STATS_PAGE_SX } from './utils/statisticStyles';
 
 type MyStatisticsProps = {
   from: number;
@@ -20,10 +16,14 @@ type MyStatisticsProps = {
 export const MyStatistics = ({ from, to }: MyStatisticsProps) => {
   const { data: currentUser } = useAppSelector(selectCurrentUser);
   const userId = currentUser?.id;
+
+  // query only runs when userId is defined so we can use the non-null assertion operator
+  const myStatsQuery = useUserStatsQuery(userId!.toString(), from, to);
+
   return (
     <Box sx={STATS_PAGE_SX}>
       <Box sx={{ float: 'left' }}>
-        <Typography variant={'h5'} component={'h5'} gutterBottom>
+        <Typography variant="h5" component="h5" gutterBottom>
           During this period, you have assessed:
         </Typography>
       </Box>
@@ -37,16 +37,15 @@ export const MyStatistics = ({ from, to }: MyStatisticsProps) => {
         )}
       </Box>
 
-      <br />
-      <br />
+      <Divider
+        sx={{
+          ...DIVIDER_SX,
+          marginTop: '4rem',
+          marginBottom: '2rem',
+        }}
+      />
 
-      <Divider sx={DIVIDER_SX} />
-      <br />
-      {userId && (
-        <StatisticDashboard
-          getData={() => getUserStatisticsAsync(userId.toString(), from, to)}
-        />
-      )}
+      {userId && <StatisticDashboard statsQuery={myStatsQuery} />}
     </Box>
   );
 };

@@ -165,7 +165,7 @@ export type UserWithToken = User & {
 export type VHT = {
   userId: number;
   email: string;
-  firstName: string;
+  name: string;
   healthFacilityName: string;
 };
 

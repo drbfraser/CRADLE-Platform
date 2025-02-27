@@ -1,20 +1,14 @@
+import { useCallback, useState } from 'react';
 import { Button } from '@mui/material';
-import { useCallback, useEffect, useState } from 'react';
-
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-
 import CreateIcon from '@mui/icons-material/Create';
-import EditFacility from './EditFacility';
+import AddIcon from '@mui/icons-material/Add';
+import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+
 import { Facility } from 'src/shared/types';
-import { getHealthFacilitiesAsync } from 'src/shared/api/api';
 import { getHealthFacilityList } from 'src/redux/reducers/healthFacilities';
 import { useAppDispatch } from 'src/shared/hooks';
-import {
-  GridColDef,
-  GridRenderCellParams,
-  GridRowsProp,
-} from '@mui/x-data-grid';
-import AddIcon from '@mui/icons-material/Add';
+import { useHealthFacilitiesQuery } from 'src/shared/queries';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
 import { DataTable } from 'src/shared/components/DataTable/DataTable';
 import {
@@ -22,27 +16,15 @@ import {
   TableActionButtons,
 } from 'src/shared/components/DataTable/TableActionButtons';
 import { formatPhoneNumber } from 'src/shared/utils';
+import EditFacilityDialog from './EditFacilityDialog';
 
 export const ManageFacilities = () => {
   const dispatch = useAppDispatch();
-  const [errorLoading, setErrorLoading] = useState(false);
-  const [facilities, setFacilities] = useState<Facility[]>([]);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [facilityToEdit, setFacilityToEdit] = useState<Facility>();
 
-  const [rows, setRows] = useState<GridRowsProp>([]);
-  // Map facility object to row data object.
-  const updateRows = (facilities: Facility[]) => {
-    setRows(
-      facilities.map((facility, index) => ({
-        id: index,
-        name: facility.name,
-        phoneNumber: formatPhoneNumber(facility.phoneNumber),
-        location: facility.location,
-        takeAction: facility,
-      }))
-    );
-  };
+  const facilitiesQuery = useHealthFacilitiesQuery();
+  const facilities = facilitiesQuery.data ?? [];
 
   const ActionButtons = useCallback(
     ({ facility }: { facility?: Facility }) => {
@@ -61,7 +43,7 @@ export const ManageFacilities = () => {
     [setFacilityToEdit, setEditPopupOpen]
   );
 
-  const columns: GridColDef[] = [
+  const tableColumns: GridColDef[] = [
     { flex: 1, field: 'name', headerName: 'Facility Name' },
     { flex: 1, field: 'phoneNumber', headerName: 'Phone Number' },
     { flex: 1, field: 'location', headerName: 'Location' },
@@ -76,54 +58,43 @@ export const ManageFacilities = () => {
       ),
     },
   ];
+  const tableRows = facilities.map((facility, index) => ({
+    id: index,
+    name: facility.name,
+    phoneNumber: formatPhoneNumber(facility.phoneNumber),
+    location: facility.location,
+    takeAction: facility,
+  }));
 
-  const getFacilities = async () => {
-    try {
-      const facilities: Facility[] = await getHealthFacilitiesAsync();
-
-      setFacilities(facilities);
-      updateRows(facilities);
-    } catch (e) {
-      setErrorLoading(true);
-    }
-  };
-
-  useEffect(() => {
-    getFacilities();
-  }, []);
-
-  const editFacility = useCallback(() => {
+  const editFacility = () => {
     setEditPopupOpen(false);
     dispatch(getHealthFacilityList());
-    getFacilities();
-  }, []);
-
-  const addNewFacility = useCallback(() => {
+    facilitiesQuery.refetch();
+  };
+  const addNewFacility = () => {
     setFacilityToEdit(undefined);
     setEditPopupOpen(true);
-  }, []);
+  };
 
   return (
     <>
-      <APIErrorToast
-        open={errorLoading}
-        onClose={() => setErrorLoading(false)}
-      />
-      <EditFacility
+      {facilitiesQuery.isError && <APIErrorToast />}
+
+      <EditFacilityDialog
         open={editPopupOpen}
         onClose={editFacility}
         facilities={facilities}
-        editFacility={facilityToEdit}
+        selectedFacility={facilityToEdit}
       />
-      <DataTableHeader title={'Healthcare Facilities'}>
+      <DataTableHeader title="Healthcare Facilities">
         <Button
-          variant={'contained'}
+          variant="contained"
           startIcon={<AddIcon />}
           onClick={addNewFacility}>
-          {'New Facility'}
+          New Facility
         </Button>
       </DataTableHeader>
-      <DataTable rows={rows} columns={columns} />
+      <DataTable rows={tableRows} columns={tableColumns} />
     </>
   );
 };
