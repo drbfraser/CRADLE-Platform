@@ -21,7 +21,7 @@ class PatientModel(CradleBaseModel):
         "household_number": "20",
         "zone": "15",
         "village_number": "50",
-        "pregnancy_start_date": 1587068710, - required if is_pregnant = True
+        "pregnancy_start_date": 1587068710,
         "drug_history": "too much tylenol",
         "medical_history": "not enough advil",
         "allergy": "seafood",
@@ -29,7 +29,7 @@ class PatientModel(CradleBaseModel):
     }
     """
 
-    id: str
+    id: Optional[str]
     name: str
     sex: str
     date_of_birth: str

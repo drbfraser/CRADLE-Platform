@@ -37,20 +37,6 @@ patient_with_valid_fields_should_return_none = {
     "is_archived": False,
 }
 
-patient_post_missing_required_field_id_should_throw_exception = {
-    "name": PATIENT_NAME,
-    "is_pregnant": True,
-    "sex": SEX,
-    "household_number": HOUSEHOLD_NUMBER,
-    "date_of_birth": DATE_STRING,
-    "is_exact_date_of_birth": False,
-    "zone": ZONE,
-    "village_number": VILLAGE_NUMBER,
-    "drug_history": HISTORY,
-    "medical_history": HISTORY,
-    "allergy": ALLERGY,
-}
-
 patient_post_missing_required_field_name_should_throw_exception = {
     "id": PATIENT_ID,
     "is_pregnant": True,
@@ -190,10 +176,6 @@ patient_field_date_of_birth_has_wrong_format_should_throw_exception = {
     "json, expectation",
     [
         (patient_with_valid_fields_should_return_none, None),
-        (
-            patient_post_missing_required_field_id_should_throw_exception,
-            ValidationError,
-        ),
         (
             patient_post_missing_required_field_name_should_throw_exception,
             ValidationError,
