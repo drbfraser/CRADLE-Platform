@@ -17,7 +17,7 @@ export class NewPatientPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.patientNameField = page.getByRole('textbox', { name: 'New Patient' });
+    this.patientNameField = page.getByRole('textbox', { name: 'Patient Name' });
     this.householdNumberField = page.getByRole('textbox', {
       name: 'Household Number',
     });
