@@ -512,3 +512,13 @@ def archive_patient(path: PatientIdPath, query: ArchivePatientQuery):
     patient.is_archived = bool(query.archive)
     db.session.commit()
     return Response(status=200)
+
+
+# /api/patients/<string:patient_id>
+@api_patients.delete("/<string:patient_id>")
+@roles_required([RoleEnum.ADMIN])
+def delete_patient(path: PatientIdPath):
+    """Delete Patient"""
+    patient = crud.read(PatientOrm, id=path.patient_id)
+    crud.delete(patient)
+    return Response(status=200)
