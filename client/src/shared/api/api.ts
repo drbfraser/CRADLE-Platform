@@ -520,25 +520,17 @@ export const getPatientsAdminAsync = async (
 };
 
 export const archivePatientAsync = async (patientId: string) => {
-  const response = await axiosFetch({
+  await axiosFetch({
     method: 'PUT',
-    url: EndpointEnum.PATIENTS + '/' + patientId + '/info',
-    data: {
-      isArchived: true,
-    },
+    url: EndpointEnum.PATIENTS + '/' + patientId + '/archive?archive=true',
   });
-  return response.data;
 };
 
 export const unarchivePatientAsync = async (patientId: string) => {
-  const response = await axiosFetch({
-    url: EndpointEnum.PATIENTS + '/' + patientId + '/info',
+  await axiosFetch({
+    url: EndpointEnum.PATIENTS + '/' + patientId + '/archive?archive=false',
     method: 'PUT',
-    data: {
-      isArchived: false,
-    },
   });
-  return response.data;
 };
 
 export const getPatientAsync = async (patientId: string) => {

@@ -1,7 +1,7 @@
 from datetime import date
-from typing import Any, cast
+from typing import Any, Optional, cast
 
-from flask import abort
+from flask import Response, abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 from pydantic import Field, RootModel
@@ -14,6 +14,7 @@ from common.api_utils import (
     PatientIdPath,
     SearchFilterQueryParams,
 )
+from config import db
 from data import crud, marshal
 from enums import RoleEnum, TrafficLightEnum
 from models import (
@@ -494,3 +495,20 @@ def get_all_patients_admin(query: SearchFilterQueryParams):
     params = query.model_dump()
     patients = view.admin_patient_view(current_user, **params)
     return serialize.serialize_patients_admin(patients)
+
+
+class ArchivePatientQuery(CradleBaseModel):
+    archive: Optional[bool] = True
+
+
+# /api/patients/<string:patient_id>/archive
+@api_patients.put("/<string:patient_id>/archive")
+@roles_required([RoleEnum.ADMIN])
+def archive_patient(path: PatientIdPath, query: ArchivePatientQuery):
+    """Archive / Unarchive Patient"""
+    patient = crud.read(PatientOrm, id=path.patient_id)
+    if patient is None:
+        return abort(404, description=patient_not_found_message.format(path.patient_id))
+    patient.is_archived = bool(query.archive)
+    db.session.commit()
+    return Response(status=200)
