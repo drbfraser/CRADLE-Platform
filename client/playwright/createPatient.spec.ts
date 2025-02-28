@@ -1,39 +1,42 @@
-import { test, expect } from '@playwright/test';
+/* eslint-disable react-hooks/rules-of-hooks */
+import { test as baseTest, expect } from '@playwright/test';
+import { NewPatientPage } from './pages/new-patient-page';
 
 /**
  *
  */
 
-test('Create Patient', async ({ page, browserName }) => {
-  test.skip(true, 'Skipping this test until it is completed.');
+type Fixtures = {
+  newPatientPage: NewPatientPage;
+  patientName: string;
+};
 
-  await page.goto('/patients');
-  await page.waitForURL('/patients');
-  await expect(page).toHaveURL('/patients');
+const test = baseTest.extend<Fixtures>({
+  patientName: async ({ browserName }, use) => {
+    const patientName = `E2E-Test-Patient-${browserName}`;
+    await use(patientName);
+  },
+  newPatientPage: async ({ page, patientName }, use) => {
+    const newPatientPage = new NewPatientPage(page);
+    await newPatientPage.goto();
+    await newPatientPage.fillBasicFields(patientName);
+    await use(newPatientPage);
+  },
+});
 
-  // Click New Patient button.
-  await page.getByRole('link', { name: 'New Patient' }).click();
-  await expect(page).toHaveURL('/patients/new');
+test.describe('Create Patient', () => {
+  test('Create Patient - Exact DOB', async ({
+    page,
+    newPatientPage,
+    patientName,
+  }) => {
+    newPatientPage.fillExactDateOfBirth();
+    newPatientPage.selectGender();
+    newPatientPage.clickNext();
+    newPatientPage.clickNext();
+    newPatientPage.clickNext();
 
-  /**
-   * TODO: Remove Patient ID field from New Patient form, as it makes testing difficult.
-   * Playwright runs tests in parallel, and runs the test for each browser specified
-   * in the playwright config, so each test will be run multiple times in parallel.
-   * This means that we can't hardcode values for mutation operations that our
-   * database expects to be unique. Patient IDs are one such value which we cannot
-   * hardcode in these tests. The `id` field of the Patient table in our database
-   * is a string, but right now the New Patient form requires that the patientId
-   * be a number. If it could be an arbitrary string, then we could use the
-   * browserName in the patientId field to ensure that the parallel runs of the
-   * test in different browsers aren't all trying to create a patient with the
-   * same ID.
-   *
-   * Better yet, we probably shouldn't have the patient ID be a field in the
-   * form at all, as this ID can be set to a unique value on the server side.
-   *
-   */
-
-  await page
-    .getByRole('textbox', { name: 'Patient Name' })
-    .fill(`E2E-Test-Patient-${browserName}`);
+    const header = page.getByRole('heading', { name: patientName });
+    await expect(header).toHaveText('Patient Summary');
+  });
 });
