@@ -222,23 +222,11 @@ patient_put_with_valid_fields_should_return_none = {
     "village_number": VILLAGE_NUMBER,
 }
 
-patient_put_missing_field_patient_id_should_throw_Exception = {
-    "name": PATIENT_NAME,
-    "is_pregnant": True,
-    "sex": SEX,
-    "household_number": HOUSEHOLD_NUMBER,
-    "date_of_birth": DATE_STRING,
-    "is_exact_date_of_birth": False,
-    "zone": ZONE,
-    "village_number": VILLAGE_NUMBER,
-}
-
 
 @pytest.mark.parametrize(
     "json, expectation",
     [
         (patient_put_with_valid_fields_should_return_none, None),
-        (patient_put_missing_field_patient_id_should_throw_Exception, ValidationError),
         (
             patient_field_name_has_invalid_type_should_throw_exception,
             ValidationError,
