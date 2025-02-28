@@ -16,7 +16,7 @@ const ArchivePatientDialog = ({ open, onClose, patient }: IProps) => {
     mutationFn: archivePatientAsync,
   });
 
-  const handleDelete = async () => {
+  const handleArchive = async () => {
     archivePatient.mutate(patient.id, {
       onSuccess: () => onClose(),
     });
@@ -39,7 +39,7 @@ const ArchivePatientDialog = ({ open, onClose, patient }: IProps) => {
         content={`Are you sure you want to archive ${name}'s account? `}
         open={open}
         onClose={onClose}
-        onConfirm={handleDelete}
+        onConfirm={handleArchive}
       />
     </>
   );

@@ -25,7 +25,7 @@ import { getUserVhtsAsync } from 'src/shared/api/api';
 import { TrafficLightEnum } from 'src/shared/enums';
 import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
 import { useAppSelector } from 'src/shared/hooks';
-import { useHealthFacilityNames } from 'src/shared/hooks/healthFacilities';
+import { useHealthFacilityNames } from 'src/shared/hooks/healthFacilityNames';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { DateRangePickerWithPreset } from 'src/shared/components/Date/DateRangePicker';
 import { useDateRangeState } from 'src/shared/components/Date/useDateRangeState';
@@ -49,7 +49,7 @@ type VitalSign = {
   vitalSign: TrafficLightEnum;
 };
 
-const VITAL_SIGNS: VitalSign[] = [
+const VITAL_SIGNS: readonly VitalSign[] = [
   {
     name: 'Green',
     vitalSign: TrafficLightEnum.GREEN,
