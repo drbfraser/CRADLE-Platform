@@ -1,5 +1,6 @@
 import { GestationalAgeUnitEnum } from 'src/shared/enums';
 import { gestationalAgeUnitLabels } from 'src/shared/constants';
+import { Moment } from 'moment';
 
 export const gestationalAgeUnitOptions = [
   {
@@ -54,4 +55,13 @@ export const initialState = {
   [PatientField.pregnancyEndDate]: '',
 };
 
+export type DateOfBirthFieldType = Moment | null | undefined;
 export type PatientState = typeof initialState;
+// export type PatientState = typeof _initialState & {
+//   [PatientField.dateOfBirth]: DateOfBirthFieldType;
+// };
+
+// export const initialState: PatientState = {
+//   ..._initialState,
+//   [PatientField.dateOfBirth]: undefined,
+// };

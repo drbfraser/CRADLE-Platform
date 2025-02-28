@@ -1,4 +1,4 @@
-import { Field, useFormikContext } from 'formik';
+import { Field, FieldProps, useFormikContext } from 'formik';
 import {
   FormControl,
   Grid2 as Grid,
@@ -8,10 +8,13 @@ import {
   ToggleButton,
 } from '@mui/material';
 import { Select, TextField, ToggleButtonGroup } from 'formik-mui';
+import { DatePicker } from '@mui/x-date-pickers';
 
 import { sexOptions } from 'src/shared/constants';
 import { handleChangeCustom } from '../../handlers';
-import { PatientField, PatientState } from '../../state';
+import { DateOfBirthFieldType, PatientField, PatientState } from '../../state';
+import moment, { Moment } from 'moment';
+import { DATE_FORMAT } from 'src/shared/utils';
 
 const TOGGLE_SX: SxProps = {
   ':selected': {
@@ -89,16 +92,8 @@ export const PersonalInfoForm = () => {
         <Grid size={{ sm: 12, md: 2 }}>
           {formikContext.values.isExactDateOfBirth ? (
             <Field
-              component={TextField}
-              fullWidth
-              required
-              variant="outlined"
-              type="date"
-              label="Date of Birth"
+              component={DateOfBirthField}
               name={PatientField.dateOfBirth}
-              InputLabelProps={{
-                shrink: true,
-              }}
             />
           ) : (
             <Field
@@ -147,4 +142,18 @@ export const PersonalInfoForm = () => {
       </Grid>
     </Paper>
   );
+};
+
+const DateOfBirthField = ({ field, form, meta }: FieldProps<string>) => {
+  const handleChange = async (value: Moment | null) => {
+    const stringValue = value ? value.format(DATE_FORMAT) : '';
+    await form.setFieldValue(field.name, stringValue);
+  };
+  const fieldProps = {
+    ...field,
+    value:
+      field.value.trim().length === 0 ? null : moment(field.value, DATE_FORMAT),
+    onChange: handleChange,
+  };
+  return <DatePicker label={'Date of Birth'} disableFuture {...fieldProps} />;
 };
