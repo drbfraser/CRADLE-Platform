@@ -49,17 +49,6 @@ export const PersonalInfoForm = () => {
             name={PatientField.householdNumber}
           />
         </Grid>
-
-        <Grid size={{ sm: 12, md: 4 }}>
-          <Field
-            component={TextField}
-            fullWidth
-            inputProps={{ maxLength: 20 }}
-            variant="outlined"
-            label="Zone ID"
-            name={PatientField.zone}
-          />
-        </Grid>
         <Grid size={{ sm: 12, md: 4 }}>
           <Field
             component={TextField}
@@ -68,6 +57,16 @@ export const PersonalInfoForm = () => {
             variant="outlined"
             label="Village Number"
             name={PatientField.villageNumber}
+          />
+        </Grid>
+        <Grid size={{ sm: 12, md: 4 }}>
+          <Field
+            component={TextField}
+            fullWidth
+            inputProps={{ maxLength: 20 }}
+            variant="outlined"
+            label="Zone ID"
+            name={PatientField.zone}
           />
         </Grid>
         <Grid size={{ sm: 12, md: 4 }}>
