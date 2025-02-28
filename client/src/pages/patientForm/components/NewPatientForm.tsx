@@ -35,7 +35,7 @@ const STEPS = [
   {
     name: 'Patient Personal Information',
     component: PersonalInfoForm,
-    validationSchema: personalInfoValidationSchema(true),
+    validationSchema: personalInfoValidationSchema,
     title: 'New Patient',
   },
   {

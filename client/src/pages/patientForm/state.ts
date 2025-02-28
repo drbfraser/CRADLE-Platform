@@ -13,7 +13,6 @@ export const gestationalAgeUnitOptions = [
 ];
 
 export enum PatientField {
-  patientId = 'id',
   patientName = 'name',
   householdNumber = 'householdNumber',
   isExactDateOfBirth = 'isExactDateOfBirth',
@@ -35,7 +34,6 @@ export enum PatientField {
 }
 
 export const initialState = {
-  [PatientField.patientId]: '',
   [PatientField.patientName]: '',
   [PatientField.householdNumber]: '',
   [PatientField.isExactDateOfBirth]: true,

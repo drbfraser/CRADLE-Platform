@@ -10,8 +10,6 @@ import {
 } from '@mui/material';
 import { Select, TextField, ToggleButtonGroup } from 'formik-mui';
 
-import { PatientIDExists } from './PatientIDExists';
-import { getPatientInfoAsync } from 'src/shared/api/api';
 import { sexOptions } from 'src/shared/constants';
 import { handleChangeCustom } from '../../handlers';
 import { PatientField, PatientState } from '../../state';
@@ -25,51 +23,12 @@ const TOGGLE_SX: SxProps = {
   flexGrow: 1,
 };
 
-interface IProps {
-  creatingNew: boolean;
-}
-
-export const PersonalInfoForm = ({ creatingNew }: IProps) => {
+export const PersonalInfoForm = () => {
   const formikContext = useFormikContext<PatientState>();
-
-  // for *new* patients only, track whether the patient ID already exists
-  const [existingPatientId, setExistingPatientId] = useState<string | null>(
-    null
-  );
-
-  const handlePatientIdBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
-    formikContext.handleBlur(e);
-
-    try {
-      const patientId = e.target.value;
-      setExistingPatientId(patientId);
-      if (patientId) {
-        await getPatientInfoAsync(patientId);
-      }
-    } catch (e) {
-      setExistingPatientId(null);
-    }
-  };
 
   return (
     <Paper sx={{ padding: 2 }}>
       <Grid container spacing={2}>
-        <Grid size={{ sm: 12, md: 4 }}>
-          <Field
-            component={TextField}
-            fullWidth
-            required
-            inputProps={{ maxLength: 50 }}
-            variant="outlined"
-            label="Patient ID"
-            name={PatientField.patientId}
-            onBlur={handlePatientIdBlur}
-            disabled={!creatingNew}
-          />
-          {existingPatientId && (
-            <PatientIDExists patientId={existingPatientId} />
-          )}
-        </Grid>
         <Grid size={{ sm: 12, md: 4 }}>
           <Field
             component={TextField}
