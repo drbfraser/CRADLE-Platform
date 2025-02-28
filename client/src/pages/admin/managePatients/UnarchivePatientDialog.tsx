@@ -16,7 +16,7 @@ const UnarchivePatientDialog = ({ open, onClose, patient }: IProps) => {
     mutationFn: unarchivePatientAsync,
   });
 
-  const handleDelete = () => {
+  const handleUnarchive = () => {
     unarchivePatient.mutate(patient.id, {
       onSuccess: () => onClose(),
     });
@@ -39,7 +39,7 @@ const UnarchivePatientDialog = ({ open, onClose, patient }: IProps) => {
         content={`Are you sure you want to unarchive ${name}'s account? `}
         open={open}
         onClose={onClose}
-        onConfirm={handleDelete}
+        onConfirm={handleUnarchive}
       />
     </>
   );
