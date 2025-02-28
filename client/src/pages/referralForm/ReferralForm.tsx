@@ -10,7 +10,7 @@ import { TextField, Typography, Paper } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 
 import { saveReferralAsync } from 'src/shared/api/api';
-import { useHealthFacilityNames } from 'src/shared/hooks/healthFacilities';
+import { useHealthFacilityNames } from 'src/shared/hooks/healthFacilityNames';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { ToastData } from 'src/shared/components/toastAfterNav';
