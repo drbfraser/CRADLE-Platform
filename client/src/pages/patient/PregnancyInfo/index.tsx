@@ -3,7 +3,7 @@ import { Divider, Paper, Typography } from '@mui/material';
 import PregnantWomanIcon from '@mui/icons-material/PregnantWoman';
 
 import { SexEnum } from 'src/shared/enums';
-import PregnancyStats from './PregnancyStats';
+import PregnancyStats from './components/PregnancyStats';
 import * as Styled from './styled';
 
 type Props = {
@@ -16,7 +16,6 @@ export const PregnancyInfo = ({ patientId, patientName }: Props) => {
     <Paper
       sx={{
         padding: 3,
-        backgroundColor: '#fff',
       }}>
       <Styled.Header>
         <Typography component="h5" variant="h5">
@@ -28,7 +27,7 @@ export const PregnancyInfo = ({ patientId, patientName }: Props) => {
         </Link>
       </Styled.Header>
 
-      <Divider />
+      <Divider sx={{ my: '1rem' }} />
 
       <PregnancyStats patientId={patientId} />
     </Paper>
