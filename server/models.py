@@ -189,7 +189,7 @@ class HealthFacilityOrm(db.Model):
 
 class PatientOrm(db.Model):
     __tablename__ = "patient"
-    id = db.Column(db.String(50), primary_key=True)
+    id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     name = db.Column(db.String(50))
     sex = db.Column(db.Enum(SexEnum), nullable=False)
     is_pregnant = db.Column(db.Boolean)
