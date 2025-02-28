@@ -1,20 +1,22 @@
-import { Field, FieldProps, useFormikContext } from 'formik';
+import { Field, FieldInputProps, FieldProps, useFormikContext } from 'formik';
 import {
   FormControl,
   Grid2 as Grid,
   Paper,
   MenuItem,
   SxProps,
+  ToggleButtonGroup,
   ToggleButton,
 } from '@mui/material';
-import { Select, TextField, ToggleButtonGroup } from 'formik-mui';
+import { Select, TextField } from 'formik-mui';
 import { DatePicker } from '@mui/x-date-pickers';
 
 import { sexOptions } from 'src/shared/constants';
 import { handleChangeCustom } from '../../handlers';
-import { DateOfBirthFieldType, PatientField, PatientState } from '../../state';
+import { PatientField, PatientState } from '../../state';
 import moment, { Moment } from 'moment';
 import { DATE_FORMAT } from 'src/shared/utils';
+import { MouseEvent } from 'react';
 
 const TOGGLE_SX: SxProps = {
   ':selected': {
@@ -73,21 +75,7 @@ export const PersonalInfoForm = () => {
           />
         </Grid>
         <Grid size={{ sm: 12, md: 4 }}>
-          <Field
-            component={ToggleButtonGroup}
-            exclusive
-            size="large"
-            type="checkbox"
-            value={formikContext.values.isExactDateOfBirth}
-            name={PatientField.isExactDateOfBirth}
-            sx={{ width: '100%' }}>
-            <ToggleButton sx={TOGGLE_SX} value={true}>
-              Date of Birth
-            </ToggleButton>
-            <ToggleButton sx={TOGGLE_SX} value={false}>
-              Estimated Age
-            </ToggleButton>
-          </Field>
+          <IsExactDateOfBirthButtonGroup />
         </Grid>
         <Grid size={{ sm: 12, md: 2 }}>
           {formikContext.values.isExactDateOfBirth ? (
@@ -156,4 +144,30 @@ const DateOfBirthField = ({ field, form, meta }: FieldProps<string>) => {
     onChange: handleChange,
   };
   return <DatePicker label={'Date of Birth'} disableFuture {...fieldProps} />;
+};
+
+const IsExactDateOfBirthButtonGroup = () => {
+  const fieldName = PatientField.isExactDateOfBirth;
+  const formikContext = useFormikContext<PatientState>();
+  const { setValue } = formikContext.getFieldHelpers(fieldName);
+  const value = formikContext.values[fieldName];
+  return (
+    <ToggleButtonGroup
+      value={value}
+      exclusive
+      size="large"
+      sx={{ width: '100%' }}
+      onChange={(_, value) => {
+        if (value !== null) {
+          setValue(value);
+        }
+      }}>
+      <ToggleButton sx={TOGGLE_SX} value={true}>
+        Date of Birth
+      </ToggleButton>
+      <ToggleButton sx={TOGGLE_SX} value={false}>
+        Estimated Age
+      </ToggleButton>
+    </ToggleButtonGroup>
+  );
 };
