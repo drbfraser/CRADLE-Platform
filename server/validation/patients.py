@@ -29,7 +29,7 @@ class PatientModel(CradleBaseModel):
     }
     """
 
-    id: Optional[str]
+    id: Optional[str] = None
     name: str
     sex: str
     date_of_birth: str
@@ -42,15 +42,6 @@ class PatientModel(CradleBaseModel):
     last_edited: Optional[int] = None
     date_created: Optional[int] = None
     base: Optional[int] = None
-
-    @field_validator("id", mode="after")
-    @classmethod
-    def check_patient_id_length(cls, patient_id):
-        if patient_id is None:
-            return None
-        if len(patient_id) > 14:
-            raise ValueError("id is too long. Max is 14 digits.")
-        return patient_id
 
     @field_validator("date_of_birth", mode="before")
     @classmethod
