@@ -22,10 +22,10 @@ test('Create Referral', async ({ page, browserName }) => {
 
   await expect(page).toHaveURL(`/patients/${patient.id}`);
 
-  const successAlert = await page.getByRole('alert').getByText('success');
+  const successAlert = page.getByRole('alert').getByText('success');
   await expect(successAlert).toBeVisible();
 
-  const referralCard = await page.getByText(referralComment);
+  const referralCard = page.getByText(referralComment);
   await referralCard.scrollIntoViewIfNeeded();
   await expect(referralCard).toContainText(referralComment);
 });
