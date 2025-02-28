@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Field, useFormikContext } from 'formik';
 import {
   FormControl,
@@ -48,6 +47,27 @@ export const PersonalInfoForm = () => {
             variant="outlined"
             label="Household Number"
             name={PatientField.householdNumber}
+          />
+        </Grid>
+
+        <Grid size={{ sm: 12, md: 4 }}>
+          <Field
+            component={TextField}
+            fullWidth
+            inputProps={{ maxLength: 20 }}
+            variant="outlined"
+            label="Zone ID"
+            name={PatientField.zone}
+          />
+        </Grid>
+        <Grid size={{ sm: 12, md: 4 }}>
+          <Field
+            component={TextField}
+            fullWidth
+            inputProps={{ maxLength: 50 }}
+            variant="outlined"
+            label="Village Number"
+            name={PatientField.villageNumber}
           />
         </Grid>
         <Grid size={{ sm: 12, md: 4 }}>
@@ -114,27 +134,7 @@ export const PersonalInfoForm = () => {
             </Field>
           </FormControl>
         </Grid>
-        <Grid size={{ sm: 12, md: 2 }}>
-          <Field
-            component={TextField}
-            fullWidth
-            inputProps={{ maxLength: 20 }}
-            variant="outlined"
-            label="Zone ID"
-            name={PatientField.zone}
-          />
-        </Grid>
-        <Grid size={{ sm: 12, md: 2 }}>
-          <Field
-            component={TextField}
-            fullWidth
-            inputProps={{ maxLength: 50 }}
-            variant="outlined"
-            label="Village Number"
-            name={PatientField.villageNumber}
-          />
-        </Grid>
-        <Grid size={{ sm: 12, md: 6 }}>
+        <Grid size={12}>
           <Field
             component={TextField}
             fullWidth
