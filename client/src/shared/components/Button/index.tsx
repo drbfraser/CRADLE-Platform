@@ -35,5 +35,8 @@ export const SecondaryButton = (props: ButtonProps | LinkButtonProps) => (
 
 export const RedirectButton = ({ url, ...props }: RedirectButtonProps) => {
   const navigate = useNavigate();
+
+  // console.log(url);
+
   return <SecondaryButton {...props} onClick={() => navigate(url)} />;
 };
