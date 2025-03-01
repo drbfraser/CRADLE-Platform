@@ -136,22 +136,33 @@
 
 ## Request Numbers
 1. Initially, the Server sets the last received request number for a Client (user) to be the maximum request number; Client’s first message uses request number 0.
-2. Request number is in plain-text SMS header, and in encrypted message body.
+2. The request number is in the plain-text SMS header, and in encrypted message body and should be the same.
 3. SMS Relay app uses plain-text SMS header’s request number to ensure it knows what request each received fragment goes with, and tracking when the user sends a new request.
 4. Server uses encrypted request number to guard against replay attacks:
 	1. Server stores the most recently used request number per user.
 	2. Each request from a user must have a request number that is:
 		1. higher than the previous request number for that user (so that old requests are ignored), and
-		2. must be within (max-request-number / 1000) of the previous request number for that user (so that if request numbers roll over, recent high-numbered requests cannot be replayed)
-	3. Request numbers may wrap-around after the max value. This wrap-around is treated as preserving the greater-than relationship.  
+		2. within a range of 1 to 100 above the previous request number for that user (so that if request numbers roll over, recent high-numbered requests cannot be replayed).
+			- Allowing the server to accept a range of request numbers reduces failures by preventing scenarios where there is request number mismatch failures and prevents unnecessary retransmissions.
+	3. Request numbers may wrap-around after the max value `(Rmax - 1)`. This wrap-around is treated as preserving the greater-than relationship.  
 	Specifically:
 		- Let Rp = the previous request number received from the client.
 		- Let Rc = the current request number received from the client.
 		- Let Rmax = the maximum request number representable + 1
 		- A request number is valid iff
-		```0 < (Rc - Rp + Rmax) mod (Rmax) < (Rmax / 1000)```
+		```0 < (Rc - Rp + Rmax) mod (Rmax) <= 100```
+		This formula ensures that that if the request number wraps around, it will still be accepted.
+		
+		Examples
+		- Basic Scenario  
+		If the previous request number received from the user was `1,000`, the server will accept request numbers `1,001` to `1,100`.
+		
+		- Wrap-around Scenario  (Assume Rmax is `1,000,000`)  
+		If client sends in a request with request number `999,999`, the server will accept request numbers `0 to 99`.
+		
 	4. A request which uses an invalid request number gets an error message stating the most recently accepted request number (encrypted). Then the Client can start from that number to increment more.
 5. There is no need to have a mechanism to reset the request numbers because the protocol can handle when a user’s request numbers wrap around, and if the Client and Server disagree on the next valid request number, the Server tells the Client the expected number and the Client begins using that number. This is done via encrypted messages.
+6. A request failure will still lead to the request number being incremented on Mobile. This ensures every unique request has a different request number.
 
 ## Future Ideas
 1. Allow mechanism for Client and Server to exchange encryption key without needing HTTPS connection.
