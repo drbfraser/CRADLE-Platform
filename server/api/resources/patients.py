@@ -481,10 +481,14 @@ class AdminPatientList(RootModel):
     root: list[AdminPatientListItem]
 
 
+class GetAllPatientsAdminQuery(SearchFilterQueryParams):
+    include_archived: Optional[bool] = Field(None, alias="includeArchived")
+
+
 # /api/patients/admin
 @api_patients.get("/admin", responses={200: AdminPatientList})
 @roles_required([RoleEnum.ADMIN])
-def get_all_patients_admin(query: SearchFilterQueryParams):
+def get_all_patients_admin(query: GetAllPatientsAdminQuery):
     """
     Get All Patients (Admin)
     Gets ALL patients, including archived, regardless of association with

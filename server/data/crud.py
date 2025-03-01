@@ -288,7 +288,7 @@ def read_admin_patient(
     )
     include_archived = kwargs.get("include_archived")
 
-    if include_archived == "false":
+    if not include_archived:
         query = query.filter(
             or_(PatientOrm.is_archived == False, PatientOrm.is_archived.is_(None)),
         )
