@@ -30,13 +30,13 @@ test.describe('Create Patient', () => {
     newPatientPage,
     patientName,
   }) => {
-    newPatientPage.fillExactDateOfBirth();
-    newPatientPage.selectGender();
-    newPatientPage.clickNext();
-    newPatientPage.clickNext();
-    newPatientPage.clickNext();
+    await newPatientPage.fillExactDateOfBirth();
+    await newPatientPage.selectGender();
+    await newPatientPage.clickNext();
+    await newPatientPage.clickNext();
+    await newPatientPage.clickCreate();
 
     const header = page.getByRole('heading', { name: patientName });
-    await expect(header).toHaveText('Patient Summary');
+    await expect(header).toContainText('Patient Summary');
   });
 });

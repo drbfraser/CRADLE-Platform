@@ -1,22 +1,21 @@
-import { Field, FieldInputProps, FieldProps, useFormikContext } from 'formik';
+import { Field, FieldProps, useFormikContext } from 'formik';
 import {
-  FormControl,
   Grid2 as Grid,
   Paper,
   MenuItem,
   SxProps,
   ToggleButtonGroup,
   ToggleButton,
+  Select,
+  TextField,
 } from '@mui/material';
-import { Select, TextField } from 'formik-mui';
+import { TextField as FormikTextField } from 'formik-mui';
 import { DatePicker } from '@mui/x-date-pickers';
 
 import { sexOptions } from 'src/shared/constants';
-import { handleChangeCustom } from '../../handlers';
 import { PatientField, PatientState } from '../../state';
 import moment, { Moment } from 'moment';
 import { DATE_FORMAT } from 'src/shared/utils';
-import { MouseEvent } from 'react';
 
 const TOGGLE_SX: SxProps = {
   ':selected': {
@@ -35,7 +34,7 @@ export const PersonalInfoForm = () => {
       <Grid container spacing={2}>
         <Grid size={{ sm: 12, md: 4 }}>
           <Field
-            component={TextField}
+            component={FormikTextField}
             fullWidth
             required
             inputProps={{ maxLength: 50 }}
@@ -46,7 +45,7 @@ export const PersonalInfoForm = () => {
         </Grid>
         <Grid size={{ sm: 12, md: 4 }}>
           <Field
-            component={TextField}
+            component={FormikTextField}
             fullWidth
             inputProps={{ maxLength: 50 }}
             variant="outlined"
@@ -56,7 +55,7 @@ export const PersonalInfoForm = () => {
         </Grid>
         <Grid size={{ sm: 12, md: 4 }}>
           <Field
-            component={TextField}
+            component={FormikTextField}
             fullWidth
             inputProps={{ maxLength: 50 }}
             variant="outlined"
@@ -66,7 +65,7 @@ export const PersonalInfoForm = () => {
         </Grid>
         <Grid size={{ sm: 12, md: 4 }}>
           <Field
-            component={TextField}
+            component={FormikTextField}
             fullWidth
             inputProps={{ maxLength: 20 }}
             variant="outlined"
@@ -85,7 +84,7 @@ export const PersonalInfoForm = () => {
             />
           ) : (
             <Field
-              component={TextField}
+              component={FormikTextField}
               fullWidth
               required
               variant="outlined"
@@ -97,28 +96,11 @@ export const PersonalInfoForm = () => {
           )}
         </Grid>
         <Grid size={{ sm: 12, md: 2 }}>
-          <FormControl fullWidth variant="outlined">
-            <Field
-              component={Select}
-              fullWidth
-              required
-              label="Gender *"
-              name={PatientField.patientSex}
-              onChange={handleChangeCustom(
-                formikContext.handleChange,
-                formikContext.setFieldValue
-              )}>
-              {Object.entries(sexOptions).map(([value, name]) => (
-                <MenuItem key={value} value={value}>
-                  {name}
-                </MenuItem>
-              ))}
-            </Field>
-          </FormControl>
+          <SexField />
         </Grid>
         <Grid size={12}>
           <Field
-            component={TextField}
+            component={FormikTextField}
             fullWidth
             multiline
             rows={4}
@@ -169,5 +151,31 @@ const IsExactDateOfBirthButtonGroup = () => {
         Estimated Age
       </ToggleButton>
     </ToggleButtonGroup>
+  );
+};
+
+const SexField = () => {
+  const fieldName = PatientField.patientSex;
+  const formikContext = useFormikContext<PatientState>();
+  const { setValue } = formikContext.getFieldHelpers(fieldName);
+  const value = formikContext.values[fieldName];
+  return (
+    <TextField
+      select
+      name={fieldName}
+      label="Sex"
+      value={value}
+      variant="outlined"
+      fullWidth
+      required
+      onChange={(event) => {
+        setValue(event.target.value);
+      }}>
+      {Object.entries(sexOptions).map(([value, name]) => (
+        <MenuItem key={value} value={value}>
+          {name}
+        </MenuItem>
+      ))}
+    </TextField>
   );
 };

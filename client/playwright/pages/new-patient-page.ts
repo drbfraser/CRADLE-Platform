@@ -11,9 +11,10 @@ export class NewPatientPage {
   private readonly estimatedAgeButton: Locator;
   private readonly dateOfBirthField: Locator;
   private readonly patientAgeField: Locator;
-  private readonly genderDropdown: Locator;
+  private readonly sexDropdown: Locator;
   private readonly allergiesField: Locator;
   private readonly nextButton: Locator;
+  private readonly createButton: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -37,9 +38,10 @@ export class NewPatientPage {
     this.patientAgeField = page.getByRole('spinbutton', {
       name: 'Patient Age',
     });
-    this.genderDropdown = page.getByRole('combobox', { name: 'Gender' });
+    this.sexDropdown = page.getByRole('combobox', { name: /Sex.*/ });
     this.allergiesField = page.getByRole('textbox', { name: 'Allergies' });
     this.nextButton = page.getByRole('button', { name: 'Next' });
+    this.createButton = page.getByRole('button', { name: 'Create' });
   }
 
   async goto() {
@@ -54,19 +56,19 @@ export class NewPatientPage {
     await this.zoneIdField.fill('1');
   }
 
-  async fillExactDateOfBirth(dateOfBirth: string = '2000-01-01') {
-    await this.dateOfBirthButton.click();
+  async fillExactDateOfBirth(dateOfBirth: string = '01/01/2000') {
+    // await this.dateOfBirthButton.click();
     await this.dateOfBirthField.fill(dateOfBirth);
   }
 
   async fillEstimatedAge(estimatedAge: string = '25') {
-    await this.estimatedAgeButton.click();
+    // await this.estimatedAgeButton.click();
     await this.patientAgeField.fill(estimatedAge);
   }
 
   async selectGender(gender: 'Male' | 'Female' = 'Male') {
-    await this.genderDropdown.click();
-    await this.page.getByRole('option', { name: gender }).click();
+    await this.sexDropdown.click();
+    await this.page.getByRole('option', { name: gender, exact: true }).click();
   }
 
   async fillAllergies(allergies: string) {
@@ -75,5 +77,9 @@ export class NewPatientPage {
 
   async clickNext() {
     await this.nextButton.click();
+  }
+
+  async clickCreate() {
+    await this.createButton.click();
   }
 }
