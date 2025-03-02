@@ -92,6 +92,8 @@ const EditField = ({
   const [isNumOfLinesRestricted, setIsNumOfLinesRestricted] = useState(
     Number(stringMaxLines) > 0
   );
+  const [numMin, setNumMin] = useState<number | null>(null);
+  const [numMax, setNumMax] = useState<number | null>(null);
 
   const removeAllMultChoices = () => {
     questionLangVersions.forEach((qLangVersion) => {
@@ -127,9 +129,46 @@ const EditField = ({
       label: 'Number',
       type: QuestionTypeEnum.INTEGER,
       render: () => (
-        <>
-          {/*TODO: Handle what is displayed when Number field type is selected*/}
-        </>
+        <Grid container spacing={1} direction="column">
+          <Grid item>
+            <TextField
+              label="Minimum Value"
+              type="number"
+              variant="outlined"
+              fullWidth
+              size="small"
+              value={numMin ?? ''}
+              onChange={(e) => {
+                const value = e.target.value ? Number(e.target.value) : null;
+                setNumMin(value);
+                if (numMax !== null && value !== null && value > numMax) {
+                  // ensure max >= min
+                  setNumMax(value);
+                }
+              }}
+              sx={{ ml: 3.2, pr: 3.2, mb: 1 }}
+            />
+          </Grid>
+          <Grid item>
+            <TextField
+              label="Maximum Value"
+              type="number"
+              variant="outlined"
+              fullWidth
+              size="small"
+              value={numMax ?? ''}
+              onChange={(e) => {
+                const value = e.target.value ? Number(e.target.value) : null;
+                setNumMax(value);
+                if (numMin !== null && value !== null && value < numMin) {
+                  // ensure min <= max
+                  setNumMin(value);
+                }
+              }}
+              sx={{ ml: 3.2, pr: 3.2, mb: 1 }}
+            />
+          </Grid>
+        </Grid>
       ),
     },
     text: {
