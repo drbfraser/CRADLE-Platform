@@ -3,20 +3,27 @@ import {
   APIRequestContext,
   test as baseTest,
   request as apiRequest,
+  expect,
 } from '@playwright/test';
 import { BASE_API_URL } from './constants';
 import { PatientSummaryPage } from './page-object-models/patient-summary-page';
 import { NewReferralFormPage } from './page-object-models/new-referral-form-page';
+import { NewPatientPage } from './page-object-models/new-patient-page';
 
-type TestPatient = {
+/** All test patients should be given the same name, so that they can be identified
+ * later for deletion.
+ */
+export const TEST_PATIENT_NAME = 'e2e-test-patient';
+
+export type TestPatient = {
   name: string;
   id: string;
 };
 
 export type CradleFixtures = {
   api: APIRequestContext;
-
-  patient: TestPatient;
+  testPatient: TestPatient;
+  newPatientPage: NewPatientPage;
   patientSummaryPage: PatientSummaryPage;
   newReferralFormPage: NewReferralFormPage;
 };
@@ -44,5 +51,38 @@ export const cradleTest = baseTest.extend<CradleFixtures>({
       },
     });
     await use(api);
+  },
+
+  /** This fixture creates a test patient through the REST API.
+   * This will be run for each individual test, so each test will get their
+   * own patient.
+   * The test patients will be deleted during the `teardown` phase, after all
+   * tests have run.
+   **/
+  testPatient: async ({ browserName, api }, use) => {
+    const response = await api.post('/api/patients', {
+      data: {
+        name: TEST_PATIENT_NAME,
+        sex: 'MALE',
+        dateOfBirth: '2000-01-01',
+        isExactDateOfBirth: true,
+      },
+    });
+    await expect(response).toBeOK();
+    const patient: TestPatient = await response.json();
+    await use(patient);
+  },
+
+  /** Page Object Models
+   * see: https://playwright.dev/docs/pom
+   */
+  newPatientPage: async ({ page }, use) => {
+    await use(new NewPatientPage(page));
+  },
+  patientSummaryPage: async ({ page, testPatient }, use) => {
+    await use(new PatientSummaryPage(page, testPatient.id));
+  },
+  newReferralFormPage: async ({ page, testPatient }, use) => {
+    await use(new NewReferralFormPage(page, testPatient.id));
   },
 });

@@ -482,7 +482,7 @@ class AdminPatientList(RootModel):
 
 
 class GetAllPatientsAdminQuery(SearchFilterQueryParams):
-    include_archived: Optional[bool] = Field(None, alias="includeArchived")
+    include_archived: Optional[bool] = Field(True, alias="includeArchived")
 
 
 # /api/patients/admin

@@ -1,7 +1,5 @@
 import { type Page, type Locator } from '@playwright/test';
 
-const FACILITY_NAME = 'H1000';
-
 export class NewReferralFormPage {
   private readonly page: Page;
   readonly url: string;
