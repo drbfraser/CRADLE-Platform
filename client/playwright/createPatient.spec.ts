@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { expect } from '@playwright/test';
-import { NewPatientPage } from './pages/new-patient-page';
+import { NewPatientPage } from './page-object-models/new-patient-page';
 import { cradleTest } from './fixtures';
 
 type Fixtures = {

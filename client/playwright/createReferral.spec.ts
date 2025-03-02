@@ -3,8 +3,8 @@ import { expect } from '@playwright/test';
 import moment from 'moment';
 import { cradleTest } from './fixtures';
 import { Patient } from '../src/shared/types';
-import { PatientSummaryPage } from './pages/patient-summary-page';
-import { NewReferralFormPage } from './pages/new-referral-form-page';
+import { PatientSummaryPage } from './page-object-models/patient-summary-page';
+import { NewReferralFormPage } from './page-object-models/new-referral-form-page';
 
 type TestPatient = {
   name: string;
