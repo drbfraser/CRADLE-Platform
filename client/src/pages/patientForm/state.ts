@@ -57,11 +57,3 @@ export const initialState = {
 
 export type DateOfBirthFieldType = Moment | null | undefined;
 export type PatientState = typeof initialState;
-// export type PatientState = typeof _initialState & {
-//   [PatientField.dateOfBirth]: DateOfBirthFieldType;
-// };
-
-// export const initialState: PatientState = {
-//   ..._initialState,
-//   [PatientField.dateOfBirth]: undefined,
-// };
