@@ -1,7 +1,8 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { test as baseTest, expect } from '@playwright/test';
+import { expect } from '@playwright/test';
 import { NewPatientPage } from './pages/new-patient-page';
 import { BASE_API_URL } from './constants';
+import { baseTest } from './playwright-utils';
 
 /**
  *
@@ -10,7 +11,6 @@ import { BASE_API_URL } from './constants';
 type Fixtures = {
   newPatientPage: NewPatientPage;
   patientName: string;
-  authHeader: { Authorization: string };
 };
 
 const test = baseTest.extend<Fixtures>({
@@ -24,23 +24,29 @@ const test = baseTest.extend<Fixtures>({
     await newPatientPage.fillBasicFields(patientName);
     await use(newPatientPage);
   },
-  authHeader: async ({ page }, use) => {
-    const accessToken = await page.evaluate(() => {
-      return localStorage.getItem('accessToken');
-    });
-    const authHeader = {
-      Authorization: `bearer ${accessToken}`,
-    };
-    await use(authHeader);
-  },
 });
 
-test.describe('Create Patient', () => {
+test.describe('Create Patient - Successful', () => {
+  test.afterEach('Cleanup New Patients', async ({ patientName, api }) => {
+    const response = await api.get('/api/patients', {
+      params: {
+        search: patientName,
+      },
+    });
+    const testPatients: [{ id: string; name: string }] = await response.json();
+    testPatients
+      .filter(({ name }) => name === patientName)
+      .forEach(async ({ id: patientId }) => {
+        await api.fetch(`/api/patients/${patientId}`, {
+          method: 'DELETE',
+        });
+      });
+  });
+
   test('Create Patient - Exact DOB', async ({
     page,
     newPatientPage,
     patientName,
-    authHeader,
   }) => {
     await newPatientPage.fillExactDateOfBirth();
     await newPatientPage.selectGender();
@@ -50,19 +56,7 @@ test.describe('Create Patient', () => {
 
     const header = page.getByRole('heading', { name: patientName });
     await expect(header).toContainText('Patient Summary');
-
-    // Get patientId from URL.
-    const patientId = page.url().match(/(?<=\/patients\/).*/)?.[0];
-    expect(patientId).toBeTruthy();
-
-    // Delete newly created patient.
-    const response = await page.request.fetch(
-      `${BASE_API_URL}/patients/${patientId}`,
-      {
-        method: 'DELETE',
-        headers: authHeader,
-      }
-    );
-    await expect(response).toBeOK();
   });
 });
+
+test.describe('Create Patient - Unsuccessful', () => {});
