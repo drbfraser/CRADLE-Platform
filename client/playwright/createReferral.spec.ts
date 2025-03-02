@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { expect } from '@playwright/test';
 import moment from 'moment';
-import { cradleTest } from './playwright-utils';
+import { cradleTest } from './fixtures';
 import { Patient } from '../src/shared/types';
 import { PatientSummaryPage } from './pages/patient-summary-page';
 import { NewReferralFormPage } from './pages/new-referral-form-page';
