@@ -57,12 +57,10 @@ export class NewPatientPage {
   }
 
   async fillExactDateOfBirth(dateOfBirth: string = '01/01/2000') {
-    // await this.dateOfBirthButton.click();
     await this.dateOfBirthField.fill(dateOfBirth);
   }
 
   async fillEstimatedAge(estimatedAge: string = '25') {
-    // await this.estimatedAgeButton.click();
     await this.patientAgeField.fill(estimatedAge);
   }
 
