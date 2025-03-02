@@ -1,31 +1,66 @@
-import { test, expect } from '@playwright/test';
-import { TEST_PATIENTS } from './constants';
+/* eslint-disable react-hooks/rules-of-hooks */
+import { expect } from '@playwright/test';
 import moment from 'moment';
+import { cradleTest } from './playwright-utils';
+import { Patient } from '../src/shared/types';
 
-test('Create Referral', async ({ page, browserName }) => {
-  const patient = TEST_PATIENTS.AA;
-  const referralComment = `referral-test | patient_id=${
-    patient.id
-  } | browser=${browserName} | dateTime=${moment().format()}`;
+type Fixtures = {
+  patient: Patient;
+};
 
-  await page.goto(`/patients/${patient.id}`);
-  await page.waitForURL(`/patients/${patient.id}`);
+const test = cradleTest.extend<Fixtures>({
+  patient: async ({ api, browserName }, use) => {
+    const patientName = `e2e-test-create-referral-${browserName}`;
+    /**
+     * Create test patient through REST API.  This will be run for each
+     * individual test, so each test will get their own patient.
+     **/
+    const response = await api.post('/patients', {
+      data: {
+        name: patientName,
+        sex: 'Male',
+        dateOfBirth: '2000-01-01',
+        isExactDateOfBirth: true,
+      },
+    });
+    expect(response).toBeOK();
+    const patient: Patient = await response.json();
 
-  await page.getByRole('button', { name: 'Create Referral' }).click();
-  await expect(page).toHaveURL(`/referrals/new/${patient.id}`);
+    // Make the patient available to tests.
+    use(patient);
 
-  await page.getByRole('combobox', { name: 'Refer To' }).click();
-  await page.getByText('H1000').click();
-  await page.getByRole('textbox', { name: 'Comments' }).fill(referralComment);
+    // Cleanup test patient.
+    await api.delete(`/patients/${patient.id}`);
+  },
+});
 
-  await page.getByRole('button', { name: 'Submit' }).click();
+test.describe('Create Referral', () => {
+  test.beforeAll(async ({ api }) => {});
 
-  await expect(page).toHaveURL(`/patients/${patient.id}`);
+  test('Create Referral', async ({ page, patient }) => {
+    const referralComment = `e2e-test | patientId=${
+      patient.id
+    } | dateTime=${moment().format()}`;
 
-  const successAlert = page.getByRole('alert').getByText('success');
-  await expect(successAlert).toBeVisible();
+    await page.goto(`/patients/${patient.id}`);
+    await page.waitForURL(`/patients/${patient.id}`);
 
-  const referralCard = page.getByText(referralComment);
-  await referralCard.scrollIntoViewIfNeeded();
-  await expect(referralCard).toContainText(referralComment);
+    await page.getByRole('button', { name: 'Create Referral' }).click();
+    await expect(page).toHaveURL(`/referrals/new/${patient.id}`);
+
+    await page.getByRole('combobox', { name: 'Refer To' }).click();
+    await page.getByText('H1000').click();
+    await page.getByRole('textbox', { name: 'Comments' }).fill(referralComment);
+
+    await page.getByRole('button', { name: 'Submit' }).click();
+
+    await expect(page).toHaveURL(`/patients/${patient.id}`);
+
+    const successAlert = page.getByRole('alert').getByText('success');
+    await expect(successAlert).toBeVisible();
+
+    const referralCard = page.getByText(referralComment);
+    await referralCard.scrollIntoViewIfNeeded();
+    await expect(referralCard).toContainText(referralComment);
+  });
 });
