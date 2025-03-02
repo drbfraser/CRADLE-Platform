@@ -101,9 +101,9 @@ class FacilityNamePath(CradleBaseModel):
 
 class PageLimitFilterQueryParams(CradleBaseModel):
     limit: Optional[int] = Field(
-        5, description="The maximum number of records per page."
+        default=5, description="The maximum number of records per page."
     )
-    page: Optional[int] = Field(1, description="The number of pages to return.")
+    page: Optional[int] = Field(default=1, description="The number of pages to return.")
 
 
 class SearchFilterQueryParams(PageLimitFilterQueryParams):
@@ -117,11 +117,13 @@ class SearchFilterQueryParams(PageLimitFilterQueryParams):
         default=None,
         description="Name of the field to perform the sorting around.",
         validation_alias=AliasChoices("order_by", "sort_by", "sortBy", "orderBy"),
+        serialization_alias="order_by",
     )
     direction: Optional[str] = Field(
         default="ASC",
         description="Whether ordering should be done in ascending or descending order. Must be either `ASC` or `DESC`",
         validation_alias=AliasChoices("direction", "sort_dir", "sortDir"),
+        serialization_alias="direction",
     )
 
     @field_validator("order_by")
