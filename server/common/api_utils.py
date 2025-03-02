@@ -111,7 +111,7 @@ class SearchFilterQueryParams(PageLimitFilterQueryParams):
         default=None,
         description="Search term for filtering returned Patients.",
         validation_alias=AliasChoices("search", "search_text", "searchText"),
-        serialization_alias="search_text",
+        serialization_alias="search",
     )
     order_by: Optional[str] = Field(
         default=None,

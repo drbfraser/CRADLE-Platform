@@ -78,7 +78,7 @@ def get_all_unarchived_patients(query: SearchFilterQueryParams):
     """
     current_user = user_utils.get_current_user_from_jwt()
     current_user = cast(dict[Any, Any], current_user)
-    params = query.model_dump()
+    params = query.model_dump(by_alias=True)
     patients = view.patient_list_view(current_user, **params)
     return serialize.serialize_patient_list(patients)
 

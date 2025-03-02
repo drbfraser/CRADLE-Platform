@@ -1297,7 +1297,7 @@ def __filter_by_patient_association(
 
 
 def __filter_by_patient_search(query: Query, **kwargs) -> Query:
-    search_text = kwargs.get("search_text")
+    search_text = kwargs.get("search")
     if search_text:
         search_text = f"%{search_text}%"
         query = query.filter(
