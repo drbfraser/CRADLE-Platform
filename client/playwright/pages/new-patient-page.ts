@@ -1,4 +1,4 @@
-import { type Page, type Locator, expect } from '@playwright/test';
+import { type Page, type Locator } from '@playwright/test';
 
 export class NewPatientPage {
   private readonly page: Page;
@@ -57,10 +57,12 @@ export class NewPatientPage {
   }
 
   async fillExactDateOfBirth(dateOfBirth: string = '01/01/2000') {
+    await this.dateOfBirthButton.click();
     await this.dateOfBirthField.fill(dateOfBirth);
   }
 
   async fillEstimatedAge(estimatedAge: string = '25') {
+    await this.estimatedAgeButton.click();
     await this.patientAgeField.fill(estimatedAge);
   }
 
