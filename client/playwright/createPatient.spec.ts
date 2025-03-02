@@ -1,21 +1,16 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { expect } from '@playwright/test';
 import { NewPatientPage } from './pages/new-patient-page';
-import { BASE_API_URL } from './constants';
-import { baseTest } from './playwright-utils';
-
-/**
- *
- */
+import { cradleTest } from './playwright-utils';
 
 type Fixtures = {
   newPatientPage: NewPatientPage;
   patientName: string;
 };
 
-const test = baseTest.extend<Fixtures>({
+const test = cradleTest.extend<Fixtures>({
   patientName: async ({ browserName }, use) => {
-    const patientName = `E2E-Test-Patient-${browserName}`;
+    const patientName = `E2E-Test-Create-Patient-${browserName}`;
     await use(patientName);
   },
   newPatientPage: async ({ page, patientName }, use) => {
@@ -37,9 +32,7 @@ test.describe('Create Patient - Successful', () => {
     testPatients
       .filter(({ name }) => name === patientName)
       .forEach(async ({ id: patientId }) => {
-        await api.fetch(`/api/patients/${patientId}`, {
-          method: 'DELETE',
-        });
+        await api.delete(`/api/patients/${patientId}`);
       });
   });
 
