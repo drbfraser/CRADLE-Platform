@@ -3,58 +3,76 @@ import { expect } from '@playwright/test';
 import moment from 'moment';
 import { cradleTest } from './playwright-utils';
 import { Patient } from '../src/shared/types';
+import { PatientSummaryPage } from './pages/patient-summary-page';
+import { NewReferralFormPage } from './pages/new-referral-form-page';
+
+type TestPatient = {
+  name: string;
+  id: string;
+};
 
 type Fixtures = {
-  patient: Patient;
+  patient: TestPatient;
+  patientSummaryPage: PatientSummaryPage;
+  newReferralFormPage: NewReferralFormPage;
 };
 
 const test = cradleTest.extend<Fixtures>({
   patient: async ({ api, browserName }, use) => {
     const patientName = `e2e-test-create-referral-${browserName}`;
     /**
-     * Create test patient through REST API.  This will be run for each
+     * Create test patient through REST API. This will be run for each
      * individual test, so each test will get their own patient.
      **/
-    const response = await api.post('/patients', {
+    const response = await api.post('/api/patients', {
       data: {
         name: patientName,
-        sex: 'Male',
+        sex: 'MALE',
         dateOfBirth: '2000-01-01',
         isExactDateOfBirth: true,
       },
     });
-    expect(response).toBeOK();
+    await expect(response).toBeOK();
     const patient: Patient = await response.json();
 
     // Make the patient available to tests.
-    use(patient);
+    await use(patient);
 
     // Cleanup test patient.
-    await api.delete(`/patients/${patient.id}`);
+    await api.delete(`/api/patients/${patient.id}`);
+  },
+  patientSummaryPage: async ({ page, patient }, use) => {
+    const patientSummaryPage = new PatientSummaryPage(page, patient.id);
+    await use(patientSummaryPage);
+  },
+  newReferralFormPage: async ({ page, patient }, use) => {
+    const newReferralFormPagePage = new NewReferralFormPage(page, patient.id);
+    await use(newReferralFormPagePage);
   },
 });
 
 test.describe('Create Referral', () => {
-  test.beforeAll(async ({ api }) => {});
-
-  test('Create Referral', async ({ page, patient }) => {
+  test('Create Referral', async ({
+    page,
+    patient,
+    patientSummaryPage,
+    newReferralFormPage,
+  }) => {
     const referralComment = `e2e-test | patientId=${
       patient.id
     } | dateTime=${moment().format()}`;
 
-    await page.goto(`/patients/${patient.id}`);
-    await page.waitForURL(`/patients/${patient.id}`);
+    await patientSummaryPage.goto();
 
-    await page.getByRole('button', { name: 'Create Referral' }).click();
-    await expect(page).toHaveURL(`/referrals/new/${patient.id}`);
+    await patientSummaryPage.clickCreateReferralButton();
 
-    await page.getByRole('combobox', { name: 'Refer To' }).click();
-    await page.getByText('H1000').click();
-    await page.getByRole('textbox', { name: 'Comments' }).fill(referralComment);
+    await expect(page).toHaveURL(newReferralFormPage.url);
 
-    await page.getByRole('button', { name: 'Submit' }).click();
+    await newReferralFormPage.selectReferToOption('H1000');
+    await newReferralFormPage.enterComment(referralComment);
+    await newReferralFormPage.submitForm();
 
-    await expect(page).toHaveURL(`/patients/${patient.id}`);
+    await expect(page).toHaveURL(patientSummaryPage.url);
 
     const successAlert = page.getByRole('alert').getByText('success');
     await expect(successAlert).toBeVisible();
