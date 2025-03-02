@@ -17,10 +17,12 @@ type CommonFixtures = {
 };
 
 export const cradleTest = baseTest.extend<CommonFixtures>({
-  api: async ({ page }, use) => {
-    const accessToken = await page.evaluate(() => {
-      return localStorage.getItem('accessToken');
-    });
+  api: async ({ context }, use) => {
+    const storageState = await context.storageState();
+    const { value: accessToken } = storageState.origins[0].localStorage.find(
+      ({ name }) => name === 'accessToken'
+    )!;
+
     const api = await apiRequest.newContext({
       baseURL: BASE_API_URL,
       extraHTTPHeaders: {
