@@ -52,6 +52,13 @@ export default defineConfig({
         ...devices['Desktop Firefox'],
         // Use auth state.
         storageState: AUTH_FILE,
+        launchOptions: {
+          // This is needed to make MUI datepickers work properly on firefox.
+          firefoxUserPrefs: {
+            'ui.primaryPointerCapabilities': 0x02 | 0x04,
+            'ui.allPointerCapabilities': 0x02 | 0x04,
+          },
+        },
       },
       dependencies: ['setup'],
     },
