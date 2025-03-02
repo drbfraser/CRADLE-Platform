@@ -3,6 +3,7 @@ from typing import Any, Optional
 
 from pydantic import Field, RootModel, field_validator
 
+from enums import SexEnum
 from utils import get_current_time
 from validation import CradleBaseModel
 from validation.readings import ReadingWithUrineTest
@@ -31,7 +32,7 @@ class PatientModel(CradleBaseModel):
 
     id: Optional[str] = None
     name: str
-    sex: str
+    sex: SexEnum
     date_of_birth: str
     is_exact_date_of_birth: bool
     is_pregnant: Optional[bool] = False
