@@ -26,7 +26,7 @@ test.describe('Create Patient - Successful', () => {
     patientName,
   }) => {
     await newPatientPage.fillExactDateOfBirth();
-    await newPatientPage.selectGender();
+    await newPatientPage.selectSex();
     await newPatientPage.clickNext();
     await newPatientPage.clickNext();
     await newPatientPage.clickCreate();
@@ -40,7 +40,7 @@ test.describe('Create Patient - Successful', () => {
     patientName,
   }) => {
     await newPatientPage.fillEstimatedAge();
-    await newPatientPage.selectGender();
+    await newPatientPage.selectSex();
     await newPatientPage.clickNext();
     await newPatientPage.clickNext();
     await newPatientPage.clickCreate();

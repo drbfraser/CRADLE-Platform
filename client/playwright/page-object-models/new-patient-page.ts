@@ -66,7 +66,7 @@ export class NewPatientPage {
     await this.patientAgeField.fill(estimatedAge);
   }
 
-  async selectGender(gender: 'Male' | 'Female' = 'Male') {
+  async selectSex(gender: 'Male' | 'Female' = 'Male') {
     await this.sexDropdown.click();
     await this.page.getByRole('option', { name: gender, exact: true }).click();
   }
