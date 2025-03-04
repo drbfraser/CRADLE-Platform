@@ -400,6 +400,8 @@ const EditField = ({
         setAllowPastDates(question.allowPastDates);
         setStringMaxLines(question.stringMaxLines);
         setIsNumOfLinesRestricted(question.stringMaxLines ? true : false);
+        setNumMin(question.numMin ?? null);
+        setNumMax(question.numMax ?? null);
       }
       // create new field
       else {
@@ -412,6 +414,8 @@ const EditField = ({
         setAllowPastDates(true);
         setIsNumOfLinesRestricted(false);
         setStringMaxLines(null);
+        setNumMin(null);
+        setNumMax(null);
       }
     }
     // Check if all fields are filled
@@ -822,6 +826,8 @@ const EditField = ({
                       questionToUpdate.allowFutureDates = allowFutureDates;
                       questionToUpdate.allowPastDates = allowPastDates;
                       questionToUpdate.stringMaxLines = finalStringMaxLines;
+                      questionToUpdate.numMin = numMin;
+                      questionToUpdate.numMax = numMax;
                     }
                   }
                   // create new field
@@ -846,8 +852,8 @@ const EditField = ({
                       required: isRequired,
                       allowFutureDates: allowFutureDates,
                       allowPastDates: allowPastDates,
-                      numMin: null,
-                      numMax: null,
+                      numMin: numMin,
+                      numMax: numMax,
                       stringMaxLength: null,
                       stringMaxLines: finalStringMaxLines,
                       units: null,
