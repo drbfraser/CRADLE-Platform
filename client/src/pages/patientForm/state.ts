@@ -55,5 +55,4 @@ export const initialState = {
   [PatientField.pregnancyEndDate]: '',
 };
 
-export type DateOfBirthFieldType = Moment | null | undefined;
 export type PatientState = typeof initialState;
