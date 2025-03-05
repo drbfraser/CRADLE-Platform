@@ -1,8 +1,4 @@
-import {
-  cradleTest as teardown,
-  TEST_PATIENT_NAME,
-  TestPatient,
-} from './fixtures';
+import { test as teardown, TEST_PATIENT_NAME, TestPatient } from './fixtures';
 
 /** This will run after all other tests have finished. */
 teardown.describe('Cleanup', () => {
