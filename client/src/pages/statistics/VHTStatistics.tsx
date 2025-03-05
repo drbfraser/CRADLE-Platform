@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useSelector } from 'react-redux';
 import {
   Box,
   Divider,
@@ -12,11 +11,9 @@ import {
   Typography,
 } from '@mui/material';
 
-import { ReduxState } from 'src/redux/reducers';
 import { getVHTsAsync } from 'src/shared/api/api';
 import { getUserStatisticsExportAsync } from 'src/shared/api/apiStatistics';
 import { UserRoleEnum } from 'src/shared/enums';
-import { UserWithToken, OrNull } from 'src/shared/types';
 import {
   DIVIDER_SX,
   FORM_CTRL_SX,
@@ -25,22 +22,16 @@ import {
 import { StatisticDashboard } from './utils/StatisticsDashboard';
 import { ExportStatistics } from './utils/ExportStatistics';
 import { useUserStatsQuery } from './utils/queries';
+import { selectCurrentUser } from 'src/redux/user-state';
+import { useAppSelector } from 'src/shared/hooks';
 
 type Props = {
   from: number;
   to: number;
 };
 
-type User = {
-  user: OrNull<UserWithToken>;
-};
-
 export const VHTStatistics = ({ from, to }: Props) => {
-  const { user } = useSelector(
-    ({ user }: ReduxState): User => ({
-      user: user.current.data,
-    })
-  );
+  const user = useAppSelector(selectCurrentUser);
 
   const [vht, setVht] = useState('');
 

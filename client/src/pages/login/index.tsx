@@ -5,11 +5,11 @@ import { Box, useMediaQuery } from '@mui/material';
 import { DASHBOARD_PADDING, TOP_BAR_HEIGHT } from 'src/shared/constants';
 import { LoginForm } from './LoginForm';
 
-import { selectLoggedIn } from 'src/redux/reducers/user/currentUser';
+import { selectIsLoggedIn } from 'src/redux/user-state';
 import { useAppSelector } from 'src/shared/hooks';
 
 export const LoginPage: React.FC = () => {
-  const loggedIn = useAppSelector(selectLoggedIn);
+  const isLoggedIn = useAppSelector(selectIsLoggedIn);
 
   // if the user has reached the login page, they likely came directly here
   // therefore Redux will be empty and we must check local storage for a token
@@ -17,7 +17,9 @@ export const LoginPage: React.FC = () => {
     return <Navigate to={'/referrals'} replace />;
   }
 
-  return !loggedIn ? (
+  return isLoggedIn ? (
+    <Navigate to={'/referrals'} replace />
+  ) : (
     <Stack
       direction={'row'}
       sx={{
@@ -27,8 +29,6 @@ export const LoginPage: React.FC = () => {
       <LoginSplashImage />
       <LoginForm />
     </Stack>
-  ) : (
-    <Navigate to={'/referrals'} replace />
   );
 };
 

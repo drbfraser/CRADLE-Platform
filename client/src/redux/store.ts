@@ -1,15 +1,17 @@
-import { rootReducer } from '../reducers';
-
 import { configureStore } from '@reduxjs/toolkit';
-import { requestMiddleware } from '../middleware';
 import thunk from 'redux-thunk';
+import { userSlice } from './user-state';
+import { sidebarSlice } from './sidebar-state';
 
 const preloadedState = {};
 
-const middleware = [thunk, requestMiddleware()];
+const middleware = [thunk];
 
 export const reduxStore = configureStore({
-  reducer: rootReducer,
+  reducer: {
+    user: userSlice.reducer,
+    sidebar: sidebarSlice.reducer,
+  },
   middleware: [...middleware],
   devTools: process.env.NODE_ENV !== 'production' && {
     trace: true,

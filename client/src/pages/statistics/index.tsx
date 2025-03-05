@@ -4,11 +4,9 @@ import { AllStatistics } from './AllStatistics';
 import { FacilityStatistics } from './FacilityStatistics';
 import { MyFacility } from './MyFacility';
 import { MyStatistics } from './MyStatistics';
-import { ReduxState } from 'src/redux/reducers';
 import { UserRoleEnum } from 'src/shared/enums';
 import { UserStatistics } from './UserStatistics';
 import { VHTStatistics } from './VHTStatistics';
-import { useSelector } from 'react-redux';
 import { useEffect, useMemo } from 'react';
 import { Box } from '@mui/material';
 import { useDateRangeState } from 'src/shared/components/Date/useDateRangeState';
@@ -16,9 +14,11 @@ import { DateRangePickerWithPreset } from 'src/shared/components/Date/DateRangeP
 import { Tabs } from 'src/shared/components/Tabs/Tabs';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
 import { DASHBOARD_PADDING } from 'src/shared/constants';
+import { useAppSelector } from 'src/shared/hooks';
+import { selectCurrentUser } from 'src/redux/user-state';
 
 export function StatisticsPage() {
-  const user = useSelector((state: ReduxState) => state.user.current.data);
+  const user = useAppSelector(selectCurrentUser);
 
   const dateRangeState = useDateRangeState();
   const { startDate, setStartDate, endDate, setEndDate } = dateRangeState;
