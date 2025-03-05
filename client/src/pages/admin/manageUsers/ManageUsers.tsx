@@ -10,7 +10,6 @@ import AddIcon from '@mui/icons-material/Add';
 import { UserWithIndex } from 'src/shared/types';
 import { getUsersAsync } from 'src/shared/api/api';
 import { userRoleLabels } from 'src/shared/constants';
-import { useAppSelector } from 'src/shared/hooks';
 import {
   TableAction,
   TableActionButtons,
