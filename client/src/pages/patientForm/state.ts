@@ -1,6 +1,5 @@
 import { GestationalAgeUnitEnum } from 'src/shared/enums';
 import { gestationalAgeUnitLabels } from 'src/shared/constants';
-import { Moment } from 'moment';
 
 export const gestationalAgeUnitOptions = [
   {
