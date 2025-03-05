@@ -29,7 +29,7 @@ export class LoginPageModel extends PageObjectModel {
   }
 
   async clickLoginButton() {
-    await this.clickLoginButton();
+    await this.loginButton.click();
   }
 
   async expectLoginButtonToBeDisabled() {

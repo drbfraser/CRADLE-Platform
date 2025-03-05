@@ -7,6 +7,7 @@ const ADMIN = ADMIN_CREDENTIALS;
 test.describe('Login Tests', () => {
   // Reset storage state for this file to avoid being authenticated
   test.use({ storageState: { cookies: [], origins: [] } });
+
   test.beforeEach(async ({ loginPage }) => {
     await loginPage.goto();
   });
