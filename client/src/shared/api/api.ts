@@ -98,10 +98,20 @@ axiosFetch.interceptors.request.use(async (config) => {
 });
 
 // Set interceptor to catch errors.
-axiosFetch.interceptors.response.use(undefined, (e) => {
-  if (!(e instanceof AxiosError)) return Promise.reject(e);
-  console.error('Error Response: ', e.response?.data);
-  return Promise.reject(e);
+axiosFetch.interceptors.response.use(undefined, (err) => {
+  if (!(err instanceof AxiosError)) return Promise.reject(err);
+  const errorBody = err.response?.data;
+  console.error('Error Response: ', errorBody);
+  if ('description' in errorBody) {
+    console.error(errorBody.description);
+    return Promise.reject({
+      message: errorBody.description,
+    });
+  }
+  if ('message' in errorBody) {
+    return Promise.reject(errorBody);
+  }
+  return Promise.reject(err);
 });
 
 export const changePasswordAsync = async (
