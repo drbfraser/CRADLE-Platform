@@ -1,8 +1,7 @@
 import { type Page, type Locator } from '@playwright/test';
+import { PageObjectModel } from './page-object-model';
 
-export class NewPatientPageModel {
-  private readonly page: Page;
-  private readonly url = '/patients/new';
+export class NewPatientPageModel extends PageObjectModel {
   private readonly patientNameField: Locator;
   private readonly householdNumberField: Locator;
   private readonly villageNumberField: Locator;
@@ -17,7 +16,7 @@ export class NewPatientPageModel {
   private readonly createButton: Locator;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page, '/patients/new');
     this.patientNameField = page.getByRole('textbox', { name: 'Patient Name' });
     this.householdNumberField = page.getByRole('textbox', {
       name: 'Household Number',
@@ -42,11 +41,6 @@ export class NewPatientPageModel {
     this.allergiesField = page.getByRole('textbox', { name: 'Allergies' });
     this.nextButton = page.getByRole('button', { name: 'Next' });
     this.createButton = page.getByRole('button', { name: 'Create' });
-  }
-
-  async goto() {
-    await this.page.goto(this.url);
-    await this.page.waitForURL(this.url);
   }
 
   async fillBasicFields(name: string) {

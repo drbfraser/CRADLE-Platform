@@ -1,21 +1,14 @@
 import { type Page, type Locator } from '@playwright/test';
+import { PageObjectModel } from './page-object-model';
 
-export class PatientSummaryPageModel {
-  readonly page: Page;
-  readonly url: string;
-
+export class PatientSummaryPageModel extends PageObjectModel {
   private readonly createReferralButton: Locator;
 
   constructor(page: Page, patientId: string) {
-    this.page = page;
-    this.url = `/patients/${patientId}`;
+    super(page, `/patients/${patientId}`);
     this.createReferralButton = page.getByRole('button', {
       name: 'Create Referral',
     });
-  }
-
-  async goto() {
-    await this.page.goto(this.url);
   }
 
   async clickCreateReferralButton() {
