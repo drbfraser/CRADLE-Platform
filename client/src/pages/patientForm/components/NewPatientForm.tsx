@@ -22,14 +22,14 @@ import { personalInfoValidationSchema } from './personalInfo/validation';
 import { pregnancyInfoValidationSchema } from './pregnancyInfo/validation';
 import { getPatientData } from './EditPersonalInfoForm';
 import { MedicalInfoForm } from './medicalInfo';
-import { PersonalInfoForm } from './personalInfo';
-import { PregnancyInfoForm } from './pregnancyInfo';
-import PatientFormHeader from './PatientFormHeader';
-import { getPregnancyValues } from './pregnancyInfo/utils';
 import {
   drugHistoryValidationSchema,
   medicalHistoryValidationSchema,
 } from './medicalInfo/validation';
+import { PersonalInfoForm } from './personalInfo';
+import { PregnancyInfoForm } from './pregnancyInfo';
+import PatientFormHeader from './PatientFormHeader';
+import { getPregnancyValues } from './pregnancyInfo/utils';
 
 const STEPS = [
   {
@@ -76,7 +76,6 @@ export const NewPatientForm = () => {
       const isPregnant = Boolean(values[PatientField.isPregnant]);
       if (isPregnant) {
         const pregnancyValues = getPregnancyValues(values);
-
         await addPregnancyInfo.mutateAsync({
           patientId,
           startDate: pregnancyValues.startDate,

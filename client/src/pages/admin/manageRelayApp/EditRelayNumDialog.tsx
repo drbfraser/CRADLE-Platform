@@ -1,4 +1,6 @@
-import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
+import { useMutation } from '@tanstack/react-query';
+import * as Yup from 'yup';
+import { Field, Form, Formik } from 'formik';
 import {
   Dialog,
   DialogActions,
@@ -6,19 +8,18 @@ import {
   DialogTitle,
   FormGroup,
 } from '@mui/material';
-import { RelayNumField } from './state';
-import { Field, Form, Formik, FormikHelpers } from 'formik';
 import { TextField } from 'formik-mui';
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+
 import { RelayNum } from 'src/shared/types';
-import { useState } from 'react';
 import { saveRelayNumAsync } from 'src/shared/api/api';
+import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Toast } from 'src/shared/components/toast';
 import {
   makePhoneNumberValidationSchema,
   PhoneNumberField,
 } from 'src/shared/components/Form/PhoneNumberField';
-import * as Yup from 'yup';
+import { RelayNumField } from './state';
 
 interface IProps {
   open: boolean;
@@ -27,9 +28,15 @@ interface IProps {
   editRelayNum?: RelayNum;
 }
 
-const EditRelayNum = ({ open, onClose, relayNums, editRelayNum }: IProps) => {
-  const [submitError, setSubmitError] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
+const EditRelayNumDialog = ({
+  open,
+  onClose,
+  relayNums,
+  editRelayNum,
+}: IProps) => {
+  const updateRelayNum = useMutation({
+    mutationFn: saveRelayNumAsync,
+  });
 
   if (!editRelayNum) return null;
 
@@ -43,19 +50,10 @@ const EditRelayNum = ({ open, onClose, relayNums, editRelayNum }: IProps) => {
     phoneNumber: makePhoneNumberValidationSchema(otherPhoneNumbers),
   });
 
-  const handleSubmit = async (
-    values: RelayNum,
-    { setSubmitting }: FormikHelpers<RelayNum>
-  ) => {
-    try {
-      await saveRelayNumAsync(values);
-
-      setSubmitSuccess(true);
-      onClose();
-    } catch (e) {
-      setSubmitting(false);
-      setSubmitError(true);
-    }
+  const handleSubmit = (values: RelayNum) => {
+    updateRelayNum.mutate(values, {
+      onSuccess: () => onClose(),
+    });
   };
 
   return (
@@ -63,11 +61,14 @@ const EditRelayNum = ({ open, onClose, relayNums, editRelayNum }: IProps) => {
       <Toast
         severity="success"
         message="Number Successfully Updated!"
-        open={submitSuccess}
-        onClose={() => setSubmitSuccess(false)}
+        open={updateRelayNum.isSuccess}
+        onClose={() => updateRelayNum.reset()}
       />
-      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
-      <Dialog open={open} maxWidth="md" fullWidth sx={{}}>
+      {updateRelayNum.isError && (
+        <APIErrorToast onClose={() => updateRelayNum.reset()} />
+      )}
+
+      <Dialog open={open} maxWidth="md" fullWidth>
         <DialogTitle>Edit Relay Server Phone Number</DialogTitle>
         <DialogContent>
           <Formik
@@ -75,7 +76,7 @@ const EditRelayNum = ({ open, onClose, relayNums, editRelayNum }: IProps) => {
             validationSchema={validationSchema}
             validateOnBlur
             onSubmit={handleSubmit}>
-            {({ isSubmitting, isValid }) => (
+            {({ isValid }) => (
               <Form>
                 <FormGroup
                   sx={{
@@ -102,7 +103,7 @@ const EditRelayNum = ({ open, onClose, relayNums, editRelayNum }: IProps) => {
                     </CancelButton>
                     <PrimaryButton
                       type="submit"
-                      disabled={isSubmitting || !isValid}>
+                      disabled={updateRelayNum.isPending || !isValid}>
                       Save
                     </PrimaryButton>
                   </DialogActions>
@@ -116,4 +117,4 @@ const EditRelayNum = ({ open, onClose, relayNums, editRelayNum }: IProps) => {
   );
 };
 
-export default EditRelayNum;
+export default EditRelayNumDialog;

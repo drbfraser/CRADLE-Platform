@@ -1,4 +1,12 @@
 import {
+  ChangeEvent,
+  useCallback,
+  // useEffect,
+  useState,
+} from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import {
+  Alert,
   Box,
   Button,
   Dialog,
@@ -6,191 +14,136 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
-  Grid,
   Input,
   Stack,
-  SxProps,
-  TextField,
-  Theme,
   Typography,
 } from '@mui/material';
-import React, { useCallback, useEffect, useState } from 'react';
-import {
-  addRelayServerPhone,
-  getAppFileAsync,
-  getAppFileHeadAsync,
-  getRelayServerPhones,
-  uploadAppFileAsync,
-} from 'src/shared/api/api';
-
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { Alert } from '@mui/material';
-import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
+import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import {
   CloudDownloadOutlined,
   DeleteForever,
   Edit,
   UploadFile,
 } from '@mui/icons-material';
-import * as yup from 'yup';
-import { formatBytes } from 'src/shared/utils';
-import { Field, Form, Formik } from 'formik';
-import { RelayNum } from 'src/shared/types';
-import EditRelayNum from './editRelayNum';
-import DeleteRelayNum from './DeleteRelayNum';
-import {
-  GridColDef,
-  GridRenderCellParams,
-  GridRowsProp,
-} from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import DownloadIcon from '@mui/icons-material/Download';
+
+// import { formatBytes } from 'src/shared/utils';
+import { RelayNum } from 'src/shared/types';
+import {
+  getAppFileAsync,
+  // getAppFileHeadAsync,
+  getRelayServerPhones,
+  uploadAppFileAsync,
+} from 'src/shared/api/api';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import {
   TableAction,
   TableActionButtons,
 } from 'src/shared/components/DataTable/TableActionButtons';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
 import { DataTable } from 'src/shared/components/DataTable/DataTable';
+import EditRelayNumDialog from './EditRelayNumDialog';
+import DeleteRelayNumDialog from './DeleteRelayNumDialog';
+import AddRelayNumDialog from './AddRelayNumDialog';
+
+const FILE_NAME = 'cradle_sms_relay.apk';
+
+const ERROR_MESSAGES: { [name: number]: string } = {
+  400: 'Invalid file',
+  413: 'File too large',
+  422: 'Unsupported file type',
+  500: 'Internal Server Error',
+};
 
 export const ManageRelayApp = () => {
-  const [hasFile, setHasFile] = useState(false);
-  const [fileSize, setFileSize] = useState<string>();
-  const [fileLastModified, setFileLastModified] = useState<string>();
+  const [
+    hasFile,
+    // setHasFile
+  ] = useState(false);
+  const [
+    fileSize,
+    // setFileSize
+  ] = useState<string>();
+  const [
+    fileLastModified,
+    // setFileLastModified
+  ] = useState<string>();
   const [selectedFile, setSelectedFile] = useState<File>();
   const [numFileUploaded, setNumFileUploaded] = useState(0);
-  const [isUploadOk, setIsUploadOk] = useState(false);
-  const [uploadError, setUploadError] = useState<string>();
-  const [errorLoading, setErrorLoading] = useState(false);
 
-  // Table
-  const [relayNums, setRelayNums] = useState<RelayNum[]>([]);
-
-  // Relay App Actions
-  const [AppActionsPopup, openAppActionsPopup] = useState(false);
-  const [NewNumberDialog, openAddNewNumberDialog] = useState(false);
+  const [appActionsOpen, setAppActionsOpen] = useState(false);
 
   // Relay Number Actions
+  const [newNumberDialogOpen, setNewNumberDialogOpen] = useState(false);
   const [editPopupOpen, setEditPopupOpen] = useState(false);
   const [popupRelayNum, setPopupRelayNum] = useState<RelayNum>();
   const [deletePopupOpen, setDeletePopupOpen] = useState(false);
 
-  const [rows, setRows] = useState<GridRowsProp>([]);
-  const updateRowData = (relayNums: RelayNum[]) => {
-    setRows(
-      relayNums.map((relayNum, index) => ({
-        id: index,
-        phoneNumber: relayNum.phoneNumber,
-        description: relayNum.description,
-        lastReceived: relayNum.lastReceived,
-        takeAction: relayNum,
-      }))
-    );
-  };
-
-  const filename = 'cradle_sms_relay.apk';
-
-  const relayNumberTemplate = {
-    phoneNumber: '',
-    description: '',
-    lastReceived: 0,
-  };
-
-  const validationSchema = yup.object({
-    phone: yup.string().required('Required').max(20),
-    description: yup.string().max(250),
+  const relayNumbersQuery = useQuery({
+    queryKey: ['relayNumbers'],
+    queryFn: getRelayServerPhones,
   });
 
-  const errorMessages: { [name: number]: string } = {
-    400: 'Invalid file',
-    413: 'File too large',
-    422: 'Unsupported file type',
-    500: 'Internal Server Error',
-  };
+  const appFileQuery = useQuery<Blob>({
+    queryKey: ['appFile'],
+    queryFn: getAppFileAsync,
+    enabled: hasFile,
+  });
 
-  const handleChange = (event: React.ChangeEvent<any>) => {
+  const handleAppFileChange = (event: ChangeEvent<any>) => {
     setSelectedFile(event.target.files[0]);
   };
 
+  const uploadAppFile = useMutation({
+    mutationFn: (file: File) =>
+      uploadAppFileAsync(file).catch((e) => {
+        throw new Error(ERROR_MESSAGES[e]);
+      }),
+  });
   const handleClickUpload = async () => {
     if (selectedFile) {
-      try {
-        await uploadAppFileAsync(selectedFile);
-
-        setNumFileUploaded(numFileUploaded + 1);
-        setIsUploadOk(true);
-        setTimeout(() => setIsUploadOk(false), 3000);
-      } catch (e: any) {
-        setUploadError(errorMessages[e]);
-        setTimeout(() => setUploadError(''), 3000);
-      }
+      uploadAppFile.mutate(selectedFile, {
+        onSuccess: () => setNumFileUploaded(numFileUploaded + 1),
+        onSettled: () => setTimeout(() => uploadAppFile.reset(), 3000),
+      });
     }
   };
 
   const handleClickDownload = async () => {
-    try {
-      const file = await getAppFileAsync();
-
-      const objectURL = URL.createObjectURL(file);
-
-      const link = document.createElement('a');
-      link.href = objectURL;
-      link.setAttribute('download', filename);
-      link.click();
-    } catch (e) {
-      setErrorLoading(true);
+    if (!appFileQuery.data) {
+      return;
     }
+
+    const objectURL = URL.createObjectURL(appFileQuery.data);
+    const link = document.createElement('a');
+    link.href = objectURL;
+    link.setAttribute('download', FILE_NAME);
+    link.click();
   };
 
-  const getRelayNums = async () => {
-    try {
-      const nums: RelayNum[] = await getRelayServerPhones();
-      if (nums) {
-        setRelayNums(nums);
-      }
-    } catch (e) {
-      if (e !== 404) setErrorLoading(true);
-    }
-  };
+  // TODO: This does not work at the moment... also not sure what this is supposed to do...
+  // useEffect(() => {
+  //   const loadAppFile = async () => {
+  //     try {
+  //       const resp = await getAppFileHeadAsync();
 
-  useEffect(() => {
-    getRelayNums();
-  }, []);
+  //       const size = resp.headers.get('Content-Length');
+  //       if (size) setFileSize(formatBytes(parseInt(size)));
 
-  useEffect(() => {
-    updateRowData(relayNums);
-  }, [relayNums]);
+  //       const date = resp.headers.get('Last-Modified');
+  //       if (date) setFileLastModified(date);
 
-  useEffect(() => {
-    const loadAppFile = async () => {
-      try {
-        const resp = await getAppFileHeadAsync();
+  //       setHasFile(true);
+  //     } catch (e) {
+  //       console.error(e);
+  //       if (e !== 404) setErrorLoading(true);
+  //     }
+  //   };
 
-        const size = resp.headers.get('Content-Length');
-        if (size) setFileSize(formatBytes(parseInt(size)));
-
-        const date = resp.headers.get('Last-Modified');
-        if (date) setFileLastModified(date);
-
-        setHasFile(true);
-      } catch (e) {
-        if (e !== 404) setErrorLoading(true);
-      }
-    };
-
-    loadAppFile();
-  }, [numFileUploaded]);
-
-  const handleSubmit = async (values: RelayNum) => {
-    try {
-      await addRelayServerPhone(values.phoneNumber, values.description);
-      const resp = await getRelayServerPhones();
-      if (resp) {
-        setRelayNums(resp);
-      }
-    } catch (e: any) {
-      setErrorLoading(true);
-    }
-  };
+  //   loadAppFile();
+  // }, [numFileUploaded]);
 
   const ActionButtons = useCallback(({ relayNum }: { relayNum?: RelayNum }) => {
     const actions: TableAction[] = [
@@ -221,7 +174,7 @@ export const ManageRelayApp = () => {
     return <TableActionButtons actions={actions} />;
   }, []);
 
-  const columns: GridColDef[] = [
+  const tableColumns: GridColDef[] = [
     { flex: 1, field: 'phoneNumber', headerName: 'Phone Number' },
     { flex: 1, field: 'description', headerName: 'Description' },
     {
@@ -240,6 +193,14 @@ export const ManageRelayApp = () => {
       ),
     },
   ];
+  const tableRows =
+    relayNumbersQuery.data?.map((relayNum, index) => ({
+      id: index,
+      phoneNumber: relayNum.phoneNumber,
+      description: relayNum.description,
+      lastReceived: relayNum.lastReceived,
+      takeAction: relayNum,
+    })) ?? [];
 
   const HeaderButtons = () => {
     return (
@@ -248,7 +209,7 @@ export const ManageRelayApp = () => {
           variant={'contained'}
           startIcon={<AddIcon />}
           onClick={() => {
-            openAddNewNumberDialog(true);
+            setNewNumberDialogOpen(true);
           }}>
           {'Add Number'}
         </Button>
@@ -256,7 +217,7 @@ export const ManageRelayApp = () => {
           variant={'contained'}
           startIcon={<DownloadIcon />}
           onClick={() => {
-            openAppActionsPopup(true);
+            setAppActionsOpen(true);
           }}>
           {'Download App'}
         </Button>
@@ -264,80 +225,17 @@ export const ManageRelayApp = () => {
     );
   };
 
-  const boxSx: SxProps<Theme> = (theme) => ({
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  });
-
+  const isError = relayNumbersQuery.isError || appFileQuery.isError;
   return (
     <>
-      <APIErrorToast
-        open={errorLoading}
-        onClose={() => setErrorLoading(false)}
-      />
-      <Dialog open={NewNumberDialog} maxWidth="md" fullWidth>
-        <DialogTitle>Add Number</DialogTitle>
-        <DialogContent>
-          <Formik
-            initialValues={relayNumberTemplate}
-            validationSchema={validationSchema}
-            onSubmit={handleSubmit}>
-            {({ isSubmitting, isValid, errors, dirty }) => (
-              <Form>
-                <Grid container spacing={3} sx={{ paddingTop: 1 }}>
-                  <Grid item xs={12}>
-                    <Field
-                      as={TextField}
-                      fullWidth
-                      required
-                      inputProps={{ maxLength: 50 }}
-                      variant="outlined"
-                      label="Phone Number"
-                      name={'phone'}
-                      error={errors.phoneNumber !== undefined}
-                      helperText={errors.phoneNumber}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Field
-                      as={TextField}
-                      fullWidth
-                      inputProps={{ maxLength: 300 }}
-                      variant="outlined"
-                      label="Description"
-                      name={'description'}
-                      error={errors.description !== undefined}
-                      helperText={errors.description}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <DialogActions>
-                      <CancelButton
-                        type="button"
-                        onClick={() => {
-                          openAddNewNumberDialog(false);
-                        }}>
-                        Cancel
-                      </CancelButton>
-                      <PrimaryButton
-                        type="submit"
-                        disabled={isSubmitting || !isValid || !dirty}
-                        onClick={() => {
-                          openAddNewNumberDialog(false);
-                        }}>
-                        Save
-                      </PrimaryButton>
-                    </DialogActions>
-                  </Grid>
-                </Grid>
-              </Form>
-            )}
-          </Formik>
-        </DialogContent>
-      </Dialog>
-      {/*end*/}
+      {isError && <APIErrorToast />}
 
-      <Dialog open={AppActionsPopup} maxWidth="md" fullWidth>
+      <AddRelayNumDialog
+        open={newNumberDialogOpen}
+        onClose={() => setNewNumberDialogOpen(false)}
+      />
+
+      <Dialog open={appActionsOpen} maxWidth="md" fullWidth>
         <DialogTitle>Relay App Actions</DialogTitle>
         <DialogContent>
           <Box>
@@ -345,15 +243,17 @@ export const ManageRelayApp = () => {
               Download App
             </Typography>
             <Divider />
-            {hasFile ? (
-              <Box sx={boxSx}>
-                <div>Filename: {filename}</div>
-                <div>File size: {fileSize}</div>
-                <div>Last modified: {fileLastModified}</div>
-              </Box>
-            ) : (
-              <Box sx={boxSx}>No file available.</Box>
-            )}
+            <Box>
+              {hasFile ? (
+                <>
+                  <div>Filename: {FILE_NAME}</div>
+                  <div>File size: {fileSize}</div>
+                  <div>Last modified: {fileLastModified}</div>
+                </>
+              ) : (
+                <>No File Available</>
+              )}
+            </Box>
             {hasFile && (
               <PrimaryButton onClick={handleClickDownload}>
                 Download
@@ -366,10 +266,10 @@ export const ManageRelayApp = () => {
               Upload App
             </Typography>
             <Divider />
-            <Box sx={boxSx}>
+            <Box>
               <Button
                 color="primary"
-                aria-label="upload picture"
+                aria-label="upload android package archive"
                 component="label"
                 endIcon={<UploadFile />}>
                 <Input
@@ -378,15 +278,17 @@ export const ManageRelayApp = () => {
                   inputProps={{
                     accept: 'application/vnd.android.package-archive',
                   }}
-                  onChange={handleChange}
+                  onChange={handleAppFileChange}
                 />
               </Button>
             </Box>
             <PrimaryButton onClick={handleClickUpload}>Upload</PrimaryButton>
-            {uploadError ? (
-              <Alert severity="error">Upload failed - {uploadError}</Alert>
+            {uploadAppFile.isError ? (
+              <Alert severity="error">
+                Upload failed - {uploadAppFile.error.message}
+              </Alert>
             ) : (
-              isUploadOk && (
+              uploadAppFile.isSuccess && (
                 <Alert style={{ marginTop: '20px' }} severity="success">
                   Upload successful
                 </Alert>
@@ -398,7 +300,7 @@ export const ManageRelayApp = () => {
             <CancelButton
               type="button"
               onClick={() => {
-                openAppActionsPopup(false);
+                setAppActionsOpen(false);
               }}>
               Cancel
             </CancelButton>
@@ -406,7 +308,7 @@ export const ManageRelayApp = () => {
               type="submit"
               disabled={false}
               onClick={() => {
-                openAppActionsPopup(false); //redundant - rework ui
+                setAppActionsOpen(false); //redundant - rework ui
               }}>
               Done
             </PrimaryButton>
@@ -414,28 +316,28 @@ export const ManageRelayApp = () => {
         </DialogContent>
       </Dialog>
 
-      <EditRelayNum
+      <EditRelayNumDialog
         open={editPopupOpen}
         onClose={() => {
           setEditPopupOpen(false);
-          getRelayNums();
+          relayNumbersQuery.refetch();
         }}
-        relayNums={relayNums}
+        relayNums={relayNumbersQuery?.data ?? []}
         editRelayNum={popupRelayNum}
       />
-
-      <DeleteRelayNum
+      <DeleteRelayNumDialog
         open={deletePopupOpen}
         onClose={() => {
           setDeletePopupOpen(false);
-          getRelayNums();
+          relayNumbersQuery.refetch();
         }}
-        deleteRelayNum={popupRelayNum}
+        relayNumToDelete={popupRelayNum}
       />
+
       <DataTableHeader title={'Relay App Servers'}>
         <HeaderButtons />
       </DataTableHeader>
-      <DataTable columns={columns} rows={rows} />
+      <DataTable columns={tableColumns} rows={tableRows} />
     </>
   );
 };

@@ -1,38 +1,35 @@
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import { RelayNum } from 'src/shared/types';
-import { Toast } from 'src/shared/components/toast';
-import { deleteRelayNumAsync } from 'src/shared/api/api';
-import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
 } from '@mui/material';
+import { RelayNum } from 'src/shared/types';
+import { deleteRelayNumAsync } from 'src/shared/api/api';
+import { Toast } from 'src/shared/components/toast';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 
 interface IProps {
   open: boolean;
   onClose: () => void;
-  deleteRelayNum?: RelayNum;
+  relayNumToDelete?: RelayNum;
 }
 
-const DeleteRelayNum = ({ open, onClose, deleteRelayNum }: IProps) => {
-  const [submitError, setSubmitError] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
+const DeleteRelayNumDialog = ({ open, onClose, relayNumToDelete }: IProps) => {
+  const deleteRelayNum = useMutation({
+    mutationFn: deleteRelayNumAsync,
+  });
 
   const handleDelete = async () => {
-    if (!deleteRelayNum) {
+    if (!relayNumToDelete) {
       return;
     }
 
-    try {
-      await deleteRelayNumAsync(deleteRelayNum);
-      setSubmitSuccess(true);
-      onClose();
-    } catch (e) {
-      setSubmitError(true);
-    }
+    deleteRelayNum.mutate(relayNumToDelete, {
+      onSuccess: () => onClose(),
+    });
   };
 
   return (
@@ -40,10 +37,13 @@ const DeleteRelayNum = ({ open, onClose, deleteRelayNum }: IProps) => {
       <Toast
         severity="success"
         message="Number Successfully Deleted!"
-        open={submitSuccess}
-        onClose={() => setSubmitSuccess(false)}
+        open={deleteRelayNum.isSuccess}
+        onClose={() => deleteRelayNum.reset()}
       />
-      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
+      {deleteRelayNum.isError && (
+        <APIErrorToast onClose={() => deleteRelayNum.reset()} />
+      )}
+
       <Dialog open={open} onClose={onClose}>
         <DialogTitle>Delete Relay Number</DialogTitle>
         <DialogContent>
@@ -61,4 +61,4 @@ const DeleteRelayNum = ({ open, onClose, deleteRelayNum }: IProps) => {
   );
 };
 
-export default DeleteRelayNum;
+export default DeleteRelayNumDialog;
