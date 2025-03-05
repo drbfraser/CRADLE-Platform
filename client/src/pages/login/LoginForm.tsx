@@ -118,9 +118,7 @@ export const LoginForm = () => {
                     <Button
                       variant={'contained'}
                       fullWidth
-                      disabled={
-                        !formikProps.isValid || formikProps.isSubmitting
-                      }
+                      disabled={!formikProps.isValid || login.isPending}
                       type={'submit'}
                       size={'large'}
                       sx={{
