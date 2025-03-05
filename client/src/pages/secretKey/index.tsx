@@ -26,7 +26,7 @@ import {
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 import { UserRoleEnum } from 'src/shared/enums';
-import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
+import { selectCurrentUser } from 'src/redux/user-state';
 import { useSecretKey } from 'src/pages/secretKey/useSecretKey';
 import { useAppSelector } from 'src/shared/hooks';
 import { Toast } from 'src/shared/components/toast';

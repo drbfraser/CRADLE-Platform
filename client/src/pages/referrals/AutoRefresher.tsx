@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Box, CircularProgress, SxProps, Typography } from '@mui/material';
 
 import { getHealthFacilityAsync } from 'src/shared/api/api';
-import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
+import { selectCurrentUser } from 'src/redux/user-state';
 import { useAppSelector } from 'src/shared/hooks';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { useQuery } from '@tanstack/react-query';
@@ -22,17 +22,12 @@ export const AutoRefresher = ({
   const [isAutoRefreshOn, setIsAutoRefreshOn] = useState<boolean>(true);
   const [healthFacilityName, setHealthFacilityName] = useState<string>();
 
-  const healthcareFacilityQuery = useQuery({
-    queryKey: ['healthcareFacility', healthFacilityName],
-    queryFn: () => getHealthFacilityAsync(healthFacilityName),
-  });
+  const user = useAppSelector(selectCurrentUser);
 
-  const { data: user } = useAppSelector(selectCurrentUser);
-  useEffect(() => {
-    if (user) {
-      setHealthFacilityName(user.healthFacilityName);
-    }
-  }, [user]);
+  const healthcareFacilityQuery = useQuery({
+    queryKey: ['healthcareFacility', user?.healthFacilityName],
+    queryFn: () => getHealthFacilityAsync(user?.healthFacilityName),
+  });
 
   useEffect(() => {
     setProgress(0);

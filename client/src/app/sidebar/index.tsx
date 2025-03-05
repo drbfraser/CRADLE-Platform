@@ -20,8 +20,9 @@ import SendIcon from '@mui/icons-material/Send';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import PollIcon from '@mui/icons-material/Poll';
 import SchoolIcon from '@mui/icons-material/School';
-import { selectCurrentUser, selectIsLoggedIn } from 'src/redux/user-state';
+import { selectCurrentUser } from 'src/redux/user-state';
 import SettingsIcon from '@mui/icons-material/Settings';
+import { useIsLoggedIn } from 'src/shared/hooks/auth/useIsLoggedIn';
 
 type SidebarProps = {
   drawerWidth: string;
@@ -35,7 +36,7 @@ export const Sidebar = ({ drawerWidth, isBigScreen }: SidebarProps) => {
   const location = useLocation();
 
   const currentUser = useAppSelector(selectCurrentUser);
-  const isLoggedIn = useAppSelector(selectIsLoggedIn);
+  const isLoggedIn = useIsLoggedIn();
   const isAdmin = currentUser?.role === UserRoleEnum.ADMIN;
 
   const handleCloseSidebar = () => {

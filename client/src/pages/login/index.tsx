@@ -5,17 +5,10 @@ import { Box, useMediaQuery } from '@mui/material';
 import { DASHBOARD_PADDING, TOP_BAR_HEIGHT } from 'src/shared/constants';
 import { LoginForm } from './LoginForm';
 
-import { selectIsLoggedIn } from 'src/redux/user-state';
-import { useAppSelector } from 'src/shared/hooks';
+import { useIsLoggedIn } from 'src/shared/hooks/auth/useIsLoggedIn';
 
 export const LoginPage: React.FC = () => {
-  const isLoggedIn = useAppSelector(selectIsLoggedIn);
-
-  // if the user has reached the login page, they likely came directly here
-  // therefore Redux will be empty and we must check local storage for a token
-  if (localStorage.getItem('accessToken') !== null) {
-    return <Navigate to={'/referrals'} replace />;
-  }
+  const isLoggedIn = useIsLoggedIn();
 
   return isLoggedIn ? (
     <Navigate to={'/referrals'} replace />

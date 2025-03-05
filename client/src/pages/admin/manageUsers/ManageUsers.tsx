@@ -11,7 +11,7 @@ import { UserWithIndex } from 'src/shared/types';
 import { getUsersAsync } from 'src/shared/api/api';
 import { userRoleLabels } from 'src/shared/constants';
 import { useAppSelector } from 'src/shared/hooks';
-import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
+import { selectCurrentUser } from 'src/redux/user-state';
 import {
   TableAction,
   TableActionButtons,

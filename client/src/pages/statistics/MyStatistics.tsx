@@ -2,7 +2,7 @@ import { Box, Divider, Typography } from '@mui/material';
 
 import { getUserStatisticsExportAsync } from 'src/shared/api/apiStatistics';
 import { useAppSelector } from 'src/shared/hooks';
-import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
+import { selectCurrentUser } from 'src/redux/user-state';
 import { useUserStatsQuery } from './utils/queries';
 import { ExportStatistics } from './utils/ExportStatistics';
 import { StatisticDashboard } from './utils/StatisticsDashboard';

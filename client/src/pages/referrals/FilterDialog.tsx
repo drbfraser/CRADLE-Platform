@@ -23,7 +23,7 @@ import ScheduleIcon from '@mui/icons-material/Schedule';
 import { ReferralFilter, Referrer } from 'src/shared/types';
 import { getUserVhtsAsync } from 'src/shared/api/api';
 import { TrafficLightEnum } from 'src/shared/enums';
-import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
+import { selectCurrentUser } from 'src/redux/user-state';
 import { useAppSelector } from 'src/shared/hooks';
 import { useHealthFacilityNames } from 'src/shared/hooks/healthFacilityNames';
 import { TrafficLight } from 'src/shared/components/trafficLight';

@@ -10,7 +10,7 @@ import { SortDir } from 'src/shared/components/apiTable/types';
 import { useAppDispatch, useAppSelector } from 'src/shared/hooks';
 import { Toast } from 'src/shared/components/toast';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
-import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
+import { selectCurrentUser } from 'src/redux/user-state';
 import { BREAKPOINT, COLUMNS, SORTABLE_COLUMNS } from './constants';
 import { FilterDialog } from './FilterDialog';
 import { AutoRefresher } from './AutoRefresher';

@@ -4,7 +4,7 @@ import { CheckboxWithLabel, TextField } from 'formik-mui';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 import { Alert, Box, Grid, Paper, Typography } from '@mui/material';
 
-import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
+import { selectCurrentUser } from 'src/redux/user-state';
 import { useAppSelector } from 'src/shared/hooks';
 import { NewAssessment } from 'src/shared/types';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';

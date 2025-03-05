@@ -16,7 +16,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { selectCurrentUser, selectIsLoggedIn } from 'src/redux/user-state';
+import { selectCurrentUser } from 'src/redux/user-state';
 import { useCallback, useState } from 'react';
 import { TOP_BAR_HEIGHT, userRoleLabels } from 'src/shared/constants';
 import {
@@ -27,6 +27,7 @@ import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { Link } from 'react-router-dom';
 import { useLogout } from 'src/shared/hooks/auth/useLogout';
+import { useIsLoggedIn } from 'src/shared/hooks/auth/useIsLoggedIn';
 
 export const TopBar = () => {
   const theme = useTheme();
@@ -35,8 +36,7 @@ export const TopBar = () => {
   const user = useAppSelector(selectCurrentUser);
 
   const dispatch = useAppDispatch();
-
-  const loggedIn = useAppSelector(selectIsLoggedIn);
+  const loggedIn = useIsLoggedIn();
 
   const isSidebarOpen = useAppSelector(selectSidebarIsOpen);
 
