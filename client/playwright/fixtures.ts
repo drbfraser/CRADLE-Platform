@@ -33,7 +33,7 @@ export type CradleFixtures = {
  * common fixtures that we want to make available to all of our
  * Playwright tests.
  */
-export const cradleTest = baseTest.extend<CradleFixtures>({
+export const test = baseTest.extend<CradleFixtures>({
   /** This fixture is used for directly sending requests to our REST API.
    * It is configured to attach the Authorization header with an access token
    * to all outgoing requests.
@@ -55,7 +55,7 @@ export const cradleTest = baseTest.extend<CradleFixtures>({
 
   /** This fixture creates a test patient through the REST API.
    * This will be run for each individual test, so each test will get their
-   * own patient.
+   * own patient. This ensures that tests won't conflict with each other.
    * The test patients will be deleted during the `teardown` phase, after all
    * tests have run.
    **/
