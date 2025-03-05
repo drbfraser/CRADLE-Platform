@@ -2,10 +2,9 @@ import { useState, useEffect } from 'react';
 import { Box, CircularProgress, SxProps, Typography } from '@mui/material';
 
 import { getHealthFacilityAsync } from 'src/shared/api/api';
-import { selectCurrentUser } from 'src/redux/user-state';
-import { useAppSelector } from 'src/shared/hooks';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { useQuery } from '@tanstack/react-query';
+import { useCurrentUser } from 'src/shared/hooks/auth/useCurrentUser';
 
 interface IProps {
   setRefresh: React.Dispatch<React.SetStateAction<boolean>>;
@@ -20,13 +19,14 @@ export const AutoRefresher = ({
 }: IProps) => {
   const [progress, setProgress] = useState<number>(0);
   const [isAutoRefreshOn, setIsAutoRefreshOn] = useState<boolean>(true);
-  const [healthFacilityName, setHealthFacilityName] = useState<string>();
 
-  const user = useAppSelector(selectCurrentUser);
+  const currentUser = useCurrentUser();
+  const healthFacilityName = currentUser?.healthFacilityName ?? '';
 
   const healthcareFacilityQuery = useQuery({
-    queryKey: ['healthcareFacility', user?.healthFacilityName],
-    queryFn: () => getHealthFacilityAsync(user?.healthFacilityName),
+    queryKey: ['healthcareFacility', healthFacilityName],
+    queryFn: () => getHealthFacilityAsync(healthFacilityName),
+    enabled: !!currentUser,
   });
 
   useEffect(() => {

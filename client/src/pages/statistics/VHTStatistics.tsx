@@ -22,8 +22,7 @@ import {
 import { StatisticDashboard } from './utils/StatisticsDashboard';
 import { ExportStatistics } from './utils/ExportStatistics';
 import { useUserStatsQuery } from './utils/queries';
-import { selectCurrentUser } from 'src/redux/user-state';
-import { useAppSelector } from 'src/shared/hooks';
+import { useCurrentUser } from 'src/shared/hooks/auth/useCurrentUser';
 
 type Props = {
   from: number;
@@ -31,7 +30,7 @@ type Props = {
 };
 
 export const VHTStatistics = ({ from, to }: Props) => {
-  const user = useAppSelector(selectCurrentUser);
+  const currentUser = useCurrentUser();
 
   const [vht, setVht] = useState('');
 
@@ -40,14 +39,20 @@ export const VHTStatistics = ({ from, to }: Props) => {
     queryKey: ['allVHTs'],
     queryFn: getVHTsAsync,
     select: (data) => {
-      if (user?.role === UserRoleEnum.CHO) {
-        return data.filter((vht) => user.supervises.includes(vht.userId));
+      if (currentUser?.role === UserRoleEnum.CHO) {
+        return data.filter((vht) =>
+          currentUser.supervises.includes(vht.userId)
+        );
       }
       return data;
     },
   });
 
-  if (user && user.role === UserRoleEnum.CHO && user.supervises.length === 0) {
+  if (
+    currentUser &&
+    currentUser.role === UserRoleEnum.CHO &&
+    currentUser.supervises.length === 0
+  ) {
     return (
       <Box>
         <Typography variant="h5" gutterBottom>

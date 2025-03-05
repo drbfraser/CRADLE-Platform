@@ -4,8 +4,7 @@ import { Box, Divider, Typography } from '@mui/material';
 import { StatisticDashboard } from './utils/StatisticsDashboard';
 import { DIVIDER_SX } from './utils/statisticStyles';
 import { getFacilityStatisticsAsync } from 'src/shared/api/apiStatistics';
-import { useAppSelector } from 'src/shared/hooks';
-import { selectCurrentUser } from 'src/redux/user-state';
+import { useCurrentUser } from 'src/shared/hooks/auth/useCurrentUser';
 
 type Props = {
   from: number;
@@ -13,8 +12,8 @@ type Props = {
 };
 
 export const MyFacility = ({ from, to }: Props) => {
-  const user = useAppSelector(selectCurrentUser);
-  const facilityName = user!.healthFacilityName;
+  const currentUser = useCurrentUser();
+  const facilityName = currentUser!.healthFacilityName;
 
   const myFacilityStatsQuery = useQuery({
     queryKey: ['MyFacilityStats', facilityName, from, to],

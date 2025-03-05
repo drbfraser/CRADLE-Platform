@@ -26,20 +26,19 @@ import {
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 import { UserRoleEnum } from 'src/shared/enums';
-import { selectCurrentUser } from 'src/redux/user-state';
 import { useSecretKey } from 'src/pages/secretKey/useSecretKey';
-import { useAppSelector } from 'src/shared/hooks';
 import { Toast } from 'src/shared/components/toast';
 import { getUsersAsync } from 'src/shared/api/api';
+import { useCurrentUser } from 'src/shared/hooks/auth/useCurrentUser';
 
 const SecretKeyPage: React.FC = () => {
-  const { data: loggedInUser } = useAppSelector(selectCurrentUser);
+  const currentUser = useCurrentUser();
 
   const [showSecretKey, setShowSecretKey] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
 
   const [selectedUserId, setSelectedUserId] = useState<number | undefined>(
-    loggedInUser?.id
+    currentUser?.id
   );
   const handleUserSelect = (event: SelectChangeEvent<string>) => {
     const currId = event.target.value;
@@ -51,7 +50,7 @@ const SecretKeyPage: React.FC = () => {
   const usersQuery = useQuery({
     queryKey: ['users'],
     queryFn: getUsersAsync,
-    enabled: loggedInUser?.role === UserRoleEnum.ADMIN,
+    enabled: currentUser?.role === UserRoleEnum.ADMIN,
   });
   const users = usersQuery.data ?? [];
 
@@ -60,7 +59,7 @@ const SecretKeyPage: React.FC = () => {
     updateSecretKey,
     updateSecretKeySuccess,
     resetSecretKeyMutation,
-  } = useSecretKey(loggedInUser, selectedUserId);
+  } = useSecretKey(currentUser, selectedUserId);
 
   return (
     <>
@@ -88,7 +87,7 @@ const SecretKeyPage: React.FC = () => {
             SMS secret key detail
           </Typography>
 
-          {loggedInUser?.role === UserRoleEnum.ADMIN &&
+          {currentUser?.role === UserRoleEnum.ADMIN &&
             users.length > 1 &&
             selectedUserId && (
               <FormControl
@@ -114,7 +113,7 @@ const SecretKeyPage: React.FC = () => {
             <Typography color="text.secondary" gutterBottom>
               Your SMS Key Details
             </Typography>
-            {loggedInUser?.role === UserRoleEnum.ADMIN && (
+            {currentUser?.role === UserRoleEnum.ADMIN && (
               <PasswordViewer
                 focused={false}
                 label="Key"

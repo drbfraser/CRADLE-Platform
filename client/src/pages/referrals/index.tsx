@@ -7,20 +7,21 @@ import { APITable } from 'src/shared/components/apiTable';
 import { EndpointEnum } from 'src/shared/enums';
 import { ReferralFilter } from 'src/shared/types';
 import { SortDir } from 'src/shared/components/apiTable/types';
-import { useAppDispatch, useAppSelector } from 'src/shared/hooks';
+import { useAppDispatch } from 'src/shared/hooks';
 import { Toast } from 'src/shared/components/toast';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
-import { selectCurrentUser } from 'src/redux/user-state';
+
 import { BREAKPOINT, COLUMNS, SORTABLE_COLUMNS } from './constants';
 import { FilterDialog } from './FilterDialog';
 import { AutoRefresher } from './AutoRefresher';
 import { ReferralRow } from './ReferralRow';
 import { RefreshDialog } from './RefreshDialog';
 import { useSecretKeyQuery } from 'src/shared/queries';
+import { useCurrentUser } from 'src/shared/hooks/auth/useCurrentUser';
 
 export const ReferralsPage = () => {
-  const { data: user } = useAppSelector(selectCurrentUser);
-  const userId = user?.id;
+  const currentUser = useCurrentUser();
+  const userId = currentUser?.id;
 
   const [expiredMessage, setExpiredMessage] = useState<boolean>(false);
   const [search, setSearch] = useState('');

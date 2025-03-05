@@ -14,11 +14,10 @@ import { DateRangePickerWithPreset } from 'src/shared/components/Date/DateRangeP
 import { Tabs } from 'src/shared/components/Tabs/Tabs';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
 import { DASHBOARD_PADDING } from 'src/shared/constants';
-import { useAppSelector } from 'src/shared/hooks';
-import { selectCurrentUser } from 'src/redux/user-state';
+import { useCurrentUser } from 'src/shared/hooks/auth/useCurrentUser';
 
 export function StatisticsPage() {
-  const user = useAppSelector(selectCurrentUser);
+  const currentUser = useCurrentUser();
 
   const dateRangeState = useDateRangeState();
   const { startDate, setStartDate, endDate, setEndDate } = dateRangeState;
@@ -84,7 +83,9 @@ export function StatisticsPage() {
     },
   ];
 
-  const panels = allPanels.filter((panel) => panel.roles.includes(user!.role));
+  const panels = allPanels.filter((panel) =>
+    panel.roles.includes(currentUser!.role)
+  );
 
   return (
     <Box
