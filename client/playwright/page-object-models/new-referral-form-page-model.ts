@@ -1,6 +1,6 @@
 import { type Page, type Locator } from '@playwright/test';
 
-export class NewReferralFormPage {
+export class NewReferralFormPageModel {
   private readonly page: Page;
   readonly url: string;
   private readonly referToDropdown: Locator;

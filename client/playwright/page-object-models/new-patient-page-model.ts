@@ -1,6 +1,6 @@
 import { type Page, type Locator } from '@playwright/test';
 
-export class NewPatientPage {
+export class NewPatientPageModel {
   private readonly page: Page;
   private readonly url = '/patients/new';
   private readonly patientNameField: Locator;

@@ -6,9 +6,9 @@ import {
   expect,
 } from '@playwright/test';
 import { BASE_API_URL } from './constants';
-import { PatientSummaryPage } from './page-object-models/patient-summary-page';
-import { NewReferralFormPage } from './page-object-models/new-referral-form-page';
-import { NewPatientPage } from './page-object-models/new-patient-page';
+import { PatientSummaryPageModel } from './page-object-models/patient-summary-page-model';
+import { NewReferralFormPageModel } from './page-object-models/new-referral-form-page-model';
+import { NewPatientPageModel } from './page-object-models/new-patient-page-model';
 
 /** All test patients should be given the same name, so that they can be identified
  * later for deletion.
@@ -22,10 +22,11 @@ export type TestPatient = {
 
 export type CradleFixtures = {
   api: APIRequestContext;
+
   testPatient: TestPatient;
-  newPatientPage: NewPatientPage;
-  patientSummaryPage: PatientSummaryPage;
-  newReferralFormPage: NewReferralFormPage;
+  newPatientPage: NewPatientPageModel;
+  patientSummaryPage: PatientSummaryPageModel;
+  newReferralFormPage: NewReferralFormPageModel;
 };
 
 /**
@@ -77,12 +78,12 @@ export const test = baseTest.extend<CradleFixtures>({
    * see: https://playwright.dev/docs/pom
    */
   newPatientPage: async ({ page }, use) => {
-    await use(new NewPatientPage(page));
+    await use(new NewPatientPageModel(page));
   },
   patientSummaryPage: async ({ page, testPatient }, use) => {
-    await use(new PatientSummaryPage(page, testPatient.id));
+    await use(new PatientSummaryPageModel(page, testPatient.id));
   },
   newReferralFormPage: async ({ page, testPatient }, use) => {
-    await use(new NewReferralFormPage(page, testPatient.id));
+    await use(new NewReferralFormPageModel(page, testPatient.id));
   },
 });
