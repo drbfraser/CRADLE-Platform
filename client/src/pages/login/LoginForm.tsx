@@ -13,7 +13,7 @@ export const LoginForm = () => {
         <Toast
           severity="error"
           message={login.error.message}
-          open={Boolean(login.error)}
+          open={login.isError}
           onClose={login.reset}
           transitionDuration={0}
         />
