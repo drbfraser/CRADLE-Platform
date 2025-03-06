@@ -1,7 +1,7 @@
 import json
 
 import requests
-from flask import Response, abort, jsonify, make_response
+from flask import Response, abort, make_response
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 from humps import decamelize
@@ -78,13 +78,12 @@ def _create_success_response(
 
     :return: Returns a 200 status code response object with the inner API response stored as encrypted data in the response body.
     """
-    compressed_data = compressor.compress_from_string(body)
+    data = json.dumps({"code": code, "body": body})
+    compressed_data = compressor.compress_from_string(data)
     encrypted_data = encryptor.encrypt(compressed_data, iv, user_sms_key)
 
-    response_body = {"code": code, "body": encrypted_data}
-
-    response = make_response(jsonify(response_body))
-    response.headers["Content-Type"] = "application/json"
+    response = make_response(encrypted_data)
+    response.headers["Content-Type"] = "text/plain"
     response.status_code = 200
     return response
 
@@ -94,7 +93,7 @@ def _create_error_response(
 ) -> Response:
     """
     Creates and returns a response object with an error status code for the outer API request.
-    Compresses and encrypts the error message and includes it in the response body.
+    Compresses and encrypts the error message & error code and includes it in the response body.
 
     :param error_code: Error status code to send in response.
     :param error_body: Error message body to send in response.
@@ -103,13 +102,12 @@ def _create_error_response(
 
     :return: Returns a response object with the error status code and stores the encrypted error message data in the response body.
     """
-    compressed_data = compressor.compress_from_string(error_body)
+    data = json.dumps({"code": error_code, "body": error_body})
+    compressed_data = compressor.compress_from_string(data)
     encrypted_data = encryptor.encrypt(compressed_data, iv, user_sms_key)
 
-    response_body = {"code": error_code, "body": encrypted_data}
-
-    response = make_response(jsonify(response_body))
-    response.headers["Content-Type"] = "application/json"
+    response = make_response(encrypted_data)
+    response.headers["Content-Type"] = "text/plain"
     response.status_code = error_code
     return response
 
