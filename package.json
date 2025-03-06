@@ -6,9 +6,5 @@
   },
   "scripts": {
     "prepare": "husky install"
-  },
-  "dependencies": {
-    "@tanstack/react-query": "^5.66.9",
-    "@tanstack/react-query-devtools": "^5.66.9"
   }
 }
