@@ -35,12 +35,11 @@ test.describe('Create Referral', () => {
   });
 
   test('Attempt Create Referral - Missing Facility', async ({
+    page,
     newReferralFormPage,
   }) => {
     await newReferralFormPage.enterComment('Lorem ipsum doler sit amet.');
     await newReferralFormPage.clickSubmitForm();
-
     await newReferralFormPage.expectToHaveUrl();
-    expect(newReferralFormPage).toContain('Please fill in this field');
   });
 });

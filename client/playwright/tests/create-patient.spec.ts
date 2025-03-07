@@ -54,11 +54,11 @@ test.describe('Create Patient', () => {
 
   test.describe('Attempt Create Patient - Unsuccessful', () => {
     test('Attempt Create Patient - Missing Name', async ({
+      page,
       newPatientFormPage,
     }) => {
       await newPatientFormPage.enterExactDateOfBirth();
       await newPatientFormPage.selectSex();
-
       await newPatientFormPage.clickNextButton();
       await newPatientFormPage.expectToHaveUrl();
     });
