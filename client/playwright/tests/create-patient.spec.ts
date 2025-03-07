@@ -12,42 +12,36 @@ const test = cradleTest.extend<Fixtures>({
   },
 });
 
-test.describe('Create Patient - Successful', () => {
-  test.beforeEach(
-    'Go to New Patient Form',
-    async ({ newPatientPage, patientName }) => {
-      await newPatientPage.goto();
-      await newPatientPage.enterBasicFields(patientName);
-    }
-  );
-  test('Create Patient - Exact DOB', async ({
-    page,
-    newPatientPage,
-    patientName,
-  }) => {
-    await newPatientPage.enterExactDateOfBirth();
-    await newPatientPage.selectSex();
-    await newPatientPage.clickNextButton();
-    await newPatientPage.clickNextButton();
-    await newPatientPage.clickCreateButton();
-
-    const header = page.getByRole('heading', { name: patientName });
-    await expect(header).toContainText('Patient Summary');
+test.describe('Create Patient', () => {
+  test.beforeEach('Go to New Patient Form', async ({ newPatientPage }) => {
+    await newPatientPage.goto();
+    await newPatientPage.enterBasicFields();
   });
-  test('Create Patient - Estimated Age', async ({
-    page,
-    newPatientPage,
-    patientName,
-  }) => {
-    await newPatientPage.enterEstimatedAge();
-    await newPatientPage.selectSex();
-    await newPatientPage.clickNextButton();
-    await newPatientPage.clickNextButton();
-    await newPatientPage.clickCreateButton();
+  test.describe('Create Patient - Successful', () => {
+    test.beforeEach(
+      'Go to New Patient Form',
+      async ({ newPatientPage, patientName }) => {
+        await newPatientPage.enterPatientName(patientName);
+        await newPatientPage.selectSex();
+      }
+    );
+    test('Create Patient - Exact DOB', async ({ newPatientPage }) => {
+      await newPatientPage.enterExactDateOfBirth();
+    });
+    test('Create Patient - Estimated Age', async ({ newPatientPage }) => {
+      await newPatientPage.enterEstimatedAge();
+    });
+    test.afterEach(async ({ page, newPatientPage, patientName }) => {
+      await newPatientPage.selectSex();
+      await newPatientPage.clickNextButton();
+      await newPatientPage.clickNextButton();
+      await newPatientPage.clickCreateButton();
 
-    const header = page.getByRole('heading', { name: patientName });
-    await expect(header).toContainText('Patient Summary');
+      await expect(
+        page.getByRole('heading', { name: 'Patient Summary' })
+      ).toContainText(patientName);
+    });
   });
+
+  test.describe('Create Patient - Unsuccessful', () => {});
 });
-
-test.describe('Create Patient - Unsuccessful', () => {});
