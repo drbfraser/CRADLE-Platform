@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 import moment from 'moment';
-import { test } from './fixtures';
+import { test } from '../fixtures';
 
 test.describe('Create Referral', () => {
   test('Create Referral', async ({

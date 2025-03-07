@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
-import { test } from './fixtures';
-import { ADMIN_CREDENTIALS } from './constants';
+import { test } from '../fixtures';
+import { ADMIN_CREDENTIALS } from '../constants';
 
 const ADMIN = ADMIN_CREDENTIALS;
 
