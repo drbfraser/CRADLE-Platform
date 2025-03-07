@@ -1,4 +1,4 @@
-import { type Page, type Locator } from '@playwright/test';
+import { type Page, type Locator, expect } from '@playwright/test';
 import { PageObjectModel } from './page-object-model';
 
 export class NewPatientFormPageModel extends PageObjectModel {
@@ -78,5 +78,10 @@ export class NewPatientFormPageModel extends PageObjectModel {
 
   async clickCreateButton() {
     await this.createButton.click();
+  }
+
+  /** Assert that the 'Next' button is present rather than the 'Create' button. */
+  async expectNextButton() {
+    await expect(this.nextButton).toBeVisible();
   }
 }

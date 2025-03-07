@@ -61,7 +61,7 @@ export const test = baseTest.extend<CradleFixtures>({
    * The test patients will be deleted during the `teardown` phase, after all
    * tests have run.
    **/
-  testPatient: async ({ browserName, api }, use) => {
+  testPatient: async ({ api }, use) => {
     const response = await api.post('/api/patients', {
       data: {
         name: TEST_PATIENT_NAME,

@@ -12,7 +12,7 @@ test.describe('Create Referral', () => {
     }
   );
 
-  test('Create Referral', async ({
+  test('Successful', async ({
     page,
     testPatient,
     patientSummaryPage,
@@ -34,7 +34,7 @@ test.describe('Create Referral', () => {
     );
   });
 
-  test('Attempt Create Referral - Missing Facility', async ({
+  test('Unsuccessful - Missing Facility', async ({
     page,
     newReferralFormPage,
   }) => {

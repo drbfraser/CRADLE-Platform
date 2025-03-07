@@ -4,7 +4,7 @@ import { ADMIN_CREDENTIALS } from '../constants';
 
 const ADMIN = ADMIN_CREDENTIALS;
 
-test.describe('Login Tests', () => {
+test.describe('Login', () => {
   // Reset storage state for this file to avoid being authenticated
   test.use({ storageState: { cookies: [], origins: [] } });
 
@@ -12,7 +12,7 @@ test.describe('Login Tests', () => {
     await loginPage.goto();
   });
 
-  test('Login', async ({ page, loginPage }) => {
+  test('Successful', async ({ page, loginPage }) => {
     await loginPage.enterUsername(ADMIN.username);
     await loginPage.enterPassword(ADMIN.password);
     await loginPage.clickLoginButton();
@@ -23,11 +23,11 @@ test.describe('Login Tests', () => {
     ).toBeVisible();
   });
 
-  test.describe('Attempt Login - Missing Fields', () => {
-    test('Attempt Login - Missing Username', async ({ loginPage }) => {
+  test.describe('Unsuccessful - Missing Fields', () => {
+    test('Missing Username', async ({ loginPage }) => {
       await loginPage.enterPassword(ADMIN.password);
     });
-    test('Attempt Login - Missing Password', async ({ loginPage }) => {
+    test('Missing Password', async ({ loginPage }) => {
       await loginPage.enterUsername(ADMIN.username);
     });
     test.afterEach(async ({ loginPage }) => {
@@ -35,12 +35,12 @@ test.describe('Login Tests', () => {
     });
   });
 
-  test.describe('Attempt Login - Incorrect Credentials', () => {
-    test('Attempt Login - Incorrect Username', async ({ loginPage }) => {
+  test.describe('Unsuccessful - Incorrect Credentials', () => {
+    test('Incorrect Username', async ({ loginPage }) => {
       await loginPage.enterUsername('incorrect-username');
       await loginPage.enterPassword(ADMIN.password);
     });
-    test('Attempt Login - Incorrect Password', async ({ loginPage }) => {
+    test('Incorrect Password', async ({ loginPage }) => {
       await loginPage.enterUsername(ADMIN.username);
       await loginPage.enterPassword('incorrect-password');
     });

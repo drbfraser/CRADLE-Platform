@@ -20,7 +20,7 @@ test.describe('Create Patient', () => {
       await newPatientPage.enterBasicFields();
     }
   );
-  test.describe('Create Patient - Successful', () => {
+  test.describe(' Successful', () => {
     test.beforeEach(
       'Go to New Patient Form',
       async ({ newPatientFormPage: newPatientPage, patientName }) => {
@@ -28,14 +28,10 @@ test.describe('Create Patient', () => {
         await newPatientPage.selectSex();
       }
     );
-    test('Create Patient - Exact DOB', async ({
-      newPatientFormPage: newPatientPage,
-    }) => {
+    test('Exact DOB', async ({ newPatientFormPage: newPatientPage }) => {
       await newPatientPage.enterExactDateOfBirth();
     });
-    test('Create Patient - Estimated Age', async ({
-      newPatientFormPage: newPatientPage,
-    }) => {
+    test('Estimated Age', async ({ newPatientFormPage: newPatientPage }) => {
       await newPatientPage.enterEstimatedAge();
     });
     test.afterEach(
@@ -52,15 +48,26 @@ test.describe('Create Patient', () => {
     );
   });
 
-  test.describe('Attempt Create Patient - Unsuccessful', () => {
-    test('Attempt Create Patient - Missing Name', async ({
-      page,
-      newPatientFormPage,
-    }) => {
+  test.describe('Unsuccessful', () => {
+    test('Missing Name', async ({ newPatientFormPage }) => {
       await newPatientFormPage.enterExactDateOfBirth();
       await newPatientFormPage.selectSex();
+    });
+    test('Missing Sex', async ({ newPatientFormPage, patientName }) => {
+      await newPatientFormPage.enterPatientName(patientName);
+      await newPatientFormPage.enterExactDateOfBirth();
+    });
+    test('Missing Date of Birth / Estimated Age', async ({
+      newPatientFormPage,
+      patientName,
+    }) => {
+      await newPatientFormPage.enterPatientName(patientName);
+      await newPatientFormPage.selectSex();
+    });
+    test.afterEach(async ({ newPatientFormPage }) => {
       await newPatientFormPage.clickNextButton();
-      await newPatientFormPage.expectToHaveUrl();
+      await newPatientFormPage.clickNextButton();
+      await newPatientFormPage.expectNextButton();
     });
   });
 });
