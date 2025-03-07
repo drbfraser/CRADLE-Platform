@@ -9,6 +9,7 @@ test.describe('Create Referral', () => {
     patientSummaryPage,
     newReferralFormPage,
   }) => {
+    /** Use timestamp in the comment to identify the referral later. */
     const referralComment = `e2e-test | patientId=${
       testPatient.id
     } | dateTime=${moment().format()}`;
@@ -23,13 +24,14 @@ test.describe('Create Referral', () => {
     await newReferralFormPage.enterComment(referralComment);
     await newReferralFormPage.submitForm();
 
-    await expect(page).toHaveURL(patientSummaryPage.url);
+    await patientSummaryPage.expectToHaveUrl();
+    await patientSummaryPage.expectSuccessToast();
 
-    const successAlert = page.getByRole('alert').getByText('success');
-    await expect(successAlert).toBeVisible();
-
-    const referralCard = page.getByText(referralComment);
-    await referralCard.scrollIntoViewIfNeeded();
-    await expect(referralCard).toContainText(referralComment);
+    // const referralCard = page.getByText(referralComment);
+    // await referralCard.scrollIntoViewIfNeeded();
+    // await expect(referralCard).toContainText(referralComment);
+    await patientSummaryPage.expectReferralPendingCardByComment(
+      referralComment
+    );
   });
 });
