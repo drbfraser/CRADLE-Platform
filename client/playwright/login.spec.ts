@@ -38,6 +38,7 @@ test.describe('Login Tests', () => {
     await loginPage.enterPassword(ADMIN.password);
     await loginPage.clickLoginButton();
     await loginPage.expectToHaveUrl();
+    await loginPage.expectErrorToastIncorrectCredentials();
     await loginPage.expectLoginButtonToBeEnabled();
   });
 
@@ -46,6 +47,7 @@ test.describe('Login Tests', () => {
     await loginPage.enterPassword('incorrect-password');
     await loginPage.clickLoginButton();
     await loginPage.expectToHaveUrl();
+    await loginPage.expectErrorToastIncorrectCredentials();
     await loginPage.expectLoginButtonToBeEnabled();
   });
 });

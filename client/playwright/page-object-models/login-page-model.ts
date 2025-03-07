@@ -5,6 +5,7 @@ export class LoginPageModel extends PageObjectModel {
   private readonly usernameField: Locator;
   private readonly passwordField: Locator;
   private readonly loginButton: Locator;
+  private readonly errorToast: Locator;
 
   constructor(page: Page) {
     super(page, '/');
@@ -38,5 +39,13 @@ export class LoginPageModel extends PageObjectModel {
 
   async expectLoginButtonToBeEnabled() {
     await expect(this.loginButton).toBeEnabled();
+  }
+
+  async expectErrorToastIncorrectCredentials() {
+    await expect(
+      this.page
+        .getByRole('alert')
+        .filter({ hasText: 'Incorrect username or password' })
+    ).toBeVisible();
   }
 }
