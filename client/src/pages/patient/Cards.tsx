@@ -30,10 +30,14 @@ interface IAssessmentCardProps {
 
 const CardContainer = ({ children }: PropsWithChildren) => {
   return (
-    <Paper variant="outlined">
-      <Box p={1} my={1} bgcolor={'#f9f9f9'}>
-        {children}
-      </Box>
+    <Paper
+      variant="outlined"
+      sx={{
+        p: 1,
+        my: 1,
+        backgroundColor: '#f9f9f9',
+      }}>
+      {children}
     </Paper>
   );
 };
