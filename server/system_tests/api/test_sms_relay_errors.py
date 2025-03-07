@@ -43,7 +43,9 @@ def test_sms_relay_invalid_encrypted_data(api_post):
     response_body = decamelize(response.json())
     pretty_print(response_body)
     assert response.status_code == 401
-    assert response_body["description"] == sms_relay.invalid_message.format(
+    assert response_body["description"] == sms_relay.error_messages[
+        "invalid_message"
+    ].format(
         phone_number=phone_number,
     )
 
@@ -101,7 +103,9 @@ def test_sms_relay_invalid_encryption_key(api_post):
     pretty_print(response_body)
     assert response.status_code == 401
     actual_json = json.loads(response.text)
-    assert actual_json["description"] == sms_relay.invalid_message.format(
+    assert actual_json["description"] == sms_relay.error_messages[
+        "invalid_message"
+    ].format(
         phone_number=phone_number,
     )
 
@@ -127,7 +131,9 @@ def test_sms_relay_corrupted_base64(api_post):
     pretty_print(response_body)
     assert response.status_code == 401
     actual_json = json.loads(response.text)
-    assert actual_json["description"] == sms_relay.invalid_message.format(
+    assert actual_json["description"] == sms_relay.error_messages[
+        "invalid_message"
+    ].format(
         phone_number=phone_number,
     )
 
@@ -160,7 +166,9 @@ def test_sms_relay_failed_decompression(api_post):
     pretty_print(response_body)
     assert response.status_code == 401
     actual_json = json.loads(response.text)
-    assert actual_json["description"] == sms_relay.invalid_message.format(
+    assert actual_json["description"] == sms_relay.error_messages[
+        "invalid_message"
+    ].format(
         phone_number=phone_number,
     )
 
