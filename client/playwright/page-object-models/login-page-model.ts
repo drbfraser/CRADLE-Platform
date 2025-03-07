@@ -5,13 +5,16 @@ export class LoginPageModel extends PageObjectModel {
   private readonly usernameField: Locator;
   private readonly passwordField: Locator;
   private readonly loginButton: Locator;
-  private readonly errorToast: Locator;
+  private readonly incorrectCredentialsToast: Locator;
 
   constructor(page: Page) {
     super(page, '/');
     this.usernameField = page.getByRole('textbox', { name: 'username' });
     this.passwordField = page.getByRole('textbox', { name: 'password' });
     this.loginButton = page.getByRole('button', { name: 'Login' });
+    this.incorrectCredentialsToast = page
+      .getByRole('alert')
+      .filter({ hasText: 'Incorrect username or password' });
   }
 
   async goto() {
@@ -42,10 +45,6 @@ export class LoginPageModel extends PageObjectModel {
   }
 
   async expectErrorToastIncorrectCredentials() {
-    await expect(
-      this.page
-        .getByRole('alert')
-        .filter({ hasText: 'Incorrect username or password' })
-    ).toBeVisible();
+    await expect(this.incorrectCredentialsToast).toBeVisible();
   }
 }
