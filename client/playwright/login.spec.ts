@@ -23,31 +23,32 @@ test.describe('Login Tests', () => {
     ).toBeVisible();
   });
 
-  test('Login attempt without username', async ({ loginPage }) => {
-    await loginPage.enterPassword(ADMIN.password);
-    await loginPage.expectLoginButtonToBeDisabled();
+  test.describe('Login attempt - Missing fields', () => {
+    test('Login attempt - Missing username', async ({ loginPage }) => {
+      await loginPage.enterPassword(ADMIN.password);
+    });
+    test('Login attempt - Missing password', async ({ loginPage }) => {
+      await loginPage.enterUsername(ADMIN.username);
+    });
+    test.afterEach('Attempt login', async ({ loginPage }) => {
+      await loginPage.expectLoginButtonToBeDisabled();
+    });
   });
 
-  test('Login attempt without password', async ({ loginPage }) => {
-    await loginPage.enterUsername(ADMIN.username);
-    await loginPage.expectLoginButtonToBeDisabled();
-  });
-
-  test('Login attempt with incorrect username', async ({ loginPage }) => {
-    await loginPage.enterUsername('incorrect-username');
-    await loginPage.enterPassword(ADMIN.password);
-    await loginPage.clickLoginButton();
-    await loginPage.expectToHaveUrl();
-    await loginPage.expectErrorToastIncorrectCredentials();
-    await loginPage.expectLoginButtonToBeEnabled();
-  });
-
-  test('Login attempt with incorrect password', async ({ loginPage }) => {
-    await loginPage.enterUsername(ADMIN.username);
-    await loginPage.enterPassword('incorrect-password');
-    await loginPage.clickLoginButton();
-    await loginPage.expectToHaveUrl();
-    await loginPage.expectErrorToastIncorrectCredentials();
-    await loginPage.expectLoginButtonToBeEnabled();
+  test.describe('Login attempt - Incorrect credentials', () => {
+    test('Login attempt - Incorrect username', async ({ loginPage }) => {
+      await loginPage.enterUsername('incorrect-username');
+      await loginPage.enterPassword(ADMIN.password);
+    });
+    test('Login attempt - Incorrect password', async ({ loginPage }) => {
+      await loginPage.enterUsername(ADMIN.username);
+      await loginPage.enterPassword('incorrect-password');
+    });
+    test.afterEach('Attempt login', async ({ loginPage }) => {
+      await loginPage.clickLoginButton();
+      await loginPage.expectToHaveUrl();
+      await loginPage.expectErrorToastIncorrectCredentials();
+      await loginPage.expectLoginButtonToBeEnabled();
+    });
   });
 });
