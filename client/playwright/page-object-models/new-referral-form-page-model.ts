@@ -23,7 +23,7 @@ export class NewReferralFormPageModel extends PageObjectModel {
     await this.commentsField.fill(comment);
   }
 
-  async submitForm() {
+  async clickSubmitForm() {
     await this.submitReferralButton.click();
   }
 }

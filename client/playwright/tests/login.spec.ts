@@ -23,28 +23,28 @@ test.describe('Login Tests', () => {
     ).toBeVisible();
   });
 
-  test.describe('Login attempt - Missing fields', () => {
-    test('Login attempt - Missing username', async ({ loginPage }) => {
+  test.describe('Attempt Login - Missing Fields', () => {
+    test('Attempt Login - Missing Username', async ({ loginPage }) => {
       await loginPage.enterPassword(ADMIN.password);
     });
-    test('Login attempt - Missing password', async ({ loginPage }) => {
+    test('Attempt Login - Missing Password', async ({ loginPage }) => {
       await loginPage.enterUsername(ADMIN.username);
     });
-    test.afterEach('Attempt login', async ({ loginPage }) => {
+    test.afterEach(async ({ loginPage }) => {
       await loginPage.expectLoginButtonToBeDisabled();
     });
   });
 
-  test.describe('Login attempt - Incorrect credentials', () => {
-    test('Login attempt - Incorrect username', async ({ loginPage }) => {
+  test.describe('Attempt Login - Incorrect Credentials', () => {
+    test('Attempt Login - Incorrect Username', async ({ loginPage }) => {
       await loginPage.enterUsername('incorrect-username');
       await loginPage.enterPassword(ADMIN.password);
     });
-    test('Login attempt - Incorrect password', async ({ loginPage }) => {
+    test('Attempt Login - Incorrect Password', async ({ loginPage }) => {
       await loginPage.enterUsername(ADMIN.username);
       await loginPage.enterPassword('incorrect-password');
     });
-    test.afterEach('Attempt login', async ({ loginPage }) => {
+    test.afterEach(async ({ loginPage }) => {
       await loginPage.clickLoginButton();
       await loginPage.expectToHaveUrl();
       await loginPage.expectErrorToastIncorrectCredentials();

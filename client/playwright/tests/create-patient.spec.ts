@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { expect } from '@playwright/test';
-import { test as cradleTest, TEST_PATIENT_NAME } from './fixtures';
+import { test as cradleTest, TEST_PATIENT_NAME } from '../fixtures';
 
 type Fixtures = {
   patientName: string;

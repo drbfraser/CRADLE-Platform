@@ -3,6 +3,15 @@ import moment from 'moment';
 import { test } from '../fixtures';
 
 test.describe('Create Referral', () => {
+  test.beforeEach(
+    'Navigate to Referral Form',
+    async ({ patientSummaryPage, newReferralFormPage }) => {
+      await patientSummaryPage.goto();
+      await patientSummaryPage.clickCreateReferralButton();
+      await newReferralFormPage.expectToHaveUrl();
+    }
+  );
+
   test('Create Referral', async ({
     page,
     testPatient,
@@ -14,24 +23,24 @@ test.describe('Create Referral', () => {
       testPatient.id
     } | dateTime=${moment().format()}`;
 
-    await patientSummaryPage.goto();
-
-    await patientSummaryPage.clickCreateReferralButton();
-
-    await expect(page).toHaveURL(newReferralFormPage.url);
-
     await newReferralFormPage.selectReferToOption('H1000');
     await newReferralFormPage.enterComment(referralComment);
-    await newReferralFormPage.submitForm();
+    await newReferralFormPage.clickSubmitForm();
 
     await patientSummaryPage.expectToHaveUrl();
     await patientSummaryPage.expectSuccessToast();
-
-    // const referralCard = page.getByText(referralComment);
-    // await referralCard.scrollIntoViewIfNeeded();
-    // await expect(referralCard).toContainText(referralComment);
     await patientSummaryPage.expectReferralPendingCardByComment(
       referralComment
     );
+  });
+
+  test('Attempt Create Referral - Missing Facility', async ({
+    newReferralFormPage,
+  }) => {
+    await newReferralFormPage.enterComment('Lorem ipsum doler sit amet.');
+    await newReferralFormPage.clickSubmitForm();
+
+    await newReferralFormPage.expectToHaveUrl();
+    expect(newReferralFormPage).toContain('Please fill in this field');
   });
 });
