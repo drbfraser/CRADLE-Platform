@@ -8,7 +8,7 @@ import {
 import { BASE_API_URL } from './constants';
 import { PatientSummaryPageModel } from './page-object-models/patient-summary-page-model';
 import { NewReferralFormPageModel } from './page-object-models/new-referral-form-page-model';
-import { NewPatientPageModel } from './page-object-models/new-patient-page-model';
+import { NewPatientFormPageModel } from './page-object-models/new-patient-form-page-model';
 import { LoginPageModel } from './page-object-models/login-page-model';
 
 /** All test patients should be given the same name, so that they can be identified
@@ -25,8 +25,8 @@ export type CradleFixtures = {
   api: APIRequestContext;
   testPatient: TestPatient;
   loginPage: LoginPageModel;
-  newPatientPage: NewPatientPageModel;
   patientSummaryPage: PatientSummaryPageModel;
+  newPatientFormPage: NewPatientFormPageModel;
   newReferralFormPage: NewReferralFormPageModel;
 };
 
@@ -83,11 +83,11 @@ export const test = baseTest.extend<CradleFixtures>({
   loginPage: async ({ page }, use) => {
     await use(new LoginPageModel(page));
   },
-  newPatientPage: async ({ page }, use) => {
-    await use(new NewPatientPageModel(page));
-  },
   patientSummaryPage: async ({ page, testPatient }, use) => {
     await use(new PatientSummaryPageModel(page, testPatient.id));
+  },
+  newPatientFormPage: async ({ page }, use) => {
+    await use(new NewPatientFormPageModel(page));
   },
   newReferralFormPage: async ({ page, testPatient }, use) => {
     await use(new NewReferralFormPageModel(page, testPatient.id));

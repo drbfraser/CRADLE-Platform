@@ -1,7 +1,7 @@
 import { type Page, type Locator } from '@playwright/test';
 import { PageObjectModel } from './page-object-model';
 
-export class NewPatientPageModel extends PageObjectModel {
+export class NewPatientFormPageModel extends PageObjectModel {
   private readonly patientNameField: Locator;
   private readonly householdNumberField: Locator;
   private readonly villageNumberField: Locator;
