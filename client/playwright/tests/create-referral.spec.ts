@@ -4,7 +4,7 @@ import { test } from '../fixtures';
 
 test.describe('Create Referral', () => {
   test.beforeEach(
-    'Navigate to Referral Form',
+    'Go to Referral Form',
     async ({ patientSummaryPage, newReferralFormPage }) => {
       await patientSummaryPage.goto();
       await patientSummaryPage.clickCreateReferralButton();

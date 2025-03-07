@@ -43,19 +43,22 @@ export class NewPatientPageModel extends PageObjectModel {
     this.createButton = page.getByRole('button', { name: 'Create' });
   }
 
-  async fillBasicFields(name: string) {
+  async enterPatientName(name: string) {
     await this.patientNameField.fill(name);
+  }
+
+  async enterBasicFields() {
     await this.householdNumberField.fill('1');
     await this.villageNumberField.fill('1');
     await this.zoneIdField.fill('1');
   }
 
-  async fillExactDateOfBirth(dateOfBirth: string = '01/01/2000') {
+  async enterExactDateOfBirth(dateOfBirth: string = '01/01/2000') {
     await this.dateOfBirthButton.click();
     await this.dateOfBirthField.fill(dateOfBirth);
   }
 
-  async fillEstimatedAge(estimatedAge: string = '25') {
+  async enterEstimatedAge(estimatedAge: string = '25') {
     await this.estimatedAgeButton.click();
     await this.patientAgeField.fill(estimatedAge);
   }
@@ -65,15 +68,15 @@ export class NewPatientPageModel extends PageObjectModel {
     await this.page.getByRole('option', { name: gender, exact: true }).click();
   }
 
-  async fillAllergies(allergies: string) {
+  async enterAllergies(allergies: string) {
     await this.allergiesField.fill(allergies);
   }
 
-  async clickNext() {
+  async clickNextButton() {
     await this.nextButton.click();
   }
 
-  async clickCreate() {
+  async clickCreateButton() {
     await this.createButton.click();
   }
 }

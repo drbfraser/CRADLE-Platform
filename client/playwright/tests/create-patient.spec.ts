@@ -17,7 +17,7 @@ test.describe('Create Patient - Successful', () => {
     'Go to New Patient Form',
     async ({ newPatientPage, patientName }) => {
       await newPatientPage.goto();
-      await newPatientPage.fillBasicFields(patientName);
+      await newPatientPage.enterBasicFields(patientName);
     }
   );
   test('Create Patient - Exact DOB', async ({
@@ -25,11 +25,11 @@ test.describe('Create Patient - Successful', () => {
     newPatientPage,
     patientName,
   }) => {
-    await newPatientPage.fillExactDateOfBirth();
+    await newPatientPage.enterExactDateOfBirth();
     await newPatientPage.selectSex();
-    await newPatientPage.clickNext();
-    await newPatientPage.clickNext();
-    await newPatientPage.clickCreate();
+    await newPatientPage.clickNextButton();
+    await newPatientPage.clickNextButton();
+    await newPatientPage.clickCreateButton();
 
     const header = page.getByRole('heading', { name: patientName });
     await expect(header).toContainText('Patient Summary');
@@ -39,11 +39,11 @@ test.describe('Create Patient - Successful', () => {
     newPatientPage,
     patientName,
   }) => {
-    await newPatientPage.fillEstimatedAge();
+    await newPatientPage.enterEstimatedAge();
     await newPatientPage.selectSex();
-    await newPatientPage.clickNext();
-    await newPatientPage.clickNext();
-    await newPatientPage.clickCreate();
+    await newPatientPage.clickNextButton();
+    await newPatientPage.clickNextButton();
+    await newPatientPage.clickCreateButton();
 
     const header = page.getByRole('heading', { name: patientName });
     await expect(header).toContainText('Patient Summary');
