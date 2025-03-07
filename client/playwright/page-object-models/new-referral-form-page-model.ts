@@ -1,5 +1,6 @@
 import { type Page, type Locator } from '@playwright/test';
 import { PageObjectModel } from './page-object-model';
+import { FacilityName } from '../constants';
 
 export class NewReferralFormPageModel extends PageObjectModel {
   private readonly referToDropdown: Locator;
@@ -14,7 +15,7 @@ export class NewReferralFormPageModel extends PageObjectModel {
     this.submitReferralButton = page.getByRole('button', { name: 'Submit' });
   }
 
-  async selectReferToOption(option: string = 'H1000') {
+  async selectReferToOption(option: FacilityName = 'H1000') {
     await this.referToDropdown.click();
     await this.page.getByText(option).click();
   }
