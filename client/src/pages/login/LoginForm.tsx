@@ -1,38 +1,23 @@
 import { Box, Container, Typography, TextField, Button } from '@mui/material';
-import { useSelector } from 'react-redux';
-import { ReduxState } from 'src/redux/reducers';
 import { Toast } from 'src/shared/components/toast';
-import { useAppDispatch } from 'src/shared/hooks';
-import { OrNull } from 'src/shared/types';
-import {
-  clearCurrentUserError,
-  loginUser,
-} from 'src/redux/reducers/user/currentUser';
-import { useNavigate } from 'react-router-dom';
 import { DASHBOARD_PADDING } from 'src/shared/constants';
 import { Form, Formik, Field, FieldProps } from 'formik';
+import { useLoginMutation } from './login-mutation';
 
 export const LoginForm = () => {
-  const errorMessage = useSelector(
-    ({ user }: ReduxState): OrNull<string> => user.current.message
-  );
-  const dispatch = useAppDispatch();
-
-  const clearError = () => {
-    dispatch(clearCurrentUserError());
-  };
-
-  const navigate = useNavigate();
+  const login = useLoginMutation();
 
   return (
     <>
-      <Toast
-        severity="error"
-        message={errorMessage ?? ''}
-        open={Boolean(errorMessage)}
-        onClose={clearError}
-        transitionDuration={0}
-      />
+      {login.error && (
+        <Toast
+          severity="error"
+          message={login.error.message}
+          open={login.isError}
+          onClose={login.reset}
+          transitionDuration={0}
+        />
+      )}
       <Box
         sx={{
           width: '100%',
@@ -80,8 +65,8 @@ export const LoginForm = () => {
                 username: '',
                 password: '',
               }}
-              onSubmit={({ username, password }) => {
-                dispatch(loginUser({ username, password }, navigate));
+              onSubmit={(credentials) => {
+                login.mutate(credentials);
               }}>
               {(formikProps) => (
                 <Form onSubmit={formikProps.handleSubmit}>
@@ -133,9 +118,7 @@ export const LoginForm = () => {
                     <Button
                       variant={'contained'}
                       fullWidth
-                      disabled={
-                        !formikProps.isValid || formikProps.isSubmitting
-                      }
+                      disabled={!formikProps.isValid || login.isPending}
                       type={'submit'}
                       size={'large'}
                       sx={{

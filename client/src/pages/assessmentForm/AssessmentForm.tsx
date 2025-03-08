@@ -4,14 +4,13 @@ import { CheckboxWithLabel, TextField } from 'formik-mui';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 import { Alert, Box, Grid, Paper, Typography } from '@mui/material';
 
-import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
-import { useAppSelector } from 'src/shared/hooks';
 import { NewAssessment } from 'src/shared/types';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { assessmentFormValidationSchema } from './validation';
 import { AssessmentField, AssessmentState } from './state';
 import useSaveAssessment from './mutations';
+import { useCurrentUser } from 'src/shared/hooks/auth/useCurrentUser';
 
 interface IProps {
   initialState: AssessmentState;
@@ -26,7 +25,7 @@ export const AssessmentForm = ({
   assessmentId,
   referralId,
 }: IProps) => {
-  const { data: currentUser } = useAppSelector(selectCurrentUser);
+  const currentUser = useCurrentUser();
   const navigate = useNavigate();
   const [displayEmptyFormError, setDisplayEmptyFormError] = useState(false);
   const saveAssessment = useSaveAssessment();

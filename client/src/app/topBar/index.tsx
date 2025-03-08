@@ -16,10 +16,6 @@ import MenuIcon from '@mui/icons-material/Menu';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import {
-  selectCurrentUser,
-  selectLoggedIn,
-} from 'src/redux/reducers/user/currentUser';
 import { useCallback, useState } from 'react';
 import { TOP_BAR_HEIGHT, userRoleLabels } from 'src/shared/constants';
 import {
@@ -30,16 +26,17 @@ import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { Link } from 'react-router-dom';
 import { useLogout } from 'src/shared/hooks/auth/useLogout';
+import { useIsLoggedIn } from 'src/shared/hooks/auth/useIsLoggedIn';
+import { useCurrentUser } from 'src/shared/hooks/auth/useCurrentUser';
 
 export const TopBar = () => {
   const theme = useTheme();
   const isBigScreen = useMediaQuery(theme.breakpoints.up('lg'));
 
-  const { data: userData } = useAppSelector(selectCurrentUser);
+  const currentUser = useCurrentUser();
 
   const dispatch = useAppDispatch();
-
-  const loggedIn = useAppSelector(selectLoggedIn);
+  const loggedIn = useIsLoggedIn();
 
   const isSidebarOpen = useAppSelector(selectSidebarIsOpen);
 
@@ -65,11 +62,12 @@ export const TopBar = () => {
     return (
       <div>
         <Typography variant="body1" noWrap>
-          {userData?.name} ({userData ? userRoleLabels[userData.role] : ''})
+          {currentUser?.name} (
+          {currentUser ? userRoleLabels[currentUser.role] : ''})
         </Typography>
-        {userData?.healthFacilityName && (
+        {currentUser?.healthFacilityName && (
           <Typography variant="body2" noWrap>
-            Healthcare Facility: {userData?.healthFacilityName}
+            Healthcare Facility: {currentUser?.healthFacilityName}
           </Typography>
         )}
       </div>

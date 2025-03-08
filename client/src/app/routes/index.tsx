@@ -1,14 +1,11 @@
-import { PropsWithChildren, useEffect } from 'react';
+import { PropsWithChildren } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
-import { useAppDispatch, useAppSelector } from 'src/shared/hooks';
-import {
-  getCurrentUser,
-  selectCurrentUser,
-} from 'src/redux/reducers/user/currentUser';
 import { UserRoleEnum } from 'src/shared/enums';
 import { Loader } from 'src/shared/components/loader';
 import { AppRoute, appRoutes } from './utils';
+import { useIsLoggedIn } from '../../shared/hooks/auth/useIsLoggedIn';
+import { useCurrentUser } from 'src/shared/hooks/auth/useCurrentUser';
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -39,21 +36,18 @@ type RequireAuthProps = PropsWithChildren & {
   path?: string | readonly string[] | undefined;
 };
 const RequireAuth = ({ children, path }: RequireAuthProps) => {
-  const currentUser = useAppSelector(selectCurrentUser);
-  const dispatch = useAppDispatch();
+  const isLoggedIn = useIsLoggedIn();
+  const currentUser = useCurrentUser();
 
-  useEffect(() => {
-    if (!currentUser.data) {
-      dispatch(getCurrentUser());
-    }
-  }, [currentUser.data, dispatch]);
-
-  if (currentUser.error) {
+  /** The user data from the redux store may be null even if the user is
+   * still logged in, so we need to check whether the user is logged in
+   * based on the access token being present in local storage. */
+  if (!isLoggedIn) {
     return <Navigate to="/" replace />;
   }
 
-  if (currentUser.loggedIn) {
-    const isAdmin = currentUser.data?.role === UserRoleEnum.ADMIN;
+  if (currentUser) {
+    const isAdmin = currentUser?.role === UserRoleEnum.ADMIN;
 
     // * Prevent non-admins from accessing admin pages
     if (!isAdmin && path?.includes('/admin')) {

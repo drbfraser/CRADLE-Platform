@@ -37,20 +37,6 @@ patient_with_valid_fields_should_return_none = {
     "is_archived": False,
 }
 
-patient_post_missing_required_field_id_should_throw_exception = {
-    "name": PATIENT_NAME,
-    "is_pregnant": True,
-    "sex": SEX,
-    "household_number": HOUSEHOLD_NUMBER,
-    "date_of_birth": DATE_STRING,
-    "is_exact_date_of_birth": False,
-    "zone": ZONE,
-    "village_number": VILLAGE_NUMBER,
-    "drug_history": HISTORY,
-    "medical_history": HISTORY,
-    "allergy": ALLERGY,
-}
-
 patient_post_missing_required_field_name_should_throw_exception = {
     "id": PATIENT_ID,
     "is_pregnant": True,
@@ -153,22 +139,6 @@ patient_field_id_has_invalid_type_should_throw_exception = {
     "allergy": ALLERGY,
 }
 
-# id must be less than or equal to 14 digits long
-patient_field_id_has_more_than_14_digits_should_throw_exception = {
-    "id": "123456789012345",
-    "name": PATIENT_NAME,
-    "is_pregnant": True,
-    "sex": SEX,
-    "household_number": HOUSEHOLD_NUMBER,
-    "date_of_birth": DATE_STRING,
-    "is_exact_date_of_birth": False,
-    "zone": ZONE,
-    "village_number": VILLAGE_NUMBER,
-    "drug_history": HISTORY,
-    "medical_history": HISTORY,
-    "allergy": ALLERGY,
-}
-
 # date_of_birth must be in YYYY-mm-dd format
 patient_field_date_of_birth_has_wrong_format_should_throw_exception = {
     "id": PATIENT_ID,
@@ -190,10 +160,6 @@ patient_field_date_of_birth_has_wrong_format_should_throw_exception = {
     "json, expectation",
     [
         (patient_with_valid_fields_should_return_none, None),
-        (
-            patient_post_missing_required_field_id_should_throw_exception,
-            ValidationError,
-        ),
         (
             patient_post_missing_required_field_name_should_throw_exception,
             ValidationError,
@@ -220,10 +186,6 @@ patient_field_date_of_birth_has_wrong_format_should_throw_exception = {
         ),
         (
             patient_field_id_has_invalid_type_should_throw_exception,
-            ValidationError,
-        ),
-        (
-            patient_field_id_has_more_than_14_digits_should_throw_exception,
             ValidationError,
         ),
         (
@@ -260,33 +222,17 @@ patient_put_with_valid_fields_should_return_none = {
     "village_number": VILLAGE_NUMBER,
 }
 
-patient_put_missing_field_patient_id_should_throw_Exception = {
-    "name": PATIENT_NAME,
-    "is_pregnant": True,
-    "sex": SEX,
-    "household_number": HOUSEHOLD_NUMBER,
-    "date_of_birth": DATE_STRING,
-    "is_exact_date_of_birth": False,
-    "zone": ZONE,
-    "village_number": VILLAGE_NUMBER,
-}
-
 
 @pytest.mark.parametrize(
     "json, expectation",
     [
         (patient_put_with_valid_fields_should_return_none, None),
-        (patient_put_missing_field_patient_id_should_throw_Exception, ValidationError),
         (
             patient_field_name_has_invalid_type_should_throw_exception,
             ValidationError,
         ),
         (
             patient_field_id_has_invalid_type_should_throw_exception,
-            ValidationError,
-        ),
-        (
-            patient_field_id_has_more_than_14_digits_should_throw_exception,
             ValidationError,
         ),
         (

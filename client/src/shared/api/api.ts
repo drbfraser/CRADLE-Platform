@@ -23,7 +23,7 @@ import { PostBody } from 'src/pages/customizedForm/customizedEditForm/handlers';
 import { reduxStore } from 'src/redux/store';
 import { EditUser, NewUser, User, userListSchema } from './validation/user';
 import { jwtDecode } from 'jwt-decode';
-import { logoutUser } from 'src/redux/reducers/user/currentUser';
+import { clearCurrentUser } from 'src/redux/user-state';
 
 export const API_URL =
   process.env.NODE_ENV === `development`
@@ -36,7 +36,7 @@ export const axiosFetch = axios.create({
   withCredentials: true, // Necessary for cookies.
 });
 
-export const getApiToken = async () => {
+export const getAccessToken = async () => {
   let accessToken = localStorage.getItem(`accessToken`);
 
   if (accessToken === null) {
@@ -79,7 +79,8 @@ export const getApiToken = async () => {
   } catch (e) {
     console.error(`ERROR Failed to get new access token.`);
     console.error(e);
-    reduxStore.dispatch(logoutUser());
+    localStorage.removeItem('accessToken');
+    reduxStore.dispatch(clearCurrentUser());
   }
   return accessToken;
 };
@@ -90,29 +91,39 @@ axiosFetch.interceptors.request.use(async (config) => {
    *  infinite loop since the refresh endpoint gets called inside of getApiToken.
    */
   if (config.url !== EndpointEnum.AUTH && config.url !== EndpointEnum.REFRESH) {
-    const accessToken = await getApiToken();
+    const accessToken = await getAccessToken();
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
   return config;
 });
 
 // Set interceptor to catch errors.
-axiosFetch.interceptors.response.use(undefined, (e) => {
-  if (!(e instanceof AxiosError)) return Promise.reject(e);
-  console.error('Error Response: ', e.response?.data);
-  return Promise.reject(e);
+axiosFetch.interceptors.response.use(undefined, (err) => {
+  if (!(err instanceof AxiosError)) return Promise.reject(err);
+  const errorBody = err.response?.data;
+  console.error('Error Response: ', errorBody);
+  if ('description' in errorBody) {
+    console.error(errorBody.description);
+    return Promise.reject({
+      message: errorBody.description,
+    });
+  }
+  if ('message' in errorBody) {
+    return Promise.reject(errorBody);
+  }
+  return Promise.reject(err);
 });
 
 export const changePasswordAsync = async (
-  currentPass: string,
-  newPass: string
+  currentPassword: string,
+  newPassword: string
 ) => {
   return axiosFetch({
     url: EndpointEnum.CHANGE_PASS,
     method: 'POST',
     data: {
-      old_password: currentPass,
-      new_password: newPass,
+      oldPassword: currentPassword,
+      newPassword: newPassword,
     },
   });
 };
@@ -519,25 +530,17 @@ export const getPatientsAdminAsync = async (
 };
 
 export const archivePatientAsync = async (patientId: string) => {
-  const response = await axiosFetch({
+  await axiosFetch({
     method: 'PUT',
-    url: EndpointEnum.PATIENTS + '/' + patientId + '/info',
-    data: {
-      isArchived: true,
-    },
+    url: EndpointEnum.PATIENTS + '/' + patientId + '/archive?archive=true',
   });
-  return response.data;
 };
 
 export const unarchivePatientAsync = async (patientId: string) => {
-  const response = await axiosFetch({
-    url: EndpointEnum.PATIENTS + '/' + patientId + '/info',
+  await axiosFetch({
+    url: EndpointEnum.PATIENTS + '/' + patientId + '/archive?archive=false',
     method: 'PUT',
-    data: {
-      isArchived: false,
-    },
   });
-  return response.data;
 };
 
 export const getPatientAsync = async (patientId: string) => {

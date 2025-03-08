@@ -1,7 +1,7 @@
 import { test as setup } from '@playwright/test';
 import { BASE_API_URL, AUTH_FILE, ADMIN_CREDENTIALS } from './constants';
 
-const AUTH_API_URL = BASE_API_URL + '/user/auth';
+const AUTH_API_URL = `${BASE_API_URL}/api/user/auth`;
 
 type AuthResponse = {
   accessToken: string;

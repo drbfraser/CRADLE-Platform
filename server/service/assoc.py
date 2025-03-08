@@ -3,7 +3,7 @@ The ``service.assoc`` module provides functions for managing associations betwee
 patients, health facilities, and users.
 """
 
-from typing import List
+from typing import List, Optional
 
 from data import crud
 from enums import RoleEnum
@@ -34,7 +34,9 @@ def associate_by_user_role(patient: PatientOrm, user: UserOrm):
 
 
 def associate(
-    patient: PatientOrm, facility: HealthFacilityOrm = None, user: UserOrm = None
+    patient: PatientOrm,
+    facility: Optional[HealthFacilityOrm] = None,
+    user: Optional[UserOrm] = None,
 ):
     """
     Creates an association between a patient and facility, patient and user, or patient,
@@ -76,15 +78,15 @@ def associate_by_id(
     facility = crud.read(HealthFacilityOrm, name=facility_name)
     user = crud.read(UserOrm, id=user_id)
 
-    if not patient or not facility or not user:
+    if patient is None or facility is None or user is None:
         raise ValueError("patient, facility, or user not found")
     return associate(patient, facility, user)
 
 
 def has_association(
-    patient: PatientOrm = None,
-    facility: HealthFacilityOrm = None,
-    user: UserOrm = None,
+    patient: Optional[PatientOrm] = None,
+    facility: Optional[HealthFacilityOrm] = None,
+    user: Optional[UserOrm] = None,
 ) -> bool:
     """
     Returns true if the supplied models are associated with one another.
@@ -102,9 +104,9 @@ def has_association(
 
 
 def has_association_by_id(
-    patient_id: str = None,
-    facility_name: str = None,
-    user_id: int = None,
+    patient_id: Optional[str] = None,
+    facility_name: Optional[str] = None,
+    user_id: Optional[int] = None,
 ) -> bool:
     """
     Returns true if the supplied models are associated with one another.

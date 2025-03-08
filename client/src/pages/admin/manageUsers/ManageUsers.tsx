@@ -10,8 +10,6 @@ import AddIcon from '@mui/icons-material/Add';
 import { UserWithIndex } from 'src/shared/types';
 import { getUsersAsync } from 'src/shared/api/api';
 import { userRoleLabels } from 'src/shared/constants';
-import { useAppSelector } from 'src/shared/hooks';
-import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
 import {
   TableAction,
   TableActionButtons,
@@ -24,6 +22,7 @@ import { formatPhoneNumbers } from 'src/shared/utils';
 import { EditUserDialog } from './UserForms/EditUserDialog';
 import DeleteUserDialog from './DeleteUserDialog';
 import ResetPasswordDialog from './ResetPasswordDialog';
+import { useCurrentUser } from 'src/shared/hooks/auth/useCurrentUser';
 
 export const ManageUsers = () => {
   const [editPopupOpen, setEditPopupOpen] = useState(false);
@@ -39,7 +38,7 @@ export const ManageUsers = () => {
   const users = usersQuery.data ?? [];
 
   // Component to render buttons inside the last cell of each row.
-  const { data: currentUser } = useAppSelector(selectCurrentUser);
+  const currentUser = useCurrentUser();
   const ActionButtons = useCallback(
     ({ user }: { user?: UserWithIndex }) => {
       const isCurrentUser = currentUser?.id === user?.id;

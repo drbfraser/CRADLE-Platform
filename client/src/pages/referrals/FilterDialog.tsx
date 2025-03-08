@@ -23,8 +23,6 @@ import ScheduleIcon from '@mui/icons-material/Schedule';
 import { ReferralFilter, Referrer } from 'src/shared/types';
 import { getUserVhtsAsync } from 'src/shared/api/api';
 import { TrafficLightEnum } from 'src/shared/enums';
-import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
-import { useAppSelector } from 'src/shared/hooks';
 import { useHealthFacilityNames } from 'src/shared/hooks/healthFacilityNames';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { DateRangePickerWithPreset } from 'src/shared/components/Date/DateRangePicker';
@@ -34,6 +32,7 @@ import {
   PrimaryButton,
   SecondaryButton,
 } from 'src/shared/components/Button';
+import { useCurrentUser } from 'src/shared/hooks/auth/useCurrentUser';
 
 interface IProps {
   open: boolean;
@@ -84,7 +83,7 @@ export const FilterDialog = ({
   setFilter,
   setIsPromptShown,
 }: IProps) => {
-  const { data: user } = useAppSelector(selectCurrentUser);
+  const currentUser = useCurrentUser();
   const [selectedHealthFacilities, setSelectedHealthFacilities] = useState<
     string[]
   >([]);
@@ -114,18 +113,18 @@ export const FilterDialog = ({
   }, [filter]);
 
   useEffect(() => {
-    if (user) {
+    if (currentUser) {
       const currentSelectedHealthFacilities = selectedHealthFacilities;
       setSelectedHealthFacilities([
         ...currentSelectedHealthFacilities,
-        user.healthFacilityName,
+        currentUser.healthFacilityName,
       ]);
       applyFilter([
         ...currentSelectedHealthFacilities,
-        user.healthFacilityName,
+        currentUser.healthFacilityName,
       ]);
     }
-  }, [user]);
+  }, [currentUser]);
 
   const clearFilter = () => {
     setSelectedHealthFacilities([]);
@@ -199,7 +198,7 @@ export const FilterDialog = ({
     applyFilter(selectedHealthFacilities);
     if (
       selectedHealthFacilities.length === 1 &&
-      selectedHealthFacilities[0] === user?.healthFacilityName
+      selectedHealthFacilities[0] === currentUser?.healthFacilityName
     ) {
       setIsPromptShown(true);
     } else {
