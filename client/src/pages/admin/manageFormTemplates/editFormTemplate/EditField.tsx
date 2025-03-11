@@ -32,7 +32,6 @@ import EditVisibleCondition from './EditVisibleCondition';
 import MultiChoice from './multiFieldComponents/MultiChoiceField';
 import MultiSelect from './multiFieldComponents/MultiSelectField';
 import * as handlers from './multiFieldComponents/handlers';
-import { NumberField } from '@base-ui-components/react/number-field';
 import CustomNumberField from 'src/shared/components/Form/CustomNumberField';
 
 interface IProps {
@@ -148,59 +147,31 @@ const EditField = ({
       label: 'Number',
       type: QuestionTypeEnum.INTEGER,
       render: () => (
-        //   <Grid container spacing={3} direction="column">
-        //     <Grid item>
-        //       <NumberField.Root
-        //         id="number-field-min"
-        //         defaultValue={numMin ?? undefined}>
-        //         <label htmlFor="number-field-min">Minimum Value</label>
-
-        //         <NumberField.Group>
-        //           <NumberField.Decrement>-</NumberField.Decrement>
-        //           <NumberField.Input
-        //             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-        //               const value =
-        //                 event.target.value === ''
-        //                   ? null
-        //                   : Number(event.target.value);
-        //               setNumMin(value);
-        //               validateNumberFields(value, numMax);
-        //             }}
-        //           />
-
-        //           <NumberField.Increment>+</NumberField.Increment>
-        //         </NumberField.Group>
-        //       </NumberField.Root>
-        //     </Grid>
-        //     <Grid item>
-        //       <NumberField.Root
-        //         id="number-field-max"
-        //         defaultValue={numMax ?? undefined}>
-        //         <label htmlFor="number-field-max">Maximum Value</label>
-        //         <NumberField.Group>
-        //           <NumberField.Decrement>-</NumberField.Decrement>
-        //           <NumberField.Input
-        //             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-        //               const value =
-        //                 event.target.value === ''
-        //                   ? null
-        //                   : Number(event.target.value);
-        //               setNumMax(value);
-        //               validateNumberFields(numMin, value);
-        //             }}
-        //           />
-        //           <NumberField.Increment>+</NumberField.Increment>
-        //         </NumberField.Group>
-        //       </NumberField.Root>
-        //     </Grid>
-        //     {validationError && (
-        //       <Typography color="error" variant="body2">
-        //         {validationError}
-        //       </Typography>
-        //     )}
-        //   </Grid>
-        // ),
-        <></>
+        <Grid item xs={12} sm={6}>
+          <CustomNumberField
+            label="Minimum Value"
+            id="number-field-min"
+            value={numMin}
+            onChange={(value) => {
+              setNumMin(value);
+              validateNumberFields(value, numMax);
+            }}
+          />
+          <CustomNumberField
+            label="Maximum Value"
+            id="number-field-max"
+            value={numMax}
+            onChange={(value) => {
+              setNumMax(value);
+              validateNumberFields(numMin, value);
+            }}
+          />
+          {validationError && (
+            <Typography color="error" variant="body2">
+              {validationError}
+            </Typography>
+          )}
+        </Grid>
       ),
     },
     text: {
@@ -624,33 +595,6 @@ const EditField = ({
                 ))}
               </RadioGroup>
             </Grid>
-            {fieldType == 'number' && (
-              <Grid item xs={12} sm={6}>
-                <CustomNumberField
-                  label="Minimum Value"
-                  id="number-field-min"
-                  value={numMin}
-                  onChange={(value) => {
-                    setNumMin(value);
-                    validateNumberFields(value, numMax);
-                  }}
-                />
-                <CustomNumberField
-                  label="Maximum Value"
-                  id="number-field-max"
-                  value={numMax}
-                  onChange={(value) => {
-                    setNumMax(value);
-                    validateNumberFields(numMin, value);
-                  }}
-                />
-                {validationError && (
-                  <Typography color="error" variant="body2">
-                    {validationError}
-                  </Typography>
-                )}
-              </Grid>
-            )}
             {fieldType ? fieldTypes[fieldType].render() : null}
             {questionsArr.some(
               // only include questions that:

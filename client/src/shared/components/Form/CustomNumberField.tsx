@@ -18,16 +18,17 @@ const CustomNumberField: React.FC<CustomNumberFieldProps> = ({
   return (
     <Grid item xs={12} sm={6}>
       <NumberField.Root id={id} defaultValue={value ?? undefined}>
-        <FormLabel id={id}>
+        <FormLabel>
           <Typography>{label}</Typography>
         </FormLabel>
         <NumberField.Group style={{ width: '100%' }}>
           <NumberField.Input
             style={{
               width: '40%',
-              padding: '0.625rem',
-              border: '0.0625rem solid #ccc',
-              borderRadius: '0.25rem',
+              minWidth: '40px',
+              padding: '10px',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
               fontSize: '1rem',
             }}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
