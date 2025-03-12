@@ -52,7 +52,7 @@ const EditFacilityDialog = ({
     otherPhoneNumbers
   );
 
-  const handleSubmit = async (values: Facility) => {
+  const handleSubmit = (values: Facility) => {
     updateFacility.mutate(values, {
       onSuccess: () => onClose(),
     });

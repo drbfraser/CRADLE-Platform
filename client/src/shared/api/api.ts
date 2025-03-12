@@ -195,7 +195,7 @@ export const getAllFormTemplatesAsync = async (
 ): Promise<FormTemplate[]> => {
   try {
     const response = await axiosFetch.get(
-      EndpointEnum.FORM_TEMPLATES + `?includeArchived=${includeArchived}`
+      EndpointEnum.FORM_TEMPLATES + `?include_archived=${includeArchived}`
     );
     return response.data;
   } catch (e) {
