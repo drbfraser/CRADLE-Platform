@@ -1,4 +1,3 @@
-import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import {
   Dialog,
   DialogActions,
@@ -6,11 +5,11 @@ import {
   DialogTitle,
 } from '@mui/material';
 
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { FormTemplate } from 'src/shared/types';
+import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Toast } from 'src/shared/components/toast';
-import { handleArchiveFormTemplateAsync } from 'src/shared/api/api';
-import { useState } from 'react';
+import { useEditFormTemplate } from './mutations';
 
 interface IProps {
   open: boolean;
@@ -19,24 +18,19 @@ interface IProps {
 }
 
 const ArchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
-  const [submitError, setSubmitError] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const editForm = useEditFormTemplate();
 
-  const archiveForm = async () => {
+  const handleArchiveForm = async () => {
     if (!template?.id) {
       return;
     }
 
-    template.archived = true;
-
-    try {
-      await handleArchiveFormTemplateAsync(template);
-
-      setSubmitSuccess(true);
-      onClose();
-    } catch (e) {
-      setSubmitError(true);
-    }
+    editForm.mutate(
+      { ...template, archived: true },
+      {
+        onSuccess: () => onClose(),
+      }
+    );
   };
 
   return (
@@ -44,10 +38,11 @@ const ArchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
       <Toast
         severity="success"
         message="Form Template Archived!"
-        open={submitSuccess}
-        onClose={() => setSubmitSuccess(false)}
+        open={editForm.isSuccess}
+        onClose={() => editForm.reset()}
       />
-      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
+      <APIErrorToast open={editForm.isError} onClose={() => editForm.reset()} />
+
       <Dialog open={open} onClose={onClose}>
         <DialogTitle>Archive Form Template</DialogTitle>
         <DialogContent>
@@ -55,7 +50,7 @@ const ArchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
         </DialogContent>
         <DialogActions sx={(theme) => ({ padding: theme.spacing(2) })}>
           <CancelButton onClick={onClose}>Cancel</CancelButton>
-          <PrimaryButton onClick={archiveForm}>Archive</PrimaryButton>
+          <PrimaryButton onClick={handleArchiveForm}>Archive</PrimaryButton>
         </DialogActions>
       </Dialog>
     </>
