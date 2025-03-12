@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, FormControlLabel, Stack, Switch } from '@mui/material';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { CloudDownloadOutlined, Edit } from '@mui/icons-material';
@@ -9,11 +8,7 @@ import { Unarchive } from '@mui/icons-material';
 import UploadIcon from '@mui/icons-material/Upload';
 import AddIcon from '@mui/icons-material/Add';
 
-import {
-  getFormTemplateAsync,
-  getFormTemplateCsvAsync,
-  getAllFormTemplatesAsync,
-} from 'src/shared/api/api';
+import { getFormTemplateAsync } from 'src/shared/api/api';
 import {
   FormTemplate,
   FormTemplateWithQuestions,
@@ -33,6 +28,8 @@ import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader
 import ArchiveTemplateDialog from './ArchiveTemplateDialog';
 import UploadTemplate from './UploadTemplate';
 import UnarchiveTemplateDialog from './UnarchiveTemplateDialog';
+import { useFormTemplatesQuery } from './queries';
+import { useDownloadTemplateAsCSV } from './mutations';
 
 type FormTemplateWithIndex = FormTemplate & {
   index: number;
@@ -45,20 +42,14 @@ export const ManageFormTemplates = () => {
   const [isArchivePopupOpen, setIsArchivePopupOpen] = useState(false);
   const [isUnarchivePopupOpen, setIsUnarchivePopupOpen] = useState(false);
 
-  const [archivePopupForm, setArchivePopupForm] =
-    useState<FormTemplateWithIndex>();
-  const [unarchivePopupForm, setUnarchivePopupForm] =
-    useState<FormTemplateWithIndex>();
+  const [selectedForm, setSelectedForm] = useState<FormTemplate>();
 
   const [customFormWithQuestions, setCustomFormWithQuestions] =
     useState<FormTemplateWithQuestions | null>(null);
 
   const navigate = useNavigate();
 
-  const formTemplatesQuery = useQuery({
-    queryKey: ['formTemplates', showArchivedTemplates],
-    queryFn: () => getAllFormTemplatesAsync(showArchivedTemplates),
-  });
+  const formTemplatesQuery = useFormTemplatesQuery(showArchivedTemplates);
 
   useEffect(() => {
     if (customFormWithQuestions != null) {
@@ -72,10 +63,7 @@ export const ManageFormTemplates = () => {
   }, [customFormWithQuestions, navigate]);
 
   const { mutate: downloadTemplateCSV, isError: downloadTemplateCSVIsError } =
-    useMutation({
-      mutationFn: (values: { id: string; version: string }) =>
-        getFormTemplateCsvAsync(values.id, values.version),
-    });
+    useDownloadTemplateAsCSV();
 
   const getFormTemplateWithQuestions = async (
     formTemplate: FormTemplateWithIndex
@@ -113,11 +101,7 @@ export const ManageFormTemplates = () => {
       }),
     };
 
-    try {
-      setCustomFormWithQuestions(formTemplateWithQuestions);
-    } catch (e) {
-      console.error(e);
-    }
+    setCustomFormWithQuestions(formTemplateWithQuestions);
   };
 
   const handleNewFormClick = () => {
@@ -134,7 +118,7 @@ export const ManageFormTemplates = () => {
         actions.push({
           tooltip: 'Edit Form Template',
           Icon: Edit,
-          onClick: async () => {
+          onClick: () => {
             getFormTemplateWithQuestions(formTemplate);
           },
         });
@@ -142,7 +126,7 @@ export const ManageFormTemplates = () => {
           tooltip: 'Archive Form Template',
           Icon: DeleteForever,
           onClick: () => {
-            setArchivePopupForm(formTemplate);
+            setSelectedForm(formTemplate);
             setIsArchivePopupOpen(true);
           },
         });
@@ -151,7 +135,7 @@ export const ManageFormTemplates = () => {
           tooltip: 'Unarchive Form Template',
           Icon: Unarchive,
           onClick: () => {
-            setUnarchivePopupForm(formTemplate);
+            setSelectedForm(formTemplate);
             setIsUnarchivePopupOpen(true);
           },
         });
@@ -168,10 +152,8 @@ export const ManageFormTemplates = () => {
             },
             {
               onSuccess: (file: Blob) => {
-                const objectURL = URL.createObjectURL(file);
-
                 const link = document.createElement('a');
-                link.href = objectURL;
+                link.href = URL.createObjectURL(file);
                 link.setAttribute(
                   'download',
                   `${formTemplate.classification.name}.csv`
@@ -242,12 +224,12 @@ export const ManageFormTemplates = () => {
       <ArchiveTemplateDialog
         open={isArchivePopupOpen}
         onClose={() => setIsArchivePopupOpen(false)}
-        template={archivePopupForm}
+        template={selectedForm}
       />
       <UnarchiveTemplateDialog
         open={isUnarchivePopupOpen}
         onClose={() => setIsUnarchivePopupOpen(false)}
-        template={unarchivePopupForm}
+        template={selectedForm}
       />
 
       <DataTableHeader title={'Form Templates'}>
