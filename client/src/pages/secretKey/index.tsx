@@ -1,168 +1,171 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
-import { useSecretKey } from 'src/shared/hooks/secretKey';
-import Paper from '@mui/material/Paper';
-import Button from '@mui/material/Button';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import InputAdornment from '@mui/material/InputAdornment';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import FormControl from '@mui/material/FormControl';
-import MenuItem from '@mui/material/MenuItem';
-import { ReduxState } from 'src/redux/reducers';
-import { SecretKeyState } from 'src/redux/reducers/secretKey';
-import IconButton from '@mui/material/IconButton';
+import { useQuery } from '@tanstack/react-query';
+import {
+  Box,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  FormControl,
+  Paper,
+  IconButton,
+  InputAdornment,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  styled,
+  SxProps,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { styled, SxProps } from '@mui/material/styles';
+
 import { UserRoleEnum } from 'src/shared/enums';
+import { useSecretKey } from 'src/pages/secretKey/useSecretKey';
 import { Toast } from 'src/shared/components/toast';
-import { Box } from '@mui/material';
-import { useAppSelector } from 'src/shared/hooks';
-import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
+import { getUsersAsync } from 'src/shared/api/api';
+import { useCurrentUser } from 'src/shared/hooks/auth/useCurrentUser';
 
 const SecretKeyPage: React.FC = () => {
-  const [showPassword, setShowPassWord] = useState<boolean>(false);
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [updateMessage, setUpdateMessage] = useState<boolean>(false);
-  const { data: currentUser } = useAppSelector(selectCurrentUser);
-  const secretKey = useSelector(({ secretKey }: ReduxState): SecretKeyState => {
-    return secretKey;
-  });
+  const currentUser = useCurrentUser();
 
+  const [showSecretKey, setShowSecretKey] = useState<boolean>(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
+
+  const [selectedUserId, setSelectedUserId] = useState<number | undefined>(
+    currentUser?.id
+  );
   const handleUserSelect = (event: SelectChangeEvent<string>) => {
     const currId = event.target.value;
     if (typeof currId === 'number') {
-      setFocusUserId(currId);
+      setSelectedUserId(currId);
     }
   };
 
+  const usersQuery = useQuery({
+    queryKey: ['users'],
+    queryFn: getUsersAsync,
+    enabled: currentUser?.role === UserRoleEnum.ADMIN,
+  });
+  const users = usersQuery.data ?? [];
+
   const {
-    users,
-    role,
     currentSecretKey,
-    focusUserId,
-    setFocusUserId,
-    updateSecretKeyHandler,
-  } = useSecretKey(secretKey, currentUser, setShowModal, setUpdateMessage);
+    updateSecretKey,
+    updateSecretKeySuccess,
+    resetSecretKeyMutation,
+  } = useSecretKey(currentUser, selectedUserId);
+
   return (
     <>
       <Toast
         severity="success"
         message={'Your key is updated'}
-        open={updateMessage}
-        onClose={() => setUpdateMessage(false)}
+        open={updateSecretKeySuccess}
+        onClose={() => resetSecretKeyMutation()}
       />
+
       <Paper
         sx={{
-          backgroundColor: '#fff',
+          padding: '25px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '2rem',
         }}>
-        <Box
-          sx={{
-            padding: 15,
-          }}>
-          <Box
+        <Box>
+          <Typography
+            variant={'h2'}
             sx={{
-              display: 'inline-block',
+              fontSize: '1.7rem',
             }}>
-            <Typography
-              variant={'h2'}
-              sx={{
-                fontSize: '1.7rem',
-                display: 'inline-block',
-              }}>
-              SMS secret key detail
+            SMS secret key detail
+          </Typography>
+
+          {currentUser?.role === UserRoleEnum.ADMIN &&
+            users.length > 1 &&
+            selectedUserId && (
+              <FormControl
+                sx={{
+                  minWidth: '300px',
+                }}>
+                <Select
+                  id="focus-users"
+                  value={selectedUserId.toString()}
+                  onChange={handleUserSelect}>
+                  {users.map((user, index) => (
+                    <MenuItem key={index} value={user.id}>
+                      {user.email}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+        </Box>
+
+        <Card>
+          <CardContent>
+            <Typography color="text.secondary" gutterBottom>
+              Your SMS Key Details
             </Typography>
-          </Box>
-          {role === UserRoleEnum.ADMIN && users.length > 1 && focusUserId && (
-            <FormControl
-              sx={{
-                minWidth: '300px',
-                float: 'right',
-              }}>
-              <Select
-                id="focus-users"
-                value={focusUserId + ''}
-                onChange={handleUserSelect}>
-                {users.map((user, index) => (
-                  <MenuItem key={index} value={user.id}>
-                    {user.email}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          )}
-        </Box>
-        <Box
-          sx={{
-            padding: '15px',
-          }}>
-          <Card>
-            <CardContent>
+            {currentUser?.role === UserRoleEnum.ADMIN && (
+              <PasswordViewer
+                focused={false}
+                label="Key"
+                type={showSecretKey ? 'text' : 'password'}
+                fullWidth
+                value={currentSecretKey?.key}
+                variant="filled"
+                aria-readonly
+                InputProps={{
+                  readOnly: true,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowSecretKey((prev) => !prev)}
+                        edge="end">
+                        {showSecretKey ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            )}
+            <Box sx={SECTION_SX}>
               <Typography color="text.secondary" gutterBottom>
-                Your SMS Key Details
+                Expiry date
               </Typography>
-              {role === UserRoleEnum.ADMIN && (
-                <Box>
-                  <PasswordViewer
-                    focused={false}
-                    label="Key"
-                    type={showPassword ? 'text' : 'password'}
-                    fullWidth
-                    value={currentSecretKey?.smsKey}
-                    variant="filled"
-                    aria-readonly
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setShowPassWord((prev) => !prev)}
-                            edge="end">
-                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Box>
-              )}
-              <Box sx={SECTION_SX}>
-                <Typography color="text.secondary" gutterBottom>
-                  Expiry date
-                </Typography>
-                <Typography>
-                  {currentSecretKey
-                    ? currentSecretKey.expiryDate.split(' ')[0]
-                    : 'No stale date available'}
-                </Typography>
-              </Box>
-              <Box sx={SECTION_SX}>
-                <Typography color="text.secondary" gutterBottom>
-                  Stale Day
-                </Typography>
-                <Typography>
-                  {currentSecretKey
-                    ? currentSecretKey.staleDate.split(' ')[0]
-                    : 'No stale date available'}
-                </Typography>
-              </Box>
-            </CardContent>
-            <CardActions>
-              <Button size="medium" onClick={() => setShowModal(true)}>
-                Learn More
-              </Button>
-            </CardActions>
-          </Card>
-        </Box>
+              <Typography>
+                {currentSecretKey
+                  ? currentSecretKey.expiryDate.split(' ')[0]
+                  : 'No stale date available'}
+              </Typography>
+            </Box>
+
+            <Box sx={SECTION_SX}>
+              <Typography color="text.secondary" gutterBottom>
+                Stale Day
+              </Typography>
+              <Typography>
+                {currentSecretKey
+                  ? currentSecretKey.staleDate.split(' ')[0]
+                  : 'No stale date available'}
+              </Typography>
+            </Box>
+          </CardContent>
+          <CardActions>
+            <Button size="medium" onClick={() => setShowModal(true)}>
+              Learn More
+            </Button>
+          </CardActions>
+        </Card>
       </Paper>
+
       <Dialog
         fullWidth
         open={showModal}
@@ -174,7 +177,8 @@ const SecretKeyPage: React.FC = () => {
           <DialogContentText id="SMSrelay-secret-key-detail">
             Think of an SMS secret key like a special pass that lets your mobile
             device do a bunch of things using text messages.This key has two
-            important dates: <br />
+            important dates:
+            <br />
             <br />
             The Stale-date and the Expiry-date. The Stale-date is like a
             freshness indicator. After this date, the key gets automatically
@@ -190,7 +194,13 @@ const SecretKeyPage: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowModal(false)}>Close</Button>
-          <Button onClick={updateSecretKeyHandler}>Update key</Button>
+          <Button
+            onClick={() => {
+              updateSecretKey();
+              setShowModal(false);
+            }}>
+            Update key
+          </Button>
         </DialogActions>
       </Dialog>
     </>

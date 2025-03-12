@@ -11,10 +11,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useAppDispatch, useAppSelector } from 'src/shared/hooks';
-import {
-  selectSidebarIsOpen,
-  closeSidebar as closeSidebarAction,
-} from 'src/redux/sidebar-state';
+import { selectSidebarIsOpen, closeSidebar } from 'src/redux/sidebar-state';
 import { MouseEventHandler, ReactNode, useMemo } from 'react';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { useLogout } from 'src/shared/hooks/auth/useLogout';
@@ -23,8 +20,10 @@ import SendIcon from '@mui/icons-material/Send';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import PollIcon from '@mui/icons-material/Poll';
 import SchoolIcon from '@mui/icons-material/School';
-import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
+
 import SettingsIcon from '@mui/icons-material/Settings';
+import { useIsLoggedIn } from 'src/shared/hooks/auth/useIsLoggedIn';
+import { useCurrentUser } from 'src/shared/hooks/auth/useCurrentUser';
 
 type SidebarProps = {
   drawerWidth: string;
@@ -37,13 +36,12 @@ export const Sidebar = ({ drawerWidth, isBigScreen }: SidebarProps) => {
   const isSidebarOpen = useAppSelector(selectSidebarIsOpen);
   const location = useLocation();
 
-  const currentUser = useAppSelector(selectCurrentUser);
+  const currentUser = useCurrentUser();
+  const isLoggedIn = useIsLoggedIn();
+  const isAdmin = currentUser?.role === UserRoleEnum.ADMIN;
 
-  const isLoggedIn = currentUser.loggedIn;
-  const isAdmin = currentUser.data?.role === UserRoleEnum.ADMIN;
-
-  const closeSidebar = () => {
-    dispatch(closeSidebarAction());
+  const handleCloseSidebar = () => {
+    dispatch(closeSidebar());
   };
 
   const logoutButtonId = useMemo(() => makeUniqueId(), []);
@@ -69,7 +67,7 @@ export const Sidebar = ({ drawerWidth, isBigScreen }: SidebarProps) => {
         },
       }}
       open={isBigScreen || isSidebarOpen}
-      onClose={closeSidebar}
+      onClose={handleCloseSidebar}
       anchor="left">
       <Box>
         <List style={{ marginBlockStart: offsetFromTop }}>

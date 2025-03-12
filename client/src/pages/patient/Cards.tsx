@@ -3,6 +3,7 @@ import {
   AccordionDetails,
   AccordionSummary,
   Box,
+  Paper,
   Typography,
 } from '@mui/material';
 import {
@@ -21,13 +22,28 @@ import {
 import { RedirectButton } from 'src/shared/components/Button';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { getPrettyDateTime } from 'src/shared/utils';
+import { PropsWithChildren } from 'react';
 
 interface IAssessmentCardProps {
   assessment: Assessment;
 }
 
+const CardContainer = ({ children }: PropsWithChildren) => {
+  return (
+    <Paper
+      variant="outlined"
+      sx={{
+        p: 1,
+        my: 1,
+        backgroundColor: '#f9f9f9',
+      }}>
+      {children}
+    </Paper>
+  );
+};
+
 export const AssessmentCard = ({ assessment }: IAssessmentCardProps) => (
-  <>
+  <CardContainer>
     <Typography variant={'h5'} component={'h5'}>
       <DiagnosisIcon fontSize="large" />
       Assessment
@@ -89,7 +105,7 @@ export const AssessmentCard = ({ assessment }: IAssessmentCardProps) => (
       url={`/assessments/edit/${assessment.patientId}/${assessment.id}`}>
       Update Assessment
     </RedirectButton>
-  </>
+  </CardContainer>
 );
 
 interface ICustomizedFormCardProps {
@@ -97,7 +113,7 @@ interface ICustomizedFormCardProps {
 }
 
 export const CustomizedFormCard = ({ form }: ICustomizedFormCardProps) => (
-  <>
+  <CardContainer>
     <Typography variant={'h5'} component={'h5'}>
       <>
         <AssignmentInd fontSize="large" /> {form.classification.name}
@@ -113,7 +129,7 @@ export const CustomizedFormCard = ({ form }: ICustomizedFormCardProps) => (
     <RedirectButton url={`/forms/view/${form.patientId}/${form.id}`}>
       View Form
     </RedirectButton>
-  </>
+  </CardContainer>
 );
 
 interface IReadingCardProps {
@@ -127,7 +143,7 @@ export const ReadingCard = ({ reading }: IReadingCardProps) => {
   };
 
   return (
-    <>
+    <CardContainer>
       <Typography variant={'h5'} component={'h5'}>
         <AssignmentInd fontSize="large" />
         Reading
@@ -194,7 +210,7 @@ export const ReadingCard = ({ reading }: IReadingCardProps) => {
           </Accordion>
         )}
       </Box>
-    </>
+    </CardContainer>
   );
 };
 
@@ -203,7 +219,7 @@ interface IReferralCardProps {
 }
 
 export const ReferralAssessedCard = ({ referral }: IReferralCardProps) => (
-  <>
+  <CardContainer>
     <Typography variant="h5">
       <AssignmentLate fontSize="large" /> Referral Assessed
     </Typography>
@@ -227,11 +243,11 @@ export const ReferralAssessedCard = ({ referral }: IReferralCardProps) => (
         </div>
       )}
     </Box>
-  </>
+  </CardContainer>
 );
 
 export const ReferralCancelledCard = ({ referral }: IReferralCardProps) => (
-  <>
+  <CardContainer>
     <Typography variant="h5">
       <AssignmentLate fontSize="large" /> Referral Cancelled
     </Typography>
@@ -268,11 +284,11 @@ export const ReferralCancelledCard = ({ referral }: IReferralCardProps) => (
       url={`/referrals/cancel-status-switch/${referral.id}/undo_cancel_referral`}>
       Undo Cancellation
     </RedirectButton>
-  </>
+  </CardContainer>
 );
 
 export const ReferralNotAttendedCard = ({ referral }: IReferralCardProps) => (
-  <>
+  <CardContainer>
     <Typography variant="h5">
       <AssignmentLate fontSize="large" /> Referral Not Attended
     </Typography>
@@ -298,11 +314,11 @@ export const ReferralNotAttendedCard = ({ referral }: IReferralCardProps) => (
         </div>
       )}
     </Box>
-  </>
+  </CardContainer>
 );
 
 export const ReferralPendingCard = ({ referral }: IReferralCardProps) => (
-  <>
+  <CardContainer>
     <Typography variant="h5">
       <AssignmentLate fontSize="large" /> Referral Pending
     </Typography>
@@ -339,5 +355,5 @@ export const ReferralPendingCard = ({ referral }: IReferralCardProps) => (
         Cancel
       </RedirectButton>
     </Box>
-  </>
+  </CardContainer>
 );

@@ -1,16 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { useSelector } from 'react-redux';
 import { Box, Divider, Typography } from '@mui/material';
 
-import { UserWithToken, OrNull } from 'src/shared/types';
-import { ReduxState } from 'src/redux/reducers';
 import { StatisticDashboard } from './utils/StatisticsDashboard';
 import { DIVIDER_SX } from './utils/statisticStyles';
 import { getFacilityStatisticsAsync } from 'src/shared/api/apiStatistics';
-
-type User = {
-  user: OrNull<UserWithToken>;
-};
+import { useCurrentUser } from 'src/shared/hooks/auth/useCurrentUser';
 
 type Props = {
   from: number;
@@ -18,15 +12,11 @@ type Props = {
 };
 
 export const MyFacility = ({ from, to }: Props) => {
-  const { user } = useSelector(
-    ({ user }: ReduxState): User => ({
-      user: user.current.data,
-    })
-  );
-  const facilityName = user!.healthFacilityName;
+  const currentUser = useCurrentUser();
+  const facilityName = currentUser!.healthFacilityName;
 
   const myFacilityStatsQuery = useQuery({
-    queryKey: ['MyFacilitiyStats', facilityName, from, to],
+    queryKey: ['MyFacilityStats', facilityName, from, to],
     queryFn: () => getFacilityStatisticsAsync(facilityName, from, to),
   });
 

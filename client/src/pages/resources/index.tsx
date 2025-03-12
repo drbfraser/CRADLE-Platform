@@ -1,10 +1,5 @@
 import { CommunityWorkerResources } from './CommunityWorkerResource';
-import { Component } from 'react';
 import { HealthWorkerResources } from './HealthWorkerResources';
-import { ReduxState } from 'src/redux/reducers';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-import { getCurrentUser } from 'src/redux/reducers/user/currentUser';
 import { Tabs } from 'src/shared/components/Tabs/Tabs';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
 import { DASHBOARD_PADDING } from 'src/shared/constants';
@@ -26,48 +21,14 @@ export const HEALTH_FACILITY_WORKER_EDUCATION_VIDEO_LINK =
   'https://www.youtube.com/embed/QainNBCHKAg';
 
 // const TabExampleBasicAll = () => <Tab panes={panes} renderActiveOnly={false} />;
-type Props = {
-  loggedIn: boolean;
-  getCurrentUser: any;
+
+export const ResourcesPage = () => {
+  return (
+    <DashboardPaper
+      sx={{
+        padding: DASHBOARD_PADDING,
+      }}>
+      <Tabs panels={panels} />
+    </DashboardPaper>
+  );
 };
-class HelpPageComponent extends Component<Props> {
-  componentDidMount = () => {
-    if (!this.props.loggedIn) {
-      this.props.getCurrentUser();
-    }
-  };
-
-  render() {
-    // don't render page if user is not logged in
-    if (!this.props.loggedIn) {
-      return <div />;
-    }
-
-    return (
-      <DashboardPaper
-        sx={{
-          padding: DASHBOARD_PADDING,
-        }}>
-        <Tabs panels={panels} />
-      </DashboardPaper>
-    );
-  }
-}
-
-const mapStateToProps = ({ user }: ReduxState) => ({
-  loggedIn: user.current.loggedIn,
-});
-
-const mapDispatchToProps = (dispatch: any) => ({
-  ...bindActionCreators(
-    {
-      getCurrentUser,
-    },
-    dispatch
-  ),
-});
-
-export const ResourcesPage = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(HelpPageComponent);

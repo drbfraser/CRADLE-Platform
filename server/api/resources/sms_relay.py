@@ -1,7 +1,7 @@
 import json
 
 import requests
-from flask import Response, abort, jsonify, make_response
+from flask import Response, abort, make_response
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 from humps import decamelize
@@ -15,38 +15,19 @@ from validation.sms_relay import (
     SmsRelayResponse,
 )
 
-api_url = "http://localhost:5000/{endpoint}"
-
-http_methods = {"GET", "POST", "HEAD", "PUT", "DELETE", "PATCH"}
-
-corrupted_message = (
-    "Server detected invalid message format ({type}); "
-    "message may have been corrupted. "
-    "Retry the action or contact your administrator."
-)
-
-invalid_message = (
-    "Unable to verify message from ({phone_number}). "
-    "Either the App and server don't agree on the security key "
-    "or the message was corrupted. Retry the action or resync "
-    "with the server using an internet connection (WiFi, 3G, …) "
-)
-
-invalid_user = "User does not exist"
-
-null_phone_number = "No phone number was provided"
-
-invalid_json = "Invalid JSON Request Structure; {error}"
-
-invalid_req_number = "Invalid Request Number; {error}"
-
-error_req_range = "Must be between 0-999999"
-
-invalid_method = "Invalid Method; Must be either GET, POST, HEAD, PUT, DELETE, or PATCH"
-
-phone_number_not_exists = (
-    "The phone number: ({phone_number}) does not belong to any users"
-)
+error_messages = {
+    "invalid_message": (
+        "Unable to verify message from ({phone_number}). "
+        "Either the App and server don't agree on the security key "
+        "or the message was corrupted. Retry the action or resync "
+        "with the server using an internet connection (WiFi, 3G, …) "
+    ),
+    "invalid_user": "User does not exist",
+    "invalid_json": "Invalid JSON Request Structure; {error}",
+    "phone_number_does_not_exist": (
+        "The phone number: ({phone_number}) does not belong to any users"
+    ),
+}
 
 
 def _send_request_to_endpoint(
@@ -55,12 +36,25 @@ def _send_request_to_endpoint(
     header: dict,
     body: str,
 ) -> requests.Response:
+    api_url = "http://localhost:5000/{endpoint}"
     return requests.request(
         method=method,
         url=api_url.format(endpoint=endpoint),
         headers=header,
         json=json.loads(body),
     )
+
+
+def _make_encrypted_response(
+    code: int, body: str, iv: str, user_sms_key: str
+) -> Response:
+    data = json.dumps({"code": code, "body": body})
+    compressed_data = compressor.compress_from_string(data)
+    encrypted_data = encryptor.encrypt(compressed_data, iv, user_sms_key)
+
+    response = make_response(encrypted_data)
+    response.headers["Content-Type"] = "text/plain"
+    return response
 
 
 def _create_success_response(
@@ -78,13 +72,7 @@ def _create_success_response(
 
     :return: Returns a 200 status code response object with the inner API response stored as encrypted data in the response body.
     """
-    compressed_data = compressor.compress_from_string(body)
-    encrypted_data = encryptor.encrypt(compressed_data, iv, user_sms_key)
-
-    response_body = {"code": code, "body": encrypted_data}
-
-    response = make_response(jsonify(response_body))
-    response.headers["Content-Type"] = "application/json"
+    response = _make_encrypted_response(code, body, iv, user_sms_key)
     response.status_code = 200
     return response
 
@@ -94,7 +82,7 @@ def _create_error_response(
 ) -> Response:
     """
     Creates and returns a response object with an error status code for the outer API request.
-    Compresses and encrypts the error message and includes it in the response body.
+    Compresses and encrypts the error message & error code and includes it in the response body.
 
     :param error_code: Error status code to send in response.
     :param error_body: Error message body to send in response.
@@ -103,13 +91,7 @@ def _create_error_response(
 
     :return: Returns a response object with the error status code and stores the encrypted error message data in the response body.
     """
-    compressed_data = compressor.compress_from_string(error_body)
-    encrypted_data = encryptor.encrypt(compressed_data, iv, user_sms_key)
-
-    response_body = {"code": error_code, "body": encrypted_data}
-
-    response = make_response(jsonify(response_body))
-    response.headers["Content-Type"] = "application/json"
+    response = _make_encrypted_response(error_code, error_body, iv, user_sms_key)
     response.status_code = error_code
     return response
 
@@ -138,7 +120,7 @@ def relay_sms_request(body: SmsRelayRequestBody):
     if not phone_number_exists:
         return abort(
             400,
-            description=phone_number_not_exists.format(
+            description=error_messages["phone_number_does_not_exist"].format(
                 phone_number=phone_number, type="JSON"
             ),
         )
@@ -146,7 +128,9 @@ def relay_sms_request(body: SmsRelayRequestBody):
     # Get user id for the user that phone_number belongs to
     user = user_utils.get_user_orm_from_phone_number(phone_number)
     if user is None:
-        return abort(404, description=invalid_user.format(type="JSON"))
+        return abort(
+            404, description=error_messages["invalid_user"].format(type="JSON")
+        )
 
     encrypted_data = body.encrypted_data
 
@@ -162,14 +146,18 @@ def relay_sms_request(body: SmsRelayRequestBody):
         # Convert keys to snake case.
         json_dict_data = decamelize(json_dict_data)
     except Exception:
-        error_message = str(invalid_message.format(phone_number=phone_number))
+        error_message = str(
+            error_messages["invalid_message"].format(phone_number=phone_number)
+        )
         print(error_message)
         return abort(401, description=error_message)
 
     try:
         decrypted_data = SmsRelayDecryptedBody(**json_dict_data)
     except ValidationError as e:
-        return abort(422, description=invalid_json.format(error=str(e)))
+        return abort(
+            422, description=error_messages["invalid_json"].format(error=str(e))
+        )
 
     # Gets expected user request number
     expected_request_number = user_utils.get_expected_sms_relay_request_number(user.id)

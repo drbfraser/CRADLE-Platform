@@ -1,7 +1,7 @@
 from datetime import date
-from typing import Any, cast
+from typing import Any, Optional, cast
 
-from flask import abort
+from flask import Response, abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 from pydantic import Field, RootModel
@@ -14,6 +14,7 @@ from common.api_utils import (
     PatientIdPath,
     SearchFilterQueryParams,
 )
+from config import db
 from data import crud, marshal
 from enums import RoleEnum, TrafficLightEnum
 from models import (
@@ -77,7 +78,7 @@ def get_all_unarchived_patients(query: SearchFilterQueryParams):
     """
     current_user = user_utils.get_current_user_from_jwt()
     current_user = cast(dict[Any, Any], current_user)
-    params = query.model_dump()
+    params = query.model_dump(by_alias=True)
     patients = view.patient_list_view(current_user, **params)
     return serialize.serialize_patient_list(patients)
 
@@ -480,10 +481,14 @@ class AdminPatientList(RootModel):
     root: list[AdminPatientListItem]
 
 
+class GetAllPatientsAdminQuery(SearchFilterQueryParams):
+    include_archived: Optional[bool] = Field(True, alias="includeArchived")
+
+
 # /api/patients/admin
 @api_patients.get("/admin", responses={200: AdminPatientList})
 @roles_required([RoleEnum.ADMIN])
-def get_all_patients_admin(query: SearchFilterQueryParams):
+def get_all_patients_admin(query: GetAllPatientsAdminQuery):
     """
     Get All Patients (Admin)
     Gets ALL patients, including archived, regardless of association with
@@ -494,3 +499,30 @@ def get_all_patients_admin(query: SearchFilterQueryParams):
     params = query.model_dump()
     patients = view.admin_patient_view(current_user, **params)
     return serialize.serialize_patients_admin(patients)
+
+
+class ArchivePatientQuery(CradleBaseModel):
+    archive: Optional[bool] = True
+
+
+# /api/patients/<string:patient_id>/archive
+@api_patients.put("/<string:patient_id>/archive")
+@roles_required([RoleEnum.ADMIN])
+def archive_patient(path: PatientIdPath, query: ArchivePatientQuery):
+    """Archive / Unarchive Patient"""
+    patient = crud.read(PatientOrm, id=path.patient_id)
+    if patient is None:
+        return abort(404, description=patient_not_found_message.format(path.patient_id))
+    patient.is_archived = bool(query.archive)
+    db.session.commit()
+    return Response(status=200)
+
+
+# /api/patients/<string:patient_id>
+@api_patients.delete("/<string:patient_id>")
+@roles_required([RoleEnum.ADMIN])
+def delete_patient(path: PatientIdPath):
+    """Delete Patient"""
+    patient = crud.read(PatientOrm, id=path.patient_id)
+    crud.delete(patient)
+    return Response(status=200)

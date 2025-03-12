@@ -3,6 +3,7 @@ from typing import Any, Optional
 
 from pydantic import Field, RootModel, field_validator
 
+from enums import SexEnum
 from utils import get_current_time
 from validation import CradleBaseModel
 from validation.readings import ReadingWithUrineTest
@@ -21,7 +22,7 @@ class PatientModel(CradleBaseModel):
         "household_number": "20",
         "zone": "15",
         "village_number": "50",
-        "pregnancy_start_date": 1587068710, - required if is_pregnant = True
+        "pregnancy_start_date": 1587068710,
         "drug_history": "too much tylenol",
         "medical_history": "not enough advil",
         "allergy": "seafood",
@@ -29,9 +30,9 @@ class PatientModel(CradleBaseModel):
     }
     """
 
-    id: str
+    id: Optional[str] = None
     name: str
-    sex: str
+    sex: SexEnum
     date_of_birth: str
     is_exact_date_of_birth: bool
     is_pregnant: Optional[bool] = False
@@ -42,15 +43,6 @@ class PatientModel(CradleBaseModel):
     last_edited: Optional[int] = None
     date_created: Optional[int] = None
     base: Optional[int] = None
-
-    @field_validator("id", mode="after")
-    @classmethod
-    def check_patient_id_length(cls, patient_id):
-        if patient_id is None:
-            return None
-        if len(patient_id) > 14:
-            raise ValueError("id is too long. Max is 14 digits.")
-        return patient_id
 
     @field_validator("date_of_birth", mode="before")
     @classmethod

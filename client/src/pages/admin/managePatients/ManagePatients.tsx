@@ -17,8 +17,8 @@ import {
   DataTableFooter,
 } from 'src/shared/components/DataTable/DataTable';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
-import ArchivePatient from './ArchivePatient';
-import UnarchivePatient from './UnarchivePatient';
+import ArchivePatientDialog from './ArchivePatientDialog';
+import UnarchivePatientDialog from './UnarchivePatientDialog';
 
 export const ManagePatients = () => {
   const [archivePopupOpen, setArchivePopupOpen] = useState(false);
@@ -26,11 +26,10 @@ export const ManagePatients = () => {
   const [popupPatient, setPopupPatient] = useState<Patient>();
   const [showArchivedPatients, setShowArchivedPatients] = useState(true);
 
-  const patientsQuery = useQuery({
+  const adminPatientListQuery = useQuery({
     queryKey: ['adminPatientList', showArchivedPatients],
     queryFn: () => getPatientsAdminAsync(showArchivedPatients),
   });
-  const patients = patientsQuery.data ?? [];
 
   const ActionButtons = useCallback(({ patient }: { patient?: Patient }) => {
     if (!patient) return null;
@@ -74,8 +73,13 @@ export const ManagePatients = () => {
       ),
     },
   ];
-  const tableRows = patients.map((patient, index) => ({
-    id: index,
+
+  let patients = adminPatientListQuery.data ?? [];
+  if (!showArchivedPatients) {
+    patients = patients.filter((patient) => !patient.isArchived);
+  }
+  const tableRows = patients.map((patient) => ({
+    id: patient.id,
     patientName: patient.name,
     patientId: patient.id,
     isArchived: patient.isArchived,
@@ -89,7 +93,10 @@ export const ManagePatients = () => {
           sx={{ marginX: '10px' }}
           control={
             <Switch
-              onClick={() => setShowArchivedPatients(!showArchivedPatients)}
+              onClick={() => {
+                setShowArchivedPatients(!showArchivedPatients);
+                adminPatientListQuery.refetch();
+              }}
               checked={showArchivedPatients}
             />
           }
@@ -101,24 +108,28 @@ export const ManagePatients = () => {
 
   return (
     <>
-      {patientsQuery.isError && <APIErrorToast />}
+      {adminPatientListQuery.isError && <APIErrorToast />}
 
-      <ArchivePatient
-        open={archivePopupOpen}
-        onClose={() => {
-          setArchivePopupOpen(false);
-          patientsQuery.refetch();
-        }}
-        patient={popupPatient}
-      />
-      <UnarchivePatient
-        open={unarchivePopupOpen}
-        onClose={() => {
-          setUnarchivePopupOpen(false);
-          patientsQuery.refetch();
-        }}
-        patient={popupPatient}
-      />
+      {popupPatient && (
+        <>
+          <ArchivePatientDialog
+            open={archivePopupOpen}
+            onClose={() => {
+              setArchivePopupOpen(false);
+              adminPatientListQuery.refetch();
+            }}
+            patient={popupPatient}
+          />
+          <UnarchivePatientDialog
+            open={unarchivePopupOpen}
+            onClose={() => {
+              setUnarchivePopupOpen(false);
+              adminPatientListQuery.refetch();
+            }}
+            patient={popupPatient}
+          />
+        </>
+      )}
 
       <DataTableHeader title="Patients" />
       <DataTable
@@ -126,10 +137,7 @@ export const ManagePatients = () => {
         rows={tableRows}
         footer={Footer}
         getRowClassName={(params) => {
-          const index = params.row.id;
-          const patient = patients[index];
-          if (!patient) return '';
-          return patient.isArchived ? 'row-archived' : '';
+          return params.row.isArchived ? 'row-archived' : '';
         }}
       />
     </>
