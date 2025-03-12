@@ -155,7 +155,7 @@ export const getHealthFacilityAsync = async (
   return response.data;
 };
 
-export const handleArchiveFormTemplateAsync = async (template: FormTemplate) =>
+export const editFormTemplateAsync = async (template: FormTemplate) =>
   axiosFetch({
     method: 'PUT',
     url: EndpointEnum.FORM_TEMPLATES + '/' + template.id,
