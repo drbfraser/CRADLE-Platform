@@ -301,6 +301,8 @@ jobs:
       - name: Install Playwright Browsers 
         run: | 
           source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
+          # Must be same version as the docker image (This is to keep things from breaking when Playwright updates).
+          npm i playwright@1.51.0 
           PLAYWRIGHT_BROWSERS_PATH=0 npx playwright install --with-deps
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
       - name: Install Back-end dependencies 
