@@ -20,7 +20,7 @@ interface IProps {
 const UnarchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
   const editForm = useEditFormTemplate();
 
-  const unarchiveForm = async () => {
+  const unarchiveForm = () => {
     if (!template?.id) {
       return;
     }

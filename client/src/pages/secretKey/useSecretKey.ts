@@ -21,7 +21,7 @@ export const useSecretKey = (
     mutationFn: updateSecretKeyAsync,
   });
 
-  const updateSecretKey = async () => {
+  const updateSecretKey = () => {
     // allow the current user to only modify their own secret key
     if (loggedInUser && loggedInUser.id === selectedUserId) {
       updateSecretKeyMutation.mutate(selectedUserId);

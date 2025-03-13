@@ -16,7 +16,7 @@ const ArchivePatientDialog = ({ open, onClose, patient }: IProps) => {
     mutationFn: archivePatientAsync,
   });
 
-  const handleArchive = async () => {
+  const handleArchive = () => {
     archivePatient.mutate(patient.id, {
       onSuccess: () => onClose(),
     });

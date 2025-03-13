@@ -60,7 +60,7 @@ export const CreateUserDialog = ({ open, onClose, users }: IProps) => {
       }),
   });
 
-  const handleSubmit = async (user: NewUser) => {
+  const handleSubmit = (user: NewUser) => {
     const newUser = { ...user };
     /* Remove any blank phone numbers. */
     newUser.phoneNumbers = newUser.phoneNumbers.filter((phoneNumber) => {

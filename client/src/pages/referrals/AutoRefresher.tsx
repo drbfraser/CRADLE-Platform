@@ -40,7 +40,7 @@ export const AutoRefresher = ({
 
     const timePerSlice = refreshTimer * 10;
 
-    const refreshFacilities = async () => {
+    const refreshFacilities = () => {
       if (!healthcareFacilityQuery.data) {
         return;
       }

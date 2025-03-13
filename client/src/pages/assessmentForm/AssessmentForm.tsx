@@ -42,7 +42,7 @@ export const AssessmentForm = ({
     return errors;
   };
 
-  const handleSubmit = async (
+  const handleSubmit = (
     values: AssessmentState,
     { setSubmitting }: FormikHelpers<AssessmentState>
   ) => {
