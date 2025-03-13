@@ -18,7 +18,7 @@ import ProviderWrapper from 'src/testing/ProviderWrapper';
 import { ManageFormTemplates } from './ManageFormTemplates';
 
 const TEST_DATA = {
-  nonArchivedForms: [
+  unArchivedTemplates: [
     {
       archived: false,
       classification: {
@@ -42,7 +42,7 @@ const TEST_DATA = {
       version: 'V1',
     },
   ],
-  archivedForms: [
+  archivedTemplates: [
     {
       archived: true,
       classification: {
@@ -64,24 +64,17 @@ describe('Form Templates Table', () => {
     nock(API_URL)
       .persist()
       .get(EndpointEnum.FORM_TEMPLATES + '?include_archived=false')
-      .reply(200, TEST_DATA.nonArchivedForms);
+      .reply(200, TEST_DATA.unArchivedTemplates);
 
     nock(API_URL)
       .persist()
       .get(EndpointEnum.FORM_TEMPLATES + '?include_archived=true')
-      .reply(200, TEST_DATA.archivedForms);
-
-    nock(API_URL)
-      .persist()
-      .get(
-        EndpointEnum.FORM_TEMPLATES +
-          `/${TEST_DATA.nonArchivedForms[0].id}/versions/${TEST_DATA.nonArchivedForms[0].version}/csv`
-      )
-      .reply(200, new Blob(['testing']));
+      .reply(200, TEST_DATA.archivedTemplates);
   });
 
   afterAll(() => {
     localStorage.removeItem('accessToken');
+    nock.cleanAll();
   });
 
   beforeEach(async () => {
@@ -91,14 +84,14 @@ describe('Form Templates Table', () => {
     await waitFor(() => {
       expect(
         within(screen.getByRole('rowgroup')).getAllByRole('row')
-      ).toHaveLength(TEST_DATA.nonArchivedForms.length);
+      ).toHaveLength(TEST_DATA.unArchivedTemplates.length);
     });
   });
 
   test('Renders unarchived templates', async () => {
     const tableRows = within(screen.getByRole('rowgroup')).getAllByRole('row');
 
-    TEST_DATA.nonArchivedForms.forEach(
+    TEST_DATA.unArchivedTemplates.forEach(
       ({ classification, dateCreated, version }, index) => {
         const tableRow = tableRows[index];
         within(tableRow).getByText(classification.name);
@@ -117,10 +110,10 @@ describe('Form Templates Table', () => {
     let tableRows;
     await waitFor(() => {
       tableRows = within(screen.getByRole('rowgroup')).getAllByRole('row');
-      expect(tableRows).toHaveLength(TEST_DATA.archivedForms.length);
+      expect(tableRows).toHaveLength(TEST_DATA.archivedTemplates.length);
     });
 
-    TEST_DATA.archivedForms.forEach(
+    TEST_DATA.archivedTemplates.forEach(
       ({ classification, dateCreated, version }, index) => {
         const tableRow = tableRows![index];
         within(tableRow).getByText(classification.name);
