@@ -204,7 +204,9 @@ export const getAllFormTemplatesAsync = async (
   }
 };
 
-export const getFormTemplateAsync = async (formTemplateId: string) => {
+export const getFormTemplateAsync = async (
+  formTemplateId: string
+): Promise<FormTemplateWithQuestions> => {
   const response = await axiosFetch.get(
     `${EndpointEnum.FORM_TEMPLATES}/blank/${formTemplateId}`
   );

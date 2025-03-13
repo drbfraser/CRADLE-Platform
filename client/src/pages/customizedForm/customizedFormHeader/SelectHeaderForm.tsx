@@ -20,7 +20,7 @@ import Paper from '@mui/material/Paper';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { Typography } from '@mui/material';
 import TextField from '@mui/material/TextField';
-import { getLanguageName } from 'src/pages/admin/manageFormTemplates/editFormTemplate/CustomFormTemplate';
+import { getLanguageName } from 'src/pages/admin/manageFormTemplates/editFormTemplate/utils';
 
 interface IProps {
   setForm: (form: CForm) => void;

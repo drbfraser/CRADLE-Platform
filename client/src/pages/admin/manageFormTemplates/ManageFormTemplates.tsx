@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, FormControlLabel, Stack, Switch } from '@mui/material';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
@@ -8,12 +8,7 @@ import { Unarchive } from '@mui/icons-material';
 import UploadIcon from '@mui/icons-material/Upload';
 import AddIcon from '@mui/icons-material/Add';
 
-import { getFormTemplateAsync } from 'src/shared/api/api';
-import {
-  FormTemplate,
-  FormTemplateWithQuestions,
-  TQuestion,
-} from 'src/shared/types';
+import { FormTemplate } from 'src/shared/types';
 import { getPrettyDate } from 'src/shared/utils';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import {
@@ -38,59 +33,19 @@ type FormTemplateWithIndex = FormTemplate & {
 export const ManageFormTemplates = () => {
   const [showArchivedTemplates, setShowArchivedTemplates] = useState(false);
 
+  const [selectedForm, setSelectedForm] = useState<FormTemplate>();
+
   const [isUploadPopupOpen, setIsUploadPopupOpen] = useState(false);
   const [isArchivePopupOpen, setIsArchivePopupOpen] = useState(false);
   const [isUnarchivePopupOpen, setIsUnarchivePopupOpen] = useState(false);
 
-  const [selectedForm, setSelectedForm] = useState<FormTemplate>();
-
-  const [customFormWithQuestions, setCustomFormWithQuestions] =
-    useState<FormTemplateWithQuestions | null>(null);
-
   const navigate = useNavigate();
 
   const formTemplatesQuery = useFormTemplatesQuery(showArchivedTemplates);
-
-  useEffect(() => {
-    if (customFormWithQuestions != null) {
-      navigate('/admin/form-templates/new', {
-        // search: `id=${customFormWithQuestions.classification.id}`,
-        state: {
-          ...customFormWithQuestions,
-        },
-      });
-    }
-  }, [customFormWithQuestions, navigate]);
-
   const { mutate: downloadTemplateCSV, isError: downloadTemplateCSVIsError } =
     useDownloadTemplateAsCSV();
 
-  const getFormTemplateWithQuestions = async (
-    formTemplate: FormTemplateWithIndex
-  ) => {
-    const { questions } = await getFormTemplateAsync(formTemplate.id);
-
-    const formTemplateWithQuestions: FormTemplateWithQuestions = {
-      classification: formTemplate.classification,
-      version: formTemplate.version,
-      questions: questions.map((question: TQuestion) => ({
-        ...question,
-        categoryIndex: question.categoryIndex ?? null,
-        numMin: null,
-        numMax: null,
-        stringMaxLength: null,
-        units: null,
-      })),
-    };
-
-    setCustomFormWithQuestions(formTemplateWithQuestions);
-  };
-
-  const handleNewFormClick = () => {
-    navigate('/admin/form-templates/new');
-  };
-
-  const ActionButtons = useCallback(
+  const TableRowActions = useCallback(
     ({ formTemplate }: { formTemplate?: FormTemplateWithIndex }) => {
       if (!formTemplate) return null;
 
@@ -101,7 +56,11 @@ export const ManageFormTemplates = () => {
           tooltip: 'Edit Form Template',
           Icon: Edit,
           onClick: () => {
-            getFormTemplateWithQuestions(formTemplate);
+            navigate('/admin/form-templates/new', {
+              state: {
+                editFormId: formTemplate.id,
+              },
+            });
           },
         });
         actions.push({
@@ -134,15 +93,13 @@ export const ManageFormTemplates = () => {
             },
             {
               onSuccess: (file: Blob) => {
-                console.error(file);
-                console.error(')))))))))');
-                // const link = document.createElement('a');
-                // link.href = URL.createObjectURL(file);
-                // link.setAttribute(
-                //   'download',
-                //   `${formTemplate.classification.name}.csv`
-                // );
-                // link.click();
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(file);
+                link.setAttribute(
+                  'download',
+                  `${formTemplate.classification.name}.csv`
+                );
+                link.click();
               },
             }
           );
@@ -151,7 +108,7 @@ export const ManageFormTemplates = () => {
 
       return <TableActionButtons actions={actions} />;
     },
-    [downloadTemplateCSV]
+    [downloadTemplateCSV, navigate]
   );
 
   const tableColumns: GridColDef[] = [
@@ -166,7 +123,7 @@ export const ManageFormTemplates = () => {
       sortable: false,
       renderCell: (
         params: GridRenderCellParams<any, FormTemplateWithIndex>
-      ) => <ActionButtons formTemplate={params.value} />,
+      ) => <TableRowActions formTemplate={params.value} />,
     },
   ];
   const tableRows = formTemplatesQuery.data?.map((template, index) => ({
@@ -221,7 +178,7 @@ export const ManageFormTemplates = () => {
           <Button
             variant={'contained'}
             startIcon={<AddIcon />}
-            onClick={() => handleNewFormClick()}>
+            onClick={() => navigate('/admin/form-templates/new')}>
             {'New Form'}
           </Button>
           <Button
