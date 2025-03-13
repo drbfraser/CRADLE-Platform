@@ -68,37 +68,19 @@ export const ManageFormTemplates = () => {
   const getFormTemplateWithQuestions = async (
     formTemplate: FormTemplateWithIndex
   ) => {
-    const questions = await getFormTemplateAsync(formTemplate.id);
+    const { questions } = await getFormTemplateAsync(formTemplate.id);
+
     const formTemplateWithQuestions: FormTemplateWithQuestions = {
-      classification: {
-        name: formTemplate.classification.name,
-        id: formTemplate.classification.id,
-      },
+      classification: formTemplate.classification,
       version: formTemplate.version,
-      questions: questions.questions.map((q: TQuestion) => {
-        return {
-          categoryIndex: q.categoryIndex ?? null,
-          id: q.id,
-          langVersions: q.langVersions.map((qlv) => {
-            return {
-              lang: qlv.lang,
-              mcOptions: qlv.mcOptions,
-              questionText: qlv.questionText,
-            };
-          }),
-          questionIndex: q.questionIndex,
-          questionType: q.questionType,
-          required: q.required,
-          allowFutureDates: q.allowFutureDates,
-          allowPastDates: q.allowPastDates,
-          numMin: q.numMin,
-          numMax: q.numMax,
-          stringMaxLength: null,
-          stringMaxLines: q.stringMaxLines,
-          units: null,
-          visibleCondition: q.visibleCondition,
-        };
-      }),
+      questions: questions.map((question: TQuestion) => ({
+        ...question,
+        categoryIndex: question.categoryIndex ?? null,
+        numMin: null,
+        numMax: null,
+        stringMaxLength: null,
+        units: null,
+      })),
     };
 
     setCustomFormWithQuestions(formTemplateWithQuestions);
@@ -152,13 +134,15 @@ export const ManageFormTemplates = () => {
             },
             {
               onSuccess: (file: Blob) => {
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(file);
-                link.setAttribute(
-                  'download',
-                  `${formTemplate.classification.name}.csv`
-                );
-                link.click();
+                console.error(file);
+                console.error(')))))))))');
+                // const link = document.createElement('a');
+                // link.href = URL.createObjectURL(file);
+                // link.setAttribute(
+                //   'download',
+                //   `${formTemplate.classification.name}.csv`
+                // );
+                // link.click();
               },
             }
           );
