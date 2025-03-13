@@ -26,7 +26,7 @@ import { jwtDecode } from 'jwt-decode';
 import { clearCurrentUser } from 'src/redux/user-state';
 
 export const API_URL =
-  process.env.NODE_ENV === `development`
+  process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
     ? `http://${window.location.hostname}:5000/api`
     : '/api';
 
@@ -199,7 +199,7 @@ export const getAllFormTemplatesAsync = async (
     );
     return response.data;
   } catch (e) {
-    console.error(`Error getting all from templates: ${e}`);
+    console.error(`Error getting all form templates: ${e}`);
     throw e;
   }
 };
