@@ -18,7 +18,7 @@ import Paper from '@mui/material/Paper';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { FormRenderStateEnum, QuestionTypeEnum } from 'src/shared/enums';
 import { FormQuestions } from './FormQuestions';
-import SubmitFormTemplateDialog from '../customizedEditForm/SubmitFormTemplateDialog';
+import SubmitFormTemplateDialog from './SubmitFormTemplateDialog';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
