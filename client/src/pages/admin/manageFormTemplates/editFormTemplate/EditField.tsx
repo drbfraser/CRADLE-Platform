@@ -9,6 +9,7 @@ import {
   IconButton,
   Radio,
   RadioGroup,
+  Stack,
   Switch,
   Tooltip,
 } from '@mui/material';
@@ -148,24 +149,26 @@ const EditField = ({
       type: QuestionTypeEnum.INTEGER,
       render: () => (
         <Grid item xs={12} sm={6}>
-          <CustomNumberField
-            label="Minimum Value"
-            id="number-field-min"
-            value={numMin}
-            onChange={(value) => {
-              setNumMin(value);
-              validateNumberFields(value, numMax);
-            }}
-          />
-          <CustomNumberField
-            label="Maximum Value"
-            id="number-field-max"
-            value={numMax}
-            onChange={(value) => {
-              setNumMax(value);
-              validateNumberFields(numMin, value);
-            }}
-          />
+          <Stack direction={'row'} gap={2}>
+            <CustomNumberField
+              label="Minimum Value"
+              id="number-field-min"
+              value={numMin}
+              onChange={(value) => {
+                setNumMin(value);
+                validateNumberFields(value, numMax);
+              }}
+            />
+            <CustomNumberField
+              label="Maximum Value"
+              id="number-field-max"
+              value={numMax}
+              onChange={(value) => {
+                setNumMax(value);
+                validateNumberFields(numMin, value);
+              }}
+            />
+          </Stack>
           {validationError && (
             <Typography color="error" variant="body2">
               {validationError}
