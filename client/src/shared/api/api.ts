@@ -183,7 +183,7 @@ export const saveFormTemplateAsync = async (
 
 export const getFormClassificationTemplates = async (
   formClassificationId: string
-) => {
+): Promise<FormTemplateWithQuestions[]> => {
   const response = await axiosFetch.get(
     `${EndpointEnum.FORM_CLASSIFICATIONS}/${formClassificationId}/templates`
   );
@@ -223,12 +223,14 @@ export const getFormTemplateLangAsync = async (
     )
   ).data;
 
-export const getFormTemplateLangsAsync = async (formTemplateId: string) =>
+export const getFormTemplateLangsAsync = async (
+  formTemplateId: string
+): Promise<string[]> =>
   (
     await axiosFetch.get(
       EndpointEnum.FORM_TEMPLATES + `/${formTemplateId}/versions`
     )
-  ).data;
+  ).data.langVersions;
 
 export const getFormTemplateCsvAsync = async (
   formTemplateId: string,
