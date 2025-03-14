@@ -1,6 +1,6 @@
 import React from 'react';
 import { NumberField } from '@base-ui-components/react/number-field';
-import { FormLabel, Grid, Typography } from '@mui/material';
+import { FormLabel } from '@mui/material';
 
 interface CustomNumberFieldProps {
   label: string;
@@ -17,9 +17,7 @@ const CustomNumberField: React.FC<CustomNumberFieldProps> = ({
 }) => {
   return (
     <NumberField.Root id={id} value={value}>
-      <FormLabel>
-        <Typography>{label}</Typography>
-      </FormLabel>
+      <FormLabel>{label}</FormLabel>
       <NumberField.Group style={{ width: '100%' }}>
         <NumberField.Input
           style={{
