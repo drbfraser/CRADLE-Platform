@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useMutation, useQueries, useQuery } from '@tanstack/react-query';
+import { useMutation, useQueries } from '@tanstack/react-query';
 import { Field, Form, Formik } from 'formik';
 import { Autocomplete, AutocompleteRenderInputParams } from 'formik-mui';
 import {
@@ -20,11 +20,7 @@ import { useFormTemplatesQuery } from 'src/shared/queries';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { getLanguageName } from 'src/pages/admin/manageFormTemplates/editFormTemplate/utils';
-import {
-  CustomizedFormField,
-  CustomizedFormState,
-  validationSchema,
-} from './state';
+import { CustomizedFormField, validationSchema } from './state';
 
 const getDefaultLanguage = (languageOptions: string[]) => {
   // Check if fetched languages contain browser language
@@ -89,15 +85,15 @@ export const SelectHeaderForm = ({ setForm }: IProps) => {
     setSelectedFormName(selectedFormName);
   };
 
-  const handleSubmit = async (customizedFormState: CustomizedFormState) => {
+  const handleSubmit = async () => {
     const formId =
       formTemplatesQuery.data.find(
-        (form) => form.classification.name === customizedFormState.name
+        (form) => form.classification.name === selectedFormName
       )?.id ?? '';
 
     submitForm.mutate({
       formId,
-      lang: customizedFormState.lang ?? '',
+      lang: selectedLanguage,
     });
   };
 
