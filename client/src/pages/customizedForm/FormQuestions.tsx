@@ -68,6 +68,9 @@ export const FormQuestions = ({
 }: IProps) => {
   const [answers, setAnswers] = useState<QAnswer[]>([]);
   const [stringMaxLinesError, setStringMaxLinesError] = useState<boolean[]>([]);
+  const [numberErrors, setNumberErrors] = useState<{ [key: number]: string }>(
+    {}
+  );
 
   const isQuestion = (x: any): x is Question => {
     if (x) {
@@ -479,6 +482,8 @@ export const FormQuestions = ({
                 renderState === FormRenderStateEnum.VIS_COND_DISABLED
               }
               required={required}
+              error={!!numberErrors[question.questionIndex]}
+              helperText={numberErrors[question.questionIndex]}
               InputProps={{
                 endAdornment: Boolean(question.units) &&
                   Boolean(question.units!.trim().length > 0) && (
@@ -499,10 +504,37 @@ export const FormQuestions = ({
                 },
               }}
               onChange={(event: any) => {
-                updateAnswersByValue(
-                  question.questionIndex,
-                  event.target.value ? Number(event.target.value) : null
-                );
+                let inputValue = event.target.value
+                  ? Number(event.target.value)
+                  : null;
+                let errorMessage = '';
+
+                if (inputValue !== null) {
+                  if (
+                    question.numMin !== undefined &&
+                    question.numMin !== null &&
+                    inputValue < question.numMin
+                  ) {
+                    errorMessage = `Value must be at least ${question.numMin}.`;
+                    inputValue = question.numMin;
+                  }
+                  if (
+                    question.numMax !== undefined &&
+                    question.numMax !== null &&
+                    inputValue > question.numMax
+                  ) {
+                    errorMessage = `Value must not exceed ${question.numMax}`;
+                    inputValue = question.numMax;
+                  }
+                }
+
+                setNumberErrors((prevErrors) => ({
+                  ...prevErrors,
+                  [question.questionIndex]: errorMessage,
+                }));
+                if (!errorMessage) {
+                  updateAnswersByValue(question.questionIndex, inputValue);
+                }
               }}
             />
           </Grid>
