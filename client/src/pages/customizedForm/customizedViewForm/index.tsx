@@ -1,15 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { Box, Skeleton, Stack } from '@mui/material';
 
-import { CForm } from 'src/shared/types';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import { CustomizedForm } from '../customizedEditForm/CustomizedForm';
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
-import { getFormResponseAsync } from 'src/shared/api/api';
-import { useNavigate, useParams } from 'react-router-dom';
 import { FormRenderStateEnum } from 'src/shared/enums';
-import { Box } from '@mui/material';
+import { getFormResponseAsync } from 'src/shared/api/api';
+import usePatient from 'src/shared/hooks/patient';
+import PatientHeader from 'src/shared/components/patientHeader/PatientHeader';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { CustomizedForm } from '../components/CustomizedForm';
 
 type RouteParams = {
   patientId: string;
@@ -18,48 +16,36 @@ type RouteParams = {
 
 export const CustomizedViewFormPage = () => {
   const { patientId, formId } = useParams() as RouteParams;
-  const [form, setForm] = useState<CForm>();
+  const { patient } = usePatient(patientId);
 
-  useEffect(() => {
-    const getFormResponse = async () => {
-      try {
-        setForm(await getFormResponseAsync(formId));
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    getFormResponse();
-  }, [formId]);
+  const formResponseQuery = useQuery({
+    queryKey: ['formResponse', formId],
+    queryFn: () => getFormResponseAsync(formId),
+  });
 
-  const navigate = useNavigate();
+  if (formResponseQuery.isPending || formResponseQuery.isError) {
+    return (
+      <Stack gap={5}>
+        {formResponseQuery.isError && <APIErrorToast />}
+        <Skeleton variant="rectangular" height={100} />
+        <Skeleton variant="rectangular" height={400} />
+      </Stack>
+    );
+  }
 
   return (
-    <Box
-      sx={{
-        maxWidth: 1250,
-        margin: '0 auto',
-      }}>
-      <Box
-        sx={{
-          display: `flex`,
-          alignItems: `center`,
-        }}>
-        <Tooltip title="Go back" placement="top">
-          <IconButton
-            onClick={() => navigate(`/patients/${patientId}`)}
-            size="large">
-            <ChevronLeftIcon color="inherit" fontSize="large" />
-          </IconButton>
-        </Tooltip>
-        <Typography variant="h4">View Form for {patientId}</Typography>
-      </Box>
-      {form && form.questions && form!.questions!.length > 0 && (
+    <>
+      <PatientHeader title="View Form" patient={patient} />
+
+      {formResponseQuery.data.questions.length > 0 ? (
         <CustomizedForm
           patientId={patientId}
-          fm={form}
+          fm={formResponseQuery.data}
           renderState={FormRenderStateEnum.VIEW}
         />
+      ) : (
+        <Box>Error: Form has no questions</Box>
       )}
-    </Box>
+    </>
   );
 };

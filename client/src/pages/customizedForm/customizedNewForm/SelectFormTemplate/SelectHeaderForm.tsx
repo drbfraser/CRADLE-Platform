@@ -86,13 +86,12 @@ export const SelectHeaderForm = ({ setForm }: IProps) => {
   };
 
   const handleSubmit = async () => {
-    const formId =
-      formTemplatesQuery.data.find(
-        (form) => form.classification.name === selectedFormName
-      )?.id ?? '';
+    const formId = formTemplatesQuery.data.find(
+      (form) => form.classification.name === selectedFormName
+    )?.id;
 
     submitForm.mutate({
-      formId,
+      formId: formId ?? '',
       lang: selectedLanguage,
     });
   };

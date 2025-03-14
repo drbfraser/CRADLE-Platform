@@ -1,8 +1,5 @@
 import { AdminPage } from 'src/pages/admin';
 import { AssessmentFormPage } from 'src/pages/assessmentForm';
-import { CustomizedEditFormPage } from 'src/pages/customizedForm/customizedEditForm';
-import { CustomizedFormPage } from 'src/pages/customizedForm';
-import { CustomizedViewFormPage } from 'src/pages/customizedForm/customizedViewForm';
 import { HistoryTablesPage } from 'src/pages/historyTables';
 import { LoginPage } from 'src/pages/login';
 import { NotFoundPage } from 'src/pages/notFound';
@@ -19,6 +16,7 @@ import { StatisticsPage } from 'src/pages/statistics';
 import { makeUniqueId } from 'src/shared/utils';
 import SecretKeyPage from 'src/pages/secretKey';
 import PatientRoutes from './PatientRoutes';
+import CustomFormRoutes from './CustomFormRoutes';
 
 export type AppRoute = {
   component: React.ComponentType<any>;
@@ -43,28 +41,12 @@ export const appRoutes: Array<AppRoute> = [
     to: `/patients/*`,
   },
   {
-    component: CustomizedFormPage,
+    component: CustomFormRoutes,
     exactPath: true,
     id: makeUniqueId(),
     inNavigation: false,
     private: true,
-    to: `/forms/new/:patientId`,
-  },
-  {
-    component: CustomizedEditFormPage,
-    exactPath: true,
-    id: makeUniqueId(),
-    inNavigation: false,
-    private: true,
-    to: `/forms/edit/:patientId/:formId`,
-  },
-  {
-    component: CustomizedViewFormPage,
-    exactPath: true,
-    id: makeUniqueId(),
-    inNavigation: false,
-    private: true,
-    to: `/forms/view/:patientId/:formId`,
+    to: `/forms/*`,
   },
   {
     component: ReadingFormPage,

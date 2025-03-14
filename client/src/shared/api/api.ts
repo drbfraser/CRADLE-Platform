@@ -19,7 +19,7 @@ import {
 } from '../types';
 import { EndpointEnum, MethodEnum, UserRoleEnum } from '../enums';
 import axios, { AxiosError } from 'axios';
-import { PostBody } from 'src/pages/customizedForm/customizedEditForm/handlers';
+import { PostBody } from 'src/pages/customizedForm/handlers';
 import { reduxStore } from 'src/redux/store';
 import { EditUser, NewUser, User, userListSchema } from './validation/user';
 import { jwtDecode } from 'jwt-decode';

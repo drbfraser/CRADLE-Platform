@@ -1,8 +1,5 @@
 import { Answer, CForm, QAnswer, Question } from 'src/shared/types';
-
 import { QuestionTypeEnum } from 'src/shared/enums';
-import { saveFormResponseAsync } from 'src/shared/api/api';
-import { NavigateFunction } from 'react-router-dom';
 
 export type ApiAnswer = {
   qidx: number;
@@ -180,44 +177,3 @@ export const areMcResponsesValid = (
         isHidden || (required ? answer.val && answer.val.length > 0 : true)
       );
     });
-
-export const handleSubmit = (
-  patientId: string,
-  answers: QAnswer[],
-  // questions: Question[],
-  setSubmitError: (error: boolean) => void,
-  setMultiSelectValidationFailed: (
-    multiSelectValidationFailed: boolean
-  ) => void,
-  isEditForm: boolean,
-  form: CForm,
-  navigate: NavigateFunction
-) => {
-  return async (values: [], { setSubmitting }: any) => {
-    const questions = form.questions;
-
-    const isValid = areMcResponsesValid(questions, answers);
-    if (!isValid) {
-      setMultiSelectValidationFailed(true);
-      return;
-    }
-
-    const anss: ApiAnswer[] = TransferQAnswerToAPIStandard(answers, questions);
-    const postBody: PostBody = TransferQAnswerToPostBody(
-      anss,
-      form,
-      patientId,
-      isEditForm
-    );
-
-    //Create Form(first time fill in the content into the form)
-    try {
-      await saveFormResponseAsync(postBody, form ? form.id : undefined);
-      navigate(`/patients/${patientId}`);
-    } catch (e) {
-      console.error(e);
-      setSubmitError(true);
-      setSubmitting(false);
-    }
-  };
-};
