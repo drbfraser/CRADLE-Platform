@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import usePatient from 'src/shared/hooks/patient';
 import { CForm } from 'src/shared/types';
-import { SelectHeaderForm } from './SelectFormTemplate/SelectHeaderForm';
+import { SelectFormTemplate } from './SelectFormTemplate';
 import PatientHeader from 'src/shared/components/patientHeader/PatientHeader';
 import { CustomizedForm } from '../components/CustomizedForm';
 import { FormRenderStateEnum } from 'src/shared/enums';
@@ -20,7 +20,7 @@ export const CustomizedNewFormPage = () => {
     <>
       <PatientHeader title="New Form" patient={patient} />
 
-      <SelectHeaderForm setForm={setForm} />
+      <SelectFormTemplate setForm={setForm} />
       {form && form.questions && form!.questions!.length > 0 && (
         <CustomizedForm
           patientId={patientId}
