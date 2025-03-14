@@ -16,30 +16,28 @@ const CustomNumberField: React.FC<CustomNumberFieldProps> = ({
   id,
 }) => {
   return (
-    <Grid item xs={12} sm={6}>
-      <NumberField.Root id={id} value={value}>
-        <FormLabel>
-          <Typography>{label}</Typography>
-        </FormLabel>
-        <NumberField.Group style={{ width: '100%' }}>
-          <NumberField.Input
-            style={{
-              width: '40%',
-              minWidth: '40px',
-              padding: '10px',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              fontSize: '1rem',
-            }}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              const newValue =
-                event.target.value === '' ? null : Number(event.target.value);
-              onChange(newValue);
-            }}
-          />
-        </NumberField.Group>
-      </NumberField.Root>
-    </Grid>
+    <NumberField.Root id={id} value={value}>
+      <FormLabel>
+        <Typography>{label}</Typography>
+      </FormLabel>
+      <NumberField.Group style={{ width: '100%' }}>
+        <NumberField.Input
+          style={{
+            width: '40%',
+            minWidth: '40px',
+            padding: '10px',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            fontSize: '1rem',
+          }}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            const newValue =
+              event.target.value === '' ? null : Number(event.target.value);
+            onChange(newValue);
+          }}
+        />
+      </NumberField.Group>
+    </NumberField.Root>
   );
 };
 
