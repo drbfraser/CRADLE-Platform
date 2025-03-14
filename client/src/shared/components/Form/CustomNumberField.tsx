@@ -17,7 +17,7 @@ const CustomNumberField: React.FC<CustomNumberFieldProps> = ({
 }) => {
   return (
     <Grid item xs={12} sm={6}>
-      <NumberField.Root id={id} defaultValue={value ?? undefined}>
+      <NumberField.Root id={id} value={value}>
         <FormLabel>
           <Typography>{label}</Typography>
         </FormLabel>
