@@ -46,6 +46,7 @@ export const CustomFormTemplate = () => {
   const defaultVersion: string = moment
     .utc(new Date(Date.now()).toUTCString())
     .format('YYYY-MM-DD HH:mm:ss z');
+
   const [form, setForm] = useState<FormTemplateWithQuestions>({
     classification: { name: 'string', id: undefined },
     version: defaultVersion,
@@ -57,6 +58,22 @@ export const CustomFormTemplate = () => {
     queryKey: ['formTemplate', editFormId],
     queryFn: () => getFormTemplateAsync(editFormId!),
     enabled: !!editFormId,
+  });
+
+  const previousVersionsQuery = useQuery({
+    queryKey: ['formVersions', formTemplateQuery.data?.classification.id],
+    queryFn: async () => {
+      if (formTemplateQuery.data?.classification?.id) {
+        const classificationId = formTemplateQuery.data.classification.id;
+
+        const previousTemplates = await getFormClassificationTemplates(
+          classificationId
+        );
+        return previousTemplates.map((template) => template.version);
+      }
+      return [];
+    },
+    enabled: !!formTemplateQuery.data,
   });
 
   useEffect(() => {
@@ -73,22 +90,6 @@ export const CustomFormTemplate = () => {
       browserLanguage,
     ]
   );
-
-  const getFormVersions = async (formClassificationId: string) => {
-    const formTemplates = await getFormClassificationTemplates(
-      formClassificationId
-    );
-    return formTemplates.map((form: FormTemplateWithQuestions) => form.version);
-  };
-
-  let previousVersions: string[] = [];
-  (async () => {
-    if (formTemplateQuery.data?.classification?.id) {
-      previousVersions = await getFormVersions(
-        formTemplateQuery.data.classification.id
-      );
-    }
-  })();
 
   return (
     <>
@@ -180,7 +181,10 @@ export const CustomFormTemplate = () => {
                     }}
                     onChange={(e: any) => {
                       form.version = e.target.value;
-                      setVersionError(previousVersions.includes(form.version));
+                      setVersionError(
+                        previousVersionsQuery.data?.includes(form.version) ??
+                          false
+                      );
                     }}
                     InputProps={{
                       endAdornment: (
