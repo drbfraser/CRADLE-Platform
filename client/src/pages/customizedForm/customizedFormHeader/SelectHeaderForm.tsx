@@ -1,215 +1,194 @@
+import { useState } from 'react';
+import { useMutation, useQueries, useQuery } from '@tanstack/react-query';
+import { Field, Form, Formik } from 'formik';
 import { Autocomplete, AutocompleteRenderInputParams } from 'formik-mui';
-import { CForm, FormTemplate } from 'src/shared/types';
+import {
+  Box,
+  Grid,
+  Paper,
+  Skeleton,
+  TextField,
+  Typography,
+} from '@mui/material';
+
+import { CForm } from 'src/shared/types';
+import {
+  getFormTemplateLangAsync,
+  getFormTemplateLangsAsync,
+} from 'src/shared/api/api';
+import { useFormTemplatesQuery } from 'src/shared/queries';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { PrimaryButton } from 'src/shared/components/Button';
+import { getLanguageName } from 'src/pages/admin/manageFormTemplates/editFormTemplate/utils';
 import {
   CustomizedFormField,
   CustomizedFormState,
   validationSchema,
 } from './state';
-import { Field, Form, Formik } from 'formik';
-import {
-  getFormTemplateLangAsync,
-  getFormTemplateLangsAsync,
-  getAllFormTemplatesAsync,
-} from 'src/shared/api/api';
-import { useEffect, useState } from 'react';
 
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
-import { PrimaryButton } from 'src/shared/components/Button';
-import { Typography } from '@mui/material';
-import TextField from '@mui/material/TextField';
-import { getLanguageName } from 'src/pages/admin/manageFormTemplates/editFormTemplate/utils';
+const getDefaultLanguage = (languageOptions: string[]) => {
+  // Check if fetched languages contain browser language
+  const browserLanguage: string = getLanguageName(
+    navigator.language || window.navigator.language
+  );
+
+  let defaultLang: string = languageOptions[0];
+  languageOptions.forEach((languageOption: string) => {
+    // If form languages contain browser language, update default form language
+    // Else language is left as first language of array
+    if (browserLanguage.includes(languageOption)) {
+      defaultLang = languageOption;
+    }
+  });
+  return defaultLang;
+};
 
 interface IProps {
   setForm: (form: CForm) => void;
 }
 
+// TODO: need to handle case where 2 forms share the same name
 export const SelectHeaderForm = ({ setForm }: IProps) => {
-  const [submitError, setSubmitError] = useState(false);
-  const [availableLanguages, setAvailableLanguages] = useState<string[]>([]);
-  const [formTemplates, setFormTemplates] = useState<FormTemplate[]>([]);
-  const [resetLanguage, setResetLanguage] = useState<boolean>(false);
-  const [language, setLanguage] = useState<string>('');
-  const [formName, setFormName] = useState<string>('');
+  const [selectedFormName, setSelectedFormName] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState('');
 
-  useEffect(() => {
-    const updateFormTemplates = async () => {
-      try {
-        setFormTemplates(await getAllFormTemplatesAsync(false));
-      } catch (e) {
-        console.log(e);
-      }
-    };
-    updateFormTemplates();
-  }, []);
-
-  const allForms: string[] = formTemplates.map(function (item) {
-    return item.classification.name; //id is a string here
+  const submitForm = useMutation({
+    mutationFn: async (values: { formId: string; lang: string }) => {
+      setForm(await getFormTemplateLangAsync(values.formId, values.lang));
+    },
   });
 
-  const formNameIdMap = new Map<string, string>(
-    formTemplates.map((item) => [item.classification.name, item.id])
-  );
+  const formTemplatesQuery = useFormTemplatesQuery(false);
+  const formTemplateLangsQueries = useQueries({
+    queries:
+      formTemplatesQuery.data?.map((template) => ({
+        queryKey: ['formTemplateLang', template.id],
+        queryFn: () => getFormTemplateLangsAsync(template.id),
+      })) ?? [],
+  });
 
-  const fetchAllLangVersions = async (form_template_id: string) => {
-    try {
-      const formTemplate = await getFormTemplateLangsAsync(form_template_id);
-      console.log('formTemplate:', formTemplate);
-      setAvailableLanguages(formTemplate.langVersions);
-      setResetLanguage(!resetLanguage);
-    } catch (e) {
-      console.log('Error Loading !!!!!!');
-    }
+  if (
+    !formTemplatesQuery.data ||
+    formTemplateLangsQueries.some(({ data }) => data === undefined)
+  ) {
+    return <Skeleton height={800} />;
+  }
+
+  const getAvailableLanguages = (selectedFormName: string) => {
+    const index = formTemplatesQuery.data.findIndex(
+      (form) => form.classification.name === selectedFormName
+    );
+    return formTemplateLangsQueries[index]?.data ?? [];
   };
 
-  const getDefaultLanguage = async (form_template_id: any) => {
-    const formTemplate = await getFormTemplateLangsAsync(form_template_id);
-    //Check if fetched languages contain browser language
-    const browserLanguage: string = getLanguageName(
-      navigator.language || window.navigator.language
+  const handleSelectForm = async (_: unknown, selectedFormName: string) => {
+    const defaultLanguage = getDefaultLanguage(
+      getAvailableLanguages(selectedFormName)
     );
-    const languageOptions = formTemplate.langVersions;
-    let defaultLang: string = languageOptions[0];
-    languageOptions.forEach((languageOption: string) => {
-      const language = languageOption === undefined ? '' : languageOption;
-      //If form languages contain browser language, update default form language
-      //Else language is left as first language of array
-      if (browserLanguage.includes(language)) {
-        defaultLang = language;
-      }
+    setSelectedLanguage(defaultLanguage);
+    setSelectedFormName(selectedFormName);
+  };
+
+  const handleSubmit = async (customizedFormState: CustomizedFormState) => {
+    const formId =
+      formTemplatesQuery.data.find(
+        (form) => form.classification.name === customizedFormState.name
+      )?.id ?? '';
+
+    submitForm.mutate({
+      formId,
+      lang: customizedFormState.lang ?? '',
     });
-    setLanguage(defaultLang);
-    return defaultLang;
-  };
-
-  const handleSelectForm = async (_: any, selectedFormName: any) => {
-    const formTemplateId = formNameIdMap.get(selectedFormName);
-    if (formTemplateId) {
-      fetchAllLangVersions(formTemplateId);
-      getDefaultLanguage(formTemplateId);
-      setFormName(selectedFormName);
-    }
-  };
-
-  const handleSubmit = async (
-    customizedFormState: CustomizedFormState,
-    { setSubmitting }: { setSubmitting: (submitting: boolean) => void }
-  ) => {
-    const formNameIdMap = new Map<string, string>(
-      formTemplates.map((item) => [item.classification.name, item.id])
-    );
-    const formTemplateId: string =
-      customizedFormState.name !== null
-        ? formNameIdMap.get(customizedFormState.name) ?? ''
-        : '';
-
-    try {
-      setForm(
-        await getFormTemplateLangAsync(
-          formTemplateId,
-          customizedFormState.lang ?? ''
-        )
-      );
-    } catch (e) {
-      console.error(e);
-      setSubmitError(true);
-      setSubmitting(false);
-    }
   };
 
   return (
     <>
-      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
-      {formTemplates.length > 0 ? (
+      <APIErrorToast
+        open={submitForm.isError}
+        onClose={() => submitForm.reset()}
+      />
+
+      {formTemplatesQuery.data.length > 0 ? (
         <Formik
-          initialValues={{ name: formName, lang: language }}
+          initialValues={{ name: selectedFormName, lang: selectedLanguage }}
           enableReinitialize
           validationSchema={validationSchema}
           onSubmit={handleSubmit}>
-          {({ touched, errors, isSubmitting }) => (
+          {({ touched, errors }) => (
             <Form>
-              <Paper>
-                <Box p={2} m={2}>
-                  <h2>Form Template</h2>
-                  <Grid container spacing={3}>
-                    <Grid item xs={6}>
-                      <Field
-                        component={Autocomplete}
-                        fullWidth
-                        name={CustomizedFormField.name}
-                        options={allForms}
-                        disableClearable={true}
-                        onInputChange={handleSelectForm}
-                        renderInput={(
-                          params: AutocompleteRenderInputParams
-                        ) => (
-                          <TextField
-                            {...params}
-                            data-cy={`form-name`}
-                            name={CustomizedFormField.name}
-                            error={
-                              !!touched[CustomizedFormField.name] &&
-                              !!errors[CustomizedFormField.name]
-                            }
-                            helperText={
-                              touched[CustomizedFormField.name]
-                                ? errors[CustomizedFormField.name]
-                                : ''
-                            }
-                            label="Form"
-                            variant="outlined"
-                            required
-                          />
-                        )}
-                      />
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Field
-                        key={resetLanguage}
-                        component={Autocomplete}
-                        fullWidth
-                        name={CustomizedFormField.lang}
-                        options={availableLanguages}
-                        disableClearable={true}
-                        renderInput={(
-                          params: AutocompleteRenderInputParams
-                        ) => (
-                          <TextField
-                            {...params}
-                            data-cy={`def-lang`}
-                            name={CustomizedFormField.lang}
-                            error={
-                              !!touched[CustomizedFormField.lang] &&
-                              !!errors[CustomizedFormField.lang]
-                            }
-                            helperText={
-                              touched[CustomizedFormField.lang]
-                                ? errors[CustomizedFormField.lang]
-                                : ''
-                            }
-                            label="Language"
-                            variant="outlined"
-                            required
-                          />
-                        )}
-                      />
-                    </Grid>
+              <Paper sx={{ p: 4 }}>
+                <h2>Form Template</h2>
+                <Grid container spacing={3}>
+                  <Grid item xs={6}>
+                    <Field
+                      component={Autocomplete}
+                      fullWidth
+                      name={CustomizedFormField.name}
+                      options={formTemplatesQuery.data.map(
+                        (form) => form.classification.name
+                      )}
+                      disableClearable={true}
+                      onInputChange={handleSelectForm}
+                      renderInput={(params: AutocompleteRenderInputParams) => (
+                        <TextField
+                          {...params}
+                          name={CustomizedFormField.name}
+                          error={
+                            !!touched[CustomizedFormField.name] &&
+                            !!errors[CustomizedFormField.name]
+                          }
+                          helperText={
+                            touched[CustomizedFormField.name]
+                              ? errors[CustomizedFormField.name]
+                              : ''
+                          }
+                          label="Form"
+                          variant="outlined"
+                          required
+                        />
+                      )}
+                    />
                   </Grid>
+                  <Grid item xs={6}>
+                    <Field
+                      component={Autocomplete}
+                      fullWidth
+                      name={CustomizedFormField.lang}
+                      options={getAvailableLanguages(selectedFormName)}
+                      disableClearable={true}
+                      renderInput={(params: AutocompleteRenderInputParams) => (
+                        <TextField
+                          {...params}
+                          name={CustomizedFormField.lang}
+                          error={
+                            !!touched[CustomizedFormField.lang] &&
+                            !!errors[CustomizedFormField.lang]
+                          }
+                          helperText={
+                            touched[CustomizedFormField.lang]
+                              ? errors[CustomizedFormField.lang]
+                              : ''
+                          }
+                          label="Language"
+                          variant="outlined"
+                          required
+                        />
+                      )}
+                    />
+                  </Grid>
+                </Grid>
 
-                  <PrimaryButton
-                    sx={{
-                      display: 'flex',
-                      marginRight: '0px',
-                      marginLeft: 'auto',
-                      margin: '10px',
-                    }}
-                    type="submit"
-                    disabled={isSubmitting}>
-                    Fetch Form
-                  </PrimaryButton>
-                </Box>
+                <PrimaryButton
+                  sx={{
+                    display: 'flex',
+                    marginRight: '0px',
+                    marginLeft: 'auto',
+                    margin: '10px',
+                  }}
+                  type="submit"
+                  disabled={submitForm.isPending}>
+                  Fetch Form
+                </PrimaryButton>
               </Paper>
             </Form>
           )}

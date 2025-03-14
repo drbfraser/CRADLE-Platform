@@ -10,6 +10,7 @@ import AddIcon from '@mui/icons-material/Add';
 
 import { FormTemplate } from 'src/shared/types';
 import { getPrettyDate } from 'src/shared/utils';
+import { useFormTemplatesQuery } from 'src/shared/queries';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import {
   TableAction,
@@ -23,7 +24,6 @@ import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader
 import ArchiveTemplateDialog from './ArchiveTemplateDialog';
 import UploadTemplate from './UploadTemplate';
 import UnarchiveTemplateDialog from './UnarchiveTemplateDialog';
-import { useFormTemplatesQuery } from './queries';
 import { useDownloadTemplateAsCSV } from './mutations';
 
 type FormTemplateWithIndex = FormTemplate & {
