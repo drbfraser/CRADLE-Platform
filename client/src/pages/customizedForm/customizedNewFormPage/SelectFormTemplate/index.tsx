@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useMutation, useQueries } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { Field, Form, Formik } from 'formik';
 import { Autocomplete, AutocompleteRenderInputParams } from 'formik-mui';
 import {
@@ -12,15 +12,13 @@ import {
 } from '@mui/material';
 
 import { CForm } from 'src/shared/types';
-import {
-  getFormTemplateLangAsync,
-  getFormTemplateLangsAsync,
-} from 'src/shared/api/api';
+import { getFormTemplateLangAsync } from 'src/shared/api/api';
 import { useFormTemplatesQuery } from 'src/shared/queries';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { getLanguageName } from 'src/pages/admin/manageFormTemplates/editFormTemplate/utils';
 import { CustomizedFormField, validationSchema } from './state';
+import { useFormTemplateLangsQueries } from '../../queries';
 
 const getDefaultLanguage = (languageOptions: string[]) => {
   // Check if fetched languages contain browser language
@@ -44,7 +42,7 @@ interface IProps {
 }
 
 // TODO: need to handle case where 2 forms share the same name
-export const SelectHeaderForm = ({ setForm }: IProps) => {
+export const SelectFormTemplate = ({ setForm }: IProps) => {
   const [selectedFormName, setSelectedFormName] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('');
 
@@ -55,14 +53,9 @@ export const SelectHeaderForm = ({ setForm }: IProps) => {
   });
 
   const formTemplatesQuery = useFormTemplatesQuery(false);
-  const formTemplateLangsQueries = useQueries({
-    queries:
-      formTemplatesQuery.data?.map((template) => ({
-        queryKey: ['formTemplateLang', template.id],
-        queryFn: () => getFormTemplateLangsAsync(template.id),
-      })) ?? [],
-  });
-
+  const formTemplateLangsQueries = useFormTemplateLangsQueries(
+    formTemplatesQuery.data
+  );
   if (
     formTemplatesQuery.data === undefined ||
     formTemplateLangsQueries.some(({ data }) => data === undefined)

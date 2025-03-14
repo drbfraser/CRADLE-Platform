@@ -1,13 +1,12 @@
 import { useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
 import { Box, Skeleton, Stack } from '@mui/material';
 
 import { FormRenderStateEnum } from 'src/shared/enums';
-import { getFormResponseAsync } from 'src/shared/api/api';
 import usePatient from 'src/shared/hooks/patient';
 import PatientHeader from 'src/shared/components/patientHeader/PatientHeader';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { CustomizedForm } from '../components/CustomizedForm';
+import { useFormResponseQuery } from '../queries';
 
 type RouteParams = {
   patientId: string;
@@ -18,11 +17,7 @@ export const CustomizedViewFormPage = () => {
   const { patientId, formId } = useParams() as RouteParams;
   const { patient } = usePatient(patientId);
 
-  const formResponseQuery = useQuery({
-    queryKey: ['formResponse', formId],
-    queryFn: () => getFormResponseAsync(formId),
-  });
-
+  const formResponseQuery = useFormResponseQuery(formId);
   if (formResponseQuery.isPending || formResponseQuery.isError) {
     return (
       <Stack gap={5}>

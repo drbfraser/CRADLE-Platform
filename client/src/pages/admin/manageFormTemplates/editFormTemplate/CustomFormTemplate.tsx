@@ -7,6 +7,7 @@ import {
   IconButton,
   InputAdornment,
   Paper,
+  Skeleton,
   TextField,
   Tooltip,
   Typography,
@@ -19,12 +20,11 @@ import { FormTemplateWithQuestions } from 'src/shared/types';
 import { FormRenderStateEnum } from 'src/shared/enums';
 import { CustomizedFormWQuestions } from 'src/pages/customizedForm/components/CustomizedFormWQuestions';
 import {
-  getFormClassificationTemplates,
-  getFormTemplateAsync,
-} from 'src/shared/api/api';
-import { getDefaultLanguage } from './utils';
+  useFormTemplateQuery,
+  usePreviousFormVersionsQuery,
+} from 'src/pages/customizedForm/queries';
 import LanguageModal from './LanguageModal';
-import { useQuery } from '@tanstack/react-query';
+import { getDefaultLanguage } from './utils';
 
 export enum FormEditMainComponents {
   title = 'title',
@@ -54,25 +54,10 @@ export const CustomFormTemplate = () => {
   });
   const [versionError, setVersionError] = useState<boolean>(false);
 
-  const formTemplateQuery = useQuery({
-    queryKey: ['formTemplate', editFormId],
-    queryFn: () => getFormTemplateAsync(editFormId!),
-    enabled: !!editFormId,
-  });
-
-  const previousVersionsQuery = useQuery({
-    queryKey: ['formVersions', formTemplateQuery.data?.classification.id],
-    queryFn: async () => {
-      if (formTemplateQuery.data?.classification?.id) {
-        const previousTemplates = await getFormClassificationTemplates(
-          formTemplateQuery.data.classification.id
-        );
-        return previousTemplates.map((template) => template.version);
-      }
-      return [];
-    },
-    enabled: !!formTemplateQuery.data,
-  });
+  const formTemplateQuery = useFormTemplateQuery(editFormId);
+  const previousVersionsQuery = usePreviousFormVersionsQuery(
+    formTemplateQuery.data
+  );
 
   useEffect(() => {
     if (formTemplateQuery.data) {
@@ -89,6 +74,10 @@ export const CustomFormTemplate = () => {
     ]
   );
 
+  const isLoading =
+    editFormId &&
+    formTemplateQuery.isPending &&
+    previousVersionsQuery.isPending;
   return (
     <>
       <Box sx={{ display: `flex`, alignItems: `center` }}>
@@ -105,126 +94,130 @@ export const CustomFormTemplate = () => {
         </Typography>
       </Box>
 
-      <Formik
-        initialValues={initialState}
-        onSubmit={() => {
-          // TODO: Handle Form Template create/edit form submission
-          console.log('Temp');
-        }}
-        validationSchema={() => {
-          // TODO: Create a validation schema to ensure that all the values are filled in as expected
-          console.log('Temp');
-        }}>
-        {() => (
-          <Form>
-            <Paper sx={{ p: 4 }}>
-              <Grid container spacing={3}>
-                <Grid item xs={12}>
-                  <h2>Custom Form Properties</h2>
-                </Grid>
+      {isLoading ? (
+        <Skeleton variant="rectangular" height={400} />
+      ) : (
+        <Formik
+          initialValues={initialState}
+          onSubmit={() => {
+            // TODO: Handle Form Template create/edit form submission
+            console.log('Temp');
+          }}
+          validationSchema={() => {
+            // TODO: Create a validation schema to ensure that all the values are filled in as expected
+            console.log('Temp');
+          }}>
+          {() => (
+            <Form>
+              <Paper sx={{ p: 4 }}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12}>
+                    <h2>Custom Form Properties</h2>
+                  </Grid>
 
-                <Grid item xs={12} md={4}>
-                  <Field
-                    label={'Title'}
-                    component={TextField}
-                    required={true}
-                    variant="outlined"
-                    defaultValue={
-                      formTemplateQuery.data?.classification?.name ?? ''
-                    }
-                    fullWidth
-                    inputProps={{
-                      // TODO: Determine what types of input restrictions we should have for title
-                      maxLength: Number.MAX_SAFE_INTEGER,
-                    }}
-                    onChange={(e: any) => {
-                      form.classification.name = e.target.value;
-                    }}
-                    InputProps={{
-                      endAdornment: (
-                        <Tooltip
-                          disableFocusListener
-                          disableTouchListener
-                          title={'Enter your form title here'}
-                          arrow>
-                          <InputAdornment position="end">
-                            <IconButton>
-                              <InfoIcon fontSize="small" />
-                            </IconButton>
-                          </InputAdornment>
-                        </Tooltip>
-                      ),
-                    }}></Field>
-                </Grid>
+                  <Grid item xs={12} md={4}>
+                    <Field
+                      label={'Title'}
+                      component={TextField}
+                      required={true}
+                      variant="outlined"
+                      defaultValue={
+                        formTemplateQuery.data?.classification?.name ?? ''
+                      }
+                      fullWidth
+                      inputProps={{
+                        // TODO: Determine what types of input restrictions we should have for title
+                        maxLength: Number.MAX_SAFE_INTEGER,
+                      }}
+                      onChange={(e: any) => {
+                        form.classification.name = e.target.value;
+                      }}
+                      InputProps={{
+                        endAdornment: (
+                          <Tooltip
+                            disableFocusListener
+                            disableTouchListener
+                            title={'Enter your form title here'}
+                            arrow>
+                            <InputAdornment position="end">
+                              <IconButton>
+                                <InfoIcon fontSize="small" />
+                              </IconButton>
+                            </InputAdornment>
+                          </Tooltip>
+                        ),
+                      }}></Field>
+                  </Grid>
 
-                <Grid item xs={12} md={4}>
-                  <Field
-                    label={'Version'}
-                    component={TextField}
-                    required={true}
-                    variant="outlined"
-                    defaultValue={
-                      formTemplateQuery.data
-                        ? formTemplateQuery.data.version
-                        : defaultVersion
-                    }
-                    error={versionError}
-                    helperText={
-                      versionError ? 'Must change version number' : ''
-                    }
-                    fullWidth
-                    inputProps={{
-                      // TODO: Determine what types of input restrictions we should have for version
-                      maxLength: Number.MAX_SAFE_INTEGER,
-                    }}
-                    onChange={(e: any) => {
-                      form.version = e.target.value;
-                      setVersionError(
-                        previousVersionsQuery.data?.includes(form.version) ??
-                          false
-                      );
-                    }}
-                    InputProps={{
-                      endAdornment: (
-                        <Tooltip
-                          disableFocusListener
-                          disableTouchListener
-                          title={
-                            editFormId
-                              ? 'Edit your form Version here'
-                              : 'Edit your form Version here. By default, Version is set to the current DateTime but can be edited'
-                          }
-                          arrow>
-                          <InputAdornment position="end">
-                            <IconButton>
-                              <InfoIcon fontSize="small" />
-                            </IconButton>
-                          </InputAdornment>
-                        </Tooltip>
-                      ),
-                    }}
-                  />
-                </Grid>
+                  <Grid item xs={12} md={4}>
+                    <Field
+                      label={'Version'}
+                      component={TextField}
+                      required={true}
+                      variant="outlined"
+                      defaultValue={
+                        formTemplateQuery.data
+                          ? formTemplateQuery.data.version
+                          : defaultVersion
+                      }
+                      error={versionError}
+                      helperText={
+                        versionError ? 'Must change version number' : ''
+                      }
+                      fullWidth
+                      inputProps={{
+                        // TODO: Determine what types of input restrictions we should have for version
+                        maxLength: Number.MAX_SAFE_INTEGER,
+                      }}
+                      onChange={(e: any) => {
+                        form.version = e.target.value;
+                        setVersionError(
+                          previousVersionsQuery.data?.includes(form.version) ??
+                            false
+                        );
+                      }}
+                      InputProps={{
+                        endAdornment: (
+                          <Tooltip
+                            disableFocusListener
+                            disableTouchListener
+                            title={
+                              editFormId
+                                ? 'Edit your form Version here'
+                                : 'Edit your form Version here. By default, Version is set to the current DateTime but can be edited'
+                            }
+                            arrow>
+                            <InputAdornment position="end">
+                              <IconButton>
+                                <InfoIcon fontSize="small" />
+                              </IconButton>
+                            </InputAdornment>
+                          </Tooltip>
+                        ),
+                      }}
+                    />
+                  </Grid>
 
-                <Grid item xs={12} md={4}>
-                  <LanguageModal
-                    language={language}
-                    setLanguage={setLanguage}
-                  />
+                  <Grid item xs={12} md={4}>
+                    <LanguageModal
+                      language={language}
+                      setLanguage={setLanguage}
+                    />
+                  </Grid>
                 </Grid>
-              </Grid>
-            </Paper>
+              </Paper>
 
-            <CustomizedFormWQuestions
-              fm={form}
-              languages={language}
-              renderState={FormRenderStateEnum.SUBMIT_TEMPLATE}
-              setForm={setForm}
-              versionError={versionError}
-            />
-          </Form>
-        )}
-      </Formik>
+              <CustomizedFormWQuestions
+                fm={form}
+                languages={language}
+                renderState={FormRenderStateEnum.SUBMIT_TEMPLATE}
+                setForm={setForm}
+                versionError={versionError}
+              />
+            </Form>
+          )}
+        </Formik>
+      )}
     </>
   );
 };
