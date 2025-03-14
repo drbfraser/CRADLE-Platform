@@ -8,7 +8,7 @@ import {
   useReducer,
   useState,
 } from 'react';
-import { initialState, validationSchema } from './state';
+import { initialState, validationSchema } from '../state';
 import InfoIcon from '@mui/icons-material/Info';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import Box from '@mui/material/Box';
@@ -17,8 +17,8 @@ import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { FormRenderStateEnum, QuestionTypeEnum } from 'src/shared/enums';
-import { FormQuestions } from '../FormQuestions';
-import SubmitFormTemplateDialog from './SubmitFormTemplateDialog';
+import { FormQuestions } from './FormQuestions';
+import SubmitFormTemplateDialog from '../customizedEditForm/SubmitFormTemplateDialog';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';

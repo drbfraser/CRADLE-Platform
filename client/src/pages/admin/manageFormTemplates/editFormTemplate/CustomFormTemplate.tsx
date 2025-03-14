@@ -17,7 +17,7 @@ import moment from 'moment';
 
 import { FormTemplateWithQuestions } from 'src/shared/types';
 import { FormRenderStateEnum } from 'src/shared/enums';
-import { CustomizedFormWQuestions } from 'src/pages/customizedForm/customizedEditForm/CustomizedFormWQuestions';
+import { CustomizedFormWQuestions } from 'src/pages/customizedForm/components/CustomizedFormWQuestions';
 import {
   getFormClassificationTemplates,
   getFormTemplateAsync,
@@ -64,10 +64,8 @@ export const CustomFormTemplate = () => {
     queryKey: ['formVersions', formTemplateQuery.data?.classification.id],
     queryFn: async () => {
       if (formTemplateQuery.data?.classification?.id) {
-        const classificationId = formTemplateQuery.data.classification.id;
-
         const previousTemplates = await getFormClassificationTemplates(
-          classificationId
+          formTemplateQuery.data.classification.id
         );
         return previousTemplates.map((template) => template.version);
       }
