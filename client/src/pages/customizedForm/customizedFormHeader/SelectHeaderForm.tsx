@@ -64,7 +64,7 @@ export const SelectHeaderForm = ({ setForm }: IProps) => {
   });
 
   if (
-    !formTemplatesQuery.data ||
+    formTemplatesQuery.data === undefined ||
     formTemplateLangsQueries.some(({ data }) => data === undefined)
   ) {
     return <Skeleton height={800} />;
