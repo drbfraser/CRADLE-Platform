@@ -1,9 +1,9 @@
 import { Route, Routes } from 'react-router-dom';
 import { CustomFormPageLayout } from 'src/pages/customizedForm/Layout';
 
-import { CustomizedEditFormPage } from 'src/pages/customizedForm/customizedEditForm';
-import { CustomizedNewFormPage } from 'src/pages/customizedForm/customizedNewForm';
-import { CustomizedViewFormPage } from 'src/pages/customizedForm/customizedViewForm';
+import { CustomizedEditFormPage } from 'src/pages/customizedForm/customizedEditFormPage';
+import { CustomizedNewFormPage } from 'src/pages/customizedForm/customizedNewFormPage';
+import { CustomizedViewFormPage } from 'src/pages/customizedForm/customizedViewFormPage';
 
 const CustomFormRoutes = () => {
   return (
