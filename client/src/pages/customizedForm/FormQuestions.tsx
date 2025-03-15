@@ -478,6 +478,7 @@ export const FormQuestions = ({
               fullWidth
               error={!!numberErrors[question.questionIndex]}
               helperText={numberErrors[question.questionIndex]}
+              suffix={question.units ?? ''}
               onValueChange={(values) => {
                 const value = values.floatValue;
                 let errorMessage = '';
@@ -512,16 +513,8 @@ export const FormQuestions = ({
                 renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ||
                 renderState === FormRenderStateEnum.VIS_COND_DISABLED
               }
-              min={
-                question.numMin || question.numMin === 0
-                  ? question.numMin
-                  : Number.MIN_SAFE_INTEGER
-              }
-              max={
-                question.numMax || question.numMax === 0
-                  ? question.numMax
-                  : Number.MAX_SAFE_INTEGER
-              }
+              min={question.numMin}
+              max={question.numMax}
               slotProps={{
                 input: {
                   endAdornment: Boolean(question.units) &&
