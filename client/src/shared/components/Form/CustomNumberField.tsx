@@ -7,8 +7,8 @@ type CustomNumberFieldProps = Omit<
 > &
   Omit<TextFieldProps, 'defaultValue' | 'type'> & {
     value?: string | number | null;
-    min?: number | null;
-    max?: number | null;
+    min?: number;
+    max?: number;
     step?: number;
   };
 
