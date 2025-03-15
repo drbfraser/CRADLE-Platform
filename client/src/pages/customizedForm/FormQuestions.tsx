@@ -11,7 +11,7 @@ import {
   Question,
   TQuestion,
 } from 'src/shared/types';
-import { Field } from 'formik';
+import { Field, FieldProps } from 'formik';
 import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react';
 import {
   getPrettyDate,
@@ -30,6 +30,7 @@ import { RadioGroup } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { FormRenderStateEnum } from 'src/shared/enums';
+import CustomNumberField from 'src/shared/components/Form/CustomNumberField';
 
 const getCurrentDate = (): string => {
   const today = new Date();
@@ -469,44 +470,16 @@ export const FormQuestions = ({
                 ? 12
                 : 4
             }>
-            <Field
-              label={text}
-              component={TextField}
+            <CustomNumberField
               value={answer.val ?? ''}
+              label={text}
               variant="outlined"
-              type="number"
-              fullWidth
-              disabled={
-                renderState === FormRenderStateEnum.VIEW ||
-                renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ||
-                renderState === FormRenderStateEnum.VIS_COND_DISABLED
-              }
               required={required}
+              fullWidth
               error={!!numberErrors[question.questionIndex]}
               helperText={numberErrors[question.questionIndex]}
-              InputProps={{
-                endAdornment: Boolean(question.units) &&
-                  Boolean(question.units!.trim().length > 0) && (
-                    <InputAdornment position="end">
-                      {question.units}
-                    </InputAdornment>
-                  ),
-                inputProps: {
-                  step: 0.01,
-                  min:
-                    question.numMin || question.numMin === 0
-                      ? question.numMin
-                      : Number.MIN_SAFE_INTEGER,
-                  max:
-                    question.numMax || question.numMax === 0
-                      ? question.numMax
-                      : Number.MAX_SAFE_INTEGER,
-                },
-              }}
-              onChange={(event: any) => {
-                let inputValue = event.target.value
-                  ? Number(event.target.value)
-                  : null;
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                let inputValue = Number(event.target.value);
                 let errorMessage = '';
 
                 if (inputValue !== null) {
@@ -535,6 +508,32 @@ export const FormQuestions = ({
                 if (!errorMessage) {
                   updateAnswersByValue(question.questionIndex, inputValue);
                 }
+              }}
+              disabled={
+                renderState === FormRenderStateEnum.VIEW ||
+                renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ||
+                renderState === FormRenderStateEnum.VIS_COND_DISABLED
+              }
+              min={
+                question.numMin || question.numMin === 0
+                  ? question.numMin
+                  : Number.MIN_SAFE_INTEGER
+              }
+              max={
+                question.numMax || question.numMax === 0
+                  ? question.numMax
+                  : Number.MAX_SAFE_INTEGER
+              }
+              step={0.01}
+              slotProps={{
+                input: {
+                  endAdornment: Boolean(question.units) &&
+                    Boolean(question.units!.trim().length > 0) && (
+                      <InputAdornment position="end">
+                        {question.units}
+                      </InputAdornment>
+                    ),
+                },
               }}
             />
           </Grid>

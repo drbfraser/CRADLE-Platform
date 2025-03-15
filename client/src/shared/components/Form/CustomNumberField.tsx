@@ -2,7 +2,10 @@ import { TextField, TextFieldProps } from '@mui/material';
 import { NumericFormat } from 'react-number-format';
 
 type CustomNumberFieldProps = Omit<TextFieldProps, 'defaultValue' | 'type'> & {
-  value: number | null | undefined;
+  value: string | number | null | undefined;
+  min?: number;
+  max?: number;
+  step?: number;
 };
 
 const CustomNumberField = ({
