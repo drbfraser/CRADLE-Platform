@@ -512,8 +512,6 @@ export const FormQuestions = ({
                 renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ||
                 renderState === FormRenderStateEnum.VIS_COND_DISABLED
               }
-              min={question.numMin ?? undefined}
-              max={question.numMax ?? undefined}
               slotProps={{
                 input: {
                   endAdornment: Boolean(question.units) &&
