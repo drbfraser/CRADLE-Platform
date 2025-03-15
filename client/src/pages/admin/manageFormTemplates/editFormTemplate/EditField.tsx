@@ -154,7 +154,8 @@ const EditField = ({
               label="Minimum Value"
               id="number-field-min"
               value={numMin}
-              onChange={(value) => {
+              onChange={(event) => {
+                const value = Number.parseFloat(event.target.value);
                 setNumMin(value);
                 validateNumberFields(value, numMax);
               }}
@@ -163,7 +164,8 @@ const EditField = ({
               label="Maximum Value"
               id="number-field-max"
               value={numMax}
-              onChange={(value) => {
+              onChange={(event) => {
+                const value = Number.parseFloat(event.target.value);
                 setNumMax(value);
                 validateNumberFields(numMin, value);
               }}
