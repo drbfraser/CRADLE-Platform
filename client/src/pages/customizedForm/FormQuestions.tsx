@@ -11,7 +11,7 @@ import {
   Question,
   TQuestion,
 } from 'src/shared/types';
-import { Field, FieldProps } from 'formik';
+import { Field } from 'formik';
 import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react';
 import {
   getPrettyDate,
