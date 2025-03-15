@@ -504,9 +504,8 @@ export const FormQuestions = ({
                   ...prevErrors,
                   [question.questionIndex]: errorMessage,
                 }));
-                if (!errorMessage) {
-                  updateAnswersByValue(question.questionIndex, value);
-                }
+
+                updateAnswersByValue(question.questionIndex, value);
               }}
               disabled={
                 renderState === FormRenderStateEnum.VIEW ||
