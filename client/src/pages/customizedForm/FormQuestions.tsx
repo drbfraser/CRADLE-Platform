@@ -471,33 +471,31 @@ export const FormQuestions = ({
                 : 4
             }>
             <CustomNumberField
-              value={answer.val ?? ''}
+              value={answer.val}
               label={text}
               variant="outlined"
               required={required}
               fullWidth
               error={!!numberErrors[question.questionIndex]}
               helperText={numberErrors[question.questionIndex]}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                let inputValue = Number(event.target.value);
+              onValueChange={(values) => {
+                const value = values.floatValue;
                 let errorMessage = '';
 
-                if (inputValue !== null) {
+                if (value !== undefined) {
                   if (
                     question.numMin !== undefined &&
                     question.numMin !== null &&
-                    inputValue < question.numMin
+                    value < question.numMin
                   ) {
                     errorMessage = `Value must be at least ${question.numMin}.`;
-                    inputValue = question.numMin;
                   }
                   if (
                     question.numMax !== undefined &&
                     question.numMax !== null &&
-                    inputValue > question.numMax
+                    value > question.numMax
                   ) {
                     errorMessage = `Value must not exceed ${question.numMax}`;
-                    inputValue = question.numMax;
                   }
                 }
 
@@ -506,7 +504,7 @@ export const FormQuestions = ({
                   [question.questionIndex]: errorMessage,
                 }));
                 if (!errorMessage) {
-                  updateAnswersByValue(question.questionIndex, inputValue);
+                  updateAnswersByValue(question.questionIndex, value);
                 }
               }}
               disabled={
@@ -524,7 +522,6 @@ export const FormQuestions = ({
                   ? question.numMax
                   : Number.MAX_SAFE_INTEGER
               }
-              step={0.01}
               slotProps={{
                 input: {
                   endAdornment: Boolean(question.units) &&

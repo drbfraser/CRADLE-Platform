@@ -1,12 +1,13 @@
 import { TextField, TextFieldProps } from '@mui/material';
-import { NumericFormat } from 'react-number-format';
+import { NumericFormat, NumericFormatProps } from 'react-number-format';
 
-type CustomNumberFieldProps = Omit<TextFieldProps, 'defaultValue' | 'type'> & {
-  value: string | number | null | undefined;
-  min?: number;
-  max?: number;
-  step?: number;
-};
+type CustomNumberFieldProps = Omit<NumericFormatProps, 'customInput'> &
+  Omit<TextFieldProps, 'defaultValue' | 'type'> & {
+    value: string | number | null | undefined;
+    min?: number;
+    max?: number;
+    step?: number;
+  };
 
 const CustomNumberField = ({
   variant = 'outlined',
