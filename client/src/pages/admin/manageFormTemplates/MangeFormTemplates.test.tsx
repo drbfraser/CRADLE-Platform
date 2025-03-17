@@ -1,4 +1,3 @@
-import nock from 'nock';
 import {
   afterAll,
   beforeAll,
@@ -10,71 +9,19 @@ import {
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { EndpointEnum } from 'src/shared/enums';
-import { API_URL } from 'src/shared/api/api';
 import { getPrettyDate } from 'src/shared/utils';
 import { createFakeAccessToken } from 'src/testing/utils';
+import { FORM_TEMPLATE_TEST_DATA as TEST_DATA } from 'src/testing/testData';
 import ProviderWrapper from 'src/testing/ProviderWrapper';
 import { ManageFormTemplates } from './ManageFormTemplates';
-
-const TEST_DATA = {
-  unArchivedTemplates: [
-    {
-      archived: false,
-      classification: {
-        id: '2ed1cf25-34a1-48b0-b458-c8e4830159ca',
-        name: 'template#1',
-      },
-      dateCreated: 1741373694,
-      formClassificationId: '2ed1cf25-34a1-48b0-b458-c8e4830159ca',
-      id: '92a98f0b-3ac7-4684-99ac-13fe1a048373',
-      version: '2025-03-07 18:51:51 UTC',
-    },
-    {
-      archived: false,
-      classification: {
-        id: 'dc9',
-        name: 'Personal Intake Form',
-      },
-      dateCreated: 1740607541,
-      formClassificationId: 'dc9',
-      id: 'dt9',
-      version: 'V1',
-    },
-  ],
-  archivedTemplates: [
-    {
-      archived: true,
-      classification: {
-        id: '000',
-        name: 'Archived Form',
-      },
-      dateCreated: 1740607541,
-      formClassificationId: '000',
-      id: '111',
-      version: 'V3',
-    },
-  ],
-};
 
 describe('Form Templates Table', () => {
   beforeAll(() => {
     localStorage.setItem('accessToken', createFakeAccessToken());
-
-    nock(API_URL)
-      .persist()
-      .get(EndpointEnum.FORM_TEMPLATES + '?include_archived=false')
-      .reply(200, TEST_DATA.unArchivedTemplates);
-
-    nock(API_URL)
-      .persist()
-      .get(EndpointEnum.FORM_TEMPLATES + '?include_archived=true')
-      .reply(200, TEST_DATA.archivedTemplates);
   });
 
   afterAll(() => {
     localStorage.removeItem('accessToken');
-    nock.cleanAll();
   });
 
   beforeEach(async () => {

@@ -28,6 +28,7 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     include: ['**/*.test.?(c|m)[jt]s?(x)'],
+    setupFiles: ['./src/testing/vitest.setup.ts'],
   },
   build: {
     outDir: 'build',
