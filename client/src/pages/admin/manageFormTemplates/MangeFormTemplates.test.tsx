@@ -27,7 +27,7 @@ describe('Form Templates Table', () => {
   beforeEach(async () => {
     render(<ManageFormTemplates />, { wrapper: ProviderWrapper });
 
-    // wait until the table has loaded some data
+    // wait until the table has loaded some data before running tests
     await waitFor(() => {
       expect(
         within(screen.getByRole('rowgroup')).getAllByRole('row')
