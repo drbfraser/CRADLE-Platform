@@ -2,6 +2,6 @@
     "src/**/*.{ts,tsx}": [
         "prettier --write",
         "eslint --fix",
-        "npm run test"
+        "npm run test:staged"
     ]
 }
