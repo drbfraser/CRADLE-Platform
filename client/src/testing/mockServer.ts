@@ -7,7 +7,6 @@ import { FORM_TEMPLATE_TEST_DATA } from './testData';
 
 const handlers = [
   http.get(API_URL + EndpointEnum.FORM_TEMPLATES, ({ request }) => {
-    console.log('caught the request!!!');
     const url = new URL(request.url);
     const includeArchived = url.searchParams.get('include_archived');
 
