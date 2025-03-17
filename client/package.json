@@ -13,6 +13,7 @@
     "now-start": "serve -s ./build",
     "build": "tsc && vite build",
     "test": "vitest",
+    "test:staged": "CI=true vitest",
     "coverage": "vitest run --coverage",
     "preview": "vite preview",
     "prettier": "prettier --write \"src/**/*.{ts,tsx}\"",
