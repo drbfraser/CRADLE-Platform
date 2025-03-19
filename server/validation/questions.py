@@ -144,3 +144,18 @@ class FormQuestion(QuestionBase, extra="forbid"):
 class UpdateFormQuestion(CradleBaseModel):
     id: str
     answers: Answer
+
+    @model_validator(mode="after")
+    def validate_number_range(self) -> Self:
+        """
+        Ensures that the updated answer respects the question's number constraints.
+        """
+        if self.answers.number is not None:
+            question = crud.read(FormQuestion, id=self.id)
+            if question and question.num_min is not None and self.answers.number < question.num_min:
+                raise ValueError(f"Answer value {self.answers.number} is below the minimum allowed value {question.num_min}.")
+
+            if question and question.num_max is not None and self.answers.number > question.num_max:
+                raise ValueError(f"Answer value {self.answers.number} exceeds the maximum allowed value {question.num_max}.")
+
+        return self
