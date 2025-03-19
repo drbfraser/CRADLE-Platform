@@ -122,6 +122,24 @@ class FormQuestion(QuestionBase, extra="forbid"):
     mc_options: Optional[list[MultipleChoiceOption]] = []
     answers: Optional[Answer] = None
 
+    @model_validator(mode="after")
+    def validate_numeric_constraints(self) -> Self:
+        """
+        Ensures that if the question type is INTEGER or FLOAT:
+        - `num_min` and `num_max` are correctly defined
+        - `num_min` is less than or equal to `num_max`
+        - The question has valid units if applicable
+        """
+        if self.question_type in [QuestionTypeEnum.INTEGER, QuestionTypeEnum.FLOAT]:
+            if self.num_min is not None and self.num_max is not None:
+                if self.num_min > self.num_max:
+                    raise ValueError(f"num_min ({self.num_min}) cannot be greater than num_max ({self.num_max}).")
+            
+            if self.units and not isinstance(self.units, str):
+                raise ValueError("Units must be a valid string.")
+
+        return self
+
 
 class UpdateFormQuestion(CradleBaseModel):
     id: str
