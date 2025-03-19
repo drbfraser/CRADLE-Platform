@@ -109,15 +109,67 @@ class UserPhoneNumberOrm(db.Model):
 
 
 class RelayServerPhoneNumberOrm(db.Model):
+    """
+    Represents an SMS relay server phone number in the system.
+    Stores the phone number, description, and the last received timestamp.
+    """
+
     __tablename__ = "relay_server_phone_number"
+    
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
-    phone_number = db.Column(db.String(20), unique=True)
-    description = db.Column(db.String(50), unique=False)
-    last_received = db.Column(db.BigInteger, unique=False, default=get_current_time)
+    phone_number = db.Column(db.String(20), unique=True, nullable=False)
+    description = db.Column(db.String(50), nullable=False)
+    last_received = db.Column(db.BigInteger, nullable=False, default=get_current_time)
+
+    # Relationship to logs
+    logs = db.relationship(
+        "RelayServerLogOrm",
+        back_populates="relay_phone_number",
+        lazy=True,
+        cascade="all, delete-orphan"
+    )
 
     @staticmethod
     def schema():
         return RelayServerPhoneNumberSchema
+
+    def __repr__(self):
+        """Return a string representation of the relay phone number."""
+        return f"<RelayServerPhoneNumberOrm {self.phone_number}>"
+
+class RelayServerLogOrm(db.Model):
+    """
+    Represents a log entry for an SMS relay server phone number.
+    Stores the log message and timestamp of when it was created.
+    """
+
+    __tablename__ = "relay_server_log"
+    
+    id = db.Column(db.String(50), primary_key=True, default=get_uuid)
+    phone_number = db.Column(db.String(20), nullable=False)
+    log_message = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.BigInteger, nullable=False, default=get_current_time)
+
+    # Foreign Key: Links log entry to a relay phone number
+    relay_phone_number_id = db.Column(
+        db.String(50),
+        db.ForeignKey("relay_server_phone_number.id", ondelete="CASCADE"),
+        nullable=False
+    )
+
+    # Relationship
+    relay_phone_number = db.relationship(
+        "RelayServerPhoneNumberOrm",
+        back_populates="logs"
+    )
+
+    @staticmethod
+    def schema():
+        return RelayServerLogSchema
+
+    def __repr__(self):
+        """Return a string representation of the log entry."""
+        return f"<RelayServerLogOrm {self.phone_number} - {self.timestamp}>"
 
 
 class ReferralOrm(db.Model):
@@ -843,6 +895,19 @@ class VillageSchema(ma.SQLAlchemyAutoSchema):
 def validate_timestamp(ts):
     if ts > get_current_time():
         raise marshmallow.ValidationError("Date must not be in the future.")
+        
+class RelayServerLogSchema(ma.SQLAlchemyAutoSchema):
+    """
+    Schema for Relay Server Logs.
+    Ensures logs are formatted properly when retrieved via API.
+    """
+
+    class Meta:
+        include_fk = True
+        model = RelayServerLogOrm
+        load_instance = True
+        include_relationships = True
+
 
 
 class PregnancySchema(ma.SQLAlchemyAutoSchema):
