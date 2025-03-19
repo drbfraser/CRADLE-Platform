@@ -26,6 +26,8 @@ from models import (
     UrineTestOrm,
     UserOrm,
     UserPhoneNumberOrm,
+    RelayServerLogOrm, 
+    RelayServerPhoneNumberOrm,
 )
 from service import invariant
 
@@ -33,6 +35,49 @@ M = TypeVar("M")
 S = TypeVar("S")
 
 LOGGER = logging.getLogger(__name__)
+def create_relay_server_log(phone_number: str, log_message: str):
+    """
+    Inserts a new log entry into the database for a relay server phone number.
+
+    :param phone_number: The relay server's phone number.
+    :param log_message: The log message.
+    """
+    relay_server = read(RelayServerPhoneNumberOrm, phone_number=phone_number)
+    if relay_server is None:
+        raise ValueError(f"No relay server found with phone number: {phone_number}")
+
+    new_log = RelayServerLogOrm(
+        relay_phone_number_id=relay_server.id,
+        phone_number=phone_number,
+        log_message=log_message,
+    )
+    create(new_log)
+
+def read_relay_server_logs(
+    relay_phone_number_id: Optional[str] = None,
+    start_timestamp: Optional[int] = None,
+    end_timestamp: Optional[int] = None,
+) -> List[RelayServerLogOrm]:
+    """
+    Retrieves logs for a specific relay server phone number.
+
+    :param relay_phone_number_id: ID of the relay server phone number (optional).
+    :param start_timestamp: Start of time range filter (optional).
+    :param end_timestamp: End of time range filter (optional).
+    :return: A list of logs.
+    """
+    query = db_session.query(RelayServerLogOrm)
+
+    if relay_phone_number_id:
+        query = query.filter(RelayServerLogOrm.relay_phone_number_id == relay_phone_number_id)
+
+    if start_timestamp:
+        query = query.filter(RelayServerLogOrm.timestamp >= start_timestamp)
+
+    if end_timestamp:
+        query = query.filter(RelayServerLogOrm.timestamp <= end_timestamp)
+
+    return query.order_by(RelayServerLogOrm.timestamp.desc()).all()
 
 
 def create(model: M, refresh=False):
