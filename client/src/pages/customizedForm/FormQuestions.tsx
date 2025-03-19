@@ -454,77 +454,80 @@ export const FormQuestions = ({
         );
 
       case QuestionTypeEnum.INTEGER:
-        return (
-          <Grid
-            item
-            xs={renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
-            md={
-              renderState === FormRenderStateEnum.VIS_COND ||
-              renderState === FormRenderStateEnum.VIS_COND_DISABLED
-                ? 12
-                : 6
+  return (
+    <Grid
+      item
+      xs={renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
+      md={
+        renderState === FormRenderStateEnum.VIS_COND ||
+        renderState === FormRenderStateEnum.VIS_COND_DISABLED
+          ? 12
+          : 6
+      }
+      lg={
+        renderState === FormRenderStateEnum.VIS_COND ||
+        renderState === FormRenderStateEnum.VIS_COND_DISABLED
+          ? 12
+          : 4
+      }>
+      <CustomNumberField
+        value={answer.val}
+        label={text}
+        variant="outlined"
+        required={required} // Enforce required field
+        fullWidth
+        error={!!numberErrors[question.questionIndex]}
+        helperText={numberErrors[question.questionIndex]}
+        min={question.minValue} // Apply min constraint
+        max={question.maxValue} // Apply max constraint
+        units={question.units} // Display units
+        onValueChange={(values) => {
+          const value = values.floatValue;
+          let errorMessage = '';
+
+          if (value !== undefined) {
+            if (
+              question.minValue !== undefined &&
+              question.minValue !== null &&
+              value < question.minValue
+            ) {
+              errorMessage = `Value must be at least ${question.minValue}.`;
             }
-            lg={
-              renderState === FormRenderStateEnum.VIS_COND ||
-              renderState === FormRenderStateEnum.VIS_COND_DISABLED
-                ? 12
-                : 4
-            }>
-            <CustomNumberField
-              value={answer.val}
-              label={text}
-              variant="outlined"
-              required={required}
-              fullWidth
-              error={!!numberErrors[question.questionIndex]}
-              helperText={numberErrors[question.questionIndex]}
-              suffix={question.units ?? ''}
-              onValueChange={(values) => {
-                const value = values.floatValue;
-                let errorMessage = '';
+            if (
+              question.maxValue !== undefined &&
+              question.maxValue !== null &&
+              value > question.maxValue
+            ) {
+              errorMessage = `Value must not exceed ${question.maxValue}`;
+            }
+          }
 
-                if (value !== undefined) {
-                  if (
-                    question.numMin !== undefined &&
-                    question.numMin !== null &&
-                    value < question.numMin
-                  ) {
-                    errorMessage = `Value must be at least ${question.numMin}.`;
-                  }
-                  if (
-                    question.numMax !== undefined &&
-                    question.numMax !== null &&
-                    value > question.numMax
-                  ) {
-                    errorMessage = `Value must not exceed ${question.numMax}`;
-                  }
-                }
+          setNumberErrors((prevErrors) => ({
+            ...prevErrors,
+            [question.questionIndex]: errorMessage,
+          }));
 
-                setNumberErrors((prevErrors) => ({
-                  ...prevErrors,
-                  [question.questionIndex]: errorMessage,
-                }));
+          updateAnswersByValue(question.questionIndex, value);
+        }}
+        disabled={
+          renderState === FormRenderStateEnum.VIEW ||
+          renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ||
+          renderState === FormRenderStateEnum.VIS_COND_DISABLED
+        }
+        slotProps={{
+          input: {
+            endAdornment: Boolean(question.units) &&
+              Boolean(question.units!.trim().length > 0) && (
+                <InputAdornment position="end">
+                  {question.units}
+                </InputAdornment>
+              ),
+          },
+        }}
+      />
+    </Grid>
+  );
 
-                updateAnswersByValue(question.questionIndex, value);
-              }}
-              disabled={
-                renderState === FormRenderStateEnum.VIEW ||
-                renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ||
-                renderState === FormRenderStateEnum.VIS_COND_DISABLED
-              }
-              slotProps={{
-                input: {
-                  endAdornment: Boolean(question.units) &&
-                    Boolean(question.units!.trim().length > 0) && (
-                      <InputAdornment position="end">
-                        {question.units}
-                      </InputAdornment>
-                    ),
-                },
-              }}
-            />
-          </Grid>
-        );
 
       case QuestionTypeEnum.STRING: {
         const helperText = stringMaxLinesError[question.questionIndex]
