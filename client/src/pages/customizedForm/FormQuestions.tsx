@@ -30,6 +30,7 @@ import { RadioGroup } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { FormRenderStateEnum } from 'src/shared/enums';
+import CustomNumberField from 'src/shared/components/Form/CustomNumberField';
 
 const getCurrentDate = (): string => {
   const today = new Date();
@@ -469,62 +470,33 @@ export const FormQuestions = ({
                 ? 12
                 : 4
             }>
-            <Field
+            <CustomNumberField
+              value={answer.val}
               label={text}
-              component={TextField}
-              value={answer.val ?? ''}
               variant="outlined"
-              type="number"
-              fullWidth
-              disabled={
-                renderState === FormRenderStateEnum.VIEW ||
-                renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ||
-                renderState === FormRenderStateEnum.VIS_COND_DISABLED
-              }
               required={required}
+              fullWidth
               error={!!numberErrors[question.questionIndex]}
               helperText={numberErrors[question.questionIndex]}
-              InputProps={{
-                endAdornment: Boolean(question.units) &&
-                  Boolean(question.units!.trim().length > 0) && (
-                    <InputAdornment position="end">
-                      {question.units}
-                    </InputAdornment>
-                  ),
-                inputProps: {
-                  step: 0.01,
-                  min:
-                    question.numMin || question.numMin === 0
-                      ? question.numMin
-                      : Number.MIN_SAFE_INTEGER,
-                  max:
-                    question.numMax || question.numMax === 0
-                      ? question.numMax
-                      : Number.MAX_SAFE_INTEGER,
-                },
-              }}
-              onChange={(event: any) => {
-                let inputValue = event.target.value
-                  ? Number(event.target.value)
-                  : null;
+              suffix={question.units ?? ''}
+              onValueChange={(values) => {
+                const value = values.floatValue;
                 let errorMessage = '';
 
-                if (inputValue !== null) {
+                if (value !== undefined) {
                   if (
                     question.numMin !== undefined &&
                     question.numMin !== null &&
-                    inputValue < question.numMin
+                    value < question.numMin
                   ) {
                     errorMessage = `Value must be at least ${question.numMin}.`;
-                    inputValue = question.numMin;
                   }
                   if (
                     question.numMax !== undefined &&
                     question.numMax !== null &&
-                    inputValue > question.numMax
+                    value > question.numMax
                   ) {
                     errorMessage = `Value must not exceed ${question.numMax}`;
-                    inputValue = question.numMax;
                   }
                 }
 
@@ -532,9 +504,23 @@ export const FormQuestions = ({
                   ...prevErrors,
                   [question.questionIndex]: errorMessage,
                 }));
-                if (!errorMessage) {
-                  updateAnswersByValue(question.questionIndex, inputValue);
-                }
+
+                updateAnswersByValue(question.questionIndex, value);
+              }}
+              disabled={
+                renderState === FormRenderStateEnum.VIEW ||
+                renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ||
+                renderState === FormRenderStateEnum.VIS_COND_DISABLED
+              }
+              slotProps={{
+                input: {
+                  endAdornment: Boolean(question.units) &&
+                    Boolean(question.units!.trim().length > 0) && (
+                      <InputAdornment position="end">
+                        {question.units}
+                      </InputAdornment>
+                    ),
+                },
               }}
             />
           </Grid>

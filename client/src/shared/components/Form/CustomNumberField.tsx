@@ -1,42 +1,17 @@
-import React from 'react';
-import { NumberField } from '@base-ui-components/react/number-field';
-import { FormLabel } from '@mui/material';
+import { TextField, TextFieldProps } from '@mui/material';
+import { NumericFormat, NumericFormatProps } from 'react-number-format';
 
-interface CustomNumberFieldProps {
-  label: string;
-  value: number | null;
-  onChange: (value: number | null) => void;
-  id: string;
-}
+type CustomNumberFieldProps = Omit<NumericFormatProps, 'customInput'> &
+  Omit<TextFieldProps, 'defaultValue' | 'type'> & {
+    value?: string | number | null;
+    step?: number;
+  };
 
-const CustomNumberField: React.FC<CustomNumberFieldProps> = ({
-  label,
-  value,
-  onChange,
-  id,
-}) => {
-  return (
-    <NumberField.Root id={id} value={value}>
-      <FormLabel>{label}</FormLabel>
-      <NumberField.Group style={{ width: '100%' }}>
-        <NumberField.Input
-          style={{
-            width: '40%',
-            minWidth: '40px',
-            padding: '10px',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            fontSize: '1rem',
-          }}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-            const newValue =
-              event.target.value === '' ? null : Number(event.target.value);
-            onChange(newValue);
-          }}
-        />
-      </NumberField.Group>
-    </NumberField.Root>
-  );
+const CustomNumberField = ({
+  variant = 'outlined',
+  ...props
+}: CustomNumberFieldProps) => {
+  return <NumericFormat customInput={TextField} {...props} />;
 };
 
 export default CustomNumberField;
