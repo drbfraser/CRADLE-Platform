@@ -1,4 +1,3 @@
-import { expect } from '@playwright/test';
 import moment from 'moment';
 import { test } from '../fixtures';
 
@@ -8,12 +7,11 @@ test.describe('Create Referral', () => {
     async ({ patientSummaryPage, newReferralFormPage }) => {
       await patientSummaryPage.goto();
       await patientSummaryPage.clickCreateReferralButton();
-      await newReferralFormPage.expectToHaveUrl();
+      await newReferralFormPage.waitForUrl();
     }
   );
 
   test('Successful', async ({
-    page,
     testPatient,
     patientSummaryPage,
     newReferralFormPage,
@@ -34,10 +32,7 @@ test.describe('Create Referral', () => {
     );
   });
 
-  test('Unsuccessful - Missing Facility', async ({
-    page,
-    newReferralFormPage,
-  }) => {
+  test('Unsuccessful - Missing Facility', async ({ newReferralFormPage }) => {
     await newReferralFormPage.enterComment('Lorem ipsum doler sit amet.');
     await newReferralFormPage.clickSubmitForm();
     await newReferralFormPage.expectToHaveUrl();
