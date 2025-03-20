@@ -1,5 +1,5 @@
 import {
-  Button as MuiButton,
+  Button,
   ButtonProps,
   StyledEngineProvider,
   ThemeProvider,
@@ -8,7 +8,6 @@ import {
 
 import { red } from '@mui/material/colors';
 import { useNavigate, LinkProps } from 'react-router-dom';
-import useIsMounted from 'src/shared/hooks/misc/useIsMounted';
 
 interface RedirectButtonProps extends ButtonProps {
   url: string;
@@ -17,12 +16,6 @@ interface RedirectButtonProps extends ButtonProps {
 type LinkButtonProps = ButtonProps & LinkProps;
 
 const redTheme = createTheme({ palette: { primary: red } });
-
-/** Button is disabled until hydration. */
-const Button = ({ disabled, ...props }: ButtonProps) => {
-  const isMounted = useIsMounted();
-  return <MuiButton {...props} disabled={!isMounted || disabled} />;
-};
 
 export const CancelButton = (otherProps: ButtonProps) => (
   <StyledEngineProvider injectFirst>
