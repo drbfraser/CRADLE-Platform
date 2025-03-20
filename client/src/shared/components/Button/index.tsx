@@ -18,7 +18,7 @@ type LinkButtonProps = ButtonProps & LinkProps;
 
 const redTheme = createTheme({ palette: { primary: red } });
 
-/** Button is disabled until hydration to prevent flaky tests. */
+/** Button is disabled until hydration. */
 const Button = ({ disabled, ...props }: ButtonProps) => {
   const isMounted = useIsMounted();
   return <MuiButton {...props} disabled={!isMounted || disabled} />;

@@ -1,8 +1,9 @@
-import { Box, Container, Typography, TextField, Button } from '@mui/material';
+import { Box, Container, Typography, TextField } from '@mui/material';
 import { Toast } from 'src/shared/components/toast';
 import { DASHBOARD_PADDING } from 'src/shared/constants';
 import { Form, Formik, Field, FieldProps } from 'formik';
 import { useLoginMutation } from './login-mutation';
+import { PrimaryButton } from 'src/shared/components/Button';
 
 export const LoginForm = () => {
   const login = useLoginMutation();
@@ -115,7 +116,7 @@ export const LoginForm = () => {
                         />
                       )}
                     </Field>
-                    <Button
+                    <PrimaryButton
                       variant={'contained'}
                       fullWidth
                       disabled={!formikProps.isValid || login.isPending}
@@ -125,7 +126,7 @@ export const LoginForm = () => {
                         fontSize: 'large',
                       }}>
                       Login
-                    </Button>
+                    </PrimaryButton>
                   </Container>
                 </Form>
               )}
