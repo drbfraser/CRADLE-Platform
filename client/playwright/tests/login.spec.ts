@@ -36,6 +36,7 @@ test.describe('Login', () => {
   });
 
   test.describe('Unsuccessful - Incorrect Credentials', () => {
+    test.skip(true, 'These tests can cause rate-limiting from Cognito.');
     test('Incorrect Username', async ({ loginPage }) => {
       await loginPage.enterUsername('incorrect-username');
       await loginPage.enterPassword(ADMIN.password);
