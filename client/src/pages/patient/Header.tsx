@@ -45,6 +45,7 @@ export const Header = ({
     }
   };
 
+  const disableButtons = !patient;
   return (
     <Grid container justifyContent="space-between" mb={2} gap={1}>
       <Grid container alignItems="center">
@@ -61,16 +62,24 @@ export const Header = ({
         alignItems="center"
         alignContent="center"
         gap={2}>
-        <PrimaryButton onClick={handleSubmitNewFormClick}>
+        <PrimaryButton
+          onClick={handleSubmitNewFormClick}
+          disabled={disableButtons}>
           <Add /> Submit New Form
         </PrimaryButton>
-        <PrimaryButton onClick={handleAddReadingClick}>
+        <PrimaryButton
+          onClick={handleAddReadingClick}
+          disabled={disableButtons}>
           <Add /> Add New Reading
         </PrimaryButton>
-        <PrimaryButton onClick={handleCreateReferralClick}>
+        <PrimaryButton
+          onClick={handleCreateReferralClick}
+          disabled={disableButtons}>
           <Add /> Create Referral
         </PrimaryButton>
-        <PrimaryButton onClick={handlePerformAssessmentClick}>
+        <PrimaryButton
+          onClick={handlePerformAssessmentClick}
+          disabled={disableButtons}>
           <Add /> Perform Assessment
         </PrimaryButton>
       </Grid>
