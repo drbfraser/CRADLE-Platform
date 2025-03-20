@@ -16,6 +16,7 @@ export class PageObjectModel {
   }
 
   async expectToHaveUrl() {
+    await this.page.waitForURL(this.url);
     await expect(this.page).toHaveURL(this.url);
   }
 }
