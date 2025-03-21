@@ -15,6 +15,10 @@ export class PageObjectModel {
     await this.page.waitForURL(this.url);
   }
 
+  async waitForUrl() {
+    await this.page.waitForURL(this.url);
+  }
+
   async expectToHaveUrl() {
     await expect(this.page).toHaveURL(this.url);
   }

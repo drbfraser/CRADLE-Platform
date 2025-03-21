@@ -22,7 +22,7 @@ test.describe('Create Patient', () => {
   );
   test.describe(' Successful', () => {
     test.beforeEach(
-      'Go to New Patient Form',
+      'Enter Name and Sex',
       async ({ newPatientFormPage: newPatientPage, patientName }) => {
         await newPatientPage.enterPatientName(patientName);
         await newPatientPage.selectSex();

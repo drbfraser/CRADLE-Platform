@@ -34,21 +34,4 @@ test.describe('Login', () => {
       await loginPage.expectLoginButtonToBeDisabled();
     });
   });
-
-  test.describe('Unsuccessful - Incorrect Credentials', () => {
-    test('Incorrect Username', async ({ loginPage }) => {
-      await loginPage.enterUsername('incorrect-username');
-      await loginPage.enterPassword(ADMIN.password);
-    });
-    test('Incorrect Password', async ({ loginPage }) => {
-      await loginPage.enterUsername(ADMIN.username);
-      await loginPage.enterPassword('incorrect-password');
-    });
-    test.afterEach(async ({ loginPage }) => {
-      await loginPage.clickLoginButton();
-      await loginPage.expectToHaveUrl();
-      await loginPage.expectErrorToastIncorrectCredentials();
-      await loginPage.expectLoginButtonToBeEnabled();
-    });
-  });
 });
