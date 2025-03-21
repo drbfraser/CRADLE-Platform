@@ -31,11 +31,6 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
-
-    /* This hopefully helps to reduce some flakiness in the tests. */
-    launchOptions: {
-      slowMo: 0,
-    },
   },
 
   timeout: 60_000,
