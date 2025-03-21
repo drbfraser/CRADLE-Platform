@@ -10,6 +10,7 @@ import { PatientSummaryPageModel } from './page-object-models/patient-summary-pa
 import { NewReferralFormPageModel } from './page-object-models/new-referral-form-page-model';
 import { NewPatientFormPageModel } from './page-object-models/new-patient-form-page-model';
 import { LoginPageModel } from './page-object-models/login-page-model';
+import { PatientsPageModel } from './page-object-models/patients-page-model';
 
 /** All test patients should be given the same name, so that they can be identified
  * later for deletion.
@@ -28,6 +29,7 @@ export type CradleFixtures = {
   patientSummaryPage: PatientSummaryPageModel;
   newPatientFormPage: NewPatientFormPageModel;
   newReferralFormPage: NewReferralFormPageModel;
+  patientsPage: PatientsPageModel;
 };
 
 /**
@@ -91,5 +93,8 @@ export const test = baseTest.extend<CradleFixtures>({
   },
   newReferralFormPage: async ({ page, testPatient }, use) => {
     await use(new NewReferralFormPageModel(page, testPatient.id));
+  },
+  patientsPage: async ({ page }, use) => {
+    await use(new PatientsPageModel(page));
   },
 });
