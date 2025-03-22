@@ -301,7 +301,7 @@ jobs:
       - name: Install Playwright 
         run: | 
           source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
-          npm install -D playwright@1.51.0
+          npm install -D @playwright/test@1.51.0
           PLAYWRIGHT_BROWSERS_PATH=0 npx playwright install
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
       - name: Install Back-end dependencies 
