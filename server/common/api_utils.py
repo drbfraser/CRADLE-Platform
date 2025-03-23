@@ -101,7 +101,7 @@ class FacilityNamePath(CradleBaseModel):
 
 class PageLimitFilterQueryParams(CradleBaseModel):
     limit: Optional[int] = Field(
-        default=5, description="The maximum number of records per page."
+        default=10, description="The maximum number of records per page."
     )
     page: Optional[int] = Field(default=1, description="The number of pages to return.")
 
