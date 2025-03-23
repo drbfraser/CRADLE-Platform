@@ -3,26 +3,30 @@ import { test } from '../fixtures';
 
 // Test suite for archiving a patient
 test.describe('Archive Patient', () => {
-  test.beforeEach(async ({ patientsPage }) => {
+  test.beforeEach(async ({ patientsPage, testPatient }) => {
     await patientsPage.goto();
   });
 
-  test('Archive a patient named AB', async ({ patientsPage }) => {
-    // check if AB exists in /patients
-    await expect(await patientsPage.getPatientRowByName('AB')).toBeVisible();
+  test(`Archive a patient`, async ({ patientsPage, testPatient }) => {
+    const patientName = testPatient.name;
+
+    // check if patientName exists in /patients
+    await expect(
+      await patientsPage.getPatientRowByName(patientName)
+    ).toBeVisible();
 
     await patientsPage.gotoAdminPatients();
 
-    // check if AB exists in admins/patients
-    await expect(
-      await patientsPage.getAdminPatientRowByName('AB')
-    ).toBeVisible();
+    // check if patientName exists in admins/patients
+    const row = patientsPage.getAdminPatientRowByName(patientName);
+    await expect(await row).toBeVisible();
 
-    await patientsPage.archivePatientByName('AB');
+    await patientsPage.archivePatientByName(patientName);
 
-    // check that AB is not visible in /patients
+    // go back to /patients and check if patientName is no longer there
+    await patientsPage.goto();
     await expect(
-      await patientsPage.getAdminPatientRowByName('AB')
+      await patientsPage.getPatientRowByName(patientName)
     ).not.toBeVisible();
   });
 });

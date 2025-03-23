@@ -63,10 +63,11 @@ export const test = baseTest.extend<CradleFixtures>({
    * The test patients will be deleted during the `teardown` phase, after all
    * tests have run.
    **/
-  testPatient: async ({ api }, use) => {
+  testPatient: async ({ api, browserName }, use) => {
+    const timestamp = Date.now();
     const response = await api.post('/api/patients', {
       data: {
-        name: TEST_PATIENT_NAME,
+        name: `${TEST_PATIENT_NAME}-${browserName}-${timestamp}`,
         sex: 'MALE',
         dateOfBirth: '2000-01-01',
         isExactDateOfBirth: true,
@@ -75,6 +76,7 @@ export const test = baseTest.extend<CradleFixtures>({
     await expect(response).toBeOK();
     const patient: TestPatient = await response.json();
     await use(patient);
+    await api.delete(`api/patients/${patient.id}`);
   },
 
   /** Page Object Models
