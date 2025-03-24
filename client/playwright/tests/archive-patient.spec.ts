@@ -2,7 +2,7 @@ import { expect } from '@playwright/test';
 import { test } from '../fixtures';
 
 // Test suite for archiving a patient
-test.describe('Archive Patient', () => {
+test.describe('Go to Patient Page', () => {
   test.beforeEach(async ({ patientsPage, testPatient }) => {
     await patientsPage.goto();
   });
