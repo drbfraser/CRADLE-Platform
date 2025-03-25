@@ -24,9 +24,6 @@ def upgrade():
         "sms_relay_request_number",
         sa.Column("phone_number", sa.String(length=20), nullable=False),
     )
-    op.drop_index(
-        "uq_sms_relay_request_number_user_id", table_name="sms_relay_request_number"
-    )
     op.create_unique_constraint(
         op.f("uq_sms_relay_request_number_phone_number"),
         "sms_relay_request_number",
@@ -36,6 +33,9 @@ def upgrade():
         "fk_sms_relay_request_number_user_id_user",
         "sms_relay_request_number",
         type_="foreignkey",
+    )
+    op.drop_index(
+        "uq_sms_relay_request_number_user_id", table_name="sms_relay_request_number"
     )
     op.create_foreign_key(
         op.f("fk_sms_relay_request_number_phone_number_user_phone_number"),
