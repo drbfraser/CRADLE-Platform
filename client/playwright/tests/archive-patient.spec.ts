@@ -7,7 +7,11 @@ test.describe('Go to Patient Page', () => {
     await patientsPage.goto();
   });
 
-  test(`Archive a patient`, async ({ patientsPage, testPatient }) => {
+  test(`Archive a patient`, async ({
+    patientsPage,
+    adminPatientsPage,
+    testPatient,
+  }) => {
     const patientName = testPatient.name;
 
     // check if patientName exists in /patients
@@ -15,13 +19,13 @@ test.describe('Go to Patient Page', () => {
       await patientsPage.getPatientRowByName(patientName)
     ).toBeVisible();
 
-    await patientsPage.gotoAdminPatients();
+    await adminPatientsPage.goto();
 
     // check if patientName exists in admins/patients
-    const row = patientsPage.getAdminPatientRowByName(patientName);
+    const row = adminPatientsPage.getPatientRowByName(patientName);
     await expect(await row).toBeVisible();
 
-    await patientsPage.archivePatientByName(patientName);
+    await adminPatientsPage.archivePatientByName(patientName);
 
     // go back to /patients and check if patientName is no longer there
     await patientsPage.goto();
