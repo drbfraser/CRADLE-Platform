@@ -8,6 +8,7 @@ from humps import decamelize
 from pydantic import ValidationError
 
 from common import phone_number_utils, user_utils
+from common.constants import MAX_SMS_RELAY_REQUEST_NUMBER
 from service import compressor, encryptor
 from validation.sms_relay import (
     SmsRelayDecryptedBody,
@@ -28,8 +29,7 @@ corrupted_message = (
 invalid_message = (
     "Unable to verify message from ({phone_number}). "
     "Either the App and server don't agree on the security key "
-    "or the message was corrupted. Retry the action or resync "
-    "with the server using an internet connection (WiFi, 3G, …) "
+    "or the message was corrupted. "
 )
 
 invalid_user = "User does not exist"
@@ -114,6 +114,26 @@ def _create_error_response(
     return response
 
 
+def _is_valid_request_number(expected_request_number, request_number):
+    """
+    Confirms if the request number received from the client is valid.
+    A request number is valid if it is within the range of `0 to 100` above the expected request number.
+    Request numbers may wrap-around after the maximum value and start back at `0`.
+
+    :param expected_request_number: Server expected request number from client.
+    :param request_number: Actual request number received from client request.
+
+    :return: Returns True if request number is valid. Else, returns False.
+    """
+    MAX_RANGE_VALUE = 100
+
+    difference = (request_number - expected_request_number) % (
+        MAX_SMS_RELAY_REQUEST_NUMBER + 1
+    )
+
+    return 0 <= difference <= MAX_RANGE_VALUE
+
+
 _iv_size = 32
 
 # /api/sms_relay
@@ -161,6 +181,7 @@ def relay_sms_request(body: SmsRelayRequestBody):
         json_dict_data = json.loads(string_data)
         # Convert keys to snake case.
         json_dict_data = decamelize(json_dict_data)
+        # return abort(401, description=error_message)
     except Exception:
         error_message = str(invalid_message.format(phone_number=phone_number))
         print(error_message)
@@ -171,15 +192,16 @@ def relay_sms_request(body: SmsRelayRequestBody):
     except ValidationError as e:
         return abort(422, description=invalid_json.format(error=str(e)))
 
-    # Gets expected user request number
+    # Gets next expected user request number
     expected_request_number = user_utils.get_expected_sms_relay_request_number(user.id)
     if expected_request_number is None:
         print("No expected request number found for user")
         return abort(500, description="Internal Server Error")
 
-    # Checks if request number is valid (must be exactly one greater than the previous valid request number)
+    # Checks if request number is valid (must be atleast within range of +1 to +100 or previous request number.)
     request_number = decrypted_data.request_number
-    if request_number != expected_request_number:
+
+    if not _is_valid_request_number(expected_request_number, request_number):
         request_number_error_body = {
             "message": "Request number provided does not match the expected value.",
             "expected_request_number": expected_request_number,
@@ -206,7 +228,8 @@ def relay_sms_request(body: SmsRelayRequestBody):
     response = _send_request_to_endpoint(method, endpoint, headers, json_body)
 
     # Update last received request number from user
-    user_utils.increment_sms_relay_expected_request_number(user.id)
+    if request_number == expected_request_number:
+        user_utils.increment_sms_relay_expected_request_number(user.id)
 
     # Creating Response
     response_code = response.status_code
