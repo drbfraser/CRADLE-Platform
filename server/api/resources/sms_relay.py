@@ -116,22 +116,26 @@ def _create_error_response(
 
 def _is_valid_request_number(expected_request_number, request_number):
     """
-    Confirms if the request number received from the client is valid.
-    A request number is valid if it is within the range of `0 to 100` above the expected request number.
-    Request numbers may wrap-around after the maximum value and start back at `0`.
+    Validates whether the request number received from the client is valid.
 
-    :param expected_request_number: Server expected request number from client.
-    :param request_number: Actual request number received from client request.
+    A request number is valid if it is within the range of `0 to 100` above
+    the expected request number. Request numbers may wrap-around after
+    reaching the maximum value and start again at `0`.
 
-    :return: Returns True if request number is valid. Else, returns False.
+    Refer to repository documentation for more details.
+
+    :param expected_request_number: Expected request number stored by server.
+    :param request_number: Actual request number received from the client request.
+
+    :return: Returns True if request number is valid, otherwise returns False.
     """
     MAX_RANGE_VALUE = 100
 
-    difference = (request_number - expected_request_number) % (
+    request_diff = (request_number - expected_request_number) % (
         MAX_SMS_RELAY_REQUEST_NUMBER + 1
     )
 
-    return 0 <= difference <= MAX_RANGE_VALUE
+    return 0 <= request_diff <= MAX_RANGE_VALUE
 
 
 _iv_size = 32
@@ -181,7 +185,6 @@ def relay_sms_request(body: SmsRelayRequestBody):
         json_dict_data = json.loads(string_data)
         # Convert keys to snake case.
         json_dict_data = decamelize(json_dict_data)
-        # return abort(401, description=error_message)
     except Exception:
         error_message = str(invalid_message.format(phone_number=phone_number))
         print(error_message)
