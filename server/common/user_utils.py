@@ -246,12 +246,12 @@ def register_user(
         )
         # Add phone numbers to database.
         for phone_number in phone_numbers:
-            user_orm.phone_numbers.append(UserPhoneNumberOrm(phone_number=phone_number))
+            phone_number_orm = _create_user_phone_number_orm(phone_number)
+            user_orm.phone_numbers.append(phone_number_orm)
+
         sms_secret_key_orm = create_new_sms_secret_key_orm()
         user_orm.sms_secret_keys.append(sms_secret_key_orm)
-        # Initiate expected SMS relay request number for user.
-        sms_relay_request_number_orm = create_new_sms_relay_request_number_orm()
-        user_orm.sms_relay_request_number = sms_relay_request_number_orm
+
         db.session.add(user_orm)
         db.session.commit()
 
@@ -392,7 +392,8 @@ def _update_user_phone_numbers(user_orm: UserOrm, phone_numbers: set[str]):
 
     # Add new phone numbers.
     for new_phone_number in new_phone_numbers:
-        user_orm.phone_numbers.append(UserPhoneNumberOrm(phone_number=new_phone_number))
+        phone_number_orm = _create_user_phone_number_orm(new_phone_number)
+        user_orm.phone_numbers.append(phone_number_orm)
 
 
 def update_user_phone_numbers(user_id: int, phone_numbers: set[str]):
@@ -474,6 +475,16 @@ def update_user(user_id: int, user_update_dict: dict[str, Any]):
     except Exception as e:
         db.session.rollback()
         raise ValueError(e)
+
+
+def _create_user_phone_number_orm(phone_number):
+    phone_num_orm = UserPhoneNumberOrm(phone_number=phone_number)
+
+    # Initiate expected SMS relay request number for user phone number.
+    sms_relay_request_number_orm = create_new_sms_relay_request_number_orm()
+    phone_num_orm.sms_relay_request_number = sms_relay_request_number_orm
+
+    return phone_num_orm
 
 
 def create_new_sms_secret_key_orm():
@@ -558,17 +569,17 @@ def create_new_sms_relay_request_number_orm():
     return sms_relay_request_number_orm
 
 
-def get_expected_sms_relay_request_number(user_id):
-    request_number_orm = crud.read(SmsRelayRequestNumberOrm, user_id=user_id)
+def get_expected_sms_relay_request_number(phone_number):
+    request_number_orm = crud.read(SmsRelayRequestNumberOrm, phone_number=phone_number)
     expected_request_number: int = request_number_orm.expected_request_number
     return expected_request_number
 
 
-def increment_sms_relay_expected_request_number(user_id):
-    last_request_number = get_expected_sms_relay_request_number(user_id)
+def increment_sms_relay_expected_request_number(phone_number):
+    last_request_number = get_expected_sms_relay_request_number(phone_number)
 
     updated_request_number = (last_request_number + 1) % MAX_SMS_RELAY_REQUEST_NUMBER
 
     new_request_number = {"expected_request_number": updated_request_number}
 
-    crud.update(SmsRelayRequestNumberOrm, new_request_number, user_id=user_id)
+    crud.update(SmsRelayRequestNumberOrm, new_request_number, phone_number=phone_number)

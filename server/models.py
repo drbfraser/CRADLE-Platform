@@ -71,13 +71,6 @@ class UserOrm(db.Model):
         lazy=True,
         cascade="all, delete-orphan",
     )
-    sms_relay_request_number = db.relationship(
-        "SmsRelayRequestNumberOrm",
-        back_populates="user",
-        lazy=True,
-        uselist=False,
-        cascade="all, delete-orphan",
-    )
 
     @staticmethod
     def schema():
@@ -98,6 +91,13 @@ class UserPhoneNumberOrm(db.Model):
 
     # RELATIONSHIPS
     user = db.relationship(UserOrm, back_populates="phone_numbers")
+    sms_relay_request_number = db.relationship(
+        "SmsRelayRequestNumberOrm",
+        back_populates="phone_number_ref",
+        lazy=True,
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
 
     @staticmethod
     def schema():
@@ -710,13 +710,15 @@ class SmsRelayRequestNumberOrm(db.Model):
     expected_request_number = db.Column(db.Integer, default=0, nullable=False)
 
     # FOREIGNKEY
-    user_id = db.Column(
-        db.ForeignKey("user.id", ondelete="CASCADE"), nullable=False, unique=True
+    phone_number = db.Column(
+        db.ForeignKey("user_phone_number.phone_number", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,
     )
 
     # RELATIONSHIPS
-    user = db.relationship(
-        UserOrm, back_populates="sms_relay_request_number", uselist=False
+    phone_number_ref = db.relationship(
+        UserPhoneNumberOrm, back_populates="sms_relay_request_number", uselist=False
     )
 
     @staticmethod

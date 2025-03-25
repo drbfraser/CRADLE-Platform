@@ -29,7 +29,7 @@ corrupted_message = (
 invalid_message = (
     "Unable to verify message from ({phone_number}). "
     "Either the App and server don't agree on the security key "
-    "or the message was corrupted. "
+    "or the message was corrupted."
 )
 
 invalid_user = "User does not exist"
@@ -196,7 +196,9 @@ def relay_sms_request(body: SmsRelayRequestBody):
         return abort(422, description=invalid_json.format(error=str(e)))
 
     # Gets next expected user request number
-    expected_request_number = user_utils.get_expected_sms_relay_request_number(user.id)
+    expected_request_number = user_utils.get_expected_sms_relay_request_number(
+        phone_number
+    )
     if expected_request_number is None:
         print("No expected request number found for user")
         return abort(500, description="Internal Server Error")
@@ -232,7 +234,7 @@ def relay_sms_request(body: SmsRelayRequestBody):
 
     # Update last received request number from user
     if request_number == expected_request_number:
-        user_utils.increment_sms_relay_expected_request_number(user.id)
+        user_utils.increment_sms_relay_expected_request_number(phone_number)
 
     # Creating Response
     response_code = response.status_code
