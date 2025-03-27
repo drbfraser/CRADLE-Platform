@@ -8,6 +8,7 @@ from humps import decamelize
 from pydantic import ValidationError
 
 from common import phone_number_utils, user_utils
+from common.constants import MAX_SMS_RELAY_REQUEST_NUMBER
 from service import compressor, encryptor
 from validation.sms_relay import (
     SmsRelayDecryptedBody,
@@ -19,8 +20,7 @@ error_messages = {
     "invalid_message": (
         "Unable to verify message from ({phone_number}). "
         "Either the App and server don't agree on the security key "
-        "or the message was corrupted. Retry the action or resync "
-        "with the server using an internet connection (WiFi, 3G, …) "
+        "or the message was corrupted."
     ),
     "invalid_user": "User does not exist",
     "invalid_json": "Invalid JSON Request Structure; {error}",
@@ -96,6 +96,30 @@ def _create_error_response(
     return response
 
 
+def _is_valid_request_number(expected_request_number, request_number):
+    """
+    Validates whether the request number received from the client is valid.
+
+    A request number is valid if it is within the range of `0 to 100` above
+    the expected request number. Request numbers may wrap-around after
+    reaching the maximum value and start again at `0`.
+
+    Refer to repository documentation for more details.
+
+    :param expected_request_number: Expected request number stored by server.
+    :param request_number: Actual request number received from the client request.
+
+    :return: Returns True if request number is valid, otherwise returns False.
+    """
+    MAX_RANGE_VALUE = 100
+
+    request_diff = (request_number - expected_request_number) % (
+        MAX_SMS_RELAY_REQUEST_NUMBER + 1
+    )
+
+    return 0 <= request_diff <= MAX_RANGE_VALUE
+
+
 _iv_size = 32
 
 # /api/sms_relay
@@ -159,7 +183,7 @@ def relay_sms_request(body: SmsRelayRequestBody):
             422, description=error_messages["invalid_json"].format(error=str(e))
         )
 
-    # Gets expected user request number
+    # Gets next expected user request number
     expected_request_number = user_utils.get_expected_sms_relay_request_number(
         phone_number
     )
@@ -167,9 +191,9 @@ def relay_sms_request(body: SmsRelayRequestBody):
         print("No expected request number found for user")
         return abort(500, description="Internal Server Error")
 
-    # Checks if request number is valid (must be exactly one greater than the previous valid request number)
+    # Checks if request number is valid (must be atleast within range of +1 to +100 or previous request number.)
     request_number = decrypted_data.request_number
-    if request_number != expected_request_number:
+    if not _is_valid_request_number(expected_request_number, request_number):
         request_number_error_body = {
             "message": "Request number provided does not match the expected value.",
             "expected_request_number": expected_request_number,
