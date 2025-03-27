@@ -9,6 +9,8 @@ import parsePhoneNumberFromString from 'libphonenumber-js';
 
 export { v4 as makeUniqueId } from 'uuid';
 
+export const DATE_FORMAT = 'YYYY-MM-DD';
+
 export const getTimestampFromWeeksDays = (
   weeks: string,
   days: string
@@ -196,7 +198,7 @@ export const getMomentDate = (dateS: OrNull<number>): moment.Moment => {
 export const getPrettyDate = (dateStr: number): string => {
   // * Date comes in from the backend in seconds
   // * Moment date requires milliseconds
-  return getMomentDate(dateStr * 1000).format('YYYY-MM-DD');
+  return getMomentDate(dateStr * 1000).format(DATE_FORMAT);
 };
 
 export const getPrettyDateTime = (dateStr: number): string => {
@@ -204,7 +206,7 @@ export const getPrettyDateTime = (dateStr: number): string => {
   // * Moment date requires milliseconds
   return getMomentDate(dateStr * 1000)
     .local()
-    .format('YYYY-MM-DD HH:mm:ss');
+    .format(`${DATE_FORMAT} HH:mm:ss`);
 };
 
 export const getYearToDisplay = (timestamp: number) => {
@@ -234,7 +236,7 @@ export const getAgeToDisplay = (dob: string, isExactDob: boolean) => {
 export const getDOBForEstimatedAge = (age: number) => {
   return moment()
     .subtract(age + 0.5, 'years')
-    .format('YYYY-MM-DD');
+    .format(DATE_FORMAT);
 };
 
 export const useGoBackWithFallback = () => {

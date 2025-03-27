@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { logoutUser } from 'src/redux/reducers/user/currentUser';
+import { clearCurrentUser } from 'src/redux/user-state';
 import { useAppDispatch } from '..';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,9 +8,10 @@ export const useLogout = () => {
   const dispatch = useAppDispatch();
 
   const handleLogout = useCallback(() => {
-    dispatch(logoutUser());
+    localStorage.removeItem('accessToken');
+    dispatch(clearCurrentUser());
     navigate('/');
-  }, [dispatch, logoutUser]);
+  }, [dispatch, navigate]);
 
   return {
     handleLogout,

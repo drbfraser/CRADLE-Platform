@@ -1,20 +1,20 @@
-import { useState } from 'react';
-import { Field, useFormikContext } from 'formik';
+import { Field, FieldProps, useFormikContext } from 'formik';
 import {
-  FormControl,
   Grid2 as Grid,
   Paper,
   MenuItem,
   SxProps,
+  ToggleButtonGroup,
   ToggleButton,
+  TextField,
 } from '@mui/material';
-import { Select, TextField, ToggleButtonGroup } from 'formik-mui';
+import { TextField as FormikTextField } from 'formik-mui';
+import { DatePicker } from '@mui/x-date-pickers';
 
-import { PatientIDExists } from './PatientIDExists';
-import { getPatientInfoAsync } from 'src/shared/api/api';
 import { sexOptions } from 'src/shared/constants';
-import { handleChangeCustom } from '../../handlers';
 import { PatientField, PatientState } from '../../state';
+import moment, { Moment } from 'moment';
+import { DATE_FORMAT } from 'src/shared/utils';
 
 const TOGGLE_SX: SxProps = {
   ':selected': {
@@ -25,54 +25,15 @@ const TOGGLE_SX: SxProps = {
   flexGrow: 1,
 };
 
-interface IProps {
-  creatingNew: boolean;
-}
-
-export const PersonalInfoForm = ({ creatingNew }: IProps) => {
+export const PersonalInfoForm = () => {
   const formikContext = useFormikContext<PatientState>();
-
-  // for *new* patients only, track whether the patient ID already exists
-  const [existingPatientId, setExistingPatientId] = useState<string | null>(
-    null
-  );
-
-  const handlePatientIdBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
-    formikContext.handleBlur(e);
-
-    try {
-      const patientId = e.target.value;
-      setExistingPatientId(patientId);
-      if (patientId) {
-        await getPatientInfoAsync(patientId);
-      }
-    } catch (e) {
-      setExistingPatientId(null);
-    }
-  };
 
   return (
     <Paper sx={{ padding: 2 }}>
       <Grid container spacing={2}>
         <Grid size={{ sm: 12, md: 4 }}>
           <Field
-            component={TextField}
-            fullWidth
-            required
-            inputProps={{ maxLength: 50 }}
-            variant="outlined"
-            label="Patient ID"
-            name={PatientField.patientId}
-            onBlur={handlePatientIdBlur}
-            disabled={!creatingNew}
-          />
-          {existingPatientId && (
-            <PatientIDExists patientId={existingPatientId} />
-          )}
-        </Grid>
-        <Grid size={{ sm: 12, md: 4 }}>
-          <Field
-            component={TextField}
+            component={FormikTextField}
             fullWidth
             required
             inputProps={{ maxLength: 50 }}
@@ -83,7 +44,7 @@ export const PersonalInfoForm = ({ creatingNew }: IProps) => {
         </Grid>
         <Grid size={{ sm: 12, md: 4 }}>
           <Field
-            component={TextField}
+            component={FormikTextField}
             fullWidth
             inputProps={{ maxLength: 50 }}
             variant="outlined"
@@ -93,38 +54,36 @@ export const PersonalInfoForm = ({ creatingNew }: IProps) => {
         </Grid>
         <Grid size={{ sm: 12, md: 4 }}>
           <Field
-            component={ToggleButtonGroup}
-            exclusive
-            size="large"
-            type="checkbox"
-            value={formikContext.values.isExactDateOfBirth}
-            name={PatientField.isExactDateOfBirth}
-            sx={{ width: '100%' }}>
-            <ToggleButton sx={TOGGLE_SX} value={true}>
-              Date of Birth
-            </ToggleButton>
-            <ToggleButton sx={TOGGLE_SX} value={false}>
-              Estimated Age
-            </ToggleButton>
-          </Field>
+            component={FormikTextField}
+            fullWidth
+            inputProps={{ maxLength: 50 }}
+            variant="outlined"
+            label="Village Number"
+            name={PatientField.villageNumber}
+          />
+        </Grid>
+        <Grid size={{ sm: 12, md: 4 }}>
+          <Field
+            component={FormikTextField}
+            fullWidth
+            inputProps={{ maxLength: 20 }}
+            variant="outlined"
+            label="Zone ID"
+            name={PatientField.zone}
+          />
+        </Grid>
+        <Grid size={{ sm: 12, md: 4 }}>
+          <IsExactDateOfBirthButtonGroup />
         </Grid>
         <Grid size={{ sm: 12, md: 2 }}>
           {formikContext.values.isExactDateOfBirth ? (
             <Field
-              component={TextField}
-              fullWidth
-              required
-              variant="outlined"
-              type="date"
-              label="Date of Birth"
+              component={DateOfBirthField}
               name={PatientField.dateOfBirth}
-              InputLabelProps={{
-                shrink: true,
-              }}
             />
           ) : (
             <Field
-              component={TextField}
+              component={FormikTextField}
               fullWidth
               required
               variant="outlined"
@@ -136,48 +95,11 @@ export const PersonalInfoForm = ({ creatingNew }: IProps) => {
           )}
         </Grid>
         <Grid size={{ sm: 12, md: 2 }}>
-          <FormControl fullWidth variant="outlined">
-            <Field
-              component={Select}
-              fullWidth
-              required
-              label="Gender *"
-              name={PatientField.patientSex}
-              onChange={handleChangeCustom(
-                formikContext.handleChange,
-                formikContext.setFieldValue
-              )}>
-              {Object.entries(sexOptions).map(([value, name]) => (
-                <MenuItem key={value} value={value}>
-                  {name}
-                </MenuItem>
-              ))}
-            </Field>
-          </FormControl>
+          <SexField />
         </Grid>
-        <Grid size={{ sm: 12, md: 2 }}>
+        <Grid size={12}>
           <Field
-            component={TextField}
-            fullWidth
-            inputProps={{ maxLength: 20 }}
-            variant="outlined"
-            label="Zone ID"
-            name={PatientField.zone}
-          />
-        </Grid>
-        <Grid size={{ sm: 12, md: 2 }}>
-          <Field
-            component={TextField}
-            fullWidth
-            inputProps={{ maxLength: 50 }}
-            variant="outlined"
-            label="Village Number"
-            name={PatientField.villageNumber}
-          />
-        </Grid>
-        <Grid size={{ sm: 12, md: 6 }}>
-          <Field
-            component={TextField}
+            component={FormikTextField}
             fullWidth
             multiline
             rows={4}
@@ -188,5 +110,71 @@ export const PersonalInfoForm = ({ creatingNew }: IProps) => {
         </Grid>
       </Grid>
     </Paper>
+  );
+};
+
+const DateOfBirthField = ({ field, form, meta }: FieldProps<string>) => {
+  const handleChange = async (value: Moment | null) => {
+    const stringValue = value ? value.format(DATE_FORMAT) : '';
+    await form.setFieldValue(field.name, stringValue);
+  };
+  const fieldProps = {
+    ...field,
+    value:
+      field.value.trim().length === 0 ? null : moment(field.value, DATE_FORMAT),
+    onChange: handleChange,
+  };
+  return <DatePicker label={'Date of Birth'} disableFuture {...fieldProps} />;
+};
+
+const IsExactDateOfBirthButtonGroup = () => {
+  const fieldName = PatientField.isExactDateOfBirth;
+  const formikContext = useFormikContext<PatientState>();
+  const { setValue } = formikContext.getFieldHelpers(fieldName);
+  const value = formikContext.values[fieldName];
+  return (
+    <ToggleButtonGroup
+      value={value}
+      exclusive
+      size="large"
+      sx={{ width: '100%' }}
+      onChange={(_, value) => {
+        if (value !== null) {
+          setValue(value);
+        }
+      }}>
+      <ToggleButton sx={TOGGLE_SX} value={true}>
+        Date of Birth
+      </ToggleButton>
+      <ToggleButton sx={TOGGLE_SX} value={false}>
+        Estimated Age
+      </ToggleButton>
+    </ToggleButtonGroup>
+  );
+};
+
+const SexField = () => {
+  const fieldName = PatientField.patientSex;
+  const formikContext = useFormikContext<PatientState>();
+  const { setValue } = formikContext.getFieldHelpers(fieldName);
+  const value = formikContext.values[fieldName];
+  return (
+    <TextField
+      select
+      name={fieldName}
+      label="Sex"
+      value={value}
+      variant="outlined"
+      fullWidth
+      required
+      onChange={(event) => {
+        setValue(event.target.value);
+      }}>
+      {Object.entries(sexOptions).map(([value, name]) => (
+        <MenuItem key={value} value={value}>
+          {name}
+        </MenuItem>
+      ))}
+    </TextField>
   );
 };

@@ -33,7 +33,7 @@ const ChangePasswordDialog = ({ open, onClose }: IProps) => {
       ),
   });
 
-  const handleSubmit = async (values: IPasswordForm) => {
+  const handleSubmit = (values: IPasswordForm) => {
     changePassword.mutate(values, {
       onSuccess: () => onClose(),
     });

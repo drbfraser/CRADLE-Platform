@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Form, Formik, FormikProps } from 'formik';
+import { useQuery } from '@tanstack/react-query';
 import { Box, LinearProgress } from '@mui/material';
 
 import { ConfirmDialog } from 'src/shared/components/confirmDialog';
@@ -15,7 +16,6 @@ import PatientFormHeader from './PatientFormHeader';
 import { pregnancyInfoValidationSchema } from './pregnancyInfo/validation';
 import { PregnancyInfoForm } from './pregnancyInfo';
 import { getPregnancyValues } from './pregnancyInfo/utils';
-import { useQuery } from '@tanstack/react-query';
 import { getPregnancyAsync } from 'src/shared/api/api';
 import { GestationalAgeUnitEnum } from 'src/shared/enums';
 import { Pregnancy } from 'src/shared/types';

@@ -46,8 +46,7 @@ class GetAllFormTemplatesQuery(CradleBaseModel):
 def get_all_form_templates(query: GetAllFormTemplatesQuery):
     """Get All Form Templates"""
     filters: dict = {}
-    if not query.include_archived:
-        filters["archived"] = 0
+    filters["archived"] = 1 if query.include_archived else 0
 
     form_templates = crud.read_all(FormTemplateOrm, **filters)
 

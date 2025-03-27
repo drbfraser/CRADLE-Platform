@@ -1,35 +1,30 @@
-import { FormTemplateWithQuestions } from 'src/shared/types';
-import Tooltip from '@mui/material/Tooltip';
-import IconButton from '@mui/material/IconButton';
-import InfoIcon from '@mui/icons-material/Info';
-import { getLanguages } from 'src/shared/utils';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import Typography from '@mui/material/Typography';
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Field, Form, Formik } from 'formik';
 import {
   Box,
-  Checkbox,
-  FormControl,
   Grid,
+  IconButton,
   InputAdornment,
   Paper,
+  Skeleton,
+  TextField,
+  Tooltip,
+  Typography,
 } from '@mui/material';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-import TextField from '@mui/material/TextField';
-import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import { PrimaryButton } from 'src/shared/components/Button';
-import { FormRenderStateEnum } from 'src/shared/enums';
-import { LanguageModalProps } from 'src/shared/types';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { CustomizedFormWQuestions } from 'src/pages/customizedForm/customizedEditForm/CustomizedFormWQuestions';
-import { getFormClassificationTemplates } from 'src/shared/api/api';
+import InfoIcon from '@mui/icons-material/Info';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import moment from 'moment';
+
+import { FormTemplateWithQuestions } from 'src/shared/types';
+import { FormRenderStateEnum } from 'src/shared/enums';
+import { CustomizedFormWQuestions } from 'src/pages/customizedForm/components/CustomizedFormWQuestions';
+import {
+  useFormTemplateQuery,
+  usePreviousFormVersionsQuery,
+} from 'src/pages/customizedForm/queries';
+import LanguageModal from './LanguageModal';
+import { getDefaultLanguage } from './utils';
 
 export enum FormEditMainComponents {
   title = 'title',
@@ -43,80 +38,46 @@ export const initialState = {
   [FormEditMainComponents.languages]: '',
 };
 
-//Convert language code to language name
-export const getLanguageName = (langCode: any): string => {
-  const language: string =
-    new Intl.DisplayNames(['en'], { type: 'language' }).of(langCode) ||
-    'English';
-  return language;
-};
-
-//Check if returned browser language name is part of built in languages
-export const getDefaultLanguage = () => {
-  const browserLanguage: string = getLanguageName(
-    navigator.language || window.navigator.language
-  );
-  const languageOptions = getLanguages();
-  let defaultLang = languageOptions[0];
-  languageOptions.forEach((languageOption) => {
-    const language = languageOption === undefined ? '' : languageOption;
-    if (browserLanguage.includes(language)) {
-      defaultLang = language;
-    }
-  });
-  return defaultLang;
-};
-
 export const CustomFormTemplate = () => {
+  const navigate = useNavigate();
   const location = useLocation();
-  const targetForm = location.state as FormTemplateWithQuestions;
-  const [submitError, setSubmitError] = useState(false);
-  const browserLanguage =
-    getDefaultLanguage() === undefined ? 'English' : getDefaultLanguage();
-  const [language, setLanguage] = useState<string[]>(
-    targetForm?.questions[0].langVersions.map((q) => q.lang) ?? [
-      browserLanguage,
-    ]
-  );
+  const editFormId = location.state?.editFormId as string | undefined;
 
   const defaultVersion: string = moment
     .utc(new Date(Date.now()).toUTCString())
     .format('YYYY-MM-DD HH:mm:ss z');
 
-  const [form, setForm] = useState<FormTemplateWithQuestions>(
-    targetForm
-      ? {
-          classification: targetForm.classification,
-          version: targetForm.version,
-          questions: targetForm.questions,
-        }
-      : {
-          classification: { name: 'string', id: undefined },
-          version: defaultVersion,
-          questions: [],
-        }
+  const [form, setForm] = useState<FormTemplateWithQuestions>({
+    classification: { name: 'string', id: undefined },
+    version: defaultVersion,
+    questions: [],
+  });
+  const [versionError, setVersionError] = useState<boolean>(false);
+
+  const formTemplateQuery = useFormTemplateQuery(editFormId);
+  const previousVersionsQuery = usePreviousFormVersionsQuery(
+    formTemplateQuery.data
   );
 
-  const [versionError, setVersionError] = useState<boolean>(
-    targetForm ? true : false
-  );
-
-  const getFormVersions = async (formClassificationId: string) => {
-    const formTemplates = await getFormClassificationTemplates(
-      formClassificationId
-    );
-    return formTemplates.map((form: FormTemplateWithQuestions) => form.version);
-  };
-
-  let previousVersions: string[] = [];
-  (async () => {
-    if (targetForm?.classification?.id) {
-      previousVersions = await getFormVersions(targetForm.classification.id);
+  useEffect(() => {
+    if (formTemplateQuery.data) {
+      const { classification, version, questions } = formTemplateQuery.data;
+      setForm({ classification, version, questions });
+      setVersionError(true);
     }
-  })();
+  }, [formTemplateQuery.data]);
 
-  const navigate = useNavigate();
+  const browserLanguage = getDefaultLanguage() ?? 'English';
+  const [language, setLanguage] = useState<string[]>(
+    formTemplateQuery.data?.questions[0].langVersions?.map((q) => q.lang) ?? [
+      browserLanguage,
+    ]
+  );
 
+  const isLoading =
+    editFormId &&
+    formTemplateQuery.isPending &&
+    previousVersionsQuery.isPending;
   return (
     <>
       <Box sx={{ display: `flex`, alignItems: `center` }}>
@@ -129,24 +90,26 @@ export const CustomFormTemplate = () => {
         </Tooltip>
         {/*TODO: Allow template name to change depending on if we are editing a new or existing form template*/}
         <Typography variant={'h4'} component={'h4'}>
-          {targetForm ? 'Edit Template' : 'Create New Template'}
+          {editFormId ? 'Edit Template' : 'Create New Template'}
         </Typography>
       </Box>
-      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
-      <Formik
-        initialValues={initialState}
-        onSubmit={() => {
-          // TODO: Handle Form Template create/edit form submission
-          console.log('Temp');
-        }}
-        validationSchema={() => {
-          // TODO: Create a validation schema to ensure that all the values are filled in as expected
-          console.log('Temp');
-        }}>
-        {() => (
-          <Form>
-            <Paper>
-              <Box p={4} pt={6} m={2}>
+
+      {isLoading ? (
+        <Skeleton variant="rectangular" height={400} />
+      ) : (
+        <Formik
+          initialValues={initialState}
+          onSubmit={() => {
+            // TODO: Handle Form Template create/edit form submission
+            console.log('Temp');
+          }}
+          validationSchema={() => {
+            // TODO: Create a validation schema to ensure that all the values are filled in as expected
+            console.log('Temp');
+          }}>
+          {() => (
+            <Form>
+              <Paper sx={{ p: 4 }}>
                 <Grid container spacing={3}>
                   <Grid item xs={12}>
                     <h2>Custom Form Properties</h2>
@@ -158,7 +121,9 @@ export const CustomFormTemplate = () => {
                       component={TextField}
                       required={true}
                       variant="outlined"
-                      defaultValue={targetForm?.classification?.name ?? ''}
+                      defaultValue={
+                        formTemplateQuery.data?.classification?.name ?? ''
+                      }
                       fullWidth
                       inputProps={{
                         // TODO: Determine what types of input restrictions we should have for title
@@ -191,7 +156,9 @@ export const CustomFormTemplate = () => {
                       required={true}
                       variant="outlined"
                       defaultValue={
-                        targetForm ? targetForm.version : defaultVersion
+                        formTemplateQuery.data
+                          ? formTemplateQuery.data.version
+                          : defaultVersion
                       }
                       error={versionError}
                       helperText={
@@ -205,7 +172,8 @@ export const CustomFormTemplate = () => {
                       onChange={(e: any) => {
                         form.version = e.target.value;
                         setVersionError(
-                          previousVersions.includes(form.version)
+                          previousVersionsQuery.data?.includes(form.version) ??
+                            false
                         );
                       }}
                       InputProps={{
@@ -214,7 +182,7 @@ export const CustomFormTemplate = () => {
                             disableFocusListener
                             disableTouchListener
                             title={
-                              targetForm
+                              editFormId
                                 ? 'Edit your form Version here'
                                 : 'Edit your form Version here. By default, Version is set to the current DateTime but can be edited'
                             }
@@ -237,150 +205,19 @@ export const CustomFormTemplate = () => {
                     />
                   </Grid>
                 </Grid>
-              </Box>
-            </Paper>
-            <CustomizedFormWQuestions
-              fm={form}
-              languages={language}
-              renderState={FormRenderStateEnum.SUBMIT_TEMPLATE}
-              setForm={setForm}
-              versionError={versionError}
-            />
-          </Form>
-        )}
-      </Formik>
-    </>
-  );
-};
+              </Paper>
 
-const LanguageModal = ({ language, setLanguage }: LanguageModalProps) => {
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [showLanguageWarning, setShowLanguageWarning] =
-    useState<boolean>(false);
-  const languageOptions = getLanguages();
-
-  // handles the change of the multi-select language
-  const handleLanguageChange = (
-    target: string,
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    if (event.target.checked) {
-      setLanguage((prevState) => {
-        return [...prevState, target];
-      });
-    } else {
-      setLanguage((prevState) => {
-        const newLanguage = prevState.filter((language) => language !== target);
-        // making sure at least one language is selected
-        if (newLanguage.length === 0) {
-          setShowLanguageWarning(true);
-          return prevState;
-        } else {
-          return [...newLanguage];
-        }
-      });
-    }
-  };
-
-  return (
-    <>
-      <TextField
-        aria-readonly
-        label={'Language'}
-        fullWidth
-        required={true}
-        focused={showModal}
-        multiline
-        variant="outlined"
-        value={language.join(', ')}
-        onClick={() => setShowModal(true)}
-        InputProps={{
-          endAdornment: (
-            <Tooltip
-              disableFocusListener
-              disableTouchListener
-              title={'Select your form languages here'}
-              arrow>
-              <InputAdornment position="end">
-                <IconButton>
-                  <InfoIcon fontSize="small" />
-                </IconButton>
-              </InputAdornment>
-            </Tooltip>
-          ),
-        }}
-      />
-      <Dialog
-        fullWidth
-        maxWidth={'md'}
-        onClose={() => setShowModal(false)}
-        open={showModal}>
-        <DialogTitle>Language *</DialogTitle>
-        <DialogContent dividers={true}>
-          <FormControl fullWidth variant="outlined">
-            <FormGroup>
-              <Grid
-                container
-                spacing={1}
-                sx={{
-                  marginLeft: 'auto',
-                  marginRight: 'auto',
-                }}>
-                {languageOptions.map((value) => {
-                  if (value === undefined) {
-                    return <></>;
-                  }
-                  return (
-                    <Grid item key={value} xs={4}>
-                      <FormControlLabel
-                        label={value}
-                        control={
-                          <Checkbox
-                            onChange={(
-                              event: React.ChangeEvent<HTMLInputElement>
-                            ) => handleLanguageChange(value, event)}
-                            checked={language.indexOf(value) > -1}
-                          />
-                        }
-                      />
-                    </Grid>
-                  );
-                })}
-              </Grid>
-            </FormGroup>
-          </FormControl>
-        </DialogContent>
-        <DialogActions>
-          <PrimaryButton
-            sx={{
-              height: '100%',
-              marginLeft: '10px',
-            }}
-            onClick={() => setShowModal(false)}>
-            Close
-          </PrimaryButton>
-        </DialogActions>
-      </Dialog>
-      <Dialog
-        onClose={() => setShowLanguageWarning(false)}
-        open={showLanguageWarning}>
-        <DialogTitle>Must have at least one language</DialogTitle>
-        <DialogContent>
-          <Typography>
-            You must select at least one language for this form.
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <PrimaryButton
-            sx={{
-              height: '100%',
-              marginLeft: '10px',
-            }}
-            onClick={() => setShowLanguageWarning(false)}>
-            OK
-          </PrimaryButton>
-        </DialogActions>
-      </Dialog>
+              <CustomizedFormWQuestions
+                fm={form}
+                languages={language}
+                renderState={FormRenderStateEnum.SUBMIT_TEMPLATE}
+                setForm={setForm}
+                versionError={versionError}
+              />
+            </Form>
+          )}
+        </Formik>
+      )}
     </>
   );
 };

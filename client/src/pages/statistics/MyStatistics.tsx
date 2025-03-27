@@ -1,12 +1,11 @@
 import { Box, Divider, Typography } from '@mui/material';
 
 import { getUserStatisticsExportAsync } from 'src/shared/api/apiStatistics';
-import { useAppSelector } from 'src/shared/hooks';
-import { selectCurrentUser } from 'src/redux/reducers/user/currentUser';
 import { useUserStatsQuery } from './utils/queries';
 import { ExportStatistics } from './utils/ExportStatistics';
 import { StatisticDashboard } from './utils/StatisticsDashboard';
 import { DIVIDER_SX, STATS_PAGE_SX } from './utils/statisticStyles';
+import { useCurrentUser } from 'src/shared/hooks/auth/useCurrentUser';
 
 type MyStatisticsProps = {
   from: number;
@@ -14,7 +13,7 @@ type MyStatisticsProps = {
 };
 
 export const MyStatistics = ({ from, to }: MyStatisticsProps) => {
-  const { data: currentUser } = useAppSelector(selectCurrentUser);
+  const currentUser = useCurrentUser();
   const userId = currentUser?.id;
 
   // query only runs when userId is defined so we can use the non-null assertion operator

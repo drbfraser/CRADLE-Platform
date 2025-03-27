@@ -19,7 +19,7 @@ export default defineConfig({
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 2 : 2,
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
@@ -33,10 +33,27 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
 
+  timeout: 60_000,
+  expect: {
+    timeout: 10_000,
+  },
+
   /* Configure projects for major browsers */
   projects: [
     // Setup project.
-    { name: 'setup', testMatch: /.*\.setup\.ts/ },
+    {
+      name: 'setup',
+      testMatch: /.*\.setup\.ts/,
+      teardown: 'teardown',
+    },
+    {
+      name: 'teardown',
+      testMatch: /.*teardown\.ts/,
+      use: {
+        // Use auth state.
+        storageState: AUTH_FILE,
+      },
+    },
     {
       name: 'chromium',
       use: {
@@ -52,6 +69,13 @@ export default defineConfig({
         ...devices['Desktop Firefox'],
         // Use auth state.
         storageState: AUTH_FILE,
+        launchOptions: {
+          // This is needed to make MUI datepickers work properly on firefox.
+          firefoxUserPrefs: {
+            'ui.primaryPointerCapabilities': 0x02 | 0x04,
+            'ui.allPointerCapabilities': 0x02 | 0x04,
+          },
+        },
       },
       dependencies: ['setup'],
     },

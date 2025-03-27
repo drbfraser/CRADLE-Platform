@@ -153,7 +153,7 @@ def admin_patient_view(user: dict, **kwargs) -> List[Any]:
 
     :param user: JWT identity
     :param **kwargs: Optional query criteria
-    :return: A list of patients each with the fields patient_id, patient_name, is_archived
+    :return: A list of patients each with the fields id, name, is_archived
     """
     return __get_view(user, crud.read_admin_patient, **kwargs)
 

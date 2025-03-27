@@ -16,7 +16,6 @@ import { Patient } from 'src/shared/types';
 import { getAgeBasedOnDOB } from 'src/shared/utils';
 
 export type PatientData = {
-  id: string;
   name: string;
   householdNumber: string;
   isExactDateOfBirth: boolean;
@@ -29,11 +28,7 @@ export type PatientData = {
   allergy: string;
 };
 
-export const getPatientData = (
-  values: PatientState,
-  patientId?: string
-): PatientData => ({
-  id: patientId ?? values[PatientField.patientId],
+export const getPatientData = (values: PatientState): PatientData => ({
   name: values[PatientField.patientName],
   householdNumber: values[PatientField.householdNumber],
   isExactDateOfBirth: Boolean(values[PatientField.isExactDateOfBirth]),
@@ -81,7 +76,7 @@ const EditPersonalInfoForm = () => {
   }
 
   const handleSubmit = (values: PatientState) => {
-    const patientData = getPatientData(values, patientId);
+    const patientData = getPatientData(values);
     updatePatient.mutate(patientData, {
       onSuccess: () => navigate(`/patients/${patientId}`),
     });
@@ -105,10 +100,10 @@ const EditPersonalInfoForm = () => {
             ...patientInfoQuery.data,
           } as unknown as PatientState
         }
-        validationSchema={personalInfoValidationSchema(false)}
+        validationSchema={personalInfoValidationSchema}
         onSubmit={handleSubmit}>
         <Form>
-          <PersonalInfoForm creatingNew={false} />
+          <PersonalInfoForm />
           <PrimaryButton
             sx={{ marginTop: '1rem', float: 'right' }}
             type="submit"

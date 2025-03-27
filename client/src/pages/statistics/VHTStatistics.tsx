@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useSelector } from 'react-redux';
 import {
   Box,
   Divider,
@@ -12,11 +11,9 @@ import {
   Typography,
 } from '@mui/material';
 
-import { ReduxState } from 'src/redux/reducers';
 import { getVHTsAsync } from 'src/shared/api/api';
 import { getUserStatisticsExportAsync } from 'src/shared/api/apiStatistics';
 import { UserRoleEnum } from 'src/shared/enums';
-import { UserWithToken, OrNull } from 'src/shared/types';
 import {
   DIVIDER_SX,
   FORM_CTRL_SX,
@@ -25,22 +22,15 @@ import {
 import { StatisticDashboard } from './utils/StatisticsDashboard';
 import { ExportStatistics } from './utils/ExportStatistics';
 import { useUserStatsQuery } from './utils/queries';
+import { useCurrentUser } from 'src/shared/hooks/auth/useCurrentUser';
 
 type Props = {
   from: number;
   to: number;
 };
 
-type User = {
-  user: OrNull<UserWithToken>;
-};
-
 export const VHTStatistics = ({ from, to }: Props) => {
-  const { user } = useSelector(
-    ({ user }: ReduxState): User => ({
-      user: user.current.data,
-    })
-  );
+  const currentUser = useCurrentUser();
 
   const [vht, setVht] = useState('');
 
@@ -49,14 +39,20 @@ export const VHTStatistics = ({ from, to }: Props) => {
     queryKey: ['allVHTs'],
     queryFn: getVHTsAsync,
     select: (data) => {
-      if (user?.role === UserRoleEnum.CHO) {
-        return data.filter((vht) => user.supervises.includes(vht.userId));
+      if (currentUser?.role === UserRoleEnum.CHO) {
+        return data.filter((vht) =>
+          currentUser.supervises.includes(vht.userId)
+        );
       }
       return data;
     },
   });
 
-  if (user && user.role === UserRoleEnum.CHO && user.supervises.length === 0) {
+  if (
+    currentUser &&
+    currentUser.role === UserRoleEnum.CHO &&
+    currentUser.supervises.length === 0
+  ) {
     return (
       <Box>
         <Typography variant="h5" gutterBottom>

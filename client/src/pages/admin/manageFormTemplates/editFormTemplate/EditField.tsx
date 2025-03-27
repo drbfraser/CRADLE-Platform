@@ -9,6 +9,7 @@ import {
   IconButton,
   Radio,
   RadioGroup,
+  Stack,
   Switch,
   Tooltip,
 } from '@mui/material';
@@ -32,6 +33,7 @@ import EditVisibleCondition from './EditVisibleCondition';
 import MultiChoice from './multiFieldComponents/MultiChoiceField';
 import MultiSelect from './multiFieldComponents/MultiSelectField';
 import * as handlers from './multiFieldComponents/handlers';
+import CustomNumberField from 'src/shared/components/Form/CustomNumberField';
 
 interface IProps {
   open: boolean;
@@ -92,6 +94,9 @@ const EditField = ({
   const [isNumOfLinesRestricted, setIsNumOfLinesRestricted] = useState(
     Number(stringMaxLines) > 0
   );
+  const [numMin, setNumMin] = useState<number | null>(null);
+  const [numMax, setNumMax] = useState<number | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const removeAllMultChoices = () => {
     questionLangVersions.forEach((qLangVersion) => {
@@ -115,6 +120,22 @@ const EditField = ({
     return mcOptionValue;
   };
 
+  const validateNumberFields = (
+    newMin: number | null,
+    newMax: number | null
+  ) => {
+    if (newMin !== null && newMax !== null) {
+      if (newMin > newMax) {
+        setValidationError(
+          `Minimum value cannot be greater than maximum value. ${newMax}`
+        );
+        return;
+      }
+    }
+
+    setValidationError(null);
+  };
+
   const fieldTypes: FieldTypes = {
     category: {
       value: 'category',
@@ -127,9 +148,35 @@ const EditField = ({
       label: 'Number',
       type: QuestionTypeEnum.INTEGER,
       render: () => (
-        <>
-          {/*TODO: Handle what is displayed when Number field type is selected*/}
-        </>
+        <Grid item xs={12} sm={6}>
+          <Stack direction={'row'} gap={2}>
+            <CustomNumberField
+              label="Minimum Value"
+              id="number-field-min"
+              value={numMin}
+              onChange={(event) => {
+                const value = Number.parseFloat(event.target.value);
+                setNumMin(value);
+                validateNumberFields(value, numMax);
+              }}
+            />
+            <CustomNumberField
+              label="Maximum Value"
+              id="number-field-max"
+              value={numMax}
+              onChange={(event) => {
+                const value = Number.parseFloat(event.target.value);
+                setNumMax(value);
+                validateNumberFields(numMin, value);
+              }}
+            />
+          </Stack>
+          {validationError && (
+            <Typography color="error" variant="body2">
+              {validationError}
+            </Typography>
+          )}
+        </Grid>
       ),
     },
     text: {
@@ -260,6 +307,12 @@ const EditField = ({
   };
 
   useEffect(() => {
+    if (open) {
+      setValidationError(null);
+    }
+  }, [open]);
+
+  useEffect(() => {
     setIsVisCondAnswered(!visibilityToggle);
     setFieldChanged(!fieldChanged);
   }, [visibilityToggle]);
@@ -361,6 +414,8 @@ const EditField = ({
         setAllowPastDates(question.allowPastDates);
         setStringMaxLines(question.stringMaxLines);
         setIsNumOfLinesRestricted(question.stringMaxLines ? true : false);
+        setNumMin(question.numMin ?? null);
+        setNumMax(question.numMax ?? null);
       }
       // create new field
       else {
@@ -373,6 +428,8 @@ const EditField = ({
         setAllowPastDates(true);
         setIsNumOfLinesRestricted(false);
         setStringMaxLines(null);
+        setNumMin(null);
+        setNumMax(null);
       }
     }
     // Check if all fields are filled
@@ -496,6 +553,7 @@ const EditField = ({
                 />
               </Grid>
             )}
+
             <Grid item container sm={12} md={2} lg={2}>
               <FormLabel id="field-type-label">
                 <Typography variant="h6">Field Type</Typography>
@@ -751,7 +809,7 @@ const EditField = ({
           </CancelButton>
           <PrimaryButton
             type="submit"
-            disabled={isSaveDisabled}
+            disabled={isSaveDisabled || validationError !== null}
             onClick={() => {
               if (setForm) {
                 if (fieldType != 'mult_choice' && fieldType != 'mult_select') {
@@ -783,6 +841,8 @@ const EditField = ({
                       questionToUpdate.allowFutureDates = allowFutureDates;
                       questionToUpdate.allowPastDates = allowPastDates;
                       questionToUpdate.stringMaxLines = finalStringMaxLines;
+                      questionToUpdate.numMin = numMin;
+                      questionToUpdate.numMax = numMax;
                     }
                   }
                   // create new field
@@ -807,8 +867,8 @@ const EditField = ({
                       required: isRequired,
                       allowFutureDates: allowFutureDates,
                       allowPastDates: allowPastDates,
-                      numMin: null,
-                      numMax: null,
+                      numMin: numMin,
+                      numMax: numMax,
                       stringMaxLength: null,
                       stringMaxLines: finalStringMaxLines,
                       units: null,

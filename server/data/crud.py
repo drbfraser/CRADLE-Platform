@@ -288,7 +288,7 @@ def read_admin_patient(
     )
     include_archived = kwargs.get("include_archived")
 
-    if include_archived == "false":
+    if not include_archived:
         query = query.filter(
             or_(PatientOrm.is_archived == False, PatientOrm.is_archived.is_(None)),
         )
@@ -1297,7 +1297,7 @@ def __filter_by_patient_association(
 
 
 def __filter_by_patient_search(query: Query, **kwargs) -> Query:
-    search_text = kwargs.get("search_text")
+    search_text = kwargs.get("search")
     if search_text:
         search_text = f"%{search_text}%"
         query = query.filter(
