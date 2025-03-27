@@ -160,7 +160,9 @@ def relay_sms_request(body: SmsRelayRequestBody):
         )
 
     # Gets expected user request number
-    expected_request_number = user_utils.get_expected_sms_relay_request_number(user.id)
+    expected_request_number = user_utils.get_expected_sms_relay_request_number(
+        phone_number
+    )
     if expected_request_number is None:
         print("No expected request number found for user")
         return abort(500, description="Internal Server Error")
@@ -194,7 +196,8 @@ def relay_sms_request(body: SmsRelayRequestBody):
     response = _send_request_to_endpoint(method, endpoint, headers, json_body)
 
     # Update last received request number from user
-    user_utils.increment_sms_relay_expected_request_number(user.id)
+    if request_number == expected_request_number:
+        user_utils.increment_sms_relay_expected_request_number(phone_number)
 
     # Creating Response
     response_code = response.status_code
