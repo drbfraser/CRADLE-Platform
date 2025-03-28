@@ -135,12 +135,13 @@
 	3. If another error occurs, it prints an error message.
 
 ## Request Numbers
-1. Server stores the next expected request number for each Client (user); Initially, the Server sets the expected request number to be `0`, meaning the Client's first request should use request number `0`.
-2. Request number is included in both the plain-text SMS header, and in the encrypted message body. Both of these numbers should be identical to ensure consistency.
-3. SMS Relay app uses the plain-text SMS header’s request number to:
+1. Server stores the next expected request number for each User's phone number; Initially, the Server sets the expected request number to be `0`, meaning the Client's first request should use request number `0`.
+	- Storing request numbers by phone number reduces the amount of failures in scenarios where a user may send in requests from different devices.
+3. Request number is included in both the plain-text SMS header, and in the encrypted message body. Both of these numbers should be identical to ensure consistency.
+4. SMS Relay app uses the plain-text SMS header’s request number to:
 	- Identify which request each received fragment belongs to.
 	- Track when the user sends a new request.
-4. Server uses encrypted request number to guard against replay attacks:
+5. Server uses encrypted request number to guard against replay attacks:
 	1. Server stores the next expected request number per user.
 	2. Each request from a user must have a request number that is within the range of `0 to 100` above the expected request number.
 		
@@ -171,7 +172,7 @@
 
 	5. There is no need to have a mechanism to reset the request numbers because the protocol can handle when a user’s request number wraps around. 
 	
-6. The request number increments with every request sent by the Client (on Mobile), regardless of whether the server response was a success of failure. This ensures every unique request has a different request number.
+6. On Mobile (Client side), the request number increments with every request sent, regardless of whether the server response was a success or failure. This ensures every unique request has a different request number.
 
 ## Future Ideas
 1. Allow mechanism for Client and Server to exchange encryption key without needing HTTPS connection.
