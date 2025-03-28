@@ -191,7 +191,7 @@ def relay_sms_request(body: SmsRelayRequestBody):
         print("No expected request number found for user")
         return abort(500, description="Internal Server Error")
 
-    # Checks if request number is valid (must be atleast within range of +1 to +100 or previous request number.)
+    # Checks if request number is valid
     request_number = decrypted_data.request_number
     if not _is_valid_request_number(expected_request_number, request_number):
         request_number_error_body = {
@@ -219,7 +219,7 @@ def relay_sms_request(body: SmsRelayRequestBody):
     endpoint = decrypted_data.endpoint
     response = _send_request_to_endpoint(method, endpoint, headers, json_body)
 
-    # Update last received request number from user
+    # Update expected request number from user
     if request_number == expected_request_number:
         user_utils.increment_sms_relay_expected_request_number(phone_number)
 
