@@ -19,7 +19,7 @@ from server.system_tests.utils.sms_relay import (
 )
 
 sms_relay_endpoint = "/api/sms_relay"
-USER_ID = 1
+USER_PHONE_NUMBER = "+15555215556"
 
 
 def test_create_patient_with_sms_relay(database, api_post, auth_header):
@@ -30,7 +30,7 @@ def test_create_patient_with_sms_relay(database, api_post, auth_header):
     ]
 
     patient_json = __make_patient(patient_id, reading_ids)
-    request_number = user_utils.get_expected_sms_relay_request_number(USER_ID)
+    request_number = user_utils.get_expected_sms_relay_request_number(USER_PHONE_NUMBER)
     request_body = make_sms_relay_json(
         request_number=request_number,
         method="POST",
@@ -71,7 +71,7 @@ def test_create_referral_with_sms_relay(
     referral_id = "65acfe28-b0d6-4a63-a484-eceb3277fb4e"
     referral_json = __make_referral(referral_id, patient_id)
 
-    request_number = user_utils.get_expected_sms_relay_request_number(USER_ID)
+    request_number = user_utils.get_expected_sms_relay_request_number(USER_PHONE_NUMBER)
     request_body = make_sms_relay_json(
         request_number,
         method="POST",
@@ -109,7 +109,7 @@ def test_create_readings_with_sms_relay(
     reading_id = "65acfe28-b0d6-4a63-a484-eceb3277fb4e"
     referral_json = __make_reading(reading_id, patient_id)
 
-    request_number = user_utils.get_expected_sms_relay_request_number(USER_ID)
+    request_number = user_utils.get_expected_sms_relay_request_number(USER_PHONE_NUMBER)
     request_body = make_sms_relay_json(
         request_number=request_number,
         method="POST",
@@ -148,7 +148,7 @@ def test_update_patient_name_with_sms_relay(
     patient = decamelize(response.json())
     patient["name"] = new_patient_name
 
-    request_number = user_utils.get_expected_sms_relay_request_number(USER_ID)
+    request_number = user_utils.get_expected_sms_relay_request_number(USER_PHONE_NUMBER)
     request_body = make_sms_relay_json(
         request_number=request_number,
         method="PUT",
@@ -181,7 +181,7 @@ def test_create_assessments_with_sms_relay(
 
     patient_id = patient_info["id"]
     assessment_json = __make_assessment(patient_id)
-    request_number = user_utils.get_expected_sms_relay_request_number(USER_ID)
+    request_number = user_utils.get_expected_sms_relay_request_number(USER_PHONE_NUMBER)
     request_body = make_sms_relay_json(
         request_number=request_number,
         method="POST",
@@ -225,7 +225,7 @@ def test_update_assessments_with_sms_relay(
 
     new_instructions = "II"
     assessment_json["follow_up_instructions"] = new_instructions
-    request_number = user_utils.get_expected_sms_relay_request_number(USER_ID)
+    request_number = user_utils.get_expected_sms_relay_request_number(USER_PHONE_NUMBER)
 
     request_body = make_sms_relay_json(
         request_number=request_number,
