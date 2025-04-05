@@ -6,7 +6,7 @@ export class PatientsPageModel extends PageObjectModel {
     super(page, '/patients');
   }
 
-  async getPatientRowByName(name: string) {
+  getPatientRowByName(name: string) {
     return this.page.getByRole('cell', { name });
   }
 }
