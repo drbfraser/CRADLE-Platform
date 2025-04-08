@@ -33,9 +33,9 @@ export class AdminPatientsPageModel extends PageObjectModel {
 
     const confirmButton = this.page.getByRole('button', { name: 'Yes' });
     await expect(confirmButton).toBeVisible();
-    await confirmButton.click();
 
     const responsePromise = this.waitForPatientsApiResponse();
+    await confirmButton.click();
     await responsePromise;
   }
 }
