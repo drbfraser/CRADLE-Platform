@@ -136,7 +136,7 @@
 
 ## Request Numbers
 1. Server stores the next expected request number for each User's phone number; Initially, the Server sets the expected request number to be `0`, meaning the Client's first request should use request number `0`.
-	- Storing request numbers by phone number reduces the amount of failures in scenarios where a user may send in requests from different devices.
+	- Storing request numbers by phone number rather than by user reduces the amount of failures in scenarios where a user may send in requests from different devices.
 3. Request number is included in both the plain-text SMS header, and in the encrypted message body. Both of these numbers should be identical to ensure consistency.
 4. SMS Relay app uses the plain-text SMS header’s request number to:
 	- Identify which request each received fragment belongs to.
