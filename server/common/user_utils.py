@@ -14,7 +14,6 @@ from config import db
 from data import crud, marshal
 from enums import RoleEnum
 from models import (
-    SmsRelayRequestNumberOrm,
     SmsSecretKeyOrm,
     UserOrm,
     UserPhoneNumberOrm,
@@ -246,8 +245,7 @@ def register_user(
         )
         # Add phone numbers to database.
         for phone_number in phone_numbers:
-            phone_number_orm = _create_user_phone_number_orm(phone_number)
-            user_orm.phone_numbers.append(phone_number_orm)
+            user_orm.phone_numbers.append(UserPhoneNumberOrm(phone_number=phone_number))
 
         sms_secret_key_orm = create_new_sms_secret_key_orm()
         user_orm.sms_secret_keys.append(sms_secret_key_orm)
@@ -392,8 +390,7 @@ def _update_user_phone_numbers(user_orm: UserOrm, phone_numbers: set[str]):
 
     # Add new phone numbers.
     for new_phone_number in new_phone_numbers:
-        phone_number_orm = _create_user_phone_number_orm(new_phone_number)
-        user_orm.phone_numbers.append(phone_number_orm)
+        user_orm.phone_numbers.append(UserPhoneNumberOrm(phone_number=new_phone_number))
 
 
 def update_user_phone_numbers(user_id: int, phone_numbers: set[str]):
@@ -477,16 +474,6 @@ def update_user(user_id: int, user_update_dict: dict[str, Any]):
         raise ValueError(e)
 
 
-def _create_user_phone_number_orm(phone_number):
-    phone_num_orm = UserPhoneNumberOrm(phone_number=phone_number)
-
-    # Initiate expected SMS relay request number for user phone number.
-    sms_relay_request_number_orm = create_new_sms_relay_request_number_orm()
-    phone_num_orm.sms_relay_request_number = sms_relay_request_number_orm
-
-    return phone_num_orm
-
-
 def create_new_sms_secret_key_orm():
     stale_date = get_future_date(days_after=SMS_KEY_DURATION - 10)
     expiry_date = get_future_date(days_after=SMS_KEY_DURATION)
@@ -564,14 +551,9 @@ def generate_new_sms_secret_key():
     return secrets.randbits(256).to_bytes(32, "little").hex()
 
 
-def create_new_sms_relay_request_number_orm():
-    sms_relay_request_number_orm = SmsRelayRequestNumberOrm(expected_request_number=0)
-    return sms_relay_request_number_orm
-
-
 def get_expected_sms_relay_request_number(phone_number):
-    request_number_orm = crud.read(SmsRelayRequestNumberOrm, phone_number=phone_number)
-    expected_request_number: int = request_number_orm.expected_request_number
+    phone_number_orm = crud.read(UserPhoneNumberOrm, phone_number=phone_number)
+    expected_request_number: int = phone_number_orm.expected_request_number
     return expected_request_number
 
 
@@ -582,4 +564,4 @@ def increment_sms_relay_expected_request_number(phone_number):
 
     new_request_number = {"expected_request_number": updated_request_number}
 
-    crud.update(SmsRelayRequestNumberOrm, new_request_number, phone_number=phone_number)
+    crud.update(UserPhoneNumberOrm, new_request_number, phone_number=phone_number)
