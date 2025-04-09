@@ -145,7 +145,7 @@
 	1. Server stores the next expected request number per user.
 	2. Each request from a user must have a request number that is within the range of `0 to 100` above the expected request number.
 		
-		- Allowing the server to accept a range of request numbers reduces the amount of failures by minimizing the amount of request number mismatches 		and prevents unnecessary retransmissions.
+		- Allowing the server to accept a range of request numbers reduces the amount of failures by minimizing the amount of request number mismatches 		and prevents unnecessary retransmissions. It also helps handle cases where request numbers become out of sync due to cancelled or failed requests.
 	3. Request numbers may wrap-around after the maximum value (`Rmax`) and start back at `0`. This wrap-around is treated as preserving the greater-than relationship.  
 	
 		We determine if a request number is valid using the formula:
@@ -153,9 +153,9 @@
 			0 <= (Rc - Re) mod (Rmax + 1) <= 100
 
 			Where:
-			- Re = expected request number from the Client.
-			- Rc = current request number received from the Client.
-			- Rmax = maximum request number representable (`999,999` by default).
+			- Re = expected request number from the Client
+			- Rc = current request number received from the Client
+			- Rmax = maximum request number representable (`999,999` by default)
 		This formula ensures that request numbers are valid even after wrapping around.
 
 		Examples:
@@ -166,13 +166,13 @@
 
 		- Wrap-Around Scenario  (Assume Rmax is `999,999`): 
 			
-			```If the Server's expected request number for the Client is `999,998`, it will accept request numbers from 999,998 to 98.```
+			```If the Server's expected request number for the Client is `999,998`, it will accept request numbers in the range [999,998, 999,999] and [0,98].```
 		
-	4. If a request uses an invalid request number, the Server sends an encrypted error response with the expected request number. The Client can the resume by 		sending requests from the expected request number and incrementing from there.
+	4. If a request uses an invalid request number, the Server sends an encrypted error response with the expected request number. The Client can then resume by 		sending requests from the expected request number and incrementing from there.
 
 	5. There is no need to have a mechanism to reset the request numbers because the protocol can handle when a user’s request number wraps around. 
 	
-6. On Mobile (Client side), the request number increments with every request sent, regardless of whether the server response was a success or failure. This ensures every unique request has a different request number.
+6. On Mobile (Client side), the request number increments with every request sent, regardless of whether the server response was a success or failure. The request number also increments even if the request is cancelled or fails before receiving a response from the server. This ensures every unique request has a different request number.
 
 ## Future Ideas
 1. Allow mechanism for Client and Server to exchange encryption key without needing HTTPS connection.
