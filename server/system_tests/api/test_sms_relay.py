@@ -1,3 +1,4 @@
+import os
 from typing import List
 
 import requests
@@ -19,7 +20,7 @@ from server.system_tests.utils.sms_relay import (
 )
 
 sms_relay_endpoint = "/api/sms_relay"
-USER_PHONE_NUMBER = "+15555215556"
+USER_PHONE_NUMBER = os.environ["EMULATOR_PHONE_NUMBER"]
 
 
 def test_create_patient_with_sms_relay(database, api_post, auth_header):
