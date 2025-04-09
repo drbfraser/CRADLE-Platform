@@ -1,0 +1,12 @@
+import { type Page, type Locator, expect } from '@playwright/test';
+import { PageObjectModel } from './page-object-model';
+
+export class PatientsPageModel extends PageObjectModel {
+  constructor(page: Page) {
+    super(page, '/patients');
+  }
+
+  getPatientRowByName(name: string) {
+    return this.page.getByRole('cell', { name });
+  }
+}
