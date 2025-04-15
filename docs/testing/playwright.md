@@ -18,7 +18,7 @@ While it is possible to locate elements using CSS selectors, it is not recommend
 
 There may be situations where you want to locate an element based on its relationship to another element, such as locating an element based on one or more of its descendants, siblings, or ancestor elements. For example, consider the task of locating a Referral Pending card with a specific comment on a patient summary page.
 
-<!-- ![Referral Pending Card](referral-pending-card.png) -->
+![referral-pending-card](https://media.github.sfu.ca/user/2507/files/1d00cadb-958c-479c-b89d-4df126ecfeba)
 
 We want to locate the text of the comment on the page, but we want to make sure that the text is within a Referral Pending card, rather than just anywhere. The top-level element that contains the whole card is just a `div`, and it doesn’t have a specific accessibility role, so using `getByRole()` isn’t helpful here. We could just locate based on the text of the comment, but that would only return the element that directly contains the text. If we want to locate the ancestor element that contains the entire card, we need to do something else. We can’t locate based on the “Referral Pending” heading either, since there could be more than one Referral Pending card, and that would only return the element that directly contains the “Referral Pending” text. To locate the element that contains both the “Referral Pending” header and the “Referral Comment” text, we can use the `filter()` method, like so:
 
