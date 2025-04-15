@@ -45,7 +45,7 @@ For more details on the different types of locators, see https://playwright.dev/
 
 ## Asynchronicity
 
-Unlike some other testing framework, like Cypress, Playwright uses native JavaScript async/await. Since UI interactions don’t have instantaneous results, and often involve waiting for network requests to resolve, many of the function calls in Playwright test scripts will need to be awaited. A particular nuance is that locators do not need to be awaited when specifying a locator method, but they do need to be awaited when performing an action on that locator. This is because the locator doesn’t actually resolve until some action is called on it, such as calling the `click()` action on a button. For example:
+Unlike some other testing frameworks, like Cypress, Playwright uses native JavaScript async/await. Since UI interactions don’t have instantaneous results, and often involve waiting for network requests to resolve, many of the function calls in Playwright test scripts will need to be awaited. A particular nuance is that locators do not need to be awaited when specifying a locator method, but they do need to be awaited when performing an action on that locator. This is because the locator doesn’t actually resolve until some action is called on it, such as calling the `click()` action on a button. For example:
 
 ```ts
 // Locating an element doesn't need to be awaited.
