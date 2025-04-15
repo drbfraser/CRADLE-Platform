@@ -196,7 +196,8 @@ Global teardown logic is defined in the file at `/client/playwright/teardown.ts`
 
 ## Running the Tests
 
-Before running the tests, ensure that the back-end Flask server is running. Then, ensure that you are in the `/client/` directory. Some script aliases have been defined as shortcuts for running the tests. They can be invoked with the command `npx playwright test`, or with the alias `npm run e2e`.
+Before running the tests, ensure that the back-end Flask server is running. Then, ensure that you are in the `/client/` directory. Some script aliases have been defined as shortcuts for running the tests. They can be invoked with the command `npx playwright test`, or with the alias `npm run e2e`. Indiviudal test files can be run by supplying the path to the file as an argument to the command, like: `npx playwright test <path_to_file>`. It is also possible to supply multiple arguments to the command, like so: `npx playwright test <path_to_file_1> <path_to_file_2>`. In addtion to file paths, keywords can be supplied as arguments to the command, and any tests which contain those keywords will be run. To run a test with a specific title, the `-g` option can be used like so: `npx playwright test -g "Title of test"`. For more information on running tests, see: https://playwright.dev/docs/running-tests. 
+
 
 Playwright runs the tests in ‘headless’ mode by default, meaning it won’t open the browser but will run the tests in the background, and the results will be displayed in an HTML report. Playwright does have a UI mode, however, which can be very useful when debugging. To run the tests in UI mode, use the command `npx playwright test --ui`, or `npm run e2e:ui`. The UI mode provides some tools similar to the Chrome DevTools. For more information on the UI mode, see https://playwright.dev/docs/running-tests.
 
