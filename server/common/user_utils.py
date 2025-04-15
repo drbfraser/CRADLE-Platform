@@ -557,10 +557,8 @@ def get_expected_sms_relay_request_number(phone_number):
     return expected_request_number
 
 
-def increment_sms_relay_expected_request_number(phone_number):
-    last_request_number = get_expected_sms_relay_request_number(phone_number)
-
-    updated_request_number = (last_request_number + 1) % MAX_SMS_RELAY_REQUEST_NUMBER
+def increment_sms_relay_expected_request_number(phone_number, current_request_number):
+    updated_request_number = (current_request_number + 1) % MAX_SMS_RELAY_REQUEST_NUMBER
 
     new_request_number = {"expected_request_number": updated_request_number}
 
