@@ -1,3 +1,5 @@
+import datetime
+
 import jwt
 
 from data import crud
@@ -32,8 +34,17 @@ def create_sms_access_token(user_id: int):
 
     username: str = user_orm.username
 
+    issued_at = datetime.datetime.now(tz=datetime.timezone.utc)
+    expires_at = issued_at + datetime.timedelta(seconds=120)
+
     sms_access_token = jwt.encode(
-        payload={"iss": CRADLE_SMS_ISSUER, "sub": str(user_id), "username": username},
+        payload={
+            "iss": CRADLE_SMS_ISSUER,
+            "iat": issued_at,
+            "exp": expires_at,
+            "sub": str(user_id),
+            "username": username,
+        },
         key=sms_secret_key,
         algorithm=ALGORITHM,
     )
@@ -55,7 +66,10 @@ def decode_sms_access_token(access_token: str) -> dict:
 
     try:
         payload = jwt.decode(
-            jwt=access_token, key=sms_secret_key, algorithms=[ALGORITHM]
+            jwt=access_token,
+            key=sms_secret_key,
+            algorithms=[ALGORITHM],
+            leeway=datetime.timedelta(seconds=10),
         )
     except Exception as err:
         print(err)
