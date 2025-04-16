@@ -1,6 +1,7 @@
 import jwt
 
-from common import user_utils
+from data import crud
+from models import SmsSecretKeyOrm, UserOrm
 
 """
 The Cognito access token is quite large, and transmitting it along with SMS requests significantly increases the 
@@ -14,30 +15,39 @@ server once the sender has been authenticated via their SMS secret key.
 CRADLE_SMS_ISSUER = "CRADLE-SMS"
 
 
-def create_sms_access_token(user_id: int):
-    sms_secret_key = user_utils.get_user_sms_secret_key_string(user_id)
-    if sms_secret_key is None:
+def _get_sms_secret_key(user_id: int) -> str:
+    sms_secret_key_orm = crud.read(SmsSecretKeyOrm, user_id=user_id)
+    if sms_secret_key_orm is None:
         raise ValueError(f"No SMS secret key found for user with ID: {user_id}")
+    return sms_secret_key_orm.secret_key
 
-    username = user_utils.get_username_from_id(user_id)
+
+def create_sms_access_token(user_id: int):
+    user_orm = crud.read(UserOrm, user_id=user_id)
+    if user_orm is None:
+        raise ValueError(f"No user found with ID: {user_id}")
+
+    sms_secret_key = _get_sms_secret_key(user_id)
+
+    username: str = user_orm.username
 
     sms_access_token = jwt.encode(
         payload={"iss": CRADLE_SMS_ISSUER, "sub": str(user_id), "username": username},
         key=sms_secret_key,
     )
-
     return sms_access_token
 
 
 def decode_sms_access_token(access_token: str) -> dict:
     payload: dict = jwt.decode(access_token, options={"verify_signature": False})
     # The 'sub' claim is short for 'subject', and refers to the identity of the token holder.
-    user_id = payload.get("sub")
+    sub_claim = payload.get("sub")
 
-    if user_id is None:
+    if sub_claim is None:
         raise ValueError("No 'sub' claim found in access token.")
+    user_id = int(sub_claim)
 
-    sms_secret_key = user_utils.get_user_sms_secret_key_string(user_id)
+    sms_secret_key = _get_sms_secret_key(user_id)
     if sms_secret_key is None:
         raise ValueError(f"No SMS secret key found for user with ID: {user_id}")
 
