@@ -90,6 +90,13 @@ def _get_access_token() -> str:
 
 
 def _decode_access_token() -> dict:
+    """
+    Checks the 'iss' claim of the access token and uses this claim to determine whether the token is a
+    Cognito issued access token, or a token issued internally for authenticating requests relayed from the SMS relay
+    endpoint. The appropriate function is then called to decode the token.
+
+    Decoding the access token also verifies it in the process. If verification fails, an exception is thrown.
+    """
     access_token = _get_access_token()
     payload: dict = jwt.decode(access_token, options={"verify_signature": False})
     issuer_claim = payload.get("iss")
