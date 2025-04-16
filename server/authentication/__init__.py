@@ -56,7 +56,7 @@ def is_public_endpoint(request: Request):
     if request.endpoint is None:
         return False
 
-    if request.endpoint.startswith("flasgger.") or request.endpoint in {
+    if request.endpoint in {
         "version",
         "static",
     }:
