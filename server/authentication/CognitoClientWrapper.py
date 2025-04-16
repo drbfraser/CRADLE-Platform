@@ -6,7 +6,6 @@ from typing import cast
 
 import jwt
 from botocore.exceptions import ClientError
-from flask import request
 from jwt import PyJWK, PyJWKClient
 from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 
@@ -295,7 +294,7 @@ class CognitoClientWrapper:
 
         return payload
 
-    def refresh_access_token(self, username: str):
+    def refresh_access_token(self, username: str, refresh_token: str):
         """
         Extracts refresh token from cookies and uses it to get a new access
         token.
@@ -303,10 +302,6 @@ class CognitoClientWrapper:
         :param username: The username of the user who the tokens belong to.
         :return access_token: New access token.
         """
-        refresh_token = request.cookies.get("refresh_token")
-        if refresh_token is None:
-            raise ValueError("No Refresh Token found.")
-
         try:
             auth_response = self.client.admin_initiate_auth(
                 UserPoolId=self.user_pool_id,

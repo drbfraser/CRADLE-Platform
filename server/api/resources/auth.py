@@ -3,7 +3,7 @@ import os
 
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
-from flask import abort, make_response
+from flask import abort, make_response, request
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_openapi3.blueprint import APIBlueprint
@@ -155,8 +155,11 @@ def refresh_access_token(body: RefreshTokenRequestBody):
     Refresh Token is taken from HTTP-Only cookie.
     """
     username = body.username
+    refresh_token = request.cookies.get("refresh_token")
+    if refresh_token is None:
+        return abort(401, description="No Refresh Token found.")
     try:
-        new_access_token = cognito.refresh_access_token(username)
+        new_access_token = cognito.refresh_access_token(username, refresh_token)
     except ValueError as err:
         error = str(err)
         LOGGER.error(error)
