@@ -7,6 +7,7 @@ from flask_openapi3.models.tag import Tag
 from humps import decamelize
 from pydantic import ValidationError
 
+from authentication import sms_auth
 from common import phone_number_utils, user_utils
 from service import compressor, encryptor
 from validation.sms_relay import (
@@ -31,16 +32,19 @@ error_messages = {
 
 
 def _send_request_to_endpoint(
+    user_id: int,
     method: str,
     endpoint: str,
-    header: dict,
+    headers: dict,
     body: str,
 ) -> requests.Response:
     api_url = "http://localhost:5000/{endpoint}"
+    sms_access_token = sms_auth.create_sms_access_token(user_id)
+    headers["Authorization"] = f"bearer {sms_access_token}"
     return requests.request(
         method=method,
         url=api_url.format(endpoint=endpoint),
-        headers=header,
+        headers=headers,
         json=json.loads(body),
     )
 
@@ -191,7 +195,7 @@ def relay_sms_request(body: SmsRelayRequestBody):
     # Sending request to endpoint
     method = str(decrypted_data.method)
     endpoint = decrypted_data.endpoint
-    response = _send_request_to_endpoint(method, endpoint, headers, json_body)
+    response = _send_request_to_endpoint(user.id, method, endpoint, headers, json_body)
 
     # Update last received request number from user
     user_utils.increment_sms_relay_expected_request_number(user.id)
