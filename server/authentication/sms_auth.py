@@ -35,7 +35,7 @@ def create_sms_access_token(user_id: int):
     username: str = user_orm.username
 
     issued_at = datetime.datetime.now(tz=datetime.timezone.utc)
-    expires_at = issued_at + datetime.timedelta(seconds=120)
+    expires_at = issued_at + datetime.timedelta(seconds=30)
 
     sms_access_token = jwt.encode(
         payload={
