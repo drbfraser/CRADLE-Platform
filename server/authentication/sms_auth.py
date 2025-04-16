@@ -23,7 +23,7 @@ def _get_sms_secret_key(user_id: int) -> str:
 
 
 def create_sms_access_token(user_id: int):
-    user_orm = crud.read(UserOrm, user_id=user_id)
+    user_orm = crud.read(UserOrm, id=user_id)
     if user_orm is None:
         raise ValueError(f"No user found with ID: {user_id}")
 
