@@ -220,7 +220,7 @@ def relay_sms_request(body: SmsRelayRequestBody):
     response = _send_request_to_endpoint(method, endpoint, headers, json_body)
 
     # Update expected request number from user
-    user_utils.increment_sms_relay_expected_request_number(phone_number, request_number)
+    user_utils.update_expected_request_number(phone_number, request_number)
 
     # Creating Response
     response_code = response.status_code
