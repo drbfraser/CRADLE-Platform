@@ -12,7 +12,7 @@ import { LoginPageModel } from './page-object-models/login-page-model';
 import { PatientsPageModel } from './page-object-models/patients-page-model';
 import { AdminPatientsPageModel } from './page-object-models/admin-patients-page-model';
 import { FormTemplatesPageModel } from './page-object-models/form-templates-page-model';
-import { FormTemplateBuilderPageModel } from './page-object-models/form-builder-page-model';
+import { FormTemplateBuilderPageModel } from './page-object-models/form-template-builder-page-model';
 
 /** All test patients should be given the same name, so that they can be identified
  * later for deletion.
