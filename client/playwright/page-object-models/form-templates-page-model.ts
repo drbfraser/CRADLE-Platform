@@ -6,13 +6,13 @@ export class FormTemplatesPageModel extends PageObjectModel {
     super(page, '/admin/form-templates');
   }
 
-  get newFormButton(): Locator {
+  get newFormTemplateButton(): Locator {
     return this.page.getByRole('button', { name: 'New Form' });
   }
 
-  async archiveFormByName(formName: string) {
+  async archiveFormTemplateByName(formTemplateName: string) {
     const archiveFormButton = this.page
-      .getByRole('row', { name: formName, exact: false })
+      .getByRole('row', { name: formTemplateName, exact: false })
       .getByLabel('Archive Form Template')
       .getByRole('button');
     await archiveFormButton.click();
@@ -23,15 +23,17 @@ export class FormTemplatesPageModel extends PageObjectModel {
     await confirmArchiveButton.click();
   }
 
-  getFormRowByName(formName: string): Locator {
-    return this.page.getByRole('gridcell', { name: formName });
+  getFormTemplateRowByName(formTemplateName: string): Locator {
+    return this.page.getByRole('row').filter({
+      has: this.page.getByRole('gridcell', { name: formTemplateName }),
+    });
   }
 
-  async clickNewFormButton() {
-    await this.newFormButton.click();
+  async clickNewFormTemplateButton() {
+    await this.newFormTemplateButton.click();
   }
 
-  async expectFormToExist(formName: string) {
-    await expect(this.getFormRowByName(formName)).toBeVisible();
+  async expectFormTemplateToBeListed(formName: string) {
+    await expect(this.getFormTemplateRowByName(formName)).toBeVisible();
   }
 }

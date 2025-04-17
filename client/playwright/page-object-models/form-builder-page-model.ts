@@ -1,7 +1,7 @@
 import { test, expect, Locator, Page } from '@playwright/test';
 import { PageObjectModel } from './page-object-model';
 
-export class FormBuilderPageModel extends PageObjectModel {
+export class FormTemplateBuilderPageModel extends PageObjectModel {
   constructor(page: Page) {
     super(page, '/admin/form-templates/new');
   }
@@ -46,7 +46,7 @@ export class FormBuilderPageModel extends PageObjectModel {
     return this.page.getByRole('textbox', { name: 'English Field Text' });
   }
 
-  get questionIDInput(): Locator {
+  get questionIdInput(): Locator {
     return this.page.getByRole('textbox', { name: 'Question ID' });
   }
 
@@ -78,8 +78,11 @@ export class FormBuilderPageModel extends PageObjectModel {
     return this.page.getByRole('button', { name: 'Save' });
   }
 
+  get newFormTemplateButton(): Locator {
+    return this.page.getByRole('button', { name: 'New Form' });
+  }
+
   async fillFormMetadata(title: string, version: string) {
-    const formTitle = `Test Form Template ${test.info().project.name}`;
     await this.titleInput.fill(title);
     await this.versionInput.fill(version);
   }
@@ -89,99 +92,97 @@ export class FormBuilderPageModel extends PageObjectModel {
     await this.confirmSubmitButton.click();
   }
 
-  async addField({
-    fieldType,
-    fieldText,
-    questionID,
-    minValue,
-    maxValue,
-    option,
-  }: {
-    fieldType: 'Number' | 'Text' | 'Multiple Choice' | 'Multi Select' | 'Date';
-    fieldText: string;
-    questionID: string;
-    minValue?: string;
-    maxValue?: string;
-    option?: string;
-  }) {
-    await this.addFieldButton.click();
-
-    switch (fieldType) {
-      case 'Number':
-        await this.numberFieldTypeButton.check();
-        if (minValue)
-          await this.page
-            .getByRole('textbox', { name: 'Minimum Value' })
-            .fill(minValue);
-        if (maxValue)
-          await this.page
-            .getByRole('textbox', { name: 'Maximum Value' })
-            .fill(maxValue);
-        break;
-      case 'Text':
-        await this.textFieldTypeButton.check();
-        break;
-      case 'Multiple Choice':
-        await this.multipleChoiceFieldTypeButton.check();
-        if (option) {
-          await this.page
-            .getByRole('button', { name: 'Add Option', exact: true })
-            .click();
-          await this.page
-            .getByRole('textbox', { name: 'English Option' })
-            .fill(option);
-        }
-        break;
-      case 'Multi Select':
-        await this.multiSelectFieldTypeButton.check();
-        if (option) {
-          await this.page
-            .getByRole('button', { name: 'Add Option', exact: true })
-            .click();
-          await this.page
-            .getByRole('textbox', { name: 'English Option' })
-            .fill(option);
-        }
-        break;
-      case 'Date':
-        await this.dateFieldTypeButton.check();
-        break;
-    }
-
+  private async fillFieldDetails(fieldText: string, questionId: string) {
     await this.englishFieldTextInput.fill(fieldText);
-    await this.questionIDInput.fill(questionID);
+    await this.questionIdInput.fill(questionId);
     await this.saveFieldDetailsButton.click();
   }
 
-  async addFields() {
-    await this.addField({
-      fieldType: 'Number',
-      fieldText: 'Number field',
-      questionID: 'number_field',
-      minValue: '1',
-      maxValue: '10',
+  async addNumberField(
+    fieldText: string,
+    questionId: string,
+    minValue?: string,
+    maxValue?: string
+  ) {
+    await this.addFieldButton.click();
+    await this.numberFieldTypeButton.check();
+    if (minValue) {
+      await this.page
+        .getByRole('textbox', { name: 'Minimum Value' })
+        .fill(minValue);
+    }
+    if (maxValue) {
+      await this.page
+        .getByRole('textbox', { name: 'Maximum Value' })
+        .fill(maxValue);
+    }
+    await this.fillFieldDetails(fieldText, questionId);
+  }
+
+  async addTextField(fieldText: string, questionId: string) {
+    await this.addFieldButton.click();
+    await this.textFieldTypeButton.check();
+    await this.fillFieldDetails(fieldText, questionId);
+  }
+
+  async addMultipleChoiceField(
+    fieldText: string,
+    questionId: string,
+    option?: string
+  ) {
+    await this.addFieldButton.click();
+    await this.multipleChoiceFieldTypeButton.check();
+    if (option) {
+      await this.page
+        .getByRole('button', { name: 'Add Option', exact: true })
+        .click();
+      await this.page
+        .getByRole('textbox', { name: 'English Option' })
+        .fill(option);
+    }
+    await this.fillFieldDetails(fieldText, questionId);
+  }
+
+  async addMultiSelectField(
+    fieldText: string,
+    questionId: string,
+    option?: string
+  ) {
+    await this.addFieldButton.click();
+    await this.multiSelectFieldTypeButton.check();
+    if (option) {
+      await this.page
+        .getByRole('button', { name: 'Add Option', exact: true })
+        .click();
+      await this.page
+        .getByRole('textbox', { name: 'English Option' })
+        .fill(option);
+    }
+    await this.fillFieldDetails(fieldText, questionId);
+  }
+
+  async addDateField(fieldText: string, questionId: string) {
+    await this.addFieldButton.click();
+    await this.dateFieldTypeButton.check();
+    await this.fillFieldDetails(fieldText, questionId);
+  }
+
+  async archiveFormTemplateByName(formTemplateName: string) {
+    const archiveFormButton = this.page
+      .getByRole('row', { name: formTemplateName, exact: false })
+      .getByLabel('Archive Form Template')
+      .getByRole('button');
+    await archiveFormButton.click();
+
+    const confirmArchiveButton = this.page.getByRole('button', {
+      name: 'Archive',
     });
-    await this.addField({
-      fieldType: 'Text',
-      fieldText: 'Text field',
-      questionID: 'text_field',
-    });
-    await this.addField({
-      fieldType: 'Multiple Choice',
-      fieldText: 'Multiple choice field',
-      questionID: 'multiple_choice_field',
-      option: 'Option 1',
-    });
-    await this.addField({
-      fieldType: 'Multi Select',
-      fieldText: 'Multi select field',
-      questionID: 'multi_select_field',
-      option: 'Option A',
-    });
-    await this.addField({
-      fieldType: 'Date',
-      fieldText: 'Date field',
-      questionID: 'date_field',
+    await confirmArchiveButton.click();
+  }
+
+  getFormTemplateRowByName(formTemplateName: string): Locator {
+    return this.page.getByRole('row').filter({
+      has: this.page.getByRole('gridcell', { name: formTemplateName }),
     });
   }
 }
