@@ -39,7 +39,7 @@ const ResetPasswordDialog = ({ open, onClose, resetUser }: IProps) => {
     }) => resetUserPasswordAsync(resetUser, newPassword),
   });
 
-  const handleSubmit = async (values: FormValues) => {
+  const handleSubmit = (values: FormValues) => {
     updatePassword.mutate(
       { resetUser, newPassword: values[UserField.password] },
       { onSuccess: () => onClose() }

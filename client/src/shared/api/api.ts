@@ -19,14 +19,14 @@ import {
 } from '../types';
 import { EndpointEnum, MethodEnum, UserRoleEnum } from '../enums';
 import axios, { AxiosError } from 'axios';
-import { PostBody } from 'src/pages/customizedForm/customizedEditForm/handlers';
+import { PostBody } from 'src/pages/customizedForm/handlers';
 import { reduxStore } from 'src/redux/store';
 import { EditUser, NewUser, User, userListSchema } from './validation/user';
 import { jwtDecode } from 'jwt-decode';
 import { clearCurrentUser } from 'src/redux/user-state';
 
 export const API_URL =
-  process.env.NODE_ENV === `development`
+  process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
     ? `http://${window.location.hostname}:5000/api`
     : '/api';
 
@@ -155,7 +155,7 @@ export const getHealthFacilityAsync = async (
   return response.data;
 };
 
-export const handleArchiveFormTemplateAsync = async (template: FormTemplate) =>
+export const editFormTemplateAsync = async (template: FormTemplate) =>
   axiosFetch({
     method: 'PUT',
     url: EndpointEnum.FORM_TEMPLATES + '/' + template.id,
@@ -183,7 +183,7 @@ export const saveFormTemplateAsync = async (
 
 export const getFormClassificationTemplates = async (
   formClassificationId: string
-) => {
+): Promise<FormTemplateWithQuestions[]> => {
   const response = await axiosFetch.get(
     `${EndpointEnum.FORM_CLASSIFICATIONS}/${formClassificationId}/templates`
   );
@@ -195,16 +195,18 @@ export const getAllFormTemplatesAsync = async (
 ): Promise<FormTemplate[]> => {
   try {
     const response = await axiosFetch.get(
-      EndpointEnum.FORM_TEMPLATES + `?includeArchived=${includeArchived}`
+      EndpointEnum.FORM_TEMPLATES + `?include_archived=${includeArchived}`
     );
     return response.data;
   } catch (e) {
-    console.error(`Error getting all from templates: ${e}`);
+    console.error(`Error getting all form templates: ${e}`);
     throw e;
   }
 };
 
-export const getFormTemplateAsync = async (formTemplateId: string) => {
+export const getFormTemplateAsync = async (
+  formTemplateId: string
+): Promise<FormTemplateWithQuestions> => {
   const response = await axiosFetch.get(
     `${EndpointEnum.FORM_TEMPLATES}/blank/${formTemplateId}`
   );
@@ -221,12 +223,14 @@ export const getFormTemplateLangAsync = async (
     )
   ).data;
 
-export const getFormTemplateLangsAsync = async (formTemplateId: string) =>
+export const getFormTemplateLangsAsync = async (
+  formTemplateId: string
+): Promise<string[]> =>
   (
     await axiosFetch.get(
       EndpointEnum.FORM_TEMPLATES + `/${formTemplateId}/versions`
     )
-  ).data;
+  ).data.langVersions;
 
 export const getFormTemplateCsvAsync = async (
   formTemplateId: string,

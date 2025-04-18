@@ -22,7 +22,7 @@ const DeleteRelayNumDialog = ({ open, onClose, relayNumToDelete }: IProps) => {
     mutationFn: deleteRelayNumAsync,
   });
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!relayNumToDelete) {
       return;
     }

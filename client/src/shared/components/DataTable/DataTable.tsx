@@ -35,6 +35,7 @@ type DataTableProps = {
   sx?: SxProps;
   getRowClassName?: (params: GridRowClassNameParams<any>) => string;
 };
+
 export const DataTable = ({
   rows,
   columns,
@@ -45,14 +46,10 @@ export const DataTable = ({
 }: DataTableProps) => {
   const apiRef = useGridApiRef();
 
-  const updateTable = () => {
-    apiRef.current.autosizeColumns(autosizeOptions);
-    apiRef.current.forceUpdate();
-  };
-
   useEffect(() => {
-    // Force the table to update whenever rows change.
-    updateTable();
+    if (rows && rows.length > 0) {
+      apiRef.current.autosizeColumns(autosizeOptions);
+    }
   }, [rows, apiRef]);
 
   return (
@@ -72,10 +69,7 @@ export const DataTable = ({
         initialState={{
           pagination: { paginationModel: { pageSize: 10 } },
         }}
-        slots={{
-          toolbar: toolbar,
-          footer: footer,
-        }}
+        slots={{ toolbar, footer }}
         sx={{
           minHeight: '400px',
           maxWidth: '100%',

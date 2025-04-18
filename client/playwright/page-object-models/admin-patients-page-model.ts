@@ -7,7 +7,7 @@ export class AdminPatientsPageModel extends PageObjectModel {
   }
 
   private async waitForPatientsApiResponse() {
-    await this.page.waitForResponse(
+    return await this.page.waitForResponse(
       (response) =>
         response.url().includes('/api/patients/admin') &&
         response.status() === 200
@@ -20,7 +20,7 @@ export class AdminPatientsPageModel extends PageObjectModel {
     await responsePromise;
   }
 
-  async getPatientRowByName(name: string) {
+  getPatientRowByName(name: string) {
     return this.page.getByRole('gridcell', { name });
   }
 
@@ -33,8 +33,9 @@ export class AdminPatientsPageModel extends PageObjectModel {
 
     const confirmButton = this.page.getByRole('button', { name: 'Yes' });
     await expect(confirmButton).toBeVisible();
-    await confirmButton.click();
 
-    await this.waitForPatientsApiResponse();
+    const responsePromise = this.waitForPatientsApiResponse();
+    await confirmButton.click();
+    await responsePromise;
   }
 }

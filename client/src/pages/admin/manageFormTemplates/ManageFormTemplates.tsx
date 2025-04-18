@@ -1,32 +1,17 @@
-import { Button, FormControlLabel, Stack, Switch } from '@mui/material';
-import {
-  getFormTemplateAsync,
-  getFormTemplateCsvAsync,
-  getAllFormTemplatesAsync,
-} from 'src/shared/api/api';
-import { useCallback, useEffect, useState } from 'react';
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
-
-import ArchiveTemplateDialog from './ArchiveTemplateDialog';
-import { CloudDownloadOutlined, Edit } from '@mui/icons-material';
-import UploadTemplate from './UploadTemplate';
-import DeleteForever from '@mui/icons-material/DeleteForever';
-import {
-  FormTemplate,
-  FormTemplateWithQuestions,
-  TQuestion,
-} from 'src/shared/types';
-import { getPrettyDate } from 'src/shared/utils';
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button, FormControlLabel, Stack, Switch } from '@mui/material';
+import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { CloudDownloadOutlined, Edit } from '@mui/icons-material';
+import DeleteForever from '@mui/icons-material/DeleteForever';
 import { Unarchive } from '@mui/icons-material';
-import UnarchiveTemplateDialog from './UnarchiveTemplateDialog';
-import AddIcon from '@mui/icons-material/Add';
-import {
-  GridColDef,
-  GridRenderCellParams,
-  GridRowsProp,
-} from '@mui/x-data-grid';
 import UploadIcon from '@mui/icons-material/Upload';
+import AddIcon from '@mui/icons-material/Add';
+
+import { FormTemplate } from 'src/shared/types';
+import { getPrettyDate } from 'src/shared/utils';
+import { useFormTemplatesQuery } from 'src/shared/queries';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import {
   TableAction,
   TableActionButtons,
@@ -35,74 +20,54 @@ import {
   DataTable,
   DataTableFooter,
 } from 'src/shared/components/DataTable/DataTable';
-import { DataTableHeader } from '../../../shared/components/DataTable/DataTableHeader';
+import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
+import ArchiveTemplateDialog from './ArchiveTemplateDialog';
+import UploadTemplate from './UploadTemplate';
+import UnarchiveTemplateDialog from './UnarchiveTemplateDialog';
+import { useDownloadTemplateAsCSV } from './mutations';
 
 type FormTemplateWithIndex = FormTemplate & {
   index: number;
 };
 
 export const ManageFormTemplates = () => {
-  const [errorLoading, setErrorLoading] = useState(false);
   const [showArchivedTemplates, setShowArchivedTemplates] = useState(false);
-  const [formTemplates, setFormTemplates] = useState<FormTemplateWithIndex[]>(
-    []
-  );
+
+  const [selectedForm, setSelectedForm] = useState<FormTemplate>();
 
   const [isUploadPopupOpen, setIsUploadPopupOpen] = useState(false);
   const [isArchivePopupOpen, setIsArchivePopupOpen] = useState(false);
   const [isUnarchivePopupOpen, setIsUnarchivePopupOpen] = useState(false);
 
-  const [archivePopupForm, setArchivePopupForm] =
-    useState<FormTemplateWithIndex>();
-  const [unarchivePopupForm, setUnarchivePopupForm] =
-    useState<FormTemplateWithIndex>();
-
-  const [customFormWithQuestions, setCustomFormWithQuestions] =
-    useState<FormTemplateWithQuestions | null>(null);
-
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (customFormWithQuestions != null) {
-      navigate('/admin/form-templates/new', {
-        // search: `id=${customFormWithQuestions.classification.id}`,
-        state: {
-          ...customFormWithQuestions,
-        },
-      });
-    }
-  }, [customFormWithQuestions]);
+  const formTemplatesQuery = useFormTemplatesQuery(showArchivedTemplates);
+  const { mutate: downloadTemplateCSV, isError: downloadTemplateCSVIsError } =
+    useDownloadTemplateAsCSV();
 
-  const [rows, setRows] = useState<GridRowsProp>([]);
-  const updateRowData = (formTemplates: FormTemplateWithIndex[]) => {
-    setRows(
-      formTemplates.map((formTemplate) => ({
-        id: formTemplate.index,
-        name: formTemplate.classification.name,
-        version: formTemplate.version,
-        dateCreated: getPrettyDate(formTemplate.dateCreated),
-        takeAction: formTemplate,
-      }))
-    );
-  };
-
-  const ActionButtons = useCallback(
+  const TableRowActions = useCallback(
     ({ formTemplate }: { formTemplate?: FormTemplateWithIndex }) => {
       if (!formTemplate) return null;
+
       const actions: TableAction[] = [];
+
       if (!formTemplate.archived) {
         actions.push({
           tooltip: 'Edit Form Template',
           Icon: Edit,
-          onClick: async () => {
-            getFormTemplateWithQuestions(formTemplate);
+          onClick: () => {
+            navigate('/admin/form-templates/new', {
+              state: {
+                editFormId: formTemplate.id,
+              },
+            });
           },
         });
         actions.push({
           tooltip: 'Archive Form Template',
           Icon: DeleteForever,
           onClick: () => {
-            setArchivePopupForm(formTemplate);
+            setSelectedForm(formTemplate);
             setIsArchivePopupOpen(true);
           },
         });
@@ -111,7 +76,7 @@ export const ManageFormTemplates = () => {
           tooltip: 'Unarchive Form Template',
           Icon: Unarchive,
           onClick: () => {
-            setUnarchivePopupForm(formTemplate);
+            setSelectedForm(formTemplate);
             setIsUnarchivePopupOpen(true);
           },
         });
@@ -120,34 +85,33 @@ export const ManageFormTemplates = () => {
       actions.push({
         tooltip: 'Download CSV',
         Icon: CloudDownloadOutlined,
-        onClick: async () => {
-          try {
-            const file: Blob = await getFormTemplateCsvAsync(
-              formTemplate.id,
-              formTemplate.version
-            );
-
-            const objectURL = URL.createObjectURL(file);
-
-            const link = document.createElement('a');
-            link.href = objectURL;
-            link.setAttribute(
-              'download',
-              `${formTemplate.classification.name}.csv`
-            );
-            link.click();
-          } catch (e) {
-            setErrorLoading(true);
-          }
+        onClick: () => {
+          downloadTemplateCSV(
+            {
+              id: formTemplate.id,
+              version: formTemplate.version,
+            },
+            {
+              onSuccess: (file: Blob) => {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(file);
+                link.setAttribute(
+                  'download',
+                  `${formTemplate.classification.name}.csv`
+                );
+                link.click();
+              },
+            }
+          );
         },
       });
 
       return <TableActionButtons actions={actions} />;
     },
-    []
+    [downloadTemplateCSV, navigate]
   );
 
-  const columns: GridColDef[] = [
+  const tableColumns: GridColDef[] = [
     { flex: 1, field: 'name', headerName: 'Name' },
     { flex: 1, field: 'version', headerName: 'Version' },
     { flex: 1, field: 'dateCreated', headerName: 'Date Created' },
@@ -159,115 +123,18 @@ export const ManageFormTemplates = () => {
       sortable: false,
       renderCell: (
         params: GridRenderCellParams<any, FormTemplateWithIndex>
-      ) => <ActionButtons formTemplate={params.value} />,
+      ) => <TableRowActions formTemplate={params.value} />,
     },
   ];
+  const tableRows = formTemplatesQuery.data?.map((template, index) => ({
+    id: index,
+    name: template.classification.name,
+    version: template.version,
+    dateCreated: getPrettyDate(template.dateCreated),
+    takeAction: template,
+  }));
 
-  const handleNewFormClick = () => {
-    navigate('/admin/form-templates/new');
-  };
-
-  const getFormTemplates = async (showArchivedTemplates: boolean) => {
-    try {
-      const resp: FormTemplate[] = await getAllFormTemplatesAsync(
-        showArchivedTemplates
-      );
-
-      setFormTemplates(
-        resp.map((form_template, index) => ({ ...form_template, index }))
-      );
-    } catch (e) {
-      setErrorLoading(true);
-    }
-  };
-  useEffect(() => {
-    getFormTemplates(showArchivedTemplates);
-  }, [
-    showArchivedTemplates,
-    isUploadPopupOpen,
-    isArchivePopupOpen,
-    isUnarchivePopupOpen,
-  ]);
-
-  useEffect(() => {
-    const formTemplateFilter = (formTemplate: FormTemplate) => {
-      if (!showArchivedTemplates && formTemplate.archived) {
-        return false;
-      }
-      return true;
-    };
-
-    const filteredTemplates = formTemplates.filter(formTemplateFilter);
-    updateRowData(filteredTemplates);
-  }, [formTemplates, showArchivedTemplates]);
-
-  const getFormTemplateWithQuestions = async (
-    formTemplate: FormTemplateWithIndex
-  ) => {
-    const questions = await getFormTemplateAsync(formTemplate.id);
-    const formTemplateWithQuestions: FormTemplateWithQuestions = {
-      classification: {
-        name: formTemplate.classification.name,
-        id: formTemplate.classification.id,
-      },
-      version: formTemplate.version,
-      questions: questions.questions.map((q: TQuestion) => {
-        return {
-          categoryIndex: q.categoryIndex ?? null,
-          id: q.id,
-          langVersions: q.langVersions.map((qlv) => {
-            return {
-              lang: qlv.lang,
-              mcOptions: qlv.mcOptions,
-              questionText: qlv.questionText,
-            };
-          }),
-          questionIndex: q.questionIndex,
-          questionType: q.questionType,
-          required: q.required,
-          allowFutureDates: q.allowFutureDates,
-          allowPastDates: q.allowPastDates,
-          numMin: q.numMin,
-          numMax: q.numMax,
-          stringMaxLength: null,
-          stringMaxLines: q.stringMaxLines,
-          units: null,
-          visibleCondition: q.visibleCondition,
-        };
-      }),
-    };
-
-    try {
-      setCustomFormWithQuestions(formTemplateWithQuestions);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const HeaderButtons = () => {
-    return (
-      <Stack direction={'row'} gap={'8px'} flexWrap={'wrap'}>
-        <Button
-          variant={'contained'}
-          startIcon={<AddIcon />}
-          onClick={() => {
-            handleNewFormClick();
-          }}>
-          {'New Form'}
-        </Button>
-        <Button
-          variant={'contained'}
-          startIcon={<UploadIcon />}
-          onClick={() => {
-            setIsUploadPopupOpen(true);
-          }}>
-          {'Upload Form'}
-        </Button>
-      </Stack>
-    );
-  };
-
-  const Footer = () => (
+  const TableFooter = () => (
     <DataTableFooter>
       <FormControlLabel
         sx={{
@@ -287,10 +154,10 @@ export const ManageFormTemplates = () => {
 
   return (
     <>
-      <APIErrorToast
-        open={errorLoading}
-        onClose={() => setErrorLoading(false)}
-      />
+      {(formTemplatesQuery.isError || downloadTemplateCSVIsError) && (
+        <APIErrorToast />
+      )}
+
       <UploadTemplate
         open={isUploadPopupOpen}
         onClose={() => setIsUploadPopupOpen(false)}
@@ -298,23 +165,37 @@ export const ManageFormTemplates = () => {
       <ArchiveTemplateDialog
         open={isArchivePopupOpen}
         onClose={() => setIsArchivePopupOpen(false)}
-        template={archivePopupForm}
+        template={selectedForm}
       />
       <UnarchiveTemplateDialog
         open={isUnarchivePopupOpen}
         onClose={() => setIsUnarchivePopupOpen(false)}
-        template={unarchivePopupForm}
+        template={selectedForm}
       />
+
       <DataTableHeader title={'Form Templates'}>
-        <HeaderButtons />
+        <Stack direction={'row'} gap={'8px'} flexWrap={'wrap'}>
+          <Button
+            variant={'contained'}
+            startIcon={<AddIcon />}
+            onClick={() => navigate('/admin/form-templates/new')}>
+            {'New Form'}
+          </Button>
+          <Button
+            variant={'contained'}
+            startIcon={<UploadIcon />}
+            onClick={() => setIsUploadPopupOpen(true)}>
+            {'Upload Form'}
+          </Button>
+        </Stack>
       </DataTableHeader>
       <DataTable
-        rows={rows}
-        columns={columns}
-        footer={Footer}
+        rows={tableRows}
+        columns={tableColumns}
+        footer={TableFooter}
         getRowClassName={(params) => {
           const index = params.row.id;
-          const formTemplate = formTemplates[index];
+          const formTemplate = formTemplatesQuery.data?.at(index) ?? undefined;
           if (!formTemplate) return '';
           return formTemplate.archived ? 'row-archived' : '';
         }}

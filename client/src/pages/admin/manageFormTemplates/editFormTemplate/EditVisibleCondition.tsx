@@ -8,7 +8,7 @@ import {
 import Grid from '@mui/material/Grid';
 import { Form, Formik } from 'formik';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { FormQuestions } from 'src/pages/customizedForm/FormQuestions';
+import { FormQuestions } from 'src/pages/customizedForm/components/FormQuestions';
 import {
   AnswerTypeEnum,
   FormRenderStateEnum,
@@ -16,10 +16,7 @@ import {
   QuestionTypeEnum,
 } from 'src/shared/enums';
 import { QCondition, Question, TQuestion } from 'src/shared/types';
-import {
-  initialState,
-  validationSchema,
-} from '../../../customizedForm/customizedEditForm/state';
+import { initialState, validationSchema } from '../../../customizedForm/state';
 
 interface IProps {
   currVisCond?: QCondition;

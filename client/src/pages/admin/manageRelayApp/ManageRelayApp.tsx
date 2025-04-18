@@ -102,7 +102,7 @@ export const ManageRelayApp = () => {
         throw new Error(ERROR_MESSAGES[e]);
       }),
   });
-  const handleClickUpload = async () => {
+  const handleClickUpload = () => {
     if (selectedFile) {
       uploadAppFile.mutate(selectedFile, {
         onSuccess: () => setNumFileUploaded(numFileUploaded + 1),
@@ -111,7 +111,7 @@ export const ManageRelayApp = () => {
     }
   };
 
-  const handleClickDownload = async () => {
+  const handleClickDownload = () => {
     if (!appFileQuery.data) {
       return;
     }

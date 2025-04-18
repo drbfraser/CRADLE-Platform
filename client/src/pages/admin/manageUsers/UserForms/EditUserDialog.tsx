@@ -64,7 +64,7 @@ export const EditUserDialog = ({
       }),
   });
 
-  const handleSubmit = async (user: EditUser) => {
+  const handleSubmit = (user: EditUser) => {
     const editedUser = { ...user };
     /* Remove any blank phone numbers. */
     editedUser.phoneNumbers = editedUser.phoneNumbers.filter((phoneNumber) => {

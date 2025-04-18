@@ -14,7 +14,6 @@ from config import db
 from data import crud, marshal
 from enums import RoleEnum
 from models import (
-    SmsRelayRequestNumberOrm,
     SmsSecretKeyOrm,
     UserOrm,
     UserPhoneNumberOrm,
@@ -247,11 +246,10 @@ def register_user(
         # Add phone numbers to database.
         for phone_number in phone_numbers:
             user_orm.phone_numbers.append(UserPhoneNumberOrm(phone_number=phone_number))
+
         sms_secret_key_orm = create_new_sms_secret_key_orm()
         user_orm.sms_secret_keys.append(sms_secret_key_orm)
-        # Initiate expected SMS relay request number for user.
-        sms_relay_request_number_orm = create_new_sms_relay_request_number_orm()
-        user_orm.sms_relay_request_number = sms_relay_request_number_orm
+
         db.session.add(user_orm)
         db.session.commit()
 
@@ -553,22 +551,15 @@ def generate_new_sms_secret_key():
     return secrets.randbits(256).to_bytes(32, "little").hex()
 
 
-def create_new_sms_relay_request_number_orm():
-    sms_relay_request_number_orm = SmsRelayRequestNumberOrm(expected_request_number=0)
-    return sms_relay_request_number_orm
-
-
-def get_expected_sms_relay_request_number(user_id):
-    request_number_orm = crud.read(SmsRelayRequestNumberOrm, user_id=user_id)
-    expected_request_number: int = request_number_orm.expected_request_number
+def get_expected_sms_relay_request_number(phone_number):
+    phone_number_orm = crud.read(UserPhoneNumberOrm, phone_number=phone_number)
+    expected_request_number: int = phone_number_orm.expected_request_number
     return expected_request_number
 
 
-def increment_sms_relay_expected_request_number(user_id):
-    last_request_number = get_expected_sms_relay_request_number(user_id)
-
-    updated_request_number = (last_request_number + 1) % MAX_SMS_RELAY_REQUEST_NUMBER
+def update_expected_request_number(phone_number, current_request_number):
+    updated_request_number = (current_request_number + 1) % MAX_SMS_RELAY_REQUEST_NUMBER
 
     new_request_number = {"expected_request_number": updated_request_number}
 
-    crud.update(SmsRelayRequestNumberOrm, new_request_number, user_id=user_id)
+    crud.update(UserPhoneNumberOrm, new_request_number, phone_number=phone_number)

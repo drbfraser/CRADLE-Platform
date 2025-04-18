@@ -15,22 +15,20 @@ test.describe('Go to Patient Page', () => {
     const patientName = testPatient.name;
 
     // check if patientName exists in /patients
-    await expect(
-      await patientsPage.getPatientRowByName(patientName)
-    ).toBeVisible();
+    await expect(patientsPage.getPatientRowByName(patientName)).toBeVisible();
 
     await adminPatientsPage.goto();
 
     // check if patientName exists in admins/patients
     const row = adminPatientsPage.getPatientRowByName(patientName);
-    await expect(await row).toBeVisible();
+    await expect(row).toBeVisible();
 
     await adminPatientsPage.archivePatientByName(patientName);
 
     // go back to /patients and check if patientName is no longer there
     await patientsPage.goto();
     await expect(
-      await patientsPage.getPatientRowByName(patientName)
+      patientsPage.getPatientRowByName(patientName)
     ).not.toBeVisible();
   });
 });

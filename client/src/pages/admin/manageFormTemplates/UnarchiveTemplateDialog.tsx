@@ -1,4 +1,3 @@
-import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import {
   Dialog,
   DialogActions,
@@ -6,11 +5,11 @@ import {
   DialogTitle,
 } from '@mui/material';
 
-import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { FormTemplate } from 'src/shared/types';
+import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Toast } from 'src/shared/components/toast';
-import { handleArchiveFormTemplateAsync } from 'src/shared/api/api';
-import { useState } from 'react';
+import { useEditFormTemplate } from './mutations';
 
 interface IProps {
   open: boolean;
@@ -19,24 +18,19 @@ interface IProps {
 }
 
 const UnarchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
-  const [submitError, setSubmitError] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const editForm = useEditFormTemplate();
 
-  const unarchiveForm = async () => {
+  const unarchiveForm = () => {
     if (!template?.id) {
       return;
     }
 
-    template.archived = false;
-
-    try {
-      await handleArchiveFormTemplateAsync(template);
-
-      setSubmitSuccess(true);
-      onClose();
-    } catch (e) {
-      setSubmitError(true);
-    }
+    editForm.mutate(
+      { ...template, archived: false },
+      {
+        onSuccess: () => onClose(),
+      }
+    );
   };
 
   return (
@@ -44,10 +38,11 @@ const UnarchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
       <Toast
         severity="success"
         message="Form Template Unarchived!"
-        open={submitSuccess}
-        onClose={() => setSubmitSuccess(false)}
+        open={editForm.isSuccess}
+        onClose={() => editForm.reset()}
       />
-      <APIErrorToast open={submitError} onClose={() => setSubmitError(false)} />
+      <APIErrorToast open={editForm.isError} onClose={() => editForm.reset()} />
+
       <Dialog open={open} onClose={onClose}>
         <DialogTitle>Unarchive Form Template</DialogTitle>
         <DialogContent>
