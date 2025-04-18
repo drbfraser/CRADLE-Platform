@@ -7,6 +7,8 @@ export class PatientsPageModel extends PageObjectModel {
   }
 
   getPatientRowByName(name: string) {
-    return this.page.getByRole('cell', { name });
+    return this.page.getByRole('row').filter({
+      has: this.page.getByRole('cell', { name }),
+    });
   }
 }
