@@ -98,6 +98,17 @@ export class FormTemplateBuilderPageModel extends PageObjectModel {
     await this.saveFieldDetailsButton.click();
   }
 
+  private async fillOptions(options: string[]) {
+    for (const option of options) {
+      await this.page
+        .getByRole('button', { name: 'Add Option', exact: true })
+        .click();
+      await this.page
+        .getByRole('textbox', { name: 'English Option' })
+        .fill(option);
+    }
+  }
+
   async addNumberField(
     fieldText: string,
     questionId: string,
@@ -109,12 +120,12 @@ export class FormTemplateBuilderPageModel extends PageObjectModel {
     if (minValue !== undefined) {
       await this.page
         .getByRole('textbox', { name: 'Minimum Value' })
-        .fill(String(minValue));
+        .fill(minValue);
     }
     if (maxValue !== undefined) {
       await this.page
         .getByRole('textbox', { name: 'Maximum Value' })
-        .fill(String(maxValue));
+        .fill(maxValue);
     }
     await this.fillFieldDetails(fieldText, questionId);
   }
@@ -128,36 +139,22 @@ export class FormTemplateBuilderPageModel extends PageObjectModel {
   async addMultipleChoiceField(
     fieldText: string,
     questionId: string,
-    option?: string
+    options: string[] = []
   ) {
     await this.addFieldButton.click();
     await this.multipleChoiceFieldTypeButton.check();
-    if (option) {
-      await this.page
-        .getByRole('button', { name: 'Add Option', exact: true })
-        .click();
-      await this.page
-        .getByRole('textbox', { name: 'English Option' })
-        .fill(option);
-    }
+    await this.fillOptions(options);
     await this.fillFieldDetails(fieldText, questionId);
   }
 
   async addMultiSelectField(
     fieldText: string,
     questionId: string,
-    option?: string
+    options: string[] = []
   ) {
     await this.addFieldButton.click();
     await this.multiSelectFieldTypeButton.check();
-    if (option) {
-      await this.page
-        .getByRole('button', { name: 'Add Option', exact: true })
-        .click();
-      await this.page
-        .getByRole('textbox', { name: 'English Option' })
-        .fill(option);
-    }
+    await this.fillOptions(options);
     await this.fillFieldDetails(fieldText, questionId);
   }
 
@@ -165,24 +162,5 @@ export class FormTemplateBuilderPageModel extends PageObjectModel {
     await this.addFieldButton.click();
     await this.dateFieldTypeButton.check();
     await this.fillFieldDetails(fieldText, questionId);
-  }
-
-  async archiveFormTemplateByName(formTemplateName: string) {
-    const archiveFormButton = this.page
-      .getByRole('row', { name: formTemplateName, exact: false })
-      .getByLabel('Archive Form Template')
-      .getByRole('button');
-    await archiveFormButton.click();
-
-    const confirmArchiveButton = this.page.getByRole('button', {
-      name: 'Archive',
-    });
-    await confirmArchiveButton.click();
-  }
-
-  getFormTemplateRowByName(formTemplateName: string): Locator {
-    return this.page.getByRole('row').filter({
-      has: this.page.getByRole('gridcell', { name: formTemplateName }),
-    });
   }
 }

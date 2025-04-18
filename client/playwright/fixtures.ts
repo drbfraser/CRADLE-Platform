@@ -34,7 +34,7 @@ export type CradleFixtures = {
   patientsPage: PatientsPageModel;
   adminPatientsPage: AdminPatientsPageModel;
   formTemplatesPage: FormTemplatesPageModel;
-  formBuilderPage: FormTemplateBuilderPageModel;
+  formTemplateBuilderPage: FormTemplateBuilderPageModel;
 };
 
 /**
@@ -110,7 +110,7 @@ export const test = baseTest.extend<CradleFixtures>({
   formTemplatesPage: async ({ page }, use) => {
     await use(new FormTemplatesPageModel(page));
   },
-  formBuilderPage: async ({ page }, use) => {
+  formTemplateBuilderPage: async ({ page }, use) => {
     await use(new FormTemplateBuilderPageModel(page));
   },
 });

@@ -8,39 +8,40 @@ test.beforeEach(async ({ formTemplatesPage }) => {
 
 test('should allow an admin to create a new form template', async ({
   formTemplatesPage,
-  formBuilderPage,
+  formTemplateBuilderPage,
+  browserName,
 }, testInfo) => {
-  const formTemplateTitle = `Test Form Template ${testInfo.project.use.browserName}`;
+  const formTemplateTitle = `Test Form Template ${browserName}`;
   const version = 'v1.0';
   const categoryName = 'Dietary';
 
-  await formBuilderPage.fillFormMetadata(formTemplateTitle, version);
+  await formTemplateBuilderPage.fillFormMetadata(formTemplateTitle, version);
 
   // add a category
-  await formBuilderPage.addCategoryButton.click();
-  await formBuilderPage.englishCategoryNameInput.fill(categoryName);
-  await formBuilderPage.saveCategoryButton.click();
+  await formTemplateBuilderPage.addCategoryButton.click();
+  await formTemplateBuilderPage.englishCategoryNameInput.fill(categoryName);
+  await formTemplateBuilderPage.saveCategoryButton.click();
 
-  await formBuilderPage.addNumberField(
+  await formTemplateBuilderPage.addNumberField(
     'Number field',
     'number_field',
     '1',
     '10'
   );
-  await formBuilderPage.addTextField('Text field', 'text_field');
-  await formBuilderPage.addMultipleChoiceField(
+  await formTemplateBuilderPage.addTextField('Text field', 'text_field');
+  await formTemplateBuilderPage.addMultipleChoiceField(
     'Multiple choice field',
     'multiple_choice_field',
-    'Option 1'
+    ['Option 1']
   );
-  await formBuilderPage.addMultiSelectField(
+  await formTemplateBuilderPage.addMultiSelectField(
     'Multi select field',
     'multi_select_field',
-    'Option A'
+    ['Option A']
   );
-  await formBuilderPage.addDateField('Date field', 'date_field');
+  await formTemplateBuilderPage.addDateField('Date field', 'date_field');
 
-  await formBuilderPage.submitForm();
+  await formTemplateBuilderPage.submitForm();
 
   // verify form is listed
   await formTemplatesPage.expectFormTemplateToBeListed(formTemplateTitle);
