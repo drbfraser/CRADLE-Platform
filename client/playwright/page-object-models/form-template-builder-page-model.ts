@@ -106,15 +106,15 @@ export class FormTemplateBuilderPageModel extends PageObjectModel {
   ) {
     await this.addFieldButton.click();
     await this.numberFieldTypeButton.check();
-    if (minValue) {
+    if (minValue !== undefined) {
       await this.page
         .getByRole('textbox', { name: 'Minimum Value' })
-        .fill(minValue);
+        .fill(String(minValue));
     }
-    if (maxValue) {
+    if (maxValue !== undefined) {
       await this.page
         .getByRole('textbox', { name: 'Maximum Value' })
-        .fill(maxValue);
+        .fill(String(maxValue));
     }
     await this.fillFieldDetails(fieldText, questionId);
   }
