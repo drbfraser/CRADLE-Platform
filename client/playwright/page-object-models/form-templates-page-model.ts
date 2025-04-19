@@ -36,4 +36,23 @@ export class FormTemplatesPageModel extends PageObjectModel {
   async expectFormTemplateToBeListed(formName: string) {
     await expect(this.getFormTemplateRowByName(formName)).toBeVisible();
   }
+
+  async goto(formId?: string) {
+    if (formId) {
+      await this.page.goto(`/forms/new/${formId}`);
+    } else {
+      await super.goto();
+    }
+  }
+
+  async selectFormByName(formName: string) {
+    await this.page.getByTestId('form-name').click();
+    await this.page.getByText(formName).click();
+  }
+
+  async assertDefaultLanguage(language: string) {
+    await expect(
+      this.page.getByTestId('def-lang').locator('input')
+    ).toHaveValue(language);
+  }
 }

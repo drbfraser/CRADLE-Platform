@@ -163,4 +163,37 @@ export class FormTemplateBuilderPageModel extends PageObjectModel {
     await this.dateFieldTypeButton.check();
     await this.fillFieldDetails(fieldText, questionId);
   }
+
+  async assertDefaultLanguageIs(language: string) {
+    await expect(this.page.getByText(language)).toBeVisible();
+  }
+
+  async addSecondLanguage(language: string) {
+    await this.page.getByRole('textbox', { name: 'Language' }).click();
+    await this.page.getByRole('dialog').getByText(language).click();
+    await this.page.getByRole('button', { name: 'Close' }).click();
+  }
+
+  async addBilingualCategory(polish: string, english: string) {
+    await this.addCategoryButton.click();
+    await this.page
+      .getByRole('textbox', { name: 'Polish Category Name' })
+      .fill(polish);
+    await this.page
+      .getByRole('textbox', { name: 'English Category Name' })
+      .fill(english);
+    await this.saveCategoryButton.click();
+  }
+
+  async addBilingualTextField(polish: string, english: string) {
+    await this.addFieldButton.click();
+    await this.textFieldTypeButton.check();
+    await this.page
+      .getByRole('textbox', { name: 'Polish Field Text' })
+      .fill(polish);
+    await this.page
+      .getByRole('textbox', { name: 'English Field Text' })
+      .fill(english);
+    await this.saveFieldDetailsButton.click();
+  }
 }
