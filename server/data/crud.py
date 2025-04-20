@@ -1311,18 +1311,26 @@ def __filter_by_patient_search(query: Query, **kwargs) -> Query:
 
 
 def __order_by_column(query: Query, models: list, **kwargs) -> Query:
+    order_by = kwargs.get("order_by")
+
     def __get_column(models):
         for model in models:
             if hasattr(model, order_by):
                 return getattr(model, order_by)
 
-    order_by = kwargs.get("order_by")
     if order_by:
         direction = asc if kwargs.get("direction") == "ASC" else desc
-        column = __get_column(models)
+
+        if order_by in ["patient_id", "village_number"]:
+            model_column = __get_column(models)
+            column = cast(model_column, Integer)
+        else:
+            column = __get_column(models)
+
         query = query.order_by(direction(column))
 
     return query
+
 
 
 def __get_slice_indexes(page: str, limit: str) -> Tuple[int, int]:
