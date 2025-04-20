@@ -7,6 +7,7 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Query, aliased
 from sqlalchemy.sql.expression import and_, asc, desc, literal, null, text
 from sqlalchemy.sql.functions import coalesce
+from sqlalchemy import cast, Integer
 
 from common.form_utils import filter_template_questions_orm
 from data import db_session
@@ -1311,15 +1312,22 @@ def __filter_by_patient_search(query: Query, **kwargs) -> Query:
 
 
 def __order_by_column(query: Query, models: list, **kwargs) -> Query:
+    order_by = kwargs.get("order_by")
+
     def __get_column(models):
         for model in models:
             if hasattr(model, order_by):
                 return getattr(model, order_by)
 
-    order_by = kwargs.get("order_by")
     if order_by:
         direction = asc if kwargs.get("direction") == "ASC" else desc
-        column = __get_column(models)
+
+        if order_by in ["patient_id", "village_number"]:
+            model_column = __get_column(models)
+            column = cast(model_column, Integer)
+        else:
+            column = __get_column(models)
+
         query = query.order_by(direction(column))
 
     return query
