@@ -1,4 +1,4 @@
-import { Box, Container, Typography, TextField } from '@mui/material';
+import { Box, Container, Typography, TextField, CircularProgress } from '@mui/material';
 import { Toast } from 'src/shared/components/toast';
 import { DASHBOARD_PADDING } from 'src/shared/constants';
 import { Form, Formik, Field, FieldProps } from 'formik';
@@ -124,8 +124,15 @@ export const LoginForm = () => {
                       size={'large'}
                       sx={{
                         fontSize: 'large',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
                       }}>
-                      Login
+                      {login.isPending ? (
+                        <CircularProgress size={24} color="inherit" />
+                      ) : (
+                        'Login'
+                      )}
                     </PrimaryButton>
                   </Container>
                 </Form>
