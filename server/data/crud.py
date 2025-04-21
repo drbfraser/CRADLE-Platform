@@ -2,6 +2,7 @@ import logging
 import operator
 import re
 from typing import Any, List, NamedTuple, Optional, Tuple, Type, TypeVar, Union
+from sqlalchemy import cast, Integer
 
 from sqlalchemy import or_
 from sqlalchemy.orm import Query, aliased
