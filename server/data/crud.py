@@ -1332,7 +1332,6 @@ def __order_by_column(query: Query, models: list, **kwargs) -> Query:
     return query
 
 
-
 def __get_slice_indexes(page: str, limit: str) -> Tuple[int, int]:
     start = (int(page) - 1) * int(limit)
     stop = start + int(limit)
