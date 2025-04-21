@@ -2,9 +2,8 @@ import logging
 import operator
 import re
 from typing import Any, List, NamedTuple, Optional, Tuple, Type, TypeVar, Union
-from sqlalchemy import cast, Integer
 
-from sqlalchemy import or_
+from sqlalchemy import or_, cast, Integer
 from sqlalchemy.orm import Query, aliased
 from sqlalchemy.sql.expression import and_, asc, desc, literal, null, text
 from sqlalchemy.sql.functions import coalesce
