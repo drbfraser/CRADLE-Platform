@@ -23,7 +23,7 @@ sms_relay_endpoint = "/api/sms_relay"
 USER_PHONE_NUMBER = os.environ["EMULATOR_PHONE_NUMBER"]
 
 
-def test_create_patient_with_sms_relay(database, api_post, auth_header):
+def test_create_patient_with_sms_relay(database, api_post):
     patient_id = "5390160146141"
     reading_ids = [
         "65acfe28-b0d6-4a63-a484-eceb3277fb4e",
@@ -36,7 +36,6 @@ def test_create_patient_with_sms_relay(database, api_post, auth_header):
         request_number=request_number,
         method="POST",
         endpoint="api/patients",
-        headers=auth_header,
         body=patient_json,
     )
 

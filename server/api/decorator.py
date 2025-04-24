@@ -1,7 +1,6 @@
 import logging
 from functools import wraps
 
-from authentication import cognito
 from common import user_utils
 from data import crud
 from enums import RoleEnum
@@ -15,13 +14,12 @@ def roles_required(accepted_roles):
         @wraps(fn)
         def decorator(*args, **kwargs):
             # Ensure that user is first and foremost actually logged in
-            username = cognito.get_username_from_jwt()
-            user_dict = user_utils.get_user_dict_from_username(username)
+            current_user = user_utils.get_current_user_from_jwt()
             user_has_permissions = False
 
             # Check that one of the accepted roles is in the JWT.
             for role in accepted_roles:
-                if role.value == user_dict.get("role"):
+                if role.value == current_user.get("role"):
                     user_has_permissions = True
 
             if user_has_permissions:
@@ -39,8 +37,6 @@ def patient_association_required():
     def wrapper(fn):
         @wraps(fn)
         def decorator(patient_id, *args, **kwargs):
-            cognito.verify_access_token()
-
             current_user = user_utils.get_current_user_from_jwt()
             user_role = current_user["role"]
             if user_role == RoleEnum.VHT.value:  # Changed the condition here
@@ -57,7 +53,7 @@ def patient_association_required():
                             "patient_id": patient_id,
                         },
                     )
-                    return {"message": "Unauthorized to access this patient."}, 403
+                    return {"message": "Not authorized to access this patient."}, 403
 
             return fn(patient_id, *args, **kwargs)
 

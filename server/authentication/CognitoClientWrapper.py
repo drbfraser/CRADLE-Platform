@@ -6,7 +6,6 @@ from typing import cast
 
 import jwt
 from botocore.exceptions import ClientError
-from flask import request
 from jwt import PyJWK, PyJWKClient
 from mypy_boto3_cognito_idp import CognitoIdentityProviderClient
 
@@ -235,22 +234,11 @@ class CognitoClientWrapper:
             ],
         )
 
-    def _get_access_token(self):
+    def decode_access_token(self, access_token: str) -> dict:
         """
-        Gets the JWT access token from the authorization header.
-        """
-        # Get JWT access token.
-        authorization = request.authorization
-        if authorization is None:
-            raise ValueError("No authorization header found.")
-        access_token = authorization.token
-        if access_token is None:
-            raise ValueError("Access token not found.")
-        return access_token
-
-    def _decode_access_token(self):
-        """
-        Decrypts and decodes the access token in the Authentication header.
+        Decrypts and decodes a Cognito access token.
+        Decoding the token also verifies it in the process. If the access token is invalid, then this method will
+        throw a ValueError exception.
 
         :return payload
         """
@@ -261,9 +249,6 @@ class CognitoClientWrapper:
         jwks = self.jwks_client.get_jwk_set()
         if len(jwks.keys) < 1:
             raise ValueError("Could not retrieve JWKS.")
-
-        # Get JWT access token.
-        access_token = self._get_access_token()
 
         key_id = None
         try:
@@ -292,7 +277,6 @@ class CognitoClientWrapper:
                 algorithms=["RS256"],
                 leeway=60,  # Leeway to account for clock skew.
             )
-            return cast(dict[str, str], payload)
         except jwt.DecodeError as err:
             print("decode error:", err)
             raise ValueError(err)
@@ -300,26 +284,17 @@ class CognitoClientWrapper:
             print("exception:", err)
             raise ValueError(err)
 
-    def verify_access_token(self):
-        """
+        """ 
+        Verify client_id.
         https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-tokens-verifying-a-jwt.html
         """
-        payload = self._decode_access_token()
         client_id = payload.get("client_id")
         if client_id is None or client_id != self.client_id:
             raise ValueError("Invalid Access Token - Client IDs do not match.")
 
-    def get_username_from_jwt(self):
-        """
-        Verifies access token in request authorization header and retrieves
-        the user's username from the token.
+        return payload
 
-        :return username: Username extracted from the JWT.
-        """
-        payload = self._decode_access_token()
-        return payload.get("username")
-
-    def refresh_access_token(self, username: str):
+    def refresh_access_token(self, username: str, refresh_token: str):
         """
         Extracts refresh token from cookies and uses it to get a new access
         token.
@@ -327,10 +302,6 @@ class CognitoClientWrapper:
         :param username: The username of the user who the tokens belong to.
         :return access_token: New access token.
         """
-        refresh_token = request.cookies.get("refresh_token")
-        if refresh_token is None:
-            raise ValueError("No Refresh Token found.")
-
         try:
             auth_response = self.client.admin_initiate_auth(
                 UserPoolId=self.user_pool_id,

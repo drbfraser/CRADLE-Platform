@@ -6,7 +6,7 @@ from typing import Any, Optional, TypedDict, cast
 
 from botocore.exceptions import ClientError
 
-from authentication import cognito
+from authentication import cognito, get_username_from_jwt
 from common import health_facility_utils, phone_number_utils
 from common.constants import EMAIL_REGEX_PATTERN, MAX_SMS_RELAY_REQUEST_NUMBER
 from common.date_utils import get_future_date, is_date_passed
@@ -102,6 +102,10 @@ def get_user_dict_from_username(username: str) -> UserDict:
     return get_user_dict_from_orm(user_orm)
 
 
+def get_user_orm_from_id(user_id: int) -> UserOrm:
+    return crud.read(UserOrm, id=user_id)
+
+
 def get_user_dict_from_id(user_id: int) -> UserDict:
     user_orm = crud.read(UserOrm, id=user_id)
     return get_user_dict_from_orm(user_orm)
@@ -111,6 +115,11 @@ def get_user_id_from_username(username: str) -> int:
     user_orm = get_user_orm_from_username(username)
     user_dict = get_user_dict_from_orm(user_orm)
     return user_dict["id"]
+
+
+def get_username_from_id(user_id: int) -> str:
+    user_orm = get_user_orm_from_id(user_id)
+    return user_orm.username
 
 
 def get_user_data_from_username(username: str):
@@ -147,7 +156,7 @@ def get_current_user_from_jwt():
 
     :return user_data: Dict containing user's info.
     """
-    username = cognito.get_username_from_jwt()
+    username = get_username_from_jwt()
     user_data = get_user_data_from_username(username)
     return user_data
 
@@ -513,7 +522,7 @@ def update_sms_secret_key_for_user(user_id):
 def get_user_sms_secret_key(user_id):
     sms_secret_key_orm = crud.read(SmsSecretKeyOrm, user_id=user_id)
     if sms_secret_key_orm and sms_secret_key_orm.secret_key:
-        sms_secret_key = marshal.marshal(sms_secret_key_orm, SmsSecretKeyOrm)
+        sms_secret_key = marshal.marshal(sms_secret_key_orm)
         return sms_secret_key
     return None
 
@@ -540,10 +549,10 @@ def get_user_sms_secret_key_formatted(user_id):
     return sms_secret_key
 
 
-def get_user_sms_secret_key_string(user_id):
+def get_user_sms_secret_key_string(user_id: int) -> Optional[str]:
     sms_secret_key = crud.read(SmsSecretKeyOrm, user_id=user_id)
     if sms_secret_key:
-        return cast(str, sms_secret_key.secret_key)
+        return sms_secret_key.secret_key
     return None
 
 

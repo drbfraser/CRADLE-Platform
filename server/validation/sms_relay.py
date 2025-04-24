@@ -22,7 +22,7 @@ class SmsRelayDecryptedBody(CradleBaseModel, extra="forbid"):
     request_number: int
     method: HTTPMethodEnum
     endpoint: str
-    headers: Optional[dict[str, str]] = None
+    headers: dict[str, str] = dict()
     body: Optional[str] = None
 
     @field_validator("method", mode="before")
