@@ -101,3 +101,4 @@ the previously mentioned admin user is added along with a few additional users:
 | Harry Nguyen        | hln5@sfu.ca          |
 | Leslie Chow         | lcchow@sfu.ca        |
 | Gurveen Gill        | gkg24@sfu.ca         |
+| Dingsong Zhou       | dza68@sfu.ca         |
