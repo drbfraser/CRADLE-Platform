@@ -13,10 +13,15 @@ While setting up the Cradle development environment locally (from the [Cradle-Pl
 ### 2. Frontend CORS Issue
 
 * ❌ React frontend (`localhost:3000`) showed a CORS error:
-
 ```
 Access to XMLHttpRequest at 'http://localhost:5000/api/user/auth' from origin 'http://localhost:3000' has been blocked by CORS policy.
 ```
+
+## 📌 Problem Context (Linux/Ubuntu, may happen on other OS's)
+
+### 3. cradle-platform Container Not Running Due To Port 3306 Already Being Used
+
+* ❌ `docker compose up` returns `Error response from daemon: Ports are not available: exposing port TCP 0.0.0.0:3306 -> 0.0.0.0:0: listen tcp 0.0.0.0:3306: bind: address already in use`
 
 ---
 
@@ -33,6 +38,11 @@ Access to XMLHttpRequest at 'http://localhost:5000/api/user/auth' from origin 'h
 * Flask backend didn’t include proper `Access-Control-Allow-Origin` headers.
 * Preflight request (`OPTIONS`) not handled properly.
 
+### ⚠️ Issue 3: MySQL Port Conflict
+
+* MySQL uses Port 3306 by default
+* If your machine already has MySQL set up or there is another application which uses that port number, then it will cause a conflict between it and the docker container
+
 ---
 
 ## ✅ Solutions
@@ -48,6 +58,23 @@ Then re-run the backend:
 docker-compose down
 docker-compose up --build
 ```
+
+### Issue 3: Temporarily Stop Conflicting Application (Linux Only)
+
+1. In your terminal, enter `sudo lsof -i :3036`, this will return the application currently using port 3306, for example:
+```
+> sudo lsof -i :3306
+COMMAND  PID  USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+mysqld  1716 mysql   21u  IPv6  17926      0t0  TCP *:mysql (LISTEN)
+# The port is being used by mysql
+```
+2. Temporarily stop the conflicting application (i.e, MySQL) to free the port with `sudo systemctl stop <user>`. For example: `sudo systemctl stop mysql`
+
+3. Re-run the backend with `docker compose up`
+
+* Note: this will only temporarily stop the application, if you turn off your machine, then the conflicting application will start again.
+
+* TODO: Find more permanent solution to this problem? (Maybe reallocating port?), add steps for Windows and Mac.
 ---
 
 ## 📥 Docker Commands Summary
