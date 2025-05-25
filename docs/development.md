@@ -297,7 +297,7 @@ If something has gone wrong and you're having issues with your database, you can
 
 ### Troubleshooting
 
-#### SMS Relay crashing and not working
+#### 1. SMS Relay crashing and not working
 
 There is a rare case where the database will not seed properly and sending a response from the Flask server back to the SMS relay app will crash the SMS relay app. First, verify what the problem is by accessing Docker container's logs. Then, if the problem is that there is no matching phone number, you may need to manually modify values inside the database.
 
@@ -318,3 +318,24 @@ WHERE id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
 ```
 
 So far, the cause of this problem is not yet known and could not be reproduced.
+
+#### 2. Backend Fails on Port 5000 (macOS AirPlay Conflict)
+
+On macOS (Monterey or later), the Flask backend may fail to serve on localhost:5000. This usually happens because macOS reserves port 5000 for AirPlay Receiver, causing Docker to silently bind the port inside the container without exposing it to the host.
+
+Symptoms
+	•	Visiting http://localhost:5000 returns ERR_CONNECTION_REFUSED
+	•	Swagger UI (/apidocs) shows 403 Forbidden
+	•	Frontend login call to http://localhost:5000/api/user/auth fails
+	•	docker ps shows the Flask container running, but no service responds on port 5000
+
+Solution
+Disable AirPlay Receiver on macOS:
+	1.	Go to System Settings > General > AirPlay & Handoff
+	2.	Set AirPlay Receiver to Off
+Then restart Docker:
+```bash
+docker-compose down
+docker-compose up --build
+```
+This frees up port 5000 so the Flask server can bind it normally.
