@@ -324,15 +324,19 @@ So far, the cause of this problem is not yet known and could not be reproduced.
 On macOS (Monterey or later), the Flask backend may fail to serve on localhost:5000. This usually happens because macOS reserves port 5000 for AirPlay Receiver, causing Docker to silently bind the port inside the container without exposing it to the host.
 
 Symptoms
-	•	Visiting http://localhost:5000 returns ERR_CONNECTION_REFUSED
-	•	Swagger UI (/apidocs) shows 403 Forbidden
-	•	Frontend login call to http://localhost:5000/api/user/auth fails
-	•	docker ps shows the Flask container running, but no service responds on port 5000
+
+* Visiting `http://localhost:5000` returns `ERR_CONNECTION_REFUSED`
+* Swagger UI (`/apidocs`) shows `403 Forbidden`
+* Frontend login call to `http://localhost:5000/api/user/auth` fails
+* `docker ps` shows the Flask container running, but no service responds on port 5000
 
 Solution
+
 Disable AirPlay Receiver on macOS:
-	1.	Go to System Settings > General > AirPlay & Handoff
-	2.	Set AirPlay Receiver to Off
+
+1. Go to System Settings > General > AirPlay & Handoff
+2. Set AirPlay Receiver to Off
+
 Then restart Docker:
 ```bash
 docker-compose down
