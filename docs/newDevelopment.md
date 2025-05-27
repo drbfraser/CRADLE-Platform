@@ -19,14 +19,14 @@ Before running the project locally, ensure the following tools are installed on 
 | **Git**            | For cloning the repository                        |
 | **VS Code**        | Recommended IDE                                   |
 
-### 1.1 Installation Notes
+### Installation Notes
 
--  **Docker Setup**
+- **Docker Setup**
   - Install Docker: [Get Docker](https://docs.docker.com/get-docker/)
   - If using **Windows 10 Home**, enable **WSL 2** before installing Docker.
   - Once installed, follow Docker Desktop's “Getting Started” guide to verify your install.
 
--  **Node.js Setup**
+- **Node.js Setup**
   - Install Node.js (LTS version): [Download from nodejs.org](https://nodejs.org/en/)
   - Confirm installation:
     ```bash
@@ -35,7 +35,7 @@ Before running the project locally, ensure the following tools are installed on 
     ```
 
 
-### 1.2 Optional but Recommended
+### Optional but Recommended
 
 - **VS Code Extensions**:
   - Prettier – Code formatter
@@ -43,14 +43,14 @@ Before running the project locally, ensure the following tools are installed on 
   - Python – Linting and debugging
 
 ## 2. Development Environment Setup 
-### 2.1 Cloning the Repo
+### Cloning the Repo
 
 ```
 git clone https://github.sfu.ca/cradle-project/Cradle-Platform.git
 cd Cradle-Platform
 ```
 
-### 2.2 Set up Environment Variables
+### Set up Environment Variables
 
 Create a file named `.env` (extension only file) in the `cradle-platform` directory containing the following:
 
@@ -97,7 +97,7 @@ EMULATOR_PHONE_NUMBER=+15555215556
 
 Note: The "+1" is the country code, and is required. 
 
-### 2.3 Set up the user pool
+### Set up the user pool
 
 Create a file named `.env.cognito_secrets`. This file will be used to store secrets
 needed to connect with the AWS Cognito user pool. Put the access key and secret access key
@@ -182,7 +182,7 @@ cat .env.cognito_secrets-<your-name> > .env.cognito_secrets
 It is strongly recommended that you keep the `.env.cognito_secrets-<your-name>`
 file as a backup.
 
-### 2.4 Spin up the Docker Containers
+### Spin up the Docker Containers
 
 From your OS's terminal (such as PowerShell in Windows) run:
 
@@ -202,7 +202,7 @@ Now it's time to run the database migrations. Once the containers have fully sta
 docker exec cradle_flask flask db upgrade
 ```
 
-### 2.5 Seeding Data
+### Seeding Data
 
 Data seeding is handled by the `manage.py` script in the `server` directory. There are 3 data seeding options which give various amounts of data:
 
@@ -245,7 +245,7 @@ Navigate to `http://localhost:3000/` to see the React app in action. It communic
 You can now develop on both the frontend and backend **with hot-reloading**, and test full-stack features in real time.
 
 ## 4. Project structure
-### 4.1 Backend Project Structure (/server)
+### Backend Project Structure (/server)
 
   The backend is a Flask + MySQL application using Flask-Restful, JWT, SQLAlchemy, and Pydantic for validation.
 
@@ -374,7 +374,7 @@ client/
 ## 5. Database & Migrations
 > All DB commands assume your Docker containers are running.
 
-### 5.1 Accessing the DB
+### Accessing the DB
 
 ```bash
 # List running containers
@@ -391,7 +391,7 @@ SHOW TABLES;
 SELECT * FROM <table>;
 ```
 
-### 5.2 Resetting & Reseeding (Quick Script)
+### Resetting & Reseeding (Quick Script)
 
 ```bash 
 # 1 Stop & remove MySQL container
@@ -408,7 +408,7 @@ docker exec cradle_flask python manage.py seed_minimal
 # or seed_test_data / seed
 ```
 
-### 5.3 DB Migrations Workflow
+### DB Migrations Workflow
 
 ```bash 
 # Generate migration after editing models.py
@@ -425,7 +425,7 @@ docker exec cradle_flask flask db history
 
 ## 7. Troubleshooting & Common Issues
 
-### 7.1 SMS Relay crashing and not working
+### SMS Relay crashing and not working
 
 There is a rare case where the database will not seed properly and sending a response from the Flask server back to the SMS relay app will crash the SMS relay app. First, verify what the problem is by accessing Docker container's logs. Then, if the problem is that there is no matching phone number, you may need to manually modify values inside the database.
 
@@ -447,7 +447,7 @@ WHERE id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
 
 So far, the cause of this problem is not yet known and could not be reproduced.
 
-### 7.2 Backend Fails on Port 5000 (macOS AirPlay Conflict)
+### Backend Fails on Port 5000 (macOS AirPlay Conflict)
 
 On macOS (Monterey or later), the Flask backend may fail to serve on localhost:5000. This usually happens because macOS reserves port 5000 for AirPlay Receiver, causing Docker to silently bind the port inside the container without exposing it to the host.
 
@@ -474,7 +474,7 @@ This frees up port 5000 so the Flask server can bind it normally.
 
 ## 8. General Tips
 
-### 8.1 Quick Start
+### Quick Start
 1.  Start the backend and database  
     ```bash
     docker compose up
@@ -489,7 +489,7 @@ This frees up port 5000 so the Flask server can bind it normally.
 
 ---
 
-### 8.2 Code Formatting (required for CI)
+### Code Formatting (required for CI)
 
 #### Frontend 
 Frontend code is formatted using **Prettier** and must pass **ESLint**.  
@@ -506,7 +506,7 @@ With your Docker containers running, run the following command to format all bac
 docker exec cradle_flask ruff format .
 ```
 
-### 8.3 Adding or Updating Packages
+### Adding or Updating Packages
 
 #### Frontend
 
@@ -530,7 +530,7 @@ docker exec cradle_flask ruff format .
   docker compose build
   #(Run this with containers stopped)
   ```
-### 8.4 Database Workflow (quick reminders)
+### Database Workflow (quick reminders)
 - **Create a migration after editing models.py**
   ```bash
   docker exec cradle_flask flask db migrate -m "describe change"
