@@ -508,8 +508,8 @@ This frees up port 5000 so the Flask server can bind it normally.
 
 ### Quick Start
 1.  Start the backend and database  
-    ```bash
-    docker compose up  
+    ```bash 
+    docker compose up
     ```
 2.  In a new terminal, start the React frontend  
     ```bash
@@ -519,7 +519,6 @@ This frees up port 5000 so the Flask server can bind it normally.
 3.  Open the API documentation: **http://localhost:5000/apidocs**.  
 4.  Using Docker Desktop? You can start/stop/restart containers via its GUI instead of the CLI.
 
----
 
 ### Code Formatting (required for CI)
 
@@ -527,14 +526,14 @@ This frees up port 5000 so the Flask server can bind it normally.
 Frontend code is formatted using **Prettier** and must pass **ESLint**.  
 Run the following command from the `client` directory to automatically fix formatting and lint issues:
 
-```bash
+```bash 
 npm run format          # runs Prettier and ESLint
 ```
 #### Backend
 Backend code is formatted using Ruff.
 With your Docker containers running, run the following command to format all backend files:
 
-```bash
+```bash 
 docker exec cradle_flask ruff format .
 ```
 
@@ -543,9 +542,10 @@ docker exec cradle_flask ruff format .
 #### Frontend
 
 - **Install a package:**
-  ```bash
-  npm install <package>
-  ```
+```bash 
+npm install <package> 
+```
+ 
 - **Pull in teammates’ new dependencies:**
   ```bash 
   npm install
@@ -564,13 +564,15 @@ docker exec cradle_flask ruff format .
   ```
 ### Database Workflow (quick reminders)
 - **Create a migration after editing models.py**
-  ```bash
+  ```bash  
   docker exec cradle_flask flask db migrate -m "describe change"
   ```
+  
 - **Apply migrations**
-  ```bash 
-  docker exec cradle_flask flask db upgrade
+  ```bash   
+  docker exec cradle_flask flask db upgrade 
   ```
+
   Need a clean slate? — follow the Resetting & Reseeding steps in §5.2.  
 ### Useful Tools / Dev Software
 
