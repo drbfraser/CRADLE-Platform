@@ -542,9 +542,9 @@ docker exec cradle_flask ruff format .
 #### Frontend
 
 - **Install a package:**
-```bash 
-npm install <package> 
-```
+  ```bash 
+  npm install <package> 
+  ```
  
 - **Pull in teammates’ new dependencies:**
   ```bash 
