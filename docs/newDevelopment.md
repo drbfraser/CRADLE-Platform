@@ -335,7 +335,7 @@ server/
 └── __init__.py                 # Package-level init
 ```
 
-### 4.2 Frontend Project Structure (/client)
+### Frontend Project Structure (/client)
 
 A modern TypeScript frontend using React, Material UI (MUI), Redux for state management, Vite for dev tooling, and Cypress/Playwright for E2E testing.
 
@@ -421,8 +421,40 @@ docker exec cradle_flask flask db upgrade
 docker exec cradle_flask flask db history
 ```
 
-## 6. Testing ( https://github.sfu.ca/cradle-project/Cradle-Platform/blob/main/docs/testing.md)
+## 6. Testing 
 
+### Running Automated Tests Locally
+
+The backend has a fully automated testing pipeline that runs on every merge request. This includes:
+	•	System tests (systemTests/)
+	•	Unit tests (tests/)
+You can run these tests locally with the following steps:
+
+```bash 
+# Enter the Flask container
+docker exec -it cradle_flask bash
+
+# Run system tests
+python -m pytest systemTests
+
+# Run unit tests
+python -m pytest tests
+```
+Note: There is also a remote test that checks code formatting using black. This is not run locally by default.
+
+### Code Formatting for Tests
+Ensure your code passes formatting checks by running:
+```bash 
+# Install black (optional if already installed)
+py -m pip install black
+
+# Format a specific file (example: users.py)
+black users.py
+```
+To ensure your merge request doesn’t fail due to formatting issues, always run black before submitting.
+
+For more details: 
+[Cradle Platform Testing Guide](https://github.sfu.ca/cradle-project/Cradle-Platform/blob/main/docs/testing/testing.md)
 ## 7. Troubleshooting & Common Issues
 
 ### SMS Relay crashing and not working
@@ -477,7 +509,7 @@ This frees up port 5000 so the Flask server can bind it normally.
 ### Quick Start
 1.  Start the backend and database  
     ```bash
-    docker compose up
+    docker compose up  
     ```
 2.  In a new terminal, start the React frontend  
     ```bash
@@ -540,7 +572,7 @@ docker exec cradle_flask ruff format .
   docker exec cradle_flask flask db upgrade
   ```
   Need a clean slate? — follow the Resetting & Reseeding steps in §5.2.  
-### 8.5 Useful Tools / Dev Software
+### Useful Tools / Dev Software
 
 #### Postman  
 Used to test API endpoints and send HTTP requests with a GUI.  
