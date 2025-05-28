@@ -569,8 +569,8 @@ npm install <package>
   ```
   
 - **Apply migrations**
-  ```bash   
-  docker exec cradle_flask flask db upgrade 
+  ```bash
+ docker exec cradle_flask flask db upgrade 
   ```
 
   Need a clean slate? — follow the Resetting & Reseeding steps in §5.2.  
