@@ -43,12 +43,17 @@ export const CustomizedForm = ({
   const [answers, setAnswers] = useState<QAnswer[]>([]);
 
   const submitCustomForm = useSubmitCustomForm();
+  //here is the bug 
   const handleSubmit = () => {
+    //1. multiple choice 
     if (!areMcResponsesValid(form.questions, answers)) {
       setMultiSelectValidationFailed(true);
       return;
     }
-
+    //2 number-range validation 
+    form.questions.forEach(q => {
+      console.log("print the range min value", q.numMin, "max value", q.numMax);  // ← range picked in EditField
+    });
     const anss: ApiAnswer[] = TransferQAnswerToAPIStandard(
       answers,
       form.questions

@@ -21,6 +21,8 @@ import {
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
 import {
   FormTemplateWithQuestions,
   McOption,
@@ -608,74 +610,74 @@ const EditField = ({
               (q) =>
                 q != question && q.questionType != QuestionTypeEnum.CATEGORY
             ) && (
-              <>
-                <Grid item container sm={12} md={10} lg={10}>
-                  <FormControlLabel
-                    style={{ marginLeft: 0 }}
-                    control={
-                      <Switch
-                        checked={visibilityToggle}
-                        disabled={visibilityDisabled}
-                        onChange={(e) =>
-                          handlers.handleVisibilityChange(
-                            e,
-                            setVisibilityToggle,
-                            setFormDirty,
-                            setFieldChanged,
-                            fieldChanged
-                          )
-                        }
-                        data-testid="conditional-switch"
-                      />
-                    }
-                    label={
-                      <FormLabel id="vis-label" style={{ display: 'flex' }}>
-                        <Typography variant="h6">
-                          Conditional Visibility
-                        </Typography>
-                        <Tooltip
-                          disableFocusListener
-                          disableTouchListener
-                          title={
-                            visibilityDisabled
-                              ? 'Cannot edit if category already has a visibility condition'
-                              : 'Set this field to only appear after a specific field value is entered'
+                <>
+                  <Grid item container sm={12} md={10} lg={10}>
+                    <FormControlLabel
+                      style={{ marginLeft: 0 }}
+                      control={
+                        <Switch
+                          checked={visibilityToggle}
+                          disabled={visibilityDisabled}
+                          onChange={(e) =>
+                            handlers.handleVisibilityChange(
+                              e,
+                              setVisibilityToggle,
+                              setFormDirty,
+                              setFieldChanged,
+                              fieldChanged
+                            )
                           }
-                          arrow
-                          placement="right">
-                          <IconButton>
-                            <InfoIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      </FormLabel>
-                    }
-                    labelPlacement="start"
-                  />
-                </Grid>
-                <Grid item sm={12} md={10} lg={10}>
-                  {visibilityToggle ? (
-                    <EditVisibleCondition
-                      key={editVisCondKey}
-                      currVisCond={
-                        visibleCondition[0] ??
-                        question?.visibleCondition[0] ??
-                        null
+                          data-testid="conditional-switch"
+                        />
                       }
-                      disabled={visibilityDisabled}
-                      filteredQs={questionsArr.filter(
-                        // must use exact same filter criteria as above
-                        (q) =>
-                          q != question &&
-                          q.questionType != QuestionTypeEnum.CATEGORY
-                      )}
-                      setVisibleCondition={setVisibleCondition}
-                      setIsVisCondAnswered={setIsVisCondAnswered}
-                      setFieldChanged={setFieldChanged}
+                      label={
+                        <FormLabel id="vis-label" style={{ display: 'flex' }}>
+                          <Typography variant="h6">
+                            Conditional Visibility
+                          </Typography>
+                          <Tooltip
+                            disableFocusListener
+                            disableTouchListener
+                            title={
+                              visibilityDisabled
+                                ? 'Cannot edit if category already has a visibility condition'
+                                : 'Set this field to only appear after a specific field value is entered'
+                            }
+                            arrow
+                            placement="right">
+                            <IconButton>
+                              <InfoIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        </FormLabel>
+                      }
+                      labelPlacement="start"
                     />
-                  ) : null}
-                </Grid>
-              </>
-            )}
+                  </Grid>
+                  <Grid item sm={12} md={10} lg={10}>
+                    {visibilityToggle ? (
+                      <EditVisibleCondition
+                        key={editVisCondKey}
+                        currVisCond={
+                          visibleCondition[0] ??
+                          question?.visibleCondition[0] ??
+                          null
+                        }
+                        disabled={visibilityDisabled}
+                        filteredQs={questionsArr.filter(
+                          // must use exact same filter criteria as above
+                          (q) =>
+                            q != question &&
+                            q.questionType != QuestionTypeEnum.CATEGORY
+                        )}
+                        setVisibleCondition={setVisibleCondition}
+                        setIsVisCondAnswered={setIsVisCondAnswered}
+                        setFieldChanged={setFieldChanged}
+                      />
+                    ) : null}
+                  </Grid>
+                </>
+              )}
           </Grid>
           {fieldType != 'category' && (
             <Grid item>
