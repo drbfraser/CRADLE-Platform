@@ -66,7 +66,7 @@ LIMITER_DISABLED=True
 
 Note you may set these to any arbitrary values.
 
-In case connecting with cradle-sms-relay is needed, you should append your emulator's phone number to the `.env` file.
+If connecting with the `cradle-sms-relay` is needed, you should append your emulator's phone number to the `.env` file.
 
 For example, add this line at the end of the lines mentioned above:
 
@@ -74,7 +74,7 @@ For example, add this line at the end of the lines mentioned above:
 EMULATOR_PHONE_NUMBER=<PHONE_NUMBER_OF_EMULATOR_RUNNING_CRADLE_MOBILE_APP>
 ```
 
-Your emulator's phone number will very likely be +15555215554 or +15555215556. The former is assigned to the first emulator that starts. The latter is assigned to the second emulator that starts.
+Your emulator's phone number will very likely be `+15555215554` or `+15555215556`. The former is assigned to the first emulator that starts. The latter is assigned to the second emulator that starts.
 
 For example, let's say that you start the CRADLE Mobile app's emulator SECOND (this is AFTER you start the emulator for SMS relay), assuming you have no other emulators open before opening the emulator for SMS relay:
 
@@ -110,8 +110,8 @@ script will programmatically create the remote user pool using the AWS SDK and w
 create a new file populated with the environment variables needed to connect to it.
 
 To run the script, you will need to install the AWS SDK for python. It is recommended
-that you use a virtual environment to do so, rather than installing it globally.
-[https://docs.python.org/3/library/venv.html](https://docs.python.org/3/library/venv.html)
+that you use a [virtual environment](https://docs.python.org/3/library/venv.html) to do so, rather than installing it globally.
+
 
 To create a virtual environment, run `python -m venv .venv`
 You will then need to activate the environment.
@@ -186,11 +186,12 @@ From your OS's terminal (such as PowerShell in Windows) run:
 docker compose up
 ```
 > 💡 If you're using an older version of the Docker CLI, use `docker-compose up` instead (with a hyphen).
-
+`
 All the Docker images will build, then the Docker containers will start. You may add the `-d` option to run the Docker containers in the background, although that makes it more difficult to see log messages from Flask and MySQL.
 (If the Docker can not run properly, try to close the MySQL tasks in the task manager and run it again)
 
-If there are issues starting up Docker containers after recent changes to package requirements, refer to the [Package Changes](https://github.sfu.ca/cradle-project/Cradle-Platform/blob/main/docs/development.md#package-changes) section for troubleshooting steps.
+If there are issues starting up Docker containers after recent changes to package requirements, refer to the [Package Changes](development.md#package-changes)
+section for troubleshooting steps.
 
 Now it's time to run the database migrations. Once the containers have fully started, run the following command in a new terminal window.
 
@@ -422,8 +423,9 @@ docker exec cradle_flask flask db history
 ### Running Automated Tests Locally
 
 The backend has a fully automated testing pipeline that runs on every merge request. This includes:
-	•	System tests (systemTests/)
-	•	Unit tests (tests/)
+- System tests (`system_tests/`)
+- Unit tests (`tests/`)
+
 You can run these tests locally with the following steps:
 
 ```bash 
@@ -436,7 +438,8 @@ python -m pytest systemTests
 # Run unit tests
 python -m pytest tests
 ```
-Note: There is also a remote test that checks code formatting using black. This is not run locally by default.
+
+> Test are also ran in the CI/CD pipeline, which checks code formatting using `black`. This is not run locally by default.
 
 ### Code Formatting for Tests
 Ensure your code passes formatting checks by running:
@@ -449,8 +452,8 @@ black users.py
 ```
 To ensure your merge request doesn’t fail due to formatting issues, always run black before submitting.
 
-For more details: 
-[Cradle Platform Testing Guide](https://github.sfu.ca/cradle-project/Cradle-Platform/blob/main/docs/testing/testing.md)
+For more details:
+[Cradle Platform Testing Guide](testing/testing.md)
 ## 7. Troubleshooting & Common Issues
 
 ### SMS Relay crashing and not working
@@ -533,12 +536,13 @@ With your Docker containers running, run the following command to format all bac
 docker exec cradle_flask ruff format .
 ```
 
-### Adding or Updating Packages
+### Package Changes
+It's always best to avoid adding additional dependencies to the project if possible. Try to use existing packages rather than installing a new one.
 
 #### Frontend
-
 - **Install a package:**
   ```bash 
+  # Inside the `client/` folder:
   npm install <package> 
   ```
  
@@ -548,9 +552,10 @@ docker exec cradle_flask ruff format .
   # or
   npm install --legacy-peer-deps
   ```
-#### Backend 
+#### Backend
 - **Install a package:**
   ```bash
+  # With the docker container running:
   docker exec cradle_flask pip install <package>
   ```
 - **Rebuild after dependency changes:**
