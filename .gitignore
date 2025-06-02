@@ -161,3 +161,4 @@ fluentbit/logs/*
 #Cypress screenshots and videos
 client/cypress/screenshots
 client/cypress/videos
+docker-compose.override.yml
