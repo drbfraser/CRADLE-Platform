@@ -14,7 +14,10 @@ from common.api_utils import (
 from data import crud, marshal
 from models import HealthFacilityOrm, PatientOrm, ReferralOrm
 from service import assoc, serialize, view
-from utils import get_current_time
+# from utils import get_current_time
+
+from common.commonUtil import get_current_time
+
 from validation.referrals import (
     CancelStatus,
     NotAttendReason,

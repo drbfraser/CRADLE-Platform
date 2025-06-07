@@ -1,18 +1,6 @@
-import json
 import logging
-import time
 import uuid
-
 import flask
-
-
-# returns formatted current time in utc timezone
-# def get_current_time():
-#     return int(time.time())
-#
-#
-# def get_uuid():
-#     return str(uuid.uuid4())
 
 
 def generate_request_id(original_id=""):
@@ -39,10 +27,3 @@ class RequestIdFilter(logging.Filter):
     def filter(self, record):
         record.request_id = request_id() if flask.has_request_context() else ""
         return True
-
-
-# use this to replace json.dumps if you want the different
-# language words in json string still to be visible in
-# database rather than unicode format
-def dumps(obj):
-    return json.dumps(obj, ensure_ascii=False)

@@ -1,4 +1,7 @@
+import json
 import re
+import time
+import uuid
 from typing import Any
 
 import phonenumbers
@@ -119,3 +122,16 @@ def to_uppercase(string: str) -> str:
 
 def to_titlecase(string: str) -> str:
     return string.title()
+
+
+# returns formatted current time in utc timezone
+def get_current_time():
+    return int(time.time())
+
+
+def get_uuid():
+    return str(uuid.uuid4())
+
+
+def dumps(obj):
+    return json.dumps(obj, ensure_ascii=False)

@@ -4,8 +4,6 @@ import csv
 import json
 from typing import TYPE_CHECKING, Any, Type
 
-import utils
-
 # from models import FormTemplateOrm
 from common.constants import (
     FORM_TEMPLATE_LANGUAGES_COL,
@@ -65,13 +63,13 @@ def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
     """
     if req.get("classification") is not None:
         if req["classification"].get("id") is None:
-            req["classification"]["id"] = utils.get_uuid()
+            req["classification"]["id"] = commonUtil.get_uuid()
         if req.get("form_classification_id") is None:
             req["form_classification_id"] = req["classification"].get("id")
 
     # assign form id if not provided.
     if req.get("id") is None:
-        req["id"] = utils.get_uuid()
+        req["id"] = commonUtil.get_uuid()
 
     id = req["id"]
 
@@ -81,7 +79,7 @@ def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
     # assign question id and form_id or form_template_id.
     # assign lang version question_id.
     for question in req["questions"]:
-        question["id"] = utils.get_uuid()
+        question["id"] = commonUtil.get_uuid()
 
         if model is FormOrm:
             question["form_id"] = id

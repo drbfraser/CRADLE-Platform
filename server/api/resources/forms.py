@@ -12,7 +12,10 @@ from common.api_utils import (
 )
 from data import crud, marshal
 from models import FormOrm, FormTemplateOrm, PatientOrm, UserOrm
-from utils import get_current_time
+# from utils import get_current_time
+
+from common.commonUtil import get_current_time
+
 from validation.forms import FormModel, UpdateFormRequestBody
 
 # /api/forms/responses
