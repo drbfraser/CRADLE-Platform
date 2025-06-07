@@ -7,7 +7,9 @@ from flask_openapi3.models.tag import Tag
 from pydantic import Field, ValidationError
 
 import data
-from api import util
+# from api import util
+
+from common import form_utils
 from api.decorator import roles_required
 from common.api_utils import (
     FormTemplateIdPath,
@@ -59,7 +61,7 @@ def _handle_form_template_upload(form_template: FormTemplateUpload):
     as a file, or in the request body.
     """
     form_template_dict = form_template.model_dump()
-    util.assign_form_or_template_ids(FormTemplateOrm, form_template_dict)
+    form_utils.assign_form_or_template_ids(FormTemplateOrm, form_template_dict)
     form_classification_dict = form_template_dict["classification"]
     del form_template_dict["classification"]
 
@@ -119,7 +121,7 @@ def upload_form_template_file(form: FileUploadForm):
             return abort(415, description="File content is not valid JSON format")
     elif file.content_type == ContentTypeEnum.CSV.value:
         try:
-            file_contents = util.getFormTemplateDictFromCSV(file_str)
+            file_contents = form_utils.getFormTemplateDictFromCSV(file_str)
         except RuntimeError as err:
             return abort(400, description=err.args[0])
         except TypeError as err:
@@ -190,7 +192,7 @@ def get_form_template_version_as_csv(path: FormTemplateVersionPath):
     if form_template is None:
         return abort(404, description=f"No form with ID: {path.form_template_id}")
 
-    form_template_csv: str = util.getCsvFromFormTemplate(form_template)
+    form_template_csv: str = form_utils.getCsvFromFormTemplate(form_template)
 
     response = make_response(form_template_csv)
     response.headers["Content-Disposition"] = "attachment; filename=form_template.csv"

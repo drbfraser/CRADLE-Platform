@@ -5,8 +5,8 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data
-from api import util
-from common import user_utils
+# from api import util
+from common import user_utils, form_utils
 from common.api_utils import (
     FormIdPath,
 )
@@ -58,7 +58,7 @@ def submit_form(body: FormModel):
 
     new_form_dict = body.model_dump()
 
-    util.assign_form_or_template_ids(FormOrm, new_form_dict)
+    form_utils.assign_form_or_template_ids(FormOrm, new_form_dict)
 
     form = marshal.unmarshal(FormOrm, new_form_dict)
 

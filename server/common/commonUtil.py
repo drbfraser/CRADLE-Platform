@@ -1,8 +1,69 @@
 import re
+from typing import Any
 
 import phonenumbers
 
 from common.constants import EMAIL_REGEX_PATTERN
+
+# from server.enums import QRelationalEnum, QuestionTypeEnum
+from enums import QRelationalEnum, QuestionTypeEnum
+
+
+def parseCondition(parentQuestion: dict, conditionText: str) -> dict:
+    """
+    Returns a condition based on the parent question and the conditionText
+
+    :param parentQuestion: The question the conditionText should be compared against
+    :param conditionText: The text to be compared to the value of the parent question
+
+    :return: Condition dictionary with the parent question ID and a valid answers object
+    """
+
+    def mc_optionsToDict(mc_options):
+        return {option["opt"].casefold(): option["mc_id"] for option in mc_options}
+
+    condition: dict[str, Any] = {
+        "question_index": parentQuestion["question_index"],
+        "relation": QRelationalEnum.EQUAL_TO.value,
+        "answers": {},
+    }
+
+    if parentQuestion["question_type"] == QuestionTypeEnum.CATEGORY:
+        raise RuntimeError("Question visibility cannot depend on a category")
+
+    if parentQuestion["question_type"] in [
+        QuestionTypeEnum.MULTIPLE_CHOICE.value,
+        QuestionTypeEnum.MULTIPLE_SELECT.value,
+    ]:
+        options = [option.strip().casefold() for option in conditionText.split(",")]
+
+        previousQuestionOptions = mc_optionsToDict(
+            parentQuestion["lang_versions"][0]["mc_options"],
+        )
+
+        condition["answers"]["mc_id_array"] = []
+        for option in options:
+            if option not in previousQuestionOptions:
+                raise RuntimeError("Invalid option for visibility.")
+
+            condition["answers"]["mc_id_array"].append(previousQuestionOptions[option])
+
+    elif parentQuestion["question_type"] == QuestionTypeEnum.INTEGER.value:
+        try:
+            condition["answers"]["number"] = int(conditionText)
+        except ValueError:
+            raise RuntimeError("Invalid condition for parent question of type Integer")
+
+    elif parentQuestion["question_type"] == QuestionTypeEnum.DECIMAL.value:
+        try:
+            condition["answers"]["number"] = float(conditionText)
+        except ValueError:
+            raise RuntimeError("Invalid condition for parent question of type Integer")
+
+    else:
+        condition["answers"]["text"] = int(conditionText)
+
+    return condition
 
 
 def filterNestedAttributeWithValueNone(payload: dict) -> dict:
