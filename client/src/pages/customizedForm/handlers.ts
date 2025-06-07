@@ -180,15 +180,15 @@ export const areMcResponsesValid = (
 
 export const areNumberResponsesValid = (
   questions: Question[],
-  answers: QAnswer[],
+  answers: QAnswer[]
 ): boolean => {
   return answers.every((ans) => {
     const q = questions.find((q) => q.questionIndex === ans.questionIndex);
-    if (!q) return true;                       // no matching question → ignore
+    if (!q) return true; // no matching question → ignore
     if (q.numMin === undefined && q.numMax === undefined) return true; // no range set
 
-    const val = Number(ans.val);               // Formik stores raw string; coerce 
-    if (Number.isNaN(val)) return false;       // not a number
+    const val = Number(ans.val); // Formik stores raw string; coerce
+    if (Number.isNaN(val)) return false; // not a number
     if (q.numMin != null && val < q.numMin) return false;
     if (q.numMax != null && val > q.numMax) return false;
     return true;

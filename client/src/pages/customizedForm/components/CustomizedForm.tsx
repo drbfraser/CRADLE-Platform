@@ -50,7 +50,7 @@ export const CustomizedForm = ({
       return;
     }
 
-    //2 number-range validation 
+    //2 number-range validation
     if (!areNumberResponsesValid(form.questions, answers)) {
       return;
     }
