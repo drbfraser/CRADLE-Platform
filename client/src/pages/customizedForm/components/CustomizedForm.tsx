@@ -12,6 +12,7 @@ import {
   ApiAnswer,
   areMcResponsesValid,
   PostBody,
+  areNumberResponsesValid,
   TransferQAnswerToAPIStandard,
   TransferQAnswerToPostBody,
 } from '../handlers';
@@ -46,6 +47,11 @@ export const CustomizedForm = ({
   const handleSubmit = () => {
     if (!areMcResponsesValid(form.questions, answers)) {
       setMultiSelectValidationFailed(true);
+      return;
+    }
+
+    //2 number-range validation 
+    if (!areNumberResponsesValid(form.questions, answers)) {
       return;
     }
 
