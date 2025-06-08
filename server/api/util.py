@@ -2,168 +2,168 @@
 The ``api.util`` module contains utility functions to help extract useful information
 from requests.
 """
-
-from __future__ import annotations
-
-import csv
-import json
-import os
-from typing import TYPE_CHECKING, Any, Type
-
-from flask import Request
-
-import utils
-from common.constants import (
-    FORM_TEMPLATE_LANGUAGES_COL,
-    FORM_TEMPLATE_LANGUAGES_ROW,
-    FORM_TEMPLATE_NAME_COL,
-    FORM_TEMPLATE_NAME_ROW,
-    FORM_TEMPLATE_QUESTION_ID_COL,
-    FORM_TEMPLATE_QUESTION_LINE_COUNT_COL,
-    FORM_TEMPLATE_QUESTION_MAX_VALUE_COL,
-    FORM_TEMPLATE_QUESTION_MIN_VALUE_COL,
-    FORM_TEMPLATE_QUESTION_OPTIONS_COL,
-    FORM_TEMPLATE_QUESTION_REQUIRED_COL,
-    FORM_TEMPLATE_QUESTION_TEXT_COL,
-    FORM_TEMPLATE_QUESTION_TYPE_COL,
-    FORM_TEMPLATE_QUESTION_UNITS_COL,
-    FORM_TEMPLATE_QUESTION_VISIBILITY_CONDITION_COL,
-    FORM_TEMPLATE_ROW_LENGTH,
-    FORM_TEMPLATE_VERSION_COL,
-    FORM_TEMPLATE_VERSION_ROW,
-)
-from data import crud, marshal
-from enums import QRelationalEnum, QuestionTypeEnum
-from models import (
-    FormClassificationOrm,
-    FormOrm,
-    FormTemplateOrm,
-    QuestionOrm,
-    UserOrm,
-    UserPhoneNumberOrm,
-)
-
-if TYPE_CHECKING:
-    from collections.abc import Iterable
-
-    from data.crud import M
-
-duration = os.environ.get("SMS_KEY_DURATION")
-
-if duration:
-    duration = int(duration)
-else:
-    duration = 40
-
-SMS_KEY_DURATION = duration
-
-
-def query_param_limit(request: Request, name: str) -> int:
-    """
-    Returns Integer if the request URL contains a limit query parameter.
-
-    :param request: A request
-    :param name: The name of the parameter to check for
-    :return: 10 if the value for the parameter is not specified, otherwise given value.
-    """
-    return request.args.get(name, 10, type=int)
+#
+# from __future__ import annotations
+#
+# import csv
+# import json
+# import os
+# from typing import TYPE_CHECKING, Any, Type
+#
+# from flask import Request
+#
+# import utils
+# from common.constants import (
+#     FORM_TEMPLATE_LANGUAGES_COL,
+#     FORM_TEMPLATE_LANGUAGES_ROW,
+#     FORM_TEMPLATE_NAME_COL,
+#     FORM_TEMPLATE_NAME_ROW,
+#     FORM_TEMPLATE_QUESTION_ID_COL,
+#     FORM_TEMPLATE_QUESTION_LINE_COUNT_COL,
+#     FORM_TEMPLATE_QUESTION_MAX_VALUE_COL,
+#     FORM_TEMPLATE_QUESTION_MIN_VALUE_COL,
+#     FORM_TEMPLATE_QUESTION_OPTIONS_COL,
+#     FORM_TEMPLATE_QUESTION_REQUIRED_COL,
+#     FORM_TEMPLATE_QUESTION_TEXT_COL,
+#     FORM_TEMPLATE_QUESTION_TYPE_COL,
+#     FORM_TEMPLATE_QUESTION_UNITS_COL,
+#     FORM_TEMPLATE_QUESTION_VISIBILITY_CONDITION_COL,
+#     FORM_TEMPLATE_ROW_LENGTH,
+#     FORM_TEMPLATE_VERSION_COL,
+#     FORM_TEMPLATE_VERSION_ROW,
+# )
+# from data import crud, marshal
+# from enums import QRelationalEnum, QuestionTypeEnum
+# from models import (
+#     FormClassificationOrm,
+#     FormOrm,
+#     FormTemplateOrm,
+#     QuestionOrm,
+#     UserOrm,
+#     UserPhoneNumberOrm,
+# )
+#
+# if TYPE_CHECKING:
+#     from collections.abc import Iterable
+#
+#     from data.crud import M
+#
+# duration = os.environ.get("SMS_KEY_DURATION")
+#
+# if duration:
+#     duration = int(duration)
+# else:
+#     duration = 40
+#
+# SMS_KEY_DURATION = duration
 
 
-def query_param_page(request: Request, name: str) -> int:
-    """
-    Returns Integer if the request URL contains a page query parameter.
-
-    :param request: A request
-    :param name: The name of the parameter to check for
-    :return: 1 if the value for the parameter is not specified, otherwise given value.
-
-    """
-    return request.args.get(name, 1, type=int)
-
-
-def query_param_sortBy(request: Request, name: str) -> str:
-    """
-    Returns String if the request URL contains a page sort_by parameter.
-
-    :param request: A request
-    :param name: The name of the parameter to check for
-    :return: patientName if the value for the parameter is not specified, otherwise given column name.
-
-    """
-    return request.args.get(name, "patientName", type=str)
-
-
-def query_param_sort_dir(request: Request, name: str) -> str:
-    """
-    Returns String if the request URL contains a page sort_dir parameter.
-
-    :param request: A request
-    :param name: The name of the parameter to check for
-    :return: asc if the value for the parameter is not specified, otherwise given column name.
-
-    """
-    return request.args.get(name, "asc", type=str)
-
-
-def query_param_search(request: Request, name: str) -> str:
-    """
-    Returns String if the request URL contains a page sort_dir parameter.
-
-    :param request: A request
-    :param name: The name of the parameter to check for
-    :return: empty string if the value for the parameter is not specified, otherwise given column name.
-
-    """
-    return request.args.get(name, "", type=str)
-
-
-def filterPairsWithNone(payload: dict) -> dict:
-    """
-    Returns dict with all the key-value pairs wherein the value is not None
-
-    :param payload: The dictionary to evaluate
-    """
-    updated_data = {k: v for k, v in payload.items() if v is not None}
-
-    return updated_data
-
-
-def getDictionaryOfUserInfo(id: int) -> dict:
-    """
-    Takes in an id and returns all of the information about a user from the users table
-    and from the supervises table
-
-    :param id: The user's id
-    """
-    user = crud.read(UserOrm, id=id)
-    user_dict = marshal.marshal(user)
-
-    # The vhtlist has to be marshalled manually
-    vht_list = []
-    for user in user.vht_list:
-        vht_list.append(user.id)
-    user_dict["supervises"] = vht_list
-
-    user_dict.pop("password")
-
-    # Add user's phone numbers to the dictionary
-    user_dict["phone_numbers"] = [
-        phone_number.phone_number for phone_number in user.phone_numbers
-    ]
-
-    return user_dict
-
-
-def doesUserExist(id: int) -> bool:
-    """
-    Takes in id of the user and does a read to see if this user exists or not.
-    :param id: The user's id
-
-    """
-    user = crud.read(UserOrm, id=id)
-    if user is None:
-        return False
-    return True
+# def query_param_limit(request: Request, name: str) -> int:
+#     """
+#     Returns Integer if the request URL contains a limit query parameter.
+#
+#     :param request: A request
+#     :param name: The name of the parameter to check for
+#     :return: 10 if the value for the parameter is not specified, otherwise given value.
+#     """
+#     return request.args.get(name, 10, type=int)
+#
+#
+# def query_param_page(request: Request, name: str) -> int:
+#     """
+#     Returns Integer if the request URL contains a page query parameter.
+#
+#     :param request: A request
+#     :param name: The name of the parameter to check for
+#     :return: 1 if the value for the parameter is not specified, otherwise given value.
+#
+#     """
+#     return request.args.get(name, 1, type=int)
+#
+#
+# def query_param_sortBy(request: Request, name: str) -> str:
+#     """
+#     Returns String if the request URL contains a page sort_by parameter.
+#
+#     :param request: A request
+#     :param name: The name of the parameter to check for
+#     :return: patientName if the value for the parameter is not specified, otherwise given column name.
+#
+#     """
+#     return request.args.get(name, "patientName", type=str)
+#
+#
+# def query_param_sort_dir(request: Request, name: str) -> str:
+#     """
+#     Returns String if the request URL contains a page sort_dir parameter.
+#
+#     :param request: A request
+#     :param name: The name of the parameter to check for
+#     :return: asc if the value for the parameter is not specified, otherwise given column name.
+#
+#     """
+#     return request.args.get(name, "asc", type=str)
+#
+#
+# def query_param_search(request: Request, name: str) -> str:
+#     """
+#     Returns String if the request URL contains a page sort_dir parameter.
+#
+#     :param request: A request
+#     :param name: The name of the parameter to check for
+#     :return: empty string if the value for the parameter is not specified, otherwise given column name.
+#
+#     """
+#     return request.args.get(name, "", type=str)
+#
+#
+# def filterPairsWithNone(payload: dict) -> dict:
+#     """
+#     Returns dict with all the key-value pairs wherein the value is not None
+#
+#     :param payload: The dictionary to evaluate
+#     """
+#     updated_data = {k: v for k, v in payload.items() if v is not None}
+#
+#     return updated_data
+#
+#
+# def getDictionaryOfUserInfo(id: int) -> dict:
+#     """
+#     Takes in an id and returns all of the information about a user from the users table
+#     and from the supervises table
+#
+#     :param id: The user's id
+#     """
+#     user = crud.read(UserOrm, id=id)
+#     user_dict = marshal.marshal(user)
+#
+#     # The vhtlist has to be marshalled manually
+#     vht_list = []
+#     for user in user.vht_list:
+#         vht_list.append(user.id)
+#     user_dict["supervises"] = vht_list
+#
+#     user_dict.pop("password")
+#
+#     # Add user's phone numbers to the dictionary
+#     user_dict["phone_numbers"] = [
+#         phone_number.phone_number for phone_number in user.phone_numbers
+#     ]
+#
+#     return user_dict
+#
+#
+# def doesUserExist(id: int) -> bool:
+#     """
+#     Takes in id of the user and does a read to see if this user exists or not.
+#     :param id: The user's id
+#
+#     """
+#     user = crud.read(UserOrm, id=id)
+#     if user is None:
+#         return False
+#     return True
 
 
 # def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
@@ -600,89 +600,89 @@ def doesUserExist(id: int) -> bool:
 #     return list_to_csv(rows)
 
 
-# Check if the phone number is already in the database - if user_id is supplied the phone number should belong to that user
-def phoneNumber_exists(phone_number, user_id=-1):
-    existing_phone_number = None
-    if user_id == -1:
-        existing_phone_number = crud.read(UserPhoneNumberOrm, phone_number=phone_number)
-    else:
-        existing_phone_number = crud.read(
-            UserPhoneNumberOrm,
-            phone_number=phone_number,
-            user_id=user_id,
-        )
-    return existing_phone_number is not None
-
-
-def get_all_phoneNumbers_for_user(user_id):
-    phone_numbers = crud.read_all(UserPhoneNumberOrm, user_id=user_id)
-    numbers = [phone_number.phone_number for phone_number in phone_numbers]
-    return numbers
-
-
-def get_user_from_phone_number(phone_number):
-    phone_number_object = crud.read(UserPhoneNumberOrm, phone_number=phone_number)
-    if phone_number_object:
-        user = crud.read(UserOrm, id=phone_number_object.user_id)
-        return user
-    return None
-
-
-# Add new_phone_number to the list of numbers of the user with user_id.
-def add_new_phoneNumber_for_user(new_phone_number, user_id):
-    # check to see if the phone number is already in the database for any user
-    if phoneNumber_exists(new_phone_number):
-        return False
-
-    user = crud.read(UserOrm, id=user_id)
-    crud.create(UserPhoneNumberOrm(phone_number=new_phone_number, user=user))
-
-    return True
-
-
-# Delete phone_number from the list of phone numbers of user with user_id if the number belongs to them
-def delete_user_phoneNumber(phone_number, user_id):
-    if phoneNumber_exists(phone_number, user_id):
-        crud.delete_by(UserPhoneNumberOrm, phone_number=phone_number, user_id=user_id)
-        return True
-    return False
-
-
-# Replaces current_phone_number to new_phone_number for user_id if current_phone_number belongs to the user and new_phone_number does not belong to anyone
-def replace_phoneNumber_for_user(current_phone_number, new_phone_number, user_id):
-    # Check to see if current_phone_number belongs to user_id and if new_phone_number belongs to anyone
-    if (phoneNumber_exists(current_phone_number, user_id)) and (
-        not phoneNumber_exists(new_phone_number)
-    ):
-        crud.update(
-            UserPhoneNumberOrm,
-            {"phone_number": new_phone_number},
-            phone_number=current_phone_number,
-            user_id=user_id,
-        )
-        return True
-    return False
-
-
-def get_user_roles(user_id):
-    user_orm = crud.read(UserOrm, id=user_id)
-    if user_orm is None:
-        raise ValueError(f"No user with id ({user_id}) was found.")
-    return user_orm.role
-
-
-def hex2bytes(key):
-    return bytes.fromhex(key)
-
-
-def bytes2hex(key: bytes):
-    return key.hex()
-
-
-def validate_user(user_id):
-    if not user_id:
-        return {"message": "must provide an id"}, 400
-    # check if user exists
-    if not doesUserExist(user_id):
-        return {"message": "There is no user with this id"}, 404
-    return None
+# # Check if the phone number is already in the database - if user_id is supplied the phone number should belong to that user
+# def phoneNumber_exists(phone_number, user_id=-1):
+#     existing_phone_number = None
+#     if user_id == -1:
+#         existing_phone_number = crud.read(UserPhoneNumberOrm, phone_number=phone_number)
+#     else:
+#         existing_phone_number = crud.read(
+#             UserPhoneNumberOrm,
+#             phone_number=phone_number,
+#             user_id=user_id,
+#         )
+#     return existing_phone_number is not None
+#
+#
+# def get_all_phoneNumbers_for_user(user_id):
+#     phone_numbers = crud.read_all(UserPhoneNumberOrm, user_id=user_id)
+#     numbers = [phone_number.phone_number for phone_number in phone_numbers]
+#     return numbers
+#
+#
+# def get_user_from_phone_number(phone_number):
+#     phone_number_object = crud.read(UserPhoneNumberOrm, phone_number=phone_number)
+#     if phone_number_object:
+#         user = crud.read(UserOrm, id=phone_number_object.user_id)
+#         return user
+#     return None
+#
+#
+# # Add new_phone_number to the list of numbers of the user with user_id.
+# def add_new_phoneNumber_for_user(new_phone_number, user_id):
+#     # check to see if the phone number is already in the database for any user
+#     if phoneNumber_exists(new_phone_number):
+#         return False
+#
+#     user = crud.read(UserOrm, id=user_id)
+#     crud.create(UserPhoneNumberOrm(phone_number=new_phone_number, user=user))
+#
+#     return True
+#
+#
+# # Delete phone_number from the list of phone numbers of user with user_id if the number belongs to them
+# def delete_user_phoneNumber(phone_number, user_id):
+#     if phoneNumber_exists(phone_number, user_id):
+#         crud.delete_by(UserPhoneNumberOrm, phone_number=phone_number, user_id=user_id)
+#         return True
+#     return False
+#
+#
+# # Replaces current_phone_number to new_phone_number for user_id if current_phone_number belongs to the user and new_phone_number does not belong to anyone
+# def replace_phoneNumber_for_user(current_phone_number, new_phone_number, user_id):
+#     # Check to see if current_phone_number belongs to user_id and if new_phone_number belongs to anyone
+#     if (phoneNumber_exists(current_phone_number, user_id)) and (
+#         not phoneNumber_exists(new_phone_number)
+#     ):
+#         crud.update(
+#             UserPhoneNumberOrm,
+#             {"phone_number": new_phone_number},
+#             phone_number=current_phone_number,
+#             user_id=user_id,
+#         )
+#         return True
+#     return False
+#
+#
+# def get_user_roles(user_id):
+#     user_orm = crud.read(UserOrm, id=user_id)
+#     if user_orm is None:
+#         raise ValueError(f"No user with id ({user_id}) was found.")
+#     return user_orm.role
+#
+#
+# def hex2bytes(key):
+#     return bytes.fromhex(key)
+#
+#
+# def bytes2hex(key: bytes):
+#     return key.hex()
+#
+#
+# def validate_user(user_id):
+#     if not user_id:
+#         return {"message": "must provide an id"}, 400
+#     # check if user exists
+#     if not doesUserExist(user_id):
+#         return {"message": "There is no user with this id"}, 404
+#     return None

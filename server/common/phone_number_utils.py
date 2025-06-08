@@ -197,3 +197,18 @@ def get_users_phone_numbers(user_id: int) -> list[str]:
         phone_number_orm.phone_number for phone_number_orm in user_phone_number_orms
     ]
     return phone_numbers
+
+
+def replace_phoneNumber_for_user(current_phone_number, new_phone_number, user_id):
+    # Check to see if current_phone_number belongs to user_id and if new_phone_number belongs to anyone
+    if (does_phone_number_belong_to_user(user_id, current_phone_number)) and (
+        not does_phone_number_exist(new_phone_number)
+    ):
+        crud.update(
+            UserPhoneNumberOrm,
+            {"phone_number": new_phone_number},
+            phone_number=current_phone_number,
+            user_id=user_id,
+        )
+        return True
+    return False

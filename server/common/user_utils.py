@@ -572,3 +572,36 @@ def update_expected_request_number(phone_number, current_request_number):
     new_request_number = {"expected_request_number": updated_request_number}
 
     crud.update(UserPhoneNumberOrm, new_request_number, phone_number=phone_number)
+
+
+def getDictionaryOfUserInfo(id: int) -> dict:
+    """
+    Takes in an id and returns all of the information about a user from the users table
+    and from the supervises table
+
+    :param id: The user's id
+    """
+    user = crud.read(UserOrm, id=id)
+    user_dict = marshal.marshal(user)
+
+    # The vhtlist has to be marshalled manually
+    vht_list = []
+    for user in user.vht_list:
+        vht_list.append(user.id)
+    user_dict["supervises"] = vht_list
+
+    user_dict.pop("password")
+
+    # Add user's phone numbers to the dictionary
+    user_dict["phone_numbers"] = [
+        phone_number.phone_number for phone_number in user.phone_numbers
+    ]
+
+    return user_dict
+
+
+def get_user_roles(user_id):
+    user_orm = crud.read(UserOrm, id=user_id)
+    if user_orm is None:
+        raise ValueError(f"No user with id ({user_id}) was found.")
+    return user_orm.role

@@ -102,3 +102,4 @@ the previously mentioned admin user is added along with a few additional users:
 | Leslie Chow         | lcchow@sfu.ca        |
 | Gurveen Gill        | gkg24@sfu.ca         |
 | Dingsong Zhou       | dza68@sfu.ca         |
+| James Chuong        | jca543@sfu.ca        |

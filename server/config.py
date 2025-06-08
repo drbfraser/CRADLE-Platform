@@ -47,7 +47,7 @@ class Config:
         "filters": {
             "backend_filter": {"backend_module": "backend"},
             "request_id": {
-                "()": "utils.RequestIdFilter",
+                "()": "common.request_id_utils.RequestIdFilter",
             },
         },
         "formatters": {

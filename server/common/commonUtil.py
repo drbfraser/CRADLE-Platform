@@ -133,5 +133,27 @@ def get_uuid():
     return str(uuid.uuid4())
 
 
+# use this to replace json.dumps if you want the different
+# language words in json string still to be visible in
+# database rather than unicode format
 def dumps(obj):
     return json.dumps(obj, ensure_ascii=False)
+
+
+def filterPairsWithNone(payload: dict) -> dict:
+    """
+    Returns dict with all the key-value pairs wherein the value is not None
+
+    :param payload: The dictionary to evaluate
+    """
+    updated_data = {k: v for k, v in payload.items() if v is not None}
+
+    return updated_data
+
+
+def hex2bytes(key):
+    return bytes.fromhex(key)
+
+
+def bytes2hex(key: bytes):
+    return key.hex()
