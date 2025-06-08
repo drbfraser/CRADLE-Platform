@@ -6,6 +6,7 @@ from jsonschema.exceptions import SchemaError, ValidationError
 from marshmallow_enum import EnumField
 from marshmallow_sqlalchemy import fields
 
+from common.commonUtil import get_current_time, get_uuid
 from config import db, ma
 from enums import (
     FacilityTypeEnum,
@@ -13,7 +14,6 @@ from enums import (
     SexEnum,
     TrafficLightEnum,
 )
-from common.commonUtil import get_uuid, get_current_time
 
 SupervisesTable = db.Table(
     "supervises",

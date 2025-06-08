@@ -4,6 +4,8 @@ import csv
 import json
 from typing import TYPE_CHECKING, Any, Type
 
+from common import commonUtil
+
 # from models import FormTemplateOrm
 from common.constants import (
     FORM_TEMPLATE_LANGUAGES_COL,
@@ -24,10 +26,8 @@ from common.constants import (
     FORM_TEMPLATE_VERSION_COL,
     FORM_TEMPLATE_VERSION_ROW,
 )
-from common import commonUtil
 from enums import QuestionTypeEnum
-from models import QuestionOrm, FormClassificationOrm, FormOrm, FormTemplateOrm
-
+from models import FormClassificationOrm, FormOrm, FormTemplateOrm, QuestionOrm
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

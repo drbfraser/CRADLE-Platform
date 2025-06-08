@@ -242,7 +242,7 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
     db_session.commit()
 
     # Read all patients that have been created or updated since last sync
-    current_user = cast(dict[Any, Any], current_user)
+    current_user = cast("dict[Any, Any]", current_user)
     new_patients = view.patient_view(current_user, last_sync)
     patients_json = [serialize.serialize_patient(p) for p in new_patients]
 
@@ -287,7 +287,7 @@ def sync_readings(query: LastSyncQueryParam, body: SyncReadingsBody):
     # Read all readings that have been created or updated since last sync
     current_user = user_utils.get_current_user_from_jwt()
     last_sync = query.since
-    new_readings = view.reading_view(cast(dict[Any, Any], current_user), last_sync)
+    new_readings = view.reading_view(cast("dict[Any, Any]", current_user), last_sync)
 
     return {
         "readings": [serialize.serialize_reading(r) for r in new_readings],
@@ -325,7 +325,7 @@ def sync_referrals(query: LastSyncQueryParam, body: SyncReferralsBody):
     # Read all referrals that have been created or updated since last sync
     current_user = user_utils.get_current_user_from_jwt()
     last_sync = query.since
-    new_referrals = view.referral_view(cast(dict[Any, Any], current_user), last_sync)
+    new_referrals = view.referral_view(cast("dict[Any, Any]", current_user), last_sync)
 
     return {
         "referrals": [
@@ -347,7 +347,7 @@ def sync_assessments(query: LastSyncQueryParam):
     # Read all assessments that have been updated since last sync
     current_user = user_utils.get_current_user_from_jwt()
     new_assessments = view.assessment_view(
-        cast(dict[Any, Any], current_user), last_sync
+        cast("dict[Any, Any]", current_user), last_sync
     )
 
     return {

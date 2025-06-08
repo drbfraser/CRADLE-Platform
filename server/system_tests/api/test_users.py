@@ -68,7 +68,7 @@ def test_edit_user(auth_header, database):
     vht = user_utils.get_user_data_from_username(username)
     original_name = vht["name"]
     new_name = "Test Name Changed"
-    vht = cast(dict[Any, Any], vht)
+    vht = cast("dict[Any, Any]", vht)
     del vht["sms_key"]
 
     # Edit VHT

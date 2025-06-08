@@ -11,11 +11,10 @@ from common.api_utils import (
     ReferralIdPath,
     SearchFilterQueryParams,
 )
+from common.commonUtil import get_current_time
 from data import crud, marshal
 from models import HealthFacilityOrm, PatientOrm, ReferralOrm
 from service import assoc, serialize, view
-
-from common.commonUtil import get_current_time
 from validation.referrals import (
     CancelStatus,
     NotAttendReason,
@@ -55,7 +54,7 @@ def get_referrals_list(query: GetReferralsListQueryParams):
     if "default" in query.health_facilities:
         query.health_facilities.append(current_user["health_facility_name"])
 
-    user = cast(dict[Any, Any], current_user)
+    user = cast("dict[Any, Any]", current_user)
     referrals = view.referral_list_view(user, **query.model_dump())
 
     return serialize.serialize_referral_list(referrals)

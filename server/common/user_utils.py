@@ -87,7 +87,7 @@ def get_user_dict_from_orm(user_orm: UserOrm) -> UserDict:
         user.
     """
     user_dict = marshal.marshal(user_orm)
-    return cast(UserDict, user_dict)
+    return cast("UserDict", user_dict)
 
 
 def get_user_dict_from_username(username: str) -> UserDict:

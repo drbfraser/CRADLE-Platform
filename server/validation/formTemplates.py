@@ -2,8 +2,8 @@ from typing import Optional
 
 from pydantic import Field, RootModel, field_validator
 
-from service import questionTree
 from common.commonUtil import get_current_time
+from service import questionTree
 from validation import CradleBaseModel
 from validation.formClassifications import (
     FormClassificationExamples,

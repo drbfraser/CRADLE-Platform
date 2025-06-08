@@ -7,8 +7,8 @@ from flask_openapi3.models.tag import Tag
 from pydantic import Field, ValidationError
 
 import data
-from common import form_utils
 from api.decorator import roles_required
+from common import form_utils
 from common.api_utils import (
     FormTemplateIdPath,
 )
