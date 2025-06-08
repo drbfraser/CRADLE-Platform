@@ -24,6 +24,7 @@ from common.constants import (
     FORM_TEMPLATE_VERSION_COL,
     FORM_TEMPLATE_VERSION_ROW,
 )
+
 # from data import crud, marshal
 
 from common import commonUtil
@@ -429,5 +430,3 @@ def getCsvFromFormTemplate(form_template: FormTemplateOrm):
             rows.append(row)
 
     return list_to_csv(rows)
-
-
