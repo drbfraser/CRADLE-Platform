@@ -24,9 +24,6 @@ from common.constants import (
     FORM_TEMPLATE_VERSION_COL,
     FORM_TEMPLATE_VERSION_ROW,
 )
-
-# from data import crud, marshal
-
 from common import commonUtil
 from enums import QuestionTypeEnum
 from models import QuestionOrm, FormClassificationOrm, FormOrm, FormTemplateOrm

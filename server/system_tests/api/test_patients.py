@@ -9,9 +9,6 @@ from common.print_utils import pretty_print
 from data import crud
 from enums import TrafficLightEnum
 from models import MedicalRecordOrm, PatientOrm, ReadingOrm
-
-# from utils import get_current_time
-
 from common.commonUtil import get_current_time
 
 

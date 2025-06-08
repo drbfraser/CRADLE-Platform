@@ -3,10 +3,7 @@ from typing import Optional
 from pydantic import Field, RootModel, model_validator
 from typing_extensions import Self
 
-# from utils import get_current_time
-
 from common.commonUtil import get_current_time
-
 from validation import CradleBaseModel
 
 

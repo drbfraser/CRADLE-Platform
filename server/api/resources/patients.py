@@ -26,9 +26,6 @@ from models import (
     UserOrm,
 )
 from service import assoc, invariant, serialize, statsCalculation, view
-
-# from utils import get_current_time
-
 from common.commonUtil import get_current_time
 
 from validation import CradleBaseModel

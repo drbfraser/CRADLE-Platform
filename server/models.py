@@ -13,9 +13,6 @@ from enums import (
     SexEnum,
     TrafficLightEnum,
 )
-
-# from utils import get_current_time
-
 from common.commonUtil import get_uuid, get_current_time
 
 SupervisesTable = db.Table(

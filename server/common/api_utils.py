@@ -1,8 +1,8 @@
 import json
 import re
 from typing import Optional
-from flask import Request
 
+from flask import Request
 from flask import request
 from pydantic import AliasChoices, Field, field_validator
 from pydantic.alias_generators import to_snake
