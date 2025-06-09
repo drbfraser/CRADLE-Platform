@@ -11,7 +11,7 @@ import { useUpdatePatientMutation } from '../mutations';
 import { personalInfoValidationSchema } from './personalInfo/validation';
 import PatientFormHeader from './PatientFormHeader';
 import { PersonalInfoForm } from './personalInfo';
-import { getPatientInfoAsync } from 'src/shared/api/api';
+import { getPatientInfoAsync } from 'src/shared/api';
 import { Patient } from 'src/shared/types';
 import { getAgeBasedOnDOB } from 'src/shared/utils';
 

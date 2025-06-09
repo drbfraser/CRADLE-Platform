@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 
-import { API_URL } from 'src/shared/api/api';
+import { API_URL } from 'src/shared/api';
 import { EndpointEnum } from 'src/shared/enums';
 import { FORM_TEMPLATE_TEST_DATA } from './testData';
 

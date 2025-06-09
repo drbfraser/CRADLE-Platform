@@ -8,7 +8,7 @@ import {
 import { TextField } from 'formik-mui';
 import { Field, Form, Formik } from 'formik';
 
-import { resetUserPasswordAsync } from 'src/shared/api/api';
+import { resetUserPasswordAsync } from 'src/shared/api';
 import { User } from 'src/shared/api/validation/user';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Toast } from 'src/shared/components/toast';

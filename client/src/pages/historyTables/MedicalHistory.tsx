@@ -9,7 +9,7 @@ import {
 } from '@mui/x-data-grid';
 import { useDialogs } from '@toolpad/core';
 
-import { deleteMedicalRecordAsync } from 'src/shared/api/api';
+import { deleteMedicalRecordAsync } from 'src/shared/api';
 import { MedicalRecord } from 'src/shared/types';
 import { getPrettyDate } from 'src/shared/utils';
 import {

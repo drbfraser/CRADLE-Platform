@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Alert, Divider, Skeleton, Stack } from '@mui/material';
 
-import { getPatientPregnancySummaryAsync } from 'src/shared/api/api';
+import { getPatientPregnancySummaryAsync } from 'src/shared/api';
 import PregnancyStatsCurrent from './PregnancyStatsCurrent';
 import PregnancyStatsPrevious from './PregnancyStatsPrevious';
 

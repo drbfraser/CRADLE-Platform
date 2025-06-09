@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 
 import { CForm } from 'src/shared/types';
-import { getFormTemplateLangAsync } from 'src/shared/api/api';
+import { getFormTemplateLangAsync } from 'src/shared/api';
 import { useFormTemplatesQuery } from 'src/shared/queries';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { PrimaryButton } from 'src/shared/components/Button';

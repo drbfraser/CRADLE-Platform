@@ -16,7 +16,7 @@ import PatientFormHeader from './PatientFormHeader';
 import { pregnancyInfoValidationSchema } from './pregnancyInfo/validation';
 import { PregnancyInfoForm } from './pregnancyInfo';
 import { getPregnancyValues } from './pregnancyInfo/utils';
-import { getPregnancyAsync } from 'src/shared/api/api';
+import { getPregnancyAsync } from 'src/shared/api';
 import { GestationalAgeUnitEnum } from 'src/shared/enums';
 import { Pregnancy } from 'src/shared/types';
 import {

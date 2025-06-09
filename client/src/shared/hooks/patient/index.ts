@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getPatientAsync } from 'src/shared/api/api';
+import { getPatientAsync } from 'src/shared/api';
 
 const usePatient = (patientId: string) => {
   const { data: patient, isError: errorLoading } = useQuery({

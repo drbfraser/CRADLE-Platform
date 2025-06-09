@@ -15,7 +15,7 @@ import {
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { UserRoleEnum } from 'src/shared/enums';
-import { editUserAsync } from 'src/shared/api/api';
+import { editUserAsync } from 'src/shared/api';
 import { EditUser, User } from 'src/shared/api/validation/user';
 import { UserPhoneNumbersFieldArray } from 'src/pages/admin/manageUsers/UserForms/UserPhoneNumbersFieldArray';
 import {

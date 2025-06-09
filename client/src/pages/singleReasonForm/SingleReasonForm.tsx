@@ -7,7 +7,7 @@ import { Grid, Paper } from '@mui/material';
 import {
   setReferralCancelStatusAsync,
   setReferralNotAttendedAsync,
-} from 'src/shared/api/api';
+} from 'src/shared/api';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { SingleReason, SingleReasonField, initialState } from './state';

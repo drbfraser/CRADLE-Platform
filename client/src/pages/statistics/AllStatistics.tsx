@@ -1,7 +1,7 @@
 import Divider from '@mui/material/Divider';
 import { StatisticDashboard } from './utils/StatisticsDashboard';
 import Typography from '@mui/material/Typography';
-import { getAllStatisticsAsync } from 'src/shared/api/apiStatistics';
+import { getAllStatisticsAsync } from 'src/shared/api';
 import { DIVIDER_SX, STATS_PAGE_SX } from './utils/statisticStyles';
 import { Box } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';

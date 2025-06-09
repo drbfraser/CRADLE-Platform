@@ -10,9 +10,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-
-import { getUsersAsync } from 'src/shared/api/api';
-import { getUserStatisticsExportAsync } from 'src/shared/api/apiStatistics';
+import { getUserStatisticsExportAsync, getUsersAsync } from 'src/shared/api';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { ExportStatistics } from './utils/ExportStatistics';
 import { StatisticDashboard } from './utils/StatisticsDashboard';

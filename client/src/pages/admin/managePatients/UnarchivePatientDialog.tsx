@@ -3,7 +3,7 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { ConfirmDialog } from 'src/shared/components/confirmDialog/index';
 import { Patient } from 'src/shared/types';
 import { Toast } from 'src/shared/components/toast';
-import { unarchivePatientAsync } from 'src/shared/api/api';
+import { unarchivePatientAsync } from 'src/shared/api';
 
 interface IProps {
   open: boolean;

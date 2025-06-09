@@ -9,7 +9,7 @@ import {
   Grid,
   TextField,
 } from '@mui/material';
-import { addRelayServerPhone } from 'src/shared/api/api';
+import { addRelayServerPhone } from 'src/shared/api';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import { RelayNum } from 'src/shared/types';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';

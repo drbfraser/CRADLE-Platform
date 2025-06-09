@@ -6,7 +6,7 @@ import {
   DialogTitle,
 } from '@mui/material';
 import { RelayNum } from 'src/shared/types';
-import { deleteRelayNumAsync } from 'src/shared/api/api';
+import { deleteRelayNumAsync } from 'src/shared/api';
 import { Toast } from 'src/shared/components/toast';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
