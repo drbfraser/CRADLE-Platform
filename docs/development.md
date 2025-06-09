@@ -246,7 +246,7 @@ You can now develop on both the frontend and backend **with hot-reloading**, and
 
   The backend is a Flask + MySQL application using Flask-Restful, JWT, SQLAlchemy, and Pydantic for validation.
 
- #### Core Structure Overview
+<details><summary>Core Structure Overview</summary>
 
 ```plaintext
 server/
@@ -332,11 +332,14 @@ server/
 └── __init__.py                 # Package-level init
 ```
 
+</details>
+
 ### Frontend Project Structure (/client)
 
 A modern TypeScript frontend using React, Material UI (MUI), Redux for state management, Vite for dev tooling, and Cypress/Playwright for E2E testing.
 
-#### Core Structure Overview
+<details><summary>Core Structure Overview</summary>
+
 ```plaintext
 client/
 ├── cypress/                  # Cypress E2E tests and support files
@@ -368,6 +371,9 @@ client/
 ├── tsconfig.json             # TypeScript configuration
 ├── vite.config.ts            # Vite project configuration
 ```
+
+</details>
+
 ## 5. Database & Migrations
 > All DB commands assume your Docker containers are running.
 
@@ -458,6 +464,8 @@ For more details:
 
 ### SMS Relay crashing and not working
 
+<details>
+
 There is a rare case where the database will not seed properly and sending a response from the Flask server back to the SMS relay app will crash the SMS relay app. First, verify what the problem is by accessing Docker container's logs. Then, if the problem is that there is no matching phone number, you may need to manually modify values inside the database.
 
 For example, you might have to run this MySQL query in the Docker container running MySQL if the issue is that `+15555215556` is not in the `user_phone_number` table, and that is what the Flask server is expecting.
@@ -478,7 +486,11 @@ WHERE id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
 
 So far, the cause of this problem is not yet known and could not be reproduced.
 
+</details>
+
 ### Backend Fails on Port 5000 (macOS AirPlay Conflict)
+
+<details>
 
 On macOS (Monterey or later), the Flask backend may fail to serve on localhost:5000. This usually happens because macOS reserves port 5000 for AirPlay Receiver, causing Docker to silently bind the port inside the container without exposing it to the host.
 
@@ -502,6 +514,8 @@ docker-compose down
 docker-compose up --build
 ```
 This frees up port 5000 so the Flask server can bind it normally.
+
+</details>
 
 ## 8. General Tips
 
