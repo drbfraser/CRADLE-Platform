@@ -9,7 +9,7 @@ import {
   Select,
   SelectChangeEvent,
 } from '@mui/material';
-import { getFacilityStatisticsAsync } from 'src/shared/api/apiStatistics';
+import { getFacilityStatisticsAsync } from 'src/shared/api';
 
 import { useHealthFacilitiesQuery } from 'src/shared/queries';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';

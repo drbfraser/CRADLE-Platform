@@ -12,7 +12,7 @@ import {
 import RecentActorsIcon from '@mui/icons-material/RecentActors';
 
 import { Patient, OrNull } from 'src/shared/types';
-import { getPatientMedicalHistoryAsync } from 'src/shared/api/api';
+import { getPatientMedicalHistoryAsync } from 'src/shared/api';
 import { RedirectButton } from 'src/shared/components/Button';
 
 const headerSx: SxProps = {

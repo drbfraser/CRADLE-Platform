@@ -10,7 +10,7 @@ import Grid from '@mui/material/Grid2';
 import {
   getPatientRecordsAsync,
   getPatientReferralsAsync,
-} from 'src/shared/api/api';
+} from 'src/shared/api';
 import { Filter, FilterRequestBody } from 'src/shared/types';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import ToastAfterNav from 'src/shared/components/toastAfterNav';

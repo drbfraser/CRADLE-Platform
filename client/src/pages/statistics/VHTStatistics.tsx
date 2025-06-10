@@ -11,8 +11,7 @@ import {
   Typography,
 } from '@mui/material';
 
-import { getVHTsAsync } from 'src/shared/api/api';
-import { getUserStatisticsExportAsync } from 'src/shared/api/apiStatistics';
+import { getUserStatisticsExportAsync, getVHTsAsync } from 'src/shared/api';
 import { UserRoleEnum } from 'src/shared/enums';
 import {
   DIVIDER_SX,

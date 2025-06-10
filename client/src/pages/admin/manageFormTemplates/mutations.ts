@@ -1,8 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  getFormTemplateCsvAsync,
-  editFormTemplateAsync,
-} from 'src/shared/api/api';
+import { getFormTemplateCsvAsync, editFormTemplateAsync } from 'src/shared/api';
 
 export const useEditFormTemplate = () => {
   const queryClient = useQueryClient();

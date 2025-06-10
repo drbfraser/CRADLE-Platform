@@ -4,7 +4,7 @@ import { Box, Table, LinearProgress } from '@mui/material';
 
 import { ReferralFilter } from 'src/shared/types';
 import { TrafficLightEnum } from 'src/shared/enums';
-import { axiosFetch } from 'src/shared/api/api';
+import { axiosFetch } from 'src/shared/api';
 import APIErrorToast from '../apiErrorToast/APIErrorToast';
 import { SortDir } from './types';
 import Pagination from './Pagination';

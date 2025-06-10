@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Box, CircularProgress, SxProps, Typography } from '@mui/material';
 
-import { getHealthFacilityAsync } from 'src/shared/api/api';
+import { getHealthFacilityAsync } from 'src/shared/api';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { useQuery } from '@tanstack/react-query';
 import { useCurrentUser } from 'src/shared/hooks/auth/useCurrentUser';

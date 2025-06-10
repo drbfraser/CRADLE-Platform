@@ -1,6 +1,6 @@
 import { AxiosError } from 'axios';
 import { useMutation } from '@tanstack/react-query';
-import { API_URL, axiosFetch } from 'src/shared/api/api';
+import { API_URL, axiosFetch } from 'src/shared/api';
 import { EndpointEnum } from 'src/shared/enums';
 import { PregnancySubmitValues } from './components/pregnancyInfo/utils';
 import { PatientData } from './components/EditPersonalInfoForm';

@@ -3,7 +3,7 @@ import { Box, Divider, Typography } from '@mui/material';
 
 import { StatisticDashboard } from './utils/StatisticsDashboard';
 import { DIVIDER_SX } from './utils/statisticStyles';
-import { getFacilityStatisticsAsync } from 'src/shared/api/apiStatistics';
+import { getFacilityStatisticsAsync } from 'src/shared/api';
 import { useCurrentUser } from 'src/shared/hooks/auth/useCurrentUser';
 
 type Props = {

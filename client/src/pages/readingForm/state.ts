@@ -1,5 +1,5 @@
 import { FormikProps } from 'formik';
-import { getPatientMedicalHistoryAsync } from 'src/shared/api/api';
+import { getPatientMedicalHistoryAsync } from 'src/shared/api';
 
 export enum ReadingField {
   // symptoms

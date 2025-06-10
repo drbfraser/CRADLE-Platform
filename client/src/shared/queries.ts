@@ -3,7 +3,7 @@ import {
   getAllFormTemplatesAsync,
   getHealthFacilitiesAsync,
   getSecretKeyAsync,
-} from './api/api';
+} from './api';
 import { SecretKey } from './types';
 
 export const useHealthFacilitiesQuery = () => {

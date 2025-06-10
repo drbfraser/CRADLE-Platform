@@ -9,7 +9,7 @@ import {
 import { TextField } from 'formik-mui';
 import { Field, Form, Formik } from 'formik';
 
-import { changePasswordAsync } from 'src/shared/api/api';
+import { changePasswordAsync } from 'src/shared/api';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import { Toast } from 'src/shared/components/toast';
 import {

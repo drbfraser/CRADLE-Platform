@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '..';
 import { useIsLoggedIn } from './useIsLoggedIn';
 import { useLogout } from './useLogout';
 import { useQuery } from '@tanstack/react-query';
-import { getCurrentUser } from 'src/shared/api/auth';
+import { getCurrentUser } from '../../api';
 import { useCallback } from 'react';
 
 export function useCurrentUser() {

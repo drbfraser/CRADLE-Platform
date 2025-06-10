@@ -6,7 +6,7 @@ import { SexEnum } from 'src/shared/enums';
 import {
   getPatientDrugRecordsAsync,
   getPatientMedicalRecordsAsync,
-} from 'src/shared/api/api';
+} from 'src/shared/api';
 import { Tabs } from 'src/shared/components/Tabs/Tabs';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
 import { HistoryTimeline } from './HistoryTimeline';

@@ -11,7 +11,7 @@ import {
 import { TextField } from 'formik-mui';
 
 import { RelayNum } from 'src/shared/types';
-import { saveRelayNumAsync } from 'src/shared/api/api';
+import { saveRelayNumAsync } from 'src/shared/api';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Toast } from 'src/shared/components/toast';

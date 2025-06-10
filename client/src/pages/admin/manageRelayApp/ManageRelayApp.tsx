@@ -35,7 +35,7 @@ import {
   // getAppFileHeadAsync,
   getRelayServerPhones,
   uploadAppFileAsync,
-} from 'src/shared/api/api';
+} from 'src/shared/api';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import {
