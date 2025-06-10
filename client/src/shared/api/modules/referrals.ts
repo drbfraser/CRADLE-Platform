@@ -1,5 +1,5 @@
-import { axiosFetch } from '../core/http'
-import { EndpointEnum } from 'src/shared/enums'
+import { axiosFetch } from '../core/http';
+import { EndpointEnum } from 'src/shared/enums';
 
 export const saveReferralAssessmentAsync = async (referralId: string) =>
   axiosFetch({

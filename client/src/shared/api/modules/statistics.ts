@@ -1,5 +1,5 @@
-import { axiosFetch } from '../core/http'
-import { EndpointEnum } from 'src/shared/enums'
+import { axiosFetch } from '../core/http';
+import { EndpointEnum } from 'src/shared/enums';
 import { StatsData, validateStatsData } from '../validation/statistics';
 
 export const getFacilityStatisticsAsync = async (

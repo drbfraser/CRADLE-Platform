@@ -1,6 +1,6 @@
-//upload apis 
-import { axiosFetch } from "../core/http";
-import { EndpointEnum } from 'src/shared/enums'
+//upload apis
+import { axiosFetch } from '../core/http';
+import { EndpointEnum } from 'src/shared/enums';
 
 export const uploadAppFileAsync = async (file: File) => {
   return axiosFetch.postForm(EndpointEnum.UPLOAD_ADMIN, {

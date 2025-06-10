@@ -1,6 +1,6 @@
-//export all apis 
-export * from './core/http'
-export * from './core/auth'
+//export all apis
+export * from './core/http';
+export * from './core/auth';
 export * from './modules/assessments';
 export * from './modules/facilities';
 export * from './modules/forms';

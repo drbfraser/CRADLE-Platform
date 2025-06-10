@@ -28,7 +28,6 @@ export const getCurrentUser = async () => {
   return user;
 };
 
-
 //change password
 export const changePasswordAsync = async (
   currentPassword: string,

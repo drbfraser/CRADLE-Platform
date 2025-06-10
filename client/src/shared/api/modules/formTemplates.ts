@@ -1,9 +1,6 @@
-//move all formTemplates apis to here 
+//move all formTemplates apis to here
 import { axiosFetch } from '../core/http';
-import {
-  FormTemplate,
-  FormTemplateWithQuestions
-} from '../../types'
+import { FormTemplate, FormTemplateWithQuestions } from '../../types';
 import { EndpointEnum } from 'src/shared/enums';
 
 export const editFormTemplateAsync = async (template: FormTemplate) =>
@@ -73,7 +70,6 @@ export const getFormTemplateLangAsync = async (
       `${EndpointEnum.FORM_TEMPLATES}/${formTemplateId}?lang=${lang}`
     )
   ).data;
-
 
 export const getFormTemplateLangsAsync = async (
   formTemplateId: string

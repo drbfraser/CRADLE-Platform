@@ -1,6 +1,6 @@
-//move all patients apis to here 
-//import core function from core http.ts 
-import { axiosFetch } from '../core/http'
+//move all patients apis to here
+//import core function from core http.ts
+import { axiosFetch } from '../core/http';
 import {
   Patient,
   PatientPregnancyInfo,
@@ -8,10 +8,10 @@ import {
   FilterRequestBody,
   Referral,
   Pregnancy,
-} from '../../types'
-import { EndpointEnum } from 'src/shared/enums'
+} from '../../types';
+import { EndpointEnum } from 'src/shared/enums';
 
-//Patients CRUD 
+//Patients CRUD
 export const getPatientTableEntries = async () => {
   const response = await axiosFetch({
     method: 'GET',
@@ -107,8 +107,10 @@ export const getPatientRecordsAsync = async (
 ) => {
   try {
     const response = await axiosFetch.get(
-      `${EndpointEnum.PATIENTS}/${patientId}/get_all_records?readings=${filterRequestBody.readings ? 1 : 0
-      }&referrals=${filterRequestBody.referrals ? 1 : 0}&assessments=${filterRequestBody.assessments ? 1 : 0
+      `${EndpointEnum.PATIENTS}/${patientId}/get_all_records?readings=${
+        filterRequestBody.readings ? 1 : 0
+      }&referrals=${filterRequestBody.referrals ? 1 : 0}&assessments=${
+        filterRequestBody.assessments ? 1 : 0
       }&forms=${filterRequestBody.forms ? 1 : 0}`
     );
     return response.data;
@@ -159,4 +161,3 @@ export const getPatientInfoAsync = async (
   );
   return response.data;
 };
-

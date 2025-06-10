@@ -1,8 +1,8 @@
-//move user apis to here 
+//move user apis to here
 import { axiosFetch } from '../core/http';
 import { EndpointEnum, UserRoleEnum } from 'src/shared/enums';
 import { EditUser, NewUser, User, userListSchema } from '../validation/user';
-//curd 
+//curd
 export const deleteUserAsync = async (user: User) => {
   const response = await axiosFetch({
     url: EndpointEnum.USER + String(user.id),
@@ -53,7 +53,7 @@ export const getUsersAsync = async (): Promise<User[]> => {
   });
 };
 
-//password 
+//password
 export const resetUserPasswordAsync = async (user: User, password: string) => {
   return axiosFetch({
     method: 'POST',

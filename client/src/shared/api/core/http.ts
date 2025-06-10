@@ -4,13 +4,13 @@ import { jwtDecode } from 'jwt-decode';
 import { EndpointEnum } from '../../enums';
 import { reduxStore } from 'src/redux/store';
 import { clearCurrentUser } from 'src/redux/user-state';
-//base URL  
+//base URL
 export const API_URL =
   process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
     ? `http://${window.location.hostname}:5000/api`
     : '/api';
 
-//axios instance 
+//axios instance
 export const axiosFetch = axios.create({
   baseURL: API_URL,
   withCredentials: true, // Necessary for cookies.
@@ -64,8 +64,6 @@ export const getAccessToken = async () => {
   }
   return accessToken;
 };
-
-
 
 //interceptors
 // Set interceptor to attach access token to authorization header.

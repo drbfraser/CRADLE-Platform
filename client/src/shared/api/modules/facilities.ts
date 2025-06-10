@@ -1,8 +1,6 @@
-//move all facilities apis to here 
+//move all facilities apis to here
 import { axiosFetch } from '../core/http';
-import {
-  Facility
-} from '../../types'
+import { Facility } from '../../types';
 import { EndpointEnum } from 'src/shared/enums';
 
 export const saveHealthFacilityAsync = async (facility: Facility) => {
