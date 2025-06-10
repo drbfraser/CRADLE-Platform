@@ -47,17 +47,10 @@ services:
             timeout: 5s
             retries: 20
 
-    adminer:
-        image: adminer
-        ports:
-            - "8080:8080"
-        depends_on:
-            - mysql
 volumes:
     flask_uploads:
     mysql_data:
 
-
 secrets:
     .env.cognito_secrets:
-        file: ./.env.cognito_secrets # Will be accessible at /run/secrets/.env.cognito_secrets  
+       file: ./.env.cognito_secrets # Will be accessible at /run/secrets/.env.cognito_secrets  

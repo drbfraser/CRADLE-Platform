@@ -11,7 +11,6 @@ import { FormQuestions } from './FormQuestions';
 import {
   ApiAnswer,
   areMcResponsesValid,
-  areNumberResponsesValid,
   PostBody,
   TransferQAnswerToAPIStandard,
   TransferQAnswerToPostBody,
@@ -52,14 +51,9 @@ export const CustomizedForm = ({
       return;
     }
     //2 number-range validation 
-    if (!areNumberResponsesValid(form.questions, answers)) {
-      // toast 
-      console.log('Number out of range — questions:', form.questions, 'answers:', answers);
-      return;
-    }
-
-
-
+    form.questions.forEach(q => {
+      console.log("print the range min value", q.numMin, "max value", q.numMax);  // ← range picked in EditField
+    });
     const anss: ApiAnswer[] = TransferQAnswerToAPIStandard(
       answers,
       form.questions

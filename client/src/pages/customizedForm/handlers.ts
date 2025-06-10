@@ -1,6 +1,5 @@
 import { Answer, CForm, QAnswer, Question } from 'src/shared/types';
 import { QuestionTypeEnum } from 'src/shared/enums';
-import { isNull } from 'util';
 
 export type ApiAnswer = {
   qidx: number;
@@ -178,21 +177,3 @@ export const areMcResponsesValid = (
         isHidden || (required ? answer.val && answer.val.length > 0 : true)
       );
     });
-
-//check the enter number
-export const areNumberResponsesValid = (
-  questions: Question[],
-  answers: QAnswer[],
-): boolean => {
-  return answers.every((ans) => {
-    const q = questions.find((q) => q.questionIndex === ans.questionIndex);
-    if (!q) return true;                       // no matching question → ignore
-    if (q.numMin === undefined && q.numMax === undefined) return true; // no range set
-
-    const val = Number(ans.val);               // Formik stores raw string; coerce 
-    if (Number.isNaN(val)) return false;       // not a number
-    if (q.numMin != null && val < q.numMin) return false;
-    if (q.numMax != null && val > q.numMax) return false;
-    return true;
-  });
-};
