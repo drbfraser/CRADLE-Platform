@@ -426,7 +426,7 @@ docker exec cradle_flask flask db history
 
 ## 6. Testing 
 
-### Running Automated Tests Locally
+### Running Automated Backend Tests Locally
 
 The backend has a fully automated testing pipeline that runs on every merge request. This includes:
 - System tests (`system_tests/`)
@@ -445,18 +445,21 @@ python -m pytest systemTests
 python -m pytest tests
 ```
 
-> Test are also ran in the CI/CD pipeline, which checks code formatting using `black`. This is not run locally by default.
+> Test are also ran in the CI/CD pipeline, which checks code formatting using `ruff`. This is not run locally by default.
 
-### Code Formatting for Tests
+### Code Formatting for Backend Tests
 Ensure your code passes formatting checks by running:
 ```bash 
-# Install black (optional if already installed)
-py -m pip install black
+# Install ruff (optional if already installed)
+py -m pip install ruff
 
 # Format a specific file (example: users.py)
-black users.py
+ruff format users.py
+  
+# Lint a specific file (example: users.py)
+ruff check users.py
 ```
-To ensure your merge request doesn’t fail due to formatting issues, always run black before submitting.
+To ensure your merge request doesn’t fail due to formatting issues, always run ruff before submitting.
 
 For more details:
 [Cradle Platform Testing Guide](testing/testing.md)
