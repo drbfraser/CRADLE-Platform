@@ -158,16 +158,9 @@ const SecretKeyPage: React.FC = () => {
               </Typography>
             </Box>
           </CardContent>
-          <CardActions
-            sx={{
-              justifyContent: 'space-around',
-            }}>
-            {/*ACTIONS: Learn More + Update side-by-side  */}
+          <CardActions>
             <Button size="medium" onClick={() => setShowModal(true)}>
               Learn More
-            </Button>
-            <Button size="medium" onClick={updateSecretKey}>
-              Update key
             </Button>
           </CardActions>
         </Card>
@@ -201,6 +194,13 @@ const SecretKeyPage: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowModal(false)}>Close</Button>
+          <Button
+            onClick={() => {
+              updateSecretKey();
+              setShowModal(false);
+            }}>
+            Update key
+          </Button>
         </DialogActions>
       </Dialog>
     </>
