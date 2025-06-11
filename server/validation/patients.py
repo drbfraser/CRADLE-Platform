@@ -3,8 +3,8 @@ from typing import Any, Optional
 
 from pydantic import Field, RootModel, field_validator
 
+from common.commonUtil import get_current_time
 from enums import SexEnum
-from utils import get_current_time
 from validation import CradleBaseModel
 from validation.readings import ReadingWithUrineTest
 from validation.referrals import ReferralModel

@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from pydantic import Field, RootModel
 
-from utils import get_current_time
+from common.commonUtil import get_current_time
 from validation import CradleBaseModel
 from validation.assessments import AssessmentPostBody
 from validation.referrals import ReferralModel

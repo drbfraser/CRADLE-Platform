@@ -11,10 +11,10 @@ from common.api_utils import (
     RecordIdPath,
     SearchFilterQueryParams,
 )
+from common.commonUtil import get_current_time
 from data import crud, marshal
 from models import MedicalRecordOrm
 from service import serialize, view
-from utils import get_current_time
 from validation import CradleBaseModel
 from validation.medicalRecords import (
     DrugHistory,

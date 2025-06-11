@@ -2,7 +2,7 @@ from typing import Optional
 
 from pydantic import Field, RootModel
 
-from utils import get_current_time
+from common.commonUtil import get_current_time
 from validation import CradleBaseModel
 
 

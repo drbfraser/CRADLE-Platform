@@ -1,8 +1,72 @@
+import json
 import re
+import time
+import uuid
+from typing import Any
 
 import phonenumbers
 
 from common.constants import EMAIL_REGEX_PATTERN
+
+# from server.enums import QRelationalEnum, QuestionTypeEnum
+from enums import QRelationalEnum, QuestionTypeEnum
+
+
+def parseCondition(parentQuestion: dict, conditionText: str) -> dict:
+    """
+    Returns a condition based on the parent question and the conditionText
+
+    :param parentQuestion: The question the conditionText should be compared against
+    :param conditionText: The text to be compared to the value of the parent question
+
+    :return: Condition dictionary with the parent question ID and a valid answers object
+    """
+
+    def mc_optionsToDict(mc_options):
+        return {option["opt"].casefold(): option["mc_id"] for option in mc_options}
+
+    condition: dict[str, Any] = {
+        "question_index": parentQuestion["question_index"],
+        "relation": QRelationalEnum.EQUAL_TO.value,
+        "answers": {},
+    }
+
+    if parentQuestion["question_type"] == QuestionTypeEnum.CATEGORY:
+        raise RuntimeError("Question visibility cannot depend on a category")
+
+    if parentQuestion["question_type"] in [
+        QuestionTypeEnum.MULTIPLE_CHOICE.value,
+        QuestionTypeEnum.MULTIPLE_SELECT.value,
+    ]:
+        options = [option.strip().casefold() for option in conditionText.split(",")]
+
+        previousQuestionOptions = mc_optionsToDict(
+            parentQuestion["lang_versions"][0]["mc_options"],
+        )
+
+        condition["answers"]["mc_id_array"] = []
+        for option in options:
+            if option not in previousQuestionOptions:
+                raise RuntimeError("Invalid option for visibility.")
+
+            condition["answers"]["mc_id_array"].append(previousQuestionOptions[option])
+
+    elif parentQuestion["question_type"] == QuestionTypeEnum.INTEGER.value:
+        try:
+            condition["answers"]["number"] = int(conditionText)
+        except ValueError:
+            raise RuntimeError("Invalid condition for parent question of type Integer")
+
+    elif parentQuestion["question_type"] == QuestionTypeEnum.DECIMAL.value:
+        try:
+            condition["answers"]["number"] = float(conditionText)
+        except ValueError:
+            raise RuntimeError("Invalid condition for parent question of type Integer")
+
+    else:
+        condition["answers"]["text"] = int(conditionText)
+
+    return condition
 
 
 def filterNestedAttributeWithValueNone(payload: dict) -> dict:
@@ -58,3 +122,38 @@ def to_uppercase(string: str) -> str:
 
 def to_titlecase(string: str) -> str:
     return string.title()
+
+
+# returns formatted current time in utc timezone
+def get_current_time():
+    return int(time.time())
+
+
+def get_uuid():
+    return str(uuid.uuid4())
+
+
+# use this to replace json.dumps if you want the different
+# language words in json string still to be visible in
+# database rather than unicode format
+def dumps(obj):
+    return json.dumps(obj, ensure_ascii=False)
+
+
+def filterPairsWithNone(payload: dict) -> dict:
+    """
+    Returns dict with all the key-value pairs wherein the value is not None
+
+    :param payload: The dictionary to evaluate
+    """
+    updated_data = {k: v for k, v in payload.items() if v is not None}
+
+    return updated_data
+
+
+def hex2bytes(key):
+    return bytes.fromhex(key)
+
+
+def bytes2hex(key: bytes):
+    return key.hex()

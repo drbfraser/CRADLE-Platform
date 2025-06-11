@@ -5,14 +5,13 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data
-from api import util
-from common import user_utils
+from common import form_utils, user_utils
 from common.api_utils import (
     FormIdPath,
 )
+from common.commonUtil import get_current_time
 from data import crud, marshal
 from models import FormOrm, FormTemplateOrm, PatientOrm, UserOrm
-from utils import get_current_time
 from validation.forms import FormModel, UpdateFormRequestBody
 
 # /api/forms/responses
@@ -58,7 +57,7 @@ def submit_form(body: FormModel):
 
     new_form_dict = body.model_dump()
 
-    util.assign_form_or_template_ids(FormOrm, new_form_dict)
+    form_utils.assign_form_or_template_ids(FormOrm, new_form_dict)
 
     form = marshal.unmarshal(FormOrm, new_form_dict)
 

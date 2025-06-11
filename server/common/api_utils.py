@@ -2,7 +2,7 @@ import json
 import re
 from typing import Optional
 
-from flask import request
+from flask import Request, request
 from pydantic import AliasChoices, Field, field_validator
 from pydantic.alias_generators import to_snake
 
@@ -134,3 +134,63 @@ class SearchFilterQueryParams(PageLimitFilterQueryParams):
         if order_by is None:
             return None
         return to_snake(order_by)
+
+
+# Utility functions for API query parameters
+def query_param_limit(request: Request, name: str) -> int:
+    """
+    Returns Integer if the request URL contains a limit query parameter.
+
+    :param request: A request
+    :param name: The name of the parameter to check for
+    :return: 10 if the value for the parameter is not specified, otherwise given value.
+    """
+    return request.args.get(name, 10, type=int)
+
+
+def query_param_page(request: Request, name: str) -> int:
+    """
+    Returns Integer if the request URL contains a page query parameter.
+
+    :param request: A request
+    :param name: The name of the parameter to check for
+    :return: 1 if the value for the parameter is not specified, otherwise given value.
+
+    """
+    return request.args.get(name, 1, type=int)
+
+
+def query_param_sortBy(request: Request, name: str) -> str:
+    """
+    Returns String if the request URL contains a page sort_by parameter.
+
+    :param request: A request
+    :param name: The name of the parameter to check for
+    :return: patientName if the value for the parameter is not specified, otherwise given column name.
+
+    """
+    return request.args.get(name, "patientName", type=str)
+
+
+def query_param_sort_dir(request: Request, name: str) -> str:
+    """
+    Returns String if the request URL contains a page sort_dir parameter.
+
+    :param request: A request
+    :param name: The name of the parameter to check for
+    :return: asc if the value for the parameter is not specified, otherwise given column name.
+
+    """
+    return request.args.get(name, "asc", type=str)
+
+
+def query_param_search(request: Request, name: str) -> str:
+    """
+    Returns String if the request URL contains a page sort_dir parameter.
+
+    :param request: A request
+    :param name: The name of the parameter to check for
+    :return: empty string if the value for the parameter is not specified, otherwise given column name.
+
+    """
+    return request.args.get(name, "", type=str)

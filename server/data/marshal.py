@@ -539,8 +539,7 @@ def makePregnancyFromPatient(patient: dict) -> PregnancyOrm:
             "start_date": patient.pop("pregnancy_start_date"),
         }
 
-    if "is_pregnant" in patient:
-        del patient["is_pregnant"]
+    patient.pop("is_pregnant", None)
     if "start" in patient:
         del patient["pregnancy_start_date"]
 

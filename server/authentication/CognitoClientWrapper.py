@@ -263,7 +263,7 @@ class CognitoClientWrapper:
 
         signing_key = None
         for key in jwks.keys:
-            key = cast(PyJWK, key)
+            key = cast("PyJWK", key)
             if key.key_id == key_id:
                 signing_key = key
         if signing_key is None:

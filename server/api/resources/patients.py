@@ -14,6 +14,7 @@ from common.api_utils import (
     PatientIdPath,
     SearchFilterQueryParams,
 )
+from common.commonUtil import get_current_time
 from config import db
 from data import crud, marshal
 from enums import RoleEnum, TrafficLightEnum
@@ -26,7 +27,6 @@ from models import (
     UserOrm,
 )
 from service import assoc, invariant, serialize, statsCalculation, view
-from utils import get_current_time
 from validation import CradleBaseModel
 from validation.assessments import AssessmentPostBody
 from validation.forms import FormList
@@ -77,7 +77,7 @@ def get_all_unarchived_patients(query: SearchFilterQueryParams):
     Returns all UNARCHIVED Patients associated with the current user.
     """
     current_user = user_utils.get_current_user_from_jwt()
-    current_user = cast(dict[Any, Any], current_user)
+    current_user = cast("dict[Any, Any]", current_user)
     params = query.model_dump(by_alias=True)
     patients = view.patient_list_view(current_user, **params)
     return serialize.serialize_patient_list(patients)
@@ -496,7 +496,7 @@ def get_all_patients_admin(query: GetAllPatientsAdminQuery):
     current user. For admin use.
     """
     current_user = user_utils.get_current_user_from_jwt()
-    current_user = cast(dict[Any, Any], current_user)
+    current_user = cast("dict[Any, Any]", current_user)
     params = query.model_dump()
     patients = view.admin_patient_view(current_user, **params)
     return serialize.serialize_patients_admin(patients)
