@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { saveFormResponseAsync } from 'src/shared/api/api';
+import { saveFormResponseAsync } from 'src/shared/api';
 import { PostBody } from './handlers';
 
 export const useSubmitCustomForm = () => {

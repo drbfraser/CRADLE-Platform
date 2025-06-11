@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getUserStatisticsAsync } from 'src/shared/api/apiStatistics';
+import { getUserStatisticsAsync } from 'src/shared/api';
 
 export const useUserStatsQuery = (userId: string, from: number, to: number) => {
   return useQuery({

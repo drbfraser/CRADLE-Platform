@@ -20,7 +20,7 @@ import { useDialogs } from '@toolpad/core';
 import {
   deletePregnancyAsync,
   getPatientPregnanciesAsync,
-} from 'src/shared/api/api';
+} from 'src/shared/api';
 import { Pregnancy } from 'src/shared/types';
 import { GestationalAgeUnitEnum } from 'src/shared/enums';
 import {

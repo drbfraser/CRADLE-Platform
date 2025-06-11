@@ -14,7 +14,7 @@ import { useEffect, useState } from 'react';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import SampleTemplateLink from './SampleTemplateLink';
 import { Toast } from 'src/shared/components/toast';
-import { saveFormTemplateWithFileAsync } from 'src/shared/api/api';
+import { saveFormTemplateWithFileAsync } from 'src/shared/api';
 
 interface IProps {
   open: boolean;

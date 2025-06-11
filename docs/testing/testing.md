@@ -64,6 +64,8 @@ For end-to-end testing, we are using Playwright. Before trying to run the end-to
 
 Playwright runs in 'headless' mode by default, meaning that it runs in the background, without any UI. It can be run with a GUI however, by using the `--ui` option.
 
+For a more in-depth information on Playwright look [here](playwright.md).
+
 **NOTE:** Make sure you are in the `/client/` directory before running any of these commands.
 
 To run the end-to-end tests:

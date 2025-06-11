@@ -6,7 +6,7 @@ import DeleteForever from '@mui/icons-material/DeleteForever';
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 
 import { Patient } from 'src/shared/types';
-import { getPatientsAdminAsync } from 'src/shared/api/api';
+import { getPatientsAdminAsync } from 'src/shared/api';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import {
   TableAction,

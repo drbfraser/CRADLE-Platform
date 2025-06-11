@@ -4,7 +4,7 @@ import {
   getFormResponseAsync,
   getFormTemplateAsync,
   getFormTemplateLangsAsync,
-} from 'src/shared/api/api';
+} from 'src/shared/api';
 import { FormTemplate, FormTemplateWithQuestions } from 'src/shared/types';
 
 export const useFormResponseQuery = (formId: string) =>

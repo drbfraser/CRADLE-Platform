@@ -8,7 +8,7 @@ import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import AddIcon from '@mui/icons-material/Add';
 
 import { UserWithIndex } from 'src/shared/types';
-import { getUsersAsync } from 'src/shared/api/api';
+import { getUsersAsync } from 'src/shared/api';
 import { userRoleLabels } from 'src/shared/constants';
 import {
   TableAction,

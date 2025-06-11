@@ -1,6 +1,6 @@
 import { Box, Divider, Typography } from '@mui/material';
 
-import { getUserStatisticsExportAsync } from 'src/shared/api/apiStatistics';
+import { getUserStatisticsExportAsync } from 'src/shared/api';
 import { useUserStatsQuery } from './utils/queries';
 import { ExportStatistics } from './utils/ExportStatistics';
 import { StatisticDashboard } from './utils/StatisticsDashboard';

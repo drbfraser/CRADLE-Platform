@@ -21,7 +21,7 @@ import DoneIcon from '@mui/icons-material/Done';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 
 import { ReferralFilter, Referrer } from 'src/shared/types';
-import { getUserVhtsAsync } from 'src/shared/api/api';
+import { getUserVhtsAsync } from 'src/shared/api';
 import { TrafficLightEnum } from 'src/shared/enums';
 import { useHealthFacilityNames } from 'src/shared/hooks/healthFacilityNames';
 import { TrafficLight } from 'src/shared/components/trafficLight';

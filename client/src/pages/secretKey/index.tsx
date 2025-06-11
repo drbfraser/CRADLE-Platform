@@ -28,7 +28,7 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { UserRoleEnum } from 'src/shared/enums';
 import { useSecretKey } from 'src/pages/secretKey/useSecretKey';
 import { Toast } from 'src/shared/components/toast';
-import { getUsersAsync } from 'src/shared/api/api';
+import { getUsersAsync } from 'src/shared/api';
 import { useCurrentUser } from 'src/shared/hooks/auth/useCurrentUser';
 
 const SecretKeyPage: React.FC = () => {

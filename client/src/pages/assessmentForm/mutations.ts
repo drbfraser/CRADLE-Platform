@@ -3,7 +3,7 @@ import {
   saveAssessmentAsync,
   saveDrugHistoryAsync,
   saveReferralAssessmentAsync,
-} from 'src/shared/api/api';
+} from 'src/shared/api';
 import { AssessmentField } from './state';
 import { NewAssessment } from 'src/shared/types';
 
