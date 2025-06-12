@@ -737,15 +737,11 @@ class WorkflowTemplateOrm(db.Model):
 
     # FOREIGN KEYS
     classification_id = db.Column(
-        db.ForeignKey(WorkflowClassificationOrm.id),
-        ondelete="SET NULL",
-        nullable=True,
+        db.ForeignKey(WorkflowClassificationOrm.id), nullable=True, ondelete="SET NULL"
     )
 
     initial_conditions = db.Column(
-        db.ForeignKey(RuleGroupOrm.id),
-        ondelete="SET NULL",
-        nullable=True,
+        db.ForeignKey(RuleGroupOrm.id), nullable=True, ondelete="SET NULL"
     )
 
     @staticmethod
@@ -765,6 +761,12 @@ class WorkflowTemplateStepOrm(db.Model):
     last_edited_by = db.Column(db.Text, nullable=False)
 
     # FOREIGN KEYS
+
+    conditions = db.Column(
+        db.ForeignKey(RuleGroupOrm.id),
+        nullable=True,
+        ondelete="SET NULL",
+    )
 
     form_id = db.Column(
         db.ForeignKey(FormTemplateOrm.id),
@@ -801,6 +803,12 @@ class WorkflowTemplateStepBranchOrm(db.Model):
         db.ForeignKey(WorkflowTemplateStepOrm.id),
         nullable=False,
         ondelete="CASCADE",
+    )
+
+    condition = db.Column(
+        db.ForeignKey(RuleGroupOrm.id),
+        nullable=True,
+        ondelete="SET NULL",
     )
 
     # RELATIONSHIPS
