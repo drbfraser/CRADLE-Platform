@@ -698,7 +698,7 @@ class SmsSecretKeyOrm(db.Model):
         return SmsSecretKeySchema
 
 
-class WorkflowClassificationOrm(db.model):
+class WorkflowClassificationOrm(db.Model):
     __tablename__ = "workflow_classification"
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
@@ -737,11 +737,12 @@ class WorkflowTemplateOrm(db.Model):
 
     # FOREIGN KEYS
     classification_id = db.Column(
-        db.ForeignKey(WorkflowClassificationOrm.id), nullable=True, ondelete="SET NULL"
+        db.ForeignKey(WorkflowClassificationOrm.id, ondelete="SET NULL"),
+        nullable=True,
     )
 
     initial_conditions = db.Column(
-        db.ForeignKey(RuleGroupOrm.id), nullable=True, ondelete="SET NULL"
+        db.ForeignKey(RuleGroupOrm.id, ondelete="SET NULL"), nullable=True
     )
 
     @staticmethod
@@ -761,23 +762,16 @@ class WorkflowTemplateStepOrm(db.Model):
     last_edited_by = db.Column(db.Text, nullable=False)
 
     # FOREIGN KEYS
-
     conditions = db.Column(
-        db.ForeignKey(RuleGroupOrm.id),
-        nullable=True,
-        ondelete="SET NULL",
+        db.ForeignKey(RuleGroupOrm.id, ondelete="SET NULL"), nullable=True
     )
 
     form_id = db.Column(
-        db.ForeignKey(FormTemplateOrm.id),
-        nullable=False,
-        ondelete="CASCADE",
+        db.ForeignKey(FormTemplateOrm.id, ondelete="CASCADE"), nullable=False
     )
 
     workflow_template_id = db.Column(
-        db.ForeignKey(WorkflowTemplateOrm.id),
-        nullable=False,
-        ondelete="CASCADE",
+        db.ForeignKey(WorkflowTemplateOrm.id, ondelete="CASCADE"), nullable=False
     )
 
     # RELATIONSHIPS
@@ -794,21 +788,16 @@ class WorkflowTemplateStepOrm(db.Model):
 class WorkflowTemplateStepBranchOrm(db.Model):
     __tablename__ = "workflow_template_step_branch"
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
-    target_step_id = db.Column(
-        db.Integer, db.ForeignKey("workflow_template_step.id"), nullable=False
-    )
+    target_step_id = db.Column(db.Integer, nullable=False)
 
     # FOREIGN KEYS
     step_id = db.Column(
-        db.ForeignKey(WorkflowTemplateStepOrm.id),
+        db.ForeignKey(WorkflowTemplateStepOrm.id, ondelete="CASCADE"),
         nullable=False,
-        ondelete="CASCADE",
     )
 
     condition = db.Column(
-        db.ForeignKey(RuleGroupOrm.id),
-        nullable=True,
-        ondelete="SET NULL",
+        db.ForeignKey(RuleGroupOrm.id, ondelete="SET NULL"), nullable=True
     )
 
     # RELATIONSHIPS
