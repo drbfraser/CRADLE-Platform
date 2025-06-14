@@ -14,6 +14,7 @@ from data import crud, marshal
 from models import FormOrm, FormTemplateOrm, PatientOrm, UserOrm
 from utils import get_current_time
 from validation.forms import FormModel, UpdateFormRequestBody
+from validation.formValidation import validate_and_abort_on_errors, ValidationErrorResponse
 
 # /api/forms/responses
 api_form_submissions = APIBlueprint(
@@ -26,7 +27,7 @@ api_form_submissions = APIBlueprint(
 
 
 # /api/forms/responses [POST]
-@api_form_submissions.post("", responses={201: FormModel})
+@api_form_submissions.post("", responses={201: FormModel, 400: ValidationErrorResponse})
 def submit_form(body: FormModel):
     """Submit Form"""
     if body.id is not None:
@@ -37,6 +38,7 @@ def submit_form(body: FormModel):
     if patient is None:
         return abort(404, description="Patient does not exist.")
 
+    form_template = None
     if body.form_template_id is not None:
         form_template = crud.read(FormTemplateOrm, id=body.form_template_id)
         if form_template is None:
@@ -46,6 +48,9 @@ def submit_form(body: FormModel):
             return abort(
                 400, description="Form classification does not match Template."
             )
+        
+        form_data = body.model_dump()
+        validate_and_abort_on_errors(form_data, form_template)
 
     if body.last_edited_by is not None:
         user = crud.read(UserOrm, id=body.last_edited_by)
@@ -82,12 +87,22 @@ def get_form(path: FormIdPath):
 
 
 # /api/forms/responses/<string:form_id> [PUT]
-@api_form_submissions.put("/<string:form_id>", responses={200: FormModel})
+@api_form_submissions.put("/<string:form_id>", responses={200: FormModel, 400: ValidationErrorResponse})
 def update_form(path: FormIdPath, body: UpdateFormRequestBody):
     """Update Form"""
     form = crud.read(FormOrm, id=path.form_id)
     if form is None:
         return abort(404, description=f"No form with id {path.form_id}")
+
+    form_template = None
+    if form.form_template_id:
+        form_template = crud.read(FormTemplateOrm, id=form.form_template_id)
+        
+        if form_template:
+            validation_form_data = {
+                "questions": body.model_dump()["questions"]
+            }
+            validate_and_abort_on_errors(validation_form_data, form_template)
 
     update_form = body.model_dump()
 

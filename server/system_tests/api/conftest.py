@@ -134,60 +134,267 @@ def form_classification():
         "name": "fc9",
     }
 
-
 @pytest.fixture
 def form_template():
     return {
-        "classification": {"id": "fc9", "name": "fc9"},
         "id": "ft9",
         "version": "V1",
-        "questions": [],
+        "classification": {
+            "id": "fc9",
+            "name": "fc9",
+        },
+        "questions": [
+            {
+                "id": "test-question-01",
+                "category_index": None,
+                "question_index": 0,
+                "question_type": "MULTIPLE_CHOICE",
+                "required": True,
+                "visible_condition": [],
+                "lang_versions": [
+                    {
+                        "lang": "english",
+                        "question_text": "How is the patient's condition?",
+                        "mc_options": [
+                            {
+                                "mc_id": 0,
+                                "opt": "Good",
+                            },
+                            {
+                                "mc_id": 1,
+                                "opt": "Poor",
+                            },
+                        ],
+                    }
+                ],
+            },
+            {
+                "id": "test-question-02",
+                "category_index": None,
+                "question_index": 1,
+                "question_type": "INTEGER",
+                "required": False,
+                "visible_condition": [
+                    {
+                        "question_index": "1",
+                        "relation": "EQUAL_TO",
+                        "answers": {"number": 0}
+                    }
+                ],
+                "num_min": 0,
+                "num_max": 200,
+                "lang_versions": [
+                    {
+                        "lang": "english",
+                        "question_text": "What is the patient's age?",
+                        "mc_options": [],
+                    }
+                ],
+            },
+            {
+                "id": "test-question-03",
+                "category_index": None,
+                "question_index": 2,
+                "question_type": "STRING",
+                "required": True,
+                "visible_condition": [],
+                "string_max_length": 100,
+                "lang_versions": [
+                    {
+                        "lang": "english",
+                        "question_text": "Additional comments?",
+                        "mc_options": [],
+                    }
+                ],
+            },
+        ],
     }
 
 
 @pytest.fixture
-def form(patient_id):
+def form():
     return {
         "id": "f9",
         "lang": "english",
         "form_template_id": "ft9",
         "form_classification_id": "fc9",
-        "patient_id": patient_id,
+        "patient_id": "87356709248",
         "date_created": 1561011126,
         "questions": [
             {
                 "id": "test-question-01",
                 "category_index": None,
                 "question_index": 0,
-                "question_text": "How the patient's condition?",
+                "question_text": "How is the patient's condition?",
                 "question_type": "MULTIPLE_CHOICE",
                 "required": True,
-                "visible_condition": [
-                    {
-                        "question_index": 0,
-                        "relation": "EQUAL_TO",
-                        "answers": {"number": 4.0},
-                    },
-                ],
+                "visible_condition": [],
                 "mc_options": [
                     {
                         "mc_id": 0,
-                        "opt": "Decent",
+                        "opt": "Good",
                     },
                     {
                         "mc_id": 1,
-                        "opt": "French",
+                        "opt": "Poor",
                     },
                 ],
                 "answers": {"mc_id_array": [0]},
             },
             {
-                "id": None,
+                "id": "test-question-02",
                 "category_index": None,
                 "question_index": 1,
-                "question_text": "Info",
-                "question_type": "CATEGORY",
+                "question_text": "What is the patient's age?",
+                "question_type": "INTEGER",
+                "required": False,
+                "visible_condition": [
+                    {
+                        "question_index": "1",
+                        "relation": "EQUAL_TO",
+                        "answers": {"number": 0},
+                    }
+                ],
+                "num_min": 0,
+                "num_max": 200,
+                "answers": {},
+            },
+            {
+                "id": "test-question-03",
+                "category_index": None,
+                "question_index": 2,
+                "question_text": "Additional comments?",
+                "question_type": "STRING",
                 "required": True,
+                "visible_condition": [],
+                "string_max_length": 100,
+                "answers": {"text": "Patient seems stable"},
             },
         ],
     }
+
+
+@pytest.fixture
+def simple_form_template():
+    """Simplified form template for basic validation tests"""
+    return {
+        "id": "simple-ft",
+        "version": "V1",
+        "classification": {"id": "simple-fc", "name": "Simple Form"},
+        "questions": [
+            {
+                "id": "q1",
+                "question_index": 0,
+                "question_type": "MULTIPLE_CHOICE",
+                "required": True,
+                "visible_condition": [],
+                "lang_versions": [
+                    {
+                        "lang": "english",
+                        "question_text": "Select an option",
+                        "mc_options": [
+                            {"mc_id": 0, "opt": "Option A"},
+                            {"mc_id": 1, "opt": "Option B"},
+                        ],
+                    }
+                ],
+            }
+        ],
+    }
+
+
+@pytest.fixture
+def simple_form_data():
+    """Simple form data for testing"""
+    return {
+        "questions": [
+            {
+                "id": "q1",
+                "answers": {"mc_id_array": [0]}
+            }
+        ]
+    }
+
+
+@pytest.fixture
+def mock_form_template_orm():
+    """Mock ORM object for testing validation"""
+    class MockQuestion:
+        def __init__(self, **kwargs):
+            for key, value in kwargs.items():
+                setattr(self, key, value)
+    
+    class MockLangVersion:
+        def __init__(self, **kwargs):
+            for key, value in kwargs.items():
+                setattr(self, key, value)
+    
+    class MockTemplate:
+        def __init__(self, questions_data):
+            self.questions = []
+            for q_data in questions_data:
+                question = MockQuestion(**q_data)
+                if 'lang_versions' in q_data:
+                    question.lang_versions = [
+                        MockLangVersion(**lv) for lv in q_data['lang_versions']
+                    ]
+                self.questions.append(question)
+    
+    return MockTemplate
+
+# @pytest.fixture
+# def form_template():
+#     return {
+#         "classification": {"id": "fc9", "name": "fc9"},
+#         "id": "ft9",
+#         "version": "V1",
+#         "questions": [],
+#     }
+
+
+# @pytest.fixture
+# def form(patient_id):
+#     return {
+#         "id": "f9",
+#         "lang": "english",
+#         "form_template_id": "ft9",
+#         "form_classification_id": "fc9",
+#         "patient_id": patient_id,
+#         "date_created": 1561011126,
+#         "questions": [
+#             {
+#                 "id": "test-question-01",
+#                 "category_index": None,
+#                 "question_index": 0,
+#                 "question_text": "How the patient's condition?",
+#                 "question_type": "MULTIPLE_CHOICE",
+#                 "required": True,
+#                 "visible_condition": [
+#                     {
+#                         "question_index": 0,
+#                         "relation": "EQUAL_TO",
+#                         "answers": {"number": 4.0},
+#                     },
+#                 ],
+#                 "mc_options": [
+#                     {
+#                         "mc_id": 0,
+#                         "opt": "Decent",
+#                     },
+#                     {
+#                         "mc_id": 1,
+#                         "opt": "French",
+#                     },
+#                 ],
+#                 "answers": {"mc_id_array": [0]},
+#             },
+#             {
+#                 "id": None,
+#                 "category_index": None,
+#                 "question_index": 1,
+#                 "question_text": "Info",
+#                 "question_type": "CATEGORY",
+#                 "required": True,
+#             },
+#         ],
+#     }
