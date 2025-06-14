@@ -19,6 +19,19 @@ export const getPatientTableEntries = async () => {
   });
   return response.data;
 };
+
+/**
+ * New generic fetcher used by DataTable containers.
+ * Accepts an optional search term; if provided, it is sent as ?search=<term>
+ */
+export const getPatientsAsync = async (search?: string) => {
+  const response = await axiosFetch({
+    method: 'GET',
+    url: EndpointEnum.PATIENTS,
+    params: search ? { search } : undefined,
+  });
+  return response.data;
+};
 export const getPatientAsync = async (patientId: string) => {
   const response = await axiosFetch({
     method: 'GET',
@@ -107,10 +120,8 @@ export const getPatientRecordsAsync = async (
 ) => {
   try {
     const response = await axiosFetch.get(
-      `${EndpointEnum.PATIENTS}/${patientId}/get_all_records?readings=${
-        filterRequestBody.readings ? 1 : 0
-      }&referrals=${filterRequestBody.referrals ? 1 : 0}&assessments=${
-        filterRequestBody.assessments ? 1 : 0
+      `${EndpointEnum.PATIENTS}/${patientId}/get_all_records?readings=${filterRequestBody.readings ? 1 : 0
+      }&referrals=${filterRequestBody.referrals ? 1 : 0}&assessments=${filterRequestBody.assessments ? 1 : 0
       }&forms=${filterRequestBody.forms ? 1 : 0}`
     );
     return response.data;

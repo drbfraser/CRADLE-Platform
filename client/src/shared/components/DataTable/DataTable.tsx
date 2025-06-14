@@ -11,7 +11,9 @@ import {
   GridPagination,
   useGridApiRef,
   GridRowClassNameParams,
+  GridRowParams,
   GridAutosizeOptions,
+  GridSortModel
 } from '@mui/x-data-grid';
 import { PropsWithChildren, useEffect } from 'react';
 
@@ -33,7 +35,19 @@ type DataTableProps = {
   toolbar?: () => JSX.Element;
   footer?: () => JSX.Element;
   sx?: SxProps;
+  loading?: boolean;
   getRowClassName?: (params: GridRowClassNameParams<any>) => string;
+  //pagenation
+  paginationModel?: {
+    page: number;
+    pageSize: number;
+  };
+  onPaginationModelChange?: (model: { page: number; pageSize: number }) => void;
+  rowCount?: number;
+
+  sortModel?: { field: string; sort: 'asc' | 'desc' }[];
+  onSortModelChange?: (model: GridSortModel) => void;
+  onRowClick?: (params: GridRowParams<any>) => void;
 };
 
 export const DataTable = ({
@@ -43,6 +57,12 @@ export const DataTable = ({
   footer = () => <DataTableFooter />,
   sx,
   getRowClassName,
+  paginationModel,
+  onPaginationModelChange,
+  rowCount,
+  sortModel,
+  onSortModelChange,
+  onRowClick,
 }: DataTableProps) => {
   const apiRef = useGridApiRef();
 
@@ -51,6 +71,9 @@ export const DataTable = ({
       apiRef.current.autosizeColumns(autosizeOptions);
     }
   }, [rows, apiRef]);
+
+  const isServerPaginated = typeof rowCount === 'number';
+  const effectiveRowCount = isServerPaginated ? rowCount : rows?.length ?? 0;
 
   return (
     <Box
@@ -64,7 +87,14 @@ export const DataTable = ({
         columns={columns}
         autosizeOnMount
         autosizeOptions={autosizeOptions}
-        pagination
+        paginationMode="server"
+        paginationModel={paginationModel}
+        onPaginationModelChange={onPaginationModelChange}
+        rowCount={effectiveRowCount}
+        sortingMode="server"
+        sortModel={sortModel}
+        onSortModelChange={onSortModelChange}
+        onRowClick={onRowClick}
         pageSizeOptions={[10, 25, 50]}
         initialState={{
           pagination: { paginationModel: { pageSize: 10 } },
@@ -93,6 +123,12 @@ export const DataTable = ({
           },
           '& .row-archived.Mui-selected:hover': {
             backgroundColor: ARCHIVED_ROW_HOVERED_COLOR,
+          },
+          '& .MuiDataGrid-cell:focus': {
+            outline: 'none',
+          },
+          '& .MuiDataGrid-cell:focus-within': {
+            outline: 'none',
           },
           ...sx,
         }}

@@ -1,24 +1,29 @@
-import { useState, useEffect } from 'react';
-import { debounce, parseInt } from 'lodash';
+import { useState, useEffect, useMemo } from 'react';
+import debounce from 'lodash/debounce';
 import { Box, TextField, Typography, useMediaQuery } from '@mui/material';
+import DoneIcon from '@mui/icons-material/Done';
+import ScheduleIcon from '@mui/icons-material/Schedule';
 
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
-import { APITable } from 'src/shared/components/apiTable';
-import { EndpointEnum } from 'src/shared/enums';
-import { ReferralFilter } from 'src/shared/types';
-import { SortDir } from 'src/shared/components/apiTable/types';
-import { useAppDispatch } from 'src/shared/hooks';
 import { Toast } from 'src/shared/components/toast';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
-
-import { BREAKPOINT, COLUMNS, SORTABLE_COLUMNS } from './constants';
+import { useAppDispatch } from 'src/shared/hooks';
+import { BREAKPOINT } from './constants';
 import { FilterDialog } from './FilterDialog';
 import { AutoRefresher } from './AutoRefresher';
-import { ReferralRow } from './ReferralRow';
 import { RefreshDialog } from './RefreshDialog';
 import { useSecretKeyQuery } from 'src/shared/queries';
 import { useCurrentUser } from 'src/shared/hooks/auth/useCurrentUser';
 
+import { useQuery } from '@tanstack/react-query';
+import { DataTable } from 'src/shared/components/DataTable/DataTable';
+import { GridColDef } from '@mui/x-data-grid';
+import { getReferralsAsync } from 'src/shared/api';
+import moment from 'moment';
+import { TrafficLight } from 'src/shared/components/trafficLight';
+import { TrafficLightEnum } from 'src/shared/enums';
+import { useNavigate } from 'react-router-dom';
+import { ReferralFilter } from 'src/shared/types';
 export const ReferralsPage = () => {
   const currentUser = useCurrentUser();
   const userId = currentUser?.id;
@@ -36,6 +41,78 @@ export const ReferralsPage = () => {
   // ensure that we wait until the user has stopped typing
   const debounceSetSearch = debounce(setSearch, 500);
   const isTransformed = useMediaQuery(`(min-width:${BREAKPOINT}px)`);
+
+  const navigate = useNavigate();
+
+  const { data: referrals = [], isLoading, refetch } = useQuery({
+    queryKey: ['referrals', search, filter],
+    queryFn: () => getReferralsAsync({ search, filter }),
+  });
+
+  const rows = useMemo(
+    () =>
+      referrals.map((r: any) => ({
+        ...r,
+        id: r.referralId,
+        referralDate: r.dateReferred
+          ? moment(Number(r.dateReferred) * 1000).format('YYYY-MM-DD')
+          : 'No date',
+        lastVitalSign: r.vitalSign ?? TrafficLightEnum.NONE,
+      })),
+    [referrals]
+  );
+
+  const columns = useMemo<GridColDef[]>(
+    () => [
+      { field: 'patientName', headerName: 'Name', flex: 1 },
+      { field: 'patientId', headerName: 'Patient ID', flex: 1 },
+      { field: 'villageNumber', headerName: 'Village Number', flex: 1 },
+      {
+        field: 'vitalSign',
+        headerName: 'Vital Sign when referral',
+        flex: 1,
+        sortable: false,
+        renderCell: ({ value }) => <TrafficLight status={value} />,
+      },
+      { field: 'referralDate', headerName: 'Date Referred', flex: 1 },
+      {
+        field: 'isAssessed',
+        headerName: 'Assessment',
+        flex: 1,
+        sortable: false,
+        renderCell: ({ row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontWeight: 500,
+            }}
+          >
+            {row.isAssessed || row.notAttended || row.isCancelled ? (
+              <>
+                <DoneIcon sx={{ padding: '2px', color: '#4caf50' }} />
+                Complete
+              </>
+            ) : (
+              <>
+                <ScheduleIcon sx={{ padding: '2px', color: '#f44336' }} />
+                Pending
+              </>
+            )}
+          </Box>
+        )
+      }
+    ],
+    []
+  );
+
+  useEffect(() => {
+    if (refresh) {
+      refetch();
+      setRefresh(false);
+    }
+  }, [refresh, refetch]);
 
   const { data: secretKeyQueryData } = useSecretKeyQuery(userId);
 
@@ -206,19 +283,16 @@ export const ReferralsPage = () => {
           sx={{
             clear: 'right',
           }}>
-          <APITable
-            endpoint={EndpointEnum.REFERRALS}
-            search={search}
-            columns={COLUMNS}
-            sortableColumns={SORTABLE_COLUMNS}
-            rowKey={'referralId'}
-            initialSortBy={'dateReferred'}
-            initialSortDir={SortDir.DESC}
-            RowComponent={ReferralRow}
-            isTransformed={isTransformed}
-            referralFilter={filter}
-            refetch={refresh}
-            isReferralListPage={true}
+          <DataTable
+            columns={columns}
+            rows={rows}
+            loading={isLoading}
+            onRowClick={({ row }) => navigate(`/patients/${row.patientId}`)}
+            sx={{
+              '& .MuiDataGrid-row:hover': {
+                cursor: 'pointer',
+              },
+            }}
           />
         </Box>
       </DashboardPaper>

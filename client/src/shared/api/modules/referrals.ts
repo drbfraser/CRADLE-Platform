@@ -1,6 +1,6 @@
 import { axiosFetch } from '../core/http';
 import { EndpointEnum } from 'src/shared/enums';
-
+import { ReferralFilter } from 'src/shared/types';
 export const saveReferralAssessmentAsync = async (referralId: string) =>
   axiosFetch({
     url: EndpointEnum.REFERRALS + `/assess/${referralId}`,
@@ -41,3 +41,12 @@ export const setReferralNotAttendedAsync = async (
       notAttendReason: comment,
     },
   });
+//get all referrals
+export const getReferralsAsync = async (params?: { search?: string; filter?: ReferralFilter }) => {
+  const response = await axiosFetch({
+    method: 'GET',
+    url: EndpointEnum.REFERRALS,
+    params, // pass search and filter to backend
+  });
+  return response.data;
+};
