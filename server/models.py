@@ -726,7 +726,9 @@ class WorkflowTemplateOrm(db.Model):
     name = db.Column(db.String(200), index=True, nullable=False)
     description = db.Column(db.Text, nullable=False)
     archived = db.Column(db.Boolean, nullable=False, default=False)
-    date_created = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now())
+    date_created = db.Column(
+        db.DateTime, nullable=False, default=datetime.datetime.now()
+    )
     last_edited = db.Column(db.DateTime, nullable=True)
     last_edited_by = db.Column(db.Text, nullable=False)
     version = db.Column(db.Text, nullable=False)
