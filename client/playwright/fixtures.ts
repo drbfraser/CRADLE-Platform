@@ -47,7 +47,7 @@ export const test = baseTest.extend<CradleFixtures>({
    * It is configured to attach the Authorization header with an access token
    * to all outgoing requests.
    */
-  api: async ({ context }, use) => {
+  api: async ({ context }, _use) => {
     const storageState = await context.storageState();
     const { value: accessToken } = storageState.origins[0].localStorage.find(
       ({ name }) => name === 'accessToken'
@@ -59,7 +59,7 @@ export const test = baseTest.extend<CradleFixtures>({
         Authorization: `bearer ${accessToken}`,
       },
     });
-    await use(api);
+    await _use(api);
   },
 
   /** This fixture creates a test patient through the REST API.
@@ -68,7 +68,7 @@ export const test = baseTest.extend<CradleFixtures>({
    * The test patients will be deleted during the `teardown` phase, after all
    * tests have run.
    **/
-  testPatient: async ({ api, browserName }, use) => {
+  testPatient: async ({ api, browserName }, _use) => {
     const timestamp = Date.now();
     const response = await api.post('/api/patients', {
       data: {
@@ -80,7 +80,7 @@ export const test = baseTest.extend<CradleFixtures>({
     });
     await expect(response).toBeOK();
     const patient: TestPatient = await response.json();
-    await use(patient);
+    await _use(patient);
     await api.delete(`api/patients/${patient.id}`);
   },
 
@@ -89,28 +89,28 @@ export const test = baseTest.extend<CradleFixtures>({
    * The Page Object Model classes use the postfix "Model" to avoid naming
    * conflicts with page components.
    */
-  loginPage: async ({ page }, use) => {
-    await use(new LoginPageModel(page));
+  loginPage: async ({ page }, _use) => {
+    await _use(new LoginPageModel(page));
   },
-  patientSummaryPage: async ({ page, testPatient }, use) => {
-    await use(new PatientSummaryPageModel(page, testPatient.id));
+  patientSummaryPage: async ({ page, testPatient }, _use) => {
+    await _use(new PatientSummaryPageModel(page, testPatient.id));
   },
-  newPatientFormPage: async ({ page }, use) => {
-    await use(new NewPatientFormPageModel(page));
+  newPatientFormPage: async ({ page }, _use) => {
+    await _use(new NewPatientFormPageModel(page));
   },
-  newReferralFormPage: async ({ page, testPatient }, use) => {
-    await use(new NewReferralFormPageModel(page, testPatient.id));
+  newReferralFormPage: async ({ page, testPatient }, _use) => {
+    await _use(new NewReferralFormPageModel(page, testPatient.id));
   },
-  patientsPage: async ({ page }, use) => {
-    await use(new PatientsPageModel(page));
+  patientsPage: async ({ page }, _use) => {
+    await _use(new PatientsPageModel(page));
   },
-  adminPatientsPage: async ({ page }, use) => {
-    await use(new AdminPatientsPageModel(page));
+  adminPatientsPage: async ({ page }, _use) => {
+    await _use(new AdminPatientsPageModel(page));
   },
-  formTemplatesPage: async ({ page }, use) => {
-    await use(new FormTemplatesPageModel(page));
+  formTemplatesPage: async ({ page }, _use) => {
+    await _use(new FormTemplatesPageModel(page));
   },
-  formTemplateBuilderPage: async ({ page }, use) => {
-    await use(new FormTemplateBuilderPageModel(page));
+  formTemplateBuilderPage: async ({ page }, _use) => {
+    await _use(new FormTemplateBuilderPageModel(page));
   },
 });

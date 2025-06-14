@@ -42,7 +42,10 @@ export const setReferralNotAttendedAsync = async (
     },
   });
 //get all referrals
-export const getReferralsAsync = async (params?: { search?: string; filter?: ReferralFilter }) => {
+export const getReferralsAsync = async (params?: {
+  search?: string;
+  filter?: ReferralFilter;
+}) => {
   const response = await axiosFetch({
     method: 'GET',
     url: EndpointEnum.REFERRALS,

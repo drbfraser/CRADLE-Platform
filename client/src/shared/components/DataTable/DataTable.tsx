@@ -13,7 +13,7 @@ import {
   GridRowClassNameParams,
   GridRowParams,
   GridAutosizeOptions,
-  GridSortModel
+  GridSortModel,
 } from '@mui/x-data-grid';
 import { PropsWithChildren, useEffect } from 'react';
 

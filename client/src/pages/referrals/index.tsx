@@ -44,7 +44,11 @@ export const ReferralsPage = () => {
 
   const navigate = useNavigate();
 
-  const { data: referrals = [], isLoading, refetch } = useQuery({
+  const {
+    data: referrals = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ['referrals', search, filter],
     queryFn: () => getReferralsAsync({ search, filter }),
   });
@@ -87,8 +91,7 @@ export const ReferralsPage = () => {
               alignItems: 'center',
               gap: '4px',
               fontWeight: 500,
-            }}
-          >
+            }}>
             {row.isAssessed || row.notAttended || row.isCancelled ? (
               <>
                 <DoneIcon sx={{ padding: '2px', color: '#4caf50' }} />
@@ -101,8 +104,8 @@ export const ReferralsPage = () => {
               </>
             )}
           </Box>
-        )
-      }
+        ),
+      },
     ],
     []
   );
