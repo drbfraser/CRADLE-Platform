@@ -149,7 +149,7 @@ def form_template():
                 "category_index": None,
                 "question_index": 0,
                 "question_type": "MULTIPLE_CHOICE",
-                "required": True,
+                "required": False,
                 "visible_condition": [],
                 "lang_versions": [
                     {
@@ -196,7 +196,7 @@ def form_template():
                 "category_index": None,
                 "question_index": 2,
                 "question_type": "STRING",
-                "required": True,
+                "required": False,
                 "visible_condition": [],
                 "string_max_length": 100,
                 "lang_versions": [
@@ -227,7 +227,7 @@ def form():
                 "question_index": 0,
                 "question_text": "How is the patient's condition?",
                 "question_type": "MULTIPLE_CHOICE",
-                "required": True,
+                "required": False,
                 "visible_condition": [],
                 "mc_options": [
                     {
@@ -265,7 +265,7 @@ def form():
                 "question_index": 2,
                 "question_text": "Additional comments?",
                 "question_type": "STRING",
-                "required": True,
+                "required": False,
                 "visible_condition": [],
                 "string_max_length": 100,
                 "answers": {"text": "Patient seems stable"},
