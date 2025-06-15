@@ -9,8 +9,9 @@ from validation.workflow_template_step_branch import (
     WorkflowTemplateStepBranchModel,
     WorkflowTemplateStepBranchWithCondition,
 )
-from validation.formTemplates import FormTemplateExamples
+from validation.formTemplates import FormTemplateExamples, FormTemplateWithQuestions
 from validation.rule_groups import RuleGroupExample, RuleGroupModel
+from validation.workflow_templates import WorkflowTemplateExample
 
 
 class WorkflowTemplateStepExample:
@@ -29,10 +30,13 @@ class WorkflowTemplateStepExample:
         "last_edited": last_edited,
         "last_edited_by": last_edited_by,
         "form_id": FormTemplateExamples.id,
-        "workflow_template_id": "TODO",
+        "workflow_template_id": WorkflowTemplateExample.id,
+        "conditions": RuleGroupExample.id,
+        "condition": RuleGroupExample.example_01,
+        "branches": [WorkflowTemplateStepBranchExample.example_01],
     }
 
-    with_condition = {
+    with_form = {
         "id": id,
         "name": name,
         "title": title,
@@ -40,8 +44,11 @@ class WorkflowTemplateStepExample:
         "last_edited": last_edited,
         "last_edited_by": last_edited_by,
         "form_id": FormTemplateExamples.id,
-        "workflow_template_id": "TODO",
-        "condition": RuleGroupExample.id,
+        "form": FormTemplateExamples.example_01,
+        "workflow_template_id": WorkflowTemplateExample.id,
+        "conditions": RuleGroupExample.id,
+        "condition": RuleGroupExample.example_01,
+        "branches": [WorkflowTemplateStepBranchExample.example_01],
     }
 
 
@@ -52,12 +59,10 @@ class WorkflowTemplateStepModel(CradleBaseModel, extra="forbid"):
     expected_completion: Field(default_factory=get_current_time)
     last_edited: Field(default_factory=get_current_time)
     last_edited_by: str
-
-
-class WorkflowTemplateStepWithCondition(WorkflowTemplateStepModel):
-    """A template step that has a condition"""
-
     condition: RuleGroupModel
+
+    # TODO: Account for different types of form template validators?
+    form: FormTemplateWithQuestions
 
 
 class WorkflowTemplateStepExampleWithMultipleBranches(WorkflowTemplateStepModel):
@@ -67,4 +72,6 @@ class WorkflowTemplateStepExampleWithMultipleBranches(WorkflowTemplateStepModel)
 
 
 class WorkflowTemplateStepWithSingleBranch(WorkflowTemplateStepModel):
-    branch = WorkflowTemplateStepBranchModel
+    """A template step that only has 1 branch"""
+
+    branches = List[WorkflowTemplateStepBranchModel]
