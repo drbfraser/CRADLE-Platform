@@ -727,10 +727,9 @@ class WorkflowTemplateOrm(db.Model):
     description = db.Column(db.Text, nullable=False)
     archived = db.Column(db.Boolean, nullable=False, default=False)
     date_created = db.Column(
-        db.DateTime, nullable=False, default=datetime.datetime.now()
+        db.BigInteger, nullable=False, default=datetime.datetime.now()
     )
-    last_edited = db.Column(db.DateTime, nullable=True)
-    last_edited_by = db.Column(db.Text, nullable=False)
+    last_edited = db.Column(db.BigInteger, nullable=False)
     version = db.Column(db.Text, nullable=False)
 
     # FOREIGN KEYS
@@ -739,7 +738,11 @@ class WorkflowTemplateOrm(db.Model):
         nullable=True,
     )
 
-    initial_conditions = db.Column(
+    last_edited_by = db.Column(
+        db.ForeignKey(UserOrm.id, ondelete="SET NULL"), nullable=True
+    )
+
+    initial_condition_id = db.Column(
         db.ForeignKey(RuleGroupOrm.id, ondelete="SET NULL"), nullable=True
     )
 
@@ -753,15 +756,18 @@ class WorkflowTemplateStepOrm(db.Model):
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
     title = db.Column(db.Text, nullable=False)
-    expected_completion = db.Column(db.DateTime, nullable=True, default=None)
+    expected_completion = db.Column(db.BigInteger, nullable=True, default=None)
     last_edited = db.Column(
-        db.DateTime, nullable=False, default=datetime.datetime.now()
+        db.BigInteger, nullable=False, default=datetime.datetime.now()
     )
-    last_edited_by = db.Column(db.Text, nullable=False)
 
     # FOREIGN KEYS
-    conditions = db.Column(
+    condition_id = db.Column(
         db.ForeignKey(RuleGroupOrm.id, ondelete="SET NULL"), nullable=True
+    )
+
+    last_edited_by = db.Column(
+        db.ForeignKey(UserOrm.id, ondelete="SET NULL"), nullable=True
     )
 
     form_id = db.Column(

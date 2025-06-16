@@ -1,6 +1,8 @@
+from typing import Optional
+
 from validation import CradleBaseModel
 from validation.rule_groups import RuleGroupExample, RuleGroupModel
-from validation.workflow_template_step import WorkflowTemplateStepExample
+# from validation.workflow_template_steps import WorkflowTemplateStepExample
 
 
 class WorkflowTemplateStepBranchExample:
@@ -10,13 +12,7 @@ class WorkflowTemplateStepBranchExample:
     example_01 = {
         "id": id,
         "target_step_id": target_step_id,
-        "step_id": WorkflowTemplateStepExample.id,
-    }
-
-    with_condition = {
-        "id": id,
-        "target_step_id": target_step_id,
-        "step_id": WorkflowTemplateStepExample.id,
+        "step_id": "step-example-01",
         "condition": RuleGroupExample.id,
     }
 
@@ -25,9 +21,4 @@ class WorkflowTemplateStepBranchModel(CradleBaseModel, extra="forbid"):
     id: str
     target_step_id: str
     step_id: str
-
-
-class WorkflowTemplateStepBranchWithCondition(WorkflowTemplateStepBranchModel):
-    """A workflow template step with a condition (branching logic)"""
-
-    condition: RuleGroupModel
+    condition: Optional[RuleGroupModel] = None

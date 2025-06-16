@@ -1,6 +1,6 @@
 from json import JSONDecodeError
 import json
-from pydantic import field_validator
+from pydantic import field_validator, ValidationError
 
 from validation import CradleBaseModel
 
@@ -8,21 +8,19 @@ from validation import CradleBaseModel
 # TODO: Change rule group example when format is specified
 class RuleGroupExample:
     id = "rule-group-example-01"
-    logic = (
-        "{'logical_operator': 'AND': {'rule1': 'rules.rule1', 'rule2': 'rules.rule2'}}"
+    logic = '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}'
+    rules = (
+        '{"rule1": {"field": "patient.age", "operator": "LESS_THAN", "value": 32},'
+        '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
     )
-    rules = {
-        "'rule1': {'field': 'patient.age', operator: 'LESS_THAN', 'value': 32},"
-        " 'rule2': {'field': 'patient.bpm', 'operator': 'GREATER_THAN', 'value': 164}},}"
-    }
 
-    example_01: {"id": id, "logic": logic, "rules": rules}
+    example_01 = {"id": id, "logic": logic, "rules": rules}
 
 
 class RuleGroupModel(CradleBaseModel, extra="forbid"):
     id: str
-    logic = str
-    rules = str
+    logic: str
+    rules: str
 
     """
     Raises an error if the logic or rules attributes of a rule group is not in JSON
