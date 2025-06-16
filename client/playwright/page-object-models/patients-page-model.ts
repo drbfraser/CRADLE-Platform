@@ -7,8 +7,7 @@ export class PatientsPageModel extends PageObjectModel {
   }
 
   getPatientRowByName(name: string) {
-    return this.page.getByRole('row').filter({
-      has: this.page.getByRole('cell', { name }),
-    });
+    // Match MUI DataGrid rows; each row is a div with class "MuiDataGrid-row"
+    return this.page.locator('.MuiDataGrid-row', { hasText: name });
   }
 }
