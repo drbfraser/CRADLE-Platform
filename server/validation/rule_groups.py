@@ -1,6 +1,6 @@
-from json import JSONDecodeError
 import json
-from pydantic import field_validator, ValidationError
+
+from pydantic import field_validator
 
 from validation import CradleBaseModel
 
@@ -32,7 +32,7 @@ class RuleGroupModel(CradleBaseModel, extra="forbid"):
         try:
             json.loads(rules)
 
-        except JSONDecodeError:
+        except json.JSONDecodeError:
             raise ValueError("rules attribute must be a JSON string")
 
         return rules
@@ -43,7 +43,7 @@ class RuleGroupModel(CradleBaseModel, extra="forbid"):
         try:
             json.loads(logic)
 
-        except JSONDecodeError:
+        except json.JSONDecodeError:
             raise ValueError("logic attribute must be a JSON string")
 
         return logic

@@ -1,5 +1,4 @@
 import pytest
-
 from pydantic import ValidationError
 
 from validation.workflow_template_step_branches import WorkflowTemplateStepBranchModel

@@ -1,22 +1,20 @@
 import pytest
-
 from pydantic import ValidationError
 
 from common.commonUtil import get_current_time
-from validation.workflow_templates import WorkflowTemplateWithStepsAndClassification
-from tests.validation.test_workflow_template_steps import (
-    template_step_with_valid_fields_should_return_none,
-    template_step_with_invalid_form_should_return_validation_error,
+from tests.validation.test_rule_groups import (
+    rule_group_with_invalid_json_logic_should_return_validation_error,
+    rule_group_with_valid_fields_should_return_none,
 )
 from tests.validation.test_workflow_classifications import (
     workflow_classification_with_valid_fields_should_return_none,
     workflow_classification_with_wrong_name_type_should_return_validation_error,
 )
-from tests.validation.test_rule_groups import (
-    rule_group_with_valid_fields_should_return_none,
-    rule_group_with_invalid_json_logic_should_return_validation_error,
+from tests.validation.test_workflow_template_steps import (
+    template_step_with_invalid_form_should_return_validation_error,
+    template_step_with_valid_fields_should_return_none,
 )
-
+from validation.workflow_templates import WorkflowTemplateWithStepsAndClassification
 
 """Template steps to be used"""
 VALID_WORKFLOW_TEMPLATE_STEP = template_step_with_valid_fields_should_return_none

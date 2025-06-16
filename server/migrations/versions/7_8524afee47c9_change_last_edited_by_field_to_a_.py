@@ -1,4 +1,5 @@
-"""Change 'last_edited_by' field to a foreign key for workflow templates and template steps, change date attributes to BigInteger
+"""
+Change 'last_edited_by' field to a foreign key for workflow templates and template steps, change date attributes to BigInteger
 
 Revision ID: 7_8524afee47c9
 Revises: 6_e2a9df49ff6e
@@ -6,8 +7,8 @@ Create Date: 2025-06-16 22:24:10.222302
 
 """
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.

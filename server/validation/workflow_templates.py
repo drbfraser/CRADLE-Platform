@@ -1,9 +1,10 @@
 from typing import Optional
 
-from pydantic import Field, field_validator
+from pydantic import Field
 
 from common.commonUtil import get_current_time
 from validation import CradleBaseModel
+from validation.rule_groups import RuleGroupExample, RuleGroupModel
 from validation.workflow_classifications import (
     WorkflowClassificationExamples,
     WorkflowClassificationModel,
@@ -12,7 +13,6 @@ from validation.workflow_template_steps import (
     WorkflowTemplateStepExample,
     WorkflowTemplateStepModel,
 )
-from validation.rule_groups import RuleGroupExample, RuleGroupModel
 
 
 class WorkflowTemplateExample:

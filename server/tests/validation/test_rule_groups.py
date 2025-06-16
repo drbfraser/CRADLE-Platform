@@ -1,5 +1,4 @@
 import pytest
-
 from pydantic import ValidationError
 
 from validation.rule_groups import RuleGroupModel

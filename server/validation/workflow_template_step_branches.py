@@ -2,7 +2,6 @@ from typing import Optional
 
 from validation import CradleBaseModel
 from validation.rule_groups import RuleGroupExample, RuleGroupModel
-# from validation.workflow_template_steps import WorkflowTemplateStepExample
 
 
 class WorkflowTemplateStepBranchExample:

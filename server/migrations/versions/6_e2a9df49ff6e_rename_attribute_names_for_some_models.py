@@ -1,4 +1,5 @@
-"""Rename attribute names for some models
+"""
+Rename attribute names for some models
 
 Revision ID: 6_e2a9df49ff6e
 Revises: 5_2f6d68ecb427
@@ -6,8 +7,8 @@ Create Date: 2025-06-16 03:54:40.833648
 
 """
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.

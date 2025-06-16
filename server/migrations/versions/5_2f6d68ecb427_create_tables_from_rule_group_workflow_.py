@@ -1,4 +1,5 @@
-"""Create tables from rule group, workflow template, workflow classification, template step, and step branch
+"""
+Create tables from rule group, workflow template, workflow classification, template step, and step branch
 
 Revision ID: 5_2f6d68ecb427
 Revises: 4_5aabd60944dd
@@ -6,9 +7,8 @@ Create Date: 2025-06-13 22:19:35.473782
 
 """
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "5_2f6d68ecb427"
