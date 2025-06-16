@@ -2,7 +2,8 @@
   "type": "module",
   "devDependencies": {
     "husky": "^9.1.6",
-    "lint-staged": "^15.2.10"
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.5.3"
   },
   "scripts": {
     "prepare": "husky install"
