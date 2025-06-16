@@ -63,7 +63,7 @@ export const PatientsPage = () => {
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'center',
-          justifyContent: 'between',
+          justifyContent: 'space-between',
           marginRight: '1rem',
           width: '100%',
           padding: {
@@ -116,6 +116,7 @@ export const PatientsPage = () => {
         columns={columns}
         rows={rows}
         loading={isLoading}
+        disableVirtualization
         sx={{
           '& .MuiDataGrid-row:hover': {
             cursor: 'pointer',

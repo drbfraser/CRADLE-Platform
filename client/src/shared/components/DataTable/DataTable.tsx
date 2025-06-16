@@ -36,6 +36,8 @@ type DataTableProps = {
   footer?: () => JSX.Element;
   sx?: SxProps;
   loading?: boolean;
+  /** Disable row virtualization (useful for e2e tests) */
+  disableVirtualization?: boolean;
   getRowClassName?: (params: GridRowClassNameParams<any>) => string;
   //pagenation
   paginationModel?: {
@@ -63,6 +65,7 @@ export const DataTable = ({
   sortModel,
   onSortModelChange,
   onRowClick,
+  disableVirtualization,
 }: DataTableProps) => {
   const apiRef = useGridApiRef();
 
@@ -95,6 +98,7 @@ export const DataTable = ({
         sortModel={sortModel}
         onSortModelChange={onSortModelChange}
         onRowClick={onRowClick}
+        disableVirtualization={disableVirtualization}
         pageSizeOptions={[10, 25, 50]}
         initialState={{
           pagination: { paginationModel: { pageSize: 10 } },

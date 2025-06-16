@@ -196,6 +196,7 @@ export const ReferralsPage = () => {
               }}>
               <TextField
                 label="Search"
+                data-testid="search-input"
                 placeholder="Patient ID, Name or Village"
                 variant="outlined"
                 onChange={(e) => debounceSetSearch(e.target.value)}
@@ -287,6 +288,7 @@ export const ReferralsPage = () => {
             clear: 'right',
           }}>
           <DataTable
+            disableVirtualization
             columns={columns}
             rows={rows}
             loading={isLoading}
