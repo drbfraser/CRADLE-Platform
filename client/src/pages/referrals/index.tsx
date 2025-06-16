@@ -289,6 +289,7 @@ export const ReferralsPage = () => {
           }}>
           <DataTable
             disableVirtualization
+            disablePagination
             columns={columns}
             rows={rows}
             loading={isLoading}

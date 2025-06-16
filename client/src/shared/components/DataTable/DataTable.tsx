@@ -36,6 +36,8 @@ type DataTableProps = {
   footer?: () => JSX.Element;
   sx?: SxProps;
   loading?: boolean;
+  /** Show everything on one page; useful for Playwright */
+  disablePagination?: boolean;
   /** Disable row virtualization (useful for e2e tests) */
   disableVirtualization?: boolean;
   getRowClassName?: (params: GridRowClassNameParams<any>) => string;
@@ -66,8 +68,12 @@ export const DataTable = ({
   onSortModelChange,
   onRowClick,
   disableVirtualization,
+  disablePagination,
 }: DataTableProps) => {
   const apiRef = useGridApiRef();
+
+  // When pagination is disabled (e2e tests), show all rows on a single page
+  const pageSize = disablePagination ? (rows?.length ?? 10) : 10;
 
   useEffect(() => {
     if (rows && rows.length > 0) {
@@ -99,9 +105,10 @@ export const DataTable = ({
         onSortModelChange={onSortModelChange}
         onRowClick={onRowClick}
         disableVirtualization={disableVirtualization}
-        pageSizeOptions={[10, 25, 50]}
+        hideFooterPagination={disablePagination}
+        pageSizeOptions={disablePagination ? [pageSize] : [10, 25, 50]}
         initialState={{
-          pagination: { paginationModel: { pageSize: 10 } },
+          pagination: { paginationModel: { pageSize } },
         }}
         slots={{ toolbar, footer }}
         sx={{

@@ -117,6 +117,7 @@ export const PatientsPage = () => {
         rows={rows}
         loading={isLoading}
         disableVirtualization
+        disablePagination
         sx={{
           '& .MuiDataGrid-row:hover': {
             cursor: 'pointer',
