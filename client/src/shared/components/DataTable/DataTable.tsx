@@ -73,7 +73,7 @@ export const DataTable = ({
   const apiRef = useGridApiRef();
 
   // When pagination is disabled (e2e tests), show all rows on a single page
-  const pageSize = disablePagination ? (rows?.length ?? 10) : 10;
+  const pageSize = disablePagination ? rows?.length ?? 10 : 10;
 
   useEffect(() => {
     if (rows && rows.length > 0) {
