@@ -35,6 +35,7 @@ export const useAddPatientInfoMutation = () => {
 
   return useMutation({
     mutationFn: (data: PatientData) => {
+      console.log('new patient data', data);
       return axiosFetch.post(endpoint, {
         ...data,
       });
