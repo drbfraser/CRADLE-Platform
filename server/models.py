@@ -817,38 +817,37 @@ class WorkflowTemplateStepBranchOrm(db.Model):
         return WorkflowTemplateStepBranchSchema
 
 
-# class WorkflowInstanceOrm(db.Model):
-#     __tablename__ = "workflow_instance"
-#     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
-#     start_date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now())
-#     last_edited = db.Column(db.DateTime, nullable=True)
-#     last_edited_by = db.Column(db.Text, nullable=False)
-#     completion_date = db.Column(db.DateTime, nullable=True)
-#     status = db.Column(db.String(20), nullable=False, default="Active")
-#
-#
-#     # FOREIGN KEYS
-#     workflow_template_id = db.Column(
-#         db.ForeignKey(WorkflowTemplateOrm.id, ondelete="SET NULL"),
-#         nullable=True
-#     )
-#
-#     patient_id = db.Column(
-#         db.ForeignKey(PatientOrm.id, ondelete="CASCADE"),
-#         nullable=False
-#     )
-#
-#     # RELATIONSHIPS
-#     patient = db.relationship(
-#         PatientOrm,
-#         backref=db.backref(
-#             "workflow_instance", cascade="all, delete", lazy=True
-#         )
-#     )
-#
-#     @staticmethod
-#     def schema():
-#         return WorkflowInstanceSchema
+class WorkflowInstanceOrm(db.Model):
+    __tablename__ = "workflow_instance"
+    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
+    start_date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now())
+    last_edited = db.Column(db.DateTime, nullable=True)
+    completion_date = db.Column(db.DateTime, nullable=True)
+    status = db.Column(db.String(20), nullable=False, default="Active")
+
+    # FOREIGN KEYS
+    workflow_template_id = db.Column(
+        db.ForeignKey(WorkflowTemplateOrm.id, ondelete="SET NULL"), nullable=True
+    )
+
+    last_edited_by = db.Column(
+        db.ForeignKey(UserOrm.id, ondelete="SET NULL"), nullable=True
+    )
+
+    patient_id = db.Column(
+        db.ForeignKey(PatientOrm.id, ondelete="CASCADE"), nullable=False
+    )
+
+    # RELATIONSHIPS
+    patient = db.relationship(
+        PatientOrm,
+        backref=db.backref("workflow_instance", cascade="all, delete", lazy=True),
+    )
+
+    @staticmethod
+    def schema():
+        return WorkflowInstanceSchema
+
 
 #
 # SCHEMAS
@@ -1080,12 +1079,12 @@ class WorkflowTemplateStepBranchSchema(ma.SQLAlchemyAutoSchema):
         include_relationships = True
 
 
-# class WorkflowInstanceSchema(ma.SQLAlchemyAutoSchema):
-#     class Meta:
-#         include_fk = True
-#         model = WorkflowInstanceOrm
-#         load_instance = True
-#         include_relationships = True
+class WorkflowInstanceSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = WorkflowInstanceOrm
+        load_instance = True
+        include_relationships = True
 
 
 def validate_user(data):
