@@ -698,6 +698,157 @@ class SmsSecretKeyOrm(db.Model):
         return SmsSecretKeySchema
 
 
+class WorkflowClassificationOrm(db.Model):
+    __tablename__ = "workflow_classification"
+    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
+    name = db.Column(db.String(200), index=True, nullable=False)
+
+    @staticmethod
+    def schema():
+        return WorkflowClassificationSchema
+
+
+class RuleGroupOrm(db.Model):
+    __tablename__ = "rule_group"
+    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
+    # TODO: These attributes may need to be altered or removed depending on what rules engine we choose
+    logic = db.Column(db.Text, nullable=True)
+    rules = db.Column(db.Text, nullable=True)
+
+    @staticmethod
+    def schema():
+        return RuleGroupOrm
+
+
+class WorkflowTemplateOrm(db.Model):
+    __tablename__ = "workflow_template"
+    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
+    name = db.Column(db.String(200), index=True, nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    archived = db.Column(db.Boolean, nullable=False, default=False)
+    date_created = db.Column(
+        db.BigInteger, nullable=False, default=datetime.datetime.now()
+    )
+    last_edited = db.Column(db.BigInteger, nullable=False)
+    version = db.Column(db.Text, nullable=False)
+
+    # FOREIGN KEYS
+    classification_id = db.Column(
+        db.ForeignKey(WorkflowClassificationOrm.id, ondelete="SET NULL"),
+        nullable=True,
+    )
+
+    last_edited_by = db.Column(
+        db.ForeignKey(UserOrm.id, ondelete="SET NULL"), nullable=True
+    )
+
+    initial_condition_id = db.Column(
+        db.ForeignKey(RuleGroupOrm.id, ondelete="SET NULL"), nullable=True
+    )
+
+    @staticmethod
+    def schema():
+        return WorkflowTemplateSchema
+
+
+class WorkflowTemplateStepOrm(db.Model):
+    __tablename__ = "workflow_template_step"
+    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
+    name = db.Column(db.String(200), index=True, nullable=False)
+    title = db.Column(db.Text, nullable=False)
+    expected_completion = db.Column(db.BigInteger, nullable=True, default=None)
+    last_edited = db.Column(
+        db.BigInteger, nullable=False, default=datetime.datetime.now()
+    )
+
+    # FOREIGN KEYS
+    condition_id = db.Column(
+        db.ForeignKey(RuleGroupOrm.id, ondelete="SET NULL"), nullable=True
+    )
+
+    last_edited_by = db.Column(
+        db.ForeignKey(UserOrm.id, ondelete="SET NULL"), nullable=True
+    )
+
+    form_id = db.Column(
+        db.ForeignKey(FormTemplateOrm.id, ondelete="CASCADE"), nullable=False
+    )
+
+    workflow_template_id = db.Column(
+        db.ForeignKey(WorkflowTemplateOrm.id, ondelete="CASCADE"), nullable=False
+    )
+
+    # RELATIONSHIPS
+    workflow_template = db.relationship(
+        WorkflowTemplateOrm,
+        backref=db.backref("workflow_template_step", cascade="all, delete", lazy=True),
+    )
+
+    @staticmethod
+    def schema():
+        return WorkflowTemplateStepSchema
+
+
+class WorkflowTemplateStepBranchOrm(db.Model):
+    __tablename__ = "workflow_template_step_branch"
+    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
+    target_step_id = db.Column(db.Integer, nullable=False)
+
+    # FOREIGN KEYS
+    step_id = db.Column(
+        db.ForeignKey(WorkflowTemplateStepOrm.id, ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    condition = db.Column(
+        db.ForeignKey(RuleGroupOrm.id, ondelete="SET NULL"), nullable=True
+    )
+
+    # RELATIONSHIPS
+    step = db.relationship(
+        WorkflowTemplateStepOrm,
+        backref=db.backref(
+            "workflow_template_step_branch", cascade="all, delete", lazy=True
+        ),
+    )
+
+    @staticmethod
+    def schema():
+        return WorkflowTemplateStepBranchSchema
+
+
+class WorkflowInstanceOrm(db.Model):
+    __tablename__ = "workflow_instance"
+    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
+    start_date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now())
+    last_edited = db.Column(db.DateTime, nullable=True)
+    completion_date = db.Column(db.DateTime, nullable=True)
+    status = db.Column(db.String(20), nullable=False, default="Active")
+
+    # FOREIGN KEYS
+    workflow_template_id = db.Column(
+        db.ForeignKey(WorkflowTemplateOrm.id, ondelete="SET NULL"), nullable=True
+    )
+
+    last_edited_by = db.Column(
+        db.ForeignKey(UserOrm.id, ondelete="SET NULL"), nullable=True
+    )
+
+    patient_id = db.Column(
+        db.ForeignKey(PatientOrm.id, ondelete="CASCADE"), nullable=False
+    )
+
+    # RELATIONSHIPS
+    patient = db.relationship(
+        PatientOrm,
+        backref=db.backref("workflow_instance", cascade="all, delete", lazy=True),
+    )
+
+    @staticmethod
+    def schema():
+        return WorkflowInstanceSchema
+
+
 #
 # SCHEMAS
 #
@@ -884,6 +1035,54 @@ class SmsSecretKeySchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = SmsSecretKeyOrm
+        load_instance = True
+        include_relationships = True
+
+
+class RuleGroupSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = RuleGroupOrm
+        load_instance = True
+        include_relationships = True
+
+
+class WorkflowClassificationSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = WorkflowClassificationOrm
+        load_instance = True
+        include_relationships = True
+
+
+class WorkflowTemplateSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = WorkflowTemplateOrm
+        load_instance = True
+        include_relationships = True
+
+
+class WorkflowTemplateStepSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = WorkflowTemplateStepOrm
+        load_instance = True
+        include_relationships = True
+
+
+class WorkflowTemplateStepBranchSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = WorkflowTemplateStepBranchOrm
+        load_instance = True
+        include_relationships = True
+
+
+class WorkflowInstanceSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = WorkflowInstanceOrm
         load_instance = True
         include_relationships = True
 
