@@ -727,9 +727,11 @@ class WorkflowTemplateOrm(db.Model):
     description = db.Column(db.Text, nullable=False)
     archived = db.Column(db.Boolean, nullable=False, default=False)
     date_created = db.Column(
-        db.BigInteger, nullable=False, default=datetime.datetime.now()
+        db.BigInteger, nullable=False, default=get_current_time
     )
-    last_edited = db.Column(db.BigInteger, nullable=False)
+    last_edited = db.Column(
+        db.BigInteger, nullable=False, default=get_current_time, onupdate=get_current_time
+    )
     version = db.Column(db.Text, nullable=False)
 
     # FOREIGN KEYS
@@ -756,9 +758,17 @@ class WorkflowTemplateStepOrm(db.Model):
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
     title = db.Column(db.Text, nullable=False)
-    expected_completion = db.Column(db.BigInteger, nullable=True, default=None)
+    expected_completion = db.Column(
+        db.BigInteger,
+        nullable=True,
+        default=None,
+        onupdate=get_current_time
+    )
     last_edited = db.Column(
-        db.BigInteger, nullable=False, default=datetime.datetime.now()
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+        onupdate=get_current_time
     )
 
     # FOREIGN KEYS
@@ -781,7 +791,7 @@ class WorkflowTemplateStepOrm(db.Model):
     # RELATIONSHIPS
     workflow_template = db.relationship(
         WorkflowTemplateOrm,
-        backref=db.backref("workflow_template_step", cascade="all, delete", lazy=True),
+        backref=db.backref("workflow_template_steps", cascade="all, delete", lazy=True),
     )
 
     @staticmethod
@@ -808,7 +818,7 @@ class WorkflowTemplateStepBranchOrm(db.Model):
     step = db.relationship(
         WorkflowTemplateStepOrm,
         backref=db.backref(
-            "workflow_template_step_branch", cascade="all, delete", lazy=True
+            "workflow_template_step_branches", cascade="all, delete", lazy=True
         ),
     )
 
@@ -820,9 +830,19 @@ class WorkflowTemplateStepBranchOrm(db.Model):
 class WorkflowInstanceOrm(db.Model):
     __tablename__ = "workflow_instance"
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
-    start_date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now())
-    last_edited = db.Column(db.DateTime, nullable=True)
-    completion_date = db.Column(db.DateTime, nullable=True)
+    start_date = db.Column(db.BigInteger, nullable=False, default=get_current_time)
+    last_edited = db.Column(
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+        onupdate=get_current_time
+    )
+    completion_date = db.Column(
+        db.BigInteger,
+        nullable=True,
+        default=None,
+        onupdate=get_current_time
+    )
     status = db.Column(db.String(20), nullable=False, default="Active")
 
     # FOREIGN KEYS
@@ -841,12 +861,63 @@ class WorkflowInstanceOrm(db.Model):
     # RELATIONSHIPS
     patient = db.relationship(
         PatientOrm,
-        backref=db.backref("workflow_instance", cascade="all, delete", lazy=True),
+        backref=db.backref("workflow_instances", cascade="all, delete", lazy=True),
     )
 
     @staticmethod
     def schema():
         return WorkflowInstanceSchema
+
+
+class WorkflowInstanceStepOrm(db.Model):
+    __tablename__ = "workflow_instance_step"
+    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
+    last_edited = db.Column(
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+        onupdate=get_current_time
+    )
+    expected_completion = db.Column(
+        db.BigInteger,
+        nullable=True,
+        default=None,
+        onupdate=get_current_time
+    )
+    completion_date = db.Column(
+        db.BigInteger,
+        nullable=True,
+        default=None,
+        onupdate=get_current_time
+    )
+    status = db.Column(db.String(20), nullable=False, default="Active")
+    data = db.Column(db.Text, nullable=True)
+
+    # FOREIGN KEYS
+    form_id = db.Column(
+        db.ForeignKey(FormOrm.id, ondelete="CASCADE"),
+        nullable=False
+    )
+
+    assigned_to = db.Column(
+        db.ForeignKey(UserOrm.id, ondelete="SET NULL"),
+        nullable=True
+    )
+
+    workflow_instance_id = db.Column(
+        db.ForeignKey(WorkflowInstanceOrm.id, ondelete="CASCADE"),
+        nullable = False
+    )
+
+    # RELATIONSHIPS
+    workflow_instance = db.relationship(
+        WorkflowInstanceOrm,
+        backref=db.backref("workflow_instance_steps", cascade="all, delete", lazy=True),
+    )
+
+    @staticmethod
+    def schema():
+        return WorkflowInstanceStepSchema
 
 
 #
@@ -1083,6 +1154,14 @@ class WorkflowInstanceSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = WorkflowInstanceOrm
+        load_instance = True
+        include_relationships = True
+
+
+class WorkflowInstanceStepSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = WorkflowInstanceStepOrm
         load_instance = True
         include_relationships = True
 
