@@ -122,7 +122,7 @@ class WorkflowInstanceStepExamples:
         "assigned_to": 1232,
         "workflow_instance_id": "workflow-instance-example-01",
         "condition_id": RuleGroupExample.example_01["id"],
-        "condition": RuleGroupExample.example_01
+        "condition": RuleGroupExample.example_01,
     }
 
     with_form = {
@@ -140,7 +140,7 @@ class WorkflowInstanceStepExamples:
         "form": form,
         "assigned_to": 1232,
         "workflow_instance_id": RuleGroupExample.example_01["id"],
-        "condition": RuleGroupExample.example_01
+        "condition": RuleGroupExample.example_01,
     }
 
 
@@ -165,7 +165,11 @@ class WorkflowInstanceStepModel(CradleBaseModel):
     @field_validator("status", mode="after")
     @classmethod
     def validate_status(cls, status: str) -> str:
-        if status in [WorkflowStatusEnum.ACTIVE, WorkflowStatusEnum.CANCELLED, WorkflowStatusEnum.COMPLETED]:
+        if status in [
+            WorkflowStatusEnum.ACTIVE,
+            WorkflowStatusEnum.CANCELLED,
+            WorkflowStatusEnum.COMPLETED,
+        ]:
             return status
 
         raise ValueError(f"Invalid step status: {status}")
@@ -173,8 +177,7 @@ class WorkflowInstanceStepModel(CradleBaseModel):
     @field_validator("data", mode="after")
     @classmethod
     def validate_data(cls, data: Optional[str]) -> Optional[str]:
-
-        #TODO: Add more answer validation once format is figured out
+        # TODO: Add more answer validation once format is figured out
 
         if data is not None:
             try:
@@ -192,11 +195,10 @@ class WorkflowInstanceStepModel(CradleBaseModel):
         if self.completion_date is not None and self.completion_date < self.start_date:
             raise ValueError("completion_date cannot be before start_date")
 
-        if self.expected_completion is not None and self.expected_completion < self.start_date:
+        if (
+            self.expected_completion is not None
+            and self.expected_completion < self.start_date
+        ):
             raise ValueError("expected_completion cannot be before start_date")
 
         return self
-
-
-
-

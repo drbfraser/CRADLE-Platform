@@ -53,7 +53,10 @@ class WorkflowInstanceExamples:
         "status": status,
         "workflow_template_id": workflow_template_id,
         "patient_id": patient_id,
-        "steps": [WorkflowInstanceStepExamples.example_01, WorkflowInstanceStepExamples.with_form],
+        "steps": [
+            WorkflowInstanceStepExamples.example_01,
+            WorkflowInstanceStepExamples.with_form,
+        ],
     }
 
 
@@ -74,7 +77,11 @@ class WorkflowInstanceModel(CradleBaseModel):
     @field_validator("status", mode="after")
     @classmethod
     def validate_status(cls, status: str) -> str:
-        if status in [WorkflowStatusEnum.ACTIVE, WorkflowStatusEnum.CANCELLED, WorkflowStatusEnum.COMPLETED]:
+        if status in [
+            WorkflowStatusEnum.ACTIVE,
+            WorkflowStatusEnum.CANCELLED,
+            WorkflowStatusEnum.COMPLETED,
+        ]:
             return status
 
         raise ValueError(f"Invalid step status: {status}")
