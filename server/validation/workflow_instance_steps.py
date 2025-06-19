@@ -120,7 +120,8 @@ class WorkflowInstanceStepExamples:
         "form_id": FormExample.ID,
         "form": None,
         "assigned_to": 1232,
-        "workflow_instance_id": RuleGroupExample.example_01.id,
+        "workflow_instance_id": "workflow-instance-example-01",
+        "condition_id": RuleGroupExample.example_01["id"],
         "condition": RuleGroupExample.example_01
     }
 
@@ -131,13 +132,14 @@ class WorkflowInstanceStepExamples:
         "start_date": start_date,
         "last_edited": last_edited,
         "completion_date": completion_date,
+        "expected_completion": expected_completion,
         "status": status,
         "data": data,
         "triggered_by": triggered_by,
         "form_id": FormExample.ID,
         "form": form,
         "assigned_to": 1232,
-        "workflow_instance_id": RuleGroupExample.example_01.id,
+        "workflow_instance_id": RuleGroupExample.example_01["id"],
         "condition": RuleGroupExample.example_01
     }
 
@@ -157,8 +159,8 @@ class WorkflowInstanceStepModel(CradleBaseModel):
     form_id: str
     form: Optional[FormModel] = None
     workflow_instance_id: str
+    condition_id: str
     condition: RuleGroupModel
-
 
     @field_validator("status", mode="after")
     @classmethod
@@ -177,7 +179,6 @@ class WorkflowInstanceStepModel(CradleBaseModel):
         if data is not None:
             try:
                 json.loads(data)
-
             except JSONDecodeError:
                 raise ValueError("data must be valid JSON")
 
