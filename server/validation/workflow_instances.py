@@ -64,7 +64,7 @@ class WorkflowInstanceModel(CradleBaseModel):
     start_date: int = Field(default_factory=get_current_time)
     current_step_id: Optional[str] = None
     last_edited: Optional[int] = Field(default_factory=get_current_time)
-    last_edited_by: Optional[str] = None
+    last_edited_by: Optional[int] = None
     completion_date: Optional[int] = Field(default_factory=get_current_time)
     status: str
     workflow_template_id: Optional[str] = None
@@ -87,7 +87,4 @@ class WorkflowInstanceModel(CradleBaseModel):
         if self.completion_date is not None and self.completion_date < self.start_date:
             raise ValueError("completion_date cannot be before start_date")
 
-        if self.expected_completion is not None and self.expected_completion < self.start_date:
-            raise ValueError("expected_completion cannot be before start_date")
-
-        return Self
+        return self

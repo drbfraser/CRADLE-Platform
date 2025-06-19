@@ -195,7 +195,7 @@ class WorkflowInstanceStepModel(CradleBaseModel):
         if self.expected_completion is not None and self.expected_completion < self.start_date:
             raise ValueError("expected_completion cannot be before start_date")
 
-        return Self
+        return self
 
 
 
