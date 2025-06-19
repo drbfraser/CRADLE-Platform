@@ -90,7 +90,7 @@ workflow_instance_with_invalid_edit_date_should_return_validation_error = {
     "title": TITLE,
     "start_date": START_DATE,
     "current_step_id": CURRENT_STEP_ID,
-    "last_edited": START_DATE-100,
+    "last_edited": START_DATE - 100,
     "last_edited_by": LAST_EDITED_BY,
     "completion_date": COMPLETION_DATE,
     "status": STATUS,
@@ -159,6 +159,7 @@ workflow_instance_with_invalid_status_should_return_validation_error = {
     "steps": STEPS,
 }
 
+
 @pytest.mark.parametrize(
     "json, expectation",
     [
@@ -166,12 +167,27 @@ workflow_instance_with_invalid_status_should_return_validation_error = {
         (workflow_instance_with_no_steps_should_return_none, None),
         (workflow_instance_with_valid_missing_template_id_should_return_none, None),
         (workflow_instance_with_valid_missing_dates_should_return_none, None),
-        (workflow_instance_with_invalid_edit_date_should_return_validation_error, ValidationError),
-        (workflow_instance_with_invalid_completion_date_should_return_validation_error, ValidationError),
-        (workflow_instance_with_missing_patient_id_should_return_validation_error, ValidationError),
-        (workflow_instance_with_invalid_step_should_return_validation_error, ValidationError),
-        (workflow_instance_with_invalid_status_should_return_validation_error, ValidationError),
-    ]
+        (
+            workflow_instance_with_invalid_edit_date_should_return_validation_error,
+            ValidationError,
+        ),
+        (
+            workflow_instance_with_invalid_completion_date_should_return_validation_error,
+            ValidationError,
+        ),
+        (
+            workflow_instance_with_missing_patient_id_should_return_validation_error,
+            ValidationError,
+        ),
+        (
+            workflow_instance_with_invalid_step_should_return_validation_error,
+            ValidationError,
+        ),
+        (
+            workflow_instance_with_invalid_status_should_return_validation_error,
+            ValidationError,
+        ),
+    ],
 )
 def test_workflow_instances(json, expectation):
     if expectation:

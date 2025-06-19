@@ -46,7 +46,7 @@ instance_step_with_valid_fields_should_return_none = {
     "assigned_to": ASSIGNED_TO,
     "workflow_instance_id": "workflow-instance-example-01",
     "condition_id": VALID_RULE_GROUP["id"],
-    "condition": VALID_RULE_GROUP
+    "condition": VALID_RULE_GROUP,
 }
 
 instance_step_with_valid_missing_fields_should_return_none = {
@@ -65,7 +65,7 @@ instance_step_with_valid_missing_fields_should_return_none = {
     "assigned_to": None,
     "workflow_instance_id": "workflow-instance-example-01",
     "condition_id": VALID_RULE_GROUP["id"],
-    "condition": VALID_RULE_GROUP
+    "condition": VALID_RULE_GROUP,
 }
 
 instance_step_with_invalid_condition_should_return_validation_error = {
@@ -84,7 +84,7 @@ instance_step_with_invalid_condition_should_return_validation_error = {
     "assigned_to": ASSIGNED_TO,
     "workflow_instance_id": "workflow-instance-example-01",
     "condition_id": INVALID_RULE_GROUP["id"],
-    "condition": INVALID_RULE_GROUP
+    "condition": INVALID_RULE_GROUP,
 }
 
 instance_step_with_invalid_data_should_return_validation_error = {
@@ -96,14 +96,14 @@ instance_step_with_invalid_data_should_return_validation_error = {
     "completion_date": COMPLETION_DATE,
     "expected_completion": EXPECTED_COMPLETION,
     "status": STATUS,
-    "data": "Hello", # Not valid JSON
+    "data": "Hello",  # Not valid JSON
     "triggered_by": TRIGGERED_BY,
     "form_id": VALID_FORM["id"],
     "form": VALID_FORM,
     "assigned_to": ASSIGNED_TO,
     "workflow_instance_id": "workflow-instance-example-01",
     "condition_id": VALID_RULE_GROUP["id"],
-    "condition": VALID_RULE_GROUP
+    "condition": VALID_RULE_GROUP,
 }
 
 instance_step_with_invalid_edit_date_should_return_validation_error = {
@@ -122,7 +122,7 @@ instance_step_with_invalid_edit_date_should_return_validation_error = {
     "assigned_to": ASSIGNED_TO,
     "workflow_instance_id": "workflow-instance-example-01",
     "condition_id": VALID_RULE_GROUP["id"],
-    "condition": VALID_RULE_GROUP
+    "condition": VALID_RULE_GROUP,
 }
 
 instance_step_with_invalid_completion_date_should_return_validation_error = {
@@ -141,7 +141,7 @@ instance_step_with_invalid_completion_date_should_return_validation_error = {
     "assigned_to": ASSIGNED_TO,
     "workflow_instance_id": "workflow-instance-example-01",
     "condition_id": VALID_RULE_GROUP["id"],
-    "condition": VALID_RULE_GROUP
+    "condition": VALID_RULE_GROUP,
 }
 
 instance_step_with_invalid_status_should_return_validation_error = {
@@ -160,20 +160,36 @@ instance_step_with_invalid_status_should_return_validation_error = {
     "assigned_to": ASSIGNED_TO,
     "workflow_instance_id": "workflow-instance-example-01",
     "condition_id": VALID_RULE_GROUP["id"],
-    "condition": VALID_RULE_GROUP
+    "condition": VALID_RULE_GROUP,
 }
+
 
 @pytest.mark.parametrize(
     "json, expectation",
     [
         (instance_step_with_valid_fields_should_return_none, None),
         (instance_step_with_valid_missing_fields_should_return_none, None),
-        (instance_step_with_invalid_condition_should_return_validation_error, ValidationError),
-        (instance_step_with_invalid_data_should_return_validation_error, ValidationError),
-        (instance_step_with_invalid_edit_date_should_return_validation_error, ValidationError),
-        (instance_step_with_invalid_completion_date_should_return_validation_error, ValidationError),
-        (instance_step_with_invalid_status_should_return_validation_error, ValidationError),
-    ]
+        (
+            instance_step_with_invalid_condition_should_return_validation_error,
+            ValidationError,
+        ),
+        (
+            instance_step_with_invalid_data_should_return_validation_error,
+            ValidationError,
+        ),
+        (
+            instance_step_with_invalid_edit_date_should_return_validation_error,
+            ValidationError,
+        ),
+        (
+            instance_step_with_invalid_completion_date_should_return_validation_error,
+            ValidationError,
+        ),
+        (
+            instance_step_with_invalid_status_should_return_validation_error,
+            ValidationError,
+        ),
+    ],
 )
 def test_workflow_instance_steps(json, expectation):
     if expectation:

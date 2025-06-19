@@ -726,11 +726,12 @@ class WorkflowTemplateOrm(db.Model):
     name = db.Column(db.String(200), index=True, nullable=False)
     description = db.Column(db.Text, nullable=False)
     archived = db.Column(db.Boolean, nullable=False, default=False)
-    date_created = db.Column(
-        db.BigInteger, nullable=False, default=get_current_time
-    )
+    date_created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
     last_edited = db.Column(
-        db.BigInteger, nullable=False, default=get_current_time, onupdate=get_current_time
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+        onupdate=get_current_time,
     )
     version = db.Column(db.Text, nullable=False)
 
@@ -759,16 +760,13 @@ class WorkflowTemplateStepOrm(db.Model):
     name = db.Column(db.String(200), index=True, nullable=False)
     title = db.Column(db.Text, nullable=False)
     expected_completion = db.Column(
-        db.BigInteger,
-        nullable=True,
-        default=None,
-        onupdate=get_current_time
+        db.BigInteger, nullable=True, default=None, onupdate=get_current_time
     )
     last_edited = db.Column(
         db.BigInteger,
         nullable=False,
         default=get_current_time,
-        onupdate=get_current_time
+        onupdate=get_current_time,
     )
 
     # FOREIGN KEYS
@@ -838,13 +836,10 @@ class WorkflowInstanceOrm(db.Model):
         db.BigInteger,
         nullable=False,
         default=get_current_time,
-        onupdate=get_current_time
+        onupdate=get_current_time,
     )
     completion_date = db.Column(
-        db.BigInteger,
-        nullable=True,
-        default=None,
-        onupdate=get_current_time
+        db.BigInteger, nullable=True, default=None, onupdate=get_current_time
     )
     status = db.Column(db.String(20), nullable=False, default="Active")
 
@@ -887,42 +882,30 @@ class WorkflowInstanceStepOrm(db.Model):
         db.BigInteger,
         nullable=False,
         default=get_current_time,
-        onupdate=get_current_time
+        onupdate=get_current_time,
     )
     expected_completion = db.Column(
-        db.BigInteger,
-        nullable=True,
-        default=None,
-        onupdate=get_current_time
+        db.BigInteger, nullable=True, default=None, onupdate=get_current_time
     )
     completion_date = db.Column(
-        db.BigInteger,
-        nullable=True,
-        default=None,
-        onupdate=get_current_time
+        db.BigInteger, nullable=True, default=None, onupdate=get_current_time
     )
     status = db.Column(db.String(20), nullable=False, default="Active")
     data = db.Column(db.Text, nullable=True)
 
     # FOREIGN KEYS
-    form_id = db.Column(
-        db.ForeignKey(FormOrm.id, ondelete="CASCADE"),
-        nullable=False
-    )
+    form_id = db.Column(db.ForeignKey(FormOrm.id, ondelete="CASCADE"), nullable=False)
 
     assigned_to = db.Column(
-        db.ForeignKey(UserOrm.id, ondelete="SET NULL"),
-        nullable=True
+        db.ForeignKey(UserOrm.id, ondelete="SET NULL"), nullable=True
     )
 
     workflow_instance_id = db.Column(
-        db.ForeignKey(WorkflowInstanceOrm.id, ondelete="CASCADE"),
-        nullable=False
+        db.ForeignKey(WorkflowInstanceOrm.id, ondelete="CASCADE"), nullable=False
     )
 
     condition_id = db.Column(
-        db.ForeignKey(RuleGroupOrm.id, ondelete="SET NULL"),
-        nullable=True
+        db.ForeignKey(RuleGroupOrm.id, ondelete="SET NULL"), nullable=True
     )
 
     # RELATIONSHIPS
