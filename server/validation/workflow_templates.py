@@ -1,6 +1,7 @@
 from typing import Optional
 
-from pydantic import Field
+from pydantic import Field, model_validator
+from typing_extensions import Self
 
 from common.commonUtil import get_current_time
 from validation import CradleBaseModel
@@ -47,6 +48,7 @@ class WorkflowTemplateExample:
         "archived": archived,
         "initial_condition_id": RuleGroupExample.id,
         "condition": RuleGroupExample.example_01,
+        "date_created": date_created,
         "last_edited": last_edited,
         "last_edited_by": last_edited_by,
         "version": version,
@@ -62,6 +64,7 @@ class WorkflowTemplateExample:
         "archived": archived,
         "initial_condition_id": RuleGroupExample.id,
         "condition": RuleGroupExample.example_01,
+        "date_created": date_created,
         "last_edited": last_edited,
         "last_edited_by": last_edited_by,
         "version": version,
@@ -83,6 +86,12 @@ class WorkflowTemplateModel(CradleBaseModel):
     initial_condition_id: Optional[str] = None
     condition: Optional[RuleGroupModel] = None
     version: str
+
+    @model_validator(mode="after")
+    def validate_dates(self) -> Self:
+        if self.last_edited is not None and self.last_edited < self.date_created:
+            raise ValueError("last_edited cannot be before date_created")
+        return self
 
 
 class WorkflowTemplateWithClassification(WorkflowTemplateModel):
