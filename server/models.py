@@ -830,7 +830,10 @@ class WorkflowTemplateStepBranchOrm(db.Model):
 class WorkflowInstanceOrm(db.Model):
     __tablename__ = "workflow_instance"
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
+    name = db.Column(db.String(200), index=True, nullable=False)
+    title = db.Column(db.Text, nullable=False)
     start_date = db.Column(db.BigInteger, nullable=False, default=get_current_time)
+    current_step_id = db.Column(db.String(50), nullable=True)
     last_edited = db.Column(
         db.BigInteger,
         nullable=False,
@@ -864,6 +867,11 @@ class WorkflowInstanceOrm(db.Model):
         backref=db.backref("workflow_instances", cascade="all, delete", lazy=True),
     )
 
+    workflow_template = db.relationship(
+        WorkflowTemplateOrm,
+        backref=db.backref("workflow_instances", lazy=True),
+    )
+
     @staticmethod
     def schema():
         return WorkflowInstanceSchema
@@ -872,6 +880,9 @@ class WorkflowInstanceOrm(db.Model):
 class WorkflowInstanceStepOrm(db.Model):
     __tablename__ = "workflow_instance_step"
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
+    name = db.Column(db.String(200), index=True, nullable=False)
+    title = db.Column(db.Text, nullable=False)
+    triggered_by = db.Column(db.String(50), nullable=True)
     last_edited = db.Column(
         db.BigInteger,
         nullable=False,
@@ -906,7 +917,12 @@ class WorkflowInstanceStepOrm(db.Model):
 
     workflow_instance_id = db.Column(
         db.ForeignKey(WorkflowInstanceOrm.id, ondelete="CASCADE"),
-        nullable = False
+        nullable=False
+    )
+
+    condition_id = db.Column(
+        db.ForeignKey(RuleGroupOrm.id, ondelete="SET NULL"),
+        nullable=True
     )
 
     # RELATIONSHIPS
