@@ -1,14 +1,11 @@
 export enum InstanceStatus {
-  Draft = 'draft',
-  InProgress = 'in_progress',
-  Completed = 'completed',
-  Cancelled = 'cancelled',
+  ACTIVE = "Active",
+  COMPLETED = "Completed",
+  CANCELLED = "Cancelled",
 }
 
 export enum StepStatus {
-  NotStarted = 'not_started',
-  InProgress = 'in_progress',
-  Completed = 'completed',
-  Skipped = 'skipped',
-  Failed = 'failed',
+  ACTIVE = "Active",
+  COMPLETED = "Completed",
+  CANCELLED = "Cancelled",
 }

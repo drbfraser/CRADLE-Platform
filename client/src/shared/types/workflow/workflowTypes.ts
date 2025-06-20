@@ -47,6 +47,12 @@ export interface WorkflowTemplate {
   lastEditedBy: string;
 }
 
+// classification type for grouping
+export interface WorkflowClassification {
+  id: ID;
+  name: string;
+}
+
 // Payload for POST /workflow/templates
 export type TemplateInput = Omit<
   WorkflowTemplate,
@@ -81,8 +87,7 @@ export interface WorkflowInstance {
   id: ID;
   templateId: ID;
   patientId: ID;
-
-  startedDate: ISODate;
+  startedDate: number;
   currentStepId?: ID;
   status: InstanceStatus;
   steps: InstanceStep[];
@@ -108,9 +113,18 @@ export interface InstanceInput {
 }
 
 // PATCH/PUT payload for /workflow/instances/{id}
+/**
+ * update status / record currentStep / lastUpdated: what time  / lastUpdateBy who(id) 
+ */
 export type InstanceUpdate = Partial<
-  Pick<WorkflowInstance, 'status' | 'currentStepId'>
+  Pick<WorkflowInstance, 'status' | 'currentStepId' | 'lastUpdated' | 'lastUpdatedBy'>
 >;
 
+export type InstanceStepUpdate = Partial<
+  Pick<
+    InstanceStep,
+    'status' | 'completionDate' | 'assignedTo' | 'data' | 'lastUpdated' | 'lastUpdatedBy'
+  >
+>;
 //  Collections
 export type TemplateGroupArray = TemplateGroup[];
