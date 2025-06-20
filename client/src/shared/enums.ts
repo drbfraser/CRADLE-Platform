@@ -84,6 +84,10 @@ export enum EndpointEnum {
   RESET_PASS = '/change_pass',
   FORM = '/forms/responses',
   SECRETKEY = '/smskey' /* /user/{USER_ID}/smsKey */,
+  //workflow instance 
+  WORKFLOW_INSTANCES = '/workflow/instances',
+  //workflow templates
+  WORKFLOW_TEMPLATES = '/workflow/templates'
 }
 
 export enum QRelationEnum {
@@ -116,4 +120,12 @@ export enum SecretKeyMessage {
   EXPIRED = 'EXPIRED',
   WARN = 'WARN',
   NOTFOUND = 'NOTFOUND',
+}
+
+//WORKFLOW_INSTANCES STATUS
+export enum WorkflowInstanceStatus {
+  DRAFT = 'draft',
+  IN_PROGRESS = 'IN_PROGRESS',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
 }

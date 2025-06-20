@@ -20,7 +20,7 @@ import Grid from '@mui/material/Grid2';
 import DoneIcon from '@mui/icons-material/Done';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 
-import { ReferralFilter, Referrer } from 'src/shared/types';
+import { ReferralFilter, Referrer } from 'src/shared/types/types';
 import { getUserVhtsAsync } from 'src/shared/api';
 import { TrafficLightEnum } from 'src/shared/enums';
 import { useHealthFacilityNames } from 'src/shared/hooks/healthFacilityNames';
@@ -213,9 +213,8 @@ export const FilterDialog = ({
       healthFacilityNames: currentSelectedHealthFacilities,
       dateRange:
         dateRangeState.startDate && dateRangeState.endDate
-          ? `${dateRangeState.startDate.toDate().getTime() / 1000}:${
-              dateRangeState.endDate.toDate().getTime() / 1000
-            }`
+          ? `${dateRangeState.startDate.toDate().getTime() / 1000}:${dateRangeState.endDate.toDate().getTime() / 1000
+          }`
           : '',
       referrers: selectedReferrers.map((r) => r.userId),
       vitalSigns: selectedVitalSign,
@@ -322,16 +321,16 @@ export const FilterDialog = ({
                           setSelectedVitalSign([
                             ...selectedVitalSign,
                             TrafficLightEnum[
-                              event.target
-                                .value as keyof typeof TrafficLightEnum
+                            event.target
+                              .value as keyof typeof TrafficLightEnum
                             ],
                           ]);
                         } else {
                           const newVitalSigns = [...selectedVitalSign];
                           const i = newVitalSigns.indexOf(
                             TrafficLightEnum[
-                              event.target
-                                .value as keyof typeof TrafficLightEnum
+                            event.target
+                              .value as keyof typeof TrafficLightEnum
                             ]
                           );
                           if (i > -1) {

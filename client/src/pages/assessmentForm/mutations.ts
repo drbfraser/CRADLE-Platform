@@ -5,7 +5,7 @@ import {
   saveReferralAssessmentAsync,
 } from 'src/shared/api';
 import { AssessmentField } from './state';
-import { NewAssessment } from 'src/shared/types';
+import { NewAssessment } from 'src/shared/types/types';
 
 const useSaveAssessment = () => {
   return useMutation({

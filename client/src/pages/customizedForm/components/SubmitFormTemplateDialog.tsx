@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from '@mui/material';
 
-import { FormTemplateWithQuestions } from 'src/shared/types';
+import { FormTemplateWithQuestions } from 'src/shared/types/types';
 import { saveFormTemplateAsync } from 'src/shared/api';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Toast } from 'src/shared/components/toast';

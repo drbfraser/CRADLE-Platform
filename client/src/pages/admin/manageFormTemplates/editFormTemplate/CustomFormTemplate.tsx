@@ -16,7 +16,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import moment from 'moment';
 
-import { FormTemplateWithQuestions } from 'src/shared/types';
+import { FormTemplateWithQuestions } from 'src/shared/types/types';
 import { FormRenderStateEnum } from 'src/shared/enums';
 import { CustomizedFormWQuestions } from 'src/pages/customizedForm/components/CustomizedFormWQuestions';
 import {
@@ -173,7 +173,7 @@ export const CustomFormTemplate = () => {
                         form.version = e.target.value;
                         setVersionError(
                           previousVersionsQuery.data?.includes(form.version) ??
-                            false
+                          false
                         );
                       }}
                       InputProps={{

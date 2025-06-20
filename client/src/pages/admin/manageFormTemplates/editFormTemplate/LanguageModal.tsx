@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 
-import { LanguageModalProps } from 'src/shared/types';
+import { LanguageModalProps } from 'src/shared/types/types';
 import { getLanguages } from 'src/shared/utils';
 import { PrimaryButton } from 'src/shared/components/Button';
 

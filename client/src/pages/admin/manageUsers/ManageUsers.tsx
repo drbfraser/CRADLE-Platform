@@ -7,7 +7,7 @@ import DeleteForever from '@mui/icons-material/DeleteForever';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import AddIcon from '@mui/icons-material/Add';
 
-import { UserWithIndex } from 'src/shared/types';
+import { UserWithIndex } from 'src/shared/types/types';
 import { getUsersAsync } from 'src/shared/api';
 import { userRoleLabels } from 'src/shared/constants';
 import {

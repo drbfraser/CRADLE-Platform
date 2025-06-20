@@ -15,7 +15,7 @@ import {
   QRelationEnum,
   QuestionTypeEnum,
 } from 'src/shared/enums';
-import { QCondition, Question, TQuestion } from 'src/shared/types';
+import { QCondition, Question, TQuestion } from 'src/shared/types/types';
 import { initialState, validationSchema } from '../../../customizedForm/state';
 
 interface IProps {
@@ -39,11 +39,11 @@ const EditVisibleCondition = ({
   const [selectedQIndex, setSelectedQIndex] = useState<string>(
     currVisCond
       ? '' +
-          filteredQs.indexOf(
-            filteredQs.find((q) => {
-              return q.questionIndex === currVisCond.questionIndex;
-            }) ?? filteredQs[0]
-          )
+      filteredQs.indexOf(
+        filteredQs.find((q) => {
+          return q.questionIndex === currVisCond.questionIndex;
+        }) ?? filteredQs[0]
+      )
       : '0'
   );
   const [selectedConditional, setSelectedConditional] = useState(

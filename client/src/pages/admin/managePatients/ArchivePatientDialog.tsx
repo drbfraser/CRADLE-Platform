@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { ConfirmDialog } from 'src/shared/components/confirmDialog/index';
-import { Patient } from 'src/shared/types';
+import { Patient } from 'src/shared/types/types';
 import { Toast } from 'src/shared/components/toast';
 import { archivePatientAsync } from 'src/shared/api';
 

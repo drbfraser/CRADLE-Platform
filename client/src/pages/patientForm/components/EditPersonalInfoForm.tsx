@@ -12,7 +12,7 @@ import { personalInfoValidationSchema } from './personalInfo/validation';
 import PatientFormHeader from './PatientFormHeader';
 import { PersonalInfoForm } from './personalInfo';
 import { getPatientInfoAsync } from 'src/shared/api';
-import { Patient } from 'src/shared/types';
+import { Patient } from 'src/shared/types/types';
 import { getAgeBasedOnDOB } from 'src/shared/utils';
 
 export type PatientData = {

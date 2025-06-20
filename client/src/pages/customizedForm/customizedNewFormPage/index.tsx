@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import usePatient from 'src/shared/hooks/patient';
-import { CForm } from 'src/shared/types';
+import { CForm } from 'src/shared/types/types';
 import { SelectFormTemplate } from './SelectFormTemplate';
 import PatientHeader from 'src/shared/components/patientHeader/PatientHeader';
 import { CustomizedForm } from '../components/CustomizedForm';

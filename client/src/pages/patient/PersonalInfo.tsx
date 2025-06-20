@@ -1,6 +1,6 @@
 import { Box, Divider, Grid2 as Grid, Paper, Typography } from '@mui/material';
 
-import { Patient } from 'src/shared/types';
+import { Patient } from 'src/shared/types/types';
 import RecentActorsIcon from '@mui/icons-material/RecentActors';
 import { SecondaryButton } from 'src/shared/components/Button';
 import { Skeleton } from '@mui/material';
@@ -39,12 +39,12 @@ export const PersonalInfo = ({ patient }: IProps) => {
               <Grid size={12}>
                 <b>Age: </b>
                 {patient.dateOfBirth === undefined ||
-                patient.dateOfBirth === null
+                  patient.dateOfBirth === null
                   ? `N/A`
                   : getAgeToDisplay(
-                      patient.dateOfBirth,
-                      patient.isExactDateOfBirth
-                    )}
+                    patient.dateOfBirth,
+                    patient.isExactDateOfBirth
+                  )}
               </Grid>
 
               <Grid size={6}>

@@ -23,7 +23,7 @@ import moment from 'moment';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { TrafficLightEnum } from 'src/shared/enums';
 import { useNavigate } from 'react-router-dom';
-import { ReferralFilter } from 'src/shared/types';
+import { ReferralFilter } from 'src/shared/types/types';
 export const ReferralsPage = () => {
   const currentUser = useCurrentUser();
   const userId = currentUser?.id;

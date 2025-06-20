@@ -1,5 +1,5 @@
 import { axiosFetch } from '../core/http';
-import { RelayNum } from '../../types';
+import { RelayNum } from '../../types/types';
 import { EndpointEnum, MethodEnum } from 'src/shared/enums';
 
 export const addRelayServerPhone = async (

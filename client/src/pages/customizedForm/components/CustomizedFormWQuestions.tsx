@@ -1,4 +1,4 @@
-import { FormTemplateWithQuestions, TQuestion } from 'src/shared/types';
+import { FormTemplateWithQuestions, TQuestion } from 'src/shared/types/types';
 import { Field, Formik } from 'formik';
 import {
   Dispatch,
@@ -108,7 +108,7 @@ export const CustomizedFormWQuestions = ({
     } else {
       setVisibilityToggle(
         selectedQuestionIndex != null &&
-          fm.questions[selectedQuestionIndex]?.visibleCondition.length > 0
+        fm.questions[selectedQuestionIndex]?.visibleCondition.length > 0
       );
       setEditPopupOpen(true);
     }
@@ -354,10 +354,10 @@ export const CustomizedFormWQuestions = ({
         visibilityDisabled={
           selectedQuestionIndex !== null
             ? questions[selectedQuestionIndex].categoryIndex !== null &&
-              fm.questions[questions[selectedQuestionIndex].categoryIndex ?? 0] // add "?? 0" to suppress null index error
-                .visibleCondition.length > 0
+            fm.questions[questions[selectedQuestionIndex].categoryIndex ?? 0] // add "?? 0" to suppress null index error
+              .visibleCondition.length > 0
             : categoryIndex != null &&
-              fm.questions[categoryIndex].visibleCondition.length > 0
+            fm.questions[categoryIndex].visibleCondition.length > 0
         }
         visibilityToggle={visibilityToggle}
         setVisibilityToggle={setVisibilityToggle}

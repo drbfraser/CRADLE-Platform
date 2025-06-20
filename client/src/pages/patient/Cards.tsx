@@ -17,7 +17,7 @@ import {
   Assessment,
   Reading,
   Referral,
-} from 'src/shared/types';
+} from 'src/shared/types/types';
 
 import { RedirectButton } from 'src/shared/components/Button';
 import { TrafficLight } from 'src/shared/components/trafficLight';

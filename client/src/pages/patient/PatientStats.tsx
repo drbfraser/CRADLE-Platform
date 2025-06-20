@@ -26,7 +26,7 @@ import {
 import FavoriteIcon from '@mui/icons-material/Favorite';
 
 import { StatsOptionEnum, TrafficLightEnum } from 'src/shared/enums';
-import { PatientStatistics } from 'src/shared/types';
+import { PatientStatistics } from 'src/shared/types/types';
 import { statsUnitLabels, trafficLightColors } from 'src/shared/constants';
 import { getPatientStatisticsAsync } from 'src/shared/api';
 
@@ -239,8 +239,8 @@ const getVitalsData = (
       pointRadius: 5,
       data: d.data
         ? Array(MONTHS_IN_YEAR)
-            .fill(null)
-            .map((_, i) => average(d.data?.[i] ?? []))
+          .fill(null)
+          .map((_, i) => average(d.data?.[i] ?? []))
         : [],
     })),
   };

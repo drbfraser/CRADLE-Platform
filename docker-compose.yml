@@ -46,6 +46,14 @@ services:
             interval: 2s
             timeout: 5s
             retries: 20
+    
+    adminer:
+        image: adminer
+        container_name: cradle_adminer
+        ports:
+            - "8080:8080"
+        depends_on:
+            - mysql
 
 volumes:
     flask_uploads:
@@ -53,4 +61,4 @@ volumes:
 
 secrets:
     .env.cognito_secrets:
-       file: ./.env.cognito_secrets # Will be accessible at /run/secrets/.env.cognito_secrets  
+        file: ./.env.cognito_secrets # Will be accessible at /run/secrets/.env.cognito_secrets  

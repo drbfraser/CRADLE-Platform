@@ -66,3 +66,8 @@ export const DRAWER_NARROW = '60px';
 export const DASHBOARD_PADDING = '24px';
 
 export const MAX_PHONE_NUMBERS_PER_USER = 10;
+
+
+export type ID = string;  // 50-char VARCHAR PK / FK
+export type ISODate = string;  // ISO-8601 timestamp text
+export type Nullable<T> = T | null;

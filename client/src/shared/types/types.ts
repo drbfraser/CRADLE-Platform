@@ -6,7 +6,7 @@ import {
   TrafficLightEnum,
 } from 'src/shared/enums';
 
-import { User } from './api/validation/user';
+import { User } from '../api/validation/user';
 
 export type Callback<T, U = void> = (args: T) => U;
 

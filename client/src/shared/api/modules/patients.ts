@@ -8,7 +8,7 @@ import {
   FilterRequestBody,
   Referral,
   Pregnancy,
-} from '../../types';
+} from '../../types/types';
 import { EndpointEnum } from 'src/shared/enums';
 
 //Patients CRUD
@@ -120,10 +120,8 @@ export const getPatientRecordsAsync = async (
 ) => {
   try {
     const response = await axiosFetch.get(
-      `${EndpointEnum.PATIENTS}/${patientId}/get_all_records?readings=${
-        filterRequestBody.readings ? 1 : 0
-      }&referrals=${filterRequestBody.referrals ? 1 : 0}&assessments=${
-        filterRequestBody.assessments ? 1 : 0
+      `${EndpointEnum.PATIENTS}/${patientId}/get_all_records?readings=${filterRequestBody.readings ? 1 : 0
+      }&referrals=${filterRequestBody.referrals ? 1 : 0}&assessments=${filterRequestBody.assessments ? 1 : 0
       }&forms=${filterRequestBody.forms ? 1 : 0}`
     );
     return response.data;

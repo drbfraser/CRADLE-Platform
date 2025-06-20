@@ -1,7 +1,7 @@
 //move Assessments apis to here
 import { axiosFetch } from '../core/http';
 import { EndpointEnum } from 'src/shared/enums';
-import { NewAssessment } from '../../types';
+import { NewAssessment } from '../../types/types';
 
 export const saveAssessmentAsync = async (
   assessment: NewAssessment,
