@@ -199,82 +199,82 @@ const EditCategory = ({
                 return true;
               }
             ) && (
-                <>
-                  <Grid item container sm={12} md={10} lg={10}>
-                    <FormControlLabel
-                      style={{ marginLeft: 0 }}
-                      control={
-                        <Switch
-                          checked={enableVisibility}
-                          disabled={visibilityDisabled}
-                          onChange={(e) =>
-                            handlers.handleVisibilityChange(
-                              e,
-                              setEnableVisiblity,
-                              setFormDirty,
-                              setFieldChanged,
-                              fieldChanged
-                            )
+              <>
+                <Grid item container sm={12} md={10} lg={10}>
+                  <FormControlLabel
+                    style={{ marginLeft: 0 }}
+                    control={
+                      <Switch
+                        checked={enableVisibility}
+                        disabled={visibilityDisabled}
+                        onChange={(e) =>
+                          handlers.handleVisibilityChange(
+                            e,
+                            setEnableVisiblity,
+                            setFormDirty,
+                            setFieldChanged,
+                            fieldChanged
+                          )
+                        }
+                        data-testid="conditional-switch"
+                      />
+                    }
+                    label={
+                      <FormLabel id="vis-label" style={{ display: 'flex' }}>
+                        <Typography variant="h6">
+                          Conditional Visibility
+                        </Typography>
+                        <Tooltip
+                          disableFocusListener
+                          disableTouchListener
+                          title={
+                            visibilityDisabled
+                              ? 'Cannot edit if parent category already has a visibility condition'
+                              : 'Set this field to only appear after a specific field value is entered'
                           }
-                          data-testid="conditional-switch"
-                        />
-                      }
-                      label={
-                        <FormLabel id="vis-label" style={{ display: 'flex' }}>
-                          <Typography variant="h6">
-                            Conditional Visibility
-                          </Typography>
-                          <Tooltip
-                            disableFocusListener
-                            disableTouchListener
-                            title={
-                              visibilityDisabled
-                                ? 'Cannot edit if parent category already has a visibility condition'
-                                : 'Set this field to only appear after a specific field value is entered'
-                            }
-                            arrow
-                            placement="right">
-                            <IconButton>
-                              <InfoIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                        </FormLabel>
-                      }
-                      labelPlacement="start"
+                          arrow
+                          placement="right">
+                          <IconButton>
+                            <InfoIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </FormLabel>
+                    }
+                    labelPlacement="start"
+                  />
+                </Grid>
+                {enableVisibility ? (
+                  <Grid item sm={12} md={10} lg={10}>
+                    <EditVisibleCondition
+                      currVisCond={question?.visibleCondition[0]}
+                      disabled={visibilityDisabled}
+                      filteredQs={questionsArr.filter((q) => {
+                        if (
+                          q == question ||
+                          q.questionType == QuestionTypeEnum.CATEGORY
+                        )
+                          return false;
+                        if (
+                          question?.questionType !== QuestionTypeEnum.CATEGORY
+                        )
+                          return true;
+                        let currCatIndex = q.categoryIndex;
+                        while (currCatIndex !== null) {
+                          if (currCatIndex === question.questionIndex)
+                            return false;
+                          currCatIndex =
+                            questionsArr[currCatIndex].categoryIndex;
+                        }
+                        return true;
+                      })}
+                      setVisibleCondition={setVisibleCondition}
+                      setIsVisCondAnswered={setIsVisCondAnswered}
+                      setFieldChanged={setFieldChanged}
                     />
                   </Grid>
-                  {enableVisibility ? (
-                    <Grid item sm={12} md={10} lg={10}>
-                      <EditVisibleCondition
-                        currVisCond={question?.visibleCondition[0]}
-                        disabled={visibilityDisabled}
-                        filteredQs={questionsArr.filter((q) => {
-                          if (
-                            q == question ||
-                            q.questionType == QuestionTypeEnum.CATEGORY
-                          )
-                            return false;
-                          if (
-                            question?.questionType !== QuestionTypeEnum.CATEGORY
-                          )
-                            return true;
-                          let currCatIndex = q.categoryIndex;
-                          while (currCatIndex !== null) {
-                            if (currCatIndex === question.questionIndex)
-                              return false;
-                            currCatIndex =
-                              questionsArr[currCatIndex].categoryIndex;
-                          }
-                          return true;
-                        })}
-                        setVisibleCondition={setVisibleCondition}
-                        setIsVisCondAnswered={setIsVisCondAnswered}
-                        setFieldChanged={setFieldChanged}
-                      />
-                    </Grid>
-                  ) : null}
-                </>
-              )}
+                ) : null}
+              </>
+            )}
           </Grid>
         </DialogContent>
         <DialogActions>

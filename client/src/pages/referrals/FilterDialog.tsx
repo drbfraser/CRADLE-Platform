@@ -213,8 +213,9 @@ export const FilterDialog = ({
       healthFacilityNames: currentSelectedHealthFacilities,
       dateRange:
         dateRangeState.startDate && dateRangeState.endDate
-          ? `${dateRangeState.startDate.toDate().getTime() / 1000}:${dateRangeState.endDate.toDate().getTime() / 1000
-          }`
+          ? `${dateRangeState.startDate.toDate().getTime() / 1000}:${
+              dateRangeState.endDate.toDate().getTime() / 1000
+            }`
           : '',
       referrers: selectedReferrers.map((r) => r.userId),
       vitalSigns: selectedVitalSign,
@@ -321,16 +322,16 @@ export const FilterDialog = ({
                           setSelectedVitalSign([
                             ...selectedVitalSign,
                             TrafficLightEnum[
-                            event.target
-                              .value as keyof typeof TrafficLightEnum
+                              event.target
+                                .value as keyof typeof TrafficLightEnum
                             ],
                           ]);
                         } else {
                           const newVitalSigns = [...selectedVitalSign];
                           const i = newVitalSigns.indexOf(
                             TrafficLightEnum[
-                            event.target
-                              .value as keyof typeof TrafficLightEnum
+                              event.target
+                                .value as keyof typeof TrafficLightEnum
                             ]
                           );
                           if (i > -1) {

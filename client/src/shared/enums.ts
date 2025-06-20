@@ -84,10 +84,10 @@ export enum EndpointEnum {
   RESET_PASS = '/change_pass',
   FORM = '/forms/responses',
   SECRETKEY = '/smskey' /* /user/{USER_ID}/smsKey */,
-  //workflow instance 
+  //workflow instance
   WORKFLOW_INSTANCES = '/workflow/instances',
   //workflow templates
-  WORKFLOW_TEMPLATES = '/workflow/templates'
+  WORKFLOW_TEMPLATES = '/workflow/templates',
 }
 
 export enum QRelationEnum {

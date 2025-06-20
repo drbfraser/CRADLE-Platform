@@ -39,12 +39,12 @@ export const PersonalInfo = ({ patient }: IProps) => {
               <Grid size={12}>
                 <b>Age: </b>
                 {patient.dateOfBirth === undefined ||
-                  patient.dateOfBirth === null
+                patient.dateOfBirth === null
                   ? `N/A`
                   : getAgeToDisplay(
-                    patient.dateOfBirth,
-                    patient.isExactDateOfBirth
-                  )}
+                      patient.dateOfBirth,
+                      patient.isExactDateOfBirth
+                    )}
               </Grid>
 
               <Grid size={6}>

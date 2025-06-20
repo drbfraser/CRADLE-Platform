@@ -356,13 +356,13 @@ export const FormQuestions = ({
             xs={renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
             md={
               renderState === FormRenderStateEnum.VIS_COND ||
-                renderState === FormRenderStateEnum.VIS_COND_DISABLED
+              renderState === FormRenderStateEnum.VIS_COND_DISABLED
                 ? 12
                 : 6
             }
             lg={
               renderState === FormRenderStateEnum.VIS_COND ||
-                renderState === FormRenderStateEnum.VIS_COND_DISABLED
+              renderState === FormRenderStateEnum.VIS_COND_DISABLED
                 ? 12
                 : 4
             }>
@@ -409,13 +409,13 @@ export const FormQuestions = ({
             xs={renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
             md={
               renderState === FormRenderStateEnum.VIS_COND ||
-                renderState === FormRenderStateEnum.VIS_COND_DISABLED
+              renderState === FormRenderStateEnum.VIS_COND_DISABLED
                 ? 12
                 : 6
             }
             lg={
               renderState === FormRenderStateEnum.VIS_COND ||
-                renderState === FormRenderStateEnum.VIS_COND_DISABLED
+              renderState === FormRenderStateEnum.VIS_COND_DISABLED
                 ? 12
                 : 4
             }>
@@ -460,13 +460,13 @@ export const FormQuestions = ({
             xs={renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
             md={
               renderState === FormRenderStateEnum.VIS_COND ||
-                renderState === FormRenderStateEnum.VIS_COND_DISABLED
+              renderState === FormRenderStateEnum.VIS_COND_DISABLED
                 ? 12
                 : 6
             }
             lg={
               renderState === FormRenderStateEnum.VIS_COND ||
-                renderState === FormRenderStateEnum.VIS_COND_DISABLED
+              renderState === FormRenderStateEnum.VIS_COND_DISABLED
                 ? 12
                 : 4
             }>
@@ -530,21 +530,21 @@ export const FormQuestions = ({
         const helperText = stringMaxLinesError[question.questionIndex]
           ? 'Exceeds maximum number of lines'
           : question.stringMaxLines
-            ? `Maximum ${question.stringMaxLines} line(s) allowed`
-            : '';
+          ? `Maximum ${question.stringMaxLines} line(s) allowed`
+          : '';
         return (
           <Grid
             item
             xs={renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
             md={
               renderState === FormRenderStateEnum.VIS_COND ||
-                renderState === FormRenderStateEnum.VIS_COND_DISABLED
+              renderState === FormRenderStateEnum.VIS_COND_DISABLED
                 ? 12
                 : 6
             }
             lg={
               renderState === FormRenderStateEnum.VIS_COND ||
-                renderState === FormRenderStateEnum.VIS_COND_DISABLED
+              renderState === FormRenderStateEnum.VIS_COND_DISABLED
                 ? 12
                 : 4
             }>
@@ -604,13 +604,13 @@ export const FormQuestions = ({
             xs={renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
             md={
               renderState === FormRenderStateEnum.VIS_COND ||
-                renderState === FormRenderStateEnum.VIS_COND_DISABLED
+              renderState === FormRenderStateEnum.VIS_COND_DISABLED
                 ? 12
                 : 6
             }
             lg={
               renderState === FormRenderStateEnum.VIS_COND ||
-                renderState === FormRenderStateEnum.VIS_COND_DISABLED
+              renderState === FormRenderStateEnum.VIS_COND_DISABLED
                 ? 12
                 : 4
             }>
@@ -650,13 +650,13 @@ export const FormQuestions = ({
             xs={renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? 10 : 12}
             md={
               renderState === FormRenderStateEnum.VIS_COND ||
-                renderState === FormRenderStateEnum.VIS_COND_DISABLED
+              renderState === FormRenderStateEnum.VIS_COND_DISABLED
                 ? 12
                 : 6
             }
             lg={
               renderState === FormRenderStateEnum.VIS_COND ||
-                renderState === FormRenderStateEnum.VIS_COND_DISABLED
+              renderState === FormRenderStateEnum.VIS_COND_DISABLED
                 ? 12
                 : 4
             }>

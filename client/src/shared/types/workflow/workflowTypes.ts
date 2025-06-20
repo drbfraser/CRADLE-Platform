@@ -3,9 +3,8 @@ import { InstanceStatus, StepStatus } from './workflowEnums';
 export interface RuleGroup {
   id: ID;
   logic: 'AND' | 'OR' | 'NOT';
-  rules: string;                // JSON blob understood by the rules engine
+  rules: string; // JSON blob understood by the rules engine
 }
-
 
 //   Template side
 export interface TemplateStepBranch {
@@ -25,7 +24,7 @@ export interface TemplateStep {
   conditions?: RuleGroup;
   next?: TemplateStepBranch[];
 
-  // audit & soft-delete 
+  // audit & soft-delete
   archived: boolean;
   lastEdited: ISODate;
   lastEditedBy: string;
@@ -41,31 +40,30 @@ export interface WorkflowTemplate {
   initialConditions?: RuleGroup;
   steps: TemplateStep[];
 
-  // audit & soft-delete 
+  // audit & soft-delete
   archived: boolean;
   dateCreated: ISODate;
   lastEdited: ISODate;
   lastEditedBy: string;
 }
 
-// Payload for POST /workflow/templates 
+// Payload for POST /workflow/templates
 export type TemplateInput = Omit<
   WorkflowTemplate,
   'id' | 'archived' | 'dateCreated' | 'lastEdited' | 'lastEditedBy'
 >;
 
-// Optional grouping structure used by listTemplates?groupBy=classification 
+// Optional grouping structure used by listTemplates?groupBy=classification
 export interface TemplateGroup {
   classification: { id: ID; name: string };
   templates: WorkflowTemplate[];
 }
 
-
-//   Instance side
+// Instance side
 export interface InstanceStep {
-  id: ID;                        // PK on instance_step table
+  id: ID; // PK on instance_step table
   name: string;
-  title?: string;                // nullable in DB
+  title?: string; // nullable in DB
   formId: ID;
   assignedTo?: ID;
   expectedCompletion?: ISODate;
@@ -74,7 +72,7 @@ export interface InstanceStep {
   data?: Record<string, unknown>;
   triggeredBy?: ID;
 
-  // audit 
+  // audit
   lastUpdated: ISODate;
   lastUpdatedBy?: ID;
 }
@@ -89,7 +87,7 @@ export interface WorkflowInstance {
   status: InstanceStatus;
   steps: InstanceStep[];
 
-  // audit 
+  // audit
   lastUpdated: ISODate;
   lastUpdatedBy?: ID;
   completionDate?: Nullable<ISODate>;
@@ -109,12 +107,10 @@ export interface InstanceInput {
   formResponses?: FormResponse[];
 }
 
-// PATCH/PUT payload for /workflow/instances/{id} 
-export type InstanceUpdate = Partial<Pick<
-  WorkflowInstance,
-  'status' | 'currentStepId'
->>;
+// PATCH/PUT payload for /workflow/instances/{id}
+export type InstanceUpdate = Partial<
+  Pick<WorkflowInstance, 'status' | 'currentStepId'>
+>;
 
-
-//   Collections
+//  Collections
 export type TemplateGroupArray = TemplateGroup[];

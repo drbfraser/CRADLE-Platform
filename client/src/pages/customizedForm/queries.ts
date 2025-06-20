@@ -5,7 +5,10 @@ import {
   getFormTemplateAsync,
   getFormTemplateLangsAsync,
 } from 'src/shared/api';
-import { FormTemplate, FormTemplateWithQuestions } from 'src/shared/types/types';
+import {
+  FormTemplate,
+  FormTemplateWithQuestions,
+} from 'src/shared/types/types';
 
 export const useFormResponseQuery = (formId: string) =>
   useQuery({

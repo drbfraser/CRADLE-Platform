@@ -39,11 +39,11 @@ const EditVisibleCondition = ({
   const [selectedQIndex, setSelectedQIndex] = useState<string>(
     currVisCond
       ? '' +
-      filteredQs.indexOf(
-        filteredQs.find((q) => {
-          return q.questionIndex === currVisCond.questionIndex;
-        }) ?? filteredQs[0]
-      )
+          filteredQs.indexOf(
+            filteredQs.find((q) => {
+              return q.questionIndex === currVisCond.questionIndex;
+            }) ?? filteredQs[0]
+          )
       : '0'
   );
   const [selectedConditional, setSelectedConditional] = useState(

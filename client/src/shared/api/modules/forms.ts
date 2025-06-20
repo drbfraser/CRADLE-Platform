@@ -11,8 +11,8 @@ export const saveFormResponseAsync = async (
     method: formId ? 'PUT' : 'POST',
     data: formId
       ? {
-        questions: postBody.edit,
-      }
+          questions: postBody.edit,
+        }
       : postBody.create,
   });
 };

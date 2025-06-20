@@ -173,7 +173,7 @@ export const CustomFormTemplate = () => {
                         form.version = e.target.value;
                         setVersionError(
                           previousVersionsQuery.data?.includes(form.version) ??
-                          false
+                            false
                         );
                       }}
                       InputProps={{

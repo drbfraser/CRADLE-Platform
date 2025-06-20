@@ -239,8 +239,8 @@ const getVitalsData = (
       pointRadius: 5,
       data: d.data
         ? Array(MONTHS_IN_YEAR)
-          .fill(null)
-          .map((_, i) => average(d.data?.[i] ?? []))
+            .fill(null)
+            .map((_, i) => average(d.data?.[i] ?? []))
         : [],
     })),
   };
