@@ -20,6 +20,11 @@ from api.resources.sync import api_sync
 from api.resources.upload import api_upload
 from api.resources.users import api_users
 from api.resources.version import api_version
+from api.resources.workflow_classifications import api_workflow_classifications
+from api.resources.workflow_templates import api_workflow_templates
+from api.resources.workflow_template_steps import api_workflow_template_steps
+from api.resources.workflow_instances import api_workflow_instances
+from api.resources.workflow_instance_steps import api_workflow_instance_steps
 
 """
 The `flask-openapi3` plugin for Flask is used to generate API Specification 
@@ -60,3 +65,8 @@ api.register_api(api_sync)
 api.register_api(api_upload)
 api.register_api(api_users)
 api.register_api(api_version)
+api.register_api(api_workflow_classifications)
+api.register_api(api_workflow_templates)
+api.register_api(api_workflow_template_steps)
+api.register_api(api_workflow_instances)
+api.register_api(api_workflow_instance_steps)
