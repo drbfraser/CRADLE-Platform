@@ -1,22 +1,18 @@
-import json
+
+from typing import List
 
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
-import data  # Used later for crud, marshal, etc. (also remember models)
-from common import user_utils
 from common.api_utils import (
     WorkflowClassificationIdPath,
 )
-
+from validation import CradleBaseModel
 from validation.workflow_classifications import (
     WorkflowClassificationExamples,
     WorkflowClassificationModel,
 )
-
-from typing import List
-from validation import CradleBaseModel
 
 
 # Create a response model for the list endpoint
@@ -61,11 +57,10 @@ def get_workflow_classification(path: WorkflowClassificationIdPath):
     # For now, return the example data if ID matches
     if path.classification_id == WorkflowClassificationExamples.id:
         return WorkflowClassificationExamples.example_01, 200
-    else:
-        return abort(
-            404,
-            description=f"No workflow classification with ID: {path.classification_id}.",
-        )
+    return abort(
+        404,
+        description=f"No workflow classification with ID: {path.classification_id}.",
+    )
 
 
 # /api/workflow/classifications/<string:classification_id> [PUT]
@@ -81,11 +76,10 @@ def update_workflow_classification(
         updated_data = body.model_dump()
         updated_data["id"] = path.classification_id
         return updated_data, 200
-    else:
-        return abort(
-            404,
-            description=f"No workflow classification with ID: {path.classification_id}.",
-        )
+    return abort(
+        404,
+        description=f"No workflow classification with ID: {path.classification_id}.",
+    )
 
 
 # /api/workflow/classifications/<string:classification_id> [DELETE]
@@ -97,8 +91,7 @@ def delete_workflow_classification(path: WorkflowClassificationIdPath):
     # For now, return success if ID matches
     if path.classification_id == WorkflowClassificationExamples.id:
         return "", 204
-    else:
-        return abort(
-            404,
-            description=f"No workflow classification with ID: {path.classification_id}.",
-        )
+    return abort(
+        404,
+        description=f"No workflow classification with ID: {path.classification_id}.",
+    )

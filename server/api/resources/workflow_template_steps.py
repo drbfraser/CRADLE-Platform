@@ -1,23 +1,19 @@
-import json
+
+from typing import List
 
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
-import data  # Used later for crud, marshal, etc. (also remember models)
-from common import user_utils
 from common.api_utils import (
     WorkflowTemplateIdPath,
     WorkflowTemplateStepIdPath,
 )
-
+from validation import CradleBaseModel
 from validation.workflow_template_steps import (
     WorkflowTemplateStepExample,
     WorkflowTemplateStepModel,
 )
-
-from typing import List
-from validation import CradleBaseModel
 
 
 # Create a response model for the list endpoints
@@ -60,10 +56,9 @@ def get_workflow_template_step(path: WorkflowTemplateStepIdPath):
     # For now, return the example data if ID matches
     if path.step_id == WorkflowTemplateStepExample.id:
         return WorkflowTemplateStepExample.example_01, 200
-    else:
-        return abort(
-            404, description=f"No workflow template step with ID: {path.step_id}."
-        )
+    return abort(
+        404, description=f"No workflow template step with ID: {path.step_id}."
+    )
 
 
 # /api/workflow/template/steps/<string:step_id>/with-form [GET]
@@ -75,10 +70,9 @@ def get_workflow_template_step_with_form(path: WorkflowTemplateStepIdPath):
     # For now, return the example data with form if ID matches
     if path.step_id == WorkflowTemplateStepExample.id:
         return WorkflowTemplateStepExample.with_form, 200
-    else:
-        return abort(
-            404, description=f"No workflow template step with ID: {path.step_id}."
-        )
+    return abort(
+        404, description=f"No workflow template step with ID: {path.step_id}."
+    )
 
 
 # /api/workflow/template/steps/by-template/<string:template_id> [GET]
@@ -91,8 +85,7 @@ def get_workflow_template_steps_by_template(path: WorkflowTemplateIdPath):
     # For now, return list with example data if template ID matches
     if path.template_id == "workflow-template-example-01":
         return {"items": [WorkflowTemplateStepExample.example_01]}, 200
-    else:
-        return {"items": []}, 200
+    return {"items": []}, 200
 
 
 # /api/workflow/template/steps/<string:step_id> [PUT]
@@ -108,10 +101,9 @@ def update_workflow_template_step(
         updated_data = body.model_dump()
         updated_data["id"] = path.step_id
         return updated_data, 200
-    else:
-        return abort(
-            404, description=f"No workflow template step with ID: {path.step_id}."
-        )
+    return abort(
+        404, description=f"No workflow template step with ID: {path.step_id}."
+    )
 
 
 # /api/workflow/template/steps/<string:step_id> [DELETE]
@@ -121,7 +113,6 @@ def delete_workflow_template_step(path: WorkflowTemplateStepIdPath):
     # For now, return success if ID matches
     if path.step_id == WorkflowTemplateStepExample.id:
         return "", 204
-    else:
-        return abort(
-            404, description=f"No workflow template step with ID: {path.step_id}."
-        )
+    return abort(
+        404, description=f"No workflow template step with ID: {path.step_id}."
+    )

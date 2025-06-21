@@ -1,23 +1,19 @@
-import json
+
+from typing import List
 
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
-import data  # Used later for crud, marshal, etc. (also remember models)
-from common import user_utils
 from common.api_utils import (
     WorkflowInstanceIdPath,
     WorkflowInstanceStepIdPath,
 )
-
+from validation import CradleBaseModel
 from validation.workflow_instance_steps import (
     WorkflowInstanceStepExamples,
     WorkflowInstanceStepModel,
 )
-
-from typing import List
-from validation import CradleBaseModel
 
 
 # Create a response model for the list endpoints
@@ -60,10 +56,9 @@ def get_workflow_instance_step(path: WorkflowInstanceStepIdPath):
     # For now, return the example data if ID matches
     if path.step_id == WorkflowInstanceStepExamples.id:
         return WorkflowInstanceStepExamples.example_01, 200
-    else:
-        return abort(
-            404, description=f"No workflow instance step with ID: {path.step_id}."
-        )
+    return abort(
+        404, description=f"No workflow instance step with ID: {path.step_id}."
+    )
 
 
 # /api/workflow/instance/steps/<string:step_id>/with-form [GET]
@@ -75,10 +70,9 @@ def get_workflow_instance_step_with_form(path: WorkflowInstanceStepIdPath):
     # For now, return the example data with form if ID matches
     if path.step_id == WorkflowInstanceStepExamples.id:
         return WorkflowInstanceStepExamples.with_form, 200
-    else:
-        return abort(
-            404, description=f"No workflow instance step with ID: {path.step_id}."
-        )
+    return abort(
+        404, description=f"No workflow instance step with ID: {path.step_id}."
+    )
 
 
 # /api/workflow/instance/steps/by-instance/<string:instance_id> [GET]
@@ -91,8 +85,7 @@ def get_workflow_instance_steps_by_instance(path: WorkflowInstanceIdPath):
     # For now, return list with example data if instance ID matches
     if path.instance_id == "workflow-instance-example-01":
         return {"items": [WorkflowInstanceStepExamples.example_01]}, 200
-    else:
-        return {"items": []}, 200
+    return {"items": []}, 200
 
 
 # /api/workflow/instance/steps/by-user/<int:user_id> [GET]
@@ -104,8 +97,7 @@ def get_workflow_instance_steps_by_user(path):
     # For now, return list with example data if user ID matches
     if path.get("user_id") == 1232:
         return {"items": [WorkflowInstanceStepExamples.example_01]}, 200
-    else:
-        return {"items": []}, 200
+    return {"items": []}, 200
 
 
 # /api/workflow/instance/steps/<string:step_id> [PUT]
@@ -121,10 +113,9 @@ def update_workflow_instance_step(
         updated_data = body.model_dump()
         updated_data["id"] = path.step_id
         return updated_data, 200
-    else:
-        return abort(
-            404, description=f"No workflow instance step with ID: {path.step_id}."
-        )
+    return abort(
+        404, description=f"No workflow instance step with ID: {path.step_id}."
+    )
 
 
 # /api/workflow/instance/steps/<string:step_id>/complete [PUT]
@@ -138,10 +129,9 @@ def complete_workflow_instance_step(path: WorkflowInstanceStepIdPath):
         completed_step = WorkflowInstanceStepExamples.example_01.copy()
         completed_step["status"] = "Completed"
         return completed_step, 200
-    else:
-        return abort(
-            404, description=f"No workflow instance step with ID: {path.step_id}."
-        )
+    return abort(
+        404, description=f"No workflow instance step with ID: {path.step_id}."
+    )
 
 
 # /api/workflow/instance/steps/<string:step_id> [DELETE]
@@ -151,7 +141,6 @@ def delete_workflow_instance_step(path: WorkflowInstanceStepIdPath):
     # For now, return success if ID matches
     if path.step_id == WorkflowInstanceStepExamples.id:
         return "", 204
-    else:
-        return abort(
-            404, description=f"No workflow instance step with ID: {path.step_id}."
-        )
+    return abort(
+        404, description=f"No workflow instance step with ID: {path.step_id}."
+    )
