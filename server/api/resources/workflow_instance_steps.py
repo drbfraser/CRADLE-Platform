@@ -1,4 +1,3 @@
-
 from typing import List
 
 from flask import abort
@@ -56,9 +55,7 @@ def get_workflow_instance_step(path: WorkflowInstanceStepIdPath):
     # For now, return the example data if ID matches
     if path.step_id == WorkflowInstanceStepExamples.id:
         return WorkflowInstanceStepExamples.example_01, 200
-    return abort(
-        404, description=f"No workflow instance step with ID: {path.step_id}."
-    )
+    return abort(404, description=f"No workflow instance step with ID: {path.step_id}.")
 
 
 # /api/workflow/instance/steps/<string:step_id>/with-form [GET]
@@ -70,9 +67,7 @@ def get_workflow_instance_step_with_form(path: WorkflowInstanceStepIdPath):
     # For now, return the example data with form if ID matches
     if path.step_id == WorkflowInstanceStepExamples.id:
         return WorkflowInstanceStepExamples.with_form, 200
-    return abort(
-        404, description=f"No workflow instance step with ID: {path.step_id}."
-    )
+    return abort(404, description=f"No workflow instance step with ID: {path.step_id}.")
 
 
 # /api/workflow/instance/steps/by-instance/<string:instance_id> [GET]
@@ -113,9 +108,7 @@ def update_workflow_instance_step(
         updated_data = body.model_dump()
         updated_data["id"] = path.step_id
         return updated_data, 200
-    return abort(
-        404, description=f"No workflow instance step with ID: {path.step_id}."
-    )
+    return abort(404, description=f"No workflow instance step with ID: {path.step_id}.")
 
 
 # /api/workflow/instance/steps/<string:step_id>/complete [PUT]
@@ -129,9 +122,7 @@ def complete_workflow_instance_step(path: WorkflowInstanceStepIdPath):
         completed_step = WorkflowInstanceStepExamples.example_01.copy()
         completed_step["status"] = "Completed"
         return completed_step, 200
-    return abort(
-        404, description=f"No workflow instance step with ID: {path.step_id}."
-    )
+    return abort(404, description=f"No workflow instance step with ID: {path.step_id}.")
 
 
 # /api/workflow/instance/steps/<string:step_id> [DELETE]
@@ -141,6 +132,4 @@ def delete_workflow_instance_step(path: WorkflowInstanceStepIdPath):
     # For now, return success if ID matches
     if path.step_id == WorkflowInstanceStepExamples.id:
         return "", 204
-    return abort(
-        404, description=f"No workflow instance step with ID: {path.step_id}."
-    )
+    return abort(404, description=f"No workflow instance step with ID: {path.step_id}.")
