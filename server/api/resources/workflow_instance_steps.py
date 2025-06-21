@@ -4,10 +4,10 @@ from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
-import data # Used later for crud, marshal, etc. (also remember models)
+import data  # Used later for crud, marshal, etc. (also remember models)
 from common import user_utils
 from common.api_utils import (
-    WorkflowInstanceIdPath, 
+    WorkflowInstanceIdPath,
     WorkflowInstanceStepIdPath,
 )
 
@@ -19,9 +19,11 @@ from validation.workflow_instance_steps import (
 from typing import List
 from validation import CradleBaseModel
 
+
 # Create a response model for the list endpoints
 class WorkflowInstanceStepListResponse(CradleBaseModel):
     items: List[WorkflowInstanceStepModel]
+
 
 # /api/workflow/instance/steps
 api_workflow_instance_steps = APIBlueprint(
@@ -50,29 +52,40 @@ def get_workflow_instance_steps():
 
 
 # /api/workflow/instance/steps/<string:step_id> [GET]
-@api_workflow_instance_steps.get("/<string:step_id>", responses={200: WorkflowInstanceStepModel})
+@api_workflow_instance_steps.get(
+    "/<string:step_id>", responses={200: WorkflowInstanceStepModel}
+)
 def get_workflow_instance_step(path: WorkflowInstanceStepIdPath):
     """Get Workflow Instance Step"""
     # For now, return the example data if ID matches
     if path.step_id == WorkflowInstanceStepExamples.id:
         return WorkflowInstanceStepExamples.example_01, 200
     else:
-        return abort(404, description=f"No workflow instance step with ID: {path.step_id}.")
+        return abort(
+            404, description=f"No workflow instance step with ID: {path.step_id}."
+        )
 
 
 # /api/workflow/instance/steps/<string:step_id>/with-form [GET]
-@api_workflow_instance_steps.get("/<string:step_id>/with-form", responses={200: WorkflowInstanceStepModel})
+@api_workflow_instance_steps.get(
+    "/<string:step_id>/with-form", responses={200: WorkflowInstanceStepModel}
+)
 def get_workflow_instance_step_with_form(path: WorkflowInstanceStepIdPath):
     """Get Workflow Instance Step with Form"""
     # For now, return the example data with form if ID matches
     if path.step_id == WorkflowInstanceStepExamples.id:
         return WorkflowInstanceStepExamples.with_form, 200
     else:
-        return abort(404, description=f"No workflow instance step with ID: {path.step_id}.")
+        return abort(
+            404, description=f"No workflow instance step with ID: {path.step_id}."
+        )
 
 
 # /api/workflow/instance/steps/by-instance/<string:instance_id> [GET]
-@api_workflow_instance_steps.get("/by-instance/<string:instance_id>", responses={200: WorkflowInstanceStepListResponse})
+@api_workflow_instance_steps.get(
+    "/by-instance/<string:instance_id>",
+    responses={200: WorkflowInstanceStepListResponse},
+)
 def get_workflow_instance_steps_by_instance(path: WorkflowInstanceIdPath):
     """Get Workflow Instance Steps by Instance ID"""
     # For now, return list with example data if instance ID matches
@@ -83,7 +96,9 @@ def get_workflow_instance_steps_by_instance(path: WorkflowInstanceIdPath):
 
 
 # /api/workflow/instance/steps/by-user/<int:user_id> [GET]
-@api_workflow_instance_steps.get("/by-user/<int:user_id>", responses={200: WorkflowInstanceStepListResponse})
+@api_workflow_instance_steps.get(
+    "/by-user/<int:user_id>", responses={200: WorkflowInstanceStepListResponse}
+)
 def get_workflow_instance_steps_by_user(path):
     """Get Workflow Instance Steps by User ID"""
     # For now, return list with example data if user ID matches
@@ -94,8 +109,12 @@ def get_workflow_instance_steps_by_user(path):
 
 
 # /api/workflow/instance/steps/<string:step_id> [PUT]
-@api_workflow_instance_steps.put("/<string:step_id>", responses={200: WorkflowInstanceStepModel})
-def update_workflow_instance_step(path: WorkflowInstanceStepIdPath, body: WorkflowInstanceStepModel):
+@api_workflow_instance_steps.put(
+    "/<string:step_id>", responses={200: WorkflowInstanceStepModel}
+)
+def update_workflow_instance_step(
+    path: WorkflowInstanceStepIdPath, body: WorkflowInstanceStepModel
+):
     """Update Workflow Instance Step"""
     # For now, return the updated body data if ID matches
     if path.step_id == WorkflowInstanceStepExamples.id:
@@ -103,11 +122,15 @@ def update_workflow_instance_step(path: WorkflowInstanceStepIdPath, body: Workfl
         updated_data["id"] = path.step_id
         return updated_data, 200
     else:
-        return abort(404, description=f"No workflow instance step with ID: {path.step_id}.")
+        return abort(
+            404, description=f"No workflow instance step with ID: {path.step_id}."
+        )
 
 
 # /api/workflow/instance/steps/<string:step_id>/complete [PUT]
-@api_workflow_instance_steps.put("/<string:step_id>/complete", responses={200: WorkflowInstanceStepModel})
+@api_workflow_instance_steps.put(
+    "/<string:step_id>/complete", responses={200: WorkflowInstanceStepModel}
+)
 def complete_workflow_instance_step(path: WorkflowInstanceStepIdPath):
     """Complete Workflow Instance Step"""
     # For now, return the completed step data if ID matches
@@ -116,7 +139,9 @@ def complete_workflow_instance_step(path: WorkflowInstanceStepIdPath):
         completed_step["status"] = "Completed"
         return completed_step, 200
     else:
-        return abort(404, description=f"No workflow instance step with ID: {path.step_id}.")
+        return abort(
+            404, description=f"No workflow instance step with ID: {path.step_id}."
+        )
 
 
 # /api/workflow/instance/steps/<string:step_id> [DELETE]
@@ -127,4 +152,6 @@ def delete_workflow_instance_step(path: WorkflowInstanceStepIdPath):
     if path.step_id == WorkflowInstanceStepExamples.id:
         return "", 204
     else:
-        return abort(404, description=f"No workflow instance step with ID: {path.step_id}.")
+        return abort(
+            404, description=f"No workflow instance step with ID: {path.step_id}."
+        )
