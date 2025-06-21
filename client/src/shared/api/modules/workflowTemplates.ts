@@ -2,12 +2,12 @@ import { axiosFetch } from '../core/http';
 import { EndpointEnum } from '../../enums';
 import { ID } from '../../constants';
 import {
-  WorkflowTemplate, 
-  TemplateInput, 
-  TemplateStep, 
+  WorkflowTemplate,
+  TemplateInput,
+  TemplateStep,
   TemplateGroupArray,
-  WorkflowClassification
-} from '../../types/workflow/workflowTypes'
+  WorkflowClassification,
+} from '../../types/workflow/workflowTypes';
 
 // full base path
 const TEMPLATES = EndpointEnum.WORKFLOW_TEMPLATES;
@@ -25,10 +25,13 @@ const templateStepByIdPath = (templateId: ID, stepId: ID) =>
 // classification base path
 const CLASSIFICATIONS = EndpointEnum.WORKFLOW_CLASSIFICATIONS;
 
-
 // GET /workflow/classifications ???
-export const listWorkflowClassifications = async (): Promise<WorkflowClassification[]> => {
-  const response = await axiosFetch.get<WorkflowClassification[]>(CLASSIFICATIONS);
+export const listWorkflowClassifications = async (): Promise<
+  WorkflowClassification[]
+> => {
+  const response = await axiosFetch.get<WorkflowClassification[]>(
+    CLASSIFICATIONS
+  );
   return response.data;
 };
 
@@ -40,21 +43,25 @@ export const listTemplates = async (params?: {
   classificationId?: ID;
   archived?: boolean;
 }): Promise<WorkflowTemplate[] | TemplateGroupArray> => {
-  const response = await axiosFetch.get<WorkflowTemplate[] | TemplateGroupArray>(TEMPLATES, { params });
+  const response = await axiosFetch.get<
+    WorkflowTemplate[] | TemplateGroupArray
+  >(TEMPLATES, { params });
   return response.data;
 };
 
 // GET /workflow/templates/{templateId}
-export const getTemplate = async (templateId: ID): Promise<WorkflowTemplate> => {
-  const response = await axiosFetch.get<WorkflowTemplate>(templatePath(templateId));
+export const getTemplate = async (
+  templateId: ID
+): Promise<WorkflowTemplate> => {
+  const response = await axiosFetch.get<WorkflowTemplate>(
+    templatePath(templateId)
+  );
   return response.data;
 };
 
 // POST /workflow/templates
 export const createTemplate = (payload: TemplateInput) =>
-  axiosFetch
-    .post<WorkflowTemplate>(TEMPLATES, payload)
-    .then((r) => r.data);
+  axiosFetch.post<WorkflowTemplate>(TEMPLATES, payload).then((r) => r.data);
 
 // PUT /workflow/templates/{templateId}
 export const updateTemplate = (templateId: ID, payload: TemplateInput) =>
@@ -69,8 +76,12 @@ export const toggleArchiveTemplate = (templateId: ID, archived: boolean) =>
     .then((r) => r.data);
 
 // GET /workflow/templates/{templateId}/steps
-export const listTemplateSteps = async (templateId: ID): Promise<TemplateStep[]> => {
-  const response = await axiosFetch.get<TemplateStep[]>(templateStepsPath(templateId));
+export const listTemplateSteps = async (
+  templateId: ID
+): Promise<TemplateStep[]> => {
+  const response = await axiosFetch.get<TemplateStep[]>(
+    templateStepsPath(templateId)
+  );
   return response.data;
 };
 

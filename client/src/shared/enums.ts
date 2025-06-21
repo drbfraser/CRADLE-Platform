@@ -88,8 +88,7 @@ export enum EndpointEnum {
   WORKFLOW_INSTANCES = '/workflow/instances',
   //workflow templates
   WORKFLOW_TEMPLATES = '/workflow/templates',
-  WORKFLOW_CLASSIFICATIONS = '/workflow/classifications'
-
+  WORKFLOW_CLASSIFICATIONS = '/workflow/classifications',
 }
 
 export enum QRelationEnum {
