@@ -1,4 +1,3 @@
-
 from typing import List
 
 from flask import abort
@@ -56,9 +55,7 @@ def get_workflow_instance(path: WorkflowInstanceIdPath):
     # For now, return the example data if ID matches
     if path.instance_id == WorkflowInstanceExamples.id:
         return WorkflowInstanceExamples.example_01, 200
-    return abort(
-        404, description=f"No workflow instance with ID: {path.instance_id}."
-    )
+    return abort(404, description=f"No workflow instance with ID: {path.instance_id}.")
 
 
 # /api/workflow/instances/<string:instance_id>/with-steps [GET]
@@ -70,9 +67,7 @@ def get_workflow_instance_with_steps(path: WorkflowInstanceIdPath):
     # For now, return the example data with steps if ID matches
     if path.instance_id == WorkflowInstanceExamples.id:
         return WorkflowInstanceExamples.with_steps, 200
-    return abort(
-        404, description=f"No workflow instance with ID: {path.instance_id}."
-    )
+    return abort(404, description=f"No workflow instance with ID: {path.instance_id}.")
 
 
 # /api/workflow/instances/by-patient/<string:patient_id> [GET]
@@ -110,9 +105,7 @@ def update_workflow_instance(path: WorkflowInstanceIdPath, body: WorkflowInstanc
         updated_data = body.model_dump()
         updated_data["id"] = path.instance_id
         return updated_data, 200
-    return abort(
-        404, description=f"No workflow instance with ID: {path.instance_id}."
-    )
+    return abort(404, description=f"No workflow instance with ID: {path.instance_id}.")
 
 
 # /api/workflow/instances/<string:instance_id> [DELETE]
@@ -122,6 +115,4 @@ def delete_workflow_instance(path: WorkflowInstanceIdPath):
     # For now, return success if ID matches
     if path.instance_id == WorkflowInstanceExamples.id:
         return "", 204
-    return abort(
-        404, description=f"No workflow instance with ID: {path.instance_id}."
-    )
+    return abort(404, description=f"No workflow instance with ID: {path.instance_id}.")
