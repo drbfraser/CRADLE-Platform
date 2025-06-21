@@ -12,7 +12,8 @@ class WorkflowTemplateStepBranchExample:
         "id": id,
         "target_step_id": target_step_id,
         "step_id": "step-example-01",
-        "condition": RuleGroupExample.id,
+        "condition_id": RuleGroupExample.example_01["id"],
+        "condition": RuleGroupExample.example_01,
     }
 
 
@@ -20,4 +21,5 @@ class WorkflowTemplateStepBranchModel(CradleBaseModel, extra="forbid"):
     id: str
     target_step_id: str
     step_id: str
+    condition_id: Optional[str] = None
     condition: Optional[RuleGroupModel] = None

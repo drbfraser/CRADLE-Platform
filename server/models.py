@@ -749,6 +749,19 @@ class WorkflowTemplateOrm(db.Model):
         db.ForeignKey(RuleGroupOrm.id, ondelete="SET NULL"), nullable=True
     )
 
+    # RELATIONSHIPS
+    initial_condition = db.relationship(
+        RuleGroupOrm,
+        backref=db.backref("workflow_templates", lazy=True),
+        passive_deletes=True,
+    )
+
+    classification = db.relationship(
+        WorkflowClassificationOrm,
+        backref=db.backref("workflow_templates", lazy=True),
+        passive_deletes=True,
+    )
+
     @staticmethod
     def schema():
         return WorkflowTemplateSchema
@@ -789,6 +802,17 @@ class WorkflowTemplateStepOrm(db.Model):
     # RELATIONSHIPS
     workflow_template = db.relationship(
         WorkflowTemplateOrm,
+        backref=db.backref("steps", cascade="all, delete", lazy=True),
+    )
+
+    condition = db.relationship(
+        RuleGroupOrm,
+        backref=db.backref("workflow_template_steps", lazy=True),
+        passive_deletes=True,
+    )
+
+    form = db.relationship(
+        FormTemplateOrm,
         backref=db.backref("workflow_template_steps", cascade="all, delete", lazy=True),
     )
 
@@ -808,16 +832,20 @@ class WorkflowTemplateStepBranchOrm(db.Model):
         nullable=False,
     )
 
-    condition = db.Column(
+    condition_id = db.Column(
         db.ForeignKey(RuleGroupOrm.id, ondelete="SET NULL"), nullable=True
     )
 
     # RELATIONSHIPS
     step = db.relationship(
         WorkflowTemplateStepOrm,
-        backref=db.backref(
-            "workflow_template_step_branches", cascade="all, delete", lazy=True
-        ),
+        backref=db.backref("branches", cascade="all, delete", lazy=True),
+    )
+
+    condition = db.relationship(
+        RuleGroupOrm,
+        backref=db.backref("workflow_template_step_branches", lazy=True),
+        passive_deletes=True,
     )
 
     @staticmethod
@@ -911,6 +939,17 @@ class WorkflowInstanceStepOrm(db.Model):
     # RELATIONSHIPS
     workflow_instance = db.relationship(
         WorkflowInstanceOrm,
+        backref=db.backref("steps", cascade="all, delete", lazy=True),
+    )
+
+    condition = db.relationship(
+        RuleGroupOrm,
+        backref=db.backref("workflow_instance_steps", lazy=True),
+        passive_deletes=True,
+    )
+
+    form = db.relationship(
+        FormOrm,
         backref=db.backref("workflow_instance_steps", cascade="all, delete", lazy=True),
     )
 

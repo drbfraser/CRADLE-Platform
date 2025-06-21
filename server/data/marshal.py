@@ -20,6 +20,13 @@ from models import (
     ReferralOrm,
     RelayServerPhoneNumberOrm,
     SmsSecretKeyOrm,
+    WorkflowClassificationOrm,
+    WorkflowTemplateOrm,
+    WorkflowTemplateStepOrm,
+    WorkflowTemplateStepBranchOrm,
+    RuleGroupOrm,
+    WorkflowInstanceOrm,
+    WorkflowInstanceStepOrm,
 )
 from service import invariant
 
@@ -55,6 +62,20 @@ def marshal(obj: Any, shallow=False, if_include_versions=False) -> dict:
         return __marshal_lang_version(obj)
     if isinstance(obj, SmsSecretKeyOrm):
         return __marshal_SmsSecretKey(obj)
+    if isinstance(obj, RuleGroupOrm):
+        return __marshal_rule_group(obj)
+    if isinstance(obj, WorkflowTemplateStepBranchOrm):
+        return __marshal_workflow_template_step_branch(obj)
+    if isinstance(obj, WorkflowTemplateStepOrm):
+        return __marshal_workflow_template_step(obj, shallow)
+    if isinstance(obj, WorkflowTemplateOrm):
+        return __marshal_workflow_template(obj, shallow)
+    if isinstance(obj, WorkflowClassificationOrm):
+        return __marshal_workflow_classification(obj, if_include_versions, shallow)
+    if isinstance(obj, WorkflowInstanceStepOrm):
+        return __marshal_workflow_instance_step(obj)
+    if isinstance(obj, WorkflowInstanceOrm):
+        return __marshal_workflow_instance(obj, shallow)
     d = vars(obj).copy()
     __pre_process(d)
     return d
@@ -371,6 +392,91 @@ def __marshal_SmsSecretKey(s: SmsSecretKeyOrm):
         "stale_date": s.stale_date,
         "expiry_date": s.expiry_date,
     }
+
+
+def __marshal_rule_group(rg: RuleGroupOrm) -> dict:
+    d = vars(rg).copy()
+    __pre_process(d)
+
+    return d
+
+
+def __marshal_workflow_template_step_branch(
+    wtsb: WorkflowTemplateStepBranchOrm,
+) -> dict:
+    d = vars(wtsb).copy()
+    __pre_process(d)
+
+    d["condition"] = __marshal_rule_group(wtsb.condition)
+
+    return d
+
+
+def __marshal_workflow_template_step(
+    wts: WorkflowTemplateStepOrm, shallow: bool = False
+) -> dict:
+    d = vars(wts).copy()
+    __pre_process(d)
+
+    d["form"] = __marshal_form(wts.form, shallow)
+
+    if not shallow:
+        d["branches"] = [
+            __marshal_workflow_template_step_branch(wtsb)
+            for wtsb in wts.workflow_template_step_branches
+        ]
+
+    return d
+
+
+def __marshal_workflow_template(wt: WorkflowTemplateOrm, shallow: bool = False) -> dict:
+    d = vars(wt).copy()
+    __pre_process(d)
+
+    d["classification"] = __marshal_workflow_classification(
+        wc=wt.classification, if_include_templates=False
+    )
+
+    d["initial_condition"] = __marshal_rule_group(wt.initial_condition)
+
+    if not shallow:
+        d["steps"] = [
+            __marshal_workflow_template_step(wts=wts) for wts in wt.workflow_templates
+        ]
+
+
+def __marshal_workflow_classification(
+    wc: WorkflowClassificationOrm, if_include_templates: bool, shallow: bool = False
+) -> dict:
+    d = vars(wc).copy()
+    __pre_process(d)
+
+    if d.get("workflow_templates") is not None:
+        del d["workflow_templates"]
+
+    if if_include_templates:
+        d["workflow_templates"] = [
+            __marshal_workflow_template(wt=wt, shallow=shallow) for wt in wc.templates
+        ]
+
+    return d
+
+
+def __marshal_workflow_instance_step(wis: WorkflowInstanceStepOrm) -> dict:
+    d = vars(wis).copy()
+    __pre_process(d)
+
+    d["condition"] = __marshal_rule_group(wis.condition)
+
+    d["form"] = __marshal_form(wis.form, shallow=True)
+
+
+def __marshal_workflow_instance(wi: WorkflowInstanceOrm, shallow: bool = False) -> dict:
+    d = vars(wi).copy()
+    __pre_process(d)
+
+    if not shallow:
+        d["steps"] = [__marshal_workflow_instance_step(wis) for wis in wi.steps]
 
 
 def __pre_process(d: Dict[str, Any]):
