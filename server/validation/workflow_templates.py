@@ -47,7 +47,7 @@ class WorkflowTemplateExample:
         "description": description,
         "archived": archived,
         "initial_condition_id": RuleGroupExample.id,
-        "condition": RuleGroupExample.example_01,
+        "initial_condition": RuleGroupExample.example_01,
         "date_created": date_created,
         "last_edited": last_edited,
         "last_edited_by": last_edited_by,
@@ -63,7 +63,7 @@ class WorkflowTemplateExample:
         "description": description,
         "archived": archived,
         "initial_condition_id": RuleGroupExample.id,
-        "condition": RuleGroupExample.example_01,
+        "initial_condition": RuleGroupExample.example_01,
         "date_created": date_created,
         "last_edited": last_edited,
         "last_edited_by": last_edited_by,
@@ -84,7 +84,7 @@ class WorkflowTemplateModel(CradleBaseModel):
     last_edited_by: Optional[int] = None
     version: str
     initial_condition_id: Optional[str] = None
-    condition: Optional[RuleGroupModel] = None
+    initial_condition: Optional[RuleGroupModel] = None
     version: str
 
     @model_validator(mode="after")
