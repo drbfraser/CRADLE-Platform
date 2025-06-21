@@ -1,23 +1,19 @@
-import json
+
+from typing import List
 
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
-import data  # Used later for crud, marshal, etc. (also remember models)
-from common import user_utils
 from common.api_utils import (
-    WorkflowInstanceIdPath,
     PatientIdPath,
+    WorkflowInstanceIdPath,
 )
-
+from validation import CradleBaseModel
 from validation.workflow_instances import (
     WorkflowInstanceExamples,
     WorkflowInstanceModel,
 )
-
-from typing import List
-from validation import CradleBaseModel
 
 
 # Create a response model for the list endpoints
@@ -60,10 +56,9 @@ def get_workflow_instance(path: WorkflowInstanceIdPath):
     # For now, return the example data if ID matches
     if path.instance_id == WorkflowInstanceExamples.id:
         return WorkflowInstanceExamples.example_01, 200
-    else:
-        return abort(
-            404, description=f"No workflow instance with ID: {path.instance_id}."
-        )
+    return abort(
+        404, description=f"No workflow instance with ID: {path.instance_id}."
+    )
 
 
 # /api/workflow/instances/<string:instance_id>/with-steps [GET]
@@ -75,10 +70,9 @@ def get_workflow_instance_with_steps(path: WorkflowInstanceIdPath):
     # For now, return the example data with steps if ID matches
     if path.instance_id == WorkflowInstanceExamples.id:
         return WorkflowInstanceExamples.with_steps, 200
-    else:
-        return abort(
-            404, description=f"No workflow instance with ID: {path.instance_id}."
-        )
+    return abort(
+        404, description=f"No workflow instance with ID: {path.instance_id}."
+    )
 
 
 # /api/workflow/instances/by-patient/<string:patient_id> [GET]
@@ -90,8 +84,7 @@ def get_workflow_instances_by_patient(path: PatientIdPath):
     # For now, return list with example data if patient ID matches
     if path.patient_id == "patient-example-01":
         return {"items": [WorkflowInstanceExamples.example_01]}, 200
-    else:
-        return {"items": []}, 200
+    return {"items": []}, 200
 
 
 # /api/workflow/instances/by-template/<string:template_id> [GET]
@@ -103,8 +96,7 @@ def get_workflow_instances_by_template(path):
     # For now, return list with example data if template ID matches
     if path.get("template_id") == "workflow-template-example-01":
         return {"items": [WorkflowInstanceExamples.example_01]}, 200
-    else:
-        return {"items": []}, 200
+    return {"items": []}, 200
 
 
 # /api/workflow/instances/<string:instance_id> [PUT]
@@ -118,10 +110,9 @@ def update_workflow_instance(path: WorkflowInstanceIdPath, body: WorkflowInstanc
         updated_data = body.model_dump()
         updated_data["id"] = path.instance_id
         return updated_data, 200
-    else:
-        return abort(
-            404, description=f"No workflow instance with ID: {path.instance_id}."
-        )
+    return abort(
+        404, description=f"No workflow instance with ID: {path.instance_id}."
+    )
 
 
 # /api/workflow/instances/<string:instance_id> [DELETE]
@@ -131,7 +122,6 @@ def delete_workflow_instance(path: WorkflowInstanceIdPath):
     # For now, return success if ID matches
     if path.instance_id == WorkflowInstanceExamples.id:
         return "", 204
-    else:
-        return abort(
-            404, description=f"No workflow instance with ID: {path.instance_id}."
-        )
+    return abort(
+        404, description=f"No workflow instance with ID: {path.instance_id}."
+    )
