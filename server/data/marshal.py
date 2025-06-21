@@ -19,14 +19,14 @@ from models import (
     ReadingOrm,
     ReferralOrm,
     RelayServerPhoneNumberOrm,
+    RuleGroupOrm,
     SmsSecretKeyOrm,
     WorkflowClassificationOrm,
-    WorkflowTemplateOrm,
-    WorkflowTemplateStepOrm,
-    WorkflowTemplateStepBranchOrm,
-    RuleGroupOrm,
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
+    WorkflowTemplateOrm,
+    WorkflowTemplateStepBranchOrm,
+    WorkflowTemplateStepOrm,
 )
 from service import invariant
 
@@ -444,6 +444,8 @@ def __marshal_workflow_template(wt: WorkflowTemplateOrm, shallow: bool = False) 
             __marshal_workflow_template_step(wts=wts) for wts in wt.workflow_templates
         ]
 
+    return d
+
 
 def __marshal_workflow_classification(
     wc: WorkflowClassificationOrm, if_include_templates: bool, shallow: bool = False
@@ -470,6 +472,8 @@ def __marshal_workflow_instance_step(wis: WorkflowInstanceStepOrm) -> dict:
 
     d["form"] = __marshal_form(wis.form, shallow=True)
 
+    return d
+
 
 def __marshal_workflow_instance(wi: WorkflowInstanceOrm, shallow: bool = False) -> dict:
     d = vars(wi).copy()
@@ -477,6 +481,8 @@ def __marshal_workflow_instance(wi: WorkflowInstanceOrm, shallow: bool = False) 
 
     if not shallow:
         d["steps"] = [__marshal_workflow_instance_step(wis) for wis in wi.steps]
+
+    return d
 
 
 def __pre_process(d: Dict[str, Any]):
@@ -536,6 +542,17 @@ def unmarshal(m: Type[M], d: dict) -> M:
         return __unmarshal_SmsSecretKey(d)
     if m is RelayServerPhoneNumberOrm:
         return __unmarshal_RelayServerPhoneNumber(d)
+    if m is WorkflowTemplateStepBranchOrm:
+        return __unmarshal_workflow_template_step_branch(d)
+    if m is WorkflowTemplateStepOrm:
+        return __unmarshal_workflow_template_step(d)
+    if m is WorkflowTemplateOrm:
+        return __unmarshal_workflow_template(d)
+    if m is WorkflowInstanceStepOrm:
+        return __unmarshal_workflow_instance_step(d)
+    if m is WorkflowInstanceOrm:
+        return __unmarshal_workflow_instance(d)
+
     return __load(m, d)
 
 
@@ -761,6 +778,76 @@ def __unmarshal_SmsSecretKey(d: dict) -> SmsSecretKeyOrm:
 def unmarshal_question_list(d: list) -> List[QuestionOrm]:
     # Unmarshal any questions found within the list, return a list of questions
     return [__unmarshal_question(q) for q in d]
+
+
+def __unmarshal_workflow_template_step_branch(d: dict) -> WorkflowTemplateStepBranchOrm:
+    template_step_branch_orm = __load(WorkflowTemplateStepBranchOrm, d)
+
+    if d.get("condition") is not None:
+        template_step_branch_orm.condition = __load(RuleGroupOrm, d.get("condition"))
+
+    return template_step_branch_orm
+
+
+def __unmarshal_workflow_template_step(d: dict) -> WorkflowTemplateStepOrm:
+    branches = []
+
+    if d.get("branches") is not None:
+        branches = [
+            __unmarshal_workflow_template_step_branch(b) for b in d.get("branches")
+        ]
+
+    workflow_template_step_orm = __load(WorkflowTemplateStepOrm, d)
+
+    if branches is not None:
+        workflow_template_step_orm.branches = branches
+
+    if d.get("condition") is not None:
+        workflow_template_step_orm.condition = __load(RuleGroupOrm, d.get("condition"))
+
+    return workflow_template_step_orm
+
+
+def __unmarshal_workflow_template(d: dict) -> WorkflowTemplateOrm:
+    steps = []
+
+    if d.get("steps") is not None:
+        steps = [__unmarshal_workflow_template_step(d) for d in d.get("steps")]
+
+    workflow_template_orm = __load(WorkflowTemplateOrm, d)
+
+    if steps is not None:
+        workflow_template_orm.steps = steps
+
+    if d.get("initial_condition") is not None:
+        workflow_template_orm.initial_condition = __load(
+            RuleGroupOrm, d.get("initial_condition")
+        )
+
+    return workflow_template_orm
+
+
+def __unmarshal_workflow_instance_step(d: dict) -> WorkflowInstanceStepOrm:
+    workflow_instance_step_orm = __load(WorkflowInstanceStepOrm, d)
+
+    if d.get("condition") is not None:
+        workflow_instance_step_orm.condition = __load(RuleGroupOrm, d.get("condition"))
+
+    return workflow_instance_step_orm
+
+
+def __unmarshal_workflow_instance(d: dict) -> WorkflowInstanceOrm:
+    steps = []
+
+    if d.get("steps") is not None:
+        steps = [__unmarshal_workflow_instance_step(d) for d in d.get("steps")]
+
+    workflow_instance_orm = __load(WorkflowInstanceOrm, d)
+
+    if steps is not None:
+        workflow_instance_orm.steps = steps
+
+    return workflow_instance_orm
 
 
 ## Functions taken from the original Database.py ##
