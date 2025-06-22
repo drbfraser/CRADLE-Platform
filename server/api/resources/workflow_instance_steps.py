@@ -1,11 +1,10 @@
-from typing import List
+from typing import List, Optional
 
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 from common.api_utils import (
-    WorkflowInstanceIdPath,
     WorkflowInstanceStepIdPath,
 )
 from validation import CradleBaseModel
@@ -18,6 +17,12 @@ from validation.workflow_instance_steps import (
 # Create a response model for the list endpoints
 class WorkflowInstanceStepListResponse(CradleBaseModel):
     items: List[WorkflowInstanceStepModel]
+
+
+# Query parameter model for filtering
+class WorkflowInstanceStepQueryParams(CradleBaseModel):
+    instance_id: Optional[str] = None
+    user_id: Optional[int] = None
 
 
 # /api/workflow/instance/steps
@@ -40,10 +45,20 @@ def create_workflow_instance_step(body: WorkflowInstanceStepModel):
 
 # /api/workflow/instance/steps [GET]
 @api_workflow_instance_steps.get("", responses={200: WorkflowInstanceStepListResponse})
-def get_workflow_instance_steps():
-    """Get All Workflow Instance Steps"""
-    # For now, return list with example data wrapped in the response model
-    return {"items": [WorkflowInstanceStepExamples.example_01]}, 200
+def get_workflow_instance_steps(query: WorkflowInstanceStepQueryParams):
+    """Get Workflow Instance Steps with optional filtering"""
+    # Extract query parameters
+    instance_id = query.instance_id
+    user_id = query.user_id
+
+    # For now, return filtered example data based on parameters
+    if (instance_id and instance_id == "workflow-instance-example-01") or (user_id and user_id == 1232):
+        return {"items": [WorkflowInstanceStepExamples.example_01]}, 200
+    if not instance_id and not user_id:
+        # No filters - return all
+        return {"items": [WorkflowInstanceStepExamples.example_01]}, 200
+    # Filters provided but no matches
+    return {"items": []}, 200
 
 
 # /api/workflow/instance/steps/<string:step_id> [GET]
@@ -56,43 +71,6 @@ def get_workflow_instance_step(path: WorkflowInstanceStepIdPath):
     if path.step_id == WorkflowInstanceStepExamples.id:
         return WorkflowInstanceStepExamples.example_01, 200
     return abort(404, description=f"No workflow instance step with ID: {path.step_id}.")
-
-
-# /api/workflow/instance/steps/<string:step_id>/with-form [GET]
-@api_workflow_instance_steps.get(
-    "/<string:step_id>/with-form", responses={200: WorkflowInstanceStepModel}
-)
-def get_workflow_instance_step_with_form(path: WorkflowInstanceStepIdPath):
-    """Get Workflow Instance Step with Form"""
-    # For now, return the example data with form if ID matches
-    if path.step_id == WorkflowInstanceStepExamples.id:
-        return WorkflowInstanceStepExamples.with_form, 200
-    return abort(404, description=f"No workflow instance step with ID: {path.step_id}.")
-
-
-# /api/workflow/instance/steps/by-instance/<string:instance_id> [GET]
-@api_workflow_instance_steps.get(
-    "/by-instance/<string:instance_id>",
-    responses={200: WorkflowInstanceStepListResponse},
-)
-def get_workflow_instance_steps_by_instance(path: WorkflowInstanceIdPath):
-    """Get Workflow Instance Steps by Instance ID"""
-    # For now, return list with example data if instance ID matches
-    if path.instance_id == "workflow-instance-example-01":
-        return {"items": [WorkflowInstanceStepExamples.example_01]}, 200
-    return {"items": []}, 200
-
-
-# /api/workflow/instance/steps/by-user/<int:user_id> [GET]
-@api_workflow_instance_steps.get(
-    "/by-user/<int:user_id>", responses={200: WorkflowInstanceStepListResponse}
-)
-def get_workflow_instance_steps_by_user(path):
-    """Get Workflow Instance Steps by User ID"""
-    # For now, return list with example data if user ID matches
-    if path.get("user_id") == 1232:
-        return {"items": [WorkflowInstanceStepExamples.example_01]}, 200
-    return {"items": []}, 200
 
 
 # /api/workflow/instance/steps/<string:step_id> [PUT]
