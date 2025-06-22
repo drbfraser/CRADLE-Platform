@@ -52,7 +52,9 @@ def get_workflow_instance_steps(query: WorkflowInstanceStepQueryParams):
     user_id = query.user_id
 
     # For now, return filtered example data based on parameters
-    if (instance_id and instance_id == "workflow-instance-example-01") or (user_id and user_id == 1232):
+    if (instance_id and instance_id == "workflow-instance-example-01") or (
+        user_id and user_id == 1232
+    ):
         return {"items": [WorkflowInstanceStepExamples.example_01]}, 200
     if not instance_id and not user_id:
         # No filters - return all
