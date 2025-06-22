@@ -59,7 +59,9 @@ export const getInstancesList = async (params?: { patientId?: ID }) => {
 } 
  */
 export const createInstance = async (payload: InstanceInput) => {
-  axiosFetch.post<WorkflowInstance>(INSTANCES, payload).then((r) => r.data);
+  return axiosFetch
+    .post<WorkflowInstance>(INSTANCES, payload)
+    .then((r) => r.data);
 };
 /**
  * get an instance detail by id
