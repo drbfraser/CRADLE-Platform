@@ -17,11 +17,10 @@
     "noUnusedLocals": true,
     "noImplicitReturns": true,
     "moduleResolution": "node",
-    "types": ["node", "react", "react-dom", "jest", "vite/client"],
+    "types": ["node", "react", "react-dom", "vitest", "vite/client","jest"],
     "typeRoots": [
       "./src/modules",
-      "./node_modules/@types",
-      "./node_modules/vite"
+      "./node_modules/@types"
     ],
     "allowSyntheticDefaultImports": true,
     "noEmit": true,
@@ -40,7 +39,6 @@
     "scripts",
     "acceptance-tests",
     "webpack",
-    "jest",
     "src/setupTests.ts"
   ]
 }
