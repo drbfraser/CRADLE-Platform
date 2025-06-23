@@ -420,6 +420,9 @@ def __marshal_workflow_template_step(
 
     d["form"] = __marshal_form(wts.form, shallow)
 
+    if wts.condition is not None:
+        d["condition"] = __marshal_rule_group(wts.condition)
+
     if not shallow:
         d["branches"] = [
             __marshal_workflow_template_step_branch(wtsb)
@@ -433,11 +436,13 @@ def __marshal_workflow_template(wt: WorkflowTemplateOrm, shallow: bool = False) 
     d = vars(wt).copy()
     __pre_process(d)
 
-    d["classification"] = __marshal_workflow_classification(
-        wc=wt.classification, if_include_templates=False
-    )
+    if wt.classification:
+        d["classification"] = __marshal_workflow_classification(
+            wc=wt.classification, if_include_templates=False
+        )
 
-    d["initial_condition"] = __marshal_rule_group(wt.initial_condition)
+    if wt.initial_condition:
+        d["initial_condition"] = __marshal_rule_group(wt.initial_condition)
 
     if not shallow:
         d["steps"] = [
@@ -468,7 +473,8 @@ def __marshal_workflow_instance_step(wis: WorkflowInstanceStepOrm) -> dict:
     d = vars(wis).copy()
     __pre_process(d)
 
-    d["condition"] = __marshal_rule_group(wis.condition)
+    if wis.condition is not None:
+        d["condition"] = __marshal_rule_group(wis.condition)
 
     d["form"] = __marshal_form(wis.form, shallow=True)
 

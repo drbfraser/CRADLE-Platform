@@ -38,6 +38,7 @@ class WorkflowTemplateExample:
         "last_edited_by": last_edited_by,
         "version": version,
         "classification_id": WorkflowClassificationExamples.id,
+        "classification": WorkflowClassificationExamples.example_01,
         "steps": [],
     }
 
@@ -86,27 +87,12 @@ class WorkflowTemplateModel(CradleBaseModel):
     initial_condition_id: Optional[str] = None
     initial_condition: Optional[RuleGroupModel] = None
     version: str
+    classification_id: Optional[str] = None
+    classification: Optional[WorkflowClassificationModel] = None
+    steps: list[WorkflowTemplateStepModel]
 
     @model_validator(mode="after")
     def validate_dates(self) -> Self:
         if self.last_edited is not None and self.last_edited < self.date_created:
             raise ValueError("last_edited cannot be before date_created")
         return self
-
-
-class WorkflowTemplateWithClassification(WorkflowTemplateModel):
-    """A workflow template with a workflow classification object"""
-
-    classification: Optional[WorkflowClassificationModel] = None
-
-
-class WorkflowTemplateWithSteps(WorkflowTemplateModel):
-    """A workflow template with a workflow template steps"""
-
-    steps: list[WorkflowTemplateStepModel]
-
-
-class WorkflowTemplateWithStepsAndClassification(WorkflowTemplateWithClassification):
-    """A workflow template with a workflow template steps and workflow classification object"""
-
-    steps: list[WorkflowTemplateStepModel]
