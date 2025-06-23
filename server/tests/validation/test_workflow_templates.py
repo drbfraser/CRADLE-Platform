@@ -14,7 +14,7 @@ from tests.validation.test_workflow_template_steps import (
     template_step_with_invalid_form_should_return_validation_error,
     template_step_with_valid_fields_should_return_none,
 )
-from validation.workflow_templates import WorkflowTemplateWithStepsAndClassification
+from validation.workflow_templates import WorkflowTemplateModel
 
 """Template steps to be used"""
 VALID_WORKFLOW_TEMPLATE_STEP = template_step_with_valid_fields_should_return_none
@@ -69,9 +69,9 @@ workflow_template_with_valid_missing_fields_should_return_none = {
     "last_edited": LAST_EDITED,
     "last_edited_by": LAST_EDITED_BY,
     "version": VERSION,
-    "initial_condition_id": "",
+    "initial_condition_id": None,
     "initial_condition": None,
-    "classification_id": "",
+    "classification_id": None,
     "classification": None,
     "steps": [],
 }
@@ -181,9 +181,9 @@ workflow_template_with_invalid_steps_should_return_validation_error = {
 def test_workflow_templates(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            WorkflowTemplateWithStepsAndClassification(**json)
+            WorkflowTemplateModel(**json)
     else:
         try:
-            WorkflowTemplateWithStepsAndClassification(**json)
+            WorkflowTemplateModel(**json)
         except ValidationError as e:
             raise AssertionError(f"Unexpected validation error from {e}") from e
