@@ -25,7 +25,7 @@ import {
   QCondition,
   QuestionLangVersion,
   TQuestion,
-} from 'src/shared/types/types';
+} from 'src/shared/types/form/formTypes';
 import { QuestionTypeEnum } from 'src/shared/enums';
 import EditVisibleCondition from './EditVisibleCondition';
 

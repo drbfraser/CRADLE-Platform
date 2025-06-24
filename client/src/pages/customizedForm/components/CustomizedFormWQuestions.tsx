@@ -1,4 +1,4 @@
-import { FormTemplateWithQuestions, TQuestion } from 'src/shared/types/types';
+import { FormTemplateWithQuestions, TQuestion } from 'src/shared/types/form/formTypes';
 import { Field, Formik } from 'formik';
 import {
   Dispatch,
