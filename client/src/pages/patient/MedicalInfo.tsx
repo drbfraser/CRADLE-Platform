@@ -11,7 +11,8 @@ import {
 } from '@mui/material';
 import RecentActorsIcon from '@mui/icons-material/RecentActors';
 
-import { Patient, OrNull } from 'src/shared/types/types';
+import { OrNull } from 'src/shared/types/types';
+import { Patient } from 'src/shared/types/patientTypes';
 import { getPatientMedicalHistoryAsync } from 'src/shared/api';
 import { RedirectButton } from 'src/shared/components/Button';
 

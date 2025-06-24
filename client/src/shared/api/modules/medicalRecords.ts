@@ -1,6 +1,7 @@
 import { AssessmentField } from 'src/pages/assessmentForm/state';
 import { axiosFetch } from '../core/http';
-import { MedicalRecord, PatientMedicalInfo } from '../../types/types';
+import { MedicalRecord } from '../../types/types';
+import { PatientMedicalInfo } from '../../types/patientTypes';
 import { EndpointEnum } from 'src/shared/enums';
 
 export const saveDrugHistoryAsync = async (

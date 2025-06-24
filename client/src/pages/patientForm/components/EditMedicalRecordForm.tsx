@@ -19,7 +19,7 @@ import { MedicalInfoForm } from './medicalInfo';
 import PatientFormHeader from './PatientFormHeader';
 import { getMedicalRecordAsync } from 'src/shared/api';
 import { useQuery } from '@tanstack/react-query';
-import { PatientMedicalInfo } from 'src/shared/types/types';
+import { PatientMedicalInfo } from 'src/shared/types/patientTypes';
 
 const parseMedicalRecordQueryData = (data: PatientMedicalInfo) => {
   return {
