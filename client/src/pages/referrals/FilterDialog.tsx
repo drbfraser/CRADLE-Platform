@@ -20,7 +20,7 @@ import Grid from '@mui/material/Grid2';
 import DoneIcon from '@mui/icons-material/Done';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 
-import { ReferralFilter, Referrer } from 'src/shared/types/types';
+import { ReferralFilter, Referrer } from 'src/shared/types/referralTypes';
 import { getUserVhtsAsync } from 'src/shared/api';
 import { TrafficLightEnum } from 'src/shared/enums';
 import { useHealthFacilityNames } from 'src/shared/hooks/healthFacilityNames';

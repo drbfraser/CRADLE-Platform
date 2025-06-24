@@ -12,7 +12,7 @@ import {
   LocalHospital as DiagnosisIcon,
   KeyboardArrowDown,
 } from '@mui/icons-material';
-import { Referral } from 'src/shared/types/types';
+import { Referral } from 'src/shared/types/referralTypes';
 import { Assessment } from 'src/shared/types/assessmentTypes'
 import { Reading } from 'src/shared/types/readingTypes';
 import { CustomizedForm } from 'src/shared/types/form/formTypes';
