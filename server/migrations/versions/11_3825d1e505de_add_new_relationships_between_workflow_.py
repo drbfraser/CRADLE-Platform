@@ -1,4 +1,5 @@
-"""Add new relationships between workflow components and other models
+"""
+Add new relationships between workflow components and other models
 
 Revision ID: 11_3825d1e505de
 Revises: 10_dcbe6ac27ffb
@@ -6,8 +7,8 @@ Create Date: 2025-06-21 09:13:53.874112
 
 """
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
