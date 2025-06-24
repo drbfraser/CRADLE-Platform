@@ -1,6 +1,4 @@
-import {
-  TrafficLightEnum,
-} from 'src/shared/enums';
+import { TrafficLightEnum } from 'src/shared/enums';
 
 import { User } from '../api/validation/user';
 
@@ -124,20 +122,6 @@ export type HealthFacility = {
   location: string;
 };
 
-export type FilterRequestBody = {
-  referrals: boolean;
-  readings: boolean;
-  assessments: boolean;
-  forms: boolean;
-};
-
-export type FilterRequestKey = keyof FilterRequestBody;
-
-export type Filter = {
-  //parameter is for net request;display_title is for UI display
-  parameter: FilterRequestKey;
-  display_title: string;
-};
 export type LanguageModalProps = {
   language: string[];
   setLanguage: React.Dispatch<React.SetStateAction<string[]>>;
