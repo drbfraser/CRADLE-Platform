@@ -6,6 +6,7 @@ import { User } from '../api/validation/user';
 
 import { CustomizedForm } from './form/formTypes';
 import { Reading } from './readingTypes';
+import { Assessment } from './assessmentTypes';
 
 export type Callback<T, U = void> = (args: T) => U;
 
@@ -74,25 +75,6 @@ export type VHT = {
   email: string;
   name: string;
   healthFacilityName: string;
-};
-
-export type NewAssessment = {
-  diagnosis: string;
-  treatment: string;
-  specialInvestigations: string;
-  medicationPrescribed: string;
-  followUpNeeded: boolean;
-  followUpInstructions: OrNull<string>;
-  healthcareWorkerId: number | undefined;
-};
-
-export type Assessment = NewAssessment & {
-  id: number;
-  dateAssessed: number;
-  healthcareWorkerId: string;
-  readingId: string;
-  //add Spring 2022
-  patientId: string;
 };
 
 export type Card = Reading & Assessment & Referral & CustomizedForm;
