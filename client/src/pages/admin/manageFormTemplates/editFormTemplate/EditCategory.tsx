@@ -24,7 +24,10 @@ import {
   QCondition,
   QuestionLangVersion,
 } from 'src/shared/types/form/formTypes';
-import { FormTemplateWithQuestions, TQuestion } from 'src/shared/types/form/formTemplateTypes';
+import {
+  FormTemplateWithQuestions,
+  TQuestion,
+} from 'src/shared/types/form/formTemplateTypes';
 import { QuestionTypeEnum } from 'src/shared/enums';
 import EditVisibleCondition from './EditVisibleCondition';
 

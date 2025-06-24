@@ -1,5 +1,5 @@
-import { TrafficLightEnum } from "../enums";
-import { OrNull } from "./types";
+import { TrafficLightEnum } from '../enums';
+import { OrNull } from './types';
 
 export type Referral = {
   id: string;

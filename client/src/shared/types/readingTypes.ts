@@ -1,8 +1,7 @@
-import { TrafficLightEnum } from "../enums";
-import { OrNull } from "./types";
-import { Assessment } from './assessmentTypes'
-import { Referral } from './referralTypes'
-
+import { TrafficLightEnum } from '../enums';
+import { OrNull } from './types';
+import { Assessment } from './assessmentTypes';
+import { Referral } from './referralTypes';
 
 export type Reading = {
   appVersion: OrNull<string>;

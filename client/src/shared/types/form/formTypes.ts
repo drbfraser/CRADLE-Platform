@@ -1,6 +1,9 @@
-import { QuestionTypeEnum, AnswerTypeEnum, QRelationEnum } from "src/shared/enums";
-import { OrNull } from "../types";
-
+import {
+  QuestionTypeEnum,
+  AnswerTypeEnum,
+  QRelationEnum,
+} from 'src/shared/enums';
+import { OrNull } from '../types';
 
 export type Form = {
   formTemplateId: number;
