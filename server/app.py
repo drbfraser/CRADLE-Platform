@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 # We do not care about sorting the imports(or their location) in this file because it could lead to import errors
-# ruff: noqa: I001, E402
+# ruff: noqa: I001
 """
 @File: app.py
 @ Description:

@@ -95,6 +95,26 @@ class FormIdPath(CradleBaseModel):
     form_id: str
 
 
+class WorkflowClassificationIdPath(CradleBaseModel):
+    workflow_classification_id: str
+
+
+class WorkflowTemplateIdPath(CradleBaseModel):
+    workflow_template_id: str
+
+
+class WorkflowTemplateStepIdPath(CradleBaseModel):
+    workflow_template_step_id: str
+
+
+class WorkflowInstanceIdPath(CradleBaseModel):
+    workflow_instance_id: str
+
+
+class WorkflowInstanceStepIdPath(CradleBaseModel):
+    workflow_instance_step_id: str
+
+
 class FacilityNamePath(CradleBaseModel):
     health_facility_name: str
 
