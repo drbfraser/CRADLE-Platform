@@ -14,9 +14,9 @@ import {
 } from '@mui/icons-material';
 import {
   Assessment,
-  Reading,
   Referral,
 } from 'src/shared/types/types';
+import { Reading } from 'src/shared/types/readingTypes';
 import { CustomizedForm } from 'src/shared/types/form/formTypes';
 
 import { RedirectButton } from 'src/shared/components/Button';
