@@ -1,5 +1,6 @@
 import { TrafficLightEnum } from "../enums";
-import { OrNull, Assessment, Referral } from "./types";
+import { OrNull, Referral } from "./types";
+import { Assessment } from './assessmentTypes'
 
 
 export type Reading = {
