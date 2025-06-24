@@ -5,6 +5,8 @@ import {
   createInstance,
   getInstanceById,
   archiveInstance,
+  unArchiveInstance,
+  listInstanceSteps,
 } from '../../shared/api/modules/workflowInstance';
 
 vi.mock('src/shared/api/core/http');
@@ -82,5 +84,59 @@ describe('workflowInstances API', () => {
       })
     );
     expect(result).toEqual(mockArchived);
+  });
+
+  it('should unarchive a workflow instance', async() => {
+    const mockUnarchived = { id: '1', status: 'Active' };
+    (axiosFetch.put as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: mockUnarchived,
+    });
+
+    const result = await unArchiveInstance('1');
+    console.log('Unarchived instance:', result);
+
+    expect(axiosFetch.put).toHaveBeenCalledWith(
+      '/workflow/instances/1',
+      expect.objectContaining({
+        status: 'Active',
+      })
+    );
+    expect(result).toEqual(mockUnarchived);
+  });
+
+  it('should create a workflow instance with steps', async() => {
+    const payload = {
+      id: 'instance-2',
+      name: 'Instance Test 2',
+      workflow_template_id: 'template-2',
+      patient_id: 'p2',
+      steps: ['one', 'two', 'three'],
+    };
+    const mockResponse = { ...payload, status: 'Active' };
+
+    (axiosFetch.post as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: mockResponse,
+    });
+
+    const result = await createInstance(payload as any);
+    console.log('Created instance:', result);
+
+    expect(axiosFetch.post).toHaveBeenCalledWith(
+      '/workflow/instances',
+      payload
+    );
+    expect(result).toEqual(mockResponse);
+  });
+
+  it('should list instance steps by ID', async() => {
+    const mockSteps = ['one', 'two', 'three'];
+    (axiosFetch.get as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: mockSteps,
+    });
+
+    const result = await listInstanceSteps('instance-2');
+    console.log('Fetched list of instance steps:', result)
+
+    expect(result).toEqual(mockSteps);
   });
 });
