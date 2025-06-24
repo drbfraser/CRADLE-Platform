@@ -1,7 +1,4 @@
 import {
-  AnswerTypeEnum,
-  QRelationEnum,
-  QuestionTypeEnum,
   SexEnum,
   TrafficLightEnum,
 } from 'src/shared/enums';
@@ -9,6 +6,7 @@ import {
 import { User } from '../api/validation/user';
 
 import { CustomizedForm } from './form/formTypes';
+import { Reading } from './readingTypes';
 
 export type Callback<T, U = void> = (args: T) => U;
 
@@ -19,44 +17,6 @@ export type OrUndefined<T> = T | undefined;
 export type ServerError = {
   message: string;
   status: number;
-};
-
-export type Reading = {
-  appVersion: OrNull<string>;
-  diastolicBloodPressure: number;
-  systolicBloodPressure: number;
-  dateLastSaved: OrNull<number>;
-  dateRecheckVitalsNeeded: OrNull<number>;
-  dateTaken: OrNull<number>;
-  dateUploadedToServer: OrNull<number>;
-  deviceInfo: OrNull<string>;
-  assessment: OrNull<Assessment>;
-  gpsLocationOfReading: OrNull<string>;
-  heartRate: number;
-  isFlaggedForFollowup: OrNull<boolean>;
-  manuallyChangeOcrResults: OrNull<number>;
-  patient: string;
-  patientId: string;
-  readingId: string;
-  referral: OrNull<Referral>;
-  retestOfPreviousReadingIds: OrNull<string>;
-  symptoms?: Array<string>;
-  temporaryFlags: OrNull<number>;
-  totalOcrSeconds: OrNull<number>;
-  trafficLightStatus: TrafficLightEnum;
-  userHasSelectedNoSymptoms: boolean;
-  urineTest: string;
-  urineTests?: UrineTests;
-  comment?: string;
-  dateReferred?: number;
-};
-
-export type UrineTests = {
-  leukocytes: string;
-  nitrites: string;
-  glucose: string;
-  protein: string;
-  blood: string;
 };
 
 export type MedicalRecord = {
@@ -145,6 +105,7 @@ export type Facility = {
   location: string;
   index: number;
 };
+
 export type RelayNum = {
   phoneNumber: string;
   description: string;
