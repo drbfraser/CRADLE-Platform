@@ -8,7 +8,7 @@ import {
 import {
   FormTemplate,
   FormTemplateWithQuestions,
-} from 'src/shared/types/form/formTypes';
+} from 'src/shared/types/form/formTemplateTypes';
 
 export const useFormResponseQuery = (formId: string) =>
   useQuery({

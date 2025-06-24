@@ -1,5 +1,5 @@
 import { User } from '../api/validation/user';
-import { CustomizedForm } from './form/formTypes';
+import { CustomizedForm } from './form/formTemplateTypes';
 import { Reading } from './readingTypes';
 import { Assessment } from './assessmentTypes';
 import { Referral } from './referralTypes';
