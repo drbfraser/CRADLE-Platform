@@ -10,7 +10,7 @@ import {
   QCondition,
   Question,
   TQuestion,
-} from 'src/shared/types/types';
+} from 'src/shared/types/form/formTypes';
 import { Field } from 'formik';
 import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react';
 import {

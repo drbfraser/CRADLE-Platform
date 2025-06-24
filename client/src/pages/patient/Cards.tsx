@@ -13,11 +13,11 @@ import {
   KeyboardArrowDown,
 } from '@mui/icons-material';
 import {
-  CustomizedForm,
   Assessment,
   Reading,
   Referral,
 } from 'src/shared/types/types';
+import { CustomizedForm } from 'src/shared/types/form/formTypes';
 
 import { RedirectButton } from 'src/shared/components/Button';
 import { TrafficLight } from 'src/shared/components/trafficLight';

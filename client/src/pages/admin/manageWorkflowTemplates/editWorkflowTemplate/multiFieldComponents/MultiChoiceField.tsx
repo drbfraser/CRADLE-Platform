@@ -4,7 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Dispatch, SetStateAction } from 'react';
-import { QuestionLangVersion } from 'src/shared/types/types';
+import { QuestionLangVersion } from 'src/shared/types/form/formTypes';
 import * as handlers from './handlers';
 
 interface IProps {

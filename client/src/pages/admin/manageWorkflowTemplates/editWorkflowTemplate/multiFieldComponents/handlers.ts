@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from 'react';
-import { McOption, QuestionLangVersion } from 'src/shared/types/types';
+import { McOption, QuestionLangVersion } from 'src/shared/types/form/formTypes';
 
 export const handleAddChoice = (
   numChoices: number,

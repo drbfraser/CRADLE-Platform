@@ -1,5 +1,5 @@
 import { axiosFetch } from '../core/http';
-import { CForm } from '../../types/types';
+import { CForm } from '../../types/form/formTypes';
 import { EndpointEnum } from 'src/shared/enums';
 import { PostBody } from 'src/pages/customizedForm/handlers';
 export const saveFormResponseAsync = async (
