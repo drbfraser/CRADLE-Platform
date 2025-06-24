@@ -86,7 +86,7 @@ describe('workflowInstances API', () => {
     expect(result).toEqual(mockArchived);
   });
 
-  it('should unarchive a workflow instance', async() => {
+  it('should unarchive a workflow instance', async () => {
     const mockUnarchived = { id: '1', status: 'Active' };
     (axiosFetch.put as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       data: mockUnarchived,
@@ -104,7 +104,7 @@ describe('workflowInstances API', () => {
     expect(result).toEqual(mockUnarchived);
   });
 
-  it('should create a workflow instance with steps', async() => {
+  it('should create a workflow instance with steps', async () => {
     const payload = {
       id: 'instance-2',
       name: 'Instance Test 2',
@@ -128,14 +128,14 @@ describe('workflowInstances API', () => {
     expect(result).toEqual(mockResponse);
   });
 
-  it('should list instance steps by ID', async() => {
+  it('should list instance steps by ID', async () => {
     const mockSteps = ['one', 'two', 'three'];
     (axiosFetch.get as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       data: mockSteps,
     });
 
     const result = await listInstanceSteps('instance-2');
-    console.log('Fetched list of instance steps:', result)
+    console.log('Fetched list of instance steps:', result);
 
     expect(result).toEqual(mockSteps);
   });
