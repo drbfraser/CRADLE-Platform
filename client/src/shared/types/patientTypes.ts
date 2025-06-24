@@ -1,7 +1,6 @@
-import { SexEnum } from "../enums";
-import { Reading } from "./readingTypes";
-import { OrNull } from "./types";
-
+import { SexEnum } from '../enums';
+import { Reading } from './readingTypes';
+import { OrNull } from './types';
 
 export type Patient = {
   allergy: OrNull<string>;

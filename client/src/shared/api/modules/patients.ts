@@ -5,10 +5,10 @@ import { Pregnancy } from '../../types/types';
 import {
   Patient,
   PatientPregnancyInfo,
-  PatientStatistics
+  PatientStatistics,
 } from '../../types/patientTypes';
 import { FilterRequestBody } from '../../types/filterTypes';
-import { Referral } from '../../types/referralTypes'
+import { Referral } from '../../types/referralTypes';
 import { EndpointEnum } from 'src/shared/enums';
 
 //Patients CRUD

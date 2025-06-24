@@ -1,5 +1,3 @@
-
-
 export type FilterRequestBody = {
   referrals: boolean;
   readings: boolean;

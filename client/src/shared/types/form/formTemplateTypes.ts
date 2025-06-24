@@ -1,6 +1,6 @@
-import { QuestionTypeEnum } from "src/shared/enums";
-import { OrNull } from "../types";
-import { QuestionLangVersion, QCondition } from "./formTypes";
+import { QuestionTypeEnum } from 'src/shared/enums';
+import { OrNull } from '../types';
+import { QuestionLangVersion, QCondition } from './formTypes';
 
 export interface IFormClassification {
   id: string | undefined;

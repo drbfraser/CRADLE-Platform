@@ -1,5 +1,4 @@
-import { OrNull } from "./types";
-
+import { OrNull } from './types';
 
 export type NewAssessment = {
   diagnosis: string;
