@@ -5,7 +5,7 @@ import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 
-import { Patient } from 'src/shared/types/types';
+import { Patient } from 'src/shared/types/patientTypes';
 import { getPatientsAdminAsync } from 'src/shared/api';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import {

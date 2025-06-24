@@ -2,13 +2,15 @@
 //import core function from core http.ts
 import { axiosFetch } from '../core/http';
 import {
-  Patient,
-  PatientPregnancyInfo,
-  PatientStatistics,
   FilterRequestBody,
   Referral,
   Pregnancy,
 } from '../../types/types';
+import {
+  Patient,
+  PatientPregnancyInfo,
+  PatientStatistics
+} from '../../types/patientTypes';
 import { EndpointEnum } from 'src/shared/enums';
 
 //Patients CRUD
