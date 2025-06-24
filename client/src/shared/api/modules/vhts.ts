@@ -1,6 +1,7 @@
 //move all vhts apis to here
 import { axiosFetch } from '../core/http';
-import { VHT, Referrer } from '../../types/types';
+import { VHT } from '../../types/types';
+import { Referrer } from '../../types/referralTypes';
 import { EndpointEnum } from 'src/shared/enums';
 
 export const getUserVhtsAsync = async (): Promise<Referrer[]> => {

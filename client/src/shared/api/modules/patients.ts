@@ -1,16 +1,14 @@
 //move all patients apis to here
 //import core function from core http.ts
 import { axiosFetch } from '../core/http';
-import {
-  Referral,
-  Pregnancy,
-} from '../../types/types';
+import { Pregnancy } from '../../types/types';
 import {
   Patient,
   PatientPregnancyInfo,
   PatientStatistics
 } from '../../types/patientTypes';
 import { FilterRequestBody } from '../../types/filterTypes';
+import { Referral } from '../../types/referralTypes'
 import { EndpointEnum } from 'src/shared/enums';
 
 //Patients CRUD

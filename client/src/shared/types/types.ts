@@ -1,10 +1,8 @@
-import { TrafficLightEnum } from 'src/shared/enums';
-
 import { User } from '../api/validation/user';
-
 import { CustomizedForm } from './form/formTypes';
 import { Reading } from './readingTypes';
 import { Assessment } from './assessmentTypes';
+import { Referral } from './referralTypes';
 
 export type Callback<T, U = void> = (args: T) => U;
 
@@ -76,43 +74,6 @@ export type VHT = {
 };
 
 export type Card = Reading & Assessment & Referral & CustomizedForm;
-
-export type Referral = {
-  id: string;
-  actionTaken: OrNull<string>;
-  dateReferred: number;
-  comment: string;
-  healthFacility: string;
-  isAssessed: boolean;
-  patientId: string;
-  readingId: string;
-  healthFacilityName: string;
-  userId: OrNull<number>;
-  dateAssessed: number;
-  isCancelled: boolean;
-  dateCancelled: number;
-  cancelReason: string;
-  vitalSign: TrafficLightEnum;
-  notAttended: boolean;
-  dateNotAttended: number;
-  notAttendReason: string;
-};
-
-export type ReferralFilter = {
-  healthFacilityNames: string[];
-  dateRange: string;
-  referrers: string[];
-  vitalSigns: TrafficLightEnum[];
-  isAssessed?: string;
-  isPregnant?: string;
-};
-
-export type Referrer = {
-  email: string;
-  firstName: string;
-  healthFacilityName: string;
-  userId: string;
-};
 
 export type HealthFacility = {
   name: string;
