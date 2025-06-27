@@ -2,12 +2,14 @@ import json
 import re
 from typing import Optional
 
-from flask import Request, request
+from flask import Request, abort, request
 from pydantic import AliasChoices, Field, field_validator
 from pydantic.alias_generators import to_snake
 
 from common import user_utils
 from config import app
+from data import crud
+from models import UserOrm
 from validation import CradleBaseModel
 
 
@@ -214,3 +216,28 @@ def query_param_search(request: Request, name: str) -> str:
 
     """
     return request.args.get(name, "", type=str)
+
+
+def get_user_id(d: dict, user_attribute: str) -> Optional[int]:
+    """
+    Returns the ID of the user associated with the given dictionary. Raises an error if the user does not exist.
+
+    :param d: The dictionary to get the user associated with
+    :param user_attribute: The attribute that holds the user ID
+    :return: The ID of the user associated with the given attribute
+    """
+    if d[user_attribute]:
+        current_user = crud.read(m=UserOrm, id=d[user_attribute])
+
+    # If the attribute does not have a user ID, get the user from the JWT
+    else:
+        current_user = user_utils.get_current_user_from_jwt()
+
+    # Check if the user actually exists
+    if current_user is None:
+        return abort(code=404, message="User does not exist")
+
+    if isinstance(current_user, dict):
+        return int(current_user["id"])
+
+    return int(current_user.id)
