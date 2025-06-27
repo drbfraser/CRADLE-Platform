@@ -3,15 +3,15 @@ from typing import List
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
+from werkzeug.exceptions import HTTPException
 
-from common import user_utils
 from common.api_utils import (
     WorkflowTemplateIdPath,
+    get_user_id,
 )
 from common.commonUtil import get_current_time
 from data import crud, marshal
 from models import (
-    UserOrm,
     WorkflowClassificationOrm,
     WorkflowTemplateOrm,
 )
@@ -43,17 +43,10 @@ def create_workflow_template(body: WorkflowTemplateModel):
     """
     workflow_template_dict = body.model_dump()
 
-    if workflow_template_dict["last_edited_by"]:
-        current_user = crud.read(m=UserOrm, id=workflow_template_dict["last_edited_by"])
+    user_id = get_user_id(workflow_template_dict, "last_edited_by")
 
-    else:
-        current_user = user_utils.get_current_user_from_jwt()
-
-    # Check if the user actually exists
-    if current_user is None:
-        return abort(code=404, message="User does not exist")
-
-    user_id = int(current_user["id"])
+    if isinstance(user_id, HTTPException):
+        return user_id
 
     workflow_template_dict["last_edited_by"] = user_id
 
@@ -83,7 +76,7 @@ def create_workflow_template(body: WorkflowTemplateModel):
             version=workflow_template_dict["version"],
         )
 
-        if existing_template_version is None:
+        if existing_template_version is not None:
             return abort(
                 code=409,
                 message="Workflow template with same version still exists - Change version before upload.",
@@ -115,14 +108,11 @@ def create_workflow_template(body: WorkflowTemplateModel):
     workflow_template_orm = marshal.unmarshal(
         WorkflowTemplateOrm, workflow_template_dict
     )
-
     workflow_template_orm.classification = workflow_classification_orm
 
     crud.create(model=workflow_template_orm, refresh=True)
 
-    return marshal.marshal(
-        workflow_template_orm, WorkflowTemplateOrm, shallow=True
-    ), 201
+    return marshal.marshal(obj=workflow_template_orm, shallow=True), 201
 
     # For now, return the example data
     # return WorkflowTemplateExample.example_01, 201

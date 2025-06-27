@@ -717,7 +717,7 @@ class RuleGroupOrm(db.Model):
 
     @staticmethod
     def schema():
-        return RuleGroupOrm
+        return RuleGroupSchema
 
 
 class WorkflowTemplateOrm(db.Model):
