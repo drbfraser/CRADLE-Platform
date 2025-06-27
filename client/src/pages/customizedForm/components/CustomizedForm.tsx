@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Form, Formik } from 'formik';
 import { Divider, Grid, Paper, SxProps } from '@mui/material';
 
-import { CForm, QAnswer } from 'src/shared/types';
+import { CForm, QAnswer } from 'src/shared/types/form/formTypes';
 import { FormRenderStateEnum } from 'src/shared/enums';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { PrimaryButton, RedirectButton } from 'src/shared/components/Button';

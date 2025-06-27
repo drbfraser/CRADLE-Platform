@@ -1,17 +1,15 @@
 describe('browser language', () => {
-
   beforeEach(() => {
-    cy.login({ email: 'admin123@admin.com', password: 'admin123' })
+    cy.login({ email: 'admin123@admin.com', password: 'admin123' });
   });
 
   it('create form browser language', () => {
-
-    cy.visit('http://localhost:3000/admin/form-templates',{
-        onBeforeLoad (win) {
-          Object.defineProperty(win.navigator, 'language', {
-            value: 'pl'
-        })
-        }
+    cy.visit('http://localhost:3000/admin/form-templates', {
+      onBeforeLoad(win) {
+        Object.defineProperty(win.navigator, 'language', {
+          value: 'pl',
+        });
+      },
     });
 
     //Create form with default version
@@ -20,14 +18,11 @@ describe('browser language', () => {
     cy.contains('.MuiOutlinedInput-root', 'Title').type(
       'Multi Language Medical Form'
     );
-    
+
     //Check language contains browser language
     cy.contains('.MuiOutlinedInput-root', 'Language')
       .children('.MuiOutlinedInput-input')
-      .should(
-        'contain',
-        'Polish'
-      );
+      .should('contain', 'Polish');
 
     //Form should select Polish as languge
     cy.get('.MuiGrid-container > :nth-child(4)').click();
@@ -46,10 +41,10 @@ describe('browser language', () => {
     );
     cy.get('.MuiButton-contained').contains('Save').click();
 
-    //Add single text field for both languages 
+    //Add single text field for both languages
     cy.get('.MuiButton-contained').contains('Add Field').click();
     cy.contains('.MuiOutlinedInput-root', 'Polish Field Text').type(
-        'Pełne Imię I Nazwisko'
+      'Pełne Imię I Nazwisko'
     );
     cy.contains('.MuiOutlinedInput-root', 'English Field Text').type(
       'Full Name'
@@ -71,34 +66,38 @@ describe('browser language', () => {
   });
 
   it('verify form browser language', () => {
-
     //Set browser language to Polish
-    cy.visit('http://localhost:3000/forms/new/49300028162',{
-        onBeforeLoad (win) {
-          Object.defineProperty(win.navigator, 'language', {
-            value: 'pl'
-          })
-        }
-      });
+    cy.visit('http://localhost:3000/forms/new/49300028162', {
+      onBeforeLoad(win) {
+        Object.defineProperty(win.navigator, 'language', {
+          value: 'pl',
+        });
+      },
+    });
 
     //Check set default to Polish
     cy.get(`[data-cy = "form-name"]`).click();
     cy.contains('Multi Language Medical Form').click();
-    cy.get(`[data-cy = "def-lang"] input`, {timeout: 1000}).should('have.value', 'Polish');
-    
+    cy.get(`[data-cy = "def-lang"] input`, { timeout: 1000 }).should(
+      'have.value',
+      'Polish'
+    );
+
     //Set browser language to English
-    cy.visit('http://localhost:3000/forms/new/49300028162',{
-      onBeforeLoad (win) {
+    cy.visit('http://localhost:3000/forms/new/49300028162', {
+      onBeforeLoad(win) {
         Object.defineProperty(win.navigator, 'language', {
-          value: 'en'
-        })
-      }
+          value: 'en',
+        });
+      },
     });
 
     //Check set default to English
     cy.get(`[data-cy = "form-name"]`).click();
     cy.contains('Multi Language Medical Form').click();
-    cy.get(`[data-cy = "def-lang"] input`, {timeout: 1000}).should('have.value', 'English');
-    
-  }); 
-})
+    cy.get(`[data-cy = "def-lang"] input`, { timeout: 1000 }).should(
+      'have.value',
+      'English'
+    );
+  });
+});

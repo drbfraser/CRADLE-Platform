@@ -10,7 +10,7 @@ import {
 import { useDialogs } from '@toolpad/core';
 
 import { deleteMedicalRecordAsync } from 'src/shared/api';
-import { MedicalRecord } from 'src/shared/types';
+import { MedicalRecord } from 'src/shared/types/types';
 import { getPrettyDate } from 'src/shared/utils';
 import {
   TableAction,

@@ -4,7 +4,7 @@ import { CheckboxWithLabel, TextField } from 'formik-mui';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 import { Alert, Box, Grid, Paper, Typography } from '@mui/material';
 
-import { NewAssessment } from 'src/shared/types';
+import { NewAssessment } from 'src/shared/types/assessmentTypes';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { PrimaryButton } from 'src/shared/components/Button';
 import { assessmentFormValidationSchema } from './validation';

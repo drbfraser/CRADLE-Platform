@@ -1,5 +1,5 @@
 import { axiosFetch } from '../core/http';
-import { Pregnancy } from '../../types';
+import { Pregnancy } from '../../types/types';
 import { EndpointEnum } from 'src/shared/enums';
 
 export const getPregnancyAsync = async (

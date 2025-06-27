@@ -11,7 +11,7 @@ import {
   getPatientRecordsAsync,
   getPatientReferralsAsync,
 } from 'src/shared/api';
-import { Filter, FilterRequestBody } from 'src/shared/types';
+import { Filter, FilterRequestBody } from 'src/shared/types/filterTypes';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import ToastAfterNav from 'src/shared/components/toastAfterNav';
 import { SexEnum } from 'src/shared/enums';

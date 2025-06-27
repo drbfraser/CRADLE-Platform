@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { TextField } from 'formik-mui';
 
-import { RelayNum } from 'src/shared/types';
+import { RelayNum } from 'src/shared/types/types';
 import { saveRelayNumAsync } from 'src/shared/api';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';

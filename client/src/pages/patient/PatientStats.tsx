@@ -26,7 +26,7 @@ import {
 import FavoriteIcon from '@mui/icons-material/Favorite';
 
 import { StatsOptionEnum, TrafficLightEnum } from 'src/shared/enums';
-import { PatientStatistics } from 'src/shared/types';
+import { PatientStatistics } from 'src/shared/types/patientTypes';
 import { statsUnitLabels, trafficLightColors } from 'src/shared/constants';
 import { getPatientStatisticsAsync } from 'src/shared/api';
 

@@ -21,7 +21,7 @@ import {
   deletePregnancyAsync,
   getPatientPregnanciesAsync,
 } from 'src/shared/api';
-import { Pregnancy } from 'src/shared/types';
+import { Pregnancy } from 'src/shared/types/types';
 import { GestationalAgeUnitEnum } from 'src/shared/enums';
 import {
   gestationalAgeUnitFormatters,

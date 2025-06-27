@@ -4,7 +4,7 @@ import {
   getHealthFacilitiesAsync,
   getSecretKeyAsync,
 } from './api';
-import { SecretKey } from './types';
+import { SecretKey } from './types/types';
 
 export const useHealthFacilitiesQuery = () => {
   return useQuery({

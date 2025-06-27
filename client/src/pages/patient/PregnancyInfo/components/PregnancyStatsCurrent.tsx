@@ -1,4 +1,4 @@
-import { PatientPregnancyInfo } from 'src/shared/types';
+import { PatientPregnancyInfo } from 'src/shared/types/patientTypes';
 import { useState } from 'react';
 import { Alert, Box, Stack, Typography } from '@mui/material';
 
