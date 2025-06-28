@@ -4,11 +4,11 @@ from humps import decamelize
 from common.commonUtil import get_current_time, get_uuid
 from common.print_utils import pretty_print
 from data import crud
-from models import WorkflowClassificationOrm, WorkflowTemplateOrm, FormClassificationOrm
+from models import FormClassificationOrm, WorkflowClassificationOrm, WorkflowTemplateOrm
 
 
 def test_workflow_templates_with_same_classification_upload(
-        database, workflow_template1, workflow_template3, api_post
+    database, workflow_template1, workflow_template3, api_post
 ):
     try:
         archived_template1_id = workflow_template1["id"]
@@ -40,7 +40,10 @@ def test_workflow_templates_with_same_classification_upload(
     finally:
         classification_id = workflow_template1["classification"]["id"]
 
-        crud.delete_by(FormClassificationOrm, id=workflow_template3["steps"][0]["form"]["classification"]["id"])
+        crud.delete_by(
+            FormClassificationOrm,
+            id=workflow_template3["steps"][0]["form"]["classification"]["id"],
+        )
 
         crud.delete_workflow_template(
             id=workflow_template1["id"], classification_id=classification_id
@@ -53,12 +56,12 @@ def test_workflow_templates_with_same_classification_upload(
 
 
 def test_invalid_workflow_templates_uploaded(
-        database,
-        invalid_workflow_template1,
-        invalid_workflow_template2,
-        invalid_workflow_template3,
-        workflow_template1,
-        api_post,
+    database,
+    invalid_workflow_template1,
+    invalid_workflow_template2,
+    invalid_workflow_template3,
+    workflow_template1,
+    api_post,
 ):
     try:
         response = api_post(
@@ -91,10 +94,10 @@ def test_invalid_workflow_templates_uploaded(
         pretty_print(response_body)
         assert response.status_code == 201
 
-        '''
+        """
         Submitting a workflow template with the same version of another template under the same classification should
         return a 409 error
-        '''
+        """
         response = api_post(endpoint="/api/workflow/templates", json=workflow_template1)
         # database.session.commit()
         response_body = decamelize(response.json())
