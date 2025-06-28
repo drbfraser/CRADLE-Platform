@@ -53,7 +53,7 @@ export const ManageWorkflowTemplates = () => {
 
       if (!formTemplate.archived) {
         actions.push({
-          tooltip: 'Edit Workflow Template',
+          tooltip: 'Edit Workflow ',
           Icon: Edit,
           onClick: () => {
             navigate('/admin/workflow-templates/new', {
@@ -64,7 +64,7 @@ export const ManageWorkflowTemplates = () => {
           },
         });
         actions.push({
-          tooltip: 'Archive Workflow Template',
+          tooltip: 'Archive Workflow ',
           Icon: DeleteForever,
           onClick: () => {
             setSelectedForm(formTemplate);
@@ -73,7 +73,7 @@ export const ManageWorkflowTemplates = () => {
         });
       } else {
         actions.push({
-          tooltip: 'Unarchive Workflow Template',
+          tooltip: 'Unarchive Workflow ',
           Icon: Unarchive,
           onClick: () => {
             setSelectedForm(formTemplate);
@@ -149,7 +149,7 @@ export const ManageWorkflowTemplates = () => {
             checked={showArchivedTemplates}
           />
         }
-        label="View Archived Templates"
+        label="View Archived Workflow"
       />
     </DataTableFooter>
   );
@@ -175,19 +175,19 @@ export const ManageWorkflowTemplates = () => {
         template={selectedForm}
       />
 
-      <DataTableHeader title={'Workflow Templates'}>
+      <DataTableHeader title={'Workflow'}>
         <Stack direction={'row'} gap={'8px'} flexWrap={'wrap'}>
           <Button
             variant={'contained'}
             startIcon={<AddIcon />}
             onClick={() => navigate('/admin/workflow-templates/new')}>
-            {'New Template'}
+            {'New Workflow'}
           </Button>
           <Button
             variant={'contained'}
             startIcon={<UploadIcon />}
             onClick={() => setIsUploadPopupOpen(true)}>
-            {'Upload Template'}
+            {'Upload Workflow'}
           </Button>
         </Stack>
       </DataTableHeader>

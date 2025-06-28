@@ -27,7 +27,7 @@ const SampleTemplateLink = () => {
         },
       }}
       underline="hover">
-      Sample Template
+      Sample Workflow
     </Link>
   );
 

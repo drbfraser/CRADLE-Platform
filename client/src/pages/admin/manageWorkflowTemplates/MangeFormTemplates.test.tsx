@@ -15,7 +15,7 @@ import { FORM_TEMPLATE_TEST_DATA as TEST_DATA } from 'src/testing/testData';
 import ProviderWrapper from 'src/testing/ProviderWrapper';
 import { ManageWorkflowTemplates } from './ManageWorkflowTemplates';
 
-describe('Workflow Templates Table', () => {
+describe('Workflow Table', () => {
   beforeAll(() => {
     localStorage.setItem('accessToken', createFakeAccessToken());
   });
@@ -35,7 +35,7 @@ describe('Workflow Templates Table', () => {
     });
   });
 
-  test('Renders unarchived templates', async () => {
+  test('Renders unarchived Workflow', async () => {
     const tableRows = within(screen.getByRole('rowgroup')).getAllByRole('row');
 
     TEST_DATA.unArchivedTemplates.forEach(
@@ -48,9 +48,9 @@ describe('Workflow Templates Table', () => {
     );
   });
 
-  test('Renders archived templates', async () => {
+  test('Renders archived Workflow', async () => {
     const viewArchivedSwitch = screen.getByRole('checkbox', {
-      name: 'View Archived Templates',
+      name: 'View Archived Workflow',
     });
     await userEvent.click(viewArchivedSwitch);
 
