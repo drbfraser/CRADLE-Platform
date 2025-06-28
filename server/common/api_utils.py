@@ -2,7 +2,7 @@ import json
 import re
 from typing import Optional
 
-from flask import Request, abort, request
+from flask import Request, request
 from pydantic import AliasChoices, Field, field_validator
 from pydantic.alias_generators import to_snake
 
@@ -224,6 +224,7 @@ def get_user_id(d: dict, user_attribute: str) -> Optional[int]:
 
     :param d: The dictionary to get the user associated with
     :param user_attribute: The attribute that holds the user ID
+
     :return: The ID of the user associated with the given attribute
     """
     if d[user_attribute]:
@@ -235,7 +236,7 @@ def get_user_id(d: dict, user_attribute: str) -> Optional[int]:
 
     # Check if the user actually exists
     if current_user is None:
-        return abort(code=404, description="User does not exist")
+        raise ValueError("User does not exist")
 
     if isinstance(current_user, dict):
         return int(current_user["id"])
