@@ -3,7 +3,6 @@ from typing import List
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
-from werkzeug.exceptions import HTTPException
 
 from common.api_utils import (
     WorkflowTemplateIdPath,
@@ -43,24 +42,31 @@ def create_workflow_template(body: WorkflowTemplateModel):
     """
     workflow_template_dict = body.model_dump()
 
-    user_id = get_user_id(workflow_template_dict, "last_edited_by")
+    try:
+        user_id = get_user_id(workflow_template_dict, "last_edited_by")
+        workflow_template_dict["last_edited_by"] = user_id
 
-    if isinstance(user_id, HTTPException):
-        return user_id
-
-    workflow_template_dict["last_edited_by"] = user_id
+    except ValueError:
+        return abort(code=404, description="User not found")
 
     workflow_classification_dict = workflow_template_dict["classification"]
     del workflow_template_dict["classification"]
 
-    # Find workflow classification in DB
-
+    # Find workflow classification in DB, if it exists
     workflow_classification_orm = None
-
     if workflow_classification_dict is not None:
         workflow_classification_orm = crud.read(
             WorkflowClassificationOrm, id=workflow_classification_dict["id"]
         )
+
+    # If the workflow classification does not exist and the request has no classification, throw an error
+
+    if (
+        workflow_classification_orm is None
+        and workflow_classification_dict is None
+        and workflow_template_dict["classification_id"] is not None
+    ):
+        return abort(code=404, description="Classification not found")
 
     if workflow_classification_orm is None and workflow_classification_dict is not None:
         # If this workflow classification is completely new, then it will be added to the DB
@@ -108,6 +114,7 @@ def create_workflow_template(body: WorkflowTemplateModel):
     workflow_template_orm = marshal.unmarshal(
         WorkflowTemplateOrm, workflow_template_dict
     )
+
     workflow_template_orm.classification = workflow_classification_orm
 
     crud.create(model=workflow_template_orm, refresh=True)
