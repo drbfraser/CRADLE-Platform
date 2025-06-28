@@ -235,7 +235,7 @@ def get_user_id(d: dict, user_attribute: str) -> Optional[int]:
 
     # Check if the user actually exists
     if current_user is None:
-        return abort(code=404, message="User does not exist")
+        return abort(code=404, description="User does not exist")
 
     if isinstance(current_user, dict):
         return int(current_user["id"])

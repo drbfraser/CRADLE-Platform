@@ -22,13 +22,16 @@ from models import (
     QuestionOrm,
     ReadingOrm,
     ReferralOrm,
+    RuleGroupOrm,
     SupervisesTable,
     UrineTestOrm,
     UserOrm,
     UserPhoneNumberOrm,
+    WorkflowClassificationOrm,
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
     WorkflowTemplateOrm,
+    WorkflowTemplateStepBranchOrm,
     WorkflowTemplateStepOrm,
 )
 from service import invariant
@@ -188,6 +191,48 @@ def delete_all(m: Type[M], **kwargs):
     """
     db_session.query(m).filter_by(**kwargs).delete()
     db_session.commit()
+
+
+def delete_workflow_step_branch(**kwargs):
+    branch = read(WorkflowTemplateStepBranchOrm, **kwargs)
+
+    if branch:
+        db_session.query(RuleGroupOrm).filter_by(id=branch.condition_id).delete()
+
+        delete(branch)
+
+
+def delete_workflow_template_step(**kwargs):
+    step = read(WorkflowTemplateStepOrm, **kwargs)
+
+    if step:
+        db_session.query(RuleGroupOrm).filter_by(id=step.condition_id).delete()
+
+        # Delete each branch in the step
+        for branch in step.branches:
+            delete_workflow_step_branch(id=branch.id)
+
+        # TODO: Should the form template associated also be deleted when the template step is deleted?
+
+        delete(step)
+
+
+def delete_workflow_template(delete_classification: bool = False, **kwargs):
+    workflow_template = read(WorkflowTemplateOrm, **kwargs)
+
+    if workflow_template:
+        db_session.query(RuleGroupOrm).filter_by(
+            id=workflow_template.initial_condition_id
+        ).delete()
+
+        if delete_classification:
+            delete_by(WorkflowClassificationOrm, id=workflow_template.classification_id)
+
+        # Delete each step in the template
+        for step in workflow_template.steps:
+            delete_workflow_template_step(id=step.id)
+
+        delete(workflow_template)
 
 
 def find(m: Type[M], *args) -> List[M]:

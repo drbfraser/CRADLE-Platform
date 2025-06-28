@@ -79,7 +79,7 @@ def create_workflow_template(body: WorkflowTemplateModel):
         if existing_template_version is not None:
             return abort(
                 code=409,
-                message="Workflow template with same version still exists - Change version before upload.",
+                description="Workflow template with same version still exists - Change version before upload.",
             )
 
         # Check if a previously existing version of this template exists, if it does, archive it
