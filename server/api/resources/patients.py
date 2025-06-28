@@ -15,6 +15,7 @@ from common.api_utils import (
     SearchFilterQueryParams,
 )
 from common.commonUtil import get_current_time
+from common.patient_utils import assign_patient_id
 from config import db
 from data import crud, marshal
 from enums import RoleEnum, TrafficLightEnum
@@ -87,11 +88,14 @@ def get_all_unarchived_patients(query: SearchFilterQueryParams):
 @api_patients.post("", responses={201: PatientModel})
 def create_patient(body: NestedPatient):
     """Create New Patient"""
-    patient_id = body.id
-    if crud.read(PatientOrm, id=patient_id):
-        return abort(409, description=f"A patient already exists with ID: {patient_id}")
+    patient_name = body.name
+    if crud.read(PatientOrm, name=patient_name):
+        return abort(
+            409, description=f"A patient already exists with name: {patient_name}"
+        )
 
     new_patient = body.model_dump()
+    assign_patient_id(new_patient)
     patient = marshal.unmarshal(PatientOrm, new_patient)
 
     # Resolve invariants and set the creation timestamp for the patient ensuring
