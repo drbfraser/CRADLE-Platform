@@ -88,12 +88,6 @@ def get_all_unarchived_patients(query: SearchFilterQueryParams):
 @api_patients.post("", responses={201: PatientModel})
 def create_patient(body: NestedPatient):
     """Create New Patient"""
-    patient_name = body.name
-    if crud.read(PatientOrm, name=patient_name):
-        return abort(
-            409, description=f"A patient already exists with name: {patient_name}"
-        )
-
     new_patient = body.model_dump()
     assign_patient_id(new_patient)
     patient = marshal.unmarshal(PatientOrm, new_patient)
