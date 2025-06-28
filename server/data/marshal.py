@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Type
 
 from common import commonUtil
 from common.form_utils import filter_template_questions_orm
+from data import db_session
 from data.crud import M
 from models import (
     AssessmentOrm,
@@ -694,18 +695,19 @@ def __unmarshal_form(d: dict) -> FormOrm:
 
 
 def __unmarshal_form_template(d: dict) -> FormTemplateOrm:
-    questions = []
-    if d.get("questions") is not None:
-        questions = unmarshal_question_list(d["questions"])
-        del d["questions"]
+    with db_session.no_autoflush:
+        questions = []
+        if d.get("questions") is not None:
+            questions = unmarshal_question_list(d["questions"])
+            del d["questions"]
 
-    # form_template_orm = FormTemplateOrm(**d)
+        # form_template_orm = FormTemplateOrm(**d)
 
-    form_template_orm = __load(FormTemplateOrm, d)
+        form_template_orm = __load(FormTemplateOrm, d)
 
-    form_template_orm.questions = questions
+        form_template_orm.questions = questions
 
-    return form_template_orm
+        return form_template_orm
 
 
 def __unmarshal_reading(d: dict) -> ReadingOrm:
@@ -823,26 +825,27 @@ def __unmarshal_workflow_template_step(d: dict) -> WorkflowTemplateStepOrm:
 
 
 def __unmarshal_workflow_template(d: dict) -> WorkflowTemplateOrm:
-    steps = []
-    initial_condition = None
-    classification = None
+    with db_session.no_autoflush:
+        steps = []
+        initial_condition = None
+        classification = None
 
-    if d.get("steps") is not None:
-        steps = [__unmarshal_workflow_template_step(s) for s in d.get("steps")]
-        del d["steps"]
+        if d.get("initial_condition") is not None:
+            initial_condition = __load(RuleGroupOrm, d.get("initial_condition"))
+            del d["initial_condition"]
 
-    if d.get("initial_condition") is not None:
-        initial_condition = __load(RuleGroupOrm, d.get("initial_condition"))
-        del d["initial_condition"]
+        if d.get("steps") is not None:
+            steps = [__unmarshal_workflow_template_step(s) for s in d.get("steps")]
+            del d["steps"]
 
-    if d.get("classification") is not None:
-        classification = __load(WorkflowClassificationOrm, d.get("classification"))
-        del d["classification"]
+        if d.get("classification") is not None:
+            classification = __load(WorkflowClassificationOrm, d.get("classification"))
+            del d["classification"]
 
-    workflow_template_orm = __load(WorkflowTemplateOrm, d)
-    workflow_template_orm.steps = steps
-    workflow_template_orm.initial_condition = initial_condition
-    workflow_template_orm.classification = classification
+        workflow_template_orm = __load(WorkflowTemplateOrm, d)
+        workflow_template_orm.steps = steps
+        workflow_template_orm.initial_condition = initial_condition
+        workflow_template_orm.classification = classification
 
     return workflow_template_orm
 

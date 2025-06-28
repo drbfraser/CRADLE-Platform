@@ -40,12 +40,14 @@ def get_all_form_classifications():
 def create_form_classification(body: FormClassificationOptionalId):
     """Create Form Classification"""
     if body.id is not None:
-        if crud.read(FormClassificationOrm, id=body.id):
+        if crud.read(FormClassificationOrm, id=body.id) is not None:
+            print("Duplicate Found!")
+            print(marshal.marshal(crud.read(FormClassificationOrm, id=body.id)))
             return abort(
                 409,
                 description=f"Form Classification with id=({body.id}) already exists.",
             )
-    if crud.read(FormClassificationOrm, name=body.name):
+    if crud.read(FormClassificationOrm, name=body.name) is not None:
         return abort(
             409,
             description=f"Form Classification with name=({body.name}) already exists.",
