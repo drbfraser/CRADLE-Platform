@@ -213,6 +213,7 @@ def delete_workflow_template_step(**kwargs):
             delete_workflow_step_branch(id=branch.id)
 
         # TODO: Should the form template associated also be deleted when the template step is deleted?
+        db_session.query(FormTemplateOrm).filter_by(id=step.form_id).delete()
 
         delete(step)
 
