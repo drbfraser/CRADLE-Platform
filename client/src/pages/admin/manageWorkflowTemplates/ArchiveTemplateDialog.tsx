@@ -37,16 +37,16 @@ const ArchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
     <>
       <Toast
         severity="success"
-        message="Workflow Template Archived!"
+        message="Workflow Archived!"
         open={editForm.isSuccess}
         onClose={() => editForm.reset()}
       />
       <APIErrorToast open={editForm.isError} onClose={() => editForm.reset()} />
 
       <Dialog open={open} onClose={onClose}>
-        <DialogTitle>Archive Workflow Template</DialogTitle>
+        <DialogTitle>Archive Workflow </DialogTitle>
         <DialogContent>
-          <p>Are you sure you want to archive this Workflow template?</p>
+          <p>Are you sure you want to archive this Workflow?</p>
         </DialogContent>
         <DialogActions sx={(theme) => ({ padding: theme.spacing(2) })}>
           <CancelButton onClick={onClose}>Cancel</CancelButton>
