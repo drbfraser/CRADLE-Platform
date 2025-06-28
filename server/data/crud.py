@@ -968,7 +968,7 @@ def read_workflow_instances(
 
     :param patient_id: ID of the patient which the workflows were assigned to
 
-    :param is_completed: Query for workflows based on status
+    :param status: Query for workflows based on status
 
     :param workflow_template_id: ID of workflow template the instances are based on
 
@@ -1026,7 +1026,7 @@ def read_template_steps(
 
     :param model: Workflow template step model (here we assume the step is valid)
 
-    :param workflow_template_id: ID of workflow instance; by default this filter is not applied (query all instance steps in the DB)
+    :param workflow_template_id: ID of workflow template; by default this filter is not applied (query all instance steps in the DB)
 
     :return: A list of template steps
     """
