@@ -49,6 +49,9 @@ export const getReferralsAsync = async (params?: {
   const response = await axiosFetch({
     method: 'GET',
     url: EndpointEnum.REFERRALS,
+    paramsSerializer: {
+      indexes: null
+    },
     params, // pass search and filter to backend
   });
   return response.data;

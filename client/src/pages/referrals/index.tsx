@@ -50,7 +50,7 @@ export const ReferralsPage = () => {
     refetch,
   } = useQuery({
     queryKey: ['referrals', search, filter],
-    queryFn: () => getReferralsAsync({ search, filter }),
+    queryFn: () => getReferralsAsync({ search, ...filter }),
   });
 
   const rows = useMemo(
