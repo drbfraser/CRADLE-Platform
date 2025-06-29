@@ -6,15 +6,16 @@ from flask_openapi3.models.tag import Tag
 
 from common.api_utils import (
     WorkflowTemplateIdPath,
+    get_user_id,
+)
+from common.commonUtil import get_current_time
+from data import crud, marshal
+from models import (
+    WorkflowClassificationOrm,
+    WorkflowTemplateOrm,
 )
 from validation import CradleBaseModel
-from validation.workflow_templates import (
-    WorkflowTemplateExample,
-    WorkflowTemplateModel,
-    WorkflowTemplateWithClassification,
-    WorkflowTemplateWithSteps,
-    WorkflowTemplateWithStepsAndClassification,
-)
+from validation.workflow_templates import WorkflowTemplateExample, WorkflowTemplateModel
 
 
 # Create a response model for the list endpoints
@@ -34,10 +35,94 @@ api_workflow_templates = APIBlueprint(
 
 # /api/workflow/templates [POST]
 @api_workflow_templates.post("", responses={201: WorkflowTemplateModel})
+# TODO: @roles_required([RoleEnum.ADMIN]) For testing purposes, this is commented out
 def create_workflow_template(body: WorkflowTemplateModel):
-    """Create Workflow Template"""
+    """
+    Upload a Workflow Template
+    """
+    workflow_template_dict = body.model_dump()
+
+    try:
+        user_id = get_user_id(workflow_template_dict, "last_edited_by")
+        workflow_template_dict["last_edited_by"] = user_id
+
+    except ValueError:
+        return abort(code=404, description="User not found")
+
+    workflow_classification_dict = workflow_template_dict["classification"]
+    del workflow_template_dict["classification"]
+
+    # Find workflow classification in DB, if it exists
+    workflow_classification_orm = None
+    if workflow_classification_dict is not None:
+        workflow_classification_orm = crud.read(
+            WorkflowClassificationOrm, id=workflow_classification_dict["id"]
+        )
+
+    # If the workflow classification does not exist and the request has no classification, throw an error
+
+    if (
+        workflow_classification_orm is None
+        and workflow_classification_dict is None
+        and workflow_template_dict["classification_id"] is not None
+    ):
+        return abort(code=404, description="Classification not found")
+
+    if workflow_classification_orm is None and workflow_classification_dict is not None:
+        # If this workflow classification is completely new, then it will be added to the DB
+        workflow_classification_orm = marshal.unmarshal(
+            WorkflowClassificationOrm, workflow_classification_dict
+        )
+
+    elif workflow_classification_orm is not None:
+        # Check if this template version already exists
+        existing_template_version = crud.read(
+            WorkflowTemplateOrm,
+            classification_id=workflow_classification_orm.id,
+            version=workflow_template_dict["version"],
+        )
+
+        if existing_template_version is not None:
+            return abort(
+                code=409,
+                description="Workflow template with same version still exists - Change version before upload.",
+            )
+
+        # Check if a previously existing version of this template exists, if it does, archive it
+        previous_template = crud.read(
+            WorkflowTemplateOrm,
+            classification_id=workflow_classification_orm.id,
+            archived=False,
+        )
+
+        if previous_template:
+            # Update the existing template
+            changes = {
+                "archived": True,
+                "last_edited": get_current_time(),
+                "last_edited_by": workflow_template_dict["last_edited_by"],
+            }
+            crud.update(
+                m=WorkflowTemplateOrm,
+                changes=changes,
+                id=previous_template.id,
+                classification_id=workflow_classification_orm.id,
+            )
+
+        workflow_template_dict["classification_id"] = workflow_classification_orm.id
+
+    workflow_template_orm = marshal.unmarshal(
+        WorkflowTemplateOrm, workflow_template_dict
+    )
+
+    workflow_template_orm.classification = workflow_classification_orm
+
+    crud.create(model=workflow_template_orm, refresh=True)
+
+    return marshal.marshal(obj=workflow_template_orm, shallow=True), 201
+
     # For now, return the example data
-    return WorkflowTemplateExample.example_01, 201
+    # return WorkflowTemplateExample.example_01, 201
 
 
 # /api/workflow/templates [GET]
@@ -63,7 +148,7 @@ def get_workflow_template(path: WorkflowTemplateIdPath):
 # /api/workflow/templates/<string:template_id>/with-classification [GET]
 @api_workflow_templates.get(
     "/<string:template_id>/with-classification",
-    responses={200: WorkflowTemplateWithClassification},
+    responses={200: WorkflowTemplateModel},
 )
 def get_workflow_template_with_classification(path: WorkflowTemplateIdPath):
     """Get Workflow Template with Classification"""
@@ -75,7 +160,7 @@ def get_workflow_template_with_classification(path: WorkflowTemplateIdPath):
 
 # /api/workflow/templates/<string:template_id>/with-steps [GET]
 @api_workflow_templates.get(
-    "/<string:template_id>/with-steps", responses={200: WorkflowTemplateWithSteps}
+    "/<string:template_id>/with-steps", responses={200: WorkflowTemplateModel}
 )
 def get_workflow_template_with_steps(path: WorkflowTemplateIdPath):
     """Get Workflow Template with Steps"""
@@ -88,7 +173,7 @@ def get_workflow_template_with_steps(path: WorkflowTemplateIdPath):
 # /api/workflow/templates/<string:template_id>/with-steps-and-classification [GET]
 @api_workflow_templates.get(
     "/<string:template_id>/with-steps-and-classification",
-    responses={200: WorkflowTemplateWithStepsAndClassification},
+    responses={200: WorkflowTemplateModel},
 )
 def get_workflow_template_with_steps_and_classification(path: WorkflowTemplateIdPath):
     """Get Workflow Template with Steps and Classification"""

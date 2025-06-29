@@ -10,7 +10,7 @@ from sqlalchemy.sql.functions import coalesce
 
 from common.form_utils import filter_template_questions_orm
 from data import db_session
-from enums import RoleEnum, TrafficLightEnum
+from enums import RoleEnum, TrafficLightEnum, WorkflowStatusEnum
 from models import (
     AssessmentOrm,
     FormOrm,
@@ -22,10 +22,17 @@ from models import (
     QuestionOrm,
     ReadingOrm,
     ReferralOrm,
+    RuleGroupOrm,
     SupervisesTable,
     UrineTestOrm,
     UserOrm,
     UserPhoneNumberOrm,
+    WorkflowClassificationOrm,
+    WorkflowInstanceOrm,
+    WorkflowInstanceStepOrm,
+    WorkflowTemplateOrm,
+    WorkflowTemplateStepBranchOrm,
+    WorkflowTemplateStepOrm,
 )
 from service import invariant
 
@@ -184,6 +191,49 @@ def delete_all(m: Type[M], **kwargs):
     """
     db_session.query(m).filter_by(**kwargs).delete()
     db_session.commit()
+
+
+def delete_workflow_step_branch(**kwargs):
+    branch = read(WorkflowTemplateStepBranchOrm, **kwargs)
+
+    if branch:
+        db_session.query(RuleGroupOrm).filter_by(id=branch.condition_id).delete()
+
+        delete(branch)
+
+
+def delete_workflow_template_step(**kwargs):
+    step = read(WorkflowTemplateStepOrm, **kwargs)
+
+    if step:
+        db_session.query(RuleGroupOrm).filter_by(id=step.condition_id).delete()
+
+        # Delete each branch in the step
+        for branch in step.branches:
+            delete_workflow_step_branch(id=branch.id)
+
+        # TODO: Should the form template associated also be deleted when the template step is deleted?
+        db_session.query(FormTemplateOrm).filter_by(id=step.form_id).delete()
+
+        delete(step)
+
+
+def delete_workflow_template(delete_classification: bool = False, **kwargs):
+    workflow_template = read(WorkflowTemplateOrm, **kwargs)
+
+    if workflow_template:
+        db_session.query(RuleGroupOrm).filter_by(
+            id=workflow_template.initial_condition_id
+        ).delete()
+
+        if delete_classification:
+            delete_by(WorkflowClassificationOrm, id=workflow_template.classification_id)
+
+        # Delete each step in the template
+        for step in workflow_template.steps:
+            delete_workflow_template_step(id=step.id)
+
+        delete(workflow_template)
 
 
 def find(m: Type[M], *args) -> List[M]:
@@ -880,6 +930,112 @@ def read_form_template_language_versions(
     if refresh:
         db_session.refresh(model)
     return [v.lang for v in lang_versions]
+
+
+def read_instance_steps(
+    model: WorkflowInstanceStepOrm, workflow_instance_id: Optional[str] = None
+) -> List[WorkflowInstanceStepOrm]:
+    """
+    Queries the database for all instance steps from either a specific workflow instance or the entire DB
+
+    :param model: Workflow instance model (here we assume the step is valid)
+
+    :param workflow_instance_id: ID of workflow instance; by default this filter is not applied (query all instance steps in the DB)
+
+    :return: A list of instance steps
+    """
+    query = db_session.query(model)
+
+    if workflow_instance_id:
+        query = query.filter(model.workflow_instance_id == workflow_instance_id)
+
+    return query.all()
+
+
+def read_workflow_instances(
+    model: WorkflowInstanceOrm,
+    user_id: Optional[int] = None,
+    patient_id: Optional[str] = None,
+    status: Optional[WorkflowStatusEnum] = None,
+    workflow_template_id: Optional[str] = None,
+) -> List[WorkflowInstanceOrm]:
+    """
+    Queries the database for all workflow instances that have either been assigned by a specific user or all instances in total
+
+    :param model: Workflow instance model (here we assume the instance is valid)
+
+    :param user_id: ID of the user which assigned the workflows
+
+    :param patient_id: ID of the patient which the workflows were assigned to
+
+    :param status: Query for workflows based on status
+
+    :param workflow_template_id: ID of workflow template the instances are based on
+
+    :return: A list of workflow instances
+    """
+    query = db_session.query(model)
+
+    if user_id:
+        query = query.filter(model.last_edited_by == user_id)
+
+    if patient_id:
+        query = query.filter(model.patient_id == patient_id)
+
+    if status is not None:
+        query = query.filter(model.status == status)
+
+    if workflow_template_id:
+        query = query.filter(model.workflow_template_id == workflow_template_id)
+
+    return query.all()
+
+
+def read_workflow_templates(
+    model: WorkflowTemplateOrm,
+    workflow_classification_id: Optional[str] = None,
+    is_archived: bool = False,
+) -> List[WorkflowTemplateOrm]:
+    """
+    Queries the database for all workflow templates that either belong to a classification or in total
+
+    :param model: Workflow template model (here we assume the template is valid)
+
+    :param workflow_classification_id: The ID of a workflow classification
+
+    :param: is_archived: Query for archived workflows
+
+    :return: A list of workflow templates
+    """
+    query = db_session.query(model)
+
+    if workflow_classification_id:
+        query = query.filter(model.classification_id == workflow_classification_id)
+
+    if is_archived:
+        query = query.filter(model.archived == is_archived)
+
+    return query.all()
+
+
+def read_template_steps(
+    model: WorkflowTemplateStepOrm, workflow_template_id: Optional[str] = None
+) -> List[WorkflowTemplateStepOrm]:
+    """
+    Queries the database for all template steps from either a specific workflow template or the entire DB
+
+    :param model: Workflow template step model (here we assume the step is valid)
+
+    :param workflow_template_id: ID of workflow template; by default this filter is not applied (query all instance steps in the DB)
+
+    :return: A list of template steps
+    """
+    query = db_session.query(model)
+
+    if workflow_template_id:
+        query = query.filter(model.workflow_template_id == workflow_template_id)
+
+    return query.all()
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~ DB Calls ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
