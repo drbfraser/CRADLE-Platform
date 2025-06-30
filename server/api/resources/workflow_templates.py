@@ -4,22 +4,21 @@ from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
+from api.decorator import roles_required
 from common.api_utils import (
     WorkflowTemplateIdPath,
     get_user_id,
 )
 from common.commonUtil import get_current_time
+from common.workflow_utils import assign_workflow_template_or_instance_ids
 from data import crud, marshal
+from enums import RoleEnum
 from models import (
     WorkflowClassificationOrm,
     WorkflowTemplateOrm,
 )
 from validation import CradleBaseModel
 from validation.workflow_templates import WorkflowTemplateExample, WorkflowTemplateModel
-
-from api.decorator import roles_required
-
-from enums import RoleEnum
 
 
 # Create a response model for the list endpoints
@@ -37,6 +36,29 @@ api_workflow_templates = APIBlueprint(
 )
 
 
+def find_and_archive_previous_workflow_template(
+    workflow_classification_id: str, last_edited_by: str
+) -> None:
+    previous_template = crud.read(
+        WorkflowTemplateOrm,
+        classification_id=workflow_classification_id,
+        archived=False,
+    )
+    if previous_template:
+        # Update the existing template
+        changes = {
+            "archived": True,
+            "last_edited": get_current_time(),
+            "last_edited_by": last_edited_by,
+        }
+        crud.update(
+            m=WorkflowTemplateOrm,
+            changes=changes,
+            id=previous_template.id,
+            classification_id=workflow_classification_id,
+        )
+
+
 # /api/workflow/templates [POST]
 @api_workflow_templates.post("", responses={201: WorkflowTemplateModel})
 @roles_required([RoleEnum.ADMIN])
@@ -52,6 +74,10 @@ def create_workflow_template(body: WorkflowTemplateModel):
 
     except ValueError:
         return abort(code=404, description="User not found")
+
+    assign_workflow_template_or_instance_ids(
+        m=WorkflowTemplateOrm, workflow=workflow_template_dict
+    )
 
     workflow_classification_dict = workflow_template_dict["classification"]
     del workflow_template_dict["classification"]
@@ -93,25 +119,9 @@ def create_workflow_template(body: WorkflowTemplateModel):
             )
 
         # Check if a previously existing version of this template exists, if it does, archive it
-        previous_template = crud.read(
-            WorkflowTemplateOrm,
-            classification_id=workflow_classification_orm.id,
-            archived=False,
+        find_and_archive_previous_workflow_template(
+            workflow_classification_orm.id, workflow_template_dict["last_edited_by"]
         )
-
-        if previous_template:
-            # Update the existing template
-            changes = {
-                "archived": True,
-                "last_edited": get_current_time(),
-                "last_edited_by": workflow_template_dict["last_edited_by"],
-            }
-            crud.update(
-                m=WorkflowTemplateOrm,
-                changes=changes,
-                id=previous_template.id,
-                classification_id=workflow_classification_orm.id,
-            )
 
         workflow_template_dict["classification_id"] = workflow_classification_orm.id
 

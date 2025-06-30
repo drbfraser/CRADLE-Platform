@@ -194,38 +194,34 @@ def delete_all(m: Type[M], **kwargs):
 
 
 def delete_workflow_step_branch(**kwargs):
-    '''
-     Deletes a branch from a workflow step including all associated rule groups
+    """
+    Deletes a branch from a workflow step including all associated rule groups
 
-     :param kwargs: Keyword arguments mapping column names to values to parameterize the
-                    query (e.g., ``id="abc"``)
-     '''
-
+    :param kwargs: Keyword arguments mapping column names to values to parameterize the
+                   query (e.g., ``id="abc"``)
+    """
     branch = read(WorkflowTemplateStepBranchOrm, **kwargs)
 
     if branch:
-
         delete_by(RuleGroupOrm, id=branch.condition_id)
 
         delete(branch)
 
 
 def delete_workflow_step(m: Type[M], **kwargs) -> None:
-    '''
+    """
     Deletes a step from a workflow template or instance including all associated branches, forms, and rule groups
 
     :param m: Type of the model to delete (WorkflowTemplateStepOrm or WorkflowInstanceStepOrm)
     :param kwargs: Keyword arguments mapping column names to values to parameterize the
                    query (e.g., ``id="abc"``)
-    '''
-
+    """
     step = read(m, **kwargs)
 
     if step is None:
         return
 
     if isinstance(step, WorkflowTemplateStepOrm):
-
         # Delete each branch in the step
         for branch in step.branches:
             delete_workflow_step_branch(id=branch.id)
@@ -242,22 +238,20 @@ def delete_workflow_step(m: Type[M], **kwargs) -> None:
 
 
 def delete_workflow(m: Type[M], delete_classification: bool = False, **kwargs) -> None:
-    '''
+    """
     Deletes a workflow instance or template including all associated steps and rule groups
 
     :param m: Type of the model to delete (WorkflowTemplateOrm or WorkflowInstanceOrm)
     :param delete_classification: If true, deletes the workflow classification associated (only for templates)
     :params kwargs: Keyword arguments mapping column names to values to parameterize the
                    query (e.g., ``id="abc"``)
-    '''
-
+    """
     workflow = read(m, **kwargs)
 
     if workflow is None:
         return
 
     if isinstance(workflow, WorkflowTemplateOrm):
-
         delete_by(RuleGroupOrm, id=workflow.initial_condition_id)
 
         if delete_classification:
@@ -265,7 +259,6 @@ def delete_workflow(m: Type[M], delete_classification: bool = False, **kwargs) -
             db_session.commit()
 
     for step in workflow.steps:
-
         delete_workflow_step(m=type(step), id=step.id)
 
     delete(workflow)
