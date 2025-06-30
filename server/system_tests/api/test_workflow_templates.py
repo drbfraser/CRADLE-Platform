@@ -45,10 +45,12 @@ def test_workflow_templates_with_same_classification_upload(
             id=workflow_template3["steps"][0]["form"]["classification"]["id"],
         )
 
-        crud.delete_workflow_template(
+        crud.delete_workflow(
+            m=WorkflowTemplateOrm,
             id=workflow_template1["id"], classification_id=classification_id
         )
-        crud.delete_workflow_template(
+        crud.delete_workflow(
+            m=WorkflowTemplateOrm,
             id=workflow_template3["id"], classification_id=classification_id
         )
 
@@ -108,10 +110,10 @@ def test_invalid_workflow_templates_uploaded(
         crud.delete_by(
             WorkflowClassificationOrm, id=workflow_template1["classification"]["id"]
         )
-        crud.delete_workflow_template(id=invalid_workflow_template1["id"])
-        crud.delete_workflow_template(id=invalid_workflow_template2["id"])
-        crud.delete_workflow_template(id=invalid_workflow_template3["id"])
-        crud.delete_workflow_template(id=workflow_template1["id"])
+        crud.delete_workflow(m=WorkflowTemplateOrm, id=invalid_workflow_template1["id"])
+        crud.delete_workflow(m=WorkflowTemplateOrm, id=invalid_workflow_template2["id"])
+        crud.delete_workflow(m=WorkflowTemplateOrm, id=invalid_workflow_template3["id"])
+        crud.delete_workflow(m=WorkflowTemplateOrm, id=workflow_template1["id"])
 
 
 @pytest.fixture
@@ -223,9 +225,9 @@ def workflow_template3(form_template, vht_user_id, workflow_template1):
         "initial_condition_id": init_condition_id,
         "initial_condition": {
             "id": init_condition_id,
-            "logic": '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
+            "logic": '{"logical_operator": "OR", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
             "rules": (
-                '{"rule1": {"field": "patient.age", "operator": "LESS_THAN", "value": 32},'
+                '{"rule1": {"field": "patient.height", "operator": "LESS_THAN", "value": 56},'
                 '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
             ),
         },
@@ -248,9 +250,9 @@ def workflow_template3(form_template, vht_user_id, workflow_template1):
                 "condition_id": condition_id,
                 "condition": {
                     "id": condition_id,
-                    "logic": '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
+                    "logic": '{"logical_operator": "OR", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
                     "rules": (
-                        '{"rule1": {"field": "patient.age", "operator": "LESS_THAN", "value": 32},'
+                        '{"rule1": {"field": "patient.height", "operator": "LESS_THAN", "value": 56},'
                         '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
                     ),
                 },

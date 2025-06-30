@@ -194,46 +194,81 @@ def delete_all(m: Type[M], **kwargs):
 
 
 def delete_workflow_step_branch(**kwargs):
+    '''
+     Deletes a branch from a workflow step including all associated rule groups
+
+     :param kwargs: Keyword arguments mapping column names to values to parameterize the
+                    query (e.g., ``id="abc"``)
+     '''
+
     branch = read(WorkflowTemplateStepBranchOrm, **kwargs)
 
     if branch:
-        db_session.query(RuleGroupOrm).filter_by(id=branch.condition_id).delete()
+
+        delete_by(RuleGroupOrm, id=branch.condition_id)
 
         delete(branch)
 
 
-def delete_workflow_template_step(**kwargs):
-    step = read(WorkflowTemplateStepOrm, **kwargs)
+def delete_workflow_step(m: Type[M], **kwargs) -> None:
+    '''
+    Deletes a step from a workflow template or instance including all associated branches, forms, and rule groups
 
-    if step:
-        db_session.query(RuleGroupOrm).filter_by(id=step.condition_id).delete()
+    :param m: Type of the model to delete (WorkflowTemplateStepOrm or WorkflowInstanceStepOrm)
+    :param kwargs: Keyword arguments mapping column names to values to parameterize the
+                   query (e.g., ``id="abc"``)
+    '''
+
+    step = read(m, **kwargs)
+
+    if step is None:
+        return
+
+    if isinstance(step, WorkflowTemplateStepOrm):
 
         # Delete each branch in the step
         for branch in step.branches:
             delete_workflow_step_branch(id=branch.id)
 
         # TODO: Should the form template associated also be deleted when the template step is deleted?
-        db_session.query(FormTemplateOrm).filter_by(id=step.form_id).delete()
+        delete_by(FormTemplateOrm, id=step.form_id)
 
-        delete(step)
+    elif isinstance(step, WorkflowInstanceStepOrm):
+        delete_by(FormOrm, id=step.form_id)
+
+    delete_by(RuleGroupOrm, id=step.condition_id)
+
+    delete(step)
 
 
-def delete_workflow_template(delete_classification: bool = False, **kwargs):
-    workflow_template = read(WorkflowTemplateOrm, **kwargs)
+def delete_workflow(m: Type[M], delete_classification: bool = False, **kwargs) -> None:
+    '''
+    Deletes a workflow instance or template including all associated steps and rule groups
 
-    if workflow_template:
-        db_session.query(RuleGroupOrm).filter_by(
-            id=workflow_template.initial_condition_id
-        ).delete()
+    :param m: Type of the model to delete (WorkflowTemplateOrm or WorkflowInstanceOrm)
+    :param delete_classification: If true, deletes the workflow classification associated (only for templates)
+    :params kwargs: Keyword arguments mapping column names to values to parameterize the
+                   query (e.g., ``id="abc"``)
+    '''
+
+    workflow = read(m, **kwargs)
+
+    if workflow is None:
+        return
+
+    if isinstance(workflow, WorkflowTemplateOrm):
+
+        delete_by(RuleGroupOrm, id=workflow.initial_condition_id)
 
         if delete_classification:
-            delete_by(WorkflowClassificationOrm, id=workflow_template.classification_id)
+            delete_by(m=WorkflowClassificationOrm, id=workflow.classification_id)
+            db_session.commit()
 
-        # Delete each step in the template
-        for step in workflow_template.steps:
-            delete_workflow_template_step(id=step.id)
+    for step in workflow.steps:
 
-        delete(workflow_template)
+        delete_workflow_step(m=type(step), id=step.id)
+
+    delete(workflow)
 
 
 def find(m: Type[M], *args) -> List[M]:

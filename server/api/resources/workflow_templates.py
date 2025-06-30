@@ -17,6 +17,10 @@ from models import (
 from validation import CradleBaseModel
 from validation.workflow_templates import WorkflowTemplateExample, WorkflowTemplateModel
 
+from api.decorator import roles_required
+
+from enums import RoleEnum
+
 
 # Create a response model for the list endpoints
 class WorkflowTemplateListResponse(CradleBaseModel):
@@ -35,7 +39,7 @@ api_workflow_templates = APIBlueprint(
 
 # /api/workflow/templates [POST]
 @api_workflow_templates.post("", responses={201: WorkflowTemplateModel})
-# TODO: @roles_required([RoleEnum.ADMIN]) For testing purposes, this is commented out
+@roles_required([RoleEnum.ADMIN])
 def create_workflow_template(body: WorkflowTemplateModel):
     """
     Upload a Workflow Template
