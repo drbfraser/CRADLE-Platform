@@ -6,7 +6,6 @@ import {
   TemplateInput,
   TemplateStep,
   TemplateGroupArray,
-  WorkflowClassification,
 } from '../../types/workflow/workflowTypes';
 
 // full base path
@@ -21,19 +20,6 @@ const templateStepsPath = (id: ID) => `${templatePath(id)}/steps`;
 // a specific step within a template
 const templateStepByIdPath = (templateId: ID, stepId: ID) =>
   `${templateStepsPath(templateId)}/${stepId}`;
-
-// classification base path
-const CLASSIFICATIONS = EndpointEnum.WORKFLOW_CLASSIFICATIONS;
-
-// GET /workflow/classifications ???
-export const listWorkflowClassifications = async (): Promise<
-  WorkflowClassification[]
-> => {
-  const response = await axiosFetch.get<WorkflowClassification[]>(
-    CLASSIFICATIONS
-  );
-  return response.data;
-};
 
 // Workflow Template API Methods
 
