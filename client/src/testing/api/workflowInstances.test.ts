@@ -8,6 +8,8 @@ import {
   unArchiveInstance,
   listInstanceSteps,
 } from '../../shared/api/modules/workflowInstance';
+import { InstanceStep } from 'src/shared/types/workflow/workflowTypes';
+import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
 
 vi.mock('src/shared/api/core/http');
 
@@ -105,12 +107,26 @@ describe('workflowInstances API', () => {
   });
 
   it('should create a workflow instance with steps', async () => {
+    const stepOne: InstanceStep = {
+      id: '1',
+      name: 'name',
+      formId: 'form-id',
+      status: StepStatus.COMPLETED,
+      lastUpdated: 'date',
+    };
+    const stepTwo: InstanceStep = {
+      id: '2',
+      name: 'name',
+      formId: 'form-id',
+      status: StepStatus.ACTIVE,
+      lastUpdated: 'date',
+    };
     const payload = {
       id: 'instance-2',
       name: 'Instance Test 2',
       workflow_template_id: 'template-2',
       patient_id: 'p2',
-      steps: ['one', 'two', 'three'],
+      steps: [stepOne, stepTwo],
     };
     const mockResponse = { ...payload, status: 'Active' };
 
@@ -129,7 +145,21 @@ describe('workflowInstances API', () => {
   });
 
   it('should list instance steps by ID', async () => {
-    const mockSteps = ['one', 'two', 'three'];
+    const stepOne: InstanceStep = {
+      id: '1',
+      name: 'name',
+      formId: 'form-id',
+      status: StepStatus.COMPLETED,
+      lastUpdated: 'date',
+    };
+    const stepTwo: InstanceStep = {
+      id: '2',
+      name: 'name',
+      formId: 'form-id',
+      status: StepStatus.ACTIVE,
+      lastUpdated: 'date',
+    };
+    const mockSteps = [stepOne, stepTwo];
     (axiosFetch.get as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       data: mockSteps,
     });
