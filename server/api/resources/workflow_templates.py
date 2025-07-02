@@ -36,7 +36,7 @@ api_workflow_templates = APIBlueprint(
 )
 
 
-workflow_template_not_found_message = "Patient with ID: ({}) not found."
+workflow_template_not_found_message = "Workflow template with ID: ({}) not found."
 
 
 def find_and_archive_previous_workflow_template(
@@ -139,7 +139,7 @@ def create_workflow_template(body: WorkflowTemplateModel):
     return marshal.marshal(obj=workflow_template_orm, shallow=True), 201
 
 
-# /api/workflow/templates [GET]
+# /api/workflow/templates?classification_id=<str>&archived=<bool> [GET]
 @api_workflow_templates.get("", responses={200: WorkflowTemplateListResponse})
 def get_workflow_templates():
     """Get All Workflow Templates"""
@@ -147,12 +147,10 @@ def get_workflow_templates():
     workflow_classification_id = request.args.get(
         "classification_id", default=None, type=Optional[str]
     )
-    with_steps = request.args.get("with_steps", default=False, type=bool)
-    is_archived = request.args.get("is_archived", default=False, type=bool)
+    is_archived = request.args.get("archived", default=False, type=bool)
 
     workflow_templates = crud.read_workflow_templates(
         workflow_classification_id=workflow_classification_id,
-        with_steps=with_steps,
         is_archived=is_archived,
     )
 
@@ -161,7 +159,7 @@ def get_workflow_templates():
     return {"items": response_data}, 200
 
 
-# /api/workflow/templates/<string:template_id> [GET]
+# /api/workflow/templates/<string:template_id>?with_steps=<bool>&with_classification=<bool> [GET]
 @api_workflow_templates.get(
     "/<string:template_id>", responses={200: WorkflowTemplateModel}
 )
@@ -169,10 +167,11 @@ def get_workflow_template(path: WorkflowTemplateIdPath):
     """Get Workflow Template"""
     # Get query parameters
     with_steps = request.args.get("with_steps", default=False, type=bool)
+    with_classification = request.args.get(
+        "with_classification", default=False, type=bool
+    )
 
-    workflow_template = crud.read_workflow_templates(
-        workflow_template_id=path.template_id, with_steps=with_steps
-    )[0]
+    workflow_template = crud.read(WorkflowTemplateOrm, id=path.template_id)
 
     if workflow_template is None:
         return abort(
@@ -180,48 +179,12 @@ def get_workflow_template(path: WorkflowTemplateIdPath):
             description=workflow_template_not_found_message.format(path.template_id),
         )
 
-    response_data = marshal.marshal(workflow_template)
+    response_data = marshal.marshal(workflow_template, shallow=with_steps)
+
+    if not with_classification:
+        del response_data["classification"]
 
     return {"items": response_data}, 200
-
-
-# # /api/workflow/templates/<string:template_id>/with-classification [GET]
-# @api_workflow_templates.get(
-#     "/<string:template_id>/with-classification",
-#     responses={200: WorkflowTemplateModel},
-# )
-# def get_workflow_template_with_classification(path: WorkflowTemplateIdPath):
-#     """Get Workflow Template with Classification"""
-#     # For now, return the example data if ID matches
-#     if path.template_id == WorkflowTemplateExample.id:
-#         return WorkflowTemplateExample.with_classification, 200
-#     return abort(404, description=f"No workflow template with ID: {path.template_id}.")
-#
-#
-# # /api/workflow/templates/<string:template_id>/with-steps [GET]
-# @api_workflow_templates.get(
-#     "/<string:template_id>/with-steps", responses={200: WorkflowTemplateModel}
-# )
-# def get_workflow_template_with_steps(path: WorkflowTemplateIdPath):
-#     """Get Workflow Template with Steps"""
-#     # For now, return the example data if ID matches
-#     if path.template_id == WorkflowTemplateExample.id:
-#         return WorkflowTemplateExample.with_step, 200
-#     return abort(404, description=f"No workflow template with ID: {path.template_id}.")
-#
-#
-# # /api/workflow/templates/<string:template_id>/with-steps-and-classification [GET]
-# @api_workflow_templates.get(
-#     "/<string:template_id>/with-steps-and-classification",
-#     responses={200: WorkflowTemplateModel},
-# )
-# def get_workflow_template_with_steps_and_classification(path: WorkflowTemplateIdPath):
-#     """Get Workflow Template with Steps and Classification"""
-#     # For now, return the example data if ID matches
-#     if path.template_id == WorkflowTemplateExample.id:
-#         return WorkflowTemplateExample.with_step, 200
-#     return abort(404, description=f"No workflow template with ID: {path.template_id}.")
-#
 
 
 # /api/workflow/templates/<string:template_id> [PUT]
@@ -230,12 +193,35 @@ def get_workflow_template(path: WorkflowTemplateIdPath):
 )
 def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplateModel):
     """Update Workflow Template"""
-    # For now, return the updated body data if ID matches
-    if path.template_id == WorkflowTemplateExample.id:
-        updated_data = body.model_dump()
-        updated_data["id"] = path.template_id
-        return updated_data, 200
-    return abort(404, description=f"No workflow template with ID: {path.template_id}.")
+    workflow_template = crud.read(WorkflowTemplateOrm, id=path.template_id)
+
+    if workflow_template is None:
+        return abort(
+            code=404,
+            description=workflow_template_not_found_message.format(path.template_id),
+        )
+
+    # Get ID of the user who's updating this template
+
+    workflow_template_changes = body.model_dump()
+
+    try:
+        user_id = get_user_id(workflow_template_changes, "last_edited_by")
+        workflow_template_changes["last_edited_by"] = user_id
+        workflow_template_changes["last_edited"] = get_current_time()
+
+    except ValueError:
+        return abort(code=404, description="User not found")
+
+    crud.update(
+        WorkflowTemplateOrm, changes=workflow_template_changes, id=path.template_id
+    )
+
+    response_data = crud.read(WorkflowTemplateOrm, id=path.template_id)
+
+    response_data = marshal.marshal(response_data, shallow=True)
+
+    return {"items": response_data}, 200
 
 
 # /api/workflow/templates/<string:template_id> [DELETE]

@@ -4,7 +4,7 @@ import re
 from typing import Any, List, NamedTuple, Optional, Tuple, Type, TypeVar, Union
 
 from sqlalchemy import or_
-from sqlalchemy.orm import Query, aliased, selectinload
+from sqlalchemy.orm import Query, aliased
 from sqlalchemy.sql.expression import and_, asc, desc, literal, null, text
 from sqlalchemy.sql.functions import coalesce
 
@@ -1021,42 +1021,27 @@ def read_workflow_instances(
 
 def read_workflow_templates(
     model: WorkflowTemplateOrm,
-    workflow_template_id: Optional[str] = None,
     workflow_classification_id: Optional[str] = None,
-    with_steps: bool = False,
     is_archived: bool = False,
 ) -> List[WorkflowTemplateOrm]:
     """
-    Queries the database for all workflow templates that either belong to a classification, in total, or a specific
-    template
-
-    :param workflow_template_id: ID of a workflow template
+    Queries the database for all workflow templates that either belong to a classification or in total
 
     :param model: Workflow template model (here we assume the template is valid)
 
     :param workflow_classification_id: The ID of a workflow classification
 
-    :param with_steps: Query steps for the workflow template
-
-    :param: is_archived: Query for archived workflows
+    :param is_archived: Query for archived workflows
 
     :return: A list of workflow templates
     """
     query = db_session.query(model)
-
-    if workflow_template_id:
-        query = query.filter(model.id == workflow_template_id)
 
     if workflow_classification_id:
         query = query.filter(model.classification_id == workflow_classification_id)
 
     if is_archived:
         query = query.filter(model.archived == is_archived)
-
-    if with_steps:
-        query = query.options(selectinload(WorkflowTemplateOrm.steps))
-
-    query = query.options(selectinload(WorkflowTemplateOrm.initial_condition))
 
     return query.all()
 
@@ -1077,11 +1062,6 @@ def read_template_steps(
 
     if workflow_template_id:
         query = query.filter(model.workflow_template_id == workflow_template_id)
-
-    query = query.options(
-        selectinload(WorkflowTemplateStepOrm.branches),
-        selectinload(WorkflowTemplateOrm.condition),
-    )
 
     return query.all()
 
