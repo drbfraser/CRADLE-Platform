@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import Grid from '@mui/material/Grid2';
 import { Add } from '@mui/icons-material';
 
-import { Patient } from 'src/shared/types/types';
+import { Patient } from 'src/shared/types/patientTypes';
 import { PrimaryButton } from 'src/shared/components/Button';
 import PatientHeader from 'src/shared/components/patientHeader/PatientHeader';
 

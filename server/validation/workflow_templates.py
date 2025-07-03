@@ -1,6 +1,7 @@
 from typing import Optional
 
-from pydantic import Field
+from pydantic import Field, model_validator
+from typing_extensions import Self
 
 from common.commonUtil import get_current_time
 from validation import CradleBaseModel
@@ -37,6 +38,7 @@ class WorkflowTemplateExample:
         "last_edited_by": last_edited_by,
         "version": version,
         "classification_id": WorkflowClassificationExamples.id,
+        "classification": WorkflowClassificationExamples.example_01,
         "steps": [],
     }
 
@@ -46,7 +48,8 @@ class WorkflowTemplateExample:
         "description": description,
         "archived": archived,
         "initial_condition_id": RuleGroupExample.id,
-        "condition": RuleGroupExample.example_01,
+        "initial_condition": RuleGroupExample.example_01,
+        "date_created": date_created,
         "last_edited": last_edited,
         "last_edited_by": last_edited_by,
         "version": version,
@@ -61,7 +64,8 @@ class WorkflowTemplateExample:
         "description": description,
         "archived": archived,
         "initial_condition_id": RuleGroupExample.id,
-        "condition": RuleGroupExample.example_01,
+        "initial_condition": RuleGroupExample.example_01,
+        "date_created": date_created,
         "last_edited": last_edited,
         "last_edited_by": last_edited_by,
         "version": version,
@@ -81,23 +85,14 @@ class WorkflowTemplateModel(CradleBaseModel):
     last_edited_by: Optional[int] = None
     version: str
     initial_condition_id: Optional[str] = None
-    condition: Optional[RuleGroupModel] = None
+    initial_condition: Optional[RuleGroupModel] = None
     version: str
-
-
-class WorkflowTemplateWithClassification(WorkflowTemplateModel):
-    """A workflow template with a workflow classification object"""
-
+    classification_id: Optional[str] = None
     classification: Optional[WorkflowClassificationModel] = None
-
-
-class WorkflowTemplateWithSteps(WorkflowTemplateModel):
-    """A workflow template with a workflow template steps"""
-
     steps: list[WorkflowTemplateStepModel]
 
-
-class WorkflowTemplateWithStepsAndClassification(WorkflowTemplateWithClassification):
-    """A workflow template with a workflow template steps and workflow classification object"""
-
-    steps: list[WorkflowTemplateStepModel]
+    @model_validator(mode="after")
+    def validate_dates(self) -> Self:
+        if self.last_edited is not None and self.last_edited < self.date_created:
+            raise ValueError("last_edited cannot be before date_created")
+        return self

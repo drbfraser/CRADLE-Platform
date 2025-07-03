@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@mui/material';
 
-import { CForm } from 'src/shared/types/types';
+import { CForm } from 'src/shared/types/form/formTypes';
 import { getFormTemplateLangAsync } from 'src/shared/api';
 import { useFormTemplatesQuery } from 'src/shared/queries';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';

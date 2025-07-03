@@ -82,3 +82,9 @@ class HTTPMethodEnum(StrEnum):
     POST = "POST"
     PUT = "PUT"
     DELETE = "DELETE"
+
+
+class WorkflowStatusEnum(StrEnum):
+    ACTIVE = "Active"
+    COMPLETED = "Completed"
+    CANCELLED = "Cancelled"

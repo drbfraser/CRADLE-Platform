@@ -1,6 +1,9 @@
 //move all formTemplates apis to here
 import { axiosFetch } from '../core/http';
-import { FormTemplate, FormTemplateWithQuestions } from '../../types/types';
+import {
+  FormTemplate,
+  FormTemplateWithQuestions,
+} from '../../types/form/formTemplateTypes';
 import { EndpointEnum } from 'src/shared/enums';
 
 export const editFormTemplateAsync = async (template: FormTemplate) =>

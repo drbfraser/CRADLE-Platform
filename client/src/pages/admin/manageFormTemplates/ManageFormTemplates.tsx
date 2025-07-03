@@ -8,7 +8,7 @@ import { Unarchive } from '@mui/icons-material';
 import UploadIcon from '@mui/icons-material/Upload';
 import AddIcon from '@mui/icons-material/Add';
 
-import { FormTemplate } from 'src/shared/types/types';
+import { FormTemplate } from 'src/shared/types/form/formTemplateTypes';
 import { getPrettyDate } from 'src/shared/utils';
 import { useFormTemplatesQuery } from 'src/shared/queries';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';

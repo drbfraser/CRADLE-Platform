@@ -15,7 +15,8 @@ import {
   QRelationEnum,
   QuestionTypeEnum,
 } from 'src/shared/enums';
-import { QCondition, Question, TQuestion } from 'src/shared/types/types';
+import { QCondition, Question } from 'src/shared/types/form/formTypes';
+import { TQuestion } from 'src/shared/types/form/formTemplateTypes';
 import { initialState, validationSchema } from '../../../customizedForm/state';
 
 interface IProps {

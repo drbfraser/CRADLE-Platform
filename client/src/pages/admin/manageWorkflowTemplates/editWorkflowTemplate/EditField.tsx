@@ -22,12 +22,14 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
-  FormTemplateWithQuestions,
   McOption,
   QCondition,
   QuestionLangVersion,
+} from 'src/shared/types/form/formTypes';
+import {
+  FormTemplateWithQuestions,
   TQuestion,
-} from 'src/shared/types/types';
+} from 'src/shared/types/form/formTemplateTypes';
 import { QuestionTypeEnum } from 'src/shared/enums';
 import EditVisibleCondition from './EditVisibleCondition';
 import MultiChoice from './multiFieldComponents/MultiChoiceField';

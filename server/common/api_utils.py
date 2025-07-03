@@ -8,6 +8,8 @@ from pydantic.alias_generators import to_snake
 
 from common import user_utils
 from config import app
+from data import crud
+from models import UserOrm
 from validation import CradleBaseModel
 
 
@@ -93,6 +95,26 @@ class FormTemplateIdPath(CradleBaseModel):
 
 class FormIdPath(CradleBaseModel):
     form_id: str
+
+
+class WorkflowClassificationIdPath(CradleBaseModel):
+    workflow_classification_id: str
+
+
+class WorkflowTemplateIdPath(CradleBaseModel):
+    workflow_template_id: str
+
+
+class WorkflowTemplateStepIdPath(CradleBaseModel):
+    workflow_template_step_id: str
+
+
+class WorkflowInstanceIdPath(CradleBaseModel):
+    workflow_instance_id: str
+
+
+class WorkflowInstanceStepIdPath(CradleBaseModel):
+    workflow_instance_step_id: str
 
 
 class FacilityNamePath(CradleBaseModel):
@@ -194,3 +216,29 @@ def query_param_search(request: Request, name: str) -> str:
 
     """
     return request.args.get(name, "", type=str)
+
+
+def get_user_id(d: dict, user_attribute: str) -> Optional[int]:
+    """
+    Returns the ID of the user associated with the given dictionary. Raises an error if the user does not exist.
+
+    :param d: The dictionary to get the user associated with
+    :param user_attribute: The attribute that holds the user ID
+
+    :return: The ID of the user associated with the given attribute
+    """
+    if d[user_attribute]:
+        current_user = crud.read(m=UserOrm, id=d[user_attribute])
+
+    # If the attribute does not have a user ID, get the user from the JWT
+    else:
+        current_user = user_utils.get_current_user_from_jwt()
+
+    # Check if the user actually exists
+    if current_user is None:
+        raise ValueError("User does not exist")
+
+    if isinstance(current_user, dict):
+        return int(current_user["id"])
+
+    return int(current_user.id)

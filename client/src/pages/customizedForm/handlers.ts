@@ -1,4 +1,9 @@
-import { Answer, CForm, QAnswer, Question } from 'src/shared/types/types';
+import {
+  Answer,
+  CForm,
+  QAnswer,
+  Question,
+} from 'src/shared/types/form/formTypes';
 import { QuestionTypeEnum } from 'src/shared/enums';
 
 export type ApiAnswer = {

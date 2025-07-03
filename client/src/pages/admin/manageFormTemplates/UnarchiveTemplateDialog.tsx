@@ -5,7 +5,7 @@ import {
   DialogTitle,
 } from '@mui/material';
 
-import { FormTemplate } from 'src/shared/types/types';
+import { FormTemplate } from 'src/shared/types/form/formTemplateTypes';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Toast } from 'src/shared/components/toast';
