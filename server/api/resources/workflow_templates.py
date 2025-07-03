@@ -18,7 +18,7 @@ from models import (
     WorkflowTemplateOrm,
 )
 from validation import CradleBaseModel
-from validation.workflow_templates import WorkflowTemplateExample, WorkflowTemplateModel
+from validation.workflow_templates import WorkflowTemplateModel
 
 
 # Create a response model for the list endpoints
@@ -201,10 +201,9 @@ def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplat
             description=workflow_template_not_found_message.format(path.template_id),
         )
 
-    # Get ID of the user who's updating this template
-
     workflow_template_changes = body.model_dump()
 
+    # Get ID of the user who's updating this template
     try:
         user_id = get_user_id(workflow_template_changes, "last_edited_by")
         workflow_template_changes["last_edited_by"] = user_id
@@ -228,7 +227,14 @@ def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplat
 @api_workflow_templates.delete("/<string:template_id>", responses={204: None})
 def delete_workflow_template(path: WorkflowTemplateIdPath):
     """Delete Workflow Template"""
-    # For now, return success if ID matches
-    if path.template_id == WorkflowTemplateExample.id:
-        return "", 204
-    return abort(404, description=f"No workflow template with ID: {path.template_id}.")
+    workflow_template = crud.read(WorkflowTemplateOrm, id=path.template_id)
+
+    if workflow_template is None:
+        return abort(
+            code=404,
+            description=workflow_template_not_found_message.format(path.template_id),
+        )
+
+    crud.delete_workflow(WorkflowTemplateOrm, id=path.template_id)
+
+    return {"items": None}, 204

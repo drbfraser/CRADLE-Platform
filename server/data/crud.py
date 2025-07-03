@@ -232,7 +232,7 @@ def delete_workflow_step(m: Type[M], **kwargs) -> None:
     elif isinstance(step, WorkflowInstanceStepOrm):
         delete_by(FormOrm, id=step.form_id)
 
-    delete_by(RuleGroupOrm, id=step.condition_id)
+    delete_all(RuleGroupOrm, id=step.condition_id)
 
     delete(step)
 
