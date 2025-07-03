@@ -1,7 +1,10 @@
 import { axiosFetch } from '../core/http';
 import { EndpointEnum } from '../../enums';
 import { ID } from '../../constants';
-import { WorkflowClassification } from '../../types/workflow/workflowTypes';
+import {
+  ClassificationInput,
+  WorkflowClassification,
+} from '../../types/workflow/workflowTypes';
 
 // full path
 const CLASSIFICATIONS = EndpointEnum.WORKFLOW_CLASSIFICATIONS;
@@ -30,7 +33,7 @@ export const getWorkflowClassification = async (
 };
 
 // POST /workflow/classifications
-export const createClassification = (payload: WorkflowClassification) =>
+export const createClassification = (payload: ClassificationInput) =>
   axiosFetch
     .post<WorkflowClassification>(CLASSIFICATIONS, payload)
     .then((r) => r.data);
@@ -38,7 +41,7 @@ export const createClassification = (payload: WorkflowClassification) =>
 // PUT /workflow/classifications
 export const updateClassification = (
   classificationId: ID,
-  payload: Partial<WorkflowClassification>
+  payload: ClassificationInput
 ) =>
   axiosFetch
     .put<WorkflowClassification>(classificationPath(classificationId), payload)

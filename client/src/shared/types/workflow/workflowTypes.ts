@@ -53,6 +53,11 @@ export interface WorkflowClassification {
   name: string;
 }
 
+// Payload for POST /workflow/classifications
+export interface ClassificationInput {
+  name: string;
+}
+
 // Payload for POST /workflow/templates
 export type TemplateInput = Omit<
   WorkflowTemplate,
