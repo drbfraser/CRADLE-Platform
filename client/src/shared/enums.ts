@@ -89,6 +89,8 @@ export enum EndpointEnum {
   //workflow templates
   WORKFLOW_TEMPLATES = '/workflow/templates',
   WORKFLOW_CLASSIFICATIONS = '/workflow/classifications',
+  RULE_GROUPS = '/rules/groups',
+  WORKFLOW_EXECUTION = '/workflow/execution',
 }
 
 export enum QRelationEnum {
