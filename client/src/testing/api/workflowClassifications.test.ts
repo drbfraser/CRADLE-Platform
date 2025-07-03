@@ -1,10 +1,11 @@
 import { vi, describe, it, expect, afterEach } from 'vitest';
 import { axiosFetch } from 'src/shared/api/core/http';
 import {
-  createClassification,
+  createWorkflowClassification,
   getWorkflowClassification,
   listWorkflowClassifications,
   updateClassification,
+  deleteWorkflowClassificationById,
 } from 'src/shared/api/modules/workflowClassification';
 
 vi.mock('src/shared/api/core/http');
@@ -45,7 +46,7 @@ describe('workflowTemplates API', () => {
       data: mockCreated,
     });
 
-    const result = await createClassification(payload as any);
+    const result = await createWorkflowClassification(payload as any);
     console.log('Created classification:', result);
     expect(axiosFetch.post).toHaveBeenCalledWith(
       '/workflow/classifications',
@@ -68,5 +69,15 @@ describe('workflowTemplates API', () => {
       updateData
     );
     expect(result).toEqual(updatedClassification);
+  });
+
+  it('should delete a workflow classification by ID', async () => {
+    (
+      axiosFetch.delete as unknown as ReturnType<typeof vi.fn>
+    ).mockResolvedValue({});
+    await deleteWorkflowClassificationById('1');
+    expect(axiosFetch.delete).toHaveBeenCalledWith(
+      '/workflow/classifications/1'
+    );
   });
 });

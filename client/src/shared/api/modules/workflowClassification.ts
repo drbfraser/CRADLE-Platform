@@ -33,7 +33,7 @@ export const getWorkflowClassification = async (
 };
 
 // POST /workflow/classifications
-export const createClassification = (payload: ClassificationInput) =>
+export const createWorkflowClassification = (payload: ClassificationInput) =>
   axiosFetch
     .post<WorkflowClassification>(CLASSIFICATIONS, payload)
     .then((r) => r.data);
@@ -46,3 +46,12 @@ export const updateClassification = (
   axiosFetch
     .put<WorkflowClassification>(classificationPath(classificationId), payload)
     .then((r) => r.data);
+
+// DELETE /workflow/classifications/{classificationId}
+export const deleteWorkflowClassificationById = async (
+  classificationId: ID
+): Promise<void> => {
+  await axiosFetch.delete<WorkflowClassification>(
+    classificationPath(classificationId)
+  );
+};
