@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Type
 
 from common import commonUtil
 from common.form_utils import filter_template_questions_orm
+from data import db_session
 from data.crud import M
 from models import (
     AssessmentOrm,
@@ -19,7 +20,14 @@ from models import (
     ReadingOrm,
     ReferralOrm,
     RelayServerPhoneNumberOrm,
+    RuleGroupOrm,
     SmsSecretKeyOrm,
+    WorkflowClassificationOrm,
+    WorkflowInstanceOrm,
+    WorkflowInstanceStepOrm,
+    WorkflowTemplateOrm,
+    WorkflowTemplateStepBranchOrm,
+    WorkflowTemplateStepOrm,
 )
 from service import invariant
 
@@ -55,6 +63,20 @@ def marshal(obj: Any, shallow=False, if_include_versions=False) -> dict:
         return __marshal_lang_version(obj)
     if isinstance(obj, SmsSecretKeyOrm):
         return __marshal_SmsSecretKey(obj)
+    if isinstance(obj, RuleGroupOrm):
+        return __marshal_rule_group(obj)
+    if isinstance(obj, WorkflowTemplateStepBranchOrm):
+        return __marshal_workflow_template_step_branch(obj)
+    if isinstance(obj, WorkflowTemplateStepOrm):
+        return __marshal_workflow_template_step(obj, shallow)
+    if isinstance(obj, WorkflowTemplateOrm):
+        return __marshal_workflow_template(obj, shallow)
+    if isinstance(obj, WorkflowClassificationOrm):
+        return __marshal_workflow_classification(obj, if_include_versions, shallow)
+    if isinstance(obj, WorkflowInstanceStepOrm):
+        return __marshal_workflow_instance_step(obj)
+    if isinstance(obj, WorkflowInstanceOrm):
+        return __marshal_workflow_instance(obj, shallow)
     d = vars(obj).copy()
     __pre_process(d)
     return d
@@ -373,6 +395,103 @@ def __marshal_SmsSecretKey(s: SmsSecretKeyOrm):
     }
 
 
+def __marshal_rule_group(rg: RuleGroupOrm) -> dict:
+    d = vars(rg).copy()
+    __pre_process(d)
+
+    return d
+
+
+def __marshal_workflow_template_step_branch(
+    wtsb: WorkflowTemplateStepBranchOrm,
+) -> dict:
+    d = vars(wtsb).copy()
+    __pre_process(d)
+
+    d["condition"] = __marshal_rule_group(wtsb.condition)
+
+    return d
+
+
+def __marshal_workflow_template_step(
+    wts: WorkflowTemplateStepOrm, shallow: bool = False
+) -> dict:
+    d = vars(wts).copy()
+    __pre_process(d)
+
+    d["form"] = __marshal_form(wts.form, shallow)
+
+    if wts.condition is not None:
+        d["condition"] = __marshal_rule_group(wts.condition)
+
+    if not shallow:
+        d["branches"] = [
+            __marshal_workflow_template_step_branch(wtsb)
+            for wtsb in wts.workflow_template_step_branches
+        ]
+
+    return d
+
+
+def __marshal_workflow_template(wt: WorkflowTemplateOrm, shallow: bool = False) -> dict:
+    d = vars(wt).copy()
+    __pre_process(d)
+
+    if wt.classification:
+        d["classification"] = __marshal_workflow_classification(
+            wc=wt.classification, if_include_templates=False
+        )
+
+    if wt.initial_condition:
+        d["initial_condition"] = __marshal_rule_group(wt.initial_condition)
+
+    if not shallow:
+        d["steps"] = [
+            __marshal_workflow_template_step(wts=wts) for wts in wt.workflow_templates
+        ]
+
+    return d
+
+
+def __marshal_workflow_classification(
+    wc: WorkflowClassificationOrm, if_include_templates: bool, shallow: bool = False
+) -> dict:
+    d = vars(wc).copy()
+    __pre_process(d)
+
+    if d.get("workflow_templates") is not None:
+        del d["workflow_templates"]
+
+    if if_include_templates:
+        d["workflow_templates"] = [
+            __marshal_workflow_template(wt=wt, shallow=shallow) for wt in wc.templates
+        ]
+
+    return d
+
+
+def __marshal_workflow_instance_step(wis: WorkflowInstanceStepOrm) -> dict:
+    d = vars(wis).copy()
+    __pre_process(d)
+
+    if wis.condition is not None:
+        d["condition"] = __marshal_rule_group(wis.condition)
+
+    d["form"] = __marshal_form(wis.form, shallow=True)
+
+    return d
+
+
+def __marshal_workflow_instance(wi: WorkflowInstanceOrm, shallow: bool = False) -> dict:
+    d = vars(wi).copy()
+    __pre_process(d)
+
+    if not shallow:
+        d["steps"] = [__marshal_workflow_instance_step(wis) for wis in wi.steps]
+
+    return d
+
+
 def __pre_process(d: Dict[str, Any]):
     __strip_protected_attributes(d)
     __strip_none_values(d)
@@ -430,6 +549,17 @@ def unmarshal(m: Type[M], d: dict) -> M:
         return __unmarshal_SmsSecretKey(d)
     if m is RelayServerPhoneNumberOrm:
         return __unmarshal_RelayServerPhoneNumber(d)
+    if m is WorkflowTemplateStepBranchOrm:
+        return __unmarshal_workflow_template_step_branch(d)
+    if m is WorkflowTemplateStepOrm:
+        return __unmarshal_workflow_template_step(d)
+    if m is WorkflowTemplateOrm:
+        return __unmarshal_workflow_template(d)
+    if m is WorkflowInstanceStepOrm:
+        return __unmarshal_workflow_instance_step(d)
+    if m is WorkflowInstanceOrm:
+        return __unmarshal_workflow_instance(d)
+
     return __load(m, d)
 
 
@@ -565,18 +695,19 @@ def __unmarshal_form(d: dict) -> FormOrm:
 
 
 def __unmarshal_form_template(d: dict) -> FormTemplateOrm:
-    questions = []
-    if d.get("questions") is not None:
-        questions = unmarshal_question_list(d["questions"])
-        del d["questions"]
+    with db_session.no_autoflush:
+        questions = []
+        if d.get("questions") is not None:
+            questions = unmarshal_question_list(d["questions"])
+            del d["questions"]
 
-    form_template_orm = FormTemplateOrm(**d)
+        # form_template_orm = FormTemplateOrm(**d)
 
-    # form_template = __load(FormTemplateOrm, d)
+        form_template_orm = __load(FormTemplateOrm, d)
 
-    form_template_orm.questions = questions
+        form_template_orm.questions = questions
 
-    return form_template_orm
+        return form_template_orm
 
 
 def __unmarshal_reading(d: dict) -> ReadingOrm:
@@ -655,6 +786,99 @@ def __unmarshal_SmsSecretKey(d: dict) -> SmsSecretKeyOrm:
 def unmarshal_question_list(d: list) -> List[QuestionOrm]:
     # Unmarshal any questions found within the list, return a list of questions
     return [__unmarshal_question(q) for q in d]
+
+
+def __unmarshal_workflow_template_step_branch(d: dict) -> WorkflowTemplateStepBranchOrm:
+    template_step_branch_orm = __load(WorkflowTemplateStepBranchOrm, d)
+
+    if d.get("condition") is not None:
+        template_step_branch_orm.condition = __load(RuleGroupOrm, d.get("condition"))
+
+    return template_step_branch_orm
+
+
+def __unmarshal_workflow_template_step(d: dict) -> WorkflowTemplateStepOrm:
+    branches = []
+    condition = None
+    form = None
+
+    if d.get("branches") is not None:
+        branches = [
+            __unmarshal_workflow_template_step_branch(b) for b in d.get("branches")
+        ]
+        del d["branches"]
+
+    if d.get("condition") is not None:
+        condition = __load(RuleGroupOrm, d.get("condition"))
+        del d["condition"]
+
+    if d.get("form") is not None:
+        form = __unmarshal_form_template(d.get("form"))
+        del d["form"]
+
+    workflow_template_step_orm = __load(WorkflowTemplateStepOrm, d)
+    workflow_template_step_orm.branches = branches
+    workflow_template_step_orm.condition = condition
+    workflow_template_step_orm.form = form
+
+    return workflow_template_step_orm
+
+
+def __unmarshal_workflow_template(d: dict) -> WorkflowTemplateOrm:
+    with db_session.no_autoflush:
+        steps = []
+        initial_condition = None
+        classification = None
+
+        if d.get("initial_condition") is not None:
+            initial_condition = __load(RuleGroupOrm, d.get("initial_condition"))
+            del d["initial_condition"]
+
+        if d.get("steps") is not None:
+            steps = [__unmarshal_workflow_template_step(s) for s in d.get("steps")]
+            del d["steps"]
+
+        if d.get("classification") is not None:
+            classification = __load(WorkflowClassificationOrm, d.get("classification"))
+            del d["classification"]
+
+        workflow_template_orm = __load(WorkflowTemplateOrm, d)
+        workflow_template_orm.steps = steps
+        workflow_template_orm.initial_condition = initial_condition
+        workflow_template_orm.classification = classification
+
+    return workflow_template_orm
+
+
+def __unmarshal_workflow_instance_step(d: dict) -> WorkflowInstanceStepOrm:
+    condition = None
+    form = None
+    if d.get("condition") is not None:
+        condition = __load(RuleGroupOrm, d.get("condition"))
+        del d["condition"]
+
+    if d.get("form") is not None:
+        form = __unmarshal_form(d.get("form"))
+        del d["form"]
+
+    workflow_instance_step_orm = __load(WorkflowInstanceStepOrm, d)
+    workflow_instance_step_orm.condition = condition
+    workflow_instance_step_orm.form = form
+
+    return workflow_instance_step_orm
+
+
+def __unmarshal_workflow_instance(d: dict) -> WorkflowInstanceOrm:
+    steps = []
+
+    if d.get("steps") is not None:
+        steps = [__unmarshal_workflow_instance_step(d) for d in d.get("steps")]
+        del d["steps"]
+
+    workflow_instance_orm = __load(WorkflowInstanceOrm, d)
+    workflow_instance_orm.steps = steps
+
+    return workflow_instance_orm
 
 
 ## Functions taken from the original Database.py ##

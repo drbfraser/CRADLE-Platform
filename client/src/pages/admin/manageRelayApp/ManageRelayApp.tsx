@@ -29,7 +29,7 @@ import AddIcon from '@mui/icons-material/Add';
 import DownloadIcon from '@mui/icons-material/Download';
 
 // import { formatBytes } from 'src/shared/utils';
-import { RelayNum } from 'src/shared/types';
+import { RelayNum } from 'src/shared/types/types';
 import {
   getAppFileAsync,
   // getAppFileHeadAsync,

@@ -1,5 +1,6 @@
 import ISO6391 from 'iso-639-1';
-import { OrNull, Reading } from 'src/shared/types';
+import { OrNull } from 'src/shared/types/types';
+import { Reading } from 'src/shared/types/readingTypes';
 
 import { TrafficLightEnum } from 'src/shared/enums';
 import moment from 'moment';

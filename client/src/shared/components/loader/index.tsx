@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import CircularProgress from '@mui/material/CircularProgress';
-import { OrUndefined } from 'src/shared/types';
+import { OrUndefined } from 'src/shared/types/types';
 import Typography from '@mui/material/Typography';
 import { Box } from '@mui/material';
 

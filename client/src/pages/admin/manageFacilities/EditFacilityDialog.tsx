@@ -10,7 +10,7 @@ import {
 import { Field, Form, Formik } from 'formik';
 import { TextField } from 'formik-mui';
 
-import { Facility } from 'src/shared/types';
+import { Facility } from 'src/shared/types/types';
 import { saveHealthFacilityAsync } from 'src/shared/api';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';

@@ -5,7 +5,9 @@ import { ManageUsers } from './manageUsers/ManageUsers';
 import { ManagePatients } from './managePatients/ManagePatients';
 import { Route, Routes } from 'react-router-dom';
 import { CustomFormTemplate } from './manageFormTemplates/editFormTemplate/CustomFormTemplate';
+import { CustomWorkflowTemplate } from './manageWorkflowTemplates/editWorkflowTemplate/CustomWorkflowTemplate';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
+import { ManageWorkflowTemplates } from './manageWorkflowTemplates/ManageWorkflowTemplates';
 import {
   RoutedTabPanelData,
   RoutedTabs,
@@ -37,12 +39,21 @@ const panels: RoutedTabPanelData[] = [
     Component: ManagePatients,
     routeSegment: 'patients',
   },
+  {
+    label: 'Workflow Templates',
+    Component: ManageWorkflowTemplates,
+    routeSegment: 'workflow-templates',
+  },
 ];
 
 export const AdminPage = () => {
   return (
     <Routes>
       <Route path={`form-templates/new`} element={<CustomFormTemplate />} />
+      <Route
+        path={`workflow-templates/new`}
+        element={<CustomWorkflowTemplate />}
+      />
       <Route path={':tab?'} element={<AdminDashboard />} />
     </Routes>
   );

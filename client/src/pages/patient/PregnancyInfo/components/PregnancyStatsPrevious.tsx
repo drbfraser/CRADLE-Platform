@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 
 import { GestationalAgeUnitEnum } from 'src/shared/enums';
-import { PastPregnancy } from 'src/shared/types';
+import { PastPregnancy } from 'src/shared/types/patientTypes';
 import { gestationalAgeUnitFormatters } from 'src/shared/constants';
 import { getYearToDisplay } from 'src/shared/utils';
 import { RedirectButton } from 'src/shared/components/Button';

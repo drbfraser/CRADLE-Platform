@@ -4,7 +4,7 @@ import CreateIcon from '@mui/icons-material/Create';
 import AddIcon from '@mui/icons-material/Add';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
-import { Facility } from 'src/shared/types';
+import { Facility } from 'src/shared/types/types';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
 import { DataTable } from 'src/shared/components/DataTable/DataTable';
