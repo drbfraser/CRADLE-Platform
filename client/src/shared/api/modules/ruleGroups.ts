@@ -47,6 +47,7 @@ export const updateRuleGroup = async (
 export const deleteRuleGroupById = async (groupId: ID): Promise<void> => {
   await axiosFetch.delete<RuleGroup>(ruleGroupPath(groupId));
 };
+
 // POST /rules/groups/{groupId}/evaluate
 export const evaluateRuleGroup = async (
   groupId: ID,
