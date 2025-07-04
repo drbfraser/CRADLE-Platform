@@ -54,13 +54,13 @@ export const getReferralsAsync = async (parameters?: {
     referrers: parameters?.filter?.referrers,
     vital_signs: parameters?.filter?.vitalSigns,
     is_assessed: parameters?.filter?.isAssessed,
-    is_pregnant: parameters?.filter?.isPregnant
+    is_pregnant: parameters?.filter?.isPregnant,
   };
   const response = await axiosFetch({
     method: 'GET',
     url: EndpointEnum.REFERRALS,
     paramsSerializer: {
-      indexes: null
+      indexes: null,
     },
     params, // pass search and filter to backend
   });
