@@ -13,6 +13,7 @@ from data import db_session
 from enums import RoleEnum, TrafficLightEnum, WorkflowStatusEnum
 from models import (
     AssessmentOrm,
+    FormClassificationOrm,
     FormOrm,
     FormTemplateOrm,
     MedicalRecordOrm,
@@ -226,7 +227,13 @@ def delete_workflow_step(m: Type[M], **kwargs) -> None:
         for branch in step.branches:
             delete_workflow_step_branch(id=branch.id)
 
-        # TODO: Should the form template associated also be deleted when the template step is deleted?
+        # TODO: Should the form template and classification associated also be deleted when the template step is deleted?
+
+        form_template = read(FormTemplateOrm, id=step.form_id)
+
+        if form_template:
+            delete_by(FormClassificationOrm, id=form_template.form_classification_id)
+
         delete_by(FormTemplateOrm, id=step.form_id)
 
     elif isinstance(step, WorkflowInstanceStepOrm):
@@ -1020,14 +1027,11 @@ def read_workflow_instances(
 
 
 def read_workflow_templates(
-    model: WorkflowTemplateOrm,
     workflow_classification_id: Optional[str] = None,
     is_archived: bool = False,
 ) -> List[WorkflowTemplateOrm]:
     """
     Queries the database for all workflow templates that either belong to a classification or in total
-
-    :param model: Workflow template model (here we assume the template is valid)
 
     :param workflow_classification_id: The ID of a workflow classification
 
@@ -1035,19 +1039,21 @@ def read_workflow_templates(
 
     :return: A list of workflow templates
     """
-    query = db_session.query(model)
+    query = db_session.query(WorkflowTemplateOrm)
 
-    if workflow_classification_id:
-        query = query.filter(model.classification_id == workflow_classification_id)
+    if workflow_classification_id is not None:
+        query = query.filter(
+            WorkflowTemplateOrm.classification_id == workflow_classification_id
+        )
 
     if is_archived:
-        query = query.filter(model.archived == is_archived)
+        query = query.filter(WorkflowTemplateOrm.archived == is_archived)
 
     return query.all()
 
 
 def read_template_steps(
-    model: WorkflowTemplateStepOrm, workflow_template_id: Optional[str] = None
+    workflow_template_id: Optional[str] = None,
 ) -> List[WorkflowTemplateStepOrm]:
     """
     Queries the database for all template steps from either a specific workflow template or the entire DB
@@ -1058,10 +1064,12 @@ def read_template_steps(
 
     :return: A list of template steps
     """
-    query = db_session.query(model)
+    query = db_session.query(WorkflowTemplateStepOrm)
 
     if workflow_template_id:
-        query = query.filter(model.workflow_template_id == workflow_template_id)
+        query = query.filter(
+            WorkflowTemplateStepOrm.workflow_template_id == workflow_template_id
+        )
 
     return query.all()
 

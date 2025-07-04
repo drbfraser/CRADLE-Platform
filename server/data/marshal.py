@@ -426,8 +426,7 @@ def __marshal_workflow_template_step(
 
     if not shallow:
         d["branches"] = [
-            __marshal_workflow_template_step_branch(wtsb)
-            for wtsb in wts.workflow_template_step_branches
+            __marshal_workflow_template_step_branch(wtsb) for wtsb in wts.branches
         ]
 
     return d
@@ -446,9 +445,7 @@ def __marshal_workflow_template(wt: WorkflowTemplateOrm, shallow: bool = False) 
         d["initial_condition"] = __marshal_rule_group(wt.initial_condition)
 
     if not shallow:
-        d["steps"] = [
-            __marshal_workflow_template_step(wts=wts) for wts in wt.workflow_templates
-        ]
+        d["steps"] = [__marshal_workflow_template_step(wts=wts) for wts in wt.steps]
 
     return d
 

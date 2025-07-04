@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 
 from flask import abort, request
 from flask_openapi3.blueprint import APIBlueprint
@@ -34,7 +34,6 @@ api_workflow_templates = APIBlueprint(
     abp_tags=[Tag(name="Workflow Templates", description="")],
     abp_security=[{"jwt": []}],
 )
-
 
 workflow_template_not_found_message = "Workflow template with ID: ({}) not found."
 
@@ -88,10 +87,9 @@ def create_workflow_template(body: WorkflowTemplateModel):
 
     # Find workflow classification in DB, if it exists
     workflow_classification_orm = None
-    if workflow_classification_dict is not None:
-        workflow_classification_orm = crud.read(
-            WorkflowClassificationOrm, id=workflow_classification_dict["id"]
-        )
+    workflow_classification_orm = crud.read(
+        WorkflowClassificationOrm, id=workflow_template_dict["classification_id"]
+    )
 
     # If the workflow classification does not exist and the request has no classification, throw an error
     if (
@@ -118,7 +116,7 @@ def create_workflow_template(body: WorkflowTemplateModel):
         if existing_template_version is not None:
             return abort(
                 code=409,
-                description="Workflow template with same version still exists - Change version before upload.",
+                description="Workflow template with same version still exists - Change version before upload",
             )
 
         # Check if a previously existing version of this template exists, if it does, archive it
@@ -145,7 +143,7 @@ def get_workflow_templates():
     """Get All Workflow Templates"""
     # Get query parameters
     workflow_classification_id = request.args.get(
-        "classification_id", default=None, type=Optional[str]
+        "classification_id", default=None, type=str
     )
     is_archived = request.args.get("archived", default=False, type=bool)
 
@@ -161,7 +159,7 @@ def get_workflow_templates():
 
 # /api/workflow/templates/<string:template_id>?with_steps=<bool>&with_classification=<bool> [GET]
 @api_workflow_templates.get(
-    "/<string:template_id>", responses={200: WorkflowTemplateModel}
+    "/<string:workflow_template_id>", responses={200: WorkflowTemplateModel}
 )
 def get_workflow_template(path: WorkflowTemplateIdPath):
     """Get Workflow Template"""
@@ -171,34 +169,38 @@ def get_workflow_template(path: WorkflowTemplateIdPath):
         "with_classification", default=False, type=bool
     )
 
-    workflow_template = crud.read(WorkflowTemplateOrm, id=path.template_id)
+    workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
 
     if workflow_template is None:
         return abort(
             code=404,
-            description=workflow_template_not_found_message.format(path.template_id),
+            description=workflow_template_not_found_message.format(
+                path.workflow_template_id
+            ),
         )
 
-    response_data = marshal.marshal(workflow_template, shallow=with_steps)
+    response_data = marshal.marshal(obj=workflow_template, shallow=with_steps)
 
     if not with_classification:
         del response_data["classification"]
 
-    return {"items": response_data}, 200
+    return response_data, 200
 
 
 # /api/workflow/templates/<string:template_id> [PUT]
 @api_workflow_templates.put(
-    "/<string:template_id>", responses={200: WorkflowTemplateModel}
+    "/<string:workflow_template_id>", responses={200: WorkflowTemplateModel}
 )
 def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplateModel):
     """Update Workflow Template"""
-    workflow_template = crud.read(WorkflowTemplateOrm, id=path.template_id)
+    workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
 
     if workflow_template is None:
         return abort(
             code=404,
-            description=workflow_template_not_found_message.format(path.template_id),
+            description=workflow_template_not_found_message.format(
+                path.workflow_template_id
+            ),
         )
 
     workflow_template_changes = body.model_dump()
@@ -220,21 +222,23 @@ def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplat
 
     response_data = marshal.marshal(response_data, shallow=True)
 
-    return {"items": response_data}, 200
+    return response_data, 200
 
 
 # /api/workflow/templates/<string:template_id> [DELETE]
-@api_workflow_templates.delete("/<string:template_id>", responses={204: None})
+@api_workflow_templates.delete("/<string:workflow_template_id>", responses={204: None})
 def delete_workflow_template(path: WorkflowTemplateIdPath):
     """Delete Workflow Template"""
-    workflow_template = crud.read(WorkflowTemplateOrm, id=path.template_id)
+    workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
 
     if workflow_template is None:
         return abort(
             code=404,
-            description=workflow_template_not_found_message.format(path.template_id),
+            description=workflow_template_not_found_message.format(
+                path.workflow_template_id
+            ),
         )
 
     crud.delete_workflow(WorkflowTemplateOrm, id=path.template_id)
 
-    return {"items": None}, 204
+    return None, 204

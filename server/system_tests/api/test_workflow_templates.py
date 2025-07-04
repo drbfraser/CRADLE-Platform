@@ -4,8 +4,8 @@ from humps import decamelize
 from common.commonUtil import get_current_time, get_uuid
 from common.print_utils import pretty_print
 from common.workflow_utils import assign_workflow_template_or_instance_ids
-from data import crud
-from models import FormClassificationOrm, WorkflowClassificationOrm, WorkflowTemplateOrm
+from data import crud, marshal
+from models import WorkflowTemplateOrm
 
 
 def test_workflow_templates_with_same_classification_upload(
@@ -39,25 +39,16 @@ def test_workflow_templates_with_same_classification_upload(
         assert archived_template1 is not None
 
     finally:
-        classification_id = workflow_template1["classification"]["id"]
-
-        crud.delete_by(
-            FormClassificationOrm,
-            id=workflow_template3["steps"][0]["form"]["classification"]["id"],
-        )
-
         crud.delete_workflow(
             m=WorkflowTemplateOrm,
+            delete_classification=True,
             id=workflow_template1["id"],
-            classification_id=classification_id,
         )
         crud.delete_workflow(
             m=WorkflowTemplateOrm,
+            delete_classification=True,
             id=workflow_template3["id"],
-            classification_id=classification_id,
         )
-
-        crud.delete_by(WorkflowClassificationOrm, id=classification_id)
 
 
 def test_invalid_workflow_templates_uploaded(
@@ -110,13 +101,26 @@ def test_invalid_workflow_templates_uploaded(
         assert response.status_code == 409
 
     finally:
-        crud.delete_by(
-            WorkflowClassificationOrm, id=workflow_template1["classification"]["id"]
+        crud.delete_workflow(
+            m=WorkflowTemplateOrm,
+            delete_classification=True,
+            id=invalid_workflow_template1["id"],
         )
-        crud.delete_workflow(m=WorkflowTemplateOrm, id=invalid_workflow_template1["id"])
-        crud.delete_workflow(m=WorkflowTemplateOrm, id=invalid_workflow_template2["id"])
-        crud.delete_workflow(m=WorkflowTemplateOrm, id=invalid_workflow_template3["id"])
-        crud.delete_workflow(m=WorkflowTemplateOrm, id=workflow_template1["id"])
+        crud.delete_workflow(
+            m=WorkflowTemplateOrm,
+            delete_classification=True,
+            id=invalid_workflow_template2["id"],
+        )
+        crud.delete_workflow(
+            m=WorkflowTemplateOrm,
+            delete_classification=True,
+            id=invalid_workflow_template3["id"],
+        )
+        crud.delete_workflow(
+            m=WorkflowTemplateOrm,
+            delete_classification=True,
+            id=workflow_template1["id"],
+        )
 
 
 def test_workflow_template_ID_assignment(workflow_template2):
@@ -162,6 +166,103 @@ def test_workflow_template_ID_assignment(workflow_template2):
     )
 
 
+def test_getting_workflow_templates(
+    database,
+    workflow_template1,
+    workflow_template3,
+    workflow_template4,
+    api_get,
+    api_post,
+):
+    try:
+        workflow_template1["archived"] = True
+        workflow_template_orm_1 = marshal.unmarshal(
+            WorkflowTemplateOrm, workflow_template1
+        )
+
+        workflow_template3["classification"] = None
+        workflow_template3["steps"] = []
+        workflow_template_orm_2 = marshal.unmarshal(
+            WorkflowTemplateOrm, workflow_template3
+        )
+
+        workflow_template_orm_2.classification_id = (
+            workflow_template_orm_1.classification_id
+        )
+
+        workflow_template4["archived"] = True
+
+        api_post(endpoint="/api/workflow/templates", json=workflow_template1)
+        database.session.commit()
+
+        api_post(endpoint="/api/workflow/templates", json=workflow_template3)
+        database.session.commit()
+
+        api_post(endpoint="/api/workflow/templates", json=workflow_template4)
+        database.session.commit()
+
+        """
+        Query for archived workflow templates with same classification ID
+        """
+
+        response = api_get(
+            f"/api/workflow/templates?classification_id={workflow_template1['classification_id']}&archived=True"
+        )
+        workflow_templates = decamelize(response.json())["items"]
+
+        assert (
+            len(workflow_templates) == 1
+            and workflow_templates[0]["id"] == workflow_template1["id"]
+        )
+
+        response = api_get("/api/workflow/templates?archived=True")
+        workflow_templates = decamelize(response.json())["items"]
+
+        assert len(workflow_templates) == 2
+
+        """
+        Query for workflow_example1 and workflow_example3 with same classification ID
+        """
+
+        response = api_get(
+            f"/api/workflow/templates?classification_id={workflow_template1['classification_id']}"
+        )
+        workflow_templates = decamelize(response.json())["items"]
+
+        assert len(workflow_templates) == 2
+
+        """
+        Query for a specific workflow template
+        """
+
+        response = api_get(
+            f"/api/workflow/templates/{workflow_template1['id']}?with_steps=False&with_classification=False"
+        )
+        workflow_template = decamelize(response.json())
+
+        assert (
+            workflow_template is not None
+            and workflow_template["id"] == workflow_template1["id"]
+        )
+
+    finally:
+        crud.delete_workflow(
+            m=WorkflowTemplateOrm,
+            delete_classification=True,
+            id=workflow_template1["id"],
+        )
+        crud.delete_workflow(
+            m=WorkflowTemplateOrm,
+            delete_classification=True,
+            id=workflow_template3["id"],
+        )
+        crud.delete_workflow(
+            m=WorkflowTemplateOrm,
+            delete_classification=True,
+            id=workflow_template4["id"],
+        )
+
+
 @pytest.fixture
 def workflow_template1(vht_user_id):
     template_id = get_uuid()
@@ -169,8 +270,8 @@ def workflow_template1(vht_user_id):
     init_condition_id = get_uuid()
     return {
         "id": template_id,
-        "name": "Example workflow template 1",
-        "description": "Example workflow template with all valid fields",
+        "name": "workflow_example1",
+        "description": "workflow_example1",
         "archived": False,
         "date_created": get_current_time(),
         "last_edited": get_current_time() + 44345,
@@ -188,7 +289,7 @@ def workflow_template1(vht_user_id):
         "classification_id": classification_id,
         "classification": {
             "id": classification_id,
-            "name": "Workflow Classification example",
+            "name": "Workflow Classification example 1",
         },
         "steps": [],
     }
@@ -198,8 +299,8 @@ def workflow_template1(vht_user_id):
 def workflow_template2(vht_user_id, form_template):
     return {
         "id": None,
-        "name": "Example workflow template 2",
-        "description": "Example workflow template with all missing IDs should be assigned and matching when uploaded",
+        "name": "workflow_example2",
+        "description": "workflow_example2",
         "archived": False,
         "date_created": get_current_time(),
         "last_edited": get_current_time() + 44345,
@@ -217,7 +318,7 @@ def workflow_template2(vht_user_id, form_template):
         "classification_id": None,
         "classification": {
             "id": None,
-            "name": "Workflow Classification example",
+            "name": "Workflow Classification example 2",
         },
         "steps": [
             {
@@ -256,8 +357,8 @@ def workflow_template3(form_template, vht_user_id, workflow_template1):
     form_template["classification"]["name"] = "Form Classification example"
     return {
         "id": template_id,
-        "name": "Example workflow template 3",
-        "description": "Example workflow template with all valid fields including steps",
+        "name": "workflow_example3",
+        "description": "workflow_example3",
         "archived": False,
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
@@ -272,10 +373,10 @@ def workflow_template3(form_template, vht_user_id, workflow_template1):
                 '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
             ),
         },
-        "classification_id": workflow_template1["classification"]["id"],
+        "classification_id": workflow_template1["classification_id"],
         "classification": {
-            "id": workflow_template1["classification"]["id"],
-            "name": "Workflow Classification example",
+            "id": workflow_template1["classification_id"],
+            "name": "Workflow Classification Example 1",
         },
         "steps": [
             {
@@ -300,6 +401,39 @@ def workflow_template3(form_template, vht_user_id, workflow_template1):
                 "branches": [],
             }
         ],
+    }
+
+
+@pytest.fixture
+def workflow_template4(vht_user_id):
+    template_id = get_uuid()
+    init_condition_id = get_uuid()
+    classification_id = get_uuid()
+
+    return {
+        "id": template_id,
+        "name": "workflow_example4",
+        "description": "workflow_example4",
+        "archived": False,
+        "date_created": get_current_time(),
+        "last_edited": get_current_time(),
+        "last_edited_by": vht_user_id,
+        "version": "1",
+        "initial_condition_id": init_condition_id,
+        "initial_condition": {
+            "id": init_condition_id,
+            "logic": '{"logical_operator": "OR", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
+            "rules": (
+                '{"rule1": {"field": "patient.height", "operator": "LESS_THAN", "value": 56},'
+                '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
+            ),
+        },
+        "classification_id": classification_id,
+        "classification": {
+            "id": classification_id,
+            "name": "Workflow Classification for workflow_template4",
+        },
+        "steps": [],
     }
 
 
@@ -329,7 +463,7 @@ def invalid_workflow_template1(vht_user_id):
         "classification_id": classification_id,
         "classification": {
             "id": classification_id,
-            "name": "Workflow Classification example",
+            "name": "Workflow Classification for invalid_workflow_template1",
         },
         "steps": [],
     }
@@ -358,7 +492,7 @@ def invalid_workflow_template2(vht_user_id):
         "classification_id": classification_id,
         "classification": {
             "id": classification_id,
-            "name": "Workflow Classification example",
+            "name": "Workflow Classification for invalid_workflow_template2",
         },
         "steps": [],
     }
