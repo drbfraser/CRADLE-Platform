@@ -43,22 +43,19 @@ export const setReferralNotAttendedAsync = async (
     },
   });
 //get all referrals
-export const getReferralsAsync = async (paramaters?: {
+export const getReferralsAsync = async (parameters?: {
   search?: string;
   filter?: ReferralFilter;
 }) => {
-  console.log(paramaters);
-  console.log(paramaters?.filter);
   const params = {
-    search: paramaters?.search,
-    health_facilities: paramaters?.filter?.healthFacilityNames,
-    date_range: paramaters?.filter?.dateRange,
-    referrers: paramaters?.filter?.referrers,
-    vital_signs: paramaters?.filter?.vitalSigns,
-    is_assessed: paramaters?.filter?.isAssessed,
-    is_pregnant: paramaters?.filter?.isPregnant
+    search: parameters?.search,
+    health_facilities: parameters?.filter?.healthFacilityNames,
+    date_range: parameters?.filter?.dateRange,
+    referrers: parameters?.filter?.referrers,
+    vital_signs: parameters?.filter?.vitalSigns,
+    is_assessed: parameters?.filter?.isAssessed,
+    is_pregnant: parameters?.filter?.isPregnant
   };
-  console.log(params);
   const response = await axiosFetch({
     method: 'GET',
     url: EndpointEnum.REFERRALS,
