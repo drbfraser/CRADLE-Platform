@@ -1,6 +1,7 @@
 import { axiosFetch } from '../core/http';
 import { EndpointEnum, TrafficLightEnum } from 'src/shared/enums';
-import { ReferralFilter } from 'src/shared/referralTypes';
+import { ReferralFilter } from 'src/shared/types/referralTypes';
+//import { ReferralFilter } from 'src/shared/referralTypes';
 export const saveReferralAssessmentAsync = async (referralId: string) =>
   axiosFetch({
     url: EndpointEnum.REFERRALS + `/assess/${referralId}`,
@@ -42,16 +43,21 @@ export const setReferralNotAttendedAsync = async (
     },
   });
 //get all referrals
-export const getReferralsAsync = async (params?: {
+export const getReferralsAsync = async (paramaters?: {
   search?: string;
-//  filter?: ReferralFilter;
-  healthFacilityNames?: string[];
-  dateRange?: string;
-  referrers?: string[];
-  vitalSigns?: TrafficLightEnum[];
-  isAssessed?: string;
-  isPregnant?: string;
+  filter?: ReferralFilter;
 }) => {
+  console.log(paramaters);
+  console.log(paramaters?.filter);
+  const params = {
+    search: paramaters?.search,
+    health_facilities: paramaters?.filter?.healthFacilityNames,
+    date_range: paramaters?.filter?.dateRange,
+    referrers: paramaters?.filter?.referrers,
+    vital_signs: paramaters?.filter?.vitalSigns,
+    is_assessed: paramaters?.filter?.isAssessed,
+    is_pregnant: paramaters?.filter?.isPregnant
+  };
   console.log(params);
   const response = await axiosFetch({
     method: 'GET',
