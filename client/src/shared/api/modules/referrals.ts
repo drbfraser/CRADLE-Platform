@@ -1,7 +1,6 @@
 import { axiosFetch } from '../core/http';
-import { EndpointEnum, TrafficLightEnum } from 'src/shared/enums';
+import { EndpointEnum } from 'src/shared/enums';
 import { ReferralFilter } from 'src/shared/types/referralTypes';
-//import { ReferralFilter } from 'src/shared/referralTypes';
 export const saveReferralAssessmentAsync = async (referralId: string) =>
   axiosFetch({
     url: EndpointEnum.REFERRALS + `/assess/${referralId}`,
