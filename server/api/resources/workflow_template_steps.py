@@ -13,14 +13,12 @@ from common.api_utils import (
 from common.commonUtil import get_current_time
 from common.workflow_utils import assign_step_ids
 from data import crud, marshal
-from models import (
-    WorkflowTemplateOrm,
-    WorkflowTemplateStepOrm,
-)
+from models import RuleGroupOrm, WorkflowTemplateOrm, WorkflowTemplateStepOrm
 from validation import CradleBaseModel
 from validation.formTemplates import FormTemplateUpload
 from validation.workflow_template_steps import (
     WorkflowTemplateStepModel,
+    WorkflowTemplateStepUploadModel,
 )
 
 
@@ -44,7 +42,7 @@ api_workflow_template_steps = APIBlueprint(
 
 # /api/workflow/template/steps [POST]
 @api_workflow_template_steps.post("", responses={201: WorkflowTemplateStepModel})
-def create_workflow_template_step(body: WorkflowTemplateStepModel):
+def create_workflow_template_step(body: WorkflowTemplateStepUploadModel):
     """Create Workflow Template Step"""
     template_step = body.model_dump()
 
@@ -69,6 +67,16 @@ def create_workflow_template_step(body: WorkflowTemplateStepModel):
         )
 
     assign_step_ids(WorkflowTemplateStepOrm, template_step, workflow_template.id)
+
+    for branch in template_step["branches"]:
+        if branch["condition"] is None:
+            branch_condition = crud.read(RuleGroupOrm, id=branch["condition_id"])
+
+            if branch_condition is None:
+                return abort(
+                    code=404,
+                    description=f"Branch condition with ID: ({branch['condition_id']}) not found.",
+                )
 
     try:
         form_template = FormTemplateUpload(**template_step["form"])

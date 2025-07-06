@@ -18,7 +18,10 @@ from models import (
     WorkflowTemplateOrm,
 )
 from validation import CradleBaseModel
-from validation.workflow_templates import WorkflowTemplateModel
+from validation.workflow_templates import (
+    WorkflowTemplateModel,
+    WorkflowTemplateUploadModel,
+)
 
 
 # Create a response model for the list endpoints
@@ -64,7 +67,7 @@ def find_and_archive_previous_workflow_template(
 # /api/workflow/templates [POST]
 @api_workflow_templates.post("", responses={201: WorkflowTemplateModel})
 @roles_required([RoleEnum.ADMIN])
-def create_workflow_template(body: WorkflowTemplateModel):
+def create_workflow_template(body: WorkflowTemplateUploadModel):
     """
     Upload a Workflow Template
     """

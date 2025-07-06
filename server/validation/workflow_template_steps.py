@@ -64,3 +64,7 @@ class WorkflowTemplateStepModel(CradleBaseModel, extra="forbid"):
     # TODO: Account for different types of form template validators?
     form: Optional[FormTemplateWithQuestions] = None
     branches: list[WorkflowTemplateStepBranchModel]
+
+
+class WorkflowTemplateStepUploadModel(WorkflowTemplateStepModel):
+    id: Optional[str] = None
