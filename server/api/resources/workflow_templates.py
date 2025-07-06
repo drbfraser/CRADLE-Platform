@@ -76,7 +76,7 @@ def create_workflow_template(body: WorkflowTemplateModel):
         workflow_template_dict["last_edited_by"] = user_id
 
     except ValueError:
-        return abort(code=404, description="User not found")
+        return abort(code=404, description="User not found.")
 
     assign_workflow_template_or_instance_ids(
         m=WorkflowTemplateOrm, workflow=workflow_template_dict
@@ -116,7 +116,7 @@ def create_workflow_template(body: WorkflowTemplateModel):
         if existing_template_version is not None:
             return abort(
                 code=409,
-                description="Workflow template with same version still exists - Change version before upload",
+                description="Workflow template with same version still exists - Change version before upload.",
             )
 
         # Check if a previously existing version of this template exists, if it does, archive it
@@ -212,7 +212,7 @@ def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplat
         workflow_template_changes["last_edited"] = get_current_time()
 
     except ValueError:
-        return abort(code=404, description="User not found")
+        return abort(code=404, description="User not found.")
 
     crud.update(
         WorkflowTemplateOrm, changes=workflow_template_changes, id=path.template_id

@@ -4,11 +4,20 @@ from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
+from api.resources.form_templates import handle_form_template_upload
 from common.api_utils import (
     WorkflowTemplateIdPath,
     WorkflowTemplateStepIdPath,
+    get_user_id,
+)
+from common.workflow_utils import assign_step_ids
+from data import crud, marshal
+from models import (
+    WorkflowTemplateOrm,
+    WorkflowTemplateStepOrm,
 )
 from validation import CradleBaseModel
+from validation.formTemplates import FormTemplateUpload
 from validation.workflow_template_steps import (
     WorkflowTemplateStepExample,
     WorkflowTemplateStepModel,
@@ -19,6 +28,9 @@ from validation.workflow_template_steps import (
 class WorkflowTemplateStepListResponse(CradleBaseModel):
     items: List[WorkflowTemplateStepModel]
 
+
+workflow_template_not_found_msg = "Workflow template with ID: ({}) not found."
+workflow_template_step_not_found_msg = "Workflow template step with ID: ({}) not found."
 
 # /api/workflow/template/steps
 api_workflow_template_steps = APIBlueprint(
@@ -34,8 +46,46 @@ api_workflow_template_steps = APIBlueprint(
 @api_workflow_template_steps.post("", responses={201: WorkflowTemplateStepModel})
 def create_workflow_template_step(body: WorkflowTemplateStepModel):
     """Create Workflow Template Step"""
-    # For now, return the example data
-    return WorkflowTemplateStepExample.example_01, 201
+    template_step = body.model_dump()
+
+    try:
+        user_id = get_user_id(template_step, "last_edited_by")
+        template_step["last_edited_by"] = user_id
+
+    except ValueError:
+        return abort(code=404, description="User not found.")
+
+    # This endpoint assumes that the step has a workflow ID assigned to it already
+    workflow_template = crud.read(
+        WorkflowTemplateOrm, id=template_step["workflow_template_id"]
+    )
+
+    if workflow_template is None:
+        return abort(
+            code=404,
+            description=workflow_template_not_found_msg.format(
+                template_step["workflow_template_id"]
+            ),
+        )
+
+    assign_step_ids(WorkflowTemplateStepOrm, template_step, workflow_template.id)
+
+    try:
+        form_template = FormTemplateUpload(**template_step["form"])
+
+        # Process and upload the form template, if there is an issue, an exception is thrown
+        form_template = handle_form_template_upload(form_template)
+
+        template_step["form"] = form_template
+
+        template_step_orm = marshal.unmarshal(WorkflowTemplateStepOrm, template_step)
+
+        crud.create(template_step_orm, refresh=True)
+
+        return marshal.marshal(template_step_orm, shallow=True), 201
+
+    except ValueError as err:
+        return abort(code=409, description=str(err))
 
 
 # /api/workflow/template/steps [GET]
