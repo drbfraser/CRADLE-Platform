@@ -215,10 +215,12 @@ def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplat
         return abort(code=404, description="User not found.")
 
     crud.update(
-        WorkflowTemplateOrm, changes=workflow_template_changes, id=path.template_id
+        WorkflowTemplateOrm,
+        changes=workflow_template_changes,
+        id=path.workflow_template_id,
     )
 
-    response_data = crud.read(WorkflowTemplateOrm, id=path.template_id)
+    response_data = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
 
     response_data = marshal.marshal(response_data, shallow=True)
 
@@ -239,6 +241,6 @@ def delete_workflow_template(path: WorkflowTemplateIdPath):
             ),
         )
 
-    crud.delete_workflow(WorkflowTemplateOrm, id=path.template_id)
+    crud.delete_workflow(WorkflowTemplateOrm, id=path.workflow_template_id)
 
     return None, 204
