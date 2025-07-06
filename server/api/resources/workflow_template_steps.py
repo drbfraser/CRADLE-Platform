@@ -130,18 +130,6 @@ def get_workflow_template_step(path: WorkflowTemplateStepIdPath):
     return workflow_step, 200
 
 
-# # /api/workflow/template/steps/<string:step_id>/with-form [GET]
-# @api_workflow_template_steps.get(
-#     "/<string:step_id>/with-form", responses={200: WorkflowTemplateStepModel}
-# )
-# def get_workflow_template_step_with_form(path: WorkflowTemplateStepIdPath):
-#     """Get Workflow Template Step with Form"""
-#     # For now, return the example data with form if ID matches
-#     if path.step_id == WorkflowTemplateStepExample.id:
-#         return WorkflowTemplateStepExample.with_form, 200
-#     return abort(404, description=f"No workflow template step with ID: {path.step_id}.")
-
-
 # /api/workflow/template/<string:workflow_template_id>/steps/ [GET]
 @api_workflow_template_steps.get(
     "<string:workflow_template_id>/steps/",
