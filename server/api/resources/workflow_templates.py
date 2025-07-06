@@ -5,6 +5,7 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 from api.decorator import roles_required
+from api.resources.workflow_template_steps import WorkflowTemplateStepListResponse
 from common.api_utils import (
     WorkflowTemplateIdPath,
     get_user_id,
@@ -155,7 +156,9 @@ def get_workflow_templates():
         is_archived=is_archived,
     )
 
-    response_data = [marshal.marshal(template) for template in workflow_templates]
+    response_data = [
+        marshal.marshal(template, shallow=True) for template in workflow_templates
+    ]
 
     return {"items": response_data}, 200
 
@@ -182,15 +185,43 @@ def get_workflow_template(path: WorkflowTemplateIdPath):
             ),
         )
 
-    response_data = marshal.marshal(obj=workflow_template, shallow=with_steps)
+    response_data = marshal.marshal(obj=workflow_template, shallow=False)
 
+    if not with_steps:
+        del response_data["steps"]
     if not with_classification:
         del response_data["classification"]
 
     return response_data, 200
 
 
-# /api/workflow/templates/<string:template_id> [PUT]
+# /api/workflow/templates/<string:workflow_template_id>/steps [GET]
+@api_workflow_templates.get(
+    "<string:workflow_template_id>/steps",
+    responses={200: WorkflowTemplateStepListResponse},
+)
+def get_workflow_template_steps_by_template(path: WorkflowTemplateIdPath):
+    """Get Workflow Template Steps by Template ID"""
+    workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
+    if workflow_template is None:
+        return abort(
+            code=404,
+            description=workflow_template_not_found_message.format(
+                path.workflow_template_id
+            ),
+        )
+
+    template_steps = crud.read_template_steps(
+        workflow_template_id=path.workflow_template_id
+    )
+    template_steps = [
+        marshal.marshal(template_step) for template_step in template_steps
+    ]
+
+    return {"items": template_steps}, 200
+
+
+# /api/workflow/templates/<string:workflow_template_id> [PUT]
 @api_workflow_templates.put(
     "/<string:workflow_template_id>", responses={200: WorkflowTemplateModel}
 )
@@ -230,7 +261,7 @@ def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplat
     return response_data, 200
 
 
-# /api/workflow/templates/<string:template_id> [DELETE]
+# /api/workflow/templates/<string:workflow_template_id> [DELETE]
 @api_workflow_templates.delete("/<string:workflow_template_id>", responses={204: None})
 def delete_workflow_template(path: WorkflowTemplateIdPath):
     """Delete Workflow Template"""

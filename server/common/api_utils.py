@@ -1,6 +1,6 @@
 import json
 import re
-from typing import Optional
+from typing import List, Optional
 
 from flask import Request, request
 from pydantic import AliasChoices, Field, field_validator
@@ -11,6 +11,7 @@ from config import app
 from data import crud
 from models import UserOrm
 from validation import CradleBaseModel
+from validation.workflow_template_steps import WorkflowTemplateStepModel
 
 
 @app.after_request
@@ -115,6 +116,11 @@ class WorkflowInstanceIdPath(CradleBaseModel):
 
 class WorkflowInstanceStepIdPath(CradleBaseModel):
     workflow_instance_step_id: str
+
+
+# Create a response model for the list endpoints
+class WorkflowTemplateStepListResponse(CradleBaseModel):
+    items: List[WorkflowTemplateStepModel]
 
 
 class FacilityNamePath(CradleBaseModel):

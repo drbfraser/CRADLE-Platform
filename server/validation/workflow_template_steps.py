@@ -57,7 +57,7 @@ class WorkflowTemplateStepModel(CradleBaseModel, extra="forbid"):
     expected_completion: int = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
     last_edited_by: Optional[int] = None
-    form_id: Optional[str] = None
+    form_id: str
     condition_id: str
     condition: RuleGroupModel
     workflow_template_id: str
