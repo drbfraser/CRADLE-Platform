@@ -10,6 +10,7 @@ import numpy as np
 from flask.cli import FlaskGroup
 
 import models
+from common.commonUtil import get_current_time
 from data import crud, marshal
 from models import (
     FormClassificationOrm,
@@ -25,6 +26,11 @@ from models import (
     ReferralOrm,
     RelayServerPhoneNumberOrm,
     VillageOrm,
+    WorkflowTemplateOrm,
+    WorkflowTemplateStepOrm,
+    WorkflowTemplateStepBranchOrm,
+    WorkflowClassificationOrm,
+    RuleGroupOrm,
     db,
 )
 from seed_users import (
@@ -691,6 +697,91 @@ def create_relay_nums():
     for curr_num in relay_nums:
         db.session.add(RelayServerPhoneNumberOrm(**curr_num))
         db.session.commit()
+
+
+def create_simple_workflow_classification():
+
+    if crud.read(WorkflowClassificationOrm, id="wc-simple-1") is not None:
+        return
+
+    workflow_classification = {
+        "id": "wc-simple-1",
+        "name": "Get Patient Name Workflow",
+    }
+
+    workflow_classification_orm = WorkflowClassificationOrm(**workflow_classification)
+
+    db.session.add(workflow_classification_orm)
+    db.session.commit()
+
+
+def create_simple_workflow_template():
+
+    if crud.read(WorkflowTemplateOrm, id="wt-simple-1") is not None:
+        return
+
+    workflow_template = {
+        "id": "wt-simple-1",
+        "name": "Get Patient Name Workflow",
+        "description": "Collect name from patient",
+        "archived": False,
+        "date_created": get_current_time(),
+        "last_edited": get_current_time(),
+        "version": "V1",
+        "last_edited_by": 1,
+        "classification_id": "wc-simple-1",
+        "initial_condition_id": "wt-simple-1-init-condition",
+    }
+
+    classification = crud.read(WorkflowClassificationOrm, id="wc-simple-1")
+
+    steps = [
+        {
+            "id": "wt-simple-1-step-1",
+            "name": "Get Patient Name",
+            "description": "Enter the patient's name",
+            "expected_completion": get_current_time() + 86400, # Expected completion is 24 hours after this step was created
+            "last_edited": get_current_time(),
+            "last_edited_by": 1,
+            "form_id": "wt-simple-1-step-1-form",
+            "workflow_template_id": "wt-simple-1",
+        }
+    ]
+
+    step1_form = {
+        "id": "wt-simple-1-step-1-form",
+        "version": "V1",
+    }
+
+
+def create_workflow_template_step_form_classifications():
+
+    if crud.read(FormClassificationOrm, id="wt-simple-1-form-classification") is None:
+
+        simple_form_classification = {
+            "id": "wt-simple-1-form-classification",
+            "name": "Patient Name Form",
+        }
+
+    if crud.read(FormClassificationOrm, id="rapid_assessment_classification") is None:
+        prerequisites_classification = {
+            "id": "prerequisites_classification",
+            "name": "Prerequisites Classification",
+        }
+
+    if crud.read(FormClassificationOrm, id="papagaio_consent_classification") is None:
+        papagaio_consent_classification = {
+            "id": "papagaio_consent_classification",
+            "name": "PAPAGAIO Consent Classification",
+        }
+
+
+
+
+
+
+
+
 
 
 def get_random_initials():
