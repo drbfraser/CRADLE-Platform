@@ -92,7 +92,6 @@ def create_workflow_template_step(body: WorkflowTemplateStepUploadModel):
 @api_workflow_template_steps.get("", responses={200: WorkflowTemplateStepListResponse})
 def get_workflow_template_steps():
     """Get All Workflow Template Steps"""
-    # For now, return list with example data wrapped in the response model
     template_steps = crud.read_template_steps()
     template_steps = [
         marshal.marshal(template_step) for template_step in template_steps
@@ -185,7 +184,6 @@ def update_workflow_template_step(
 )
 def delete_workflow_template_step(path: WorkflowTemplateStepIdPath):
     """Delete Workflow Template Step"""
-    # For now, return success if ID matches
 
     template_step = crud.read(
         WorkflowTemplateStepOrm, id=path.workflow_template_step_id

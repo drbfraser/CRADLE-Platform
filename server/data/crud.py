@@ -271,6 +271,27 @@ def delete_workflow(m: Type[M], delete_classification: bool = False, **kwargs) -
     delete(workflow)
 
 
+def delete_workflow_classification(delete_templates: bool = False, **kwargs) -> None:
+    """
+    Deletes a workflow classification and optionally its associated templates
+
+    :param delete_templates: If true, deletes all workflow templates associated with this classification
+    :param kwargs: Keyword arguments mapping column names to values to parameterize the query 
+    """
+    classification = read(WorkflowClassificationOrm, **kwargs)
+
+    if classification is None:
+        return
+
+    if delete_templates:
+        # Delete all workflow templates associated with this classification
+        templates = read_workflow_templates(workflow_classification_id=classification.id)
+        for template in templates:
+            delete_workflow(WorkflowTemplateOrm, delete_classification=False, id=template.id)
+
+    delete(classification)
+
+
 def find(m: Type[M], *args) -> List[M]:
     """
     Queries for all models which match some given criteria.
@@ -1048,6 +1069,24 @@ def read_workflow_templates(
 
     if is_archived:
         query = query.filter(WorkflowTemplateOrm.archived == is_archived)
+
+    return query.all()
+
+
+def read_workflow_classifications(
+    is_archived: bool = False,
+) -> List[WorkflowClassificationOrm]:
+    """
+    Queries the database for all workflow classifications
+
+    :param is_archived: Query for archived workflow classifications; defaults to False
+
+    :return: A list of workflow classifications
+    """
+    query = db_session.query(WorkflowClassificationOrm)
+
+    if is_archived:
+        query = query.filter(WorkflowClassificationOrm.archived == is_archived)
 
     return query.all()
 
