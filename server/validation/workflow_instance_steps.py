@@ -202,3 +202,7 @@ class WorkflowInstanceStepModel(CradleBaseModel):
             raise ValueError("expected_completion cannot be before start_date")
 
         return self
+
+
+class WorkflowInstanceStepUploadModel(WorkflowInstanceStepModel):
+    id: Optional[str] = None

@@ -4,7 +4,7 @@ from humps import decamelize
 from common.commonUtil import get_current_time, get_uuid
 from common.print_utils import pretty_print
 from common.workflow_utils import assign_workflow_template_or_instance_ids
-from data import crud, marshal
+from data import crud
 from models import WorkflowTemplateOrm
 
 
@@ -176,19 +176,9 @@ def test_getting_workflow_templates(
 ):
     try:
         workflow_template1["archived"] = True
-        workflow_template_orm_1 = marshal.unmarshal(
-            WorkflowTemplateOrm, workflow_template1
-        )
 
         workflow_template3["classification"] = None
         workflow_template3["steps"] = []
-        workflow_template_orm_2 = marshal.unmarshal(
-            WorkflowTemplateOrm, workflow_template3
-        )
-
-        workflow_template_orm_2.classification_id = (
-            workflow_template_orm_1.classification_id
-        )
 
         workflow_template4["archived"] = True
 

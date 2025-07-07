@@ -824,7 +824,7 @@ class WorkflowTemplateStepOrm(db.Model):
 class WorkflowTemplateStepBranchOrm(db.Model):
     __tablename__ = "workflow_template_step_branch"
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
-    target_step_id = db.Column(db.Integer, nullable=False)
+    target_step_id = db.Column(db.String(50), nullable=False)
 
     # FOREIGN KEYS
     step_id = db.Column(

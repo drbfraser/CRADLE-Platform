@@ -419,7 +419,7 @@ def __marshal_workflow_template_step(
     d = vars(wts).copy()
     __pre_process(d)
 
-    d["form"] = __marshal_form(wts.form, shallow)
+    d["form"] = __marshal_form_template(wts.form)
 
     if wts.condition is not None:
         d["condition"] = __marshal_rule_group(wts.condition)

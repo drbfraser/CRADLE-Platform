@@ -18,8 +18,8 @@ class WorkflowTemplateStepBranchExample:
 
 
 class WorkflowTemplateStepBranchModel(CradleBaseModel, extra="forbid"):
-    id: str
-    target_step_id: str
+    id: Optional[str] = None
+    target_step_id: Optional[str] = None
     step_id: str
     condition_id: Optional[str] = None
     condition: Optional[RuleGroupModel] = None
