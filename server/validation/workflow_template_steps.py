@@ -57,10 +57,14 @@ class WorkflowTemplateStepModel(CradleBaseModel, extra="forbid"):
     expected_completion: int = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
     last_edited_by: Optional[int] = None
-    form_id: Optional[str] = None
+    form_id: str
     condition_id: str
     condition: RuleGroupModel
     workflow_template_id: str
     # TODO: Account for different types of form template validators?
     form: Optional[FormTemplateWithQuestions] = None
     branches: list[WorkflowTemplateStepBranchModel]
+
+
+class WorkflowTemplateStepUploadModel(WorkflowTemplateStepModel):
+    id: Optional[str] = None

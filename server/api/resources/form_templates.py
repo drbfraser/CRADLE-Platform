@@ -53,7 +53,7 @@ def get_all_form_templates(query: GetAllFormTemplatesQuery):
     return [marshal.marshal(f, shallow=True) for f in form_templates]
 
 
-def _handle_form_template_upload(form_template: FormTemplateUpload):
+def handle_form_template_upload(form_template: FormTemplateUpload):
     """
     Common logic for handling uploaded form template. Whether it was uploaded
     as a file, or in the request body.
@@ -78,10 +78,10 @@ def _handle_form_template_upload(form_template: FormTemplateUpload):
             form_classification_id=form_classification_orm.id,
             version=form_template.version,
         ):
-            return abort(
-                409,
-                description="Form Template with the same version already exists - change the version to upload.",
+            raise ValueError(
+                "Form Template with the same version already exists - change the version to upload."
             )
+
         previous_template = crud.read(
             FormTemplateOrm,
             form_classification_id=form_classification_orm.id,
@@ -96,7 +96,7 @@ def _handle_form_template_upload(form_template: FormTemplateUpload):
     form_template_orm = marshal.unmarshal(FormTemplateOrm, form_template_dict)
     form_template_orm.classification = form_classification_orm
     crud.create(form_template_orm, refresh=True)
-    return marshal.marshal(form_template_orm, shallow=True), 201
+    return marshal.marshal(form_template_orm, shallow=True)
 
 
 # /api/forms/templates [POST]
@@ -134,9 +134,13 @@ def upload_form_template_file(form: FileUploadForm):
 
     try:
         form_template = FormTemplateUpload(**file_contents)
+        return handle_form_template_upload(form_template), 201
+
     except ValidationError as e:
         return abort(422, description=e.errors())
-    return _handle_form_template_upload(form_template)
+
+    except ValueError as err:
+        return abort(code=409, description=str(err))
 
 
 # /api/forms/templates/body [POST]
@@ -147,7 +151,11 @@ def upload_form_template_body(body: FormTemplateUpload):
     Upload Form Template VIA Request Body
     Accepts Form Template through the request body, rather than as a file.
     """
-    return _handle_form_template_upload(body)
+    try:
+        return handle_form_template_upload(body), 201
+
+    except ValueError as err:
+        return abort(code=409, description=str(err))
 
 
 # /api/forms/templates/<string:form_template_id>/versions [GET]
