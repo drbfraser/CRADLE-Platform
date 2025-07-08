@@ -26,11 +26,10 @@ from models import (
     ReferralOrm,
     RelayServerPhoneNumberOrm,
     VillageOrm,
-    WorkflowTemplateOrm,
-    WorkflowTemplateStepOrm,
-    WorkflowTemplateStepBranchOrm,
     WorkflowClassificationOrm,
-    RuleGroupOrm,
+    WorkflowTemplateOrm,
+    WorkflowTemplateStepBranchOrm,
+    WorkflowTemplateStepOrm,
     db,
 )
 from seed_users import (
@@ -180,6 +179,12 @@ def seed_test_data():
     create_relay_nums()
 
     print("Finished seeding test data")
+
+    print("Creating a simple workflow template and workflow classification")
+    create_simple_workflow_classification()
+    create_simple_workflow_template()
+
+    print("Finished seeding simple workflow data")
 
 
 # USAGE: python manage.py seed_test_patient
@@ -700,7 +705,6 @@ def create_relay_nums():
 
 
 def create_simple_workflow_classification():
-
     if crud.read(WorkflowClassificationOrm, id="wc-simple-1") is not None:
         return
 
@@ -716,9 +720,10 @@ def create_simple_workflow_classification():
 
 
 def create_simple_workflow_template():
-
     if crud.read(WorkflowTemplateOrm, id="wt-simple-1") is not None:
         return
+
+    create_simple_workflow_classification()
 
     workflow_template = {
         "id": "wt-simple-1",
@@ -734,54 +739,168 @@ def create_simple_workflow_template():
     }
 
     classification = crud.read(WorkflowClassificationOrm, id="wc-simple-1")
+    workflow_template_orm = WorkflowTemplateOrm(
+        classification=classification, **workflow_template
+    )
 
-    steps = [
-        {
-            "id": "wt-simple-1-step-1",
-            "name": "Get Patient Name",
-            "description": "Enter the patient's name",
-            "expected_completion": get_current_time() + 86400, # Expected completion is 24 hours after this step was created
-            "last_edited": get_current_time(),
-            "last_edited_by": 1,
-            "form_id": "wt-simple-1-step-1-form",
-            "workflow_template_id": "wt-simple-1",
-        }
-    ]
+    create_simple_workflow_template_step_form_classification()
+    create_simple_workflow_template_step_form()
 
-    step1_form = {
+    step = {
+        "id": "wt-simple-1-step-1",
+        "name": "Get Patient Name",
+        "description": "Enter the patient's name",
+        "expected_completion": get_current_time()
+        + 86400,  # Expected completion is 24 hours after this step was created
+        "last_edited": get_current_time(),
+        "last_edited_by": 1,
+        "form_id": "wt-simple-1-step-1-form",
+        "workflow_template_id": "wt-simple-1",
+    }
+
+    branch = {
+        "id": "wt-simple-1-step-1-branch",
+        "target_step_id": "",
+        "step_id": "wt-simple-1-step-1",
+        "condition_id": None,
+    }
+
+    branch_orm = WorkflowTemplateStepBranchOrm(**branch)
+    form_template_orm = crud.read(FormTemplateOrm, id="wt-simple-1-step-1-form")
+
+    step_orm = WorkflowTemplateStepOrm(form=form_template_orm, **step)
+    step_orm.branches.append(branch_orm)
+    workflow_template_orm.steps.append(step_orm)
+
+    db.session.add(workflow_template_orm)
+    db.session.commit()
+
+
+def create_simple_workflow_template_step_form_classification():
+    if (
+        crud.read(FormClassificationOrm, id="wt-simple-1-form-classification")
+        is not None
+    ):
+        return
+
+    simple_form_classification = {
+        "id": "wt-simple-1-form-classification",
+        "name": "Patient Name Form",
+    }
+
+    simple_form_classification_orm = FormClassificationOrm(**simple_form_classification)
+
+    db.session.add(simple_form_classification_orm)
+    db.session.commit()
+
+
+def create_simple_workflow_template_step_form():
+    if crud.read(FormTemplateOrm, id="wt-simple-1-step-1-form") is not None:
+        return
+
+    simple_workflow_template_form = {
         "id": "wt-simple-1-step-1-form",
         "version": "V1",
     }
 
+    question = {
+        "id": "wt-simple-1-step-1-form-question",
+        "category_index": 0,
+        "question_index": 1,
+        "is_blank": True,
+        "question_type": "STRING",
+        "required": True,
+        "allow_future_dates": True,
+        "allow_past_dates": True,
+        "num_min": None,
+        "num_max": None,
+        "string_max_length": None,
+        "units": None,
+        "visible_condition": "[]",
+        "string_max_lines": None,
+    }
 
-def create_workflow_template_step_form_classifications():
+    create_simple_workflow_template_step_form_classification()
+    form_classification_orm = crud.read(
+        FormClassificationOrm, id="wt-simple-1-form-classification"
+    )
 
-    if crud.read(FormClassificationOrm, id="wt-simple-1-form-classification") is None:
+    simple_workflow_template_form_orm = FormTemplateOrm(
+        classification=form_classification_orm, **simple_workflow_template_form
+    )
 
-        simple_form_classification = {
-            "id": "wt-simple-1-form-classification",
-            "name": "Patient Name Form",
-        }
+    question_orm = QuestionOrm(**question)
 
+    simple_workflow_template_form_orm.questions.append(question_orm)
+
+    db.session.add(simple_workflow_template_form_orm)
+    db.session.commit()
+
+    lang_version = {
+        "id": 100,
+        "lang": "English",
+        "question_text": "Enter the Patient's Name",
+        "question_id": "wt-simple-1-step-1-form-question",
+    }
+
+    db.session.add(QuestionLangVersionOrm(**lang_version))
+    db.session.commit()
+
+
+def create_complex_workflow_template_step_form_classifications():
     if crud.read(FormClassificationOrm, id="rapid_assessment_classification") is None:
         prerequisites_classification = {
             "id": "prerequisites_classification",
             "name": "Prerequisites Classification",
         }
+        prerequisites_classification_orm = FormClassificationOrm(
+            **prerequisites_classification
+        )
+        db.session.add(prerequisites_classification_orm)
 
     if crud.read(FormClassificationOrm, id="papagaio_consent_classification") is None:
         papagaio_consent_classification = {
             "id": "papagaio_consent_classification",
             "name": "PAPAGAIO Consent Classification",
         }
+        papagaio_consent_classification_orm = FormClassificationOrm(
+            **papagaio_consent_classification
+        )
+        db.session.add(papagaio_consent_classification_orm)
 
+    if (
+        crud.read(
+            FormClassificationOrm,
+            id="papagaio_randomized_treatment_plan_classification",
+        )
+        is None
+    ):
+        randomized_treatment_plan_classification = {
+            "id": "papagaio_randomized_treatment_plan_classification",
+            "name": "Randomized Treatment plan Classification",
+        }
+        randomized_treatment_plan_classification_orm = FormClassificationOrm(
+            **randomized_treatment_plan_classification
+        )
+        db.session.add(randomized_treatment_plan_classification_orm)
 
+    if (
+        crud.read(
+            FormClassificationOrm,
+            id="papagaio_observation_treatment_plan_classification",
+        )
+        is None
+    ):
+        papagaio_observation_treatment_plan_classification = {
+            "id": "papagaio_observation_treatment_plan_classification",
+            "name": "Observation Treatment Plan Classification",
+        }
+        papagaio_observation_treatment_plan_classification_orm = FormClassificationOrm(
+            **papagaio_observation_treatment_plan_classification
+        )
+        db.session.add(papagaio_observation_treatment_plan_classification_orm)
 
-
-
-
-
-
+    db.session.commit()
 
 
 def get_random_initials():
