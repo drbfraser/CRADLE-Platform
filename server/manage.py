@@ -4,6 +4,7 @@ import random
 import string
 import time
 from random import randint, randrange
+from typing import List
 
 import click
 import numpy as np
@@ -848,7 +849,7 @@ def create_simple_workflow_template_step_form():
 
 
 def create_complex_workflow_template_step_form_classifications():
-    if crud.read(FormClassificationOrm, id="rapid_assessment_classification") is None:
+    if crud.read(FormClassificationOrm, id="prerequisites_classification") is None:
         prerequisites_classification = {
             "id": "prerequisites_classification",
             "name": "Prerequisites Classification",
@@ -901,6 +902,92 @@ def create_complex_workflow_template_step_form_classifications():
         db.session.add(papagaio_observation_treatment_plan_classification_orm)
 
     db.session.commit()
+
+
+def create_complex_workflow_template_step_forms():
+    create_complex_workflow_template_step_form_classifications()
+
+    if crud.read(FormTemplateOrm, id="prerequisites_form_template"):
+        prerequisites_form_template = {
+            "id": "prerequisites_form_template",
+            "version": "V1",
+        }
+
+        create_form_template_for_workflow(
+            prerequisites_form_template,
+            "prerequisites_classification",
+            ["prerequisites_question"],
+        )
+
+    if crud.read(FormTemplateOrm, id="papagaio_consent_form_template") is None:
+        papagaio_consent_form_template = {
+            "id": "papagaio_consent_form_template",
+            "version": "V1",
+        }
+
+        create_form_template_for_workflow(
+            papagaio_consent_form_template,
+            "papagaio_consent_classification",
+            ["papagaio_consent_question"],
+        )
+
+    if (
+        crud.read(
+            FormTemplateOrm, id="papagaio_randomized_treatment_plan_form_template"
+        )
+        is None
+    ):
+        papagaio_randomized_treatment_plan_form_template = {
+            "id": "papagaio_randomized_treatment_plan_form_template",
+            "version": "V1",
+        }
+
+        create_form_template_for_workflow(
+            papagaio_randomized_treatment_plan_form_template,
+            "papagaio_randomized_treatment_plan_classification",
+            ["papagaio_randomized_treatment_plan_question"],
+        )
+
+    if (
+        crud.read(
+            FormTemplateOrm, id="papagaio_observation_treatment_plan_form_template"
+        )
+        is None
+    ):
+        papagaio_observation_treatment_plan_form_template = {
+            "id": "papagaio_observation_treatment_plan_form_template",
+            "version": "V1",
+        }
+
+        create_form_template_for_workflow(
+            papagaio_observation_treatment_plan_form_template,
+            "papagaio_observation_treatment_plan_classification",
+            ["papagaio_observation_treatment_plan_question"],
+        )
+
+
+def create_form_template_for_workflow(
+    workflow_template_step_form_template: dict,
+    classification_id: str,
+    question_ids: List[str],
+) -> None:
+    classification_orm = crud.read(FormClassificationOrm, id=classification_id)
+    form_template_orm = FormTemplateOrm(
+        classification=classification_orm, **workflow_template_step_form_template
+    )
+    create_complex_workflow_template_step_form_questions()
+
+    for question_id in question_ids:
+        question = crud.read(QuestionOrm, id=question_id)
+        form_template_orm.questions.append(question)
+
+    db.session.add(form_template_orm)
+    db.session.commit()
+
+
+def create_complex_workflow_template_step_form_questions():
+
+    pass
 
 
 def get_random_initials():
