@@ -2,84 +2,61 @@ class RulesEngineFacade:
     """
         An abstraction layer for the underlying Rules Engine Implementation
     """
-    
+
+    # NOTE: do we want datasource arg processing to happen w/in the rule engine, or outside?
+    #           a. keep responsibility of datasource format and processing outside of rule engine
+    #           b. logic on parsing a rule is dependent on a rule, keep it in the rule engine
     def __init__(self, args, ruleGroup, rules):
         """
         Initializes the rules engine
-        
-        :param a: list of args used in the rules
-        :param b: a ruleGroup, defines how we want to combine given list of rles
+ 
+        :param a: list of data args used in the rules
+        :param b: a json object defining how we want to combine given list of rules
         :param c: list of rules
         :rtype: RulesEngineFacade
         """
-        self.rulesEngine = RulesEngineImpl2(args, ruleGroup, rules)
+        self.rulesEngine = RulesEngineImpl1(args, ruleGroup, rules)
 
     def evaluate(self, input):
         """
         Evaluate the given rules
 
-        :param a: input object
+        :param a: an input data object
         :rtype: bool
         """
         return self.rulesEngine.evaluate(input)
-
 
 # NOTE: Currently will keep this empty/incomplete, 
 # implementation heavily depends on chosen Rules Engine
 # - ref: https://github.com/nadirizr/json-logic-py
 from json_logic import jsonLogicRE
-class RulesEngineImpl1:
-    """
-    example
-    rules = { "and" : [
-        {"<" : [ { "var" : "temp" }, 110 ]},
-        {"==" : [ { "var" : "pie.filling" }, "apple" ] }
-    ] }
-
-    data = { "temp" : 100, "pie" : { "filling" : "apple" } }
-    """
-    
+class RulesEngineImpl1:    
     def __init__(self, args, rg, rules):
-        self.parsed_rules = self._parsed_rules(args, rg, rules)
+        self.parsed_rules = self._parse_rules(args, rg, rules)
 
     def evaluate(self, input):
+        """
+        example
+            rules = { "and" : [
+                {"<" : [ { "var" : "temp" }, 110 ]},
+                {"==" : [ { "var" : "pie.filling" }, "apple" ] }
+            ] }
+
+            input = { "temp" : 100, "pie" : { "filling" : "apple" } }
+        """ 
         res = jsonLogicRE(self.parsed_rules, input)
-        # process result
+        # TODO process result if needed
         return res
 
-    def _parsed_rules(self, args, rg, rules):
+    def _parse_rules(self, args, rg, rules):
         """
-        args - list of args to be used in the rules
-        args = [
-            {
-                "argId": "",
-                "name": ""
-                "value": ""
-            }
-        ]
+        processes given input arguments, rules and rule group 
+        into a rule object ready for evaluation 
         
-        rules - a list of rules
-        "leftOp" is the input we are evaluating
-            - { "var": "<name of variable>"} 
-        "rightOp" is the argument the rule is comparing against
-            - constant value or from a datasource
-            - populate "rightOp", match against an id?
-        [
-            {
-                "ruleId" : "",
-                "operator": "",
-                "leftOp": "",
-                "rightOp": "<argId>"
-            }
-        ]
-
-        rg - a rule group, combines list of rules
-        rg = {
-            "op1" : ["<ruleId1>", "ruleId2>],
-            "op2" : ["<ruleId3>", "<ruleId4>"]
-        }
-
-
+        :param a: list of data source args
+        :param b: a rule group object combining the rules
+        :param c: list of processed rules
+        :rtype: a json object representing a formed rule
         """
         pass
         
