@@ -104,3 +104,4 @@ the previously mentioned admin user is added along with a few additional users:
 | Dingsong Zhou       | dza68@sfu.ca         |
 | James Chuong        | jca543@sfu.ca        |
 | Jerry Deng Zhu      | jerrydngzh@gmail.com |
+| Elton Zhen          | ehz2@sfu.ca          |
