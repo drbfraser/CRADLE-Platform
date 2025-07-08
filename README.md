@@ -105,3 +105,4 @@ the previously mentioned admin user is added along with a few additional users:
 | James Chuong        | jca543@sfu.ca        |
 | Jerry Deng Zhu      | jerrydngzh@gmail.com |
 | Elton Zhen          | ehz2@sfu.ca          |
+| Ellie Neufeld       | ena31@sfu.ca         |
