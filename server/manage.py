@@ -31,6 +31,7 @@ from models import (
     WorkflowTemplateOrm,
     WorkflowTemplateStepBranchOrm,
     WorkflowTemplateStepOrm,
+    RuleGroupOrm,
     db,
 )
 from seed_users import (
@@ -848,6 +849,63 @@ def create_simple_workflow_template_step_form():
     db.session.commit()
 
 
+def create_complex_workflow_classification():
+
+    if crud.read(WorkflowClassificationOrm, id="papagaio_study_workflow_classification") is not None:
+        return
+
+    papagaio_study_workflow_classification = {
+        "id": "papagaio_study_workflow_classification",
+        "name": "PAPAGAIO Research Study"
+    }
+
+    papagaio_study_workflow_classification_orm = WorkflowClassificationOrm(**papagaio_study_workflow_classification)
+    db.session.add(papagaio_study_workflow_classification_orm)
+    db.session.commit()
+
+
+def create_complex_workflow_template():
+
+    if crud.read(WorkflowTemplateOrm, id="papagaio_study_workflow_template") is not None:
+        return
+
+    create_complex_workflow_classification()
+
+    papagaio_study_workflow_template = {
+        "id": "papagaio_study_workflow_template",
+        "name": "PAPAGAO Research Study",
+        "description": "PAPAGAIO is an NIHR Global Health Research Group focussed on reducing maternal and perinatal"
+                       "mortality and morbidity from pre-eclampsia, across low- and middle-income countries",
+        "archived": True,
+        "date_created": get_current_time(),
+        "last_edited": get_current_time(),
+        "last_edited_by": 1,
+        "version": "V1",
+        "initial_condition_id": "papagaio_study_workflow_template_init_condition",
+        "classification_id": "papagaio_study_workflow_classification"
+    }
+
+    papagaio_study_workflow_template_init_condition = {
+        "id": "papagaio_study_workflow_template_init_condition",
+        "logic": None,
+        "rules": ['{"==": [{"var": "is_pregnant"}, true]}'] # Activates if the patient is pregnant (is_pregnant attribute is True)
+    }
+
+    papagaio_study_workflow_template_init_condition_orm = RuleGroupOrm(**papagaio_study_workflow_template_init_condition)
+    db.session.add(papagaio_study_workflow_template_init_condition_orm)
+    db.session.commit()
+
+    papagaio_study_workflow_classification_orm = crud.read(WorkflowClassificationOrm, id="papagaio_study_workflow_classification")
+    papagaio_study_workflow_template_orm = WorkflowTemplateOrm(classification=papagaio_study_workflow_classification_orm, **papagaio_study_workflow_template)
+
+    create_complex_workflow_template_steps()
+
+
+def create_complex_workflow_template_steps():
+
+    pass
+
+
 def create_complex_workflow_template_step_form_classifications():
     if crud.read(FormClassificationOrm, id="prerequisites_classification") is None:
         prerequisites_classification = {
@@ -1216,6 +1274,7 @@ def create_complex_workflow_template_step_form_questions():
         db.session.add(QuestionLangVersionOrm(**papagaio_observation_treatment_plan_lang_version))
 
     db.session.commit()
+
 
 def get_random_initials():
     return (
