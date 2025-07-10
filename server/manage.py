@@ -838,7 +838,7 @@ def create_simple_workflow_template_step_form():
     db.session.commit()
 
     lang_version = {
-        "id": 100,
+        "id": 104,
         "lang": "English",
         "question_text": "Enter the Patient's Name",
         "question_id": "wt-simple-1-step-1-form-question",
@@ -916,7 +916,7 @@ def create_complex_workflow_template_step_forms():
         create_form_template_for_workflow(
             prerequisites_form_template,
             "prerequisites_classification",
-            ["prerequisites_question"],
+            ["prerequisites_question1", "prerequisites_question2", "prerequisites_question3"],
         )
 
     if crud.read(FormTemplateOrm, id="papagaio_consent_form_template") is None:
@@ -970,7 +970,8 @@ def create_form_template_for_workflow(
     workflow_template_step_form_template: dict,
     classification_id: str,
     question_ids: List[str],
-) -> None:
+):
+    """Seeds the DB with an example form template used in a workflow template"""
     classification_orm = crud.read(FormClassificationOrm, id=classification_id)
     form_template_orm = FormTemplateOrm(
         classification=classification_orm, **workflow_template_step_form_template
@@ -987,8 +988,234 @@ def create_form_template_for_workflow(
 
 def create_complex_workflow_template_step_form_questions():
 
-    pass
+    if crud.read(QuestionOrm, id="prerequisites_question1") is None:
 
+        prerequisites_question1 = {
+            "id": "prerequisites_question1",
+            "category_index": 0,
+            "question_index": 1,
+            "is_blank": True,
+            "question_type": "MULTIPLE_CHOICE",
+            "required": True,
+            "allow_future_dates": True,
+            "allow_past_dates": True,
+            "num_min": None,
+            "num_max": None,
+            "string_max_length": None,
+            "units": None,
+            "visible_condition": "[]",
+            "string_max_lines": None,
+            "mc_options": '['
+                              '{"mcId": 0, "opt": "Yes" }'
+                              ', '
+                              '{"mcId": 1, "opt": "No"}'
+                          ']'
+        }
+
+        prerequisites_lang_version1 = {
+            "id": 105,
+            "lang": "English",
+            "question_text": "Is there any indication for immediate delivery?",
+            "question_id": "prerequisites_question1",
+        }
+
+        prerequisites_question1_orm = QuestionOrm(**prerequisites_question1)
+        db.session.add(prerequisites_question1_orm)
+        db.session.add(QuestionLangVersionOrm(**prerequisites_lang_version1))
+
+    if crud.read(QuestionOrm, id="prerequisites_question2") is None:
+
+        prerequisites_question2 = {
+            "id": "prerequisites_question2",
+            "category_index": 0,
+            "question_index": 2,
+            "is_blank": True,
+            "question_type": "MULTIPLE_CHOICE",
+            "required": True,
+            "allow_future_dates": True,
+            "allow_past_dates": True,
+            "num_min": None,
+            "num_max": None,
+            "string_max_length": None,
+            "units": None,
+            "visible_condition": "[]",
+            "string_max_lines": None,
+            "mc_options": '['
+                              '{"mcId": 0, "opt": "Yes" }'
+                              ', '
+                              '{"mcId": 1, "opt": "No"}'
+                          ']'
+        }
+
+        prerequisites_lang_version2 = {
+            "id": 106,
+            "lang": "English",
+            "question_text": "Has the patient decided to deliver in the next 48 hours?",
+            "question_id": "prerequisites_question2",
+        }
+
+        prerequisites_question2_orm = QuestionOrm(**prerequisites_question2)
+        db.session.add(prerequisites_question2_orm)
+        db.session.add(QuestionLangVersionOrm(**prerequisites_lang_version2))
+
+    if crud.read(QuestionOrm, id="prerequisites_question3") is None:
+
+        prerequisites_question3 = {
+            "id": "prerequisites_question3",
+            "category_index": 0,
+            "question_index": 3,
+            "is_blank": True,
+            "question_type": "MULTIPLE_CHOICE",
+            "required": True,
+            "allow_future_dates": True,
+            "allow_past_dates": True,
+            "num_min": None,
+            "num_max": None,
+            "string_max_length": None,
+            "units": None,
+            "visible_condition": "[]",
+            "string_max_lines": None,
+            "mc_options": '['
+                              '{"mcId": 0, "opt": "Yes" }'
+                              ', '
+                              '{"mcId": 1, "opt": "No"}'
+                          ']'
+        }
+
+        prerequisites_lang_version3 = {
+                "id": 107,
+                "lang": "English",
+                "question_text": "Does the patient have the capacity to provide informed consent?",
+                "question_id": "prerequisites_question3",
+        }
+
+        prerequisites_question3_orm = QuestionOrm(**prerequisites_question3)
+        db.session.add(prerequisites_question3_orm)
+        db.session.add(QuestionLangVersionOrm(**prerequisites_lang_version3))
+
+    if crud.read(QuestionOrm, id="papagaio_consent_question") is None:
+
+        papagaio_consent_question = {
+           "id": "papagaio_consent_question",
+            "category_index": 0,
+            "question_index": 4,
+            "is_blank": True,
+            "question_type": "MULTIPLE_CHOICE",
+            "required": True,
+            "allow_future_dates": True,
+            "allow_past_dates": True,
+            "num_min": None,
+            "num_max": None,
+            "string_max_length": None,
+            "units": None,
+            "visible_condition": "[]",
+            "string_max_lines": None,
+            "mc_options": '['
+                              '{"mcId": 0, "opt": "Give Consent"}'
+                              ', '
+                              '{"mcId": 1, "opt": "Deny Consent"}'
+                          ']'
+        }
+
+        papagaio_consent_lang_version = {
+            "id": 108,
+            "lang": "English",
+            "question_text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
+                             "Vivamus blandit at eros laoreet cursus. Nunc id quam dictum, cursus felis eu, mattis sem."
+                             " Quisque euismod, nisl quis rhoncus blandit, diam elit ornare dui, ut posuere tortor dui "
+                             "at risus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Fusce fermentum "
+                             "leo at est egestas rutrum. Nullam vitae nunc placerat, consectetur justo eu, lobortis "
+                             "diam. Nullam malesuada elit ac magna varius interdum. Nulla a malesuada turpis. Praesent "
+                             "hendrerit dui arcu, id fringilla nisi vulputate at. Sed eu sapien ante. Morbi dapibus mi "
+                             "vitae dignissim pulvinar. Proin suscipit aliquet semper.",
+            "question_id": "papagaio_consent_question",
+        }
+
+        papagaio_consent_question_orm = QuestionOrm(**papagaio_consent_question)
+        db.session.add(papagaio_consent_question_orm)
+        db.session.add(QuestionLangVersionOrm(**papagaio_consent_lang_version))
+
+    if crud.read(QuestionOrm, id="papagaio_randomized_treatment_plan_question") is None:
+
+        papagaio_randomized_treatment_plan_question = {
+            "id": "papagaio_randomized_treatment_plan_question",
+            "category_index": 0,
+            "question_index": 5,
+            "is_blank": True,
+            "question_type": "MULTIPLE_CHOICE",
+            "required": True,
+            "allow_future_dates": True,
+            "allow_past_dates": True,
+            "num_min": None,
+            "num_max": None,
+            "string_max_length": None,
+            "units": None,
+            "visible_condition": "[]",
+            "string_max_lines": None,
+            "mc_options": '['
+                          '{"mcId": 0, "opt": "Observe closely for 37 weeks"}'
+                          ', '
+                          '{"mcId": 1, "opt": "Expedite delivery within 48 hours"}'
+                          ','
+                          '{"mcId": 2, "opt": "None of the options provided (This withdraws patient from the study '
+                          'and exits workflow"}'
+                          ']'
+        }
+
+        papagaio_randomized_treatment_plan_lang_version = {
+                "id": 109,
+                "lang": "English",
+                "question_text": "The treatment plan assigned to ths patient has been randomly selected as part of the "
+                                 "study. Each treatment plan below has an equal 50% chance of being chosen. The assigned"
+                                 "treatment plan does not constitute a medical recommendation or an endorsement of the "
+                                 "chosen treatment plan. \n\n The patient has been randomly assigned to the "
+                                 "'observation' category for the randomized treatment plan.",
+                "question_id": "papagaio_randomized_treatment_plan_question",
+        }
+
+        papagaio_randomized_treatment_plan_question_orm = QuestionOrm(**papagaio_randomized_treatment_plan_question)
+        db.session.add(papagaio_randomized_treatment_plan_question_orm)
+        db.session.add(QuestionLangVersionOrm(**papagaio_randomized_treatment_plan_lang_version))
+
+    if crud.read(QuestionOrm, id="papagaio_observation_treatment_plan_question") is None:
+
+        papagaio_observation_treatment_plan_question = {
+            "id": "papagaio_observation_treatment_plan_question",
+            "category_index": 0,
+            "question_index": 5,
+            "is_blank": True,
+            "question_type": "MULTIPLE_CHOICE",
+            "required": True,
+            "allow_future_dates": True,
+            "allow_past_dates": True,
+            "num_min": None,
+            "num_max": None,
+            "string_max_length": None,
+            "units": None,
+            "visible_condition": "[]",
+            "string_max_lines": None,
+            "mc_options": '['
+                          '{"mcId": 0, "opt": "Treatment plan complete"}'
+                          ', '
+                          '{"mcId": 1, "opt": "Treatment plan cancelled"}'
+                          ','
+                          '{"mcId": 2, "opt": "None of the options provided"}'
+                          ']'
+        }
+
+        papagaio_observation_treatment_plan_lang_version = {
+                "id": 110,
+                "lang": "English",
+                "question_text": "This patient was randomly assigned to the 'observation category` as part of the"
+                                 "PAPAGAIO Research Study.",
+                "question_id": "papagaio_observation_treatment_plan_question",
+        }
+
+        papagaio_observation_treatment_plan_question_orm = QuestionOrm(**papagaio_observation_treatment_plan_question)
+        db.session.add(papagaio_observation_treatment_plan_question_orm)
+        db.session.add(QuestionLangVersionOrm(**papagaio_observation_treatment_plan_lang_version))
+
+    db.session.commit()
 
 def get_random_initials():
     return (
