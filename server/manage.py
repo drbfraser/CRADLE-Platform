@@ -26,12 +26,12 @@ from models import (
     ReadingOrm,
     ReferralOrm,
     RelayServerPhoneNumberOrm,
+    RuleGroupOrm,
     VillageOrm,
     WorkflowClassificationOrm,
     WorkflowTemplateOrm,
     WorkflowTemplateStepBranchOrm,
     WorkflowTemplateStepOrm,
-    RuleGroupOrm,
     db,
 )
 from seed_users import (
@@ -180,13 +180,12 @@ def seed_test_data():
     print("Adding relay server numbers to admin page...")
     create_relay_nums()
 
-    print("Finished seeding test data")
 
     print("Creating a simple workflow template and workflow classification")
     create_simple_workflow_classification()
     create_simple_workflow_template()
 
-    print("Finished seeding simple workflow data")
+    print("Finished seeding test data")
 
 
 # USAGE: python manage.py seed_test_patient
@@ -737,7 +736,7 @@ def create_simple_workflow_template():
         "version": "V1",
         "last_edited_by": 1,
         "classification_id": "wc-simple-1",
-        "initial_condition_id": "wt-simple-1-init-condition",
+        "initial_condition_id": None,
     }
 
     classification = crud.read(WorkflowClassificationOrm, id="wc-simple-1")
@@ -807,8 +806,8 @@ def create_simple_workflow_template_step_form():
 
     question = {
         "id": "wt-simple-1-step-1-form-question",
-        "category_index": 0,
-        "question_index": 1,
+        "category_index": None,
+        "question_index": 0,
         "is_blank": True,
         "question_type": "STRING",
         "required": True,
@@ -1050,8 +1049,8 @@ def create_complex_workflow_template_step_form_questions():
 
         prerequisites_question1 = {
             "id": "prerequisites_question1",
-            "category_index": 0,
-            "question_index": 1,
+            "category_index": None,
+            "question_index": 0,
             "is_blank": True,
             "question_type": "MULTIPLE_CHOICE",
             "required": True,
@@ -1085,8 +1084,8 @@ def create_complex_workflow_template_step_form_questions():
 
         prerequisites_question2 = {
             "id": "prerequisites_question2",
-            "category_index": 0,
-            "question_index": 2,
+            "category_index": None,
+            "question_index": 1,
             "is_blank": True,
             "question_type": "MULTIPLE_CHOICE",
             "required": True,
@@ -1120,8 +1119,8 @@ def create_complex_workflow_template_step_form_questions():
 
         prerequisites_question3 = {
             "id": "prerequisites_question3",
-            "category_index": 0,
-            "question_index": 3,
+            "category_index": None,
+            "question_index": 2,
             "is_blank": True,
             "question_type": "MULTIPLE_CHOICE",
             "required": True,
@@ -1155,8 +1154,8 @@ def create_complex_workflow_template_step_form_questions():
 
         papagaio_consent_question = {
            "id": "papagaio_consent_question",
-            "category_index": 0,
-            "question_index": 4,
+            "category_index": None,
+            "question_index": 3,
             "is_blank": True,
             "question_type": "MULTIPLE_CHOICE",
             "required": True,
@@ -1197,8 +1196,8 @@ def create_complex_workflow_template_step_form_questions():
 
         papagaio_randomized_treatment_plan_question = {
             "id": "papagaio_randomized_treatment_plan_question",
-            "category_index": 0,
-            "question_index": 5,
+            "category_index": None,
+            "question_index": 4,
             "is_blank": True,
             "question_type": "MULTIPLE_CHOICE",
             "required": True,
@@ -1239,7 +1238,7 @@ def create_complex_workflow_template_step_form_questions():
 
         papagaio_observation_treatment_plan_question = {
             "id": "papagaio_observation_treatment_plan_question",
-            "category_index": 0,
+            "category_index": None,
             "question_index": 5,
             "is_blank": True,
             "question_type": "MULTIPLE_CHOICE",
