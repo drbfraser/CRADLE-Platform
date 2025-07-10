@@ -26,7 +26,6 @@ from models import (
     ReadingOrm,
     ReferralOrm,
     RelayServerPhoneNumberOrm,
-    RuleGroupOrm,
     VillageOrm,
     WorkflowClassificationOrm,
     WorkflowTemplateOrm,
@@ -890,20 +889,6 @@ def create_complex_workflow_template():
         "initial_condition_id": "papagaio_study_workflow_template_init_condition",
         "classification_id": "papagaio_study_workflow_classification",
     }
-
-    papagaio_study_workflow_template_init_condition = {
-        "id": "papagaio_study_workflow_template_init_condition",
-        "logic": None,
-        "rules": [
-            '{"==": [{"var": "is_pregnant"}, true]}'
-        ],  # Activates if the patient is pregnant (is_pregnant attribute is True)
-    }
-
-    papagaio_study_workflow_template_init_condition_orm = RuleGroupOrm(
-        **papagaio_study_workflow_template_init_condition
-    )
-    db.session.add(papagaio_study_workflow_template_init_condition_orm)
-    db.session.commit()
 
     papagaio_study_workflow_classification_orm = crud.read(
         WorkflowClassificationOrm, id="papagaio_study_workflow_classification"
