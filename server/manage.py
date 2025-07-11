@@ -742,6 +742,7 @@ def create_simple_workflow_template():
         "last_edited_by": 1,
         "classification_id": "wc-simple-1",
         "initial_condition_id": None,
+        "initial_condition": None,
     }
 
     classification = crud.read(WorkflowClassificationOrm, id="wc-simple-1")
@@ -763,6 +764,7 @@ def create_simple_workflow_template():
         "form_id": "wt-simple-1-step-1-form",
         "workflow_template_id": "wt-simple-1",
         "condition_id": None,
+        "condition": None,
     }
 
     branch = {
@@ -897,6 +899,7 @@ def create_complex_workflow_template():
         "last_edited_by": 1,
         "version": "V1",
         "initial_condition_id": None,
+        "initial_condition": None,
         "classification_id": "papagaio_study_workflow_classification",
     }
 
@@ -935,6 +938,7 @@ def create_complex_workflow_template_steps():
             "form_id": "prerequisites_form_template",
             "workflow_template_id": "papagaio_study_workflow_template",
             "condition_id": None,
+            "condition": None,
         }
 
         prerequisites_template_step_branch = {
@@ -962,6 +966,7 @@ def create_complex_workflow_template_steps():
             "form_id": "papagaio_consent_form_template",
             "workflow_template_id": "papagaio_study_workflow_template",
             "condition_id": None,
+            "condition": None,
         }
 
         papagaio_consent_template_step_branch = {
@@ -994,6 +999,7 @@ def create_complex_workflow_template_steps():
             "form_id": "papagaio_randomized_treatment_plan_form_template",
             "workflow_template_id": "papagaio_study_workflow_template",
             "condition_id": None,
+            "condition": None,
         }
 
         papagaio_randomized_treatment_template_step_branch = {
@@ -1026,6 +1032,7 @@ def create_complex_workflow_template_steps():
             "form_id": "papagaio_observation_treatment_plan_form_template",
             "workflow_template_id": "papagaio_study_workflow_template",
             "condition_id": None,
+            "condition": None,
         }
 
         papagaio_observation_treatment_template_step_branch = {
