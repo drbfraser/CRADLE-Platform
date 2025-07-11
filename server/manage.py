@@ -937,17 +937,9 @@ def create_complex_workflow_template_steps():
             "condition": None,
         }
 
-        prerequisites_template_step_orm = WorkflowTemplateStepOrm(
-            **prerequisites_template_step
+        create_workflow_template_step_with_form_and_branches(
+            prerequisites_template_step, [prerequisites_template_step_branch]
         )
-        prerequisites_template_step_branch_orm = WorkflowTemplateStepBranchOrm(
-            **prerequisites_template_step_branch
-        )
-        prerequisites_template_step_orm.branches.append(
-            prerequisites_template_step_branch_orm
-        )
-
-        db.session.add(prerequisites_template_step_orm)
 
     if crud.read(WorkflowTemplateStepOrm, id="papagaio_consent_template_step") is None:
         papagaio_consent_template_step = {
@@ -970,17 +962,9 @@ def create_complex_workflow_template_steps():
             "condition": None,
         }
 
-        papagaio_consent_template_step_orm = WorkflowTemplateStepOrm(
-            **papagaio_consent_template_step
+        create_workflow_template_step_with_form_and_branches(
+            papagaio_consent_template_step, [papagaio_consent_template_step_branch]
         )
-        papagaio_consent_template_step_branch_orm = WorkflowTemplateStepBranchOrm(
-            **papagaio_consent_template_step_branch
-        )
-        papagaio_consent_template_step_orm.branches.append(
-            papagaio_consent_template_step_branch_orm
-        )
-
-        db.session.add(papagaio_consent_template_step_orm)
 
     if (
         crud.read(
@@ -1008,19 +992,10 @@ def create_complex_workflow_template_steps():
             "condition": None,
         }
 
-        papagaio_randomized_treatment_template_step_orm = WorkflowTemplateStepOrm(
-            **papagaio_randomized_treatment_template_step
+        create_workflow_template_step_with_form_and_branches(
+            papagaio_randomized_treatment_template_step,
+            [papagaio_randomized_treatment_template_step_branch],
         )
-        papagaio_randomized_treatment_template_step_branch_orm = (
-            WorkflowTemplateStepBranchOrm(
-                **papagaio_randomized_treatment_template_step_branch
-            )
-        )
-        papagaio_randomized_treatment_template_step_orm.branches.append(
-            papagaio_randomized_treatment_template_step_branch_orm
-        )
-
-        db.session.add(papagaio_randomized_treatment_template_step_orm)
 
     if (
         crud.read(
@@ -1048,20 +1023,23 @@ def create_complex_workflow_template_steps():
             "condition": None,
         }
 
-        papagaio_observation_treatment_template_step_orm = WorkflowTemplateStepOrm(
-            **papagaio_observation_treatment_template_step
-        )
-        papagaio_observation_treatment_template_step_branch_orm = (
-            WorkflowTemplateStepBranchOrm(
-                **papagaio_observation_treatment_template_step_branch
-            )
-        )
-        papagaio_observation_treatment_template_step_orm.branches.append(
-            papagaio_observation_treatment_template_step_branch_orm
+        create_workflow_template_step_with_form_and_branches(
+            papagaio_observation_treatment_template_step,
+            [papagaio_observation_treatment_template_step_branch],
         )
 
-        db.session.add(papagaio_observation_treatment_template_step_orm)
 
+def create_workflow_template_step_with_form_and_branches(
+    template_step: dict, template_step_branches: List[dict]
+) -> None:
+    form_template_orm = crud.read(FormTemplateOrm, id=template_step["form_id"])
+    template_step_orm = WorkflowTemplateStepOrm(form=form_template_orm, **template_step)
+
+    for branch in template_step_branches:
+        template_step_branch_orm = WorkflowTemplateStepBranchOrm(**branch)
+        template_step_orm.branches.append(template_step_branch_orm)
+
+    db.session.add(template_step_orm)
     db.session.commit()
 
 
