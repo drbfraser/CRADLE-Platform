@@ -343,6 +343,12 @@ def seed():
             print(f"{count}/{len(patient_list)} Patients have been seeded")
 
     print(f"{count + 1}/{len(patient_list)} Patients have been seeded")
+
+    print("Seeding PAPAGAIO Research Study Workflow Template...")
+    create_complex_workflow_classification()
+    create_complex_workflow_template()
+    print("PAPAGAIO Research Study Workflow Template has been seeded")
+
     print("Complete!")
 
 
@@ -749,7 +755,7 @@ def create_simple_workflow_template():
     step = {
         "id": "wt-simple-1-step-1",
         "name": "Get Patient Name",
-        "description": "Enter the patient's name",
+        "title": "Enter the patient's name",
         "expected_completion": get_current_time()
         + 86400,  # Expected completion is 24 hours after this step was created
         "last_edited": get_current_time(),
@@ -888,7 +894,7 @@ def create_complex_workflow_template():
         "last_edited": get_current_time(),
         "last_edited_by": 1,
         "version": "V1",
-        "initial_condition_id": "papagaio_study_workflow_template_init_condition",
+        "initial_condition_id": None,
         "classification_id": "papagaio_study_workflow_classification",
     }
 
@@ -938,7 +944,9 @@ def create_complex_workflow_template_steps():
         }
 
         create_workflow_template_step_with_form_and_branches(
-            prerequisites_template_step, [prerequisites_template_step_branch]
+            prerequisites_template_step,
+            "prerequisites_form_template",
+            [prerequisites_template_step_branch],
         )
 
     if crud.read(WorkflowTemplateStepOrm, id="papagaio_consent_template_step") is None:
@@ -963,7 +971,9 @@ def create_complex_workflow_template_steps():
         }
 
         create_workflow_template_step_with_form_and_branches(
-            papagaio_consent_template_step, [papagaio_consent_template_step_branch]
+            papagaio_consent_template_step,
+            "papagaio_consent_form_template",
+            [papagaio_consent_template_step_branch],
         )
 
     if (
@@ -994,6 +1004,7 @@ def create_complex_workflow_template_steps():
 
         create_workflow_template_step_with_form_and_branches(
             papagaio_randomized_treatment_template_step,
+            "papagaio_randomized_treatment_plan_form_template",
             [papagaio_randomized_treatment_template_step_branch],
         )
 
@@ -1016,7 +1027,7 @@ def create_complex_workflow_template_steps():
         }
 
         papagaio_observation_treatment_template_step_branch = {
-            "id": "papagaio_observation_treatment_template_step_branch",
+            "id": "papagaio_obs_treatment_template_step_branch",
             "target_step_id": None,
             "step_id": "papagaio_observation_treatment_template_step",
             "condition_id": None,
@@ -1025,14 +1036,15 @@ def create_complex_workflow_template_steps():
 
         create_workflow_template_step_with_form_and_branches(
             papagaio_observation_treatment_template_step,
+            "papagaio_observation_treatment_plan_form_template",
             [papagaio_observation_treatment_template_step_branch],
         )
 
 
 def create_workflow_template_step_with_form_and_branches(
-    template_step: dict, template_step_branches: List[dict]
+    template_step: dict, form_id: str, template_step_branches: List[dict]
 ) -> None:
-    form_template_orm = crud.read(FormTemplateOrm, id=template_step["form_id"])
+    form_template_orm = crud.read(FormTemplateOrm, id=form_id)
     template_step_orm = WorkflowTemplateStepOrm(form=form_template_orm, **template_step)
 
     for branch in template_step_branches:
@@ -1102,7 +1114,7 @@ def create_complex_workflow_template_step_form_classifications():
 def create_complex_workflow_template_step_forms():
     create_complex_workflow_template_step_form_classifications()
 
-    if crud.read(FormTemplateOrm, id="prerequisites_form_template"):
+    if crud.read(FormTemplateOrm, id="prerequisites_form_template") is None:
         prerequisites_form_template = {
             "id": "prerequisites_form_template",
             "version": "V1",
