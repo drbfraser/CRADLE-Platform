@@ -113,7 +113,7 @@ def test_uploading_invalid_workflow_template_steps(
 
         """
         Try to upload a workflow template step which has the exact same form template version as an
-        already existing form template 
+        already existing form template
         """
 
         response = api_post(
@@ -239,6 +239,7 @@ def example_workflow_template(vht_user_id):
         "name": "workflow_example1",
         "description": "workflow_example1",
         "archived": False,
+        "starting_step_id": None,
         "date_created": get_current_time(),
         "last_edited": get_current_time() + 44345,
         "last_edited_by": vht_user_id,

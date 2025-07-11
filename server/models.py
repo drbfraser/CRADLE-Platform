@@ -727,6 +727,7 @@ class WorkflowTemplateOrm(db.Model):
     description = db.Column(db.Text, nullable=False)
     archived = db.Column(db.Boolean, nullable=False, default=False)
     date_created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
+    starting_step_id = db.Column(db.String(50), nullable=True)
     last_edited = db.Column(
         db.BigInteger,
         nullable=False,
@@ -824,7 +825,7 @@ class WorkflowTemplateStepOrm(db.Model):
 class WorkflowTemplateStepBranchOrm(db.Model):
     __tablename__ = "workflow_template_step_branch"
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
-    target_step_id = db.Column(db.String(50), nullable=False)
+    target_step_id = db.Column(db.String(50), nullable=True)
 
     # FOREIGN KEYS
     step_id = db.Column(

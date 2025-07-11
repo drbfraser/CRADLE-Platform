@@ -59,6 +59,14 @@ def create_workflow_template_step(body: WorkflowTemplateStepUploadModel):
 
     assign_step_ids(WorkflowTemplateStepOrm, template_step, workflow_template.id)
 
+    if len(workflow_template.steps) == 0:
+        changes = {
+            "last_edited_by": template_step["last_edited_by"],
+            "last_edited": get_current_time(),
+            "starting_step_id": template_step["id"],
+        }
+        crud.update(WorkflowTemplateOrm, changes=changes, id=workflow_template.id)
+
     for branch in template_step["branches"]:
         if branch["condition"] is None and branch["condition_id"] is not None:
             branch_condition = crud.read(RuleGroupOrm, id=branch["condition_id"])

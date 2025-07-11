@@ -729,6 +729,7 @@ def create_simple_workflow_template():
         "name": "Get Patient Name Workflow",
         "description": "Collect name from patient",
         "archived": False,
+        "starting_step_id": "wt-simple-1-step-1",
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
         "version": "V1",
@@ -759,7 +760,7 @@ def create_simple_workflow_template():
 
     branch = {
         "id": "wt-simple-1-step-1-branch",
-        "target_step_id": "",
+        "target_step_id": None,
         "step_id": "wt-simple-1-step-1",
         "condition_id": None,
     }
@@ -882,6 +883,7 @@ def create_complex_workflow_template():
         "description": "PAPAGAIO is an NIHR Global Health Research Group focussed on reducing maternal and perinatal"
         "mortality and morbidity from pre-eclampsia, across low- and middle-income countries",
         "archived": True,
+        "starting_step_id": "prerequisites_template_step",
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
         "last_edited_by": 1,
