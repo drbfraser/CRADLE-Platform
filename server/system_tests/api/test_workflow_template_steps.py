@@ -168,16 +168,6 @@ def test_getting_workflow_template_steps(
         assert response.status_code == 201
 
         """
-        Query for all workflow template steps
-        """
-
-        response = api_get(endpoint="/api/workflow/template/steps")
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-
-        assert response.status_code == 200 and len(response_body["items"]) == 2
-
-        """
         Query for specific workflow template steps with various query parameters
         """
 

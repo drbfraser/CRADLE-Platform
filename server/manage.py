@@ -762,6 +762,7 @@ def create_simple_workflow_template():
         "last_edited_by": 1,
         "form_id": "wt-simple-1-step-1-form",
         "workflow_template_id": "wt-simple-1",
+        "condition_id": None,
     }
 
     branch = {
@@ -769,6 +770,7 @@ def create_simple_workflow_template():
         "target_step_id": None,
         "step_id": "wt-simple-1-step-1",
         "condition_id": None,
+        "condition": None,
     }
 
     branch_orm = WorkflowTemplateStepBranchOrm(**branch)
