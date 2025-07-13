@@ -1,11 +1,59 @@
+import os
+import subprocess
 from typing import Callable, Tuple
 
 import pytest
 import requests
+from environs import Env
 from flask import Flask
 from humps import decamelize
 
 from system_tests.mock import factory
+
+
+@pytest.fixture(scope="session", autouse=True)
+def start_mock_db_container():
+    # Spin up mock MYSQL container
+
+    env = Env()
+    env.read_env()
+
+    db_user = env("DB_USERNAME")
+    db_pw = env("DB_PASSWORD")
+
+    subprocess.run(
+        [
+            "docker-compose",
+            "-f",
+            "docker-compose.yml",
+            "-f",
+            "docker-compose.test.yml",
+            "up",
+            "-d",
+            "cradle_mysql_test_db",
+        ],
+        check=True,
+    )
+
+    os.environ["MOCK_DATABASE_URL"] = (
+        f"mysql+pymysql://{db_user}:{db_pw}@cradle_mysql_test_db:3307/testing_cradle"
+    )
+
+    yield
+
+    # Tear down once tests are completed
+
+    subprocess.run(
+        [
+            "docker-compose",
+            "-f",
+            "docker-compose.yml",
+            "-f",
+            "docker-compose.test.yml",
+            "down",
+        ],
+        check=True,
+    )
 
 
 @pytest.fixture
