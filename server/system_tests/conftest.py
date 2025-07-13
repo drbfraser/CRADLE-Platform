@@ -11,15 +11,30 @@ from humps import decamelize
 from system_tests.mock import factory
 
 
+@pytest.fixture
+def db_env():
+    env = Env()
+    env.read_env()
+
+    db_env = {
+        "db_user": env("DB_USERNAME"),
+        "db_pw": env("DB_PASSWORD"),
+        "db_port": env("DB_PORT"),
+        "db_name": env("DB_NAME"),
+    }
+
+    return db_env
+
+
 @pytest.fixture(scope="session", autouse=True)
-def start_mock_db_container():
+def start_mock_db_container(db_env):
     # Spin up mock MYSQL container
 
     env = Env()
     env.read_env()
 
-    db_user = env("DB_USERNAME")
-    db_pw = env("DB_PASSWORD")
+    db_user = db_env["db_user"]
+    db_pw = db_env["db_pw"]
 
     subprocess.run(
         [
@@ -55,9 +70,11 @@ def start_mock_db_container():
         check=True,
     )
 
+    del os.environ["MOCK_DATABASE_URL"]
+
 
 @pytest.fixture
-def app():
+def app(db_env):
     from config import app
 
     # from manage import seed
