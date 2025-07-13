@@ -29,19 +29,19 @@ export const createRuleGroup = async (payload: {
 };
 
 // PUT /rules/groups/{groupId} - update
-export const updateRuleGroup = async (
-  groupId: ID,
-  payload: {
-    logic?: 'AND' | 'OR' | 'NOT';
-    rules?: string;
-  }
-): Promise<RuleGroup> => {
-  const response = await axiosFetch.put<RuleGroup>(
-    ruleGroupPath(groupId),
-    payload
-  );
-  return response.data;
-};
+// export const updateRuleGroup = async (
+//   groupId: ID,
+//   payload: {
+//     logic?: 'AND' | 'OR' | 'NOT';
+//     rules?: string;
+//   }
+// ): Promise<RuleGroup> => {
+//   const response = await axiosFetch.put<RuleGroup>(
+//     ruleGroupPath(groupId),
+//     payload
+//   );
+//   return response.data;
+// };
 
 // DELETE /rules/groups/{groupId}
 export const deleteRuleGroupById = async (groupId: ID): Promise<void> => {
