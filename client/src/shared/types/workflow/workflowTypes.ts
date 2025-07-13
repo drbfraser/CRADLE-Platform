@@ -22,7 +22,8 @@ export interface TemplateStep {
   formId: ID;
   expectedCompletion?: ISODate;
   conditions?: RuleGroup;
-  next?: TemplateStepBranch[];
+  //mod next to branchs
+  branches?: TemplateStepBranch[];
 
   // audit & soft-delete
   archived: boolean;
