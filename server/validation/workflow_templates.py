@@ -31,6 +31,7 @@ class WorkflowTemplateExample:
         "name": name,
         "description": description,
         "archived": archived,
+        "starting_step_id": None,
         "initial_condition_id": RuleGroupExample.id,
         "condition": RuleGroupExample.example_01,
         "date_created": date_created,
@@ -47,6 +48,7 @@ class WorkflowTemplateExample:
         "name": name,
         "description": description,
         "archived": archived,
+        "starting_step_id": None,
         "initial_condition_id": RuleGroupExample.id,
         "initial_condition": RuleGroupExample.example_01,
         "date_created": date_created,
@@ -63,6 +65,7 @@ class WorkflowTemplateExample:
         "name": name,
         "description": description,
         "archived": archived,
+        "starting_step_id": WorkflowTemplateStepExample.example_01["id"],
         "initial_condition_id": RuleGroupExample.id,
         "initial_condition": RuleGroupExample.example_01,
         "date_created": date_created,
@@ -80,6 +83,7 @@ class WorkflowTemplateModel(CradleBaseModel):
     name: str
     description: str
     archived: bool
+    starting_step_id: Optional[str] = None
     date_created: int = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
     last_edited_by: Optional[int] = None
