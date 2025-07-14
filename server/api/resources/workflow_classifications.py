@@ -1,14 +1,12 @@
 from typing import List
 
-from flask import abort, request
+from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 from common.api_utils import (
     WorkflowClassificationIdPath,
-    get_user_id,
 )
-from common.commonUtil import get_current_time
 from data import crud, marshal
 from models import WorkflowClassificationOrm
 from validation import CradleBaseModel
@@ -32,7 +30,9 @@ api_workflow_classifications = APIBlueprint(
     abp_security=[{"jwt": []}],
 )
 
-workflow_classification_not_found_message = "Workflow classification with ID: ({}) not found."
+workflow_classification_not_found_message = (
+    "Workflow classification with ID: ({}) not found."
+)
 
 
 # /api/workflow/classifications [POST]
@@ -80,7 +80,7 @@ def get_workflow_classifications():
     workflow_classifications = crud.read_workflow_classifications()
 
     response_data = [
-        marshal.marshal(classification, shallow=True) 
+        marshal.marshal(classification, shallow=True)
         for classification in workflow_classifications
     ]
 
@@ -136,8 +136,10 @@ def update_workflow_classification(
     existing_classification_by_name = crud.read(
         WorkflowClassificationOrm, name=workflow_classification_changes["name"]
     )
-    if (existing_classification_by_name is not None and 
-        existing_classification_by_name.id != path.workflow_classification_id):
+    if (
+        existing_classification_by_name is not None
+        and existing_classification_by_name.id != path.workflow_classification_id
+    ):
         return abort(
             code=409,
             description=f"Workflow classification with name '{workflow_classification_changes['name']}' already exists.",
@@ -149,7 +151,9 @@ def update_workflow_classification(
         id=path.workflow_classification_id,
     )
 
-    response_data = crud.read(WorkflowClassificationOrm, id=path.workflow_classification_id)
+    response_data = crud.read(
+        WorkflowClassificationOrm, id=path.workflow_classification_id
+    )
     response_data = marshal.marshal(response_data, shallow=True)
 
     return response_data, 200

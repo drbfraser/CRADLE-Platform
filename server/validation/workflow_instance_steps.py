@@ -151,13 +151,13 @@ class WorkflowInstanceStepModel(CradleBaseModel):
     completion_date: Optional[int] = None
     status: str = "Active"
     data: Optional[str] = None
-    
+
     # Foreign key fields
     form_id: str
     assigned_to: Optional[int] = None
     workflow_instance_id: str
     condition_id: Optional[str] = None
-    
+
     # Relationship fields (for API responses)
     form: Optional[FormModel] = None
     condition: Optional[RuleGroupModel] = None
@@ -189,10 +189,18 @@ class WorkflowInstanceStepModel(CradleBaseModel):
 
     @model_validator(mode="after")
     def validate_dates(self) -> Self:
-        if self.completion_date is not None and self.last_edited is not None and self.completion_date < self.last_edited:
+        if (
+            self.completion_date is not None
+            and self.last_edited is not None
+            and self.completion_date < self.last_edited
+        ):
             raise ValueError("completion_date cannot be before last_edited")
 
-        if self.expected_completion is not None and self.last_edited is not None and self.expected_completion < self.last_edited:
+        if (
+            self.expected_completion is not None
+            and self.last_edited is not None
+            and self.expected_completion < self.last_edited
+        ):
             raise ValueError("expected_completion cannot be before last_edited")
 
         return self

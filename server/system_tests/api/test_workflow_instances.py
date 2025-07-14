@@ -5,8 +5,8 @@ from common.commonUtil import get_current_time, get_uuid
 from common.print_utils import pretty_print
 from data import crud
 from models import WorkflowInstanceOrm, WorkflowTemplateOrm
- 
- 
+
+
 def test_create_workflow_instance(
     database, workflow_instance1, workflow_template1, api_post
 ):
@@ -24,7 +24,10 @@ def test_create_workflow_instance(
         response_body = decamelize(response.json())
         pretty_print(response_body)
         assert response.status_code == 201
-        assert response_body["workflow_template_id"] == workflow_instance1["workflow_template_id"]
+        assert (
+            response_body["workflow_template_id"]
+            == workflow_instance1["workflow_template_id"]
+        )
 
     finally:
         # Clean up - but be careful about what exists
@@ -46,9 +49,14 @@ def test_create_workflow_instance(
 
 
 def test_getting_workflow_instance(
-    database, workflow_instance1, workflow_instance2, workflow_template1, api_post, api_get
+    database,
+    workflow_instance1,
+    workflow_instance2,
+    workflow_template1,
+    api_post,
+    api_get,
 ):
-    try: 
+    try:
         # Create workflow template
         response = api_post(endpoint="/api/workflow/templates", json=workflow_template1)
         database.session.commit()
@@ -75,7 +83,7 @@ def test_getting_workflow_instance(
         response = api_get(endpoint="/api/workflow/instances")
         response_body = decamelize(response.json())
         pretty_print(response_body)
-        
+
         assert response.status_code == 200
         assert "items" in response_body
         assert len(response_body["items"]) == 2
@@ -84,7 +92,7 @@ def test_getting_workflow_instance(
         response = api_get(endpoint="/api/workflow/instances?status=Active")
         response_body = decamelize(response.json())
         pretty_print(response_body)
-        
+
         assert response.status_code == 200
         assert "items" in response_body
         assert len(response_body["items"]) == 1
@@ -92,10 +100,12 @@ def test_getting_workflow_instance(
 
         # Get with template_id
         template_id = workflow_template1["id"]
-        response = api_get(endpoint=f"/api/workflow/instances?workflow_template_id={template_id}")
+        response = api_get(
+            endpoint=f"/api/workflow/instances?workflow_template_id={template_id}"
+        )
         response_body = decamelize(response.json())
         pretty_print(response_body)
-        
+
         assert response.status_code == 200
         assert "items" in response_body
         assert len(response_body["items"]) == 2
@@ -106,17 +116,19 @@ def test_getting_workflow_instance(
         response = api_get(endpoint=f"/api/workflow/instances?patient_id={patient_id}")
         response_body = decamelize(response.json())
         pretty_print(response_body)
-        
+
         assert response.status_code == 200
         assert "items" in response_body
         assert len(response_body["items"]) == 2
         assert response_body["items"][0]["patient_id"] == patient_id
 
         # Get with multiple parameters
-        response = api_get(endpoint=f"/api/workflow/instances?patient_id={patient_id}&status=Active&workflow_template_id={template_id}")
+        response = api_get(
+            endpoint=f"/api/workflow/instances?patient_id={patient_id}&status=Active&workflow_template_id={template_id}"
+        )
         response_body = decamelize(response.json())
         pretty_print(response_body)
-        
+
         assert response.status_code == 200
         assert "items" in response_body
         assert len(response_body["items"]) == 1
@@ -144,7 +156,7 @@ def test_getting_workflow_instance(
                 id=workflow_template1["id"],
             )
         except:
-            pass    
+            pass
 
 
 @pytest.fixture
@@ -153,7 +165,7 @@ def workflow_instance1(vht_user_id, patient_id, workflow_template1):
     return {
         "id": instance_id,
         "name": "workflow_instance1",
-        "title": "Workflow Instance 1",  
+        "title": "Workflow Instance 1",
         "description": "workflow_instance1",
         "status": "Active",
         "date_created": get_current_time(),
@@ -162,7 +174,7 @@ def workflow_instance1(vht_user_id, patient_id, workflow_template1):
         "last_edited_by": vht_user_id,
         "patient_id": patient_id,
         "workflow_template_id": workflow_template1["id"],
-        "steps": [],  
+        "steps": [],
     }
 
 
@@ -172,7 +184,7 @@ def workflow_instance2(vht_user_id, patient_id, workflow_template1):
     return {
         "id": instance_id,
         "name": "workflow_instance2",
-        "title": "Workflow Instance 2",  
+        "title": "Workflow Instance 2",
         "description": "workflow_instance2",
         "status": "Completed",
         "date_created": get_current_time(),
@@ -181,7 +193,7 @@ def workflow_instance2(vht_user_id, patient_id, workflow_template1):
         "last_edited_by": vht_user_id,
         "patient_id": patient_id,
         "workflow_template_id": workflow_template1["id"],
-        "steps": [],  
+        "steps": [],
     }
 
 

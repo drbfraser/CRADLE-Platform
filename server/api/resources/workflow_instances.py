@@ -11,9 +11,9 @@ from common.api_utils import (
 from common.commonUtil import get_current_time
 from data import crud, marshal
 from models import (
+    PatientOrm,
     WorkflowInstanceOrm,
     WorkflowTemplateOrm,
-    PatientOrm,
 )
 from validation import CradleBaseModel
 from validation.workflow_instances import (
@@ -88,7 +88,9 @@ def get_workflow_instances():
     # Get query parameters
     patient_id = request.args.get("patient_id", default=None, type=str)
     status = request.args.get("status", default=None, type=str)
-    workflow_template_id = request.args.get("workflow_template_id", default=None, type=str)
+    workflow_template_id = request.args.get(
+        "workflow_template_id", default=None, type=str
+    )
 
     workflow_instances = crud.read_workflow_instances(
         model=WorkflowInstanceOrm,
@@ -118,7 +120,9 @@ def get_workflow_instance(path: WorkflowInstanceIdPath):
     if workflow_instance is None:
         return abort(
             code=404,
-            description=workflow_instance_not_found_message.format(path.workflow_instance_id),
+            description=workflow_instance_not_found_message.format(
+                path.workflow_instance_id
+            ),
         )
 
     response_data = marshal.marshal(obj=workflow_instance, shallow=False)
@@ -140,7 +144,9 @@ def update_workflow_instance(path: WorkflowInstanceIdPath, body: WorkflowInstanc
     if workflow_instance is None:
         return abort(
             code=404,
-            description=workflow_instance_not_found_message.format(path.workflow_instance_id),
+            description=workflow_instance_not_found_message.format(
+                path.workflow_instance_id
+            ),
         )
 
     workflow_instance_changes = body.model_dump()
@@ -195,7 +201,9 @@ def delete_workflow_instance(path: WorkflowInstanceIdPath):
     if workflow_instance is None:
         return abort(
             code=404,
-            description=workflow_instance_not_found_message.format(path.workflow_instance_id),
+            description=workflow_instance_not_found_message.format(
+                path.workflow_instance_id
+            ),
         )
 
     crud.delete_workflow(WorkflowInstanceOrm, id=path.workflow_instance_id)

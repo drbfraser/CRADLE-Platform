@@ -184,7 +184,6 @@ def update_workflow_template_step(
 )
 def delete_workflow_template_step(path: WorkflowTemplateStepIdPath):
     """Delete Workflow Template Step"""
-
     template_step = crud.read(
         WorkflowTemplateStepOrm, id=path.workflow_template_step_id
     )

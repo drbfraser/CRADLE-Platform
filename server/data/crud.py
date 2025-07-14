@@ -276,7 +276,7 @@ def delete_workflow_classification(delete_templates: bool = False, **kwargs) -> 
     Deletes a workflow classification and optionally its associated templates
 
     :param delete_templates: If true, deletes all workflow templates associated with this classification
-    :param kwargs: Keyword arguments mapping column names to values to parameterize the query 
+    :param kwargs: Keyword arguments mapping column names to values to parameterize the query
     """
     classification = read(WorkflowClassificationOrm, **kwargs)
 
@@ -285,9 +285,13 @@ def delete_workflow_classification(delete_templates: bool = False, **kwargs) -> 
 
     if delete_templates:
         # Delete all workflow templates associated with this classification
-        templates = read_workflow_templates(workflow_classification_id=classification.id)
+        templates = read_workflow_templates(
+            workflow_classification_id=classification.id
+        )
         for template in templates:
-            delete_workflow(WorkflowTemplateOrm, delete_classification=False, id=template.id)
+            delete_workflow(
+                WorkflowTemplateOrm, delete_classification=False, id=template.id
+            )
 
     delete(classification)
 

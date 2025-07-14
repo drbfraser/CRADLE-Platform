@@ -11,10 +11,10 @@ from common.api_utils import (
 from common.commonUtil import get_current_time
 from data import crud, marshal
 from models import (
-    WorkflowInstanceStepOrm,
-    WorkflowInstanceOrm,
-    RuleGroupOrm,
     FormOrm,
+    RuleGroupOrm,
+    WorkflowInstanceOrm,
+    WorkflowInstanceStepOrm,
 )
 from validation import CradleBaseModel
 from validation.workflow_instance_steps import (
@@ -97,12 +97,13 @@ def create_workflow_instance_step(body: WorkflowInstanceStepUploadModel):
 def get_workflow_instance_steps():
     """Get All Workflow Instance Steps"""
     # Get query parameters
-    workflow_instance_id = request.args.get("workflow_instance_id", default=None, type=str)
+    workflow_instance_id = request.args.get(
+        "workflow_instance_id", default=None, type=str
+    )
 
     # Get instance steps using the available CRUD method
     instance_steps = crud.read_instance_steps(
-        WorkflowInstanceStepOrm, 
-        workflow_instance_id=workflow_instance_id
+        WorkflowInstanceStepOrm, workflow_instance_id=workflow_instance_id
     )
 
     response_data = [
@@ -166,7 +167,8 @@ def update_workflow_instance_step(
     # Validate that the workflow instance exists (if being updated)
     if workflow_instance_step_changes.get("workflow_instance_id") is not None:
         workflow_instance = crud.read(
-            WorkflowInstanceOrm, id=workflow_instance_step_changes["workflow_instance_id"]
+            WorkflowInstanceOrm,
+            id=workflow_instance_step_changes["workflow_instance_id"],
         )
         if workflow_instance is None:
             return abort(
@@ -178,7 +180,9 @@ def update_workflow_instance_step(
 
     # Validate that the condition exists (if being updated)
     if workflow_instance_step_changes.get("condition_id") is not None:
-        condition = crud.read(RuleGroupOrm, id=workflow_instance_step_changes["condition_id"])
+        condition = crud.read(
+            RuleGroupOrm, id=workflow_instance_step_changes["condition_id"]
+        )
         if condition is None:
             return abort(
                 code=404,
@@ -219,7 +223,8 @@ def update_workflow_instance_step(
 
 # /api/workflow/instance/steps/<string:workflow_instance_step_id>/complete [PUT]
 @api_workflow_instance_steps.put(
-    "/<string:workflow_instance_step_id>/complete", responses={200: WorkflowInstanceStepModel}
+    "/<string:workflow_instance_step_id>/complete",
+    responses={200: WorkflowInstanceStepModel},
 )
 def complete_workflow_instance_step(path: WorkflowInstanceStepIdPath):
     """Complete Workflow Instance Step"""
