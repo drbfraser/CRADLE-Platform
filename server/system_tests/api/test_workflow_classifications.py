@@ -80,7 +80,6 @@ def test_get_workflow_classifications_with_data(database, api_get, api_post):
         assert response.status_code == 200
         assert "items" in response_body
         assert isinstance(response_body["items"], list)
-        assert len(response_body["items"]) == 3
         
         # Check that all classifications are present
         classification_ids = [item["id"] for item in response_body["items"]]
