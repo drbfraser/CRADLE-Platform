@@ -71,6 +71,14 @@ def create_workflow_template_step(body: WorkflowTemplateStepUploadModel):
 
     assign_step_ids(WorkflowTemplateStepOrm, template_step, workflow_template.id)
 
+    if len(workflow_template.steps) == 0:
+        changes = {
+            "last_edited_by": template_step["last_edited_by"],
+            "last_edited": get_current_time(),
+            "starting_step_id": template_step["id"],
+        }
+        crud.update(WorkflowTemplateOrm, changes=changes, id=workflow_template.id)
+
     check_branch_conditions(template_step)
 
     try:
@@ -193,8 +201,6 @@ def update_workflow_template_step(
 )
 def delete_workflow_template_step(path: WorkflowTemplateStepIdPath):
     """Delete Workflow Template Step"""
-    # For now, return success if ID matches
-
     template_step = crud.read(
         WorkflowTemplateStepOrm, id=path.workflow_template_step_id
     )
