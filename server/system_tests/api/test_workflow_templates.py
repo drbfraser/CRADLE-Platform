@@ -191,12 +191,25 @@ def test_getting_workflow_templates(
         api_post(endpoint="/api/workflow/templates", json=workflow_template4)
         database.session.commit()
 
+        classification_id = workflow_template1["classification_id"]
+
+        """
+        Query for workflow_example1 and workflow_example3 with same classification ID
+        """
+
+        response = api_get(
+            f"/api/workflow/templates?classification_id={classification_id}"
+        )
+        workflow_templates = decamelize(response.json())["items"]
+
+        assert len(workflow_templates) == 2
+
         """
         Query for archived workflow templates with same classification ID
         """
 
         response = api_get(
-            f"/api/workflow/templates?classification_id={workflow_template1['classification_id']}&archived=True"
+            f"/api/workflow/templates?classification_id={classification_id}&archived=True"
         )
         workflow_templates = decamelize(response.json())["items"]
 
@@ -204,22 +217,6 @@ def test_getting_workflow_templates(
             len(workflow_templates) == 1
             and workflow_templates[0]["id"] == workflow_template1["id"]
         )
-
-        response = api_get("/api/workflow/templates?archived=True")
-        workflow_templates = decamelize(response.json())["items"]
-
-        assert len(workflow_templates) == 2
-
-        """
-        Query for workflow_example1 and workflow_example3 with same classification ID
-        """
-
-        response = api_get(
-            f"/api/workflow/templates?classification_id={workflow_template1['classification_id']}"
-        )
-        workflow_templates = decamelize(response.json())["items"]
-
-        assert len(workflow_templates) == 2
 
         """
         Query for a specific workflow template

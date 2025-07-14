@@ -90,7 +90,6 @@ class WorkflowTemplateModel(CradleBaseModel):
     version: str
     initial_condition_id: Optional[str] = None
     initial_condition: Optional[RuleGroupModel] = None
-    version: str
     classification_id: Optional[str] = None
     classification: Optional[WorkflowClassificationModel] = None
     steps: list[WorkflowTemplateStepModel]
