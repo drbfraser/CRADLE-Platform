@@ -60,14 +60,14 @@ def create_workflow_instance_step(body: WorkflowInstanceStepUploadModel):
             ),
         )
 
-    # Validate that the condition exists (if provided)
     if instance_step.get("condition_id") is not None:
-        condition = crud.read(RuleGroupOrm, id=instance_step["condition_id"])
-        if condition is None:
-            return abort(
-                code=404,
-                description=f"Condition with ID: ({instance_step['condition_id']}) not found.",
-            )
+        if instance_step.get("condition") is None:
+            condition = crud.read(RuleGroupOrm, id=instance_step["condition_id"])
+            if condition is None:
+                return abort(
+                    code=404,
+                    description=f"Condition with ID: ({instance_step['condition_id']}) not found.",
+                )
 
     # Validate that the form exists
     form = crud.read(FormOrm, id=instance_step["form_id"])

@@ -91,6 +91,7 @@ def get_workflow_instances():
     workflow_template_id = request.args.get("workflow_template_id", default=None, type=str)
 
     workflow_instances = crud.read_workflow_instances(
+        model=WorkflowInstanceOrm,
         patient_id=patient_id,
         status=status,
         workflow_template_id=workflow_template_id,
