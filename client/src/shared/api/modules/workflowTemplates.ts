@@ -42,11 +42,23 @@ export const listTemplates = async (params?: {
   groupBy?: 'classification';
   classificationId?: ID;
   archived?: boolean;
-}): Promise<WorkflowTemplate[] | TemplateGroupArray> => {
+}): Promise<WorkflowTemplate[]> => {
   const response = await axiosFetch.get<
-    WorkflowTemplate[] | TemplateGroupArray
+    WorkflowTemplate[] | TemplateGroupArray | { items: WorkflowTemplate[] }
   >(TEMPLATES, { params });
-  return response.data;
+
+  // Handle different response formats
+  if (Array.isArray(response.data)) {
+    return response.data as WorkflowTemplate[];
+  }
+  if (
+    response.data &&
+    typeof response.data === 'object' &&
+    'items' in response.data
+  ) {
+    return (response.data as { items: WorkflowTemplate[] }).items;
+  }
+  return [] as WorkflowTemplate[];
 };
 
 // GET /workflow/templates/{templateId}
@@ -94,3 +106,95 @@ export const updateTemplateStep = (
   axiosFetch
     .put<TemplateStep>(templateStepByIdPath(templateId, stepId), payload)
     .then((r) => r.data);
+
+// DELETE /workflow/templates/{templateId}
+export const deleteTemplate = (templateId: ID) =>
+  axiosFetch.delete(templatePath(templateId));
+
+// GET /workflow/templates/{templateId}/with-classification
+export const getTemplateWithClassification = async (
+  templateId: ID
+): Promise<WorkflowTemplate> => {
+  const response = await axiosFetch.get<WorkflowTemplate>(
+    `${templatePath(templateId)}/with-classification`
+  );
+  return response.data;
+};
+
+// GET /workflow/templates/{templateId}/with-steps
+export const getTemplateWithSteps = async (
+  templateId: ID
+): Promise<WorkflowTemplate> => {
+  const response = await axiosFetch.get<WorkflowTemplate>(
+    `${templatePath(templateId)}/with-steps`
+  );
+  return response.data;
+};
+
+// GET /workflow/templates/{templateId}/with-steps-and-classification
+export const getTemplateWithStepsAndClassification = async (
+  templateId: ID
+): Promise<WorkflowTemplate> => {
+  const response = await axiosFetch.get<WorkflowTemplate>(
+    `${templatePath(templateId)}/with-steps-and-classification`
+  );
+  return response.data;
+};
+
+// Template Step APIs - align with backend workflow_template_steps.py
+const TEMPLATE_STEPS = '/workflow/template/steps';
+
+// POST /workflow/template/steps
+export const createTemplateStep = (payload: TemplateStep) =>
+  axiosFetch.post<TemplateStep>(TEMPLATE_STEPS, payload).then((r) => r.data);
+
+// GET /workflow/template/steps
+export const getAllTemplateSteps = async (): Promise<TemplateStep[]> => {
+  const response = await axiosFetch.get<{ items: TemplateStep[] }>(
+    TEMPLATE_STEPS
+  );
+  return response.data.items;
+};
+
+// GET /workflow/template/steps/{stepId}
+export const getTemplateStepById = async (
+  stepId: ID
+): Promise<TemplateStep> => {
+  const response = await axiosFetch.get<TemplateStep>(
+    `${TEMPLATE_STEPS}/${stepId}`
+  );
+  return response.data;
+};
+
+// GET /workflow/template/steps/{stepId}/with-form
+export const getTemplateStepWithForm = async (
+  stepId: ID
+): Promise<TemplateStep> => {
+  const response = await axiosFetch.get<TemplateStep>(
+    `${TEMPLATE_STEPS}/${stepId}/with-form`
+  );
+  return response.data;
+};
+
+// GET /workflow/template/steps/by-template/{templateId}
+export const getTemplateStepsByTemplate = async (
+  templateId: ID
+): Promise<TemplateStep[]> => {
+  const response = await axiosFetch.get<{ items: TemplateStep[] }>(
+    `${TEMPLATE_STEPS}/by-template/${templateId}`
+  );
+  return response.data.items;
+};
+
+// PUT /workflow/template/steps/{stepId}
+export const updateTemplateStepById = (
+  stepId: ID,
+  payload: Partial<TemplateStep>
+) =>
+  axiosFetch
+    .put<TemplateStep>(`${TEMPLATE_STEPS}/${stepId}`, payload)
+    .then((r) => r.data);
+
+// DELETE /workflow/template/steps/{stepId}
+export const deleteTemplateStepById = (stepId: ID) =>
+  axiosFetch.delete(`${TEMPLATE_STEPS}/${stepId}`);

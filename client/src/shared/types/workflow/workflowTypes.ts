@@ -37,13 +37,14 @@ export interface WorkflowTemplate {
   version: number;
 
   classificationId: ID;
+  classification?: WorkflowClassification;
   initialConditions?: RuleGroup;
   steps: TemplateStep[];
 
   // audit & soft-delete
   archived: boolean;
-  dateCreated: ISODate;
-  lastEdited: ISODate;
+  dateCreated: number;
+  lastEdited: number;
   lastEditedBy: string;
 }
 
