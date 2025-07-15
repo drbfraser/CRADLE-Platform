@@ -8,9 +8,10 @@ import { Unarchive } from '@mui/icons-material';
 import UploadIcon from '@mui/icons-material/Upload';
 import AddIcon from '@mui/icons-material/Add';
 
-import { FormTemplate } from 'src/shared/types/form/formTemplateTypes';
+import { WorkflowTemplate } from 'src/shared/types/workflow/workflowTypes';
 import { getPrettyDate } from 'src/shared/utils';
-import { useFormTemplatesQuery } from 'src/shared/queries';
+import { listTemplates } from 'src/shared/api/modules/workflowTemplates';
+import { useQuery } from '@tanstack/react-query';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import {
   TableAction,
@@ -26,14 +27,14 @@ import UploadTemplate from './UploadTemplate';
 import UnarchiveTemplateDialog from './UnarchiveTemplateDialog';
 import { useDownloadTemplateAsCSV } from './mutations';
 
-type FormTemplateWithIndex = FormTemplate & {
+type WorkflowTemplateWithIndex = WorkflowTemplate & {
   index: number;
 };
 
 export const ManageWorkflowTemplates = () => {
   const [showArchivedTemplates, setShowArchivedTemplates] = useState(false);
 
-  const [selectedForm, setSelectedForm] = useState<FormTemplate>();
+  const [selectedTemplate, setSelectedTemplate] = useState<WorkflowTemplate>();
 
   const [isUploadPopupOpen, setIsUploadPopupOpen] = useState(false);
   const [isArchivePopupOpen, setIsArchivePopupOpen] = useState(false);
@@ -41,24 +42,37 @@ export const ManageWorkflowTemplates = () => {
 
   const navigate = useNavigate();
 
-  const formTemplatesQuery = useFormTemplatesQuery(showArchivedTemplates);
+  const workflowTemplatesQuery = useQuery({
+    queryKey: ['workflowTemplates', showArchivedTemplates],
+    queryFn: async (): Promise<WorkflowTemplate[]> => {
+      const result = await listTemplates({ archived: showArchivedTemplates });
+
+      return Array.isArray(result)
+        ? result
+        : (result as { items: WorkflowTemplate[] }).items || [];
+    },
+  });
   const { mutate: downloadTemplateCSV, isError: downloadTemplateCSVIsError } =
     useDownloadTemplateAsCSV();
 
   const TableRowActions = useCallback(
-    ({ formTemplate }: { formTemplate?: FormTemplateWithIndex }) => {
-      if (!formTemplate) return null;
+    ({
+      workflowTemplate,
+    }: {
+      workflowTemplate?: WorkflowTemplateWithIndex;
+    }) => {
+      if (!workflowTemplate) return null;
 
       const actions: TableAction[] = [];
 
-      if (!formTemplate.archived) {
+      if (!workflowTemplate.archived) {
         actions.push({
           tooltip: 'Edit Workflow ',
           Icon: Edit,
           onClick: () => {
             navigate('/admin/workflow-templates/new', {
               state: {
-                editFormId: formTemplate.id,
+                editTemplateId: workflowTemplate.id,
               },
             });
           },
@@ -67,7 +81,7 @@ export const ManageWorkflowTemplates = () => {
           tooltip: 'Archive Workflow ',
           Icon: DeleteForever,
           onClick: () => {
-            setSelectedForm(formTemplate);
+            setSelectedTemplate(workflowTemplate);
             setIsArchivePopupOpen(true);
           },
         });
@@ -76,7 +90,7 @@ export const ManageWorkflowTemplates = () => {
           tooltip: 'Unarchive Workflow ',
           Icon: Unarchive,
           onClick: () => {
-            setSelectedForm(formTemplate);
+            setSelectedTemplate(workflowTemplate);
             setIsUnarchivePopupOpen(true);
           },
         });
@@ -88,8 +102,8 @@ export const ManageWorkflowTemplates = () => {
         onClick: () => {
           downloadTemplateCSV(
             {
-              id: formTemplate.id,
-              version: formTemplate.version,
+              id: workflowTemplate.id,
+              version: `${workflowTemplate.version}`,
             },
             {
               onSuccess: (file: Blob) => {
@@ -97,7 +111,10 @@ export const ManageWorkflowTemplates = () => {
                 link.href = URL.createObjectURL(file);
                 link.setAttribute(
                   'download',
-                  `${formTemplate.classification.name}.csv`
+                  `${
+                    workflowTemplate.classification?.name ||
+                    workflowTemplate.name
+                  }.csv`
                 );
                 link.click();
               },
@@ -123,18 +140,22 @@ export const ManageWorkflowTemplates = () => {
       headerName: 'Take Action',
       filterable: false,
       sortable: false,
-      renderCell: (
-        params: GridRenderCellParams<any, FormTemplateWithIndex>
-      ) => <TableRowActions formTemplate={params.value} />,
+      renderCell: (params: GridRenderCellParams<WorkflowTemplateWithIndex>) => (
+        <TableRowActions workflowTemplate={params.value} />
+      ),
     },
   ];
-  const tableRows = formTemplatesQuery.data?.map((template, index) => ({
-    id: index,
-    name: template.classification.name,
-    version: template.version,
-    dateCreated: getPrettyDate(template.dateCreated),
-    takeAction: template,
-  }));
+  const tableRows = workflowTemplatesQuery.data?.map(
+    (template: WorkflowTemplate, index: number) => ({
+      id: index,
+      name: template.name,
+      classification: template.classification?.name || 'N/A',
+      version: template.version,
+      dateCreated: getPrettyDate(template.dateCreated),
+      lastEdited: getPrettyDate(template.lastEdited),
+      takeAction: template,
+    })
+  );
 
   const TableFooter = () => (
     <DataTableFooter>
@@ -156,7 +177,7 @@ export const ManageWorkflowTemplates = () => {
 
   return (
     <>
-      {(formTemplatesQuery.isError || downloadTemplateCSVIsError) && (
+      {(workflowTemplatesQuery.isError || downloadTemplateCSVIsError) && (
         <APIErrorToast />
       )}
 
@@ -167,12 +188,12 @@ export const ManageWorkflowTemplates = () => {
       <ArchiveTemplateDialog
         open={isArchivePopupOpen}
         onClose={() => setIsArchivePopupOpen(false)}
-        template={selectedForm}
+        template={selectedTemplate}
       />
       <UnarchiveTemplateDialog
         open={isUnarchivePopupOpen}
         onClose={() => setIsUnarchivePopupOpen(false)}
-        template={selectedForm}
+        template={selectedTemplate}
       />
 
       <DataTableHeader title={'Workflow'}>
@@ -197,9 +218,10 @@ export const ManageWorkflowTemplates = () => {
         footer={TableFooter}
         getRowClassName={(params) => {
           const index = params.row.id;
-          const formTemplate = formTemplatesQuery.data?.at(index) ?? undefined;
-          if (!formTemplate) return '';
-          return formTemplate.archived ? 'row-archived' : '';
+          const workflowTemplate =
+            workflowTemplatesQuery.data?.at(index) ?? undefined;
+          if (!workflowTemplate) return '';
+          return workflowTemplate.archived ? 'row-archived' : '';
         }}
       />
     </>
