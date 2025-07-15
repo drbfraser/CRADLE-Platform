@@ -144,3 +144,85 @@ export const updateInstanceStep = (
   axiosFetch
     .put<InstanceStep>(instanceStepByIdPath(instanceId, stepId), payload)
     .then((r) => r.data);
+
+// GET /workflow/instances/{instanceId}/with-steps
+export const getInstanceWithSteps = async (
+  instanceId: ID
+): Promise<WorkflowInstance> => {
+  const response = await axiosFetch.get<WorkflowInstance>(
+    `${instancePath(instanceId)}/with-steps`
+  );
+  return response.data;
+};
+
+// GET /workflow/instances/by-patient/{patientId}
+export const getInstancesByPatient = async (
+  patientId: ID
+): Promise<WorkflowInstance[]> => {
+  const response = await axiosFetch.get<{ items: WorkflowInstance[] }>(
+    `${INSTANCES}/by-patient/${patientId}`
+  );
+  return response.data.items;
+};
+
+// GET /workflow/instances/by-template/{templateId}
+export const getInstancesByTemplate = async (
+  templateId: ID
+): Promise<WorkflowInstance[]> => {
+  const response = await axiosFetch.get<{ items: WorkflowInstance[] }>(
+    `${INSTANCES}/by-template/${templateId}`
+  );
+  return response.data.items;
+};
+
+// DELETE /workflow/instances/{instanceId}
+export const deleteInstance = (instanceId: ID) =>
+  axiosFetch.delete(instancePath(instanceId));
+
+// Instance Step APIs - align with backend workflow_instance_steps.py
+const INSTANCE_STEPS = '/workflow/instance/steps';
+
+// POST /workflow/instance/steps
+export const createInstanceStep = (payload: InstanceStep) =>
+  axiosFetch.post<InstanceStep>(INSTANCE_STEPS, payload).then((r) => r.data);
+
+// GET /workflow/instance/steps (with optional filtering)
+export const getAllInstanceSteps = async (params?: {
+  instance_id?: ID;
+  user_id?: number;
+}): Promise<InstanceStep[]> => {
+  const response = await axiosFetch.get<{ items: InstanceStep[] }>(
+    INSTANCE_STEPS,
+    { params }
+  );
+  return response.data.items;
+};
+
+// GET /workflow/instance/steps/{stepId}
+export const getInstanceStepById = async (
+  stepId: ID
+): Promise<InstanceStep> => {
+  const response = await axiosFetch.get<InstanceStep>(
+    `${INSTANCE_STEPS}/${stepId}`
+  );
+  return response.data;
+};
+
+// PUT /workflow/instance/steps/{stepId}
+export const updateInstanceStepById = (
+  stepId: ID,
+  payload: Partial<InstanceStep>
+) =>
+  axiosFetch
+    .put<InstanceStep>(`${INSTANCE_STEPS}/${stepId}`, payload)
+    .then((r) => r.data);
+
+// PUT /workflow/instance/steps/{stepId}/complete
+export const completeInstanceStep = (stepId: ID) =>
+  axiosFetch
+    .put<InstanceStep>(`${INSTANCE_STEPS}/${stepId}/complete`)
+    .then((r) => r.data);
+
+// DELETE /workflow/instance/steps/{stepId}
+export const deleteInstanceStepById = (stepId: ID) =>
+  axiosFetch.delete(`${INSTANCE_STEPS}/${stepId}`);

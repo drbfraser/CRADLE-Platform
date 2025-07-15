@@ -5,7 +5,7 @@ import {
   DialogTitle,
 } from '@mui/material';
 
-import { FormTemplate } from 'src/shared/types/form/formTemplateTypes';
+import { WorkflowTemplate } from 'src/shared/types/workflow/workflowTypes';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Toast } from 'src/shared/components/toast';
@@ -14,7 +14,7 @@ import { useEditWorkflowTemplate } from './mutations';
 interface IProps {
   open: boolean;
   onClose: () => void;
-  template?: FormTemplate;
+  template?: WorkflowTemplate;
 }
 
 const ArchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
