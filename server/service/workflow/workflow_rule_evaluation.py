@@ -1,4 +1,4 @@
-# TODO: create an interface out of this
+# TODO: create an interface out of this?
 #       -> can make mocks for testing (but idk if it is "pythonic")
 class WorkflowRuleEvaluationService:
     """
@@ -29,13 +29,22 @@ class WorkflowRuleEvaluationService:
     - rule engine facade/interface
     - datasource service facade/interface
     """
+    def __init__(self, ds, re):
+        self.datasource_service = ds
+        self.rule_engine_service = re 
+    
     def get_data(self):
         """
         get workflow data
-        """
+        - rule group
+        - rules
+
+        :param a: rule group id
+        :rtype: a rule group object
+        """        
         pass
 
-    def process_arguments(self):
+    def _process_arguments(self):
         """
         get and process arguments
         """
@@ -47,5 +56,5 @@ class WorkflowRuleEvaluationService:
         """
         pass
 
-    def handle_result(self):
+    def _handle_result(self):
         pass
