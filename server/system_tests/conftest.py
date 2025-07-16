@@ -1,5 +1,4 @@
 import os
-import subprocess
 from typing import Callable, Tuple
 
 import pytest
@@ -11,7 +10,7 @@ from humps import decamelize
 from system_tests.mock import factory
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def db_env():
     env = Env()
     env.read_env()
@@ -26,58 +25,51 @@ def db_env():
     return db_env
 
 
-@pytest.fixture(scope="session", autouse=True)
-def start_mock_db_container(db_env):
-    # Spin up mock MYSQL container
+def create_mock_app(db_env: dict) -> Flask:
+    from flask_cors import CORS
+    from flask_openapi3.models.info import Info
+    from flask_openapi3.openapi import OpenAPI as FlaskOpenAPI
 
-    env = Env()
-    env.read_env()
+    from config import Config, JSONEncoder
 
-    db_user = db_env["db_user"]
-    db_pw = db_env["db_pw"]
+    app_version = "1.0.0"
 
-    subprocess.run(
-        [
-            "docker-compose",
-            "-f",
-            "docker-compose.yml",
-            "-f",
-            "docker-compose.test.yml",
-            "up",
-            "-d",
-            "cradle_mysql_test_db",
-        ],
-        check=True,
+    API_DOCS_TITLE = "Cradle-Platform REST API"
+    jwt_security = {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"}
+    app = FlaskOpenAPI(
+        import_name=__name__,
+        static_folder="../client/build",
+        doc_prefix="/apidocs",
+        info=Info(title=API_DOCS_TITLE, version=app_version),
+        security_schemes={"jwt": jwt_security},
     )
-
-    os.environ["MOCK_DATABASE_URL"] = (
-        f"mysql+pymysql://{db_user}:{db_pw}@cradle_mysql_test_db:3307/testing_cradle"
+    app.config["SQLALCHEMY_DATABASE_URI"] = (
+        f"mysql+pymysql://{db_env['db_user']}:{db_env['db_pw']}@cradle_mysql_test_db:{3307}/testing_cradle"
     )
+    app.config["PROPAGATE_EXCEPTIONS"] = True
+    app.config["BASE_URL"] = ""
+    app.config["UPLOAD_FOLDER"] = "/uploads"
+    app.config["MAX_CONTENT_LENGTH"] = 64 * 1e6
 
-    yield
+    CORS(app, supports_credentials=True)
+    app.config.from_object(Config)
 
-    # Tear down once tests are completed
+    app.json_encoder = JSONEncoder
 
-    subprocess.run(
-        [
-            "docker-compose",
-            "-f",
-            "docker-compose.yml",
-            "-f",
-            "docker-compose.test.yml",
-            "down",
-        ],
-        check=True,
-    )
+    app = Flask(__name__)
 
-    del os.environ["MOCK_DATABASE_URL"]
+    return app
 
 
 @pytest.fixture
 def app(db_env):
-    from config import app
+    if os.environ.get("USE_TEST_DB") == 1:
+        app = create_mock_app(db_env)
 
-    # from manage import seed
+    else:
+        from config import app
+
+    #   from manage import seed
 
     app.config.update({"TESTING": True})
     app.logger.disabled = True
@@ -90,8 +82,9 @@ def app(db_env):
 
 
 @pytest.fixture(autouse=True)
-def _provide_app_context(app: Flask):
+def _provide_app_context(app: Flask, database):
     with app.app_context():
+        database.create_all()
         yield
 
 
@@ -107,7 +100,22 @@ def database():
 
     :return: A database instance
     """
-    from config import db
+    if os.environ.get("USE_TEST_DB") == 1:
+        db = SQLAlchemy(
+            app,
+            metadata=MetaData(
+                naming_convention={
+                    "ix": "ix_%(column_0_label)s",
+                    "uq": "uq_%(table_name)s_%(column_0_name)s",
+                    "ck": "ck_%(table_name)s_%(constraint_name)s",
+                    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+                    "pk": "pk_%(table_name)s",
+                }
+            ),
+        )
+
+    else:
+        from config import db
 
     return db
 
