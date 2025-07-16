@@ -20,9 +20,10 @@ import { saveFormTemplateWithFileAsync } from 'src/shared/api';
 interface IProps {
   open: boolean;
   onClose: () => void;
+  type?: 'form' | 'workflow';
 }
 
-const UploadTemplate = ({ open, onClose }: IProps) => {
+const UploadTemplate = ({ open, onClose, type = 'workflow' }: IProps) => {
   const [files, setFiles] = useState<ExtFile[]>([]);
 
   const [uploadError, setUploadError] = useState<string>('');
@@ -105,7 +106,11 @@ const UploadTemplate = ({ open, onClose }: IProps) => {
       />
 
       <Dialog open={open} maxWidth="sm" fullWidth>
-        <DialogTitle>Upload Workflow Template</DialogTitle>
+        <DialogTitle>
+          {type === 'form'
+            ? 'Upload Form Template'
+            : 'Upload Workflow Template'}
+        </DialogTitle>
         <DialogContent>
           <Box sx={boxSx}>
             <Dropzone
@@ -127,7 +132,7 @@ const UploadTemplate = ({ open, onClose }: IProps) => {
             </Dropzone>
           </Box>
           <Box sx={boxSx}>
-            <SampleTemplateLink />
+            <SampleTemplateLink type={type} />
           </Box>
           <DialogActions>
             <CancelButton onClick={onClose}>Cancel</CancelButton>

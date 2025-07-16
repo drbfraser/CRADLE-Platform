@@ -22,7 +22,7 @@ import {
 } from 'src/shared/components/DataTable/DataTable';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
 import ArchiveTemplateDialog from './ArchiveTemplateDialog';
-import UploadTemplate from './UploadTemplate';
+import UploadTemplate from '../sharedComponent/UploadTemplate';
 import UnarchiveTemplateDialog from './UnarchiveTemplateDialog';
 import { useDownloadTemplateAsCSV } from './mutations';
 
@@ -161,6 +161,7 @@ export const ManageFormTemplates = () => {
       <UploadTemplate
         open={isUploadPopupOpen}
         onClose={() => setIsUploadPopupOpen(false)}
+        type="form"
       />
       <ArchiveTemplateDialog
         open={isArchivePopupOpen}
