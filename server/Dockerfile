@@ -1,6 +1,4 @@
-# ** If this file is changed, also change Dockerfile.deploy (no way to extend Dockerfiles :/) **
-
-FROM python:3.9.1-buster
+FROM python:3.9.23-bookworm
 
 WORKDIR /usr/src/server
 
