@@ -28,7 +28,7 @@ jobs:
   display_github_contexts:
     runs-on: [self-hosted, docker]
     container:
-      image: node:14
+      image: node:18
     steps:
       - uses: bfraser/cicd/actions/debug_display_contexts@v1
 
@@ -65,7 +65,7 @@ jobs:
     runs-on: [self-hosted, docker]
     timeout-minutes: 60
     container:
-      image: node:14
+      image: node:18
     env:
       # specify time zone for AWS CLI
       DEBIAN_FRONTEND: noninteractive
