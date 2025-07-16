@@ -102,7 +102,7 @@ jobs:
   backend_unit_tests:
     runs-on: [self-hosted, docker]
     container: 
-      image: python:3.9.1-buster
+      image: python:3.9.23-bookworm
     outputs:
       unit_test_results: report.xml
     steps:
@@ -129,7 +129,7 @@ jobs:
     environment: cicd
     concurrency: cicd
     container: 
-      image: python:3.9.1-buster
+      image: python:3.9.23-bookworm
     needs: backend_unit_tests
     env:
       DB_USERNAME: "root"
@@ -363,7 +363,7 @@ jobs:
   backend_format:
     runs-on: [self-hosted, docker]
     container:
-      image: python:3.9.1-buster
+      image: python:3.9.23-bookworm
     steps:
       - name: Checkout code into container
         uses: bfraser/cicd/actions/checkout@v1
