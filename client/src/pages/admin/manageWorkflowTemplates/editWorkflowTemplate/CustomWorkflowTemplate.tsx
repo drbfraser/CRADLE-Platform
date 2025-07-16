@@ -5,26 +5,27 @@ import {
   Box,
   Grid,
   IconButton,
-  InputAdornment,
   Paper,
   Skeleton,
   TextField,
   Tooltip,
   Typography,
 } from '@mui/material';
-import InfoIcon from '@mui/icons-material/Info';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import moment from 'moment';
 
 import { FormTemplateWithQuestions } from 'src/shared/types/form/formTemplateTypes';
-import { FormRenderStateEnum } from 'src/shared/enums';
-import { CustomizedFormWQuestions } from 'src/pages/customizedForm/components/CustomizedFormWQuestions';
 import {
   useFormTemplateQuery,
   usePreviousFormVersionsQuery,
 } from 'src/pages/customizedForm/queries';
-import LanguageModal from './LanguageModal';
-import { getDefaultLanguage } from './utils';
+import {
+  TemplateStep,
+  WorkflowTemplate,
+} from 'src/shared/types/workflow/workflowTypes';
+import { useQuery } from '@tanstack/react-query';
+import { getTemplate } from 'src/shared/api/modules/workflowTemplates';
+import { ViewTemplateSteps } from './ViewTemplateSteps';
 
 export enum FormEditMainComponents {
   title = 'title',
@@ -32,16 +33,23 @@ export enum FormEditMainComponents {
   languages = 'languages',
 }
 
+export enum WorkflowEditMainComponents {
+  title = 'wtitle',
+  version = 'wversion',
+}
+
 export const initialState = {
   [FormEditMainComponents.title]: '',
   [FormEditMainComponents.version]: '1',
   [FormEditMainComponents.languages]: '',
+  [WorkflowEditMainComponents.title]: '',
+  [WorkflowEditMainComponents.version]: '1',
 };
 
 export const CustomWorkflowTemplate = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const editFormId = location.state?.editFormId as string | undefined;
+  const editWorkflowId = location.state?.editWorkflowId as string | undefined;
 
   const defaultVersion: string = moment
     .utc(new Date(Date.now()).toUTCString())
@@ -52,12 +60,61 @@ export const CustomWorkflowTemplate = () => {
     version: defaultVersion,
     questions: [],
   });
+
+  const [workflow, setWorkflow] = useState<WorkflowTemplate>({
+    id: '',
+    name: '',
+    description: '',
+    version: 1,
+    classificationId: '',
+    initialConditions: undefined,
+    steps: [],
+    archived: false,
+    dateCreated: '',
+    lastEdited: '',
+    lastEditedBy: '',
+  });
+
+  const dummyStep: TemplateStep = {
+    id: '1',
+    name: 'name',
+    title: 'step1',
+    formId: 'form-id',
+    expectedCompletion: 'date',
+    conditions: undefined,
+    next: undefined,
+    archived: false,
+    lastEdited: 'date',
+    lastEditedBy: 'date',
+  };
+  const dummyWF: WorkflowTemplate = {
+    id: '1',
+    name: 'dummy workflow',
+    description: 'this is a dummy',
+    version: 1,
+    classificationId: '1',
+    initialConditions: undefined,
+    steps: [dummyStep],
+    archived: false,
+    dateCreated: 'date',
+    lastEdited: 'date',
+    lastEditedBy: 'date',
+  };
+
   const [versionError, setVersionError] = useState<boolean>(false);
 
-  const formTemplateQuery = useFormTemplateQuery(editFormId);
+  const formTemplateQuery = useFormTemplateQuery(editWorkflowId);
   const previousVersionsQuery = usePreviousFormVersionsQuery(
     formTemplateQuery.data
   );
+
+  const useWorkflowTemplateQuery = (formId: string | undefined) =>
+    useQuery({
+      queryKey: ['formTemplate', formId],
+      queryFn: () => getTemplate(formId!),
+      enabled: !!formId,
+    });
+  const workflowTemplateQuery = useWorkflowTemplateQuery(editWorkflowId);
 
   useEffect(() => {
     if (formTemplateQuery.data) {
@@ -67,17 +124,20 @@ export const CustomWorkflowTemplate = () => {
     }
   }, [formTemplateQuery.data]);
 
-  const browserLanguage = getDefaultLanguage() ?? 'English';
-  const [language, setLanguage] = useState<string[]>(
-    formTemplateQuery.data?.questions[0].langVersions?.map((q) => q.lang) ?? [
-      browserLanguage,
-    ]
-  );
+  useEffect(() => {
+    if (workflowTemplateQuery.data) {
+      //const wft = workflowTemplateQuery.data;
+      //setWorkflow(wft);
+      setWorkflow(dummyWF);
+      setVersionError(true);
+    }
+  }, [workflowTemplateQuery.data]);
 
   const isLoading =
-    editFormId &&
-    formTemplateQuery.isPending &&
+    editWorkflowId &&
+    workflowTemplateQuery.isPending &&
     previousVersionsQuery.isPending;
+
   return (
     <>
       <Box sx={{ display: `flex`, alignItems: `center` }}>
@@ -90,7 +150,9 @@ export const CustomWorkflowTemplate = () => {
         </Tooltip>
         {/*TODO: Allow template name to change depending on if we are editing a new or existing form template*/}
         <Typography variant={'h4'} component={'h4'}>
-          {editFormId ? 'Edit Template' : 'Create New Template'}
+          {editWorkflowId
+            ? 'Edit Workflow Template'
+            : 'Create New Workflow Template'}
         </Typography>
       </Box>
 
@@ -112,108 +174,118 @@ export const CustomWorkflowTemplate = () => {
               <Paper sx={{ p: 4 }}>
                 <Grid container spacing={3}>
                   <Grid item xs={12}>
-                    <h2>Custom Template Properties</h2>
+                    <h2>Custom Workflow Template Properties</h2>
                   </Grid>
 
                   <Grid item xs={12} md={4}>
                     <Field
-                      label={'Title'}
+                      label={'ID'}
                       component={TextField}
-                      required={true}
-                      variant="outlined"
                       defaultValue={
-                        formTemplateQuery.data?.classification?.name ?? ''
+                        dummyWF.id
+                        //workflowTemplateQuery.data?.id ?? ''
                       }
-                      fullWidth
-                      inputProps={{
-                        // TODO: Determine what types of input restrictions we should have for title
-                        maxLength: Number.MAX_SAFE_INTEGER,
-                      }}
-                      onChange={(e: any) => {
-                        form.classification.name = e.target.value;
-                      }}
-                      InputProps={{
-                        endAdornment: (
-                          <Tooltip
-                            disableFocusListener
-                            disableTouchListener
-                            title={'Enter your form title here'}
-                            arrow>
-                            <InputAdornment position="end">
-                              <IconButton>
-                                <InfoIcon fontSize="small" />
-                              </IconButton>
-                            </InputAdornment>
-                          </Tooltip>
-                        ),
-                      }}></Field>
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} md={4}>
+                    <Field
+                      label={'Name'}
+                      component={TextField}
+                      defaultValue={
+                        dummyWF.name
+                        // workflowTemplateQuery.data?.name ?? ''
+                      }></Field>
                   </Grid>
 
                   <Grid item xs={12} md={4}>
                     <Field
                       label={'Version'}
                       component={TextField}
-                      required={true}
-                      variant="outlined"
                       defaultValue={
-                        formTemplateQuery.data
-                          ? formTemplateQuery.data.version
-                          : defaultVersion
+                        dummyWF.version
+                        //workflowTemplateQuery.data
+                        //  ? workflowTemplateQuery.data.version
+                        //  : 1
                       }
-                      error={versionError}
-                      helperText={
-                        versionError ? 'Must change version number' : ''
-                      }
-                      fullWidth
-                      inputProps={{
-                        // TODO: Determine what types of input restrictions we should have for version
-                        maxLength: Number.MAX_SAFE_INTEGER,
-                      }}
-                      onChange={(e: any) => {
-                        form.version = e.target.value;
-                        setVersionError(
-                          previousVersionsQuery.data?.includes(form.version) ??
-                            false
-                        );
-                      }}
-                      InputProps={{
-                        endAdornment: (
-                          <Tooltip
-                            disableFocusListener
-                            disableTouchListener
-                            title={
-                              editFormId
-                                ? 'Edit your form Version here'
-                                : 'Edit your form Version here. By default, Version is set to the current DateTime but can be edited'
-                            }
-                            arrow>
-                            <InputAdornment position="end">
-                              <IconButton>
-                                <InfoIcon fontSize="small" />
-                              </IconButton>
-                            </InputAdornment>
-                          </Tooltip>
-                        ),
-                      }}
                     />
                   </Grid>
 
                   <Grid item xs={12} md={4}>
-                    <LanguageModal
-                      language={language}
-                      setLanguage={setLanguage}
+                    <Field
+                      label={'Classification ID'}
+                      component={TextField}
+                      defaultValue={
+                        dummyWF.classificationId
+                        //workflowTemplateQuery.data?.classificationId ?? ''
+                      }
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} md={4}>
+                    <Field
+                      label={'Archived'}
+                      component={TextField}
+                      defaultValue={
+                        dummyWF.archived
+                        //workflowTemplateQuery.data?.archived ?? ''
+                      }
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} md={4}>
+                    <Field
+                      label={'Date Created'}
+                      component={TextField}
+                      defaultValue={
+                        dummyWF.dateCreated
+                        //workflowTemplateQuery.data?.dateCreated ?? ''
+                      }
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} md={4}>
+                    <Field
+                      label={'Last Edited'}
+                      component={TextField}
+                      defaultValue={
+                        dummyWF.lastEdited
+                        //workflowTemplateQuery.data?.lastEdited ?? ''
+                      }
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} md={4}>
+                    <Field
+                      label={'Last Edited By'}
+                      component={TextField}
+                      defaultValue={
+                        dummyWF.lastEditedBy
+                        //workflowTemplateQuery.data?.lastEditedBy ?? ''
+                      }
                     />
                   </Grid>
                 </Grid>
-              </Paper>
 
-              <CustomizedFormWQuestions
-                fm={form}
-                languages={language}
-                renderState={FormRenderStateEnum.SUBMIT_TEMPLATE}
-                setForm={setForm}
-                versionError={versionError}
-              />
+                <Grid container spacing={3}>
+                  <Grid item xs={12}>
+                    <h2>Workflow Template Initial Conditions</h2>
+                  </Grid>
+
+                  <Grid item>
+                    <Field
+                      label={'Initial Conditions'}
+                      component={TextField}
+                      defaultValue={
+                        dummyWF.initialConditions
+                        //workflowTemplateQuery.data?.initialConditions ?? ''
+                      }
+                    />
+                  </Grid>
+                </Grid>
+
+                <ViewTemplateSteps steps={dummyWF.steps} />
+              </Paper>
             </Form>
           )}
         </Formik>

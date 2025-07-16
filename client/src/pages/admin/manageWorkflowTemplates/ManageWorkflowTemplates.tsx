@@ -58,7 +58,7 @@ export const ManageWorkflowTemplates = () => {
           onClick: () => {
             navigate('/admin/workflow-templates/new', {
               state: {
-                editFormId: formTemplate.id,
+                editWorkflowId: formTemplate.id,
               },
             });
           },
