@@ -24,6 +24,9 @@ services:
             SMS_KEY_DURATION: ${SMS_KEY_DURATION:-40}
             AWS_REGION: us-west-2
             COGNITO_SECRETS_FILE: /run/secrets/.env.cognito_secrets
+            USE_TEST_DB: 1
+        networks:
+            - cradle_network
         secrets:
             - .env.cognito_secrets
         depends_on:
@@ -40,6 +43,10 @@ services:
             MYSQL_USER: ${DB_USERNAME}
             MYSQL_PASSWORD: ${DB_PASSWORD}
             MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+
+        networks:
+            - cradle_network
+
         healthcheck:
             test: mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD
             start_period: 5s
@@ -50,6 +57,10 @@ services:
 volumes:
     flask_uploads:
     mysql_data:
+
+networks:
+    cradle_network:
+        external: true
 
 secrets:
     .env.cognito_secrets:

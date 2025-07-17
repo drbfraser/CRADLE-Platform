@@ -7,13 +7,17 @@
 
 services:
 
-    mysql:
+    mysql-test:
         container_name: cradle_mysql_test_db
         platform: linux/x86_64
         image: mysql:5.7
         volumes:
-          - mysql_data:/var/lib/mysql
+          - mysql_test_data:/var/lib/mysql
+        profiles:
+            -   test_mysql
 
+        networks:
+            - cradle_network
         environment:
             MYSQL_DATABASE: testing_cradle
             MYSQL_USER: ${DB_USERNAME}
@@ -29,3 +33,10 @@ services:
 
         ports:
             - "3307:3306"
+
+networks:
+    cradle_network:
+        external: true
+
+volumes:
+    mysql_test_data:

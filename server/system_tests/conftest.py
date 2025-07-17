@@ -25,7 +25,10 @@ def db_env():
     return db_env
 
 
-def create_mock_app(db_env: dict) -> Flask:
+def create_mock_app() -> Flask:
+    """
+    Creates an independent app object to be used for testing
+    """
     from flask_cors import CORS
     from flask_openapi3.models.info import Info
     from flask_openapi3.openapi import OpenAPI as FlaskOpenAPI
@@ -43,9 +46,7 @@ def create_mock_app(db_env: dict) -> Flask:
         info=Info(title=API_DOCS_TITLE, version=app_version),
         security_schemes={"jwt": jwt_security},
     )
-    app.config["SQLALCHEMY_DATABASE_URI"] = (
-        f"mysql+pymysql://{db_env['db_user']}:{db_env['db_pw']}@cradle_mysql_test_db:{3307}/testing_cradle"
-    )
+
     app.config["PROPAGATE_EXCEPTIONS"] = True
     app.config["BASE_URL"] = ""
     app.config["UPLOAD_FOLDER"] = "/uploads"
@@ -62,10 +63,10 @@ def create_mock_app(db_env: dict) -> Flask:
 
 
 @pytest.fixture
-def app(db_env):
-    if os.environ.get("USE_TEST_DB") == 1:
-        app = create_mock_app(db_env)
-
+def app():
+    if os.getenv("USE_TEST_DB") == "1":
+        # If the test DB is enabled, create a mock Flask app object to use for testing
+        app = create_mock_app()
     else:
         from config import app
 
@@ -94,28 +95,41 @@ def _provide_app_context(app: Flask, database):
 
 
 @pytest.fixture
-def database():
+def database(app, db_env):
     """
     Provides an instance of the database.
 
     :return: A database instance
     """
-    if os.environ.get("USE_TEST_DB") == 1:
-        db = SQLAlchemy(
-            app,
-            metadata=MetaData(
-                naming_convention={
-                    "ix": "ix_%(column_0_label)s",
-                    "uq": "uq_%(table_name)s_%(column_0_name)s",
-                    "ck": "ck_%(table_name)s_%(constraint_name)s",
-                    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-                    "pk": "pk_%(table_name)s",
-                }
-            ),
-        )
 
-    else:
-        from config import db
+        # from flask_sqlalchemy import SQLAlchemy
+        # from sqlalchemy import MetaData
+        #
+        # app.config["SQLALCHEMY_DATABASE_URI"] = (
+        #     f"mysql+pymysql://{db_env['db_user']}:{db_env['db_pw']}@cradle_mysql_test_db:3306/testing_cradle"
+        # )
+        #
+        # db = SQLAlchemy(
+        #     app,
+        #     metadata=MetaData(
+        #         naming_convention={
+        #             "ix": "ix_%(column_0_label)s",
+        #             "uq": "uq_%(table_name)s_%(column_0_name)s",
+        #             "ck": "ck_%(table_name)s_%(constraint_name)s",
+        #             "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+        #             "pk": "pk_%(table_name)s",
+        #         }
+        #     ),
+        # )
+
+    from config import db
+
+    if os.getenv("USE_TEST_DB") == "1":
+
+        app.config["SQLALCHEMY_DATABASE_URI"] = (
+            f"mysql+pymysql://{db_env['db_user']}:{db_env['db_pw']}@cradle_mysql_test_db:3306/testing_cradle"
+        )
+        db.init_app(app)
 
     return db
 
