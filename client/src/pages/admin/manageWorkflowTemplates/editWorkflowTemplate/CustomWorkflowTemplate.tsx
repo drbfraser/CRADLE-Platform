@@ -12,13 +12,6 @@ import {
   Typography,
 } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import moment from 'moment';
-
-import { FormTemplateWithQuestions } from 'src/shared/types/form/formTemplateTypes';
-import {
-  useFormTemplateQuery,
-  usePreviousFormVersionsQuery,
-} from 'src/pages/customizedForm/queries';
 import {
   TemplateStep,
   WorkflowTemplate,
@@ -27,21 +20,12 @@ import { useQuery } from '@tanstack/react-query';
 import { getTemplate } from 'src/shared/api/modules/workflowTemplates';
 import { ViewTemplateSteps } from './ViewTemplateSteps';
 
-export enum FormEditMainComponents {
-  title = 'title',
-  version = 'version',
-  languages = 'languages',
-}
-
 export enum WorkflowEditMainComponents {
   title = 'wtitle',
   version = 'wversion',
 }
 
 export const initialState = {
-  [FormEditMainComponents.title]: '',
-  [FormEditMainComponents.version]: '1',
-  [FormEditMainComponents.languages]: '',
   [WorkflowEditMainComponents.title]: '',
   [WorkflowEditMainComponents.version]: '1',
 };
@@ -50,16 +34,6 @@ export const CustomWorkflowTemplate = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const editWorkflowId = location.state?.editWorkflowId as string | undefined;
-
-  const defaultVersion: string = moment
-    .utc(new Date(Date.now()).toUTCString())
-    .format('YYYY-MM-DD HH:mm:ss z');
-
-  const [form, setForm] = useState<FormTemplateWithQuestions>({
-    classification: { name: 'string', id: undefined },
-    version: defaultVersion,
-    questions: [],
-  });
 
   const [workflow, setWorkflow] = useState<WorkflowTemplate>({
     id: '',
@@ -103,26 +77,13 @@ export const CustomWorkflowTemplate = () => {
 
   const [versionError, setVersionError] = useState<boolean>(false);
 
-  const formTemplateQuery = useFormTemplateQuery(editWorkflowId);
-  const previousVersionsQuery = usePreviousFormVersionsQuery(
-    formTemplateQuery.data
-  );
-
-  const useWorkflowTemplateQuery = (formId: string | undefined) =>
+  const useWorkflowTemplateQuery = (workflowId: string | undefined) =>
     useQuery({
-      queryKey: ['formTemplate', formId],
-      queryFn: () => getTemplate(formId!),
-      enabled: !!formId,
+      queryKey: ['workflowTemplate', workflowId],
+      queryFn: () => getTemplate(workflowId!),
+      enabled: !!workflowId,
     });
   const workflowTemplateQuery = useWorkflowTemplateQuery(editWorkflowId);
-
-  useEffect(() => {
-    if (formTemplateQuery.data) {
-      const { classification, version, questions } = formTemplateQuery.data;
-      setForm({ classification, version, questions });
-      setVersionError(true);
-    }
-  }, [formTemplateQuery.data]);
 
   useEffect(() => {
     if (workflowTemplateQuery.data) {
@@ -135,8 +96,7 @@ export const CustomWorkflowTemplate = () => {
 
   const isLoading =
     editWorkflowId &&
-    workflowTemplateQuery.isPending &&
-    previousVersionsQuery.isPending;
+    workflowTemplateQuery.isPending;
 
   return (
     <>
@@ -148,7 +108,6 @@ export const CustomWorkflowTemplate = () => {
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>
-        {/*TODO: Allow template name to change depending on if we are editing a new or existing form template*/}
         <Typography variant={'h4'} component={'h4'}>
           {editWorkflowId
             ? 'Edit Workflow Template'
@@ -162,13 +121,9 @@ export const CustomWorkflowTemplate = () => {
         <Formik
           initialValues={initialState}
           onSubmit={() => {
-            // TODO: Handle Form Template create/edit form submission
             console.log('Temp');
           }}
-          validationSchema={() => {
-            // TODO: Create a validation schema to ensure that all the values are filled in as expected
-            console.log('Temp');
-          }}>
+        >
           {() => (
             <Form>
               <Paper sx={{ p: 4 }}>
