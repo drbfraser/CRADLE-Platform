@@ -1,6 +1,6 @@
 # TODO: create an interface out of this?
 #       -> can make mocks for testing (but idk if it is "pythonic")
-class WorkflowRuleEvaluationService:
+class WorkflowEvaluationService:
     """
     responsible for:
         1. fetching rule groups, rules, data sources
@@ -17,7 +17,7 @@ class WorkflowRuleEvaluationService:
         
     2. collect rule arguments into a list, wrap as structured object, included with inputs
         - query datasources
-
+        
     3. pass into rule engine
         a. rule group
         b. list of rules
