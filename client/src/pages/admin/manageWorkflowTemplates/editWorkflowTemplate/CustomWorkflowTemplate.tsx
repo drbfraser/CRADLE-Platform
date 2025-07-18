@@ -70,8 +70,8 @@ export const CustomWorkflowTemplate = () => {
     initialConditions: undefined,
     steps: [],
     archived: false,
-    dateCreated: '',
-    lastEdited: '',
+    dateCreated: 0,
+    lastEdited: 0,
     lastEditedBy: '',
   });
 
@@ -96,8 +96,8 @@ export const CustomWorkflowTemplate = () => {
     initialConditions: undefined,
     steps: [dummyStep],
     archived: false,
-    dateCreated: 'date',
-    lastEdited: 'date',
+    dateCreated: 1,
+    lastEdited: 1,
     lastEditedBy: 'date',
   };
 

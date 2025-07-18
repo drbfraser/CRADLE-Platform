@@ -38,14 +38,20 @@ export const listWorkflowClassifications = async (): Promise<
 // Workflow Template API Methods
 
 // GET /workflow/templates
-export const listTemplates = async (params?: {
+export const listTemplates = async (parameters?: {
   groupBy?: 'classification';
   classificationId?: ID;
   archived?: boolean;
 }): Promise<WorkflowTemplate[]> => {
+   const params = {
+    classification_id: parameters?.classificationId,
+    is_archived: parameters?.archived
+  };
+  console.log(params);
   const response = await axiosFetch.get<
     WorkflowTemplate[] | TemplateGroupArray | { items: WorkflowTemplate[] }
   >(TEMPLATES, { params });
+  console.log(response.data);
 
   // Handle different response formats
   if (Array.isArray(response.data)) {
