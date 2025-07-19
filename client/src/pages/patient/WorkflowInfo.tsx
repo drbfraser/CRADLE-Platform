@@ -4,7 +4,7 @@ import { Box, Typography, Button, Paper } from '@mui/material';
 
 export const WorkflowInfo: React.FC = () => {
   return (
-    <Paper sx={{ padding: 2, marginTop: 2, minHeight: 268 }}>
+    <Paper sx={{ padding: 2, marginTop: 2, minHeight: 300 }}>
       <Box borderBottom={2} borderColor="divider" pb={2} mb={2}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Box display="flex" alignItems="center" gap={4}>
