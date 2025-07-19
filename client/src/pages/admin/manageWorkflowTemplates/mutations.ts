@@ -1,8 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  updateTemplate,
-  toggleArchiveTemplate,
-} from 'src/shared/api/modules/workflowTemplates';
+import { toggleArchiveTemplate } from 'src/shared/api/modules/workflowTemplates';
 import { WorkflowTemplate } from 'src/shared/types/workflow/workflowTypes';
 
 export const useEditWorkflowTemplate = () => {
