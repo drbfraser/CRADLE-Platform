@@ -458,7 +458,7 @@ def read_referral_list(
         query = query.filter(ReferralOrm.user_id.in_(referrers))
 
     # Filter by date range
-    if date_range is not None and date_range is not "":
+    if date_range is not None and date_range != "":
         start_date, end_date = date_range.split(":")
         query = query.filter(
             ReferralOrm.date_referred >= start_date,
