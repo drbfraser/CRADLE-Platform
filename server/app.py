@@ -19,8 +19,7 @@ import json
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
-import config
-
+import application
 import logging
 from config import Config
 from logging.config import dictConfig
@@ -32,7 +31,8 @@ from api.resources import api
 dictConfig(Config.LOGGING)
 LOGGER = logging.getLogger(__name__)
 
-app = config.app
+app = application.app
+
 # Register Blueprints
 app.register_api(api)
 

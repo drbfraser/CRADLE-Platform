@@ -95,26 +95,8 @@ class JSONEncoder(json.JSONEncoder):
 
 API_DOCS_TITLE = "Cradle-Platform REST API"
 jwt_security = {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"}
-app = FlaskOpenAPI(
-    import_name=__name__,
-    static_folder="../client/build",
-    doc_prefix="/apidocs",
-    info=Info(title=API_DOCS_TITLE, version=app_version),
-    security_schemes={"jwt": jwt_security},
-)
-
-app.config["PROPAGATE_EXCEPTIONS"] = True
-app.config["BASE_URL"] = ""
-app.config["UPLOAD_FOLDER"] = "/uploads"
-app.config["MAX_CONTENT_LENGTH"] = 64 * 1e6
-
-CORS(app, supports_credentials=True)
-app.config.from_object(Config)
-
-app.json_encoder = JSONEncoder
 
 db = SQLAlchemy(
-    app,
     metadata=MetaData(
         naming_convention={
             "ix": "ix_%(column_0_label)s",
@@ -125,5 +107,28 @@ db = SQLAlchemy(
         }
     ),
 )
-migrate = Migrate(app, db, compare_type=True)
-ma = Marshmallow(app)
+
+migrate = Migrate()
+ma = Marshmallow()
+
+
+def app_factory():
+    app = FlaskOpenAPI(
+        import_name=__name__,
+        static_folder="../client/build",
+        doc_prefix="/apidocs",
+        info=Info(title=API_DOCS_TITLE, version=app_version),
+        security_schemes={"jwt": jwt_security},
+    )
+    app.config["PROPAGATE_EXCEPTIONS"] = True
+    app.config["BASE_URL"] = ""
+    app.config["UPLOAD_FOLDER"] = "/uploads"
+    app.config["MAX_CONTENT_LENGTH"] = 64 * 1e6
+    CORS(app, supports_credentials=True)
+    app.config.from_object(Config)
+    app.json_encoder = JSONEncoder
+    db.init_app(app)
+    migrate.init_app(app, db, compare_type=True)
+    ma.init_app(app)
+
+    return app

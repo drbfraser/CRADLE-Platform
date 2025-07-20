@@ -68,7 +68,7 @@ def app():
         # If the test DB is enabled, create a mock Flask app object to use for testing
         app = create_mock_app()
     else:
-        from config import app
+        from application import app
 
     #   from manage import seed
 
