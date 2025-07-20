@@ -62,7 +62,12 @@ export default [
   },
   // Relaxed rules for test files
   {
-    files: ['**/*.test.ts', '**/*.test.tsx', '**/testing/**/*.ts', '**/testing/**/*.tsx'],
+    files: [
+      '**/*.test.ts',
+      '**/*.test.tsx',
+      '**/testing/**/*.ts',
+      '**/testing/**/*.tsx',
+    ],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
     },
