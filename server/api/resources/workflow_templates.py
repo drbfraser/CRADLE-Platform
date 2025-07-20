@@ -8,6 +8,7 @@ from api.decorator import roles_required
 from api.resources.workflow_template_steps import WorkflowTemplateStepListResponse
 from common.api_utils import (
     WorkflowTemplateIdPath,
+    convert_query_parameter_to_bool,
     get_user_id,
 )
 from common.commonUtil import get_current_time
@@ -141,12 +142,6 @@ def create_workflow_template(body: WorkflowTemplateUploadModel):
     return marshal.marshal(obj=workflow_template_orm, shallow=True), 201
 
 
-def convert_query_parameter_to_bool(value):
-    if value is None:
-        return False  # or whatever default you want
-    return str(value).lower() == "true"
-
-
 # /api/workflow/templates?classification_id=<str>&archived=<bool> [GET]
 @api_workflow_templates.get("", responses={200: WorkflowTemplateListResponse})
 def get_workflow_templates():
@@ -155,7 +150,7 @@ def get_workflow_templates():
     workflow_classification_id = request.args.get(
         "classification_id", default=None, type=str
     )
-    is_archived = request.args.get("archived", default=False, type=bool)
+    is_archived = request.args.get("archived", default=False)
     is_archived = convert_query_parameter_to_bool(is_archived)
 
     workflow_templates = crud.read_workflow_templates(
@@ -177,11 +172,9 @@ def get_workflow_templates():
 def get_workflow_template(path: WorkflowTemplateIdPath):
     """Get Workflow Template"""
     # Get query parameters
-    with_steps = request.args.get("with_steps", default=False, type=bool)
+    with_steps = request.args.get("with_steps", default=False)
     with_steps = convert_query_parameter_to_bool(with_steps)
-    with_classification = request.args.get(
-        "with_classification", default=False, type=bool
-    )
+    with_classification = request.args.get("with_classification", default=False)
     with_classification = convert_query_parameter_to_bool(with_classification)
 
     workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
@@ -205,6 +198,12 @@ def get_workflow_template(path: WorkflowTemplateIdPath):
 
 
 # /api/workflow/templates/<string:workflow_template_id>/steps [GET]
+"""
+This is different from api/workflow/templates/<string:template_id>?with_steps=<bool>&with_classification=<bool> [GET]
+because that returns a workflow template + steps if desired, whereas this endpoint only returns the steps
+"""
+
+
 @api_workflow_templates.get(
     "<string:workflow_template_id>/steps",
     responses={200: WorkflowTemplateStepListResponse},
@@ -286,4 +285,4 @@ def delete_workflow_template(path: WorkflowTemplateIdPath):
 
     crud.delete_workflow(WorkflowTemplateOrm, id=path.workflow_template_id)
 
-    return None, 204
+    return "", 204

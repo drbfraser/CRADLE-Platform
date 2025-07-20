@@ -248,3 +248,9 @@ def get_user_id(d: dict, user_attribute: str) -> Optional[int]:
         return int(current_user["id"])
 
     return int(current_user.id)
+
+
+def convert_query_parameter_to_bool(value):
+    if value is None:
+        return False
+    return str(value).lower() == "true"

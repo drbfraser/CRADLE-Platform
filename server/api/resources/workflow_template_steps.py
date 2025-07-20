@@ -6,6 +6,7 @@ from api.resources.form_templates import handle_form_template_upload
 from common.api_utils import (
     WorkflowTemplateStepIdPath,
     WorkflowTemplateStepListResponse,
+    convert_query_parameter_to_bool,
     get_user_id,
 )
 from common.commonUtil import get_current_time
@@ -119,8 +120,10 @@ def get_workflow_template_steps():
 )
 def get_workflow_template_step(path: WorkflowTemplateStepIdPath):
     """Get Workflow Template Step"""
-    with_form = request.args.get("with_form", default=False, type=bool)
-    with_branches = request.args.get("with_branches", default=False, type=bool)
+    with_form = request.args.get("with_form", default=False)
+    with_form = convert_query_parameter_to_bool(with_form)
+    with_branches = request.args.get("with_branches", default=False)
+    with_branches = convert_query_parameter_to_bool(with_branches)
 
     workflow_step = crud.read(
         WorkflowTemplateStepOrm, id=path.workflow_template_step_id
@@ -217,4 +220,4 @@ def delete_workflow_template_step(path: WorkflowTemplateStepIdPath):
         WorkflowTemplateStepOrm, id=path.workflow_template_step_id
     )
 
-    return None, 204
+    return "", 204
