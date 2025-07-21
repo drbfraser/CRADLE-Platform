@@ -9,6 +9,7 @@ from common.api_utils import (
     get_user_id,
 )
 from common.commonUtil import get_current_time
+from common.workflow_utils import assign_workflow_template_or_instance_ids
 from data import crud, marshal
 from models import (
     PatientOrm,
@@ -44,6 +45,9 @@ workflow_instance_not_found_message = "Workflow instance with ID: ({}) not found
 def create_workflow_instance(body: WorkflowInstanceUploadModel):
     """Create Workflow Instance"""
     workflow_instance_dict = body.model_dump()
+
+    # Assign ID to workflow instance
+    assign_workflow_template_or_instance_ids(WorkflowInstanceOrm, workflow_instance_dict)
 
     # Get ID of user
     try:
@@ -208,4 +212,4 @@ def delete_workflow_instance(path: WorkflowInstanceIdPath):
 
     crud.delete_workflow(WorkflowInstanceOrm, id=path.workflow_instance_id)
 
-    return None, 204
+    return "", 204

@@ -47,6 +47,13 @@ def create_workflow_instance_step(body: WorkflowInstanceStepUploadModel):
     """Create Workflow Instance Step"""
     instance_step = body.model_dump()
 
+    # Check if workflow_instance_id is provided
+    if not instance_step.get("workflow_instance_id"):
+        return abort(
+            code=400,
+            description="workflow_instance_id is required to create a workflow instance step.",
+        )
+
     # This endpoint assumes that the step has a workflow instance ID assigned to it already
     workflow_instance = crud.read(
         WorkflowInstanceOrm, id=instance_step["workflow_instance_id"]
@@ -101,7 +108,6 @@ def get_workflow_instance_steps():
         "workflow_instance_id", default=None, type=str
     )
 
-    # Get instance steps using the available CRUD method
     instance_steps = crud.read_instance_steps(
         WorkflowInstanceStepOrm, workflow_instance_id=workflow_instance_id
     )
@@ -284,4 +290,4 @@ def delete_workflow_instance_step(path: WorkflowInstanceStepIdPath):
         WorkflowInstanceStepOrm, id=path.workflow_instance_step_id
     )
 
-    return None, 204
+    return "", 204

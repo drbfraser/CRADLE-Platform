@@ -1089,9 +1089,6 @@ def read_workflow_classifications(
     """
     query = db_session.query(WorkflowClassificationOrm)
 
-    if is_archived:
-        query = query.filter(WorkflowClassificationOrm.archived == is_archived)
-
     return query.all()
 
 

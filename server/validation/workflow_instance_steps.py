@@ -145,6 +145,7 @@ class WorkflowInstanceStepModel(CradleBaseModel):
     id: str
     name: str
     title: str
+    start_date: int = Field(default_factory=get_current_time)
     triggered_by: Optional[str] = None
     last_edited: Optional[int] = Field(default_factory=get_current_time)
     expected_completion: Optional[int] = None

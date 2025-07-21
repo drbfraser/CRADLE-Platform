@@ -7,6 +7,7 @@ from flask_openapi3.models.tag import Tag
 from common.api_utils import (
     WorkflowClassificationIdPath,
 )
+from common.workflow_utils import assign_workflow_template_or_instance_ids
 from data import crud, marshal
 from models import WorkflowClassificationOrm
 from validation import CradleBaseModel
@@ -41,6 +42,9 @@ def create_workflow_classification(body: WorkflowClassificationUploadModel):
     """Create Workflow Classification"""
     workflow_classification_dict = body.model_dump()
 
+    # Assign ID 
+    assign_workflow_template_or_instance_ids(WorkflowClassificationOrm, workflow_classification_dict)
+
     # Check if classification with same name already exists
     existing_classification_by_name = crud.read(
         WorkflowClassificationOrm, name=workflow_classification_dict["name"]
@@ -51,16 +55,15 @@ def create_workflow_classification(body: WorkflowClassificationUploadModel):
             description=f"Workflow classification with name '{workflow_classification_dict['name']}' already exists.",
         )
 
-    # If ID is provided, check if it already exists
-    if workflow_classification_dict.get("id") is not None:
-        existing_classification_by_id = crud.read(
-            WorkflowClassificationOrm, id=workflow_classification_dict["id"]
+    # Check if classification with same ID already exists 
+    existing_classification_by_id = crud.read(
+        WorkflowClassificationOrm, id=workflow_classification_dict["id"]
+    )
+    if existing_classification_by_id is not None:
+        return abort(
+            code=409,
+            description=f"Workflow classification with ID '{workflow_classification_dict['id']}' already exists.",
         )
-        if existing_classification_by_id is not None:
-            return abort(
-                code=409,
-                description=f"Workflow classification with ID '{workflow_classification_dict['id']}' already exists.",
-            )
 
     workflow_classification_orm = marshal.unmarshal(
         WorkflowClassificationOrm, workflow_classification_dict
@@ -181,4 +184,4 @@ def delete_workflow_classification(path: WorkflowClassificationIdPath):
         WorkflowClassificationOrm, id=path.workflow_classification_id
     )
 
-    return None, 204
+    return "", 204

@@ -286,4 +286,4 @@ def delete_workflow_template(path: WorkflowTemplateIdPath):
 
     crud.delete_workflow(WorkflowTemplateOrm, id=path.workflow_template_id)
 
-    return None, 204
+    return "", 204

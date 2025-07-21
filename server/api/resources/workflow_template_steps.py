@@ -216,4 +216,4 @@ def delete_workflow_template_step(path: WorkflowTemplateStepIdPath):
         WorkflowTemplateStepOrm, id=path.workflow_template_step_id
     )
 
-    return None, 204
+    return "", 204
