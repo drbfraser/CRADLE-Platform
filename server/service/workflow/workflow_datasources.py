@@ -1,13 +1,15 @@
 from data import crud
+from typing import List, Dict, Any
 
 class WorkflowDatasourcing:
 
-    def fetch_datasource(self, dataString):
+    def resolve_datasources(self, datasources: List[str]) -> Dict[str, Any]:
         """
-        given a string representing a data source, 
+        NOTE: this is a stubbed function
+        Given a a list of strings representing a data source, 
         - parse and determine where this instance exists, return that value
 
-        :param a: a string representing a datasource
-        :rtype: the value represented by the datastring 
+        :param datasources: a list of strings representing a datasource
+        :rtype: a dict of resolved datasources
         """
-        return 0
+        return {"$patient.age": 18, "$reading.status": "yellow"}
