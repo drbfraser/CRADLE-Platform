@@ -141,6 +141,12 @@ def create_workflow_template(body: WorkflowTemplateUploadModel):
     return marshal.marshal(obj=workflow_template_orm, shallow=True), 201
 
 
+def convert_query_parameter_to_bool(value):
+    if value is None:
+        return False  # or whatever default you want
+    return str(value).lower() == "true"
+
+
 # /api/workflow/templates?classification_id=<str>&archived=<bool> [GET]
 @api_workflow_templates.get("", responses={200: WorkflowTemplateListResponse})
 def get_workflow_templates():
@@ -150,6 +156,7 @@ def get_workflow_templates():
         "classification_id", default=None, type=str
     )
     is_archived = request.args.get("archived", default=False, type=bool)
+    is_archived = convert_query_parameter_to_bool(is_archived)
 
     workflow_templates = crud.read_workflow_templates(
         workflow_classification_id=workflow_classification_id,
@@ -171,9 +178,11 @@ def get_workflow_template(path: WorkflowTemplateIdPath):
     """Get Workflow Template"""
     # Get query parameters
     with_steps = request.args.get("with_steps", default=False, type=bool)
+    with_steps = convert_query_parameter_to_bool(with_steps)
     with_classification = request.args.get(
         "with_classification", default=False, type=bool
     )
+    with_classification = convert_query_parameter_to_bool(with_classification)
 
     workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
 

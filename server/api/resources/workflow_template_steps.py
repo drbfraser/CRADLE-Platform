@@ -31,6 +31,18 @@ api_workflow_template_steps = APIBlueprint(
 )
 
 
+def check_branch_conditions(template_step: dict) -> None:
+    for branch in template_step["branches"]:
+        if branch["condition"] is None and branch["condition_id"] is not None:
+            branch_condition = crud.read(RuleGroupOrm, id=branch["condition_id"])
+
+            if branch_condition is None:
+                return abort(
+                    code=404,
+                    description=f"Branch condition with ID: ({branch['condition_id']}) not found.",
+                )
+
+
 # /api/workflow/template/steps [POST]
 @api_workflow_template_steps.post("", responses={201: WorkflowTemplateStepModel})
 def create_workflow_template_step(body: WorkflowTemplateStepUploadModel):
@@ -59,15 +71,15 @@ def create_workflow_template_step(body: WorkflowTemplateStepUploadModel):
 
     assign_step_ids(WorkflowTemplateStepOrm, template_step, workflow_template.id)
 
-    for branch in template_step["branches"]:
-        if branch["condition"] is None and branch["condition_id"] is not None:
-            branch_condition = crud.read(RuleGroupOrm, id=branch["condition_id"])
+    if len(workflow_template.steps) == 0:
+        changes = {
+            "last_edited_by": template_step["last_edited_by"],
+            "last_edited": get_current_time(),
+            "starting_step_id": template_step["id"],
+        }
+        crud.update(WorkflowTemplateOrm, changes=changes, id=workflow_template.id)
 
-            if branch_condition is None:
-                return abort(
-                    code=404,
-                    description=f"Branch condition with ID: ({branch['condition_id']}) not found.",
-                )
+    check_branch_conditions(template_step)
 
     try:
         if template_step["form"] is not None:
@@ -162,6 +174,10 @@ def update_workflow_template_step(
 
     except ValueError:
         return abort(code=404, description="User not found.")
+
+    check_branch_conditions(
+        workflow_template_step_changes
+    )  # If new branches are being added to the step
 
     crud.update(
         WorkflowTemplateStepOrm,

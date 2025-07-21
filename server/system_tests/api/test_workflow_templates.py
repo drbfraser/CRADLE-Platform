@@ -191,12 +191,25 @@ def test_getting_workflow_templates(
         api_post(endpoint="/api/workflow/templates", json=workflow_template4)
         database.session.commit()
 
+        classification_id = workflow_template1["classification_id"]
+
+        """
+        Query for workflow_example1 and workflow_example3 with same classification ID
+        """
+
+        response = api_get(
+            f"/api/workflow/templates?classification_id={classification_id}"
+        )
+        workflow_templates = decamelize(response.json())["items"]
+
+        assert len(workflow_templates) == 2
+
         """
         Query for archived workflow templates with same classification ID
         """
 
         response = api_get(
-            f"/api/workflow/templates?classification_id={workflow_template1['classification_id']}&archived=True"
+            f"/api/workflow/templates?classification_id={classification_id}&archived=True"
         )
         workflow_templates = decamelize(response.json())["items"]
 
@@ -204,22 +217,6 @@ def test_getting_workflow_templates(
             len(workflow_templates) == 1
             and workflow_templates[0]["id"] == workflow_template1["id"]
         )
-
-        response = api_get("/api/workflow/templates?archived=True")
-        workflow_templates = decamelize(response.json())["items"]
-
-        assert len(workflow_templates) == 2
-
-        """
-        Query for workflow_example1 and workflow_example3 with same classification ID
-        """
-
-        response = api_get(
-            f"/api/workflow/templates?classification_id={workflow_template1['classification_id']}"
-        )
-        workflow_templates = decamelize(response.json())["items"]
-
-        assert len(workflow_templates) == 2
 
         """
         Query for a specific workflow template
@@ -263,6 +260,7 @@ def workflow_template1(vht_user_id):
         "name": "workflow_example1",
         "description": "workflow_example1",
         "archived": False,
+        "starting_step_id": None,
         "date_created": get_current_time(),
         "last_edited": get_current_time() + 44345,
         "last_edited_by": vht_user_id,
@@ -292,6 +290,7 @@ def workflow_template2(vht_user_id, form_template):
         "name": "workflow_example2",
         "description": "workflow_example2",
         "archived": False,
+        "starting_step_id": None,
         "date_created": get_current_time(),
         "last_edited": get_current_time() + 44345,
         "last_edited_by": vht_user_id,
@@ -350,6 +349,7 @@ def workflow_template3(form_template, vht_user_id, workflow_template1):
         "name": "workflow_example3",
         "description": "workflow_example3",
         "archived": False,
+        "starting_step_id": step_id,
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
         "last_edited_by": vht_user_id,
@@ -405,6 +405,7 @@ def workflow_template4(vht_user_id):
         "name": "workflow_example4",
         "description": "workflow_example4",
         "archived": False,
+        "starting_step_id": None,
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
         "last_edited_by": vht_user_id,
@@ -437,6 +438,7 @@ def invalid_workflow_template1(vht_user_id):
         "name": "Example invalid workflow template 1",
         "description": "Example workflow template with invalid dates",
         "archived": False,
+        "starting_step_id": None,
         "date_created": get_current_time(),
         "last_edited": get_current_time() - 44345,  # Invalid edit date
         "last_edited_by": vht_user_id,
@@ -469,6 +471,7 @@ def invalid_workflow_template2(vht_user_id):
         "name": "Example invalid workflow template 2",
         "description": "Example workflow template with invalid initial conditions",
         "archived": False,
+        "starting_step_id": None,
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
         "last_edited_by": vht_user_id,
@@ -498,6 +501,7 @@ def invalid_workflow_template3(vht_user_id, form_template):
         "name": "Example workflow template 1",
         "description": "Example workflow template with all valid fields",
         "archived": False,
+        "starting_step_id": None,
         "date_created": get_current_time(),
         "last_edited": get_current_time() + 44345,
         "last_edited_by": vht_user_id,

@@ -4,12 +4,14 @@ import random
 import string
 import time
 from random import randint, randrange
+from typing import List
 
 import click
 import numpy as np
 from flask.cli import FlaskGroup
 
 import models
+from common.commonUtil import get_current_time
 from data import crud, marshal
 from models import (
     FormClassificationOrm,
@@ -25,6 +27,10 @@ from models import (
     ReferralOrm,
     RelayServerPhoneNumberOrm,
     VillageOrm,
+    WorkflowClassificationOrm,
+    WorkflowTemplateOrm,
+    WorkflowTemplateStepBranchOrm,
+    WorkflowTemplateStepOrm,
     db,
 )
 from seed_users import (
@@ -172,6 +178,10 @@ def seed_test_data():
 
     print("Adding relay server numbers to admin page...")
     create_relay_nums()
+
+    print("Creating a simple workflow template and workflow classification")
+    create_simple_workflow_classification()
+    create_simple_workflow_template()
 
     print("Finished seeding test data")
 
@@ -333,6 +343,12 @@ def seed():
             print(f"{count}/{len(patient_list)} Patients have been seeded")
 
     print(f"{count + 1}/{len(patient_list)} Patients have been seeded")
+
+    print("Seeding PAPAGAIO Research Study Workflow Template...")
+    create_complex_workflow_classification()
+    create_complex_workflow_template()
+    print("PAPAGAIO Research Study Workflow Template has been seeded")
+
     print("Complete!")
 
 
@@ -691,6 +707,727 @@ def create_relay_nums():
     for curr_num in relay_nums:
         db.session.add(RelayServerPhoneNumberOrm(**curr_num))
         db.session.commit()
+
+
+def create_simple_workflow_classification():
+    if crud.read(WorkflowClassificationOrm, id="wc-simple-1") is not None:
+        return
+
+    workflow_classification = {
+        "id": "wc-simple-1",
+        "name": "Get Patient Name Workflow",
+    }
+
+    workflow_classification_orm = WorkflowClassificationOrm(**workflow_classification)
+
+    db.session.add(workflow_classification_orm)
+    db.session.commit()
+
+
+def create_simple_workflow_template():
+    if crud.read(WorkflowTemplateOrm, id="wt-simple-1") is not None:
+        return
+
+    create_simple_workflow_classification()
+
+    workflow_template = {
+        "id": "wt-simple-1",
+        "name": "Get Patient Name Workflow",
+        "description": "Collect name from patient",
+        "archived": False,
+        "starting_step_id": "wt-simple-1-step-1",
+        "date_created": get_current_time(),
+        "last_edited": get_current_time(),
+        "version": "V1",
+        "last_edited_by": 1,
+        "classification_id": "wc-simple-1",
+        "initial_condition_id": None,
+        "initial_condition": None,
+    }
+
+    classification = crud.read(WorkflowClassificationOrm, id="wc-simple-1")
+    workflow_template_orm = WorkflowTemplateOrm(
+        classification=classification, **workflow_template
+    )
+
+    create_simple_workflow_template_step_form_classification()
+    create_simple_workflow_template_step_form()
+
+    step = {
+        "id": "wt-simple-1-step-1",
+        "name": "Get Patient Name",
+        "title": "Enter the patient's name",
+        "expected_completion": get_current_time()
+        + 86400,  # Expected completion is 24 hours after this step was created
+        "last_edited": get_current_time(),
+        "last_edited_by": 1,
+        "form_id": "wt-simple-1-step-1-form",
+        "workflow_template_id": "wt-simple-1",
+        "condition_id": None,
+        "condition": None,
+    }
+
+    branch = {
+        "id": "wt-simple-1-step-1-branch",
+        "target_step_id": None,
+        "step_id": "wt-simple-1-step-1",
+        "condition_id": None,
+        "condition": None,
+    }
+
+    branch_orm = WorkflowTemplateStepBranchOrm(**branch)
+    form_template_orm = crud.read(FormTemplateOrm, id="wt-simple-1-step-1-form")
+
+    step_orm = WorkflowTemplateStepOrm(form=form_template_orm, **step)
+    step_orm.branches.append(branch_orm)
+    workflow_template_orm.steps.append(step_orm)
+
+    db.session.add(workflow_template_orm)
+    db.session.commit()
+
+
+def create_simple_workflow_template_step_form_classification():
+    if (
+        crud.read(FormClassificationOrm, id="wt-simple-1-form-classification")
+        is not None
+    ):
+        return
+
+    simple_form_classification = {
+        "id": "wt-simple-1-form-classification",
+        "name": "Patient Name Form",
+    }
+
+    simple_form_classification_orm = FormClassificationOrm(**simple_form_classification)
+
+    db.session.add(simple_form_classification_orm)
+    db.session.commit()
+
+
+def create_simple_workflow_template_step_form():
+    if crud.read(FormTemplateOrm, id="wt-simple-1-step-1-form") is not None:
+        return
+
+    simple_workflow_template_form = {
+        "id": "wt-simple-1-step-1-form",
+        "version": "V1",
+    }
+
+    question = {
+        "id": "wt-simple-1-step-1-form-question",
+        "category_index": None,
+        "question_index": 0,
+        "is_blank": True,
+        "question_type": "STRING",
+        "required": True,
+        "allow_future_dates": True,
+        "allow_past_dates": True,
+        "num_min": None,
+        "num_max": None,
+        "string_max_length": None,
+        "units": None,
+        "visible_condition": "[]",
+        "string_max_lines": None,
+    }
+
+    create_simple_workflow_template_step_form_classification()
+    form_classification_orm = crud.read(
+        FormClassificationOrm, id="wt-simple-1-form-classification"
+    )
+
+    simple_workflow_template_form_orm = FormTemplateOrm(
+        classification=form_classification_orm, **simple_workflow_template_form
+    )
+
+    question_orm = QuestionOrm(**question)
+
+    simple_workflow_template_form_orm.questions.append(question_orm)
+
+    db.session.add(simple_workflow_template_form_orm)
+    db.session.commit()
+
+    lang_version = {
+        "id": 104,
+        "lang": "English",
+        "question_text": "Enter the Patient's Name",
+        "question_id": "wt-simple-1-step-1-form-question",
+    }
+
+    db.session.add(QuestionLangVersionOrm(**lang_version))
+    db.session.commit()
+
+
+def create_complex_workflow_classification():
+    if (
+        crud.read(
+            WorkflowClassificationOrm, id="papagaio_study_workflow_classification"
+        )
+        is not None
+    ):
+        return
+
+    papagaio_study_workflow_classification = {
+        "id": "papagaio_study_workflow_classification",
+        "name": "PAPAGAIO Research Study",
+    }
+
+    papagaio_study_workflow_classification_orm = WorkflowClassificationOrm(
+        **papagaio_study_workflow_classification
+    )
+    db.session.add(papagaio_study_workflow_classification_orm)
+    db.session.commit()
+
+
+def create_complex_workflow_template():
+    if (
+        crud.read(WorkflowTemplateOrm, id="papagaio_study_workflow_template")
+        is not None
+    ):
+        return
+
+    create_complex_workflow_classification()
+
+    papagaio_study_workflow_template = {
+        "id": "papagaio_study_workflow_template",
+        "name": "PAPAGAO Research Study",
+        "description": "PAPAGAIO is an NIHR Global Health Research Group focussed on reducing maternal and perinatal"
+        "mortality and morbidity from pre-eclampsia, across low- and middle-income countries",
+        "archived": True,
+        "starting_step_id": "prerequisites_template_step",
+        "date_created": get_current_time(),
+        "last_edited": get_current_time(),
+        "last_edited_by": 1,
+        "version": "V1",
+        "initial_condition_id": None,
+        "initial_condition": None,
+        "classification_id": "papagaio_study_workflow_classification",
+    }
+
+    papagaio_study_workflow_classification_orm = crud.read(
+        WorkflowClassificationOrm, id="papagaio_study_workflow_classification"
+    )
+    papagaio_study_workflow_template_orm = WorkflowTemplateOrm(
+        classification=papagaio_study_workflow_classification_orm,
+        **papagaio_study_workflow_template,
+    )
+
+    create_complex_workflow_template_steps()
+
+    for step in crud.read_all(
+        WorkflowTemplateStepOrm, workflow_template_id="papagaio_study_workflow_template"
+    ):
+        papagaio_study_workflow_template_orm.steps.append(step)
+
+    db.session.add(papagaio_study_workflow_template_orm)
+    db.session.commit()
+
+
+def create_complex_workflow_template_steps():
+    create_complex_workflow_template_step_form_classifications()
+    create_complex_workflow_template_step_forms()
+    create_complex_workflow_template_step_form_questions()
+
+    if crud.read(WorkflowTemplateStepOrm, id="prerequisites_template_step") is None:
+        prerequisites_template_step = {
+            "id": "prerequisites_template_step",
+            "name": "prerequisites_step",
+            "title": "Prerequisites Step",
+            "expected_completion": None,
+            "last_edited": get_current_time(),
+            "last_edited_by": 1,
+            "form_id": "prerequisites_form_template",
+            "workflow_template_id": "papagaio_study_workflow_template",
+            "condition_id": None,
+            "condition": None,
+        }
+
+        prerequisites_template_step_branch = {
+            "id": "prerequisites_template_step_branch",
+            "target_step_id": "papagaio_consent_template_step",
+            "step_id": "prerequisites_template_step",
+            "condition_id": None,
+            "condition": None,
+        }
+
+        create_workflow_template_step_with_form_and_branches(
+            prerequisites_template_step,
+            "prerequisites_form_template",
+            [prerequisites_template_step_branch],
+        )
+
+    if crud.read(WorkflowTemplateStepOrm, id="papagaio_consent_template_step") is None:
+        papagaio_consent_template_step = {
+            "id": "papagaio_consent_template_step",
+            "name": "papagaio_consent_step",
+            "title": "PAPAGAIO Consent Step",
+            "expected_completion": None,
+            "last_edited": get_current_time(),
+            "last_edited_by": 1,
+            "form_id": "papagaio_consent_form_template",
+            "workflow_template_id": "papagaio_study_workflow_template",
+            "condition_id": None,
+            "condition": None,
+        }
+
+        papagaio_consent_template_step_branch = {
+            "id": "papagaio_consent_template_step_branch",
+            "target_step_id": "papagaio_randomized_treatment_template_step",
+            "step_id": "papagaio_consent_template_step",
+            "condition_id": None,
+            "condition": None,
+        }
+
+        create_workflow_template_step_with_form_and_branches(
+            papagaio_consent_template_step,
+            "papagaio_consent_form_template",
+            [papagaio_consent_template_step_branch],
+        )
+
+    if (
+        crud.read(
+            WorkflowTemplateStepOrm, id="papagaio_randomized_treatment_template_step"
+        )
+        is None
+    ):
+        papagaio_randomized_treatment_template_step = {
+            "id": "papagaio_randomized_treatment_template_step",
+            "name": "papagaio_randomized_treatment_step",
+            "title": "PAPAGAIO Randomized Treatment Step",
+            "expected_completion": None,
+            "last_edited": get_current_time(),
+            "last_edited_by": 1,
+            "form_id": "papagaio_randomized_treatment_plan_form_template",
+            "workflow_template_id": "papagaio_study_workflow_template",
+            "condition_id": None,
+            "condition": None,
+        }
+
+        papagaio_randomized_treatment_template_step_branch = {
+            "id": "papagaio_randomized_treatment_template_step_branch",
+            "target_step_id": "papagaio_observation_treatment_template_step",
+            "step_id": "papagaio_randomized_treatment_template_step",
+            "condition_id": None,
+            "condition": None,
+        }
+
+        create_workflow_template_step_with_form_and_branches(
+            papagaio_randomized_treatment_template_step,
+            "papagaio_randomized_treatment_plan_form_template",
+            [papagaio_randomized_treatment_template_step_branch],
+        )
+
+    if (
+        crud.read(
+            WorkflowTemplateStepOrm, id="papagaio_observation_treatment_template_step"
+        )
+        is None
+    ):
+        papagaio_observation_treatment_template_step = {
+            "id": "papagaio_observation_treatment_template_step",
+            "name": "papagaio_observation_treatment_step",
+            "title": "PAPAGAIO Observation Treatment Step",
+            "expected_completion": None,
+            "last_edited": get_current_time(),
+            "last_edited_by": 1,
+            "form_id": "papagaio_observation_treatment_plan_form_template",
+            "workflow_template_id": "papagaio_study_workflow_template",
+            "condition_id": None,
+            "condition": None,
+        }
+
+        papagaio_observation_treatment_template_step_branch = {
+            "id": "papagaio_obs_treatment_template_step_branch",
+            "target_step_id": None,
+            "step_id": "papagaio_observation_treatment_template_step",
+            "condition_id": None,
+            "condition": None,
+        }
+
+        create_workflow_template_step_with_form_and_branches(
+            papagaio_observation_treatment_template_step,
+            "papagaio_observation_treatment_plan_form_template",
+            [papagaio_observation_treatment_template_step_branch],
+        )
+
+
+def create_workflow_template_step_with_form_and_branches(
+    template_step: dict, form_id: str, template_step_branches: List[dict]
+) -> None:
+    form_template_orm = crud.read(FormTemplateOrm, id=form_id)
+    template_step_orm = WorkflowTemplateStepOrm(form=form_template_orm, **template_step)
+
+    for branch in template_step_branches:
+        template_step_branch_orm = WorkflowTemplateStepBranchOrm(**branch)
+        template_step_orm.branches.append(template_step_branch_orm)
+
+    db.session.add(template_step_orm)
+    db.session.commit()
+
+
+def create_complex_workflow_template_step_form_classifications():
+    if crud.read(FormClassificationOrm, id="prerequisites_classification") is None:
+        prerequisites_classification = {
+            "id": "prerequisites_classification",
+            "name": "Prerequisites Classification",
+        }
+        prerequisites_classification_orm = FormClassificationOrm(
+            **prerequisites_classification
+        )
+        db.session.add(prerequisites_classification_orm)
+
+    if crud.read(FormClassificationOrm, id="papagaio_consent_classification") is None:
+        papagaio_consent_classification = {
+            "id": "papagaio_consent_classification",
+            "name": "PAPAGAIO Consent Classification",
+        }
+        papagaio_consent_classification_orm = FormClassificationOrm(
+            **papagaio_consent_classification
+        )
+        db.session.add(papagaio_consent_classification_orm)
+
+    if (
+        crud.read(
+            FormClassificationOrm,
+            id="papagaio_randomized_treatment_plan_classification",
+        )
+        is None
+    ):
+        randomized_treatment_plan_classification = {
+            "id": "papagaio_randomized_treatment_plan_classification",
+            "name": "Randomized Treatment plan Classification",
+        }
+        randomized_treatment_plan_classification_orm = FormClassificationOrm(
+            **randomized_treatment_plan_classification
+        )
+        db.session.add(randomized_treatment_plan_classification_orm)
+
+    if (
+        crud.read(
+            FormClassificationOrm,
+            id="papagaio_observation_treatment_plan_classification",
+        )
+        is None
+    ):
+        papagaio_observation_treatment_plan_classification = {
+            "id": "papagaio_observation_treatment_plan_classification",
+            "name": "Observation Treatment Plan Classification",
+        }
+        papagaio_observation_treatment_plan_classification_orm = FormClassificationOrm(
+            **papagaio_observation_treatment_plan_classification
+        )
+        db.session.add(papagaio_observation_treatment_plan_classification_orm)
+
+    db.session.commit()
+
+
+def create_complex_workflow_template_step_forms():
+    create_complex_workflow_template_step_form_classifications()
+
+    if crud.read(FormTemplateOrm, id="prerequisites_form_template") is None:
+        prerequisites_form_template = {
+            "id": "prerequisites_form_template",
+            "version": "V1",
+        }
+
+        create_form_template_for_workflow(
+            prerequisites_form_template,
+            "prerequisites_classification",
+            [
+                "prerequisites_question1",
+                "prerequisites_question2",
+                "prerequisites_question3",
+            ],
+        )
+
+    if crud.read(FormTemplateOrm, id="papagaio_consent_form_template") is None:
+        papagaio_consent_form_template = {
+            "id": "papagaio_consent_form_template",
+            "version": "V1",
+        }
+
+        create_form_template_for_workflow(
+            papagaio_consent_form_template,
+            "papagaio_consent_classification",
+            ["papagaio_consent_question"],
+        )
+
+    if (
+        crud.read(
+            FormTemplateOrm, id="papagaio_randomized_treatment_plan_form_template"
+        )
+        is None
+    ):
+        papagaio_randomized_treatment_plan_form_template = {
+            "id": "papagaio_randomized_treatment_plan_form_template",
+            "version": "V1",
+        }
+
+        create_form_template_for_workflow(
+            papagaio_randomized_treatment_plan_form_template,
+            "papagaio_randomized_treatment_plan_classification",
+            ["papagaio_randomized_treatment_plan_question"],
+        )
+
+    if (
+        crud.read(
+            FormTemplateOrm, id="papagaio_observation_treatment_plan_form_template"
+        )
+        is None
+    ):
+        papagaio_observation_treatment_plan_form_template = {
+            "id": "papagaio_observation_treatment_plan_form_template",
+            "version": "V1",
+        }
+
+        create_form_template_for_workflow(
+            papagaio_observation_treatment_plan_form_template,
+            "papagaio_observation_treatment_plan_classification",
+            ["papagaio_observation_treatment_plan_question"],
+        )
+
+
+def create_form_template_for_workflow(
+    workflow_template_step_form_template: dict,
+    classification_id: str,
+    question_ids: List[str],
+):
+    """Seeds the DB with an example form template used in a workflow template"""
+    classification_orm = crud.read(FormClassificationOrm, id=classification_id)
+    form_template_orm = FormTemplateOrm(
+        classification=classification_orm, **workflow_template_step_form_template
+    )
+    create_complex_workflow_template_step_form_questions()
+
+    for question_id in question_ids:
+        question = crud.read(QuestionOrm, id=question_id)
+        form_template_orm.questions.append(question)
+
+    db.session.add(form_template_orm)
+    db.session.commit()
+
+
+def create_complex_workflow_template_step_form_questions():
+    if crud.read(QuestionOrm, id="prerequisites_question1") is None:
+        prerequisites_question1 = {
+            "id": "prerequisites_question1",
+            "category_index": None,
+            "question_index": 0,
+            "is_blank": True,
+            "question_type": "MULTIPLE_CHOICE",
+            "required": True,
+            "allow_future_dates": True,
+            "allow_past_dates": True,
+            "num_min": None,
+            "num_max": None,
+            "string_max_length": None,
+            "units": None,
+            "visible_condition": "[]",
+            "string_max_lines": None,
+            "mc_options": '[{"mcId": 0, "opt": "Yes" }, {"mcId": 1, "opt": "No"}]',
+        }
+
+        prerequisites_lang_version1 = {
+            "id": 105,
+            "lang": "English",
+            "question_text": "Is there any indication for immediate delivery?",
+            "question_id": "prerequisites_question1",
+        }
+
+        prerequisites_question1_orm = QuestionOrm(**prerequisites_question1)
+        db.session.add(prerequisites_question1_orm)
+        db.session.add(QuestionLangVersionOrm(**prerequisites_lang_version1))
+
+    if crud.read(QuestionOrm, id="prerequisites_question2") is None:
+        prerequisites_question2 = {
+            "id": "prerequisites_question2",
+            "category_index": None,
+            "question_index": 1,
+            "is_blank": True,
+            "question_type": "MULTIPLE_CHOICE",
+            "required": True,
+            "allow_future_dates": True,
+            "allow_past_dates": True,
+            "num_min": None,
+            "num_max": None,
+            "string_max_length": None,
+            "units": None,
+            "visible_condition": "[]",
+            "string_max_lines": None,
+            "mc_options": '[{"mcId": 0, "opt": "Yes" }, {"mcId": 1, "opt": "No"}]',
+        }
+
+        prerequisites_lang_version2 = {
+            "id": 106,
+            "lang": "English",
+            "question_text": "Has the patient decided to deliver in the next 48 hours?",
+            "question_id": "prerequisites_question2",
+        }
+
+        prerequisites_question2_orm = QuestionOrm(**prerequisites_question2)
+        db.session.add(prerequisites_question2_orm)
+        db.session.add(QuestionLangVersionOrm(**prerequisites_lang_version2))
+
+    if crud.read(QuestionOrm, id="prerequisites_question3") is None:
+        prerequisites_question3 = {
+            "id": "prerequisites_question3",
+            "category_index": None,
+            "question_index": 2,
+            "is_blank": True,
+            "question_type": "MULTIPLE_CHOICE",
+            "required": True,
+            "allow_future_dates": True,
+            "allow_past_dates": True,
+            "num_min": None,
+            "num_max": None,
+            "string_max_length": None,
+            "units": None,
+            "visible_condition": "[]",
+            "string_max_lines": None,
+            "mc_options": '[{"mcId": 0, "opt": "Yes" }, {"mcId": 1, "opt": "No"}]',
+        }
+
+        prerequisites_lang_version3 = {
+            "id": 107,
+            "lang": "English",
+            "question_text": "Does the patient have the capacity to provide informed consent?",
+            "question_id": "prerequisites_question3",
+        }
+
+        prerequisites_question3_orm = QuestionOrm(**prerequisites_question3)
+        db.session.add(prerequisites_question3_orm)
+        db.session.add(QuestionLangVersionOrm(**prerequisites_lang_version3))
+
+    if crud.read(QuestionOrm, id="papagaio_consent_question") is None:
+        papagaio_consent_question = {
+            "id": "papagaio_consent_question",
+            "category_index": None,
+            "question_index": 3,
+            "is_blank": True,
+            "question_type": "MULTIPLE_CHOICE",
+            "required": True,
+            "allow_future_dates": True,
+            "allow_past_dates": True,
+            "num_min": None,
+            "num_max": None,
+            "string_max_length": None,
+            "units": None,
+            "visible_condition": "[]",
+            "string_max_lines": None,
+            "mc_options": "["
+            '{"mcId": 0, "opt": "Give Consent"}'
+            ", "
+            '{"mcId": 1, "opt": "Deny Consent"}'
+            "]",
+        }
+
+        papagaio_consent_lang_version = {
+            "id": 108,
+            "lang": "English",
+            "question_text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
+            "Vivamus blandit at eros laoreet cursus. Nunc id quam dictum, cursus felis eu, mattis sem."
+            " Quisque euismod, nisl quis rhoncus blandit, diam elit ornare dui, ut posuere tortor dui "
+            "at risus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Fusce fermentum "
+            "leo at est egestas rutrum. Nullam vitae nunc placerat, consectetur justo eu, lobortis "
+            "diam. Nullam malesuada elit ac magna varius interdum. Nulla a malesuada turpis. Praesent "
+            "hendrerit dui arcu, id fringilla nisi vulputate at. Sed eu sapien ante. Morbi dapibus mi "
+            "vitae dignissim pulvinar. Proin suscipit aliquet semper.",
+            "question_id": "papagaio_consent_question",
+        }
+
+        papagaio_consent_question_orm = QuestionOrm(**papagaio_consent_question)
+        db.session.add(papagaio_consent_question_orm)
+        db.session.add(QuestionLangVersionOrm(**papagaio_consent_lang_version))
+
+    if crud.read(QuestionOrm, id="papagaio_randomized_treatment_plan_question") is None:
+        papagaio_randomized_treatment_plan_question = {
+            "id": "papagaio_randomized_treatment_plan_question",
+            "category_index": None,
+            "question_index": 4,
+            "is_blank": True,
+            "question_type": "MULTIPLE_CHOICE",
+            "required": True,
+            "allow_future_dates": True,
+            "allow_past_dates": True,
+            "num_min": None,
+            "num_max": None,
+            "string_max_length": None,
+            "units": None,
+            "visible_condition": "[]",
+            "string_max_lines": None,
+            "mc_options": "["
+            '{"mcId": 0, "opt": "Observe closely for 37 weeks"}'
+            ", "
+            '{"mcId": 1, "opt": "Expedite delivery within 48 hours"}'
+            ","
+            '{"mcId": 2, "opt": "None of the options provided (This withdraws patient from the study '
+            'and exits workflow"}'
+            "]",
+        }
+
+        papagaio_randomized_treatment_plan_lang_version = {
+            "id": 109,
+            "lang": "English",
+            "question_text": "The treatment plan assigned to ths patient has been randomly selected as part of the "
+            "study. Each treatment plan below has an equal 50% chance of being chosen. The assigned"
+            "treatment plan does not constitute a medical recommendation or an endorsement of the "
+            "chosen treatment plan. \n\n The patient has been randomly assigned to the "
+            "'observation' category for the randomized treatment plan.",
+            "question_id": "papagaio_randomized_treatment_plan_question",
+        }
+
+        papagaio_randomized_treatment_plan_question_orm = QuestionOrm(
+            **papagaio_randomized_treatment_plan_question
+        )
+        db.session.add(papagaio_randomized_treatment_plan_question_orm)
+        db.session.add(
+            QuestionLangVersionOrm(**papagaio_randomized_treatment_plan_lang_version)
+        )
+
+    if (
+        crud.read(QuestionOrm, id="papagaio_observation_treatment_plan_question")
+        is None
+    ):
+        papagaio_observation_treatment_plan_question = {
+            "id": "papagaio_observation_treatment_plan_question",
+            "category_index": None,
+            "question_index": 5,
+            "is_blank": True,
+            "question_type": "MULTIPLE_CHOICE",
+            "required": True,
+            "allow_future_dates": True,
+            "allow_past_dates": True,
+            "num_min": None,
+            "num_max": None,
+            "string_max_length": None,
+            "units": None,
+            "visible_condition": "[]",
+            "string_max_lines": None,
+            "mc_options": "["
+            '{"mcId": 0, "opt": "Treatment plan complete"}'
+            ", "
+            '{"mcId": 1, "opt": "Treatment plan cancelled"}'
+            ","
+            '{"mcId": 2, "opt": "None of the options provided"}'
+            "]",
+        }
+
+        papagaio_observation_treatment_plan_lang_version = {
+            "id": 110,
+            "lang": "English",
+            "question_text": "This patient was randomly assigned to the 'observation category` as part of the"
+            "PAPAGAIO Research Study.",
+            "question_id": "papagaio_observation_treatment_plan_question",
+        }
+
+        papagaio_observation_treatment_plan_question_orm = QuestionOrm(
+            **papagaio_observation_treatment_plan_question
+        )
+        db.session.add(papagaio_observation_treatment_plan_question_orm)
+        db.session.add(
+            QuestionLangVersionOrm(**papagaio_observation_treatment_plan_lang_version)
+        )
+
+    db.session.commit()
 
 
 def get_random_initials():
