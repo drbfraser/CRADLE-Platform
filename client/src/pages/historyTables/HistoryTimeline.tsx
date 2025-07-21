@@ -22,7 +22,7 @@ import {
 import CircularProgress from '@mui/material/CircularProgress';
 import HistoryIcon from '@mui/icons-material/History';
 
-import { TimelineRecord } from 'src/shared/types';
+import { TimelineRecord } from 'src/shared/types/types';
 import { getPatientTimelineAsync } from 'src/shared/api';
 import { getPrettyDate } from 'src/shared/utils';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';

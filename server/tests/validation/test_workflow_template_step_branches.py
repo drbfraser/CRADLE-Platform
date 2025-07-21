@@ -23,6 +23,7 @@ step_branch_with_valid_fields_should_return_none = {
     "id": ID,
     "target_step_id": TARGET_STEP_ID,
     "step_id": STEP_ID,
+    "condition_id": EXAMPLE_VALID_RULE["id"],
     "condition": EXAMPLE_VALID_RULE,
 }
 
@@ -30,6 +31,7 @@ step_branch_with_valid_fields_and_no_condition_should_return_none = {
     "id": ID,
     "target_step_id": TARGET_STEP_ID,
     "step_id": STEP_ID,
+    "condition_id": None,
     "condition": None,
 }
 
@@ -37,6 +39,7 @@ step_branch_with_invalid_ID_should_return_validation_error = {
     "id": 3232,
     "target_step_id": TARGET_STEP_ID,
     "step_id": STEP_ID,
+    "condition_id": EXAMPLE_VALID_RULE["id"],
     "condition": EXAMPLE_VALID_RULE,
 }
 
@@ -44,6 +47,7 @@ step_branch_with_invalid_rule_should_return_validation_error = {
     "id": ID,
     "target_step_id": TARGET_STEP_ID,
     "step_id": STEP_ID,
+    "condition_id": EXAMPLE_INVALID_RULE["id"],
     "condition": EXAMPLE_INVALID_RULE,
 }
 

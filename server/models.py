@@ -717,7 +717,7 @@ class RuleGroupOrm(db.Model):
 
     @staticmethod
     def schema():
-        return RuleGroupOrm
+        return RuleGroupSchema
 
 
 class WorkflowTemplateOrm(db.Model):
@@ -727,6 +727,7 @@ class WorkflowTemplateOrm(db.Model):
     description = db.Column(db.Text, nullable=False)
     archived = db.Column(db.Boolean, nullable=False, default=False)
     date_created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
+    starting_step_id = db.Column(db.String(50), nullable=True)
     last_edited = db.Column(
         db.BigInteger,
         nullable=False,
@@ -747,6 +748,19 @@ class WorkflowTemplateOrm(db.Model):
 
     initial_condition_id = db.Column(
         db.ForeignKey(RuleGroupOrm.id, ondelete="SET NULL"), nullable=True
+    )
+
+    # RELATIONSHIPS
+    initial_condition = db.relationship(
+        RuleGroupOrm,
+        backref=db.backref("workflow_templates", lazy=True),
+        passive_deletes=True,
+    )
+
+    classification = db.relationship(
+        WorkflowClassificationOrm,
+        backref=db.backref("workflow_templates", lazy=True),
+        passive_deletes=True,
     )
 
     @staticmethod
@@ -789,6 +803,17 @@ class WorkflowTemplateStepOrm(db.Model):
     # RELATIONSHIPS
     workflow_template = db.relationship(
         WorkflowTemplateOrm,
+        backref=db.backref("steps", cascade="all, delete", lazy=True),
+    )
+
+    condition = db.relationship(
+        RuleGroupOrm,
+        backref=db.backref("workflow_template_steps", lazy=True),
+        passive_deletes=True,
+    )
+
+    form = db.relationship(
+        FormTemplateOrm,
         backref=db.backref("workflow_template_steps", cascade="all, delete", lazy=True),
     )
 
@@ -800,7 +825,7 @@ class WorkflowTemplateStepOrm(db.Model):
 class WorkflowTemplateStepBranchOrm(db.Model):
     __tablename__ = "workflow_template_step_branch"
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
-    target_step_id = db.Column(db.Integer, nullable=False)
+    target_step_id = db.Column(db.String(50), nullable=True)
 
     # FOREIGN KEYS
     step_id = db.Column(
@@ -808,16 +833,20 @@ class WorkflowTemplateStepBranchOrm(db.Model):
         nullable=False,
     )
 
-    condition = db.Column(
+    condition_id = db.Column(
         db.ForeignKey(RuleGroupOrm.id, ondelete="SET NULL"), nullable=True
     )
 
     # RELATIONSHIPS
     step = db.relationship(
         WorkflowTemplateStepOrm,
-        backref=db.backref(
-            "workflow_template_step_branches", cascade="all, delete", lazy=True
-        ),
+        backref=db.backref("branches", cascade="all, delete", lazy=True),
+    )
+
+    condition = db.relationship(
+        RuleGroupOrm,
+        backref=db.backref("workflow_template_step_branches", lazy=True),
+        passive_deletes=True,
     )
 
     @staticmethod
@@ -911,6 +940,17 @@ class WorkflowInstanceStepOrm(db.Model):
     # RELATIONSHIPS
     workflow_instance = db.relationship(
         WorkflowInstanceOrm,
+        backref=db.backref("steps", cascade="all, delete", lazy=True),
+    )
+
+    condition = db.relationship(
+        RuleGroupOrm,
+        backref=db.backref("workflow_instance_steps", lazy=True),
+        passive_deletes=True,
+    )
+
+    form = db.relationship(
+        FormOrm,
         backref=db.backref("workflow_instance_steps", cascade="all, delete", lazy=True),
     )
 

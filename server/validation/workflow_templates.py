@@ -31,6 +31,7 @@ class WorkflowTemplateExample:
         "name": name,
         "description": description,
         "archived": archived,
+        "starting_step_id": None,
         "initial_condition_id": RuleGroupExample.id,
         "condition": RuleGroupExample.example_01,
         "date_created": date_created,
@@ -38,6 +39,7 @@ class WorkflowTemplateExample:
         "last_edited_by": last_edited_by,
         "version": version,
         "classification_id": WorkflowClassificationExamples.id,
+        "classification": WorkflowClassificationExamples.example_01,
         "steps": [],
     }
 
@@ -46,8 +48,9 @@ class WorkflowTemplateExample:
         "name": name,
         "description": description,
         "archived": archived,
+        "starting_step_id": None,
         "initial_condition_id": RuleGroupExample.id,
-        "condition": RuleGroupExample.example_01,
+        "initial_condition": RuleGroupExample.example_01,
         "date_created": date_created,
         "last_edited": last_edited,
         "last_edited_by": last_edited_by,
@@ -62,8 +65,9 @@ class WorkflowTemplateExample:
         "name": name,
         "description": description,
         "archived": archived,
+        "starting_step_id": WorkflowTemplateStepExample.example_01["id"],
         "initial_condition_id": RuleGroupExample.id,
-        "condition": RuleGroupExample.example_01,
+        "initial_condition": RuleGroupExample.example_01,
         "date_created": date_created,
         "last_edited": last_edited,
         "last_edited_by": last_edited_by,
@@ -79,13 +83,16 @@ class WorkflowTemplateModel(CradleBaseModel):
     name: str
     description: str
     archived: bool
+    starting_step_id: Optional[str] = None
     date_created: int = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
     last_edited_by: Optional[int] = None
     version: str
     initial_condition_id: Optional[str] = None
-    condition: Optional[RuleGroupModel] = None
-    version: str
+    initial_condition: Optional[RuleGroupModel] = None
+    classification_id: Optional[str] = None
+    classification: Optional[WorkflowClassificationModel] = None
+    steps: list[WorkflowTemplateStepModel]
 
     @model_validator(mode="after")
     def validate_dates(self) -> Self:
@@ -94,19 +101,5 @@ class WorkflowTemplateModel(CradleBaseModel):
         return self
 
 
-class WorkflowTemplateWithClassification(WorkflowTemplateModel):
-    """A workflow template with a workflow classification object"""
-
-    classification: Optional[WorkflowClassificationModel] = None
-
-
-class WorkflowTemplateWithSteps(WorkflowTemplateModel):
-    """A workflow template with a workflow template steps"""
-
-    steps: list[WorkflowTemplateStepModel]
-
-
-class WorkflowTemplateWithStepsAndClassification(WorkflowTemplateWithClassification):
-    """A workflow template with a workflow template steps and workflow classification object"""
-
-    steps: list[WorkflowTemplateStepModel]
+class WorkflowTemplateUploadModel(WorkflowTemplateModel):
+    id: Optional[str] = None

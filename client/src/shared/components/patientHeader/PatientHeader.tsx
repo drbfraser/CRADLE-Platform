@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Box, IconButton, Skeleton, Tooltip, Typography } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 
-import { Patient } from 'src/shared/types';
+import { Patient } from 'src/shared/types/patientTypes';
 
 interface IProps {
   patient: Patient | undefined;

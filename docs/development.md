@@ -253,7 +253,6 @@ server/
 ├── api/                        # REST API logic
 │   ├── resources/              # Resource-level API endpoint handlers
 │   ├── decorator.py            # Role-based access control (@roles_required)
-│   ├── util.py                 # Common API helpers
 │   └── __init__.py             # Partial route duplication (legacy usage)
 
 ├── authentication/             # Authentication services
@@ -271,7 +270,10 @@ server/
 │   ├── phone_number_utils.py   # Phone number processing
 │   ├── print_utils.py          # Print/debug utilities
 │   ├── regexUtil.py            # Regex validation logic
-│   └── user_utils.py           # Common user-related logic
+│   ├── user_utils.py           # Common user-related logic
+│   ├── request_id_utils.py     # Request ID logic for logging 
+│   └── workflow_utils.py       # Workflow-related logic
+
 
 ├── data/                       # DB abstraction & data transformation
 │   ├── crud.py                 # CRUD operations on SQLAlchemy models
@@ -325,7 +327,6 @@ server/
 ├── routes.py                   # Registers API routes from api/resources
 ├── manage.py                   # CLI utility for DB seeding
 ├── models.py                   # SQLAlchemy ORM table definitions
-├── utils.py                    # Generic helpers (can be moved to service/)
 ├── Dockerfile                  # Docker container specification
 ├── requirements.txt            # Project dependencies
 ├── ruff.toml                   # Linting rules for Ruff

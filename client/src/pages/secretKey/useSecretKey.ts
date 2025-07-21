@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { updateSecretKeyAsync } from 'src/shared/api';
 import { UserRoleEnum } from 'src/shared/enums';
 import { useSecretKeyQuery } from 'src/shared/queries';
-import { UserWithToken, OrNull, SecretKey } from 'src/shared/types';
+import { UserWithToken, OrNull, SecretKey } from 'src/shared/types/types';
 
 type UseSecretKeyReturn = {
   currentSecretKey?: SecretKey;

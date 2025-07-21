@@ -5,7 +5,7 @@ import {
   DialogContent,
   DialogTitle,
 } from '@mui/material';
-import { RelayNum } from 'src/shared/types';
+import { RelayNum } from 'src/shared/types/types';
 import { deleteRelayNumAsync } from 'src/shared/api';
 import { Toast } from 'src/shared/components/toast';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';

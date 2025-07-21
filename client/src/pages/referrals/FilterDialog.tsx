@@ -20,7 +20,7 @@ import Grid from '@mui/material/Grid2';
 import DoneIcon from '@mui/icons-material/Done';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 
-import { ReferralFilter, Referrer } from 'src/shared/types';
+import { ReferralFilter, Referrer } from 'src/shared/types/referralTypes';
 import { getUserVhtsAsync } from 'src/shared/api';
 import { TrafficLightEnum } from 'src/shared/enums';
 import { useHealthFacilityNames } from 'src/shared/hooks/healthFacilityNames';
@@ -144,14 +144,22 @@ export const FilterDialog = ({
     if (!value) {
       return;
     }
-    setSelectedHealthFacilities([...selectedHealthFacilities, value]);
+    if (!selectedHealthFacilities.includes(value)) {
+      setSelectedHealthFacilities([...selectedHealthFacilities, value].sort());
+    }
   };
 
   const onReferrerSelect = (_event: any, value: Referrer | null) => {
     if (!value) {
       return;
     }
-    setSelectedReferrers([...selectedReferrers, value]);
+    if (!selectedReferrers.includes(value)) {
+      setSelectedReferrers(
+        [...selectedReferrers, value].sort((a, b) =>
+          a.userId.localeCompare(b.userId)
+        )
+      );
+    }
   };
 
   const handleDeleteFacilityChip = (index: number) => {
@@ -180,9 +188,29 @@ export const FilterDialog = ({
     }
   };
 
-  const onConfirm = () => {
-    // User did not change any filter
+  const filterHasChanged = () => {
+    const dateRange =
+      dateRangeState.startDate && dateRangeState.endDate
+        ? `${dateRangeState.startDate.toDate().getTime() / 1000}:${
+            dateRangeState.endDate.toDate().getTime() / 1000
+          }`
+        : '';
     if (
+      // selected filter is the same as current filter
+      filter &&
+      JSON.stringify(selectedHealthFacilities) ===
+        JSON.stringify(filter.healthFacilityNames) &&
+      dateRange === filter.dateRange &&
+      JSON.stringify(selectedReferrers.map((r) => r.userId)) ===
+        JSON.stringify(filter.referrers) &&
+      JSON.stringify(selectedVitalSign) === JSON.stringify(filter.vitalSigns) &&
+      isAssessed === filter.isAssessed &&
+      isPregnant === filter.isPregnant
+    ) {
+      return false;
+    } else if (
+      // selected filter is empty and current filter is undefined
+      !filter &&
       selectedHealthFacilities.length < 1 &&
       !dateRangeState.startDate &&
       !dateRangeState.endDate &&
@@ -192,6 +220,14 @@ export const FilterDialog = ({
       !isPregnant &&
       !isAssessed
     ) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
+  const onConfirm = () => {
+    if (!filterHasChanged()) {
       onClose();
       return;
     }
@@ -319,13 +355,15 @@ export const FilterDialog = ({
                       checked={selectedVitalSign.includes(vitalSign.vitalSign)}
                       onChange={(event, checked) => {
                         if (checked) {
-                          setSelectedVitalSign([
-                            ...selectedVitalSign,
-                            TrafficLightEnum[
-                              event.target
-                                .value as keyof typeof TrafficLightEnum
-                            ],
-                          ]);
+                          setSelectedVitalSign(
+                            [
+                              ...selectedVitalSign,
+                              TrafficLightEnum[
+                                event.target
+                                  .value as keyof typeof TrafficLightEnum
+                              ],
+                            ].sort()
+                          );
                         } else {
                           const newVitalSigns = [...selectedVitalSign];
                           const i = newVitalSigns.indexOf(

@@ -1,6 +1,6 @@
 import { Box, Divider, Grid2 as Grid, Paper, Typography } from '@mui/material';
 
-import { Patient } from 'src/shared/types';
+import { Patient } from 'src/shared/types/patientTypes';
 import RecentActorsIcon from '@mui/icons-material/RecentActors';
 import { SecondaryButton } from 'src/shared/components/Button';
 import { Skeleton } from '@mui/material';

@@ -95,3 +95,7 @@ class WorkflowInstanceModel(CradleBaseModel):
             raise ValueError("completion_date cannot be before start_date")
 
         return self
+
+
+class WorkflowInstanceUploadModel(WorkflowInstanceModel):
+    id: Optional[str] = None

@@ -14,7 +14,7 @@ from tests.validation.test_workflow_template_steps import (
     template_step_with_invalid_form_should_return_validation_error,
     template_step_with_valid_fields_should_return_none,
 )
-from validation.workflow_templates import WorkflowTemplateWithStepsAndClassification
+from validation.workflow_templates import WorkflowTemplateModel
 
 """Template steps to be used"""
 VALID_WORKFLOW_TEMPLATE_STEP = template_step_with_valid_fields_should_return_none
@@ -49,12 +49,13 @@ workflow_template_with_valid_fields_should_return_none = {
     "name": NAME,
     "description": DESCRIPTION,
     "archived": ARCHIVED,
+    "starting_step_id": VALID_WORKFLOW_TEMPLATE_STEP["id"],
     "date_created": DATE_CREATED,
     "last_edited": LAST_EDITED,
     "last_edited_by": LAST_EDITED_BY,
     "version": VERSION,
     "initial_condition_id": VALID_RULE_GROUP["id"],
-    "condition": VALID_RULE_GROUP,
+    "initial_condition": VALID_RULE_GROUP,
     "classification_id": VALID_WORKFLOW_CLASSIFICATION["id"],
     "classification": VALID_WORKFLOW_CLASSIFICATION,
     "steps": [VALID_WORKFLOW_TEMPLATE_STEP],
@@ -65,13 +66,14 @@ workflow_template_with_valid_missing_fields_should_return_none = {
     "name": NAME,
     "description": DESCRIPTION,
     "archived": ARCHIVED,
+    "starting_step_id": None,
     "date_created": DATE_CREATED,
     "last_edited": LAST_EDITED,
     "last_edited_by": LAST_EDITED_BY,
     "version": VERSION,
-    "initial_condition_id": "",
-    "condition": None,
-    "classification_id": "",
+    "initial_condition_id": None,
+    "initial_condition": None,
+    "classification_id": None,
     "classification": None,
     "steps": [],
 }
@@ -81,12 +83,13 @@ workflow_template_with_multiple_valid_steps_should_return_none = {
     "name": NAME,
     "description": DESCRIPTION,
     "archived": ARCHIVED,
+    "starting_step_id": VALID_WORKFLOW_TEMPLATE_STEP["id"],
     "date_created": DATE_CREATED,
     "last_edited": LAST_EDITED,
     "last_edited_by": LAST_EDITED_BY,
     "version": VERSION,
     "initial_condition_id": VALID_RULE_GROUP["id"],
-    "condition": VALID_RULE_GROUP,
+    "initial_condition": VALID_RULE_GROUP,
     "classification_id": VALID_WORKFLOW_CLASSIFICATION["id"],
     "classification": VALID_WORKFLOW_CLASSIFICATION,
     "steps": [VALID_WORKFLOW_TEMPLATE_STEP, VALID_WORKFLOW_TEMPLATE_STEP],
@@ -97,12 +100,13 @@ workflow_template_with_missing_last_edited_by_field_should_return_none = {
     "name": NAME,
     "description": DESCRIPTION,
     "archived": ARCHIVED,
+    "starting_step_id": VALID_WORKFLOW_TEMPLATE_STEP["id"],
     "date_created": DATE_CREATED,
     "last_edited": None,
     "last_edited_by": None,
     "version": VERSION,
     "initial_condition_id": VALID_RULE_GROUP["id"],
-    "condition": VALID_RULE_GROUP,
+    "initial_condition": VALID_RULE_GROUP,
     "classification_id": VALID_WORKFLOW_CLASSIFICATION["id"],
     "classification": VALID_WORKFLOW_CLASSIFICATION,
     "steps": [VALID_WORKFLOW_TEMPLATE_STEP, VALID_WORKFLOW_TEMPLATE_STEP],
@@ -113,12 +117,13 @@ workflow_template_with_invalid_condition_should_return_validation_error = {
     "name": NAME,
     "description": DESCRIPTION,
     "archived": ARCHIVED,
+    "starting_step_id": VALID_WORKFLOW_TEMPLATE_STEP["id"],
     "date_created": DATE_CREATED,
     "last_edited": LAST_EDITED,
     "last_edited_by": LAST_EDITED_BY,
     "version": VERSION,
     "initial_condition_id": INVALID_RULE_GROUP["id"],
-    "condition": INVALID_RULE_GROUP,
+    "initial_condition": INVALID_RULE_GROUP,
     "classification_id": VALID_WORKFLOW_CLASSIFICATION["id"],
     "classification": VALID_WORKFLOW_CLASSIFICATION,
     "steps": [VALID_WORKFLOW_TEMPLATE_STEP],
@@ -129,12 +134,13 @@ workflow_template_with_invalid_classification_should_return_validation_error = {
     "name": NAME,
     "description": DESCRIPTION,
     "archived": ARCHIVED,
+    "starting_step_id": VALID_WORKFLOW_TEMPLATE_STEP["id"],
     "date_created": DATE_CREATED,
     "last_edited": LAST_EDITED,
     "last_edited_by": LAST_EDITED_BY,
     "version": VERSION,
     "initial_condition_id": VALID_RULE_GROUP["id"],
-    "condition": VALID_RULE_GROUP,
+    "initial_condition": VALID_RULE_GROUP,
     "classification_id": INVALID_WORKFLOW_CLASSIFICATION["id"],
     "classification": INVALID_WORKFLOW_CLASSIFICATION,
     "steps": [VALID_WORKFLOW_TEMPLATE_STEP],
@@ -145,12 +151,13 @@ workflow_template_with_invalid_steps_should_return_validation_error = {
     "name": NAME,
     "description": DESCRIPTION,
     "archived": ARCHIVED,
+    "starting_step_id": VALID_WORKFLOW_TEMPLATE_STEP["id"],
     "date_created": DATE_CREATED,
     "last_edited": LAST_EDITED,
     "last_edited_by": LAST_EDITED_BY,
     "version": VERSION,
     "initial_condition_id": VALID_RULE_GROUP["id"],
-    "condition": VALID_RULE_GROUP,
+    "initial_condition": VALID_RULE_GROUP,
     "classification_id": VALID_WORKFLOW_CLASSIFICATION["id"],
     "classification": VALID_WORKFLOW_CLASSIFICATION,
     "steps": [VALID_WORKFLOW_TEMPLATE_STEP, INVALID_WORKFLOW_TEMPLATE_STEP],
@@ -181,9 +188,9 @@ workflow_template_with_invalid_steps_should_return_validation_error = {
 def test_workflow_templates(json, expectation):
     if expectation:
         with pytest.raises(expectation):
-            WorkflowTemplateWithStepsAndClassification(**json)
+            WorkflowTemplateModel(**json)
     else:
         try:
-            WorkflowTemplateWithStepsAndClassification(**json)
+            WorkflowTemplateModel(**json)
         except ValidationError as e:
             raise AssertionError(f"Unexpected validation error from {e}") from e

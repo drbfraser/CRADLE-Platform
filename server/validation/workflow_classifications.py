@@ -1,3 +1,5 @@
+from typing import Optional
+
 from validation import CradleBaseModel
 
 
@@ -11,3 +13,7 @@ class WorkflowClassificationExamples:
 class WorkflowClassificationModel(CradleBaseModel, extra="forbid"):
     id: str
     name: str
+
+
+class WorkflowClassificationUploadModel(WorkflowClassificationModel):
+    id: Optional[str] = None

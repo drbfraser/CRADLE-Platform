@@ -12,12 +12,10 @@ import {
   LocalHospital as DiagnosisIcon,
   KeyboardArrowDown,
 } from '@mui/icons-material';
-import {
-  CustomizedForm,
-  Assessment,
-  Reading,
-  Referral,
-} from 'src/shared/types';
+import { Referral } from 'src/shared/types/referralTypes';
+import { Assessment } from 'src/shared/types/assessmentTypes';
+import { Reading } from 'src/shared/types/readingTypes';
+import { CustomizedForm } from 'src/shared/types/form/formTemplateTypes';
 
 import { RedirectButton } from 'src/shared/components/Button';
 import { TrafficLight } from 'src/shared/components/trafficLight';

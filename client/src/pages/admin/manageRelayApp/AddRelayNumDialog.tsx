@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { addRelayServerPhone } from 'src/shared/api';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
-import { RelayNum } from 'src/shared/types';
+import { RelayNum } from 'src/shared/types/types';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 
 const RELAY_NUMBER_TEMPLATE = {
