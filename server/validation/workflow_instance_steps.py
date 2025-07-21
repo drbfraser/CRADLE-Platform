@@ -97,6 +97,7 @@ class WorkflowInstanceStepExamples:
     id = "workflow-instance-step-example-01"
     name = "Workflow Instance Step Example"
     title = "Workflow Instance Step Example"
+    start_date = get_current_time()
     last_edited = get_current_time()
     completion_date = get_current_time()
     expected_completion = get_current_time()
@@ -109,6 +110,7 @@ class WorkflowInstanceStepExamples:
         "id": id,
         "name": name,
         "title": title,
+        "start_date": start_date,
         "last_edited": last_edited,
         "completion_date": completion_date,
         "expected_completion": expected_completion,
@@ -127,6 +129,7 @@ class WorkflowInstanceStepExamples:
         "id": id,
         "name": name,
         "title": title,
+        "start_date": start_date,
         "last_edited": last_edited,
         "completion_date": completion_date,
         "expected_completion": expected_completion,
@@ -146,22 +149,18 @@ class WorkflowInstanceStepModel(CradleBaseModel):
     name: str
     title: str
     start_date: int = Field(default_factory=get_current_time)
-    triggered_by: Optional[str] = None
     last_edited: Optional[int] = Field(default_factory=get_current_time)
-    expected_completion: Optional[int] = None
-    completion_date: Optional[int] = None
-    status: str = "Active"
-    data: Optional[str] = None
-
-    # Foreign key fields
-    form_id: str
     assigned_to: Optional[int] = None
-    workflow_instance_id: str
-    condition_id: Optional[str] = None
-
-    # Relationship fields (for API responses)
+    completion_date: Optional[int] = Field(default_factory=get_current_time)
+    expected_completion: Optional[int] = Field(default_factory=get_current_time)
+    status: str
+    data: Optional[str] = None
+    triggered_by: Optional[str] = None
+    form_id: str
     form: Optional[FormModel] = None
-    condition: Optional[RuleGroupModel] = None
+    workflow_instance_id: str
+    condition_id: str
+    condition: RuleGroupModel
 
     @field_validator("status", mode="after")
     @classmethod
@@ -190,19 +189,17 @@ class WorkflowInstanceStepModel(CradleBaseModel):
 
     @model_validator(mode="after")
     def validate_dates(self) -> Self:
-        if (
-            self.completion_date is not None
-            and self.last_edited is not None
-            and self.completion_date < self.last_edited
-        ):
-            raise ValueError("completion_date cannot be before last_edited")
+        if self.last_edited is not None and self.last_edited < self.start_date:
+            raise ValueError("last_edited cannot be before start_date")
+
+        if self.completion_date is not None and self.completion_date < self.start_date:
+            raise ValueError("completion_date cannot be before start_date")
 
         if (
             self.expected_completion is not None
-            and self.last_edited is not None
-            and self.expected_completion < self.last_edited
+            and self.expected_completion < self.start_date
         ):
-            raise ValueError("expected_completion cannot be before last_edited")
+            raise ValueError("expected_completion cannot be before start_date")
 
         return self
 
