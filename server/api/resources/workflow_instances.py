@@ -47,7 +47,9 @@ def create_workflow_instance(body: WorkflowInstanceUploadModel):
     workflow_instance_dict = body.model_dump()
 
     # Assign ID to workflow instance
-    assign_workflow_template_or_instance_ids(WorkflowInstanceOrm, workflow_instance_dict)
+    assign_workflow_template_or_instance_ids(
+        WorkflowInstanceOrm, workflow_instance_dict
+    )
 
     # Get ID of user
     try:

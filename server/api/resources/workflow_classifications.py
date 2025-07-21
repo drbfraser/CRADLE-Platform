@@ -42,8 +42,10 @@ def create_workflow_classification(body: WorkflowClassificationUploadModel):
     """Create Workflow Classification"""
     workflow_classification_dict = body.model_dump()
 
-    # Assign ID 
-    assign_workflow_template_or_instance_ids(WorkflowClassificationOrm, workflow_classification_dict)
+    # Assign ID
+    assign_workflow_template_or_instance_ids(
+        WorkflowClassificationOrm, workflow_classification_dict
+    )
 
     # Check if classification with same name already exists
     existing_classification_by_name = crud.read(
@@ -55,7 +57,7 @@ def create_workflow_classification(body: WorkflowClassificationUploadModel):
             description=f"Workflow classification with name '{workflow_classification_dict['name']}' already exists.",
         )
 
-    # Check if classification with same ID already exists 
+    # Check if classification with same ID already exists
     existing_classification_by_id = crud.read(
         WorkflowClassificationOrm, id=workflow_classification_dict["id"]
     )
