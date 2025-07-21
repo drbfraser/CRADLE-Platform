@@ -11,6 +11,10 @@ interface IProps {
 }
 
 export const ViewTemplateSteps = ({ steps }: IProps) => {
+  if (!steps) {
+    return;
+  }
+
   function getNextIds(branches?: TemplateStepBranch[]): string {
     if (branches) {
       let ret = '';

@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, FormControlLabel, Stack, Switch } from '@mui/material';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
-import { CloudDownloadOutlined, Edit } from '@mui/icons-material';
+import { CloudDownloadOutlined, Visibility } from '@mui/icons-material';
 import DeleteForever from '@mui/icons-material/DeleteForever';
 import { Unarchive } from '@mui/icons-material';
 import UploadIcon from '@mui/icons-material/Upload';
@@ -65,18 +65,19 @@ export const ManageWorkflowTemplates = () => {
 
       const actions: TableAction[] = [];
 
+      actions.push({
+        tooltip: 'View Workflow Template',
+        Icon: Visibility,
+        onClick: () => {
+          navigate('/admin/workflow-templates/view', {
+            state: {
+              viewWorkflow: workflowTemplate,
+            },
+          });
+        },
+      });
+
       if (!workflowTemplate.archived) {
-        actions.push({
-          tooltip: 'Edit Workflow Template',
-          Icon: Edit,
-          onClick: () => {
-            navigate('/admin/workflow-templates/new', {
-              state: {
-                editWorkflowId: workflowTemplate.id,
-              },
-            });
-          },
-        });
         actions.push({
           tooltip: 'Archive Workflow Template',
           Icon: DeleteForever,
