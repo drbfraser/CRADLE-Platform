@@ -34,13 +34,9 @@ def test_create_workflow_classification_success(database, api_post):
         assert created_classification.name == classification_data["name"]
 
     finally:
-        # Clean up - but be careful about what exists
-        try:
-            crud.delete_workflow_classification(
-                WorkflowClassificationOrm, id=classification_data["id"]
-            )
-        except:
-            pass
+        crud.delete_workflow_classification(
+            WorkflowClassificationOrm, id=classification_data["id"]
+        )
 
 
 def test_get_workflow_classifications_with_data(database, api_get, api_post):
@@ -96,12 +92,9 @@ def test_get_workflow_classifications_with_data(database, api_get, api_post):
             classification2_data,
             classification3_data,
         ]:
-            try:
-                crud.delete_workflow_classification(
-                    WorkflowClassificationOrm, id=classification_data["id"]
-                )
-            except:
-                pass
+            crud.delete_workflow_classification(
+                WorkflowClassificationOrm, id=classification_data["id"]
+            )
 
 
 def test_get_single_workflow_classification_success(database, api_get, api_post):
@@ -132,10 +125,6 @@ def test_get_single_workflow_classification_success(database, api_get, api_post)
         assert response_body["name"] == classification_data["name"]
 
     finally:
-        # Clean up
-        try:
-            crud.delete_workflow_classification(
-                WorkflowClassificationOrm, id=classification_data["id"]
-            )
-        except:
-            pass
+        crud.delete_workflow_classification(
+            WorkflowClassificationOrm, id=classification_data["id"]
+        )

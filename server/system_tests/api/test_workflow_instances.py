@@ -30,22 +30,15 @@ def test_create_workflow_instance(
         )
 
     finally:
-        # Clean up - but be careful about what exists
-        try:
-            crud.delete_workflow(
-                m=WorkflowInstanceOrm,
-                id=workflow_instance1["id"],
-            )
-        except:
-            pass
-        try:
-            crud.delete_workflow(
-                m=WorkflowTemplateOrm,
-                delete_classification=True,
-                id=workflow_template1["id"],
-            )
-        except:
-            pass
+        crud.delete_workflow(
+            m=WorkflowInstanceOrm,
+            id=workflow_instance1["id"],
+        )
+        crud.delete_workflow(
+            m=WorkflowTemplateOrm,
+            delete_classification=True,
+            id=workflow_template1["id"],
+        )
 
 
 def test_getting_workflow_instance(
@@ -134,29 +127,19 @@ def test_getting_workflow_instance(
         assert len(response_body["items"]) == 1
 
     finally:
-        # Clean up - but be careful about what exists
-        try:
-            crud.delete_workflow(
-                m=WorkflowInstanceOrm,
-                id=workflow_instance1["id"],
-            )
-        except:
-            pass
-        try:
-            crud.delete_workflow(
-                m=WorkflowInstanceOrm,
-                id=workflow_instance2["id"],
-            )
-        except:
-            pass
-        try:
-            crud.delete_workflow(
-                m=WorkflowTemplateOrm,
-                delete_classification=True,
-                id=workflow_template1["id"],
-            )
-        except:
-            pass
+        crud.delete_workflow(
+            m=WorkflowInstanceOrm,
+            id=workflow_instance1["id"],
+        )
+        crud.delete_workflow(
+            m=WorkflowInstanceOrm,
+            id=workflow_instance2["id"],
+        )
+        crud.delete_workflow(
+            m=WorkflowTemplateOrm,
+            delete_classification=True,
+            id=workflow_template1["id"],
+        )
 
 
 @pytest.fixture
