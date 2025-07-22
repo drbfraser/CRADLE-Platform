@@ -1,12 +1,17 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toggleArchiveTemplate } from 'src/shared/api/modules/workflowTemplates';
+import {
+  archiveWorkflowTemplateAsync,
+  unarchiveWorkflowTemplateAsync,
+} from 'src/shared/api';
 import { WorkflowTemplate } from 'src/shared/types/workflow/workflowTypes';
 
 export const useEditWorkflowTemplate = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (template: WorkflowTemplate) =>
-      toggleArchiveTemplate(template.id, template.archived),
+      template.archived
+        ? archiveWorkflowTemplateAsync(template.id)
+        : unarchiveWorkflowTemplateAsync(template.id),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ['workflowTemplates'] }),
   });

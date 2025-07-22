@@ -67,12 +67,6 @@ export const updateTemplate = (templateId: ID, payload: TemplateInput) =>
     .put<WorkflowTemplate>(templatePath(templateId), payload)
     .then((r) => r.data);
 
-// PUT /workflow/templates/{templateId} (archive/unarchive)
-export const toggleArchiveTemplate = (templateId: ID, archived: boolean) =>
-  axiosFetch
-    .put<WorkflowTemplate>(templatePath(templateId), { archived })
-    .then((r) => r.data);
-
 // GET /workflow/templates/{templateId}/steps
 export const listTemplateSteps = async (
   templateId: ID
@@ -184,3 +178,34 @@ export const updateTemplateStepById = (
 // DELETE /workflow/template/steps/{stepId}
 export const deleteTemplateStepById = (stepId: ID) =>
   axiosFetch.delete(`${TEMPLATE_STEPS}/${stepId}`);
+
+// Archive a workflow template
+export const archiveWorkflowTemplateAsync = async (templateId: string) => {
+  await axiosFetch({
+    method: 'PUT',
+    url:
+      EndpointEnum.WORKFLOW_TEMPLATES +
+      '/' +
+      templateId +
+      '/archive?archive=true',
+  });
+};
+
+// Unarchive a workflow template
+export const unarchiveWorkflowTemplateAsync = async (templateId: string) => {
+  await axiosFetch({
+    method: 'PUT',
+    url:
+      EndpointEnum.WORKFLOW_TEMPLATES +
+      '/' +
+      templateId +
+      '/archive?archive=false',
+  });
+};
+
+//save workflow via upload feature
+export const saveWorkflowTemplateWithFileAsync = async (file: File) => {
+  return axiosFetch.postForm(EndpointEnum.WORKFLOW_TEMPLATES, {
+    file: file,
+  });
+};
