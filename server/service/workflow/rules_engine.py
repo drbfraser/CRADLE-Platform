@@ -2,14 +2,16 @@ import json
 from typing import Dict, Any
 from json_logic import jsonLogic
 
+
 class RulesEngine:
     """
     An abstraction layer for the underlying Rules Engine Implementation
     """
+
     def __init__(self, args: Dict[str, Any], rule_group: str):
         """
         Initializes the rules engine
- 
+
         :param args: dict of resolved datasources used in the rules
         :param rule_group: a json object defining how we want to combine given list of rules
         :returns: an instance of RulesEngine
@@ -51,14 +53,15 @@ class _RulesEngineImpl:
         ]
     }
     """
+
     def __init__(self, args: Dict[str, Any], rg: str):
         self.parsed_rules = self._parse_rules(args, rg)
-        
+
     def _parse_rules(self, args: Dict[str, Any], rg: str) -> Dict:
         """
-        processes given input arguments and rule group 
-        into a rule object ready for evaluation 
-        
+        processes given input arguments and rule group
+        into a rule object ready for evaluation
+
         :param args: a dict of resolved datasource args
         :param rg: a rule group object
         :returns: a dict representing a formed rule
@@ -79,9 +82,9 @@ class _RulesEngineImpl:
         # recursively search this dict until we find datasource strings (assume format: "$table.column")
         # update the value with list of args
         # repeat until all args are completed
-        
+
         return rule
-        
+
     def evaluate(self, input) -> bool:
         """
         Evaluate a parsed rule and given input
