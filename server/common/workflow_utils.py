@@ -92,7 +92,7 @@ def assign_workflow_template_or_instance_ids(m: Type[M], workflow: dict) -> None
     or WorkflowClassificationOrm)
     :param workflow: A dictionary containing the workflow data to be uploaded to the DB
     """
-    if workflow["id"] is None:
+    if not workflow.get("id"):
         workflow["id"] = get_uuid()
 
     if m is WorkflowClassificationOrm:
@@ -100,24 +100,24 @@ def assign_workflow_template_or_instance_ids(m: Type[M], workflow: dict) -> None
 
     workflow_id = workflow["id"]
 
-    # Assign ID to classification if not provided
-    if workflow["classification"] is not None:
-        if workflow["classification"]["id"] is None:
+    # Assign ID to classification if not provided (only for templates, not instances)
+    if workflow.get("classification") is not None:
+        if workflow["classification"].get("id") is None:
             workflow["classification"]["id"] = get_uuid()
 
         workflow["classification_id"] = workflow["classification"]["id"]
 
-    if workflow["initial_condition"] is not None:
-        if workflow["initial_condition"]["id"] is None:
+    # Assign ID to initial_condition if not provided (only for templates, not instances)
+    if workflow.get("initial_condition") is not None:
+        if workflow["initial_condition"].get("id") is None:
             workflow["initial_condition"]["id"] = get_uuid()
 
         workflow["initial_condition_id"] = workflow["initial_condition"]["id"]
 
     # Assign IDs and workflow ID to steps
-
-    for step in workflow["steps"]:
-        if m is WorkflowTemplateOrm:
-            assign_step_ids(WorkflowTemplateStepOrm, step, workflow_id)
-
-        elif m is WorkflowInstanceOrm:
-            assign_step_ids(WorkflowInstanceStepOrm, step, workflow_id)
+    if workflow.get("steps"):  # Check if steps exist and is not empty
+        for step in workflow["steps"]:
+            if m is WorkflowTemplateOrm:
+                assign_step_ids(WorkflowTemplateStepOrm, step, workflow_id)
+            elif m is WorkflowInstanceOrm:
+                assign_step_ids(WorkflowInstanceStepOrm, step, workflow_id)

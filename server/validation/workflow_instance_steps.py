@@ -148,7 +148,8 @@ class WorkflowInstanceStepModel(CradleBaseModel):
     id: str
     name: str
     title: str
-    start_date: int = Field(default_factory=get_current_time)
+    # start_date: int = Field(default_factory=get_current_time)
+    # will uncomment once it has been added to database
     last_edited: Optional[int] = Field(default_factory=get_current_time)
     assigned_to: Optional[int] = None
     completion_date: Optional[int] = Field(default_factory=get_current_time)
