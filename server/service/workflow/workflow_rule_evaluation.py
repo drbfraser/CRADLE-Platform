@@ -1,5 +1,3 @@
-# TODO: create an interface out of this?
-#       -> can make mocks for testing (but idk if it is "pythonic")
 from typing import Dict, Any
 from rules_engine import RulesEngine
 from workflow_datasources import WorkflowDatasourcing
@@ -12,31 +10,14 @@ class EvaluteResult:
 class WorkflowEvaluationService:
     """
     responsible for:
-        1. fetching rule groups, rules, data sources
-        2. do (any) pre-processing
-        3. calling the rule engine
+        1. fetching rule groups, data sources
+        2. calling the datasourcing service to resolve data sources 
+        3. calling the rule engine to evaluate
         4. handling post-processing of results
 
-    1. given inputs from `workflow_evaluate.py`
-        - get workflow rule group by rule group id
-        - get rule group's rules
-        - process the rules to get arguments (or even better, have predfined list, so we skip this step)
-            - datasources -- a "pointer" to where this data lies in
-            - constants -- dont do anything
-        
-    2. collect rule arguments into a list, wrap as structured object, included with inputs
-        - query datasources
-        
-    3. pass into rule engine
-        a. rule group
-        b. list of rules
-        c. list of arguments
-
-    4. parse result, handle next step
-
     dependencies:
-    - rule engine facade/interface
-    - datasource service facade/interface
+    - rule engine
+    - datasource service
     """
     def __init__(self, ds, re):
         self.datasource_service = ds
@@ -52,7 +33,8 @@ class WorkflowEvaluationService:
         datasource strings via the datasource service
         
         :param wf_instance_step_id: an id for a workflow instance step
-        :rtype: a tuple of rule_group and resolved datasource strings 
+        :returns: a tuple of rule_group and resolved datasource strings 
+        :rtype: tuple of string and dict of strings
         """
         # TODO: Get workflow_instance_step object
         # dl.read_workflow_instance_step(wf_instance_step_id)
@@ -63,8 +45,6 @@ class WorkflowEvaluationService:
         datasources = [""]
 
         # NOTE stubbed
-        # Resolve the datasource strings
-        # returns a dict { "datasource_key":"value" }
         resolved_data = WorkflowDatasourcing.resolve_datasources(datasources)
         
         return (rule_group, resolved_data)
@@ -78,7 +58,8 @@ class WorkflowEvaluationService:
 
         :param input_data: an json object representing input data from a form
         :param rule_group: a rule group json string
-        :rtype: a EvalauteResult object containing the evalauted result
+        :returns: a result object containing the evaluated result
+        :rtype: EvaluateResult object
         """
         # "instantiate"
         re = RulesEngine(datasources, rule_group)

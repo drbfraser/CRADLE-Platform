@@ -9,30 +9,17 @@ takes input data, instance id/rule group id
 returns a result
 """
 
-from typing import List
-
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
-from common.api_utils import (
-    WorkflowEvaluatePath,
-)
-from validation import CradleBaseModel
 from validation.workflow_evaluate import (
-    WorkflowEvaluateExample,
-    WorkflowEvaluateModel,
-    WorkflowEvaluateWithClassification,
-    WorkflowEvaluateWithSteps,
-    WorkflowEvaluateWithStepsAndClassification
+    WorkflowEvaluateResponseModel,
+    WorkflowEvaluateExamples,
+    WorkflowEvaluateRequestModel
 )
 
-from service.workflow.workflow_rule_evaluation import WorkflowRuleEvaluationService 
-
-# response model for evaluation result
-class WorkflowEvaluateResponse(CradleBaseModel):
-    result: bool
-    detail: str
+from service.workflow.workflow_rule_evaluation import WorkflowEvaluationService 
 
 # api blueprint
 api_workflow_evaluate = APIBlueprint(
@@ -44,20 +31,21 @@ api_workflow_evaluate = APIBlueprint(
 )
 
 # /api/workflow/evaluate [POST]
-@api_workflow_evaluate.post("", responses={})
-def evaluate_workflow_instance(body: WorkflowEvaluateResponse):
-    """Evaluate a Workflow Step Instance"""
-    # TODO define example data
-    #      call WorkflowEvaluationService
-    #           - throw error if something wrong
-    #   4XX -- something was up
-    #   else 2XX
+@api_workflow_evaluate.post("", responses={ 200: WorkflowEvaluateResponseModel})
+def evaluate_workflow_instance(body: WorkflowEvaluateRequestModel):
+    """Evaluate a Workflow Step Instance"""    
     try:
-        service = WorkflowRuleEvaluationService()
+        # Sandboxed data
+        if body.id == WorkflowEvaluateExamples.id:
+            response = WorkflowEvaluateExamples.example_01
+            return response, 200
         
-        args = service.get_data()
-        result = service.evaluate_rule_engine()
-    except:
-        return abort(404, description="")
-    
-    return {}, 201
+        # TODO look into how flask deals with DI, IOC and scoped sessions
+        service = WorkflowEvaluationService()
+        (rule_group, datasources) = service.get_data(body.workflow_instance_step_id)
+        result = service.evaluate_rule_engine(rule_group, datasources)
+    except Exception as e:
+        return abort(401, description=e)
+
+    response = { "result" : result }
+    return response, 200

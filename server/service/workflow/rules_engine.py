@@ -12,6 +12,7 @@ class RulesEngine:
  
         :param args: dict of resolved datasources used in the rules
         :param rule_group: a json object defining how we want to combine given list of rules
+        :returns: an instance of RulesEngine
         :rtype: RulesEngine
         """
         self.rulesEngine = _RulesEngineImpl(args, rule_group)
@@ -21,6 +22,7 @@ class RulesEngine:
         Evaluate the given rules
 
         :param input: an input data object
+        :returns: a Result object
         :rtype: Result object
         """
         return self.rulesEngine.evaluate(input)
@@ -59,7 +61,8 @@ class _RulesEngineImpl:
         
         :param args: a dict of resolved datasource args
         :param rg: a rule group object
-        :rtype: a dict representing a formed rule
+        :returns: a dict representing a formed rule
+        :rtype: Dict
         """
 
         # method 1
@@ -79,5 +82,11 @@ class _RulesEngineImpl:
         
         return rule
         
-    def evaluate(self, input):
+    def evaluate(self, input) -> bool:
+        """
+        Evaluate a parsed rule and given input
+        :param input: an input data object
+        :returns: the result from jsonLogic
+        :rtype: a boolean
+        """
         return jsonLogic(self.parsed_rules, input)

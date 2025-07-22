@@ -10,6 +10,7 @@ class WorkflowDatasourcing:
         - parse and determine where this instance exists, return that value
 
         :param datasources: a list of strings representing a datasource
-        :rtype: a dict of resolved datasources
+        :rtype: Dict[str, Any]
+        :returns: a dict of resolved datasources, Any can be an int, bool, string 
         """
         return {"$patient.age": 18, "$reading.status": "yellow"}
