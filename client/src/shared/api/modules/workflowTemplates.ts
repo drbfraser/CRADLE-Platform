@@ -203,7 +203,6 @@ export const unarchiveWorkflowTemplateAsync = async (templateId: string) => {
   });
 };
 
-//save workflow via upload feature
 export const saveWorkflowTemplateWithFileAsync = async (file: File) => {
   return axiosFetch.postForm(EndpointEnum.WORKFLOW_TEMPLATES, {
     file: file,
