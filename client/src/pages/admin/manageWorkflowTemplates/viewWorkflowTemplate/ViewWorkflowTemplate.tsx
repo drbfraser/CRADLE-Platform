@@ -15,6 +15,9 @@ import {
   WorkflowTemplate,
 } from 'src/shared/types/workflow/workflowTypes';
 import { ViewTemplateSteps } from './ViewTemplateSteps';
+import { useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { listTemplateSteps } from 'src/shared/api/modules/workflowTemplates';
 
 export enum WorkflowEditMainComponents {
   title = 'title',
@@ -31,6 +34,25 @@ export const ViewWorkflowTemplate = () => {
   const location = useLocation();
 
   const viewWorkflow = location.state?.viewWorkflow as WorkflowTemplate;
+
+  const workflowTemplateStepsQuery = useQuery({
+    queryKey: ['workflowTemplateSteps', viewWorkflow.id],
+    queryFn: async (): Promise<TemplateStep[]> => {
+      const result = await listTemplateSteps(viewWorkflow.id);
+      console.log(result);
+      return Array.isArray(result)
+        ? result
+        : (result as { items: TemplateStep[] }).items || [];
+    },
+  });
+
+  useEffect(() => {
+    console.log(viewWorkflow);
+  }, [viewWorkflow]);
+
+  useEffect(() => {
+    console.log(workflowTemplateStepsQuery.data);
+  }, [workflowTemplateStepsQuery.data]);
 
   const dummyStep: TemplateStep = {
     id: '1',
