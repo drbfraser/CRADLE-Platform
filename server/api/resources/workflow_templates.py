@@ -270,14 +270,30 @@ def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplat
 
 
 # /api/workflow/templates/<string:workflow_template_id> [PATCH]
-# @api_workflow_templates.patch("/steps/<string:workflow_template_id>", responses={200: WorkflowTemplateModel})
-# def update_workflow_template_patch(path: WorkflowTemplateIdPath, body: dict):
-#     """Update Workflow Template with only specific fields"""
-#     workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
-#     if workflow_template is None:
-#         return abort(code=404, description=workflow_template_not_found_message.format(path.workflow_template_id))
-#
-#     return '', 200
+@api_workflow_templates.patch(
+    "/steps/<string:workflow_template_id>", responses={204: None}
+)
+def update_workflow_template_patch(path: WorkflowTemplateIdPath, body: dict):
+    """Update Workflow Template with only specific fields"""
+    workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
+    if workflow_template is None:
+        return abort(
+            code=404,
+            description=workflow_template_not_found_message.format(
+                path.workflow_template_id
+            ),
+        )
+
+    try:
+        # Validate the request body using Pydantic
+        WorkflowTemplateModel.validate_subset_of_attributes(attributes=body)
+
+    except ValueError as e:
+        return abort(code=422, description=str(e))
+
+    crud.update(WorkflowTemplateOrm, changes=body, id=path.workflow_template_id)
+
+    return "", 204
 
 
 # /api/workflow/templates/<string:workflow_template_id> [DELETE]
