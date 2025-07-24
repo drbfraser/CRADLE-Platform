@@ -8,16 +8,16 @@ class RulesEngine:
     An abstraction layer for the underlying Rules Engine Implementation
     """
 
-    def __init__(self, args: Dict[str, Any], rule_group: str):
+    def __init__(self, args: Dict[str, Any], rule: str):
         """
         Initializes the rules engine
 
         :param args: dict of resolved datasources used in the rules
-        :param rule_group: a json object defining how we want to combine given list of rules
+        :param rule: a json object defining how we want to combine given list of rules
         :returns: an instance of RulesEngine
         :rtype: RulesEngine
         """
-        self.rulesEngine = _RulesEngineImpl(args, rule_group)
+        self.rules_engine = _RulesEngineImpl(args, rule)
 
     def evaluate(self, input: Dict[str, Any]):
         """
@@ -27,7 +27,7 @@ class RulesEngine:
         :returns: a Result object
         :rtype: Result object
         """
-        return self.rulesEngine.evaluate(input)
+        return self.rules_engine.evaluate(input)
 
 
 class _RulesEngineImpl:
@@ -57,13 +57,13 @@ class _RulesEngineImpl:
     def __init__(self, args: Dict[str, Any], rg: str):
         self.parsed_rules = self._parse_rules(args, rg)
 
-    def _parse_rules(self, args: Dict[str, Any], rg: str) -> Dict:
+    def _parse_rules(self, args: Dict[str, Any], rule: str) -> Dict:
         """
-        processes given input arguments and rule group
+        processes given input arguments and rule
         into a rule object ready for evaluation
 
         :param args: a dict of resolved datasource args
-        :param rg: a rule group object
+        :param rg: a rule object
         :returns: a dict representing a formed rule
         :rtype: Dict
         """
@@ -76,7 +76,7 @@ class _RulesEngineImpl:
 
         # method 2
         # deserialize into a dict
-        rule = json.loads(rg)
+        rule = json.loads(rule)
 
         # TODO
         # recursively search this dict until we find datasource strings (assume format: "$table.column")
