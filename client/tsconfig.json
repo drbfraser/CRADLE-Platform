@@ -17,11 +17,8 @@
     "noUnusedLocals": true,
     "noImplicitReturns": true,
     "moduleResolution": "node",
-    "types": ["node", "react", "react-dom", "vitest", "vite/client","jest"],
-    "typeRoots": [
-      "./src/modules",
-      "./node_modules/@types"
-    ],
+    "types": ["node", "react", "react-dom", "vitest", "vite/client", "jest"],
+    "typeRoots": ["./src/modules", "./node_modules/@types"],
     "allowSyntheticDefaultImports": true,
     "noEmit": true,
     "skipLibCheck": true,
