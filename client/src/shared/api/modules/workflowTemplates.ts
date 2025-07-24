@@ -49,10 +49,15 @@ export const listTemplates = async (params?: {
 
 // GET /workflow/templates/{templateId}
 export const getTemplate = async (
-  templateId: ID
+  templateId: ID,
+  params?: {
+    with_steps?: boolean;
+    with_classification?: boolean;
+  }
 ): Promise<WorkflowTemplate> => {
   const response = await axiosFetch.get<WorkflowTemplate>(
-    templatePath(templateId)
+    templatePath(templateId),
+    { params }
   );
   return response.data;
 };
@@ -71,10 +76,10 @@ export const updateTemplate = (templateId: ID, payload: TemplateInput) =>
 export const listTemplateSteps = async (
   templateId: ID
 ): Promise<TemplateStep[]> => {
-  const response = await axiosFetch.get<TemplateStep[]>(
+  const response = await axiosFetch.get<{ items: TemplateStep[] }>(
     templateStepsPath(templateId)
   );
-  return response.data;
+  return response.data.items;
 };
 
 // PUT /workflow/templates/{templateId}/steps/{stepId}
@@ -91,34 +96,27 @@ export const updateTemplateStep = (
 export const deleteTemplate = (templateId: ID) =>
   axiosFetch.delete(templatePath(templateId));
 
-// GET /workflow/templates/{templateId}/with-classification
+// These functions are now handled by the main getTemplate function with query parameters
+// Kept for backward compatibility
 export const getTemplateWithClassification = async (
   templateId: ID
 ): Promise<WorkflowTemplate> => {
-  const response = await axiosFetch.get<WorkflowTemplate>(
-    `${templatePath(templateId)}/with-classification`
-  );
-  return response.data;
+  return getTemplate(templateId, { with_classification: true });
 };
 
-// GET /workflow/templates/{templateId}/with-steps
 export const getTemplateWithSteps = async (
   templateId: ID
 ): Promise<WorkflowTemplate> => {
-  const response = await axiosFetch.get<WorkflowTemplate>(
-    `${templatePath(templateId)}/with-steps`
-  );
-  return response.data;
+  return getTemplate(templateId, { with_steps: true });
 };
 
-// GET /workflow/templates/{templateId}/with-steps-and-classification
 export const getTemplateWithStepsAndClassification = async (
   templateId: ID
 ): Promise<WorkflowTemplate> => {
-  const response = await axiosFetch.get<WorkflowTemplate>(
-    `${templatePath(templateId)}/with-steps-and-classification`
-  );
-  return response.data;
+  return getTemplate(templateId, {
+    with_steps: true,
+    with_classification: true,
+  });
 };
 
 // Template Step APIs - align with backend workflow_template_steps.py
@@ -138,32 +136,28 @@ export const getAllTemplateSteps = async (): Promise<TemplateStep[]> => {
 
 // GET /workflow/template/steps/{stepId}
 export const getTemplateStepById = async (
-  stepId: ID
+  stepId: ID,
+  params?: {
+    with_form?: boolean;
+    with_branches?: boolean;
+  }
 ): Promise<TemplateStep> => {
   const response = await axiosFetch.get<TemplateStep>(
-    `${TEMPLATE_STEPS}/${stepId}`
+    `${TEMPLATE_STEPS}/${stepId}`,
+    { params }
   );
   return response.data;
 };
 
-// GET /workflow/template/steps/{stepId}/with-form
+// GET /workflow/template/steps/{stepId} with query params
 export const getTemplateStepWithForm = async (
   stepId: ID
 ): Promise<TemplateStep> => {
   const response = await axiosFetch.get<TemplateStep>(
-    `${TEMPLATE_STEPS}/${stepId}/with-form`
+    `${TEMPLATE_STEPS}/${stepId}`,
+    { params: { with_form: true } }
   );
   return response.data;
-};
-
-// GET /workflow/template/steps/by-template/{templateId}
-export const getTemplateStepsByTemplate = async (
-  templateId: ID
-): Promise<TemplateStep[]> => {
-  const response = await axiosFetch.get<{ items: TemplateStep[] }>(
-    `${TEMPLATE_STEPS}/by-template/${templateId}`
-  );
-  return response.data.items;
 };
 
 // PUT /workflow/template/steps/{stepId}
