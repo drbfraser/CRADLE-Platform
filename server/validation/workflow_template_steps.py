@@ -4,7 +4,10 @@ from pydantic import Field
 
 from common.commonUtil import get_current_time
 from validation import CradleBaseModel
-from validation.formTemplates import FormTemplateExamples, FormTemplateWithQuestions
+from validation.formTemplates import (
+    FormTemplateExamples,
+    FormTemplateUpload,
+)
 from validation.rule_groups import RuleGroupExample, RuleGroupModel
 from validation.workflow_template_step_branches import (
     WorkflowTemplateStepBranchExample,
@@ -54,7 +57,7 @@ class WorkflowTemplateStepModel(CradleBaseModel, extra="forbid"):
     id: str
     name: str
     title: str
-    expected_completion: int = Field(default_factory=get_current_time)
+    expected_completion: Optional[int] = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
     last_edited_by: Optional[int] = None
     form_id: str
@@ -62,7 +65,7 @@ class WorkflowTemplateStepModel(CradleBaseModel, extra="forbid"):
     condition: Optional[RuleGroupModel] = None
     workflow_template_id: str
     # TODO: Account for different types of form template validators?
-    form: Optional[FormTemplateWithQuestions] = None
+    form: Optional[FormTemplateUpload] = None
     branches: list[WorkflowTemplateStepBranchModel]
 
 
