@@ -273,7 +273,7 @@ def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplat
 @api_workflow_templates.patch(
     "/steps/<string:workflow_template_id>", responses={204: None}
 )
-def update_workflow_template_patch(path: WorkflowTemplateIdPath, body: dict):
+def update_workflow_template_patch(path: WorkflowTemplateIdPath, body):
     """Update Workflow Template with only specific fields"""
     workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
     if workflow_template is None:
