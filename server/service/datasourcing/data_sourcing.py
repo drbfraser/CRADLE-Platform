@@ -13,6 +13,7 @@ from uuid import UUID
 from data import crud
 from typing import List, Dict, Any
 import data_catalouge as dc
+from functools import reduce
 
 class WorkflowDatasourcing:
     # NOTE: a format overhaul may be needed in system data
@@ -32,11 +33,11 @@ class WorkflowDatasourcing:
         :returns: a dict of resolved datasources, Any can be an int, bool, string
         :rtype: Dict[str, Any]
         """
-        resolved = {}
-        for ds in datasources:
-            value = self.resolve_datastring(patient_id, ds)
-            resolved[ds] = value
-        return resolved
+        def ds_fold(a: Dict, ds: str):
+            a[ds] = self.resolve_datastring(patient_id, ds)
+            return a
+
+        return reduce(ds_fold, datasources, {})    
 
     def resolve_datastring(self, patient_id: UUID, data_string: str) -> Any:
         """
