@@ -7,13 +7,18 @@ from marshmallow_enum import EnumField
 from marshmallow_sqlalchemy import fields
 
 from common.commonUtil import get_current_time, get_uuid
-from config import db, ma
+# from config import db, ma
 from enums import (
     FacilityTypeEnum,
     QuestionTypeEnum,
     SexEnum,
     TrafficLightEnum,
 )
+from application import app
+
+with app.app_context():
+    from config import db, ma
+
 
 SupervisesTable = db.Table(
     "supervises",
