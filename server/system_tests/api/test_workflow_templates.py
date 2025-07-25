@@ -14,7 +14,9 @@ def test_workflow_templates_with_same_classification_upload(
     try:
         archived_template1_id = workflow_template1["id"]
 
-        response = api_post(endpoint="/api/workflow/templates", json=workflow_template1)
+        response = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_template1
+        )
         database.session.commit()
         response_body = decamelize(response.json())
         pretty_print(response_body)
@@ -25,7 +27,9 @@ def test_workflow_templates_with_same_classification_upload(
         the currently unarchived template
         """
 
-        response = api_post(endpoint="/api/workflow/templates", json=workflow_template3)
+        response = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_template3
+        )
         database.session.commit()
         response_body = decamelize(response.json())
         pretty_print(response_body)
@@ -84,7 +88,9 @@ def test_invalid_workflow_templates_uploaded(
         pretty_print(response_body)
         assert response.status_code == 404
 
-        response = api_post(endpoint="/api/workflow/templates", json=workflow_template1)
+        response = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_template1
+        )
         database.session.commit()
         response_body = decamelize(response.json())
         pretty_print(response_body)
@@ -94,7 +100,9 @@ def test_invalid_workflow_templates_uploaded(
         Submitting a workflow template with the same version of another template under the same classification should
         return a 409 error
         """
-        response = api_post(endpoint="/api/workflow/templates", json=workflow_template1)
+        response = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_template1
+        )
         # database.session.commit()
         response_body = decamelize(response.json())
         pretty_print(response_body)
@@ -182,13 +190,13 @@ def test_getting_workflow_templates(
 
         workflow_template4["archived"] = True
 
-        api_post(endpoint="/api/workflow/templates", json=workflow_template1)
+        api_post(endpoint="/api/workflow/templates/body", json=workflow_template1)
         database.session.commit()
 
         api_post(endpoint="/api/workflow/templates", json=workflow_template3)
         database.session.commit()
 
-        api_post(endpoint="/api/workflow/templates", json=workflow_template4)
+        api_post(endpoint="/api/workflow/templates/body", json=workflow_template4)
         database.session.commit()
 
         classification_id = workflow_template1["classification_id"]
