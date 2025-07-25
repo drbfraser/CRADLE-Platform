@@ -37,7 +37,7 @@ class WorkflowDatasourcing:
             a[ds] = self.resolve_datastring(patient_id, ds)
             return a
 
-        return reduce(ds_fold, datasources, {})    
+        return reduce(ds_fold, datasources, {})
 
     def resolve_datastring(self, patient_id: UUID, data_string: str) -> Any:
         """

@@ -18,11 +18,12 @@ def query_data(model: type[M], predicate, id: str, column: str) -> Callable:
 
     return instance.get(column)
 
+# can probably make more efficient by query down by tables -> columns
 data_catalouge: Dict[str, Callable] = {
-        "$patient.name": partial(query_data, m.PatientOrm, lambda id_val: m.PatientOrm.id == id_val),                    
-        "$patient.sex": partial(query_data, m.PatientOrm, lambda id_val: m.PatientOrm.id == id_val),                     
-        "$patient.date_of_birth" : partial(query_data, m.PatientOrm, lambda id_val: m.PatientOrm.id == id_val),           
-        "$patient.is_pregnant" : partial(query_data, m.PatientOrm, lambda id_val: m.PatientOrm.id == id_val),            
-        "$reading.systolic_blood_pressure": partial(query_data, m.ReadingOrm, lambda id_val: m.ReadingOrm.patient_id == id_val), 
-        "$reading.traffic_light_status": partial(query_data, m.ReadingOrm, lambda id_val: m.ReadingOrm.patient_id == id_val),
+        "$patient.name": partial(query_data, m.PatientOrm, lambda _id: m.PatientOrm.id == _id),                    
+        "$patient.sex": partial(query_data, m.PatientOrm, lambda _id: m.PatientOrm.id == _id),                     
+        "$patient.date_of_birth" : partial(query_data, m.PatientOrm, lambda _id: m.PatientOrm.id == _id),           
+        "$patient.is_pregnant" : partial(query_data, m.PatientOrm, lambda _id: m.PatientOrm.id == _id),            
+        "$reading.systolic_blood_pressure": partial(query_data, m.ReadingOrm, lambda _id: m.ReadingOrm.patient_id == _id), 
+        "$reading.traffic_light_status": partial(query_data, m.ReadingOrm, lambda _id: m.ReadingOrm.patient_id == _id),
     }
