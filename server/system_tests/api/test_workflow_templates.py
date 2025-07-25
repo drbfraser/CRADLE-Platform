@@ -185,7 +185,7 @@ def test_getting_workflow_templates(
     try:
         workflow_template1["archived"] = True
 
-        workflow_template3["classification"] = None
+        # Keep workflow_template3 classification to match workflow_template1
         workflow_template3["steps"] = []
 
         workflow_template4["archived"] = True
@@ -202,7 +202,8 @@ def test_getting_workflow_templates(
         classification_id = workflow_template1["classification_id"]
 
         """
-        Query for workflow_example1 and workflow_example3 with same classification ID
+        Query for non-archived workflow templates with same classification ID
+        Should only return workflow_example3 since workflow_example1 is archived
         """
 
         response = api_get(
@@ -210,7 +211,8 @@ def test_getting_workflow_templates(
         )
         workflow_templates = decamelize(response.json())["items"]
 
-        assert len(workflow_templates) == 2
+        assert len(workflow_templates) == 1
+        assert workflow_templates[0]["id"] == workflow_template3["id"]
 
         """
         Query for archived workflow templates with same classification ID
