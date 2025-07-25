@@ -19,6 +19,9 @@ const GLOBALS_BROWSER_FIX = Object.assign({}, globals.browser, {
 delete GLOBALS_BROWSER_FIX['AudioWorkletGlobalScope '];
 
 export default [
+  {
+    ignores: ['playwright-report/**/*', 'test-results/**/*', 'coverage/**/*'],
+  },
   ...pluginTanstackQuery.configs['flat/recommended'],
   js.configs.recommended,
   ...ts.configs.recommended,
@@ -55,6 +58,18 @@ export default [
         ...GLOBALS_BROWSER_FIX,
         ...globals.jest,
       },
+    },
+  },
+  // Relaxed rules for test files
+  {
+    files: [
+      '**/*.test.ts',
+      '**/*.test.tsx',
+      '**/testing/**/*.ts',
+      '**/testing/**/*.tsx',
+    ],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
 ];

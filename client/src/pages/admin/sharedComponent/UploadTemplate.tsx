@@ -15,14 +15,18 @@ import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import SampleTemplateLink from './SampleTemplateLink';
 import { Toast } from 'src/shared/components/toast';
 //update workflow apis in here
-import { saveFormTemplateWithFileAsync } from 'src/shared/api';
+import {
+  saveFormTemplateWithFileAsync,
+  saveWorkflowTemplateWithFileAsync,
+} from 'src/shared/api';
 
 interface IProps {
   open: boolean;
   onClose: () => void;
+  type?: 'form' | 'workflow';
 }
 
-const UploadTemplate = ({ open, onClose }: IProps) => {
+const UploadTemplate = ({ open, onClose, type = 'workflow' }: IProps) => {
   const [files, setFiles] = useState<ExtFile[]>([]);
 
   const [uploadError, setUploadError] = useState<string>('');
@@ -54,7 +58,11 @@ const UploadTemplate = ({ open, onClose }: IProps) => {
       return;
     }
     try {
-      await saveFormTemplateWithFileAsync(file);
+      if (type === 'workflow') {
+        await saveWorkflowTemplateWithFileAsync(file);
+      } else {
+        await saveFormTemplateWithFileAsync(file);
+      }
 
       setUploadSuccess(`${file.name} uploaded successfully`);
       setShowSuccess(true);
@@ -105,7 +113,11 @@ const UploadTemplate = ({ open, onClose }: IProps) => {
       />
 
       <Dialog open={open} maxWidth="sm" fullWidth>
-        <DialogTitle>Upload Workflow Template</DialogTitle>
+        <DialogTitle>
+          {type === 'form'
+            ? 'Upload Form Template'
+            : 'Upload Workflow Template'}
+        </DialogTitle>
         <DialogContent>
           <Box sx={boxSx}>
             <Dropzone
@@ -127,7 +139,7 @@ const UploadTemplate = ({ open, onClose }: IProps) => {
             </Dropzone>
           </Box>
           <Box sx={boxSx}>
-            <SampleTemplateLink />
+            <SampleTemplateLink type={type} />
           </Box>
           <DialogActions>
             <CancelButton onClick={onClose}>Cancel</CancelButton>

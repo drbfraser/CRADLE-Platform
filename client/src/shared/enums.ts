@@ -56,7 +56,7 @@ export enum EndpointEnum {
   PATIENT_INFO = '/info' /* /patients/{PATIENT_ID}/info */,
   PATIENT_TIMELINE = '/timeline' /* /patients/{PATIENT_ID}/timeline */,
   PREGNANCIES = '/pregnancies',
-  PREGNANCY_RECORDS = '/pregnancies' /* /patients/{PATIENT_ID}/pregnancies */,
+  PREGNANCY_RECORDS = '/pregnancy-records' /* /patients/{PATIENT_ID}/pregnancies */,
   PREGNANCY_STATUS = '/pregnancies/status',
   PREGNANCY_SUMMARY = '/pregnancy_summary',
   REFERRALS = '/referrals',
@@ -79,7 +79,7 @@ export enum EndpointEnum {
   USER_ALL = '/user/all',
   USER_CURRENT = '/user/current',
   USER_REGISTER = '/user/register',
-  USER_VHTS = '/user/vhts',
+  USER_VHTS = '/user/vhts/list',
   CHANGE_PASS = '/user/current/change_pass',
   RESET_PASS = '/change_pass',
   FORM = '/forms/responses',
@@ -89,6 +89,8 @@ export enum EndpointEnum {
   //workflow templates
   WORKFLOW_TEMPLATES = '/workflow/templates',
   WORKFLOW_CLASSIFICATIONS = '/workflow/classifications',
+  RULE_GROUPS = '/rules/groups',
+  WORKFLOW_EXECUTION = '/workflow/execution',
 }
 
 export enum QRelationEnum {
