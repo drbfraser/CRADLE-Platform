@@ -18,13 +18,13 @@ import { ManageWorkflowTemplates } from './ManageWorkflowTemplates';
 
 // Mock the workflow templates API
 vi.mock('src/shared/api/modules/workflowTemplates', () => ({
-  listTemplates: vi.fn(({ archived = false } = {}) => {
-    const data = archived
+  getAllWorkflowTemplatesAsync: vi.fn((includeArchived: boolean) => {
+    const data = includeArchived
       ? TEST_DATA.archivedTemplates
       : TEST_DATA.unArchivedTemplates;
     return Promise.resolve(data);
   }),
-  toggleArchiveTemplate: vi.fn(() => Promise.resolve()),
+  editWorkflowTemplateAsync: vi.fn(() => Promise.resolve()),
 }));
 
 // Mock the mutations

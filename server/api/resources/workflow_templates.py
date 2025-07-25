@@ -1,6 +1,10 @@
-from typing import List
+# Create a simple CSV representation of the workflow template
+import csv
+import io
+import json
+from typing import List, Optional
 
-from flask import abort, request
+from flask import abort, make_response, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
@@ -12,17 +16,24 @@ from common.api_utils import (
 )
 from common.commonUtil import get_current_time
 from common.workflow_utils import assign_workflow_template_or_instance_ids
-from data import crud, marshal
+from data import crud, db_session, marshal
 from enums import RoleEnum
 from models import (
     WorkflowClassificationOrm,
     WorkflowTemplateOrm,
 )
 from validation import CradleBaseModel
+from validation.file_upload import FileUploadForm
 from validation.workflow_templates import (
     WorkflowTemplateModel,
     WorkflowTemplateUploadModel,
 )
+
+
+# Path model for CSV endpoint
+class WorkflowTemplateVersionPath(CradleBaseModel):
+    workflow_template_id: str
+    version: str
 
 
 # Create a response model for the list endpoints
@@ -65,12 +76,97 @@ def find_and_archive_previous_workflow_template(
         )
 
 
-# /api/workflow/templates [POST]
+# /api/workflow/templates [POST] - File upload (like form templates)
 @api_workflow_templates.post("", responses={201: WorkflowTemplateModel})
 @roles_required([RoleEnum.ADMIN])
-def create_workflow_template(body: WorkflowTemplateUploadModel):
+def upload_workflow_template_file(form: FileUploadForm):
     """
-    Upload a Workflow Template
+    Upload Workflow Template VIA File
+    Accepts Workflow Template as a file.
+    Supports `.json` and `.csv` file formats.
+    """
+    file = form.file
+    file_str = str(file.stream.read(), "utf-8")
+
+    try:
+        workflow_template_dict = json.loads(file_str)
+    except json.JSONDecodeError as e:
+        return abort(400, description=f"Invalid JSON file: {e!s}")
+
+    # Get ID of user
+    try:
+        user_id = get_user_id(workflow_template_dict, "last_edited_by")
+        workflow_template_dict["last_edited_by"] = user_id
+
+    except ValueError:
+        return abort(code=404, description="User not found.")
+
+    assign_workflow_template_or_instance_ids(
+        m=WorkflowTemplateOrm, workflow=workflow_template_dict
+    )
+
+    workflow_classification_dict = workflow_template_dict["classification"]
+    del workflow_template_dict["classification"]
+
+    # Find workflow classification in DB, if it exists
+    workflow_classification_orm = None
+    workflow_classification_orm = crud.read(
+        WorkflowClassificationOrm, id=workflow_template_dict["classification_id"]
+    )
+
+    # If the workflow classification does not exist and the request has no classification, throw an error
+    if (
+        workflow_classification_orm is None
+        and workflow_classification_dict is None
+        and workflow_template_dict["classification_id"] is not None
+    ):
+        return abort(code=404, description="Classification not found")
+
+    if workflow_classification_orm is None and workflow_classification_dict is not None:
+        # If this workflow classification is completely new, then it will be added to the DB
+        workflow_classification_orm = marshal.unmarshal(
+            WorkflowClassificationOrm, workflow_classification_dict
+        )
+
+    elif workflow_classification_orm is not None:
+        # Check if this template version already exists
+        existing_template_version = crud.read(
+            WorkflowTemplateOrm,
+            classification_id=workflow_classification_orm.id,
+            version=workflow_template_dict["version"],
+        )
+
+        if existing_template_version is not None:
+            return abort(
+                code=409,
+                description="Workflow template with same version still exists - Change version before upload.",
+            )
+
+        # Check if a previously existing version of this template exists, if it does, archive it
+        find_and_archive_previous_workflow_template(
+            workflow_classification_orm.id, workflow_template_dict["last_edited_by"]
+        )
+
+        workflow_template_dict["classification_id"] = workflow_classification_orm.id
+
+    workflow_template_orm = marshal.unmarshal(
+        WorkflowTemplateOrm, workflow_template_dict
+    )
+
+    workflow_template_orm.classification = workflow_classification_orm
+
+    crud.create(model=workflow_template_orm, refresh=True)
+
+    return marshal.marshal(obj=workflow_template_orm, shallow=True), 201
+
+
+# /api/workflow/templates/body [POST] - JSON body (like form templates)
+@api_workflow_templates.post("/body", responses={201: WorkflowTemplateModel})
+@roles_required([RoleEnum.ADMIN])
+def upload_workflow_template_body(body: WorkflowTemplateUploadModel):
+    """
+    Upload Workflow Template VIA Request Body
+    Accepts Workflow Template through the request body, rather than as a file.
     """
     workflow_template_dict = body.model_dump()
 
@@ -155,8 +251,8 @@ def get_workflow_templates():
     workflow_classification_id = request.args.get(
         "classification_id", default=None, type=str
     )
-    is_archived = request.args.get("archived", default=False, type=bool)
-    is_archived = convert_query_parameter_to_bool(is_archived)
+    archived_param = request.args.get("archived")
+    is_archived = convert_query_parameter_to_bool(archived_param)
 
     workflow_templates = crud.read_workflow_templates(
         workflow_classification_id=workflow_classification_id,
@@ -287,3 +383,95 @@ def delete_workflow_template(path: WorkflowTemplateIdPath):
     crud.delete_workflow(WorkflowTemplateOrm, id=path.workflow_template_id)
 
     return None, 204
+
+
+# Create a query model for archive operations
+class ArchiveWorkflowTemplateQuery(CradleBaseModel):
+    archive: Optional[bool] = True
+
+
+# /api/workflow/templates/<string:workflow_template_id>/archive [PUT]
+@api_workflow_templates.put(
+    "/<string:workflow_template_id>/archive", responses={200: WorkflowTemplateModel}
+)
+def archive_workflow_template(
+    path: WorkflowTemplateIdPath, query: ArchiveWorkflowTemplateQuery
+):
+    """Archive / Unarchive Workflow Template"""
+    workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
+
+    if workflow_template is None:
+        return abort(
+            code=404,
+            description=workflow_template_not_found_message.format(
+                path.workflow_template_id
+            ),
+        )
+
+    workflow_template.archived = bool(query.archive)
+    workflow_template.last_edited = get_current_time()
+
+    db_session.commit()
+    db_session.refresh(workflow_template)
+
+    return marshal.marshal(workflow_template, shallow=True), 200
+
+
+# /api/workflow/templates/<string:workflow_template_id>/versions/<string:version>/csv [GET]
+@api_workflow_templates.get(
+    "/<string:workflow_template_id>/versions/<string:version>/csv",
+    responses={
+        200: {"content": {"text/csv": {"schema": {"type": "string"}}}},
+        404: {"description": "Workflow template not found"},
+    },
+)
+def get_workflow_template_version_as_csv(path: WorkflowTemplateVersionPath):
+    """Get Workflow Template Version as CSV"""
+    filters: dict = {
+        "id": path.workflow_template_id,
+        "version": path.version,
+    }
+
+    workflow_template = crud.read(
+        WorkflowTemplateOrm,
+        **filters,
+    )
+
+    if workflow_template is None:
+        return abort(
+            404,
+            description=f"No workflow template with ID: {path.workflow_template_id}",
+        )
+
+    csv_data = io.StringIO()
+    writer = csv.writer(csv_data)
+
+    # Write header
+    writer.writerow(["Field", "Value"])
+
+    # Write template data
+    writer.writerow(["ID", workflow_template.id])
+    writer.writerow(["Name", workflow_template.name])
+    writer.writerow(["Description", workflow_template.description or ""])
+    writer.writerow(["Version", workflow_template.version])
+    writer.writerow(
+        [
+            "Classification",
+            workflow_template.classification.name
+            if workflow_template.classification
+            else "",
+        ]
+    )
+    writer.writerow(["Date Created", workflow_template.date_created])
+    writer.writerow(["Last Edited", workflow_template.last_edited])
+    writer.writerow(["Archived", workflow_template.archived])
+
+    csv_content = csv_data.getvalue()
+    csv_data.close()
+
+    response = make_response(csv_content)
+    response.headers["Content-Disposition"] = (
+        f"attachment; filename=workflow_template_{workflow_template.id}.csv"
+    )
+    response.headers["Content-Type"] = "text/csv"
+    return response
