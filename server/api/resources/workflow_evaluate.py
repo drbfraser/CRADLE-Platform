@@ -23,7 +23,10 @@ api_workflow_evaluate = APIBlueprint(
 # /api/workflow/evaluate [POST]
 @api_workflow_evaluate.post("", responses={200: WorkflowEvaluateResponseModel})
 def evaluate_workflow_instance(body: WorkflowEvaluateRequestModel):
-    """Evaluate a Workflow Step Instance"""
+    """
+    Evaluate a Workflow Step Instance
+    - a readonly operation that does not update the database
+    """
     request = body.model_dump()
     
     try:
@@ -32,11 +35,13 @@ def evaluate_workflow_instance(body: WorkflowEvaluateRequestModel):
             response = WorkflowEvaluateExamples.example_01
             return response, 200
 
+        # TODO: checking request body values 
+
         # TODO look into how flask deals with DI, IOC and scoped sessions
         #      this service would take two service components
         service = WorkflowEvaluationService()
-        (rule_group, datasources) = service.get_data(request["id"])
-        result = service.evaluate_rule_engine(rule_group, datasources)
+        (rule, datasources) = service.get_data(request["id"])
+        result = service.evaluate_rule_engine(rule, datasources)
 
         # TODO http-specific error exceptions
     except Exception as e:
