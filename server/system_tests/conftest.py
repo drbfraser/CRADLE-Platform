@@ -1,12 +1,13 @@
 import os
 from typing import Callable, Tuple
 
+from sqlalchemy import text
 import pytest
 import requests
 from environs import Env
 from flask import Flask
 from humps import decamelize
-
+from config import test_app_factory
 from system_tests.mock import factory
 
 
@@ -66,7 +67,7 @@ def create_mock_app() -> Flask:
 def app():
     if os.getenv("USE_TEST_DB") == "1":
         # If the test DB is enabled, create a mock Flask app object to use for testing
-        app = create_mock_app()
+        app = test_app_factory()
     else:
         from application import app
 
@@ -87,6 +88,11 @@ def _provide_app_context(app: Flask, database):
     with app.app_context():
         database.create_all()
         yield
+        # If the mock app and DB are being used, clean up the session after tests are completed
+        if os.getenv("USE_TEST_DB") == "1":
+
+            database.session.remove()
+            database.drop_all()
 
 
 #
@@ -95,43 +101,45 @@ def _provide_app_context(app: Flask, database):
 
 
 @pytest.fixture
-def database(app, db_env):
+def database(app):
     """
     Provides an instance of the database.
 
     :return: A database instance
     """
 
-        # from flask_sqlalchemy import SQLAlchemy
-        # from sqlalchemy import MetaData
-        #
-        # app.config["SQLALCHEMY_DATABASE_URI"] = (
-        #     f"mysql+pymysql://{db_env['db_user']}:{db_env['db_pw']}@cradle_mysql_test_db:3306/testing_cradle"
-        # )
-        #
-        # db = SQLAlchemy(
-        #     app,
-        #     metadata=MetaData(
-        #         naming_convention={
-        #             "ix": "ix_%(column_0_label)s",
-        #             "uq": "uq_%(table_name)s_%(column_0_name)s",
-        #             "ck": "ck_%(table_name)s_%(constraint_name)s",
-        #             "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-        #             "pk": "pk_%(table_name)s",
-        #         }
-        #     ),
-        # )
-
     from config import db
 
-    if os.getenv("USE_TEST_DB") == "1":
-
-        app.config["SQLALCHEMY_DATABASE_URI"] = (
-            f"mysql+pymysql://{db_env['db_user']}:{db_env['db_pw']}@cradle_mysql_test_db:3306/testing_cradle"
-        )
-        db.init_app(app)
+    # if os.getenv("USE_TEST_DB") == "1":
+    #
+    #     app.config["SQLALCHEMY_DATABASE_URI"] = (
+    #         f"mysql+pymysql://{db_env['db_user']}:{db_env['db_pw']}@cradle_mysql_test_db:3306/testing_cradle"
+    #     )
 
     return db
+
+
+# @pytest.fixture(scope="function", autouse=True)
+# def clean_database(app, database):
+#
+#     # Delete all rows in the test database
+#     if os.getenv("USE_TEST_DB") != "1":
+#         return
+#
+#     yield
+#
+#     with app.app_context():
+#         connection = database.engine.connect()
+#         transaction = connection.begin()
+#
+#         # Temporarily disable FK checks
+#         connection.execute(text("SET FOREIGN_KEY_CHECKS=0;"))
+#         for table in reversed(database.metadata.sorted_tables):
+#             connection.execute(text(f"TRUNCATE TABLE `{table.name}`;"))
+#         connection.execute(text("SET FOREIGN_KEY_CHECKS=1;"))
+#
+#         transaction.commit()
+#         connection.close()
 
 
 #
