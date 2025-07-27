@@ -250,6 +250,62 @@ def test_getting_workflow_templates(
         )
 
 
+def test_workflow_template_patch_request(
+    database, workflow_template1, api_patch, api_post
+):
+    updated_workflow_template = None
+    try:
+        api_post(endpoint="/api/workflow/templates", json=workflow_template1)
+        database.session.commit()
+
+        changes = {
+            "name": "New workflow template name",
+            "description": "New workflow template description",
+            "version": "v2",
+        }
+
+        response = api_patch(
+            endpoint=f"/api/workflow/templates/{workflow_template1['id']}", json=changes
+        )
+        database.session.commit()
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+        assert response.status_code == 200
+
+        old_workflow_template = crud.read(
+            WorkflowTemplateOrm, id=workflow_template1["id"]
+        )
+
+        # Assert that the old workflow template is now archived
+        assert old_workflow_template.archived is True
+
+        updated_workflow_template = crud.read(
+            WorkflowTemplateOrm, id=response_body["id"]
+        )
+
+        assert (
+            updated_workflow_template is not None
+            and updated_workflow_template.name == "New workflow template name"
+            and updated_workflow_template.description
+            == "New workflow template description"
+            and updated_workflow_template.version == "v2"
+        )
+
+    finally:
+        crud.delete_workflow(
+            m=WorkflowTemplateOrm,
+            delete_classification=True,
+            id=workflow_template1["id"],
+        )
+
+        if updated_workflow_template:
+            crud.delete_workflow(
+                m=WorkflowTemplateOrm,
+                delete_classification=True,
+                id=updated_workflow_template.id,
+            )
+
+
 @pytest.fixture
 def workflow_template1(vht_user_id):
     template_id = get_uuid()

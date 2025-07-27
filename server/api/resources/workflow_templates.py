@@ -26,6 +26,7 @@ from models import (
 from validation import CradleBaseModel
 from validation.workflow_templates import (
     WorkflowTemplateModel,
+    WorkflowTemplatePatchBody,
     WorkflowTemplateUploadModel,
 )
 
@@ -108,7 +109,7 @@ def get_workflow_classification_from_dict(
 
 
 def check_for_existing_template_version(
-    workflow_classification_id: str, workflow_template_dict: dict
+    workflow_classification_id: str, workflow_template_version: str
 ) -> None:
     """
     Checks if a workflow template with the same version under the same classification already exists
@@ -119,7 +120,7 @@ def check_for_existing_template_version(
     existing_template_version = crud.read(
         WorkflowTemplateOrm,
         classification_id=workflow_classification_id,
-        version=workflow_template_dict["version"],
+        version=workflow_template_version,
     )
 
     if existing_template_version is not None:
@@ -164,7 +165,7 @@ def create_workflow_template(body: WorkflowTemplateUploadModel):
 
         if workflow_classification_orm is not None:
             check_for_existing_template_version(
-                workflow_classification_orm.id, workflow_template_dict
+                workflow_classification_orm.id, workflow_template_dict["version"]
             )
             workflow_template_orm.classification = workflow_classification_orm
 
@@ -266,6 +267,7 @@ def get_workflow_template_steps_by_template(path: WorkflowTemplateIdPath):
 
 
 # /api/workflow/templates/<string:workflow_template_id> [PUT]
+@roles_required([RoleEnum.ADMIN])
 @api_workflow_templates.put(
     "/<string:workflow_template_id>", responses={200: WorkflowTemplateModel}
 )
@@ -307,15 +309,22 @@ def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplat
 
 # /api/workflow/templates/<string:workflow_template_id> [PATCH]
 @api_workflow_templates.patch(
-    "/steps/<string:workflow_template_id>", responses={204: None}
+    "/<string:workflow_template_id>", responses={200: WorkflowTemplateModel}
 )
-def update_workflow_template_patch(path: WorkflowTemplateIdPath, body):
+@roles_required([RoleEnum.ADMIN])
+def update_workflow_template_patch(
+    path: WorkflowTemplateIdPath, body: WorkflowTemplatePatchBody
+):
     """
     Update Workflow Template with only specific fields
 
     Because workflow templates are large objects, this endpoint allows only the necessary attributes to be sent
     from the frontend to the backend, instead of the entire object itself
     """
+    body = body.model_dump(
+        exclude_unset=True
+    )  # Only include the fields that are set in the request body
+
     workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
     if workflow_template is None:
         return abort(
@@ -336,7 +345,7 @@ def update_workflow_template_patch(path: WorkflowTemplateIdPath, body):
         body["last_edited_by"] = user_id
 
         # Validate the request body using Pydantic
-        WorkflowTemplateModel.validate_subset_of_attributes(attributes=body)
+        # WorkflowTemplateModel.validate_subset_of_attributes(attributes=body)
 
     except ValidationError as e:
         return abort(code=422, description=str(e))
@@ -347,17 +356,23 @@ def update_workflow_template_patch(path: WorkflowTemplateIdPath, body):
     # Create an entirely new workflow template with the new attributes
     copy_workflow_template_dict = marshal.marshal(workflow_template)
     assign_workflow_template_or_instance_ids(
-        copy_workflow_template_dict, auto_assign_id=True
+        m=WorkflowTemplateOrm, workflow=copy_workflow_template_dict, auto_assign_id=True
     )
-    new_workflow_template = marshal.unmarshal(copy_workflow_template_dict)
+    new_workflow_template = marshal.unmarshal(
+        WorkflowTemplateOrm, copy_workflow_template_dict
+    )
 
-    if body["classification"]:
-        assign_workflow_template_or_instance_ids(body["classification"])
+    # If the request body includes a new workflow classification, process it
+    if body.get("classification", None):
+        assign_workflow_template_or_instance_ids(
+            m=WorkflowTemplateOrm, workflow=body["classification"]
+        )
         body["classification"] = get_workflow_classification_from_dict(
             body, body["classification"]
         )
 
     apply_changes_to_model(new_workflow_template, body)
+
     check_for_existing_template_version(
         new_workflow_template.classification.id, new_workflow_template.version
     )
@@ -369,7 +384,11 @@ def update_workflow_template_patch(path: WorkflowTemplateIdPath, body):
 
     crud.create(model=new_workflow_template, refresh=True)
 
-    return "", 204
+    response_data = crud.read(WorkflowTemplateOrm, id=copy_workflow_template_dict["id"])
+
+    response_data = marshal.marshal(response_data, shallow=True)
+
+    return response_data, 200
 
 
 # /api/workflow/templates/<string:workflow_template_id> [DELETE]

@@ -144,7 +144,7 @@ class WorkflowInstanceStepExamples:
     }
 
 
-class WorkflowInstanceStepModel(CradleBaseModel):
+class WorkflowInstanceStepModel(CradleBaseModel, extra="forbid"):
     id: str
     name: str
     title: str

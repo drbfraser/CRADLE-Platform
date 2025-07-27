@@ -26,14 +26,3 @@ class CradleBaseModel(BaseModel):
         ),
         from_attributes=True,  # Allows us to instantiate Pydantic models from our ORM models.
     )
-
-    @classmethod
-    def validate_subset_of_attributes(cls, attributes: dict):
-        """
-        Validates a subset of attributes for a Pydantic model and raises a validation error if any
-        attribute in the subset has an invalid value or contains extra attributes
-
-        :param cls: The Pydantic model to validate attributes to
-        :param attributes: The attributes to validate
-        """
-        return cls.model_validate(attributes)

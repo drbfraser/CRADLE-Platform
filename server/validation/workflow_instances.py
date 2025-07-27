@@ -60,7 +60,7 @@ class WorkflowInstanceExamples:
     }
 
 
-class WorkflowInstanceModel(CradleBaseModel):
+class WorkflowInstanceModel(CradleBaseModel, extra="forbid"):
     id: str
     name: str
     title: str

@@ -233,7 +233,7 @@ def get_user_id(d: dict, user_attribute: str) -> Optional[int]:
 
     :return: The ID of the user associated with the given attribute
     """
-    if d[user_attribute]:
+    if d.get(user_attribute):
         current_user = crud.read(m=UserOrm, id=d[user_attribute])
 
     # If the attribute does not have a user ID, get the user from the JWT
