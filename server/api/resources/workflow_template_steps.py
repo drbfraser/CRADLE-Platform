@@ -194,6 +194,16 @@ def update_workflow_template_step(
     return updated_template_step, 200
 
 
+# @api_workflow_template_steps.patch(
+#     "/<string:workflow_template_step_id>", responses={204: None}
+# )
+# def update_workflow_template_step_patch(path: WorkflowTemplateStepIdPath, body):
+#     """Update Workflow Template Step with only specific fields"""
+#     workflow_template_step = crud.read(WorkflowTemplateStepOrm, id=path.workflow_template_step_id)
+#
+#     return '', 204
+
+
 # /api/workflow/template/steps/<string:step_id> [DELETE]
 @api_workflow_template_steps.delete(
     "/<string:workflow_template_step_id>", responses={204: None}
