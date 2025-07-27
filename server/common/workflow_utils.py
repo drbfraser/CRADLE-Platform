@@ -39,7 +39,9 @@ def assign_branch_id(branch: dict, step_id: str, auto_assign_id: bool = False) -
         branch["condition_id"] = branch["condition"]["id"]
 
 
-def assign_step_ids(m: Type[M], step: dict, workflow_id: str, auto_assign_id: bool = False) -> None:
+def assign_step_ids(
+    m: Type[M], step: dict, workflow_id: str, auto_assign_id: bool = False
+) -> None:
     """
     Assigns an ID and workflow ID to a workflow template or instance step if none has been provided, if the step has
     branches, conditions, or forms, those will also be assigned an ID and/or be updated to contain the new step ID
@@ -84,7 +86,9 @@ def assign_step_ids(m: Type[M], step: dict, workflow_id: str, auto_assign_id: bo
         assign_branch_id(branch, step_id, auto_assign_id)
 
 
-def assign_workflow_template_or_instance_ids(m: Type[M], workflow: dict, auto_assign_id: bool = False) -> None:
+def assign_workflow_template_or_instance_ids(
+    m: Type[M], workflow: dict, auto_assign_id: bool = False
+) -> None:
     """
     Assigns an ID to a workflow template, instance, or classification if none has been provided, if the workflow
     already has steps or classification provided, those will also be assigned an ID and be updated to contain the
@@ -126,7 +130,6 @@ def assign_workflow_template_or_instance_ids(m: Type[M], workflow: dict, auto_as
             assign_step_ids(WorkflowInstanceStepOrm, step, workflow_id, auto_assign_id)
 
 
-
 def apply_changes_to_model(model: Type[M], changes: dict) -> None:
     """
     Similar to crud.update(), but only applies the changes to the model, does not add to the DB
@@ -134,6 +137,5 @@ def apply_changes_to_model(model: Type[M], changes: dict) -> None:
     :param model: The model to be updated
     :param changes: A dictionary mapping columns to new values
     """
-
     for k, v in changes.items():
         setattr(model, k, v)

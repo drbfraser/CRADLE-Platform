@@ -3,6 +3,7 @@ from typing import List, Optional
 from flask import abort, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
+from pydantic import ValidationError
 
 from api.decorator import roles_required
 from api.resources.workflow_template_steps import WorkflowTemplateStepListResponse
@@ -12,14 +13,16 @@ from common.api_utils import (
     get_user_id,
 )
 from common.commonUtil import get_current_time
-from common.workflow_utils import assign_workflow_template_or_instance_ids, apply_changes_to_model
-from data import crud, marshal
+from common.workflow_utils import (
+    apply_changes_to_model,
+    assign_workflow_template_or_instance_ids,
+)
+from data import crud, db_session, marshal
 from enums import RoleEnum
 from models import (
     WorkflowClassificationOrm,
     WorkflowTemplateOrm,
 )
-from pydantic import ValidationError
 from validation import CradleBaseModel
 from validation.workflow_templates import (
     WorkflowTemplateModel,
@@ -67,8 +70,9 @@ def find_and_archive_previous_workflow_template(
         )
 
 
-def get_workflow_classification_from_dict(workflow_template_dict: dict, workflow_classification_dict: Optional[dict]) -> WorkflowClassificationOrm:
-
+def get_workflow_classification_from_dict(
+    workflow_template_dict: dict, workflow_classification_dict: Optional[dict]
+) -> WorkflowClassificationOrm:
     """
     Retrieves or creates a WorkflowClassificationOrm object
 
@@ -78,13 +82,12 @@ def get_workflow_classification_from_dict(workflow_template_dict: dict, workflow
 
     :return: A WorkflowClassificationOrm object
     """
-
     # Find workflow classification in DB, if it exists
     workflow_classification_orm = crud.read(
-        WorkflowClassificationOrm, id=workflow_classification_dict["id"]
+        WorkflowClassificationOrm, id=workflow_template_dict["classification_id"]
     )
 
-    # If no classification exists , throw an error
+    # If no classification exists but workflow_template_dict references it, throw an error
     if (
         workflow_classification_orm is None
         and workflow_classification_dict is None
@@ -104,8 +107,9 @@ def get_workflow_classification_from_dict(workflow_template_dict: dict, workflow
     return workflow_classification_orm
 
 
-def check_for_existing_template_version(workflow_classification_id: str, workflow_template_dict: dict) -> None:
-
+def check_for_existing_template_version(
+    workflow_classification_id: str, workflow_template_dict: dict
+) -> None:
     """
     Checks if a workflow template with the same version under the same classification already exists
 
@@ -147,23 +151,27 @@ def create_workflow_template(body: WorkflowTemplateUploadModel):
     )
 
     workflow_classification_dict = workflow_template_dict["classification"]
-    # del workflow_template_dict["classification"]
+    del workflow_template_dict["classification"]
 
     workflow_template_orm = marshal.unmarshal(
         WorkflowTemplateOrm, workflow_template_dict
     )
 
-    workflow_classification_orm = get_workflow_classification_from_dict(workflow_template_dict,
-                                                                        workflow_classification_dict)
+    with db_session.no_autoflush:
+        workflow_classification_orm = get_workflow_classification_from_dict(
+            workflow_template_dict, workflow_classification_dict
+        )
 
-    check_for_existing_template_version(workflow_classification_orm.id, workflow_template_dict)
+        if workflow_classification_orm is not None:
+            check_for_existing_template_version(
+                workflow_classification_orm.id, workflow_template_dict
+            )
+            workflow_template_orm.classification = workflow_classification_orm
 
-    workflow_template_orm.classification = workflow_classification_orm
-
-    # Check if a previously existing version of this template exists, if it does, archive it
-    find_and_archive_previous_workflow_template(
-        workflow_classification_orm.id, workflow_template_dict["last_edited_by"]
-    )
+            # Check if a previously existing version of this template exists, if it does, archive it
+            find_and_archive_previous_workflow_template(
+                workflow_classification_orm.id, workflow_template_dict["last_edited_by"]
+            )
 
     crud.create(model=workflow_template_orm, refresh=True)
 
@@ -185,7 +193,7 @@ def get_workflow_templates():
         workflow_classification_id=workflow_classification_id,
         is_archived=is_archived,
     )
-
+    print(f"Workflow Templates: {workflow_templates}")
     response_data = [
         marshal.marshal(template, shallow=True) for template in workflow_templates
     ]
@@ -308,7 +316,6 @@ def update_workflow_template_patch(path: WorkflowTemplateIdPath, body):
     Because workflow templates are large objects, this endpoint allows only the necessary attributes to be sent
     from the frontend to the backend, instead of the entire object itself
     """
-
     workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
     if workflow_template is None:
         return abort(
@@ -319,7 +326,6 @@ def update_workflow_template_patch(path: WorkflowTemplateIdPath, body):
         )
 
     try:
-
         """
         It is assumed that the changes include a version attribute, since any updates to a template 
         mark a new version of the template itself
@@ -340,21 +346,26 @@ def update_workflow_template_patch(path: WorkflowTemplateIdPath, body):
 
     # Create an entirely new workflow template with the new attributes
     copy_workflow_template_dict = marshal.marshal(workflow_template)
-    assign_workflow_template_or_instance_ids(copy_workflow_template_dict, auto_assign_id=True)
+    assign_workflow_template_or_instance_ids(
+        copy_workflow_template_dict, auto_assign_id=True
+    )
     new_workflow_template = marshal.unmarshal(copy_workflow_template_dict)
 
     if body["classification"]:
-
         assign_workflow_template_or_instance_ids(body["classification"])
-        copy_workflow_template_dict["classification_id"] = body["classification"]["id"]
-        workflow_classification_orm = get_workflow_classification_from_dict(body, body["classification"])
-        new_workflow_template.classification = workflow_classification_orm
+        body["classification"] = get_workflow_classification_from_dict(
+            body, body["classification"]
+        )
 
     apply_changes_to_model(new_workflow_template, body)
-    check_for_existing_template_version(new_workflow_template.classification.id, new_workflow_template.version)
+    check_for_existing_template_version(
+        new_workflow_template.classification.id, new_workflow_template.version
+    )
 
     # Archive the old workflow template
-    find_and_archive_previous_workflow_template(workflow_template.classification_id, last_edited_by=body["last_edited_by"])
+    find_and_archive_previous_workflow_template(
+        workflow_template.classification_id, last_edited_by=body["last_edited_by"]
+    )
 
     crud.create(model=new_workflow_template, refresh=True)
 
