@@ -7,7 +7,7 @@ import {
 } from 'src/shared/types/workflow/workflowTypes';
 
 interface IProps {
-  steps: TemplateStep[];
+  steps: TemplateStep[] | undefined;
 }
 
 export const ViewTemplateSteps = ({ steps }: IProps) => {
@@ -34,7 +34,7 @@ export const ViewTemplateSteps = ({ steps }: IProps) => {
     formId: step.formId,
     expectedCompletion: step.expectedCompletion,
     conditions: step.conditions,
-    nextIds: getNextIds(step.next),
+    nextIds: getNextIds(step.branches),
     archived: step.archived,
     lastEdited: step.lastEdited,
     lastEditedBy: step.lastEditedBy,

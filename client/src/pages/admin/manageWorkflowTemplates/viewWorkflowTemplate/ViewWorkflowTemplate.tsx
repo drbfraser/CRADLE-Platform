@@ -5,6 +5,7 @@ import {
   Grid,
   IconButton,
   Paper,
+  Skeleton,
   TextField,
   Tooltip,
   Typography,
@@ -15,7 +16,7 @@ import {
   WorkflowTemplate,
 } from 'src/shared/types/workflow/workflowTypes';
 import { ViewTemplateSteps } from './ViewTemplateSteps';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { listTemplateSteps } from 'src/shared/api/modules/workflowTemplates';
 
@@ -34,12 +35,14 @@ export const ViewWorkflowTemplate = () => {
   const location = useLocation();
 
   const viewWorkflow = location.state?.viewWorkflow as WorkflowTemplate;
+  const [viewWorkflowSteps, setViewWorkflowSteps] = useState<
+    TemplateStep[] | undefined
+  >(undefined);
 
   const workflowTemplateStepsQuery = useQuery({
     queryKey: ['workflowTemplateSteps', viewWorkflow.id],
     queryFn: async (): Promise<TemplateStep[]> => {
       const result = await listTemplateSteps(viewWorkflow.id);
-      console.log(result);
       return Array.isArray(result)
         ? result
         : (result as { items: TemplateStep[] }).items || [];
@@ -47,38 +50,10 @@ export const ViewWorkflowTemplate = () => {
   });
 
   useEffect(() => {
-    console.log(viewWorkflow);
-  }, [viewWorkflow]);
-
-  useEffect(() => {
-    console.log(workflowTemplateStepsQuery.data);
+    setViewWorkflowSteps(workflowTemplateStepsQuery.data);
   }, [workflowTemplateStepsQuery.data]);
 
-  const dummyStep: TemplateStep = {
-    id: '1',
-    name: 'name',
-    title: 'step1',
-    formId: 'form-id',
-    expectedCompletion: 'date',
-    conditions: undefined,
-    next: undefined,
-    archived: false,
-    lastEdited: 'date',
-    lastEditedBy: 'date',
-  };
-  const dummyWF: WorkflowTemplate = {
-    id: '1',
-    name: 'dummy workflow',
-    description: 'this is a dummy',
-    version: 1,
-    classificationId: '1',
-    initialConditions: undefined,
-    steps: [dummyStep],
-    archived: false,
-    dateCreated: 1,
-    lastEdited: 1,
-    lastEditedBy: 'date',
-  };
+  const isLoading = workflowTemplateStepsQuery.isPending;
 
   return (
     <>
@@ -209,7 +184,11 @@ export const ViewWorkflowTemplate = () => {
                 </Grid>
               </Grid>
 
-              <ViewTemplateSteps steps={viewWorkflow.steps} />
+              {isLoading ? (
+                <Skeleton variant="rectangular" height={400} />
+              ) : (
+                <ViewTemplateSteps steps={viewWorkflowSteps} />
+              )}
             </Paper>
           </Form>
         )}
