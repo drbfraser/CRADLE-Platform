@@ -94,36 +94,23 @@ class _RulesEngineImpl:
 
     def __init__(self, args: Dict[str, Any], rule: str):
         self.args: Dict[str, Any] = args
-        self.rule = rule
+        self.rule = self._parse_rules(rule)
 
-    # not needed anymore
-    def _parse_rules(self, args: Dict[str, Any], rule: str) -> Dict:
+    def _parse_rules(self, rule: str) -> Dict:
         """
-        processes given input arguments and rule
+        attempt to deserialize a rule string
         into a rule object ready for evaluation
 
-        :param args: a dict of resolved datasource args
-        :param rg: a rule object
-        :returns: a dict representing a formed rule
+        :param rule: a string representing a rule
+        :returns: a dict representing a rule
         :rtype: Dict
+        :raises: JSONDecodeError
         """
-
-        # method 1
-        # go through the string and look for a datastring enclosed with "$$"
-        # exact that out, use as a key to search from list of datasource args
-        # replace that datastring, with the matched data
-        # continue until end of string
-
-        # method 2
-        # deserialize into a dict
-        rule = json.loads(rule)
-
-        # TODO
-        # recursively search this dict until we find datasource strings (assume format: "$table.column")
-        # update the value with list of args
-        # repeat until all args are completed
-
-        return rule
+        try:
+            rule = json.loads(rule)
+            return rule
+        except:
+            raise json.JSONDecodeError("rule string could not be deserialized")
 
     def evaluate(self, input) -> bool:
         """
@@ -136,6 +123,6 @@ class _RulesEngineImpl:
         # inject datasources into the input data object
         # let jsonlogic do resolution for us 
         for key, value in self.args.items():
-            input[key] = value 
-        
-        return jsonLogic(self.parsed_rules, input)
+            input[key] = value
+            
+        return jsonLogic(self.rule, input)
