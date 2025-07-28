@@ -22,7 +22,8 @@ export interface TemplateStep {
   formId: ID;
   expectedCompletion?: ISODate;
   conditions?: RuleGroup;
-  next?: TemplateStepBranch[];
+  //mod next to branchs
+  branches?: TemplateStepBranch[];
 
   // audit & soft-delete
   archived: boolean;
@@ -51,6 +52,11 @@ export interface WorkflowTemplate {
 // classification type for grouping
 export interface WorkflowClassification {
   id: ID;
+  name: string;
+}
+
+// Payload for POST /workflow/classifications
+export interface ClassificationInput {
   name: string;
 }
 

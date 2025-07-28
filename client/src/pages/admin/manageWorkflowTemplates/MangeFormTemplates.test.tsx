@@ -59,7 +59,7 @@ describe('Workflow Table', () => {
     });
   });
 
-  test('Renders unarchived templates', async () => {
+  test('Renders unarchived Workflow', async () => {
     const tableRows = within(screen.getByRole('rowgroup')).getAllByRole('row');
 
     TEST_DATA.unArchivedTemplates.forEach(
@@ -83,9 +83,9 @@ describe('Workflow Table', () => {
     );
   });
 
-  test('Renders archived templates', async () => {
+  test('Renders archived Workflow', async () => {
     const viewArchivedSwitch = screen.getByRole('checkbox', {
-      name: 'View Archived Templates',
+      name: 'View Archived Workflow',
     });
     await userEvent.click(viewArchivedSwitch);
 

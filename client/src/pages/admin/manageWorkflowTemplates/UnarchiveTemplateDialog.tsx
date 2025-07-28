@@ -37,7 +37,7 @@ const UnarchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
     <>
       <Toast
         severity="success"
-        message="Form Template Unarchived!"
+        message="Workflow Unarchived!"
         open={editTemplate.isSuccess}
         onClose={() => editTemplate.reset()}
       />
@@ -47,9 +47,9 @@ const UnarchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
       />
 
       <Dialog open={open} onClose={onClose}>
-        <DialogTitle>Unarchive Workflow Template</DialogTitle>
+        <DialogTitle>Unarchive Workflow </DialogTitle>
         <DialogContent>
-          <p>Are you sure you want to unarchive this workflow template?</p>
+          <p>Are you sure you want to unarchive this workflow?</p>
         </DialogContent>
         <DialogActions
           sx={(theme) => ({

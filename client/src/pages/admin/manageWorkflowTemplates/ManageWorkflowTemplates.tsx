@@ -23,7 +23,7 @@ import {
 } from 'src/shared/components/DataTable/DataTable';
 import { DataTableHeader } from 'src/shared/components/DataTable/DataTableHeader';
 import ArchiveTemplateDialog from './ArchiveTemplateDialog';
-import UploadTemplate from './UploadTemplate';
+import UploadTemplate from '../sharedComponent/UploadTemplate';
 import UnarchiveTemplateDialog from './UnarchiveTemplateDialog';
 import { useDownloadTemplateAsCSV } from './mutations';
 
@@ -79,7 +79,7 @@ export const ManageWorkflowTemplates = () => {
 
       if (!workflowTemplate.archived) {
         actions.push({
-          tooltip: 'Archive Workflow Template',
+          tooltip: 'Archive Workflow ',
           Icon: DeleteForever,
           onClick: () => {
             setSelectedTemplate(workflowTemplate);
@@ -88,7 +88,7 @@ export const ManageWorkflowTemplates = () => {
         });
       } else {
         actions.push({
-          tooltip: 'Unarchive Workflow Template',
+          tooltip: 'Unarchive Workflow ',
           Icon: Unarchive,
           onClick: () => {
             setSelectedTemplate(workflowTemplate);
@@ -171,7 +171,7 @@ export const ManageWorkflowTemplates = () => {
             checked={showArchivedTemplates}
           />
         }
-        label="View Archived Templates"
+        label="View Archived Workflow"
       />
     </DataTableFooter>
   );
@@ -185,6 +185,7 @@ export const ManageWorkflowTemplates = () => {
       <UploadTemplate
         open={isUploadPopupOpen}
         onClose={() => setIsUploadPopupOpen(false)}
+        type="workflow"
       />
       <ArchiveTemplateDialog
         open={isArchivePopupOpen}
@@ -197,19 +198,20 @@ export const ManageWorkflowTemplates = () => {
         template={selectedTemplate}
       />
 
-      <DataTableHeader title={'Workflow Templates'}>
+      <DataTableHeader title={'Workflow'}>
         <Stack direction={'row'} gap={'8px'} flexWrap={'wrap'}>
           <Button
             variant={'contained'}
             startIcon={<AddIcon />}
-            onClick={() => navigate('/admin/workflow-templates/new')}>
-            {'New Template'}
+            // onClick={() => navigate('/admin/workflow-templates/new')}
+          >
+            {'New Workflow'}
           </Button>
           <Button
             variant={'contained'}
             startIcon={<UploadIcon />}
             onClick={() => setIsUploadPopupOpen(true)}>
-            {'Upload Template'}
+            {'Upload Workflow'}
           </Button>
         </Stack>
       </DataTableHeader>
