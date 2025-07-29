@@ -175,10 +175,6 @@ def update_workflow_template_step(
         workflow_template_step_changes
     )  # If new branches are being added to the step
 
-    check_branch_conditions(
-        workflow_template_step_changes
-    )  # If new branches are being added to the step
-
     crud.update(
         WorkflowTemplateStepOrm,
         changes=workflow_template_step_changes,
