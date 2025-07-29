@@ -35,7 +35,7 @@ export const ViewWorkflowTemplate = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const viewWorkflow = location.state?.viewWorkflow as WorkflowTemplate;
+  const viewWorkflow = location.state?.viewWorkflow;
   const [viewWorkflowSteps, setViewWorkflowSteps] = useState<
     TemplateStep[] | undefined
   >(undefined);
