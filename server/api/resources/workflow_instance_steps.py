@@ -6,6 +6,7 @@ from flask_openapi3.models.tag import Tag
 
 from common.api_utils import (
     WorkflowInstanceStepIdPath,
+    convert_query_parameter_to_bool,
     get_user_id,
 )
 from common.commonUtil import get_current_time
