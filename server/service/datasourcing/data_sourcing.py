@@ -1,7 +1,10 @@
-from typing import Callable, List, Dict, Any
 from functools import reduce
+from typing import Any, Callable, Dict, List
 
-def resolve_datasources(patient_id: str, datasources: List[str], catalogue: Dict[str, Callable]) -> Dict[str, Any]:
+
+def resolve_datasources(
+    patient_id: str, datasources: List[str], catalogue: Dict[str, Callable]
+) -> Dict[str, Any]:
     """
     Given a a list of datastrings, returns a dict of resolved datasources
 
@@ -10,6 +13,7 @@ def resolve_datasources(patient_id: str, datasources: List[str], catalogue: Dict
     :returns: a dict of resolved datasources, Any can be an int, bool, string
     :rtype: Dict[str, Any]
     """
+
     def ds_fold(a: Dict, ds: str):
         a[ds] = resolve_datastring(patient_id, ds, catalogue)
         return a
@@ -18,7 +22,10 @@ def resolve_datasources(patient_id: str, datasources: List[str], catalogue: Dict
 
     return reduce(ds_fold, datasources, {})
 
-def resolve_datastring(patient_id: str, data_string: str, catalogue: Dict[str, Callable]) -> Any:
+
+def resolve_datastring(
+    patient_id: str, data_string: str, catalogue: Dict[str, Callable]
+) -> Any:
     """
     Takes a datastring and resolves it into a concrete value
 
@@ -36,8 +43,10 @@ def resolve_datastring(patient_id: str, data_string: str, catalogue: Dict[str, C
 
     return query(id=patient_id, column=col)
 
+
 def __parse_column_name(data_string: str) -> str:
-    return data_string.split('.')[-1]
+    return data_string.split(".")[-1]
+
 
 def __parse_table_name(data_string: str) -> str:
-    return data_string.split('.')[0][1:]
+    return data_string.split(".")[0][1:]
