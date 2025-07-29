@@ -1,65 +1,43 @@
-'''
-Datasourcing service component
-- for taking datasource strings and resolving them  
-
-todo:
-1. defining data layer operations for resolving data strings
-2. handling null values during resolution
-3. tests
-'''
-
-import uuid
-from uuid import UUID
-from data import crud
-from typing import List, Dict, Any
-import data_catalouge as dc
+from typing import Callable, List, Dict, Any
 from functools import reduce
 
-class WorkflowDatasourcing:
-    # NOTE: a format overhaul may be needed in system data
-    #       as a way to conform with data resolution structures
-    #       or we have custom logic per data strings
-    #       realistically we have this layer for translating between, it also allows us to add our own behavior
-    #       e.g. "$patient.age", `age` is not a column that exists, but we can define behavior for it:
-    #           current date - patient.date_of_birth -> to_int
-    
-    def resolve_datasources(self, patient_id: UUID, datasources: List[str]) -> Dict[str, Any]:
-        """
-        Given a a list of data strings
-        - parse, query and return that value
+def resolve_datasources(patient_id: str, datasources: List[str], catalogue: Dict[str, Callable]) -> Dict[str, Any]:
+    """
+    Given a a list of datastrings, returns a dict of resolved datasources
 
-        :param patient_id: a uuid for identifying data relevant to a patient
-        :param datasources: a list of strings representing a datasource
-        :returns: a dict of resolved datasources, Any can be an int, bool, string
-        :rtype: Dict[str, Any]
-        """
-        def ds_fold(a: Dict, ds: str):
-            a[ds] = self.resolve_datastring(patient_id, ds)
-            return a
+    :param patient_id: an id for identifying data relevant to a patient
+    :param datasources: a list of strings representing a datasource
+    :returns: a dict of resolved datasources, Any can be an int, bool, string
+    :rtype: Dict[str, Any]
+    """
+    def ds_fold(a: Dict, ds: str):
+        a[ds] = resolve_datastring(patient_id, ds, catalogue)
+        return a
 
-        return reduce(ds_fold, datasources, {})
+    # TODO: more efficient querying
 
-    def resolve_datastring(self, patient_id: UUID, data_string: str) -> Any:
-        """
-        Takes a string and resolves it into a concrete value
+    return reduce(ds_fold, datasources, {})
 
-        Format of the string: $table.column
-        - "$" is an identifier reserved to distinguish between a regular
-          string and a datasource string
-        
-        :param data_string: a string representing a source of value
-        :returns: a resolved value
-        :rtype: any type of int, float, bool, string, char, etc.
-        """
-        col = self._parse_column_name(data_string)
-        query = dc.data_catalouge.get(data_string)
-    
-        value = query(id=patient_id, column=col)
-        
-        return value
+def resolve_datastring(patient_id: str, data_string: str, catalogue: Dict[str, Callable]) -> Any:
+    """
+    Takes a datastring and resolves it into a concrete value
 
-    def _parse_column_name(self, data_string: str) -> str:
-        return data_string.split('.')[-1]
+    :param patient_id: an id for identifying data relevant to a patient
+    :param data_string: a string representing a source of value of format `$table.column`
+    :param catalogue: a dict representing valid data strings that can be resolved
+    :returns: a resolved value
+    :rtype: any type of int, float, bool, string, char, None if not found
+    """
+    col = __parse_column_name(data_string)
+    query = catalogue.get(data_string)
 
-    def _parse_table_name(self, data_string: str) -> str:
-        return data_string.split('.')[0][1:]
+    if query is None:
+        return None
+
+    return query(id=patient_id, column=col)
+
+def __parse_column_name(data_string: str) -> str:
+    return data_string.split('.')[-1]
+
+def __parse_table_name(data_string: str) -> str:
+    return data_string.split('.')[0][1:]
