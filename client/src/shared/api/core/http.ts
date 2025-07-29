@@ -83,13 +83,13 @@ axiosFetch.interceptors.response.use(undefined, (err) => {
   if (!(err instanceof AxiosError)) return Promise.reject(err);
   const errorBody = err.response?.data;
   console.error('Error Response: ', errorBody);
-  if ('description' in errorBody) {
+  if (errorBody && 'description' in errorBody) {
     console.error(errorBody.description);
     return Promise.reject({
       message: errorBody.description,
     });
   }
-  if ('message' in errorBody) {
+  if (errorBody && 'message' in errorBody) {
     return Promise.reject(errorBody);
   }
   return Promise.reject(err);

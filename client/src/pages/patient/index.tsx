@@ -31,6 +31,7 @@ import { MedicalInfo } from './MedicalInfo';
 import { PatientStats } from './PatientStats';
 import { PersonalInfo } from './PersonalInfo';
 import { PregnancyInfo } from './PregnancyInfo';
+import { WorkflowInfo } from './WorkflowInfo';
 
 type RouteParams = {
   patientId: string;
@@ -123,7 +124,8 @@ export const PatientPage = () => {
         setConfirmDialogPerformAssessmentOpen={setConfirmDialogOpen}
       />
 
-      <Grid sx={{ marginTop: '2rem' }} container spacing={3}>
+      <WorkflowInfo />
+      <Grid sx={{ marginTop: '1rem' }} container spacing={3}>
         <Grid container size={{ xs: 12, lg: 6 }} direction="column" spacing={2}>
           <PersonalInfo patient={patient} />
 
