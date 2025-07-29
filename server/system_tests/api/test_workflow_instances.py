@@ -12,7 +12,9 @@ def test_create_workflow_instance(
 ):
     try:
         # First create the workflow template
-        response = api_post(endpoint="/api/workflow/templates/body", json=workflow_template1)
+        response = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_template1
+        )
         database.session.commit()
         response_body = decamelize(response.json())
         pretty_print(response_body)
@@ -20,7 +22,7 @@ def test_create_workflow_instance(
         if response.status_code != 201:
             print(f"Template creation failed with status: {response.status_code}")
             print(f"Response body: {response_body}")
-            if 'errors' in response_body:
+            if "errors" in response_body:
                 print(f"Validation errors: {response_body['errors']}")
 
         assert response.status_code == 201
@@ -58,7 +60,9 @@ def test_getting_workflow_instance(
 ):
     try:
         # Create workflow template
-        response = api_post(endpoint="/api/workflow/templates/body", json=workflow_template1)
+        response = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_template1
+        )
         database.session.commit()
         response_body = decamelize(response.json())
         assert response.status_code == 201  # Verify template creation succeeded

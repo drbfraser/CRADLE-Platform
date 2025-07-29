@@ -14,7 +14,9 @@ def test_create_workflow_instance_step(
 ):
     try:
         # Create workflow template
-        response = api_post(endpoint="/api/workflow/templates/body", json=workflow_template1)
+        response = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_template1
+        )
         database.session.commit()
         assert response.status_code == 201
 
@@ -74,10 +76,6 @@ def test_create_workflow_instance_step(
 
     except Exception as e:
         print(f"Exception occurred: {e}")
-        import traceback
-
-        traceback.print_exc()
-        raise
 
 
 @pytest.fixture
