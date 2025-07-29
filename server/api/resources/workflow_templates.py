@@ -16,7 +16,7 @@ from common.api_utils import (
 )
 from common.commonUtil import get_current_time
 from common.workflow_utils import assign_workflow_template_or_instance_ids
-from data import crud, db_session, marshal
+from data import crud, marshal
 from enums import RoleEnum
 from models import (
     WorkflowClassificationOrm,
@@ -76,6 +76,77 @@ def find_and_archive_previous_workflow_template(
         )
 
 
+def handle_workflow_template_upload(workflow_template_dict: dict):
+    """
+    Common logic for handling uploaded workflow template. Whether it was uploaded
+    as a file, or in the request body.
+    """
+    # Get ID of user
+    try:
+        user_id = get_user_id(workflow_template_dict, "last_edited_by")
+        workflow_template_dict["last_edited_by"] = user_id
+    except ValueError:
+        return abort(code=404, description="User not found.")
+
+    assign_workflow_template_or_instance_ids(
+        m=WorkflowTemplateOrm, workflow=workflow_template_dict
+    )
+
+    workflow_classification_dict = workflow_template_dict["classification"]
+    del workflow_template_dict["classification"]
+
+    # Find workflow classification in DB, if it exists
+    workflow_classification_orm = None
+    workflow_classification_orm = crud.read(
+        WorkflowClassificationOrm, id=workflow_template_dict["classification_id"]
+    )
+
+    # If the workflow classification does not exist and the request has no classification, throw an error
+    if (
+        workflow_classification_orm is None
+        and workflow_classification_dict is None
+        and workflow_template_dict["classification_id"] is not None
+    ):
+        return abort(code=404, description="Classification not found")
+
+    if workflow_classification_orm is None and workflow_classification_dict is not None:
+        # If this workflow classification is completely new, then it will be added to the DB
+        workflow_classification_orm = marshal.unmarshal(
+            WorkflowClassificationOrm, workflow_classification_dict
+        )
+
+    elif workflow_classification_orm is not None:
+        # Check if this template version already exists
+        existing_template_version = crud.read(
+            WorkflowTemplateOrm,
+            classification_id=workflow_classification_orm.id,
+            version=workflow_template_dict["version"],
+        )
+
+        if existing_template_version is not None:
+            return abort(
+                code=409,
+                description="Workflow template with same version still exists - Change version before upload.",
+            )
+
+        # Check if a previously existing version of this template exists, if it does, archive it
+        find_and_archive_previous_workflow_template(
+            workflow_classification_orm.id, workflow_template_dict["last_edited_by"]
+        )
+
+        workflow_template_dict["classification_id"] = workflow_classification_orm.id
+
+    workflow_template_orm = marshal.unmarshal(
+        WorkflowTemplateOrm, workflow_template_dict
+    )
+
+    workflow_template_orm.classification = workflow_classification_orm
+
+    crud.create(model=workflow_template_orm, refresh=True)
+
+    return marshal.marshal(obj=workflow_template_orm, shallow=True)
+
+
 # /api/workflow/templates [POST] - File upload (like form templates)
 @api_workflow_templates.post("", responses={201: WorkflowTemplateModel})
 @roles_required([RoleEnum.ADMIN])
@@ -93,71 +164,8 @@ def upload_workflow_template_file(form: FileUploadForm):
     except json.JSONDecodeError as e:
         return abort(400, description=f"Invalid JSON file: {e!s}")
 
-    # Get ID of user
-    try:
-        user_id = get_user_id(workflow_template_dict, "last_edited_by")
-        workflow_template_dict["last_edited_by"] = user_id
-
-    except ValueError:
-        return abort(code=404, description="User not found.")
-
-    assign_workflow_template_or_instance_ids(
-        m=WorkflowTemplateOrm, workflow=workflow_template_dict
-    )
-
-    workflow_classification_dict = workflow_template_dict["classification"]
-    del workflow_template_dict["classification"]
-
-    # Find workflow classification in DB, if it exists
-    workflow_classification_orm = None
-    workflow_classification_orm = crud.read(
-        WorkflowClassificationOrm, id=workflow_template_dict["classification_id"]
-    )
-
-    # If the workflow classification does not exist and the request has no classification, throw an error
-    if (
-        workflow_classification_orm is None
-        and workflow_classification_dict is None
-        and workflow_template_dict["classification_id"] is not None
-    ):
-        return abort(code=404, description="Classification not found")
-
-    if workflow_classification_orm is None and workflow_classification_dict is not None:
-        # If this workflow classification is completely new, then it will be added to the DB
-        workflow_classification_orm = marshal.unmarshal(
-            WorkflowClassificationOrm, workflow_classification_dict
-        )
-
-    elif workflow_classification_orm is not None:
-        # Check if this template version already exists
-        existing_template_version = crud.read(
-            WorkflowTemplateOrm,
-            classification_id=workflow_classification_orm.id,
-            version=workflow_template_dict["version"],
-        )
-
-        if existing_template_version is not None:
-            return abort(
-                code=409,
-                description="Workflow template with same version still exists - Change version before upload.",
-            )
-
-        # Check if a previously existing version of this template exists, if it does, archive it
-        find_and_archive_previous_workflow_template(
-            workflow_classification_orm.id, workflow_template_dict["last_edited_by"]
-        )
-
-        workflow_template_dict["classification_id"] = workflow_classification_orm.id
-
-    workflow_template_orm = marshal.unmarshal(
-        WorkflowTemplateOrm, workflow_template_dict
-    )
-
-    workflow_template_orm.classification = workflow_classification_orm
-
-    crud.create(model=workflow_template_orm, refresh=True)
-
-    return marshal.marshal(obj=workflow_template_orm, shallow=True), 201
+    result = handle_workflow_template_upload(workflow_template_dict)
+    return result, 201
 
 
 # /api/workflow/templates/body [POST] - JSON body (like form templates)
@@ -170,71 +178,8 @@ def upload_workflow_template_body(body: WorkflowTemplateUploadModel):
     """
     workflow_template_dict = body.model_dump()
 
-    # Get ID of user
-    try:
-        user_id = get_user_id(workflow_template_dict, "last_edited_by")
-        workflow_template_dict["last_edited_by"] = user_id
-
-    except ValueError:
-        return abort(code=404, description="User not found.")
-
-    assign_workflow_template_or_instance_ids(
-        m=WorkflowTemplateOrm, workflow=workflow_template_dict
-    )
-
-    workflow_classification_dict = workflow_template_dict["classification"]
-    del workflow_template_dict["classification"]
-
-    # Find workflow classification in DB, if it exists
-    workflow_classification_orm = None
-    workflow_classification_orm = crud.read(
-        WorkflowClassificationOrm, id=workflow_template_dict["classification_id"]
-    )
-
-    # If the workflow classification does not exist and the request has no classification, throw an error
-    if (
-        workflow_classification_orm is None
-        and workflow_classification_dict is None
-        and workflow_template_dict["classification_id"] is not None
-    ):
-        return abort(code=404, description="Classification not found")
-
-    if workflow_classification_orm is None and workflow_classification_dict is not None:
-        # If this workflow classification is completely new, then it will be added to the DB
-        workflow_classification_orm = marshal.unmarshal(
-            WorkflowClassificationOrm, workflow_classification_dict
-        )
-
-    elif workflow_classification_orm is not None:
-        # Check if this template version already exists
-        existing_template_version = crud.read(
-            WorkflowTemplateOrm,
-            classification_id=workflow_classification_orm.id,
-            version=workflow_template_dict["version"],
-        )
-
-        if existing_template_version is not None:
-            return abort(
-                code=409,
-                description="Workflow template with same version still exists - Change version before upload.",
-            )
-
-        # Check if a previously existing version of this template exists, if it does, archive it
-        find_and_archive_previous_workflow_template(
-            workflow_classification_orm.id, workflow_template_dict["last_edited_by"]
-        )
-
-        workflow_template_dict["classification_id"] = workflow_classification_orm.id
-
-    workflow_template_orm = marshal.unmarshal(
-        WorkflowTemplateOrm, workflow_template_dict
-    )
-
-    workflow_template_orm.classification = workflow_classification_orm
-
-    crud.create(model=workflow_template_orm, refresh=True)
-
-    return marshal.marshal(obj=workflow_template_orm, shallow=True), 201
+    result = handle_workflow_template_upload(workflow_template_dict)
+    return result, 201
 
 
 def convert_query_parameter_to_bool(value):
@@ -408,13 +353,19 @@ def archive_workflow_template(
             ),
         )
 
-    workflow_template.archived = bool(query.archive)
-    workflow_template.last_edited = get_current_time()
+    changes = {
+        "archived": bool(query.archive),
+        "last_edited": get_current_time(),
+    }
 
-    db_session.commit()
-    db_session.refresh(workflow_template)
+    crud.update(
+        WorkflowTemplateOrm,
+        changes=changes,
+        id=path.workflow_template_id,
+    )
 
-    return marshal.marshal(workflow_template, shallow=True), 200
+    updated_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
+    return marshal.marshal(updated_template, shallow=True), 200
 
 
 # /api/workflow/templates/<string:workflow_template_id>/versions/<string:version>/csv [GET]
