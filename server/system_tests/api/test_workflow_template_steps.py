@@ -24,7 +24,9 @@ def test_uploading_valid_workflow_template_steps(
         Upload 3 template steps to the example workflow template
         """
 
-        api_post(endpoint="/api/workflow/templates", json=example_workflow_template)
+        api_post(
+            endpoint="/api/workflow/templates/body", json=example_workflow_template
+        )
 
         response = api_post(
             endpoint="/api/workflow/template/steps", json=valid_workflow_template_step1
@@ -78,7 +80,9 @@ def test_uploading_invalid_workflow_template_steps(
     api_post,
 ):
     try:
-        api_post(endpoint="/api/workflow/templates", json=example_workflow_template)
+        api_post(
+            endpoint="/api/workflow/templates/body", json=example_workflow_template
+        )
 
         """
         Try to upload 3 invalid template steps to the example workflow template
@@ -149,7 +153,9 @@ def test_getting_workflow_template_steps(
     api_get,
 ):
     try:
-        api_post(endpoint="/api/workflow/templates", json=example_workflow_template)
+        api_post(
+            endpoint="/api/workflow/templates/body", json=example_workflow_template
+        )
 
         response = api_post(
             endpoint="/api/workflow/template/steps", json=valid_workflow_template_step1

@@ -194,6 +194,7 @@ export const ManageFormTemplates = () => {
         rows={tableRows}
         columns={tableColumns}
         footer={TableFooter}
+        loading={formTemplatesQuery.isLoading}
         getRowClassName={(params) => {
           const index = params.row.id;
           const formTemplate = formTemplatesQuery.data?.at(index) ?? undefined;

@@ -14,7 +14,9 @@ def test_workflow_templates_with_same_classification_upload(
     try:
         archived_template1_id = workflow_template1["id"]
 
-        response = api_post(endpoint="/api/workflow/templates", json=workflow_template1)
+        response = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_template1
+        )
         database.session.commit()
         response_body = decamelize(response.json())
         pretty_print(response_body)
@@ -25,7 +27,9 @@ def test_workflow_templates_with_same_classification_upload(
         the currently unarchived template
         """
 
-        response = api_post(endpoint="/api/workflow/templates", json=workflow_template3)
+        response = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_template3
+        )
         database.session.commit()
         response_body = decamelize(response.json())
         pretty_print(response_body)
@@ -61,7 +65,7 @@ def test_invalid_workflow_templates_uploaded(
 ):
     try:
         response = api_post(
-            endpoint="/api/workflow/templates", json=invalid_workflow_template1
+            endpoint="/api/workflow/templates/body", json=invalid_workflow_template1
         )
         database.session.commit()
         response_body = decamelize(response.json())
@@ -69,7 +73,7 @@ def test_invalid_workflow_templates_uploaded(
         assert response.status_code == 422
 
         response = api_post(
-            endpoint="/api/workflow/templates", json=invalid_workflow_template2
+            endpoint="/api/workflow/templates/body", json=invalid_workflow_template2
         )
         database.session.commit()
         response_body = decamelize(response.json())
@@ -77,14 +81,16 @@ def test_invalid_workflow_templates_uploaded(
         assert response.status_code == 422
 
         response = api_post(
-            endpoint="/api/workflow/templates", json=invalid_workflow_template3
+            endpoint="/api/workflow/templates/body", json=invalid_workflow_template3
         )
         database.session.commit()
         response_body = decamelize(response.json())
         pretty_print(response_body)
         assert response.status_code == 404
 
-        response = api_post(endpoint="/api/workflow/templates", json=workflow_template1)
+        response = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_template1
+        )
         database.session.commit()
         response_body = decamelize(response.json())
         pretty_print(response_body)
@@ -94,7 +100,9 @@ def test_invalid_workflow_templates_uploaded(
         Submitting a workflow template with the same version of another template under the same classification should
         return a 409 error
         """
-        response = api_post(endpoint="/api/workflow/templates", json=workflow_template1)
+        response = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_template1
+        )
         # database.session.commit()
         response_body = decamelize(response.json())
         pretty_print(response_body)
@@ -177,24 +185,25 @@ def test_getting_workflow_templates(
     try:
         workflow_template1["archived"] = True
 
-        workflow_template3["classification"] = None
+        # Keep workflow_template3 classification to match workflow_template1
         workflow_template3["steps"] = []
 
         workflow_template4["archived"] = True
 
-        api_post(endpoint="/api/workflow/templates", json=workflow_template1)
+        api_post(endpoint="/api/workflow/templates/body", json=workflow_template1)
         database.session.commit()
 
-        api_post(endpoint="/api/workflow/templates", json=workflow_template3)
+        api_post(endpoint="/api/workflow/templates/body", json=workflow_template3)
         database.session.commit()
 
-        api_post(endpoint="/api/workflow/templates", json=workflow_template4)
+        api_post(endpoint="/api/workflow/templates/body", json=workflow_template4)
         database.session.commit()
 
         classification_id = workflow_template1["classification_id"]
 
         """
-        Query for workflow_example1 and workflow_example3 with same classification ID
+        Query for non-archived workflow templates with same classification ID
+        Should only return workflow_example3 since workflow_example1 is archived
         """
 
         response = api_get(
@@ -202,7 +211,8 @@ def test_getting_workflow_templates(
         )
         workflow_templates = decamelize(response.json())["items"]
 
-        assert len(workflow_templates) == 2
+        assert len(workflow_templates) == 1
+        assert workflow_templates[0]["id"] == workflow_template3["id"]
 
         """
         Query for archived workflow templates with same classification ID
