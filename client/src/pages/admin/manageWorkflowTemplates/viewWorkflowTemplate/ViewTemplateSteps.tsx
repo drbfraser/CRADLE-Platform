@@ -1,68 +1,55 @@
-import { Box } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { DataTableToolbar } from 'src/shared/components/DataTable/DataTable';
-import {
-  TemplateStep,
-  TemplateStepBranch,
-} from 'src/shared/types/workflow/workflowTypes';
+import Box from '@mui/material/Box/Box';
+import { TemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowTypes';
+import { ViewTemplateStep } from './ViewTemplateStep';
+import { ID } from 'src/shared/constants';
 
 interface IProps {
-  steps: TemplateStep[] | undefined;
+  steps: TemplateStepWithFormAndIndex[] | undefined;
+  firstStep: ID;
 }
 
-export const ViewTemplateSteps = ({ steps }: IProps) => {
+export const ViewTemplateSteps = ({ steps, firstStep }: IProps) => {
   if (!steps) {
     return;
   }
 
-  function getNextIds(branches?: TemplateStepBranch[]): string {
-    if (branches) {
-      let ret = '';
-      for (const branch of branches) {
-        ret += branch.targetStepId + ' ';
-      }
-      return ret;
-    } else {
-      return '';
-    }
+  for (let i = 0; i < steps.length; i++) {
+    steps[i].index = i + 1;
   }
 
-  const tableRows = steps.map((step) => ({
-    id: step.id,
-    name: step.name,
-    title: step.title,
-    formId: step.formId,
-    expectedCompletion: step.expectedCompletion,
-    conditions: step.conditions,
-    nextIds: getNextIds(step.branches),
-    archived: step.archived,
-    lastEdited: step.lastEdited,
-    lastEditedBy: step.lastEditedBy,
-  }));
-
-  const tableColumns: GridColDef[] = [
-    { flex: 1, field: 'id', headerName: 'ID' },
-    { flex: 1, field: 'name', headerName: 'Name' },
-    { flex: 1, field: 'title', headerName: 'Title' },
-    { flex: 1, field: 'formId', headerName: 'Form ID' },
-    { flex: 1, field: 'expectedCompletion', headerName: 'Expected Completion' },
-    { flex: 1, field: 'conditions', headerName: 'Conditions' },
-    { flex: 1, field: 'nextIds', headerName: 'Next Step IDs' },
-    { flex: 1, field: 'archived', headerName: 'Archived' },
-    { flex: 1, field: 'lastEdited', headerName: 'Last Edited' },
-    { flex: 1, field: 'lastEditedBy', headerName: 'Last Edited By' },
-  ];
+  // ordering steps via breadth-first search
+  var orderedSteps = [];
+  var nextId = [firstStep];
+  var ind = 1;
+  while (nextId.length > 0) {
+    // get next step
+    let step = steps.find((step) => step.id == nextId[0]);
+    nextId.splice(0,1);
+    if (step) {
+      // assign index to step
+      step.index = ind;
+      ind++;
+      // remove step from steps
+      let index = steps.indexOf(step);
+      steps.splice(index, 1);
+      orderedSteps.push(step);
+      // add branching steps to queue
+      if (step.branches) {
+        step.branches.forEach((branch) => {
+          nextId.push(branch.targetStepId);
+        })
+      }
+    }
+  }
 
   return (
     <>
       <Box>
         <h2>Steps</h2>
       </Box>
-      <DataGrid
-        rows={tableRows}
-        columns={tableColumns}
-        slots={{ toolbar: () => <DataTableToolbar /> }}
-      />
+      {orderedSteps.map((step) => (
+        <ViewTemplateStep step={step}></ViewTemplateStep>
+      ))}
     </>
   );
 };

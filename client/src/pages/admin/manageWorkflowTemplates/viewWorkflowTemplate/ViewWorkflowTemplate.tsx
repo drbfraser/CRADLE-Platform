@@ -13,12 +13,13 @@ import {
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import {
   TemplateStep,
+  TemplateStepWithFormAndIndex,
   WorkflowTemplate,
 } from 'src/shared/types/workflow/workflowTypes';
-import { ViewTemplateSteps } from './ViewTemplateSteps';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { listTemplateSteps } from 'src/shared/api/modules/workflowTemplates';
+import { ViewTemplateSteps } from './ViewTemplateSteps';
 
 export enum WorkflowEditMainComponents {
   title = 'title',
@@ -183,16 +184,17 @@ export const ViewWorkflowTemplate = () => {
                   />
                 </Grid>
               </Grid>
-
-              {isLoading ? (
-                <Skeleton variant="rectangular" height={400} />
-              ) : (
-                <ViewTemplateSteps steps={viewWorkflowSteps} />
-              )}
             </Paper>
           </Form>
         )}
       </Formik>
+      {isLoading ? (
+        <Skeleton variant="rectangular" height={400} />
+      ) : (
+        <ViewTemplateSteps
+          steps={viewWorkflowSteps as TemplateStepWithFormAndIndex[]} firstStep={viewWorkflow.startingStepId}
+        />
+      )}
     </>
   );
 };

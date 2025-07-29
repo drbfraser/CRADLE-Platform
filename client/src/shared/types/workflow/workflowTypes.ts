@@ -1,4 +1,7 @@
 import { ID, ISODate, Nullable } from '../../constants';
+import {
+  FormTemplate,
+} from '../form/formTemplateTypes';
 import { InstanceStatus, StepStatus } from './workflowEnums';
 export interface RuleGroup {
   id: ID;
@@ -31,6 +34,11 @@ export interface TemplateStep {
   lastEditedBy: string;
 }
 
+export interface TemplateStepWithFormAndIndex extends TemplateStep {
+  form?: FormTemplate;
+  index: number;
+}
+
 export interface WorkflowTemplate {
   id: ID;
   name: string;
@@ -41,6 +49,7 @@ export interface WorkflowTemplate {
   classification?: WorkflowClassification;
   initialConditions?: RuleGroup;
   steps: TemplateStep[];
+  startingStepId: ID;
 
   // audit & soft-delete
   archived: boolean;
