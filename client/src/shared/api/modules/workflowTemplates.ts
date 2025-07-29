@@ -29,7 +29,7 @@ export const listTemplates = async (params?: {
   classificationId?: ID;
   archived?: boolean;
 }): Promise<WorkflowTemplate[]> => {
-/*   const params = {
+  /*   const params = {
     groupBy: parameters?.groupBy,
     classification_id: parameters?.classificationId,
     is_archived: parameters?.archived,
