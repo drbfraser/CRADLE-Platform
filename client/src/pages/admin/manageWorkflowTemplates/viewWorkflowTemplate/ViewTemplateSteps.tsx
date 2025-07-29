@@ -13,31 +13,27 @@ export const ViewTemplateSteps = ({ steps, firstStep }: IProps) => {
     return;
   }
 
-  for (let i = 0; i < steps.length; i++) {
-    steps[i].index = i + 1;
-  }
-
   // ordering steps via breadth-first search
-  var orderedSteps = [];
-  var nextId = [firstStep];
-  var ind = 1;
+  const orderedSteps = [];
+  const nextId = [firstStep];
+  let ind = 1;
   while (nextId.length > 0) {
     // get next step
-    let step = steps.find((step) => step.id == nextId[0]);
-    nextId.splice(0,1);
+    const step = steps.find((step) => step.id == nextId[0]);
+    nextId.splice(0, 1);
     if (step) {
       // assign index to step
       step.index = ind;
       ind++;
       // remove step from steps
-      let index = steps.indexOf(step);
+      const index = steps.indexOf(step);
       steps.splice(index, 1);
       orderedSteps.push(step);
       // add branching steps to queue
       if (step.branches) {
         step.branches.forEach((branch) => {
           nextId.push(branch.targetStepId);
-        })
+        });
       }
     }
   }
@@ -48,7 +44,7 @@ export const ViewTemplateSteps = ({ steps, firstStep }: IProps) => {
         <h2>Steps</h2>
       </Box>
       {orderedSteps.map((step) => (
-        <ViewTemplateStep step={step}></ViewTemplateStep>
+        <ViewTemplateStep key={step.id} step={step}></ViewTemplateStep>
       ))}
     </>
   );

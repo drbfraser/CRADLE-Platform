@@ -192,7 +192,8 @@ export const ViewWorkflowTemplate = () => {
         <Skeleton variant="rectangular" height={400} />
       ) : (
         <ViewTemplateSteps
-          steps={viewWorkflowSteps as TemplateStepWithFormAndIndex[]} firstStep={viewWorkflow.startingStepId}
+          steps={viewWorkflowSteps as TemplateStepWithFormAndIndex[]}
+          firstStep={viewWorkflow.startingStepId}
         />
       )}
     </>

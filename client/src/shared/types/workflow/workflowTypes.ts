@@ -1,7 +1,5 @@
 import { ID, ISODate, Nullable } from '../../constants';
-import {
-  FormTemplate,
-} from '../form/formTemplateTypes';
+import { FormTemplate } from '../form/formTemplateTypes';
 import { InstanceStatus, StepStatus } from './workflowEnums';
 export interface RuleGroup {
   id: ID;
