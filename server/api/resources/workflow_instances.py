@@ -119,7 +119,8 @@ def get_workflow_instances():
 def get_workflow_instance(path: WorkflowInstanceIdPath):
     """Get Workflow Instance"""
     # Get query parameters
-    with_steps = request.args.get("with_steps", default=False, type=bool)
+    with_steps = request.args.get("with_steps", default=False)
+    with_steps = convert_query_parameter_to_bool(with_steps)
 
     workflow_instance = crud.read(WorkflowInstanceOrm, id=path.workflow_instance_id)
 

@@ -125,7 +125,8 @@ def get_workflow_instance_steps():
 )
 def get_workflow_instance_step(path: WorkflowInstanceStepIdPath):
     """Get Workflow Instance Step"""
-    with_form = request.args.get("with_form", default=False, type=bool)
+    with_form = request.args.get("with_form", default=False)
+    with_form = convert_query_parameter_to_bool(with_form)
 
     workflow_instance_step = crud.read(
         WorkflowInstanceStepOrm, id=path.workflow_instance_step_id

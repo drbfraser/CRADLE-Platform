@@ -14,7 +14,7 @@ def test_create_workflow_instance_step(
 ):
     try:
         # Create workflow template
-        response = api_post(endpoint="/api/workflow/templates", json=workflow_template1)
+        response = api_post(endpoint="/api/workflow/templates/body", json=workflow_template1)
         database.session.commit()
         assert response.status_code == 201
 
