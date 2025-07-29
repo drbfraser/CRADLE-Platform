@@ -78,7 +78,7 @@ class WorkflowTemplateExample:
     }
 
 
-class WorkflowTemplateModel(CradleBaseModel):
+class WorkflowTemplateModel(CradleBaseModel, extra="forbid"):
     id: str
     name: str
     description: str
@@ -103,3 +103,26 @@ class WorkflowTemplateModel(CradleBaseModel):
 
 class WorkflowTemplateUploadModel(WorkflowTemplateModel):
     id: Optional[str] = None
+
+
+class WorkflowTemplatePatchBody(CradleBaseModel):
+    id: Optional[str] = None
+    name: Optional[str] = None
+    description: Optional[str] = None
+    archived: Optional[bool] = None
+    starting_step_id: Optional[str] = None
+    date_created: int = Field(default_factory=get_current_time)
+    last_edited: Optional[int] = Field(default_factory=get_current_time)
+    last_edited_by: Optional[int] = None
+    version: str  # A new version is required
+    initial_condition_id: Optional[str] = None
+    initial_condition: Optional[RuleGroupModel] = None
+    classification_id: Optional[str] = None
+    classification: Optional[WorkflowClassificationModel] = None
+    steps: Optional[list[WorkflowTemplateStepModel]] = None
+
+    @model_validator(mode="after")
+    def validate_dates(self) -> Self:
+        if self.last_edited is not None and self.last_edited < self.date_created:
+            raise ValueError("last_edited cannot be before date_created")
+        return self

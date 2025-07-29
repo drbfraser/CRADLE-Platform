@@ -6,6 +6,7 @@ from api.resources.form_templates import handle_form_template_upload
 from common.api_utils import (
     WorkflowTemplateStepIdPath,
     WorkflowTemplateStepListResponse,
+    convert_query_parameter_to_bool,
     get_user_id,
 )
 from common.commonUtil import get_current_time
@@ -111,8 +112,10 @@ def get_workflow_template_steps():
 )
 def get_workflow_template_step(path: WorkflowTemplateStepIdPath):
     """Get Workflow Template Step"""
-    with_form = request.args.get("with_form", default=False, type=bool)
-    with_branches = request.args.get("with_branches", default=False, type=bool)
+    with_form = request.args.get("with_form", default=False)
+    with_form = convert_query_parameter_to_bool(with_form)
+    with_branches = request.args.get("with_branches", default=False)
+    with_branches = convert_query_parameter_to_bool(with_branches)
 
     workflow_step = crud.read(
         WorkflowTemplateStepOrm, id=path.workflow_template_step_id
@@ -172,10 +175,6 @@ def update_workflow_template_step(
         workflow_template_step_changes
     )  # If new branches are being added to the step
 
-    check_branch_conditions(
-        workflow_template_step_changes
-    )  # If new branches are being added to the step
-
     crud.update(
         WorkflowTemplateStepOrm,
         changes=workflow_template_step_changes,
@@ -189,6 +188,16 @@ def update_workflow_template_step(
     updated_template_step = marshal.marshal(updated_template_step, shallow=True)
 
     return updated_template_step, 200
+
+
+# @api_workflow_template_steps.patch(
+#     "/<string:workflow_template_step_id>", responses={204: None}
+# )
+# def update_workflow_template_step_patch(path: WorkflowTemplateStepIdPath, body):
+#     """Update Workflow Template Step with only specific fields"""
+#     workflow_template_step = crud.read(WorkflowTemplateStepOrm, id=path.workflow_template_step_id)
+#
+#     return '', 204
 
 
 # /api/workflow/template/steps/<string:step_id> [DELETE]
@@ -215,4 +224,4 @@ def delete_workflow_template_step(path: WorkflowTemplateStepIdPath):
         WorkflowTemplateStepOrm, id=path.workflow_template_step_id
     )
 
-    return None, 204
+    return "", 204
