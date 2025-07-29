@@ -47,6 +47,28 @@ export const listTemplates = async (params?: {
   return [] as WorkflowTemplate[];
 };
 
+// GET /workflow/templates with archived parameter
+export const getAllWorkflowTemplatesAsync = async (
+  includeArchived: boolean
+): Promise<WorkflowTemplate[]> => {
+  try {
+    const response = await axiosFetch.get<{ items: WorkflowTemplate[] }>(
+      TEMPLATES + `?archived=${includeArchived}`
+    );
+    return response.data.items;
+  } catch (e) {
+    console.error(`Error getting all workflow templates: ${e}`);
+    throw e;
+  }
+};
+
+// PUT /workflow/templates/{templateId} - Edit workflow template (including archive status)
+export const editWorkflowTemplateAsync = async (template: WorkflowTemplate) =>
+  axiosFetch({
+    method: 'PUT',
+    url: `${TEMPLATES}/${template.id}/archive?archive=${template.archived}`,
+  });
+
 // GET /workflow/templates/{templateId}
 export const getTemplate = async (
   templateId: ID,
@@ -201,4 +223,20 @@ export const saveWorkflowTemplateWithFileAsync = async (file: File) => {
   return axiosFetch.postForm(EndpointEnum.WORKFLOW_TEMPLATES, {
     file: file,
   });
+};
+
+export const getWorkflowTemplateCsvAsync = async (
+  workflowTemplateId: string,
+  version: string
+) => {
+  try {
+    const response = await axiosFetch({
+      url: TEMPLATES + `/${workflowTemplateId}/versions/${version}/csv`,
+      responseType: 'blob',
+    });
+    return response.data;
+  } catch (e) {
+    console.error(`Error getting workflow template CSV: ${e}`);
+    throw e;
+  }
 };

@@ -10,8 +10,8 @@ import AddIcon from '@mui/icons-material/Add';
 
 import { WorkflowTemplate } from 'src/shared/types/workflow/workflowTypes';
 import { getPrettyDate } from 'src/shared/utils';
-import { listTemplates } from 'src/shared/api/modules/workflowTemplates';
-import { useQuery } from '@tanstack/react-query';
+import { getAllWorkflowTemplatesAsync } from 'src/shared/api/modules/workflowTemplates';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import {
   TableAction,
@@ -41,16 +41,11 @@ export const ManageWorkflowTemplates = () => {
   const [isUnarchivePopupOpen, setIsUnarchivePopupOpen] = useState(false);
 
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const workflowTemplatesQuery = useQuery({
     queryKey: ['workflowTemplates', showArchivedTemplates],
-    queryFn: async (): Promise<WorkflowTemplate[]> => {
-      const result = await listTemplates({ archived: showArchivedTemplates });
-
-      return Array.isArray(result)
-        ? result
-        : (result as { items: WorkflowTemplate[] }).items || [];
-    },
+    queryFn: () => getAllWorkflowTemplatesAsync(showArchivedTemplates),
   });
   const { mutate: downloadTemplateCSV, isError: downloadTemplateCSVIsError } =
     useDownloadTemplateAsCSV();
@@ -185,6 +180,9 @@ export const ManageWorkflowTemplates = () => {
         open={isUploadPopupOpen}
         onClose={() => setIsUploadPopupOpen(false)}
         type="workflow"
+        onUploadSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ['workflowTemplates'] });
+        }}
       />
       <ArchiveTemplateDialog
         open={isArchivePopupOpen}
@@ -218,6 +216,7 @@ export const ManageWorkflowTemplates = () => {
         rows={tableRows}
         columns={tableColumns}
         footer={TableFooter}
+        loading={workflowTemplatesQuery.isLoading}
         getRowClassName={(params) => {
           const index = params.row.id;
           const workflowTemplate =
