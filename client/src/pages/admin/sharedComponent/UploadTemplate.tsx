@@ -24,9 +24,15 @@ interface IProps {
   open: boolean;
   onClose: () => void;
   type?: 'form' | 'workflow';
+  onUploadSuccess?: () => void;
 }
 
-const UploadTemplate = ({ open, onClose, type = 'workflow' }: IProps) => {
+const UploadTemplate = ({
+  open,
+  onClose,
+  type = 'workflow',
+  onUploadSuccess,
+}: IProps) => {
   const [files, setFiles] = useState<ExtFile[]>([]);
 
   const [uploadError, setUploadError] = useState<string>('');
@@ -66,6 +72,10 @@ const UploadTemplate = ({ open, onClose, type = 'workflow' }: IProps) => {
 
       setUploadSuccess(`${file.name} uploaded successfully`);
       setShowSuccess(true);
+
+      if (onUploadSuccess) {
+        onUploadSuccess();
+      }
 
       onClose();
     } catch (e: unknown) {

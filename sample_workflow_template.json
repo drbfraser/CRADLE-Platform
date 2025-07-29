@@ -1,0 +1,36 @@
+{
+  "name": "Sample Patient Triage Workflow",
+  "description": "A sample workflow template for patient triage process",
+  "archived": false,
+  "version": "1.0",
+  "starting_step_id": "step_001",
+  "last_edited_by": null,
+  "classification": {
+    "name": "Emergency Department Workflow"
+  },
+  "initial_condition": {
+    "rules": []
+  },
+  "steps": [
+    {
+      "id": "step_001",
+      "name": "Initial Assessment",
+      "description": "Perform initial patient assessment",
+      "step_type": "ASSESSMENT",
+      "rule_group": {
+        "rules": []
+      },
+      "next_step_id": "step_002"
+    },
+    {
+      "id": "step_002", 
+      "name": "Vital Signs Check",
+      "description": "Record patient vital signs",
+      "step_type": "DATA_COLLECTION",
+      "rule_group": {
+        "rules": []
+      },
+      "next_step_id": null
+    }
+  ]
+}

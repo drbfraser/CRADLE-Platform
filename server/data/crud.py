@@ -1046,8 +1046,7 @@ def read_workflow_templates(
             WorkflowTemplateOrm.classification_id == workflow_classification_id
         )
 
-    if is_archived:
-        query = query.filter(WorkflowTemplateOrm.archived == is_archived)
+    query = query.filter(WorkflowTemplateOrm.archived == is_archived)
 
     return query.all()
 
