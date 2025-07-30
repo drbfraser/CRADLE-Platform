@@ -14,7 +14,6 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import {
   TemplateStep,
   TemplateStepWithFormAndIndex,
-  WorkflowTemplate,
 } from 'src/shared/types/workflow/workflowTypes';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
