@@ -6,7 +6,7 @@ def resolve_datasources(
     patient_id: str, datasources: List[str], catalogue: Dict[str, Callable]
 ) -> Dict[str, Any]:
     """
-    Given a a list of datastrings, returns a dict of resolved datasources
+    Given a list of datastrings, returns a dict of resolved datasources
 
     :param patient_id: an id for identifying data relevant to a patient
     :param datasources: a list of strings representing a datasource
@@ -35,7 +35,7 @@ def resolve_datastring(
     :returns: a resolved value
     :rtype: any type of int, float, bool, string, char, None if not found
     """
-    col = __parse_column_name(data_string)
+    col = parse_column_name(data_string)
     query = catalogue.get(data_string)
 
     if query is None:
@@ -44,9 +44,21 @@ def resolve_datastring(
     return query(id=patient_id, column=col)
 
 
-def __parse_column_name(data_string: str) -> str:
+def parse_column_name(data_string: str) -> str:
+    # is not a data string
+    if data_string[0] != "$":
+        return ""
+
+    # "$table.column" -> ["$table", "column"]
     return data_string.split(".")[-1]
 
 
-def __parse_table_name(data_string: str) -> str:
-    return data_string.split(".")[0][1:]
+def parse_table_name(data_string: str) -> str:
+    # is not a data string
+    if data_string[0] != "$":
+        return ""
+
+    removed_ds_tag = data_string[1:]
+
+    # "table.column" -> ["table", "column"]
+    return removed_ds_tag.split(".")[0]

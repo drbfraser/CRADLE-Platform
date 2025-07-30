@@ -1,5 +1,7 @@
 import pytest
+
 from service.datasourcing import data_sourcing
+
 
 @pytest.fixture
 def sample_data():
@@ -7,8 +9,9 @@ def sample_data():
         "id": "testid123",
         "column": "date_of_birth",
         "table": "patient",
-        "data_string": "$patient.date_of_birth"
+        "data_string": "$patient.date_of_birth",
     }
+
 
 def test_parsing_datastring(sample_data):
     # arrange
@@ -17,19 +20,37 @@ def test_parsing_datastring(sample_data):
     expected_table = sample_data["table"]
 
     # act
-    col = data_sourcing.__parse_column_name(ds)
-    tb = data_sourcing.__parse_table_name(ds)
+    col = data_sourcing.parse_column_name(ds)
+    tb = data_sourcing.parse_table_name(ds)
 
     # assert
     assert col == expected_col
     assert tb == expected_table
 
+
+def test_parsing_not_datastring():
+    # arrange
+    ds = "testvalue"
+
+    # act
+    col = data_sourcing.parse_column_name(ds)
+    tb = data_sourcing.parse_table_name(ds)
+
+    # assert
+    assert col == ""
+    assert tb == ""
+
+
 def test_resolve_datastring(sample_data):
     # arrange
+    def mock_callable(id, column):
+        return expected
+
     id = sample_data["id"]
     ds = sample_data["data_string"]
     expected = id + sample_data["column"]
-    datasource = {ds: lambda id, column: expected}
+
+    datasource = {ds: mock_callable}
 
     # act
     result = data_sourcing.resolve_datastring(id, ds, datasource)
@@ -40,36 +61,41 @@ def test_resolve_datastring(sample_data):
 
 def test_resolve_datastring_not_found(sample_data):
     # arrange
+    def mock_callable(id, column):
+        return "should_not_match"
+
     id = sample_data["id"]
     ds = sample_data["data_string"]
-    catalouge = {"$test.test": lambda id, column: "should_not_match"}
+    catalogue = {"$test.test": mock_callable}
 
     # act
-    result = data_sourcing.resolve_datastring(id, ds, catalouge)
+    result = data_sourcing.resolve_datastring(id, ds, catalogue)
 
     # assert
     assert result is None
-    
 
-@pytest.mark.parametrize("dsl, columns, expected_values", [
-    (
-        ["$test.test", "$test.test1", "$test.not_exists"],
-        ["test", "test1", None],
-        ["testid123test", "testid123test1", None]
-    )
-])
+
+@pytest.mark.parametrize(
+    "dsl, columns, expected_values",
+    [
+        (
+            ["$test.test", "$test.test1", "$test.not_exists"],
+            ["test", "test1", None],
+            ["testid123test", "testid123test1", None],
+        )
+    ],
+)
 def test_resolve_datasources(dsl, columns, expected_values):
     # arrange
+    def mock_callable(id, column):
+        return id + column
+
     id = "testid123"
-    query = lambda id, column: id + column
-    catalogue = {
-        dsl[0]: query,
-        dsl[1]: query
-    }
+    catalogue = {dsl[0]: mock_callable, dsl[1]: mock_callable}
     expected = {
         dsl[0]: expected_values[0],
         dsl[1]: expected_values[1],
-        dsl[2]: expected_values[2]
+        dsl[2]: expected_values[2],
     }
 
     # act
@@ -77,5 +103,3 @@ def test_resolve_datasources(dsl, columns, expected_values):
 
     # assert
     assert resolved == expected
-    
-    

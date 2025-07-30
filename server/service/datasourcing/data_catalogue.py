@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Callable, Dict, TypeVar
+from typing import Any, Callable, Dict, TypeVar
 
 import models as m
 from data import crud, marshal
@@ -32,12 +32,24 @@ def __query_data(model: type[M], query, id: str, column: str) -> Callable:
     return marshal.marshal(data).get(column)
 
 
+def get_catalogue() -> Dict[str, Callable[[str, str], Any]]:
+    """
+    the data catalogue of supported datasource strings
+
+    the catalogue maps datasource strings to a Callable that takes a string of id and column
+
+    :returns: a dict of string keys corresponding to a query
+    """
+    return __data_catalogue
+
+
 # NOTE:
 #   maintaining a datastring lookup vs dynamic lookup means it will be easier to reason about and debug
-#   also allows us to add our own behavior
+#   it also allows us to add our own behavior specific to each table
 #   e.g. "$patient.age", `age` is not a column that exists, but we can define behavior for it:
-#   current date - patient.date_of_birth -> to_int
-data_catalouge: Dict[str, Callable] = {
+#         current date - patient.date_of_birth** -> to_int
+#         **given nuance that a patient may have a estimated or exact date of birth
+__data_catalogue = {
     "$patient.name": partial(
         __query_data, m.PatientOrm, lambda _id: m.PatientOrm.id == _id
     ),
