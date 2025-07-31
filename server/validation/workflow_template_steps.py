@@ -18,18 +18,16 @@ from validation.workflow_template_step_branches import (
 class WorkflowTemplateStepExample:
     id = "step_example-01"
     name = "heart_rate_check"
-    title = "Heart Rate Check"
+    description = "Heart Rate Check"
     expected_completion = get_current_time()
     last_edited = get_current_time()
-    last_edited_by = 1234
 
     example_01 = {
         "id": id,
         "name": name,
-        "title": title,
+        "description": description,
         "expected_completion": expected_completion,
         "last_edited": last_edited,
-        "last_edited_by": last_edited_by,
         "form_id": FormTemplateExamples.id_01,
         "workflow_template_id": "workflow-template-example-01",
         "condition_id": RuleGroupExample.id,
@@ -40,10 +38,9 @@ class WorkflowTemplateStepExample:
     with_form = {
         "id": id,
         "name": name,
-        "title": title,
+        "description": description,
         "expected_completion": expected_completion,
         "last_edited": last_edited,
-        "last_edited_by": last_edited_by,
         "form_id": FormTemplateExamples.id_01,
         "form": FormTemplateExamples.example_01,
         "workflow_template_id": "workflow-template-example-01",
@@ -56,11 +53,10 @@ class WorkflowTemplateStepExample:
 class WorkflowTemplateStepModel(CradleBaseModel, extra="forbid"):
     id: str
     name: str
-    title: str
+    description: str
     expected_completion: Optional[int] = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
-    last_edited_by: Optional[int] = None
-    form_id: str
+    form_id: Optional[str] = None
     condition_id: Optional[str] = None
     condition: Optional[RuleGroupModel] = None
     workflow_template_id: str
