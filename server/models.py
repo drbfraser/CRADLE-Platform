@@ -785,7 +785,8 @@ class WorkflowTemplateStepOrm(db.Model):
     )
 
     form_id = db.Column(
-        db.ForeignKey(FormTemplateOrm.id, ondelete="SET NULL"), nullable=True,
+        db.ForeignKey(FormTemplateOrm.id, ondelete="SET NULL"),
+        nullable=True,
     )
 
     workflow_template_id = db.Column(

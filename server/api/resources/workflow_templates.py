@@ -7,14 +7,12 @@ from typing import List, Optional
 from flask import abort, make_response, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
-from pydantic import ValidationError
 
 from api.decorator import roles_required
 from api.resources.workflow_template_steps import WorkflowTemplateStepListResponse
 from common.api_utils import (
     WorkflowTemplateIdPath,
     convert_query_parameter_to_bool,
-    get_user_id,
 )
 from common.commonUtil import get_current_time
 from common.workflow_utils import (
@@ -60,7 +58,7 @@ workflow_template_not_found_message = "Workflow template with ID: ({}) not found
 
 
 def find_and_archive_previous_workflow_template(
-    workflow_classification_id: str, last_edited_by: str
+    workflow_classification_id: str,
 ) -> None:
     previous_template = crud.read(
         WorkflowTemplateOrm,
@@ -72,7 +70,6 @@ def find_and_archive_previous_workflow_template(
         changes = {
             "archived": True,
             "last_edited": get_current_time(),
-            "last_edited_by": last_edited_by,
         }
         crud.update(
             m=WorkflowTemplateOrm,
@@ -146,13 +143,6 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
     Common logic for handling uploaded workflow template. Whether it was uploaded
     as a file, or in the request body.
     """
-    # Get ID of user
-    try:
-        user_id = get_user_id(workflow_template_dict, "last_edited_by")
-        workflow_template_dict["last_edited_by"] = user_id
-    except ValueError:
-        return abort(code=404, description="User not found.")
-
     assign_workflow_template_or_instance_ids(
         m=WorkflowTemplateOrm, workflow=workflow_template_dict
     )
@@ -177,7 +167,7 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
 
             # Check if a previously existing version of this template exists, if it does, archive it
             find_and_archive_previous_workflow_template(
-                workflow_classification_orm.id, workflow_template_dict["last_edited_by"]
+                workflow_classification_orm.id,
             )
 
     crud.create(model=workflow_template_orm, refresh=True)
@@ -326,15 +316,7 @@ def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplat
         )
 
     workflow_template_changes = body.model_dump()
-
-    # Get ID of the user who's updating this template
-    try:
-        user_id = get_user_id(workflow_template_changes, "last_edited_by")
-        workflow_template_changes["last_edited_by"] = user_id
-        workflow_template_changes["last_edited"] = get_current_time()
-
-    except ValueError:
-        return abort(code=404, description="User not found.")
+    workflow_template_changes["last_edited"] = get_current_time()
 
     crud.update(
         WorkflowTemplateOrm,
@@ -376,25 +358,6 @@ def update_workflow_template_patch(
             ),
         )
 
-    try:
-        """
-        It is assumed that the changes include a version attribute, since any updates to a template 
-        mark a new version of the template itself
-        """
-
-        # Get ID of user
-        user_id = get_user_id(body, "last_edited_by")
-        body["last_edited_by"] = user_id
-
-        # Validate the request body using Pydantic
-        # WorkflowTemplateModel.validate_subset_of_attributes(attributes=body)
-
-    except ValidationError as e:
-        return abort(code=422, description=str(e))
-
-    except ValueError:
-        return abort(code=404, description="User not found.")
-
     # Create an entirely new workflow template with the new attributes
     copy_workflow_template_dict = marshal.marshal(workflow_template)
     assign_workflow_template_or_instance_ids(
@@ -420,9 +383,7 @@ def update_workflow_template_patch(
     )
 
     # Archive the old workflow template
-    find_and_archive_previous_workflow_template(
-        workflow_template.classification_id, last_edited_by=body["last_edited_by"]
-    )
+    find_and_archive_previous_workflow_template(workflow_template.classification_id)
 
     crud.create(model=new_workflow_template, refresh=True)
 

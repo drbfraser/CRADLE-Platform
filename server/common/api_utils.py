@@ -224,7 +224,7 @@ def query_param_search(request: Request, name: str) -> str:
     return request.args.get(name, "", type=str)
 
 
-def get_user_id(d: dict, user_attribute: str) -> Optional[int]:
+def get_user_id(d: dict, user_attribute: Optional[str] = None) -> Optional[int]:
     """
     Returns the ID of the user associated with the given dictionary. Raises an error if the user does not exist.
 
