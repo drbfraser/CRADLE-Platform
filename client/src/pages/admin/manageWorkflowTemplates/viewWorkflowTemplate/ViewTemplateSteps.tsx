@@ -13,14 +13,14 @@ export const ViewTemplateSteps = ({ steps, firstStep }: IProps) => {
     return;
   }
 
-  // ordering steps via breadth-first search
+  // ordering steps via depth-first search
   const orderedSteps = [];
   const nextId = [firstStep];
   let ind = 1;
   while (nextId.length > 0) {
     // get next step
-    const step = steps.find((step) => step.id == nextId[0]);
-    nextId.splice(0, 1);
+    const id = nextId.pop();
+    const step = steps.find((step) => step.id == id);
     if (step) {
       // assign index to step
       step.index = ind;
@@ -29,9 +29,9 @@ export const ViewTemplateSteps = ({ steps, firstStep }: IProps) => {
       const index = steps.indexOf(step);
       steps.splice(index, 1);
       orderedSteps.push(step);
-      // add branching steps to queue
+      // add branching steps to stack
       if (step.branches) {
-        step.branches.forEach((branch) => {
+        step.branches.reverse().forEach((branch) => {
           nextId.push(branch.targetStepId);
         });
       }
