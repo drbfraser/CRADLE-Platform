@@ -118,7 +118,6 @@ def workflow_instance1(vht_user_id, patient_id, workflow_template1):
         "name": "workflow_instance1",
         "title": "Workflow Instance 1",
         "status": "Active",
-        "date_created": get_current_time(),
         "start_date": get_current_time(),
         "current_step_id": None,
         "last_edited": get_current_time() + 44345,
