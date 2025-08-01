@@ -408,7 +408,8 @@ def __marshal_workflow_template_step_branch(
     d = vars(wtsb).copy()
     __pre_process(d)
 
-    d["condition"] = __marshal_rule_group(wtsb.condition)
+    if wtsb.condition is not None:
+        d["condition"] = __marshal_rule_group(wtsb.condition)
 
     return d
 
