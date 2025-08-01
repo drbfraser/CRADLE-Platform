@@ -20,7 +20,7 @@ export const ViewTemplateSteps = ({ steps, firstStep }: IProps) => {
   let ind = 1;
   const stepQueue = [...steps]; // ← CLONE!
 
-while (nextId.length > 0) {
+  while (nextId.length > 0) {
     const step = stepQueue.find((step) => step.id === nextId[0]);
     nextId.splice(0, 1);
     if (step) {
