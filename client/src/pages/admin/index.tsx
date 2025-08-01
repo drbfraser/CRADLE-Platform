@@ -5,7 +5,7 @@ import { ManageUsers } from './manageUsers/ManageUsers';
 import { ManagePatients } from './managePatients/ManagePatients';
 import { Route, Routes } from 'react-router-dom';
 import { CustomFormTemplate } from './manageFormTemplates/editFormTemplate/CustomFormTemplate';
-import { CustomWorkflowTemplate } from './manageWorkflowTemplates/editWorkflowTemplate/CustomWorkflowTemplate';
+import { ViewWorkflowTemplate } from './manageWorkflowTemplates/viewWorkflowTemplate/ViewWorkflowTemplate';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
 import { ManageWorkflowTemplates } from './manageWorkflowTemplates/ManageWorkflowTemplates';
 import {
@@ -51,8 +51,8 @@ export const AdminPage = () => {
     <Routes>
       <Route path={`form-templates/new`} element={<CustomFormTemplate />} />
       <Route
-        path={`workflow-templates/new`}
-        element={<CustomWorkflowTemplate />}
+        path={`workflow-templates/view`}
+        element={<ViewWorkflowTemplate />}
       />
       <Route path={':tab?'} element={<AdminDashboard />} />
     </Routes>

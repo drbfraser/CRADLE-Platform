@@ -246,6 +246,18 @@ def api_put(url: str, auth_header: dict) -> Callable[[str, dict], requests.Respo
 
 
 @pytest.fixture
+def api_patch(url: str, auth_header: dict) -> Callable[[str, dict], requests.Response]:
+    """
+    Provides a convenience closure which sends an HTTP PATCH request to the server at a
+    given endpoint.
+
+    :return: A closure that accepts two arguments, an endpoint and some optional json
+             to send in the request.
+    """
+    return __make_http_request_closure(url, auth_header, requests.patch)
+
+
+@pytest.fixture
 def api_delete(url: str, auth_header: dict) -> Callable[[str, dict], requests.Response]:
     """
     Provides a convenience closure which sends an HTTP DELETE request to the server at a
