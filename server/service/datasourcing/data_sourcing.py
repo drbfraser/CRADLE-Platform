@@ -30,35 +30,35 @@ def resolve_datastring(
     Takes a datastring and resolves it into a concrete value
 
     :param patient_id: an id for identifying data relevant to a patient
-    :param data_string: a string representing a source of value of format `$table.column`
+    :param data_string: a string representing a source of value of format `$object.attribute`
     :param catalogue: a dict representing valid data strings that can be resolved
     :returns: a resolved value
     :rtype: any type of int, float, bool, string, char, None if not found
     """
-    col = parse_column_name(data_string)
+    col = parse_attribute_name(data_string)
     query = catalogue.get(data_string)
 
     if query is None:
         return None
 
-    return query(id=patient_id, column=col)
+    return query(id=patient_id, attribute=col)
 
 
-def parse_column_name(data_string: str) -> str:
+def parse_attribute_name(data_string: str) -> str:
     # is not a data string
     if data_string[0] != "$":
         return ""
 
-    # "$table.column" -> ["$table", "column"]
+    # "$object.attribute" -> ["$object", "attribute"]
     return data_string.split(".")[-1]
 
 
-def parse_table_name(data_string: str) -> str:
+def parse_object_name(data_string: str) -> str:
     # is not a data string
     if data_string[0] != "$":
         return ""
 
     removed_ds_tag = data_string[1:]
 
-    # "table.column" -> ["table", "column"]
+    # "object.attribute" -> ["object", "attribute"]
     return removed_ds_tag.split(".")[0]

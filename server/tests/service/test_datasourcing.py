@@ -8,7 +8,7 @@ def sample_data():
     return {
         "id": "testid123",
         "column": "date_of_birth",
-        "table": "patient",
+        "object": "patient",
         "data_string": "$patient.date_of_birth",
     }
 
@@ -17,15 +17,15 @@ def test_parsing_datastring(sample_data):
     # arrange
     ds = sample_data["data_string"]
     expected_col = sample_data["column"]
-    expected_table = sample_data["table"]
+    expected_object = sample_data["object"]
 
     # act
     col = data_sourcing.parse_column_name(ds)
-    tb = data_sourcing.parse_table_name(ds)
+    tb = data_sourcing.parse_object_name(ds)
 
     # assert
     assert col == expected_col
-    assert tb == expected_table
+    assert tb == expected_object
 
 
 def test_parsing_not_datastring():
@@ -34,7 +34,7 @@ def test_parsing_not_datastring():
 
     # act
     col = data_sourcing.parse_column_name(ds)
-    tb = data_sourcing.parse_table_name(ds)
+    tb = data_sourcing.parse_object_name(ds)
 
     # assert
     assert col == ""
