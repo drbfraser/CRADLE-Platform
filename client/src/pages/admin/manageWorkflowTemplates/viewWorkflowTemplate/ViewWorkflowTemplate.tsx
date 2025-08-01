@@ -91,15 +91,6 @@ export const ViewWorkflowTemplate = () => {
         }}
       />
     );
-
-    const StepsSkeleton = ({ rows = 4 }: { rows?: number }) => (
-      <Stack spacing={1.25}>
-        {Array.from({ length: rows }).map((_, i) => (
-          <Skeleton key={i} variant="rounded" height={56} />
-        ))}
-      </Stack>
-    );
-
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         <Typography variant="subtitle1" sx={{ minWidth: minLabelWidth }}>
@@ -118,17 +109,6 @@ export const ViewWorkflowTemplate = () => {
 
   const versionText = `V${viewWorkflow?.version ?? '1'}`;
   const lastEditedDate = formatDate(viewWorkflow?.lastEdited);
-  const lastEditedBy = viewWorkflow?.lastEditedBy || '';
-  const lastEditedValue = `${lastEditedDate}${
-    lastEditedBy ? ` by ${lastEditedBy}` : ''
-  }`;
-  const lastEditedTooltip =
-    lastEditedDate || lastEditedBy ? (
-      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-        {lastEditedDate && <span>Last edited: {lastEditedDate}</span>}
-        {lastEditedBy && <span>By: {lastEditedBy}</span>}
-      </Box>
-    ) : undefined;
 
   return (
     <>
@@ -197,14 +177,9 @@ export const ViewWorkflowTemplate = () => {
           </Grid>
 
           <Grid item xs={12} md={5}>
-            <InlineField
-              label="Last Edited:"
-              value={lastEditedValue}
-              tooltipTitle={lastEditedTooltip}
-            />
+            <InlineField label="Last Edited:" value={lastEditedDate} />
           </Grid>
         </Grid>
-
         {/* Row 3: Archived | First Create */}
         <Grid
           container
