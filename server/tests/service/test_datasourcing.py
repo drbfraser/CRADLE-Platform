@@ -7,7 +7,7 @@ from service.datasourcing import data_sourcing
 def sample_data():
     return {
         "id": "testid123",
-        "column": "date_of_birth",
+        "attribute": "date_of_birth",
         "object": "patient",
         "data_string": "$patient.date_of_birth",
     }
@@ -16,11 +16,11 @@ def sample_data():
 def test_parsing_datastring(sample_data):
     # arrange
     ds = sample_data["data_string"]
-    expected_col = sample_data["column"]
+    expected_col = sample_data["attribute"]
     expected_object = sample_data["object"]
 
     # act
-    col = data_sourcing.parse_column_name(ds)
+    col = data_sourcing.parse_attribute_name(ds)
     tb = data_sourcing.parse_object_name(ds)
 
     # assert
@@ -33,7 +33,7 @@ def test_parsing_not_datastring():
     ds = "testvalue"
 
     # act
-    col = data_sourcing.parse_column_name(ds)
+    col = data_sourcing.parse_attribute_name(ds)
     tb = data_sourcing.parse_object_name(ds)
 
     # assert
@@ -43,12 +43,12 @@ def test_parsing_not_datastring():
 
 def test_resolve_datastring(sample_data):
     # arrange
-    def mock_callable(id, column):
+    def mock_callable(id, attribute):
         return expected
 
     id = sample_data["id"]
     ds = sample_data["data_string"]
-    expected = id + sample_data["column"]
+    expected = id + sample_data["attribute"]
 
     datasource = {ds: mock_callable}
 
@@ -61,7 +61,7 @@ def test_resolve_datastring(sample_data):
 
 def test_resolve_datastring_not_found(sample_data):
     # arrange
-    def mock_callable(id, column):
+    def mock_callable(id, attribute):
         return "should_not_match"
 
     id = sample_data["id"]
@@ -76,7 +76,7 @@ def test_resolve_datastring_not_found(sample_data):
 
 
 @pytest.mark.parametrize(
-    "dsl, columns, expected_values",
+    "dsl, attributes, expected_values",
     [
         (
             ["$test.test", "$test.test1", "$test.not_exists"],
@@ -85,10 +85,10 @@ def test_resolve_datastring_not_found(sample_data):
         )
     ],
 )
-def test_resolve_datasources(dsl, columns, expected_values):
+def test_resolve_datasources(dsl, attributes, expected_values):
     # arrange
-    def mock_callable(id, column):
-        return id + column
+    def mock_callable(id, attribute):
+        return id + attribute
 
     id = "testid123"
     catalogue = {dsl[0]: mock_callable, dsl[1]: mock_callable}
