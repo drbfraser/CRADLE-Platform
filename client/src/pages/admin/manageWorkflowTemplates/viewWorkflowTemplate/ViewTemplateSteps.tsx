@@ -9,6 +9,7 @@ interface IProps {
 }
 
 export const ViewTemplateSteps = ({ steps, firstStep }: IProps) => {
+  // console.log("🚀 ViewTemplateSteps received:", { steps, firstStep });
   if (!steps) {
     return;
   }
@@ -17,19 +18,16 @@ export const ViewTemplateSteps = ({ steps, firstStep }: IProps) => {
   const orderedSteps = [];
   const nextId = [firstStep];
   let ind = 1;
+  const stepQueue = [...steps]; // ← CLONE!
+
   while (nextId.length > 0) {
-    // get next step
-    const step = steps.find((step) => step.id == nextId[0]);
+    const step = stepQueue.find((step) => step.id === nextId[0]);
     nextId.splice(0, 1);
     if (step) {
-      // assign index to step
-      step.index = ind;
-      ind++;
-      // remove step from steps
-      const index = steps.indexOf(step);
-      steps.splice(index, 1);
+      step.index = ind++;
+      const index = stepQueue.indexOf(step);
+      stepQueue.splice(index, 1); // safe mutation
       orderedSteps.push(step);
-      // add branching steps to queue
       if (step.branches) {
         step.branches.forEach((branch) => {
           nextId.push(branch.targetStepId);
@@ -40,11 +38,10 @@ export const ViewTemplateSteps = ({ steps, firstStep }: IProps) => {
 
   return (
     <>
-      <Box>
-        <h2>Steps</h2>
-      </Box>
       {orderedSteps.map((step) => (
-        <ViewTemplateStep key={step.id} step={step}></ViewTemplateStep>
+        <Box key={step.id} mb={1}>
+          <ViewTemplateStep step={step} />
+        </Box>
       ))}
     </>
   );
