@@ -264,7 +264,7 @@ def valid_workflow_template_step1(example_workflow_template, form_template):
     condition_id = get_uuid()
     form_template = copy.deepcopy(form_template)
     form_template["id"] = "ft-2"
-    form_template["form_classification_id"] = get_uuid()
+    form_template["form_classification_id"] = "fc-5"
     form_template["classification"]["id"] = form_template["form_classification_id"]
     return {
         "id": step_id,
@@ -338,12 +338,17 @@ def valid_workflow_template_step2(
     }
 
 
-# This will cause an error if uploaded alongside valid_workflow_template_step1
+# This will cause an error if uploaded alongside valid_workflow_template_step1 because both of them are attempting to
+# upload the same form template version at the same time
 @pytest.fixture
 def valid_workflow_template_step3(example_workflow_template, form_template):
     step_id = get_uuid()
     condition_id = get_uuid()
     branch_id = get_uuid()
+    form_template = copy.deepcopy(form_template)
+    form_template["id"] = "ft-2"
+    form_template["form_classification_id"] = "fc-5"
+    form_template["classification"]["id"] = form_template["form_classification_id"]
 
     return {
         "id": step_id,
