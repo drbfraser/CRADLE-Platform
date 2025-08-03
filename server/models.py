@@ -900,6 +900,7 @@ class WorkflowInstanceStepOrm(db.Model):
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
     title = db.Column(db.Text, nullable=False)
+    start_date = db.Column(db.BigInteger, nullable=False, default=get_current_time)
     triggered_by = db.Column(db.String(50), nullable=True)
     last_edited = db.Column(
         db.BigInteger,

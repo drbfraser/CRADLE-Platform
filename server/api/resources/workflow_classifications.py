@@ -7,10 +7,13 @@ from flask_openapi3.models.tag import Tag
 from common.api_utils import (
     WorkflowClassificationIdPath,
 )
+from common.workflow_utils import assign_workflow_template_or_instance_ids
+from data import crud, marshal
+from models import WorkflowClassificationOrm
 from validation import CradleBaseModel
 from validation.workflow_classifications import (
-    WorkflowClassificationExamples,
     WorkflowClassificationModel,
+    WorkflowClassificationUploadModel,
 )
 
 
@@ -28,13 +31,49 @@ api_workflow_classifications = APIBlueprint(
     abp_security=[{"jwt": []}],
 )
 
+workflow_classification_not_found_message = (
+    "Workflow classification with ID: ({}) not found."
+)
+
 
 # /api/workflow/classifications [POST]
 @api_workflow_classifications.post("", responses={201: WorkflowClassificationModel})
-def create_workflow_classification(body: WorkflowClassificationModel):
+def create_workflow_classification(body: WorkflowClassificationUploadModel):
     """Create Workflow Classification"""
-    # For now, return the example data
-    return WorkflowClassificationExamples.example_01, 201
+    workflow_classification_dict = body.model_dump()
+
+    # Assign ID
+    assign_workflow_template_or_instance_ids(
+        WorkflowClassificationOrm, workflow_classification_dict
+    )
+
+    # Check if classification with same name already exists
+    existing_classification_by_name = crud.read(
+        WorkflowClassificationOrm, name=workflow_classification_dict["name"]
+    )
+    if existing_classification_by_name is not None:
+        return abort(
+            code=409,
+            description=f"Workflow classification with name '{workflow_classification_dict['name']}' already exists.",
+        )
+
+    # Check if classification with same ID already exists
+    existing_classification_by_id = crud.read(
+        WorkflowClassificationOrm, id=workflow_classification_dict["id"]
+    )
+    if existing_classification_by_id is not None:
+        return abort(
+            code=409,
+            description=f"Workflow classification with ID '{workflow_classification_dict['id']}' already exists.",
+        )
+
+    workflow_classification_orm = marshal.unmarshal(
+        WorkflowClassificationOrm, workflow_classification_dict
+    )
+
+    crud.create(model=workflow_classification_orm, refresh=True)
+
+    return marshal.marshal(obj=workflow_classification_orm, shallow=True), 201
 
 
 # /api/workflow/classifications [GET]
@@ -43,54 +82,108 @@ def create_workflow_classification(body: WorkflowClassificationModel):
 )
 def get_workflow_classifications():
     """Get All Workflow Classifications"""
-    # For now, return list with example data wrapped in the response model
-    return {"items": [WorkflowClassificationExamples.example_01]}, 200
+    workflow_classifications = crud.read_workflow_classifications()
+
+    response_data = [
+        marshal.marshal(classification, shallow=True)
+        for classification in workflow_classifications
+    ]
+
+    return {"items": response_data}, 200
 
 
-# /api/workflow/classifications/<string:classification_id> [GET]
+# /api/workflow/classifications/<string:workflow_classification_id> [GET]
 @api_workflow_classifications.get(
-    "/<string:classification_id>", responses={200: WorkflowClassificationModel}
+    "/<string:workflow_classification_id>", responses={200: WorkflowClassificationModel}
 )
 def get_workflow_classification(path: WorkflowClassificationIdPath):
     """Get Workflow Classification"""
-    # For now, return the example data if ID matches
-    if path.classification_id == WorkflowClassificationExamples.id:
-        return WorkflowClassificationExamples.example_01, 200
-    return abort(
-        404,
-        description=f"No workflow classification with ID: {path.classification_id}.",
+    workflow_classification = crud.read(
+        WorkflowClassificationOrm, id=path.workflow_classification_id
     )
 
+    if workflow_classification is None:
+        return abort(
+            code=404,
+            description=workflow_classification_not_found_message.format(
+                path.workflow_classification_id
+            ),
+        )
 
-# /api/workflow/classifications/<string:classification_id> [PUT]
+    response_data = marshal.marshal(obj=workflow_classification, shallow=True)
+
+    return response_data, 200
+
+
+# /api/workflow/classifications/<string:workflow_classification_id> [PUT]
 @api_workflow_classifications.put(
-    "/<string:classification_id>", responses={200: WorkflowClassificationModel}
+    "/<string:workflow_classification_id>", responses={200: WorkflowClassificationModel}
 )
 def update_workflow_classification(
     path: WorkflowClassificationIdPath, body: WorkflowClassificationModel
 ):
     """Update Workflow Classification"""
-    # For now, return the updated body data if ID matches
-    if path.classification_id == WorkflowClassificationExamples.id:
-        updated_data = body.model_dump()
-        updated_data["id"] = path.classification_id
-        return updated_data, 200
-    return abort(
-        404,
-        description=f"No workflow classification with ID: {path.classification_id}.",
+    workflow_classification = crud.read(
+        WorkflowClassificationOrm, id=path.workflow_classification_id
     )
 
+    if workflow_classification is None:
+        return abort(
+            code=404,
+            description=workflow_classification_not_found_message.format(
+                path.workflow_classification_id
+            ),
+        )
 
-# /api/workflow/classifications/<string:classification_id> [DELETE]
+    workflow_classification_changes = body.model_dump()
+
+    # Check if another classification with the same name already exists (excluding current one)
+    existing_classification_by_name = crud.read(
+        WorkflowClassificationOrm, name=workflow_classification_changes["name"]
+    )
+    if (
+        existing_classification_by_name is not None
+        and existing_classification_by_name.id != path.workflow_classification_id
+    ):
+        return abort(
+            code=409,
+            description=f"Workflow classification with name '{workflow_classification_changes['name']}' already exists.",
+        )
+
+    crud.update(
+        WorkflowClassificationOrm,
+        changes=workflow_classification_changes,
+        id=path.workflow_classification_id,
+    )
+
+    response_data = crud.read(
+        WorkflowClassificationOrm, id=path.workflow_classification_id
+    )
+    response_data = marshal.marshal(response_data, shallow=True)
+
+    return response_data, 200
+
+
+# /api/workflow/classifications/<string:workflow_classification_id> [DELETE]
 @api_workflow_classifications.delete(
-    "/<string:classification_id>", responses={204: None}
+    "/<string:workflow_classification_id>", responses={204: None}
 )
 def delete_workflow_classification(path: WorkflowClassificationIdPath):
     """Delete Workflow Classification"""
-    # For now, return success if ID matches
-    if path.classification_id == WorkflowClassificationExamples.id:
-        return "", 204
-    return abort(
-        404,
-        description=f"No workflow classification with ID: {path.classification_id}.",
+    workflow_classification = crud.read(
+        WorkflowClassificationOrm, id=path.workflow_classification_id
     )
+
+    if workflow_classification is None:
+        return abort(
+            code=404,
+            description=workflow_classification_not_found_message.format(
+                path.workflow_classification_id
+            ),
+        )
+
+    crud.delete_workflow_classification(
+        WorkflowClassificationOrm, id=path.workflow_classification_id
+    )
+
+    return "", 204
