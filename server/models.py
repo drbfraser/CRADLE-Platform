@@ -14,10 +14,10 @@ from enums import (
     SexEnum,
     TrafficLightEnum,
 )
-from application import app
+# from application import app
 
-with app.app_context():
-    from config import db, ma
+# with app.app_context():
+from config import db, ma
 
 
 SupervisesTable = db.Table(

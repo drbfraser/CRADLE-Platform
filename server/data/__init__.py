@@ -1,6 +1,6 @@
-from application import app
+from flask import current_app
 
-with app.app_context():
+with current_app.app_context():
     import config
 
 db_session = config.db.session

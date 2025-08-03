@@ -31,7 +31,7 @@ from api.resources import api
 dictConfig(Config.LOGGING)
 LOGGER = logging.getLogger(__name__)
 
-app = application.app
+app = application.create_app()
 
 # Register Blueprints
 app.register_api(api)
