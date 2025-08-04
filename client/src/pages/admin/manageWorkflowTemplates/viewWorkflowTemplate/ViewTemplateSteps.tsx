@@ -15,7 +15,7 @@ export const ViewTemplateSteps = ({ steps, firstStep }: IProps) => {
   }
 
   // ordering steps via depth-first search
-  const orderedSteps = [];
+  const orderedSteps: TemplateStepWithFormAndIndex[] = [];
   const nextId = [firstStep];
   let ind = 1;
   const stepQueue = [...steps]; // ← CLONE!
@@ -35,6 +35,23 @@ export const ViewTemplateSteps = ({ steps, firstStep }: IProps) => {
       }
     }
   }
+
+  const getIndex = (id: string): number => {
+    const step = steps.find((step) => step.id === id);
+    return step ? step.index : -1;
+  };
+
+  // giving each step the index of its branches
+  orderedSteps.forEach((step) => {
+    if (step.branches) {
+      step.branchIndices = [];
+      step.branches.forEach((branch) => {
+        if (branch.targetStepId) {
+          step.branchIndices!.push(getIndex(branch.targetStepId));
+        }
+      });
+    }
+  });
 
   return (
     <>
