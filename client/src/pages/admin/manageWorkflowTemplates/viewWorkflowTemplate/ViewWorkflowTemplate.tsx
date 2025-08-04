@@ -24,6 +24,7 @@ import {
 } from 'src/shared/types/workflow/workflowTypes';
 import { listTemplateSteps } from 'src/shared/api/modules/workflowTemplates';
 import { ViewTemplateSteps } from './ViewTemplateSteps';
+import { formatDate } from 'src/shared/utils';
 
 export const ViewWorkflowTemplate = () => {
   const navigate = useNavigate();
@@ -50,17 +51,6 @@ export const ViewWorkflowTemplate = () => {
   }, [workflowTemplateStepsQuery.data]);
 
   const isLoading = workflowTemplateStepsQuery.isPending;
-
-  const formatDate = (d?: string) => {
-    if (!d) return '';
-    const dt = new Date(d);
-    if (isNaN(dt.getTime())) return d;
-    return dt.toLocaleDateString('en-CA', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
 
   const dash = (v?: string) => (v && String(v).trim() ? v : '—');
   const collectionName = useMemo(
