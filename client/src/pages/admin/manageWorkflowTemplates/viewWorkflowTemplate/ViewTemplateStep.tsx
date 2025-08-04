@@ -2,14 +2,34 @@ import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import Box from '@mui/material/Box/Box';
 import Typography from '@mui/material/Typography/Typography';
 import { ArrowDropDownIcon } from '@mui/x-date-pickers/icons';
+import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { getUserAsync } from 'src/shared/api';
 import { TemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowTypes';
+import { formatDate } from 'src/shared/utils';
 
 interface IProps {
   step: TemplateStepWithFormAndIndex;
 }
 
 export const ViewTemplateStep = ({ step }: IProps) => {
-  //console.log(step.form);
+  //console.log(step);
+
+  const editorQuery = useQuery({
+    queryKey: ['user', step.lastEditedBy],
+    queryFn: async () => {
+      const result = await getUserAsync(step.lastEditedBy);
+      return result;
+    },
+  });
+
+  const [editor, setEditor] = useState<string>('unknown');
+
+  useEffect(() => {
+    if (editorQuery.data) {
+      setEditor(editorQuery.data.name);
+    }
+  }, [editorQuery.data]);
 
   return (
     <>
@@ -20,10 +40,13 @@ export const ViewTemplateStep = ({ step }: IProps) => {
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
+          <Typography>
+            <Box component="b">Name:</Box> {step.name}
+          </Typography>
           {step.form ? (
             <>
               <Typography>
-                <Box component="b">Form ID:</Box> {step.formId}
+                <Box component="b">Form ID: </Box> {step.formId}
               </Typography>
               <Typography>
                 <Box component="b">Form Classification:</Box>{' '}
@@ -36,11 +59,30 @@ export const ViewTemplateStep = ({ step }: IProps) => {
           {step.expectedCompletion ? (
             <Typography>
               <Box component="b">Expected Completion Date:</Box>{' '}
-              {step.expectedCompletion}
+              {formatDate(step.expectedCompletion)}
             </Typography>
           ) : (
             <></>
           )}
+          {step.conditions ? (
+            <Typography>
+              <Box component="b">Conditions: </Box> {step.conditions.rules}
+            </Typography>
+          ) : (
+            <></>
+          )}
+          {step.branchIndices ? (
+            <Typography>
+              <Box component="b">Next Step(s): </Box>{' '}
+              {step.branchIndices.toString()}
+            </Typography>
+          ) : (
+            <></>
+          )}
+          <Typography>
+            <Box component="b">Last Edited </Box> {formatDate(step.lastEdited)}{' '}
+            <Box component="b"> by </Box> {editor}
+          </Typography>
         </AccordionDetails>
       </Accordion>
     </>
