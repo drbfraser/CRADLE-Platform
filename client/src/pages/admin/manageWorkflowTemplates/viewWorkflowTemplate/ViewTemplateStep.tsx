@@ -71,7 +71,7 @@ export const ViewTemplateStep = ({ step }: IProps) => {
           ) : (
             <></>
           )}
-          {step.branchIndices ? (
+          {step.branchIndices && step.branchIndices.length > 0 ? (
             <Typography>
               <Box component="b">Next Step(s): </Box>{' '}
               {step.branchIndices.toString()}

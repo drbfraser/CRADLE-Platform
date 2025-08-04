@@ -46,7 +46,9 @@ export const ViewTemplateSteps = ({ steps, firstStep }: IProps) => {
     if (step.branches) {
       step.branchIndices = [];
       step.branches.forEach((branch) => {
-        step.branchIndices!.push(getIndex(branch.targetStepId));
+        if (branch.targetStepId) {
+          step.branchIndices!.push(getIndex(branch.targetStepId));
+        }
       });
     }
   });
