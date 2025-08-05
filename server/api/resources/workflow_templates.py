@@ -175,7 +175,11 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
             )
             workflow_template_orm.classification = workflow_classification_orm
 
-            # Check if a previously existing version of this template exists, if it does, archive it
+            """ 
+            There should only be one unarchived version of the workflow template, so this 
+            checks if a previously unarchived version of the workflow template exists and
+            archives it
+            """
             find_and_archive_previous_workflow_template(
                 workflow_classification_orm.id, workflow_template_dict["last_edited_by"]
             )

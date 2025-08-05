@@ -1113,6 +1113,25 @@ def read_template_steps(
     return query.all()
 
 
+def read_workflows_in_collection(
+    workflow_collection_id: str,
+) -> List[WorkflowClassificationOrm]:
+    """
+    Queries the database for all workflows that belong in a specific collection
+
+    :param workflow_collection_id: ID of workflow collection
+
+    :return: A list of workflow classifications
+    """
+    query = db_session.query(WorkflowClassificationOrm)
+
+    query = query.filter(
+        WorkflowClassificationOrm.collection_id == workflow_collection_id
+    )
+
+    return query.all()
+
+
 # ~~~~~~~~~~~~~~~~~~~~~~~ DB Calls ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
 
