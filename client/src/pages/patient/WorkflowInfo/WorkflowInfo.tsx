@@ -3,6 +3,7 @@ import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import Link from '@mui/material/Link';
 import SearchIcon from '@mui/icons-material/Search';
+import { getPrettyDate } from 'src/shared/utils';
 import {
   Box,
   Typography,
@@ -18,8 +19,6 @@ import {
   List,
   ListItem,
   ListItemText,
-  ClickAwayListener,
-  IconButton,
   TextField,
   InputAdornment,
 } from '@mui/material';
@@ -31,16 +30,7 @@ import {
   GridToolbarFilterButton,
   useGridApiContext,
 } from '@mui/x-data-grid';
-
-/* -------- helpers -------- */
-function formatDate(ts?: number | null) {
-  if (!ts) return '-';
-  try {
-    return new Date(ts).toLocaleDateString();
-  } catch {
-    return '-';
-  }
-}
+import { useNavigate } from 'react-router-dom';
 
 /* -------- mock rows (instances) -------- */
 type InstanceRow = {
@@ -220,8 +210,6 @@ const rowsRaw: InstanceRow[] = [
     current: 'Week 20 Scan',
   }),
 ];
-
-/* -------- built-in toolbar (Filter + label, single-icon expanding search) -------- */
 function Toolbar() {
   const apiRef = useGridApiContext();
   const [open, setOpen] = React.useState(false);
@@ -293,12 +281,14 @@ function Toolbar() {
           onKeyDown={(e) => {
             if (e.key === 'Escape') setOpen(false);
           }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            },
           }}
           sx={{
             '& .MuiOutlinedInput-root': {
@@ -332,7 +322,8 @@ function Toolbar() {
 /* -------- component -------- */
 export const WorkflowInfo: React.FC = () => {
   const [detailOpen, setDetailOpen] = useState(false);
-  const [detailRow, setDetailRow] = useState<InstanceRow | null>(null);
+  const [detailRow] = useState<InstanceRow | null>(null);
+  const navigate = useNavigate();
 
   // Columns typed without the generic to avoid TS 'never' inference on renderCell params
   const columns: GridColDef[] = [
@@ -369,10 +360,11 @@ export const WorkflowInfo: React.FC = () => {
       type: 'date',
       width: 130,
       // Provide Date for proper date filtering/sorting
-      valueGetter: (value: any, row: InstanceRow) => new Date(row.lastEdited),
+      valueGetter: (_value: unknown, row: InstanceRow) =>
+        new Date(row.lastEdited),
       renderCell: (params: GridRenderCellParams) => {
         const d = params.value as Date | undefined;
-        return <>{formatDate(d?.getTime())}</>;
+        return <>{d ? getPrettyDate(d.getTime() / 1000) : '-'}</>;
       },
     },
     { field: 'stepsCount', headerName: 'Steps', type: 'number', width: 105 },
@@ -389,8 +381,11 @@ export const WorkflowInfo: React.FC = () => {
           <Button
             size="small"
             onClick={() => {
-              setDetailRow(row);
-              setDetailOpen(true);
+              navigate(`/workflow-instance/view/${row.id}`, {
+                state: {
+                  viewWorkflowInstance: row,
+                },
+              });
             }}>
             View Details
           </Button>
@@ -400,13 +395,13 @@ export const WorkflowInfo: React.FC = () => {
   ];
 
   return (
-    <Paper sx={{ p: 2, mt: 2 }}>
+    <Paper sx={{ p: 2, mt: 1 }}>
       {/* Page header */}
       <Box
-        borderBottom={2}
+        borderBottom={1.5}
         borderColor="divider"
-        pb={2}
-        mb={2}
+        pb={1.5}
+        mb={1.5}
         display="flex"
         justifyContent="space-between"
         alignItems="center">
@@ -493,7 +488,7 @@ export const WorkflowInfo: React.FC = () => {
                 />
               </Typography>
               <Typography>
-                <b>Last Edited:</b> {formatDate(detailRow.lastEdited)}
+                <b>Last Edited:</b> {getPrettyDate(detailRow.lastEdited / 1000)}
               </Typography>
               <Divider />
               <Typography variant="subtitle1">
