@@ -1,8 +1,9 @@
 from typing import Dict, Any
-from rules_engine import RulesEngine
+
+from flask import json
 from workflow_datasources import WorkflowDatasourcing
 import data.crud as dl
-
+from models import RuleGroupOrm, WorkflowInstanceStepOrm
 
 class EvaluteResult:
     value: bool
@@ -23,9 +24,9 @@ class WorkflowEvaluationService:
     - datalayer crud
     """
 
-    def __init__(self, ds, re):
-        self.datasource_service = ds
-        self.rule_engine_service = re
+    def __init__(self, datasource, rule_engine):
+        self.datasource = datasource
+        self.rule_engine = rule_engine
 
     def get_data(self, id: str) -> tuple[str, dict[str]]:
         """
@@ -40,17 +41,17 @@ class WorkflowEvaluationService:
         :returns: a tuple of rule and resolved datasource strings
         :rtype: tuple of string and dict of strings
         """
-        # TODO: Get workflow_instance_step object
-        # dl.read_workflow_instance_step(wf_instance_step_id)
-
-        # TODO: Get rule object
-        # dl.read_rule()
+        # can be a single query:
+        #   select rg.rule, rg.datasources
+        #   from workflow_template_instance_step as is
+        #   join on rule_group as rg
+        #   where is.id = id
+        instance_step = dl.read_instance_steps(WorkflowInstanceStepOrm, id=id)[0]
+        rule_group = dl.read_rule_group(rule_group_id=instance_step.condition_id)
         
-        # future todo: cache the object
-        rule = ""
-        datasources = [""]
+        rule = rule_group.rule
+        datasources = json.loads(rule_group.datasources)
 
-        # NOTE stubbed
         resolved_data = WorkflowDatasourcing.resolve_datasources(datasources)
 
         return (rule, resolved_data)
@@ -70,7 +71,7 @@ class WorkflowEvaluationService:
         :rtype: EvaluateResult object
         """
         # "instantiate"
-        re = RulesEngine(datasources, rule)
+        re = self.rule_engine.RulesEngine(datasources, rule)
 
         # evaluate
         return re.evaluate(input_data)

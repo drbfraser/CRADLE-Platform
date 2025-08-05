@@ -9,6 +9,8 @@ from validation.workflow_evaluate import (
 )
 
 from service.workflow.workflow_rule_evaluation import WorkflowEvaluationService
+from service.workflow.rules_engine import RulesEngineFacade
+from service.workflow.workflow_datasources import WorkflowDatasourcing
 
 # api blueprint
 api_workflow_evaluate = APIBlueprint(
@@ -30,22 +32,17 @@ def evaluate_workflow_instance(body: WorkflowEvaluateRequestModel):
     request = body.model_dump()
     
     try:
-        # Sandboxed data
+        # NOTE: Temporary sandboxed data
         if request["id"] == WorkflowEvaluateExamples.id:
             response = WorkflowEvaluateExamples.example_01
             return response, 200
 
-        # TODO: checking request body values 
-
-        # TODO look into how flask deals with DI, IOC and scoped sessions
-        #      this service would take two service components
-        service = WorkflowEvaluationService()
+        service = WorkflowEvaluationService(WorkflowDatasourcing, RulesEngineFacade)
+        
         (rule, datasources) = service.get_data(request["id"])
+        
         result = service.evaluate_rule_engine(rule, datasources)
-
-        # TODO http-specific error exceptions
     except Exception as e:
         return abort(400, description=e)
-
-    response = {"result": result}
-    return response, 200
+    
+    return {"result": result}, 200

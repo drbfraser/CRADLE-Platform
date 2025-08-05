@@ -3,7 +3,7 @@ from typing import Dict, Any
 from json_logic import jsonLogic
 
 
-class RulesEngine:
+class RulesEngineFacade:
     """
     An abstraction layer for the underlying Rules Engine Implementation
     """
@@ -17,7 +17,7 @@ class RulesEngine:
         :returns: an instance of RulesEngine
         :rtype: RulesEngine
         """
-        self.rules_engine = _RulesEngineImpl(args, rule)
+        self.rules_engine = __RulesEngineImpl(args, rule)
 
     def evaluate(self, input: Dict[str, Any]):
         """
@@ -30,7 +30,7 @@ class RulesEngine:
         return self.rules_engine.evaluate(input)
 
 
-class _RulesEngineImpl:
+class __RulesEngineImpl:
     """
     example 1 -- fixed data
     {
