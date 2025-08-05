@@ -698,10 +698,32 @@ class SmsSecretKeyOrm(db.Model):
         return SmsSecretKeySchema
 
 
+class WorkflowCollectionOrm(db.Model):
+    __tablename__ = "workflow_collection"
+    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
+    name = db.Column(db.String(200), index=True, nullable=False)
+
+    @staticmethod
+    def schema():
+        return WorkflowCollectionSchema
+
+
 class WorkflowClassificationOrm(db.Model):
     __tablename__ = "workflow_classification"
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
+
+    # FOREIGN KEYS
+    collection_id = db.Column(
+        db.ForeignKey(WorkflowCollectionOrm.id, ondelete="SET NULL"), nullable=True
+    )
+
+    # RELATIONSHIPS
+    collection = db.relationship(
+        WorkflowCollectionOrm,
+        backref=db.backref("workflow_classifications", lazy=True),
+        passive_deletes=True,
+    )
 
     @staticmethod
     def schema():
@@ -1154,6 +1176,14 @@ class RuleGroupSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = RuleGroupOrm
+        load_instance = True
+        include_relationships = True
+
+
+class WorkflowCollectionSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = WorkflowCollectionOrm
         load_instance = True
         include_relationships = True
 
