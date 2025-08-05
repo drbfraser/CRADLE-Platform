@@ -99,7 +99,7 @@ def assign_workflow_template_or_instance_ids(
     :param workflow: A dictionary containing the workflow data to be uploaded to the DB
     :param auto_assign_id: If true, the workflow components will always be assigned an ID
     """
-    if workflow["id"] is None or auto_assign_id:
+    if workflow.get("id") is None or auto_assign_id:
         workflow["id"] = get_uuid()
 
     if m is WorkflowClassificationOrm:
@@ -108,13 +108,13 @@ def assign_workflow_template_or_instance_ids(
     workflow_id = workflow["id"]
 
     # Assign ID to classification if not provided
-    if workflow["classification"] is not None:
+    if workflow.get("classification") is not None:
         if workflow["classification"]["id"] is None or auto_assign_id:
             workflow["classification"]["id"] = get_uuid()
 
         workflow["classification_id"] = workflow["classification"]["id"]
 
-    if workflow["initial_condition"] is not None:
+    if workflow.get("initial_condition") is not None:
         if workflow["initial_condition"]["id"] is None or auto_assign_id:
             workflow["initial_condition"]["id"] = get_uuid()
 
