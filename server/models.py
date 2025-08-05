@@ -712,8 +712,8 @@ class RuleGroupOrm(db.Model):
     __tablename__ = "rule_group"
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
     # NOTE: These attributes may need to be altered or removed depending on what rules engine we choose
-    rule = db.Column(db.Text, nullable=True)
-    datasources = db.Column(db.Text, nullable=True)
+    rule = db.Column(db.JSON, nullable=True)
+    data_sources = db.Column(db.JSON, nullable=True)
 
     @staticmethod
     def schema():

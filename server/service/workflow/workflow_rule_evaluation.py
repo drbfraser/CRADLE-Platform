@@ -46,11 +46,11 @@ class WorkflowEvaluationService:
         #   from workflow_template_instance_step as is
         #   join on rule_group as rg
         #   where is.id = id
-        instance_step = dl.read_instance_steps(WorkflowInstanceStepOrm, id=id)[0]
+        instance_step = dl.read_instance_steps(WorkflowInstanceStepOrm, id == id)[0]
         rule_group = dl.read_rule_group(rule_group_id=instance_step.condition_id)
         
         rule = rule_group.rule
-        datasources = json.loads(rule_group.datasources)
+        datasources = json.loads(rule_group.data_sources)
 
         resolved_data = WorkflowDatasourcing.resolve_datasources(datasources)
 
