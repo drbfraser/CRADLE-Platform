@@ -1082,12 +1082,11 @@ def read_rule_group(rule_group_id: str) -> RuleGroupOrm:
     :return: a Rule Group object
     """
     if rule_group_id:
-        query = db_session.query(RuleGroupOrm).filter(
-                RuleGroupOrm.id == rule_group_id
-            )
+        query = db_session.query(RuleGroupOrm).filter(RuleGroupOrm.id == rule_group_id)
         return query.one_or_none()
-    
+
     return None
+
 
 # ~~~~~~~~~~~~~~~~~~~~~~~ DB Calls ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 

@@ -1,9 +1,10 @@
 import json
 from json import JSONDecodeError
-from validation import CradleBaseModel
 from typing import Optional
 
 from pydantic import field_validator
+
+from validation import CradleBaseModel
 
 
 class WorkflowEvaluateExamples(CradleBaseModel):
@@ -26,15 +27,15 @@ class WorkflowEvaluateRequestModel(CradleBaseModel):
     input_data: dict
 
     @field_validator("id", mode="before")
-    def validate_id(cls, id: str) -> str:
+    def validate_id(self, id: str) -> str:
         if id == "":
             raise ValueError("missing id")
         return id
 
     @field_validator("data", mode="before")
-    def validate_data(cls, data: str) -> dict:
+    def validate_data(self, data: str) -> dict:
         try:
             obj = json.loads(data)
-        except JSONDecodeError as e:
+        except JSONDecodeError:
             raise JSONDecodeError("data is not a json string")
         return obj

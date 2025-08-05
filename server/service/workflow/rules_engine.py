@@ -1,5 +1,6 @@
 import json
-from typing import Dict, Any
+from typing import Any, Dict
+
 from json_logic import jsonLogic
 
 
@@ -17,7 +18,7 @@ class RulesEngineFacade:
         :returns: an instance of RulesEngine
         :rtype: RulesEngine
         """
-        self.rules_engine = __RulesEngineImpl(args, rule)
+        self.rules_engine = RulesEngineImpl(args, rule)
 
     def evaluate(self, input: Dict[str, Any]):
         """
@@ -30,7 +31,7 @@ class RulesEngineFacade:
         return self.rules_engine.evaluate(input)
 
 
-class __RulesEngineImpl:
+class RulesEngineImpl:
     """
     example 1 -- fixed data
     {
@@ -67,7 +68,7 @@ class __RulesEngineImpl:
             {"date": {"var": "testDate"}}, {"date": "2021-01-01"}
         ]
     }
-    
+
     example 4 -- date times
     - same idea as example 3, datetimes are in a `{"datetime": ... }` dict
     - data format: a datetime string
@@ -81,7 +82,7 @@ class __RulesEngineImpl:
             {"datetime": "2022-12-01T10:00:00.000+02:00"},
         ]
     }
-    e.g.: 
+    e.g.:
     {
         "-": [
             {"datetime": 2022-12-01T12:00:00.000+02:00},
@@ -109,8 +110,8 @@ class __RulesEngineImpl:
         try:
             rule = json.loads(rule)
             return rule
-        except:
-            raise json.JSONDecodeError("rule string could not be deserialized")
+        except Exception as e:
+            raise json.JSONDecodeError(e)
 
     def evaluate(self, input) -> bool:
         """
@@ -119,10 +120,9 @@ class __RulesEngineImpl:
         :returns: the result from jsonLogic
         :rtype: a boolean
         """
-        
         # inject datasources into the input data object
-        # let jsonlogic do resolution for us 
+        # let jsonlogic do resolution for us
         for key, value in self.args.items():
             input[key] = value
-            
+
         return jsonLogic(self.rule, input)

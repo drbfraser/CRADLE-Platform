@@ -1,5 +1,4 @@
-from data import crud
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 
 class WorkflowDatasourcing:
@@ -13,4 +12,6 @@ class WorkflowDatasourcing:
         :rtype: Dict[str, Any]
         :returns: a dict of resolved datasources, Any can be an int, bool, string
         """
-        return {"$patient.age": 18, "$reading.status": "yellow"}
+        # temporary: for ruff
+        datasources = {"$patient.age": 18, "$reading.status": "yellow"}
+        return datasources

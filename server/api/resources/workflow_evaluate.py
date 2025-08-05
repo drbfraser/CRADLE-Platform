@@ -2,15 +2,14 @@ from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
-from validation.workflow_evaluate import (
-    WorkflowEvaluateResponseModel,
-    WorkflowEvaluateExamples,
-    WorkflowEvaluateRequestModel,
-)
-
-from service.workflow.workflow_rule_evaluation import WorkflowEvaluationService
 from service.workflow.rules_engine import RulesEngineFacade
 from service.workflow.workflow_datasources import WorkflowDatasourcing
+from service.workflow.workflow_rule_evaluation import WorkflowEvaluationService
+from validation.workflow_evaluate import (
+    WorkflowEvaluateExamples,
+    WorkflowEvaluateRequestModel,
+    WorkflowEvaluateResponseModel,
+)
 
 # api blueprint
 api_workflow_evaluate = APIBlueprint(
@@ -30,7 +29,7 @@ def evaluate_workflow_instance(body: WorkflowEvaluateRequestModel):
     - a readonly operation that does not update the database
     """
     request = body.model_dump()
-    
+
     try:
         # NOTE: Temporary sandboxed data
         if request["id"] == WorkflowEvaluateExamples.id:
@@ -38,11 +37,11 @@ def evaluate_workflow_instance(body: WorkflowEvaluateRequestModel):
             return response, 200
 
         service = WorkflowEvaluationService(WorkflowDatasourcing, RulesEngineFacade)
-        
+
         (rule, datasources) = service.get_data(request["id"])
-        
+
         result = service.evaluate_rule_engine(rule, datasources)
     except Exception as e:
         return abort(400, description=e)
-    
+
     return {"result": result}, 200
