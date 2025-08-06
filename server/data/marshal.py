@@ -1,4 +1,4 @@
-import collections
+from collections.abc import Mapping
 import json
 from enum import Enum
 from typing import Any, Dict, List, Optional, Type
@@ -905,6 +905,6 @@ def model_to_dict(model: Any, schema) -> Optional[dict]:
     """
     if not model:
         return None
-    if isinstance(model, collections.Mapping):  # Local database stub
+    if isinstance(model, Mapping):  # Local database stub
         return model
     return schema().dump(model)
