@@ -1,5 +1,5 @@
-from collections.abc import Mapping
 import json
+from collections.abc import Mapping
 from enum import Enum
 from typing import Any, Dict, List, Optional, Type
 
