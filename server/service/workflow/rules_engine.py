@@ -41,9 +41,9 @@ class RulesEngineImpl:
 
     def __init__(self, rule: str, args: Dict[str, Any]):
         self.args: Dict[str, Any] = args
-        self.rule = self._parse_rules(rule)
+        self.rule = self.__parse_rules(rule)
 
-    def _parse_rules(self, rule: str) -> Dict:
+    def __parse_rules(self, rule: str) -> Dict:
         """
         Attempt to deserialize a rule string into a rule object ready for evaluation
 
