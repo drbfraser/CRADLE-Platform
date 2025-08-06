@@ -34,7 +34,7 @@ class RulesEngineImpl:
     """
     Rule Engine Implementation
 
-    refer to: 
+    refer to:
     - https://github.com/maykinmedia/json-logic-py
     - https://jsonlogic.com/operations.html
     """
@@ -61,14 +61,13 @@ class RulesEngineImpl:
     def evaluate(self, input: Dict) -> Any:
         """
         Evaluate a parsed rule and given input
-        
+
         :param input: an input data object
         :returns: the result from jsonLogic
         :rtype: Any
         """
         # inject datasources into the input data object
         # let jsonlogic do resolution for us
-        for key, value in self.args.items():
-            input[key] = value
+        input.update(self.args)
 
         return jsonLogic(self.rule, input)

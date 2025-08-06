@@ -19,6 +19,7 @@ class WorkflowEvaluateExamples:
 class WorkflowEvaluateResponseModel(CradleBaseModel):
     result: dict
 
+
 class WorkflowEvaluateRequestModel(CradleBaseModel):
     id: str
     input_data: dict

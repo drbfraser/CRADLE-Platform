@@ -1,11 +1,12 @@
 from typing import Any, Dict, Type
 
 from flask import json
-from service.workflow.workflow_datasources import WorkflowDatasourcing
-from service.workflow.rules_engine import RulesEngineFacade
 
 import data.crud as dl
 from models import WorkflowInstanceStepOrm
+from service.workflow.rules_engine import RulesEngineFacade
+from service.workflow.workflow_datasources import WorkflowDatasourcing
+
 
 class WorkflowEvaluationService:
     """
@@ -21,7 +22,11 @@ class WorkflowEvaluationService:
     - datalayer crud
     """
 
-    def __init__(self, datasourcing: Type[WorkflowDatasourcing], rule_engine: Type[RulesEngineFacade]):
+    def __init__(
+        self,
+        datasourcing: Type[WorkflowDatasourcing],
+        rule_engine: Type[RulesEngineFacade],
+    ):
         self.datasourcing = datasourcing
         self.rule_engine = rule_engine
 
@@ -37,7 +42,9 @@ class WorkflowEvaluationService:
         #   from workflow_template_instance_step as is
         #   join on rule_group as rg
         #   where is.id = id
-        instance_step = dl.read_instance_steps(WorkflowInstanceStepOrm, WorkflowInstanceStepOrm.id == id)[0]
+        instance_step = dl.read_instance_steps(
+            WorkflowInstanceStepOrm, WorkflowInstanceStepOrm.id == id
+        )[0]
         rule_group = dl.read_rule_group(rule_group_id=instance_step.condition_id)
 
         datasources = json.loads(rule_group.data_sources)
