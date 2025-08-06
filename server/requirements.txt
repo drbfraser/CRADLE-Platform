@@ -13,6 +13,7 @@ jsonschema==3.2.0
 marshmallow==3.16.0
 marshmallow-enum==1.5.1
 marshmallow-sqlalchemy==0.24.2
+maykin-json-logic-py==0.13.0
 numpy==1.26.4
 pycryptodome==3.18.0
 pydantic[email]==2.9.2

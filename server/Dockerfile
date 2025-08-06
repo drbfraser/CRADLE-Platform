@@ -1,4 +1,4 @@
-FROM python:3.9.23-bookworm
+FROM python:3.10-bookworm
 
 WORKDIR /usr/src/server
 

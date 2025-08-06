@@ -9,98 +9,43 @@ class RulesEngineFacade:
     An abstraction layer for the underlying Rules Engine Implementation
     """
 
-    def __init__(self, args: Dict[str, Any], rule: str):
+    def __init__(self, rule: str, args: Dict[str, Any]):
         """
         Initializes the rules engine
 
-        :param args: dict of resolved datasources used in the rules
         :param rule: a json object defining how we want to combine given list of rules
-        :returns: an instance of RulesEngine
-        :rtype: RulesEngine
+        :param args: dict of resolved datasources used in the rules
+        :returns: an instance of RulesEngineFacade
+        :rtype: RulesEngineFacade
         """
-        self.rules_engine = RulesEngineImpl(args, rule)
+        self.__rules_engine = RulesEngineImpl(rule, args)
 
-    def evaluate(self, input: Dict[str, Any]):
+    def evaluate(self, input: Dict[str, Any]) -> Any:
         """
         Evaluate the given rules
 
         :param input: an input data object
-        :returns: a Result object
-        :rtype: Result object
+        :returns: an evaluated result
         """
-        return self.rules_engine.evaluate(input)
+        return self.__rules_engine.evaluate(input)
 
 
 class RulesEngineImpl:
     """
-    example 1 -- fixed data
-    {
-        "and": [
-            { ">" : [ {"var": "age"}, 18 ] },
-            { "==" : [ {"var": "reading.status" }, "yellow"] }
-        ]
-    }
-    example 2 -- complex: fixed, lists, datasourcing w/ default values
-    - every datasource string would be in the form: {"var": ["$table.column", <default value>]}
-    - resolved datasource dne -> don't need to include it / give it a value of None
-    {
-        "and": [
-            { "<" : [{"var": "age"}, 18]},
-            {
-                "or": [
-                    {"==": [{"var": "b"}, {"var": ["$table.column"}, <default value>]]},
-                    {"!=": [{"var": "a"}, 15]}
-                ]
-            },
-            {"in": ["banana", {"var": "fruits_list"}]}
-        ]
-    }
+    Rule Engine Implementation
 
-    -- if we want date eval, FE will need to handle logic around getting this
-
-    example 3 -- dates
-    - predicates/input data we expect to be dates is a value in a `{"date": ... }` dict
-    - applies for variables and constant data
-    - data format: a date string: "yyyy-mm-dd"
-    - {"today": []} operator gets current date (replace w/ a `{"date": ...}` obj)
-    {
-        "<=": [
-            {"date": {"var": "testDate"}}, {"date": "2021-01-01"}
-        ]
-    }
-
-    example 4 -- date times
-    - same idea as example 3, datetimes are in a `{"datetime": ... }` dict
-    - data format: a datetime string
-    - some special work will need to be done if we want to get current datetime
-       - i.e. introduce our own operator (switch to another implementation)
-       - learn and experiment w/ the datetime operations to compose a way to compare
-         e.g. on a patients age, but computing it via rules
-    {
-        "<=": [
-            {"datetime": {"var": "testDatetime"}},
-            {"datetime": "2022-12-01T10:00:00.000+02:00"},
-        ]
-    }
-    e.g.:
-    {
-        "-": [
-            {"datetime": 2022-12-01T12:00:00.000+02:00},
-            {"datetime": "2022-11-01T10:00:00.000+01:00"},
-        ]
-    }
-    - generates a ISO Duration result format, some way to interpret a result, or find another
-      way to compute the given example
+    refer to: 
+    - https://github.com/maykinmedia/json-logic-py
+    - https://jsonlogic.com/operations.html
     """
 
-    def __init__(self, args: Dict[str, Any], rule: str):
+    def __init__(self, rule: str, args: Dict[str, Any]):
         self.args: Dict[str, Any] = args
         self.rule = self._parse_rules(rule)
 
     def _parse_rules(self, rule: str) -> Dict:
         """
-        attempt to deserialize a rule string
-        into a rule object ready for evaluation
+        Attempt to deserialize a rule string into a rule object ready for evaluation
 
         :param rule: a string representing a rule
         :returns: a dict representing a rule
@@ -110,15 +55,16 @@ class RulesEngineImpl:
         try:
             rule = json.loads(rule)
             return rule
-        except Exception as e:
+        except json.JSONDecodeError as e:
             raise json.JSONDecodeError(e)
 
-    def evaluate(self, input) -> bool:
+    def evaluate(self, input: Dict) -> Any:
         """
         Evaluate a parsed rule and given input
+        
         :param input: an input data object
         :returns: the result from jsonLogic
-        :rtype: a boolean
+        :rtype: Any
         """
         # inject datasources into the input data object
         # let jsonlogic do resolution for us

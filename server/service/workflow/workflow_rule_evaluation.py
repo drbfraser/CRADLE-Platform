@@ -1,16 +1,11 @@
-from typing import Any, Dict
+from typing import Any, Dict, Type
 
 from flask import json
-from workflow_datasources import WorkflowDatasourcing
+from service.workflow.workflow_datasources import WorkflowDatasourcing
+from service.workflow.rules_engine import RulesEngineFacade
 
 import data.crud as dl
 from models import WorkflowInstanceStepOrm
-
-class EvaluteResult:
-    def __init__(self, value: Any = None, details: str = None, error: str = None):
-        self.value = value
-        self.details = details
-        self.error = error
 
 class WorkflowEvaluationService:
     """
@@ -26,8 +21,8 @@ class WorkflowEvaluationService:
     - datalayer crud
     """
 
-    def __init__(self, datasource, rule_engine):
-        self.datasource = datasource
+    def __init__(self, datasourcing: Type[WorkflowDatasourcing], rule_engine: Type[RulesEngineFacade]):
+        self.datasourcing = datasourcing
         self.rule_engine = rule_engine
 
     def get_data(self, id: str) -> tuple[str, dict[str]]:
@@ -45,16 +40,14 @@ class WorkflowEvaluationService:
         instance_step = dl.read_instance_steps(WorkflowInstanceStepOrm, WorkflowInstanceStepOrm.id == id)[0]
         rule_group = dl.read_rule_group(rule_group_id=instance_step.condition_id)
 
-        rule = rule_group.rule
         datasources = json.loads(rule_group.data_sources)
+        resolved_data = self.datasourcing.resolve_datasources(datasources)
 
-        resolved_data = WorkflowDatasourcing.resolve_datasources(datasources)
-
-        return (rule, resolved_data)
+        return (rule_group.rule, resolved_data)
 
     def evaluate_rule_engine(
         self, input_data: str, rule: str, datasources: Dict[str, Any]
-    ) -> EvaluteResult:
+    ) -> Any:
         """
         Call the engine to evalaute a rule
 
@@ -62,11 +55,5 @@ class WorkflowEvaluationService:
         :param rule: a rule group json string
         :returns: a result object containing the evaluated result
         """
-        re = self.rule_engine.RulesEngine(datasources, rule)
-
-        try:
-            result = re.evaluate(input_data)
-            return EvaluteResult(value=result)
-        except Exception as e:
-            return EvaluteResult(error=f"Evalution occured with exception: {e}")
-            
+        re = self.rule_engine(datasources, rule)
+        return re.evaluate(input_data)

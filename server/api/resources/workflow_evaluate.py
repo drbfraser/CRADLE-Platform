@@ -5,6 +5,7 @@ from flask_openapi3.models.tag import Tag
 from service.workflow.rules_engine import RulesEngineFacade
 from service.workflow.workflow_datasources import WorkflowDatasourcing
 from service.workflow.workflow_rule_evaluation import WorkflowEvaluationService
+
 from validation.workflow_evaluate import (
     WorkflowEvaluateExamples,
     WorkflowEvaluateRequestModel,
@@ -26,7 +27,6 @@ api_workflow_evaluate = APIBlueprint(
 def evaluate_workflow_instance(body: WorkflowEvaluateRequestModel):
     """
     Evaluate a Workflow Step Instance
-    - a readonly operation that does not update the database
     """
     request = body.model_dump()
 
@@ -36,12 +36,14 @@ def evaluate_workflow_instance(body: WorkflowEvaluateRequestModel):
             response = WorkflowEvaluateExamples.example_01
             return response, 200
 
+        # constructor injection done at controller level (i.e. api blueprint)
+        # should move to config.py
         service = WorkflowEvaluationService(WorkflowDatasourcing, RulesEngineFacade)
 
         (rule, datasources) = service.get_data(request["id"])
 
         result = service.evaluate_rule_engine(rule, datasources)
     except Exception as e:
-        return abort(400, description=e)
+        return abort(400, description=f"Evaluation occured with exception: {e}")
 
-    return {"result": result}, 200
+    return result, 200
