@@ -36,6 +36,6 @@ class WorkflowEvaluateRequestModel(CradleBaseModel):
     def validate_data(self, data: str) -> dict:
         try:
             obj = json.loads(data)
-        except JSONDecodeError:
-            raise JSONDecodeError("data is not a json string")
+        except JSONDecodeError as e:
+            raise JSONDecodeError(e)
         return obj
