@@ -6,11 +6,11 @@ from workflow_datasources import WorkflowDatasourcing
 import data.crud as dl
 from models import WorkflowInstanceStepOrm
 
-
 class EvaluteResult:
-    value: bool
-    details: str
-
+    def __init__(self, value: Any = None, details: str = None, error: str = None):
+        self.value = value
+        self.details = details
+        self.error = error
 
 class WorkflowEvaluationService:
     """
@@ -33,15 +33,9 @@ class WorkflowEvaluationService:
     def get_data(self, id: str) -> tuple[str, dict[str]]:
         """
         Retrieve relevant information required for a rule evaluation
-        - workflow_instance_step object
-        - w/ the object, get the condition_id, fetch a rule object
-
-        get the datasource strings in the rule object, resolve the
-        datasource strings via the datasource service
 
         :param id: an id for a workflow instance step
         :returns: a tuple of rule and resolved datasource strings
-        :rtype: tuple of string and dict of strings
         """
         # can be a single query:
         #   select rg.rule, rg.datasources
@@ -63,17 +57,16 @@ class WorkflowEvaluationService:
     ) -> EvaluteResult:
         """
         Call the engine to evalaute a rule
-        - get a scoped instance of the rule engine
-        - give it a rule group and the list of datasource args
-        - handle any results if needed
 
         :param input_data: an json object representing input data from a form
         :param rule: a rule group json string
         :returns: a result object containing the evaluated result
-        :rtype: EvaluateResult object
         """
-        # "instantiate"
         re = self.rule_engine.RulesEngine(datasources, rule)
 
-        # evaluate
-        return re.evaluate(input_data)
+        try:
+            result = re.evaluate(input_data)
+            return EvaluteResult(value=result)
+        except Exception as e:
+            return EvaluteResult(error=f"Evalution occured with exception: {e}")
+            
