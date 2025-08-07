@@ -254,7 +254,7 @@ jobs:
         uses: bfraser/cicd/actions/checkout@v1
         with:
           path: ${{ env.CUSTOM_WORKSPACE }}
-      - name: Install Python3.9
+      - name: Install Python3.10
         run: |
           export HOME=${{ env.CUSTOM_WORKSPACE }}
           touch ${{ env.CUSTOM_WORKSPACE }}/.bashrc 
