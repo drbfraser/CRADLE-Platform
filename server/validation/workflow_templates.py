@@ -23,7 +23,6 @@ class WorkflowTemplateExample:
     archived = False
     date_created = get_current_time()
     last_edited = get_current_time()
-    last_edited_by = "AAAA"
     version = "0"
 
     example_01 = {
@@ -36,7 +35,6 @@ class WorkflowTemplateExample:
         "condition": RuleGroupExample.example_01,
         "date_created": date_created,
         "last_edited": last_edited,
-        "last_edited_by": last_edited_by,
         "version": version,
         "classification_id": WorkflowClassificationExamples.id,
         "classification": WorkflowClassificationExamples.example_01,
@@ -53,7 +51,6 @@ class WorkflowTemplateExample:
         "initial_condition": RuleGroupExample.example_01,
         "date_created": date_created,
         "last_edited": last_edited,
-        "last_edited_by": last_edited_by,
         "version": version,
         "classification_id": WorkflowClassificationExamples.id,
         "classification": WorkflowClassificationExamples.example_01,
@@ -70,7 +67,6 @@ class WorkflowTemplateExample:
         "initial_condition": RuleGroupExample.example_01,
         "date_created": date_created,
         "last_edited": last_edited,
-        "last_edited_by": last_edited_by,
         "version": version,
         "classification_id": WorkflowClassificationExamples.id,
         "classification": WorkflowClassificationExamples.example_01,
@@ -86,7 +82,6 @@ class WorkflowTemplateModel(CradleBaseModel, extra="forbid"):
     starting_step_id: Optional[str] = None
     date_created: int = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
-    last_edited_by: Optional[int] = None
     version: str
     initial_condition_id: Optional[str] = None
     initial_condition: Optional[RuleGroupModel] = None
@@ -113,7 +108,6 @@ class WorkflowTemplatePatchBody(CradleBaseModel):
     starting_step_id: Optional[str] = None
     date_created: int = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
-    last_edited_by: Optional[int] = None
     version: str  # A new version is required
     initial_condition_id: Optional[str] = None
     initial_condition: Optional[RuleGroupModel] = None

@@ -764,10 +764,6 @@ class WorkflowTemplateOrm(db.Model):
         nullable=True,
     )
 
-    last_edited_by = db.Column(
-        db.ForeignKey(UserOrm.id, ondelete="SET NULL"), nullable=True
-    )
-
     initial_condition_id = db.Column(
         db.ForeignKey(RuleGroupOrm.id, ondelete="SET NULL"), nullable=True
     )
@@ -794,7 +790,7 @@ class WorkflowTemplateStepOrm(db.Model):
     __tablename__ = "workflow_template_step"
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
-    title = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text, nullable=False)
     expected_completion = db.Column(
         db.BigInteger, nullable=True, default=None, onupdate=get_current_time
     )
@@ -810,12 +806,9 @@ class WorkflowTemplateStepOrm(db.Model):
         db.ForeignKey(RuleGroupOrm.id, ondelete="SET NULL"), nullable=True
     )
 
-    last_edited_by = db.Column(
-        db.ForeignKey(UserOrm.id, ondelete="SET NULL"), nullable=True
-    )
-
     form_id = db.Column(
-        db.ForeignKey(FormTemplateOrm.id, ondelete="CASCADE"), nullable=False
+        db.ForeignKey(FormTemplateOrm.id, ondelete="SET NULL"),
+        nullable=True,
     )
 
     workflow_template_id = db.Column(
@@ -836,7 +829,8 @@ class WorkflowTemplateStepOrm(db.Model):
 
     form = db.relationship(
         FormTemplateOrm,
-        backref=db.backref("workflow_template_steps", cascade="all, delete", lazy=True),
+        backref=db.backref("workflow_template_steps", lazy=True),
+        passive_deletes=True,
     )
 
     @staticmethod
