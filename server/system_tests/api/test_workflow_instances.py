@@ -203,7 +203,6 @@ def workflow_template1(vht_user_id):
         "archived": False,
         "date_created": get_current_time(),
         "last_edited": get_current_time() + 44345,
-        "last_edited_by": vht_user_id,
         "version": "0",
         "initial_condition_id": init_condition_id,
         "initial_condition": {
