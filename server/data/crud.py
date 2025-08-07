@@ -62,6 +62,9 @@ def create(model: M, refresh=False):
     if isinstance(model, ReadingOrm):
         invariant.resolve_reading_invariants(model)
 
+    if isinstance(model, WorkflowInstanceOrm):
+        print(f"Model to be inserted: {vars(model.steps[0])}")
+
     db_session.add(model)
     db_session.commit()
     if refresh:

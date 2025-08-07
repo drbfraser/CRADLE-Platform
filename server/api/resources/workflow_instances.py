@@ -82,6 +82,8 @@ def create_workflow_instance(body: WorkflowInstanceUploadModel):
     workflow_instance_orm = marshal.unmarshal(
         WorkflowInstanceOrm, workflow_instance_dict
     )
+    print(f"The object before upload: {vars(workflow_instance_orm.steps[0])}")
+    print(f"The form ID: {workflow_instance_orm.steps[0].form_id}")
 
     crud.create(model=workflow_instance_orm, refresh=True)
 
