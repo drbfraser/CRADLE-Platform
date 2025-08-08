@@ -35,13 +35,17 @@ def resolve_datastring(
     :returns: a resolved value
     :rtype: any type of int, float, bool, string, char, None if not found
     """
-    col = parse_attribute_name(data_string)
-    query = catalogue.get(data_string)
+    object = parse_object_name(data_string)
+    attribute = parse_attribute_name(data_string)
+    query = catalogue.get(object)
 
     if query is None:
         return None
 
-    return query(id=patient_id, attribute=col)
+    object: Dict = query(id=patient_id)
+    pass
+    
+    
 
 
 def parse_attribute_name(data_string: str) -> str:

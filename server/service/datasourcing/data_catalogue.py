@@ -12,15 +12,14 @@ def __query_form_data():
     pass
 
 
-def __query_data(model: type[M], query, id: str, attributes: List[str]) -> Callable:
+def __query_object(model: type[M], query, id: str) -> Callable[[str], Dict]:
     """
     General function for querying system data
 
     :param model: the ORM data model being queried for
     :param predicate: the query to match on
     :param id: id for data querying, is partially applied
-    :param attribute: name of the attribute to query, is partially applied
-
+    
     :returns: a callable function that returns the value queried for, None if not found
     """
     pred = query(id)
@@ -32,12 +31,12 @@ def __query_data(model: type[M], query, id: str, attributes: List[str]) -> Calla
     return marshal.marshal(data)
 
 
-def get_catalogue() -> Dict[str, Callable[[str, str], Any]]:
+def get_catalogue() -> Dict[str, Callable[[str], Dict]]:
     """
     the data catalogue of supported datasource objects
 
-    the catalogue maps datasource strings to a Callable that takes a string of id and attributes
-
+    the catalogue maps datasource strings to a Callable that takes a string of id
+    
     :returns: a dict of string keys corresponding to a query
     """
     return __object_catalogue
@@ -73,22 +72,22 @@ special strings
 # see: https://docs.google.com/document/d/1e_O503r6fJRSulMRpjfFUkVSp_jJRdmlQenqlD28EJw/edit?tab=t.pcgl1q1na507
 __object_catalogue = {
     "$assessment": partial(
-        __query_data, m.AssessmentOrm, lambda _id: m.AssessmentOrm.id == _id
+        __query_object, m.AssessmentOrm, lambda _id: m.AssessmentOrm.id == _id
     ),
     "$medical_record": partial(
-        __query_data, m.MedicalRecordOrm, lambda _id: m.MedicalRecordOrm.id == _id
+        __query_object, m.MedicalRecordOrm, lambda _id: m.MedicalRecordOrm.id == _id
     ),
     "$patient": partial(
-        __query_data, m.PatientOrm, lambda _id: m.PatientOrm.id == _id
+        __query_object, m.PatientOrm, lambda _id: m.PatientOrm.id == _id
     ),
     "$pregnancy": partial(
-        __query_data, m.PregnancyOrm, lambda _id: m.PregnancyOrm.id == _id
+        __query_object, m.PregnancyOrm, lambda _id: m.PregnancyOrm.id == _id
     ),
     "$reading": partial(
-        __query_data, m.ReadingOrm, lambda _id: m.ReadingOrm.patient_id == _id
+        __query_object, m.ReadingOrm, lambda _id: m.ReadingOrm.patient_id == _id
     ),
     "$urine_test": partial(
-        __query_data, m.UrineTestOrm, lambda _id: m.UrineTestOrm.id == _id
+        __query_object, m.UrineTestOrm, lambda _id: m.UrineTestOrm.id == _id
     ),
 }
 
