@@ -45,20 +45,17 @@ def resolve_datastring(
 
 
 def parse_attribute_name(data_string: str) -> str:
-    # is not a data string
-    if data_string[0] != "$":
+    if not data_string.startswith("$"):
         return ""
 
     # "$object.attribute" -> ["$object", "attribute"]
-    return data_string.split(".")[-1]
+    #  future: modify to fetch trailing attributes if required
+    return data_string.split(".")[1]
 
 
 def parse_object_name(data_string: str) -> str:
-    # is not a data string
-    if data_string[0] != "$":
+    if not data_string.startswith("$"):
         return ""
 
-    removed_ds_tag = data_string[1:]
-
     # "object.attribute" -> ["object", "attribute"]
-    return removed_ds_tag.split(".")[0]
+    return data_string[1:].split(".")[0]
