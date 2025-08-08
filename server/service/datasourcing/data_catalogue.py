@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Any, Callable, Dict, TypeVar
+from typing import Any, Callable, Dict, List, TypeVar
 
 import models as m
 from data import crud, marshal
@@ -12,7 +12,7 @@ def __query_form_data():
     pass
 
 
-def __query_data(model: type[M], query, id: str, attribute: str) -> Callable:
+def __query_data(model: type[M], query, id: str, attributes: List[str]) -> Callable:
     """
     General function for querying system data
 
@@ -29,18 +29,18 @@ def __query_data(model: type[M], query, id: str, attribute: str) -> Callable:
     if data is None:
         return None
 
-    return marshal.marshal(data).get(attribute)
+    return marshal.marshal(data)
 
 
 def get_catalogue() -> Dict[str, Callable[[str, str], Any]]:
     """
-    the data catalogue of supported datasource strings
+    the data catalogue of supported datasource objects
 
-    the catalogue maps datasource strings to a Callable that takes a string of id and attribute
+    the catalogue maps datasource strings to a Callable that takes a string of id and attributes
 
     :returns: a dict of string keys corresponding to a query
     """
-    return __data_catalogue
+    return __object_catalogue
 
 
 # NOTE:
@@ -49,23 +49,46 @@ def get_catalogue() -> Dict[str, Callable[[str, str], Any]]:
 #   e.g. "$patient.age", `age` is not a attribute that exists, but we can define behavior for it:
 #         current date - patient.date_of_birth** -> to_int
 #         **given nuance that a patient may have a estimated or exact date of birth
-__data_catalogue = {
-    "$patient.name": partial(
+
+"""
+given string:
+"$object.attribute"
+
+0. group strings by object
+1. parse object and attributes
+2. lookup for the object fxn in catalogue
+3. return partial function, takes in attributes to lookup 
+4. fetch the object, return that object
+
+5. do lookups based on attributes
+6. object made available as well for special strings
+
+special strings
+- each object func has their own dict of special "nonlookup" strings
+- 
+
+"""
+
+# objects defined from spike on relevant system data used in a workflow
+# see: https://docs.google.com/document/d/1e_O503r6fJRSulMRpjfFUkVSp_jJRdmlQenqlD28EJw/edit?tab=t.pcgl1q1na507
+__object_catalogue = {
+    "$assessment": partial(
+        __query_data, m.AssessmentOrm, lambda _id: m.AssessmentOrm.id == _id
+    ),
+    "$medical_record": partial(
+        __query_data, m.MedicalRecordOrm, lambda _id: m.MedicalRecordOrm.id == _id
+    ),
+    "$patient": partial(
         __query_data, m.PatientOrm, lambda _id: m.PatientOrm.id == _id
     ),
-    "$patient.sex": partial(
-        __query_data, m.PatientOrm, lambda _id: m.PatientOrm.id == _id
+    "$pregnancy": partial(
+        __query_data, m.PregnancyOrm, lambda _id: m.PregnancyOrm.id == _id
     ),
-    "$patient.date_of_birth": partial(
-        __query_data, m.PatientOrm, lambda _id: m.PatientOrm.id == _id
-    ),
-    "$patient.is_pregnant": partial(
-        __query_data, m.PatientOrm, lambda _id: m.PatientOrm.id == _id
-    ),
-    "$reading.systolic_blood_pressure": partial(
+    "$reading": partial(
         __query_data, m.ReadingOrm, lambda _id: m.ReadingOrm.patient_id == _id
     ),
-    "$reading.traffic_light_status": partial(
-        __query_data, m.ReadingOrm, lambda _id: m.ReadingOrm.patient_id == _id
+    "$urine_test": partial(
+        __query_data, m.UrineTestOrm, lambda _id: m.UrineTestOrm.id == _id
     ),
 }
+
