@@ -56,10 +56,10 @@ class WorkflowEvaluationService:
         self, input_data: str, rule: str, datasources: Dict[str, Any]
     ) -> Any:
         """
-        Call the engine to evalaute a rule
+        Call the engine to evaluate a rule
 
         :param input_data: an json object representing input data from a form
-        :param rule: a rule group json string
+        :param rule: a rule json string
         :returns: a result object containing the evaluated result
         """
         re = self.rule_engine(datasources, rule)
