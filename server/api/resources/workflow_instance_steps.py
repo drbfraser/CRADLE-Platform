@@ -229,8 +229,8 @@ def update_workflow_instance_step(
     return updated_instance_step, 200
 
 
-# /api/workflow/instance/steps/<string:workflow_instance_step_id>/complete [PUT]
-@api_workflow_instance_steps.put(
+# /api/workflow/instance/steps/<string:workflow_instance_step_id>/complete [PATCH]
+@api_workflow_instance_steps.patch(
     "/<string:workflow_instance_step_id>/complete",
     responses={200: WorkflowInstanceStepModel},
 )

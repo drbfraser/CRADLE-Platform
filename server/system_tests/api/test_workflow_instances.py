@@ -16,15 +16,6 @@ def test_create_workflow_instance(
             endpoint="/api/workflow/templates/body", json=workflow_template1
         )
         database.session.commit()
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-
-        if response.status_code != 201:
-            print(f"Template creation failed with status: {response.status_code}")
-            print(f"Response body: {response_body}")
-            if "errors" in response_body:
-                print(f"Validation errors: {response_body['errors']}")
-
         assert response.status_code == 201
 
         # Then create the workflow instance with the template
@@ -145,6 +136,61 @@ def test_getting_workflow_instance(
         crud.delete_workflow(
             m=WorkflowInstanceOrm,
             id=workflow_instance2["id"],
+        )
+        crud.delete_workflow(
+            m=WorkflowTemplateOrm,
+            delete_classification=True,
+            id=workflow_template1["id"],
+        )
+
+
+def test_patch_workflow_instance(
+    database, workflow_instance1, workflow_template1, api_post, api_patch, api_get
+):
+    try:
+        # First create the workflow template
+        response = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_template1
+        )
+        database.session.commit()
+        assert response.status_code == 201
+
+        # Create the workflow instance
+        response = api_post(endpoint="/api/workflow/instances", json=workflow_instance1)
+        database.session.commit()
+        assert response.status_code == 201
+
+        # Update the name and status
+        patch_data = {"name": "updated_workflow_name", "status": "Completed"}
+
+        response = api_patch(
+            endpoint=f"/api/workflow/instances/{workflow_instance1['id']}",
+            json=patch_data,
+        )
+        database.session.commit()
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+
+        assert response.status_code == 200
+        assert response_body["name"] == "updated_workflow_name"
+        assert response_body["status"] == "Completed"
+        assert response_body["title"] == workflow_instance1["title"]
+        assert response_body["patient_id"] == workflow_instance1["patient_id"]
+
+        # Verify the changes persisted by getting the instance
+        response = api_get(
+            endpoint=f"/api/workflow/instances/{workflow_instance1['id']}"
+        )
+        response_body = decamelize(response.json())
+
+        assert response.status_code == 200
+        assert response_body["name"] == "updated_workflow_name"
+        assert response_body["status"] == "Completed"
+
+    finally:
+        crud.delete_workflow(
+            m=WorkflowInstanceOrm,
+            id=workflow_instance1["id"],
         )
         crud.delete_workflow(
             m=WorkflowTemplateOrm,

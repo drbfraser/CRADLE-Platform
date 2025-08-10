@@ -13,6 +13,7 @@ from models import WorkflowClassificationOrm
 from validation import CradleBaseModel
 from validation.workflow_classifications import (
     WorkflowClassificationModel,
+    WorkflowClassificationPatchModel,
     WorkflowClassificationUploadModel,
 )
 
@@ -156,6 +157,52 @@ def update_workflow_classification(
         id=path.workflow_classification_id,
     )
 
+    response_data = crud.read(
+        WorkflowClassificationOrm, id=path.workflow_classification_id
+    )
+    response_data = marshal.marshal(response_data, shallow=True)
+
+    return response_data, 200
+
+
+# /api/workflow/classifications/<string:workflow_classification_id> [PATCH]
+@api_workflow_classifications.patch(
+    "/<string:workflow_classification_id>", responses={200: WorkflowClassificationModel}
+)
+def patch_workflow_classification(
+    path: WorkflowClassificationIdPath, body: WorkflowClassificationPatchModel
+):
+    """Partially (PATCH) Update Workflow Classification"""
+    workflow_classification = crud.read(
+        WorkflowClassificationOrm, id=path.workflow_classification_id
+    )
+
+    if workflow_classification is None:
+        return abort(
+            code=404,
+            description=workflow_classification_not_found_message.format(
+                path.workflow_classification_id
+            ),
+        )
+
+    # Get only the fields that were provided (exclude None values)
+    workflow_classification_changes = body.model_dump(exclude_none=True)
+
+    # If no changes provided, return the current resource
+    if not workflow_classification_changes:
+        response_data = marshal.marshal(obj=workflow_classification, shallow=True)
+        return response_data, 200
+
+    # Rules here to check for duplicate names/ids?
+
+    # Apply the partial update
+    crud.update(
+        WorkflowClassificationOrm,
+        changes=workflow_classification_changes,
+        id=path.workflow_classification_id,
+    )
+
+    # Return the updated classification
     response_data = crud.read(
         WorkflowClassificationOrm, id=path.workflow_classification_id
     )

@@ -20,6 +20,7 @@ from models import (
 from validation import CradleBaseModel
 from validation.workflow_instances import (
     WorkflowInstanceModel,
+    WorkflowInstancePatchModel,
     WorkflowInstanceUploadModel,
 )
 
@@ -194,6 +195,70 @@ def update_workflow_instance(path: WorkflowInstanceIdPath, body: WorkflowInstanc
         id=path.workflow_instance_id,
     )
 
+    response_data = crud.read(WorkflowInstanceOrm, id=path.workflow_instance_id)
+    response_data = marshal.marshal(response_data, shallow=True)
+
+    return response_data, 200
+
+
+# /api/workflow/instances/<string:workflow_instance_id> [PATCH]
+@api_workflow_instances.patch(
+    "/<string:workflow_instance_id>", responses={200: WorkflowInstanceModel}
+)
+def patch_workflow_instance(
+    path: WorkflowInstanceIdPath, body: WorkflowInstancePatchModel
+):
+    """Partially (PATCH) Update Workflow Instance"""
+    workflow_instance = crud.read(WorkflowInstanceOrm, id=path.workflow_instance_id)
+
+    if workflow_instance is None:
+        return abort(
+            code=404,
+            description=workflow_instance_not_found_message.format(
+                path.workflow_instance_id
+            ),
+        )
+
+    # Get only the fields that were provided (exclude None values)
+    workflow_instance_changes = body.model_dump(exclude_none=True)
+
+    # If no changes were provided, return the current instance
+    if not workflow_instance_changes:
+        response_data = marshal.marshal(workflow_instance, shallow=True)
+        return response_data, 200
+
+    # Auto-update last_edited if not explicitly provided
+    if "last_edited" not in workflow_instance_changes:
+        workflow_instance_changes["last_edited"] = get_current_time()
+
+    # Validate that the workflow template exists (if being updated)
+    if workflow_instance_changes.get("workflow_template_id") is not None:
+        workflow_template = crud.read(
+            WorkflowTemplateOrm, id=workflow_instance_changes["workflow_template_id"]
+        )
+        if workflow_template is None:
+            return abort(
+                code=404,
+                description=f"Workflow template with ID: ({workflow_instance_changes['workflow_template_id']}) not found.",
+            )
+
+    # Validate that the patient exists (if being updated)
+    if workflow_instance_changes.get("patient_id") is not None:
+        patient = crud.read(PatientOrm, id=workflow_instance_changes["patient_id"])
+        if patient is None:
+            return abort(
+                code=404,
+                description=f"Patient with ID: ({workflow_instance_changes['patient_id']}) not found.",
+            )
+
+    # Apply the partial update
+    crud.update(
+        WorkflowInstanceOrm,
+        changes=workflow_instance_changes,
+        id=path.workflow_instance_id,
+    )
+
+    # Return the updated instance
     response_data = crud.read(WorkflowInstanceOrm, id=path.workflow_instance_id)
     response_data = marshal.marshal(response_data, shallow=True)
 
