@@ -698,15 +698,15 @@ class SmsSecretKeyOrm(db.Model):
         return SmsSecretKeySchema
 
 
-# class WorkflowCollectionOrm(db.Model):
-#     __tablename__ = "workflow_collection"
-#     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
-#     name = db.Column(db.String(200), index=True, nullable=False)
-#     date_created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
-#
-#     @staticmethod
-#     def schema():
-#         return WorkflowCollectionSchema
+class WorkflowCollectionOrm(db.Model):
+    __tablename__ = "workflow_collection"
+    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
+    name = db.Column(db.String(200), index=True, nullable=False)
+    date_created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
+
+    @staticmethod
+    def schema():
+        return WorkflowCollectionSchema
 
 
 class WorkflowClassificationOrm(db.Model):
@@ -714,17 +714,17 @@ class WorkflowClassificationOrm(db.Model):
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
 
-    # # FOREIGN KEYS
-    # collection_id = db.Column(
-    #     db.ForeignKey(WorkflowCollectionOrm.id, ondelete="SET NULL"), nullable=True
-    # )
-    #
-    # # RELATIONSHIPS
-    # collection = db.relationship(
-    #     WorkflowCollectionOrm,
-    #     backref=db.backref("workflow_classifications", lazy=True),
-    #     passive_deletes=True,
-    # )
+    # FOREIGN KEYS
+    collection_id = db.Column(
+        db.ForeignKey(WorkflowCollectionOrm.id, ondelete="SET NULL"), nullable=True
+    )
+
+    # RELATIONSHIPS
+    collection = db.relationship(
+        WorkflowCollectionOrm,
+        backref=db.backref("workflow_classifications", lazy=True),
+        passive_deletes=True,
+    )
 
     @staticmethod
     def schema():
@@ -1175,12 +1175,12 @@ class RuleGroupSchema(ma.SQLAlchemyAutoSchema):
         include_relationships = True
 
 
-# class WorkflowCollectionSchema(ma.SQLAlchemyAutoSchema):
-#     class Meta:
-#         include_fk = True
-#         model = WorkflowCollectionOrm
-#         load_instance = True
-#         include_relationships = True
+class WorkflowCollectionSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = WorkflowCollectionOrm
+        load_instance = True
+        include_relationships = True
 
 
 class WorkflowClassificationSchema(ma.SQLAlchemyAutoSchema):
