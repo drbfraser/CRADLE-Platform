@@ -161,8 +161,8 @@ def marshal_patient_pregnancy_summary(records: List[PregnancyOrm]) -> dict:
 
 
 def marshal_patient_medical_history(
-        medical: Optional[MedicalRecordOrm] = None,
-        drug: Optional[MedicalRecordOrm] = None,
+    medical: Optional[MedicalRecordOrm] = None,
+    drug: Optional[MedicalRecordOrm] = None,
 ) -> dict:
     records = dict()
 
@@ -260,9 +260,9 @@ def __marshal_medical_record(r: MedicalRecordOrm) -> dict:
 
 
 def __marshal_form_template(
-        f: FormTemplateOrm,
-        shallow: bool = False,
-        if_include_versions: bool = False,
+    f: FormTemplateOrm,
+    shallow: bool = False,
+    if_include_versions: bool = False,
 ) -> dict:
     f = filter_template_questions_orm(f)
 
@@ -374,8 +374,8 @@ def __marshal_lang_version(v: QuestionLangVersionOrm) -> dict:
 
 
 def __marshal_form_classification(
-        fc: FormClassificationOrm,
-        if_include_templates: bool = False,
+    fc: FormClassificationOrm,
+    if_include_templates: bool = False,
 ) -> dict:
     d = vars(fc).copy()
     __pre_process(d)
@@ -406,22 +406,25 @@ def __marshal_rule_group(rg: RuleGroupOrm) -> dict:
     return d
 
 
-def __marshal_workflow_collection(wf_collection: WorkflowCollectionOrm, shallow: bool = False) -> dict:
+def __marshal_workflow_collection(
+    wf_collection: WorkflowCollectionOrm, shallow: bool = False
+) -> dict:
     d = vars(wf_collection).copy()
     __pre_process(d)
 
     if not shallow:
         d["classifications"] = [
-            __marshal_workflow_classification(workflow_classification, if_include_templates=False) for
-            workflow_classification in wf_collection.workflow_classifications
-
+            __marshal_workflow_classification(
+                workflow_classification, if_include_templates=False
+            )
+            for workflow_classification in wf_collection.workflow_classifications
         ]
 
     return d
 
 
 def __marshal_workflow_template_step_branch(
-        wtsb: WorkflowTemplateStepBranchOrm,
+    wtsb: WorkflowTemplateStepBranchOrm,
 ) -> dict:
     d = vars(wtsb).copy()
     __pre_process(d)
@@ -433,7 +436,7 @@ def __marshal_workflow_template_step_branch(
 
 
 def __marshal_workflow_template_step(
-        wts: WorkflowTemplateStepOrm, shallow: bool = False
+    wts: WorkflowTemplateStepOrm, shallow: bool = False
 ) -> dict:
     d = vars(wts).copy()
     __pre_process(d)
@@ -470,7 +473,7 @@ def __marshal_workflow_template(wt: WorkflowTemplateOrm, shallow: bool = False) 
 
 
 def __marshal_workflow_classification(
-        wc: WorkflowClassificationOrm, if_include_templates: bool, shallow: bool = False
+    wc: WorkflowClassificationOrm, if_include_templates: bool, shallow: bool = False
 ) -> dict:
     d = vars(wc).copy()
     __pre_process(d)

@@ -219,9 +219,7 @@ def upload_workflow_template_body(body: WorkflowTemplateUploadModel):
 def get_workflow_templates():
     """Get All Workflow Templates"""
     # Get query parameters
-    workflow_classification_id = request.args.get(
-        "classification_id", default=None
-    )
+    workflow_classification_id = request.args.get("classification_id", default=None)
 
     archived_param = request.args.get("archived")
     is_archived = convert_query_parameter_to_bool(archived_param)

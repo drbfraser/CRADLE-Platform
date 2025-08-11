@@ -6,6 +6,7 @@ Revises: 15_bf923c5cb3c3
 Create Date: 2025-08-07 20:43:40.797407
 
 """
+
 import sqlalchemy as sa
 from alembic import op
 
@@ -25,7 +26,10 @@ def upgrade():
         sa.PrimaryKeyConstraint("id", name=op.f("pk_workflow_collection")),
     )
 
-    op.add_column("workflow_classification", sa.Column("collection_id", sa.String(length=50), nullable=True))
+    op.add_column(
+        "workflow_classification",
+        sa.Column("collection_id", sa.String(length=50), nullable=True),
+    )
 
     op.create_foreign_key(
         op.f("fk_workflow_classification_collection_id_workflow_collection"),
@@ -38,7 +42,6 @@ def upgrade():
 
 
 def downgrade():
-
     op.drop_constraint(
         op.f("fk_workflow_classification_collection_id_workflow_collection"),
         "workflow_classification",

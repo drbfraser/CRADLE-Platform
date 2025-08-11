@@ -37,9 +37,7 @@ api_workflow_collections = APIBlueprint(
 )
 
 
-workflow_collection_not_found_message = (
-    "Workflow collection with ID: ({}) not found."
-)
+workflow_collection_not_found_message = "Workflow collection with ID: ({}) not found."
 
 
 def check_if_existing_workflow_collection_exists(
@@ -79,7 +77,9 @@ def create_workflow_collection(body: WorkflowCollectionUploadModel):
     """Create a new workflow collection"""
     workflow_collection_dict = body.model_dump()
 
-    assign_workflow_template_or_instance_ids(WorkflowCollectionOrm, workflow_collection_dict)
+    assign_workflow_template_or_instance_ids(
+        WorkflowCollectionOrm, workflow_collection_dict
+    )
 
     check_if_existing_workflow_collection_exists(workflow_collection_dict)
 
@@ -104,7 +104,9 @@ def get_workflow_collections():
 
 
 # api/workflow/collections/<string:workflow_collection_id>?with_workflows=<bool>
-@api_workflow_collections.get("/<string:workflow_collection_id>", responses={200: WorkflowCollectionModel})
+@api_workflow_collections.get(
+    "/<string:workflow_collection_id>", responses={200: WorkflowCollectionModel}
+)
 def get_workflow_collection(path: WorkflowCollectionIdPath):
     """
     Get a workflow collection by its ID
@@ -117,11 +119,17 @@ def get_workflow_collection(path: WorkflowCollectionIdPath):
     with_workflows = request.args.get("with_workflows", default=False)
     with_workflows = convert_query_parameter_to_bool(with_workflows)
 
-    workflow_collection = crud.read(WorkflowCollectionOrm, id=path.workflow_collection_id)
+    workflow_collection = crud.read(
+        WorkflowCollectionOrm, id=path.workflow_collection_id
+    )
 
     if workflow_collection is None:
-
-        return abort(code=404, description=workflow_collection_not_found_message.format(path.workflow_collection_id))
+        return abort(
+            code=404,
+            description=workflow_collection_not_found_message.format(
+                path.workflow_collection_id
+            ),
+        )
 
     if with_workflows:
         workflow_collection = marshal.marshal(workflow_collection, shallow=False)
@@ -129,3 +137,25 @@ def get_workflow_collection(path: WorkflowCollectionIdPath):
         workflow_collection = marshal.marshal(workflow_collection, shallow=True)
     return workflow_collection, 200
 
+
+# api/workflow/collections/<string:workflow_collection_id> [DELETE]
+@api_workflow_collections.delete(
+    "/<string:workflow_collection_id>", responses={204: None}
+)
+def delete_workflow_collection(path: WorkflowCollectionIdPath):
+    """Delete a workflow collection"""
+    workflow_collection = crud.read(
+        WorkflowCollectionOrm, id=path.workflow_collection_id
+    )
+
+    if workflow_collection is None:
+        return abort(
+            code=404,
+            description=workflow_collection_not_found_message.format(
+                path.workflow_collection_id
+            ),
+        )
+
+    crud.delete_by(WorkflowCollectionOrm, id=path.workflow_collection_id)
+
+    return "", 204
