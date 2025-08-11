@@ -220,7 +220,7 @@ def get_workflow_templates():
     """Get All Workflow Templates"""
     # Get query parameters
     workflow_classification_id = request.args.get(
-        "classification_id", default=None, type=str
+        "classification_id", default=None
     )
 
     archived_param = request.args.get("archived")
@@ -303,6 +303,7 @@ def get_workflow_template_steps_by_template(path: WorkflowTemplateIdPath):
 
 
 # /api/workflow/templates/<string:workflow_template_id> [PUT]
+# TODO: This endpoint is kinda redundant now because of the PATCH request
 @roles_required([RoleEnum.ADMIN])
 @api_workflow_templates.put(
     "/<string:workflow_template_id>", responses={200: WorkflowTemplateModel}

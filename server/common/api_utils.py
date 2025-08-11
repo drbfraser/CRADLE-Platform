@@ -98,6 +98,10 @@ class FormIdPath(CradleBaseModel):
     form_id: str
 
 
+class WorkflowCollectionIdPath(CradleBaseModel):
+    workflow_collection_id: str
+
+
 class WorkflowClassificationIdPath(CradleBaseModel):
     workflow_classification_id: str
 
