@@ -1,18 +1,21 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { getFormTemplateCsvAsync, editFormTemplateAsync } from 'src/shared/api';
+import {
+  editWorkflowTemplateAsync,
+  getWorkflowTemplateCsvAsync,
+} from 'src/shared/api';
 
 export const useEditWorkflowTemplate = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: editFormTemplateAsync,
+    mutationFn: editWorkflowTemplateAsync,
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ['formTemplates'] }),
+      queryClient.invalidateQueries({ queryKey: ['workflowTemplates'] }),
   });
 };
 
 export const useDownloadTemplateAsCSV = () => {
   return useMutation({
     mutationFn: (values: { id: string; version: string }) =>
-      getFormTemplateCsvAsync(values.id, values.version),
+      getWorkflowTemplateCsvAsync(values.id, values.version),
   });
 };

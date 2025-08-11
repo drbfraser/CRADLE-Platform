@@ -37,3 +37,58 @@ export const FORM_TEMPLATE_TEST_DATA = {
     },
   ],
 } as const;
+
+export const WORKFLOW_TEMPLATE_TEST_DATA = {
+  unArchivedTemplates: [
+    {
+      id: 'workflow-template-1',
+      name: 'Patient Intake Workflow',
+      description: 'Standard patient intake process',
+      version: 1,
+      classificationId: 'classification-1',
+      classification: {
+        id: 'classification-1',
+        name: 'Patient Care',
+      },
+      steps: [],
+      archived: false,
+      dateCreated: 1741373694,
+      lastEdited: 1741373694,
+      lastEditedBy: 'user-1',
+    },
+    {
+      id: 'workflow-template-2',
+      name: 'Discharge Workflow',
+      description: 'Patient discharge process',
+      version: 2,
+      classificationId: 'classification-2',
+      classification: {
+        id: 'classification-2',
+        name: 'Discharge Process',
+      },
+      steps: [],
+      archived: false,
+      dateCreated: 1740607541,
+      lastEdited: 1740607541,
+      lastEditedBy: 'user-2',
+    },
+  ],
+  archivedTemplates: [
+    {
+      id: 'workflow-template-archived',
+      name: 'Old Workflow',
+      description: 'Deprecated workflow',
+      version: 1,
+      classificationId: 'classification-archived',
+      classification: {
+        id: 'classification-archived',
+        name: 'Archived Process',
+      },
+      steps: [],
+      archived: true,
+      dateCreated: 1740607541,
+      lastEdited: 1740607541,
+      lastEditedBy: 'user-1',
+    },
+  ],
+} as const;

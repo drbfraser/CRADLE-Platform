@@ -23,7 +23,6 @@ class WorkflowTemplateExample:
     archived = False
     date_created = get_current_time()
     last_edited = get_current_time()
-    last_edited_by = "AAAA"
     version = "0"
 
     example_01 = {
@@ -36,7 +35,6 @@ class WorkflowTemplateExample:
         "condition": RuleGroupExample.example_01,
         "date_created": date_created,
         "last_edited": last_edited,
-        "last_edited_by": last_edited_by,
         "version": version,
         "classification_id": WorkflowClassificationExamples.id,
         "classification": WorkflowClassificationExamples.example_01,
@@ -53,7 +51,6 @@ class WorkflowTemplateExample:
         "initial_condition": RuleGroupExample.example_01,
         "date_created": date_created,
         "last_edited": last_edited,
-        "last_edited_by": last_edited_by,
         "version": version,
         "classification_id": WorkflowClassificationExamples.id,
         "classification": WorkflowClassificationExamples.example_01,
@@ -70,7 +67,6 @@ class WorkflowTemplateExample:
         "initial_condition": RuleGroupExample.example_01,
         "date_created": date_created,
         "last_edited": last_edited,
-        "last_edited_by": last_edited_by,
         "version": version,
         "classification_id": WorkflowClassificationExamples.id,
         "classification": WorkflowClassificationExamples.example_01,
@@ -78,7 +74,7 @@ class WorkflowTemplateExample:
     }
 
 
-class WorkflowTemplateModel(CradleBaseModel):
+class WorkflowTemplateModel(CradleBaseModel, extra="forbid"):
     id: str
     name: str
     description: str
@@ -86,7 +82,6 @@ class WorkflowTemplateModel(CradleBaseModel):
     starting_step_id: Optional[str] = None
     date_created: int = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
-    last_edited_by: Optional[int] = None
     version: str
     initial_condition_id: Optional[str] = None
     initial_condition: Optional[RuleGroupModel] = None
@@ -103,3 +98,25 @@ class WorkflowTemplateModel(CradleBaseModel):
 
 class WorkflowTemplateUploadModel(WorkflowTemplateModel):
     id: Optional[str] = None
+
+
+class WorkflowTemplatePatchBody(CradleBaseModel):
+    id: Optional[str] = None
+    name: Optional[str] = None
+    description: Optional[str] = None
+    archived: Optional[bool] = None
+    starting_step_id: Optional[str] = None
+    date_created: int = Field(default_factory=get_current_time)
+    last_edited: Optional[int] = Field(default_factory=get_current_time)
+    version: str  # A new version is required
+    initial_condition_id: Optional[str] = None
+    initial_condition: Optional[RuleGroupModel] = None
+    classification_id: Optional[str] = None
+    classification: Optional[WorkflowClassificationModel] = None
+    steps: Optional[list[WorkflowTemplateStepModel]] = None
+
+    @model_validator(mode="after")
+    def validate_dates(self) -> Self:
+        if self.last_edited is not None and self.last_edited < self.date_created:
+            raise ValueError("last_edited cannot be before date_created")
+        return self

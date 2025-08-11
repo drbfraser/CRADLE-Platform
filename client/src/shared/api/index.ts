@@ -15,3 +15,5 @@ export * from './modules/statistics';
 export * from './modules/upload';
 export * from './modules/users';
 export * from './modules/vhts';
+export * from './modules/workflowTemplates';
+export * from './modules/workflowInstance';

@@ -17,6 +17,7 @@ import { makeUniqueId } from 'src/shared/utils';
 import SecretKeyPage from 'src/pages/secretKey';
 import PatientRoutes from './PatientRoutes';
 import CustomFormRoutes from './CustomFormRoutes';
+import WorkflowInstanceDetailsPage from 'src/pages/patient/WorkflowInfo/WorkflowInstanceDetails';
 
 export type AppRoute = {
   component: React.ComponentType<any>;
@@ -168,6 +169,16 @@ export const appRoutes: Array<AppRoute> = [
     title: 'SecretKey',
     private: true,
     to: '/secretkey',
+  },
+  {
+    component: WorkflowInstanceDetailsPage,
+    exactPath: true,
+    id: makeUniqueId(),
+    inNavigation: false,
+    name: 'WorkflowInstanceDetails',
+    title: 'Workflow Instance Details',
+    private: true,
+    to: '/workflow-instance/view/:instanceId',
   },
   {
     component: LoginPage,

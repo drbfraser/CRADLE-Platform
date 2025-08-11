@@ -6,7 +6,7 @@ from api.resources.form_templates import handle_form_template_upload
 from common.api_utils import (
     WorkflowTemplateStepIdPath,
     WorkflowTemplateStepListResponse,
-    get_user_id,
+    convert_query_parameter_to_bool,
 )
 from common.commonUtil import get_current_time
 from common.workflow_utils import assign_step_ids
@@ -49,13 +49,6 @@ def create_workflow_template_step(body: WorkflowTemplateStepUploadModel):
     """Create Workflow Template Step"""
     template_step = body.model_dump()
 
-    try:
-        user_id = get_user_id(template_step, "last_edited_by")
-        template_step["last_edited_by"] = user_id
-
-    except ValueError:
-        return abort(code=404, description="User not found.")
-
     # This endpoint assumes that the step has a workflow ID assigned to it already
     workflow_template = crud.read(
         WorkflowTemplateOrm, id=template_step["workflow_template_id"]
@@ -70,14 +63,6 @@ def create_workflow_template_step(body: WorkflowTemplateStepUploadModel):
         )
 
     assign_step_ids(WorkflowTemplateStepOrm, template_step, workflow_template.id)
-
-    if len(workflow_template.steps) == 0:
-        changes = {
-            "last_edited_by": template_step["last_edited_by"],
-            "last_edited": get_current_time(),
-            "starting_step_id": template_step["id"],
-        }
-        crud.update(WorkflowTemplateOrm, changes=changes, id=workflow_template.id)
 
     check_branch_conditions(template_step)
 
@@ -104,7 +89,6 @@ def create_workflow_template_step(body: WorkflowTemplateStepUploadModel):
 @api_workflow_template_steps.get("", responses={200: WorkflowTemplateStepListResponse})
 def get_workflow_template_steps():
     """Get All Workflow Template Steps"""
-    # For now, return list with example data wrapped in the response model
     template_steps = crud.read_template_steps()
     template_steps = [
         marshal.marshal(template_step) for template_step in template_steps
@@ -119,8 +103,10 @@ def get_workflow_template_steps():
 )
 def get_workflow_template_step(path: WorkflowTemplateStepIdPath):
     """Get Workflow Template Step"""
-    with_form = request.args.get("with_form", default=False, type=bool)
-    with_branches = request.args.get("with_branches", default=False, type=bool)
+    with_form = request.args.get("with_form", default=False)
+    with_form = convert_query_parameter_to_bool(with_form)
+    with_branches = request.args.get("with_branches", default=False)
+    with_branches = convert_query_parameter_to_bool(with_branches)
 
     workflow_step = crud.read(
         WorkflowTemplateStepOrm, id=path.workflow_template_step_id
@@ -166,15 +152,7 @@ def update_workflow_template_step(
         )
 
     workflow_template_step_changes = body.model_dump()
-
-    # Get ID of the user who's updating this template
-    try:
-        user_id = get_user_id(workflow_template_step_changes, "last_edited_by")
-        workflow_template_step_changes["last_edited_by"] = user_id
-        workflow_template_step_changes["last_edited"] = get_current_time()
-
-    except ValueError:
-        return abort(code=404, description="User not found.")
+    workflow_template_step_changes["last_edited"] = get_current_time()
 
     check_branch_conditions(
         workflow_template_step_changes
@@ -195,12 +173,24 @@ def update_workflow_template_step(
     return updated_template_step, 200
 
 
+# @api_workflow_template_steps.patch(
+#     "/<string:workflow_template_step_id>", responses={204: None}
+# )
+# def update_workflow_template_step_patch(path: WorkflowTemplateStepIdPath, body):
+#     """Update Workflow Template Step with only specific fields"""
+#     workflow_template_step = crud.read(WorkflowTemplateStepOrm, id=path.workflow_template_step_id)
+#
+#     return '', 204
+
+
 # /api/workflow/template/steps/<string:step_id> [DELETE]
 @api_workflow_template_steps.delete(
     "/<string:workflow_template_step_id>", responses={204: None}
 )
 def delete_workflow_template_step(path: WorkflowTemplateStepIdPath):
     """Delete Workflow Template Step"""
+    # For now, return success if ID matches
+
     template_step = crud.read(
         WorkflowTemplateStepOrm, id=path.workflow_template_step_id
     )
@@ -217,4 +207,4 @@ def delete_workflow_template_step(path: WorkflowTemplateStepIdPath):
         WorkflowTemplateStepOrm, id=path.workflow_template_step_id
     )
 
-    return None, 204
+    return "", 204

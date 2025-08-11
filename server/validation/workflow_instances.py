@@ -60,7 +60,7 @@ class WorkflowInstanceExamples:
     }
 
 
-class WorkflowInstanceModel(CradleBaseModel):
+class WorkflowInstanceModel(CradleBaseModel, extra="forbid"):
     id: str
     name: str
     title: str
@@ -99,3 +99,51 @@ class WorkflowInstanceModel(CradleBaseModel):
 
 class WorkflowInstanceUploadModel(WorkflowInstanceModel):
     id: Optional[str] = None
+
+
+class WorkflowInstancePatchModel(CradleBaseModel, extra="forbid"):
+    id: Optional[str] = None
+    name: Optional[str] = None
+    title: Optional[str] = None
+    start_date: Optional[int] = None
+    current_step_id: Optional[str] = None
+    last_edited: Optional[int] = None
+    last_edited_by: Optional[int] = None
+    completion_date: Optional[int] = None
+    status: Optional[str] = None
+    workflow_template_id: Optional[str] = None
+    patient_id: Optional[str] = None
+    steps: Optional[list[WorkflowInstanceStepModel]] = None
+
+    @field_validator("status", mode="after")
+    @classmethod
+    def validate_status(cls, status: Optional[str]) -> Optional[str]:
+        if status is None:
+            return status
+
+        if status in [
+            WorkflowStatusEnum.ACTIVE,
+            WorkflowStatusEnum.CANCELLED,
+            WorkflowStatusEnum.COMPLETED,
+        ]:
+            return status
+
+        raise ValueError(f"Invalid step status: {status}")
+
+    @model_validator(mode="after")
+    def validate_dates(self) -> Self:
+        if (
+            self.last_edited is not None
+            and self.start_date is not None
+            and self.last_edited < self.start_date
+        ):
+            raise ValueError("last_edited cannot be before start_date")
+
+        if (
+            self.completion_date is not None
+            and self.start_date is not None
+            and self.completion_date < self.start_date
+        ):
+            raise ValueError("completion_date cannot be before start_date")
+
+        return self

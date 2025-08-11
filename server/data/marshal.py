@@ -1,5 +1,5 @@
-import collections
 import json
+from collections.abc import Mapping
 from enum import Enum
 from typing import Any, Dict, List, Optional, Type
 
@@ -408,7 +408,8 @@ def __marshal_workflow_template_step_branch(
     d = vars(wtsb).copy()
     __pre_process(d)
 
-    d["condition"] = __marshal_rule_group(wtsb.condition)
+    if wtsb.condition is not None:
+        d["condition"] = __marshal_rule_group(wtsb.condition)
 
     return d
 
@@ -904,6 +905,6 @@ def model_to_dict(model: Any, schema) -> Optional[dict]:
     """
     if not model:
         return None
-    if isinstance(model, collections.Mapping):  # Local database stub
+    if isinstance(model, Mapping):  # Local database stub
         return model
     return schema().dump(model)

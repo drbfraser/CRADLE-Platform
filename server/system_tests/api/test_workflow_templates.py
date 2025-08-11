@@ -14,7 +14,9 @@ def test_workflow_templates_with_same_classification_upload(
     try:
         archived_template1_id = workflow_template1["id"]
 
-        response = api_post(endpoint="/api/workflow/templates", json=workflow_template1)
+        response = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_template1
+        )
         database.session.commit()
         response_body = decamelize(response.json())
         pretty_print(response_body)
@@ -25,7 +27,9 @@ def test_workflow_templates_with_same_classification_upload(
         the currently unarchived template
         """
 
-        response = api_post(endpoint="/api/workflow/templates", json=workflow_template3)
+        response = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_template3
+        )
         database.session.commit()
         response_body = decamelize(response.json())
         pretty_print(response_body)
@@ -61,7 +65,7 @@ def test_invalid_workflow_templates_uploaded(
 ):
     try:
         response = api_post(
-            endpoint="/api/workflow/templates", json=invalid_workflow_template1
+            endpoint="/api/workflow/templates/body", json=invalid_workflow_template1
         )
         database.session.commit()
         response_body = decamelize(response.json())
@@ -69,7 +73,7 @@ def test_invalid_workflow_templates_uploaded(
         assert response.status_code == 422
 
         response = api_post(
-            endpoint="/api/workflow/templates", json=invalid_workflow_template2
+            endpoint="/api/workflow/templates/body", json=invalid_workflow_template2
         )
         database.session.commit()
         response_body = decamelize(response.json())
@@ -77,14 +81,16 @@ def test_invalid_workflow_templates_uploaded(
         assert response.status_code == 422
 
         response = api_post(
-            endpoint="/api/workflow/templates", json=invalid_workflow_template3
+            endpoint="/api/workflow/templates/body", json=invalid_workflow_template3
         )
         database.session.commit()
         response_body = decamelize(response.json())
         pretty_print(response_body)
         assert response.status_code == 404
 
-        response = api_post(endpoint="/api/workflow/templates", json=workflow_template1)
+        response = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_template1
+        )
         database.session.commit()
         response_body = decamelize(response.json())
         pretty_print(response_body)
@@ -94,7 +100,9 @@ def test_invalid_workflow_templates_uploaded(
         Submitting a workflow template with the same version of another template under the same classification should
         return a 409 error
         """
-        response = api_post(endpoint="/api/workflow/templates", json=workflow_template1)
+        response = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_template1
+        )
         # database.session.commit()
         response_body = decamelize(response.json())
         pretty_print(response_body)
@@ -177,24 +185,25 @@ def test_getting_workflow_templates(
     try:
         workflow_template1["archived"] = True
 
-        workflow_template3["classification"] = None
+        # Keep workflow_template3 classification to match workflow_template1
         workflow_template3["steps"] = []
 
         workflow_template4["archived"] = True
 
-        api_post(endpoint="/api/workflow/templates", json=workflow_template1)
+        api_post(endpoint="/api/workflow/templates/body", json=workflow_template1)
         database.session.commit()
 
-        api_post(endpoint="/api/workflow/templates", json=workflow_template3)
+        api_post(endpoint="/api/workflow/templates/body", json=workflow_template3)
         database.session.commit()
 
-        api_post(endpoint="/api/workflow/templates", json=workflow_template4)
+        api_post(endpoint="/api/workflow/templates/body", json=workflow_template4)
         database.session.commit()
 
         classification_id = workflow_template1["classification_id"]
 
         """
-        Query for workflow_example1 and workflow_example3 with same classification ID
+        Query for non-archived workflow templates with same classification ID
+        Should only return workflow_example3 since workflow_example1 is archived
         """
 
         response = api_get(
@@ -202,7 +211,8 @@ def test_getting_workflow_templates(
         )
         workflow_templates = decamelize(response.json())["items"]
 
-        assert len(workflow_templates) == 2
+        assert len(workflow_templates) == 1
+        assert workflow_templates[0]["id"] == workflow_template3["id"]
 
         """
         Query for archived workflow templates with same classification ID
@@ -250,8 +260,64 @@ def test_getting_workflow_templates(
         )
 
 
+def test_workflow_template_patch_request(
+    database, workflow_template1, api_patch, api_post
+):
+    updated_workflow_template = None
+    try:
+        api_post(endpoint="/api/workflow/templates/body", json=workflow_template1)
+        database.session.commit()
+
+        changes = {
+            "name": "New workflow template name",
+            "description": "New workflow template description",
+            "version": "v2",
+        }
+
+        response = api_patch(
+            endpoint=f"/api/workflow/templates/{workflow_template1['id']}", json=changes
+        )
+        database.session.commit()
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+        assert response.status_code == 200
+
+        old_workflow_template = crud.read(
+            WorkflowTemplateOrm, id=workflow_template1["id"]
+        )
+
+        # Assert that the old workflow template is now archived
+        assert old_workflow_template.archived is True
+
+        updated_workflow_template = crud.read(
+            WorkflowTemplateOrm, id=response_body["id"]
+        )
+
+        assert (
+            updated_workflow_template is not None
+            and updated_workflow_template.name == "New workflow template name"
+            and updated_workflow_template.description
+            == "New workflow template description"
+            and updated_workflow_template.version == "v2"
+        )
+
+    finally:
+        crud.delete_workflow(
+            m=WorkflowTemplateOrm,
+            delete_classification=True,
+            id=workflow_template1["id"],
+        )
+
+        if updated_workflow_template:
+            crud.delete_workflow(
+                m=WorkflowTemplateOrm,
+                delete_classification=True,
+                id=updated_workflow_template.id,
+            )
+
+
 @pytest.fixture
-def workflow_template1(vht_user_id):
+def workflow_template1():
     template_id = get_uuid()
     classification_id = get_uuid()
     init_condition_id = get_uuid()
@@ -263,7 +329,6 @@ def workflow_template1(vht_user_id):
         "starting_step_id": None,
         "date_created": get_current_time(),
         "last_edited": get_current_time() + 44345,
-        "last_edited_by": vht_user_id,
         "version": "0",
         "initial_condition_id": init_condition_id,
         "initial_condition": {
@@ -284,7 +349,7 @@ def workflow_template1(vht_user_id):
 
 
 @pytest.fixture
-def workflow_template2(vht_user_id, form_template):
+def workflow_template2(form_template):
     return {
         "id": None,
         "name": "workflow_example2",
@@ -293,7 +358,6 @@ def workflow_template2(vht_user_id, form_template):
         "starting_step_id": None,
         "date_created": get_current_time(),
         "last_edited": get_current_time() + 44345,
-        "last_edited_by": vht_user_id,
         "version": "0",
         "initial_condition_id": None,
         "initial_condition": {
@@ -313,11 +377,10 @@ def workflow_template2(vht_user_id, form_template):
             {
                 "id": None,
                 "name": "template step example 1",
-                "title": "example template step with all valid fields",
+                "description": "example template step with all valid fields",
                 "expected_completion": get_current_time(),
                 "last_edited": get_current_time(),
-                "last_edited_by": vht_user_id,
-                "form_id": None,
+                "form_id": form_template["id"],
                 "form": form_template,
                 "workflow_template_id": None,
                 "condition_id": None,
@@ -336,7 +399,7 @@ def workflow_template2(vht_user_id, form_template):
 
 
 @pytest.fixture
-def workflow_template3(form_template, vht_user_id, workflow_template1):
+def workflow_template3(form_template, workflow_template1):
     template_id = get_uuid()
     init_condition_id = get_uuid()
     step_id = get_uuid()
@@ -352,7 +415,6 @@ def workflow_template3(form_template, vht_user_id, workflow_template1):
         "starting_step_id": step_id,
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
-        "last_edited_by": vht_user_id,
         "version": "1",  # Should replace version 0 (workflow_template1) of this template when uploaded
         "initial_condition_id": init_condition_id,
         "initial_condition": {
@@ -372,10 +434,9 @@ def workflow_template3(form_template, vht_user_id, workflow_template1):
             {
                 "id": step_id,
                 "name": "template step example 2",
-                "title": "example template step with all valid fields",
+                "description": "example template step with all valid fields",
                 "expected_completion": get_current_time(),
                 "last_edited": get_current_time(),
-                "last_edited_by": vht_user_id,
                 "form_id": form_template["id"],
                 "form": form_template,
                 "workflow_template_id": template_id,
@@ -395,7 +456,7 @@ def workflow_template3(form_template, vht_user_id, workflow_template1):
 
 
 @pytest.fixture
-def workflow_template4(vht_user_id):
+def workflow_template4():
     template_id = get_uuid()
     init_condition_id = get_uuid()
     classification_id = get_uuid()
@@ -408,7 +469,6 @@ def workflow_template4(vht_user_id):
         "starting_step_id": None,
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
-        "last_edited_by": vht_user_id,
         "version": "1",
         "initial_condition_id": init_condition_id,
         "initial_condition": {
@@ -429,7 +489,7 @@ def workflow_template4(vht_user_id):
 
 
 @pytest.fixture
-def invalid_workflow_template1(vht_user_id):
+def invalid_workflow_template1():
     template_id = get_uuid()
     classification_id = get_uuid()
     init_condition_id = get_uuid()
@@ -441,7 +501,6 @@ def invalid_workflow_template1(vht_user_id):
         "starting_step_id": None,
         "date_created": get_current_time(),
         "last_edited": get_current_time() - 44345,  # Invalid edit date
-        "last_edited_by": vht_user_id,
         "version": "0",
         "initial_condition_id": init_condition_id,
         "initial_condition": {
@@ -462,7 +521,7 @@ def invalid_workflow_template1(vht_user_id):
 
 
 @pytest.fixture
-def invalid_workflow_template2(vht_user_id):
+def invalid_workflow_template2():
     template_id = get_uuid()
     classification_id = get_uuid()
     init_condition_id = get_uuid()
@@ -474,7 +533,6 @@ def invalid_workflow_template2(vht_user_id):
         "starting_step_id": None,
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
-        "last_edited_by": vht_user_id,
         "version": "0",
         "initial_condition_id": init_condition_id,
         "initial_condition": {
@@ -492,7 +550,7 @@ def invalid_workflow_template2(vht_user_id):
 
 
 @pytest.fixture
-def invalid_workflow_template3(vht_user_id, form_template):
+def invalid_workflow_template3(form_template):
     template_id = get_uuid()
     init_condition_id = get_uuid()
     classification_id = get_uuid()
@@ -504,7 +562,6 @@ def invalid_workflow_template3(vht_user_id, form_template):
         "starting_step_id": None,
         "date_created": get_current_time(),
         "last_edited": get_current_time() + 44345,
-        "last_edited_by": vht_user_id,
         "version": "0",
         "initial_condition_id": init_condition_id,
         "initial_condition": {
