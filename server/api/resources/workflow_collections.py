@@ -1,11 +1,14 @@
 from typing import List
 
-from flask import abort
+from flask import abort, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
-from flask import request
+
+from api.decorator import roles_required
+from common.api_utils import WorkflowCollectionIdPath, convert_query_parameter_to_bool
 from common.workflow_utils import assign_workflow_template_or_instance_ids
 from data import crud, marshal
+from enums import RoleEnum
 from models import WorkflowCollectionOrm
 from validation import CradleBaseModel
 from validation.workflow_classifications import WorkflowClassificationModel
@@ -13,10 +16,6 @@ from validation.workflow_collections import (
     WorkflowCollectionModel,
     WorkflowCollectionUploadModel,
 )
-from api.decorator import roles_required
-from enums import RoleEnum
-from common.api_utils import WorkflowCollectionIdPath
-from common.api_utils import convert_query_parameter_to_bool
 
 
 # Response model for a list of workflow collections
@@ -39,21 +38,19 @@ api_workflow_collections = APIBlueprint(
 
 
 workflow_collection_not_found_message = (
-    "Workflow classification with ID: ({}) not found."
+    "Workflow collection with ID: ({}) not found."
 )
 
 
 def check_if_existing_workflow_collection_exists(
     workflow_collection_dict: dict,
 ) -> None:
-
     """
     Checks the DB to verify if any other existing workflow collection has the same ID or name, throws an error if
     one does exist.
 
     :param workflow_collection_dict: A dictionary representing a workflow collection
     """
-
     existing_workflow_collection = crud.read(
         WorkflowCollectionOrm, id=workflow_collection_dict["id"]
     )
@@ -65,7 +62,7 @@ def check_if_existing_workflow_collection_exists(
         )
 
     existing_workflow_collection = crud.read(
-        WorkflowCollectionModel, name=workflow_collection_dict["name"]
+        WorkflowCollectionOrm, name=workflow_collection_dict["name"]
     )
 
     if existing_workflow_collection is not None:
@@ -75,24 +72,24 @@ def check_if_existing_workflow_collection_exists(
         )
 
 
-# /api/workflow/classifications [POST]
-@api_workflow_collections.post("", responses={201, WorkflowCollectionModel})
-@roles_required(RoleEnum.ADMIN)
+# /api/workflow/collections [POST]
+@api_workflow_collections.post("", responses={201: WorkflowCollectionModel})
+@roles_required([RoleEnum.ADMIN])
 def create_workflow_collection(body: WorkflowCollectionUploadModel):
     """Create a new workflow collection"""
     workflow_collection_dict = body.model_dump()
 
-    assign_workflow_template_or_instance_ids(workflow_collection_dict)
+    assign_workflow_template_or_instance_ids(WorkflowCollectionOrm, workflow_collection_dict)
 
     check_if_existing_workflow_collection_exists(workflow_collection_dict)
 
     workflow_collection_orm = marshal.unmarshal(
-        WorkflowCollectionModel, workflow_collection_dict
+        WorkflowCollectionOrm, workflow_collection_dict
     )
 
-    crud.create(WorkflowCollectionOrm, workflow_collection_orm)
+    crud.create(model=workflow_collection_orm, refresh=True)
 
-    return marshal.marshal(obj=workflow_collection_orm), 201
+    return marshal.marshal(obj=workflow_collection_orm, shallow=True), 201
 
 
 # /api/workflow/collections [GET]
@@ -120,13 +117,15 @@ def get_workflow_collection(path: WorkflowCollectionIdPath):
     with_workflows = request.args.get("with_workflows", default=False)
     with_workflows = convert_query_parameter_to_bool(with_workflows)
 
-    workflow_collection = crud.read(WorkflowCollectionModel, id=path.workflow_collection_id)
+    workflow_collection = crud.read(WorkflowCollectionOrm, id=path.workflow_collection_id)
 
     if workflow_collection is None:
 
         return abort(code=404, description=workflow_collection_not_found_message.format(path.workflow_collection_id))
 
-    workflow_collection = marshal.marshal(workflow_collection, shallow=with_workflows)
-
-    return workflow_collection, 201
+    if with_workflows:
+        workflow_collection = marshal.marshal(workflow_collection, shallow=False)
+    else:
+        workflow_collection = marshal.marshal(workflow_collection, shallow=True)
+    return workflow_collection, 200
 

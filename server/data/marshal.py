@@ -23,12 +23,12 @@ from models import (
     RuleGroupOrm,
     SmsSecretKeyOrm,
     WorkflowClassificationOrm,
+    WorkflowCollectionOrm,
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
     WorkflowTemplateOrm,
     WorkflowTemplateStepBranchOrm,
     WorkflowTemplateStepOrm,
-    WorkflowCollectionOrm
 )
 from service import invariant
 
