@@ -9,7 +9,7 @@ Before running the project locally, ensure the following tools are installed on 
 | **Docker Desktop** | Run backend (Flask), database (MySQL), etc. in containers |
 | **Node.js (v18+)** | Required for frontend development with React/Vite |
 | **npm (v9+)**       | Node package manager (usually bundled with Node) |
-| **Python (v3.9+)** | Used by the Flask backend (if not using Docker)   |
+| **Python (v3.10+)** | Used by the Flask backend (if not using Docker)   |
 | **MySQL (v8+)**    | Only if running DB outside Docker                 |
 | **Postman**        | API testing (optional but helpful)                |
 | **Git**            | For cloning the repository                        |

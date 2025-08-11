@@ -83,8 +83,9 @@ def assign_step_ids(
         assign_form_or_template_ids(form_model, step["form"])
         step["form_id"] = step["form"]["id"]
 
-    for branch in step["branches"]:
-        assign_branch_id(branch, step_id, auto_assign_id)
+    if m is WorkflowTemplateStepOrm:
+        for branch in step["branches"]:
+            assign_branch_id(branch, step_id, auto_assign_id)
 
 
 def assign_workflow_template_or_instance_ids(
