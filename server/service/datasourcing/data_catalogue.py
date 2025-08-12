@@ -20,7 +20,7 @@ def __query_object(model: type[M], query, id: str) -> Callable[[str], Dict]:
     :param predicate: the query to match on
     :param id: id for data querying, is partially applied
     
-    :returns: a callable function that returns the value queried for, None if not found
+    :returns: a callable function that returns the object model
     """
     pred = query(id)
     data = crud.read(model, pred)
@@ -65,7 +65,6 @@ given string:
 special strings
 - each object func has their own dict of special "nonlookup" strings
 - 
-
 """
 
 # objects defined from spike on relevant system data used in a workflow
@@ -91,3 +90,6 @@ __object_catalogue = {
     ),
 }
 
+__custom_catalogue = {
+    "$patient.age" : {}
+}

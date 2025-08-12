@@ -13,21 +13,57 @@ def resolve_datasources(
     :returns: a dict of resolved datasources, Any can be an int, bool, string
     :rtype: Dict[str, Any]
     """
+    
+    '''
+    1. parse strings, group into 
+       object : [attribute]
+    2. lookup object
+    3. get attributes
+    4. do special lookup if required
+       - use queried object, if need new query, make that query
+    '''
 
-    def ds_fold(a: Dict, ds: str):
-        a[ds] = resolve_datastring(patient_id, ds, catalogue)
+    # parse and group strings
+    def group_objects(a: Dict[str, List[str]], ds: str):
+        object = parse_object_name(ds)
+        attr = parse_attribute_name(ds)
+
+        if object in a:
+            a[object].append(attr)
+        else:
+            a[object] = [attr]
         return a
+    
+    parsed_groups = reduce(group_objects, datasources, {})
+    resolved = {}
 
-    # TODO: more efficient querying
+    for obj, attrs in parsed_groups.items():
+        inst = __resolve_object(catalogue, patient_id, obj)
+        
+        # attribute lookups 
+        resolved_attrs = []
 
-    return reduce(ds_fold, datasources, {})
+        for a in attrs:
+            if inst.get(a):
+                resolved_attrs.append(f"${obj}.{a}", inst.get(a))
+            else:
+                # TODO: attempt custom lookup on objects
+                pass
+        
+        resolved.update(resolved_attrs)
+
+    return resolved
+
+def __resolve_object(catalogue: Dict, patient_id: str, object_name: str) -> Dict:
+    object_query = catalogue.get(object_name)
+    return object_query(id=patient_id)
 
 
 def resolve_datastring(
     patient_id: str, data_string: str, catalogue: Dict[str, Callable]
 ) -> Any:
     """
-    Takes a datastring and resolves it into a concrete value
+    Resolve a single datastring it into a concrete value
 
     :param patient_id: an id for identifying data relevant to a patient
     :param data_string: a string representing a source of value of format `$object.attribute`
@@ -43,10 +79,9 @@ def resolve_datastring(
         return None
 
     object: Dict = query(id=patient_id)
-    pass
     
-    
-
+    return object.get(attribute)
+       
 
 def parse_attribute_name(data_string: str) -> str:
     if not data_string.startswith("$"):
