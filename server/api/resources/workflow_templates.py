@@ -18,6 +18,7 @@ from common.commonUtil import get_current_time
 from common.workflow_utils import (
     apply_changes_to_model,
     assign_workflow_template_or_instance_ids,
+    validate_workflow_template_step,
 )
 from data import crud, db_session, marshal
 from enums import RoleEnum
@@ -150,6 +151,11 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
     workflow_classification_dict = workflow_template_dict["classification"]
     del workflow_template_dict["classification"]
 
+    # Validate each step in the template
+    if workflow_template_dict.get("steps") is None:
+        for workflow_template_step in workflow_template_dict["steps"]:
+            validate_workflow_template_step(workflow_template_step)
+
     workflow_template_orm = marshal.unmarshal(
         WorkflowTemplateOrm, workflow_template_dict
     )
@@ -165,7 +171,7 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
             )
             workflow_template_orm.classification = workflow_classification_orm
 
-            # Check if a previously existing version of this template exists, if it does, archive it
+            # Check if a previously existing version of this template exists, if so, archive it
             find_and_archive_previous_workflow_template(
                 workflow_classification_orm.id,
             )

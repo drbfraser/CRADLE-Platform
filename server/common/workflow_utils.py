@@ -2,22 +2,22 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Type
 
+from flask import abort
+
+from api.resources.form_templates import handle_form_template_upload
 from common.commonUtil import get_uuid
 from common.form_utils import assign_form_or_template_ids
-from flask import abort
-from data import crud, marshal
-from api.resources.form_templates import handle_form_template_upload
+from data import crud
 from models import (
     FormOrm,
     FormTemplateOrm,
+    RuleGroupOrm,
     WorkflowClassificationOrm,
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
     WorkflowTemplateOrm,
     WorkflowTemplateStepOrm,
-    RuleGroupOrm
 )
-
 from validation.formTemplates import FormTemplateUpload
 
 if TYPE_CHECKING:
@@ -164,7 +164,6 @@ def check_branch_conditions(template_step: dict) -> None:
 
 
 def validate_workflow_template_step(workflow_template_step: dict):
-
     # This endpoint assumes that the step has a workflow ID assigned to it already
     workflow_template = crud.read(
         WorkflowTemplateOrm, id=workflow_template_step["workflow_template_id"]
@@ -178,7 +177,9 @@ def validate_workflow_template_step(workflow_template_step: dict):
             ),
         )
 
-    assign_step_ids(WorkflowTemplateStepOrm, workflow_template_step, workflow_template.id)
+    assign_step_ids(
+        WorkflowTemplateStepOrm, workflow_template_step, workflow_template.id
+    )
 
     check_branch_conditions(workflow_template_step)
 

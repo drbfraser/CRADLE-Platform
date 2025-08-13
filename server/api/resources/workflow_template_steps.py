@@ -8,9 +8,12 @@ from common.api_utils import (
     convert_query_parameter_to_bool,
 )
 from common.commonUtil import get_current_time
-from common.workflow_utils import assign_step_ids, check_branch_conditions, validate_workflow_template_step
+from common.workflow_utils import (
+    check_branch_conditions,
+    validate_workflow_template_step,
+)
 from data import crud, marshal
-from models import WorkflowTemplateOrm, WorkflowTemplateStepOrm
+from models import WorkflowTemplateStepOrm
 from validation.workflow_template_steps import (
     WorkflowTemplateStepModel,
     WorkflowTemplateStepUploadModel,
