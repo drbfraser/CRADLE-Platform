@@ -40,7 +40,6 @@ DESCRIPTION = "Workflow Template Model Example"
 ARCHIVED = True
 DATE_CREATED = get_current_time()
 LAST_EDITED = get_current_time()
-LAST_EDITED_BY = 1345344
 VERSION = "0"
 
 
@@ -52,7 +51,6 @@ workflow_template_with_valid_fields_should_return_none = {
     "starting_step_id": VALID_WORKFLOW_TEMPLATE_STEP["id"],
     "date_created": DATE_CREATED,
     "last_edited": LAST_EDITED,
-    "last_edited_by": LAST_EDITED_BY,
     "version": VERSION,
     "initial_condition_id": VALID_RULE_GROUP["id"],
     "initial_condition": VALID_RULE_GROUP,
@@ -69,7 +67,6 @@ workflow_template_with_valid_missing_fields_should_return_none = {
     "starting_step_id": None,
     "date_created": DATE_CREATED,
     "last_edited": LAST_EDITED,
-    "last_edited_by": LAST_EDITED_BY,
     "version": VERSION,
     "initial_condition_id": None,
     "initial_condition": None,
@@ -86,24 +83,6 @@ workflow_template_with_multiple_valid_steps_should_return_none = {
     "starting_step_id": VALID_WORKFLOW_TEMPLATE_STEP["id"],
     "date_created": DATE_CREATED,
     "last_edited": LAST_EDITED,
-    "last_edited_by": LAST_EDITED_BY,
-    "version": VERSION,
-    "initial_condition_id": VALID_RULE_GROUP["id"],
-    "initial_condition": VALID_RULE_GROUP,
-    "classification_id": VALID_WORKFLOW_CLASSIFICATION["id"],
-    "classification": VALID_WORKFLOW_CLASSIFICATION,
-    "steps": [VALID_WORKFLOW_TEMPLATE_STEP, VALID_WORKFLOW_TEMPLATE_STEP],
-}
-
-workflow_template_with_missing_last_edited_by_field_should_return_none = {
-    "id": ID,
-    "name": NAME,
-    "description": DESCRIPTION,
-    "archived": ARCHIVED,
-    "starting_step_id": VALID_WORKFLOW_TEMPLATE_STEP["id"],
-    "date_created": DATE_CREATED,
-    "last_edited": None,
-    "last_edited_by": None,
     "version": VERSION,
     "initial_condition_id": VALID_RULE_GROUP["id"],
     "initial_condition": VALID_RULE_GROUP,
@@ -120,7 +99,6 @@ workflow_template_with_invalid_condition_should_return_validation_error = {
     "starting_step_id": VALID_WORKFLOW_TEMPLATE_STEP["id"],
     "date_created": DATE_CREATED,
     "last_edited": LAST_EDITED,
-    "last_edited_by": LAST_EDITED_BY,
     "version": VERSION,
     "initial_condition_id": INVALID_RULE_GROUP["id"],
     "initial_condition": INVALID_RULE_GROUP,
@@ -137,7 +115,6 @@ workflow_template_with_invalid_classification_should_return_validation_error = {
     "starting_step_id": VALID_WORKFLOW_TEMPLATE_STEP["id"],
     "date_created": DATE_CREATED,
     "last_edited": LAST_EDITED,
-    "last_edited_by": LAST_EDITED_BY,
     "version": VERSION,
     "initial_condition_id": VALID_RULE_GROUP["id"],
     "initial_condition": VALID_RULE_GROUP,
@@ -154,7 +131,6 @@ workflow_template_with_invalid_steps_should_return_validation_error = {
     "starting_step_id": VALID_WORKFLOW_TEMPLATE_STEP["id"],
     "date_created": DATE_CREATED,
     "last_edited": LAST_EDITED,
-    "last_edited_by": LAST_EDITED_BY,
     "version": VERSION,
     "initial_condition_id": VALID_RULE_GROUP["id"],
     "initial_condition": VALID_RULE_GROUP,
@@ -170,7 +146,6 @@ workflow_template_with_invalid_steps_should_return_validation_error = {
         (workflow_template_with_valid_fields_should_return_none, None),
         (workflow_template_with_valid_missing_fields_should_return_none, None),
         (workflow_template_with_multiple_valid_steps_should_return_none, None),
-        (workflow_template_with_missing_last_edited_by_field_should_return_none, None),
         (
             workflow_template_with_invalid_condition_should_return_validation_error,
             ValidationError,

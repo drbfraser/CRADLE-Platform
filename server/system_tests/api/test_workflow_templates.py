@@ -317,7 +317,7 @@ def test_workflow_template_patch_request(
 
 
 @pytest.fixture
-def workflow_template1(vht_user_id):
+def workflow_template1():
     template_id = get_uuid()
     classification_id = get_uuid()
     init_condition_id = get_uuid()
@@ -329,7 +329,6 @@ def workflow_template1(vht_user_id):
         "starting_step_id": None,
         "date_created": get_current_time(),
         "last_edited": get_current_time() + 44345,
-        "last_edited_by": vht_user_id,
         "version": "0",
         "initial_condition_id": init_condition_id,
         "initial_condition": {
@@ -350,7 +349,7 @@ def workflow_template1(vht_user_id):
 
 
 @pytest.fixture
-def workflow_template2(vht_user_id, form_template):
+def workflow_template2(form_template):
     return {
         "id": None,
         "name": "workflow_example2",
@@ -359,7 +358,6 @@ def workflow_template2(vht_user_id, form_template):
         "starting_step_id": None,
         "date_created": get_current_time(),
         "last_edited": get_current_time() + 44345,
-        "last_edited_by": vht_user_id,
         "version": "0",
         "initial_condition_id": None,
         "initial_condition": {
@@ -379,11 +377,10 @@ def workflow_template2(vht_user_id, form_template):
             {
                 "id": None,
                 "name": "template step example 1",
-                "title": "example template step with all valid fields",
+                "description": "example template step with all valid fields",
                 "expected_completion": get_current_time(),
                 "last_edited": get_current_time(),
-                "last_edited_by": vht_user_id,
-                "form_id": None,
+                "form_id": form_template["id"],
                 "form": form_template,
                 "workflow_template_id": None,
                 "condition_id": None,
@@ -402,7 +399,7 @@ def workflow_template2(vht_user_id, form_template):
 
 
 @pytest.fixture
-def workflow_template3(form_template, vht_user_id, workflow_template1):
+def workflow_template3(form_template, workflow_template1):
     template_id = get_uuid()
     init_condition_id = get_uuid()
     step_id = get_uuid()
@@ -418,7 +415,6 @@ def workflow_template3(form_template, vht_user_id, workflow_template1):
         "starting_step_id": step_id,
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
-        "last_edited_by": vht_user_id,
         "version": "1",  # Should replace version 0 (workflow_template1) of this template when uploaded
         "initial_condition_id": init_condition_id,
         "initial_condition": {
@@ -438,10 +434,9 @@ def workflow_template3(form_template, vht_user_id, workflow_template1):
             {
                 "id": step_id,
                 "name": "template step example 2",
-                "title": "example template step with all valid fields",
+                "description": "example template step with all valid fields",
                 "expected_completion": get_current_time(),
                 "last_edited": get_current_time(),
-                "last_edited_by": vht_user_id,
                 "form_id": form_template["id"],
                 "form": form_template,
                 "workflow_template_id": template_id,
@@ -461,7 +456,7 @@ def workflow_template3(form_template, vht_user_id, workflow_template1):
 
 
 @pytest.fixture
-def workflow_template4(vht_user_id):
+def workflow_template4():
     template_id = get_uuid()
     init_condition_id = get_uuid()
     classification_id = get_uuid()
@@ -474,7 +469,6 @@ def workflow_template4(vht_user_id):
         "starting_step_id": None,
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
-        "last_edited_by": vht_user_id,
         "version": "1",
         "initial_condition_id": init_condition_id,
         "initial_condition": {
@@ -495,7 +489,7 @@ def workflow_template4(vht_user_id):
 
 
 @pytest.fixture
-def invalid_workflow_template1(vht_user_id):
+def invalid_workflow_template1():
     template_id = get_uuid()
     classification_id = get_uuid()
     init_condition_id = get_uuid()
@@ -507,7 +501,6 @@ def invalid_workflow_template1(vht_user_id):
         "starting_step_id": None,
         "date_created": get_current_time(),
         "last_edited": get_current_time() - 44345,  # Invalid edit date
-        "last_edited_by": vht_user_id,
         "version": "0",
         "initial_condition_id": init_condition_id,
         "initial_condition": {
@@ -528,7 +521,7 @@ def invalid_workflow_template1(vht_user_id):
 
 
 @pytest.fixture
-def invalid_workflow_template2(vht_user_id):
+def invalid_workflow_template2():
     template_id = get_uuid()
     classification_id = get_uuid()
     init_condition_id = get_uuid()
@@ -540,7 +533,6 @@ def invalid_workflow_template2(vht_user_id):
         "starting_step_id": None,
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
-        "last_edited_by": vht_user_id,
         "version": "0",
         "initial_condition_id": init_condition_id,
         "initial_condition": {
@@ -558,7 +550,7 @@ def invalid_workflow_template2(vht_user_id):
 
 
 @pytest.fixture
-def invalid_workflow_template3(vht_user_id, form_template):
+def invalid_workflow_template3(form_template):
     template_id = get_uuid()
     init_condition_id = get_uuid()
     classification_id = get_uuid()
@@ -570,7 +562,6 @@ def invalid_workflow_template3(vht_user_id, form_template):
         "starting_step_id": None,
         "date_created": get_current_time(),
         "last_edited": get_current_time() + 44345,
-        "last_edited_by": vht_user_id,
         "version": "0",
         "initial_condition_id": init_condition_id,
         "initial_condition": {

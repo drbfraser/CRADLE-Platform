@@ -35,6 +35,7 @@ export interface TemplateStep {
 export interface TemplateStepWithFormAndIndex extends TemplateStep {
   form?: FormTemplate;
   index: number;
+  branchIndices?: number[];
 }
 
 export interface WorkflowTemplate {

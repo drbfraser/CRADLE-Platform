@@ -21,7 +21,6 @@ Resources:
                   - cloudformation:DescribeStacks
                   - cloudformation:CreateChangeStacks
                   - cloudformation:GetTemplateSummary
-                  - cloudformation:CreateChangeSet
                   - lambda:GetFunction
                   - lambda:UpdateFunctionCode
                   - iam:GetUser

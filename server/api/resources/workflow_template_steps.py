@@ -7,7 +7,6 @@ from common.api_utils import (
     WorkflowTemplateStepIdPath,
     WorkflowTemplateStepListResponse,
     convert_query_parameter_to_bool,
-    get_user_id,
 )
 from common.commonUtil import get_current_time
 from common.workflow_utils import assign_step_ids
@@ -50,13 +49,6 @@ def create_workflow_template_step(body: WorkflowTemplateStepUploadModel):
     """Create Workflow Template Step"""
     template_step = body.model_dump()
 
-    try:
-        user_id = get_user_id(template_step, "last_edited_by")
-        template_step["last_edited_by"] = user_id
-
-    except ValueError:
-        return abort(code=404, description="User not found.")
-
     # This endpoint assumes that the step has a workflow ID assigned to it already
     workflow_template = crud.read(
         WorkflowTemplateOrm, id=template_step["workflow_template_id"]
@@ -97,7 +89,6 @@ def create_workflow_template_step(body: WorkflowTemplateStepUploadModel):
 @api_workflow_template_steps.get("", responses={200: WorkflowTemplateStepListResponse})
 def get_workflow_template_steps():
     """Get All Workflow Template Steps"""
-    # For now, return list with example data wrapped in the response model
     template_steps = crud.read_template_steps()
     template_steps = [
         marshal.marshal(template_step) for template_step in template_steps
@@ -161,15 +152,7 @@ def update_workflow_template_step(
         )
 
     workflow_template_step_changes = body.model_dump()
-
-    # Get ID of the user who's updating this template
-    try:
-        user_id = get_user_id(workflow_template_step_changes, "last_edited_by")
-        workflow_template_step_changes["last_edited_by"] = user_id
-        workflow_template_step_changes["last_edited"] = get_current_time()
-
-    except ValueError:
-        return abort(code=404, description="User not found.")
+    workflow_template_step_changes["last_edited"] = get_current_time()
 
     check_branch_conditions(
         workflow_template_step_changes

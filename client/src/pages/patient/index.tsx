@@ -31,7 +31,7 @@ import { MedicalInfo } from './MedicalInfo';
 import { PatientStats } from './PatientStats';
 import { PersonalInfo } from './PersonalInfo';
 import { PregnancyInfo } from './PregnancyInfo';
-import { WorkflowInfo } from './WorkflowInfo';
+import { WorkflowInfo } from './WorkflowInfo/WorkflowInfo';
 
 type RouteParams = {
   patientId: string;

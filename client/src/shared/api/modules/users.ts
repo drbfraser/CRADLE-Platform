@@ -53,6 +53,14 @@ export const getUsersAsync = async (): Promise<User[]> => {
   });
 };
 
+export const getUserAsync = async (userId: string): Promise<User> => {
+  const response = await axiosFetch({
+    method: 'GET',
+    url: EndpointEnum.USER + userId,
+  });
+  return response.data;
+};
+
 //password
 export const resetUserPasswordAsync = async (user: User, password: string) => {
   return axiosFetch({
