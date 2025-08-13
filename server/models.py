@@ -703,6 +703,12 @@ class WorkflowCollectionOrm(db.Model):
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
     date_created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
+    last_edited = db.Column(
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+        onupdate=get_current_time,
+    )
 
     @staticmethod
     def schema():
