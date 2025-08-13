@@ -4,6 +4,9 @@ from typing import TYPE_CHECKING, Type
 
 from common.commonUtil import get_uuid
 from common.form_utils import assign_form_or_template_ids
+from flask import abort
+from data import crud, marshal
+from api.resources.form_templates import handle_form_template_upload
 from models import (
     FormOrm,
     FormTemplateOrm,
@@ -12,10 +15,16 @@ from models import (
     WorkflowInstanceStepOrm,
     WorkflowTemplateOrm,
     WorkflowTemplateStepOrm,
+    RuleGroupOrm
 )
+
+from validation.formTemplates import FormTemplateUpload
 
 if TYPE_CHECKING:
     from data.crud import M
+
+
+workflow_template_not_found_msg = "Workflow template with ID: ({}) not found."
 
 
 def assign_branch_id(branch: dict, step_id: str, auto_assign_id: bool = False) -> None:
@@ -140,3 +149,47 @@ def apply_changes_to_model(model: Type[M], changes: dict) -> None:
     """
     for k, v in changes.items():
         setattr(model, k, v)
+
+
+def check_branch_conditions(template_step: dict) -> None:
+    for branch in template_step["branches"]:
+        if branch["condition"] is None and branch["condition_id"] is not None:
+            branch_condition = crud.read(RuleGroupOrm, id=branch["condition_id"])
+
+            if branch_condition is None:
+                return abort(
+                    code=404,
+                    description=f"Branch condition with ID: ({branch['condition_id']}) not found.",
+                )
+
+
+def validate_workflow_template_step(workflow_template_step: dict):
+
+    # This endpoint assumes that the step has a workflow ID assigned to it already
+    workflow_template = crud.read(
+        WorkflowTemplateOrm, id=workflow_template_step["workflow_template_id"]
+    )
+
+    if workflow_template is None:
+        return abort(
+            code=404,
+            description=workflow_template_not_found_msg.format(
+                workflow_template_step["workflow_template_id"]
+            ),
+        )
+
+    assign_step_ids(WorkflowTemplateStepOrm, workflow_template_step, workflow_template.id)
+
+    check_branch_conditions(workflow_template_step)
+
+    try:
+        if workflow_template_step["form"] is not None:
+            form_template = FormTemplateUpload(**workflow_template_step["form"])
+
+            # Process and upload the form template, if there is an issue, an exception is thrown
+            form_template = handle_form_template_upload(form_template)
+
+            workflow_template_step["form"] = form_template
+
+    except ValueError as err:
+        return abort(code=409, description=str(err))
