@@ -322,6 +322,11 @@ def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplat
         )
 
     workflow_template_changes = body.model_dump()
+
+    if workflow_template_changes.get("steps", None):
+        for step in workflow_template_changes["steps"]:
+            validate_workflow_template_step(step)
+
     workflow_template_changes["last_edited"] = get_current_time()
 
     crud.update(
@@ -381,6 +386,12 @@ def update_workflow_template_patch(
         body["classification"] = get_workflow_classification_from_dict(
             body, body["classification"]
         )
+
+    # This assumes that the request body has every step in the workflow template, all old steps will be overwritten
+    # If the request body includes any new/modified steps, process it
+    if body.get("steps", None):
+        for step in body["steps"]:
+            validate_workflow_template_step(step)
 
     apply_changes_to_model(new_workflow_template, body)
 
