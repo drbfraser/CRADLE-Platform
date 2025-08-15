@@ -34,7 +34,7 @@ def __query_data(model: type[M], query, id: str, attribute: str) -> Callable:
 
 def get_catalogue() -> Dict[str, Callable[[str, str], Any]]:
     """
-    the data catalogue of supported datasource strings
+    The data catalogue of supported datasource strings
 
     the catalogue maps datasource strings to a Callable that takes a string of id and attribute
 

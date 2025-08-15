@@ -90,7 +90,6 @@ def workflow_template1(vht_user_id):
         "archived": False,
         "date_created": get_current_time(),
         "last_edited": get_current_time() + 44345,
-        "last_edited_by": vht_user_id,
         "version": "0",
         "initial_condition_id": init_condition_id,
         "initial_condition": {
@@ -116,12 +115,11 @@ def workflow_instance1(vht_user_id, patient_id, workflow_template1):
     return {
         "id": instance_id,
         "name": "workflow_instance1",
-        "title": "Workflow Instance 1",
+        "description": "Workflow Instance 1",
         "status": "Active",
         "start_date": get_current_time(),
         "current_step_id": None,
         "last_edited": get_current_time() + 44345,
-        "last_edited_by": vht_user_id,
         "completion_date": None,
         "patient_id": patient_id,
         "workflow_template_id": workflow_template1["id"],
