@@ -5,47 +5,43 @@ from pydantic import field_validator
 from validation import CradleBaseModel
 
 
-# TODO: Change rule group example when format is specified
 class RuleGroupExample:
     id = "rule-group-example-01"
-    logic = '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}'
-    rules = (
-        '{"rule1": {"field": "patient.age", "operator": "LESS_THAN", "value": 32},'
-        '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-    )
+    rule = "{\"and\": [{\"<\": [{\"var\": \"$patient.age\"}, 32]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
+    data_sources = "[\"$patient.age\"]"
 
-    example_01 = {"id": id, "logic": logic, "rules": rules}
+    example_01 = {"id": id, "rule": rule, "data_sources": data_sources}
 
 
 class RuleGroupModel(CradleBaseModel, extra="forbid"):
     id: str
-    logic: str
-    rules: str
+    rule: str
+    data_sources: str
 
     """
-    Raises an error if the logic or rules attributes of a rule group is not in JSON
+    Raises an error if the rule or data_sources attributes of a rule group is not in JSON
     """
 
-    @field_validator("rules", mode="after")
+    @field_validator("rule", mode="after")
     @classmethod
-    def validate_rules(cls, rules: str) -> str:
+    def validate_rule(cls, rule: str) -> str:
         try:
-            json.loads(rules)
+            json.loads(rule)
 
         except json.JSONDecodeError:
-            raise ValueError("rules attribute must be a JSON string")
+            raise ValueError("rule attribute must be a JSON string")
 
-        return rules
+        return rule
 
-    @field_validator("logic", mode="after")
+    @field_validator("data_sources", mode="after")
     @classmethod
-    def validate_logic(cls, logic: str) -> str:
+    def validate_datasources(cls, data_sources: str) -> str:
         try:
-            json.loads(logic)
+            json.loads(data_sources)
 
         except json.JSONDecodeError:
-            raise ValueError("logic attribute must be a JSON string")
+            raise ValueError("data_sources attribute must be a JSON string")
 
-        return logic
+        return data_sources
 
-    # TODO: Add validators to determine if logic and rules are in the correct format
+    # TODO: Add validators to determine if rule and data_sources are in the correct format

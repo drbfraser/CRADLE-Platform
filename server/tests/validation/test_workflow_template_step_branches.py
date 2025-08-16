@@ -4,16 +4,12 @@ from pydantic import ValidationError
 from validation.workflow_template_step_branches import WorkflowTemplateStepBranchModel
 
 RULE_ID = "rule-group-example-01"
-LOGIC = '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}'
-RULES = (
-    '{"rule1": {"field": "patient.age", "operator": "LESS_THAN", "value": 32},'
-    '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-)
+RULE = "{\"and\": [{\"<\": [{\"var\": \"$patient.age\"}, 32]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
+DATA_SOURCES = "[\"$patient.age\"]"
 
+EXAMPLE_VALID_RULE = {"id": RULE_ID, "rule": RULE, "data_sources": DATA_SOURCES}
 
-EXAMPLE_VALID_RULE = {"id": RULE_ID, "logic": LOGIC, "rules": RULES}
-
-EXAMPLE_INVALID_RULE = {"id": RULE_ID, "logic": LOGIC, "rules": 1232}
+EXAMPLE_INVALID_RULE = {"id": RULE_ID, "rule": RULE, "data_sources": 1232}
 
 ID = "branch-example-01"
 TARGET_STEP_ID = "step-example-01"

@@ -242,11 +242,8 @@ def example_workflow_template():
         "initial_condition_id": init_condition_id,
         "initial_condition": {
             "id": init_condition_id,
-            "logic": '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-            "rules": (
-                '{"rule1": {"field": "patient.age", "operator": "LESS_THAN", "value": 32},'
-                '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-            ),
+            "rule": "{\"and\": [{\"<\": [{\"var\": \"$patient.age\"}, 32]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
+            "data_sources" : "[\"$patient.age\"]"
         },
         "classification_id": classification_id,
         "classification": {
@@ -278,11 +275,8 @@ def valid_workflow_template_step1(example_workflow_template, form_template):
         "condition_id": condition_id,
         "condition": {
             "id": condition_id,
-            "logic": '{"logical_operator": "OR", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-            "rules": (
-                '{"rule1": {"field": "patient.height", "operator": "LESS_THAN", "value": 56},'
-                '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-            ),
+            "rule": "{\"or\": [{\"<\": [{\"var\": \"height\"}, 56]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
+            "data_sources" : "[]"
         },
         "branches": [],
     }
@@ -313,11 +307,8 @@ def valid_workflow_template_step2(
         "condition_id": condition_id,
         "condition": {
             "id": condition_id,
-            "logic": '{"logical_operator": "OR", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-            "rules": (
-                '{"rule1": {"field": "patient.height", "operator": "LESS_THAN", "value": 56},'
-                '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-            ),
+            "rule": "{\"or\": [{\"<\": [{\"var\": \"height\"}, 56]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
+            "data_sources" : "[]"
         },
         "branches": [
             {
@@ -327,11 +318,8 @@ def valid_workflow_template_step2(
                 "condition_id": branch_condition_id,
                 "condition": {
                     "id": branch_condition_id,
-                    "logic": '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-                    "rules": (
-                        '{"rule1": {"field": "4", "operator": "LESS_THAN", "value": 56},'
-                        '"rule2": {"field": "443", "operator": "GREATER_THAN", "value": 164}}'
-                    ),
+                    "rule": "{\"and\": [{\"<\": [4, 56]}, {\">\": [443, 164]}]}",
+                    "data_sources" : "[]"
                 },
             }
         ],
@@ -362,11 +350,8 @@ def valid_workflow_template_step3(example_workflow_template, form_template):
         "condition_id": condition_id,
         "condition": {
             "id": condition_id,
-            "logic": '{"logical_operator": "OR", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-            "rules": (
-                '{"rule1": {"field": "patient.height", "operator": "LESS_THAN", "value": 56},'
-                '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-            ),
+            "rule": "{\"or\": [{\"<\": [{\"var\": \"height\"}, 56]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
+            "data_sources" : "[]"
         },
         "branches": [
             {
@@ -406,11 +391,8 @@ def valid_workflow_template_step4(example_workflow_template, form_template):
         "condition_id": condition_id,
         "condition": {
             "id": condition_id,
-            "logic": '{"logical_operator": "OR", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-            "rules": (
-                '{"rule1": {"field": "32", "operator": "LESS_THAN", "value": 56},'
-                '"rule2": {"field": "232", "operator": "GREATER_THAN", "value": 164}}'
-            ),
+            "rule": "{\"or\": [{\"<\": [{\"var\": \"height\"}, 56]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
+            "data_sources" : "[]"
         },
         "branches": [
             {
@@ -420,11 +402,8 @@ def valid_workflow_template_step4(example_workflow_template, form_template):
                 "condition_id": branch_condition_id,
                 "condition": {
                     "id": branch_condition_id,
-                    "logic": '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-                    "rules": (
-                        '{"rule1": {"field": "4", "operator": "LESS_THAN", "value": 56},'
-                        '"rule2": {"field": "443", "operator": "GREATER_THAN", "value": 164}}'
-                    ),
+                    "rule": "{\"and\": [{\"<\": [4, 56]}, {\">\": [443, 164]}]}",
+                    "data_sources" : "[]"   
                 },
             },
             {
@@ -434,11 +413,8 @@ def valid_workflow_template_step4(example_workflow_template, form_template):
                 "condition_id": branch_condition_id2,
                 "condition": {
                     "id": branch_condition_id2,
-                    "logic": '{"logical_operator": "OR", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-                    "rules": (
-                        '{"rule1": {"field": "patient.height", "operator": "LESS_THAN", "value": 56},'
-                        '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-                    ),
+                    "rule": "{\"or\": [{\"<\": [{\"var\": \"height\"}, 56]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
+                    "data_sources" : "[]"
                 },
             },
         ],
@@ -463,11 +439,8 @@ def invalid_workflow_template_step1(example_workflow_template, form_template):
         "condition_id": condition_id,
         "condition": {
             "id": condition_id,
-            "logic": "Hello",  # Invalid logic
-            "rules": (
-                '{"rule1": {"field": "patient.height", "operator": "LESS_THAN", "value": 56},'
-                '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-            ),
+            "rule": "Hello", # Invalid rule
+            "data_sources" : "[]"
         },
         "branches": [
             {
@@ -477,11 +450,8 @@ def invalid_workflow_template_step1(example_workflow_template, form_template):
                 "condition_id": branch_condition_id,
                 "condition": {
                     "id": branch_condition_id,
-                    "logic": '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-                    "rules": (
-                        '{"rule1": {"field": "4", "operator": "LESS_THAN", "value": 56},'
-                        '"rule2": {"field": "443", "operator": "GREATER_THAN", "value": 164}}'
-                    ),
+                    "rule": "{\"and\": [{\"<\": [4, 56]}, {\">\": [443, 164]}]}",
+                    "data_sources" : "[]"
                 },
             }
         ],
@@ -506,11 +476,8 @@ def invalid_workflow_template_step2(form_template):
         "condition_id": condition_id,
         "condition": {
             "id": condition_id,
-            "logic": '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-            "rules": (
-                '{"rule1": {"field": "patient.height", "operator": "LESS_THAN", "value": 56},'
-                '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-            ),
+            "rule": "{\"or\": [{\"<\": [{\"var\": \"height\"}, 56]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
+            "data_sources" : "[]"
         },
         "branches": [
             {
@@ -520,11 +487,8 @@ def invalid_workflow_template_step2(form_template):
                 "condition_id": branch_condition_id,
                 "condition": {
                     "id": branch_condition_id,
-                    "logic": '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-                    "rules": (
-                        '{"rule1": {"field": "4", "operator": "LESS_THAN", "value": 56},'
-                        '"rule2": {"field": "443", "operator": "GREATER_THAN", "value": 164}}'
-                    ),
+                    "rule": "{\"and\": [{\"<\": [4, 56]}, {\">\": [443, 164]}]}",
+                    "data_sources" : "[]"   
                 },
             }
         ],
@@ -548,11 +512,8 @@ def invalid_workflow_template_step3(example_workflow_template, form_template):
         "condition_id": condition_id,
         "condition": {
             "id": condition_id,
-            "logic": '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-            "rules": (
-                '{"rule1": {"field": "patient.height", "operator": "LESS_THAN", "value": 56},'
-                '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-            ),
+            "rule": "{\"or\": [{\"<\": [{\"var\": \"height\"}, 56]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
+            "data_sources" : "[]"
         },
         "branches": [
             {
