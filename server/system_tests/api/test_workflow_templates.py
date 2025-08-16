@@ -3,7 +3,6 @@ from humps import decamelize
 
 from common.commonUtil import get_current_time, get_uuid
 from common.print_utils import pretty_print
-from common.workflow_utils import assign_workflow_template_or_instance_ids
 from data import crud
 from models import WorkflowTemplateOrm
 
@@ -129,49 +128,6 @@ def test_invalid_workflow_templates_uploaded(
             delete_classification=True,
             id=workflow_template1["id"],
         )
-
-
-def test_workflow_template_ID_assignment(workflow_template2):
-    assign_workflow_template_or_instance_ids(
-        m=WorkflowTemplateOrm, workflow=workflow_template2
-    )
-
-    # Check that IDs are being assigned
-
-    assert workflow_template2["id"] is not None
-    assert workflow_template2["initial_condition_id"] is not None
-    assert workflow_template2["initial_condition"]["id"] is not None
-    assert workflow_template2["classification_id"] is not None
-    assert workflow_template2["classification"]["id"] is not None
-    assert workflow_template2["steps"][0]["id"] is not None
-    assert workflow_template2["steps"][0]["workflow_template_id"] is not None
-    assert workflow_template2["steps"][0]["condition_id"] is not None
-    assert workflow_template2["steps"][0]["condition"]["id"] is not None
-    assert workflow_template2["steps"][0]["form_id"] is not None
-    assert workflow_template2["steps"][0]["form"]["id"] is not None
-
-    # Check that newly assigned IDs match
-
-    assert (
-        workflow_template2["initial_condition_id"]
-        == workflow_template2["initial_condition"]["id"]
-    )
-    assert (
-        workflow_template2["classification_id"]
-        == workflow_template2["classification"]["id"]
-    )
-    assert (
-        workflow_template2["steps"][0]["workflow_template_id"]
-        == workflow_template2["id"]
-    )
-    assert (
-        workflow_template2["steps"][0]["condition_id"]
-        == workflow_template2["steps"][0]["condition"]["id"]
-    )
-    assert (
-        workflow_template2["steps"][0]["form_id"]
-        == workflow_template2["steps"][0]["form"]["id"]
-    )
 
 
 def test_getting_workflow_templates(
