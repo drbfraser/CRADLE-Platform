@@ -333,8 +333,8 @@ def workflow_template1():
         "initial_condition_id": init_condition_id,
         "initial_condition": {
             "id": init_condition_id,
-            "rule": "{\"and\": [{\"<\": [{\"var\": \"$patient.age\"}, 32]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
-            "data_sources" : "[\"$patient.age\"]"
+            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": '["$patient.age"]',
         },
         "classification_id": classification_id,
         "classification": {
@@ -359,8 +359,8 @@ def workflow_template2(form_template):
         "initial_condition_id": None,
         "initial_condition": {
             "id": None,
-            "rule": "{\"and\": [{\"<\": [{\"var\": \"$patient.age\"}, 32]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
-            "data_sources" : "[\"$patient.age\"]"
+            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": '["$patient.age"]',
         },
         "classification_id": None,
         "classification": {
@@ -380,8 +380,8 @@ def workflow_template2(form_template):
                 "condition_id": None,
                 "condition": {
                     "id": None,
-                    "rule": "{\"and\": [{\"<\": [{\"var\": \"$patient.age\"}, 32]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
-                    "data_sources" : "[\"$patient.age\"]"
+                    "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
+                    "data_sources": '["$patient.age"]',
                 },
                 "branches": [],
             }
@@ -410,8 +410,8 @@ def workflow_template3(form_template, workflow_template1):
         "initial_condition_id": init_condition_id,
         "initial_condition": {
             "id": init_condition_id,
-            "rule": "{\"or\": [{\"<\": [{\"var\": \"height\"}, 56]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
-            "data_sources" : "[]"
+            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": "[]",
         },
         "classification_id": workflow_template1["classification_id"],
         "classification": {
@@ -431,8 +431,8 @@ def workflow_template3(form_template, workflow_template1):
                 "condition_id": condition_id,
                 "condition": {
                     "id": condition_id,
-                    "rule": "{\"or\": [{\"<\": [{\"var\": \"height\"}, 56]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
-                    "data_sources" : "[]"
+                    "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
+                    "data_sources": "[]",
                 },
                 "branches": [],
             }
@@ -458,8 +458,8 @@ def workflow_template4():
         "initial_condition_id": init_condition_id,
         "initial_condition": {
             "id": init_condition_id,
-            "rule": "{\"or\": [{\"<\": [{\"var\": \"height\"}, 56]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
-            "data_sources" : "[]"
+            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": "[]",
         },
         "classification_id": classification_id,
         "classification": {
@@ -487,8 +487,8 @@ def invalid_workflow_template1():
         "initial_condition_id": init_condition_id,
         "initial_condition": {
             "id": init_condition_id,
-            "rule": "{\"and\": [{\"<\": [{\"var\": \"$patient.age\"}, 32]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
-            "data_sources" : "[\"$patient.age\"]"
+            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": '["$patient.age"]',
         },
         "classification_id": classification_id,
         "classification": {
@@ -516,8 +516,8 @@ def invalid_workflow_template2():
         "initial_condition_id": init_condition_id,
         "initial_condition": {
             "id": init_condition_id,
-            "rule": "{\"and\": [{\"<\": [{\"var\": \"$patient.age\"}, 32]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
-            "data_sources" : "Hello" # Invalid JSON string
+            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": "Hello",  # Invalid JSON string
         },
         "classification_id": classification_id,
         "classification": {
@@ -545,8 +545,8 @@ def invalid_workflow_template3(form_template):
         "initial_condition_id": init_condition_id,
         "initial_condition": {
             "id": init_condition_id,
-            "rule": "{\"and\": [{\"<\": [{\"var\": \"$patient.age\"}, 32]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
-            "data_sources" : "[\"$patient.age\"]"
+            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": '["$patient.age"]',
         },
         "classification_id": classification_id,
         "classification": None,  # No classification exists with this ID

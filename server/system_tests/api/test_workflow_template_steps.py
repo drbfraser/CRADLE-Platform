@@ -242,8 +242,8 @@ def example_workflow_template():
         "initial_condition_id": init_condition_id,
         "initial_condition": {
             "id": init_condition_id,
-            "rule": "{\"and\": [{\"<\": [{\"var\": \"$patient.age\"}, 32]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
-            "data_sources" : "[\"$patient.age\"]"
+            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": '["$patient.age"]',
         },
         "classification_id": classification_id,
         "classification": {
@@ -275,8 +275,8 @@ def valid_workflow_template_step1(example_workflow_template, form_template):
         "condition_id": condition_id,
         "condition": {
             "id": condition_id,
-            "rule": "{\"or\": [{\"<\": [{\"var\": \"height\"}, 56]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
-            "data_sources" : "[]"
+            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": "[]",
         },
         "branches": [],
     }
@@ -307,8 +307,8 @@ def valid_workflow_template_step2(
         "condition_id": condition_id,
         "condition": {
             "id": condition_id,
-            "rule": "{\"or\": [{\"<\": [{\"var\": \"height\"}, 56]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
-            "data_sources" : "[]"
+            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": "[]",
         },
         "branches": [
             {
@@ -318,8 +318,8 @@ def valid_workflow_template_step2(
                 "condition_id": branch_condition_id,
                 "condition": {
                     "id": branch_condition_id,
-                    "rule": "{\"and\": [{\"<\": [4, 56]}, {\">\": [443, 164]}]}",
-                    "data_sources" : "[]"
+                    "rule": '{"and": [{"<": [4, 56]}, {">": [443, 164]}]}',
+                    "data_sources": "[]",
                 },
             }
         ],
@@ -350,8 +350,8 @@ def valid_workflow_template_step3(example_workflow_template, form_template):
         "condition_id": condition_id,
         "condition": {
             "id": condition_id,
-            "rule": "{\"or\": [{\"<\": [{\"var\": \"height\"}, 56]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
-            "data_sources" : "[]"
+            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": "[]",
         },
         "branches": [
             {
@@ -391,8 +391,8 @@ def valid_workflow_template_step4(example_workflow_template, form_template):
         "condition_id": condition_id,
         "condition": {
             "id": condition_id,
-            "rule": "{\"or\": [{\"<\": [{\"var\": \"height\"}, 56]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
-            "data_sources" : "[]"
+            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": "[]",
         },
         "branches": [
             {
@@ -402,8 +402,8 @@ def valid_workflow_template_step4(example_workflow_template, form_template):
                 "condition_id": branch_condition_id,
                 "condition": {
                     "id": branch_condition_id,
-                    "rule": "{\"and\": [{\"<\": [4, 56]}, {\">\": [443, 164]}]}",
-                    "data_sources" : "[]"   
+                    "rule": '{"and": [{"<": [4, 56]}, {">": [443, 164]}]}',
+                    "data_sources": "[]",
                 },
             },
             {
@@ -413,8 +413,8 @@ def valid_workflow_template_step4(example_workflow_template, form_template):
                 "condition_id": branch_condition_id2,
                 "condition": {
                     "id": branch_condition_id2,
-                    "rule": "{\"or\": [{\"<\": [{\"var\": \"height\"}, 56]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
-                    "data_sources" : "[]"
+                    "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
+                    "data_sources": "[]",
                 },
             },
         ],
@@ -439,8 +439,8 @@ def invalid_workflow_template_step1(example_workflow_template, form_template):
         "condition_id": condition_id,
         "condition": {
             "id": condition_id,
-            "rule": "Hello", # Invalid rule
-            "data_sources" : "[]"
+            "rule": "Hello",  # Invalid rule
+            "data_sources": "[]",
         },
         "branches": [
             {
@@ -450,8 +450,8 @@ def invalid_workflow_template_step1(example_workflow_template, form_template):
                 "condition_id": branch_condition_id,
                 "condition": {
                     "id": branch_condition_id,
-                    "rule": "{\"and\": [{\"<\": [4, 56]}, {\">\": [443, 164]}]}",
-                    "data_sources" : "[]"
+                    "rule": '{"and": [{"<": [4, 56]}, {">": [443, 164]}]}',
+                    "data_sources": "[]",
                 },
             }
         ],
@@ -476,8 +476,8 @@ def invalid_workflow_template_step2(form_template):
         "condition_id": condition_id,
         "condition": {
             "id": condition_id,
-            "rule": "{\"or\": [{\"<\": [{\"var\": \"height\"}, 56]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
-            "data_sources" : "[]"
+            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": "[]",
         },
         "branches": [
             {
@@ -487,8 +487,8 @@ def invalid_workflow_template_step2(form_template):
                 "condition_id": branch_condition_id,
                 "condition": {
                     "id": branch_condition_id,
-                    "rule": "{\"and\": [{\"<\": [4, 56]}, {\">\": [443, 164]}]}",
-                    "data_sources" : "[]"   
+                    "rule": '{"and": [{"<": [4, 56]}, {">": [443, 164]}]}',
+                    "data_sources": "[]",
                 },
             }
         ],
@@ -512,8 +512,8 @@ def invalid_workflow_template_step3(example_workflow_template, form_template):
         "condition_id": condition_id,
         "condition": {
             "id": condition_id,
-            "rule": "{\"or\": [{\"<\": [{\"var\": \"height\"}, 56]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
-            "data_sources" : "[]"
+            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": "[]",
         },
         "branches": [
             {

@@ -5,8 +5,8 @@ from validation.rule_groups import RuleGroupModel
 
 ID = "rule-group-example-01"
 
-RULE = "{\"and\": [{\"<\": [{\"var\": \"$patient.age\"}, 32]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}"
-DATA_SOURCES = "[\"$patient.age\"]"
+RULE = '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}'
+DATA_SOURCES = '["$patient.age"]'
 
 
 rule_group_with_valid_fields_should_return_none = {

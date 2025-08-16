@@ -7,8 +7,10 @@ from validation import CradleBaseModel
 
 class RuleGroupExample:
     id = "rule-group-example-01"
-    rule = "{\"and\": [{\"<\": [{\"var\": \"$patient.age\"}, 32]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
-    data_sources = "[\"$patient.age\"]"
+    rule = (
+        '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}'
+    )
+    data_sources = '["$patient.age"]'
 
     example_01 = {"id": id, "rule": rule, "data_sources": data_sources}
 

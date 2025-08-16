@@ -95,8 +95,8 @@ def workflow_template1(vht_user_id):
         "initial_condition_id": init_condition_id,
         "initial_condition": {
             "id": init_condition_id,
-            "rule": "{\"and\": [{\"<\": [{\"var\": \"$patient.age\"}, 32]}, {\">\": [{\"var\": \"bpm\"}, 164]}]}",
-            "data_sources" : "[\"$patient.age\"]"
+            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": '["$patient.age"]',
         },
         "classification_id": classification_id,
         "classification": {
