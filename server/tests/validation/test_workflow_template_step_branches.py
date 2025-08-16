@@ -4,9 +4,7 @@ from pydantic import ValidationError
 from validation.workflow_template_step_branches import WorkflowTemplateStepBranchModel
 
 RULE_ID = "rule-group-example-01"
-RULE = (
-    '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}'
-)
+RULE = '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}'
 DATA_SOURCES = '["$patient.age"]'
 
 EXAMPLE_VALID_RULE = {"id": RULE_ID, "rule": RULE, "data_sources": DATA_SOURCES}
