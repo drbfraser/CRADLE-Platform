@@ -194,10 +194,6 @@ def seed_test_data():
         fname="Anna",
     )
 
-    create_simple_workflow_instance_step(
-        user_id=3, form_id="simple-workflow-instance-form-1"
-    )
-
     create_simple_workflow_instance(
         patient_id="49300028162",
         step_id="simple-workflow-instance-step-1",
@@ -1459,22 +1455,6 @@ def create_simple_workflow_instance(patient_id, step_id, workflow_template_id):
             "patient_id": patient_id,
         }
 
-        simple_workflow_instance_step_orm = crud.read(
-            WorkflowInstanceStepOrm, id="simple-workflow-instance-step-1"
-        )
-
-        simple_workflow_instance_orm = WorkflowInstanceOrm(**simple_workflow_instance)
-
-        simple_workflow_instance_step_orm.steps.append(
-            simple_workflow_instance_step_orm
-        )
-
-        db.session.add(simple_workflow_instance_orm)
-        db.session.commit()
-
-
-def create_simple_workflow_instance_step(user_id, form_id):
-    if crud.read(WorkflowInstanceStepOrm, id="simple-workflow-instance-step-1") is None:
         simple_workflow_instance_step = {
             "id": "simple-workflow-instance-step-1",
             "name": "Patient Name Step",
@@ -1485,16 +1465,21 @@ def create_simple_workflow_instance_step(user_id, form_id):
             "expected_completion": get_current_time() + 40000,
             "completion_date": get_current_time() + 35000,
             "status": "ACTIVE",
-            "form_id": form_id,
-            "assigned_to": user_id,
+            "form_id": "simple-workflow-instance-form-1",
+            "assigned_to": 3,
             "condition_id": None,
+            "workflow_instance_id": "simple-workflow-instance-1",
         }
 
         simple_workflow_instance_step_orm = WorkflowInstanceStepOrm(
             **simple_workflow_instance_step
         )
 
-        db.session.add(simple_workflow_instance_step_orm)
+        simple_workflow_instance_orm = WorkflowInstanceOrm(**simple_workflow_instance)
+
+        simple_workflow_instance_orm.steps.append(simple_workflow_instance_step_orm)
+
+        db.session.add(simple_workflow_instance_orm)
         db.session.commit()
 
 
@@ -1544,10 +1529,6 @@ def create_simple_workflow_instance_form(
 
         db.session.add(simple_workflow_instance_form_orm)
         db.session.commit()
-
-
-def create_simple_workflow_instance_form_question():
-    pass
 
 
 def get_random_initials():
