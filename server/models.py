@@ -881,7 +881,7 @@ class WorkflowInstanceOrm(db.Model):
     __tablename__ = "workflow_instance"
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
-    title = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text, nullable=False)
     start_date = db.Column(db.BigInteger, nullable=False, default=get_current_time)
     current_step_id = db.Column(db.String(50), nullable=True)
     last_edited = db.Column(
@@ -898,10 +898,6 @@ class WorkflowInstanceOrm(db.Model):
     # FOREIGN KEYS
     workflow_template_id = db.Column(
         db.ForeignKey(WorkflowTemplateOrm.id, ondelete="SET NULL"), nullable=True
-    )
-
-    last_edited_by = db.Column(
-        db.ForeignKey(UserOrm.id, ondelete="SET NULL"), nullable=True
     )
 
     patient_id = db.Column(
@@ -928,7 +924,7 @@ class WorkflowInstanceStepOrm(db.Model):
     __tablename__ = "workflow_instance_step"
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
-    title = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text, nullable=False)
     start_date = db.Column(db.BigInteger, nullable=False, default=get_current_time)
     triggered_by = db.Column(db.String(50), nullable=True)
     last_edited = db.Column(
