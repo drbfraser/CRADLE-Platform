@@ -1,8 +1,8 @@
 """
 change 'title' attribute to 'description', remove 'last_edited_by' field in workflow instances, make 'form_id' nullable in workflow instance steps
 
-Revision ID: 16_96300f833773
-Revises: 15_bf923c5cb3c3
+Revision ID: 17_96300f833773
+Revises: 16_0520a90e0303
 Create Date: 2025-08-15 21:45:33.562795
 
 """
@@ -12,8 +12,8 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "16_96300f833773"
-down_revision = "15_bf923c5cb3c3"
+revision = "17_96300f833773"
+down_revision = "16_0520a90e0303"
 branch_labels = None
 depends_on = None
 
