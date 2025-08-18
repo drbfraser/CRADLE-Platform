@@ -174,7 +174,7 @@ def test_patch_workflow_instance(
         assert response.status_code == 200
         assert response_body["name"] == "updated_workflow_name"
         assert response_body["status"] == "Completed"
-        assert response_body["title"] == workflow_instance1["title"]
+        assert response_body["description"] == workflow_instance1["description"]
         assert response_body["patient_id"] == workflow_instance1["patient_id"]
 
         # Verify the changes persisted by getting the instance
@@ -205,12 +205,11 @@ def workflow_instance1(vht_user_id, patient_id, workflow_template1):
     return {
         "id": instance_id,
         "name": "workflow_instance1",
-        "title": "Workflow Instance 1",
+        "description": "Workflow Instance 1",
         "status": "Active",
         "start_date": get_current_time(),
         "current_step_id": None,
         "last_edited": get_current_time() + 44345,
-        "last_edited_by": vht_user_id,
         "completion_date": None,
         "patient_id": patient_id,
         "workflow_template_id": workflow_template1["id"],
@@ -224,12 +223,11 @@ def workflow_instance2(vht_user_id, patient_id, workflow_template1):
     return {
         "id": instance_id,
         "name": "workflow_instance2",
-        "title": "Workflow Instance 2",
+        "description": "Workflow Instance 2",
         "status": "Completed",
         "start_date": get_current_time(),
         "current_step_id": None,
         "last_edited": get_current_time() + 44345,
-        "last_edited_by": vht_user_id,
         "completion_date": get_current_time() + 88690,
         "patient_id": patient_id,
         "workflow_template_id": workflow_template1["id"],
