@@ -926,7 +926,9 @@ class WorkflowInstanceStepOrm(db.Model):
     name = db.Column(db.String(200), index=True, nullable=False)
     description = db.Column(db.Text, nullable=False)
     start_date = db.Column(db.BigInteger, nullable=False, default=get_current_time)
-    triggered_by = db.Column(db.String(50), nullable=True)
+    triggered_by = db.Column(
+        db.String(50), nullable=True
+    )  # The prior step in the workflow that activated the current step
     last_edited = db.Column(
         db.BigInteger,
         nullable=False,

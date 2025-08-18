@@ -73,8 +73,8 @@ def test_getting_workflow_instance(
         assert response.status_code == 201  # Verify second instance creation succeeded
         print(f"Instance 2 created with ID: {workflow_instance2['id']}")
 
-        # TODO: Due to the nature of the API tests using the actual dev DB, tests like these don't work if other instances are the DB
-        # Get without params first
+        # TODO: These tests will always fail because the seed_test_data script includes a workflow instance not accounted for
+        # # Get without params first
         # print("About to retrieve instances...")
         # response = api_get(endpoint="/api/workflow/instances")
         # response_body = decamelize(response.json())
@@ -83,7 +83,7 @@ def test_getting_workflow_instance(
         # assert response.status_code == 200
         # assert "items" in response_body
         # assert len(response_body["items"]) == 2
-
+        #
         # # Get with status "Active"
         # response = api_get(endpoint="/api/workflow/instances?status=Active")
         # response_body = decamelize(response.json())

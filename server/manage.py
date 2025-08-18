@@ -28,6 +28,8 @@ from models import (
     RelayServerPhoneNumberOrm,
     VillageOrm,
     WorkflowClassificationOrm,
+    WorkflowInstanceOrm,
+    WorkflowInstanceStepOrm,
     WorkflowTemplateOrm,
     WorkflowTemplateStepBranchOrm,
     WorkflowTemplateStepOrm,
@@ -182,6 +184,21 @@ def seed_test_data():
     print("Creating a simple workflow template and workflow classification")
     create_simple_workflow_classification()
     create_simple_workflow_template()
+
+    print("Creating a simple workflow instance")
+    create_simple_workflow_instance_form(
+        patient_id="49300028162",
+        user_id=3,
+        form_template_id="wt-simple-1-step-1-form",
+        form_classification_id="wt-simple-1-form-classification",
+        fname="Anna",
+    )
+
+    create_simple_workflow_instance(
+        patient_id="49300028162",
+        step_id="simple-workflow-instance-step-1",
+        workflow_template_id="wt-simple-1",
+    )
 
     print("Finished seeding test data")
 
@@ -1421,6 +1438,97 @@ def create_complex_workflow_template_step_form_questions():
         )
 
     db.session.commit()
+
+
+def create_simple_workflow_instance(patient_id, step_id, workflow_template_id):
+    if crud.read(WorkflowInstanceOrm, id="simple-workflow-instance-1") is None:
+        simple_workflow_instance = {
+            "id": "simple-workflow-instance-1",
+            "name": "Patient Name Workflow",
+            "description": "Patient Name Workflow",
+            "start_date": get_current_time(),
+            "current_step_id": step_id,
+            "last_edited": get_current_time(),
+            "completion_date": get_current_time() + 40000,
+            "status": "ACTIVE",
+            "workflow_template_id": workflow_template_id,
+            "patient_id": patient_id,
+        }
+
+        simple_workflow_instance_step = {
+            "id": "simple-workflow-instance-step-1",
+            "name": "Patient Name Step",
+            "description": "Patient Name Step",
+            "start_date": get_current_time(),
+            "triggered_by": None,
+            "last_edited": get_current_time(),
+            "expected_completion": get_current_time() + 40000,
+            "completion_date": get_current_time() + 35000,
+            "status": "ACTIVE",
+            "form_id": "simple-workflow-instance-form-1",
+            "assigned_to": 3,
+            "condition_id": None,
+            "workflow_instance_id": "simple-workflow-instance-1",
+        }
+
+        simple_workflow_instance_step_orm = WorkflowInstanceStepOrm(
+            **simple_workflow_instance_step
+        )
+
+        simple_workflow_instance_orm = WorkflowInstanceOrm(**simple_workflow_instance)
+
+        simple_workflow_instance_orm.steps.append(simple_workflow_instance_step_orm)
+
+        db.session.add(simple_workflow_instance_orm)
+        db.session.commit()
+
+
+def create_simple_workflow_instance_form(
+    patient_id, form_template_id, user_id, form_classification_id, fname
+):
+    if crud.read(FormOrm, id="simple-workflow-instance-form-1") is None:
+        simple_workflow_instance_form_question = {
+            "id": "simple-workflow-instance-form-question-1",
+            "category_index": None,
+            "question_index": 0,
+            "is_blank": True,
+            "answers": f'{{"text": "{fname}"}}',
+            "question_type": "STRING",
+            "required": True,
+            "allow_future_dates": True,
+            "allow_past_dates": True,
+            "num_min": None,
+            "num_max": None,
+            "string_max_length": None,
+            "units": None,
+            "visible_condition": "[]",
+        }
+
+        simple_workflow_instance_form_question_orm = QuestionOrm(
+            **simple_workflow_instance_form_question
+        )
+
+        simple_workflow_instance_form = {
+            "id": "simple-workflow-instance-form-1",
+            "lang": "English",
+            "name": "Patient Name Form",
+            "category": "",
+            "patient_id": patient_id,
+            "form_template_id": form_template_id,
+            "date_created": get_current_time(),
+            "last_edited": get_current_time(),
+            "last_edited_by": user_id,
+            "form_classification_id": form_classification_id,
+            "archived": False,
+        }
+
+        simple_workflow_instance_form_orm = FormOrm(**simple_workflow_instance_form)
+        simple_workflow_instance_form_orm.questions.append(
+            simple_workflow_instance_form_question_orm
+        )
+
+        db.session.add(simple_workflow_instance_form_orm)
+        db.session.commit()
 
 
 def get_random_initials():
