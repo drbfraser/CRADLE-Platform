@@ -7,7 +7,6 @@ from flask_openapi3.models.tag import Tag
 from common.api_utils import (
     WorkflowInstanceIdPath,
     convert_query_parameter_to_bool,
-    get_user_id,
 )
 from common.commonUtil import get_current_time
 from common.workflow_utils import assign_workflow_template_or_instance_ids
@@ -52,14 +51,6 @@ def create_workflow_instance(body: WorkflowInstanceUploadModel):
     assign_workflow_template_or_instance_ids(
         WorkflowInstanceOrm, workflow_instance_dict
     )
-
-    # Get ID of user
-    try:
-        user_id = get_user_id(workflow_instance_dict, "last_edited_by")
-        workflow_instance_dict["last_edited_by"] = user_id
-
-    except ValueError:
-        return abort(code=404, description="User not found.")
 
     # Validate that the workflow template exists (if provided)
     if workflow_instance_dict.get("workflow_template_id") is not None:
@@ -160,14 +151,7 @@ def update_workflow_instance(path: WorkflowInstanceIdPath, body: WorkflowInstanc
 
     workflow_instance_changes = body.model_dump()
 
-    # Get ID of the user who's updating this instance
-    try:
-        user_id = get_user_id(workflow_instance_changes, "last_edited_by")
-        workflow_instance_changes["last_edited_by"] = user_id
-        workflow_instance_changes["last_edited"] = get_current_time()
-
-    except ValueError:
-        return abort(code=404, description="User not found.")
+    workflow_instance_changes["last_edited"] = get_current_time()
 
     # Validate that the workflow template exists (if being updated)
     if workflow_instance_changes.get("workflow_template_id") is not None:
