@@ -2,23 +2,23 @@ from flask import abort, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
-from api.resources.form_templates import handle_form_template_upload
 from common.api_utils import (
     WorkflowTemplateStepIdPath,
     WorkflowTemplateStepListResponse,
     convert_query_parameter_to_bool,
 )
 from common.commonUtil import get_current_time
-from common.workflow_utils import assign_step_ids
+from common.workflow_utils import (
+    check_branch_conditions,
+    validate_workflow_template_step,
+)
 from data import crud, marshal
-from models import RuleGroupOrm, WorkflowTemplateOrm, WorkflowTemplateStepOrm
-from validation.formTemplates import FormTemplateUpload
+from models import WorkflowTemplateStepOrm
 from validation.workflow_template_steps import (
     WorkflowTemplateStepModel,
     WorkflowTemplateStepUploadModel,
 )
 
-workflow_template_not_found_msg = "Workflow template with ID: ({}) not found."
 workflow_template_step_not_found_msg = "Workflow template step with ID: ({}) not found."
 
 # /api/workflow/template/steps
@@ -31,58 +31,19 @@ api_workflow_template_steps = APIBlueprint(
 )
 
 
-def check_branch_conditions(template_step: dict) -> None:
-    for branch in template_step["branches"]:
-        if branch["condition"] is None and branch["condition_id"] is not None:
-            branch_condition = crud.read(RuleGroupOrm, id=branch["condition_id"])
-
-            if branch_condition is None:
-                return abort(
-                    code=404,
-                    description=f"Branch condition with ID: ({branch['condition_id']}) not found.",
-                )
-
-
 # /api/workflow/template/steps [POST]
 @api_workflow_template_steps.post("", responses={201: WorkflowTemplateStepModel})
 def create_workflow_template_step(body: WorkflowTemplateStepUploadModel):
     """Create Workflow Template Step"""
     template_step = body.model_dump()
 
-    # This endpoint assumes that the step has a workflow ID assigned to it already
-    workflow_template = crud.read(
-        WorkflowTemplateOrm, id=template_step["workflow_template_id"]
-    )
+    validate_workflow_template_step(template_step)
 
-    if workflow_template is None:
-        return abort(
-            code=404,
-            description=workflow_template_not_found_msg.format(
-                template_step["workflow_template_id"]
-            ),
-        )
+    template_step_orm = marshal.unmarshal(WorkflowTemplateStepOrm, template_step)
 
-    assign_step_ids(WorkflowTemplateStepOrm, template_step, workflow_template.id)
+    crud.create(template_step_orm, refresh=True)
 
-    check_branch_conditions(template_step)
-
-    try:
-        if template_step["form"] is not None:
-            form_template = FormTemplateUpload(**template_step["form"])
-
-            # Process and upload the form template, if there is an issue, an exception is thrown
-            form_template = handle_form_template_upload(form_template)
-
-            template_step["form"] = form_template
-
-        template_step_orm = marshal.unmarshal(WorkflowTemplateStepOrm, template_step)
-
-        crud.create(template_step_orm, refresh=True)
-
-        return marshal.marshal(template_step_orm, shallow=True), 201
-
-    except ValueError as err:
-        return abort(code=409, description=str(err))
+    return marshal.marshal(template_step_orm, shallow=True), 201
 
 
 # /api/workflow/template/steps [GET]

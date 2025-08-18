@@ -8,7 +8,7 @@ from tests.validation.test_form_templates import (
     template_with_valid_fields_and_one_question_should_return_none,
 )
 from tests.validation.test_rule_groups import (
-    rule_group_with_invalid_json_logic_should_return_validation_error,
+    rule_group_with_invalid_json_rule_should_return_validation_error,
     rule_group_with_valid_fields_should_return_none,
 )
 from tests.validation.test_workflow_template_step_branches import (
@@ -19,7 +19,7 @@ from validation.workflow_template_steps import WorkflowTemplateStepModel
 
 EXAMPLE_VALID_RULE = rule_group_with_valid_fields_should_return_none
 
-EXAMPLE_INVALID_RULE = rule_group_with_invalid_json_logic_should_return_validation_error
+EXAMPLE_INVALID_RULE = rule_group_with_invalid_json_rule_should_return_validation_error
 
 VALID_BRANCH_WITH_CONDITION = step_branch_with_valid_fields_should_return_none
 INVALID_BRANCH_WITH_CONDITION = (

@@ -3,7 +3,7 @@ from pydantic import ValidationError
 
 from common.commonUtil import get_current_time
 from tests.validation.test_rule_groups import (
-    rule_group_with_invalid_json_logic_should_return_validation_error,
+    rule_group_with_invalid_json_rule_should_return_validation_error,
     rule_group_with_valid_fields_should_return_none,
 )
 from tests.validation.test_workflow_classifications import (
@@ -32,7 +32,7 @@ INVALID_WORKFLOW_CLASSIFICATION = (
 
 """Rule group used for initial condition"""
 VALID_RULE_GROUP = rule_group_with_valid_fields_should_return_none
-INVALID_RULE_GROUP = rule_group_with_invalid_json_logic_should_return_validation_error
+INVALID_RULE_GROUP = rule_group_with_invalid_json_rule_should_return_validation_error
 
 ID = "workflow-template-example-01"
 NAME = "Workflow Template Model Example"

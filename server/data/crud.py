@@ -1113,6 +1113,20 @@ def read_template_steps(
     return query.all()
 
 
+def read_rule_group(rule_group_id: str) -> RuleGroupOrm:
+    """
+    Queries the database for a specified rule group
+
+    :param rule_group_id: ID of the rule group to retrieve
+    :return: a Rule Group object
+    """
+    if rule_group_id:
+        query = db_session.query(RuleGroupOrm).filter(RuleGroupOrm.id == rule_group_id)
+        return query.one_or_none()
+
+    return None
+
+
 # ~~~~~~~~~~~~~~~~~~~~~~~ DB Calls ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
 

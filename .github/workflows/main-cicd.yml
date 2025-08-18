@@ -264,18 +264,18 @@ jobs:
           apt-get install build-essential zlib1g-dev \
           libncurses5-dev libgdbm-dev libnss3-dev \
           libssl-dev libreadline-dev libffi-dev curl software-properties-common -y
-          wget https://www.python.org/ftp/python/3.9.12/Python-3.9.12.tar.xz
-          tar -xf Python-3.9.12.tar.xz
-          cd Python-3.9.12
+          wget https://www.python.org/ftp/python/3.10.18/Python-3.10.18.tar.xz
+          tar -xf Python-3.10.18.tar.xz
+          cd Python-3.10.18
           ./configure
           make altinstall
-          python3.9 --version
+          python3.10 --version
           python3 --version
-          echo 'export PATH="/usr/local/bin/python3.9:$PATH"' >> ${{ env.CUSTOM_WORKSPACE }}/.bashrc
+          echo 'export PATH="/usr/local/bin/python3.10:$PATH"' >> ${{ env.CUSTOM_WORKSPACE }}/.bashrc
           source ${{ env.CUSTOM_WORKSPACE }}/.bashrc
-          echo "Create symbolic link for python3.9"
+          echo "Create symbolic link for python3.10"
           unlink /usr/bin/python3
-          ln -s /usr/local/bin/python3.9 /usr/bin/python3
+          ln -s /usr/local/bin/python3.10 /usr/bin/python3
           python3 --version
         working-directory: ${{ env.CUSTOM_WORKSPACE }}
       - name: Install Node 
@@ -306,19 +306,19 @@ jobs:
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/client
       - name: Install Back-end dependencies 
         run: |
-          python3.9 -m pip install --upgrade pip
-          python3.9 -m pip install -r requirements.txt
+          python3.10 -m pip install --upgrade pip
+          python3.10 -m pip install -r requirements.txt
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
       - name: Start backend service
         env:
           PORT: '5000'
         run: |
-          python3.9 app.py &
+          python3.10 app.py &
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
       - name: Seed Database
         run: |
-          python3.9 db.py rebuild --no-docker
-          python3.9 manage.py seed_test_data
+          python3.10 db.py rebuild --no-docker
+          python3.10 manage.py seed_test_data
         working-directory: ${{ env.CUSTOM_WORKSPACE }}/server
       - name: Run End-to-End Tests
         id: e2e_test
