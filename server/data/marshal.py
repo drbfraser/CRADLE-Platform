@@ -496,8 +496,11 @@ def __marshal_workflow_instance_step(wis: WorkflowInstanceStepOrm) -> dict:
     if wis.condition is not None:
         d["condition"] = __marshal_rule_group(wis.condition)
 
-    d["form"] = __marshal_form(wis.form, shallow=True)
-
+    if wis.form is not None:
+        d["form"] = __marshal_form(wis.form, shallow=True)
+    else:
+        d["form"] = None
+        
     return d
 
 
