@@ -500,7 +500,7 @@ def __marshal_workflow_instance_step(wis: WorkflowInstanceStepOrm) -> dict:
         d["form"] = __marshal_form(wis.form, shallow=True)
     else:
         d["form"] = None
-        
+
     return d
 
 

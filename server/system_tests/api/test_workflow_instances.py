@@ -84,7 +84,7 @@ def test_getting_workflow_instance(
         instance_ids = [item["id"] for item in response_body["items"]]
         assert workflow_instance1["id"] in instance_ids
         assert workflow_instance2["id"] in instance_ids
-        
+
         # Get with status "Active"
         response = api_get(endpoint="/api/workflow/instances?status=Active")
         response_body = decamelize(response.json())
@@ -92,7 +92,8 @@ def test_getting_workflow_instance(
         assert response.status_code == 200
 
         our_active_instances = [
-            item for item in response_body["items"] 
+            item
+            for item in response_body["items"]
             if item["id"] == workflow_instance1["id"]
         ]
         assert len(our_active_instances) == 1

@@ -5,9 +5,9 @@ from common.commonUtil import get_current_time, get_uuid
 from common.print_utils import pretty_print
 from data import crud
 from models import (
+    WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
     WorkflowTemplateOrm,
-    WorkflowInstanceOrm,
 )
 
 
@@ -19,9 +19,10 @@ def test_create_workflow_instance_step(
     vht_user_id,
 ):
     try:
-
         # Create workflow template
-        response = api_post(endpoint="/api/workflow/templates/body", json=workflow_template1)
+        response = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_template1
+        )
         database.session.commit()
         response_body = decamelize(response.json())
         pretty_print(response_body)
@@ -37,14 +38,16 @@ def test_create_workflow_instance_step(
         minimal_workflow_instance_step = {
             "id": get_uuid(),
             "name": "Test Step 1",
-            "description": "Test Step 1", 
+            "description": "Test Step 1",
             "start_date": get_current_time(),
             "status": "Active",
-            "workflow_instance_id": workflow_instance1["id"], 
+            "workflow_instance_id": workflow_instance1["id"],
         }
 
         # Test creating workflow instance step
-        response = api_post(endpoint="/api/workflow/instance/steps", json=minimal_workflow_instance_step)
+        response = api_post(
+            endpoint="/api/workflow/instance/steps", json=minimal_workflow_instance_step
+        )
         database.session.commit()
 
         if response.status_code != 201:
@@ -56,12 +59,11 @@ def test_create_workflow_instance_step(
         assert response.status_code == 201
 
     finally:
-        crud.delete_all(WorkflowInstanceStepOrm, workflow_instance_id=workflow_instance1["id"])
+        crud.delete_all(
+            WorkflowInstanceStepOrm, workflow_instance_id=workflow_instance1["id"]
+        )
         crud.delete_all(WorkflowInstanceOrm, id=workflow_instance1["id"])
         crud.delete_all(WorkflowTemplateOrm, id=workflow_template1["id"])
-
-
-
 
 
 @pytest.fixture
