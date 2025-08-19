@@ -2,8 +2,8 @@ from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
+from service.datasourcing import data_sourcing as workflow_datasourcing
 from service.workflow.rules_engine import RulesEngineFacade
-from service.workflow.workflow_datasources import WorkflowDatasourcing
 from service.workflow.workflow_rule_evaluation import WorkflowEvaluationService
 from validation.workflow_evaluate import (
     WorkflowEvaluateExamples,
@@ -35,9 +35,7 @@ def evaluate_workflow_instance(body: WorkflowEvaluateRequestModel):
             response = WorkflowEvaluateExamples.example_01
             return response, 200
 
-        # constructor injection done at controller level (i.e. api blueprint)
-        # should move to config.py
-        service = WorkflowEvaluationService(WorkflowDatasourcing, RulesEngineFacade)
+        service = WorkflowEvaluationService(workflow_datasourcing, RulesEngineFacade)
 
         (rule, datasources) = service.get_data(request["id"])
 
