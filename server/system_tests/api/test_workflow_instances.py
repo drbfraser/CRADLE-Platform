@@ -73,26 +73,30 @@ def test_getting_workflow_instance(
         assert response.status_code == 201  # Verify second instance creation succeeded
         print(f"Instance 2 created with ID: {workflow_instance2['id']}")
 
-        # TODO: These tests will always fail because the seed_test_data script includes a workflow instance not accounted for
-        # # Get without params first
-        # print("About to retrieve instances...")
-        # response = api_get(endpoint="/api/workflow/instances")
-        # response_body = decamelize(response.json())
-        # pretty_print(response_body)
-        #
-        # assert response.status_code == 200
-        # assert "items" in response_body
-        # assert len(response_body["items"]) == 2
-        #
-        # # Get with status "Active"
-        # response = api_get(endpoint="/api/workflow/instances?status=Active")
-        # response_body = decamelize(response.json())
-        # pretty_print(response_body)
-        #
-        # assert response.status_code == 200
-        # assert "items" in response_body
-        # assert len(response_body["items"]) == 1
-        # assert response_body["items"][0]["status"] == "Active"
+        # Get without params first
+        print("About to retrieve instances...")
+        response = api_get(endpoint="/api/workflow/instances")
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+        assert response.status_code == 200
+
+        assert "items" in response_body
+        instance_ids = [item["id"] for item in response_body["items"]]
+        assert workflow_instance1["id"] in instance_ids
+        assert workflow_instance2["id"] in instance_ids
+        
+        # Get with status "Active"
+        response = api_get(endpoint="/api/workflow/instances?status=Active")
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+        assert response.status_code == 200
+
+        our_active_instances = [
+            item for item in response_body["items"] 
+            if item["id"] == workflow_instance1["id"]
+        ]
+        assert len(our_active_instances) == 1
+        assert our_active_instances[0]["status"] == "Active"
 
         # Get with template_id
         template_id = workflow_template1["id"]
