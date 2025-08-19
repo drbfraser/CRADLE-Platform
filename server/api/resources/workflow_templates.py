@@ -171,6 +171,11 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
             )
             workflow_template_orm.classification = workflow_classification_orm
 
+            """ 
+            There should only be one unarchived version of the workflow template, so this 
+            checks if a previously unarchived version of the workflow template exists and
+            archives it
+            """
             # Check if a previously existing version of this template exists, if so, archive it
             find_and_archive_previous_workflow_template(
                 workflow_classification_orm.id,
@@ -221,9 +226,7 @@ def upload_workflow_template_body(body: WorkflowTemplateUploadModel):
 def get_workflow_templates():
     """Get All Workflow Templates"""
     # Get query parameters
-    workflow_classification_id = request.args.get(
-        "classification_id", default=None, type=str
-    )
+    workflow_classification_id = request.args.get("classification_id", default=None)
 
     archived_param = request.args.get("archived")
     is_archived = convert_query_parameter_to_bool(archived_param)
@@ -305,6 +308,7 @@ def get_workflow_template_steps_by_template(path: WorkflowTemplateIdPath):
 
 
 # /api/workflow/templates/<string:workflow_template_id> [PUT]
+# TODO: This endpoint is kinda redundant now because of the PATCH request
 @roles_required([RoleEnum.ADMIN])
 @api_workflow_templates.put(
     "/<string:workflow_template_id>", responses={200: WorkflowTemplateModel}

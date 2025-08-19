@@ -23,6 +23,7 @@ from models import (
     RuleGroupOrm,
     SmsSecretKeyOrm,
     WorkflowClassificationOrm,
+    WorkflowCollectionOrm,
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
     WorkflowTemplateOrm,
@@ -77,6 +78,9 @@ def marshal(obj: Any, shallow=False, if_include_versions=False) -> dict:
         return __marshal_workflow_instance_step(obj)
     if isinstance(obj, WorkflowInstanceOrm):
         return __marshal_workflow_instance(obj, shallow)
+    if isinstance(obj, WorkflowCollectionOrm):
+        return __marshal_workflow_collection(obj, shallow)
+
     d = vars(obj).copy()
     __pre_process(d)
     return d
@@ -398,6 +402,23 @@ def __marshal_SmsSecretKey(s: SmsSecretKeyOrm):
 def __marshal_rule_group(rg: RuleGroupOrm) -> dict:
     d = vars(rg).copy()
     __pre_process(d)
+
+    return d
+
+
+def __marshal_workflow_collection(
+    wf_collection: WorkflowCollectionOrm, shallow: bool = False
+) -> dict:
+    d = vars(wf_collection).copy()
+    __pre_process(d)
+
+    if not shallow:
+        d["classifications"] = [
+            __marshal_workflow_classification(
+                workflow_classification, if_include_templates=False
+            )
+            for workflow_classification in wf_collection.workflow_classifications
+        ]
 
     return d
 

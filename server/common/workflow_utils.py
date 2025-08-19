@@ -13,6 +13,7 @@ from models import (
     FormTemplateOrm,
     RuleGroupOrm,
     WorkflowClassificationOrm,
+    WorkflowCollectionOrm,
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
     WorkflowTemplateOrm,
@@ -112,7 +113,7 @@ def assign_workflow_template_or_instance_ids(
     if workflow.get("id") is None or auto_assign_id:
         workflow["id"] = get_uuid()
 
-    if m is WorkflowClassificationOrm:
+    if m is WorkflowClassificationOrm or m is WorkflowCollectionOrm:
         return
 
     workflow_id = workflow["id"]
