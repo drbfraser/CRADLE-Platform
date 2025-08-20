@@ -19,17 +19,12 @@ export interface TemplateStepBranch {
 export interface TemplateStep {
   id: ID;
   name: string;
-  title: string;
+  description: string;
   formId: ID;
   expectedCompletion?: ISODate;
   conditions?: RuleGroup;
-  //mod next to branchs
   branches?: TemplateStepBranch[];
-
-  // audit & soft-delete
-  archived: boolean;
   lastEdited: ISODate;
-  lastEditedBy: string;
 }
 
 export interface TemplateStepWithFormAndIndex extends TemplateStep {
