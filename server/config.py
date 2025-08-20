@@ -1,6 +1,7 @@
 import datetime
 import json
 import logging.config
+import os
 from typing import ClassVar
 
 import environs
@@ -38,7 +39,13 @@ class Config:
             "******************************************************************************************",
         )
 
-    SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{db_user}:{db_pw}@{db_hostname}:{db_port}/{db_name}"  # ex: 'mysql+pymysql://root:123456@localhost:3306/cradle'
+    if os.getenv("TEST_ENVIRONMENT_ENABLED") == "1":
+
+        SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{db_user}:{db_pw}@cradle_mysql_test_db:3306/testing_cradle"
+
+    else:
+        SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{db_user}:{db_pw}@{db_hostname}:{db_port}/{db_name}"  # ex: 'mysql+pymysql://root:123456@localhost:3306/cradle'
+
     print(f"SQLALCHEMY_DATABASE_URI: {SQLALCHEMY_DATABASE_URI}")
 
     LOGGING: ClassVar = {
@@ -133,47 +140,20 @@ db = SQLAlchemy(
 migrate = Migrate()
 ma = Marshmallow()
 
-
-def app_factory():
-    app = FlaskOpenAPI(
-        import_name=__name__,
-        static_folder="../client/build",
-        doc_prefix="/apidocs",
-        info=Info(title=API_DOCS_TITLE, version=app_version),
-        security_schemes={"jwt": jwt_security},
-    )
-    app.config["PROPAGATE_EXCEPTIONS"] = True
-    app.config["BASE_URL"] = ""
-    app.config["UPLOAD_FOLDER"] = "/uploads"
-    app.config["MAX_CONTENT_LENGTH"] = 64 * 1e6
-    CORS(app, supports_credentials=True)
-    app.config.from_object(Config)
-    app.json_encoder = JSONEncoder
-    db.init_app(app)
-    migrate.init_app(app, db, compare_type=True)
-    ma.init_app(app)
-
-    return app
-
-
-def test_app_factory():
-
-    app = FlaskOpenAPI(
-        import_name=__name__,
-        static_folder="../client/build",
-        doc_prefix="/apidocs",
-        info=Info(title=API_DOCS_TITLE, version=app_version),
-        security_schemes={"jwt": jwt_security},
-    )
-    app.config["PROPAGATE_EXCEPTIONS"] = True
-    app.config["BASE_URL"] = ""
-    app.config["UPLOAD_FOLDER"] = "/uploads"
-    app.config["MAX_CONTENT_LENGTH"] = 64 * 1e6
-    CORS(app, supports_credentials=True)
-    app.config.from_object(TestConfig)
-    app.json_encoder = JSONEncoder
-    db.init_app(app)
-    migrate.init_app(app, db, compare_type=True)
-    ma.init_app(app)
-
-    return app
+app = FlaskOpenAPI(
+    import_name=__name__,
+    static_folder="../client/build",
+    doc_prefix="/apidocs",
+    info=Info(title=API_DOCS_TITLE, version=app_version),
+    security_schemes={"jwt": jwt_security},
+)
+app.config["PROPAGATE_EXCEPTIONS"] = True
+app.config["BASE_URL"] = ""
+app.config["UPLOAD_FOLDER"] = "/uploads"
+app.config["MAX_CONTENT_LENGTH"] = 64 * 1e6
+CORS(app, supports_credentials=True)
+app.config.from_object(Config)
+app.json_encoder = JSONEncoder
+db.init_app(app)
+migrate.init_app(app, db, compare_type=True)
+ma.init_app(app)

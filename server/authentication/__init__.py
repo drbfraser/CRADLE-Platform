@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from flask import Request, Response, request
 from werkzeug.exceptions import Unauthorized
 
-import application
+import config
 from authentication import sms_auth
 from authentication.CognitoClientWrapper import CognitoClientWrapper
 
@@ -37,7 +37,7 @@ cognito = CognitoClientWrapper(
     aws_region=AWS_REGION,
 )
 
-app = application.app
+app = config.app
 
 
 def is_public_endpoint(request: Request):

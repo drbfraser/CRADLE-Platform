@@ -7,9 +7,7 @@ import requests
 from environs import Env
 from flask import Flask
 from humps import decamelize
-from config import test_app_factory
 from system_tests.mock import factory
-import application
 
 @pytest.fixture(scope="session")
 def db_env():
@@ -65,13 +63,9 @@ def create_mock_app() -> Flask:
 
 @pytest.fixture
 def app():
-    if os.getenv("USE_TEST_DB") == "1":
-        # If the test DB is enabled, create a mock Flask app object to use for testing
-        app = application.create_mock_app()
-    else:
-        from application import app
+    from config import app
 
-    #   from manage import seed
+    # from manage import seed
 
     app.config.update({"TESTING": True})
     app.logger.disabled = True
@@ -82,21 +76,11 @@ def app():
     app.logger.disabled = False
     app.config.update({"TESTING": False})
 
-    # Reset the app from the mock Flask app to the development Flask app
-    if os.getenv("USE_TEST_DB") == "1":
-        application.create_app()
-
 
 @pytest.fixture(autouse=True)
-def _provide_app_context(app: Flask, database):
+def _provide_app_context(app: Flask):
     with app.app_context():
-        database.create_all()
         yield
-        # If the mock app and DB are being used, clean up the session after tests are completed
-        # if os.getenv("USE_TEST_DB") == "1":
-        #
-        #     database.session.remove()
-        #     database.drop_all()
 
 
 #
@@ -113,12 +97,6 @@ def database(app: Flask, db_env):
     """
 
     from config import db
-
-    if os.getenv("USE_TEST_DB") == "1":
-
-        app.config["SQLALCHEMY_DATABASE_URI"] = (
-            f"mysql+pymysql://{db_env['db_user']}:{db_env['db_pw']}@cradle_mysql_test_db:3306/testing_cradle"
-        )
 
     return db
 

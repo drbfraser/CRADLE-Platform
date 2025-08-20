@@ -10,7 +10,7 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 from pydantic import Field
 
-import application
+import config
 from authentication import cognito
 from common import user_utils
 from validation import CradleBaseModel
@@ -21,7 +21,7 @@ LOGGER = logging.getLogger(__name__)
 load_dotenv()
 LIMITER_DISABLED = os.getenv("LIMITER_DISABLED", "False").lower() == "true"
 
-app = application.app
+app = config.app
 limiter = Limiter(
     get_remote_address,
     app=app,
