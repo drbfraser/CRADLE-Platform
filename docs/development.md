@@ -440,7 +440,7 @@ You can run these tests locally with the following steps:
 docker exec -it cradle_flask bash
 
 # Run system tests
-python -m pytest systemTests
+python -m pytest system_tests
 
 # Run unit tests
 python -m pytest tests
@@ -448,6 +448,33 @@ python -m pytest tests
 
 > Test are also ran in the CI/CD pipeline, which checks code formatting using `ruff`. This is not run locally by default.
 
+### Using the Test Environment
+
+Because backend system tests need to access resources such as the database, a testing environment is provided to run
+the backend tests without interference from other data stored in the development environment (dev. environment is spun 
+up using `docker compose up`). This environment consists of a mock Flask app and MySQL database (still uses the same 
+password for the DB and can still be accessed via `localhost:5000`). This testing environment is defined in the 
+`docker-compose.test.yml` file and can be used with the following steps:
+
+```bash
+# Spin up the containers for the testing environment, this will 
+# seed the mock DB via seed_test_data in order to run the tests
+docker compose -f docker-compose.test.yml up
+
+# Enter Flask container
+docker exec -it cradle_mock_flask bash
+
+# Run system tests
+python -m pytest system_tests
+
+# Run unit tests
+python -m pytest tests
+
+# Enter mock MySQL container (same password as before)
+docker exec -it cradle_mysql_test_db mysql -p testing_cradle
+```
+
+> The development environment and testing environment cannot be run at the same time due to port number conflicts
 ### Code Formatting for Backend Tests
 Ensure your code passes formatting checks by running:
 ```bash 
@@ -524,7 +551,7 @@ This frees up port 5000 so the Flask server can bind it normally.
 ## 8. General Tips
 
 ### Quick Start
-1.  Start the backend and database  
+1.  Start the development environment for the backend (MySQL database and Flask app)
     ```bash 
     docker compose up
     ```
