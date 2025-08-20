@@ -1,11 +1,39 @@
 #################################################
 # Docker file for defining services for testing #
 # It includes the following containers:         #
+#  - Flask (For use as a testing environment)   #
 #  - MySQL (For use as a mock database for      #
 #          Backend API Tests)                   #
 #################################################
 
 services:
+    mock_flask:
+        container_name: cradle_mock_flask
+        build:
+            context: ./server
+        command: ["sh", "-c", "python manage.py seed_test_data && python app.py"]
+        ports:
+            - "5000:5000"
+        volumes:
+            - flask_mock_uploads:/uploads
+        environment:
+            PORT: 5000
+            DB_HOSTNAME: cradle_mysql_test_db
+            DB_PORT: 3306
+            DB_NAME: testing_cradle
+            DB_USERNAME: ${DB_USERNAME}
+            DB_PASSWORD: ${DB_PASSWORD}
+            LIMITER_DISABLED: ${LIMITER_DISABLED:-False}
+            EMULATOR_PHONE_NUMBER: ${EMULATOR_PHONE_NUMBER:-+1-123-456-7890}
+            SMS_KEY_DURATION: ${SMS_KEY_DURATION:-40}
+            AWS_REGION: us-west-2
+            COGNITO_SECRETS_FILE: /run/secrets/.env.cognito_secrets
+            TEST_ENVIRONMENT_ENABLED: 1
+        secrets:
+            - .env.cognito_secrets
+        depends_on:
+            mysql-test:
+                condition: service_healthy
 
     mysql-test:
         container_name: cradle_mysql_test_db
@@ -13,11 +41,6 @@ services:
         image: mysql:5.7
         volumes:
           - mysql_test_data:/var/lib/mysql
-        profiles:
-            -   test_mysql
-
-        networks:
-            - cradle_network
         environment:
             MYSQL_DATABASE: testing_cradle
             MYSQL_USER: ${DB_USERNAME}
@@ -32,11 +55,12 @@ services:
             retries: 20
 
         ports:
-            - "3307:3306"
-
-networks:
-    cradle_network:
-        external: true
+            - "3306:3306"
 
 volumes:
+    flask_mock_uploads:
     mysql_test_data:
+
+secrets:
+    .env.cognito_secrets:
+        file: ./.env.cognito_secrets # Will be accessible at /run/secrets/.env.cognito_secrets

@@ -9,20 +9,6 @@ from flask import Flask
 from humps import decamelize
 from system_tests.mock import factory
 
-@pytest.fixture(scope="session")
-def db_env():
-    env = Env()
-    env.read_env()
-
-    db_env = {
-        "db_user": env("DB_USERNAME"),
-        "db_pw": env("DB_PASSWORD"),
-        "db_port": env("DB_PORT"),
-        "db_name": env("DB_NAME"),
-    }
-
-    return db_env
-
 
 def create_mock_app() -> Flask:
     """
@@ -89,7 +75,7 @@ def _provide_app_context(app: Flask):
 
 
 @pytest.fixture
-def database(app: Flask, db_env):
+def database(app: Flask):
     """
     Provides an instance of the database.
 
@@ -101,27 +87,31 @@ def database(app: Flask, db_env):
     return db
 
 
-# @pytest.fixture(scope="function", autouse=True)
-# def clean_database(app, database):
-#
-#     # Delete all rows in the test database
-#     if os.getenv("USE_TEST_DB") != "1":
-#         return
-#
-#     yield
-#
-#     with app.app_context():
-#         connection = database.engine.connect()
-#         transaction = connection.begin()
-#
-#         # Temporarily disable FK checks
-#         connection.execute(text("SET FOREIGN_KEY_CHECKS=0;"))
-#         for table in reversed(database.metadata.sorted_tables):
-#             connection.execute(text(f"TRUNCATE TABLE `{table.name}`;"))
-#         connection.execute(text("SET FOREIGN_KEY_CHECKS=1;"))
-#
-#         transaction.commit()
-#         connection.close()
+@pytest.fixture(scope="function", autouse=True)
+def clean_database(app, database):
+
+    # Delete all rows in the test database
+    if os.getenv("TEST_ENVIRONMENT_ENABLED") != "1":
+        return
+
+    yield
+
+    # Empty the entire DB after each test that uploads data to it
+    with app.app_context():
+        connection = database.engine.connect()
+        transaction = connection.begin()
+
+        # Temporarily disable FK checks
+        connection.execute(text("SET FOREIGN_KEY_CHECKS=0;"))
+
+        for table in reversed(database.metadata.sorted_tables):
+
+            connection.execute(text(f"TRUNCATE TABLE `{table.name}`;"))
+
+        connection.execute(text("SET FOREIGN_KEY_CHECKS=1;"))
+
+        transaction.commit()
+        connection.close()
 
 
 #
