@@ -13,7 +13,6 @@ from models import UserOrm
 from validation import CradleBaseModel
 from validation.workflow_template_steps import WorkflowTemplateStepModel
 
-
 app = config.app
 
 

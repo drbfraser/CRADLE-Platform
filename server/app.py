@@ -20,7 +20,8 @@ import json
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 import logging
-from config import Config, app
+from config import Config
+import config
 from logging.config import dictConfig
 from flask import Response, request
 from werkzeug.exceptions import HTTPException
@@ -30,7 +31,7 @@ from api.resources import api
 dictConfig(Config.LOGGING)
 LOGGER = logging.getLogger(__name__)
 
-app = app
+app = config.app
 
 # Register Blueprints
 app.register_api(api)

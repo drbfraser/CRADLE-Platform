@@ -1,12 +1,12 @@
 import os
 from typing import Callable, Tuple
 
-from sqlalchemy import text
 import pytest
 import requests
-from environs import Env
 from flask import Flask
 from humps import decamelize
+from sqlalchemy import text
+
 from system_tests.mock import factory
 
 
@@ -81,15 +81,13 @@ def database(app: Flask):
 
     :return: A database instance
     """
-
     from config import db
 
     return db
 
 
-@pytest.fixture(scope="function", autouse=True)
+@pytest.fixture(autouse=True)
 def clean_database(app, database):
-
     # Delete all rows in the test database
     if os.getenv("TEST_ENVIRONMENT_ENABLED") != "1":
         return
@@ -105,7 +103,6 @@ def clean_database(app, database):
         connection.execute(text("SET FOREIGN_KEY_CHECKS=0;"))
 
         for table in reversed(database.metadata.sorted_tables):
-
             connection.execute(text(f"TRUNCATE TABLE `{table.name}`;"))
 
         connection.execute(text("SET FOREIGN_KEY_CHECKS=1;"))

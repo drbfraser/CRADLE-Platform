@@ -1,7 +1,6 @@
 import datetime
 import json
 import logging.config
-import os
 from typing import ClassVar
 
 import environs
@@ -41,7 +40,9 @@ class Config:
 
     # ex: 'mysql+pymysql://root:123456@localhost:3306/cradle'
 
-    SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{db_user}:{db_pw}@{db_hostname}:{db_port}/{db_name}"
+    SQLALCHEMY_DATABASE_URI = (
+        f"mysql+pymysql://{db_user}:{db_pw}@{db_hostname}:{db_port}/{db_name}"
+    )
 
     print(f"SQLALCHEMY_DATABASE_URI: {SQLALCHEMY_DATABASE_URI}")
 

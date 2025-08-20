@@ -15,7 +15,6 @@ from enums import (
     TrafficLightEnum,
 )
 
-
 SupervisesTable = db.Table(
     "supervises",
     db.Column(
