@@ -63,11 +63,10 @@ class WorkflowInstanceExamples:
 class WorkflowInstanceModel(CradleBaseModel, extra="forbid"):
     id: str
     name: str
-    title: str
+    description: str
     start_date: int = Field(default_factory=get_current_time)
     current_step_id: Optional[str] = None
     last_edited: Optional[int] = Field(default_factory=get_current_time)
-    last_edited_by: Optional[int] = None
     completion_date: Optional[int] = Field(default_factory=get_current_time)
     status: str
     workflow_template_id: Optional[str] = None

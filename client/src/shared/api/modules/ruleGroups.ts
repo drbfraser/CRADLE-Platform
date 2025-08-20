@@ -19,10 +19,10 @@ export const getRuleGroup = async (groupId: ID): Promise<RuleGroup> => {
   return response.data;
 };
 
-// POST /rules/groups - create group
+// POST /rules/groups - create a rule grouping
 export const createRuleGroup = async (payload: {
-  logic: 'AND' | 'OR' | 'NOT';
-  rules: string; // string blob
+  rule: string;
+  data_sources: string[]; // list of wf datasource formatted strings
 }): Promise<RuleGroup> => {
   const response = await axiosFetch.post<RuleGroup>(RULE_GROUPS, payload);
   return response.data;
@@ -32,8 +32,8 @@ export const createRuleGroup = async (payload: {
 // export const updateRuleGroup = async (
 //   groupId: ID,
 //   payload: {
-//     logic?: 'AND' | 'OR' | 'NOT';
-//     rules?: string;
+//     rule?: string;
+//     data_sources?: string[];
 //   }
 // ): Promise<RuleGroup> => {
 //   const response = await axiosFetch.put<RuleGroup>(

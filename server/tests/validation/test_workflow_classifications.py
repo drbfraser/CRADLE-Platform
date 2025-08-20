@@ -6,22 +6,29 @@ from validation.workflow_classifications import WorkflowClassificationModel
 ID = "workflow_classification_123"
 NAME = "Example Workflow Classification"
 
-workflow_classification_with_valid_fields_should_return_none = {"id": ID, "name": NAME}
+workflow_classification_with_valid_fields_should_return_none = {
+    "id": ID,
+    "name": NAME,
+    "collection_id": None,
+}
 
 workflow_classification_with_wrong_id_type_should_return_validation_error = {
     "id": 123,
     "name": NAME,
+    "collection_id": None,
 }
 
 workflow_classification_with_wrong_name_type_should_return_validation_error = {
     "id": ID,
     "name": 123,
+    "collection_id": None,
 }
 
 workflow_classification_with_extra_field_should_return_validation_error = {
     "id": ID,
     "name": NAME,
     "extra": "Hello!",
+    "collection_id": None,
 }
 
 

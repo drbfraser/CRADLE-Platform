@@ -18,6 +18,7 @@ from common.commonUtil import get_current_time
 from common.workflow_utils import (
     apply_changes_to_model,
     assign_workflow_template_or_instance_ids,
+    validate_workflow_template_step,
 )
 from data import crud, db_session, marshal
 from enums import RoleEnum
@@ -150,6 +151,11 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
     workflow_classification_dict = workflow_template_dict["classification"]
     del workflow_template_dict["classification"]
 
+    # Validate each step in the template
+    if workflow_template_dict.get("steps") is None:
+        for workflow_template_step in workflow_template_dict["steps"]:
+            validate_workflow_template_step(workflow_template_step)
+
     workflow_template_orm = marshal.unmarshal(
         WorkflowTemplateOrm, workflow_template_dict
     )
@@ -165,7 +171,12 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
             )
             workflow_template_orm.classification = workflow_classification_orm
 
-            # Check if a previously existing version of this template exists, if it does, archive it
+            """ 
+            There should only be one unarchived version of the workflow template, so this 
+            checks if a previously unarchived version of the workflow template exists and
+            archives it
+            """
+            # Check if a previously existing version of this template exists, if so, archive it
             find_and_archive_previous_workflow_template(
                 workflow_classification_orm.id,
             )
@@ -215,9 +226,7 @@ def upload_workflow_template_body(body: WorkflowTemplateUploadModel):
 def get_workflow_templates():
     """Get All Workflow Templates"""
     # Get query parameters
-    workflow_classification_id = request.args.get(
-        "classification_id", default=None, type=str
-    )
+    workflow_classification_id = request.args.get("classification_id", default=None)
 
     archived_param = request.args.get("archived")
     is_archived = convert_query_parameter_to_bool(archived_param)
@@ -299,6 +308,7 @@ def get_workflow_template_steps_by_template(path: WorkflowTemplateIdPath):
 
 
 # /api/workflow/templates/<string:workflow_template_id> [PUT]
+# TODO: This endpoint is kinda redundant now because of the PATCH request
 @roles_required([RoleEnum.ADMIN])
 @api_workflow_templates.put(
     "/<string:workflow_template_id>", responses={200: WorkflowTemplateModel}
@@ -316,6 +326,11 @@ def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplat
         )
 
     workflow_template_changes = body.model_dump()
+
+    if workflow_template_changes.get("steps", None):
+        for step in workflow_template_changes["steps"]:
+            validate_workflow_template_step(step)
+
     workflow_template_changes["last_edited"] = get_current_time()
 
     crud.update(
@@ -375,6 +390,12 @@ def update_workflow_template_patch(
         body["classification"] = get_workflow_classification_from_dict(
             body, body["classification"]
         )
+
+    # This assumes that the request body has every step in the workflow template, all old steps will be overwritten
+    # If the request body includes any new/modified steps, process it
+    if body.get("steps", None):
+        for step in body["steps"]:
+            validate_workflow_template_step(step)
 
     apply_changes_to_model(new_workflow_template, body)
 

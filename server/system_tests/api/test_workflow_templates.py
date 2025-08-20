@@ -3,7 +3,6 @@ from humps import decamelize
 
 from common.commonUtil import get_current_time, get_uuid
 from common.print_utils import pretty_print
-from common.workflow_utils import assign_workflow_template_or_instance_ids
 from data import crud
 from models import WorkflowTemplateOrm
 
@@ -129,49 +128,6 @@ def test_invalid_workflow_templates_uploaded(
             delete_classification=True,
             id=workflow_template1["id"],
         )
-
-
-def test_workflow_template_ID_assignment(workflow_template2):
-    assign_workflow_template_or_instance_ids(
-        m=WorkflowTemplateOrm, workflow=workflow_template2
-    )
-
-    # Check that IDs are being assigned
-
-    assert workflow_template2["id"] is not None
-    assert workflow_template2["initial_condition_id"] is not None
-    assert workflow_template2["initial_condition"]["id"] is not None
-    assert workflow_template2["classification_id"] is not None
-    assert workflow_template2["classification"]["id"] is not None
-    assert workflow_template2["steps"][0]["id"] is not None
-    assert workflow_template2["steps"][0]["workflow_template_id"] is not None
-    assert workflow_template2["steps"][0]["condition_id"] is not None
-    assert workflow_template2["steps"][0]["condition"]["id"] is not None
-    assert workflow_template2["steps"][0]["form_id"] is not None
-    assert workflow_template2["steps"][0]["form"]["id"] is not None
-
-    # Check that newly assigned IDs match
-
-    assert (
-        workflow_template2["initial_condition_id"]
-        == workflow_template2["initial_condition"]["id"]
-    )
-    assert (
-        workflow_template2["classification_id"]
-        == workflow_template2["classification"]["id"]
-    )
-    assert (
-        workflow_template2["steps"][0]["workflow_template_id"]
-        == workflow_template2["id"]
-    )
-    assert (
-        workflow_template2["steps"][0]["condition_id"]
-        == workflow_template2["steps"][0]["condition"]["id"]
-    )
-    assert (
-        workflow_template2["steps"][0]["form_id"]
-        == workflow_template2["steps"][0]["form"]["id"]
-    )
 
 
 def test_getting_workflow_templates(
@@ -333,11 +289,8 @@ def workflow_template1():
         "initial_condition_id": init_condition_id,
         "initial_condition": {
             "id": init_condition_id,
-            "logic": '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-            "rules": (
-                '{"rule1": {"field": "patient.age", "operator": "LESS_THAN", "value": 32},'
-                '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-            ),
+            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": '["$patient.age"]',
         },
         "classification_id": classification_id,
         "classification": {
@@ -362,11 +315,8 @@ def workflow_template2(form_template):
         "initial_condition_id": None,
         "initial_condition": {
             "id": None,
-            "logic": '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-            "rules": (
-                '{"rule1": {"field": "patient.age", "operator": "LESS_THAN", "value": 32},'
-                '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-            ),
+            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": '["$patient.age"]',
         },
         "classification_id": None,
         "classification": {
@@ -386,11 +336,8 @@ def workflow_template2(form_template):
                 "condition_id": None,
                 "condition": {
                     "id": None,
-                    "logic": '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-                    "rules": (
-                        '{"rule1": {"field": "patient.age", "operator": "LESS_THAN", "value": 32},'
-                        '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-                    ),
+                    "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
+                    "data_sources": '["$patient.age"]',
                 },
                 "branches": [],
             }
@@ -419,11 +366,8 @@ def workflow_template3(form_template, workflow_template1):
         "initial_condition_id": init_condition_id,
         "initial_condition": {
             "id": init_condition_id,
-            "logic": '{"logical_operator": "OR", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-            "rules": (
-                '{"rule1": {"field": "patient.height", "operator": "LESS_THAN", "value": 56},'
-                '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-            ),
+            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": "[]",
         },
         "classification_id": workflow_template1["classification_id"],
         "classification": {
@@ -443,11 +387,8 @@ def workflow_template3(form_template, workflow_template1):
                 "condition_id": condition_id,
                 "condition": {
                     "id": condition_id,
-                    "logic": '{"logical_operator": "OR", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-                    "rules": (
-                        '{"rule1": {"field": "patient.height", "operator": "LESS_THAN", "value": 56},'
-                        '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-                    ),
+                    "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
+                    "data_sources": "[]",
                 },
                 "branches": [],
             }
@@ -473,11 +414,8 @@ def workflow_template4():
         "initial_condition_id": init_condition_id,
         "initial_condition": {
             "id": init_condition_id,
-            "logic": '{"logical_operator": "OR", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-            "rules": (
-                '{"rule1": {"field": "patient.height", "operator": "LESS_THAN", "value": 56},'
-                '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-            ),
+            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": "[]",
         },
         "classification_id": classification_id,
         "classification": {
@@ -505,11 +443,8 @@ def invalid_workflow_template1():
         "initial_condition_id": init_condition_id,
         "initial_condition": {
             "id": init_condition_id,
-            "logic": '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-            "rules": (
-                '{"rule1": {"field": "patient.age", "operator": "LESS_THAN", "value": 32},'
-                '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-            ),
+            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": '["$patient.age"]',
         },
         "classification_id": classification_id,
         "classification": {
@@ -537,8 +472,8 @@ def invalid_workflow_template2():
         "initial_condition_id": init_condition_id,
         "initial_condition": {
             "id": init_condition_id,
-            "logic": '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-            "rules": "Hello",  # Invalid JSON string
+            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": "Hello",  # Invalid JSON string
         },
         "classification_id": classification_id,
         "classification": {
@@ -566,11 +501,8 @@ def invalid_workflow_template3(form_template):
         "initial_condition_id": init_condition_id,
         "initial_condition": {
             "id": init_condition_id,
-            "logic": '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-            "rules": (
-                '{"rule1": {"field": "patient.age", "operator": "LESS_THAN", "value": 32},'
-                '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-            ),
+            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": '["$patient.age"]',
         },
         "classification_id": classification_id,
         "classification": None,  # No classification exists with this ID

@@ -7,7 +7,7 @@ from tests.validation.test_forms import (
     form_with_valid_fields_should_return_none,
 )
 from tests.validation.test_rule_groups import (
-    rule_group_with_invalid_json_logic_should_return_validation_error,
+    rule_group_with_invalid_json_rule_should_return_validation_error,
     rule_group_with_valid_fields_should_return_none,
 )
 from validation.workflow_instance_steps import WorkflowInstanceStepModel
@@ -16,7 +16,7 @@ VALID_FORM = form_with_valid_fields_should_return_none
 INVALID_FORM = form_missing_required_field_questions_should_throw_exception
 
 VALID_RULE_GROUP = rule_group_with_valid_fields_should_return_none
-INVALID_RULE_GROUP = rule_group_with_invalid_json_logic_should_return_validation_error
+INVALID_RULE_GROUP = rule_group_with_invalid_json_rule_should_return_validation_error
 
 ID = "workflow-instance-step-example-01"
 NAME = "Workflow Instance Step Example"

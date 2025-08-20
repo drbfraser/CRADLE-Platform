@@ -66,7 +66,8 @@ export const ViewTemplateStep = ({ step }: IProps) => {
           )}
           {step.conditions ? (
             <Typography>
-              <Box component="b">Conditions: </Box> {step.conditions.rules}
+              <Box component="b">Conditions: </Box>{' '}
+              {step.conditions.data_sources}
             </Typography>
           ) : (
             <></>

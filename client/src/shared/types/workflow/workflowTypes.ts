@@ -3,8 +3,8 @@ import { FormTemplate } from '../form/formTemplateTypes';
 import { InstanceStatus, StepStatus } from './workflowEnums';
 export interface RuleGroup {
   id: ID;
-  logic: 'AND' | 'OR' | 'NOT';
-  rules: string; // JSON blob understood by the rules engine
+  rule: string; // JSON object representing a structured rule
+  data_sources: string[]; // datasource formatted strings found in a rule
 }
 
 //   Template side

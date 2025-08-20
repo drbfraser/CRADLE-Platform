@@ -1,7 +1,7 @@
 """
 Change 'title' attribute to 'description', remove 'last_edited_by' fields in workflow template components, make 'form_id' nullable in template steps
 
-Revision ID: 14_bf923c5cb3c3
+Revision ID: 15_bf923c5cb3c3
 Revises: 13_b6ff0a713e0e
 Create Date: 2025-07-31 00:42:59.525474
 

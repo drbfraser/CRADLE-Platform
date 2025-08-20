@@ -90,16 +90,12 @@ def workflow_template1(vht_user_id):
         "archived": False,
         "date_created": get_current_time(),
         "last_edited": get_current_time() + 44345,
-        "last_edited_by": vht_user_id,
         "version": "0",
         "initial_condition_id": init_condition_id,
         "initial_condition": {
             "id": init_condition_id,
-            "logic": '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-            "rules": (
-                '{"rule1": {"field": "patient.age", "operator": "LESS_THAN", "value": 32},'
-                '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-            ),
+            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": '["$patient.age"]',
         },
         "classification_id": classification_id,
         "classification": {
@@ -116,12 +112,11 @@ def workflow_instance1(vht_user_id, patient_id, workflow_template1):
     return {
         "id": instance_id,
         "name": "workflow_instance1",
-        "title": "Workflow Instance 1",
+        "description": "Workflow Instance 1",
         "status": "Active",
         "start_date": get_current_time(),
         "current_step_id": None,
         "last_edited": get_current_time() + 44345,
-        "last_edited_by": vht_user_id,
         "completion_date": None,
         "patient_id": patient_id,
         "workflow_template_id": workflow_template1["id"],

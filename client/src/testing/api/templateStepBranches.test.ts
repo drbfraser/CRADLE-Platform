@@ -24,11 +24,11 @@ describe('templateStepBranches placeholder', () => {
 //       const mockBranches = [
 //         {
 //           targetStepId: 'step2',
-//           condition: { id: 'rule1', logic: 'AND', rules: '[]' },
+//           condition: { id: 'rule1', rule: '{}', data_sources: '[]' },
 //         },
 //         {
 //           targetStepId: 'step3',
-//           condition: { id: 'rule2', logic: 'OR', rules: '[]' },
+//           condition: { id: 'rule2', rule: '{}', data_sources: '[]' },
 //         },
 //       ];
 
@@ -47,7 +47,7 @@ describe('templateStepBranches placeholder', () => {
 //     it('should create a new step branch', async () => {
 //       const branchData = {
 //         targetStepId: 'step2',
-//         condition: { id: 'rule1', logic: 'AND' as const, rules: '[]' },
+//         condition: { id: 'rule1', rule: '{}' as const, data_sources: '[]' },
 //       };
 //       const createdBranch = { id: 'branch1', ...branchData };
 
