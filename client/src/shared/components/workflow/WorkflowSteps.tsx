@@ -6,9 +6,16 @@ import { WorkflowStep } from 'src/shared/components/workflow/WorkflowStep';
 interface IProps {
   steps: TemplateStepWithFormAndIndex[] | undefined;
   firstStep: ID;
+  isInstance?: boolean;
+  handleMakeCurrent?: any;
 }
 
-export const WorkflowSteps = ({ steps, firstStep }: IProps) => {
+export const WorkflowSteps = ({
+  steps,
+  firstStep,
+  isInstance,
+  handleMakeCurrent,
+}: IProps) => {
   if (!steps) {
     return;
   }
@@ -56,7 +63,11 @@ export const WorkflowSteps = ({ steps, firstStep }: IProps) => {
     <>
       {orderedSteps.map((step) => (
         <Box key={step.id} mb={1}>
-          <WorkflowStep step={step} />
+          <WorkflowStep
+            step={step}
+            isInstance={isInstance}
+            handleMakeCurrent={handleMakeCurrent}
+          />
         </Box>
       ))}
     </>

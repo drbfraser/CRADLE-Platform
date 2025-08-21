@@ -75,7 +75,7 @@ export const WorkflowStep = ({
               {step.conditions.data_sources}
             </Typography>
           )}
-          {step.branchIndices && step.branchIndices.length && (
+          {step.branchIndices && step.branchIndices.length > 0 && (
             <Typography>
               <Box component="b">Next Step(s): </Box>{' '}
               {step.branchIndices.toString()}

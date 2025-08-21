@@ -98,6 +98,7 @@ export const ViewWorkflowTemplate = () => {
           <WorkflowSteps
             steps={viewWorkflowSteps as TemplateStepWithFormAndIndex[]}
             firstStep={viewWorkflow?.startingStepId}
+            isInstance={false}
           />
         )}
       </Paper>
