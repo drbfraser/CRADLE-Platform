@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box/Box';
 import { TemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowTypes';
-import { ViewTemplateStep } from './ViewTemplateStep';
 import { ID } from 'src/shared/constants';
+import { WorkflowStep } from 'src/shared/components/workflow/WorkflowStep';
 
 interface IProps {
   steps: TemplateStepWithFormAndIndex[] | undefined;
@@ -9,7 +9,6 @@ interface IProps {
 }
 
 export const ViewTemplateSteps = ({ steps, firstStep }: IProps) => {
-  // console.log("🚀 ViewTemplateSteps received:", { steps, firstStep });
   if (!steps) {
     return;
   }
@@ -18,7 +17,7 @@ export const ViewTemplateSteps = ({ steps, firstStep }: IProps) => {
   const orderedSteps: TemplateStepWithFormAndIndex[] = [];
   const nextId = [firstStep];
   let ind = 1;
-  const stepQueue = [...steps]; // ← CLONE!
+  const stepQueue = [...steps];
 
   while (nextId.length > 0) {
     const step = stepQueue.find((step) => step.id === nextId[0]);
@@ -26,7 +25,7 @@ export const ViewTemplateSteps = ({ steps, firstStep }: IProps) => {
     if (step) {
       step.index = ind++;
       const index = stepQueue.indexOf(step);
-      stepQueue.splice(index, 1); // safe mutation
+      stepQueue.splice(index, 1);
       orderedSteps.push(step);
       if (step.branches) {
         step.branches.forEach((branch) => {
@@ -57,7 +56,7 @@ export const ViewTemplateSteps = ({ steps, firstStep }: IProps) => {
     <>
       {orderedSteps.map((step) => (
         <Box key={step.id} mb={1}>
-          <ViewTemplateStep step={step} />
+          <WorkflowStep step={step} />
         </Box>
       ))}
     </>
