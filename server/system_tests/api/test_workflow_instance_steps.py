@@ -106,7 +106,8 @@ def test_get_workflow_instance_steps(
         }
 
         response = api_post(
-            endpoint="/api/workflow/instance/steps", json=minimal_workflow_instance_step1
+            endpoint="/api/workflow/instance/steps",
+            json=minimal_workflow_instance_step1,
         )
         database.session.commit()
         assert response.status_code == 201
@@ -118,14 +119,15 @@ def test_get_workflow_instance_steps(
             "description": "Test Step 2",
             "start_date": get_current_time() + 44345,
             "last_edited": get_current_time() + 44345,
-            "status": "Active",  
+            "status": "Active",
             "completion_date": None,
             "expected_completion": None,
             "workflow_instance_id": workflow_instance1["id"],
         }
 
         response = api_post(
-            endpoint="/api/workflow/instance/steps", json=minimal_workflow_instance_step2
+            endpoint="/api/workflow/instance/steps",
+            json=minimal_workflow_instance_step2,
         )
         database.session.commit()
 
@@ -139,7 +141,7 @@ def test_get_workflow_instance_steps(
         response = api_get(
             endpoint=f"/api/workflow/instance/steps?workflow_instance_id={workflow_instance1['id']}"
         )
-        
+
         if response.status_code != 200:
             print(f"Error response status: {response.status_code}")
             print(f"Error response text: {response.text}")
@@ -149,7 +151,7 @@ def test_get_workflow_instance_steps(
         assert response.status_code == 200
         assert "items" in response_body
         assert len(response_body["items"]) == 2
-        
+
         # Verify the steps are returned correctly
         step_names = [step["name"] for step in response_body["items"]]
         assert "Test Step 1" in step_names
@@ -157,12 +159,87 @@ def test_get_workflow_instance_steps(
 
         # Test getting all workflow instance steps without filter
         response = api_get(endpoint="/api/workflow/instance/steps")
-        
+
         response_body = decamelize(response.json())
         pretty_print(response_body)
         assert response.status_code == 200
         assert "items" in response_body
         assert len(response_body["items"]) >= 2
+
+    finally:
+        crud.delete_all(
+            WorkflowInstanceStepOrm, workflow_instance_id=workflow_instance1["id"]
+        )
+        crud.delete_all(WorkflowInstanceOrm, id=workflow_instance1["id"])
+        crud.delete_all(WorkflowTemplateOrm, id=workflow_template1["id"])
+
+
+def test_complete_workflow_instance_step(
+    database,
+    workflow_template1,
+    workflow_instance1,
+    api_post,
+    api_patch,
+    vht_user_id,
+):
+    try:
+        # Create workflow template
+        response = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_template1
+        )
+        database.session.commit()
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+        assert response.status_code == 201
+
+        # Create workflow instance
+        response = api_post(endpoint="/api/workflow/instances", json=workflow_instance1)
+        database.session.commit()
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+        assert response.status_code == 201
+
+        # Create workflow instance step
+        start_time = get_current_time()
+        minimal_workflow_instance_step = {
+            "id": get_uuid(),
+            "name": "Test Step to Complete",
+            "description": "Test Step to Complete",
+            "start_date": start_time,
+            "last_edited": start_time + 44345,
+            "status": "Active",
+            "completion_date": None,
+            "expected_completion": None,
+            "workflow_instance_id": workflow_instance1["id"],
+        }
+
+        response = api_post(
+            endpoint="/api/workflow/instance/steps", json=minimal_workflow_instance_step
+        )
+        database.session.commit()
+        assert response.status_code == 201
+
+        step_id = minimal_workflow_instance_step["id"]
+
+        # Test completing the workflow instance step
+        response = api_patch(
+            endpoint=f"/api/workflow/instance/steps/{step_id}/complete"
+        )
+
+        if response.status_code != 200:
+            print(f"Error response status: {response.status_code}")
+            print(f"Error response text: {response.text}")
+
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+        assert response.status_code == 200
+
+        # Verify the step was marked as completed
+        assert response_body["status"] == "Completed"
+        assert response_body["completion_date"] is not None
+        assert response_body["last_edited"] is not None
+        assert response_body["id"] == step_id
+        assert response_body["name"] == "Test Step to Complete"
 
     finally:
         crud.delete_all(
