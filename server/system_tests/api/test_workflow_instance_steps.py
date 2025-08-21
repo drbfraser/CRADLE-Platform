@@ -10,6 +10,9 @@ from models import (
     WorkflowTemplateOrm,
 )
 
+# TODO: testing has only been done for simple steps.
+# steps involving forms or rules have not been tested.
+
 
 def test_create_workflow_instance_step(
     database,
@@ -50,10 +53,6 @@ def test_create_workflow_instance_step(
             endpoint="/api/workflow/instance/steps", json=minimal_workflow_instance_step
         )
         database.session.commit()
-
-        if response.status_code != 201:
-            print(f"Error response status: {response.status_code}")
-            print(f"Error response text: {response.text}")
 
         response_body = decamelize(response.json())
         pretty_print(response_body)
@@ -131,20 +130,12 @@ def test_get_workflow_instance_steps(
         )
         database.session.commit()
 
-        if response.status_code != 201:
-            print(f"Error response status: {response.status_code}")
-            print(f"Error response text: {response.text}")
-
         assert response.status_code == 201
 
         # Test getting workflow instance steps with workflow_instance_id filter
         response = api_get(
             endpoint=f"/api/workflow/instance/steps?workflow_instance_id={workflow_instance1['id']}"
         )
-
-        if response.status_code != 200:
-            print(f"Error response status: {response.status_code}")
-            print(f"Error response text: {response.text}")
 
         response_body = decamelize(response.json())
         pretty_print(response_body)
@@ -300,3 +291,34 @@ def patient_id(create_patient, patient_info):
     """Create a patient and return its ID"""
     create_patient()
     return patient_info["id"]
+
+
+@pytest.fixture
+def form_classification():
+    return {
+        "id": "wissfc",
+        "name": "wissfc",
+    }
+
+
+@pytest.fixture
+def form_template():
+    return {
+        "classification": {"id": "wissfc", "name": "wissfc"},
+        "id": "wissft",
+        "version": "V1",
+        "questions": [],
+    }
+
+
+@pytest.fixture
+def form(patient_id):
+    return {
+        "id": "wissf",
+        "lang": "english",
+        "form_template_id": "wissft",
+        "form_classification_id": "wissfc",
+        "patient_id": patient_id,
+        "date_created": 1561011126,
+        "questions": [],
+    }
