@@ -1,11 +1,50 @@
+import os
 from typing import Callable, Tuple
 
 import pytest
 import requests
 from flask import Flask
 from humps import decamelize
+from sqlalchemy import text
 
 from system_tests.mock import factory
+
+
+def create_mock_app() -> Flask:
+    """
+    Creates an independent app object to be used for testing
+    """
+    from flask_cors import CORS
+    from flask_openapi3.models.info import Info
+    from flask_openapi3.openapi import OpenAPI as FlaskOpenAPI
+
+    from config import Config, JSONEncoder
+
+    app_version = "1.0.0"
+
+    API_DOCS_TITLE = "Cradle-Platform REST API"
+    jwt_security = {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"}
+    app = FlaskOpenAPI(
+        import_name=__name__,
+        static_folder="../client/build",
+        doc_prefix="/apidocs",
+        info=Info(title=API_DOCS_TITLE, version=app_version),
+        security_schemes={"jwt": jwt_security},
+    )
+
+    app.config["PROPAGATE_EXCEPTIONS"] = True
+    app.config["BASE_URL"] = ""
+    app.config["UPLOAD_FOLDER"] = "/uploads"
+    app.config["MAX_CONTENT_LENGTH"] = 64 * 1e6
+
+    CORS(app, supports_credentials=True)
+    app.config.from_object(Config)
+
+    app.json_encoder = JSONEncoder
+
+    app = Flask(__name__)
+
+    return app
 
 
 @pytest.fixture
@@ -36,7 +75,7 @@ def _provide_app_context(app: Flask):
 
 
 @pytest.fixture
-def database():
+def database(app: Flask):
     """
     Provides an instance of the database.
 
@@ -45,6 +84,32 @@ def database():
     from config import db
 
     return db
+
+
+@pytest.fixture(autouse=True)
+def clean_database(app, database):
+    # Delete all rows in the test database
+
+    yield
+
+    # Empty the entire DB after each test that uploads data to it
+
+    if os.getenv("TEST_ENVIRONMENT_ENABLED") == "1":
+        with app.app_context():
+            connection = database.engine.connect()
+            transaction = connection.begin()
+
+            # Temporarily disable FK checks
+            connection.execute(text("SET FOREIGN_KEY_CHECKS=0;"))
+
+            # Empty each table in the DB
+            for table in reversed(database.metadata.sorted_tables):
+                connection.execute(text(f"TRUNCATE TABLE `{table.name}`;"))
+
+            connection.execute(text("SET FOREIGN_KEY_CHECKS=1;"))
+
+            transaction.commit()
+            connection.close()
 
 
 #

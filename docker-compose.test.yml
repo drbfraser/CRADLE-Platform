@@ -1,22 +1,26 @@
-#########################################
-# This is the base Docker file          #
-# It includes the following containers: #
-#  - Flask                              #
-#  - MySQL                              #
-#########################################
+#################################################
+# Docker file for defining services for testing #
+# It includes the following containers:         #
+#  - Flask (For use as a testing environment)   #
+#  - MySQL (For use as a mock database for      #
+#          Backend API Tests)                   #
+#################################################
 
 services:
-    flask:
-        container_name: cradle_flask
+    mock_flask:
+        container_name: cradle_mock_flask
         build:
             context: ./server
+        command: ["sh", "-c", "python manage.py seed_test_data && python app.py"]
+        ports:
+            - "5000:5000"
         volumes:
-            - flask_uploads:/uploads
+            - flask_mock_uploads:/uploads
         environment:
             PORT: 5000
-            DB_HOSTNAME: cradle_mysql
+            DB_HOSTNAME: cradle_mysql_test_db
             DB_PORT: 3306
-            DB_NAME: cradle
+            DB_NAME: testing_cradle
             DB_USERNAME: ${DB_USERNAME}
             DB_PASSWORD: ${DB_PASSWORD}
             LIMITER_DISABLED: ${LIMITER_DISABLED:-False}
@@ -24,23 +28,25 @@ services:
             SMS_KEY_DURATION: ${SMS_KEY_DURATION:-40}
             AWS_REGION: us-west-2
             COGNITO_SECRETS_FILE: /run/secrets/.env.cognito_secrets
+            TEST_ENVIRONMENT_ENABLED: 1
         secrets:
             - .env.cognito_secrets
         depends_on:
-            mysql:
+            mysql-test:
                 condition: service_healthy
 
-    mysql:
-        container_name: cradle_mysql
+    mysql-test:
+        container_name: cradle_mysql_test_db
         platform: linux/x86_64
         image: mysql:5.7
         volumes:
-            - mysql_data:/var/lib/mysql
+          - mysql_test_data:/var/lib/mysql
         environment:
-            MYSQL_DATABASE: cradle
+            MYSQL_DATABASE: testing_cradle
             MYSQL_USER: ${DB_USERNAME}
             MYSQL_PASSWORD: ${DB_PASSWORD}
             MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+
         healthcheck:
             test: mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD
             start_period: 5s
@@ -48,10 +54,13 @@ services:
             timeout: 5s
             retries: 20
 
+        ports:
+            - "3306:3306"
+
 volumes:
-    flask_uploads:
-    mysql_data:
+    flask_mock_uploads:
+    mysql_test_data:
 
 secrets:
     .env.cognito_secrets:
-        file: ./.env.cognito_secrets # Will be accessible at /run/secrets/.env.cognito_secrets  
+        file: ./.env.cognito_secrets # Will be accessible at /run/secrets/.env.cognito_secrets

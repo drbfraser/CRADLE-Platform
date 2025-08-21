@@ -41,7 +41,6 @@ def create_form_classification(body: FormClassificationOptionalId):
     """Create Form Classification"""
     if body.id is not None:
         if crud.read(FormClassificationOrm, id=body.id) is not None:
-            print("Duplicate Found!")
             print(marshal.marshal(crud.read(FormClassificationOrm, id=body.id)))
             return abort(
                 409,

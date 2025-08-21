@@ -6,12 +6,14 @@ from flask import Request, request
 from pydantic import AliasChoices, Field, field_validator
 from pydantic.alias_generators import to_snake
 
+import config
 from common import user_utils
-from config import app
 from data import crud
 from models import UserOrm
 from validation import CradleBaseModel
 from validation.workflow_template_steps import WorkflowTemplateStepModel
+
+app = config.app
 
 
 @app.after_request

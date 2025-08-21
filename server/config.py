@@ -38,7 +38,12 @@ class Config:
             "******************************************************************************************",
         )
 
-    SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{db_user}:{db_pw}@{db_hostname}:{db_port}/{db_name}"  # ex: 'mysql+pymysql://root:123456@localhost:3306/cradle'
+    # ex: 'mysql+pymysql://root:123456@localhost:3306/cradle'
+
+    SQLALCHEMY_DATABASE_URI = (
+        f"mysql+pymysql://{db_user}:{db_pw}@{db_hostname}:{db_port}/{db_name}"
+    )
+
     print(f"SQLALCHEMY_DATABASE_URI: {SQLALCHEMY_DATABASE_URI}")
 
     LOGGING: ClassVar = {
@@ -84,6 +89,28 @@ class Config:
     logger = logging.getLogger(__name__)
 
 
+class TestConfig(Config):
+    env = Env()
+    env.read_env()
+
+    try:
+        db_user = env("DB_USERNAME")
+        db_pw = env("DB_PASSWORD")
+        db_port = env("DB_PORT")
+    except environs.EnvError:
+        print(
+            "******************************************************************************************",
+        )
+        print(
+            "DB_USERNAME, DB_PASSWORD, and DB_PORT environment variable not set",
+        )
+        print(
+            "******************************************************************************************",
+        )
+
+    SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{db_user}:{db_pw}@cradle_mysql_test_db:{db_port}/testing_cradle"
+
+
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, set):
@@ -95,26 +122,8 @@ class JSONEncoder(json.JSONEncoder):
 
 API_DOCS_TITLE = "Cradle-Platform REST API"
 jwt_security = {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"}
-app = FlaskOpenAPI(
-    import_name=__name__,
-    static_folder="../client/build",
-    doc_prefix="/apidocs",
-    info=Info(title=API_DOCS_TITLE, version=app_version),
-    security_schemes={"jwt": jwt_security},
-)
-
-app.config["PROPAGATE_EXCEPTIONS"] = True
-app.config["BASE_URL"] = ""
-app.config["UPLOAD_FOLDER"] = "/uploads"
-app.config["MAX_CONTENT_LENGTH"] = 64 * 1e6
-
-CORS(app, supports_credentials=True)
-app.config.from_object(Config)
-
-app.json_encoder = JSONEncoder
 
 db = SQLAlchemy(
-    app,
     metadata=MetaData(
         naming_convention={
             "ix": "ix_%(column_0_label)s",
@@ -125,5 +134,24 @@ db = SQLAlchemy(
         }
     ),
 )
-migrate = Migrate(app, db, compare_type=True)
-ma = Marshmallow(app)
+
+migrate = Migrate()
+ma = Marshmallow()
+
+app = FlaskOpenAPI(
+    import_name=__name__,
+    static_folder="../client/build",
+    doc_prefix="/apidocs",
+    info=Info(title=API_DOCS_TITLE, version=app_version),
+    security_schemes={"jwt": jwt_security},
+)
+app.config["PROPAGATE_EXCEPTIONS"] = True
+app.config["BASE_URL"] = ""
+app.config["UPLOAD_FOLDER"] = "/uploads"
+app.config["MAX_CONTENT_LENGTH"] = 64 * 1e6
+CORS(app, supports_credentials=True)
+app.config.from_object(Config)
+app.json_encoder = JSONEncoder
+db.init_app(app)
+migrate.init_app(app, db, compare_type=True)
+ma.init_app(app)
