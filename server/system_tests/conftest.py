@@ -89,26 +89,27 @@ def database(app: Flask):
 @pytest.fixture(autouse=True)
 def clean_database(app, database):
     # Delete all rows in the test database
-    if os.getenv("TEST_ENVIRONMENT_ENABLED") != "1":
-        return
 
     yield
 
     # Empty the entire DB after each test that uploads data to it
-    with app.app_context():
-        connection = database.engine.connect()
-        transaction = connection.begin()
 
-        # Temporarily disable FK checks
-        connection.execute(text("SET FOREIGN_KEY_CHECKS=0;"))
+    if os.getenv("TEST_ENVIRONMENT_ENABLED") == "1":
+        with app.app_context():
+            connection = database.engine.connect()
+            transaction = connection.begin()
 
-        for table in reversed(database.metadata.sorted_tables):
-            connection.execute(text(f"TRUNCATE TABLE `{table.name}`;"))
+            # Temporarily disable FK checks
+            connection.execute(text("SET FOREIGN_KEY_CHECKS=0;"))
 
-        connection.execute(text("SET FOREIGN_KEY_CHECKS=1;"))
+            # Empty each table in the DB
+            for table in reversed(database.metadata.sorted_tables):
+                connection.execute(text(f"TRUNCATE TABLE `{table.name}`;"))
 
-        transaction.commit()
-        connection.close()
+            connection.execute(text("SET FOREIGN_KEY_CHECKS=1;"))
+
+            transaction.commit()
+            connection.close()
 
 
 #
