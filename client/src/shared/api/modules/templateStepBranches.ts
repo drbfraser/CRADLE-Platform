@@ -29,8 +29,8 @@ export const createTemplateStepBranch = async (
     targetStepId: ID;
     condition?: {
       id: ID;
-      logic: 'AND' | 'OR' | 'NOT';
-      rules: string;
+      rule: string;
+      data_sources: string[];
     };
   }
 ): Promise<TemplateStepBranch> => {

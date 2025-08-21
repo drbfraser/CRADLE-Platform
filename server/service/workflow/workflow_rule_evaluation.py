@@ -4,8 +4,8 @@ from flask import json
 
 import data.crud as dl
 from models import WorkflowInstanceStepOrm
+from service.datasourcing import data_sourcing as workflow_datasourcing
 from service.workflow.rules_engine import RulesEngineFacade
-from service.workflow.workflow_datasources import WorkflowDatasourcing
 
 
 class WorkflowEvaluationService:
@@ -24,7 +24,7 @@ class WorkflowEvaluationService:
 
     def __init__(
         self,
-        datasourcing: Type[WorkflowDatasourcing],
+        datasourcing: workflow_datasourcing,
         rule_engine: Type[RulesEngineFacade],
     ):
         self.datasourcing = datasourcing
