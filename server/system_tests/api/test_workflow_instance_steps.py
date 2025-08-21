@@ -1,6 +1,17 @@
 import pytest
+from humps import decamelize
 
 from common.commonUtil import get_current_time, get_uuid
+from common.print_utils import pretty_print
+from data import crud
+from models import (
+    WorkflowInstanceOrm,
+    WorkflowInstanceStepOrm,
+    WorkflowTemplateOrm,
+)
+
+# TODO: testing has only been done for simple steps.
+# steps involving forms or rules have not been tested.
 
 
 def test_create_workflow_instance_step(
@@ -8,8 +19,6 @@ def test_create_workflow_instance_step(
     workflow_template1,
     workflow_instance1,
     api_post,
-    form_template,
-    form,
     vht_user_id,
 ):
     try:
@@ -18,64 +27,217 @@ def test_create_workflow_instance_step(
             endpoint="/api/workflow/templates/body", json=workflow_template1
         )
         database.session.commit()
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
         assert response.status_code == 201
 
         # Create workflow instance
         response = api_post(endpoint="/api/workflow/instances", json=workflow_instance1)
         database.session.commit()
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
         assert response.status_code == 201
 
-        # # Create form template first (required for form)
-        # print("=== Creating form template ===")
-        # response = api_post(endpoint="/api/forms/templates/body", json=form_template)
-        # database.session.commit()
-        # print(f"Form template creation status: {response.status_code}")
-        # if response.status_code != 201:
-        #     try:
-        #         print(f"Form template error: {response.json()}")
-        #     except:
-        #         print(f"Form template error text: {response.text}")
-        # assert response.status_code == 201
+        minimal_workflow_instance_step = {
+            "id": get_uuid(),
+            "name": "Test Step 1",
+            "description": "Test Step 1",
+            "start_date": get_current_time(),
+            "last_edited": get_current_time() + 44345,
+            "status": "Active",
+            "workflow_instance_id": workflow_instance1["id"],
+        }
 
-        # # Create form (required for step)
-        # print("=== Creating form ===")
-        # response = api_post(endpoint="/api/forms/responses", json=form)
-        # database.session.commit()
-        # print(f"Form creation status: {response.status_code}")
-        # if response.status_code != 201:
-        #     try:
-        #         print(f"Form creation error: {response.json()}")
-        #     except:
-        #         print(f"Form creation error text: {response.text}")
-        # assert response.status_code == 201
+        # Test creating workflow instance step
+        response = api_post(
+            endpoint="/api/workflow/instance/steps", json=minimal_workflow_instance_step
+        )
+        database.session.commit()
 
-        # # Create step data
-        # step_data = {
-        #     "name": "test_step",
-        #     "title": "Test Step",
-        #     "status": "Active",
-        #     "form_id": "f9",
-        #     "workflow_instance_id": workflow_instance1["id"],
-        #     "assigned_to": vht_user_id,
-        #     "expected_completion": get_current_time() + 86400000,
-        #     "data": '{"test": "data"}'
-        # }
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+        assert response.status_code == 201
 
-        # # Test creating workflow instance step
-        # response = api_post(endpoint="/api/workflow/instance/steps", json=step_data)
-        # database.session.commit()
+    finally:
+        crud.delete_all(
+            WorkflowInstanceStepOrm, workflow_instance_id=workflow_instance1["id"]
+        )
+        crud.delete_all(WorkflowInstanceOrm, id=workflow_instance1["id"])
+        crud.delete_all(WorkflowTemplateOrm, id=workflow_template1["id"])
 
-        # print(f"Step creation status: {response.status_code}")
-        # if response.status_code != 201:
-        #     try:
-        #         print(f"Step creation error: {response.json()}")
-        #     except:
-        #         print(f"Step creation error text: {response.text}")
 
-        # assert response.status_code == 201
+def test_get_workflow_instance_steps(
+    database,
+    workflow_template1,
+    workflow_instance1,
+    api_post,
+    api_get,
+    vht_user_id,
+):
+    try:
+        # Create workflow template
+        response = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_template1
+        )
+        database.session.commit()
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+        assert response.status_code == 201
 
-    except Exception as e:
-        print(f"Exception occurred: {e}")
+        # Create workflow instance
+        response = api_post(endpoint="/api/workflow/instances", json=workflow_instance1)
+        database.session.commit()
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+        assert response.status_code == 201
+
+        # Create first workflow instance step
+        minimal_workflow_instance_step1 = {
+            "id": get_uuid(),
+            "name": "Test Step 1",
+            "description": "Test Step 1",
+            "start_date": get_current_time(),
+            "last_edited": get_current_time() + 44345,
+            "status": "Active",
+            "completion_date": None,
+            "expected_completion": None,
+            "workflow_instance_id": workflow_instance1["id"],
+        }
+
+        response = api_post(
+            endpoint="/api/workflow/instance/steps",
+            json=minimal_workflow_instance_step1,
+        )
+        database.session.commit()
+        assert response.status_code == 201
+
+        # Create second workflow instance step
+        minimal_workflow_instance_step2 = {
+            "id": get_uuid(),
+            "name": "Test Step 2",
+            "description": "Test Step 2",
+            "start_date": get_current_time() + 44345,
+            "last_edited": get_current_time() + 44345,
+            "status": "Active",
+            "completion_date": None,
+            "expected_completion": None,
+            "workflow_instance_id": workflow_instance1["id"],
+        }
+
+        response = api_post(
+            endpoint="/api/workflow/instance/steps",
+            json=minimal_workflow_instance_step2,
+        )
+        database.session.commit()
+
+        assert response.status_code == 201
+
+        # Test getting workflow instance steps with workflow_instance_id filter
+        response = api_get(
+            endpoint=f"/api/workflow/instance/steps?workflow_instance_id={workflow_instance1['id']}"
+        )
+
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+        assert response.status_code == 200
+        assert "items" in response_body
+        assert len(response_body["items"]) == 2
+
+        # Verify the steps are returned correctly
+        step_names = [step["name"] for step in response_body["items"]]
+        assert "Test Step 1" in step_names
+        assert "Test Step 2" in step_names
+
+        # Test getting all workflow instance steps without filter
+        response = api_get(endpoint="/api/workflow/instance/steps")
+
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+        assert response.status_code == 200
+        assert "items" in response_body
+        assert len(response_body["items"]) >= 2
+
+    finally:
+        crud.delete_all(
+            WorkflowInstanceStepOrm, workflow_instance_id=workflow_instance1["id"]
+        )
+        crud.delete_all(WorkflowInstanceOrm, id=workflow_instance1["id"])
+        crud.delete_all(WorkflowTemplateOrm, id=workflow_template1["id"])
+
+
+def test_complete_workflow_instance_step(
+    database,
+    workflow_template1,
+    workflow_instance1,
+    api_post,
+    api_patch,
+    vht_user_id,
+):
+    try:
+        # Create workflow template
+        response = api_post(
+            endpoint="/api/workflow/templates/body", json=workflow_template1
+        )
+        database.session.commit()
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+        assert response.status_code == 201
+
+        # Create workflow instance
+        response = api_post(endpoint="/api/workflow/instances", json=workflow_instance1)
+        database.session.commit()
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+        assert response.status_code == 201
+
+        # Create workflow instance step
+        start_time = get_current_time()
+        minimal_workflow_instance_step = {
+            "id": get_uuid(),
+            "name": "Test Step to Complete",
+            "description": "Test Step to Complete",
+            "start_date": start_time,
+            "last_edited": start_time + 44345,
+            "status": "Active",
+            "completion_date": None,
+            "expected_completion": None,
+            "workflow_instance_id": workflow_instance1["id"],
+        }
+
+        response = api_post(
+            endpoint="/api/workflow/instance/steps", json=minimal_workflow_instance_step
+        )
+        database.session.commit()
+        assert response.status_code == 201
+
+        step_id = minimal_workflow_instance_step["id"]
+
+        # Test completing the workflow instance step
+        response = api_patch(
+            endpoint=f"/api/workflow/instance/steps/{step_id}/complete"
+        )
+
+        if response.status_code != 200:
+            print(f"Error response status: {response.status_code}")
+            print(f"Error response text: {response.text}")
+
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+        assert response.status_code == 200
+
+        # Verify the step was marked as completed
+        assert response_body["status"] == "Completed"
+        assert response_body["completion_date"] is not None
+        assert response_body["last_edited"] is not None
+        assert response_body["id"] == step_id
+        assert response_body["name"] == "Test Step to Complete"
+
+    finally:
+        crud.delete_all(
+            WorkflowInstanceStepOrm, workflow_instance_id=workflow_instance1["id"]
+        )
+        crud.delete_all(WorkflowInstanceOrm, id=workflow_instance1["id"])
+        crud.delete_all(WorkflowTemplateOrm, id=workflow_template1["id"])
 
 
 @pytest.fixture
@@ -129,3 +291,34 @@ def patient_id(create_patient, patient_info):
     """Create a patient and return its ID"""
     create_patient()
     return patient_info["id"]
+
+
+@pytest.fixture
+def form_classification():
+    return {
+        "id": "wissfc",
+        "name": "wissfc",
+    }
+
+
+@pytest.fixture
+def form_template():
+    return {
+        "classification": {"id": "wissfc", "name": "wissfc"},
+        "id": "wissft",
+        "version": "V1",
+        "questions": [],
+    }
+
+
+@pytest.fixture
+def form(patient_id):
+    return {
+        "id": "wissf",
+        "lang": "english",
+        "form_template_id": "wissft",
+        "form_classification_id": "wissfc",
+        "patient_id": patient_id,
+        "date_created": 1561011126,
+        "questions": [],
+    }

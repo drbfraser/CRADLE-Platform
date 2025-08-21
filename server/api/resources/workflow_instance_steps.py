@@ -77,14 +77,6 @@ def create_workflow_instance_step(body: WorkflowInstanceStepUploadModel):
                     description=f"Condition with ID: ({instance_step['condition_id']}) not found.",
                 )
 
-    # Validate that the form exists
-    form = crud.read(FormOrm, id=instance_step["form_id"])
-    if form is None:
-        return abort(
-            code=404,
-            description=f"Form with ID: ({instance_step['form_id']}) not found.",
-        )
-
     # Validate that the assigned user exists (if provided)
     if instance_step.get("assigned_to") is not None:
         try:

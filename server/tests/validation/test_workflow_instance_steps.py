@@ -20,7 +20,7 @@ INVALID_RULE_GROUP = rule_group_with_invalid_json_rule_should_return_validation_
 
 ID = "workflow-instance-step-example-01"
 NAME = "Workflow Instance Step Example"
-TITLE = "Workflow Instance Step Example"
+DESCRIPTION = "Workflow Instance Step Example"
 START_DATE = get_current_time()
 LAST_EDITED = get_current_time()
 COMPLETION_DATE = get_current_time()
@@ -33,7 +33,7 @@ ASSIGNED_TO = 13432
 instance_step_with_valid_fields_should_return_none = {
     "id": ID,
     "name": NAME,
-    "title": TITLE,
+    "description": DESCRIPTION,
     "start_date": START_DATE,
     "last_edited": LAST_EDITED,
     "completion_date": COMPLETION_DATE,
@@ -52,7 +52,7 @@ instance_step_with_valid_fields_should_return_none = {
 instance_step_with_valid_missing_fields_should_return_none = {
     "id": ID,
     "name": NAME,
-    "title": TITLE,
+    "description": DESCRIPTION,
     "start_date": START_DATE,
     "last_edited": None,
     "completion_date": None,
@@ -71,7 +71,7 @@ instance_step_with_valid_missing_fields_should_return_none = {
 instance_step_with_invalid_condition_should_return_validation_error = {
     "id": ID,
     "name": NAME,
-    "title": TITLE,
+    "description": DESCRIPTION,
     "start_date": START_DATE,
     "last_edited": LAST_EDITED,
     "completion_date": COMPLETION_DATE,
@@ -90,7 +90,7 @@ instance_step_with_invalid_condition_should_return_validation_error = {
 instance_step_with_invalid_data_should_return_validation_error = {
     "id": ID,
     "name": NAME,
-    "title": TITLE,
+    "description": DESCRIPTION,
     "start_date": START_DATE,
     "last_edited": LAST_EDITED,
     "completion_date": COMPLETION_DATE,
@@ -109,7 +109,7 @@ instance_step_with_invalid_data_should_return_validation_error = {
 instance_step_with_invalid_edit_date_should_return_validation_error = {
     "id": ID,
     "name": NAME,
-    "title": TITLE,
+    "description": DESCRIPTION,
     "start_date": START_DATE,
     "last_edited": START_DATE - 100,
     "completion_date": COMPLETION_DATE,
@@ -128,7 +128,7 @@ instance_step_with_invalid_edit_date_should_return_validation_error = {
 instance_step_with_invalid_completion_date_should_return_validation_error = {
     "id": ID,
     "name": NAME,
-    "title": TITLE,
+    "description": DESCRIPTION,
     "start_date": START_DATE,
     "last_edited": LAST_EDITED,
     "completion_date": START_DATE - 100,
@@ -147,7 +147,7 @@ instance_step_with_invalid_completion_date_should_return_validation_error = {
 instance_step_with_invalid_status_should_return_validation_error = {
     "id": ID,
     "name": NAME,
-    "title": TITLE,
+    "description": DESCRIPTION,
     "start_date": START_DATE,
     "last_edited": LAST_EDITED,
     "completion_date": COMPLETION_DATE,

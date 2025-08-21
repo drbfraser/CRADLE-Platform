@@ -15,11 +15,10 @@ from validation.workflow_instance_steps import (
 class WorkflowInstanceExamples:
     id = "workflow-instance-example-01"
     name = "Workflow Instance Example"
-    title = "Workflow Instance Example"
+    description = "Workflow Instance Example"
     start_date = get_current_time()
     current_step_id = "workflow-instance-step-example-01"
     last_edited = get_current_time()
-    last_edited_by = 1243
     completion_date = get_current_time()
     status = "Active"
     workflow_template_id = "workflow-template-example-01"
@@ -29,11 +28,10 @@ class WorkflowInstanceExamples:
     example_01 = {
         "id": id,
         "name": name,
-        "title": title,
+        "description": description,
         "start_date": start_date,
         "current_step_id": current_step_id,
         "last_edited": last_edited,
-        "last_edited_by": last_edited_by,
         "completion_date": completion_date,
         "status": status,
         "workflow_template_id": workflow_template_id,
@@ -44,11 +42,10 @@ class WorkflowInstanceExamples:
     with_steps = {
         "id": id,
         "name": name,
-        "title": title,
+        "description": description,
         "start_date": start_date,
         "current_step_id": current_step_id,
         "last_edited": last_edited,
-        "last_edited_by": last_edited_by,
         "completion_date": completion_date,
         "status": status,
         "workflow_template_id": workflow_template_id,
@@ -103,11 +100,10 @@ class WorkflowInstanceUploadModel(WorkflowInstanceModel):
 class WorkflowInstancePatchModel(CradleBaseModel, extra="forbid"):
     id: Optional[str] = None
     name: Optional[str] = None
-    title: Optional[str] = None
+    description: Optional[str] = None
     start_date: Optional[int] = None
     current_step_id: Optional[str] = None
     last_edited: Optional[int] = None
-    last_edited_by: Optional[int] = None
     completion_date: Optional[int] = None
     status: Optional[str] = None
     workflow_template_id: Optional[str] = None

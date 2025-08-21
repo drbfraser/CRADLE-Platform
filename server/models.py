@@ -945,7 +945,7 @@ class WorkflowInstanceStepOrm(db.Model):
     data = db.Column(db.Text, nullable=True)
 
     # FOREIGN KEYS
-    form_id = db.Column(db.ForeignKey(FormOrm.id, ondelete="CASCADE"), nullable=False)
+    form_id = db.Column(db.ForeignKey(FormOrm.id, ondelete="SET NULL"), nullable=True)
 
     assigned_to = db.Column(
         db.ForeignKey(UserOrm.id, ondelete="SET NULL"), nullable=True
