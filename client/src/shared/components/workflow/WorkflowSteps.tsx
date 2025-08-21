@@ -8,7 +8,7 @@ interface IProps {
   firstStep: ID;
 }
 
-export const ViewTemplateSteps = ({ steps, firstStep }: IProps) => {
+export const WorkflowSteps = ({ steps, firstStep }: IProps) => {
   if (!steps) {
     return;
   }
