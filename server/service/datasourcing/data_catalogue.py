@@ -2,9 +2,8 @@ from functools import partial
 from typing import Callable, Dict, TypeVar
 
 import models as m
-from data import crud, marshal
-
 import server.service.datasourcing.custom_lookup as cl
+from data import crud, marshal
 
 M = TypeVar("M")
 
@@ -21,7 +20,7 @@ def __query_object(model: type[M], query, id: str) -> Callable[[str], Dict]:
     :param model: the ORM data model being queried for
     :param predicate: the query to match on
     :param id: id for data querying, is partially applied
-    
+
     :returns: a callable function that returns the object model
     """
     pred = query(id)
@@ -38,10 +37,11 @@ def get_catalogue() -> Dict[str, Callable[[str], Dict]]:
     the data catalogue of supported datasource objects
 
     the catalogue maps datasource strings to a Callable that takes a string of id
-    
+
     :returns: a dict of string keys corresponding to a query
     """
     return __object_catalogue
+
 
 # NOTE:
 #   maintaining a datastring lookup vs dynamic lookup means it will be easier to reason about and debug
@@ -77,10 +77,10 @@ __object_catalogue = {
         __query_object, m.MedicalRecordOrm, lambda _id: m.MedicalRecordOrm.id == _id
     ),
     "$patient": {
-        "query" : partial(__query_object, m.PatientOrm, lambda _id: m.PatientOrm.id == _id),
-        "custom" : {
-            "age" : partial(cl.patient_age)
-        }
+        "query": partial(
+            __query_object, m.PatientOrm, lambda _id: m.PatientOrm.id == _id
+        ),
+        "custom": {"age": partial(cl.patient_age)},
     },
     "$pregnancy": partial(
         __query_object, m.PregnancyOrm, lambda _id: m.PregnancyOrm.id == _id

@@ -13,15 +13,14 @@ def resolve_datasources(
     :returns: a dict of resolved datasources, Any can be an int, bool, string
     :rtype: Dict[str, Any]
     """
-    
-    '''
+    """
     1. parse strings, group into 
        object : [attribute]
     2. lookup object
     3. get attributes
     4. do special lookup if required
        - use queried object, if need new query, make that query
-    '''
+    """
 
     # parse and group strings
     def group_objects(a: Dict[str, List[str]], ds: str):
@@ -33,14 +32,14 @@ def resolve_datasources(
         else:
             a[object] = [attr]
         return a
-    
+
     parsed_groups = reduce(group_objects, datasources, {})
     resolved = {}
 
     for obj, attrs in parsed_groups.items():
         inst = __resolve_object(catalogue, patient_id, obj)
-        
-        # attribute lookups 
+
+        # attribute lookups
         resolved_attrs = []
 
         for a in attrs:
@@ -51,13 +50,15 @@ def resolve_datasources(
                 v = cl.get(a)
                 if v:
                     resolved.append(f"${obj}.{a}", v)
-        
+
         resolved.update(resolved_attrs)
     return resolved
+
 
 def __resolve_object(catalogue: Dict, patient_id: str, object_name: str) -> Dict:
     object_query = catalogue.get(object_name).get("query")
     return object_query(id=patient_id)
+
 
 def resolve_datastring(
     patient_id: str, data_string: str, catalogue: Dict[str, Callable]
@@ -79,9 +80,9 @@ def resolve_datastring(
         return None
 
     object: Dict = query(id=patient_id)
-    
+
     return object.get(attribute)
-       
+
 
 def parse_attribute_name(data_string: str) -> str:
     if not data_string.startswith("$"):

@@ -1,6 +1,6 @@
+from datetime import datetime
 from typing import Dict
 
-from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 
