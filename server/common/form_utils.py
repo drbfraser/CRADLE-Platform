@@ -77,7 +77,6 @@ def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
     # assign question id and form_id or form_template_id.
     # assign lang version question_id.
     for question in req["questions"]:
-        
         if question.get("id") is None:
             question["id"] = commonUtil.get_uuid()
 

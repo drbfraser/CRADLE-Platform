@@ -5,13 +5,12 @@ from common.commonUtil import get_current_time, get_uuid
 from common.print_utils import pretty_print
 from data import crud
 from models import (
+    FormClassificationOrm,
+    FormOrm,
+    FormTemplateOrm,
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
     WorkflowTemplateOrm,
-    FormClassificationOrm, 
-    FormOrm, 
-    FormTemplateOrm, 
-    QuestionOrm,
 )
 
 
@@ -82,7 +81,7 @@ def test_create_workflow_instance_step(
         pretty_print(response_body)
         assert response.status_code == 201
 
-        # Create form 
+        # Create form
         response = api_post(endpoint="/api/forms/responses", json=form)
         database.session.commit()
         response_body = decamelize(response.json())
@@ -105,7 +104,8 @@ def test_create_workflow_instance_step(
         }
 
         response = api_post(
-            endpoint="/api/workflow/instance/steps", json=workflow_instance_step_with_form
+            endpoint="/api/workflow/instance/steps",
+            json=workflow_instance_step_with_form,
         )
         database.session.commit()
 
@@ -203,7 +203,7 @@ def test_get_workflow_instance_steps(
         pretty_print(response_body)
         assert response.status_code == 201
 
-        # Create form 
+        # Create form
         response = api_post(endpoint="/api/forms/responses", json=form)
         database.session.commit()
         response_body = decamelize(response.json())
@@ -424,7 +424,7 @@ def form(patient_id):
         "form_classification_id": "wissfc",
         "patient_id": patient_id,
         "date_created": 1561011126,
-        "archived": False, 
+        "archived": False,
         "questions": [
             {
                 "id": "test-question-01",
@@ -453,13 +453,13 @@ def form(patient_id):
                 "answers": {"mc_id_array": [0]},
             },
             {
-                "id": "test-question-02",  
+                "id": "test-question-02",
                 "category_index": None,
                 "question_index": 1,
                 "question_text": "Info",
                 "question_type": "CATEGORY",
                 "required": True,
-                "answers": {}, 
+                "answers": {},
             },
         ],
     }
