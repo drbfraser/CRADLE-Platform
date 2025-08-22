@@ -281,11 +281,15 @@ server/
 │   ├── seed_data/              # Seed data in JSON format
 │   └── __init__.py             # Initializes DB session (SQLAlchemy)
 
-├── service/                    # Cross-cutting reusable backend logic
-│   ├── FilterHelper.py         # Helpers for filtering query results
+├── service/                    # Cross-cutting reusable components & logic
+|   |
+|   ├── workflow/ 
+|   |   ├── datasourcing/       # Datasource resolution for workflows
+|   |   └── evalaute/           # Rule Engine evaluation for workflows 
 │   ├── assoc.py                # Association logic for linking models
 │   ├── compressor.py           # Possibly compressing response payloads
 │   ├── encryptor.py            # Encryption-related utilities
+│   ├── FilterHelper.py         # Helpers for filtering query results
 │   ├── invariant.py            # Enforces state constraints/invariants
 │   ├── questionTree.py         # Logic for navigating decision trees
 │   ├── serialize.py            # Custom serialization functions
