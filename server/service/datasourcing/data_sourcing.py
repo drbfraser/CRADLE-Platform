@@ -47,17 +47,17 @@ def resolve_datasources(
             if inst.get(a):
                 resolved_attrs.append(f"${obj}.{a}", inst.get(a))
             else:
-                # TODO: attempt custom lookup on objects
-                pass
+                cl = catalogue.get(obj).get("custom")
+                v = cl.get(a)
+                if v:
+                    resolved.append(f"${obj}.{a}", v)
         
         resolved.update(resolved_attrs)
-
     return resolved
 
 def __resolve_object(catalogue: Dict, patient_id: str, object_name: str) -> Dict:
-    object_query = catalogue.get(object_name)
+    object_query = catalogue.get(object_name).get("query")
     return object_query(id=patient_id)
-
 
 def resolve_datastring(
     patient_id: str, data_string: str, catalogue: Dict[str, Callable]

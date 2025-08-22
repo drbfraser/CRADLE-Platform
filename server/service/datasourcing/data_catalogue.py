@@ -1,8 +1,10 @@
 from functools import partial
-from typing import Any, Callable, Dict, List, TypeVar
+from typing import Callable, Dict, TypeVar
 
 import models as m
 from data import crud, marshal
+
+import server.service.datasourcing.custom_lookup as cl
 
 M = TypeVar("M")
 
@@ -41,7 +43,6 @@ def get_catalogue() -> Dict[str, Callable[[str], Dict]]:
     """
     return __object_catalogue
 
-
 # NOTE:
 #   maintaining a datastring lookup vs dynamic lookup means it will be easier to reason about and debug
 #   it also allows us to add our own behavior specific to each object
@@ -63,8 +64,7 @@ given string:
 6. object made available as well for special strings
 
 special strings
-- each object func has their own dict of special "nonlookup" strings
-- 
+- each object also has a corresponding catalogue of custom attributes 
 """
 
 # objects defined from spike on relevant system data used in a workflow
@@ -76,9 +76,12 @@ __object_catalogue = {
     "$medical_record": partial(
         __query_object, m.MedicalRecordOrm, lambda _id: m.MedicalRecordOrm.id == _id
     ),
-    "$patient": partial(
-        __query_object, m.PatientOrm, lambda _id: m.PatientOrm.id == _id
-    ),
+    "$patient": {
+        "query" : partial(__query_object, m.PatientOrm, lambda _id: m.PatientOrm.id == _id),
+        "custom" : {
+            "age" : partial(cl.patient_age)
+        }
+    },
     "$pregnancy": partial(
         __query_object, m.PregnancyOrm, lambda _id: m.PregnancyOrm.id == _id
     ),
@@ -88,8 +91,4 @@ __object_catalogue = {
     "$urine_test": partial(
         __query_object, m.UrineTestOrm, lambda _id: m.UrineTestOrm.id == _id
     ),
-}
-
-__custom_catalogue = {
-    "$patient.age" : {}
 }
