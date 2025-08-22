@@ -12,6 +12,17 @@ export { v4 as makeUniqueId } from 'uuid';
 
 export const DATE_FORMAT = 'YYYY-MM-DD';
 
+export const formatDate = (d?: string) => {
+  if (!d) return '';
+  const dt = new Date(d);
+  if (isNaN(dt.getTime())) return d;
+  return dt.toLocaleDateString('en-CA', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+};
+
 export const getTimestampFromWeeksDays = (
   weeks: string,
   days: string

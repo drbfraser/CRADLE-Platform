@@ -24,7 +24,9 @@ def test_uploading_valid_workflow_template_steps(
         Upload 3 template steps to the example workflow template
         """
 
-        api_post(endpoint="/api/workflow/templates", json=example_workflow_template)
+        api_post(
+            endpoint="/api/workflow/templates/body", json=example_workflow_template
+        )
 
         response = api_post(
             endpoint="/api/workflow/template/steps", json=valid_workflow_template_step1
@@ -78,7 +80,9 @@ def test_uploading_invalid_workflow_template_steps(
     api_post,
 ):
     try:
-        api_post(endpoint="/api/workflow/templates", json=example_workflow_template)
+        api_post(
+            endpoint="/api/workflow/templates/body", json=example_workflow_template
+        )
 
         """
         Try to upload 3 invalid template steps to the example workflow template
@@ -149,7 +153,9 @@ def test_getting_workflow_template_steps(
     api_get,
 ):
     try:
-        api_post(endpoint="/api/workflow/templates", json=example_workflow_template)
+        api_post(
+            endpoint="/api/workflow/templates/body", json=example_workflow_template
+        )
 
         response = api_post(
             endpoint="/api/workflow/template/steps", json=valid_workflow_template_step1
@@ -220,7 +226,7 @@ def test_getting_workflow_template_steps(
 
 # ~~~~~~~~~~~~~~~~~~~~~~~ Example Workflow for testing ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 @pytest.fixture
-def example_workflow_template(vht_user_id):
+def example_workflow_template():
     template_id = get_uuid()
     classification_id = get_uuid()
     init_condition_id = get_uuid()
@@ -232,16 +238,12 @@ def example_workflow_template(vht_user_id):
         "starting_step_id": None,
         "date_created": get_current_time(),
         "last_edited": get_current_time() + 44345,
-        "last_edited_by": vht_user_id,
         "version": "0",
         "initial_condition_id": init_condition_id,
         "initial_condition": {
             "id": init_condition_id,
-            "logic": '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-            "rules": (
-                '{"rule1": {"field": "patient.age", "operator": "LESS_THAN", "value": 32},'
-                '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-            ),
+            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": '["$patient.age"]',
         },
         "classification_id": classification_id,
         "classification": {
@@ -254,29 +256,27 @@ def example_workflow_template(vht_user_id):
 
 # ~~~~~~~~~~~~~~~~~~~~~~~ Example template steps for testing ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 @pytest.fixture
-def valid_workflow_template_step1(
-    vht_user_id, example_workflow_template, form_template
-):
+def valid_workflow_template_step1(example_workflow_template, form_template):
     step_id = get_uuid()
     condition_id = get_uuid()
+    form_template = copy.deepcopy(form_template)
+    form_template["id"] = "ft-2"
+    form_template["form_classification_id"] = "fc-5"
+    form_template["classification"]["id"] = form_template["form_classification_id"]
     return {
         "id": step_id,
         "name": "valid_workflow_template_step1",
-        "title": "valid_workflow_template_step1",
+        "description": "valid_workflow_template_step1",
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
-        "last_edited_by": vht_user_id,
         "form_id": form_template["id"],
         "form": form_template,
         "workflow_template_id": example_workflow_template["id"],
         "condition_id": condition_id,
         "condition": {
             "id": condition_id,
-            "logic": '{"logical_operator": "OR", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-            "rules": (
-                '{"rule1": {"field": "patient.height", "operator": "LESS_THAN", "value": 56},'
-                '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-            ),
+            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": "[]",
         },
         "branches": [],
     }
@@ -284,7 +284,7 @@ def valid_workflow_template_step1(
 
 @pytest.fixture
 def valid_workflow_template_step2(
-    vht_user_id, example_workflow_template, form_template, valid_workflow_template_step4
+    example_workflow_template, form_template, valid_workflow_template_step4
 ):
     step_id = get_uuid()
     condition_id = get_uuid()
@@ -298,21 +298,17 @@ def valid_workflow_template_step2(
     return {
         "id": step_id,
         "name": "valid_workflow_template_step2",
-        "title": "valid_workflow_template_step2",
+        "description": "valid_workflow_template_step2",
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
-        "last_edited_by": vht_user_id,
         "form_id": form_template["id"],
         "form": form_template,
         "workflow_template_id": example_workflow_template["id"],
         "condition_id": condition_id,
         "condition": {
             "id": condition_id,
-            "logic": '{"logical_operator": "OR", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-            "rules": (
-                '{"rule1": {"field": "patient.height", "operator": "LESS_THAN", "value": 56},'
-                '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-            ),
+            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": "[]",
         },
         "branches": [
             {
@@ -322,44 +318,40 @@ def valid_workflow_template_step2(
                 "condition_id": branch_condition_id,
                 "condition": {
                     "id": branch_condition_id,
-                    "logic": '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-                    "rules": (
-                        '{"rule1": {"field": "4", "operator": "LESS_THAN", "value": 56},'
-                        '"rule2": {"field": "443", "operator": "GREATER_THAN", "value": 164}}'
-                    ),
+                    "rule": '{"and": [{"<": [4, 56]}, {">": [443, 164]}]}',
+                    "data_sources": "[]",
                 },
             }
         ],
     }
 
 
-# This will cause an error if uploaded alongside valid_workflow_template_step1
+# This will cause an error if uploaded alongside valid_workflow_template_step1 because both of them are attempting to
+# upload the same form template version at the same time
 @pytest.fixture
-def valid_workflow_template_step3(
-    vht_user_id, example_workflow_template, form_template
-):
+def valid_workflow_template_step3(example_workflow_template, form_template):
     step_id = get_uuid()
     condition_id = get_uuid()
     branch_id = get_uuid()
+    form_template = copy.deepcopy(form_template)
+    form_template["id"] = "ft-2"
+    form_template["form_classification_id"] = "fc-5"
+    form_template["classification"]["id"] = form_template["form_classification_id"]
 
     return {
         "id": step_id,
         "name": "valid_workflow_template_step3",
-        "title": "valid_workflow_template_step3",
+        "description": "valid_workflow_template_step3",
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
-        "last_edited_by": None,
         "form_id": form_template["id"],
         "form": form_template,
         "workflow_template_id": example_workflow_template["id"],
         "condition_id": condition_id,
         "condition": {
             "id": condition_id,
-            "logic": '{"logical_operator": "OR", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-            "rules": (
-                '{"rule1": {"field": "patient.height", "operator": "LESS_THAN", "value": 56},'
-                '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-            ),
+            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": "[]",
         },
         "branches": [
             {
@@ -374,9 +366,7 @@ def valid_workflow_template_step3(
 
 
 @pytest.fixture
-def valid_workflow_template_step4(
-    vht_user_id, example_workflow_template, form_template
-):
+def valid_workflow_template_step4(example_workflow_template, form_template):
     step_id = get_uuid()
     condition_id = get_uuid()
     branch_id = get_uuid()
@@ -392,21 +382,17 @@ def valid_workflow_template_step4(
     return {
         "id": step_id,
         "name": "valid_workflow_template_step4",
-        "title": "valid_workflow_template_step4",
+        "description": "valid_workflow_template_step4",
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
-        "last_edited_by": vht_user_id,
         "form_id": form_template["id"],
         "form": form_template,
         "workflow_template_id": example_workflow_template["id"],
         "condition_id": condition_id,
         "condition": {
             "id": condition_id,
-            "logic": '{"logical_operator": "OR", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-            "rules": (
-                '{"rule1": {"field": "32", "operator": "LESS_THAN", "value": 56},'
-                '"rule2": {"field": "232", "operator": "GREATER_THAN", "value": 164}}'
-            ),
+            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": "[]",
         },
         "branches": [
             {
@@ -416,11 +402,8 @@ def valid_workflow_template_step4(
                 "condition_id": branch_condition_id,
                 "condition": {
                     "id": branch_condition_id,
-                    "logic": '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-                    "rules": (
-                        '{"rule1": {"field": "4", "operator": "LESS_THAN", "value": 56},'
-                        '"rule2": {"field": "443", "operator": "GREATER_THAN", "value": 164}}'
-                    ),
+                    "rule": '{"and": [{"<": [4, 56]}, {">": [443, 164]}]}',
+                    "data_sources": "[]",
                 },
             },
             {
@@ -430,11 +413,8 @@ def valid_workflow_template_step4(
                 "condition_id": branch_condition_id2,
                 "condition": {
                     "id": branch_condition_id2,
-                    "logic": '{"logical_operator": "OR", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-                    "rules": (
-                        '{"rule1": {"field": "patient.height", "operator": "LESS_THAN", "value": 56},'
-                        '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-                    ),
+                    "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
+                    "data_sources": "[]",
                 },
             },
         ],
@@ -442,9 +422,7 @@ def valid_workflow_template_step4(
 
 
 @pytest.fixture
-def invalid_workflow_template_step1(
-    vht_user_id, example_workflow_template, form_template
-):
+def invalid_workflow_template_step1(example_workflow_template, form_template):
     step_id = get_uuid()
     condition_id = get_uuid()
     branch_id = get_uuid()
@@ -452,21 +430,17 @@ def invalid_workflow_template_step1(
     return {
         "id": step_id,
         "name": "invalid_workflow_template_step1",
-        "title": "invalid_workflow_template_step1",
+        "description": "invalid_workflow_template_step1",
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
-        "last_edited_by": vht_user_id,
         "form_id": form_template["id"],
         "form": form_template,
         "workflow_template_id": example_workflow_template["id"],
         "condition_id": condition_id,
         "condition": {
             "id": condition_id,
-            "logic": "Hello",  # Invalid logic
-            "rules": (
-                '{"rule1": {"field": "patient.height", "operator": "LESS_THAN", "value": 56},'
-                '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-            ),
+            "rule": "Hello",  # Invalid rule
+            "data_sources": "[]",
         },
         "branches": [
             {
@@ -476,11 +450,8 @@ def invalid_workflow_template_step1(
                 "condition_id": branch_condition_id,
                 "condition": {
                     "id": branch_condition_id,
-                    "logic": '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-                    "rules": (
-                        '{"rule1": {"field": "4", "operator": "LESS_THAN", "value": 56},'
-                        '"rule2": {"field": "443", "operator": "GREATER_THAN", "value": 164}}'
-                    ),
+                    "rule": '{"and": [{"<": [4, 56]}, {">": [443, 164]}]}',
+                    "data_sources": "[]",
                 },
             }
         ],
@@ -488,7 +459,7 @@ def invalid_workflow_template_step1(
 
 
 @pytest.fixture
-def invalid_workflow_template_step2(vht_user_id, form_template):
+def invalid_workflow_template_step2(form_template):
     step_id = get_uuid()
     condition_id = get_uuid()
     branch_id = get_uuid()
@@ -496,21 +467,17 @@ def invalid_workflow_template_step2(vht_user_id, form_template):
     return {
         "id": step_id,
         "name": "invalid_workflow_template_step2",
-        "title": "invalid_workflow_template_step2",
+        "description": "invalid_workflow_template_step2",
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
-        "last_edited_by": vht_user_id,
         "form_id": form_template["id"],
         "form": form_template,
         "workflow_template_id": "non-existent-template",  # This template does not exist
         "condition_id": condition_id,
         "condition": {
             "id": condition_id,
-            "logic": '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-            "rules": (
-                '{"rule1": {"field": "patient.height", "operator": "LESS_THAN", "value": 56},'
-                '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-            ),
+            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": "[]",
         },
         "branches": [
             {
@@ -520,11 +487,8 @@ def invalid_workflow_template_step2(vht_user_id, form_template):
                 "condition_id": branch_condition_id,
                 "condition": {
                     "id": branch_condition_id,
-                    "logic": '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-                    "rules": (
-                        '{"rule1": {"field": "4", "operator": "LESS_THAN", "value": 56},'
-                        '"rule2": {"field": "443", "operator": "GREATER_THAN", "value": 164}}'
-                    ),
+                    "rule": '{"and": [{"<": [4, 56]}, {">": [443, 164]}]}',
+                    "data_sources": "[]",
                 },
             }
         ],
@@ -532,30 +496,24 @@ def invalid_workflow_template_step2(vht_user_id, form_template):
 
 
 @pytest.fixture
-def invalid_workflow_template_step3(
-    vht_user_id, example_workflow_template, form_template
-):
+def invalid_workflow_template_step3(example_workflow_template, form_template):
     step_id = get_uuid()
     condition_id = get_uuid()
     branch_id = get_uuid()
     return {
         "id": step_id,
         "name": "invalid_workflow_template_step3",
-        "title": "invalid_workflow_template_step3",
+        "description": "invalid_workflow_template_step3",
         "expected_completion": get_current_time(),
         "last_edited": get_current_time(),
-        "last_edited_by": vht_user_id,
         "form_id": form_template["id"],
         "form": form_template,
         "workflow_template_id": example_workflow_template["id"],
         "condition_id": condition_id,
         "condition": {
             "id": condition_id,
-            "logic": '{"logical_operator": "AND", "rules": {"rule1": "rules.rule1", "rule2": "rules.rule2"}}',
-            "rules": (
-                '{"rule1": {"field": "patient.height", "operator": "LESS_THAN", "value": 56},'
-                '"rule2": {"field": "patient.bpm", "operator": "GREATER_THAN", "value": 164}}'
-            ),
+            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": "[]",
         },
         "branches": [
             {

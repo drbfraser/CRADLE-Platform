@@ -22,6 +22,12 @@ or
 npm run test
 ```
 
+To run a single test file, run
+
+```bash
+npm test -- <filename>.test.ts
+```
+
 ## Back-end
 
 For our back-end tests, we are using [Pytest](https://docs.pytest.org/en/stable/).

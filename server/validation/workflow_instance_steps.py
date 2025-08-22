@@ -96,7 +96,7 @@ class FormExample:
 class WorkflowInstanceStepExamples:
     id = "workflow-instance-step-example-01"
     name = "Workflow Instance Step Example"
-    title = "Workflow Instance Step Example"
+    description = "Workflow Instance Step Example"
     start_date = get_current_time()
     last_edited = get_current_time()
     completion_date = get_current_time()
@@ -109,7 +109,7 @@ class WorkflowInstanceStepExamples:
     example_01 = {
         "id": id,
         "name": name,
-        "title": title,
+        "description": description,
         "start_date": start_date,
         "last_edited": last_edited,
         "completion_date": completion_date,
@@ -128,7 +128,7 @@ class WorkflowInstanceStepExamples:
     with_form = {
         "id": id,
         "name": name,
-        "title": title,
+        "description": description,
         "start_date": start_date,
         "last_edited": last_edited,
         "completion_date": completion_date,
@@ -144,23 +144,23 @@ class WorkflowInstanceStepExamples:
     }
 
 
-class WorkflowInstanceStepModel(CradleBaseModel):
+class WorkflowInstanceStepModel(CradleBaseModel, extra="forbid"):
     id: str
     name: str
-    title: str
+    description: str
     start_date: int = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
     assigned_to: Optional[int] = None
     completion_date: Optional[int] = Field(default_factory=get_current_time)
     expected_completion: Optional[int] = Field(default_factory=get_current_time)
-    status: str
+    status: str = "Active"
     data: Optional[str] = None
     triggered_by: Optional[str] = None
-    form_id: str
+    form_id: Optional[str] = None
     form: Optional[FormModel] = None
     workflow_instance_id: str
-    condition_id: str
-    condition: RuleGroupModel
+    condition_id: Optional[str] = None
+    condition: Optional[RuleGroupModel] = None
 
     @field_validator("status", mode="after")
     @classmethod

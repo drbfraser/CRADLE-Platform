@@ -13,8 +13,10 @@ import { getPatientsAsync } from 'src/shared/api';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { TrafficLightEnum } from 'src/shared/enums';
 import moment from 'moment';
+import { useNavigate } from 'react-router-dom';
 
 export const PatientsPage = () => {
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const debounceSetSearch = useMemo(() => debounce(setSearch, 500), []);
 
@@ -118,6 +120,7 @@ export const PatientsPage = () => {
         loading={isLoading}
         disableVirtualization
         disablePagination
+        onRowClick={({ row }) => navigate(`/patients/${row.patientId}`)}
         sx={{
           '& .MuiDataGrid-row:hover': {
             cursor: 'pointer',

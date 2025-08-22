@@ -29,6 +29,7 @@ services:
         depends_on:
             mysql:
                 condition: service_healthy
+
     mysql:
         container_name: cradle_mysql
         platform: linux/x86_64

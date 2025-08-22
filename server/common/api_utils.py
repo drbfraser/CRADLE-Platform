@@ -6,12 +6,14 @@ from flask import Request, request
 from pydantic import AliasChoices, Field, field_validator
 from pydantic.alias_generators import to_snake
 
+import config
 from common import user_utils
-from config import app
 from data import crud
 from models import UserOrm
 from validation import CradleBaseModel
 from validation.workflow_template_steps import WorkflowTemplateStepModel
+
+app = config.app
 
 
 @app.after_request
@@ -96,6 +98,10 @@ class FormTemplateIdPath(CradleBaseModel):
 
 class FormIdPath(CradleBaseModel):
     form_id: str
+
+
+class WorkflowCollectionIdPath(CradleBaseModel):
+    workflow_collection_id: str
 
 
 class WorkflowClassificationIdPath(CradleBaseModel):
@@ -224,7 +230,7 @@ def query_param_search(request: Request, name: str) -> str:
     return request.args.get(name, "", type=str)
 
 
-def get_user_id(d: dict, user_attribute: str) -> Optional[int]:
+def get_user_id(d: dict, user_attribute: Optional[str] = None) -> Optional[int]:
     """
     Returns the ID of the user associated with the given dictionary. Raises an error if the user does not exist.
 
@@ -233,7 +239,7 @@ def get_user_id(d: dict, user_attribute: str) -> Optional[int]:
 
     :return: The ID of the user associated with the given attribute
     """
-    if d[user_attribute]:
+    if d.get(user_attribute):
         current_user = crud.read(m=UserOrm, id=d[user_attribute])
 
     # If the attribute does not have a user ID, get the user from the JWT
@@ -248,3 +254,9 @@ def get_user_id(d: dict, user_attribute: str) -> Optional[int]:
         return int(current_user["id"])
 
     return int(current_user.id)
+
+
+def convert_query_parameter_to_bool(value):
+    if value is None:
+        return False
+    return str(value).lower() == "true"

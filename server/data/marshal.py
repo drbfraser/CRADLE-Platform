@@ -1,5 +1,5 @@
-import collections
 import json
+from collections.abc import Mapping
 from enum import Enum
 from typing import Any, Dict, List, Optional, Type
 
@@ -23,6 +23,7 @@ from models import (
     RuleGroupOrm,
     SmsSecretKeyOrm,
     WorkflowClassificationOrm,
+    WorkflowCollectionOrm,
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
     WorkflowTemplateOrm,
@@ -77,6 +78,9 @@ def marshal(obj: Any, shallow=False, if_include_versions=False) -> dict:
         return __marshal_workflow_instance_step(obj)
     if isinstance(obj, WorkflowInstanceOrm):
         return __marshal_workflow_instance(obj, shallow)
+    if isinstance(obj, WorkflowCollectionOrm):
+        return __marshal_workflow_collection(obj, shallow)
+
     d = vars(obj).copy()
     __pre_process(d)
     return d
@@ -402,13 +406,31 @@ def __marshal_rule_group(rg: RuleGroupOrm) -> dict:
     return d
 
 
+def __marshal_workflow_collection(
+    wf_collection: WorkflowCollectionOrm, shallow: bool = False
+) -> dict:
+    d = vars(wf_collection).copy()
+    __pre_process(d)
+
+    if not shallow:
+        d["classifications"] = [
+            __marshal_workflow_classification(
+                workflow_classification, if_include_templates=False
+            )
+            for workflow_classification in wf_collection.workflow_classifications
+        ]
+
+    return d
+
+
 def __marshal_workflow_template_step_branch(
     wtsb: WorkflowTemplateStepBranchOrm,
 ) -> dict:
     d = vars(wtsb).copy()
     __pre_process(d)
 
-    d["condition"] = __marshal_rule_group(wtsb.condition)
+    if wtsb.condition is not None:
+        d["condition"] = __marshal_rule_group(wtsb.condition)
 
     return d
 
@@ -474,7 +496,10 @@ def __marshal_workflow_instance_step(wis: WorkflowInstanceStepOrm) -> dict:
     if wis.condition is not None:
         d["condition"] = __marshal_rule_group(wis.condition)
 
-    d["form"] = __marshal_form(wis.form, shallow=True)
+    if wis.form is not None:
+        d["form"] = __marshal_form(wis.form, shallow=True)
+    else:
+        d["form"] = None
 
     return d
 
@@ -904,6 +929,6 @@ def model_to_dict(model: Any, schema) -> Optional[dict]:
     """
     if not model:
         return None
-    if isinstance(model, collections.Mapping):  # Local database stub
+    if isinstance(model, Mapping):  # Local database stub
         return model
     return schema().dump(model)

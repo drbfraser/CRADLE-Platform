@@ -271,6 +271,31 @@ def delete_workflow(m: Type[M], delete_classification: bool = False, **kwargs) -
     delete(workflow)
 
 
+def delete_workflow_classification(delete_templates: bool = False, **kwargs) -> None:
+    """
+    Deletes a workflow classification and optionally its associated templates
+
+    :param delete_templates: If true, deletes all workflow templates associated with this classification
+    :param kwargs: Keyword arguments mapping column names to values to parameterize the query
+    """
+    classification = read(WorkflowClassificationOrm, **kwargs)
+
+    if classification is None:
+        return
+
+    if delete_templates:
+        # Delete all workflow templates associated with this classification
+        templates = read_workflow_templates(
+            workflow_classification_id=classification.id
+        )
+        for template in templates:
+            delete_workflow(
+                WorkflowTemplateOrm, delete_classification=False, id=template.id
+            )
+
+    delete(classification)
+
+
 def find(m: Type[M], *args) -> List[M]:
     """
     Queries for all models which match some given criteria.
@@ -1046,8 +1071,22 @@ def read_workflow_templates(
             WorkflowTemplateOrm.classification_id == workflow_classification_id
         )
 
-    if is_archived:
-        query = query.filter(WorkflowTemplateOrm.archived == is_archived)
+    query = query.filter(WorkflowTemplateOrm.archived == is_archived)
+
+    return query.all()
+
+
+def read_workflow_classifications(
+    is_archived: bool = False,
+) -> List[WorkflowClassificationOrm]:
+    """
+    Queries the database for all workflow classifications
+
+    :param is_archived: Query for archived workflow classifications; defaults to False
+
+    :return: A list of workflow classifications
+    """
+    query = db_session.query(WorkflowClassificationOrm)
 
     return query.all()
 
@@ -1072,6 +1111,39 @@ def read_template_steps(
         )
 
     return query.all()
+
+
+def read_workflows_in_collection(
+    workflow_collection_id: str,
+) -> List[WorkflowClassificationOrm]:
+    """
+    Queries the database for all workflows that belong in a specific collection
+
+    :param workflow_collection_id: ID of workflow collection
+
+    :return: A list of workflow classifications
+    """
+    query = db_session.query(WorkflowClassificationOrm)
+
+    query = query.filter(
+        WorkflowClassificationOrm.collection_id == workflow_collection_id
+    )
+
+    return query.all()
+
+
+def read_rule_group(rule_group_id: str) -> RuleGroupOrm:
+    """
+    Queries the database for a specified rule group
+
+    :param rule_group_id: ID of the rule group to retrieve
+    :return: a Rule Group object
+    """
+    if rule_group_id:
+        query = db_session.query(RuleGroupOrm).filter(RuleGroupOrm.id == rule_group_id)
+        return query.one_or_none()
+
+    return None
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~ DB Calls ~~~~~~~~~~~~~~~~~~~~~~~~~~ #

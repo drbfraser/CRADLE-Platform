@@ -5,7 +5,7 @@ import {
   DialogTitle,
 } from '@mui/material';
 
-import { FormTemplate } from 'src/shared/types/form/formTemplateTypes';
+import { WorkflowTemplate } from 'src/shared/types/workflow/workflowTypes';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Toast } from 'src/shared/components/toast';
@@ -14,7 +14,7 @@ import { useEditWorkflowTemplate } from './mutations';
 interface IProps {
   open: boolean;
   onClose: () => void;
-  template?: FormTemplate;
+  template?: WorkflowTemplate;
 }
 
 const UnarchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
@@ -37,7 +37,7 @@ const UnarchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
     <>
       <Toast
         severity="success"
-        message="Form Template Unarchived!"
+        message="Workflow Unarchived!"
         open={editTemplate.isSuccess}
         onClose={() => editTemplate.reset()}
       />
@@ -47,9 +47,9 @@ const UnarchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
       />
 
       <Dialog open={open} onClose={onClose}>
-        <DialogTitle>Unarchive Workflow Template</DialogTitle>
+        <DialogTitle>Unarchive Workflow </DialogTitle>
         <DialogContent>
-          <p>Are you sure you want to unarchive this workflow template?</p>
+          <p>Are you sure you want to unarchive this workflow?</p>
         </DialogContent>
         <DialogActions
           sx={(theme) => ({

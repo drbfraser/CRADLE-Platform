@@ -8,7 +8,7 @@ from tests.validation.test_form_templates import (
     template_with_valid_fields_and_one_question_should_return_none,
 )
 from tests.validation.test_rule_groups import (
-    rule_group_with_invalid_json_logic_should_return_validation_error,
+    rule_group_with_invalid_json_rule_should_return_validation_error,
     rule_group_with_valid_fields_should_return_none,
 )
 from tests.validation.test_workflow_template_step_branches import (
@@ -19,7 +19,7 @@ from validation.workflow_template_steps import WorkflowTemplateStepModel
 
 EXAMPLE_VALID_RULE = rule_group_with_valid_fields_should_return_none
 
-EXAMPLE_INVALID_RULE = rule_group_with_invalid_json_logic_should_return_validation_error
+EXAMPLE_INVALID_RULE = rule_group_with_invalid_json_rule_should_return_validation_error
 
 VALID_BRANCH_WITH_CONDITION = step_branch_with_valid_fields_should_return_none
 INVALID_BRANCH_WITH_CONDITION = (
@@ -39,18 +39,16 @@ INVALID_FORM_WITH_QUESTION = (
 # Steps used to test
 ID = "step-example-03"
 NAME = "heart_rate_check"
-TITLE = "Heart Rate Check"
+DESCRIPTION = "Heart Rate Check"
 EXPECTED_COMPLETION = get_current_time()
 LAST_EDITED = get_current_time()
-LAST_EDITED_BY = 1345344
 
 template_step_with_valid_fields_should_return_none = {
     "id": ID,
     "name": NAME,
-    "title": TITLE,
+    "description": DESCRIPTION,
     "expected_completion": EXPECTED_COMPLETION,
     "last_edited": LAST_EDITED,
-    "last_edited_by": LAST_EDITED_BY,
     "form_id": VALID_FORM_WITH_QUESTION["id"],
     "form": VALID_FORM_WITH_QUESTION,
     "workflow_template_id": "workflow-template-example-01",
@@ -62,10 +60,9 @@ template_step_with_valid_fields_should_return_none = {
 template_step_with_valid_fields_and_multiple_branches_should_return_none = {
     "id": ID,
     "name": NAME,
-    "title": TITLE,
+    "description": DESCRIPTION,
     "expected_completion": EXPECTED_COMPLETION,
     "last_edited": LAST_EDITED,
-    "last_edited_by": LAST_EDITED_BY,
     "form_id": VALID_FORM_WITH_QUESTION["id"],
     "form": VALID_FORM_WITH_QUESTION,
     "workflow_template_id": "workflow-template-example-01",
@@ -77,10 +74,9 @@ template_step_with_valid_fields_and_multiple_branches_should_return_none = {
 template_step_with_valid_fields_and_no_branches_should_return_none = {
     "id": ID,
     "name": NAME,
-    "title": TITLE,
+    "description": DESCRIPTION,
     "expected_completion": EXPECTED_COMPLETION,
     "last_edited": None,
-    "last_edited_by": LAST_EDITED_BY,
     "form_id": VALID_FORM_WITHOUT_QUESTION["id"],
     "form": VALID_FORM_WITH_QUESTION,
     "workflow_template_id": "workflow-template-example-01",
@@ -92,10 +88,9 @@ template_step_with_valid_fields_and_no_branches_should_return_none = {
 template_step_with_invalid_form_should_return_validation_error = {
     "id": ID,
     "name": NAME,
-    "title": TITLE,
+    "description": DESCRIPTION,
     "expected_completion": EXPECTED_COMPLETION,
     "last_edited": LAST_EDITED,
-    "last_edited_by": LAST_EDITED_BY,
     "form_id": INVALID_FORM_WITH_QUESTION["id"],
     "form": INVALID_FORM_WITH_QUESTION,
     "workflow_template_id": "workflow-template-example-01",
@@ -107,10 +102,9 @@ template_step_with_invalid_form_should_return_validation_error = {
 template_step_with_missing_field_should_return_validation_error = {
     "id": ID,
     "name": NAME,
-    "title": TITLE,
+    "description": DESCRIPTION,
     "expected_completion": EXPECTED_COMPLETION,
     "last_edited": LAST_EDITED,
-    "last_edited_by": LAST_EDITED_BY,
     "form_id": INVALID_FORM_WITH_QUESTION["id"],
     "form": INVALID_FORM_WITH_QUESTION,
     "workflow_template_id": "workflow-template-example-01",
@@ -121,10 +115,9 @@ template_step_with_missing_field_should_return_validation_error = {
 template_step_with_invalid_condition_should_return_validation_error = {
     "id": ID,
     "name": NAME,
-    "title": TITLE,
+    "description": DESCRIPTION,
     "expected_completion": EXPECTED_COMPLETION,
     "last_edited": LAST_EDITED,
-    "last_edited_by": LAST_EDITED_BY,
     "form_id": VALID_FORM_WITH_QUESTION["id"],
     "form": VALID_FORM_WITH_QUESTION,
     "workflow_template_id": "workflow-template-example-01",
@@ -136,10 +129,9 @@ template_step_with_invalid_condition_should_return_validation_error = {
 template_step_with_invalid_branch_should_return_validation_error = {
     "id": ID,
     "name": NAME,
-    "title": TITLE,
+    "description": DESCRIPTION,
     "expected_completion": EXPECTED_COMPLETION,
     "last_edited": LAST_EDITED,
-    "last_edited_by": LAST_EDITED_BY,
     "form_id": VALID_FORM_WITH_QUESTION["id"],
     "form": VALID_FORM_WITH_QUESTION,
     "workflow_template_id": "workflow-template-example-01",

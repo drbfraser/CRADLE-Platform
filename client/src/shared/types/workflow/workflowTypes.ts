@@ -1,9 +1,10 @@
 import { ID, ISODate, Nullable } from '../../constants';
+import { FormTemplate } from '../form/formTemplateTypes';
 import { InstanceStatus, StepStatus } from './workflowEnums';
 export interface RuleGroup {
   id: ID;
-  logic: 'AND' | 'OR' | 'NOT';
-  rules: string; // JSON blob understood by the rules engine
+  rule: string; // JSON object representing a structured rule
+  data_sources: string[]; // datasource formatted strings found in a rule
 }
 
 //   Template side
@@ -22,12 +23,19 @@ export interface TemplateStep {
   formId: ID;
   expectedCompletion?: ISODate;
   conditions?: RuleGroup;
-  next?: TemplateStepBranch[];
+  //mod next to branchs
+  branches?: TemplateStepBranch[];
 
   // audit & soft-delete
   archived: boolean;
   lastEdited: ISODate;
   lastEditedBy: string;
+}
+
+export interface TemplateStepWithFormAndIndex extends TemplateStep {
+  form?: FormTemplate;
+  index: number;
+  branchIndices?: number[];
 }
 
 export interface WorkflowTemplate {
@@ -37,19 +45,26 @@ export interface WorkflowTemplate {
   version: number;
 
   classificationId: ID;
+  classification?: WorkflowClassification;
   initialConditions?: RuleGroup;
   steps: TemplateStep[];
+  //startingStepId: ID;
 
   // audit & soft-delete
   archived: boolean;
-  dateCreated: ISODate;
-  lastEdited: ISODate;
+  dateCreated: number;
+  lastEdited: number;
   lastEditedBy: string;
 }
 
 // classification type for grouping
 export interface WorkflowClassification {
   id: ID;
+  name: string;
+}
+
+// Payload for POST /workflow/classifications
+export interface ClassificationInput {
   name: string;
 }
 

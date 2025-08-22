@@ -698,10 +698,39 @@ class SmsSecretKeyOrm(db.Model):
         return SmsSecretKeySchema
 
 
+class WorkflowCollectionOrm(db.Model):
+    __tablename__ = "workflow_collection"
+    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
+    name = db.Column(db.String(200), index=True, nullable=False)
+    date_created = db.Column(db.BigInteger, nullable=False, default=get_current_time)
+    last_edited = db.Column(
+        db.BigInteger,
+        nullable=False,
+        default=get_current_time,
+        onupdate=get_current_time,
+    )
+
+    @staticmethod
+    def schema():
+        return WorkflowCollectionSchema
+
+
 class WorkflowClassificationOrm(db.Model):
     __tablename__ = "workflow_classification"
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
+
+    # FOREIGN KEYS
+    collection_id = db.Column(
+        db.ForeignKey(WorkflowCollectionOrm.id, ondelete="SET NULL"), nullable=True
+    )
+
+    # RELATIONSHIPS
+    collection = db.relationship(
+        WorkflowCollectionOrm,
+        backref=db.backref("workflow_classifications", lazy=True),
+        passive_deletes=True,
+    )
 
     @staticmethod
     def schema():
@@ -711,9 +740,9 @@ class WorkflowClassificationOrm(db.Model):
 class RuleGroupOrm(db.Model):
     __tablename__ = "rule_group"
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
-    # TODO: These attributes may need to be altered or removed depending on what rules engine we choose
-    logic = db.Column(db.Text, nullable=True)
-    rules = db.Column(db.Text, nullable=True)
+    # NOTE: These attributes may need to be altered or removed depending on what rules engine we choose
+    rule = db.Column(db.JSON, nullable=True)
+    data_sources = db.Column(db.JSON, nullable=True)
 
     @staticmethod
     def schema():
@@ -742,10 +771,6 @@ class WorkflowTemplateOrm(db.Model):
         nullable=True,
     )
 
-    last_edited_by = db.Column(
-        db.ForeignKey(UserOrm.id, ondelete="SET NULL"), nullable=True
-    )
-
     initial_condition_id = db.Column(
         db.ForeignKey(RuleGroupOrm.id, ondelete="SET NULL"), nullable=True
     )
@@ -772,7 +797,7 @@ class WorkflowTemplateStepOrm(db.Model):
     __tablename__ = "workflow_template_step"
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
-    title = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text, nullable=False)
     expected_completion = db.Column(
         db.BigInteger, nullable=True, default=None, onupdate=get_current_time
     )
@@ -788,12 +813,9 @@ class WorkflowTemplateStepOrm(db.Model):
         db.ForeignKey(RuleGroupOrm.id, ondelete="SET NULL"), nullable=True
     )
 
-    last_edited_by = db.Column(
-        db.ForeignKey(UserOrm.id, ondelete="SET NULL"), nullable=True
-    )
-
     form_id = db.Column(
-        db.ForeignKey(FormTemplateOrm.id, ondelete="CASCADE"), nullable=False
+        db.ForeignKey(FormTemplateOrm.id, ondelete="SET NULL"),
+        nullable=True,
     )
 
     workflow_template_id = db.Column(
@@ -814,7 +836,8 @@ class WorkflowTemplateStepOrm(db.Model):
 
     form = db.relationship(
         FormTemplateOrm,
-        backref=db.backref("workflow_template_steps", cascade="all, delete", lazy=True),
+        backref=db.backref("workflow_template_steps", lazy=True),
+        passive_deletes=True,
     )
 
     @staticmethod
@@ -858,7 +881,7 @@ class WorkflowInstanceOrm(db.Model):
     __tablename__ = "workflow_instance"
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
-    title = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text, nullable=False)
     start_date = db.Column(db.BigInteger, nullable=False, default=get_current_time)
     current_step_id = db.Column(db.String(50), nullable=True)
     last_edited = db.Column(
@@ -875,10 +898,6 @@ class WorkflowInstanceOrm(db.Model):
     # FOREIGN KEYS
     workflow_template_id = db.Column(
         db.ForeignKey(WorkflowTemplateOrm.id, ondelete="SET NULL"), nullable=True
-    )
-
-    last_edited_by = db.Column(
-        db.ForeignKey(UserOrm.id, ondelete="SET NULL"), nullable=True
     )
 
     patient_id = db.Column(
@@ -905,8 +924,11 @@ class WorkflowInstanceStepOrm(db.Model):
     __tablename__ = "workflow_instance_step"
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
-    title = db.Column(db.Text, nullable=False)
-    triggered_by = db.Column(db.String(50), nullable=True)
+    description = db.Column(db.Text, nullable=False)
+    start_date = db.Column(db.BigInteger, nullable=False, default=get_current_time)
+    triggered_by = db.Column(
+        db.String(50), nullable=True
+    )  # The prior step in the workflow that activated the current step
     last_edited = db.Column(
         db.BigInteger,
         nullable=False,
@@ -923,7 +945,7 @@ class WorkflowInstanceStepOrm(db.Model):
     data = db.Column(db.Text, nullable=True)
 
     # FOREIGN KEYS
-    form_id = db.Column(db.ForeignKey(FormOrm.id, ondelete="CASCADE"), nullable=False)
+    form_id = db.Column(db.ForeignKey(FormOrm.id, ondelete="SET NULL"), nullable=True)
 
     assigned_to = db.Column(
         db.ForeignKey(UserOrm.id, ondelete="SET NULL"), nullable=True
@@ -1153,6 +1175,14 @@ class RuleGroupSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = RuleGroupOrm
+        load_instance = True
+        include_relationships = True
+
+
+class WorkflowCollectionSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = WorkflowCollectionOrm
         load_instance = True
         include_relationships = True
 
