@@ -8,14 +8,18 @@ from models import (
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
     WorkflowTemplateOrm,
+    FormClassificationOrm, 
+    FormOrm, 
+    FormTemplateOrm, 
+    QuestionOrm,
 )
-
-# TODO: testing has only been done for simple steps.
-# steps involving forms or rules have not been tested.
 
 
 def test_create_workflow_instance_step(
     database,
+    form,
+    form_template,
+    form_classification,
     workflow_template1,
     workflow_instance1,
     api_post,
@@ -45,6 +49,8 @@ def test_create_workflow_instance_step(
             "start_date": get_current_time(),
             "last_edited": get_current_time() + 44345,
             "status": "Active",
+            "completion_date": None,
+            "expected_completion": None,
             "workflow_instance_id": workflow_instance1["id"],
         }
 
@@ -58,16 +64,84 @@ def test_create_workflow_instance_step(
         pretty_print(response_body)
         assert response.status_code == 201
 
+        # Create a form classification
+        response = api_post(
+            endpoint="/api/forms/classifications", json=form_classification
+        )
+        database.session.commit()
+
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+        assert response.status_code == 201
+
+        # Upload form template via request body
+        response = api_post(endpoint="/api/forms/templates/body", json=form_template)
+        database.session.commit()
+
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+        assert response.status_code == 201
+
+        # Create form 
+        response = api_post(endpoint="/api/forms/responses", json=form)
+        database.session.commit()
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+        assert response.status_code == 201
+
+        # Test creating workflow instance step with form
+        workflow_instance_step_with_form = {
+            "id": get_uuid(),
+            "name": "Test Step with Form",
+            "description": "Test Step with Form",
+            "start_date": get_current_time(),
+            "last_edited": get_current_time() + 44345,
+            "status": "Active",
+            "completion_date": None,
+            "expected_completion": None,
+            "workflow_instance_id": workflow_instance1["id"],
+            "form_id": form["id"],
+            "form": form,
+        }
+
+        response = api_post(
+            endpoint="/api/workflow/instance/steps", json=workflow_instance_step_with_form
+        )
+        database.session.commit()
+
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+        assert response.status_code == 201
+        assert response_body["form"] is not None
+        assert response_body["form"]["id"] == form["id"]
+        assert response_body["name"] == "Test Step with Form"
+        assert response_body["status"] == "Active"
+        assert response_body["workflow_instance_id"] == workflow_instance1["id"]
+
+        # Verify the step was created in the database
+        created_step = crud.read(
+            WorkflowInstanceStepOrm, id=workflow_instance_step_with_form["id"]
+        )
+        assert created_step is not None
+        assert created_step.form_id == form["id"]
+        assert created_step.name == "Test Step with Form"
+
     finally:
         crud.delete_all(
             WorkflowInstanceStepOrm, workflow_instance_id=workflow_instance1["id"]
         )
         crud.delete_all(WorkflowInstanceOrm, id=workflow_instance1["id"])
         crud.delete_all(WorkflowTemplateOrm, id=workflow_template1["id"])
+        crud.delete_all(FormOrm, id="wissf")
+        crud.delete_all(FormTemplateOrm, id="wissft")
+        crud.delete_all(FormClassificationOrm, name="wissfc")
 
 
 def test_get_workflow_instance_steps(
     database,
+    form,
+    form_template,
+    form_classification,
     workflow_template1,
     workflow_instance1,
     api_post,
@@ -111,22 +185,49 @@ def test_get_workflow_instance_steps(
         database.session.commit()
         assert response.status_code == 201
 
-        # Create second workflow instance step
-        minimal_workflow_instance_step2 = {
+        # Create a form classification
+        response = api_post(
+            endpoint="/api/forms/classifications", json=form_classification
+        )
+        database.session.commit()
+
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+        assert response.status_code == 201
+
+        # Upload form template via request body
+        response = api_post(endpoint="/api/forms/templates/body", json=form_template)
+        database.session.commit()
+
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+        assert response.status_code == 201
+
+        # Create form 
+        response = api_post(endpoint="/api/forms/responses", json=form)
+        database.session.commit()
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+        assert response.status_code == 201
+
+        # Test creating workflow instance step with form
+        workflow_instance_step_with_form = {
             "id": get_uuid(),
-            "name": "Test Step 2",
-            "description": "Test Step 2",
+            "name": "Test Step with Form",
+            "description": "Test Step with Form",
             "start_date": get_current_time() + 44345,
             "last_edited": get_current_time() + 44345,
             "status": "Active",
             "completion_date": None,
             "expected_completion": None,
             "workflow_instance_id": workflow_instance1["id"],
+            "form_id": form["id"],
+            "form": form,
         }
 
         response = api_post(
             endpoint="/api/workflow/instance/steps",
-            json=minimal_workflow_instance_step2,
+            json=workflow_instance_step_with_form,
         )
         database.session.commit()
 
@@ -146,7 +247,7 @@ def test_get_workflow_instance_steps(
         # Verify the steps are returned correctly
         step_names = [step["name"] for step in response_body["items"]]
         assert "Test Step 1" in step_names
-        assert "Test Step 2" in step_names
+        assert "Test Step with Form" in step_names
 
         # Test getting all workflow instance steps without filter
         response = api_get(endpoint="/api/workflow/instance/steps")
@@ -163,6 +264,9 @@ def test_get_workflow_instance_steps(
         )
         crud.delete_all(WorkflowInstanceOrm, id=workflow_instance1["id"])
         crud.delete_all(WorkflowTemplateOrm, id=workflow_template1["id"])
+        crud.delete_all(FormOrm, id="wissf")
+        crud.delete_all(FormTemplateOrm, id="wissft")
+        crud.delete_all(FormClassificationOrm, name="wissfc")
 
 
 def test_complete_workflow_instance_step(
@@ -314,11 +418,48 @@ def form_template():
 @pytest.fixture
 def form(patient_id):
     return {
-        "id": "wissf",
+        "id": "wissf2",
         "lang": "english",
         "form_template_id": "wissft",
         "form_classification_id": "wissfc",
         "patient_id": patient_id,
         "date_created": 1561011126,
-        "questions": [],
+        "archived": False, 
+        "questions": [
+            {
+                "id": "test-question-01",
+                "category_index": None,
+                "question_index": 0,
+                "question_text": "How the patient's condition?",
+                "question_type": "MULTIPLE_CHOICE",
+                "required": True,
+                "visible_condition": [
+                    {
+                        "question_index": 0,
+                        "relation": "EQUAL_TO",
+                        "answers": {"number": 4.0},
+                    },
+                ],
+                "mc_options": [
+                    {
+                        "mc_id": 0,
+                        "opt": "Decent",
+                    },
+                    {
+                        "mc_id": 1,
+                        "opt": "French",
+                    },
+                ],
+                "answers": {"mc_id_array": [0]},
+            },
+            {
+                "id": "test-question-02",  
+                "category_index": None,
+                "question_index": 1,
+                "question_text": "Info",
+                "question_type": "CATEGORY",
+                "required": True,
+                "answers": {}, 
+            },
+        ],
     }
