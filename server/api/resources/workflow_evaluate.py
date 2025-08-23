@@ -3,8 +3,8 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 from service.datasourcing import data_sourcing as workflow_datasourcing
-from service.workflow.rules_engine import RulesEngineFacade
-from service.workflow.workflow_rule_evaluation import WorkflowEvaluationService
+from service.workflow.evaluate.rules_engine import RulesEngineFacade
+from service.workflow.evaluate.rule_evaluation import WorkflowEvaluationService
 from validation.workflow_evaluate import (
     WorkflowEvaluateExamples,
     WorkflowEvaluateRequestModel,
