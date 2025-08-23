@@ -82,11 +82,11 @@ def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
 
         if model is FormOrm:
             question["form_id"] = id
-            question.pop("form_template_id", None)
+            question["form_template_id"] = None
 
         elif model is FormTemplateOrm:
             question["form_template_id"] = id
-            question.pop("form_id", None)
+            question["form_id"] = None
 
         if question.get("lang_versions") is not None:
             for version in question.get("lang_versions"):
