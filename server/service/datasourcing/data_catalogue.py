@@ -43,32 +43,18 @@ def get_catalogue() -> Dict[str, Callable[[str], Dict]]:
     return __object_catalogue
 
 
-# NOTE:
-#   maintaining a datastring lookup vs dynamic lookup means it will be easier to reason about and debug
-#   it also allows us to add our own behavior specific to each object
-#   e.g. "$patient.age", `age` is not a attribute that exists, but we can define behavior for it:
-#         current date - patient.date_of_birth** -> to_int
-#         **given nuance that a patient may have a estimated or exact date of birth
-
 """
-given string:
-"$object.attribute"
+    Maintaining a datastring lookup vs dynamic lookup means:
+    - it will be easier to reason about and debug
+    - it allows us to add our own behavior specific to each object
 
-0. group strings by object
-1. parse object and attributes
-2. lookup for the object fxn in catalogue
-3. return partial function, takes in attributes to lookup 
-4. fetch the object, return that object
+    e.g. "$patient.age", `age` is not a attribute that exists, but we can define behavior for it:
+        current date - patient.date_of_birth** -> to_int
+        **given nuance that a patient may have a estimated or exact date of birth
 
-5. do lookups based on attributes
-6. object made available as well for special strings
-
-special strings
-- each object also has a corresponding catalogue of custom attributes 
+    Objects below are from the spike on relevant system data used in a workflow
+    see: https://docs.google.com/document/d/1e_O503r6fJRSulMRpjfFUkVSp_jJRdmlQenqlD28EJw/edit?tab=t.pcgl1q1na507
 """
-
-# objects defined from spike on relevant system data used in a workflow
-# see: https://docs.google.com/document/d/1e_O503r6fJRSulMRpjfFUkVSp_jJRdmlQenqlD28EJw/edit?tab=t.pcgl1q1na507
 __object_catalogue = {
     "$assessment": partial(
         __query_object, m.AssessmentOrm, lambda _id: m.AssessmentOrm.id == _id

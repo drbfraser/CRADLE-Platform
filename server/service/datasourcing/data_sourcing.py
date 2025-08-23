@@ -13,35 +13,25 @@ def resolve_datasources(
     :returns: a dict of resolved datasources, Any can be an int, bool, string
     :rtype: Dict[str, Any]
     """
-    """
-    1. parse strings, group into 
-       object : [attribute]
-    2. lookup object
-    3. get attributes
-    4. do special lookup if required
-       - use queried object, if need new query, make that query
-    """
-    parsed_groups = reduce(__group_objects, datasources, {})
+    # group datastrings by object
+    object_groups = reduce(__group_objects, datasources, {})
     resolved = {}
 
-    for obj, attrs in parsed_groups.items():
+    for obj, attrs in object_groups.items():
         inst = __resolve_object(catalogue, patient_id, obj)
-
-        # attribute lookups
         resolved_attrs = []
 
         for a in attrs:
             if inst.get(a):
                 resolved_attrs.append(f"${obj}.{a}", inst.get(a))
             else:
+                # attempt custom attribute lookup
                 cl = catalogue.get(obj).get("custom")
                 if cl.get(a):
                     resolved.append(f"${obj}.{a}", cl.get(a))
 
         resolved.update(resolved_attrs)
     return resolved
-
-    # parse and group strings
 
 
 def __group_objects(a: Dict[str, List[str]], ds: str):
