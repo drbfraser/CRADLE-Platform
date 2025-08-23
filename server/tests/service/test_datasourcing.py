@@ -1,6 +1,6 @@
 import pytest
 
-from service.datasourcing import data_sourcing
+from service.workflow.datasourcing import data_sourcing
 
 
 @pytest.fixture
