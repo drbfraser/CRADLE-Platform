@@ -10,6 +10,7 @@ def resolve_datasources(
 
     :param patient_id: an id for identifying data relevant to a patient
     :param datasources: a list of strings representing a datasource
+    :param catalogue: the data catalogue of support objects
     :returns: a dict of resolved datasources, Any can be an int, bool, string
     :rtype: Dict[str, Any]
     """
