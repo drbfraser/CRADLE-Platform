@@ -4,8 +4,8 @@ from flask import json
 
 import data.crud as dl
 from models import WorkflowInstanceStepOrm
-from service.datasourcing import data_sourcing as workflow_datasourcing
-from service.workflow.rules_engine import RulesEngineFacade
+from service.workflow.datasourcing import data_sourcing as workflow_datasourcing
+from service.workflow.evaluate.rules_engine import RulesEngineFacade
 
 
 class WorkflowEvaluationService:
