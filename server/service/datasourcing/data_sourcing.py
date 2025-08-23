@@ -21,19 +21,7 @@ def resolve_datasources(
     4. do special lookup if required
        - use queried object, if need new query, make that query
     """
-
-    # parse and group strings
-    def group_objects(a: Dict[str, List[str]], ds: str):
-        object = parse_object_name(ds)
-        attr = parse_attribute_name(ds)
-
-        if object in a:
-            a[object].append(attr)
-        else:
-            a[object] = [attr]
-        return a
-
-    parsed_groups = reduce(group_objects, datasources, {})
+    parsed_groups = reduce(__group_objects, datasources, {})
     resolved = {}
 
     for obj, attrs in parsed_groups.items():
@@ -47,12 +35,24 @@ def resolve_datasources(
                 resolved_attrs.append(f"${obj}.{a}", inst.get(a))
             else:
                 cl = catalogue.get(obj).get("custom")
-                v = cl.get(a)
-                if v:
-                    resolved.append(f"${obj}.{a}", v)
+                if cl.get(a):
+                    resolved.append(f"${obj}.{a}", cl.get(a))
 
         resolved.update(resolved_attrs)
     return resolved
+
+    # parse and group strings
+
+
+def __group_objects(a: Dict[str, List[str]], ds: str):
+    object = parse_object_name(ds)
+    attr = parse_attribute_name(ds)
+
+    if object in a:
+        a[object].append(attr)
+    else:
+        a[object] = [attr]
+    return a
 
 
 def __resolve_object(catalogue: Dict, patient_id: str, object_name: str) -> Dict:
