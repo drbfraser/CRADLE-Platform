@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Callable, Dict, TypeVar
+from typing import Any, Callable, Dict, TypeAlias, TypeVar, Union
 
 import models as m
 import server.service.datasourcing.custom_lookup as cl
@@ -7,13 +7,20 @@ from data import crud, marshal
 
 M = TypeVar("M")
 
+ObjectResolver = Callable[[str, str], Any]
+CustomResolver = Callable[[Dict], Any]
+
+ObjectCatalogue: TypeAlias = Dict[str, Union[ObjectResolver, Dict[str, CustomResolver]]]
+
 
 # TODO: query for form data
 def __query_form_data():
     pass
 
 
-def __query_object(model: type[M], query, id: str) -> Callable[[str], Dict]:
+def __query_object(
+    model: type[M], query: Callable[[str], bool], id: str
+) -> Dict[str, Any]:
     """
     General function for querying system data
 
@@ -32,15 +39,18 @@ def __query_object(model: type[M], query, id: str) -> Callable[[str], Dict]:
     return marshal.marshal(data)
 
 
-def get_catalogue() -> Dict[str, Callable[[str], Dict]]:
+def get_catalogue() -> Dict[str, ObjectCatalogue]:
     """
     the data catalogue of supported datasource objects
 
-    the catalogue maps datasource strings to a Callable that takes a string of id
+    the catalogue maps to an object catalogue dict
+    which has two keys:
+    1. "query" : a callable that resolves an instance of the object
+    2. "custom" : a dict of support custom attributes, returns a callable
 
-    :returns: a dict of string keys corresponding to a query
+    :returns: a dict of string keys corresponding to an object catalogue
     """
-    return __object_catalogue
+    return __data_catalogue
 
 
 """
@@ -55,26 +65,41 @@ def get_catalogue() -> Dict[str, Callable[[str], Dict]]:
     Objects below are from the spike on relevant system data used in a workflow
     see: https://docs.google.com/document/d/1e_O503r6fJRSulMRpjfFUkVSp_jJRdmlQenqlD28EJw/edit?tab=t.pcgl1q1na507
 """
-__object_catalogue = {
-    "$assessment": partial(
-        __query_object, m.AssessmentOrm, lambda _id: m.AssessmentOrm.id == _id
-    ),
-    "$medical_record": partial(
-        __query_object, m.MedicalRecordOrm, lambda _id: m.MedicalRecordOrm.id == _id
-    ),
-    "$patient": {
+__data_catalogue = {
+    "assessment": {
+        "query": partial(
+            __query_object, m.AssessmentOrm, lambda _id: m.AssessmentOrm.id == _id
+        ),
+        "custom": {},
+    },
+    "medical_record": {
+        "query": partial(
+            __query_object, m.MedicalRecordOrm, lambda _id: m.MedicalRecordOrm.id == _id
+        ),
+        "custom": {},
+    },
+    "patient": {
         "query": partial(
             __query_object, m.PatientOrm, lambda _id: m.PatientOrm.id == _id
         ),
         "custom": {"age": partial(cl.patient_age)},
     },
-    "$pregnancy": partial(
-        __query_object, m.PregnancyOrm, lambda _id: m.PregnancyOrm.id == _id
-    ),
-    "$reading": partial(
-        __query_object, m.ReadingOrm, lambda _id: m.ReadingOrm.patient_id == _id
-    ),
-    "$urine_test": partial(
-        __query_object, m.UrineTestOrm, lambda _id: m.UrineTestOrm.id == _id
-    ),
+    "pregnancy": {
+        "query": partial(
+            __query_object, m.PregnancyOrm, lambda _id: m.PregnancyOrm.id == _id
+        ),
+        "custom": {},
+    },
+    "reading": {
+        "query": partial(
+            __query_object, m.ReadingOrm, lambda _id: m.ReadingOrm.patient_id == _id
+        ),
+        "custom": {},
+    },
+    "urine_test": {
+        "query": partial(
+            __query_object, m.UrineTestOrm, lambda _id: m.UrineTestOrm.id == _id
+        ),
+        "custom": {},
+    },
 }
