@@ -2,9 +2,9 @@ from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
-from service.datasourcing import data_sourcing as workflow_datasourcing
-from service.workflow.evaluate.rules_engine import RulesEngineFacade
+from service.workflow.datasourcing import data_sourcing as workflow_datasourcing
 from service.workflow.evaluate.rule_evaluation import WorkflowEvaluationService
+from service.workflow.evaluate.rules_engine import RulesEngineFacade
 from validation.workflow_evaluate import (
     WorkflowEvaluateExamples,
     WorkflowEvaluateRequestModel,
