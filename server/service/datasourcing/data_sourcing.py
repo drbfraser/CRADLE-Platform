@@ -65,10 +65,14 @@ def resolve_datasources(
                 resolved_attrs.append((f"${obj}.{a}", inst.get(a)))
             else:
                 # attempt custom attribute lookup
-                ca_query = catalogue.get(obj).get("custom").get(a)
+                ca_query = catalogue.get(obj).get("custom")
+                print(ca_query)
+
+                ca_query = ca_query.get(a)
                 ca_value = None
 
-                if ca_query:
+
+                if ca_query is not None:
                     ca_value = ca_query(inst)
 
                 resolved_attrs.append((f"${obj}.{a}", ca_value))

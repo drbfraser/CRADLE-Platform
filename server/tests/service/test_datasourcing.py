@@ -78,25 +78,28 @@ def test_resolve_datastring_not_found(sample_data):
 
 
 @pytest.mark.parametrize(
-    "dsl, objects, expected_values",
+    "dsl, objects, object_instance",
     [
         (
-            ["$test.test", "$test.test1", "$test.not_exists"],
+            ["$test.test", "$test.test1", "$test.not_exists", "$test.custom"],
             ["test"],
-            {"test": "test", "test1": "test1", "not_exists": None},
+            {"test": "test", "test1": "test1", "not_exists": None, "test-custom" : 123},
         )
     ],
 )
-def test_resolve_datasources(dsl, objects, expected_values):
+def test_resolve_datasources(dsl, objects, object_instance):
     # arrange
-    def mock_callable(id):
-        return expected_values
+    def mock_object_resolution(id):
+        return object_instance
+
+    def mock_custom_resolution(object):
+        return object.get("test-custom") - 123
 
     id = "testid123"
     catalogue = {
-        objects[0]: {"query": mock_callable, "custom": {}},
+        objects[0]: {"query": mock_object_resolution, "custom": { "custom" : mock_custom_resolution }},
     }
-    expected = {"$test.test": "test", "$test.test1": "test1", "$test.not_exists": None}
+    expected = {"$test.test": "test", "$test.test1": "test1", "$test.not_exists": None, "$test.custom" : 0}
 
     # act
     resolved = data_sourcing.resolve_datasources(id, dsl, catalogue)
