@@ -5,6 +5,7 @@ from flask import json
 import data.crud as dl
 from models import WorkflowInstanceStepOrm
 from service.workflow.datasourcing import data_sourcing as workflow_datasourcing
+from service.workflow.datasourcing import data_catalogue as workflow_datacatalogue
 from service.workflow.evaluate.rules_engine import RulesEngineFacade
 
 
@@ -48,7 +49,8 @@ class WorkflowEvaluationService:
         rule_group = dl.read_rule_group(rule_group_id=instance_step.condition_id)
 
         datasources = json.loads(rule_group.data_sources)
-        resolved_data = self.datasourcing.resolve_datasources(datasources)
+        data_catalogue = workflow_datacatalogue.get_catalogue()
+        resolved_data = self.datasourcing.resolve_datasources(datasources, data_catalogue)
 
         return (rule_group.rule, resolved_data)
 
