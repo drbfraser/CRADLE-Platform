@@ -20,7 +20,7 @@ export interface TemplateStep {
   id: ID;
   name: string;
   description: string;
-  formId: ID;
+  formId?: ID;
   expectedCompletion?: ISODate;
   conditions?: RuleGroup;
   branches?: TemplateStepBranch[];
