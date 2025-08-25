@@ -71,7 +71,6 @@ def resolve_datasources(
                 ca_query = ca_query.get(a)
                 ca_value = None
 
-
                 if ca_query is not None:
                     ca_value = ca_query(inst)
 

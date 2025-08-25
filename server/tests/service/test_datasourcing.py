@@ -83,7 +83,7 @@ def test_resolve_datastring_not_found(sample_data):
         (
             ["$test.test", "$test.test1", "$test.not_exists", "$test.custom"],
             ["test"],
-            {"test": "test", "test1": "test1", "not_exists": None, "test-custom" : 123},
+            {"test": "test", "test1": "test1", "not_exists": None, "test-custom": 123},
         )
     ],
 )
@@ -97,9 +97,17 @@ def test_resolve_datasources(dsl, objects, object_instance):
 
     id = "testid123"
     catalogue = {
-        objects[0]: {"query": mock_object_resolution, "custom": { "custom" : mock_custom_resolution }},
+        objects[0]: {
+            "query": mock_object_resolution,
+            "custom": {"custom": mock_custom_resolution},
+        },
     }
-    expected = {"$test.test": "test", "$test.test1": "test1", "$test.not_exists": None, "$test.custom" : 0}
+    expected = {
+        "$test.test": "test",
+        "$test.test1": "test1",
+        "$test.not_exists": None,
+        "$test.custom": 0,
+    }
 
     # act
     resolved = data_sourcing.resolve_datasources(id, dsl, catalogue)
