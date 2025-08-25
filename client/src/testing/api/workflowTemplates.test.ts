@@ -383,11 +383,9 @@ describe('workflowTemplates API', () => {
     const mockStep = {
       id: 'step-1',
       name: 'Test Step',
-      title: 'Test Step Title',
+      description: 'Test Step Description',
       formId: 'form-1',
-      archived: false,
       lastEdited: '2025-01-01T00:00:00Z',
-      lastEditedBy: 'user-1',
     };
 
     describe('createTemplateStep', () => {

@@ -16,8 +16,8 @@ import {
   TemplateStepWithFormAndIndex,
 } from 'src/shared/types/workflow/workflowTypes';
 import { listTemplateSteps } from 'src/shared/api/modules/workflowTemplates';
-import { ViewTemplateSteps } from './ViewTemplateSteps';
-import { WorkflowMetadata } from '../../../../shared/components/workflow/workflowTemplate/WorkflowMetadata';
+import { WorkflowMetadata } from '../../../shared/components/workflow/workflowTemplate/WorkflowMetadata';
+import { WorkflowSteps } from 'src/shared/components/workflow/WorkflowSteps';
 
 export const ViewWorkflowTemplate = () => {
   const navigate = useNavigate();
@@ -95,9 +95,10 @@ export const ViewWorkflowTemplate = () => {
         {isLoading ? (
           <Skeleton variant="rectangular" height={400} />
         ) : (
-          <ViewTemplateSteps
+          <WorkflowSteps
             steps={viewWorkflowSteps as TemplateStepWithFormAndIndex[]}
             firstStep={viewWorkflow?.startingStepId}
+            isInstance={false}
           />
         )}
       </Paper>

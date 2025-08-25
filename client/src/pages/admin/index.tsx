@@ -5,7 +5,7 @@ import { ManageUsers } from './manageUsers/ManageUsers';
 import { ManagePatients } from './managePatients/ManagePatients';
 import { Route, Routes } from 'react-router-dom';
 import { CustomFormTemplate } from './manageFormTemplates/editFormTemplate/CustomFormTemplate';
-import { ViewWorkflowTemplate } from './manageWorkflowTemplates/viewWorkflowTemplate/ViewWorkflowTemplate';
+import { ViewWorkflowTemplate } from './manageWorkflowTemplates/ViewWorkflowTemplate';
 import { DashboardPaper } from 'src/shared/components/dashboard/DashboardPaper';
 import { ManageWorkflowTemplates } from './manageWorkflowTemplates/ManageWorkflowTemplates';
 import {
