@@ -43,17 +43,18 @@ def test_parsing_not_datastring():
 
 def test_resolve_datastring(sample_data):
     # arrange
-    def mock_callable(id, attribute):
-        return expected
+    def mock_callable(id):
+        return {attr: expected}
 
     id = sample_data["id"]
+    obj = sample_data["object"]
     ds = sample_data["data_string"]
-    expected = id + sample_data["attribute"]
-
-    datasource = {ds: mock_callable}
+    attr = sample_data["attribute"]
+    expected = 123123
+    catalogue = {obj: {"query": mock_callable}}
 
     # act
-    result = data_sourcing.resolve_datastring(id, ds, datasource)
+    result = data_sourcing.resolve_datastring(id, ds, catalogue)
 
     # assert
     assert result == expected
@@ -61,12 +62,13 @@ def test_resolve_datastring(sample_data):
 
 def test_resolve_datastring_not_found(sample_data):
     # arrange
-    def mock_callable(id, attribute):
-        return "should_not_match"
+    def mock_callable(id):
+        return {"test": "not found"}
 
     id = sample_data["id"]
+    obj = sample_data["object"]
     ds = sample_data["data_string"]
-    catalogue = {"$test.test": mock_callable}
+    catalogue = {obj: {"query": mock_callable}}
 
     # act
     result = data_sourcing.resolve_datastring(id, ds, catalogue)
@@ -76,26 +78,35 @@ def test_resolve_datastring_not_found(sample_data):
 
 
 @pytest.mark.parametrize(
-    "dsl, attributes, expected_values",
+    "dsl, objects, object_instance",
     [
         (
-            ["$test.test", "$test.test1", "$test.not_exists"],
-            ["test", "test1", None],
-            ["testid123test", "testid123test1", None],
+            ["$test.test", "$test.test1", "$test.not_exists", "$test.custom"],
+            ["test"],
+            {"test": "test", "test1": "test1", "not_exists": None, "test-custom": 123},
         )
     ],
 )
-def test_resolve_datasources(dsl, attributes, expected_values):
+def test_resolve_datasources(dsl, objects, object_instance):
     # arrange
-    def mock_callable(id, attribute):
-        return id + attribute
+    def mock_object_resolution(id):
+        return object_instance
+
+    def mock_custom_resolution(object):
+        return object.get("test-custom") - 123
 
     id = "testid123"
-    catalogue = {dsl[0]: mock_callable, dsl[1]: mock_callable}
+    catalogue = {
+        objects[0]: {
+            "query": mock_object_resolution,
+            "custom": {"custom": mock_custom_resolution},
+        },
+    }
     expected = {
-        dsl[0]: expected_values[0],
-        dsl[1]: expected_values[1],
-        dsl[2]: expected_values[2],
+        "$test.test": "test",
+        "$test.test1": "test1",
+        "$test.not_exists": None,
+        "$test.custom": 0,
     }
 
     # act
