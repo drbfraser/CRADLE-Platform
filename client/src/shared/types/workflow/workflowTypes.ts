@@ -76,35 +76,40 @@ export interface TemplateGroup {
 }
 
 // Instance side
-export interface InstanceStep {
+export interface WorkflowInstanceStep {
   id: ID; // PK on instance_step table
   name: string;
-  title?: string; // nullable in DB
-  formId: ID;
+  description: string;
+  startDate: number;
+  triggeredBy?: ID;
+  formId?: ID;
   assignedTo?: ID;
-  expectedCompletion?: ISODate;
+  expectedCompletion?: Nullable<ISODate>;
   completionDate?: Nullable<ISODate>;
   status: StepStatus;
   data?: Record<string, unknown>;
-  triggeredBy?: ID;
-
+  workflowInstanceId: ID;
+  conditionId?: ID;
+  
   // audit
-  lastUpdated: ISODate;
+  lastEdited: number;
   lastUpdatedBy?: ID;
 }
 
 export interface WorkflowInstance {
   id: ID;
-  templateId: ID;
+  name: string;
+  description: string;
+  workflowTemplateId: ID;
   patientId: ID;
   startedDate: number;
   currentStepId?: ID;
   status: InstanceStatus;
-  steps: InstanceStep[];
+  steps: WorkflowInstanceStep[];
 
   // audit
-  lastUpdated: ISODate;
-  lastUpdatedBy?: ID;
+  lastEdited: ISODate;
+  lastEditedBy?: ID;
   completionDate?: Nullable<ISODate>;
 }
 
@@ -135,7 +140,7 @@ export type InstanceUpdate = Partial<
 
 export type InstanceStepUpdate = Partial<
   Pick<
-    InstanceStep,
+    WorkflowInstanceStep,
     | 'status'
     | 'completionDate'
     | 'assignedTo'

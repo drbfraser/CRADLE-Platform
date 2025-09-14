@@ -36,18 +36,22 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { Tooltip, IconButton } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
+import { getInstanceById, getInstanceWithSteps } from 'src/shared/api';
+import { ISODate } from 'src/shared/constants';
+import { WorkflowInstanceStep } from 'src/shared/types/workflow/workflowTypes';
+import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
 
-type StepStatus = 'COMPLETED' | 'IN_PROGRESS' | 'PENDING';
+// type StepStatus = 'COMPLETED' | 'IN_PROGRESS' | 'PENDING';
 
 type InstanceStep = {
   id: string;
   title: string;
-  status: StepStatus;
-  startedOn?: string;
-  completedOn?: string;
+  status: StepStatus;  
+  startedOn?: ISODate;
+  completedOn?: ISODate;
   description?: string;
-  hasForm?: boolean;
-  expectedCompletion?: string;
+  hasForm: boolean;
+  expectedCompletion?: ISODate;
   nextStep?: string;
   formSubmitted?: boolean;
 };
@@ -62,19 +66,21 @@ type PossibleStep = {
 
 type InstanceDetails = {
   id: string;
+
   // Summary card
   studyTitle: string;
   patientName: string;
   patientId: string;
+
   // Details section (sketch fields)
   description: string;
   collection: string;
   version: string;
   firstCreatedOn: string;
   firstCreatedBy: string;
-  lastEditedOn: string;
-  lastEditedBy: string;
-  workflowStartedOn: string;
+  lastEditedOn: ISODate;
+  lastEditedBy?: string;
+  workflowStartedOn: ISODate;
   workflowStartedBy: string;
   workflowCompletedOn?: string;
 
@@ -85,10 +91,10 @@ type InstanceDetails = {
 };
 
 const formatWhen = (s: InstanceStep) => {
-  if (s.status === 'COMPLETED' && s.completedOn) {
+  if (s.status === StepStatus.COMPLETED && s.completedOn) {
     return `Status: Completed, Completed on: ${s.completedOn}`;
   }
-  if (s.status === 'IN_PROGRESS') {
+  if (s.status === StepStatus.ACTIVE) {
     return `Status: In Progress${
       s.startedOn ? `, Started on: ${s.startedOn}` : ''
     }`;
@@ -120,10 +126,10 @@ function daysBetween(a: Date, b: Date) {
  */
 function computeProgressAndEta(steps: InstanceStep[], now = new Date()) {
   const total = steps.length || 1;
-  const completed = steps.filter((s) => s.status === 'COMPLETED').length;
+  const completed = steps.filter((s) => s.status === StepStatus.COMPLETED).length;
   const currentIndex = Math.max(
     0,
-    steps.findIndex((s) => s.status === 'IN_PROGRESS')
+    steps.findIndex((s) => s.status === StepStatus.ACTIVE)
   );
   const percent = Math.round((completed / total) * 100);
 
@@ -152,8 +158,57 @@ function computeProgressAndEta(steps: InstanceStep[], now = new Date()) {
   return { total, completed, percent, estDaysRemaining, etaDate, currentIndex };
 }
 
+function mapWorkflowStep(apiStep: WorkflowInstanceStep) : InstanceStep {
+  return {
+    id: apiStep.id,
+    title: apiStep.name,
+    status: apiStep.status,
+    startedOn: new Date(apiStep.startDate * 1000).toISOString(),
+    completedOn: apiStep.completionDate ?? "N/A",
+    description: apiStep.description,
+    hasForm: apiStep.formId ? true : false,
+    expectedCompletion: apiStep.expectedCompletion ?? "N/A"
+    // nextStep?: string;
+    // formSubmitted?: boolean;
+    }
+
+}
+
+// async function loadInstanceById(id: string): Promise<InstanceDetails> {
+//   const response = await getInstanceWithSteps("simple-workflow-instance-1");
+//   // response.name
+
+//   const instanceDetails: InstanceDetails = {
+//     id: response.id,
+//     studyTitle: response.name,
+//     patientName: "", // TODO
+//     patientId: response.patientId,
+//     description: response.description,
+//     // collection: string;
+//     // version: string;
+//     // firstCreatedOn: string;
+//     // firstCreatedBy: string;
+//     lastEditedOn: response.lastEdited,
+//     lastEditedBy: response.lastEditedBy,
+//     workflowStartedOn: response.startedDate,
+//     // workflowStartedBy: response.
+//     workflowCompletedOn?: response.completionDate,
+
+//     // Steps
+//     steps: response.steps,
+//     currentIndex: 1
+//     // possibleSteps: PossibleStep[];
+//     }
+
+// }
+
+
 /** Replace with real API */
-function loadInstanceById(id: string): InstanceDetails {
+function loadMockInstanceById(id: string): InstanceDetails {
+  let result = getInstanceWithSteps("simple-workflow-instance-1");
+  console.log("LESLIE TEST")
+  console.log(result);
+ 
   return {
     id,
     studyTitle: 'Papagaio Research Study',
@@ -175,7 +230,7 @@ function loadInstanceById(id: string): InstanceDetails {
       {
         id: 's1',
         title: 'Step 1: Intake Details',
-        status: 'COMPLETED',
+        status: StepStatus.COMPLETED,
         completedOn: '2019-06-05',
         description: 'Collect patient intake information and consent forms.',
         hasForm: true,
@@ -185,7 +240,7 @@ function loadInstanceById(id: string): InstanceDetails {
       {
         id: 's2',
         title: 'Step 2: Randomize Treatment',
-        status: 'IN_PROGRESS',
+        status: StepStatus.ACTIVE,
         startedOn: '2019-06-06',
         description: 'Randomize patient to treatment or control group.',
         hasForm: true,
@@ -195,7 +250,7 @@ function loadInstanceById(id: string): InstanceDetails {
       {
         id: 's3',
         title: 'Step 3: Observe Until 8w',
-        status: 'PENDING',
+        status: StepStatus.PENDING,
         description: 'Monitor patient progress for 8 weeks.',
         hasForm: false,
         nextStep: '<Same as Template>',
@@ -223,6 +278,7 @@ function loadInstanceById(id: string): InstanceDetails {
 
 export default function WorkflowInstanceDetailsPage() {
   const { instanceId } = useParams<{ instanceId: string }>();
+  const [workflowInstance, setWorkflowInstance] = React.useState<InstanceDetails | null>(null);
   const navigate = useNavigate();
   const [open, setOpen] = React.useState(false);
   const [expandedStep, setExpandedStep] = React.useState<string | null>(null);
@@ -287,7 +343,7 @@ export default function WorkflowInstanceDetailsPage() {
   );
 
   const data = React.useMemo(
-    () => loadInstanceById(instanceId ?? 'wi_0001'),
+    () => loadMockInstanceById(instanceId ?? 'wi_0001'),
     [instanceId]
   );
 
@@ -613,12 +669,12 @@ export default function WorkflowInstanceDetailsPage() {
                 {data.steps.map((step) => {
                   const isExpanded = expandAll || expandedStep === step.id;
                   const statusIcon =
-                    step.status === 'COMPLETED' ? (
+                    step.status === StepStatus.COMPLETED ? (
                       <CheckCircleOutlineIcon
                         color="success"
                         sx={{ fontSize: 24 }}
                       />
-                    ) : step.status === 'IN_PROGRESS' ? (
+                    ) : step.status === StepStatus.ACTIVE ? (
                       <ReplayIcon color="primary" sx={{ fontSize: 24 }} />
                     ) : (
                       <HourglassEmptyIcon
@@ -655,9 +711,9 @@ export default function WorkflowInstanceDetailsPage() {
                             bgcolor: 'background.paper',
                             border: 2,
                             borderColor:
-                              step.status === 'COMPLETED'
+                              step.status === StepStatus.COMPLETED
                                 ? 'success.main'
-                                : step.status === 'IN_PROGRESS'
+                                : step.status === StepStatus.ACTIVE
                                 ? 'primary.main'
                                 : 'grey.300',
                             borderRadius: '50%',
@@ -680,7 +736,7 @@ export default function WorkflowInstanceDetailsPage() {
                             sx={{ mb: 1 }}>
                             {formatWhen(step)}
                           </Typography>
-                          {step.status === 'IN_PROGRESS' && (
+                          {step.status === StepStatus.ACTIVE && (
                             <Chip
                               size="small"
                               color="primary"
@@ -770,7 +826,7 @@ export default function WorkflowInstanceDetailsPage() {
                                       Discard submitted form
                                     </Button>
                                   </Box>
-                                ) : step.status === 'IN_PROGRESS' ? (
+                                ) : step.status === StepStatus.ACTIVE ? (
                                   <Box
                                     sx={{
                                       display: 'flex',
@@ -818,7 +874,7 @@ export default function WorkflowInstanceDetailsPage() {
                             <Typography variant="subtitle2" sx={{ mb: 1 }}>
                               Expected Completion Date
                             </Typography>
-                            {step.status === 'IN_PROGRESS' ? (
+                            {step.status === StepStatus.ACTIVE ? (
                               <TextField
                                 type="date"
                                 size="small"
@@ -853,7 +909,7 @@ export default function WorkflowInstanceDetailsPage() {
                               onClick={() =>
                                 handleMakeCurrent(step.id, step.title)
                               }
-                              disabled={step.status === 'IN_PROGRESS'}>
+                              disabled={step.status === StepStatus.ACTIVE}>
                               Make this current step
                             </Button>
                           </Box>
