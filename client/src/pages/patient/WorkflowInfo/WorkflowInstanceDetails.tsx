@@ -35,8 +35,9 @@ import ArticleIcon from '@mui/icons-material/Article';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { Tooltip, IconButton } from '@mui/material';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getInstanceById, getInstanceWithSteps } from 'src/shared/api';
+import { getInstanceById, getInstanceWithSteps, getTemplate } from 'src/shared/api';
 import { ISODate } from 'src/shared/constants';
 import { WorkflowInstanceStep } from 'src/shared/types/workflow/workflowTypes';
 import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
@@ -46,12 +47,13 @@ import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
 type InstanceStep = {
   id: string;
   title: string;
-  status: StepStatus;  
-  startedOn?: ISODate;
-  completedOn?: ISODate;
   description?: string;
+  startedOn?: ISODate;
+  formId?: string;
   hasForm: boolean;
   expectedCompletion?: ISODate;
+  completedOn?: ISODate;
+  status: StepStatus;  
   nextStep?: string;
   formSubmitted?: boolean;
 };
@@ -77,7 +79,7 @@ type InstanceDetails = {
   collection: string;
   version: string;
   firstCreatedOn: string;
-  firstCreatedBy: string;
+  // firstCreatedBy: string;
   lastEditedOn: ISODate;
   lastEditedBy?: string;
   workflowStartedOn: ISODate;
@@ -166,41 +168,44 @@ function mapWorkflowStep(apiStep: WorkflowInstanceStep) : InstanceStep {
     startedOn: new Date(apiStep.startDate * 1000).toISOString(),
     completedOn: apiStep.completionDate ?? "N/A",
     description: apiStep.description,
+    formId: apiStep.formId,
     hasForm: apiStep.formId ? true : false,
     expectedCompletion: apiStep.expectedCompletion ?? "N/A"
     // nextStep?: string;
     // formSubmitted?: boolean;
     }
-
 }
 
-// async function loadInstanceById(id: string): Promise<InstanceDetails> {
-//   const response = await getInstanceWithSteps("simple-workflow-instance-1");
-//   // response.name
+async function loadInstanceById(id: string): Promise<InstanceDetails> {
+  const instance = await getInstanceWithSteps("simple-workflow-instance-1");
+  const template = await getTemplate(instance.workflowTemplateId, { with_classification: true })
+  console.log("INSIDE LOAD")
+  console.log(instance);
+  console.log(template);
+  const instanceDetails: InstanceDetails = {
+    id: instance.id,
+    studyTitle: instance.name,
+    patientName: "", // TODO
+    patientId: instance.patientId,
+    description: instance.description,
+    collection: "PAPAGO", // TODO - from collection?
+    version: template.version,
+    firstCreatedOn: new Date(template.dateCreated * 1000).toISOString(), // TODO - from template
+    // firstCreatedBy: 'Katie Jones', // TODO - from template
+    lastEditedOn: instance.lastEdited,
+    lastEditedBy: instance.lastEditedBy,
+    workflowStartedOn: new Date(instance.startDate * 1000).toISOString(),
+    workflowStartedBy: 'Katie Jones', // TODO - add to backend?
+    workflowCompletedOn: instance.completionDate,
 
-//   const instanceDetails: InstanceDetails = {
-//     id: response.id,
-//     studyTitle: response.name,
-//     patientName: "", // TODO
-//     patientId: response.patientId,
-//     description: response.description,
-//     // collection: string;
-//     // version: string;
-//     // firstCreatedOn: string;
-//     // firstCreatedBy: string;
-//     lastEditedOn: response.lastEdited,
-//     lastEditedBy: response.lastEditedBy,
-//     workflowStartedOn: response.startedDate,
-//     // workflowStartedBy: response.
-//     workflowCompletedOn?: response.completionDate,
+    // Steps
+    steps: instance.steps.map(step => mapWorkflowStep(step)),
+    currentIndex: 1,  // TODO - either search through step for active, or store current step within instance
+    possibleSteps: []
+  }
 
-//     // Steps
-//     steps: response.steps,
-//     currentIndex: 1
-//     // possibleSteps: PossibleStep[];
-//     }
-
-// }
+  return instanceDetails;
+}
 
 
 /** Replace with real API */
@@ -208,6 +213,10 @@ function loadMockInstanceById(id: string): InstanceDetails {
   let result = getInstanceWithSteps("simple-workflow-instance-1");
   console.log("LESLIE TEST")
   console.log(result);
+  
+  let result2 = loadInstanceById("simple-workflow-instance-1");
+  console.log("LESLIE TEST")
+  console.log(result2);
  
   return {
     id,
@@ -219,7 +228,7 @@ function loadMockInstanceById(id: string): InstanceDetails {
     collection: 'PAPAGAO',
     version: 'v4',
     firstCreatedOn: '2019-05-09',
-    firstCreatedBy: 'Katie Jones',
+    // firstCreatedBy: 'Katie Jones',
     lastEditedOn: '2019-06-10',
     lastEditedBy: 'Bert Smith',
     workflowStartedOn: '2019-01-18',
@@ -289,6 +298,20 @@ export default function WorkflowInstanceDetailsPage() {
     message: string;
     onConfirm: () => void;
   }>({ open: false, title: '', message: '', onConfirm: () => {} });
+
+  useEffect(() => {
+    async function fetchInstance() {
+      try {
+        const instance = await loadInstanceById("simple-workflow-instance-1")
+        setWorkflowInstance(instance)
+      }
+      catch (err) {
+        console.error("Failed to load workflow instance", err)
+      }
+    }
+    fetchInstance()
+  }, [instanceId])
+
 
   // Callback functions
   const handleViewForm = React.useCallback((stepId: string) => {

@@ -37,7 +37,7 @@ export interface WorkflowTemplate {
   id: ID;
   name: string;
   description: string;
-  version: number;
+  version: string;
 
   classificationId: ID;
   classification?: WorkflowClassification;
@@ -102,7 +102,7 @@ export interface WorkflowInstance {
   description: string;
   workflowTemplateId: ID;
   patientId: ID;
-  startedDate: number;
+  startDate: number;
   currentStepId?: ID;
   status: InstanceStatus;
   steps: WorkflowInstanceStep[];
@@ -110,7 +110,7 @@ export interface WorkflowInstance {
   // audit
   lastEdited: ISODate;
   lastEditedBy?: ID;
-  completionDate?: Nullable<ISODate>;
+  completionDate?: ISODate;
 }
 
 // Payload for POST /workflow/instances
@@ -129,12 +129,12 @@ export interface InstanceInput {
 
 // PATCH/PUT payload for /workflow/instances/{id}
 /**
- * update status / record currentStep / lastUpdated: what time  / lastUpdateBy who(id)
+ * update status / record currentStep / lastEdited: what time  / lastEditedBy who(id)
  */
 export type InstanceUpdate = Partial<
   Pick<
     WorkflowInstance,
-    'status' | 'currentStepId' | 'lastUpdated' | 'lastUpdatedBy'
+    'status' | 'currentStepId' | 'lastEdited' | 'lastEditedBy'
   >
 >;
 
@@ -145,7 +145,7 @@ export type InstanceStepUpdate = Partial<
     | 'completionDate'
     | 'assignedTo'
     | 'data'
-    | 'lastUpdated'
+    | 'lastEdited'
     | 'lastUpdatedBy'
   >
 >;
