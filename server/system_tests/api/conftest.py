@@ -133,10 +133,7 @@ def drug_record(patient_id):
 @pytest.fixture
 def form_classification(database):
     fc_id = get_uuid()
-    payload = {
-        "id": fc_id, 
-        "name": fc_id
-        }
+    payload = {"id": fc_id, "name": fc_id}
     try:
         yield payload
     finally:
