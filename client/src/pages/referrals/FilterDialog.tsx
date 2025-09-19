@@ -96,8 +96,8 @@ export const FilterDialog = ({
     TrafficLightEnum[]
   >([]);
 
-  const [isPregnant, setIsPregnant] = useState<string>();
-  const [isAssessed, setIsAssessed] = useState<string>();
+  const [isPregnant, setIsPregnant] = useState<string>('');
+  const [isAssessed, setIsAssessed] = useState<string>('');
 
   const healthFacilityNames = useHealthFacilityNames();
 
@@ -133,8 +133,8 @@ export const FilterDialog = ({
     dateRangeState.setStartDate(null);
     dateRangeState.setEndDate(null);
     dateRangeState.setPresetDateRange(null);
-    setIsPregnant(undefined);
-    setIsAssessed(undefined);
+    setIsPregnant('');
+    setIsAssessed('');
   };
 
   const onFacilitySelect = (
@@ -398,7 +398,7 @@ export const FilterDialog = ({
               </Typography>
               <RadioGroup
                 aria-label="isPregnant"
-                value={isPregnant}
+                value={isPregnant ?? ''}
                 onChange={(_, value) => setIsPregnant(value)}>
                 <FormControlLabel
                   value="1"
@@ -441,7 +441,7 @@ export const FilterDialog = ({
               </Typography>
               <RadioGroup
                 aria-label="isAssessed"
-                value={isAssessed}
+                value={isAssessed ?? ''}
                 onChange={(_, value) => setIsAssessed(value)}>
                 <FormControlLabel
                   value="1"
