@@ -1,11 +1,9 @@
 import pytest
 
-from enums import SexEnum
-
-from data import crud
-from models import FormClassificationOrm, FormTemplateOrm, FormOrm
-
 from common.commonUtil import get_uuid
+from data import crud
+from enums import SexEnum
+from models import FormClassificationOrm, FormOrm, FormTemplateOrm
 
 @pytest.fixture
 def vht_user_id():
@@ -168,8 +166,8 @@ def form(patient_id, form_template, form_classification):
     return {
         "id": "f9",
         "lang": "english",
-        "form_template_id": form_template['id'],
-        "form_classification_id": form_classification['id'],
+        "form_template_id": form_template["id"],
+        "form_classification_id": form_classification["id"],
         "patient_id": patient_id,
         "date_created": 1561011126,
         "questions": [
