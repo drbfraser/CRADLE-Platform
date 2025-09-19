@@ -5,6 +5,7 @@ from data import crud
 from enums import SexEnum
 from models import FormClassificationOrm, FormOrm, FormTemplateOrm
 
+
 @pytest.fixture
 def vht_user_id():
     # id of "Test VHT" (require seed_test_data)
