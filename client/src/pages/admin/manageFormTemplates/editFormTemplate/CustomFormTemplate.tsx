@@ -70,6 +70,12 @@ export const CustomFormTemplate = () => {
         version: generateDefaultVersion(),
         questions,
       });
+
+      const langs = questions[0]?.langVersions?.map((q) => q.lang) ?? [
+        browserLanguage,
+      ];
+      setLanguage(langs);
+
       // setVersionError(true);
     }
   }, [formTemplateQuery.data]);
