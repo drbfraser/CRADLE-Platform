@@ -2,6 +2,10 @@ import pytest
 
 from enums import SexEnum
 
+from data import crud
+from models import FormClassificationOrm, FormTemplateOrm, FormOrm
+
+from common.commonUtil import get_uuid
 
 @pytest.fixture
 def vht_user_id():
@@ -128,30 +132,44 @@ def drug_record(patient_id):
 
 
 @pytest.fixture
-def form_classification():
-    return {
-        "id": "fc9",
-        "name": "fc9",
-    }
+def form_classification(database):
+    fc_id = get_uuid()
+    payload = {
+        "id": fc_id, 
+        "name": fc_id
+        }
+    try:
+        yield payload
+    finally:
+        crud.delete_all(FormClassificationOrm, id=fc_id)
+        crud.delete_all(FormClassificationOrm, name=fc_id)
+        database.session.commit()
 
 
 @pytest.fixture
-def form_template():
-    return {
-        "classification": {"id": "fc9", "name": "fc9"},
-        "id": "ft9",
+def form_template(database, form_classification):
+    ft_id = get_uuid()
+    payload = {
+        "classification": form_classification,
+        "id": ft_id,
         "version": "V1",
         "questions": [],
     }
+    try:
+        yield payload
+    finally:
+        crud.delete_all(FormOrm, form_template_id=ft_id)
+        crud.delete_all(FormTemplateOrm, id=ft_id)
+        database.session.commit()
 
 
 @pytest.fixture
-def form(patient_id):
+def form(patient_id, form_template, form_classification):
     return {
         "id": "f9",
         "lang": "english",
-        "form_template_id": "ft9",
-        "form_classification_id": "fc9",
+        "form_template_id": form_template['id'],
+        "form_classification_id": form_classification['id'],
         "patient_id": patient_id,
         "date_created": 1561011126,
         "questions": [
