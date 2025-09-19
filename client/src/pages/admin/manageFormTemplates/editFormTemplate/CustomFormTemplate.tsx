@@ -63,7 +63,7 @@ export const CustomFormTemplate = () => {
 
   useEffect(() => {
     if (formTemplateQuery.data) {
-      const { classification, version, questions } = formTemplateQuery.data;
+      const { classification, questions } = formTemplateQuery.data;
 
       setForm({
         classification,
