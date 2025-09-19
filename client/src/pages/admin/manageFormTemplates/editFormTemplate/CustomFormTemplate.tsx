@@ -43,13 +43,15 @@ export const CustomFormTemplate = () => {
   const location = useLocation();
   const editFormId = location.state?.editFormId as string | undefined;
 
-  const defaultVersion: string = moment
-    .utc(new Date(Date.now()).toUTCString())
-    .format('YYYY-MM-DD HH:mm:ss z');
+  const generateDefaultVersion = () => {
+    return moment
+      .utc(new Date(Date.now()).toUTCString())
+      .format('YYYY-MM-DD HH:mm:ss z');
+  };
 
   const [form, setForm] = useState<FormTemplateWithQuestions>({
     classification: { name: 'string', id: undefined },
-    version: defaultVersion,
+    version: generateDefaultVersion(),
     questions: [],
   });
   const [versionError, setVersionError] = useState<boolean>(false);
@@ -62,8 +64,13 @@ export const CustomFormTemplate = () => {
   useEffect(() => {
     if (formTemplateQuery.data) {
       const { classification, version, questions } = formTemplateQuery.data;
-      setForm({ classification, version, questions });
-      setVersionError(true);
+
+      setForm({
+        classification,
+        version: generateDefaultVersion(),
+        questions,
+      });
+      // setVersionError(true);
     }
   }, [formTemplateQuery.data]);
 
@@ -155,11 +162,7 @@ export const CustomFormTemplate = () => {
                       component={TextField}
                       required={true}
                       variant="outlined"
-                      defaultValue={
-                        formTemplateQuery.data
-                          ? formTemplateQuery.data.version
-                          : defaultVersion
-                      }
+                      defaultValue={form.version}
                       error={versionError}
                       helperText={
                         versionError ? 'Must change version number' : ''
