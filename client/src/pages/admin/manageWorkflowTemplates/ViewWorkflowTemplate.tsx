@@ -7,17 +7,27 @@ import {
   Tooltip,
   Typography,
   Divider,
+  Button,
+  Stack,
+  Alert,
+  CircularProgress,
 } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Cancel';
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   TemplateStep,
   TemplateStepWithFormAndIndex,
+  WorkflowTemplate,
 } from 'src/shared/types/workflow/workflowTypes';
 import { listTemplateSteps } from 'src/shared/api/modules/workflowTemplates';
 import { WorkflowMetadata } from '../../../shared/components/workflow/workflowTemplate/WorkflowMetadata';
 import { WorkflowSteps } from 'src/shared/components/workflow/WorkflowSteps';
+import { useEditWorkflowTemplate } from './mutations';
+import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 
 export const ViewWorkflowTemplate = () => {
   const navigate = useNavigate();
@@ -27,6 +37,11 @@ export const ViewWorkflowTemplate = () => {
   const [viewWorkflowSteps, setViewWorkflowSteps] = useState<
     TemplateStep[] | undefined
   >(undefined);
+
+  // Edit state management
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editedWorkflow, setEditedWorkflow] = useState<WorkflowTemplate | undefined>(undefined);
+  const [hasChanges, setHasChanges] = useState(false);
 
   const workflowTemplateStepsQuery = useQuery({
     queryKey: ['workflowTemplateSteps', viewWorkflow?.id],
@@ -43,6 +58,15 @@ export const ViewWorkflowTemplate = () => {
     setViewWorkflowSteps(workflowTemplateStepsQuery.data);
   }, [workflowTemplateStepsQuery.data]);
 
+  const editWorkflowTemplateMutation = useEditWorkflowTemplate();
+
+  // Initialize edited workflow when entering edit mode
+  useEffect(() => {
+    if (isEditMode && viewWorkflow && !editedWorkflow) {
+      setEditedWorkflow({ ...viewWorkflow });
+    }
+  }, [isEditMode, viewWorkflow, editedWorkflow]);
+
   const isLoading = workflowTemplateStepsQuery.isPending;
 
   const dash = (v?: string) => (v && String(v).trim() ? v : '—');
@@ -51,8 +75,54 @@ export const ViewWorkflowTemplate = () => {
     [viewWorkflow]
   );
 
+  // Activate edit mode
+  const handleEdit = () => {
+    setIsEditMode(true);
+    setEditedWorkflow({ ...viewWorkflow });
+    setHasChanges(false);
+  };
+
+  // deactivate edit mode
+  const handleCancel = () => {
+    setIsEditMode(false);
+    setEditedWorkflow(undefined);
+    setHasChanges(false);
+  };
+
+  // Handle save changes
+  const handleSave = async () => {
+    if (!editedWorkflow || !hasChanges) return;
+
+    try{
+      await editWorkflowTemplateMutation.mutateAsync(editedWorkflow);
+      setIsEditMode(false);
+      setEditedWorkflow(undefined);
+      setHasChanges(false);
+    } catch (error) {
+      console.error('Failed to save changes:', error);
+    }
+  };
+
+  // Handle field changes
+  const handleFieldChange = (field: keyof WorkflowTemplate, value: any) => {
+    if (!editedWorkflow) return;
+    
+    setEditedWorkflow(prev => ({
+      ...prev!,
+      [field]: value
+    }));
+    setHasChanges(true);
+  };
+
+  const currentWorkflow = isEditMode ? editedWorkflow : viewWorkflow;
+
   return (
     <>
+      {/* error toast */}
+      {(workflowTemplateStepsQuery.isError || editWorkflowTemplateMutation.isError) && (
+        <APIErrorToast />
+      )}
+
       <Paper sx={{ p: { xs: 2, md: 3 }, mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Tooltip title="Go back" placement="top">
@@ -65,7 +135,42 @@ export const ViewWorkflowTemplate = () => {
           <Typography variant="h4" component="h2" sx={{ ml: 0.5 }}>
             Workflow Template: {dash(viewWorkflow?.name)}
           </Typography>
+
+        {/* edit buttons */}
+          {!isEditMode ? (
+          <Button
+          variant="contained"
+          startIcon={<EditIcon />}
+          onClick={handleEdit}
+          disabled={viewWorkflow?.archived}
+          >Edit</Button>
+        ) : (
+          <Stack direction="row" spacing={1}>
+            <Button
+            variant="outlined"
+            startIcon={<CancelIcon />}
+            onClick={handleCancel}
+            disabled={editWorkflowTemplateMutation.isPending}
+            >
+              Discard
+            </Button>
+            <Button
+            variant="contained"
+            startIcon={<SaveIcon />}
+            onClick={handleSave}
+            disabled={editWorkflowTemplateMutation.isPending}
+            >
+              Save</Button>
+          </Stack>
+        )}
         </Box>
+
+        {/* Display alert if there are changes */}
+        {isEditMode && hasChanges && (
+          <Alert severity="info" sx={{ mt: 2 }}>
+            You have unsaved changes. Remember to save your changes!
+          </Alert>
+        )}
 
         <Divider sx={{ my: 3 }} />
 
