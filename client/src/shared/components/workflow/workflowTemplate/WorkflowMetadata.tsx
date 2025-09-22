@@ -12,6 +12,7 @@ import {
 import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
 import { ReactNode } from 'react';
 import { getPrettyDate } from 'src/shared/utils';
+import { WorkflowTemplate } from 'src/shared/types/workflow/workflowTypes';
 
 interface WorkflowMetadataProps {
   description?: string;
@@ -20,6 +21,8 @@ interface WorkflowMetadataProps {
   lastEdited?: string;
   archived?: boolean;
   dateCreated?: string;
+  isEditMode?: boolean;
+  onFieldChange?: (field: keyof WorkflowTemplate, value: any) => void;
 }
 
 const InlineField = ({
@@ -27,15 +30,33 @@ const InlineField = ({
   value,
   minLabelWidth = 108,
   tooltipTitle,
+  isEditable = false,
+  onChange,
+  fieldName,
 }: {
   label: string;
   value: string;
   minLabelWidth?: number;
   tooltipTitle?: ReactNode;
+  isEditable?: boolean;
+  onChange?: (value: string) => void;
+  fieldName?: keyof WorkflowTemplate;
 }) => {
   const dash = (v?: string) => (v && String(v).trim() ? v : '—');
 
-  const inputEl = (
+  const inputEl = isEditable ? (
+    <TextField
+      value={dash(value)}
+      onChange={(e) => onChange?.(e.target.value)}
+      fullWidth
+      size="small"
+      variant="outlined"
+      sx={{
+        minWidth: 120,
+        maxWidth: '100%',
+      }}
+    />
+  ) : (
     <Input
       value={dash(value)}
       inputProps={{ readOnly: true }}
@@ -72,11 +93,17 @@ export const WorkflowMetadata = ({
   lastEdited,
   archived,
   dateCreated,
+  isEditMode = false,
+  onFieldChange,
 }: WorkflowMetadataProps) => {
   const versionText = `V${version ?? '1'}`;
   const lastEditedDate = lastEdited
     ? getPrettyDate(new Date(lastEdited).getTime() / 1000)
     : '';
+
+  const handleFieldChange = (field: keyof WorkflowTemplate, value: any) => {
+    onFieldChange?.(field, value);
+  };
 
   return (
     <>
@@ -92,12 +119,17 @@ export const WorkflowMetadata = ({
           <Stack spacing={1.5}>
             <Typography variant="subtitle1">Description:</Typography>
             <TextField
-              value={description}
+              value={description || ''}
               placeholder="Enter description"
               multiline
               minRows={3}
               fullWidth
-              InputProps={{ readOnly: true }}
+              InputProps={{ readOnly: !isEditMode }}
+              onChange={
+                isEditMode
+                  ? (e) => handleFieldChange('description', e.target.value)
+                  : undefined
+              }
             />
           </Stack>
         </Grid>
@@ -120,7 +152,20 @@ export const WorkflowMetadata = ({
         alignItems="center"
         sx={{ mb: 3 }}>
         <Grid item xs={12} md={5}>
-          <InlineField label="Version:" value={versionText} />
+          <InlineField
+            label="Version:"
+            value={versionText}
+            isEditable={isEditMode}
+            onChange={
+              isEditMode
+                ? (value) => {
+                    const versionNum = parseInt(value.replace('V', '')) || 1;
+                    handleFieldChange('version', versionNum);
+                  }
+                : undefined
+            }
+            fieldName="version"
+          />
         </Grid>
 
         <Grid item xs={12} md={5}>
@@ -147,7 +192,17 @@ export const WorkflowMetadata = ({
                 </Tooltip>
               </Box>
             }
-            control={<Switch checked={!!archived} readOnly />}
+            control={
+              <Switch
+                checked={!!archived}
+                readOnly={!isEditMode}
+                onChange={
+                  isEditMode
+                    ? (e) => handleFieldChange('archived', e.target.checked)
+                    : undefined
+                }
+              />
+            }
           />
         </Grid>
 
