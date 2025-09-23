@@ -108,9 +108,9 @@ export interface WorkflowInstance {
   steps: WorkflowInstanceStep[];
 
   // audit
-  lastEdited: ISODate;
+  lastEdited: number;
   lastEditedBy?: ID;
-  completionDate?: ISODate;
+  completionDate?: number;
 }
 
 // Payload for POST /workflow/instances
