@@ -84,8 +84,8 @@ export interface WorkflowInstanceStep {
   triggeredBy?: ID;
   formId?: ID;
   assignedTo?: ID;
-  expectedCompletion?: Nullable<ISODate>;
-  completionDate?: Nullable<ISODate>;
+  expectedCompletion?: Nullable<number>;
+  completionDate?: Nullable<number>;
   status: StepStatus;
   data?: Record<string, unknown>;
   workflowInstanceId: ID;

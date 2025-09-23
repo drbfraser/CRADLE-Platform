@@ -51,8 +51,8 @@ type InstanceStep = {
   startedOn?: ISODate;
   formId?: string;
   hasForm: boolean;
-  expectedCompletion?: ISODate;
-  completedOn?: ISODate;
+  expectedCompletion?: Nullable<ISODate>;
+  completedOn?: Nullable<ISODate>;
   status: StepStatus;  
   nextStep?: string;
   formSubmitted?: boolean;
@@ -66,7 +66,7 @@ type PossibleStep = {
   isSkippable?: boolean;
 };
 
-type InstanceDetails = {
+export type InstanceDetails = {
   id: string;
 
   // Summary card
@@ -83,14 +83,23 @@ type InstanceDetails = {
   lastEditedOn: ISODate;
   lastEditedBy?: string;
   workflowStartedOn: ISODate;
-  workflowStartedBy: string;
+  workflowStartedBy: Nullable<string>;
   workflowCompletedOn?: Nullable<ISODate>;
 
   // Steps
   steps: InstanceStep[];
-  currentIndex: number;
+  // currentIndex: number;
   possibleSteps: PossibleStep[];
 };
+
+export type Progress = {
+  total: number,
+  completed: number,
+  percent: number,
+  estDaysRemaining: number,
+  etaDate?: Date,
+  currentIndex: number
+}
 
 function formatISODateNumber(isoDateNumber: number) : ISODate {
   return new Date(isoDateNumber * 1000).toLocaleDateString("en-CA")
@@ -108,7 +117,7 @@ const formatWhen = (s: InstanceStep) => {
   return 'Status: Pending';
 };
 
-function parseYMD(d?: string) {
+function parseYMD(d?: Nullable<string>) {
   if (!d) return undefined;
   const [y, m, day] = d.split('-').map(Number);
   const dt = new Date(y, (m ?? 1) - 1, day ?? 1);
@@ -170,11 +179,11 @@ function mapWorkflowStep(apiStep: WorkflowInstanceStep) : InstanceStep {
     title: apiStep.name,
     status: apiStep.status,
     startedOn: formatISODateNumber(apiStep.startDate),
-    completedOn: apiStep.completionDate ?? "N/A",
+    completedOn: apiStep.completionDate ? formatISODateNumber(apiStep.completionDate) : null,
     description: apiStep.description,
     formId: apiStep.formId,
     hasForm: apiStep.formId ? true : false,
-    expectedCompletion: apiStep.expectedCompletion ?? "N/A"
+    expectedCompletion: apiStep.expectedCompletion ? formatISODateNumber(apiStep.expectedCompletion) : null
     // nextStep?: string;
     // formSubmitted?: boolean;
     }
@@ -212,12 +221,12 @@ async function loadInstanceById(id: string): Promise<InstanceDetails> {
     lastEditedOn: formatISODateNumber(instance.lastEdited),
     lastEditedBy: instance.lastEditedBy,
     workflowStartedOn: formatISODateNumber(instance.startDate),
-    workflowStartedBy: 'N/A', // TODO - add to backend?
+    workflowStartedBy: "N/A", // TODO - add to backend?
     workflowCompletedOn: instance.completionDate ? formatISODateNumber(instance.completionDate) : null,
 
     // Steps
     steps: instance.steps.map(step => mapWorkflowStep(step)),
-    currentIndex: getCurrentStepIndex(instance.steps),  // TODO - either search through step for active, or store current step within instance
+    // currentIndex: getCurrentStepIndex(instance.steps),  // TODO - either search through step for active, or store current step within instance
     possibleSteps: []
   }
 
@@ -227,8 +236,6 @@ async function loadInstanceById(id: string): Promise<InstanceDetails> {
 
 /** Replace with real API */
 function loadMockInstanceById(id: string): InstanceDetails {
-
- 
   return {
     id,
     studyTitle: 'Papagaio Research Study',
@@ -276,7 +283,7 @@ function loadMockInstanceById(id: string): InstanceDetails {
         nextStep: '<Same as Template>',
       },
     ],
-    currentIndex: 1,
+    // currentIndex: 1,
     possibleSteps: [
       {
         id: 'ps1',
@@ -299,6 +306,7 @@ function loadMockInstanceById(id: string): InstanceDetails {
 export default function WorkflowInstanceDetailsPage() {
   const { instanceId } = useParams<{ instanceId: string }>();
   const [workflowInstance, setWorkflowInstance] = React.useState<InstanceDetails | null>(null);
+  const [progressInfo, setProgressInfo] = React.useState<Progress>({ total: 0, completed: 0, percent: 0, estDaysRemaining: 0, currentIndex: 0 });
   const navigate = useNavigate();
   const [open, setOpen] = React.useState(false);
   const [expandedStep, setExpandedStep] = React.useState<string | null>(null);
@@ -315,6 +323,8 @@ export default function WorkflowInstanceDetailsPage() {
       try {
         const instance = await loadInstanceById("simple-workflow-instance-1")
         setWorkflowInstance(instance)
+        const progress = computeProgressAndEta(instance.steps)
+        setProgressInfo(progress)
       }
       catch (err) {
         console.error("Failed to load workflow instance", err)
@@ -381,7 +391,7 @@ export default function WorkflowInstanceDetailsPage() {
     [instanceId]
   );
 
-  const progressInfo = React.useMemo(
+  const progressInfoMock = React.useMemo(
     () => computeProgressAndEta(data.steps),
     [data.steps]
   );
@@ -501,10 +511,10 @@ export default function WorkflowInstanceDetailsPage() {
                         Current Step
                       </Typography>
                       <Typography variant="body1" fontWeight={600}>
-                        {workflowInstance.currentIndex + 1} of {workflowInstance.steps.length}
+                        {progressInfo.currentIndex + 1} of {workflowInstance.steps.length}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        {workflowInstance.steps[workflowInstance.currentIndex]?.title || 'N/A'}
+                        {workflowInstance.steps[progressInfo.currentIndex]?.title || 'N/A'}
                       </Typography>
                     </Box>
                   </Grid>
@@ -602,7 +612,7 @@ export default function WorkflowInstanceDetailsPage() {
                           data.steps.length > 1
                             ? (idx / (data.steps.length - 1)) * 100
                             : 0;
-                        const isCurrent = idx === data.currentIndex;
+                        const isCurrent = idx === progressInfo.currentIndex;
                         const isDone = s.status === 'COMPLETED';
                         return (
                           <Tooltip
@@ -640,7 +650,7 @@ export default function WorkflowInstanceDetailsPage() {
                 </Box>
 
                 {/* "Currently Working On" Section Details */}
-                {workflowInstance.steps[workflowInstance.currentIndex] && (
+                {workflowInstance.steps[progressInfo.currentIndex] && (
                   <Box
                     sx={{
                       // backgroundColor: 'primary.50',
@@ -656,10 +666,10 @@ export default function WorkflowInstanceDetailsPage() {
                       Currently Working On:
                     </Typography>
                     <Typography variant="body1" fontWeight={600}>
-                      {workflowInstance.steps[workflowInstance.currentIndex].title}
+                      {workflowInstance.steps[progressInfo.currentIndex].title}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {formatWhen(workflowInstance.steps[workflowInstance.currentIndex])}
+                      {formatWhen(workflowInstance.steps[progressInfo.currentIndex])}
                     </Typography>
                   </Box>
                 )}
