@@ -404,684 +404,684 @@ export default function WorkflowInstanceDetailsPage() {
           </Typography>
         ) : (
         <>
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              mb: 3,
-              mx: 4,
-            }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Typography variant="h5">{workflowInstance.studyTitle}</Typography>
-              <Button
-                size="small"
-                variant="outlined"
-                endIcon={
-                  open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />
-                }
-                onClick={() => setOpen((v) => !v)}
-                sx={{ textTransform: 'none' }}>
-                {open ? 'Hide Details' : 'Show Details'}
-              </Button>
-            </Box>
-
-            <Typography variant="h6" color="text.secondary">
-              Patient: {workflowInstance.patientName} (ID: {workflowInstance.patientId})
-            </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 3,
+            mx: 4,
+          }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Typography variant="h5">{workflowInstance.studyTitle}</Typography>
+            <Button
+              size="small"
+              variant="outlined"
+              endIcon={
+                open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />
+              }
+              onClick={() => setOpen((v) => !v)}
+              sx={{ textTransform: 'none' }}>
+              {open ? 'Hide Details' : 'Show Details'}
+            </Button>
           </Box>
 
-          {/* Collapsible Workflow Template Details */}
-          <Collapse in={open} unmountOnExit>
-            <Box sx={{ mx: 4, mb: 3 }}>
-              <Box
-                sx={{
-                  p: 3,
-                  border: '1px solid #e0e0e0',
-                  borderRadius: '12px',
-                  mb: 2,
-                }}>
-                <Typography variant="h6" sx={{ mb: 2 }}>
-                  Workflow Template Details
-                </Typography>
-                <WorkflowMetadata
-                  description={workflowInstance.description}
-                  collectionName={workflowInstance.collection}
-                  version={parseInt(workflowInstance.version) || 1}
-                  lastEdited={workflowInstance.lastEditedOn}
-                  dateCreated={workflowInstance.firstCreatedOn}
-                />
-              </Box>
-            </Box>
-          </Collapse>
+          <Typography variant="h6" color="text.secondary">
+            Patient: {workflowInstance.patientName} (ID: {workflowInstance.patientId})
+          </Typography>
+        </Box>
 
-          {/* Section 2: Workflow Status */}
-          <Box sx={{ mx: 5, mb: 3 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              Workflow Status
-            </Typography>
-
+        {/* Collapsible Workflow Template Details */}
+        <Collapse in={open} unmountOnExit>
+          <Box sx={{ mx: 4, mb: 3 }}>
             <Box
               sx={{
                 p: 3,
-                mb: 3,
                 border: '1px solid #e0e0e0',
                 borderRadius: '12px',
+                mb: 2,
               }}>
-              {/* Summary Row */}
-              <Grid container spacing={3} sx={{ mb: 2 }}>
-                <Grid item xs={12} md={3}>
-                  <Box sx={{ textAlign: 'center' }}>
-                    <CalendarTodayOutlinedIcon
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                Workflow Template Details
+              </Typography>
+              <WorkflowMetadata
+                description={workflowInstance.description}
+                collectionName={workflowInstance.collection}
+                version={parseInt(workflowInstance.version) || 1}
+                lastEdited={workflowInstance.lastEditedOn}
+                dateCreated={workflowInstance.firstCreatedOn}
+              />
+            </Box>
+          </Box>
+        </Collapse>
+
+        {/* Section 2: Workflow Status */}
+        <Box sx={{ mx: 5, mb: 3 }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Workflow Status
+          </Typography>
+
+          <Box
+            sx={{
+              p: 3,
+              mb: 3,
+              border: '1px solid #e0e0e0',
+              borderRadius: '12px',
+            }}>
+            {/* Summary Row */}
+            <Grid container spacing={3} sx={{ mb: 2 }}>
+              <Grid item xs={12} md={3}>
+                <Box sx={{ textAlign: 'center' }}>
+                  <CalendarTodayOutlinedIcon
+                    color="success"
+                    sx={{ fontSize: 32, mb: 1 }}
+                  />
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Started
+                  </Typography>
+                  <Typography variant="body1" fontWeight={600}>
+                    {workflowInstance.workflowStartedOn}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    by {workflowInstance.workflowStartedBy}
+                  </Typography>
+                </Box>
+              </Grid>
+
+              <Grid item xs={12} md={3}>
+                <Box sx={{ textAlign: 'center' }}>
+                  <ReplayIcon color="primary" sx={{ fontSize: 32, mb: 1 }} />
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Current Step
+                  </Typography>
+                  <Typography variant="body1" fontWeight={600}>
+                    {progressInfo.currentIndex + 1} of {workflowInstance.steps.length}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {workflowInstance.steps[progressInfo.currentIndex]?.title || 'N/A'}
+                  </Typography>
+                </Box>
+              </Grid>
+
+              <Grid item xs={12} md={3}>
+                <Box sx={{ textAlign: 'center' }}>
+                  <Box
+                    sx={{
+                      position: 'relative',
+                      display: 'inline-flex',
+                      mb: 1,
+                    }}>
+                    <Box
+                      sx={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: '50%',
+                        backgroundColor: 'primary.main',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'white',
+                        fontSize: 14,
+                        fontWeight: 600,
+                      }}>
+                      {progressInfo.percent}%
+                    </Box>
+                  </Box>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Progress
+                  </Typography>
+                  <Typography variant="body1" fontWeight={600}>
+                    {progressInfo.completed} / {progressInfo.total} completed
+                  </Typography>
+                </Box>
+              </Grid>
+
+              <Grid item xs={12} md={3}>
+                <Box sx={{ textAlign: 'center' }}>
+                  {data.workflowCompletedOn ? (
+                    <CheckCircleOutlineIcon
                       color="success"
                       sx={{ fontSize: 32, mb: 1 }}
                     />
-                    <Typography variant="subtitle2" color="text.secondary">
-                      Started
-                    </Typography>
-                    <Typography variant="body1" fontWeight={600}>
-                      {workflowInstance.workflowStartedOn}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      by {workflowInstance.workflowStartedBy}
-                    </Typography>
-                  </Box>
-                </Grid>
-
-                <Grid item xs={12} md={3}>
-                  <Box sx={{ textAlign: 'center' }}>
-                    <ReplayIcon color="primary" sx={{ fontSize: 32, mb: 1 }} />
-                    <Typography variant="subtitle2" color="text.secondary">
-                      Current Step
-                    </Typography>
-                    <Typography variant="body1" fontWeight={600}>
-                      {progressInfo.currentIndex + 1} of {workflowInstance.steps.length}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {workflowInstance.steps[progressInfo.currentIndex]?.title || 'N/A'}
-                    </Typography>
-                  </Box>
-                </Grid>
-
-                <Grid item xs={12} md={3}>
-                  <Box sx={{ textAlign: 'center' }}>
-                    <Box
-                      sx={{
-                        position: 'relative',
-                        display: 'inline-flex',
-                        mb: 1,
-                      }}>
-                      <Box
-                        sx={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: '50%',
-                          backgroundColor: 'primary.main',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: 'white',
-                          fontSize: 14,
-                          fontWeight: 600,
-                        }}>
-                        {progressInfo.percent}%
-                      </Box>
-                    </Box>
-                    <Typography variant="subtitle2" color="text.secondary">
-                      Progress
-                    </Typography>
-                    <Typography variant="body1" fontWeight={600}>
-                      {progressInfo.completed} / {progressInfo.total} completed
-                    </Typography>
-                  </Box>
-                </Grid>
-
-                <Grid item xs={12} md={3}>
-                  <Box sx={{ textAlign: 'center' }}>
-                    {data.workflowCompletedOn ? (
-                      <CheckCircleOutlineIcon
-                        color="success"
-                        sx={{ fontSize: 32, mb: 1 }}
-                      />
-                    ) : (
-                      <HourglassEmptyIcon
-                        color="disabled"
-                        sx={{ fontSize: 32, mb: 1 }}
-                      />
-                    )}
-                    <Typography variant="subtitle2" color="text.secondary">
-                      {workflowInstance.workflowCompletedOn
-                        ? 'Completed'
-                        : 'Estimated Completion'}
-                    </Typography>
-                    <Typography variant="body1" fontWeight={600}>
-                      {workflowInstance.workflowCompletedOn ||
-                        (progressInfo.etaDate
-                          ? progressInfo.etaDate.toISOString().slice(0, 10)
-                          : 'TBD')}
-                    </Typography>
-                    {!workflowInstance.workflowCompletedOn && progressInfo.etaDate && (
-                      <Typography variant="caption" color="text.secondary">
-                        ~{progressInfo.estDaysRemaining} days remaining
-                      </Typography>
-                    )}
-                  </Box>
-                </Grid>
-              </Grid>
-
-              {/* Progress Bar */}
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                  Overall Progress
-                </Typography>
-                <Box sx={{ position: 'relative' }}>
-                  <LinearProgress
-                    variant="determinate"
-                    value={progressInfo.percent}
-                    sx={{
-                      height: 8,
-                      borderRadius: 4,
-                      '& .MuiLinearProgress-bar': { borderRadius: 4 },
-                    }}
-                  />
-                  {/* Step markers on progress bar */}
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      inset: 0,
-                      pointerEvents: 'none',
-                    }}>
-                    {data.steps.map((s, idx) => {
-                      const leftPct =
-                        data.steps.length > 1
-                          ? (idx / (data.steps.length - 1)) * 100
-                          : 0;
-                      const isCurrent = idx === progressInfo.currentIndex;
-                      const isDone = s.status === 'COMPLETED';
-                      return (
-                        <Tooltip
-                          key={s.id}
-                          title={`${s.title}${
-                            isCurrent
-                              ? ' (Current)'
-                              : isDone
-                              ? ' (Completed)'
-                              : ' (Pending)'
-                          }`}>
-                          <Box
-                            sx={{
-                              position: 'absolute',
-                              top: -5,
-                              left: `calc(${leftPct}% - 2px)`,
-                              width: isCurrent ? 20 : 16,
-                              height: isCurrent ? 20 : 16,
-                              borderRadius: '50%',
-                              bgcolor: isCurrent
-                                ? 'primary.main'
-                                : isDone
-                                ? 'success.main'
-                                : 'grey.400',
-                              border: '2px solid #fff',
-                              boxShadow: 1,
-                              pointerEvents: 'auto',
-                            }}
-                          />
-                        </Tooltip>
-                      );
-                    })}
-                  </Box>
-                </Box>
-              </Box>
-
-              {/* "Currently Working On" Section Details */}
-              {workflowInstance.steps[progressInfo.currentIndex] && (
-                <Box
-                  sx={{
-                    // backgroundColor: 'primary.50',
-                    borderLeft: 4,
-                    borderLeftColor: 'primary.main',
-                    p: 2,
-                    borderRadius: 4,
-                  }}>
-                  <Typography
-                    variant="subtitle2"
-                    color="primary.main"
-                    sx={{ mb: 0.5 }}>
-                    Currently Working On:
+                  ) : (
+                    <HourglassEmptyIcon
+                      color="disabled"
+                      sx={{ fontSize: 32, mb: 1 }}
+                    />
+                  )}
+                  <Typography variant="subtitle2" color="text.secondary">
+                    {workflowInstance.workflowCompletedOn
+                      ? 'Completed'
+                      : 'Estimated Completion'}
                   </Typography>
                   <Typography variant="body1" fontWeight={600}>
-                    {workflowInstance.steps[progressInfo.currentIndex].title}
+                    {workflowInstance.workflowCompletedOn ||
+                      (progressInfo.etaDate
+                        ? progressInfo.etaDate.toISOString().slice(0, 10)
+                        : 'TBD')}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {formatWhen(workflowInstance.steps[progressInfo.currentIndex])}
-                  </Typography>
+                  {!workflowInstance.workflowCompletedOn && progressInfo.etaDate && (
+                    <Typography variant="caption" color="text.secondary">
+                      ~{progressInfo.estDaysRemaining} days remaining
+                    </Typography>
+                  )}
                 </Box>
-              )}
-            </Box>
-          </Box>
+              </Grid>
+            </Grid>
 
-          {/* Section 3: Step history */}
-          <Box sx={{ mx: 5, mb: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-              <Typography variant="h6">Step history</Typography>
-              <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
-                <Button
-                  size="small"
-                  variant="text"
-                  onClick={() => {
-                    setExpandAll(!expandAll);
-                    setExpandedStep(null);
+            {/* Progress Bar */}
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Overall Progress
+              </Typography>
+              <Box sx={{ position: 'relative' }}>
+                <LinearProgress
+                  variant="determinate"
+                  value={progressInfo.percent}
+                  sx={{
+                    height: 8,
+                    borderRadius: 4,
+                    '& .MuiLinearProgress-bar': { borderRadius: 4 },
+                  }}
+                />
+                {/* Step markers on progress bar */}
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    inset: 0,
+                    pointerEvents: 'none',
                   }}>
-                  {expandAll ? 'Collapse All' : 'Expand All'}
-                </Button>
-              </Box>
-            </Box>
-
-            <Paper variant="outlined" sx={{ borderRadius: '12px', p: 3 }}>
-              {workflowInstance.steps.length === 0 ? (
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ textAlign: 'center', py: 4 }}>
-                  No steps recorded yet.
-                </Typography>
-              ) : (
-                <Box sx={{ position: 'relative' }}>
-                  {/* Vertical Rail */}
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      left: 20,
-                      top: 32,
-                      bottom: 0,
-                      width: 3,
-                      bgcolor: 'grey.300',
-                      zIndex: 0,
-                    }}
-                  />
-
-                  {workflowInstance.steps.map((step) => {
-                    const isExpanded = expandAll || expandedStep === step.id;
-                    const statusIcon =
-                      step.status === StepStatus.COMPLETED ? (
-                        <CheckCircleOutlineIcon
-                          color="success"
-                          sx={{ fontSize: 24 }}
-                        />
-                      ) : step.status === StepStatus.ACTIVE ? (
-                        <ReplayIcon color="primary" sx={{ fontSize: 24 }} />
-                      ) : (
-                        <HourglassEmptyIcon
-                          sx={{ color: 'grey.400', fontSize: 24 }}
-                        />
-                      );
-
+                  {data.steps.map((s, idx) => {
+                    const leftPct =
+                      data.steps.length > 1
+                        ? (idx / (data.steps.length - 1)) * 100
+                        : 0;
+                    const isCurrent = idx === progressInfo.currentIndex;
+                    const isDone = s.status === 'COMPLETED';
                     return (
-                      <Box key={step.id} sx={{ position: 'relative', mb: 3 }}>
-                        {/* Step Row */}
+                      <Tooltip
+                        key={s.id}
+                        title={`${s.title}${
+                          isCurrent
+                            ? ' (Current)'
+                            : isDone
+                            ? ' (Completed)'
+                            : ' (Pending)'
+                        }`}>
                         <Box
                           sx={{
-                            display: 'flex',
-                            alignItems: 'flex-start',
-                            cursor: 'pointer',
-                            p: 2,
-                            borderRadius: '8px',
-                            '&:hover': { bgcolor: 'grey.50' },
-                            position: 'relative',
-                            zIndex: 1,
+                            position: 'absolute',
+                            top: -5,
+                            left: `calc(${leftPct}% - 2px)`,
+                            width: isCurrent ? 20 : 16,
+                            height: isCurrent ? 20 : 16,
+                            borderRadius: '50%',
+                            bgcolor: isCurrent
+                              ? 'primary.main'
+                              : isDone
+                              ? 'success.main'
+                              : 'grey.400',
+                            border: '2px solid #fff',
+                            boxShadow: 1,
+                            pointerEvents: 'auto',
                           }}
-                          onClick={() =>
-                            !expandAll &&
-                            setExpandedStep(isExpanded ? null : step.id)
-                          }>
-                          {/* Status Icon */}
-                          <Box
-                            sx={{
-                              width: 40,
-                              height: 40,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              bgcolor: 'background.paper',
-                              border: 2,
-                              borderColor:
-                                step.status === StepStatus.COMPLETED
-                                  ? 'success.main'
-                                  : step.status === StepStatus.ACTIVE
-                                  ? 'primary.main'
-                                  : 'grey.300',
-                              borderRadius: '50%',
-                              mr: 3,
-                            }}>
-                            {statusIcon}
-                          </Box>
-
-                          {/* Step Content */}
-                          <Box sx={{ flex: 1, minWidth: 0 }}>
-                            <Typography
-                              variant="h6"
-                              fontWeight={700}
-                              sx={{ mb: 0.5 }}>
-                              {step.title}
-                            </Typography>
-                            <Typography
-                              variant="body2"
-                              color="text.secondary"
-                              sx={{ mb: 1 }}>
-                              {formatWhen(step)}
-                            </Typography>
-                            {step.status === StepStatus.ACTIVE && (
-                              <Chip
-                                size="small"
-                                color="primary"
-                                label="Current step"
-                                sx={{ mb: 1 }}
-                              />
-                            )}
-                          </Box>
-
-                          {/* Expand Button */}
-                          {!expandAll && (
-                            <IconButton size="small" sx={{ ml: 1 }}>
-                              {isExpanded ? (
-                                <ExpandLessIcon />
-                              ) : (
-                                <ExpandMoreIcon />
-                              )}
-                            </IconButton>
-                          )}
-                        </Box>
-
-                        {/* Expanded Content */}
-                        <Collapse in={isExpanded} unmountOnExit>
-                          <Box
-                            sx={{
-                              ml: 7,
-                              p: 3,
-                              bgcolor: 'grey.50',
-                              borderRadius: '8px',
-                              border: 1,
-                              borderColor: 'grey.200',
-                            }}>
-                            {/* Description */}
-                            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                              Description
-                            </Typography>
-                            <Typography
-                              variant="body2"
-                              color="text.secondary"
-                              sx={{ mb: 3 }}>
-                              {step.description || 'No description available.'}
-                            </Typography>
-
-                            {/* Form Block */}
-                            {step.hasForm && (
-                              <Box sx={{ mb: 3 }}>
-                                <Typography variant="subtitle2" sx={{ mb: 2 }}>
-                                  Form
-                                </Typography>
-                                <Box
-                                  sx={{
-                                    p: 2,
-                                    border: 1,
-                                    borderColor: 'grey.300',
-                                    borderRadius: '4px',
-                                    bgcolor: 'background.paper',
-                                  }}>
-                                  <Typography variant="body2" sx={{ mb: 2 }}>
-                                    Form name: {step.title} Form
-                                  </Typography>
-                                  {step.formSubmitted ? (
-                                    <Box
-                                      sx={{
-                                        display: 'flex',
-                                        gap: 1,
-                                        flexWrap: 'wrap',
-                                      }}>
-                                      <Button
-                                        size="small"
-                                        variant="outlined"
-                                        onClick={() => handleViewForm(step.id)}>
-                                        View submitted form
-                                      </Button>
-                                      <Button
-                                        size="small"
-                                        variant="outlined"
-                                        onClick={() => handleEditForm(step.id)}>
-                                        Edit
-                                      </Button>
-                                      <Button
-                                        size="small"
-                                        variant="outlined"
-                                        color="error"
-                                        onClick={() =>
-                                          handleDiscardForm(step.id)
-                                        }>
-                                        Discard submitted form
-                                      </Button>
-                                    </Box>
-                                  ) : step.status === StepStatus.ACTIVE ? (
-                                    <Box
-                                      sx={{
-                                        display: 'flex',
-                                        gap: 1,
-                                        flexWrap: 'wrap',
-                                      }}>
-                                      <Button
-                                        size="small"
-                                        variant="contained"
-                                        onClick={() => handleSubmitForm(step.id)}>
-                                        Submit form
-                                      </Button>
-                                      <Button
-                                        size="small"
-                                        variant="outlined"
-                                        onClick={() =>
-                                          handleCompleteNow(step.id)
-                                        }>
-                                        Complete now
-                                      </Button>
-                                    </Box>
-                                  ) : (
-                                    <Typography
-                                      variant="body2"
-                                      color="text.secondary">
-                                      Form not yet available
-                                    </Typography>
-                                  )}
-                                </Box>
-                              </Box>
-                            )}
-
-                            {/* Next Step Preview */}
-                            <Box sx={{ mb: 3 }}>
-                              <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                                Next Step
-                              </Typography>
-                              <Typography variant="body2" color="text.secondary">
-                                {step.nextStep || '<Same as Template>'}
-                              </Typography>
-                            </Box>
-
-                            {/* Expected Completion Date */}
-                            <Box sx={{ mb: 3 }}>
-                              <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                                Expected Completion Date
-                              </Typography>
-                              {step.status === StepStatus.ACTIVE ? (
-                                <TextField
-                                  type="date"
-                                  size="small"
-                                  value={step.expectedCompletion || ''}
-                                  onChange={(e) =>
-                                    handleChangeExpectedCompletion(
-                                      step.id,
-                                      e.target.value
-                                    )
-                                  }
-                                  sx={{ width: 200 }}
-                                />
-                              ) : (
-                                <Typography
-                                  variant="body2"
-                                  color="text.secondary">
-                                  {step.expectedCompletion || 'Not set'}
-                                </Typography>
-                              )}
-                            </Box>
-
-                            {/* Make Current Button */}
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                justifyContent: 'flex-end',
-                              }}>
-                              <Button
-                                size="small"
-                                variant="text"
-                                color="primary"
-                                onClick={() =>
-                                  handleMakeCurrent(step.id, step.title)
-                                }
-                                disabled={step.status === StepStatus.ACTIVE}>
-                                Make this current step
-                              </Button>
-                            </Box>
-                          </Box>
-                        </Collapse>
-                      </Box>
+                        />
+                      </Tooltip>
                     );
                   })}
                 </Box>
-              )}
-            </Paper>
-          </Box>
-
-          {/* Section 4: Possible Other Steps */}
-          <Box sx={{ mx: 5, mb: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-              <Typography variant="h6">Possible Other Steps</Typography>
-              <Tooltip
-                title="You may override the workflow order and skip to a new step."
-                placement="top">
-                <InfoOutlinedIcon
-                  sx={{ fontSize: 18, color: 'text.secondary' }}
-                />
-              </Tooltip>
+              </Box>
             </Box>
 
-            <Paper variant="outlined" sx={{ borderRadius: '12px', p: 3 }}>
-              {workflowInstance.possibleSteps.length === 0 ? (
+            {/* "Currently Working On" Section Details */}
+            {workflowInstance.steps[progressInfo.currentIndex] && (
+              <Box
+                sx={{
+                  // backgroundColor: 'primary.50',
+                  borderLeft: 4,
+                  borderLeftColor: 'primary.main',
+                  p: 2,
+                  borderRadius: 4,
+                }}>
                 <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ textAlign: 'center', py: 4 }}>
-                  No optional steps available.
+                  variant="subtitle2"
+                  color="primary.main"
+                  sx={{ mb: 0.5 }}>
+                  Currently Working On:
                 </Typography>
-              ) : (
-                <>
-                  <List disablePadding>
-                    {workflowInstance.possibleSteps.map((step) => (
-                      <ListItem
-                        key={step.id}
-                        sx={{
-                          border: 1,
-                          borderColor: 'grey.300',
-                          borderRadius: '8px',
-                          mb: 1,
-                          '&:hover': { bgcolor: 'grey.50' },
-                        }}>
-                        <ListItemText
-                          primary={
-                            <Typography variant="subtitle1" fontWeight={600}>
-                              {step.title}
-                            </Typography>
-                          }
-                        />
-                        <Box
-                          sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                          {step.estimate && (
-                            <Badge
-                              badgeContent={step.estimate}
-                              color="primary"
-                              sx={{
-                                '& .MuiBadge-badge': {
-                                  position: 'static',
-                                  transform: 'none',
-                                  borderRadius: '12px',
-                                  px: 1,
-                                },
-                              }}>
-                              <Box />
-                            </Badge>
-                          )}
-                          <Box sx={{ display: 'flex', gap: 1 }}>
-                            <Tooltip
-                              title="Set this as current step"
-                              placement="top">
-                              <IconButton
-                                size="small"
-                                onClick={() =>
-                                  handleMakeCurrent(step.id, step.title)
-                                }>
-                                <PlayArrowIcon />
-                              </IconButton>
-                            </Tooltip>
-                            {step.hasForm && (
-                              <Tooltip
-                                title="This step has an associated form"
-                                placement="top">
-                                <IconButton size="small" disabled>
-                                  <ArticleIcon />
-                                </IconButton>
-                              </Tooltip>
-                            )}
-                          </Box>
-                        </Box>
-                      </ListItem>
-                    ))}
-                  </List>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ mt: 2, textAlign: 'center', display: 'block' }}>
-                    If a step has a form, the icon will be shown.
-                  </Typography>
-                </>
-              )}
-            </Paper>
+                <Typography variant="body1" fontWeight={600}>
+                  {workflowInstance.steps[progressInfo.currentIndex].title}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {formatWhen(workflowInstance.steps[progressInfo.currentIndex])}
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        </Box>
+
+        {/* Section 3: Step history */}
+        <Box sx={{ mx: 5, mb: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+            <Typography variant="h6">Step history</Typography>
+            <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
+              <Button
+                size="small"
+                variant="text"
+                onClick={() => {
+                  setExpandAll(!expandAll);
+                  setExpandedStep(null);
+                }}>
+                {expandAll ? 'Collapse All' : 'Expand All'}
+              </Button>
+            </Box>
           </Box>
 
-          {/* Confirmation Dialog */}
-          <Dialog
-            open={confirmDialog.open}
-            onClose={() => setConfirmDialog((prev) => ({ ...prev, open: false }))}
-            aria-labelledby="confirm-dialog-title"
-            aria-describedby="confirm-dialog-description">
-            <DialogTitle id="confirm-dialog-title">
-              {confirmDialog.title}
-            </DialogTitle>
-            <DialogContent>
-              <DialogContentText id="confirm-dialog-description">
-                {confirmDialog.message}
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button
-                onClick={() =>
-                  setConfirmDialog((prev) => ({ ...prev, open: false }))
-                }>
-                Cancel
-              </Button>
-              <Button
-                onClick={confirmDialog.onConfirm}
-                color="primary"
-                variant="contained">
-                Confirm
-              </Button>
-            </DialogActions>
-          </Dialog>
-        </>
+          <Paper variant="outlined" sx={{ borderRadius: '12px', p: 3 }}>
+            {workflowInstance.steps.length === 0 ? (
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ textAlign: 'center', py: 4 }}>
+                No steps recorded yet.
+              </Typography>
+            ) : (
+              <Box sx={{ position: 'relative' }}>
+                {/* Vertical Rail */}
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    left: 20,
+                    top: 32,
+                    bottom: 0,
+                    width: 3,
+                    bgcolor: 'grey.300',
+                    zIndex: 0,
+                  }}
+                />
+
+                {workflowInstance.steps.map((step) => {
+                  const isExpanded = expandAll || expandedStep === step.id;
+                  const statusIcon =
+                    step.status === StepStatus.COMPLETED ? (
+                      <CheckCircleOutlineIcon
+                        color="success"
+                        sx={{ fontSize: 24 }}
+                      />
+                    ) : step.status === StepStatus.ACTIVE ? (
+                      <ReplayIcon color="primary" sx={{ fontSize: 24 }} />
+                    ) : (
+                      <HourglassEmptyIcon
+                        sx={{ color: 'grey.400', fontSize: 24 }}
+                      />
+                    );
+
+                  return (
+                    <Box key={step.id} sx={{ position: 'relative', mb: 3 }}>
+                      {/* Step Row */}
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          cursor: 'pointer',
+                          p: 2,
+                          borderRadius: '8px',
+                          '&:hover': { bgcolor: 'grey.50' },
+                          position: 'relative',
+                          zIndex: 1,
+                        }}
+                        onClick={() =>
+                          !expandAll &&
+                          setExpandedStep(isExpanded ? null : step.id)
+                        }>
+                        {/* Status Icon */}
+                        <Box
+                          sx={{
+                            width: 40,
+                            height: 40,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            bgcolor: 'background.paper',
+                            border: 2,
+                            borderColor:
+                              step.status === StepStatus.COMPLETED
+                                ? 'success.main'
+                                : step.status === StepStatus.ACTIVE
+                                ? 'primary.main'
+                                : 'grey.300',
+                            borderRadius: '50%',
+                            mr: 3,
+                          }}>
+                          {statusIcon}
+                        </Box>
+
+                        {/* Step Content */}
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Typography
+                            variant="h6"
+                            fontWeight={700}
+                            sx={{ mb: 0.5 }}>
+                            {step.title}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ mb: 1 }}>
+                            {formatWhen(step)}
+                          </Typography>
+                          {step.status === StepStatus.ACTIVE && (
+                            <Chip
+                              size="small"
+                              color="primary"
+                              label="Current step"
+                              sx={{ mb: 1 }}
+                            />
+                          )}
+                        </Box>
+
+                        {/* Expand Button */}
+                        {!expandAll && (
+                          <IconButton size="small" sx={{ ml: 1 }}>
+                            {isExpanded ? (
+                              <ExpandLessIcon />
+                            ) : (
+                              <ExpandMoreIcon />
+                            )}
+                          </IconButton>
+                        )}
+                      </Box>
+
+                      {/* Expanded Content */}
+                      <Collapse in={isExpanded} unmountOnExit>
+                        <Box
+                          sx={{
+                            ml: 7,
+                            p: 3,
+                            bgcolor: 'grey.50',
+                            borderRadius: '8px',
+                            border: 1,
+                            borderColor: 'grey.200',
+                          }}>
+                          {/* Description */}
+                          <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                            Description
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ mb: 3 }}>
+                            {step.description || 'No description available.'}
+                          </Typography>
+
+                          {/* Form Block */}
+                          {step.hasForm && (
+                            <Box sx={{ mb: 3 }}>
+                              <Typography variant="subtitle2" sx={{ mb: 2 }}>
+                                Form
+                              </Typography>
+                              <Box
+                                sx={{
+                                  p: 2,
+                                  border: 1,
+                                  borderColor: 'grey.300',
+                                  borderRadius: '4px',
+                                  bgcolor: 'background.paper',
+                                }}>
+                                <Typography variant="body2" sx={{ mb: 2 }}>
+                                  Form name: {step.title} Form
+                                </Typography>
+                                {step.formSubmitted ? (
+                                  <Box
+                                    sx={{
+                                      display: 'flex',
+                                      gap: 1,
+                                      flexWrap: 'wrap',
+                                    }}>
+                                    <Button
+                                      size="small"
+                                      variant="outlined"
+                                      onClick={() => handleViewForm(step.id)}>
+                                      View submitted form
+                                    </Button>
+                                    <Button
+                                      size="small"
+                                      variant="outlined"
+                                      onClick={() => handleEditForm(step.id)}>
+                                      Edit
+                                    </Button>
+                                    <Button
+                                      size="small"
+                                      variant="outlined"
+                                      color="error"
+                                      onClick={() =>
+                                        handleDiscardForm(step.id)
+                                      }>
+                                      Discard submitted form
+                                    </Button>
+                                  </Box>
+                                ) : step.status === StepStatus.ACTIVE ? (
+                                  <Box
+                                    sx={{
+                                      display: 'flex',
+                                      gap: 1,
+                                      flexWrap: 'wrap',
+                                    }}>
+                                    <Button
+                                      size="small"
+                                      variant="contained"
+                                      onClick={() => handleSubmitForm(step.id)}>
+                                      Submit form
+                                    </Button>
+                                    <Button
+                                      size="small"
+                                      variant="outlined"
+                                      onClick={() =>
+                                        handleCompleteNow(step.id)
+                                      }>
+                                      Complete now
+                                    </Button>
+                                  </Box>
+                                ) : (
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary">
+                                    Form not yet available
+                                  </Typography>
+                                )}
+                              </Box>
+                            </Box>
+                          )}
+
+                          {/* Next Step Preview */}
+                          <Box sx={{ mb: 3 }}>
+                            <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                              Next Step
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              {step.nextStep || '<Same as Template>'}
+                            </Typography>
+                          </Box>
+
+                          {/* Expected Completion Date */}
+                          <Box sx={{ mb: 3 }}>
+                            <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                              Expected Completion Date
+                            </Typography>
+                            {step.status === StepStatus.ACTIVE ? (
+                              <TextField
+                                type="date"
+                                size="small"
+                                value={step.expectedCompletion || ''}
+                                onChange={(e) =>
+                                  handleChangeExpectedCompletion(
+                                    step.id,
+                                    e.target.value
+                                  )
+                                }
+                                sx={{ width: 200 }}
+                              />
+                            ) : (
+                              <Typography
+                                variant="body2"
+                                color="text.secondary">
+                                {step.expectedCompletion || 'Not set'}
+                              </Typography>
+                            )}
+                          </Box>
+
+                          {/* Make Current Button */}
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              justifyContent: 'flex-end',
+                            }}>
+                            <Button
+                              size="small"
+                              variant="text"
+                              color="primary"
+                              onClick={() =>
+                                handleMakeCurrent(step.id, step.title)
+                              }
+                              disabled={step.status === StepStatus.ACTIVE}>
+                              Make this current step
+                            </Button>
+                          </Box>
+                        </Box>
+                      </Collapse>
+                    </Box>
+                  );
+                })}
+              </Box>
+            )}
+          </Paper>
+        </Box>
+
+        {/* Section 4: Possible Other Steps */}
+        <Box sx={{ mx: 5, mb: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+            <Typography variant="h6">Possible Other Steps</Typography>
+            <Tooltip
+              title="You may override the workflow order and skip to a new step."
+              placement="top">
+              <InfoOutlinedIcon
+                sx={{ fontSize: 18, color: 'text.secondary' }}
+              />
+            </Tooltip>
+          </Box>
+
+          <Paper variant="outlined" sx={{ borderRadius: '12px', p: 3 }}>
+            {workflowInstance.possibleSteps.length === 0 ? (
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ textAlign: 'center', py: 4 }}>
+                No optional steps available.
+              </Typography>
+            ) : (
+              <>
+                <List disablePadding>
+                  {workflowInstance.possibleSteps.map((step) => (
+                    <ListItem
+                      key={step.id}
+                      sx={{
+                        border: 1,
+                        borderColor: 'grey.300',
+                        borderRadius: '8px',
+                        mb: 1,
+                        '&:hover': { bgcolor: 'grey.50' },
+                      }}>
+                      <ListItemText
+                        primary={
+                          <Typography variant="subtitle1" fontWeight={600}>
+                            {step.title}
+                          </Typography>
+                        }
+                      />
+                      <Box
+                        sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        {step.estimate && (
+                          <Badge
+                            badgeContent={step.estimate}
+                            color="primary"
+                            sx={{
+                              '& .MuiBadge-badge': {
+                                position: 'static',
+                                transform: 'none',
+                                borderRadius: '12px',
+                                px: 1,
+                              },
+                            }}>
+                            <Box />
+                          </Badge>
+                        )}
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Tooltip
+                            title="Set this as current step"
+                            placement="top">
+                            <IconButton
+                              size="small"
+                              onClick={() =>
+                                handleMakeCurrent(step.id, step.title)
+                              }>
+                              <PlayArrowIcon />
+                            </IconButton>
+                          </Tooltip>
+                          {step.hasForm && (
+                            <Tooltip
+                              title="This step has an associated form"
+                              placement="top">
+                              <IconButton size="small" disabled>
+                                <ArticleIcon />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                        </Box>
+                      </Box>
+                    </ListItem>
+                  ))}
+                </List>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ mt: 2, textAlign: 'center', display: 'block' }}>
+                  If a step has a form, the icon will be shown.
+                </Typography>
+              </>
+            )}
+          </Paper>
+        </Box>
+
+        {/* Confirmation Dialog */}
+        <Dialog
+          open={confirmDialog.open}
+          onClose={() => setConfirmDialog((prev) => ({ ...prev, open: false }))}
+          aria-labelledby="confirm-dialog-title"
+          aria-describedby="confirm-dialog-description">
+          <DialogTitle id="confirm-dialog-title">
+            {confirmDialog.title}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="confirm-dialog-description">
+              {confirmDialog.message}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() =>
+                setConfirmDialog((prev) => ({ ...prev, open: false }))
+              }>
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmDialog.onConfirm}
+              color="primary"
+              variant="contained">
+              Confirm
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </>
       )}
     </Paper>
   </>
