@@ -388,10 +388,7 @@ export default function WorkflowInstanceDetailsPage() {
     [instanceId]
   );
 
-  React.useMemo(
-    () => computeProgressAndEta(data.steps),
-    [data.steps]
-  );
+  React.useMemo(() => computeProgressAndEta(data.steps), [data.steps]);
 
   return (
     <>

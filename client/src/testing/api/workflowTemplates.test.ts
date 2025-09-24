@@ -161,7 +161,7 @@ describe('workflowTemplates API', () => {
       const templateInput = {
         name: 'New Template',
         description: 'Test template',
-        version: "V1",
+        version: 'V1',
         classificationId: 'classification-1',
         steps: [],
         classification: {
@@ -202,7 +202,7 @@ describe('workflowTemplates API', () => {
       const updatePayload = {
         name: 'Updated Template Name',
         description: 'Updated description',
-        version: "V2",
+        version: 'V2',
         classificationId: 'classification-1',
         steps: [],
         classification: {
@@ -642,7 +642,7 @@ describe('workflowTemplates API', () => {
       const templateInput = {
         name: 'Test Template',
         description: 'Test description',
-        version: "V1",
+        version: 'V1',
         classificationId: 'classification-1',
         steps: [],
         classification: {
