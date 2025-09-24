@@ -8,5 +8,5 @@ export enum StepStatus {
   ACTIVE = 'ACTIVE',
   COMPLETED = 'COMPLETED',
   CANCELLED = 'CANCELLED',
-  PENDING = "PENDING"
+  PENDING = 'PENDING',
 }

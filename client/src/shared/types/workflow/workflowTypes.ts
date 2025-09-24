@@ -90,7 +90,7 @@ export interface WorkflowInstanceStep {
   data?: Record<string, unknown>;
   workflowInstanceId: ID;
   conditionId?: ID;
-  
+
   // audit
   lastEdited: number;
   lastUpdatedBy?: ID;

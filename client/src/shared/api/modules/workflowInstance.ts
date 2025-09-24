@@ -142,7 +142,10 @@ export const updateInstanceStep = (
   payload: InstanceStepUpdate
 ) =>
   axiosFetch
-    .put<WorkflowInstanceStep>(instanceStepByIdPath(instanceId, stepId), payload)
+    .put<WorkflowInstanceStep>(
+      instanceStepByIdPath(instanceId, stepId),
+      payload
+    )
     .then((r) => r.data);
 
 // GET /workflow/instances/{instanceId}?with_steps=true
@@ -184,7 +187,9 @@ const INSTANCE_STEPS = '/workflow/instance/steps';
 
 // POST /workflow/instance/steps
 export const createInstanceStep = (payload: WorkflowInstanceStep) =>
-  axiosFetch.post<WorkflowInstanceStep>(INSTANCE_STEPS, payload).then((r) => r.data);
+  axiosFetch
+    .post<WorkflowInstanceStep>(INSTANCE_STEPS, payload)
+    .then((r) => r.data);
 
 // GET /workflow/instance/steps (with optional filtering)
 export const getAllInstanceSteps = async (params?: {
