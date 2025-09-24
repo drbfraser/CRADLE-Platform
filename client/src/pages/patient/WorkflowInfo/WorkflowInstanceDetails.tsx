@@ -42,8 +42,6 @@ import { ISODate, Nullable } from 'src/shared/constants';
 import { WorkflowInstanceStep } from 'src/shared/types/workflow/workflowTypes';
 import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
 
-// type StepStatus = 'COMPLETED' | 'IN_PROGRESS' | 'PENDING';
-
 type InstanceStep = {
   id: string;
   title: string;
@@ -88,7 +86,6 @@ export type InstanceDetails = {
 
   // Steps
   steps: InstanceStep[];
-  // currentIndex: number;
   possibleSteps: PossibleStep[];
 };
 
@@ -184,8 +181,8 @@ function mapWorkflowStep(apiStep: WorkflowInstanceStep) : InstanceStep {
     formId: apiStep.formId,
     hasForm: apiStep.formId ? true : false,
     expectedCompletion: apiStep.expectedCompletion ? formatISODateNumber(apiStep.expectedCompletion) : null
-    // nextStep?: string;
-    // formSubmitted?: boolean;
+    // nextStep?: string;  // TODO: Not implemented in backend yet
+    // formSubmitted?: boolean; // TODO: Not implemented in backend yet
     }
 }
 
@@ -217,8 +214,6 @@ async function loadInstanceById(id: string): Promise<InstanceDetails> {
   return instanceDetails;
 }
 
-
-/** Replace with real API */
 function loadMockInstanceById(id: string): InstanceDetails {
   return {
     id,
@@ -267,7 +262,6 @@ function loadMockInstanceById(id: string): InstanceDetails {
         nextStep: '<Same as Template>',
       },
     ],
-    // currentIndex: 1,
     possibleSteps: [
       {
         id: 'ps1',
