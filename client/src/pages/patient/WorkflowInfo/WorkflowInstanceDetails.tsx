@@ -93,7 +93,7 @@ export type InstanceDetails = {
   possibleSteps: PossibleStep[];
 };
 
-export type Progress = {
+export type WorkflowInstanceProgress = {
   total: number;
   completed: number;
   percent: number;
@@ -299,7 +299,7 @@ export default function WorkflowInstanceDetailsPage() {
   const { instanceId } = useParams<{ instanceId: string }>();
   const [workflowInstance, setWorkflowInstance] =
     useState<InstanceDetails | null>(null);
-  const [progressInfo, setProgressInfo] = useState<Progress>({
+  const [progressInfo, setProgressInfo] = useState<WorkflowInstanceProgress>({
     total: 0,
     completed: 0,
     percent: 0,
@@ -620,7 +620,7 @@ export default function WorkflowInstanceDetailsPage() {
                             ? (idx / (data.steps.length - 1)) * 100
                             : 0;
                         const isCurrent = idx === progressInfo.currentIndex;
-                        const isDone = s.status === 'COMPLETED';
+                        const isDone = s.status === StepStatus.COMPLETED;
                         return (
                           <Tooltip
                             key={s.id}

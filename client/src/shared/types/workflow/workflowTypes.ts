@@ -127,9 +127,9 @@ export interface InstanceInput {
   formResponses?: FormResponse[];
 }
 
-// PATCH/PUT payload for /workflow/instances/{id}
+// To be used for PATCH payloads for /workflow/instances/{id}
 /**
- * update status / record currentStep / lastEdited: what time  / lastEditedBy who(id)
+ * update status / record currentStep / lastEdited: what time  / lastEditedBy: who(id)
  */
 export type InstanceUpdate = Partial<
   Pick<
@@ -149,5 +149,6 @@ export type InstanceStepUpdate = Partial<
     | 'lastUpdatedBy'
   >
 >;
+
 //  Collections
 export type TemplateGroupArray = TemplateGroup[];

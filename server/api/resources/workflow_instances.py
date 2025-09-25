@@ -151,7 +151,9 @@ def update_workflow_instance(path: WorkflowInstanceIdPath, body: WorkflowInstanc
 
     workflow_instance_changes = body.model_dump()
 
-    workflow_instance_changes["last_edited"] = get_current_time()
+    # Auto-update last_edited if not explicitly provided
+    if "last_edited" not in workflow_instance_changes:
+        workflow_instance_changes["last_edited"] = get_current_time()
 
     # Validate that the workflow template exists (if being updated)
     if workflow_instance_changes.get("workflow_template_id") is not None:
