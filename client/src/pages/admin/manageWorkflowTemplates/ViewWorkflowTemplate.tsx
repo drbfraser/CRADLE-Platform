@@ -23,9 +23,7 @@ import {
   TemplateStepWithFormAndIndex,
   WorkflowTemplate,
 } from 'src/shared/types/workflow/workflowTypes';
-import {
-  listTemplateSteps,
-} from 'src/shared/api/modules/workflowTemplates';
+import { listTemplateSteps } from 'src/shared/api/modules/workflowTemplates';
 import { WorkflowMetadata } from '../../../shared/components/workflow/workflowTemplate/WorkflowMetadata';
 import { WorkflowSteps } from 'src/shared/components/workflow/WorkflowSteps';
 import { useEditWorkflowTemplate } from './mutations';
@@ -174,9 +172,7 @@ export const ViewWorkflowTemplate = () => {
                 disabled={
                   !hasChanges || editWorkflowTemplateMutation.isPending
                 }>
-                {editWorkflowTemplateMutation.isPending
-                  ? 'Saving...'
-                  : 'Save'}
+                {editWorkflowTemplateMutation.isPending ? 'Saving...' : 'Save'}
               </Button>
             </Stack>
           )}

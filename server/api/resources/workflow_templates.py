@@ -33,6 +33,8 @@ from validation.workflow_templates import (
     WorkflowTemplatePatchBody,
     WorkflowTemplateUploadModel,
 )
+import config
+app = config.app
 
 
 # Path model for CSV endpoint
@@ -347,10 +349,10 @@ def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplat
 
 
 # /api/workflow/templates/<string:workflow_template_id> [PATCH]
+@roles_required([RoleEnum.ADMIN])
 @api_workflow_templates.patch(
     "/<string:workflow_template_id>", responses={200: WorkflowTemplateModel}
 )
-@roles_required([RoleEnum.ADMIN])
 def update_workflow_template_patch(
     path: WorkflowTemplateIdPath, body: WorkflowTemplatePatchBody
 ):
@@ -414,6 +416,52 @@ def update_workflow_template_patch(
 
     return response_data, 200
 
+# /api/workflow/templates/<string:workflow_template_id>/partial [PATCH]
+@roles_required([RoleEnum.ADMIN])
+@api_workflow_templates.patch(
+    "/<string:workflow_template_id>/partial", responses={200: WorkflowTemplateModel}
+)
+def update_workflow_template_partial(path: WorkflowTemplateIdPath, body: WorkflowTemplatePatchBody):
+    """
+    Update Workflow Template with only specific fields
+
+    Only basic info of the workflow template is updated.
+    TODO: Add support for nested updates such as `steps` or `classification` objects.
+    """
+    # Load only provided fields
+    payload = body.model_dump(exclude_unset=True)
+
+    workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
+    if workflow_template is None:
+        return abort(
+            code=404,
+            description=workflow_template_not_found_message.format(path.workflow_template_id),
+        )
+        
+    changes = {}
+    for key, value in payload.items():
+            changes[key] = value
+
+    # No changes provided
+    if not changes:
+        response_data = marshal.marshal(workflow_template, shallow=True)
+        return response_data, 200
+
+    # Always bump last_edited
+    changes["last_edited"] = get_current_time()
+
+    crud.update(
+        WorkflowTemplateOrm,
+        changes=changes,
+        id=path.workflow_template_id,
+    )
+
+    
+    response_data = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
+
+    response_data = marshal.marshal(response_data, shallow=True)
+
+    return response_data, 200
 
 # /api/workflow/templates/<string:workflow_template_id> [DELETE]
 @api_workflow_templates.delete("/<string:workflow_template_id>", responses={204: None})

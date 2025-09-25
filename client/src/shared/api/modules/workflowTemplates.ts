@@ -63,11 +63,46 @@ export const getAllWorkflowTemplatesAsync = async (
 };
 
 // PUT /workflow/templates/{templateId} - Edit workflow template (including archive status)
-export const editWorkflowTemplateAsync = async (template: WorkflowTemplate) =>
-  axiosFetch({
-    method: 'PUT',
-    url: `${TEMPLATES}/${template.id}/archive?archive=${template.archived}`,
+// export const editWorkflowTemplateAsync = async (template: WorkflowTemplate) => {
+//   // if the template's archived status is changed, update it
+//   console.log('Template:', template);
+//   if (template.archived !== undefined){
+//     const response = await axiosFetch({
+//       method: 'PUT',
+//       url: `${TEMPLATES}/${template.id}/archive?archive=${template.archived}`,
+//     });
+//     console.log('Response from archive endpoint:', response.data);
+//     return response.data;
+//   }
+// };
+export const editWorkflowTemplateAsync = async (template: Partial<WorkflowTemplate>) => {
+  if (!template.id) {
+    throw new Error('Template ID is required for updates');
+  }
+
+  // Prepare the patch body with only the fields that need updating
+  const patchBody: Partial<WorkflowTemplate> = {};
+  
+  // Only basic info of the workflow template is updated
+  if (template.name !== undefined) patchBody.name = template.name;
+  if (template.description !== undefined) patchBody.description = template.description;
+  if (template.archived !== undefined) patchBody.archived = template.archived;
+  if (template.version !== undefined) patchBody.version = template.version;
+
+  // TODO: Add support for nested updates such as `steps` or `classification` objects.
+
+  console.log('Patching template with:', patchBody);
+
+  const response = await axiosFetch({
+    method: 'PATCH',
+    url: `${TEMPLATES}/${template.id}/partial`,
+    data: patchBody
   });
+
+  console.log('Response from PATCH endpoint:', response.data);
+  return response.data;
+};
+
 
 // GET /workflow/templates/{templateId}
 export const getTemplate = async (
