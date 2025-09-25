@@ -1,6 +1,21 @@
+"""
+common_crud.py
+--------------
+
+This module provides generic, reusable CRUD (Create, Read, Update, Delete) 
+operations for all SQLAlchemy ORM models in the system. It centralizes 
+common database interactions to ensure consistency across the codebase.
+
+Functions included here cover:
+- Creating single or multiple model instances (`create`, `create_model`, `create_all`)
+- Reading single or multiple records (`read`, `read_all`, `find`)
+- Updating model fields (`update`)
+- Deleting records in several ways (`delete`, `delete_by`, `delete_all`)
+"""
+
 from typing import Any, List, Optional, Type
 
-from db_operations import db_session, M, S
+from data.db_operations import db_session, M, S
 from models import (
     ReadingOrm,
 )
