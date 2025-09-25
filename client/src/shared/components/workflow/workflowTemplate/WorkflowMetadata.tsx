@@ -11,16 +11,16 @@ import {
 } from '@mui/material';
 import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
 import { ReactNode } from 'react';
-import { getPrettyDate } from 'src/shared/utils';
+import { getPrettyDateTime } from 'src/shared/utils';
 import { WorkflowTemplate } from 'src/shared/types/workflow/workflowTypes';
 
 interface WorkflowMetadataProps {
   description?: string;
   collectionName?: string;
   version?: number;
-  lastEdited?: string;
+  lastEdited?: number;
   archived?: boolean;
-  dateCreated?: string;
+  dateCreated?: number;
   isEditMode?: boolean;
   onFieldChange?: (field: keyof WorkflowTemplate, value: any) => void;
 }
@@ -96,10 +96,8 @@ export const WorkflowMetadata = ({
   isEditMode = false,
   onFieldChange,
 }: WorkflowMetadataProps) => {
-  const versionText = `V${version ?? '1'}`;
-  const lastEditedDate = lastEdited
-    ? getPrettyDate(new Date(lastEdited).getTime() / 1000)
-    : '';
+  const versionText = `${version ?? ''}`;
+  const lastEditedDate = lastEdited ? getPrettyDateTime(lastEdited) : 'N/A';
 
   const handleFieldChange = (field: keyof WorkflowTemplate, value: any) => {
     onFieldChange?.(field, value);
@@ -159,9 +157,14 @@ export const WorkflowMetadata = ({
             onChange={
               isEditMode
                 ? (value) => {
-                    const versionNum = parseInt(value.replace('V', '')) || 1;
-                    handleFieldChange('version', versionNum);
+                  if (value) {
+                    handleFieldChange('version', value);
                   }
+                  else {
+                    handleFieldChange('version', 'V');
+                  }
+                  console.log('version', version);
+                }
                 : undefined
             }
             fieldName="version"
@@ -209,11 +212,7 @@ export const WorkflowMetadata = ({
         <Grid item xs={12} md={5}>
           <InlineField
             label="First Create:"
-            value={
-              dateCreated
-                ? getPrettyDate(new Date(dateCreated).getTime() / 1000)
-                : ''
-            }
+            value={dateCreated ? getPrettyDateTime(dateCreated) : 'N/A'}
           />
         </Grid>
       </Grid>
