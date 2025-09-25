@@ -23,16 +23,24 @@ SupervisesTable = db.Table(
         db.ForeignKey("user.id", ondelete="CASCADE"),
         index=True,
     ),
-    db.Column("vht_id", db.Integer, db.ForeignKey("user.id", ondelete="CASCADE")),
+    db.Column(
+        "vht_id", 
+        db.Integer, 
+        db.ForeignKey("user.id", ondelete="CASCADE")
+    ),
 )
-
 
 #
 # ORM DATABASE MODEL CLASSES
 #
 
-
 class UserOrm(db.Model):
+    """
+    Represents a user in the system (Admin, CHO, VHT, HCW).
+    
+    Stores basic user info and connects to their healthcare facility, patients, etc.
+    Each user has a unique username/email and can work at one health facility.
+    """
     __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(25), nullable=False)
@@ -43,7 +51,7 @@ class UserOrm(db.Model):
     # FOREIGN KEYS
     health_facility_name = db.Column(
         db.String(50),
-        db.ForeignKey("health_facility.name"),
+        db.ForeignKey("health_facility.id"),
         nullable=True,
     )
 
@@ -52,7 +60,10 @@ class UserOrm(db.Model):
         "HealthFacilityOrm",
         backref=db.backref("users", lazy=True),
     )
-    referrals = db.relationship("ReferralOrm", backref=db.backref("user", lazy=True))
+    referrals = db.relationship(
+        "ReferralOrm", 
+        backref=db.backref("user", lazy=True)
+    )
     vht_list = db.relationship(
         "UserOrm",
         secondary=SupervisesTable,
@@ -80,8 +91,12 @@ class UserOrm(db.Model):
         """Return a string with enough information to uniquely identify the user."""
         return f"<UserOrm {self.username}>"
 
-
 class UserPhoneNumberOrm(db.Model):
+    """
+    Stores phone numbers for users in the system.
+    
+    Each user can have multiple phone numbers. Phone numbers must be unique across all users.
+    """
     __tablename__ = "user_phone_number"
     id = db.Column(db.String(36), primary_key=True, default=get_uuid)
     phone_number = db.Column(db.String(20), unique=True)
@@ -101,8 +116,12 @@ class UserPhoneNumberOrm(db.Model):
         """Return a string with enough information to uniquely identify the user."""
         return f"<UserPhoneNumberOrm {self.phone_number}>"
 
-
 class RelayServerPhoneNumberOrm(db.Model):
+    """
+    System phone numbers used for SMS Relay.
+    
+    These are the healthcare system's own phone numbers (not user phones) that send/receive messages, alerts, and responses. Tracks when each number last received a message.
+    """
     __tablename__ = "relay_server_phone_number"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     phone_number = db.Column(db.String(20), unique=True)
@@ -113,25 +132,36 @@ class RelayServerPhoneNumberOrm(db.Model):
     def schema():
         return RelayServerPhoneNumberSchema
 
-
 class ReferralOrm(db.Model):
+    """
+    Tracks patient referrals from a healthcare provider to a healthcare facility.
+    
+    Records: creation, assessment, cancellation, or non-attendance. 
+    Links the referring user, patient, and destination facility.
+    Maintains audit trail with timestamps for all status changes.
+    """
     __tablename__ = "referral"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
-    date_referred = db.Column(
-        db.BigInteger,
-        nullable=False,
-        default=get_current_time,
-    )
+    
+    # Initial referral
+    date_referred = db.Column(db.BigInteger, nullable=False, default=get_current_time)
     comment = db.Column(db.Text)
+    
+    # Patient gets assessed
     action_taken = db.Column(db.Text)
     is_assessed = db.Column(db.Boolean, nullable=False, default=0)
     date_assessed = db.Column(db.BigInteger, nullable=True)
+    
+    # Referral gets cancelled
     is_cancelled = db.Column(db.Boolean, nullable=False, default=0)
     cancel_reason = db.Column(db.Text)
     date_cancelled = db.Column(db.BigInteger, nullable=True)
+    
+    # Patient doesn't attend
     not_attended = db.Column(db.Boolean, nullable=False, default=0)
     not_attend_reason = db.Column(db.Text)
     date_not_attended = db.Column(db.BigInteger, nullable=True)
+    
     last_edited = db.Column(
         db.BigInteger,
         nullable=False,
@@ -144,7 +174,7 @@ class ReferralOrm(db.Model):
     patient_id = db.Column(db.String(50), db.ForeignKey("patient.id"))
     health_facility_name = db.Column(
         db.String(50),
-        db.ForeignKey("health_facility.name"),
+        db.ForeignKey("health_facility.id"),
     )
 
     # RELATIONSHIPS
@@ -161,16 +191,22 @@ class ReferralOrm(db.Model):
     def schema():
         return ReferralSchema
 
-
 class HealthFacilityOrm(db.Model):
+    """
+    Represents healthcare facilities.
+    
+    Stores facility details, contact info, and tracks incoming referrals.
+    Currently designed for Uganda (single area code) but could expand later.
+    Each facility has a unique ID and can receive referrals from other providers.
+    """
     __tablename__ = "health_facility"
-    # TODO: should probably have a unique id as primary key here, in addition to facility name
-    name = db.Column(db.String(50), primary_key=True)
+    id = db.Column(db.String(50), primary_key=True, default=get_uuid)
+    name = db.Column(db.String(50), nullable=False, index=True)
     type = db.Column(db.Enum(FacilityTypeEnum))
 
     # Best practice would be to add column for area code + column for rest of number.
     # However, all of our facilities are in Uganda so area code does not change.
-    # May want to change in the future if system if used in multiple countries
+    # May want to change in the future if system is used in multiple countries
     phone_number = db.Column(db.String(50), unique=True)
     location = db.Column(db.String(50))
     about = db.Column(db.Text)
@@ -180,8 +216,14 @@ class HealthFacilityOrm(db.Model):
     def schema():
         return HealthFacilitySchema
 
-
 class PatientOrm(db.Model):
+    """
+    Represents patients in the Cradle system.
+    
+    Stores patient information including demographics, medical history, and location details. 
+    Tracks pregnancy status for female patients and maintains audit trail with creation/edit timestamps. 
+    Can be archived when no longer active.
+    """
     __tablename__ = "patient"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     name = db.Column(db.String(50))
@@ -211,8 +253,12 @@ class PatientOrm(db.Model):
     def schema():
         return PatientSchema
 
-
 class ReadingOrm(db.Model):
+    """
+    Stores vital sign measurements and health assessments for patients.
+    
+    Records blood pressure, heart rate, and symptoms with automatic risk assessment using a traffic light system (Green=normal, Yellow=concerning, Red=emergency). Tracks retest schedules.
+    """
     __tablename__ = "reading"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     systolic_blood_pressure = db.Column(db.Integer)
@@ -306,21 +352,30 @@ class ReadingOrm(db.Model):
     def schema():
         return ReadingSchema
 
-
 class AssessmentOrm(db.Model):
+    """
+    Records medical assessments performed by healthcare workers on patients.
+    
+    Documents the complete clinical evaluation including diagnosis, treatment plan, prescribed medications, and follow-up requirements. 
+    Links the assessing healthcare worker to the patient and maintains the assessment date.
+    """
     __tablename__ = "assessment"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
 
     follow_up_instructions = db.Column(db.Text)
+    follow_up_needed = db.Column(db.Boolean)
     special_investigations = db.Column(db.Text)
     diagnosis = db.Column(db.Text)
     treatment = db.Column(db.Text)
     medication_prescribed = db.Column(db.Text)
     date_assessed = db.Column(db.BigInteger, nullable=False)
-    follow_up_needed = db.Column(db.Boolean)
 
     # FOREIGN KEYS
-    healthcare_worker_id = db.Column(db.ForeignKey(UserOrm.id), nullable=False)
+    healthcare_worker_id = db.Column(
+        db.Integer,
+        db.ForeignKey(UserOrm.id),
+        nullable=False
+    )
     patient_id = db.Column(
         db.String(50),
         db.ForeignKey(PatientOrm.id),
@@ -340,14 +395,21 @@ class AssessmentOrm(db.Model):
     def schema():
         return AssessmentSchema
 
-
 class VillageOrm(db.Model):
+    """
+    Records details about the village, including village number and zone number.
+    """
     __tablename__ = "village"
     village_number = db.Column(db.String(50), primary_key=True)
     zone_number = db.Column(db.String(50))
 
-
 class UrineTestOrm(db.Model):
+    """
+    Stores urine test results associated with patient vital sign readings.
+    
+    Records dipstick test results for common indicators like glucose, protein, and blood. 
+    Each reading can have at most one urine test. Tests are optional.
+    """
     __tablename__ = "urine_test"
     id = db.Column(db.Integer, primary_key=True)
     leukocytes = db.Column(db.String(5))
@@ -363,7 +425,7 @@ class UrineTestOrm(db.Model):
     reading = db.relationship(
         ReadingOrm,
         backref=db.backref(
-            "urine_tests",
+            "urine_test",
             lazy=True,
             uselist=False,
             cascade="all, delete-orphan",
@@ -374,19 +436,30 @@ class UrineTestOrm(db.Model):
     def schema():
         return UrineTestSchema
 
-
 class PatientAssociationsOrm(db.Model):
+    """
+    Links patients to their assigned healthcare workers and facilities.
+    
+    Creates associations between patients, users, and facilities for access control. 
+    Patients can be associated with multiple providers across different facilities as needed for their care.
+    """
     __tablename__ = "patient_association"
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(
+        db.String(50),
         db.ForeignKey(PatientOrm.id, ondelete="CASCADE"),
         nullable=False,
     )
     health_facility_name = db.Column(
+        db.String(50),
         db.ForeignKey(HealthFacilityOrm.name, ondelete="CASCADE"),
         nullable=True,
     )
-    user_id = db.Column(db.ForeignKey(UserOrm.id, ondelete="CASCADE"), nullable=True)
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey(UserOrm.id, ondelete="CASCADE"), 
+        nullable=True
+    )
 
     # RELATIONSHIPS
     patient = db.relationship(
@@ -406,11 +479,17 @@ class PatientAssociationsOrm(db.Model):
     def schema():
         return PatientAssociationsSchema
 
-
 class PregnancyOrm(db.Model):
+    """
+    Tracks pregnancy records for female patients in the Cradle system.
+    
+    Records pregnancy start dates, completion dates, and outcomes. 
+    Supports ongoing pregnancies (no end date) and completed pregnancies with documented outcomes. 
+    """
     __tablename__ = "pregnancy"
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(
+        db.String(50),
         db.ForeignKey(PatientOrm.id, ondelete="CASCADE"),
         nullable=False,
     )
@@ -434,11 +513,17 @@ class PregnancyOrm(db.Model):
     def schema():
         return PregnancySchema
 
-
 class MedicalRecordOrm(db.Model):
+    """
+    Stores additional medical information and drug records for patients.
+    
+    Records medical notes, historical information, and medication records that supplement structured data. 
+    Uses a flag to distinguish between general medical records and specific drug-related entries.
+    """
     __tablename__ = "medical_record"
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(
+        db.String(50),
         db.ForeignKey(PatientOrm.id, ondelete="CASCADE"),
         nullable=False,
     )
@@ -466,8 +551,13 @@ class MedicalRecordOrm(db.Model):
     def schema():
         return MedicalRecordSchema
 
-
 class FormClassificationOrm(db.Model):
+    """
+    Categories for organizing different types of forms.
+    
+    Provides a classification system for grouping related forms together.
+    Used to organize and filter forms by their clinical purpose.
+    """
     __tablename__ = "form_classification"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
@@ -476,8 +566,14 @@ class FormClassificationOrm(db.Model):
     def schema():
         return FormClassificationSchema
 
-
 class FormTemplateOrm(db.Model):
+    """
+    Templates that define the structure and questions for  forms.
+    
+    Reusable form blueprints that can be versioned and archived over time.
+    When healthcare workers need to fill out a form, they create instances based on these templates. 
+    Supports classification grouping and lifecycle management through archiving.
+    """
     __tablename__ = "form_template"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     version = db.Column(db.Text, nullable=True)
@@ -486,12 +582,16 @@ class FormTemplateOrm(db.Model):
         nullable=False,
         default=get_current_time,
     )
+    archived = db.Column(db.Boolean, nullable=False, default=False)
+    
+    # FOREIGN KEYS
     form_classification_id = db.Column(
+        db.String(50),
         db.ForeignKey(FormClassificationOrm.id, ondelete="SET NULL"),
         nullable=True,
     )
-    archived = db.Column(db.Boolean, nullable=False, default=False)
 
+    # RELATIONSHIPS
     classification = db.relationship(
         FormClassificationOrm,
         backref=db.backref("templates", cascade="all, delete", lazy=True),
@@ -501,21 +601,19 @@ class FormTemplateOrm(db.Model):
     def schema():
         return FormTemplateSchema
 
-
 class FormOrm(db.Model):
+    """
+    Completed form instances filled out by healthcare workers for specific patients.
+    
+    Created from form templates and contains actual patient data and responses.
+    Supports multiple languages and tracks creation/editing history. 
+    Each form belongs to a specific patient and a form template, it can be archived when no longer active.
+    """
     __tablename__ = "form"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     lang = db.Column(db.Text, nullable=False)
     name = db.Column(db.Text, nullable=False, default="")
     category = db.Column(db.Text, nullable=False, default="")
-    patient_id = db.Column(
-        db.ForeignKey(PatientOrm.id, ondelete="CASCADE"),
-        nullable=False,
-    )
-    form_template_id = db.Column(
-        db.ForeignKey(FormTemplateOrm.id, ondelete="SET NULL"),
-        nullable=True,
-    )
     date_created = db.Column(
         db.BigInteger,
         nullable=False,
@@ -527,42 +625,48 @@ class FormOrm(db.Model):
         default=get_current_time,
         onupdate=get_current_time,
     )
+    archived = db.Column(db.Boolean, nullable=False, default=False)
+    
+    # FOREIGN KEYS
+    patient_id = db.Column(
+        db.String(50),
+        db.ForeignKey(PatientOrm.id, ondelete="CASCADE"),
+        nullable=False,
+    )
+    form_template_id = db.Column(
+        db.String(50),
+        db.ForeignKey(FormTemplateOrm.id, ondelete="SET NULL"),
+        nullable=True,
+    )
     last_edited_by = db.Column(
         db.ForeignKey(UserOrm.id, ondelete="SET NULL"), nullable=True
     )
-
-    # TODO: Why do Forms have a foreign key to Form Classifications? This seems redundant.
-    form_classification_id = db.Column(
-        db.ForeignKey(FormClassificationOrm.id, ondelete="SET NULL"),
-        nullable=True,
-    )
-    archived = db.Column(db.Boolean, nullable=False, default=False)
 
     # RELATIONSHIPS
     patient = db.relationship(
         PatientOrm,
         backref=db.backref("forms", cascade="all, delete", lazy=True),
     )
-
-    classification = db.relationship(
-        FormClassificationOrm,
-        backref=db.backref("forms", cascade="all, delete", lazy=True),
+    template = db.relationship(
+        FormTemplateOrm,
+        backref=db.backref("forms", lazy=True)
     )
 
     @staticmethod
     def schema():
         return FormSchema
 
-
 class QuestionOrm(db.Model):
-    __tablename__ = "question"
     """
+    Individual questions that make up healthcare forms and form templates.
+    
+    Supports various question types (text, number, multiple choice, dates) with validation rules, conditional visibility, and multiple choice options. Questions can exist as blank templates or filled instances with actual answers. Stores both the question structure and user responses in JSON format.
+    
     Question: a child model related to a form template or a form
 
     isBlank: true means the question is related to form template, vice versa
     questionIndex: a custom-defined question number index e.g. 1,2,3...
-    visible_condition: any json format string indicating a visible condition,
-    the content logic should be handled in frontend
+    visible_condition: any json format string indicating a visible condition, the content logic should be handled in frontend
     e.g.
     [{
         "qidx": 1,
@@ -592,7 +696,7 @@ class QuestionOrm(db.Model):
         "comment": "other opt"
     }
     """
-
+    __tablename__ = "question"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     is_blank = db.Column(db.Boolean, nullable=False, default=0)
     question_index = db.Column(db.Integer, nullable=False)
