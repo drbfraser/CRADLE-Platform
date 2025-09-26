@@ -6,7 +6,8 @@ from flask_openapi3.models.tag import Tag
 from pydantic import RootModel
 
 from api.decorator import roles_required
-from data import crud, marshal
+from data import marshal
+import data.db_operations as crud
 from enums import RoleEnum
 from models import RelayServerPhoneNumberOrm
 from validation import CradleBaseModel

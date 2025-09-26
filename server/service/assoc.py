@@ -5,7 +5,7 @@ patients, health facilities, and users.
 
 from typing import List, Optional
 
-from data import crud
+import data.db_operations as crud
 from enums import RoleEnum
 from models import HealthFacilityOrm, PatientAssociationsOrm, PatientOrm, UserOrm
 

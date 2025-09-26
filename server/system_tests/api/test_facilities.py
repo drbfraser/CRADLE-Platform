@@ -2,7 +2,7 @@ import pytest
 from humps import decamelize
 
 from common.print_utils import pretty_print
-from data import crud
+import data.db_operations as crud
 from models import HealthFacilityOrm
 
 

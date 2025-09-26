@@ -8,7 +8,8 @@ from pydantic import RootModel
 import service.FilterHelper as filter
 from api.resources.patients import api_patients
 from common import user_utils
-from data import crud, marshal
+from data import marshal
+import data.db_operations as crud
 from enums import TrafficLightEnum
 from models import (
     FormOrm,

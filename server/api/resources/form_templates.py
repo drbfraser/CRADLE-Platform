@@ -12,7 +12,8 @@ from common import form_utils
 from common.api_utils import (
     FormTemplateIdPath,
 )
-from data import crud, marshal
+from data import marshal
+import data.db_operations as crud
 from enums import ContentTypeEnum, RoleEnum
 from models import FormClassificationOrm, FormTemplateOrm
 from service import serialize
@@ -89,7 +90,7 @@ def handle_form_template_upload(form_template: FormTemplateUpload):
         )
         if previous_template is not None:
             previous_template.archived = True
-            data.db_session.commit()
+            crud.db_session.commit()
 
     form_template_dict["form_classification_id"] = form_classification_orm.id
 
@@ -269,8 +270,8 @@ def archive_form_template(path: FormTemplateIdPath, body: ArchiveFormTemplateBod
         )
 
     form_template.archived = body.archived
-    data.db_session.commit()
-    data.db_session.refresh(form_template)
+    crud.db_session.commit()
+    crud.db_session.refresh(form_template)
 
     return marshal.marshal(form_template, shallow=True), 201
 

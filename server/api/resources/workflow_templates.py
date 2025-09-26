@@ -20,7 +20,8 @@ from common.workflow_utils import (
     assign_workflow_template_or_instance_ids,
     validate_workflow_template_step,
 )
-from data import crud, db_session, marshal
+from data import marshal
+import data.db_operations as crud
 from enums import RoleEnum
 from models import (
     WorkflowClassificationOrm,
@@ -160,7 +161,7 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
         WorkflowTemplateOrm, workflow_template_dict
     )
 
-    with db_session.no_autoflush:
+    with crud.db_session.no_autoflush:
         workflow_classification_orm = get_workflow_classification_from_dict(
             workflow_template_dict, workflow_classification_dict
         )

@@ -4,8 +4,8 @@ from flask_openapi3.models.tag import Tag
 
 from common.api_utils import AssessmentIdPath
 from common.user_utils import get_current_user_from_jwt
-from data import crud, marshal
-from data.db_operations import common_crud
+from data import marshal
+import data.db_operations as crud
 from models import AssessmentOrm
 from validation.assessments import (
     AssessmentList,
@@ -41,7 +41,7 @@ def create_new_assessment(body: AssessmentPostBody):
     if body.healthcare_worker_id is None:
         body.healthcare_worker_id = get_current_user_from_jwt()["id"]
     assessment = marshal.unmarshal(AssessmentOrm, body.model_dump())
-    common_crud.create(assessment, refresh=True)
+    crud.create(assessment, refresh=True)
     return marshal.marshal(assessment), 201
 
 

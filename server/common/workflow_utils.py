@@ -7,7 +7,7 @@ from flask import abort
 from api.resources.form_templates import handle_form_template_upload
 from common.commonUtil import get_uuid
 from common.form_utils import assign_form_or_template_ids
-from data import crud
+import data.db_operations as crud
 from models import (
     FormOrm,
     FormTemplateOrm,

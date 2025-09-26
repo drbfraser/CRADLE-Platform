@@ -3,7 +3,7 @@ from humps import decamelize
 
 from common.commonUtil import get_uuid
 from common.print_utils import pretty_print
-from data import crud
+import data.db_operations as crud
 from models import WorkflowClassificationOrm, WorkflowCollectionOrm
 
 

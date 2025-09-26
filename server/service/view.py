@@ -19,7 +19,7 @@ The role-specific views are defined as follows:
 
 from typing import Any, Callable, List, Optional, Tuple
 
-from data import crud
+import data.db_operations as crud
 from enums import RoleEnum
 from models import (
     AssessmentOrm,

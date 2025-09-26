@@ -10,7 +10,8 @@ from common.api_utils import (
     FormIdPath,
 )
 from common.commonUtil import get_current_time
-from data import crud, marshal
+from data import marshal
+import data.db_operations as crud
 from models import FormOrm, FormTemplateOrm, PatientOrm, UserOrm
 from validation.forms import FormModel, UpdateFormRequestBody
 
@@ -110,7 +111,7 @@ def update_form(path: FormIdPath, body: UpdateFormRequestBody):
     form.last_edited_by = user_id
     form.last_edited = get_current_time()
 
-    data.db_session.commit()
-    data.db_session.refresh(form)
+    crud.db_session.commit()
+    crud.db_session.refresh(form)
 
     return marshal.marshal(form, True), 201

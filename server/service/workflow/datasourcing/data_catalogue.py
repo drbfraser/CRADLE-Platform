@@ -2,7 +2,8 @@ from functools import partial
 from typing import Any, Callable, Dict, TypeAlias, TypeVar, Union
 
 import models as m
-from data import crud, marshal
+from data import marshal
+import data.db_operations as crud
 from service.workflow.datasourcing import custom_lookup as cl
 
 M = TypeVar("M")

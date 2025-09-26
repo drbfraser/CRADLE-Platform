@@ -3,7 +3,7 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 from common import user_utils
-from data import crud
+import data.db_operations as crud
 from models import HealthFacilityOrm, PatientOrm, UserOrm
 from service import assoc
 from validation.associations import PatientAssociationModel

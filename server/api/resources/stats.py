@@ -9,7 +9,7 @@ from flask_openapi3.models.tag import Tag
 from api.decorator import roles_required
 from common import user_utils
 from common.api_utils import FacilityNamePath, UserIdPath
-from data import crud
+import data.db_operations as crud
 from enums import RoleEnum, TrafficLightEnum
 from models import UserOrm
 from validation import CradleBaseModel

@@ -9,7 +9,8 @@ from pydantic import RootModel
 from api.decorator import roles_required
 from common import phone_number_utils, user_utils
 from common.api_utils import UserIdPath
-from data import crud, marshal
+from data import marshal
+import data.db_operations as crud
 from enums import RoleEnum
 from models import UserOrm
 from validation import CradleBaseModel

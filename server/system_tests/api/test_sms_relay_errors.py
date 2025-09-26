@@ -5,7 +5,7 @@ from humps import decamelize
 
 from api.resources import sms_relay
 from common.print_utils import pretty_print
-from data import crud
+import data.db_operations as crud
 from models import SmsSecretKeyOrm, UserOrm
 from server.common import phone_number_utils
 from server.system_tests.utils.sms_relay import (

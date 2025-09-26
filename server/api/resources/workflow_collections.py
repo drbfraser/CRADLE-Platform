@@ -7,7 +7,8 @@ from flask_openapi3.models.tag import Tag
 from api.decorator import roles_required
 from common.api_utils import WorkflowCollectionIdPath, convert_query_parameter_to_bool
 from common.workflow_utils import assign_workflow_template_or_instance_ids
-from data import crud, marshal
+from data import marshal
+import data.db_operations as crud
 from enums import RoleEnum
 from models import WorkflowCollectionOrm
 from validation import CradleBaseModel

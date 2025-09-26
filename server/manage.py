@@ -12,7 +12,8 @@ from flask.cli import FlaskGroup
 
 import models
 from common.commonUtil import get_current_time
-from data import crud, marshal
+from data import marshal
+import data.db_operations as crud
 from models import (
     FormClassificationOrm,
     FormOrm,
