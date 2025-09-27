@@ -29,7 +29,7 @@ from models import (
     WorkflowTemplateOrm,
     WorkflowTemplateStepBranchOrm,
     WorkflowTemplateStepOrm,
-    get_schema_for_model
+    get_schema_for_model,
 )
 from service import invariant
 

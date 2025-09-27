@@ -18,24 +18,19 @@ from models import (
     MedicalRecordOrm,
     PatientAssociationsOrm,
     PregnancyOrm,
-    
     # Forms
     FormClassificationOrm,
     FormOrm,
     FormTemplateOrm,
     QuestionLangVersionOrm,
     QuestionOrm,
-    
     # Medical Data
     ReadingOrm,
     ReferralOrm,
-    
     # Communications model
     RelayServerPhoneNumberOrm,
-    
     # Facilities model
     VillageOrm,
-    
     # Workflows
     WorkflowClassificationOrm,
     WorkflowInstanceOrm,
@@ -43,7 +38,6 @@ from models import (
     WorkflowTemplateOrm,
     WorkflowTemplateStepBranchOrm,
     WorkflowTemplateStepOrm,
-    
     db,
     SexEnum,
 )

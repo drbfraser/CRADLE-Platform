@@ -1,14 +1,16 @@
-from .base import *
+from .base import db, FacilityTypeEnum
+
 
 # MODELS
 class HealthFacilityOrm(db.Model):
     """
     Represents healthcare facilities.
-    
+
     Stores facility details, contact info, and tracks incoming referrals.
     Currently designed for Uganda (single area code) but could expand later.
     Each facility has a unique ID and can receive referrals from other providers.
     """
+
     __tablename__ = "health_facility"
     name = db.Column(db.String(50), primary_key=True)
     # TODO: should probably have a unique id as primary key here, in addition to facility name
@@ -23,11 +25,13 @@ class HealthFacilityOrm(db.Model):
     location = db.Column(db.String(50))
     about = db.Column(db.Text)
     new_referrals = db.Column(db.BigInteger, nullable=True)
-    
+
+
 class VillageOrm(db.Model):
     """
     Records details about the village, including village number and zone number.
     """
+
     __tablename__ = "village"
     village_number = db.Column(db.String(50), primary_key=True)
     zone_number = db.Column(db.String(50))

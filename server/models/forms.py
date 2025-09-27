@@ -1,13 +1,15 @@
-from .base import *
+from .base import db, get_uuid, get_current_time, QuestionTypeEnum
+
 
 # MODELS
 class FormClassificationOrm(db.Model):
     """
     Categories for organizing different types of forms.
-    
+
     Provides a classification system for grouping related forms together.
     Used to organize and filter forms by their clinical purpose.
     """
+
     __tablename__ = "form_classification"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
@@ -16,11 +18,12 @@ class FormClassificationOrm(db.Model):
 class FormTemplateOrm(db.Model):
     """
     Templates that define the structure and questions for  forms.
-    
+
     Reusable form blueprints that can be versioned and archived over time.
-    When healthcare workers need to fill out a form, they create instances based on these templates. 
+    When healthcare workers need to fill out a form, they create instances based on these templates.
     Supports classification grouping and lifecycle management through archiving.
     """
+
     __tablename__ = "form_template"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     version = db.Column(db.Text, nullable=True)
@@ -30,17 +33,17 @@ class FormTemplateOrm(db.Model):
         default=get_current_time,
     )
     archived = db.Column(db.Boolean, nullable=False, default=False)
-    
+
     # FOREIGN KEYS
     form_classification_id = db.Column(
         db.String(50),
-        db.ForeignKey('form_classification.id', ondelete="SET NULL"),
+        db.ForeignKey("form_classification.id", ondelete="SET NULL"),
         nullable=True,
     )
 
     # RELATIONSHIPS
     classification = db.relationship(
-        'FormClassificationOrm',
+        "FormClassificationOrm",
         backref=db.backref("templates", cascade="all, delete", lazy=True),
     )
 
@@ -48,11 +51,12 @@ class FormTemplateOrm(db.Model):
 class FormOrm(db.Model):
     """
     Completed form instances filled out by healthcare workers for specific patients.
-    
+
     Created from form templates and contains actual patient data and responses.
-    Supports multiple languages and tracks creation/editing history. 
+    Supports multiple languages and tracks creation/editing history.
     Each form belongs to a specific patient and a form template, it can be archived when no longer active.
     """
+
     __tablename__ = "form"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     lang = db.Column(db.Text, nullable=False)
@@ -70,39 +74,38 @@ class FormOrm(db.Model):
         onupdate=get_current_time,
     )
     archived = db.Column(db.Boolean, nullable=False, default=False)
-    
+
     # FOREIGN KEYS
     patient_id = db.Column(
         db.String(50),
-        db.ForeignKey('patient.id', ondelete="CASCADE"),
+        db.ForeignKey("patient.id", ondelete="CASCADE"),
         nullable=False,
     )
     form_template_id = db.Column(
         db.String(50),
-        db.ForeignKey('form_template.id', ondelete="SET NULL"),
+        db.ForeignKey("form_template.id", ondelete="SET NULL"),
         nullable=True,
     )
     last_edited_by = db.Column(
-        db.String(50),
-        db.ForeignKey('user.id', ondelete="SET NULL"), nullable=True
+        db.String(50), db.ForeignKey("user.id", ondelete="SET NULL"), nullable=True
     )
 
     # RELATIONSHIPS
     patient = db.relationship(
-        'PatientOrm',
+        "PatientOrm",
         backref=db.backref("forms", cascade="all, delete", lazy=True),
     )
     template = db.relationship(
-        'FormTemplateOrm',
-        backref=db.backref("forms", lazy=True)
+        "FormTemplateOrm", backref=db.backref("forms", lazy=True)
     )
+
 
 class QuestionOrm(db.Model):
     """
     Individual questions that make up healthcare forms and form templates.
-    
+
     Supports various question types (text, number, multiple choice, dates) with validation rules, conditional visibility, and multiple choice options. Questions can exist as blank templates or filled instances with actual answers. Stores both the question structure and user responses in JSON format.
-    
+
     Question: a child model related to a form template or a form
 
     isBlank: true means the question is related to form template, vice versa
@@ -137,6 +140,7 @@ class QuestionOrm(db.Model):
         "comment": "other opt"
     }
     """
+
     __tablename__ = "question"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     is_blank = db.Column(db.Boolean, nullable=False, default=0)
@@ -168,29 +172,31 @@ class QuestionOrm(db.Model):
     # FOREIGN KEYS
     form_id = db.Column(
         db.String(50),
-        db.ForeignKey('form.id', ondelete="CASCADE"),
+        db.ForeignKey("form.id", ondelete="CASCADE"),
         nullable=True,
     )
     form_template_id = db.Column(
         db.String(50),
-        db.ForeignKey('form_template.id', ondelete="CASCADE"),
+        db.ForeignKey("form_template.id", ondelete="CASCADE"),
         nullable=True,
     )
 
     # RELATIONSHIPS
     form = db.relationship(
-        'FormOrm',
+        "FormOrm",
         backref=db.backref("questions", cascade="all, delete", lazy=True),
     )
     form_template = db.relationship(
-        'FormTemplateOrm',
+        "FormTemplateOrm",
         backref=db.backref("questions", cascade="all, delete", lazy=True),
     )
+
 
 class QuestionLangVersionOrm(db.Model):
     """
     This model is used to store different language versions of a single question.
     """
+
     __tablename__ = "question_lang_version"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -205,12 +211,12 @@ class QuestionLangVersionOrm(db.Model):
     # FOREIGN KEYS
     question_id = db.Column(
         db.String(50),
-        db.ForeignKey('question.id', ondelete="CASCADE"),
+        db.ForeignKey("question.id", ondelete="CASCADE"),
         nullable=False,
     )
 
     # RELATIONSHIPS
     question = db.relationship(
-        'QuestionOrm',
+        "QuestionOrm",
         backref=db.backref("lang_versions", cascade="all, delete", lazy=True),
     )

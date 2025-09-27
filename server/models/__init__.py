@@ -35,12 +35,14 @@ SCHEMA_REGISTRY = {
     ReferralOrm: ReferralSchema,
     ReadingOrm: ReadingSchema,
     AssessmentOrm: AssessmentSchema,
-    UrineTestOrm: UrineTestSchema
+    UrineTestOrm: UrineTestSchema,
 }
+
 
 def get_schema_for_model(model_class):
     """Get the schema class for a given model class."""
     return SCHEMA_REGISTRY.get(model_class)
+
 
 def get_schema_instance(model_class):
     """Get a schema instance for a given model class."""

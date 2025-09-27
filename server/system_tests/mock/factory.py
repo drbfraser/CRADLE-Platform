@@ -4,14 +4,14 @@ from flask_sqlalchemy import SQLAlchemy
 
 import data
 from models import (
-    PatientSchema, 
-    ReadingOrm, 
-    ReferralSchema, 
-    AssessmentSchema, 
-    HealthFacilitySchema, 
-    PregnancySchema, 
-    MedicalRecordSchema, 
-    FormTemplateSchema
+    PatientSchema,
+    ReadingOrm,
+    ReferralSchema,
+    AssessmentSchema,
+    HealthFacilitySchema,
+    PregnancySchema,
+    MedicalRecordSchema,
+    FormTemplateSchema,
 )
 from data import crud, marshal
 from manage import get_username_from_email

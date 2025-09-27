@@ -1,36 +1,38 @@
-from .base import *
+from .base import db, get_uuid, get_current_time, TrafficLightEnum
+
 
 # MODELS
 class ReferralOrm(db.Model):
     """
     Tracks patient referrals from a healthcare provider to a healthcare facility.
-    
-    Records: creation, assessment, cancellation, or non-attendance. 
+
+    Records: creation, assessment, cancellation, or non-attendance.
     Links the referring user, patient, and destination facility.
     Maintains audit trail with timestamps for all status changes.
     """
+
     __tablename__ = "referral"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
-    
+
     # Initial referral
     date_referred = db.Column(db.BigInteger, nullable=False, default=get_current_time)
     comment = db.Column(db.Text)
-    
+
     # Patient gets assessed
     action_taken = db.Column(db.Text)
     is_assessed = db.Column(db.Boolean, nullable=False, default=0)
     date_assessed = db.Column(db.BigInteger, nullable=True)
-    
+
     # Referral gets cancelled
     is_cancelled = db.Column(db.Boolean, nullable=False, default=0)
     cancel_reason = db.Column(db.Text)
     date_cancelled = db.Column(db.BigInteger, nullable=True)
-    
+
     # Patient doesn't attend
     not_attended = db.Column(db.Boolean, nullable=False, default=0)
     not_attend_reason = db.Column(db.Text)
     date_not_attended = db.Column(db.BigInteger, nullable=True)
-    
+
     last_edited = db.Column(
         db.BigInteger,
         nullable=False,
@@ -39,17 +41,11 @@ class ReferralOrm(db.Model):
     )
 
     # FOREIGN KEYS
-    user_id = db.Column(
-        db.Integer, 
-        db.ForeignKey('user.id')
-    )
-    patient_id = db.Column(
-        db.String(50), 
-        db.ForeignKey('patient.id')
-    )
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    patient_id = db.Column(db.String(50), db.ForeignKey("patient.id"))
     health_facility_name = db.Column(
         db.String(50),
-        db.ForeignKey('health_facility.name'),
+        db.ForeignKey("health_facility.name"),
     )
 
     # RELATIONSHIPS
@@ -62,12 +58,14 @@ class ReferralOrm(db.Model):
         backref=db.backref("referrals", cascade="all, delete-orphan", lazy=True),
     )
 
+
 class ReadingOrm(db.Model):
     """
     Stores vital sign measurements and health assessments for patients.
-    
+
     Records blood pressure, heart rate, and symptoms with automatic risk assessment using a traffic light system (Green=normal, Yellow=concerning, Red=emergency). Tracks retest schedules.
     """
+
     __tablename__ = "reading"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     systolic_blood_pressure = db.Column(db.Integer)
@@ -91,23 +89,23 @@ class ReadingOrm(db.Model):
     # FOREIGN KEYS
     user_id = db.Column(
         db.Integer,
-        db.ForeignKey('user.id', ondelete="SET NULL"),
+        db.ForeignKey("user.id", ondelete="SET NULL"),
         nullable=True,
     )
     patient_id = db.Column(
         db.String(50),
-        db.ForeignKey('patient.id'),
+        db.ForeignKey("patient.id"),
         nullable=False,
     )
     referral_id = db.Column(
         db.String(50),
-        db.ForeignKey('referral.id'),
+        db.ForeignKey("referral.id"),
         nullable=True,  # or nullable=False, depending on your business logic
     )
 
     # RELATIONSHIPS
     patient = db.relationship(
-        'PatientOrm',
+        "PatientOrm",
         backref=db.backref("readings", cascade="all, delete-orphan", lazy=True),
     )
     referral = db.relationship(
@@ -161,10 +159,11 @@ class ReadingOrm(db.Model):
 class AssessmentOrm(db.Model):
     """
     Records medical assessments performed by healthcare workers on patients.
-    
-    Documents the complete clinical evaluation including diagnosis, treatment plan, prescribed medications, and follow-up requirements. 
+
+    Documents the complete clinical evaluation including diagnosis, treatment plan, prescribed medications, and follow-up requirements.
     Links the assessing healthcare worker to the patient and maintains the assessment date.
     """
+
     __tablename__ = "assessment"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
 
@@ -178,32 +177,32 @@ class AssessmentOrm(db.Model):
 
     # FOREIGN KEYS
     healthcare_worker_id = db.Column(
-        db.Integer,
-        db.ForeignKey('user.id'),
-        nullable=False
+        db.Integer, db.ForeignKey("user.id"), nullable=False
     )
     patient_id = db.Column(
         db.String(50),
-        db.ForeignKey('patient.id'),
+        db.ForeignKey("patient.id"),
         nullable=False,
     )
 
     # RELATIONSHIPS
     healthcare_worker = db.relationship(
-        'UserOrm', backref=db.backref("assessments", lazy=True)
+        "UserOrm", backref=db.backref("assessments", lazy=True)
     )
     patient = db.relationship(
-        'PatientOrm',
+        "PatientOrm",
         backref=db.backref("assessments", cascade="all, delete-orphan", lazy=True),
     )
+
 
 class UrineTestOrm(db.Model):
     """
     Stores urine test results associated with patient vital sign readings.
-    
-    Records dipstick test results for common indicators like glucose, protein, and blood. 
+
+    Records dipstick test results for common indicators like glucose, protein, and blood.
     Each reading can have at most one urine test. Tests are optional.
     """
+
     __tablename__ = "urine_test"
     id = db.Column(db.Integer, primary_key=True)
     leukocytes = db.Column(db.String(5))
@@ -214,13 +213,12 @@ class UrineTestOrm(db.Model):
 
     # FOREIGN KEYS
     reading_id = db.Column(
-        db.String(50), 
-        db.ForeignKey('reading.id', ondelete="CASCADE")
+        db.String(50), db.ForeignKey("reading.id", ondelete="CASCADE")
     )
 
     # RELATIONSHIPS
     reading = db.relationship(
-        'ReadingOrm',
+        "ReadingOrm",
         backref=db.backref(
             "urine_tests",
             lazy=True,

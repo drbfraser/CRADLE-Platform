@@ -15,11 +15,7 @@ SupervisesTable = db.Table(
         db.ForeignKey("user.id", ondelete="CASCADE"),
         index=True,
     ),
-    db.Column(
-        "vht_id", 
-        db.Integer, 
-        db.ForeignKey("user.id", ondelete="CASCADE")
-    ),
+    db.Column("vht_id", db.Integer, db.ForeignKey("user.id", ondelete="CASCADE")),
 )
 
 user_schema = {
@@ -35,9 +31,11 @@ user_schema = {
     "additionalProperties": False,
 }
 
+
 def validate_timestamp(ts):
     if ts > get_current_time():
         raise marshmallow.ValidationError("Date must not be in the future.")
+
 
 def validate_user(data):
     try:

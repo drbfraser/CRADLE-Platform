@@ -17,23 +17,19 @@ from models import (
     FormOrm,
     FormTemplateOrm,
     QuestionOrm,
-    
     # Medical ORMs
     AssessmentOrm,
     ReadingOrm,
     ReferralOrm,
     UrineTestOrm,
-    
     # Patient ORMs
     MedicalRecordOrm,
     PatientAssociationsOrm,
     PatientOrm,
     PregnancyOrm,
-    
     # User ORMs
     UserOrm,
     UserPhoneNumberOrm,
-    
     # Workflow ORMs
     RuleGroupOrm,
     WorkflowClassificationOrm,
@@ -42,10 +38,9 @@ from models import (
     WorkflowTemplateOrm,
     WorkflowTemplateStepBranchOrm,
     WorkflowTemplateStepOrm,
-    
     # Other imports
     SupervisesTable,
-    get_schema_for_model
+    get_schema_for_model,
 )
 from service import invariant
 
@@ -950,9 +945,7 @@ def read_referrals_or_assessments(
     :return: A list of referrals or assessments
     """
     model_last_edited = (
-        model.last_edited
-        if isinstance(model, ReferralOrm)
-        else model.date_assessed
+        model.last_edited if isinstance(model, ReferralOrm) else model.date_assessed
     )
     query = db_session.query(model)
 

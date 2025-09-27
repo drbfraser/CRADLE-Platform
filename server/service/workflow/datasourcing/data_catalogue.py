@@ -1,7 +1,14 @@
 from functools import partial
 from typing import Any, Callable, Dict, TypeAlias, TypeVar, Union
 
-from models import AssessmentOrm, MedicalRecordOrm, PatientOrm, PregnancyOrm, ReadingOrm, UrineTestOrm
+from models import (
+    AssessmentOrm,
+    MedicalRecordOrm,
+    PatientOrm,
+    PregnancyOrm,
+    ReadingOrm,
+    UrineTestOrm,
+)
 from data import crud, marshal
 from service.workflow.datasourcing import custom_lookup as cl
 
@@ -79,9 +86,7 @@ __data_catalogue = {
         "custom": {},
     },
     "patient": {
-        "query": partial(
-            __query_object, PatientOrm, lambda _id: PatientOrm.id == _id
-        ),
+        "query": partial(__query_object, PatientOrm, lambda _id: PatientOrm.id == _id),
         "custom": {"age": partial(cl.patient_age)},
     },
     "pregnancy": {
