@@ -12,9 +12,6 @@ class FormClassificationOrm(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
 
-    @staticmethod
-    def schema():
-        return FormClassificationSchema
 
 class FormTemplateOrm(db.Model):
     """
@@ -47,9 +44,6 @@ class FormTemplateOrm(db.Model):
         backref=db.backref("templates", cascade="all, delete", lazy=True),
     )
 
-    @staticmethod
-    def schema():
-        return FormTemplateSchema
 
 class FormOrm(db.Model):
     """
@@ -102,10 +96,6 @@ class FormOrm(db.Model):
         'FormTemplateOrm',
         backref=db.backref("forms", lazy=True)
     )
-
-    @staticmethod
-    def schema():
-        return FormSchema
 
 class QuestionOrm(db.Model):
     """
@@ -197,10 +187,6 @@ class QuestionOrm(db.Model):
         backref=db.backref("questions", cascade="all, delete", lazy=True),
     )
 
-    @staticmethod
-    def schema():
-        return QuestionSchema
-
 class QuestionLangVersionOrm(db.Model):
     """
     This model is used to store different language versions of a single question.
@@ -228,43 +214,3 @@ class QuestionLangVersionOrm(db.Model):
         'QuestionOrm',
         backref=db.backref("lang_versions", cascade="all, delete", lazy=True),
     )
-
-    @staticmethod
-    def schema():
-        return QuestionLangVersionSchema
-
-# SCHEMAS
-# class FormClassificationSchema(ma.SQLAlchemyAutoSchema):
-#     class Meta:
-#         include_fk = True
-#         model = FormClassificationOrm
-#         load_instance = True
-#         include_relationships = True
-
-# class FormTemplateSchema(ma.SQLAlchemyAutoSchema):
-#     class Meta:
-#         include_fk = True
-#         model = FormTemplateOrm
-#         load_instance = True
-#         include_relationships = True
-
-# class FormSchema(ma.SQLAlchemyAutoSchema):
-#     class Meta:
-#         include_fk = True
-#         model = FormOrm
-#         load_instance = True
-#         include_relationships = True
-
-# class QuestionSchema(ma.SQLAlchemyAutoSchema):
-#     class Meta:
-#         include_fk = True
-#         model = QuestionOrm
-#         load_instance = True
-#         include_relationships = True
-
-# class QuestionLangVersionSchema(ma.SQLAlchemyAutoSchema):
-#     class Meta:
-#         include_fk = True
-#         model = QuestionLangVersionOrm
-#         load_instance = True
-#         include_relationships = True

@@ -62,10 +62,6 @@ class ReferralOrm(db.Model):
         backref=db.backref("referrals", cascade="all, delete-orphan", lazy=True),
     )
 
-    @staticmethod
-    def schema():
-        return ReferralSchema
-
 class ReadingOrm(db.Model):
     """
     Stores vital sign measurements and health assessments for patients.
@@ -161,9 +157,6 @@ class ReadingOrm(db.Model):
 
         return traffic_light
 
-    @staticmethod
-    def schema():
-        return ReadingSchema
 
 class AssessmentOrm(db.Model):
     """
@@ -204,10 +197,6 @@ class AssessmentOrm(db.Model):
         backref=db.backref("assessments", cascade="all, delete-orphan", lazy=True),
     )
 
-    @staticmethod
-    def schema():
-        return AssessmentSchema
-
 class UrineTestOrm(db.Model):
     """
     Stores urine test results associated with patient vital sign readings.
@@ -239,46 +228,3 @@ class UrineTestOrm(db.Model):
             cascade="all, delete-orphan",
         ),
     )
-
-    @staticmethod
-    def schema():
-        return UrineTestSchema
-
-# SCHEMAS
-# class ReferralSchema(ma.SQLAlchemyAutoSchema):
-#     class Meta:
-#         include_fk = True
-#         model = ReferralOrm
-#         load_instance = True
-#         include_relationships = True
-
-# class ReadingSchema(ma.SQLAlchemyAutoSchema):
-#     trafficLightStatus = EnumField(TrafficLightEnum, by_value=True)
-
-#     class Meta:
-#         include_fk = True
-#         model = ReadingOrm
-#         load_instance = True
-#         include_relationships = True
-        
-# class AssessmentSchema(ma.SQLAlchemyAutoSchema):
-#     # late import to avoid circular dependency
-#     def __init__(self, *args, **kwargs):
-#         from .users import UserSchema
-#         super().__init__(*args, **kwargs)
-#         self.fields['healthcare_worker'] = fields.Nested(UserSchema)
-    
-#     class Meta:
-#         include_fk = True
-#         model = AssessmentOrm
-#         load_instance = True
-#         include_relationships = True
-
-# class UrineTestSchema(ma.SQLAlchemyAutoSchema):
-#     # urineTests = fields.Nested(ReadingSchema)
-#     class Meta:
-#         include_fk = True
-#         model = UrineTestOrm
-#         load_instance = True
-#         include_relationships = True
-

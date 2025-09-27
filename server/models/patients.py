@@ -34,10 +34,6 @@ class PatientOrm(db.Model):
     def as_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
 
-    @staticmethod
-    def schema():
-        return PatientSchema
-
 class PatientAssociationsOrm(db.Model):
     """
     Links patients to their assigned healthcare workers and facilities.
@@ -78,11 +74,7 @@ class PatientAssociationsOrm(db.Model):
         'UserOrm',
         backref=db.backref("associations", lazy=True, cascade="all, delete"),
     )
-
-    @staticmethod
-    def schema():
-        return PatientAssociationsSchema
-
+    
 class PregnancyOrm(db.Model):
     """
     Tracks pregnancy records for female patients in the Cradle system.
@@ -114,10 +106,6 @@ class PregnancyOrm(db.Model):
         'PatientOrm',
         backref=db.backref("pregnancies", cascade="all, delete-orphan", lazy=True),
     )
-
-    @staticmethod
-    def schema():
-        return PregnancySchema
 
 class MedicalRecordOrm(db.Model):
     """
@@ -154,43 +142,3 @@ class MedicalRecordOrm(db.Model):
         'PatientOrm',
         backref=db.backref("records", cascade="all, delete-orphan", lazy=True),
     )
-
-    @staticmethod
-    def schema():
-        return MedicalRecordSchema
-
-# SCHEMAS
-# class PatientSchema(ma.SQLAlchemyAutoSchema):
-#     patientSex = EnumField(SexEnum, by_value=True)
-
-#     class Meta:
-#         include_fk = True
-#         model = PatientOrm
-#         load_instance = True
-#         include_relationships = True
-        
-# class PatientAssociationsSchema(ma.SQLAlchemyAutoSchema):
-#     class Meta:
-#         include_fk = True
-#         model = PatientAssociationsOrm
-#         load_instance = True
-#         include_relationships = True
-        
-# class PregnancySchema(ma.SQLAlchemyAutoSchema):
-#     start_date = marshmallow.fields.Integer(validate=validate_timestamp)
-#     end_date = marshmallow.fields.Integer(validate=validate_timestamp)
-
-#     class Meta:
-#         include_fk = True
-#         model = PregnancyOrm
-#         load_instance = True
-#         include_relationships = True
-
-# class MedicalRecordSchema(ma.SQLAlchemyAutoSchema):
-#     date_created = marshmallow.fields.Integer(validate=validate_timestamp)
-
-#     class Meta:
-#         include_fk = True
-#         model = MedicalRecordOrm
-#         load_instance = True
-#         include_relationships = True

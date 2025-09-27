@@ -21,10 +21,6 @@ class HealthFacilityOrm(db.Model):
     location = db.Column(db.String(50))
     about = db.Column(db.Text)
     new_referrals = db.Column(db.BigInteger, nullable=True)
-
-    @staticmethod
-    def schema():
-        return HealthFacilitySchema
     
 class VillageOrm(db.Model):
     """
@@ -33,24 +29,3 @@ class VillageOrm(db.Model):
     __tablename__ = "village"
     village_number = db.Column(db.String(50), primary_key=True)
     zone_number = db.Column(db.String(50))
-    
-    @staticmethod
-    def schema():
-        return VillageSchema
-
-# SCHEMAS
-# class HealthFacilitySchema(ma.SQLAlchemyAutoSchema):
-#     type = EnumField(FacilityTypeEnum, by_value=True)
-
-#     class Meta:
-#         include_fk = True
-#         model = HealthFacilityOrm
-#         load_instance = True
-#         include_relationships = True
-        
-# class VillageSchema(ma.SQLAlchemyAutoSchema):
-#     class Meta:
-#         include_fk = True
-#         model = VillageOrm
-#         load_instance = True
-#         include_relationships = True

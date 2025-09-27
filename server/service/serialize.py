@@ -17,6 +17,7 @@ from models import (
     ReadingOrm,
     ReferralOrm,
     UrineTestOrm,
+    get_schema_for_model
 )
 
 
@@ -152,7 +153,7 @@ def deserialize_patient(
     shallow: bool = True,
     partial: bool = False,
 ) -> Union[dict, PatientOrm]:
-    schema = PatientOrm.schema()
+    schema = get_schema_for_model(PatientOrm)
     d = {
         "id": patient_data.get("id"),
         "name": patient_data.get("name"),
@@ -195,7 +196,7 @@ def deserialize_patient(
 def deserialize_pregnancy(
     patient_data: dict, partial: bool = False
 ) -> Union[dict, PregnancyOrm]:
-    schema = PregnancyOrm.schema()
+    schema = get_schema_for_model(PregnancyOrm)
     if partial:
         d = {
             "end_date": patient_data.get("pregnancy_end_date"),
@@ -215,7 +216,7 @@ def deserialize_pregnancy(
 def deserialize_medical_record(
     patient_data: dict, is_drug_record: bool
 ) -> MedicalRecordOrm:
-    schema = MedicalRecordOrm.schema()
+    schema = get_schema_for_model(MedicalRecordOrm)
     d = {
         "patient_id": patient_data.get("id"),
         "information": (

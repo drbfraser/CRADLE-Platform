@@ -18,10 +18,6 @@ class WorkflowCollectionOrm(db.Model):
         onupdate=get_current_time,
     )
 
-    @staticmethod
-    def schema():
-        return WorkflowCollectionSchema
-
 class WorkflowClassificationOrm(db.Model):
     """
     Categorizes workflow templates by type or purpose within collections.
@@ -46,10 +42,6 @@ class WorkflowClassificationOrm(db.Model):
         passive_deletes=True,
     )
 
-    @staticmethod
-    def schema():
-        return WorkflowClassificationSchema
-
 class RuleGroupOrm(db.Model):
     """
     Stores conditional logic rules for workflow automation.
@@ -62,10 +54,6 @@ class RuleGroupOrm(db.Model):
     # NOTE: These attributes may need to be altered or removed depending on what rules engine we choose
     rule = db.Column(db.JSON, nullable=True)
     data_sources = db.Column(db.JSON, nullable=True)
-
-    @staticmethod
-    def schema():
-        return RuleGroupSchema
 
 class WorkflowTemplateOrm(db.Model):
     """
@@ -114,10 +102,6 @@ class WorkflowTemplateOrm(db.Model):
         backref=db.backref("workflow_templates", lazy=True),
         passive_deletes=True,
     )
-
-    @staticmethod
-    def schema():
-        return WorkflowTemplateSchema
 
 class WorkflowTemplateStepOrm(db.Model):
     """
@@ -175,10 +159,6 @@ class WorkflowTemplateStepOrm(db.Model):
         passive_deletes=True,
     )
 
-    @staticmethod
-    def schema():
-        return WorkflowTemplateStepSchema
-
 class WorkflowTemplateStepBranchOrm(db.Model):
     """
     Defines conditional branches between workflow template steps.
@@ -211,10 +191,6 @@ class WorkflowTemplateStepBranchOrm(db.Model):
         backref=db.backref("workflow_template_step_branches", lazy=True),
         passive_deletes=True,
     )
-
-    @staticmethod
-    def schema():
-        return WorkflowTemplateStepBranchSchema
 
 class WorkflowInstanceOrm(db.Model):
     """
@@ -261,10 +237,6 @@ class WorkflowInstanceOrm(db.Model):
         'WorkflowTemplateOrm',
         backref=db.backref("workflow_instances", lazy=True),
     )
-
-    @staticmethod
-    def schema():
-        return WorkflowInstanceSchema
 
 class WorkflowInstanceStepOrm(db.Model):
     __tablename__ = "workflow_instance_step"
@@ -327,63 +299,3 @@ class WorkflowInstanceStepOrm(db.Model):
         backref=db.backref("workflow_instance_steps", cascade="all, delete", lazy=True),
     )
 
-    @staticmethod
-    def schema():
-        return WorkflowInstanceStepSchema
-
-# SCHEMAS
-# class RuleGroupSchema(ma.SQLAlchemyAutoSchema):
-#     class Meta:
-#         include_fk = True
-#         model = RuleGroupOrm
-#         load_instance = True
-#         include_relationships = True
-
-# class WorkflowCollectionSchema(ma.SQLAlchemyAutoSchema):
-#     class Meta:
-#         include_fk = True
-#         model = WorkflowCollectionOrm
-#         load_instance = True
-#         include_relationships = True
-
-# class WorkflowClassificationSchema(ma.SQLAlchemyAutoSchema):
-#     class Meta:
-#         include_fk = True
-#         model = WorkflowClassificationOrm
-#         load_instance = True
-#         include_relationships = True
-
-# class WorkflowTemplateSchema(ma.SQLAlchemyAutoSchema):
-#     class Meta:
-#         include_fk = True
-#         model = WorkflowTemplateOrm
-#         load_instance = True
-#         include_relationships = True
-
-# class WorkflowTemplateStepSchema(ma.SQLAlchemyAutoSchema):
-#     class Meta:
-#         include_fk = True
-#         model = WorkflowTemplateStepOrm
-#         load_instance = True
-#         include_relationships = True
-
-# class WorkflowTemplateStepBranchSchema(ma.SQLAlchemyAutoSchema):
-#     class Meta:
-#         include_fk = True
-#         model = WorkflowTemplateStepBranchOrm
-#         load_instance = True
-#         include_relationships = True
-
-# class WorkflowInstanceSchema(ma.SQLAlchemyAutoSchema):
-#     class Meta:
-#         include_fk = True
-#         model = WorkflowInstanceOrm
-#         load_instance = True
-#         include_relationships = True
-
-# class WorkflowInstanceStepSchema(ma.SQLAlchemyAutoSchema):
-#     class Meta:
-#         include_fk = True
-#         model = WorkflowInstanceStepOrm
-#         load_instance = True
-#         include_relationships = True

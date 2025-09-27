@@ -12,15 +12,3 @@ class RelayServerPhoneNumberOrm(db.Model):
     phone_number = db.Column(db.String(20), unique=True)
     description = db.Column(db.String(50), unique=False)
     last_received = db.Column(db.BigInteger, unique=False, default=get_current_time)
-
-    @staticmethod
-    def schema():
-        return RelayServerPhoneNumberSchema
-
-# SCHEMAS
-# class RelayServerPhoneNumberSchema(ma.SQLAlchemyAutoSchema):
-#     class Meta:
-#         include_fk = True
-#         model = RelayServerPhoneNumberOrm
-#         load_instance = True
-#         include_relationships = True

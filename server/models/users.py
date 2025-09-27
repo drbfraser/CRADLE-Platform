@@ -51,10 +51,6 @@ class UserOrm(db.Model):
         cascade="all, delete-orphan",
     )
 
-    @staticmethod
-    def schema():
-        return UserSchema
-
     def __repr__(self):
         """Return a string with enough information to uniquely identify the user."""
         return f"<UserOrm {self.username}>"
@@ -79,10 +75,6 @@ class UserPhoneNumberOrm(db.Model):
 
     # RELATIONSHIPS
     user = db.relationship('UserOrm', back_populates="phone_numbers")
-
-    @staticmethod
-    def schema():
-        return UserPhoneNumberSchema
 
     def __repr__(self):
         """Return a string with enough information to uniquely identify the user."""
@@ -114,29 +106,3 @@ class SmsSecretKeyOrm(db.Model):
 
     # RELATIONSHIPS
     user = db.relationship('UserOrm', back_populates="sms_secret_keys")
-
-    @staticmethod
-    def schema():
-        return SmsSecretKeySchema
-
-# SCHEMAS
-# class UserSchema(ma.SQLAlchemyAutoSchema):
-#     class Meta:
-#         include_fk = True
-#         model = UserOrm
-#         load_instance = True
-#         include_relationships = True
-        
-# class UserPhoneNumberSchema(ma.SQLAlchemyAutoSchema):
-#     class Meta:
-#         include_fk = True
-#         model = UserPhoneNumberOrm
-#         load_instance = True
-#         include_relationships = True
-
-# class SmsSecretKeySchema(ma.SQLAlchemyAutoSchema):
-#     class Meta:
-#         include_fk = True
-#         model = SmsSecretKeyOrm
-#         load_instance = True
-#         include_relationships = True

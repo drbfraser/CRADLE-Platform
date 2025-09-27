@@ -12,28 +12,40 @@ from common.form_utils import filter_template_questions_orm
 from data import db_session
 from enums import RoleEnum, TrafficLightEnum, WorkflowStatusEnum
 from models import (
-    AssessmentOrm,
+    # Form ORMs
     FormClassificationOrm,
     FormOrm,
     FormTemplateOrm,
+    QuestionOrm,
+    
+    # Medical ORMs
+    AssessmentOrm,
+    ReadingOrm,
+    ReferralOrm,
+    UrineTestOrm,
+    
+    # Patient ORMs
     MedicalRecordOrm,
     PatientAssociationsOrm,
     PatientOrm,
     PregnancyOrm,
-    QuestionOrm,
-    ReadingOrm,
-    ReferralOrm,
-    RuleGroupOrm,
-    SupervisesTable,
-    UrineTestOrm,
+    
+    # User ORMs
     UserOrm,
     UserPhoneNumberOrm,
+    
+    # Workflow ORMs
+    RuleGroupOrm,
     WorkflowClassificationOrm,
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
     WorkflowTemplateOrm,
     WorkflowTemplateStepBranchOrm,
     WorkflowTemplateStepOrm,
+    
+    # Other imports
+    SupervisesTable,
+    get_schema_for_model
 )
 from service import invariant
 
@@ -549,14 +561,14 @@ def read_medical_records(m: Type[M], patient_id: str, **kwargs) -> List[M]:
         raise ValueError("Invalid direction, must be 'ASC' or 'DESC'")
     order_by_direction = asc if direction == "ASC" else desc
 
-    if m.schema() == PregnancyOrm.schema():
+    if get_schema_for_model(m) == get_schema_for_model(PregnancyOrm):
         if search_text:
             safe_search_text = f"%{search_text}%"
             query = query.filter(m.outcome.like(safe_search_text))
 
         query = query.order_by(order_by_direction(m.start_date))
 
-    elif m.schema() == MedicalRecordOrm.schema():
+    elif get_schema_for_model(m) == get_schema_for_model(MedicalRecordOrm):
         if search_text:
             safe_search_text = f"%{search_text}%"
             query = query.filter(m.information.like(safe_search_text))
@@ -939,7 +951,7 @@ def read_referrals_or_assessments(
     """
     model_last_edited = (
         model.last_edited
-        if model.schema() == ReferralOrm.schema()
+        if isinstance(model, ReferralOrm)
         else model.date_assessed
     )
     query = db_session.query(model)
