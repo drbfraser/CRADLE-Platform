@@ -18,6 +18,7 @@ from models import (
     UserPhoneNumberOrm,
 )
 
+
 def is_phone_number_relay(phone_number):
     # iterate through all admin phone numbers and remove dashes before comparision
     try:

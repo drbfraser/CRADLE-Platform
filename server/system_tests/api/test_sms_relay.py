@@ -4,9 +4,9 @@ from typing import List
 import requests
 from humps import decamelize
 
+import data.db_operations as crud
 from common import user_utils
 from common.print_utils import pretty_print
-import data.db_operations as crud
 from enums import TrafficLightEnum
 from models import (
     AssessmentOrm,

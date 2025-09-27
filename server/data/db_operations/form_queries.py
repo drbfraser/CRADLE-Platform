@@ -22,6 +22,7 @@ from models import (
     QuestionOrm,
 )
 
+
 def read_questions(
     model: QuestionOrm,
     form_template_id: Optional[int] = None,

@@ -4,8 +4,8 @@ import pytest
 import requests
 from humps import decamelize
 
-from common.print_utils import pretty_print
 import data.db_operations as crud
+from common.print_utils import pretty_print
 from models import FormClassificationOrm, FormTemplateOrm
 
 

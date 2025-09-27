@@ -5,9 +5,9 @@ from typing import List
 import pytest
 from humps import decamelize
 
+import data.db_operations as crud
 from common.commonUtil import get_current_time
 from common.print_utils import pretty_print
-import data.db_operations as crud
 from enums import TrafficLightEnum
 from models import MedicalRecordOrm, PatientOrm, ReadingOrm
 

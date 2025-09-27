@@ -1,5 +1,5 @@
-from common import phone_number_utils
 import data.db_operations as crud
+from common import phone_number_utils
 from enums import FacilityTypeEnum
 from models import HealthFacilityOrm
 

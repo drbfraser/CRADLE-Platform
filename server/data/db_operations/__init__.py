@@ -32,7 +32,9 @@ Example usage
 """
 
 from __future__ import annotations
-from typing import Any, Dict, Tuple, Optional, TypeVar
+
+from typing import Any, Dict, Optional, Tuple, TypeVar
+
 import config
 
 db_session = config.db.session
@@ -45,49 +47,70 @@ S = TypeVar("S")
 # ---------------------------
 __all__ = [
     # common_crud
-    "create", "create_model", "create_all",
-    "read", "read_all", "find",
+    "create",
+    "create_model",
+    "create_all",
+    "read",
+    "read_all",
+    "find",
     "update",
-    "delete", "delete_by", "delete_all",
-
+    "delete",
+    "delete_by",
+    "delete_all",
     # form_queries
-    "read_form_template_language_versions", "read_questions",
-
+    "read_form_template_language_versions",
+    "read_questions",
     # patient_queries
-    "read_admin_patient", "read_patient_all_records", "read_patient_current_medical_record",
-    "read_patient_list", "read_patients", "read_patient_timeline",
-    "read_readings", "read_medical_records",
-
+    "read_admin_patient",
+    "read_patient_all_records",
+    "read_patient_current_medical_record",
+    "read_patient_list",
+    "read_patients",
+    "read_patient_timeline",
+    "read_readings",
+    "read_medical_records",
     # phone_utils
-    "get_all_relay_phone_numbers", "is_phone_number_relay",
-
+    "get_all_relay_phone_numbers",
+    "is_phone_number_relay",
     # pregnancy_medical_utils
     "has_conflicting_pregnancy_record",
-
     # referral_queries
-    "read_referral_list", "read_referrals_or_assessments",
-
+    "read_referral_list",
+    "read_referrals_or_assessments",
     # stats_queries
-    "get_days_with_readings", "get_export_data", "get_referred_patients",
-    "get_sent_referrals", "get_total_color_readings",
-    "get_total_readings_completed", "get_unique_patients_with_readings",
-
+    "get_days_with_readings",
+    "get_export_data",
+    "get_referred_patients",
+    "get_sent_referrals",
+    "get_total_color_readings",
+    "get_total_readings_completed",
+    "get_unique_patients_with_readings",
     # supervision
-    "add_vht_to_supervise", "get_supervised_vhts",
-
+    "add_vht_to_supervise",
+    "get_supervised_vhts",
     # workflow_management
-    "read_workflow_classifications", "read_workflow_templates", "read_workflow_instances",
-    "read_workflows_in_collection", "read_rule_group", "read_instance_steps",
+    "read_workflow_classifications",
+    "read_workflow_templates",
+    "read_workflow_instances",
+    "read_workflows_in_collection",
+    "read_rule_group",
+    "read_instance_steps",
     "read_template_steps",
-    "delete_workflow_step_branch", "delete_workflow_step",
-    "delete_workflow", "delete_workflow_classification",
-
+    "delete_workflow_step_branch",
+    "delete_workflow_step",
+    "delete_workflow",
+    "delete_workflow_classification",
     # session accessor
     "db_session",
-
     # Optional: expose submodules for advanced/namespaced access
-    "common_crud", "form_queries", "patient_queries", "referral_queries",
-    "stats_queries", "workflow_management", "supervision", "phone_utils",
+    "common_crud",
+    "form_queries",
+    "patient_queries",
+    "referral_queries",
+    "stats_queries",
+    "workflow_management",
+    "supervision",
+    "phone_utils",
     "pregnancy_medical_utils",
 ]
 
@@ -106,32 +129,38 @@ _EXPORTS: Dict[str, Tuple[str, Optional[str]]] = {
     "delete": ("common_crud", "delete"),
     "delete_by": ("common_crud", "delete_by"),
     "delete_all": ("common_crud", "delete_all"),
-
     # ------- form_queries -------
-    "read_form_template_language_versions": ("form_queries", "read_form_template_language_versions"),
+    "read_form_template_language_versions": (
+        "form_queries",
+        "read_form_template_language_versions",
+    ),
     "read_questions": ("form_queries", "read_questions"),
-
     # ------- patient_queries -------
     "read_admin_patient": ("patient_queries", "read_admin_patient"),
     "read_patient_all_records": ("patient_queries", "read_patient_all_records"),
-    "read_patient_current_medical_record": ("patient_queries", "read_patient_current_medical_record"),
+    "read_patient_current_medical_record": (
+        "patient_queries",
+        "read_patient_current_medical_record",
+    ),
     "read_patient_list": ("patient_queries", "read_patient_list"),
     "read_patients": ("patient_queries", "read_patients"),
     "read_patient_timeline": ("patient_queries", "read_patient_timeline"),
     "read_readings": ("patient_queries", "read_readings"),
     "read_medical_records": ("patient_queries", "read_medical_records"),
-
     # ------- phone_utils -------
     "get_all_relay_phone_numbers": ("phone_utils", "get_all_relay_phone_numbers"),
     "is_phone_number_relay": ("phone_utils", "is_phone_number_relay"),
-
     # ------- pregnancy_medical_utils -------
-    "has_conflicting_pregnancy_record": ("pregnancy_medical_utils", "has_conflicting_pregnancy_record"),
-
+    "has_conflicting_pregnancy_record": (
+        "pregnancy_medical_utils",
+        "has_conflicting_pregnancy_record",
+    ),
     # ------- referral_queries -------
     "read_referral_list": ("referral_queries", "read_referral_list"),
-    "read_referrals_or_assessments": ("referral_queries", "read_referrals_or_assessments"),
-
+    "read_referrals_or_assessments": (
+        "referral_queries",
+        "read_referrals_or_assessments",
+    ),
     # ------- stats_queries -------
     "get_days_with_readings": ("stats_queries", "get_days_with_readings"),
     "get_export_data": ("stats_queries", "get_export_data"),
@@ -139,25 +168,37 @@ _EXPORTS: Dict[str, Tuple[str, Optional[str]]] = {
     "get_sent_referrals": ("stats_queries", "get_sent_referrals"),
     "get_total_color_readings": ("stats_queries", "get_total_color_readings"),
     "get_total_readings_completed": ("stats_queries", "get_total_readings_completed"),
-    "get_unique_patients_with_readings": ("stats_queries", "get_unique_patients_with_readings"),
-
+    "get_unique_patients_with_readings": (
+        "stats_queries",
+        "get_unique_patients_with_readings",
+    ),
     # ------- supervision -------
     "add_vht_to_supervise": ("supervision", "add_vht_to_supervise"),
     "get_supervised_vhts": ("supervision", "get_supervised_vhts"),
-
     # ------- workflow_management -------
-    "read_workflow_classifications": ("workflow_management", "read_workflow_classifications"),
+    "read_workflow_classifications": (
+        "workflow_management",
+        "read_workflow_classifications",
+    ),
     "read_workflow_templates": ("workflow_management", "read_workflow_templates"),
     "read_workflow_instances": ("workflow_management", "read_workflow_instances"),
-    "read_workflows_in_collection": ("workflow_management", "read_workflows_in_collection"),
+    "read_workflows_in_collection": (
+        "workflow_management",
+        "read_workflows_in_collection",
+    ),
     "read_rule_group": ("workflow_management", "read_rule_group"),
     "read_instance_steps": ("workflow_management", "read_instance_steps"),
     "read_template_steps": ("workflow_management", "read_template_steps"),
-    "delete_workflow_step_branch": ("workflow_management", "delete_workflow_step_branch"),
+    "delete_workflow_step_branch": (
+        "workflow_management",
+        "delete_workflow_step_branch",
+    ),
     "delete_workflow_step": ("workflow_management", "delete_workflow_step"),
     "delete_workflow": ("workflow_management", "delete_workflow"),
-    "delete_workflow_classification": ("workflow_management", "delete_workflow_classification"),
-
+    "delete_workflow_classification": (
+        "workflow_management",
+        "delete_workflow_classification",
+    ),
     # ------- submodule escape hatch (return module objects) -------
     "common_crud": ("common_crud", None),
     "form_queries": ("form_queries", None),
@@ -169,6 +210,7 @@ _EXPORTS: Dict[str, Tuple[str, Optional[str]]] = {
     "phone_utils": ("phone_utils", None),
     "pregnancy_medical_utils": ("pregnancy_medical_utils", None),
 }
+
 
 def __getattr__(name: str) -> Any:
     """
@@ -185,6 +227,7 @@ def __getattr__(name: str) -> Any:
     if name == "db_session":
         # Resolve on demand to avoid importing application config during module import.
         from . import config as _config
+
         return _config.db.session
 
     try:

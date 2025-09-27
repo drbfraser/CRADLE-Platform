@@ -21,12 +21,11 @@ What this module provides
         * read_rule_group(...)
 """
 
-
-from data.db_operations import db_session, M
 from typing import List, Optional, Type
-from data.db_operations.common_crud import read, delete, delete_by, delete_all
 
 from data import db_session
+from data.db_operations import M, db_session
+from data.db_operations.common_crud import delete, delete_all, delete_by, read
 from enums import WorkflowStatusEnum
 from models import (
     FormClassificationOrm,
@@ -40,6 +39,7 @@ from models import (
     WorkflowTemplateStepBranchOrm,
     WorkflowTemplateStepOrm,
 )
+
 
 def delete_workflow_step_branch(**kwargs):
     """

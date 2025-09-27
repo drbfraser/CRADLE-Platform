@@ -6,10 +6,10 @@ from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
+import data.db_operations as crud
 from api.decorator import roles_required
 from common import user_utils
 from common.api_utils import FacilityNamePath, UserIdPath
-import data.db_operations as crud
 from enums import RoleEnum, TrafficLightEnum
 from models import UserOrm
 from validation import CradleBaseModel

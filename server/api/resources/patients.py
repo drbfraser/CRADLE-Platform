@@ -6,7 +6,7 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 from pydantic import Field, RootModel
 
-import data
+import data.db_operations as crud
 from api.decorator import patient_association_required, roles_required
 from common import user_utils
 from common.api_utils import (
@@ -18,7 +18,6 @@ from common.commonUtil import get_current_time
 from common.patient_utils import assign_patient_id
 from config import db
 from data import marshal
-import data.db_operations as crud
 from enums import RoleEnum, TrafficLightEnum
 from models import (
     AssessmentOrm,

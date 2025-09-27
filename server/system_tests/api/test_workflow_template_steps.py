@@ -3,9 +3,9 @@ import copy
 import pytest
 from humps import decamelize
 
+import data.db_operations as crud
 from common.commonUtil import get_current_time, get_uuid
 from common.print_utils import pretty_print
-import data.db_operations as crud
 from models import (
     WorkflowTemplateOrm,
 )

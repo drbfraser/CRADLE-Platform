@@ -6,9 +6,9 @@ from flask_openapi3.models.tag import Tag
 from marshmallow import ValidationError
 from pydantic import Field, RootModel
 
+import data.db_operations as crud
 from common import user_utils
 from data import marshal
-import data.db_operations as crud
 from models import (
     MedicalRecordOrm,
     PatientAssociationsOrm,

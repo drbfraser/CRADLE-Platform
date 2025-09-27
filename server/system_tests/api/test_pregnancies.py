@@ -2,8 +2,8 @@ import datetime
 
 from humps import decamelize
 
-from common.print_utils import pretty_print
 import data.db_operations as crud
+from common.print_utils import pretty_print
 from models import PregnancyOrm
 
 approx_8_months = int(datetime.timedelta(days=8 * 30).total_seconds())

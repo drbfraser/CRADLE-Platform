@@ -5,11 +5,11 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 from pydantic import RootModel
 
+import data.db_operations as crud
 import service.FilterHelper as filter
 from api.resources.patients import api_patients
 from common import user_utils
 from data import marshal
-import data.db_operations as crud
 from enums import TrafficLightEnum
 from models import (
     FormOrm,

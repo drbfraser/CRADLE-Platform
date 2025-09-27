@@ -3,9 +3,9 @@ from typing import Any
 from flask_sqlalchemy import SQLAlchemy
 
 import data
+import data.db_operations as crud
 import models as models
 from data import marshal
-import data.db_operations as crud
 from manage import get_username_from_email
 
 

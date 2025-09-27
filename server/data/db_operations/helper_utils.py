@@ -18,7 +18,7 @@ These helpers reduce code duplication across CRUD modules such as patient, refer
 and workflow queries:contentReference[oaicite:0]{index=0}.
 """
 
-from typing import Any, Optional, Tuple, TypeVar
+from typing import Any, Optional, Tuple
 
 from sqlalchemy import or_
 from sqlalchemy.orm import Query
@@ -30,6 +30,7 @@ from models import (
     PatientOrm,
     SupervisesTable,
 )
+
 
 def __filter_by_patient_association(
     query: Query,

@@ -6,13 +6,13 @@ from typing import Any, Optional, TypedDict, cast
 
 from botocore.exceptions import ClientError
 
+import data.db_operations as crud
 from authentication import cognito, get_username_from_jwt
 from common import health_facility_utils, phone_number_utils
 from common.constants import EMAIL_REGEX_PATTERN, MAX_SMS_RELAY_REQUEST_NUMBER
 from common.date_utils import get_future_date, is_date_passed
 from config import db
 from data import marshal
-import data.db_operations as crud
 from enums import RoleEnum
 from models import (
     SmsSecretKeyOrm,

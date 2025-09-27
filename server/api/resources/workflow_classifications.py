@@ -4,12 +4,12 @@ from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
+import data.db_operations as crud
 from common.api_utils import (
     WorkflowClassificationIdPath,
 )
 from common.workflow_utils import assign_workflow_template_or_instance_ids
 from data import marshal
-import data.db_operations as crud
 from models import WorkflowClassificationOrm
 from validation import CradleBaseModel
 from validation.workflow_classifications import (

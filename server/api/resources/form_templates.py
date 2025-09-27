@@ -6,14 +6,13 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 from pydantic import Field, ValidationError
 
-import data
+import data.db_operations as crud
 from api.decorator import roles_required
 from common import form_utils
 from common.api_utils import (
     FormTemplateIdPath,
 )
 from data import marshal
-import data.db_operations as crud
 from enums import ContentTypeEnum, RoleEnum
 from models import FormClassificationOrm, FormTemplateOrm
 from service import serialize

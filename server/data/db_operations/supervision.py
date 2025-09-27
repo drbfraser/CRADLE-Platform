@@ -12,11 +12,12 @@ Functions:
 
 from typing import List
 
-from data.db_operations import db_session, LOGGER
+from data.db_operations import LOGGER, db_session
 from models import (
     SupervisesTable,
     UserOrm,
 )
+
 
 def add_vht_to_supervise(cho_id: int, vht_ids: List):
     # find the cho
@@ -36,6 +37,7 @@ def add_vht_to_supervise(cho_id: int, vht_ids: List):
         db_session.add(cho)
 
     db_session.commit()
+
 
 def get_supervised_vhts(user_id):
     """Queries db for the list of VHTs supervised by this CHO"""

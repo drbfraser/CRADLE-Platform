@@ -22,6 +22,7 @@ from models import (
     PregnancyOrm,
 )
 
+
 def has_conflicting_pregnancy_record(
     patient_id: str,
     start_date: int,
@@ -65,4 +66,3 @@ def has_conflicting_pregnancy_record(
         )
 
     return db_session.query(query.exists()).scalar()
-

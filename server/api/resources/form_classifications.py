@@ -2,13 +2,12 @@ from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
-import data
+import data.db_operations as crud
 from api.decorator import roles_required
 from common.api_utils import (
     FormClassificationIdPath,
 )
 from data import marshal
-import data.db_operations as crud
 from enums import RoleEnum
 from models import FormClassificationOrm, FormTemplateOrm
 from validation.formClassifications import (

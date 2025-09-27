@@ -4,11 +4,11 @@ from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
+import data.db_operations as crud
 from api.decorator import patient_association_required
 from api.resources.patients import api_patients
 from common.api_utils import PatientIdPath, PregnancyIdPath, SearchFilterQueryParams
 from data import marshal
-import data.db_operations as crud
 from models import PregnancyOrm
 from service import view
 from validation.pregnancies import (

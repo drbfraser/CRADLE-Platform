@@ -10,10 +10,10 @@ import click
 import numpy as np
 from flask.cli import FlaskGroup
 
+import data.db_operations as crud
 import models
 from common.commonUtil import get_current_time
 from data import marshal
-import data.db_operations as crud
 from models import (
     FormClassificationOrm,
     FormOrm,

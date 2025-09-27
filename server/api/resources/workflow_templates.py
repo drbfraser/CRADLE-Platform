@@ -8,6 +8,7 @@ from flask import abort, make_response, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
+import data.db_operations as crud
 from api.decorator import roles_required
 from api.resources.workflow_template_steps import WorkflowTemplateStepListResponse
 from common.api_utils import (
@@ -21,7 +22,6 @@ from common.workflow_utils import (
     validate_workflow_template_step,
 )
 from data import marshal
-import data.db_operations as crud
 from enums import RoleEnum
 from models import (
     WorkflowClassificationOrm,

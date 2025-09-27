@@ -1,8 +1,8 @@
 import logging
 from functools import wraps
 
-from common import user_utils
 import data.db_operations as crud
+from common import user_utils
 from enums import RoleEnum
 from models import PatientAssociationsOrm
 

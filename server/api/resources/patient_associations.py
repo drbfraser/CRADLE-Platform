@@ -2,8 +2,8 @@ from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
-from common import user_utils
 import data.db_operations as crud
+from common import user_utils
 from models import HealthFacilityOrm, PatientOrm, UserOrm
 from service import assoc
 from validation.associations import PatientAssociationModel

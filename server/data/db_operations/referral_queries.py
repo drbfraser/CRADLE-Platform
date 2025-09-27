@@ -19,14 +19,18 @@ import operator
 from typing import Any, List, Optional, Union
 
 from sqlalchemy import or_
-from sqlalchemy.orm import  aliased
+from sqlalchemy.orm import aliased
 from sqlalchemy.sql.expression import and_
 from sqlalchemy.sql.functions import coalesce
 
-from data.db_operations import db_session
-from data.db_operations.helper_utils import __filter_by_patient_association, __filter_by_patient_search, __order_by_column, __get_slice_indexes
-
 from data import db_session
+from data.db_operations import db_session
+from data.db_operations.helper_utils import (
+    __filter_by_patient_association,
+    __filter_by_patient_search,
+    __get_slice_indexes,
+    __order_by_column,
+)
 from enums import TrafficLightEnum
 from models import (
     AssessmentOrm,
@@ -35,6 +39,7 @@ from models import (
     ReadingOrm,
     ReferralOrm,
 )
+
 
 def read_referral_list(
     user_id: Optional[int] = None,

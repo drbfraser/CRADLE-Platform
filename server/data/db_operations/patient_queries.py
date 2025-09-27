@@ -4,7 +4,7 @@ patient_queries.py
 This module contains query functions focused on retrieving patient-related data
 from the database. It provides utilities to list and filter patients, access
 their medical and drug records, construct patient timelines, and gather related
-entities such as readings, referrals, and assessments. 
+entities such as readings, referrals, and assessments.
 
 Functions included:
 - read_patient_list / read_admin_patient: return patient lists with filters.
@@ -18,14 +18,19 @@ These functions encapsulate patient-centric database access, keeping query
 logic organized and reusable across the application.
 """
 
-from typing import Any, List, NamedTuple, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, List, NamedTuple, Optional, Tuple, Type, Union
 
 from sqlalchemy import or_
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql.expression import and_, asc, desc, literal, null, text
-from data.db_operations.helper_utils import __filter_by_patient_association, __filter_by_patient_search, __order_by_column, __get_slice_indexes
 
-from data.db_operations import db_session, M
+from data.db_operations import M, db_session
+from data.db_operations.helper_utils import (
+    __filter_by_patient_association,
+    __filter_by_patient_search,
+    __get_slice_indexes,
+    __order_by_column,
+)
 from models import (
     AssessmentOrm,
     FormOrm,
@@ -36,6 +41,7 @@ from models import (
     ReferralOrm,
     UrineTestOrm,
 )
+
 
 def read_patient_list(
     user_id: Optional[int] = None,
@@ -116,7 +122,6 @@ def read_admin_patient(
         page = kwargs.get("page", 1)
         return query.slice(*__get_slice_indexes(page, limit))
     return query.all()
-
 
 
 # TODO: Why is there not a separate function for getting pregnancy records?

@@ -17,12 +17,13 @@ from typing import List
 
 from sqlalchemy.sql.expression import and_
 
-from data.db_operations import db_session, LOGGER, M
+from data.db_operations import LOGGER, M, db_session
 from models import (
     PatientOrm,
     ReadingOrm,
     ReferralOrm,
 )
+
 
 def get_unique_patients_with_readings(facility="%", user="%", filter={}) -> List[M]:
     """
