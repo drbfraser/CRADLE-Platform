@@ -1,4 +1,4 @@
-from .base import *
+from .base import db, get_uuid, get_current_time
 
 
 # MODELS
@@ -280,7 +280,7 @@ class WorkflowInstanceStepOrm(db.Model):
         db.String(50), db.ForeignKey("form.id", ondelete="SET NULL"), nullable=True
     )
     assigned_to = db.Column(
-        db.String(50), db.ForeignKey("user.id", ondelete="SET NULL"), nullable=True
+        db.Integer, db.ForeignKey("user.id", ondelete="SET NULL"), nullable=True
     )
     workflow_instance_id = db.Column(
         db.String(50),

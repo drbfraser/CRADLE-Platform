@@ -1,4 +1,4 @@
-from .base import *
+from .base import db, SupervisesTable, get_uuid
 import datetime
 
 

@@ -32,30 +32,6 @@ from .workflows import (
 from .communications import RelayServerPhoneNumberOrm
 
 
-class UserSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        include_fk = True
-        model = UserOrm
-        load_instance = True
-        include_relationships = True
-
-
-class UserPhoneNumberSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        include_fk = True
-        model = UserPhoneNumberOrm
-        load_instance = True
-        include_relationships = True
-
-
-class SmsSecretKeySchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        include_fk = True
-        model = SmsSecretKeyOrm
-        load_instance = True
-        include_relationships = True
-
-
 class RelayServerPhoneNumberSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
