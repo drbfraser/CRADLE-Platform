@@ -5,8 +5,8 @@ purpose:
     This module contains common database query helpers used across modules.
 
 Functions included:
-- __filter_by_patient_association: Restricts queries based on user–patient associations,
-  including CHO–VHT supervision relationships.
+- __filter_by_patient_association: Restricts queries based on user-patient associations,
+  including CHO-VHT supervision relationships.
 - __filter_by_patient_search: Applies free-text search filters on patient identifiers,
   names, or village numbers.
 - __order_by_column: Dynamically orders query results by a specified column in ascending
@@ -15,8 +15,9 @@ Functions included:
   limit parameters.
 
 These helpers reduce code duplication across CRUD modules such as patient, referral,
-and workflow queries:contentReference[oaicite:0]{index=0}.
+and workflow queries.
 """
+
 
 from typing import Any, Optional, Tuple
 

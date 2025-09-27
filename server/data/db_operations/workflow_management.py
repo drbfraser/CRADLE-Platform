@@ -23,7 +23,6 @@ What this module provides
 
 from typing import List, Optional, Type
 
-from data import db_session
 from data.db_operations import M, db_session
 from data.db_operations.common_crud import delete, delete_all, delete_by, read
 from enums import WorkflowStatusEnum
