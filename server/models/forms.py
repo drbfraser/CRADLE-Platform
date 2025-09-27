@@ -87,7 +87,7 @@ class FormOrm(db.Model):
         nullable=True,
     )
     last_edited_by = db.Column(
-        db.String(50), db.ForeignKey("user.id", ondelete="SET NULL"), nullable=True
+        db.Integer, db.ForeignKey("user.id", ondelete="SET NULL"), nullable=True
     )
 
     # RELATIONSHIPS
