@@ -18,7 +18,6 @@ These helpers reduce code duplication across CRUD modules such as patient, refer
 and workflow queries.
 """
 
-
 from typing import Any, Optional, Tuple
 
 from sqlalchemy import or_
