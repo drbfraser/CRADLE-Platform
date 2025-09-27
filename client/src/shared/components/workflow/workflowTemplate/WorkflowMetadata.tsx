@@ -18,9 +18,9 @@ interface WorkflowMetadataProps {
   description?: string;
   collectionName?: string;
   version?: number;
-  lastEdited?: number;
+  lastEdited?: string;
   archived?: boolean;
-  dateCreated?: number;
+  dateCreated?: string;
   isEditMode?: boolean;
   onFieldChange?: (field: keyof WorkflowTemplate, value: any) => void;
 }
@@ -97,7 +97,9 @@ export const WorkflowMetadata = ({
   onFieldChange,
 }: WorkflowMetadataProps) => {
   const versionText = `${version ?? ''}`;
-  const lastEditedDate = lastEdited ? getPrettyDateTime(lastEdited) : 'N/A';
+  const lastEditedDate = lastEdited
+    ? getPrettyDateTime(new Date(lastEdited).getTime())
+    : 'N/A';
 
   const handleFieldChange = (field: keyof WorkflowTemplate, value: any) => {
     onFieldChange?.(field, value);
@@ -157,14 +159,13 @@ export const WorkflowMetadata = ({
             onChange={
               isEditMode
                 ? (value) => {
-                  if (value) {
-                    handleFieldChange('version', value);
+                    if (value) {
+                      handleFieldChange('version', value);
+                    } else {
+                      handleFieldChange('version', 'V');
+                    }
+                    console.log('version', version);
                   }
-                  else {
-                    handleFieldChange('version', 'V');
-                  }
-                  console.log('version', version);
-                }
                 : undefined
             }
             fieldName="version"
@@ -212,7 +213,11 @@ export const WorkflowMetadata = ({
         <Grid item xs={12} md={5}>
           <InlineField
             label="First Create:"
-            value={dateCreated ? getPrettyDateTime(dateCreated) : 'N/A'}
+            value={
+              dateCreated
+                ? getPrettyDateTime(new Date(dateCreated).getTime())
+                : 'N/A'
+            }
           />
         </Grid>
       </Grid>

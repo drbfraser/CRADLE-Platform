@@ -206,7 +206,8 @@ export const getMomentDate = (dateS: OrNull<number>): moment.Moment => {
   // Dates are stored in the backend in UTC time
   // Auto-detect if timestamp is in seconds or milliseconds
   const timestamp = dateS ?? 0;
-  const timestampInMs = timestamp.toString().length <= 10 ? timestamp * 1000 : timestamp;
+  const timestampInMs =
+    timestamp.toString().length <= 10 ? timestamp * 1000 : timestamp;
   return moment.utc(timestampInMs);
 };
 
@@ -214,7 +215,8 @@ export const getPrettyDate = (dateStr: number): string => {
   // * Date comes in from the backend in seconds
   // * Moment date requires milliseconds
   // * Auto-detect if timestamp is in seconds or milliseconds
-  const timestampInMs = dateStr.toString().length <= 10 ? dateStr * 1000 : dateStr;
+  const timestampInMs =
+    dateStr.toString().length <= 10 ? dateStr * 1000 : dateStr;
   return getMomentDate(timestampInMs).format(DATE_FORMAT);
 };
 
@@ -222,10 +224,9 @@ export const getPrettyDateTime = (dateStr: number): string => {
   // * Date comes in from the backend in seconds
   // * Moment date requires milliseconds
   // * Auto-detect if timestamp is in seconds or milliseconds
-  const timestampInMs = dateStr.toString().length <= 10 ? dateStr * 1000 : dateStr;
-  return getMomentDate(timestampInMs)
-    .local()
-    .format(`${DATE_FORMAT} HH:mm:ss`);
+  const timestampInMs =
+    dateStr.toString().length <= 10 ? dateStr * 1000 : dateStr;
+  return getMomentDate(timestampInMs).local().format(`${DATE_FORMAT} HH:mm:ss`);
 };
 
 export const getYearToDisplay = (timestamp: number) => {

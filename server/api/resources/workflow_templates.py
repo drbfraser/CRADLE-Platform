@@ -34,6 +34,7 @@ from validation.workflow_templates import (
     WorkflowTemplateUploadModel,
 )
 import config
+
 app = config.app
 
 
@@ -416,12 +417,15 @@ def update_workflow_template_patch(
 
     return response_data, 200
 
+
 # /api/workflow/templates/<string:workflow_template_id>/partial [PATCH]
 @roles_required([RoleEnum.ADMIN])
 @api_workflow_templates.patch(
     "/<string:workflow_template_id>/partial", responses={200: WorkflowTemplateModel}
 )
-def update_workflow_template_partial(path: WorkflowTemplateIdPath, body: WorkflowTemplatePatchBody):
+def update_workflow_template_partial(
+    path: WorkflowTemplateIdPath, body: WorkflowTemplatePatchBody
+):
     """
     Update Workflow Template with only specific fields
 
@@ -435,12 +439,14 @@ def update_workflow_template_partial(path: WorkflowTemplateIdPath, body: Workflo
     if workflow_template is None:
         return abort(
             code=404,
-            description=workflow_template_not_found_message.format(path.workflow_template_id),
+            description=workflow_template_not_found_message.format(
+                path.workflow_template_id
+            ),
         )
-        
+
     changes = {}
     for key, value in payload.items():
-            changes[key] = value
+        changes[key] = value
 
     # No changes provided
     if not changes:
@@ -456,12 +462,12 @@ def update_workflow_template_partial(path: WorkflowTemplateIdPath, body: Workflo
         id=path.workflow_template_id,
     )
 
-    
     response_data = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
 
     response_data = marshal.marshal(response_data, shallow=True)
 
     return response_data, 200
+
 
 # /api/workflow/templates/<string:workflow_template_id> [DELETE]
 @api_workflow_templates.delete("/<string:workflow_template_id>", responses={204: None})

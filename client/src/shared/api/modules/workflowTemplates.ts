@@ -75,17 +75,20 @@ export const getAllWorkflowTemplatesAsync = async (
 //     return response.data;
 //   }
 // };
-export const editWorkflowTemplateAsync = async (template: Partial<WorkflowTemplate>) => {
+export const editWorkflowTemplateAsync = async (
+  template: Partial<WorkflowTemplate>
+) => {
   if (!template.id) {
     throw new Error('Template ID is required for updates');
   }
 
   // Prepare the patch body with only the fields that need updating
   const patchBody: Partial<WorkflowTemplate> = {};
-  
+
   // Only basic info of the workflow template is updated
   if (template.name !== undefined) patchBody.name = template.name;
-  if (template.description !== undefined) patchBody.description = template.description;
+  if (template.description !== undefined)
+    patchBody.description = template.description;
   if (template.archived !== undefined) patchBody.archived = template.archived;
   if (template.version !== undefined) patchBody.version = template.version;
 
@@ -96,13 +99,12 @@ export const editWorkflowTemplateAsync = async (template: Partial<WorkflowTempla
   const response = await axiosFetch({
     method: 'PATCH',
     url: `${TEMPLATES}/${template.id}/partial`,
-    data: patchBody
+    data: patchBody,
   });
 
   console.log('Response from PATCH endpoint:', response.data);
   return response.data;
 };
-
 
 // GET /workflow/templates/{templateId}
 export const getTemplate = async (
