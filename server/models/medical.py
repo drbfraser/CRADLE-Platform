@@ -49,7 +49,7 @@ class ReferralOrm(db.Model):
     )
     health_facility_name = db.Column(
         db.String(50),
-        db.ForeignKey('health_facility.id'),
+        db.ForeignKey('health_facility.name'),
     )
 
     # RELATIONSHIPS

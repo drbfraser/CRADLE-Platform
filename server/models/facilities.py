@@ -10,8 +10,10 @@ class HealthFacilityOrm(db.Model):
     Each facility has a unique ID and can receive referrals from other providers.
     """
     __tablename__ = "health_facility"
-    id = db.Column(db.String(50), primary_key=True, default=get_uuid)
-    name = db.Column(db.String(50), nullable=False, index=True)
+    name = db.Column(db.String(50), primary_key=True)
+    # TODO: should probably have a unique id as primary key here, in addition to facility name
+    # id = db.Column(db.String(50), primary_key=True, default=get_uuid)
+    # name = db.Column(db.String(50), nullable=False, index=True)
     type = db.Column(db.Enum(FacilityTypeEnum))
 
     # Best practice would be to add column for area code + column for rest of number.
