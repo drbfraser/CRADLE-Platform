@@ -23,7 +23,6 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql.expression import and_
 from sqlalchemy.sql.functions import coalesce
 
-from data import db_session
 from data.db_operations import db_session
 from data.db_operations.helper_utils import (
     __filter_by_patient_association,

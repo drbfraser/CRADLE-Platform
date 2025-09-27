@@ -33,7 +33,7 @@ Example usage
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Tuple, TypeVar
+from typing import Any, Dict, Tuple, TypeVar
 
 import config
 
@@ -117,7 +117,7 @@ __all__ = [
 # Map: public_name -> (submodule_name, attribute_name or None to return the module)
 # If two submodules export the same function name, *do not* alias both here.
 # Rename at the source or choose a single public name to avoid ambiguity.
-_EXPORTS: Dict[str, Tuple[str, Optional[str]]] = {
+_EXPORTS: Dict[str, Tuple[str, str | None]] = {
     # ------- common_crud -------
     "create": ("common_crud", "create"),
     "create_model": ("common_crud", "create_model"),

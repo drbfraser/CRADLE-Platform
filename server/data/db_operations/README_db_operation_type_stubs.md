@@ -1,64 +1,31 @@
+Type stub for `data.db_operations` facade.
 
-# Type Stub for `data/db_operations` (`__init__.pyi`)
+Purpose
+-------
+Provide a **static view** of the dynamically re-exported API so editors and
+type checkers (VS Code/Pylance, pyright, mypy) can resolve symbols like
+`crud.create`, show hover docs, “Go to Definition/References,” and CodeLens
+usage counts — while leaving runtime behavior untouched.
 
-This project uses a **runtime facade** in `data/db_operations/__init__.py` to re-export
-functions dynamically (via `__getattr__`) so call sites can do:
+How it works
+------------
+- Python executes the runtime `__init__.py`; this `.pyi` file is **not run**.
+- Pylance prefers `.pyi` for types, so the re-exports here tell the analyzer
+  which names exist and where they come from (e.g., `common_crud.create`).
+- We also re-expose select submodules so namespaced access (e.g. `crud.patient_queries`)
+  gets completion.
 
-```python
-import data.db_operations as crud
-crud.create(...)
-```
+Maintenance
+-----------
+Whenever you change the public API in `data/db_operations/__init__.py`:
+1. Add/remove the same names here using `from .<module> import <name>`.
+2. (Optional) Re-expose namespaced submodules via `from . import <module> as <module>`.
+3. Reload VS Code’s language server to re-index.
 
-Static analyzers (VS Code/Pylance, pyright) can’t follow dynamic re-exports, which breaks
-hover docs, “Go to Definition/References,” and CodeLens usage counts for `crud.*`.
-The **type stub** `__init__.pyi` provides a static map of the public API, restoring those features.
-
----
-
-## Where to put it
-
-Place the file at:
-```
-server/data/db_operations/__init__.pyi
-```
-
-After adding/updating it, in VS Code:
-- **Command Palette → “Python: Restart Language Server”** or **Reload Window**.
-
----
-
-## When to update it
-
-Whenever you **add/remove/rename** a top-level export in the facade’s `__init__.py`:
-1. Add/remove the same name(s) in the stub with a `from .<module> import <name>` line.
-2. (Optional) Add a namespaced submodule re-export if you want completion on `crud.<module>`.
-3. Commit both changes together.
-
-> Tip: Keep the stub and the facade changes in the same PR to avoid drift.
-
----
-
-## Example: exposing a new function
-
-You added `read_my_feature_items` in `my_feature_queries.py` and exposed it in the facade.
-Update the stub too:
-
-```diff
- # server/data/db_operations/__init__.pyi
--from .patient_queries import (
--    read_admin_patient, read_patient_list,
--)
-+from .my_feature_queries import (
-+    read_my_feature_items,
-+)
-```
-
-Restart the language server; hovering `crud.read_my_feature_items` will now resolve to the
-real function in `my_feature_queries.py`.
-
----
-
-## Common pitfalls
-
-- **Forgetting the stub update**: runtime works, but editor won’t show refs/hovers.
-- **Putting runtime code in `.pyi`**: stubs should only include types/imports.
+Notes
+-----
+- This file must only contain **type information**: imports, annotations, overloads,
+  Protocols, etc. No runtime logic.
+- A mismatch between the stub and the runtime file *does not* break the app, but
+  editor hovers/completions may be misleading until updated.
+- Performance: no runtime cost — stubs are not executed.
