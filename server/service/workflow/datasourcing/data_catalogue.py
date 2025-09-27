@@ -1,7 +1,7 @@
 from functools import partial
 from typing import Any, Callable, Dict, TypeAlias, TypeVar, Union
 
-import models as m
+from models import AssessmentOrm, MedicalRecordOrm, PatientOrm, PregnancyOrm, ReadingOrm, UrineTestOrm
 from data import crud, marshal
 from service.workflow.datasourcing import custom_lookup as cl
 
@@ -68,37 +68,37 @@ def get_catalogue() -> Dict[str, ObjectCatalogue]:
 __data_catalogue = {
     "assessment": {
         "query": partial(
-            __query_object, m.AssessmentOrm, lambda _id: m.AssessmentOrm.id == _id
+            __query_object, AssessmentOrm, lambda _id: AssessmentOrm.id == _id
         ),
         "custom": {},
     },
     "medical_record": {
         "query": partial(
-            __query_object, m.MedicalRecordOrm, lambda _id: m.MedicalRecordOrm.id == _id
+            __query_object, MedicalRecordOrm, lambda _id: MedicalRecordOrm.id == _id
         ),
         "custom": {},
     },
     "patient": {
         "query": partial(
-            __query_object, m.PatientOrm, lambda _id: m.PatientOrm.id == _id
+            __query_object, PatientOrm, lambda _id: PatientOrm.id == _id
         ),
         "custom": {"age": partial(cl.patient_age)},
     },
     "pregnancy": {
         "query": partial(
-            __query_object, m.PregnancyOrm, lambda _id: m.PregnancyOrm.id == _id
+            __query_object, PregnancyOrm, lambda _id: PregnancyOrm.id == _id
         ),
         "custom": {},
     },
     "reading": {
         "query": partial(
-            __query_object, m.ReadingOrm, lambda _id: m.ReadingOrm.patient_id == _id
+            __query_object, ReadingOrm, lambda _id: ReadingOrm.patient_id == _id
         ),
         "custom": {},
     },
     "urine_test": {
         "query": partial(
-            __query_object, m.UrineTestOrm, lambda _id: m.UrineTestOrm.id == _id
+            __query_object, UrineTestOrm, lambda _id: UrineTestOrm.id == _id
         ),
         "custom": {},
     },

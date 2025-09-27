@@ -10,30 +10,42 @@ import click
 import numpy as np
 from flask.cli import FlaskGroup
 
-import models
 from common.commonUtil import get_current_time
 from data import crud, marshal
 from models import (
+    # Patients
+    PatientOrm,
+    MedicalRecordOrm,
+    PatientAssociationsOrm,
+    PregnancyOrm,
+    
+    # Forms
     FormClassificationOrm,
     FormOrm,
     FormTemplateOrm,
-    MedicalRecordOrm,
-    PatientAssociationsOrm,
-    PatientOrm,
-    PregnancyOrm,
     QuestionLangVersionOrm,
     QuestionOrm,
+    
+    # Medical Data
     ReadingOrm,
     ReferralOrm,
+    
+    # Communications model
     RelayServerPhoneNumberOrm,
+    
+    # Facilities model
     VillageOrm,
+    
+    # Workflows
     WorkflowClassificationOrm,
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
     WorkflowTemplateOrm,
     WorkflowTemplateStepBranchOrm,
     WorkflowTemplateStepOrm,
+    
     db,
+    SexEnum,
 )
 from seed_users import (
     clear_user_pool as empty_user_pool,
@@ -284,14 +296,14 @@ def seed():
 
         generated_names.add(name + last_name)
 
-        if sex == models.SexEnum.MALE.value:
+        if sex == SexEnum.MALE.value:
             pregnant = False
         else:
             pregnant = bool(random.getrandbits(1))
 
         pregnancy_start_date = None
 
-        if sex == models.SexEnum.FEMALE.value and pregnant:
+        if sex == SexEnum.FEMALE.value and pregnant:
             pregnancy_start_date = get_random_pregnancy_date()
 
         patient = {
@@ -448,7 +460,7 @@ def create_patient_reading_referral_pregnancy(
     db.session.add(PatientOrm(**patient))
     db.session.commit()
 
-    reading_orm = marshal.unmarshal(models.ReadingOrm, reading)
+    reading_orm = marshal.unmarshal(ReadingOrm, reading)
     crud.create(reading_orm, refresh=True)
 
     db.session.add(ReferralOrm(**referral))
