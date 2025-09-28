@@ -73,11 +73,6 @@ class FormOrm(db.Model):
         default=get_current_time,
         onupdate=get_current_time,
     )
-    # TODO: Why do Forms have a foreign key to Form Classifications? This seems redundant.
-    form_classification_id = db.Column(
-        db.ForeignKey(FormClassificationOrm.id, ondelete="SET NULL"),
-        nullable=True,
-    )
 
     archived = db.Column(db.Boolean, nullable=False, default=False)
 
@@ -94,6 +89,12 @@ class FormOrm(db.Model):
     )
     last_edited_by = db.Column(
         db.Integer, db.ForeignKey("user.id", ondelete="SET NULL"), nullable=True
+    )
+    # TODO: Why do Forms have a foreign key to Form Classifications? This seems redundant.
+    form_classification_id = db.Column(
+        db.String(50),
+        db.ForeignKey("form_classification.id", ondelete="SET NULL"),
+        nullable=True,
     )
 
     # RELATIONSHIPS
