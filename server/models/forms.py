@@ -73,6 +73,12 @@ class FormOrm(db.Model):
         default=get_current_time,
         onupdate=get_current_time,
     )
+    # TODO: Why do Forms have a foreign key to Form Classifications? This seems redundant.
+    form_classification_id = db.Column(
+        db.ForeignKey(FormClassificationOrm.id, ondelete="SET NULL"),
+        nullable=True,
+    )
+
     archived = db.Column(db.Boolean, nullable=False, default=False)
 
     # FOREIGN KEYS
