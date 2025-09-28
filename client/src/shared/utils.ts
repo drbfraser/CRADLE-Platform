@@ -217,7 +217,7 @@ export const getPrettyDate = (dateStr: number): string => {
   // * Auto-detect if timestamp is in seconds or milliseconds
   const timestampInMs =
     dateStr.toString().length <= 10 ? dateStr * 1000 : dateStr;
-  return getMomentDate(timestampInMs).format(DATE_FORMAT);
+  return getMomentDate(timestampInMs).local().format(DATE_FORMAT);
 };
 
 export const getPrettyDateTime = (dateStr: number): string => {
@@ -230,7 +230,9 @@ export const getPrettyDateTime = (dateStr: number): string => {
 };
 
 export const getYearToDisplay = (timestamp: number) => {
-  return getMomentDate(timestamp * 1000).format('YYYY');
+  return getMomentDate(timestamp * 1000)
+    .local()
+    .format('YYYY');
 };
 
 export const getLatestReading = (readings: Array<Reading>): Reading => {

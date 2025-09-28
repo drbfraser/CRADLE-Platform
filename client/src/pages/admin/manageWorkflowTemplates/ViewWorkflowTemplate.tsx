@@ -19,11 +19,10 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
-  TemplateStep,
   TemplateStepWithFormAndIndex,
   WorkflowTemplate,
 } from 'src/shared/types/workflow/workflowTypes';
-import { listTemplateSteps } from 'src/shared/api/modules/workflowTemplates';
+import { getTemplateWithStepsAndClassification } from 'src/shared/api/modules/workflowTemplates';
 import { WorkflowMetadata } from '../../../shared/components/workflow/workflowTemplate/WorkflowMetadata';
 import { WorkflowSteps } from 'src/shared/components/workflow/WorkflowSteps';
 import { useEditWorkflowTemplate } from './mutations';
@@ -34,10 +33,6 @@ export const ViewWorkflowTemplate = () => {
   const location = useLocation();
   const viewWorkflow = location.state?.viewWorkflow;
 
-  const [viewWorkflowSteps, setViewWorkflowSteps] = useState<
-    TemplateStep[] | undefined
-  >(undefined);
-
   // Edit mode state
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedWorkflow, setEditedWorkflow] = useState<WorkflowTemplate | null>(
@@ -45,42 +40,38 @@ export const ViewWorkflowTemplate = () => {
   );
   const [hasChanges, setHasChanges] = useState(false);
 
-  const workflowTemplateStepsQuery = useQuery({
-    queryKey: ['workflowTemplateSteps', viewWorkflow?.id],
-    queryFn: async (): Promise<TemplateStep[]> => {
-      const result = await listTemplateSteps(viewWorkflow.id);
-      return Array.isArray(result)
-        ? result
-        : (result as { items: TemplateStep[] }).items || [];
+  // Fetch the workflow template data to ensure it's always up-to-date
+  const workflowTemplateQuery = useQuery({
+    queryKey: ['workflowTemplate', viewWorkflow?.id],
+    queryFn: async (): Promise<WorkflowTemplate> => {
+      if (!viewWorkflow?.id)
+        throw new Error('No workflow template ID provided');
+      return await getTemplateWithStepsAndClassification(viewWorkflow.id);
     },
     enabled: !!viewWorkflow?.id,
+    initialData: viewWorkflow,
   });
 
   const editWorkflowTemplateMutation = useEditWorkflowTemplate();
 
   useEffect(() => {
-    setViewWorkflowSteps(workflowTemplateStepsQuery.data);
-  }, [workflowTemplateStepsQuery.data]);
-
-  // Initialize edited workflow when entering edit mode
-  useEffect(() => {
-    if (isEditMode && viewWorkflow && !editedWorkflow) {
-      setEditedWorkflow({ ...viewWorkflow });
+    if (isEditMode && workflowTemplateQuery.data && !editedWorkflow) {
+      setEditedWorkflow({ ...workflowTemplateQuery.data });
     }
-  }, [isEditMode, viewWorkflow, editedWorkflow]);
+  }, [isEditMode, workflowTemplateQuery.data, editedWorkflow]);
 
-  const isLoading = workflowTemplateStepsQuery.isPending;
+  const isLoading = workflowTemplateQuery.isPending;
 
   const dash = (v?: string) => (v && String(v).trim() ? v : '—');
   const collectionName = useMemo(
-    () => dash(viewWorkflow?.classification?.name),
-    [viewWorkflow]
+    () => dash(workflowTemplateQuery.data?.classification?.name),
+    [workflowTemplateQuery.data]
   );
 
   // Edit mode functions
   const handleEdit = () => {
     setIsEditMode(true);
-    setEditedWorkflow({ ...viewWorkflow });
+    setEditedWorkflow({ ...workflowTemplateQuery.data });
     setHasChanges(false);
   };
 
@@ -115,11 +106,13 @@ export const ViewWorkflowTemplate = () => {
     setHasChanges(true);
   };
 
-  const currentWorkflow = isEditMode ? editedWorkflow : viewWorkflow;
+  const currentWorkflow = isEditMode
+    ? editedWorkflow
+    : workflowTemplateQuery.data;
 
   return (
     <>
-      {(workflowTemplateStepsQuery.isError ||
+      {(workflowTemplateQuery.isError ||
         editWorkflowTemplateMutation.isError) && <APIErrorToast />}
 
       <Paper sx={{ p: { xs: 2, md: 3 }, mb: 3 }}>
@@ -147,7 +140,7 @@ export const ViewWorkflowTemplate = () => {
               variant="contained"
               startIcon={<EditIcon />}
               onClick={handleEdit}
-              disabled={viewWorkflow?.archived}>
+              disabled={workflowTemplateQuery.data?.archived}>
               Edit
             </Button>
           ) : (
@@ -205,8 +198,8 @@ export const ViewWorkflowTemplate = () => {
         <Divider sx={{ my: 3 }} />
         <Typography variant="h6" component="h2" sx={{ ml: 1, mb: 2 }}>
           {`Workflow Template Steps${
-            typeof viewWorkflowSteps?.length === 'number'
-              ? ` (${viewWorkflowSteps.length})`
+            typeof workflowTemplateQuery.data?.steps?.length === 'number'
+              ? ` (${workflowTemplateQuery.data.steps.length})`
               : ''
           }`}
         </Typography>
@@ -215,7 +208,10 @@ export const ViewWorkflowTemplate = () => {
           <Skeleton variant="rectangular" height={400} />
         ) : (
           <WorkflowSteps
-            steps={viewWorkflowSteps as TemplateStepWithFormAndIndex[]}
+            steps={
+              workflowTemplateQuery.data
+                ?.steps as TemplateStepWithFormAndIndex[]
+            }
             firstStep={currentWorkflow?.startingStepId}
             isInstance={false}
           />

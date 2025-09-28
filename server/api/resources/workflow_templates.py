@@ -8,6 +8,7 @@ from flask import abort, make_response, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
+import config
 from api.decorator import roles_required
 from api.resources.workflow_template_steps import WorkflowTemplateStepListResponse
 from common.api_utils import (
@@ -33,7 +34,6 @@ from validation.workflow_templates import (
     WorkflowTemplatePatchBody,
     WorkflowTemplateUploadModel,
 )
-import config
 
 app = config.app
 
@@ -444,9 +444,7 @@ def update_workflow_template_partial(
             ),
         )
 
-    changes = {}
-    for key, value in payload.items():
-        changes[key] = value
+    changes = dict(payload)
 
     # No changes provided
     if not changes:
