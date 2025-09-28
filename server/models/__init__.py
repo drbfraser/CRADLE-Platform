@@ -1,4 +1,5 @@
-from .base import SupervisesTable, db
+from .base import SupervisesTable as SupervisesTable
+from .base import db as db
 from .communications import RelayServerPhoneNumberOrm
 from .facilities import HealthFacilityOrm, VillageOrm
 from .forms import (
