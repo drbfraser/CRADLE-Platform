@@ -26,7 +26,6 @@ from models import (
     ReadingOrm,
     ReferralOrm,
     RelayServerPhoneNumberOrm,
-    SexEnum,
     VillageOrm,
     WorkflowClassificationOrm,
     WorkflowInstanceOrm,

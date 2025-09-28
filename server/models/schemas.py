@@ -2,9 +2,10 @@ import marshmallow
 from marshmallow_enum import EnumField
 from marshmallow_sqlalchemy import fields
 
+from config import ma
 from enums import FacilityTypeEnum, SexEnum, TrafficLightEnum
 
-from .base import ma, validate_timestamp
+from .base import validate_timestamp
 from .communications import RelayServerPhoneNumberOrm
 from .facilities import HealthFacilityOrm, VillageOrm
 from .forms import (

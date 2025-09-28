@@ -1,4 +1,6 @@
-from .base import db, get_current_time, get_uuid
+from common.commonUtil import get_uuid
+
+from .base import db, get_current_time
 
 
 # MODELS

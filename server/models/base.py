@@ -2,8 +2,8 @@ import marshmallow
 from jsonschema import validate
 from jsonschema.exceptions import SchemaError, ValidationError
 
-from common.commonUtil import get_current_time, get_uuid
-from config import db, ma
+from common.commonUtil import get_current_time
+from config import db
 
 SupervisesTable = db.Table(
     "supervises",

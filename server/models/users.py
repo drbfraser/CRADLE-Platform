@@ -1,6 +1,8 @@
 import datetime
 
-from .base import SupervisesTable, db, get_uuid
+from common.commonUtil import get_uuid
+
+from .base import SupervisesTable, db
 
 
 # MODELS
