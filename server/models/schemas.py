@@ -1,35 +1,32 @@
-from .base import (
-    ma,
-    EnumField,
-    FacilityTypeEnum,
-    TrafficLightEnum,
-    fields,
-    SexEnum,
-    marshmallow,
-    validate_timestamp,
-)
-from .users import UserOrm, UserPhoneNumberOrm, SmsSecretKeyOrm
-from .medical import ReferralOrm, ReadingOrm, AssessmentOrm, UrineTestOrm
-from .patients import PatientOrm, PatientAssociationsOrm, PregnancyOrm, MedicalRecordOrm
+import marshmallow
+from marshmallow_enum import EnumField
+from marshmallow_sqlalchemy import fields
+
+from enums import FacilityTypeEnum, SexEnum, TrafficLightEnum
+
+from .base import ma, validate_timestamp
+from .communications import RelayServerPhoneNumberOrm
 from .facilities import HealthFacilityOrm, VillageOrm
 from .forms import (
     FormClassificationOrm,
-    FormTemplateOrm,
     FormOrm,
-    QuestionOrm,
+    FormTemplateOrm,
     QuestionLangVersionOrm,
+    QuestionOrm,
 )
+from .medical import AssessmentOrm, ReadingOrm, ReferralOrm, UrineTestOrm
+from .patients import MedicalRecordOrm, PatientAssociationsOrm, PatientOrm, PregnancyOrm
+from .users import SmsSecretKeyOrm, UserOrm, UserPhoneNumberOrm
 from .workflows import (
     RuleGroupOrm,
-    WorkflowCollectionOrm,
     WorkflowClassificationOrm,
-    WorkflowTemplateOrm,
-    WorkflowTemplateStepOrm,
-    WorkflowTemplateStepBranchOrm,
+    WorkflowCollectionOrm,
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
+    WorkflowTemplateOrm,
+    WorkflowTemplateStepBranchOrm,
+    WorkflowTemplateStepOrm,
 )
-from .communications import RelayServerPhoneNumberOrm
 
 
 class RelayServerPhoneNumberSchema(ma.SQLAlchemyAutoSchema):
@@ -116,13 +113,16 @@ class ReadingSchema(ma.SQLAlchemyAutoSchema):
         include_relationships = True
 
 
-class AssessmentSchema(ma.SQLAlchemyAutoSchema):
-    # late import to avoid circular dependency
-    def __init__(self, *args, **kwargs):
-        from .users import UserSchema
+class UserSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = UserOrm
+        load_instance = True
+        include_relationships = True
 
-        super().__init__(*args, **kwargs)
-        self.fields["healthcare_worker"] = fields.Nested(UserSchema)
+
+class AssessmentSchema(ma.SQLAlchemyAutoSchema):
+    healthcare_worker = fields.Nested(UserSchema)
 
     class Meta:
         include_fk = True
@@ -175,14 +175,6 @@ class MedicalRecordSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = MedicalRecordOrm
-        load_instance = True
-        include_relationships = True
-
-
-class UserSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        include_fk = True
-        model = UserOrm
         load_instance = True
         include_relationships = True
 

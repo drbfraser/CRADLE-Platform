@@ -12,34 +12,28 @@ from common.form_utils import filter_template_questions_orm
 from data import db_session
 from enums import RoleEnum, TrafficLightEnum, WorkflowStatusEnum
 from models import (
-    # Form ORMs
+    AssessmentOrm,
     FormClassificationOrm,
     FormOrm,
     FormTemplateOrm,
-    QuestionOrm,
-    # Medical ORMs
-    AssessmentOrm,
-    ReadingOrm,
-    ReferralOrm,
-    UrineTestOrm,
-    # Patient ORMs
     MedicalRecordOrm,
     PatientAssociationsOrm,
     PatientOrm,
     PregnancyOrm,
-    # User ORMs
+    QuestionOrm,
+    ReadingOrm,
+    ReferralOrm,
+    RuleGroupOrm,
+    SupervisesTable,
+    UrineTestOrm,
     UserOrm,
     UserPhoneNumberOrm,
-    # Workflow ORMs
-    RuleGroupOrm,
     WorkflowClassificationOrm,
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
     WorkflowTemplateOrm,
     WorkflowTemplateStepBranchOrm,
     WorkflowTemplateStepOrm,
-    # Other imports
-    SupervisesTable,
     get_schema_for_model,
 )
 from service import invariant

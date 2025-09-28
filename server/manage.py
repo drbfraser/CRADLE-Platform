@@ -12,26 +12,22 @@ from flask.cli import FlaskGroup
 
 from common.commonUtil import get_current_time
 from data import crud, marshal
+from enums import SexEnum
 from models import (
-    # Patients
-    PatientOrm,
-    MedicalRecordOrm,
-    PatientAssociationsOrm,
-    PregnancyOrm,
-    # Forms
     FormClassificationOrm,
     FormOrm,
     FormTemplateOrm,
+    MedicalRecordOrm,
+    PatientAssociationsOrm,
+    PatientOrm,
+    PregnancyOrm,
     QuestionLangVersionOrm,
     QuestionOrm,
-    # Medical Data
     ReadingOrm,
     ReferralOrm,
-    # Communications model
     RelayServerPhoneNumberOrm,
-    # Facilities model
+    SexEnum,
     VillageOrm,
-    # Workflows
     WorkflowClassificationOrm,
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
@@ -39,7 +35,6 @@ from models import (
     WorkflowTemplateStepBranchOrm,
     WorkflowTemplateStepOrm,
     db,
-    SexEnum,
 )
 from seed_users import (
     clear_user_pool as empty_user_pool,

@@ -1,5 +1,6 @@
-from .base import db, SupervisesTable, get_uuid
 import datetime
+
+from .base import SupervisesTable, db, get_uuid
 
 
 # MODELS

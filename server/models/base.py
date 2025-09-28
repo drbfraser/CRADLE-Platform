@@ -1,11 +1,9 @@
-from config import db, ma
-from jsonschema.exceptions import SchemaError, ValidationError
-from jsonschema import validate
-from common.commonUtil import get_current_time, get_uuid
-from enums import *
-from marshmallow_enum import EnumField
-from marshmallow_sqlalchemy import fields
 import marshmallow
+from jsonschema import validate
+from jsonschema.exceptions import SchemaError, ValidationError
+
+from common.commonUtil import get_current_time, get_uuid
+from config import db, ma
 
 SupervisesTable = db.Table(
     "supervises",

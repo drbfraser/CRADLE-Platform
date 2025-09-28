@@ -1,4 +1,6 @@
-from .base import db, FacilityTypeEnum
+from enums import FacilityTypeEnum
+
+from .base import db
 
 
 # MODELS

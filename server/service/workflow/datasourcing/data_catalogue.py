@@ -1,6 +1,7 @@
 from functools import partial
 from typing import Any, Callable, Dict, TypeAlias, TypeVar, Union
 
+from data import crud, marshal
 from models import (
     AssessmentOrm,
     MedicalRecordOrm,
@@ -9,7 +10,6 @@ from models import (
     ReadingOrm,
     UrineTestOrm,
 )
-from data import crud, marshal
 from service.workflow.datasourcing import custom_lookup as cl
 
 M = TypeVar("M")

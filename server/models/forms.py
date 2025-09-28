@@ -1,4 +1,6 @@
-from .base import db, get_uuid, get_current_time, QuestionTypeEnum
+from enums import QuestionTypeEnum
+
+from .base import db, get_current_time, get_uuid
 
 
 # MODELS

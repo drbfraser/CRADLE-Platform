@@ -1,12 +1,55 @@
-from .base import *
-from .users import *
-from .facilities import *
-from .patients import *
-from .medical import *
-from .forms import *
-from .workflows import *
-from .communications import *
-from .schemas import *
+from .base import SupervisesTable, db
+from .communications import RelayServerPhoneNumberOrm
+from .facilities import HealthFacilityOrm, VillageOrm
+from .forms import (
+    FormClassificationOrm,
+    FormOrm,
+    FormTemplateOrm,
+    QuestionLangVersionOrm,
+    QuestionOrm,
+)
+from .medical import AssessmentOrm, ReadingOrm, ReferralOrm, UrineTestOrm
+from .patients import MedicalRecordOrm, PatientAssociationsOrm, PatientOrm, PregnancyOrm
+from .schemas import (
+    AssessmentSchema,
+    FormClassificationSchema,
+    FormSchema,
+    FormTemplateSchema,
+    HealthFacilitySchema,
+    MedicalRecordSchema,
+    PatientAssociationsSchema,
+    PatientSchema,
+    PregnancySchema,
+    QuestionLangVersionSchema,
+    QuestionSchema,
+    ReadingSchema,
+    ReferralSchema,
+    RelayServerPhoneNumberSchema,
+    RuleGroupSchema,
+    SmsSecretKeySchema,
+    UrineTestSchema,
+    UserPhoneNumberSchema,
+    UserSchema,
+    VillageSchema,
+    WorkflowClassificationSchema,
+    WorkflowCollectionSchema,
+    WorkflowInstanceSchema,
+    WorkflowInstanceStepSchema,
+    WorkflowTemplateSchema,
+    WorkflowTemplateStepBranchSchema,
+    WorkflowTemplateStepSchema,
+)
+from .users import SmsSecretKeyOrm, UserOrm, UserPhoneNumberOrm
+from .workflows import (
+    RuleGroupOrm,
+    WorkflowClassificationOrm,
+    WorkflowCollectionOrm,
+    WorkflowInstanceOrm,
+    WorkflowInstanceStepOrm,
+    WorkflowTemplateOrm,
+    WorkflowTemplateStepBranchOrm,
+    WorkflowTemplateStepOrm,
+)
 
 SCHEMA_REGISTRY = {
     UserOrm: UserSchema,
@@ -14,7 +57,7 @@ SCHEMA_REGISTRY = {
     SmsSecretKeyOrm: SmsSecretKeySchema,
     RelayServerPhoneNumberOrm: RelayServerPhoneNumberSchema,
     WorkflowCollectionOrm: WorkflowCollectionSchema,
-    WorkflowClassificationOrm: WorkflowCollectionSchema,
+    WorkflowClassificationOrm: WorkflowClassificationSchema,
     RuleGroupOrm: RuleGroupSchema,
     WorkflowTemplateOrm: WorkflowTemplateSchema,
     WorkflowTemplateStepOrm: WorkflowTemplateStepSchema,

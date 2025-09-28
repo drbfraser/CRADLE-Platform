@@ -1,4 +1,6 @@
-from .base import db, SexEnum, get_uuid, get_current_time
+from enums import SexEnum
+
+from .base import db, get_current_time, get_uuid
 
 
 # MODELS

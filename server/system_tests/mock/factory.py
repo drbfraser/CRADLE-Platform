@@ -3,18 +3,18 @@ from typing import Any
 from flask_sqlalchemy import SQLAlchemy
 
 import data
-from models import (
-    PatientSchema,
-    ReadingOrm,
-    ReferralSchema,
-    AssessmentSchema,
-    HealthFacilitySchema,
-    PregnancySchema,
-    MedicalRecordSchema,
-    FormTemplateSchema,
-)
 from data import crud, marshal
 from manage import get_username_from_email
+from models import (
+    AssessmentSchema,
+    FormTemplateSchema,
+    HealthFacilitySchema,
+    MedicalRecordSchema,
+    PatientSchema,
+    PregnancySchema,
+    ReadingOrm,
+    ReferralSchema,
+)
 
 
 class ModelFactory:
