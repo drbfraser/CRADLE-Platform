@@ -102,6 +102,10 @@ class FormOrm(db.Model):
         "PatientOrm",
         backref=db.backref("forms", cascade="all, delete", lazy=True),
     )
+    classification = db.relationship(
+        "FormClassificationOrm",
+        backref=db.backref("forms", cascade="all, delete", lazy=True),
+    )
     template = db.relationship(
         "FormTemplateOrm", backref=db.backref("forms", lazy=True)
     )
