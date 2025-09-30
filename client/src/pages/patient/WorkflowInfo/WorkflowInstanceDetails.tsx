@@ -43,6 +43,7 @@ import {
   getTemplate,
 } from 'src/shared/api';
 import { ISODate, Nullable } from 'src/shared/constants';
+import { formatISODateNumber } from 'src/shared/utils';
 import { WorkflowInstanceStep } from 'src/shared/types/workflow/workflowTypes';
 import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
 
@@ -101,10 +102,6 @@ export type WorkflowInstanceProgress = {
   etaDate?: Date;
   currentIndex: number;
 };
-
-function formatISODateNumber(isoDateNumber: number): ISODate {
-  return new Date(isoDateNumber * 1000).toLocaleDateString('en-CA');
-}
 
 const formatWhen = (s: InstanceStep) => {
   if (s.status === StepStatus.COMPLETED && s.completedOn) {
@@ -176,7 +173,7 @@ function computeProgressAndEta(steps: InstanceStep[], now = new Date()) {
   return { total, completed, percent, estDaysRemaining, etaDate, currentIndex };
 }
 
-function mapWorkflowStep(apiStep: WorkflowInstanceStep): InstanceStep {
+export function mapWorkflowStep(apiStep: WorkflowInstanceStep): InstanceStep {
   return {
     id: apiStep.id,
     title: apiStep.name,
@@ -196,7 +193,7 @@ function mapWorkflowStep(apiStep: WorkflowInstanceStep): InstanceStep {
   };
 }
 
-async function loadInstanceById(id: string): Promise<InstanceDetails> {
+export async function loadInstanceById(id: string): Promise<InstanceDetails> {
   const instance = await getInstanceWithSteps('simple-workflow-instance-1');
   const template = await getTemplate(instance.workflowTemplateId, {
     with_classification: true,

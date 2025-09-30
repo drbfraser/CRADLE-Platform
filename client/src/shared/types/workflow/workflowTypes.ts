@@ -129,12 +129,12 @@ export interface InstanceInput {
 
 // To be used for PATCH payloads for /workflow/instances/{id}
 /**
- * update status / record currentStep / lastEdited: what time  / lastEditedBy: who(id)
+ * update status / record currentStep / lastEditedBy: who(id)
  */
 export type InstanceUpdate = Partial<
   Pick<
     WorkflowInstance,
-    'status' | 'currentStepId' | 'lastEdited' | 'lastEditedBy'
+    'status' | 'currentStepId' | 'lastEditedBy'
   >
 >;
 
@@ -145,7 +145,6 @@ export type InstanceStepUpdate = Partial<
     | 'completionDate'
     | 'assignedTo'
     | 'data'
-    | 'lastEdited'
     | 'lastUpdatedBy'
   >
 >;

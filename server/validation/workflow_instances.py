@@ -61,13 +61,13 @@ class WorkflowInstanceModel(CradleBaseModel, extra="forbid"):
     id: str
     name: str
     description: str
-    start_date: int = Field(default_factory=get_current_time, alias="startDate")
-    current_step_id: Optional[str] = Field(default=None, alias="currentStepId")
-    last_edited: Optional[int] = Field(default_factory=get_current_time, alias="lastEdited")
-    completion_date: Optional[int] = Field(default_factory=get_current_time, alias="completionDate")
+    start_date: int = Field(default_factory=get_current_time)
+    current_step_id: Optional[str] = Field(default=None)
+    last_edited: Optional[int] = Field(default_factory=get_current_time)
+    completion_date: Optional[int] = Field(default_factory=get_current_time)
     status: str
-    workflow_template_id: Optional[str] = Field(default=None, alias="workflowTemplateId")
-    patient_id: str = Field(alias="patientId")
+    workflow_template_id: Optional[str] = Field(default=None)
+    patient_id: str
     steps: list[WorkflowInstanceStepModel]
 
     @field_validator("status", mode="after")
@@ -101,13 +101,13 @@ class WorkflowInstancePatchModel(CradleBaseModel, extra="forbid"):
     id: Optional[str] = None
     name: Optional[str] = None
     description: Optional[str] = None
-    start_date: Optional[int] = Field(None, alias="startDate")
-    current_step_id: Optional[str] = Field(None, alias="currentStepId")
-    last_edited: Optional[int] = Field(None, alias="lastEdited")
-    completion_date: Optional[int] = Field(None, alias="completionDate")
+    start_date: Optional[int] = Field(None)
+    current_step_id: Optional[str] = Field(None)
+    last_edited: Optional[int] = Field(None)
+    completion_date: Optional[int] = Field(None)
     status: Optional[str] = None
-    workflow_template_id: Optional[str] = Field(None, alias="workflowTemplateId")
-    patient_id: Optional[str] = Field(None, alias="patientId")
+    workflow_template_id: Optional[str] = Field(None)
+    patient_id: Optional[str] = Field(None)
     steps: Optional[list[WorkflowInstanceStepModel]] = None
 
     @field_validator("status", mode="after")
