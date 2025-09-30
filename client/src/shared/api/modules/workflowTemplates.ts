@@ -62,19 +62,7 @@ export const getAllWorkflowTemplatesAsync = async (
   }
 };
 
-// PUT /workflow/templates/{templateId} - Edit workflow template (including archive status)
-// export const editWorkflowTemplateAsync = async (template: WorkflowTemplate) => {
-//   // if the template's archived status is changed, update it
-//   console.log('Template:', template);
-//   if (template.archived !== undefined){
-//     const response = await axiosFetch({
-//       method: 'PUT',
-//       url: `${TEMPLATES}/${template.id}/archive?archive=${template.archived}`,
-//     });
-//     console.log('Response from archive endpoint:', response.data);
-//     return response.data;
-//   }
-// };
+// PATCH /workflow/templates/{templateId}/partial
 export const editWorkflowTemplateAsync = async (
   template: Partial<WorkflowTemplate>
 ) => {
@@ -94,15 +82,12 @@ export const editWorkflowTemplateAsync = async (
 
   // TODO: Add support for nested updates such as `steps` or `classification` objects.
 
-  console.log('Patching template with:', patchBody);
-
   const response = await axiosFetch({
     method: 'PATCH',
     url: `${TEMPLATES}/${template.id}/partial`,
     data: patchBody,
   });
 
-  console.log('Response from PATCH endpoint:', response.data);
   return response.data;
 };
 

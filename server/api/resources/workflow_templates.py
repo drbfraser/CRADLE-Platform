@@ -8,13 +8,9 @@ from flask import abort, make_response, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
-import config
 from api.decorator import roles_required
 from api.resources.workflow_template_steps import WorkflowTemplateStepListResponse
-from common.api_utils import (
-    WorkflowTemplateIdPath,
-    convert_query_parameter_to_bool,
-)
+from common.api_utils import WorkflowTemplateIdPath, convert_query_parameter_to_bool
 from common.commonUtil import get_current_time
 from common.workflow_utils import (
     apply_changes_to_model,
@@ -23,10 +19,7 @@ from common.workflow_utils import (
 )
 from data import crud, db_session, marshal
 from enums import RoleEnum
-from models import (
-    WorkflowClassificationOrm,
-    WorkflowTemplateOrm,
-)
+from models import WorkflowClassificationOrm, WorkflowTemplateOrm
 from validation import CradleBaseModel
 from validation.file_upload import FileUploadForm
 from validation.workflow_templates import (
@@ -34,8 +27,6 @@ from validation.workflow_templates import (
     WorkflowTemplatePatchBody,
     WorkflowTemplateUploadModel,
 )
-
-app = config.app
 
 
 # Path model for CSV endpoint
@@ -350,6 +341,7 @@ def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplat
 
 
 # /api/workflow/templates/<string:workflow_template_id> [PATCH]
+# TODO: This endpoint has issue with blocking the frontend request due to the CORS policy. Need to continue with the investigation.
 @roles_required([RoleEnum.ADMIN])
 @api_workflow_templates.patch(
     "/<string:workflow_template_id>", responses={200: WorkflowTemplateModel}

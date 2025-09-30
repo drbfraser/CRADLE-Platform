@@ -220,7 +220,14 @@ export const getPrettyDate = (dateStr: number): string => {
   return getMomentDate(timestampInMs).local().format(DATE_FORMAT);
 };
 
-export const getPrettyDateTime = (dateStr: number): string => {
+export const getPrettyDateTime = (
+  dateStr: number | undefined | null
+): string => {
+  // Handle undefined or null input
+  if (dateStr === undefined || dateStr === null) {
+    return 'N/A';
+  }
+
   // * Date comes in from the backend in seconds
   // * Moment date requires milliseconds
   // * Auto-detect if timestamp is in seconds or milliseconds
