@@ -132,20 +132,13 @@ export interface InstanceInput {
  * update status / record currentStep / lastEditedBy: who(id)
  */
 export type InstanceUpdate = Partial<
-  Pick<
-    WorkflowInstance,
-    'status' | 'currentStepId' | 'lastEditedBy'
-  >
+  Pick<WorkflowInstance, 'status' | 'currentStepId' | 'lastEditedBy'>
 >;
 
 export type InstanceStepUpdate = Partial<
   Pick<
     WorkflowInstanceStep,
-    | 'status'
-    | 'completionDate'
-    | 'assignedTo'
-    | 'data'
-    | 'lastUpdatedBy'
+    'status' | 'completionDate' | 'assignedTo' | 'data' | 'lastUpdatedBy'
   >
 >;
 

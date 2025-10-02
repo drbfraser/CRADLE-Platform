@@ -1,4 +1,4 @@
-import { StepStatus } from "src/shared/types/workflow/workflowEnums";
+import { InstanceStatus, StepStatus } from 'src/shared/types/workflow/workflowEnums';
 
 export const FORM_TEMPLATE_TEST_DATA = {
   unArchivedTemplates: [
@@ -102,17 +102,17 @@ export const WORKFLOW_INSTANCE_TEST_DATA = {
       name: 'Patient Intake Workflow Instance',
       description: 'Standard patient intake process',
       workflowTemplateId: 'workflow-template-1',
-      patientId: "49300028162",
+      patientId: '49300028162',
       startDate: 1741373694,
-      status: "ACTIVE",
+      status: InstanceStatus.ACTIVE,
       steps: [
         {
-          id: "simple-workflow-instance-step-1",
-          name: "Patient Name Step 1",
-          description: "Patient Name Step 1",
+          id: 'simple-workflow-instance-step-1',
+          name: 'Patient Name Step 1',
+          description: 'Patient Name Step 1',
           startDate: 1757109312,
-          formId: "simple-workflow-instance-form-1",
-          assignedTo: "3",
+          formId: 'simple-workflow-instance-form-1',
+          assignedTo: '3',
           expectedCompletion: 1757149312,
           completionDate: 1757144312,
           status: StepStatus.ACTIVE,
@@ -120,12 +120,12 @@ export const WORKFLOW_INSTANCE_TEST_DATA = {
           workflowInstanceId: 'test-workflow-instance-1',
         },
         {
-          id: "simple-workflow-instance-step-2",
-          name: "Patient Name Step 2",
-          description: "Patient Name Step 2",
+          id: 'simple-workflow-instance-step-2',
+          name: 'Patient Name Step 2',
+          description: 'Patient Name Step 2',
           startDate: 1757109312,
-          formId: "simple-workflow-instance-form-1",
-          assignedTo: "3",
+          formId: 'simple-workflow-instance-form-1',
+          assignedTo: '3',
           expectedCompletion: 1757149312,
           completionDate: 1757144312,
           status: StepStatus.ACTIVE,
@@ -134,8 +134,8 @@ export const WORKFLOW_INSTANCE_TEST_DATA = {
         },
       ],
       lastEdited: 1757109312,
-      lastEditedBy: "user1",
-      completionDate: 1757149312
+      lastEditedBy: 'user1',
+      completionDate: 1757149312,
     },
-  ]
+  ],
 } as const;
