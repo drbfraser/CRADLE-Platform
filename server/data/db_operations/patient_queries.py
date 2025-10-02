@@ -40,7 +40,7 @@ from models import (
     ReadingOrm,
     ReferralOrm,
     UrineTestOrm,
-    get_schema_for_model
+    get_schema_for_model,
 )
 
 
