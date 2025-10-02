@@ -3,9 +3,18 @@ from typing import Any
 from flask_sqlalchemy import SQLAlchemy
 
 import data
-import models as models
 from data import crud, marshal
 from manage import get_username_from_email
+from models import (
+    AssessmentSchema,
+    FormTemplateSchema,
+    HealthFacilitySchema,
+    MedicalRecordSchema,
+    PatientSchema,
+    PregnancySchema,
+    ReadingOrm,
+    ReferralSchema,
+)
 
 
 class ModelFactory:
@@ -83,7 +92,7 @@ class PatientFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        return crud.create_model(dict(**kwargs), models.PatientSchema)
+        return crud.create_model(dict(**kwargs), PatientSchema)
 
 
 class ReadingFactory(ModelFactory):
@@ -110,7 +119,7 @@ class ReadingFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        readingModel = marshal.unmarshal(models.ReadingOrm, dict(**kwargs))
+        readingModel = marshal.unmarshal(ReadingOrm, dict(**kwargs))
         crud.create(readingModel, refresh=True)
 
         return readingModel
@@ -136,7 +145,7 @@ class ReferralFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        return crud.create_model(dict(**kwargs), models.ReferralSchema)
+        return crud.create_model(dict(**kwargs), ReferralSchema)
 
 
 class AssessmentFactory(ModelFactory):
@@ -158,7 +167,7 @@ class AssessmentFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        return crud.create_model(dict(**kwargs), models.AssessmentSchema)
+        return crud.create_model(dict(**kwargs), AssessmentSchema)
 
 
 class UserFactory(ModelFactory):
@@ -215,7 +224,7 @@ class HealthFacilityFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        return crud.create_model(dict(**kwargs), models.HealthFacilitySchema)
+        return crud.create_model(dict(**kwargs), HealthFacilitySchema)
 
 
 class PregnancyFactory(ModelFactory):
@@ -233,7 +242,7 @@ class PregnancyFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        return crud.create_model(dict(**kwargs), models.PregnancySchema)
+        return crud.create_model(dict(**kwargs), PregnancySchema)
 
 
 class MedicalRecordFactory(ModelFactory):
@@ -251,7 +260,7 @@ class MedicalRecordFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        return crud.create_model(dict(**kwargs), models.MedicalRecordSchema)
+        return crud.create_model(dict(**kwargs), MedicalRecordSchema)
 
 
 class FormTemplateFactory(ModelFactory):
@@ -268,4 +277,4 @@ class FormTemplateFactory(ModelFactory):
         return super().create(**kwargs)
 
     def _do_create(self, **kwargs) -> Any:
-        return crud.create_model(dict(**kwargs), models.FormTemplateSchema)
+        return crud.create_model(dict(**kwargs), FormTemplateSchema)

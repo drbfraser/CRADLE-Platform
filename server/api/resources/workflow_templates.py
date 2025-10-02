@@ -556,9 +556,11 @@ def get_workflow_template_version_as_csv(path: WorkflowTemplateVersionPath):
     writer.writerow(
         [
             "Classification",
-            workflow_template.classification.name
-            if workflow_template.classification
-            else "",
+            (
+                workflow_template.classification.name
+                if workflow_template.classification
+                else ""
+            ),
         ]
     )
     writer.writerow(["Date Created", workflow_template.date_created])
