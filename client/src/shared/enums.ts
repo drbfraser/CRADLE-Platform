@@ -124,11 +124,3 @@ export enum SecretKeyMessage {
   WARN = 'WARN',
   NOTFOUND = 'NOTFOUND',
 }
-
-//WORKFLOW_INSTANCES STATUS
-export enum WorkflowInstanceStatus {
-  DRAFT = 'draft',
-  IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED',
-}

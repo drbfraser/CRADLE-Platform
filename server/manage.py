@@ -43,6 +43,10 @@ from seed_users import (
     seed_minimal_users,
     seed_test_users,
 )
+from enums import (
+    WorkflowStatusEnum,
+    WorkflowStepStatusEnum
+)
 
 # cli = FlaskGroup(app)
 cli = FlaskGroup()
@@ -120,8 +124,12 @@ def seed_test_data():
     seed_test_users()
 
     print("Creating test patients, readings, referrals, and records...")
+    PATIENT_ID_1 = "49300028161"
+    PATIENT_ID_2 = "49300028162"
+    PATIENT_ID_3 = "49300028163"
+
     create_patient_reading_referral_pregnancy(
-        "49300028161",
+        PATIENT_ID_1,
         "00000000-d974-4059-a0a2-4b0a9c8e3a10",
         4,
         "BB",
@@ -133,7 +141,7 @@ def seed_test_data():
         True,
     )
     create_patient_reading_referral_pregnancy(
-        "49300028162",
+        PATIENT_ID_2,
         "11111111-d974-4059-a0a2-4b0a9c8e3a10",
         3,
         "AA",
@@ -147,7 +155,7 @@ def seed_test_data():
         1610925778,
     )
     create_patient_reading_referral_pregnancy(
-        "49300028163",
+        PATIENT_ID_3,
         "22222222-d974-4059-a0a2-4b0a9c8e3a10",
         3,
         "AB",
@@ -158,25 +166,25 @@ def seed_test_data():
         "H1000",
         False,
     )
-    create_pregnancy("49300028162", 1547341217, 1570928417)
+    create_pregnancy(PATIENT_ID_2, 1547341217, 1570928417)
     create_medical_record(
-        "49300028162",
+        PATIENT_ID_2,
         "Pregnancy induced hypertension\nStarted on Labetalol 200mg three times daily two weeks ago",
         False,
     )
     create_medical_record(
-        "49300028162",
+        PATIENT_ID_2,
         "Aspirin 75mg\nLabetalol 200mg three times daily",
         True,
     )
-    create_patient_association("49300028162", 3)
-    create_patient_association("49300028163", 4)
+    create_patient_association(PATIENT_ID_2, 3)
+    create_patient_association(PATIENT_ID_3, 4)
 
     print("Creating form template, form classification, and forms...")
     create_form_classification()
     create_form_template()
-    create_form("49300028162", "Anna", "Bee", 31)
-    create_form("49300028163", "Dianna", "Ele", 25)
+    create_form(PATIENT_ID_2, "Anna", "Bee", 31)
+    create_form(PATIENT_ID_3, "Dianna", "Ele", 25)
 
     print("Adding relay server numbers to admin page...")
     create_relay_nums()
@@ -187,7 +195,17 @@ def seed_test_data():
 
     print("Creating a simple workflow instance")
     create_simple_workflow_instance_form(
-        patient_id="49300028162",
+        form_id = "workflow-instance-form-1",
+        patient_id=PATIENT_ID_2,
+        user_id=3,
+        form_template_id="wt-simple-1-step-1-form",
+        form_classification_id="wt-simple-1-form-classification",
+        fname="Anna",
+    )
+
+    create_simple_workflow_instance_form(
+        form_id = "workflow-instance-form-2",
+        patient_id=PATIENT_ID_3,
         user_id=3,
         form_template_id="wt-simple-1-step-1-form",
         form_classification_id="wt-simple-1-form-classification",
@@ -195,9 +213,19 @@ def seed_test_data():
     )
 
     create_simple_workflow_instance(
-        patient_id="49300028162",
-        step_id="simple-workflow-instance-step-1",
+        instance_id = "test-workflow-instance-1",
+        instance_name = "Patient Workflow Instance",
+        patient_id=PATIENT_ID_2,
         workflow_template_id="wt-simple-1",
+        form_id = "workflow-instance-form-1"
+    )
+
+    create_simple_workflow_instance(
+        instance_id = "test-workflow-instance-2",
+        instance_name = "Collect Readings Workflow Instance",
+        patient_id=PATIENT_ID_3,
+        workflow_template_id="wt-simple-1",
+        form_id = "workflow-instance-form-2"
     )
 
     print("Finished seeding test data")
@@ -1440,55 +1468,58 @@ def create_complex_workflow_template_step_form_questions():
     db.session.commit()
 
 
-def create_simple_workflow_instance(patient_id, step_id, workflow_template_id):
-    if crud.read(WorkflowInstanceOrm, id="simple-workflow-instance-1") is None:
+def create_simple_workflow_instance(instance_id, instance_name, patient_id, workflow_template_id, form_id = None, num_steps = 2):
+    if crud.read(WorkflowInstanceOrm, id=instance_id) is None:
         simple_workflow_instance = {
-            "id": "simple-workflow-instance-1",
-            "name": "Patient Name Workflow",
-            "description": "Patient Name Workflow",
+            "id": instance_id,
+            "name": instance_name,
+            "description": "Test Workflow Instance Description",
             "start_date": get_current_time(),
-            "current_step_id": step_id,
+            "current_step_id": f"{instance_id}-step1",
             "last_edited": get_current_time(),
             "completion_date": get_current_time() + 40000,
-            "status": "ACTIVE",
+            "status": WorkflowStatusEnum.ACTIVE,
             "workflow_template_id": workflow_template_id,
             "patient_id": patient_id,
         }
 
-        simple_workflow_instance_step = {
-            "id": "simple-workflow-instance-step-1",
-            "name": "Patient Name Step",
-            "description": "Patient Name Step",
-            "start_date": get_current_time(),
-            "triggered_by": None,
-            "last_edited": get_current_time(),
-            "expected_completion": get_current_time() + 40000,
-            "completion_date": get_current_time() + 35000,
-            "status": "ACTIVE",
-            "form_id": "simple-workflow-instance-form-1",
-            "assigned_to": 3,
-            "condition_id": None,
-            "workflow_instance_id": "simple-workflow-instance-1",
-        }
-
-        simple_workflow_instance_step_orm = WorkflowInstanceStepOrm(
-            **simple_workflow_instance_step
-        )
-
         simple_workflow_instance_orm = WorkflowInstanceOrm(**simple_workflow_instance)
 
-        simple_workflow_instance_orm.steps.append(simple_workflow_instance_step_orm)
+        for step_number in range(1, num_steps + 1):
+            simple_workflow_instance_step = {
+                "id": f"{instance_id}-step{step_number}",
+                "name": f"{instance_name} Step {step_number}",
+                "description": F"{instance_name} Workflow Instance Step {step_number} Description",
+                "start_date": get_current_time(),
+                "triggered_by": None,
+                "last_edited": get_current_time(),
+                "expected_completion": get_current_time() + 40000,
+                "completion_date": get_current_time() + 35000,
+                "status": WorkflowStepStatusEnum.ACTIVE,
+                "assigned_to": 3,
+                "condition_id": None,
+                "workflow_instance_id": instance_id,
+            }
+            
+            if step_number % 2 == 0:
+                simple_workflow_instance_step["form_id"]= form_id
+
+            current_workflow_instance_step_orm = WorkflowInstanceStepOrm(
+                **simple_workflow_instance_step
+            )
+
+            simple_workflow_instance_orm.steps.append(current_workflow_instance_step_orm)
 
         db.session.add(simple_workflow_instance_orm)
         db.session.commit()
 
 
 def create_simple_workflow_instance_form(
-    patient_id, form_template_id, user_id, form_classification_id, fname
+    form_id, patient_id, form_template_id, user_id, form_classification_id, fname
 ):
-    if crud.read(FormOrm, id="simple-workflow-instance-form-1") is None:
+    if crud.read(FormOrm, id=form_id) is None:
         simple_workflow_instance_form_question = {
-            "id": "simple-workflow-instance-form-question-1",
+            "id": f"{form_id}-form-question-1",
             "category_index": None,
             "question_index": 0,
             "is_blank": True,
@@ -1509,7 +1540,7 @@ def create_simple_workflow_instance_form(
         )
 
         simple_workflow_instance_form = {
-            "id": "simple-workflow-instance-form-1",
+            "id": form_id,
             "lang": "English",
             "name": "Patient Name Form",
             "category": "",
