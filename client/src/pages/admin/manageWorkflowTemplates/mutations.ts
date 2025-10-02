@@ -8,8 +8,13 @@ export const useEditWorkflowTemplate = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: editWorkflowTemplateAsync,
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ['workflowTemplates'] }),
+    onSuccess: (variables) => {
+      // Invalidate all workflow template related queries
+      queryClient.invalidateQueries({ queryKey: ['workflowTemplates'] }); // Template list
+      queryClient.invalidateQueries({
+        queryKey: ['workflowTemplate', variables.id],
+      }); // Individual template
+    },
   });
 };
 
