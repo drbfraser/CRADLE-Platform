@@ -40,6 +40,7 @@ from models import (
     ReadingOrm,
     ReferralOrm,
     UrineTestOrm,
+    get_schema_for_model
 )
 
 
@@ -148,14 +149,14 @@ def read_medical_records(m: Type[M], patient_id: str, **kwargs) -> List[M]:
         raise ValueError("Invalid direction, must be 'ASC' or 'DESC'")
     order_by_direction = asc if direction == "ASC" else desc
 
-    if m.schema() == PregnancyOrm.schema():
+    if get_schema_for_model(m) == get_schema_for_model(PregnancyOrm):
         if search_text:
             safe_search_text = f"%{search_text}%"
             query = query.filter(m.outcome.like(safe_search_text))
 
         query = query.order_by(order_by_direction(m.start_date))
 
-    elif m.schema() == MedicalRecordOrm.schema():
+    elif get_schema_for_model(m) == get_schema_for_model(MedicalRecordOrm):
         if search_text:
             safe_search_text = f"%{search_text}%"
             query = query.filter(m.information.like(safe_search_text))

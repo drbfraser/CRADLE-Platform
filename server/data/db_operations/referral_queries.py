@@ -177,9 +177,7 @@ def read_referrals_or_assessments(
     :return: A list of referrals or assessments
     """
     model_last_edited = (
-        model.last_edited
-        if model.schema() == ReferralOrm.schema()
-        else model.date_assessed
+         model.last_edited if isinstance(model, ReferralOrm) else model.date_assessed
     )
     query = db_session.query(model)
 

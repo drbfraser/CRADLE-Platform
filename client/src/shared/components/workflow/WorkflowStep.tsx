@@ -34,7 +34,7 @@ export const WorkflowStep = ({
             <Box component="b">Step {step.index}: </Box> {step.name}
             {step.formId && (
               <Tooltip title="This step has an associated form" placement="top">
-                <IconButton size="small" disabled>
+                <IconButton component="span" size="small" disabled>
                   <ArticleIcon />
                 </IconButton>
               </Tooltip>
@@ -42,6 +42,7 @@ export const WorkflowStep = ({
             {isInstance && (
               <Tooltip title="Set this as current step" placement="top">
                 <IconButton
+                  component="span"
                   size="small"
                   onClick={(event) => {
                     event.stopPropagation();
