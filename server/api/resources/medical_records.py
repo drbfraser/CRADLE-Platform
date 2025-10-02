@@ -4,6 +4,7 @@ from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
+import data.db_operations as crud
 from api.decorator import patient_association_required
 from api.resources.patients import api_patients
 from common.api_utils import (
@@ -12,7 +13,7 @@ from common.api_utils import (
     SearchFilterQueryParams,
 )
 from common.commonUtil import get_current_time
-from data import crud, marshal
+from data import marshal
 from models import MedicalRecordOrm
 from service import serialize, view
 from validation import CradleBaseModel

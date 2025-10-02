@@ -1,7 +1,8 @@
 from functools import partial
 from typing import Any, Callable, Dict, TypeAlias, TypeVar, Union
 
-from data import crud, marshal
+import data.db_operations as crud
+from data import marshal
 from models import (
     AssessmentOrm,
     MedicalRecordOrm,

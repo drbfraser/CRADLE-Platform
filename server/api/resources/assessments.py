@@ -2,9 +2,10 @@ from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
+import data.db_operations as crud
 from common.api_utils import AssessmentIdPath
 from common.user_utils import get_current_user_from_jwt
-from data import crud, marshal
+from data import marshal
 from models import AssessmentOrm
 from validation.assessments import (
     AssessmentList,

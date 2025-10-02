@@ -3,7 +3,7 @@ import time
 import pytest
 from humps import decamelize
 
-from data import crud
+import data.db_operations as crud
 from enums import SexEnum, TrafficLightEnum
 from models import (
     MedicalRecordOrm,

@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Type
 from common import commonUtil
 from common.form_utils import filter_template_questions_orm
 from data import db_session
-from data.crud import M
+from data.db_operations import M
 from models import (
     AssessmentOrm,
     FormClassificationOrm,

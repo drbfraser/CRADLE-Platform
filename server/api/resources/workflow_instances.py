@@ -4,13 +4,14 @@ from flask import abort, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
+import data.db_operations as crud
 from common.api_utils import (
     WorkflowInstanceIdPath,
     convert_query_parameter_to_bool,
 )
 from common.commonUtil import get_current_time
 from common.workflow_utils import assign_workflow_template_or_instance_ids
-from data import crud, marshal
+from data import marshal
 from models import (
     PatientOrm,
     WorkflowInstanceOrm,
