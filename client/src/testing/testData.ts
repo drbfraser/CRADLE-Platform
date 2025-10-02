@@ -1,4 +1,7 @@
-import { InstanceStatus, StepStatus } from 'src/shared/types/workflow/workflowEnums';
+import {
+  InstanceStatus,
+  StepStatus,
+} from 'src/shared/types/workflow/workflowEnums';
 
 export const FORM_TEMPLATE_TEST_DATA = {
   unArchivedTemplates: [
