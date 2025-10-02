@@ -185,6 +185,7 @@ export const ViewWorkflowTemplate = () => {
 
         {/* meta data display component */}
         <WorkflowMetadata
+          name={currentWorkflow?.name}
           description={currentWorkflow?.description}
           collectionName={collectionName}
           version={currentWorkflow?.version}
