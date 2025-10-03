@@ -24,6 +24,8 @@ from validation.formTemplates import (
     FormTemplateModel,
     FormTemplateUpload,
 )
+import logging
+logger = logging.getLogger(__name__)
 
 # /api/forms/templates
 api_form_templates = APIBlueprint(
@@ -66,22 +68,25 @@ def handle_form_template_upload(form_template: FormTemplateUpload):
     # FormClassification is basically the name of the FormTemplate. FormTemplates can have multiple versions, and the FormClassification is used to group different versions of the same FormTemplate.
     form_classification_orm = crud.read(
         FormClassificationOrm,
-        id=form_classification_dict["id"],
+        name=form_classification_dict["name"],
     )
+    # If form classification (template name) doesn't exist yet, create it
     if form_classification_orm is None:
         form_classification_orm = marshal.unmarshal(
             FormClassificationOrm, form_classification_dict
         )
+        crud.create(form_classification_orm, refresh=True)
     else:
-        if crud.read(
+        existing_template = crud.read(
             FormTemplateOrm,
             form_classification_id=form_classification_orm.id,
-            version=form_template.version,
-        ):
+            version=form_template.version
+        )
+        if existing_template:
             raise ValueError(
-                "Form Template with the same version already exists - change the version to upload."
+                f"Form Template with the version {form_template.version} already exists for class {form_classification_orm.name} - change the version to upload."
             )
-
+        # Archive the previous active template (if any)
         previous_template = crud.read(
             FormTemplateOrm,
             form_classification_id=form_classification_orm.id,
@@ -91,6 +96,7 @@ def handle_form_template_upload(form_template: FormTemplateUpload):
             previous_template.archived = True
             crud.db_session.commit()
 
+    # Insert the new form template
     form_template_dict["form_classification_id"] = form_classification_orm.id
 
     form_template_orm = marshal.unmarshal(FormTemplateOrm, form_template_dict)
