@@ -194,7 +194,7 @@ def seed_test_data():
     create_simple_workflow_template()
 
     print("Creating a simple workflow instance")
-    create_simple_workflow_instance_form(
+    create_workflow_instance_form(
         form_id = "workflow-instance-form-1",
         patient_id=PATIENT_ID_2,
         user_id=3,
@@ -203,7 +203,7 @@ def seed_test_data():
         fname="Anna",
     )
 
-    create_simple_workflow_instance_form(
+    create_workflow_instance_form(
         form_id = "workflow-instance-form-2",
         patient_id=PATIENT_ID_3,
         user_id=3,
@@ -212,7 +212,7 @@ def seed_test_data():
         fname="Anna",
     )
 
-    create_simple_workflow_instance(
+    create_workflow_instance(
         instance_id = "test-workflow-instance-1",
         instance_name = "Patient Workflow Instance",
         patient_id=PATIENT_ID_2,
@@ -220,7 +220,7 @@ def seed_test_data():
         form_id = "workflow-instance-form-1"
     )
 
-    create_simple_workflow_instance(
+    create_workflow_instance(
         instance_id = "test-workflow-instance-2",
         instance_name = "Collect Readings Workflow Instance",
         patient_id=PATIENT_ID_3,
@@ -1468,9 +1468,9 @@ def create_complex_workflow_template_step_form_questions():
     db.session.commit()
 
 
-def create_simple_workflow_instance(instance_id, instance_name, patient_id, workflow_template_id, form_id = None, num_steps = 2):
+def create_workflow_instance(instance_id, instance_name, patient_id, workflow_template_id, form_id = None, num_steps = 3):
     if crud.read(WorkflowInstanceOrm, id=instance_id) is None:
-        simple_workflow_instance = {
+        workflow_instance = {
             "id": instance_id,
             "name": instance_name,
             "description": "Test Workflow Instance Description",
@@ -1483,10 +1483,10 @@ def create_simple_workflow_instance(instance_id, instance_name, patient_id, work
             "patient_id": patient_id,
         }
 
-        simple_workflow_instance_orm = WorkflowInstanceOrm(**simple_workflow_instance)
+        workflow_instance_orm = WorkflowInstanceOrm(**workflow_instance)
 
         for step_number in range(1, num_steps + 1):
-            simple_workflow_instance_step = {
+            workflow_instance_step = {
                 "id": f"{instance_id}-step{step_number}",
                 "name": f"{instance_name} Step {step_number}",
                 "description": F"{instance_name} Workflow Instance Step {step_number} Description",
@@ -1495,30 +1495,32 @@ def create_simple_workflow_instance(instance_id, instance_name, patient_id, work
                 "last_edited": get_current_time(),
                 "expected_completion": get_current_time() + 40000,
                 "completion_date": get_current_time() + 35000,
-                "status": WorkflowStepStatusEnum.ACTIVE,
+                "form_id": form_id,
                 "assigned_to": 3,
                 "condition_id": None,
                 "workflow_instance_id": instance_id,
             }
             
-            if step_number % 2 == 0:
-                simple_workflow_instance_step["form_id"]= form_id
+            if step_number == 1:
+                workflow_instance_step["status"] = WorkflowStepStatusEnum.ACTIVE
+            else:
+                workflow_instance_step["status"] = WorkflowStepStatusEnum.PENDING
 
             current_workflow_instance_step_orm = WorkflowInstanceStepOrm(
-                **simple_workflow_instance_step
+                **workflow_instance_step
             )
 
-            simple_workflow_instance_orm.steps.append(current_workflow_instance_step_orm)
+            workflow_instance_orm.steps.append(current_workflow_instance_step_orm)
 
-        db.session.add(simple_workflow_instance_orm)
+        db.session.add(workflow_instance_orm)
         db.session.commit()
 
 
-def create_simple_workflow_instance_form(
+def create_workflow_instance_form(
     form_id, patient_id, form_template_id, user_id, form_classification_id, fname
 ):
     if crud.read(FormOrm, id=form_id) is None:
-        simple_workflow_instance_form_question = {
+        workflow_instance_form_question = {
             "id": f"{form_id}-form-question-1",
             "category_index": None,
             "question_index": 0,
@@ -1535,11 +1537,11 @@ def create_simple_workflow_instance_form(
             "visible_condition": "[]",
         }
 
-        simple_workflow_instance_form_question_orm = QuestionOrm(
-            **simple_workflow_instance_form_question
+        workflow_instance_form_question_orm = QuestionOrm(
+            **workflow_instance_form_question
         )
 
-        simple_workflow_instance_form = {
+        workflow_instance_form = {
             "id": form_id,
             "lang": "English",
             "name": "Patient Name Form",
@@ -1553,12 +1555,12 @@ def create_simple_workflow_instance_form(
             "archived": False,
         }
 
-        simple_workflow_instance_form_orm = FormOrm(**simple_workflow_instance_form)
-        simple_workflow_instance_form_orm.questions.append(
-            simple_workflow_instance_form_question_orm
+        workflow_instance_form_orm = FormOrm(**workflow_instance_form)
+        workflow_instance_form_orm.questions.append(
+            workflow_instance_form_question_orm
         )
 
-        db.session.add(simple_workflow_instance_form_orm)
+        db.session.add(workflow_instance_form_orm)
         db.session.commit()
 
 
