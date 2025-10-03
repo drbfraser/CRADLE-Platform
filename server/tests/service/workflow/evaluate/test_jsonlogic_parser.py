@@ -3,22 +3,23 @@ Unit tests for JsonLogic Variable Extraction Parser
 """
 
 import pytest
-from server.service.workflow.evaluate.jsonlogic_parser import (
+
+from service.workflow.evaluate.jsonlogic_parser import (
     JsonLogicParser,
     extract_variables_from_rule,
-    validate_rule_syntax
+    validate_rule_syntax,
 )
 
 
 class TestJsonLogicParser:
     """Test suite for JsonLogicParser class"""
-    
+
     def test_simple_variable_extraction(self):
         parser = JsonLogicParser()
         rule = '{"==": [{"var": "answer.text"}, "A"]}'
         variables = parser.extract_variables(rule)
         assert variables == {"answer.text"}
-    
+
     def test_multiple_variables(self):
         parser = JsonLogicParser()
         rule = {
@@ -29,7 +30,7 @@ class TestJsonLogicParser:
         }
         variables = parser.extract_variables(rule)
         assert variables == {"user.role", "user.age"}
-    
+
     def test_nested_variables(self):
         parser = JsonLogicParser()
         rule = {
@@ -45,19 +46,19 @@ class TestJsonLogicParser:
             "patient.treatment", 
             "patient.default_treatment"
         }
-    
+
     def test_variable_with_default_value(self):
         parser = JsonLogicParser()
         rule = {"var": ["user.name", "Anonymous"]}
         variables = parser.extract_variables(rule)
         assert variables == {"user.name"}
-    
+
     def test_no_variables(self):
         parser = JsonLogicParser()
         rule = {"==": [1, 1]}
         variables = parser.extract_variables(rule)
         assert variables == set()
-    
+
     def test_duplicate_variables(self):
         parser = JsonLogicParser()
         rule = {
@@ -68,7 +69,7 @@ class TestJsonLogicParser:
         }
         variables = parser.extract_variables(rule)
         assert variables == {"status"}
-    
+
     def test_complex_workflow_rule(self):
         parser = JsonLogicParser()
         rule = {
@@ -84,23 +85,23 @@ class TestJsonLogicParser:
             "patient.blood_pressure",
             "patient.symptoms"
         }
-    
+
     def test_empty_rule(self):
         parser = JsonLogicParser()
         rule = {}
         variables = parser.extract_variables(rule)
         assert variables == set()
-    
+
     def test_invalid_json_string(self):
         parser = JsonLogicParser()
         with pytest.raises(ValueError, match="Invalid JSON"):
             parser.extract_variables('{"invalid": json}')
-    
+
     def test_invalid_rule_type(self):
         parser = JsonLogicParser()
         with pytest.raises(ValueError, match="Invalid JSON"):
             parser.extract_variables("just a string")
-    
+
     def test_list_rule(self):
         parser = JsonLogicParser()
         rule = [
@@ -127,23 +128,23 @@ class TestExtractVariablesFunction:
 
 class TestValidateRuleSyntax:
     """Test rule validation function"""
-    
+
     def test_valid_rule_dict(self):
         rule = {"==": [{"var": "x"}, 1]}
         assert validate_rule_syntax(rule) is True
-    
+
     def test_valid_rule_string(self):
         rule = '{"==": [{"var": "x"}, 1]}'
         assert validate_rule_syntax(rule) is True
-    
+
     def test_invalid_json(self):
         rule = '{"invalid": json}'
         assert validate_rule_syntax(rule) is False
-    
+
     def test_invalid_type(self):
         rule = "just a string"
         assert validate_rule_syntax(rule) is False
-    
+
     def test_empty_rule(self):
         rule = {}
         assert validate_rule_syntax(rule) is True
@@ -151,7 +152,7 @@ class TestValidateRuleSyntax:
 
 class TestEdgeCases:
     """Test edge cases and special scenarios"""
-    
+
     def test_deeply_nested_structure(self):
         parser = JsonLogicParser()
         rule = {
@@ -179,7 +180,7 @@ class TestEdgeCases:
             "true_value",
             "false_value"
         }
-    
+
     def test_variable_in_array_operations(self):
         parser = JsonLogicParser()
         rule = {
@@ -190,13 +191,13 @@ class TestEdgeCases:
         }
         variables = parser.extract_variables(rule)
         assert variables == {"items", "item.name"}
-    
+
     def test_numeric_var_values(self):
         parser = JsonLogicParser()
         rule = {"var": [0]}  # Numeric index, not a path
         variables = parser.extract_variables(rule)
         assert variables == set()
-    
+
     def test_null_and_boolean_values(self):
         parser = JsonLogicParser()
         rule = {
