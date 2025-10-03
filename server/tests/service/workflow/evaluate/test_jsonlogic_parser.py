@@ -25,7 +25,7 @@ class TestJsonLogicParser:
         rule = {
             "and": [
                 {"==": [{"var": "user.role"}, "admin"]},
-                {">": [{"var": "user.age"}, 18]}
+                {">": [{"var": "user.age"}, 18]},
             ]
         }
         variables = parser.extract_variables(rule)
@@ -37,14 +37,14 @@ class TestJsonLogicParser:
             "if": [
                 {"==": [{"var": "patient.status"}, "active"]},
                 {"var": "patient.treatment"},
-                {"var": "patient.default_treatment"}
+                {"var": "patient.default_treatment"},
             ]
         }
         variables = parser.extract_variables(rule)
         assert variables == {
             "patient.status",
-            "patient.treatment", 
-            "patient.default_treatment"
+            "patient.treatment",
+            "patient.default_treatment",
         }
 
     def test_variable_with_default_value(self):
@@ -62,10 +62,7 @@ class TestJsonLogicParser:
     def test_duplicate_variables(self):
         parser = JsonLogicParser()
         rule = {
-            "or": [
-                {"==": [{"var": "status"}, "A"]},
-                {"==": [{"var": "status"}, "B"]}
-            ]
+            "or": [{"==": [{"var": "status"}, "A"]}, {"==": [{"var": "status"}, "B"]}]
         }
         variables = parser.extract_variables(rule)
         assert variables == {"status"}
@@ -76,14 +73,14 @@ class TestJsonLogicParser:
             "and": [
                 {"==": [{"var": "patient.risk_level"}, "high"]},
                 {">": [{"var": "patient.blood_pressure"}, 140]},
-                {"in": [{"var": "patient.symptoms"}, ["fever", "cough"]]}
+                {"in": [{"var": "patient.symptoms"}, ["fever", "cough"]]},
             ]
         }
         variables = parser.extract_variables(rule)
         assert variables == {
             "patient.risk_level",
             "patient.blood_pressure",
-            "patient.symptoms"
+            "patient.symptoms",
         }
 
     def test_empty_rule(self):
@@ -104,10 +101,7 @@ class TestJsonLogicParser:
 
     def test_list_rule(self):
         parser = JsonLogicParser()
-        rule = [
-            {"var": "field1"},
-            {"var": "field2"}
-        ]
+        rule = [{"var": "field1"}, {"var": "field2"}]
         variables = parser.extract_variables(rule)
         assert variables == {"field1", "field2"}
 
@@ -160,16 +154,16 @@ class TestEdgeCases:
                 {
                     "or": [
                         {"==": [{"var": "a.b.c.d"}, 1]},
-                        {"==": [{"var": "e.f.g.h"}, 2]}
+                        {"==": [{"var": "e.f.g.h"}, 2]},
                     ]
                 },
                 {
                     "if": [
                         {"var": "condition"},
                         {"var": "true_value"},
-                        {"var": "false_value"}
+                        {"var": "false_value"},
                     ]
-                }
+                },
             ]
         }
         variables = parser.extract_variables(rule)
@@ -178,17 +172,12 @@ class TestEdgeCases:
             "e.f.g.h",
             "condition",
             "true_value",
-            "false_value"
+            "false_value",
         }
 
     def test_variable_in_array_operations(self):
         parser = JsonLogicParser()
-        rule = {
-            "map": [
-                {"var": "items"},
-                {"var": "item.name"}
-            ]
-        }
+        rule = {"map": [{"var": "items"}, {"var": "item.name"}]}
         variables = parser.extract_variables(rule)
         assert variables == {"items", "item.name"}
 
@@ -204,7 +193,7 @@ class TestEdgeCases:
             "and": [
                 {"==": [{"var": "field1"}, None]},
                 {"==": [{"var": "field2"}, True]},
-                {"==": [{"var": "field3"}, False]}
+                {"==": [{"var": "field3"}, False]},
             ]
         }
         variables = parser.extract_variables(rule)
