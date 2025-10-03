@@ -146,7 +146,7 @@ def upload_form_template_file(form: FileUploadForm):
         return abort(422, description=e.errors())
 
     except ValueError as err:
-        return abort(code=409, description=str(err))
+        return abort(409, description=str(err))
 
 
 # /api/forms/templates/body [POST]
@@ -161,7 +161,7 @@ def upload_form_template_body(body: FormTemplateUpload):
         return handle_form_template_upload(body), 201
 
     except ValueError as err:
-        return abort(code=409, description=str(err))
+        return abort(409, description=str(err))
 
 
 # /api/forms/templates/<string:form_template_id>/versions [GET]

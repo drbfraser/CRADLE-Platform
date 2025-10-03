@@ -86,6 +86,7 @@ axiosFetch.interceptors.response.use(undefined, (err) => {
   if (errorBody && 'description' in errorBody) {
     console.error(errorBody.description);
     return Promise.reject({
+      status: err.response?.status,
       message: errorBody.description,
     });
   }
