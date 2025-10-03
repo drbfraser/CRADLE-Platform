@@ -9,16 +9,11 @@ from common.api_utils import (
     convert_query_parameter_to_bool,
 )
 from common.commonUtil import get_current_time
-from common.workflow_utils import (
-    check_branch_conditions,
-    validate_workflow_template_step,
-)
+from common.workflow_utils import validate_workflow_template_step
 from data import marshal
 from models import WorkflowTemplateStepOrm
-from validation.workflow_template_steps import (
-    WorkflowTemplateStepModel,
-    WorkflowTemplateStepUploadModel,
-)
+from validation.workflow_objects import WorkflowTemplateStepModel
+from validation.workflow_api import WorkflowTemplateStepUploadModel
 
 workflow_template_step_not_found_msg = "Workflow template step with ID: ({}) not found."
 
@@ -59,7 +54,7 @@ def get_workflow_template_steps():
     return {"items": template_steps}, 200
 
 
-# /api/workflow/template/steps/<string:workflow_template_step_id>?with_form=<bool>&with_branches=<bool> [GET]
+# /api/workflow/template/steps/<string:workflow_template_step_id>?with_form=<bool> [GET]
 @api_workflow_template_steps.get(
     "/<string:workflow_template_step_id>", responses={200: WorkflowTemplateStepModel}
 )
@@ -67,8 +62,6 @@ def get_workflow_template_step(path: WorkflowTemplateStepIdPath):
     """Get Workflow Template Step"""
     with_form = request.args.get("with_form", default=False)
     with_form = convert_query_parameter_to_bool(with_form)
-    with_branches = request.args.get("with_branches", default=False)
-    with_branches = convert_query_parameter_to_bool(with_branches)
 
     workflow_step = crud.read(
         WorkflowTemplateStepOrm, id=path.workflow_template_step_id
@@ -83,9 +76,6 @@ def get_workflow_template_step(path: WorkflowTemplateStepIdPath):
         )
 
     workflow_step = marshal.marshal(workflow_step, shallow=False)
-
-    if not with_branches:
-        del workflow_step["branches"]
 
     if not with_form:
         del workflow_step["form"]
@@ -115,10 +105,6 @@ def update_workflow_template_step(
 
     workflow_template_step_changes = body.model_dump()
     workflow_template_step_changes["last_edited"] = get_current_time()
-
-    check_branch_conditions(
-        workflow_template_step_changes
-    )  # If new branches are being added to the step
 
     crud.update(
         WorkflowTemplateStepOrm,

@@ -25,7 +25,6 @@ from .workflows import (
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
     WorkflowTemplateOrm,
-    WorkflowTemplateStepBranchOrm,
     WorkflowTemplateStepOrm,
 )
 
@@ -232,14 +231,6 @@ class WorkflowTemplateStepSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = WorkflowTemplateStepOrm
-        load_instance = True
-        include_relationships = True
-
-
-class WorkflowTemplateStepBranchSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        include_fk = True
-        model = WorkflowTemplateStepBranchOrm
         load_instance = True
         include_relationships = True
 

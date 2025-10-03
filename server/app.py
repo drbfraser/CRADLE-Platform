@@ -40,7 +40,7 @@ host = "0.0.0.0"
 port = os.environ.get("PORT")
 
 if port is None:
-    port = 5000
+    port = "5000"
     print(f"PORT environment variable not found. Using default ({port}).")
 else:
     print("PORT environment variable found:", port)

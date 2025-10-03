@@ -94,19 +94,7 @@ class WorkflowTemplateOrm(db.Model):
         nullable=True,
     )
 
-    initial_condition_id = db.Column(
-        db.String(50),
-        db.ForeignKey("rule_group.id", ondelete="SET NULL"),
-        nullable=True,
-    )
-
     # RELATIONSHIPS
-    initial_condition = db.relationship(
-        "RuleGroupOrm",
-        backref=db.backref("workflow_templates", lazy=True),
-        passive_deletes=True,
-    )
-
     classification = db.relationship(
         "WorkflowClassificationOrm",
         backref=db.backref("workflow_templates", lazy=True),
@@ -137,11 +125,6 @@ class WorkflowTemplateStepOrm(db.Model):
     )
 
     # FOREIGN KEYS
-    condition_id = db.Column(
-        db.String(50),
-        db.ForeignKey("rule_group.id", ondelete="SET NULL"),
-        nullable=True,
-    )
     form_id = db.Column(
         db.String(50),
         db.ForeignKey("form_template.id", ondelete="SET NULL"),
@@ -159,50 +142,9 @@ class WorkflowTemplateStepOrm(db.Model):
         backref=db.backref("steps", cascade="all, delete", lazy=True),
     )
 
-    condition = db.relationship(
-        "RuleGroupOrm",
-        backref=db.backref("workflow_template_steps", lazy=True),
-        passive_deletes=True,
-    )
-
     form = db.relationship(
         "FormTemplateOrm",
         backref=db.backref("workflow_template_steps", lazy=True),
-        passive_deletes=True,
-    )
-
-
-class WorkflowTemplateStepBranchOrm(db.Model):
-    """
-    Defines conditional branches between workflow template steps.
-
-    Specifies which step to go to next based on conditions or user choices.
-    """
-
-    __tablename__ = "workflow_template_step_branch"
-    id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
-    target_step_id = db.Column(db.String(50), nullable=True)
-
-    # FOREIGN KEYS
-    step_id = db.Column(
-        db.String(50),
-        db.ForeignKey("workflow_template_step.id", ondelete="CASCADE"),
-        nullable=False,
-    )
-    condition_id = db.Column(
-        db.String(50),
-        db.ForeignKey("rule_group.id", ondelete="SET NULL"),
-        nullable=True,
-    )
-
-    # RELATIONSHIPS
-    step = db.relationship(
-        "WorkflowTemplateStepOrm",
-        backref=db.backref("branches", cascade="all, delete", lazy=True),
-    )
-    condition = db.relationship(
-        "RuleGroupOrm",
-        backref=db.backref("workflow_template_step_branches", lazy=True),
         passive_deletes=True,
     )
 
@@ -259,9 +201,6 @@ class WorkflowInstanceStepOrm(db.Model):
     name = db.Column(db.String(200), index=True, nullable=False)
     description = db.Column(db.Text, nullable=False)
     start_date = db.Column(db.BigInteger, nullable=False, default=get_current_time)
-    triggered_by = db.Column(
-        db.String(50), nullable=True
-    )  # The prior step in the workflow that activated the current step
     last_edited = db.Column(
         db.BigInteger,
         nullable=False,
@@ -289,21 +228,11 @@ class WorkflowInstanceStepOrm(db.Model):
         db.ForeignKey("workflow_instance.id", ondelete="CASCADE"),
         nullable=False,
     )
-    condition_id = db.Column(
-        db.String(50),
-        db.ForeignKey("rule_group.id", ondelete="SET NULL"),
-        nullable=True,
-    )
 
     # RELATIONSHIPS
     workflow_instance = db.relationship(
         "WorkflowInstanceOrm",
         backref=db.backref("steps", cascade="all, delete", lazy=True),
-    )
-    condition = db.relationship(
-        "RuleGroupOrm",
-        backref=db.backref("workflow_instance_steps", lazy=True),
-        passive_deletes=True,
     )
     form = db.relationship(
         "FormOrm",

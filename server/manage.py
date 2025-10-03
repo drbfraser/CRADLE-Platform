@@ -32,7 +32,6 @@ from models import (
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
     WorkflowTemplateOrm,
-    WorkflowTemplateStepBranchOrm,
     WorkflowTemplateStepOrm,
     db,
 )
@@ -758,8 +757,6 @@ def create_simple_workflow_template():
         "last_edited": get_current_time(),
         "version": "V1",
         "classification_id": "wc-simple-1",
-        "initial_condition_id": None,
-        "initial_condition": None,
     }
 
     classification = crud.read(WorkflowClassificationOrm, id="wc-simple-1")
@@ -779,23 +776,11 @@ def create_simple_workflow_template():
         "last_edited": get_current_time(),
         "form_id": "wt-simple-1-step-1-form",
         "workflow_template_id": "wt-simple-1",
-        "condition_id": None,
-        "condition": None,
     }
 
-    branch = {
-        "id": "wt-simple-1-step-1-branch",
-        "target_step_id": None,
-        "step_id": "wt-simple-1-step-1",
-        "condition_id": None,
-        "condition": None,
-    }
-
-    branch_orm = WorkflowTemplateStepBranchOrm(**branch)
     form_template_orm = crud.read(FormTemplateOrm, id="wt-simple-1-step-1-form")
 
     step_orm = WorkflowTemplateStepOrm(form=form_template_orm, **step)
-    step_orm.branches.append(branch_orm)
     workflow_template_orm.steps.append(step_orm)
 
     db.session.add(workflow_template_orm)
@@ -913,8 +898,6 @@ def create_complex_workflow_template():
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
         "version": "V1",
-        "initial_condition_id": None,
-        "initial_condition": None,
         "classification_id": "papagaio_study_workflow_classification",
     }
 
@@ -951,22 +934,11 @@ def create_complex_workflow_template_steps():
             "last_edited": get_current_time(),
             "form_id": "prerequisites_form_template",
             "workflow_template_id": "papagaio_study_workflow_template",
-            "condition_id": None,
-            "condition": None,
         }
 
-        prerequisites_template_step_branch = {
-            "id": "prerequisites_template_step_branch",
-            "target_step_id": "papagaio_consent_template_step",
-            "step_id": "prerequisites_template_step",
-            "condition_id": None,
-            "condition": None,
-        }
-
-        create_workflow_template_step_with_form_and_branches(
+        create_workflow_template_step_with_form(
             prerequisites_template_step,
             "prerequisites_form_template",
-            [prerequisites_template_step_branch],
         )
 
     if crud.read(WorkflowTemplateStepOrm, id="papagaio_consent_template_step") is None:
@@ -978,22 +950,11 @@ def create_complex_workflow_template_steps():
             "last_edited": get_current_time(),
             "form_id": "papagaio_consent_form_template",
             "workflow_template_id": "papagaio_study_workflow_template",
-            "condition_id": None,
-            "condition": None,
         }
 
-        papagaio_consent_template_step_branch = {
-            "id": "papagaio_consent_template_step_branch",
-            "target_step_id": "papagaio_randomized_treatment_template_step",
-            "step_id": "papagaio_consent_template_step",
-            "condition_id": None,
-            "condition": None,
-        }
-
-        create_workflow_template_step_with_form_and_branches(
+        create_workflow_template_step_with_form(
             papagaio_consent_template_step,
             "papagaio_consent_form_template",
-            [papagaio_consent_template_step_branch],
         )
 
     if (
@@ -1010,22 +971,11 @@ def create_complex_workflow_template_steps():
             "last_edited": get_current_time(),
             "form_id": "papagaio_randomized_treatment_plan_form_template",
             "workflow_template_id": "papagaio_study_workflow_template",
-            "condition_id": None,
-            "condition": None,
         }
 
-        papagaio_randomized_treatment_template_step_branch = {
-            "id": "papagaio_randomized_treatment_template_step_branch",
-            "target_step_id": "papagaio_observation_treatment_template_step",
-            "step_id": "papagaio_randomized_treatment_template_step",
-            "condition_id": None,
-            "condition": None,
-        }
-
-        create_workflow_template_step_with_form_and_branches(
+        create_workflow_template_step_with_form(
             papagaio_randomized_treatment_template_step,
             "papagaio_randomized_treatment_plan_form_template",
-            [papagaio_randomized_treatment_template_step_branch],
         )
 
     if (
@@ -1042,34 +992,17 @@ def create_complex_workflow_template_steps():
             "last_edited": get_current_time(),
             "form_id": "papagaio_observation_treatment_plan_form_template",
             "workflow_template_id": "papagaio_study_workflow_template",
-            "condition_id": None,
-            "condition": None,
         }
 
-        papagaio_observation_treatment_template_step_branch = {
-            "id": "papagaio_obs_treatment_template_step_branch",
-            "target_step_id": None,
-            "step_id": "papagaio_observation_treatment_template_step",
-            "condition_id": None,
-            "condition": None,
-        }
-
-        create_workflow_template_step_with_form_and_branches(
+        create_workflow_template_step_with_form(
             papagaio_observation_treatment_template_step,
             "papagaio_observation_treatment_plan_form_template",
-            [papagaio_observation_treatment_template_step_branch],
         )
 
 
-def create_workflow_template_step_with_form_and_branches(
-    template_step: dict, form_id: str, template_step_branches: List[dict]
-) -> None:
+def create_workflow_template_step_with_form(template_step: dict, form_id: str) -> None:
     form_template_orm = crud.read(FormTemplateOrm, id=form_id)
     template_step_orm = WorkflowTemplateStepOrm(form=form_template_orm, **template_step)
-
-    for branch in template_step_branches:
-        template_step_branch_orm = WorkflowTemplateStepBranchOrm(**branch)
-        template_step_orm.branches.append(template_step_branch_orm)
 
     db.session.add(template_step_orm)
     db.session.commit()
@@ -1461,14 +1394,12 @@ def create_simple_workflow_instance(patient_id, step_id, workflow_template_id):
             "name": "Patient Name Step",
             "description": "Patient Name Step",
             "start_date": get_current_time(),
-            "triggered_by": None,
             "last_edited": get_current_time(),
             "expected_completion": get_current_time() + 40000,
             "completion_date": get_current_time() + 35000,
             "status": "ACTIVE",
             "form_id": "simple-workflow-instance-form-1",
             "assigned_to": 3,
-            "condition_id": None,
             "workflow_instance_id": "simple-workflow-instance-1",
         }
 

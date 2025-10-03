@@ -11,7 +11,6 @@ from common.form_utils import assign_form_or_template_ids
 from models import (
     FormOrm,
     FormTemplateOrm,
-    RuleGroupOrm,
     WorkflowClassificationOrm,
     WorkflowCollectionOrm,
     WorkflowInstanceOrm,
@@ -22,31 +21,10 @@ from models import (
 from validation.formTemplates import FormTemplateUpload
 
 if TYPE_CHECKING:
-    from data.crud import M
+    from data.db_operations import M
 
 
 workflow_template_not_found_msg = "Workflow template with ID: ({}) not found."
-
-
-def assign_branch_id(branch: dict, step_id: str, auto_assign_id: bool = False) -> None:
-    """
-    Assigns an ID and step ID to a workflow step branch if none has been provided, if the branch has a condition that
-    will also be assigned an ID
-
-    :param branch: A dictionary containing the branch data to be uploaded to the DB
-    :param step_id: The ID of the workflow step to be assigned to the branch
-    :param auto_assign_id: If true, the workflow components will always be assigned an ID
-    """
-    if branch["id"] is None or auto_assign_id:
-        branch["id"] = get_uuid()
-
-    branch["step_id"] = step_id
-
-    if branch["condition"] is not None:
-        if branch["condition"]["id"] is None or auto_assign_id:
-            branch["condition"]["id"] = get_uuid()
-
-        branch["condition_id"] = branch["condition"]["id"]
 
 
 def assign_step_ids(
@@ -71,14 +49,6 @@ def assign_step_ids(
     elif m is WorkflowInstanceStepOrm:
         step["workflow_instance_id"] = workflow_id
 
-    step_id = step["id"]
-
-    if step["condition"] is not None:
-        if step["condition"]["id"] is None or auto_assign_id:
-            step["condition"]["id"] = get_uuid()
-
-        step["condition_id"] = step["condition"]["id"]
-
     form_model = None
 
     if m is WorkflowTemplateStepOrm:
@@ -91,10 +61,6 @@ def assign_step_ids(
     if step["form"] is not None:
         assign_form_or_template_ids(form_model, step["form"])
         step["form_id"] = step["form"]["id"]
-
-    if m is WorkflowTemplateStepOrm:
-        for branch in step["branches"]:
-            assign_branch_id(branch, step_id, auto_assign_id)
 
 
 def assign_workflow_template_or_instance_ids(
@@ -125,12 +91,6 @@ def assign_workflow_template_or_instance_ids(
 
         workflow["classification_id"] = workflow["classification"]["id"]
 
-    if workflow.get("initial_condition") is not None:
-        if workflow["initial_condition"]["id"] is None or auto_assign_id:
-            workflow["initial_condition"]["id"] = get_uuid()
-
-        workflow["initial_condition_id"] = workflow["initial_condition"]["id"]
-
     # Assign IDs and workflow ID to steps
 
     for step in workflow["steps"]:
@@ -152,18 +112,7 @@ def apply_changes_to_model(model: Type[M], changes: dict) -> None:
         setattr(model, k, v)
 
 
-def check_branch_conditions(template_step: dict) -> None:
-    for branch in template_step["branches"]:
-        if branch["condition"] is None and branch["condition_id"] is not None:
-            branch_condition = crud.read(RuleGroupOrm, id=branch["condition_id"])
-
-            if branch_condition is None:
-                return abort(
-                    code=404,
-                    description=f"Branch condition with ID: ({branch['condition_id']}) not found.",
-                )
-
-
+# FIXME: This method seems to be doing too many different things
 def validate_workflow_template_step(workflow_template_step: dict):
     # This endpoint assumes that the step has a workflow ID assigned to it already
     workflow_template = crud.read(
@@ -182,13 +131,12 @@ def validate_workflow_template_step(workflow_template_step: dict):
         WorkflowTemplateStepOrm, workflow_template_step, workflow_template.id
     )
 
-    check_branch_conditions(workflow_template_step)
-
     try:
         if workflow_template_step["form"] is not None:
             form_template = FormTemplateUpload(**workflow_template_step["form"])
 
             # Process and upload the form template, if there is an issue, an exception is thrown
+            # NOTE this writes to db
             form_template = handle_form_template_upload(form_template)
 
             workflow_template_step["form"] = form_template

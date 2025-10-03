@@ -5,8 +5,7 @@ from flask_openapi3.models.tag import Tag
 from service.workflow.datasourcing import data_sourcing as workflow_datasourcing
 from service.workflow.evaluate.rule_evaluation import WorkflowEvaluationService
 from service.workflow.evaluate.rules_engine import RulesEngineFacade
-from validation.workflow_evaluate import (
-    WorkflowEvaluateExamples,
+from validation.workflow_api import (
     WorkflowEvaluateRequestModel,
     WorkflowEvaluateResponseModel,
 )
@@ -21,6 +20,15 @@ api_workflow_evaluate = APIBlueprint(
 )
 
 
+DUMMY_WORKFLOW_EVALUATE_EXAMPLE_ID = "workflow-evaluate-example-1"
+DUMMY_WORKFLOW_EVALUATE_EXAMPLE = {
+    "result": {
+        "value": True,
+        "details": "test",
+    }
+}
+
+
 # /api/workflow/evaluate [POST]
 @api_workflow_evaluate.post("", responses={200: WorkflowEvaluateResponseModel})
 def evaluate_workflow_instance(body: WorkflowEvaluateRequestModel):
@@ -31,8 +39,8 @@ def evaluate_workflow_instance(body: WorkflowEvaluateRequestModel):
 
     try:
         # NOTE: Temporary sandboxed data
-        if request["id"] == WorkflowEvaluateExamples.id:
-            response = WorkflowEvaluateExamples.example_01
+        if request["id"] == DUMMY_WORKFLOW_EVALUATE_EXAMPLE_ID:
+            response = DUMMY_WORKFLOW_EVALUATE_EXAMPLE
             return response, 200
 
         service = WorkflowEvaluationService(workflow_datasourcing, RulesEngineFacade)

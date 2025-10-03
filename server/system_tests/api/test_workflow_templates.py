@@ -276,7 +276,6 @@ def test_workflow_template_patch_request(
 def workflow_template1():
     template_id = get_uuid()
     classification_id = get_uuid()
-    init_condition_id = get_uuid()
     return {
         "id": template_id,
         "name": "workflow_example1",
@@ -286,12 +285,6 @@ def workflow_template1():
         "date_created": get_current_time(),
         "last_edited": get_current_time() + 44345,
         "version": "0",
-        "initial_condition_id": init_condition_id,
-        "initial_condition": {
-            "id": init_condition_id,
-            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
-            "data_sources": '["$patient.age"]',
-        },
         "classification_id": classification_id,
         "classification": {
             "id": classification_id,
@@ -302,55 +295,9 @@ def workflow_template1():
 
 
 @pytest.fixture
-def workflow_template2(form_template):
-    return {
-        "id": None,
-        "name": "workflow_example2",
-        "description": "workflow_example2",
-        "archived": False,
-        "starting_step_id": None,
-        "date_created": get_current_time(),
-        "last_edited": get_current_time() + 44345,
-        "version": "0",
-        "initial_condition_id": None,
-        "initial_condition": {
-            "id": None,
-            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
-            "data_sources": '["$patient.age"]',
-        },
-        "classification_id": None,
-        "classification": {
-            "id": None,
-            "name": "Workflow Classification example 2",
-        },
-        "steps": [
-            {
-                "id": None,
-                "name": "template step example 1",
-                "description": "example template step with all valid fields",
-                "expected_completion": get_current_time(),
-                "last_edited": get_current_time(),
-                "form_id": form_template["id"],
-                "form": form_template,
-                "workflow_template_id": None,
-                "condition_id": None,
-                "condition": {
-                    "id": None,
-                    "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
-                    "data_sources": '["$patient.age"]',
-                },
-                "branches": [],
-            }
-        ],
-    }
-
-
-@pytest.fixture
 def workflow_template3(form_template, workflow_template1):
     template_id = get_uuid()
-    init_condition_id = get_uuid()
     step_id = get_uuid()
-    condition_id = get_uuid()
     form_template["form_classification_id"] = get_uuid()
     form_template["classification"]["id"] = form_template["form_classification_id"]
     form_template["classification"]["name"] = "Form Classification example"
@@ -363,12 +310,6 @@ def workflow_template3(form_template, workflow_template1):
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
         "version": "1",  # Should replace version 0 (workflow_template1) of this template when uploaded
-        "initial_condition_id": init_condition_id,
-        "initial_condition": {
-            "id": init_condition_id,
-            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
-            "data_sources": "[]",
-        },
         "classification_id": workflow_template1["classification_id"],
         "classification": {
             "id": workflow_template1["classification_id"],
@@ -384,13 +325,6 @@ def workflow_template3(form_template, workflow_template1):
                 "form_id": form_template["id"],
                 "form": form_template,
                 "workflow_template_id": template_id,
-                "condition_id": condition_id,
-                "condition": {
-                    "id": condition_id,
-                    "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
-                    "data_sources": "[]",
-                },
-                "branches": [],
             }
         ],
     }
@@ -399,7 +333,6 @@ def workflow_template3(form_template, workflow_template1):
 @pytest.fixture
 def workflow_template4():
     template_id = get_uuid()
-    init_condition_id = get_uuid()
     classification_id = get_uuid()
 
     return {
@@ -411,12 +344,6 @@ def workflow_template4():
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
         "version": "1",
-        "initial_condition_id": init_condition_id,
-        "initial_condition": {
-            "id": init_condition_id,
-            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
-            "data_sources": "[]",
-        },
         "classification_id": classification_id,
         "classification": {
             "id": classification_id,
@@ -430,7 +357,6 @@ def workflow_template4():
 def invalid_workflow_template1():
     template_id = get_uuid()
     classification_id = get_uuid()
-    init_condition_id = get_uuid()
     return {
         "id": template_id,
         "name": "Example invalid workflow template 1",
@@ -440,12 +366,6 @@ def invalid_workflow_template1():
         "date_created": get_current_time(),
         "last_edited": get_current_time() - 44345,  # Invalid edit date
         "version": "0",
-        "initial_condition_id": init_condition_id,
-        "initial_condition": {
-            "id": init_condition_id,
-            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
-            "data_sources": '["$patient.age"]',
-        },
         "classification_id": classification_id,
         "classification": {
             "id": classification_id,
@@ -469,11 +389,11 @@ def invalid_workflow_template2():
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
         "version": "0",
+        # extra initial_condition_id and initial_condition fields
         "initial_condition_id": init_condition_id,
         "initial_condition": {
             "id": init_condition_id,
             "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
-            "data_sources": "Hello",  # Invalid JSON string
         },
         "classification_id": classification_id,
         "classification": {
@@ -487,7 +407,6 @@ def invalid_workflow_template2():
 @pytest.fixture
 def invalid_workflow_template3(form_template):
     template_id = get_uuid()
-    init_condition_id = get_uuid()
     classification_id = get_uuid()
     return {
         "id": template_id,
@@ -498,12 +417,6 @@ def invalid_workflow_template3(form_template):
         "date_created": get_current_time(),
         "last_edited": get_current_time() + 44345,
         "version": "0",
-        "initial_condition_id": init_condition_id,
-        "initial_condition": {
-            "id": init_condition_id,
-            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
-            "data_sources": '["$patient.age"]',
-        },
         "classification_id": classification_id,
         "classification": None,  # No classification exists with this ID
         "steps": [],
