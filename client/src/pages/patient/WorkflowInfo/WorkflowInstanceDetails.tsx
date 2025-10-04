@@ -194,7 +194,7 @@ export function mapWorkflowStep(apiStep: WorkflowInstanceStep): InstanceStep {
 }
 
 export async function loadInstanceById(id: string): Promise<InstanceDetails> {
-  const instance = await getInstanceWithSteps('simple-workflow-instance-1');
+  const instance = await getInstanceWithSteps(id);
   const template = await getTemplate(instance.workflowTemplateId, {
     with_classification: true,
   });
@@ -317,7 +317,7 @@ export default function WorkflowInstanceDetailsPage() {
   useEffect(() => {
     async function fetchInstance() {
       try {
-        const instance = await loadInstanceById('simple-workflow-instance-1');
+        const instance = await loadInstanceById('test-workflow-instance-1');
         setWorkflowInstance(instance);
         const progress = computeProgressAndEta(instance.steps);
         setProgressInfo(progress);
