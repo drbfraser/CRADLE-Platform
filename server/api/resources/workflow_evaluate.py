@@ -5,7 +5,7 @@ from flask_openapi3.models.tag import Tag
 from service.workflow.datasourcing import data_sourcing as workflow_datasourcing
 from service.workflow.evaluate.rule_evaluation import WorkflowEvaluationService
 from service.workflow.evaluate.rules_engine import RulesEngineFacade
-from validation.workflow_api import (
+from validation.workflow_api_models import (
     WorkflowEvaluateRequestModel,
     WorkflowEvaluateResponseModel,
 )
