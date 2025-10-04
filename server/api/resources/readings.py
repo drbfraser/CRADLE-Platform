@@ -4,9 +4,10 @@ from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
+import data.db_operations as crud
 from common import user_utils
 from common.api_utils import ReadingIdPath
-from data import crud, marshal
+from data import marshal
 from models import HealthFacilityOrm, PatientOrm, ReadingOrm, ReferralOrm
 from service import assoc, invariant
 from validation.readings import ReadingModel

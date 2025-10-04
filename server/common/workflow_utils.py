@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING, Type
 
 from flask import abort
 
+import data.db_operations as crud
 from api.resources.form_templates import handle_form_template_upload
 from common.commonUtil import get_uuid
 from common.form_utils import assign_form_or_template_ids
-from data import crud
 from models import (
     FormOrm,
     FormTemplateOrm,

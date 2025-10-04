@@ -8,24 +8,19 @@ from flask import abort, make_response, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
+import data.db_operations as crud
 from api.decorator import roles_required
 from api.resources.workflow_template_steps import WorkflowTemplateStepListResponse
-from common.api_utils import (
-    WorkflowTemplateIdPath,
-    convert_query_parameter_to_bool,
-)
+from common.api_utils import WorkflowTemplateIdPath, convert_query_parameter_to_bool
 from common.commonUtil import get_current_time
 from common.workflow_utils import (
     apply_changes_to_model,
     assign_workflow_template_or_instance_ids,
     validate_workflow_template_step,
 )
-from data import crud, db_session, marshal
+from data import marshal
 from enums import RoleEnum
-from models import (
-    WorkflowClassificationOrm,
-    WorkflowTemplateOrm,
-)
+from models import WorkflowClassificationOrm, WorkflowTemplateOrm
 from validation import CradleBaseModel
 from validation.file_upload import FileUploadForm
 from validation.workflow_templates import (
@@ -160,7 +155,7 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
         WorkflowTemplateOrm, workflow_template_dict
     )
 
-    with db_session.no_autoflush:
+    with crud.db_session.no_autoflush:
         workflow_classification_orm = get_workflow_classification_from_dict(
             workflow_template_dict, workflow_classification_dict
         )
@@ -347,10 +342,11 @@ def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplat
 
 
 # /api/workflow/templates/<string:workflow_template_id> [PATCH]
+# TODO: This endpoint has issue with blocking the frontend request due to the CORS policy. Need to continue with the investigation.
+@roles_required([RoleEnum.ADMIN])
 @api_workflow_templates.patch(
     "/<string:workflow_template_id>", responses={200: WorkflowTemplateModel}
 )
-@roles_required([RoleEnum.ADMIN])
 def update_workflow_template_patch(
     path: WorkflowTemplateIdPath, body: WorkflowTemplatePatchBody
 ):
@@ -409,6 +405,55 @@ def update_workflow_template_patch(
     crud.create(model=new_workflow_template, refresh=True)
 
     response_data = crud.read(WorkflowTemplateOrm, id=copy_workflow_template_dict["id"])
+
+    response_data = marshal.marshal(response_data, shallow=True)
+
+    return response_data, 200
+
+
+# /api/workflow/templates/<string:workflow_template_id>/partial [PATCH]
+@roles_required([RoleEnum.ADMIN])
+@api_workflow_templates.patch(
+    "/<string:workflow_template_id>/partial", responses={200: WorkflowTemplateModel}
+)
+def update_workflow_template_partial(
+    path: WorkflowTemplateIdPath, body: WorkflowTemplatePatchBody
+):
+    """
+    Update Workflow Template with only specific fields
+
+    Only basic info of the workflow template is updated.
+    TODO: Add support for nested updates such as `steps` or `classification` objects.
+    """
+    # Load only provided fields
+    payload = body.model_dump(exclude_unset=True)
+
+    workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
+    if workflow_template is None:
+        return abort(
+            code=404,
+            description=workflow_template_not_found_message.format(
+                path.workflow_template_id
+            ),
+        )
+
+    changes = dict(payload)
+
+    # No changes provided
+    if not changes:
+        response_data = marshal.marshal(workflow_template, shallow=True)
+        return response_data, 200
+
+    # Always bump last_edited
+    changes["last_edited"] = get_current_time()
+
+    crud.update(
+        WorkflowTemplateOrm,
+        changes=changes,
+        id=path.workflow_template_id,
+    )
+
+    response_data = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
 
     response_data = marshal.marshal(response_data, shallow=True)
 
@@ -512,9 +557,11 @@ def get_workflow_template_version_as_csv(path: WorkflowTemplateVersionPath):
     writer.writerow(
         [
             "Classification",
-            workflow_template.classification.name
-            if workflow_template.classification
-            else "",
+            (
+                workflow_template.classification.name
+                if workflow_template.classification
+                else ""
+            ),
         ]
     )
     writer.writerow(["Date Created", workflow_template.date_created])

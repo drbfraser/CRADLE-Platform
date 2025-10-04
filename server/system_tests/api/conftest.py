@@ -1,7 +1,7 @@
 import pytest
 
+import data.db_operations as crud
 from common.commonUtil import get_uuid
-from data import crud
 from enums import SexEnum
 from models import FormClassificationOrm, FormOrm, FormTemplateOrm
 

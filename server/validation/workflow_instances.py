@@ -62,11 +62,11 @@ class WorkflowInstanceModel(CradleBaseModel, extra="forbid"):
     name: str
     description: str
     start_date: int = Field(default_factory=get_current_time)
-    current_step_id: Optional[str] = None
+    current_step_id: Optional[str] = Field(default=None)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
     completion_date: Optional[int] = Field(default_factory=get_current_time)
     status: str
-    workflow_template_id: Optional[str] = None
+    workflow_template_id: Optional[str] = Field(default=None)
     patient_id: str
     steps: list[WorkflowInstanceStepModel]
 

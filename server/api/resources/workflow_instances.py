@@ -4,13 +4,14 @@ from flask import abort, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
+import data.db_operations as crud
 from common.api_utils import (
     WorkflowInstanceIdPath,
     convert_query_parameter_to_bool,
 )
 from common.commonUtil import get_current_time
 from common.workflow_utils import assign_workflow_template_or_instance_ids
-from data import crud, marshal
+from data import marshal
 from models import (
     PatientOrm,
     WorkflowInstanceOrm,
@@ -151,7 +152,9 @@ def update_workflow_instance(path: WorkflowInstanceIdPath, body: WorkflowInstanc
 
     workflow_instance_changes = body.model_dump()
 
-    workflow_instance_changes["last_edited"] = get_current_time()
+    # Auto-update last_edited if not explicitly provided
+    if "last_edited" not in workflow_instance_changes:
+        workflow_instance_changes["last_edited"] = get_current_time()
 
     # Validate that the workflow template exists (if being updated)
     if workflow_instance_changes.get("workflow_template_id") is not None:

@@ -5,8 +5,6 @@ import json
 from typing import TYPE_CHECKING, Any, Type
 
 from common import commonUtil
-
-# from models import FormTemplateOrm
 from common.constants import (
     FORM_TEMPLATE_LANGUAGES_COL,
     FORM_TEMPLATE_LANGUAGES_ROW,

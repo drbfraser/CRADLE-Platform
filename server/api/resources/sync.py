@@ -6,8 +6,9 @@ from flask_openapi3.models.tag import Tag
 from marshmallow import ValidationError
 from pydantic import Field, RootModel
 
+import data.db_operations as crud
 from common import user_utils
-from data import crud, db_session, marshal
+from data import marshal
 from models import (
     MedicalRecordOrm,
     PatientAssociationsOrm,
@@ -223,7 +224,7 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
             print(str(err))
             status_code = 207
 
-    with db_session.begin_nested():
+    with crud.db_session.begin_nested():
         # Create and update patients in the database
         for models in models_list[:5]:
             if models:
@@ -239,7 +240,7 @@ def sync_patients(query: LastSyncQueryParam, body: SyncPatientsBody):
             )
         for data in pregnancies_to_update:
             crud.update(PregnancyOrm, data.values, autocommit=False, id=data.key_value)
-    db_session.commit()
+    crud.db_session.commit()
 
     # Read all patients that have been created or updated since last sync
     current_user = cast("dict[Any, Any]", current_user)

@@ -2,12 +2,12 @@ from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
-import data
+import data.db_operations as crud
 from api.decorator import roles_required
 from common.api_utils import (
     FormClassificationIdPath,
 )
-from data import crud, marshal
+from data import marshal
 from enums import RoleEnum
 from models import FormClassificationOrm, FormTemplateOrm
 from validation.formClassifications import (
@@ -95,8 +95,8 @@ def edit_form_classification_name(
         )
 
     form_classification.name = body.name
-    data.db_session.commit()
-    data.db_session.refresh(form_classification)
+    crud.db_session.commit()
+    crud.db_session.refresh(form_classification)
 
     return marshal.marshal(form_classification, True), 201
 

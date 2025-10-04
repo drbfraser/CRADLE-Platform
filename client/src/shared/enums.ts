@@ -86,6 +86,7 @@ export enum EndpointEnum {
   SECRETKEY = '/smskey' /* /user/{USER_ID}/smsKey */,
   //workflow instance
   WORKFLOW_INSTANCES = '/workflow/instances',
+  WITH_STEPS = '?with_steps=true',
   //workflow templates
   WORKFLOW_TEMPLATES = '/workflow/templates',
   WORKFLOW_CLASSIFICATIONS = '/workflow/classifications',

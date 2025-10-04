@@ -6,7 +6,7 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 from pydantic import Field, RootModel
 
-import data
+import data.db_operations as crud
 from api.decorator import patient_association_required, roles_required
 from common import user_utils
 from common.api_utils import (
@@ -17,7 +17,7 @@ from common.api_utils import (
 from common.commonUtil import get_current_time
 from common.patient_utils import assign_patient_id
 from config import db
-from data import crud, marshal
+from data import marshal
 from enums import RoleEnum, TrafficLightEnum
 from models import (
     AssessmentOrm,
@@ -113,7 +113,7 @@ def create_patient(body: NestedPatient):
             assoc.associate(patient, facility=referral.health_facility)
             # The associate function performs a database commit, since this will
             # wipe out the patient we want to return we must refresh it.
-            data.db_session.refresh(patient)
+            crud.db_session.refresh(patient)
 
     return marshal.marshal(patient, shallow=True), 201
 
@@ -188,8 +188,8 @@ def update_patient_info(path: PatientIdPath, body: UpdatePatientRequestBody):
     # `last_edited` value which is present in the request.
     if not base:
         patient.last_edited = get_current_time()
-        data.db_session.commit()
-        data.db_session.refresh(patient)  # Need to refresh the patient after commit
+        crud.db_session.commit()
+        crud.db_session.refresh(patient)  # Need to refresh the patient after commit
 
     return marshal.marshal(patient)
 

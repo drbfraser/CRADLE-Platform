@@ -5,14 +5,14 @@ from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
-import data
+import data.db_operations as crud
 from common import user_utils
 from common.api_utils import (
     ReferralIdPath,
     SearchFilterQueryParams,
 )
 from common.commonUtil import get_current_time
-from data import crud, marshal
+from data import marshal
 from models import HealthFacilityOrm, PatientOrm, ReferralOrm
 from service import assoc, serialize, view
 from validation.referrals import (
@@ -122,8 +122,8 @@ def update_referral_assessed(path: ReferralIdPath):
     if not referral.is_assessed:
         referral.is_assessed = True
         referral.date_assessed = get_current_time()
-        data.db_session.commit()
-        data.db_session.refresh(referral)
+        crud.db_session.commit()
+        crud.db_session.refresh(referral)
 
     return marshal.marshal(referral), 200
 
@@ -148,8 +148,8 @@ def update_referral_cancel_status(path: ReferralIdPath, body: CancelStatus):
     crud.update(ReferralOrm, cancel_status_model_dump, id=path.referral_id)
 
     referral = crud.read(ReferralOrm, id=path.referral_id)
-    data.db_session.commit()
-    data.db_session.refresh(referral)
+    crud.db_session.commit()
+    crud.db_session.refresh(referral)
 
     return marshal.marshal(referral)
 
@@ -167,7 +167,7 @@ def update_referral_not_attend(path: ReferralIdPath, body: NotAttendReason):
         referral.not_attended = True
         referral.not_attend_reason = not_attend_model_dump["not_attend_reason"]
         referral.date_not_attended = get_current_time()
-        data.db_session.commit()
-        data.db_session.refresh(referral)
+        crud.db_session.commit()
+        crud.db_session.refresh(referral)
 
     return marshal.marshal(referral)

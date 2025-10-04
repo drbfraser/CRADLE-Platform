@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Type
 from common import commonUtil
 from common.form_utils import filter_template_questions_orm
 from data import db_session
-from data.crud import M
+from data.db_operations import M
 from models import (
     AssessmentOrm,
     FormClassificationOrm,
@@ -29,6 +29,7 @@ from models import (
     WorkflowTemplateOrm,
     WorkflowTemplateStepBranchOrm,
     WorkflowTemplateStepOrm,
+    get_schema_for_model,
 )
 from service import invariant
 
@@ -586,7 +587,7 @@ def unmarshal(m: Type[M], d: dict) -> M:
 
 
 def __load(m: Type[M], d: dict) -> M:
-    schema = m.schema()
+    schema = get_schema_for_model(m)
     return schema().load(d)
 
 

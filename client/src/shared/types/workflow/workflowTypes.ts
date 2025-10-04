@@ -37,7 +37,7 @@ export interface WorkflowTemplate {
   id: ID;
   name: string;
   description: string;
-  version: number;
+  version: string;
 
   classificationId: ID;
   classification?: WorkflowClassification;
@@ -76,36 +76,41 @@ export interface TemplateGroup {
 }
 
 // Instance side
-export interface InstanceStep {
+export interface WorkflowInstanceStep {
   id: ID; // PK on instance_step table
   name: string;
-  title?: string; // nullable in DB
-  formId: ID;
+  description: string;
+  startDate: number;
+  triggeredBy?: ID;
+  formId?: ID;
   assignedTo?: ID;
-  expectedCompletion?: ISODate;
-  completionDate?: Nullable<ISODate>;
+  expectedCompletion?: Nullable<number>;
+  completionDate?: Nullable<number>;
   status: StepStatus;
   data?: Record<string, unknown>;
-  triggeredBy?: ID;
+  workflowInstanceId: ID;
+  conditionId?: ID;
 
   // audit
-  lastUpdated: ISODate;
+  lastEdited: number;
   lastUpdatedBy?: ID;
 }
 
 export interface WorkflowInstance {
   id: ID;
-  templateId: ID;
+  name: string;
+  description: string;
+  workflowTemplateId: ID;
   patientId: ID;
-  startedDate: number;
+  startDate: number;
   currentStepId?: ID;
   status: InstanceStatus;
-  steps: InstanceStep[];
+  steps: WorkflowInstanceStep[];
 
   // audit
-  lastUpdated: ISODate;
-  lastUpdatedBy?: ID;
-  completionDate?: Nullable<ISODate>;
+  lastEdited: number;
+  lastEditedBy?: ID;
+  completionDate?: number;
 }
 
 // Payload for POST /workflow/instances
@@ -122,27 +127,20 @@ export interface InstanceInput {
   formResponses?: FormResponse[];
 }
 
-// PATCH/PUT payload for /workflow/instances/{id}
+// To be used for PATCH payloads for /workflow/instances/{id}
 /**
- * update status / record currentStep / lastUpdated: what time  / lastUpdateBy who(id)
+ * update status / record currentStep / lastEditedBy: who(id)
  */
 export type InstanceUpdate = Partial<
-  Pick<
-    WorkflowInstance,
-    'status' | 'currentStepId' | 'lastUpdated' | 'lastUpdatedBy'
-  >
+  Pick<WorkflowInstance, 'status' | 'currentStepId' | 'lastEditedBy'>
 >;
 
 export type InstanceStepUpdate = Partial<
   Pick<
-    InstanceStep,
-    | 'status'
-    | 'completionDate'
-    | 'assignedTo'
-    | 'data'
-    | 'lastUpdated'
-    | 'lastUpdatedBy'
+    WorkflowInstanceStep,
+    'status' | 'completionDate' | 'assignedTo' | 'data' | 'lastUpdatedBy'
   >
 >;
+
 //  Collections
 export type TemplateGroupArray = TemplateGroup[];

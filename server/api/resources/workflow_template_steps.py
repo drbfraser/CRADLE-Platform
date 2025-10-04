@@ -2,6 +2,7 @@ from flask import abort, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
+import data.db_operations as crud
 from common.api_utils import (
     WorkflowTemplateStepIdPath,
     WorkflowTemplateStepListResponse,
@@ -12,7 +13,7 @@ from common.workflow_utils import (
     check_branch_conditions,
     validate_workflow_template_step,
 )
-from data import crud, marshal
+from data import marshal
 from models import WorkflowTemplateStepOrm
 from validation.workflow_template_steps import (
     WorkflowTemplateStepModel,
