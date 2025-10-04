@@ -23,11 +23,11 @@ from enums import RoleEnum
 from models import WorkflowClassificationOrm, WorkflowTemplateOrm
 from validation import CradleBaseModel
 from validation.file_upload import FileUploadForm
-from validation.workflow_models import WorkflowTemplateModel
 from validation.workflow_api_models import (
     WorkflowTemplatePatchBody,
     WorkflowTemplateUploadModel,
 )
+from validation.workflow_models import WorkflowTemplateModel
 
 
 # Path model for CSV endpoint

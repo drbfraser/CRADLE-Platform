@@ -8,8 +8,8 @@ from typing_extensions import Self
 from common.commonUtil import get_current_time
 from enums import WorkflowStatusEnum
 from validation import CradleBaseModel
-from validation.formTemplates import FormTemplateUpload
 from validation.forms import FormModel
+from validation.formTemplates import FormTemplateUpload
 from validation.rule_groups import RuleGroupModel
 
 
