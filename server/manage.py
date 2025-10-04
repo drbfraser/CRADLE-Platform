@@ -194,9 +194,10 @@ def seed_test_data():
     create_simple_workflow_template()
 
     print("Creating a simple workflow instance")
+
     create_workflow_instance_form(
         form_id = "workflow-instance-form-1",
-        patient_id=PATIENT_ID_2,
+        patient_id=PATIENT_ID_1,
         user_id=3,
         form_template_id="wt-simple-1-step-1-form",
         form_classification_id="wt-simple-1-form-classification",
@@ -205,6 +206,15 @@ def seed_test_data():
 
     create_workflow_instance_form(
         form_id = "workflow-instance-form-2",
+        patient_id=PATIENT_ID_2,
+        user_id=3,
+        form_template_id="wt-simple-1-step-1-form",
+        form_classification_id="wt-simple-1-form-classification",
+        fname="Anna",
+    )
+
+    create_workflow_instance_form(
+        form_id = "workflow-instance-form-3",
         patient_id=PATIENT_ID_3,
         user_id=3,
         form_template_id="wt-simple-1-step-1-form",
@@ -215,21 +225,36 @@ def seed_test_data():
     create_workflow_instance(
         instance_id = "test-workflow-instance-1",
         instance_name = "Patient Workflow Instance",
-        patient_id=PATIENT_ID_2,
+        patient_id=PATIENT_ID_1,
         workflow_template_id="wt-simple-1",
         form_id = "workflow-instance-form-1"
     )
-
+    
     create_workflow_instance(
         instance_id = "test-workflow-instance-2",
-        instance_name = "Collect Readings Workflow Instance",
-        patient_id=PATIENT_ID_3,
+        instance_name = "Patient Workflow Instance",
+        patient_id=PATIENT_ID_2,
         workflow_template_id="wt-simple-1",
         form_id = "workflow-instance-form-2"
     )
 
-    print("Finished seeding test data")
+    create_workflow_instance(
+        instance_id = "test-workflow-instance-3",
+        instance_name = "Patient Workflow Instance V2",
+        patient_id=PATIENT_ID_2,
+        workflow_template_id="wt-simple-1",
+        form_id = "workflow-instance-form-2"
+    )
 
+    create_workflow_instance(
+        instance_id = "test-workflow-instance-4",
+        instance_name = "Collect Readings Workflow Instance",
+        patient_id=PATIENT_ID_3,
+        workflow_template_id="wt-simple-1",
+        form_id = "workflow-instance-form-3"
+    )
+
+    print("Finished seeding test data")
 
 # USAGE: python manage.py seed_test_patient
 @cli.command("seed_test_patient")
