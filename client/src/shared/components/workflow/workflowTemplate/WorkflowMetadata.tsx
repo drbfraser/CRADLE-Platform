@@ -12,7 +12,7 @@ import {
 import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
 import { ReactNode } from 'react';
 import { getPrettyDateTime } from 'src/shared/utils';
-import { WorkflowTemplate } from 'src/shared/types/workflow/workflowTypes';
+import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
 
 interface WorkflowMetadataProps {
   description?: string;
