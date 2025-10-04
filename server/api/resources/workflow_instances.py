@@ -18,11 +18,11 @@ from models import (
     WorkflowTemplateOrm,
 )
 from validation import CradleBaseModel
-from validation.workflow_models import WorkflowInstanceModel
 from validation.workflow_api_models import (
     WorkflowInstancePatchModel,
     WorkflowInstanceUploadModel,
 )
+from validation.workflow_models import WorkflowInstanceModel
 
 
 # Create a response model for the list endpoints

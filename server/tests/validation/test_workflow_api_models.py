@@ -1,70 +1,55 @@
 import pytest
-
 from pydantic import ValidationError
 
+from tests.validation.test_workflow_models import (
+    make_workflow_instance_step,
+    make_workflow_template_step,
+)
 from validation.workflow_api_models import (
     WorkflowInstancePatchModel,
     WorkflowTemplatePatchBody,
 )
 
-from tests.validation.test_workflow_models import (
-    classification,
-    form,
-    template_form,
-    workflow_template_step_factory,
-    workflow_instance_step_factory,
-)
+
+def make_workflow_template_patch(**overrides):
+    base = {
+        "id": "workflow-template-1",
+        "name": "Workflow 1",
+        "description": "Description",
+        "archived": False,
+        "starting_step_id": None,
+        "date_created": "1759330125",
+        "last_edited": "1759330125",
+        "version": "0",
+        "steps": [],
+    }
+    return {**base, **overrides}
 
 
-@pytest.fixture
-def workflow_template_patch_factory(classification):
-    def _make(**overrides):
-        base = {
-            "id": "workflow-template-1",
-            "name": "Workflow 1",
-            "description": "Description",
-            "archived": False,
-            "starting_step_id": None,
-            "date_created": "1759330125",
-            "last_edited": "1759330125",
-            "version": "0",
-            "classification_id": classification["id"],
-            "classification": classification,
-            "steps": [],
-        }
-        return {**base, **overrides}
-
-    return _make
-
-
-@pytest.fixture
-def workflow_instance_patch_factory():
-    def _make(**overrides):
-        base = {
-            "id": "workflow-instance-1",
-            "name": "Workflow 1",
-            "description": "Description",
-            "start_date": "1759330125",
-            "current_step_id": None,
-            "last_edited": "1759848525",
-            "completion_date": "1759848525",
-            "status": "Completed",
-            "workflow_template_id": "workflow-instance-1",
-            "patient_id": "125",
-            "steps": [],
-        }
-        return {**base, **overrides}
-
-    return _make
+def make_workflow_instance_patch(**overrides):
+    base = {
+        "id": "workflow-instance-1",
+        "name": "Workflow 1",
+        "description": "Description",
+        "start_date": "1759330125",
+        "current_step_id": None,
+        "last_edited": "1759848525",
+        "completion_date": "1759848525",
+        "status": "Completed",
+        "workflow_template_id": "workflow-instance-1",
+        "patient_id": "125",
+        "steps": [],
+    }
+    return {**base, **overrides}
 
 
 ### WorkflowTemplatePatchBody ###
 
 
-def test__workflow_template_patch__valid(workflow_template_patch_factory):
-    patch_json = workflow_template_patch_factory()
+def test__workflow_template_patch__valid():
+    patch_json = make_workflow_template_patch()
     patch_model = WorkflowTemplatePatchBody(**patch_json)
-    # sanity check
+
     assert patch_model.id == "workflow-template-1"
 
 
@@ -82,20 +67,16 @@ def test__workflow_template_patch__valid(workflow_template_patch_factory):
         "steps",
     ],
 )
-def test__workflow_template_patch__optional_fields_missing(
-    workflow_template_patch_factory, optional_field: str
-):
-    patch_json = workflow_template_patch_factory()
-    del patch_json[optional_field]
+def test__workflow_template_patch__optional_fields_missing(optional_field: str):
+    patch_json = make_workflow_template_patch()
+    patch_json.pop(optional_field, None)
 
     WorkflowTemplatePatchBody(**patch_json)
 
 
-def test__workflow_template_patch__with_steps(
-    workflow_template_patch_factory, workflow_template_step_factory
-):
-    step_json = workflow_template_step_factory()
-    patch_json = workflow_template_patch_factory(steps=[step_json])
+def test__workflow_template_patch__with_steps():
+    step_json = make_workflow_template_step()
+    patch_json = make_workflow_template_patch(steps=[step_json])
 
     patch_model = WorkflowTemplatePatchBody(**patch_json)
     assert patch_model.steps[0].id == "workflow-template-step-1"
@@ -108,9 +89,9 @@ def test__workflow_template_patch__with_steps(
     ],
 )
 def test__workflow_template_patch__invalid_dates(
-    workflow_template_patch_factory, field: str, value: str, error_message: str
+    field: str, value: str, error_message: str
 ):
-    patch_json = workflow_template_patch_factory(**{field: value})
+    patch_json = make_workflow_template_patch(**{field: value})
 
     with pytest.raises(ValidationError) as e:
         WorkflowTemplatePatchBody(**patch_json)
@@ -121,10 +102,10 @@ def test__workflow_template_patch__invalid_dates(
 ### WorkflowInstancePatchModel ###
 
 
-def test__workflow_instance_patch__valid(workflow_instance_patch_factory):
-    patch_json = workflow_instance_patch_factory()
+def test__workflow_instance_patch__valid():
+    patch_json = make_workflow_instance_patch()
     patch_model = WorkflowInstancePatchModel(**patch_json)
-    # sanity check
+
     assert patch_model.id == "workflow-instance-1"
 
 
@@ -144,20 +125,16 @@ def test__workflow_instance_patch__valid(workflow_instance_patch_factory):
         "steps",
     ],
 )
-def test__workflow_instance_patch__optional_fields_missing(
-    workflow_instance_patch_factory, optional_field: str
-):
-    patch_json = workflow_instance_patch_factory()
-    del patch_json[optional_field]
+def test__workflow_instance_patch__optional_fields_missing(optional_field: str):
+    patch_json = make_workflow_instance_patch()
+    patch_json.pop(optional_field, None)
 
     WorkflowInstancePatchModel(**patch_json)
 
 
-def test__workflow_instance_patch__with_steps(
-    workflow_instance_patch_factory, workflow_instance_step_factory
-):
-    step_json = workflow_instance_step_factory()
-    patch_json = workflow_instance_patch_factory(steps=[step_json])
+def test__workflow_instance_patch__with_steps():
+    step_json = make_workflow_instance_step()
+    patch_json = make_workflow_instance_patch(steps=[step_json])
 
     patch_model = WorkflowInstancePatchModel(**patch_json)
     assert patch_model.steps[0].id == "workflow-instance-step-1"
@@ -175,9 +152,9 @@ def test__workflow_instance_patch__with_steps(
     ],
 )
 def test__workflow_instance_patch__invalid_dates(
-    workflow_instance_patch_factory, field: str, value: str, error_message: str
+    field: str, value: str, error_message: str
 ):
-    patch_json = workflow_instance_patch_factory(**{field: value})
+    patch_json = make_workflow_instance_patch(**{field: value})
 
     with pytest.raises(ValidationError) as e:
         WorkflowInstancePatchModel(**patch_json)

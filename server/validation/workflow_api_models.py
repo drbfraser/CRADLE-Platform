@@ -8,15 +8,15 @@ from typing_extensions import Self
 from common.commonUtil import get_current_time
 from enums import WorkflowStatusEnum
 from validation import CradleBaseModel
+from validation.rule_groups import RuleGroupModel
 from validation.workflow_models import (
     WorkflowClassificationModel,
     WorkflowCollectionModel,
-    WorkflowTemplateModel,
-    WorkflowTemplateStepModel,
     WorkflowInstanceModel,
     WorkflowInstanceStepModel,
+    WorkflowTemplateModel,
+    WorkflowTemplateStepModel,
 )
-from validation.rule_groups import RuleGroupModel
 
 
 class WorkflowClassificationUploadModel(WorkflowClassificationModel):
