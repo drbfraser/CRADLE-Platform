@@ -18,8 +18,8 @@ from models import (
     WorkflowTemplateOrm,
 )
 from validation import CradleBaseModel
-from validation.workflow_instances import (
-    WorkflowInstanceModel,
+from validation.workflow_objects import WorkflowInstanceModel
+from validation.workflow_api import (
     WorkflowInstancePatchModel,
     WorkflowInstanceUploadModel,
 )
