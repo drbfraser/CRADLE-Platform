@@ -5,7 +5,7 @@ export enum InstanceStatus {
 }
 
 export enum StepStatus {
-  PENDING = "Pending",
+  PENDING = 'Pending',
   ACTIVE = 'Active',
   COMPLETED = 'Completed',
   CANCELLED = 'Cancelled',

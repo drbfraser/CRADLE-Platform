@@ -89,6 +89,7 @@ class WorkflowStatusEnum(StrEnum):
     COMPLETED = "Completed"
     CANCELLED = "Cancelled"
 
+
 class WorkflowStepStatusEnum(StrEnum):
     PENDING = "Pending"
     ACTIVE = "Active"

@@ -44,10 +44,7 @@ from seed_users import (
     seed_minimal_users,
     seed_test_users,
 )
-from enums import (
-    WorkflowStatusEnum,
-    WorkflowStepStatusEnum
-)
+from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
 
 # cli = FlaskGroup(app)
 cli = FlaskGroup()
@@ -197,7 +194,7 @@ def seed_test_data():
     print("Creating a simple workflow instance")
 
     create_workflow_instance_form(
-        form_id = "workflow-instance-form-1",
+        form_id="workflow-instance-form-1",
         patient_id=PATIENT_ID_1,
         user_id=3,
         form_template_id="wt-simple-1-step-1-form",
@@ -206,7 +203,7 @@ def seed_test_data():
     )
 
     create_workflow_instance_form(
-        form_id = "workflow-instance-form-2",
+        form_id="workflow-instance-form-2",
         patient_id=PATIENT_ID_2,
         user_id=3,
         form_template_id="wt-simple-1-step-1-form",
@@ -215,7 +212,7 @@ def seed_test_data():
     )
 
     create_workflow_instance_form(
-        form_id = "workflow-instance-form-3",
+        form_id="workflow-instance-form-3",
         patient_id=PATIENT_ID_3,
         user_id=3,
         form_template_id="wt-simple-1-step-1-form",
@@ -224,38 +221,39 @@ def seed_test_data():
     )
 
     create_workflow_instance(
-        instance_id = "test-workflow-instance-1",
-        instance_name = "Patient Workflow Instance",
+        instance_id="test-workflow-instance-1",
+        instance_name="Patient Workflow Instance",
         patient_id=PATIENT_ID_1,
         workflow_template_id="wt-simple-1",
-        form_id = "workflow-instance-form-1"
-    )
-    
-    create_workflow_instance(
-        instance_id = "test-workflow-instance-2",
-        instance_name = "Patient Workflow Instance",
-        patient_id=PATIENT_ID_2,
-        workflow_template_id="wt-simple-1",
-        form_id = "workflow-instance-form-2"
+        form_id="workflow-instance-form-1",
     )
 
     create_workflow_instance(
-        instance_id = "test-workflow-instance-3",
-        instance_name = "Patient Workflow Instance V2",
+        instance_id="test-workflow-instance-2",
+        instance_name="Patient Workflow Instance",
         patient_id=PATIENT_ID_2,
         workflow_template_id="wt-simple-1",
-        form_id = "workflow-instance-form-2"
+        form_id="workflow-instance-form-2",
     )
 
     create_workflow_instance(
-        instance_id = "test-workflow-instance-4",
-        instance_name = "Collect Readings Workflow Instance",
+        instance_id="test-workflow-instance-3",
+        instance_name="Patient Workflow Instance V2",
+        patient_id=PATIENT_ID_2,
+        workflow_template_id="wt-simple-1",
+        form_id="workflow-instance-form-2",
+    )
+
+    create_workflow_instance(
+        instance_id="test-workflow-instance-4",
+        instance_name="Collect Readings Workflow Instance",
         patient_id=PATIENT_ID_3,
         workflow_template_id="wt-simple-1",
-        form_id = "workflow-instance-form-3"
+        form_id="workflow-instance-form-3",
     )
 
     print("Finished seeding test data")
+
 
 # USAGE: python manage.py seed_test_patient
 @cli.command("seed_test_patient")
@@ -1494,7 +1492,14 @@ def create_complex_workflow_template_step_form_questions():
     db.session.commit()
 
 
-def create_workflow_instance(instance_id, instance_name, patient_id, workflow_template_id, form_id = None, num_steps = 3):
+def create_workflow_instance(
+    instance_id,
+    instance_name,
+    patient_id,
+    workflow_template_id,
+    form_id=None,
+    num_steps=3,
+):
     if crud.read(WorkflowInstanceOrm, id=instance_id) is None:
         workflow_instance = {
             "id": instance_id,
@@ -1515,7 +1520,7 @@ def create_workflow_instance(instance_id, instance_name, patient_id, workflow_te
             workflow_instance_step = {
                 "id": f"{instance_id}-step{step_number}",
                 "name": f"{instance_name} Step {step_number}",
-                "description": F"{instance_name} Workflow Instance Step {step_number} Description",
+                "description": f"{instance_name} Workflow Instance Step {step_number} Description",
                 "start_date": get_current_time(),
                 "triggered_by": None,
                 "last_edited": get_current_time(),
@@ -1526,7 +1531,7 @@ def create_workflow_instance(instance_id, instance_name, patient_id, workflow_te
                 "condition_id": None,
                 "workflow_instance_id": instance_id,
             }
-            
+
             if step_number == 1:
                 workflow_instance_step["status"] = WorkflowStepStatusEnum.ACTIVE
             else:
@@ -1582,9 +1587,7 @@ def create_workflow_instance_form(
         }
 
         workflow_instance_form_orm = FormOrm(**workflow_instance_form)
-        workflow_instance_form_orm.questions.append(
-            workflow_instance_form_question_orm
-        )
+        workflow_instance_form_orm.questions.append(workflow_instance_form_question_orm)
 
         db.session.add(workflow_instance_form_orm)
         db.session.commit()
