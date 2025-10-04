@@ -12,11 +12,11 @@ from data import marshal
 from enums import RoleEnum
 from models import WorkflowCollectionOrm
 from validation import CradleBaseModel
-from validation.workflow_objects import (
+from validation.workflow_models import (
     WorkflowClassificationModel,
     WorkflowCollectionModel,
 )
-from validation.workflow_api import WorkflowCollectionUploadModel
+from validation.workflow_api_models import WorkflowCollectionUploadModel
 
 
 # Response model for a list of workflow collections

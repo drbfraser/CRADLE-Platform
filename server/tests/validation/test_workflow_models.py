@@ -3,7 +3,7 @@ import pytest
 
 from pydantic import ValidationError
 
-from validation.workflow_objects import (
+from validation.workflow_models import (
     WorkflowTemplateModel,
     WorkflowTemplateStepModel,
     WorkflowInstanceModel,
@@ -13,11 +13,6 @@ from tests.validation.test_form_templates import (
     template_with_valid_fields_and_one_question_should_return_none,
 )
 from tests.validation.test_forms import form_with_valid_fields_should_return_none
-
-
-############################################################################
-#                                 Fixtures                                 #
-############################################################################
 
 
 @pytest.fixture
@@ -123,9 +118,7 @@ def workflow_instance_factory():
     return _make
 
 
-############################################################################
-#                      Test WorkflowTemplateStepModel                      #
-############################################################################
+### WorkflowTemplateStepModel ###
 
 
 def test__workflow_template_step__valid(workflow_template_step_factory):
@@ -181,9 +174,7 @@ def test__workflow_template_step__extra_field(workflow_template_step_factory):
         WorkflowTemplateStepModel(**step_json)
 
 
-############################################################################
-#                         Test WorkflowTemplateModel                       #
-############################################################################
+### WorkflowTemplateModel ###
 
 
 def test__workflow_template__valid(workflow_template_factory):
@@ -273,9 +264,7 @@ def test__workflow_template__invalid_dates(workflow_template_factory):
     assert "last_edited cannot be before date_created" in str(e)
 
 
-############################################################################
-#                     Test WorkflowInstanceStepModel                       #
-############################################################################
+### WorkflowInstanceStepModel ###
 
 
 def test__workflow_instance_step__valid(workflow_instance_step_factory):
@@ -368,9 +357,7 @@ def test__workflow_instance_step__invalid_status(workflow_instance_step_factory)
         WorkflowInstanceStepModel(**step_json)
 
 
-############################################################################
-#                       Test WorkflowInstanceModel                         #
-############################################################################
+### WorkflowInstanceModel ###
 
 
 def test__workflow_instance__valid(workflow_instance_factory):

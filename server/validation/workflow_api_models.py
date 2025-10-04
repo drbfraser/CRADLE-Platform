@@ -8,7 +8,7 @@ from typing_extensions import Self
 from common.commonUtil import get_current_time
 from enums import WorkflowStatusEnum
 from validation import CradleBaseModel
-from validation.workflow_objects import (
+from validation.workflow_models import (
     WorkflowClassificationModel,
     WorkflowCollectionModel,
     WorkflowTemplateModel,

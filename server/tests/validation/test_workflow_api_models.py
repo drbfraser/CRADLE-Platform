@@ -2,23 +2,18 @@ import pytest
 
 from pydantic import ValidationError
 
-from validation.workflow_api import (
+from validation.workflow_api_models import (
     WorkflowInstancePatchModel,
     WorkflowTemplatePatchBody,
 )
 
-from tests.validation.test_workflow_objects import (
+from tests.validation.test_workflow_models import (
     classification,
     form,
     template_form,
     workflow_template_step_factory,
     workflow_instance_step_factory,
 )
-
-
-############################################################################
-#                                 Fixtures                                 #
-############################################################################
 
 
 @pytest.fixture
@@ -63,9 +58,7 @@ def workflow_instance_patch_factory():
     return _make
 
 
-############################################################################
-#                       Test WorkflowTemplatePatchBody                     #
-############################################################################
+### WorkflowTemplatePatchBody ###
 
 
 def test__workflow_template_patch__valid(workflow_template_patch_factory):
@@ -125,9 +118,7 @@ def test__workflow_template_patch__invalid_dates(
     assert error_message in str(e.value)
 
 
-############################################################################
-#                       Test WorkflowInstancePatchModel                    #
-############################################################################
+### WorkflowInstancePatchModel ###
 
 
 def test__workflow_instance_patch__valid(workflow_instance_patch_factory):
