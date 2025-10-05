@@ -122,6 +122,6 @@ class WorkflowEvaluateRequestModel(CradleBaseModel):
     def validate_data(cls, input_data: str) -> dict:
         try:
             obj = json.loads(input_data)
-        except JSONDecodeError as e:
+        except JSONDecodeError:
             raise ValueError("input_data must be valid JSON")
         return obj
