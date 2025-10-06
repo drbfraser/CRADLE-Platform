@@ -7,11 +7,6 @@ import {
   Button,
   Collapse,
   Divider,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  DialogContentText,
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -37,6 +32,9 @@ import {
 import WorkflowStatus from './components/WorkflowStatus';
 import WorkflowStepHistory from './components/WorkflowStepHistory';
 import WorkflowPossibleSteps from './components/WorkflowPossibleSteps';
+import WorkflowConfirmDialog, {
+  ConfirmDialogData,
+} from './components/WorkflowConfirmDialog';
 
 function parseYMD(d?: Nullable<string>) {
   if (!d) return undefined;
@@ -230,12 +228,12 @@ export default function WorkflowInstanceDetailsPage() {
   const [open, setOpen] = useState(false);
   const [expandedStep, setExpandedStep] = useState<string | null>(null);
   const [expandAll, setExpandAll] = useState(false);
-  const [confirmDialog, setConfirmDialog] = useState<{
-    open: boolean;
-    title: string;
-    message: string;
-    onConfirm: () => void;
-  }>({ open: false, title: '', message: '', onConfirm: () => {} });
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogData>({
+    open: true,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
 
   useEffect(() => {
     async function fetchInstance() {
@@ -275,6 +273,7 @@ export default function WorkflowInstanceDetailsPage() {
 
   return (
     <>
+      {/* Main Workflow Instance Name Heading */}
       <Paper sx={{ p: { xs: 2, md: 3 }, mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Tooltip title="Go back" placement="top">
@@ -297,6 +296,7 @@ export default function WorkflowInstanceDetailsPage() {
           </Typography>
         ) : (
           <>
+            {/* Workflow Instance Name & Patient Heading */}
             <Box
               sx={{
                 display: 'flex',
@@ -309,6 +309,7 @@ export default function WorkflowInstanceDetailsPage() {
                 <Typography variant="h5">
                   {workflowInstance.studyTitle}
                 </Typography>
+
                 <Button
                   size="small"
                   variant="outlined"
@@ -375,36 +376,10 @@ export default function WorkflowInstanceDetailsPage() {
             />
 
             {/* Confirmation Dialog */}
-            <Dialog
-              open={confirmDialog.open}
-              onClose={() =>
-                setConfirmDialog((prev) => ({ ...prev, open: false }))
-              }
-              aria-labelledby="confirm-dialog-title"
-              aria-describedby="confirm-dialog-description">
-              <DialogTitle id="confirm-dialog-title">
-                {confirmDialog.title}
-              </DialogTitle>
-              <DialogContent>
-                <DialogContentText id="confirm-dialog-description">
-                  {confirmDialog.message}
-                </DialogContentText>
-              </DialogContent>
-              <DialogActions>
-                <Button
-                  onClick={() =>
-                    setConfirmDialog((prev) => ({ ...prev, open: false }))
-                  }>
-                  Cancel
-                </Button>
-                <Button
-                  onClick={confirmDialog.onConfirm}
-                  color="primary"
-                  variant="contained">
-                  Confirm
-                </Button>
-              </DialogActions>
-            </Dialog>
+            <WorkflowConfirmDialog
+              confirmDialog={confirmDialog}
+              setConfirmDialog={setConfirmDialog}
+            />
           </>
         )}
       </Paper>
