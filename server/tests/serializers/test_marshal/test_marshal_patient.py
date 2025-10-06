@@ -1,4 +1,3 @@
-# ruff: noqa: SLF001
 import datetime as dt
 
 import pytest

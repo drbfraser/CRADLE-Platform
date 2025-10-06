@@ -1,4 +1,3 @@
-# ruff: noqa: SLF001
 import data.marshal as m
 from models import RuleGroupOrm
 

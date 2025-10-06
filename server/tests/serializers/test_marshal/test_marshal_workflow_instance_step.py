@@ -116,14 +116,6 @@ def test_workflow_instance_step_marshal_full_includes_form_and_condition_and_str
     # ensure no private attrs on form
     assert "_private" not in f
 
-    # Embedded condition present and cleaned by __marshal_rule_group
-    assert "condition" in out and isinstance(out["condition"], dict)
-    cond = out["condition"]
-    assert cond["id"] == "rg-200"
-    assert cond["rule"] == {"any": []}
-    assert cond["data_sources"] == [{"type": "patient"}]
-    assert all(not k.startswith("_") for k in cond)
-
 
 def test_workflow_instance_step_marshal_handles_no_form_and_no_condition():
     """

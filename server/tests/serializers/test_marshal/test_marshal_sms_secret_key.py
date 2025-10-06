@@ -1,4 +1,3 @@
-# ruff: noqa: SLF001
 import datetime as dt
 
 from data import marshal as m

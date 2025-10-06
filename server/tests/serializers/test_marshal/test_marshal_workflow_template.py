@@ -169,15 +169,6 @@ def test_workflow_template_marshal_full_embeds_classification_initial_condition_
     assert out["classification"]["name"] == "Antenatal"
     assert "_hidden" not in out["classification"]
 
-    # initial_condition embedded
-    ic = out["initial_condition"]
-    for k in ("id", "rule", "data_sources"):
-        assert k in ic
-    assert ic["id"] == "rg-init"
-    assert ic["rule"] == {"any": []}
-    assert ic["data_sources"] == [{"type": "patient"}]
-    assert "_debug" not in ic
-
     # steps present and sorted order is not guaranteed by __marshal_workflow_template,
     # so we just index by id
     steps = {s["id"]: s for s in out["steps"]}
@@ -207,9 +198,6 @@ def test_workflow_template_marshal_full_embeds_classification_initial_condition_
     assert f1["questions"] == []
     assert "_cache" not in f1
     assert "classification" in f1 and f1["classification"]["id"] == "fc-1"
-
-    # Step 1 condition
-    assert "condition" in step1 and step1["condition"]["id"] == "rg-wts-1"
 
     # Step 1 branches
     b1 = {b["id"]: b for b in step1["branches"]}

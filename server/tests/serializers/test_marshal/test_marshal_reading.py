@@ -1,4 +1,3 @@
-# ruff: noqa: SLF001
 import pytest
 
 from data import marshal as m
