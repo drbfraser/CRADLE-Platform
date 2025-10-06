@@ -243,7 +243,7 @@ def seed_test_data():
         patient_id=PATIENT_ID_2,
         workflow_template_id="wt-simple-1",
         form_id="workflow-instance-form-2",
-        num_steps=5
+        num_steps=5,
     )
 
     create_workflow_instance(
@@ -252,7 +252,7 @@ def seed_test_data():
         patient_id=PATIENT_ID_3,
         workflow_template_id="wt-simple-1",
         form_id="workflow-instance-form-3",
-        num_steps=6
+        num_steps=6,
     )
 
     print("Finished seeding test data")
