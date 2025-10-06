@@ -13,7 +13,7 @@ from flask.cli import FlaskGroup
 import data.db_operations as crud
 from common.commonUtil import get_current_time
 from data import marshal
-from enums import SexEnum
+from enums import SexEnum, WorkflowStatusEnum, WorkflowStepStatusEnum
 from models import (
     FormClassificationOrm,
     FormOrm,
@@ -44,7 +44,6 @@ from seed_users import (
     seed_minimal_users,
     seed_test_users,
 )
-from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
 
 # cli = FlaskGroup(app)
 cli = FlaskGroup()
