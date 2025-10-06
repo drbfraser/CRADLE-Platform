@@ -1,7 +1,5 @@
 import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
-import {
-  InstanceStep,
-} from 'src/shared/types/workflow/workflowUiTypes';
+import { InstanceStep } from 'src/shared/types/workflow/workflowUiTypes';
 
 export const formatWorkflowStepStatusText = (s: InstanceStep) => {
   if (s.status === StepStatus.COMPLETED && s.completedOn) {
