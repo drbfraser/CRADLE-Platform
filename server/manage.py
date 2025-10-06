@@ -191,15 +191,15 @@ def seed_test_data():
     create_simple_workflow_classification()
     create_simple_workflow_template()
 
-    print("Creating a simple workflow instance")
-
+    print("Creating workflow instances")
+    # Create forms to be used by workflow instances
     create_workflow_instance_form(
         form_id="workflow-instance-form-1",
         patient_id=PATIENT_ID_1,
         user_id=3,
         form_template_id="wt-simple-1-step-1-form",
         form_classification_id="wt-simple-1-form-classification",
-        fname="Anna",
+        first_name="Anna",
     )
 
     create_workflow_instance_form(
@@ -208,7 +208,7 @@ def seed_test_data():
         user_id=3,
         form_template_id="wt-simple-1-step-1-form",
         form_classification_id="wt-simple-1-form-classification",
-        fname="Anna",
+        first_name="Anna",
     )
 
     create_workflow_instance_form(
@@ -217,9 +217,10 @@ def seed_test_data():
         user_id=3,
         form_template_id="wt-simple-1-step-1-form",
         form_classification_id="wt-simple-1-form-classification",
-        fname="Anna",
+        first_name="Anna",
     )
 
+    # Create workflow instances
     create_workflow_instance(
         instance_id="test-workflow-instance-1",
         instance_name="Patient Workflow Instance",
@@ -242,6 +243,7 @@ def seed_test_data():
         patient_id=PATIENT_ID_2,
         workflow_template_id="wt-simple-1",
         form_id="workflow-instance-form-2",
+        num_steps=5
     )
 
     create_workflow_instance(
@@ -250,6 +252,7 @@ def seed_test_data():
         patient_id=PATIENT_ID_3,
         workflow_template_id="wt-simple-1",
         form_id="workflow-instance-form-3",
+        num_steps=6
     )
 
     print("Finished seeding test data")
@@ -1548,7 +1551,7 @@ def create_workflow_instance(
 
 
 def create_workflow_instance_form(
-    form_id, patient_id, form_template_id, user_id, form_classification_id, fname
+    form_id, patient_id, form_template_id, user_id, form_classification_id, first_name
 ):
     if crud.read(FormOrm, id=form_id) is None:
         workflow_instance_form_question = {
@@ -1556,7 +1559,7 @@ def create_workflow_instance_form(
             "category_index": None,
             "question_index": 0,
             "is_blank": True,
-            "answers": f'{{"text": "{fname}"}}',
+            "answers": f'{{"text": "{first_name}"}}',
             "question_type": "STRING",
             "required": True,
             "allow_future_dates": True,
