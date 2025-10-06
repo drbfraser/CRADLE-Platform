@@ -34,9 +34,9 @@ import {
   InstanceDetails,
   WorkflowInstanceProgress,
 } from 'src/shared/types/workflow/workflowUiTypes';
-import WorkflowStatus from './WorkflowInstanceDetailsComponents/WorkflowStatus';
-import WorkflowStepHistory from './WorkflowInstanceDetailsComponents/WorkflowStepHistory';
-import WorkflowPossibleSteps from './WorkflowInstanceDetailsComponents/WorkflowPossibleSteps';
+import WorkflowStatus from './components/WorkflowStatus';
+import WorkflowStepHistory from './components/WorkflowStepHistory';
+import WorkflowPossibleSteps from './components/WorkflowPossibleSteps';
 
 function parseYMD(d?: Nullable<string>) {
   if (!d) return undefined;
