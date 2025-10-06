@@ -1,5 +1,5 @@
 import { ISODate, Nullable } from 'src/shared/constants';
-import { InstanceStatus, StepStatus } from './workflowEnums';
+import { StepStatus } from './workflowEnums';
 
 export type InstanceStep = {
   id: string;

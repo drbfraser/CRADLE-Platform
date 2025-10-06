@@ -6,7 +6,6 @@ import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import { Tooltip } from '@mui/material';
 import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
 import {
-  InstanceStep,
   InstanceDetails,
   WorkflowInstanceProgress,
 } from 'src/shared/types/workflow/workflowUiTypes';

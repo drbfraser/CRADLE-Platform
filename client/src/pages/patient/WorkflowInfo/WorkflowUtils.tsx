@@ -1,8 +1,6 @@
 import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
 import {
   InstanceStep,
-  InstanceDetails,
-  WorkflowInstanceProgress,
 } from 'src/shared/types/workflow/workflowUiTypes';
 
 export const formatWorkflowStepStatusText = (s: InstanceStep) => {
