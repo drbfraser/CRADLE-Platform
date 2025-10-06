@@ -36,13 +36,36 @@ from service import invariant
 
 def marshal(obj: Any, shallow=False, if_include_versions=False) -> dict:
     """
-    Recursively marshals an object to a dictionary.
+    Serialize an ORM model or plain Python object into a JSON-ready dictionary.
 
-    :param obj: The object to marshal
-    :param shallow: If true, only the top level fields will be marshalled
-    :param if_include_versions: If true, lang versions will be attached to questions
-    :return: A dictionary mapping fields to values
+    The `marshal` function inspects the type of the given object and converts it
+    into a serializable structure used throughout the application for API responses.
+
+    Parameters
+    ----------
+    obj : object
+        The object instance to serialize. Can be an SQLAlchemy ORM instance
+        (e.g., PatientOrm, ReadingOrm) or a regular Python object.
+    shallow : bool, optional
+        If True, nested relationships (e.g., related assessments or urine tests)
+        are omitted from the output. Used when a lightweight or partial
+        representation is desired. Defaults to False.
+    if_include_versions : bool, optional
+        When True and `obj` is a QuestionOrm, include all associated
+        QuestionLangVersionOrm entries under the "lang_versions" key.
+        Returns
+
+    -------
+    dict
+        A JSON-serializable dictionary representation of `obj`, with:
+        - Private attributes (those starting with "_") removed.
+        - Attributes with value None omitted.
+        - Enum values converted to their `.value`.
+        - Datetime/date objects converted to ISO-formatted strings.
+        - Model-specific transformations (e.g., converting CSV strings into lists,
+          parsing JSON strings into objects, and embedding nested records).
     """
+
     if isinstance(obj, PatientOrm):
         return __marshal_patient(obj, shallow)
     if isinstance(obj, ReadingOrm):
