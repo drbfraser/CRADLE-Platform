@@ -229,7 +229,7 @@ export default function WorkflowInstanceDetailsPage() {
   const [expandedStep, setExpandedStep] = useState<string | null>(null);
   const [expandAll, setExpandAll] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogData>({
-    open: true,
+    open: false,
     title: '',
     message: '',
     onConfirm: () => {},
