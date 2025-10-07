@@ -1,6 +1,8 @@
-import pytest
 import time
+
+import pytest
 from pydantic import ValidationError
+
 from validation.questions import FormQuestion
 
 QUESTION_IDX = 1

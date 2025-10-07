@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import Optional
 
 from flask import abort, make_response
@@ -24,7 +25,6 @@ from validation.formTemplates import (
     FormTemplateModel,
     FormTemplateUpload,
 )
-import logging
 
 logger = logging.getLogger(__name__)
 

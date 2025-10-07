@@ -1,5 +1,5 @@
-from typing import Optional, Union
 import time
+from typing import Optional, Union
 
 from pydantic import Field, model_validator
 from typing_extensions import Annotated, Self
