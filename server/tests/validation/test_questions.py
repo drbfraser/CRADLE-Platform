@@ -49,6 +49,7 @@ future_date_not_allowed_should_fail = dict(
     allow_future_dates=False,
 )
 
+
 @pytest.mark.parametrize(
     "json_data, expectation",
     [

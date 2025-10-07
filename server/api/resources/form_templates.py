@@ -25,6 +25,7 @@ from validation.formTemplates import (
     FormTemplateUpload,
 )
 import logging
+
 logger = logging.getLogger(__name__)
 
 # /api/forms/templates
@@ -80,7 +81,7 @@ def handle_form_template_upload(form_template: FormTemplateUpload):
         existing_template = crud.read(
             FormTemplateOrm,
             form_classification_id=form_classification_orm.id,
-            version=form_template.version
+            version=form_template.version,
         )
         if existing_template:
             raise ValueError(

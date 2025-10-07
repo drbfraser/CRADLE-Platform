@@ -64,7 +64,7 @@ def test_uploading_valid_workflow_template_steps(
         Check that all 3 steps have been added to the workflow template
         """
         assert len(workflow_template_orm.steps) == 3
-        
+
         # upload duplicate step -> should fail with 409
         response = api_post(
             endpoint="/api/workflow/template/steps", json=valid_workflow_template_step5
@@ -435,9 +435,12 @@ def valid_workflow_template_step4(example_workflow_template, form_template):
         ],
     }
 
+
 # intentionally conflicts with Step 1 -> should get 409
 @pytest.fixture
-def valid_workflow_template_step5(example_workflow_template, valid_workflow_template_step1):
+def valid_workflow_template_step5(
+    example_workflow_template, valid_workflow_template_step1
+):
     step_id = get_uuid()
     ft = copy.deepcopy(valid_workflow_template_step1["form"])
     return {
@@ -457,6 +460,7 @@ def valid_workflow_template_step5(example_workflow_template, valid_workflow_temp
         },
         "branches": [],
     }
+
 
 @pytest.fixture
 def invalid_workflow_template_step1(example_workflow_template, form_template):
