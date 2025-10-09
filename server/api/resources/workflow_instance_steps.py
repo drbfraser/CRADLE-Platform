@@ -19,7 +19,7 @@ from models import (
     WorkflowInstanceStepOrm,
 )
 from validation import CradleBaseModel
-from validation.workflow_instance_steps import (
+from validation.workflow_api_models import (
     WorkflowInstanceStepModel,
     WorkflowInstanceStepUploadModel,
 )

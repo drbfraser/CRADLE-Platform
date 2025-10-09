@@ -23,11 +23,11 @@ from enums import RoleEnum
 from models import WorkflowClassificationOrm, WorkflowTemplateOrm
 from validation import CradleBaseModel
 from validation.file_upload import FileUploadForm
-from validation.workflow_templates import (
-    WorkflowTemplateModel,
+from validation.workflow_api_models import (
     WorkflowTemplatePatchBody,
     WorkflowTemplateUploadModel,
 )
+from validation.workflow_models import WorkflowTemplateModel
 
 
 # Path model for CSV endpoint
@@ -166,8 +166,8 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
             )
             workflow_template_orm.classification = workflow_classification_orm
 
-            """ 
-            There should only be one unarchived version of the workflow template, so this 
+            """
+            There should only be one unarchived version of the workflow template, so this
             checks if a previously unarchived version of the workflow template exists and
             archives it
             """
