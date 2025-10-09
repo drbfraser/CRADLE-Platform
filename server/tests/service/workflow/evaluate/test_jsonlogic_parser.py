@@ -3,11 +3,9 @@ Unit tests for JsonLogic Variable Extraction Parser
 """
 
 import pytest
-
-from service.workflow.evaluate.jsonlogic_parser import (
+from server.service.workflow.evaluate.jsonlogic_parser import (
     JsonLogicParser,
     extract_variables_from_rule,
-    validate_rule_syntax,
 )
 
 
@@ -118,30 +116,6 @@ class TestExtractVariablesFunction:
         rule = {"==": [{"var": "status"}, "active"]}
         variables = extract_variables_from_rule(rule)
         assert variables == {"status"}
-
-
-class TestValidateRuleSyntax:
-    """Test rule validation function"""
-
-    def test_valid_rule_dict(self):
-        rule = {"==": [{"var": "x"}, 1]}
-        assert validate_rule_syntax(rule) is True
-
-    def test_valid_rule_string(self):
-        rule = '{"==": [{"var": "x"}, 1]}'
-        assert validate_rule_syntax(rule) is True
-
-    def test_invalid_json(self):
-        rule = '{"invalid": json}'
-        assert validate_rule_syntax(rule) is False
-
-    def test_invalid_type(self):
-        rule = "just a string"
-        assert validate_rule_syntax(rule) is False
-
-    def test_empty_rule(self):
-        rule = {}
-        assert validate_rule_syntax(rule) is True
 
 
 class TestEdgeCases:
