@@ -2,6 +2,9 @@ import pytest
 from pydantic import ValidationError
 
 from tests.validation.test_workflow_models import (
+    TIMESTAMP_TODAY,
+    TIMESTAMP_TOMORROW,
+    TIMESTAMP_YESTERDAY,
     make_workflow_instance_step,
     make_workflow_template_step,
 )
@@ -18,8 +21,8 @@ def make_workflow_template_patch(**overrides):
         "description": "Description",
         "archived": False,
         "starting_step_id": None,
-        "date_created": "1759330125",
-        "last_edited": "1759330125",
+        "date_created": TIMESTAMP_TODAY,
+        "last_edited": TIMESTAMP_TOMORROW,
         "version": "0",
         "steps": [],
     }
@@ -31,10 +34,10 @@ def make_workflow_instance_patch(**overrides):
         "id": "workflow-instance-1",
         "name": "Workflow 1",
         "description": "Description",
-        "start_date": "1759330125",
+        "start_date": TIMESTAMP_TODAY,
         "current_step_id": None,
-        "last_edited": "1759848525",
-        "completion_date": "1759848525",
+        "last_edited": TIMESTAMP_TOMORROW,
+        "completion_date": TIMESTAMP_TOMORROW,
         "status": "Completed",
         "workflow_template_id": "workflow-instance-1",
         "patient_id": "125",
@@ -85,7 +88,7 @@ def test__workflow_template_patch__with_steps():
 @pytest.mark.parametrize(
     "field, value, error_message",
     [
-        ("last_edited", "1759243725", "last_edited cannot be before date_created"),
+        ("last_edited", TIMESTAMP_YESTERDAY, "last_edited cannot be before date_created"),
     ],
 )
 def test__workflow_template_patch__invalid_dates(
@@ -143,10 +146,10 @@ def test__workflow_instance_patch__with_steps():
 @pytest.mark.parametrize(
     "field, value, error_message",
     [
-        ("last_edited", "1759243725", "last_edited cannot be before start_date"),
+        ("last_edited", TIMESTAMP_YESTERDAY, "last_edited cannot be before start_date"),
         (
             "completion_date",
-            "1759243725",
+            TIMESTAMP_YESTERDAY,
             "completion_date cannot be before start_date",
         ),
     ],
