@@ -333,9 +333,10 @@ export const FormQuestions = ({
             ?.questionText ?? ''
         : question.questionText;
 
-    const mcOptions = isQuestion(question)
-      ? question.mcOptions
-      : question.langVersions.find((x) => x.lang == language)?.mcOptions;
+    const mcOptions =
+      'langVersions' in question
+        ? question.langVersions.find((v) => v.lang === language)?.mcOptions
+        : question.mcOptions;
     const required = question.required;
 
     switch (type) {
