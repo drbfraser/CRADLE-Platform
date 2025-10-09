@@ -220,6 +220,11 @@ export const CustomFormTemplate = () => {
                 fm={form}
                 languages={language}
                 renderState={FormRenderStateEnum.SUBMIT_TEMPLATE}
+                // renderState={
+                //   editFormId
+                //     ? FormRenderStateEnum.EDIT
+                //     : FormRenderStateEnum.SUBMIT_TEMPLATE
+                // }
                 setForm={setForm}
                 versionError={versionError}
               />

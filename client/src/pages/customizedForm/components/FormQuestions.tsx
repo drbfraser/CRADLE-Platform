@@ -208,8 +208,7 @@ export const FormQuestions = ({
 
           let isConditionMet = true;
           switch (parentQuestion.questionType) {
-            // TODO: This does not work. The multiple choice and multiple select questions do not
-            //       save properly in the QCondition object type
+            // TODO: This does not work. The multiple choice and multiple select questions do not save properly in the QCondition object type
             case QuestionTypeEnum.MULTIPLE_CHOICE:
             case QuestionTypeEnum.MULTIPLE_SELECT:
               // switch (condition.relation) {
@@ -328,9 +327,12 @@ export const FormQuestions = ({
 
     const type = question.questionType;
     const qid = question.questionIndex;
-    const text = isQuestion(question)
-      ? question.questionText
-      : question.langVersions.find((x) => x.lang == language)?.questionText;
+    const text =
+      'langVersions' in question
+        ? question.langVersions.find((v) => v.lang === language)
+            ?.questionText ?? ''
+        : question.questionText;
+
     const mcOptions = isQuestion(question)
       ? question.mcOptions
       : question.langVersions.find((x) => x.lang == language)?.mcOptions;
