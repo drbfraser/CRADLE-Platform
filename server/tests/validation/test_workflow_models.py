@@ -3,6 +3,7 @@ import json
 import pytest
 from pydantic import ValidationError
 
+from common.commonUtil import get_current_time
 from tests.validation.test_form_templates import (
     template_with_valid_fields_and_one_question_should_return_none,
 )
@@ -13,6 +14,11 @@ from validation.workflow_models import (
     WorkflowTemplateModel,
     WorkflowTemplateStepModel,
 )
+
+# TODO: Move these into a utils file?
+TIMESTAMP_TODAY = get_current_time()
+TIMESTAMP_TOMORROW = get_current_time() + 86400
+TIMESTAMP_YESTERDAY = get_current_time() - 86400
 
 
 def get_template_form() -> dict:
@@ -30,8 +36,8 @@ def make_workflow_template_step(**overrides):
         "name": "Step 1",
         "description": "Description",
         "workflow_template_id": "workflow-template-1",
-        "last_edited": "1759330125",
-        "expected_completion": "1759848525",
+        "last_edited": TIMESTAMP_TOMORROW,
+        "expected_completion": TIMESTAMP_TOMORROW,
         "form_id": template_form["id"],
         "form": template_form,
         "branches": [],
@@ -45,11 +51,11 @@ def make_workflow_instance_step(**overrides):
         "id": "workflow-instance-step-1",
         "name": "Step 1",
         "description": "Description",
-        "start_date": "1759330125",
-        "last_edited": "1759848525",
+        "start_date": TIMESTAMP_TODAY,
+        "last_edited": TIMESTAMP_TOMORROW,
         "assigned_to": "125",
-        "completion_date": "1759848525",
-        "expected_completion": "1759848525",
+        "completion_date": TIMESTAMP_TOMORROW,
+        "expected_completion": TIMESTAMP_TOMORROW,
         "status": "Active",
         "data": json.dumps({"x": "y"}),
         "form_id": form["id"],
@@ -67,8 +73,8 @@ def make_workflow_template(**overrides):
         "description": "Description",
         "archived": False,
         "starting_step_id": None,
-        "date_created": "1759330125",
-        "last_edited": "1759330125",
+        "date_created": TIMESTAMP_TODAY,
+        "last_edited": TIMESTAMP_TOMORROW,
         "version": "0",
         "steps": [],
     }
@@ -80,10 +86,10 @@ def make_workflow_instance(**overrides):
         "id": "workflow-instance-1",
         "name": "Workflow 1",
         "description": "Description",
-        "start_date": "1759330125",
+        "start_date": TIMESTAMP_TODAY,
         "current_step_id": None,
-        "last_edited": "1759848525",
-        "completion_date": "1759848525",
+        "last_edited": TIMESTAMP_TOMORROW,
+        "completion_date": TIMESTAMP_TOMORROW,
         "status": "Completed",
         "workflow_template_id": "workflow-instance-1",
         "patient_id": "125",
@@ -116,8 +122,10 @@ def test__workflow_template_step__missing_required_fields(required_field: str):
     step_json = make_workflow_template_step()
     step_json.pop(required_field)
 
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError) as e:
         WorkflowTemplateStepModel(**step_json)
+
+    assert "Field required" in str(e)
 
 
 @pytest.mark.parametrize(
@@ -141,8 +149,10 @@ def test__workflow_template_step__extra_field():
     step_json = make_workflow_template_step()
     step_json["extra"] = "nope"
 
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError) as e:
         WorkflowTemplateStepModel(**step_json)
+
+    assert "Extra inputs are not permitted" in (str(e))
 
 
 ### WorkflowTemplateModel ###
@@ -171,8 +181,10 @@ def test__workflow_template__invalid_step():
     step_json = make_workflow_template_step(extra="nope")
     workflow_json = make_workflow_template(steps=[step_json])
 
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError) as e:
         WorkflowTemplateModel(**workflow_json)
+
+    assert "Extra inputs are not permitted" in (str(e))
 
 
 @pytest.mark.parametrize(
@@ -181,7 +193,6 @@ def test__workflow_template__invalid_step():
         "id",
         "name",
         "archived",
-        "date_created",
         "version",
         "steps",
     ],
@@ -190,8 +201,10 @@ def test__workflow_template__missing_required_fields(required_field: str):
     workflow_json = make_workflow_template()
     workflow_json.pop(required_field)
 
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError) as e:
         WorkflowTemplateModel(**workflow_json)
+
+    assert "Field required" in str(e)
 
 
 @pytest.mark.parametrize(
@@ -214,12 +227,14 @@ def test__workflow_template__missing_optional_fields(optional_field: str):
 def test__workflow_template__extra_field():
     workflow_json = make_workflow_template(extra="nope")
 
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError) as e:
         WorkflowTemplateModel(**workflow_json)
+
+    assert "Extra inputs are not permitted" in (str(e))
 
 
 def test__workflow_template__invalid_dates():
-    workflow_json = make_workflow_template(last_edited="1759243725")
+    workflow_json = make_workflow_template(last_edited=get_current_time() - 86400)
 
     with pytest.raises(ValidationError) as e:
         WorkflowTemplateModel(**workflow_json)
@@ -250,8 +265,10 @@ def test__workflow_instance_step__missing_required_fields(required_field: str):
     step_json = make_workflow_instance_step()
     step_json.pop(required_field, None)
 
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError) as e:
         WorkflowInstanceStepModel(**step_json)
+
+    assert "Field required" in str(e)
 
 
 @pytest.mark.parametrize(
@@ -278,22 +295,24 @@ def test__workflow_instance_step__extra_field():
     step_json = make_workflow_instance_step()
     step_json["extra"] = "nope"
 
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError) as e:
         WorkflowInstanceStepModel(**step_json)
+
+    assert "Extra inputs are not permitted" in (str(e))
 
 
 @pytest.mark.parametrize(
     "field, value, error_message",
     [
-        ("last_edited", "1759243725", "last_edited cannot be before start_date"),
+        ("last_edited", TIMESTAMP_YESTERDAY, "last_edited cannot be before start_date"),
         (
             "completion_date",
-            "1759243725",
+            TIMESTAMP_YESTERDAY,
             "completion_date cannot be before start_date",
         ),
         (
             "expected_completion",
-            "1759243725",
+            TIMESTAMP_YESTERDAY,
             "expected_completion cannot be before start_date",
         ),
     ],
@@ -312,8 +331,10 @@ def test__workflow_instance_step__invalid_dates(
 def test__workflow_instance_step__invalid_status():
     step_json = make_workflow_instance_step(status="Done")
 
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError) as e:
         WorkflowInstanceStepModel(**step_json)
+
+    assert "Input should be" in str(e)
 
 
 ### WorkflowInstanceModel ###
@@ -342,8 +363,10 @@ def test__workflow_instance__invalid_step():
     step_json = make_workflow_instance_step(extra="nope")
     workflow_json = make_workflow_instance(steps=[step_json])
 
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError) as e:
         WorkflowInstanceModel(**workflow_json)
+
+    assert "Extra inputs are not permitted" in (str(e))
 
 
 @pytest.mark.parametrize(
@@ -361,8 +384,10 @@ def test__workflow_instance__missing_required_fields(required_field: str):
     workflow_json = make_workflow_instance()
     workflow_json.pop(required_field)
 
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError) as e:
         WorkflowInstanceModel(**workflow_json)
+
+    assert "Field required" in str(e)
 
 
 @pytest.mark.parametrize(
@@ -386,17 +411,19 @@ def test__workflow_instance__missing_optional_fields(optional_field: str):
 def test__workflow_instance__extra_field():
     workflow_json = make_workflow_instance(extra="nope")
 
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError) as e:
         WorkflowInstanceModel(**workflow_json)
+
+    assert "Extra inputs are not permitted" in (str(e))
 
 
 @pytest.mark.parametrize(
     "field, value, error_message",
     [
-        ("last_edited", "1759243725", "last_edited cannot be before start_date"),
+        ("last_edited", TIMESTAMP_YESTERDAY, "last_edited cannot be before start_date"),
         (
             "completion_date",
-            "1759243725",
+            TIMESTAMP_YESTERDAY,
             "completion_date cannot be before start_date",
         ),
     ],
@@ -413,5 +440,7 @@ def test__workflow_instance__invalid_dates(field: str, value: str, error_message
 def test__workflow_instance__invalid_status():
     workflow_json = make_workflow_instance(status="Done")
 
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError) as e:
         WorkflowInstanceModel(**workflow_json)
+
+    assert "Input should be" in str(e)
