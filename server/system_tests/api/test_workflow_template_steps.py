@@ -436,7 +436,7 @@ def valid_workflow_template_step4(example_workflow_template, form_template):
     }
 
 
-# intentionally conflicts with Step 1 -> should get 409
+#  This step reuses the same form template as Step 1 (same form_classification_id), which causes a logical conflict — and is expected to return 409 Conflict
 @pytest.fixture
 def valid_workflow_template_step5(
     example_workflow_template, valid_workflow_template_step1

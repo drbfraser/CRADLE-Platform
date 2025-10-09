@@ -1,9 +1,9 @@
-import time
 from typing import Optional, Union
 
 from pydantic import Field, model_validator
 from typing_extensions import Annotated, Self
 
+from common.commonUtil import get_current_time
 from enums import QRelationalEnum, QuestionTypeEnum
 from validation import CradleBaseModel
 
@@ -154,12 +154,12 @@ class FormQuestion(QuestionBase, extra="forbid"):
                 )
 
         # Check date constraints
-        if self.question_type == "DATE":
-            answer_val = self.answers.number
+        if self.question_type == QuestionTypeEnum.DATE.value:
+            answer_val = getattr(self.answers, "number", None)
             if answer_val is None:
                 return self
 
-            now = int(time.time())
+            now = get_current_time()
             if not self.allow_past_dates and answer_val < now:
                 raise ValueError("past dates are not allowed.")
             if not self.allow_future_dates and answer_val > now:
