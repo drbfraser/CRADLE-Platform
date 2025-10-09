@@ -15,10 +15,8 @@ from common.workflow_utils import (
 )
 from data import marshal
 from models import WorkflowTemplateStepOrm
-from validation.workflow_template_steps import (
-    WorkflowTemplateStepModel,
-    WorkflowTemplateStepUploadModel,
-)
+from validation.workflow_api_models import WorkflowTemplateStepUploadModel
+from validation.workflow_models import WorkflowTemplateStepModel
 
 workflow_template_step_not_found_msg = "Workflow template step with ID: ({}) not found."
 
