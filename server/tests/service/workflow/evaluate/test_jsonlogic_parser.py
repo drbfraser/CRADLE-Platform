@@ -3,6 +3,7 @@ Unit tests for JsonLogic Variable Extraction Parser
 """
 
 import pytest
+
 from service.workflow.evaluate.jsonlogic_parser import (
     JsonLogicParser,
     extract_variables_from_rule,

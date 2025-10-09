@@ -2,6 +2,7 @@ import json
 from typing import Any, Dict, Set
 
 from json_logic import jsonLogic
+
 from service.workflow.evaluate.jsonlogic_parser import (
     extract_variables_from_rule,
 )
