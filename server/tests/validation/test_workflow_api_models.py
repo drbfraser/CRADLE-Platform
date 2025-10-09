@@ -88,7 +88,11 @@ def test__workflow_template_patch__with_steps():
 @pytest.mark.parametrize(
     "field, value, error_message",
     [
-        ("last_edited", TIMESTAMP_YESTERDAY, "last_edited cannot be before date_created"),
+        (
+            "last_edited",
+            TIMESTAMP_YESTERDAY,
+            "last_edited cannot be before date_created",
+        ),
     ],
 )
 def test__workflow_template_patch__invalid_dates(
