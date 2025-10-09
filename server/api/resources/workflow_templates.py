@@ -249,7 +249,9 @@ def get_workflow_template(path: WorkflowTemplateIdPath):
     with_classification = request.args.get("with_classification", default=False)
     with_classification = convert_query_parameter_to_bool(with_classification)
 
+
     workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
+    print(f"workflow_template_GET: {workflow_template}")
 
     if workflow_template is None:
         return abort(

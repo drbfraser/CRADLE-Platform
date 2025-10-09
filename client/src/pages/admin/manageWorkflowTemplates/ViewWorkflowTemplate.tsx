@@ -25,6 +25,7 @@ import {
 import { getTemplateWithStepsAndClassification } from 'src/shared/api/modules/workflowTemplates';
 import { WorkflowMetadata } from '../../../shared/components/workflow/workflowTemplate/WorkflowMetadata';
 import { WorkflowSteps } from 'src/shared/components/workflow/WorkflowSteps';
+import { WorkflowFlowView } from 'src/shared/components/workflow/workflowTemplate/workflowTemplate/WorkflowFlowView';
 import { useEditWorkflowTemplate } from './mutations';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 
@@ -40,6 +41,9 @@ export const ViewWorkflowTemplate = () => {
   );
   const [hasChanges, setHasChanges] = useState(false);
 
+  // View mode state
+  const [viewMode, setViewMode] = useState<'list' | 'flow'>('flow');
+
   // Fetch the workflow template data to ensure it's always up-to-date
   const workflowTemplateQuery = useQuery({
     queryKey: ['workflowTemplate', viewWorkflow?.id],
@@ -51,6 +55,8 @@ export const ViewWorkflowTemplate = () => {
     enabled: !!viewWorkflow?.id,
     initialData: viewWorkflow,
   });
+
+  console.log('workflowTemplateQuery.data', workflowTemplateQuery.data);
 
   const editWorkflowTemplateMutation = useEditWorkflowTemplate();
 
@@ -197,16 +203,51 @@ export const ViewWorkflowTemplate = () => {
         />
 
         <Divider sx={{ my: 3 }} />
-        <Typography variant="h6" component="h2" sx={{ ml: 1, mb: 2 }}>
-          {`Workflow Template Steps${
-            typeof workflowTemplateQuery.data?.steps?.length === 'number'
-              ? ` (${workflowTemplateQuery.data.steps.length})`
-              : ''
-          }`}
-        </Typography>
+
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            mb: 2,
+          }}>
+          <Typography variant="h6" component="h2" sx={{ ml: 1 }}>
+            {`Workflow Template Steps${
+              typeof workflowTemplateQuery.data?.steps?.length === 'number'
+                ? ` (${workflowTemplateQuery.data.steps.length})`
+                : ''
+            }`}
+          </Typography>
+
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant={viewMode === 'flow' ? 'contained' : 'outlined'}
+              size="small"
+              onClick={() => setViewMode('flow')}
+              disabled={isEditMode}>
+              Flow View
+            </Button>
+            <Button
+              variant={viewMode === 'list' ? 'contained' : 'outlined'}
+              size="small"
+              onClick={() => setViewMode('list')}
+              disabled={isEditMode}>
+              List View
+            </Button>
+          </Stack>
+        </Box>
 
         {isLoading ? (
           <Skeleton variant="rectangular" height={400} />
+        ) : viewMode === 'flow' ? (
+          <WorkflowFlowView
+            steps={
+              workflowTemplateQuery.data
+                ?.steps as TemplateStepWithFormAndIndex[]
+            }
+            firstStepId={currentWorkflow?.startingStepId || ''}
+            isInstance={false}
+          />
         ) : (
           <WorkflowSteps
             steps={

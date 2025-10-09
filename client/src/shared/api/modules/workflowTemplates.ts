@@ -99,10 +99,12 @@ export const getTemplate = async (
     with_classification?: boolean;
   }
 ): Promise<WorkflowTemplate> => {
+  console.log('templatePath(templateId)', templatePath(templateId));
   const response = await axiosFetch.get<WorkflowTemplate>(
     templatePath(templateId),
     { params }
   );
+  
   return response.data;
 };
 
