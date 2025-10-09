@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Form, Formik } from 'formik';
-import { Divider, Grid, Paper, SxProps } from '@mui/material';
+import { Divider, Grid, IconButton, Paper, SxProps } from '@mui/material';
 
 import { CForm, QAnswer } from 'src/shared/types/form/formTypes';
 import { FormRenderStateEnum } from 'src/shared/enums';
@@ -18,6 +18,8 @@ import {
 } from '../handlers';
 import { initialState, validationSchema } from '../state';
 import { useSubmitCustomForm } from '../mutations';
+import { Close } from '@mui/icons-material';
+import { red } from '@mui/material/colors';
 
 const BUTTON_SX: SxProps = {
   display: 'flex',
@@ -30,12 +32,16 @@ interface IProps {
   patientId: string;
   fm: CForm;
   renderState: FormRenderStateEnum;
+  showCloseBtn?: boolean;
+  handleClose?: () => void; 
 }
 
 export const CustomizedForm = ({
   patientId,
   fm: form,
   renderState,
+  showCloseBtn = false,
+  handleClose
 }: IProps) => {
   const navigate = useNavigate();
   const [disableSubmit, setDisableSubmit] = useState(false);
@@ -106,6 +112,13 @@ export const CustomizedForm = ({
         {() => (
           <Form>
             <Paper sx={{ p: 6, mt: 2 }}>
+              {showCloseBtn && <IconButton
+                  onClick={handleClose}
+                  // sx={{ position: "absolute", top: 8, right: 8 }}
+                >
+                  <Close sx={{ color: red[500] }}/>
+              </IconButton>
+              }
               {renderState === FormRenderStateEnum.SUBMIT_TEMPLATE && (
                 <Grid container spacing={3}>
                   {/* This is redundant */}

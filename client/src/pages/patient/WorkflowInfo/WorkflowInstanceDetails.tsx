@@ -13,12 +13,16 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { WorkflowMetadata } from 'src/shared/components/workflow/workflowTemplate/WorkflowMetadata';
 import { Tooltip, IconButton } from '@mui/material';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
+  getFormResponseAsync,
+  getFormTemplateAsync,
+  getFormTemplateLangAsync,
   getInstanceWithSteps,
   getPatientInfoAsync,
   getTemplate,
+  getTemplateWithStepsAndClassification,
 } from 'src/shared/api';
 import { Nullable } from 'src/shared/constants';
 import { formatISODateNumber } from 'src/shared/utils';
@@ -35,6 +39,8 @@ import WorkflowPossibleSteps from './components/WorkflowPossibleSteps';
 import WorkflowConfirmDialog, {
   ConfirmDialogData,
 } from './components/WorkflowConfirmDialog';
+import { FormTemplateWithQuestions } from 'src/shared/types/form/formTemplateTypes';
+import { CForm } from 'src/shared/types/form/formTypes';
 
 function parseYMD(d?: Nullable<string>) {
   if (!d) return undefined;
@@ -121,6 +127,10 @@ export async function loadInstanceById(id: string): Promise<InstanceDetails> {
   });
   const patient = await getPatientInfoAsync(instance.patientId);
 
+  const test = await getTemplateWithStepsAndClassification("wt-simple-1")
+  console.log("LC PULL TEMPLATE WITH STEPS/CLASSIFICATION")
+  console.log(test)
+
   const instanceDetails: InstanceDetails = {
     id: instance.id,
     studyTitle: instance.name,
@@ -144,6 +154,12 @@ export async function loadInstanceById(id: string): Promise<InstanceDetails> {
   };
 
   return instanceDetails;
+}
+
+function getWorkflowCurrentStep(instance: InstanceDetails) {
+  const steps  = instance.steps;
+  const currentStep = steps.find(step => step.status === StepStatus.ACTIVE);
+  return currentStep;
 }
 
 function loadMockInstanceById(id: string): InstanceDetails {
@@ -225,21 +241,26 @@ export default function WorkflowInstanceDetailsPage() {
     currentIndex: 0,
   });
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
+  const [openTemplateDetails, setOpenTemplateDetails] = useState(false);
   const [expandedStep, setExpandedStep] = useState<string | null>(null);
   const [expandAll, setExpandAll] = useState(false);
+  const [currentStep, setCurrentStep] = useState<InstanceStep | null>(null);
+  const [openFormModal, setOpenFormModal] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogData>({
     open: false,
     title: '',
     message: '',
     onConfirm: () => {},
   });
+  const [formData, setFormData] = useState<CForm | null>(null);
 
   useEffect(() => {
     async function fetchInstance() {
       try {
         const instance = await loadInstanceById('test-workflow-instance-1');
         setWorkflowInstance(instance);
+        const activeStep = getWorkflowCurrentStep(instance);
+        setCurrentStep(activeStep ?? null);
         const progress = computeProgressAndEta(instance.steps);
         setProgressInfo(progress);
       } catch (err) {
@@ -270,6 +291,42 @@ export default function WorkflowInstanceDetailsPage() {
     },
     []
   );
+
+  const handleOpenForm = async () => {
+    if (!currentStep) {
+      console.error("No current step available to open form.");
+      return;
+    }
+
+    if (!currentStep.formId) {
+      console.error("No form associated with current step.");
+      return;
+    }
+
+    try {
+      // const formTemplate = await getFormTemplateAsync("dt9");
+      // // const formTemplate = await getFormTemplateAsync(currentStep.formId);
+      // console.log("LC PULLING FORM");
+      // setFormData(formTemplate);
+      // console.log(formData);
+    
+      const test = await getFormTemplateLangAsync("dt9", "English");
+      // const test = await getFormResponseAsync("workflow-instance-form-1");
+      console.log("CFORM TEST")
+      console.log(currentStep.formId)
+      console.log(test)
+      setFormData(test)
+    } catch {
+      console.error("Error in getting form template");
+    }
+
+    setOpenFormModal(true);
+  }
+
+  const handleCloseForm = () => {
+    setFormData(null);
+    setOpenFormModal(false);
+  }
 
   return (
     <>
@@ -314,11 +371,11 @@ export default function WorkflowInstanceDetailsPage() {
                   size="small"
                   variant="outlined"
                   endIcon={
-                    open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />
+                    openTemplateDetails ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />
                   }
-                  onClick={() => setOpen((v) => !v)}
+                  onClick={() => setOpenTemplateDetails((v) => !v)}
                   sx={{ textTransform: 'none' }}>
-                  {open ? 'Hide Details' : 'Show Details'}
+                  {openTemplateDetails ? 'Hide Details' : 'Show Details'}
                 </Button>
               </Box>
 
@@ -329,7 +386,7 @@ export default function WorkflowInstanceDetailsPage() {
             </Box>
 
             {/* Collapsible Workflow Template Details */}
-            <Collapse in={open} unmountOnExit>
+            <Collapse in={openTemplateDetails} unmountOnExit>
               <Box sx={{ mx: 4, mb: 3 }}>
                 <Box
                   sx={{
@@ -351,35 +408,38 @@ export default function WorkflowInstanceDetailsPage() {
                 </Box>
               </Box>
             </Collapse>
+              {/* Section 2: Workflow Status */}
+              <WorkflowStatus
+                workflowInstance={workflowInstance}
+                progressInfo={progressInfo}
+              />
 
-            {/* Section 2: Workflow Status */}
-            <WorkflowStatus
-              workflowInstance={workflowInstance}
-              progressInfo={progressInfo}
-            />
+              {/* Section 3: Step history */}
+              <WorkflowStepHistory
+                workflowInstance={workflowInstance}
+                expandedStep={expandedStep}
+                setExpandedStep={setExpandedStep}
+                expandAll={expandAll}
+                setExpandAll={setExpandAll}
+                setConfirmDialog={setConfirmDialog}
+                handleMakeCurrent={handleMakeCurrent}
+                handleOpenForm = {handleOpenForm}
+                openFormModal = {openFormModal}
+                formData = {formData}
+                handleCloseForm = {handleCloseForm}
+              />
 
-            {/* Section 3: Step history */}
-            <WorkflowStepHistory
-              workflowInstance={workflowInstance}
-              expandedStep={expandedStep}
-              setExpandedStep={setExpandedStep}
-              expandAll={expandAll}
-              setExpandAll={setExpandAll}
-              setConfirmDialog={setConfirmDialog}
-              handleMakeCurrent={handleMakeCurrent}
-            />
+              {/* Section 4: Possible Other Steps */}
+              <WorkflowPossibleSteps
+                workflowInstance={workflowInstance}
+                handleMakeCurrent={handleMakeCurrent}
+              />
 
-            {/* Section 4: Possible Other Steps */}
-            <WorkflowPossibleSteps
-              workflowInstance={workflowInstance}
-              handleMakeCurrent={handleMakeCurrent}
-            />
-
-            {/* Confirmation Dialog */}
-            <WorkflowConfirmDialog
-              confirmDialog={confirmDialog}
-              setConfirmDialog={setConfirmDialog}
-            />
+              {/* Confirmation Dialog */}
+              <WorkflowConfirmDialog
+                confirmDialog={confirmDialog}
+                setConfirmDialog={setConfirmDialog}
+              />
           </>
         )}
       </Paper>
