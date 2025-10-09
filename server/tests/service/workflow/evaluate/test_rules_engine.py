@@ -2,7 +2,7 @@
 Unit tests for Rule Engine
 """
 
-from server.service.workflow.evaluate.rules_engine import (
+from service.workflow.evaluate.rules_engine import (
     RulesEngineFacade,
     evaluate_branches,
 )
