@@ -12,6 +12,7 @@ import { FormTemplateWithQuestions } from 'src/shared/types/form/formTemplateTyp
 import { saveFormTemplateAsync } from 'src/shared/api';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Toast } from 'src/shared/components/toast';
+import { useState } from 'react';
 
 interface IProps {
   open: boolean;
@@ -26,6 +27,8 @@ const SubmitFormTemplateDialog = ({
 }: IProps) => {
   const navigate = useNavigate();
 
+  const [errorMessage, setErrorMessage] = useState('');
+
   const saveFormTemplate = useMutation({
     mutationFn: saveFormTemplateAsync,
   });
@@ -37,6 +40,11 @@ const SubmitFormTemplateDialog = ({
     saveFormTemplate.mutate(formTemplate, {
       onSuccess: () => {
         navigate('/admin/form-templates');
+      },
+      onError: (err: any) => {
+        if (err.status === 409) {
+          setErrorMessage(err.message);
+        }
       },
     });
   };
@@ -52,6 +60,7 @@ const SubmitFormTemplateDialog = ({
       <APIErrorToast
         open={saveFormTemplate.isError}
         onClose={() => saveFormTemplate.reset()}
+        errorMessage={errorMessage}
       />
 
       <Dialog open={open} onClose={onClose}>
