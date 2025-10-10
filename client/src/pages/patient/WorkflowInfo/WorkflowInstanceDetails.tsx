@@ -127,10 +127,6 @@ export async function loadInstanceById(id: string): Promise<InstanceDetails> {
   });
   const patient = await getPatientInfoAsync(instance.patientId);
 
-  const test = await getTemplateWithStepsAndClassification("wt-simple-1")
-  console.log("LC PULL TEMPLATE WITH STEPS/CLASSIFICATION")
-  console.log(test)
-
   const instanceDetails: InstanceDetails = {
     id: instance.id,
     studyTitle: instance.name,
@@ -261,6 +257,7 @@ export default function WorkflowInstanceDetailsPage() {
         setWorkflowInstance(instance);
         const activeStep = getWorkflowCurrentStep(instance);
         setCurrentStep(activeStep ?? null);
+        console.log(activeStep!.formId)
         const progress = computeProgressAndEta(instance.steps);
         setProgressInfo(progress);
       } catch (err) {
@@ -304,18 +301,14 @@ export default function WorkflowInstanceDetailsPage() {
     }
 
     try {
-      // const formTemplate = await getFormTemplateAsync("dt9");
-      // // const formTemplate = await getFormTemplateAsync(currentStep.formId);
-      // console.log("LC PULLING FORM");
-      // setFormData(formTemplate);
-      // console.log(formData);
-    
-      const test = await getFormTemplateLangAsync("dt9", "English");
-      // const test = await getFormResponseAsync("workflow-instance-form-1");
-      console.log("CFORM TEST")
-      console.log(currentStep.formId)
-      console.log(test)
-      setFormData(test)
+      const formTemplate = await getFormTemplateLangAsync("wt-simple-1-step-1-form", "English"); // TODO: TO UPDATE FORM TEMPLATE ID
+      console.log("FORM TEMPLATE")
+      console.log(formTemplate);
+
+      const test1 = await getFormTemplateLangAsync("dt9", "English"); // TODO: TO UPDATE FORM TEMPLATE ID
+      console.log("FORM TEMPLATE2")
+      console.log(test1);
+      setFormData(formTemplate)
     } catch {
       console.error("Error in getting form template");
     }

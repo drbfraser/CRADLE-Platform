@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Form, Formik } from 'formik';
-import { Divider, Grid, IconButton, Paper, SxProps } from '@mui/material';
+import { Box, Divider, Grid, IconButton, Paper, SxProps } from '@mui/material';
 
 import { CForm, QAnswer } from 'src/shared/types/form/formTypes';
 import { FormRenderStateEnum } from 'src/shared/enums';
@@ -32,16 +32,16 @@ interface IProps {
   patientId: string;
   fm: CForm;
   renderState: FormRenderStateEnum;
-  showCloseBtn?: boolean;
-  handleClose?: () => void; 
+  isModalView?: boolean;
+  handleCloseModal?: () => void; 
 }
 
 export const CustomizedForm = ({
   patientId,
   fm: form,
   renderState,
-  showCloseBtn = false,
-  handleClose
+  isModalView = false,
+  handleCloseModal
 }: IProps) => {
   const navigate = useNavigate();
   const [disableSubmit, setDisableSubmit] = useState(false);
@@ -112,12 +112,16 @@ export const CustomizedForm = ({
         {() => (
           <Form>
             <Paper sx={{ p: 6, mt: 2 }}>
-              {showCloseBtn && <IconButton
-                  onClick={handleClose}
-                  // sx={{ position: "absolute", top: 8, right: 8 }}
-                >
-                  <Close sx={{ color: red[500] }}/>
-              </IconButton>
+              {isModalView && 
+                (<Box sx={{ position: 'relative' }}>
+                    <IconButton
+                      onClick={handleCloseModal}
+                      sx={{ position: "absolute", top: -30, right: -30 }}
+                    >
+                      <Close sx={{ color: red[500], fontSize: 30 }}/>
+                    
+                    </IconButton>
+                </Box>)
               }
               {renderState === FormRenderStateEnum.SUBMIT_TEMPLATE && (
                 <Grid container spacing={3}>
