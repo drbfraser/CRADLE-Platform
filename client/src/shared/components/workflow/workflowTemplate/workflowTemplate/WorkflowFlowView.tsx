@@ -28,15 +28,15 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
   };
 
   return (
-    <Box sx={{ height: '600px', width: '100%' }}>
+    <Box sx={{ height: '600px', width: '100%', overflow: 'hidden' }}>
       <Grid container spacing={2} sx={{ height: '100%' }}>
         {/* Left side - Flow Diagram */}
-        <Grid item xs={12} md={8}>
-          <Paper sx={{ height: '100%', p: 1 }}>
+        <Grid item xs={12} md={8} sx={{ height: '100%' }}>
+          <Paper sx={{ height: '100%', p: 1, overflow: 'hidden', border: '1px solid #e0e0e0', borderRadius: 1 }}>
             <Typography variant="h6" sx={{ mb: 2, px: 2 }}>
               Workflow Flow Diagram
             </Typography>
-            <Box sx={{ height: 'calc(100% - 60px)' }}>
+            <Box sx={{ height: 'calc(100% - 60px)', overflow: 'hidden' }}>
               <WorkflowFlow
                 steps={steps}
                 firstStepId={firstStepId}
@@ -48,12 +48,20 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
         </Grid>
 
         {/* Right side - Step Details */}
-        <Grid item xs={12} md={4}>
-          <StepDetails
-            selectedStep={selectedStep}
-            steps={steps}
-            isInstance={isInstance}
-          />
+        <Grid item xs={12} md={4} sx={{ height: '100%' }}>
+          <Box
+            sx={{
+              height: '100%',
+              border: '1px solid #e0e0e0',
+              borderRadius: 1,
+              overflow: 'hidden',
+            }}>
+            <StepDetails
+              selectedStep={selectedStep}
+              steps={steps}
+              isInstance={isInstance}
+            />
+          </Box>
         </Grid>
       </Grid>
     </Box>
