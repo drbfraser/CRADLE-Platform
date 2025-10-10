@@ -6,7 +6,7 @@ import {
   TemplateInput,
   TemplateStep,
   TemplateGroupArray,
-} from '../../types/workflow/workflowTypes';
+} from '../../types/workflow/workflowApiTypes';
 
 // full base path
 const TEMPLATES = EndpointEnum.WORKFLOW_TEMPLATES;

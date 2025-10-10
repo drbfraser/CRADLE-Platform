@@ -5,7 +5,7 @@ import {
   DialogTitle,
 } from '@mui/material';
 
-import { WorkflowTemplate } from 'src/shared/types/workflow/workflowTypes';
+import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Toast } from 'src/shared/components/toast';
