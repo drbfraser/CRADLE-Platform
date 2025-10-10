@@ -3,6 +3,7 @@ import time
 import pytest
 from pydantic import ValidationError
 
+from common.commonUtil import get_current_time
 from enums import QuestionTypeEnum
 from validation.questions import FormQuestion
 
@@ -35,13 +36,11 @@ string_exceeds_max_length_should_fail = dict(
     string_max_length=5,
 )
 
-now = int(time.time())
-
 past_date_not_allowed_should_fail = dict(
     question_index=QUESTION_IDX,
     question_type=QuestionTypeEnum.DATE.value,
     question_text=SAMPLE_QUES,
-    answers={"number": now - 86400},  # 1 day ago
+    answers={"number": get_current_time() - 86400},  # 1 day ago
     allow_past_dates=False,
 )
 
@@ -49,7 +48,7 @@ future_date_not_allowed_should_fail = dict(
     question_index=QUESTION_IDX,
     question_type=QuestionTypeEnum.DATE.value,
     question_text=SAMPLE_QUES,
-    answers={"number": now + 86400},  # 1 day ahead
+    answers={"number": get_current_time() + 86400},  # 1 day ahead
     allow_future_dates=False,
 )
 
@@ -65,6 +64,32 @@ empty_answer_should_pass = dict(
     question_type=QuestionTypeEnum.STRING.value,
     question_text=SAMPLE_QUES,
     answers={"text": ""},
+)
+
+none_answer_with_string_constraints_should_pass = dict(
+    question_index=QUESTION_IDX,
+    question_type=QuestionTypeEnum.STRING.value,
+    question_text=SAMPLE_QUES,
+    answers=None,
+    string_max_length=10,
+)
+
+none_answer_with_number_constraints_should_pass = dict(
+    question_index=QUESTION_IDX,
+    question_type=QuestionTypeEnum.INTEGER.value,
+    question_text=SAMPLE_QUES,
+    answers=None,
+    num_min=-10,
+    num_max=10,
+)
+
+none_answer_with_date_constraints_should_pass = dict(
+    question_index=QUESTION_IDX,
+    question_type=QuestionTypeEnum.DATE.value,
+    question_text=SAMPLE_QUES,
+    answers=None,
+    allow_future_dates=False,
+    allow_past_dates=False,
 )
 
 
@@ -90,6 +115,9 @@ empty_answer_should_pass = dict(
         ),
         (none_answer_should_pass, None, None),
         (empty_answer_should_pass, None, None),
+        (none_answer_with_string_constraints_should_pass, None, None),
+        (none_answer_with_number_constraints_should_pass, None, None),
+        (none_answer_with_date_constraints_should_pass, None, None),
     ],
 )
 def test_form_question_validation(json_data, expectation, expected_err_msg):
