@@ -17,6 +17,7 @@ def test_uploading_valid_workflow_template_steps(
     valid_workflow_template_step2,
     valid_workflow_template_step4,
     example_workflow_template,
+    valid_workflow_template_step5,
     api_post,
 ):
     try:
@@ -28,6 +29,7 @@ def test_uploading_valid_workflow_template_steps(
             endpoint="/api/workflow/templates/body", json=example_workflow_template
         )
 
+        # upload step1
         response = api_post(
             endpoint="/api/workflow/template/steps", json=valid_workflow_template_step1
         )
@@ -36,6 +38,7 @@ def test_uploading_valid_workflow_template_steps(
         pretty_print(response_body)
         assert response.status_code == 201
 
+        # upload step 2
         response = api_post(
             endpoint="/api/workflow/template/steps", json=valid_workflow_template_step2
         )
@@ -44,6 +47,7 @@ def test_uploading_valid_workflow_template_steps(
         pretty_print(response_body)
         assert response.status_code == 201
 
+        # upload step 4
         response = api_post(
             endpoint="/api/workflow/template/steps", json=valid_workflow_template_step4
         )
@@ -60,6 +64,15 @@ def test_uploading_valid_workflow_template_steps(
         Check that all 3 steps have been added to the workflow template
         """
         assert len(workflow_template_orm.steps) == 3
+
+        # upload duplicate step -> should fail with 409
+        response = api_post(
+            endpoint="/api/workflow/template/steps", json=valid_workflow_template_step5
+        )
+        database.session.commit()
+        response_body = decamelize(response.json())
+        pretty_print(response_body)
+        assert response.status_code == 409
 
     finally:
         crud.delete_workflow(
@@ -260,8 +273,8 @@ def valid_workflow_template_step1(example_workflow_template, form_template):
     step_id = get_uuid()
     condition_id = get_uuid()
     form_template = copy.deepcopy(form_template)
-    form_template["id"] = "ft-2"
-    form_template["form_classification_id"] = "fc-5"
+    form_template["id"] = get_uuid()
+    form_template["form_classification_id"] = get_uuid()
     form_template["classification"]["id"] = form_template["form_classification_id"]
     return {
         "id": step_id,
@@ -291,7 +304,8 @@ def valid_workflow_template_step2(
     branch_id = get_uuid()
     branch_condition_id = get_uuid()
     form_template = copy.deepcopy(form_template)
-    form_template["id"] = "ft-2"
+    form_template["id"] = get_uuid()
+    form_template["version"] = "V2"
     form_template["form_classification_id"] = get_uuid()
     form_template["classification"]["id"] = form_template["form_classification_id"]
 
@@ -375,7 +389,8 @@ def valid_workflow_template_step4(example_workflow_template, form_template):
     branch_id2 = get_uuid()
 
     form_template = copy.deepcopy(form_template)
-    form_template["id"] = "ft-3"
+    form_template["id"] = get_uuid()
+    form_template["version"] = "V3"
     form_template["form_classification_id"] = get_uuid()
     form_template["classification"]["id"] = form_template["form_classification_id"]
 
@@ -418,6 +433,32 @@ def valid_workflow_template_step4(example_workflow_template, form_template):
                 },
             },
         ],
+    }
+
+
+#  This step reuses the same form template as Step 1 (same form_classification_id), which causes a logical conflict — and is expected to return 409 Conflict
+@pytest.fixture
+def valid_workflow_template_step5(
+    example_workflow_template, valid_workflow_template_step1
+):
+    step_id = get_uuid()
+    ft = copy.deepcopy(valid_workflow_template_step1["form"])
+    return {
+        "id": step_id,
+        "name": "valid_workflow_template_step5_duplicate",
+        "description": "duplicate version of step1",
+        "expected_completion": get_current_time(),
+        "last_edited": get_current_time(),
+        "form_id": ft["id"],
+        "form": ft,
+        "workflow_template_id": example_workflow_template["id"],
+        "condition_id": get_uuid(),
+        "condition": {
+            "id": get_uuid(),
+            "rule": '{"or": [{"<": [{"var": "height"}, 56]}, {">": [{"var": "bpm"}, 164]}]}',
+            "data_sources": "[]",
+        },
+        "branches": [],
     }
 
 
