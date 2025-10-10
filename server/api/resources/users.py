@@ -6,10 +6,11 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 from pydantic import RootModel
 
+import data.db_operations as crud
 from api.decorator import roles_required
 from common import phone_number_utils, user_utils
 from common.api_utils import UserIdPath
-from data import crud, marshal
+from data import marshal
 from enums import RoleEnum
 from models import UserOrm
 from validation import CradleBaseModel

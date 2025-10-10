@@ -4,18 +4,19 @@ from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
+import data.db_operations as crud
 from common.api_utils import (
     WorkflowClassificationIdPath,
 )
 from common.workflow_utils import assign_workflow_template_or_instance_ids
-from data import crud, marshal
+from data import marshal
 from models import WorkflowClassificationOrm
 from validation import CradleBaseModel
-from validation.workflow_classifications import (
-    WorkflowClassificationModel,
+from validation.workflow_api_models import (
     WorkflowClassificationPatchModel,
     WorkflowClassificationUploadModel,
 )
+from validation.workflow_models import WorkflowClassificationModel
 
 
 # Create a response model for the list endpoint

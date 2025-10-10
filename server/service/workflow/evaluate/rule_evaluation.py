@@ -2,7 +2,7 @@ from typing import Any, Dict, Type
 
 from flask import json
 
-import data.crud as dl
+import data.db_operations as crud
 from models import WorkflowInstanceStepOrm
 from service.workflow.datasourcing import data_catalogue as workflow_datacatalogue
 from service.workflow.datasourcing import data_sourcing as workflow_datasourcing
@@ -43,10 +43,10 @@ class WorkflowEvaluationService:
         #   from workflow_template_instance_step as is
         #   join on rule_group as rg
         #   where is.id = id
-        instance_step = dl.read_instance_steps(
+        instance_step = crud.read_instance_steps(
             WorkflowInstanceStepOrm, WorkflowInstanceStepOrm.id == id
         )[0]
-        rule_group = dl.read_rule_group(rule_group_id=instance_step.condition_id)
+        rule_group = crud.read_rule_group(rule_group_id=instance_step.condition_id)
 
         datasources = json.loads(rule_group.data_sources)
         data_catalogue = workflow_datacatalogue.get_catalogue()

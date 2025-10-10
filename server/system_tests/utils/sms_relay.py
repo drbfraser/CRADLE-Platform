@@ -7,7 +7,7 @@ import requests
 from server.common import phone_number_utils
 from server.service import compressor
 
-from data import crud
+import data.db_operations as crud
 from models import (
     SmsSecretKeyOrm,
     UserOrm,

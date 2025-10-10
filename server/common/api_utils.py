@@ -7,11 +7,11 @@ from pydantic import AliasChoices, Field, field_validator
 from pydantic.alias_generators import to_snake
 
 import config
+import data.db_operations as crud
 from common import user_utils
-from data import crud
 from models import UserOrm
 from validation import CradleBaseModel
-from validation.workflow_template_steps import WorkflowTemplateStepModel
+from validation.workflow_models import WorkflowTemplateStepModel
 
 app = config.app
 

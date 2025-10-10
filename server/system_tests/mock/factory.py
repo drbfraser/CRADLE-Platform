@@ -3,7 +3,8 @@ from typing import Any
 from flask_sqlalchemy import SQLAlchemy
 
 import data
-from data import crud, marshal
+import data.db_operations as crud
+from data import marshal
 from manage import get_username_from_email
 from models import (
     AssessmentSchema,

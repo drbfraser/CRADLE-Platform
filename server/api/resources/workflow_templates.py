@@ -8,6 +8,7 @@ from flask import abort, make_response, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
+import data.db_operations as crud
 from api.decorator import roles_required
 from api.resources.workflow_template_steps import WorkflowTemplateStepListResponse
 from common.api_utils import WorkflowTemplateIdPath, convert_query_parameter_to_bool
@@ -17,16 +18,16 @@ from common.workflow_utils import (
     assign_workflow_template_or_instance_ids,
     validate_workflow_template_step,
 )
-from data import crud, db_session, marshal
+from data import marshal
 from enums import RoleEnum
 from models import WorkflowClassificationOrm, WorkflowTemplateOrm
 from validation import CradleBaseModel
 from validation.file_upload import FileUploadForm
-from validation.workflow_templates import (
-    WorkflowTemplateModel,
+from validation.workflow_api_models import (
     WorkflowTemplatePatchBody,
     WorkflowTemplateUploadModel,
 )
+from validation.workflow_models import WorkflowTemplateModel
 
 
 # Path model for CSV endpoint
@@ -154,7 +155,7 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
         WorkflowTemplateOrm, workflow_template_dict
     )
 
-    with db_session.no_autoflush:
+    with crud.db_session.no_autoflush:
         workflow_classification_orm = get_workflow_classification_from_dict(
             workflow_template_dict, workflow_classification_dict
         )
@@ -165,8 +166,8 @@ def handle_workflow_template_upload(workflow_template_dict: dict):
             )
             workflow_template_orm.classification = workflow_classification_orm
 
-            """ 
-            There should only be one unarchived version of the workflow template, so this 
+            """
+            There should only be one unarchived version of the workflow template, so this
             checks if a previously unarchived version of the workflow template exists and
             archives it
             """

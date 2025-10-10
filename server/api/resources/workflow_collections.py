@@ -4,17 +4,18 @@ from flask import abort, request
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
+import data.db_operations as crud
 from api.decorator import roles_required
 from common.api_utils import WorkflowCollectionIdPath, convert_query_parameter_to_bool
 from common.workflow_utils import assign_workflow_template_or_instance_ids
-from data import crud, marshal
+from data import marshal
 from enums import RoleEnum
 from models import WorkflowCollectionOrm
 from validation import CradleBaseModel
-from validation.workflow_classifications import WorkflowClassificationModel
-from validation.workflow_collections import (
+from validation.workflow_api_models import WorkflowCollectionUploadModel
+from validation.workflow_models import (
+    WorkflowClassificationModel,
     WorkflowCollectionModel,
-    WorkflowCollectionUploadModel,
 )
 
 

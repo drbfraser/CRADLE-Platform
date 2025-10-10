@@ -7,6 +7,7 @@ import moment from 'moment';
 import { useNavigate } from 'react-router-dom';
 import { useCallback } from 'react';
 import parsePhoneNumberFromString from 'libphonenumber-js';
+import { ISODate } from 'src/shared/constants';
 
 export { v4 as makeUniqueId } from 'uuid';
 
@@ -84,6 +85,10 @@ export const getTimestampFromStringDate = (strDate: string): number => {
   const utcDate = moment(strDate);
   return utcDate.toDate().getTime() * 0.001;
 };
+
+export function formatISODateNumber(isoDateNumber: number): ISODate {
+  return new Date(isoDateNumber * 1000).toLocaleDateString('en-CA');
+}
 
 export const getNumOfWeeksDaysNumeric = (
   startTime: number,

@@ -7,9 +7,9 @@ import pytest
 import requests
 from humps import decamelize
 
+import data.db_operations as crud
 from common import user_utils
 from common.print_utils import pretty_print
-from data import crud
 from models import SmsSecretKeyOrm, UserOrm
 
 
