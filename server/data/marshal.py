@@ -225,12 +225,25 @@ def __marshal_patient(p: PatientOrm, shallow) -> dict:
 
 
 def __marshal_reading(r: ReadingOrm, shallow) -> dict:
+    """
+    Serialize a ReadingOrm into a JSON-ready dict.
+
+    Args:
+      r (ReadingOrm): The reading instance to serialize.
+      shallow (bool): If True, omit nested relationships (deep fields).
+
+    Returns:
+      dict: JSON-serializable representation of the reading.
+    """
     d = vars(r).copy()
     __pre_process(d)
     if not d.get("symptoms"):
         d["symptoms"] = []
     if d.get("symptoms"):
         d["symptoms"] = d["symptoms"].split(",")
+    for rel in ("urine_tests"):
+        if rel in d:
+            del d[rel]
     if not shallow and r.urine_tests is not None:
         d["urine_tests"] = marshal(r.urine_tests)
     return d
