@@ -101,7 +101,7 @@ function computeProgressAndEta(steps: InstanceStep[], now = new Date()) {
 }
 
 export function mapWorkflowStep(apiStep: WorkflowInstanceStep): InstanceStep {
-  return {
+  var workflowInstanceStep : InstanceStep = {
     id: apiStep.id,
     title: apiStep.name,
     status: apiStep.status,
@@ -110,14 +110,21 @@ export function mapWorkflowStep(apiStep: WorkflowInstanceStep): InstanceStep {
       ? formatISODateNumber(apiStep.completionDate)
       : null,
     description: apiStep.description,
-    formId: apiStep.formId,
-    hasForm: apiStep.formId ? true : false,
+    hasForm: apiStep.formTemplateId ? true : false,
     expectedCompletion: apiStep.expectedCompletion
       ? formatISODateNumber(apiStep.expectedCompletion)
       : null,
     // nextStep?: string;  // TODO: Not implemented in backend yet
-    // formSubmitted?: boolean; // TODO: Not implemented in backend yet
+    formSubmitted: apiStep.completedFormId ? true : false
   };
+
+  if (apiStep.formTemplateId)
+    workflowInstanceStep.formTemplateId = apiStep.formTemplateId
+
+  if (apiStep.completedFormId)
+    workflowInstanceStep.completedFormId = apiStep.completedFormId
+
+  return workflowInstanceStep
 }
 
 export async function loadInstanceById(id: string): Promise<InstanceDetails> {
@@ -253,11 +260,10 @@ export default function WorkflowInstanceDetailsPage() {
   useEffect(() => {
     async function fetchInstance() {
       try {
-        const instance = await loadInstanceById('test-workflow-instance-1');
+        const instance = await loadInstanceById('test-workflow-instance-1'); //TODO: To be updated with URL param when completed
         setWorkflowInstance(instance);
         const activeStep = getWorkflowCurrentStep(instance);
         setCurrentStep(activeStep ?? null);
-        console.log(activeStep!.formId)
         const progress = computeProgressAndEta(instance.steps);
         setProgressInfo(progress);
       } catch (err) {
@@ -295,19 +301,14 @@ export default function WorkflowInstanceDetailsPage() {
       return;
     }
 
-    if (!currentStep.formId) {
+    if (!currentStep.formTemplateId) {
       console.error("No form associated with current step.");
       return;
     }
 
     try {
-      const formTemplate = await getFormTemplateLangAsync("wt-simple-1-step-1-form", "English"); // TODO: TO UPDATE FORM TEMPLATE ID
-      console.log("FORM TEMPLATE")
-      console.log(formTemplate);
-
-      const test1 = await getFormTemplateLangAsync("dt9", "English"); // TODO: TO UPDATE FORM TEMPLATE ID
-      console.log("FORM TEMPLATE2")
-      console.log(test1);
+      const formTemplateId = currentStep.formTemplateId
+      const formTemplate = await getFormTemplateLangAsync(formTemplateId, "English");
       setFormData(formTemplate)
     } catch {
       console.error("Error in getting form template");

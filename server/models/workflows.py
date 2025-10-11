@@ -310,7 +310,7 @@ class WorkflowInstanceStepOrm(db.Model):
         backref=db.backref("workflow_instance_steps", lazy=True),
         passive_deletes=True,
     )
-    form = db.relationship(
+    completed_form = db.relationship(
         "FormOrm",
         backref=db.backref("workflow_instance_steps", lazy=True),
     )

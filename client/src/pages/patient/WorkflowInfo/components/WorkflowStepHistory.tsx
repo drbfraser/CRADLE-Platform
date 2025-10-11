@@ -303,12 +303,6 @@ export default function WorkflowStepHistory(props: {
                                   <Button
                                     size="small"
                                     variant="contained"
-                                    onClick={() => handleSubmitForm(step.id)}>
-                                    Submit form
-                                  </Button>
-                                  <Button
-                                    size="small"
-                                    variant="outlined"
                                     onClick={() => handleCompleteNow(step)}>
                                     Complete now
                                   </Button>

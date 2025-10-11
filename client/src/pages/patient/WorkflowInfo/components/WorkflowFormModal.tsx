@@ -22,15 +22,13 @@ interface IProps {
     handleCloseForm: () => void;
 }
 
-
-
 export default function WorkflowFormModal(
     { openFormModal, form, patientId, handleCloseForm }: IProps
 ) {
     const handleClose = () => { 
         handleCloseForm();
     }
-
+    
     return( 
         <>
             <Modal

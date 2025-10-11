@@ -6,12 +6,13 @@ export type InstanceStep = {
   title: string;
   description?: string;
   startedOn?: ISODate;
-  formId?: string;
+  formTemplateId?: string;
   hasForm: boolean;
   expectedCompletion?: Nullable<ISODate>;
   completedOn?: Nullable<ISODate>;
   status: StepStatus;
   nextStep?: string;
+  completedFormId?: string;
   formSubmitted?: boolean;
 };
 

@@ -82,7 +82,8 @@ export interface WorkflowInstanceStep {
   description: string;
   startDate: number;
   triggeredBy?: ID;
-  formId?: ID;
+  completedFormId?: Nullable<ID>
+  formTemplateId?: ID;
   assignedTo?: ID;
   expectedCompletion?: Nullable<number>;
   completionDate?: Nullable<number>;
