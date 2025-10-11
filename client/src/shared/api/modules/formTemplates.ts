@@ -24,10 +24,9 @@ export const saveFormTemplateWithFileAsync = async (file: File) => {
 export const saveFormTemplateAsync = async (
   formTemplate: FormTemplateWithQuestions
 ) => {
-
   const formTemplateData = {
     classification: {
-      ...formTemplate.classification
+      ...formTemplate.classification,
     },
     version: formTemplate.version,
     questions: formTemplate.questions.map((q, i) => ({
@@ -46,11 +45,11 @@ export const saveFormTemplateAsync = async (
       langVersions: q.langVersions.map((lv) => ({
         lang: lv.lang,
         questionText: lv.questionText,
-        mcOptions: lv.mcOptions || []
+        mcOptions: lv.mcOptions || [],
       })),
-      isBlank: true
-    }))
-  }
+      isBlank: true,
+    })),
+  };
 
   // Sends FormTemplate to server via request body rather than as a file.
   return axiosFetch({
