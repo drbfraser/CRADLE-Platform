@@ -278,8 +278,13 @@ class WorkflowInstanceStepOrm(db.Model):
     data = db.Column(db.Text, nullable=True)
 
     # FOREIGN KEYS
-    form_id = db.Column(
+    completed_form_id = db.Column(
         db.String(50), db.ForeignKey("form.id", ondelete="SET NULL"), nullable=True
+    )
+    form_template_id = db.Column(
+        db.String(50),
+        db.ForeignKey("form_template.id", ondelete="SET NULL"),
+        nullable=True,
     )
     assigned_to = db.Column(
         db.Integer, db.ForeignKey("user.id", ondelete="SET NULL"), nullable=True
@@ -307,5 +312,9 @@ class WorkflowInstanceStepOrm(db.Model):
     )
     form = db.relationship(
         "FormOrm",
-        backref=db.backref("workflow_instance_steps", cascade="all, delete", lazy=True),
+        backref=db.backref("workflow_instance_steps", lazy=True),
+    )
+    form_template = db.relationship(
+        "FormTemplateOrm",
+        backref=db.backref("workflow_instance_steps", lazy=True),
     )
