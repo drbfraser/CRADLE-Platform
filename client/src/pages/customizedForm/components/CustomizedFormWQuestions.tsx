@@ -104,8 +104,6 @@ export const CustomizedFormWQuestions = ({
   };
 
   const handleEditField = (question: TQuestion) => {
-    console.log('Inside handleEditField');
-    console.log(question.questionIndex);
     setSelectedQuestionIndex(question.questionIndex);
     if (question.questionType == QuestionTypeEnum.CATEGORY) {
       setCategoryIndex(question.categoryIndex);
@@ -473,7 +471,6 @@ export const CustomizedFormWQuestions = ({
                     setForm: setForm,
                   }).map((q, index) => {
                     const question = questions[index];
-                    // console.log(question);
                     return (
                       <Fragment key={`rendered-${question.questionIndex}`}>
                         {q}
