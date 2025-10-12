@@ -351,6 +351,9 @@ def __marshal_form(f: FormOrm, shallow) -> dict:
     # Remove relationship object
     if d.get("patient"):
         del d["patient"]
+    
+    if shallow and "questions" in d:
+        del d["questions"]
 
     if not shallow:
         d["questions"] = [marshal(q) for q in f.questions]
