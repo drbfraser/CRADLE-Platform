@@ -266,6 +266,10 @@ def __marshal_assessment(f: AssessmentOrm) -> dict:
     # Remove relationship objects
     if d.get("health_facility"):
         del d["health_facility"]
+    if d.get("patient"):
+        del d["patient"]
+    if d.get("healthcare_worker"):
+        del d["healthcare_worker"]
     return d
 
 
