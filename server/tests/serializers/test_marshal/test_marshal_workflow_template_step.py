@@ -8,7 +8,9 @@ from models import (
 )
 
 
-def _make_min_form_template(template_id: str, classification_id: str) -> FormTemplateOrm:
+def _make_min_form_template(
+    template_id: str, classification_id: str
+) -> FormTemplateOrm:
     """Minimal FormTemplateOrm suitable for __marshal_form_template."""
     fc = FormClassificationOrm()
     fc.id = classification_id
@@ -79,7 +81,16 @@ def test_workflow_template_step_marshal_full_includes_form_condition_and_branche
     out = m.marshal(step, shallow=False)
 
     # Top-level expectations
-    for key in ("id", "name", "description", "last_edited", "workflow_template_id", "form", "condition", "branches"):
+    for key in (
+        "id",
+        "name",
+        "description",
+        "last_edited",
+        "workflow_template_id",
+        "form",
+        "condition",
+        "branches",
+    ):
         assert key in out
     assert out["id"] == "wts-101"
     assert out["name"] == "Collect vitals"

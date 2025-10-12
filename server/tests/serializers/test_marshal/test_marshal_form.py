@@ -99,8 +99,8 @@ def test_form_shallow_includes_core_fields_and_classification_but_omits_question
         last_edited=1_700_100_111,
         archived=True,
         patient_id="p-777",
-        form_template_id=None,      # should be stripped
-        last_edited_by=None,        # should be stripped
+        form_template_id=None,  # should be stripped
+        last_edited_by=None,  # should be stripped
         form_classification_id="fc-shallow",
         classification=fc,
         questions=[make_question(id_="q-x", question_index=2)],
@@ -145,7 +145,7 @@ def test_form_deep_includes_sorted_questions_and_parses_question_fields():
         id_="q-2",
         question_index=2,
         visible_condition='{"op":"never"}',
-        mc_options='[]',
+        mc_options="[]",
         answers="[]",
     )
     q1 = make_question(
@@ -221,7 +221,6 @@ def test_form_classification_backrefs_do_not_leak_templates():
     fc = make_classification("fc-noleak")
     form = make_form(id_="f-noleak", classification=fc)
 
-
     out = m.marshal(form, shallow=True)
     assert "templates" not in out["classification"]
 
@@ -233,7 +232,11 @@ def test_form_marshal_with_type_uses_shallow_and_sets_type():
     - inject 'type': 'form'.
     """
     fc = make_classification("fc-type")
-    form = make_form(id_="f-type", classification=fc, questions=[make_question(id_="q-1", question_index=1)])
+    form = make_form(
+        id_="f-type",
+        classification=fc,
+        questions=[make_question(id_="q-1", question_index=1)],
+    )
 
     out = m.marshal_with_type(form, shallow=False)
 

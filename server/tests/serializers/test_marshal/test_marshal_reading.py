@@ -14,9 +14,9 @@ def make_reading(
     hr=70,
     symptoms=None,
     traffic=TrafficLightEnum.GREEN,
-    date_taken=1577836800,       # 2020-01-01
+    date_taken=1577836800,  # 2020-01-01
     date_retest_needed=None,
-    last_edited=1577836800
+    last_edited=1577836800,
 ):
     r = ReadingOrm()
     r.id = id_
@@ -33,12 +33,15 @@ def make_reading(
     return r
 
 
-@pytest.mark.parametrize("raw, expected", [
-    (None, []),           # None -> []
-    ("", []),             # ""   -> []
-    ("A,B,C", ["A", "B", "C"]),  
-    ("A, B, C", ["A", " B", " C"]),
-])
+@pytest.mark.parametrize(
+    "raw, expected",
+    [
+        (None, []),  # None -> []
+        ("", []),  # ""   -> []
+        ("A,B,C", ["A", "B", "C"]),
+        ("A, B, C", ["A", " B", " C"]),
+    ],
+)
 def test_symptoms_parsing_table(raw, expected):
     r = make_reading(symptoms=raw)
     out = m.marshal(r, shallow=True)

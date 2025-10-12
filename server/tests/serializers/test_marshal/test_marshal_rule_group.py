@@ -66,8 +66,8 @@ def test_rule_group_marshal_allows_empty_structures():
     """
     rg = RuleGroupOrm()
     rg.id = "rg-003"
-    rg.rule = {}                
-    rg.data_sources = []        
+    rg.rule = {}
+    rg.data_sources = []
 
     out = m.marshal(rg)
 

@@ -1,6 +1,3 @@
-# tests/serializers/test_marshal/test_marshal_referral.py
-
-import pytest
 from data import marshal as m
 from models import ReferralOrm, HealthFacilityOrm, PatientOrm
 
@@ -50,7 +47,6 @@ def make_referral(
 def test_referral_strips_relationship_objects_when_present():
     r = make_referral()
 
-    # Use proper mapped instances so SQLAlchemy doesn't choke
     hf = HealthFacilityOrm()
     hf.name = "General Hospital"
     r.health_facility = hf
@@ -65,7 +61,6 @@ def test_referral_strips_relationship_objects_when_present():
     assert "health_facility" not in out
     assert "patient" not in out
 
-    # Scalar FKs remain
     assert out["patient_id"] == "p-1"
     assert out["health_facility_name"] == "General Hospital"
 

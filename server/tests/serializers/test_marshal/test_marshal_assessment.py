@@ -1,4 +1,3 @@
-import pytest
 from data import marshal as m
 from models import AssessmentOrm, PatientOrm, UserOrm
 
@@ -34,8 +33,10 @@ def make_assessment(
 def test_assessment_strips_relationship_objects_when_present():
     a = make_assessment()
 
-    p = PatientOrm(); p.id = "p-1"
-    u = UserOrm(); u.id = 101
+    p = PatientOrm()
+    p.id = "p-1"
+    u = UserOrm()
+    u.id = 101
 
     a.patient = p
     a.healthcare_worker = u
@@ -107,8 +108,10 @@ def test_assessment_private_attrs_stripped_and_input_not_mutated():
     a = make_assessment()
     a._secret = "do-not-leak"  # should be removed by __pre_process
 
-    p = PatientOrm(); p.id = "p-1"
-    u = UserOrm(); u.id = 101
+    p = PatientOrm()
+    p.id = "p-1"
+    u = UserOrm()
+    u.id = 101
     a.patient = p
     a.healthcare_worker = u
 

@@ -54,7 +54,13 @@ def test_sms_secret_key_marshal_includes_core_fields_and_no_relationships():
     assert out["expiry_date"] == expiry
 
     # only those five fields present
-    assert set(out.keys()) == {"id", "user_id", "secret_key", "stale_date", "expiry_date"}
+    assert set(out.keys()) == {
+        "id",
+        "user_id",
+        "secret_key",
+        "stale_date",
+        "expiry_date",
+    }
 
     # relationship & private/extra fields not present
     assert "user" not in out
