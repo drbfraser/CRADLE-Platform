@@ -1,10 +1,10 @@
-# tests/serializers/test_marshal/test_marshal_question_lang_version.py
 from enums import QuestionTypeEnum
 from data import marshal as m
 from models import (
     QuestionLangVersionOrm,
     QuestionOrm,
 )
+
 
 def make_lang_version(
     *,
@@ -15,7 +15,6 @@ def make_lang_version(
     question_id="q-abc",
     attach_question=False,
 ):
-
     v = QuestionLangVersionOrm()
     v.id = id_
     v.lang = lang

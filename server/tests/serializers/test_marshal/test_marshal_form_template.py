@@ -7,7 +7,6 @@ from models import (
 )
 
 
-
 def make_classification(id_="fc-1"):
     fc = FormClassificationOrm()
     fc.id = id_
@@ -112,18 +111,27 @@ def test_form_template_deep_includes_sorted_questions_and_parses_fields():
     - with JSON fields parsed (visible_condition -> dict, mc_options -> list, answers -> list).
     """
     fc = make_classification("fc-22")
-    q1 = make_question(id_="q-a", question_index=3,
-                       visible_condition='{"op":"and","rules":[]}',
-                       mc_options='["A","B"]',
-                       answers='["B"]')
-    q2 = make_question(id_="q-b", question_index=1,
-                       visible_condition='{"op":"always"}',
-                       mc_options='["X"]',
-                       answers="[]")
-    q3 = make_question(id_="q-c", question_index=2,
-                       visible_condition='{"op":"never"}',
-                       mc_options='[]',
-                       answers='[]')
+    q1 = make_question(
+        id_="q-a",
+        question_index=3,
+        visible_condition='{"op":"and","rules":[]}',
+        mc_options='["A","B"]',
+        answers='["B"]',
+    )
+    q2 = make_question(
+        id_="q-b",
+        question_index=1,
+        visible_condition='{"op":"always"}',
+        mc_options='["X"]',
+        answers="[]",
+    )
+    q3 = make_question(
+        id_="q-c",
+        question_index=2,
+        visible_condition='{"op":"never"}',
+        mc_options="[]",
+        answers="[]",
+    )
 
     # Deliberately unsorted input
     ft = make_form_template(
@@ -160,7 +168,9 @@ def test_form_template_propagates_if_include_versions_to_questions():
     - parsed to list otherwise
     """
     lv_en = make_lang_version(lang="en", question_text="BP?", mc_options="[]")
-    lv_fr = make_lang_version(lang="fr", question_text="TA?", mc_options='["Oui","Non"]')
+    lv_fr = make_lang_version(
+        lang="fr", question_text="TA?", mc_options='["Oui","Non"]'
+    )
     q = make_question(id_="q-lv", question_index=5, lang_versions=[lv_en, lv_fr])
 
     ft = make_form_template(
@@ -237,5 +247,8 @@ def test_form_template_type_sanity_and_core_fields():
     assert isinstance(out["version"], str) and out["version"] == "v2"
     assert isinstance(out["date_created"], int) and out["date_created"] == 1700000001
     assert isinstance(out["archived"], bool) and out["archived"] is False
-    assert isinstance(out["classification"], dict) and out["classification"]["id"] == "fc-55"
+    assert (
+        isinstance(out["classification"], dict)
+        and out["classification"]["id"] == "fc-55"
+    )
     assert "questions" not in out

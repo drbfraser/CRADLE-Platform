@@ -24,12 +24,18 @@ def test_branch_marshal_with_condition_embeds_rule_group_and_fk_ids():
     br.step_id = "wts-100"
     br.target_step_id = "wts-200"
     br.condition_id = cond.id
-    br.condition = cond               
+    br.condition = cond
 
     out = m.marshal(br)
 
     # Core field presence
-    assert set(out.keys()) == {"id", "step_id", "target_step_id", "condition_id", "condition"}
+    assert set(out.keys()) == {
+        "id",
+        "step_id",
+        "target_step_id",
+        "condition_id",
+        "condition",
+    }
     assert out["id"] == "br-001"
     assert out["step_id"] == "wts-100"
     assert out["target_step_id"] == "wts-200"
@@ -83,7 +89,7 @@ def test_branch_marshal_preserves_empty_json_in_condition_but_strips_none():
     """
     cond = RuleGroupOrm()
     cond.id = "rg-empty"
-    cond.rule = {}        
+    cond.rule = {}
     cond.data_sources = []
 
     cond._scratch = "nope"
@@ -97,7 +103,13 @@ def test_branch_marshal_preserves_empty_json_in_condition_but_strips_none():
 
     out = m.marshal(br)
 
-    assert set(out.keys()) == {"id", "step_id", "target_step_id", "condition_id", "condition"}
+    assert set(out.keys()) == {
+        "id",
+        "step_id",
+        "target_step_id",
+        "condition_id",
+        "condition",
+    }
     c = out["condition"]
 
     # Required keys present

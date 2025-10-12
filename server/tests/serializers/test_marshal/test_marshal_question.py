@@ -7,6 +7,7 @@ from models import (
     FormTemplateOrm,
 )
 
+
 def make_lang_version(
     *,
     lang="en",
@@ -105,9 +106,9 @@ def test_question_marshal_parses_json_fields_and_strips_relationships():
         answers='{"number": 11.2, "comment": "fingerstick"}',
         num_min=7.0,
         num_max=20.0,
-        string_max_length=None,   # removed
+        string_max_length=None,  # removed
         category_index=1,
-        string_max_lines=None,    # removed
+        string_max_lines=None,  # removed
         attach_form=True,
         attach_form_template=True,
     )
@@ -173,7 +174,6 @@ def test_question_marshal_includes_lang_versions_only_when_requested():
         mc_options='["BaseOpt"]',
         lang_versions=[lv_en, lv_fr],
         question_type=QuestionTypeEnum.MULTIPLE_CHOICE,
-
         attach_form=False,
         attach_form_template=False,
     )
@@ -188,7 +188,11 @@ def test_question_marshal_includes_lang_versions_only_when_requested():
     assert {v["lang"] for v in out["lang_versions"]} == {"en", "fr"}
 
     en = next(v for v in out["lang_versions"] if v["lang"] == "en")
-    assert isinstance(en["mc_options"], list) and en["mc_options"] == ["High", "Normal", "Low"]
+    assert isinstance(en["mc_options"], list) and en["mc_options"] == [
+        "High",
+        "Normal",
+        "Low",
+    ]
     assert en["question_text"] == "Blood pressure"
 
     fr = next(v for v in out["lang_versions"] if v["lang"] == "fr")
@@ -202,8 +206,12 @@ def test_marshal_question_to_single_version_overrides_text_and_mc_options_condit
       - select the requested version's text,
       - replace mc_options only if that version actually provides options (non-default).
     """
-    lv_en = make_lang_version(lang="en", question_text="Gravida (English)", mc_options='["0","1","2+"]')
-    lv_fr = make_lang_version(lang="fr", question_text="Geste (Francais)", mc_options="[]") 
+    lv_en = make_lang_version(
+        lang="en", question_text="Gravida (English)", mc_options='["0","1","2+"]'
+    )
+    lv_fr = make_lang_version(
+        lang="fr", question_text="Geste (Francais)", mc_options="[]"
+    )
     q = make_question(
         id_="q-single",
         question_text="Gravida (base)",
