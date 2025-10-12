@@ -1,4 +1,3 @@
-import pytest
 from data import marshal as m
 from models import PregnancyOrm, PatientOrm
 
@@ -7,7 +6,7 @@ def make_pregnancy(
     *,
     id_=42,
     patient_id="p-1",
-    start_date=1577836800,   # 2020-01-01
+    start_date=1577836800,  # 2020-01-01
     end_date=None,
     outcome=None,
     last_edited=1577923200,  # 2020-01-02
@@ -34,7 +33,12 @@ def test_pregnancy_ongoing_includes_null_end_date_and_outcome_key():
     assert out["last_edited"] == 1577923200
 
     assert set(out.keys()) == {
-        "id", "patient_id", "start_date", "end_date", "outcome", "last_edited"
+        "id",
+        "patient_id",
+        "start_date",
+        "end_date",
+        "outcome",
+        "last_edited",
     }
 
 
@@ -50,10 +54,10 @@ def test_pregnancy_relationship_not_leaked_when_patient_loaded():
     pr = make_pregnancy()
     patient = PatientOrm()
     patient.id = "p-1"
-    pr.patient = patient  # proper mapped instance
+    pr.patient = patient
 
     out = m.marshal(pr)
-    assert "patient" not in out   # no relationship leaks
+    assert "patient" not in out
     assert out["patient_id"] == "p-1"
 
 

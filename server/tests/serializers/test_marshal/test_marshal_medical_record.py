@@ -1,4 +1,3 @@
-import pytest
 from data import marshal as m
 from models import MedicalRecordOrm, PatientOrm
 
@@ -10,7 +9,7 @@ def make_medical_record(
     information="Hypertension noted",
     is_drug_record=False,
     date_created=1577836800,  # 2020-01-01
-    last_edited=1577923200,   # 2020-01-02
+    last_edited=1577923200,  # 2020-01-02
 ):
     mr = MedicalRecordOrm()
     mr.id = id_
@@ -28,7 +27,11 @@ def test_medical_record_medical_path_maps_information_to_medical_history_only():
     out = m.marshal(mr)
 
     assert set(out.keys()) == {
-        "id", "patient_id", "date_created", "last_edited", "medical_history"
+        "id",
+        "patient_id",
+        "date_created",
+        "last_edited",
+        "medical_history",
     }
 
     assert out["id"] == 101
@@ -36,20 +39,30 @@ def test_medical_record_medical_path_maps_information_to_medical_history_only():
     assert out["date_created"] == 1577836800
     assert out["last_edited"] == 1577923200
     assert out["medical_history"] == "Asthma (childhood)"
-    assert "drug_history" not in out, "drug_history must not be present for non-drug records"
+    assert "drug_history" not in out, (
+        "drug_history must not be present for non-drug records"
+    )
 
 
 def test_medical_record_drug_path_maps_information_to_drug_history_only():
     """When is_drug_record=True, marshal must emit drug_history and NOT medical_history."""
-    mr = make_medical_record(is_drug_record=True, information="Amoxicillin 500mg BID ×7d")
+    mr = make_medical_record(
+        is_drug_record=True, information="Amoxicillin 500mg BID ×7d"
+    )
     out = m.marshal(mr)
 
     assert set(out.keys()) == {
-        "id", "patient_id", "date_created", "last_edited", "drug_history"
+        "id",
+        "patient_id",
+        "date_created",
+        "last_edited",
+        "drug_history",
     }
 
     assert out["drug_history"] == "Amoxicillin 500mg BID ×7d"
-    assert "medical_history" not in out, "medical_history must not be present for drug records"
+    assert "medical_history" not in out, (
+        "medical_history must not be present for drug records"
+    )
 
 
 def test_medical_record_keeps_empty_information_string():
