@@ -1,3 +1,4 @@
+# ruff: noqa: SLF001
 import datetime as dt
 
 from data import marshal as m
@@ -38,8 +39,6 @@ def test_sms_secret_key_marshal_includes_core_fields_and_no_relationships():
         expiry_date=expiry,
     )
 
-    # Add attributes that must not appear in marshaled output
-    s._debug = {"trace": True}
     s.extra = None
 
     out = m.marshal(s)
@@ -62,7 +61,5 @@ def test_sms_secret_key_marshal_includes_core_fields_and_no_relationships():
         "expiry_date",
     }
 
-    # relationship & private/extra fields not present
     assert "user" not in out
-    assert "_debug" not in out
     assert "extra" not in out

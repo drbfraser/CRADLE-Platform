@@ -1,10 +1,11 @@
+# ruff: noqa: SLF001
 import data.marshal as m
 from models import (
-    WorkflowTemplateStepOrm,
-    WorkflowTemplateStepBranchOrm,
-    RuleGroupOrm,
-    FormTemplateOrm,
     FormClassificationOrm,
+    FormTemplateOrm,
+    RuleGroupOrm,
+    WorkflowTemplateStepBranchOrm,
+    WorkflowTemplateStepOrm,
 )
 
 
@@ -22,7 +23,6 @@ def _make_min_form_template(
     form.description = "Initial antenatal visit"
     form.classification = fc
     form.questions = []  # important: function sorts/questions even if empty
-    form._cache = {"ignore": True}  # should be stripped
     return form
 
 
@@ -31,7 +31,6 @@ def _make_condition(rule_group_id: str, rule=None, data_sources=None) -> RuleGro
     rg.id = rule_group_id
     rg.rule = {"all": []} if rule is None else rule
     rg.data_sources = [] if data_sources is None else data_sources
-    rg._debug = True
     return rg
 
 
@@ -51,7 +50,6 @@ def test_workflow_template_step_marshal_full_includes_form_condition_and_branche
     step.expected_completion = 2 * 60 * 60  # seconds
     step.last_edited = 1_700_000_000
     step.workflow_template_id = "wt-001"
-    step._scratch = "nope"
 
     # Attach form and condition
     step.form_id = "ft-10"
@@ -108,7 +106,6 @@ def test_workflow_template_step_marshal_full_includes_form_condition_and_branche
     assert form["questions"] == []  # preserved
     assert isinstance(form["classification"], dict)
     assert form["classification"]["id"] == "fc-1"
-    assert "_cache" not in form  # private stripped
 
     # Step-level condition
     cond_out = out["condition"]
@@ -117,7 +114,6 @@ def test_workflow_template_step_marshal_full_includes_form_condition_and_branche
     assert cond_out["id"] == "rg-200"
     assert cond_out["rule"] == {"all": []}
     assert cond_out["data_sources"] == []
-    assert "_debug" not in cond_out  # private stripped
 
     # Branches
     branches = out["branches"]

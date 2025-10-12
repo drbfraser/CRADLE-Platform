@@ -1,3 +1,4 @@
+# ruff: noqa: SLF001
 from data import marshal as m
 from models import AssessmentOrm, PatientOrm, UserOrm
 

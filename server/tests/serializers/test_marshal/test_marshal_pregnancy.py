@@ -1,5 +1,6 @@
+# ruff: noqa: SLF001
 from data import marshal as m
-from models import PregnancyOrm, PatientOrm
+from models import PatientOrm, PregnancyOrm
 
 
 def make_pregnancy(
@@ -65,11 +66,11 @@ def test_pregnancy_private_attrs_not_leaked_and_input_not_mutated():
     pr = make_pregnancy()
     pr._secret = "dont-leak-me"
 
-    before_secret = getattr(pr, "_secret")
+    before_secret = pr._secret
     out = m.marshal(pr)
 
     assert "_secret" not in out
-    assert getattr(pr, "_secret") == before_secret
+    assert pr._secret == before_secret
 
 
 def test_pregnancy_types_are_preserved():
