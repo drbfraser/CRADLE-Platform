@@ -1,12 +1,15 @@
-import pytest
+# ruff: noqa: SLF001
 import datetime as dt
-from enums import SexEnum
+
+import pytest
+
+from models import PatientOrm, ReadingOrm
 from data import marshal as m
+from enums import SexEnum
 
 
 @pytest.fixture
 def patient_orm():
-    from models import PatientOrm
 
     p = PatientOrm()
     p.id = "p-1"
@@ -38,7 +41,6 @@ def test_patient_shallow_sets_base_and_converts_types(patient_orm):
 
 
 def test_patient_non_shallow_includes_nested_lists(patient_orm):
-    from models import ReadingOrm
 
     r = ReadingOrm()
     r.id = 1

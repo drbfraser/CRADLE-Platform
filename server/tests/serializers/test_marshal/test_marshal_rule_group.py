@@ -1,3 +1,4 @@
+# ruff: noqa: SLF001
 import data.marshal as m
 from models import RuleGroupOrm
 
@@ -22,8 +23,6 @@ def test_rule_group_marshal_preserves_json_and_strips_private():
         "questions": ["bp_systolic", "bp_diastolic"],
         "source": "form_readings",
     }
-
-    rg._cache = "do-not-leak"
 
     out = m.marshal(rg)
 

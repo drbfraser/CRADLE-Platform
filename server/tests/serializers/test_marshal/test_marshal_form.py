@@ -1,9 +1,10 @@
+# ruff: noqa: SLF001
 from data import marshal as m
 from models import (
-    FormOrm,
     FormClassificationOrm,
-    QuestionOrm,
+    FormOrm,
     QuestionLangVersionOrm,
+    QuestionOrm,
 )
 
 
@@ -207,7 +208,7 @@ def test_form_deep_does_not_mutate_source_objects_and_strips_privates_everywhere
     assert "_hidden" not in out.get("classification", {})
     assert "_debug" not in out["questions"][0]  # check any representative elem
     for qo in out["questions"]:
-        for k in qo.keys():
+        for k in qo:
             assert not k.startswith("_")
 
     assert [q.id for q in form.questions] == original_order

@@ -1,10 +1,11 @@
+# ruff: noqa: SLF001
 from data import marshal as m
 from enums import QuestionTypeEnum
 from models import (
-    QuestionOrm,
-    QuestionLangVersionOrm,
     FormOrm,
     FormTemplateOrm,
+    QuestionLangVersionOrm,
+    QuestionOrm,
 )
 
 
@@ -113,7 +114,7 @@ def test_question_marshal_parses_json_fields_and_strips_relationships():
         attach_form_template=True,
     )
 
-    q._debug = {"trace": True}
+    q._test = {"trace": True}
 
     out = m.marshal(q)
 
@@ -149,8 +150,8 @@ def test_question_marshal_parses_json_fields_and_strips_relationships():
     assert "string_max_lines" not in out
 
     # Private attrs stripped
-    assert "_debug" not in out
-    assert all(not k.startswith("_") for k in out.keys())
+    assert "_test" not in out
+    assert all(not k.startswith("_") for k in out)
 
 
 def test_question_marshal_includes_lang_versions_only_when_requested():

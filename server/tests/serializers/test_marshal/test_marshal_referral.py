@@ -1,5 +1,6 @@
+# ruff: noqa: SLF001
 from data import marshal as m
-from models import ReferralOrm, HealthFacilityOrm, PatientOrm
+from models import HealthFacilityOrm, PatientOrm, ReferralOrm
 
 
 def make_referral(

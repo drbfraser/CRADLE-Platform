@@ -1,7 +1,8 @@
+# ruff: noqa: SLF001
 import pytest
+
 from data import marshal as m
 from enums import TrafficLightEnum
-
 from models import ReadingOrm, UrineTestOrm
 
 

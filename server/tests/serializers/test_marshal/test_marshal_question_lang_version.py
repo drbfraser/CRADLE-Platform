@@ -1,5 +1,6 @@
-from enums import QuestionTypeEnum
+# ruff: noqa: SLF001
 from data import marshal as m
+from enums import QuestionTypeEnum
 from models import (
     QuestionLangVersionOrm,
     QuestionOrm,
@@ -75,7 +76,7 @@ def test_lang_version_marshal_parses_mc_options_and_strips_relationships_and_pri
     # Private + None-valued stripped
     assert "_debug" not in out
     assert "extra" not in out
-    assert all(not k.startswith("_") for k in out.keys())
+    assert all(not k.startswith("_") for k in out)
 
 
 def test_lang_version_marshal_omits_default_empty_mc_options():
