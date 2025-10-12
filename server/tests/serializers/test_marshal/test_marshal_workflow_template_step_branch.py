@@ -1,3 +1,4 @@
+# ruff: noqa: SLF001
 import data.marshal as m
 from models import RuleGroupOrm, WorkflowTemplateStepBranchOrm
 
@@ -91,8 +92,6 @@ def test_branch_marshal_preserves_empty_json_in_condition_but_strips_none():
     cond.id = "rg-empty"
     cond.rule = {}
     cond.data_sources = []
-
-    cond._scratch = "nope"
 
     br = WorkflowTemplateStepBranchOrm()
     br.id = "br-003"

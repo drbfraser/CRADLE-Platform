@@ -1,9 +1,12 @@
+# ruff: noqa: SLF001
+from __future__ import annotations
+
 from data import marshal as m
 from models import (
-    FormTemplateOrm,
     FormClassificationOrm,
-    QuestionOrm,
+    FormTemplateOrm,
     QuestionLangVersionOrm,
+    QuestionOrm,
 )
 
 
@@ -210,7 +213,7 @@ def test_form_template_private_attrs_stripped_and_no_input_mutation():
     fc._hidden = True
     q._debug = {"x": 1}
 
-    before = (getattr(ft, "_secret"), getattr(fc, "_hidden"), getattr(q, "_debug"))
+    before = (ft._secret, fc._hidden, q._debug)
 
     out = m.marshal(ft, shallow=False)
 
@@ -218,7 +221,7 @@ def test_form_template_private_attrs_stripped_and_no_input_mutation():
     assert "_hidden" not in out.get("classification", {})
     assert "_debug" not in out["questions"][0]
 
-    after = (getattr(ft, "_secret"), getattr(fc, "_hidden"), getattr(q, "_debug"))
+    after = (ft._secret, fc._hidden, q._debug)
     assert before == after
 
 
