@@ -385,6 +385,8 @@ def __marshal_question(q: QuestionOrm, if_include_versions: bool) -> dict:
 
     if if_include_versions:
         d["lang_versions"] = [marshal(v) for v in q.lang_versions]
+    elif not if_include_versions and "lang_versions" in d:
+        del d["lang_versions"]
 
     return d
 
