@@ -510,6 +510,8 @@ def __marshal_workflow_template(wt: WorkflowTemplateOrm, shallow: bool = False) 
 
     if not shallow:
         d["steps"] = [__marshal_workflow_template_step(wts=wts) for wts in wt.steps]
+    elif "steps" in d:
+        del d["steps"]
 
     return d
 
