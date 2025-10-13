@@ -2,7 +2,6 @@ import os
 
 
 def _set_default_db_env() -> None:
-
     defaults = {
         "DB_USERNAME": "user",
         "DB_PASSWORD": "password",

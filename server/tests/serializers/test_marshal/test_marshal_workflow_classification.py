@@ -1,13 +1,14 @@
 # ruff: noqa: SLF001
 import data.marshal as m
 from models import (
+    FormClassificationOrm,
+    FormTemplateOrm,
+    RuleGroupOrm,
     WorkflowClassificationOrm,
     WorkflowTemplateOrm,
     WorkflowTemplateStepOrm,
-    RuleGroupOrm,
-    FormTemplateOrm,
-    FormClassificationOrm,
 )
+
 
 def _make_form_template(template_id: str, fc_id: str) -> FormTemplateOrm:
     fc = FormClassificationOrm()
@@ -34,7 +35,9 @@ def _make_condition(rg_id: str, rule=None, data_sources=None) -> RuleGroupOrm:
     return rg
 
 
-def _make_step(step_id: str, template_id: str, form_template_id: str, form_fc_id: str) -> WorkflowTemplateStepOrm:
+def _make_step(
+    step_id: str, template_id: str, form_template_id: str, form_fc_id: str
+) -> WorkflowTemplateStepOrm:
     s = WorkflowTemplateStepOrm()
     s.id = step_id
     s.name = f"Step {step_id}"
@@ -54,7 +57,11 @@ def _make_step(step_id: str, template_id: str, form_template_id: str, form_fc_id
 
 
 def _make_workflow_template(
-    wt_id: str, classification: WorkflowClassificationOrm, *, with_initial_condition: bool, with_one_step: bool
+    wt_id: str,
+    classification: WorkflowClassificationOrm,
+    *,
+    with_initial_condition: bool,
+    with_one_step: bool,
 ) -> WorkflowTemplateOrm:
     wt = WorkflowTemplateOrm()
     wt.id = wt_id
@@ -73,14 +80,21 @@ def _make_workflow_template(
     if with_initial_condition:
         wt.initial_condition_id = f"rg-init-{wt_id}"
         wt.initial_condition = _make_condition(
-            wt.initial_condition_id, rule={"any": []}, data_sources=[{"type": "patient"}]
+            wt.initial_condition_id,
+            rule={"any": []},
+            data_sources=[{"type": "patient"}],
         )
     else:
         wt.initial_condition_id = None
         wt.initial_condition = None
 
     if with_one_step:
-        step = _make_step(step_id=f"wts-{wt_id}-1", template_id=wt.id, form_template_id=f"ft-{wt_id}-1", form_fc_id=f"fc-{wt_id}-1")
+        step = _make_step(
+            step_id=f"wts-{wt_id}-1",
+            template_id=wt.id,
+            form_template_id=f"ft-{wt_id}-1",
+            form_fc_id=f"fc-{wt_id}-1",
+        )
         wt.steps = [step]
     else:
         wt.steps = []
@@ -126,8 +140,12 @@ def test_workflow_classification_marshal_includes_templates_with_shallow():
     wc.collection_id = None
 
     # Two templates, one with initial condition, one without
-    wt1 = _make_workflow_template("wt-A", wc, with_initial_condition=True, with_one_step=True)
-    wt2 = _make_workflow_template("wt-B", wc, with_initial_condition=False, with_one_step=False)
+    wt1 = _make_workflow_template(
+        "wt-A", wc, with_initial_condition=True, with_one_step=True
+    )
+    wt2 = _make_workflow_template(
+        "wt-B", wc, with_initial_condition=False, with_one_step=False
+    )
 
     wc.workflow_templates = [wt1, wt2]
     wc.templates = [wt1, wt2]
@@ -143,7 +161,17 @@ def test_workflow_classification_marshal_includes_templates_with_shallow():
 
     # Template A (has initial condition, steps omitted due to shallow=True)
     tA = next(t for t in out["workflow_templates"] if t["id"] == "wt-A")
-    for k in ("id", "name", "description", "archived", "date_created", "last_edited", "version", "starting_step_id", "classification"):
+    for k in (
+        "id",
+        "name",
+        "description",
+        "archived",
+        "date_created",
+        "last_edited",
+        "version",
+        "starting_step_id",
+        "classification",
+    ):
         assert k in tA
     assert "_private" not in tA
     assert "steps" not in tA

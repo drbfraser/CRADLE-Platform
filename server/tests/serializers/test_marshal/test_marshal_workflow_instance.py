@@ -1,18 +1,15 @@
 # ruff: noqa: SLF001
 import data.marshal as m
 from models import (
+    FormClassificationOrm,
+    FormOrm,
+    RuleGroupOrm,
     WorkflowInstanceOrm,
     WorkflowInstanceStepOrm,
-    FormOrm,
-    FormClassificationOrm,
-    RuleGroupOrm,
 )
 
+
 def _make_min_form(form_id: str, fc_id: str, fc_name: str = "Clinical") -> FormOrm:
-    """
-    Minimal but realistic FormOrm that __marshal_form(..., shallow=True) can serialize.
-    Includes a FormClassification and an empty questions list.
-    """
     f = FormOrm()
     f.id = form_id
     f.name = "ANC Intake"
@@ -59,11 +56,11 @@ def test_workflow_instance_marshal_full_includes_steps_and_cleans_nested():
     wi.start_date = 1_690_000_000
     wi.current_step_id = "wis-101"
     wi.last_edited = 1_690_000_050
-    wi.completion_date = None            
+    wi.completion_date = None
     wi.status = "Active"
-    wi.workflow_template_id = "wt-001"    
-    wi.patient_id = "p-123"              
-    wi._secret = "nope"                 
+    wi.workflow_template_id = "wt-001"
+    wi.patient_id = "p-123"
+    wi._secret = "nope"
 
     # Step 1 (has form + condition)
     s1 = WorkflowInstanceStepOrm()
@@ -73,13 +70,13 @@ def test_workflow_instance_marshal_full_includes_steps_and_cleans_nested():
     s1.start_date = 1_690_000_100
     s1.last_edited = 1_690_000_110
     s1.status = "Active"
-    s1.data = '{"note":"patient anxious"}'       
-    s1.workflow_instance_id = wi.id             
+    s1.data = '{"note":"patient anxious"}'
+    s1.workflow_instance_id = wi.id
     s1.form_id = "f-10"
     s1.form = _make_min_form("f-10", "fc-1")
     s1.condition_id = "rg-1"
     s1.condition = _make_condition("rg-1")
-    s1._debug = "nope"                            
+    s1._debug = "nope"
 
     # Step 2 (no form, no condition; many Nones should be stripped)
     s2 = WorkflowInstanceStepOrm()
@@ -121,7 +118,15 @@ def test_workflow_instance_marshal_full_includes_steps_and_cleans_nested():
     stepB = next(s for s in out["steps"] if s["id"] == "wis-102")
 
     # Step A: has form & condition
-    for k in ("id", "name", "description", "start_date", "last_edited", "status", "workflow_instance_id"):
+    for k in (
+        "id",
+        "name",
+        "description",
+        "start_date",
+        "last_edited",
+        "status",
+        "workflow_instance_id",
+    ):
         assert k in stepA
     assert stepA["workflow_instance_id"] == "wi-001"
     assert stepA["data"] == '{"note":"patient anxious"}'
@@ -141,7 +146,7 @@ def test_workflow_instance_marshal_full_includes_steps_and_cleans_nested():
     assert "classification" in f and isinstance(f["classification"], dict)
     fc = f["classification"]
     assert fc["id"] == "fc-1" and fc["name"] == "Clinical"
-    assert "templates" not in fc            # scrubbed by __marshal_form_classification
+    assert "templates" not in fc  # scrubbed by __marshal_form_classification
     assert all(not k.startswith("_") for k in fc)
 
     # Condition is present and cleaned
@@ -174,9 +179,9 @@ def test_workflow_instance_marshal_shallow_omits_steps_and_strips_none():
     wi.name = "Postnatal Care"
     wi.description = "PNC workflow for patient"
     wi.start_date = 1_700_000_000
-    wi.current_step_id = None          
+    wi.current_step_id = None
     wi.last_edited = 1_700_000_050
-    wi.completion_date = None      
+    wi.completion_date = None
     wi.status = "Active"
     wi.workflow_template_id = "wt-009"
     wi.patient_id = "p-999"

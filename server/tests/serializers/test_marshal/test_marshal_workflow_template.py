@@ -1,13 +1,13 @@
 # ruff: noqa: SLF001
 import data.marshal as m
 from models import (
-    WorkflowTemplateOrm,
-    WorkflowTemplateStepOrm,
-    WorkflowTemplateStepBranchOrm,
-    WorkflowClassificationOrm,
-    RuleGroupOrm,
-    FormTemplateOrm,
     FormClassificationOrm,
+    FormTemplateOrm,
+    RuleGroupOrm,
+    WorkflowClassificationOrm,
+    WorkflowTemplateOrm,
+    WorkflowTemplateStepBranchOrm,
+    WorkflowTemplateStepOrm,
 )
 
 
@@ -119,18 +119,41 @@ def test_workflow_template_marshal_full_embeds_classification_initial_condition_
 
     # initial condition
     wt.initial_condition_id = "rg-init"
-    wt.initial_condition = _make_condition("rg-init", rule={"any": []}, data_sources=[{"type": "patient"}])
+    wt.initial_condition = _make_condition(
+        "rg-init", rule={"any": []}, data_sources=[{"type": "patient"}]
+    )
 
     # steps
-    s1 = _make_step("wts-1", wt.id, form_template_id="ft-1", form_fc_id="fc-1",
-                    with_condition=True, with_branch_condition=True)
-    s2 = _make_step("wts-2", wt.id, form_template_id="ft-2", form_fc_id="fc-2",
-                    with_condition=False, with_branch_condition=False)
+    s1 = _make_step(
+        "wts-1",
+        wt.id,
+        form_template_id="ft-1",
+        form_fc_id="fc-1",
+        with_condition=True,
+        with_branch_condition=True,
+    )
+    s2 = _make_step(
+        "wts-2",
+        wt.id,
+        form_template_id="ft-2",
+        form_fc_id="fc-2",
+        with_condition=False,
+        with_branch_condition=False,
+    )
     wt.steps = [s1, s2]
 
     out = m.marshal(wt, shallow=False)
 
-    for key in ("id", "name", "description", "archived", "date_created", "last_edited", "version", "starting_step_id"):
+    for key in (
+        "id",
+        "name",
+        "description",
+        "archived",
+        "date_created",
+        "last_edited",
+        "version",
+        "starting_step_id",
+    ):
         assert key in out
     assert out["id"] == wt.id
     assert out["name"] == "ANC Workflow"
@@ -160,9 +183,17 @@ def test_workflow_template_marshal_full_embeds_classification_initial_condition_
     steps = {s["id"]: s for s in out["steps"]}
     assert set(steps.keys()) == {"wts-1", "wts-2"}
 
-    # Step 1 – has condition and two branches (first with condition)
+    # Step 1 - has condition and two branches (first with condition)
     step1 = steps["wts-1"]
-    for k in ("id", "name", "description", "last_edited", "workflow_template_id", "form", "branches"):
+    for k in (
+        "id",
+        "name",
+        "description",
+        "last_edited",
+        "workflow_template_id",
+        "form",
+        "branches",
+    ):
         assert k in step1
     assert step1["workflow_template_id"] == "wt-001"
     assert step1["expected_completion"] == 3600
@@ -184,12 +215,15 @@ def test_workflow_template_marshal_full_embeds_classification_initial_condition_
     b1 = {b["id"]: b for b in step1["branches"]}
     assert set(b1.keys()) == {"br-wts-1-1", "br-wts-1-2"}
     assert b1["br-wts-1-1"]["target_step_id"] == "next-1"
-    assert "condition" in b1["br-wts-1-1"] and b1["br-wts-1-1"]["condition"]["id"] == "rg-wts-1-b1"
+    assert (
+        "condition" in b1["br-wts-1-1"]
+        and b1["br-wts-1-1"]["condition"]["id"] == "rg-wts-1-b1"
+    )
     assert b1["br-wts-1-2"]["target_step_id"] == "next-2"
     # no condition for second branch
     assert "condition" not in b1["br-wts-1-2"]
 
-    # Step 2 – no step-level condition and branch conditions
+    # Step 2 - no step-level condition and branch conditions
     step2 = steps["wts-2"]
     assert "condition" not in step2  # None stripped
     b2 = {b["id"]: b for b in step2["branches"]}
@@ -228,7 +262,16 @@ def test_workflow_template_marshal_shallow_omits_steps_and_strips_nones():
 
     out = m.marshal(wt, shallow=True)
 
-    for k in ("id", "name", "description", "archived", "date_created", "last_edited", "version", "classification"):
+    for k in (
+        "id",
+        "name",
+        "description",
+        "archived",
+        "date_created",
+        "last_edited",
+        "version",
+        "classification",
+    ):
         assert k in out
     assert out["archived"] is True
     assert out["version"] == "v2"

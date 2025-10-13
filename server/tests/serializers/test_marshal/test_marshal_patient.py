@@ -3,14 +3,13 @@ import datetime as dt
 
 import pytest
 
-from models import PatientOrm, ReadingOrm
 from data import marshal as m
 from enums import SexEnum
+from models import PatientOrm, ReadingOrm
 
 
 @pytest.fixture
 def patient_orm():
-
     p = PatientOrm()
     p.id = "p-1"
     p.name = "Mary Brown"
@@ -41,7 +40,6 @@ def test_patient_shallow_sets_base_and_converts_types(patient_orm):
 
 
 def test_patient_non_shallow_includes_nested_lists(patient_orm):
-
     r = ReadingOrm()
     r.id = 1
     r.symptoms = None
