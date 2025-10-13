@@ -4,14 +4,16 @@ import datetime as dt
 from data import marshal as m
 from models import SmsSecretKeyOrm
 
+UTC = dt.timezone.utc
+
 
 def make_sms_secret_key(
     *,
     id_="ssk-001",
     user_id=777,
     secret_key="4e6f7264-53c7-4f31-9d5c-a65c0b1c9c2a",
-    stale_date=dt.datetime(2024, 1, 1, 9, 0, 0),
-    expiry_date=dt.datetime(2024, 1, 1, 10, 0, 0),
+    stale_date=dt.datetime(2024, 1, 1, 9, 0, 0, tzinfo=UTC),
+    expiry_date=dt.datetime(2024, 1, 1, 10, 0, 0, tzinfo=UTC),
 ):
     s = SmsSecretKeyOrm()
     s.id = id_
@@ -29,8 +31,8 @@ def test_sms_secret_key_marshal_includes_core_fields_and_no_relationships():
     and must NOT leak relationship objects (like 'user') or arbitrary attributes.
     It should preserve datetime objects (no string conversion in this implementation).
     """
-    stale = dt.datetime(2024, 6, 1, 8, 30, 0)
-    expiry = dt.datetime(2024, 6, 1, 9, 0, 0)
+    stale = dt.datetime(2024, 6, 1, 8, 30, 0, tzinfo=UTC)
+    expiry = dt.datetime(2024, 6, 1, 9, 0, 0, tzinfo=UTC)
     s = make_sms_secret_key(
         id_="ssk-prod-42",
         user_id=42,
