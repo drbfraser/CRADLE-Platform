@@ -554,6 +554,8 @@ def __marshal_workflow_instance(wi: WorkflowInstanceOrm, shallow: bool = False) 
 
     if not shallow:
         d["steps"] = [__marshal_workflow_instance_step(wis) for wis in wi.steps]
+    elif "steps" in d:
+        del d["steps"]
 
     return d
 
