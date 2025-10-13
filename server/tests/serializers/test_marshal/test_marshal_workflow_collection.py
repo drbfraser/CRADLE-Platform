@@ -1,8 +1,8 @@
 # ruff: noqa: SLF001
 import data.marshal as m
 from models import (
-    WorkflowCollectionOrm,
     WorkflowClassificationOrm,
+    WorkflowCollectionOrm,
     WorkflowTemplateOrm,
 )
 
@@ -21,7 +21,9 @@ def _make_template(tid: str) -> WorkflowTemplateOrm:
     return wt
 
 
-def _make_classification(cid: str, name: str, collection_id: str | None) -> WorkflowClassificationOrm:
+def _make_classification(
+    cid: str, name: str, collection_id: str | None
+) -> WorkflowClassificationOrm:
     wc = WorkflowClassificationOrm()
     wc.id = cid
     wc.name = name
@@ -36,7 +38,6 @@ def _make_classification(cid: str, name: str, collection_id: str | None) -> Work
     wc.workflow_templates = [wt1, wt2]
 
     return wc
-
 
 
 def test_workflow_collection_marshal_full_includes_classifications_and_cleans_nested():
@@ -84,7 +85,7 @@ def test_workflow_collection_marshal_full_includes_classifications_and_cleans_ne
 
     # private field stripped
     assert "_scratch" not in c1_out
-    
+
     # backref to templates removed by __marshal_workflow_classification
     assert "workflow_templates" not in c1_out
 

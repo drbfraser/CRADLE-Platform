@@ -1,11 +1,12 @@
 # ruff: noqa: SLF001
 import data.marshal as m
 from models import (
-    WorkflowInstanceStepOrm,
-    FormOrm,
     FormClassificationOrm,
+    FormOrm,
     RuleGroupOrm,
+    WorkflowInstanceStepOrm,
 )
+
 
 def _make_min_form(form_id: str, fc_id: str, fc_name: str = "Clinical") -> FormOrm:
     """
@@ -18,12 +19,11 @@ def _make_min_form(form_id: str, fc_id: str, fc_name: str = "Clinical") -> FormO
     form.id = form_id
     form.name = "ANC Intake"
     form.description = "Initial antenatal visit"
-    form._private = "nope"  
+    form._private = "nope"
 
     fc = FormClassificationOrm()
     fc.id = fc_id
     fc.name = fc_name
-    # Make sure a backref-like attribute wouldn't leak
     fc.templates = []  # __marshal_form_classification explicitly deletes this
     fc._ephemeral = "nope"
     form.classification = fc
@@ -62,13 +62,13 @@ def test_workflow_instance_step_marshal_full_includes_form_and_condition_and_str
     wis.start_date = 1_690_000_100
     wis.triggered_by = "wis-100"
     wis.last_edited = 1_690_000_200
-    wis.expected_completion = None      
-    wis.completion_date = 1_690_000_300 # kept
+    wis.expected_completion = None
+    wis.completion_date = 1_690_000_300  # kept
     wis.status = "Active"
     wis.data = '{"notes":"patient anxious"}'
     wis.workflow_instance_id = "wi-001"
-    wis.assigned_to = None              
-    wis._debug = "nope"                 
+    wis.assigned_to = None
+    wis._debug = "nope"
 
     # Attach form (shallow-marshaled)
     wis.form_id = "f-10"
@@ -96,9 +96,9 @@ def test_workflow_instance_step_marshal_full_includes_form_and_condition_and_str
     assert out["condition_id"] == "rg-200"
 
     # Stripped fields
-    assert "expected_completion" not in out       
-    assert "assigned_to" not in out               
-    assert "_debug" not in out                   
+    assert "expected_completion" not in out
+    assert "assigned_to" not in out
+    assert "_debug" not in out
 
     # Embedded form (shallow=True inside __marshal_workflow_instance_step)
     assert "form" in out and isinstance(out["form"], dict)
@@ -109,8 +109,8 @@ def test_workflow_instance_step_marshal_full_includes_form_and_condition_and_str
     fc = f["classification"]
     assert fc["id"] == "fc-1"
     assert fc["name"] == "Clinical"
-    assert "templates" not in fc                  # removed by __marshal_form_classification
-    assert all(not k.startswith("_") for k in fc) # no private attrs
+    assert "templates" not in fc  # removed by __marshal_form_classification
+    assert all(not k.startswith("_") for k in fc)  # no private attrs
     # questions are omitted because shallow=True for 'form'
     assert "questions" not in f
     # ensure no private attrs on form
@@ -138,14 +138,14 @@ def test_workflow_instance_step_marshal_handles_no_form_and_no_condition():
     wis.name = "Review labs"
     wis.description = "Check CBC and LFTs"
     wis.start_date = 1_700_000_000
-    wis.triggered_by = None                
+    wis.triggered_by = None
     wis.last_edited = 1_700_000_001
-    wis.expected_completion = None         
-    wis.completion_date = None             
+    wis.expected_completion = None
+    wis.completion_date = None
     wis.status = "Active"
-    wis.data = None                        
+    wis.data = None
     wis.workflow_instance_id = "wi-002"
-    wis.assigned_to = None                 
+    wis.assigned_to = None
     wis._temp = "nope"
 
     wis.form_id = None
@@ -166,11 +166,18 @@ def test_workflow_instance_step_marshal_handles_no_form_and_no_condition():
     assert out["workflow_instance_id"] == "wi-002"
 
     # Explicit behavior for absent relations
-    assert "condition" not in out          # not added at all
-    assert "condition_id" not in out       # None stripped by pre_process
-    assert "form_id" not in out            # None stripped by pre_process
+    assert "condition" not in out  # not added at all
+    assert "condition_id" not in out  # None stripped by pre_process
+    assert "form_id" not in out  # None stripped by pre_process
     assert "form" in out and out["form"] is None  # explicitly set by marshaller
 
     # Stripped scalars and private attrs
-    for k in ("triggered_by", "expected_completion", "completion_date", "data", "assigned_to", "_temp"):
+    for k in (
+        "triggered_by",
+        "expected_completion",
+        "completion_date",
+        "data",
+        "assigned_to",
+        "_temp",
+    ):
         assert k not in out
