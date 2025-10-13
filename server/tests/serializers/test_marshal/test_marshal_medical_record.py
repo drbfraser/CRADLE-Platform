@@ -13,7 +13,7 @@ def make_medical_record(
     last_edited=1577923200,  # 2020-01-02
 ):
     mr = MedicalRecordOrm()
-    mr.id = id_
+    mr.id = id_  
     mr.patient_id = patient_id
     mr.information = information
     mr.is_drug_record = is_drug_record
