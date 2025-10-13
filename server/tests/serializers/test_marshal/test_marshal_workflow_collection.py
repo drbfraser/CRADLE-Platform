@@ -1,4 +1,6 @@
 # ruff: noqa: SLF001
+from __future__ import annotations
+
 import data.marshal as m
 from models import (
     WorkflowClassificationOrm,
