@@ -40,9 +40,9 @@ def test_medical_record_medical_path_maps_information_to_medical_history_only():
     assert out["date_created"] == 1577836800
     assert out["last_edited"] == 1577923200
     assert out["medical_history"] == "Asthma (childhood)"
-    assert "drug_history" not in out, (
-        "drug_history must not be present for non-drug records"
-    )
+    assert (
+        "drug_history" not in out
+    ), "drug_history must not be present for non-drug records"
 
 
 def test_medical_record_drug_path_maps_information_to_drug_history_only():
@@ -62,9 +62,9 @@ def test_medical_record_drug_path_maps_information_to_drug_history_only():
     }
 
     assert out["drug_history"] == "Amoxicillin 500mg BID x7d"
-    assert "medical_history" not in out, (
-        "medical_history must not be present for drug records"
-    )
+    assert (
+        "medical_history" not in out
+    ), "medical_history must not be present for drug records"
 
 
 def test_medical_record_keeps_empty_information_string():
