@@ -49,7 +49,7 @@ def test_medical_record_drug_path_maps_information_to_drug_history_only():
     """When is_drug_record=True, marshal must emit drug_history and NOT medical_history."""
     mr = make_medical_record(
         is_drug_record=True,
-        information="Amoxicillin 500mg BID ×7d",
+        information="Amoxicillin 500mg BID x7d",
     )
     out = m.marshal(mr)
 
@@ -61,7 +61,7 @@ def test_medical_record_drug_path_maps_information_to_drug_history_only():
         "drug_history",
     }
 
-    assert out["drug_history"] == "Amoxicillin 500mg BID ×7d"
+    assert out["drug_history"] == "Amoxicillin 500mg BID x7d"
     assert "medical_history" not in out, (
         "medical_history must not be present for drug records"
     )
