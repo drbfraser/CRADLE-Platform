@@ -190,12 +190,12 @@ def test_form_template_propagates_if_include_versions_to_questions():
     assert {lv["lang"] for lv in lvs} == {"en", "fr"}
 
     # en: mc_options removed when "[]"
-    en_out = next(l for l in lvs if l["lang"] == "en")
+    en_out = next(item for item in lvs if item["lang"] == "en")
     assert "mc_options" not in en_out
     assert en_out["question_text"] == "BP?"
 
     # fr: mc_options parsed to list
-    fr_out = next(l for l in lvs if l["lang"] == "fr")
+    fr_out = next(item for item in lvs if item["lang"] == "fr")
     assert fr_out["mc_options"] == ["Oui", "Non"]
     assert fr_out["question_text"] == "TA?"
 
