@@ -5,6 +5,7 @@ Unit tests for Rule Engine
 from service.workflow.evaluate.rules_engine import (
     RulesEngineFacade,
     evaluate_branches,
+    RuleStatus,
 )
 
 
@@ -16,7 +17,7 @@ class TestRuleEvaluator:
         engine = RulesEngineFacade(rule, {})
         result = engine.evaluate(data)
 
-        assert result.status == "TRUE"
+        assert result.status == RuleStatus.TRUE
         assert result.value == True
         assert len(result.missing_variables) == 0
 
@@ -27,7 +28,7 @@ class TestRuleEvaluator:
         engine = RulesEngineFacade(rule, {})
         result = engine.evaluate(data)
 
-        assert result.status == "FALSE"
+        assert result.status == RuleStatus.FALSE
         assert result.value == False
         assert len(result.missing_variables) == 0
 
@@ -38,7 +39,7 @@ class TestRuleEvaluator:
         engine = RulesEngineFacade(rule, {})
         result = engine.evaluate(data)
 
-        assert result.status == "NOT_ENOUGH_DATA"
+        assert result.status == RuleStatus.NOT_ENOUGH_DATA
         assert "age" in result.missing_variables
 
     def test_evaluate_rule_with_null_value(self):
@@ -48,7 +49,7 @@ class TestRuleEvaluator:
         engine = RulesEngineFacade(rule, {})
         result = engine.evaluate(data)
 
-        assert result.status == "NOT_ENOUGH_DATA"
+        assert result.status == RuleStatus.NOT_ENOUGH_DATA
         assert "age" in result.missing_variables
 
     def test_evaluate_complex_rule(self):
@@ -58,7 +59,7 @@ class TestRuleEvaluator:
         engine = RulesEngineFacade(rule, {})
         result = engine.evaluate(data)
 
-        assert result.status == "TRUE"
+        assert result.status == RuleStatus.TRUE
 
     def test_evaluate_complex_rule_partial_data(self):
         rule = '{"and": [{">=": [{"var": "age"}, 18]}, {"==": [{"var": "status"}, "active"]}]}'
@@ -67,7 +68,7 @@ class TestRuleEvaluator:
         engine = RulesEngineFacade(rule, {})
         result = engine.evaluate(data)
 
-        assert result.status == "NOT_ENOUGH_DATA"
+        assert result.status == RuleStatus.NOT_ENOUGH_DATA
         assert "status" in result.missing_variables
 
     def test_evaluate_with_datasources(self):
@@ -78,7 +79,64 @@ class TestRuleEvaluator:
         engine = RulesEngineFacade(rule, datasources)
         result = engine.evaluate(data)
 
-        assert result.status == "TRUE"
+        assert result.status == RuleStatus.TRUE
+
+    def test_evaluate_dollar_sign_in_value(self):
+        rule = '{"==": [{"var": "$price"}, "$100"]}'
+        datasources = {"$price": "$100"}  
+        data = {}
+
+        engine = RulesEngineFacade(rule, datasources)
+        result = engine.evaluate(data)
+
+        assert result.status == RuleStatus.TRUE
+        assert result.value == True
+
+    def test_evaluate_dollar_sign_complex(self):
+        rule = '{"and": [{"==": [{"var": "$patient.name"}, "John"]}, {">=": [{"var": "$patient.balance"}, "$1000"]}]}'
+        datasources = {
+            "$patient.name": "John",
+            "$patient.balance": "$1000"  
+        }
+        data = {}
+
+        engine = RulesEngineFacade(rule, datasources)
+        result = engine.evaluate(data)
+
+        assert result.status == RuleStatus.TRUE
+
+    def test_evaluate_type_mismatch_string_instead_of_number(self):
+        rule = '{"==": [{"var": "age"}, 18]}'
+        data = {"age": "abc"} 
+
+        engine = RulesEngineFacade(rule, {})
+        result = engine.evaluate(data)
+
+        assert result.status == RuleStatus.FALSE
+        assert result.value == False
+
+    def test_evaluate_type_mismatch_string_number(self):
+        rule = '{"==": [{"var": "age"}, 18]}'
+        data = {"age": "18"}  
+
+        engine = RulesEngineFacade(rule, {})
+        result = engine.evaluate(data)
+
+        # JsonLogic DOES type coercion for ==
+        assert result.status == RuleStatus.TRUE
+        assert result.value == True
+
+    def test_evaluate_strict_equality_no_type_coercion(self):
+        """Test strict equality without type coercion using ==="""
+        rule = '{"===": [{"var": "age"}, 18]}'
+        data = {"age": "18"} 
+
+        engine = RulesEngineFacade(rule, {})
+        result = engine.evaluate(data)
+
+        # Strict equality: "18" !== 18
+        assert result.status == RuleStatus.FALSE
+        assert result.value == False
 
 
 class TestEvaluateBranches:
@@ -93,7 +151,7 @@ class TestEvaluateBranches:
 
         result = evaluate_branches(branches, data)
 
-        assert result["status"] == "TRUE"
+        assert result["status"] == RuleStatus.TRUE
         assert result["branch"]["id"] == "A"
 
     def test_second_branch_true(self):
@@ -105,7 +163,7 @@ class TestEvaluateBranches:
 
         result = evaluate_branches(branches, data)
 
-        assert result["status"] == "TRUE"
+        assert result["status"] == RuleStatus.TRUE
         assert result["branch"]["id"] == "B"
 
     def test_not_enough_data_stops_evaluation(self):
@@ -121,7 +179,7 @@ class TestEvaluateBranches:
 
         result = evaluate_branches(branches, data)
 
-        assert result["status"] == "NOT_ENOUGH_DATA"
+        assert result["status"] == RuleStatus.NOT_ENOUGH_DATA
         assert "missing" in result["missing_variables"]
 
     def test_no_branches_match(self):
@@ -133,7 +191,7 @@ class TestEvaluateBranches:
 
         result = evaluate_branches(branches, data)
 
-        assert result["status"] == "NO_MATCH"
+        assert result["status"] == RuleStatus.NO_MATCH
 
     def test_branches_with_datasources(self):
         branches = [
@@ -148,5 +206,6 @@ class TestEvaluateBranches:
 
         result = evaluate_branches(branches, data, datasources)
 
-        assert result["status"] == "TRUE"
+        assert result["status"] == RuleStatus.TRUE
         assert result["branch"]["id"] == "A"
+        

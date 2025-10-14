@@ -1,5 +1,6 @@
 import json
-from typing import Any, Dict, Set
+from enum import Enum
+from typing import Any, Dict, List, Set
 
 from json_logic import jsonLogic
 
@@ -8,8 +9,22 @@ from service.workflow.evaluate.jsonlogic_parser import (
 )
 
 
+class RuleStatus(str, Enum):
+    """Possible status values for rule and branch evaluation"""
+    TRUE = "TRUE"
+    FALSE = "FALSE"
+    NOT_ENOUGH_DATA = "NOT_ENOUGH_DATA"
+    NO_MATCH = "NO_MATCH"
+
+
 def _flatten_to_nested(flat_dict: Dict[str, Any]) -> Dict[str, Any]:
-    """Convert flat dict with dot notation to nested dict"""
+    """Convert flat dict with dot notation to nested dict
+
+    Examples:
+        Input:  {"patient.age": 25, "patient.name": "John"}
+        Output: {"patient": {"age": 25, "name": "John"}}
+    
+    """
     nested = {}
     for key, value in flat_dict.items():
         parts = key.split(".")
@@ -22,11 +37,43 @@ def _flatten_to_nested(flat_dict: Dict[str, Any]) -> Dict[str, Any]:
     return nested
 
 
+def _strip_dollar_from_vars(rule: Any) -> Any:
+    """
+    Recursively strip $ only from var operator values, not from other values.
+    
+    Examples:
+        {"==": [{"var": "$price"}, "$100"]} → {"==": [{"var": "price"}, "$100"]}
+        {"and": [{"var": "$x"}, {"var": "$y"}]} → {"and": [{"var": "x"}, {"var": "y"}]}
+    """
+    if isinstance(rule, dict):
+        result = {}
+        for key, value in rule.items():
+            if key == "var":
+                if isinstance(value, str) and value.startswith("$"):
+                    result[key] = value.lstrip("$")
+                elif isinstance(value, list) and len(value) > 0:
+                    if isinstance(value[0], str) and value[0].startswith("$"):
+                        result[key] = [value[0].lstrip("$")] + value[1:]
+                    else:
+                        result[key] = value
+                else:
+                    result[key] = value
+            else:
+                result[key] = _strip_dollar_from_vars(value)
+        return result
+    
+    elif isinstance(rule, list):
+        return [_strip_dollar_from_vars(item) for item in rule]
+    
+    else:
+        return rule
+
+
 class RuleEvaluationResult:
     """Result of evaluating a rule"""
 
     def __init__(
-        self, status: str, value: Any = None, missing_variables: Set[str] = None
+        self, status: RuleStatus, value: Any = None, missing_variables: Set[str] = None
     ):
         self.status = status
         self.value = value
@@ -47,7 +94,7 @@ class RulesEngineFacade:
         :returns: an instance of RulesEngineFacade
         :rtype: RulesEngineFacade
         """
-        self.__rules_engine = RulesEngineImpl(rule, args)
+        self._rules_engine = RulesEngineImpl(rule, args)
 
     def evaluate(self, input: Dict[str, Any]) -> RuleEvaluationResult:
         """
@@ -57,7 +104,7 @@ class RulesEngineFacade:
         :returns: RuleEvaluationResult with status and value
         :rtype: RuleEvaluationResult
         """
-        return self.__rules_engine.evaluate(input)
+        return self._rules_engine.evaluate(input)
 
 
 class RulesEngineImpl:
@@ -71,9 +118,9 @@ class RulesEngineImpl:
 
     def __init__(self, rule: str, args: Dict[str, Any]):
         self.args: Dict[str, Any] = args
-        self.rule = self.__parse_rules(rule)
+        self.rule = self._parse_rules(rule)
 
-    def __parse_rules(self, rule: str) -> Dict:
+    def _parse_rules(self, rule: str) -> Dict[str, Any]:
         """
         Attempt to deserialize a rule string into a rule object ready for evaluation
 
@@ -88,7 +135,7 @@ class RulesEngineImpl:
         except json.JSONDecodeError as e:
             raise ValueError(f"Invalid JSON in rule: {e}")
 
-    def evaluate(self, input: Dict) -> RuleEvaluationResult:
+    def evaluate(self, input: Dict[str, Any]) -> RuleEvaluationResult:
         """
         Evaluate a parsed rule and given input
 
@@ -100,9 +147,7 @@ class RulesEngineImpl:
 
         cleaned_data = {k.lstrip("$"): v for k, v in all_data.items()}
 
-        rule_str = json.dumps(self.rule)
-        cleaned_rule_str = rule_str.replace('"$', '"')
-        cleaned_rule = json.loads(cleaned_rule_str)
+        cleaned_rule = _strip_dollar_from_vars(self.rule)
 
         nested_data = _flatten_to_nested(cleaned_data)
 
@@ -125,17 +170,17 @@ class RulesEngineImpl:
 
         if missing_vars:
             return RuleEvaluationResult(
-                status="NOT_ENOUGH_DATA", missing_variables=missing_vars
+                status=RuleStatus.NOT_ENOUGH_DATA, missing_variables=missing_vars
             )
 
         result = jsonLogic(cleaned_rule, nested_data)
 
-        status = "TRUE" if result else "FALSE"
+        status = RuleStatus.TRUE if result else RuleStatus.FALSE
         return RuleEvaluationResult(status=status, value=result)
 
 
 def evaluate_branches(
-    branches: list, data: Dict[str, Any], datasources: Dict[str, Any] = None
+    branches: List[Dict[str, Any]], data: Dict[str, Any], datasources: Dict[str, Any] = None
 ) -> Dict[str, Any]:
     """
     Evaluate multiple branches with short-circuit logic.
@@ -154,13 +199,13 @@ def evaluate_branches(
         facade = RulesEngineFacade(rule, datasources)
         result = facade.evaluate(data)
 
-        if result.status == "NOT_ENOUGH_DATA":
+        if result.status == RuleStatus.NOT_ENOUGH_DATA:
             return {
-                "status": "NOT_ENOUGH_DATA",
+                "status": RuleStatus.NOT_ENOUGH_DATA,
                 "missing_variables": result.missing_variables,
             }
 
-        if result.status == "TRUE":
-            return {"status": "TRUE", "branch": branch}
+        if result.status == RuleStatus.TRUE:
+            return {"status": RuleStatus.TRUE, "branch": branch}
 
-    return {"status": "NO_MATCH", "message": "No branches matched"}
+    return {"status": RuleStatus.NO_MATCH}
