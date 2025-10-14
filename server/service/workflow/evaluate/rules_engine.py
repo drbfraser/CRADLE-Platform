@@ -11,6 +11,7 @@ from service.workflow.evaluate.jsonlogic_parser import (
 
 class RuleStatus(str, Enum):
     """Possible status values for rule and branch evaluation"""
+
     TRUE = "TRUE"
     FALSE = "FALSE"
     NOT_ENOUGH_DATA = "NOT_ENOUGH_DATA"
@@ -18,12 +19,13 @@ class RuleStatus(str, Enum):
 
 
 def _flatten_to_nested(flat_dict: Dict[str, Any]) -> Dict[str, Any]:
-    """Convert flat dict with dot notation to nested dict
+    """
+    Convert flat dict with dot notation to nested dict
 
     Examples:
         Input:  {"patient.age": 25, "patient.name": "John"}
         Output: {"patient": {"age": 25, "name": "John"}}
-    
+
     """
     nested = {}
     for key, value in flat_dict.items():
@@ -40,10 +42,11 @@ def _flatten_to_nested(flat_dict: Dict[str, Any]) -> Dict[str, Any]:
 def _strip_dollar_from_vars(rule: Any) -> Any:
     """
     Recursively strip $ only from var operator values, not from other values.
-    
+
     Examples:
         {"==": [{"var": "$price"}, "$100"]} → {"==": [{"var": "price"}, "$100"]}
         {"and": [{"var": "$x"}, {"var": "$y"}]} → {"and": [{"var": "x"}, {"var": "y"}]}
+
     """
     if isinstance(rule, dict):
         result = {}
@@ -61,12 +64,11 @@ def _strip_dollar_from_vars(rule: Any) -> Any:
             else:
                 result[key] = _strip_dollar_from_vars(value)
         return result
-    
-    elif isinstance(rule, list):
+
+    if isinstance(rule, list):
         return [_strip_dollar_from_vars(item) for item in rule]
-    
-    else:
-        return rule
+
+    return rule
 
 
 class RuleEvaluationResult:
@@ -180,7 +182,9 @@ class RulesEngineImpl:
 
 
 def evaluate_branches(
-    branches: List[Dict[str, Any]], data: Dict[str, Any], datasources: Dict[str, Any] = None
+    branches: List[Dict[str, Any]],
+    data: Dict[str, Any],
+    datasources: Dict[str, Any] = None,
 ) -> Dict[str, Any]:
     """
     Evaluate multiple branches with short-circuit logic.

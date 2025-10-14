@@ -4,8 +4,8 @@ Unit tests for Rule Engine
 
 from service.workflow.evaluate.rules_engine import (
     RulesEngineFacade,
-    evaluate_branches,
     RuleStatus,
+    evaluate_branches,
 )
 
 
@@ -83,7 +83,7 @@ class TestRuleEvaluator:
 
     def test_evaluate_dollar_sign_in_value(self):
         rule = '{"==": [{"var": "$price"}, "$100"]}'
-        datasources = {"$price": "$100"}  
+        datasources = {"$price": "$100"}
         data = {}
 
         engine = RulesEngineFacade(rule, datasources)
@@ -94,10 +94,7 @@ class TestRuleEvaluator:
 
     def test_evaluate_dollar_sign_complex(self):
         rule = '{"and": [{"==": [{"var": "$patient.name"}, "John"]}, {">=": [{"var": "$patient.balance"}, "$1000"]}]}'
-        datasources = {
-            "$patient.name": "John",
-            "$patient.balance": "$1000"  
-        }
+        datasources = {"$patient.name": "John", "$patient.balance": "$1000"}
         data = {}
 
         engine = RulesEngineFacade(rule, datasources)
@@ -107,7 +104,7 @@ class TestRuleEvaluator:
 
     def test_evaluate_type_mismatch_string_instead_of_number(self):
         rule = '{"==": [{"var": "age"}, 18]}'
-        data = {"age": "abc"} 
+        data = {"age": "abc"}
 
         engine = RulesEngineFacade(rule, {})
         result = engine.evaluate(data)
@@ -117,7 +114,7 @@ class TestRuleEvaluator:
 
     def test_evaluate_type_mismatch_string_number(self):
         rule = '{"==": [{"var": "age"}, 18]}'
-        data = {"age": "18"}  
+        data = {"age": "18"}
 
         engine = RulesEngineFacade(rule, {})
         result = engine.evaluate(data)
@@ -129,7 +126,7 @@ class TestRuleEvaluator:
     def test_evaluate_strict_equality_no_type_coercion(self):
         """Test strict equality without type coercion using ==="""
         rule = '{"===": [{"var": "age"}, 18]}'
-        data = {"age": "18"} 
+        data = {"age": "18"}
 
         engine = RulesEngineFacade(rule, {})
         result = engine.evaluate(data)
@@ -208,4 +205,3 @@ class TestEvaluateBranches:
 
         assert result["status"] == RuleStatus.TRUE
         assert result["branch"]["id"] == "A"
-        
