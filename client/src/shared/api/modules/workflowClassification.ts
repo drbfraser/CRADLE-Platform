@@ -4,7 +4,7 @@ import { ID } from '../../constants';
 import {
   ClassificationInput,
   WorkflowClassification,
-} from '../../types/workflow/workflowTypes';
+} from '../../types/workflow/workflowApiTypes';
 
 // full path
 const CLASSIFICATIONS = EndpointEnum.WORKFLOW_CLASSIFICATIONS;

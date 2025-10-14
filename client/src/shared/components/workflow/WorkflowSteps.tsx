@@ -1,5 +1,5 @@
 import Box from '@mui/material/Box/Box';
-import { TemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowTypes';
+import { TemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
 import { ID } from 'src/shared/constants';
 import { WorkflowStep } from 'src/shared/components/workflow/WorkflowStep';
 

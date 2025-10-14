@@ -21,7 +21,7 @@ import { useQuery } from '@tanstack/react-query';
 import {
   TemplateStepWithFormAndIndex,
   WorkflowTemplate,
-} from 'src/shared/types/workflow/workflowTypes';
+} from 'src/shared/types/workflow/workflowApiTypes';
 import { getTemplateWithStepsAndClassification } from 'src/shared/api/modules/workflowTemplates';
 import { WorkflowMetadata } from '../../../shared/components/workflow/workflowTemplate/WorkflowMetadata';
 import { WorkflowSteps } from 'src/shared/components/workflow/WorkflowSteps';

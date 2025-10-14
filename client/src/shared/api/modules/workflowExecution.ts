@@ -6,7 +6,7 @@ import {
   WorkflowInstanceStep,
   TemplateStepBranch,
   InstanceInput,
-} from '../../types/workflow/workflowTypes';
+} from '../../types/workflow/workflowApiTypes';
 
 // Add this to your EndpointEnum: WORKFLOW_EXECUTION = '/workflow/execution'
 const WORKFLOW_EXECUTION = EndpointEnum.WORKFLOW_EXECUTION;

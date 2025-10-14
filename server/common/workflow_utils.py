@@ -73,12 +73,6 @@ def assign_step_ids(
 
     step_id = step["id"]
 
-    if step["condition"] is not None:
-        if step["condition"]["id"] is None or auto_assign_id:
-            step["condition"]["id"] = get_uuid()
-
-        step["condition_id"] = step["condition"]["id"]
-
     form_model = None
 
     if m is WorkflowTemplateStepOrm:
@@ -124,12 +118,6 @@ def assign_workflow_template_or_instance_ids(
             workflow["classification"]["id"] = get_uuid()
 
         workflow["classification_id"] = workflow["classification"]["id"]
-
-    if workflow.get("initial_condition") is not None:
-        if workflow["initial_condition"]["id"] is None or auto_assign_id:
-            workflow["initial_condition"]["id"] = get_uuid()
-
-        workflow["initial_condition_id"] = workflow["initial_condition"]["id"]
 
     # Assign IDs and workflow ID to steps
 
