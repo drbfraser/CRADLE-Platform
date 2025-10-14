@@ -71,7 +71,7 @@ def test_urine_tests_respects_shallow_toggle():
 
     # shallow=True: nested should NOT appear
     o_shallow = m.marshal(r, shallow=True)
-    assert "urine_tests" in o_shallow
+    assert "urine_tests" not in o_shallow
 
     # shallow=False: nested should appear and be marshalled
     o_deep = m.marshal(r, shallow=False)
