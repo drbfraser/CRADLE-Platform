@@ -237,11 +237,12 @@ def __marshal_reading(r: ReadingOrm, shallow) -> dict:
         d["symptoms"] = []
     if d.get("symptoms"):
         d["symptoms"] = d["symptoms"].split(",")
-    for rel in "urine_tests":
-        if rel in d:
-            del d[rel]
     if not shallow and r.urine_tests is not None:
         d["urine_tests"] = marshal(r.urine_tests)
+    else:
+        for rel in ["urine_tests"]:
+            if rel in d:
+                del d[rel]
     return d
 
 
