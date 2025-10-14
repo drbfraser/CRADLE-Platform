@@ -8,7 +8,6 @@ from typing_extensions import Self
 from common.commonUtil import get_current_time
 from enums import WorkflowStatusEnum
 from validation import CradleBaseModel
-from validation.rule_groups import RuleGroupModel
 from validation.workflow_models import (
     WorkflowClassificationModel,
     WorkflowCollectionModel,
@@ -45,8 +44,6 @@ class WorkflowTemplatePatchBody(CradleBaseModel):
     date_created: int = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
     version: str  # A new version is required
-    initial_condition_id: Optional[str] = None
-    initial_condition: Optional[RuleGroupModel] = None
     classification_id: Optional[str] = None
     classification: Optional[WorkflowClassificationModel] = None
     steps: Optional[list[WorkflowTemplateStepModel]] = None

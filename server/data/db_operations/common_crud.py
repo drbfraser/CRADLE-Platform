@@ -119,6 +119,7 @@ def update(m: Type[M], changes: dict, autocommit: bool = True, **kwargs):
                    query (e.g., ``patient_id="abc"``)
     :except sqlalchemy.orm.exc.MultipleResultsFound: If multiple models are found
     :return: The updated model
+    #FIXME This function doesn't return anything?
     """
     model = read(m, **kwargs)
 
