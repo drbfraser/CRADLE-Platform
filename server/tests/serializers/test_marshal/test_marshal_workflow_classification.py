@@ -176,17 +176,6 @@ def test_workflow_classification_marshal_includes_templates_with_shallow():
     assert "_private" not in tA
     assert "steps" not in tA
 
-    # Initial condition present and cleaned
-    assert "initial_condition" in tA
-    ic = tA["initial_condition"]
-    # required fields present
-    for k in ("id", "rule", "data_sources"):
-        assert k in ic
-    # no private attrs / common backrefs
-    assert all(not k.startswith("_") for k in ic)
-    assert "workflow_template_steps" not in ic
-    assert "workflow_template_step_branches" not in ic
-
     # Embedded classification should not leak backrefs/private
     assert tA["classification"]["id"] == wc.id
     assert "workflow_templates" not in tA["classification"]

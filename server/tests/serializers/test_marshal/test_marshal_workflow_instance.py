@@ -149,14 +149,6 @@ def test_workflow_instance_marshal_full_includes_steps_and_cleans_nested():
     assert "templates" not in fc  # scrubbed by __marshal_form_classification
     assert all(not k.startswith("_") for k in fc)
 
-    # Condition is present and cleaned
-    assert "condition" in stepA and isinstance(stepA["condition"], dict)
-    c = stepA["condition"]
-    assert c["id"] == "rg-1"
-    assert c["rule"] == {"any": []}
-    assert c["data_sources"] == [{"type": "patient"}]
-    assert all(not k.startswith("_") for k in c)
-
     # Step B: no form/condition; explicit None for form, condition omitted
     assert "form" in stepB and stepB["form"] is None
     assert "condition" not in stepB

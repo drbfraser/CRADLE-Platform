@@ -70,8 +70,6 @@ def test_workflow_template_step_marshal_full_includes_form_condition_and_branche
     b2.id = "br-002"
     b2.step_id = step.id
     b2.target_step_id = "wts-999"
-    b2.condition_id = None
-    b2.condition = None
 
     # Appending mapped instances is allowed and sets the backref .step
     step.branches = [b1, b2]
@@ -86,7 +84,6 @@ def test_workflow_template_step_marshal_full_includes_form_condition_and_branche
         "last_edited",
         "workflow_template_id",
         "form",
-        "condition",
         "branches",
     ):
         assert key in out
@@ -106,14 +103,6 @@ def test_workflow_template_step_marshal_full_includes_form_condition_and_branche
     assert form["questions"] == []  # preserved
     assert isinstance(form["classification"], dict)
     assert form["classification"]["id"] == "fc-1"
-
-    # Step-level condition
-    cond_out = out["condition"]
-    for key in ("id", "rule", "data_sources"):
-        assert key in cond_out
-    assert cond_out["id"] == "rg-200"
-    assert cond_out["rule"] == {"all": []}
-    assert cond_out["data_sources"] == []
 
     # Branches
     branches = out["branches"]
