@@ -24,33 +24,6 @@ export const saveFormTemplateWithFileAsync = async (file: File) => {
 export const saveFormTemplateAsync = async (
   formTemplate: FormTemplateWithQuestions
 ) => {
-  // const formTemplateData = {
-  //   classification: {
-  //     ...formTemplate.classification,
-  //   },
-  //   version: formTemplate.version,
-  //   questions: formTemplate.questions.map((q, i) => ({
-  //     questionIndex: i,
-  //     questionType: q.questionType,
-  //     required: q.required,
-  //     allowPastDates: q.allowPastDates,
-  //     allowFutureDates: q.allowFutureDates,
-  //     categoryIndex: q.categoryIndex,
-  //     units: q.units,
-  //     numMin: q.numMin,
-  //     numMax: q.numMax,
-  //     stringMaxLength: q.stringMaxLength,
-  //     stringMaxLines: q.stringMaxLines,
-  //     visibleCondition: q.visibleCondition || [],
-  //     langVersions: q.langVersions.map((lv) => ({
-  //       lang: lv.lang,
-  //       questionText: lv.questionText,
-  //       mcOptions: lv.mcOptions || [],
-  //     })),
-  //     isBlank: true,
-  //   })),
-  // };
-
   // Sends FormTemplate to server via request body rather than as a file.
   return axiosFetch({
     method: 'POST',
