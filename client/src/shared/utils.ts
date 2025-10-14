@@ -231,7 +231,7 @@ export const getPrettyDateTime = (dateStr: number): string => {
   // * Auto-detect if timestamp is in seconds or milliseconds
   // Handle undefined or null input
   if (dateStr === undefined || dateStr === null) {
-      return 'N/A';
+    return 'N/A';
   }
   const timestampInMs =
     dateStr.toString().length <= 10 ? dateStr * 1000 : dateStr;

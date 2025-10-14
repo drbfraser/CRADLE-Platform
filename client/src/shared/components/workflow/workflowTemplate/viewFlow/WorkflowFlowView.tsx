@@ -32,7 +32,14 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
       <Grid container spacing={2} sx={{ height: '100%' }}>
         {/* Left side - Flow Diagram */}
         <Grid item xs={12} md={8} sx={{ height: '100%' }}>
-          <Paper sx={{ height: '100%', p: 1, overflow: 'hidden', border: '1px solid #e0e0e0', borderRadius: 1 }}>
+          <Paper
+            sx={{
+              height: '100%',
+              p: 1,
+              overflow: 'hidden',
+              border: '1px solid #e0e0e0',
+              borderRadius: 1,
+            }}>
             <Typography variant="h6" sx={{ mb: 2, px: 2 }}>
               Workflow Flow Diagram
             </Typography>

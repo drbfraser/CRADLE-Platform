@@ -105,7 +105,6 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
         const x = startX + index * HORIZONTAL_SPACING;
         const y = level * VERTICAL_SPACING;
 
-        console.log('node', stepId, x, y);
         stepPositions.set(stepId, { x, y });
       });
     });

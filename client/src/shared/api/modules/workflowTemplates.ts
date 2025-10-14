@@ -104,7 +104,7 @@ export const getTemplate = async (
     templatePath(templateId),
     { params }
   );
-  
+
   return response.data;
 };
 

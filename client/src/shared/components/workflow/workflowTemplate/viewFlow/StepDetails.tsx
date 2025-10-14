@@ -36,7 +36,6 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
 
       <Box sx={{ mb: 3 }}>
         <Stack spacing={1}>
-
           <Box>
             <Typography variant="body2" color="text.secondary">
               Step Name
