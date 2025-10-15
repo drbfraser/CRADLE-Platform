@@ -1,6 +1,9 @@
 import React from 'react';
-import { Box, Typography, Paper, Divider, Chip, Stack } from '@mui/material';
-import { TemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowTypes';
+import { Box, Typography, Paper, Divider, Stack } from '@mui/material';
+import {
+  TemplateStepWithFormAndIndex,
+  TemplateStepBranch,
+} from '../../../../types/workflow/workflowTypes';
 
 interface StepDetailsProps {
   selectedStep?: TemplateStepWithFormAndIndex;
@@ -84,29 +87,31 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
             Branches
           </Typography>
           <Stack spacing={1}>
-            {selectedStep.branches.map((branch, index) => {
-              const targetStep = steps.find(
-                (s) => s.id === branch.targetStepId
-              );
-              return (
-                <Box
-                  key={index}
-                  sx={{ p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    Branch {index + 1}
-                  </Typography>
-                  <Typography variant="body1">
-                    → {targetStep?.name || 'Unknown Step'}
-                  </Typography>
-                  {branch.condition && (
-                    <Typography variant="caption" color="text.secondary">
-                      {/*TODO: parse the raw condition string into a readable format*/}
-                      Condition: {JSON.stringify(branch.condition)}
+            {selectedStep.branches.map(
+              (branch: TemplateStepBranch, index: number) => {
+                const targetStep = steps.find(
+                  (s) => s.id === branch.targetStepId
+                );
+                return (
+                  <Box
+                    key={index}
+                    sx={{ p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Branch {index + 1}
                     </Typography>
-                  )}
-                </Box>
-              );
-            })}
+                    <Typography variant="body1">
+                      → {targetStep?.name || 'Unknown Step'}
+                    </Typography>
+                    {branch.condition && (
+                      <Typography variant="caption" color="text.secondary">
+                        {/*TODO: parse the raw condition string into a readable format*/}
+                        Condition: {JSON.stringify(branch.condition)}
+                      </Typography>
+                    )}
+                  </Box>
+                );
+              }
+            )}
           </Stack>
         </Box>
       )}

@@ -13,7 +13,10 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Box } from '@mui/material';
-import { TemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowTypes';
+import {
+  TemplateStepWithFormAndIndex,
+  TemplateStepBranch,
+} from '../../../../types/workflow/workflowTypes';
 import { FlowNode } from './FlowNode';
 import { ID } from 'src/shared/constants';
 
@@ -66,7 +69,7 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
 
       const step = steps.find((s) => s.id === stepId);
       if (step?.branches) {
-        step.branches.forEach((branch) => {
+        step.branches.forEach((branch: TemplateStepBranch) => {
           if (!visited.has(branch.targetStepId)) {
             queue.push({ stepId: branch.targetStepId, level: level + 1 });
           }
@@ -129,7 +132,7 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
     // Create edges
     steps.forEach((step) => {
       if (step.branches) {
-        step.branches.forEach((branch, index) => {
+        step.branches.forEach((branch: TemplateStepBranch, index: number) => {
           edges.push({
             id: `e-${step.id}-${branch.targetStepId}-${index}`,
             source: step.id,
