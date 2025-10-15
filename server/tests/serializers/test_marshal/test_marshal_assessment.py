@@ -106,20 +106,20 @@ def test_assessment_preserves_nonempty_text_and_true_boolean():
 
 
 def test_assessment_private_attrs_stripped_and_input_not_mutated():
-    a = make_assessment()
-    a._secret = "do-not-leak"  # should be removed by __pre_process
+    assesment = make_assessment()
+    assesment._secret = "do-not-leak"  # should be removed by __pre_process
 
-    p = PatientOrm()
-    p.id = "p-1"
-    u = UserOrm()
-    u.id = 101
-    a.patient = p
-    a.healthcare_worker = u
+    patient = PatientOrm()
+    patient.id = "p-1"
+    user = UserOrm()
+    user.id = 101
+    assesment.patient = patient
+    assesment.healthcare_worker = user
 
-    before_patient = a.patient
-    before_worker = a.healthcare_worker
+    before_patient = assesment.patient
+    before_worker = assesment.healthcare_worker
 
-    out = m.marshal(a)
+    out = m.marshal(assesment)
 
     # Private attr gone
     assert "_secret" not in out
@@ -129,8 +129,8 @@ def test_assessment_private_attrs_stripped_and_input_not_mutated():
     assert "healthcare_worker" not in out
 
     # …but original object remains intact (marshal works on a copy)
-    assert a.patient is before_patient
-    assert a.healthcare_worker is before_worker
+    assert assesment.patient is before_patient
+    assert assesment.healthcare_worker is before_worker
 
 
 def test_assessment_minimum_expected_keys_present():
