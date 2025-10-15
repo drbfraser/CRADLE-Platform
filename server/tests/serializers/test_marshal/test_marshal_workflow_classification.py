@@ -35,7 +35,7 @@ def _make_condition(rg_id: str, rule=None, data_sources=None) -> RuleGroupOrm:
     return rg
 
 
-def _make_step(
+def _make_workflow_template_step(
     step_id: str, template_id: str, form_template_id: str, form_fc_id: str
 ) -> WorkflowTemplateStepOrm:
     s = WorkflowTemplateStepOrm()
@@ -89,7 +89,7 @@ def _make_workflow_template(
         wt.initial_condition = None
 
     if with_one_step:
-        step = _make_step(
+        step = _make_workflow_template_step(
             step_id=f"wts-{wt_id}-1",
             template_id=wt.id,
             form_template_id=f"ft-{wt_id}-1",
