@@ -62,7 +62,7 @@ def test_assessment_strips_none_fields_but_preserves_false_boolean_and_scalars()
         diagnosis=None,
         treatment=None,
         medication_prescribed=None,
-        follow_up_needed=False,  # ensure False isn't stripped
+        follow_up_needed=False,
     )
 
     out = m.marshal(a)
