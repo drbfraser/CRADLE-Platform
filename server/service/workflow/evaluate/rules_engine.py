@@ -74,9 +74,7 @@ def _strip_dollar_from_vars(rule: Any) -> Any:
 class RuleEvaluationResult:
     """Result of evaluating a rule"""
 
-    def __init__(
-        self, status: RuleStatus, missing_variables: Set[str] = None
-    ):
+    def __init__(self, status: RuleStatus, missing_variables: Set[str] = None):
         self.status = status
         self.missing_variables = missing_variables or set()
 
