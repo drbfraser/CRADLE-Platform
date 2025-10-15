@@ -25,7 +25,7 @@ import {
 import { getTemplateWithStepsAndClassification } from 'src/shared/api/modules/workflowTemplates';
 import { WorkflowMetadata } from '../../../shared/components/workflow/workflowTemplate/WorkflowMetadata';
 import { WorkflowSteps } from 'src/shared/components/workflow/WorkflowSteps';
-import { WorkflowFlowView } from 'src/shared/components/workflow/workflowTemplate/viewFlow/WorkflowFlowView';
+import { WorkflowFlowView } from 'src/shared/components/workflow/workflowTemplate/WorkflowFlowView';
 import { useEditWorkflowTemplate } from './mutations';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 
