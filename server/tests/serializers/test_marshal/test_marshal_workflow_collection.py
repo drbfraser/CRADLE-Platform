@@ -9,7 +9,7 @@ from models import (
 )
 
 
-def _make_template(tid: str) -> WorkflowTemplateOrm:
+def _make_workflow_template(tid: str) -> WorkflowTemplateOrm:
     wt = WorkflowTemplateOrm()
     wt.id = tid
     wt.name = f"Template {tid}"
@@ -32,8 +32,8 @@ def _make_classification(
     wc.collection_id = collection_id
     wc._scratch = "nope"
 
-    wt1 = _make_template(f"{cid}-A")
-    wt2 = _make_template(f"{cid}-B")
+    wt1 = _make_workflow_template(f"{cid}-A")
+    wt2 = _make_workflow_template(f"{cid}-B")
 
     wt1.classification = wc
     wt2.classification = wc
