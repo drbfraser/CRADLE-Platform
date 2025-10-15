@@ -3,7 +3,7 @@ import { Box, Typography, Paper, Divider, Stack } from '@mui/material';
 import {
   TemplateStepWithFormAndIndex,
   TemplateStepBranch,
-} from '../../../../types/workflow/workflowTypes';
+} from 'src/shared/types/workflow/workflowTypes';
 
 interface StepDetailsProps {
   selectedStep?: TemplateStepWithFormAndIndex;
