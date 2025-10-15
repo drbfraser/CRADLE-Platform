@@ -75,10 +75,9 @@ class RuleEvaluationResult:
     """Result of evaluating a rule"""
 
     def __init__(
-        self, status: RuleStatus, value: Any = None, missing_variables: Set[str] = None
+        self, status: RuleStatus, missing_variables: Set[str] = None
     ):
         self.status = status
-        self.value = value
         self.missing_variables = missing_variables or set()
 
 
@@ -178,7 +177,7 @@ class RulesEngineImpl:
         result = jsonLogic(cleaned_rule, nested_data)
 
         status = RuleStatus.TRUE if result else RuleStatus.FALSE
-        return RuleEvaluationResult(status=status, value=result)
+        return RuleEvaluationResult(status=status)
 
 
 def evaluate_branches(

@@ -18,7 +18,6 @@ class TestRuleEvaluator:
         result = engine.evaluate(data)
 
         assert result.status == RuleStatus.TRUE
-        assert result.value == True
         assert len(result.missing_variables) == 0
 
     def test_evaluate_simple_rule_false(self):
@@ -29,7 +28,6 @@ class TestRuleEvaluator:
         result = engine.evaluate(data)
 
         assert result.status == RuleStatus.FALSE
-        assert result.value == False
         assert len(result.missing_variables) == 0
 
     def test_evaluate_rule_missing_data(self):
@@ -90,7 +88,6 @@ class TestRuleEvaluator:
         result = engine.evaluate(data)
 
         assert result.status == RuleStatus.TRUE
-        assert result.value == True
 
     def test_evaluate_dollar_sign_complex(self):
         rule = '{"and": [{"==": [{"var": "$patient.name"}, "John"]}, {">=": [{"var": "$patient.balance"}, "$1000"]}]}'
@@ -110,7 +107,6 @@ class TestRuleEvaluator:
         result = engine.evaluate(data)
 
         assert result.status == RuleStatus.FALSE
-        assert result.value == False
 
     def test_evaluate_type_mismatch_string_number(self):
         rule = '{"==": [{"var": "age"}, 18]}'
@@ -121,7 +117,6 @@ class TestRuleEvaluator:
 
         # JsonLogic DOES type coercion for ==
         assert result.status == RuleStatus.TRUE
-        assert result.value == True
 
     def test_evaluate_strict_equality_no_type_coercion(self):
         """Test strict equality without type coercion using ==="""
@@ -133,7 +128,6 @@ class TestRuleEvaluator:
 
         # Strict equality: "18" !== 18
         assert result.status == RuleStatus.FALSE
-        assert result.value == False
 
 
 class TestEvaluateBranches:
