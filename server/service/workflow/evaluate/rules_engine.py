@@ -38,6 +38,7 @@ def _flatten_to_nested(flat_dict: Dict[str, Any]) -> Dict[str, Any]:
         current[parts[-1]] = value
     return nested
 
+# TODO: Remove when $ is no longer used in variable names or datasource keys
 
 def _strip_dollar_from_vars(rule: Any) -> Any:
     """
