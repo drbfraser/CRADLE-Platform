@@ -70,7 +70,7 @@ class TestRuleEvaluator:
         assert "status" in result.missing_variables
 
     def test_evaluate_with_datasources(self):
-        rule = '{"==": [{"var": "$patient.age"}, 18]}'
+        rule = '{"==": [{"var": "patient.age"}, 18]}'
         datasources = {"$patient.age": 18}
         data = {}
 
@@ -80,7 +80,7 @@ class TestRuleEvaluator:
         assert result.status == RuleStatus.TRUE
 
     def test_evaluate_dollar_sign_in_value(self):
-        rule = '{"==": [{"var": "$price"}, "$100"]}'
+        rule = '{"==": [{"var": "price"}, "$100"]}'
         datasources = {"$price": "$100"}
         data = {}
 
@@ -90,7 +90,7 @@ class TestRuleEvaluator:
         assert result.status == RuleStatus.TRUE
 
     def test_evaluate_dollar_sign_complex(self):
-        rule = '{"and": [{"==": [{"var": "$patient.name"}, "John"]}, {">=": [{"var": "$patient.balance"}, "$1000"]}]}'
+        rule = '{"and": [{"==": [{"var": "patient.name"}, "John"]}, {">=": [{"var": "patient.balance"}, "$1000"]}]}'
         datasources = {"$patient.name": "John", "$patient.balance": "$1000"}
         data = {}
 
@@ -188,7 +188,7 @@ class TestEvaluateBranches:
         branches = [
             {
                 "id": "A",
-                "rule": '{">=": [{"var": "$patient.bp"}, 140]}',
+                "rule": '{">=": [{"var": "patient.bp"}, 140]}',
                 "target": "high_risk",
             },
         ]

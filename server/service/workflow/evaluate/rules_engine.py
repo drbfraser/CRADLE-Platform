@@ -38,39 +38,6 @@ def _flatten_to_nested(flat_dict: Dict[str, Any]) -> Dict[str, Any]:
         current[parts[-1]] = value
     return nested
 
-# TODO: Remove when $ is no longer used in variable names or datasource keys
-def _strip_dollar_from_vars(rule: Any) -> Any:
-    """
-    Recursively strip $ only from var operator values, not from other values.
-
-    Examples:
-        {"==": [{"var": "$price"}, "$100"]} → {"==": [{"var": "price"}, "$100"]}
-        {"and": [{"var": "$x"}, {"var": "$y"}]} → {"and": [{"var": "x"}, {"var": "y"}]}
-
-    """
-    if isinstance(rule, dict):
-        result = {}
-        for key, value in rule.items():
-            if key == "var":
-                if isinstance(value, str) and value.startswith("$"):
-                    result[key] = value.lstrip("$")
-                elif isinstance(value, list) and len(value) > 0:
-                    if isinstance(value[0], str) and value[0].startswith("$"):
-                        result[key] = [value[0].lstrip("$")] + value[1:]
-                    else:
-                        result[key] = value
-                else:
-                    result[key] = value
-            else:
-                result[key] = _strip_dollar_from_vars(value)
-        return result
-
-    if isinstance(rule, list):
-        return [_strip_dollar_from_vars(item) for item in rule]
-
-    return rule
-
-
 class RuleEvaluationResult:
     """Result of evaluating a rule"""
 
@@ -146,11 +113,9 @@ class RulesEngineImpl:
 
         cleaned_data = {k.lstrip("$"): v for k, v in all_data.items()}
 
-        cleaned_rule = _strip_dollar_from_vars(self.rule)
-
         nested_data = _flatten_to_nested(cleaned_data)
 
-        required_vars = extract_variables_from_rule(cleaned_rule)
+        required_vars = extract_variables_from_rule(self.rule)
 
         missing_vars = set()
         for var in required_vars:
@@ -172,7 +137,7 @@ class RulesEngineImpl:
                 status=RuleStatus.NOT_ENOUGH_DATA, missing_variables=missing_vars
             )
 
-        result = jsonLogic(cleaned_rule, nested_data)
+        result = jsonLogic(self.rule, nested_data)
 
         status = RuleStatus.TRUE if result else RuleStatus.FALSE
         return RuleEvaluationResult(status=status)
