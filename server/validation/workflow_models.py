@@ -47,8 +47,6 @@ class WorkflowTemplateStepModel(CradleBaseModel, extra="forbid"):
     expected_completion: Optional[int] = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
     form_id: Optional[str] = None
-    condition_id: Optional[str] = None
-    condition: Optional[RuleGroupModel] = None
     workflow_template_id: str
     # TODO: Account for different types of form template validators?
     form: Optional[FormTemplateUpload] = None
@@ -64,8 +62,6 @@ class WorkflowTemplateModel(CradleBaseModel, extra="forbid"):
     date_created: int = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
     version: str
-    initial_condition_id: Optional[str] = None
-    initial_condition: Optional[RuleGroupModel] = None
     classification_id: Optional[str] = None
     classification: Optional[WorkflowClassificationModel] = None
     steps: list[WorkflowTemplateStepModel]
@@ -92,8 +88,6 @@ class WorkflowInstanceStepModel(CradleBaseModel, extra="forbid"):
     form_id: Optional[str] = None
     form: Optional[FormModel] = None
     workflow_instance_id: str
-    condition_id: Optional[str] = None
-    condition: Optional[RuleGroupModel] = None
 
     @field_validator("data", mode="after")
     @classmethod

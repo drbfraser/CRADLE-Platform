@@ -244,7 +244,6 @@ def test_complete_workflow_instance_step(
 def workflow_template1(vht_user_id):
     template_id = get_uuid()
     classification_id = get_uuid()
-    init_condition_id = get_uuid()
     return {
         "id": template_id,
         "name": "workflow_example1",
@@ -253,12 +252,6 @@ def workflow_template1(vht_user_id):
         "date_created": get_current_time(),
         "last_edited": get_current_time() + 44345,
         "version": "0",
-        "initial_condition_id": init_condition_id,
-        "initial_condition": {
-            "id": init_condition_id,
-            "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
-            "data_sources": '["$patient.age"]',
-        },
         "classification_id": classification_id,
         "classification": {
             "id": classification_id,

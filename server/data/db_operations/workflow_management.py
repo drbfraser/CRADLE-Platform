@@ -24,7 +24,7 @@ What this module provides
 from typing import List, Optional, Type
 
 from data.db_operations import M, db_session
-from data.db_operations.common_crud import delete, delete_all, delete_by, read
+from data.db_operations.common_crud import delete, delete_by, read
 from enums import WorkflowStatusEnum
 from models import (
     FormClassificationOrm,
@@ -85,8 +85,6 @@ def delete_workflow_step(m: Type[M], **kwargs) -> None:
     elif isinstance(step, WorkflowInstanceStepOrm):
         delete_by(FormOrm, id=step.form_id)
 
-    delete_all(RuleGroupOrm, id=step.condition_id)
-
     delete(step)
 
 
@@ -105,8 +103,6 @@ def delete_workflow(m: Type[M], delete_classification: bool = False, **kwargs) -
         return
 
     if isinstance(workflow, WorkflowTemplateOrm):
-        delete_by(RuleGroupOrm, id=workflow.initial_condition_id)
-
         if delete_classification:
             delete_by(m=WorkflowClassificationOrm, id=workflow.classification_id)
             db_session.commit()

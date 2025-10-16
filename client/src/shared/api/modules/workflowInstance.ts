@@ -8,7 +8,7 @@ import {
   InstanceUpdate,
   WorkflowInstanceStep,
   InstanceStepUpdate,
-} from '../../types/workflow/workflowTypes';
+} from '../../types/workflow/workflowApiTypes';
 
 //full path
 const INSTANCES = EndpointEnum.WORKFLOW_INSTANCES;

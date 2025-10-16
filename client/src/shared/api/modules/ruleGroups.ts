@@ -3,7 +3,7 @@
 import { axiosFetch } from '../core/http';
 import { EndpointEnum } from 'src/shared/enums';
 import { ID } from '../../constants';
-import { RuleGroup } from '../../types/workflow/workflowTypes';
+import { RuleGroup } from '../../types/workflow/workflowApiTypes';
 
 const RULE_GROUPS = EndpointEnum.RULE_GROUPS;
 const ruleGroupPath = (id: ID) => `${RULE_GROUPS}/${id}`;
