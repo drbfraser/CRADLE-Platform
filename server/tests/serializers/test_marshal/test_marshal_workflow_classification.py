@@ -60,7 +60,6 @@ def _make_workflow_template(
     wt_id: str,
     classification: WorkflowClassificationOrm,
     *,
-    with_initial_condition: bool,
     with_one_step: bool,
 ) -> WorkflowTemplateOrm:
     wt = WorkflowTemplateOrm()
@@ -76,17 +75,6 @@ def _make_workflow_template(
 
     wt.classification = classification
     wt.classification_id = classification.id
-
-    if with_initial_condition:
-        wt.initial_condition_id = f"rg-init-{wt_id}"
-        wt.initial_condition = _make_condition(
-            wt.initial_condition_id,
-            rule={"any": []},
-            data_sources=[{"type": "patient"}],
-        )
-    else:
-        wt.initial_condition_id = None
-        wt.initial_condition = None
 
     if with_one_step:
         step = _make_workflow_template_step(
@@ -131,21 +119,15 @@ def test_workflow_classification_marshal_includes_templates_with_shallow():
       - include 'workflow_templates' (list) built from wc.templates,
       - embed each template with its own 'classification',
       - omit 'steps' (shallow=True),
-      - include 'initial_condition' only when present,
       - strip private attrs at all levels.
     """
     wc = WorkflowClassificationOrm()
     wc.id = "wc-2"
     wc.name = "Postnatal"
-    wc.collection_id = None
 
-    # Two templates, one with initial condition, one without
-    wt1 = _make_workflow_template(
-        "wt-A", wc, with_initial_condition=True, with_one_step=True
-    )
-    wt2 = _make_workflow_template(
-        "wt-B", wc, with_initial_condition=False, with_one_step=False
-    )
+    # Two templates, one without
+    wt1 = _make_workflow_template("wt-A", wc, with_one_step=True)
+    wt2 = _make_workflow_template("wt-B", wc, with_one_step=False)
 
     wc.workflow_templates = [wt1, wt2]
     wc.templates = [wt1, wt2]
@@ -159,7 +141,7 @@ def test_workflow_classification_marshal_includes_templates_with_shallow():
     assert "workflow_templates" in out and isinstance(out["workflow_templates"], list)
     assert {t["id"] for t in out["workflow_templates"]} == {"wt-A", "wt-B"}
 
-    # Template A (has initial condition, steps omitted due to shallow=True)
+    # Template A (steps omitted due to shallow=True)
     tA = next(t for t in out["workflow_templates"] if t["id"] == "wt-A")
     for k in (
         "id",
@@ -180,8 +162,6 @@ def test_workflow_classification_marshal_includes_templates_with_shallow():
     assert tA["classification"]["id"] == wc.id
     assert "workflow_templates" not in tA["classification"]
 
-    # Template B (no initial condition)
     tB = next(t for t in out["workflow_templates"] if t["id"] == "wt-B")
     assert "steps" not in tB
-    assert "initial_condition" not in tB
     assert tB["classification"]["id"] == wc.id

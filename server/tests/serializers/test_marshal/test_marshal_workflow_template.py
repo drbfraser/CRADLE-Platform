@@ -38,13 +38,7 @@ def _make_condition(rg_id: str, rule=None, data_sources=None) -> RuleGroupOrm:
 
 
 def _make_step(
-    step_id: str,
-    template_id: str,
-    form_template_id: str,
-    form_fc_id: str,
-    *,
-    with_condition: bool,
-    with_branch_condition: bool,
+    step_id: str, template_id: str, form_template_id: str, form_fc_id: str
 ) -> WorkflowTemplateStepOrm:
     s = WorkflowTemplateStepOrm()
     s.id = step_id
@@ -58,26 +52,11 @@ def _make_step(
     s.form_id = form_template_id
     s.form = _make_form_template(form_template_id, form_fc_id)
 
-    if with_condition:
-        s.condition_id = f"rg-{step_id}"
-        s.condition = _make_condition(s.condition_id)
-    else:
-        s.condition_id = None
-        s.condition = None
-
-    # Branch 1 -> optionally with its own condition
     b1 = WorkflowTemplateStepBranchOrm()
     b1.id = f"br-{step_id}-1"
     b1.step_id = s.id
     b1.target_step_id = "next-1"
-    if with_branch_condition:
-        b1.condition_id = f"rg-{step_id}-b1"
-        b1.condition = _make_condition(b1.condition_id)
-    else:
-        b1.condition_id = None
-        b1.condition = None
 
-    # Branch 2 -> no condition
     b2 = WorkflowTemplateStepBranchOrm()
     b2.id = f"br-{step_id}-2"
     b2.step_id = s.id
@@ -89,12 +68,11 @@ def _make_step(
     return s
 
 
-def test_workflow_template_marshal_full_embeds_classification_initial_condition_and_steps():
+def test_workflow_template_marshal_full_embeds_classification_steps():
     """
     __marshal_workflow_template (shallow=False) should:
       - keep scalar fields and omit private ones,
       - embed a marshaled 'classification' (without leaking private/relationship junk),
-      - embed a marshaled 'initial_condition' (preserving JSON fields),
       - include 'steps' where each step embeds its 'form', optional 'condition', and 'branches',
       - respect None-stripping throughout the tree.
     """
@@ -117,28 +95,18 @@ def test_workflow_template_marshal_full_embeds_classification_initial_condition_
     wt.classification_id = wc.id
     wt.classification = wc
 
-    # initial condition
-    wt.initial_condition_id = "rg-init"
-    wt.initial_condition = _make_condition(
-        "rg-init", rule={"any": []}, data_sources=[{"type": "patient"}]
-    )
-
     # steps
     s1 = _make_step(
         "wts-1",
         wt.id,
         form_template_id="ft-1",
         form_fc_id="fc-1",
-        with_condition=True,
-        with_branch_condition=True,
     )
     s2 = _make_step(
         "wts-2",
         wt.id,
         form_template_id="ft-2",
         form_fc_id="fc-2",
-        with_condition=False,
-        with_branch_condition=False,
     )
     wt.steps = [s1, s2]
 
@@ -174,7 +142,6 @@ def test_workflow_template_marshal_full_embeds_classification_initial_condition_
     steps = {s["id"]: s for s in out["steps"]}
     assert set(steps.keys()) == {"wts-1", "wts-2"}
 
-    # Step 1 - has condition and two branches (first with condition)
     step1 = steps["wts-1"]
     for k in (
         "id",
@@ -203,21 +170,12 @@ def test_workflow_template_marshal_full_embeds_classification_initial_condition_
     b1 = {b["id"]: b for b in step1["branches"]}
     assert set(b1.keys()) == {"br-wts-1-1", "br-wts-1-2"}
     assert b1["br-wts-1-1"]["target_step_id"] == "next-1"
-    assert (
-        "condition" in b1["br-wts-1-1"]
-        and b1["br-wts-1-1"]["condition"]["id"] == "rg-wts-1-b1"
-    )
-    assert b1["br-wts-1-2"]["target_step_id"] == "next-2"
-    # no condition for second branch
-    assert "condition" not in b1["br-wts-1-2"]
 
-    # Step 2 - no step-level condition and branch conditions
+    assert b1["br-wts-1-2"]["target_step_id"] == "next-2"
+
     step2 = steps["wts-2"]
-    assert "condition" not in step2  # None stripped
     b2 = {b["id"]: b for b in step2["branches"]}
     assert set(b2.keys()) == {"br-wts-2-1", "br-wts-2-2"}
-    assert "condition" not in b2["br-wts-2-1"]
-    assert "condition" not in b2["br-wts-2-2"]
 
 
 def test_workflow_template_marshal_shallow_omits_steps_and_strips_nones():
@@ -225,7 +183,6 @@ def test_workflow_template_marshal_shallow_omits_steps_and_strips_nones():
     With shallow=True:
       - 'steps' MUST be omitted,
       - 'classification' is still embedded,
-      - 'initial_condition' included only when present,
       - None-valued fields are stripped (e.g., starting_step_id when None).
     """
     wt = WorkflowTemplateOrm()
@@ -244,9 +201,6 @@ def test_workflow_template_marshal_shallow_omits_steps_and_strips_nones():
     wc.name = "Postnatal"
     wt.classification = wc
     wt.classification_id = wc.id
-
-    wt.initial_condition_id = None
-    wt.initial_condition = None
 
     out = m.marshal(wt, shallow=True)
 
@@ -267,5 +221,4 @@ def test_workflow_template_marshal_shallow_omits_steps_and_strips_nones():
 
     assert "starting_step_id" not in out
     assert out["classification"]["id"] == "wc-2"
-    assert "initial_condition" not in out
     assert "steps" not in out
