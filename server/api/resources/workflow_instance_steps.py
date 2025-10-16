@@ -23,6 +23,7 @@ from validation.workflow_api_models import (
     WorkflowInstanceStepModel,
     WorkflowInstanceStepUploadModel,
 )
+from validation.workflow_models import WorkflowInstanceStepUpdateModel
 
 
 # Create a response model for the list endpoints
@@ -142,12 +143,12 @@ def get_workflow_instance_step(path: WorkflowInstanceStepIdPath):
     return response_data, 200
 
 
-# /api/workflow/instance/steps/<string:workflow_instance_step_id> [PUT]
-@api_workflow_instance_steps.put(
+# /api/workflow/instance/steps/<string:workflow_instance_step_id> [PATCH]
+@api_workflow_instance_steps.patch(
     "/<string:workflow_instance_step_id>", responses={200: WorkflowInstanceStepModel}
 )
 def update_workflow_instance_step(
-    path: WorkflowInstanceStepIdPath, body: WorkflowInstanceStepModel
+    path: WorkflowInstanceStepIdPath, body: WorkflowInstanceStepUpdateModel
 ):
     """Update Workflow Instance Step"""
     instance_step = crud.read(
@@ -162,7 +163,7 @@ def update_workflow_instance_step(
             ),
         )
 
-    workflow_instance_step_changes = body.model_dump()
+    workflow_instance_step_changes = body.model_dump(exclude_unset=True)
     workflow_instance_step_changes["last_edited"] = get_current_time()
 
     # Validate that the workflow instance exists (if being updated)
@@ -213,11 +214,11 @@ def update_workflow_instance_step(
         id=path.workflow_instance_step_id,
     )
 
-    updated_instance_step = crud.read(
+    updated_instance_step_orm = crud.read(
         WorkflowInstanceStepOrm, id=path.workflow_instance_step_id
     )
 
-    updated_instance_step = marshal.marshal(updated_instance_step, shallow=True)
+    updated_instance_step = marshal.marshal(updated_instance_step_orm, shallow=True)
 
     return updated_instance_step, 200
 

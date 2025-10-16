@@ -101,7 +101,7 @@ function computeProgressAndEta(steps: InstanceStep[], now = new Date()) {
 }
 
 export function mapWorkflowStep(apiStep: WorkflowInstanceStep): InstanceStep {
-  var workflowInstanceStep : InstanceStep = {
+  var workflowInstanceStep: InstanceStep = {
     id: apiStep.id,
     title: apiStep.name,
     status: apiStep.status,
@@ -115,16 +115,15 @@ export function mapWorkflowStep(apiStep: WorkflowInstanceStep): InstanceStep {
       ? formatISODateNumber(apiStep.expectedCompletion)
       : null,
     // nextStep?: string;  // TODO: Not implemented in backend yet
-    formSubmitted: apiStep.completedFormId ? true : false
+    formSubmitted: apiStep.formId ? true : false,
   };
 
   if (apiStep.formTemplateId)
-    workflowInstanceStep.formTemplateId = apiStep.formTemplateId
+    workflowInstanceStep.formTemplateId = apiStep.formTemplateId;
 
-  if (apiStep.completedFormId)
-    workflowInstanceStep.completedFormId = apiStep.completedFormId
+  if (apiStep.formId) workflowInstanceStep.formId = apiStep.formId;
 
-  return workflowInstanceStep
+  return workflowInstanceStep;
 }
 
 export async function loadInstanceById(id: string): Promise<InstanceDetails> {
@@ -160,8 +159,8 @@ export async function loadInstanceById(id: string): Promise<InstanceDetails> {
 }
 
 function getWorkflowCurrentStep(instance: InstanceDetails) {
-  const steps  = instance.steps;
-  const currentStep = steps.find(step => step.status === StepStatus.ACTIVE);
+  const steps = instance.steps;
+  const currentStep = steps.find((step) => step.status === StepStatus.ACTIVE);
   return currentStep;
 }
 
@@ -255,7 +254,7 @@ export default function WorkflowInstanceDetailsPage() {
     message: '',
     onConfirm: () => {},
   });
-  const [formData, setFormData] = useState<CForm | null>(null);
+  const [formTemplate, setFormTemplate] = useState<CForm | null>(null);
 
   useEffect(() => {
     async function fetchInstance() {
@@ -297,30 +296,33 @@ export default function WorkflowInstanceDetailsPage() {
 
   const handleOpenForm = async () => {
     if (!currentStep) {
-      console.error("No current step available to open form.");
+      console.error('No current step available to open form.');
       return;
     }
 
     if (!currentStep.formTemplateId) {
-      console.error("No form associated with current step.");
+      console.error('No form associated with current step.');
       return;
     }
 
     try {
-      const formTemplateId = currentStep.formTemplateId
-      const formTemplate = await getFormTemplateLangAsync(formTemplateId, "English");
-      setFormData(formTemplate)
+      const formTemplateId = currentStep.formTemplateId;
+      const formTemplate = await getFormTemplateLangAsync(
+        formTemplateId,
+        'English'
+      );
+      setFormTemplate(formTemplate);
     } catch {
-      console.error("Error in getting form template");
+      console.error('Error in getting form template');
     }
 
     setOpenFormModal(true);
-  }
+  };
 
   const handleCloseForm = () => {
-    setFormData(null);
+    setFormTemplate(null);
     setOpenFormModal(false);
-  }
+  };
 
   return (
     <>
@@ -365,7 +367,11 @@ export default function WorkflowInstanceDetailsPage() {
                   size="small"
                   variant="outlined"
                   endIcon={
-                    openTemplateDetails ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />
+                    openTemplateDetails ? (
+                      <KeyboardArrowUpIcon />
+                    ) : (
+                      <KeyboardArrowDownIcon />
+                    )
                   }
                   onClick={() => setOpenTemplateDetails((v) => !v)}
                   sx={{ textTransform: 'none' }}>
@@ -402,38 +408,39 @@ export default function WorkflowInstanceDetailsPage() {
                 </Box>
               </Box>
             </Collapse>
-              {/* Section 2: Workflow Status */}
-              <WorkflowStatus
-                workflowInstance={workflowInstance}
-                progressInfo={progressInfo}
-              />
+            {/* Section 2: Workflow Status */}
+            <WorkflowStatus
+              workflowInstance={workflowInstance}
+              progressInfo={progressInfo}
+            />
 
-              {/* Section 3: Step history */}
-              <WorkflowStepHistory
-                workflowInstance={workflowInstance}
-                expandedStep={expandedStep}
-                setExpandedStep={setExpandedStep}
-                expandAll={expandAll}
-                setExpandAll={setExpandAll}
-                setConfirmDialog={setConfirmDialog}
-                handleMakeCurrent={handleMakeCurrent}
-                handleOpenForm = {handleOpenForm}
-                openFormModal = {openFormModal}
-                formData = {formData}
-                handleCloseForm = {handleCloseForm}
-              />
+            {/* Section 3: Step history */}
+            <WorkflowStepHistory
+              workflowInstance={workflowInstance}
+              expandedStep={expandedStep}
+              setExpandedStep={setExpandedStep}
+              expandAll={expandAll}
+              setExpandAll={setExpandAll}
+              setConfirmDialog={setConfirmDialog}
+              handleMakeCurrent={handleMakeCurrent}
+              handleOpenForm={handleOpenForm}
+              openFormModal={openFormModal}
+              formTemplate={formTemplate}
+              handleCloseForm={handleCloseForm}
+              currentStep={currentStep}
+            />
 
-              {/* Section 4: Possible Other Steps */}
-              <WorkflowPossibleSteps
-                workflowInstance={workflowInstance}
-                handleMakeCurrent={handleMakeCurrent}
-              />
+            {/* Section 4: Possible Other Steps */}
+            <WorkflowPossibleSteps
+              workflowInstance={workflowInstance}
+              handleMakeCurrent={handleMakeCurrent}
+            />
 
-              {/* Confirmation Dialog */}
-              <WorkflowConfirmDialog
-                confirmDialog={confirmDialog}
-                setConfirmDialog={setConfirmDialog}
-              />
+            {/* Confirmation Dialog */}
+            <WorkflowConfirmDialog
+              confirmDialog={confirmDialog}
+              setConfirmDialog={setConfirmDialog}
+            />
           </>
         )}
       </Paper>

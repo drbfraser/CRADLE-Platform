@@ -15,7 +15,10 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { IconButton } from '@mui/material';
 import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
-import { InstanceDetails, InstanceStep } from 'src/shared/types/workflow/workflowUiTypes';
+import {
+  InstanceDetails,
+  InstanceStep,
+} from 'src/shared/types/workflow/workflowUiTypes';
 import { formatWorkflowStepStatusText } from '../WorkflowUtils';
 import WorkflowFormModal from './WorkflowFormModal';
 import { CForm } from 'src/shared/types/form/formTypes';
@@ -36,9 +39,10 @@ export default function WorkflowStepHistory(props: {
   >;
   handleMakeCurrent: (stepId: string, title: string) => void;
   handleOpenForm: () => void;
-  openFormModal: boolean,
-  formData: CForm | null
+  openFormModal: boolean;
+  formTemplate: CForm | null;
   handleCloseForm: () => void;
+  currentStep: InstanceStep | null;
 }) {
   const {
     workflowInstance,
@@ -50,8 +54,9 @@ export default function WorkflowStepHistory(props: {
     handleMakeCurrent,
     handleOpenForm,
     openFormModal,
-    formData,
-    handleCloseForm
+    formTemplate,
+    handleCloseForm,
+    currentStep,
   } = props;
 
   // Callback functions
@@ -82,12 +87,10 @@ export default function WorkflowStepHistory(props: {
 
   const handleCompleteNow = React.useCallback((step: InstanceStep) => {
     console.log('Complete now for step:', step.id);
-    handleOpenForm()
+    handleOpenForm();
     // Retrieve related form
     // Pass to modal component?
     // Set form modal to open
-
-    
   }, []);
 
   const handleChangeExpectedCompletion = React.useCallback(
@@ -380,14 +383,15 @@ export default function WorkflowStepHistory(props: {
         </Paper>
       </Box>
 
-      {formData && 
-        <WorkflowFormModal 
+      {formTemplate && (
+        <WorkflowFormModal
+          currentStep={currentStep}
           openFormModal={openFormModal}
-          form={formData}
+          formTemplate={formTemplate}
           patientId={workflowInstance.patientId}
-          handleCloseForm = {handleCloseForm}
+          handleCloseForm={handleCloseForm}
         />
-      }
+      )}
     </>
   );
 }

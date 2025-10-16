@@ -33,7 +33,8 @@ interface IProps {
   fm: CForm;
   renderState: FormRenderStateEnum;
   isModalView?: boolean;
-  handleCloseModal?: () => void; 
+  handleCloseModal?: () => void;
+  customSubmitHandler?: (form: CForm, postBody: PostBody) => void;
 }
 
 export const CustomizedForm = ({
@@ -41,7 +42,8 @@ export const CustomizedForm = ({
   fm: form,
   renderState,
   isModalView = false,
-  handleCloseModal
+  handleCloseModal,
+  customSubmitHandler,
 }: IProps) => {
   const navigate = useNavigate();
   const [disableSubmit, setDisableSubmit] = useState(false);
@@ -71,12 +73,17 @@ export const CustomizedForm = ({
       patientId,
       renderState === FormRenderStateEnum.EDIT
     );
-    submitCustomForm.mutate(
-      { formId: form.id, postBody },
-      {
-        onSuccess: () => navigate(`/patients/${patientId}`),
-      }
-    );
+
+    if (customSubmitHandler) {
+      customSubmitHandler(form, postBody);
+    } else {
+      submitCustomForm.mutate(
+        { formId: form.id, postBody },
+        {
+          onSuccess: () => navigate(`/patients/${patientId}`),
+        }
+      );
+    }
   };
 
   let formTitle: string;
@@ -112,17 +119,15 @@ export const CustomizedForm = ({
         {() => (
           <Form>
             <Paper sx={{ p: 6, mt: 2 }}>
-              {isModalView && 
-                (<Box sx={{ position: 'relative' }}>
-                    <IconButton
-                      onClick={handleCloseModal}
-                      sx={{ position: "absolute", top: -30, right: -30 }}
-                    >
-                      <Close sx={{ color: red[500], fontSize: 30 }}/>
-                    
-                    </IconButton>
-                </Box>)
-              }
+              {isModalView && (
+                <Box sx={{ position: 'relative' }}>
+                  <IconButton
+                    onClick={handleCloseModal}
+                    sx={{ position: 'absolute', top: -30, right: -30 }}>
+                    <Close sx={{ color: red[500], fontSize: 30 }} />
+                  </IconButton>
+                </Box>
+              )}
               {renderState === FormRenderStateEnum.SUBMIT_TEMPLATE && (
                 <Grid container spacing={3}>
                   {/* This is redundant */}

@@ -82,7 +82,7 @@ export interface WorkflowInstanceStep {
   description: string;
   startDate: number;
   triggeredBy?: ID;
-  completedFormId?: Nullable<ID>
+  formId?: Nullable<ID>;
   formTemplateId?: ID;
   assignedTo?: ID;
   expectedCompletion?: Nullable<number>;
@@ -139,7 +139,12 @@ export type InstanceUpdate = Partial<
 export type InstanceStepUpdate = Partial<
   Pick<
     WorkflowInstanceStep,
-    'status' | 'completionDate' | 'assignedTo' | 'data' | 'lastUpdatedBy'
+    | 'status'
+    | 'completionDate'
+    | 'assignedTo'
+    | 'data'
+    | 'lastUpdatedBy'
+    | 'formId'
   >
 >;
 

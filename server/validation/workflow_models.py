@@ -125,6 +125,32 @@ class WorkflowInstanceStepModel(CradleBaseModel, extra="forbid"):
         return self
 
 
+class WorkflowInstanceStepUpdateModel(CradleBaseModel, extra="forbid"):
+    status: Optional[str] = None
+    completion_date: Optional[str] = None
+    assigned_to: Optional[str] = None
+    data: Optional[dict] = None
+    last_updated_by: Optional[str] = None
+    form_id: Optional[str] = None
+
+    @model_validator(mode="after")
+    def validate_atleast_one_field(self) -> Self:
+        if all(
+            getattr(self, field) is None
+            for field in [
+                "status",
+                "completion_date",
+                "assigned_to",
+                "data",
+                "last_updated_by",
+                "form_id",
+            ]
+        ):
+            raise ValueError("At least one field must be provided for update")
+
+        return self
+
+
 class WorkflowInstanceModel(CradleBaseModel, extra="forbid"):
     id: str
     name: str

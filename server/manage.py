@@ -784,7 +784,7 @@ def create_relay_nums():
 def create_simple_workflow_classification():
     classification_id = "wc-simple-1"
     if crud.read(WorkflowClassificationOrm, id=classification_id) is not None:
-        return
+        return None
 
     workflow_classification = {
         "id": classification_id,
@@ -802,7 +802,7 @@ def create_simple_workflow_classification():
 def create_simple_workflow_template(form_template_id):
     workflow_template_id = "workflow-template-simple-1"
     if crud.read(WorkflowTemplateOrm, id=workflow_template_id) is not None:
-        return
+        return None
 
     classification_id = create_simple_workflow_classification()
 
@@ -824,8 +824,6 @@ def create_simple_workflow_template(form_template_id):
     workflow_template_orm = WorkflowTemplateOrm(
         classification=classification, **workflow_template
     )
-
-    
 
     step = {
         "id": "wt-simple-1-step-1",
@@ -860,13 +858,11 @@ def create_simple_workflow_template(form_template_id):
 
     return workflow_template["id"]
 
+
 def create_simple_workflow_template_step_form_classification():
     id = "wt-simple-1-form-classification"
-    if (
-        crud.read(FormClassificationOrm, id=id)
-        is not None
-    ):
-        return
+    if crud.read(FormClassificationOrm, id=id) is not None:
+        return None
 
     simple_form_classification = {
         "id": id,
@@ -882,22 +878,20 @@ def create_simple_workflow_template_step_form_classification():
 
 
 def create_simple_workflow_template_step_form():
-    form_template_id="workflow-form-template"
+    form_template_id = "workflow-form-template"
     if crud.read(FormTemplateOrm, id=form_template_id) is not None:
-        return
+        return None
 
     # Add classification for form to DB
     classification_id = create_simple_workflow_template_step_form_classification()
-    form_classification_orm = crud.read(
-        FormClassificationOrm, id=classification_id
-    )
+    form_classification_orm = crud.read(FormClassificationOrm, id=classification_id)
 
     # Set up form template associated with workflow
     form_template = {
         "id": form_template_id,
         "version": "V1",
     }
-    
+
     form_template_orm = FormTemplateOrm(
         classification=form_classification_orm, **form_template
     )
@@ -922,10 +916,10 @@ def create_simple_workflow_template_step_form():
 
     question_orm = QuestionOrm(**question)
 
-    # Add question to form template and 
+    # Add question to form template and
     form_template_orm.questions.append(question_orm)
 
-    #Add form template to DB
+    # Add form template to DB
     db.session.add(form_template_orm)
     db.session.commit()
 
@@ -1548,7 +1542,7 @@ def create_workflow_instance(
                 "assigned_to": 3,
                 "condition_id": None,
                 "workflow_instance_id": instance_id,
-                "completed_form_id": None
+                "form_id": None,
             }
 
             if step_number == 1:

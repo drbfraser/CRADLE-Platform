@@ -12,7 +12,7 @@ export type InstanceStep = {
   completedOn?: Nullable<ISODate>;
   status: StepStatus;
   nextStep?: string;
-  completedFormId?: string;
+  formId?: string;
   formSubmitted?: boolean;
 };
 
