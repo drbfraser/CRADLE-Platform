@@ -16,7 +16,7 @@ import { Box } from '@mui/material';
 import {
   TemplateStepWithFormAndIndex,
   TemplateStepBranch,
-} from 'src/shared/types/workflow/workflowTypes';
+} from 'src/shared/types/workflow/workflowApiTypes';
 import { FlowNode } from './FlowNode';
 import { ID } from 'src/shared/constants';
 

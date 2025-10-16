@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Box, Grid, Typography, Paper } from '@mui/material';
-import { TemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowTypes';
+import { TemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
 import { ID } from 'src/shared/constants';
 import { WorkflowFlow } from './WorkflowFlow';
 import { StepDetails } from './StepDetails';
