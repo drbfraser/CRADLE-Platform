@@ -38,6 +38,7 @@ def _flatten_to_nested(flat_dict: Dict[str, Any]) -> Dict[str, Any]:
         current[parts[-1]] = value
     return nested
 
+
 class RuleEvaluationResult:
     """Result of evaluating a rule"""
 
