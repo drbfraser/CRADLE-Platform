@@ -39,7 +39,6 @@ def _flatten_to_nested(flat_dict: Dict[str, Any]) -> Dict[str, Any]:
     return nested
 
 # TODO: Remove when $ is no longer used in variable names or datasource keys
-
 def _strip_dollar_from_vars(rule: Any) -> Any:
     """
     Recursively strip $ only from var operator values, not from other values.
