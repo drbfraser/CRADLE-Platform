@@ -24,9 +24,7 @@ def _make_min_form(form_id: str, fc_id: str, fc_name: str = "Clinical") -> FormO
     form_classification = FormClassificationOrm()
     form_classification.id = fc_id
     form_classification.name = fc_name
-    form_classification.templates = (
-        []
-    )  # __marshal_form_classification explicitly deletes this
+    form_classification.templates = []  # __marshal_form_classification explicitly deletes this
     form_classification._ephemeral = "nope"
     form.classification = form_classification
 
