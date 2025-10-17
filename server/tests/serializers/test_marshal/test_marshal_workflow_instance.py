@@ -1,4 +1,5 @@
 # ruff: noqa: SLF001
+
 import data.marshal as m
 from models import (
     FormClassificationOrm,
@@ -28,11 +29,13 @@ def _make_min_form(form_id: str, fc_id: str, fc_name: str = "Clinical") -> FormO
     form_classificationc.id = fc_id
     form_classificationc.name = fc_name
     #  __marshal_form_classification must removes it.
+
     form_classificationc.templates = []
     form_classificationc._tmp = "nope"
     form.classification = form_classificationc
 
     # Present but should be omitted because form is marshaled shallowly.
+
     form.questions = []
     return form
 
@@ -76,6 +79,7 @@ def test_workflow_instance_marshal_full_includes_steps_and_cleans_nested():
     workflow_instance._secret = "nope"
 
     # Step 1 (has form + condition)
+
     workflow_instance_1 = WorkflowInstanceStepOrm()
     workflow_instance_1.id = "wis-101"
     workflow_instance_1.name = "Collect vitals"
@@ -92,6 +96,7 @@ def test_workflow_instance_marshal_full_includes_steps_and_cleans_nested():
     workflow_instance_1._debug = "nope"
 
     # Step 2 (no form, no condition; many Nones should be stripped)
+
     workflow_instance_2 = WorkflowInstanceStepOrm()
     workflow_instance_2.id = "wis-102"
     workflow_instance_2.name = "Finalize"
@@ -111,6 +116,7 @@ def test_workflow_instance_marshal_full_includes_steps_and_cleans_nested():
     marshalled = m.marshal(workflow_instance)
 
     # --- top-level checks
+
     assert marshalled["id"] == "wi-001"
     assert marshalled["name"] == "Antenatal Care"
     assert marshalled["description"] == "ANC workflow for patient"
@@ -121,10 +127,12 @@ def test_workflow_instance_marshal_full_includes_steps_and_cleans_nested():
     assert marshalled["workflow_template_id"] == "wt-001"
     assert marshalled["patient_id"] == "p-123"
     # stripped from instance
+
     assert "completion_date" not in marshalled
     assert "_secret" not in marshalled
 
     # --- steps included and well-formed
+
     assert (
         "steps" in marshalled
         and isinstance(marshalled["steps"], list)
@@ -135,6 +143,7 @@ def test_workflow_instance_marshal_full_includes_steps_and_cleans_nested():
     stepB = next(s for s in marshalled["steps"] if s["id"] == "wis-102")
 
     # Step A: has form & condition
+
     for k in (
         "id",
         "name",
@@ -148,11 +157,13 @@ def test_workflow_instance_marshal_full_includes_steps_and_cleans_nested():
     assert stepA["workflow_instance_id"] == "wi-001"
     assert stepA["data"] == '{"note":"patient anxious"}'
     # stripped at step level
+
     assert "_debug" not in stepA
     assert "expected_completion" not in stepA
     assert "completion_date" not in stepA
 
     # Form is shallow-marshaled
+
     assert "form" in stepA and isinstance(stepA["form"], dict)
     form = stepA["form"]
     assert form["id"] == "f-10"
@@ -167,6 +178,7 @@ def test_workflow_instance_marshal_full_includes_steps_and_cleans_nested():
     assert all(not k.startswith("_") for k in fc)
 
     # Step B: no form/condition; explicit None for form, condition omitted
+
     assert "form" in stepB and stepB["form"] is None
     assert "condition" not in stepB
     assert "form_id" not in stepB
@@ -197,6 +209,7 @@ def test_workflow_instance_marshal_shallow_omits_steps_and_strips_none():
     workflow_instance._scratch = "nope"
 
     # Prepare a couple of steps but they should be omitted in shallow mode
+
     s = WorkflowInstanceStepOrm()
     s.id = "wis-X"
     s.name = "Dummy"
@@ -210,6 +223,7 @@ def test_workflow_instance_marshal_shallow_omits_steps_and_strips_none():
     marshalled = m.marshal(workflow_instance, shallow=True)
 
     # kept
+
     assert marshalled["id"] == "wi-010"
     assert marshalled["name"] == "Postnatal Care"
     assert marshalled["description"] == "PNC workflow for patient"
@@ -220,9 +234,11 @@ def test_workflow_instance_marshal_shallow_omits_steps_and_strips_none():
     assert marshalled["patient_id"] == "p-999"
 
     # stripped at instance level
+
     assert "completion_date" not in marshalled
     assert "current_step_id" not in marshalled
     assert "_scratch" not in marshalled
 
     # shallow => steps omitted
+
     assert "steps" not in marshalled
