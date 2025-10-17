@@ -23,7 +23,7 @@ import { formatWorkflowStepStatusText } from '../WorkflowUtils';
 import WorkflowFormModal from './WorkflowFormModal';
 import { CForm } from 'src/shared/types/form/formTypes';
 
-export default function WorkflowStepHistory(props: {
+interface IProps {
   workflowInstance: InstanceDetails;
   expandedStep: string | null;
   setExpandedStep: (stepId: string | null) => void;
@@ -38,37 +38,36 @@ export default function WorkflowStepHistory(props: {
     }>
   >;
   handleMakeCurrent: (stepId: string, title: string) => void;
-  handleOpenForm: () => void;
-  openFormModal: boolean;
+  handleOpenFormModal: () => void;
+  handleCloseFormModal: () => void;
+  isFormModalOpen: boolean;
   formTemplate: CForm | null;
-  handleCloseForm: () => void;
   currentStep: InstanceStep | null;
-}) {
-  const {
-    workflowInstance,
-    expandedStep,
-    setExpandedStep,
-    expandAll,
-    setExpandAll,
-    setConfirmDialog,
-    handleMakeCurrent,
-    handleOpenForm,
-    openFormModal,
-    formTemplate,
-    handleCloseForm,
-    currentStep,
-  } = props;
+}
 
-  // Callback functions
-  const handleViewForm = React.useCallback((stepId: string) => {
+export default function WorkflowStepHistory({
+  workflowInstance,
+  expandedStep,
+  setExpandedStep,
+  expandAll,
+  setExpandAll,
+  setConfirmDialog,
+  handleMakeCurrent,
+  handleOpenFormModal,
+  handleCloseFormModal,
+  isFormModalOpen,
+  formTemplate,
+  currentStep,
+}: IProps) {
+  const handleViewForm = (stepId: string) => {
     console.log('View form for step:', stepId);
-  }, []);
+  };
 
-  const handleEditForm = React.useCallback((stepId: string) => {
+  const handleEditForm = (stepId: string) => {
     console.log('Edit form for step:', stepId);
-  }, []);
+  };
 
-  const handleDiscardForm = React.useCallback((stepId: string) => {
+  const handleDiscardForm = (stepId: string) => {
     setConfirmDialog({
       open: true,
       title: 'Discard Form',
@@ -79,26 +78,16 @@ export default function WorkflowStepHistory(props: {
         setConfirmDialog((prev) => ({ ...prev, open: false }));
       },
     });
-  }, []);
+  };
 
-  const handleSubmitForm = React.useCallback((stepId: string) => {
-    console.log('Submit form for step:', stepId);
-  }, []);
+  const handleCompleteNow = () => {
+    console.log('Complete now for current step');
+    handleOpenFormModal();
+  };
 
-  const handleCompleteNow = React.useCallback((step: InstanceStep) => {
-    console.log('Complete now for step:', step.id);
-    handleOpenForm();
-    // Retrieve related form
-    // Pass to modal component?
-    // Set form modal to open
-  }, []);
-
-  const handleChangeExpectedCompletion = React.useCallback(
-    (stepId: string, date: string) => {
-      console.log('Change expected completion for step:', stepId, 'to:', date);
-    },
-    []
-  );
+  const handleChangeExpectedCompletion = (stepId: string, date: string) => {
+    console.log('Change expected completion for step:', stepId, 'to:', date);
+  };
 
   return (
     <>
@@ -306,7 +295,7 @@ export default function WorkflowStepHistory(props: {
                                   <Button
                                     size="small"
                                     variant="contained"
-                                    onClick={() => handleCompleteNow(step)}>
+                                    onClick={() => handleCompleteNow()}>
                                     Complete now
                                   </Button>
                                 </Box>
@@ -386,10 +375,10 @@ export default function WorkflowStepHistory(props: {
       {formTemplate && (
         <WorkflowFormModal
           currentStep={currentStep}
-          openFormModal={openFormModal}
+          isFormModalOpen={isFormModalOpen}
           formTemplate={formTemplate}
           patientId={workflowInstance.patientId}
-          handleCloseForm={handleCloseForm}
+          handleCloseForm={handleCloseFormModal}
         />
       )}
     </>

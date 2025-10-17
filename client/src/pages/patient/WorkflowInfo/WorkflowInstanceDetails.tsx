@@ -247,7 +247,7 @@ export default function WorkflowInstanceDetailsPage() {
   const [expandedStep, setExpandedStep] = useState<string | null>(null);
   const [expandAll, setExpandAll] = useState(false);
   const [currentStep, setCurrentStep] = useState<InstanceStep | null>(null);
-  const [openFormModal, setOpenFormModal] = useState(false);
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogData>({
     open: false,
     title: '',
@@ -294,7 +294,7 @@ export default function WorkflowInstanceDetailsPage() {
     []
   );
 
-  const handleOpenForm = async () => {
+  const handleOpenFormModal = async () => {
     if (!currentStep) {
       console.error('No current step available to open form.');
       return;
@@ -312,16 +312,15 @@ export default function WorkflowInstanceDetailsPage() {
         'English'
       );
       setFormTemplate(formTemplate);
+      setIsFormModalOpen(true);
     } catch {
       console.error('Error in getting form template');
     }
-
-    setOpenFormModal(true);
   };
 
-  const handleCloseForm = () => {
+  const handleCloseFormModal = () => {
     setFormTemplate(null);
-    setOpenFormModal(false);
+    setIsFormModalOpen(false);
   };
 
   return (
@@ -423,10 +422,10 @@ export default function WorkflowInstanceDetailsPage() {
               setExpandAll={setExpandAll}
               setConfirmDialog={setConfirmDialog}
               handleMakeCurrent={handleMakeCurrent}
-              handleOpenForm={handleOpenForm}
-              openFormModal={openFormModal}
+              handleOpenFormModal={handleOpenFormModal}
+              handleCloseFormModal={handleCloseFormModal}
+              isFormModalOpen={isFormModalOpen}
               formTemplate={formTemplate}
-              handleCloseForm={handleCloseForm}
               currentStep={currentStep}
             />
 

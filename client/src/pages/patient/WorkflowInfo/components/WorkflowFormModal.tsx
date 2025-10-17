@@ -20,7 +20,7 @@ import { InstanceStepUpdate } from 'src/shared/types/workflow/workflowApiTypes';
 
 interface IProps {
   currentStep: InstanceStep | null;
-  openFormModal: boolean;
+  isFormModalOpen: boolean;
   formTemplate: CForm;
   patientId: string;
   handleCloseForm: () => void;
@@ -28,16 +28,12 @@ interface IProps {
 
 export default function WorkflowFormModal({
   currentStep,
-  openFormModal,
+  isFormModalOpen,
   formTemplate,
   patientId,
-  handleCloseForm,
+  handleCloseForm: handleCloseFormModal,
 }: IProps) {
   const submitCustomForm = useSubmitCustomForm();
-
-  const handleClose = () => {
-    handleCloseForm();
-  };
 
   const handleSubmit = (form: CForm, postBody: PostBody) => {
     submitCustomForm.mutate(
@@ -50,7 +46,7 @@ export default function WorkflowFormModal({
           };
 
           updateInstanceStepById(currentStep!.id, instanceStepUpdate);
-          handleCloseForm();
+          handleCloseFormModal();
         },
       }
     );
@@ -58,7 +54,7 @@ export default function WorkflowFormModal({
 
   return (
     <>
-      <Modal open={openFormModal} onClose={handleClose}>
+      <Modal open={isFormModalOpen} onClose={handleCloseFormModal}>
         <Box
           sx={{
             display: 'flex',
@@ -79,7 +75,7 @@ export default function WorkflowFormModal({
                 fm={formTemplate}
                 renderState={FormRenderStateEnum.FIRST_SUBMIT}
                 isModalView={true}
-                handleCloseModal={handleClose}
+                handleCloseModal={handleCloseFormModal}
                 customSubmitHandler={handleSubmit}
               />
             ) : (
