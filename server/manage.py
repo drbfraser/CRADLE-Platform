@@ -977,8 +977,6 @@ def create_complex_workflow_template():
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
         "version": "V1",
-        "initial_condition_id": None,
-        "initial_condition": None,
         "classification_id": "papagaio_study_workflow_classification",
     }
 
@@ -1015,8 +1013,6 @@ def create_complex_workflow_template_steps():
             "last_edited": get_current_time(),
             "form_id": "prerequisites_form_template",
             "workflow_template_id": "papagaio_study_workflow_template",
-            "condition_id": None,
-            "condition": None,
         }
 
         prerequisites_template_step_branch = {
@@ -1042,8 +1038,6 @@ def create_complex_workflow_template_steps():
             "last_edited": get_current_time(),
             "form_id": "papagaio_consent_form_template",
             "workflow_template_id": "papagaio_study_workflow_template",
-            "condition_id": None,
-            "condition": None,
         }
 
         papagaio_consent_template_step_branch = {
@@ -1074,8 +1068,6 @@ def create_complex_workflow_template_steps():
             "last_edited": get_current_time(),
             "form_id": "papagaio_randomized_treatment_plan_form_template",
             "workflow_template_id": "papagaio_study_workflow_template",
-            "condition_id": None,
-            "condition": None,
         }
 
         papagaio_randomized_treatment_template_step_branch = {
@@ -1106,8 +1098,6 @@ def create_complex_workflow_template_steps():
             "last_edited": get_current_time(),
             "form_id": "papagaio_observation_treatment_plan_form_template",
             "workflow_template_id": "papagaio_study_workflow_template",
-            "condition_id": None,
-            "condition": None,
         }
 
         papagaio_observation_treatment_template_step_branch = {
@@ -1540,7 +1530,6 @@ def create_workflow_instance(
                 "expected_completion": get_current_time() + 40000,
                 "completion_date": get_current_time() + 35000,
                 "assigned_to": 3,
-                "condition_id": None,
                 "workflow_instance_id": instance_id,
                 "form_id": None,
             }

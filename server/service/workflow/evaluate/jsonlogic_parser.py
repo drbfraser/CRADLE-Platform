@@ -81,29 +81,3 @@ def extract_variables_from_rule(rule: Union[str, dict]) -> Set[str]:
     """
     parser = JsonLogicParser()
     return parser.extract_variables(rule)
-
-
-def validate_rule_syntax(rule: Union[str, dict]) -> bool:
-    """
-    Validate that a rule is valid JsonLogic syntax.
-
-    Args:
-        rule: JsonLogic rule to validate
-
-    Returns:
-        True if valid, False otherwise
-
-    """
-    try:
-        if isinstance(rule, str):
-            rule = json.loads(rule)
-
-        if not isinstance(rule, (dict, list)):
-            return False
-
-        parser = JsonLogicParser()
-        parser.extract_variables(rule)
-        return True
-
-    except (ValueError, json.JSONDecodeError, TypeError):
-        return False

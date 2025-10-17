@@ -445,9 +445,6 @@ def __marshal_workflow_template_step(
 
     d["form"] = __marshal_form_template(wts.form)
 
-    if wts.condition is not None:
-        d["condition"] = __marshal_rule_group(wts.condition)
-
     if not shallow:
         d["branches"] = [
             __marshal_workflow_template_step_branch(wtsb) for wtsb in wts.branches
@@ -464,9 +461,6 @@ def __marshal_workflow_template(wt: WorkflowTemplateOrm, shallow: bool = False) 
         d["classification"] = __marshal_workflow_classification(
             wc=wt.classification, if_include_templates=False
         )
-
-    if wt.initial_condition:
-        d["initial_condition"] = __marshal_rule_group(wt.initial_condition)
 
     if not shallow:
         d["steps"] = [__marshal_workflow_template_step(wts=wts) for wts in wt.steps]
@@ -824,7 +818,6 @@ def __unmarshal_workflow_template_step_branch(d: dict) -> WorkflowTemplateStepBr
 
 def __unmarshal_workflow_template_step(d: dict) -> WorkflowTemplateStepOrm:
     branches = []
-    condition = None
     form = None
 
     if d.get("branches") is not None:
@@ -833,17 +826,12 @@ def __unmarshal_workflow_template_step(d: dict) -> WorkflowTemplateStepOrm:
         ]
         del d["branches"]
 
-    if d.get("condition") is not None:
-        condition = __load(RuleGroupOrm, d.get("condition"))
-        del d["condition"]
-
     if d.get("form") is not None:
         form = __unmarshal_form_template(d.get("form"))
         del d["form"]
 
     workflow_template_step_orm = __load(WorkflowTemplateStepOrm, d)
     workflow_template_step_orm.branches = branches
-    workflow_template_step_orm.condition = condition
     workflow_template_step_orm.form = form
 
     return workflow_template_step_orm
@@ -852,12 +840,7 @@ def __unmarshal_workflow_template_step(d: dict) -> WorkflowTemplateStepOrm:
 def __unmarshal_workflow_template(d: dict) -> WorkflowTemplateOrm:
     with db_session.no_autoflush:
         steps = []
-        initial_condition = None
         classification = None
-
-        if d.get("initial_condition") is not None:
-            initial_condition = __load(RuleGroupOrm, d.get("initial_condition"))
-            del d["initial_condition"]
 
         if d.get("steps") is not None:
             steps = [__unmarshal_workflow_template_step(s) for s in d.get("steps")]
@@ -869,25 +852,19 @@ def __unmarshal_workflow_template(d: dict) -> WorkflowTemplateOrm:
 
         workflow_template_orm = __load(WorkflowTemplateOrm, d)
         workflow_template_orm.steps = steps
-        workflow_template_orm.initial_condition = initial_condition
         workflow_template_orm.classification = classification
 
     return workflow_template_orm
 
 
 def __unmarshal_workflow_instance_step(d: dict) -> WorkflowInstanceStepOrm:
-    condition = None
     form = None
-    if d.get("condition") is not None:
-        condition = __load(RuleGroupOrm, d.get("condition"))
-        del d["condition"]
 
     if d.get("form") is not None:
         form = __unmarshal_form(d.get("form"))
         del d["form"]
 
     workflow_instance_step_orm = __load(WorkflowInstanceStepOrm, d)
-    workflow_instance_step_orm.condition = condition
     workflow_instance_step_orm.form = form
 
     return workflow_instance_step_orm
