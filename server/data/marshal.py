@@ -245,6 +245,9 @@ def __marshal_reading(r: ReadingOrm, shallow: bool) -> dict:
     if not shallow and r.urine_tests is not None:
         d["urine_tests"] = marshal(r.urine_tests)
     else:
+        # Remove relationship-only field(s) from the marshaled payload.
+        # We intentionally exclude heavy nested collections here (shallow output).
+        # Currently just "urine_tests", if needed, add more fields inside the list (eg. ["urine_tests", "protein",...]).
         for rel in ["urine_tests"]:
             if rel in d:
                 del d[rel]
