@@ -10,33 +10,46 @@ from models import (
 
 
 def _make_min_form(form_id: str, fc_id: str, fc_name: str = "Clinical") -> FormOrm:
-    f = FormOrm()
-    f.id = form_id
-    f.name = "ANC Intake"
-    f.description = "Initial antenatal visit"
-    f._private = "nope"  # should be stripped
+    """
+    Construct a minimal FormOrm instance with the given parameters.
 
-    fc = FormClassificationOrm()
-    fc.id = fc_id
-    fc.name = fc_name
+    :param form_id: ID of the FormOrm to create.
+    :param fc_id: ID of the FormClassificationOrm associated with the form.
+    :param fc_name: Name of the FormClassificationOrm associated with the form.
+    :return: Minimal FormOrm instance with the given parameters.
+    """
+    form = FormOrm()
+    form.id = form_id
+    form.name = "ANC Intake"
+    form.description = "Initial antenatal visit"
+    form._private = "nope"  # should be stripped
+
+    form_classificationc = FormClassificationOrm()
+    form_classificationc.id = fc_id
+    form_classificationc.name = fc_name
     #  __marshal_form_classification must removes it.
-    fc.templates = []
-    fc._tmp = "nope"
-    f.classification = fc
+    form_classificationc.templates = []
+    form_classificationc._tmp = "nope"
+    form.classification = form_classificationc
 
     # Present but should be omitted because form is marshaled shallowly.
-    f.questions = []
-    return f
+    form.questions = []
+    return form
 
 
 def _make_condition(rg_id: str) -> RuleGroupOrm:
-    """A minimal valid RuleGroup for embedding into step.condition."""
-    rg = RuleGroupOrm()
-    rg.id = rg_id
-    rg.rule = {"any": []}
-    rg.data_sources = [{"type": "patient"}]
-    rg._scratch = "nope"
-    return rg
+    """
+    Construct a minimal RuleGroupOrm instance with the given parameters.
+
+    :param rg_id: ID of the RuleGroupOrm to create.
+    :return: Minimal RuleGroupOrm instance with the given parameters.
+    """
+    rule_groupg = RuleGroupOrm()
+    rule_groupg.id = rg_id
+    rule_groupg.rule = {"any": []}
+    rule_groupg.data_sources = [{"type": "patient"}]
+    rule_groupg._scratch = "nope"
+    return rule_groupg
 
 
 def test_workflow_instance_marshal_full_includes_steps_and_cleans_nested():
@@ -49,73 +62,77 @@ def test_workflow_instance_marshal_full_includes_steps_and_cleans_nested():
       - step.condition must be marshaled, private attrs stripped,
       - nested objects must not leak private attributes.
     """
-    wi = WorkflowInstanceOrm()
-    wi.id = "wi-001"
-    wi.name = "Antenatal Care"
-    wi.description = "ANC workflow for patient"
-    wi.start_date = 1_690_000_000
-    wi.current_step_id = "wis-101"
-    wi.last_edited = 1_690_000_050
-    wi.completion_date = None
-    wi.status = "Active"
-    wi.workflow_template_id = "wt-001"
-    wi.patient_id = "p-123"
-    wi._secret = "nope"
+    workflow_instance = WorkflowInstanceOrm()
+    workflow_instance.id = "wi-001"
+    workflow_instance.name = "Antenatal Care"
+    workflow_instance.description = "ANC workflow for patient"
+    workflow_instance.start_date = 1_690_000_000
+    workflow_instance.current_step_id = "wis-101"
+    workflow_instance.last_edited = 1_690_000_050
+    workflow_instance.completion_date = None
+    workflow_instance.status = "Active"
+    workflow_instance.workflow_template_id = "wt-001"
+    workflow_instance.patient_id = "p-123"
+    workflow_instance._secret = "nope"
 
     # Step 1 (has form + condition)
-    s1 = WorkflowInstanceStepOrm()
-    s1.id = "wis-101"
-    s1.name = "Collect vitals"
-    s1.description = "Measure BP, HR, Temp"
-    s1.start_date = 1_690_000_100
-    s1.last_edited = 1_690_000_110
-    s1.status = "Active"
-    s1.data = '{"note":"patient anxious"}'
-    s1.workflow_instance_id = wi.id
-    s1.form_id = "f-10"
-    s1.form = _make_min_form("f-10", "fc-1")
-    s1.condition_id = "rg-1"
-    s1.condition = _make_condition("rg-1")
-    s1._debug = "nope"
+    workflow_instance_1 = WorkflowInstanceStepOrm()
+    workflow_instance_1.id = "wis-101"
+    workflow_instance_1.name = "Collect vitals"
+    workflow_instance_1.description = "Measure BP, HR, Temp"
+    workflow_instance_1.start_date = 1_690_000_100
+    workflow_instance_1.last_edited = 1_690_000_110
+    workflow_instance_1.status = "Active"
+    workflow_instance_1.data = '{"note":"patient anxious"}'
+    workflow_instance_1.workflow_instance_id = workflow_instance.id
+    workflow_instance_1.form_id = "f-10"
+    workflow_instance_1.form = _make_min_form("f-10", "fc-1")
+    workflow_instance_1.condition_id = "rg-1"
+    workflow_instance_1.condition = _make_condition("rg-1")
+    workflow_instance_1._debug = "nope"
 
     # Step 2 (no form, no condition; many Nones should be stripped)
-    s2 = WorkflowInstanceStepOrm()
-    s2.id = "wis-102"
-    s2.name = "Finalize"
-    s2.description = "Mark workflow complete"
-    s2.start_date = 1_690_000_200
-    s2.last_edited = 1_690_000_210
-    s2.status = "Active"
-    s2.data = None
-    s2.workflow_instance_id = wi.id
-    s2.form_id = None
-    s2.form = None
-    s2.condition_id = None
-    s2.condition = None
+    workflow_instance_2 = WorkflowInstanceStepOrm()
+    workflow_instance_2.id = "wis-102"
+    workflow_instance_2.name = "Finalize"
+    workflow_instance_2.description = "Mark workflow complete"
+    workflow_instance_2.start_date = 1_690_000_200
+    workflow_instance_2.last_edited = 1_690_000_210
+    workflow_instance_2.status = "Active"
+    workflow_instance_2.data = None
+    workflow_instance_2.workflow_instance_id = workflow_instance.id
+    workflow_instance_2.form_id = None
+    workflow_instance_2.form = None
+    workflow_instance_2.condition_id = None
+    workflow_instance_2.condition = None
 
-    wi.steps = [s1, s2]
+    workflow_instance.steps = [workflow_instance_1, workflow_instance_2]
 
-    out = m.marshal(wi)
+    marshalled = m.marshal(workflow_instance)
 
     # --- top-level checks
-    assert out["id"] == "wi-001"
-    assert out["name"] == "Antenatal Care"
-    assert out["description"] == "ANC workflow for patient"
-    assert out["start_date"] == 1_690_000_000
-    assert out["current_step_id"] == "wis-101"
-    assert out["last_edited"] == 1_690_000_050
-    assert out["status"] == "Active"
-    assert out["workflow_template_id"] == "wt-001"
-    assert out["patient_id"] == "p-123"
+    assert marshalled["id"] == "wi-001"
+    assert marshalled["name"] == "Antenatal Care"
+    assert marshalled["description"] == "ANC workflow for patient"
+    assert marshalled["start_date"] == 1_690_000_000
+    assert marshalled["current_step_id"] == "wis-101"
+    assert marshalled["last_edited"] == 1_690_000_050
+    assert marshalled["status"] == "Active"
+    assert marshalled["workflow_template_id"] == "wt-001"
+    assert marshalled["patient_id"] == "p-123"
     # stripped from instance
-    assert "completion_date" not in out
-    assert "_secret" not in out
+    assert "completion_date" not in marshalled
+    assert "_secret" not in marshalled
 
     # --- steps included and well-formed
-    assert "steps" in out and isinstance(out["steps"], list) and len(out["steps"]) == 2
+    assert (
+        "steps" in marshalled
+        and isinstance(marshalled["steps"], list)
+        and len(marshalled["steps"]) == 2
+    )
 
-    stepA = next(s for s in out["steps"] if s["id"] == "wis-101")
-    stepB = next(s for s in out["steps"] if s["id"] == "wis-102")
+    stepA = next(s for s in marshalled["steps"] if s["id"] == "wis-101")
+    stepB = next(s for s in marshalled["steps"] if s["id"] == "wis-102")
 
     # Step A: has form & condition
     for k in (
@@ -137,14 +154,14 @@ def test_workflow_instance_marshal_full_includes_steps_and_cleans_nested():
 
     # Form is shallow-marshaled
     assert "form" in stepA and isinstance(stepA["form"], dict)
-    f = stepA["form"]
-    assert f["id"] == "f-10"
-    assert f["name"] == "ANC Intake"
-    assert f["description"] == "Initial antenatal visit"
-    assert "questions" not in f  # shallow=True in __marshal_workflow_instance_step
-    assert "_private" not in f
-    assert "classification" in f and isinstance(f["classification"], dict)
-    fc = f["classification"]
+    form = stepA["form"]
+    assert form["id"] == "f-10"
+    assert form["name"] == "ANC Intake"
+    assert form["description"] == "Initial antenatal visit"
+    assert "questions" not in form  # shallow=True in __marshal_workflow_instance_step
+    assert "_private" not in form
+    assert "classification" in form and isinstance(form["classification"], dict)
+    fc = form["classification"]
     assert fc["id"] == "fc-1" and fc["name"] == "Clinical"
     assert "templates" not in fc  # scrubbed by __marshal_form_classification
     assert all(not k.startswith("_") for k in fc)
@@ -166,18 +183,18 @@ def test_workflow_instance_marshal_shallow_omits_steps_and_strips_none():
     NOTE: If this test fails because 'steps' appears, consider adding the same
     shallow-guard used elsewhere (e.g., workflow template) to drop 'steps' when shallow.
     """
-    wi = WorkflowInstanceOrm()
-    wi.id = "wi-010"
-    wi.name = "Postnatal Care"
-    wi.description = "PNC workflow for patient"
-    wi.start_date = 1_700_000_000
-    wi.current_step_id = None
-    wi.last_edited = 1_700_000_050
-    wi.completion_date = None
-    wi.status = "Active"
-    wi.workflow_template_id = "wt-009"
-    wi.patient_id = "p-999"
-    wi._scratch = "nope"
+    workflow_instance = WorkflowInstanceOrm()
+    workflow_instance.id = "wi-010"
+    workflow_instance.name = "Postnatal Care"
+    workflow_instance.description = "PNC workflow for patient"
+    workflow_instance.start_date = 1_700_000_000
+    workflow_instance.current_step_id = None
+    workflow_instance.last_edited = 1_700_000_050
+    workflow_instance.completion_date = None
+    workflow_instance.status = "Active"
+    workflow_instance.workflow_template_id = "wt-009"
+    workflow_instance.patient_id = "p-999"
+    workflow_instance._scratch = "nope"
 
     # Prepare a couple of steps but they should be omitted in shallow mode
     s = WorkflowInstanceStepOrm()
@@ -187,25 +204,25 @@ def test_workflow_instance_marshal_shallow_omits_steps_and_strips_none():
     s.start_date = 1_700_000_100
     s.last_edited = 1_700_000_110
     s.status = "Active"
-    s.workflow_instance_id = wi.id
-    wi.steps = [s]
+    s.workflow_instance_id = workflow_instance.id
+    workflow_instance.steps = [s]
 
-    out = m.marshal(wi, shallow=True)
+    marshalled = m.marshal(workflow_instance, shallow=True)
 
     # kept
-    assert out["id"] == "wi-010"
-    assert out["name"] == "Postnatal Care"
-    assert out["description"] == "PNC workflow for patient"
-    assert out["start_date"] == 1_700_000_000
-    assert out["last_edited"] == 1_700_000_050
-    assert out["status"] == "Active"
-    assert out["workflow_template_id"] == "wt-009"
-    assert out["patient_id"] == "p-999"
+    assert marshalled["id"] == "wi-010"
+    assert marshalled["name"] == "Postnatal Care"
+    assert marshalled["description"] == "PNC workflow for patient"
+    assert marshalled["start_date"] == 1_700_000_000
+    assert marshalled["last_edited"] == 1_700_000_050
+    assert marshalled["status"] == "Active"
+    assert marshalled["workflow_template_id"] == "wt-009"
+    assert marshalled["patient_id"] == "p-999"
 
     # stripped at instance level
-    assert "completion_date" not in out
-    assert "current_step_id" not in out
-    assert "_scratch" not in out
+    assert "completion_date" not in marshalled
+    assert "current_step_id" not in marshalled
+    assert "_scratch" not in marshalled
 
     # shallow => steps omitted
-    assert "steps" not in out
+    assert "steps" not in marshalled

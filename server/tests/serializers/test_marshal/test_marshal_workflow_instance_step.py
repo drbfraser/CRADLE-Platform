@@ -21,12 +21,14 @@ def _make_min_form(form_id: str, fc_id: str, fc_name: str = "Clinical") -> FormO
     form.description = "Initial antenatal visit"
     form._private = "nope"
 
-    fc = FormClassificationOrm()
-    fc.id = fc_id
-    fc.name = fc_name
-    fc.templates = []  # __marshal_form_classification explicitly deletes this
-    fc._ephemeral = "nope"
-    form.classification = fc
+    form_classification = FormClassificationOrm()
+    form_classification.id = fc_id
+    form_classification.name = fc_name
+    form_classification.templates = (
+        []
+    )  # __marshal_form_classification explicitly deletes this
+    form_classification._ephemeral = "nope"
+    form.classification = form_classification
 
     # questions exists, but __marshal_form(..., shallow=True) must drop it
     form.questions = []
@@ -37,12 +39,12 @@ def _make_condition(rg_id: str) -> RuleGroupOrm:
     """
     Minimal valid RuleGroup for marshaling into the step's 'condition'.
     """
-    rg = RuleGroupOrm()
-    rg.id = rg_id
-    rg.rule = {"any": []}
-    rg.data_sources = [{"type": "patient"}]
-    rg._scratch = "do not leak"
-    return rg
+    rule_group = RuleGroupOrm()
+    rule_group.id = rg_id
+    rule_group.rule = {"any": []}
+    rule_group.data_sources = [{"type": "patient"}]
+    rule_group._scratch = "do not leak"
+    return rule_group
 
 
 def test_workflow_instance_step_marshal_full_includes_form_and_condition_and_strips_none():
@@ -55,54 +57,54 @@ def test_workflow_instance_step_marshal_full_includes_form_and_condition_and_str
       - strip private attributes from all levels,
       - strip None-valued fields (e.g., expected_completion when None).
     """
-    wis = WorkflowInstanceStepOrm()
-    wis.id = "wis-101"
-    wis.name = "Collect vitals"
-    wis.description = "Measure BP, HR, Temp"
-    wis.start_date = 1_690_000_100
-    wis.triggered_by = "wis-100"
-    wis.last_edited = 1_690_000_200
-    wis.expected_completion = None
-    wis.completion_date = 1_690_000_300  # kept
-    wis.status = "Active"
-    wis.data = '{"notes":"patient anxious"}'
-    wis.workflow_instance_id = "wi-001"
-    wis.assigned_to = None
-    wis._debug = "nope"
+    workflow_instance_step = WorkflowInstanceStepOrm()
+    workflow_instance_step.id = "wis-101"
+    workflow_instance_step.name = "Collect vitals"
+    workflow_instance_step.description = "Measure BP, HR, Temp"
+    workflow_instance_step.start_date = 1_690_000_100
+    workflow_instance_step.triggered_by = "wis-100"
+    workflow_instance_step.last_edited = 1_690_000_200
+    workflow_instance_step.expected_completion = None
+    workflow_instance_step.completion_date = 1_690_000_300  # kept
+    workflow_instance_step.status = "Active"
+    workflow_instance_step.data = '{"notes":"patient anxious"}'
+    workflow_instance_step.workflow_instance_id = "wi-001"
+    workflow_instance_step.assigned_to = None
+    workflow_instance_step._debug = "nope"
 
     # Attach form (shallow-marshaled)
-    wis.form_id = "f-10"
-    wis.form = _make_min_form(form_id="f-10", fc_id="fc-1")
+    workflow_instance_step.form_id = "f-10"
+    workflow_instance_step.form = _make_min_form(form_id="f-10", fc_id="fc-1")
 
     # Attach condition
-    wis.condition_id = "rg-200"
-    wis.condition = _make_condition("rg-200")
+    workflow_instance_step.condition_id = "rg-200"
+    workflow_instance_step.condition = _make_condition("rg-200")
 
-    out = m.marshal(wis)
+    marshalled = m.marshal(workflow_instance_step)
 
     # Top-level scalar fields that should be present
-    assert out["id"] == "wis-101"
-    assert out["name"] == "Collect vitals"
-    assert out["description"] == "Measure BP, HR, Temp"
-    assert out["start_date"] == 1_690_000_100
-    assert out["triggered_by"] == "wis-100"
-    assert out["last_edited"] == 1_690_000_200
-    assert out["completion_date"] == 1_690_000_300
-    assert out["status"] == "Active"
-    assert out["data"] == '{"notes":"patient anxious"}'
-    assert out["workflow_instance_id"] == "wi-001"
+    assert marshalled["id"] == "wis-101"
+    assert marshalled["name"] == "Collect vitals"
+    assert marshalled["description"] == "Measure BP, HR, Temp"
+    assert marshalled["start_date"] == 1_690_000_100
+    assert marshalled["triggered_by"] == "wis-100"
+    assert marshalled["last_edited"] == 1_690_000_200
+    assert marshalled["completion_date"] == 1_690_000_300
+    assert marshalled["status"] == "Active"
+    assert marshalled["data"] == '{"notes":"patient anxious"}'
+    assert marshalled["workflow_instance_id"] == "wi-001"
     # Form/condition FKs are kept when non-None
-    assert out["form_id"] == "f-10"
-    assert out["condition_id"] == "rg-200"
+    assert marshalled["form_id"] == "f-10"
+    assert marshalled["condition_id"] == "rg-200"
 
     # Stripped fields
-    assert "expected_completion" not in out
-    assert "assigned_to" not in out
-    assert "_debug" not in out
+    assert "expected_completion" not in marshalled
+    assert "assigned_to" not in marshalled
+    assert "_debug" not in marshalled
 
     # Embedded form (shallow=True inside __marshal_workflow_instance_step)
-    assert "form" in out and isinstance(out["form"], dict)
-    f = out["form"]
+    assert "form" in marshalled and isinstance(marshalled["form"], dict)
+    f = marshalled["form"]
     assert f["id"] == "f-10"
     # classification is embedded and cleaned
     assert "classification" in f and isinstance(f["classification"], dict)
@@ -125,43 +127,45 @@ def test_workflow_instance_step_marshal_handles_no_form_and_no_condition():
       - None-valued scalars are stripped,
       - regular fields are preserved.
     """
-    wis = WorkflowInstanceStepOrm()
-    wis.id = "wis-202"
-    wis.name = "Review labs"
-    wis.description = "Check CBC and LFTs"
-    wis.start_date = 1_700_000_000
-    wis.triggered_by = None
-    wis.last_edited = 1_700_000_001
-    wis.expected_completion = None
-    wis.completion_date = None
-    wis.status = "Active"
-    wis.data = None
-    wis.workflow_instance_id = "wi-002"
-    wis.assigned_to = None
-    wis._temp = "nope"
+    workflow_instance_step = WorkflowInstanceStepOrm()
+    workflow_instance_step.id = "wis-202"
+    workflow_instance_step.name = "Review labs"
+    workflow_instance_step.description = "Check CBC and LFTs"
+    workflow_instance_step.start_date = 1_700_000_000
+    workflow_instance_step.triggered_by = None
+    workflow_instance_step.last_edited = 1_700_000_001
+    workflow_instance_step.expected_completion = None
+    workflow_instance_step.completion_date = None
+    workflow_instance_step.status = "Active"
+    workflow_instance_step.data = None
+    workflow_instance_step.workflow_instance_id = "wi-002"
+    workflow_instance_step.assigned_to = None
+    workflow_instance_step._temp = "nope"
 
-    wis.form_id = None
-    wis.form = None
+    workflow_instance_step.form_id = None
+    workflow_instance_step.form = None
 
-    wis.condition_id = None
-    wis.condition = None
+    workflow_instance_step.condition_id = None
+    workflow_instance_step.condition = None
 
-    out = m.marshal(wis)
+    marshalled = m.marshal(workflow_instance_step)
 
     # Regular kept fields
-    assert out["id"] == "wis-202"
-    assert out["name"] == "Review labs"
-    assert out["description"] == "Check CBC and LFTs"
-    assert out["start_date"] == 1_700_000_000
-    assert out["last_edited"] == 1_700_000_001
-    assert out["status"] == "Active"
-    assert out["workflow_instance_id"] == "wi-002"
+    assert marshalled["id"] == "wis-202"
+    assert marshalled["name"] == "Review labs"
+    assert marshalled["description"] == "Check CBC and LFTs"
+    assert marshalled["start_date"] == 1_700_000_000
+    assert marshalled["last_edited"] == 1_700_000_001
+    assert marshalled["status"] == "Active"
+    assert marshalled["workflow_instance_id"] == "wi-002"
 
     # Explicit behavior for absent relations
-    assert "condition" not in out  # not added at all
-    assert "condition_id" not in out  # None stripped by pre_process
-    assert "form_id" not in out  # None stripped by pre_process
-    assert "form" in out and out["form"] is None  # explicitly set by marshaller
+    assert "condition" not in marshalled  # not added at all
+    assert "condition_id" not in marshalled  # None stripped by pre_process
+    assert "form_id" not in marshalled  # None stripped by pre_process
+    assert (
+        "form" in marshalled and marshalled["form"] is None
+    )  # explicitly set by marshaller
 
     # Stripped scalars and private attrs
     for k in (
@@ -172,4 +176,4 @@ def test_workflow_instance_step_marshal_handles_no_form_and_no_condition():
         "assigned_to",
         "_temp",
     ):
-        assert k not in out
+        assert k not in marshalled

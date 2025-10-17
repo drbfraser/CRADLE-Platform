@@ -15,11 +15,19 @@ def make_lang_version(
     question_text="How are you?",
     mc_options="[]",  # JSON string per ORM definition
 ):
-    v = QuestionLangVersionOrm()
-    v.lang = lang
-    v.question_text = question_text
-    v.mc_options = mc_options
-    return v
+    """
+    Construct a minimal QuestionLangVersionOrm instance with the given parameters.
+
+    :param lang: Language of the language version.
+    :param question_text: Question text of the language version.
+    :param mc_options: Multiple choice options for the language version.
+    :return: Minimal QuestionLangVersionOrm instance with the given parameters.
+    """
+    question_lang_version = QuestionLangVersionOrm()
+    question_lang_version.lang = lang
+    question_lang_version.question_text = question_text
+    question_lang_version.mc_options = mc_options
+    return question_lang_version
 
 
 def make_question(
@@ -48,38 +56,65 @@ def make_question(
     add_category_question=True,
     lang_versions=None,
 ):
-    q = QuestionOrm()
-    q.id = id_
-    q.is_blank = is_blank
-    q.question_index = question_index
-    q.question_text = question_text
-    q.question_type = question_type
-    q.has_comment_attached = has_comment_attached
-    q.required = required
-    q.allow_future_dates = allow_future_dates
-    q.allow_past_dates = allow_past_dates
-    q.units = units
-    q.visible_condition = visible_condition
-    q.mc_options = mc_options
-    q.num_min = num_min
-    q.num_max = num_max
-    q.string_max_length = string_max_length
-    q.answers = answers
-    q.category_index = category_index
-    q.string_max_lines = string_max_lines
+    """
+    Construct a minimal QuestionOrm instance with the given parameters.
+
+    :param id_: ID of the QuestionOrm to create.
+    :param is_blank: Whether the question is a blank template.
+    :param question_index: Index of the question in the form.
+    :param question_text: Question text of the question.
+    :param question_type: Type of the question (integer, text, multiple choice, etc.).
+    :param has_comment_attached: Whether the question has a comment field attached.
+    :param required: Whether the question must be answered.
+    :param allow_future_dates: Whether the question allows future dates as answers.
+    :param allow_past_dates: Whether the question allows past dates as answers.
+    :param units: Unit of measurement for the question.
+    :param visible_condition: Visible condition for the question.
+    :param mc_options: Multiple choice options for the question.
+    :param num_min: Minimum numerical value allowed for the question.
+    :param num_max: Maximum numerical value allowed for the question.
+    :param string_max_length: Maximum length of text allowed for the question.
+    :param answers: Answer to the question.
+    :param category_index: Index of the category in the form.
+    :param string_max_lines: Maximum number of lines of text allowed for the question.
+    :param attach_form: Whether to create a parent Form and attach it.
+    :param attach_form_template: Whether to create a parent FormTemplate and attach it.
+    :param add_category_question: Whether to create a parent CategoryQuestion and attach it.
+    :param lang_versions: List of language versions for the question.
+    :return: Minimal QuestionOrm instance with the given parameters.
+    """
+    question = QuestionOrm()
+    question.id = id_
+    question.is_blank = is_blank
+    question.question_index = question_index
+    question.question_text = question_text
+    question.question_type = question_type
+    question.has_comment_attached = has_comment_attached
+    question.required = required
+    question.allow_future_dates = allow_future_dates
+    question.allow_past_dates = allow_past_dates
+    question.units = units
+    question.visible_condition = visible_condition
+    question.mc_options = mc_options
+    question.num_min = num_min
+    question.num_max = num_max
+    question.string_max_length = string_max_length
+    question.answers = answers
+    question.category_index = category_index
+    question.string_max_lines = string_max_lines
 
     if attach_form:
-        q.form = FormOrm()
+        question.form = FormOrm()
     if attach_form_template:
-        q.form_template = FormTemplateOrm()
+        question.form_template = FormTemplateOrm()
 
     if add_category_question:
-        q.category_question = {"id": "cat-1"}
+        question.category_question = {"id": "cat-1"}
 
     if lang_versions is not None:
-        q.lang_versions = lang_versions
+        question.lang_versions = lang_versions
 
-    return q
+    return question
 
 
 def test_question_marshal_parses_json_fields_and_strips_relationships():
@@ -92,7 +127,7 @@ def test_question_marshal_parses_json_fields_and_strips_relationships():
       - strip relationship objects (form, form_template) if present,
       - drop private attributes (start with "_").
     """
-    q = make_question(
+    question = make_question(
         id_="q-parse",
         question_index=3,
         question_text="Hemoglobin",
@@ -114,44 +149,47 @@ def test_question_marshal_parses_json_fields_and_strips_relationships():
         attach_form_template=True,
     )
 
-    q._test = {"trace": True}
+    question._test = {"trace": True}
 
-    out = m.marshal(q)
+    marshalled = m.marshal(question)
 
     # Core fields
-    assert out["id"] == "q-parse"
-    assert out["is_blank"] is False
-    assert out["question_index"] == 3
-    assert out["question_text"] == "Hemoglobin"
-    assert out["has_comment_attached"] is True
-    assert out["required"] is True
-    assert out["allow_future_dates"] is False
-    assert out["allow_past_dates"] is True
-    assert out["units"] == "g/dL"
-    assert out["num_min"] == 7.0
-    assert out["num_max"] == 20.0
-    assert out["category_index"] == 1
+    assert marshalled["id"] == "q-parse"
+    assert marshalled["is_blank"] is False
+    assert marshalled["question_index"] == 3
+    assert marshalled["question_text"] == "Hemoglobin"
+    assert marshalled["has_comment_attached"] is True
+    assert marshalled["required"] is True
+    assert marshalled["allow_future_dates"] is False
+    assert marshalled["allow_past_dates"] is True
+    assert marshalled["units"] == "g/dL"
+    assert marshalled["num_min"] == 7.0
+    assert marshalled["num_max"] == 20.0
+    assert marshalled["category_index"] == 1
 
     # Enum serialized to string
-    assert out["question_type"] == QuestionTypeEnum.DECIMAL.value
+    assert marshalled["question_type"] == QuestionTypeEnum.DECIMAL.value
 
     # JSON fields parsed
-    assert isinstance(out["visible_condition"], list)
-    assert out["visible_condition"][0]["relation"] == "GREATER_THAN"
-    assert isinstance(out["mc_options"], list) and out["mc_options"] == []
-    assert isinstance(out["answers"], dict) and out["answers"]["number"] == 11.2
+    assert isinstance(marshalled["visible_condition"], list)
+    assert marshalled["visible_condition"][0]["relation"] == "GREATER_THAN"
+    assert isinstance(marshalled["mc_options"], list) and marshalled["mc_options"] == []
+    assert (
+        isinstance(marshalled["answers"], dict)
+        and marshalled["answers"]["number"] == 11.2
+    )
 
     # Relationship objects are stripped by marshal
-    assert "form" not in out
-    assert "form_template" not in out
+    assert "form" not in marshalled
+    assert "form_template" not in marshalled
 
     # None-valued optionals stripped
-    assert "string_max_length" not in out
-    assert "string_max_lines" not in out
+    assert "string_max_length" not in marshalled
+    assert "string_max_lines" not in marshalled
 
     # Private attrs stripped
-    assert "_test" not in out
-    assert all(not k.startswith("_") for k in out)
+    assert "_test" not in marshalled
+    assert all(not k.startswith("_") for k in marshalled)
 
 
 def test_question_marshal_includes_lang_versions_only_when_requested():
@@ -169,7 +207,7 @@ def test_question_marshal_includes_lang_versions_only_when_requested():
         question_text="Tension artérielle",
         mc_options="[]",  # will be dropped on marshal
     )
-    q = make_question(
+    question = make_question(
         id_="q-lv",
         question_text="BP (base text)",
         mc_options='["BaseOpt"]',
@@ -180,15 +218,17 @@ def test_question_marshal_includes_lang_versions_only_when_requested():
     )
 
     # Default: versions omitted
-    base = m.marshal(q, if_include_versions=False)
+    base = m.marshal(question, if_include_versions=False)
     assert "lang_versions" not in base
 
     # With versions included
-    out = m.marshal(q, if_include_versions=True)
-    assert "lang_versions" in out and isinstance(out["lang_versions"], list)
-    assert {v["lang"] for v in out["lang_versions"]} == {"en", "fr"}
+    marshalled = m.marshal(question, if_include_versions=True)
+    assert "lang_versions" in marshalled and isinstance(
+        marshalled["lang_versions"], list
+    )
+    assert {v["lang"] for v in marshalled["lang_versions"]} == {"en", "fr"}
 
-    en = next(v for v in out["lang_versions"] if v["lang"] == "en")
+    en = next(v for v in marshalled["lang_versions"] if v["lang"] == "en")
     assert isinstance(en["mc_options"], list) and en["mc_options"] == [
         "High",
         "Normal",
@@ -196,7 +236,7 @@ def test_question_marshal_includes_lang_versions_only_when_requested():
     ]
     assert en["question_text"] == "Blood pressure"
 
-    fr = next(v for v in out["lang_versions"] if v["lang"] == "fr")
+    fr = next(v for v in marshalled["lang_versions"] if v["lang"] == "fr")
     assert fr["question_text"] == "Tension artérielle"
     assert "mc_options" not in fr  # stripped when equal to default "[]"
 

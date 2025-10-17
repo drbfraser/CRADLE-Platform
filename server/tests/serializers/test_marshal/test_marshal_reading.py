@@ -43,53 +43,86 @@ def make_reading(
     ],
 )
 def test_symptoms_parsing_table(raw, expected):
+    """
+    Test that marshalling a ReadingOrm with symptoms set to a string,
+    will result in a marshalled object with the symptoms parsed into a list.
+    """
     r = make_reading(symptoms=raw)
-    out = m.marshal(r, shallow=True)
-    assert out["symptoms"] == expected
+    marshalled = m.marshal(r, shallow=True)
+    assert marshalled["symptoms"] == expected
 
 
 def test_enum_converted_and_nones_stripped():
-    r = make_reading(traffic=TrafficLightEnum.RED_UP)
-    out = m.marshal(r, shallow=True)
+    """
+    Test that marshalling a ReadingOrm with traffic_light_status set to an Enum
+    value, will result in a marshalled object with the traffic_light_status converted
+    to its .value. Additionally, test that marshalling strips None-valued fields and
+    omits nested relationships when shallow=True.
+    """
+    reading = make_reading(traffic=TrafficLightEnum.RED_UP)
+    marshalled = m.marshal(reading, shallow=True)
     # Enum -> .value via __pre_process
-    assert out["traffic_light_status"] == TrafficLightEnum.RED_UP.value
-    assert out["last_edited"] == 1577836800
-    assert out["date_taken"] == 1577836800
-    assert "date_retest_needed" not in out
-    assert "is_flagged_for_follow_up" not in out
-    assert "referral" not in out
-    assert "patient" not in out
+    assert marshalled["traffic_light_status"] == TrafficLightEnum.RED_UP.value
+    assert marshalled["last_edited"] == 1577836800
+    assert marshalled["date_taken"] == 1577836800
+    assert "date_retest_needed" not in marshalled
+    assert "is_flagged_for_follow_up" not in marshalled
+    assert "referral" not in marshalled
+    assert "patient" not in marshalled
 
 
 def test_urine_tests_respects_shallow_toggle():
-    r = make_reading(symptoms="A,B")
-    ut = UrineTestOrm()
-    ut.id = "ut-9"
-    ut.protein = "++"
-    r.urine_tests = ut
+    """
+    Test that marshalling a ReadingOrm with shallow=True respects the shallow parameter and
+    omits the nested UrineTestOrm relationship, while marshalling with shallow=False respects
+    the parameter and includes the nested relationship in the marshalled output.
+    """
+    reading = make_reading(symptoms="A,B")
+    urine_test = UrineTestOrm()
+    urine_test.id = "ut-9"
+    urine_test.protein = "++"
+    reading.urine_tests = urine_test
 
     # shallow=True: nested should NOT appear
-    o_shallow = m.marshal(r, shallow=True)
+    o_shallow = m.marshal(reading, shallow=True)
     assert "urine_tests" not in o_shallow
 
     # shallow=False: nested should appear and be marshalled
-    o_deep = m.marshal(r, shallow=False)
+    o_deep = m.marshal(reading, shallow=False)
     assert "urine_tests" in o_deep
     assert o_deep["urine_tests"]["id"] == "ut-9"
     assert o_deep["urine_tests"]["protein"] == "++"
 
 
 def test_input_object_not_mutated_by_marshal():
-    r = make_reading(symptoms="A,B")
-    _before = r.symptoms
-    out = m.marshal(r, shallow=True)
-    assert out["symptoms"] == ["A", "B"]
-    assert r.symptoms == _before
+    """
+    Test that marshaling an object does not mutate the original object.
+
+    This test verifies that the input object passed to marshal is not modified
+    by the marshaling process. It creates a ReadingOrm with a symptom list and
+    checks that the list is not modified by the marshaling process.
+
+    """
+    reading = make_reading(symptoms="A,B")
+    _before = reading.symptoms
+    marshalled = m.marshal(reading, shallow=True)
+    assert marshalled["symptoms"] == ["A", "B"]
+    assert reading.symptoms == _before
 
 
 def test_basic_fields_preserved_minimally():
-    r = make_reading(id_="r-xyz", patient_id="p-007", symptoms=None)
-    out = m.marshal(r, shallow=True)
-    assert out["id"] == "r-xyz"
-    assert out["patient_id"] == "p-007"
-    assert out["symptoms"] == []
+    """
+    Test that marshaling a ReadingOrm preserves the basic fields (id, patient_id, symptoms)
+    minimally.
+
+    This test verifies that the basic fields of a ReadingOrm instance are
+    preserved when marshaling the object with shallow=True. It creates a ReadingOrm
+    instance with a None value for symptoms and checks that the marshalled output
+    contains the same values for the basic fields as the original object.
+
+    """
+    reading = make_reading(id_="r-xyz", patient_id="p-007", symptoms=None)
+    marshalled = m.marshal(reading, shallow=True)
+    assert marshalled["id"] == "r-xyz"
+    assert marshalled["patient_id"] == "p-007"
+    assert marshalled["symptoms"] == []

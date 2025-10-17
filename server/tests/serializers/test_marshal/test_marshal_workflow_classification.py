@@ -3,7 +3,6 @@ import data.marshal as m
 from models import (
     FormClassificationOrm,
     FormTemplateOrm,
-    RuleGroupOrm,
     WorkflowClassificationOrm,
     WorkflowTemplateOrm,
     WorkflowTemplateStepOrm,
@@ -11,49 +10,56 @@ from models import (
 
 
 def _make_form_template(template_id: str, fc_id: str) -> FormTemplateOrm:
-    fc = FormClassificationOrm()
-    fc.id = fc_id
-    fc.name = "Clinical"
-    fc._internal = "strip-me"
+    """
+    Construct a minimal FormTemplateOrm instance with the given parameters.
 
-    ft = FormTemplateOrm()
-    ft.id = template_id
-    ft.name = "ANC Intake"
-    ft.description = "Initial antenatal visit"
-    ft.classification = fc
-    ft.questions = []
-    ft._cache = {"ignore": True}
-    return ft
+    :param template_id: ID of the FormTemplateOrm to create.
+    :param fc_id: ID of the FormClassificationOrm associated with the form template.
+    :return: Minimal FormTemplateOrm instance with the given parameters.
+    """
+    form_classification = FormClassificationOrm()
+    form_classification.id = fc_id
+    form_classification.name = "Clinical"
+    form_classification._internal = "strip-me"
 
-
-def _make_condition(rg_id: str, rule=None, data_sources=None) -> RuleGroupOrm:
-    rg = RuleGroupOrm()
-    rg.id = rg_id
-    rg.rule = {"all": []} if rule is None else rule
-    rg.data_sources = [] if data_sources is None else data_sources
-    rg._debug = "strip-me"
-    return rg
+    foem_template = FormTemplateOrm()
+    foem_template.id = template_id
+    foem_template.name = "ANC Intake"
+    foem_template.description = "Initial antenatal visit"
+    foem_template.classification = form_classification
+    foem_template.questions = []
+    foem_template._cache = {"ignore": True}
+    return foem_template
 
 
 def _make_workflow_template_step(
     step_id: str, template_id: str, form_template_id: str, form_fc_id: str
 ) -> WorkflowTemplateStepOrm:
-    s = WorkflowTemplateStepOrm()
-    s.id = step_id
-    s.name = f"Step {step_id}"
-    s.description = "Collect vitals"
-    s.expected_completion = 3600
-    s.last_edited = 1_700_000_000
-    s.workflow_template_id = template_id
-    s._scratch = "strip-me"
+    """
+    Construct a minimal WorkflowTemplateStepOrm instance with the given parameters.
 
-    s.form_id = form_template_id
-    s.form = _make_form_template(form_template_id, form_fc_id)
+    :param step_id: ID of the WorkflowTemplateStepOrm to create.
+    :param template_id: ID of the WorkflowTemplateOrm associated with the step.
+    :param form_template_id: ID of the FormTemplateOrm associated with the step.
+    :param form_fc_id: ID of the FormClassificationOrm associated with the form template.
+    :return: Minimal WorkflowTemplateStepOrm instance with the given parameters.
+    """
+    workflow_tem_step = WorkflowTemplateStepOrm()
+    workflow_tem_step.id = step_id
+    workflow_tem_step.name = f"Step {step_id}"
+    workflow_tem_step.description = "Collect vitals"
+    workflow_tem_step.expected_completion = 3600
+    workflow_tem_step.last_edited = 1_700_000_000
+    workflow_tem_step.workflow_template_id = template_id
+    workflow_tem_step._scratch = "strip-me"
 
-    s.condition_id = None
-    s.condition = None
-    s.branches = []
-    return s
+    workflow_tem_step.form_id = form_template_id
+    workflow_tem_step.form = _make_form_template(form_template_id, form_fc_id)
+
+    workflow_tem_step.condition_id = None
+    workflow_tem_step.condition = None
+    workflow_tem_step.branches = []
+    return workflow_tem_step
 
 
 def _make_workflow_template(
@@ -62,32 +68,40 @@ def _make_workflow_template(
     *,
     with_one_step: bool,
 ) -> WorkflowTemplateOrm:
-    wt = WorkflowTemplateOrm()
-    wt.id = wt_id
-    wt.name = f"Template {wt_id}"
-    wt.description = "Routine antenatal care"
-    wt.archived = False
-    wt.date_created = 1_690_000_000
-    wt.last_edited = 1_700_000_000
-    wt.version = "v1"
-    wt.starting_step_id = "start-1"
-    wt._private = "strip-me"
+    """
+    Construct a minimal WorkflowTemplateOrm instance with the given parameters.
 
-    wt.classification = classification
-    wt.classification_id = classification.id
+    :param wt_id: ID of the WorkflowTemplateOrm to create.
+    :param classification: WorkflowClassificationOrm associated with the workflow template.
+    :param with_one_step: If True, create a single WorkflowTemplateStepOrm within the workflow template.
+    :return: Minimal WorkflowTemplateOrm instance with the given parameters.
+    """
+    workflow_template = WorkflowTemplateOrm()
+    workflow_template.id = wt_id
+    workflow_template.name = f"Template {wt_id}"
+    workflow_template.description = "Routine antenatal care"
+    workflow_template.archived = False
+    workflow_template.date_created = 1_690_000_000
+    workflow_template.last_edited = 1_700_000_000
+    workflow_template.version = "v1"
+    workflow_template.starting_step_id = "start-1"
+    workflow_template._private = "strip-me"
+
+    workflow_template.classification = classification
+    workflow_template.classification_id = classification.id
 
     if with_one_step:
         step = _make_workflow_template_step(
             step_id=f"wts-{wt_id}-1",
-            template_id=wt.id,
+            template_id=workflow_template.id,
             form_template_id=f"ft-{wt_id}-1",
             form_fc_id=f"fc-{wt_id}-1",
         )
-        wt.steps = [step]
+        workflow_template.steps = [step]
     else:
-        wt.steps = []
+        workflow_template.steps = []
 
-    return wt
+    return workflow_template
 
 
 def test_workflow_classification_marshal_basic_omits_backrefs_and_privates():
@@ -97,20 +111,20 @@ def test_workflow_classification_marshal_basic_omits_backrefs_and_privates():
       - strip private attrs,
       - not include relationship collections by default.
     """
-    wc = WorkflowClassificationOrm()
-    wc.id = "wc-1"
-    wc.name = "Antenatal"
-    wc.collection_id = "coll-1"
-    wc._secret = "nope"
+    workflow_classification = WorkflowClassificationOrm()
+    workflow_classification.id = "wc-1"
+    workflow_classification.name = "Antenatal"
+    workflow_classification.collection_id = "coll-1"
+    workflow_classification._secret = "nope"
 
-    out = m.marshal(wc)
+    marshalled = m.marshal(workflow_classification)
 
-    assert out["id"] == "wc-1"
-    assert out["name"] == "Antenatal"
-    assert out["collection_id"] == "coll-1"
-    assert "_secret" not in out
-    assert "workflow_templates" not in out
-    assert "collection" not in out
+    assert marshalled["id"] == "wc-1"
+    assert marshalled["name"] == "Antenatal"
+    assert marshalled["collection_id"] == "coll-1"
+    assert "_secret" not in marshalled
+    assert "workflow_templates" not in marshalled
+    assert "collection" not in marshalled
 
 
 def test_workflow_classification_marshal_includes_templates_with_shallow():
@@ -121,28 +135,32 @@ def test_workflow_classification_marshal_includes_templates_with_shallow():
       - omit 'steps' (shallow=True),
       - strip private attrs at all levels.
     """
-    wc = WorkflowClassificationOrm()
-    wc.id = "wc-2"
-    wc.name = "Postnatal"
+    workflow_classification = WorkflowClassificationOrm()
+    workflow_classification.id = "wc-2"
+    workflow_classification.name = "Postnatal"
 
     # Two templates, one without
-    wt1 = _make_workflow_template("wt-A", wc, with_one_step=True)
-    wt2 = _make_workflow_template("wt-B", wc, with_one_step=False)
+    wt1 = _make_workflow_template("wt-A", workflow_classification, with_one_step=True)
+    wt2 = _make_workflow_template("wt-B", workflow_classification, with_one_step=False)
 
-    wc.workflow_templates = [wt1, wt2]
-    wc.templates = [wt1, wt2]
+    workflow_classification.workflow_templates = [wt1, wt2]
+    workflow_classification.templates = [wt1, wt2]
 
-    out = m.marshal(wc, shallow=True, if_include_versions=True)
+    marshalled = m.marshal(
+        workflow_classification, shallow=True, if_include_versions=True
+    )
 
     # Top-level checks
-    assert out["id"] == "wc-2"
-    assert out["name"] == "Postnatal"
-    assert "collection_id" not in out
-    assert "workflow_templates" in out and isinstance(out["workflow_templates"], list)
-    assert {t["id"] for t in out["workflow_templates"]} == {"wt-A", "wt-B"}
+    assert marshalled["id"] == "wc-2"
+    assert marshalled["name"] == "Postnatal"
+    assert "collection_id" not in marshalled
+    assert "workflow_templates" in marshalled and isinstance(
+        marshalled["workflow_templates"], list
+    )
+    assert {t["id"] for t in marshalled["workflow_templates"]} == {"wt-A", "wt-B"}
 
     # Template A (steps omitted due to shallow=True)
-    tA = next(t for t in out["workflow_templates"] if t["id"] == "wt-A")
+    tA = next(t for t in marshalled["workflow_templates"] if t["id"] == "wt-A")
     for k in (
         "id",
         "name",
@@ -159,9 +177,9 @@ def test_workflow_classification_marshal_includes_templates_with_shallow():
     assert "steps" not in tA
 
     # Embedded classification should not leak backrefs/private
-    assert tA["classification"]["id"] == wc.id
+    assert tA["classification"]["id"] == workflow_classification.id
     assert "workflow_templates" not in tA["classification"]
 
-    tB = next(t for t in out["workflow_templates"] if t["id"] == "wt-B")
+    tB = next(t for t in marshalled["workflow_templates"] if t["id"] == "wt-B")
     assert "steps" not in tB
-    assert tB["classification"]["id"] == wc.id
+    assert tB["classification"]["id"] == workflow_classification.id

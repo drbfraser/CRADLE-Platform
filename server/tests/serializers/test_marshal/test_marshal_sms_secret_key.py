@@ -14,13 +14,27 @@ def make_sms_secret_key(
     stale_date=dt.datetime(2024, 1, 1, 9, 0, 0, tzinfo=UTC),
     expiry_date=dt.datetime(2024, 1, 1, 10, 0, 0, tzinfo=UTC),
 ):
-    s = SmsSecretKeyOrm()
-    s.id = id_
-    s.user_id = user_id
-    s.secret_key = secret_key
-    s.stale_date = stale_date
-    s.expiry_date = expiry_date
-    return s
+    """
+    Convenience function to create an SmsSecretKeyOrm instance with the given parameters.
+
+    Args:
+        id_ (str, optional): Defaults to "ssk-001". The id of the SMS secret key.
+        user_id (int, optional): Defaults to 777. The id of the user this key belongs to.
+        secret_key (str, optional): Defaults to "4e6f7264-53c7-4f31-9d5c-a65c0b1c9c2a". The secret key itself.
+        stale_date (datetime, optional): Defaults to datetime.datetime(2024, 1, 1, 9, 0, 0, tzinfo=datetime.timezone.utc). Date after which the key becomes stale.
+        expiry_date (datetime, optional): Defaults to datetime.datetime(2024, 1, 1, 10, 0, 0, tzinfo=datetime.timezone.utc). Date after which the key expires.
+
+    Returns:
+        SmsSecretKeyOrm: An instance of SmsSecretKeyOrm with the given parameters.
+
+    """
+    sms_sec_key = SmsSecretKeyOrm()
+    sms_sec_key.id = id_
+    sms_sec_key.user_id = user_id
+    sms_sec_key.secret_key = secret_key
+    sms_sec_key.stale_date = stale_date
+    sms_sec_key.expiry_date = expiry_date
+    return sms_sec_key
 
 
 def test_sms_secret_key_marshal_includes_core_fields_and_no_relationships():
@@ -42,19 +56,19 @@ def test_sms_secret_key_marshal_includes_core_fields_and_no_relationships():
 
     s.extra = None
 
-    out = m.marshal(s)
+    marshalled = m.marshal(s)
 
     # expected keys/values
-    assert out["id"] == "ssk-prod-42"
-    assert out["user_id"] == 42
-    assert out["secret_key"] == "SEC-42-abcdef012345"
+    assert marshalled["id"] == "ssk-prod-42"
+    assert marshalled["user_id"] == 42
+    assert marshalled["secret_key"] == "SEC-42-abcdef012345"
 
     # datetimes preserved as datetime objects
-    assert out["stale_date"] == stale
-    assert out["expiry_date"] == expiry
+    assert marshalled["stale_date"] == stale
+    assert marshalled["expiry_date"] == expiry
 
     # only those five fields present
-    assert set(out.keys()) == {
+    assert set(marshalled.keys()) == {
         "id",
         "user_id",
         "secret_key",
@@ -62,5 +76,5 @@ def test_sms_secret_key_marshal_includes_core_fields_and_no_relationships():
         "expiry_date",
     }
 
-    assert "user" not in out
-    assert "extra" not in out
+    assert "user" not in marshalled
+    assert "extra" not in marshalled

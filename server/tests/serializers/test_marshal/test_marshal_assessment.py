@@ -32,31 +32,31 @@ def make_assessment(
 
 
 def test_assessment_strips_relationship_objects_when_present():
-    a = make_assessment()
+    assessment = make_assessment()
 
-    p = PatientOrm()
-    p.id = "p-1"
-    u = UserOrm()
-    u.id = 101
+    patient = PatientOrm()
+    patient.id = "p-1"
+    user = UserOrm()
+    user.id = 101
 
-    a.patient = p
-    a.healthcare_worker = u
+    assessment.patient = patient
+    assessment.healthcare_worker = user
 
-    out = m.marshal(a)
+    marshalled = m.marshal(assessment)
 
-    # NOTE: Relationship objects must be removed from output.
+    # NOTE: Relationship objects must be removed from marshalledput.
     # BUG EXPOSED (current marshal only deletes 'health_facility' which doesn't exist):
-    # Relationship objects must be removed from output.
-    assert "patient" not in out
-    assert "healthcare_worker" not in out
+    # Relationship objects must be removed from marshalledput.
+    assert "patient" not in marshalled
+    assert "healthcare_worker" not in marshalled
 
     # FK scalars remain
-    assert out["patient_id"] == "p-1"
-    assert out["healthcare_worker_id"] == 101
+    assert marshalled["patient_id"] == "p-1"
+    assert marshalled["healthcare_worker_id"] == 101
 
 
 def test_assessment_strips_none_fields_but_preserves_false_boolean_and_scalars():
-    a = make_assessment(
+    assessment = make_assessment(
         follow_up_instructions=None,
         special_investigations=None,
         diagnosis=None,
@@ -65,26 +65,29 @@ def test_assessment_strips_none_fields_but_preserves_false_boolean_and_scalars()
         follow_up_needed=False,  # ensure False isn't stripped
     )
 
-    out = m.marshal(a)
+    marshalled = m.marshal(assessment)
 
     # None fields should be gone
-    for k in (
+    for attr in (
         "follow_up_instructions",
         "special_investigations",
         "diagnosis",
         "treatment",
         "medication_prescribed",
     ):
-        assert k not in out
+        assert attr not in marshalled
 
-    assert out["follow_up_needed"] is False
+    assert marshalled["follow_up_needed"] is False
 
-    assert out["date_assessed"] == 1577923200
-    assert out["patient_id"] == "p-1"
-    assert out["healthcare_worker_id"] == 101
+    assert marshalled["date_assessed"] == 1577923200
+    assert marshalled["patient_id"] == "p-1"
+    assert marshalled["healthcare_worker_id"] == 101
 
 
 def test_assessment_preserves_nonempty_text_and_true_boolean():
+    """
+    Test that marshalling preserves non-empty text fields and true boolean fields in Assessment.
+    """
     a = make_assessment(
         follow_up_instructions="Return in 3 days",
         special_investigations="CBC, LFT",
@@ -94,18 +97,23 @@ def test_assessment_preserves_nonempty_text_and_true_boolean():
         follow_up_needed=True,
     )
 
-    out = m.marshal(a)
+    marshalled = m.marshal(a)
 
-    assert out["follow_up_instructions"] == "Return in 3 days"
-    assert out["special_investigations"] == "CBC, LFT"
-    assert out["diagnosis"] == "Hypertension"
-    assert out["treatment"] == "Start amlodipine 5mg"
-    assert out["medication_prescribed"] == "Amlodipine 5mg qd"
-    assert out["follow_up_needed"] is True
-    assert out["date_assessed"] == 1577923200
+    assert marshalled["follow_up_instructions"] == "Return in 3 days"
+    assert marshalled["special_investigations"] == "CBC, LFT"
+    assert marshalled["diagnosis"] == "Hypertension"
+    assert marshalled["treatment"] == "Start amlodipine 5mg"
+    assert marshalled["medication_prescribed"] == "Amlodipine 5mg qd"
+    assert marshalled["follow_up_needed"] is True
+    assert marshalled["date_assessed"] == 1577923200
 
 
 def test_assessment_private_attrs_stripped_and_input_not_mutated():
+    """
+    Test that marshalling an Assessment strips private attributes (e.g., _secret) and
+    removes relationship objects (e.g., patient, healthcare_worker) from the marshalled output.
+    Additionally, ensure that the original object passed to marshal is not mutated.
+    """
     assesment = make_assessment()
     assesment._secret = "do-not-leak"  # should be removed by __pre_process
 
@@ -119,14 +127,14 @@ def test_assessment_private_attrs_stripped_and_input_not_mutated():
     before_patient = assesment.patient
     before_worker = assesment.healthcare_worker
 
-    out = m.marshal(assesment)
+    marshalled = m.marshal(assesment)
 
     # Private attr gone
-    assert "_secret" not in out
+    assert "_secret" not in marshalled
 
-    # Relationships removed from output…
-    assert "patient" not in out
-    assert "healthcare_worker" not in out
+    # Relationships removed from marshalledput…
+    assert "patient" not in marshalled
+    assert "healthcare_worker" not in marshalled
 
     # …but original object remains intact (marshal works on a copy)
     assert assesment.patient is before_patient
@@ -135,7 +143,7 @@ def test_assessment_private_attrs_stripped_and_input_not_mutated():
 
 def test_assessment_minimum_expected_keys_present():
     a = make_assessment()
-    out = m.marshal(a)
+    marshalled = m.marshal(a)
 
     for k in ("id", "patient_id", "healthcare_worker_id", "date_assessed"):
-        assert k in out
+        assert k in marshalled

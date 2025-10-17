@@ -11,9 +11,15 @@ from models import (
 
 
 def make_classification(id_="fc-1"):
-    fc = FormClassificationOrm()
-    fc.id = id_
-    return fc
+    """
+    Construct a minimal FormClassificationOrm instance with the given id.
+
+    :param id_: ID of the FormClassificationOrm to create.
+    :return: Minimal FormClassificationOrm instance with the given id.
+    """
+    form_lassification = FormClassificationOrm()
+    form_lassification.id = id_
+    return form_lassification
 
 
 def make_question(
@@ -25,15 +31,26 @@ def make_question(
     answers="[]",
     lang_versions: list[QuestionLangVersionOrm] | None = None,
 ):
-    q = QuestionOrm()
-    q.id = id_
-    q.question_index = question_index
-    q.visible_condition = visible_condition
-    q.mc_options = mc_options
-    q.answers = answers
+    """
+    Construct a minimal QuestionOrm instance with the given parameters.
+
+    :param id_: ID of the QuestionOrm to create.
+    :param question_index: Index of the question in the form.
+    :param visible_condition: Visible condition for the question.
+    :param mc_options: Multiple choice options for the question.
+    :param answers: Answers to the question.
+    :param lang_versions: List of language versions for the question.
+    :return: Minimal QuestionOrm instance with the given parameters.
+    """
+    question = QuestionOrm()
+    question.id = id_
+    question.question_index = question_index
+    question.visible_condition = visible_condition
+    question.mc_options = mc_options
+    question.answers = answers
     if lang_versions is not None:
-        q.lang_versions = lang_versions
-    return q
+        question.lang_versions = lang_versions
+    return question
 
 
 def make_lang_version(
@@ -43,13 +60,22 @@ def make_lang_version(
     question_text="How are you?",
     mc_options="[]",
 ):
-    lv = QuestionLangVersionOrm()
+    """
+    Construct a minimal QuestionLangVersionOrm instance with the given parameters.
+
+    :param id_: ID of the QuestionLangVersionOrm to create.
+    :param lang: Language of the language version.
+    :param question_text: Question text of the language version.
+    :param mc_options: Multiple choice options for the language version.
+    :return: Minimal QuestionLangVersionOrm instance with the given parameters.
+    """
+    lang_version = QuestionLangVersionOrm()
     if id_ is not None:
-        lv.id = id_
-    lv.lang = lang
-    lv.question_text = question_text
-    lv.mc_options = mc_options
-    return lv
+        lang_version.id = id_
+    lang_version.lang = lang
+    lang_version.question_text = question_text
+    lang_version.mc_options = mc_options
+    return lang_version
 
 
 def make_form_template(
@@ -61,16 +87,27 @@ def make_form_template(
     classification: FormClassificationOrm | None = None,
     questions: list[QuestionOrm] | None = None,
 ):
-    ft = FormTemplateOrm()
-    ft.id = id_
-    ft.version = version
-    ft.date_created = date_created
-    ft.archived = archived
+    """
+    Construct a minimal FormTemplateOrm instance with the given parameters.
+
+    :param id_: ID of the FormTemplateOrm to create.
+    :param version: Version of the form template.
+    :param date_created: Timestamp when the form template was created.
+    :param archived: Whether the form template is archived.
+    :param classification: FormClassificationOrm instance associated with the form template.
+    :param questions: List of QuestionOrm instances associated with the form template.
+    :return: Minimal FormTemplateOrm instance with the given parameters.
+    """
+    form_template = FormTemplateOrm()
+    form_template.id = id_
+    form_template.version = version
+    form_template.date_created = date_created
+    form_template.archived = archived
     if classification:
-        ft.classification = classification
+        form_template.classification = classification
     # Ensure the relationship is materialized in __dict__ before marshaling
-    ft.questions = questions or []
-    return ft
+    form_template.questions = questions or []
+    return form_template
 
 
 def test_form_template_shallow_omits_questions_and_embeds_classification():
@@ -80,31 +117,31 @@ def test_form_template_shallow_omits_questions_and_embeds_classification():
     - include a compact classification dict,
     - omit nested 'questions'.
     """
-    fc = make_classification("fc-11")
-    q1 = make_question(id_="q-9", question_index=2)
-    q2 = make_question(id_="q-3", question_index=1)
-    ft = make_form_template(
+    form_classification = make_classification("fc-11")
+    question_1 = make_question(id_="q-9", question_index=2)
+    question_2 = make_question(id_="q-3", question_index=1)
+    form_template = make_form_template(
         id_="ft-9",
         version="v9",
         date_created=1700000000,
         archived=True,
-        classification=fc,
-        questions=[q1, q2],
+        classification=form_classification,
+        questions=[question_1, question_2],
     )
 
-    out = m.marshal(ft, shallow=True)
+    marshalled = m.marshal(form_template, shallow=True)
 
-    assert out["id"] == "ft-9"
-    assert out["version"] == "v9"
-    assert out["date_created"] == 1700000000
-    assert out["archived"] is True
+    assert marshalled["id"] == "ft-9"
+    assert marshalled["version"] == "v9"
+    assert marshalled["date_created"] == 1700000000
+    assert marshalled["archived"] is True
 
-    assert "classification" in out
-    assert isinstance(out["classification"], dict)
-    assert out["classification"]["id"] == "fc-11"
+    assert "classification" in marshalled
+    assert isinstance(marshalled["classification"], dict)
+    assert marshalled["classification"]["id"] == "fc-11"
 
     # No questions when shallow=True
-    assert "questions" not in out
+    assert "questions" not in marshalled
 
 
 def test_form_template_deep_includes_sorted_questions_and_parses_fields():
@@ -113,22 +150,22 @@ def test_form_template_deep_includes_sorted_questions_and_parses_fields():
     - sorted by question_index ascending,
     - with JSON fields parsed (visible_condition -> dict, mc_options -> list, answers -> list).
     """
-    fc = make_classification("fc-22")
-    q1 = make_question(
+    form_classification = make_classification("fc-22")
+    question_1 = make_question(
         id_="q-a",
         question_index=3,
         visible_condition='{"op":"and","rules":[]}',
         mc_options='["A","B"]',
         answers='["B"]',
     )
-    q2 = make_question(
+    question_2 = make_question(
         id_="q-b",
         question_index=1,
         visible_condition='{"op":"always"}',
         mc_options='["X"]',
         answers="[]",
     )
-    q3 = make_question(
+    question_3 = make_question(
         id_="q-c",
         question_index=2,
         visible_condition='{"op":"never"}',
@@ -137,27 +174,27 @@ def test_form_template_deep_includes_sorted_questions_and_parses_fields():
     )
 
     # Deliberately unsorted input
-    ft = make_form_template(
+    form_template = make_form_template(
         id_="ft-deep",
-        classification=fc,
-        questions=[q1, q2, q3],
+        classification=form_classification,
+        questions=[question_1, question_2, question_3],
     )
 
-    out = m.marshal(ft, shallow=False)
+    marshalled = m.marshal(form_template, shallow=False)
 
-    assert "questions" in out and isinstance(out["questions"], list)
-    idxs = [q["question_index"] for q in out["questions"]]
+    assert "questions" in marshalled and isinstance(marshalled["questions"], list)
+    idxs = [question["question_index"] for question in marshalled["questions"]]
     assert idxs == [1, 2, 3], "questions must be sorted ascending by question_index"
 
     # Check parsed fields for one representative question
-    q_out = out["questions"][0]  # question_index == 1 -> q2
-    assert q_out["id"] == "q-b"
-    assert isinstance(q_out["visible_condition"], dict)
-    assert isinstance(q_out["mc_options"], list)
-    assert isinstance(q_out["answers"], list)
+    q_marshalled = marshalled["questions"][0]  # question_index == 1 -> q2
+    assert q_marshalled["id"] == "q-b"
+    assert isinstance(q_marshalled["visible_condition"], dict)
+    assert isinstance(q_marshalled["mc_options"], list)
+    assert isinstance(q_marshalled["answers"], list)
 
     # Ensure no relationship objects leak from Question
-    for item in out["questions"]:
+    for item in marshalled["questions"]:
         assert "form" not in item
         assert "form_template" not in item
         assert "category_question" not in item
@@ -170,34 +207,36 @@ def test_form_template_propagates_if_include_versions_to_questions():
     - removed if mc_options == "[]"
     - parsed to list otherwise
     """
-    lv_en = make_lang_version(lang="en", question_text="BP?", mc_options="[]")
-    lv_fr = make_lang_version(
+    lang_v_en = make_lang_version(lang="en", question_text="BP?", mc_options="[]")
+    lang_v_fr = make_lang_version(
         lang="fr", question_text="TA?", mc_options='["Oui","Non"]'
     )
-    q = make_question(id_="q-lv", question_index=5, lang_versions=[lv_en, lv_fr])
-
-    ft = make_form_template(
-        id_="ft-lv",
-        classification=make_classification("fc-versions"),
-        questions=[q],
+    question = make_question(
+        id_="q-lv", question_index=5, lang_versions=[lang_v_en, lang_v_fr]
     )
 
-    out = m.marshal(ft, shallow=False, if_include_versions=True)
+    form_template = make_form_template(
+        id_="ft-lv",
+        classification=make_classification("fc-versions"),
+        questions=[question],
+    )
 
-    [qo] = out["questions"]
+    marshalled = m.marshal(form_template, shallow=False, if_include_versions=True)
+
+    [qo] = marshalled["questions"]
     assert "lang_versions" in qo
-    lvs = qo["lang_versions"]
-    assert {lv["lang"] for lv in lvs} == {"en", "fr"}
+    lang_versions = qo["lang_versions"]
+    assert {lv["lang"] for lv in lang_versions} == {"en", "fr"}
 
-    # en: mc_options removed when "[]"
-    en_out = next(item for item in lvs if item["lang"] == "en")
-    assert "mc_options" not in en_out
-    assert en_out["question_text"] == "BP?"
+    # english: mc_options removed when "[]"
+    en_marshalled = next(item for item in lang_versions if item["lang"] == "en")
+    assert "mc_options" not in en_marshalled
+    assert en_marshalled["question_text"] == "BP?"
 
-    # fr: mc_options parsed to list
-    fr_out = next(item for item in lvs if item["lang"] == "fr")
-    assert fr_out["mc_options"] == ["Oui", "Non"]
-    assert fr_out["question_text"] == "TA?"
+    # french: mc_options parsed to list
+    fr_marshalled = next(item for item in lang_versions if item["lang"] == "fr")
+    assert fr_marshalled["mc_options"] == ["Oui", "Non"]
+    assert fr_marshalled["question_text"] == "TA?"
 
 
 def test_form_template_private_attrs_stripped_and_no_input_mutation():
@@ -205,37 +244,51 @@ def test_form_template_private_attrs_stripped_and_no_input_mutation():
     Marshal must not leak private attrs from the template, its classification, or questions,
     and should not mutate the source objects.
     """
-    fc = make_classification("fc-33")
-    q = make_question(id_="q-secret", question_index=2)
-    ft = make_form_template(id_="ft-secret", classification=fc, questions=[q])
+    form_classification = make_classification("fc-33")
+    question = make_question(id_="q-secret", question_index=2)
+    form_template = make_form_template(
+        id_="ft-secret", classification=form_classification, questions=[question]
+    )
 
-    ft._secret = "nope"
-    fc._hidden = True
-    q._debug = {"x": 1}
+    form_template._secret = "nope"
+    form_classification._hidden = True
+    question._debug = {"x": 1}
 
-    before = (ft._secret, fc._hidden, q._debug)
+    before = (form_template._secret, form_classification._hidden, question._debug)
 
-    out = m.marshal(ft, shallow=False)
+    marshalled = m.marshal(form_template, shallow=False)
 
-    assert "_secret" not in out
-    assert "_hidden" not in out.get("classification", {})
-    assert "_debug" not in out["questions"][0]
+    assert "_secret" not in marshalled
+    assert "_hidden" not in marshalled.get("classification", {})
+    assert "_debug" not in marshalled["questions"][0]
 
-    after = (ft._secret, fc._hidden, q._debug)
+    after = (form_template._secret, form_classification._hidden, question._debug)
     assert before == after
 
 
 def test_form_template_classification_does_not_expand_templates_or_leak_relationships():
-    fc = make_classification("fc-44")
-    q = make_question(id_="q-x", question_index=1)
-    ft = make_form_template(id_="ft-44", classification=fc, questions=[q])
+    """
+    Classification payload should not include 'templates' backref.
+    (marshal_form_template_classification explicitly removes it.)
+    """
+    form_classification = make_classification("fc-44")
+    question = make_question(id_="q-x", question_index=1)
+    form_template = make_form_template(
+        id_="ft-44", classification=form_classification, questions=[question]
+    )
 
-    out = m.marshal(ft, shallow=True)
-    assert "templates" not in out["classification"]
+    marshalled = m.marshal(form_template, shallow=True)
+    assert "templates" not in marshalled["classification"]
 
 
 def test_form_template_type_sanity_and_core_fields():
-    ft = make_form_template(
+    """
+    Marshal form template should:
+    - preserve core scalar fields as same type,
+    - preserve the classification field as a compact dict,
+    - omit the 'questions' field.
+    """
+    form_template = make_form_template(
         id_="ft-core",
         version="v2",
         date_created=1700000001,
@@ -244,14 +297,17 @@ def test_form_template_type_sanity_and_core_fields():
         questions=[],
     )
 
-    out = m.marshal(ft, shallow=True)
+    marshalled = m.marshal(form_template, shallow=True)
 
-    assert isinstance(out["id"], str) and out["id"] == "ft-core"
-    assert isinstance(out["version"], str) and out["version"] == "v2"
-    assert isinstance(out["date_created"], int) and out["date_created"] == 1700000001
-    assert isinstance(out["archived"], bool) and out["archived"] is False
+    assert isinstance(marshalled["id"], str) and marshalled["id"] == "ft-core"
+    assert isinstance(marshalled["version"], str) and marshalled["version"] == "v2"
     assert (
-        isinstance(out["classification"], dict)
-        and out["classification"]["id"] == "fc-55"
+        isinstance(marshalled["date_created"], int)
+        and marshalled["date_created"] == 1700000001
     )
-    assert "questions" not in out
+    assert isinstance(marshalled["archived"], bool) and marshalled["archived"] is False
+    assert (
+        isinstance(marshalled["classification"], dict)
+        and marshalled["classification"]["id"] == "fc-55"
+    )
+    assert "questions" not in marshalled

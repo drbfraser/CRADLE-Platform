@@ -8,10 +8,16 @@ from models import (
 )
 
 
-def make_classification(id_="fc-1"):
-    fc = FormClassificationOrm()
-    fc.id = id_
-    return fc
+def make_classification(id_="form_classification-1"):
+    """
+    Construct a minimal FormClassificationOrm instance with the given id.
+
+    :param id_: ID of the FormClassificationOrm to create.
+    :return: Minimal FormClassificationOrm instance with the given id.
+    """
+    form_classification = FormClassificationOrm()
+    form_classification.id = id_
+    return form_classification
 
 
 def make_question(
@@ -23,15 +29,26 @@ def make_question(
     answers='["Yes"]',
     lang_versions=None,
 ):
-    q = QuestionOrm()
-    q.id = id_
-    q.question_index = question_index
-    q.visible_condition = visible_condition
-    q.mc_options = mc_options
-    q.answers = answers
+    """
+    Construct a minimal QuestionOrm instance with the given parameters.
+
+    :param id_: ID of the QuestionOrm to create.
+    :param question_index: Index of the question in the form.
+    :param visible_condition: Visible condition for the question.
+    :param mc_options: Multiple choice options for the question.
+    :param answers: Answers to the question.
+    :param lang_versions: List of language versions for the question.
+    :return: Minimal QuestionOrm instance with the given parameters.
+    """
+    question = QuestionOrm()
+    question.id = id_
+    question.question_index = question_index
+    question.visible_condition = visible_condition
+    question.mc_options = mc_options
+    question.answers = answers
     if lang_versions is not None:
-        q.lang_versions = lang_versions
-    return q
+        question.lang_versions = lang_versions
+    return question
 
 
 def make_lang_version(
@@ -41,13 +58,22 @@ def make_lang_version(
     question_text="How are you?",
     mc_options="[]",
 ):
-    v = QuestionLangVersionOrm()
+    """
+    Construct a minimal QuestionLangVersionOrm instance with the given parameters.
+
+    :param id_: ID of the QuestionLangVersionOrm to create.
+    :param lang: Language of the language version.
+    :param question_text: Question text of the language version.
+    :param mc_options: Multiple choice options for the language version.
+    :return: Minimal QuestionLangVersionOrm instance with the given parameters.
+    """
+    question_lang_version = QuestionLangVersionOrm()
     if id_ is not None:
-        v.id = id_
-    v.lang = lang
-    v.question_text = question_text
-    v.mc_options = mc_options
-    return v
+        question_lang_version.id = id_
+    question_lang_version.lang = lang
+    question_lang_version.question_text = question_text
+    question_lang_version.mc_options = mc_options
+    return question_lang_version
 
 
 def make_form(
@@ -66,22 +92,40 @@ def make_form(
     classification=None,
     questions=None,
 ):
-    f = FormOrm()
-    f.id = id_
-    f.lang = lang
-    f.name = name
-    f.category = category
-    f.date_created = date_created
-    f.last_edited = last_edited
-    f.archived = archived
-    f.patient_id = patient_id
-    f.form_template_id = form_template_id
-    f.last_edited_by = last_edited_by
-    f.form_classification_id = form_classification_id
+    """
+    Construct a minimal FormOrm instance with the given parameters.
+
+    :param id_: ID of the FormOrm to create.
+    :param lang: Language of the form.
+    :param name: Name of the form.
+    :param category: Category of the form.
+    :param date_created: Timestamp when the form was created.
+    :param last_edited: Timestamp when the form was last edited.
+    :param archived: Whether the form is archived.
+    :param patient_id: ID of the patient associated with the form.
+    :param form_template_id: ID of the form template associated with the form.
+    :param last_edited_by: ID of the user who last edited the form.
+    :param form_classification_id: ID of the form classification associated with the form.
+    :param classification: FormClassificationOrm instance associated with the form.
+    :param questions: List of QuestionOrm instances associated with the form.
+    :return: Minimal FormOrm instance with the given parameters.
+    """
+    form = FormOrm()
+    form.id = id_
+    form.lang = lang
+    form.name = name
+    form.category = category
+    form.date_created = date_created
+    form.last_edited = last_edited
+    form.archived = archived
+    form.patient_id = patient_id
+    form.form_template_id = form_template_id
+    form.last_edited_by = last_edited_by
+    form.form_classification_id = form_classification_id
     if classification is not None:
-        f.classification = classification
-    f.questions = questions or []
-    return f
+        form.classification = classification
+    form.questions = questions or []
+    return form
 
 
 def test_form_shallow_includes_core_fields_and_classification_but_omits_questions_and_patient():
@@ -90,7 +134,7 @@ def test_form_shallow_includes_core_fields_and_classification_but_omits_question
     omit 'questions', and never leak 'patient'.
     It should also strip None-valued fk fields.
     """
-    fc = make_classification("fc-shallow")
+    form_classification = make_classification("form_classification-shallow")
     form = make_form(
         id_="f-shallow",
         lang="fr",
@@ -102,36 +146,38 @@ def test_form_shallow_includes_core_fields_and_classification_but_omits_question
         patient_id="p-777",
         form_template_id=None,  # should be stripped
         last_edited_by=None,  # should be stripped
-        form_classification_id="fc-shallow",
-        classification=fc,
+        form_classification_id="form_classification-shallow",
+        classification=form_classification,
         questions=[make_question(id_="q-x", question_index=2)],
     )
 
-    out = m.marshal(form, shallow=True)
+    marshalled = m.marshal(form, shallow=True)
 
     # core scalar fields
-    assert out["id"] == "f-shallow"
-    assert out["lang"] == "fr"
-    assert out["name"] == "PNC Follow-up"
-    assert out["category"] == "PNC"
-    assert out["date_created"] == 1_700_100_000
-    assert out["last_edited"] == 1_700_100_111
-    assert out["archived"] is True
-    assert out["patient_id"] == "p-777"
+    assert marshalled["id"] == "f-shallow"
+    assert marshalled["lang"] == "fr"
+    assert marshalled["name"] == "PNC Follow-up"
+    assert marshalled["category"] == "PNC"
+    assert marshalled["date_created"] == 1_700_100_000
+    assert marshalled["last_edited"] == 1_700_100_111
+    assert marshalled["archived"] is True
+    assert marshalled["patient_id"] == "p-777"
 
     # classification embedded, minimally shaped (at least id)
-    assert "classification" in out and isinstance(out["classification"], dict)
-    assert out["classification"]["id"] == "fc-shallow"
+    assert "classification" in marshalled and isinstance(
+        marshalled["classification"], dict
+    )
+    assert marshalled["classification"]["id"] == "form_classification-shallow"
 
     # shallow: questions omitted
-    assert "questions" not in out
+    assert "questions" not in marshalled
 
     # relationship cleanup: patient should not leak
-    assert "patient" not in out
+    assert "patient" not in marshalled
 
     # None-valued fields must be stripped
-    assert "form_template_id" not in out
-    assert "last_edited_by" not in out
+    assert "form_template_id" not in marshalled
+    assert "last_edited_by" not in marshalled
 
 
 def test_form_deep_includes_sorted_questions_and_parses_question_fields():
@@ -141,7 +187,7 @@ def test_form_deep_includes_sorted_questions_and_parses_question_fields():
     - parse visible_condition (dict), mc_options (list), answers (list)
     - not leak question relationship fields (form/form_template/category_question)
     """
-    fc = make_classification("fc-deep")
+    form_classification = make_classification("form_classification-deep")
     q2 = make_question(
         id_="q-2",
         question_index=2,
@@ -158,25 +204,25 @@ def test_form_deep_includes_sorted_questions_and_parses_question_fields():
     )
     form = make_form(
         id_="f-deep",
-        classification=fc,
+        classification=form_classification,
         questions=[q2, q1],  # deliberately unsorted on input
     )
 
-    out = m.marshal(form, shallow=False)
+    marshalled = m.marshal(form, shallow=False)
 
-    assert "questions" in out and isinstance(out["questions"], list)
-    idxs = [q["question_index"] for q in out["questions"]]
+    assert "questions" in marshalled and isinstance(marshalled["questions"], list)
+    idxs = [q["question_index"] for q in marshalled["questions"]]
     assert idxs == [1, 2], "questions must be sorted ascending by question_index"
 
     # First question should be q1 (index 1)
-    first = out["questions"][0]
+    first = marshalled["questions"][0]
     assert first["id"] == "q-1"
     assert isinstance(first["visible_condition"], dict)
     assert isinstance(first["mc_options"], list)
     assert isinstance(first["answers"], list)
 
     # Ensure relationship fields are not leaked from each question
-    for qo in out["questions"]:
+    for qo in marshalled["questions"]:
         assert "form" not in qo
         assert "form_template" not in qo
         assert "category_question" not in qo
@@ -187,43 +233,45 @@ def test_form_deep_does_not_mutate_source_objects_and_strips_privates_everywhere
     Marshal should not mutate the source objects (e.g., not resort the original
     questions list) and must strip private attributes from form, classification, and questions.
     """
-    fc = make_classification("fc-priv")
+    form_classification = make_classification("form_classification-priv")
     qA = make_question(id_="q-A", question_index=3)
     qB = make_question(id_="q-B", question_index=1)
     qC = make_question(id_="q-C", question_index=2)
-    form = make_form(id_="f-priv", classification=fc, questions=[qA, qB, qC])
+    form = make_form(
+        id_="f-priv", classification=form_classification, questions=[qA, qB, qC]
+    )
 
     # Add private attrs that must be stripped
     form._secret = "nope"
-    fc._hidden = True
+    form_classification._hidden = True
     qA._debug = {"x": 1}
 
     # Snapshot original question order to prove non-mutation
-    original_order = [q.id for q in form.questions]
+    original_order = [question.id for question in form.questions]
 
-    out = m.marshal(form, shallow=False)
+    marshalled = m.marshal(form, shallow=False)
 
     # Private attributes shouldn't appear
-    assert "_secret" not in out
-    assert "_hidden" not in out.get("classification", {})
-    assert "_debug" not in out["questions"][0]  # check any representative elem
-    for qo in out["questions"]:
+    assert "_secret" not in marshalled
+    assert "_hidden" not in marshalled.get("classification", {})
+    assert "_debug" not in marshalled["questions"][0]  # check any representative elem
+    for qo in marshalled["questions"]:
         for k in qo:
             assert not k.startswith("_")
 
-    assert [q.id for q in form.questions] == original_order
+    assert [question.id for question in form.questions] == original_order
 
 
 def test_form_classification_backrefs_do_not_leak_templates():
     """
-    The classification payload should not include 'templates' backref.
+    The classification payload should not include 'templates' backreform.
     (marshal_form_classification explicitly removes it.)
     """
-    fc = make_classification("fc-noleak")
-    form = make_form(id_="f-noleak", classification=fc)
+    form_classification = make_classification("form_classification-noleak")
+    form = make_form(id_="f-noleak", classification=form_classification)
 
-    out = m.marshal(form, shallow=True)
-    assert "templates" not in out["classification"]
+    marshalled = m.marshal(form, shallow=True)
+    assert "templates" not in marshalled["classification"]
 
 
 def test_form_marshal_with_type_uses_shallow_and_sets_type():
@@ -232,16 +280,19 @@ def test_form_marshal_with_type_uses_shallow_and_sets_type():
     - use shallow form marshaling (questions omitted),
     - inject 'type': 'form'.
     """
-    fc = make_classification("fc-type")
+    form_classification = make_classification("form_classification-type")
     form = make_form(
         id_="f-type",
-        classification=fc,
+        classification=form_classification,
         questions=[make_question(id_="q-1", question_index=1)],
     )
 
-    out = m.marshal_with_type(form, shallow=False)
+    marshalled = m.marshal_with_type(form, shallow=False)
 
-    assert out["type"] == "form"
-    assert out["id"] == "f-type"
-    assert "questions" not in out
-    assert "classification" in out and out["classification"]["id"] == "fc-type"
+    assert marshalled["type"] == "form"
+    assert marshalled["id"] == "f-type"
+    assert "questions" not in marshalled
+    assert (
+        "classification" in marshalled
+        and marshalled["classification"]["id"] == "form_classification-type"
+    )

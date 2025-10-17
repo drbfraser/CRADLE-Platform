@@ -12,22 +12,35 @@ def make_medical_record(
     date_created=1577836800,  # 2020-01-01
     last_edited=1577923200,  # 2020-01-02
 ):
-    mr = MedicalRecordOrm()
-    mr.id = id_
-    mr.patient_id = patient_id
-    mr.information = information
-    mr.is_drug_record = is_drug_record
-    mr.date_created = date_created
-    mr.last_edited = last_edited
-    return mr
+    """
+    Creates a MedicalRecordOrm instance with the provided parameters.
+
+    :param id_: Medical record ID (defaults to 101)
+    :param patient_id: Patient ID (defaults to "p-xyz")
+    :param information: Medical information (defaults to "Hypertension noted")
+    :param is_drug_record: Flag indicating whether this is a drug record (defaults to False)
+    :param date_created: Timestamp when this record was created (defaults to 2020-01-01)
+    :param last_edited: Timestamp when this record was last edited (defaults to 2020-01-02)
+    :return: A MedicalRecordOrm instance with the provided parameters
+    """
+    medical_record = MedicalRecordOrm()
+    medical_record.id = id_
+    medical_record.patient_id = patient_id
+    medical_record.information = information
+    medical_record.is_drug_record = is_drug_record
+    medical_record.date_created = date_created
+    medical_record.last_edited = last_edited
+    return medical_record
 
 
 def test_medical_record_medical_path_maps_information_to_medical_history_only():
     """When is_drug_record=False, marshal must emit medical_history and NOT drug_history."""
-    mr = make_medical_record(is_drug_record=False, information="Asthma (childhood)")
-    out = m.marshal(mr)
+    medical_record = make_medical_record(
+        is_drug_record=False, information="Asthma (childhood)"
+    )
+    marshalled = m.marshal(medical_record)
 
-    assert set(out.keys()) == {
+    assert set(marshalled.keys()) == {
         "id",
         "patient_id",
         "date_created",
@@ -35,25 +48,25 @@ def test_medical_record_medical_path_maps_information_to_medical_history_only():
         "medical_history",
     }
 
-    assert out["id"] == 101
-    assert out["patient_id"] == "p-xyz"
-    assert out["date_created"] == 1577836800
-    assert out["last_edited"] == 1577923200
-    assert out["medical_history"] == "Asthma (childhood)"
+    assert marshalled["id"] == 101
+    assert marshalled["patient_id"] == "p-xyz"
+    assert marshalled["date_created"] == 1577836800
+    assert marshalled["last_edited"] == 1577923200
+    assert marshalled["medical_history"] == "Asthma (childhood)"
     assert (
-        "drug_history" not in out
+        "drug_history" not in marshalled
     ), "drug_history must not be present for non-drug records"
 
 
 def test_medical_record_drug_path_maps_information_to_drug_history_only():
     """When is_drug_record=True, marshal must emit drug_history and NOT medical_history."""
-    mr = make_medical_record(
+    medical_record = make_medical_record(
         is_drug_record=True,
         information="Amoxicillin 500mg BID x7d",
     )
-    out = m.marshal(mr)
+    marshalled = m.marshal(medical_record)
 
-    assert set(out.keys()) == {
+    assert set(marshalled.keys()) == {
         "id",
         "patient_id",
         "date_created",
@@ -61,17 +74,17 @@ def test_medical_record_drug_path_maps_information_to_drug_history_only():
         "drug_history",
     }
 
-    assert out["drug_history"] == "Amoxicillin 500mg BID x7d"
+    assert marshalled["drug_history"] == "Amoxicillin 500mg BID x7d"
     assert (
-        "medical_history" not in out
+        "medical_history" not in marshalled
     ), "medical_history must not be present for drug records"
 
 
 def test_medical_record_keeps_empty_information_string():
-    mr = make_medical_record(is_drug_record=False, information="")
-    out = m.marshal(mr)
-    assert "medical_history" in out
-    assert out["medical_history"] == ""
+    medical_record = make_medical_record(is_drug_record=False, information="")
+    marshalled = m.marshal(medical_record)
+    assert "medical_history" in marshalled
+    assert marshalled["medical_history"] == ""
 
 
 def test_medical_record_relationship_not_leaked_and_input_not_mutated():
@@ -79,41 +92,49 @@ def test_medical_record_relationship_not_leaked_and_input_not_mutated():
     Even if the relationship is populated, marshal must not emit ORM relationship objects.
     Also verify we don't mutate the source instance.
     """
-    mr = make_medical_record(is_drug_record=True, information="Ibuprofen PRN")
+    medical_record = make_medical_record(
+        is_drug_record=True, information="Ibuprofen PRN"
+    )
     patient = PatientOrm()
-    patient.id = mr.patient_id
-    mr.patient = patient
+    patient.id = medical_record.patient_id
+    medical_record.patient = patient
 
     # adding a private attribute; it should never leak
-    mr._secret = "nope"
+    medical_record._secret = "nope"
 
-    before_info = mr.information
-    before_secret = mr._secret
+    before_info = medical_record.information
+    before_secret = medical_record._secret
 
-    out = m.marshal(mr)
+    marshalled = m.marshal(medical_record)
 
-    assert "patient" not in out, "Relationship object must not leak into the payload"
-    assert "_secret" not in out, "Private attrs must never leak"
+    assert (
+        "patient" not in marshalled
+    ), "Relationship object must not leak into the payload"
+    assert "_secret" not in marshalled, "Private attrs must never leak"
     # verifying original object not mutated
-    assert mr.information == before_info
-    assert mr._secret == before_secret
+    assert medical_record.information == before_info
+    assert medical_record._secret == before_secret
 
 
 def test_medical_record_internal_columns_not_leaked():
-    mr = make_medical_record(is_drug_record=False, information="Diabetes Type II")
-    out = m.marshal(mr)
+    medical_record = make_medical_record(
+        is_drug_record=False, information="Diabetes Type II"
+    )
+    marshalled = m.marshal(medical_record)
 
-    assert "information" not in out
-    assert "is_drug_record" not in out
+    assert "information" not in marshalled
+    assert "is_drug_record" not in marshalled
 
-    mr2 = make_medical_record(is_drug_record=True, information="Metformin 500mg")
-    out2 = m.marshal(mr2)
-    assert "information" not in out2
-    assert "is_drug_record" not in out2
+    medical_record2 = make_medical_record(
+        is_drug_record=True, information="Metformin 500mg"
+    )
+    marshalled2 = m.marshal(medical_record2)
+    assert "information" not in marshalled2
+    assert "is_drug_record" not in marshalled2
 
 
 def test_medical_record_type_sanity_and_ids():
-    mr = make_medical_record(
+    medical_record = make_medical_record(
         id_=7,
         patient_id="pat-77",
         information="ACE inhibitors",
@@ -121,10 +142,19 @@ def test_medical_record_type_sanity_and_ids():
         date_created=1700000001,
         last_edited=1700011111,
     )
-    out = m.marshal(mr)
+    marshalled = m.marshal(medical_record)
 
-    assert isinstance(out["id"], int) and out["id"] == 7
-    assert isinstance(out["patient_id"], str) and out["patient_id"] == "pat-77"
-    assert isinstance(out["date_created"], int) and out["date_created"] == 1700000001
-    assert isinstance(out["last_edited"], int) and out["last_edited"] == 1700011111
-    assert out["drug_history"] == "ACE inhibitors"
+    assert isinstance(marshalled["id"], int) and marshalled["id"] == 7
+    assert (
+        isinstance(marshalled["patient_id"], str)
+        and marshalled["patient_id"] == "pat-77"
+    )
+    assert (
+        isinstance(marshalled["date_created"], int)
+        and marshalled["date_created"] == 1700000001
+    )
+    assert (
+        isinstance(marshalled["last_edited"], int)
+        and marshalled["last_edited"] == 1700011111
+    )
+    assert marshalled["drug_history"] == "ACE inhibitors"

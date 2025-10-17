@@ -19,43 +19,43 @@ def test_branch_marshal_with_condition_embeds_rule_group_and_fk_ids():
     }
     cond.data_sources = {"type": "form", "fields": ["bp_systolic", "bp_diastolic"]}
 
-    br = WorkflowTemplateStepBranchOrm()
-    br.id = "br-001"
-    br.step_id = "wts-100"
-    br.target_step_id = "wts-200"
-    br.condition_id = cond.id
-    br.condition = cond
+    workflow_step_branch = WorkflowTemplateStepBranchOrm()
+    workflow_step_branch.id = "br-001"
+    workflow_step_branch.step_id = "wts-100"
+    workflow_step_branch.target_step_id = "wts-200"
+    workflow_step_branch.condition_id = cond.id
+    workflow_step_branch.condition = cond
 
-    out = m.marshal(br)
+    marshalled = m.marshal(workflow_step_branch)
 
     # Core field presence
-    assert set(out.keys()) == {
+    assert set(marshalled.keys()) == {
         "id",
         "step_id",
         "target_step_id",
         "condition_id",
         "condition",
     }
-    assert out["id"] == "br-001"
-    assert out["step_id"] == "wts-100"
-    assert out["target_step_id"] == "wts-200"
-    assert out["condition_id"] == "rg-42"
+    assert marshalled["id"] == "br-001"
+    assert marshalled["step_id"] == "wts-100"
+    assert marshalled["target_step_id"] == "wts-200"
+    assert marshalled["condition_id"] == "rg-42"
 
-    assert isinstance(out["condition"], dict)
-    assert out["condition"]["id"] == "rg-42"
-    assert out["condition"]["rule"] == {
+    assert isinstance(marshalled["condition"], dict)
+    assert marshalled["condition"]["id"] == "rg-42"
+    assert marshalled["condition"]["rule"] == {
         "all": [
             {"field": "bp_systolic", "op": ">", "value": 140},
             {"field": "bp_diastolic", "op": "<", "value": 90},
         ],
     }
-    assert out["condition"]["data_sources"] == {
+    assert marshalled["condition"]["data_sources"] == {
         "type": "form",
         "fields": ["bp_systolic", "bp_diastolic"],
     }
 
     # Relationship objects should not leak
-    assert "step" not in out
+    assert "step" not in marshalled
 
 
 def test_branch_marshal_omits_none_fields_when_no_condition():
@@ -64,18 +64,18 @@ def test_branch_marshal_omits_none_fields_when_no_condition():
       - 'target_step_id' and 'condition' are omitted,
       - 'condition_id' also omitted if None,
     """
-    br = WorkflowTemplateStepBranchOrm()
-    br.id = "br-002"
-    br.step_id = "wts-101"
-    br.target_step_id = None
-    br.condition_id = None
-    br.condition = None
+    workflow_step_branch = WorkflowTemplateStepBranchOrm()
+    workflow_step_branch.id = "br-002"
+    workflow_step_branch.step_id = "wts-101"
+    workflow_step_branch.target_step_id = None
+    workflow_step_branch.condition_id = None
+    workflow_step_branch.condition = None
 
-    out = m.marshal(br)
+    marshalled = m.marshal(workflow_step_branch)
 
-    assert set(out.keys()) == {"id", "step_id"}
-    assert out["id"] == "br-002"
-    assert out["step_id"] == "wts-101"
+    assert set(marshalled.keys()) == {"id", "step_id"}
+    assert marshalled["id"] == "br-002"
+    assert marshalled["step_id"] == "wts-101"
 
 
 def test_branch_marshal_preserves_empty_json_in_condition_but_strips_none():
@@ -92,31 +92,31 @@ def test_branch_marshal_preserves_empty_json_in_condition_but_strips_none():
     cond.rule = {}
     cond.data_sources = []
 
-    br = WorkflowTemplateStepBranchOrm()
-    br.id = "br-003"
-    br.step_id = "wts-102"
-    br.target_step_id = "wts-999"
-    br.condition_id = cond.id
-    br.condition = cond
+    workflow_step_branch = WorkflowTemplateStepBranchOrm()
+    workflow_step_branch.id = "br-003"
+    workflow_step_branch.step_id = "wts-102"
+    workflow_step_branch.target_step_id = "wts-999"
+    workflow_step_branch.condition_id = cond.id
+    workflow_step_branch.condition = cond
 
-    out = m.marshal(br)
+    marshalled = m.marshal(workflow_step_branch)
 
-    assert set(out.keys()) == {
+    assert set(marshalled.keys()) == {
         "id",
         "step_id",
         "target_step_id",
         "condition_id",
         "condition",
     }
-    c = out["condition"]
+    condition = marshalled["condition"]
 
     # Required keys present
     for key in ("id", "rule", "data_sources"):
-        assert key in c
+        assert key in condition
 
-    assert c["id"] == "rg-empty"
-    assert c["rule"] == {}
-    assert c["data_sources"] == []
+    assert condition["id"] == "rg-empty"
+    assert condition["rule"] == {}
+    assert condition["data_sources"] == []
 
     # Private attrs stripped by __pre_process
-    assert "_scratch" not in c
+    assert "_scratch" not in condition

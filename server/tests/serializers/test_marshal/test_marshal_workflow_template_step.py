@@ -11,26 +11,40 @@ from models import (
 def _make_min_form_template(
     template_id: str, classification_id: str
 ) -> FormTemplateOrm:
-    """Minimal FormTemplateOrm suitable for __marshal_form_template."""
-    fc = FormClassificationOrm()
-    fc.id = classification_id
-    fc.name = "Clinical"
+    """
+    Construct a minimal FormTemplateOrm instance with the given parameters.
+
+    :param template_id: ID of the FormTemplateOrm to create.
+    :param classification_id: ID of the FormClassificationOrm associated with the form template.
+    :return: Minimal FormTemplateOrm instance with the given parameters.
+    """
+    form_classification = FormClassificationOrm()
+    form_classification.id = classification_id
+    form_classification.name = "Clinical"
 
     form = FormTemplateOrm()
     form.id = template_id
     form.name = "ANC Intake"
     form.description = "Initial antenatal visit"
-    form.classification = fc
+    form.classification = form_classification
     form.questions = []  # important: function sorts/questions even if empty
     return form
 
 
 def _make_condition(rule_group_id: str, rule=None, data_sources=None) -> RuleGroupOrm:
-    rg = RuleGroupOrm()
-    rg.id = rule_group_id
-    rg.rule = {"all": []} if rule is None else rule
-    rg.data_sources = [] if data_sources is None else data_sources
-    return rg
+    """
+    Construct a minimal RuleGroupOrm instance with the given parameters.
+
+    :param rule_group_id: ID of the RuleGroupOrm to create.
+    :param rule: JSON-serializable rule associated with the rule group.
+    :param data_sources: List of data sources associated with the rule group.
+    :return: Minimal RuleGroupOrm instance with the given parameters.
+    """
+    rule_group = RuleGroupOrm()
+    rule_group.id = rule_group_id
+    rule_group.rule = {"all": []} if rule is None else rule
+    rule_group.data_sources = [] if data_sources is None else data_sources
+    return rule_group
 
 
 def test_workflow_template_step_marshal_full_includes_form_condition_and_branches():
@@ -42,38 +56,38 @@ def test_workflow_template_step_marshal_full_includes_form_condition_and_branche
       - include marshaled 'branches' (each may embed its own condition),
       - not leak private attributes from any object.
     """
-    step = WorkflowTemplateStepOrm()
-    step.id = "wts-101"
-    step.name = "Collect vitals"
-    step.description = "Measure BP, HR, Temp"
-    step.expected_completion = 2 * 60 * 60  # seconds
-    step.last_edited = 1_700_000_000
-    step.workflow_template_id = "wt-001"
+    workflow_step = WorkflowTemplateStepOrm()
+    workflow_step.id = "wts-101"
+    workflow_step.name = "Collect vitals"
+    workflow_step.description = "Measure BP, HR, Temp"
+    workflow_step.expected_completion = 2 * 60 * 60  # seconds
+    workflow_step.last_edited = 1_700_000_000
+    workflow_step.workflow_template_id = "wt-001"
 
     # Attach form and condition
-    step.form_id = "ft-10"
-    step.form = _make_min_form_template(step.form_id, "fc-1")
+    workflow_step.form_id = "ft-10"
+    workflow_step.form = _make_min_form_template(workflow_step.form_id, "fc-1")
 
-    step.condition_id = "rg-200"
-    step.condition = _make_condition(step.condition_id)
+    workflow_step.condition_id = "rg-200"
+    workflow_step.condition = _make_condition(workflow_step.condition_id)
 
     # Two real ORM branches
     b1 = WorkflowTemplateStepBranchOrm()
     b1.id = "br-001"
-    b1.step_id = step.id
+    b1.step_id = workflow_step.id
     b1.target_step_id = "wts-200"
     b1.condition_id = "rg-201"
     b1.condition = _make_condition("rg-201")
 
     b2 = WorkflowTemplateStepBranchOrm()
     b2.id = "br-002"
-    b2.step_id = step.id
+    b2.step_id = workflow_step.id
     b2.target_step_id = "wts-999"
 
     # Appending mapped instances is allowed and sets the backref .step
-    step.branches = [b1, b2]
+    workflow_step.branches = [b1, b2]
 
-    out = m.marshal(step, shallow=False)
+    marshalled = m.marshal(workflow_step, shallow=False)
 
     # Top-level expectations
     for key in (
@@ -85,17 +99,17 @@ def test_workflow_template_step_marshal_full_includes_form_condition_and_branche
         "form",
         "branches",
     ):
-        assert key in out
-    assert out["id"] == "wts-101"
-    assert out["name"] == "Collect vitals"
-    assert out["description"] == "Measure BP, HR, Temp"
-    assert out["last_edited"] == 1_700_000_000
-    assert out["workflow_template_id"] == "wt-001"
-    assert out["expected_completion"] == 2 * 60 * 60
-    assert "_scratch" not in out  # private stripped
+        assert key in marshalled
+    assert marshalled["id"] == "wts-101"
+    assert marshalled["name"] == "Collect vitals"
+    assert marshalled["description"] == "Measure BP, HR, Temp"
+    assert marshalled["last_edited"] == 1_700_000_000
+    assert marshalled["workflow_template_id"] == "wt-001"
+    assert marshalled["expected_completion"] == 2 * 60 * 60
+    assert "_scratch" not in marshalled  # private stripped
 
     # Form embedding
-    form = out["form"]
+    form = marshalled["form"]
     for key in ("id", "name", "description", "classification", "questions"):
         assert key in form
     assert form["id"] == "ft-10"
@@ -104,25 +118,25 @@ def test_workflow_template_step_marshal_full_includes_form_condition_and_branche
     assert form["classification"]["id"] == "fc-1"
 
     # Branches
-    branches = out["branches"]
+    branches = marshalled["branches"]
     assert isinstance(branches, list) and len(branches) == 2
 
     # br-001 with its own condition
-    b1_out = next(b for b in branches if b["id"] == "br-001")
+    b1_marshalled = next(b for b in branches if b["id"] == "br-001")
     for key in ("id", "step_id", "target_step_id"):
-        assert key in b1_out
-    assert b1_out["step_id"] == "wts-101"
-    assert b1_out["target_step_id"] == "wts-200"
-    assert "condition" in b1_out and isinstance(b1_out["condition"], dict)
-    assert b1_out["condition"]["id"] == "rg-201"
+        assert key in b1_marshalled
+    assert b1_marshalled["step_id"] == "wts-101"
+    assert b1_marshalled["target_step_id"] == "wts-200"
+    assert "condition" in b1_marshalled and isinstance(b1_marshalled["condition"], dict)
+    assert b1_marshalled["condition"]["id"] == "rg-201"
     # We intentionally do NOT assert that extra relationship keys (like 'step') are absent.
 
     # br-002 without condition
-    b2_out = next(b for b in branches if b["id"] == "br-002")
-    assert b2_out["target_step_id"] == "wts-999"
+    b2_marshalled = next(b for b in branches if b["id"] == "br-002")
+    assert b2_marshalled["target_step_id"] == "wts-999"
     # condition_id was None -> __pre_process strips None
-    assert "condition" not in b2_out
-    assert "condition_id" not in b2_out or b2_out["condition_id"] is None
+    assert "condition" not in b2_marshalled
+    assert "condition_id" not in b2_marshalled or b2_marshalled["condition_id"] is None
 
 
 def test_workflow_template_step_marshal_shallow_tolerates_existing_branches_attr():
@@ -134,39 +148,39 @@ def test_workflow_template_step_marshal_shallow_tolerates_existing_branches_attr
       - 'condition' omitted when None,
       - None-valued fields (e.g., expected_completion) stripped.
     """
-    step = WorkflowTemplateStepOrm()
-    step.id = "wts-202"
-    step.name = "Review labs"
-    step.description = "Check CBC and LFTs"
-    step.expected_completion = None  # should be stripped
-    step.last_edited = 1_800_000_000
-    step.workflow_template_id = "wt-002"
+    workflow_step = WorkflowTemplateStepOrm()
+    workflow_step.id = "wts-202"
+    workflow_step.name = "Review labs"
+    workflow_step.description = "Check CBC and LFTs"
+    workflow_step.expected_completion = None  # should be stripped
+    workflow_step.last_edited = 1_800_000_000
+    workflow_step.workflow_template_id = "wt-002"
 
-    step.form_id = "ft-22"
-    step.form = _make_min_form_template(step.form_id, "fc-2")
+    workflow_step.form_id = "ft-22"
+    workflow_step.form = _make_min_form_template(workflow_step.form_id, "fc-2")
 
-    step.condition_id = None
-    step.condition = None
+    workflow_step.condition_id = None
+    workflow_step.condition = None
 
-    step.branches = []
+    workflow_step.branches = []
 
-    out = m.marshal(step, shallow=True)
+    marshalled = m.marshal(workflow_step, shallow=True)
 
-    if "branches" in out:
-        assert out["branches"] == []
+    if "branches" in marshalled:
+        assert marshalled["branches"] == []
     else:
-        assert "branches" not in out
+        assert "branches" not in marshalled
 
     # 'form' present and embedded
-    assert "form" in out and isinstance(out["form"], dict)
+    assert "form" in marshalled and isinstance(marshalled["form"], dict)
 
     # 'condition' omitted because None; condition_id removed as None
-    assert "condition" not in out
-    assert "condition_id" not in out
+    assert "condition" not in marshalled
+    assert "condition_id" not in marshalled
 
     # None-valued scalar stripped
-    assert "expected_completion" not in out
+    assert "expected_completion" not in marshalled
 
     # core fields present
     for key in ("id", "name", "description", "last_edited", "workflow_template_id"):
-        assert key in out
+        assert key in marshalled
