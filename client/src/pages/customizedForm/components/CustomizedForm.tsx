@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Form, Formik } from 'formik';
-import { Box, Divider, Grid, IconButton, Paper, SxProps } from '@mui/material';
+import { Divider, Grid, SxProps } from '@mui/material';
 
 import { CForm, QAnswer } from 'src/shared/types/form/formTypes';
 import { FormRenderStateEnum } from 'src/shared/enums';
@@ -18,8 +18,6 @@ import {
 } from '../handlers';
 import { initialState, validationSchema } from '../state';
 import { useSubmitCustomForm } from '../mutations';
-import { Close } from '@mui/icons-material';
-import { red } from '@mui/material/colors';
 
 const BUTTON_SX: SxProps = {
   display: 'flex',
@@ -32,8 +30,6 @@ interface IProps {
   patientId: string;
   fm: CForm;
   renderState: FormRenderStateEnum;
-  isModalView?: boolean;
-  handleCloseModal?: () => void;
   customSubmitHandler?: (form: CForm, postBody: PostBody) => void;
 }
 
@@ -41,8 +37,6 @@ export const CustomizedForm = ({
   patientId,
   fm: form,
   renderState,
-  isModalView = false,
-  handleCloseModal,
   customSubmitHandler,
 }: IProps) => {
   const navigate = useNavigate();
@@ -118,60 +112,49 @@ export const CustomizedForm = ({
         onSubmit={handleSubmit}>
         {() => (
           <Form>
-            <Paper sx={{ p: 6, mt: 2 }}>
-              {isModalView && (
-                <Box sx={{ position: 'relative' }}>
-                  <IconButton
-                    onClick={handleCloseModal}
-                    sx={{ position: 'absolute', top: -30, right: -30 }}>
-                    <Close sx={{ color: red[500], fontSize: 30 }} />
-                  </IconButton>
-                </Box>
-              )}
-              {renderState === FormRenderStateEnum.SUBMIT_TEMPLATE && (
-                <Grid container spacing={3}>
-                  {/* This is redundant */}
-                  <h2>Current Form</h2>
-                  <Divider />
-                </Grid>
-              )}
-
+            {renderState === FormRenderStateEnum.SUBMIT_TEMPLATE && (
               <Grid container spacing={3}>
-                {FormQuestions({
-                  questions: form.questions,
-                  renderState,
-                  language: '',
-                  handleAnswers: (answers) => {
-                    setAnswers(answers);
-                  },
-                  multiSelectValidationFailed,
-                  setDisableSubmit,
-                })}
+                {/* This is redundant */}
+                <h2>Current Form</h2>
+                <Divider />
               </Grid>
-              {renderState === FormRenderStateEnum.VIEW ? (
-                <RedirectButton
-                  sx={BUTTON_SX}
-                  type="button" //This makes the button not trigger onSubmit function
-                  url={`/forms/edit/${patientId}/${form.id}`}>
-                  {formTitle}
-                </RedirectButton>
-              ) : renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? (
-                <PrimaryButton
-                  sx={BUTTON_SX}
-                  onClick={() => console.log('click finish button')}
-                  // TO DO: clicking "finish" saves the form.
-                  type="button">
-                  {formTitle}
-                </PrimaryButton>
-              ) : (
-                <PrimaryButton
-                  sx={BUTTON_SX}
-                  type="submit"
-                  disabled={submitCustomForm.isPending || disableSubmit}>
-                  {formTitle}
-                </PrimaryButton>
-              )}
-            </Paper>
+            )}
+
+            <Grid container spacing={3}>
+              {FormQuestions({
+                questions: form.questions,
+                renderState,
+                language: '',
+                handleAnswers: (answers) => {
+                  setAnswers(answers);
+                },
+                multiSelectValidationFailed,
+                setDisableSubmit,
+              })}
+            </Grid>
+            {renderState === FormRenderStateEnum.VIEW ? (
+              <RedirectButton
+                sx={BUTTON_SX}
+                type="button" //This makes the button not trigger onSubmit function
+                url={`/forms/edit/${patientId}/${form.id}`}>
+                {formTitle}
+              </RedirectButton>
+            ) : renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? (
+              <PrimaryButton
+                sx={BUTTON_SX}
+                onClick={() => console.log('click finish button')}
+                // TO DO: clicking "finish" saves the form.
+                type="button">
+                {formTitle}
+              </PrimaryButton>
+            ) : (
+              <PrimaryButton
+                sx={BUTTON_SX}
+                type="submit"
+                disabled={submitCustomForm.isPending || disableSubmit}>
+                {formTitle}
+              </PrimaryButton>
+            )}
           </Form>
         )}
       </Formik>

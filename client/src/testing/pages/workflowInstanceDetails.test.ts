@@ -3,7 +3,7 @@ import { WORKFLOW_INSTANCE_TEST_DATA } from '../testData';
 import { formatISODateNumber } from 'src/shared/utils';
 import {
   mapWorkflowStep,
-  loadInstanceById,
+  loadInstanceAndTemplateByInstanceId,
 } from 'src/pages/patient/WorkflowInfo/WorkflowInstanceDetails';
 
 // Mock API calls
@@ -46,7 +46,7 @@ describe('mapWorkflowStep', () => {
 
 describe('loadInstanceById', () => {
   it('formats instance details correctly', async () => {
-    const result = await loadInstanceById(testInstanceId);
+    const result = await loadInstanceAndTemplateByInstanceId(testInstanceId);
     const testWorkflowInstance =
       WORKFLOW_INSTANCE_TEST_DATA.workflowInstanceTemplate[0];
 

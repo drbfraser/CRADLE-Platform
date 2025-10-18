@@ -668,9 +668,6 @@ def __marshal_workflow_instance_step(wis: WorkflowInstanceStepOrm) -> dict:
     d = vars(wis).copy()
     __pre_process(d)
 
-    if wis.condition is not None:
-        d["condition"] = __marshal_rule_group(wis.condition)
-
     if wis.form_id is not None:
         form_orm = crud.read(FormOrm, id=wis.form_id)
         d["formId"] = __marshal_form(form_orm, shallow=True)

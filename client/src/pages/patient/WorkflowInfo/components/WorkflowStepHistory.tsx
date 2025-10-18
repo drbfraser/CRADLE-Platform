@@ -22,6 +22,7 @@ import {
 import { formatWorkflowStepStatusText } from '../WorkflowUtils';
 import WorkflowFormModal from './WorkflowFormModal';
 import { CForm } from 'src/shared/types/form/formTypes';
+import { CheckCircle } from '@mui/icons-material';
 
 interface IProps {
   workflowInstance: InstanceDetails;
@@ -255,8 +256,25 @@ export default function WorkflowStepHistory({
                                 borderRadius: '4px',
                                 bgcolor: 'background.paper',
                               }}>
-                              <Typography variant="body2" sx={{ mb: 2 }}>
-                                Form name: {step.title} Form
+                              <Typography
+                                component="span"
+                                variant="body2"
+                                sx={{
+                                  mb: 1,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                }}>
+                                {step.title} Form
+                                {step.formSubmitted && (
+                                  <Chip
+                                    icon={<CheckCircle />}
+                                    size="small"
+                                    label="Completed"
+                                    color="success"
+                                    variant="filled"
+                                    sx={{ ml: 1 }}
+                                  />
+                                )}
                               </Typography>
                               {step.formSubmitted ? (
                                 <Box
@@ -265,24 +283,30 @@ export default function WorkflowStepHistory({
                                     gap: 1,
                                     flexWrap: 'wrap',
                                   }}>
+                                  {/*TODO: Add in View button functionality*/}
                                   <Button
                                     size="small"
-                                    variant="outlined"
+                                    color="primary"
+                                    variant="contained"
                                     onClick={() => handleViewForm(step.id)}>
-                                    View submitted form
+                                    View
                                   </Button>
-                                  <Button
+
+                                  {/*TODO: Add in Edit button functionality*/}
+                                  {/* <Button
                                     size="small"
                                     variant="outlined"
                                     onClick={() => handleEditForm(step.id)}>
                                     Edit
-                                  </Button>
+                                  </Button> */}
+
+                                  {/*TODO: Add in Discard button functionality*/}
                                   <Button
                                     size="small"
                                     variant="outlined"
                                     color="error"
                                     onClick={() => handleDiscardForm(step.id)}>
-                                    Discard submitted form
+                                    Discard
                                   </Button>
                                 </Box>
                               ) : step.status === StepStatus.ACTIVE ? (
@@ -309,16 +333,6 @@ export default function WorkflowStepHistory({
                             </Box>
                           </Box>
                         )}
-
-                        {/* Next Step Preview */}
-                        <Box sx={{ mb: 3 }}>
-                          <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                            Next Step
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {step.nextStep || '<Same as Template>'}
-                          </Typography>
-                        </Box>
 
                         {/* Expected Completion Date */}
                         <Box sx={{ mb: 3 }}>
@@ -351,16 +365,17 @@ export default function WorkflowStepHistory({
                             display: 'flex',
                             justifyContent: 'flex-end',
                           }}>
-                          <Button
-                            size="small"
-                            variant="text"
-                            color="primary"
-                            onClick={() =>
-                              handleMakeCurrent(step.id, step.title)
-                            }
-                            disabled={step.status === StepStatus.ACTIVE}>
-                            Make this current step
-                          </Button>
+                          {step.status != StepStatus.ACTIVE && (
+                            <Button
+                              size="small"
+                              variant="text"
+                              color="primary"
+                              onClick={() =>
+                                handleMakeCurrent(step.id, step.title)
+                              }>
+                              Make this current step
+                            </Button>
+                          )}
                         </Box>
                       </Box>
                     </Collapse>
@@ -378,7 +393,7 @@ export default function WorkflowStepHistory({
           isFormModalOpen={isFormModalOpen}
           formTemplate={formTemplate}
           patientId={workflowInstance.patientId}
-          handleCloseForm={handleCloseFormModal}
+          handleCloseFormModal={handleCloseFormModal}
         />
       )}
     </>

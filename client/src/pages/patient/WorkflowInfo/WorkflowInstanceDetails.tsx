@@ -13,20 +13,20 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { WorkflowMetadata } from 'src/shared/components/workflow/workflowTemplate/WorkflowMetadata';
 import { Tooltip, IconButton } from '@mui/material';
-import { useState, useEffect, createContext, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  getFormResponseAsync,
-  getFormTemplateAsync,
   getFormTemplateLangAsync,
   getInstanceWithSteps,
   getPatientInfoAsync,
   getTemplate,
-  getTemplateWithStepsAndClassification,
 } from 'src/shared/api';
 import { Nullable } from 'src/shared/constants';
 import { formatISODateNumber } from 'src/shared/utils';
-import { WorkflowInstanceStep } from 'src/shared/types/workflow/workflowApiTypes';
+import {
+  WorkflowInstanceStep,
+  WorkflowTemplate,
+} from 'src/shared/types/workflow/workflowApiTypes';
 import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
 import {
   InstanceStep,
@@ -39,7 +39,6 @@ import WorkflowPossibleSteps from './components/WorkflowPossibleSteps';
 import WorkflowConfirmDialog, {
   ConfirmDialogData,
 } from './components/WorkflowConfirmDialog';
-import { FormTemplateWithQuestions } from 'src/shared/types/form/formTemplateTypes';
 import { CForm } from 'src/shared/types/form/formTypes';
 
 function parseYMD(d?: Nullable<string>) {
@@ -126,7 +125,9 @@ export function mapWorkflowStep(apiStep: WorkflowInstanceStep): InstanceStep {
   return workflowInstanceStep;
 }
 
-export async function loadInstanceById(id: string): Promise<InstanceDetails> {
+export async function loadInstanceAndTemplateByInstanceId(
+  id: string
+): Promise<{ instance: InstanceDetails; template: WorkflowTemplate }> {
   const instance = await getInstanceWithSteps(id);
   const template = await getTemplate(instance.workflowTemplateId, {
     with_classification: true,
@@ -155,7 +156,7 @@ export async function loadInstanceById(id: string): Promise<InstanceDetails> {
     possibleSteps: [],
   };
 
-  return instanceDetails;
+  return { instance: instanceDetails, template: template };
 }
 
 function getWorkflowCurrentStep(instance: InstanceDetails) {
@@ -235,6 +236,8 @@ export default function WorkflowInstanceDetailsPage() {
   const { instanceId } = useParams<{ instanceId: string }>();
   const [workflowInstance, setWorkflowInstance] =
     useState<InstanceDetails | null>(null);
+  const [workflowTemplate, setWorkflowTemplate] =
+    useState<WorkflowTemplate | null>(null);
   const [progressInfo, setProgressInfo] = useState<WorkflowInstanceProgress>({
     total: 0,
     completed: 0,
@@ -255,14 +258,18 @@ export default function WorkflowInstanceDetailsPage() {
     onConfirm: () => {},
   });
   const [formTemplate, setFormTemplate] = useState<CForm | null>(null);
+  const [reloadFlag, setReloadFlag] = useState(false);
 
   useEffect(() => {
     async function fetchInstance() {
       try {
-        const instance = await loadInstanceById('test-workflow-instance-1'); //TODO: To be updated with URL param when completed
+        const { instance, template } =
+          await loadInstanceAndTemplateByInstanceId('test-workflow-instance-1'); //TODO: To be updated with URL param when completed
         setWorkflowInstance(instance);
+        setWorkflowTemplate(template);
         const activeStep = getWorkflowCurrentStep(instance);
         setCurrentStep(activeStep ?? null);
+        console.log(`Current Step Set, id: ${currentStep?.id}`);
         const progress = computeProgressAndEta(instance.steps);
         setProgressInfo(progress);
       } catch (err) {
@@ -270,7 +277,7 @@ export default function WorkflowInstanceDetailsPage() {
       }
     }
     fetchInstance();
-  }, [instanceId]);
+  }, [instanceId, reloadFlag]);
 
   const data = React.useMemo(
     () => loadMockInstanceById(instanceId ?? 'wi_0001'),
@@ -319,8 +326,10 @@ export default function WorkflowInstanceDetailsPage() {
   };
 
   const handleCloseFormModal = () => {
+    console.log('Closing Form Modal');
     setFormTemplate(null);
     setIsFormModalOpen(false);
+    setReloadFlag((prev) => !prev);
   };
 
   return (
