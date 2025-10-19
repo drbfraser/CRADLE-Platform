@@ -122,7 +122,6 @@ def check_for_existing_template_version(
     :param workflow_classification_id: ID of the workflow classification
     :param workflow_template_dict: Dictionary consisting of attributes for a workflow template
     """
-
     existing_template_version = crud.read(
         WorkflowTemplateOrm,
         classification_id=workflow_classification_id,

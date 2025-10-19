@@ -28,6 +28,7 @@ import { WorkflowSteps } from 'src/shared/components/workflow/WorkflowSteps';
 import { WorkflowFlowView } from 'src/shared/components/workflow/workflowTemplate/WorkflowFlowView';
 import { useEditWorkflowTemplate } from './mutations';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { Toast } from 'src/shared/components/toast';
 
 export const ViewWorkflowTemplate = () => {
   const navigate = useNavigate();
@@ -40,6 +41,8 @@ export const ViewWorkflowTemplate = () => {
     null
   );
   const [hasChanges, setHasChanges] = useState(false);
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMsg, setToastMsg] = useState<string>('');
 
   // View mode state
   const [viewMode, setViewMode] = useState<'list' | 'flow'>('flow');
@@ -55,8 +58,6 @@ export const ViewWorkflowTemplate = () => {
     enabled: !!viewWorkflow?.id,
     initialData: viewWorkflow,
   });
-
-  console.log('workflowTemplateQuery.data', workflowTemplateQuery.data);
 
   const editWorkflowTemplateMutation = useEditWorkflowTemplate();
 
@@ -92,12 +93,29 @@ export const ViewWorkflowTemplate = () => {
   const handleSave = async () => {
     if (!editedWorkflow || !hasChanges) return;
 
+    // Frontend guard: require version bump to avoid 409 from backend
+    const originalVersion = workflowTemplateQuery.data?.version;
+    if (editedWorkflow.version === originalVersion) {
+      setToastMsg(
+        'Please change the version before saving. A template with this version already exists.'
+      );
+      setToastOpen(true);
+      return;
+    }
+
     try {
       await editWorkflowTemplateMutation.mutateAsync(editedWorkflow);
       setIsEditMode(false);
       setEditedWorkflow(null);
       setHasChanges(false);
-    } catch (error) {
+    } catch (error: any) {
+      const status = error?.status || error?.response?.status;
+      if (status === 409) {
+        setToastMsg(
+          'Version conflict: a template with this version exists. Please bump the version and try again.'
+        );
+        setToastOpen(true);
+      }
       console.error('Error saving workflow template:', error);
     }
   };
@@ -169,7 +187,11 @@ export const ViewWorkflowTemplate = () => {
                 }
                 onClick={handleSave}
                 disabled={
-                  !hasChanges || editWorkflowTemplateMutation.isPending
+                  !hasChanges ||
+                  editWorkflowTemplateMutation.isPending ||
+                  (isEditMode &&
+                    editedWorkflow?.version ===
+                      workflowTemplateQuery.data?.version)
                 }>
                 {editWorkflowTemplateMutation.isPending ? 'Saving...' : 'Save'}
               </Button>
@@ -259,6 +281,12 @@ export const ViewWorkflowTemplate = () => {
           />
         )}
       </Paper>
+      <Toast
+        severity="warning"
+        message={toastMsg}
+        open={toastOpen}
+        onClose={() => setToastOpen(false)}
+      />
     </>
   );
 };

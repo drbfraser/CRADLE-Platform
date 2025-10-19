@@ -182,7 +182,6 @@ export const WorkflowMetadata = ({
                     } else {
                       handleFieldChange('version', 'V');
                     }
-                    console.log('version', version);
                   }
                 : undefined
             }

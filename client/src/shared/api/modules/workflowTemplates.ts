@@ -62,29 +62,28 @@ export const getAllWorkflowTemplatesAsync = async (
   }
 };
 
-// PATCH /workflow/templates/{templateId}/partial
+// PATCH /workflow/templates/{templateId}
+// Uses the full PATCH endpoint which creates a new version and archives the previous one
 export const editWorkflowTemplateAsync = async (
   template: Partial<WorkflowTemplate>
 ) => {
   if (!template.id) {
     throw new Error('Template ID is required for updates');
   }
-
-  // Prepare the patch body with only the fields that need updating
   const patchBody: Partial<WorkflowTemplate> = {};
-
-  // Only basic info of the workflow template is updated
   if (template.name !== undefined) patchBody.name = template.name;
   if (template.description !== undefined)
     patchBody.description = template.description;
   if (template.archived !== undefined) patchBody.archived = template.archived;
   if (template.version !== undefined) patchBody.version = template.version;
-
-  // TODO: Add support for nested updates such as `steps` or `classification` objects.
+  if (template.classificationId !== undefined)
+    patchBody.classificationId = template.classificationId;
+  if (template.startingStepId !== undefined)
+    patchBody.startingStepId = template.startingStepId;
 
   const response = await axiosFetch({
     method: 'PATCH',
-    url: `${TEMPLATES}/${template.id}/partial`,
+    url: `${TEMPLATES}/${template.id}`,
     data: patchBody,
   });
 
@@ -99,7 +98,6 @@ export const getTemplate = async (
     with_classification?: boolean;
   }
 ): Promise<WorkflowTemplate> => {
-  console.log('templatePath(templateId)', templatePath(templateId));
   const response = await axiosFetch.get<WorkflowTemplate>(
     templatePath(templateId),
     { params }
