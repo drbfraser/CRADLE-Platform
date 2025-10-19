@@ -34,14 +34,18 @@ from models import (
 from service import invariant
 
 
-def marshal(obj: Any, shallow=False, if_include_versions=False) -> dict:
-    """
-    Recursively marshals an object to a dictionary.
+def marshal(obj: Any, shallow: bool = False, if_include_versions: bool = False) -> dict:
+    r"""
+    Serialize an ORM model or plain object to a JSON-ready ``dict``.
 
-    :param obj: The object to marshal
-    :param shallow: If true, only the top level fields will be marshalled
-    :param if_include_versions: If true, lang versions will be attached to questions
-    :return: A dictionary mapping fields to values
+    The function inspects ``obj`` and dispatches to a model-specific marshaller
+    when available; otherwise it copies public attributes, drops ``None``/private
+    fields, and coerces ``Enum`` values to ``.value``.
+
+    :param obj: Object to serialize (e.g., ``PatientOrm``, ``ReadingOrm``).
+    :param shallow: If ``True``, omit nested relationships for a lightweight view.
+    :param if_include_versions: For question models, include language versions.
+    :return: JSON-serializable dictionary for ``obj``.
     """
     if isinstance(obj, PatientOrm):
         return __marshal_patient(obj, shallow)
@@ -87,14 +91,13 @@ def marshal(obj: Any, shallow=False, if_include_versions=False) -> dict:
     return d
 
 
-def marshal_with_type(obj: Any, shallow=False) -> dict:
+def marshal_with_type(obj: Any, shallow: bool = False) -> dict:
     """
-    Recursively marshals an object to a dictionary which has an additional
-    field that indicates the object type, used for summary page cards
+    Serialize an object and add a ``type`` discriminator (for summary cards).
 
-    :param obj: The object to marshal
-    :param shallow: If true, only the top level fields will be marshalled
-    :return: A dictionary mapping fields to values
+    :param obj: Object to marshal.
+    :param shallow: If ``True``, omit nested relationships.
+    :return: Dictionary representation with an added ``type`` field.
     """
     if isinstance(obj, PatientOrm):
         patient_dict = __marshal_patient(obj, shallow)
@@ -131,6 +134,15 @@ def marshal_with_type(obj: Any, shallow=False) -> dict:
 
 
 def marshal_patient_pregnancy_summary(records: List[PregnancyOrm]) -> dict:
+    """
+    Build a compact summary for current and past pregnancies (most-recent first).
+
+    :param records: Pregnancy records ordered with most recent first.
+    :return: Dict with keys ``is_pregnant`` (bool), optional ``pregnancy_id``/
+        ``pregnancy_start_date`` for an active pregnancy, and ``past_pregnancies``
+        (list of dicts with ``id``, ``outcome``, ``pregnancy_start_date``,
+        ``pregnancy_end_date``).
+    """
     summary = {
         "is_pregnant": False,
         "past_pregnancies": list(),
@@ -165,6 +177,14 @@ def marshal_patient_medical_history(
     medical: Optional[MedicalRecordOrm] = None,
     drug: Optional[MedicalRecordOrm] = None,
 ) -> dict:
+    """
+    Build a patient's medical/drug history dict from up to two records.
+
+    :param medical: Medical-history record, if present.
+    :param drug: Drug-history record, if present.
+    :return: Dict containing any of ``medical_history_id``/``medical_history``
+        and ``drug_history_id``/``drug_history``.
+    """
     records = dict()
 
     if medical:
@@ -184,7 +204,14 @@ def marshal_patient_medical_history(
     return records
 
 
-def __marshal_patient(p: PatientOrm, shallow) -> dict:
+def __marshal_patient(p: PatientOrm, shallow: bool) -> dict:
+    """
+    Serialize a ``PatientOrm``, optionally including readings/referrals/assessments.
+
+    :param p: Patient instance to serialize.
+    :param shallow: If ``True``, omit nested relationships.
+    :return: Patient dictionary suitable for API responses.
+    """
     d = vars(p).copy()
     __pre_process(d)
     if d.get("date_of_birth"):
@@ -201,7 +228,14 @@ def __marshal_patient(p: PatientOrm, shallow) -> dict:
     return d
 
 
-def __marshal_reading(r: ReadingOrm, shallow) -> dict:
+def __marshal_reading(r: ReadingOrm, shallow: bool) -> dict:
+    """
+    Serialize a ``ReadingOrm`` to a JSON-ready ``dict``.
+
+    :param r: Reading instance to serialize.
+    :param shallow: If ``True``, omit nested relationships.
+    :return: Dictionary representation of the reading.
+    """
     d = vars(r).copy()
     __pre_process(d)
     if not d.get("symptoms"):
@@ -210,10 +244,23 @@ def __marshal_reading(r: ReadingOrm, shallow) -> dict:
         d["symptoms"] = d["symptoms"].split(",")
     if not shallow and r.urine_tests is not None:
         d["urine_tests"] = marshal(r.urine_tests)
+    else:
+        # Remove relationship-only field(s) from the marshaled payload.
+        # We intentionally exclude heavy nested collections here (shallow output).
+        # Currently just "urine_tests", if needed, add more fields inside the list (eg. ["urine_tests", "protein",...]).
+        for rel in ["urine_tests"]:
+            if rel in d:
+                del d[rel]
     return d
 
 
 def __marshal_referral(r: ReferralOrm) -> dict:
+    """
+    Serialize a ``ReferralOrm`` and drop relationship objects (patient, facility).
+
+    :param r: Referral instance to serialize.
+    :return: Referral dictionary without relationship objects.
+    """
     d = vars(r).copy()
     __pre_process(d)
     # Remove relationship object
@@ -225,15 +272,31 @@ def __marshal_referral(r: ReferralOrm) -> dict:
 
 
 def __marshal_assessment(f: AssessmentOrm) -> dict:
+    """
+    Serialize an ``AssessmentOrm`` and strip relationship objects.
+
+    :param f: Assessment instance to serialize.
+    :return: Assessment dictionary without facility/patient/worker relationships.
+    """
     d = vars(f).copy()
     __pre_process(d)
     # Remove relationship objects
     if d.get("health_facility"):
         del d["health_facility"]
+    if d.get("patient"):
+        del d["patient"]
+    if d.get("healthcare_worker"):
+        del d["healthcare_worker"]
     return d
 
 
 def __marshal_pregnancy(p: PregnancyOrm) -> dict:
+    """
+    Serialize a ``PregnancyOrm`` to a compact dictionary of scalar fields.
+
+    :param p: Pregnancy instance to serialize.
+    :return: Dict with ``id``, ``patient_id``, dates, ``outcome``, and ``last_edited``.
+    """
     return {
         "id": p.id,
         "patient_id": p.patient_id,
@@ -245,6 +308,12 @@ def __marshal_pregnancy(p: PregnancyOrm) -> dict:
 
 
 def __marshal_medical_record(r: MedicalRecordOrm) -> dict:
+    """
+    Serialize a ``MedicalRecordOrm`` and route information to the appropriate field.
+
+    :param r: Medical record instance to serialize.
+    :return: Dict with core fields and either ``drug_history`` or ``medical_history``.
+    """
     d = {
         "id": r.id,
         "patient_id": r.patient_id,
@@ -265,6 +334,14 @@ def __marshal_form_template(
     shallow: bool = False,
     if_include_versions: bool = False,
 ) -> dict:
+    """
+    Serialize a ``FormTemplateOrm``; embed classification and (optionally) questions.
+
+    :param f: Form template instance to serialize.
+    :param shallow: If ``True``, omit questions.
+    :param if_include_versions: If ``True``, include question language versions.
+    :return: Form-template dictionary.
+    """
     f = filter_template_questions_orm(f)
 
     d = vars(f).copy()
@@ -285,6 +362,13 @@ def __marshal_form_template(
 
 
 def marshal_template_to_single_version(f: FormTemplateOrm, version: str) -> dict:
+    """
+    Serialize a ``FormTemplateOrm`` restricting questions to a single language.
+
+    :param f: Form template instance to serialize.
+    :param version: Language code to select in question ``lang_versions``.
+    :return: Form-template dictionary restricted to the requested language.
+    """
     f = filter_template_questions_orm(f)
 
     d = vars(f).copy()
@@ -302,7 +386,14 @@ def marshal_template_to_single_version(f: FormTemplateOrm, version: str) -> dict
     return d
 
 
-def __marshal_form(f: FormOrm, shallow) -> dict:
+def __marshal_form(f: FormOrm, shallow: bool) -> dict:
+    """
+    Serialize a ``FormOrm``; embed classification and optionally include questions.
+
+    :param f: Form instance to serialize.
+    :param shallow: If ``True``, omit questions from the output.
+    :return: Form dictionary for API responses.
+    """
     d = vars(f).copy()
     __pre_process(d)
 
@@ -311,6 +402,9 @@ def __marshal_form(f: FormOrm, shallow) -> dict:
     # Remove relationship object
     if d.get("patient"):
         del d["patient"]
+
+    if shallow and "questions" in d:
+        del d["questions"]
 
     if not shallow:
         d["questions"] = [marshal(q) for q in f.questions]
@@ -321,6 +415,13 @@ def __marshal_form(f: FormOrm, shallow) -> dict:
 
 
 def __marshal_question(q: QuestionOrm, if_include_versions: bool) -> dict:
+    """
+    Serialize a ``QuestionOrm``; parse JSON fields and optionally include versions.
+
+    :param q: Question instance to serialize.
+    :param if_include_versions: If ``True``, include ``lang_versions``.
+    :return: Question dictionary with parsed JSON fields.
+    """
     d = vars(q).copy()
     __pre_process(d)
 
@@ -342,11 +443,21 @@ def __marshal_question(q: QuestionOrm, if_include_versions: bool) -> dict:
 
     if if_include_versions:
         d["lang_versions"] = [marshal(v) for v in q.lang_versions]
+    elif not if_include_versions and "lang_versions" in d:
+        del d["lang_versions"]
 
     return d
 
 
 def marshal_question_to_single_version(q: QuestionOrm, version: str) -> dict:
+    """
+    Serialize a question and override text/options from a single language version.
+
+    :param q: Question instance to serialize.
+    :param version: Language code to select.
+    :return: Question dictionary limited to the selected language.
+    :raises IndexError: If the requested ``version`` is not available.
+    """
     d = __marshal_question(q, False)
     version_info = [marshal(v) for v in q.lang_versions if v.lang == version][0]
 
@@ -358,13 +469,19 @@ def marshal_question_to_single_version(q: QuestionOrm, version: str) -> dict:
 
 
 def __marshal_lang_version(v: QuestionLangVersionOrm) -> dict:
+    """
+    Serialize a ``QuestionLangVersionOrm``; cast ``mc_options`` and drop backrefs.
+
+    :param v: Language-version instance to serialize.
+    :return: Language-version dictionary with ``mc_options`` normalized.
+    """
     d = vars(v).copy()
     __pre_process(d)
 
     # Remove relationship object
     if d.get("question"):
         del d["question"]
-    # Remove mc_options if default empty list
+    # Remove mc_options if default empty list; otherwise parse from JSON string
     if d.get("mc_options") == "[]":
         del d["mc_options"]
     else:
@@ -378,6 +495,13 @@ def __marshal_form_classification(
     fc: FormClassificationOrm,
     if_include_templates: bool = False,
 ) -> dict:
+    """
+    Serialize a ``FormClassificationOrm``; optionally embed its templates.
+
+    :param fc: Form classification instance to serialize.
+    :param if_include_templates: If ``True``, include serialized templates.
+    :return: Classification dictionary.
+    """
     d = vars(fc).copy()
     __pre_process(d)
 
@@ -390,7 +514,13 @@ def __marshal_form_classification(
     return d
 
 
-def __marshal_SmsSecretKey(s: SmsSecretKeyOrm):
+def __marshal_SmsSecretKey(s: SmsSecretKeyOrm) -> dict:
+    """
+    Serialize an ``SmsSecretKeyOrm``; preserve raw datetime fields.
+
+    :param s: SmsSecretKey instance to serialize.
+    :return: Dict with ``id``, ``user_id``, ``secret_key``, ``stale_date``, ``expiry_date``.
+    """
     return {
         "id": s.id,
         "user_id": s.user_id,
@@ -401,6 +531,12 @@ def __marshal_SmsSecretKey(s: SmsSecretKeyOrm):
 
 
 def __marshal_rule_group(rg: RuleGroupOrm) -> dict:
+    """
+    Serialize a ``RuleGroupOrm``. ``__pre_process`` removes private/``None`` fields.
+
+    :param rg: RuleGroup instance to serialize.
+    :return: Rule-group dictionary.
+    """
     d = vars(rg).copy()
     __pre_process(d)
 
@@ -410,6 +546,13 @@ def __marshal_rule_group(rg: RuleGroupOrm) -> dict:
 def __marshal_workflow_collection(
     wf_collection: WorkflowCollectionOrm, shallow: bool = False
 ) -> dict:
+    """
+    Serialize a ``WorkflowCollectionOrm``; optionally include nested classifications.
+
+    :param wf_collection: Workflow collection to serialize.
+    :param shallow: If ``True``, omit nested classifications.
+    :return: Workflow-collection dictionary.
+    """
     d = vars(wf_collection).copy()
     __pre_process(d)
 
@@ -427,6 +570,12 @@ def __marshal_workflow_collection(
 def __marshal_workflow_template_step_branch(
     wtsb: WorkflowTemplateStepBranchOrm,
 ) -> dict:
+    """
+    Serialize a ``WorkflowTemplateStepBranchOrm``; include ``condition`` if present.
+
+    :param wtsb: Workflow template step branch instance.
+    :return: Branch dictionary with optional serialized ``condition``.
+    """
     d = vars(wtsb).copy()
     __pre_process(d)
 
@@ -439,6 +588,13 @@ def __marshal_workflow_template_step_branch(
 def __marshal_workflow_template_step(
     wts: WorkflowTemplateStepOrm, shallow: bool = False
 ) -> dict:
+    """
+    Serialize a ``WorkflowTemplateStepOrm``; embed form and optionally branches.
+
+    :param wts: Workflow template step to serialize.
+    :param shallow: If ``True``, omit branches.
+    :return: Workflow-template-step dictionary including serialized form.
+    """
     d = vars(wts).copy()
     __pre_process(d)
 
@@ -453,6 +609,13 @@ def __marshal_workflow_template_step(
 
 
 def __marshal_workflow_template(wt: WorkflowTemplateOrm, shallow: bool = False) -> dict:
+    """
+    Serialize a ``WorkflowTemplateOrm``; include classification and optionally steps.
+
+    :param wt: Workflow template to serialize.
+    :param shallow: If ``True``, omit steps.
+    :return: Workflow-template dictionary.
+    """
     d = vars(wt).copy()
     __pre_process(d)
 
@@ -463,6 +626,8 @@ def __marshal_workflow_template(wt: WorkflowTemplateOrm, shallow: bool = False) 
 
     if not shallow:
         d["steps"] = [__marshal_workflow_template_step(wts=wts) for wts in wt.steps]
+    elif "steps" in d:
+        del d["steps"]
 
     return d
 
@@ -470,6 +635,14 @@ def __marshal_workflow_template(wt: WorkflowTemplateOrm, shallow: bool = False) 
 def __marshal_workflow_classification(
     wc: WorkflowClassificationOrm, if_include_templates: bool, shallow: bool = False
 ) -> dict:
+    """
+    Serialize a ``WorkflowClassificationOrm``; optionally include templates.
+
+    :param wc: Workflow classification to serialize.
+    :param if_include_templates: If ``True``, embed serialized workflow templates.
+    :param shallow: If ``True``, propagate ``shallow`` to nested templates.
+    :return: Workflow-classification dictionary.
+    """
     d = vars(wc).copy()
     __pre_process(d)
 
@@ -485,6 +658,12 @@ def __marshal_workflow_classification(
 
 
 def __marshal_workflow_instance_step(wis: WorkflowInstanceStepOrm) -> dict:
+    """
+    Serialize a ``WorkflowInstanceStepOrm``; embed a shallow form if present.
+
+    :param wis: Workflow instance step to serialize.
+    :return: Workflow-instance-step dictionary with shallow ``form`` (or ``None``).
+    """
     d = vars(wis).copy()
     __pre_process(d)
 
@@ -497,16 +676,31 @@ def __marshal_workflow_instance_step(wis: WorkflowInstanceStepOrm) -> dict:
 
 
 def __marshal_workflow_instance(wi: WorkflowInstanceOrm, shallow: bool = False) -> dict:
+    """
+    Serialize a ``WorkflowInstanceOrm``; optionally include steps.
+
+    :param wi: Workflow instance to serialize.
+    :param shallow: If ``True``, omit steps.
+    :return: Workflow-instance dictionary.
+    """
     d = vars(wi).copy()
     __pre_process(d)
 
     if not shallow:
         d["steps"] = [__marshal_workflow_instance_step(wis) for wis in wi.steps]
+    elif "steps" in d:
+        del d["steps"]
 
     return d
 
 
 def __pre_process(d: Dict[str, Any]):
+    """
+    In-place cleanup: remove private/``None`` fields and coerce ``Enum`` values.
+
+    :param d: Mutable dictionary to sanitize in place.
+    :return: ``None``.
+    """
     __strip_protected_attributes(d)
     __strip_none_values(d)
     for k, v in d.items():
@@ -515,12 +709,24 @@ def __pre_process(d: Dict[str, Any]):
 
 
 def __strip_none_values(d: Dict[str, Any]):
+    """
+    Remove keys whose values are ``None`` (mutates ``d``).
+
+    :param d: Dictionary to mutate.
+    :return: ``None``.
+    """
     remove = [k for k in d if d[k] is None]
     for k in remove:
         del d[k]
 
 
 def __strip_protected_attributes(d: Dict[str, Any]):
+    """
+    Remove attributes starting with ``_`` (mutates ``d``).
+
+    :param d: Dictionary to mutate.
+    :return: ``None``.
+    """
     remove = [k for k in d if k.startswith("_")]
     for k in remove:
         del d[k]
@@ -528,20 +734,20 @@ def __strip_protected_attributes(d: Dict[str, Any]):
 
 def unmarshal(m: Type[M], d: dict) -> M:
     """
-    Converts a dictionary into a model instance by loading it from the model's schema.
+    Construct a model instance from a dictionary using the model's schema.
 
-    Special care is taken for ``ReadingOrm`` models (and any thing which contains a nested
-    ``ReadingOrm`` model) because their database schema is different from their dictionary
-    representation, most notably the symptoms field.
+    Special care is taken for ``ReadingOrm`` (and structures that contain it)
+    because its DB schema differs from its dictionary representation (e.g.,
+    ``symptoms`` handling).
 
-    For ``PatientOrm`` and ``ReadingOrm`` types, the instance returned by this function may
-    not be sound as there are various invariants that must be held for ``ReadingOrm``
-    objects. One should call ``service.invariant.resolve_reading_invariants`` on the
-    instance created by this function.
+    For ``PatientOrm``/``ReadingOrm``, the returned instance may be incomplete
+    until invariants are resolved; call
+    ``service.invariant.resolve_reading_invariants`` on the resulting object.
 
-    :param m: The type of model to construct
-    :param d: A dictionary mapping columns to values used to construct the model
-    :return: A model
+    :param m: Model class to construct.
+    :param d: Field dictionary.
+    :return: Deserialized model instance.
+    :raises marshmallow.ValidationError: If the payload fails schema validation.
     """
     # Marshmallow will throw an exception if a field is None, but doesn't throw
     # if the field is absent entirely.
@@ -578,11 +784,25 @@ def unmarshal(m: Type[M], d: dict) -> M:
 
 
 def __load(m: Type[M], d: dict) -> M:
+    """
+    Load a model instance from ``dict`` using the model's Marshmallow schema.
+
+    :param m: Model class to load.
+    :param d: Field dictionary for the model.
+    :return: Deserialized model instance.
+    :raises marshmallow.ValidationError: If validation fails.
+    """
     schema = get_schema_for_model(m)
     return schema().load(d)
 
 
 def __unmarshal_patient(d: dict) -> PatientOrm:
+    """
+    Construct a ``PatientOrm``; recursively unmarshal nested lists and fix fields.
+
+    :param d: Patient payload (may include readings/referrals/assessments/forms).
+    :return: ``PatientOrm`` with nested collections attached.
+    """
     # Unmarshal any readings found within the patient
     if d.get("readings") is not None:
         readings = [__unmarshal_reading(r) for r in d["readings"]]
@@ -645,7 +865,13 @@ def __unmarshal_patient(d: dict) -> PatientOrm:
     return patient
 
 
-def make_medical_record_from_patient(patient: dict) -> MedicalRecordOrm:
+def make_medical_record_from_patient(patient: dict) -> List[MedicalRecordOrm]:
+    """
+    Extract optional drug/medical history strings and build ``MedicalRecordOrm`` entries.
+
+    :param patient: Patient payload (mutated to remove history fields).
+    :return: List of ``MedicalRecordOrm`` instances (possibly empty).
+    """
     drug_record = {}
     medical_record = {}
     if "drug_history" in patient:
@@ -675,7 +901,13 @@ def make_medical_record_from_patient(patient: dict) -> MedicalRecordOrm:
     return record
 
 
-def makePregnancyFromPatient(patient: dict) -> PregnancyOrm:
+def makePregnancyFromPatient(patient: dict) -> List[PregnancyOrm]:
+    """
+    Derive pregnancy data from patient fields and remove them from the dict.
+
+    :param patient: Patient payload (mutated to remove pregnancy fields).
+    :return: List with a single ``PregnancyOrm`` if data present, else empty list.
+    """
     pregnancyObj = {}
     if patient.get("pregnancy_start_date"):
         pregnancyObj = {
@@ -696,6 +928,12 @@ def makePregnancyFromPatient(patient: dict) -> PregnancyOrm:
 
 
 def __unmarshal_form(d: dict) -> FormOrm:
+    """
+    Construct a ``FormOrm``; unmarshal nested questions if present.
+
+    :param d: Form payload (may include a ``questions`` list).
+    :return: ``FormOrm`` with optional questions attached.
+    """
     questions = []
     if d.get("questions") is not None:
         questions = unmarshal_question_list(d["questions"])
@@ -709,13 +947,17 @@ def __unmarshal_form(d: dict) -> FormOrm:
 
 
 def __unmarshal_form_template(d: dict) -> FormTemplateOrm:
+    """
+    Construct a ``FormTemplateOrm``; load questions via ``unmarshal_question_list``.
+
+    :param d: FormTemplate payload (may include a ``questions`` list).
+    :return: ``FormTemplateOrm`` with questions attached.
+    """
     with db_session.no_autoflush:
         questions = []
         if d.get("questions") is not None:
             questions = unmarshal_question_list(d["questions"])
             del d["questions"]
-
-        # form_template_orm = FormTemplateOrm(**d)
 
         form_template_orm = __load(FormTemplateOrm, d)
 
@@ -725,6 +967,12 @@ def __unmarshal_form_template(d: dict) -> FormTemplateOrm:
 
 
 def __unmarshal_reading(d: dict) -> ReadingOrm:
+    """
+    Construct a ``ReadingOrm``; convert symptoms list→CSV and resolve invariants.
+
+    :param d: Reading payload (``symptoms`` may be list or CSV string).
+    :return: ``ReadingOrm`` with invariants resolved.
+    """
     # Convert "symptoms" from array to string, if plural number of symptoms
     symptomsGiven = d.get("symptoms")
     if symptomsGiven is not None:
@@ -739,6 +987,12 @@ def __unmarshal_reading(d: dict) -> ReadingOrm:
 
 
 def __unmarshal_lang_version(d: dict) -> QuestionLangVersionOrm:
+    """
+    Construct a ``QuestionLangVersionOrm``; convert ``mc_options`` list→JSON string.
+
+    :param d: Language-version payload dictionary.
+    :return: ``QuestionLangVersionOrm`` instance.
+    """
     # Convert "mc_options" from json dict to string
     mc_options = d.get("mc_options")
     if mc_options is not None:
@@ -751,6 +1005,13 @@ def __unmarshal_lang_version(d: dict) -> QuestionLangVersionOrm:
 
 
 def __unmarshal_question(d: dict) -> QuestionOrm:
+    """
+    Construct a ``QuestionOrm``; encode JSON-able fields and attach ``lang_versions``.
+
+    :param d: Question payload (may include ``visible_condition``/``mc_options``/
+        ``answers`` and ``lang_versions``).
+    :return: ``QuestionOrm`` with nested ``lang_versions`` attached if provided.
+    """
     # Convert "visible_condition" from json dict to string
     visible_condition = d.get("visible_condition")
     if visible_condition is not None:
@@ -782,6 +1043,12 @@ def __unmarshal_question(d: dict) -> QuestionOrm:
 
 
 def __unmarshal_RelayServerPhoneNumber(d: dict) -> RelayServerPhoneNumberOrm:
+    """
+    Construct a ``RelayServerPhoneNumberOrm`` and copy simple scalar fields.
+
+    :param d: Relay server phone payload dictionary.
+    :return: ``RelayServerPhoneNumberOrm`` instance.
+    """
     relay_server_phone = __load(RelayServerPhoneNumberOrm, d)
     relay_server_phone.phone = d["phone"]
     relay_server_phone.description = d["description"]
@@ -789,6 +1056,12 @@ def __unmarshal_RelayServerPhoneNumber(d: dict) -> RelayServerPhoneNumberOrm:
 
 
 def __unmarshal_SmsSecretKey(d: dict) -> SmsSecretKeyOrm:
+    """
+    Construct an ``SmsSecretKeyOrm`` and copy scalar fields from the payload.
+
+    :param d: SMS secret key payload dictionary.
+    :return: ``SmsSecretKeyOrm`` instance.
+    """
     sms_secret_key = __load(SmsSecretKeyOrm, d)
     sms_secret_key.user_id = d["user_id"]
     sms_secret_key.secret_key = d["secret_key"]
@@ -798,11 +1071,23 @@ def __unmarshal_SmsSecretKey(d: dict) -> SmsSecretKeyOrm:
 
 
 def unmarshal_question_list(d: list) -> List[QuestionOrm]:
+    """
+    Unmarshal a list of question dicts into ``QuestionOrm`` instances.
+
+    :param d: List of question payload dictionaries.
+    :return: List of ``QuestionOrm`` instances.
+    """
     # Unmarshal any questions found within the list, return a list of questions
     return [__unmarshal_question(q) for q in d]
 
 
 def __unmarshal_workflow_template_step_branch(d: dict) -> WorkflowTemplateStepBranchOrm:
+    """
+    Construct a ``WorkflowTemplateStepBranchOrm`` and unmarshal its condition if present.
+
+    :param d: Workflow template step branch payload dictionary.
+    :return: ``WorkflowTemplateStepBranchOrm`` with optional ``condition``.
+    """
     template_step_branch_orm = __load(WorkflowTemplateStepBranchOrm, d)
 
     if d.get("condition") is not None:
@@ -812,6 +1097,12 @@ def __unmarshal_workflow_template_step_branch(d: dict) -> WorkflowTemplateStepBr
 
 
 def __unmarshal_workflow_template_step(d: dict) -> WorkflowTemplateStepOrm:
+    """
+    Construct a ``WorkflowTemplateStepOrm``; attach branches and form if provided.
+
+    :param d: Workflow template step payload dictionary.
+    :return: ``WorkflowTemplateStepOrm`` with branches/form set.
+    """
     branches = []
     form = None
 
@@ -833,6 +1124,12 @@ def __unmarshal_workflow_template_step(d: dict) -> WorkflowTemplateStepOrm:
 
 
 def __unmarshal_workflow_template(d: dict) -> WorkflowTemplateOrm:
+    """
+    Construct a ``WorkflowTemplateOrm``; attach steps and classification if provided.
+
+    :param d: Workflow template payload dictionary.
+    :return: ``WorkflowTemplateOrm`` with steps/classification set.
+    """
     with db_session.no_autoflush:
         steps = []
         classification = None
@@ -853,6 +1150,12 @@ def __unmarshal_workflow_template(d: dict) -> WorkflowTemplateOrm:
 
 
 def __unmarshal_workflow_instance_step(d: dict) -> WorkflowInstanceStepOrm:
+    """
+    Construct a ``WorkflowInstanceStepOrm``; unmarshal its form if present.
+
+    :param d: Workflow instance step payload dictionary.
+    :return: ``WorkflowInstanceStepOrm`` with optional form.
+    """
     form = None
 
     if d.get("form") is not None:
@@ -866,6 +1169,12 @@ def __unmarshal_workflow_instance_step(d: dict) -> WorkflowInstanceStepOrm:
 
 
 def __unmarshal_workflow_instance(d: dict) -> WorkflowInstanceOrm:
+    """
+    Construct a ``WorkflowInstanceOrm``; attach steps if present.
+
+    :param d: Workflow instance payload dictionary.
+    :return: ``WorkflowInstanceOrm`` with steps set.
+    """
     steps = []
 
     if d.get("steps") is not None:
@@ -887,9 +1196,9 @@ def models_to_list(models: List[Any], schema) -> List[dict]:
     Converts a list of models into a list of dictionaries mapping column names
     to values.
 
-    :param models: A list of models
+    :param models: List of model instances.
     :param schema: The schema of the models
-    :return: A list of dictionaries
+    :return: List of dictionaries.
     """
     return schema(many=True).dump(models)
 
@@ -898,9 +1207,10 @@ def model_to_dict(model: Any, schema) -> Optional[dict]:
     """
     Converts a model into a dictionary mapping column names to values.
 
-    :param model: A model
+    :param model: Model instance (or mapping stub).
     :param schema: The schema of the model
-    :return: A dictionary or ``None`` if ``model`` is ``None``
+    :return: Dict, or ``None`` if ``model`` is falsy. Returns ``model`` as-is if it
+        already implements ``Mapping`` (local DB stub).
     """
     if not model:
         return None

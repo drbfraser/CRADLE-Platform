@@ -309,7 +309,7 @@ def workflow_template2(form_template):
                 "condition_id": None,
                 "condition": {
                     "id": None,
-                    "rule": '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
+                    "rule": '{"and": [{"<": [{"var": "patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}',
                     "data_sources": '["$patient.age"]',
                 },
                 "branches": [],

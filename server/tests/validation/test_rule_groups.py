@@ -5,7 +5,7 @@ from validation.rule_groups import RuleGroupModel
 
 ID = "rule-group-example-01"
 
-RULE = '{"and": [{"<": [{"var": "$patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}'
+RULE = '{"and": [{"<": [{"var": "patient.age"}, 32]}, {">": [{"var": "bpm"}, 164]}]}'
 DATA_SOURCES = '["$patient.age"]'
 
 
