@@ -37,6 +37,18 @@ vi.mock('./mutations', () => ({
     mutate: vi.fn(),
     isError: false,
   })),
+  useArchiveWorkflowTemplate: vi.fn(() => ({
+    mutate: vi.fn(),
+    isError: false,
+    isSuccess: false,
+    reset: vi.fn(),
+  })),
+  useUnarchiveWorkflowTemplate: vi.fn(() => ({
+    mutate: vi.fn(),
+    isError: false,
+    isSuccess: false,
+    reset: vi.fn(),
+  })),
 }));
 
 describe('Workflow Table', () => {
