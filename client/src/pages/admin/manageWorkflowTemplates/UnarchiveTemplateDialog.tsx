@@ -9,7 +9,7 @@ import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Toast } from 'src/shared/components/toast';
-import { useEditWorkflowTemplate } from './mutations';
+import { useUnarchiveWorkflowTemplate } from './mutations';
 
 interface IProps {
   open: boolean;
@@ -18,19 +18,11 @@ interface IProps {
 }
 
 const UnarchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
-  const editTemplate = useEditWorkflowTemplate();
+  const unarchiveMutation = useUnarchiveWorkflowTemplate();
 
   const unarchiveTemplate = () => {
-    if (!template?.id) {
-      return;
-    }
-
-    editTemplate.mutate(
-      { ...template, archived: false },
-      {
-        onSuccess: () => onClose(),
-      }
-    );
+    if (!template?.id) return;
+    unarchiveMutation.mutate(template.id, { onSuccess: () => onClose() });
   };
 
   return (
@@ -38,12 +30,12 @@ const UnarchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
       <Toast
         severity="success"
         message="Workflow Unarchived!"
-        open={editTemplate.isSuccess}
-        onClose={() => editTemplate.reset()}
+        open={unarchiveMutation.isSuccess}
+        onClose={() => unarchiveMutation.reset()}
       />
       <APIErrorToast
-        open={editTemplate.isError}
-        onClose={() => editTemplate.reset()}
+        open={unarchiveMutation.isError}
+        onClose={() => unarchiveMutation.reset()}
       />
 
       <Dialog open={open} onClose={onClose}>

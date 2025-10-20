@@ -9,7 +9,7 @@ import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
 import { CancelButton, PrimaryButton } from 'src/shared/components/Button';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import { Toast } from 'src/shared/components/toast';
-import { useEditWorkflowTemplate } from './mutations';
+import { useArchiveWorkflowTemplate } from './mutations';
 
 interface IProps {
   open: boolean;
@@ -18,19 +18,16 @@ interface IProps {
 }
 
 const ArchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
-  const editForm = useEditWorkflowTemplate();
+  const archiveTemplate = useArchiveWorkflowTemplate();
 
   const handleArchiveForm = async () => {
     if (!template?.id) {
       return;
     }
 
-    editForm.mutate(
-      { ...template, archived: true },
-      {
-        onSuccess: () => onClose(),
-      }
-    );
+    archiveTemplate.mutate(template.id, {
+      onSuccess: () => onClose(),
+    });
   };
 
   return (
@@ -38,10 +35,13 @@ const ArchiveTemplateDialog = ({ open, onClose, template }: IProps) => {
       <Toast
         severity="success"
         message="Workflow Archived!"
-        open={editForm.isSuccess}
-        onClose={() => editForm.reset()}
+        open={archiveTemplate.isSuccess}
+        onClose={() => archiveTemplate.reset()}
       />
-      <APIErrorToast open={editForm.isError} onClose={() => editForm.reset()} />
+      <APIErrorToast
+        open={archiveTemplate.isError}
+        onClose={() => archiveTemplate.reset()}
+      />
 
       <Dialog open={open} onClose={onClose}>
         <DialogTitle>Archive Workflow </DialogTitle>
