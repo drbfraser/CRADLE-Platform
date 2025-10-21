@@ -186,9 +186,15 @@ def seed_test_data():
     print("Adding relay server numbers to admin page...")
     create_relay_nums()
 
-    print("Creating a simple workflow template and workflow classification")
-    create_simple_workflow_classification()
-    create_simple_workflow_template()
+    print("Creating a simple workflow template and form for the workflow template")
+    form_template_id = create_simple_workflow_template_step_form()
+
+    WORKFLOW_TEMPLATE_ID1 = "workflow-template-1"
+    WORKFLOW_TEMPLATE_ID2 = "workflow-template-2"
+    create_simple_workflow_template(WORKFLOW_TEMPLATE_ID1, form_template_id)
+    create_simple_workflow_template(
+        WORKFLOW_TEMPLATE_ID2, form_template_id, num_steps=6
+    )
 
     print("Creating workflow instances")
     # Create forms to be used by workflow instances
@@ -224,33 +230,29 @@ def seed_test_data():
         instance_id="test-workflow-instance-1",
         instance_name="Patient Workflow Instance",
         patient_id=PATIENT_ID_1,
-        workflow_template_id="wt-simple-1",
-        form_id="workflow-instance-form-1",
+        workflow_template_id=WORKFLOW_TEMPLATE_ID1,
     )
 
     create_workflow_instance(
         instance_id="test-workflow-instance-2",
         instance_name="Patient Workflow Instance",
         patient_id=PATIENT_ID_2,
-        workflow_template_id="wt-simple-1",
-        form_id="workflow-instance-form-2",
+        workflow_template_id=WORKFLOW_TEMPLATE_ID1,
     )
 
     create_workflow_instance(
         instance_id="test-workflow-instance-3",
         instance_name="Patient Workflow Instance V2",
         patient_id=PATIENT_ID_2,
-        workflow_template_id="wt-simple-1",
-        form_id="workflow-instance-form-2",
-        num_steps=5,
+        workflow_template_id=WORKFLOW_TEMPLATE_ID2,
+        num_steps=6,
     )
 
     create_workflow_instance(
         instance_id="test-workflow-instance-4",
         instance_name="Collect Readings Workflow Instance",
         patient_id=PATIENT_ID_3,
-        workflow_template_id="wt-simple-1",
-        form_id="workflow-instance-form-3",
+        workflow_template_id=WORKFLOW_TEMPLATE_ID2,
         num_steps=6,
     )
 
@@ -782,7 +784,7 @@ def create_relay_nums():
 
 def create_simple_workflow_classification():
     if crud.read(WorkflowClassificationOrm, id="wc-simple-1") is not None:
-        return
+        return None
 
     workflow_classification = {
         "id": "wc-simple-1",
@@ -794,23 +796,27 @@ def create_simple_workflow_classification():
     db.session.add(workflow_classification_orm)
     db.session.commit()
 
+    return workflow_classification["id"]
 
-def create_simple_workflow_template():
-    if crud.read(WorkflowTemplateOrm, id="wt-simple-1") is not None:
+
+def create_simple_workflow_template(
+    workflow_template_id, form_template_id, num_steps=3
+):
+    if crud.read(WorkflowTemplateOrm, id=workflow_template_id) is not None:
         return
 
-    create_simple_workflow_classification()
+    classification_id = create_simple_workflow_classification()
 
     workflow_template = {
-        "id": "wt-simple-1",
+        "id": workflow_template_id,
         "name": "Get Patient Name Workflow",
         "description": "Collect name from patient",
         "archived": False,
-        "starting_step_id": "wt-simple-1-step-1",
+        "starting_step_id": f"{workflow_template_id}-step-1",
         "date_created": get_current_time(),
         "last_edited": get_current_time(),
         "version": "V1",
-        "classification_id": "wc-simple-1",
+        "classification_id": classification_id,
     }
 
     classification = crud.read(WorkflowClassificationOrm, id="wc-simple-1")
@@ -821,31 +827,32 @@ def create_simple_workflow_template():
     create_simple_workflow_template_step_form_classification()
     create_simple_workflow_template_step_form()
 
-    step = {
-        "id": "wt-simple-1-step-1",
-        "name": "Get Patient Name",
-        "description": "Enter the patient's name",
-        "expected_completion": get_current_time()
-        + 86400,  # Expected completion is 24 hours after this step was created
-        "last_edited": get_current_time(),
-        "form_id": "wt-simple-1-step-1-form",
-        "workflow_template_id": "wt-simple-1",
-    }
+    for step_number in range(1, num_steps + 1):
+        step = {
+            "id": f"{workflow_template_id}-step-{step_number}",
+            "name": "Get Patient Name",
+            "description": "Enter the patient's name",
+            "expected_completion": get_current_time()
+            + 86400,  # Expected completion is 24 hours after this step was created
+            "last_edited": get_current_time(),
+            "form_id": form_template_id,
+            "workflow_template_id": workflow_template["id"],
+        }
 
-    branch = {
-        "id": "wt-simple-1-step-1-branch",
-        "target_step_id": None,
-        "step_id": "wt-simple-1-step-1",
-        "condition_id": None,
-        "condition": None,
-    }
+        branch = {
+            "id": f"{workflow_template_id}-step-{step_number}-branch",
+            "target_step_id": None,
+            "step_id": step["id"],
+            "condition_id": None,
+            "condition": None,
+        }
 
-    branch_orm = WorkflowTemplateStepBranchOrm(**branch)
-    form_template_orm = crud.read(FormTemplateOrm, id="wt-simple-1-step-1-form")
+        branch_orm = WorkflowTemplateStepBranchOrm(**branch)
+        form_template_orm = crud.read(FormTemplateOrm, id=form_template_id)
 
-    step_orm = WorkflowTemplateStepOrm(form=form_template_orm, **step)
-    step_orm.branches.append(branch_orm)
-    workflow_template_orm.steps.append(step_orm)
+        step_orm = WorkflowTemplateStepOrm(form=form_template_orm, **step)
+        step_orm.branches.append(branch_orm)
+        workflow_template_orm.steps.append(step_orm)
 
     db.session.add(workflow_template_orm)
     db.session.commit()
@@ -1485,7 +1492,6 @@ def create_workflow_instance(
     instance_name,
     patient_id,
     workflow_template_id,
-    form_id=None,
     num_steps=3,
 ):
     if crud.read(WorkflowInstanceOrm, id=instance_id) is None:
@@ -1514,9 +1520,10 @@ def create_workflow_instance(
                 "last_edited": get_current_time(),
                 "expected_completion": get_current_time() + 40000,
                 "completion_date": get_current_time() + 35000,
-                "form_id": form_id,
                 "assigned_to": 3,
                 "workflow_instance_id": instance_id,
+                "form_id": None,
+                "workflow_template_step_id": f"{workflow_template_id}-step-{step_number}",
             }
 
             if step_number == 1:
