@@ -22,6 +22,7 @@ import {
   TemplateStepWithFormAndIndex,
   WorkflowTemplate,
 } from 'src/shared/types/workflow/workflowApiTypes';
+import { WorkflowViewMode } from 'src/shared/types/workflow/workflowEnums';
 import { getTemplateWithStepsAndClassification } from 'src/shared/api/modules/workflowTemplates';
 import { WorkflowMetadata } from '../../../shared/components/workflow/workflowTemplate/WorkflowMetadata';
 import { WorkflowSteps } from 'src/shared/components/workflow/WorkflowSteps';
@@ -45,7 +46,9 @@ export const ViewWorkflowTemplate = () => {
   const [toastMsg, setToastMsg] = useState<string>('');
 
   // View mode state
-  const [viewMode, setViewMode] = useState<'list' | 'flow'>('flow');
+  const [viewMode, setViewMode] = useState<WorkflowViewMode>(
+    WorkflowViewMode.FLOW
+  );
 
   // Fetch the workflow template data to ensure it's always up-to-date
   const workflowTemplateQuery = useQuery({
@@ -243,16 +246,20 @@ export const ViewWorkflowTemplate = () => {
 
           <Stack direction="row" spacing={1}>
             <Button
-              variant={viewMode === 'flow' ? 'contained' : 'outlined'}
+              variant={
+                viewMode === WorkflowViewMode.FLOW ? 'contained' : 'outlined'
+              }
               size="small"
-              onClick={() => setViewMode('flow')}
+              onClick={() => setViewMode(WorkflowViewMode.FLOW)}
               disabled={isEditMode}>
               Flow View
             </Button>
             <Button
-              variant={viewMode === 'list' ? 'contained' : 'outlined'}
+              variant={
+                viewMode === WorkflowViewMode.LIST ? 'contained' : 'outlined'
+              }
               size="small"
-              onClick={() => setViewMode('list')}
+              onClick={() => setViewMode(WorkflowViewMode.LIST)}
               disabled={isEditMode}>
               List View
             </Button>
@@ -261,7 +268,7 @@ export const ViewWorkflowTemplate = () => {
 
         {isLoading ? (
           <Skeleton variant="rectangular" height={400} />
-        ) : viewMode === 'flow' ? (
+        ) : viewMode === WorkflowViewMode.FLOW ? (
           <WorkflowFlowView
             steps={
               workflowTemplateQuery.data

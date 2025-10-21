@@ -343,7 +343,6 @@ def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplat
 
 
 # /api/workflow/templates/<string:workflow_template_id> [PATCH]
-# TODO: This endpoint has issue with blocking the frontend request due to the CORS policy. Need to continue with the investigation.
 @roles_required([RoleEnum.ADMIN])
 @api_workflow_templates.patch(
     "/<string:workflow_template_id>", responses={200: WorkflowTemplateModel}
