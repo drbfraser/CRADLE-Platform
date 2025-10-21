@@ -19,7 +19,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
-  TemplateStepWithFormAndIndex,
+  WorkflowTemplateStepWithFormAndIndex,
   WorkflowTemplate,
 } from 'src/shared/types/workflow/workflowApiTypes';
 import { getTemplateWithStepsAndClassification } from 'src/shared/api/modules/workflowTemplates';
@@ -210,7 +210,7 @@ export const ViewWorkflowTemplate = () => {
           <WorkflowSteps
             steps={
               workflowTemplateQuery.data
-                ?.steps as TemplateStepWithFormAndIndex[]
+                ?.steps as WorkflowTemplateStepWithFormAndIndex[]
             }
             firstStep={currentWorkflow?.startingStepId}
             isInstance={false}

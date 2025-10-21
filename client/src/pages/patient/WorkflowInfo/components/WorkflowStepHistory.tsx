@@ -243,7 +243,7 @@ export default function WorkflowStepHistory({
                         </Typography>
 
                         {/* Form Block */}
-                        {step.hasForm && (
+                        {step.formTemplateId && (
                           <Box sx={{ mb: 3 }}>
                             <Typography variant="subtitle2" sx={{ mb: 2 }}>
                               Form

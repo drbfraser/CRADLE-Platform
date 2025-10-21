@@ -20,6 +20,7 @@ import {
   getInstanceWithSteps,
   getPatientInfoAsync,
   getTemplate,
+  getTemplateStepById,
 } from 'src/shared/api';
 import { Nullable } from 'src/shared/constants';
 import { formatISODateNumber } from 'src/shared/utils';
@@ -99,7 +100,13 @@ function computeProgressAndEta(steps: InstanceStep[], now = new Date()) {
   return { total, completed, percent, estDaysRemaining, etaDate, currentIndex };
 }
 
-export function mapWorkflowStep(apiStep: WorkflowInstanceStep): InstanceStep {
+export async function mapWorkflowStep(
+  apiStep: WorkflowInstanceStep
+): Promise<InstanceStep> {
+  const templateStep = await getTemplateStepById(
+    apiStep.workflowTemplateStepId
+  );
+
   var workflowInstanceStep: InstanceStep = {
     id: apiStep.id,
     title: apiStep.name,
@@ -109,16 +116,16 @@ export function mapWorkflowStep(apiStep: WorkflowInstanceStep): InstanceStep {
       ? formatISODateNumber(apiStep.completionDate)
       : null,
     description: apiStep.description,
-    hasForm: apiStep.formTemplateId ? true : false,
     expectedCompletion: apiStep.expectedCompletion
       ? formatISODateNumber(apiStep.expectedCompletion)
       : null,
     // nextStep?: string;  // TODO: Not implemented in backend yet
     formSubmitted: apiStep.formId ? true : false,
+    workflowTemplateStepId: apiStep.workflowTemplateStepId,
   };
 
-  if (apiStep.formTemplateId)
-    workflowInstanceStep.formTemplateId = apiStep.formTemplateId;
+  if (templateStep.formId)
+    workflowInstanceStep.formTemplateId = templateStep.formId;
 
   if (apiStep.formId) workflowInstanceStep.formId = apiStep.formId;
 
@@ -152,7 +159,9 @@ export async function loadInstanceAndTemplateByInstanceId(
       : null,
 
     // Steps
-    steps: instance.steps.map((step) => mapWorkflowStep(step)),
+    steps: await Promise.all(
+      instance.steps.map((step) => mapWorkflowStep(step))
+    ),
     possibleSteps: [],
   };
 
@@ -163,73 +172,6 @@ function getWorkflowCurrentStep(instance: InstanceDetails) {
   const steps = instance.steps;
   const currentStep = steps.find((step) => step.status === StepStatus.ACTIVE);
   return currentStep;
-}
-
-function loadMockInstanceById(id: string): InstanceDetails {
-  return {
-    id,
-    studyTitle: 'Papagaio Research Study',
-    patientName: 'Sue Smith',
-    patientId: '12345',
-
-    description: 'hardcore: need to import workflow Template basicInfo part',
-    collection: 'PAPAGAO',
-    version: 'v4',
-    firstCreatedOn: '2019-05-09',
-    firstCreatedBy: 'Katie Jones',
-    lastEditedOn: '2019-06-10',
-    lastEditedBy: 'Bert Smith',
-    workflowStartedOn: '2019-01-18',
-    workflowStartedBy: 'Katie Jones',
-    workflowCompletedOn: '2020-03-19',
-
-    steps: [
-      {
-        id: 's1',
-        title: 'Step 1: Intake Details',
-        status: StepStatus.COMPLETED,
-        completedOn: '2019-06-05',
-        description: 'Collect patient intake information and consent forms.',
-        hasForm: true,
-        formSubmitted: true,
-        nextStep: 'Step 2: Randomize Treatment',
-      },
-      {
-        id: 's2',
-        title: 'Step 2: Randomize Treatment',
-        status: StepStatus.ACTIVE,
-        startedOn: '2019-06-06',
-        description: 'Randomize patient to treatment or control group.',
-        hasForm: true,
-        formSubmitted: false,
-        expectedCompletion: '2019-06-12',
-      },
-      {
-        id: 's3',
-        title: 'Step 3: Observe Until 8w',
-        status: StepStatus.PENDING,
-        description: 'Monitor patient progress for 8 weeks.',
-        hasForm: false,
-        nextStep: '<Same as Template>',
-      },
-    ],
-    possibleSteps: [
-      {
-        id: 'ps1',
-        title: 'Step 4: Follow-up Assessment',
-        hasForm: true,
-        estimate: 6,
-        isSkippable: true,
-      },
-      {
-        id: 'ps2',
-        title: 'Step 5: Final Review',
-        hasForm: false,
-        estimate: 3,
-        isSkippable: false,
-      },
-    ],
-  };
 }
 
 export default function WorkflowInstanceDetailsPage() {
@@ -278,13 +220,6 @@ export default function WorkflowInstanceDetailsPage() {
     }
     fetchInstance();
   }, [instanceId, reloadFlag]);
-
-  const data = React.useMemo(
-    () => loadMockInstanceById(instanceId ?? 'wi_0001'),
-    [instanceId]
-  );
-
-  React.useMemo(() => computeProgressAndEta(data.steps), [data.steps]);
 
   const handleMakeCurrent = React.useCallback(
     (stepId: string, title: string) => {

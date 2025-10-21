@@ -8,7 +8,7 @@ export interface RuleGroup {
 }
 
 //   Template side
-export interface TemplateStepBranch {
+export interface WorkflowTemplateStepBranch {
   // ⇒ workflow_template_step.id
   stepId?: ID;
   // Condition that must evaluate true for the branch to activate
@@ -16,18 +16,19 @@ export interface TemplateStepBranch {
   targetStepId: ID;
 }
 
-export interface TemplateStep {
+export interface WorkflowTemplateStep {
   id: ID;
   name: string;
   description: string;
   formId?: ID;
   expectedCompletion?: ISODate;
   conditions?: RuleGroup;
-  branches?: TemplateStepBranch[];
+  branches?: WorkflowTemplateStepBranch[];
   lastEdited: ISODate;
 }
 
-export interface TemplateStepWithFormAndIndex extends TemplateStep {
+export interface WorkflowTemplateStepWithFormAndIndex
+  extends WorkflowTemplateStep {
   form?: FormTemplate;
   index: number;
   branchIndices?: number[];
@@ -42,7 +43,7 @@ export interface WorkflowTemplate {
   classificationId: ID;
   classification?: WorkflowClassification;
   initialConditions?: RuleGroup;
-  steps: TemplateStep[];
+  steps: WorkflowTemplateStep[];
   //startingStepId: ID;
 
   // audit & soft-delete
@@ -83,14 +84,13 @@ export interface WorkflowInstanceStep {
   startDate: number;
   triggeredBy?: ID;
   formId?: Nullable<ID>;
-  formTemplateId?: ID;
   assignedTo?: ID;
   expectedCompletion?: Nullable<number>;
   completionDate?: Nullable<number>;
   status: StepStatus;
   data?: Record<string, unknown>;
   workflowInstanceId: ID;
-  conditionId?: ID;
+  workflowTemplateStepId: ID;
 
   // audit
   lastEdited: number;
@@ -102,6 +102,7 @@ export interface WorkflowInstance {
   name: string;
   description: string;
   workflowTemplateId: ID;
+  workflowTemplateStepId: ID;
   patientId: ID;
   startDate: number;
   currentStepId?: ID;

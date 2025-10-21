@@ -7,13 +7,13 @@ export type InstanceStep = {
   description?: string;
   startedOn?: ISODate;
   formTemplateId?: string;
-  hasForm: boolean;
   expectedCompletion?: Nullable<ISODate>;
   completedOn?: Nullable<ISODate>;
   status: StepStatus;
   nextStep?: string;
   formId?: string;
   formSubmitted?: boolean;
+  workflowTemplateStepId: string;
 };
 
 export type PossibleStep = {

@@ -9,10 +9,9 @@ import {
   Divider,
   Button,
 } from '@mui/material';
-import { pink, red } from '@mui/material/colors';
+import { red } from '@mui/material/colors';
 import { CustomizedForm } from 'src/pages/customizedForm/components/CustomizedForm';
 import { FormRenderStateEnum } from 'src/shared/enums';
-import { FormTemplateWithQuestions } from 'src/shared/types/form/formTemplateTypes';
 import { CForm } from 'src/shared/types/form/formTypes';
 import { useSubmitCustomForm } from 'src/pages/customizedForm/mutations';
 import { PostBody } from 'src/pages/customizedForm/handlers';
