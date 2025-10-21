@@ -148,7 +148,6 @@ export const CustomFormTemplate = () => {
                             name: e.target.value,
                           },
                         }));
-                        // form.classification.name = e.target.value;
                       }}
                       InputProps={{
                         endAdornment: (
