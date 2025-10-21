@@ -258,9 +258,9 @@ class WorkflowInstanceStepOrm(db.Model):
     form_id = db.Column(
         db.String(50), db.ForeignKey("form.id", ondelete="SET NULL"), nullable=True
     )
-    form_template_id = db.Column(
+    workflow_template_step_id = db.Column(
         db.String(50),
-        db.ForeignKey("form_template.id", ondelete="SET NULL"),
+        db.ForeignKey("workflow_template_step.id", ondelete="SET NULL"),
         nullable=True,
     )
     assigned_to = db.Column(
@@ -281,7 +281,7 @@ class WorkflowInstanceStepOrm(db.Model):
         "FormOrm",
         backref=db.backref("workflow_instance_steps", lazy=True),
     )
-    form_template = db.relationship(
-        "FormTemplateOrm",
+    workflow_template_step = db.relationship(
+        "WorkflowTemplateStepOrm",
         backref=db.backref("workflow_instance_steps", lazy=True),
     )
