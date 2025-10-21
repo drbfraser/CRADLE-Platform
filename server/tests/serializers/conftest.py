@@ -1,28 +1,32 @@
+import importlib
 import os
 import types
 
 import pytest
 
-from data import marshal as marshal_mod
+_DEFAULTS = {
+    "DB_USERNAME": "user",
+    "DB_PASSWORD": "password",
+    "DB_HOSTNAME": "localhost",
+    "DB_PORT": "3306",
+    "DB_NAME": "testdb",
+    "FLASK_ENV": "testing",
+    "TESTING": "1",
+}
+for k, v in _DEFAULTS.items():
+    os.environ.setdefault(k, v)
 
 
-def _set_default_db_env() -> None:
-    defaults = {
-        "DB_USERNAME": "user",
-        "DB_PASSWORD": "password",
-        "DB_HOSTNAME": "localhost",
-        "DB_PORT": "5432",
-        "DB_NAME": "testdb",
-    }
-
-    for key, value in defaults.items():
-        os.environ.setdefault(key, value)
-
-    os.environ.setdefault("DATABASE_URL", "sqlite:///:memory:")
+@pytest.fixture(scope="session")
+def marshal_mod():
+    """Late-import the marshal module after env is set."""
+    return importlib.import_module("data.marshal")
 
 
 @pytest.fixture(autouse=True)
-def _stub_marshmallow_and_invariants(monkeypatch: pytest.MonkeyPatch) -> None:
+def _stub_marshmallow_and_invariants(
+    monkeypatch: pytest.MonkeyPatch, marshal_mod
+) -> None:
     """
     Replace DB-bound Marshmallow schemas and side-effectful invariants with stubs.
     ----
@@ -40,6 +44,9 @@ def _stub_marshmallow_and_invariants(monkeypatch: pytest.MonkeyPatch) -> None:
 
     class _StubSchema:
         """Minimal stand-in for a Marshmallow schema (no validation, no DB)."""
+
+        def dump(self, obj):  # pragma: no cover - trivial
+            return obj
 
         def load(self, data: dict):
             return types.SimpleNamespace(**data)
@@ -64,6 +71,3 @@ def _stub_marshmallow_and_invariants(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
         marshal_mod.invariant, "resolve_reading_invariants", lambda _x: None
     )
-
-
-_set_default_db_env()
