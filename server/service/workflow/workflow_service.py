@@ -59,6 +59,7 @@ class WorkflowService:
         step["status"] = WorkflowStepStatusEnum.PENDING
         step["data"] = None
         step["workflow_instance_id"] = workflow_instance_id
+        step["workflow_template_step_id"] = workflow_template_step.id
         step["triggered_by"] = None
         step["form_id"] = None
         step["form"] = None
