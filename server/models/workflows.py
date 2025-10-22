@@ -94,19 +94,7 @@ class WorkflowTemplateOrm(db.Model):
         nullable=True,
     )
 
-    initial_condition_id = db.Column(
-        db.String(50),
-        db.ForeignKey("rule_group.id", ondelete="SET NULL"),
-        nullable=True,
-    )
-
     # RELATIONSHIPS
-    initial_condition = db.relationship(
-        "RuleGroupOrm",
-        backref=db.backref("workflow_templates", lazy=True),
-        passive_deletes=True,
-    )
-
     classification = db.relationship(
         "WorkflowClassificationOrm",
         backref=db.backref("workflow_templates", lazy=True),
@@ -137,11 +125,6 @@ class WorkflowTemplateStepOrm(db.Model):
     )
 
     # FOREIGN KEYS
-    condition_id = db.Column(
-        db.String(50),
-        db.ForeignKey("rule_group.id", ondelete="SET NULL"),
-        nullable=True,
-    )
     form_id = db.Column(
         db.String(50),
         db.ForeignKey("form_template.id", ondelete="SET NULL"),
@@ -157,12 +140,6 @@ class WorkflowTemplateStepOrm(db.Model):
     workflow_template = db.relationship(
         "WorkflowTemplateOrm",
         backref=db.backref("steps", cascade="all, delete", lazy=True),
-    )
-
-    condition = db.relationship(
-        "RuleGroupOrm",
-        backref=db.backref("workflow_template_steps", lazy=True),
-        passive_deletes=True,
     )
 
     form = db.relationship(
@@ -281,6 +258,11 @@ class WorkflowInstanceStepOrm(db.Model):
     form_id = db.Column(
         db.String(50), db.ForeignKey("form.id", ondelete="SET NULL"), nullable=True
     )
+    workflow_template_step_id = db.Column(
+        db.String(50),
+        db.ForeignKey("workflow_template_step.id", ondelete="SET NULL"),
+        nullable=True,
+    )
     assigned_to = db.Column(
         db.Integer, db.ForeignKey("user.id", ondelete="SET NULL"), nullable=True
     )
@@ -289,23 +271,17 @@ class WorkflowInstanceStepOrm(db.Model):
         db.ForeignKey("workflow_instance.id", ondelete="CASCADE"),
         nullable=False,
     )
-    condition_id = db.Column(
-        db.String(50),
-        db.ForeignKey("rule_group.id", ondelete="SET NULL"),
-        nullable=True,
-    )
 
     # RELATIONSHIPS
     workflow_instance = db.relationship(
         "WorkflowInstanceOrm",
         backref=db.backref("steps", cascade="all, delete", lazy=True),
     )
-    condition = db.relationship(
-        "RuleGroupOrm",
-        backref=db.backref("workflow_instance_steps", lazy=True),
-        passive_deletes=True,
-    )
     form = db.relationship(
         "FormOrm",
-        backref=db.backref("workflow_instance_steps", cascade="all, delete", lazy=True),
+        backref=db.backref("workflow_instance_steps", lazy=True),
+    )
+    workflow_template_step = db.relationship(
+        "WorkflowTemplateStepOrm",
+        backref=db.backref("workflow_instance_steps", lazy=True),
     )

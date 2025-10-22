@@ -24,7 +24,7 @@ What this module provides
 from typing import List, Optional, Type
 
 from data.db_operations import M, db_session
-from data.db_operations.common_crud import delete, delete_all, delete_by, read
+from data.db_operations.common_crud import delete, delete_by, read
 from enums import WorkflowStatusEnum
 from models import (
     FormClassificationOrm,
@@ -85,8 +85,6 @@ def delete_workflow_step(m: Type[M], **kwargs) -> None:
     elif isinstance(step, WorkflowInstanceStepOrm):
         delete_by(FormOrm, id=step.form_id)
 
-    delete_all(RuleGroupOrm, id=step.condition_id)
-
     delete(step)
 
 
@@ -105,8 +103,6 @@ def delete_workflow(m: Type[M], delete_classification: bool = False, **kwargs) -
         return
 
     if isinstance(workflow, WorkflowTemplateOrm):
-        delete_by(RuleGroupOrm, id=workflow.initial_condition_id)
-
         if delete_classification:
             delete_by(m=WorkflowClassificationOrm, id=workflow.classification_id)
             db_session.commit()
@@ -149,9 +145,7 @@ def read_instance_steps(
     Queries the database for all instance steps from either a specific workflow instance or the entire DB
 
     :param model: Workflow instance model (here we assume the step is valid)
-
     :param workflow_instance_id: ID of workflow instance; by default this filter is not applied (query all instance steps in the DB)
-
     :return: A list of instance steps
     """
     query = db_session.query(model)
@@ -163,7 +157,6 @@ def read_instance_steps(
 
 
 def read_workflow_instances(
-    model: WorkflowInstanceOrm,
     user_id: Optional[int] = None,
     patient_id: Optional[str] = None,
     status: Optional[WorkflowStatusEnum] = None,
@@ -172,31 +165,27 @@ def read_workflow_instances(
     """
     Queries the database for all workflow instances that have either been assigned by a specific user or all instances in total
 
-    :param model: Workflow instance model (here we assume the instance is valid)
-
     :param user_id: ID of the user which assigned the workflows
-
     :param patient_id: ID of the patient which the workflows were assigned to
-
     :param status: Query for workflows based on status
-
     :param workflow_template_id: ID of workflow template the instances are based on
-
     :return: A list of workflow instances
     """
-    query = db_session.query(model)
+    query = db_session.query(WorkflowInstanceOrm)
 
     if user_id:
-        query = query.filter(model.last_edited_by == user_id)
+        query = query.filter(WorkflowInstanceOrm.last_edited_by == user_id)
 
     if patient_id:
-        query = query.filter(model.patient_id == patient_id)
+        query = query.filter(WorkflowInstanceOrm.patient_id == patient_id)
 
     if status is not None:
-        query = query.filter(model.status == status)
+        query = query.filter(WorkflowInstanceOrm.status == status)
 
     if workflow_template_id:
-        query = query.filter(model.workflow_template_id == workflow_template_id)
+        query = query.filter(
+            WorkflowInstanceOrm.workflow_template_id == workflow_template_id
+        )
 
     return query.all()
 
@@ -209,9 +198,7 @@ def read_workflow_templates(
     Queries the database for all workflow templates that either belong to a classification or in total
 
     :param workflow_classification_id: The ID of a workflow classification
-
     :param is_archived: Query for archived workflows
-
     :return: A list of workflow templates
     """
     query = db_session.query(WorkflowTemplateOrm)
@@ -233,7 +220,6 @@ def read_workflow_classifications(
     Queries the database for all workflow classifications
 
     :param is_archived: Query for archived workflow classifications; defaults to False
-
     :return: A list of workflow classifications
     """
     query = db_session.query(WorkflowClassificationOrm)
@@ -248,9 +234,7 @@ def read_template_steps(
     Queries the database for all template steps from either a specific workflow template or the entire DB
 
     :param model: Workflow template step model (here we assume the step is valid)
-
     :param workflow_template_id: ID of workflow template; by default this filter is not applied (query all instance steps in the DB)
-
     :return: A list of template steps
     """
     query = db_session.query(WorkflowTemplateStepOrm)
@@ -270,7 +254,6 @@ def read_workflows_in_collection(
     Queries the database for all workflows that belong in a specific collection
 
     :param workflow_collection_id: ID of workflow collection
-
     :return: A list of workflow classifications
     """
     query = db_session.query(WorkflowClassificationOrm)

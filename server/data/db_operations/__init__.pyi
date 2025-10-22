@@ -38,6 +38,7 @@ from .common_crud import (
     delete_all,
     delete_by,
     find,
+    merge,
     read,
     read_all,
     update,
@@ -109,6 +110,7 @@ __all__ = [
     "read",
     "read_all",
     "update",
+    "merge",
     # form_queries
     "read_form_template_language_versions",
     "read_questions",

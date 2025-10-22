@@ -119,6 +119,7 @@ def update(m: Type[M], changes: dict, autocommit: bool = True, **kwargs):
                    query (e.g., ``patient_id="abc"``)
     :except sqlalchemy.orm.exc.MultipleResultsFound: If multiple models are found
     :return: The updated model
+    #FIXME This function doesn't return anything?
     """
     model = read(m, **kwargs)
 
@@ -128,6 +129,23 @@ def update(m: Type[M], changes: dict, autocommit: bool = True, **kwargs):
     # Ensures that any reading that is entered into the DB is correctly formatted
     if isinstance(model, ReadingOrm):
         invariant.resolve_reading_invariants(model)
+
+    if autocommit:
+        db_session.commit()
+
+
+def merge(model: M, autocommit: bool = True):
+    """
+    Merge a model into the current database session.
+
+    If the object is not already in the session, it will be added.
+    If it exists, its state will be updated.
+
+    :param model: The model to merge
+    :param autocommit: If true, the current transaction is committed before return; the
+                       default is true
+    """
+    db_session.merge(model)
 
     if autocommit:
         db_session.commit()

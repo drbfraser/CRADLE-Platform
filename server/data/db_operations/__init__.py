@@ -57,6 +57,7 @@ __all__ = [
     "read_all",
     "find",
     "update",
+    "merge",
     "delete",
     "delete_by",
     "delete_all",

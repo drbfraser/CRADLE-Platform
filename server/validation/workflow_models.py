@@ -44,11 +44,10 @@ class WorkflowTemplateStepModel(CradleBaseModel, extra="forbid"):
     id: str
     name: str
     description: str
+    # TODO: Should this be a relative time? e.g. 2 days?
     expected_completion: Optional[int] = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
     form_id: Optional[str] = None
-    condition_id: Optional[str] = None
-    condition: Optional[RuleGroupModel] = None
     workflow_template_id: str
     # TODO: Account for different types of form template validators?
     form: Optional[FormTemplateUpload] = None
@@ -64,8 +63,6 @@ class WorkflowTemplateModel(CradleBaseModel, extra="forbid"):
     date_created: int = Field(default_factory=get_current_time)
     last_edited: Optional[int] = Field(default_factory=get_current_time)
     version: str
-    initial_condition_id: Optional[str] = None
-    initial_condition: Optional[RuleGroupModel] = None
     classification_id: Optional[str] = None
     classification: Optional[WorkflowClassificationModel] = None
     steps: list[WorkflowTemplateStepModel]
@@ -81,19 +78,17 @@ class WorkflowInstanceStepModel(CradleBaseModel, extra="forbid"):
     id: str
     name: str
     description: str
-    start_date: int = Field(default_factory=get_current_time)
-    last_edited: Optional[int] = Field(default_factory=get_current_time)
+    workflow_instance_id: str
+    status: WorkflowStatusEnum
+    start_date: Optional[int] = None
+    last_edited: Optional[int] = None
     assigned_to: Optional[int] = None
-    completion_date: Optional[int] = Field(default_factory=get_current_time)
-    expected_completion: Optional[int] = Field(default_factory=get_current_time)
-    status: WorkflowStatusEnum = "Active"
+    completion_date: Optional[int] = None
+    expected_completion: Optional[int] = None
     data: Optional[str] = None
     triggered_by: Optional[str] = None
     form_id: Optional[str] = None
     form: Optional[FormModel] = None
-    workflow_instance_id: str
-    condition_id: Optional[str] = None
-    condition: Optional[RuleGroupModel] = None
 
     @field_validator("data", mode="after")
     @classmethod
@@ -129,21 +124,29 @@ class WorkflowInstanceModel(CradleBaseModel, extra="forbid"):
     id: str
     name: str
     description: str
-    start_date: int = Field(default_factory=get_current_time)
-    current_step_id: Optional[str] = None
-    last_edited: Optional[int] = Field(default_factory=get_current_time)
-    completion_date: Optional[int] = Field(default_factory=get_current_time)
     status: WorkflowStatusEnum
     workflow_template_id: Optional[str] = None
-    patient_id: str
+    start_date: Optional[int] = None
+    current_step_id: Optional[str] = None
+    last_edited: Optional[int] = None
+    completion_date: Optional[int] = None
+    patient_id: Optional[str] = None
     steps: list[WorkflowInstanceStepModel]
 
     @model_validator(mode="after")
     def validate_dates(self) -> Self:
-        if self.last_edited is not None and self.last_edited < self.start_date:
+        if (
+            self.last_edited is not None
+            and self.start_date is not None
+            and self.last_edited < self.start_date
+        ):
             raise ValueError("last_edited cannot be before start_date")
 
-        if self.completion_date is not None and self.completion_date < self.start_date:
+        if (
+            self.completion_date is not None
+            and self.start_date is not None
+            and self.completion_date < self.start_date
+        ):
             raise ValueError("completion_date cannot be before start_date")
 
         return self

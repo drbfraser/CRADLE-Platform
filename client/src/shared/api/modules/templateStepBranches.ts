@@ -1,7 +1,7 @@
 import { axiosFetch } from '../core/http';
 import { EndpointEnum } from 'src/shared/enums';
 import { ID } from '../../constants';
-import { TemplateStepBranch } from '../../types/workflow/workflowTypes';
+import { TemplateStepBranch } from '../../types/workflow/workflowApiTypes';
 
 //path
 const templateStepBranchesPath = (templateId: ID, stepId: ID) =>

@@ -8,7 +8,7 @@ import { Unarchive } from '@mui/icons-material';
 import UploadIcon from '@mui/icons-material/Upload';
 import AddIcon from '@mui/icons-material/Add';
 
-import { WorkflowTemplate } from 'src/shared/types/workflow/workflowTypes';
+import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
 import { getPrettyDate } from 'src/shared/utils';
 import { getAllWorkflowTemplatesAsync } from 'src/shared/api/modules/workflowTemplates';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
