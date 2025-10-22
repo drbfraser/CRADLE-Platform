@@ -20,6 +20,34 @@ interface IProps {
   form?: FormTemplateWithQuestions;
 }
 
+export function buildFormTemplatePayload(form: FormTemplateWithQuestions) {
+  return {
+    classification: { ...form.classification },
+    version: form.version,
+    questions: form.questions.map((q, i) => ({
+      id: q.id,
+      questionIndex: i,
+      questionType: q.questionType,
+      required: q.required,
+      allowPastDates: q.allowPastDates,
+      allowFutureDates: q.allowFutureDates,
+      categoryIndex: q.categoryIndex,
+      units: q.units,
+      numMin: q.numMin,
+      numMax: q.numMax,
+      stringMaxLength: q.stringMaxLength,
+      stringMaxLines: q.stringMaxLines,
+      visibleCondition: q.visibleCondition || [],
+      langVersions: q.langVersions.map((lv) => ({
+        lang: lv.lang,
+        questionText: lv.questionText,
+        mcOptions: lv.mcOptions || [],
+      })),
+      isBlank: true,
+    })),
+  };
+}
+
 const SubmitFormTemplateDialog = ({
   open,
   onClose,
@@ -37,7 +65,8 @@ const SubmitFormTemplateDialog = ({
     if (!formTemplate) {
       return;
     }
-    saveFormTemplate.mutate(formTemplate, {
+    const payload = buildFormTemplatePayload(formTemplate);
+    saveFormTemplate.mutate(payload, {
       onSuccess: () => {
         navigate('/admin/form-templates');
       },
