@@ -15,10 +15,10 @@ describe('buildFormTemplatePayload', () => {
           required: true,
           visibleCondition: [],
           langVersions: [{ lang: 'en', questionText: 'Hello', mcOptions: [] }],
-          extra_runtime_field: 'should_be_dropped' as any,
+          extra_runtime_field: 'should_be_dropped',
         },
       ],
-    });
+    } as any);
 
     // ensures it rewrites index
     expect(payload.questions[0].questionIndex).toBe(0);
@@ -43,12 +43,12 @@ describe('buildFormTemplatePayload', () => {
               lang: 'en',
               questionText: 'Hi',
               mcOptions: [],
-              foo: 'bar' as any,
+              foo: 'bar',
             },
           ],
         },
       ],
-    });
+    } as any);
 
     expect(payload.questions[0].langVersions[0]).not.toHaveProperty('foo');
   });
