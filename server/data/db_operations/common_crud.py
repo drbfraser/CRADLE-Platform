@@ -134,6 +134,23 @@ def update(m: Type[M], changes: dict, autocommit: bool = True, **kwargs):
         db_session.commit()
 
 
+def merge(model: M, autocommit: bool = True):
+    """
+    Merge a model into the current database session.
+
+    If the object is not already in the session, it will be added.
+    If it exists, its state will be updated.
+
+    :param model: The model to merge
+    :param autocommit: If true, the current transaction is committed before return; the
+                       default is true
+    """
+    db_session.merge(model)
+
+    if autocommit:
+        db_session.commit()
+
+
 def delete(model: M):
     """
     Deletes a model from the database.

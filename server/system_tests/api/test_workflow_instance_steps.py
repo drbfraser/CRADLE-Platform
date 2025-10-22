@@ -9,6 +9,8 @@ from models import (
     WorkflowInstanceStepOrm,
     WorkflowTemplateOrm,
 )
+from service.workflow.workflow_service import WorkflowService
+from validation.workflow_models import WorkflowInstanceModel, WorkflowTemplateModel
 
 # TODO: testing has only been done for simple steps.
 # steps involving forms or rules have not been tested.
@@ -23,20 +25,14 @@ def test_create_workflow_instance_step(
 ):
     try:
         # Create workflow template
-        response = api_post(
-            endpoint="/api/workflow/templates/body", json=workflow_template1
+        WorkflowService.upsert_workflow_template(
+            WorkflowTemplateModel(**workflow_template1)
         )
-        database.session.commit()
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 201
 
         # Create workflow instance
-        response = api_post(endpoint="/api/workflow/instances", json=workflow_instance1)
-        database.session.commit()
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 201
+        WorkflowService.upsert_workflow_instance(
+            WorkflowInstanceModel(**workflow_instance1)
+        )
 
         minimal_workflow_instance_step = {
             "id": get_uuid(),
@@ -76,21 +72,16 @@ def test_get_workflow_instance_steps(
 ):
     try:
         # Create workflow template
-        response = api_post(
-            endpoint="/api/workflow/templates/body", json=workflow_template1
+        WorkflowService.upsert_workflow_template(
+            WorkflowTemplateModel(**workflow_template1)
         )
-        database.session.commit()
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 201
 
         # Create workflow instance
-        response = api_post(endpoint="/api/workflow/instances", json=workflow_instance1)
-        database.session.commit()
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 201
+        WorkflowService.upsert_workflow_instance(
+            WorkflowInstanceModel(**workflow_instance1)
+        )
 
+        # TODO: instance steps shouldn't be able to be created by the client
         # Create first workflow instance step
         minimal_workflow_instance_step1 = {
             "id": get_uuid(),
@@ -175,20 +166,14 @@ def test_complete_workflow_instance_step(
 ):
     try:
         # Create workflow template
-        response = api_post(
-            endpoint="/api/workflow/templates/body", json=workflow_template1
+        WorkflowService.upsert_workflow_template(
+            WorkflowTemplateModel(**workflow_template1)
         )
-        database.session.commit()
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 201
 
         # Create workflow instance
-        response = api_post(endpoint="/api/workflow/instances", json=workflow_instance1)
-        database.session.commit()
-        response_body = decamelize(response.json())
-        pretty_print(response_body)
-        assert response.status_code == 201
+        WorkflowService.upsert_workflow_instance(
+            WorkflowInstanceModel(**workflow_instance1)
+        )
 
         # Create workflow instance step
         start_time = get_current_time()

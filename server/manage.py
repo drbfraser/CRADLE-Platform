@@ -195,36 +195,44 @@ def seed_test_data():
     create_simple_workflow_template(
         WORKFLOW_TEMPLATE_ID2, form_template_id, num_steps=6
     )
+    print("Creating a simple workflow template and form for the workflow template")
+    form_template_id = create_simple_workflow_template_step_form()
+
+    WORKFLOW_TEMPLATE_ID1 = "workflow-template-1"
+    WORKFLOW_TEMPLATE_ID2 = "workflow-template-2"
+    create_simple_workflow_template(WORKFLOW_TEMPLATE_ID1, form_template_id)
+    create_simple_workflow_template(
+        WORKFLOW_TEMPLATE_ID2, form_template_id, num_steps=6
+    )
 
     print("Creating workflow instances")
     # Create forms to be used by workflow instance
-    # WORKFLOW_FORM_CLASSIFICATION_ID = f'{WORKFLOW_FORM_TEMPLATE_ID}-classification'
-    # create_workflow_instance_form(
-    #     form_id="workflow-instance-form-1",
-    #     patient_id=PATIENT_ID_1,
-    #     user_id=3,
-    #     form_template_id=WORKFLOW_FORM_TEMPLATE_ID,
-    #     form_classification_id=WORKFLOW_FORM_CLASSIFICATION_ID,
-    #     first_name="Anna",
-    # )
+    create_workflow_instance_form(
+        form_id="workflow-instance-form-1",
+        patient_id=PATIENT_ID_1,
+        user_id=3,
+        form_template_id=form_template_id,
+        form_classification_id="wt-simple-1-form-classification",
+        first_name="Anna",
+    )
 
-    # create_workflow_instance_form(
-    #     form_id="workflow-instance-form-2",
-    #     patient_id=PATIENT_ID_2,
-    #     user_id=3,
-    #     form_template_id=WORKFLOW_FORM_TEMPLATE_ID,
-    #     form_classification_id=WORKFLOW_FORM_CLASSIFICATION_ID,
-    #     first_name="Anna",
-    # )
+    create_workflow_instance_form(
+        form_id="workflow-instance-form-2",
+        patient_id=PATIENT_ID_2,
+        user_id=3,
+        form_template_id=form_template_id,
+        form_classification_id="wt-simple-1-form-classification",
+        first_name="Anna",
+    )
 
-    # create_workflow_instance_form(
-    #     form_id="workflow-instance-form-3",
-    #     patient_id=PATIENT_ID_3,
-    #     user_id=3,
-    #     form_template_id=WORKFLOW_FORM_TEMPLATE_ID,
-    #     form_classification_id=WORKFLOW_FORM_CLASSIFICATION_ID,
-    #     first_name="Anna",
-    # )
+    create_workflow_instance_form(
+        form_id="workflow-instance-form-3",
+        patient_id=PATIENT_ID_3,
+        user_id=3,
+        form_template_id=form_template_id,
+        form_classification_id="wt-simple-1-form-classification",
+        first_name="Anna",
+    )
 
     # Create workflow instances
     create_workflow_instance(

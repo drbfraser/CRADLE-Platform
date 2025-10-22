@@ -85,6 +85,7 @@ class HTTPMethodEnum(StrEnum):
 
 
 class WorkflowStatusEnum(StrEnum):
+    PENDING = "Pending"
     ACTIVE = "Active"
     COMPLETED = "Completed"
     CANCELLED = "Cancelled"
