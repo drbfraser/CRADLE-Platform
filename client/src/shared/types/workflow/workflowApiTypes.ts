@@ -1,5 +1,6 @@
 import { ID, ISODate, Nullable } from '../../constants';
 import { FormTemplate } from '../form/formTemplateTypes';
+import { CForm } from '../form/formTypes';
 import { InstanceStatus, StepStatus } from './workflowEnums';
 export interface RuleGroup {
   id: ID;
@@ -11,8 +12,6 @@ export interface RuleGroup {
 export interface WorkflowTemplateStepBranch {
   // ⇒ workflow_template_step.id
   stepId?: ID;
-  // Condition that must evaluate true for the branch to activate
-  condition?: RuleGroup;
   targetStepId: ID;
 }
 
@@ -22,7 +21,6 @@ export interface WorkflowTemplateStep {
   description: string;
   formId?: ID;
   expectedCompletion?: ISODate;
-  conditions?: RuleGroup;
   branches?: WorkflowTemplateStepBranch[];
   lastEdited: ISODate;
 }
@@ -83,7 +81,8 @@ export interface WorkflowInstanceStep {
   description: string;
   startDate: number;
   triggeredBy?: ID;
-  formId?: Nullable<ID>;
+  formId?: string;
+  form?: CForm;
   assignedTo?: ID;
   expectedCompletion?: Nullable<number>;
   completionDate?: Nullable<number>;

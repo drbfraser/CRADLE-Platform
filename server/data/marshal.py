@@ -3,7 +3,6 @@ from collections.abc import Mapping
 from enum import Enum
 from typing import Any, Dict, List, Optional, Type
 
-import data.db_operations as crud
 from common import commonUtil
 from common.form_utils import filter_template_questions_orm
 from data import db_session
@@ -668,11 +667,11 @@ def __marshal_workflow_instance_step(wis: WorkflowInstanceStepOrm) -> dict:
     d = vars(wis).copy()
     __pre_process(d)
 
-    if wis.form_id is not None:
-        form_orm = crud.read(FormOrm, id=wis.form_id)
-        d["formId"] = __marshal_form(form_orm, shallow=True)
+    if wis.form is not None:
+        d["formId"] = wis.form.id
+        d["form"] = __marshal_form(wis.form, shallow=True)
     else:
-        d["formId"] = None
+        d["form"] = None
 
     return d
 

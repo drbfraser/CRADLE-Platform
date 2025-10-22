@@ -24,10 +24,7 @@ import {
 } from 'src/shared/api';
 import { Nullable } from 'src/shared/constants';
 import { formatISODateNumber } from 'src/shared/utils';
-import {
-  WorkflowInstanceStep,
-  WorkflowTemplate,
-} from 'src/shared/types/workflow/workflowApiTypes';
+import { WorkflowInstanceStep } from 'src/shared/types/workflow/workflowApiTypes';
 import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
 import {
   InstanceStep,
@@ -107,7 +104,7 @@ export async function mapWorkflowStep(
     apiStep.workflowTemplateStepId
   );
 
-  var workflowInstanceStep: InstanceStep = {
+  const workflowInstanceStep: InstanceStep = {
     id: apiStep.id,
     title: apiStep.name,
     status: apiStep.status,
@@ -128,13 +125,12 @@ export async function mapWorkflowStep(
     workflowInstanceStep.formTemplateId = templateStep.formId;
 
   if (apiStep.formId) workflowInstanceStep.formId = apiStep.formId;
+  if (apiStep.form) workflowInstanceStep.form = apiStep.form;
 
   return workflowInstanceStep;
 }
 
-export async function loadInstanceAndTemplateByInstanceId(
-  id: string
-): Promise<{ instance: InstanceDetails; template: WorkflowTemplate }> {
+export async function loadInstanceById(id: string): Promise<InstanceDetails> {
   const instance = await getInstanceWithSteps(id);
   const template = await getTemplate(instance.workflowTemplateId, {
     with_classification: true,
@@ -165,7 +161,7 @@ export async function loadInstanceAndTemplateByInstanceId(
     possibleSteps: [],
   };
 
-  return { instance: instanceDetails, template: template };
+  return instanceDetails;
 }
 
 function getWorkflowCurrentStep(instance: InstanceDetails) {
@@ -178,8 +174,6 @@ export default function WorkflowInstanceDetailsPage() {
   const { instanceId } = useParams<{ instanceId: string }>();
   const [workflowInstance, setWorkflowInstance] =
     useState<InstanceDetails | null>(null);
-  const [workflowTemplate, setWorkflowTemplate] =
-    useState<WorkflowTemplate | null>(null);
   const [progressInfo, setProgressInfo] = useState<WorkflowInstanceProgress>({
     total: 0,
     completed: 0,
@@ -205,10 +199,8 @@ export default function WorkflowInstanceDetailsPage() {
   useEffect(() => {
     async function fetchInstance() {
       try {
-        const { instance, template } =
-          await loadInstanceAndTemplateByInstanceId('test-workflow-instance-1'); //TODO: To be updated with URL param when completed
+        const instance = await loadInstanceById('test-workflow-instance-1'); //TODO: To be updated with URL param when completed
         setWorkflowInstance(instance);
-        setWorkflowTemplate(template);
         const activeStep = getWorkflowCurrentStep(instance);
         setCurrentStep(activeStep ?? null);
         console.log(`Current Step Set, id: ${currentStep?.id}`);

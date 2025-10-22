@@ -293,12 +293,12 @@ export default function WorkflowStepHistory({
                                   </Button>
 
                                   {/*TODO: Add in Edit button functionality*/}
-                                  {/* <Button
+                                  <Button
                                     size="small"
                                     variant="outlined"
                                     onClick={() => handleEditForm(step.id)}>
                                     Edit
-                                  </Button> */}
+                                  </Button>
 
                                   {/*TODO: Add in Discard button functionality*/}
                                   <Button

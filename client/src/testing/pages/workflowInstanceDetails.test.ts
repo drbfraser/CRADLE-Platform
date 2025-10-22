@@ -3,7 +3,7 @@ import { WORKFLOW_INSTANCE_TEST_DATA } from '../testData';
 import { formatISODateNumber } from 'src/shared/utils';
 import {
   mapWorkflowStep,
-  loadInstanceAndTemplateByInstanceId,
+  loadInstanceById,
 } from 'src/pages/patient/WorkflowInfo/WorkflowInstanceDetails';
 
 // Mock API calls
@@ -15,6 +15,11 @@ vi.mock('src/shared/api', () => ({
     version: 'v1',
     dateCreated: 1740607541,
   }),
+  getTemplateStepById: vi
+    .fn()
+    .mockResolvedValue(
+      WORKFLOW_INSTANCE_TEST_DATA.workflowInstanceTemplate[0].steps[0]
+    ),
 
   getPatientInfoAsync: vi.fn().mockResolvedValue({ name: 'Alice' }),
 }));
@@ -26,7 +31,7 @@ describe('mapWorkflowStep', () => {
     const testWorkflowInstanceStep =
       WORKFLOW_INSTANCE_TEST_DATA.workflowInstanceTemplate[0].steps[0];
 
-    const result = mapWorkflowStep(testWorkflowInstanceStep);
+    const result = await mapWorkflowStep(testWorkflowInstanceStep);
 
     expect(result).toMatchObject({
       id: testWorkflowInstanceStep.id,
@@ -34,19 +39,21 @@ describe('mapWorkflowStep', () => {
       status: testWorkflowInstanceStep.status,
       startedOn: formatISODateNumber(testWorkflowInstanceStep.startDate),
       completedOn: formatISODateNumber(testWorkflowInstanceStep.completionDate),
-      description: testWorkflowInstanceStep.description,
-      formId: testWorkflowInstanceStep.formId,
-      hasForm: testWorkflowInstanceStep.formId ? true : false,
       expectedCompletion: formatISODateNumber(
         testWorkflowInstanceStep.expectedCompletion
       ),
+      description: testWorkflowInstanceStep.description,
+      formId: testWorkflowInstanceStep.formId,
+      formSubmitted: true,
+      formTemplateId: 'simple-workflow-instance-form-1',
+      workflowTemplateStepId: testWorkflowInstanceStep.workflowTemplateStepId,
     });
   });
 });
 
 describe('loadInstanceById', () => {
   it('formats instance details correctly', async () => {
-    const result = await loadInstanceAndTemplateByInstanceId(testInstanceId);
+    const result = await loadInstanceById(testInstanceId);
     const testWorkflowInstance =
       WORKFLOW_INSTANCE_TEST_DATA.workflowInstanceTemplate[0];
 
