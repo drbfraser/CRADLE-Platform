@@ -75,8 +75,6 @@ export const CustomFormTemplate = () => {
         browserLanguage,
       ];
       setLanguage(langs);
-
-      // setVersionError(true);
     }
   }, [formTemplateQuery.data]);
 
@@ -101,9 +99,10 @@ export const CustomFormTemplate = () => {
             <ChevronLeftIcon color="inherit" fontSize="large" />
           </IconButton>
         </Tooltip>
-        {/*TODO: Allow template name to change depending on if we are editing a new or existing form template*/}
         <Typography variant={'h4'} component={'h4'}>
-          {editFormId ? 'Edit Template' : 'Create New Template'}
+          {editFormId
+            ? `Editing Form: ${form.classification.name || 'Template'}`
+            : 'Create New Template'}
         </Typography>
       </Box>
 
@@ -113,8 +112,7 @@ export const CustomFormTemplate = () => {
         <Formik
           initialValues={initialState}
           onSubmit={() => {
-            // TODO: Handle Form Template create/edit form submission
-            console.log('Temp');
+            /* form creation/editing handled inside `SubmitFormTemplateDialog` */
           }}
           validationSchema={() => {
             // TODO: Create a validation schema to ensure that all the values are filled in as expected
@@ -140,10 +138,16 @@ export const CustomFormTemplate = () => {
                       fullWidth
                       inputProps={{
                         // TODO: Determine what types of input restrictions we should have for title
-                        maxLength: Number.MAX_SAFE_INTEGER,
+                        maxLength: 100,
                       }}
                       onChange={(e: any) => {
-                        form.classification.name = e.target.value;
+                        setForm((prev) => ({
+                          ...prev,
+                          classification: {
+                            ...prev.classification,
+                            name: e.target.value,
+                          },
+                        }));
                       }}
                       InputProps={{
                         endAdornment: (
@@ -175,8 +179,7 @@ export const CustomFormTemplate = () => {
                       }
                       fullWidth
                       inputProps={{
-                        // TODO: Determine what types of input restrictions we should have for version
-                        maxLength: Number.MAX_SAFE_INTEGER,
+                        maxLength: 30,
                       }}
                       onChange={(e: any) => {
                         form.version = e.target.value;

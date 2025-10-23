@@ -10,17 +10,16 @@ from common.api_utils import (
     convert_query_parameter_to_bool,
 )
 from common.commonUtil import get_current_time
-from common.workflow_utils import assign_workflow_template_or_instance_ids
 from data import marshal
 from models import (
     PatientOrm,
     WorkflowInstanceOrm,
     WorkflowTemplateOrm,
 )
+from service.workflow.workflow_service import WorkflowService
 from validation import CradleBaseModel
 from validation.workflow_api_models import (
     WorkflowInstancePatchModel,
-    WorkflowInstanceUploadModel,
 )
 from validation.workflow_models import WorkflowInstanceModel
 
@@ -42,43 +41,37 @@ api_workflow_instances = APIBlueprint(
 workflow_instance_not_found_message = "Workflow instance with ID: ({}) not found."
 
 
+class CreateWorkflowInstanceRequest(CradleBaseModel):
+    workflow_template_id: str
+    patient_id: str
+
+
 # /api/workflow/instances [POST]
 @api_workflow_instances.post("", responses={201: WorkflowInstanceModel})
-def create_workflow_instance(body: WorkflowInstanceUploadModel):
+def create_workflow_instance(body: CreateWorkflowInstanceRequest):
     """Create Workflow Instance"""
-    workflow_instance_dict = body.model_dump()
-
-    # Assign ID to workflow instance
-    assign_workflow_template_or_instance_ids(
-        WorkflowInstanceOrm, workflow_instance_dict
-    )
-
-    # Validate that the workflow template exists (if provided)
-    if workflow_instance_dict.get("workflow_template_id") is not None:
-        workflow_template = crud.read(
-            WorkflowTemplateOrm, id=workflow_instance_dict["workflow_template_id"]
+    workflow_template = WorkflowService.get_workflow_template(body.workflow_template_id)
+    if workflow_template is None:
+        return abort(
+            code=404,
+            description=f"Workflow template with ID '{body.workflow_template_id}' not found.",
         )
-        if workflow_template is None:
-            return abort(
-                code=404,
-                description=f"Workflow template with ID: ({workflow_instance_dict['workflow_template_id']}) not found.",
-            )
 
-    # Validate that the patient exists
-    patient = crud.read(PatientOrm, id=workflow_instance_dict["patient_id"])
+    patient = crud.read(PatientOrm, id=body.patient_id)
     if patient is None:
         return abort(
             code=404,
-            description=f"Patient with ID: ({workflow_instance_dict['patient_id']}) not found.",
+            description=f"Patient with ID '{body.patient_id}' not found.",
         )
 
-    workflow_instance_orm = marshal.unmarshal(
-        WorkflowInstanceOrm, workflow_instance_dict
-    )
+    workflow_instance = WorkflowService.generate_workflow_instance(workflow_template)
 
-    crud.create(model=workflow_instance_orm, refresh=True)
+    workflow_instance.patient_id = body.patient_id
+    WorkflowService.upsert_workflow_instance(workflow_instance)
 
-    return marshal.marshal(obj=workflow_instance_orm, shallow=True), 201
+    # TODO: Start workflow
+
+    return workflow_instance.model_dump(), 201
 
 
 # /api/workflow/instances?patient_id=<str>&status=<str>&workflow_template_id=<str> [GET]
@@ -93,7 +86,6 @@ def get_workflow_instances():
     )
 
     workflow_instances = crud.read_workflow_instances(
-        model=WorkflowInstanceOrm,
         patient_id=patient_id,
         status=status,
         workflow_template_id=workflow_template_id,
