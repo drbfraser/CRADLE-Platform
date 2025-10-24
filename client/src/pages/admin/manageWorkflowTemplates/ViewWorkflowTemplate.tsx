@@ -112,14 +112,9 @@ export const ViewWorkflowTemplate = () => {
       setEditedWorkflow(null);
       setHasChanges(false);
     } catch (error: any) {
-      const status = error?.status || error?.response?.status;
-      if (status === 409) {
-        setToastMsg(
-          'Version conflict: a template with this version exists. Please bump the version and try again.'
-        );
-        setToastOpen(true);
-      }
-      console.error('Error saving workflow template:', error);
+      setToastMsg(error.message);
+      setToastOpen(true);
+      return;
     }
   };
 
@@ -191,10 +186,7 @@ export const ViewWorkflowTemplate = () => {
                 onClick={handleSave}
                 disabled={
                   !hasChanges ||
-                  editWorkflowTemplateMutation.isPending ||
-                  (isEditMode &&
-                    editedWorkflow?.version ===
-                      workflowTemplateQuery.data?.version)
+                  editWorkflowTemplateMutation.isPending
                 }>
                 {editWorkflowTemplateMutation.isPending ? 'Saving...' : 'Save'}
               </Button>
