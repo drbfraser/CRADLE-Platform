@@ -242,9 +242,9 @@ def test_unmarshal_step_without_form_or_branches(
     assert step_loads and without_model_key(step_loads[-1]) == payload
     assert not form_loads, "FormTemplateOrm should not be loaded when 'form' is omitted"
     assert not branch_loads, "No branch loads expected when 'branches' is omitted"
-    assert not rule_group_loads, (
-        "No RuleGroup loads expected when no branch has a condition"
-    )
+    assert (
+        not rule_group_loads
+    ), "No RuleGroup loads expected when no branch has a condition"
 
 
 def test_unmarshal_step_strips_none_and_handles_empty_branches(

@@ -112,9 +112,9 @@ def test_unmarshal_relay_phone_number_without_last_received_stays_unset(
     assert unmarshal_relay_phone_num.id == "rpn-002"
     assert unmarshal_relay_phone_num.phone == "+15550000002"
     assert unmarshal_relay_phone_num.description == "US relay #2"
-    assert not hasattr(unmarshal_relay_phone_num, "last_received"), (
-        "Unmarshal should not inject defaults"
-    )
+    assert not hasattr(
+        unmarshal_relay_phone_num, "last_received"
+    ), "Unmarshal should not inject defaults"
 
     # No implicit rename by unmarshal
     assert not hasattr(unmarshal_relay_phone_num, "phone_number")

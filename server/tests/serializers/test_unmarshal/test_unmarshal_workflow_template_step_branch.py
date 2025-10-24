@@ -120,9 +120,9 @@ def test_unmarshal_branch_without_condition_forwards_and_has_no_condition(
     assert without_model_key(branch_loads[-1]) == payload
 
     # No new RuleGroup load for this call
-    assert not any(without_model_key(c) == {} for c in rule_group_loads), (
-        "Did not expect a RuleGroup load when `condition` is absent"
-    )
+    assert not any(
+        without_model_key(c) == {} for c in rule_group_loads
+    ), "Did not expect a RuleGroup load when `condition` is absent"
 
 
 def test_unmarshal_branch_with_condition_none_strips_key_and_attaches_nothing(
