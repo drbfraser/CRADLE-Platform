@@ -1,7 +1,12 @@
 import {
+  WorkflowInstance,
+  WorkflowTemplate,
+} from 'src/shared/types/workflow/workflowApiTypes';
+import {
   InstanceStatus,
   StepStatus,
 } from 'src/shared/types/workflow/workflowEnums';
+import { formatISODateNumber } from 'src/shared/utils';
 
 export const FORM_TEMPLATE_TEST_DATA = {
   unArchivedTemplates: [
@@ -43,13 +48,16 @@ export const FORM_TEMPLATE_TEST_DATA = {
   ],
 } as const;
 
-export const WORKFLOW_TEMPLATE_TEST_DATA = {
+export const WORKFLOW_TEMPLATE_TEST_DATA: {
+  unArchivedTemplates: WorkflowTemplate[];
+  archivedTemplates: WorkflowTemplate[];
+} = {
   unArchivedTemplates: [
     {
       id: 'workflow-template-1',
       name: 'Patient Intake Workflow',
       description: 'Standard patient intake process',
-      version: 1,
+      version: '1',
       classificationId: 'classification-1',
       classification: {
         id: 'classification-1',
@@ -62,7 +70,7 @@ export const WORKFLOW_TEMPLATE_TEST_DATA = {
           description: 'Standard patient intake process step 1',
           formId: 'simple-workflow-instance-form-1',
           branches: [],
-          lastEdited: 1741373694,
+          lastEdited: formatISODateNumber(1741373694),
         },
         {
           id: 'workflow-template-1-step-2',
@@ -70,7 +78,7 @@ export const WORKFLOW_TEMPLATE_TEST_DATA = {
           description: 'Standard patient intake process step 2',
           formId: 'simple-workflow-instance-form-1',
           branches: [],
-          lastEdited: 1741373694,
+          lastEdited: formatISODateNumber(1741373694),
         },
       ],
       archived: false,
@@ -82,7 +90,7 @@ export const WORKFLOW_TEMPLATE_TEST_DATA = {
       id: 'workflow-template-2',
       name: 'Discharge Workflow',
       description: 'Patient discharge process',
-      version: 2,
+      version: '2',
       classificationId: 'classification-2',
       classification: {
         id: 'classification-2',
@@ -100,7 +108,7 @@ export const WORKFLOW_TEMPLATE_TEST_DATA = {
       id: 'workflow-template-archived',
       name: 'Old Workflow',
       description: 'Deprecated workflow',
-      version: 1,
+      version: '1',
       classificationId: 'classification-archived',
       classification: {
         id: 'classification-archived',
@@ -115,8 +123,8 @@ export const WORKFLOW_TEMPLATE_TEST_DATA = {
   ],
 } as const;
 
-export const WORKFLOW_INSTANCE_TEST_DATA = {
-  workflowInstanceTemplate: [
+export const WORKFLOW_INSTANCE_TEST_DATA: { instances: WorkflowInstance[] } = {
+  instances: [
     {
       id: 'test-workflow-instance-1',
       name: 'Patient Intake Workflow Instance',
@@ -158,6 +166,7 @@ export const WORKFLOW_INSTANCE_TEST_DATA = {
       lastEdited: 1757109312,
       lastEditedBy: 'user1',
       completionDate: 1757149312,
+      workflowTemplateStepId: 'workflow-template-1',
     },
   ],
 } as const;

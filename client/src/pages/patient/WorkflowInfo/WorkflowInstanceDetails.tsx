@@ -13,18 +13,22 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { WorkflowMetadata } from 'src/shared/components/workflow/workflowTemplate/WorkflowMetadata';
 import { Tooltip, IconButton } from '@mui/material';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   getFormTemplateLangAsync,
   getInstanceWithSteps,
   getPatientInfoAsync,
-  getTemplate,
-  getTemplateStepById,
+  getTemplateWithStepsAndClassification,
 } from 'src/shared/api';
 import { Nullable } from 'src/shared/constants';
 import { formatISODateNumber } from 'src/shared/utils';
-import { WorkflowInstanceStep } from 'src/shared/types/workflow/workflowApiTypes';
+import {
+  WorkflowInstance,
+  WorkflowInstanceStep,
+  WorkflowTemplate,
+  WorkflowTemplateStep,
+} from 'src/shared/types/workflow/workflowApiTypes';
 import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
 import {
   InstanceStep,
@@ -38,6 +42,7 @@ import WorkflowConfirmDialog, {
   ConfirmDialogData,
 } from './components/WorkflowConfirmDialog';
 import { CForm } from 'src/shared/types/form/formTypes';
+import { Patient } from 'src/shared/types/patientTypes';
 
 function parseYMD(d?: Nullable<string>) {
   if (!d) return undefined;
@@ -97,12 +102,27 @@ function computeProgressAndEta(steps: InstanceStep[], now = new Date()) {
   return { total, completed, percent, estDaysRemaining, etaDate, currentIndex };
 }
 
-export async function mapWorkflowStep(
-  apiStep: WorkflowInstanceStep
-): Promise<InstanceStep> {
-  const templateStep = await getTemplateStepById(
-    apiStep.workflowTemplateStepId
+function findTemplateStepById(
+  templateStepId: string,
+  template: WorkflowTemplate
+) {
+  return template.steps?.find((step) => step.id === templateStepId);
+}
+
+export function mapWorkflowStep(
+  apiStep: WorkflowInstanceStep,
+  template: WorkflowTemplate
+): InstanceStep {
+  const templateStep: WorkflowTemplateStep | undefined = findTemplateStepById(
+    apiStep.workflowTemplateStepId,
+    template
   );
+
+  if (!templateStep) {
+    throw new Error(
+      `No template step found for id ${apiStep.workflowTemplateStepId}`
+    );
+  }
 
   const workflowInstanceStep: InstanceStep = {
     id: apiStep.id,
@@ -130,13 +150,11 @@ export async function mapWorkflowStep(
   return workflowInstanceStep;
 }
 
-export async function loadInstanceById(id: string): Promise<InstanceDetails> {
-  const instance = await getInstanceWithSteps(id);
-  const template = await getTemplate(instance.workflowTemplateId, {
-    with_classification: true,
-  });
-  const patient = await getPatientInfoAsync(instance.patientId);
-
+export function buildInstanceDetails(
+  instance: WorkflowInstance,
+  template: WorkflowTemplate,
+  patient: Patient
+): InstanceDetails {
   const instanceDetails: InstanceDetails = {
     id: instance.id,
     studyTitle: instance.name,
@@ -155,9 +173,7 @@ export async function loadInstanceById(id: string): Promise<InstanceDetails> {
       : null,
 
     // Steps
-    steps: await Promise.all(
-      instance.steps.map((step) => mapWorkflowStep(step))
-    ),
+    steps: instance.steps.map((step) => mapWorkflowStep(step, template)),
     possibleSteps: [],
   };
 
@@ -172,7 +188,10 @@ function getWorkflowCurrentStep(instance: InstanceDetails) {
 
 export default function WorkflowInstanceDetailsPage() {
   const { instanceId } = useParams<{ instanceId: string }>();
-  const [workflowInstance, setWorkflowInstance] =
+  const [instance, setInstance] = useState<WorkflowInstance | null>(null);
+  const [patient, setPatient] = useState<Patient | null>(null);
+  const [template, setTemplate] = useState<WorkflowTemplate | null>(null);
+  const [instanceDetails, setInstanceDetails] =
     useState<InstanceDetails | null>(null);
   const [progressInfo, setProgressInfo] = useState<WorkflowInstanceProgress>({
     total: 0,
@@ -197,21 +216,58 @@ export default function WorkflowInstanceDetailsPage() {
   const [reloadFlag, setReloadFlag] = useState(false);
 
   useEffect(() => {
-    async function fetchInstance() {
+    async function fetchInstanceAndPatient() {
       try {
-        const instance = await loadInstanceById('test-workflow-instance-1'); //TODO: To be updated with URL param when completed
-        setWorkflowInstance(instance);
-        const activeStep = getWorkflowCurrentStep(instance);
-        setCurrentStep(activeStep ?? null);
-        console.log(`Current Step Set, id: ${currentStep?.id}`);
-        const progress = computeProgressAndEta(instance.steps);
-        setProgressInfo(progress);
+        const instance = await getInstanceWithSteps('test-workflow-instance-1'); //TODO: To be updated with URL param when completed
+        setInstance(instance);
+
+        const patient = await getPatientInfoAsync(instance.patientId);
+        setPatient(patient);
       } catch (err) {
-        console.error('Failed to load workflow instance', err);
+        console.error(
+          'Failed to load workflow instance and patient details',
+          err
+        );
       }
     }
-    fetchInstance();
+    fetchInstanceAndPatient();
   }, [instanceId, reloadFlag]);
+
+  const fetchTemplate = useCallback(async (templateId: string) => {
+    const template = await getTemplateWithStepsAndClassification(templateId);
+    setTemplate(template);
+  }, []);
+
+  useEffect(() => {
+    if (instance?.workflowTemplateId) {
+      fetchTemplate(instance.workflowTemplateId);
+    }
+  }, [instance?.workflowTemplateId, fetchTemplate]);
+
+  useEffect(() => {
+    function setupInstanceDetails() {
+      if (instance && template && patient) {
+        const instanceDetails = buildInstanceDetails(
+          instance,
+          template,
+          patient
+        );
+        setInstanceDetails(instanceDetails);
+      }
+    }
+    setupInstanceDetails();
+  }, [instanceId, instance, template, patient]);
+
+  useEffect(() => {
+    if (!instanceDetails) return;
+
+    const activeStep = getWorkflowCurrentStep(instanceDetails);
+    setCurrentStep(activeStep ?? null);
+    console.log(`Current Step Set, id: ${currentStep?.id}`);
+
+    const progress = computeProgressAndEta(instanceDetails.steps);
+    setProgressInfo(progress);
+  }, [instanceDetails]);
 
   const handleMakeCurrent = React.useCallback(
     (stepId: string, title: string) => {
@@ -278,7 +334,7 @@ export default function WorkflowInstanceDetailsPage() {
 
         <Divider sx={{ my: 3 }} />
 
-        {!workflowInstance ? (
+        {!instanceDetails ? (
           <Typography variant="h5" component="p">
             Loading workflow instance...
           </Typography>
@@ -295,7 +351,7 @@ export default function WorkflowInstanceDetailsPage() {
               }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <Typography variant="h5">
-                  {workflowInstance.studyTitle}
+                  {instanceDetails.studyTitle}
                 </Typography>
 
                 <Button
@@ -315,8 +371,8 @@ export default function WorkflowInstanceDetailsPage() {
               </Box>
 
               <Typography variant="h6" color="text.secondary">
-                Patient: {workflowInstance.patientName} (ID:{' '}
-                {workflowInstance.patientId})
+                Patient: {instanceDetails.patientName} (ID:{' '}
+                {instanceDetails.patientId})
               </Typography>
             </Box>
 
@@ -334,24 +390,24 @@ export default function WorkflowInstanceDetailsPage() {
                     Workflow Template Details
                   </Typography>
                   <WorkflowMetadata
-                    description={workflowInstance.description}
-                    collectionName={workflowInstance.collection}
-                    version={parseInt(workflowInstance.version) || 1}
-                    lastEdited={workflowInstance.lastEditedOn}
-                    dateCreated={workflowInstance.firstCreatedOn}
+                    description={instanceDetails.description}
+                    collectionName={instanceDetails.collection}
+                    version={parseInt(instanceDetails.version) || 1}
+                    lastEdited={instanceDetails.lastEditedOn}
+                    dateCreated={instanceDetails.firstCreatedOn}
                   />
                 </Box>
               </Box>
             </Collapse>
             {/* Section 2: Workflow Status */}
             <WorkflowStatus
-              workflowInstance={workflowInstance}
+              workflowInstance={instanceDetails}
               progressInfo={progressInfo}
             />
 
             {/* Section 3: Step history */}
             <WorkflowStepHistory
-              workflowInstance={workflowInstance}
+              workflowInstance={instanceDetails}
               expandedStep={expandedStep}
               setExpandedStep={setExpandedStep}
               expandAll={expandAll}
@@ -367,7 +423,7 @@ export default function WorkflowInstanceDetailsPage() {
 
             {/* Section 4: Possible Other Steps */}
             <WorkflowPossibleSteps
-              workflowInstance={workflowInstance}
+              workflowInstance={instanceDetails}
               handleMakeCurrent={handleMakeCurrent}
             />
 
