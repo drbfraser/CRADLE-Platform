@@ -1,9 +1,12 @@
+# conftest.py
 import importlib
 import os
 import types
+from contextlib import nullcontext
 
 import pytest
 
+# Set environment variables for testing. Defaults are for MySQL
 _DEFAULTS = {
     "DB_USERNAME": "user",
     "DB_PASSWORD": "password",
@@ -24,45 +27,64 @@ def marshal_mod():
 
 
 @pytest.fixture(autouse=True)
-def _stub_marshmallow_and_invariants(
+def isolate_marshal_and_capture_schema_loads(
     monkeypatch: pytest.MonkeyPatch, marshal_mod
-) -> None:
+) -> list[dict]:
     """
-    Replace DB-bound Marshmallow schemas and side-effectful invariants with stubs.
-    ----
-    `data.marshal.__load()` asks `get_schema_for_model()` for a Marshmallow
-    SQLAlchemy schema tied to Flask-SQLAlchemy's `db.session`. Calling
-    `schema().load(data)` then requires an active Flask app context + DB.
-    That's integration territory, not unit testing.
+    Helper fixture to isolate the marshal module from the DB and capture
+    schema().load(...) calls made by it.
 
-    What this fixture does
-    ----------------------
-    `data.marshal.get_schema_for_model` to return a tiny schema
-    factory whose `.load()` wraps the input dict into a `types.SimpleNamespace`.
-    No Flask, no DB, no validation—just attribute access.
+    Returns a list of dicts, where each dict contains the model name and
+    data passed to schema().load(...).
+
+    This fixture late-imports the marshal module after the environment is set,
+    and then:
+
+    - Routes schema resolution to a stub so schema().load(...) never touches
+    Flask/DB.
+    - Kills DB side-effects during unmarshal of readings.
+    - Makes the schema_load_calls list visible to tests via the helper fixture
+    below.
+
+    This fixture is automatically used by all tests in this module.
     """
-
-    class _StubSchema:
-        """Minimal stand-in for a Marshmallow schema (no validation, no DB)."""
-
-        def dump(self, obj):  # pragma: no cover - trivial
-            return obj
-
-        def load(self, data: dict):
-            return types.SimpleNamespace(**data)
+    schema_load_calls: list[dict] = []
 
     def _fake_get_schema_for_model(_model_cls):
         """
-        Return a factory callable that behaves like a schema class.
-
-        `__load()` calls:
-            schema = get_schema_for_model(ModelClass)
-            return schema().load(d)
-
-        So we return a "class-like" callable where `schema()` yields an object
-        exposing `.load(...)`.
+        Stub replacement for get_schema_for_model(_model_cls) that records
+        each call to schema().load(...) with the model name and data passed in.
         """
+
+        class _StubSchema:
+            def dump(self, obj):  # pragma: no cover - trivial
+                """
+                Trivial implementation that just returns the input obj.
+
+                :param obj: Any object to dump.
+                :return: The input obj.
+                """
+                return obj
+
+            def load(self, data: dict):
+                """
+                Load a model instance from ``dict`` using the model's Marshmallow schema.
+
+                :param data: Field dictionary for the model.
+                :return: Deserialized model instance.
+                :raises MARSHMALLOW.ValidationError: If validation fails.
+                """
+                schema_load_calls.append(
+                    {"__model__": _model_cls.__name__, **dict(data)}
+                )
+                return types.SimpleNamespace(**data)
+
+        # __load expects a *class* it can call: schema().load(...)
         return lambda: _StubSchema()
+
+    monkeypatch.setattr(
+        marshal_mod, "db_session", types.SimpleNamespace(no_autoflush=nullcontext())
+    )
 
     # Route schema resolution to the stub so schema().load(...) never touches Flask/DB.
     monkeypatch.setattr(marshal_mod, "get_schema_for_model", _fake_get_schema_for_model)
@@ -71,3 +93,24 @@ def _stub_marshmallow_and_invariants(
     monkeypatch.setattr(
         marshal_mod.invariant, "resolve_reading_invariants", lambda _x: None
     )
+
+    # Make schema_load_calls visible to tests via the helper fixture below
+    monkeypatch.setattr(
+        marshal_mod, "_test_load_calls", schema_load_calls, raising=False
+    )
+
+    return {"schema_load_calls": schema_load_calls}
+
+
+@pytest.fixture
+def schema_load_calls(isolate_marshal_and_capture_schema_loads) -> list[dict]:
+    """
+    A fixture that captures and returns a list of dicts, where each dict
+    contains the model name and data passed to schema().load(...)
+    during the execution of tests in this module.
+
+    This fixture is automatically used by all tests in this module,
+    and is intended to be used as a helper to inspect the database
+    interactions of the marshal module during tests.
+    """
+    return isolate_marshal_and_capture_schema_loads["schema_load_calls"]
