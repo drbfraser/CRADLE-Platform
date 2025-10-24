@@ -1,4 +1,3 @@
-# conftest.py
 import importlib
 import os
 import types
@@ -119,29 +118,31 @@ def schema_load_calls(isolate_marshal_and_capture_schema_loads) -> list[dict]:
 @pytest.fixture
 def schema_loads_by_model(schema_load_calls):
     """
-    A fixture that returns a function that takes a model name and returns
-    a list of dicts, where each dict contains the model name and data passed
-    to schema().load() during the execution of tests in this module.
+    A fixture that returns a function that takes a model name and returns a list
+    of dicts containing the data passed to schema().load() for the given model name.
 
-    The returned function can be used to inspect the database interactions
-    of the marshal module during tests.
+    The returned list of dicts is a filtered view of the data captured by the
+    schema_load_calls fixture. Each dict in the list contains the model name and data
+    passed to schema().load() during the execution of tests in this module.
 
-    :param schema_load_calls: A list of dicts, where each dict contains the model name
-        and data passed to schema().load() during the execution of tests in this
-        module.
-    :return: A function that takes a model name and returns a list of dicts.
+    :param model_name: The name of the model to filter by.
+    :return: A list of dicts, where each dict contains the model name and data
+        passed to schema().load() during the execution of tests in this module.
     """
 
     def _by(model_name: str) -> list[dict]:
         """
-        Returns a list of dicts containing the model name and data passed to
-        schema().load() during the execution of tests in this module, filtered
-        by the given model name.
+        Return a list of dicts containing the data passed to schema().load() for
+        the given model name.
 
-        :param model_name: The model name to filter by.
-        :return: A list of dicts containing the model name and data passed to
-            schema().load() for the given model name.
+        :param model_name: The name of the model to filter by.
+        :return: A list of dicts, where each dict contains the model name and data
+            passed to schema().load() during the execution of tests in this module.
         """
-        return [c for c in schema_load_calls if c.get("__model__") == model_name]
+        return [
+            {k: v for k, v in call.items() if k != "__model__"}
+            for call in schema_load_calls
+            if call.get("__model__") == model_name
+        ]
 
     return _by
