@@ -100,20 +100,8 @@ def _create_form_template(
         d["questions"] = questions
     return d
 
-
-def _loads_for(load_calls: list[dict], model_name: str) -> list[dict]:
-    """
-    Returns a list of schema.load calls that correspond to the given model_name.
-
-    :param load_calls: List of schema.load calls.
-    :param model_name: Name of the model to filter by.
-    :return: List of schema.load calls that correspond to the given model_name.
-    """
-    return [c for c in load_calls if c.get("__model__") == model_name]
-
-
 def test_unmarshal_form_template_with_questions_pops_key_and_attaches_processed_questions(
-    schema_load_calls,
+    schema_loads_by_model,
 ):
     """
     For FormTemplate:
@@ -161,24 +149,18 @@ def test_unmarshal_form_template_with_questions_pops_key_and_attaches_processed_
         ],
     )
 
-    unmarshal_form_template = unmarshal(FormTemplateOrm, payload)
-    assert isinstance(unmarshal_form_template, types.SimpleNamespace)
-    assert unmarshal_form_template.id == "t-qa"
-    assert unmarshal_form_template.version == "v2"
-    assert unmarshal_form_template.archived is False
-    assert getattr(unmarshal_form_template, "form_classification_id", None) == "fc-99"
+    fom_template = unmarshal(FormTemplateOrm, payload)
+    assert isinstance(fom_template, types.SimpleNamespace)
+    assert fom_template.id == "t-qa"
+    assert fom_template.version == "v2"
+    assert fom_template.archived is False
+    assert getattr(fom_template, "form_classification_id", None) == "fc-99"
 
     # Questions are attached and processed
-    assert hasattr(unmarshal_form_template, "questions")
-    assert (
-        isinstance(unmarshal_form_template.questions, list)
-        and len(unmarshal_form_template.questions) == 2
-    )
+    assert hasattr(fom_template, "questions")
+    assert isinstance(fom_template.questions, list) and len(fom_template.questions) == 2
 
-    q0, q1 = (
-        unmarshal_form_template.questions[0],
-        unmarshal_form_template.questions[1],
-    )  # order preserved
+    q0, q1 = fom_template.questions[0], fom_template.questions[1]  # order preserved
     assert q0.id == "q-1" and q0.question_index == 2
     assert q1.id == "q-0" and q1.question_index == 0
 
@@ -208,9 +190,8 @@ def test_unmarshal_form_template_with_questions_pops_key_and_attaches_processed_
     assert json.loads(q1.answers) == {"value": "mild"}
     assert len(q1.lang_versions) == 1 and q1.lang_versions[0].lang == "en"
 
-    # Schema load assertions
-    calls = schema_load_calls
-    tmpl_loads = _loads_for(calls, "FormTemplateOrm")
+    # Schema load assertions (use fixture)
+    tmpl_loads = schema_loads_by_model("FormTemplateOrm")
     assert tmpl_loads, "Expected a schema.load for FormTemplateOrm"
     form_template_payload = tmpl_loads[-1]
     assert (
@@ -218,14 +199,14 @@ def test_unmarshal_form_template_with_questions_pops_key_and_attaches_processed_
     ), "FormTemplate schema().load must NOT receive 'questions'"
 
     # Ensure question and lang version loads happened
-    question_loads = _loads_for(calls, "QuestionOrm")
-    lang_ver_loads = _loads_for(calls, "QuestionLangVersionOrm")
+    question_loads = schema_loads_by_model("QuestionOrm")
+    lang_ver_loads = schema_loads_by_model("QuestionLangVersionOrm")
     assert len(question_loads) == 2
     assert len(lang_ver_loads) == 3
 
 
 def test_unmarshal_form_template_with_questions_empty_list_still_pops_key_and_sets_empty_attr(
-    schema_load_calls,
+    schema_loads_by_model,
 ):
     """
     Test that unmarshalling a form template payload with an empty questions list
@@ -234,25 +215,21 @@ def test_unmarshal_form_template_with_questions_empty_list_still_pops_key_and_se
     """
     payload = _create_form_template(id="t-empty", questions=[])
 
-    unmarshal_form_template = unmarshal(FormTemplateOrm, payload)
-    assert (
-        hasattr(unmarshal_form_template, "questions")
-        and unmarshal_form_template.questions == []
-    )
+    fom_template = unmarshal(FormTemplateOrm, payload)
+    assert hasattr(fom_template, "questions") and fom_template.questions == []
 
-    calls = schema_load_calls
-    tmpl_loads = _loads_for(calls, "FormTemplateOrm")
+    tmpl_loads = schema_loads_by_model("FormTemplateOrm")
     assert tmpl_loads, "Expected a schema.load for FormTemplateOrm"
     form_template_payload = tmpl_loads[-1]
     assert "questions" not in form_template_payload
 
     # No question/lang-version loads
-    assert not _loads_for(calls, "QuestionOrm")
-    assert not _loads_for(calls, "QuestionLangVersionOrm")
+    assert not schema_loads_by_model("QuestionOrm")
+    assert not schema_loads_by_model("QuestionLangVersionOrm")
 
 
 def test_unmarshal_form_template_without_questions_key_sets_empty_attr_and_no_question_loads(
-    schema_load_calls,
+    schema_loads_by_model,
 ):
     """
     Test that unmarshalling a form template payload without a 'questions' key
@@ -261,17 +238,13 @@ def test_unmarshal_form_template_without_questions_key_sets_empty_attr_and_no_qu
     """
     payload = _create_form_template(id="t-absent")  # no 'questions' key
 
-    unmarshal_form_template = unmarshal(FormTemplateOrm, payload)
-    assert (
-        hasattr(unmarshal_form_template, "questions")
-        and unmarshal_form_template.questions == []
-    )
+    fom_template = unmarshal(FormTemplateOrm, payload)
+    assert hasattr(fom_template, "questions") and fom_template.questions == []
 
-    calls = schema_load_calls
-    tmpl_loads = _loads_for(calls, "FormTemplateOrm")
+    tmpl_loads = schema_loads_by_model("FormTemplateOrm")
     assert tmpl_loads, "Expected a schema.load for FormTemplateOrm"
     form_template_payload = tmpl_loads[-1]
     assert "questions" not in form_template_payload
 
-    assert not _loads_for(calls, "QuestionOrm")
-    assert not _loads_for(calls, "QuestionLangVersionOrm")
+    assert not schema_loads_by_model("QuestionOrm")
+    assert not schema_loads_by_model("QuestionLangVersionOrm")
