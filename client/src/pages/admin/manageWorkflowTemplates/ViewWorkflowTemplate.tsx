@@ -108,9 +108,8 @@ export const ViewWorkflowTemplate = () => {
 
     try {
       await editWorkflowTemplateMutation.mutateAsync(editedWorkflow);
-      setIsEditMode(false);
-      setEditedWorkflow(null);
-      setHasChanges(false);
+      // Redirect to workflow templates page after successful save
+      navigate('/admin/workflow-templates');
     } catch (error: any) {
       setToastMsg(error.message);
       setToastOpen(true);
@@ -185,8 +184,7 @@ export const ViewWorkflowTemplate = () => {
                 }
                 onClick={handleSave}
                 disabled={
-                  !hasChanges ||
-                  editWorkflowTemplateMutation.isPending
+                  !hasChanges || editWorkflowTemplateMutation.isPending
                 }>
                 {editWorkflowTemplateMutation.isPending ? 'Saving...' : 'Save'}
               </Button>
