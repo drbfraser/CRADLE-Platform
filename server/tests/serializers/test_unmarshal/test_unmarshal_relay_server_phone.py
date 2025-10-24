@@ -43,13 +43,8 @@ def _create_relay_phone(
     return d
 
 
-def _without_model_key(d: dict) -> dict:
-    """Helper to compare captured schema.load payloads ignoring the '__model__' key."""
-    return {k: v for k, v in d.items() if k != "__model__"}
-
-
 def test_unmarshal_relay_phone_number_forwards_payload_and_sets_attrs(
-    schema_loads_by_model,
+    schema_loads_by_model, without_model_key
 ):
     """
     Test that unmarshal(RelayServerPhoneNumberOrm, payload) forwards the payload and sets the appropriate attributes on the returned object.
@@ -85,11 +80,11 @@ def test_unmarshal_relay_phone_number_forwards_payload_and_sets_attrs(
     loads = schema_loads_by_model("RelayServerPhoneNumberOrm")
     assert loads, "Expected schema.load(...) for RelayServerPhoneNumberOrm"
     assert loads[-1] == payload
-    assert _without_model_key(loads[-1]) == payload
+    assert without_model_key(loads[-1]) == payload
 
 
 def test_unmarshal_relay_phone_number_without_last_received_stays_unset(
-    schema_loads_by_model,
+    schema_loads_by_model, without_model_key
 ):
     """
     Test that unmarshal(RelayServerPhoneNumberOrm, payload) does not set
@@ -117,9 +112,9 @@ def test_unmarshal_relay_phone_number_without_last_received_stays_unset(
     assert unmarshal_relay_phone_num.id == "rpn-002"
     assert unmarshal_relay_phone_num.phone == "+15550000002"
     assert unmarshal_relay_phone_num.description == "US relay #2"
-    assert not hasattr(
-        unmarshal_relay_phone_num, "last_received"
-    ), "Unmarshal should not inject defaults"
+    assert not hasattr(unmarshal_relay_phone_num, "last_received"), (
+        "Unmarshal should not inject defaults"
+    )
 
     # No implicit rename by unmarshal
     assert not hasattr(unmarshal_relay_phone_num, "phone_number")
@@ -132,7 +127,7 @@ def test_unmarshal_relay_phone_number_without_last_received_stays_unset(
         "phone": "+15550000002",
         "description": "US relay #2",
     }
-    assert _without_model_key(loads[-1]) == {
+    assert without_model_key(loads[-1]) == {
         "id": "rpn-002",
         "phone": "+15550000002",
         "description": "US relay #2",
@@ -140,7 +135,7 @@ def test_unmarshal_relay_phone_number_without_last_received_stays_unset(
 
 
 def test_unmarshal_relay_phone_number_missing_required_keys_raises_keyerror(
-    schema_loads_by_model,
+    schema_loads_by_model, without_model_key
 ):
     """
     Test that unmarshal(RelayServerPhoneNumberOrm, payload) raises a KeyError
@@ -173,5 +168,5 @@ def test_unmarshal_relay_phone_number_missing_required_keys_raises_keyerror(
     # Confirm both cases still forwarded to schema.load with the incomplete dicts
     loads = schema_loads_by_model("RelayServerPhoneNumberOrm")
     # We only care that each payload appears at least once; order is fine either way.
-    assert any(_without_model_key(call) == payload_missing_phone for call in loads)
-    assert any(_without_model_key(call) == payload_missing_desc for call in loads)
+    assert any(without_model_key(call) == payload_missing_phone for call in loads)
+    assert any(without_model_key(call) == payload_missing_desc for call in loads)

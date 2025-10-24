@@ -9,11 +9,6 @@ from models import (
 )
 
 
-def _without_model_key(d: dict) -> dict:
-    """Drop the '__model__' key that our schema stub adds so dicts are comparable."""
-    return {k: v for k, v in d.items() if k != "__model__"}
-
-
 def _form_payload(
     *, id: str = "ft-001", title: str = "Antenatal Intake", **extras: Any
 ) -> dict:
@@ -80,7 +75,9 @@ def _create_step(
     return d
 
 
-def test_unmarshal_step_with_form_and_branches(schema_loads_by_model):
+def test_unmarshal_step_with_form_and_branches(
+    schema_loads_by_model, without_model_key
+):
     """
     When a WorkflowTemplateStep payload contains a FormTemplateOrm and two WorkflowTemplateStepBranchOrms,
       - the unmarshaller should:
@@ -189,21 +186,23 @@ def test_unmarshal_step_with_form_and_branches(schema_loads_by_model):
         "last_edited": 1_700_100_000,
         "sla": "P1D",
     }
-    assert _without_model_key(step_loads[-1]) == expected_step_forward
+    assert without_model_key(step_loads[-1]) == expected_step_forward
 
     # Form payload forwarded as-is
-    assert _without_model_key(form_loads[-1]) == form
+    assert without_model_key(form_loads[-1]) == form
 
     # Both branch payloads should have been forwarded as-is (including condition for the first)
-    forwarded_branches = [_without_model_key(b) for b in branch_loads[-2:]]
+    forwarded_branches = [without_model_key(b) for b in branch_loads[-2:]]
     for expected in branches:
         assert expected in forwarded_branches
 
     # The condition payload should be forwarded to RuleGroupOrm.load(...)
-    assert _without_model_key(rule_group_loads[-1]) == condition_payload
+    assert without_model_key(rule_group_loads[-1]) == condition_payload
 
 
-def test_unmarshal_step_without_form_or_branches(schema_loads_by_model):
+def test_unmarshal_step_without_form_or_branches(
+    schema_loads_by_model, without_model_key
+):
     """
     When 'form' and 'branches' are omitted from the payload:
       - unmarshal should set form=None and branches=[]
@@ -240,7 +239,7 @@ def test_unmarshal_step_without_form_or_branches(schema_loads_by_model):
     branch_loads = schema_loads_by_model("WorkflowTemplateStepBranchOrm")
     rule_group_loads = schema_loads_by_model("RuleGroupOrm")
 
-    assert step_loads and _without_model_key(step_loads[-1]) == payload
+    assert step_loads and without_model_key(step_loads[-1]) == payload
     assert not form_loads, "FormTemplateOrm should not be loaded when 'form' is omitted"
     assert not branch_loads, "No branch loads expected when 'branches' is omitted"
     assert not rule_group_loads, (
@@ -248,7 +247,9 @@ def test_unmarshal_step_without_form_or_branches(schema_loads_by_model):
     )
 
 
-def test_unmarshal_step_strips_none_and_handles_empty_branches(schema_loads_by_model):
+def test_unmarshal_step_strips_none_and_handles_empty_branches(
+    schema_loads_by_model, without_model_key
+):
     """
     When 'form', 'branches', and 'expected_completion' are None/null in the payload:
       - These keys are stripped out before schema().load() is called
@@ -288,7 +289,7 @@ def test_unmarshal_step_strips_none_and_handles_empty_branches(schema_loads_by_m
     assert step_loads, "Expected schema.load(...) for WorkflowTemplateStepOrm"
 
     # 'form', 'expected_completion', and 'branches' should not be present in the forwarded dict
-    forwarded = _without_model_key(step_loads[-1])
+    forwarded = without_model_key(step_loads[-1])
     assert forwarded == {
         "id": "wts-300",
         "name": "Counseling",

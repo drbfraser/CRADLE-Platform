@@ -33,13 +33,8 @@ def _create_branch(
     return d
 
 
-def _without_model_key(d: dict) -> dict:
-    """Compare captured schema.load payloads ignoring the '__model__' key from the stub."""
-    return {k: v for k, v in d.items() if k != "__model__"}
-
-
 def test_unmarshal_branch_with_condition_forwards_and_attaches_condition(
-    schema_loads_by_model,
+    schema_loads_by_model, without_model_key
 ):
     """
     When `condition` is present in the payload:
@@ -89,13 +84,13 @@ def test_unmarshal_branch_with_condition_forwards_and_attaches_condition(
     assert rule_group_loads, "Expected schema.load(...) for RuleGroupOrm"
 
     # The last branch load should equal our input payload (including `condition`)
-    assert _without_model_key(branch_loads[-1]) == payload
+    assert without_model_key(branch_loads[-1]) == payload
     # The last rule group load should equal the nested condition payload
-    assert _without_model_key(rule_group_loads[-1]) == condition_payload
+    assert without_model_key(rule_group_loads[-1]) == condition_payload
 
 
 def test_unmarshal_branch_without_condition_forwards_and_has_no_condition(
-    schema_loads_by_model,
+    schema_loads_by_model, without_model_key
 ):
     """
     When `condition` is omitted from the payload:
@@ -122,16 +117,16 @@ def test_unmarshal_branch_without_condition_forwards_and_has_no_condition(
     rule_group_loads = schema_loads_by_model("RuleGroupOrm")
 
     assert branch_loads, "Expected schema.load(...) for WorkflowTemplateStepBranchOrm"
-    assert _without_model_key(branch_loads[-1]) == payload
+    assert without_model_key(branch_loads[-1]) == payload
 
     # No new RuleGroup load for this call
-    assert not any(_without_model_key(c) == {} for c in rule_group_loads), (
+    assert not any(without_model_key(c) == {} for c in rule_group_loads), (
         "Did not expect a RuleGroup load when `condition` is absent"
     )
 
 
 def test_unmarshal_branch_with_condition_none_strips_key_and_attaches_nothing(
-    schema_loads_by_model,
+    schema_loads_by_model, without_model_key
 ):
     """
     When `condition` is explicitly None in the payload:
@@ -159,11 +154,11 @@ def test_unmarshal_branch_with_condition_none_strips_key_and_attaches_nothing(
     assert branch_loads, "Expected schema.load(...) for WorkflowTemplateStepBranchOrm"
 
     # After stripping None, the dict sent to schema.load should not contain `condition`
-    assert _without_model_key(branch_loads[-1]) == {
+    assert without_model_key(branch_loads[-1]) == {
         "id": "wtsb-C",
         "step_id": "wts-50",
         "target_step_id": "wts-60",
     }
 
     # No RuleGroup load should have been triggered by this call
-    assert not any(_without_model_key(c) == {} for c in rule_group_loads)
+    assert not any(without_model_key(c) == {} for c in rule_group_loads)

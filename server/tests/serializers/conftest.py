@@ -18,6 +18,15 @@ _DEFAULTS = {
 for k, v in _DEFAULTS.items():
     os.environ.setdefault(k, v)
 
+def _without_model_key(d: dict) -> dict:
+    """Drop the '__model__' key that our schema stub adds so dicts are comparable."""
+    return {k: v for k, v in d.items() if k != "__model__"}
+
+@pytest.fixture
+def without_model_key():
+    """Expose _without_model_key to tests as a fixture."""
+    return _without_model_key
+
 
 @pytest.fixture(scope="session")
 def marshal_mod():

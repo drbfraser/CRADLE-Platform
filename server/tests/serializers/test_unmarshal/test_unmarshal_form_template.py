@@ -100,6 +100,7 @@ def _create_form_template(
         d["questions"] = questions
     return d
 
+
 def test_unmarshal_form_template_with_questions_pops_key_and_attaches_processed_questions(
     schema_loads_by_model,
 ):
@@ -194,9 +195,9 @@ def test_unmarshal_form_template_with_questions_pops_key_and_attaches_processed_
     tmpl_loads = schema_loads_by_model("FormTemplateOrm")
     assert tmpl_loads, "Expected a schema.load for FormTemplateOrm"
     form_template_payload = tmpl_loads[-1]
-    assert (
-        "questions" not in form_template_payload
-    ), "FormTemplate schema().load must NOT receive 'questions'"
+    assert "questions" not in form_template_payload, (
+        "FormTemplate schema().load must NOT receive 'questions'"
+    )
 
     # Ensure question and lang version loads happened
     question_loads = schema_loads_by_model("QuestionOrm")
