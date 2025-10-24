@@ -131,6 +131,17 @@ def schema_loads_by_model(schema_load_calls):
         module.
     :return: A function that takes a model name and returns a list of dicts.
     """
+
     def _by(model_name: str) -> list[dict]:
+        """
+        Returns a list of dicts containing the model name and data passed to
+        schema().load() during the execution of tests in this module, filtered
+        by the given model name.
+
+        :param model_name: The model name to filter by.
+        :return: A list of dicts containing the model name and data passed to
+            schema().load() for the given model name.
+        """
         return [c for c in schema_load_calls if c.get("__model__") == model_name]
+
     return _by
