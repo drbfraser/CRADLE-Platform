@@ -114,3 +114,23 @@ def schema_load_calls(isolate_marshal_and_capture_schema_loads) -> list[dict]:
     interactions of the marshal module during tests.
     """
     return isolate_marshal_and_capture_schema_loads["schema_load_calls"]
+
+
+@pytest.fixture
+def schema_loads_by_model(schema_load_calls):
+    """
+    A fixture that returns a function that takes a model name and returns
+    a list of dicts, where each dict contains the model name and data passed
+    to schema().load() during the execution of tests in this module.
+
+    The returned function can be used to inspect the database interactions
+    of the marshal module during tests.
+
+    :param schema_load_calls: A list of dicts, where each dict contains the model name
+        and data passed to schema().load() during the execution of tests in this
+        module.
+    :return: A function that takes a model name and returns a list of dicts.
+    """
+    def _by(model_name: str) -> list[dict]:
+        return [c for c in schema_load_calls if c.get("__model__") == model_name]
+    return _by
