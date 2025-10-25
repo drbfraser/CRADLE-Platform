@@ -80,6 +80,7 @@ class WorkflowInstanceStepModel(CradleBaseModel, extra="forbid"):
     description: str
     workflow_instance_id: str
     status: WorkflowStatusEnum
+    workflow_template_step_id: Optional[str] = None
     start_date: Optional[int] = None
     last_edited: Optional[int] = None
     assigned_to: Optional[int] = None
