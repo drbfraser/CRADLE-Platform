@@ -11,9 +11,13 @@ from validation.workflow_models import (
     WorkflowTemplateModel,
     WorkflowTemplateStepModel,
 )
+from service.workflow.workflow_planner import WorkflowPlanner
+from service.workflow.workflow_view import WorkflowView
+from service.workflow.workflow_actions import WorkflowAction
 
 
 class WorkflowService:
+    # TODO: make these staticmethods
     @classmethod
     def generate_workflow_instance(
         cls, workflow_template: WorkflowTemplateModel
@@ -117,3 +121,29 @@ class WorkflowService:
         workflow_template_dict = marshal.marshal(workflow_template_orm)
         workflow_template = WorkflowTemplateModel(**workflow_template_dict)
         return workflow_template
+
+    @staticmethod
+    def get_available_workflow_actions(
+        workflow_instance: WorkflowInstanceModel,
+        workflow_template: WorkflowTemplateModel
+    ) -> list[WorkflowAction]:
+        assert workflow_instance.workflow_template_id == workflow_template.id
+
+        workflow_view = WorkflowView(workflow_template, workflow_instance)
+
+        available_actions = WorkflowPlanner.get_available_actions(ctx=workflow_view)
+        return available_actions
+
+    @staticmethod
+    def apply_workflow_action(
+        action: WorkflowAction,
+        workflow_instance: WorkflowInstanceModel,
+        workflow_template: WorkflowTemplateModel,
+    ) -> None:
+        assert workflow_instance.workflow_template_id == workflow_template.id
+
+        workflow_view = WorkflowView(workflow_template, workflow_instance)
+
+        ops = WorkflowPlanner.get_operations(ctx=workflow_view, action=action)
+        for op in ops:
+            op.apply(workflow_view)
