@@ -22,11 +22,14 @@ import {
   TemplateStepWithFormAndIndex,
   WorkflowTemplate,
 } from 'src/shared/types/workflow/workflowApiTypes';
+import { WorkflowViewMode } from 'src/shared/types/workflow/workflowEnums';
 import { getTemplateWithStepsAndClassification } from 'src/shared/api/modules/workflowTemplates';
 import { WorkflowMetadata } from '../../../shared/components/workflow/workflowTemplate/WorkflowMetadata';
 import { WorkflowSteps } from 'src/shared/components/workflow/WorkflowSteps';
+import { WorkflowFlowView } from 'src/shared/components/workflow/workflowTemplate/WorkflowFlowView';
 import { useEditWorkflowTemplate } from './mutations';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
+import { Toast } from 'src/shared/components/toast';
 
 export const ViewWorkflowTemplate = () => {
   const navigate = useNavigate();
@@ -39,6 +42,13 @@ export const ViewWorkflowTemplate = () => {
     null
   );
   const [hasChanges, setHasChanges] = useState(false);
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMsg, setToastMsg] = useState<string>('');
+
+  // View mode state
+  const [viewMode, setViewMode] = useState<WorkflowViewMode>(
+    WorkflowViewMode.FLOW
+  );
 
   // Fetch the workflow template data to ensure it's always up-to-date
   const workflowTemplateQuery = useQuery({
@@ -86,12 +96,29 @@ export const ViewWorkflowTemplate = () => {
   const handleSave = async () => {
     if (!editedWorkflow || !hasChanges) return;
 
+    // Frontend guard: require version bump to avoid 409 from backend
+    const originalVersion = workflowTemplateQuery.data?.version;
+    if (editedWorkflow.version === originalVersion) {
+      setToastMsg(
+        'Please change the version before saving. A template with this version already exists.'
+      );
+      setToastOpen(true);
+      return;
+    }
+
     try {
       await editWorkflowTemplateMutation.mutateAsync(editedWorkflow);
       setIsEditMode(false);
       setEditedWorkflow(null);
       setHasChanges(false);
-    } catch (error) {
+    } catch (error: any) {
+      const status = error?.status || error?.response?.status;
+      if (status === 409) {
+        setToastMsg(
+          'Version conflict: a template with this version exists. Please bump the version and try again.'
+        );
+        setToastOpen(true);
+      }
       console.error('Error saving workflow template:', error);
     }
   };
@@ -163,7 +190,11 @@ export const ViewWorkflowTemplate = () => {
                 }
                 onClick={handleSave}
                 disabled={
-                  !hasChanges || editWorkflowTemplateMutation.isPending
+                  !hasChanges ||
+                  editWorkflowTemplateMutation.isPending ||
+                  (isEditMode &&
+                    editedWorkflow?.version ===
+                      workflowTemplateQuery.data?.version)
                 }>
                 {editWorkflowTemplateMutation.isPending ? 'Saving...' : 'Save'}
               </Button>
@@ -185,6 +216,7 @@ export const ViewWorkflowTemplate = () => {
 
         {/* meta data display component */}
         <WorkflowMetadata
+          name={currentWorkflow?.name}
           description={currentWorkflow?.description}
           collectionName={collectionName}
           version={currentWorkflow?.version}
@@ -196,16 +228,55 @@ export const ViewWorkflowTemplate = () => {
         />
 
         <Divider sx={{ my: 3 }} />
-        <Typography variant="h6" component="h2" sx={{ ml: 1, mb: 2 }}>
-          {`Workflow Template Steps${
-            typeof workflowTemplateQuery.data?.steps?.length === 'number'
-              ? ` (${workflowTemplateQuery.data.steps.length})`
-              : ''
-          }`}
-        </Typography>
+
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            mb: 2,
+          }}>
+          <Typography variant="h6" component="h2" sx={{ ml: 1 }}>
+            {`Workflow Template Steps${
+              typeof workflowTemplateQuery.data?.steps?.length === 'number'
+                ? ` (${workflowTemplateQuery.data.steps.length})`
+                : ''
+            }`}
+          </Typography>
+
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant={
+                viewMode === WorkflowViewMode.FLOW ? 'contained' : 'outlined'
+              }
+              size="small"
+              onClick={() => setViewMode(WorkflowViewMode.FLOW)}
+              disabled={isEditMode}>
+              Flow View
+            </Button>
+            <Button
+              variant={
+                viewMode === WorkflowViewMode.LIST ? 'contained' : 'outlined'
+              }
+              size="small"
+              onClick={() => setViewMode(WorkflowViewMode.LIST)}
+              disabled={isEditMode}>
+              List View
+            </Button>
+          </Stack>
+        </Box>
 
         {isLoading ? (
           <Skeleton variant="rectangular" height={400} />
+        ) : viewMode === WorkflowViewMode.FLOW ? (
+          <WorkflowFlowView
+            steps={
+              workflowTemplateQuery.data
+                ?.steps as TemplateStepWithFormAndIndex[]
+            }
+            firstStepId={currentWorkflow?.startingStepId || ''}
+            isInstance={false}
+          />
         ) : (
           <WorkflowSteps
             steps={
@@ -217,6 +288,12 @@ export const ViewWorkflowTemplate = () => {
           />
         )}
       </Paper>
+      <Toast
+        severity="warning"
+        message={toastMsg}
+        open={toastOpen}
+        onClose={() => setToastOpen(false)}
+      />
     </>
   );
 };

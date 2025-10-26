@@ -61,6 +61,7 @@ def find_and_archive_previous_workflow_template(
         classification_id=workflow_classification_id,
         archived=False,
     )
+
     if previous_template:
         # Update the existing template
         changes = {
@@ -230,7 +231,7 @@ def get_workflow_templates():
         workflow_classification_id=workflow_classification_id,
         is_archived=is_archived,
     )
-    print(f"Workflow Templates: {workflow_templates}")
+
     response_data = [
         marshal.marshal(template, shallow=True) for template in workflow_templates
     ]
@@ -342,7 +343,6 @@ def update_workflow_template(path: WorkflowTemplateIdPath, body: WorkflowTemplat
 
 
 # /api/workflow/templates/<string:workflow_template_id> [PATCH]
-# TODO: This endpoint has issue with blocking the frontend request due to the CORS policy. Need to continue with the investigation.
 @roles_required([RoleEnum.ADMIN])
 @api_workflow_templates.patch(
     "/<string:workflow_template_id>", responses={200: WorkflowTemplateModel}
@@ -361,6 +361,7 @@ def update_workflow_template_patch(
     )  # Only include the fields that are set in the request body
 
     workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
+
     if workflow_template is None:
         return abort(
             code=404,
@@ -393,67 +394,18 @@ def update_workflow_template_patch(
         for step in body["steps"]:
             validate_workflow_template_step(step)
 
-    apply_changes_to_model(new_workflow_template, body)
-
     check_for_existing_template_version(
-        new_workflow_template.classification.id, new_workflow_template.version
+        body.get("classification_id"), body.get("version")
     )
 
     # Archive the old workflow template
     find_and_archive_previous_workflow_template(workflow_template.classification_id)
 
+    apply_changes_to_model(new_workflow_template, body)
+
     crud.create(model=new_workflow_template, refresh=True)
 
     response_data = crud.read(WorkflowTemplateOrm, id=copy_workflow_template_dict["id"])
-
-    response_data = marshal.marshal(response_data, shallow=True)
-
-    return response_data, 200
-
-
-# /api/workflow/templates/<string:workflow_template_id>/partial [PATCH]
-@roles_required([RoleEnum.ADMIN])
-@api_workflow_templates.patch(
-    "/<string:workflow_template_id>/partial", responses={200: WorkflowTemplateModel}
-)
-def update_workflow_template_partial(
-    path: WorkflowTemplateIdPath, body: WorkflowTemplatePatchBody
-):
-    """
-    Update Workflow Template with only specific fields
-
-    Only basic info of the workflow template is updated.
-    TODO: Add support for nested updates such as `steps` or `classification` objects.
-    """
-    # Load only provided fields
-    payload = body.model_dump(exclude_unset=True)
-
-    workflow_template = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
-    if workflow_template is None:
-        return abort(
-            code=404,
-            description=workflow_template_not_found_message.format(
-                path.workflow_template_id
-            ),
-        )
-
-    changes = dict(payload)
-
-    # No changes provided
-    if not changes:
-        response_data = marshal.marshal(workflow_template, shallow=True)
-        return response_data, 200
-
-    # Always bump last_edited
-    changes["last_edited"] = get_current_time()
-
-    crud.update(
-        WorkflowTemplateOrm,
-        changes=changes,
-        id=path.workflow_template_id,
-    )
-
-    response_data = crud.read(WorkflowTemplateOrm, id=path.workflow_template_id)
 
     response_data = marshal.marshal(response_data, shallow=True)
 

@@ -41,9 +41,8 @@ export interface WorkflowTemplate {
 
   classificationId: ID;
   classification?: WorkflowClassification;
-  initialConditions?: RuleGroup;
   steps: TemplateStep[];
-  //startingStepId: ID;
+  startingStepId?: ID;
 
   // audit & soft-delete
   archived: boolean;
