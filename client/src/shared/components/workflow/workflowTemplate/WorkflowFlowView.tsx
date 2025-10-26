@@ -9,12 +9,16 @@ interface WorkflowFlowViewProps {
   steps: TemplateStepWithFormAndIndex[];
   firstStepId: ID;
   isInstance?: boolean;
+  isEditMode?: boolean;
+  onStepChange?: (stepId: string, field: string, value: string) => void;
 }
 
 export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
   steps,
   firstStepId,
   isInstance = false,
+  isEditMode = false,
+  onStepChange,
 }) => {
   const [selectedStepId, setSelectedStepId] = useState<string | undefined>();
 
@@ -67,6 +71,8 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
               selectedStep={selectedStep}
               steps={steps}
               isInstance={isInstance}
+              isEditMode={isEditMode}
+              onStepChange={onStepChange}
             />
           </Box>
         </Grid>

@@ -71,15 +71,35 @@ export const editWorkflowTemplateAsync = async (
     throw new Error('Template ID is required for updates');
   }
   const patchBody: Partial<WorkflowTemplate> = {};
-  if (template.name !== undefined) patchBody.name = template.name;
-  if (template.description !== undefined)
+  
+  // Only include fields that have actually changed
+  if (template.name !== undefined) {
+    patchBody.name = template.name;
+  }
+  if (template.description !== undefined) {
     patchBody.description = template.description;
-  if (template.archived !== undefined) patchBody.archived = template.archived;
-  if (template.version !== undefined) patchBody.version = template.version;
-  if (template.classificationId !== undefined)
+  }
+  if (template.archived !== undefined) {
+    patchBody.archived = template.archived;
+  }
+  if (template.version !== undefined) {
+    patchBody.version = template.version;
+  }
+  if (template.classificationId !== undefined) {
     patchBody.classificationId = template.classificationId;
-  if (template.startingStepId !== undefined)
+  }
+  if (template.startingStepId !== undefined) {
     patchBody.startingStepId = template.startingStepId;
+  }
+  if (template.steps !== undefined) {
+    // Exclude form data from steps to avoid validation errors
+    // The backend will preserve existing forms when creating the new version
+    patchBody.steps = template.steps.map((step: any) => {
+      const { form, formId, form_id, ...stepWithoutForm } = step;
+      return stepWithoutForm;
+    });
+  }
+  console.log('patchBody', patchBody);
 
   const response = await axiosFetch({
     method: 'PATCH',

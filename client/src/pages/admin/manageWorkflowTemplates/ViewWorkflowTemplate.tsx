@@ -56,7 +56,11 @@ export const ViewWorkflowTemplate = () => {
     queryFn: async (): Promise<WorkflowTemplate> => {
       if (!viewWorkflow?.id)
         throw new Error('No workflow template ID provided');
-      return await getTemplateWithStepsAndClassification(viewWorkflow.id);
+      const result = await getTemplateWithStepsAndClassification(
+        viewWorkflow.id
+      );
+      console.log('Workflow Template GET Response:', result);
+      return result;
     },
     enabled: !!viewWorkflow?.id,
     initialData: viewWorkflow,
@@ -107,12 +111,13 @@ export const ViewWorkflowTemplate = () => {
     }
 
     try {
-      await editWorkflowTemplateMutation.mutateAsync(editedWorkflow);
+      await editWorkflowTemplateMutation.mutateAsync({
+        template: editedWorkflow,
+      });
       // Redirect to workflow templates page after successful save
       navigate('/admin/workflow-templates');
     } catch (error: any) {
-      setToastMsg(error.message);
-      setToastOpen(true);
+      console.error('Error saving workflow template:', error);
       return;
     }
   };
@@ -124,6 +129,27 @@ export const ViewWorkflowTemplate = () => {
       ...prev!,
       [field]: value,
     }));
+    setHasChanges(true);
+  };
+
+  const handleStepChange = (stepId: string, field: string, value: string) => {
+    if (!editedWorkflow) return;
+
+    setEditedWorkflow((prev) => {
+      if (!prev) return prev;
+
+      const updatedSteps = prev.steps?.map((step) => {
+        if (step.id === stepId) {
+          return { ...step, [field]: value };
+        }
+        return step;
+      });
+
+      return {
+        ...prev,
+        steps: updatedSteps,
+      };
+    });
     setHasChanges(true);
   };
 
@@ -260,19 +286,15 @@ export const ViewWorkflowTemplate = () => {
           <Skeleton variant="rectangular" height={400} />
         ) : viewMode === WorkflowViewMode.FLOW ? (
           <WorkflowFlowView
-            steps={
-              workflowTemplateQuery.data
-                ?.steps as TemplateStepWithFormAndIndex[]
-            }
+            steps={currentWorkflow?.steps as TemplateStepWithFormAndIndex[]}
             firstStepId={currentWorkflow?.startingStepId || ''}
             isInstance={false}
+            isEditMode={isEditMode}
+            onStepChange={handleStepChange}
           />
         ) : (
           <WorkflowSteps
-            steps={
-              workflowTemplateQuery.data
-                ?.steps as TemplateStepWithFormAndIndex[]
-            }
+            steps={currentWorkflow?.steps as TemplateStepWithFormAndIndex[]}
             firstStep={currentWorkflow?.startingStepId}
             isInstance={false}
           />

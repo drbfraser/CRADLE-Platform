@@ -1,5 +1,12 @@
 import React from 'react';
-import { Box, Typography, Paper, Divider, Stack } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Paper,
+  Divider,
+  Stack,
+  TextField,
+} from '@mui/material';
 import {
   TemplateStepWithFormAndIndex,
   TemplateStepBranch,
@@ -9,12 +16,16 @@ interface StepDetailsProps {
   selectedStep?: TemplateStepWithFormAndIndex;
   steps: TemplateStepWithFormAndIndex[];
   isInstance?: boolean;
+  isEditMode?: boolean;
+  onStepChange?: (stepId: string, field: string, value: string) => void;
 }
 
 export const StepDetails: React.FC<StepDetailsProps> = ({
   selectedStep,
   steps,
   isInstance = false,
+  isEditMode = false,
+  onStepChange,
 }) => {
   if (!selectedStep) {
     return (
@@ -43,18 +54,47 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
             <Typography variant="body2" color="text.secondary">
               Step Name
             </Typography>
-            <Typography variant="body1" sx={{ mt: 0.5 }}>
-              {selectedStep.name}
-            </Typography>
+            {isEditMode ? (
+              <TextField
+                fullWidth
+                variant="outlined"
+                size="small"
+                value={selectedStep.name}
+                onChange={(e) =>
+                  onStepChange?.(selectedStep.id, 'name', e.target.value)
+                }
+                sx={{ mt: 0.5 }}
+              />
+            ) : (
+              <Typography variant="body1" sx={{ mt: 0.5 }}>
+                {selectedStep.name}
+              </Typography>
+            )}
           </Box>
 
           <Box>
             <Typography variant="body2" color="text.secondary">
               Description
             </Typography>
-            <Typography variant="body1" sx={{ mt: 0.5 }}>
-              {selectedStep.description || 'No description provided'}
-            </Typography>
+            {isEditMode ? (
+              <TextField
+                fullWidth
+                variant="outlined"
+                size="small"
+                multiline
+                rows={3}
+                value={selectedStep.description || ''}
+                onChange={(e) =>
+                  onStepChange?.(selectedStep.id, 'description', e.target.value)
+                }
+                placeholder="Enter step description..."
+                sx={{ mt: 0.5 }}
+              />
+            ) : (
+              <Typography variant="body1" sx={{ mt: 0.5 }}>
+                {selectedStep.description || 'No description provided'}
+              </Typography>
+            )}
           </Box>
 
           {selectedStep.form && (
