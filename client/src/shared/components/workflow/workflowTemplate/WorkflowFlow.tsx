@@ -28,14 +28,20 @@ interface WorkflowFlowProps {
   steps: TemplateStepWithFormAndIndex[];
   firstStepId: ID;
   selectedStepId?: string;
+  isEditMode?: boolean;
   onStepSelect?: (stepId: string) => void;
+  onInsertNode?: (stepId: string) => void;
+  onAddBranch?: (stepId: string) => void;
 }
 
 export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
   steps,
   firstStepId,
   selectedStepId,
+  isEditMode = false,
   onStepSelect,
+  onInsertNode,
+  onAddBranch,
 }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
@@ -124,7 +130,10 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
           stepName: step.name,
           stepId: step.id,
           isSelected: selectedStepId === step.id,
+          isEditMode,
           onNodeClick: onStepSelect,
+          onInsertNode,
+          onAddBranch,
         },
       });
     });
@@ -149,7 +158,15 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
     });
 
     return { generatedNodes: nodes, generatedEdges: edges };
-  }, [steps, firstStepId, selectedStepId, onStepSelect]);
+  }, [
+    steps,
+    firstStepId,
+    selectedStepId,
+    isEditMode,
+    onStepSelect,
+    onInsertNode,
+    onAddBranch,
+  ]);
 
   // Update nodes and edges when generated data changes
   React.useEffect(() => {

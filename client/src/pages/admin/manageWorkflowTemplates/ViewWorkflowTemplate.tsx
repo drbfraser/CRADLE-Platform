@@ -153,6 +153,18 @@ export const ViewWorkflowTemplate = () => {
     setHasChanges(true);
   };
 
+  const handleInsertNode = (stepId: string) => {
+    console.log('Insert node after step:', stepId);
+    // TODO: Implement node insertion logic
+    // This will create a new node after the selected step
+  };
+
+  const handleAddBranch = (stepId: string) => {
+    console.log('Add branch to step:', stepId);
+    // TODO: Implement branch addition logic
+    // This will create a new branch for the selected step
+  };
+
   const currentWorkflow = isEditMode
     ? editedWorkflow
     : workflowTemplateQuery.data;
@@ -291,6 +303,8 @@ export const ViewWorkflowTemplate = () => {
             isInstance={false}
             isEditMode={isEditMode}
             onStepChange={handleStepChange}
+            onInsertNode={handleInsertNode}
+            onAddBranch={handleAddBranch}
           />
         ) : (
           <WorkflowSteps

@@ -11,6 +11,8 @@ interface WorkflowFlowViewProps {
   isInstance?: boolean;
   isEditMode?: boolean;
   onStepChange?: (stepId: string, field: string, value: string) => void;
+  onInsertNode?: (stepId: string) => void;
+  onAddBranch?: (stepId: string) => void;
 }
 
 export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
@@ -19,6 +21,8 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
   isInstance = false,
   isEditMode = false,
   onStepChange,
+  onInsertNode,
+  onAddBranch,
 }) => {
   const [selectedStepId, setSelectedStepId] = useState<string | undefined>();
 
@@ -52,7 +56,10 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
                 steps={steps}
                 firstStepId={firstStepId}
                 selectedStepId={selectedStepId}
+                isEditMode={isEditMode}
                 onStepSelect={handleStepSelect}
+                onInsertNode={onInsertNode}
+                onAddBranch={onAddBranch}
               />
             </Box>
           </Paper>
