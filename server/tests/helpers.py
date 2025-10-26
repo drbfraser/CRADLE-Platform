@@ -35,6 +35,17 @@ def make_workflow_template_step(**overrides):
     return {**base, **overrides}
 
 
+def make_workflow_template_branch(**overrides):
+    base = {
+        "id": get_uuid(),
+        "target_step_id": None,
+        "step_id": None,
+        "condition_id": None,
+        "condition": None,
+    }
+    return {**base, **overrides}
+
+
 def make_workflow_instance(**overrides):
     base = {
         "id": get_uuid(),
