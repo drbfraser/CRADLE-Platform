@@ -33,11 +33,14 @@ Example usage
 
 from __future__ import annotations
 
+import logging
 from typing import Any, Dict, Tuple, TypeVar
 
 import config
 
 db_session = config.db.session
+# Fixed: logger is being exported from here in stats_queries.py but was never defined.
+LOGGER = logging.getLogger(__name__)
 
 M = TypeVar("M")
 S = TypeVar("S")

@@ -15,6 +15,7 @@ import { getPrettyDateTime } from 'src/shared/utils';
 import { WorkflowTemplate } from 'src/shared/types/workflow/workflowApiTypes';
 
 interface WorkflowMetadataProps {
+  name?: string;
   description?: string;
   collectionName?: string;
   version?: number;
@@ -87,6 +88,7 @@ const InlineField = ({
 };
 
 export const WorkflowMetadata = ({
+  name,
   description,
   collectionName,
   version,
@@ -107,7 +109,7 @@ export const WorkflowMetadata = ({
 
   return (
     <>
-      {/* Row 1: Description | Collection */}
+      {/* Row 1: Left (Name + Description) | Right (Collection) */}
       <Grid
         container
         columnSpacing={6}
@@ -116,21 +118,37 @@ export const WorkflowMetadata = ({
         alignItems="flex-start"
         sx={{ mb: 3 }}>
         <Grid item xs={12} md={5}>
-          <Stack spacing={1.5}>
-            <Typography variant="subtitle1">Description:</Typography>
-            <TextField
-              value={description || ''}
-              placeholder="Enter description"
-              multiline
-              minRows={3}
-              fullWidth
-              InputProps={{ readOnly: !isEditMode }}
-              onChange={
-                isEditMode
-                  ? (e) => handleFieldChange('description', e.target.value)
-                  : undefined
-              }
-            />
+          <Stack spacing={2}>
+            <Stack spacing={1.5}>
+              <Typography variant="subtitle1">Name:</Typography>
+              <TextField
+                value={name || ''}
+                placeholder="Enter name"
+                fullWidth
+                InputProps={{ readOnly: !isEditMode }}
+                onChange={
+                  isEditMode
+                    ? (e) => handleFieldChange('name', e.target.value)
+                    : undefined
+                }
+              />
+            </Stack>
+            <Stack spacing={1.5}>
+              <Typography variant="subtitle1">Description:</Typography>
+              <TextField
+                value={description || ''}
+                placeholder="Enter description"
+                multiline
+                minRows={3}
+                fullWidth
+                InputProps={{ readOnly: !isEditMode }}
+                onChange={
+                  isEditMode
+                    ? (e) => handleFieldChange('description', e.target.value)
+                    : undefined
+                }
+              />
+            </Stack>
           </Stack>
         </Grid>
 
@@ -164,7 +182,6 @@ export const WorkflowMetadata = ({
                     } else {
                       handleFieldChange('version', 'V');
                     }
-                    console.log('version', version);
                   }
                 : undefined
             }

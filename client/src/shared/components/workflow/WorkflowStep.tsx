@@ -23,9 +23,6 @@ export const WorkflowStep = ({
   isInstance,
   handleMakeCurrent,
 }: IProps) => {
-  //console.log(step);
-  //console.log(isInstance);
-
   return (
     <>
       <Accordion>

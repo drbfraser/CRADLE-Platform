@@ -37,12 +37,12 @@ def assign_branch_id(branch: dict, step_id: str, auto_assign_id: bool = False) -
     :param step_id: The ID of the workflow step to be assigned to the branch
     :param auto_assign_id: If true, the workflow components will always be assigned an ID
     """
-    if branch["id"] is None or auto_assign_id:
+    if branch.get("id") is None or auto_assign_id:
         branch["id"] = get_uuid()
 
     branch["step_id"] = step_id
 
-    if branch["condition"] is not None:
+    if branch.get("condition") is not None:
         if branch["condition"]["id"] is None or auto_assign_id:
             branch["condition"]["id"] = get_uuid()
 
@@ -142,13 +142,13 @@ def apply_changes_to_model(model: Type[M], changes: dict) -> None:
 
 def check_branch_conditions(template_step: dict) -> None:
     for branch in template_step["branches"]:
-        if branch["condition"] is None and branch["condition_id"] is not None:
-            branch_condition = crud.read(RuleGroupOrm, id=branch["condition_id"])
+        if branch.get("condition") is None and branch.get("condition_id") is not None:
+            branch_condition = crud.read(RuleGroupOrm, id=branch.get("condition_id"))
 
             if branch_condition is None:
                 return abort(
                     code=404,
-                    description=f"Branch condition with ID: ({branch['condition_id']}) not found.",
+                    description=f"Branch condition with ID: ({branch.get('condition_id')}) not found.",
                 )
 
 

@@ -193,9 +193,11 @@ const EditCategory = ({
                 if (question?.questionType !== QuestionTypeEnum.CATEGORY)
                   return true;
                 let currCatIndex = q.categoryIndex;
-                while (currCatIndex !== null) {
+                while (
+                  currCatIndex !== null &&
+                  questionsArr[currCatIndex] !== undefined
+                ) {
                   if (currCatIndex === question.questionIndex) return false;
-
                   currCatIndex = questionsArr[currCatIndex].categoryIndex;
                 }
                 return true;
@@ -321,7 +323,8 @@ const EditCategory = ({
                         let rootCatIndex: number | null = q.categoryIndex;
                         while (
                           rootCatIndex !== null &&
-                          form.questions[rootCatIndex].categoryIndex
+                          form.questions[rootCatIndex] !== undefined &&
+                          form.questions[rootCatIndex].categoryIndex !== null
                         ) {
                           if (
                             q.categoryIndex === questionToUpdate.questionIndex
@@ -330,7 +333,7 @@ const EditCategory = ({
                             return;
                           }
                           rootCatIndex =
-                            form.questions[rootCatIndex].categoryIndex;
+                            form.questions[rootCatIndex]?.categoryIndex ?? null;
                         }
                         if (rootCatIndex === questionToUpdate.questionIndex) {
                           visCondsToUpdate.push(q);

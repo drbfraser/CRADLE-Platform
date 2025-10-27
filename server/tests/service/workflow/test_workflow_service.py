@@ -5,13 +5,19 @@ from validation.workflow_models import WorkflowTemplateModel
 
 def test_workflow_service__generate_workflow_instance():
     workflow_template_id = get_uuid()
+    step_template_1_id = get_uuid()
+    step_template_2_id = get_uuid()
 
     step_templates = [
         make_workflow_template_step(
-            name="Step 1", workflow_template_id=workflow_template_id
+            id=step_template_1_id,
+            name="Step 1",
+            workflow_template_id=workflow_template_id,
         ),
         make_workflow_template_step(
-            name="Step 2", workflow_template_id=workflow_template_id
+            id=step_template_2_id,
+            name="Step 2",
+            workflow_template_id=workflow_template_id,
         ),
     ]
 
@@ -41,6 +47,11 @@ def test_workflow_service__generate_workflow_instance():
     assert actual_step_names == expected_step_names
 
     for step_instance in workflow_instance.steps:
+        if step_instance.name == "Step 1":
+            assert step_instance.workflow_template_step_id == step_template_1_id
+        else:
+            assert step_instance.workflow_template_step_id == step_template_2_id
+
         assert step_instance.id is not None
         assert step_instance.workflow_instance_id == workflow_instance.id
         assert step_instance.description is not None  # Leniant check for convenience

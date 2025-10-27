@@ -10,3 +10,8 @@ export enum StepStatus {
   COMPLETED = 'Completed',
   CANCELLED = 'Cancelled',
 }
+
+export enum WorkflowViewMode {
+  LIST = 'list',
+  FLOW = 'flow',
+}
