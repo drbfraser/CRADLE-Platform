@@ -4,18 +4,19 @@ from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
 from service.workflow.workflow_view import WorkflowView
 
 
-# TODO: Validate status transitions
+# TODO: Validate status updates?
 ALLOWED_WORKFLOW_STATUS_TRANSITIONS = {
     WorkflowStatusEnum.PENDING: [WorkflowStatusEnum.ACTIVE],
     WorkflowStatusEnum.ACTIVE: [WorkflowStatusEnum.COMPLETED],
     WorkflowStatusEnum.COMPLETED: [],
 }
 
-ALLOWED_WORKFLOW_STATUS_TRANSITIONS = {
-    WorkflowStatusEnum.PENDING: [WorkflowStatusEnum.ACTIVE],
-    WorkflowStatusEnum.ACTIVE: [WorkflowStatusEnum.COMPLETED],
-    WorkflowStatusEnum.COMPLETED: [],
+ALLOWED_WORKFLOW_STEP_STATUS_TRANSITIONS = {
+    WorkflowStepStatusEnum.PENDING: [WorkflowStepStatusEnum.ACTIVE],
+    WorkflowStepStatusEnum.ACTIVE: [WorkflowStepStatusEnum.COMPLETED],
+    WorkflowStepStatusEnum.COMPLETED: [],
 }
+
 
 class WorkflowOp(ABC):
     """Base class for workflow operations"""
@@ -33,33 +34,25 @@ class WorkflowOp(ABC):
     def apply(self, workflow_view: WorkflowView) -> None:
         pass
 
-class StartWorkflowOp(WorkflowOp):
-    def apply(self, workflow_view: WorkflowView) -> None:
-        workflow_view.instance.status = WorkflowStatusEnum.ACTIVE
+class UpdateWorkflowStatusOp(WorkflowOp):
+    def __init__(self, new_status: WorkflowStatusEnum):
+        self.new_status = new_status
 
-class CompleteWorkflowOp(WorkflowOp):
     def apply(self, workflow_view: WorkflowView) -> None:
-        workflow_view.instance.status = WorkflowStatusEnum.COMPLETED
+        workflow_view.instance.status = self.new_status
 
-class StartStepOp(WorkflowOp):
-    def __init__(self, step_id: str):
+class UpdateStepStatusOp(WorkflowOp):
+    def __init__(self, step_id: str, new_status: WorkflowStepStatusEnum):
         self.step_id = step_id
+        self.new_status = new_status
 
     def apply(self, workflow_view: WorkflowView) -> None:
         step = workflow_view.get_instance_step(self.step_id)
-        step.status = WorkflowStepStatusEnum.ACTIVE
+        step.status = self.new_status
 
-class CompleteStepOp(WorkflowOp):
-    def __init__(self, step_id: str):
-        self.step_id = step_id
-
-    def apply(self, workflow_view: WorkflowView) -> None:
-        step = workflow_view.get_instance_step(self.step_id)
-        step.status = WorkflowStepStatusEnum.COMPLETED
-
-class TransitionStepOp(WorkflowOp):
-    def __init__(self, to_step_id: str):
-        self.to_step_id = to_step_id
+class UpdateCurrentStepOp(WorkflowOp):
+    def __init__(self, new_current_step_id: str):
+        self.new_current_step_id = new_current_step_id
 
     def apply(self, workflow_view: WorkflowView) -> None:
-        workflow_view.instance.current_step_id = self.to_step_id
+        workflow_view.instance.current_step_id = self.new_current_step_id

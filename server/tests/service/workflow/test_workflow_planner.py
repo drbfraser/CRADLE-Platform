@@ -1,16 +1,15 @@
 import pytest
 
+from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
 from service.workflow.workflow_actions import (
     StartWorkflowAction,
     StartStepAction,
     CompleteStepAction,
 )
 from service.workflow.workflow_operations import (
-    StartWorkflowOp,
-    CompleteWorkflowOp,
-    StartStepOp,
-    CompleteStepOp,
-    TransitionStepOp,
+    UpdateWorkflowStatusOp,
+    UpdateStepStatusOp,
+    UpdateCurrentStepOp,
 )
 from service.workflow.workflow_planner import WorkflowPlanner, InvalidWorkflowActionError
 
@@ -23,15 +22,15 @@ EXPECTED_AVAILABLE_ACTIONS_FOR_SEQUENTIAL_WORKFLOW = [
 ]
 
 EXPECTED_OPS_FOR_SEQUENTIAL_WORKFLOW = [
-    StartWorkflowOp(),
-    TransitionStepOp(to_step_id="si-1"),
-    StartStepOp(step_id="si-1"),
-    CompleteStepOp(step_id="si-1"),
-    TransitionStepOp(to_step_id="si-2"),
-    StartStepOp(step_id="si-2"),
-    CompleteStepOp(step_id="si-2"),
-    TransitionStepOp(to_step_id=None),
-    CompleteWorkflowOp(),
+    UpdateWorkflowStatusOp(WorkflowStatusEnum.ACTIVE),
+    UpdateCurrentStepOp("si-1"),
+    UpdateStepStatusOp("si-1", WorkflowStatusEnum.ACTIVE),
+    UpdateStepStatusOp("si-1", WorkflowStatusEnum.COMPLETED),
+    UpdateCurrentStepOp("si-2"),
+    UpdateStepStatusOp("si-2", WorkflowStatusEnum.ACTIVE),
+    UpdateStepStatusOp("si-2", WorkflowStatusEnum.COMPLETED),
+    UpdateCurrentStepOp(None),
+    UpdateWorkflowStatusOp(WorkflowStatusEnum.COMPLETED),
 ]
 
 

@@ -12,11 +12,9 @@ from service.workflow.workflow_actions import (
 )
 from service.workflow.workflow_operations import (
     WorkflowOp,
-    StartWorkflowOp,
-    CompleteWorkflowOp,
-    StartStepOp,
-    CompleteStepOp,
-    TransitionStepOp,
+    UpdateWorkflowStatusOp,
+    UpdateStepStatusOp,
+    UpdateCurrentStepOp,
 )
 from service.workflow.workflow_errors import InvalidWorkflowActionError
 
@@ -100,30 +98,34 @@ class WorkflowPlanner:
             starting_step = ctx.get_instance_step_for_template_step(ctx.get_starting_step().id)
 
             return [
-                StartWorkflowOp(),
-                TransitionStepOp(to_step_id=starting_step.id),
-                StartStepOp(step_id=starting_step.id)
+                UpdateWorkflowStatusOp(WorkflowStatusEnum.ACTIVE),
+                UpdateCurrentStepOp(starting_step.id),
+                UpdateStepStatusOp(starting_step.id, WorkflowStepStatusEnum.ACTIVE)
             ]
 
         elif isinstance(action, StartStepAction):
             ops = []
 
             if ctx.get_current_step() != action.step_id:
-                ops.append(TransitionStepOp(to_step_id=action.step_id))
+                ops.append(UpdateCurrentStepOp(new_current_step_id=action.step_id))
 
-            ops.append(StartStepOp(step_id=action.step_id))
+            ops.append(
+                UpdateStepStatusOp(action.step_id, WorkflowStepStatusEnum.ACTIVE)
+            )
 
             return ops
 
         elif isinstance(action, CompleteStepAction):
-            ops = [CompleteStepOp(step_id=action.step_id)]
+            ops = [
+                UpdateStepStatusOp(action.step_id, WorkflowStepStatusEnum.COMPLETED)
+            ]
 
             step = ctx.get_instance_step(action.step_id)
 
             if WorkflowPlanner._is_last_step(ctx, step):
                 ops.extend([
-                    TransitionStepOp(to_step_id=None),
-                    CompleteWorkflowOp()
+                    UpdateCurrentStepOp(new_current_step_id=None),
+                    UpdateWorkflowStatusOp(WorkflowStatusEnum.COMPLETED)
                 ])
 
             return ops
