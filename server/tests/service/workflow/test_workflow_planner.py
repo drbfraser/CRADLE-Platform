@@ -1,18 +1,20 @@
 import pytest
 
-from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
+from enums import WorkflowStatusEnum
 from service.workflow.workflow_actions import (
-    StartWorkflowAction,
-    StartStepAction,
     CompleteStepAction,
+    StartStepAction,
+    StartWorkflowAction,
 )
 from service.workflow.workflow_operations import (
-    UpdateWorkflowStatusOp,
-    UpdateStepStatusOp,
     UpdateCurrentStepOp,
+    UpdateStepStatusOp,
+    UpdateWorkflowStatusOp,
 )
-from service.workflow.workflow_planner import WorkflowPlanner, InvalidWorkflowActionError
-
+from service.workflow.workflow_planner import (
+    InvalidWorkflowActionError,
+    WorkflowPlanner,
+)
 
 EXPECTED_AVAILABLE_ACTIONS_FOR_SEQUENTIAL_WORKFLOW = [
     StartWorkflowAction(),
@@ -72,8 +74,7 @@ def test_sequential_workflow_happy_path(sequential_workflow_view):
 def test_invalid_action_throws_error(sequential_workflow_view):
     with pytest.raises(InvalidWorkflowActionError) as e:
         WorkflowPlanner.get_operations(
-            ctx=sequential_workflow_view,
-            action=CompleteStepAction(step_id="si-1")
+            ctx=sequential_workflow_view, action=CompleteStepAction(step_id="si-1")
         )
 
     assert e.value.action == CompleteStepAction(step_id="si-1")

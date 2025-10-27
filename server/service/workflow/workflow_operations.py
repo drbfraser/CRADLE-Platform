@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
 from service.workflow.workflow_view import WorkflowView
 
-
 # TODO: Validate status updates?
 ALLOWED_WORKFLOW_STATUS_TRANSITIONS = {
     WorkflowStatusEnum.PENDING: [WorkflowStatusEnum.ACTIVE],
@@ -27,12 +26,13 @@ class WorkflowOp(ABC):
         return self.__dict__ == other.__dict__
 
     def __repr__(self):
-        attrs = ', '.join(f"{k}={v!r}" for k, v in self.__dict__.items())
+        attrs = ", ".join(f"{k}={v!r}" for k, v in self.__dict__.items())
         return f"{self.__class__.__name__}({attrs})"
 
     @abstractmethod
     def apply(self, workflow_view: WorkflowView) -> None:
         pass
+
 
 class UpdateWorkflowStatusOp(WorkflowOp):
     def __init__(self, new_status: WorkflowStatusEnum):
@@ -40,6 +40,7 @@ class UpdateWorkflowStatusOp(WorkflowOp):
 
     def apply(self, workflow_view: WorkflowView) -> None:
         workflow_view.instance.status = self.new_status
+
 
 class UpdateStepStatusOp(WorkflowOp):
     def __init__(self, step_id: str, new_status: WorkflowStepStatusEnum):
@@ -49,6 +50,7 @@ class UpdateStepStatusOp(WorkflowOp):
     def apply(self, workflow_view: WorkflowView) -> None:
         step = workflow_view.get_instance_step(self.step_id)
         step.status = self.new_status
+
 
 class UpdateCurrentStepOp(WorkflowOp):
     def __init__(self, new_current_step_id: str):

@@ -1,7 +1,7 @@
 import pytest
 
-from service.workflow.workflow_view import WorkflowView
 from service.workflow.workflow_service import WorkflowService
+from service.workflow.workflow_view import WorkflowView
 from tests import helpers
 from validation.workflow_models import WorkflowInstanceModel, WorkflowTemplateModel
 

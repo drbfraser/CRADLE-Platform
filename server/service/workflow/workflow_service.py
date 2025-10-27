@@ -5,15 +5,15 @@ from common.commonUtil import get_current_time, get_uuid
 from data import marshal
 from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
 from models.workflows import WorkflowInstanceOrm, WorkflowTemplateOrm
+from service.workflow.workflow_actions import WorkflowAction
+from service.workflow.workflow_planner import WorkflowPlanner
+from service.workflow.workflow_view import WorkflowView
 from validation.workflow_models import (
     WorkflowInstanceModel,
     WorkflowInstanceStepModel,
     WorkflowTemplateModel,
     WorkflowTemplateStepModel,
 )
-from service.workflow.workflow_planner import WorkflowPlanner
-from service.workflow.workflow_view import WorkflowView
-from service.workflow.workflow_actions import WorkflowAction
 
 
 class WorkflowService:
@@ -125,7 +125,7 @@ class WorkflowService:
     @staticmethod
     def get_available_workflow_actions(
         workflow_instance: WorkflowInstanceModel,
-        workflow_template: WorkflowTemplateModel
+        workflow_template: WorkflowTemplateModel,
     ) -> list[WorkflowAction]:
         assert workflow_instance.workflow_template_id == workflow_template.id
 
