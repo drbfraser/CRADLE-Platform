@@ -12,6 +12,8 @@ export interface RuleGroup {
 export interface WorkflowTemplateStepBranch {
   // ⇒ workflow_template_step.id
   stepId?: ID;
+  // Condition that must evaluate true for the branch to activate
+  condition?: RuleGroup;
   targetStepId: ID;
 }
 

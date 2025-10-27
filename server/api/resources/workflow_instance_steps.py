@@ -21,9 +21,9 @@ from models import (
 from validation import CradleBaseModel
 from validation.workflow_api_models import (
     WorkflowInstanceStepModel,
+    WorkflowInstanceStepUpdateModel,
     WorkflowInstanceStepUploadModel,
 )
-from validation.workflow_models import WorkflowInstanceStepUpdateModel
 
 
 # Create a response model for the list endpoints

@@ -272,7 +272,7 @@ export const ViewWorkflowTemplate = () => {
           <WorkflowFlowView
             steps={
               workflowTemplateQuery.data
-                ?.steps as TemplateStepWithFormAndIndex[]
+                ?.steps as WorkflowTemplateStepWithFormAndIndex[]
             }
             firstStepId={currentWorkflow?.startingStepId || ''}
             isInstance={false}
