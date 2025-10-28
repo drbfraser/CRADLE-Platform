@@ -180,8 +180,8 @@ export default function WorkflowStepHistory({
                             step.status === StepStatus.COMPLETED
                               ? 'success.main'
                               : step.status === StepStatus.ACTIVE
-                              ? 'primary.main'
-                              : 'grey.300',
+                                ? 'primary.main'
+                                : 'grey.300',
                           borderRadius: '50%',
                           mr: 3,
                         }}>

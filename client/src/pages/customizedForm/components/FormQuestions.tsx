@@ -99,8 +99,8 @@ export const FormQuestions = ({
     const qid = question.questionIndex;
     const text =
       'langVersions' in question
-        ? question.langVersions.find((v) => v.lang === language)
-            ?.questionText ?? ''
+        ? (question.langVersions.find((v) => v.lang === language)
+            ?.questionText ?? '')
         : question.questionText;
 
     const mcOptions =
@@ -308,8 +308,8 @@ export const FormQuestions = ({
         const helperText = hook.stringMaxLinesError[question.questionIndex]
           ? 'Exceeds maximum number of lines'
           : question.stringMaxLines
-          ? `Maximum ${question.stringMaxLines} line(s) allowed`
-          : '';
+            ? `Maximum ${question.stringMaxLines} line(s) allowed`
+            : '';
         return (
           <Grid
             item
