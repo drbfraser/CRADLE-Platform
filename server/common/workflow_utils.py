@@ -61,7 +61,7 @@ def assign_step_ids(
     :param workflow_id: The ID of the workflow template or instance to be assigned to the step
     :param auto_assign_id: If true, the workflow components will always be assigned an ID
     """
-    if step["id"] is None or auto_assign_id:
+    if step.get("id") is None or auto_assign_id:
         step["id"] = get_uuid()
 
     # Assign workflow ID to step
@@ -82,7 +82,7 @@ def assign_step_ids(
         form_model = FormOrm
 
     # Assign ID to form if provided
-    if step["form"] is not None:
+    if step.get("form") is not None:
         assign_form_or_template_ids(form_model, step["form"])
         step["form_id"] = step["form"]["id"]
 
@@ -173,7 +173,7 @@ def validate_workflow_template_step(workflow_template_step: dict):
     check_branch_conditions(workflow_template_step)
 
     try:
-        if workflow_template_step["form"] is not None:
+        if workflow_template_step.get("form") is not None:
             form_template = FormTemplateUpload(**workflow_template_step["form"])
 
             # Process and upload the form template, if there is an issue, an exception is thrown

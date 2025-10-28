@@ -65,7 +65,8 @@ export const getAllWorkflowTemplatesAsync = async (
 // PATCH /workflow/templates/{templateId}
 // Uses the full PATCH endpoint which creates a new version and archives the previous one
 export const editWorkflowTemplateAsync = async (
-  template: Partial<WorkflowTemplate>
+  template: Partial<WorkflowTemplate>,
+  originalTemplate?: WorkflowTemplate
 ) => {
   if (!template.id) {
     throw new Error('Template ID is required for updates');
@@ -95,7 +96,7 @@ export const editWorkflowTemplateAsync = async (
     // Exclude form data from steps to avoid validation errors
     // The backend will preserve existing forms when creating the new version
     patchBody.steps = template.steps.map((step: any) => {
-      const { form, formId, form_id, ...stepWithoutForm } = step;
+      const { form, ...stepWithoutForm } = step;
       return stepWithoutForm;
     });
   }
