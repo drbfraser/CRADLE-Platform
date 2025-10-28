@@ -4,7 +4,7 @@ import { ID } from '../../constants';
 import {
   WorkflowTemplate,
   TemplateInput,
-  TemplateStep,
+  WorkflowTemplateStep,
   TemplateGroupArray,
 } from '../../types/workflow/workflowApiTypes';
 
@@ -119,8 +119,8 @@ export const updateTemplate = (templateId: ID, payload: TemplateInput) =>
 // GET /workflow/templates/{templateId}/steps
 export const listTemplateSteps = async (
   templateId: ID
-): Promise<TemplateStep[]> => {
-  const response = await axiosFetch.get<{ items: TemplateStep[] }>(
+): Promise<WorkflowTemplateStep[]> => {
+  const response = await axiosFetch.get<{ items: WorkflowTemplateStep[] }>(
     templateStepsPath(templateId)
   );
   return response.data.items;
@@ -130,10 +130,13 @@ export const listTemplateSteps = async (
 export const updateTemplateStep = (
   templateId: ID,
   stepId: ID,
-  payload: Partial<TemplateStep>
+  payload: Partial<WorkflowTemplateStep>
 ) =>
   axiosFetch
-    .put<TemplateStep>(templateStepByIdPath(templateId, stepId), payload)
+    .put<WorkflowTemplateStep>(
+      templateStepByIdPath(templateId, stepId),
+      payload
+    )
     .then((r) => r.data);
 
 // DELETE /workflow/templates/{templateId}
@@ -167,12 +170,16 @@ export const getTemplateWithStepsAndClassification = async (
 const TEMPLATE_STEPS = '/workflow/template/steps';
 
 // POST /workflow/template/steps
-export const createTemplateStep = (payload: TemplateStep) =>
-  axiosFetch.post<TemplateStep>(TEMPLATE_STEPS, payload).then((r) => r.data);
+export const createTemplateStep = (payload: WorkflowTemplateStep) =>
+  axiosFetch
+    .post<WorkflowTemplateStep>(TEMPLATE_STEPS, payload)
+    .then((r) => r.data);
 
 // GET /workflow/template/steps
-export const getAllTemplateSteps = async (): Promise<TemplateStep[]> => {
-  const response = await axiosFetch.get<{ items: TemplateStep[] }>(
+export const getAllTemplateSteps = async (): Promise<
+  WorkflowTemplateStep[]
+> => {
+  const response = await axiosFetch.get<{ items: WorkflowTemplateStep[] }>(
     TEMPLATE_STEPS
   );
   return response.data.items;
@@ -185,8 +192,8 @@ export const getTemplateStepById = async (
     with_form?: boolean;
     with_branches?: boolean;
   }
-): Promise<TemplateStep> => {
-  const response = await axiosFetch.get<TemplateStep>(
+): Promise<WorkflowTemplateStep> => {
+  const response = await axiosFetch.get<WorkflowTemplateStep>(
     `${TEMPLATE_STEPS}/${stepId}`,
     { params }
   );
@@ -196,8 +203,8 @@ export const getTemplateStepById = async (
 // GET /workflow/template/steps/{stepId} with query params
 export const getTemplateStepWithForm = async (
   stepId: ID
-): Promise<TemplateStep> => {
-  const response = await axiosFetch.get<TemplateStep>(
+): Promise<WorkflowTemplateStep> => {
+  const response = await axiosFetch.get<WorkflowTemplateStep>(
     `${TEMPLATE_STEPS}/${stepId}`,
     { params: { with_form: true } }
   );
@@ -207,10 +214,10 @@ export const getTemplateStepWithForm = async (
 // PUT /workflow/template/steps/{stepId}
 export const updateTemplateStepById = (
   stepId: ID,
-  payload: Partial<TemplateStep>
+  payload: Partial<WorkflowTemplateStep>
 ) =>
   axiosFetch
-    .put<TemplateStep>(`${TEMPLATE_STEPS}/${stepId}`, payload)
+    .put<WorkflowTemplateStep>(`${TEMPLATE_STEPS}/${stepId}`, payload)
     .then((r) => r.data);
 
 // DELETE /workflow/template/steps/{stepId}

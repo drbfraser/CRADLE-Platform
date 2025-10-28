@@ -14,8 +14,8 @@ import {
 import '@xyflow/react/dist/style.css';
 import { Box } from '@mui/material';
 import {
-  TemplateStepWithFormAndIndex,
-  TemplateStepBranch,
+  WorkflowTemplateStepWithFormAndIndex,
+  WorkflowTemplateStepBranch,
 } from 'src/shared/types/workflow/workflowApiTypes';
 import { FlowNode } from './FlowNode';
 import { ID } from 'src/shared/constants';
@@ -25,7 +25,7 @@ const nodeTypes: NodeTypes = {
 };
 
 interface WorkflowFlowProps {
-  steps: TemplateStepWithFormAndIndex[];
+  steps: WorkflowTemplateStepWithFormAndIndex[];
   firstStepId: ID;
   selectedStepId?: string;
   onStepSelect?: (stepId: string) => void;
@@ -69,7 +69,7 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
 
       const step = steps.find((s) => s.id === stepId);
       if (step?.branches) {
-        step.branches.forEach((branch: TemplateStepBranch) => {
+        step.branches.forEach((branch: WorkflowTemplateStepBranch) => {
           if (!visited.has(branch.targetStepId)) {
             queue.push({ stepId: branch.targetStepId, level: level + 1 });
           }
@@ -132,19 +132,21 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
     // Create edges
     steps.forEach((step) => {
       if (step.branches) {
-        step.branches.forEach((branch: TemplateStepBranch, index: number) => {
-          edges.push({
-            id: `e-${step.id}-${branch.targetStepId}-${index}`,
-            source: step.id,
-            target: branch.targetStepId,
-            type: 'smoothstep',
-            animated: false,
-            style: {
-              stroke: '#b1b1b7',
-              strokeWidth: 2,
-            },
-          });
-        });
+        step.branches.forEach(
+          (branch: WorkflowTemplateStepBranch, index: number) => {
+            edges.push({
+              id: `e-${step.id}-${branch.targetStepId}-${index}`,
+              source: step.id,
+              target: branch.targetStepId,
+              type: 'smoothstep',
+              animated: false,
+              style: {
+                stroke: '#b1b1b7',
+                strokeWidth: 2,
+              },
+            });
+          }
+        );
       }
     });
 
@@ -158,7 +160,7 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
   }, [generatedNodes, generatedEdges, setNodes, setEdges]);
 
   const onConnect = useCallback(
-    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
+    (params: Connection) => setEdges((eds: Edge[]) => addEdge(params, eds)),
     [setEdges]
   );
 

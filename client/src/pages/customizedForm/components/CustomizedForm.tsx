@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Form, Formik } from 'formik';
-import { Divider, Grid, Paper, SxProps } from '@mui/material';
+import { Divider, Grid, SxProps } from '@mui/material';
 
 import { CForm, QAnswer } from 'src/shared/types/form/formTypes';
 import { FormRenderStateEnum } from 'src/shared/enums';
@@ -30,12 +30,14 @@ interface IProps {
   patientId: string;
   fm: CForm;
   renderState: FormRenderStateEnum;
+  customSubmitHandler?: (form: CForm, postBody: PostBody) => void;
 }
 
 export const CustomizedForm = ({
   patientId,
   fm: form,
   renderState,
+  customSubmitHandler,
 }: IProps) => {
   const navigate = useNavigate();
   const [disableSubmit, setDisableSubmit] = useState(false);
@@ -65,12 +67,17 @@ export const CustomizedForm = ({
       patientId,
       renderState === FormRenderStateEnum.EDIT
     );
-    submitCustomForm.mutate(
-      { formId: form.id, postBody },
-      {
-        onSuccess: () => navigate(`/patients/${patientId}`),
-      }
-    );
+
+    if (customSubmitHandler) {
+      customSubmitHandler(form, postBody);
+    } else {
+      submitCustomForm.mutate(
+        { formId: form.id, postBody },
+        {
+          onSuccess: () => navigate(`/patients/${patientId}`),
+        }
+      );
+    }
   };
 
   let formTitle: string;
@@ -105,51 +112,49 @@ export const CustomizedForm = ({
         onSubmit={handleSubmit}>
         {() => (
           <Form>
-            <Paper sx={{ p: 6, mt: 2 }}>
-              {renderState === FormRenderStateEnum.SUBMIT_TEMPLATE && (
-                <Grid container spacing={3}>
-                  {/* This is redundant */}
-                  <h2>Current Form</h2>
-                  <Divider />
-                </Grid>
-              )}
-
+            {renderState === FormRenderStateEnum.SUBMIT_TEMPLATE && (
               <Grid container spacing={3}>
-                {FormQuestions({
-                  questions: form.questions,
-                  renderState,
-                  language: '',
-                  handleAnswers: (answers) => {
-                    setAnswers(answers);
-                  },
-                  multiSelectValidationFailed,
-                  setDisableSubmit,
-                })}
+                {/* This is redundant */}
+                <h2>Current Form</h2>
+                <Divider />
               </Grid>
-              {renderState === FormRenderStateEnum.VIEW ? (
-                <RedirectButton
-                  sx={BUTTON_SX}
-                  type="button" //This makes the button not trigger onSubmit function
-                  url={`/forms/edit/${patientId}/${form.id}`}>
-                  {formTitle}
-                </RedirectButton>
-              ) : renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? (
-                <PrimaryButton
-                  sx={BUTTON_SX}
-                  onClick={() => console.log('click finish button')}
-                  // TO DO: clicking "finish" saves the form.
-                  type="button">
-                  {formTitle}
-                </PrimaryButton>
-              ) : (
-                <PrimaryButton
-                  sx={BUTTON_SX}
-                  type="submit"
-                  disabled={submitCustomForm.isPending || disableSubmit}>
-                  {formTitle}
-                </PrimaryButton>
-              )}
-            </Paper>
+            )}
+
+            <Grid container spacing={3}>
+              {FormQuestions({
+                questions: form.questions,
+                renderState,
+                language: '',
+                handleAnswers: (answers) => {
+                  setAnswers(answers);
+                },
+                multiSelectValidationFailed,
+                setDisableSubmit,
+              })}
+            </Grid>
+            {renderState === FormRenderStateEnum.VIEW ? (
+              <RedirectButton
+                sx={BUTTON_SX}
+                type="button" //This makes the button not trigger onSubmit function
+                url={`/forms/edit/${patientId}/${form.id}`}>
+                {formTitle}
+              </RedirectButton>
+            ) : renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? (
+              <PrimaryButton
+                sx={BUTTON_SX}
+                onClick={() => console.log('click finish button')}
+                // TO DO: clicking "finish" saves the form.
+                type="button">
+                {formTitle}
+              </PrimaryButton>
+            ) : (
+              <PrimaryButton
+                sx={BUTTON_SX}
+                type="submit"
+                disabled={submitCustomForm.isPending || disableSubmit}>
+                {formTitle}
+              </PrimaryButton>
+            )}
           </Form>
         )}
       </Formik>

@@ -1,18 +1,21 @@
 import { ISODate, Nullable } from 'src/shared/constants';
 import { StepStatus } from './workflowEnums';
+import { CForm } from '../form/formTypes';
 
 export type InstanceStep = {
   id: string;
   title: string;
   description?: string;
   startedOn?: ISODate;
-  formId?: string;
-  hasForm: boolean;
+  formTemplateId?: string;
   expectedCompletion?: Nullable<ISODate>;
   completedOn?: Nullable<ISODate>;
   status: StepStatus;
   nextStep?: string;
+  form?: CForm;
+  formId?: string;
   formSubmitted?: boolean;
+  workflowTemplateStepId: string;
 };
 
 export type PossibleStep = {

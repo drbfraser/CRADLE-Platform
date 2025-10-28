@@ -34,19 +34,16 @@ describe('workflowInstanceWithSteps API', () => {
             testInstanceId +
             EndpointEnum.WITH_STEPS,
           () => {
-            return HttpResponse.json(
-              WORKFLOW_INSTANCE_TEST_DATA.workflowInstanceTemplate,
-              { status: 200 }
-            );
+            return HttpResponse.json(WORKFLOW_INSTANCE_TEST_DATA.instances, {
+              status: 200,
+            });
           }
         )
       );
 
       const result = await getInstanceWithSteps(testInstanceId);
 
-      expect(result).toEqual(
-        WORKFLOW_INSTANCE_TEST_DATA.workflowInstanceTemplate
-      );
+      expect(result).toEqual(WORKFLOW_INSTANCE_TEST_DATA.instances);
     });
   });
 });

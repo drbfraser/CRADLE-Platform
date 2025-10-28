@@ -99,6 +99,15 @@ class WorkflowInstanceStepUploadModel(WorkflowInstanceStepModel):
     id: Optional[str] = None
 
 
+class WorkflowInstanceStepUpdateModel(CradleBaseModel, extra="forbid"):
+    status: Optional[str] = None
+    completion_date: Optional[str] = None
+    assigned_to: Optional[str] = None
+    data: Optional[dict] = None
+    last_updated_by: Optional[str] = None
+    form_id: Optional[str] = None
+
+
 class WorkflowEvaluateResponseModel(CradleBaseModel):
     result: dict
 

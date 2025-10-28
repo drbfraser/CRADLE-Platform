@@ -1,5 +1,6 @@
 import { ID, ISODate, Nullable } from '../../constants';
 import { FormTemplate } from '../form/formTemplateTypes';
+import { CForm } from '../form/formTypes';
 import { InstanceStatus, StepStatus } from './workflowEnums';
 export interface RuleGroup {
   id: ID;
@@ -8,7 +9,7 @@ export interface RuleGroup {
 }
 
 //   Template side
-export interface TemplateStepBranch {
+export interface WorkflowTemplateStepBranch {
   // ⇒ workflow_template_step.id
   stepId?: ID;
   // Condition that must evaluate true for the branch to activate
@@ -16,18 +17,18 @@ export interface TemplateStepBranch {
   targetStepId: ID;
 }
 
-export interface TemplateStep {
+export interface WorkflowTemplateStep {
   id: ID;
   name: string;
   description: string;
   formId?: ID;
   expectedCompletion?: ISODate;
-  conditions?: RuleGroup;
-  branches?: TemplateStepBranch[];
+  branches?: WorkflowTemplateStepBranch[];
   lastEdited: ISODate;
 }
 
-export interface TemplateStepWithFormAndIndex extends TemplateStep {
+export interface WorkflowTemplateStepWithFormAndIndex
+  extends WorkflowTemplateStep {
   form?: FormTemplate;
   index: number;
   branchIndices?: number[];
@@ -41,7 +42,7 @@ export interface WorkflowTemplate {
 
   classificationId: ID;
   classification?: WorkflowClassification;
-  steps: TemplateStep[];
+  steps: WorkflowTemplateStep[];
   startingStepId?: ID;
 
   // audit & soft-delete
@@ -81,14 +82,15 @@ export interface WorkflowInstanceStep {
   description: string;
   startDate: number;
   triggeredBy?: ID;
-  formId?: ID;
+  formId?: string;
+  form?: CForm;
   assignedTo?: ID;
   expectedCompletion?: Nullable<number>;
   completionDate?: Nullable<number>;
   status: StepStatus;
   data?: Record<string, unknown>;
   workflowInstanceId: ID;
-  conditionId?: ID;
+  workflowTemplateStepId: ID;
 
   // audit
   lastEdited: number;
@@ -100,6 +102,7 @@ export interface WorkflowInstance {
   name: string;
   description: string;
   workflowTemplateId: ID;
+  workflowTemplateStepId: ID;
   patientId: ID;
   startDate: number;
   currentStepId?: ID;
@@ -137,7 +140,12 @@ export type InstanceUpdate = Partial<
 export type InstanceStepUpdate = Partial<
   Pick<
     WorkflowInstanceStep,
-    'status' | 'completionDate' | 'assignedTo' | 'data' | 'lastUpdatedBy'
+    | 'status'
+    | 'completionDate'
+    | 'assignedTo'
+    | 'data'
+    | 'lastUpdatedBy'
+    | 'formId'
   >
 >;
 

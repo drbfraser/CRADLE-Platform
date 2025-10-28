@@ -195,14 +195,23 @@ def seed_test_data():
     create_simple_workflow_template(
         WORKFLOW_TEMPLATE_ID2, form_template_id, num_steps=6
     )
+    print("Creating a simple workflow template and form for the workflow template")
+    form_template_id = create_simple_workflow_template_step_form()
+
+    WORKFLOW_TEMPLATE_ID1 = "workflow-template-1"
+    WORKFLOW_TEMPLATE_ID2 = "workflow-template-2"
+    create_simple_workflow_template(WORKFLOW_TEMPLATE_ID1, form_template_id)
+    create_simple_workflow_template(
+        WORKFLOW_TEMPLATE_ID2, form_template_id, num_steps=6
+    )
 
     print("Creating workflow instances")
-    # Create forms to be used by workflow instances
+    # Create forms to be used by workflow instance
     create_workflow_instance_form(
         form_id="workflow-instance-form-1",
         patient_id=PATIENT_ID_1,
         user_id=3,
-        form_template_id="wt-simple-1-step-1-form",
+        form_template_id=form_template_id,
         form_classification_id="wt-simple-1-form-classification",
         first_name="Anna",
     )
@@ -211,7 +220,7 @@ def seed_test_data():
         form_id="workflow-instance-form-2",
         patient_id=PATIENT_ID_2,
         user_id=3,
-        form_template_id="wt-simple-1-step-1-form",
+        form_template_id=form_template_id,
         form_classification_id="wt-simple-1-form-classification",
         first_name="Anna",
     )
@@ -220,7 +229,7 @@ def seed_test_data():
         form_id="workflow-instance-form-3",
         patient_id=PATIENT_ID_3,
         user_id=3,
-        form_template_id="wt-simple-1-step-1-form",
+        form_template_id=form_template_id,
         form_classification_id="wt-simple-1-form-classification",
         first_name="Anna",
     )
@@ -783,11 +792,12 @@ def create_relay_nums():
 
 
 def create_simple_workflow_classification():
-    if crud.read(WorkflowClassificationOrm, id="wc-simple-1") is not None:
+    classification_id = "wc-simple-1"
+    if crud.read(WorkflowClassificationOrm, id=classification_id) is not None:
         return None
 
     workflow_classification = {
-        "id": "wc-simple-1",
+        "id": classification_id,
         "name": "Get Patient Name Workflow",
     }
 
@@ -802,6 +812,7 @@ def create_simple_workflow_classification():
 def create_simple_workflow_template(
     workflow_template_id, form_template_id, num_steps=3
 ):
+    # workflow_template_id = "workflow-template-simple-1"
     if crud.read(WorkflowTemplateOrm, id=workflow_template_id) is not None:
         return
 
@@ -819,13 +830,10 @@ def create_simple_workflow_template(
         "classification_id": classification_id,
     }
 
-    classification = crud.read(WorkflowClassificationOrm, id="wc-simple-1")
+    classification = crud.read(WorkflowClassificationOrm, id=classification_id)
     workflow_template_orm = WorkflowTemplateOrm(
         classification=classification, **workflow_template
     )
-
-    create_simple_workflow_template_step_form_classification()
-    create_simple_workflow_template_step_form()
 
     for step_number in range(1, num_steps + 1):
         step = {
@@ -859,14 +867,12 @@ def create_simple_workflow_template(
 
 
 def create_simple_workflow_template_step_form_classification():
-    if (
-        crud.read(FormClassificationOrm, id="wt-simple-1-form-classification")
-        is not None
-    ):
-        return
+    id = "wt-simple-1-form-classification"
+    if crud.read(FormClassificationOrm, id=id) is not None:
+        return None
 
     simple_form_classification = {
-        "id": "wt-simple-1-form-classification",
+        "id": id,
         "name": "Patient Name Form",
     }
 
@@ -875,18 +881,31 @@ def create_simple_workflow_template_step_form_classification():
     db.session.add(simple_form_classification_orm)
     db.session.commit()
 
+    return id
+
 
 def create_simple_workflow_template_step_form():
-    if crud.read(FormTemplateOrm, id="wt-simple-1-step-1-form") is not None:
-        return
+    form_template_id = "workflow-form-template"
+    if crud.read(FormTemplateOrm, id=form_template_id) is not None:
+        return None
 
-    simple_workflow_template_form = {
-        "id": "wt-simple-1-step-1-form",
+    # Add classification for form to DB
+    classification_id = create_simple_workflow_template_step_form_classification()
+    form_classification_orm = crud.read(FormClassificationOrm, id=classification_id)
+
+    # Set up form template associated with workflow
+    form_template = {
+        "id": form_template_id,
         "version": "V1",
     }
 
+    form_template_orm = FormTemplateOrm(
+        classification=form_classification_orm, **form_template
+    )
+
+    # Create question associated with form
     question = {
-        "id": "wt-simple-1-step-1-form-question",
+        "id": f"{form_template_id}-question",
         "category_index": None,
         "question_index": 0,
         "is_blank": True,
@@ -902,31 +921,27 @@ def create_simple_workflow_template_step_form():
         "string_max_lines": None,
     }
 
-    create_simple_workflow_template_step_form_classification()
-    form_classification_orm = crud.read(
-        FormClassificationOrm, id="wt-simple-1-form-classification"
-    )
-
-    simple_workflow_template_form_orm = FormTemplateOrm(
-        classification=form_classification_orm, **simple_workflow_template_form
-    )
-
     question_orm = QuestionOrm(**question)
 
-    simple_workflow_template_form_orm.questions.append(question_orm)
+    # Add question to form template and
+    form_template_orm.questions.append(question_orm)
 
-    db.session.add(simple_workflow_template_form_orm)
+    # Add form template to DB
+    db.session.add(form_template_orm)
     db.session.commit()
 
+    # Add language to question and add question to DB
     lang_version = {
         "id": 104,
         "lang": "English",
         "question_text": "Enter the Patient's Name",
-        "question_id": "wt-simple-1-step-1-form-question",
+        "question_id": question["id"],
     }
 
     db.session.add(QuestionLangVersionOrm(**lang_version))
     db.session.commit()
+
+    return form_template["id"]
 
 
 def create_complex_workflow_classification():

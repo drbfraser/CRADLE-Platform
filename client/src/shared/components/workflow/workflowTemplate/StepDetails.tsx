@@ -1,13 +1,13 @@
 import React from 'react';
 import { Box, Typography, Paper, Divider, Stack } from '@mui/material';
 import {
-  TemplateStepWithFormAndIndex,
-  TemplateStepBranch,
+  WorkflowTemplateStepWithFormAndIndex,
+  WorkflowTemplateStepBranch,
 } from 'src/shared/types/workflow/workflowApiTypes';
 
 interface StepDetailsProps {
-  selectedStep?: TemplateStepWithFormAndIndex;
-  steps: TemplateStepWithFormAndIndex[];
+  selectedStep?: WorkflowTemplateStepWithFormAndIndex;
+  steps: WorkflowTemplateStepWithFormAndIndex[];
   isInstance?: boolean;
 }
 
@@ -88,7 +88,7 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
           </Typography>
           <Stack spacing={1}>
             {selectedStep.branches.map(
-              (branch: TemplateStepBranch, index: number) => {
+              (branch: WorkflowTemplateStepBranch, index: number) => {
                 const targetStep = steps.find(
                   (s) => s.id === branch.targetStepId
                 );

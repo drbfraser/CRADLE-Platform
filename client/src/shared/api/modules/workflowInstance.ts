@@ -213,13 +213,13 @@ export const getInstanceStepById = async (
   return response.data;
 };
 
-// PUT /workflow/instance/steps/{stepId}
+// PATCH /workflow/instance/steps/{stepId}
 export const updateInstanceStepById = (
   stepId: ID,
   payload: Partial<WorkflowInstanceStep>
 ) =>
   axiosFetch
-    .put<WorkflowInstanceStep>(`${INSTANCE_STEPS}/${stepId}`, payload)
+    .patch<WorkflowInstanceStep>(`${INSTANCE_STEPS}/${stepId}`, payload)
     .then((r) => r.data);
 
 // PUT /workflow/instance/steps/{stepId}/complete
