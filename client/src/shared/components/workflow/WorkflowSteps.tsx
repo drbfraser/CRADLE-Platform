@@ -1,10 +1,10 @@
 import Box from '@mui/material/Box/Box';
-import { TemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
+import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
 import { ID } from 'src/shared/constants';
 import { WorkflowStep } from 'src/shared/components/workflow/WorkflowStep';
 
 interface IProps {
-  steps: TemplateStepWithFormAndIndex[] | undefined;
+  steps: WorkflowTemplateStepWithFormAndIndex[] | undefined;
   firstStep: ID;
   isInstance?: boolean;
   handleMakeCurrent?: any;
@@ -21,7 +21,7 @@ export const WorkflowSteps = ({
   }
 
   // ordering steps via depth-first search
-  const orderedSteps: TemplateStepWithFormAndIndex[] = [];
+  const orderedSteps: WorkflowTemplateStepWithFormAndIndex[] = [];
   const nextId = [firstStep];
   let ind = 1;
   const stepQueue = [...steps];

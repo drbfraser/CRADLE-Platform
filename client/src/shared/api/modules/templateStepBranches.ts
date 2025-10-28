@@ -1,7 +1,7 @@
 import { axiosFetch } from '../core/http';
 import { EndpointEnum } from 'src/shared/enums';
 import { ID } from '../../constants';
-import { TemplateStepBranch } from '../../types/workflow/workflowApiTypes';
+import { WorkflowTemplateStepBranch } from '../../types/workflow/workflowApiTypes';
 
 //path
 const templateStepBranchesPath = (templateId: ID, stepId: ID) =>
@@ -14,8 +14,8 @@ const templateStepBranchPath = (templateId: ID, stepId: ID, branchId: ID) =>
 export const listTemplateStepBranches = async (
   templateId: ID,
   stepId: ID
-): Promise<TemplateStepBranch[]> => {
-  const response = await axiosFetch.get<TemplateStepBranch[]>(
+): Promise<WorkflowTemplateStepBranch[]> => {
+  const response = await axiosFetch.get<WorkflowTemplateStepBranch[]>(
     templateStepBranchesPath(templateId, stepId)
   );
   return response.data;
@@ -33,8 +33,8 @@ export const createTemplateStepBranch = async (
       data_sources: string[];
     };
   }
-): Promise<TemplateStepBranch> => {
-  const response = await axiosFetch.post<TemplateStepBranch>(
+): Promise<WorkflowTemplateStepBranch> => {
+  const response = await axiosFetch.post<WorkflowTemplateStepBranch>(
     templateStepBranchesPath(templateId, stepId),
     payload
   );
@@ -46,9 +46,9 @@ export const updateTemplateStepBranch = async (
   templateId: ID,
   stepId: ID,
   branchId: ID,
-  payload: Partial<TemplateStepBranch>
-): Promise<TemplateStepBranch> => {
-  const response = await axiosFetch.put<TemplateStepBranch>(
+  payload: Partial<WorkflowTemplateStepBranch>
+): Promise<WorkflowTemplateStepBranch> => {
+  const response = await axiosFetch.put<WorkflowTemplateStepBranch>(
     templateStepBranchPath(templateId, stepId, branchId),
     payload
   );

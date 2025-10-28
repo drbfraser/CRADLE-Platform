@@ -4,7 +4,7 @@ import { ID } from '../../constants';
 import {
   WorkflowInstance,
   WorkflowInstanceStep,
-  TemplateStepBranch,
+  WorkflowTemplateStepBranch,
   InstanceInput,
 } from '../../types/workflow/workflowApiTypes';
 
@@ -35,7 +35,7 @@ export const completeWorkflowStepAsync = async (payload: {
 }): Promise<{
   instance: WorkflowInstance;
   nextStep?: WorkflowInstanceStep;
-  activatedBranches?: TemplateStepBranch[];
+  activatedBranches?: WorkflowTemplateStepBranch[];
 }> => {
   const response = await axiosFetch.post(
     `${WORKFLOW_EXECUTION}/complete-step`,

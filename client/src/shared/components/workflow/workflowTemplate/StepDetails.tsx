@@ -8,13 +8,13 @@ import {
   TextField,
 } from '@mui/material';
 import {
-  TemplateStepWithFormAndIndex,
-  TemplateStepBranch,
+  WorkflowTemplateStepWithFormAndIndex,
+  WorkflowTemplateStepBranch,
 } from 'src/shared/types/workflow/workflowApiTypes';
 
 interface StepDetailsProps {
-  selectedStep?: TemplateStepWithFormAndIndex;
-  steps: TemplateStepWithFormAndIndex[];
+  selectedStep?: WorkflowTemplateStepWithFormAndIndex;
+  steps: WorkflowTemplateStepWithFormAndIndex[];
   isInstance?: boolean;
   isEditMode?: boolean;
   onStepChange?: (stepId: string, field: string, value: string) => void;
@@ -128,7 +128,7 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
           </Typography>
           <Stack spacing={1}>
             {selectedStep.branches.map(
-              (branch: TemplateStepBranch, index: number) => {
+              (branch: WorkflowTemplateStepBranch, index: number) => {
                 const targetStep = steps.find(
                   (s) => s.id === branch.targetStepId
                 );

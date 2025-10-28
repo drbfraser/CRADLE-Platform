@@ -5,8 +5,8 @@ import { FormRenderStateEnum } from 'src/shared/enums';
 import usePatient from 'src/shared/hooks/patient';
 import APIErrorToast from 'src/shared/components/apiErrorToast/APIErrorToast';
 import PatientHeader from 'src/shared/components/patientHeader/PatientHeader';
-import { CustomizedForm } from '../components/CustomizedForm';
 import { useFormResponseQuery } from '../queries';
+import { CustomizedFormPageContainer } from '../components/CustomizedFormPageContainer';
 
 type RouteParams = {
   patientId: string;
@@ -33,7 +33,7 @@ export const CustomizedEditFormPage = () => {
       <PatientHeader title="Edit Form" patient={patient} />
 
       {formResponseQuery.data.questions.length > 0 ? (
-        <CustomizedForm
+        <CustomizedFormPageContainer
           patientId={patientId}
           fm={formResponseQuery.data}
           renderState={FormRenderStateEnum.EDIT}
