@@ -35,4 +35,5 @@ botocore-stubs==1.35.49
 phonenumbers==8.13.49    # Python port of Google's `libphonenumber` library
 pyjwt[crypto]==2.9.0
 pyhumps==3.8.0
+black==25.9.0
 

@@ -40,7 +40,7 @@ export const VHTStatistics = ({ from, to }: Props) => {
     select: (data) => {
       if (currentUser?.role === UserRoleEnum.CHO) {
         return data.filter((vht) =>
-          currentUser.supervises.includes(vht.userId)
+          currentUser.supervises.includes(Number(vht.userId))
         );
       }
       return data;
@@ -88,7 +88,7 @@ export const VHTStatistics = ({ from, to }: Props) => {
           <Select variant="standard" value={vht} onChange={handleChange}>
             {allVHTsQuery.data?.map((vht, index) => (
               <MenuItem value={vht.userId} key={index}>
-                {vht?.name ?? 'Unknown'} ({vht?.email ?? 'Unknown'})
+                {vht?.firstName ?? 'Unknown'} ({vht?.email ?? 'Unknown'})
               </MenuItem>
             ))}
           </Select>

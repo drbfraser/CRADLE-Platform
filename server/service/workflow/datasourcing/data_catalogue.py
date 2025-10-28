@@ -49,7 +49,7 @@ def __query_object(
 
 def get_catalogue() -> Dict[str, ObjectCatalogue]:
     """
-    the data catalogue of supported datasource objects
+    The data catalogue of supported datasource objects
 
     the catalogue maps to an object catalogue dict
     which has two keys:
