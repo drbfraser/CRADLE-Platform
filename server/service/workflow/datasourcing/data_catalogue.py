@@ -39,7 +39,7 @@ def __query_object(
     :returns: a callable function that returns the object model
     """
     pred = query(id)
-    data = crud.read(model, pred)
+    data = crud.read(model, id=id)
 
     if data is None:
         return None

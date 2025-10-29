@@ -5,6 +5,10 @@ from dateutil.relativedelta import relativedelta
 
 
 def patient_age(instance: Dict) -> int:
-    dob: datetime = instance.get("date_of_birth")
-    delta = relativedelta(datetime.now() - dob)
+    dob = instance.get("date_of_birth")
+    
+    if isinstance(dob, str):
+        dob = datetime.strptime(dob, '%Y-%m-%d')
+    
+    delta = relativedelta(datetime.now(), dob)
     return delta.years

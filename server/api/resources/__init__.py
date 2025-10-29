@@ -27,6 +27,7 @@ from api.resources.workflow_instance_steps import api_workflow_instance_steps
 from api.resources.workflow_instances import api_workflow_instances
 from api.resources.workflow_template_steps import api_workflow_template_steps
 from api.resources.workflow_templates import api_workflow_templates
+from api.resources.workflow_demo import api_workflow_demo
 
 """
 The `flask-openapi3` plugin for Flask is used to generate API Specification 
@@ -74,3 +75,4 @@ api.register_api(api_workflow_template_steps)
 api.register_api(api_workflow_instances)
 api.register_api(api_workflow_instance_steps)
 api.register_api(api_workflow_evaluate)
+api.register_api(api_workflow_demo)
