@@ -46,21 +46,20 @@ import {
 } from '@mui/x-data-grid';
 import { useNavigate } from 'react-router-dom';
 
-
 type RuleEvaluationResult = {
   patient: {
     id: string;
     name: string;
     age: number;
     sex: string;
-    isPregnant: boolean;  
-    dateOfBirth: string;  
+    isPregnant: boolean;
+    dateOfBirth: string;
   };
-  branchResults: Array<{  
+  branchResults: Array<{
     id: string;
     name: string;
     rule: string;
-    resolvedData: Record<string, any>; 
+    resolvedData: Record<string, any>;
     status: string;
     missingVariables: string[];
   }>;
@@ -378,7 +377,9 @@ export const WorkflowInfo: React.FC = () => {
   const [demoDialogOpen, setDemoDialogOpen] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
   const [demoError, setDemoError] = useState<string | null>(null);
-  const [demoResult, setDemoResult] = useState<RuleEvaluationResult | null>(null);
+  const [demoResult, setDemoResult] = useState<RuleEvaluationResult | null>(
+    null
+  );
   const navigate = useNavigate();
 
   const handleTestRuleEngine = async () => {
@@ -388,7 +389,9 @@ export const WorkflowInfo: React.FC = () => {
     setDemoResult(null);
 
     try {
-      const response = await axiosFetch.get(`/workflow-demo/evaluate/${patientId}`);
+      const response = await axiosFetch.get(
+        `/workflow-demo/evaluate/${patientId}`
+      );
       setDemoResult(response.data);
     } catch (error: any) {
       setDemoError(error?.message || 'Unknown error occurred');
@@ -630,7 +633,11 @@ export const WorkflowInfo: React.FC = () => {
         </DialogTitle>
         <DialogContent dividers>
           {demoLoading && (
-            <Box display="flex" justifyContent="center" alignItems="center" py={4}>
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              py={4}>
               <CircularProgress />
             </Box>
           )}
@@ -649,11 +656,18 @@ export const WorkflowInfo: React.FC = () => {
                 </Typography>
                 <Paper variant="outlined" sx={{ p: 2 }}>
                   <Stack spacing={1}>
-                    <Typography><strong>Name:</strong> {demoResult.patient.name}</Typography>
-                    <Typography><strong>Age:</strong> {demoResult.patient.age} years</Typography>
-                    <Typography><strong>Sex:</strong> {demoResult.patient.sex}</Typography>
                     <Typography>
-                      <strong>Pregnant:</strong> {demoResult.patient.isPregnant ? 'Yes' : 'No'}
+                      <strong>Name:</strong> {demoResult.patient.name}
+                    </Typography>
+                    <Typography>
+                      <strong>Age:</strong> {demoResult.patient.age} years
+                    </Typography>
+                    <Typography>
+                      <strong>Sex:</strong> {demoResult.patient.sex}
+                    </Typography>
+                    <Typography>
+                      <strong>Pregnant:</strong>{' '}
+                      {demoResult.patient.isPregnant ? 'Yes' : 'No'}
                     </Typography>
                   </Stack>
                 </Paper>
@@ -665,7 +679,8 @@ export const WorkflowInfo: React.FC = () => {
                     Selected Branch: {demoResult.selectedBranch.name}
                   </Typography>
                   <Typography variant="body2" sx={{ mt: 1 }}>
-                    This patient would follow the <strong>{demoResult.selectedBranch.name}</strong> workflow.
+                    This patient would follow the{' '}
+                    <strong>{demoResult.selectedBranch.name}</strong> workflow.
                   </Typography>
                 </Alert>
               ) : (
@@ -733,7 +748,10 @@ export const WorkflowInfo: React.FC = () => {
                           <TableCell>
                             <Typography
                               variant="body2"
-                              sx={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>
+                              sx={{
+                                fontFamily: 'monospace',
+                                fontSize: '0.75rem',
+                              }}>
                               {JSON.stringify(branch.resolvedData, null, 2)}
                             </Typography>
                           </TableCell>
@@ -746,7 +764,9 @@ export const WorkflowInfo: React.FC = () => {
 
               <Box>
                 <Typography variant="caption" color="text.secondary">
-                  {"How it works: The rule engine evaluates each workflow branch's conditions against the patient's data. The first branch that evaluates to TRUE is selected."}
+                  {
+                    "How it works: The rule engine evaluates each workflow branch's conditions against the patient's data. The first branch that evaluates to TRUE is selected."
+                  }
                 </Typography>
               </Box>
             </Stack>
