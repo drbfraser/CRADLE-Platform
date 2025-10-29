@@ -16,6 +16,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { IconButton } from '@mui/material';
 import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
 import {
+  FormModalState,
   InstanceDetails,
   InstanceStep,
 } from 'src/shared/types/workflow/workflowUiTypes';
@@ -23,6 +24,7 @@ import { formatWorkflowStepStatusText } from '../WorkflowUtils';
 import WorkflowFormModal from './WorkflowFormModal';
 import { CForm } from 'src/shared/types/form/formTypes';
 import { CheckCircle } from '@mui/icons-material';
+import { FormRenderStateEnum } from 'src/shared/enums';
 
 interface IProps {
   workflowInstance: InstanceDetails;
@@ -39,10 +41,10 @@ interface IProps {
     }>
   >;
   handleMakeCurrent: (stepId: string, title: string) => void;
-  handleOpenFormModal: () => void;
+  handleOpenFormModal: (formRenderState: FormRenderStateEnum) => void;
   handleCloseFormModal: () => void;
-  isFormModalOpen: boolean;
-  formTemplate: CForm | null;
+  formModalState: FormModalState;
+  // formTemplate: CForm | null;
   currentStep: InstanceStep | null;
 }
 
@@ -56,12 +58,13 @@ export default function WorkflowStepHistory({
   handleMakeCurrent,
   handleOpenFormModal,
   handleCloseFormModal,
-  isFormModalOpen,
-  formTemplate,
+  formModalState,
+  // formTemplate,
   currentStep,
 }: IProps) {
   const handleViewForm = (stepId: string) => {
     console.log('View form for step:', stepId);
+    handleOpenFormModal(FormRenderStateEnum.VIEW);
   };
 
   const handleEditForm = (stepId: string) => {
@@ -83,7 +86,7 @@ export default function WorkflowStepHistory({
 
   const handleCompleteNow = () => {
     console.log('Complete now for current step');
-    handleOpenFormModal();
+    handleOpenFormModal(FormRenderStateEnum.FIRST_SUBMIT);
   };
 
   const handleChangeExpectedCompletion = (stepId: string, date: string) => {
@@ -387,11 +390,11 @@ export default function WorkflowStepHistory({
         </Paper>
       </Box>
 
-      {formTemplate && (
+      {formModalState.open && (
         <WorkflowFormModal
           currentStep={currentStep}
-          isFormModalOpen={isFormModalOpen}
-          formTemplate={formTemplate}
+          formModalState={formModalState}
+          // formTemplate={formTemplate}
           patientId={workflowInstance.patientId}
           handleCloseFormModal={handleCloseFormModal}
         />

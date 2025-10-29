@@ -34,6 +34,7 @@ import {
   InstanceStep,
   InstanceDetails,
   WorkflowInstanceProgress,
+  FormModalState,
 } from 'src/shared/types/workflow/workflowUiTypes';
 import WorkflowStatus from './components/WorkflowStatus';
 import WorkflowStepHistory from './components/WorkflowStepHistory';
@@ -43,6 +44,8 @@ import WorkflowConfirmDialog, {
 } from './components/WorkflowConfirmDialog';
 import { CForm } from 'src/shared/types/form/formTypes';
 import { Patient } from 'src/shared/types/patientTypes';
+import { FormRenderStateEnum } from 'src/shared/enums';
+import { useFormResponseQuery } from 'src/pages/customizedForm/queries';
 
 function parseYMD(d?: Nullable<string>) {
   if (!d) return undefined;
@@ -205,15 +208,22 @@ export default function WorkflowInstanceDetailsPage() {
   const [expandedStep, setExpandedStep] = useState<string | null>(null);
   const [expandAll, setExpandAll] = useState(false);
   const [currentStep, setCurrentStep] = useState<InstanceStep | null>(null);
-  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [formModalState, setFormModalState] = useState<FormModalState>({
+    open: false,
+    renderState: FormRenderStateEnum.FIRST_SUBMIT,
+    form: null,
+  });
+  // const [formTemplate, setFormTemplate] = useState<CForm | null>(null);
+  // const [formResponse, setFormResponse] = useState<CForm | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogData>({
     open: false,
     title: '',
     message: '',
     onConfirm: () => {},
   });
-  const [formTemplate, setFormTemplate] = useState<CForm | null>(null);
   const [reloadFlag, setReloadFlag] = useState(false);
+
+  const formResponseQuery = useFormResponseQuery(currentStep?.formId || '');
 
   useEffect(() => {
     async function fetchInstanceAndPatient() {
@@ -263,7 +273,7 @@ export default function WorkflowInstanceDetailsPage() {
 
     const activeStep = getWorkflowCurrentStep(instanceDetails);
     setCurrentStep(activeStep ?? null);
-    console.log(`Current Step Set, id: ${currentStep?.id}`);
+    console.log(`Current Step Set, id: ${activeStep?.id}`);
 
     const progress = computeProgressAndEta(instanceDetails.steps);
     setProgressInfo(progress);
@@ -284,34 +294,71 @@ export default function WorkflowInstanceDetailsPage() {
     []
   );
 
-  const handleOpenFormModal = async () => {
+  const handleOpenFormModal = async (formRenderState: FormRenderStateEnum) => {
     if (!currentStep) {
       console.error('No current step available to open form.');
       return;
     }
 
-    if (!currentStep.formTemplateId) {
-      console.error('No form associated with current step.');
-      return;
-    }
+    switch (formRenderState) {
+      case FormRenderStateEnum.FIRST_SUBMIT: {
+        if (!currentStep.formTemplateId) {
+          console.error('No form associated with current step.');
+          return;
+        }
 
-    try {
-      const formTemplateId = currentStep.formTemplateId;
-      const formTemplate = await getFormTemplateLangAsync(
-        formTemplateId,
-        'English'
-      );
-      setFormTemplate(formTemplate);
-      setIsFormModalOpen(true);
-    } catch {
-      console.error('Error in getting form template');
+        try {
+          const formTemplateId = currentStep.formTemplateId;
+          const formTemplate = await getFormTemplateLangAsync(
+            formTemplateId,
+            'English'
+          );
+          // setFormTemplate(formTemplate);
+          setFormModalState({
+            open: true,
+            renderState: formRenderState,
+            form: formTemplate,
+          });
+          return;
+        } catch {
+          console.error('Error in getting form template');
+          return;
+        }
+      }
+      case FormRenderStateEnum.VIEW: {
+        if (!currentStep.formId) {
+          console.error('No submitted form associated with current step.');
+          return;
+        }
+
+        const formResponse = formResponseQuery.data;
+
+        if (!formResponse) {
+          console.error('Error in getting form');
+          return;
+        }
+
+        setFormModalState({
+          open: true,
+          renderState: formRenderState,
+          form: formResponse,
+        });
+
+        return;
+      }
+      default:
+        console.error('Invalid form modal render state');
     }
   };
 
   const handleCloseFormModal = () => {
     console.log('Closing Form Modal');
-    setFormTemplate(null);
-    setIsFormModalOpen(false);
+    // setFormTemplate(null);
+    setFormModalState({
+      open: false,
+      renderState: FormRenderStateEnum.FIRST_SUBMIT,
+      form: null,
+    });
     setReloadFlag((prev) => !prev);
   };
 
@@ -416,8 +463,8 @@ export default function WorkflowInstanceDetailsPage() {
               handleMakeCurrent={handleMakeCurrent}
               handleOpenFormModal={handleOpenFormModal}
               handleCloseFormModal={handleCloseFormModal}
-              isFormModalOpen={isFormModalOpen}
-              formTemplate={formTemplate}
+              formModalState={formModalState}
+              // formTemplate={formTemplate}
               currentStep={currentStep}
             />
 

@@ -16,22 +16,25 @@ import { CForm } from 'src/shared/types/form/formTypes';
 import { useSubmitCustomForm } from 'src/pages/customizedForm/mutations';
 import { PostBody } from 'src/pages/customizedForm/handlers';
 import { updateInstanceStepById } from 'src/shared/api';
-import { InstanceStep } from 'src/shared/types/workflow/workflowUiTypes';
+import {
+  FormModalState,
+  InstanceStep,
+} from 'src/shared/types/workflow/workflowUiTypes';
 import { InstanceStepUpdate } from 'src/shared/types/workflow/workflowApiTypes';
 import { useState } from 'react';
 
 interface IProps {
   currentStep: InstanceStep | null;
-  isFormModalOpen: boolean;
-  formTemplate: CForm;
+  formModalState: FormModalState;
+  // formTemplate: CForm;
   patientId: string;
   handleCloseFormModal: () => void;
 }
 
 export default function WorkflowFormModal({
   currentStep,
-  isFormModalOpen,
-  formTemplate,
+  formModalState,
+  // formTemplate,
   patientId,
   handleCloseFormModal: handleCloseFormModal,
 }: IProps) {
@@ -56,7 +59,7 @@ export default function WorkflowFormModal({
 
   return (
     <>
-      <Modal open={isFormModalOpen}>
+      <Modal open={formModalState.open}>
         <Box
           sx={{
             display: 'flex',
@@ -70,7 +73,7 @@ export default function WorkflowFormModal({
               maxWidth: '90vw',
               flexDirection: 'column',
             }}>
-            {formTemplate && currentStep ? (
+            {formModalState.form && currentStep ? (
               <Paper
                 sx={{
                   height: '100%',
@@ -102,8 +105,9 @@ export default function WorkflowFormModal({
                         }}>
                         <CustomizedForm
                           patientId={patientId}
-                          fm={formTemplate}
-                          renderState={FormRenderStateEnum.FIRST_SUBMIT}
+                          fm={formModalState.form}
+                          renderState={formModalState.renderState}
+                          isFormModal={true}
                           customSubmitHandler={handleSubmit}
                         />
                       </Box>
