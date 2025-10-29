@@ -346,8 +346,8 @@ export const WorkflowInfo: React.FC = () => {
               row.status === 'ACTIVE'
                 ? 'success'
                 : row.status === 'COMPLETED'
-                  ? 'primary'
-                  : 'error'
+                ? 'primary'
+                : 'error'
             }
             variant="outlined"
           />
@@ -480,8 +480,8 @@ export const WorkflowInfo: React.FC = () => {
                     detailRow.status === 'ACTIVE'
                       ? 'success'
                       : detailRow.status === 'COMPLETED'
-                        ? 'primary'
-                        : 'default'
+                      ? 'primary'
+                      : 'default'
                   }
                   variant="outlined"
                   sx={{ ml: 0.5 }}
@@ -504,12 +504,12 @@ export const WorkflowInfo: React.FC = () => {
                     detailRow.status === 'COMPLETED'
                       ? 'Done'
                       : detailRow.status === 'CANCELLED'
-                        ? 'Cancelled'
-                        : isCurrent
-                          ? 'Current'
-                          : i < detailRow.stepsCount - 2
-                            ? 'Done'
-                            : 'Pending';
+                      ? 'Cancelled'
+                      : isCurrent
+                      ? 'Current'
+                      : i < detailRow.stepsCount - 2
+                      ? 'Done'
+                      : 'Pending';
                   return (
                     <ListItem key={i} disableGutters divider>
                       <ListItemText

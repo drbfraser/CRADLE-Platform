@@ -172,8 +172,8 @@ export default function WorkflowStatus(props: {
                         isCurrent
                           ? ' (Current)'
                           : isDone
-                            ? ' (Completed)'
-                            : ' (Pending)'
+                          ? ' (Completed)'
+                          : ' (Pending)'
                       }`}>
                       <Box
                         sx={{
@@ -186,8 +186,8 @@ export default function WorkflowStatus(props: {
                           bgcolor: isCurrent
                             ? 'primary.main'
                             : isDone
-                              ? 'success.main'
-                              : 'grey.400',
+                            ? 'success.main'
+                            : 'grey.400',
                           border: '2px solid #fff',
                           boxShadow: 1,
                           pointerEvents: 'auto',
