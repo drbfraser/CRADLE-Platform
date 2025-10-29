@@ -1,21 +1,23 @@
 """
 Workflow Rule Engine Demo
-
 """
+from __future__ import annotations
 
-from datetime import datetime
+from typing import TYPE_CHECKING
 
 from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
-from common.api_utils import PatientIdPath
 from models import PatientOrm
 from service.workflow.datasourcing import data_sourcing
 from service.workflow.datasourcing.data_catalogue import get_catalogue
 from service.workflow.evaluate.rules_engine import RulesEngineFacade, RuleStatus
 from validation import CradleBaseModel
+
+if TYPE_CHECKING:
+    from common.api_utils import PatientIdPath
 
 # /api/workflow-demo
 api_workflow_demo = APIBlueprint(
@@ -26,15 +28,6 @@ api_workflow_demo = APIBlueprint(
 )
 
 
-def calculate_age(dob):
-    """Calculate age from date of birth"""
-    if isinstance(dob, str):
-        dob = datetime.strptime(dob, "%Y-%m-%d")
-    today = datetime.now()
-    return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
-
-
-# Mock workflow for demo
 DEMO_WORKFLOW = {
     "branches": [
         {
@@ -65,20 +58,52 @@ class RuleDemoResponse(CradleBaseModel):
     selected_branch: dict | None
 
 
-# /api/workflow-demo/evaluate/<patient_id> [GET]
+def _evaluate_single_branch(
+    branch: dict, patient_id: str, catalogue: dict
+) -> dict | None:
+    """
+    Evaluate a single workflow branch for a patient.
+
+    :param branch: Branch configuration with rule and datasources
+    :param patient_id: Patient identifier
+    :param catalogue: Data catalogue for resolving datasources
+    :returns: Dict with evaluation results, or None if evaluation fails
+    """
+    try:
+        resolved = data_sourcing.resolve_datasources(
+            patient_id, branch["datasources"], catalogue
+        )
+
+        engine = RulesEngineFacade(branch["rule"], resolved)
+        result = engine.evaluate({})
+
+        return {
+            "id": branch["id"],
+            "name": branch["name"],
+            "rule": branch["rule"],
+            "resolved_data": resolved,
+            "status": result.status.value,
+            "missing_variables": (
+                list(result.missing_variables) if result.missing_variables else []
+            ),
+        }
+    except Exception:
+        return None
+
+
 @api_workflow_demo.get(
     "/evaluate/<string:patient_id>", responses={200: RuleDemoResponse}
 )
 def evaluate_workflow_demo(path: PatientIdPath):
     """
-    Demo: Evaluate workflow rules for a patient
-    Shows how the rule engine selects branches based on patient data
+    Demo: Evaluate workflow rules for a patient.
+
+    Shows how the rule engine selects branches based on patient data.
+    Uses short-circuit evaluation - returns first TRUE branch.
     """
     patient = crud.read(PatientOrm, id=path.patient_id)
     if not patient:
         return abort(404, description=f"Patient {path.patient_id} not found")
-
-    age = calculate_age(patient.date_of_birth)
 
     catalogue = get_catalogue()
 
@@ -86,31 +111,24 @@ def evaluate_workflow_demo(path: PatientIdPath):
     selected_branch = None
 
     for branch in DEMO_WORKFLOW["branches"]:
-        resolved = data_sourcing.resolve_datasources(
-            path.patient_id, branch["datasources"], catalogue
+        branch_result = _evaluate_single_branch(branch, path.patient_id, catalogue)
+
+        if branch_result:
+            branch_results.append(branch_result)
+
+            if (
+                branch_result.get("status") == RuleStatus.TRUE.value
+                and selected_branch is None
+            ):
+                selected_branch = branch_result
+
+    try:
+        resolved_patient = data_sourcing.resolve_datasources(
+            path.patient_id, ["$patient.age"], catalogue
         )
-
-        if "$patient.age" in branch["datasources"]:
-            resolved["$patient.age"] = age
-
-        engine = RulesEngineFacade(branch["rule"], resolved)
-        result = engine.evaluate({})
-
-        branch_result = {
-            "id": branch["id"],
-            "name": branch["name"],
-            "rule": branch["rule"],
-            "resolved_data": resolved,
-            "status": result.status.value,
-            "missing_variables": list(result.missing_variables)
-            if result.missing_variables
-            else [],
-        }
-
-        branch_results.append(branch_result)
-
-        if result.status == RuleStatus.TRUE and selected_branch is None:
-            selected_branch = branch_result
+        age = resolved_patient.get("$patient.age")
+    except Exception:
+        age = None
 
     return {
         "patient": {
@@ -124,5 +142,3 @@ def evaluate_workflow_demo(path: PatientIdPath):
         "branch_results": branch_results,
         "selected_branch": selected_branch,
     }, 200
-
-
