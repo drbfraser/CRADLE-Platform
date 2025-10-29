@@ -674,7 +674,7 @@ export const WorkflowInfo: React.FC = () => {
                     No Branch Selected
                   </Typography>
                   <Typography variant="body2" sx={{ mt: 1 }}>
-                    No workflow branch matched the patient's data.
+                    {"No workflow branch matched the patient's data."}
                   </Typography>
                 </Alert>
               )}
@@ -746,9 +746,7 @@ export const WorkflowInfo: React.FC = () => {
 
               <Box>
                 <Typography variant="caption" color="text.secondary">
-                  <strong>How it works:</strong> The rule engine evaluates each workflow branch's
-                  conditions against the patient's data. The first branch that evaluates to TRUE
-                  is selected.
+                  {"How it works: The rule engine evaluates each workflow branch's conditions against the patient's data. The first branch that evaluates to TRUE is selected."}
                 </Typography>
               </Box>
             </Stack>

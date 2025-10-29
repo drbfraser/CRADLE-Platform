@@ -1,6 +1,7 @@
 """
 Workflow Rule Engine Demo
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -10,6 +11,7 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
+from common.api_utils import PatientIdPath
 from models import PatientOrm
 from service.workflow.datasourcing import data_sourcing
 from service.workflow.datasourcing.data_catalogue import get_catalogue
