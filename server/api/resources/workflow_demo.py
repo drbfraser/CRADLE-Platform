@@ -126,25 +126,3 @@ def evaluate_workflow_demo(path: PatientIdPath):
     }, 200
 
 
-class PatientListResponse(CradleBaseModel):
-    patients: list
-
-
-# /api/workflow-demo/patients [GET]
-@api_workflow_demo.get("/patients", responses={200: PatientListResponse})
-def get_demo_patients():
-    """Get list of patients for demo"""
-    patients = crud.read_all(PatientOrm)
-
-    return {
-        "patients": [
-            {
-                "id": p.id,
-                "name": p.name,
-                "sex": p.sex,
-                "is_pregnant": bool(p.is_pregnant),
-                "age": calculate_age(p.date_of_birth),
-            }
-            for p in patients[:10]
-        ]
-    }, 200
