@@ -5,7 +5,6 @@ from .base import db
 
 
 class LangVersionOrmV2(db.Model):
-
     __tablename__ = "lang_version_v2"
     string_id = db.Column(db.String(200), primary_key=True)
     lang = db.Column(db.String(50), primary_key=True, default="English")
@@ -15,7 +14,6 @@ class LangVersionOrmV2(db.Model):
 
 
 class FormClassificationOrmV2(db.Model):
-
     __tablename__ = "form_classification_v2"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
 
@@ -28,7 +26,6 @@ class FormClassificationOrmV2(db.Model):
 
 
 class FormTemplateOrmV2(db.Model):
-
     __tablename__ = "form_template_v2"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     form_classification_id = db.Column(
@@ -53,7 +50,6 @@ class FormTemplateOrmV2(db.Model):
 
 
 class FormQuestionTemplateOrmV2(db.Model):
-
     __tablename__ = "form_question_template_v2"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     form_template_id = db.Column(
@@ -77,7 +73,6 @@ class FormQuestionTemplateOrmV2(db.Model):
 
 
 class FormSubmissionOrmV2(db.Model):
-
     __tablename__ = "form_submission_v2"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     form_template_id = db.Column(
@@ -90,7 +85,7 @@ class FormSubmissionOrmV2(db.Model):
         nullable=False,
     )
     user_id = db.Column(
-        db.Integer, db.ForeignKey("user.id", ondelete="SET NULL"), nullable=False
+        db.Integer, db.ForeignKey("user.id", ondelete="SET NULL"), nullable=True
     )
     date_submitted = db.Column(db.BigInteger, nullable=False, default=get_current_time)
     last_edited = db.Column(
@@ -108,17 +103,16 @@ class FormSubmissionOrmV2(db.Model):
 
 
 class FormAnswerOrmV2(db.Model):
-
     __tablename__ = "form_answer_v2"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     question_id = db.Column(
         db.String(50),
         db.ForeignKey("form_question_template_v2.id", ondelete="SET NULL"),
-        nullable=False,
+        nullable=True,
     )
     form_submission_id = db.Column(
         db.String(50),
         db.ForeignKey("form_submission_v2.id", ondelete="SET NULL"),
-        nullable=False,
+        nullable=True,
     )
     answer = db.Column(db.Text(collation="utf8mb4_general_ci"), nullable=False)

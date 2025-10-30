@@ -106,7 +106,7 @@ def upgrade():
         sa.Column("id", sa.String(length=50), nullable=False),
         sa.Column("form_template_id", sa.String(length=50), nullable=True),
         sa.Column("patient_id", sa.String(length=50), nullable=False),
-        sa.Column("user_id", sa.Integer(), nullable=False),
+        sa.Column("user_id", sa.Integer(), nullable=True),
         sa.Column("date_submitted", sa.BigInteger(), nullable=False),
         sa.Column("last_edited", sa.BigInteger(), nullable=False),
         sa.Column("lang", sa.String(length=50), nullable=False),
@@ -133,8 +133,8 @@ def upgrade():
     op.create_table(
         "form_answer_v2",
         sa.Column("id", sa.String(length=50), nullable=False),
-        sa.Column("question_id", sa.String(length=50), nullable=False),
-        sa.Column("form_submission_id", sa.String(length=50), nullable=False),
+        sa.Column("question_id", sa.String(length=50), nullable=True),
+        sa.Column("form_submission_id", sa.String(length=50), nullable=True),
         sa.Column("answer", sa.Text(collation="utf8mb4_general_ci"), nullable=False),
         sa.ForeignKeyConstraint(
             ["form_submission_id"],
