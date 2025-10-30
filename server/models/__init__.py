@@ -9,6 +9,14 @@ from .forms import (
     QuestionLangVersionOrm,
     QuestionOrm,
 )
+from .formsV2 import (
+    LangVersionOrmV2,
+    FormClassificationOrmV2,
+    FormTemplateOrmV2,
+    FormQuestionTemplateOrmV2,
+    FormSubmissionOrmV2,
+    FormAnswerOrmV2
+)
 from .medical import AssessmentOrm, ReadingOrm, ReferralOrm, UrineTestOrm
 from .patients import MedicalRecordOrm, PatientAssociationsOrm, PatientOrm, PregnancyOrm
 from .schemas import (
