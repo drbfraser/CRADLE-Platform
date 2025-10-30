@@ -16,12 +16,12 @@ from .forms import (
     QuestionOrm,
 )
 from .formsV2 import (
-    LangVersionOrmV2,
+    FormAnswerOrmV2,
     FormClassificationOrmV2,
-    FormTemplateOrmV2,
     FormQuestionTemplateOrmV2,
     FormSubmissionOrmV2,
-    FormAnswerOrmV2
+    FormTemplateOrmV2,
+    LangVersionOrmV2,
 )
 from .medical import AssessmentOrm, ReadingOrm, ReferralOrm, UrineTestOrm
 from .patients import MedicalRecordOrm, PatientAssociationsOrm, PatientOrm, PregnancyOrm
