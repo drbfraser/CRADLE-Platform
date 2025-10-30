@@ -6,7 +6,10 @@ import {
   Divider,
   Stack,
   TextField,
+  Autocomplete,
 } from '@mui/material';
+import { useQuery } from '@tanstack/react-query';
+import { getAllFormTemplatesAsync } from 'src/shared/api/modules/formTemplates';
 import {
   WorkflowTemplateStepWithFormAndIndex,
   WorkflowTemplateStepBranch,
@@ -27,6 +30,13 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
   isEditMode = false,
   onStepChange,
 }) => {
+  // Fetch all available form templates for the dropdown
+  const formTemplatesQuery = useQuery({
+    queryKey: ['formTemplates', false],
+    queryFn: () => getAllFormTemplatesAsync(false),
+    enabled: isEditMode, // Only fetch when in edit mode
+  });
+
   if (!selectedStep) {
     return (
       <Paper sx={{ p: 3, height: '100%' }}>
@@ -102,9 +112,43 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
               <Typography variant="body2" color="text.secondary">
                 Associated Form
               </Typography>
-              <Typography variant="body1" sx={{ mt: 0.5 }}>
-                {selectedStep.form.classification.name}
-              </Typography>
+              {isEditMode ? (
+                <Autocomplete
+                  fullWidth
+                  options={formTemplatesQuery.data || []}
+                  getOptionLabel={(option) => option.classification.name}
+                  value={
+                    formTemplatesQuery.data?.find(
+                      (form) => form.id === selectedStep.formId
+                    ) || null
+                  }
+                  onChange={(_, newValue) => {
+                    onStepChange?.(
+                      selectedStep.id,
+                      'formId',
+                      newValue?.id || ''
+                    );
+                  }}
+                  loading={formTemplatesQuery.isLoading}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      variant="outlined"
+                      size="small"
+                      placeholder="Select a form..."
+                      sx={{ mt: 0.5 }}
+                    />
+                  )}
+                  isOptionEqualToValue={(option, value) =>
+                    option.id === value.id
+                  }
+                />
+              ) : (
+                <Typography variant="body1" sx={{ mt: 0.5 }}>
+                  {selectedStep.form?.classification.name ||
+                    'No form associated'}
+                </Typography>
+              )}
             </Box>
           )}
 
