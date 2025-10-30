@@ -20,8 +20,9 @@ TemplateLike = Union[Json, Any]
 
 log = logging.getLogger(__name__)
 
+
 def extract_variables_from_workflow_template(
-    template: TemplateLike
+    template: TemplateLike,
 ) -> WorkflowVariableReport:
     """
     Extracts variables from a workflow template.
@@ -58,18 +59,18 @@ def extract_variables_from_workflow_template(
             all_vars |= variables
             ds_tokens = _parse_datasources(cond.get("data_sources"))
             ds_norm = {_normalize(x) for x in ds_tokens}
-            missing = sorted(list(variables - ds_norm))
+            missing = sorted(variables - ds_norm)
 
             step_entry.branches.append(
                 BranchVariableInfo(
                     branch_id=b.get("id"),
                     rule_id=cond.get("id"),
-                    variables=sorted(list(variables)),
+                    variables=sorted(variables),
                     data_sources=ds_tokens,
                     missing_from_datasources=missing,
                 )
             )
         report.steps.append(step_entry)
 
-    report.all_variables = sorted(list(all_vars))
+    report.all_variables = sorted(all_vars)
     return report
