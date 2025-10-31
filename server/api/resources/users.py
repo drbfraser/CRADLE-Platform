@@ -71,10 +71,10 @@ def get_vhts():
         marshal.marshal(vht)
         vht_dictionary_list.append(
             {
-                "userId": vht.id,
+                "user_id": vht.id,
                 "email": vht.email,
-                "healthFacilityName": vht.health_facility_name,
-                "firstName": vht.name,
+                "health_facility_name": vht.health_facility_name,
+                "first_name": vht.name,
             },
         )
 
