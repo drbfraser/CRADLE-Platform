@@ -12,9 +12,21 @@ class LangVersionOrmV2(db.Model):
     displayable content. Each piece of text is identified by a string_id and can
     have multiple translations (one per language).
 
-    Example:
-        string_id='patientIntake.name', lang='English' -> "What is your name?"
-        string_id='patientIntake.name', lang='French'  -> "Quel est votre nom?"
+    Examples:
+            'vital_signs.heart_rate'              -> "What is the patient's heart rate?"
+            'vital_signs.blood_pressure.systolic' -> "Systolic blood pressure"
+            'patient_info.demographics.name'      -> "Patient's full name"
+            'medical_history.allergies.medications' -> "Any medication allergies?"
+
+        Benefits:
+            - Reuse common questions across multiple forms without duplication
+            - Logical grouping (e.g., all vital_signs.* questions)
+            - Query by prefix: WHERE string_id LIKE 'vital_signs.%'
+            - Consistent wording when same question appears in different forms
+
+    Translation Example:
+        string_id='vital_signs.heart_rate', lang='English' -> "What is the patient's heart rate?"
+        string_id='vital_signs.heart_rate', lang='French'  -> "Quelle est la fréquence cardiaque du patient?"
 
     Primary Key: (string_id, lang) - ensures one translation per language per string
 
