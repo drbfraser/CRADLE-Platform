@@ -1,18 +1,10 @@
-from models import (
-    ReadingOrm,
-    ReferralOrm,
-    AssessmentOrm,
-    MedicalRecordOrm,
-    PregnancyOrm
-)
+from typing import Any, Callable, Dict, Optional
+from models import ReadingOrm, ReferralOrm
+from .utils import __pre_process
 
-from .utils import __pre_process, __load
+Serializer = Callable[[Any], Dict[str, Any]]
 
-from .core import marshal
-
-from service import invariant
-
-def __marshal_reading(r: ReadingOrm, shallow: bool) -> dict:
+def __marshal_reading(r: ReadingOrm, shallow: bool, rel_serialize: Optional[Serializer] = None) -> dict:
     """
     Serialize a ``ReadingOrm`` to a JSON-ready ``dict``.
 
@@ -22,20 +14,23 @@ def __marshal_reading(r: ReadingOrm, shallow: bool) -> dict:
     """
     d = vars(r).copy()
     __pre_process(d)
-    if not d.get("symptoms"):
-        d["symptoms"] = []
+
     if d.get("symptoms"):
         d["symptoms"] = d["symptoms"].split(",")
-    if not shallow and r.urine_tests is not None:
-        d["urine_tests"] = marshal(r.urine_tests)
     else:
-        # Remove relationship-only field(s) from the marshaled payload.
-        # We intentionally exclude heavy nested collections here (shallow output).
-        # Currently just "urine_tests", if needed, add more fields inside the list (eg. ["urine_tests", "protein",...]).
-        for rel in ["urine_tests"]:
-            if rel in d:
-                del d[rel]
+        d["symptoms"] = []
+
+    if not shallow and getattr(r, "urine_tests", None) is not None:
+        if rel_serialize is not None:
+            d["urine_tests"] = rel_serialize(r.urine_tests)
+        else:
+            # safe fallback to avoid hard dependency
+            d["urine_tests"] = {"id": getattr(r.urine_tests, "id", None)}
+    else:
+        d.pop("urine_tests", None)
+
     return d
+
 
 def __marshal_referral(r: ReferralOrm) -> dict:
     """
@@ -52,78 +47,3 @@ def __marshal_referral(r: ReferralOrm) -> dict:
     if d.get("patient"):
         del d["patient"]
     return d
-
-def __marshal_assessment(f: AssessmentOrm) -> dict:
-    """
-    Serialize an ``AssessmentOrm`` and strip relationship objects.
-
-    :param f: Assessment instance to serialize.
-    :return: Assessment dictionary without facility/patient/worker relationships.
-    """
-    d = vars(f).copy()
-    __pre_process(d)
-    # Remove relationship objects
-    if d.get("health_facility"):
-        del d["health_facility"]
-    if d.get("patient"):
-        del d["patient"]
-    if d.get("healthcare_worker"):
-        del d["healthcare_worker"]
-    return d
-
-def __marshal_medical_record(r: MedicalRecordOrm) -> dict:
-    """
-    Serialize a ``MedicalRecordOrm`` and route information to the appropriate field.
-
-    :param r: Medical record instance to serialize.
-    :return: Dict with core fields and either ``drug_history`` or ``medical_history``.
-    """
-    d = {
-        "id": r.id,
-        "patient_id": r.patient_id,
-        "date_created": r.date_created,
-        "last_edited": r.last_edited,
-    }
-
-    if r.is_drug_record:
-        d["drug_history"] = r.information
-    else:
-        d["medical_history"] = r.information
-
-    return d
-
-def __unmarshal_reading(d: dict) -> ReadingOrm:
-    """
-    Construct a ``ReadingOrm``; convert symptoms list→CSV and resolve invariants.
-
-    :param d: Reading payload (``symptoms`` may be list or CSV string).
-    :return: ``ReadingOrm`` with invariants resolved.
-    """
-    # Convert "symptoms" from array to string, if plural number of symptoms
-    symptomsGiven = d.get("symptoms")
-    if symptomsGiven is not None:
-        if isinstance(symptomsGiven, list):
-            d["symptoms"] = ",".join(d["symptoms"])
-
-    reading = __load(ReadingOrm, d)
-
-    invariant.resolve_reading_invariants(reading)
-
-    return reading
-
-
-def __marshal_pregnancy(p: PregnancyOrm) -> dict:
-    """
-    Serialize a ``PregnancyOrm`` to a compact dictionary of scalar fields.
-
-    :param p: Pregnancy instance to serialize.
-    :return: Dict with ``id``, ``patient_id``, dates, ``outcome``, and ``last_edited``.
-    """
-    return {
-        "id": p.id,
-        "patient_id": p.patient_id,
-        "start_date": p.start_date,
-        "end_date": p.end_date,
-        "outcome": p.outcome,
-        "last_edited": p.last_edited,
-    }
