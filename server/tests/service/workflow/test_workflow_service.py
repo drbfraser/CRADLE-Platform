@@ -1,14 +1,14 @@
 import pytest
 
-from service.workflow.workflow_actions import (
-    CompleteStepAction,
-    StartStepAction,
-    StartWorkflowAction,
-)
 from service.workflow.workflow_errors import InvalidWorkflowActionError
 from service.workflow.workflow_service import WorkflowService
 from tests.helpers import get_uuid, make_workflow_template, make_workflow_template_step
-from validation.workflow_models import WorkflowTemplateModel
+from validation.workflow_models import (
+    CompleteStepActionModel,
+    StartStepActionModel,
+    StartWorkflowActionModel,
+    WorkflowTemplateModel,
+)
 
 
 def test_workflow_service__generate_workflow_instance():
@@ -87,10 +87,10 @@ def test_workflow_service__sequential_workflow_happy_path(sequential_workflow_vi
         workflow_template=workflow_view.template,
     )
 
-    assert actions == [StartWorkflowAction()]
+    assert actions == [StartWorkflowActionModel()]
 
     WorkflowService.apply_workflow_action(
-        action=StartWorkflowAction(),
+        action=StartWorkflowActionModel(),
         workflow_instance=workflow_view.instance,
         workflow_template=workflow_view.template,
     )
@@ -105,10 +105,10 @@ def test_workflow_service__sequential_workflow_happy_path(sequential_workflow_vi
         workflow_template=workflow_view.template,
     )
 
-    assert actions == [CompleteStepAction(step_id="si-1")]
+    assert actions == [CompleteStepActionModel(step_id="si-1")]
 
     WorkflowService.apply_workflow_action(
-        action=CompleteStepAction(step_id="si-1"),
+        action=CompleteStepActionModel(step_id="si-1"),
         workflow_instance=workflow_view.instance,
         workflow_template=workflow_view.template,
     )
@@ -123,10 +123,10 @@ def test_workflow_service__sequential_workflow_happy_path(sequential_workflow_vi
         workflow_template=workflow_view.template,
     )
 
-    assert actions == [StartStepAction(step_id="si-2")]
+    assert actions == [StartStepActionModel(step_id="si-2")]
 
     WorkflowService.apply_workflow_action(
-        action=StartStepAction(step_id="si-2"),
+        action=StartStepActionModel(step_id="si-2"),
         workflow_instance=workflow_view.instance,
         workflow_template=workflow_view.template,
     )
@@ -141,10 +141,10 @@ def test_workflow_service__sequential_workflow_happy_path(sequential_workflow_vi
         workflow_template=workflow_view.template,
     )
 
-    assert actions == [CompleteStepAction(step_id="si-2")]
+    assert actions == [CompleteStepActionModel(step_id="si-2")]
 
     WorkflowService.apply_workflow_action(
-        action=CompleteStepAction(step_id="si-2"),
+        action=CompleteStepActionModel(step_id="si-2"),
         workflow_instance=workflow_view.instance,
         workflow_template=workflow_view.template,
     )
@@ -167,10 +167,10 @@ def test_workflow_service__apply_invalid_workflow_action(sequential_workflow_vie
 
     with pytest.raises(InvalidWorkflowActionError) as e:
         WorkflowService.apply_workflow_action(
-            action=CompleteStepAction(step_id="si-1"),
+            action=CompleteStepActionModel(step_id="si-1"),
             workflow_instance=workflow_view.instance,
             workflow_template=workflow_view.template,
         )
 
-    assert e.value.action == CompleteStepAction(step_id="si-1")
-    assert e.value.available_actions == [StartWorkflowAction()]
+    assert e.value.action == CompleteStepActionModel(step_id="si-1")
+    assert e.value.available_actions == [StartWorkflowActionModel()]

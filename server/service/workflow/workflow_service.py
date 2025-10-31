@@ -5,10 +5,10 @@ from common.commonUtil import get_current_time, get_uuid
 from data import marshal
 from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
 from models.workflows import WorkflowInstanceOrm, WorkflowTemplateOrm
-from service.workflow.workflow_actions import WorkflowAction
 from service.workflow.workflow_planner import WorkflowPlanner
 from service.workflow.workflow_view import WorkflowView
 from validation.workflow_models import (
+    WorkflowActionModel,
     WorkflowInstanceModel,
     WorkflowInstanceStepModel,
     WorkflowTemplateModel,
@@ -87,8 +87,8 @@ class WorkflowService:
     def upsert_workflow_template(cls, workflow_template: WorkflowTemplateModel):
         workflow_template.last_edited = get_current_time()
 
-        for instance_step in workflow_template.steps:
-            instance_step.last_edited = get_current_time()
+        for template_step in workflow_template.steps:
+            template_step.last_edited = get_current_time()
 
         workflow_template_orm = marshal.unmarshal(
             WorkflowTemplateOrm, workflow_template.model_dump()
@@ -126,7 +126,7 @@ class WorkflowService:
     def get_available_workflow_actions(
         workflow_instance: WorkflowInstanceModel,
         workflow_template: WorkflowTemplateModel,
-    ) -> list[WorkflowAction]:
+    ) -> list[WorkflowActionModel]:
         assert workflow_instance.workflow_template_id == workflow_template.id
 
         workflow_view = WorkflowView(workflow_template, workflow_instance)
@@ -136,7 +136,7 @@ class WorkflowService:
 
     @staticmethod
     def apply_workflow_action(
-        action: WorkflowAction,
+        action: WorkflowActionModel,
         workflow_instance: WorkflowInstanceModel,
         workflow_template: WorkflowTemplateModel,
     ) -> None:

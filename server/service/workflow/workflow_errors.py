@@ -1,10 +1,10 @@
 from typing import Any
 
-from service.workflow.workflow_actions import WorkflowAction
+from validation.workflow_models import WorkflowActionModel
 
 
 class InvalidWorkflowActionError(Exception):
-    def __init__(self, action: Any, available_actions: list[WorkflowAction]):
+    def __init__(self, action: Any, available_actions: list[WorkflowActionModel]):
         self.action = action
         self.available_actions = available_actions
 

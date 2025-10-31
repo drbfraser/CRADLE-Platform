@@ -1,12 +1,6 @@
 from typing import Optional
 
 from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
-from service.workflow.workflow_actions import (
-    CompleteStepAction,
-    StartStepAction,
-    StartWorkflowAction,
-    WorkflowAction,
-)
 from service.workflow.workflow_errors import InvalidWorkflowActionError
 from service.workflow.workflow_operations import (
     UpdateCurrentStepOp,
@@ -15,7 +9,13 @@ from service.workflow.workflow_operations import (
     WorkflowOp,
 )
 from service.workflow.workflow_view import WorkflowView
-from validation.workflow_models import WorkflowInstanceStepModel
+from validation.workflow_models import (
+    CompleteStepActionModel,
+    StartStepActionModel,
+    StartWorkflowActionModel,
+    WorkflowActionModel,
+    WorkflowInstanceStepModel,
+)
 
 
 class WorkflowPlanner:
@@ -51,21 +51,21 @@ class WorkflowPlanner:
         return next_step is None
 
     @staticmethod
-    def get_available_actions(ctx: WorkflowView) -> list[WorkflowAction]:
+    def get_available_actions(ctx: WorkflowView) -> list[WorkflowActionModel]:
         """
         Returns the actions available to take as the next action in the workflow.
         """
         current_step = ctx.get_current_step()
 
         if ctx.instance.status == WorkflowStatusEnum.PENDING:
-            return [StartWorkflowAction()]
+            return [StartWorkflowActionModel()]
 
         if current_step:
             if current_step.status == WorkflowStepStatusEnum.PENDING:
-                return [StartStepAction(step_id=current_step.id)]
+                return [StartStepActionModel(step_id=current_step.id)]
 
             if current_step.status == WorkflowStepStatusEnum.ACTIVE:
-                return [CompleteStepAction(step_id=current_step.id)]
+                return [CompleteStepActionModel(step_id=current_step.id)]
 
             if current_step.status == WorkflowStepStatusEnum.COMPLETED:
                 next_step = WorkflowPlanner._eval_next_step_from_this_step(
@@ -75,12 +75,14 @@ class WorkflowPlanner:
                 if next_step:
                     # Currently, step should always be in PENDING state, so the only available
                     # action is to start it
-                    return [StartStepAction(step_id=next_step.id)]
+                    return [StartStepActionModel(step_id=next_step.id)]
 
         return []
 
     @staticmethod
-    def get_operations(ctx: WorkflowView, action: WorkflowAction) -> list[WorkflowOp]:
+    def get_operations(
+        ctx: WorkflowView, action: WorkflowActionModel
+    ) -> list[WorkflowOp]:
         """
         Translate an action into the workflow operations that should all be applied to
         the workflow instance to apply that action.
@@ -90,7 +92,7 @@ class WorkflowPlanner:
         if action not in valid_actions:
             raise InvalidWorkflowActionError(action, valid_actions)
 
-        if isinstance(action, StartWorkflowAction):
+        if isinstance(action, StartWorkflowActionModel):
             starting_step = ctx.get_instance_step_for_template_step(
                 ctx.get_starting_step().id
             )
@@ -101,19 +103,13 @@ class WorkflowPlanner:
                 UpdateStepStatusOp(starting_step.id, WorkflowStepStatusEnum.ACTIVE),
             ]
 
-        if isinstance(action, StartStepAction):
-            ops = []
+        if isinstance(action, StartStepActionModel):
+            return [
+                UpdateCurrentStepOp(new_current_step_id=action.step_id),
+                UpdateStepStatusOp(action.step_id, WorkflowStepStatusEnum.ACTIVE),
+            ]
 
-            if ctx.get_current_step() != action.step_id:
-                ops.append(UpdateCurrentStepOp(new_current_step_id=action.step_id))
-
-            ops.append(
-                UpdateStepStatusOp(action.step_id, WorkflowStepStatusEnum.ACTIVE)
-            )
-
-            return ops
-
-        if isinstance(action, CompleteStepAction):
+        if isinstance(action, CompleteStepActionModel):
             ops = [UpdateStepStatusOp(action.step_id, WorkflowStepStatusEnum.COMPLETED)]
 
             step = ctx.get_instance_step(action.step_id)

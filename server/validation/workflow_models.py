@@ -1,6 +1,6 @@
 import json
 from json import JSONDecodeError
-from typing import Optional
+from typing import Literal, Optional, Union
 
 from pydantic import Field, field_validator, model_validator
 from typing_extensions import Self
@@ -106,14 +106,23 @@ class WorkflowInstanceStepModel(CradleBaseModel, extra="forbid"):
 
     @model_validator(mode="after")
     def validate_dates(self) -> Self:
-        if self.last_edited is not None and self.last_edited < self.start_date:
+        if (
+            self.last_edited is not None
+            and self.start_date is not None
+            and self.last_edited < self.start_date
+        ):
             raise ValueError("last_edited cannot be before start_date")
 
-        if self.completion_date is not None and self.completion_date < self.start_date:
+        if (
+            self.completion_date is not None
+            and self.start_date is not None
+            and self.completion_date < self.start_date
+        ):
             raise ValueError("completion_date cannot be before start_date")
 
         if (
             self.expected_completion is not None
+            and self.start_date is not None
             and self.expected_completion < self.start_date
         ):
             raise ValueError("expected_completion cannot be before start_date")
@@ -151,3 +160,22 @@ class WorkflowInstanceModel(CradleBaseModel, extra="forbid"):
             raise ValueError("completion_date cannot be before start_date")
 
         return self
+
+
+class StartWorkflowActionModel(CradleBaseModel):
+    type: Literal["start_workflow"] = "start_workflow"
+
+
+class StartStepActionModel(CradleBaseModel):
+    type: Literal["start_step"] = "start_step"
+    step_id: str
+
+
+class CompleteStepActionModel(CradleBaseModel):
+    type: Literal["complete_step"] = "complete_step"
+    step_id: str
+
+
+WorkflowActionModel = Union[
+    StartWorkflowActionModel, StartStepActionModel, CompleteStepActionModel
+]
