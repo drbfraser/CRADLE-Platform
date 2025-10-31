@@ -1,9 +1,9 @@
 """
 add form v2 tables
 
-Revision ID: 23_c5795bccbb0b
+Revision ID: 23_9d3d0623037e
 Revises: 22_298e59ec02b9
-Create Date: 2025-10-30 05:33:47.402472
+Create Date: 2025-10-31 04:36:33.781590
 
 """
 
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "23_c5795bccbb0b"
+revision = "23_9d3d0623037e"
 down_revision = "22_298e59ec02b9"
 branch_labels = None
 depends_on = None
@@ -78,6 +78,9 @@ def upgrade():
             nullable=False,
         ),
         sa.Column("string_id", sa.String(length=200), nullable=False),
+        sa.Column("mc_options", sa.Text(), nullable=True),
+        sa.Column("has_comment_attached", sa.Boolean(), nullable=False),
+        sa.Column("category_index", sa.Integer(), nullable=True),
         sa.Column("required", sa.Boolean(), nullable=False),
         sa.Column("visible_condition", sa.Text(), nullable=False),
         sa.Column("units", sa.Text(), nullable=True),

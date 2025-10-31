@@ -12,17 +12,25 @@ class LangVersionOrmV2(db.Model):
     displayable content. Each piece of text is identified by a string_id and can
     have multiple translations (one per language).
 
+    String ID Naming Convention (Dot Notation):
+        Use hierarchical dot notation to organize and enable reuse across forms:
+        Format: {domain}.{subdomain}.{specific_field}
+
     Examples:
             'vital_signs.heart_rate'              -> "What is the patient's heart rate?"
             'vital_signs.blood_pressure.systolic' -> "Systolic blood pressure"
             'patient_info.demographics.name'      -> "Patient's full name"
             'medical_history.allergies.medications' -> "Any medication allergies?"
 
-        Benefits:
-            - Reuse common questions across multiple forms without duplication
-            - Logical grouping (e.g., all vital_signs.* questions)
-            - Query by prefix: WHERE string_id LIKE 'vital_signs.%'
-            - Consistent wording when same question appears in different forms
+    For multiple choice options:
+                'vital_signs.blood_type.option.a_pos' -> "A+"
+                'vital_signs.blood_type.option.o_neg' -> "O-"
+
+    Benefits:
+        - Reuse common questions across multiple forms without duplication
+        - Logical grouping (e.g., all vital_signs.* questions)
+        - Query by prefix: WHERE string_id LIKE 'vital_signs.%'
+        - Consistent wording when same question appears in different forms
 
     Translation Example:
         string_id='vital_signs.heart_rate', lang='English' -> "What is the patient's heart rate?"
@@ -126,13 +134,23 @@ class FormQuestionTemplateOrmV2(db.Model):
     Questions are immutable - they belong to a specific template version.
     Editing a question means creating a new template version with the updated question.
 
-    Example:
+    String ID Convention:
+        Questions use dot notation for organization and reusability.
+        MC options follow pattern: {question_string_id}.option.{option_id}
+
+    Examples:
         Question: "What is the patient's heart rate?"
         - type: NUMBER
-        - string_id: 'heart_rate_question'
+        - string_id: 'vital_signs.heart_rate'
         - required: True
         - num_min: 40, num_max: 200
         - units: "bpm"
+
+        Question: "What is the patient's blood type?"
+        - type: MULTIPLE_CHOICE
+        - string_id: 'vital_signs.blood_type'
+        - mc_options: ["vital_signs.blood_type.option.a_pos",
+                       "vital_signs.blood_type.option.a_neg", ...]
 
     """
 
@@ -147,6 +165,9 @@ class FormQuestionTemplateOrmV2(db.Model):
     order = db.Column(db.Integer, nullable=False)
     question_type = db.Column(db.Enum(QuestionTypeEnum), nullable=False)
     string_id = db.Column(db.String(200), nullable=False)
+    mc_options = db.Column(db.Text, nullable=True)
+    has_comment_attached = db.Column(db.Boolean, nullable=False, default=False)
+    category_index = db.Column(db.Integer, nullable=True)
     required = db.Column(db.Boolean, nullable=False, default=False)
     visible_condition = db.Column(db.Text, nullable=False, default="[]")
     units = db.Column(db.Text, nullable=True)
@@ -220,9 +241,16 @@ class FormAnswerOrmV2(db.Model):
     - MULTIPLE_CHOICE: {"mc_id_array": [0, 2]}  (indices of selected choices)
     - DATE: {"date": "2025-10-30"}
 
+    For questions with comments attached, the format includes:
+    - {"text": "Other", "comment": "Allergies to peanuts"}
+    - {"mc_id_array": [3], "comment": "Since childhood"}
+
     Example:
         Question: "What is the patient's heart rate?"
         Answer: {"value": 75}
+
+        Question: "Select all symptoms" (multiple choice)
+        Answer: {"mc_id_array": [0, 2, 5]}  (selected options at indices 0, 2, and 5)
 
     """
 
