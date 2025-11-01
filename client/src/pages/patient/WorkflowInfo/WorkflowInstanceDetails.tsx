@@ -213,8 +213,6 @@ export default function WorkflowInstanceDetailsPage() {
     renderState: FormRenderStateEnum.FIRST_SUBMIT,
     form: null,
   });
-  // const [formTemplate, setFormTemplate] = useState<CForm | null>(null);
-  // const [formResponse, setFormResponse] = useState<CForm | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogData>({
     open: false,
     title: '',
@@ -313,7 +311,6 @@ export default function WorkflowInstanceDetailsPage() {
             formTemplateId,
             'English'
           );
-          // setFormTemplate(formTemplate);
           setFormModalState({
             open: true,
             renderState: formRenderState,
@@ -325,14 +322,14 @@ export default function WorkflowInstanceDetailsPage() {
           return;
         }
       }
-      case FormRenderStateEnum.VIEW: {
+      case FormRenderStateEnum.VIEW:
+      case FormRenderStateEnum.EDIT: {
         if (!currentStep.formId) {
           console.error('No submitted form associated with current step.');
           return;
         }
 
         const formResponse = formResponseQuery.data;
-
         if (!formResponse) {
           console.error('Error in getting form');
           return;
@@ -348,6 +345,7 @@ export default function WorkflowInstanceDetailsPage() {
       }
       default:
         console.error('Invalid form modal render state');
+        return;
     }
   };
 
@@ -360,6 +358,10 @@ export default function WorkflowInstanceDetailsPage() {
       form: null,
     });
     setReloadFlag((prev) => !prev);
+  };
+
+  const onRefetchForm = () => {
+    formResponseQuery.refetch();
   };
 
   return (
@@ -464,7 +466,7 @@ export default function WorkflowInstanceDetailsPage() {
               handleOpenFormModal={handleOpenFormModal}
               handleCloseFormModal={handleCloseFormModal}
               formModalState={formModalState}
-              // formTemplate={formTemplate}
+              onRefetchForm={onRefetchForm}
               currentStep={currentStep}
             />
 

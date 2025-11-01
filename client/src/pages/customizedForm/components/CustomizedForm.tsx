@@ -143,13 +143,6 @@ export const CustomizedForm = ({
                   {formTitle}
                 </RedirectButton>
               )
-            ) : renderState === FormRenderStateEnum.EDIT ? (
-              <RedirectButton
-                sx={BUTTON_SX}
-                type="button" //This makes the button not trigger onSubmit function
-                url={`/forms/edit/${patientId}/${form.id}`}>
-                {formTitle}
-              </RedirectButton>
             ) : renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? (
               <PrimaryButton
                 sx={BUTTON_SX}

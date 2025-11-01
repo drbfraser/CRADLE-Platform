@@ -26,7 +26,7 @@ import { useState } from 'react';
 interface IProps {
   currentStep: InstanceStep | null;
   formModalState: FormModalState;
-  // formTemplate: CForm;
+  onRefetchForm: () => void;
   patientId: string;
   handleCloseFormModal: () => void;
 }
@@ -34,7 +34,7 @@ interface IProps {
 export default function WorkflowFormModal({
   currentStep,
   formModalState,
-  // formTemplate,
+  onRefetchForm,
   patientId,
   handleCloseFormModal: handleCloseFormModal,
 }: IProps) {
@@ -52,10 +52,21 @@ export default function WorkflowFormModal({
           };
           setFormSubmitted(true);
           updateInstanceStepById(currentStep!.id, instanceStepUpdate);
+          onRefetchForm();
         },
       }
     );
   };
+
+  let successMessage: string;
+  switch (formModalState.renderState) {
+    case FormRenderStateEnum.EDIT:
+      successMessage = 'Form Edit Submitted Successfully!';
+      break;
+    default:
+      successMessage = 'Form Submitted Successfully!';
+      break;
+  }
 
   return (
     <>
@@ -124,7 +135,7 @@ export default function WorkflowFormModal({
                     }}>
                     <CheckCircle sx={{ fontSize: 60, color: 'green', mb: 2 }} />
                     <Typography variant="h5" sx={{ mb: 2 }}>
-                      Form Submitted Successfully!
+                      {successMessage}
                     </Typography>
                     <Button variant="contained" onClick={handleCloseFormModal}>
                       Close

@@ -44,7 +44,7 @@ interface IProps {
   handleOpenFormModal: (formRenderState: FormRenderStateEnum) => void;
   handleCloseFormModal: () => void;
   formModalState: FormModalState;
-  // formTemplate: CForm | null;
+  onRefetchForm: () => void;
   currentStep: InstanceStep | null;
 }
 
@@ -59,7 +59,7 @@ export default function WorkflowStepHistory({
   handleOpenFormModal,
   handleCloseFormModal,
   formModalState,
-  // formTemplate,
+  onRefetchForm,
   currentStep,
 }: IProps) {
   const handleViewForm = (stepId: string) => {
@@ -69,6 +69,7 @@ export default function WorkflowStepHistory({
 
   const handleEditForm = (stepId: string) => {
     console.log('Edit form for step:', stepId);
+    handleOpenFormModal(FormRenderStateEnum.EDIT);
   };
 
   const handleDiscardForm = (stepId: string) => {
@@ -394,7 +395,7 @@ export default function WorkflowStepHistory({
         <WorkflowFormModal
           currentStep={currentStep}
           formModalState={formModalState}
-          // formTemplate={formTemplate}
+          onRefetchForm={onRefetchForm}
           patientId={workflowInstance.patientId}
           handleCloseFormModal={handleCloseFormModal}
         />
