@@ -22,7 +22,6 @@ import {
 } from 'src/shared/types/workflow/workflowUiTypes';
 import { formatWorkflowStepStatusText } from '../WorkflowUtils';
 import WorkflowFormModal from './WorkflowFormModal';
-import { CForm } from 'src/shared/types/form/formTypes';
 import { CheckCircle } from '@mui/icons-material';
 import { FormRenderStateEnum } from 'src/shared/enums';
 
@@ -45,6 +44,7 @@ interface IProps {
   handleCloseFormModal: () => void;
   formModalState: FormModalState;
   onRefetchForm: () => void;
+  handleDeleteForm: () => Promise<boolean>;
   currentStep: InstanceStep | null;
 }
 
@@ -60,6 +60,7 @@ export default function WorkflowStepHistory({
   handleCloseFormModal,
   formModalState,
   onRefetchForm,
+  handleDeleteForm,
   currentStep,
 }: IProps) {
   const handleViewForm = (stepId: string) => {
@@ -78,9 +79,28 @@ export default function WorkflowStepHistory({
       title: 'Discard Form',
       message:
         'Are you sure you want to discard the submitted form? This action cannot be undone.',
-      onConfirm: () => {
-        console.log('Discard form for step:', stepId);
-        setConfirmDialog((prev) => ({ ...prev, open: false }));
+      onConfirm: async () => {
+        const result = await handleDeleteForm();
+
+        if (result) {
+          setConfirmDialog({
+            open: true,
+            title: 'Discard Form',
+            message: 'Sucessfully discarded form.',
+            onConfirm: () => {
+              setConfirmDialog((prev) => ({ ...prev, open: false }));
+            },
+          });
+        } else {
+          setConfirmDialog({
+            open: true,
+            title: 'Discard Form',
+            message: 'Error discarding form. Please try again later.',
+            onConfirm: () => {
+              setConfirmDialog((prev) => ({ ...prev, open: false }));
+            },
+          });
+        }
       },
     });
   };
@@ -280,7 +300,9 @@ export default function WorkflowStepHistory({
                                   />
                                 )}
                               </Typography>
-                              {step.formSubmitted ? (
+                              {step.formSubmitted &&
+                              step.formId &&
+                              step.status === StepStatus.ACTIVE ? (
                                 <Box
                                   sx={{
                                     display: 'flex',
@@ -309,7 +331,9 @@ export default function WorkflowStepHistory({
                                     size="small"
                                     variant="outlined"
                                     color="error"
-                                    onClick={() => handleDiscardForm(step.id)}>
+                                    onClick={() =>
+                                      handleDiscardForm(step.formId!)
+                                    }>
                                     Discard
                                   </Button>
                                 </Box>

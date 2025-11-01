@@ -16,6 +16,7 @@ import { Tooltip, IconButton } from '@mui/material';
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
+  deleteFormResponseAsync,
   getFormTemplateLangAsync,
   getInstanceWithSteps,
   getPatientInfoAsync,
@@ -42,10 +43,10 @@ import WorkflowPossibleSteps from './components/WorkflowPossibleSteps';
 import WorkflowConfirmDialog, {
   ConfirmDialogData,
 } from './components/WorkflowConfirmDialog';
-import { CForm } from 'src/shared/types/form/formTypes';
 import { Patient } from 'src/shared/types/patientTypes';
 import { FormRenderStateEnum } from 'src/shared/enums';
 import { useFormResponseQuery } from 'src/pages/customizedForm/queries';
+import axios from 'axios';
 
 function parseYMD(d?: Nullable<string>) {
   if (!d) return undefined;
@@ -351,7 +352,6 @@ export default function WorkflowInstanceDetailsPage() {
 
   const handleCloseFormModal = () => {
     console.log('Closing Form Modal');
-    // setFormTemplate(null);
     setFormModalState({
       open: false,
       renderState: FormRenderStateEnum.FIRST_SUBMIT,
@@ -362,6 +362,37 @@ export default function WorkflowInstanceDetailsPage() {
 
   const onRefetchForm = () => {
     formResponseQuery.refetch();
+  };
+
+  const handleDeleteForm = async () => {
+    try {
+      if (!currentStep) {
+        console.error('Error deleting form (no current step)');
+        return false;
+      }
+
+      if (!currentStep.formId) {
+        console.error('No form associated with current step');
+        return false;
+      }
+
+      await deleteFormResponseAsync(currentStep.formId);
+      console.log('Discarded form for current step successfully.');
+      setReloadFlag((prev) => !prev);
+      setConfirmDialog((prev) => ({ ...prev, open: false }));
+      return true;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error(
+          'Error deleting form for current step:',
+          error.response?.status,
+          error.message
+        );
+      } else {
+        console.log('Unknown error deleting form:', error);
+      }
+      return false;
+    }
   };
 
   return (
@@ -467,6 +498,7 @@ export default function WorkflowInstanceDetailsPage() {
               handleCloseFormModal={handleCloseFormModal}
               formModalState={formModalState}
               onRefetchForm={onRefetchForm}
+              handleDeleteForm={handleDeleteForm}
               currentStep={currentStep}
             />
 
