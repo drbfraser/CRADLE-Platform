@@ -7,6 +7,8 @@ import {
   Button,
   Collapse,
   Divider,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -44,7 +46,7 @@ import WorkflowConfirmDialog, {
   ConfirmDialogData,
 } from './components/WorkflowConfirmDialog';
 import { Patient } from 'src/shared/types/patientTypes';
-import { FormRenderStateEnum } from 'src/shared/enums';
+import { FormRenderStateEnum, SnackbarSeverity } from 'src/shared/enums';
 import { useFormResponseQuery } from 'src/pages/customizedForm/queries';
 import axios from 'axios';
 
@@ -219,6 +221,11 @@ export default function WorkflowInstanceDetailsPage() {
     title: '',
     message: '',
     onConfirm: () => {},
+  });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: SnackbarSeverity.SUCCESS as SnackbarSeverity,
   });
   const [reloadFlag, setReloadFlag] = useState(false);
 
@@ -395,6 +402,14 @@ export default function WorkflowInstanceDetailsPage() {
     }
   };
 
+  const showSnackbar = (message: string, severity: SnackbarSeverity) => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar((prev) => ({ ...prev, open: false }));
+  };
+
   return (
     <>
       {/* Main Workflow Instance Name Heading */}
@@ -500,6 +515,7 @@ export default function WorkflowInstanceDetailsPage() {
               onRefetchForm={onRefetchForm}
               handleDeleteForm={handleDeleteForm}
               currentStep={currentStep}
+              showSnackbar={showSnackbar}
             />
 
             {/* Section 4: Possible Other Steps */}
@@ -516,6 +532,19 @@ export default function WorkflowInstanceDetailsPage() {
           </>
         )}
       </Paper>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 }

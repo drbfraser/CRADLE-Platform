@@ -78,77 +78,82 @@ export default function WorkflowFormModal({
             justifyContent: 'center',
             height: '100vh',
           }}>
-          <Box
-            sx={{
-              minWidth: '60vw',
-              maxWidth: '90vw',
-              flexDirection: 'column',
-            }}>
-            {formModalState.form && currentStep ? (
-              <Paper
-                sx={{
-                  height: '100%',
-                  p: 8,
-                  pt: 6,
-                }}>
-                {!formSubmitted ? (
-                  <>
-                    {/* Close Modal Button */}
-                    <Box sx={{ position: 'relative' }}>
-                      <IconButton
-                        onClick={handleCloseFormModal}
-                        sx={{ position: 'absolute', top: -30, right: -30 }}>
-                        <Close sx={{ color: red[500], fontSize: 30 }} />
-                      </IconButton>
-                    </Box>
+          {formModalState.form && currentStep ? (
+            <Paper
+              sx={{
+                minHeight: '15vw',
+                maxHeight: '50vw',
+                minWidth: '60vw',
+                maxWidth: '90vw',
+                p: 8,
+                pt: 6,
+                borderRadius: 3,
+              }}>
+              {!formSubmitted ? (
+                <>
+                  {/* Close Modal Button */}
+                  <Box sx={{ position: 'relative' }}>
+                    <IconButton
+                      onClick={handleCloseFormModal}
+                      sx={{ position: 'absolute', top: -30, right: -30 }}>
+                      <Close sx={{ color: red[500], fontSize: 30 }} />
+                    </IconButton>
+                  </Box>
 
-                    {/* Form Component */}
-                    <Box sx={{}}>
-                      <Typography variant="h5" sx={{ mb: 1 }}>
-                        {currentStep.title} Form
-                      </Typography>
-                      <Divider sx={{ mb: 4 }} />
-                      <Box
-                        sx={{
-                          flex: 1,
-                          display: 'flex',
-                          flexDirection: 'column',
-                        }}>
-                        <CustomizedForm
-                          patientId={patientId}
-                          fm={formModalState.form}
-                          renderState={formModalState.renderState}
-                          isFormModal={true}
-                          customSubmitHandler={handleSubmit}
-                        />
-                      </Box>
-                    </Box>
-                  </>
-                ) : (
+                  {/* Form Component */}
                   <Box
                     sx={{
-                      flex: 1,
                       display: 'flex',
                       flexDirection: 'column',
                       justifyContent: 'center',
-                      alignItems: 'center',
+                      height: '100%',
+                      width: '100%',
                     }}>
-                    <CheckCircle sx={{ fontSize: 60, color: 'green', mb: 2 }} />
-                    <Typography variant="h5" sx={{ mb: 2 }}>
-                      {successMessage}
+                    <Typography variant="h5" sx={{ mb: 1 }}>
+                      {currentStep.title} Form
                     </Typography>
-                    <Button variant="contained" onClick={handleCloseFormModal}>
-                      Close
-                    </Button>
+                    <Divider sx={{ mb: 4 }} />
+                    <Box
+                      sx={{
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                      }}>
+                      <CustomizedForm
+                        patientId={patientId}
+                        fm={formModalState.form}
+                        renderState={formModalState.renderState}
+                        isFormModal={true}
+                        customSubmitHandler={handleSubmit}
+                      />
+                    </Box>
                   </Box>
-                )}
-              </Paper>
-            ) : (
-              <Box sx={{ p: 4, textAlign: 'center' }}>
-                <CircularProgress /> Loading...
-              </Box>
-            )}
-          </Box>
+                </>
+              ) : (
+                <Box
+                  sx={{
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                  <CheckCircle sx={{ fontSize: 60, color: 'green', mb: 2 }} />
+                  <Typography variant="h5" sx={{ mb: 2 }}>
+                    {successMessage}
+                  </Typography>
+                  <Button variant="contained" onClick={handleCloseFormModal}>
+                    Close
+                  </Button>
+                </Box>
+              )}
+            </Paper>
+          ) : (
+            <Box sx={{ p: 4, textAlign: 'center' }}>
+              <CircularProgress /> Loading...
+            </Box>
+          )}
         </Box>
       </Modal>
     </>

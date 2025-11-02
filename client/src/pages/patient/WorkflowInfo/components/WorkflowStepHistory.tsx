@@ -23,7 +23,7 @@ import {
 import { formatWorkflowStepStatusText } from '../WorkflowUtils';
 import WorkflowFormModal from './WorkflowFormModal';
 import { CheckCircle } from '@mui/icons-material';
-import { FormRenderStateEnum } from 'src/shared/enums';
+import { FormRenderStateEnum, SnackbarSeverity } from 'src/shared/enums';
 
 interface IProps {
   workflowInstance: InstanceDetails;
@@ -46,6 +46,7 @@ interface IProps {
   onRefetchForm: () => void;
   handleDeleteForm: () => Promise<boolean>;
   currentStep: InstanceStep | null;
+  showSnackbar: (message: string, severity: SnackbarSeverity) => void;
 }
 
 export default function WorkflowStepHistory({
@@ -62,6 +63,7 @@ export default function WorkflowStepHistory({
   onRefetchForm,
   handleDeleteForm,
   currentStep,
+  showSnackbar,
 }: IProps) {
   const handleViewForm = (stepId: string) => {
     console.log('View form for step:', stepId);
@@ -83,24 +85,17 @@ export default function WorkflowStepHistory({
         const result = await handleDeleteForm();
 
         if (result) {
-          setConfirmDialog({
-            open: true,
-            title: 'Discard Form',
-            message: 'Sucessfully discarded form.',
-            onConfirm: () => {
-              setConfirmDialog((prev) => ({ ...prev, open: false }));
-            },
-          });
+          showSnackbar(
+            'Form discarded successfully!',
+            SnackbarSeverity.SUCCESS
+          );
         } else {
-          setConfirmDialog({
-            open: true,
-            title: 'Discard Form',
-            message: 'Error discarding form. Please try again later.',
-            onConfirm: () => {
-              setConfirmDialog((prev) => ({ ...prev, open: false }));
-            },
-          });
+          showSnackbar(
+            'Error discarding form. Please try again.',
+            SnackbarSeverity.ERROR
+          );
         }
+        setConfirmDialog((prev) => ({ ...prev, open: false }));
       },
     });
   };
