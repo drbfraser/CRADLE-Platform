@@ -13,8 +13,11 @@ import {
 export const useFormResponseQuery = (formId?: string) =>
   useQuery({
     queryKey: ['formResponse', formId],
-    queryFn: () => getFormResponseAsync(formId!),
-    enabled: !!formId,
+    queryFn: () => {
+      if (!formId || formId.trim() === '') throw new Error('Invalid formId');
+      return getFormResponseAsync(formId!);
+    },
+    enabled: Boolean(formId && formId.trim() !== ''),
   });
 
 export const useFormTemplateQuery = (formId: string | undefined) =>
