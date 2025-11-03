@@ -1,21 +1,9 @@
-from models import (
-    PatientOrm,
-    ReferralOrm,
-    AssessmentOrm,
-    FormOrm
-)
+from models import PatientOrm
 
-from .utils import (
-    __pre_process,
-    __load
-)
+from .api import marshal
+from .registry import register_legacy
+from .utils import __pre_process
 
-from .core import marshal, unmarshal, make_medical_record_from_patient, makePregnancyFromPatient
-
-from .records import (
-    __unmarshal_reading,
-
-)
 
 def __marshal_patient(p: PatientOrm, shallow: bool) -> dict:
     """
@@ -40,70 +28,5 @@ def __marshal_patient(p: PatientOrm, shallow: bool) -> dict:
         d["assessments"] = [marshal(a) for a in p.assessments]
     return d
 
-def __unmarshal_patient(d: dict) -> PatientOrm:
-    """
-    Construct a ``PatientOrm``; recursively unmarshal nested lists and fix fields.
 
-    :param d: Patient payload (may include readings/referrals/assessments/forms).
-    :return: ``PatientOrm`` with nested collections attached.
-    """
-    # Unmarshal any readings found within the patient
-    if d.get("readings") is not None:
-        readings = [__unmarshal_reading(r) for r in d["readings"]]
-        # Delete the entry so that we don't try to unmarshal them again by loading from
-        # the patient schema.
-        del d["readings"]
-    else:
-        readings = []
-
-    # Unmarshal any referrals found within the patient
-    if d.get("referrals") is not None:
-        referrals = [unmarshal(ReferralOrm, r) for r in d["referrals"]]
-        # Delete the entry so that we don't try to unmarshal them again by loading from
-        # the patient schema.
-        del d["referrals"]
-    else:
-        referrals = []
-
-    # Unmarshal any assessments found within the patient
-    if d.get("assessments") is not None:
-        assessments = [unmarshal(AssessmentOrm, a) for a in d["assessments"]]
-        # Delete the entry so that we don't try to unmarshal them again by loading from
-        # the patient schema.
-        del d["assessments"]
-    else:
-        assessments = []
-
-    # Unmarshal any forms found within the patient
-    if d.get("forms") is not None:
-        forms = [unmarshal(FormOrm, f) for f in d["forms"]]
-        # Delete the entry so that we don't try to unmarshal them again by loading from
-        # the patient schema.
-        del d["forms"]
-    else:
-        forms = []
-
-    medRecords = make_medical_record_from_patient(d)
-    pregnancy = makePregnancyFromPatient(d)
-
-    # Since "base" doesn't have a column in the database, we must remove it from its
-    # marshalled representation before converting back to an object.
-    if d.get("base"):
-        del d["base"]
-
-    # Put the readings back into the patient
-    patient = __load(PatientOrm, d)
-    if readings:
-        patient.readings = readings
-    if referrals:
-        patient.referrals = referrals
-    if assessments:
-        patient.assessments = assessments
-    if medRecords:
-        patient.records = medRecords
-    if pregnancy:
-        patient.pregnancies = pregnancy
-    if forms:
-        patient.forms = forms
-
-    return patient
+register_legacy(PatientOrm, helper=__marshal_patient, mode="S", type_label="patient")

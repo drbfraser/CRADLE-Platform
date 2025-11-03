@@ -1,9 +1,9 @@
-from typing import Any, Dict, Type
-from typing import Dict, Any
 from enum import Enum
-from data.db_operations import M
+from typing import Any, Dict, Type
 
+from data.db_operations import M
 from models import get_schema_for_model
+
 
 def __pre_process(d: Dict[str, Any]):
     """
@@ -42,6 +42,7 @@ def __strip_protected_attributes(d: Dict[str, Any]):
     for k in remove:
         del d[k]
 
+
 def __load(m: Type[M], d: dict) -> M:
     """
     Load a model instance from ``dict`` using the model's Marshmallow schema.
@@ -53,4 +54,3 @@ def __load(m: Type[M], d: dict) -> M:
     """
     schema = get_schema_for_model(m)
     return schema().load(d)
-
