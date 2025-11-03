@@ -29,4 +29,4 @@ def __marshal_patient(p: PatientOrm, shallow: bool) -> dict:
     return d
 
 
-register_legacy(PatientOrm, helper=__marshal_patient, mode="S", type_label="patient")
+register_legacy(PatientOrm, marshal_helper=__marshal_patient, marshal_mode="S", type_label="patient")

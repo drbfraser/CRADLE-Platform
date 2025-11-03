@@ -10,6 +10,10 @@ class MarshalCallable(Protocol):
     def __call__(self, obj: Any, shallow: bool, if_include_versions: bool) -> dict: ...
 
 
+class UnmarshalCallable(Protocol):
+    def __call__(self, data: dict) -> Any: ... 
+
+
 class MarshalAdapter:
     """Adapts legacy helper signatures to (obj, shallow, if_include_versions)."""
 
@@ -51,19 +55,26 @@ class MarshalAdapter:
 
 
 _marshal: Dict[Type[Any], MarshalCallable] = {}
+_unmarshal: Dict[Type[Any], UnmarshalCallable] = {}
 _type_labels: Dict[Type[Any], str] = {}
 
 
 def register_legacy(
-    model: Type[Any], *, helper: Callable, mode: str, type_label: str = None
+    model: Type[Any], *, marshal_helper: Callable, marshal_mode: str, unmarshal_helper: Callable | None = None, type_label: str = None
 ) -> None:
-    _marshal[model] = MarshalAdapter(helper, mode)
+    if marshal_helper is not None:
+        _marshal[model] = MarshalAdapter(marshal_helper, marshal_mode)
+    if unmarshal_helper is not None:
+        _unmarshal[model] = unmarshal_helper
     if type_label:
         _type_labels[model] = type_label
 
 
 def get_marshal(model: Type[Any]) -> MarshalCallable:
     return _marshal.get(model)
+
+def get_unmarshal(model: Type[Any]) -> UnmarshalCallable | None:
+    return _unmarshal.get(model)
 
 
 def resolve_marshal_for_obj(obj: Any) -> MarshalCallable:
@@ -72,7 +83,6 @@ def resolve_marshal_for_obj(obj: Any) -> MarshalCallable:
         return fn
     # tolerant fallback for SQLAlchemy proxies / import-path drift
     for cls, handler in _marshal.items():
-
         if isinstance(obj, cls):
             return handler
     return None

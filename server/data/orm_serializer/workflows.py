@@ -181,46 +181,46 @@ def __marshal_workflow_instance(wi: WorkflowInstanceOrm, shallow: bool = False) 
 
 register_legacy(
     WorkflowCollectionOrm,
-    helper=__marshal_workflow_collection,
-    mode="S",
+    marshal_helper=__marshal_workflow_collection,
+    marshal_mode="S",
     type_label="workflow_collection",
 )
 register_legacy(
     WorkflowTemplateOrm,
-    helper=__marshal_workflow_template,
-    mode="S",
+    marshal_helper=__marshal_workflow_template,
+    marshal_mode="S",
     type_label="workflow_template",
 )
 register_legacy(
     WorkflowClassificationOrm,
-    helper=__marshal_workflow_classification,
-    mode="SV",
+    marshal_helper=__marshal_workflow_classification,
+    marshal_mode="SV",
     type_label="workflow_classification",
 )
 register_legacy(
     WorkflowInstanceOrm,
-    helper=__marshal_workflow_instance,
-    mode="S",
+    marshal_helper=__marshal_workflow_instance,
+    marshal_mode="S",
     type_label="workflow_instance",
 )
 register_legacy(
     WorkflowInstanceStepOrm,
-    helper=__marshal_workflow_instance_step,
-    mode="",
+    marshal_helper=__marshal_workflow_instance_step,
+    marshal_mode="",
     type_label="workflow_instance_step",
 )
 register_legacy(
     WorkflowTemplateStepOrm,
-    helper=__marshal_workflow_template_step,
-    mode="S",
+    marshal_helper=__marshal_workflow_template_step,
+    marshal_mode="S",
     type_label="workflow_template_step",
 )
 register_legacy(
     WorkflowTemplateStepBranchOrm,
-    helper=__marshal_workflow_template_step_branch,
-    mode="",
+    marshal_helper=__marshal_workflow_template_step_branch,
+    marshal_mode="",
     type_label="workflow_template_step_branch",
 )
 register_legacy(
-    RuleGroupOrm, helper=__marshal_rule_group, mode="", type_label="rule_group"
+    RuleGroupOrm, marshal_helper=__marshal_rule_group, marshal_mode="", type_label="rule_group"
 )

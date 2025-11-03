@@ -90,16 +90,16 @@ def __marshal_form(f: FormOrm, shallow: bool) -> dict:
     return d
 
 
-register_legacy(FormOrm, helper=__marshal_form, mode="S", type_label="form")
+register_legacy(FormOrm, marshal_helper=__marshal_form, marshal_mode="S", type_label="form")
 register_legacy(
     FormTemplateOrm,
-    helper=__marshal_form_template,
-    mode="SV",
+    marshal_helper=__marshal_form_template,
+    marshal_mode="SV",
     type_label="form_template",
 )
 register_legacy(
     FormClassificationOrm,
-    helper=__marshal_form_classification,
-    mode="V",
+    marshal_helper=__marshal_form_classification,
+    marshal_mode="V",
     type_label="form_classification",
 )

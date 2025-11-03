@@ -112,17 +112,17 @@ def __marshal_medical_record(r: MedicalRecordOrm) -> dict:
     return d
 
 
-register_legacy(ReadingOrm, helper=__marshal_reading, mode="S", type_label="reading")
-register_legacy(ReferralOrm, helper=__marshal_referral, mode="", type_label="referral")
+register_legacy(ReadingOrm, marshal_helper=__marshal_reading, marshal_mode="S", type_label="reading")
+register_legacy(ReferralOrm, marshal_helper=__marshal_referral, marshal_mode="", type_label="referral")
 register_legacy(
-    AssessmentOrm, helper=__marshal_assessment, mode="", type_label="assessment"
+    AssessmentOrm, marshal_helper=__marshal_assessment, marshal_mode="", type_label="assessment"
 )
 register_legacy(
-    PregnancyOrm, helper=__marshal_pregnancy, mode="", type_label="pregnancy"
+    PregnancyOrm, marshal_helper=__marshal_pregnancy, marshal_mode="", type_label="pregnancy"
 )
 register_legacy(
     MedicalRecordOrm,
-    helper=__marshal_medical_record,
-    mode="",
+    marshal_helper=__marshal_medical_record,
+    marshal_mode="",
     type_label="medical_record",
 )

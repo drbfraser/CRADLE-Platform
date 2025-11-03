@@ -1,5 +1,9 @@
 from typing import Any
 
+from models import get_schema_for_model
+from common import commonUtil
+from .registry import get_unmarshal
+
 from .registry import (
     get_marshal,
     get_type_label,
@@ -25,9 +29,10 @@ def marshal_with_type(obj: Any, shallow: bool = False) -> dict:
     return d
 
 
-# def unmarshal(m: Type[Any], d: dict) -> Any:
-#     fn = get_unmarshal(m)
-#     if fn:
-#         return fn(d)
-#     schema = get_schema_for_model(m)
-#     return schema().load(d)
+def unmarshal(model: type, data: dict) -> Any:
+    d = commonUtil.filterNestedAttributeWithValueNone(data)
+    fn = get_unmarshal(model)
+    if fn:
+        return fn(d)
+    schema_cls = get_schema_for_model(model)
+    return schema_cls().load(d)

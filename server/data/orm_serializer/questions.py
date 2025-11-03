@@ -97,11 +97,10 @@ def marshal_question_to_single_version(q: QuestionOrm, lang: str) -> dict:
     return d
 
 
-# Ensure registry entry exists
-register_legacy(QuestionOrm, helper=__marshal_question, mode="V", type_label="question")
+register_legacy(QuestionOrm, marshal_helper=__marshal_question, marshal_mode="V", type_label="question")
 register_legacy(
     QuestionLangVersionOrm,
-    helper=__marshal_lang_version,
-    mode="",
+    marshal_helper=__marshal_lang_version,
+    marshal_mode="",
     type_label="question_lang_version",
 )
