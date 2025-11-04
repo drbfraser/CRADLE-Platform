@@ -11,7 +11,7 @@ class MarshalCallable(Protocol):
 
 
 class UnmarshalCallable(Protocol):
-    def __call__(self, data: dict) -> Any: ... 
+    def __call__(self, data: dict) -> Any: ...
 
 
 class MarshalAdapter:
@@ -60,7 +60,12 @@ _type_labels: Dict[Type[Any], str] = {}
 
 
 def register_legacy(
-    model: Type[Any], *, marshal_helper: Callable, marshal_mode: str, unmarshal_helper: Callable | None = None, type_label: str = None
+    model: Type[Any],
+    *,
+    marshal_helper: Callable,
+    marshal_mode: str,
+    unmarshal_helper: Callable | None = None,
+    type_label: str = None,
 ) -> None:
     if marshal_helper is not None:
         _marshal[model] = MarshalAdapter(marshal_helper, marshal_mode)
@@ -72,6 +77,7 @@ def register_legacy(
 
 def get_marshal(model: Type[Any]) -> MarshalCallable:
     return _marshal.get(model)
+
 
 def get_unmarshal(model: Type[Any]) -> UnmarshalCallable | None:
     return _unmarshal.get(model)
