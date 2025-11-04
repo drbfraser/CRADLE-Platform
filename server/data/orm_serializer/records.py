@@ -5,10 +5,11 @@ from models import (
     ReadingOrm,
     ReferralOrm,
 )
+from service import invariant
 
 from .api import marshal
 from .registry import register_legacy
-from .utils import __pre_process
+from .utils import __load, __pre_process
 
 
 def __marshal_reading(r: ReadingOrm, shallow: bool) -> dict:
@@ -35,6 +36,26 @@ def __marshal_reading(r: ReadingOrm, shallow: bool) -> dict:
             if rel in d:
                 del d[rel]
     return d
+
+
+def __unmarshal_reading(d: dict) -> ReadingOrm:
+    """
+    Construct a ``ReadingOrm``; convert symptoms list→CSV and resolve invariants.
+
+    :param d: Reading payload (``symptoms`` may be list or CSV string).
+    :return: ``ReadingOrm`` with invariants resolved.
+    """
+    # Convert "symptoms" from array to string, if plural number of symptoms
+    symptomsGiven = d.get("symptoms")
+    if symptomsGiven is not None:
+        if isinstance(symptomsGiven, list):
+            d["symptoms"] = ",".join(d["symptoms"])
+
+    reading = __load(ReadingOrm, d)
+
+    invariant.resolve_reading_invariants(reading)
+
+    return reading
 
 
 def __marshal_referral(r: ReferralOrm) -> dict:
@@ -112,13 +133,30 @@ def __marshal_medical_record(r: MedicalRecordOrm) -> dict:
     return d
 
 
-register_legacy(ReadingOrm, marshal_helper=__marshal_reading, marshal_mode="S", type_label="reading")
-register_legacy(ReferralOrm, marshal_helper=__marshal_referral, marshal_mode="", type_label="referral")
 register_legacy(
-    AssessmentOrm, marshal_helper=__marshal_assessment, marshal_mode="", type_label="assessment"
+    ReadingOrm,
+    marshal_helper=__marshal_reading,
+    marshal_mode="S",
+    unmarshal_helper=__unmarshal_reading,
+    type_label="reading",
 )
 register_legacy(
-    PregnancyOrm, marshal_helper=__marshal_pregnancy, marshal_mode="", type_label="pregnancy"
+    ReferralOrm,
+    marshal_helper=__marshal_referral,
+    marshal_mode="",
+    type_label="referral",
+)
+register_legacy(
+    AssessmentOrm,
+    marshal_helper=__marshal_assessment,
+    marshal_mode="",
+    type_label="assessment",
+)
+register_legacy(
+    PregnancyOrm,
+    marshal_helper=__marshal_pregnancy,
+    marshal_mode="",
+    type_label="pregnancy",
 )
 register_legacy(
     MedicalRecordOrm,

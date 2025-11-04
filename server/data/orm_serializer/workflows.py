@@ -9,9 +9,14 @@ from models import (
     WorkflowTemplateStepOrm,
 )
 
-from .forms import __marshal_form, __marshal_form_template
+from .forms import (
+    __marshal_form,
+    __marshal_form_template,
+    __unmarshal_form,
+    __unmarshal_form_template,
+)
 from .registry import register_legacy
-from .utils import __pre_process
+from .utils import __load, __pre_process, _no_autoflush_ctx
 
 
 def __marshal_rule_group(rg: RuleGroupOrm) -> dict:
@@ -179,6 +184,112 @@ def __marshal_workflow_instance(wi: WorkflowInstanceOrm, shallow: bool = False) 
     return d
 
 
+def __unmarshal_workflow_template_step_branch(d: dict) -> WorkflowTemplateStepBranchOrm:
+    """
+    Construct a ``WorkflowTemplateStepBranchOrm`` and unmarshal its condition if present.
+
+    :param d: Workflow template step branch payload dictionary.
+    :return: ``WorkflowTemplateStepBranchOrm`` with optional ``condition``.
+    """
+    template_step_branch_orm = __load(WorkflowTemplateStepBranchOrm, d)
+
+    if d.get("condition") is not None:
+        template_step_branch_orm.condition = __load(RuleGroupOrm, d.get("condition"))
+
+    return template_step_branch_orm
+
+
+def __unmarshal_workflow_template_step(d: dict) -> WorkflowTemplateStepOrm:
+    """
+    Construct a ``WorkflowTemplateStepOrm``; attach branches and form if provided.
+
+    :param d: Workflow template step payload dictionary.
+    :return: ``WorkflowTemplateStepOrm`` with branches/form set.
+    """
+    branches = []
+    form = None
+
+    if d.get("branches") is not None:
+        branches = [
+            __unmarshal_workflow_template_step_branch(b) for b in d.get("branches")
+        ]
+        del d["branches"]
+
+    if d.get("form") is not None:
+        form = __unmarshal_form_template(d.get("form"))
+        del d["form"]
+
+    workflow_template_step_orm = __load(WorkflowTemplateStepOrm, d)
+    workflow_template_step_orm.branches = branches
+    workflow_template_step_orm.form = form
+
+    return workflow_template_step_orm
+
+
+def __unmarshal_workflow_template(d: dict) -> WorkflowTemplateOrm:
+    """
+    Construct a ``WorkflowTemplateOrm``; attach steps and classification if provided.
+
+    :param d: Workflow template payload dictionary.
+    :return: ``WorkflowTemplateOrm`` with steps/classification set.
+    """
+    with _no_autoflush_ctx():
+        steps = []
+        classification = None
+
+        if d.get("steps") is not None:
+            steps = [__unmarshal_workflow_template_step(s) for s in d.get("steps")]
+            del d["steps"]
+
+        if d.get("classification") is not None:
+            classification = __load(WorkflowClassificationOrm, d.get("classification"))
+            del d["classification"]
+
+        workflow_template_orm = __load(WorkflowTemplateOrm, d)
+        workflow_template_orm.steps = steps
+        workflow_template_orm.classification = classification
+
+    return workflow_template_orm
+
+
+def __unmarshal_workflow_instance_step(d: dict) -> WorkflowInstanceStepOrm:
+    """
+    Construct a ``WorkflowInstanceStepOrm``; unmarshal its form if present.
+
+    :param d: Workflow instance step payload dictionary.
+    :return: ``WorkflowInstanceStepOrm`` with optional form.
+    """
+    form = None
+
+    if d.get("form") is not None:
+        form = __unmarshal_form(d.get("form"))
+        del d["form"]
+
+    workflow_instance_step_orm = __load(WorkflowInstanceStepOrm, d)
+    workflow_instance_step_orm.form = form
+
+    return workflow_instance_step_orm
+
+
+def __unmarshal_workflow_instance(d: dict) -> WorkflowInstanceOrm:
+    """
+    Construct a ``WorkflowInstanceOrm``; attach steps if present.
+
+    :param d: Workflow instance payload dictionary.
+    :return: ``WorkflowInstanceOrm`` with steps set.
+    """
+    steps = []
+
+    if d.get("steps") is not None:
+        steps = [__unmarshal_workflow_instance_step(d) for d in d.get("steps")]
+        del d["steps"]
+
+    workflow_instance_orm = __load(WorkflowInstanceOrm, d)
+    workflow_instance_orm.steps = steps
+
+    return workflow_instance_orm
+
+
 register_legacy(
     WorkflowCollectionOrm,
     marshal_helper=__marshal_workflow_collection,
@@ -189,6 +300,7 @@ register_legacy(
     WorkflowTemplateOrm,
     marshal_helper=__marshal_workflow_template,
     marshal_mode="S",
+    unmarshal_helper=__unmarshal_workflow_template,
     type_label="workflow_template",
 )
 register_legacy(
@@ -201,26 +313,33 @@ register_legacy(
     WorkflowInstanceOrm,
     marshal_helper=__marshal_workflow_instance,
     marshal_mode="S",
+    unmarshal_helper=__unmarshal_workflow_instance,
     type_label="workflow_instance",
 )
 register_legacy(
     WorkflowInstanceStepOrm,
     marshal_helper=__marshal_workflow_instance_step,
     marshal_mode="",
+    unmarshal_helper=__unmarshal_workflow_instance_step,
     type_label="workflow_instance_step",
 )
 register_legacy(
     WorkflowTemplateStepOrm,
     marshal_helper=__marshal_workflow_template_step,
     marshal_mode="S",
+    unmarshal_helper=__unmarshal_workflow_template_step,
     type_label="workflow_template_step",
 )
 register_legacy(
     WorkflowTemplateStepBranchOrm,
     marshal_helper=__marshal_workflow_template_step_branch,
     marshal_mode="",
+    unmarshal_helper=__unmarshal_workflow_template_step_branch,
     type_label="workflow_template_step_branch",
 )
 register_legacy(
-    RuleGroupOrm, marshal_helper=__marshal_rule_group, marshal_mode="", type_label="rule_group"
+    RuleGroupOrm,
+    marshal_helper=__marshal_rule_group,
+    marshal_mode="",
+    type_label="rule_group",
 )
