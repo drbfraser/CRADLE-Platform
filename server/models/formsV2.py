@@ -12,36 +12,16 @@ class LangVersionOrmV2(db.Model):
     displayable content. Each piece of text is identified by a string_id and can
     have multiple translations (one per language).
 
-    String ID Naming Convention (Dot Notation):
-        Use hierarchical dot notation to organize and enable reuse across forms:
-        Format: {domain}.{subdomain}.{specific_field}
-
-    Examples:
-            'vital_signs.heart_rate'              -> "What is the patient's heart rate?"
-            'vital_signs.blood_pressure.systolic' -> "Systolic blood pressure"
-            'patient_info.demographics.name'      -> "Patient's full name"
-            'medical_history.allergies.medications' -> "Any medication allergies?"
-
-    For multiple choice options:
-                'vital_signs.blood_type.option.a_pos' -> "A+"
-                'vital_signs.blood_type.option.o_neg' -> "O-"
-
-    Benefits:
-        - Reuse common questions across multiple forms without duplication
-        - Logical grouping (e.g., all vital_signs.* questions)
-        - Query by prefix: WHERE string_id LIKE 'vital_signs.%'
-        - Consistent wording when same question appears in different forms
-
     Translation Example:
-        string_id='vital_signs.heart_rate', lang='English' -> "What is the patient's heart rate?"
-        string_id='vital_signs.heart_rate', lang='French'  -> "Quelle est la fréquence cardiaque du patient?"
+        string_id='some-uuid', lang='English' -> "What is the patient's heart rate?"
+        string_id='some-uuid', lang='French'  -> "Quelle est la fréquence cardiaque du patient?"
 
     Primary Key: (string_id, lang) - ensures one translation per language per string
 
     """
 
     __tablename__ = "lang_version_v2"
-    string_id = db.Column(db.String(200), primary_key=True)
+    string_id = db.Column(db.String(50), primary_key=True)
     lang = db.Column(db.String(50), primary_key=True, default="English")
     text = db.Column(db.Text(collation="utf8mb4_general_ci"), nullable=False)
 
@@ -57,6 +37,7 @@ class FormClassificationOrmV2(db.Model):
     - Track all versions of a form under one identifier
     - Rename a form once and have it apply to all versions
     - Query for all versions of a specific form type, or the latest version of a form type
+    - name_string_id points to the translation for this form's name, enabling internationalization.
 
     Example:
         "Patient Intake Form" classification has:
@@ -69,7 +50,7 @@ class FormClassificationOrmV2(db.Model):
     __tablename__ = "form_classification_v2"
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
 
-    name_string_id = db.Column(db.String(200), index=True, nullable=False)
+    name_string_id = db.Column(db.String(50), index=True, nullable=False)
 
     templates = db.relationship(
         "FormTemplateOrmV2",
@@ -102,8 +83,8 @@ class FormTemplateOrmV2(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     form_classification_id = db.Column(
         db.String(50),
-        db.ForeignKey("form_classification_v2.id", ondelete="SET NULL"),
-        nullable=True,
+        db.ForeignKey("form_classification_v2.id", ondelete="CASCADE"),
+        nullable=False,
     )
 
     version = db.Column(db.Integer, nullable=False, default=1)
@@ -128,29 +109,42 @@ class FormQuestionTemplateOrmV2(db.Model):
     Each question has:
     - A type (text input, multiple choice, date, etc.)
     - Validation rules specific to that type
+    - A user entered identifier for the question, to be used in the rules engine for workflows
     - Display logic (when it should be visible)
     - Translation support via string_id
 
-    Questions are immutable - they belong to a specific template version.
-    Editing a question means creating a new template version with the updated question.
+    Key concepts:
+    - `string_id`: Internal translation key (UUID) used for internationalization.
+      Each question's text and options are stored in separate language tables referencing this ID.
 
-    String ID Convention:
-        Questions use dot notation for organization and reusability.
-        MC options follow pattern: {question_string_id}.option.{option_id}
+    - `user_question_id`: A user-defined, human-readable identifier that
+      can be used to reference this field in workflows, specifically the data extractor in rules engine.
+      For example, if the question asks for the patient's age, the user might define
+      `user_question_id="patient_age"`. This value is stored as-is (not converted to a UUID)
+      and remains consistent across versions for rule referencing.
 
-    Examples:
-        Question: "What is the patient's heart rate?"
-        - type: NUMBER
-        - string_id: 'vital_signs.heart_rate'
-        - required: True
-        - num_min: 40, num_max: 200
-        - units: "bpm"
+    - Questions are immutable - they belong to a specific template version.
+      Editing a question means creating a new template version with the updated question.
 
-        Question: "What is the patient's blood type?"
-        - type: MULTIPLE_CHOICE
-        - string_id: 'vital_signs.blood_type'
-        - mc_options: ["vital_signs.blood_type.option.a_pos",
-                       "vital_signs.blood_type.option.a_neg", ...]
+    Example 1 — Numeric Question:
+            "What is the patient's heart rate?"
+            - question_type: NUMBER
+            - string_id: "some-uuid-1"
+            - user_question_id: "patient_heart_rate"
+            - required: True
+            - num_min: 40, num_max: 200
+            - units: "bpm"
+
+    Example 2 — Multiple Choice Question:
+        "What is the patient's blood type?"
+        - question_type: MULTIPLE_CHOICE
+        - string_id: "some-uuid-2"
+        - user_question_id: "patient_blood_type"
+        - mc_options: [
+            "some-uuid-2-mc-1",
+            "some-uuid-2-mc-2",
+            ...
+            ]
 
     """
 
@@ -158,19 +152,23 @@ class FormQuestionTemplateOrmV2(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     form_template_id = db.Column(
         db.String(50),
-        db.ForeignKey("form_template_v2.id", ondelete="SET NULL"),
+        db.ForeignKey("form_template_v2.id", ondelete="CASCADE"),
         index=True,
     )
 
     order = db.Column(db.Integer, nullable=False)
     question_type = db.Column(db.Enum(QuestionTypeEnum), nullable=False)
-    string_id = db.Column(db.String(200), nullable=False)
-    mc_options = db.Column(db.Text, nullable=True)
+
+    string_id = db.Column(db.String(50), nullable=False)
+    mc_options = db.Column(db.Text, nullable=True)  # JSON array of UUIDs
+    user_question_id = db.Column(db.String(50), nullable=False)
+
     has_comment_attached = db.Column(db.Boolean, nullable=False, default=False)
     category_index = db.Column(db.Integer, nullable=True)
     required = db.Column(db.Boolean, nullable=False, default=False)
     visible_condition = db.Column(db.Text, nullable=False, default="[]")
     units = db.Column(db.Text, nullable=True)
+
     num_min = db.Column(db.Float, nullable=True)
     num_max = db.Column(db.Float, nullable=True)
     string_max_length = db.Column(db.Integer, nullable=True)
@@ -201,7 +199,7 @@ class FormSubmissionOrmV2(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     form_template_id = db.Column(
         db.String(50),
-        db.ForeignKey("form_template_v2.id", ondelete="SET NULL"),
+        db.ForeignKey("form_template_v2.id", ondelete="CASCADE"),
     )
     patient_id = db.Column(
         db.String(50),
@@ -209,7 +207,7 @@ class FormSubmissionOrmV2(db.Model):
         nullable=False,
     )
     user_id = db.Column(
-        db.Integer, db.ForeignKey("user.id", ondelete="SET NULL"), nullable=True
+        db.Integer, db.ForeignKey("user.id", ondelete="CASCADE"), nullable=False
     )
     date_submitted = db.Column(db.BigInteger, nullable=False, default=get_current_time)
     last_edited = db.Column(
@@ -258,12 +256,12 @@ class FormAnswerOrmV2(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     question_id = db.Column(
         db.String(50),
-        db.ForeignKey("form_question_template_v2.id", ondelete="SET NULL"),
-        nullable=True,
+        db.ForeignKey("form_question_template_v2.id", ondelete="CASCADE"),
+        nullable=False,
     )
     form_submission_id = db.Column(
         db.String(50),
-        db.ForeignKey("form_submission_v2.id", ondelete="SET NULL"),
-        nullable=True,
+        db.ForeignKey("form_submission_v2.id", ondelete="CASCADE"),
+        nullable=False,
     )
     answer = db.Column(db.Text(collation="utf8mb4_general_ci"), nullable=False)

@@ -1,9 +1,9 @@
 """
 add form v2 tables
 
-Revision ID: 23_9d3d0623037e
+Revision ID: 23_89f6c4a8dc52
 Revises: 22_298e59ec02b9
-Create Date: 2025-10-31 04:36:33.781590
+Create Date: 2025-11-04 05:56:48.404815
 
 """
 
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "23_9d3d0623037e"
+revision = "23_89f6c4a8dc52"
 down_revision = "22_298e59ec02b9"
 branch_labels = None
 depends_on = None
@@ -22,7 +22,7 @@ def upgrade():
     op.create_table(
         "form_classification_v2",
         sa.Column("id", sa.String(length=50), nullable=False),
-        sa.Column("name_string_id", sa.String(length=200), nullable=False),
+        sa.Column("name_string_id", sa.String(length=50), nullable=False),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_form_classification_v2")),
     )
     op.create_index(
@@ -33,7 +33,7 @@ def upgrade():
     )
     op.create_table(
         "lang_version_v2",
-        sa.Column("string_id", sa.String(length=200), nullable=False),
+        sa.Column("string_id", sa.String(length=50), nullable=False),
         sa.Column("lang", sa.String(length=50), nullable=False),
         sa.Column("text", sa.Text(collation="utf8mb4_general_ci"), nullable=False),
         sa.PrimaryKeyConstraint("string_id", "lang", name=op.f("pk_lang_version_v2")),
@@ -41,7 +41,7 @@ def upgrade():
     op.create_table(
         "form_template_v2",
         sa.Column("id", sa.String(length=50), nullable=False),
-        sa.Column("form_classification_id", sa.String(length=50), nullable=True),
+        sa.Column("form_classification_id", sa.String(length=50), nullable=False),
         sa.Column("version", sa.Integer(), nullable=False),
         sa.Column("archived", sa.Boolean(), nullable=False),
         sa.Column("is_latest", sa.Boolean(), nullable=False),
@@ -52,7 +52,7 @@ def upgrade():
             name=op.f(
                 "fk_form_template_v2_form_classification_id_form_classification_v2"
             ),
-            ondelete="SET NULL",
+            ondelete="CASCADE",
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_form_template_v2")),
     )
@@ -77,8 +77,9 @@ def upgrade():
             ),
             nullable=False,
         ),
-        sa.Column("string_id", sa.String(length=200), nullable=False),
+        sa.Column("string_id", sa.String(length=50), nullable=False),
         sa.Column("mc_options", sa.Text(), nullable=True),
+        sa.Column("user_question_id", sa.String(length=50), nullable=False),
         sa.Column("has_comment_attached", sa.Boolean(), nullable=False),
         sa.Column("category_index", sa.Integer(), nullable=True),
         sa.Column("required", sa.Boolean(), nullable=False),
@@ -94,7 +95,7 @@ def upgrade():
             ["form_template_id"],
             ["form_template_v2.id"],
             name=op.f("fk_form_question_template_v2_form_template_id_form_template_v2"),
-            ondelete="SET NULL",
+            ondelete="CASCADE",
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_form_question_template_v2")),
     )
@@ -109,7 +110,7 @@ def upgrade():
         sa.Column("id", sa.String(length=50), nullable=False),
         sa.Column("form_template_id", sa.String(length=50), nullable=True),
         sa.Column("patient_id", sa.String(length=50), nullable=False),
-        sa.Column("user_id", sa.Integer(), nullable=True),
+        sa.Column("user_id", sa.Integer(), nullable=False),
         sa.Column("date_submitted", sa.BigInteger(), nullable=False),
         sa.Column("last_edited", sa.BigInteger(), nullable=False),
         sa.Column("lang", sa.String(length=50), nullable=False),
@@ -117,7 +118,7 @@ def upgrade():
             ["form_template_id"],
             ["form_template_v2.id"],
             name=op.f("fk_form_submission_v2_form_template_id_form_template_v2"),
-            ondelete="SET NULL",
+            ondelete="CASCADE",
         ),
         sa.ForeignKeyConstraint(
             ["patient_id"],
@@ -129,27 +130,27 @@ def upgrade():
             ["user_id"],
             ["user.id"],
             name=op.f("fk_form_submission_v2_user_id_user"),
-            ondelete="SET NULL",
+            ondelete="CASCADE",
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_form_submission_v2")),
     )
     op.create_table(
         "form_answer_v2",
         sa.Column("id", sa.String(length=50), nullable=False),
-        sa.Column("question_id", sa.String(length=50), nullable=True),
-        sa.Column("form_submission_id", sa.String(length=50), nullable=True),
+        sa.Column("question_id", sa.String(length=50), nullable=False),
+        sa.Column("form_submission_id", sa.String(length=50), nullable=False),
         sa.Column("answer", sa.Text(collation="utf8mb4_general_ci"), nullable=False),
         sa.ForeignKeyConstraint(
             ["form_submission_id"],
             ["form_submission_v2.id"],
             name=op.f("fk_form_answer_v2_form_submission_id_form_submission_v2"),
-            ondelete="SET NULL",
+            ondelete="CASCADE",
         ),
         sa.ForeignKeyConstraint(
             ["question_id"],
             ["form_question_template_v2.id"],
             name=op.f("fk_form_answer_v2_question_id_form_question_template_v2"),
-            ondelete="SET NULL",
+            ondelete="CASCADE",
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_form_answer_v2")),
     )
