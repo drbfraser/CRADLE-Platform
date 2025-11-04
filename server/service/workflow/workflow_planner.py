@@ -36,7 +36,7 @@ class WorkflowPlanner:
         """
         template_step = ctx.get_template_step(step.workflow_template_step_id)
 
-        if template_step.branches:
+        if template_step.branches and template_step.branches[0].target_step_id:
             next_step = ctx.get_instance_step_for_template_step(
                 template_step.branches[0].target_step_id
             )

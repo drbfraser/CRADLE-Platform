@@ -177,5 +177,7 @@ class CompleteStepActionModel(CradleBaseModel):
 
 
 WorkflowActionModel = Union[
-    StartWorkflowActionModel, StartStepActionModel, CompleteStepActionModel
+    StartWorkflowActionModel,
+    StartStepActionModel,
+    CompleteStepActionModel,
 ]

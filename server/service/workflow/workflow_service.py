@@ -1,7 +1,7 @@
 from typing import Optional
 
 import data.db_operations as crud
-from common.commonUtil import get_current_time, get_uuid
+from common.commonUtil import get_uuid
 from data import marshal
 from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
 from models.workflows import WorkflowInstanceOrm, WorkflowTemplateOrm
@@ -72,10 +72,12 @@ class WorkflowService:
 
     @classmethod
     def upsert_workflow_instance(cls, workflow_instance: WorkflowInstanceModel):
-        workflow_instance.last_edited = get_current_time()
+        # TODO: Temporarily commented out until DB date defaults are removed (can cause last_edited < start_date),
+        # which causes pydantic validation to fail.
+        # workflow_instance.last_edited = get_current_time()
 
-        for instance_step in workflow_instance.steps:
-            instance_step.last_edited = get_current_time()
+        # for instance_step in workflow_instance.steps:
+        #     instance_step.last_edited = get_current_time()
 
         workflow_instance_orm = marshal.unmarshal(
             WorkflowInstanceOrm, workflow_instance.model_dump()
@@ -85,10 +87,12 @@ class WorkflowService:
 
     @classmethod
     def upsert_workflow_template(cls, workflow_template: WorkflowTemplateModel):
-        workflow_template.last_edited = get_current_time()
+        # TODO: Temporarily commented out until DB date defaults are removed (can cause last_edited < start_date),
+        # which causes pydantic validation to fail.
+        # workflow_template.last_edited = get_current_time()
 
-        for template_step in workflow_template.steps:
-            template_step.last_edited = get_current_time()
+        # for template_step in workflow_template.steps:
+        #     template_step.last_edited = get_current_time()
 
         workflow_template_orm = marshal.unmarshal(
             WorkflowTemplateOrm, workflow_template.model_dump()

@@ -9,6 +9,7 @@ from common.commonUtil import get_current_time
 from enums import WorkflowStatusEnum
 from validation import CradleBaseModel
 from validation.workflow_models import (
+    WorkflowActionModel,
     WorkflowClassificationModel,
     WorkflowCollectionModel,
     WorkflowInstanceModel,
@@ -131,3 +132,11 @@ class WorkflowEvaluateRequestModel(CradleBaseModel):
         except JSONDecodeError:
             raise ValueError("input_data must be valid JSON")
         return obj
+
+
+class GetAvailableActionsResponse(CradleBaseModel):
+    actions: list[WorkflowActionModel]
+
+
+class ApplyActionRequest(CradleBaseModel):
+    action: WorkflowActionModel
