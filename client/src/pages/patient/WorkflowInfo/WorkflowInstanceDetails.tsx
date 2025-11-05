@@ -30,7 +30,7 @@ import { useWorkflowFormModal } from 'src/shared/hooks/patient/useWorkflowFormMo
 import { SnackbarSeverity } from 'src/shared/enums';
 
 export default function WorkflowInstanceDetailsPage() {
-  const { instanceId } = useParams<{ instanceId: string }>();
+  // const { instanceId } = useParams<{ instanceId: string }>(); //TODO: To be updated with URL param when completed
   const navigate = useNavigate();
   const [openTemplateDetails, setOpenTemplateDetails] = useState(false);
   const [expandedStep, setExpandedStep] = useState<string | null>(null);
