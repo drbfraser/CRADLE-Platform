@@ -16,7 +16,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { WorkflowMetadata } from 'src/shared/components/workflow/workflowTemplate/WorkflowMetadata';
 import { Tooltip, IconButton } from '@mui/material';
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { deleteFormResponseAsync } from 'src/shared/api';
 import WorkflowStatus from './components/WorkflowStatus';
 import WorkflowStepHistory from './components/WorkflowStepHistory';
