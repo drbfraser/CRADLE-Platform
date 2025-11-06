@@ -196,7 +196,7 @@ class WorkflowInstanceOrm(db.Model):
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
     description = db.Column(db.Text, nullable=False)
-    start_date = db.Column(db.BigInteger, nullable=False, default=get_current_time)
+    start_date = db.Column(db.BigInteger, nullable=True, default=None)
     current_step_id = db.Column(db.String(50), nullable=True)
     last_edited = db.Column(
         db.BigInteger,
@@ -204,9 +204,7 @@ class WorkflowInstanceOrm(db.Model):
         default=get_current_time,
         onupdate=get_current_time,
     )
-    completion_date = db.Column(
-        db.BigInteger, nullable=True, default=None, onupdate=get_current_time
-    )
+    completion_date = db.Column(db.BigInteger, nullable=True, default=None)
     status = db.Column(db.String(20), nullable=False, default="Active")
 
     # FOREIGN KEYS
@@ -235,7 +233,7 @@ class WorkflowInstanceStepOrm(db.Model):
     id = db.Column(db.String(50), primary_key=True, nullable=False, default=get_uuid)
     name = db.Column(db.String(200), index=True, nullable=False)
     description = db.Column(db.Text, nullable=False)
-    start_date = db.Column(db.BigInteger, nullable=False, default=get_current_time)
+    start_date = db.Column(db.BigInteger, nullable=True, default=None)
     triggered_by = db.Column(
         db.String(50), nullable=True
     )  # The prior step in the workflow that activated the current step
@@ -245,12 +243,8 @@ class WorkflowInstanceStepOrm(db.Model):
         default=get_current_time,
         onupdate=get_current_time,
     )
-    expected_completion = db.Column(
-        db.BigInteger, nullable=True, default=None, onupdate=get_current_time
-    )
-    completion_date = db.Column(
-        db.BigInteger, nullable=True, default=None, onupdate=get_current_time
-    )
+    expected_completion = db.Column(db.BigInteger, nullable=True, default=None)
+    completion_date = db.Column(db.BigInteger, nullable=True, default=None)
     status = db.Column(db.String(20), nullable=False, default="Active")
     data = db.Column(db.Text, nullable=True)
 
