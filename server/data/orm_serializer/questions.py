@@ -1,12 +1,9 @@
-# orm_serializer/question.py
 import json
 import logging
 from typing import List
 
 from models import QuestionLangVersionOrm, QuestionOrm
 
-from .api import marshal, unmarshal
-from .registry import register_legacy
 from .utils import __load, __pre_process
 
 LOGGER = logging.getLogger(__name__)
@@ -63,7 +60,7 @@ def __marshal_question(q: QuestionOrm, if_include_versions: bool) -> dict:
     d["answers"] = json.loads(answers)
 
     if if_include_versions:
-        d["lang_versions"] = [marshal(v) for v in q.lang_versions]
+        d["lang_versions"] = [__marshal_lang_version(v) for v in q.lang_versions]
     elif not if_include_versions and "lang_versions" in d:
         del d["lang_versions"]
 
@@ -144,7 +141,7 @@ def __unmarshal_question(d: dict) -> QuestionOrm:
     if lang_version_dicts is not None:
         del d["lang_versions"]
         question_lang_version_orms = [
-            unmarshal(QuestionLangVersionOrm, v) for v in lang_version_dicts
+            __unmarshal_lang_version(v) for v in lang_version_dicts
         ]
 
     question_orm = __load(QuestionOrm, d)
@@ -163,19 +160,3 @@ def unmarshal_question_list(d: list) -> List[QuestionOrm]:
     """
     # Unmarshal any questions found within the list, return a list of questions
     return [__unmarshal_question(q) for q in d]
-
-
-register_legacy(
-    QuestionOrm,
-    marshal_helper=__marshal_question,
-    marshal_mode="V",
-    unmarshal_helper=__unmarshal_question,
-    type_label="question",
-)
-register_legacy(
-    QuestionLangVersionOrm,
-    marshal_helper=__marshal_lang_version,
-    marshal_mode="",
-    unmarshal_helper=__unmarshal_lang_version,
-    type_label="question_lang_version",
-)

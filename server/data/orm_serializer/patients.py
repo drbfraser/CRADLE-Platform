@@ -1,17 +1,21 @@
 from typing import List, Optional
 
+from common import commonUtil
 from models import (
     AssessmentOrm,
-    FormOrm,
     MedicalRecordOrm,
     PatientOrm,
     PregnancyOrm,
     ReferralOrm,
 )
 
-from .api import marshal, unmarshal
-from .records import __unmarshal_reading
-from .registry import register_legacy
+from .forms import __unmarshal_form
+from .records import (
+    __marshal_assessment,
+    __marshal_reading,
+    __marshal_referral,
+    __unmarshal_reading,
+)
 from .utils import __load, __pre_process
 
 
@@ -33,9 +37,9 @@ def __marshal_patient(p: PatientOrm, shallow: bool) -> dict:
     # equivalent to "last_edited".
     d["base"] = d["last_edited"]
     if not shallow:
-        d["readings"] = [marshal(r) for r in p.readings]
-        d["referrals"] = [marshal(r) for r in p.referrals]
-        d["assessments"] = [marshal(a) for a in p.assessments]
+        d["readings"] = [__marshal_reading(r, shallow=True) for r in p.readings]
+        d["referrals"] = [__marshal_referral(r) for r in p.referrals]
+        d["assessments"] = [__marshal_assessment(a) for a in p.assessments]
     return d
 
 
@@ -57,7 +61,11 @@ def __unmarshal_patient(d: dict) -> PatientOrm:
 
     # Unmarshal any referrals found within the patient
     if d.get("referrals") is not None:
-        referrals = [unmarshal(ReferralOrm, r) for r in d["referrals"]]
+
+        referrals = [
+            __load(ReferralOrm, commonUtil.filterNestedAttributeWithValueNone(r))
+            for r in d["referrals"]
+        ]
         # Delete the entry so that we don't try to unmarshal them again by loading from
         # the patient schema.
         del d["referrals"]
@@ -66,7 +74,10 @@ def __unmarshal_patient(d: dict) -> PatientOrm:
 
     # Unmarshal any assessments found within the patient
     if d.get("assessments") is not None:
-        assessments = [unmarshal(AssessmentOrm, a) for a in d["assessments"]]
+        assessments = [
+            __load(AssessmentOrm, commonUtil.filterNestedAttributeWithValueNone(a))
+            for a in d["assessments"]
+        ]
         # Delete the entry so that we don't try to unmarshal them again by loading from
         # the patient schema.
         del d["assessments"]
@@ -75,7 +86,7 @@ def __unmarshal_patient(d: dict) -> PatientOrm:
 
     # Unmarshal any forms found within the patient
     if d.get("forms") is not None:
-        forms = [unmarshal(FormOrm, f) for f in d["forms"]]
+        forms = [__unmarshal_form(f) for f in d["forms"]]
         # Delete the entry so that we don't try to unmarshal them again by loading from
         # the patient schema.
         del d["forms"]
@@ -140,7 +151,10 @@ def make_medical_record_from_patient(patient: dict) -> List[MedicalRecordOrm]:
     if medical_record:
         records.append(medical_record)
 
-    record = [unmarshal(MedicalRecordOrm, m) for m in records]
+    record = [
+        __load(MedicalRecordOrm, commonUtil.filterNestedAttributeWithValueNone(m))
+        for m in records
+    ]
     return record
 
 
@@ -163,7 +177,12 @@ def makePregnancyFromPatient(patient: dict) -> List[PregnancyOrm]:
         del patient["pregnancy_start_date"]
 
     if pregnancyObj:
-        pregnancy = [unmarshal(PregnancyOrm, pregnancyObj)]
+        pregnancy = [
+            __load(
+                PregnancyOrm,
+                commonUtil.filterNestedAttributeWithValueNone(pregnancyObj),
+            )
+        ]
     else:
         pregnancy = []
 
@@ -239,12 +258,3 @@ def marshal_patient_medical_history(
         records.update(info)
 
     return records
-
-
-register_legacy(
-    PatientOrm,
-    marshal_helper=__marshal_patient,
-    marshal_mode="S",
-    unmarshal_helper=__unmarshal_patient,
-    type_label="patient",
-)

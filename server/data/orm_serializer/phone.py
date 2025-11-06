@@ -1,6 +1,5 @@
 from models import RelayServerPhoneNumberOrm, SmsSecretKeyOrm
 
-from .registry import register_legacy
 from .utils import __load
 
 
@@ -46,19 +45,3 @@ def __unmarshal_SmsSecretKey(d: dict) -> SmsSecretKeyOrm:
     sms_secret_key.stale_date = d["stale_date"]
     sms_secret_key.expiry_date = d["expiry_date"]
     return sms_secret_key
-
-
-register_legacy(
-    RelayServerPhoneNumberOrm,
-    marshal_helper=None,
-    marshal_mode="",
-    unmarshal_helper=__unmarshal_RelayServerPhoneNumber,
-    type_label="relay_server_phone",
-)
-register_legacy(
-    SmsSecretKeyOrm,
-    marshal_helper=__marshal_SmsSecretKey,
-    marshal_mode="",
-    unmarshal_helper=__unmarshal_SmsSecretKey,
-    type_label="sms_secret_key",
-)

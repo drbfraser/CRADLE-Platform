@@ -15,7 +15,6 @@ from .forms import (
     __unmarshal_form,
     __unmarshal_form_template,
 )
-from .registry import register_legacy
 from .utils import __load, __pre_process, _no_autoflush_ctx
 
 
@@ -288,58 +287,3 @@ def __unmarshal_workflow_instance(d: dict) -> WorkflowInstanceOrm:
     workflow_instance_orm.steps = steps
 
     return workflow_instance_orm
-
-
-register_legacy(
-    WorkflowCollectionOrm,
-    marshal_helper=__marshal_workflow_collection,
-    marshal_mode="S",
-    type_label="workflow_collection",
-)
-register_legacy(
-    WorkflowTemplateOrm,
-    marshal_helper=__marshal_workflow_template,
-    marshal_mode="S",
-    unmarshal_helper=__unmarshal_workflow_template,
-    type_label="workflow_template",
-)
-register_legacy(
-    WorkflowClassificationOrm,
-    marshal_helper=__marshal_workflow_classification,
-    marshal_mode="SV",
-    type_label="workflow_classification",
-)
-register_legacy(
-    WorkflowInstanceOrm,
-    marshal_helper=__marshal_workflow_instance,
-    marshal_mode="S",
-    unmarshal_helper=__unmarshal_workflow_instance,
-    type_label="workflow_instance",
-)
-register_legacy(
-    WorkflowInstanceStepOrm,
-    marshal_helper=__marshal_workflow_instance_step,
-    marshal_mode="",
-    unmarshal_helper=__unmarshal_workflow_instance_step,
-    type_label="workflow_instance_step",
-)
-register_legacy(
-    WorkflowTemplateStepOrm,
-    marshal_helper=__marshal_workflow_template_step,
-    marshal_mode="S",
-    unmarshal_helper=__unmarshal_workflow_template_step,
-    type_label="workflow_template_step",
-)
-register_legacy(
-    WorkflowTemplateStepBranchOrm,
-    marshal_helper=__marshal_workflow_template_step_branch,
-    marshal_mode="",
-    unmarshal_helper=__unmarshal_workflow_template_step_branch,
-    type_label="workflow_template_step_branch",
-)
-register_legacy(
-    RuleGroupOrm,
-    marshal_helper=__marshal_rule_group,
-    marshal_mode="",
-    type_label="rule_group",
-)

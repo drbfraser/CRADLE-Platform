@@ -7,8 +7,6 @@ from models import (
 )
 from service import invariant
 
-from .api import marshal
-from .registry import register_legacy
 from .utils import __load, __pre_process
 
 
@@ -27,7 +25,7 @@ def __marshal_reading(r: ReadingOrm, shallow: bool) -> dict:
     if d.get("symptoms"):
         d["symptoms"] = d["symptoms"].split(",")
     if not shallow and r.urine_tests is not None:
-        d["urine_tests"] = marshal(r.urine_tests)
+        d["urine_tests"] = __marshal_reading(r.urine_tests, shallow=True)
     else:
         # Remove relationship-only field(s) from the marshaled payload.
         # We intentionally exclude heavy nested collections here (shallow output).
@@ -131,36 +129,3 @@ def __marshal_medical_record(r: MedicalRecordOrm) -> dict:
         d["medical_history"] = r.information
 
     return d
-
-
-register_legacy(
-    ReadingOrm,
-    marshal_helper=__marshal_reading,
-    marshal_mode="S",
-    unmarshal_helper=__unmarshal_reading,
-    type_label="reading",
-)
-register_legacy(
-    ReferralOrm,
-    marshal_helper=__marshal_referral,
-    marshal_mode="",
-    type_label="referral",
-)
-register_legacy(
-    AssessmentOrm,
-    marshal_helper=__marshal_assessment,
-    marshal_mode="",
-    type_label="assessment",
-)
-register_legacy(
-    PregnancyOrm,
-    marshal_helper=__marshal_pregnancy,
-    marshal_mode="",
-    type_label="pregnancy",
-)
-register_legacy(
-    MedicalRecordOrm,
-    marshal_helper=__marshal_medical_record,
-    marshal_mode="",
-    type_label="medical_record",
-)

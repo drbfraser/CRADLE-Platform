@@ -1,9 +1,11 @@
 from common.form_utils import filter_template_questions_orm
 from models import FormClassificationOrm, FormOrm, FormTemplateOrm
 
-from .api import marshal
-from .questions import marshal_question_to_single_version, unmarshal_question_list
-from .registry import register_legacy
+from .questions import (
+    __marshal_question,
+    marshal_question_to_single_version,
+    unmarshal_question_list,
+)
 from .utils import __load, __pre_process, _no_autoflush_ctx
 
 
@@ -31,7 +33,7 @@ def __marshal_form_template(
         del d["questions"]
     else:
         d["questions"] = [
-            marshal(q, shallow=True, if_include_versions=if_include_versions)
+            __marshal_question(q, if_include_versions=if_include_versions)
             for q in f.questions
         ]
         # sort question list based on question index in ascending order
@@ -84,7 +86,9 @@ def __marshal_form(f: FormOrm, shallow: bool) -> dict:
         del d["questions"]
 
     if not shallow:
-        d["questions"] = [marshal(q) for q in f.questions]
+        d["questions"] = [
+            __marshal_question(q, if_include_versions=False) for q in f.questions
+        ]
         # sort question list based on question index in ascending order
         d["questions"].sort(key=lambda q: q["question_index"])
 
@@ -153,25 +157,3 @@ def marshal_template_to_single_version(f: FormTemplateOrm, version: str) -> dict
         d["questions"].sort(key=lambda q: q["question_index"])
 
     return d
-
-
-register_legacy(
-    FormOrm,
-    marshal_helper=__marshal_form,
-    marshal_mode="S",
-    unmarshal_helper=__unmarshal_form,
-    type_label="form",
-)
-register_legacy(
-    FormTemplateOrm,
-    marshal_helper=__marshal_form_template,
-    marshal_mode="SV",
-    unmarshal_helper=__unmarshal_form_template,
-    type_label="form_template",
-)
-register_legacy(
-    FormClassificationOrm,
-    marshal_helper=__marshal_form_classification,
-    marshal_mode="V",
-    type_label="form_classification",
-)
