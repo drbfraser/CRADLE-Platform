@@ -107,50 +107,41 @@ export const StepDetails: React.FC<StepDetailsProps> = ({
             )}
           </Box>
 
-          {selectedStep.form && (
-            <Box>
-              <Typography variant="body2" color="text.secondary">
-                Associated Form
+          <Box>
+            <Typography variant="body2" color="text.secondary">
+              Associated Form
+            </Typography>
+            {isEditMode ? (
+              <Autocomplete
+                fullWidth
+                options={formTemplatesQuery.data || []}
+                getOptionLabel={(option) => option.classification.name}
+                value={
+                  formTemplatesQuery.data?.find(
+                    (form) => form.id === selectedStep.formId
+                  ) || null
+                }
+                onChange={(_, newValue) => {
+                  onStepChange?.(selectedStep.id, 'formId', newValue?.id || '');
+                }}
+                loading={formTemplatesQuery.isLoading}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    size="small"
+                    placeholder="Select a form..."
+                    sx={{ mt: 0.5 }}
+                  />
+                )}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+              />
+            ) : (
+              <Typography variant="body1" sx={{ mt: 0.5 }}>
+                {selectedStep.form?.classification.name || 'No form associated'}
               </Typography>
-              {isEditMode ? (
-                <Autocomplete
-                  fullWidth
-                  options={formTemplatesQuery.data || []}
-                  getOptionLabel={(option) => option.classification.name}
-                  value={
-                    formTemplatesQuery.data?.find(
-                      (form) => form.id === selectedStep.formId
-                    ) || null
-                  }
-                  onChange={(_, newValue) => {
-                    onStepChange?.(
-                      selectedStep.id,
-                      'formId',
-                      newValue?.id || ''
-                    );
-                  }}
-                  loading={formTemplatesQuery.isLoading}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      variant="outlined"
-                      size="small"
-                      placeholder="Select a form..."
-                      sx={{ mt: 0.5 }}
-                    />
-                  )}
-                  isOptionEqualToValue={(option, value) =>
-                    option.id === value.id
-                  }
-                />
-              ) : (
-                <Typography variant="body1" sx={{ mt: 0.5 }}>
-                  {selectedStep.form?.classification.name ||
-                    'No form associated'}
-                </Typography>
-              )}
-            </Box>
-          )}
+            )}
+          </Box>
 
           {selectedStep.expectedCompletion && (
             <Box>
