@@ -44,6 +44,7 @@ export const ViewWorkflowTemplate = () => {
   const [hasChanges, setHasChanges] = useState(false);
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMsg, setToastMsg] = useState<string>('');
+  const [selectedStepId, setSelectedStepId] = useState<string | undefined>();
 
   // View mode state
   const [viewMode, setViewMode] = useState<WorkflowViewMode>(
@@ -154,15 +155,142 @@ export const ViewWorkflowTemplate = () => {
   };
 
   const handleInsertNode = (stepId: string) => {
-    console.log('Insert node after step:', stepId);
-    // TODO: Implement node insertion logic
-    // This will create a new node after the selected step
+    if (!editedWorkflow) return;
+
+    // Get the current step
+    const currentStep = editedWorkflow.steps.find((s) => s.id === stepId);
+    if (!currentStep) {
+      console.error('Step not found:', stepId);
+      return;
+    }
+
+    // Generate a unique ID for the new step 
+    // (It will be overridden by the backend, so it doesn't matter what we use here)
+    const newStepId = `step-${Date.now()}-${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
+
+    // Determine the next step connections
+    // If current step has branches, preserve them for the new step
+    // If no branches, the new step will be a terminal node (no branches)
+    const newStepBranches =
+      currentStep.branches && currentStep.branches.length > 0
+        ? currentStep.branches.map((branch) => ({
+            ...branch,
+            stepId: newStepId, // Update stepId reference to new step
+          }))
+        : [];
+
+    // Create a new step
+    const newStep = {
+      id: newStepId,
+      name: 'New Step',
+      description: 'Add description here',
+      lastEdited: Date.now(),
+      workflowTemplateId: editedWorkflow.id,
+      branches: newStepBranches,
+    };
+
+    // Update current step to point all its branches to the new step
+    const updatedCurrentStep = {
+      ...currentStep,
+      branches:
+        currentStep.branches && currentStep.branches.length > 0
+          ? currentStep.branches.map((branch) => ({
+              ...branch,
+              targetStepId: newStepId, // All branches now point to new step
+            }))
+          : [{ stepId: currentStep.id, targetStepId: newStepId }], // If no branches existed, create one pointing to new step
+    };
+
+    // Update the workflow with the modifications
+    setEditedWorkflow((prev) => {
+      if (!prev) return prev;
+
+      // Replace the current step with updated version
+      const updatedSteps = prev.steps.map((step) =>
+        step.id === stepId ? updatedCurrentStep : step
+      );
+
+      // Add the new step to the array
+      return {
+        ...prev,
+        steps: [...updatedSteps, newStep],
+      };
+    });
+
+    setHasChanges(true);
+    console.log(`Inserted new node (${newStepId}) after step (${stepId})`);
+
+    // Auto-select the newly created step
+    setSelectedStepId(newStepId);
+
   };
 
   const handleAddBranch = (stepId: string) => {
-    console.log('Add branch to step:', stepId);
-    // TODO: Implement branch addition logic
-    // This will create a new branch for the selected step
+    if (!editedWorkflow) return;
+
+    // Get the current step
+    const currentStep = editedWorkflow.steps.find((s) => s.id === stepId);
+    if (!currentStep) {
+      console.error('Step not found:', stepId);
+      return;
+    }
+
+    // Generate a unique ID for the new step 
+    // (It will be overridden by the backend, so it doesn't matter what we use here)
+    const newStepId = `step-${Date.now()}-${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
+
+    // Create a new step that will be the target of the new branch
+    const newStep = {
+      id: newStepId,
+      name: 'New Branch Step',
+      description: 'Add description here',
+      lastEdited: Date.now(),
+      workflowTemplateId: editedWorkflow.id,
+      branches: [], // New branch step has no outgoing branches initially
+    };
+
+    // Add a new branch to the current step
+    const newBranch = {
+      stepId: stepId, // Reference to the source step
+      targetStepId: newStepId, // Points to the new step
+      condition: undefined, // No condition initially - user can add later
+    };
+
+    // Add the new branch to the current step's branches
+    const updatedCurrentStep = {
+      ...currentStep,
+      branches: currentStep.branches
+        ? [...currentStep.branches, newBranch]
+        : [newBranch],
+    };
+
+    // 4. Update the workflow
+    setEditedWorkflow((prev) => {
+      if (!prev) return prev;
+
+      // Replace the current step with updated version
+      const updatedSteps = prev.steps.map((step) =>
+        step.id === stepId ? updatedCurrentStep : step
+      );
+
+      // Add the new step to the array
+      return {
+        ...prev,
+        steps: [...updatedSteps, newStep],
+      };
+    });
+
+    setHasChanges(true);
+    console.log(
+      `Added new branch to step (${stepId}) with target (${newStepId})`
+    );
+
+    // Auto-select the newly created step
+    setSelectedStepId(newStepId);
   };
 
   const currentWorkflow = isEditMode
@@ -304,6 +432,8 @@ export const ViewWorkflowTemplate = () => {
             firstStepId={currentWorkflow?.startingStepId || ''}
             isInstance={false}
             isEditMode={isEditMode}
+            selectedStepId={selectedStepId}
+            onStepSelect={setSelectedStepId}
             onStepChange={handleStepChange}
             onInsertNode={handleInsertNode}
             onAddBranch={handleAddBranch}

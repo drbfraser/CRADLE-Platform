@@ -31,8 +31,7 @@ export const NodeHandler: React.FC<NodeHandlerProps> = ({
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = (event?: React.MouseEvent) => {
-    event?.stopPropagation();
+  const handleClose = () => {
     setAnchorEl(null);
   };
 
@@ -84,7 +83,6 @@ export const NodeHandler: React.FC<NodeHandlerProps> = ({
       <Menu
         anchorEl={anchorEl}
         open={open}
-        onClose={handleClose}
         onClick={(e) => e.stopPropagation()}
         anchorOrigin={{
           vertical: 'bottom',

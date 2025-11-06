@@ -598,7 +598,7 @@ def __marshal_workflow_template_step(
     d = vars(wts).copy()
     __pre_process(d)
 
-    d["form"] = __marshal_form_template(wts.form, if_include_versions=True)
+    d["form"] = __marshal_form_template(wts.form, if_include_versions=True) if wts.form else None
 
     if not shallow:
         d["branches"] = [
