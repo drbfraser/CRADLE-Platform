@@ -86,18 +86,8 @@ export const FlowNode: React.FC<NodeProps> = ({ data, selected }) => {
         }}>
         {stepName || `Step ${stepNumber}`}
       </Typography>
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        style={{
-          background: '#1976d2',
-          width: 6,
-          height: 6,
-          border: '2px solid white',
-        }}
-      />
       <NodeHandler
-        isVisible={isEditMode}
+        isEditMode={isEditMode}
         onInsertNode={handleInsertNode}
         onAddBranch={handleAddBranch}
       />
