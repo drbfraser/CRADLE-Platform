@@ -61,7 +61,6 @@ def __unmarshal_patient(d: dict) -> PatientOrm:
 
     # Unmarshal any referrals found within the patient
     if d.get("referrals") is not None:
-
         referrals = [
             __load(ReferralOrm, commonUtil.filterNestedAttributeWithValueNone(r))
             for r in d["referrals"]
