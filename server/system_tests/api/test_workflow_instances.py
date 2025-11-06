@@ -6,21 +6,34 @@ from common.commonUtil import get_current_time, get_uuid
 from common.print_utils import pretty_print
 from models import WorkflowInstanceOrm, WorkflowTemplateOrm
 from service.workflow.workflow_service import WorkflowService
-from validation.workflow_models import WorkflowInstanceModel, WorkflowTemplateModel
+from validation.workflow_api_models import (
+    ApplyActionRequest,
+    GetAvailableActionsResponse,
+)
+from validation.workflow_models import (
+    CompleteStepActionModel,
+    StartStepActionModel,
+    StartWorkflowActionModel,
+    WorkflowInstanceModel,
+    WorkflowTemplateModel,
+)
 
 
-def test_create_workflow_instance__success(patient_id, workflow_template1, api_post):
+def test_create_workflow_instance__success(
+    patient_id, sequential_workflow_template, api_post
+):
+    workflow_instance_id = None
+    workflow_template = sequential_workflow_template
+
     try:
         # Create workflow template
-        WorkflowService.upsert_workflow_template(
-            WorkflowTemplateModel(**workflow_template1)
-        )
+        WorkflowService.upsert_workflow_template(workflow_template)
 
         # Create workflow instance
         response = api_post(
             endpoint="/api/workflow/instances",
             json={
-                "workflow_template_id": workflow_template1["id"],
+                "workflow_template_id": workflow_template.id,
                 "patient_id": patient_id,
             },
         )
@@ -31,24 +44,28 @@ def test_create_workflow_instance__success(patient_id, workflow_template1, api_p
         pretty_print(response_body)
 
         # sanity check
-        assert response_body["workflow_template_id"] == workflow_template1["id"]
-        assert response_body["status"] == "Pending"
+        assert response_body["workflow_template_id"] == workflow_template.id
+        # workflow automatically started
+        assert response_body["status"] == "Active"
         assert response_body["patient_id"] == patient_id
 
         # check instance actually persisted
         workflow_instance = WorkflowService.get_workflow_instance(response_body["id"])
-        assert workflow_instance.status == "Pending"
+        assert workflow_instance.status == "Active"
         assert workflow_instance.patient_id == patient_id
 
+        workflow_instance_id = response_body["id"]
+
     finally:
-        crud.delete_workflow(
-            m=WorkflowInstanceOrm,
-            id=response_body["id"],
-        )
+        if workflow_instance_id:
+            crud.delete_workflow(
+                m=WorkflowInstanceOrm,
+                id=workflow_instance_id,
+            )
         crud.delete_workflow(
             m=WorkflowTemplateOrm,
             delete_classification=True,
-            id=workflow_template1["id"],
+            id=workflow_template.id,
         )
 
 
@@ -244,6 +261,120 @@ def test_patch_workflow_instance(
             m=WorkflowTemplateOrm,
             delete_classification=True,
             id=workflow_template1["id"],
+        )
+
+
+def get_actions(api_get, instance_id: str) -> GetAvailableActionsResponse:
+    """
+    Test helper. Retrieves and returns the available actions for a given workflow instance.
+    """
+    response = api_get(endpoint=f"/api/workflow/instances/{instance_id}/actions")
+    assert (
+        response.status_code == 200
+    ), f"Failed to get available actions: {response.text}"
+
+    actions_resp = decamelize(response.json())
+    return GetAvailableActionsResponse(**actions_resp)
+
+
+def apply_action(
+    api_post, instance_id: str, request: ApplyActionRequest
+) -> WorkflowInstanceModel:
+    """
+    Test helper. Applies a specified action to a workflow instance and returns the updated
+    instance model.
+    """
+    response = api_post(
+        endpoint=f"/api/workflow/instances/{instance_id}/actions",
+        json=request.model_dump(),
+    )
+    assert response.status_code == 200, f"Failed to apply action: {response.text}"
+
+    workflow_instance_resp = decamelize(response.json())
+    return WorkflowInstanceModel(**workflow_instance_resp)
+
+
+def test_sequential_workflow_progression__happy_path(
+    api_post, api_get, sequential_workflow_view, patient_id
+):
+    # NOTE: This workflow template and instance use hardcoded IDs. Easy to reference
+    #       step IDs in the test, but can make test cleanup more fragile. Consider
+    #       using randomly generated IDs?
+    workflow_view = sequential_workflow_view
+    # NOTE: This local instance will become stale as the requests modify the instance.
+    #       IDs should remain consistent though
+    workflow_view.instance.patient_id = patient_id
+
+    try:
+        WorkflowService.upsert_workflow_template(workflow_view.template)
+        WorkflowService.upsert_workflow_instance(workflow_view.instance)
+
+        # Start workflow
+        actions_resp = get_actions(api_get, workflow_view.instance.id)
+        expected_resp = GetAvailableActionsResponse(
+            actions=[StartWorkflowActionModel()]
+        )
+        assert actions_resp == expected_resp
+
+        workflow_instance_resp = apply_action(
+            api_post,
+            workflow_view.instance.id,
+            ApplyActionRequest(action=StartWorkflowActionModel()),
+        )
+        # sanity check - state updates should already be tested by WorkflowService tests
+        assert workflow_instance_resp.status == "Active"
+
+        # Complete step 1
+        actions_resp = get_actions(api_get, workflow_view.instance.id)
+        expected_resp = GetAvailableActionsResponse(
+            actions=[CompleteStepActionModel(step_id="si-1")]
+        )
+        assert actions_resp == expected_resp
+
+        workflow_instance_resp = apply_action(
+            api_post,
+            workflow_view.instance.id,
+            ApplyActionRequest(action=CompleteStepActionModel(step_id="si-1")),
+        )
+        assert workflow_instance_resp.status == "Active"
+
+        # Start step 2
+        actions_resp = get_actions(api_get, workflow_view.instance.id)
+        expected_resp = GetAvailableActionsResponse(
+            actions=[StartStepActionModel(step_id="si-2")]
+        )
+        assert actions_resp == expected_resp
+
+        workflow_instance_resp = apply_action(
+            api_post,
+            workflow_view.instance.id,
+            ApplyActionRequest(action=StartStepActionModel(step_id="si-2")),
+        )
+        assert workflow_instance_resp.status == "Active"
+
+        # Complete step 2
+        actions_resp = get_actions(api_get, workflow_view.instance.id)
+        expected_resp = GetAvailableActionsResponse(
+            actions=[CompleteStepActionModel(step_id="si-2")]
+        )
+        assert actions_resp == expected_resp
+
+        workflow_instance_resp = apply_action(
+            api_post,
+            workflow_view.instance.id,
+            ApplyActionRequest(action=CompleteStepActionModel(step_id="si-2")),
+        )
+        assert workflow_instance_resp.status == "Completed"
+
+    finally:
+        crud.delete_workflow(
+            m=WorkflowTemplateOrm,
+            delete_classification=True,
+            id=workflow_view.template.id,
+        )
+        crud.delete_workflow(
+            m=WorkflowInstanceOrm,
+            id=workflow_view.instance.id,
         )
 
 

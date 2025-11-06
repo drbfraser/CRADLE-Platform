@@ -267,7 +267,7 @@ def get_workflow_template(path: WorkflowTemplateIdPath):
 
     if not with_steps:
         del response_data["steps"]
-    if not with_classification:
+    if not with_classification and "classification" in response_data:
         del response_data["classification"]
 
     return response_data, 200
