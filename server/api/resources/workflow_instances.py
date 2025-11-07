@@ -16,12 +16,15 @@ from models import (
     WorkflowInstanceOrm,
     WorkflowTemplateOrm,
 )
+from service.workflow.workflow_errors import InvalidWorkflowActionError
 from service.workflow.workflow_service import WorkflowService
 from validation import CradleBaseModel
 from validation.workflow_api_models import (
+    ApplyActionRequest,
+    GetAvailableActionsResponse,
     WorkflowInstancePatchModel,
 )
-from validation.workflow_models import WorkflowInstanceModel
+from validation.workflow_models import StartWorkflowActionModel, WorkflowInstanceModel
 
 
 # Create a response model for the list endpoints
@@ -38,7 +41,8 @@ api_workflow_instances = APIBlueprint(
     abp_security=[{"jwt": []}],
 )
 
-workflow_instance_not_found_message = "Workflow instance with ID: ({}) not found."
+WORKFLOW_INSTANCE_NOT_FOUND_MSG = "Workflow instance with ID: ({}) not found."
+WORKFLOW_TEMPLATE_NOT_FOUND_MSG = "Workflow template with ID: ({}) not found."
 
 
 class CreateWorkflowInstanceRequest(CradleBaseModel):
@@ -67,9 +71,18 @@ def create_workflow_instance(body: CreateWorkflowInstanceRequest):
     workflow_instance = WorkflowService.generate_workflow_instance(workflow_template)
 
     workflow_instance.patient_id = body.patient_id
-    WorkflowService.upsert_workflow_instance(workflow_instance)
 
-    # TODO: Start workflow
+    actions = WorkflowService.get_available_workflow_actions(
+        workflow_instance, workflow_template
+    )
+
+    if StartWorkflowActionModel() in actions:
+        # Start workflow immediately to keep things simple
+        WorkflowService.apply_workflow_action(
+            StartWorkflowActionModel(), workflow_instance, workflow_template
+        )
+
+    WorkflowService.upsert_workflow_instance(workflow_instance)
 
     return workflow_instance.model_dump(), 201
 
@@ -113,7 +126,7 @@ def get_workflow_instance(path: WorkflowInstanceIdPath):
     if workflow_instance is None:
         return abort(
             code=404,
-            description=workflow_instance_not_found_message.format(
+            description=WORKFLOW_INSTANCE_NOT_FOUND_MSG.format(
                 path.workflow_instance_id
             ),
         )
@@ -137,7 +150,7 @@ def update_workflow_instance(path: WorkflowInstanceIdPath, body: WorkflowInstanc
     if workflow_instance is None:
         return abort(
             code=404,
-            description=workflow_instance_not_found_message.format(
+            description=WORKFLOW_INSTANCE_NOT_FOUND_MSG.format(
                 path.workflow_instance_id
             ),
         )
@@ -193,7 +206,7 @@ def patch_workflow_instance(
     if workflow_instance is None:
         return abort(
             code=404,
-            description=workflow_instance_not_found_message.format(
+            description=WORKFLOW_INSTANCE_NOT_FOUND_MSG.format(
                 path.workflow_instance_id
             ),
         )
@@ -253,7 +266,7 @@ def delete_workflow_instance(path: WorkflowInstanceIdPath):
     if workflow_instance is None:
         return abort(
             code=404,
-            description=workflow_instance_not_found_message.format(
+            description=WORKFLOW_INSTANCE_NOT_FOUND_MSG.format(
                 path.workflow_instance_id
             ),
         )
@@ -261,3 +274,81 @@ def delete_workflow_instance(path: WorkflowInstanceIdPath):
     crud.delete_workflow(WorkflowInstanceOrm, id=path.workflow_instance_id)
 
     return "", 204
+
+
+# /api/workflow/instances/<string:workflow_instance_id>/actions [GET]
+@api_workflow_instances.get(
+    "/<string:workflow_instance_id>/actions",
+    responses={200: GetAvailableActionsResponse},
+)
+def get_available_actions(path: WorkflowInstanceIdPath):
+    """Get Available Workflow Actions"""
+    workflow_instance = WorkflowService.get_workflow_instance(path.workflow_instance_id)
+
+    if workflow_instance is None:
+        abort(
+            code=404,
+            description=WORKFLOW_INSTANCE_NOT_FOUND_MSG.format(
+                path.workflow_instance_id
+            ),
+        )
+
+    workflow_template = WorkflowService.get_workflow_template(
+        workflow_instance.workflow_template_id
+    )
+
+    if workflow_template is None:
+        abort(
+            code=404,
+            description=WORKFLOW_TEMPLATE_NOT_FOUND_MSG.format(
+                workflow_template.workflow_template_id
+            ),
+        )
+
+    actions = WorkflowService.get_available_workflow_actions(
+        workflow_instance, workflow_template
+    )
+
+    response = GetAvailableActionsResponse(actions=actions)
+
+    return response.model_dump(), 200
+
+
+# /api/workflow/instances/<string:workflow_instance_id>/actions [POST]
+@api_workflow_instances.post(
+    "/<string:workflow_instance_id>/actions", responses={200: WorkflowInstanceModel}
+)
+def apply_action(path: WorkflowInstanceIdPath, body: ApplyActionRequest):
+    """Apply a Workflow Action"""
+    workflow_instance = WorkflowService.get_workflow_instance(path.workflow_instance_id)
+
+    if workflow_instance is None:
+        abort(
+            code=404,
+            description=WORKFLOW_INSTANCE_NOT_FOUND_MSG.format(
+                path.workflow_instance_id
+            ),
+        )
+
+    workflow_template = WorkflowService.get_workflow_template(
+        workflow_instance.workflow_template_id
+    )
+
+    if workflow_template is None:
+        abort(
+            code=404,
+            description=WORKFLOW_TEMPLATE_NOT_FOUND_MSG.format(
+                workflow_template.workflow_template_id
+            ),
+        )
+
+    try:
+        WorkflowService.apply_workflow_action(
+            body.action, workflow_instance, workflow_template
+        )
+    except InvalidWorkflowActionError as e:
+        abort(code=400, description=str(e))
+
+    WorkflowService.upsert_workflow_instance(workflow_instance)
+
+    return workflow_instance.model_dump(), 200

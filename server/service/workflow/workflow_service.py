@@ -5,7 +5,10 @@ from common.commonUtil import get_current_time, get_uuid
 from data import marshal
 from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
 from models.workflows import WorkflowInstanceOrm, WorkflowTemplateOrm
+from service.workflow.workflow_planner import WorkflowPlanner
+from service.workflow.workflow_view import WorkflowView
 from validation.workflow_models import (
+    WorkflowActionModel,
     WorkflowInstanceModel,
     WorkflowInstanceStepModel,
     WorkflowTemplateModel,
@@ -14,6 +17,7 @@ from validation.workflow_models import (
 
 
 class WorkflowService:
+    # TODO: make these staticmethods
     @classmethod
     def generate_workflow_instance(
         cls, workflow_template: WorkflowTemplateModel
@@ -83,8 +87,8 @@ class WorkflowService:
     def upsert_workflow_template(cls, workflow_template: WorkflowTemplateModel):
         workflow_template.last_edited = get_current_time()
 
-        for instance_step in workflow_template.steps:
-            instance_step.last_edited = get_current_time()
+        for template_step in workflow_template.steps:
+            template_step.last_edited = get_current_time()
 
         workflow_template_orm = marshal.unmarshal(
             WorkflowTemplateOrm, workflow_template.model_dump()
@@ -117,3 +121,29 @@ class WorkflowService:
         workflow_template_dict = marshal.marshal(workflow_template_orm)
         workflow_template = WorkflowTemplateModel(**workflow_template_dict)
         return workflow_template
+
+    @staticmethod
+    def get_available_workflow_actions(
+        workflow_instance: WorkflowInstanceModel,
+        workflow_template: WorkflowTemplateModel,
+    ) -> list[WorkflowActionModel]:
+        assert workflow_instance.workflow_template_id == workflow_template.id
+
+        workflow_view = WorkflowView(workflow_template, workflow_instance)
+
+        available_actions = WorkflowPlanner.get_available_actions(ctx=workflow_view)
+        return available_actions
+
+    @staticmethod
+    def apply_workflow_action(
+        action: WorkflowActionModel,
+        workflow_instance: WorkflowInstanceModel,
+        workflow_template: WorkflowTemplateModel,
+    ) -> None:
+        assert workflow_instance.workflow_template_id == workflow_template.id
+
+        workflow_view = WorkflowView(workflow_template, workflow_instance)
+
+        ops = WorkflowPlanner.get_operations(ctx=workflow_view, action=action)
+        for op in ops:
+            op.apply(workflow_view)

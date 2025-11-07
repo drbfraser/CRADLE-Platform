@@ -1,5 +1,3 @@
-import React, { SyntheticEvent, useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import {
   Autocomplete,
   Box,
@@ -20,19 +18,16 @@ import Grid from '@mui/material/Grid2';
 import DoneIcon from '@mui/icons-material/Done';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 
-import { ReferralFilter, Referrer } from 'src/shared/types/referralTypes';
-import { getUserVhtsAsync } from 'src/shared/api';
+import { ReferralFilter } from 'src/shared/types/referralTypes';
 import { TrafficLightEnum } from 'src/shared/enums';
-import { useHealthFacilityNames } from 'src/shared/hooks/healthFacilityNames';
 import { TrafficLight } from 'src/shared/components/trafficLight';
 import { DateRangePickerWithPreset } from 'src/shared/components/Date/DateRangePicker';
-import { useDateRangeState } from 'src/shared/components/Date/useDateRangeState';
 import {
   CancelButton,
   PrimaryButton,
   SecondaryButton,
 } from 'src/shared/components/Button';
-import { useCurrentUser } from 'src/shared/hooks/auth/useCurrentUser';
+import { useFilterDialog } from 'src/shared/hooks/referrals/useFilterDialog';
 
 interface IProps {
   open: boolean;
@@ -83,182 +78,12 @@ export const FilterDialog = ({
   setFilter,
   setIsPromptShown,
 }: IProps) => {
-  const currentUser = useCurrentUser();
-  const [selectedHealthFacilities, setSelectedHealthFacilities] = useState<
-    string[]
-  >([]);
-
-  const dateRangeState = useDateRangeState();
-
-  const [selectedReferrers, setSelectedReferrers] = useState<Referrer[]>([]);
-
-  const [selectedVitalSign, setSelectedVitalSign] = useState<
-    TrafficLightEnum[]
-  >([]);
-
-  const [isPregnant, setIsPregnant] = useState<string>('');
-  const [isAssessed, setIsAssessed] = useState<string>('');
-
-  const healthFacilityNames = useHealthFacilityNames();
-
-  const referrersQuery = useQuery({
-    queryKey: ['userVHTs'],
-    queryFn: getUserVhtsAsync,
+  const hook = useFilterDialog({
+    filter,
+    onClose,
+    setIsPromptShown,
+    setFilter,
   });
-
-  useEffect(() => {
-    if (filter === undefined) {
-      clearFilter();
-    }
-  }, [filter]);
-
-  useEffect(() => {
-    if (currentUser) {
-      const currentSelectedHealthFacilities = selectedHealthFacilities;
-      setSelectedHealthFacilities([
-        ...currentSelectedHealthFacilities,
-        currentUser.healthFacilityName,
-      ]);
-      applyFilter([
-        ...currentSelectedHealthFacilities,
-        currentUser.healthFacilityName,
-      ]);
-    }
-  }, [currentUser]);
-
-  const clearFilter = () => {
-    setSelectedHealthFacilities([]);
-    setSelectedReferrers([]);
-    setSelectedVitalSign([]);
-    dateRangeState.setStartDate(null);
-    dateRangeState.setEndDate(null);
-    dateRangeState.setPresetDateRange(null);
-    setIsPregnant('');
-    setIsAssessed('');
-  };
-
-  const onFacilitySelect = (
-    _event: SyntheticEvent<Element, Event>,
-    value: string | null
-  ) => {
-    if (!value) {
-      return;
-    }
-    if (!selectedHealthFacilities.includes(value)) {
-      setSelectedHealthFacilities([...selectedHealthFacilities, value].sort());
-    }
-  };
-
-  const onReferrerSelect = (_event: any, value: Referrer | null) => {
-    if (!value) {
-      return;
-    }
-    if (!selectedReferrers.includes(value)) {
-      setSelectedReferrers(
-        [...selectedReferrers, value].sort((a, b) =>
-          a.userId.localeCompare(b.userId)
-        )
-      );
-    }
-  };
-
-  const handleDeleteFacilityChip = (index: number) => {
-    const newFacilities = [...selectedHealthFacilities];
-    newFacilities.splice(index, 1);
-    setSelectedHealthFacilities(newFacilities);
-  };
-
-  const handleDeleteReferrerChip = (index: number) => {
-    const newReferrers = [...selectedReferrers];
-    newReferrers.splice(index, 1);
-    setSelectedReferrers(newReferrers);
-  };
-
-  const handleRadioButtonClick = (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    value: any,
-    setValue: React.Dispatch<React.SetStateAction<any>>
-  ) => {
-    const element = event.currentTarget as HTMLInputElement;
-    const eventValue = element.value;
-    if (eventValue === value) {
-      setValue(undefined);
-    } else {
-      setValue(eventValue);
-    }
-  };
-
-  const filterHasChanged = () => {
-    const dateRange =
-      dateRangeState.startDate && dateRangeState.endDate
-        ? `${dateRangeState.startDate.toDate().getTime() / 1000}:${
-            dateRangeState.endDate.toDate().getTime() / 1000
-          }`
-        : '';
-    if (
-      // selected filter is the same as current filter
-      filter &&
-      JSON.stringify(selectedHealthFacilities) ===
-        JSON.stringify(filter.healthFacilityNames) &&
-      dateRange === filter.dateRange &&
-      JSON.stringify(selectedReferrers.map((r) => r.userId)) ===
-        JSON.stringify(filter.referrers) &&
-      JSON.stringify(selectedVitalSign) === JSON.stringify(filter.vitalSigns) &&
-      isAssessed === filter.isAssessed &&
-      isPregnant === filter.isPregnant
-    ) {
-      return false;
-    } else if (
-      // selected filter is empty and current filter is undefined
-      !filter &&
-      selectedHealthFacilities.length < 1 &&
-      !dateRangeState.startDate &&
-      !dateRangeState.endDate &&
-      !dateRangeState.presetDateRange &&
-      selectedReferrers.length < 1 &&
-      selectedVitalSign.length < 1 &&
-      !isPregnant &&
-      !isAssessed
-    ) {
-      return false;
-    } else {
-      return true;
-    }
-  };
-
-  const onConfirm = () => {
-    if (!filterHasChanged()) {
-      onClose();
-      return;
-    }
-    applyFilter(selectedHealthFacilities);
-    if (
-      selectedHealthFacilities.length === 1 &&
-      selectedHealthFacilities[0] === currentUser?.healthFacilityName
-    ) {
-      setIsPromptShown(true);
-    } else {
-      setIsPromptShown(false);
-    }
-    onClose();
-  };
-
-  const applyFilter = (currentSelectedHealthFacilities: string[]) => {
-    setFilter({
-      ...filter,
-      healthFacilityNames: currentSelectedHealthFacilities,
-      dateRange:
-        dateRangeState.startDate && dateRangeState.endDate
-          ? `${dateRangeState.startDate.toDate().getTime() / 1000}:${
-              dateRangeState.endDate.toDate().getTime() / 1000
-            }`
-          : '',
-      referrers: selectedReferrers.map((r) => r.userId),
-      vitalSigns: selectedVitalSign,
-      isPregnant: isPregnant,
-      isAssessed: isAssessed,
-    });
-  };
 
   return (
     <Dialog
@@ -282,8 +107,8 @@ export const FilterDialog = ({
               </Typography>
               <Autocomplete
                 id="facility-select"
-                onChange={onFacilitySelect}
-                options={healthFacilityNames}
+                onChange={hook.onFacilitySelect}
+                options={hook.healthFacilityNames}
                 getOptionLabel={(facility) => facility}
                 renderInput={(params) => (
                   <TextField
@@ -294,12 +119,12 @@ export const FilterDialog = ({
                 )}
               />
               <Box m={1.5} display="flex" flexWrap="wrap">
-                {selectedHealthFacilities.map((facility, index) => (
+                {hook.selectedHealthFacilities.map((facility, index) => (
                   <Chip
                     key={index}
                     sx={{ mx: 0.5 }}
                     label={facility}
-                    onDelete={() => handleDeleteFacilityChip(index)}
+                    onDelete={() => hook.handleDeleteFacilityChip(index)}
                     color="primary"
                   />
                 ))}
@@ -310,7 +135,7 @@ export const FilterDialog = ({
               <Typography variant="h4" component="h3">
                 Date Range
               </Typography>
-              <DateRangePickerWithPreset {...dateRangeState} clearButton />
+              <DateRangePickerWithPreset {...hook.dateRangeState} clearButton />
             </Grid>
             <Grid size={12}>
               <Typography variant="h4" component="h3">
@@ -318,8 +143,8 @@ export const FilterDialog = ({
               </Typography>
               <Autocomplete
                 id="referrer-select"
-                onChange={onReferrerSelect}
-                options={referrersQuery.data ?? []}
+                onChange={hook.onReferrerSelect}
+                options={hook.referrersQuery.data ?? []}
                 getOptionLabel={(referrer) =>
                   `${referrer.firstName} - ${referrer.email} - ${referrer.healthFacilityName}`
                 }
@@ -332,11 +157,11 @@ export const FilterDialog = ({
                 )}
               />
               <Box m={1.5} display="flex" flexWrap="wrap">
-                {selectedReferrers.map((referrer, index) => (
+                {hook.selectedReferrers.map((referrer, index) => (
                   <Box mx={0.5} key={referrer.userId}>
                     <Chip
                       label={referrer.firstName}
-                      onDelete={() => handleDeleteReferrerChip(index)}
+                      onDelete={() => hook.handleDeleteReferrerChip(index)}
                       color="primary"
                     />
                   </Box>
@@ -352,12 +177,14 @@ export const FilterDialog = ({
                 <FormControlLabel
                   control={
                     <Checkbox
-                      checked={selectedVitalSign.includes(vitalSign.vitalSign)}
+                      checked={hook.selectedVitalSign.includes(
+                        vitalSign.vitalSign
+                      )}
                       onChange={(event, checked) => {
                         if (checked) {
-                          setSelectedVitalSign(
+                          hook.setSelectedVitalSign(
                             [
-                              ...selectedVitalSign,
+                              ...hook.selectedVitalSign,
                               TrafficLightEnum[
                                 event.target
                                   .value as keyof typeof TrafficLightEnum
@@ -365,7 +192,7 @@ export const FilterDialog = ({
                             ].sort()
                           );
                         } else {
-                          const newVitalSigns = [...selectedVitalSign];
+                          const newVitalSigns = [...hook.selectedVitalSign];
                           const i = newVitalSigns.indexOf(
                             TrafficLightEnum[
                               event.target
@@ -375,7 +202,7 @@ export const FilterDialog = ({
                           if (i > -1) {
                             newVitalSigns.splice(i, 1);
                           }
-                          setSelectedVitalSign(newVitalSigns);
+                          hook.setSelectedVitalSign(newVitalSigns);
                         }
                       }}
                       value={vitalSign.vitalSign}
@@ -398,18 +225,18 @@ export const FilterDialog = ({
               </Typography>
               <RadioGroup
                 aria-label="isPregnant"
-                value={isPregnant ?? ''}
-                onChange={(_, value) => setIsPregnant(value)}>
+                value={hook.isPregnant ?? ''}
+                onChange={(_, value) => hook.setIsPregnant(value)}>
                 <FormControlLabel
                   value="1"
                   control={
                     <Radio
-                      checked={isPregnant === `1`}
+                      checked={hook.isPregnant === `1`}
                       onClick={(event) => {
-                        handleRadioButtonClick(
+                        hook.handleRadioButtonClick(
                           event,
-                          isPregnant,
-                          setIsPregnant
+                          hook.isPregnant,
+                          hook.setIsPregnant
                         );
                       }}
                     />
@@ -420,12 +247,12 @@ export const FilterDialog = ({
                   value="0"
                   control={
                     <Radio
-                      checked={isPregnant === `0`}
+                      checked={hook.isPregnant === `0`}
                       onClick={(event) => {
-                        handleRadioButtonClick(
+                        hook.handleRadioButtonClick(
                           event,
-                          isPregnant,
-                          setIsPregnant
+                          hook.isPregnant,
+                          hook.setIsPregnant
                         );
                       }}
                     />
@@ -441,18 +268,18 @@ export const FilterDialog = ({
               </Typography>
               <RadioGroup
                 aria-label="isAssessed"
-                value={isAssessed ?? ''}
-                onChange={(_, value) => setIsAssessed(value)}>
+                value={hook.isAssessed ?? ''}
+                onChange={(_, value) => hook.setIsAssessed(value)}>
                 <FormControlLabel
                   value="1"
                   control={
                     <Radio
-                      checked={isAssessed === `1`}
+                      checked={hook.isAssessed === `1`}
                       onClick={(event) => {
-                        handleRadioButtonClick(
+                        hook.handleRadioButtonClick(
                           event,
-                          isAssessed,
-                          setIsAssessed
+                          hook.isAssessed,
+                          hook.setIsAssessed
                         );
                       }}
                     />
@@ -473,12 +300,12 @@ export const FilterDialog = ({
                   value="0"
                   control={
                     <Radio
-                      checked={isAssessed === `0`}
+                      checked={hook.isAssessed === `0`}
                       onClick={(event) => {
-                        handleRadioButtonClick(
+                        hook.handleRadioButtonClick(
                           event,
-                          isAssessed,
-                          setIsAssessed
+                          hook.isAssessed,
+                          hook.setIsAssessed
                         );
                       }}
                     />
@@ -501,8 +328,10 @@ export const FilterDialog = ({
         </DialogContent>
         <DialogActions>
           <CancelButton onClick={onClose}>Cancel</CancelButton>
-          <SecondaryButton onClick={clearFilter}>Clear All</SecondaryButton>
-          <PrimaryButton onClick={onConfirm}>Apply Filter</PrimaryButton>
+          <SecondaryButton onClick={hook.clearFilter}>
+            Clear All
+          </SecondaryButton>
+          <PrimaryButton onClick={hook.onConfirm}>Apply Filter</PrimaryButton>
         </DialogActions>
       </Stack>
     </Dialog>

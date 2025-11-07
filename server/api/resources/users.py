@@ -63,7 +63,7 @@ class VhtList(RootModel):
 # /api/user/vhts [GET]
 @api_users.get("/vhts", responses={200: VhtList})
 @roles_required([RoleEnum.CHO, RoleEnum.ADMIN, RoleEnum.HCW])
-def get_vht_list():
+def get_vhts():
     """Get VHT List"""
     vht_model_list = crud.find(UserOrm, UserOrm.role == RoleEnum.VHT.value)
     vht_dictionary_list = []
@@ -74,13 +74,11 @@ def get_vht_list():
                 "user_id": vht.id,
                 "email": vht.email,
                 "health_facility_name": vht.health_facility_name,
-                "name": vht.name,
+                "first_name": vht.name,
             },
         )
 
-    if vht_dictionary_list is None:
-        return []
-    return vht_dictionary_list
+    return vht_dictionary_list or []
 
 
 # /api/user/<int:user_id>/change_pass [POST]
