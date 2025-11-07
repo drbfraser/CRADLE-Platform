@@ -1,4 +1,3 @@
-# ruff: noqa: F401
 # Stub for data.db_operations to help Pylance/pyright resolve re-exports
 
 from typing import Any

@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
 import AddIcon from '@mui/icons-material/Add';
+import ScienceIcon from '@mui/icons-material/Science';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
+import HelpIcon from '@mui/icons-material/Help';
+import { axiosFetch } from 'src/shared/api/core/http';
 import Link from '@mui/material/Link';
 import SearchIcon from '@mui/icons-material/Search';
 import { getPrettyDate } from 'src/shared/utils';
@@ -21,6 +27,14 @@ import {
   ListItemText,
   TextField,
   InputAdornment,
+  Alert,
+  CircularProgress,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
 } from '@mui/material';
 import {
   DataGrid,
@@ -31,6 +45,32 @@ import {
   useGridApiContext,
 } from '@mui/x-data-grid';
 import { useNavigate } from 'react-router-dom';
+
+type RuleEvaluationResult = {
+  patient: {
+    id: string;
+    name: string;
+    age: number;
+    sex: string;
+    isPregnant: boolean;
+    dateOfBirth: string;
+  };
+  branchResults: Array<{
+    id: string;
+    name: string;
+    rule: string;
+    resolvedData: Record<string, any>;
+    status: string;
+    missingVariables: string[];
+  }>;
+  selectedBranch: {
+    id: string;
+    name: string;
+    rule: string;
+    resolvedData: Record<string, any>;
+    status: string;
+  } | null;
+};
 
 /* -------- mock rows (instances) -------- */
 type InstanceRow = {
@@ -90,7 +130,7 @@ const rowsRaw: InstanceRow[] = [
     status: 'COMPLETED',
     daysAgo: 7,
     steps: 5,
-    current: '—',
+    current: '–',
   }),
   mk(3, {
     inst: 'Prenatal – ZZ',
@@ -108,7 +148,7 @@ const rowsRaw: InstanceRow[] = [
     status: 'CANCELLED',
     daysAgo: 30,
     steps: 4,
-    current: '—',
+    current: '–',
   }),
   mk(5, {
     inst: 'Cardio – DD',
@@ -126,7 +166,7 @@ const rowsRaw: InstanceRow[] = [
     status: 'COMPLETED',
     daysAgo: 12,
     steps: 5,
-    current: '—',
+    current: '–',
   }),
   mk(7, {
     inst: 'Diabetes – FF',
@@ -162,7 +202,7 @@ const rowsRaw: InstanceRow[] = [
     status: 'COMPLETED',
     daysAgo: 10,
     steps: 2,
-    current: '—',
+    current: '–',
   }),
   mk(11, {
     inst: 'Ortho – JJ',
@@ -171,7 +211,7 @@ const rowsRaw: InstanceRow[] = [
     status: 'CANCELLED',
     daysAgo: 40,
     steps: 3,
-    current: '—',
+    current: '–',
   }),
   mk(12, {
     inst: 'Derm – KK',
@@ -210,6 +250,7 @@ const rowsRaw: InstanceRow[] = [
     current: 'Week 20 Scan',
   }),
 ];
+
 function Toolbar() {
   const apiRef = useGridApiContext();
   const [open, setOpen] = React.useState(false);
@@ -236,7 +277,6 @@ function Toolbar() {
   };
 
   const handleLeave = () => {
-    // collapse a bit later so it feels smooth
     leaveTimer.current = window.setTimeout(
       () => setOpen(false),
       180
@@ -252,15 +292,12 @@ function Toolbar() {
         alignItems: 'center',
         gap: 1.25,
       }}>
-      {/* Filter icon + label if you want the word "Filters" next to it */}
       <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
         <GridToolbarFilterButton />
       </Box>
 
-      {/* divider */}
       <Box sx={{ height: 24, borderLeft: 1, borderColor: 'divider' }} />
 
-      {/* single TextField that animates in/out */}
       <Box
         onMouseEnter={handleEnter}
         onMouseLeave={handleLeave}
@@ -319,13 +356,50 @@ function Toolbar() {
   );
 }
 
+const getStatusIcon = (status: string) => {
+  switch (status) {
+    case 'TRUE':
+      return <CheckCircleIcon color="success" fontSize="small" />;
+    case 'FALSE':
+      return <CancelIcon color="error" fontSize="small" />;
+    case 'NOT_ENOUGH_DATA':
+      return <HelpIcon color="warning" fontSize="small" />;
+    default:
+      return null;
+  }
+};
+
 /* -------- component -------- */
 export const WorkflowInfo: React.FC = () => {
+  const { patientId } = useParams<{ patientId: string }>();
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailRow] = useState<InstanceRow | null>(null);
+  const [demoDialogOpen, setDemoDialogOpen] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [demoError, setDemoError] = useState<string | null>(null);
+  const [demoResult, setDemoResult] = useState<RuleEvaluationResult | null>(
+    null
+  );
   const navigate = useNavigate();
 
-  // Columns typed without the generic to avoid TS 'never' inference on renderCell params
+  const handleTestRuleEngine = async () => {
+    setDemoDialogOpen(true);
+    setDemoLoading(true);
+    setDemoError(null);
+    setDemoResult(null);
+
+    try {
+      const response = await axiosFetch.get(
+        `/workflow-demo/evaluate/${patientId}`
+      );
+      setDemoResult(response.data);
+    } catch (error: any) {
+      setDemoError(error?.message || 'Unknown error occurred');
+    } finally {
+      setDemoLoading(false);
+    }
+  };
+
   const columns: GridColDef[] = [
     { field: 'instanceTitle', headerName: 'Workflow Instance', width: 175 },
     { field: 'templateName', headerName: 'Workflow Template', width: 180 },
@@ -359,7 +433,6 @@ export const WorkflowInfo: React.FC = () => {
       headerName: 'Last Edited',
       type: 'date',
       width: 130,
-      // Provide Date for proper date filtering/sorting
       valueGetter: (_value: unknown, row: InstanceRow) =>
         new Date(row.lastEdited),
       renderCell: (params: GridRenderCellParams) => {
@@ -414,6 +487,16 @@ export const WorkflowInfo: React.FC = () => {
             sx={{ textTransform: 'none', height: 36 }}
             startIcon={<AddIcon />}>
             Start New Workflow
+          </Button>
+          {/* Rule Engine Button */}
+          <Button
+            variant="contained"
+            size="small"
+            color="secondary"
+            sx={{ textTransform: 'none', height: 36 }}
+            startIcon={<ScienceIcon />}
+            onClick={handleTestRuleEngine}>
+            Test Rule Engine
           </Button>
         </Box>
         <Link
@@ -498,7 +581,7 @@ export const WorkflowInfo: React.FC = () => {
                 {Array.from({ length: detailRow.stepsCount }, (_, i) => {
                   const name = `Step ${i + 1}`;
                   const isCurrent =
-                    detailRow.currentStepLabel !== '—' &&
+                    detailRow.currentStepLabel !== '–' &&
                     i === Math.max(0, detailRow.stepsCount - 2);
                   const status =
                     detailRow.status === 'COMPLETED'
@@ -533,6 +616,164 @@ export const WorkflowInfo: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDetailOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Rule Engine Demo Dialog */}
+      <Dialog
+        open={demoDialogOpen}
+        onClose={() => setDemoDialogOpen(false)}
+        maxWidth="md"
+        fullWidth>
+        <DialogTitle>
+          <Box display="flex" alignItems="center" gap={1}>
+            <ScienceIcon />
+            Rule Engine Evaluation Demo
+          </Box>
+        </DialogTitle>
+        <DialogContent dividers>
+          {demoLoading && (
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              py={4}>
+              <CircularProgress />
+            </Box>
+          )}
+
+          {demoError && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {demoError}
+            </Alert>
+          )}
+
+          {demoResult && (
+            <Stack spacing={3}>
+              <Box>
+                <Typography variant="h6" gutterBottom>
+                  Patient Information
+                </Typography>
+                <Paper variant="outlined" sx={{ p: 2 }}>
+                  <Stack spacing={1}>
+                    <Typography>
+                      <strong>Name:</strong> {demoResult.patient.name}
+                    </Typography>
+                    <Typography>
+                      <strong>Age:</strong> {demoResult.patient.age} years
+                    </Typography>
+                    <Typography>
+                      <strong>Sex:</strong> {demoResult.patient.sex}
+                    </Typography>
+                    <Typography>
+                      <strong>Pregnant:</strong>{' '}
+                      {demoResult.patient.isPregnant ? 'Yes' : 'No'}
+                    </Typography>
+                  </Stack>
+                </Paper>
+              </Box>
+
+              {demoResult.selectedBranch ? (
+                <Alert severity="success" icon={<CheckCircleIcon />}>
+                  <Typography variant="subtitle1" fontWeight="bold">
+                    Selected Branch: {demoResult.selectedBranch.name}
+                  </Typography>
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    This patient would follow the{' '}
+                    <strong>{demoResult.selectedBranch.name}</strong> workflow.
+                  </Typography>
+                </Alert>
+              ) : (
+                <Alert severity="warning">
+                  <Typography variant="subtitle1" fontWeight="bold">
+                    No Branch Selected
+                  </Typography>
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    {"No workflow branch matched the patient's data."}
+                  </Typography>
+                </Alert>
+              )}
+
+              <Box>
+                <Typography variant="h6" gutterBottom>
+                  All Branch Evaluations
+                </Typography>
+                <TableContainer component={Paper} variant="outlined">
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Branch Name</TableCell>
+                        <TableCell>Rule</TableCell>
+                        <TableCell>Status</TableCell>
+                        <TableCell>Resolved Data</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {demoResult.branchResults.map((branch) => (
+                        <TableRow
+                          key={branch.id}
+                          sx={{
+                            backgroundColor:
+                              branch.status === 'TRUE'
+                                ? 'success.light'
+                                : branch.status === 'FALSE'
+                                ? 'error.light'
+                                : 'warning.light',
+                            opacity: branch.status === 'TRUE' ? 1 : 0.6,
+                          }}>
+                          <TableCell>
+                            <Typography variant="body2" fontWeight="bold">
+                              {branch.name}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                fontFamily: 'monospace',
+                                fontSize: '0.75rem',
+                                wordBreak: 'break-all',
+                              }}>
+                              {branch.rule}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Box display="flex" alignItems="center" gap={0.5}>
+                              {getStatusIcon(branch.status)}
+                              <Typography variant="body2" fontWeight="bold">
+                                {branch.status}
+                              </Typography>
+                            </Box>
+                          </TableCell>
+                          <TableCell>
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                fontFamily: 'monospace',
+                                fontSize: '0.75rem',
+                              }}>
+                              {JSON.stringify(branch.resolvedData, null, 2)}
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Box>
+
+              <Box>
+                <Typography variant="caption" color="text.secondary">
+                  {
+                    "How it works: The rule engine evaluates each workflow branch's conditions against the patient's data. The first branch that evaluates to TRUE is selected."
+                  }
+                </Typography>
+              </Box>
+            </Stack>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDemoDialogOpen(false)}>Close</Button>
         </DialogActions>
       </Dialog>
     </Paper>

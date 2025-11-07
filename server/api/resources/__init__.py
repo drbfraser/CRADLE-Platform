@@ -22,6 +22,7 @@ from api.resources.users import api_users
 from api.resources.version import api_version
 from api.resources.workflow_classifications import api_workflow_classifications
 from api.resources.workflow_collections import api_workflow_collections
+from api.resources.workflow_demo import api_workflow_demo
 from api.resources.workflow_evaluate import api_workflow_evaluate
 from api.resources.workflow_instance_steps import api_workflow_instance_steps
 from api.resources.workflow_instances import api_workflow_instances
@@ -74,3 +75,4 @@ api.register_api(api_workflow_template_steps)
 api.register_api(api_workflow_instances)
 api.register_api(api_workflow_instance_steps)
 api.register_api(api_workflow_evaluate)
+api.register_api(api_workflow_demo)
