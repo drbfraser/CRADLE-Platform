@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 from typing import Any, Dict, Iterable, List, Union
+from validation.workflow_models import WorkflowTemplateModel
 
 Json = Dict[str, Any]
 TemplateLike = Union[Json, Any]
@@ -23,14 +24,15 @@ def _as_dict(obj: Any) -> Json:
                 return getattr(obj, attr)(mode="python")
     if isinstance(obj, dict):
         return obj
+    
     out: Dict[str, Any] = {}
     for k in dir(obj):
         if k.startswith("_"):
             continue
         try:
             v = getattr(obj, k)
-        except Exception as e:  # S112: log instead of bare continue
-            log.debug("Skipping attribute '%s' on %r: %s", k, obj, e)
+        except Exception as e:
+            log.debug("Skipping attribute %s on %r: %s", k, obj, e)
             continue
         if callable(v):
             continue
@@ -38,27 +40,23 @@ def _as_dict(obj: Any) -> Json:
     return out
 
 
-def _iter_steps(template: TemplateLike) -> Iterable[StepLike]:
+def _iter_steps(template: WorkflowTemplateModel) -> Iterable[Any]:
     t = _as_dict(template)
     return t.get("steps") or t.get("workflow_template_steps") or []
 
 
-def _iter_branches(step: StepLike) -> Iterable[BranchLike]:
+def _iter_branches(step: Any) -> Iterable[Any]:
     s = _as_dict(step)
     return s.get("branches") or []
 
 
-def _get_condition(branch: BranchLike) -> Json | None:
+def _get_condition(branch: Any) -> Json | None:
     b = _as_dict(branch)
     cond = b.get("condition")
     if cond is None:
         return None
     c = _as_dict(cond)
-    return {
-        "id": c.get("id"),
-        "rule": c.get("rule"),
-        "data_sources": c.get("data_sources"),
-    }
+    return {"id": c.get("id"), "rule": c.get("rule")}
 
 
 def _parse_datasources(data_sources) -> List[str]:

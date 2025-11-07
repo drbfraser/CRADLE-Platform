@@ -4,6 +4,7 @@ import logging
 from typing import Any, Dict, Set, Union
 
 from service.workflow.evaluate.jsonlogic_parser import extract_variables_from_rule
+from validation.workflow_models import WorkflowTemplateModel
 
 from .models import BranchVariableInfo, StepVariableInfo, WorkflowVariableReport
 from .utils import (
@@ -22,7 +23,7 @@ log = logging.getLogger(__name__)
 
 
 def extract_variables_from_workflow_template(
-    template: TemplateLike,
+    template: WorkflowTemplateModel,
 ) -> WorkflowVariableReport:
     """
     Extracts variables from a workflow template.
@@ -33,6 +34,11 @@ def extract_variables_from_workflow_template(
 
     Returns a WorkflowVariableReport with the extracted variables.
     """
+    if not isinstance(template, WorkflowTemplateModel):
+        raise TypeError(
+            "extract_variables_from_workflow_template expects a WorkflowTemplateModel"
+        )
+
     t = _as_dict(template)
     report = WorkflowVariableReport(
         workflow_template_id=t.get("id") or t.get("workflow_template_id")
@@ -43,33 +49,45 @@ def extract_variables_from_workflow_template(
     for step in _iter_steps(template):
         s = _as_dict(step)
         step_entry = StepVariableInfo(step_id=s.get("id"))
+
         for branch in _iter_branches(step):
             b = _as_dict(branch)
             cond = _get_condition(branch)
+
+            # No condition or no rule -> empty branch entry
             if not cond or not cond.get("rule"):
                 step_entry.branches.append(
-                    BranchVariableInfo(branch_id=b.get("id"), rule_id=None)
+                    BranchVariableInfo(
+                        branch_id=b.get("id"),
+                        rule_id=None,
+                        variables=[],
+                    )
                 )
                 continue
 
-            rule = cond["rule"]
-
-            variables = extract_variables_from_rule(rule)
+            # Extract from JsonLogic rule (robust to parser errors)
+            try:
+                extracted = extract_variables_from_rule(cond["rule"])
+                variables = set(extracted)  # coerce defensively
+            except Exception as e:
+                log.debug(
+                    "Variable extraction failed for step=%s branch=%s: %s",
+                    s.get("id"),
+                    b.get("id"),
+                    e,
+                )
+                variables = set()
 
             all_vars |= variables
-            ds_tokens = _parse_datasources(cond.get("data_sources"))
-            ds_norm = {_normalize(x) for x in ds_tokens}
-            missing = sorted(variables - ds_norm)
 
             step_entry.branches.append(
                 BranchVariableInfo(
                     branch_id=b.get("id"),
                     rule_id=cond.get("id"),
                     variables=sorted(variables),
-                    data_sources=ds_tokens,
-                    missing_from_datasources=missing,
                 )
             )
+
         report.steps.append(step_entry)
 
     report.all_variables = sorted(all_vars)

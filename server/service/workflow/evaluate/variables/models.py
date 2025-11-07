@@ -8,17 +8,9 @@ Json = Dict[str, Any]
 
 @dataclass(slots=True)
 class BranchVariableInfo:
-    """Variables and data-source info for a single branch."""
-
     branch_id: str | None
     rule_id: str | None
     variables: List[str] = field(default_factory=list)
-    data_sources: List[str] = field(default_factory=list)
-    missing_from_datasources: List[str] = field(default_factory=list)
-
-    @property
-    def datasources(self) -> List[str]:
-        return self.data_sources
 
 
 @dataclass(slots=True)
@@ -37,7 +29,8 @@ class WorkflowVariableReport:
     steps: List[StepVariableInfo] = field(default_factory=list)
     all_variables: List[str] = field(default_factory=list)
 
-    def to_dict(self) -> Json:
+    def to_dict(self) -> Dict[str, object]:
+        """JSON-ready payload (datasources removed)."""
         return {
             "workflow_template_id": self.workflow_template_id,
             "steps": [
@@ -48,10 +41,6 @@ class WorkflowVariableReport:
                             "branch_id": b.branch_id,
                             "rule_id": b.rule_id,
                             "variables": list(b.variables),
-                            "datasources": list(b.data_sources),
-                            "missing_from_datasources": list(
-                                b.missing_from_datasources
-                            ),
                         }
                         for b in s.branches
                     ],
