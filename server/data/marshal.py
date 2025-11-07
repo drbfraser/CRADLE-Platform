@@ -2,6 +2,7 @@ import json
 from collections.abc import Mapping
 from enum import Enum
 from typing import Any, Dict, List, Optional, Type
+import logging
 
 from common import commonUtil
 from common.form_utils import filter_template_questions_orm
@@ -15,6 +16,12 @@ from models import (
     MedicalRecordOrm,
     PatientOrm,
     PregnancyOrm,
+    LangVersionOrmV2,
+    FormClassificationOrmV2,
+    FormSubmissionOrmV2,
+    FormQuestionTemplateOrmV2,
+    FormAnswerOrmV2,
+    FormTemplateOrmV2,
     QuestionLangVersionOrm,
     QuestionOrm,
     ReadingOrm,
@@ -33,6 +40,7 @@ from models import (
 )
 from service import invariant
 
+logger = logging.getLogger(__name__)
 
 def marshal(obj: Any, shallow: bool = False, if_include_versions: bool = False) -> dict:
     r"""
@@ -47,6 +55,18 @@ def marshal(obj: Any, shallow: bool = False, if_include_versions: bool = False) 
     :param if_include_versions: For question models, include language versions.
     :return: JSON-serializable dictionary for ``obj``.
     """
+    if isinstance(obj, LangVersionOrmV2):
+        return __marshal_lang_version_v2(obj)
+    if isinstance(obj, FormClassificationOrmV2):
+        return __marshal_form_classification_v2(obj, if_include_versions)
+    if isinstance(obj, FormTemplateOrmV2):
+        return __marshal_form_template_v2(obj, shallow)
+    if isinstance(obj, FormQuestionTemplateOrmV2):
+        return __marshal_form_question_template_v2(obj)
+    if isinstance(obj, FormSubmissionOrmV2):
+        return __marshal_form_submission_v2(obj, shallow)
+    if isinstance(obj, FormAnswerOrmV2):
+        return __marshal_form_answer_v2(obj)
     if isinstance(obj, PatientOrm):
         return __marshal_patient(obj, shallow)
     if isinstance(obj, ReadingOrm):
@@ -754,6 +774,18 @@ def unmarshal(m: Type[M], d: dict) -> M:
     # if the field is absent entirely.
     d = commonUtil.filterNestedAttributeWithValueNone(d)
 
+    if m is LangVersionOrmV2:
+        return __unmarshal_lang_version_v2(d)
+    if m is FormClassificationOrmV2:
+        return __unmarshal_form_classification_v2(d)
+    if m is FormTemplateOrmV2:
+        return __unmarshal_form_template_v2(d)
+    if m is FormQuestionTemplateOrmV2:
+        return __unmarshal_form_question_template_v2(d)
+    if m is FormSubmissionOrmV2:
+        return __unmarshal_form_submission_v2(d)
+    if m is FormAnswerOrmV2:
+        return __unmarshal_form_answer_v2(d)
     if m is PatientOrm:
         return __unmarshal_patient(d)
     if m is ReadingOrm:
@@ -1218,3 +1250,264 @@ def model_to_dict(model: Any, schema) -> Optional[dict]:
     if isinstance(model, Mapping):  # Local database stub
         return model
     return schema().dump(model)
+
+
+# MARSHAL
+def __marshal_lang_version_v2(lv: LangVersionOrmV2) -> dict:
+    """
+    Serialize a ``LangVersionOrmV2`` translation entry.
+
+    :param lv: Language version instance to serialize.
+    :return: Translation dictionary with string_id, lang, and text.
+    """
+    d = vars(lv).copy()
+    __pre_process(d)
+    return d
+
+
+def __marshal_form_classification_v2(
+    fc: FormClassificationOrmV2,
+    if_include_templates: bool = False,
+) -> dict:
+    """
+    Serialize a ``FormClassificationOrmV2``; optionally embed its templates.
+
+    :param fc: Form classification V2 instance to serialize.
+    :param if_include_templates: If ``True``, include serialized templates.
+    :return: Classification dictionary with name_string_id.
+    """
+    d = vars(fc).copy()
+    __pre_process(d)
+
+    if d.get("templates") is not None:
+        del d["templates"]
+
+    if if_include_templates:
+        d["templates"] = [__marshal_form_template_v2(t) for t in fc.templates]
+
+    return d
+
+
+def __marshal_form_template_v2(
+    ft: FormTemplateOrmV2,
+    shallow: bool = False,
+) -> dict:
+    """
+    Serialize a ``FormTemplateOrmV2``; embed classification and optionally questions.
+
+    :param ft: Form template V2 instance to serialize.
+    :param shallow: If ``True``, omit questions.
+    :return: Form-template dictionary with version, archived, and is_latest flags.
+    """
+    d = vars(ft).copy()
+    __pre_process(d)
+
+    # Remove relationship object
+    if d.get("classification"):
+        del d["classification"]
+
+    if shallow:
+        if d.get("questions"):
+            del d["questions"]
+    else:
+        d["questions"] = [__marshal_form_question_template_v2(q) for q in ft.questions]
+        # Sort question list based on order in ascending order
+        d["questions"].sort(key=lambda q: q["order"])
+
+    return d
+
+
+def __marshal_form_question_template_v2(q: FormQuestionTemplateOrmV2) -> dict:
+    """
+    Serialize a ``FormQuestionTemplateOrmV2``; parse JSON fields.
+
+    :param q: Question template instance to serialize.
+    :return: Question dictionary with parsed visible_condition and mc_options.
+    """
+    d = vars(q).copy()
+    __pre_process(d)
+
+    # Remove relationship object
+    if d.get("template"):
+        del d["template"]
+
+    # Parse JSON fields
+    visible_condition = d.get("visible_condition")
+    if visible_condition is not None and visible_condition != "":
+        d["visible_condition"] = json.loads(visible_condition)
+    else:
+        d["visible_condition"] = []
+
+    mc_options = d.get("mc_options")
+    if mc_options is not None and mc_options != "":
+        d["mc_options"] = json.loads(mc_options)
+    
+    # If mc_options is None or empty, remove it from dict (it's optional)
+    elif "mc_options" in d:
+        del d["mc_options"]
+
+    return d
+
+
+def __marshal_form_submission_v2(
+    fs: FormSubmissionOrmV2,
+    shallow: bool = False,
+) -> dict:
+    """
+    Serialize a ``FormSubmissionOrmV2``; optionally embed answers.
+
+    :param fs: Form submission V2 instance to serialize.
+    :param shallow: If ``True``, omit answers from the output.
+    :return: Submission dictionary with metadata and optionally answers.
+    """
+    d = vars(fs).copy()
+    __pre_process(d)
+
+    if shallow:
+        if d.get("answers"):
+            del d["answers"]
+    else:
+        d["answers"] = [__marshal_form_answer_v2(a) for a in fs.answers]
+
+    return d
+
+
+def __marshal_form_answer_v2(a: FormAnswerOrmV2) -> dict:
+    """
+    Serialize a ``FormAnswerOrmV2``; parse the answer JSON field.
+
+    :param a: Form answer instance to serialize.
+    :return: Answer dictionary with parsed answer field.
+    """
+    d = vars(a).copy()
+    __pre_process(d)
+
+    # Remove relationship object
+    if d.get("submission"):
+        del d["submission"]
+
+    # Parse answer JSON field
+    answer = d.get("answer")
+    if answer is not None and answer != "":
+        d["answer"] = json.loads(answer)
+    else:
+        d["answer"] = {}
+
+    return d
+
+# UNMARSHAL
+def __unmarshal_lang_version_v2(d: dict) -> LangVersionOrmV2:
+    """
+    Construct a ``LangVersionOrmV2`` translation entry.
+
+    :param d: Language version V2 payload dictionary.
+    :return: ``LangVersionOrmV2`` instance.
+    """
+    lang_version_v2 = __load(LangVersionOrmV2, d)
+    return lang_version_v2
+
+
+def __unmarshal_form_classification_v2(d: dict) -> FormClassificationOrmV2:
+    """
+    Construct a ``FormClassificationOrmV2``; optionally load nested templates.
+
+    :param d: Form classification V2 payload (may include a ``templates`` list).
+    :return: ``FormClassificationOrmV2`` with optional templates attached.
+    """
+    with db_session.no_autoflush:
+        templates = []
+        if d.get("templates") is not None:
+            templates = [__unmarshal_form_template_v2(t) for t in d["templates"]]
+            del d["templates"]
+
+        form_classification_v2 = __load(FormClassificationOrmV2, d)
+        
+        if templates:
+            form_classification_v2.templates = templates
+
+        return form_classification_v2
+
+
+def __unmarshal_form_template_v2(d: dict) -> FormTemplateOrmV2:
+    """
+    Construct a ``FormTemplateOrmV2``; load questions.
+
+    :param d: Form template V2 payload (may include a ``questions`` list).
+    :return: ``FormTemplateOrmV2`` with questions attached.
+    """
+    with db_session.no_autoflush:
+        questions = []
+        if d.get("questions") is not None:
+            questions = [__unmarshal_form_question_template_v2(q) for q in d["questions"]]
+            del d["questions"]
+
+        form_template_v2 = __load(FormTemplateOrmV2, d)
+        
+        if questions:
+            form_template_v2.questions = questions
+
+        return form_template_v2
+
+
+def __unmarshal_form_question_template_v2(d: dict) -> FormQuestionTemplateOrmV2:
+    """
+    Construct a ``FormQuestionTemplateOrmV2``; encode JSON-able fields.
+
+    :param d: Question template payload (may include ``visible_condition`` and 
+        ``mc_options`` as lists/dicts).
+    :return: ``FormQuestionTemplateOrmV2`` instance.
+    """
+    # Convert "visible_condition" from json dict to string
+    visible_condition = d.get("visible_condition")
+    if visible_condition is not None:
+        if isinstance(visible_condition, (list, dict)):
+            d["visible_condition"] = json.dumps(visible_condition)
+    
+    # Convert "mc_options" from json list to string
+    mc_options = d.get("mc_options")
+    if mc_options is not None:
+        if isinstance(mc_options, list):
+            d["mc_options"] = json.dumps(mc_options)
+
+    question_template_v2 = __load(FormQuestionTemplateOrmV2, d)
+    
+    return question_template_v2
+
+
+def __unmarshal_form_submission_v2(d: dict) -> FormSubmissionOrmV2:
+    """
+    Construct a ``FormSubmissionOrmV2``; unmarshal nested answers if present.
+
+    :param d: Form submission V2 payload (may include an ``answers`` list).
+    :return: ``FormSubmissionOrmV2`` with answers attached.
+    """
+    with db_session.no_autoflush:
+        answers = []
+        if d.get("answers") is not None:
+            answers = [__unmarshal_form_answer_v2(a) for a in d["answers"]]
+            del d["answers"]
+
+        form_submission_v2 = __load(FormSubmissionOrmV2, d)
+        
+        if answers:
+            form_submission_v2.answers = answers
+
+        return form_submission_v2
+
+
+def __unmarshal_form_answer_v2(d: dict) -> FormAnswerOrmV2:
+    """
+    Construct a ``FormAnswerOrmV2``; encode answer dict to JSON string.
+
+    :param d: Form answer V2 payload (may include ``answer`` as a dict).
+    :return: ``FormAnswerOrmV2`` instance.
+    """
+    # Convert "answer" from json dict to string
+    answer = d.get("answer")
+    if answer is not None:
+        if isinstance(answer, dict):
+            d["answer"] = json.dumps(answer)
+
+    form_answer_v2 = __load(FormAnswerOrmV2, d)
+    
+    return form_answer_v2

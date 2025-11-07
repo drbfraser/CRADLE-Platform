@@ -173,8 +173,8 @@ class FormQuestionTemplateOrmV2(db.Model):
     num_max = db.Column(db.Float, nullable=True)
     string_max_length = db.Column(db.Integer, nullable=True)
     string_max_lines = db.Column(db.Integer, nullable=True)
-    allow_future_dates = db.Column(db.Boolean, nullable=False, default=True)
-    allow_past_dates = db.Column(db.Boolean, nullable=False, default=True)
+    allow_future_dates = db.Column(db.Boolean, nullable=False, default=True) # nullable=True
+    allow_past_dates = db.Column(db.Boolean, nullable=False, default=True) # nullable=True
 
 
 class FormSubmissionOrmV2(db.Model):

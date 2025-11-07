@@ -87,6 +87,44 @@ def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
                 version["question_id"] = question["id"]
 
 
+def assign_form_or_template_ids_v2(model: Type[M], req: dict) -> None:
+    """
+    Assign form id if not provided.
+    Assign question id and form_id or form_template_id.
+    Assign lang version question_id.
+    Therefore, we can create the form or template one time.
+    """
+    if req.get("classification") is not None:
+        if req["classification"].get("id") is None:
+            req["classification"]["id"] = commonUtil.get_uuid()
+        if req.get("form_classification_id") is None:
+            req["form_classification_id"] = req["classification"].get("id")
+
+    # assign form id if not provided.
+    if req.get("id") is None:
+        req["id"] = commonUtil.get_uuid()
+
+    id = req["id"]
+
+    if model is FormClassificationOrm:
+        return
+
+    # assign question id and form_id or form_template_id.
+    # assign lang version question_id.
+    for question in req["questions"]:
+        question["id"] = commonUtil.get_uuid()
+
+        if model is FormOrm:
+            question["form_id"] = id
+        elif model is FormTemplateOrm:
+            question["form_template_id"] = id
+
+        if question.get("lang_versions") is not None:
+            for version in question.get("lang_versions"):
+                version["question_id"] = question["id"]
+
+
+
 def getFormTemplateDictFromCSV(csvData: str):
     """
     Returns a dictionary of form templates from a CSV file.
