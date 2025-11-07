@@ -1,7 +1,5 @@
 from unittest.mock import patch
 
-import pytest
-
 from server.tests.helpers import (
     TIMESTAMP_TOMORROW,
     get_uuid,
@@ -16,9 +14,6 @@ from validation.workflow_models import WorkflowInstanceModel
 PATIENT_ID = "49300028161"
 
 
-@pytest.mark.skip(
-    "Temporarily skipping until DB date defaults are removed (see workflow_service.py for more info)"
-)
 def test_workflow_service__upsert_workflow_instance():
     """
     Checks that WorkflowService.upsert_workflow_instance() updates last_edited.
