@@ -73,9 +73,9 @@ class FormTemplateOrmV2(db.Model):
     - Only one version per classification has is_latest=True
 
     Example lifecycle:
-        1. Admin creates "Patient Intake v1" (version=1, is_latest=True)
-        2. Admin edits form -> creates "Patient Intake v2" (version=2, is_latest=True)
-        3. v1 is marked archived=True, is_latest=False
+        1. Admin creates "Patient Intake v1" (version=1)
+        2. Admin edits form -> creates "Patient Intake v2" (version=2)
+        3. v1 is marked archived=True
         4. Submissions from v1 still reference v1 template correctly
     """
 
@@ -89,7 +89,6 @@ class FormTemplateOrmV2(db.Model):
 
     version = db.Column(db.Integer, nullable=False, default=1)
     archived = db.Column(db.Boolean, nullable=False, default=False)
-    is_latest = db.Column(db.Boolean, nullable=False, default=True)
     date_created = db.Column(
         db.BigInteger,
         nullable=False,
@@ -121,7 +120,7 @@ class FormQuestionTemplateOrmV2(db.Model):
       can be used to reference this field in workflows, specifically the data extractor in rules engine.
       For example, if the question asks for the patient's age, the user might define
       `user_question_id="patient_age"`. This value is stored as-is (not converted to a UUID)
-      and remains consistent across versions for rule referencing.
+      and remains consistent across versions for rule referencing. This value should be unique per form template.
 
     - Questions are immutable - they belong to a specific template version.
       Editing a question means creating a new template version with the updated question.
@@ -173,8 +172,16 @@ class FormQuestionTemplateOrmV2(db.Model):
     num_max = db.Column(db.Float, nullable=True)
     string_max_length = db.Column(db.Integer, nullable=True)
     string_max_lines = db.Column(db.Integer, nullable=True)
-    allow_future_dates = db.Column(db.Boolean, nullable=False, default=True)
-    allow_past_dates = db.Column(db.Boolean, nullable=False, default=True)
+    allow_future_dates = db.Column(db.Boolean, nullable=True, default=True)
+    allow_past_dates = db.Column(db.Boolean, nullable=True, default=True)
+
+    __table_args__ = (
+        db.UniqueConstraint(
+            "form_template_id",
+            "user_question_id",
+            name="unique_user_question_per_template",
+        ),
+    )
 
 
 class FormSubmissionOrmV2(db.Model):
