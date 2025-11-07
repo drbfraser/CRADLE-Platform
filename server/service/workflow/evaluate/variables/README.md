@@ -1,76 +1,76 @@
 # Workflow Branch Variable Extraction
 
-This module extracts **all JsonLogic variables** used in **workflow branch conditions** and reports them per-branch and per-step. It also compares extracted variables against the branch’s declared `data_sources` and flags any **missing** items.
+> **Disclaimer:** The content of the README might not be up to date with the code in the package. The instructions are kept at high level.
 
+This module extracts **all JsonLogic variables** used in **workflow branch conditions** and reports them per‑branch and per‑step.  
 
 ---
 
 ## Location
 
 ```
-service/workflow/evaluate/variables/
-  __init__.py            
-  extractor.py           # extract_variables_from_workflow_template(...)
-  models.py              # dataclasses (WorkflowVariableReport, StepVariableInfo, BranchVariableInfo)
-  utils.py               # internal helpers (dict casting, iteration, parsing)
+server/service/workflow/evaluate/variables/
+  __init__.py
+  extractor.py     # extract_variables_from_workflow_template(...)
+  models.py        # WorkflowVariableReport, StepVariableInfo, BranchVariableInfo
+  utils.py         # internal helpers (casting, iteration)
 ```
 
 ---
 
-## What the extractor does
-
-For every step → branch:
-1) Parse the branch `condition.rule` (JsonLogic, serialized as a JSON **string**).  
-2) Collect **variables** (e.g., `patient.age`, `visit.type`, `vitals.bp.systolic`).  
-3) Normalize `data_sources` (list or JSON string) and compute **missing_from_datasources**.  
-
-
-
----
-
-## Example
+## Public API
 
 ```python
-from service.workflow.evaluate.variables import extract_variables_from_workflow_template
+from service.workflow.evaluate.variables import (
+    extract_variables_from_workflow_template,
+    WorkflowVariableReport,
+)
 
-# `template` can be a WorkflowTemplateModel or a dict shaped like a template
-report = extract_variables_from_workflow_template(template)
+report: WorkflowVariableReport = extract_variables_from_workflow_template(template_model)
+```
 
-print(report.workflow_template_id)
-for step in report.steps:
-    print(step.step_id)
-    for br in step.branches:
-        print(br.branch_id, br.rule_id, br.variables, br.datasources, br.missing_from_datasources)
+### Return types (overview)
 
-# JSON for your teammate (legacy/public shape)
-payload = report.to_dict()
+```python
+WorkflowVariableReport
+  .workflow_template_id: str | None
+  .steps: list[StepVariableInfo]
+  .all_variables: list[str]        # sorted, de‑duplicated across all branches
+
+StepVariableInfo
+  .step_id: str | None
+  .branches: list[BranchVariableInfo]
+
+BranchVariableInfo
+  .branch_id: str | None
+  .rule_id: str | None
+  .variables: list[str]            # sorted, unique per branch
 ```
 
 ---
 
-## Accepted Inputs (Shapes & Examples)
+## Input requirements
 
-The extractor accepts either a **Pydantic model** or a **raw dict**. Both must contain the same essential fields:
+- **Model only:** The extractor accepts **only** a `WorkflowTemplateModel`.
+- **Rules:** Each branch condition’s `rule` must be a **JSON string** containing a JsonLogic structure.  
+  If there’s **no rule**, store the string value of JSON `null` (i.e., `json.dumps(None)`)—the extractor will return no variables for that branch.
+- **Note:** Your `WorkflowTemplateModel` may still require a `data_sources` field; this is **ignored** by the extractor and **does not** appear in the output.
 
-- Template:
-  - `id: str`
-  - `steps: list[Step]`
-  - `starting_step_id` (optional for the extractor but often present)
+---
 
-- Step:
-  - `id: str`
-  - `branches: list[Branch]`
+## Quick start
 
-- Branch:
-  - `id: str`
-  - `target_step_id: str | None` (not used by extractor)
-  - `condition: { "id": str, "rule": str, "data_sources": list[str] | str }`  
-    - `rule` **must** be a JSON **string** containing JsonLogic
-    - `data_sources` can be a list (e.g., `["$patient.age"]`) **or** a JSON string (e.g., `'["$patient.age"]'`).
-
-### A. Minimal **dict** input
 ```python
 import json
+from validation.workflow_models import WorkflowTemplateModel
+from service.workflow.evaluate.variables import extract_variables_from_workflow_template
+
+rule = json.dumps({
+    "and": [
+        {">=": [{"var": "patient.age"}, 18]},
+        {"==": [{"var": "visit.type"}, "ANC"]},
+    ]
+})
 
 template_dict = {
     "id": "wt-1",
@@ -79,94 +79,62 @@ template_dict = {
         {
             "id": "st-1",
             "branches": [
-                {
-                    "id": "b-1",
-                    "target_step_id": "st-2",
-                    "condition": {
-                        "id": "rg-1",
-                        "rule": json.dumps({
-                            "and": [
-                                {">=": [{"var": "patient.age"}, 18]},
-                                {"==": [{"var": "visit.type"}, "ANC"]},
-                            ]
-                        }),
-                        "data_sources": ["$patient.age", "$visit.type"],
-                    },
-                },
-                {
-                    "id": "b-2",
-                    "target_step_id": "st-2",
-                    "condition": {
-                        "id": "rg-2",
-                        "rule": json.dumps({
-                            "or": [
-                                {"<": [{"var": "vitals.bp.systolic"}, 90]},
-                                {"in": [{"var": "patient.sex"}, ["FEMALE", "OTHER"]]},
-                            ]
-                        }),
-                        "data_sources": '["$vitals.bp.systolic"]',  # JSON string variant
-                    },
-                },
+                {"id": "b-1", "target_step_id": "st-2",
+                 "condition": {"id": "rg-1", "rule": rule, "data_sources": "[]"}}
             ],
         },
         {"id": "st-2", "branches": []},
     ],
 }
+
+template_model = WorkflowTemplateModel(**template_dict)
+
+report = extract_variables_from_workflow_template(template_model)
+print(report.workflow_template_id)            # "wt-1"
+print(report.all_variables)                   # ["patient.age", "visit.type"]
+print(report.steps[0].branches[0].variables)  # ["patient.age", "visit.type"]
+
 ```
-
-
 
 ---
 
-## Output (Model + JSON)
+## Behavior & edge cases
 
-### Model access
+- **Deterministic output:** Variable lists are **sorted**; duplicates across branches are **de‑duplicated** in `all_variables`.
+- **No condition:** Branch `condition=None` → branch variables `[]`.
+- **Condition but no rule:** `rule` set to the string `"null"` (`json.dumps(None)`) → variables `[]`.
+- **“Bad JSON rule”:** If the rule is a valid JSON string but not a JsonLogic object (e.g., `"123"`), extraction is **gracefully empty** for that branch (others continue).
+- **Type guard:** Non‑`WorkflowTemplateModel` input raises `TypeError`.
+
+See tests for exact expectations:
+- `test_extract_after_workflowservice_generation`
+- `test_no_condition_yields_empty_variables`
+- `test_condition_without_rule_yields_empty_variables`
+- `test_bad_json_rule`
+- `test_duplicate_variables_across_branches_are_deduped_in_all_variables`
+- `test_requires_workflow_template_model_input`
+
+---
+
+## Output shape
+
+### Python model
 ```python
-report = extract_variables_from_workflow_template(template_model)  # or template_dict
-
-assert report.workflow_template_id == "wt-1"
-assert set(report.all_variables) == {
-    "patient.age", "visit.type", "vitals.bp.systolic", "patient.sex"
-}
-
-s1 = report.find_step("st-1")
-assert s1 and len(s1.branches) == 2
-
-b1 = report.find_branch("b-1", step_id="st-1")
-assert b1.variables == ["patient.age", "visit.type"]
-assert b1.datasources == ["$patient.age", "$visit.type"]
-assert b1.missing_from_datasources == []
-
-b2 = report.find_branch("b-2", step_id="st-1")
-assert b2.variables == ["patient.sex", "vitals.bp.systolic"]
-assert b2.datasources == ["$vitals.bp.systolic"]
-assert b2.missing_from_datasources == ["patient.sex"]
+report.workflow_template_id            # "wt-1"
+report.all_variables                  # ["patient.age", "patient.sex", "visit.type", "vitals.bp.systolic"]
+report.steps[0].step_id               # "st-1"
+report.steps[0].branches[0].variables # ["patient.age", "visit.type"]
 ```
 
-### JSON payload (`to_dict()`)
-```python
-payload = report.to_dict()
-# payload ==
+### JSON (`to_dict()`)
+```json
 {
   "workflow_template_id": "wt-1",
   "steps": [
     {
       "step_id": "st-1",
       "branches": [
-        {
-          "branch_id": "b-1",
-          "rule_id": "rg-1",
-          "variables": ["patient.age", "visit.type"],
-          "datasources": ["$patient.age", "$visit.type"],
-          "missing_from_datasources": []
-        },
-        {
-          "branch_id": "b-2",
-          "rule_id": "rg-2",
-          "variables": ["patient.sex", "vitals.bp.systolic"],
-          "datasources": ["$vitals.bp.systolic"],
-          "missing_from_datasources": ["patient.sex"]
-        }
+        { "branch_id": "b-1", "rule_id": "rg-1", "variables": ["patient.age", "visit.type"] }
       ]
     },
     { "step_id": "st-2", "branches": [] }
