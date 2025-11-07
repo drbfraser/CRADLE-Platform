@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 
 import pytest
@@ -8,7 +10,7 @@ from tests import helpers
 from validation.workflow_models import WorkflowTemplateModel
 
 
-def _cond(rule_id: str, rule: object) -> dict:
+def _condition(rule_id: str, rule: object) -> dict:
     """
     Uniform condition helper for tests.
 
@@ -28,7 +30,9 @@ def _cond(rule_id: str, rule: object) -> dict:
     return {"id": rule_id, "rule": rule_json, "data_sources": "[]"}
 
 
-def _tmpl(wt="wt-core", st1="st-1", st2="st-2", branches: list[dict] | None = None) -> WorkflowTemplateModel:
+def _tmpl(
+    wt="wt-core", st1="st-1", st2="st-2", branches: list[dict] | None = None
+) -> WorkflowTemplateModel:
     step1 = helpers.make_workflow_template_step(
         id=st1,
         workflow_template_id=wt,
@@ -50,23 +54,23 @@ def test_extract_after_workflowservice_generation():
     """
     wt, st1, st2 = "wt-1", "st-1", "st-2"
 
-    cond1 = _cond(
+    cond1 = _condition(
         "rg-1",
         {
             "and": [
                 {">=": [{"var": "patient.age"}, 18]},
                 {"==": [{"var": "visit.type"}, "ANC"]},
             ]
-        }
+        },
     )
-    cond2 = _cond(
+    cond2 = _condition(
         "rg-2",
         {
             "or": [
                 {"<": [{"var": "vitals.bp.systolic"}, 90]},
                 {"in": [{"var": "patient.sex"}, ["FEMALE", "OTHER"]]},
             ]
-        }
+        },
     )
 
     step1 = helpers.make_workflow_template_step(
@@ -126,8 +130,12 @@ def test_requires_workflow_template_model_input():
     passed a dict instead of a WorkflowTemplateModel.
     """
     wt = "wt-type"
-    step = helpers.make_workflow_template_step(id="st-1", workflow_template_id=wt, branches=[])
-    tmpl_dict = helpers.make_workflow_template(id=wt, starting_step_id="st-1", steps=[step])
+    step = helpers.make_workflow_template_step(
+        id="st-1", workflow_template_id=wt, branches=[]
+    )
+    tmpl_dict = helpers.make_workflow_template(
+        id=wt, starting_step_id="st-1", steps=[step]
+    )
     with pytest.raises(TypeError):
         extract_variables_from_workflow_template(tmpl_dict)
 
@@ -151,7 +159,7 @@ def test_condition_without_rule_yields_empty_variables():
     Verify that a branch with a condition but no rule yields an empty variables
     list.
     """
-    cond = _cond("rg-1", None)
+    cond = _condition("rg-1", None)
     b = helpers.make_workflow_template_branch(id="b-2", step_id="st-1", condition=cond)
     report = extract_variables_from_workflow_template(_tmpl(branches=[b]))
     s1 = report.find_step("st-1")
@@ -167,8 +175,10 @@ def test_bad_json_rule():
     A "bad JSON rule" is one that is not a valid JSON object.
     """
     bad_rule = json.dumps(123)
-    cond = _cond("rg-bad", bad_rule)
-    b = helpers.make_workflow_template_branch(id="b-bad", step_id="st-1", condition=cond)
+    cond = _condition("rg-bad", bad_rule)
+    b = helpers.make_workflow_template_branch(
+        id="b-bad", step_id="st-1", condition=cond
+    )
     report = extract_variables_from_workflow_template(_tmpl(branches=[b]))
     s1 = report.find_step("st-1")
     assert s1 is not None
@@ -182,23 +192,27 @@ def test_duplicate_variables_across_branches_are_deduped_in_all_variables():
     Verify that variables from different branches of the same step are
     de-duplicated in the WorkflowVariableReport's all_variables field.
     """
-    r1 = json.dumps({
-        "and": [
-            {">=": [{"var": "patient.age"}, 18]},
-            {"==": [{"var": "visit.type"}, "ANC"]},
-        ]
-    })
-    r2 = json.dumps({
-        "or": [
-            {"var": "patient.age"},
-            {"==": [{"var": "visit.type"}, "ANC"]},
-        ]
-    })
+    r1 = json.dumps(
+        {
+            "and": [
+                {">=": [{"var": "patient.age"}, 18]},
+                {"==": [{"var": "visit.type"}, "ANC"]},
+            ]
+        }
+    )
+    r2 = json.dumps(
+        {
+            "or": [
+                {"var": "patient.age"},
+                {"==": [{"var": "visit.type"}, "ANC"]},
+            ]
+        }
+    )
     b1 = helpers.make_workflow_template_branch(
-        id="b-1", step_id="st-1", condition=_cond("rg-1", r1)
+        id="b-1", step_id="st-1", condition=_condition("rg-1", r1)
     )
     b2 = helpers.make_workflow_template_branch(
-        id="b-2", step_id="st-1", condition=_cond("rg-2", r2)
+        id="b-2", step_id="st-1", condition=_condition("rg-2", r2)
     )
 
     report = extract_variables_from_workflow_template(_tmpl(branches=[b1, b2]))

@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 from typing import Any, Dict, Iterable, List, Union
+
 from validation.workflow_models import WorkflowTemplateModel
 
 Json = Dict[str, Any]
@@ -24,7 +25,7 @@ def _as_dict(obj: Any) -> Json:
                 return getattr(obj, attr)(mode="python")
     if isinstance(obj, dict):
         return obj
-    
+
     out: Dict[str, Any] = {}
     for k in dir(obj):
         if k.startswith("_"):

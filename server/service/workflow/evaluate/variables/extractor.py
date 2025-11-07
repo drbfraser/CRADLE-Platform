@@ -12,8 +12,6 @@ from .utils import (
     _get_condition,
     _iter_branches,
     _iter_steps,
-    _normalize,
-    _parse_datasources,
 )
 
 Json = Dict[str, Any]
