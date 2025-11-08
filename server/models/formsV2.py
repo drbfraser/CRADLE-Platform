@@ -126,6 +126,10 @@ class FormQuestionTemplateOrmV2(db.Model):
       `user_question_id="patient_age"`. This value is stored as-is (not converted to a UUID)
       and remains consistent across versions for rule referencing. This value should be unique per form template.
 
+    - Consistency for `user_question_id` across versions would be enforced at the application level when new template
+      versions are created - the cloning logic should copy user_question_id values unless explicitly renamed by the user.
+      This way workflow branches referencing these IDs remain stable across template versions.
+
     - Questions are immutable - they belong to a specific template version.
       Editing a question means creating a new template version with the updated question.
 
