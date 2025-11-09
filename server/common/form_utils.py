@@ -25,7 +25,8 @@ from common.constants import (
     FORM_TEMPLATE_VERSION_ROW,
 )
 from enums import QuestionTypeEnum
-from models import FormClassificationOrm, FormOrm, FormTemplateOrm, QuestionOrm
+from models import FormClassificationOrm, FormOrm, FormTemplateOrm, QuestionOrm, FormTemplateOrmV2, LangVersionOrmV2
+import data.db_operations as crud
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -461,5 +462,139 @@ def getCsvFromFormTemplate(form_template: FormTemplateOrm):
                 mcoptions_to_str(lang.mc_options),
             ]
             rows.append(row)
+
+    return list_to_csv(rows)
+
+
+def getCsvFromFormTemplateV2(form_template: FormTemplateOrmV2) -> str:
+    """
+    Returns a CSV string for a FormTemplateOrmV2, including all language versions,
+    multiple-choice options, and visible-if conditions.
+    """
+
+    def fmt(cell):
+        return f'"{cell if cell is not None else ""}"'
+
+    def list_to_csv(rows: list[list[str]]):
+        return "\n".join([",".join(map(fmt, row)) for row in rows]) + "\n"
+
+    def read_all_translations(string_id: str):
+        """Return all LangVersionOrmV2 entries for a given string_id as a list."""
+        return crud.read_all(LangVersionOrmV2, string_id=string_id) or []
+
+    def get_mc_options_text(mc_options_json: str):
+        """Return mapping of {lang: 'option1, option2, ...'} for all option translations."""
+        if not mc_options_json:
+            return {}
+
+        try:
+            option_ids = json.loads(mc_options_json)
+        except Exception:
+            return {}
+
+        lang_map = {}
+        for opt_id in option_ids:
+            versions = read_all_translations(opt_id)
+            for v in versions:
+                lang_map.setdefault(v.lang, []).append(v.text)
+
+        return {lang: ", ".join(texts) for lang, texts in lang_map.items()}
+
+    def get_visible_if_text(visible_condition_json: str):
+        """Return visible-if info, fallback to raw JSON."""
+        try:
+            conditions = json.loads(visible_condition_json)
+            if not conditions:
+                return ""
+            return json.dumps(conditions, ensure_ascii=False)
+        except Exception:
+            return visible_condition_json or ""
+
+    def get_all_languages():
+        """Aggregate all languages across all questions."""
+        langs = set()
+        for q in form_template.questions:
+            for lv in read_all_translations(q.string_id):
+                langs.add(lv.lang)
+        return sorted(list(langs))
+
+    # Build CSV 
+    questions = sorted(form_template.questions, key=lambda q: q.order)
+    classification_translations = read_all_translations(form_template.classification.name_string_id)
+    all_langs = get_all_languages()
+
+    rows = [
+        [
+            "Form Name",
+            classification_translations[0].text if classification_translations else form_template.classification.name_string_id,
+            "Languages",
+            ",".join(all_langs),
+        ],
+        ["Version", str(form_template.version)],
+        [],
+        [
+            "Question ID",
+            "Question Text",
+            "Type",
+            "Language",
+            "Required",
+            "Units",
+            "Visible If",
+            "Min",
+            "Max",
+            "# Lines",
+            "Choices",
+            "User Question ID",
+            "Order",
+            "Category Index",
+        ],
+    ]
+
+    for q in questions:
+        question_langs = read_all_translations(q.string_id)
+        choices_by_lang = get_mc_options_text(q.mc_options)
+        visible_if_text = get_visible_if_text(q.visible_condition)
+
+        # First row: main question (with metadata)
+        for i, q_lang in enumerate(question_langs):
+            rows.append(
+                [
+                    q.id if i == 0 else "",
+                    q_lang.text,
+                    q.question_type.value if i == 0 else "",
+                    q_lang.lang,
+                    "Y" if (i == 0 and q.required) else "",
+                    q.units if i == 0 else "",
+                    visible_if_text if i == 0 else "",
+                    q.num_min if i == 0 else "",
+                    q.num_max if i == 0 else "",
+                    q.string_max_lines if i == 0 else "",
+                    choices_by_lang.get(q_lang.lang, ""),
+                    q.user_question_id if i == 0 else "",
+                    q.order if i == 0 else "",
+                    q.category_index if i == 0 else "",
+                ]
+            )
+
+        # If a question has no translation at all
+        if not question_langs:
+            rows.append(
+                [
+                    q.id,
+                    f"[{q.string_id}]",
+                    q.question_type.value,
+                    "",
+                    "Y" if q.required else "",
+                    q.units or "",
+                    visible_if_text,
+                    q.num_min or "",
+                    q.num_max or "",
+                    q.string_max_lines or "",
+                    "",
+                    q.user_question_id,
+                    q.order,
+                    q.category_index or "",
+                ]
+            )
 
     return list_to_csv(rows)

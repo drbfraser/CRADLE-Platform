@@ -76,8 +76,8 @@ def get_all_form_templates_v2(query: GetAllFormTemplatesV2Query):
     Returns all form templates. By default, only returns non-archived templates.
     """
     filters: dict = {}
-    if not query.include_archived:
-        filters["archived"] = False
+        
+    filters["archived"] = 1 if query.include_archived else 0
 
     form_templates = crud.read_all(FormTemplateOrmV2, **filters)
 
@@ -89,9 +89,7 @@ def get_all_form_templates_v2(query: GetAllFormTemplatesV2Query):
 
         templates_list.append(template_dict)
     
-    return {
-        "data": templates_list
-    }
+    return templates_list
 
 
 class GetFormTemplateQuery(CradleBaseModel):
@@ -122,3 +120,34 @@ def get_languages_for_form_template_v2(path: FormTemplateIdPath) -> list[str]:
     return {
         'langVersions': [lang for (lang,) in translations]
     }
+
+# /api/forms/templates/<string:form_template_id>/versions/<string:version>/csv
+class FormTemplateVersionPath(FormTemplateIdPath):
+    version: str = Field(..., description="Form Template version.")
+
+
+# /api/forms/v2/templates/<string:form_template_id>/versions/<string:version>/csv [GET]
+@api_form_templates_v2.get("/<string:form_template_id>/versions/<string:version>/csv",
+    responses={200: {"content": {"text/csv": {"schema": {"type": "string"}}}}},
+)
+def get_form_template_version_as_csv_v2(path: FormTemplateVersionPath):
+    """Get Form Template Version as CSV"""
+    filters: dict = {
+        "id": path.form_template_id,
+        "version": path.version,
+    }
+
+    form_template = crud.read(
+        FormTemplateOrmV2,
+        **filters,
+    )
+
+    if form_template is None:
+        return abort(404, description=f"No form with ID: {path.form_template_id}")
+
+    form_template_csv: str = form_utils.getCsvFromFormTemplateV2(form_template)
+
+    response = make_response(form_template_csv)
+    response.headers["Content-Disposition"] = "attachment; filename=form_template.csv"
+    response.headers["Content-Type"] = "text/csv"
+    return response
