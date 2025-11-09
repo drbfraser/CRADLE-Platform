@@ -59,25 +59,3 @@ def _get_condition(branch: Any) -> Json | None:
         return None
     c = _as_dict(cond)
     return {"id": c.get("id"), "rule": c.get("rule")}
-
-
-def _parse_datasources(data_sources) -> List[str]:
-    if data_sources is None:
-        return []
-    if isinstance(data_sources, str):
-        try:
-            ds = json.loads(data_sources)
-            if isinstance(ds, list):
-                return [str(x) for x in ds]
-        except json.JSONDecodeError:
-            return [s.strip() for s in data_sources.split(",") if s.strip()]
-    if isinstance(data_sources, list):
-        return [str(x) for x in data_sources]
-    return []
-
-
-def _normalize(token: str) -> str:
-    token = token.strip()
-    token = token.removeprefix("$")
-    token = token.removeprefix(".")
-    return token
