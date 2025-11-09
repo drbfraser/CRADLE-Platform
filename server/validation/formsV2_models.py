@@ -34,9 +34,6 @@ class GetAllFormTemplatesV2Query(CradleBaseModel):
     include_archived: bool = Field(
         False, description="If true, archived Form Templates will be included."
     )
-    include_questions: bool = Field(
-        False, description="If true, include questions in the response."
-    )
     lang: str = Field(
         "English", description="Language code for template names."
     )

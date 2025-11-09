@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 api_form_templates_v2 = APIBlueprint(
     name="form_templates_v2",
     import_name=__name__,
-    url_prefix="/forms/v2",
+    url_prefix="/forms/v2/templates",
     abp_tags=[Tag(name="Form V2 API", description="Form V2 CRUD and testing endpoints")],
     abp_security=[{"jwt": []}],
 )
@@ -67,6 +67,7 @@ def resolve_template_name(template: FormTemplateOrmV2, lang: str = "English") ->
     
     return name_translation.text if name_translation else None
 
+# /api/forms/v2/templates [GET]
 @api_form_templates_v2.get("", responses={200: FormTemplateListV2Response})
 def get_all_form_templates_v2(query: GetAllFormTemplatesV2Query):
     """
@@ -80,17 +81,16 @@ def get_all_form_templates_v2(query: GetAllFormTemplatesV2Query):
 
     form_templates = crud.read_all(FormTemplateOrmV2, **filters)
 
-    shallow = not query.include_questions
     templates_list = []
 
     for ft in form_templates:
-        template_dict = marshal.marshal(ft, shallow)
+        template_dict = marshal.marshal(ft, shallow=True)
         template_dict["name"] = resolve_template_name(ft, query.lang)
 
         templates_list.append(template_dict)
     
     return {
-        "templates": templates_list
+        "data": templates_list
     }
 
 
@@ -98,88 +98,27 @@ class GetFormTemplateQuery(CradleBaseModel):
     lang: Optional[str] = None
 
 
-# # /api/forms/templates/<string:form_template_id> [GET]
-# @api_form_templates_v2.get("/<string:form_template_id>", responses={200: FormTemplateLang})
-# def get_form_template_language_version(
-#     path: FormTemplateIdPath, query: GetFormTemplateQuery
-# ):
-#     """Get Form Template"""
-#     form_template = crud.read(FormTemplateOrm, id=path.form_template_id)
-#     if form_template is None:
-#         return abort(404, description=f"No form with ID: {path.form_template_id}")
+# /api/forms/v2/templates/<string:form_template_id>/versions [GET]
+@api_form_templates_v2.get("<string:form_template_id>/versions", responses={200: FormTemplateListV2Response})
+def get_languages_for_form_template_v2(path: FormTemplateIdPath) -> list[str]:
+    """
+    Returns all available languages for a given FormTemplateV2,
+    based on the classification's name_string_id translations.
+    """
+    template = crud.read(FormTemplateOrmV2, id=path.form_template_id)
+    if not template or not template.classification:
+        return []
 
-#     version = query.lang
-#     if version is None:
-#         # admin user get template of full versions
-#         blank_template = marshal.marshal(
-#             form_template,
-#             shallow=False,
-#             if_include_versions=True,
-#         )
+    classification = template.classification
 
-#         return blank_template
+    # Get all translations for this classification name
+    translations = (
+        crud.db_session.query(LangVersionOrmV2.lang)
+        .filter(LangVersionOrmV2.string_id == classification.name_string_id)
+        .distinct()
+        .all()
+    )
 
-#     available_versions = crud.read_form_template_language_versions(
-#         form_template,
-#         refresh=True,
-#     )
-
-#     if version not in available_versions:
-#         return abort(
-#             404,
-#             description=f"FormTemplate(id={path.form_template_id}) doesn't have language version = {version}",
-#         )
-
-#     blank_template = marshal.marshal_template_to_single_version(form_template, version)
-#     return blank_template, 200
-
-
-# def handle_form_template_upload(form_template: FormTemplateUpload):
-#     """
-#     Common logic for handling uploaded form template. Whether it was uploaded
-#     as a file, or in the request body.
-#     """
-#     form_template_dict = form_template.model_dump()
-#     form_utils.assign_form_or_template_ids_v2(FormTemplateOrm, form_template_dict)
-#     form_classification_dict = form_template_dict["classification"]
-#     del form_template_dict["classification"]
-
-#     # FormClassification is basically the name of the FormTemplate. FormTemplates can have multiple versions, and the FormClassification is used to group different versions of the same FormTemplate.
-#     form_classification_orm = crud.read(
-#         FormClassificationOrm,
-#         name=form_classification_dict["name"],
-#     )
-#     # If form classification (template name) doesn't exist yet, create it
-#     if form_classification_orm is None:
-#         form_classification_orm = marshal.unmarshal(
-#             FormClassificationOrm, form_classification_dict
-#         )
-#         crud.create(form_classification_orm, refresh=True)
-#     else:
-#         existing_template = crud.read(
-#             FormTemplateOrm,
-#             form_classification_id=form_classification_orm.id,
-#             version=form_template.version,
-#         )
-#         if existing_template:
-#             raise ValueError(
-#                 f"Form Template with the version {form_template.version} already exists for class {form_classification_orm.name} - change the version to upload."
-#             )
-#         # Archive the previous active template (if any)
-#         previous_template = crud.read(
-#             FormTemplateOrm,
-#             form_classification_id=form_classification_orm.id,
-#             archived=False,
-#         )
-#         if previous_template is not None:
-#             previous_template.archived = True
-#             crud.db_session.commit()
-
-#     # Insert the new form template
-#     form_template_dict["form_classification_id"] = form_classification_orm.id
-
-#     form_template_orm = marshal.unmarshal(FormTemplateOrm, form_template_dict)
-#     form_template_orm.classification = form_classification_orm
-#     crud.create(form_template_orm, refresh=True)
-#     return marshal.marshal(form_template_orm, shallow=True)
-
+    return {
+        'langVersions': [lang for (lang,) in translations]
+    }

@@ -48,7 +48,7 @@ def read_form_template_language_versions(
     """
     Queries the template for current language versions
 
-    :param model: formTemplate model (here we assume the template is valid)
+    :param model: FormTemplate model (here we assume the template is valid)
     :param refresh: refresh the model in case it is invalid for later use
 
     :return: A list of lang version texts
