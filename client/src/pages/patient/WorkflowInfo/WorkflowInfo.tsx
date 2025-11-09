@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
 import AddIcon from '@mui/icons-material/Add';
@@ -21,10 +21,6 @@ import {
   DialogContent,
   DialogActions,
   Stack,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
   TextField,
   InputAdornment,
   Alert,
@@ -45,6 +41,10 @@ import {
   useGridApiContext,
 } from '@mui/x-data-grid';
 import { useNavigate } from 'react-router-dom';
+import { getInstancesByPatient } from 'src/shared/api';
+import { WorkflowInfoRow } from 'src/shared/types/workflow/workflowUiTypes';
+import { buildWorkflowInstanceRowList } from './WorkflowUtils';
+import { InstanceStatus } from 'src/shared/types/workflow/workflowEnums';
 
 type RuleEvaluationResult = {
   patient: {
@@ -73,183 +73,172 @@ type RuleEvaluationResult = {
 };
 
 /* -------- mock rows (instances) -------- */
-type InstanceRow = {
-  id: string;
-  instanceTitle: string;
-  templateId: string;
-  templateName: string;
-  collection: string;
-  status: 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
-  lastEdited: number;
-  stepsCount: number;
-  currentStepLabel: string;
-};
 
-const DAYS = (n: number) => 24 * 60 * 60 * 1000 * n;
-const now = Date.now();
+// const DAYS = (n: number) => 24 * 60 * 60 * 1000 * n;
+// const now = Date.now();
 
-function mk(
-  i: number,
-  o: {
-    inst: string;
-    tmpl: string;
-    coll: string;
-    status: InstanceRow['status'];
-    daysAgo: number;
-    steps: number;
-    current: string;
-  }
-): InstanceRow {
-  return {
-    id: `wi_${String(i).padStart(4, '0')}`,
-    instanceTitle: o.inst,
-    templateId: `tmpl_${String((i % 15) + 1).padStart(4, '0')}`,
-    templateName: o.tmpl,
-    collection: o.coll,
-    status: o.status,
-    lastEdited: now - DAYS(o.daysAgo),
-    stepsCount: o.steps,
-    currentStepLabel: o.current,
-  };
-}
+// function mk(
+//   i: number,
+//   o: {
+//     inst: string;
+//     tmpl: string;
+//     coll: string;
+//     status: WorkflowInfoRow['status'];
+//     daysAgo: number;
+//     steps: number;
+//     current: string;
+//   }
+// ): WorkflowInfoRow {
+//   return {
+//     id: `wi_${String(i).padStart(4, '0')}`,
+//     instanceTitle: o.inst,
+//     templateId: `tmpl_${String((i % 15) + 1).padStart(4, '0')}`,
+//     templateName: o.tmpl,
+//     collection: o.coll,
+//     status: o.status,
+//     lastEdited: now - DAYS(o.daysAgo),
+//     stepsCount: o.steps,
+//     currentStepLabel: o.current,
+//   };
+// }
 
-const rowsRaw: InstanceRow[] = [
-  mk(1, {
-    inst: 'Papagaio – AA',
-    tmpl: 'Papagaio Research Study',
-    coll: 'PAPAGAO',
-    status: 'ACTIVE',
-    daysAgo: 1,
-    steps: 5,
-    current: 'Observation',
-  }),
-  mk(2, {
-    inst: 'Papagaio – BB',
-    tmpl: 'Papagaio Research Study',
-    coll: 'PAPAGAO',
-    status: 'COMPLETED',
-    daysAgo: 7,
-    steps: 5,
-    current: '–',
-  }),
-  mk(3, {
-    inst: 'Prenatal – ZZ',
-    tmpl: 'Prenatal Checkup',
-    coll: 'PRENATAL',
-    status: 'ACTIVE',
-    daysAgo: 2,
-    steps: 3,
-    current: 'Checkup',
-  }),
-  mk(4, {
-    inst: 'Oncology – CC',
-    tmpl: 'Oncology Follow-up',
-    coll: 'ONCO',
-    status: 'CANCELLED',
-    daysAgo: 30,
-    steps: 4,
-    current: '–',
-  }),
-  mk(5, {
-    inst: 'Cardio – DD',
-    tmpl: 'Cardio Rehab Plan',
-    coll: 'CARDIO',
-    status: 'ACTIVE',
-    daysAgo: 4,
-    steps: 6,
-    current: 'Session 2',
-  }),
-  mk(6, {
-    inst: 'Neuro – EE',
-    tmpl: 'Neuro Cognitive Study',
-    coll: 'NEURO',
-    status: 'COMPLETED',
-    daysAgo: 12,
-    steps: 5,
-    current: '–',
-  }),
-  mk(7, {
-    inst: 'Diabetes – FF',
-    tmpl: 'Diabetes Monitoring',
-    coll: 'ENDO',
-    status: 'ACTIVE',
-    daysAgo: 3,
-    steps: 4,
-    current: 'HbA1c Check',
-  }),
-  mk(8, {
-    inst: 'Geriatric – GG',
-    tmpl: 'Geriatric Assessment',
-    coll: 'GERI',
-    status: 'ACTIVE',
-    daysAgo: 6,
-    steps: 3,
-    current: 'Cognitive Test',
-  }),
-  mk(9, {
-    inst: 'Pediatric – HH',
-    tmpl: 'Pediatric Vaccination',
-    coll: 'PED',
-    status: 'ACTIVE',
-    daysAgo: 5,
-    steps: 3,
-    current: 'Dose 2',
-  }),
-  mk(10, {
-    inst: 'Mental – II',
-    tmpl: 'Mental Health Intake',
-    coll: 'PSY',
-    status: 'COMPLETED',
-    daysAgo: 10,
-    steps: 2,
-    current: '–',
-  }),
-  mk(11, {
-    inst: 'Ortho – JJ',
-    tmpl: 'Orthopedic Recovery',
-    coll: 'ORTHO',
-    status: 'CANCELLED',
-    daysAgo: 40,
-    steps: 3,
-    current: '–',
-  }),
-  mk(12, {
-    inst: 'Derm – KK',
-    tmpl: 'Dermatology Trial',
-    coll: 'DERM',
-    status: 'ACTIVE',
-    daysAgo: 8,
-    steps: 4,
-    current: 'Medication',
-  }),
-  mk(13, {
-    inst: 'Renal – LL',
-    tmpl: 'Renal Function Study',
-    coll: 'NEPH',
-    status: 'ACTIVE',
-    daysAgo: 11,
-    steps: 4,
-    current: 'GFR Test',
-  }),
-  mk(14, {
-    inst: 'Hepatic – MM',
-    tmpl: 'Hepatic Monitoring',
-    coll: 'HEP',
-    status: 'ACTIVE',
-    daysAgo: 9,
-    steps: 4,
-    current: 'Panel',
-  }),
-  mk(15, {
-    inst: 'Maternal – NN',
-    tmpl: 'Maternal Health Cohort',
-    coll: 'OBGYN',
-    status: 'ACTIVE',
-    daysAgo: 14,
-    steps: 5,
-    current: 'Week 20 Scan',
-  }),
-];
+// const rowsRaw: WorkflowInfoRow[] = [
+//   mk(1, {
+//     inst: 'Papagaio – AA',
+//     tmpl: 'Papagaio Research Study',
+//     coll: 'PAPAGAO',
+//     status: 'ACTIVE',
+//     daysAgo: 1,
+//     steps: 5,
+//     current: 'Observation',
+//   }),
+//   mk(2, {
+//     inst: 'Papagaio – BB',
+//     tmpl: 'Papagaio Research Study',
+//     coll: 'PAPAGAO',
+//     status: 'COMPLETED',
+//     daysAgo: 7,
+//     steps: 5,
+//     current: '–',
+//   }),
+//   mk(3, {
+//     inst: 'Prenatal – ZZ',
+//     tmpl: 'Prenatal Checkup',
+//     coll: 'PRENATAL',
+//     status: 'ACTIVE',
+//     daysAgo: 2,
+//     steps: 3,
+//     current: 'Checkup',
+//   }),
+//   mk(4, {
+//     inst: 'Oncology – CC',
+//     tmpl: 'Oncology Follow-up',
+//     coll: 'ONCO',
+//     status: 'CANCELLED',
+//     daysAgo: 30,
+//     steps: 4,
+//     current: '–',
+//   }),
+//   mk(5, {
+//     inst: 'Cardio – DD',
+//     tmpl: 'Cardio Rehab Plan',
+//     coll: 'CARDIO',
+//     status: 'ACTIVE',
+//     daysAgo: 4,
+//     steps: 6,
+//     current: 'Session 2',
+//   }),
+//   mk(6, {
+//     inst: 'Neuro – EE',
+//     tmpl: 'Neuro Cognitive Study',
+//     coll: 'NEURO',
+//     status: 'COMPLETED',
+//     daysAgo: 12,
+//     steps: 5,
+//     current: '–',
+//   }),
+//   mk(7, {
+//     inst: 'Diabetes – FF',
+//     tmpl: 'Diabetes Monitoring',
+//     coll: 'ENDO',
+//     status: 'ACTIVE',
+//     daysAgo: 3,
+//     steps: 4,
+//     current: 'HbA1c Check',
+//   }),
+//   mk(8, {
+//     inst: 'Geriatric – GG',
+//     tmpl: 'Geriatric Assessment',
+//     coll: 'GERI',
+//     status: 'ACTIVE',
+//     daysAgo: 6,
+//     steps: 3,
+//     current: 'Cognitive Test',
+//   }),
+//   mk(9, {
+//     inst: 'Pediatric – HH',
+//     tmpl: 'Pediatric Vaccination',
+//     coll: 'PED',
+//     status: 'ACTIVE',
+//     daysAgo: 5,
+//     steps: 3,
+//     current: 'Dose 2',
+//   }),
+//   mk(10, {
+//     inst: 'Mental – II',
+//     tmpl: 'Mental Health Intake',
+//     coll: 'PSY',
+//     status: 'COMPLETED',
+//     daysAgo: 10,
+//     steps: 2,
+//     current: '–',
+//   }),
+//   mk(11, {
+//     inst: 'Ortho – JJ',
+//     tmpl: 'Orthopedic Recovery',
+//     coll: 'ORTHO',
+//     status: 'CANCELLED',
+//     daysAgo: 40,
+//     steps: 3,
+//     current: '–',
+//   }),
+//   mk(12, {
+//     inst: 'Derm – KK',
+//     tmpl: 'Dermatology Trial',
+//     coll: 'DERM',
+//     status: 'ACTIVE',
+//     daysAgo: 8,
+//     steps: 4,
+//     current: 'Medication',
+//   }),
+//   mk(13, {
+//     inst: 'Renal – LL',
+//     tmpl: 'Renal Function Study',
+//     coll: 'NEPH',
+//     status: 'ACTIVE',
+//     daysAgo: 11,
+//     steps: 4,
+//     current: 'GFR Test',
+//   }),
+//   mk(14, {
+//     inst: 'Hepatic – MM',
+//     tmpl: 'Hepatic Monitoring',
+//     coll: 'HEP',
+//     status: 'ACTIVE',
+//     daysAgo: 9,
+//     steps: 4,
+//     current: 'Panel',
+//   }),
+//   mk(15, {
+//     inst: 'Maternal – NN',
+//     tmpl: 'Maternal Health Cohort',
+//     coll: 'OBGYN',
+//     status: 'ACTIVE',
+//     daysAgo: 14,
+//     steps: 5,
+//     current: 'Week 20 Scan',
+//   }),
+// ];
 
 function Toolbar() {
   const apiRef = useGridApiContext();
@@ -372,14 +361,15 @@ const getStatusIcon = (status: string) => {
 /* -------- component -------- */
 export const WorkflowInfo: React.FC = () => {
   const { patientId } = useParams<{ patientId: string }>();
-  const [detailOpen, setDetailOpen] = useState(false);
-  const [detailRow] = useState<InstanceRow | null>(null);
+  // const [detailOpen, setDetailOpen] = useState(false);
+  // const [detailRow] = useState<WorkflowInfoRow | null>(null);
   const [demoDialogOpen, setDemoDialogOpen] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
   const [demoError, setDemoError] = useState<string | null>(null);
   const [demoResult, setDemoResult] = useState<RuleEvaluationResult | null>(
     null
   );
+  const [workflowInfo, setWorkflowInfo] = useState<WorkflowInfoRow[]>([]);
   const navigate = useNavigate();
 
   const handleTestRuleEngine = async () => {
@@ -400,6 +390,22 @@ export const WorkflowInfo: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    async function fetchWorkflowInfo() {
+      try {
+        const instances = await getInstancesByPatient(patientId!, true);
+        console.log('PATIENT INSTANCE PULL:', instances);
+
+        const workflowInfoRows = await buildWorkflowInstanceRowList(instances);
+        console.log('TEST1', workflowInfoRows);
+        setWorkflowInfo(workflowInfoRows);
+      } catch (err) {
+        console.error('Failed to load workflow instances for patient.', err);
+      }
+    }
+    fetchWorkflowInfo();
+  }, [patientId]);
+
   const columns: GridColDef[] = [
     { field: 'instanceTitle', headerName: 'Workflow Instance', width: 175 },
     { field: 'templateName', headerName: 'Workflow Template', width: 180 },
@@ -411,15 +417,15 @@ export const WorkflowInfo: React.FC = () => {
       valueOptions: ['ACTIVE', 'COMPLETED', 'CANCELLED'],
       width: 120,
       renderCell: (p: GridRenderCellParams) => {
-        const row = p.row as InstanceRow;
+        const row = p.row as WorkflowInfoRow;
         return (
           <Chip
             size="small"
-            label={row.status}
+            label={row.status.toUpperCase()}
             color={
-              row.status === 'ACTIVE'
+              row.status === InstanceStatus.ACTIVE
                 ? 'success'
-                : row.status === 'COMPLETED'
+                : row.status === InstanceStatus.COMPLETED
                 ? 'primary'
                 : 'error'
             }
@@ -433,7 +439,7 @@ export const WorkflowInfo: React.FC = () => {
       headerName: 'Last Edited',
       type: 'date',
       width: 130,
-      valueGetter: (_value: unknown, row: InstanceRow) =>
+      valueGetter: (_value: unknown, row: WorkflowInfoRow) =>
         new Date(row.lastEdited),
       renderCell: (params: GridRenderCellParams) => {
         const d = params.value as Date | undefined;
@@ -449,7 +455,7 @@ export const WorkflowInfo: React.FC = () => {
       sortable: false,
       filterable: false,
       renderCell: (params: GridRenderCellParams) => {
-        const row = params.row as InstanceRow;
+        const row = params.row as WorkflowInfoRow;
         return (
           <Button
             size="small"
@@ -516,9 +522,9 @@ export const WorkflowInfo: React.FC = () => {
       {/* Grid with built-in filtering UI */}
       <Box sx={{ height: 620, width: '100%' }}>
         <DataGrid
-          rows={rowsRaw}
+          rows={workflowInfo}
           columns={columns}
-          getRowId={(r) => (r as InstanceRow).id}
+          getRowId={(r) => (r as WorkflowInfoRow).id}
           initialState={{
             pagination: { paginationModel: { pageSize: 10 } },
             sorting: { sortModel: [{ field: 'lastEdited', sort: 'desc' }] },
@@ -536,7 +542,7 @@ export const WorkflowInfo: React.FC = () => {
       </Box>
 
       {/* Details dialog */}
-      <Dialog
+      {/* <Dialog
         open={detailOpen}
         onClose={() => setDetailOpen(false)}
         maxWidth="sm"
@@ -617,7 +623,7 @@ export const WorkflowInfo: React.FC = () => {
         <DialogActions>
           <Button onClick={() => setDetailOpen(false)}>Close</Button>
         </DialogActions>
-      </Dialog>
+      </Dialog> */}
 
       {/* Rule Engine Demo Dialog */}
       <Dialog
