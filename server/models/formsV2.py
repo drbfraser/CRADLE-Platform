@@ -160,7 +160,7 @@ class FormQuestionTemplateOrmV2(db.Model):
 
     string_id = db.Column(db.String(50), nullable=False)
     mc_options = db.Column(db.Text, nullable=True)  # JSON array of UUIDs
-    user_question_id = db.Column(db.String(50), nullable=False)
+    user_question_id = db.Column(db.String(50), nullable=True)
 
     has_comment_attached = db.Column(db.Boolean, nullable=False, default=False)
     category_index = db.Column(db.Integer, nullable=True)
