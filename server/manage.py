@@ -824,7 +824,7 @@ def create_form_classification_v2():
     db.session.add(history_classification)
 
     db.session.commit()
-    print("✓ Created form classifications V2")
+    print("Created form classifications V2")
 
 
 def create_form_template_v2():
@@ -843,7 +843,6 @@ def create_form_template_v2():
         form_classification_id=intake_classification.id,
         version=1,
         archived=False,
-        is_latest=True,
     )
     db.session.add(intake_template_v1)
     db.session.flush()
@@ -1095,10 +1094,9 @@ def create_form_template_v2_version2():
     previous_template = crud.read(
         FormTemplateOrmV2,
         form_classification_id=intake_classification.id,
-        is_latest=True,
+        archived=False,
     )
     if previous_template:
-        previous_template.is_latest = False
         previous_template.archived = True
 
     # Create Template V2 (with modifications)
@@ -1107,7 +1105,6 @@ def create_form_template_v2_version2():
         form_classification_id=intake_classification.id,
         version=2,
         archived=False,
-        is_latest=True,
     )
     db.session.add(intake_template_v2)
     db.session.flush()
@@ -1174,6 +1171,114 @@ def create_form_template_v2_version2():
     print("Created form template V2 (Patient Intake v2) with 8 questions")
 
 
+def create_followup_form_template_v2():
+    """Create a simple Follow-Up Visit form template"""
+    if crud.read(FormTemplateOrmV2, id="ft-v2-followup-v1") is not None:
+        return
+
+    # Ensure classification exists
+    followup_classification = crud.read(FormClassificationOrmV2, id="fc-v2-followup")
+    if not followup_classification:
+        followup_name_string_id = get_uuid()
+        db.session.add_all([
+            LangVersionOrmV2(
+                string_id=followup_name_string_id,
+                lang="English",
+                text="Follow-Up Visit Form",
+            ),
+            LangVersionOrmV2(
+                string_id=followup_name_string_id,
+                lang="French",
+                text="Formulaire de visite de suivi",
+            ),
+        ])
+        followup_classification = FormClassificationOrmV2(
+            id="fc-v2-followup",
+            name_string_id=followup_name_string_id,
+        )
+        db.session.add(followup_classification)
+        db.session.flush()
+
+    # Create Template V1
+    followup_template = FormTemplateOrmV2(
+        id="ft-v2-followup-v1",
+        form_classification_id=followup_classification.id,
+        version=1,
+        archived=False,
+    )
+    db.session.add(followup_template)
+    db.session.flush()
+
+    # Question 1: How is the patient feeling today?
+    q1_string_id = get_uuid()
+    db.session.add_all([
+        LangVersionOrmV2(string_id=q1_string_id, lang="English", text="How is the patient feeling today?"),
+        LangVersionOrmV2(string_id=q1_string_id, lang="French", text="Comment le patient se sent-il aujourd'hui?"),
+    ])
+
+    q1 = FormQuestionTemplateOrmV2(
+        id="fq-v2-followup-feeling",
+        form_template_id=followup_template.id,
+        order=0,
+        question_type=QuestionTypeEnum.STRING,
+        string_id=q1_string_id,
+        user_question_id="patient_feeling",
+        required=True,
+        string_max_length=200,
+    )
+    db.session.add(q1)
+
+    # Question 2: Any new symptoms?
+    q2_string_id = get_uuid()
+    db.session.add_all([
+        LangVersionOrmV2(string_id=q2_string_id, lang="English", text="Has the patient developed any new symptoms?"),
+        LangVersionOrmV2(string_id=q2_string_id, lang="French", text="Le patient a-t-il développé de nouveaux symptômes?"),
+    ])
+
+    q2 = FormQuestionTemplateOrmV2(
+        id="fq-v2-followup-new-symptoms",
+        form_template_id=followup_template.id,
+        order=1,
+        question_type=QuestionTypeEnum.STRING,
+        string_id=q2_string_id,
+        user_question_id="new_symptoms",
+        required=False,
+        string_max_length=300,
+    )
+    db.session.add(q2)
+
+    # Question 3: Has medication changed since last visit?
+    q3_string_id = get_uuid()
+    db.session.add_all([
+        LangVersionOrmV2(string_id=q3_string_id, lang="English", text="Has medication changed since last visit?"),
+        LangVersionOrmV2(string_id=q3_string_id, lang="French", text="Le traitement a-t-il changé depuis la dernière visite?"),
+    ])
+
+    yes_id = get_uuid()
+    no_id = get_uuid()
+    db.session.add_all([
+        LangVersionOrmV2(string_id=yes_id, lang="English", text="Yes"),
+        LangVersionOrmV2(string_id=yes_id, lang="French", text="Oui"),
+        LangVersionOrmV2(string_id=no_id, lang="English", text="No"),
+        LangVersionOrmV2(string_id=no_id, lang="French", text="Non"),
+    ])
+
+    q3 = FormQuestionTemplateOrmV2(
+        id="fq-v2-followup-med-change",
+        form_template_id=followup_template.id,
+        order=2,
+        question_type=QuestionTypeEnum.MULTIPLE_CHOICE,
+        string_id=q3_string_id,
+        user_question_id="medication_changed",
+        mc_options=json.dumps([yes_id, no_id]),
+        required=True,
+    )
+    db.session.add(q3)
+
+    db.session.commit()
+    print("Created Follow-Up Visit form template V2 (3 questions)")
+
+
 def create_form_submission_v2(patient_id: str, user_id: int):
     """Create sample form submissions V2"""
     submission_id = f"fs-v2-{patient_id}"
@@ -1186,7 +1291,7 @@ def create_form_submission_v2(patient_id: str, user_id: int):
     template = crud.read(
         FormTemplateOrmV2,
         form_classification_id="fc-v2-intake",
-        is_latest=True,
+        archived=False,
     )
 
     if not template:
@@ -1242,6 +1347,7 @@ def seed_forms_v2():
     create_form_classification_v2()
     create_form_template_v2()
     create_form_template_v2_version2()
+    create_followup_form_template_v2()
     
     # Create submissions for test patients if they exist
     test_patient_ids = ["49300028161", "49300028162", "49300028163"]
