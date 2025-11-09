@@ -20,74 +20,85 @@ TemplateLike = Union[Json, Any]
 log = logging.getLogger(__name__)
 
 
-def extract_variables_from_workflow_template(
+def extract_variables_from_current_step(
     template: WorkflowTemplateModel,
+    *,
+    current_step_id: str,
 ) -> WorkflowVariableReport:
     """
-    Extracts variables from a workflow template.
+    Extract variables **only from the current step** of a workflow template.
 
-    Iterates through each step in the template and, for each step, iterates
-    through each branch. For each branch, extracts the variables used in the
-    condition rule and adds them to the report.
-
-    Returns a WorkflowVariableReport with the extracted variables.
+    - Input MUST be a WorkflowTemplateModel.
+    - You MUST pass current_step_id (template step id).
+    - Variables come only from JsonLogic in branch condition.rule.
+    - Gracefully handles: no condition, condition with no rule ("null"), and rules
+      that are valid JSON but not valid JsonLogic (returns empty for that branch).
     """
     if not isinstance(template, WorkflowTemplateModel):
         raise TypeError(
-            "extract_variables_from_workflow_template expects a WorkflowTemplateModel"
+            "extract_variables_from_current_step expects a WorkflowTemplateModel"
         )
+    if not current_step_id:
+        raise ValueError("current_step_id is required")
 
     t = _as_dict(template)
     report = WorkflowVariableReport(
-        workflow_template_id=t.get("id") or t.get("workflow_template_id")
+        workflow_template_id=t.get("id") or t.get("workflow_template_id"),
+        steps=[],
+        all_variables=[],
     )
 
-    all_vars: Set[str] = set()
-
+    # Find the current step in the template
+    target_step = None
     for step in _iter_steps(template):
         s = _as_dict(step)
-        step_entry = StepVariableInfo(step_id=s.get("id"))
+        if s.get("id") == current_step_id:
+            target_step = s
+            break
 
-        for branch in _iter_branches(step):
-            b = _as_dict(branch)
-            cond = _get_condition(branch)
+    # If not found, return empty report (or you could raise; choice: return empty)
+    if target_step is None:
+        return report
 
-            # No condition or no rule -> empty branch entry
-            if not cond or not cond.get("rule"):
-                step_entry.branches.append(
-                    BranchVariableInfo(
-                        branch_id=b.get("id"),
-                        rule_id=None,
-                        variables=[],
-                    )
-                )
-                continue
+    step_entry = StepVariableInfo(step_id=current_step_id, branches=[])
+    all_vars: Set[str] = set()
 
-            # Extract from JsonLogic rule (robust to parser errors)
-            try:
-                extracted = extract_variables_from_rule(cond["rule"])
-                variables = set(extracted)  # coerce defensively
-            except Exception:
-                log.exception(
-                    "Rule variable extraction failed",
-                    extra={
-                        "step_id": s.get("id"),
-                        "branch_id": b.get("id"),
-                    },
-                )
-                variables = set()
+    for branch in _iter_branches(target_step):
+        b = _as_dict(branch)
+        cond = _get_condition(branch)
 
-            all_vars |= variables
-
+        # No condition or no rule -> empty branch
+        if not cond or not cond.get("rule"):
             step_entry.branches.append(
                 BranchVariableInfo(
                     branch_id=b.get("id"),
-                    rule_id=cond.get("id"),
-                    variables=sorted(variables),
+                    rule_id=None,
+                    variables=[],
                 )
             )
+            continue
 
-        report.steps.append(step_entry)
+        try:
+            extracted = extract_variables_from_rule(cond["rule"])
+            variables = set(extracted)
+        except Exception:
+            # we need to add a traceback here
+            log.exception(
+                "Variable extraction failed for step=%s branch=%s",
+                current_step_id,
+                b.get("id"),
+            )
+            variables = set()
 
+        all_vars |= variables
+        step_entry.branches.append(
+            BranchVariableInfo(
+                branch_id=b.get("id"),
+                rule_id=cond.get("id"),
+                variables=sorted(variables),
+            )
+        )
+
+    report.steps.append(step_entry)
     report.all_variables = sorted(all_vars)
     return report

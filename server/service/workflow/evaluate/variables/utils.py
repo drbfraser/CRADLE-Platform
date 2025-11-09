@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import json
 import logging
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Union
 
 if TYPE_CHECKING:
     from validation.workflow_models import WorkflowTemplateModel
