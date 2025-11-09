@@ -67,12 +67,13 @@ def extract_variables_from_workflow_template(
             try:
                 extracted = extract_variables_from_rule(cond["rule"])
                 variables = set(extracted)  # coerce defensively
-            except Exception as e:
-                log.debug(
-                    "Variable extraction failed for step=%s branch=%s: %s",
-                    s.get("id"),
-                    b.get("id"),
-                    e,
+            except Exception:
+                log.exception(
+                    "Rule variable extraction failed",
+                    extra={
+                        "step_id": s.get("id"),
+                        "branch_id": b.get("id"),
+                    },
                 )
                 variables = set()
 
