@@ -1,6 +1,7 @@
 import datetime
 import json
 import logging.config
+import os
 from typing import ClassVar
 
 import environs
@@ -57,7 +58,7 @@ class Config:
         },
         "formatters": {
             "json_formatter": {
-                "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
+                "()": "pythonjsonlogger.json.JsonFormatter",
                 "fmt": "%(asctime) %(name)-12s %(levelname)-8s %(request_id)s - %(message)s",
             },
         },
@@ -85,8 +86,6 @@ class Config:
             "werkzeug": {"level": "INFO"},
         },
     }
-    logging.config.dictConfig(LOGGING)
-    logger = logging.getLogger(__name__)
 
 
 class TestConfig(Config):
@@ -118,6 +117,35 @@ class JSONEncoder(json.JSONEncoder):
         if isinstance(o, datetime.datetime):
             return str(o)
         return json.JSONEncoder.default(self, o)
+
+
+def setup_logging():
+    is_testing = os.environ.get('TESTING', 'False').lower() == 'true'
+    
+    if is_testing:
+        logging_config = Config.LOGGING.copy()
+        logging_config['handlers'] = {
+            "console": logging_config['handlers']['console']
+        }
+        logging_config['loggers'] = {
+            "": {"handlers": ["console"], "level": "DEBUG"},
+            "flask": {"level": "INFO"},
+            "sqlalchemy": {"level": "INFO"},
+            "werkzeug": {"level": "INFO"},
+        }
+        logging.config.dictConfig(logging_config)
+    else:
+        logging.config.dictConfig(Config.LOGGING)
+    
+    return logging.getLogger(__name__)
+
+_logger = None
+
+def get_logger():
+    global _logger
+    if _logger is None:
+        _logger = setup_logging()
+    return _logger
 
 
 API_DOCS_TITLE = "Cradle-Platform REST API"
