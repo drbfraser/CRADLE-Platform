@@ -1,4 +1,3 @@
-import logging
 from typing import Optional
 
 from flask import abort, make_response
@@ -12,9 +11,16 @@ from common.api_utils import (
     FormTemplateIdPath,
 )
 from data import marshal
+from models import (
+    FormTemplateOrmV2,
+    LangVersionOrmV2,
+)
 from validation import CradleBaseModel
-
-logger = logging.getLogger(__name__)
+from validation.formsV2_models import (
+    FormTemplateListV2Response,
+    FormTemplateResponse,
+    GetAllFormTemplatesV2Query,
+)
 
 api_form_templates_v2 = APIBlueprint(
     name="form_templates_v2",
@@ -24,16 +30,6 @@ api_form_templates_v2 = APIBlueprint(
         Tag(name="Form V2 API", description="Form V2 CRUD and testing endpoints")
     ],
     abp_security=[{"jwt": []}],
-)
-
-from models import (
-    FormTemplateOrmV2,
-    LangVersionOrmV2,
-)
-from validation.formsV2_models import (
-    FormTemplateListV2Response,
-    FormTemplateResponse,
-    GetAllFormTemplatesV2Query,
 )
 
 
@@ -148,10 +144,6 @@ def get_form_template_version_as_csv_v2(path: FormTemplateVersionPath):
 
 
 # /api/forms/templates/<string:form_template_id>
-class GetFormTemplateQuery(CradleBaseModel):
-    lang: Optional[str] = None
-
-
 @api_form_templates_v2.get(
     "/<string:form_template_id>", responses={200: FormTemplateResponse}
 )
@@ -159,7 +151,7 @@ def get_form_template_v2(path: FormTemplateIdPath, query: GetFormTemplateQuery):
     """Get a single-language or full form template (V2)"""
     form_template = crud.read(FormTemplateOrmV2, id=path.form_template_id)
     if form_template is None:
-        abort(404, description=f"Abe oooo - No form with ID: {path.form_template_id}")
+        abort(404, description=f"No form with ID: {path.form_template_id}")
 
     version = query.lang
 
@@ -175,8 +167,6 @@ def get_form_template_v2(path: FormTemplateIdPath, query: GetFormTemplateQuery):
         form_template,
         refresh=True,
     )
-
-    logger.debug("%s", available_versions)
 
     if version not in available_versions:
         abort(

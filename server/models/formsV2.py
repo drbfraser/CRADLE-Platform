@@ -117,7 +117,7 @@ class FormQuestionTemplateOrmV2(db.Model):
     - Translation support via string_id
 
     Key concepts:
-    - `string_id`: Internal translation key (UUID) used for internationalization.
+    - `question_string_id`: Internal translation key (UUID) used for internationalization.
       Each question's text and options are stored in separate language tables referencing this ID.
 
     - `user_question_id`: A user-defined, human-readable identifier that
@@ -136,7 +136,7 @@ class FormQuestionTemplateOrmV2(db.Model):
     Example 1 — Numeric Question:
             "What is the patient's heart rate?"
             - question_type: NUMBER
-            - string_id: "some-uuid-1"
+            - question_string_id: "some-uuid-1"
             - user_question_id: "patient_heart_rate"
             - required: True
             - num_min: 40, num_max: 200
@@ -145,7 +145,7 @@ class FormQuestionTemplateOrmV2(db.Model):
     Example 2 — Multiple Choice Question:
         "What is the patient's blood type?"
         - question_type: MULTIPLE_CHOICE
-        - string_id: "some-uuid-2"
+        - question_string_id: "some-uuid-2"
         - user_question_id: "patient_blood_type"
         - mc_options: [
             "some-uuid-2-mc-1",
@@ -167,7 +167,7 @@ class FormQuestionTemplateOrmV2(db.Model):
     order = db.Column(db.Integer, nullable=False)
     question_type = db.Column(db.Enum(QuestionTypeEnum), nullable=False)
 
-    question_string_id = db.Column(db.String(50), nullable=False)
+    question_string_id = db.Column(db.String(50), nullable=True)
     mc_options = db.Column(db.Text, nullable=True)  # JSON array of UUIDs
     user_question_id = db.Column(db.String(50), nullable=True)
 

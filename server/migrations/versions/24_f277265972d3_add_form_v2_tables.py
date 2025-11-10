@@ -77,7 +77,7 @@ def upgrade():
             ),
             nullable=False,
         ),
-        sa.Column("question_string_id", sa.String(length=50), nullable=False),
+        sa.Column("question_string_id", sa.String(length=50), nullable=True),
         sa.Column("mc_options", sa.Text(), nullable=True),
         sa.Column("user_question_id", sa.String(length=50), nullable=True),
         sa.Column("has_comment_attached", sa.Boolean(), nullable=False),

@@ -483,9 +483,9 @@ def getCsvFromFormTemplateV2(form_template: FormTemplateOrmV2) -> str:
         """Aggregate all languages across all questions."""
         langs = set()
         for q in form_template.questions:
-            for lv in read_all_translations(q.string_id):
+            for lv in read_all_translations(q.question_string_id):
                 langs.add(lv.lang)
-        return sorted(list(langs))
+        return sorted(langs)
 
     # Build CSV
     questions = sorted(form_template.questions, key=lambda q: q.order)
@@ -524,7 +524,7 @@ def getCsvFromFormTemplateV2(form_template: FormTemplateOrmV2) -> str:
     ]
 
     for q in questions:
-        question_langs = read_all_translations(q.string_id)
+        question_langs = read_all_translations(q.question_string_id)
         choices_by_lang = get_mc_options_text(q.mc_options)
         visible_if_text = get_visible_if_text(q.visible_condition)
 
@@ -554,7 +554,7 @@ def getCsvFromFormTemplateV2(form_template: FormTemplateOrmV2) -> str:
             rows.append(
                 [
                     q.id,
-                    f"[{q.string_id}]",
+                    f"[{q.question_string_id}]",
                     q.question_type.value,
                     "",
                     "Y" if q.required else "",
