@@ -54,7 +54,9 @@ class FormClassificationOrmV2(db.Model):
 
     templates = db.relationship(
         "FormTemplateOrmV2",
-        backref=db.backref("classification", cascade="all, delete", lazy=True),
+        backref=db.backref("classification", lazy=True),
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
 
 
@@ -83,7 +85,7 @@ class FormTemplateOrmV2(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     form_classification_id = db.Column(
         db.String(50),
-        db.ForeignKey("form_classification_v2.id", ondelete="CASCADE"),
+        db.ForeignKey("form_classification_v2.id", ondelete="RESTRICT"),
         nullable=False,
     )
 
@@ -97,7 +99,9 @@ class FormTemplateOrmV2(db.Model):
 
     questions = db.relationship(
         "FormQuestionTemplateOrmV2",
-        backref=db.backref("template", cascade="all, delete", lazy=True),
+        backref=db.backref("template", lazy=True),
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
 
 
@@ -121,6 +125,10 @@ class FormQuestionTemplateOrmV2(db.Model):
       For example, if the question asks for the patient's age, the user might define
       `user_question_id="patient_age"`. This value is stored as-is (not converted to a UUID)
       and remains consistent across versions for rule referencing. This value should be unique per form template.
+
+    - Consistency for `user_question_id` across versions would be enforced at the application level when new template
+      versions are created - the cloning logic should copy user_question_id values unless explicitly renamed by the user.
+      This way workflow branches referencing these IDs remain stable across template versions.
 
     - Questions are immutable - they belong to a specific template version.
       Editing a question means creating a new template version with the updated question.
@@ -151,14 +159,15 @@ class FormQuestionTemplateOrmV2(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     form_template_id = db.Column(
         db.String(50),
-        db.ForeignKey("form_template_v2.id", ondelete="CASCADE"),
+        db.ForeignKey("form_template_v2.id", ondelete="RESTRICT"),
         index=True,
+        nullable=False,
     )
 
     order = db.Column(db.Integer, nullable=False)
     question_type = db.Column(db.Enum(QuestionTypeEnum), nullable=False)
 
-    string_id = db.Column(db.String(50), nullable=False)
+    question_string_id = db.Column(db.String(50), nullable=False)
     mc_options = db.Column(db.Text, nullable=True)  # JSON array of UUIDs
     user_question_id = db.Column(db.String(50), nullable=True)
 
@@ -206,15 +215,18 @@ class FormSubmissionOrmV2(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     form_template_id = db.Column(
         db.String(50),
-        db.ForeignKey("form_template_v2.id", ondelete="CASCADE"),
+        db.ForeignKey("form_template_v2.id", ondelete="RESTRICT"),
+        index=True,
+        nullable=False,
     )
     patient_id = db.Column(
         db.String(50),
         db.ForeignKey("patient.id", ondelete="CASCADE"),
+        index=True,
         nullable=False,
     )
     user_id = db.Column(
-        db.Integer, db.ForeignKey("user.id", ondelete="CASCADE"), nullable=False
+        db.Integer, db.ForeignKey("user.id", ondelete="SET NULL"), nullable=True
     )
     date_submitted = db.Column(db.BigInteger, nullable=False, default=get_current_time)
     last_edited = db.Column(
@@ -227,7 +239,9 @@ class FormSubmissionOrmV2(db.Model):
 
     answers = db.relationship(
         "FormAnswerOrmV2",
-        backref=db.backref("submission", cascade="all, delete", lazy=True),
+        backref=db.backref("submission", lazy=True),
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
 
 
@@ -263,7 +277,7 @@ class FormAnswerOrmV2(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=get_uuid)
     question_id = db.Column(
         db.String(50),
-        db.ForeignKey("form_question_template_v2.id", ondelete="CASCADE"),
+        db.ForeignKey("form_question_template_v2.id", ondelete="RESTRICT"),
         nullable=False,
     )
     form_submission_id = db.Column(

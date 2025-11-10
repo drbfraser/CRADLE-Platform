@@ -1,9 +1,9 @@
 """
-recreate form v2 tables
+add form v2 tables
 
-Revision ID: 24_3503d44caf23
+Revision ID: 24_f277265972d3
 Revises: 23_cd83978bd585
-Create Date: 2025-11-07 05:32:41.668856
+Create Date: 2025-11-08 05:41:33.421590
 
 """
 
@@ -12,7 +12,7 @@ from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = "24_3503d44caf23"
+revision = "24_f277265972d3"
 down_revision = "23_cd83978bd585"
 branch_labels = None
 depends_on = None
@@ -52,14 +52,14 @@ def upgrade():
             name=op.f(
                 "fk_form_template_v2_form_classification_id_form_classification_v2"
             ),
-            ondelete="CASCADE",
+            ondelete="RESTRICT",
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_form_template_v2")),
     )
     op.create_table(
         "form_question_template_v2",
         sa.Column("id", sa.String(length=50), nullable=False),
-        sa.Column("form_template_id", sa.String(length=50), nullable=True),
+        sa.Column("form_template_id", sa.String(length=50), nullable=False),
         sa.Column("order", sa.Integer(), nullable=False),
         sa.Column(
             "question_type",
@@ -77,7 +77,7 @@ def upgrade():
             ),
             nullable=False,
         ),
-        sa.Column("string_id", sa.String(length=50), nullable=False),
+        sa.Column("question_string_id", sa.String(length=50), nullable=False),
         sa.Column("mc_options", sa.Text(), nullable=True),
         sa.Column("user_question_id", sa.String(length=50), nullable=True),
         sa.Column("has_comment_attached", sa.Boolean(), nullable=False),
@@ -95,7 +95,7 @@ def upgrade():
             ["form_template_id"],
             ["form_template_v2.id"],
             name=op.f("fk_form_question_template_v2_form_template_id_form_template_v2"),
-            ondelete="CASCADE",
+            ondelete="RESTRICT",
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_form_question_template_v2")),
         sa.UniqueConstraint(
@@ -113,9 +113,9 @@ def upgrade():
     op.create_table(
         "form_submission_v2",
         sa.Column("id", sa.String(length=50), nullable=False),
-        sa.Column("form_template_id", sa.String(length=50), nullable=True),
+        sa.Column("form_template_id", sa.String(length=50), nullable=False),
         sa.Column("patient_id", sa.String(length=50), nullable=False),
-        sa.Column("user_id", sa.Integer(), nullable=False),
+        sa.Column("user_id", sa.Integer(), nullable=True),
         sa.Column("date_submitted", sa.BigInteger(), nullable=False),
         sa.Column("last_edited", sa.BigInteger(), nullable=False),
         sa.Column("lang", sa.String(length=50), nullable=False),
@@ -123,7 +123,7 @@ def upgrade():
             ["form_template_id"],
             ["form_template_v2.id"],
             name=op.f("fk_form_submission_v2_form_template_id_form_template_v2"),
-            ondelete="CASCADE",
+            ondelete="RESTRICT",
         ),
         sa.ForeignKeyConstraint(
             ["patient_id"],
@@ -135,9 +135,21 @@ def upgrade():
             ["user_id"],
             ["user.id"],
             name=op.f("fk_form_submission_v2_user_id_user"),
-            ondelete="CASCADE",
+            ondelete="SET NULL",
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_form_submission_v2")),
+    )
+    op.create_index(
+        op.f("ix_form_submission_v2_form_template_id"),
+        "form_submission_v2",
+        ["form_template_id"],
+        unique=False,
+    )
+    op.create_index(
+        op.f("ix_form_submission_v2_patient_id"),
+        "form_submission_v2",
+        ["patient_id"],
+        unique=False,
     )
     op.create_table(
         "form_answer_v2",
@@ -155,7 +167,7 @@ def upgrade():
             ["question_id"],
             ["form_question_template_v2.id"],
             name=op.f("fk_form_answer_v2_question_id_form_question_template_v2"),
-            ondelete="CASCADE",
+            ondelete="RESTRICT",
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_form_answer_v2")),
     )
@@ -189,6 +201,12 @@ def downgrade():
         nullable=False,
     )
     op.drop_table("form_answer_v2")
+    op.drop_index(
+        op.f("ix_form_submission_v2_patient_id"), table_name="form_submission_v2"
+    )
+    op.drop_index(
+        op.f("ix_form_submission_v2_form_template_id"), table_name="form_submission_v2"
+    )
     op.drop_table("form_submission_v2")
     op.drop_index(
         op.f("ix_form_question_template_v2_form_template_id"),
