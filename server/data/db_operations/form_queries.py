@@ -19,8 +19,13 @@ from common.form_utils import filter_template_questions_orm
 from data.db_operations import db_session
 from models import (
     FormTemplateOrm,
+    FormTemplateOrmV2,
     QuestionOrm,
+    LangVersionOrmV2
 )
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 def read_questions(
@@ -58,3 +63,28 @@ def read_form_template_language_versions(
     if refresh:
         db_session.refresh(model)
     return [v.lang for v in lang_versions]
+
+
+def read_form_template_language_versions_v2(
+    model: FormTemplateOrmV2, refresh: bool = False
+) -> list[str]:
+    """
+    Queries the template for its available language versions (V2)
+
+    In V2, the classification stores a name_string_id which references LangVersionOrmV2 entries.
+    Follows the same refresh logic as V1.
+    """
+    if refresh:
+        db_session.refresh(model)
+
+    classification = model.classification
+    if not classification or not classification.name_string_id:
+        return []
+
+    # fetch all LangVersionOrmV2 entries for this classification name
+    lang_versions = (
+        db_session.query(LangVersionOrmV2)
+        .filter(LangVersionOrmV2.string_id == classification.name_string_id)
+        .all()
+    )
+    return [lv.lang for lv in lang_versions]

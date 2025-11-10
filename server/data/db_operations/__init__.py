@@ -63,6 +63,7 @@ __all__ = [
     "delete_all",
     # form_queries
     "read_form_template_language_versions",
+    "read_form_template_language_versions_v2",
     "read_questions",
     # patient_queries
     "read_admin_patient",
@@ -137,6 +138,10 @@ _EXPORTS: Dict[str, Tuple[str, str | None]] = {
     "read_form_template_language_versions": (
         "form_queries",
         "read_form_template_language_versions",
+    ),
+    "read_form_template_language_versions_v2": (
+        "form_queries",
+        "read_form_template_language_versions_v2",
     ),
     "read_questions": ("form_queries", "read_questions"),
     # ------- patient_queries -------

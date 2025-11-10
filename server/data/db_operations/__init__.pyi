@@ -45,6 +45,7 @@ from .common_crud import (
 )
 from .form_queries import (
     read_form_template_language_versions,
+    read_form_template_language_versions_v2,
     read_questions,
 )
 from .patient_queries import (
@@ -113,6 +114,7 @@ __all__ = [
     "merge",
     # form_queries
     "read_form_template_language_versions",
+    "read_form_template_language_versions_v2",
     "read_questions",
     # patient_queries
     "read_admin_patient",

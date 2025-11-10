@@ -46,7 +46,9 @@ from validation.formsV2_models import (
     FormTemplateV2Response,
     GetFormTemplateV2Query,
     GetAllFormTemplatesV2Query,
+    FormTemplateResponse
 )
+
 
 def resolve_template_name(template: FormTemplateOrmV2, lang: str = "English") -> Optional[str]:
     """
@@ -151,3 +153,45 @@ def get_form_template_version_as_csv_v2(path: FormTemplateVersionPath):
     response.headers["Content-Disposition"] = "attachment; filename=form_template.csv"
     response.headers["Content-Type"] = "text/csv"
     return response
+
+
+# /api/forms/templates/<string:form_template_id>
+class GetFormTemplateQuery(CradleBaseModel):
+    lang: Optional[str] = None
+
+
+@api_form_templates_v2.get("/<string:form_template_id>", responses={200: FormTemplateResponse})
+def get_form_template_v2(path: FormTemplateIdPath, query: GetFormTemplateQuery):
+    """Get a single-language or full form template (V2)"""
+
+    form_template = crud.read(FormTemplateOrmV2, id=path.form_template_id)
+    if form_template is None:
+        abort(404, description=f"Abe oooo - No form with ID: {path.form_template_id}")
+
+    version = query.lang
+
+    if version is None:
+        full_template = marshal.marshal(
+            form_template,
+            shallow=False,
+            if_include_versions=True,
+        )
+        return full_template, 200
+
+    available_versions = crud.read_form_template_language_versions_v2(
+        form_template,
+        refresh=True,
+    )
+
+    logger.debug("%s", available_versions)
+
+    if version not in available_versions:
+        abort(
+            404,
+            description=f"FormTemplate(id={path.form_template_id}) doesn't have language version = {version}",
+        )
+
+    single_lang_template = marshal.marshal_template_to_single_version(
+        form_template, version
+    )
+    return single_lang_template, 200

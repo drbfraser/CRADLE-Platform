@@ -80,7 +80,7 @@ class Config:
         },
         "loggers": {
             "": {"handlers": ["console", "file"], "level": "DEBUG"},
-            "flask": {"level": "DEBUG"},
+            "flask": {"level": "INFO"},
             "sqlalchemy": {"level": "WARNING"},
             "werkzeug": {"level": "DEBUG"},
             "botocore": {"level": "WARNING"},

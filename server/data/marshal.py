@@ -469,6 +469,49 @@ def __marshal_question(q: QuestionOrm, if_include_versions: bool) -> dict:
     return d
 
 
+def __marshal_question_v2(q: FormQuestionTemplateOrmV2, if_include_versions: bool) -> dict:
+    """
+    Serialize a FormQuestionTemplateOrmV2; parse JSON fields and optionally include language versions.
+
+    :param q: Question instance to serialize.
+    :param if_include_versions: If True, include lang_versions (translations) for the question.
+    :return: Dictionary with all fields ready for API response.
+    """
+
+    d = vars(q).copy()
+    __pre_process(d)
+
+    for rel in ["template", "category_question"]:
+        if d.get(rel):
+            del d[rel]
+
+    for json_field in ["visible_condition", "mc_options"]:
+        value = d.get(json_field)
+        if value:
+            try:
+                d[json_field] = json.loads(value)
+            except (TypeError, json.JSONDecodeError):
+                d[json_field] = []
+
+        else:
+            d[json_field] = []
+
+    # include language versions if requested
+    if if_include_versions:
+        d["lang_versions"] = [
+            {
+                "string_id": lv.string_id,
+                "lang": lv.lang,
+                "text": lv.text,
+            }
+            for lv in q.lang_versions
+        ]
+    elif "lang_versions" in d:
+        del d["lang_versions"]
+
+    return d
+
+
 def marshal_question_to_single_version(q: QuestionOrm, version: str) -> dict:
     """
     Serialize a question and override text/options from a single language version.

@@ -1,4 +1,4 @@
-from typing import Annotated, Literal, Union, Optional, List
+from typing import Annotated, Literal, Union, Optional, List, Any
 
 from pydantic import Field, RootModel
 from common.commonUtil import get_current_time
@@ -64,12 +64,43 @@ class FormQuestion(CradleBaseModel):
     questionType: QuestionTypeEnum
     required: bool
     visibleCondition: List
-    
 
-class FormTemplateLang(CradleBaseModel):
-    archived: bool
-    classification: FormClassificationV2Response
-    dateCreated: int = Field(default_factory=get_current_time),
+
+class LangVersionResponse(CradleBaseModel):
+    id: Optional[int] = None
+    lang: str
+    questionId: str
+    questionText: str
+
+
+class QuestionResponse(CradleBaseModel):
     id: str
-    questions: List[FormClassificationV2Response]
+    formTemplateId: str
+    questionType: str
+    questionIndex: int
+    questionText: str = ""
+    categoryIndex: Optional[int] = None
+    required: bool
+    hasCommentAttached: bool
+    allowFutureDates: bool
+    allowPastDates: bool
+    visibleCondition: List[Any] = []
+    mcOptions: List[Any] = []
+    langVersions: List[LangVersionResponse]
+    isBlank: bool = True
+    answers: dict = {}
+
+
+class ClassificationResponse(CradleBaseModel):
+    id: str
+    name: str
+
+
+class FormTemplateResponse(CradleBaseModel):
+    id: str
+    archived: bool
+    classification: ClassificationResponse
+    formClassificationId: str
+    dateCreated: int
     version: str
+    questions: List[QuestionResponse]
