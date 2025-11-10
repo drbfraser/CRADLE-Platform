@@ -106,6 +106,8 @@ class WorkflowInstanceStepModel(CradleBaseModel, extra="forbid"):
 
     @model_validator(mode="after")
     def validate_dates(self) -> Self:
+        # last_edited and start_date are checked in WorkflowService.
+        # See the WorkflowService class for why.
         if (
             self.completion_date is not None
             and self.start_date is not None
@@ -138,6 +140,8 @@ class WorkflowInstanceModel(CradleBaseModel, extra="forbid"):
 
     @model_validator(mode="after")
     def validate_dates(self) -> Self:
+        # last_edited and start_date are checked in WorkflowService.
+        # See the WorkflowService class for why.
         if (
             self.completion_date is not None
             and self.start_date is not None

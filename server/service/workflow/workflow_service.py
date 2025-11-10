@@ -157,9 +157,10 @@ class WorkflowService:
         """
         Validate that last_edited >= start_date for the workflow instance and its steps.
 
-        This check isn't enforced at the model level to allow setting start_date
-        to the current time, since start_date would otherwise exceed last_edited.
-        It should never raise if the backend alone manages these timestamps correctly.
+        This check isn't enforced at the model level to allow us to set start_date to
+        the current time, otherwise last_edited becomes < start_date.
+
+        If this error is thrown, it indicates a programming error on the backend.
         """
         if (
             workflow_instance.last_edited is not None
