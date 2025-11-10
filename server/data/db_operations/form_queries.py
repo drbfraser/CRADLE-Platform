@@ -13,18 +13,13 @@ Functions:
         the template from the database to ensure validity.
 """
 
+import logging
 from typing import List, Optional
 
 from common.form_utils import filter_template_questions_orm
 from data.db_operations import db_session
-from models import (
-    FormTemplateOrm,
-    FormTemplateOrmV2,
-    QuestionOrm,
-    LangVersionOrmV2
-)
+from models import FormTemplateOrm, FormTemplateOrmV2, LangVersionOrmV2, QuestionOrm
 
-import logging
 logger = logging.getLogger(__name__)
 
 

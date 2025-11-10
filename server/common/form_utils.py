@@ -4,6 +4,7 @@ import csv
 import json
 from typing import TYPE_CHECKING, Any, Type
 
+import data.db_operations as crud
 from common import commonUtil
 from common.constants import (
     FORM_TEMPLATE_LANGUAGES_COL,
@@ -25,8 +26,14 @@ from common.constants import (
     FORM_TEMPLATE_VERSION_ROW,
 )
 from enums import QuestionTypeEnum
-from models import FormClassificationOrm, FormOrm, FormTemplateOrm, QuestionOrm, FormTemplateOrmV2, LangVersionOrmV2
-import data.db_operations as crud
+from models import (
+    FormClassificationOrm,
+    FormOrm,
+    FormTemplateOrm,
+    FormTemplateOrmV2,
+    LangVersionOrmV2,
+    QuestionOrm,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -123,7 +130,6 @@ def assign_form_or_template_ids_v2(model: Type[M], req: dict) -> None:
         if question.get("lang_versions") is not None:
             for version in question.get("lang_versions"):
                 version["question_id"] = question["id"]
-
 
 
 def getFormTemplateDictFromCSV(csvData: str):
@@ -518,15 +524,19 @@ def getCsvFromFormTemplateV2(form_template: FormTemplateOrmV2) -> str:
                 langs.add(lv.lang)
         return sorted(list(langs))
 
-    # Build CSV 
+    # Build CSV
     questions = sorted(form_template.questions, key=lambda q: q.order)
-    classification_translations = read_all_translations(form_template.classification.name_string_id)
+    classification_translations = read_all_translations(
+        form_template.classification.name_string_id
+    )
     all_langs = get_all_languages()
 
     rows = [
         [
             "Form Name",
-            classification_translations[0].text if classification_translations else form_template.classification.name_string_id,
+            classification_translations[0].text
+            if classification_translations
+            else form_template.classification.name_string_id,
             "Languages",
             ",".join(all_langs),
         ],

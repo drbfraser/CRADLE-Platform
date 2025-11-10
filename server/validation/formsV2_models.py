@@ -1,13 +1,14 @@
-from typing import Annotated, Literal, Union, Optional, List, Any
+from typing import Any, List, Optional
 
-from pydantic import Field, RootModel
-from common.commonUtil import get_current_time
+from pydantic import Field
 
-from enums import QRelationalEnum, QuestionTypeEnum
+from enums import QuestionTypeEnum
 from validation import CradleBaseModel
+
 
 class FormTemplateV2Response(CradleBaseModel):
     """Response model for a single form template V2"""
+
     id: str
     form_classification_id: str
     version: int
@@ -19,11 +20,13 @@ class FormTemplateV2Response(CradleBaseModel):
 
 class FormTemplateListV2Response(CradleBaseModel):
     """Response model for list of form templates V2"""
+
     templates: list[FormTemplateV2Response]
 
 
 class FormClassificationV2Response(CradleBaseModel):
     """Response model for form classification V2"""
+
     id: str
     name_string_id: str
     name: Optional[str] = None
@@ -34,16 +37,15 @@ class GetAllFormTemplatesV2Query(CradleBaseModel):
     include_archived: bool = Field(
         False, description="If true, archived Form Templates will be included."
     )
-    lang: str = Field(
-        "English", description="Language code for template names."
-    )
+    lang: str = Field("English", description="Language code for template names.")
 
 
 class GetFormTemplateV2Query(CradleBaseModel):
     lang: Optional[str] = Field(
-        None, description="Language code for translations. If not provided, returns string_ids."
+        None,
+        description="Language code for translations. If not provided, returns string_ids.",
     )
-    
+
 
 class LangVersion(CradleBaseModel):
     string_id: str

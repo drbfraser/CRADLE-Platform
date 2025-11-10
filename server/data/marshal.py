@@ -1,8 +1,8 @@
 import json
+import logging
 from collections.abc import Mapping
 from enum import Enum
 from typing import Any, Dict, List, Optional, Type
-import logging
 
 from common import commonUtil
 from common.form_utils import filter_template_questions_orm
@@ -10,18 +10,18 @@ from data import db_session
 from data.db_operations import M
 from models import (
     AssessmentOrm,
+    FormAnswerOrmV2,
     FormClassificationOrm,
+    FormClassificationOrmV2,
     FormOrm,
+    FormQuestionTemplateOrmV2,
+    FormSubmissionOrmV2,
     FormTemplateOrm,
+    FormTemplateOrmV2,
+    LangVersionOrmV2,
     MedicalRecordOrm,
     PatientOrm,
     PregnancyOrm,
-    LangVersionOrmV2,
-    FormClassificationOrmV2,
-    FormSubmissionOrmV2,
-    FormQuestionTemplateOrmV2,
-    FormAnswerOrmV2,
-    FormTemplateOrmV2,
     QuestionLangVersionOrm,
     QuestionOrm,
     ReadingOrm,
@@ -41,6 +41,7 @@ from models import (
 from service import invariant
 
 logger = logging.getLogger(__name__)
+
 
 def marshal(obj: Any, shallow: bool = False, if_include_versions: bool = False) -> dict:
     r"""
@@ -469,7 +470,9 @@ def __marshal_question(q: QuestionOrm, if_include_versions: bool) -> dict:
     return d
 
 
-def __marshal_question_v2(q: FormQuestionTemplateOrmV2, if_include_versions: bool) -> dict:
+def __marshal_question_v2(
+    q: FormQuestionTemplateOrmV2, if_include_versions: bool
+) -> dict:
     """
     Serialize a FormQuestionTemplateOrmV2; parse JSON fields and optionally include language versions.
 
@@ -477,7 +480,6 @@ def __marshal_question_v2(q: FormQuestionTemplateOrmV2, if_include_versions: boo
     :param if_include_versions: If True, include lang_versions (translations) for the question.
     :return: Dictionary with all fields ready for API response.
     """
-
     d = vars(q).copy()
     __pre_process(d)
 
@@ -1385,7 +1387,7 @@ def __marshal_form_question_template_v2(q: FormQuestionTemplateOrmV2) -> dict:
     mc_options = d.get("mc_options")
     if mc_options is not None and mc_options != "":
         d["mc_options"] = json.loads(mc_options)
-    
+
     # If mc_options is None or empty, remove it from dict (it's optional)
     elif "mc_options" in d:
         del d["mc_options"]
@@ -1439,6 +1441,7 @@ def __marshal_form_answer_v2(a: FormAnswerOrmV2) -> dict:
 
     return d
 
+
 # UNMARSHAL
 def __unmarshal_lang_version_v2(d: dict) -> LangVersionOrmV2:
     """
@@ -1465,7 +1468,7 @@ def __unmarshal_form_classification_v2(d: dict) -> FormClassificationOrmV2:
             del d["templates"]
 
         form_classification_v2 = __load(FormClassificationOrmV2, d)
-        
+
         if templates:
             form_classification_v2.templates = templates
 
@@ -1482,11 +1485,13 @@ def __unmarshal_form_template_v2(d: dict) -> FormTemplateOrmV2:
     with db_session.no_autoflush:
         questions = []
         if d.get("questions") is not None:
-            questions = [__unmarshal_form_question_template_v2(q) for q in d["questions"]]
+            questions = [
+                __unmarshal_form_question_template_v2(q) for q in d["questions"]
+            ]
             del d["questions"]
 
         form_template_v2 = __load(FormTemplateOrmV2, d)
-        
+
         if questions:
             form_template_v2.questions = questions
 
@@ -1497,7 +1502,7 @@ def __unmarshal_form_question_template_v2(d: dict) -> FormQuestionTemplateOrmV2:
     """
     Construct a ``FormQuestionTemplateOrmV2``; encode JSON-able fields.
 
-    :param d: Question template payload (may include ``visible_condition`` and 
+    :param d: Question template payload (may include ``visible_condition`` and
         ``mc_options`` as lists/dicts).
     :return: ``FormQuestionTemplateOrmV2`` instance.
     """
@@ -1506,7 +1511,7 @@ def __unmarshal_form_question_template_v2(d: dict) -> FormQuestionTemplateOrmV2:
     if visible_condition is not None:
         if isinstance(visible_condition, (list, dict)):
             d["visible_condition"] = json.dumps(visible_condition)
-    
+
     # Convert "mc_options" from json list to string
     mc_options = d.get("mc_options")
     if mc_options is not None:
@@ -1514,7 +1519,7 @@ def __unmarshal_form_question_template_v2(d: dict) -> FormQuestionTemplateOrmV2:
             d["mc_options"] = json.dumps(mc_options)
 
     question_template_v2 = __load(FormQuestionTemplateOrmV2, d)
-    
+
     return question_template_v2
 
 
@@ -1532,7 +1537,7 @@ def __unmarshal_form_submission_v2(d: dict) -> FormSubmissionOrmV2:
             del d["answers"]
 
         form_submission_v2 = __load(FormSubmissionOrmV2, d)
-        
+
         if answers:
             form_submission_v2.answers = answers
 
@@ -1553,5 +1558,5 @@ def __unmarshal_form_answer_v2(d: dict) -> FormAnswerOrmV2:
             d["answer"] = json.dumps(answer)
 
     form_answer_v2 = __load(FormAnswerOrmV2, d)
-    
+
     return form_answer_v2
