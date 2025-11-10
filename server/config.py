@@ -81,23 +81,9 @@ class Config:
         "loggers": {
             "": {"handlers": ["console", "file"], "level": "DEBUG"},
             "flask": {"level": "INFO"},
-            "sqlalchemy": {"level": "WARNING"},
-            "werkzeug": {"level": "DEBUG"},
-            "botocore": {"level": "WARNING"},
-            "urllib3": {"level": "WARNING"},
-            "authentication": {"level": "WARNING"},
-            "config": {"level": "WARNING"},
+            "sqlalchemy": {"level": "INFO"},
+            "werkzeug": {"level": "INFO"},
         },
-        # "loggers": {
-        #     "": {"handlers": ["console", "file"], "level": "DEBUG"},
-        #     "flask": {"level": "DEBUG"},
-        #     # "sqlalchemy": {"level": "INFO"},
-        #     "werkzeug": {"level": "WARNING"},
-        #     "boto3": {"level": "WARNING"},
-        #     "urllib3": {"level": "WARNING"},
-        #     "authentication": {"level": "WARNING"},
-        #     "config": {"level": "WARNING"}
-        # },
     }
     logging.config.dictConfig(LOGGING)
     logger = logging.getLogger(__name__)

@@ -1298,7 +1298,6 @@ def model_to_dict(model: Any, schema) -> Optional[dict]:
     return schema().dump(model)
 
 
-# MARSHAL
 def __marshal_lang_version_v2(lv: LangVersionOrmV2) -> dict:
     """
     Serialize a ``LangVersionOrmV2`` translation entry.
