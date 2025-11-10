@@ -15,6 +15,7 @@ interface WorkflowFlowViewProps {
   onStepSelect?: (stepId: string) => void;
   onInsertNode?: (stepId: string) => void;
   onAddBranch?: (stepId: string) => void;
+  onConnectionCreate?: (sourceStepId: string, targetStepId: string) => void;
 }
 
 export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
@@ -27,6 +28,7 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
   onStepSelect,
   onInsertNode,
   onAddBranch,
+  onConnectionCreate,
 }) => {
   const [internalSelectedStepId, setInternalSelectedStepId] = useState<
     string | undefined
@@ -76,6 +78,7 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
                 onStepSelect={handleStepSelect}
                 onInsertNode={onInsertNode}
                 onAddBranch={onAddBranch}
+                onConnectionCreate={onConnectionCreate}
               />
             </Box>
           </Paper>

@@ -164,7 +164,7 @@ export const ViewWorkflowTemplate = () => {
       return;
     }
 
-    // Generate a unique ID for the new step 
+    // Generate a unique ID for the new step
     // (It will be overridden by the backend, so it doesn't matter what we use here)
     const newStepId = `step-${Date.now()}-${Math.random()
       .toString(36)
@@ -224,7 +224,6 @@ export const ViewWorkflowTemplate = () => {
 
     // Auto-select the newly created step
     setSelectedStepId(newStepId);
-
   };
 
   const handleAddBranch = (stepId: string) => {
@@ -237,7 +236,7 @@ export const ViewWorkflowTemplate = () => {
       return;
     }
 
-    // Generate a unique ID for the new step 
+    // Generate a unique ID for the new step
     // (It will be overridden by the backend, so it doesn't matter what we use here)
     const newStepId = `step-${Date.now()}-${Math.random()
       .toString(36)
@@ -291,6 +290,54 @@ export const ViewWorkflowTemplate = () => {
 
     // Auto-select the newly created step
     setSelectedStepId(newStepId);
+  };
+
+  const handleConnectionCreate = (
+    sourceStepId: string,
+    targetStepId: string
+  ) => {
+    if (!editedWorkflow) return;
+
+    // Find the source step
+    const sourceStep = editedWorkflow.steps.find((s) => s.id === sourceStepId);
+    if (!sourceStep) {
+      console.error('Source step not found:', sourceStepId);
+      return;
+    }
+
+    // Create a new branch for the connection
+    const newBranch = {
+      stepId: sourceStepId,
+      targetStepId: targetStepId,
+      condition: undefined, // No condition initially
+    };
+
+    // Add the new branch to the source step
+    const updatedSourceStep = {
+      ...sourceStep,
+      branches: sourceStep.branches
+        ? [...sourceStep.branches, newBranch]
+        : [newBranch],
+    };
+
+    // Update the workflow
+    setEditedWorkflow((prev) => {
+      if (!prev) return prev;
+
+      const updatedSteps = prev.steps.map((step) =>
+        step.id === sourceStepId ? updatedSourceStep : step
+      );
+
+      return {
+        ...prev,
+        steps: updatedSteps,
+      };
+    });
+
+    setHasChanges(true);
+    console.log(
+      `Created connection from step (${sourceStepId}) to step (${targetStepId})`
+    );
   };
 
   const currentWorkflow = isEditMode
@@ -437,6 +484,7 @@ export const ViewWorkflowTemplate = () => {
             onStepChange={handleStepChange}
             onInsertNode={handleInsertNode}
             onAddBranch={handleAddBranch}
+            onConnectionCreate={handleConnectionCreate}
           />
         ) : (
           <WorkflowSteps

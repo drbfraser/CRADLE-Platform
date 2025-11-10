@@ -32,6 +32,7 @@ interface WorkflowFlowProps {
   onStepSelect?: (stepId: string) => void;
   onInsertNode?: (stepId: string) => void;
   onAddBranch?: (stepId: string) => void;
+  onConnectionCreate?: (sourceStepId: string, targetStepId: string) => void;
 }
 
 export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
@@ -42,6 +43,7 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
   onStepSelect,
   onInsertNode,
   onAddBranch,
+  onConnectionCreate,
 }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
@@ -92,7 +94,7 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
     // Constants for flow layout
     const NODE_WIDTH = 0;
     const HORIZONTAL_SPACING = 500; // Space between nodes at same level
-    const VERTICAL_SPACING = 250; // Space between each level
+    const VERTICAL_SPACING = 125; // Space between each level
 
     // Group nodes by level. Use for node positioning.
     const levelNodes = new Map<number, string[]>();
@@ -177,8 +179,83 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
   }, [generatedNodes, generatedEdges, setNodes, setEdges]);
 
   const onConnect = useCallback(
-    (params: Connection) => setEdges((eds: Edge[]) => addEdge(params, eds)),
-    [setEdges]
+    (params: Connection) => {
+      // Only allow connections in edit mode
+      if (!isEditMode) {
+        console.warn('Connections are only allowed in edit mode');
+        return;
+      }
+
+      if (!params.source || !params.target) {
+        console.warn('Invalid connection: missing source or target');
+        return;
+      }
+
+      const sourceStepId = params.source;
+      const targetStepId = params.target;
+
+      // Find source and target steps
+      const sourceStep = steps.find((s) => s.id === sourceStepId);
+      const targetStep = steps.find((s) => s.id === targetStepId);
+
+      if (!sourceStep || !targetStep) {
+        console.warn('Invalid connection: step not found');
+        return;
+      }
+
+      // Check if source already has any outgoing connections
+      // Each node can only use drag edge once to connect to other nodes
+      if (sourceStep.branches && sourceStep.branches.length > 0) {
+        console.warn(
+          'This node already has an outgoing connection.'
+        );
+        return;
+      }
+
+      // Build level map to check hierarchy
+      const stepLevels = new Map<string, number>();
+      const queue: { stepId: string; level: number }[] = [
+        { stepId: firstStepId, level: 0 },
+      ];
+      const visited = new Set<string>();
+
+      while (queue.length > 0) {
+        const { stepId, level } = queue.shift()!;
+        if (visited.has(stepId)) continue;
+
+        visited.add(stepId);
+        stepLevels.set(stepId, level);
+
+        const step = steps.find((s) => s.id === stepId);
+        if (step?.branches) {
+          step.branches.forEach((branch: WorkflowTemplateStepBranch) => {
+            if (!visited.has(branch.targetStepId)) {
+              queue.push({ stepId: branch.targetStepId, level: level + 1 });
+            }
+          });
+        }
+      }
+
+      const sourceLevel = stepLevels.get(sourceStepId) ?? 0;
+      const targetLevel = stepLevels.get(targetStepId) ?? 0;
+
+      // Output node can only connect to a node on a level lower than it
+      if (targetLevel <= sourceLevel) {
+        console.warn(
+          `Invalid connection: target node must be on a lower level. Source level: ${sourceLevel}, Target level: ${targetLevel}`
+        );
+        return;
+      }
+
+      // If all validations pass, update the data structure via callback
+      if (onConnectionCreate) {
+        onConnectionCreate(sourceStepId, targetStepId);
+      }
+
+      // Temporarily add the edge to the UI (will be updated when data refreshes)
+      setEdges((eds: Edge[]) => addEdge(params, eds));
+    },
+    [isEditMode, steps, firstStepId, onConnectionCreate, setEdges]
   );
 
   const onNodeClick = useCallback(
@@ -197,9 +274,12 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
+        onConnect={isEditMode ? onConnect : undefined}
         onNodeClick={onNodeClick}
         nodeTypes={nodeTypes}
+        nodesDraggable={false}
+        nodesConnectable={isEditMode}
+        elementsSelectable={isEditMode}
         fitView
         fitViewOptions={{
           padding: 0.2,
