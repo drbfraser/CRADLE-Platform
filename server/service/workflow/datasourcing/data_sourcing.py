@@ -7,46 +7,40 @@ CustomResolver = Callable[[Dict], Any]
 ObjectCatalogue: TypeAlias = Dict[str, Union[ObjectResolver, Dict[str, CustomResolver]]]
 
 
-def parse_attribute_name(data_string: str) -> str:
+def parse_attribute_name(variable: str) -> str:
     """
-    Extract attribute name from a datastring.
+    Extract attribute name from a variable.
     
-    :param data_string: String in format "$object.attribute"
+    :param variable: String in format "object.attribute"
     :returns: The attribute name, or empty string if invalid format
     """
-    if not data_string.startswith("$"):
-        return ""
-
-    parts = data_string.split(".")
+    parts = variable.split(".")
     if len(parts) < 2:
         return ""
     
     return parts[1]
 
 
-def parse_object_name(data_string: str) -> str:
+def parse_object_name(variable: str) -> str:
     """
-    Extract object name from a datastring.
+    Extract object name from a variable.
     
-    :param data_string: String in format "$object.attribute"
-    :returns: The object name (without $), or empty string if invalid format
+    :param variable: String in format "object.attribute"
+    :returns: The object name, or empty string if invalid format
     """
-    if not data_string.startswith("$"):
-        return ""
-
-    return data_string[1:].split(".")[0]
+    return variable.split(".")[0]
 
 
-def __group_objects(accumulator: Dict[str, List[str]], datastring: str) -> Dict[str, List[str]]:
+def __group_objects(accumulator: Dict[str, List[str]], variable: str) -> Dict[str, List[str]]:
     """
-    Group datastrings by object name for batch resolution.
+    Group variables by object name for batch resolution.
     
     :param accumulator: Dict mapping object names to lists of attributes
-    :param datastring: Single datastring to add to groups
+    :param variable: Single variable to add to groups
     :returns: Updated accumulator dict
     """
-    obj = parse_object_name(datastring)
-    attr = parse_attribute_name(datastring)
+    obj = parse_object_name(variable)
+    attr = parse_attribute_name(variable)
     
     if not obj or not attr:
         return accumulator
@@ -89,27 +83,35 @@ def __resolve_object(
         return None
 
 
-def resolve_datasources(
-    patient_id: str, datasources: List[str], catalogue: Dict[str, ObjectCatalogue]
+def resolve_variables(
+    patient_id: str, variables: List[str], catalogue: Dict[str, ObjectCatalogue]
 ) -> Dict[str, Any]:
-    object_groups = reduce(__group_objects, datasources, {})
+    """
+    Resolve multiple variables into their concrete values.
+    
+    :param patient_id: An id for identifying data relevant to a patient
+    :param variables: A list of strings representing variables in format "object.attribute"
+    :param catalogue: The data catalogue of supported objects
+    :returns: A dict mapping variable names to their resolved values
+    :rtype: Dict[str, Any]
+    """
+    object_groups = reduce(__group_objects, variables, {})
     resolved = {}
 
     for obj, attrs in object_groups.items():
         inst = __resolve_object(catalogue, patient_id, obj)
-
-        # if object not found attributes are none
         
         if inst is None:
+            # If object not found, all its attributes are None
             for a in attrs:
-                resolved[f"${obj}.{a}"] = None
+                resolved[f"{obj}.{a}"] = None
             continue
         
         resolved_attrs = []
 
         for a in attrs:
             if inst.get(a) is not None:
-                resolved_attrs.append((f"${obj}.{a}", inst.get(a)))
+                resolved_attrs.append((f"{obj}.{a}", inst.get(a)))
             else:
                 ca_query = catalogue.get(obj).get("custom")
                 ca_query = ca_query.get(a)
@@ -118,27 +120,27 @@ def resolve_datasources(
                 if ca_query is not None:
                     ca_value = ca_query(inst)
 
-                resolved_attrs.append((f"${obj}.{a}", ca_value))
+                resolved_attrs.append((f"{obj}.{a}", ca_value))
 
-        resolved.update(dict(resolved_attrs)) 
+        resolved.update(dict(resolved_attrs))
 
     return resolved
 
 
-def resolve_datastring(
-    patient_id: str, data_string: str, catalogue: Dict[str, ObjectCatalogue]
+def resolve_variable(
+    patient_id: str, variable: str, catalogue: Dict[str, ObjectCatalogue]
 ) -> Any:
     """
-    Resolve a single datastring into a concrete value.
+    Resolve a single variable into a concrete value.
 
     :param patient_id: An id for identifying data relevant to a patient
-    :param data_string: A string representing a data source in format "$object.attribute"
+    :param variable: A string representing a variable in format "object.attribute"
     :param catalogue: The data catalogue of supported objects
     :returns: A resolved value (int, float, bool, string, etc.) or None if not found
     :rtype: Any
     """
-    obj_name = parse_object_name(data_string)
-    attr_name = parse_attribute_name(data_string)
+    obj_name = parse_object_name(variable)
+    attr_name = parse_attribute_name(variable)
     
     if not obj_name or not attr_name:
         return None

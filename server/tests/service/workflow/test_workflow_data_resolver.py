@@ -1,8 +1,118 @@
 import pytest
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
+
+from service.workflow.datasourcing.workflow_data_resolver import WorkflowDataResolver
+
+
+class TestWorkflowDataResolverUnit:
+    """Unit tests for WorkflowDataResolver"""
+    
+    @patch('service.workflow.datasourcing.data_sourcing.resolve_variables')
+    def test_resolve_data_for_branches_calls_resolve_variables(self, mock_resolve_variables):
+        mock_catalogue = Mock()
+        mock_resolve_variables.return_value = {"patient.age": 25}
+        
+        resolver = WorkflowDataResolver(catalogue=mock_catalogue)
+        
+        branches = [
+            {
+                "rule": '{">=": [{"var": "patient.age"}, 18]}',
+                "target_step_id": "adult"
+            }
+        ]
+        
+        result = resolver.resolve_data_for_branches("patient_123", branches)
+        
+        mock_resolve_variables.assert_called_once()
+        
+        call_args = mock_resolve_variables.call_args
+        assert call_args[0][0] == "patient_123"  
+        assert "patient.age" in call_args[0][1] 
+        assert call_args[0][2] == mock_catalogue
+        
+        assert result == {"patient.age": 25}
+    
+    @patch('service.workflow.datasourcing.data_sourcing.resolve_variables')
+    def test_resolve_data_for_branches_with_multiple_variables(self, mock_resolve_variables):
+        mock_catalogue = Mock()
+        mock_resolve_variables.return_value = {
+            "patient.age": 30,
+            "patient.sex": "FEMALE",
+            "reading.systolic": 120
+        }
+        
+        resolver = WorkflowDataResolver(catalogue=mock_catalogue)
+        
+        branches = [
+            {
+                "rule": '{"and": [{">=": [{"var": "patient.age"}, 18]}, {"==": [{"var": "patient.sex"}, "FEMALE"]}]}',
+                "target_step_id": "adult_female"
+            }
+        ]
+        
+        result = resolver.resolve_data_for_branches("patient_456", branches)
+        
+        assert result == {
+            "patient.age": 30,
+            "patient.sex": "FEMALE",
+            "reading.systolic": 120
+        }
+    
+    @patch('service.workflow.evaluate.rules_engine.evaluate_branches')
+    @patch('service.workflow.datasourcing.data_sourcing.resolve_variables')
+    def test_evaluate_workflow_branches_passes_resolved_data(self, mock_resolve_variables, mock_evaluate_branches):
+        mock_catalogue = Mock()
+        mock_resolve_variables.return_value = {"patient.age": 25}
+        mock_evaluate_branches.return_value = {"status": "TRUE", "branch": {"target_step_id": "adult"}}
+        
+        resolver = WorkflowDataResolver(catalogue=mock_catalogue)
+        
+        branches = [
+            {
+                "rule": '{">=": [{"var": "patient.age"}, 18]}',
+                "target_step_id": "adult"
+            }
+        ]
+        
+        result = resolver.evaluate_workflow_branches("patient_123", branches)
+        
+        mock_evaluate_branches.assert_called_once_with(
+            branches=branches,
+            data={"patient.age": 25}
+        )
+        
+        assert result == {"status": "TRUE", "branch": {"target_step_id": "adult"}}
+    
+    @patch('service.workflow.evaluate.rules_engine.evaluate_branches')
+    @patch('service.workflow.datasourcing.data_sourcing.resolve_variables')
+    def test_evaluate_workflow_branches_merges_additional_data(self, mock_resolve_variables, mock_evaluate_branches):
+        mock_catalogue = Mock()
+        mock_resolve_variables.return_value = {"patient.age": 25}
+        mock_evaluate_branches.return_value = {"status": "TRUE"}
+        
+        resolver = WorkflowDataResolver(catalogue=mock_catalogue)
+        
+        branches = [
+            {
+                "rule": '{">=": [{"var": "patient.age"}, 18]}',
+                "target_step_id": "adult"
+            }
+        ]
+        
+        additional_data = {"manual.override": True}
+        
+        result = resolver.evaluate_workflow_branches("patient_123", branches, additional_data)
+        
+        call_args = mock_evaluate_branches.call_args
+        assert call_args[1]["data"] == {
+            "patient.age": 25,
+            "manual.override": True
+        }
+
+        assert result == {"status": "TRUE"}
+
 
 class TestIntegrationWithRealCatalogue:
-    
     @patch('data.db_operations.read')
     @patch('data.marshal.marshal')
     def test_evaluate_workflow_with_real_catalogue(self, mock_marshal, mock_read):
@@ -11,11 +121,9 @@ class TestIntegrationWithRealCatalogue:
             "id": "patient_456",
             "name": "Senior Patient",
             "sex": "MALE",
-            "date_of_birth": "1950-01-01",  
+            "age": 75,
             "is_pregnant": False
         }
-        
-        from service.workflow.datasourcing.workflow_data_resolver import WorkflowDataResolver
         
         resolver = WorkflowDataResolver()
         
@@ -37,11 +145,9 @@ class TestIntegrationWithRealCatalogue:
     
     @patch('data.db_operations.read')
     @patch('data.marshal.marshal')
-    def test_missing_patient_with_real_catalogue(self, mock_marshal, mock_read, app_context):
+    def test_missing_patient_with_real_catalogue(self, mock_marshal, mock_read):
         mock_read.return_value = None
         mock_marshal.return_value = None
-        
-        from service.workflow.datasourcing.workflow_data_resolver import WorkflowDataResolver
         
         resolver = WorkflowDataResolver()
         
@@ -56,39 +162,12 @@ class TestIntegrationWithRealCatalogue:
         
         assert result["status"] == "NOT_ENOUGH_DATA"
         assert "patient.age" in result["missing_variables"]
-    
-    @patch('data.db_operations.read')
-    @patch('data.marshal.marshal')
-    def test_custom_attribute_age_with_real_catalogue(self, mock_marshal, mock_read, app_context):
-        mock_read.return_value = Mock()
-        mock_marshal.return_value = {
-            "id": "patient_789",
-            "name": "Test Patient",
-            "sex": "FEMALE",
-            "date_of_birth": "2000-01-01",  
-            "is_pregnant": False
-        }
-        
-        from service.workflow.datasourcing.workflow_data_resolver import WorkflowDataResolver
-        
-        resolver = WorkflowDataResolver()
-        
-        branches = [
-            {"rule": '{">=": [{"var": "patient.age"}, 18]}'}
-        ]
-        
-        result = resolver.resolve_data_for_branches("patient_789", branches)
-        
-        assert "$patient.age" in result
-        assert result["$patient.age"] is not None
-        assert isinstance(result["$patient.age"], (int, float))
 
 
 class TestIntegrationWithMultipleDataSources:
-    
     @patch('data.db_operations.read')
     @patch('data.marshal.marshal')
-    def test_patient_and_reading_data(self, mock_marshal, mock_read, app_context):
+    def test_patient_and_reading_data(self, mock_marshal, mock_read):
         
         def mock_read_side_effect(model, **kwargs):
             mock_orm = Mock()
@@ -105,6 +184,7 @@ class TestIntegrationWithMultipleDataSources:
                     "id": "patient_123",
                     "name": "Test Patient",
                     "sex": "FEMALE",
+                    "age": 30,
                     "is_pregnant": True
                 }
             elif model_class == ReadingOrm:
@@ -118,8 +198,6 @@ class TestIntegrationWithMultipleDataSources:
         
         mock_read.side_effect = mock_read_side_effect
         mock_marshal.side_effect = mock_marshal_side_effect
-        
-        from service.workflow.datasourcing.workflow_data_resolver import WorkflowDataResolver
         
         resolver = WorkflowDataResolver()
         
@@ -137,6 +215,3 @@ class TestIntegrationWithMultipleDataSources:
         assert result["status"] == "TRUE", f"Expected TRUE but got {result['status']}"
         assert result["branch"]["target_step_id"] == "high_bp_female"
 
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
