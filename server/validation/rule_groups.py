@@ -1,10 +1,9 @@
 import json
+from typing import Optional
 
 from pydantic import field_validator
 
 from validation import CradleBaseModel
-
-from typing import Optional
 
 
 class RuleGroupExample:
@@ -43,7 +42,9 @@ class RuleGroupModel(CradleBaseModel, extra="forbid"):
         try:
             json.loads(data_sources)
         except json.JSONDecodeError:
-            raise ValueError("data_sources attribute must be a JSON string when provided")
+            raise ValueError(
+                "data_sources attribute must be a JSON string when provided"
+            )
         return data_sources
 
     # TODO: Add validators to determine if rule and data_sources are in the correct format
