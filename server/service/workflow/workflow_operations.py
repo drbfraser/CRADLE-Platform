@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+from common.commonUtil import get_current_time
 from enums import WorkflowStatusEnum, WorkflowStepStatusEnum
 from service.workflow.workflow_view import WorkflowView
 
@@ -58,3 +59,35 @@ class UpdateCurrentStepOp(WorkflowOp):
 
     def apply(self, workflow_view: WorkflowView) -> None:
         workflow_view.instance.current_step_id = self.new_current_step_id
+
+
+class UpdateWorkflowStartDate(WorkflowOp):
+    def apply(self, workflow_view: WorkflowView) -> None:
+        now = get_current_time()
+        workflow_view.instance.start_date = now
+
+
+class UpdateWorkflowCompletionDate(WorkflowOp):
+    def apply(self, workflow_view: WorkflowView) -> None:
+        now = get_current_time()
+        workflow_view.instance.completion_date = now
+
+
+class UpdateWorkflowStepStartDate(WorkflowOp):
+    def __init__(self, step_id: str):
+        self.step_id = step_id
+
+    def apply(self, workflow_view: WorkflowView) -> None:
+        step = workflow_view.get_instance_step(self.step_id)
+        now = get_current_time()
+        step.start_date = now
+
+
+class UpdateWorkflowStepCompletionDate(WorkflowOp):
+    def __init__(self, step_id: str):
+        self.step_id = step_id
+
+    def apply(self, workflow_view: WorkflowView) -> None:
+        step = workflow_view.get_instance_step(self.step_id)
+        now = get_current_time()
+        step.completion_date = now
