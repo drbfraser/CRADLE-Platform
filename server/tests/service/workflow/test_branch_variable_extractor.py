@@ -10,7 +10,7 @@ from tests import helpers
 from validation.workflow_models import WorkflowTemplateModel
 
 
-def _condition(rule_id: str, rule: object) -> dict:
+def _condition(rule_id: str, rule: object, data_sources=[]) -> dict:
     """
     Uniform condition helper for tests.
 
@@ -18,8 +18,6 @@ def _condition(rule_id: str, rule: object) -> dict:
       - dict  -> json.dumps(dict)
       - str   -> used as-is (assumed to be a JSON string)
       - None  -> json.dumps(None)  # "no rule" case
-
-    Always includes data_sources="[]" to satisfy the WorkflowTemplateModel validators.
     """
     if rule is None:
         rule_json = json.dumps(None)
@@ -27,7 +25,9 @@ def _condition(rule_id: str, rule: object) -> dict:
         rule_json = rule
     else:
         rule_json = json.dumps(rule)
-    return {"id": rule_id, "rule": rule_json, "data_sources": "[]"}
+
+    data_sources = json.dumps(data_sources)
+    return {"id": rule_id, "rule": rule_json, "data_sources": data_sources}
 
 
 def _tmpl(
