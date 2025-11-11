@@ -4,6 +4,8 @@ from pydantic import field_validator
 
 from validation import CradleBaseModel
 
+from typing import Optional
+
 
 class RuleGroupExample:
     id = "rule-group-example-01"
@@ -18,10 +20,10 @@ class RuleGroupExample:
 class RuleGroupModel(CradleBaseModel, extra="forbid"):
     id: str
     rule: str
-    data_sources: str
+    data_sources: Optional[str] = None
 
     """
-    Raises an error if the rule or data_sources attributes of a rule group is not in JSON
+    Raises an error if the rule or data_sources attributes are present but not valid JSON strings.
     """
 
     @field_validator("rule", mode="after")
@@ -29,21 +31,19 @@ class RuleGroupModel(CradleBaseModel, extra="forbid"):
     def validate_rule(cls, rule: str) -> str:
         try:
             json.loads(rule)
-
         except json.JSONDecodeError:
             raise ValueError("rule attribute must be a JSON string")
-
         return rule
 
     @field_validator("data_sources", mode="after")
     @classmethod
-    def validate_datasources(cls, data_sources: str) -> str:
+    def validate_datasources(cls, data_sources: Optional[str]) -> Optional[str]:
+        if data_sources in (None, ""):
+            return data_sources
         try:
             json.loads(data_sources)
-
         except json.JSONDecodeError:
-            raise ValueError("data_sources attribute must be a JSON string")
-
+            raise ValueError("data_sources attribute must be a JSON string when provided")
         return data_sources
 
     # TODO: Add validators to determine if rule and data_sources are in the correct format
