@@ -70,7 +70,7 @@ from service.workflow.evaluate.variables import extract_variables_from_current_s
 
 rule = json.dumps({
     "and": [
-        {">=": [{"var": "patient.age"}, 18]},
+        {">=": [{"var": "patient.age"}, 28]},
         {"==": [{"var": "visit.type"}, "ANC"]},
     ]
 })
