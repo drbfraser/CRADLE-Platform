@@ -267,7 +267,7 @@ export const ViewWorkflowTemplate = () => {
         : [newBranch],
     };
 
-    // 4. Update the workflow
+    // Update the workflow
     setEditedWorkflow((prev) => {
       if (!prev) return prev;
 
