@@ -65,13 +65,13 @@ export const getAllWorkflowTemplatesAsync = async (
 // PATCH /workflow/templates/{templateId}
 // Uses the full PATCH endpoint which creates a new version and archives the previous one
 export const editWorkflowTemplateAsync = async (
-  template: Partial<WorkflowTemplate>,
+  template: Partial<WorkflowTemplate>
 ) => {
   if (!template.id) {
     throw new Error('Template ID is required for updates');
   }
   const patchBody: Partial<WorkflowTemplate> = {};
-  
+
   // Only include fields that have actually changed
   if (template.name !== undefined) {
     patchBody.name = template.name;

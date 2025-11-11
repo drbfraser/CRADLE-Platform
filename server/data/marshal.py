@@ -598,7 +598,11 @@ def __marshal_workflow_template_step(
     d = vars(wts).copy()
     __pre_process(d)
 
-    d["form"] = __marshal_form_template(wts.form, if_include_versions=True) if wts.form else None
+    d["form"] = (
+        __marshal_form_template(wts.form, if_include_versions=True)
+        if wts.form
+        else None
+    )
 
     if not shallow:
         d["branches"] = [
@@ -1105,6 +1109,7 @@ def __unmarshal_workflow_template_step(d: dict) -> WorkflowTemplateStepOrm:
     :return: ``WorkflowTemplateStepOrm`` with branches/form set.
     """
     branches = []
+    form = None
 
     if d.get("branches") is not None:
         branches = [
@@ -1112,14 +1117,13 @@ def __unmarshal_workflow_template_step(d: dict) -> WorkflowTemplateStepOrm:
         ]
         del d["branches"]
 
-    workflow_template_step_orm = __load(WorkflowTemplateStepOrm, d)
-    workflow_template_step_orm.branches = branches
-    
-    # Only set form if it was actually provided in the payload
     if d.get("form") is not None:
         form = __unmarshal_form_template(d.get("form"))
-        workflow_template_step_orm.form = form
         del d["form"]
+
+    workflow_template_step_orm = __load(WorkflowTemplateStepOrm, d)
+    workflow_template_step_orm.branches = branches
+    workflow_template_step_orm.form = form
 
     return workflow_template_step_orm
 

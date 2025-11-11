@@ -24,7 +24,7 @@ export interface WorkflowTemplateStep {
   formId?: ID;
   expectedCompletion?: number;
   branches?: WorkflowTemplateStepBranch[];
-  lastEdited: number;
+  lastEdited: number | string;
   workflowTemplateId?: ID;
 }
 

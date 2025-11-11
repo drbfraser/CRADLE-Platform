@@ -16,13 +16,17 @@ from common.commonUtil import get_current_time
 from common.workflow_utils import (
     apply_changes_to_model,
     assign_step_ids,
-    check_branch_conditions,
     assign_workflow_template_or_instance_ids,
+    check_branch_conditions,
     validate_workflow_template_step,
 )
 from data import marshal
 from enums import RoleEnum
-from models import WorkflowClassificationOrm, WorkflowTemplateOrm, WorkflowTemplateStepOrm
+from models import (
+    WorkflowClassificationOrm,
+    WorkflowTemplateOrm,
+    WorkflowTemplateStepOrm,
+)
 from validation import CradleBaseModel
 from validation.file_upload import FileUploadForm
 from validation.workflow_api_models import (
@@ -374,20 +378,20 @@ def update_workflow_template_patch(
 
     # Create an entirely new workflow template with the new attributes
     copy_workflow_template_dict = marshal.marshal(workflow_template)
-    
+
     # Remove steps from the copy - we'll handle them separately
     copy_workflow_template_dict.pop("steps", None)
     copy_workflow_template_dict["steps"] = []
-    
+
     assign_workflow_template_or_instance_ids(
         m=WorkflowTemplateOrm, workflow=copy_workflow_template_dict, auto_assign_id=True
     )
-    
+
     # Unmarshal WITHOUT steps
     new_workflow_template = marshal.unmarshal(
         WorkflowTemplateOrm, copy_workflow_template_dict
     )
-    
+
     # Initialize empty steps list
     new_workflow_template.steps = []
 
@@ -408,7 +412,7 @@ def update_workflow_template_patch(
     if body.get("steps", None):
         # Build a mapping from old step IDs to new step IDs
         old_to_new_step_id_map = {}
-        
+
         for step in body["steps"]:
             old_step_id = step["id"]
 
@@ -416,20 +420,23 @@ def update_workflow_template_patch(
             form_id = step.get("form_id")
 
             check_branch_conditions(step)
-            
+
             # Assign new IDs to steps
             assign_step_ids(
-                WorkflowTemplateStepOrm, step, new_workflow_template_id, auto_assign_id=True
+                WorkflowTemplateStepOrm,
+                step,
+                new_workflow_template_id,
+                auto_assign_id=True,
             )
 
             # RESTORE form_id if it was present and not already set
             if form_id:
                 step["form_id"] = form_id
-            
+
             # Store the mapping
             new_step_id = step["id"]
             old_to_new_step_id_map[old_step_id] = new_step_id
-        
+
         # Update target_step_id in all branches to reference new step IDs
         for step in body["steps"]:
             if step.get("branches"):
@@ -437,15 +444,17 @@ def update_workflow_template_patch(
                     old_target_id = branch.get("target_step_id")
                     if old_target_id and old_target_id in old_to_new_step_id_map:
                         branch["target_step_id"] = old_to_new_step_id_map[old_target_id]
-        
+
         # Update starting_step_id in the workflow template to reference new step ID
-        if body.get("starting_step_id") and body["starting_step_id"] in old_to_new_step_id_map:
+        if (
+            body.get("starting_step_id")
+            and body["starting_step_id"] in old_to_new_step_id_map
+        ):
             body["starting_step_id"] = old_to_new_step_id_map[body["starting_step_id"]]
-        
+
         # Unmarshal steps from dicts to ORM objects
         body["steps"] = [
-            marshal.unmarshal(WorkflowTemplateStepOrm, step)
-            for step in body["steps"]
+            marshal.unmarshal(WorkflowTemplateStepOrm, step) for step in body["steps"]
         ]
 
     check_for_existing_template_version(
