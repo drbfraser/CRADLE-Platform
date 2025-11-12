@@ -33,28 +33,6 @@ api_form_templates_v2 = APIBlueprint(
 )
 
 
-def resolve_template_name(
-    template: FormTemplateOrmV2, lang: str = "English"
-) -> Optional[str]:
-    """
-    Resolve the template name by looking up the classification's name_string_id.
-
-    :param template: Form template instance
-    :param lang: Language for translation
-    :return: Translated name or None if not found
-    """
-    if not template.classification:
-        return None
-
-    name_translation = crud.read(
-        LangVersionOrmV2,
-        string_id=template.classification.name_string_id,
-        lang=lang,
-    )
-
-    return name_translation.text if name_translation else None
-
-
 # /api/forms/v2/templates [GET]
 @api_form_templates_v2.get("", responses={200: FormTemplateListV2Response})
 def get_all_form_templates_v2(query: GetAllFormTemplatesV2Query):
@@ -73,7 +51,11 @@ def get_all_form_templates_v2(query: GetAllFormTemplatesV2Query):
 
     for ft in form_templates:
         template_dict = marshal.marshal(ft, shallow=True)
-        template_dict["name"] = resolve_template_name(ft, query.lang)
+        template_dict["name"] = (
+            form_utils.resolve_string_text(ft.classification.name_string_id, query.lang)
+            if ft.classification
+            else None
+        )
 
         templates_list.append(template_dict)
 
@@ -153,14 +135,14 @@ def get_form_template_v2(path: FormTemplateIdPath, query: GetFormTemplateQuery):
     if form_template is None:
         abort(404, description=f"No form with ID: {path.form_template_id}")
 
-    version = query.lang
+    lang = query.lang
 
-    if version is None:
+    if lang is None:
         full_template = marshal.marshal(
             form_template,
             shallow=False,
-            if_include_versions=True,
         )
+        full_template = form_utils.format_template(full_template, "English")
         return full_template, 200
 
     available_versions = crud.read_form_template_language_versions_v2(
@@ -168,13 +150,14 @@ def get_form_template_v2(path: FormTemplateIdPath, query: GetFormTemplateQuery):
         refresh=True,
     )
 
-    if version not in available_versions:
+    if lang not in available_versions:
         abort(
             404,
-            description=f"FormTemplate(id={path.form_template_id}) doesn't have language version = {version}",
+            description=f"FormTemplate(id={path.form_template_id}) doesn't have language version = {lang}",
         )
 
-    single_lang_template = marshal.marshal_template_to_single_version(
-        form_template, version
-    )
+    single_lang_template = marshal.marshal(form_template, shallow=False)
+    single_lang_template = form_utils.format_template(single_lang_template, lang)
+    single_lang_template["questions"].sort(key=lambda q: q["order"])
+
     return single_lang_template, 200

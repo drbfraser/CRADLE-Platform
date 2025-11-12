@@ -16,6 +16,7 @@ Functions:
 import logging
 from typing import List, Optional
 
+import data.db_operations as crud
 from common.form_utils import filter_template_questions_orm
 from data.db_operations import db_session
 from models import FormTemplateOrm, FormTemplateOrmV2, LangVersionOrmV2, QuestionOrm
@@ -76,10 +77,7 @@ def read_form_template_language_versions_v2(
     if not classification or not classification.name_string_id:
         return []
 
-    # fetch all LangVersionOrmV2 entries for this classification name
-    lang_versions = (
-        db_session.query(LangVersionOrmV2)
-        .filter(LangVersionOrmV2.string_id == classification.name_string_id)
-        .all()
+    lang_versions = crud.read_all(
+        LangVersionOrmV2, string_id=classification.name_string_id
     )
     return [lv.lang for lv in lang_versions]

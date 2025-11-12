@@ -1342,7 +1342,7 @@ def __marshal_form_template_v2(
 
     :param ft: Form template V2 instance to serialize.
     :param shallow: If ``True``, omit questions.
-    :return: Form-template dictionary with version, archived, and is_latest flags.
+    :return: Form-template dictionary with version, archived, optionally questions, and is_latest flags.
     """
     d = vars(ft).copy()
     __pre_process(d)

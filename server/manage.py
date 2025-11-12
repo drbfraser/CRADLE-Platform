@@ -864,7 +864,6 @@ def create_form_template_v2():
         order=0,
         question_type=QuestionTypeEnum.CATEGORY,
         question_string_id=cat1_string_id,
-        user_question_id="cat_basic_information",
         required=False,
         category_index=None,
     )
@@ -1014,7 +1013,7 @@ def create_form_template_v2():
         form_template_id=intake_template_v1.id,
         order=5,
         question_type=QuestionTypeEnum.CATEGORY,
-        user_question_id="cat_vitals",
+        question_string_id=cat2_string_id,
         required=False,
         category_index=None,
     )
@@ -1069,7 +1068,7 @@ def create_form_template_v2():
         form_template_id=intake_template_v1.id,
         order=7,
         question_type=QuestionTypeEnum.CATEGORY,
-        user_question_id="cat_symptoms_notes",
+        question_string_id=cat3_string_id,
         required=False,
         category_index=None,
     )
@@ -1200,7 +1199,7 @@ def create_form_template_v2_version2():
         form_template_id=intake_template_v2.id,
         order=0,
         question_type=QuestionTypeEnum.CATEGORY,
-        user_question_id=None,
+        question_string_id=category_string_id,
         required=False,
         category_index=0,
     )
@@ -1325,6 +1324,7 @@ def create_followup_form_template_v2():
         form_template_id=followup_template.id,
         order=0,
         question_type=QuestionTypeEnum.CATEGORY,
+        question_string_id=category_string_id,
         category_index=0,
     )
     db.session.add(category_question)

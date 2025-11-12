@@ -52,21 +52,6 @@ class LangVersion(CradleBaseModel):
     text: str
 
 
-class FormQuestion(CradleBaseModel):
-    id: str
-    allowFutureDates: bool
-    allowPastDates: bool
-    formTemplateId: str
-    hasCommentAttached: bool
-    isBlank: bool
-    langVersions: List[LangVersion]
-    mcOptions: List
-    questionIndex: int
-    questionType: QuestionTypeEnum
-    required: bool
-    visibleCondition: List
-
-
 class LangVersionResponse(CradleBaseModel):
     id: Optional[int] = None
     lang: str
@@ -77,8 +62,8 @@ class LangVersionResponse(CradleBaseModel):
 class QuestionResponse(CradleBaseModel):
     id: str
     formTemplateId: str
-    questionType: str
-    questionIndex: int
+    questionType: QuestionTypeEnum
+    order: int
     questionText: str = ""
     categoryIndex: Optional[int] = None
     required: bool
@@ -86,10 +71,8 @@ class QuestionResponse(CradleBaseModel):
     allowFutureDates: bool
     allowPastDates: bool
     visibleCondition: List[Any] = []
-    mcOptions: List[Any] = []
+    mcOptions: List[str] = []
     langVersions: List[LangVersionResponse]
-    isBlank: bool = True
-    answers: dict = {}
 
 
 class ClassificationResponse(CradleBaseModel):
@@ -100,7 +83,7 @@ class ClassificationResponse(CradleBaseModel):
 class FormTemplateResponse(CradleBaseModel):
     id: str
     archived: bool
-    classification: ClassificationResponse
+    # classification: ClassificationResponse
     formClassificationId: str
     dateCreated: int
     version: str

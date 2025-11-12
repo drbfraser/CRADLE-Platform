@@ -571,3 +571,55 @@ def getCsvFromFormTemplateV2(form_template: FormTemplateOrmV2) -> str:
             )
 
     return list_to_csv(rows)
+
+
+def resolve_string_text(string_id: str, lang: str = "English") -> str | None:
+    """
+    Resolve the string name by looking up the the string_id and lang.
+
+    :param string_id: String id to look up the text
+    :param lang: Language for translation
+    :return: Translated name or None if not found
+    """
+    translation = crud.read(LangVersionOrmV2, string_id=string_id, lang=lang)
+
+    return translation.text if translation else None
+
+
+def _get_and_remove_string_id(q: dict) -> str | None:
+    """Extract and remove the question string ID, if present."""
+    if "question_string_id" in q:
+        return q.pop("question_string_id")
+    return None
+
+
+def _get_mc_list(q: dict) -> list[str]:
+    """Get the multiple-choice options list (if present)."""
+    if "mc_options" in q:
+        return q["mc_options"]
+    return []
+
+
+def format_template(template: dict, lang: str = "English") -> dict:
+    """Format a marshalled form template into a single-language version."""
+    if not template:
+        return {}
+    questions = template.get("questions", [])
+    formatted_questions = []
+
+    for q in questions:
+        string_id = _get_and_remove_string_id(q)
+        if string_id:
+            q["question_text"] = resolve_string_text(string_id, lang)
+
+        if q["question_type"] in (
+            QuestionTypeEnum.MULTIPLE_CHOICE.value,
+            QuestionTypeEnum.MULTIPLE_SELECT.value,
+        ):
+            options = _get_mc_list(q)
+            q["mc_options"] = [resolve_string_text(opt, lang) for opt in options]
+
+        formatted_questions.append(q)
+
+    template["questions"] = formatted_questions
+    return template
