@@ -1,4 +1,5 @@
 from common.form_utils import filter_template_questions_orm
+from data import db_session
 from models import FormClassificationOrm, FormOrm, FormTemplateOrm
 
 from .questions import (
@@ -6,7 +7,7 @@ from .questions import (
     marshal_question_to_single_version,
     unmarshal_question_list,
 )
-from .utils import __load, __pre_process, _no_autoflush_ctx
+from .utils import __load, __pre_process
 
 
 def __marshal_form_template(
@@ -121,7 +122,7 @@ def __unmarshal_form_template(d: dict) -> FormTemplateOrm:
     :param d: FormTemplate payload (may include a ``questions`` list).
     :return: ``FormTemplateOrm`` with questions attached.
     """
-    with _no_autoflush_ctx():
+    with db_session.no_autoflush:
         questions = []
         if d.get("questions") is not None:
             questions = unmarshal_question_list(d["questions"])

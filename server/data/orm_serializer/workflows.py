@@ -1,3 +1,4 @@
+from data import db_session
 from models import (
     RuleGroupOrm,
     WorkflowClassificationOrm,
@@ -15,7 +16,7 @@ from .forms import (
     __unmarshal_form,
     __unmarshal_form_template,
 )
-from .utils import __load, __pre_process, _no_autoflush_ctx
+from .utils import __load, __pre_process
 
 
 def __marshal_rule_group(rg: RuleGroupOrm) -> dict:
@@ -232,7 +233,7 @@ def __unmarshal_workflow_template(d: dict) -> WorkflowTemplateOrm:
     :param d: Workflow template payload dictionary.
     :return: ``WorkflowTemplateOrm`` with steps/classification set.
     """
-    with _no_autoflush_ctx():
+    with db_session.no_autoflush():
         steps = []
         classification = None
 

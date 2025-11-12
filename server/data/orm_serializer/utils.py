@@ -1,6 +1,4 @@
-import importlib
 from collections.abc import Mapping
-from contextlib import nullcontext
 from enum import Enum
 from typing import Any, Dict, List, Optional, Type
 
@@ -85,24 +83,3 @@ def model_to_dict(model: Any, schema) -> Optional[dict]:
     if isinstance(model, Mapping):  # Local database stub
         return model
     return schema().dump(model)
-
-
-def _no_autoflush_ctx():
-    """
-    Return a context manager that disables autoflush for the ORM session.
-
-    If the ORM session is not found, return a nullcontext that does nothing.
-
-    The context manager is used to prevent the ORM from automatically flushing
-    changes to the database when a model instance is loaded/unloaded.
-
-    :return: A context manager that disables autoflush for the ORM session.
-    :rtype: typing.ContextManager
-    """
-    try:
-        pkg = importlib.import_module("data.orm_serializer")
-        sess = getattr(pkg, "db_session", None)
-        ctx = getattr(sess, "no_autoflush", None)
-        return ctx if ctx is not None else nullcontext()
-    except Exception:
-        return nullcontext()
