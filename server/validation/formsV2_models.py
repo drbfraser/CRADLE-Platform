@@ -15,7 +15,6 @@ class FormTemplateV2Response(CradleBaseModel):
     archived: bool
     is_latest: bool
     date_created: int
-    questions: Optional[list] = None
 
 
 class FormTemplateListV2Response(CradleBaseModel):

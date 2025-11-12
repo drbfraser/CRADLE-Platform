@@ -40,7 +40,7 @@ def resolve_template_name(
     Resolve the template name by looking up the classification's name_string_id.
 
     :param template: Form template instance
-    :param lang: Language code for translation
+    :param lang: Language for translation
     :return: Translated name or None if not found
     """
     if not template.classification:
@@ -100,14 +100,14 @@ def get_languages_for_form_template_v2(path: FormTemplateIdPath) -> list[str]:
     classification = template.classification
 
     # Get all translations for this classification name
-    translations = (
-        crud.db_session.query(LangVersionOrmV2.lang)
-        .filter(LangVersionOrmV2.string_id == classification.name_string_id)
-        .distinct()
-        .all()
-    )
+    filters: dict = {}
 
-    return {"langVersions": [lang for (lang,) in translations]}
+    filters["string_id"] = classification.name_string_id
+
+    translations = crud.read_all(LangVersionOrmV2, **filters)
+    translations = [marshal.marshal(lang) for lang in translations]
+
+    return {"langVersions": [lang.get("lang") for lang in translations]}
 
 
 # /api/forms/templates/<string:form_template_id>/versions/<string:version>/csv
