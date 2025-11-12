@@ -20,28 +20,14 @@ import {
 import { FlowNode } from './FlowNode';
 import { ID } from 'src/shared/constants';
 
-// Constants
-const HORIZONTAL_SPACING = 450; // Space between nodes at the same level
+const HORIZONTAL_SPACING = 350; // Space between nodes at the same level
 const VERTICAL_SPACING = 180; // Space between each level (top to bottom)
-const EDGE_STYLE = {
-  stroke: '#9e9e9e',
-  strokeWidth: 2.5,
-};
-const ARROW_MARKER = {
-  type: 'arrowclosed' as const,
-  width: 20,
-  height: 20,
-  color: '#9e9e9e',
-};
 
 const nodeTypes: NodeTypes = {
   flowNode: FlowNode,
 };
 
-// Types
 type Position = { x: number; y: number };
-
-// Helper Functions
 
 /**
  * Calculate the deepest level for each node using DFS.
@@ -56,7 +42,7 @@ function calculateNodeLevels(
   const dfs = (stepId: string, level: number) => {
     const currentLevel = stepLevels.get(stepId);
     if (currentLevel !== undefined && currentLevel >= level) {
-      return; // Already visited via a longer or equal path
+      return;
     }
 
     stepLevels.set(stepId, level);
@@ -111,7 +97,7 @@ function positionLeafNodes(
 
 /**
  * Position parent nodes at the average X position of their children.
- * Works bottom-up from leaf nodes.
+ * bottom-up from leaf nodes.
  */
 function positionParentNodes(
   steps: WorkflowTemplateStepWithFormAndIndex[],
@@ -257,10 +243,18 @@ function createFlowEdges(
             id: `e-${step.id}-${branch.targetStepId}-${index}`,
             source: step.id,
             target: branch.targetStepId,
-            type: 'bezier',
+            type: 'default',
             animated: false,
-            style: EDGE_STYLE,
-            markerEnd: ARROW_MARKER,
+            style: {
+              stroke: '#9e9e9e',
+              strokeWidth: 2.5,
+            },
+            markerEnd: {
+              type: 'arrowclosed' as const,
+              width: 20,
+              height: 20,
+              color: '#9e9e9e',
+            },
           });
         }
       );
@@ -294,34 +288,20 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
-  /**
-   * Generate nodes and edges from workflow steps using DFS-based layout algorithm.
-   * Algorithm steps:
-   * 1. Calculate node levels (depth) with support for DAG (multiple parents)
-   * 2. Position leaf nodes horizontally in DFS order
-   * 3. Position parent nodes above their children (average X position)
-   * 4. Prevent overlaps and center each level
-   * 5. Create ReactFlow nodes and edges
-   */
   const { generatedNodes, generatedEdges } = useMemo(() => {
     if (!steps || steps.length === 0) {
       return { generatedNodes: [], generatedEdges: [] };
     }
 
-    // Step 1: Calculate levels for all nodes
     const stepLevels = calculateNodeLevels(steps, firstStepId);
 
-    // Step 2: Position leaf nodes
     const stepPositions = new Map<string, Position>();
     positionLeafNodes(steps, firstStepId, stepLevels, stepPositions);
 
-    // Step 3: Position parent nodes
     positionParentNodes(steps, firstStepId, stepLevels, stepPositions);
 
-    // Step 4: Prevent overlaps and center levels
     preventNodeOverlaps(stepLevels, stepPositions);
 
-    // Step 5: Create nodes and edges
     const nodes = createFlowNodes(
       steps,
       stepPositions,
@@ -350,10 +330,6 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
     setEdges(generatedEdges);
   }, [generatedNodes, generatedEdges, setNodes, setEdges]);
 
-  /**
-   * Validate if a connection between two nodes is allowed.
-   * Returns an error message if invalid, or null if valid.
-   */
   const validateConnection = useCallback(
     (sourceStepId: string, targetStepId: string): string | null => {
       // Find steps
@@ -379,7 +355,7 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
         return `Invalid connection: target node must be on a lower level. Source level: ${sourceLevel}, Target level: ${targetLevel}`;
       }
 
-      return null; // Valid connection
+      return null;
     },
     [steps, firstStepId]
   );
@@ -390,27 +366,22 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
   const onConnect = useCallback(
     (params: Connection) => {
       if (!isEditMode) {
-        console.warn('Connections are only allowed in edit mode');
         return;
       }
 
       if (!params.source || !params.target) {
-        console.warn('Invalid connection: missing source or target');
         return;
       }
 
       const error = validateConnection(params.source, params.target);
       if (error) {
-        console.warn(error);
         return;
       }
 
-      // Update data structure via callback
       if (onConnectionCreate) {
         onConnectionCreate(params.source, params.target);
       }
 
-      // Temporarily add the edge to the UI (will be updated when data refreshes)
       setEdges((eds: Edge[]) => addEdge(params, eds));
     },
     [isEditMode, validateConnection, onConnectionCreate, setEdges]

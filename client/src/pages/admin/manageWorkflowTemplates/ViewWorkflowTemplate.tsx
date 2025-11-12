@@ -60,7 +60,6 @@ export const ViewWorkflowTemplate = () => {
       const result = await getTemplateWithStepsAndClassification(
         viewWorkflow.id
       );
-      console.log('Workflow Template GET Response:', result);
       return result;
     },
     enabled: !!viewWorkflow?.id,
@@ -118,7 +117,6 @@ export const ViewWorkflowTemplate = () => {
       // Redirect to workflow templates page after successful save
       navigate('/admin/workflow-templates');
     } catch (error: any) {
-      console.error('Error saving workflow template:', error);
       return;
     }
   };
@@ -160,7 +158,6 @@ export const ViewWorkflowTemplate = () => {
     // Get the current step
     const currentStep = editedWorkflow.steps.find((s) => s.id === stepId);
     if (!currentStep) {
-      console.error('Step not found:', stepId);
       return;
     }
 
@@ -220,7 +217,6 @@ export const ViewWorkflowTemplate = () => {
     });
 
     setHasChanges(true);
-    console.log(`Inserted new node (${newStepId}) after step (${stepId})`);
 
     // Auto-select the newly created step
     setSelectedStepId(newStepId);
@@ -232,7 +228,6 @@ export const ViewWorkflowTemplate = () => {
     // Get the current step
     const currentStep = editedWorkflow.steps.find((s) => s.id === stepId);
     if (!currentStep) {
-      console.error('Step not found:', stepId);
       return;
     }
 
@@ -284,9 +279,6 @@ export const ViewWorkflowTemplate = () => {
     });
 
     setHasChanges(true);
-    console.log(
-      `Added new branch to step (${stepId}) with target (${newStepId})`
-    );
 
     // Auto-select the newly created step
     setSelectedStepId(newStepId);
@@ -301,7 +293,6 @@ export const ViewWorkflowTemplate = () => {
     // Find the source step
     const sourceStep = editedWorkflow.steps.find((s) => s.id === sourceStepId);
     if (!sourceStep) {
-      console.error('Source step not found:', sourceStepId);
       return;
     }
 
@@ -335,9 +326,6 @@ export const ViewWorkflowTemplate = () => {
     });
 
     setHasChanges(true);
-    console.log(
-      `Created connection from step (${sourceStepId}) to step (${targetStepId})`
-    );
   };
 
   const currentWorkflow = isEditMode
