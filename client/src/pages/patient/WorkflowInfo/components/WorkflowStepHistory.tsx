@@ -44,7 +44,7 @@ interface IProps {
   handleCloseFormModal: () => void;
   formModalState: FormModalState;
   onRefetchForm: () => void;
-  handleDeleteForm: () => Promise<boolean>;
+  handleArchiveForm: () => Promise<boolean>;
   currentStep: InstanceStep | null;
   showSnackbar: (message: string, severity: SnackbarSeverity) => void;
 }
@@ -61,17 +61,15 @@ export default function WorkflowStepHistory({
   handleCloseFormModal,
   formModalState,
   onRefetchForm,
-  handleDeleteForm,
+  handleArchiveForm,
   currentStep,
   showSnackbar,
 }: IProps) {
   const handleViewForm = (stepId: string) => {
-    console.log('View form for step:', stepId);
     handleOpenFormModal(FormRenderStateEnum.VIEW);
   };
 
   const handleEditForm = (stepId: string) => {
-    console.log('Edit form for step:', stepId);
     handleOpenFormModal(FormRenderStateEnum.EDIT);
   };
 
@@ -82,7 +80,7 @@ export default function WorkflowStepHistory({
       message:
         'Are you sure you want to discard the submitted form? This action cannot be undone.',
       onConfirm: async () => {
-        const result = await handleDeleteForm();
+        const result = await handleArchiveForm();
 
         if (result) {
           showSnackbar(
@@ -101,10 +99,10 @@ export default function WorkflowStepHistory({
   };
 
   const handleCompleteNow = () => {
-    console.log('Complete now for current step');
     handleOpenFormModal(FormRenderStateEnum.FIRST_SUBMIT);
   };
 
+  // TODO
   const handleChangeExpectedCompletion = (stepId: string, date: string) => {
     console.log('Change expected completion for step:', stepId, 'to:', date);
   };

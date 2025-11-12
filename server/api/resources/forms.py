@@ -1,6 +1,6 @@
 import json
 
-from flask import Response, abort
+from flask import abort
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
@@ -114,16 +114,3 @@ def update_form(path: FormIdPath, body: UpdateFormRequestBody):
     crud.db_session.refresh(form)
 
     return marshal.marshal(form, True), 201
-
-
-# /api/forms/responses/<string:form_id> [DELETE]
-@api_form_submissions.delete("/<string:form_id>")
-def delete_form(path: FormIdPath):
-    """Delete Form"""
-    form = crud.read(FormOrm, id=path.form_id)
-    if form is None:
-        return abort(404, description=f"No form with ID: {path.form_id}.")
-
-    crud.delete(form)
-
-    return Response(status=200)

@@ -17,7 +17,7 @@ import { WorkflowMetadata } from 'src/shared/components/workflow/workflowTemplat
 import { Tooltip, IconButton } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { deleteFormResponseAsync } from 'src/shared/api';
+import { archiveInstanceStepForm } from 'src/shared/api';
 import WorkflowStatus from './components/WorkflowStatus';
 import WorkflowStepHistory from './components/WorkflowStepHistory';
 import WorkflowPossibleSteps from './components/WorkflowPossibleSteps';
@@ -72,7 +72,7 @@ export default function WorkflowInstanceDetailsPage() {
     []
   );
 
-  const handleDeleteForm = async () => {
+  const handleArchiveForm = async () => {
     try {
       if (!currentStep) {
         console.error('Error deleting form (no current step)');
@@ -84,7 +84,7 @@ export default function WorkflowInstanceDetailsPage() {
         return false;
       }
 
-      await deleteFormResponseAsync(currentStep.formId);
+      await archiveInstanceStepForm(currentStep.id);
       console.log('Discarded form for current step successfully.');
       reload();
       setConfirmDialog((prev) => ({ ...prev, open: false }));
@@ -214,7 +214,7 @@ export default function WorkflowInstanceDetailsPage() {
               handleCloseFormModal={handleCloseFormModal}
               formModalState={formModalState}
               onRefetchForm={onRefetchForm}
-              handleDeleteForm={handleDeleteForm}
+              handleArchiveForm={handleArchiveForm}
               currentStep={currentStep}
               showSnackbar={showSnackbar}
             />

@@ -23,9 +23,11 @@ export const getFormResponseAsync = async (formId: string): Promise<CForm> => {
   return response.data;
 };
 
-export const deleteFormResponseAsync = async (
+export const archiveFormResponseAsync = async (
   formId: string
 ): Promise<CForm> => {
-  const response = await axiosFetch.delete(EndpointEnum.FORM + `/${formId}`);
+  const response = await axiosFetch.put(
+    EndpointEnum.FORM + `/${formId}/archive`
+  );
   return response.data;
 };

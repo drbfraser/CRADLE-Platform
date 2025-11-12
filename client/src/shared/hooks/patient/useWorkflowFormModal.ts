@@ -39,7 +39,7 @@ export function useWorkflowFormModal(
           const formTemplateId = currentStep.formTemplateId;
           const formTemplate = await getFormTemplateLangAsync(
             formTemplateId,
-            'English'
+            'English' // TODO: To be updated based on user selected language
           );
           setFormModalState({
             open: true,

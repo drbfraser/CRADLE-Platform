@@ -231,3 +231,9 @@ export const completeInstanceStep = (stepId: ID) =>
 // DELETE /workflow/instance/steps/{stepId}
 export const deleteInstanceStepById = (stepId: ID) =>
   axiosFetch.delete(`${INSTANCE_STEPS}/${stepId}`);
+
+// PATCH /workflow/instance/steps/{stepId}/archive_form
+export const archiveInstanceStepForm = (stepId: ID) =>
+  axiosFetch
+    .patch<WorkflowInstanceStep>(`${INSTANCE_STEPS}/${stepId}/archive_form`)
+    .then((r) => r.data);
