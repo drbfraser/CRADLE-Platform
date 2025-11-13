@@ -2,6 +2,9 @@ from typing import Any, List, Optional
 
 from pydantic import Field
 
+from common.api_utils import (
+    FormTemplateIdPath,
+)
 from enums import QuestionTypeEnum
 from validation import CradleBaseModel
 
@@ -21,15 +24,6 @@ class FormTemplateListV2Response(CradleBaseModel):
     """Response model for list of form templates V2"""
 
     templates: list[FormTemplateV2Response]
-
-
-class FormClassificationV2Response(CradleBaseModel):
-    """Response model for form classification V2"""
-
-    id: str
-    name_string_id: str
-    name: Optional[str] = None
-    templates: Optional[list[FormTemplateV2Response]] = None
 
 
 class GetAllFormTemplatesV2Query(CradleBaseModel):
@@ -75,7 +69,7 @@ class QuestionResponse(CradleBaseModel):
     langVersions: List[LangVersionResponse]
 
 
-class ClassificationResponse(CradleBaseModel):
+class FormClassification(CradleBaseModel):
     id: str
     name: str
 
@@ -83,8 +77,11 @@ class ClassificationResponse(CradleBaseModel):
 class FormTemplateResponse(CradleBaseModel):
     id: str
     archived: bool
-    # classification: ClassificationResponse
-    formClassificationId: str
+    classification: FormClassification
     dateCreated: int
     version: str
     questions: List[QuestionResponse]
+
+
+class FormTemplateVersionPath(FormTemplateIdPath):
+    version: str = Field(..., description="Form Template version.")

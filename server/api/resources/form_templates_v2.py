@@ -1,9 +1,6 @@
-from typing import Optional
-
 from flask import abort, make_response
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
-from pydantic import Field
 
 import data.db_operations as crud
 from common import form_utils
@@ -15,11 +12,12 @@ from models import (
     FormTemplateOrmV2,
     LangVersionOrmV2,
 )
-from validation import CradleBaseModel
 from validation.formsV2_models import (
     FormTemplateListV2Response,
     FormTemplateResponse,
+    FormTemplateVersionPath,
     GetAllFormTemplatesV2Query,
+    GetFormTemplateV2Query,
 )
 
 api_form_templates_v2 = APIBlueprint(
@@ -62,13 +60,9 @@ def get_all_form_templates_v2(query: GetAllFormTemplatesV2Query):
     return templates_list
 
 
-class GetFormTemplateQuery(CradleBaseModel):
-    lang: Optional[str] = None
-
-
-# /api/forms/v2/templates/<string:form_template_id>/versions [GET]
+# /api/forms/v2/templates/<string:form_template_id>/languages [GET]
 @api_form_templates_v2.get(
-    "<string:form_template_id>/versions", responses={200: FormTemplateListV2Response}
+    "<string:form_template_id>/languages", responses={200: FormTemplateListV2Response}
 )
 def get_languages_for_form_template_v2(path: FormTemplateIdPath) -> list[str]:
     """
@@ -90,11 +84,6 @@ def get_languages_for_form_template_v2(path: FormTemplateIdPath) -> list[str]:
     translations = [marshal.marshal(lang) for lang in translations]
 
     return {"langVersions": [lang.get("lang") for lang in translations]}
-
-
-# /api/forms/templates/<string:form_template_id>/versions/<string:version>/csv
-class FormTemplateVersionPath(FormTemplateIdPath):
-    version: str = Field(..., description="Form Template version.")
 
 
 # /api/forms/v2/templates/<string:form_template_id>/versions/<string:version>/csv [GET]
@@ -129,7 +118,7 @@ def get_form_template_version_as_csv_v2(path: FormTemplateVersionPath):
 @api_form_templates_v2.get(
     "/<string:form_template_id>", responses={200: FormTemplateResponse}
 )
-def get_form_template_v2(path: FormTemplateIdPath, query: GetFormTemplateQuery):
+def get_form_template_v2(path: FormTemplateIdPath, query: GetFormTemplateV2Query):
     """Get a single-language or full form template (V2)"""
     form_template = crud.read(FormTemplateOrmV2, id=path.form_template_id)
     if form_template is None:

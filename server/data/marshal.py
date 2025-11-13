@@ -1347,9 +1347,13 @@ def __marshal_form_template_v2(
     d = vars(ft).copy()
     __pre_process(d)
 
-    # Remove relationship object
-    if d.get("classification"):
-        del d["classification"]
+    if ft.classification:
+        d["classification"] = {
+            "id": ft.classification.id,
+            "name_string_id": ft.classification.name_string_id,
+        }
+    else:
+        d["classification"] = None
 
     if shallow:
         if d.get("questions"):

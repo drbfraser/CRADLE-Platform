@@ -607,6 +607,17 @@ def format_template(template: dict, lang: str = "English") -> dict:
     questions = template.get("questions", [])
     formatted_questions = []
 
+    # Resolve classification name
+    classification = template.get("classification")
+    if classification and classification.get("name_string_id"):
+        classification["name"] = resolve_string_text(
+            classification["name_string_id"], lang
+        )
+        classification.pop("name_string_id", None)
+
+    if template.get("form_classification_id"):
+        template.pop("form_classification_id", None)
+
     for q in questions:
         string_id = _get_and_remove_string_id(q)
         if string_id:
