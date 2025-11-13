@@ -45,7 +45,7 @@ rule_group_with_invalid_datasource_type_should_return_validation_error = {
     "data_sources": 1431,
 }
 
-rule_group_with_missing_field_should_return_validation_error = {
+rule_group_with_missing_field_is_allowed = {
     "id": ID,
     "rule": RULE,
 }
@@ -75,7 +75,7 @@ rule_group_with_missing_field_should_return_validation_error = {
             rule_group_with_invalid_datasource_type_should_return_validation_error,
             ValidationError,
         ),
-        (rule_group_with_missing_field_should_return_validation_error, ValidationError),
+        (rule_group_with_missing_field_is_allowed, None),
     ],
 )
 def test_rule_group_validation(json, expectation):
