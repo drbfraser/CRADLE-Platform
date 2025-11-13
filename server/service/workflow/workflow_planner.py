@@ -5,7 +5,11 @@ from service.workflow.workflow_errors import InvalidWorkflowActionError
 from service.workflow.workflow_operations import (
     UpdateCurrentStepOp,
     UpdateStepStatusOp,
+    UpdateWorkflowCompletionDate,
+    UpdateWorkflowStartDate,
     UpdateWorkflowStatusOp,
+    UpdateWorkflowStepCompletionDate,
+    UpdateWorkflowStepStartDate,
     WorkflowOp,
 )
 from service.workflow.workflow_view import WorkflowView
@@ -101,16 +105,22 @@ class WorkflowPlanner:
                 UpdateWorkflowStatusOp(WorkflowStatusEnum.ACTIVE),
                 UpdateCurrentStepOp(starting_step.id),
                 UpdateStepStatusOp(starting_step.id, WorkflowStepStatusEnum.ACTIVE),
+                UpdateWorkflowStartDate(),
+                UpdateWorkflowStepStartDate(starting_step.id),
             ]
 
         if isinstance(action, StartStepActionModel):
             return [
                 UpdateCurrentStepOp(new_current_step_id=action.step_id),
                 UpdateStepStatusOp(action.step_id, WorkflowStepStatusEnum.ACTIVE),
+                UpdateWorkflowStepStartDate(action.step_id),
             ]
 
         if isinstance(action, CompleteStepActionModel):
-            ops = [UpdateStepStatusOp(action.step_id, WorkflowStepStatusEnum.COMPLETED)]
+            ops = [
+                UpdateStepStatusOp(action.step_id, WorkflowStepStatusEnum.COMPLETED),
+                UpdateWorkflowStepCompletionDate(action.step_id),
+            ]
 
             step = ctx.get_instance_step(action.step_id)
 
@@ -119,6 +129,7 @@ class WorkflowPlanner:
                     [
                         UpdateCurrentStepOp(new_current_step_id=None),
                         UpdateWorkflowStatusOp(WorkflowStatusEnum.COMPLETED),
+                        UpdateWorkflowCompletionDate(),
                     ]
                 )
 

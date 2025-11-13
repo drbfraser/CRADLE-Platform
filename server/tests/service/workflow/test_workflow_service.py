@@ -2,7 +2,12 @@ import pytest
 
 from service.workflow.workflow_errors import InvalidWorkflowActionError
 from service.workflow.workflow_service import WorkflowService
-from tests.helpers import get_uuid, make_workflow_template, make_workflow_template_step
+from tests.helpers import (
+    assert_is_recent_timestamp,
+    get_uuid,
+    make_workflow_template,
+    make_workflow_template_step,
+)
 from validation.workflow_models import (
     CompleteStepActionModel,
     StartStepActionModel,
@@ -82,6 +87,13 @@ def test_workflow_service__sequential_workflow_happy_path(sequential_workflow_vi
     assert workflow_view.get_instance_step("si-1").status == "Pending"
     assert workflow_view.get_instance_step("si-2").status == "Pending"
 
+    assert workflow_view.instance.start_date is None
+    assert workflow_view.instance.completion_date is None
+    assert workflow_view.get_instance_step("si-1").start_date is None
+    assert workflow_view.get_instance_step("si-2").start_date is None
+    assert workflow_view.get_instance_step("si-1").completion_date is None
+    assert workflow_view.get_instance_step("si-2").completion_date is None
+
     actions = WorkflowService.get_available_workflow_actions(
         workflow_instance=workflow_view.instance,
         workflow_template=workflow_view.template,
@@ -99,6 +111,9 @@ def test_workflow_service__sequential_workflow_happy_path(sequential_workflow_vi
     assert workflow_view.instance.current_step_id == "si-1"
     assert workflow_view.get_instance_step("si-1").status == "Active"
     assert workflow_view.get_instance_step("si-2").status == "Pending"
+
+    assert_is_recent_timestamp(workflow_view.instance.start_date)
+    assert_is_recent_timestamp(workflow_view.get_instance_step("si-1").start_date)
 
     actions = WorkflowService.get_available_workflow_actions(
         workflow_instance=workflow_view.instance,
@@ -118,6 +133,8 @@ def test_workflow_service__sequential_workflow_happy_path(sequential_workflow_vi
     assert workflow_view.get_instance_step("si-1").status == "Completed"
     assert workflow_view.get_instance_step("si-2").status == "Pending"
 
+    assert_is_recent_timestamp(workflow_view.get_instance_step("si-1").completion_date)
+
     actions = WorkflowService.get_available_workflow_actions(
         workflow_instance=workflow_view.instance,
         workflow_template=workflow_view.template,
@@ -136,6 +153,8 @@ def test_workflow_service__sequential_workflow_happy_path(sequential_workflow_vi
     assert workflow_view.get_instance_step("si-1").status == "Completed"
     assert workflow_view.get_instance_step("si-2").status == "Active"
 
+    assert_is_recent_timestamp(workflow_view.get_instance_step("si-2").start_date)
+
     actions = WorkflowService.get_available_workflow_actions(
         workflow_instance=workflow_view.instance,
         workflow_template=workflow_view.template,
@@ -153,6 +172,9 @@ def test_workflow_service__sequential_workflow_happy_path(sequential_workflow_vi
     assert workflow_view.instance.current_step_id is None
     assert workflow_view.get_instance_step("si-1").status == "Completed"
     assert workflow_view.get_instance_step("si-2").status == "Completed"
+
+    assert_is_recent_timestamp(workflow_view.get_instance_step("si-2").completion_date)
+    assert_is_recent_timestamp(workflow_view.instance.completion_date)
 
     actions = WorkflowService.get_available_workflow_actions(
         workflow_instance=workflow_view.instance,

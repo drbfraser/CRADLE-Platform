@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from data.marshal import unmarshal
@@ -21,11 +23,11 @@ def __create_patient_payload(
     date_created: int = 111,
     last_edited: int = 222,
     is_archived: bool = False,
-    readings: list = None,
-    referrals: list = None,
-    assessments: list = None,
-    forms: list = None,
-    base: int = None,
+    readings: list | None = None,
+    referrals: list | None = None,
+    assessments: list | None = None,
+    forms: list | None = None,
+    base: int | None = None,
     **extra: Any,
 ) -> dict:
     """Create a patient payload suitable for unmarshaling."""
@@ -47,34 +49,43 @@ def __create_patient_payload(
         "is_archived": is_archived,
     }
 
-    if readings:
+    if readings is not None:
         payload["readings"] = readings
-    if referrals:
+    if referrals is not None:
         payload["referrals"] = referrals
-    if assessments:
+    if assessments is not None:
         payload["assessments"] = assessments
-    if forms:
+    if forms is not None:
         payload["forms"] = forms
-    if base:
+    if base is not None:
         payload["base"] = base
 
     payload.update(extra)
-
     return payload
 
 
 def test_unmarshal_patient_strips_base_and_preserves_scalars():
-    # Base is stripped
+    """
+    Test that unmarshaling a PatientOrm strips out "base" and preserves scalar values.
+    """
     payload = __create_patient_payload(base=222)
 
     patient = unmarshal(PatientOrm, payload)
     assert patient.id == "p-001"
     assert patient.name == "Mary Brown"
     assert patient.zone == "1"
-    assert not hasattr(patient, "base")  # stripped
+    # Column exists on the model; value should be stripped out to None
+    assert getattr(patient, "drug_history", None) is None
+    assert getattr(patient, "medical_history", None) is None
+    # and "base" is not a column—shouldn't survive
+    assert not hasattr(patient, "base")
 
 
 def test_unmarshal_patient_moves_histories_into_records_and_removes_original_fields():
+    """
+    Test that unmarshaling a PatientOrm moves drug_history and medical_history
+    into a list of MedicalRecordOrms and removes the original fields.
+    """
     payload = __create_patient_payload(
         id="p-002",
         medical_history="Asthma",
@@ -82,11 +93,11 @@ def test_unmarshal_patient_moves_histories_into_records_and_removes_original_fie
     )
     patient = unmarshal(PatientOrm, payload)
 
-    # Original fields removed
-    assert not hasattr(patient, "drug_history")
-    assert not hasattr(patient, "medical_history")
+    # Columns still exist; values should be cleared
+    assert getattr(patient, "drug_history", None) is None
+    assert getattr(patient, "medical_history", None) is None
 
-    # Converted into MedicalRecordOrm-like objects on .records
+    # Records created correctly
     assert hasattr(patient, "records") and len(patient.records) == 2
     info = {(r.is_drug_record, r.information, r.patient_id) for r in patient.records}
     assert (True, "Labetalol 300mg", "p-002") in info
@@ -94,6 +105,11 @@ def test_unmarshal_patient_moves_histories_into_records_and_removes_original_fie
 
 
 def test_unmarshal_patient_derives_pregnancy_and_cleans_flags():
+    """
+    Test that unmarshaling a PatientOrm derives a PregnancyOrm from
+    the is_pregnant and pregnancy_start_date fields, and removes the original
+    fields.
+    """
     payload = __create_patient_payload(
         id="p-003", is_pregnant=True, pregnancy_start_date=1725148800
     )
@@ -103,11 +119,17 @@ def test_unmarshal_patient_derives_pregnancy_and_cleans_flags():
     p = patient.pregnancies[0]
     assert p.patient_id == "p-003"
     assert p.start_date == 1725148800
-    assert not hasattr(patient, "is_pregnant")
+    # Column exists; value should be cleared
+    assert getattr(patient, "is_pregnant", None) is None
+    # not a column; must be gone
     assert not hasattr(patient, "pregnancy_start_date")
 
 
 def test_unmarshal_patient_ignores_empty_relationship_lists():
+    """
+    Test that unmarshaling a PatientOrm does not set empty relationship lists to None,
+    but instead sets them to empty lists.
+    """
     payload = __create_patient_payload(
         id="p-004",
         sex="FEMALE",
@@ -117,27 +139,51 @@ def test_unmarshal_patient_ignores_empty_relationship_lists():
     )
     patient = unmarshal(PatientOrm, payload)
 
-    # Nothing should be attached when effectively empty
-    assert not hasattr(patient, "referrals")
-    assert not hasattr(patient, "assessments")
-    assert not hasattr(patient, "forms")
+    # Relationships exist on ORM; they should be empty, not missing
+    assert not patient.referrals
+    assert not patient.assessments
+    assert not patient.forms
 
 
 def test_unmarshal_patient_relationship_lists_are_unmarshaled():
+    """
+    Test that unmarshaling a PatientOrm with non-empty relationship lists results in
+    an object with the same number of elements in the relationship lists.
+    """
     payload = __create_patient_payload(
         id="p-005",
         sex="FEMALE",
-        referrals=[{"id": "r-001"}, {"id": "r-002"}],
-        assessments=[{"id": "a-001"}, {"id": "a-002"}],
-        forms=[{"id": "f-001"}, {"id": "f-002"}],
+        referrals=[
+            {"id": "r-001", "patient_id": "p-005"},
+            {"id": "r-002", "patient_id": "p-005"},
+        ],
+        assessments=[
+            {
+                "id": "a-001",
+                "patient_id": "p-005",
+                "healthcare_worker_id": 1,
+                "date_assessed": 111,
+            },
+            {
+                "id": "a-002",
+                "patient_id": "p-005",
+                "healthcare_worker_id": 2,
+                "date_assessed": 112,
+            },
+        ],
+        forms=[
+            {"id": "f-001", "patient_id": "p-005", "lang": "en"},
+            {"id": "f-002", "patient_id": "p-005", "lang": "en"},
+        ],
         readings=[
-            {"symptoms": {"id": "s-001"}, "id": "r-001"},
-            {"symptoms": {"id": "s-002"}, "id": "r-002"},
+            {"id": "rd-001", "patient_id": "p-005", "symptoms": ["dizzy"]},
+            {"id": "rd-002", "patient_id": "p-005", "symptoms": ["nausea", "headache"]},
         ],
     )
+
     patient = unmarshal(PatientOrm, payload)
 
-    assert len(patient.referrals) == 2
-    assert len(patient.assessments) == 2
-    assert len(patient.forms) == 2
-    assert len(patient.readings) == 2
+    assert len(getattr(patient, "referrals", [])) == 2
+    assert len(getattr(patient, "assessments", [])) == 2
+    assert len(getattr(patient, "forms", [])) == 2
+    assert len(getattr(patient, "readings", [])) == 2

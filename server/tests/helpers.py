@@ -5,6 +5,16 @@ TIMESTAMP_TOMORROW = get_current_time() + 86400
 TIMESTAMP_YESTERDAY = get_current_time() - 86400
 
 
+def assert_is_recent_timestamp(timestamp: int):
+    """
+    Assert that the given timestamp is a time roughly around 'now'.
+    Useful in tests to verify that a timestamp field is being set to the current time.
+    """
+    assert (
+        TIMESTAMP_YESTERDAY < timestamp < TIMESTAMP_TOMORROW
+    ), f"Expected timestamp near 'now', but got {timestamp}"
+
+
 def make_workflow_template(**overrides):
     base = {
         "id": get_uuid(),
