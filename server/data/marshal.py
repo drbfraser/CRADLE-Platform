@@ -58,8 +58,6 @@ def marshal(obj: Any, shallow: bool = False, if_include_versions: bool = False) 
     """
     if isinstance(obj, LangVersionOrmV2):
         return __marshal_lang_version_v2(obj)
-    if isinstance(obj, FormClassificationOrmV2):
-        return __marshal_form_classification_v2(obj, if_include_versions)
     if isinstance(obj, FormTemplateOrmV2):
         return __marshal_form_template_v2(obj, shallow)
     if isinstance(obj, FormQuestionTemplateOrmV2):
@@ -1307,29 +1305,6 @@ def __marshal_lang_version_v2(lv: LangVersionOrmV2) -> dict:
     """
     d = vars(lv).copy()
     __pre_process(d)
-    return d
-
-
-def __marshal_form_classification_v2(
-    fc: FormClassificationOrmV2,
-    if_include_templates: bool = False,
-) -> dict:
-    """
-    Serialize a ``FormClassificationOrmV2``; optionally embed its templates.
-
-    :param fc: Form classification V2 instance to serialize.
-    :param if_include_templates: If ``True``, include serialized templates.
-    :return: Classification dictionary with name_string_id.
-    """
-    d = vars(fc).copy()
-    __pre_process(d)
-
-    if d.get("templates") is not None:
-        del d["templates"]
-
-    if if_include_templates:
-        d["templates"] = [__marshal_form_template_v2(t) for t in fc.templates]
-
     return d
 
 

@@ -4,7 +4,9 @@ from __future__ import annotations
 from data import marshal as m
 from models import (
     FormClassificationOrm,
+    FormClassificationOrmV2,
     FormTemplateOrm,
+    FormTemplateOrmV2,
     QuestionLangVersionOrm,
     QuestionOrm,
 )
@@ -311,3 +313,248 @@ def test_form_template_type_sanity_and_core_fields():
         and marshalled["classification"]["id"] == "fc-55"
     )
     assert "questions" not in marshalled
+
+
+def make_form_classification_v2(
+    *,
+    id_="fc-v2-1",
+    name_string_id="str-uuid-fc-1",
+):
+    """
+    Construct a minimal FormClassificationOrmV2 instance.
+
+    :param id_: ID of the form classification.
+    :param name_string_id: UUID referencing the translation for the classification name.
+    :return: Minimal FormClassificationOrmV2 instance.
+    """
+    classification = FormClassificationOrmV2()
+    classification.id = id_
+    classification.name_string_id = name_string_id
+    return classification
+
+
+def make_form_template_v2(
+    *,
+    id_="ft-v2-1",
+    form_classification_id="fc-v2-1",
+    version=1,
+    archived=False,
+    date_created=1700000000,
+    classification=None,
+):
+    """
+    Construct a minimal FormTemplateOrmV2 instance.
+
+    :param id_: ID of the form template.
+    :param form_classification_id: Foreign key to the classification.
+    :param version: Integer version number.
+    :param archived: Whether the template is archived.
+    :param date_created: Timestamp when the template was created.
+    :param classification: FormClassificationOrmV2 instance (for testing relationships).
+    :return: Minimal FormTemplateOrmV2 instance.
+    """
+    template = FormTemplateOrmV2()
+    template.id = id_
+    template.form_classification_id = form_classification_id
+    template.version = version
+    template.archived = archived
+    template.date_created = date_created
+    if classification is not None:
+        template.classification = classification
+    # initialize empty questions list to avoid relationship issues
+    template.__dict__["questions"] = []
+    return template
+
+
+def test_form_template_v2_marshal_shallow_omits_questions():
+    """
+    Shallow marshal should omit nested 'questions' field.
+    """
+    classification = make_form_classification_v2(
+        id_="fc-v2-11", name_string_id="str-uuid-name"
+    )
+    template = make_form_template_v2(
+        id_="ft-v2-9",
+        version=3,
+        date_created=1700000000,
+        archived=True,
+        classification=classification,
+    )
+    # Add some mock questions to verify they're omitted
+    template.__dict__["questions"] = [{"id": "q-1"}, {"id": "q-2"}]
+
+    marshalled = m.marshal(template, shallow=True)
+
+    assert "questions" not in marshalled
+
+
+def test_form_template_v2_marshal_shallow_includes_core_fields():
+    """
+    Shallow marshal should include all core scalar fields.
+    """
+    classification = make_form_classification_v2(
+        id_="fc-v2-11", name_string_id="str-uuid-name"
+    )
+    template = make_form_template_v2(
+        id_="ft-v2-9",
+        version=3,
+        date_created=1700000000,
+        archived=True,
+        classification=classification,
+    )
+
+    marshalled = m.marshal(template, shallow=True)
+
+    assert marshalled["id"] == "ft-v2-9"
+    assert marshalled["version"] == 3
+    assert marshalled["date_created"] == 1700000000
+    assert marshalled["archived"] is True
+    assert marshalled["form_classification_id"] == "fc-v2-1"
+
+
+def test_form_template_v2_marshal_shallow_embeds_classification():
+    """
+    Shallow marshal should include a compact classification dict.
+    """
+    classification = make_form_classification_v2(
+        id_="fc-v2-embed", name_string_id="str-uuid-embedded"
+    )
+    template = make_form_template_v2(
+        id_="ft-v2-embed",
+        classification=classification,
+    )
+
+    marshalled = m.marshal(template, shallow=True)
+
+    assert "classification" in marshalled
+    assert isinstance(marshalled["classification"], dict)
+    assert marshalled["classification"]["id"] == "fc-v2-embed"
+    assert marshalled["classification"]["name_string_id"] == "str-uuid-embedded"
+
+
+def test_form_template_v2_marshal_handles_null_classification():
+    """
+    Marshal should handle templates with no classification gracefully.
+    """
+    template = make_form_template_v2(
+        id_="ft-v2-null-class",
+        classification=None,
+    )
+
+    marshalled = m.marshal(template, shallow=True)
+
+    assert marshalled["classification"] is None
+
+
+def test_form_template_v2_marshal_strips_private_attributes():
+    """
+    Marshal must not leak private attrs from template or classification.
+    """
+    classification = make_form_classification_v2(id_="fc-v2-33")
+    template = make_form_template_v2(
+        id_="ft-v2-secret",
+        classification=classification,
+    )
+
+    template._secret = "test"
+    classification._hidden = True
+
+    before_template = template._secret
+    before_classification = classification._hidden
+
+    marshalled = m.marshal(template, shallow=True)
+
+    assert "_secret" not in marshalled
+    assert "_hidden" not in marshalled.get("classification", {})
+
+    assert template._secret == before_template
+    assert classification._hidden == before_classification
+
+
+def test_form_template_v2_marshal_classification_does_not_expand_templates():
+    """
+    Classification payload should not include 'templates' backref.
+    """
+    classification = make_form_classification_v2(id_="fc-v2-44")
+    template = make_form_template_v2(
+        id_="ft-v2-44",
+        classification=classification,
+    )
+
+    marshalled = m.marshal(template, shallow=True)
+
+    assert "templates" not in marshalled["classification"]
+
+
+def test_form_template_v2_marshal_preserves_field_types():
+    """
+    Marshal form template should preserve core scalar fields with correct types.
+    """
+    template = make_form_template_v2(
+        id_="ft-v2-types",
+        version=5,
+        date_created=1700000001,
+        archived=False,
+        classification=make_form_classification_v2(id_="fc-v2-55"),
+    )
+
+    marshalled = m.marshal(template, shallow=True)
+
+    assert isinstance(marshalled["id"], str)
+    assert isinstance(marshalled["version"], int)
+    assert isinstance(marshalled["date_created"], int)
+    assert isinstance(marshalled["archived"], bool)
+    assert isinstance(marshalled["classification"], dict)
+
+
+def test_form_template_v2_marshal_version_is_integer():
+    """
+    Version field should be preserved as an integer (key difference from V1).
+    """
+    template = make_form_template_v2(id_="ft-v2-ver", version=42)
+
+    marshalled = m.marshal(template, shallow=True)
+
+    assert marshalled["version"] == 42
+    assert isinstance(marshalled["version"], int)
+
+
+def test_form_template_v2_marshal_archived_flag():
+    """
+    Archived flag should be properly serialized as boolean.
+    """
+    template_archived = make_form_template_v2(id_="ft-v2-arch-1", archived=True)
+    template_active = make_form_template_v2(id_="ft-v2-arch-2", archived=False)
+
+    marshalled_archived = m.marshal(template_archived, shallow=True)
+    marshalled_active = m.marshal(template_active, shallow=True)
+
+    assert marshalled_archived["archived"] is True
+    assert marshalled_active["archived"] is False
+
+
+def test_form_template_v2_marshal_date_created_timestamp():
+    """
+    date_created should be preserved as integer timestamp.
+    """
+    timestamp = 1699999999
+    template = make_form_template_v2(id_="ft-v2-date", date_created=timestamp)
+
+    marshalled = m.marshal(template, shallow=True)
+
+    assert marshalled["date_created"] == timestamp
+    assert isinstance(marshalled["date_created"], int)
+
+
+def test_form_template_v2_marshal_foreign_key_preserved():
+    """
+    Foreign key form_classification_id should be preserved.
+    """
+    template = make_form_template_v2(
+        id_="ft-v2-fk",
+        form_classification_id="fc-custom-id",
+    )
+
+    marshalled = m.marshal(template, shallow=True)
+
+    assert marshalled["form_classification_id"] == "fc-custom-id"

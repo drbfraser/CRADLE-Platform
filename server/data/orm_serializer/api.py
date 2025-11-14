@@ -4,8 +4,14 @@ from common import commonUtil
 from data.db_operations import M
 from models import (
     AssessmentOrm,
+    FormAnswerOrmV2,
+    FormClassificationOrmV2,
     FormOrm,
+    FormQuestionTemplateOrmV2,
+    FormSubmissionOrmV2,
     FormTemplateOrm,
+    FormTemplateOrmV2,
+    LangVersionOrmV2,
     MedicalRecordOrm,
     PatientOrm,
     PregnancyOrm,
@@ -27,9 +33,18 @@ from models import (
 
 from .forms import (
     __marshal_form,
+    __marshal_form_answer_v2,
+    __marshal_form_classification_v2,
+    __marshal_form_question_template_v2,
+    __marshal_form_submission_v2,
     __marshal_form_template,
+    __marshal_form_template_v2,
     __unmarshal_form,
+    __unmarshal_form_answer_v2,
+    __unmarshal_form_question_template_v2,
+    __unmarshal_form_submission_v2,
     __unmarshal_form_template,
+    __unmarshal_form_template_v2,
 )
 from .patients import (
     __marshal_patient,
@@ -42,8 +57,10 @@ from .phone import (
 )
 from .questions import (
     __marshal_lang_version,
+    __marshal_lang_version_v2,
     __marshal_question,
     __unmarshal_lang_version,
+    __unmarshal_lang_version_v2,
     __unmarshal_question,
 )
 from .records import (
@@ -123,6 +140,18 @@ def marshal(obj: Any, shallow: bool = False, if_include_versions: bool = False) 
         return __marshal_workflow_instance(obj, shallow)
     if isinstance(obj, WorkflowCollectionOrm):
         return __marshal_workflow_collection(obj, shallow)
+    if isinstance(obj, LangVersionOrmV2):
+        return __marshal_lang_version_v2(obj)
+    if isinstance(obj, FormClassificationOrmV2):
+        return __marshal_form_classification_v2(obj, if_include_versions)
+    if isinstance(obj, FormTemplateOrmV2):
+        return __marshal_form_template_v2(obj, shallow)
+    if isinstance(obj, FormQuestionTemplateOrmV2):
+        return __marshal_form_question_template_v2(obj)
+    if isinstance(obj, FormSubmissionOrmV2):
+        return __marshal_form_submission_v2(obj, shallow)
+    if isinstance(obj, FormAnswerOrmV2):
+        return __marshal_form_answer_v2(obj)
 
     d = vars(obj).copy()
     __pre_process(d)
@@ -176,6 +205,16 @@ def unmarshal(m: Type[M], d: dict) -> M:
         return __unmarshal_workflow_instance_step(d)
     if m is WorkflowInstanceOrm:
         return __unmarshal_workflow_instance(d)
+    if m is LangVersionOrmV2:
+        return __unmarshal_lang_version_v2(d)
+    if m is FormTemplateOrmV2:
+        return __unmarshal_form_template_v2(d)
+    if m is FormQuestionTemplateOrmV2:
+        return __unmarshal_form_question_template_v2(d)
+    if m is FormSubmissionOrmV2:
+        return __unmarshal_form_submission_v2(d)
+    if m is FormAnswerOrmV2:
+        return __unmarshal_form_answer_v2(d)
 
     return __load(m, d)
 
