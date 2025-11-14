@@ -139,15 +139,18 @@ function Toolbar() {
 export const WorkflowInfo: React.FC = () => {
   const { patientId } = useParams<{ patientId: string }>();
   const [workflowInfo, setWorkflowInfo] = useState<WorkflowInfoRow[]>([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const openDemoDialog = useRef<() => void>();
 
   useEffect(() => {
     async function fetchWorkflowInfo() {
       try {
+        setLoading(true);
         const instances = await getInstancesByPatient(patientId!, true);
         const workflowInfoRows = await buildWorkflowInstanceRowList(instances);
         setWorkflowInfo(workflowInfoRows);
+        setLoading(false);
       } catch (err) {
         console.error('Failed to load workflow instances for patient.', err);
       }
@@ -273,6 +276,7 @@ export const WorkflowInfo: React.FC = () => {
         <DataGrid
           rows={workflowInfo}
           columns={columns}
+          loading={loading}
           getRowId={(r) => (r as WorkflowInfoRow).id}
           initialState={{
             pagination: { paginationModel: { pageSize: 10 } },
