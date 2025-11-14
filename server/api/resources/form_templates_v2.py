@@ -13,13 +13,13 @@ from models import (
     LangVersionOrmV2,
 )
 from validation.formsV2_models import (
+    ArchiveFormTemplateQuery,
     FormTemplateListV2Response,
+    FormTemplateModel,
     FormTemplateResponse,
     FormTemplateVersionPath,
     GetAllFormTemplatesV2Query,
     GetFormTemplateV2Query,
-    FormTemplateModel,
-    ArchiveFormTemplateQuery
 )
 
 api_form_templates_v2 = APIBlueprint(
@@ -77,7 +77,9 @@ def get_languages_for_form_template_v2(path: FormTemplateIdPath) -> list[str]:
     """
     template = crud.read(FormTemplateOrmV2, id=path.form_template_id)
     if not template or not template.classification:
-        return abort(404, description=form_template_not_found_msg.format(path.form_template_id))
+        return abort(
+            404, description=form_template_not_found_msg.format(path.form_template_id)
+        )
 
     classification = template.classification
 
@@ -110,7 +112,9 @@ def get_form_template_version_as_csv_v2(path: FormTemplateVersionPath):
     )
 
     if form_template is None:
-        return abort(404, description=form_template_not_found_msg.format(path.form_template_id))
+        return abort(
+            404, description=form_template_not_found_msg.format(path.form_template_id)
+        )
 
     form_template_csv: str = form_utils.getCsvFromFormTemplateV2(form_template)
 
@@ -128,7 +132,9 @@ def get_form_template_v2(path: FormTemplateIdPath, query: GetFormTemplateV2Query
     """Get a single-language or full form template (V2)"""
     form_template = crud.read(FormTemplateOrmV2, id=path.form_template_id)
     if form_template is None:
-        abort(404, description=form_template_not_found_msg.format(path.form_template_id))
+        abort(
+            404, description=form_template_not_found_msg.format(path.form_template_id)
+        )
 
     lang = query.lang
 
@@ -176,9 +182,13 @@ def archive_form_template_v2(path: FormTemplateIdPath, query: ArchiveFormTemplat
     crud.db_session.refresh(form_template)
 
     result = marshal.marshal(form_template, shallow=True)
-    result["name"] = form_utils.resolve_string_text(form_template.classification.name_string_id) if form_template.classification else ""
-    
+    result["name"] = (
+        form_utils.resolve_string_text(form_template.classification.name_string_id)
+        if form_template.classification
+        else ""
+    )
+
     if result.get("classification"):
         result.pop("classification", None)
-    
+
     return result, 201

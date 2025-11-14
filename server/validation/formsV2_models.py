@@ -100,7 +100,7 @@ class FormTemplateModel(CradleBaseModel, extra="forbid"):
             "description": "Form Template object",
         }
     )
-    
+
 
 class ArchiveFormTemplateQuery(CradleBaseModel):
     archived: bool = Field(
