@@ -15,6 +15,14 @@ from .forms import (
     QuestionLangVersionOrm,
     QuestionOrm,
 )
+from .formsV2 import (
+    FormAnswerOrmV2,
+    FormClassificationOrmV2,
+    FormQuestionTemplateOrmV2,
+    FormSubmissionOrmV2,
+    FormTemplateOrmV2,
+    LangVersionOrmV2,
+)
 from .medical import AssessmentOrm, ReadingOrm, ReferralOrm, UrineTestOrm
 from .patients import MedicalRecordOrm, PatientAssociationsOrm, PatientOrm, PregnancyOrm
 from .users import SmsSecretKeyOrm, UserOrm, UserPhoneNumberOrm
@@ -92,6 +100,54 @@ class QuestionLangVersionSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         include_fk = True
         model = QuestionLangVersionOrm
+        load_instance = True
+        include_relationships = True
+
+
+class FormClassificationSchemaV2(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = FormClassificationOrmV2
+        load_instance = True
+        include_relationships = True
+
+
+class FormTemplateSchemaV2(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = FormTemplateOrmV2
+        load_instance = True
+        include_relationships = True
+
+
+class FormQuestionTemplateSchemaV2(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = FormQuestionTemplateOrmV2
+        load_instance = True
+        include_relationships = True
+
+
+class FormSubmissionSchemaV2(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = FormSubmissionOrmV2
+        load_instance = True
+        include_relationships = True
+
+
+class FormAnswerSchemaV2(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = FormAnswerOrmV2
+        load_instance = True
+        include_relationships = True
+
+
+class LangVersionSchemaV2(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        include_fk = True
+        model = LangVersionOrmV2
         load_instance = True
         include_relationships = True
 

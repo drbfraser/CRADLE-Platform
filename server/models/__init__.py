@@ -9,14 +9,28 @@ from .forms import (
     QuestionLangVersionOrm,
     QuestionOrm,
 )
+from .formsV2 import (
+    FormAnswerOrmV2,
+    FormClassificationOrmV2,
+    FormQuestionTemplateOrmV2,
+    FormSubmissionOrmV2,
+    FormTemplateOrmV2,
+    LangVersionOrmV2,
+)
 from .medical import AssessmentOrm, ReadingOrm, ReferralOrm, UrineTestOrm
 from .patients import MedicalRecordOrm, PatientAssociationsOrm, PatientOrm, PregnancyOrm
 from .schemas import (
     AssessmentSchema,
+    FormAnswerSchemaV2,
     FormClassificationSchema,
+    FormClassificationSchemaV2,
+    FormQuestionTemplateSchemaV2,
     FormSchema,
+    FormSubmissionSchemaV2,
     FormTemplateSchema,
+    FormTemplateSchemaV2,
     HealthFacilitySchema,
+    LangVersionSchemaV2,
     MedicalRecordSchema,
     PatientAssociationsSchema,
     PatientSchema,
@@ -80,6 +94,12 @@ SCHEMA_REGISTRY = {
     ReadingOrm: ReadingSchema,
     AssessmentOrm: AssessmentSchema,
     UrineTestOrm: UrineTestSchema,
+    LangVersionOrmV2: LangVersionSchemaV2,
+    FormClassificationOrmV2: FormClassificationSchemaV2,
+    FormTemplateOrmV2: FormTemplateSchemaV2,
+    FormQuestionTemplateOrmV2: FormQuestionTemplateSchemaV2,
+    FormSubmissionOrmV2: FormSubmissionSchemaV2,
+    FormAnswerOrmV2: FormAnswerSchemaV2,
 }
 
 

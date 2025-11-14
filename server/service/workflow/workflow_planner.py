@@ -5,7 +5,11 @@ from service.workflow.workflow_errors import InvalidWorkflowActionError
 from service.workflow.workflow_operations import (
     UpdateCurrentStepOp,
     UpdateStepStatusOp,
+    UpdateWorkflowCompletionDate,
+    UpdateWorkflowStartDate,
     UpdateWorkflowStatusOp,
+    UpdateWorkflowStepCompletionDate,
+    UpdateWorkflowStepStartDate,
     WorkflowOp,
 )
 from service.workflow.workflow_view import WorkflowView
@@ -36,7 +40,7 @@ class WorkflowPlanner:
         """
         template_step = ctx.get_template_step(step.workflow_template_step_id)
 
-        if template_step.branches:
+        if template_step.branches and template_step.branches[0].target_step_id:
             next_step = ctx.get_instance_step_for_template_step(
                 template_step.branches[0].target_step_id
             )
@@ -101,16 +105,22 @@ class WorkflowPlanner:
                 UpdateWorkflowStatusOp(WorkflowStatusEnum.ACTIVE),
                 UpdateCurrentStepOp(starting_step.id),
                 UpdateStepStatusOp(starting_step.id, WorkflowStepStatusEnum.ACTIVE),
+                UpdateWorkflowStartDate(),
+                UpdateWorkflowStepStartDate(starting_step.id),
             ]
 
         if isinstance(action, StartStepActionModel):
             return [
                 UpdateCurrentStepOp(new_current_step_id=action.step_id),
                 UpdateStepStatusOp(action.step_id, WorkflowStepStatusEnum.ACTIVE),
+                UpdateWorkflowStepStartDate(action.step_id),
             ]
 
         if isinstance(action, CompleteStepActionModel):
-            ops = [UpdateStepStatusOp(action.step_id, WorkflowStepStatusEnum.COMPLETED)]
+            ops = [
+                UpdateStepStatusOp(action.step_id, WorkflowStepStatusEnum.COMPLETED),
+                UpdateWorkflowStepCompletionDate(action.step_id),
+            ]
 
             step = ctx.get_instance_step(action.step_id)
 
@@ -119,6 +129,7 @@ class WorkflowPlanner:
                     [
                         UpdateCurrentStepOp(new_current_step_id=None),
                         UpdateWorkflowStatusOp(WorkflowStatusEnum.COMPLETED),
+                        UpdateWorkflowCompletionDate(),
                     ]
                 )
 

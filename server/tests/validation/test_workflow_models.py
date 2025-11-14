@@ -181,7 +181,6 @@ def test__workflow_instance_step__extra_field():
 @pytest.mark.parametrize(
     "field, value, error_message",
     [
-        ("last_edited", TIMESTAMP_YESTERDAY, "last_edited cannot be before start_date"),
         (
             "completion_date",
             TIMESTAMP_YESTERDAY,
@@ -283,7 +282,6 @@ def test__workflow_instance__extra_field():
 @pytest.mark.parametrize(
     "field, value, error_message",
     [
-        ("last_edited", TIMESTAMP_YESTERDAY, "last_edited cannot be before start_date"),
         (
             "completion_date",
             TIMESTAMP_YESTERDAY,

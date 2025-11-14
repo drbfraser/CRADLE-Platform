@@ -5,6 +5,7 @@ from api.resources.auth import api_auth
 from api.resources.facilities import api_facilities
 from api.resources.form_classifications import api_form_classifications
 from api.resources.form_templates import api_form_templates
+from api.resources.form_templates_v2 import api_form_templates_v2
 from api.resources.forms import api_form_submissions
 from api.resources.medical_records import api_medical_records
 from api.resources.patient_associations import api_patient_associations
@@ -22,6 +23,7 @@ from api.resources.users import api_users
 from api.resources.version import api_version
 from api.resources.workflow_classifications import api_workflow_classifications
 from api.resources.workflow_collections import api_workflow_collections
+from api.resources.workflow_demo import api_workflow_demo
 from api.resources.workflow_evaluate import api_workflow_evaluate
 from api.resources.workflow_instance_steps import api_workflow_instance_steps
 from api.resources.workflow_instances import api_workflow_instances
@@ -52,6 +54,7 @@ api.register_api(api_assessments)
 api.register_api(api_facilities)
 api.register_api(api_form_classifications)
 api.register_api(api_form_templates)
+api.register_api(api_form_templates_v2)
 api.register_api(api_form_submissions)
 api.register_api(api_medical_records)
 api.register_api(api_patient_associations)
@@ -74,3 +77,4 @@ api.register_api(api_workflow_template_steps)
 api.register_api(api_workflow_instances)
 api.register_api(api_workflow_instance_steps)
 api.register_api(api_workflow_evaluate)
+api.register_api(api_workflow_demo)
