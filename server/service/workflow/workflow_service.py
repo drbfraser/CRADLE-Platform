@@ -81,6 +81,8 @@ class WorkflowService:
             WorkflowInstanceOrm, workflow_instance.model_dump()
         )
 
+        cls._check_last_edited_and_start_date(workflow_instance)
+
         crud.common_crud.merge(workflow_instance_orm)
 
     @classmethod
@@ -147,3 +149,30 @@ class WorkflowService:
         ops = WorkflowPlanner.get_operations(ctx=workflow_view, action=action)
         for op in ops:
             op.apply(workflow_view)
+
+    @staticmethod
+    def _check_last_edited_and_start_date(
+        workflow_instance: WorkflowInstanceModel,
+    ) -> None:
+        """
+        Validate that last_edited >= start_date for the workflow instance and its steps.
+
+        This check isn't enforced at the model level to allow us to set start_date to
+        the current time, otherwise last_edited becomes < start_date.
+
+        If this error is thrown, it indicates a programming error on the backend.
+        """
+        if (
+            workflow_instance.last_edited is not None
+            and workflow_instance.start_date is not None
+            and workflow_instance.last_edited < workflow_instance.start_date
+        ):
+            raise ValueError("last_edited cannot be before start_date")
+
+        if any(
+            instance_step.last_edited is not None
+            and instance_step.start_date is not None
+            and instance_step.last_edited < instance_step.start_date
+            for instance_step in workflow_instance.steps
+        ):
+            raise ValueError("last_edited cannot be before start_date")

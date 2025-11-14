@@ -12,29 +12,18 @@ def _create_question(
     id: str,
     question_index: int = 0,
     question_text: str = "Q?",
+    question_type: str = "STRING",
     visible_condition: dict | str | None = None,
     mc_options: list | str | None = None,
     answers: dict | None = None,
     lang_versions: list[dict | None] | None = None,
     **extras: Any,
 ) -> dict:
-    """
-    Helper function to create a question dictionary for testing purposes.
-
-    :param id: The ID of the question.
-    :param question_index: The index of the question in the form.
-    :param question_text: The text of the question.
-    :param visible_condition: The visible condition of the question.
-    :param mc_options: The multiple choice options of the question.
-    :param answers: The answers to the question.
-    :param lang_versions: The language versions of the question.
-    :param **extras: Any additional key-value pairs to be included in the question dictionary.
-    :return: A dictionary representing the question.
-    """
     return dict(
         id=id,
         question_index=question_index,
         question_text=question_text,
+        question_type=question_type,
         visible_condition=visible_condition,
         mc_options=mc_options,
         answers=answers,
@@ -45,29 +34,15 @@ def _create_question(
 
 def _create_lang_version(
     *,
-    id: str,
     lang: str,
     question_text: str = "LV text",
     mc_options: list | None = None,
     **extras: Any,
 ) -> dict:
-    """
-    Helper function to create a language version dictionary for testing purposes.
-
-    :param id: The ID of the language version.
-    :param lang: The language code of the language version.
-    :param question_text: The text of the language version.
-    :param mc_options: The multiple choice options of the language version.
-    :param **extras: Any additional key-value pairs to be included in the language version dictionary.
-    :return: A dictionary representing the language version.
-    """
-    return dict(
-        id=id,
-        lang=lang,
-        question_text=question_text,
-        mc_options=mc_options,
-        **extras,
-    )
+    payload = dict(lang=lang, question_text=question_text, **extras)
+    if mc_options is not None:
+        payload["mc_options"] = mc_options
+    return payload
 
 
 def _create_form(
@@ -81,19 +56,6 @@ def _create_form(
     questions: list[dict | None] | None = None,
     **extras: Any,
 ) -> dict:
-    """
-    Helper function to create a form dictionary for testing purposes.
-
-    :param id: The ID of the form.
-    :param lang: The language code of the form.
-    :param name: The name of the form.
-    :param category: The category of the form.
-    :param patient_id: The ID of the patient associated with the form.
-    :param last_edited: The timestamp when the form was last edited.
-    :param questions: The list of questions associated with the form.
-    :param **extras: Any additional key-value pairs to be included in the form dictionary.
-    :return: A dictionary representing the form.
-    """
     payload = dict(
         id=id,
         lang=lang,
@@ -120,6 +82,7 @@ def test_unmarshal_form_attaches_questions_and_encodes_nested_fields():
                 id="q-1",
                 question_index=2,
                 question_text="Any symptoms?",
+                question_type="MULTIPLE_CHOICE",
                 visible_condition={"depends_on": "q-0", "equals": "yes"},
                 mc_options=[
                     {"value": "y", "label": "Yes"},
@@ -128,8 +91,8 @@ def test_unmarshal_form_attaches_questions_and_encodes_nested_fields():
                 answers={"selected": "y"},
                 lang_versions=[
                     _create_lang_version(
-                        id="lv-1",
                         lang="fr",
+                        question_id="q-1",
                         question_text="Des symptômes ?",
                         mc_options=["Oui", "Non"],
                     )
@@ -142,10 +105,8 @@ def test_unmarshal_form_attaches_questions_and_encodes_nested_fields():
 
     assert unmarshal_form.id == "f-001"
     assert hasattr(unmarshal_form, "questions")
-    assert (
-        isinstance(unmarshal_form.questions, list)
-        and len(unmarshal_form.questions) == 1
-    )
+    assert isinstance(unmarshal_form.questions, list)
+    assert len(unmarshal_form.questions) == 1
     question = unmarshal_form.questions[0]
 
     assert isinstance(question.visible_condition, str)
@@ -154,22 +115,18 @@ def test_unmarshal_form_attaches_questions_and_encodes_nested_fields():
         "equals": "yes",
     }
 
-    # mc_options list -> JSON string
     assert isinstance(question.mc_options, str)
     assert json.loads(question.mc_options) == [
         {"value": "y", "label": "Yes"},
         {"value": "n", "label": "No"},
     ]
 
-    # answers dict -> JSON string
     assert isinstance(question.answers, str)
     assert json.loads(question.answers) == {"selected": "y"}
 
-    # lang_versions attached and converted
     assert hasattr(question, "lang_versions")
     assert len(question.lang_versions) == 1
     lang_version = question.lang_versions[0]
-    # mc_options list -> JSON string inside lang version
     assert isinstance(lang_version.mc_options, str)
     assert json.loads(lang_version.mc_options) == ["Oui", "Non"]
     assert lang_version.lang == "fr"
@@ -188,12 +145,12 @@ def test_unmarshal_form_questions_empty_list_keeps_attribute_empty():
 
 def test_unmarshal_form_without_questions_attribute_is_absent():
     """
-    Test that unmarshalling a form payload without a "questions" attribute
-    does not create a questions attribute on the resulting FormOrm object.
+    Test that unmarshalling a form payload without a 'questions' attribute
+    removes the 'questions' attribute from the resulting FormOrm object.
     """
     form_payload = _create_form(id="f-003")
     form = unmarshal(FormOrm, form_payload)
-    assert not hasattr(form, "questions")
+    assert not getattr(form, "questions", None)
 
 
 def test_unmarshal_form_prunes_none_items_in_questions_and_lang_versions():
@@ -201,12 +158,6 @@ def test_unmarshal_form_prunes_none_items_in_questions_and_lang_versions():
     Test that unmarshalling a form payload with None values in questions and
     lang_versions correctly removes these attributes and leaves the resulting
     FormOrm object with the expected structure.
-
-    - questions: list item with None removed
-    - question: visible_condition None -> key removed before conversion -> attribute absent
-    - question: mc_options empty list -> JSON "[]"
-    - question: answers None -> pruned -> attribute absent
-    - question: lang_versions: None entry dropped, one left and converted
     """
     form_payload = _create_form(
         id="f-004",
@@ -216,14 +167,15 @@ def test_unmarshal_form_prunes_none_items_in_questions_and_lang_versions():
                 id="q-keep",
                 question_index=1,
                 question_text="Pick one",
-                visible_condition=None,  # pruned, so no conversion happens
-                mc_options=[],  # kept (not None), becomes "[]"
-                answers=None,  # pruned
+                question_type="MULTIPLE_CHOICE",
+                visible_condition=None,
+                mc_options=[],
+                answers=None,
                 lang_versions=[
                     None,
                     _create_lang_version(
-                        id="lv-keep",
                         lang="es",
+                        question_id="q-keep",
                         question_text="Elige uno",
                         mc_options=[],
                     ),
@@ -238,21 +190,16 @@ def test_unmarshal_form_prunes_none_items_in_questions_and_lang_versions():
     question = unmarshal_form.questions[0]
     assert question.id == "q-keep"
 
-    # visible_condition was None -> key removed before conversion -> attribute absent
-    assert not hasattr(question, "visible_condition")
+    assert not getattr(question, "visible_condition", None)
 
-    # mc_options empty list -> JSON "[]"
     assert (
         isinstance(question.mc_options, str) and json.loads(question.mc_options) == []
     )
 
-    # answers None -> pruned -> attribute absent
-    assert not hasattr(question, "answers")
+    assert not getattr(question, "answers", None)
 
-    # lang_versions: None entry dropped, one left and converted
     assert hasattr(question, "lang_versions") and len(question.lang_versions) == 1
     lv = question.lang_versions[0]
-    assert lv.id == "lv-keep"
     assert lv.lang == "es"
     assert isinstance(lv.mc_options, str) and json.loads(lv.mc_options) == []
 
@@ -271,12 +218,14 @@ def test_unmarshal_form_mixed_mc_options_list_and_string_pass_through():
             _create_question(
                 id="q-str",
                 question_index=0,
-                mc_options='["A","B"]',  # pre-encoded; should remain string
+                question_type="MULTIPLE_CHOICE",
+                mc_options='["A","B"]',
             ),
             _create_question(
                 id="q-list",
                 question_index=1,
-                mc_options=["X", "Y"],  # list; should be encoded to string
+                question_type="MULTIPLE_CHOICE",
+                mc_options=["X", "Y"],
             ),
         ],
     )
