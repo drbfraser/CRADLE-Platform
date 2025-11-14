@@ -1,6 +1,7 @@
 import { ISODate, Nullable } from 'src/shared/constants';
 import { InstanceStatus, StepStatus } from './workflowEnums';
 import { CForm } from '../form/formTypes';
+import { FormRenderStateEnum } from 'src/shared/enums';
 
 export type InstanceStep = {
   id: string;
@@ -58,6 +59,12 @@ export type WorkflowInstanceProgress = {
   estDaysRemaining: number;
   etaDate?: Date;
   currentIndex: number;
+};
+
+export type FormModalState = {
+  open: boolean;
+  renderState: FormRenderStateEnum;
+  form: CForm | null;
 };
 
 export type WorkflowInfoRow = {

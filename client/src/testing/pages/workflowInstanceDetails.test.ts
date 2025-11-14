@@ -4,11 +4,11 @@ import {
   WORKFLOW_TEMPLATE_TEST_DATA,
 } from '../testData';
 import { formatISODateNumber } from 'src/shared/utils';
-import {
-  mapWorkflowStep,
-  buildInstanceDetails,
-} from 'src/pages/patient/WorkflowInfo/WorkflowInstanceDetails';
 import { getPatientInfoAsync } from 'src/shared/api';
+import {
+  buildInstanceDetails,
+  mapWorkflowStep,
+} from 'src/pages/patient/WorkflowInfo/WorkflowUtils';
 
 // Mock API calls
 vi.mock('src/shared/api', () => ({

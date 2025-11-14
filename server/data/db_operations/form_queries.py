@@ -13,14 +13,15 @@ Functions:
         the template from the database to ensure validity.
 """
 
+import logging
 from typing import List, Optional
 
+import data.db_operations as crud
 from common.form_utils import filter_template_questions_orm
 from data.db_operations import db_session
-from models import (
-    FormTemplateOrm,
-    QuestionOrm,
-)
+from models import FormTemplateOrm, FormTemplateOrmV2, LangVersionOrmV2, QuestionOrm
+
+logger = logging.getLogger(__name__)
 
 
 def read_questions(
@@ -48,7 +49,7 @@ def read_form_template_language_versions(
     """
     Queries the template for current language versions
 
-    :param model: formTemplate model (here we assume the template is valid)
+    :param model: FormTemplate model (here we assume the template is valid)
     :param refresh: refresh the model in case it is invalid for later use
 
     :return: A list of lang version texts
@@ -58,3 +59,25 @@ def read_form_template_language_versions(
     if refresh:
         db_session.refresh(model)
     return [v.lang for v in lang_versions]
+
+
+def read_form_template_language_versions_v2(
+    model: FormTemplateOrmV2, refresh: bool = False
+) -> list[str]:
+    """
+    Queries the template for its available language versions (V2)
+
+    In V2, the classification stores a name_string_id which references LangVersionOrmV2 entries.
+    Follows the same refresh logic as V1.
+    """
+    if refresh:
+        db_session.refresh(model)
+
+    classification = model.classification
+    if not classification or not classification.name_string_id:
+        return []
+
+    lang_versions = crud.read_all(
+        LangVersionOrmV2, string_id=classification.name_string_id
+    )
+    return [lv.lang for lv in lang_versions]

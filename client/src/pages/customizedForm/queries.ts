@@ -10,10 +10,14 @@ import {
   FormTemplateWithQuestions,
 } from 'src/shared/types/form/formTemplateTypes';
 
-export const useFormResponseQuery = (formId: string) =>
+export const useFormResponseQuery = (formId?: string) =>
   useQuery({
     queryKey: ['formResponse', formId],
-    queryFn: () => getFormResponseAsync(formId),
+    queryFn: () => {
+      if (!formId || formId.trim() === '') throw new Error('Invalid formId');
+      return getFormResponseAsync(formId!);
+    },
+    enabled: Boolean(formId && formId.trim() !== ''),
   });
 
 export const useFormTemplateQuery = (formId: string | undefined) =>

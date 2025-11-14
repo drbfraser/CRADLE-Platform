@@ -106,13 +106,8 @@ class WorkflowInstanceStepModel(CradleBaseModel, extra="forbid"):
 
     @model_validator(mode="after")
     def validate_dates(self) -> Self:
-        if (
-            self.last_edited is not None
-            and self.start_date is not None
-            and self.last_edited < self.start_date
-        ):
-            raise ValueError("last_edited cannot be before start_date")
-
+        # last_edited and start_date are checked in WorkflowService.
+        # See the WorkflowService class for why.
         if (
             self.completion_date is not None
             and self.start_date is not None
@@ -145,13 +140,8 @@ class WorkflowInstanceModel(CradleBaseModel, extra="forbid"):
 
     @model_validator(mode="after")
     def validate_dates(self) -> Self:
-        if (
-            self.last_edited is not None
-            and self.start_date is not None
-            and self.last_edited < self.start_date
-        ):
-            raise ValueError("last_edited cannot be before start_date")
-
+        # last_edited and start_date are checked in WorkflowService.
+        # See the WorkflowService class for why.
         if (
             self.completion_date is not None
             and self.start_date is not None

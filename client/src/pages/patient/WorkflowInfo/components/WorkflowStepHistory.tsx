@@ -16,13 +16,14 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { IconButton } from '@mui/material';
 import { StepStatus } from 'src/shared/types/workflow/workflowEnums';
 import {
+  FormModalState,
   InstanceDetails,
   InstanceStep,
 } from 'src/shared/types/workflow/workflowUiTypes';
 import { formatWorkflowStepStatusText } from '../WorkflowUtils';
 import WorkflowFormModal from './WorkflowFormModal';
-import { CForm } from 'src/shared/types/form/formTypes';
 import { CheckCircle } from '@mui/icons-material';
+import { FormRenderStateEnum, SnackbarSeverity } from 'src/shared/enums';
 
 interface IProps {
   workflowInstance: InstanceDetails;
@@ -39,11 +40,13 @@ interface IProps {
     }>
   >;
   handleMakeCurrent: (stepId: string, title: string) => void;
-  handleOpenFormModal: () => void;
+  handleOpenFormModal: (formRenderState: FormRenderStateEnum) => void;
   handleCloseFormModal: () => void;
-  isFormModalOpen: boolean;
-  formTemplate: CForm | null;
+  formModalState: FormModalState;
+  onRefetchForm: () => void;
+  handleArchiveForm: () => Promise<boolean>;
   currentStep: InstanceStep | null;
+  showSnackbar: (message: string, severity: SnackbarSeverity) => void;
 }
 
 export default function WorkflowStepHistory({
@@ -56,16 +59,18 @@ export default function WorkflowStepHistory({
   handleMakeCurrent,
   handleOpenFormModal,
   handleCloseFormModal,
-  isFormModalOpen,
-  formTemplate,
+  formModalState,
+  onRefetchForm,
+  handleArchiveForm,
   currentStep,
+  showSnackbar,
 }: IProps) {
   const handleViewForm = (stepId: string) => {
-    console.log('View form for step:', stepId);
+    handleOpenFormModal(FormRenderStateEnum.VIEW);
   };
 
   const handleEditForm = (stepId: string) => {
-    console.log('Edit form for step:', stepId);
+    handleOpenFormModal(FormRenderStateEnum.EDIT);
   };
 
   const handleDiscardForm = (stepId: string) => {
@@ -74,18 +79,30 @@ export default function WorkflowStepHistory({
       title: 'Discard Form',
       message:
         'Are you sure you want to discard the submitted form? This action cannot be undone.',
-      onConfirm: () => {
-        console.log('Discard form for step:', stepId);
+      onConfirm: async () => {
+        const result = await handleArchiveForm();
+
+        if (result) {
+          showSnackbar(
+            'Form discarded successfully!',
+            SnackbarSeverity.SUCCESS
+          );
+        } else {
+          showSnackbar(
+            'Error discarding form. Please try again.',
+            SnackbarSeverity.ERROR
+          );
+        }
         setConfirmDialog((prev) => ({ ...prev, open: false }));
       },
     });
   };
 
   const handleCompleteNow = () => {
-    console.log('Complete now for current step');
-    handleOpenFormModal();
+    handleOpenFormModal(FormRenderStateEnum.FIRST_SUBMIT);
   };
 
+  // TODO
   const handleChangeExpectedCompletion = (stepId: string, date: string) => {
     console.log('Change expected completion for step:', stepId, 'to:', date);
   };
@@ -276,7 +293,9 @@ export default function WorkflowStepHistory({
                                   />
                                 )}
                               </Typography>
-                              {step.formSubmitted ? (
+                              {step.formSubmitted &&
+                              step.formId &&
+                              step.status === StepStatus.ACTIVE ? (
                                 <Box
                                   sx={{
                                     display: 'flex',
@@ -305,7 +324,9 @@ export default function WorkflowStepHistory({
                                     size="small"
                                     variant="outlined"
                                     color="error"
-                                    onClick={() => handleDiscardForm(step.id)}>
+                                    onClick={() =>
+                                      handleDiscardForm(step.formId!)
+                                    }>
                                     Discard
                                   </Button>
                                 </Box>
@@ -387,11 +408,11 @@ export default function WorkflowStepHistory({
         </Paper>
       </Box>
 
-      {formTemplate && (
+      {formModalState.open && (
         <WorkflowFormModal
           currentStep={currentStep}
-          isFormModalOpen={isFormModalOpen}
-          formTemplate={formTemplate}
+          formModalState={formModalState}
+          onRefetchForm={onRefetchForm}
           patientId={workflowInstance.patientId}
           handleCloseFormModal={handleCloseFormModal}
         />
