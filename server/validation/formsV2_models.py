@@ -5,6 +5,7 @@ from pydantic import Field
 from common.api_utils import (
     FormTemplateIdPath,
 )
+from common.commonUtil import get_current_time
 from enums import QuestionTypeEnum
 from validation import CradleBaseModel
 
@@ -85,3 +86,24 @@ class FormTemplateResponse(CradleBaseModel):
 
 class FormTemplateVersionPath(FormTemplateIdPath):
     version: str = Field(..., description="Form Template version.")
+
+
+class FormTemplateModel(CradleBaseModel, extra="forbid"):
+    id: str
+    version: str
+    date_created: int = Field(default_factory=get_current_time)
+    form_classification_id: Optional[str] = None
+    archived: bool = False
+
+    model_config = dict(
+        openapi_extra={
+            "description": "Form Template object",
+        }
+    )
+    
+
+class ArchiveFormTemplateQuery(CradleBaseModel):
+    archived: bool = Field(
+        True,
+        description="If true, the Form Template will be archived. If false, the Form Template will be unarchived.",
+    )
