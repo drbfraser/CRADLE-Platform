@@ -146,10 +146,7 @@ export const WorkflowInfo: React.FC = () => {
     async function fetchWorkflowInfo() {
       try {
         const instances = await getInstancesByPatient(patientId!, true);
-        console.log('PATIENT INSTANCE PULL:', instances);
-
         const workflowInfoRows = await buildWorkflowInstanceRowList(instances);
-        console.log('TEST1', workflowInfoRows);
         setWorkflowInfo(workflowInfoRows);
       } catch (err) {
         console.error('Failed to load workflow instances for patient.', err);
