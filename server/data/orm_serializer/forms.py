@@ -5,7 +5,6 @@ from data import db_session
 from models import (
     FormAnswerOrmV2,
     FormClassificationOrm,
-    FormClassificationOrmV2,
     FormOrm,
     FormSubmissionOrmV2,
     FormTemplateOrm,
@@ -104,29 +103,6 @@ def __marshal_form(f: FormOrm, shallow: bool) -> dict:
         ]
         # sort question list based on question index in ascending order
         d["questions"].sort(key=lambda q: q["question_index"])
-
-    return d
-
-
-def __marshal_form_classification_v2(
-    fc: FormClassificationOrmV2,
-    if_include_templates: bool = False,
-) -> dict:
-    """
-    Serialize a ``FormClassificationOrmV2``; optionally embed its templates.
-
-    :param fc: Form classification V2 instance to serialize.
-    :param if_include_templates: If ``True``, include serialized templates.
-    :return: Classification dictionary with name_string_id.
-    """
-    d = vars(fc).copy()
-    __pre_process(d)
-
-    if d.get("templates") is not None:
-        del d["templates"]
-
-    if if_include_templates:
-        d["templates"] = [__marshal_form_template_v2(t) for t in fc.templates]
 
     return d
 
