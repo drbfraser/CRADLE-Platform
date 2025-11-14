@@ -164,7 +164,7 @@ export const getInstancesByPatient = async (
   withSteps: boolean
 ): Promise<WorkflowInstance[]> => {
   const response = await axiosFetch.get<{ items: WorkflowInstance[] }>(
-    `${INSTANCES}?${patientId}&with_steps=${withSteps}`
+    `${INSTANCES}?patient_id=${patientId}&with_steps=${withSteps}`
   );
   return response.data.items;
 };
