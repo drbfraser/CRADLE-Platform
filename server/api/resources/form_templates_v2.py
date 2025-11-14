@@ -18,6 +18,8 @@ from validation.formsV2_models import (
     FormTemplateVersionPath,
     GetAllFormTemplatesV2Query,
     GetFormTemplateV2Query,
+    FormTemplateModel,
+    ArchiveFormTemplateQuery
 )
 
 api_form_templates_v2 = APIBlueprint(
@@ -29,6 +31,8 @@ api_form_templates_v2 = APIBlueprint(
     ],
     abp_security=[{"jwt": []}],
 )
+
+form_template_not_found_msg = "No form template found with ID: {}"
 
 
 # /api/forms/v2/templates [GET]
@@ -54,6 +58,8 @@ def get_all_form_templates_v2(query: GetAllFormTemplatesV2Query):
             if ft.classification
             else None
         )
+        if template_dict.get("classification"):
+            template_dict.pop("classification", None)
 
         templates_list.append(template_dict)
 
@@ -71,7 +77,7 @@ def get_languages_for_form_template_v2(path: FormTemplateIdPath) -> list[str]:
     """
     template = crud.read(FormTemplateOrmV2, id=path.form_template_id)
     if not template or not template.classification:
-        return []
+        return abort(404, description=form_template_not_found_msg.format(path.form_template_id))
 
     classification = template.classification
 
@@ -104,7 +110,7 @@ def get_form_template_version_as_csv_v2(path: FormTemplateVersionPath):
     )
 
     if form_template is None:
-        return abort(404, description=f"No form with ID: {path.form_template_id}")
+        return abort(404, description=form_template_not_found_msg.format(path.form_template_id))
 
     form_template_csv: str = form_utils.getCsvFromFormTemplateV2(form_template)
 
@@ -122,7 +128,7 @@ def get_form_template_v2(path: FormTemplateIdPath, query: GetFormTemplateV2Query
     """Get a single-language or full form template (V2)"""
     form_template = crud.read(FormTemplateOrmV2, id=path.form_template_id)
     if form_template is None:
-        abort(404, description=f"No form with ID: {path.form_template_id}")
+        abort(404, description=form_template_not_found_msg.format(path.form_template_id))
 
     lang = query.lang
 
@@ -150,3 +156,29 @@ def get_form_template_v2(path: FormTemplateIdPath, query: GetFormTemplateV2Query
     single_lang_template["questions"].sort(key=lambda q: q["order"])
 
     return single_lang_template, 200
+
+
+# /api/forms/v2/templates/<string:form_template_id> [PUT]
+@api_form_templates_v2.put(
+    "/<string:form_template_id>", responses={200: FormTemplateModel}
+)
+def archive_form_template_v2(path: FormTemplateIdPath, query: ArchiveFormTemplateQuery):
+    """Archive or unarchive a Form Template"""
+    form_template = crud.read(FormTemplateOrmV2, id=path.form_template_id)
+
+    if form_template is None:
+        return abort(
+            404, description=form_template_not_found_msg.format(path.form_template_id)
+        )
+
+    form_template.archived = query.archived
+    crud.db_session.commit()
+    crud.db_session.refresh(form_template)
+
+    result = marshal.marshal(form_template, shallow=True)
+    result["name"] = form_utils.resolve_string_text(form_template.classification.name_string_id) if form_template.classification else ""
+    
+    if result.get("classification"):
+        result.pop("classification", None)
+    
+    return result, 201
