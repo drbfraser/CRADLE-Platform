@@ -485,7 +485,8 @@ export const WorkflowInfo: React.FC = () => {
             variant="outlined"
             size="small"
             sx={{ textTransform: 'none', height: 36 }}
-            startIcon={<AddIcon />}>
+            startIcon={<AddIcon />}
+            onClick={() => navigate(`/workflow-instance/new/${patientId}`)}>
             Start New Workflow
           </Button>
           {/* Rule Engine Button */}
