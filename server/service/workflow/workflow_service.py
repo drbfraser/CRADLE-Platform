@@ -121,6 +121,10 @@ class WorkflowService:
             return None
 
         workflow_template_dict = marshal.marshal(workflow_template_orm)
+
+        for step in workflow_template_dict.get("steps", []):
+            step.pop("form", None)
+
         workflow_template = WorkflowTemplateModel(**workflow_template_dict)
         return workflow_template
 
