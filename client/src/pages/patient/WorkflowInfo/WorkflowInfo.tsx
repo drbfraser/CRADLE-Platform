@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import ScienceIcon from '@mui/icons-material/Science';
@@ -10,6 +10,7 @@ import { axiosFetch } from 'src/shared/api/core/http';
 import Link from '@mui/material/Link';
 import SearchIcon from '@mui/icons-material/Search';
 import { getPrettyDate } from 'src/shared/utils';
+import { Toast } from 'src/shared/components/toast';
 import {
   Box,
   Typography,
@@ -45,6 +46,11 @@ import {
   useGridApiContext,
 } from '@mui/x-data-grid';
 import { useNavigate } from 'react-router-dom';
+
+type ToastState = {
+  severity: React.ComponentProps<typeof Toast>['severity'];
+  message: string;
+};
 
 type RuleEvaluationResult = {
   patient: {
@@ -467,9 +473,29 @@ export const WorkflowInfo: React.FC = () => {
     },
   ];
 
+  const location = useLocation();
+
+  const navState = location.state as { toast?: ToastState } | null;
+
+  const [toast, setToast] = useState<ToastState | null>(
+    navState?.toast ?? null
+  );
+
+  const handleToastClose = () => {
+    setToast(null);
+  };
+
   return (
     <Paper sx={{ p: 2, mt: 1 }}>
       {/* Page header */}
+      {toast && (
+        <Toast
+          severity={toast.severity}
+          message={toast.message}
+          open={true}
+          onClose={handleToastClose}
+        />
+      )}
       <Box
         borderBottom={1.5}
         borderColor="divider"
