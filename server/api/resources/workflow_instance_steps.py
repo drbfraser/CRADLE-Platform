@@ -5,6 +5,8 @@ from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
+from api.decorator import roles_required
+from common import user_utils
 from common.api_utils import (
     WorkflowInstanceStepIdPath,
     convert_query_parameter_to_bool,
@@ -12,6 +14,7 @@ from common.api_utils import (
 )
 from common.commonUtil import get_current_time
 from data import marshal
+from enums import RoleEnum
 from models import (
     FormOrm,
     RuleGroupOrm,
@@ -254,6 +257,54 @@ def complete_workflow_instance_step(path: WorkflowInstanceStepIdPath):
         changes=completion_changes,
         id=path.workflow_instance_step_id,
     )
+
+    updated_instance_step = crud.read(
+        WorkflowInstanceStepOrm, id=path.workflow_instance_step_id
+    )
+
+    updated_instance_step = marshal.marshal(updated_instance_step, shallow=True)
+
+    return updated_instance_step, 200
+
+
+# /api/workflow/instance/steps/<string:workflow_instance_step_id>/archive_form [PATCH]
+@roles_required([RoleEnum.ADMIN])
+@api_workflow_instance_steps.patch("/<string:workflow_instance_step_id>/archive_form")
+def archive_form(path: WorkflowInstanceStepIdPath):
+    """Archive submitted form associated with workflow instance step"""
+    instance_step = crud.read(
+        WorkflowInstanceStepOrm, id=path.workflow_instance_step_id
+    )
+
+    if instance_step is None:
+        return abort(
+            code=404,
+            description=workflow_instance_step_not_found_msg.format(
+                path.workflow_instance_step_id
+            ),
+        )
+
+    if instance_step.form_id is None:
+        return abort(
+            code=404, description="Workflow instance step has no associated form."
+        )
+
+    form = crud.read(FormOrm, id=instance_step.form_id)
+
+    if form is None:
+        return abort(404, description=f"No form with ID: {instance_step.form_id}")
+
+    instance_step.form_id = None
+    form.archived = True
+
+    current_user = user_utils.get_current_user_from_jwt()
+    user_id = int(current_user["id"])
+    form.last_edited_by = user_id
+    form.last_edited = get_current_time()
+
+    crud.db_session.commit()
+    crud.db_session.refresh(instance_step)
+    crud.db_session.refresh(form)
 
     updated_instance_step = crud.read(
         WorkflowInstanceStepOrm, id=path.workflow_instance_step_id

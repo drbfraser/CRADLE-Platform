@@ -30,6 +30,7 @@ interface IProps {
   patientId: string;
   fm: CForm;
   renderState: FormRenderStateEnum;
+  isFormModal?: boolean;
   customSubmitHandler?: (form: CForm, postBody: PostBody) => void;
 }
 
@@ -37,6 +38,7 @@ export const CustomizedForm = ({
   patientId,
   fm: form,
   renderState,
+  isFormModal = false,
   customSubmitHandler,
 }: IProps) => {
   const navigate = useNavigate();
@@ -107,7 +109,7 @@ export const CustomizedForm = ({
       />
 
       <Formik
-        initialValues={initialState as any}
+        initialValues={initialState}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}>
         {() => (
@@ -133,12 +135,14 @@ export const CustomizedForm = ({
               })}
             </Grid>
             {renderState === FormRenderStateEnum.VIEW ? (
-              <RedirectButton
-                sx={BUTTON_SX}
-                type="button" //This makes the button not trigger onSubmit function
-                url={`/forms/edit/${patientId}/${form.id}`}>
-                {formTitle}
-              </RedirectButton>
+              !isFormModal && (
+                <RedirectButton
+                  sx={BUTTON_SX}
+                  type="button" //This makes the button not trigger onSubmit function
+                  url={`/forms/edit/${patientId}/${form.id}`}>
+                  {formTitle}
+                </RedirectButton>
+              )
             ) : renderState === FormRenderStateEnum.SUBMIT_TEMPLATE ? (
               <PrimaryButton
                 sx={BUTTON_SX}

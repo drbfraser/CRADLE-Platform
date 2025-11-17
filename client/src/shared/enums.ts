@@ -7,6 +7,13 @@ export enum FormRenderStateEnum {
   VIS_COND_DISABLED = 'VIS_COND_DISABLED',
 }
 
+export enum SnackbarSeverity {
+  SUCCESS = 'success',
+  ERROR = 'error',
+  INFO = 'info',
+  WARNING = 'warning',
+}
+
 export enum SexEnum {
   MALE = 'MALE',
   FEMALE = 'FEMALE',

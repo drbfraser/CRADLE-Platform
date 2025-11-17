@@ -2,6 +2,7 @@
 from data import marshal as m
 from enums import QuestionTypeEnum
 from models import (
+    LangVersionOrmV2,
     QuestionLangVersionOrm,
     QuestionOrm,
 )
@@ -180,3 +181,47 @@ def test_lang_version_integration_when_embedded_in_question():
 
     assert "mc_options" not in fr
     assert "question" not in fr
+
+
+def make_lang_version_v2(
+    *,
+    string_id="string-123",
+    lang="English",
+    text="Hello world",
+):
+    lv = LangVersionOrmV2()
+    lv.string_id = string_id
+    lv.lang = lang
+    lv.text = text
+    return lv
+
+
+def test_lang_version_v2_marshal_basic_fields():
+    lv = make_lang_version_v2(string_id="abc", lang="French", text="Bonjour")
+
+    marshalled = m.marshal(lv)
+
+    assert marshalled["string_id"] == "abc"
+    assert marshalled["lang"] == "French"
+    assert marshalled["text"] == "Bonjour"
+
+
+def test_lang_version_v2_marshal_strips_private_fields():
+    lv = make_lang_version_v2()
+    lv._debug_tmp = True
+    lv._something_internal = {"x": 1}
+
+    marshalled = m.marshal(lv)
+
+    assert "_debug_tmp" not in marshalled
+    assert "_something_internal" not in marshalled
+    assert all(not k.startswith("_") for k in marshalled)
+
+
+def test_lang_version_v2_marshal_has_no_unexpected_keys():
+    lv = make_lang_version_v2(string_id="s1", lang="Kinyarwanda", text="Muraho")
+
+    marshalled = m.marshal(lv)
+
+    # Only these three should exist
+    assert set(marshalled.keys()) == {"string_id", "lang", "text"}
