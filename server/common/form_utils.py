@@ -33,6 +33,7 @@ from models import (
     FormTemplateOrmV2,
     LangVersionOrmV2,
     QuestionOrm,
+    FormClassificationOrmV2
 )
 
 if TYPE_CHECKING:
@@ -93,6 +94,36 @@ def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
         if question.get("lang_versions") is not None:
             for version in question.get("lang_versions"):
                 version["question_id"] = question["id"]
+
+
+def assign_form_or_template_ids_v2(model: Type[M], req: dict) -> None:
+    """
+    Assign form classification id if not provided.
+    Assign question id and form_template_id.
+    Assign lang version ids.
+    """
+    if req.get("classification") is not None:
+        if req["classification"].get("id") is None:
+            req["classification"]["id"] = commonUtil.get_uuid()
+
+    # assign form id if not provided.
+    if req.get("id") is None:
+        req["id"] = commonUtil.get_uuid()
+
+    id = req["id"]
+
+    # assign question id and form_id or form_template_id.
+    # assign lang version question_id.
+    for question in req["questions"]:
+        question["id"] = commonUtil.get_uuid()
+
+        if model is FormTemplateOrmV2:
+            question["form_template_id"] = id
+
+        if question.get("lang_versions") is not None:
+            for version in question.get("lang_versions"):
+                version["question_id"] = question["id"]
+
 
 
 def getFormTemplateDictFromCSV(csvData: str):
@@ -634,3 +665,55 @@ def format_template(template: dict, lang: str = "English") -> dict:
 
     template["questions"] = formatted_questions
     return template
+
+
+def format_template_multilang(template: dict, available_langs: list[str]) -> dict:
+    """
+    Format a marshalled template into a multi-language version.
+    Every string field becomes a dict of {lang: text}.
+    """
+    if not template:
+        return {}
+
+    questions = template.get("questions", [])
+    formatted = template.copy()
+
+    # resolve different classification language versions
+    classification = formatted.get("classification")
+    if classification and classification.get("name_string_id"):
+        sid = classification["name_string_id"]
+        classification["name"] = {
+            lang: resolve_string_text(sid, lang) for lang in available_langs
+        }
+        classification.pop("name_string_id", None)
+
+    # remove unneeded FK
+    formatted.pop("form_classification_id", None)
+
+    # resolve different question language versions
+    new_questions = []
+    for q in questions:
+        q = q.copy()
+
+        # question text
+        sid = q.pop("question_string_id", None)
+        if sid:
+            q["question_text"] = {
+                lang: resolve_string_text(sid, lang) for lang in available_langs
+            }
+
+        # MC options
+        if q["question_type"] in (
+            QuestionTypeEnum.MULTIPLE_CHOICE.value,
+            QuestionTypeEnum.MULTIPLE_SELECT.value,
+        ):
+            mc_list = _get_mc_list(q)
+            q["mc_options"] = [
+                {lang: resolve_string_text(opt, lang) for lang in available_langs}
+                for opt in mc_list
+            ]
+
+        new_questions.append(q)
+
+    formatted["questions"] = new_questions
+    return formatted
