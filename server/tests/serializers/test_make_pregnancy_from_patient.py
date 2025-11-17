@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import types
 
-from data.marshal import makePregnancyFromPatient
+from data.orm_serializer import makePregnancyFromPatient
 
 
 def _make_patient(

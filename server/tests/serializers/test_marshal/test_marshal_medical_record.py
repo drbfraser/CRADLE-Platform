@@ -1,5 +1,5 @@
 # ruff: noqa: SLF001
-from data import marshal as m
+import data.orm_serializer as orm_seralizer
 from models import MedicalRecordOrm, PatientOrm
 
 
@@ -38,7 +38,7 @@ def test_medical_record_medical_path_maps_information_to_medical_history_only():
     medical_record = make_medical_record(
         is_drug_record=False, information="Asthma (childhood)"
     )
-    marshalled = m.marshal(medical_record)
+    marshalled = orm_seralizer.marshal(medical_record)
 
     assert set(marshalled.keys()) == {
         "id",
@@ -64,7 +64,7 @@ def test_medical_record_drug_path_maps_information_to_drug_history_only():
         is_drug_record=True,
         information="Amoxicillin 500mg BID x7d",
     )
-    marshalled = m.marshal(medical_record)
+    marshalled = orm_seralizer.marshal(medical_record)
 
     assert set(marshalled.keys()) == {
         "id",
@@ -82,7 +82,7 @@ def test_medical_record_drug_path_maps_information_to_drug_history_only():
 
 def test_medical_record_keeps_empty_information_string():
     medical_record = make_medical_record(is_drug_record=False, information="")
-    marshalled = m.marshal(medical_record)
+    marshalled = orm_seralizer.marshal(medical_record)
     assert "medical_history" in marshalled
     assert marshalled["medical_history"] == ""
 
@@ -105,7 +105,7 @@ def test_medical_record_relationship_not_leaked_and_input_not_mutated():
     before_info = medical_record.information
     before_secret = medical_record._secret
 
-    marshalled = m.marshal(medical_record)
+    marshalled = orm_seralizer.marshal(medical_record)
 
     assert (
         "patient" not in marshalled
@@ -120,7 +120,7 @@ def test_medical_record_internal_columns_not_leaked():
     medical_record = make_medical_record(
         is_drug_record=False, information="Diabetes Type II"
     )
-    marshalled = m.marshal(medical_record)
+    marshalled = orm_seralizer.marshal(medical_record)
 
     assert "information" not in marshalled
     assert "is_drug_record" not in marshalled
@@ -128,7 +128,7 @@ def test_medical_record_internal_columns_not_leaked():
     medical_record2 = make_medical_record(
         is_drug_record=True, information="Metformin 500mg"
     )
-    marshalled2 = m.marshal(medical_record2)
+    marshalled2 = orm_seralizer.marshal(medical_record2)
     assert "information" not in marshalled2
     assert "is_drug_record" not in marshalled2
 
@@ -142,7 +142,7 @@ def test_medical_record_type_sanity_and_ids():
         date_created=1700000001,
         last_edited=1700011111,
     )
-    marshalled = m.marshal(medical_record)
+    marshalled = orm_seralizer.marshal(medical_record)
 
     assert isinstance(marshalled["id"], int) and marshalled["id"] == 7
     assert (

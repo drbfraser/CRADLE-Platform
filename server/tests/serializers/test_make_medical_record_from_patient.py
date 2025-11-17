@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import types
 
-from data.marshal import make_medical_record_from_patient
+from data.orm_serializer import make_medical_record_from_patient
 
 
 def _make_patient(
