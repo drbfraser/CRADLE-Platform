@@ -2,6 +2,7 @@ import React from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
 import { Box, Typography } from '@mui/material';
 import { NodeHandler } from './NodeHandler';
+import { DeleteButton } from './DeleteButton';
 
 interface FlowNodeData {
   stepNumber: number;
@@ -12,6 +13,7 @@ interface FlowNodeData {
   onNodeClick?: (stepId: string) => void;
   onInsertNode?: (stepId: string) => void;
   onAddBranch?: (stepId: string) => void;
+  onDeleteNode?: (stepId: string) => void;
 }
 
 export const FlowNode: React.FC<NodeProps> = ({ data, selected }) => {
@@ -26,6 +28,7 @@ export const FlowNode: React.FC<NodeProps> = ({ data, selected }) => {
     onNodeClick,
     onInsertNode,
     onAddBranch,
+    onDeleteNode,
   } = data as unknown as FlowNodeData;
 
   const handleInsertNode = () => {
@@ -37,6 +40,12 @@ export const FlowNode: React.FC<NodeProps> = ({ data, selected }) => {
   const handleAddBranch = () => {
     if (onAddBranch) {
       onAddBranch(stepId);
+    }
+  };
+
+  const handleDeleteNode = () => {
+    if (onDeleteNode) {
+      onDeleteNode(stepId);
     }
   };
 
@@ -91,6 +100,7 @@ export const FlowNode: React.FC<NodeProps> = ({ data, selected }) => {
         onInsertNode={handleInsertNode}
         onAddBranch={handleAddBranch}
       />
+      <DeleteButton isEditMode={isEditMode} onDelete={handleDeleteNode} />
     </Box>
   );
 };
