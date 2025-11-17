@@ -205,7 +205,8 @@ function createFlowNodes(
   isEditMode: boolean,
   onStepSelect?: (stepId: string) => void,
   onInsertNode?: (stepId: string) => void,
-  onAddBranch?: (stepId: string) => void
+  onAddBranch?: (stepId: string) => void,
+  onDeleteNode?: (stepId: string) => void,
 ): Node[] {
   return steps.map((step) => {
     const position = stepPositions.get(step.id) || { x: 0, y: 0 };
@@ -222,6 +223,7 @@ function createFlowNodes(
         onNodeClick: onStepSelect,
         onInsertNode,
         onAddBranch,
+        onDeleteNode,
       },
     };
   });
@@ -273,6 +275,7 @@ interface WorkflowFlowProps {
   onInsertNode?: (stepId: string) => void;
   onAddBranch?: (stepId: string) => void;
   onConnectionCreate?: (sourceStepId: string, targetStepId: string) => void;
+  onDeleteNode?: (stepId: string) => void;
 }
 
 export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
@@ -284,6 +287,7 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
   onInsertNode,
   onAddBranch,
   onConnectionCreate,
+  onDeleteNode,
 }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
@@ -309,7 +313,8 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
       isEditMode,
       onStepSelect,
       onInsertNode,
-      onAddBranch
+      onAddBranch,
+      onDeleteNode,
     );
     const edges = createFlowEdges(steps);
 
@@ -322,6 +327,7 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
     onStepSelect,
     onInsertNode,
     onAddBranch,
+    onDeleteNode,
   ]);
 
   // Update nodes and edges when generated data changes

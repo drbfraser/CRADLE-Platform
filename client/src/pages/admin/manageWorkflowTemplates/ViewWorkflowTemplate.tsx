@@ -328,6 +328,92 @@ export const ViewWorkflowTemplate = () => {
     setHasChanges(true);
   };
 
+  const handleDeleteNode = (stepId: string) => {
+    if (!editedWorkflow) return;
+
+    if (stepId === editedWorkflow.startingStepId){
+      setToastMsg('Cannot delete the starting step');
+      setToastOpen(true);
+      return;
+    }
+
+    const incomingConnections = new Map<string, string[]>();
+    editedWorkflow.steps.forEach((step) => {
+      if (step.branches){
+        step.branches.forEach((branch) => {
+          const parents = incomingConnections.get(branch.targetStepId) || [];
+          parents.push(step.id);
+          incomingConnections.set(branch.targetStepId, parents);
+        })
+      }
+    })
+
+    // DFS to collect all nodes to delete
+    const nodesToDelete = new Set<string>();
+    const visited = new Set<string>();
+
+    const dfsToDelete = (currentStepId: string) => {
+      if (visited.has(currentStepId)) return;
+
+      visited.add(currentStepId);
+
+      nodesToDelete.add(currentStepId);
+      
+      const currentStep = editedWorkflow.steps.find((s) => s.id === currentStepId);
+      if (!currentStep?.branches) return;
+
+      currentStep.branches.forEach((branch) => {
+        const targetStepId = branch.targetStepId;
+        const parents = incomingConnections.get(targetStepId) || [];
+
+        // DFS continue only if the target has only one parent (the current node)
+        const hasOnlyThisParent = parents.length === 1 && parents[0] === currentStepId;
+
+        // Or if all parents marked for deletion
+        const allParentsDeleted = parents.every((parentId) => nodesToDelete.has(parentId) || parentId === currentStepId);
+
+        if (hasOnlyThisParent || allParentsDeleted){
+          dfsToDelete(targetStepId);
+        }
+
+      });
+    };
+
+    dfsToDelete(stepId);
+
+    // Remove all nodes to delete from the workflow
+    setEditedWorkflow((prev) => {
+      if (!prev) return prev;
+  
+      const updatedSteps = prev.steps
+        .filter((step) => !nodesToDelete.has(step.id))
+        .map((step) => {
+          if (step.branches) {
+            const cleanedBranches = step.branches.filter(
+              (branch) => !nodesToDelete.has(branch.targetStepId)
+            );
+            return {
+              ...step,
+              branches: cleanedBranches.length > 0 ? cleanedBranches : undefined,
+            };
+          }
+          return step;
+        });
+  
+      return {
+        ...prev,
+        steps: updatedSteps,
+      };
+    });
+
+    setHasChanges(true);
+
+    // Clear selected step if it was deleted
+    if (nodesToDelete.has(selectedStepId || '')) {
+      setSelectedStepId(undefined);
+    }
+  }
+
   const currentWorkflow = isEditMode
     ? editedWorkflow
     : workflowTemplateQuery.data;
@@ -473,6 +559,7 @@ export const ViewWorkflowTemplate = () => {
             onInsertNode={handleInsertNode}
             onAddBranch={handleAddBranch}
             onConnectionCreate={handleConnectionCreate}
+            onDeleteNode={handleDeleteNode}
           />
         ) : (
           <WorkflowSteps
