@@ -2,7 +2,12 @@ import json
 import logging
 from typing import List
 
-from models import QuestionLangVersionOrm, QuestionOrm
+from models import (
+    FormQuestionTemplateOrmV2,
+    LangVersionOrmV2,
+    QuestionLangVersionOrm,
+    QuestionOrm,
+)
 
 from .utils import __load, __pre_process
 
@@ -29,6 +34,18 @@ def __marshal_lang_version(v: QuestionLangVersionOrm) -> dict:
         # marshal mc_options to json dict
         d["mc_options"] = json.loads(d["mc_options"])
 
+    return d
+
+
+def __marshal_lang_version_v2(lv: LangVersionOrmV2) -> dict:
+    """
+    Serialize a ``LangVersionOrmV2`` translation entry.
+
+    :param lv: Language version instance to serialize.
+    :return: Translation dictionary with string_id, lang, and text.
+    """
+    d = vars(lv).copy()
+    __pre_process(d)
     return d
 
 
@@ -63,6 +80,38 @@ def __marshal_question(q: QuestionOrm, if_include_versions: bool) -> dict:
         d["lang_versions"] = [__marshal_lang_version(v) for v in q.lang_versions]
     elif not if_include_versions and "lang_versions" in d:
         del d["lang_versions"]
+
+    return d
+
+
+def __marshal_form_question_template_v2(q: FormQuestionTemplateOrmV2) -> dict:
+    """
+    Serialize a ``FormQuestionTemplateOrmV2``; parse JSON fields.
+
+    :param q: Question template instance to serialize.
+    :return: Question dictionary with parsed visible_condition and mc_options.
+    """
+    d = vars(q).copy()
+    __pre_process(d)
+
+    # Remove relationship object
+    if d.get("template"):
+        del d["template"]
+
+    # Parse JSON fields
+    visible_condition = d.get("visible_condition")
+    if visible_condition is not None and visible_condition != "":
+        d["visible_condition"] = json.loads(visible_condition)
+    else:
+        d["visible_condition"] = []
+
+    mc_options = d.get("mc_options")
+    if mc_options is not None and mc_options != "":
+        d["mc_options"] = json.loads(mc_options)
+
+    # If mc_options is None or empty, remove it from dict (it's optional)
+    elif "mc_options" in d:
+        del d["mc_options"]
 
     return d
 
@@ -113,6 +162,17 @@ def __unmarshal_lang_version(d: dict) -> QuestionLangVersionOrm:
     return lang_version
 
 
+def __unmarshal_lang_version_v2(d: dict) -> LangVersionOrmV2:
+    """
+    Construct a ``LangVersionOrmV2`` translation entry.
+
+    :param d: Language version V2 payload dictionary.
+    :return: ``LangVersionOrmV2`` instance.
+    """
+    lang_version_v2 = __load(LangVersionOrmV2, d)
+    return lang_version_v2
+
+
 def __unmarshal_question(d: dict) -> QuestionOrm:
     """
     Construct a ``QuestionOrm``; encode JSON-able fields and attach ``lang_versions``.
@@ -160,3 +220,28 @@ def unmarshal_question_list(d: list) -> List[QuestionOrm]:
     """
     # Unmarshal any questions found within the list, return a list of questions
     return [__unmarshal_question(q) for q in d]
+
+
+def __unmarshal_form_question_template_v2(d: dict) -> FormQuestionTemplateOrmV2:
+    """
+    Construct a ``FormQuestionTemplateOrmV2``; encode JSON-able fields.
+
+    :param d: Question template payload (may include ``visible_condition`` and
+        ``mc_options`` as lists/dicts).
+    :return: ``FormQuestionTemplateOrmV2`` instance.
+    """
+    # Convert 'visible_condition' from json dict to string
+    visible_condition = d.get("visible_condition")
+    if visible_condition is not None:
+        if isinstance(visible_condition, (list, dict)):
+            d["visible_condition"] = json.dumps(visible_condition)
+
+    # Convert "mc_options" from json list to string
+    mc_options = d.get("mc_options")
+    if mc_options is not None:
+        if isinstance(mc_options, list):
+            d["mc_options"] = json.dumps(mc_options)
+
+    question_template_v2 = __load(FormQuestionTemplateOrmV2, d)
+
+    return question_template_v2
