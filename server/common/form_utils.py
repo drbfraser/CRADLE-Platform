@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import csv
 import json
-from typing import TYPE_CHECKING, Any, Type
+from typing import TYPE_CHECKING, Any, Dict, Type
 
 import data.db_operations as crud
 from common import commonUtil
@@ -33,7 +33,6 @@ from models import (
     FormTemplateOrmV2,
     LangVersionOrmV2,
     QuestionOrm,
-    FormClassificationOrmV2
 )
 
 if TYPE_CHECKING:
@@ -96,34 +95,45 @@ def assign_form_or_template_ids(model: Type[M], req: dict) -> None:
                 version["question_id"] = question["id"]
 
 
-def assign_form_or_template_ids_v2(model: Type[M], req: dict) -> None:
+def _assign_id(obj: dict, field: str):
+    if obj.get(field) is None:
+        obj[field] = commonUtil.get_uuid()
+
+
+def assign_form_template_ids_v2(req: Dict[str, Any]) -> None:
     """
-    Assign form classification id if not provided.
-    Assign question id and form_template_id.
-    Assign lang version ids.
+    Mutates the request dict to assign ALL required UUIDs:
+    - template.id
+    - classification.id + name_string_id
+    - question.id + question_string_id
+    - mc option string_ids
     """
-    if req.get("classification") is not None:
-        if req["classification"].get("id") is None:
-            req["classification"]["id"] = commonUtil.get_uuid()
+    classification = req.get("classification")
+    if not classification:
+        raise ValueError("Classification is required for form template upload")
 
-    # assign form id if not provided.
-    if req.get("id") is None:
-        req["id"] = commonUtil.get_uuid()
+    # Classification core IDs
+    _assign_id(classification, "id")
+    _assign_id(classification, "name_string_id")
 
-    id = req["id"]
+    # Template ID
+    _assign_id(req, "id")
+    template_id = req["id"]
 
-    # assign question id and form_id or form_template_id.
-    # assign lang version question_id.
-    for question in req["questions"]:
-        question["id"] = commonUtil.get_uuid()
+    # Questions
+    for question in req.get("questions", []):
+        _assign_id(question, "id")
+        question["form_template_id"] = template_id
 
-        if model is FormTemplateOrmV2:
-            question["form_template_id"] = id
+        # Question text (string_id)
+        if "question_text" in question or "questionText" in question:
+            _assign_id(question, "question_string_id")
 
-        if question.get("lang_versions") is not None:
-            for version in question.get("lang_versions"):
-                version["question_id"] = question["id"]
-
+        # MC option string_ids
+        mc_opts = question.get("mc_options") or question.get("mcOptions")
+        if mc_opts:
+            for opt in mc_opts:
+                _assign_id(opt, "string_id")
 
 
 def getFormTemplateDictFromCSV(csvData: str):
@@ -717,3 +727,7 @@ def format_template_multilang(template: dict, available_langs: list[str]) -> dic
 
     formatted["questions"] = new_questions
     return formatted
+
+
+def lang_version_exists(string_id: str, lang: str):
+    return crud.read(LangVersionOrmV2, string_id=string_id, lang=lang) is not None

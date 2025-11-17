@@ -1,14 +1,19 @@
+import json
+
 from flask import abort, make_response
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
 
 import data.db_operations as crud
+from api.decorator import roles_required
 from common import form_utils
 from common.api_utils import (
     FormTemplateIdPath,
 )
 from data import marshal
+from enums import RoleEnum
 from models import (
+    FormClassificationOrmV2,
     FormTemplateOrmV2,
     LangVersionOrmV2,
 )
@@ -17,6 +22,7 @@ from validation.formsV2_models import (
     FormTemplateListV2Response,
     FormTemplateModel,
     FormTemplateResponse,
+    FormTemplateUploadRequest,
     FormTemplateVersionPath,
     GetAllFormTemplatesV2Query,
     GetFormTemplateV2Query,
@@ -124,7 +130,7 @@ def get_form_template_version_as_csv_v2(path: FormTemplateVersionPath):
     return response
 
 
-# /api/forms/templates/<string:form_template_id>
+# /api/forms/templates/<string:form_template_id> [GET]
 @api_form_templates_v2.get(
     "/<string:form_template_id>", responses={200: FormTemplateResponse}
 )
@@ -138,20 +144,22 @@ def get_form_template_v2(path: FormTemplateIdPath, query: GetFormTemplateV2Query
 
     lang = query.lang
 
+    available_langs = crud.read_form_template_language_versions_v2(
+        form_template,
+        refresh=True,
+    )
+
     if lang is None:
         full_template = marshal.marshal(
             form_template,
             shallow=False,
         )
-        full_template = form_utils.format_template(full_template, "English")
+        full_template = form_utils.format_template_multilang(
+            full_template, available_langs
+        )
         return full_template, 200
 
-    available_versions = crud.read_form_template_language_versions_v2(
-        form_template,
-        refresh=True,
-    )
-
-    if lang not in available_versions:
+    if lang not in available_langs:
         abort(
             404,
             description=f"FormTemplate(id={path.form_template_id}) doesn't have language version = {lang}",
@@ -192,3 +200,168 @@ def archive_form_template_v2(path: FormTemplateIdPath, query: ArchiveFormTemplat
         result.pop("classification", None)
 
     return result, 201
+
+
+QUESTION_FIELDS = {
+    "id",
+    "form_template_id",
+    "order",
+    "question_type",
+    "question_string_id",
+    "user_question_id",
+    "has_comment_attached",
+    "category_index",
+    "required",
+    "visible_condition",
+    "units",
+    "num_min",
+    "num_max",
+    "string_max_length",
+    "string_max_lines",
+    "allow_future_dates",
+    "allow_past_dates",
+}
+
+
+def handle_form_template_upload(form_template: FormTemplateUploadRequest):
+    """
+    Common logic for handling uploaded form template. Whether it was uploaded
+    as a file, or in the request body.
+    """
+    form_template_dict = form_template.model_dump(by_alias=False)
+    form_utils.assign_form_template_ids_v2(form_template_dict)
+
+    form_classification_dict = form_template_dict["classification"]
+
+    name_dict = form_classification_dict["name"]
+    english_name = name_dict.get("english") or name_dict.get("English")
+    if not english_name:
+        raise ValueError("Form template must have an english lanuage version.")
+
+    existing_lang_row = crud.read(LangVersionOrmV2, lang="English", text=english_name)
+
+    form_classification_orm = None
+    if existing_lang_row:
+        form_classification_orm = crud.read(
+            FormClassificationOrmV2, name_string_id=existing_lang_row.string_id
+        )
+
+    # If form classification (template name) doesn't exist yet, create it
+    if form_classification_orm is None:
+        classification_for_orm = {
+            "id": form_classification_dict.get("id"),
+            "name_string_id": form_classification_dict.get("name_string_id"),
+        }
+        form_classification_orm = marshal.unmarshal(
+            FormClassificationOrmV2, classification_for_orm
+        )
+        crud.create(form_classification_orm, refresh=True)
+
+    else:
+        existing_template = crud.read(
+            FormTemplateOrmV2,
+            form_classification_id=form_classification_orm.id,
+            version=form_template.version,
+        )
+        if existing_template:
+            raise ValueError(
+                f"Form Template with the version {form_template.version} already exists for class {english_name} - change the version to upload."
+            )
+        # Archive the previous active template (if any)
+        previous_template = crud.read(
+            FormTemplateOrmV2,
+            form_classification_id=form_classification_orm.id,
+            archived=False,
+        )
+        if previous_template is not None:
+            previous_template.archived = True
+            crud.db_session.commit()
+
+            # Create (or reuse) LangVersion rows for each translation
+
+    for lang_key, text in form_classification_dict["name"].items():
+        lang = lang_key.capitalize()
+
+        existing = crud.read(
+            LangVersionOrmV2,
+            string_id=form_classification_dict["name_string_id"],
+            lang=lang,
+        )
+
+        if not existing:
+            lang_version = LangVersionOrmV2(
+                string_id=form_classification_dict["name_string_id"],
+                lang=lang,
+                text=text,
+            )
+            crud.create(lang_version)
+
+    # Insert the new form template
+    form_template_dict["form_classification_id"] = form_classification_orm.id
+
+    new_questions = []
+    new_lang_versions = []  # new LangVersion rows to create
+
+    for question in form_template_dict.get("questions", []):
+        q = {k: question.get(k) for k in QUESTION_FIELDS if k in question}
+        mc_opts = question.get("mc_options") or []
+        q["mc_options"] = json.dumps([opt["string_id"] for opt in mc_opts])
+        q["form_template_id"] = form_template_dict["id"]
+
+        new_questions.append(q)
+
+        q_string_id = question["question_string_id"]
+
+        for lang, text in question["question_text"].items():
+            if not form_utils.lang_version_exists(q_string_id, lang.capitalize()):
+                new_lang_versions.append(
+                    marshal.unmarshal(
+                        LangVersionOrmV2,
+                        {
+                            "string_id": q_string_id,
+                            "lang": lang.capitalize(),
+                            "text": text,
+                        },
+                    )
+                )
+
+        for opt in mc_opts:
+            opt_string_id = opt["string_id"]
+            for lang, text in opt.items():
+                if lang == "string_id":
+                    continue
+                if not form_utils.lang_version_exists(opt_string_id, lang.capitalize()):
+                    new_lang_versions.append(
+                        marshal.unmarshal(
+                            LangVersionOrmV2,
+                            {
+                                "string_id": opt_string_id,
+                                "lang": lang.capitalize(),
+                                "text": text,
+                            },
+                        )
+                    )
+
+    crud.create_all(new_lang_versions)
+
+    form_template_dict["questions"] = new_questions
+
+    form_template_orm = marshal.unmarshal(FormTemplateOrmV2, form_template_dict)
+    form_template_orm.classification = form_classification_orm
+    crud.create(form_template_orm, refresh=True)
+    return marshal.marshal(form_template_orm, shallow=True)
+
+
+# /api/forms/v2/templates/body [POST]
+@api_form_templates_v2.post("/body", responses={201: FormTemplateModel})
+@roles_required([RoleEnum.ADMIN])
+def upload_form_template_body(body: FormTemplateUploadRequest):
+    """
+    Upload Form Template VIA Request Body
+    Accepts Form Template through the request body, rather than as a file.
+    """
+    try:
+        return handle_form_template_upload(body), 201
+
+    except ValueError as err:
+        return abort(409, description=str(err))
