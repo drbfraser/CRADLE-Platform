@@ -28,6 +28,7 @@ import axios from 'axios';
 import { useWorkflowInstanceDetails } from 'src/shared/hooks/patient/useWorkflowInstanceDetails';
 import { useWorkflowFormModal } from 'src/shared/hooks/patient/useWorkflowFormModal';
 import { SnackbarSeverity } from 'src/shared/enums';
+import WorkflowRecommendationBanner from './components/WorkflowRecommendationBanner';
 
 export default function WorkflowInstanceDetailsPage() {
   const { instanceId } = useParams<{ instanceId: string }>();
@@ -35,7 +36,6 @@ export default function WorkflowInstanceDetailsPage() {
   const [openTemplateDetails, setOpenTemplateDetails] = useState(false);
   const [expandedStep, setExpandedStep] = useState<string | null>(null);
   const [expandAll, setExpandAll] = useState(false);
-
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogData>({
     open: false,
     title: '',
@@ -47,6 +47,7 @@ export default function WorkflowInstanceDetailsPage() {
     message: '',
     severity: SnackbarSeverity.SUCCESS as SnackbarSeverity,
   });
+  const [openRecommendation, setOpenRecommendation] = useState(false);
   const { instanceDetails, currentStep, progressInfo, reload } =
     useWorkflowInstanceDetails(instanceId!);
   const {
@@ -109,6 +110,14 @@ export default function WorkflowInstanceDetailsPage() {
 
   const handleCloseSnackbar = () => {
     setSnackbar((prev) => ({ ...prev, open: false }));
+  };
+
+  const handleOpenRecommendation = () => {
+    setOpenRecommendation(true);
+  };
+
+  const handleCloseRecommendation = () => {
+    setOpenRecommendation(false);
   };
 
   return (
@@ -217,6 +226,7 @@ export default function WorkflowInstanceDetailsPage() {
               handleArchiveForm={handleArchiveForm}
               currentStep={currentStep}
               showSnackbar={showSnackbar}
+              handleOpenRecommendation={handleOpenRecommendation}
             />
 
             {/* Section 4: Possible Other Steps */}
@@ -237,9 +247,13 @@ export default function WorkflowInstanceDetailsPage() {
       {/* Snackbar for Confirmation Dialog */}
       <Snackbar
         open={snackbar.open}
-        autoHideDuration={4000}
+        autoHideDuration={2000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        sx={{
+          mb: '80px',
+          borderRadius: 2,
+        }}>
         <Alert
           onClose={handleCloseSnackbar}
           severity={snackbar.severity}
@@ -247,6 +261,12 @@ export default function WorkflowInstanceDetailsPage() {
           {snackbar.message}
         </Alert>
       </Snackbar>
+
+      {/* Banner for Next Step Recommendation */}
+      <WorkflowRecommendationBanner
+        open={openRecommendation}
+        handleClose={handleCloseRecommendation}
+      />
     </>
   );
 }
