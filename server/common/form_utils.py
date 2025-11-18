@@ -117,7 +117,7 @@ def assign_form_template_ids_v2(req: Dict[str, Any]) -> None:
     _assign_id(classification, "name_string_id")
 
     # Template ID
-    _assign_id(req, "id")
+    req["id"] = commonUtil.get_uuid()
     template_id = req["id"]
 
     # Questions
