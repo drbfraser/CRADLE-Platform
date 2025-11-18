@@ -155,19 +155,12 @@ class ArchiveFormTemplateQuery(CradleBaseModel):
     )
 
 
-# class MCOption(CradleBaseModel):
-#     string_id: Optional[str] = None
-#     translations: Dict[str, str] = Field(default_factory=dict)
+class MCOption(CradleBaseModel):
+    string_id: Optional[str] = None
+    translations: MultiLangText
 
-#     class Config:
-#         extra = "allow"
-
-
-class MCOption(RootModel[dict[str, str]]):
-    """
-    Represents multilingual text like:
-    {"english": "Hello", "french": "Bonjour"}
-    """
+    class Config:
+        extra = "forbid"
 
 
 class FormTemplateUploadQuestion(CradleBaseModel):

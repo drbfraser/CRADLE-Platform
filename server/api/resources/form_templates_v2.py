@@ -142,7 +142,7 @@ def get_form_template_v2(path: FormTemplateIdPath, query: GetFormTemplateV2Query
             404, description=form_template_not_found_msg.format(path.form_template_id)
         )
 
-    lang = query.lang
+    lang = query.lang.capitalize() if query.lang else None
 
     available_langs = crud.read_form_template_language_versions_v2(
         form_template,
@@ -232,13 +232,20 @@ def handle_form_template_upload(form_template: FormTemplateUploadRequest):
     form_utils.assign_form_template_ids_v2(form_template_dict)
 
     form_classification_dict = form_template_dict["classification"]
-
+    form_template_dict.pop("classification", None)
     name_dict = form_classification_dict["name"]
+
     english_name = name_dict.get("english") or name_dict.get("English")
     if not english_name:
         raise ValueError("Form template must have an english lanuage version.")
 
-    existing_lang_row = crud.read(LangVersionOrmV2, lang="English", text=english_name)
+    if form_classification_dict.get("name_string_id") is not None:
+        existing_lang_row = crud.read(
+            LangVersionOrmV2,
+            string_id=form_classification_dict["name_string_id"],
+            lang="English",
+            text=english_name,
+        )
 
     form_classification_orm = None
     if existing_lang_row:
@@ -265,7 +272,7 @@ def handle_form_template_upload(form_template: FormTemplateUploadRequest):
         )
         if existing_template:
             raise ValueError(
-                f"Form Template with the version {form_template.version} already exists for class {english_name} - change the version to upload."
+                f"Form Template with version V{form_template.version} already exists for class {english_name} - change the version to upload."
             )
         # Archive the previous active template (if any)
         previous_template = crud.read(
@@ -327,9 +334,7 @@ def handle_form_template_upload(form_template: FormTemplateUploadRequest):
 
         for opt in mc_opts:
             opt_string_id = opt["string_id"]
-            for lang, text in opt.items():
-                if lang == "string_id":
-                    continue
+            for lang, text in opt["translations"].items():
                 if not form_utils.lang_version_exists(opt_string_id, lang.capitalize()):
                     new_lang_versions.append(
                         marshal.unmarshal(
