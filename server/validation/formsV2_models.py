@@ -54,7 +54,6 @@ class MultiLangText(RootModel[dict[str, str]]):
     """
 
 
-
 class NumberAnswer(CradleBaseModel):
     number: float
 
@@ -169,7 +168,6 @@ class MCOption(RootModel[dict[str, str]]):
     Represents multilingual text like:
     {"english": "Hello", "french": "Bonjour"}
     """
-
 
 
 class FormTemplateUploadQuestion(CradleBaseModel):
