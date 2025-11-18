@@ -26,8 +26,10 @@ class TestWorkflowDataResolverUnit:
         mock_resolve_variables.assert_called_once()
         
         call_args = mock_resolve_variables.call_args
-        assert call_args[0][0] == "patient_123"  
-        assert "patient.age" in call_args[0][1] 
+        assert call_args[0][0] == {"patient_id": "patient_123"}
+        variables_list = call_args[0][1]
+        assert len(variables_list) == 1
+        assert variables_list[0].to_string() == "patient.age"
         assert call_args[0][2] == mock_catalogue
         
         assert result == {"patient.age": 25}
@@ -82,34 +84,6 @@ class TestWorkflowDataResolverUnit:
         )
         
         assert result == {"status": "TRUE", "branch": {"target_step_id": "adult"}}
-    
-    @patch('service.workflow.evaluate.rules_engine.evaluate_branches')
-    @patch('service.workflow.datasourcing.data_sourcing.resolve_variables')
-    def test_evaluate_workflow_branches_merges_additional_data(self, mock_resolve_variables, mock_evaluate_branches):
-        mock_catalogue = Mock()
-        mock_resolve_variables.return_value = {"patient.age": 25}
-        mock_evaluate_branches.return_value = {"status": "TRUE"}
-        
-        resolver = WorkflowDataResolver(catalogue=mock_catalogue)
-        
-        branches = [
-            {
-                "rule": '{">=": [{"var": "patient.age"}, 18]}',
-                "target_step_id": "adult"
-            }
-        ]
-        
-        additional_data = {"manual.override": True}
-        
-        result = resolver.evaluate_workflow_branches("patient_123", branches, additional_data)
-        
-        call_args = mock_evaluate_branches.call_args
-        assert call_args[1]["data"] == {
-            "patient.age": 25,
-            "manual.override": True
-        }
-
-        assert result == {"status": "TRUE"}
 
 
 class TestIntegrationWithRealCatalogue:
@@ -214,4 +188,3 @@ class TestIntegrationWithMultipleDataSources:
         assert mock_marshal.call_count == 2, f"Expected 2 calls to marshal, got {mock_marshal.call_count}"
         assert result["status"] == "TRUE", f"Expected TRUE but got {result['status']}"
         assert result["branch"]["target_step_id"] == "high_bp_female"
-

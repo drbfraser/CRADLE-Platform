@@ -1,6 +1,5 @@
 from typing import Dict, Any, List, Set, Optional
 
-
 from service.workflow.evaluate.jsonlogic_parser import extract_variables_from_rule
 
 
@@ -10,7 +9,12 @@ class WorkflowDataResolver:
     """
     
     def __init__(self, catalogue: Optional[Dict[str, Any]] = None):
-        """Initialize the resolver."""
+        """
+        Initialize the resolver.
+        
+        :param catalogue: Optional data catalogue for dependency injection.
+                         If None, will lazy-load the real catalogue when needed.
+        """
         self._catalogue = catalogue
     
     @property
@@ -22,7 +26,14 @@ class WorkflowDataResolver:
         return self._catalogue
     
     def extract_variables_from_branches(self, branches: List[Dict[str, Any]]) -> Set[str]:
-        """Extract all unique variables from a list of branches."""
+        """
+        Extract all unique variables from a list of branches.
+        
+        :param branches: List of branch dicts with 'rule' fields containing JsonLogic
+        :returns: Set of variable strings in "object.attribute" format
+
+        Note: Replace with integration to variable extractor.
+        """
         all_variables = set()
         
         for branch in branches:
@@ -40,30 +51,52 @@ class WorkflowDataResolver:
         patient_id: str, 
         branches: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
-        """Extract variables from branches and resolve their data."""
-        from service.workflow.datasourcing.data_sourcing import resolve_variables
+        """
+        Extract variables from branches and resolve their data.
         
-        variables = self.extract_variables_from_branches(branches)
-        variables_list = list(variables)
-        resolved_data = resolve_variables(patient_id, variables_list, self.catalogue)
+        :param patient_id: Primary patient identifier for the workflow
+        :param branches: List of branch dicts containing rules
+        :returns: Dict mapping variable names to resolved values
+        """
+        from service.workflow.datasourcing.data_sourcing import (
+            resolve_variables,
+            DatasourceVariable
+        )
+        
+        context = {"patient_id": patient_id}
+        
+        variables_strings = self.extract_variables_from_branches(branches)
+        
+        variables = [
+            DatasourceVariable.from_string(v) 
+            for v in variables_strings
+        ]
+        variables = [v for v in variables if v is not None]
+        
+        resolved_data = resolve_variables(context, variables, self.catalogue)
         
         return resolved_data
     
     def evaluate_workflow_branches(
         self,
         patient_id: str,
-        branches: List[Dict[str, Any]],
-        additional_data: Dict[str, Any] = None
+        branches: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
         """
         Complete workflow: extract variables, fetch data, evaluate branches.
+        
+        :param patient_id: Primary patient identifier for the workflow
+        :param branches: List of branch dicts containing rules and target_step_ids
+        :returns: Evaluation result dict with status and branch/missing_variables
+        
+        Returns:
+            - {"status": "TRUE", "branch": {...}} if a branch matched
+            - {"status": "NOT_ENOUGH_DATA", "missing_variables": {...}} if data missing
+            - {"status": "NO_MATCH"} if no branches matched
         """
         from service.workflow.evaluate.rules_engine import evaluate_branches
         
         resolved_data = self.resolve_data_for_branches(patient_id, branches)
-        
-        if additional_data:
-            resolved_data.update(additional_data)
         
         result = evaluate_branches(
             branches=branches,
@@ -75,9 +108,14 @@ class WorkflowDataResolver:
 
 def evaluate_workflow_step(
     patient_id: str,
-    branches: List[Dict[str, Any]],
-    additional_data: Dict[str, Any] = None
+    branches: List[Dict[str, Any]]
 ) -> Dict[str, Any]:
-    """Function to evaluate workflow branches."""
+    """
+    Function to evaluate workflow branches.
+    
+    :param patient_id: Primary patient identifier for the workflow
+    :param branches: List of branch dicts containing rules
+    :returns: Evaluation result dict
+    """
     resolver = WorkflowDataResolver()
-    return resolver.evaluate_workflow_branches(patient_id, branches, additional_data)
+    return resolver.evaluate_workflow_branches(patient_id, branches)

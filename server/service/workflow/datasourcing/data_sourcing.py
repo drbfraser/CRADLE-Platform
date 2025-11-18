@@ -1,70 +1,133 @@
+from dataclasses import dataclass
 from functools import reduce
-from typing import Any, Callable, Dict, List, Optional, TypeAlias, Union
+from typing import Any, Callable, Dict, List, Optional, TypeAlias
 
 ObjectResolver = Callable[[str, str], Any]
 CustomResolver = Callable[[Dict], Any]
 
-ObjectCatalogue: TypeAlias = Dict[str, Union[ObjectResolver, Dict[str, CustomResolver]]]
+ObjectCatalogue: TypeAlias = Dict[str, Dict[str, Any]]
+
+# WorkflowContext: Context information for resolving workflow data
+# 
+# Contains identifiers needed to fetch data during workflow execution.
+# Required keys:
+#   - "patient_id": Primary patient identifier 
+# 
+# Optional keys (may be present depending on workflow step):
+#   - "assessment_id": For assessment-specific queries
+#   - "reading_id": For reading-specific queries
+#   - Any other entity IDs needed for data resolution
+#
+# Example: {"patient_id": "p123", "assessment_id": "a456"}
+WorkflowContext: TypeAlias = Dict[str, str]
 
 
-def parse_attribute_name(variable: str) -> str:
+@dataclass(frozen=True)
+class DatasourceAttribute:
+    """Represents an attribute name in a datasource variable (e.g., 'age' in 'patient.age')"""
+    name: str
+
+
+@dataclass(frozen=True)
+class DatasourceObject:
+    """Represents an object name in a datasource variable (e.g., 'patient' in 'patient.age')"""
+    name: str
+
+
+@dataclass(frozen=True)
+class DatasourceVariable:
     """
-    Extract attribute name from a variable.
+    Represents a complete datasource variable (e.g., 'patient.age').
     
-    :param variable: String in format "object.attribute"
-    :returns: The attribute name, or empty string if invalid format
+    Composed of an object name and attribute name.
+    This provides type safety over raw string manipulation.
     """
-    parts = variable.split(".")
-    if len(parts) < 2:
-        return ""
+    obj: DatasourceObject
+    attr: DatasourceAttribute
     
-    return parts[1]
-
-
-def parse_object_name(variable: str) -> str:
-    """
-    Extract object name from a variable.
+    @classmethod
+    def from_string(cls, variable: str) -> Optional['DatasourceVariable']:
+        """
+        Parse a string variable into a DatasourceVariable.
+        
+        :param variable: String in format "object.attribute"
+        :returns: DatasourceVariable or None if invalid format
+        """
+        parts = variable.split(".")
+        if len(parts) < 2:
+            return None
+        
+        obj_name = parts[0]
+        attr_name = parts[1]
+        
+        if not obj_name or not attr_name:
+            return None
+        
+        return cls(
+            obj=DatasourceObject(name=obj_name),
+            attr=DatasourceAttribute(name=attr_name)
+        )
     
-    :param variable: String in format "object.attribute"
-    :returns: The object name, or empty string if invalid format
-    """
-    return variable.split(".")[0]
+    def to_string(self) -> str:
+        """
+        Convert back to string format.
+        
+        :returns: String in format "object.attribute"
+        """
+        return f"{self.obj.name}.{self.attr.name}"
+    
+    def __str__(self) -> str:
+        return self.to_string()
+    
+    def __hash__(self) -> int:
+        return hash((self.obj.name, self.attr.name))
 
 
-def __group_objects(accumulator: Dict[str, List[str]], variable: str) -> Dict[str, List[str]]:
+def __group_objects(
+    accumulator: Dict[str, List[DatasourceAttribute]], 
+    variable: DatasourceVariable
+) -> Dict[str, List[DatasourceAttribute]]:
     """
     Group variables by object name for batch resolution.
     
     :param accumulator: Dict mapping object names to lists of attributes
-    :param variable: Single variable to add to groups
+    :param variable: DatasourceVariable to add to groups
     :returns: Updated accumulator dict
     """
-    obj = parse_object_name(variable)
-    attr = parse_attribute_name(variable)
+    obj_name = variable.obj.name
     
-    if not obj or not attr:
-        return accumulator
-
-    if obj in accumulator:
-        accumulator[obj].append(attr)
+    if obj_name in accumulator:
+        accumulator[obj_name].append(variable.attr)
     else:
-        accumulator[obj] = [attr]
+        accumulator[obj_name] = [variable.attr]
     
     return accumulator
 
 
 def __resolve_object(
     catalogue: Dict[str, ObjectCatalogue], 
-    patient_id: str, 
+    context: WorkflowContext, 
     object_name: str
 ) -> Optional[Dict[str, Any]]:
     """
     Resolve an object instance from the catalogue.
     
     :param catalogue: The data catalogue
-    :param patient_id: Patient identifier for query
-    :param object_name: Name of object type to resolve
-    :returns: Resolved object dict or None if not found
+    :param context: Workflow context containing IDs
+    :param object_name: Name of object type to resolve (e.g., "patient", "assessment")
+    :returns: Resolved object dict with model attributes, or None if not found
+    
+    The resolved object dict is a flat dictionary containing the model's attributes.
+    Example for a patient object:
+        {
+            "id": "patient_123",
+            "first_name": "John",
+            "last_name": "Doe",
+            "sex": "MALE",
+            "age": 25
+        }
+
+    TODO: Consider returning Pydantic models instead of dicts for better type safety.
     """
     if object_name not in catalogue:
         return None
@@ -77,50 +140,60 @@ def __resolve_object(
     if object_query is None:
         return None
     
+    id_value = context.get(f"{object_name}_id") or context.get("patient_id")
+    
+    if id_value is None:
+        return None
+    
     try:
-        return object_query(id=patient_id)
+        return object_query(id=id_value)
     except Exception:
         return None
 
 
 def resolve_variables(
-    patient_id: str, variables: List[str], catalogue: Dict[str, ObjectCatalogue]
+    context: WorkflowContext, 
+    variables: List[DatasourceVariable], 
+    catalogue: Dict[str, ObjectCatalogue]
 ) -> Dict[str, Any]:
     """
     Resolve multiple variables into their concrete values.
     
-    :param patient_id: An id for identifying data relevant to a patient
-    :param variables: A list of strings representing variables in format "object.attribute"
+    :param context: Workflow context containing IDs 
+    :param variables: List of DatasourceVariable objects to resolve
     :param catalogue: The data catalogue of supported objects
-    :returns: A dict mapping variable names to their resolved values
+    :returns: A dict mapping variable names (strings) to their resolved values
     :rtype: Dict[str, Any]
     """
     object_groups = reduce(__group_objects, variables, {})
     resolved = {}
 
-    for obj, attrs in object_groups.items():
-        inst = __resolve_object(catalogue, patient_id, obj)
+    for obj_name, attrs in object_groups.items():
+        inst = __resolve_object(catalogue, context, obj_name)
         
         if inst is None:
             # If object not found, all its attributes are None
-            for a in attrs:
-                resolved[f"{obj}.{a}"] = None
+            for attr in attrs:
+                variable_key = f"{obj_name}.{attr.name}"
+                resolved[variable_key] = None
             continue
         
         resolved_attrs = []
 
-        for a in attrs:
-            if inst.get(a) is not None:
-                resolved_attrs.append((f"{obj}.{a}", inst.get(a)))
+        for attr in attrs:
+            variable_key = f"{obj_name}.{attr.name}"
+            
+            if inst.get(attr.name) is not None:
+                resolved_attrs.append((variable_key, inst.get(attr.name)))
             else:
-                ca_query = catalogue.get(obj).get("custom")
-                ca_query = ca_query.get(a)
+                ca_query = catalogue.get(obj_name).get("custom")
+                ca_query = ca_query.get(attr.name)
                 ca_value = None
 
                 if ca_query is not None:
                     ca_value = ca_query(inst)
 
-                resolved_attrs.append((f"{obj}.{a}", ca_value))
+                resolved_attrs.append((variable_key, ca_value))
 
         resolved.update(dict(resolved_attrs))
 
@@ -128,22 +201,21 @@ def resolve_variables(
 
 
 def resolve_variable(
-    patient_id: str, variable: str, catalogue: Dict[str, ObjectCatalogue]
+    context: WorkflowContext, 
+    variable: DatasourceVariable, 
+    catalogue: Dict[str, ObjectCatalogue]
 ) -> Any:
     """
     Resolve a single variable into a concrete value.
 
-    :param patient_id: An id for identifying data relevant to a patient
-    :param variable: A string representing a variable in format "object.attribute"
+    :param context: Workflow context containing IDs
+    :param variable: DatasourceVariable object to resolve
     :param catalogue: The data catalogue of supported objects
     :returns: A resolved value (int, float, bool, string, etc.) or None if not found
     :rtype: Any
     """
-    obj_name = parse_object_name(variable)
-    attr_name = parse_attribute_name(variable)
-    
-    if not obj_name or not attr_name:
-        return None
+    obj_name = variable.obj.name
+    attr_name = variable.attr.name
     
     if obj_name not in catalogue:
         return None
@@ -156,8 +228,13 @@ def resolve_variable(
     if query is None:
         return None
 
+    id_value = context.get(f"{obj_name}_id") or context.get("patient_id")
+    
+    if id_value is None:
+        return None
+
     try:
-        obj_instance = query(id=patient_id)
+        obj_instance = query(id=id_value)
     except Exception:
         return None
     
