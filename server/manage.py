@@ -847,9 +847,13 @@ def create_simple_workflow_template(
             "workflow_template_id": workflow_template["id"],
         }
 
+        target_step_id = None
+        if step_number < num_steps:
+            target_step_id = f"{workflow_template_id}-step-{step_number + 1}"
+
         branch = {
             "id": f"{workflow_template_id}-step-{step_number}-branch",
-            "target_step_id": None,
+            "target_step_id": target_step_id,
             "step_id": step["id"],
             "condition_id": None,
             "condition": None,
