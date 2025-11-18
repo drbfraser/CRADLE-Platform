@@ -16,7 +16,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { WorkflowMetadata } from 'src/shared/components/workflow/workflowTemplate/WorkflowMetadata';
 import { Tooltip, IconButton } from '@mui/material';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { archiveInstanceStepForm } from 'src/shared/api';
 import WorkflowStatus from './components/WorkflowStatus';
 import WorkflowStepHistory from './components/WorkflowStepHistory';
@@ -30,7 +30,7 @@ import { useWorkflowFormModal } from 'src/shared/hooks/patient/useWorkflowFormMo
 import { SnackbarSeverity } from 'src/shared/enums';
 
 export default function WorkflowInstanceDetailsPage() {
-  // const { instanceId } = useParams<{ instanceId: string }>(); //TODO: To be updated with URL param when completed
+  const { instanceId } = useParams<{ instanceId: string }>();
   const navigate = useNavigate();
   const [openTemplateDetails, setOpenTemplateDetails] = useState(false);
   const [expandedStep, setExpandedStep] = useState<string | null>(null);
@@ -48,7 +48,7 @@ export default function WorkflowInstanceDetailsPage() {
     severity: SnackbarSeverity.SUCCESS as SnackbarSeverity,
   });
   const { instanceDetails, currentStep, progressInfo, reload } =
-    useWorkflowInstanceDetails('test-workflow-instance-1'); //TODO: To be updated with URL param when completed
+    useWorkflowInstanceDetails(instanceId!);
   const {
     formModalState,
     handleOpenFormModal,

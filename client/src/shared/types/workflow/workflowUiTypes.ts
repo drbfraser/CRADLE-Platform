@@ -1,5 +1,5 @@
 import { ISODate, Nullable } from 'src/shared/constants';
-import { StepStatus } from './workflowEnums';
+import { InstanceStatus, StepStatus } from './workflowEnums';
 import { CForm } from '../form/formTypes';
 import { FormRenderStateEnum } from 'src/shared/enums';
 
@@ -65,4 +65,16 @@ export type FormModalState = {
   open: boolean;
   renderState: FormRenderStateEnum;
   form: CForm | null;
+};
+
+export type WorkflowInfoRow = {
+  id: string;
+  instanceTitle: string;
+  templateId: string;
+  templateName: string;
+  collection: string;
+  status: InstanceStatus;
+  lastEdited: number;
+  stepsCount: number;
+  currentStepLabel: string;
 };
