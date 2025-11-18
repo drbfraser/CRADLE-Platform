@@ -1,24 +1,18 @@
 import pytest
-import sys
-import os
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-server_root = os.path.abspath(os.path.join(current_dir, '..', '..', '..'))
-sys.path.insert(0, server_root)
-
+import config
 from service.workflow.workflow_service import WorkflowService
 from service.workflow.workflow_view import WorkflowView
 from tests import helpers
 from validation.workflow_models import WorkflowInstanceModel, WorkflowTemplateModel
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def app():
-    import config
     return config.app
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture
 def app_context(app):
     with app.app_context():
         yield app
