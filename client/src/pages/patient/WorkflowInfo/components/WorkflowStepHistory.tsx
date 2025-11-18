@@ -1,13 +1,5 @@
 import * as React from 'react';
-import {
-  Box,
-  Paper,
-  Typography,
-  Button,
-  Collapse,
-  Chip,
-  TextField,
-} from '@mui/material';
+import { Box, Paper, Typography, Button, Collapse, Chip } from '@mui/material';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ReplayIcon from '@mui/icons-material/Replay';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
@@ -47,6 +39,7 @@ interface IProps {
   handleArchiveForm: () => Promise<boolean>;
   currentStep: InstanceStep | null;
   showSnackbar: (message: string, severity: SnackbarSeverity) => void;
+  handleOpenRecommendation: () => void;
 }
 
 export default function WorkflowStepHistory({
@@ -64,6 +57,7 @@ export default function WorkflowStepHistory({
   handleArchiveForm,
   currentStep,
   showSnackbar,
+  handleOpenRecommendation,
 }: IProps) {
   const handleViewForm = (stepId: string) => {
     handleOpenFormModal(FormRenderStateEnum.VIEW);
@@ -102,10 +96,15 @@ export default function WorkflowStepHistory({
     handleOpenFormModal(FormRenderStateEnum.FIRST_SUBMIT);
   };
 
-  // TODO
-  const handleChangeExpectedCompletion = (stepId: string, date: string) => {
-    console.log('Change expected completion for step:', stepId, 'to:', date);
+  const handleCompleteStep = () => {
+    showSnackbar('Step completed!', SnackbarSeverity.SUCCESS);
+    handleOpenRecommendation();
   };
+
+  // TODO
+  // const handleChangeExpectedCompletion = (stepId: string, date: string) => {
+  //   console.log('Change expected completion for step:', stepId, 'to:', date);
+  // };
 
   return (
     <>
@@ -219,6 +218,15 @@ export default function WorkflowStepHistory({
                           sx={{ mb: 1 }}>
                           {formatWorkflowStepStatusText(step)}
                         </Typography>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ mb: 1 }}>
+                          {step.status === StepStatus.ACTIVE &&
+                            (step.expectedCompletion
+                              ? `Expected completion: ${step.expectedCompletion}`
+                              : '')}
+                        </Typography>
                         {step.status === StepStatus.ACTIVE && (
                           <Chip
                             size="small"
@@ -261,8 +269,8 @@ export default function WorkflowStepHistory({
 
                         {/* Form Block */}
                         {step.formTemplateId && (
-                          <Box sx={{ mb: 3 }}>
-                            <Typography variant="subtitle2" sx={{ mb: 2 }}>
+                          <Box sx={{ mb: 1 }}>
+                            <Typography variant="subtitle2" sx={{ mb: 1 }}>
                               Form
                             </Typography>
                             <Box
@@ -356,7 +364,7 @@ export default function WorkflowStepHistory({
                         )}
 
                         {/* Expected Completion Date */}
-                        <Box sx={{ mb: 3 }}>
+                        {/* <Box sx={{ mb: 3 }}>
                           <Typography variant="subtitle2" sx={{ mb: 1 }}>
                             Expected Completion Date
                           </Typography>
@@ -378,6 +386,25 @@ export default function WorkflowStepHistory({
                               {step.expectedCompletion || 'Not set'}
                             </Typography>
                           )}
+                        </Box> */}
+
+                        {/* Complete Step Button */}
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            mt: 2,
+                          }}>
+                          {step.status == StepStatus.ACTIVE && (
+                            <Button
+                              size="small"
+                              variant="contained"
+                              color="primary"
+                              // disabled
+                              onClick={handleCompleteStep}>
+                              Complete Step
+                            </Button>
+                          )}
                         </Box>
 
                         {/* Make Current Button */}
@@ -385,6 +412,7 @@ export default function WorkflowStepHistory({
                           sx={{
                             display: 'flex',
                             justifyContent: 'flex-end',
+                            mt: 2,
                           }}>
                           {step.status != StepStatus.ACTIVE && (
                             <Button
