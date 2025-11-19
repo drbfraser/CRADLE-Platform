@@ -50,7 +50,7 @@ class WorkflowTemplateStepModel(CradleBaseModel, extra="forbid"):
     form_id: Optional[str] = None
     workflow_template_id: str
     # TODO: Account for different types of form template validators?
-    form: FormTemplateUpload | dict = None
+    form: Optional[FormTemplateUpload] | dict = None
     branches: list[WorkflowTemplateStepBranchModel]
 
 
