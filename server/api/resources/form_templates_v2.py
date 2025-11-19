@@ -20,9 +20,9 @@ from models import (
 from validation.formsV2_models import (
     ArchiveFormTemplateQuery,
     FormTemplateListV2Response,
-    FormTemplateModel,
     FormTemplateResponse,
     FormTemplateUploadRequest,
+    FormTemplateV2Response,
     FormTemplateVersionPath,
     GetAllFormTemplatesV2Query,
     GetFormTemplateV2Query,
@@ -174,7 +174,7 @@ def get_form_template_v2(path: FormTemplateIdPath, query: GetFormTemplateV2Query
 
 # /api/forms/v2/templates/<string:form_template_id> [PUT]
 @api_form_templates_v2.put(
-    "/<string:form_template_id>", responses={200: FormTemplateModel}
+    "/<string:form_template_id>", responses={200: FormTemplateV2Response}
 )
 def archive_form_template_v2(path: FormTemplateIdPath, query: ArchiveFormTemplateQuery):
     """Archive or unarchive a Form Template"""
@@ -284,8 +284,7 @@ def handle_form_template_upload(form_template: FormTemplateUploadRequest):
             previous_template.archived = True
             crud.db_session.commit()
 
-            # Create (or reuse) LangVersion rows for each translation
-
+    # Create (or reuse) LangVersion rows for each translation
     for lang_key, text in form_classification_dict["name"].items():
         lang = lang_key.capitalize()
 
@@ -354,11 +353,15 @@ def handle_form_template_upload(form_template: FormTemplateUploadRequest):
     form_template_orm = marshal.unmarshal(FormTemplateOrmV2, form_template_dict)
     form_template_orm.classification = form_classification_orm
     crud.create(form_template_orm, refresh=True)
-    return marshal.marshal(form_template_orm, shallow=True)
+    created_form_template = marshal.marshal(form_template_orm, shallow=True)
+    created_form_template["name"] = english_name
+    if created_form_template.get("classification"):
+        created_form_template.pop("classification", None)
+    return created_form_template
 
 
 # /api/forms/v2/templates/body [POST]
-@api_form_templates_v2.post("/body", responses={201: FormTemplateModel})
+@api_form_templates_v2.post("/body", responses={201: FormTemplateV2Response})
 @roles_required([RoleEnum.ADMIN])
 def upload_form_template_body(body: FormTemplateUploadRequest):
     """

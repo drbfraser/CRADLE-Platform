@@ -17,8 +17,13 @@ class FormTemplateV2Response(CradleBaseModel):
     form_classification_id: str
     version: int
     archived: bool
-    is_latest: bool
-    date_created: int
+    date_created: int = Field(default_factory=get_current_time)
+
+    model_config = dict(
+        openapi_extra={
+            "description": "Form Template object",
+        }
+    )
 
 
 class FormTemplateListV2Response(CradleBaseModel):
@@ -103,6 +108,7 @@ class QuestionResponse(CradleBaseModel):
 
     # can be either {"english": "..."} or "Basic Info"
     question_text: Union[MultiLangText, str]
+    question_string_id: Optional[str]
 
     category_index: Optional[int] = None
     required: bool
@@ -132,20 +138,6 @@ class FormTemplateResponse(CradleBaseModel):
 
 class FormTemplateVersionPath(FormTemplateIdPath):
     version: str = Field(..., description="Form Template version.")
-
-
-class FormTemplateModel(CradleBaseModel, extra="forbid"):
-    id: str
-    version: str
-    date_created: int = Field(default_factory=get_current_time)
-    form_classification_id: Optional[str] = None
-    archived: bool = False
-
-    model_config = dict(
-        openapi_extra={
-            "description": "Form Template object",
-        }
-    )
 
 
 class ArchiveFormTemplateQuery(CradleBaseModel):
