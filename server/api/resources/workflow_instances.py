@@ -94,7 +94,7 @@ def create_workflow_instance(body: CreateWorkflowInstanceRequest):
     return workflow_instance.model_dump(), 201
 
 
-# /api/workflow/instances?patient_id=<str>&status=<str>&workflow_template_id=<str> [GET]
+# /api/workflow/instances?patient_id=<str>&status=<str>&workflow_template_id=<str>&with_steps=<bool> [GET]
 @api_workflow_instances.get("", responses={200: WorkflowInstanceListResponse})
 def get_workflow_instances():
     """Get All Workflow Instances"""
@@ -104,6 +104,7 @@ def get_workflow_instances():
     workflow_template_id = request.args.get(
         "workflow_template_id", default=None, type=str
     )
+    with_steps = request.args.get("with_steps", default=False)
 
     workflow_instances = crud.read_workflow_instances(
         patient_id=patient_id,
@@ -111,9 +112,12 @@ def get_workflow_instances():
         workflow_template_id=workflow_template_id,
     )
 
-    response_data = [
-        marshal.marshal(instance, shallow=True) for instance in workflow_instances
-    ]
+    response_data = []
+    for instance in workflow_instances:
+        data = marshal.marshal(instance, shallow=False)
+        if not with_steps:
+            del data["steps"]
+        response_data.append(data)
 
     return {"items": response_data}, 200
 

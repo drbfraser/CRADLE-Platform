@@ -4,6 +4,7 @@ import csv
 import json
 from typing import TYPE_CHECKING, Any, Type
 
+import data.db_operations as crud
 from common import commonUtil
 from common.constants import (
     FORM_TEMPLATE_LANGUAGES_COL,
@@ -25,7 +26,14 @@ from common.constants import (
     FORM_TEMPLATE_VERSION_ROW,
 )
 from enums import QuestionTypeEnum
-from models import FormClassificationOrm, FormOrm, FormTemplateOrm, QuestionOrm
+from models import (
+    FormClassificationOrm,
+    FormOrm,
+    FormTemplateOrm,
+    FormTemplateOrmV2,
+    LangVersionOrmV2,
+    QuestionOrm,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -425,3 +433,204 @@ def getCsvFromFormTemplate(form_template: FormTemplateOrm):
             rows.append(row)
 
     return list_to_csv(rows)
+
+
+def getCsvFromFormTemplateV2(form_template: FormTemplateOrmV2) -> str:
+    """
+    Returns a CSV string for a FormTemplateOrmV2, including all language versions,
+    multiple-choice options, and visible-if conditions.
+    """
+
+    def fmt(cell):
+        return f'"{cell if cell is not None else ""}"'
+
+    def list_to_csv(rows: list[list[str]]):
+        return "\n".join([",".join(map(fmt, row)) for row in rows]) + "\n"
+
+    def read_all_translations(string_id: str):
+        """Return all LangVersionOrmV2 entries for a given string_id as a list."""
+        return crud.read_all(LangVersionOrmV2, string_id=string_id) or []
+
+    def get_mc_options_text(mc_options_json: str):
+        """Return mapping of {lang: 'option1, option2, ...'} for all option translations."""
+        if not mc_options_json:
+            return {}
+
+        try:
+            option_ids = json.loads(mc_options_json)
+        except Exception:
+            return {}
+
+        lang_map = {}
+        for opt_id in option_ids:
+            versions = read_all_translations(opt_id)
+            for v in versions:
+                lang_map.setdefault(v.lang, []).append(v.text)
+
+        return {lang: ", ".join(texts) for lang, texts in lang_map.items()}
+
+    def get_visible_if_text(visible_condition_json: str):
+        """Return visible-if info, fallback to raw JSON."""
+        try:
+            conditions = json.loads(visible_condition_json)
+            if not conditions:
+                return ""
+            return json.dumps(conditions, ensure_ascii=False)
+        except Exception:
+            return visible_condition_json or ""
+
+    def get_all_languages():
+        """Aggregate all languages across all questions."""
+        langs = set()
+        for q in form_template.questions:
+            for lv in read_all_translations(q.question_string_id):
+                langs.add(lv.lang)
+        return sorted(langs)
+
+    # Build CSV
+    questions = sorted(form_template.questions, key=lambda q: q.order)
+    classification_translations = read_all_translations(
+        form_template.classification.name_string_id
+    )
+    all_langs = get_all_languages()
+
+    rows = [
+        [
+            "Form Name",
+            classification_translations[0].text
+            if classification_translations
+            else form_template.classification.name_string_id,
+            "Languages",
+            ",".join(all_langs),
+        ],
+        ["Version", str(form_template.version)],
+        [],
+        [
+            "Question ID",
+            "Question Text",
+            "Type",
+            "Language",
+            "Required",
+            "Units",
+            "Visible If",
+            "Min",
+            "Max",
+            "# Lines",
+            "Choices",
+            "User Question ID",
+            "Order",
+            "Category Index",
+        ],
+    ]
+
+    for q in questions:
+        question_langs = read_all_translations(q.question_string_id)
+        choices_by_lang = get_mc_options_text(q.mc_options)
+        visible_if_text = get_visible_if_text(q.visible_condition)
+
+        # First row: main question (with metadata)
+        for i, q_lang in enumerate(question_langs):
+            rows.append(
+                [
+                    q.id if i == 0 else "",
+                    q_lang.text,
+                    q.question_type.value if i == 0 else "",
+                    q_lang.lang,
+                    "Y" if (i == 0 and q.required) else "",
+                    q.units if i == 0 else "",
+                    visible_if_text if i == 0 else "",
+                    q.num_min if i == 0 else "",
+                    q.num_max if i == 0 else "",
+                    q.string_max_lines if i == 0 else "",
+                    choices_by_lang.get(q_lang.lang, ""),
+                    q.user_question_id if i == 0 else "",
+                    q.order if i == 0 else "",
+                    q.category_index if i == 0 else "",
+                ]
+            )
+
+        # If a question has no translation at all
+        if not question_langs:
+            rows.append(
+                [
+                    q.id,
+                    f"[{q.question_string_id}]",
+                    q.question_type.value,
+                    "",
+                    "Y" if q.required else "",
+                    q.units or "",
+                    visible_if_text,
+                    q.num_min or "",
+                    q.num_max or "",
+                    q.string_max_lines or "",
+                    "",
+                    q.user_question_id,
+                    q.order,
+                    q.category_index or "",
+                ]
+            )
+
+    return list_to_csv(rows)
+
+
+def resolve_string_text(string_id: str, lang: str = "English") -> str | None:
+    """
+    Resolve the string name by looking up the the string_id and lang.
+
+    :param string_id: String id to look up the text
+    :param lang: Language for translation
+    :return: Translated name or None if not found
+    """
+    translation = crud.read(LangVersionOrmV2, string_id=string_id, lang=lang)
+
+    return translation.text if translation else None
+
+
+def _get_and_remove_string_id(q: dict) -> str | None:
+    """Extract and remove the question string ID, if present."""
+    if "question_string_id" in q:
+        return q.pop("question_string_id")
+    return None
+
+
+def _get_mc_list(q: dict) -> list[str]:
+    """Get the multiple-choice options list (if present)."""
+    if "mc_options" in q:
+        return q["mc_options"]
+    return []
+
+
+def format_template(template: dict, lang: str = "English") -> dict:
+    """Format a marshalled form template into a single-language version."""
+    if not template:
+        return {}
+    questions = template.get("questions", [])
+    formatted_questions = []
+
+    # Resolve classification name
+    classification = template.get("classification")
+    if classification and classification.get("name_string_id"):
+        classification["name"] = resolve_string_text(
+            classification["name_string_id"], lang
+        )
+        classification.pop("name_string_id", None)
+
+    if template.get("form_classification_id"):
+        template.pop("form_classification_id", None)
+
+    for q in questions:
+        string_id = _get_and_remove_string_id(q)
+        if string_id:
+            q["question_text"] = resolve_string_text(string_id, lang)
+
+        if q["question_type"] in (
+            QuestionTypeEnum.MULTIPLE_CHOICE.value,
+            QuestionTypeEnum.MULTIPLE_SELECT.value,
+        ):
+            options = _get_mc_list(q)
+            q["mc_options"] = [resolve_string_text(opt, lang) for opt in options]
+
+        formatted_questions.append(q)
+
+    template["questions"] = formatted_questions
+    return template

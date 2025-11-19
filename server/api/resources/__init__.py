@@ -5,6 +5,7 @@ from api.resources.auth import api_auth
 from api.resources.facilities import api_facilities
 from api.resources.form_classifications import api_form_classifications
 from api.resources.form_templates import api_form_templates
+from api.resources.form_templates_v2 import api_form_templates_v2
 from api.resources.forms import api_form_submissions
 from api.resources.medical_records import api_medical_records
 from api.resources.patient_associations import api_patient_associations
@@ -53,6 +54,7 @@ api.register_api(api_assessments)
 api.register_api(api_facilities)
 api.register_api(api_form_classifications)
 api.register_api(api_form_templates)
+api.register_api(api_form_templates_v2)
 api.register_api(api_form_submissions)
 api.register_api(api_medical_records)
 api.register_api(api_patient_associations)

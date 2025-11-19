@@ -11,13 +11,19 @@ import numpy as np
 from flask.cli import FlaskGroup
 
 import data.db_operations as crud
-from common.commonUtil import get_current_time
+from common.commonUtil import get_current_time, get_uuid
 from data import marshal
-from enums import SexEnum, WorkflowStatusEnum, WorkflowStepStatusEnum
+from enums import QuestionTypeEnum, SexEnum, WorkflowStatusEnum, WorkflowStepStatusEnum
 from models import (
+    FormAnswerOrmV2,
     FormClassificationOrm,
+    FormClassificationOrmV2,
     FormOrm,
+    FormQuestionTemplateOrmV2,
+    FormSubmissionOrmV2,
     FormTemplateOrm,
+    FormTemplateOrmV2,
+    LangVersionOrmV2,
     MedicalRecordOrm,
     PatientAssociationsOrm,
     PatientOrm,
@@ -182,6 +188,9 @@ def seed_test_data():
     create_form_template()
     create_form(PATIENT_ID_2, "Anna", "Bee", 31)
     create_form(PATIENT_ID_3, "Dianna", "Ele", 25)
+
+    # Add V2 forms
+    seed_forms_v2()
 
     print("Adding relay server numbers to admin page...")
     create_relay_nums()
@@ -762,6 +771,749 @@ def create_form(patient_id, fname, lname, age):
 
     db.session.add(form_orm)
     db.session.commit()
+
+
+def create_form_classification_v2():
+    """Create sample form classifications V2 with translations"""
+    if crud.read(FormClassificationOrmV2, id="fc-v2-intake") is not None:
+        return
+
+    # Create "Patient Intake Form" classification
+    intake_name_string_id = get_uuid()
+    intake_name_translation = LangVersionOrmV2(
+        string_id=intake_name_string_id,
+        lang="English",
+        text="Patient Intake Form",
+    )
+    db.session.add(intake_name_translation)
+
+    # Add French translation
+    intake_name_translation_fr = LangVersionOrmV2(
+        string_id=intake_name_string_id,
+        lang="French",
+        text="Formulaire d'admission du patient",
+    )
+    db.session.add(intake_name_translation_fr)
+
+    intake_classification = FormClassificationOrmV2(
+        id="fc-v2-intake",
+        name_string_id=intake_name_string_id,
+    )
+    db.session.add(intake_classification)
+
+    # Create "Medical History Form" classification
+    history_name_string_id = get_uuid()
+    history_name_translation = LangVersionOrmV2(
+        string_id=history_name_string_id,
+        lang="English",
+        text="Medical History Form",
+    )
+    db.session.add(history_name_translation)
+
+    history_name_translation_fr = LangVersionOrmV2(
+        string_id=history_name_string_id,
+        lang="French",
+        text="Formulaire d'antécédents médicaux",
+    )
+    db.session.add(history_name_translation_fr)
+
+    history_classification = FormClassificationOrmV2(
+        id="fc-v2-history",
+        name_string_id=history_name_string_id,
+    )
+    db.session.add(history_classification)
+
+    db.session.commit()
+    print("Created form classifications V2")
+
+
+def create_form_template_v2():
+    """Create sample form templates V2 with categories and questions"""
+    if crud.read(FormTemplateOrmV2, id="ft-v2-intake-v1") is not None:
+        return
+
+    create_form_classification_v2()
+
+    intake_classification = crud.read(FormClassificationOrmV2, id="fc-v2-intake")
+
+    intake_template_v1 = FormTemplateOrmV2(
+        id="ft-v2-intake-v1",
+        form_classification_id=intake_classification.id,
+        version=1,
+        archived=False,
+    )
+    db.session.add(intake_template_v1)
+    db.session.flush()
+
+    # Category 1: basic info
+    cat1_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=cat1_string_id, lang="English", text="Basic Information"
+            ),
+            LangVersionOrmV2(
+                string_id=cat1_string_id, lang="French", text="Informations de base"
+            ),
+        ]
+    )
+
+    category1 = FormQuestionTemplateOrmV2(
+        id="fq-v2-intake-cat-basic",
+        form_template_id=intake_template_v1.id,
+        order=0,
+        question_type=QuestionTypeEnum.CATEGORY,
+        question_string_id=cat1_string_id,
+        required=False,
+        category_index=None,
+    )
+    db.session.add(category1)
+
+    # Q1: Patient Name
+    q1_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=q1_string_id,
+                lang="English",
+                text="What is the patient's full name?",
+            ),
+            LangVersionOrmV2(
+                string_id=q1_string_id,
+                lang="French",
+                text="Quel est le nom complet du patient?",
+            ),
+        ]
+    )
+    question1 = FormQuestionTemplateOrmV2(
+        id="fq-v2-intake-name",
+        form_template_id=intake_template_v1.id,
+        order=1,
+        question_type=QuestionTypeEnum.STRING,
+        question_string_id=q1_string_id,
+        user_question_id="patient_full_name",
+        required=True,
+        string_max_length=100,
+        category_index=category1.order,
+    )
+    db.session.add(question1)
+
+    # Q2: Age
+    q2_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=q2_string_id,
+                lang="English",
+                text="What is the patient's age?",
+            ),
+            LangVersionOrmV2(
+                string_id=q2_string_id, lang="French", text="Quel est l'âge du patient?"
+            ),
+        ]
+    )
+    question2 = FormQuestionTemplateOrmV2(
+        id="fq-v2-intake-age",
+        form_template_id=intake_template_v1.id,
+        order=2,
+        question_type=QuestionTypeEnum.INTEGER,
+        question_string_id=q2_string_id,
+        user_question_id="patient_age",
+        required=True,
+        num_min=0,
+        num_max=150,
+        units="years",
+        category_index=category1.order,
+    )
+    db.session.add(question2)
+
+    # Q3: Sex
+    q3_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=q3_string_id,
+                lang="English",
+                text="What is the patient's sex?",
+            ),
+            LangVersionOrmV2(
+                string_id=q3_string_id,
+                lang="French",
+                text="Quel est le sexe du patient?",
+            ),
+        ]
+    )
+
+    mc_male_id, mc_female_id, mc_other_id = get_uuid(), get_uuid(), get_uuid()
+    mc_options = [
+        (mc_male_id, "Male", "Homme"),
+        (mc_female_id, "Female", "Femme"),
+        (mc_other_id, "Other", "Autre"),
+    ]
+    for opt_id, en, fr in mc_options:
+        db.session.add(LangVersionOrmV2(string_id=opt_id, lang="English", text=en))
+        db.session.add(LangVersionOrmV2(string_id=opt_id, lang="French", text=fr))
+
+    question3 = FormQuestionTemplateOrmV2(
+        id="fq-v2-intake-sex",
+        form_template_id=intake_template_v1.id,
+        order=3,
+        question_type=QuestionTypeEnum.MULTIPLE_CHOICE,
+        question_string_id=q3_string_id,
+        user_question_id="patient_sex",
+        mc_options=json.dumps([mc_male_id, mc_female_id, mc_other_id]),
+        required=True,
+        category_index=category1.order,
+    )
+    db.session.add(question3)
+
+    # Q4: Date of Birth
+    q4_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=q4_string_id,
+                lang="English",
+                text="What is the patient's date of birth?",
+            ),
+            LangVersionOrmV2(
+                string_id=q4_string_id,
+                lang="French",
+                text="Quelle est la date de naissance du patient?",
+            ),
+        ]
+    )
+    question4 = FormQuestionTemplateOrmV2(
+        id="fq-v2-intake-dob",
+        form_template_id=intake_template_v1.id,
+        order=4,
+        question_type=QuestionTypeEnum.DATE,
+        question_string_id=q4_string_id,
+        user_question_id="patient_dob",
+        required=False,
+        allow_future_dates=False,
+        allow_past_dates=True,
+        category_index=category1.order,
+    )
+    db.session.add(question4)
+
+    # Category 2: vitals
+    cat2_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(string_id=cat2_string_id, lang="English", text="Vitals"),
+            LangVersionOrmV2(
+                string_id=cat2_string_id, lang="French", text="Signes vitaux"
+            ),
+        ]
+    )
+
+    category2 = FormQuestionTemplateOrmV2(
+        id="fq-v2-intake-cat-vitals",
+        form_template_id=intake_template_v1.id,
+        order=5,
+        question_type=QuestionTypeEnum.CATEGORY,
+        question_string_id=cat2_string_id,
+        required=False,
+        category_index=None,
+    )
+    db.session.add(category2)
+
+    # Q5: Blood Pressure
+    q5_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=q5_string_id,
+                lang="English",
+                text="What is the patient's systolic blood pressure?",
+            ),
+            LangVersionOrmV2(
+                string_id=q5_string_id,
+                lang="French",
+                text="Quelle est la pression artérielle systolique du patient?",
+            ),
+        ]
+    )
+    question5 = FormQuestionTemplateOrmV2(
+        id="fq-v2-intake-bp-systolic",
+        form_template_id=intake_template_v1.id,
+        order=6,
+        question_type=QuestionTypeEnum.INTEGER,
+        question_string_id=q5_string_id,
+        user_question_id="systolic_bp",
+        required=True,
+        num_min=40.0,
+        num_max=300.0,
+        units="mmHg",
+        category_index=category2.order,
+    )
+    db.session.add(question5)
+
+    # Category 3: symptoms and notes
+    cat3_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=cat3_string_id, lang="English", text="Symptoms and Notes"
+            ),
+            LangVersionOrmV2(
+                string_id=cat3_string_id, lang="French", text="Symptômes et notes"
+            ),
+        ]
+    )
+
+    category3 = FormQuestionTemplateOrmV2(
+        id="fq-v2-intake-cat-symptoms",
+        form_template_id=intake_template_v1.id,
+        order=7,
+        question_type=QuestionTypeEnum.CATEGORY,
+        question_string_id=cat3_string_id,
+        required=False,
+        category_index=None,
+    )
+    db.session.add(category3)
+
+    # Q6: Symptoms
+    q6_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=q6_string_id,
+                lang="English",
+                text="What symptoms is the patient experiencing? (Select all that apply)",
+            ),
+            LangVersionOrmV2(
+                string_id=q6_string_id,
+                lang="French",
+                text="Quels symptômes le patient présente-t-il? (Sélectionner tout ce qui s'applique)",
+            ),
+        ]
+    )
+
+    # MC Options
+    symptoms = [
+        ("Headache", "Mal de tête"),
+        ("Fever", "Fièvre"),
+        ("Nausea", "Nausée"),
+        ("Dizziness", "Étourdissement"),
+        ("None", "Aucun"),
+    ]
+    mc_symptom_ids = []
+    for en, fr in symptoms:
+        sid = get_uuid()
+        mc_symptom_ids.append(sid)
+        db.session.add(LangVersionOrmV2(string_id=sid, lang="English", text=en))
+        db.session.add(LangVersionOrmV2(string_id=sid, lang="French", text=fr))
+
+    question6 = FormQuestionTemplateOrmV2(
+        id="fq-v2-intake-symptoms",
+        form_template_id=intake_template_v1.id,
+        order=8,
+        question_type=QuestionTypeEnum.MULTIPLE_CHOICE,
+        question_string_id=q6_string_id,
+        user_question_id="patient_symptoms",
+        mc_options=json.dumps(mc_symptom_ids),
+        required=True,
+        has_comment_attached=True,
+        category_index=category3.order,
+    )
+    db.session.add(question6)
+
+    # Q7: Additional Notes
+    q7_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=q7_string_id,
+                lang="English",
+                text="Additional notes about the patient:",
+            ),
+            LangVersionOrmV2(
+                string_id=q7_string_id,
+                lang="French",
+                text="Notes supplémentaires sur le patient:",
+            ),
+        ]
+    )
+    question7 = FormQuestionTemplateOrmV2(
+        id="fq-v2-intake-notes",
+        form_template_id=intake_template_v1.id,
+        order=9,
+        question_type=QuestionTypeEnum.STRING,
+        question_string_id=q7_string_id,
+        user_question_id="additional_notes",
+        required=False,
+        string_max_length=500,
+        string_max_lines=5,
+        category_index=category3.order,
+    )
+    db.session.add(question7)
+
+    db.session.commit()
+    print("Created form template V2 (Patient Intake v1)")
+
+
+def create_form_template_v2_version2():
+    if crud.read(FormTemplateOrmV2, id="ft-v2-intake-v2") is not None:
+        return
+
+    create_form_template_v2()
+
+    intake_classification = crud.read(FormClassificationOrmV2, id="fc-v2-intake")
+
+    # Archive previous template
+    previous_template = crud.read(
+        FormTemplateOrmV2,
+        form_classification_id=intake_classification.id,
+        archived=False,
+    )
+    if previous_template:
+        previous_template.archived = True
+
+    intake_template_v2 = FormTemplateOrmV2(
+        id="ft-v2-intake-v2",
+        form_classification_id=intake_classification.id,
+        version=2,
+        archived=False,
+    )
+    db.session.add(intake_template_v2)
+    db.session.flush()
+
+    category_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=category_string_id, lang="English", text="Patient Information"
+            ),
+            LangVersionOrmV2(
+                string_id=category_string_id,
+                lang="French",
+                text="Informations sur le patient",
+            ),
+        ]
+    )
+
+    category_question = FormQuestionTemplateOrmV2(
+        id="fq-v2-intake-category-info",
+        form_template_id=intake_template_v2.id,
+        order=0,
+        question_type=QuestionTypeEnum.CATEGORY,
+        question_string_id=category_string_id,
+        required=False,
+        category_index=0,
+    )
+    db.session.add(category_question)
+
+    # Reuse questions 1-6 from v1
+    v1_template = crud.read(FormTemplateOrmV2, id="ft-v2-intake-v1")
+    v1_questions = crud.read_all(
+        FormQuestionTemplateOrmV2,
+        form_template_id=v1_template.id,
+    )
+
+    for idx, old_q in enumerate(v1_questions, start=1):  # start after category
+        new_question = FormQuestionTemplateOrmV2(
+            id=f"{old_q.id}-v2",
+            form_template_id=intake_template_v2.id,
+            order=idx,
+            question_type=old_q.question_type,
+            question_string_id=old_q.question_string_id,
+            user_question_id=old_q.user_question_id,
+            mc_options=old_q.mc_options,
+            required=old_q.required,
+            has_comment_attached=old_q.has_comment_attached,
+            category_index=category_question.order,  # under "Patient Information"
+            visible_condition=old_q.visible_condition,
+            units=old_q.units,
+            num_min=old_q.num_min,
+            num_max=old_q.num_max,
+            string_max_length=old_q.string_max_length,
+            string_max_lines=old_q.string_max_lines,
+            allow_future_dates=old_q.allow_future_dates,
+            allow_past_dates=old_q.allow_past_dates,
+        )
+        db.session.add(new_question)
+
+    # Add new question (Emergency contact)
+    q8_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=q8_string_id,
+                lang="English",
+                text="Emergency contact phone number:",
+            ),
+            LangVersionOrmV2(
+                string_id=q8_string_id,
+                lang="French",
+                text="Numéro de téléphone d'urgence:",
+            ),
+        ]
+    )
+
+    question8 = FormQuestionTemplateOrmV2(
+        id="fq-v2-intake-emergency-contact",
+        form_template_id=intake_template_v2.id,
+        order=len(v1_questions) + 1,
+        question_type=QuestionTypeEnum.STRING,
+        question_string_id=q8_string_id,
+        user_question_id="emergency_contact_phone",
+        required=False,
+        string_max_length=20,
+        category_index=category_question.order,
+    )
+    db.session.add(question8)
+
+    db.session.commit()
+    print("Created form template V2 (Patient Intake v2).")
+
+
+def create_followup_form_template_v2():
+    if crud.read(FormTemplateOrmV2, id="ft-v2-followup-v1") is not None:
+        return
+
+    followup_classification = crud.read(FormClassificationOrmV2, id="fc-v2-followup")
+    if not followup_classification:
+        followup_name_string_id = get_uuid()
+        db.session.add_all(
+            [
+                LangVersionOrmV2(
+                    string_id=followup_name_string_id,
+                    lang="English",
+                    text="Follow-Up Visit Form",
+                ),
+                LangVersionOrmV2(
+                    string_id=followup_name_string_id,
+                    lang="French",
+                    text="Formulaire de visite de suivi",
+                ),
+            ]
+        )
+        followup_classification = FormClassificationOrmV2(
+            id="fc-v2-followup",
+            name_string_id=followup_name_string_id,
+        )
+        db.session.add(followup_classification)
+        db.session.flush()
+
+    # Create Template
+    followup_template = FormTemplateOrmV2(
+        id="ft-v2-followup-v1",
+        form_classification_id=followup_classification.id,
+        version=1,
+        archived=False,
+    )
+    db.session.add(followup_template)
+    db.session.flush()
+
+    category_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=category_string_id, lang="English", text="Follow-Up Details"
+            ),
+            LangVersionOrmV2(
+                string_id=category_string_id, lang="French", text="Détails du suivi"
+            ),
+        ]
+    )
+
+    category_question = FormQuestionTemplateOrmV2(
+        id="fq-v2-followup-category",
+        form_template_id=followup_template.id,
+        order=0,
+        question_type=QuestionTypeEnum.CATEGORY,
+        question_string_id=category_string_id,
+        category_index=0,
+    )
+    db.session.add(category_question)
+
+    # Question 1
+    q1_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=q1_string_id,
+                lang="English",
+                text="How is the patient feeling today?",
+            ),
+            LangVersionOrmV2(
+                string_id=q1_string_id,
+                lang="French",
+                text="Comment le patient se sent-il aujourd'hui?",
+            ),
+        ]
+    )
+
+    q1 = FormQuestionTemplateOrmV2(
+        id="fq-v2-followup-feeling",
+        form_template_id=followup_template.id,
+        order=1,
+        question_type=QuestionTypeEnum.STRING,
+        question_string_id=q1_string_id,
+        user_question_id="patient_feeling",
+        required=True,
+        string_max_length=200,
+        category_index=category_question.order,
+    )
+    db.session.add(q1)
+
+    # Question 2
+    q2_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=q2_string_id,
+                lang="English",
+                text="Has the patient developed any new symptoms?",
+            ),
+            LangVersionOrmV2(
+                string_id=q2_string_id,
+                lang="French",
+                text="Le patient a-t-il développé de nouveaux symptômes?",
+            ),
+        ]
+    )
+
+    q2 = FormQuestionTemplateOrmV2(
+        id="fq-v2-followup-new-symptoms",
+        form_template_id=followup_template.id,
+        order=2,
+        question_type=QuestionTypeEnum.STRING,
+        question_string_id=q2_string_id,
+        user_question_id="new_symptoms",
+        required=False,
+        string_max_length=300,
+        category_index=category_question.order,
+    )
+    db.session.add(q2)
+
+    # Question 3 (MC)
+    q3_string_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(
+                string_id=q3_string_id,
+                lang="English",
+                text="Has medication changed since last visit?",
+            ),
+            LangVersionOrmV2(
+                string_id=q3_string_id,
+                lang="French",
+                text="Le traitement a-t-il changé depuis la dernière visite?",
+            ),
+        ]
+    )
+
+    yes_id = get_uuid()
+    no_id = get_uuid()
+    db.session.add_all(
+        [
+            LangVersionOrmV2(string_id=yes_id, lang="English", text="Yes"),
+            LangVersionOrmV2(string_id=yes_id, lang="French", text="Oui"),
+            LangVersionOrmV2(string_id=no_id, lang="English", text="No"),
+            LangVersionOrmV2(string_id=no_id, lang="French", text="Non"),
+        ]
+    )
+
+    q3 = FormQuestionTemplateOrmV2(
+        id="fq-v2-followup-med-change",
+        form_template_id=followup_template.id,
+        order=3,
+        question_type=QuestionTypeEnum.MULTIPLE_CHOICE,
+        question_string_id=q3_string_id,
+        user_question_id="medication_changed",
+        mc_options=json.dumps([yes_id, no_id]),
+        required=True,
+        category_index=category_question.order,
+    )
+    db.session.add(q3)
+
+    db.session.commit()
+    print("Created Follow-Up Visit form template V2.")
+
+
+def create_form_submission_v2(patient_id: str, user_id: int):
+    """Create sample form submissions V2"""
+    submission_id = f"fs-v2-{patient_id}"
+    if crud.read(FormSubmissionOrmV2, id=submission_id) is not None:
+        return
+
+    create_form_template_v2()
+
+    # Get the latest template
+    template = crud.read(
+        FormTemplateOrmV2,
+        form_classification_id="fc-v2-intake",
+        archived=False,
+    )
+
+    if not template:
+        print("No template found for submission")
+        return
+
+    # Create submission
+    submission = FormSubmissionOrmV2(
+        id=submission_id,
+        form_template_id=template.id,
+        patient_id=patient_id,
+        user_id=user_id,
+        lang="English",
+    )
+    db.session.add(submission)
+    db.session.flush()
+
+    # Get questions for this template
+    questions = crud.read_all(FormQuestionTemplateOrmV2, form_template_id=template.id)
+
+    # Create sample answers
+    sample_answers = {
+        "patient_full_name": {"text": "Jane Doe"},
+        "patient_age": {"number": 32},
+        "patient_sex": {"mc_id_array": [1]},  # Female (index 1)
+        "patient_dob": {"date": "1993-05-15"},
+        "systolic_bp": {"number": 118.5},
+        "patient_symptoms": {
+            "mc_id_array": [0, 2],
+            "comment": "Mild symptoms, started yesterday",
+        },
+        "additional_notes": {
+            "text": "Patient is responsive and alert. No immediate concerns."
+        },
+    }
+
+    for question in questions:
+        if question.user_question_id in sample_answers:
+            answer_data = sample_answers[question.user_question_id]
+            answer = FormAnswerOrmV2(
+                id=f"fa-v2-{submission_id}-{question.user_question_id}",
+                question_id=question.id,
+                form_submission_id=submission.id,
+                answer=json.dumps(answer_data),
+            )
+            db.session.add(answer)
+
+    db.session.commit()
+    print(f"Created form submission V2 for patient {patient_id}")
+
+
+def seed_forms_v2():
+    """Seed all V2 form data"""
+    print("\nSeeding Forms V2 (updated)")
+    create_form_classification_v2()
+    create_form_template_v2()
+    create_form_template_v2_version2()
+    create_followup_form_template_v2()
+
+    # Create submissions for test patients if they exist
+    test_patient_ids = ["49300028161", "49300028162", "49300028163"]
+    for patient_id in test_patient_ids:
+        patient = crud.read(PatientOrm, id=patient_id)
+        if patient:
+            create_form_submission_v2(patient_id, 3)  # user_id 3
+
+    print("Finished seeding Forms V2\n")
 
 
 def create_relay_nums():

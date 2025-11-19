@@ -27,7 +27,12 @@ export default function WorkflowConfirmDialog(props: {
         open={confirmDialog.open}
         onClose={() => setConfirmDialog((prev) => ({ ...prev, open: false }))}
         aria-labelledby="confirm-dialog-title"
-        aria-describedby="confirm-dialog-description">
+        aria-describedby="confirm-dialog-description"
+        slotProps={{
+          paper: {
+            sx: { p: 1.5, borderRadius: 3 },
+          },
+        }}>
         <DialogTitle id="confirm-dialog-title">
           {confirmDialog.title}
         </DialogTitle>
