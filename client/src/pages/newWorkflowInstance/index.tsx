@@ -35,7 +35,6 @@ export const NewWorkflowInstancePage: React.FC = () => {
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [startDate, setStartDate] = useState<Date | null>(new Date());
 
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
 
@@ -160,7 +159,7 @@ export const NewWorkflowInstancePage: React.FC = () => {
                   templatesLoading ||
                   !selectedTemplateId
                 }>
-                {createMutation.isPending ? 'Creating…' : 'Create'}
+                {createMutation.isPending ? 'Starting…' : 'Start Wrokflow'}
               </Button>
             </Box>
           </Stack>
