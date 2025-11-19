@@ -79,18 +79,10 @@ class Config:
             },
         },
         "loggers": {
-            # "": {"handlers": ["console", "file"], "level": "DEBUG"},
-            # "flask": {"level": "INFO"},
-            # "sqlalchemy": {"level": "INFO"},
-            # "werkzeug": {"level": "INFO"},
             "": {"handlers": ["console", "file"], "level": "DEBUG"},
             "flask": {"level": "INFO"},
-            "sqlalchemy": {"level": "WARNING"},
-            "werkzeug": {"level": "DEBUG"},
-            "botocore": {"level": "WARNING"},
-            "urllib3": {"level": "WARNING"},
-            "authentication": {"level": "WARNING"},
-            "config": {"level": "WARNING"},
+            "sqlalchemy": {"level": "INFO"},
+            "werkzeug": {"level": "INFO"},
         },
     }
     logging.config.dictConfig(LOGGING)
