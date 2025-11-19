@@ -14,6 +14,8 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Alert,
+  CircularProgress,
 } from '@mui/material';
 
 import { createInstance } from 'src/shared/api/modules/workflowInstance';
@@ -35,7 +37,6 @@ export const NewWorkflowInstancePage: React.FC = () => {
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
 
   const {
@@ -58,19 +59,21 @@ export const NewWorkflowInstancePage: React.FC = () => {
 
       const payload: InstanceInput = {
         workflowTemplateId: selectedTemplateId,
-        patientId: patientId,
-        name: name,
-        description: description,
-        // formResponses: [], // add later?
+        patientId,
+        name,
+        description,
+        // formResponses: [], // add later if needed
       };
 
       return createInstance(payload);
     },
-    onSuccess: (instance) => {
+    onSuccess: (_instance) => {
+      // Refresh instances for this patient
       queryClient.invalidateQueries({
         queryKey: ['workflowInstances', patientId],
       });
 
+      // Redirect back to patient summary with toast
       navigate(`/patients/${patientId}`, {
         state: {
           toast: {
@@ -86,85 +89,134 @@ export const NewWorkflowInstancePage: React.FC = () => {
     createMutation.mutate();
   };
 
+  const isSubmitting = createMutation.isPending;
+  const isStartDisabled =
+    isSubmitting ||
+    templatesLoading ||
+    !selectedTemplateId ||
+    templates.length === 0;
+
   return (
-    <>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '2rem',
-          margin: '0 auto',
-          maxWidth: '1250px',
-        }}>
-        <PatientHeader title="New Workflow" patient={patient} />
+    <Box
+      sx={{
+        mx: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 3,
+      }}>
+      <PatientHeader title="New Workflow" patient={patient} />
 
-        <Paper sx={{ p: 3 }}>
-          <Stack spacing={2}>
-            <FormControl
-              fullWidth
-              disabled={templatesLoading || createMutation.isPending}>
-              <InputLabel id="workflow-template-label">
-                Workflow Template
-              </InputLabel>
-              <Select
-                labelId="workflow-template-label"
-                label="Workflow Template"
-                value={selectedTemplateId}
-                onChange={(e) =>
-                  setSelectedTemplateId(e.target.value as string)
-                }>
-                {templates.map((t) => (
-                  <MenuItem key={t.id} value={t.id}>
-                    {t.name ?? t.id}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            {templatesError && (
-              <Typography color="error">
-                Failed to load workflow templates.
+      <Paper sx={{ p: 3 }}>
+        <Stack spacing={3}>
+          {/* Page header */}
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center">
+            <Box>
+              <Typography variant="h5" gutterBottom>
+                Start a new workflow
               </Typography>
-            )}
-
-            <TextField
-              label="Instance Name (optional)"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              fullWidth
-            />
-
-            <TextField
-              label="Description (optional)"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              multiline
-              minRows={3}
-              fullWidth
-            />
-
-            {createMutation.isError && (
-              <Typography color="error">
-                {(createMutation.error as Error)?.message ||
-                  'Failed to create workflow'}
+              <Typography variant="body2" color="text.secondary">
+                Choose a workflow template and optionally provide a name and
+                description to help identify this instance later.
               </Typography>
-            )}
-
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-              <Button
-                variant="contained"
-                onClick={handleSubmit}
-                disabled={
-                  createMutation.isPending ||
-                  templatesLoading ||
-                  !selectedTemplateId
-                }>
-                {createMutation.isPending ? 'Starting…' : 'Start Wrokflow'}
-              </Button>
             </Box>
-          </Stack>
-        </Paper>
-      </Box>
-    </>
+
+            {templatesLoading && <CircularProgress size={24} />}
+          </Box>
+
+          {/* Templates error / empty states */}
+          {templatesError && (
+            <Alert severity="error">
+              Failed to load workflow templates. Please try again or contact
+              support if the problem persists.
+            </Alert>
+          )}
+
+          {!templatesLoading && !templatesError && templates.length === 0 && (
+            <Alert severity="info">
+              No workflow templates are available. Create a template first
+              before starting a new workflow instance.
+            </Alert>
+          )}
+
+          {/* Template selection */}
+          <FormControl
+            fullWidth
+            required
+            disabled={
+              templatesLoading || isSubmitting || templates.length === 0
+            }>
+            <InputLabel id="workflow-template-label">
+              Workflow Template
+            </InputLabel>
+            <Select
+              labelId="workflow-template-label"
+              label="Workflow Template"
+              value={selectedTemplateId}
+              onChange={(e) => setSelectedTemplateId(e.target.value as string)}>
+              <MenuItem value="">
+                <em>Select a template</em>
+              </MenuItem>
+              {templates.map((t) => (
+                <MenuItem key={t.id} value={t.id}>
+                  {t.name ?? t.id}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          {/* Optional metadata */}
+          <TextField
+            label="Instance Name (optional)"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            fullWidth
+            placeholder="e.g., Follow-up - March 2025"
+          />
+
+          <TextField
+            label="Description (optional)"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            multiline
+            minRows={3}
+            fullWidth
+            placeholder="Add any notes that will help distinguish this workflow instance."
+          />
+
+          {/* Create error */}
+          {createMutation.isError && (
+            <Alert severity="error">
+              {(createMutation.error as Error)?.message ||
+                'Failed to create workflow instance. Please try again.'}
+            </Alert>
+          )}
+
+          {/* Actions */}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: 1.5,
+              mt: 1,
+            }}>
+            <Button
+              variant="text"
+              onClick={() => navigate(-1)}
+              disabled={isSubmitting}>
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              disabled={isStartDisabled}>
+              {isSubmitting ? 'Starting…' : 'Start Workflow'}
+            </Button>
+          </Box>
+        </Stack>
+      </Paper>
+    </Box>
   );
 };
