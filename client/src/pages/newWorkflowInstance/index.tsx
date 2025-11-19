@@ -59,9 +59,9 @@ export const NewWorkflowInstancePage: React.FC = () => {
 
       const payload: InstanceInput = {
         workflowTemplateId: selectedTemplateId,
-        patientId,
-        name,
-        description,
+        patientId: patientId,
+        name: name,
+        description: description,
         // formResponses: [], // add later?
       };
 
@@ -142,27 +142,6 @@ export const NewWorkflowInstancePage: React.FC = () => {
               multiline
               minRows={3}
               fullWidth
-            />
-
-            <TextField
-              label="Start Date (optional)"
-              type="date"
-              value={
-                startDate
-                  ? `${startDate.getFullYear()}-${String(
-                      startDate.getMonth() + 1
-                    ).padStart(2, '0')}-${String(startDate.getDate()).padStart(
-                      2,
-                      '0'
-                    )}`
-                  : ''
-              }
-              onChange={(e) =>
-                setStartDate(
-                  e.target.value ? new Date(e.target.value + 'T00:00:00') : null
-                )
-              }
-              InputLabelProps={{ shrink: true }}
             />
 
             {createMutation.isError && (
