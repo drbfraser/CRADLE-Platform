@@ -122,7 +122,7 @@ def assign_form_template_ids_v2(req: Dict[str, Any]) -> None:
 
     # Questions
     for question in req.get("questions", []):
-        _assign_id(question, "id")
+        question["id"] = commonUtil.get_uuid()
         question["form_template_id"] = template_id
 
         # Question text (string_id)
@@ -654,7 +654,6 @@ def format_template(template: dict, lang: str = "English") -> dict:
         classification["name"] = resolve_string_text(
             classification["name_string_id"], lang
         )
-        classification.pop("name_string_id", None)
 
     if template.get("form_classification_id"):
         template.pop("form_classification_id", None)
@@ -669,7 +668,10 @@ def format_template(template: dict, lang: str = "English") -> dict:
             QuestionTypeEnum.MULTIPLE_SELECT.value,
         ):
             options = _get_mc_list(q)
-            q["mc_options"] = [resolve_string_text(opt, lang) for opt in options]
+            q["mc_options"] = [
+                {"string_id": opt, "translations": resolve_string_text(opt, lang)}
+                for opt in options
+            ]
 
         formatted_questions.append(q)
 
@@ -695,7 +697,6 @@ def format_template_multilang(template: dict, available_langs: list[str]) -> dic
         classification["name"] = {
             lang: resolve_string_text(sid, lang) for lang in available_langs
         }
-        classification.pop("name_string_id", None)
 
     # remove unneeded FK
     formatted.pop("form_classification_id", None)
@@ -706,7 +707,7 @@ def format_template_multilang(template: dict, available_langs: list[str]) -> dic
         q = q.copy()
 
         # question text
-        sid = q.pop("question_string_id", None)
+        sid = q.get("question_string_id", None)
         if sid:
             q["question_text"] = {
                 lang: resolve_string_text(sid, lang) for lang in available_langs
@@ -719,7 +720,12 @@ def format_template_multilang(template: dict, available_langs: list[str]) -> dic
         ):
             mc_list = _get_mc_list(q)
             q["mc_options"] = [
-                {lang: resolve_string_text(opt, lang) for lang in available_langs}
+                {
+                    "string_id": opt,
+                    "translations": {
+                        lang: resolve_string_text(opt, lang) for lang in available_langs
+                    },
+                }
                 for opt in mc_list
             ]
 
