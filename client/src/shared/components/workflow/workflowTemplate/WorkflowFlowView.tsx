@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { Box, Grid, Typography, Paper } from '@mui/material';
+import { Box, Grid, Typography, Paper, Stack, Tooltip, Button } from '@mui/material';
+import UndoIcon from '@mui/icons-material/Undo';
+import RedoIcon from '@mui/icons-material/Redo';
 import { WorkflowTemplateStepWithFormAndIndex } from 'src/shared/types/workflow/workflowApiTypes';
 import { ID } from 'src/shared/constants';
 import { WorkflowFlow } from './WorkflowFlow';
@@ -68,9 +70,44 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
               border: '1px solid #e0e0e0',
               borderRadius: 1,
             }}>
-            <Typography variant="h6" sx={{ mb: 2, px: 2 }}>
+            {/* <Typography variant="h6" sx={{ mb: 2, px: 2 }}>
               Workflow Flow Diagram
-            </Typography>
+            </Typography> */}
+            {isEditMode && (
+              <Stack direction="row" spacing={1}>
+                <Tooltip
+                  title='Undo'
+                  placement="top">
+                  <span>
+                    <Button
+                      onClick={() => {}}
+                      disabled={false}
+                      size="small"
+                      variant="outlined"
+                      color="primary"
+                      startIcon={<UndoIcon />}>
+                      Undo
+                    </Button>
+                  </span>
+                </Tooltip>
+                <Tooltip
+                  title='Redo'
+                  placement="top">
+                  <span>
+                    <Button
+                      onClick={() => {}}
+                      disabled={false}
+                      size="small"
+                      variant="outlined"
+                      color="primary"
+                      startIcon={<RedoIcon />}>
+                      Redo
+                    </Button>
+                  </span>
+                </Tooltip>
+              </Stack>
+            )}
+
             <Box sx={{ height: 'calc(100% - 60px)', overflow: 'hidden' }}>
               <WorkflowFlow
                 steps={steps}
