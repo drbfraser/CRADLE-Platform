@@ -395,18 +395,19 @@ def upload_form_template_file(form: FileUploadForm):
             file_contents = json.loads(file_str)
         except json.JSONDecodeError:
             return abort(415, description="File content is not valid JSON format")
-    elif file.content_type == ContentTypeEnum.CSV.value:
-        try:
-            file_contents = form_utils.getFormTemplateDictFromCSV(file_str)
-        except RuntimeError as err:
-            return abort(400, description=err.args[0])
-        except TypeError as err:
-            return abort(400, description=err.args[0])
-        except Exception:
-            return abort(
-                400,
-                description="Something went wrong while parsing the CSV file.",
-            )
+    # TODO: Update this block with updated getFormTemplateDictFromCSV function to parse CSV correctly, with a unified format
+    # elif file.content_type == ContentTypeEnum.CSV.value:
+    #     try:
+    #         file_contents = form_utils.getFormTemplateDictFromCSV(file_str)
+    #     except RuntimeError as err:
+    #         return abort(400, description=err.args[0])
+    #     except TypeError as err:
+    #         return abort(400, description=err.args[0])
+    #     except Exception:
+    #         return abort(
+    #             400,
+    #             description="Something went wrong while parsing the CSV file.",
+    #         )
     else:
         return abort(422, description="Invalid content-type.")
 
