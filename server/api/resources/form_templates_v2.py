@@ -3,6 +3,7 @@ import json
 from flask import abort, make_response
 from flask_openapi3.blueprint import APIBlueprint
 from flask_openapi3.models.tag import Tag
+from pydantic import ValidationError
 
 import data.db_operations as crud
 from api.decorator import roles_required
@@ -11,12 +12,13 @@ from common.api_utils import (
     FormTemplateIdPath,
 )
 from data import marshal
-from enums import RoleEnum
+from enums import ContentTypeEnum, RoleEnum
 from models import (
     FormClassificationOrmV2,
     FormTemplateOrmV2,
     LangVersionOrmV2,
 )
+from validation.file_upload import FileUploadForm
 from validation.formsV2_models import (
     ArchiveFormTemplateQuery,
     FormTemplateListV2Response,
@@ -370,6 +372,50 @@ def upload_form_template_body(body: FormTemplateUploadRequest):
     """
     try:
         return handle_form_template_upload(body), 201
+
+    except ValueError as err:
+        return abort(409, description=str(err))
+
+
+# /api/forms/v2/templates [POST]
+@api_form_templates_v2.post("", responses={201: FormTemplateV2Response})
+@roles_required([RoleEnum.ADMIN])
+def upload_form_template_file(form: FileUploadForm):
+    """
+    Upload Form Template VIA File
+    Accepts Form Template as a file.
+    Supports `.json` and `.csv` file formats.
+    """
+    file_contents = {}
+    file = form.file
+    file_str = str(file.stream.read(), "utf-8")
+
+    if file.content_type == ContentTypeEnum.JSON.value:
+        try:
+            file_contents = json.loads(file_str)
+        except json.JSONDecodeError:
+            return abort(415, description="File content is not valid JSON format")
+    elif file.content_type == ContentTypeEnum.CSV.value:
+        try:
+            file_contents = form_utils.getFormTemplateDictFromCSV(file_str)
+        except RuntimeError as err:
+            return abort(400, description=err.args[0])
+        except TypeError as err:
+            return abort(400, description=err.args[0])
+        except Exception:
+            return abort(
+                400,
+                description="Something went wrong while parsing the CSV file.",
+            )
+    else:
+        return abort(422, description="Invalid content-type.")
+
+    try:
+        form_template = FormTemplateUploadRequest(**file_contents)
+        return handle_form_template_upload(form_template), 201
+
+    except ValidationError as e:
+        return abort(422, description=e.errors())
 
     except ValueError as err:
         return abort(409, description=str(err))
