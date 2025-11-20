@@ -17,6 +17,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { useEffect, useMemo, useState } from 'react';
+import { useUndoRedo } from 'src/shared/hooks/workflowTemplate/useUndoRedo';
 import { useQuery } from '@tanstack/react-query';
 import {
   WorkflowTemplateStepWithFormAndIndex,
@@ -45,6 +46,30 @@ export const ViewWorkflowTemplate = () => {
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMsg, setToastMsg] = useState<string>('');
   const [selectedStepId, setSelectedStepId] = useState<string | undefined>();
+
+  // Undo redo state
+  const {
+    init: initHistory,
+    captureCurrentState,
+    canUndo,
+    canRedo,
+    undo,
+    redo,
+    clearHistory,
+    historyManager,
+  } = useUndoRedo(
+    editedWorkflow,
+    setEditedWorkflow,
+    selectedStepId,
+    setSelectedStepId
+  );
+
+  // Debug log for undo redo history
+  useEffect(() => {
+    console.log('History Array:', historyManager.history);
+    console.log('Current Index:', historyManager.currentIndex);
+    console.log('Total States:', historyManager.history.length);
+  }, [historyManager]);
 
   // View mode state
   const [viewMode, setViewMode] = useState<WorkflowViewMode>(
@@ -85,8 +110,11 @@ export const ViewWorkflowTemplate = () => {
   // Edit mode functions
   const handleEdit = () => {
     setIsEditMode(true);
-    setEditedWorkflow({ ...workflowTemplateQuery.data });
+    const initialWorkflow = { ...workflowTemplateQuery.data };
+    setEditedWorkflow(initialWorkflow);
     setHasChanges(false);
+    
+    initHistory(initialWorkflow);
   };
 
   // Cancel edit mode
@@ -94,6 +122,8 @@ export const ViewWorkflowTemplate = () => {
     setIsEditMode(false);
     setEditedWorkflow(null);
     setHasChanges(false);
+
+    clearHistory();
   };
 
   // handler for saving changes
@@ -114,6 +144,8 @@ export const ViewWorkflowTemplate = () => {
       await editWorkflowTemplateMutation.mutateAsync({
         template: editedWorkflow,
       });
+
+      clearHistory();
       // Redirect to workflow templates page after successful save
       navigate('/admin/workflow-templates');
     } catch (error: any) {
@@ -220,6 +252,7 @@ export const ViewWorkflowTemplate = () => {
 
     // Auto-select the newly created step
     setSelectedStepId(newStepId);
+    captureCurrentState('insertNode');
   };
 
   const handleAddBranch = (stepId: string) => {
@@ -282,6 +315,8 @@ export const ViewWorkflowTemplate = () => {
 
     // Auto-select the newly created step
     setSelectedStepId(newStepId);
+
+    captureCurrentState('addBranch');
   };
 
   const handleConnectionCreate = (
@@ -326,12 +361,14 @@ export const ViewWorkflowTemplate = () => {
     });
 
     setHasChanges(true);
+
+    captureCurrentState('createConnection');
   };
 
   const handleDeleteNode = (stepId: string) => {
     if (!editedWorkflow) return;
 
-    if (stepId === editedWorkflow.startingStepId){
+    if (stepId === editedWorkflow.startingStepId) {
       setToastMsg('Cannot delete the starting step');
       setToastOpen(true);
       return;
@@ -339,14 +376,14 @@ export const ViewWorkflowTemplate = () => {
 
     const incomingConnections = new Map<string, string[]>();
     editedWorkflow.steps.forEach((step) => {
-      if (step.branches){
+      if (step.branches) {
         step.branches.forEach((branch) => {
           const parents = incomingConnections.get(branch.targetStepId) || [];
           parents.push(step.id);
           incomingConnections.set(branch.targetStepId, parents);
-        })
+        });
       }
-    })
+    });
 
     // DFS to collect all nodes to delete
     const nodesToDelete = new Set<string>();
@@ -358,8 +395,10 @@ export const ViewWorkflowTemplate = () => {
       visited.add(currentStepId);
 
       nodesToDelete.add(currentStepId);
-      
-      const currentStep = editedWorkflow.steps.find((s) => s.id === currentStepId);
+
+      const currentStep = editedWorkflow.steps.find(
+        (s) => s.id === currentStepId
+      );
       if (!currentStep?.branches) return;
 
       currentStep.branches.forEach((branch) => {
@@ -367,15 +406,18 @@ export const ViewWorkflowTemplate = () => {
         const parents = incomingConnections.get(targetStepId) || [];
 
         // DFS continue only if the target has only one parent (the current node)
-        const hasOnlyThisParent = parents.length === 1 && parents[0] === currentStepId;
+        const hasOnlyThisParent =
+          parents.length === 1 && parents[0] === currentStepId;
 
         // Or if all parents marked for deletion
-        const allParentsDeleted = parents.every((parentId) => nodesToDelete.has(parentId) || parentId === currentStepId);
+        const allParentsDeleted = parents.every(
+          (parentId) =>
+            nodesToDelete.has(parentId) || parentId === currentStepId
+        );
 
-        if (hasOnlyThisParent || allParentsDeleted){
+        if (hasOnlyThisParent || allParentsDeleted) {
           dfsToDelete(targetStepId);
         }
-
       });
     };
 
@@ -384,7 +426,7 @@ export const ViewWorkflowTemplate = () => {
     // Remove all nodes to delete from the workflow
     setEditedWorkflow((prev) => {
       if (!prev) return prev;
-  
+
       const updatedSteps = prev.steps
         .filter((step) => !nodesToDelete.has(step.id))
         .map((step) => {
@@ -394,12 +436,13 @@ export const ViewWorkflowTemplate = () => {
             );
             return {
               ...step,
-              branches: cleanedBranches.length > 0 ? cleanedBranches : undefined,
+              branches:
+                cleanedBranches.length > 0 ? cleanedBranches : undefined,
             };
           }
           return step;
         });
-  
+
       return {
         ...prev,
         steps: updatedSteps,
@@ -412,7 +455,9 @@ export const ViewWorkflowTemplate = () => {
     if (nodesToDelete.has(selectedStepId || '')) {
       setSelectedStepId(undefined);
     }
-  }
+
+    captureCurrentState('deleteNode');
+  };
 
   const currentWorkflow = isEditMode
     ? editedWorkflow
@@ -560,6 +605,10 @@ export const ViewWorkflowTemplate = () => {
             onAddBranch={handleAddBranch}
             onConnectionCreate={handleConnectionCreate}
             onDeleteNode={handleDeleteNode}
+            canUndo={canUndo}
+            canRedo={canRedo}
+            onUndo={undo}
+            onRedo={redo}
           />
         ) : (
           <WorkflowSteps

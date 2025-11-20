@@ -19,6 +19,11 @@ interface WorkflowFlowViewProps {
   onAddBranch?: (stepId: string) => void;
   onConnectionCreate?: (sourceStepId: string, targetStepId: string) => void;
   onDeleteNode?: (stepId: string) => void;
+  // props for undo redo
+  canUndo?: boolean;
+  canRedo?: boolean;
+  onUndo?: () => void;
+  onRedo?: () => void;
 }
 
 export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
@@ -33,6 +38,10 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
   onAddBranch,
   onConnectionCreate,
   onDeleteNode,
+  canUndo = false,
+  canRedo = false,
+  onUndo,
+  onRedo,
 }) => {
   const [internalSelectedStepId, setInternalSelectedStepId] = useState<
     string | undefined
@@ -76,12 +85,12 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
             {isEditMode && (
               <Stack direction="row" spacing={1}>
                 <Tooltip
-                  title='Undo'
+                  title='Undo the last action'
                   placement="top">
                   <span>
                     <Button
-                      onClick={() => {}}
-                      disabled={false}
+                      onClick={onUndo}
+                      disabled={!canUndo}
                       size="small"
                       variant="outlined"
                       color="primary"
@@ -91,12 +100,12 @@ export const WorkflowFlowView: React.FC<WorkflowFlowViewProps> = ({
                   </span>
                 </Tooltip>
                 <Tooltip
-                  title='Redo'
+                  title='Redo the last action'
                   placement="top">
                   <span>
                     <Button
-                      onClick={() => {}}
-                      disabled={false}
+                      onClick={onRedo}
+                      disabled={!canRedo}
                       size="small"
                       variant="outlined"
                       color="primary"
