@@ -3,9 +3,14 @@ import { Alert, Typography, Button, Box, Slide } from '@mui/material';
 interface IProps {
   open: boolean;
   handleClose: () => void;
+  handleGoToStep: () => void;
 }
 
-export default function RecommendationBanner({ open, handleClose }: IProps) {
+export default function RecommendationBanner({
+  open,
+  handleClose,
+  handleGoToStep,
+}: IProps) {
   return (
     <Slide in={open} direction="up">
       <Box
@@ -48,6 +53,7 @@ export default function RecommendationBanner({ open, handleClose }: IProps) {
             <Button
               variant="outlined"
               size="small"
+              onClick={handleGoToStep}
               sx={{
                 whiteSpace: 'nowrap',
                 mb: 1,
