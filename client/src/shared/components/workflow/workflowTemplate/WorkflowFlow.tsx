@@ -206,7 +206,7 @@ function createFlowNodes(
   onStepSelect?: (stepId: string) => void,
   onInsertNode?: (stepId: string) => void,
   onAddBranch?: (stepId: string) => void,
-  onDeleteNode?: (stepId: string) => void,
+  onDeleteNode?: (stepId: string) => void
 ): Node[] {
   return steps.map((step) => {
     const position = stepPositions.get(step.id) || { x: 0, y: 0 };
@@ -314,7 +314,7 @@ export const WorkflowFlow: React.FC<WorkflowFlowProps> = ({
       onStepSelect,
       onInsertNode,
       onAddBranch,
-      onDeleteNode,
+      onDeleteNode
     );
     const edges = createFlowEdges(steps);
 
