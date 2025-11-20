@@ -120,6 +120,11 @@ export default function WorkflowInstanceDetailsPage() {
     setOpenRecommendation(false);
   };
 
+  const handleGoToStep = () => {
+    setExpandedStep('test-workflow-instance-1-step2'); // TODO: To be replaced by recommended step ID from backend once implemented
+    handleCloseRecommendation();
+  };
+
   return (
     <>
       {/* Main Workflow Instance Name Heading */}
@@ -266,6 +271,7 @@ export default function WorkflowInstanceDetailsPage() {
       <WorkflowRecommendationBanner
         open={openRecommendation}
         handleClose={handleCloseRecommendation}
+        handleGoToStep={handleGoToStep}
       />
     </>
   );
