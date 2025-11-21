@@ -15,3 +15,8 @@ export enum WorkflowViewMode {
   LIST = 'list',
   FLOW = 'flow',
 }
+
+export enum InstanceStepAction {
+  START = 'start_step',
+  COMPLETE = 'complete_step',
+}

@@ -8,7 +8,10 @@ import {
   InstanceUpdate,
   WorkflowInstanceStep,
   InstanceStepUpdate,
+  WorkflowInstanceAction,
+  ApplyInstanceStepAction,
 } from '../../types/workflow/workflowApiTypes';
+import { AxiosResponse } from 'axios';
 
 //full path
 const INSTANCES = EndpointEnum.WORKFLOW_INSTANCES;
@@ -182,6 +185,28 @@ export const getInstancesByTemplate = async (
 // DELETE /workflow/instances/{instanceId}
 export const deleteInstance = (instanceId: ID) =>
   axiosFetch.delete(instancePath(instanceId));
+
+// GET /workflow/instances/<string:workflow_instance_id>/actions
+export const getInstanceActions = async (
+  instanceId: ID
+): Promise<WorkflowInstanceAction[]> => {
+  const response = await axiosFetch.get<WorkflowInstanceAction[]>(
+    `${INSTANCES}/${instanceId}/actions`
+  );
+  return response.data;
+};
+
+// POST /workflow/instances/<string:workflow_instance_id>/actions
+export const applyInstanceStepAction = async (
+  instanceId: ID,
+  payload: ApplyInstanceStepAction
+): Promise<AxiosResponse<WorkflowInstance>> => {
+  const response = await axiosFetch.post<WorkflowInstance>(
+    `${INSTANCES}/${instanceId}/actions`,
+    payload
+  );
+  return response;
+};
 
 // Instance Step APIs - align with backend workflow_instance_steps.py
 const INSTANCE_STEPS = '/workflow/instance/steps';
