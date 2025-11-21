@@ -5,6 +5,7 @@ from service.workflow.workflow_view import WorkflowView
 from tests import helpers
 from validation.workflow_models import WorkflowInstanceModel, WorkflowTemplateModel
 
+
 @pytest.fixture
 def sequential_workflow_template() -> WorkflowTemplateModel:
     step_template_1_id = "st-1"

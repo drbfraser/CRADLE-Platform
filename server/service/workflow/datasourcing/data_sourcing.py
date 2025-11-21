@@ -1,13 +1,14 @@
+import logging
 from dataclasses import dataclass
 from functools import reduce
 from typing import Any, Callable, Dict, List, Optional, TypeAlias, Union
 
 from pydantic import BaseModel
 
-from validation.patients import PatientModel
-from validation.readings import ReadingModel, UrineTestModel
 from validation.assessments import AssessmentModel
+from validation.patients import PatientModel
 from validation.pregnancies import PregnancyModel
+from validation.readings import ReadingModel, UrineTestModel
 
 ObjectResolver = Callable[[str, str], Any]
 CustomResolver = Callable[[Dict], Any]
@@ -38,12 +39,14 @@ MODEL_REGISTRY: Dict[str, type[BaseModel]] = {
 @dataclass(frozen=True)
 class DatasourceAttribute:
     """Represents an attribute name in a datasource variable (e.g., 'age' in 'patient.age')"""
+
     name: str
 
 
 @dataclass(frozen=True)
 class DatasourceObject:
     """Represents an object name in a datasource variable (e.g., 'patient' in 'patient.age')"""
+
     name: str
 
 
@@ -52,6 +55,7 @@ class DatasourceVariable:
     """
     Represents a complete datasource variable (e.g., 'patient.age').
     """
+
     obj: DatasourceObject
     attr: DatasourceAttribute
 
@@ -85,8 +89,8 @@ class DatasourceVariable:
 
 
 def _group_objects(
-    accumulator: Dict[DatasourceObject, List[DatasourceAttribute]], 
-    variable: DatasourceVariable
+    accumulator: Dict[DatasourceObject, List[DatasourceAttribute]],
+    variable: DatasourceVariable,
 ) -> Dict[DatasourceObject, List[DatasourceAttribute]]:
     """Group variables by object name for batch resolution."""
     obj = variable.obj
@@ -100,9 +104,7 @@ def _group_objects(
 
 
 def _resolve_object(
-    catalogue: Dict[str, ObjectCatalogue], 
-    context: ResolverContext, 
-    object_name: str
+    catalogue: Dict[str, ObjectCatalogue], context: ResolverContext, object_name: str
 ) -> Optional[BaseModel]:
     """
     Resolve an object instance from the catalogue and return as a Pydantic model.
@@ -112,44 +114,55 @@ def _resolve_object(
     :param object_name: Name of object type to resolve (e.g., "patient", "assessment")
     :returns: Pydantic model instance or None if not found
     """
-    import logging
     logger = logging.getLogger(__name__)
-    
+
     if object_name not in catalogue:
-        logger.debug("Object resolution failed: Object '%s' not found in catalogue.", object_name)
+        logger.debug(
+            "Object resolution failed: Object '%s' not found in catalogue.", object_name
+        )
         return None
 
     object_entry = catalogue.get(object_name)
     if not object_entry or "query" not in object_entry:
-        logger.debug("Object resolution failed: No query function for '%s'.", object_name)
+        logger.debug(
+            "Object resolution failed: No query function for '%s'.", object_name
+        )
         return None
 
     object_query = object_entry.get("query")
     if object_query is None:
-        logger.debug("Object resolution failed: Query function is None for '%s'.", object_name)
+        logger.debug(
+            "Object resolution failed: Query function is None for '%s'.", object_name
+        )
         return None
 
     # Try object-specific ID first (e.g., "assessment_id"), fall back to patient_id
     id_value = context.get(f"{object_name}_id") or context.get("patient_id")
 
     if id_value is None:
-        logger.debug("Object resolution failed: No ID found in context for '%s'.", object_name)
+        logger.debug(
+            "Object resolution failed: No ID found in context for '%s'.", object_name
+        )
         return None
 
     try:
         dict_data = object_query(id=id_value)
-        
+
         if dict_data is None:
-            logger.debug("Object resolution failed: Query returned None for '%s' with id '%s'.", object_name, id_value)
+            logger.debug(
+                "Object resolution failed: Query returned None for '%s' with id '%s'.",
+                object_name,
+                id_value,
+            )
             return None
-        
+
         model_class = MODEL_REGISTRY.get(object_name)
         if model_class is None:
             logger.error("No Pydantic model registered for '%s'.", object_name)
             raise ValueError(f"No Pydantic model registered for {object_name}")
-        
+
         return model_class(**dict_data)
-        
+
     except Exception as e:
         logger.error("Error resolving '%s': %s", object_name, e)
         return None
@@ -192,7 +205,7 @@ def resolve_variables(
             else:
                 custom_queries = catalogue.get(obj_name, {}).get("custom", {})
                 custom_query = custom_queries.get(attr.name)
-                
+
                 if custom_query is not None:
                     model_dict = model_instance.model_dump()
                     ca_value = custom_query(model_dict)
