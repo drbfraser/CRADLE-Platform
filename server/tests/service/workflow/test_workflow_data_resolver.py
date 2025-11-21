@@ -1,6 +1,7 @@
 from unittest.mock import Mock, patch
 
 from models import PatientOrm, ReadingOrm
+from service.workflow.datasourcing.data_catalogue import get_catalogue
 from service.workflow.datasourcing.workflow_data_resolver import WorkflowDataResolver
 
 
@@ -106,12 +107,12 @@ class TestIntegrationWithRealCatalogue:
             "id": "patient_456",
             "name": "Senior Patient",
             "sex": "MALE",
-            "date_of_birth": "1950-01-01",  
+            "date_of_birth": "1950-01-01",
             "is_exact_date_of_birth": True,
             "is_pregnant": False,
         }
 
-        resolver = WorkflowDataResolver()
+        resolver = WorkflowDataResolver(get_catalogue())
 
         branches = [
             {
@@ -135,7 +136,7 @@ class TestIntegrationWithRealCatalogue:
         mock_read.return_value = None
         mock_marshal.return_value = None
 
-        resolver = WorkflowDataResolver()
+        resolver = WorkflowDataResolver(get_catalogue())
 
         branches = [
             {"rule": '{">=": [{"var": "patient.age"}, 18]}', "target_step_id": "adult"}
@@ -163,7 +164,7 @@ class TestIntegrationWithMultipleDataSources:
                     "id": "patient_123",
                     "name": "Test Patient",
                     "sex": "FEMALE",
-                    "date_of_birth": "1995-01-01",  
+                    "date_of_birth": "1995-01-01", 
                     "is_exact_date_of_birth": True,
                     "is_pregnant": True,
                 }
@@ -181,7 +182,7 @@ class TestIntegrationWithMultipleDataSources:
         mock_read.side_effect = mock_read_side_effect
         mock_marshal.side_effect = mock_marshal_side_effect
 
-        resolver = WorkflowDataResolver()
+        resolver = WorkflowDataResolver(get_catalogue())
 
         branches = [
             {
@@ -191,7 +192,6 @@ class TestIntegrationWithMultipleDataSources:
         ]
 
         result = resolver.evaluate_workflow_branches("patient_123", branches)
-
         assert mock_read.call_count == 2, (
             f"Expected 2 calls to read, got {mock_read.call_count}"
         )
