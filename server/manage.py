@@ -1607,6 +1607,9 @@ def create_simple_workflow_template(
             "condition": None,
         }
 
+        if step_number != num_steps:
+            branch["target_step_id"] = f"{workflow_template_id}-step-{step_number+1}"
+
         branch_orm = WorkflowTemplateStepBranchOrm(**branch)
         form_template_orm = crud.read(FormTemplateOrm, id=form_template_id)
 
