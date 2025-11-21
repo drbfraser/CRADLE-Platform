@@ -16,6 +16,7 @@ import { formatWorkflowStepStatusText } from '../WorkflowUtils';
 import WorkflowFormModal from './WorkflowFormModal';
 import { CheckCircle } from '@mui/icons-material';
 import { FormRenderStateEnum, SnackbarSeverity } from 'src/shared/enums';
+import { WorkflowInstanceAction } from 'src/shared/types/workflow/workflowApiTypes';
 
 interface IProps {
   workflowInstance: InstanceDetails;
@@ -40,6 +41,8 @@ interface IProps {
   currentStep: InstanceStep | null;
   showSnackbar: (message: string, severity: SnackbarSeverity) => void;
   handleOpenRecommendation: () => void;
+  stepActions: WorkflowInstanceAction[];
+  handleCompleteStep: () => void;
 }
 
 export default function WorkflowStepHistory({
@@ -58,6 +61,8 @@ export default function WorkflowStepHistory({
   currentStep,
   showSnackbar,
   handleOpenRecommendation,
+  stepActions,
+  handleCompleteStep,
 }: IProps) {
   const handleViewForm = (stepId: string) => {
     handleOpenFormModal(FormRenderStateEnum.VIEW);
@@ -94,11 +99,6 @@ export default function WorkflowStepHistory({
 
   const handleCompleteNow = () => {
     handleOpenFormModal(FormRenderStateEnum.FIRST_SUBMIT);
-  };
-
-  const handleCompleteStep = () => {
-    showSnackbar('Step completed!', SnackbarSeverity.SUCCESS);
-    handleOpenRecommendation();
   };
 
   // TODO
@@ -414,17 +414,18 @@ export default function WorkflowStepHistory({
                             justifyContent: 'flex-end',
                             mt: 2,
                           }}>
-                          {step.status != StepStatus.ACTIVE && (
-                            <Button
-                              size="small"
-                              variant="text"
-                              color="primary"
-                              onClick={() =>
-                                handleMakeCurrent(step.id, step.title)
-                              }>
-                              Make this current step
-                            </Button>
-                          )}
+                          {step.status != StepStatus.ACTIVE &&
+                            step.status != StepStatus.COMPLETED && (
+                              <Button
+                                size="small"
+                                variant="text"
+                                color="primary"
+                                onClick={() =>
+                                  handleMakeCurrent(step.id, step.title)
+                                }>
+                                Make this current step
+                              </Button>
+                            )}
                         </Box>
                       </Box>
                     </Collapse>

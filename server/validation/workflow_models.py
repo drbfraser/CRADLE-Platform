@@ -96,7 +96,9 @@ class WorkflowInstanceStepModel(CradleBaseModel, extra="forbid"):
     data: Optional[str] = None
     triggered_by: Optional[str] = None
     form_id: Optional[str] = None
-    form: Optional[FormModel] = None
+    form: Optional[dict] = (
+        None  # TODO: Was initially FormModel, but Pydantic model does not match Form marshal. To be fixed with Forms redesign.
+    )
 
     @field_validator("data", mode="after")
     @classmethod
