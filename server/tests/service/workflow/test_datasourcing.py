@@ -1,5 +1,49 @@
+from unittest.mock import patch
+from pydantic import BaseModel
+from typing import Optional
+
 from service.workflow.datasourcing import data_sourcing
 from service.workflow.datasourcing.data_sourcing import DatasourceVariable
+
+class MockPatientModel(BaseModel):
+    """Mock patient model for testing"""
+    id: Optional[str] = None
+    date_of_birth: Optional[str] = None
+    age: Optional[int] = None
+    name: Optional[str] = None
+    sex: Optional[str] = None
+    base_value: Optional[int] = None
+    custom_attr: Optional[int] = None
+
+
+class MockAssessmentModel(BaseModel):
+    """Mock assessment model for testing"""
+    id: Optional[str] = None
+    score: Optional[int] = None
+    risk_level: Optional[str] = None
+
+
+class MockReadingModel(BaseModel):
+    """Mock reading model for testing"""
+    id: Optional[str] = None
+    systolic: Optional[int] = None
+    diastolic: Optional[int] = None
+
+
+class MockTestModel(BaseModel):
+    """Generic test model"""
+    test: Optional[str] = None
+    test1: Optional[str] = None
+    not_exists: Optional[str] = None
+    custom: Optional[int] = None
+
+
+MOCK_MODEL_REGISTRY = {
+    "patient": MockPatientModel,
+    "assessment": MockAssessmentModel,
+    "reading": MockReadingModel,
+    "test": MockTestModel,
+}
 
 
 def test_datasource_variable_from_string():
@@ -31,7 +75,7 @@ def test_datasource_variable_hashable():
     var_set = {var1, var2, var3}
     assert len(var_set) == 2
 
-
+@patch.object(data_sourcing, 'MODEL_REGISTRY', MOCK_MODEL_REGISTRY)
 def test_resolve_variable():
     def mock_callable(id):
         return {"date_of_birth": "1990-01-01"}
@@ -45,6 +89,7 @@ def test_resolve_variable():
     assert result == "1990-01-01"
 
 
+@patch.object(data_sourcing, 'MODEL_REGISTRY', MOCK_MODEL_REGISTRY)
 def test_resolve_variable_not_found():
     def mock_callable(id):
         return {"test": "not found"}
@@ -58,6 +103,7 @@ def test_resolve_variable_not_found():
     assert result is None
 
 
+@patch.object(data_sourcing, 'MODEL_REGISTRY', MOCK_MODEL_REGISTRY)
 def test_resolve_variable_with_none_object():
     def mock_callable(id):
         return None
@@ -71,6 +117,7 @@ def test_resolve_variable_with_none_object():
     assert result is None
 
 
+@patch.object(data_sourcing, 'MODEL_REGISTRY', MOCK_MODEL_REGISTRY)
 def test_resolve_variable_with_custom_attribute():
     def mock_object_resolution(id):
         return {"base_value": 100}
@@ -92,6 +139,7 @@ def test_resolve_variable_with_custom_attribute():
     assert result == 200
 
 
+@patch.object(data_sourcing, 'MODEL_REGISTRY', MOCK_MODEL_REGISTRY)
 def test_resolve_variable_with_object_specific_id():
     def mock_assessment_query(id):
         if id == "assessment_456":
@@ -106,18 +154,17 @@ def test_resolve_variable_with_object_specific_id():
 
     assert result == 85
 
-
+@patch.object(data_sourcing, 'MODEL_REGISTRY', MOCK_MODEL_REGISTRY)
 def test_resolve_variables():
     def mock_object_resolution(id):
         return {
             "test": "test",
             "test1": "test1",
             "not_exists": None,
-            "test-custom": 123,
         }
 
     def mock_custom_resolution(obj):
-        return obj.get("test-custom") - 123
+        return 0 
 
     context = {"patient_id": "testid123"}
 
@@ -146,6 +193,7 @@ def test_resolve_variables():
     assert resolved == expected
 
 
+@patch.object(data_sourcing, 'MODEL_REGISTRY', MOCK_MODEL_REGISTRY)
 def test_resolve_variables_with_missing_object():
     def mock_object_resolution(id):
         return None
@@ -166,6 +214,7 @@ def test_resolve_variables_with_missing_object():
     assert resolved == expected
 
 
+@patch.object(data_sourcing, 'MODEL_REGISTRY', MOCK_MODEL_REGISTRY)
 def test_resolve_variables_multiple_objects():
     def mock_patient_resolution(id):
         return {"age": 30, "name": "John"}
@@ -196,6 +245,7 @@ def test_resolve_variables_multiple_objects():
     assert resolved == expected
 
 
+@patch.object(data_sourcing, 'MODEL_REGISTRY', MOCK_MODEL_REGISTRY)
 def test_resolve_variables_with_mixed_context():
     def mock_patient_resolution(id):
         if id == "patient_123":
@@ -229,3 +279,62 @@ def test_resolve_variables_with_mixed_context():
     resolved = data_sourcing.resolve_variables(context, variables, catalogue)
 
     assert resolved == expected
+
+
+@patch.object(data_sourcing, 'MODEL_REGISTRY', MOCK_MODEL_REGISTRY)
+def test_resolve_object_returns_pydantic_model():
+    from service.workflow.datasourcing.data_sourcing import _resolve_object
+    
+    def mock_patient_query(id):
+        return {"id": "p123", "name": "John Doe", "age": 30}
+
+    context = {"patient_id": "p123"}
+    catalogue = {"patient": {"query": mock_patient_query, "custom": {}}}
+
+    result = _resolve_object(catalogue, context, "patient")
+
+    assert isinstance(result, BaseModel)
+    assert isinstance(result, MockPatientModel)
+    
+    assert result.id == "p123"
+    assert result.name == "John Doe"
+    assert result.age == 30
+
+
+@patch.object(data_sourcing, 'MODEL_REGISTRY', MOCK_MODEL_REGISTRY)
+def test_pydantic_validation_error_handling():
+    from service.workflow.datasourcing.data_sourcing import _resolve_object
+    
+    def mock_invalid_query(id):
+        return {"id": 123} 
+    
+    context = {"patient_id": "p123"}
+    catalogue = {"patient": {"query": mock_invalid_query, "custom": {}}}
+
+    result = _resolve_object(catalogue, context, "patient")
+    
+    assert result is None
+
+
+@patch.object(data_sourcing, 'MODEL_REGISTRY', MOCK_MODEL_REGISTRY)
+def test_pydantic_type_coercion():
+    from service.workflow.datasourcing.data_sourcing import _resolve_object
+    
+    def mock_query_with_coercible_types(id):
+        return {
+            "id": "p123",  
+            "name": "John Doe",
+            "age": "30" 
+        }
+    
+    context = {"patient_id": "p123"}
+    catalogue = {"patient": {"query": mock_query_with_coercible_types, "custom": {}}}
+
+    result = _resolve_object(catalogue, context, "patient")
+    
+    assert result is not None
+    assert isinstance(result, MockPatientModel)
+    assert result.id == "p123"
+    assert result.name == "John Doe"
+    assert result.age == 30  
+

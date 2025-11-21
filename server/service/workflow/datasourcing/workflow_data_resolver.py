@@ -1,6 +1,11 @@
 from typing import Any, Dict, List, Optional, Set
 
+from service.workflow.datasourcing.data_sourcing import (
+    DatasourceVariable,
+    resolve_variables,
+)
 from service.workflow.evaluate.jsonlogic_parser import extract_variables_from_rule
+from service.workflow.evaluate.rules_engine import evaluate_branches
 
 
 class WorkflowDataResolver:
@@ -21,7 +26,7 @@ class WorkflowDataResolver:
     def catalogue(self):
         """Lazy-load the catalogue only when needed."""
         if self._catalogue is None:
-            from service.workflow.datasourcing.data_catalogue import (  # noqa: PLC0415
+            from service.workflow.datasourcing.data_catalogue import (  # noqa: E402
                 get_catalogue,
             )
 
@@ -61,11 +66,6 @@ class WorkflowDataResolver:
         :param branches: List of branch dicts containing rules
         :returns: Dict mapping variable names to resolved values
         """
-        from service.workflow.datasourcing.data_sourcing import (  # noqa: PLC0415
-            DatasourceVariable,
-            resolve_variables,
-        )
-
         context = {"patient_id": patient_id}
 
         variables_strings = self.extract_variables_from_branches(branches)
@@ -93,10 +93,6 @@ class WorkflowDataResolver:
             - {"status": "NO_MATCH"} if no branches matched
 
         """
-        from service.workflow.evaluate.rules_engine import (  # noqa: PLC0415
-            evaluate_branches,
-        )
-
         resolved_data = self.resolve_data_for_branches(patient_id, branches)
 
         result = evaluate_branches(branches=branches, data=resolved_data)
