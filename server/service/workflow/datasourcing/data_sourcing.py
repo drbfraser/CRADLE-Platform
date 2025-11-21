@@ -4,7 +4,6 @@ from typing import Any, Callable, Dict, List, Optional, TypeAlias, Union
 
 from pydantic import BaseModel
 
-# Import Pydantic models
 from validation.patients import PatientModel
 from validation.readings import ReadingModel, UrineTestModel
 from validation.assessments import AssessmentModel
@@ -15,8 +14,9 @@ CustomResolver = Callable[[Dict], Any]
 
 ObjectCatalogue: TypeAlias = Dict[str, Dict[str, Any]]
 
-# WorkflowContext: Context information for resolving workflow data
-WorkflowContext: TypeAlias = Dict[str, str]
+# ResolverContext: Context information for resolving data
+# Contains ID mappings for data resolution, e.g., {"patient_id": "p123", "assessment_id": "a456"}
+ResolverContext: TypeAlias = Dict[str, str]
 
 DataModel = Union[
     PatientModel,
@@ -85,76 +85,85 @@ class DatasourceVariable:
 
 
 def _group_objects(
-    accumulator: Dict[str, List[DatasourceAttribute]], 
+    accumulator: Dict[DatasourceObject, List[DatasourceAttribute]], 
     variable: DatasourceVariable
-) -> Dict[str, List[DatasourceAttribute]]:
+) -> Dict[DatasourceObject, List[DatasourceAttribute]]:
     """Group variables by object name for batch resolution."""
-    obj_name = variable.obj.name
+    obj = variable.obj
 
-    if obj_name in accumulator:
-        accumulator[obj_name].append(variable.attr)
+    if obj in accumulator:
+        accumulator[obj].append(variable.attr)
     else:
-        accumulator[obj_name] = [variable.attr]
+        accumulator[obj] = [variable.attr]
 
     return accumulator
 
 
 def _resolve_object(
     catalogue: Dict[str, ObjectCatalogue], 
-    context: WorkflowContext, 
+    context: ResolverContext, 
     object_name: str
 ) -> Optional[BaseModel]:
     """
     Resolve an object instance from the catalogue and return as a Pydantic model.
 
     :param catalogue: The data catalogue
-    :param context: Workflow context containing IDs (e.g., {"patient_id": "p123"})
+    :param context: Context containing IDs (e.g., {"patient_id": "p123"})
     :param object_name: Name of object type to resolve (e.g., "patient", "assessment")
     :returns: Pydantic model instance or None if not found
     """
+    import logging
+    logger = logging.getLogger(__name__)
+    
     if object_name not in catalogue:
+        logger.debug("Object resolution failed: Object '%s' not found in catalogue.", object_name)
         return None
 
     object_entry = catalogue.get(object_name)
     if not object_entry or "query" not in object_entry:
+        logger.debug("Object resolution failed: No query function for '%s'.", object_name)
         return None
 
     object_query = object_entry.get("query")
     if object_query is None:
+        logger.debug("Object resolution failed: Query function is None for '%s'.", object_name)
         return None
 
+    # Try object-specific ID first (e.g., "assessment_id"), fall back to patient_id
     id_value = context.get(f"{object_name}_id") or context.get("patient_id")
 
     if id_value is None:
+        logger.debug("Object resolution failed: No ID found in context for '%s'.", object_name)
         return None
 
     try:
         dict_data = object_query(id=id_value)
         
         if dict_data is None:
+            logger.debug("Object resolution failed: Query returned None for '%s' with id '%s'.", object_name, id_value)
             return None
         
         model_class = MODEL_REGISTRY.get(object_name)
         if model_class is None:
+            logger.error("No Pydantic model registered for '%s'.", object_name)
             raise ValueError(f"No Pydantic model registered for {object_name}")
         
         return model_class(**dict_data)
         
     except Exception as e:
-        import sys
-        print(f"Error resolving {object_name}: {e}", file=sys.stderr)
+        logger.error("Error resolving '%s': %s", object_name, e)
         return None
 
 
 def resolve_variables(
-    context: WorkflowContext,
+    context: ResolverContext,
     variables: List[DatasourceVariable],
     catalogue: Dict[str, ObjectCatalogue],
 ) -> Dict[str, Any]:
     """
     Resolve multiple variables into their concrete values.
 
-    :param context: Workflow context containing IDs (e.g., {"patient_id": "p123", "assessment_id": "a456"})
+    :param context: Context containing IDs (e.g., {"patient_id": "p123", "assessment_id": "a456"})
     :param variables: List of DatasourceVariable objects to resolve
     :param catalogue: The data catalogue of supported objects
     :returns: Dict mapping variable names to resolved values
@@ -162,7 +171,8 @@ def resolve_variables(
     object_groups = reduce(_group_objects, variables, {})
     resolved = {}
 
-    for obj_name, attrs in object_groups.items():
+    for obj, attrs in object_groups.items():
+        obj_name = obj.name
         model_instance = _resolve_object(catalogue, context, obj_name)
 
         if model_instance is None:
@@ -194,14 +204,14 @@ def resolve_variables(
 
 
 def resolve_variable(
-    context: WorkflowContext,
+    context: ResolverContext,
     variable: DatasourceVariable,
     catalogue: Dict[str, ObjectCatalogue],
 ) -> Any:
     """
     Resolve a single variable into a concrete value.
 
-    :param context: Workflow context containing IDs
+    :param context: Context containing IDs
     :param variable: DatasourceVariable object to resolve
     :param catalogue: The data catalogue of supported objects
     :returns: Resolved value or None if not found

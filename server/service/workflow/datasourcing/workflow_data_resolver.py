@@ -1,5 +1,6 @@
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Set
 
+from service.workflow.datasourcing.data_catalogue import get_catalogue
 from service.workflow.datasourcing.data_sourcing import (
     DatasourceVariable,
     resolve_variables,
@@ -13,24 +14,16 @@ class WorkflowDataResolver:
     Resolves data needed for workflow branch evaluation.
     """
 
-    def __init__(self, catalogue: Optional[Dict[str, Any]] = None):
+    def __init__(self, catalogue: Dict[str, Any]):
         """
         Initialize the resolver.
 
-        :param catalogue: Optional data catalogue for dependency injection.
-                         If None, will lazy-load the real catalogue when needed.
+        :param catalogue: Data catalogue for dependency injection.
         """
         self._catalogue = catalogue
 
     @property
     def catalogue(self):
-        """Lazy-load the catalogue only when needed."""
-        if self._catalogue is None:
-            from service.workflow.datasourcing.data_catalogue import (  # noqa: E402
-                get_catalogue,
-            )
-
-            self._catalogue = get_catalogue()
         return self._catalogue
 
     def extract_variables_from_branches(
@@ -110,5 +103,5 @@ def evaluate_workflow_step(
     :param branches: List of branch dicts containing rules
     :returns: Evaluation result dict
     """
-    resolver = WorkflowDataResolver()
+    resolver = WorkflowDataResolver(get_catalogue())
     return resolver.evaluate_workflow_branches(patient_id, branches)
