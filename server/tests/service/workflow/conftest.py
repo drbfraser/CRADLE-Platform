@@ -1,22 +1,9 @@
 import pytest
 
-import config
 from service.workflow.workflow_service import WorkflowService
 from service.workflow.workflow_view import WorkflowView
 from tests import helpers
 from validation.workflow_models import WorkflowInstanceModel, WorkflowTemplateModel
-
-
-@pytest.fixture(scope="session")
-def app():
-    return config.app
-
-
-@pytest.fixture
-def app_context(app):
-    with app.app_context():
-        yield app
-
 
 @pytest.fixture
 def sequential_workflow_template() -> WorkflowTemplateModel:
